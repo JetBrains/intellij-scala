@@ -47,11 +47,11 @@ class RunConsoleAction extends AnAction {
     file match {
       case file: ScalaFile => {
         val runManagerEx = RunManagerEx.getInstanceEx(file.getProject)
-        val configurationType = ConfigurationTypeUtil.findConfigurationType(classOf[ScalaScriptConsoleConfigurationType])
+        val configurationType = ConfigurationTypeUtil.findConfigurationType(classOf[ScalaConsoleConfigurationType])
         val settings = runManagerEx.getConfigurationSettings(configurationType)
 
         def execute(setting: RunnerAndConfigurationSettings) {
-          val configuration = setting.getConfiguration.asInstanceOf[ScalaScriptConsoleRunConfiguration]
+          val configuration = setting.getConfiguration.asInstanceOf[ScalaConsoleRunConfiguration]
           runManagerEx.setActiveConfiguration(setting)
           val runExecutor = DefaultRunExecutor.getRunExecutorInstance
           val runner = RunnerRegistry.getInstance().getRunner(runExecutor.getId, configuration)
@@ -66,7 +66,7 @@ class RunConsoleAction extends AnAction {
           }
         }
         for (setting <- settings) {
-          val conf = setting.getConfiguration.asInstanceOf[ScalaScriptConsoleRunConfiguration]
+          val conf = setting.getConfiguration.asInstanceOf[ScalaConsoleRunConfiguration]
           ActionRunner.runInsideReadAction(new ActionRunner.InterruptibleRunnable {
             def run: Unit = {
               execute(setting)
@@ -76,8 +76,8 @@ class RunConsoleAction extends AnAction {
         }
         ActionRunner.runInsideReadAction(new ActionRunner.InterruptibleRunnable {
           def run: Unit = {
-            val factory: ScalaScriptConsoleRunConfigurationFactory =
-              configurationType.getConfigurationFactories.apply(0).asInstanceOf[ScalaScriptConsoleRunConfigurationFactory]
+            val factory: ScalaConsoleRunConfigurationFactory =
+              configurationType.getConfigurationFactories.apply(0).asInstanceOf[ScalaConsoleRunConfigurationFactory]
             val setting = RunManagerEx.getInstanceEx(file.getProject).createConfiguration("Scala Console", factory)
 
             runManagerEx.setTemporaryConfiguration(setting)

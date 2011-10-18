@@ -7,7 +7,7 @@ import com.intellij.facet.FacetManager
 import com.intellij.openapi.module.ModuleUtil
 import com.intellij.psi.{PsiElement, PsiFile}
 import config.ScalaFacet
-import console.ScalaScriptConsoleRunConfigurationFactory
+import console.ScalaConsoleRunConfigurationFactory
 import icons.Icons
 import javax.swing.Icon
 import java.lang.String

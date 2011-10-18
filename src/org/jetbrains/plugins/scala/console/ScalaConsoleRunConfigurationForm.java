@@ -14,7 +14,7 @@ import javax.swing.*;
  * User: Alexander Podkhalyuzin
  * Date: 10.02.2009
  */
-public class ScalaScriptConsoleRunConfigurationForm {
+public class ScalaConsoleRunConfigurationForm {
 
   private RawCommandLineEditor javaOptionsEditor;
   private JPanel myPanel;
@@ -22,12 +22,12 @@ public class ScalaScriptConsoleRunConfigurationForm {
   private TextFieldWithBrowseButton workingDirectoryField;
   private JComboBox moduleComboBox;
   private Project myProject;
-  private ScalaScriptConsoleRunConfiguration myConfiguration;
+  private ScalaConsoleRunConfiguration myConfiguration;
 
   private ConfigurationModuleSelector myModuleSelector;
 
-  public ScalaScriptConsoleRunConfigurationForm(final Project project,
-                                                final ScalaScriptConsoleRunConfiguration configuration) {
+  public ScalaConsoleRunConfigurationForm(final Project project,
+                                          final ScalaConsoleRunConfiguration configuration) {
     myModuleSelector = new ConfigurationModuleSelector(project, moduleComboBox);
     myModuleSelector.reset(configuration);
     moduleComboBox.setEnabled(true);
@@ -55,7 +55,7 @@ public class ScalaScriptConsoleRunConfigurationForm {
     javaOptionsEditor.setText(s);
   }
 
-  public void apply(ScalaScriptConsoleRunConfiguration configuration) {
+  public void apply(ScalaConsoleRunConfiguration configuration) {
     setJavaOptions(configuration.getJavaOptions());
     setConsoleArgs(configuration.getConsoleArgs());
     setWorkingDirectory(configuration.getWorkingDirectory());

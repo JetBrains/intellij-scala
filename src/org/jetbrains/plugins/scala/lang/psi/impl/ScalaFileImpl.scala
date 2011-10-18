@@ -479,6 +479,20 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
       case _ => context
     }
   }
+
+  override def getPrevSibling: PsiElement = {
+    child match {
+      case null => super.getPrevSibling
+      case _ => child.getPrevSibling
+    }
+  }
+
+  override def getNextSibling: PsiElement = {
+    child match {
+      case null => super.getNextSibling
+      case _ => child.getNextSibling
+    }
+  }
 }
 
 object ImplicitlyImported {

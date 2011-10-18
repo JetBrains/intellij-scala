@@ -7,9 +7,7 @@ import com.intellij.execution.configurations._
 import com.intellij.execution.filters.{Filter, TextConsoleBuilderImpl}
 
 import com.intellij.execution.impl.{ConsoleInputListener, ConsoleViewImpl}
-import com.intellij.execution.runners.ExecutionEnvironment
 import com.intellij.execution.ui.ConsoleView
-import com.intellij.execution.{CantRunException, ExecutionException, Executor}
 import com.intellij.ide.util.PropertiesComponent
 import com.intellij.openapi.actionSystem.{CustomShortcutSet, AnActionEvent, AnAction}
 import com.intellij.openapi.fileEditor.{OpenFileDescriptor, FileEditorManager}
@@ -31,17 +29,20 @@ import com.intellij.openapi.module.{ModuleManager, Module}
 import util.ScalaUtils
 import com.intellij.openapi.projectRoots.{JdkUtil, JavaSdkType}
 import java.io._
-import com.intellij.openapi.util.JDOMExternalizer
 import config.ScalaFacet
 import collection.JavaConversions._
 import com.intellij.openapi.roots.{CompilerModuleExtension, OrderRootType, ModuleRootManager}
+import com.intellij.execution.console.ConsoleHistoryController
+import com.intellij.execution.runners.{ProgramRunner, ConsoleExecuteActionHandler, ExecutionEnvironment}
+import com.intellij.openapi.util.{JDOMExternalizable, JDOMExternalizer}
+import com.intellij.execution.{ExecutionResult, CantRunException, ExecutionException, Executor}
 
 /**
  * User: Alexander Podkhalyuzin
  * Date: 10.02.2009
  */
 
-class ScalaScriptConsoleRunConfiguration(val project: Project, val configurationFactory: ConfigurationFactory, val name: String)
+class ScalaConsoleRunConfiguration(val project: Project, val configurationFactory: ConfigurationFactory, val name: String)
         extends ModuleBasedConfiguration[RunConfigurationModule](name, new RunConfigurationModule(project), configurationFactory) {
   val SCALA_HOME = "-Dscala.home="
   val CLASSPATH = "-Denv.classpath=\"%CLASSPATH%\""
@@ -67,7 +68,7 @@ class ScalaScriptConsoleRunConfiguration(val project: Project, val configuration
 
   def setWorkingDirecoty(s: String) {workingDirectory = s}
 
-  def apply(params: ScalaScriptConsoleRunConfigurationForm) {
+  def apply(params: ScalaConsoleRunConfigurationForm) {
     setJavaOptions(params.getJavaOptions)
     setConsoleArgs(params.getConsoleArgs)
     setWorkingDirecoty(params.getWorkingDirectory)
@@ -134,98 +135,10 @@ class ScalaScriptConsoleRunConfiguration(val project: Project, val configuration
     }
 
     val consoleBuilder = new TextConsoleBuilderImpl(project) {
-      val filters = new ArrayBuffer[Filter]
       override def getConsole: ConsoleView = {
-        val consoleView = new ConsoleViewImpl(project, false, ScalaFileType.SCALA_FILE_TYPE)
-        val builder = new StringBuilder()
-        consoleView.addConsoleUserInputListener(new ConsoleInputListener {
-          def textEntered(userText: String) {
-            if (builder.toString != "") builder.append("\n")
-            builder.append(userText)
-          }
-        })
-
-        val saveAction = new AnAction {
-          private val shortcutSet = new CustomShortcutSet(KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.CTRL_DOWN_MASK))
-          setShortcutSet(shortcutSet)
-          registerCustomShortcutSet(shortcutSet, consoleView.getComponent)
-          def actionPerformed(e: AnActionEvent) {
-            val lastFilePath = PropertiesComponent.getInstance(project).getValue("last_opened_file_path")
-            val fileChooser = new JFileChooser(lastFilePath)
-            val fileView = new FileView() {
-              override def getIcon(f: File): Icon = {
-                if (f.isDirectory) return super.getIcon(f)
-                val fileType = FileTypeManager.getInstance.getFileTypeByFileName(f.getName)
-                fileType.getIcon
-              }
-            };
-            fileChooser.setFileView(fileView)
-            fileChooser.setMultiSelectionEnabled(true)
-            fileChooser.setAcceptAllFileFilterUsed(false)
-            fileChooser.setDialogTitle("Choose Scala File or input new Scala File name")
-            val filesFilter = new FileFilter() {
-              def accept(f: File): Boolean = {
-                f.getName.endsWith(".scala") || f.isDirectory
-              }
-
-              def getDescription: String = {
-                "Scala File"
-              }
-            };
-
-            fileChooser.addChoosableFileFilter(filesFilter)
-            fileChooser.setFileFilter(filesFilter)
-            if (fileChooser.showOpenDialog(WindowManager.getInstance.suggestParentWindow(project)) !=
-                    JFileChooser.APPROVE_OPTION) {
-              return
-            }
-            val files = fileChooser.getSelectedFiles
-            if (files == null) return
-
-            val choosedFile: File = if (!files(0).getName.endsWith(".scala")) {
-              new File(files(0).getPath + ".scala")
-            } else files(0)
-            PropertiesComponent.getInstance(project).setValue("last_opened_file_path", choosedFile.getParent)
-            if (!choosedFile.exists) {
-              if (!choosedFile.createNewFile) return
-            }
-            val virtualFile = LocalFileSystem.getInstance.refreshAndFindFileByIoFile(choosedFile)
-            val editor = FileEditorManager.getInstance(project).openTextEditor(new OpenFileDescriptor(project, virtualFile), true)
-            ScalaUtils.runWriteAction(new Runnable() {
-              def run() {
-                editor.getDocument.replaceString(0, editor.getDocument.getTextLength, builder.toString())
-                PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument)
-              }
-            }, project, "Save script")
-          }
-        }
-        saveAction.getTemplatePresentation.setIcon(Icons.SCRIPT_FILE_LOGO)
-        saveAction.getTemplatePresentation.setEnabled(true)
-        saveAction.getTemplatePresentation.setText("Save content to Script")
-
-        consoleView.addCustomConsoleAction(saveAction)
-        for (filter <- filters) {
-          consoleView.addMessageFilter(filter)
-        }
-        /*val consoleView = new ScalaLanguageConsoleView(getProject)
+        val consoleView = new ScalaLanguageConsoleView(getProject)
         consoleView.getConsole.setPrompt("")
-        val saveAction = new AnAction {
-          private val shortcutSet = new CustomShortcutSet(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, InputEvent.CTRL_DOWN_MASK))
-          setShortcutSet(shortcutSet)
-          registerCustomShortcutSet(shortcutSet, consoleView.getComponent)
-          def actionPerformed(e: AnActionEvent): Unit = {
-            val document = consoleView.getConsole.getConsoleEditor.getDocument
-            val text = consoleView.getConsole.addCurrentToHistory(new TextRange(0, document.getTextLength), true)
-            val stream = new OutputStreamWriter(consoleView.getHandler.getProcessInput)
-            stream.write(text + "\n")
-            stream.flush
-          }
-        }*/
         consoleView
-      }
-
-      override def addFilter(filter: Filter) {
-        filters += filter
       }
     }
     state.setConsoleBuilder(consoleBuilder);
@@ -235,11 +148,11 @@ class ScalaScriptConsoleRunConfiguration(val project: Project, val configuration
   def getModule: Module = getConfigurationModule.getModule
 
   def createInstance: ModuleBasedConfiguration[_ <: RunConfigurationModule] =
-    new ScalaScriptConsoleRunConfiguration(getProject, getFactory, getName)
+    new ScalaConsoleRunConfiguration(getProject, getFactory, getName)
 
   def getValidModules: java.util.List[Module] = ScalaFacet.findModulesIn(getProject).toList
 
-  def getConfigurationEditor: SettingsEditor[_ <: RunConfiguration] = new ScalaScriptConsoleRunConfigurationEditor(project, this)
+  def getConfigurationEditor: SettingsEditor[_ <: RunConfiguration] = new ScalaConsoleRunConfigurationEditor(project, this)
 
   override def writeExternal(element: Element) {
     super.writeExternal(element)

@@ -1,23 +1,32 @@
 package org.jetbrains.plugins.scala.console
 
-import com.intellij.execution.console.LanguageConsoleViewImpl
-import org.jetbrains.plugins.scala.ScalaFileType
 import com.intellij.openapi.project.Project
+import com.intellij.execution.runners.{AbstractConsoleRunnerWithHistory, ConsoleExecuteActionHandler}
 import com.intellij.execution.process.ProcessHandler
-
+import java.lang.String
+import com.intellij.execution.console.{ConsoleHistoryController, LanguageConsoleViewImpl}
 /**
  * User: Alexander Podkhalyuzin
  * Date: 14.04.2010
  */
 
-class ScalaLanguageConsoleView(project: Project) extends
-  LanguageConsoleViewImpl(project, "Scala Console", ScalaFileType.SCALA_LANGUAGE) {
-  private var myHandler: ProcessHandler = null
-
-  override def attachToProcess(processHandler: ProcessHandler): Unit = {
-    myHandler = processHandler
+class ScalaLanguageConsoleView(project: Project) extends {
+  val scalaConsole = new ScalaLanguageConsole(project, "Scala Console")
+} with LanguageConsoleViewImpl(project, scalaConsole) {
+  override def attachToProcess(processHandler: ProcessHandler) {
     super.attachToProcess(processHandler)
+    val handler = new ConsoleExecuteActionHandler(processHandler, false) {
+      override def processLine(line: String) {
+        line.split('\n').foreach(line => {
+          if (line != "") {
+            super.processLine(line)
+          }
+          scalaConsole.textSent(line + "\n")
+        })
+      }
+    }
+    new ConsoleHistoryController("scala", null, scalaConsole, handler.getConsoleHistoryModel).install()
+    val action = AbstractConsoleRunnerWithHistory.createConsoleExecAction(scalaConsole, processHandler, handler)
+    action.registerCustomShortcutSet(action.getShortcutSet, scalaConsole.getComponent)
   }
-
-  def getHandler = myHandler
 }

@@ -30,15 +30,15 @@ trait ScDeclarationSequenceHolder extends ScalaPsiElement {
           }
           case _ => if (!processElement(run, processor, state)) return false
         }
-        run = ScalaPsiUtil.getPrevStubOrPsiElement(run)
+        run = run.getPrevSibling
       }
 
       //forward references are allowed (e.g. 2 local methods see each other)
-      run = ScalaPsiUtil.getNextStubOrPsiElement(lastParent)
+      run = lastParent.getNextSibling
       while (run != null) {
         ProgressManager.checkCanceled()
         if (!processElement(run, processor, state)) return false
-        run = ScalaPsiUtil.getNextStubOrPsiElement(run)
+        run = run.getNextSibling
       }
     }
     true

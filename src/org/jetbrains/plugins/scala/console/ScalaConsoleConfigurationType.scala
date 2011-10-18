@@ -11,8 +11,8 @@ import javax.swing.Icon
  * Date: 10.02.2009
  */
 
-class ScalaScriptConsoleConfigurationType extends ConfigurationType {
-  val confFactory = new ScalaScriptConsoleRunConfigurationFactory(this)
+class ScalaConsoleConfigurationType extends ConfigurationType {
+  val confFactory = new ScalaConsoleRunConfigurationFactory(this)
 
   def getIcon: Icon = Icons.SCALA_CONSOLE
 
