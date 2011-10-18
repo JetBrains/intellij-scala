@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.debugger.evaluation
 
 import com.intellij.debugger.SourcePosition
-import evaluator.{ScalaMethodEvaluator, ScalaThisEvaluator, ScalaFieldEvaluator, ScalaLocalVariableEvaluator}
+import evaluator._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
@@ -12,15 +12,15 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameterCl
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScVariable, ScValue}
 import reflect.NameTransformer
 import util.PsiTreeUtil
-import org.jetbrains.plugins.scala.lang.psi.api.{ScalaRecursiveElementVisitor, ScalaElementVisitor}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
 import collection.mutable.{HashSet, ArrayBuffer}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScEarlyDefinitions
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import com.intellij.debugger.engine.JVMNameUtil
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScEarlyDefinitions}
+import org.jetbrains.plugins.scala.lang.psi.api.{ScPackage, ScalaRecursiveElementVisitor, ScalaElementVisitor}
 
 /**
  * User: Alefas
@@ -103,7 +103,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
           }
         }
       })
-      buf.toSeq.sortBy(_.getTextRange.getStartOffset)
+      buf.toSeq.filter(isLocalV(_)).sortBy(e => (e.isInstanceOf[ScObject], e.getTextRange.getStartOffset))
     }
 
     private def paramCount(fun: ScFunction, context: PsiElement, elem: PsiElement): Int = {
@@ -155,10 +155,14 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
       }
     }
 
+    private def stableObjectEvaluator(qual: String): ScalaFieldEvaluator = {
+      val jvm = JVMNameUtil.getJVMRawText(qual)
+      new ScalaFieldEvaluator(new TypeEvaluator(jvm), ref => ref.name() == qual, "MODULE$")
+    }
+
     private def stableObjectEvaluator(obj: ScObject): Evaluator = {
       val qual = obj.getQualifiedNameForDebugger.split('.').map(NameTransformer.decode(_)).mkString(".") + "$"
-      val jvm = JVMNameUtil.getJVMRawText(qual)
-      new ScalaFieldEvaluator(new TypeEvaluator(jvm), ref => ref.name() == qual,  "MODULE$")
+      stableObjectEvaluator(qual)
     }
 
     private def thisEvaluator(elem: PsiElement): Evaluator = {
@@ -299,7 +303,14 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
               position.getElementAt).asInstanceOf[ScReferenceExpression]
             val builder = new Builder(position)
             builder.visitReferenceExpression(ref)
-            builder.myResult
+            var res = builder.myResult
+            if (arg.isInstanceOf[ScObject]) {
+              val qual = "scala.runtime.VolatileObjectRef"
+              val typeEvaluator = new TypeEvaluator(JVMNameUtil.getJVMRawText(qual))
+              res = new ScalaNewClassInstanceEvaluator(typeEvaluator,
+                JVMNameUtil.getJVMRawText("(Ljava/lang/Object;)V"), Array(res))
+            }
+            res
           })
           val methodEvaluator = new ScalaMethodEvaluator(
             evaluator, name, null /* todo? */, evaluators, true
@@ -394,7 +405,11 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
         qualifier match {
           case Some(qual) =>
             if (method.hasModifierProperty("static")) {
-              //todo:
+              val eval = 
+                new TypeEvaluator(JVMNameUtil.getContextClassJVMQualifiedName(SourcePosition.createFromElement(method)))
+              val name = method.getName
+              myResult = new ScalaMethodEvaluator(eval, name, null /* todo? */, Seq.empty, false)
+              return
             } else {
               ref.bind() match {
                 case Some(r: ScalaResolveResult) =>
@@ -412,9 +427,120 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
               }
             }
           case None =>
-            //todo:
+            ref.bind() match {
+              case Some(r: ScalaResolveResult) =>
+                if (!r.importsUsed.isEmpty) {
+                  //todo:
+                  throw EvaluateExceptionUtil.createEvaluateException("Evaluation of imported functions is not supported")
+                } else {
+                  val evaluator = thisEvaluator(method)
+                  val name = method.getName
+                  myResult = new ScalaMethodEvaluator(evaluator, name, null /* todo? */, Seq.empty, false)
+                  return
+                }
+              case _ => //resolve not null => shouldn't be
+            }
         }
         throw EvaluateExceptionUtil.createEvaluateException("Cannot evaluate method")
+      } else if (resolve.isInstanceOf[ScClassParameter] || resolve.isInstanceOf[ScBindingPattern]) {
+        //this is scala "field"
+        val named = resolve.asInstanceOf[ScNamedElement]
+        qualifier match {
+          case Some(qual) =>
+            ref.bind() match {
+              case Some(r: ScalaResolveResult) =>
+                r.implicitFunction match {
+                  case Some(fun) =>
+                    //todo:
+                    throw EvaluateExceptionUtil.createEvaluateException("Implicit function conversions is not supported")
+                  case _ =>
+                    qual.accept(this)
+                    val name = NameTransformer.decode(named.name)
+                    myResult = new ScalaMethodEvaluator(myResult, name, null /* todo */, Seq.empty, false)
+                    return
+                }
+              case None =>
+            }
+          case None =>
+            ref.bind() match {
+              case Some(r: ScalaResolveResult) =>
+                if (!r.importsUsed.isEmpty) {
+                  //todo:
+                  throw EvaluateExceptionUtil.createEvaluateException("Evaluation of imported fields is not supported")
+                } else {
+                  val evaluator = thisEvaluator(named)
+                  val name = NameTransformer.decode(named.getName)
+                  myResult = new ScalaMethodEvaluator(evaluator, name, null/* todo */, Seq.empty, false)
+                  return
+                }
+              case None =>
+            }
+        }
+
+        throw EvaluateExceptionUtil.createEvaluateException("Cannot evaluate value")
+      } else if (resolve.isInstanceOf[PsiField]) {
+        val field = resolve.asInstanceOf[PsiField]
+        qualifier match {
+          case Some(qual) =>
+            if (field.hasModifierProperty("static")) {
+              val eval =
+                new TypeEvaluator(JVMNameUtil.getContextClassJVMQualifiedName(SourcePosition.createFromElement(field)))
+              val name = field.getName
+              myResult = new ScalaFieldEvaluator(eval, ref => true,name)
+              return
+            } else {
+              ref.bind() match {
+                case Some(r: ScalaResolveResult) =>
+                  r.implicitFunction match {
+                    case Some(fun) =>
+                      //todo:
+                      throw EvaluateExceptionUtil.createEvaluateException("Implicit function conversions is not supported")
+                    case _ =>
+                      qual.accept(this)
+                      val name = field.getName
+                      myResult = new ScalaFieldEvaluator(myResult,
+                        ScalaFieldEvaluator.getFilter(getContainingClass(field)), name)
+                      return
+                  }
+                case _ => //resolve not null => shouldn't be
+              }
+            }
+          case None =>
+            ref.bind() match {
+              case Some(r: ScalaResolveResult) =>
+                if (!r.importsUsed.isEmpty) {
+                  //todo:
+                  throw EvaluateExceptionUtil.createEvaluateException("Evaluation of imported fileds is not supported")
+                } else {
+                  val evaluator = thisEvaluator(field)
+                  val name = field.getName
+                  myResult = new ScalaFieldEvaluator(evaluator,
+                    ScalaFieldEvaluator.getFilter(getContainingClass(field)), name)
+                  return
+                }
+              case _ => //resolve not null => shouldn't be
+            }
+        }
+      } else if (resolve.isInstanceOf[ScPackage]) {
+        val pack = resolve.asInstanceOf[ScPackage]
+        //let's try to find package object:
+        val qual = (pack.getQualifiedName + ".package$").split('.').map(NameTransformer.decode(_)).mkString(".")
+        myResult = stableObjectEvaluator(qual)
+      } else {
+        //unresolved symbol => try to resolve it dynamically
+        val name = NameTransformer.decode(ref.refName)
+        qualifier match {
+          case Some(qual) =>
+            qual.accept(this)
+            if (myResult == null) {
+              throw EvaluateExceptionUtil.createEvaluateException("Cannot evaluate unresolved reference expression")
+            }
+            myResult = new ScalaFieldEvaluator(myResult, ref => true, name) //todo: look for method?
+            return
+          case None =>
+            myResult = new ScalaLocalVariableEvaluator(name, false) //todo: look for method?
+            return
+        }
       }
     }
 

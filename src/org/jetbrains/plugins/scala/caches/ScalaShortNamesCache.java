@@ -34,6 +34,10 @@ public class ScalaShortNamesCache extends PsiShortNamesCache {
 
   Project myProject;
 
+  public static ScalaShortNamesCache getInstanct(Project project) {
+    return ScalaCachesManager.getInstance(project).getNamesCache();
+  }
+
   public ScalaShortNamesCache(Project project) {
     myProject = project;
   }
