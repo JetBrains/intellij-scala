@@ -13,14 +13,14 @@ import config.ScalaFacet
  * Date: 10.02.2009
  */
 
-class ScalaScriptConsoleRunConfigurationFactory(val typez: ConfigurationType) extends ConfigurationFactory(typez) {
+class ScalaConsoleRunConfigurationFactory(val typez: ConfigurationType) extends ConfigurationFactory(typez) {
   def createTemplateConfiguration(project: Project): RunConfiguration = {
-    val configuration = new ScalaScriptConsoleRunConfiguration(project, this, "")
+    val configuration = new ScalaConsoleRunConfiguration(project, this, "")
     return configuration
   }
 
   override def createConfiguration(name: String, template: RunConfiguration): RunConfiguration = {
-    val configuration = (super.createConfiguration(name, template)).asInstanceOf[ScalaScriptConsoleRunConfiguration]
+    val configuration = (super.createConfiguration(name, template)).asInstanceOf[ScalaConsoleRunConfiguration]
     ScalaFacet.findModulesIn(template.getProject).headOption.foreach {
       configuration.setModule _
     }

@@ -41,6 +41,7 @@ import api.base.patterns._
 import parser.parsing.params.{TypeParamClause, ImplicitParamClause}
 import java.lang.ClassCastException
 import com.intellij.util.IncorrectOperationException
+import com.intellij.openapi.project.Project
 
 object ScalaPsiElementFactory {
 
@@ -52,6 +53,12 @@ object ScalaPsiElementFactory {
     val text = "package " + clazz.asInstanceOf[ScTypeDefinition].getPath + "\n" +
             "class " +
   } */
+
+  def createScalaFileFromText(text: String, project: Project): ScalaFile = {
+    PsiFileFactory.getInstance(project).
+      createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension,
+      ScalaFileType.SCALA_FILE_TYPE, text).asInstanceOf[ScalaFile]
+  }
 
   def createWildcardNode(manager : PsiManager): ASTNode = {
     val text = "import a._"
