@@ -10,10 +10,11 @@ import api.expr._
 import com.intellij.lang.ASTNode
 import api.toplevel.typedef.{ScTemplateDefinition, ScTypeDefinition}
 import api.base.ScConstructor
-import com.intellij.psi.PsiElement
 import api.toplevel.templates.ScTemplateBody
 import types._
 import result.{TypeResult, TypingContext, Failure, Success}
+import api.ScalaElementVisitor
+import com.intellij.psi.{PsiElementVisitor, PsiElement}
 
 /**
  * @author Alexander Podkhalyuzin
@@ -57,6 +58,17 @@ class ScThisReferenceImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with 
     case None => {
       val encl = PsiTreeUtil.getContextOfType(this, false, classOf[ScTemplateBody])
       if (encl != null) Some(PsiTreeUtil.getContextOfType(encl, false, classOf[ScTemplateDefinition])) else None
+    }
+  }
+
+  override def accept(visitor: ScalaElementVisitor) {
+    visitor.visitThisReference(this)
+  }
+
+  override def accept(visitor: PsiElementVisitor) {
+    visitor match {
+      case visitor: ScalaElementVisitor => visitor.visitThisReference(this)
+      case _ => super.accept(visitor)
     }
   }
 }

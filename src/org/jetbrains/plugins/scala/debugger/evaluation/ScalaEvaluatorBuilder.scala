@@ -146,6 +146,44 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
       visitReferenceNoParameters(qualifier, resolve, ref)
     }
 
+    override def visitThisReference(t: ScThisReference) {
+      def defaults() {
+        var contextClass = getContextClass
+        var iterations = 0
+        while (contextClass != null && !contextClass.isInstanceOf[PsiClass]) {
+          contextClass = getContextClass(contextClass)
+          iterations += 1
+        }
+        if (contextClass == null) myResult = new ScalaThisEvaluator()
+        else myResult = new ScalaThisEvaluator(iterations)
+      }
+      t.reference match {
+        case Some(ref) if ref.resolve() != null && ref.resolve().isInstanceOf[PsiClass] =>
+          val clazz = ref.resolve().asInstanceOf[PsiClass]
+          var contextClass = getContextClass
+          var iterations = 0
+          while (contextClass != null && contextClass != clazz) {
+            contextClass = getContextClass(contextClass)
+            iterations += 1
+          }
+          if (contextClass == null) myResult = new ScalaThisEvaluator()
+          else myResult = new ScalaThisEvaluator(iterations)
+        case Some(ref) =>
+          val refName = ref.refName
+          var contextClass = getContextClass
+          var iterations = 0
+          while (contextClass != null && (!contextClass.isInstanceOf[PsiClass] ||
+            contextClass.asInstanceOf[PsiClass].getName == null ||
+            contextClass.asInstanceOf[PsiClass].getName == refName)) {
+            contextClass = getContextClass(contextClass)
+            iterations += 1
+          }
+          if (contextClass == null) defaults()
+          else myResult = new ScalaThisEvaluator(iterations)
+        case _ => defaults()
+      }
+    }
+
     private def isStable(o: ScObject): Boolean = {
       val context = ScalaPsiUtil.getContextOfType(o, true, classOf[PsiClass])
       if (context == null) return true
