@@ -120,7 +120,7 @@ class ScalaScriptRunConfiguration(val project: Project, val configurationFactory
             facet.files.foreach(params.getClassPath.add(_))
         }
         val array = getConsoleArgs.trim.split("\\s+").filter(!_.trim().isEmpty)
-        params.getProgramParametersList.addAll(array: _*)
+        params.getProgramParametersList.addAll(array)
         params.getProgramParametersList.add(scriptPath)
         params.getProgramParametersList.addParametersString(scriptArgs)
         params
