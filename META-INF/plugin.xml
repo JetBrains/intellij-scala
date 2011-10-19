@@ -169,7 +169,7 @@
     <sourceRootFinder implementation="org.jetbrains.plugins.scala.config.ScalaSourceRootFinder"/>
 
     <configurationType implementation="org.jetbrains.plugins.scala.script.ScalaScriptConfigurationType"/>
-    <configurationType implementation="org.jetbrains.plugins.scala.console.ScalaScriptConsoleConfigurationType"/>
+    <configurationType implementation="org.jetbrains.plugins.scala.console.ScalaConsoleConfigurationType"/>
     <configurationType implementation="org.jetbrains.plugins.scala.testingSupport.scalaTest.ScalaTestConfigurationType"/>
     <configurationType implementation="org.jetbrains.plugins.scala.testingSupport.specs.SpecsConfigurationType"/>
     <configurationType implementation="org.jetbrains.plugins.scala.testingSupport.specs2.Specs2ConfigurationType"/>
