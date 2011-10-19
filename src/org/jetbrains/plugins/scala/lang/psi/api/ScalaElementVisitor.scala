@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.api
 
 import base.types.ScSimpleTypeElement
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
+import base.{ScLiteral, ScReferenceElement}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import com.intellij.psi.{PsiFile, PsiElementVisitor}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -48,6 +48,7 @@ class ScalaElementVisitor extends PsiElementVisitor {
   def visitReferenceExpression(ref: ScReferenceExpression) { visitReference(ref); visitExpression(ref) }
   def visitPostfixExpression(p: ScPostfixExpr) { visitExpression(p) }
   def visitIfStatement(stmt: ScIfStmt) { visitExpression(stmt) }
+  def visitLiteral(l: ScLiteral) {visitExpression(l)}
   def visitAssignmentStatement(stmt: ScAssignStmt) { visitExpression(stmt) }
   def visitMethodCallExpression(call: ScMethodCall) { visitExpression(call) }
   def visitWhileStatement(ws: ScWhileStmt) { visitExpression(ws) }

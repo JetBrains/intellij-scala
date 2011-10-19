@@ -24,7 +24,6 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticCla
 import com.intellij.debugger.engine.{ContextUtil, DebuggerUtils, SuspendContextImpl, DebugProcessImpl}
 import com.intellij.debugger.impl._
 import com.intellij.debugger.jdi.StackFrameProxyImpl
-import com.sun.jdi.ObjectReference
 import junit.framework.Assert
 import org.jetbrains.plugins.scala.debugger.evaluation.ScalaCodeFragmentFactory
 import com.intellij.psi.PsiCodeFragment
@@ -32,6 +31,7 @@ import com.intellij.debugger.engine.evaluation._
 import com.intellij.debugger.{DebuggerBundle, DebuggerManagerEx}
 import com.intellij.psi.search.GlobalSearchScope
 import expression.{EvaluatorBuilder, EvaluatorBuilderImpl}
+import com.sun.jdi.{VoidValue, ObjectReference}
 
 /**
  * User: Alefas
@@ -173,7 +173,11 @@ abstract class ScalaDebuggerTestCase extends ScalaCompilerTestCase {
       val evaluatorBuilder: EvaluatorBuilder = factory.getEvaluatorBuilder
       val evaluator = evaluatorBuilder.build(codeFragment, ContextUtil.getSourcePosition(ctx))
 
-      val res = DebuggerUtils.getValueAsString(ctx, evaluator.evaluate(ctx))
+      val value = evaluator.evaluate(ctx)
+      val res = value match {
+        case v: VoidValue => "undefined"
+        case _ => DebuggerUtils.getValueAsString(ctx, value)
+      }
       semaphore.up()
       res
     }
