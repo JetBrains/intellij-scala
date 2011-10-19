@@ -19,6 +19,7 @@ import com.intellij.psi._
 import org.jetbrains.annotations.NotNull
 import org.jetbrains.plugins.scala.extensions._
 import com.intellij.openapi.extensions.Extensions
+import api.ScalaElementVisitor
 
 /**
 * @author Alexander Podkhalyuzin
@@ -163,5 +164,16 @@ class ScLiteralImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScLite
 
   @NotNull override def getReferences: Array[PsiReference] = {
     PsiReferenceService.getService.getContributedReferences(this)
+  }
+
+  override def accept(visitor: ScalaElementVisitor) {
+    visitor.visitLiteral(this)
+  }
+
+  override def accept(visitor: PsiElementVisitor) {
+    visitor match {
+      case visitor: ScalaElementVisitor => visitor.visitLiteral(this)
+      case _ => super.accept(visitor)
+    }
   }
 }

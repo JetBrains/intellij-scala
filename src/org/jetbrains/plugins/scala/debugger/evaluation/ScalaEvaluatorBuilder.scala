@@ -11,8 +11,7 @@ import expression._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameterClause, ScParameter, ScClassParameter}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScVariable, ScValue}
 import reflect.NameTransformer
-import util.PsiTreeUtil
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
+import com.intellij.psi.util.PsiTreeUtil
 import collection.mutable.{HashSet, ArrayBuffer}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
@@ -21,6 +20,8 @@ import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScEarlyDefinitions}
 import org.jetbrains.plugins.scala.lang.psi.api.{ScPackage, ScalaRecursiveElementVisitor, ScalaElementVisitor}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScLiteral, ScReferenceElement}
+import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 
 /**
  * User: Alefas
@@ -144,6 +145,38 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
       val qualifier: Option[ScExpression] = ref.qualifier
       val resolve: PsiElement = ref.resolve()
       visitReferenceNoParameters(qualifier, resolve, ref)
+    }
+
+    override def visitIfStatement(stmt: ScIfStmt) {
+      val condEvaluator = stmt.condition match {
+        case Some(cond) =>
+          cond.accept(this)
+          myResult
+        case None =>
+          throw EvaluateExceptionUtil.createEvaluateException("Cannot evaluate if statement without condition")
+      }
+      val ifBranch = stmt.thenBranch match {
+        case Some(th) =>
+          th.accept(this)
+          myResult
+        case None =>
+          throw EvaluateExceptionUtil.createEvaluateException("Cannot evaluate if statment withou if branch")
+      }
+      val elseBranch = stmt.elseBranch.map(e => {
+        e.accept(this)
+        myResult
+      })
+      myResult = new ScalaIfEvaluator(condEvaluator, ifBranch, elseBranch)
+    }
+
+    override def visitLiteral(l: ScLiteral) {
+      val tp = l.getType(TypingContext.empty).getOrAny
+      val value = l.getValue
+      import org.jetbrains.plugins.scala.lang.psi.types.Null
+      if (value == null && tp != Null) {
+        throw EvaluateExceptionUtil.createEvaluateException("Literal has null value")
+      }
+      myResult = new ScalaLiteralEvaluator(value, tp)
     }
 
     override def visitThisReference(t: ScThisReference) {

@@ -21,7 +21,7 @@ import api.ScalaElementVisitor
 */
 
 class ScIfStmtImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScIfStmt {
-  override def accept(visitor: PsiElementVisitor): Unit = {
+  override def accept(visitor: PsiElementVisitor) {
     visitor match {
       case visitor: ScalaElementVisitor => super.accept(visitor)
       case _ => super.accept(visitor)
