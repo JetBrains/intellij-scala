@@ -156,10 +156,16 @@ object ScalaPsiUtil {
       e.getTypeWithoutImplicits(TypingContext.empty).map(_.isInstanceOf[ValType]).getOrElse(false)
     var implicitMap: Seq[(ScType, PsiNamedElement, scala.collection.Set[ImportUsed])] = Seq.empty
     def checkImplicits(secondPart: Boolean, noApplicability: Boolean) {
+      lazy val args = processor match {
+        case m: MethodResolveProcessor => m.argumentClauses.flatMap(_.map(
+          _.getTypeAfterImplicitConversion(false, m.isShapeResolve, None)._1.getOrAny
+        ))
+        case _ => Seq.empty
+      }
       val mp =
-        if (noApplicability) e.implicitMap()
+        if (noApplicability) e.implicitMap(args = args)
         else if (!secondPart) e.implicitMapFirstPart()
-        else e.implicitMapSecondPart()
+        else e.implicitMapSecondPart(args = args)
       implicitMap = mp.filter({
         case (t: ScType, fun: PsiNamedElement, importsUsed: collection.Set[ImportUsed]) => {
           ProgressManager.checkCanceled()

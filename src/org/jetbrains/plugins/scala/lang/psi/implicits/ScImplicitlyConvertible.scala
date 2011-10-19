@@ -66,8 +66,9 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
   }
 
   def implicitMap(exp: Option[ScType] = None,
-                  fromUnder: Boolean = false): Seq[(ScType, PsiNamedElement, Set[ImportUsed])] = {
-    implicitMapFirstPart(exp, fromUnder) ++ implicitMapSecondPart(exp, fromUnder)
+                  fromUnder: Boolean = false,
+                  args: Seq[ScType] = Seq.empty): Seq[(ScType, PsiNamedElement, Set[ImportUsed])] = {
+    implicitMapFirstPart(exp, fromUnder) ++ implicitMapSecondPart(exp, fromUnder, args = args)
   }
 
   def implicitMapFirstPart(exp: Option[ScType] = None,
@@ -85,22 +86,25 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
   }
 
   def implicitMapSecondPart(exp: Option[ScType] = None,
-                  fromUnder: Boolean = false): Seq[(ScType, PsiNamedElement, Set[ImportUsed])] = {
+                            fromUnder: Boolean = false,
+                            args: Seq[ScType] = Seq.empty): Seq[(ScType, PsiNamedElement, Set[ImportUsed])] = {
     exp match {
-      case Some(expected) => return buildImplicitMap(exp, fromUnder, part = (false, true))
+      case Some(expected) => return buildImplicitMap(exp, fromUnder, part = (false, true), args = args)
       case None =>
     }
-    if (fromUnder) return buildImplicitMap(exp, fromUnder, part = (false, true))
+    if (fromUnder) return buildImplicitMap(exp, fromUnder, part = (false, true), args = args)
     import org.jetbrains.plugins.scala.caches.CachesUtil._
+    //todo: make more careful args caching
     get(this, CachesUtil.IMPLICIT_MAP2_KEY,
       new MyProvider[ScImplicitlyConvertible, Seq[(ScType, PsiNamedElement, Set[ImportUsed])]](this, _ => {
-        buildImplicitMap(part = (false, true))
+        buildImplicitMap(part = (false, true), args = args)
       })(PsiModificationTracker.MODIFICATION_COUNT))
   }
 
   private def buildImplicitMap(exp: Option[ScType] = expectedType,
                                fromUnder: Boolean = false,
-                               part: (Boolean, Boolean)): Seq[(ScType, PsiNamedElement, Set[ImportUsed])] = {
+                               part: (Boolean, Boolean),
+                               args: Seq[ScType] = Seq.empty): Seq[(ScType, PsiNamedElement, Set[ImportUsed])] = {
     val typez: ScType =
       if (!fromUnder) getTypeWithoutImplicits(TypingContext.empty).getOrElse(return Seq.empty)
       else getTypeWithoutImplicitsWithoutUnderscore(TypingContext.empty).getOrElse(return Seq.empty)
@@ -113,7 +117,9 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
     if (part._2) {
       val processor = new CollectImplicitsProcessor
       val expandedType: ScType = exp match {
-        case Some(expected) => new ScFunctionType(expected, Seq(typez))(getProject, getResolveScope)
+        case Some(expected) =>
+          new ScFunctionType(expected, Seq(typez) ++ args)(getProject, getResolveScope)
+        case None if !args.isEmpty => ScTupleType(Seq(typez) ++ args)(getProject, getResolveScope)
         case None => typez
       }
       for (obj <- ScalaPsiUtil.collectImplicitObjects(expandedType, this)) {
