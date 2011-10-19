@@ -114,7 +114,13 @@ class ScalaScriptRunConfiguration(val project: Project, val configurationFactory
         params.getProgramParametersList.add("-nocompdaemon") //todo: seems to be a bug in scala compiler. Ticket #1498
         params.getProgramParametersList.add("-classpath")
         params.configureByModule(module, JavaParameters.JDK_AND_CLASSES_AND_TESTS)
-        params.getProgramParametersList.addAll(getConsoleArgs.trim.split("""\s+"""))
+        params.getProgramParametersList.add(params.getClassPath.getPathsString)
+        ScalaFacet.findIn(module).foreach {
+          case facet =>
+            facet.files.foreach(params.getClassPath.add(_))
+        }
+        val array = getConsoleArgs.trim.split("\\s+").filter(!_.trim().isEmpty)
+        params.getProgramParametersList.addAll(array: _*)
         params.getProgramParametersList.add(scriptPath)
         params.getProgramParametersList.addParametersString(scriptArgs)
         params
