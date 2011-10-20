@@ -20,4 +20,6 @@ class JavaToScalaConversionStatementsTest extends JavaToScalaConversionTestBase 
   def testIfStatement = doTest
 
   def testOnlyIf = doTest
+
+  def testPolyadic = doTest
 }

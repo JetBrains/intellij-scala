@@ -17,6 +17,7 @@ import com.intellij.openapi.startup.StartupManager;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.psi.PsiFile;
 import com.intellij.testFramework.LightPlatformCodeInsightTestCase;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticClasses;
@@ -101,6 +102,10 @@ public abstract class ScalaLightPlatformCodeInsightTestCaseAdapter extends Light
 
   protected Module getModuleAdapter() {
     return getModule();
+  }
+
+  protected PsiFile getFileAdapter() {
+    return getFile();
   }
 
   protected void configureFromFileTextAdapter(@NonNls final String fileName,
