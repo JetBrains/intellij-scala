@@ -14,14 +14,16 @@ import reflect.NameTransformer
 import com.intellij.psi.util.PsiTreeUtil
 import collection.mutable.{HashSet, ArrayBuffer}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
-import com.intellij.debugger.engine.JVMNameUtil
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScEarlyDefinitions}
 import org.jetbrains.plugins.scala.lang.psi.api.{ScPackage, ScalaRecursiveElementVisitor, ScalaElementVisitor}
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScLiteral, ScReferenceElement}
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScStableCodeReferenceElement, ScLiteral, ScReferenceElement}
+import com.intellij.debugger.engine.{JVMName, JVMNameUtil}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTrait, ScObject}
+import util.DebuggerUtil
+import org.jetbrains.plugins.scala.lang.psi.types.{ScThisType, ScType}
 
 /**
  * User: Alefas
@@ -179,7 +181,8 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
       myResult = new ScalaLiteralEvaluator(value, tp)
     }
 
-    override def visitThisReference(t: ScThisReference) {
+    private def evalThis(ref: Option[ScStableCodeReferenceElement], evaluator: Int => ScalaThisEvaluator,
+                         stableEvaluator: Evaluator => Evaluator) {
       def defaults() {
         var contextClass = getContextClass
         var iterations = 0
@@ -187,20 +190,26 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
           contextClass = getContextClass(contextClass)
           iterations += 1
         }
-        if (contextClass == null) myResult = new ScalaThisEvaluator()
-        else myResult = new ScalaThisEvaluator(iterations)
+        if (contextClass == null) myResult = evaluator(0)
+        else myResult = evaluator(iterations)
       }
-      t.reference match {
+      ref match {
         case Some(ref) if ref.resolve() != null && ref.resolve().isInstanceOf[PsiClass] =>
           val clazz = ref.resolve().asInstanceOf[PsiClass]
+          clazz match {
+            case o: ScObject if isStable(o) =>
+              myResult = stableEvaluator(stableObjectEvaluator(o))
+              return
+            case _ =>
+          }
           var contextClass = getContextClass
           var iterations = 0
           while (contextClass != null && contextClass != clazz) {
             contextClass = getContextClass(contextClass)
             iterations += 1
           }
-          if (contextClass == null) myResult = new ScalaThisEvaluator()
-          else myResult = new ScalaThisEvaluator(iterations)
+          if (contextClass == null) myResult = evaluator(0)
+          else myResult = evaluator(iterations)
         case Some(ref) =>
           val refName = ref.refName
           var contextClass = getContextClass
@@ -211,10 +220,23 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
             contextClass = getContextClass(contextClass)
             iterations += 1
           }
-          if (contextClass == null) defaults()
-          else myResult = new ScalaThisEvaluator(iterations)
+          contextClass match {
+            case o: ScObject if isStable(o) =>
+              myResult = stableEvaluator(stableObjectEvaluator(o))
+              return
+            case null => defaults()
+            case _ => myResult = evaluator(iterations)
+          }
         case _ => defaults()
       }
+    }
+
+    override def visitThisReference(t: ScThisReference) {
+      evalThis(t.reference, new ScalaThisEvaluator(_), e => e)
+    }
+
+    override def visitSuperReference(t: ScSuperReference) {
+      evalThis(t.reference, new ScalaSuperEvaluator(_), e => new ScalaSuperDelegate(e))
     }
 
     private def isStable(o: ScObject): Boolean = {
@@ -236,9 +258,17 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
       stableObjectEvaluator(qual)
     }
 
-    private def thisEvaluator(elem: PsiElement): Evaluator = {
+    private def thisEvaluator(resolveResult: ScalaResolveResult): Evaluator = {
       //this reference
-      val containingClass = getContextClass(elem)
+      val elem = resolveResult.element
+      val containingClass = resolveResult.fromType match {
+        case Some(ScThisType(clazz)) => clazz
+        case Some(tp) => ScType.extractClass(tp, Some(elem.getProject)) match {
+          case Some(x) => x
+          case None => getContainingClass(elem)
+        }
+        case _ => getContainingClass(elem)
+      }
       containingClass match {
         case o: ScObject if isStable(o) =>
           return stableObjectEvaluator(o)
@@ -250,7 +280,19 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
         iterationCount += 1
         outerClass = getContextClass(outerClass)
       }
-      new ScalaThisEvaluator(iterationCount)
+
+      if (outerClass != null)
+        new ScalaThisEvaluator(iterationCount)
+      else new ScalaThisEvaluator()
+    }
+
+    private def traitImplementation(elem: PsiElement): Option[JVMName] = {
+      val clazz = getContextClass(elem)
+      clazz match {
+        case t: ScTrait =>
+          Some(DebuggerUtil.getClassJVMName(t, true))
+        case _ => None
+      }
     }
 
     private def visitReferenceNoParameters(qualifier: Option[ScExpression],
@@ -384,7 +426,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
             res
           })
           val methodEvaluator = new ScalaMethodEvaluator(
-            evaluator, name, null /* todo? */, evaluators, true
+            evaluator, name, null /* todo? */, evaluators, true, None
           )
           myResult = methodEvaluator
           return
@@ -411,7 +453,8 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
                   case _ =>
                     qual.accept(this)
                     val name = NameTransformer.decode(obj.getName)
-                    myResult = new ScalaMethodEvaluator(myResult, name, null /* todo? */, Seq.empty, false)
+                    myResult = new ScalaMethodEvaluator(myResult, name, null /* todo? */, Seq.empty, false,
+                      traitImplementation(resolve))
                     return
                 }
               case _ => //resolve not null => shouldn't be
@@ -423,9 +466,10 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
                   //todo:
                   throw EvaluateExceptionUtil.createEvaluateException("Evaluation of imported objects is not supported")
                 } else {
-                  val evaluator = thisEvaluator(obj)
+                  val evaluator = thisEvaluator(r)
                   val name = NameTransformer.decode(obj.getName)
-                  myResult = new ScalaMethodEvaluator(evaluator, name, null /* todo? */, Seq.empty, false)
+                  myResult = new ScalaMethodEvaluator(evaluator, name, null /* todo? */, Seq.empty, false,
+                    traitImplementation(resolve))
                   return
                 }
               case _ => //resolve not null => shouldn't be
@@ -450,7 +494,8 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
                   case _ =>
                     qual.accept(this)
                     val name = NameTransformer.decode(fun.name)
-                    myResult = new ScalaMethodEvaluator(myResult, name, null /* todo? */, Seq.empty, false)
+                    myResult = new ScalaMethodEvaluator(myResult, name, null /* todo? */, Seq.empty, false,
+                      traitImplementation(resolve))
                     return
                 }
               case _ => //resolve not null => shouldn't be
@@ -462,9 +507,10 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
                   //todo:
                   throw EvaluateExceptionUtil.createEvaluateException("Evaluation of imported functions is not supported")
                 } else {
-                  val evaluator = thisEvaluator(fun)
+                  val evaluator = thisEvaluator(r)
                   val name = NameTransformer.decode(fun.getName)
-                  myResult = new ScalaMethodEvaluator(evaluator, name, null /* todo? */, Seq.empty, false)
+                  myResult = new ScalaMethodEvaluator(evaluator, name, null /* todo? */, Seq.empty, false,
+                    traitImplementation(resolve))
                   return
                 }
               case _ => //resolve not null => shouldn't be
@@ -479,7 +525,8 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
               val eval = 
                 new TypeEvaluator(JVMNameUtil.getContextClassJVMQualifiedName(SourcePosition.createFromElement(method)))
               val name = method.getName
-              myResult = new ScalaMethodEvaluator(eval, name, null /* todo? */, Seq.empty, false)
+              myResult = new ScalaMethodEvaluator(eval, name, null /* todo? */, Seq.empty, false,
+                traitImplementation(resolve))
               return
             } else {
               ref.bind() match {
@@ -491,7 +538,8 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
                     case _ =>
                       qual.accept(this)
                       val name = method.getName
-                      myResult = new ScalaMethodEvaluator(myResult, name, null /* todo? */, Seq.empty, false)
+                      myResult = new ScalaMethodEvaluator(myResult, name, null /* todo? */, Seq.empty, false,
+                        traitImplementation(resolve))
                       return
                   }
                 case _ => //resolve not null => shouldn't be
@@ -504,9 +552,10 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
                   //todo:
                   throw EvaluateExceptionUtil.createEvaluateException("Evaluation of imported functions is not supported")
                 } else {
-                  val evaluator = thisEvaluator(method)
+                  val evaluator = thisEvaluator(r)
                   val name = method.getName
-                  myResult = new ScalaMethodEvaluator(evaluator, name, null /* todo? */, Seq.empty, false)
+                  myResult = new ScalaMethodEvaluator(evaluator, name, null /* todo? */, Seq.empty, false,
+                    traitImplementation(resolve))
                   return
                 }
               case _ => //resolve not null => shouldn't be
@@ -527,7 +576,8 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
                   case _ =>
                     qual.accept(this)
                     val name = NameTransformer.decode(named.name)
-                    myResult = new ScalaMethodEvaluator(myResult, name, null /* todo */, Seq.empty, false)
+                    myResult = new ScalaMethodEvaluator(myResult, name, null /* todo */, Seq.empty, false,
+                      traitImplementation(resolve))
                     return
                 }
               case None =>
@@ -539,9 +589,10 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
                   //todo:
                   throw EvaluateExceptionUtil.createEvaluateException("Evaluation of imported fields is not supported")
                 } else {
-                  val evaluator = thisEvaluator(named)
+                  val evaluator = thisEvaluator(r)
                   val name = NameTransformer.decode(named.getName)
-                  myResult = new ScalaMethodEvaluator(evaluator, name, null/* todo */, Seq.empty, false)
+                  myResult = new ScalaMethodEvaluator(evaluator, name, null/* todo */, Seq.empty, false,
+                    traitImplementation(resolve))
                   return
                 }
               case None =>
@@ -583,7 +634,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
                   //todo:
                   throw EvaluateExceptionUtil.createEvaluateException("Evaluation of imported fileds is not supported")
                 } else {
-                  val evaluator = thisEvaluator(field)
+                  val evaluator = thisEvaluator(r)
                   val name = field.getName
                   myResult = new ScalaFieldEvaluator(evaluator,
                     ScalaFieldEvaluator.getFilter(getContainingClass(field)), name)

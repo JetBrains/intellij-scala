@@ -2,8 +2,9 @@ package org.jetbrains.plugins.scala.debugger.evaluation.evaluator
 
 import com.intellij.debugger.engine.evaluation.expression.{Modifier, Evaluator}
 import com.intellij.debugger.DebuggerBundle
-import com.sun.jdi.{Field, ObjectReference, Value}
 import com.intellij.debugger.engine.evaluation.{EvaluationContextImpl, EvaluateExceptionUtil}
+import com.sun.jdi.{AbsentInformationException, Field, ObjectReference, Value}
+import com.intellij.debugger.jdi.{StackFrameProxyImpl, LocalVariableProxyImpl}
 
 /**
  * User: Alefas
@@ -31,7 +32,23 @@ class ScalaThisEvaluator(iterations: Int = 0) extends Evaluator {
   def getModifier: Modifier = null
 
   def evaluate(context: EvaluationContextImpl): AnyRef = {
-    var objRef: Value = context.getThisObject
+    lazy val frameProxy: StackFrameProxyImpl = context.getFrameProxy
+    var objRef: Value = context.getThisObject match {
+      case null => //so we possibly in trait $class
+        try {
+          val variable: LocalVariableProxyImpl = frameProxy.visibleVariableByName("$this")
+          if (variable == null) null
+          else {
+            frameProxy.getValue(variable)
+          }
+        } catch {
+          case e: AbsentInformationException =>
+            val args = frameProxy.getArgumentValues
+            if (args.size() > 0) args.get(0)
+            else null
+        }
+      case x => x
+    }
     if (iterations > 0) {
       var thisRef: ObjectReference = objRef.asInstanceOf[ObjectReference]
       var idx: Int = 0
