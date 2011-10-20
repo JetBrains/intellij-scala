@@ -16,6 +16,7 @@ import stubs.ScModifiersStub
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.api.base._
+import collection.mutable.ArrayBuffer
 
 /**
 * @author Alexander Podkhalyuzin
@@ -102,9 +103,21 @@ class ScModifierListImpl extends ScalaStubBasedElementImpl[ScModifierList] with 
     def addBefore(node: ASTNode) {
       val first = getFirstChild
       if (first == null) {
+        val buf = new ArrayBuffer[ASTNode]()
+        var nextSibling = getNextSibling
+        while (ScalaTokenTypes.WHITES_SPACES_AND_COMMENTS_TOKEN_SET.contains(nextSibling.getNode.getElementType)) {
+          buf += nextSibling.getNode
+          nextSibling = nextSibling.getNextSibling
+        }
+        
+        val parent = getParent
+        for (node <- buf) {
+          parent.getNode.removeChild(node)
+          parent.getNode.addChild(node, getNode)
+        }
         val space = ScalaPsiElementFactory.createNewLineNode(getManager, " ")
         getNode.addChild(node)
-        getNode.addChild(space)
+        parent.getNode.addChild(space, nextSibling.getNode)
         return
       }
       val space = ScalaPsiElementFactory.createNewLineNode(getManager, " ")
