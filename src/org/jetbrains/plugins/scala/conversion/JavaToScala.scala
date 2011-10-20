@@ -625,6 +625,17 @@ object JavaToScala {
         }
       }
       case comment: PsiComment => res.append(comment.getText)
+      case p: PsiPolyadicExpression =>
+        var flag = false
+        p.getOperands.foreach(operand => {
+          if (flag) {
+            res.append(" ").append(p.getTokenBeforeOperand(operand).getText).append(" ")
+            res.append(convertPsiToText(operand))
+          } else {
+            res.append(convertPsiToText(operand))
+            flag = true
+          }
+        })
       case e: PsiEmptyStatement =>
       case e => {
         throw new UnsupportedOperationException("PsiElement: " +  e + " is not supported for this" +
