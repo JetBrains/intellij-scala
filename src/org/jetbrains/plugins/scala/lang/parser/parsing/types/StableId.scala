@@ -36,7 +36,10 @@ object StableId extends ParserNode {
           return true
         } else if (builder.getTokenType == tDOT && !lookAhead(builder, tDOT, kTYPE)) {
           val nm = marker.precede
-          marker.done(element)
+          if (lookAhead(builder, tDOT, kTHIS) || lookAhead (builder, tDOT, kSUPER))
+            marker.done(REFERENCE)
+          else 
+            marker.done(element)
           builder.advanceLexer()
           builder.getTokenType match {
             case ScalaTokenTypes.tIDENTIFIER => return parseQualId(builder, nm, element, forImport)
