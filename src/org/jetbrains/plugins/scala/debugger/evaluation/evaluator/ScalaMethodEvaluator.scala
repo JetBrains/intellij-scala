@@ -7,21 +7,24 @@ import com.intellij.debugger.engine.evaluation.{EvaluationContextImpl, EvaluateE
 import com.intellij.debugger.engine.evaluation.expression.{DisableGC, Modifier, Evaluator}
 import collection.mutable.ArrayBuffer
 import com.sun.jdi._
+import java.util.List
+import java.lang.String
 
 /**
  * User: Alefas
  * Date: 12.10.11
  */
 class ScalaMethodEvaluator(objectEvaluator: Evaluator, methodName: String, signature: JVMName,
-                           argumentEvaluators: Seq[Evaluator], localMethod: Boolean) extends Evaluator {
+                           argumentEvaluators: Seq[Evaluator], localMethod: Boolean,
+                           traitImplementation: Option[JVMName]) extends Evaluator {
   def getModifier: Modifier = null
 
   def evaluate(context: EvaluationContextImpl): AnyRef = {
     if (!context.getDebugProcess.isAttached) return null
     val debugProcess: DebugProcessImpl = context.getDebugProcess
-    val requiresSuperObject: Boolean = objectEvaluator.isInstanceOf[ScalaSuperEvaluator] ||
+    val requiresSuperObject: Boolean = objectEvaluator.isInstanceOf[ScSuperEvaluator] ||
       (objectEvaluator.isInstanceOf[DisableGC] &&
-        (objectEvaluator.asInstanceOf[DisableGC]).getDelegate.isInstanceOf[ScalaSuperEvaluator])
+        (objectEvaluator.asInstanceOf[DisableGC]).getDelegate.isInstanceOf[ScSuperEvaluator])
     val obj : AnyRef = objectEvaluator.evaluate(context)
     if (obj == null) {
       throw EvaluateExceptionUtil.createEvaluateException(new NullPointerException)
@@ -101,7 +104,18 @@ class ScalaMethodEvaluator(objectEvaluator: Evaluator, methodName: String, signa
       val objRef: ObjectReference = obj.asInstanceOf[ObjectReference]
       var _refType: ReferenceType = referenceType
       if (requiresSuperObject && referenceType.isInstanceOf[ClassType]) {
-        _refType = (referenceType.asInstanceOf[ClassType]).superclass
+        traitImplementation match {
+          case Some(tr) =>
+            val className: String = tr.getName(context.getDebugProcess)
+            if (className != null) {
+              context.getDebugProcess.findClass(context, className, context.getClassLoader) match {
+                case c: ClassType => _refType = c
+                case _ => _refType = (referenceType.asInstanceOf[ClassType]).superclass
+              }
+            } else _refType = (referenceType.asInstanceOf[ClassType]).superclass
+          case _ =>
+            _refType = (referenceType.asInstanceOf[ClassType]).superclass
+        }
       }
       val jdiMethod: Method = findMethod(_refType)
       if (jdiMethod == null) {
@@ -109,6 +123,18 @@ class ScalaMethodEvaluator(objectEvaluator: Evaluator, methodName: String, signa
       }
       import scala.collection.JavaConversions._
       if (requiresSuperObject) {
+        traitImplementation match {
+          case Some(tr) =>
+            val className: String = tr.getName(context.getDebugProcess)
+            if (className != null) {
+              context.getDebugProcess.findClass(context, className, context.getClassLoader) match {
+                case c: ClassType =>
+                  return debugProcess.invokeMethod(context, c, jdiMethod, obj +: args)
+                case _ =>
+              }
+            }
+          case None =>
+        }
         return debugProcess.invokeInstanceMethod(context, objRef, jdiMethod, args, ObjectReference.INVOKE_NONVIRTUAL)
       }
       debugProcess.invokeMethod(context, objRef, jdiMethod, args)

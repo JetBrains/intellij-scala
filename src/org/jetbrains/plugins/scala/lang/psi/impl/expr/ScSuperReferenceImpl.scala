@@ -14,10 +14,11 @@ import lexer.ScalaTokenTypes
 import psi.ScalaPsiElementImpl
 import com.intellij.util.IncorrectOperationException
 import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.psi.{PsiElement, PsiReference, PsiClass}
 import com.intellij.openapi.util.TextRange
 import com.intellij.lang.ASTNode
 import types.result.{TypingContext, Failure}
+import api.ScalaElementVisitor
+import com.intellij.psi.{PsiElementVisitor, PsiElement, PsiReference, PsiClass}
 
 /**
 * @author Alexander Podkhalyuzin
@@ -27,7 +28,7 @@ import types.result.{TypingContext, Failure}
 class ScSuperReferenceImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScSuperReference {
   override def toString = "SuperReference"
 
-  def drvTemplate: Option[ScTemplateDefinition] = qualifier match {
+  def drvTemplate: Option[ScTemplateDefinition] = reference match {
     case Some(q) => q.bind match {
       case Some(ScalaResolveResult(td : ScTypeDefinition, _)) => Some(td)
       case _ => None
@@ -111,7 +112,7 @@ class ScSuperReferenceImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with
     }
   }
 
-  private def superTypes: Option[Seq[ScType]] = qualifier match {
+  private def superTypes: Option[Seq[ScType]] = reference match {
     case Some(q) => q.resolve match {
       case clazz : PsiClass => Some(clazz.getSuperTypes.map {t => ScType.create(t, getProject, getResolveScope)})
       case _ => None
@@ -125,4 +126,15 @@ class ScSuperReferenceImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with
   }
 
   protected override def innerType(ctx: TypingContext) = Failure("Cannot infer type of `super' expression", Some(this))
+
+  override def accept(visitor: ScalaElementVisitor) {
+    visitor.visitSuperReference(this)
+  }
+
+  override def accept(visitor: PsiElementVisitor) {
+    visitor match {
+      case visitor: ScalaElementVisitor => visitor.visitSuperReference(this)
+      case _ => super.accept(visitor)
+    }
+  }
 }
