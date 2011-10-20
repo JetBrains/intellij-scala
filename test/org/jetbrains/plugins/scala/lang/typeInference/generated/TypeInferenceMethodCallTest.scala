@@ -63,6 +63,8 @@ class TypeInferenceMethodCallTest extends TypeInferenceTestBase {
 
   def testStaticCall() {doTest()}
 
+  def testSuperCall() {doTest()}
+
   def testThisTypeCompound() {doTest()}
 
   def testThisTypeSimple() {doTest()}
