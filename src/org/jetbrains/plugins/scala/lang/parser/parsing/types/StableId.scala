@@ -38,7 +38,7 @@ object StableId extends ParserNode {
           val nm = marker.precede
           if (lookAhead(builder, tDOT, kTHIS) || lookAhead (builder, tDOT, kSUPER))
             marker.done(REFERENCE)
-          else 
+          else
             marker.done(element)
           builder.advanceLexer()
           builder.getTokenType match {

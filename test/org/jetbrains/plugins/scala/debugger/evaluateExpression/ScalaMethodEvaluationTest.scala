@@ -87,6 +87,24 @@ class ScalaMethodEvaluationTest extends ScalaDebuggerTestCase {
     }
   }
 
+  def testSubstringFunction() {
+    myFixture.addFileToProject("Sample.scala",
+      """
+      |object Sample {
+      |  def main(args: Array[String]) {
+      |    "stop here"
+      |  }
+      |}
+      """.stripMargin.trim()
+    )
+    addBreakpoint("Sample.scala", 2)
+    runDebugger("Sample") {
+      waitForBreakpoint()
+      evalStartsWith("\"test\".substring(0, 2)", "te")
+      evalStartsWith("\"test\".substring(2)", "st")
+    }
+  }
+
   def testNonStaticFunction() {
     myFixture.addFileToProject("Sample.scala",
       """

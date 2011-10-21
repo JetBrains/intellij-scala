@@ -268,7 +268,7 @@ class ScalaThisAndSuperEvaluationTest extends ScalaDebuggerTestCase {
     addBreakpoint("Sample.scala", 11)
     runDebugger("Sample") {
       waitForBreakpoint()
-      evalEquals("E.super.ioi", "1")
+      evalEquals("E.super.ioi", "2")
     }
   }
 
