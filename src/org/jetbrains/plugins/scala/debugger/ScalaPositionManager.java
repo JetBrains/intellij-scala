@@ -286,42 +286,6 @@ public class ScalaPositionManager implements PositionManager {
     return result;
   }
 
-  //todo: this is possibly redundant method. (Copy paste from Java/Groovy)
-  @Deprecated
-  @Nullable
-  private ReferenceType findNested(ReferenceType fromClass, final ScalaPsiElement toFind, SourcePosition classPosition) {
-    final VirtualMachineProxy vmProxy = myDebugProcess.getVirtualMachineProxy();
-    if (fromClass.isPrepared()) {
-
-      final List<ReferenceType> nestedTypes = vmProxy.nestedTypes(fromClass);
-
-      for (ReferenceType nested : nestedTypes) {
-        final ReferenceType found = findNested(nested, toFind, classPosition);
-        if (found != null) {
-          return found;
-        }
-      }
-
-      try {
-        final int lineNumber = classPosition.getLine() + 1;
-        if (fromClass.locationsOfLine(lineNumber).size() > 0) {
-          return fromClass;
-        }
-        //noinspection LoopStatementThatDoesntLoop
-        for (Location location : fromClass.allLineLocations()) {
-          final SourcePosition candidateFirstPosition = SourcePosition.createFromLine(toFind.getContainingFile(), location.lineNumber() - 1);
-          if (toFind.equals(findReferenceTypeSourceImage(candidateFirstPosition))) {
-            return fromClass;
-          }
-          break; // check only the first location
-        }
-      }
-      catch (AbsentInformationException ignored) {
-      }
-    }
-    return null;
-  }
-
   private static class MyClassPrepareRequestor implements ClassPrepareRequestor {
     private final SourcePosition position;
     private final ClassPrepareRequestor requestor;

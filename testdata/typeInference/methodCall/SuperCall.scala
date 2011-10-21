@@ -19,6 +19,6 @@ class Simple extends A {
 }
 
 object Main {
-  Sample.z + new Simple().z
+  /*start*/Sample.z + new Simple().z/*end*/
 }
 //Int

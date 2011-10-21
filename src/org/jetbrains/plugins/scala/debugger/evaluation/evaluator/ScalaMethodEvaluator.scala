@@ -1,14 +1,14 @@
 package org.jetbrains.plugins.scala.debugger.evaluation.evaluator
 
-import com.intellij.debugger.DebuggerBundle
 import com.intellij.debugger.impl.DebuggerUtilsEx
 import com.intellij.debugger.engine.{JVMName, DebugProcessImpl}
 import com.intellij.debugger.engine.evaluation.{EvaluationContextImpl, EvaluateExceptionUtil}
 import com.intellij.debugger.engine.evaluation.expression.{DisableGC, Modifier, Evaluator}
 import collection.mutable.ArrayBuffer
 import com.sun.jdi._
-import java.util.List
 import java.lang.String
+import com.intellij.debugger.{SourcePosition, DebuggerBundle}
+import com.intellij.openapi.application.ApplicationManager
 
 /**
  * User: Alefas
@@ -16,7 +16,7 @@ import java.lang.String
  */
 class ScalaMethodEvaluator(objectEvaluator: Evaluator, methodName: String, signature: JVMName,
                            argumentEvaluators: Seq[Evaluator], localMethod: Boolean,
-                           traitImplementation: Option[JVMName]) extends Evaluator {
+                           traitImplementation: Option[JVMName], methodPosition: Set[SourcePosition]) extends Evaluator {
   def getModifier: Modifier = null
 
   def evaluate(context: EvaluationContextImpl): AnyRef = {
@@ -86,7 +86,21 @@ class ScalaMethodEvaluator(objectEvaluator: Evaluator, methodName: String, signa
             }
             if (filtered.length == 0) jdiMethod = results(0)
             else if (filtered.length == 1) jdiMethod = filtered(0)
-            else jdiMethod = filtered(0) //todo: add logic to handle method by line?
+            else {
+              val newFiltered = filtered.filter(m => {
+                var result = true
+                ApplicationManager.getApplication.runReadAction(new Runnable {
+                  def run() {
+                    val lines = methodPosition.map(_.getLine)
+                    result = m.allLineLocations().find(l => lines.contains(l.lineNumber())) != None
+                  }
+                })
+                result
+              })
+              if (newFiltered.isEmpty)
+                jdiMethod = filtered(0)
+              else jdiMethod = newFiltered(0)
+            }
           } else if (results.length == 1) jdiMethod = results(0)
         }
         jdiMethod

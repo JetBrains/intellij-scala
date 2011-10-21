@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala.debugger.evaluation.util
 
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import com.intellij.debugger.jdi.VirtualMachineProxyImpl
-import com.intellij.psi.PsiClass
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
 import com.intellij.debugger.engine.evaluation.EvaluateExceptionUtil
 import com.intellij.debugger.{DebuggerBundle, SourcePosition}
@@ -12,6 +11,10 @@ import com.intellij.debugger.engine.{DebugProcessImpl, JVMNameUtil, JVMName}
 import com.intellij.openapi.util.Computable
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTrait, ScTypeDefinition}
+import com.intellij.psi.{PsiElement, PsiClass}
+import com.intellij.psi.tree.TokenSet
+import collection.mutable.{HashSet}
+import com.intellij.lang.ASTNode
 
 /**
  * User: Alefas
@@ -125,5 +128,20 @@ object DebuggerUtil {
         }
       case _ => JVMNameUtil.getJVMQualifiedName(clazz)
     }
+  }
+
+  def getSourcePositions(elem: PsiElement, lines: HashSet[SourcePosition] = new HashSet[SourcePosition]): Set[SourcePosition] = {
+    val node = elem.getNode
+    val children: Array[ASTNode] = if (node != null) node.getChildren(null) else Array.empty[ASTNode]
+    if (children.isEmpty) {
+      val position = SourcePosition.createFromElement(elem)
+      if (lines.find(_.getLine == position.getLine) == None) {
+        lines += position
+      }
+    }
+    for (child <- children) {
+      getSourcePositions(child.getPsi, lines)
+    }
+    lines.toSet
   }
 }

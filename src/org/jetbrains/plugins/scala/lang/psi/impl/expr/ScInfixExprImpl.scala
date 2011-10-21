@@ -14,8 +14,9 @@ import api.statements.ScFunction
 import collection.mutable.ArrayBuffer
 import resolve.ScalaResolveResult
 import collection.Seq
-import com.intellij.psi.{PsiParameter, PsiMethod, PsiTypeParameter}
 import result.{Success, TypeResult, TypingContext}
+import api.ScalaElementVisitor
+import com.intellij.psi.{PsiElementVisitor, PsiParameter, PsiMethod, PsiTypeParameter}
 
 /**
  * @author Alexander Podkhalyuzin
@@ -85,6 +86,17 @@ class ScInfixExprImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScIn
       //this is assignment statement: x += 1 equals to x = x + 1
       case Some(r) if r.element.getName + "=" == operation.refName => Success(Unit, Some(this))
       case _ => super.innerType(ctx)
+    }
+  }
+
+  override def accept(visitor: ScalaElementVisitor) {
+    visitor.visitInfixExpression(this)
+  }
+
+  override def accept(visitor: PsiElementVisitor) {
+    visitor match {
+      case visitor: ScalaElementVisitor => visitor.visitInfixExpression(this)
+      case _ => super.accept(visitor)
     }
   }
 }

@@ -24,6 +24,25 @@ class ScalaLocalMethodEvaluationTest extends ScalaDebuggerTestCase {
     }
   }
 
+  def testLocalFunctionWithParameters() {
+    myFixture.addFileToProject("Sample.scala",
+      """
+      |object Sample {
+      |  def main(args: Array[String]) {
+      |    val y = "test"
+      |    def foo(x: Int): Int = x + y.length
+      |    "stop here"
+      |  }
+      |}
+      """.stripMargin.trim()
+    )
+    addBreakpoint("Sample.scala", 3)
+    runDebugger("Sample") {
+      waitForBreakpoint()
+      evalEquals("foo(-3)", "1")
+    }
+  }
+
   def testSimpleLocalFunctionWithParameters() {
     myFixture.addFileToProject("Sample.scala",
       """
