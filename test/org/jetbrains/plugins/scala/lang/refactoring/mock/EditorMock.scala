@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.lang.refactoring.mock
 
 import com.intellij.openapi.editor.{Document, CaretModel, SelectionModel, LogicalPosition}
 import com.intellij.openapi.editor.impl.DocumentImpl
+import java.awt.Insets
 
 /**
  * Pavel Fatin
