@@ -178,7 +178,7 @@ class ScalaTestRunConfiguration(val project: Project, val configurationFactory: 
         val consoleProperties = new SMTRunnerConsoleProperties(config, "Scala", executor);
 
         // console view
-        val testRunnerConsole: BaseTestsOutputConsoleView = SMTestRunnerConnectionUtil.attachRunner("Scala", 
+        val testRunnerConsole: BaseTestsOutputConsoleView = SMTestRunnerConnectionUtil.createAndAttachConsole("Scala",
           processHandler, consoleProperties, getRunnerSettings.asInstanceOf[RunnerSettings[_ <: JDOMExternalizable]],
           getConfigurationSettings)
 
