@@ -4,13 +4,13 @@ import javax.swing.border.Border
 import com.intellij.openapi.util.Key
 import javax.swing.JComponent
 import java.awt.event.MouseEvent
-import java.awt.Point
 import com.intellij.openapi.editor.event._
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.editor._
 import colors.EditorColorsScheme
 import markup.MarkupModel
 import event.{EditorMouseListener, EditorMouseMotionListener, EditorMouseEventArea}
+import java.awt.{Insets, Point}
 
 /**
  * Pavel Fatin
@@ -96,4 +96,6 @@ class EditorStub extends Editor {
   def isViewer: Boolean = false
 
   def getDocument: Document = null
+
+  def getInsets: Insets = null
 }
