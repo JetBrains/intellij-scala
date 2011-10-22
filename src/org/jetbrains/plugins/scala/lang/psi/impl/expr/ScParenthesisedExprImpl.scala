@@ -8,6 +8,8 @@ import com.intellij.lang.ASTNode
 import api.expr._
 import psi.ScalaPsiElementImpl
 import types.result.{Failure, TypingContext}
+import api.ScalaElementVisitor
+import com.intellij.psi.PsiElementVisitor
 
 /**
 * @author Alexander Podkhalyuzin
@@ -25,6 +27,17 @@ class ScParenthesisedExprImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
         res
       }
       case _ => Failure("No expression in parentheseses", Some(this))
+    }
+  }
+
+  override def accept(visitor: ScalaElementVisitor) {
+    visitor.visitExprInParent(this)
+  }
+
+  override def accept(visitor: PsiElementVisitor) {
+    visitor match {
+      case visitor: ScalaElementVisitor => visitor.visitExprInParent(this)
+      case _ => super.accept(visitor)
     }
   }
 
