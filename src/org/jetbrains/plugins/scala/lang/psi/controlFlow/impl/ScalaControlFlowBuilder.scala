@@ -128,7 +128,6 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
   }
 
   override def visitReferenceExpression(ref: ScReferenceExpression) = {
-    visitExpression(ref)
     ref.qualifier match {
       case None => {
         val instr = new ReadWriteVariableInstruction(inc, ref, ScalaPsiUtil.isLValue(ref))
@@ -140,7 +139,6 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
   }
 
   override def visitAssignmentStatement(stmt: ScAssignStmt) {
-    visitExpression(stmt)
     val lValue = stmt.getLExpression
     stmt.getRExpression match {
       case Some(rv) => {
@@ -152,7 +150,6 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
   }
 
   override def visitDoStatement(stmt: ScDoStmt) = {
-    visitExpression(stmt)
     startNode(Some(stmt)) {i =>
       checkPendingEdges(i)
       stmt.getExprBody map {e =>
@@ -208,7 +205,6 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
   }
 
   override def visitWhileStatement(ws: ScWhileStmt) = {
-    visitExpression(ws)
     startNode(Some(ws)) {instr =>
       checkPendingEdges(instr)
       // for breaks
@@ -225,7 +221,6 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
   }
 
   override def visitMethodCallExpression(call: ScMethodCall) = {
-    visitExpression(call)
     for (arg <- call.argumentExpressions) arg.accept(this)
     val receiver = call.getInvokedExpr
     if (receiver != null) {
@@ -262,7 +257,6 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
   }
 
   override def visitForExpression(expr: ScForStatement) = {
-    visitExpression(expr)
     startNode(Some(expr)) {instr =>
       checkPendingEdges(instr)
       addPendingEdge(expr, myHead)
@@ -279,7 +273,6 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
   }
 
   override def visitIfStatement(stmt: ScIfStmt) = {
-    visitExpression(stmt)
     startNode(Some(stmt)) {instr =>
       checkPendingEdges(instr)
       stmt.condition match {
@@ -316,7 +309,6 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
   }
 
   override def visitReturnStatement(ret: ScReturnStmt) {
-    visitExpression(ret)
     val isNodeNeeded = myHead == null || (myHead.element match {
       case Some(e) => e != ret
       case None => false
@@ -335,18 +327,6 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
     interruptFlow
   }
 
-  override def visitExpression(expr: ScExpression) {
-    // Handle methods and functions' parameters
-    /*
-        expr.getParent match {
-        // Function definition body
-          case fe: ScFunctionDefinition => for (p <- fe.parameters)
-            addNode(new DefineValueInstruction(inc, p, false))
-          case _ =>
-        }
-    */
-  }
-
   override def visitFunctionExpression(stmt: ScFunctionExpr) = { /* Do not visit closures */ }
 
   override def visitTypeDefintion(typedef: ScTypeDefinition) { /* Do not visit inner classes either */ }
@@ -354,7 +334,6 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
   override def visitFunction(fun: ScFunction) { /* Yep, do not visit functions as well :) */ }
 
   override def visitThrowExpression(throwStmt: ScThrowStmt) = {
-    visitExpression(throwStmt)
     val isNodeNeeded = myHead == null || (myHead.element match {
       case Some(e) => e != throwStmt
       case None => false
@@ -374,8 +353,6 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
   case class FinallyInfo(fb: ScFinallyBlock) extends HandleInfo(fb)
 
   override def visitTryExpression(tryStmt: ScTryStmt) = {
-    visitExpression(tryStmt)
-
     val handledExnTypes = tryStmt.catchBlock match {
       case None => Nil
       case Some(cb) => for (cl <- cb.caseClauses) yield CatchInfo(cl)
