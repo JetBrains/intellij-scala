@@ -7,6 +7,8 @@ class OptimizeImportsSimpleTest extends OptimizeImportsTestBase {
 
   def testDeleteBraces = doTest
 
+  def testNewLines = doTest
+
   def testOneImport = doTest
 
   def testSaveNotResolved = doTest
