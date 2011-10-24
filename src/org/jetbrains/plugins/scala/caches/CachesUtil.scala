@@ -51,6 +51,7 @@ object CachesUtil {
     Key.create("function.effective.parameter.clause.key")
   val NON_VALUE_TYPE_KEY: Key[CachedValue[TypeResult[ScType]]] = Key.create("non.value.type.key")
   val EXPECTED_TYPES_KEY: Key[CachedValue[Array[(ScType, Option[ScTypeElement])]]] = Key.create("expected.types.key")
+  val SMART_EXPECTED_TYPE: Key[CachedValue[Option[ScType]]] = Key.create("smart.expected.type")
   val TYPE_AFTER_IMPLICIT_KEY: Key[CachedValue[ExpressionTypeResult]] = Key.create("type.after.implicit.key")
   val TYPE_WITHOUT_IMPLICITS_WITHOUT_UNDERSCORE: Key[CachedValue[TypeResult[ScType]]] =
     Key.create("type.without.implicits.without.underscore.key")
