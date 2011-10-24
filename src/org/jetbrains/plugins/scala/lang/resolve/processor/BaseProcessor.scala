@@ -176,7 +176,7 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value]) extends PsiSc
           case _ => true
         }
       case ScDesignatorType(e) => processElement(e, ScSubstitutor.empty, place, state)
-      case ScTypeParameterType(_, Nil, _, upper, _) => processType(upper.v, place)
+      case ScTypeParameterType(_, Nil, _, upper, _) => processType(upper.v, place, state)
       case j: JavaArrayType =>
         processType(j.getParameterizedType(place.getProject, place.getResolveScope).
                 getOrElse(return true), place, state)
