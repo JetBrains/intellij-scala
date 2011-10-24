@@ -50,6 +50,7 @@ import java.lang.Exception
 import com.intellij.openapi.module.{ModuleUtil, Module}
 import config.ScalaFacet
 import reflect.NameTransformer
+import caches.CachesUtil
 
 /**
  * User: Alexander Podkhalyuzin
@@ -242,10 +243,10 @@ object ScalaPsiUtil {
 
     if (!noImplicits && candidates.forall(!_.isApplicable)) {
       //should think about implicit conversions
-      for (t <- expr.getImplicitTypes) {
+      for ((t, implicitFunction, importsUsed) <- expr.implicitMap()) {
         ProgressManager.checkCanceled()
-        val importsUsed = expr.getImportsForImplicit(t)
-        var state = ResolveState.initial.put(ImportUsed.key, importsUsed)
+        var state = ResolveState.initial.put(ImportUsed.key, importsUsed).
+          put(CachesUtil.IMPLICIT_FUNCTION, implicitFunction)
         expr.getClazzForType(t) match {
           case Some(cl: PsiClass) => state = state.put(ScImplicitlyConvertible.IMPLICIT_RESOLUTION_KEY, cl)
           case _ =>
@@ -257,16 +258,18 @@ object ScalaPsiUtil {
     candidates.toArray
   }
 
-  def processTypeForUpdateOrApply(tp: ScType, call: ScMethodCall, isShape: Boolean): Option[ScType] = {
+  def processTypeForUpdateOrApply(tp: ScType, call: ScMethodCall,
+                                  isShape: Boolean): Option[(ScType, collection.Set[ImportUsed], Option[PsiNamedElement])] = {
     import call._
 
-    def checkCandidates(withImplicits: Boolean): Option[ScType] = {
+    def checkCandidates(withImplicits: Boolean): Option[(ScType, collection.Set[ImportUsed], Option[PsiNamedElement])] = {
       val candidates = processTypeForUpdateOrApplyCandidates(call, tp, isShape, noImplicits = !withImplicits)
       PartialFunction.condOpt(candidates) {
-        case Array(ScalaResolveResult(fun: PsiMethod, s: ScSubstitutor)) => fun match {
-          case fun: ScFun => s.subst(fun.polymorphicType)
-          case fun: ScFunction => s.subst(fun.polymorphicType)
-          case meth: PsiMethod => ResolveUtils.javaPolymorphicType(meth, s, getResolveScope)
+        case Array(r@ScalaResolveResult(fun: PsiMethod, s: ScSubstitutor)) => fun match {
+          case fun: ScFun => (s.subst(fun.polymorphicType), r.importsUsed, r.implicitFunction)
+          case fun: ScFunction => (s.subst(fun.polymorphicType), r.importsUsed, r.implicitFunction)
+          case meth: PsiMethod => (ResolveUtils.javaPolymorphicType(meth, s, getResolveScope), r.importsUsed,
+            r.implicitFunction)
         }
       }
     }

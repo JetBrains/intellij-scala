@@ -67,9 +67,10 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
     }
 
     if (!compiled && element.isInstanceOf[ScExpression]) {
-      checkExpressionType(element.asInstanceOf[ScExpression], holder, typeAware)
-      checkExpressionImplicitParameters(element.asInstanceOf[ScExpression], holder)
-      ByNameParameter.annotate(element.asInstanceOf[ScExpression], holder, typeAware)
+      val expr = element.asInstanceOf[ScExpression]
+      checkExpressionType(expr, holder, typeAware)
+      checkExpressionImplicitParameters(expr, holder)
+      ByNameParameter.annotate(expr, holder, typeAware)
     }
 
     if (element.isInstanceOf[ScTypeElement]) {
@@ -96,7 +97,9 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
       annotatePatternDefinition(element.asInstanceOf[ScPatternDefinition], holder, typeAware)
     }
     if (element.isInstanceOf[ScMethodCall]) {
-      annotateMethodCall(element.asInstanceOf[ScMethodCall], holder)
+      val call = element.asInstanceOf[ScMethodCall]
+      checkMethodCallImplicitConversion(call, holder)
+      annotateMethodCall(call, holder)
     }
     if (element.isInstanceOf[ScSelfInvocation]) {
       checkSelfInvocation(element.asInstanceOf[ScSelfInvocation], holder)
@@ -502,6 +505,12 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
       effectType, Font.PLAIN))
     annotation.setAfterEndOfLine(false)
     annotation.setTooltip(tooltip)
+  }
+
+  private def checkMethodCallImplicitConversion(call: ScMethodCall, holder: AnnotationHolder) {
+    val importUsed = call.getImportsUsed
+    ImportTracker.getInstance(call.getProject).
+      registerUsedImports(call.getContainingFile.asInstanceOf[ScalaFile], importUsed)
   }
 
   private def checkExpressionType(expr: ScExpression, holder: AnnotationHolder, typeAware: Boolean) {
