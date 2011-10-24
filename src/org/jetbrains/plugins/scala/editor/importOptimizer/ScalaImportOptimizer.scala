@@ -15,8 +15,8 @@ import collection.Set
 import lang.psi.api.{ScalaRecursiveElementVisitor, ScalaFile}
 import lang.psi.api.toplevel.imports.{ScImportExpr, ScImportStmt}
 import lang.psi.impl.ScalaPsiElementFactory
-import lang.psi.api.expr.{ScForStatement, ScExpression}
 import lang.psi.{ScalaPsiUtil, ScalaPsiElement}
+import lang.psi.api.expr.{ScMethodCall, ScForStatement, ScExpression}
 
 /**
  * User: Alexander Podkhalyuzin
@@ -161,6 +161,11 @@ class ScalaImportOptimizer extends ImportOptimizer {
     var res: collection.mutable.HashSet[ImportUsed] =
     collection.mutable.HashSet(expr.getTypeAfterImplicitConversion(expectedOption = expr.smartExpectedType).
       importsUsed.toSeq : _*)
+    expr match {
+      case call: ScMethodCall =>
+        res ++= call.getImportsUsed
+      case _ =>
+    }
     expr.findImplicitParameters match {
       case Some(seq) => {
         for (rr <- seq if rr != null) {
