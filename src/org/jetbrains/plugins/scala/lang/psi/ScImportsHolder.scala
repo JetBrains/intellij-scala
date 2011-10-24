@@ -407,7 +407,12 @@ trait ScImportsHolder extends ScalaPsiElement {
     if (next == null) {
       remove(node)
     } else if (next.getPsi.isInstanceOf[PsiWhiteSpace]) {
-      remove(next)
+      if (next.getText.count(_ == '\n') < 2)
+        remove(next)
+      else {
+        val nl = ScalaPsiElementFactory.createNewLine(getManager, next.getText.replaceFirst("[\n]", ""))
+        getNode.replaceChild(next, nl.getNode)
+      }
       remove(node)
     } else if (next.getElementType == ScalaTokenTypes.tSEMICOLON) {
       val nextnext = next.getTreeNext
