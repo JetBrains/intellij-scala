@@ -39,7 +39,7 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible with Ps
    * @param ignoreBaseTypes parameter to avoid value discarding, literal narrowing, widening
    *                        this parameter is useful for refactorings (introduce variable)
    */
-  def getTypeAfterImplicitConversion(checkImplicits: Boolean = true, isShape: Boolean = false, 
+  def getTypeAfterImplicitConversion(checkImplicits: Boolean = true, isShape: Boolean = false,
                                      expectedOption: Option[ScType] = None,
                                      ignoreBaseTypes: Boolean = false): ExpressionTypeResult = {
     def inner: ExpressionTypeResult = {
@@ -406,6 +406,12 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible with Ps
       (PsiModificationTracker.MODIFICATION_COUNT), Array.empty[(ScType, Option[ScTypeElement])])
   }
 
+  def smartExpectedType: Option[ScType] = {
+    CachesUtil.getWithRecurisionPreventing(this, CachesUtil.SMART_EXPECTED_TYPE,
+      new CachesUtil.MyProvider(this, (expr: ScExpression) => ExpectedTypes.smartExpectedType(this))
+      (PsiModificationTracker.MODIFICATION_COUNT), None)
+  }
+
   def getImplicitConversions: (Seq[PsiNamedElement], Option[PsiElement]) = {
     val implicits: Seq[PsiNamedElement] = implicitMap().map(_._2) //todo: args?
     val implicitFunction: Option[PsiElement] = getParent match {
@@ -423,7 +429,7 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible with Ps
       }
       case call: ScMethodCall => None //todo:
       case gen: ScGenerator => None //todo:
-      case _ => getTypeAfterImplicitConversion(expectedOption = ExpectedTypes.smartExpectedType(this)).implicitFunction
+      case _ => getTypeAfterImplicitConversion(expectedOption = smartExpectedType).implicitFunction
     }
     (implicits, implicitFunction)
   }
