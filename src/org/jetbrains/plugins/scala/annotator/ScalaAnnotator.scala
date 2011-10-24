@@ -9,9 +9,6 @@ import controlFlow.ControlFlowInspections
 import createFromUsage._
 import highlighter.AnnotatorHighlighter
 import importsTracker._
-import lang.psi.api.expr._
-
-
 import lang.psi.api.statements._
 import lang.psi.api.toplevel.typedef._
 import lang.psi.api.toplevel.templates.ScTemplateBody
@@ -48,6 +45,7 @@ import org.jetbrains.plugins.scala.extensions._
 import collection.{Seq, Set}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.{ReadValueUsed, WriteValueUsed, ValueUsed, ImportUsed}
 import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
 
 /**
  *    User: Alexander Podkhalyuzin
@@ -507,7 +505,8 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
   }
 
   private def checkExpressionType(expr: ScExpression, holder: AnnotationHolder, typeAware: Boolean) {
-    val ExpressionTypeResult(exprType, importUsed, implicitFunction) = expr.getTypeAfterImplicitConversion()
+    val ExpressionTypeResult(exprType, importUsed, implicitFunction) =
+      expr.getTypeAfterImplicitConversion(expectedOption = expr.smartExpectedType)
     ImportTracker.getInstance(expr.getProject).
                     registerUsedImports(expr.getContainingFile.asInstanceOf[ScalaFile], importUsed)
 
