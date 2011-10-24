@@ -54,7 +54,7 @@ trait ScParameter extends ScTypedDefinition with ScModifierListOwner with
 
   def isImplicitParameter: Boolean = {
     val clause = PsiTreeUtil.getParentOfType(this, classOf[ScParameterClause])
-    if (clause == false) return false
+    if (clause == null) return false
     clause.isImplicit
   }
 }
