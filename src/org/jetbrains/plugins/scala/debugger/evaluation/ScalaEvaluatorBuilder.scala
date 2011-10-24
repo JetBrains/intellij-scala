@@ -135,6 +135,18 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
       }
     }
 
+    override def visitFunctionExpression(stmt: ScFunctionExpr) {
+      throw EvaluateExceptionUtil.createEvaluateException("Anonymous functions are not supported")
+    }
+
+    override def visitExprInParent(expr: ScParenthesisedExpr) = {
+      expr.expr match {
+        case Some(expr) =>
+          expr.accept(this)
+        case None =>
+      }
+    }
+
     override def visitPostfixExpression(p: ScPostfixExpr) {
       val qualifier = Some(p.operand)
       val resolve = p.operation.resolve()
