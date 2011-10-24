@@ -15,6 +15,8 @@ class TypeInferenceLocalTypeInferenceTest extends TypeInferenceTestBase {
 
   def testFromImplicitParam() {doTest()}
 
+  def testFromImplicitParameter() {doTest()}
+
   def testInfixMap() {doTest()}
 
   def testIntArrayCreation() {doTest()}
