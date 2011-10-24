@@ -268,11 +268,13 @@ private[expr] object ExpectedTypes {
           args.getContext match {
             case constr: ScConstructor => {
               val j = constr.arguments.indexOf(args)
-              constr.shapeMultiType(j).foreach(processArgsExpected(res, expr, i, _, exprs))
+              if (!withResolvedFunction) constr.shapeMultiType(j).foreach(processArgsExpected(res, expr, i, _, exprs))
+              else constr.multiType(j).foreach(processArgsExpected(res, expr, i, _, exprs))
             }
             case s: ScSelfInvocation => {
               val j = s.arguments.indexOf(args)
-              s.shapeMultiType(j).foreach(processArgsExpected(res, expr, i, _, exprs))
+              if (!withResolvedFunction) s.shapeMultiType(j).foreach(processArgsExpected(res, expr, i, _, exprs))
+              else s.multiType(j).foreach(processArgsExpected(res, expr, i, _, exprs))
             }
             case _ =>
           }
