@@ -26,54 +26,69 @@ object ResultExpr {
 
     def parseFunctionEnd() = builder.getTokenType match {
       case ScalaTokenTypes.tFUNTYPE => {
-        builder.advanceLexer //Ate =>
+        builder.advanceLexer() //Ate =>
         Block parse (builder, false)
-        backupMarker.drop
+        backupMarker.drop()
         resultMarker.done(ScalaElementTypes.FUNCTION_EXPR)
         true
       }
       case _ => {
-        resultMarker.drop
-        backupMarker.rollbackTo
+        resultMarker.drop()
+        backupMarker.rollbackTo()
         false
       }
+    }
+
+    def parseFunction(paramsMarker: PsiBuilder.Marker): Boolean = {
+      val paramMarker = builder.mark()
+      builder.advanceLexer() //Ate id
+      if (ScalaTokenTypes.tCOLON == builder.getTokenType) {
+        builder.advanceLexer() // ate ':'
+        val pt = builder.mark
+        CompoundType.parse(builder)
+        pt.done(ScalaElementTypes.PARAM_TYPE)
+      }
+      builder.getTokenType match {
+        case ScalaTokenTypes.tFUNTYPE => {
+          val psm = paramsMarker.precede // 'parameter list'
+          paramMarker.done(ScalaElementTypes.PARAM)
+          paramsMarker.done(ScalaElementTypes.PARAM_CLAUSE)
+          psm.done(ScalaElementTypes.PARAM_CLAUSES)
+
+          return parseFunctionEnd()
+        }
+        case _ => {
+          builder error ErrMsg("fun.sign.expected")
+        }
+      }
+      parseFunctionEnd()
     }
 
     builder.getTokenType match {
       case ScalaTokenTypes.tLPARENTHESIS => {
         Bindings parse builder
-        return parseFunctionEnd
+        return parseFunctionEnd()
       }
+      case ScalaTokenTypes.kIMPLICIT =>
+        val pmarker = builder.mark()
+        builder.advanceLexer() //ate implicit
+        builder.getTokenType match {
+          case ScalaTokenTypes.tIDENTIFIER =>
+            return parseFunction(pmarker)
+          case _ =>
+            resultMarker.drop()
+            backupMarker.rollbackTo()
+            return false
+        }
       case ScalaTokenTypes.tIDENTIFIER | ScalaTokenTypes.tUNDER => {
         val pmarker = builder.mark
-        builder.advanceLexer //Ate id
-        if (ScalaTokenTypes.tCOLON == builder.getTokenType) {
-          builder.advanceLexer // ate ':'
-          val pt = builder.mark
-          CompoundType.parse(builder)
-          pt.done(ScalaElementTypes.PARAM_TYPE)
-        }
-        builder.getTokenType match {
-          case ScalaTokenTypes.tFUNTYPE => {
-            val psm = pmarker.precede // 'parameter clause'
-            val pssm = psm.precede // 'parameter list'
-            pmarker.done(ScalaElementTypes.PARAM)
-            psm.done(ScalaElementTypes.PARAM_CLAUSE)
-            pssm.done(ScalaElementTypes.PARAM_CLAUSES)
-
-            return parseFunctionEnd
-          }
-          case _ => {
-            builder error ErrMsg("fun.sign.expected")
-          }
-        }
-        return parseFunctionEnd
+        return parseFunction(pmarker)
       }
       case _ => {
-        backupMarker.drop
+        backupMarker.drop()
       }
     }
-    resultMarker.drop
-    return false
+    resultMarker.drop()
+    false
   }
 }
