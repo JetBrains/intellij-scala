@@ -26,5 +26,7 @@ trait ScSelfInvocation extends ScalaPsiElement {
 
   def shapeMultiType(i: Int): Seq[TypeResult[ScType]]
 
+  def multiType(i: Int): Seq[TypeResult[ScType]]
+
   def thisElement: PsiElement = getFirstChild
 }

@@ -81,4 +81,8 @@ class ScSelfInvocationImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with
   def shapeMultiType(i: Int): Seq[TypeResult[ScType]] = {
     bindMultiInternal(true).map(pe => workWithBindInternal(Some(pe), i))
   }
+
+  def multiType(i: Int): Seq[TypeResult[ScType]] = {
+    bindMultiInternal(false).map(pe => workWithBindInternal(Some(pe), i))
+  }
 }

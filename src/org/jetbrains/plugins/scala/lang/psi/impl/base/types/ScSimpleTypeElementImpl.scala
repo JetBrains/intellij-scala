@@ -34,7 +34,7 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
 
   def singleton = getNode.findChildByType(ScalaTokenTypes.kTYPE) != null
 
-  def findConsturctor: Option[ScConstructor] = {
+  def findConstructor: Option[ScConstructor] = {
     getContext match {
       case constr: ScConstructor => Some(constr)
       case param: ScParameterizedTypeElement => {
@@ -134,7 +134,7 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
             ScType.create(p.getType, getProject, getResolveScope, paramTopLevel = true), false, p.isVarArgs, false)))
       }
 
-      findConsturctor match {
+      findConstructor match {
         case Some(c) => {
           var nonValueType = ScTypePolymorphicType(res, typeParameters)
           var i = 0

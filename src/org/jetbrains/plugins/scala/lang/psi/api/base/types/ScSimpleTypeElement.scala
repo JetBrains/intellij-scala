@@ -16,7 +16,7 @@ trait ScSimpleTypeElement extends ScTypeElement {
 
   def singleton: Boolean
 
-  def findConsturctor: Option[ScConstructor]
+  def findConstructor: Option[ScConstructor]
 
   override def accept(visitor: ScalaElementVisitor) {visitor.visitSimpleTypeElement(this)}
 }
