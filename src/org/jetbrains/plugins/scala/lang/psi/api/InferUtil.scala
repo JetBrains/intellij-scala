@@ -6,6 +6,7 @@ import collection.mutable.ArrayBuffer
 import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.Expression
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitParametersCollector
+import statements.params.ScParameter
 import statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.SafeCheckException
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
@@ -51,6 +52,8 @@ object InferUtil {
           if (results.length == 1) {
             resolveResults += results(0)
             results(0) match {
+              case ScalaResolveResult(param: ScParameter, subst) =>
+                exprs += new Expression(polymorphicSubst subst subst.subst(param.getType(TypingContext.empty).get))
               case ScalaResolveResult(patt: ScBindingPattern, subst) => {
                 exprs += new Expression(polymorphicSubst subst subst.subst(patt.getType(TypingContext.empty).get))
               }

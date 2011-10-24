@@ -5,10 +5,10 @@ import org.jetbrains.plugins.scala.lang.resolve._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import processor.{ImplicitProcessor, MostSpecificUtil}
 import result.{Success, TypingContext}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
+import params.{ScParameterClause, ScParameter, ScTypeParam}
 import util.PsiTreeUtil
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
 import collection.immutable.HashSet
@@ -57,6 +57,9 @@ class ImplicitParametersCollector(place: PsiElement, tp: ScType, concreteType: S
       val named = element.asInstanceOf[PsiNamedElement]
       val subst = getSubst(state)
       named match {
+        case param: ScParameter =>
+          if (param.isImplicitParameter)
+            candidatesSet += new ScalaResolveResult(param, subst, getImports(state))
         case patt: ScBindingPattern => {
           val memb = ScalaPsiUtil.getContextOfType(patt, true, classOf[ScValue], classOf[ScVariable])
           memb match {
@@ -79,6 +82,13 @@ class ImplicitParametersCollector(place: PsiElement, tp: ScType, concreteType: S
         def compute(): Option[ScalaResolveResult] = {
           val subst = c.substitutor
           c.element match {
+            case param: ScParameter if !PsiTreeUtil.isContextAncestor(param, place, false) =>
+              param.getType(TypingContext.empty) match {
+                case Success(paramType: ScType, _) =>
+                  if (!subst.subst(paramType).conforms(tp)) None
+                  else Some(c)
+                case _ => None
+              }
             case patt: ScBindingPattern
               if !PsiTreeUtil.isContextAncestor(ScalaPsiUtil.nameContext(patt), place, false) => {
               patt.getType(TypingContext.empty) match {
