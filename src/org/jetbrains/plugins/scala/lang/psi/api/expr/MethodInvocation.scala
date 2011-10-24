@@ -4,10 +4,11 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.{TypingContext, Success
 import org.jetbrains.plugins.scala.lang.psi.types._
 import nonvalue.{TypeParameter, Parameter, ScMethodType, ScTypePolymorphicType}
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
-import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil
 import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.{ConformanceExtResult, Expression}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUsed
+import com.intellij.psi.{PsiNamedElement, PsiElement}
 
 /**
  * Pavel Fatin, Alexander Podkhalyuzin.
@@ -56,6 +57,24 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
   def matchedParameters: Map[ScExpression, Parameter] = {
     getType(TypingContext.empty) //update matchedArgumentsVar if needed
     matchedParametersVar.map(a => a.swap).filter(a => a._1 != null).toMap //todo: catch when expression is null
+  }
+
+  /**
+   * In case if invoked expression converted implicitly to invoke apply or update method
+   * @return imports used for implicit conversion
+   */
+  def getImportsUsed: collection.Set[ImportUsed] = {
+    getType(TypingContext.empty) //update importsUsed field
+    importsUsed
+  }
+
+  /**
+   * In case if invoked expression converted implicitly to invoke apply or update method
+   * @return actual conversion element
+   */
+  def getImplicitFunction: Option[PsiNamedElement] = {
+    getType(TypingContext.empty)
+    implicitFunction
   }
 
   /**
@@ -162,10 +181,14 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
     val res: ScType = checkApplication(invokedType, argumentExpressions).getOrElse {
       this match {
         case methodCall: ScMethodCall => //todo: remove reference to method call
-          var processedType = ScalaPsiUtil.processTypeForUpdateOrApply(invokedType, methodCall, false).getOrElse(Nothing)
+          var (processedType, importsUsed, implicitFunction) = 
+            ScalaPsiUtil.processTypeForUpdateOrApply(invokedType, methodCall, false).
+              getOrElse((Nothing, this.importsUsed, this.implicitFunction))
           if (useExpectedType) {
             updateAccordingToExpectedType(Success(processedType, None)).foreach(x => processedType = x)
           }
+          this.importsUsed = importsUsed
+          this.implicitFunction = implicitFunction
           checkApplication(processedType, argumentExpressionsIncludeUpdateCall).getOrElse {
             applicabilityProblemsVar = Seq(new DoesNotTakeParameters)
             matchedParametersVar = Seq()
@@ -180,4 +203,6 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
 
   private var applicabilityProblemsVar: Seq[ApplicabilityProblem] = Seq.empty
   private var matchedParametersVar: Seq[(Parameter, ScExpression)] = Seq.empty
+  private var importsUsed: collection.Set[ImportUsed] = collection.Set.empty
+  private var implicitFunction: Option[PsiNamedElement] = None
 }

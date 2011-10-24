@@ -427,8 +427,11 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible with Ps
           resolve.apply(0).asInstanceOf[ScalaResolveResult].implicitFunction
         } else None
       }
-      case call: ScMethodCall => None //todo:
-      case gen: ScGenerator => None //todo:
+      case call: ScMethodCall => call.getImplicitFunction
+      case gen: ScGenerator => gen.getParent match {
+        case call: ScMethodCall => call.getImplicitFunction
+        case _ => None
+      }
       case _ => getTypeAfterImplicitConversion(expectedOption = smartExpectedType).implicitFunction
     }
     (implicits, implicitFunction)
