@@ -145,6 +145,32 @@ class ScalaLocalMethodEvaluationTest extends ScalaDebuggerTestCase {
   def testLocalFunctionWithField() {
     myFixture.addFileToProject("Sample.scala",
       """
+      |object Maina {
+      |  def main(args: Array[String]) {
+      |    val g = 1
+      |    def moo(x: Int) = g + x
+      |    val zz = (y: Int) => {
+      |      val uu = (x: Int) => {
+      |        g
+      |        "stop here"
+      |      }
+      |      uu(1)
+      |    }
+      |    zz(2)
+      |  }
+      |}
+      """.stripMargin.trim()
+    )
+    addBreakpoint("Sample.scala", 5)
+    runDebugger("Sample") {
+      waitForBreakpoint()
+      evalEquals("foo", "1")
+    }
+  }
+
+  def testLocalFromAnonymous() {
+    myFixture.addFileToProject("Sample.scala",
+      """
       |object Sample {
       |  val y = 1
       |  def main(args: Array[String]) {
@@ -160,5 +186,6 @@ class ScalaLocalMethodEvaluationTest extends ScalaDebuggerTestCase {
       waitForBreakpoint()
       evalEquals("foo", "1")
     }
+
   }
 }

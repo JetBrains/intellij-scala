@@ -33,7 +33,7 @@ import java.util.List;
  * @author ilyas
  */
 public class DragSearchTest extends BaseScalaFileSetTestCase {
-  protected static final int MAX_ROLLBACKS = 17;
+  protected static final int MAX_ROLLBACKS = 18;
 
   @NonNls
   private static final String DATA_PATH = "test/org/jetbrains/plugins/scala/lang/parser/stress/data/";
