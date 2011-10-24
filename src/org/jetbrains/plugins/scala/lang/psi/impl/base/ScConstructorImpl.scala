@@ -94,7 +94,11 @@ class ScConstructorImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
     else FAILURE
   }
 
-  def shapeMultiType(i: Int): Seq[TypeResult[ScType]] = {
+  def shapeMultiType(i: Int): Seq[TypeResult[ScType]] = innerMultiType(i, true)
+
+  def multiType(i: Int): Seq[TypeResult[ScType]] = innerMultiType(i, false)
+
+  private def innerMultiType(i: Int, isShape: Boolean): Seq[TypeResult[ScType]] = {
     def FAILURE = Failure("Can't resolve type", Some(this))
     def workWithResolveResult(constr: PsiMethod, r: ScalaResolveResult,
                               subst: ScSubstitutor, s: ScSimpleTypeElement,
@@ -134,17 +138,17 @@ class ScConstructorImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
             case (arg, tp) =>
               ((tp.name, ScalaPsiUtil.getPsiElementId(tp.ptp)), arg.getType(TypingContext.empty).getOrAny)
           }), Map.empty, None)
-          return Success(appSubst.subst(res), Some(this))
+          Success(appSubst.subst(res), Some(this))
         }
-        case _ => return Success(ScTypePolymorphicType(res, typeParameters), Some(this))
+        case _ => Success(ScTypePolymorphicType(res, typeParameters), Some(this))
       }
     }
     def processSimple(s: ScSimpleTypeElement): Seq[TypeResult[ScType]] = {
       s.reference match {
         case Some(ref) => {
           val buffer = new ArrayBuffer[TypeResult[ScType]]
-          val shapeResolve = ref.shapeResolveConstr
-          shapeResolve.foreach(r => r match {
+          val resolve = if (isShape) ref.shapeResolveConstr else ref.resolveAllConstructors
+          resolve.foreach(r => r match {
             case r@ScalaResolveResult(constr: PsiMethod, subst) => {
               buffer += workWithResolveResult(constr, r, subst, s, ref)
             }

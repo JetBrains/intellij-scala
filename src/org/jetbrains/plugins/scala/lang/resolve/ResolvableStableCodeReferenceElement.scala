@@ -156,10 +156,12 @@ trait ResolvableStableCodeReferenceElement extends ScStableCodeReferenceElement 
       (PsiModificationTracker.MODIFICATION_COUNT), Array.empty[ResolveResult])
   }
 
-  // TODO Caching (?)
   def resolveAllConstructors: Array[ResolveResult] = {
     ProgressManager.checkCanceled()
-    ResolverAllConstructors.resolve(this, false)
+    CachesUtil.getWithRecurisionPreventing(this, CachesUtil.REF_ELEMENT_RESOLVE_CONSTR_KEY,
+      new CachesUtil.MyProvider(this, (expr: ResolvableStableCodeReferenceElement) =>
+        ResolverAllConstructors.resolve(this, false))
+      (PsiModificationTracker.MODIFICATION_COUNT), Array.empty[ResolveResult])
   }
 
   def shapeResolve: Array[ResolveResult] = {
