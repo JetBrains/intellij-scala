@@ -11,6 +11,8 @@ class OptimizeImportsSimpleTest extends OptimizeImportsTestBase {
 
   def testSaveNotResolved = doTest
 
+  def testSomeTrait = doTest
+
   def testUnusedImportChain = doTest
 
   def testUnusedSelector = doTest
