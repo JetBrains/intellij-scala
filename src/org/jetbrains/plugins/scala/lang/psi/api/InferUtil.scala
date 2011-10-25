@@ -14,6 +14,7 @@ import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult, TypingContext}
 import org.jetbrains.plugins.scala.lang.psi.types._
 import nonvalue.{Parameter, ScMethodType, ScTypePolymorphicType}
+import toplevel.typedef.ScObject
 
 /**
  * @author Alexander Podkhalyuzin
@@ -52,6 +53,8 @@ object InferUtil {
           if (results.length == 1) {
             resolveResults += results(0)
             results(0) match {
+              case ScalaResolveResult(o: ScObject, subst) =>
+                exprs += new Expression(polymorphicSubst subst subst.subst(o.getType(TypingContext.empty).get))
               case ScalaResolveResult(param: ScParameter, subst) =>
                 exprs += new Expression(polymorphicSubst subst subst.subst(param.getType(TypingContext.empty).get))
               case ScalaResolveResult(patt: ScBindingPattern, subst) => {

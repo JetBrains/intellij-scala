@@ -43,7 +43,11 @@ trait ApplicationAnnotator {
                   case DoesNotTakeParameters() =>
                     holder.createErrorAnnotation(call.argsElement, f.getName + " does not take parameters")
                   case ExcessArgument(argument) =>
-                    holder.createErrorAnnotation(argument, "Too many arguments for method " + nameOf(f))
+                    if (argument != null) {
+                      holder.createErrorAnnotation(argument, "Too many arguments for method " + nameOf(f))
+                    } else {
+                      //TODO investigate case when argument is null. It's possible when new Expression(ScType)
+                    }
                   case TypeMismatch(expression, expectedType) =>
                     if (expression != null)
                       for (t <- expression.getType(TypingContext.empty)) {
@@ -60,11 +64,23 @@ trait ApplicationAnnotator {
                   case MalformedDefinition() =>
                     holder.createErrorAnnotation(call.getInvokedExpr, f.getName + " has malformed definition")
                   case ExpansionForNonRepeatedParameter(expression) =>
-                    holder.createErrorAnnotation(expression, "Expansion for non-repeated parameter")
+                    if (expression != null) {
+                      holder.createErrorAnnotation(expression, "Expansion for non-repeated parameter")
+                    } else {
+                      //TODO investigate case when expression is null. It's possible when new Expression(ScType)
+                    }
                   case PositionalAfterNamedArgument(argument) =>
-                    holder.createErrorAnnotation(argument, "Positional after named argument")
+                    if (argument != null) {
+                      holder.createErrorAnnotation(argument, "Positional after named argument")
+                    } else {
+                      //TODO investigate case when argument is null. It's possible when new Expression(ScType)
+                    }
                   case ParameterSpecifiedMultipleTimes(assignment) =>
-                    holder.createErrorAnnotation(assignment.getLExpression, "Parameter specified multiple times")
+                    if (assignment != null) {
+                      holder.createErrorAnnotation(assignment.getLExpression, "Parameter specified multiple times")
+                    } else {
+                      //TODO investigate case when assignment is null. It's possible when new Expression(ScType)
+                    }
                   case _ => holder.createErrorAnnotation(call.argsElement, "Not applicable to " + signatureOf(f))
                 }
               }
