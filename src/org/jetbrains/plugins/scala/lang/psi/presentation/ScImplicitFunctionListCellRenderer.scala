@@ -12,13 +12,9 @@ import com.intellij.psi.{PsiClass, PsiElement, PsiNamedElement, PsiMethod}
 import java.lang.String
 
 /**
- * Created by IntelliJ IDEA.
- * User: Alexander.Podkhalyuz
+ * User: Alexander Podkhalyuzin
  * Date: 15.06.2010
- * Time: 15:03:33
- * To change this template use File | Settings | File Templates.
  */
-
 class ScImplicitFunctionListCellRenderer(actual: PsiNamedElement) extends PsiElementListCellRenderer[PsiNamedElement] {
   override def getListCellRendererComponent(list: JList, value: Any, index: Int, isSelected: Boolean, cellHasFocus: Boolean) = {
     val comp = super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus)
@@ -26,7 +22,7 @@ class ScImplicitFunctionListCellRenderer(actual: PsiNamedElement) extends PsiEle
       case container: Container => {
         val colored = container.getComponents.apply(2).asInstanceOf[SimpleColoredComponent]
         if (value == actual) {
-          colored.clear
+          colored.clear()
           colored.setIcon(actual.getIcon(0))
           colored.append(getElementText(actual), SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES)
         }
@@ -50,7 +46,7 @@ class ScImplicitFunctionListCellRenderer(actual: PsiNamedElement) extends PsiEle
   }
 
   def getIconFlags: Int = {
-    return 0
+    0
   }
 
   def getContainerText(element: PsiNamedElement, name: String) = null //todo: add package name

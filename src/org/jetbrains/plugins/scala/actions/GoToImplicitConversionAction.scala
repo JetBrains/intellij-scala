@@ -30,20 +30,18 @@ class GoToImplicitConversionAction extends AnAction("Go to implicit conversion a
 
     def forExpr(expr: ScExpression): Boolean = {
       val implicitConversions = expr.getImplicitConversions
-      val funs = implicitConversions._1
-      if (funs.length == 0) return true
-      var selectedIndex = -1
-      val conversionFun = implicitConversions._2
-      conversionFun match {
-        case Some(fun) => selectedIndex = funs.findIndexOf(_ == fun)
-        case _ =>
-      }
+      val functions = implicitConversions._1
+      if (functions.length == 0) return true
+      val conversionFun = implicitConversions._2.getOrElse(null)
       val model: DefaultListModel = new DefaultListModel
-      for (element <- funs) {
+      if (conversionFun != null) {
+        model.addElement(conversionFun)
+      }
+      for (element <- functions if element ne conversionFun) {
         model.addElement(element)
       }
       val list: JList = new JList(model)
-      list.setCellRenderer(new ScImplicitFunctionListCellRenderer(if (selectedIndex == -1) null else funs(selectedIndex)))
+      list.setCellRenderer(new ScImplicitFunctionListCellRenderer(conversionFun))
 
       val builder = JBPopupFactory.getInstance.createListPopupBuilder(list)
       builder.setTitle("Choose implicit conversion method:").
