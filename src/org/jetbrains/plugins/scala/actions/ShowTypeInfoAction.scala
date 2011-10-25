@@ -69,7 +69,7 @@ class ShowTypeInfoAction extends AnAction(ScalaBundle.message("type.info")) {
                  |Expected Type: %s""".format(tpeText, tpeWithoutImplicitsText, expectedTypeText).stripMargin
           }
 
-          showTypeHint(editor, hint)
+          ScalaActionUtil.showHint(editor, hint)
       }
     } else {
       val offest = TargetElementUtilBase.adjustOffset(editor.getDocument,
@@ -85,7 +85,7 @@ class ShowTypeInfoAction extends AnAction(ScalaBundle.message("type.info")) {
         }
       }
 
-      hint.foreach(showTypeHint(editor, _))
+      hint.foreach(ScalaActionUtil.showHint(editor, _))
     }
   }
 
@@ -99,29 +99,6 @@ class ShowTypeInfoAction extends AnAction(ScalaBundle.message("type.info")) {
     case (e: PsiVariable, s) => e.getType.toOption.
       map(p => s.subst(ScType.create(p, e.getProject, e.getResolveScope))).map(_ presentableText)
     case _ => None
-  }
-
-
-
-  def showTypeHint(editor: Editor, text: String) {
-    val label = HintUtil.createInformationLabel(text)
-    label.setFont(UIUtil.getLabelFont)
-
-    val hint: LightweightHint = new LightweightHint(label)
-
-    val hintManager: HintManagerImpl = HintManagerImpl.getInstanceImpl
-
-    label.addMouseMotionListener(new MouseMotionAdapter {
-      override def mouseMoved(e: MouseEvent) {
-        hintManager.hideAllHints()
-      }
-    })
-
-    val position = editor.getCaretModel.getLogicalPosition
-    val p: Point = HintManagerImpl.getHintPosition(hint, editor, position, HintManager.ABOVE)
-
-    hintManager.showEditorHint(hint, editor, p, 
-      HintManager.HIDE_BY_ANY_KEY | HintManager.HIDE_BY_TEXT_CHANGE | HintManager.HIDE_BY_SCROLLING, 0, false)
   }
 }
 
