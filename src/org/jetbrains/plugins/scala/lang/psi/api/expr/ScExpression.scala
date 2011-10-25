@@ -412,9 +412,9 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible with Ps
       (PsiModificationTracker.MODIFICATION_COUNT), None)
   }
 
-  def getImplicitConversions: (Seq[PsiNamedElement], Option[PsiElement]) = {
+  def getImplicitConversions: (Seq[PsiNamedElement], Option[PsiNamedElement]) = {
     val implicits: Seq[PsiNamedElement] = implicitMap().map(_._2) //todo: args?
-    val implicitFunction: Option[PsiElement] = getParent match {
+    val implicitFunction: Option[PsiNamedElement] = getParent match {
       case ref: ScReferenceExpression => {
         val resolve = ref.multiResolve(false)
         if (resolve.length == 1) {

@@ -338,7 +338,11 @@
       <keyboard-shortcut first-keystroke="control alt shift T" keymap="$default"/>
       <add-to-group group-id="CodeEditorViewGroup" anchor="last"/>
     </action>
-
+    <action id="Scala.ShowImplicitParameters" class="org.jetbrains.plugins.scala.actions.ShowImplicitParametersAction"
+            text="Implicit &amp;Parameters" description="Show Implicit Parameters">
+      <keyboard-shortcut first-keystroke="control shift P" keymap="$default"/>
+      <add-to-group group-id="CodeEditorViewGroup" anchor="last"/>
+    </action>
   </actions>
 
 </idea-plugin>
