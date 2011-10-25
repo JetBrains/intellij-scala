@@ -29,15 +29,22 @@ object InferUtil {
    * @return updated type and sequence of implicit parameters
    */
   def updateTypeWithImplicitParameters(res: ScType, element: PsiElement,
-                                       check: Boolean): (ScType, Option[Seq[ScalaResolveResult]]) = {
+                                       check: Boolean, withEtaExpansion: Boolean): (ScType, Option[Seq[ScalaResolveResult]]) = {
     var resInner = res
     var implicitParameters: Option[Seq[ScalaResolveResult]] = None
     res match {
-      case t@ScTypePolymorphicType(mt@ScMethodType(retType, params, impl), typeParams) if !impl =>
+      case t@ScTypePolymorphicType(mt@ScMethodType(retType, params, impl), typeParams) if !impl && withEtaExpansion =>
         // See SCL-3516
-        val (updatedType, ps) = updateTypeWithImplicitParameters(retType, element, check)
+        val (updatedType, ps) = 
+          updateTypeWithImplicitParameters(t.copy(internalType = retType), element, check, withEtaExpansion)
         implicitParameters = ps
-        resInner = t.copy(internalType = mt.copy(returnType = updatedType)(mt.project, mt.scope))
+        updatedType match {
+          case tpt: ScTypePolymorphicType =>
+            resInner = t.copy(internalType = mt.copy(returnType = tpt.internalType)(mt.project, mt.scope),
+              typeParameters = tpt.typeParameters)
+          case _ => //shouldn't be there
+            resInner = t.copy(internalType = mt.copy(returnType = updatedType)(mt.project, mt.scope))
+        }
       case t@ScTypePolymorphicType(ScMethodType(retType, params, impl), typeParams) if impl => {
         val polymorphicSubst = t.polymorphicTypeSubstitutor
         val abstractSubstitutor: ScSubstitutor = t.abstractTypeSubstitutor
@@ -89,9 +96,9 @@ object InferUtil {
         implicitParameters = Some(resolveResults.toSeq)
         resInner = ScalaPsiUtil.localTypeInference(retType, params, exprs.toSeq, typeParams, safeCheck = check)
       }
-      case mt@ScMethodType(retType, params, isImplicit) if !isImplicit =>
+      case mt@ScMethodType(retType, params, isImplicit) if !isImplicit && withEtaExpansion =>
         // See SCL-3516
-        val (updatedType, ps) = updateTypeWithImplicitParameters(retType, element, check)
+        val (updatedType, ps) = updateTypeWithImplicitParameters(retType, element, check, withEtaExpansion)
         implicitParameters = ps
         resInner = mt.copy(returnType = updatedType)(mt.project, mt.scope)
       case ScMethodType(retType, params, isImplicit) if isImplicit => {

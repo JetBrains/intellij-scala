@@ -202,7 +202,15 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible with Ps
         }
       }
 
-      val tuple = InferUtil.updateTypeWithImplicitParameters(res, this, checkExpectedType)
+      def withEtaExpantion(expr: ScExpression = this): Boolean = {
+        expr.getContext match {
+          case call: ScMethodCall => false
+          case p: ScParenthesisedExpr => withEtaExpantion(p)
+          case _ => true
+        }
+      }
+
+      val tuple = InferUtil.updateTypeWithImplicitParameters(res, this, checkExpectedType, withEtaExpantion())
       res = tuple._1
       implicitParameters = tuple._2
     }
