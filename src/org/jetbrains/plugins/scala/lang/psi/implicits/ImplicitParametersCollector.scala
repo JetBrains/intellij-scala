@@ -10,10 +10,10 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import params.{ScParameterClause, ScParameter, ScTypeParam}
 import util.PsiTreeUtil
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
 import collection.immutable.HashSet
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import collection.mutable.ArrayBuffer
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScMember}
 
 /**
  * @param place        The call site
@@ -57,6 +57,8 @@ class ImplicitParametersCollector(place: PsiElement, tp: ScType, concreteType: S
       val named = element.asInstanceOf[PsiNamedElement]
       val subst = getSubst(state)
       named match {
+        case o: ScObject if o.hasModifierProperty("implicit") =>
+          candidatesSet += new ScalaResolveResult(o, subst, getImports(state))
         case param: ScParameter =>
           if (param.isImplicitParameter)
             candidatesSet += new ScalaResolveResult(param, subst, getImports(state))
@@ -82,6 +84,13 @@ class ImplicitParametersCollector(place: PsiElement, tp: ScType, concreteType: S
         def compute(): Option[ScalaResolveResult] = {
           val subst = c.substitutor
           c.element match {
+            case o: ScObject if !PsiTreeUtil.isContextAncestor(o, place, false) =>
+              o.getType(TypingContext.empty) match {
+                case Success(objType: ScType, _) =>
+                  if (!subst.subst(objType).conforms(tp)) None
+                  else Some(c)
+                case _ => None
+              }
             case param: ScParameter if !PsiTreeUtil.isContextAncestor(param, place, false) =>
               param.getType(TypingContext.empty) match {
                 case Success(paramType: ScType, _) =>
