@@ -26,8 +26,8 @@ import types._
 import caches.CachesUtil
 import gnu.trove.THashMap
 import lang.resolve.processor.{ImplicitProcessor, BaseProcessor}
-import api.toplevel.{ScModifierListOwner, ScTypedDefinition}
 import psi.ScalaPsiUtil.convertMemberName
+import api.toplevel.{ScNamedElement, ScModifierListOwner, ScTypedDefinition}
 
 /**
  * @author ven
@@ -69,6 +69,11 @@ object TypeDefinitionMembers {
     def isImplicit(t: Signature) = {
       t.namedElement match {
         case Some(s: ScModifierListOwner) => s.hasModifierProperty("implicit")
+        case Some(named: ScNamedElement) =>
+          ScalaPsiUtil.nameContext(named) match {
+            case s: ScModifierListOwner => s.hasModifierProperty("implicit")
+            case _ => false
+          }
         case _ => false
       }
     }
@@ -224,6 +229,11 @@ object TypeDefinitionMembers {
     def isImplicit(t: Signature) = {
       t.namedElement match {
         case Some(s: ScModifierListOwner) => s.hasModifierProperty("implicit")
+        case Some(named: ScNamedElement) =>
+          ScalaPsiUtil.nameContext(named) match {
+            case s: ScModifierListOwner => s.hasModifierProperty("implicit")
+            case _ => false
+          }
         case _ => false
       }
     }
