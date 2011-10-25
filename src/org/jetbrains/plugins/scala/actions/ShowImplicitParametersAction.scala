@@ -117,9 +117,10 @@ class ShowImplicitParametersAction extends AnAction("Show implicit parameters ac
           expr.getTextRange.getEndOffset)
         forExpr(expr)
       }
-      if (expressions.length == 0)
-        editor.getSelectionModel.selectLineAtCaret()
-      else if (expressions.length == 1) {
+      if (expressions.length == 0) {
+        ScalaActionUtil.showHint(editor, "No implicit parameters")
+        return
+      } else if (expressions.length == 1) {
         chooseExpression(expressions(0))
       } else {
         ScalaRefactoringUtil.showChooser(editor, expressions, elem =>
