@@ -25,21 +25,31 @@ import psi.impl.ScalaPsiManager
 case class MostSpecificUtil(elem: PsiElement, length: Int) {
   def mostSpecificForResolveResult(applicable: Set[ScalaResolveResult]): Option[ScalaResolveResult] = {
     mostSpecificGeneric(applicable.map(r => r.innerResolveResult match {
-      case Some(rr) => InnerScalaResolveResult(rr.element, rr.implicitConversionClass, r)
-      case None => InnerScalaResolveResult(r.element, r.implicitConversionClass, r)
+      case Some(rr) => new InnerScalaResolveResult(rr.element, rr.implicitConversionClass, r)
+      case None => new InnerScalaResolveResult(r.element, r.implicitConversionClass, r)
     })).map(_.repr)
   }
 
   def mostSpecificForImplicit(applicable: Set[(ScType, PsiNamedElement, Set[ImportUsed])]): Option[(ScType, PsiNamedElement, Set[ImportUsed])] = {
-    mostSpecificGeneric(applicable.map(r => InnerScalaResolveResult(r._2, None, r))).map(_.repr)
+    mostSpecificGeneric(applicable.map(r => {
+      var callByName = false
+      r._2 match {
+        case f: ScFunction =>
+          val clauses = f.paramClauses.clauses
+          if (clauses.length > 0 && clauses(0).parameters.length == 1 && clauses(0).parameters(0).isCallByNameParameter) {
+            callByName = true
+          }
+      }
+      new InnerScalaResolveResult(r._2, None, r, callByName)
+    })).map(_.repr)
   }
 
   def mostSpecificForPsiMethod(applicable: Set[PsiMethod]): Option[PsiMethod] = {
-    mostSpecificGeneric(applicable.map(r => InnerScalaResolveResult(r, None, r))).map(_.repr)
+    mostSpecificGeneric(applicable.map(r => new InnerScalaResolveResult(r, None, r))).map(_.repr)
   }
 
-  private case class InnerScalaResolveResult[T](element: PsiNamedElement, implicitConversionClass: Option[PsiClass],
-                                                repr: T)
+  private class InnerScalaResolveResult[T](val element: PsiNamedElement, val implicitConversionClass: Option[PsiClass],
+                                           val repr: T, val callByNameImplicit: Boolean = false)
 
   private def isAsSpecificAs[T](r1: InnerScalaResolveResult[T], r2: InnerScalaResolveResult[T]): Boolean = {
     def lastRepeated(params: Seq[Parameter]): Boolean = {
@@ -147,6 +157,7 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
       case (Some(t1), Some(t2)) => if (ScalaPsiUtil.cachedDeepIsInheritor(t1, t2)) return true
       case _ =>
     }
+    if (r1.callByNameImplicit ^ r2.callByNameImplicit) return !r1.callByNameImplicit
     val weightR1R2 = relativeWeight(r1, r2)
     val weightR2R1 = relativeWeight(r2, r1)
     weightR1R2 > weightR2R1
