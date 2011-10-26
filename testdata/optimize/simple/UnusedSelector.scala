@@ -6,5 +6,6 @@ class UnusedSelector
 /*
 package b
 
+
 class UnusedSelector
 */
