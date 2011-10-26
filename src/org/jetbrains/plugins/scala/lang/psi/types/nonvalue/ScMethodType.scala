@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScTypeParam}
 import result.TypingContext
 import com.intellij.psi.{PsiNamedElement, PsiTypeParameter}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiManager, ScalaPsiElementFactory}
 
 /**
  * @author ilyas
@@ -46,7 +46,15 @@ case class ScMethodType(returnType: ScType, params: Seq[Parameter], isImplicit: 
   }
 
   def inferValueType: ValueType = {
-    new ScFunctionType(returnType.inferValueType, params.map(_.paramType.inferValueType))(project, scope)
+    new ScFunctionType(returnType.inferValueType, params.map(p => {
+      val inferredParamType = p.paramType.inferValueType
+      if (!p.isRepeated) inferredParamType
+      else {
+        val seqClass = ScalaPsiManager.instance(project).getCachedClass(scope, "scala.collection.Seq")
+        if (seqClass == null) inferredParamType
+        else ScParameterizedType(ScDesignatorType(seqClass), Seq(inferredParamType))
+      }
+    }))(project, scope)
   }
 
   override def removeAbstracts = new ScMethodType(returnType.removeAbstracts,
