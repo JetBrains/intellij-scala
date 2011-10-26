@@ -47,7 +47,7 @@ class ScNewTemplateDefinitionImpl private () extends ScalaStubBasedElementImpl[S
       new Success(ScCompoundType(superTypes, holders.toList, aliases.toList, ScSubstitutor.empty), Some(this))
     } else superTypes.headOption match {
       case s@Some(t) => Success(t, Some(this))
-      case None => Success(Any, Some(this)) //this is new {} case
+      case None => Success(AnyRef, Some(this)) //this is new {} case
     }
   }
 
