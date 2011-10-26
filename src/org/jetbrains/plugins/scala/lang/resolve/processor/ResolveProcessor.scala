@@ -118,7 +118,7 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
       val q = qualifier.substring(0, index)
       if (q == "java.lang") return 1
       else if (q == "scala") return 2
-      else if (clazz.getContainingFile == ref.getContainingFile) return 6
+      else if (PsiTreeUtil.isContextAncestor(clazz.getContainingFile, ref, true)) return 6
       else return 3
     }
     if (result.importsUsed.size == 0) {
