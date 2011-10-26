@@ -39,6 +39,7 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
           if (clauses.length > 0 && clauses(0).parameters.length == 1 && clauses(0).parameters(0).isCallByNameParameter) {
             callByName = true
           }
+        case _ =>
       }
       new InnerScalaResolveResult(r._2, None, r, callByName)
     })).map(_.repr)
