@@ -215,14 +215,27 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible with Ps
       implicitParameters = tuple._2
     }
 
-    val oldRes = res
-    try {
-      tryUpdateRes(true)
-    } catch {
-      case _: SafeCheckException =>
-        res = oldRes
-        tryUpdateRes(false)
+    def isMethodInvocation(expr: ScExpression = this): Boolean = {
+      expr match {
+        case _: MethodInvocation => true
+        case p: ScParenthesisedExpr =>
+          p.expr match {
+            case Some(expr) => isMethodInvocation(expr)
+            case _ => false
+          }
+        case _ => false
+      }
     }
+    if (!isMethodInvocation()) { //it is not updated according to expected type, let's do it
+      val oldRes = res
+      try {
+        tryUpdateRes(true)
+      } catch {
+        case _: SafeCheckException =>
+          res = oldRes
+          tryUpdateRes(false)
+      }
+    } else {tryUpdateRes(false)}
 
     def removeMethodType(retType: ScType, updateType: ScType => ScType = t => t) {
       def updateRes(exp: Option[ScType]) {
