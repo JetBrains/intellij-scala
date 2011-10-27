@@ -67,6 +67,8 @@ public class ScalaDefsProjectViewProvider implements TreeStructureProvider {
 
       result.add(insertFile
           ? new MyClassOwnerTreeNode(getFile((ScTypeDefinition) childValue), settings)
+          : child instanceof ClassTreeNode
+          ? new MyClassOwnerTreeNodeDecorator((ClassTreeNode) child)
           : child);
     }
     
@@ -78,6 +80,17 @@ public class ScalaDefsProjectViewProvider implements TreeStructureProvider {
     return null;
   }
 
+  private static class MyClassOwnerTreeNodeDecorator extends ClassTreeNode {
+    public MyClassOwnerTreeNodeDecorator(ClassTreeNode delegate) {
+      super(delegate.getProject(), delegate.getValue(), delegate.getSettings());
+    }
+
+    @Override
+    public String getTitle() {
+      PsiClass value = getValue();
+      return value != null && value.isValid() ? value.getQualifiedName() : null;
+    }
+  }
 
   private static class MyClassOwnerTreeNode extends PsiFileNode {
     public MyClassOwnerTreeNode(PsiClassOwner classOwner, ViewSettings settings) {
