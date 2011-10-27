@@ -38,11 +38,15 @@ abstract class CreateEntityQuickFix(ref: ScReferenceExpression,
   def isAvailable(project: Project, editor: Editor, file: PsiFile): Boolean = {
     if (!ref.isValid) return false
     ref match {
-      case Both(Parent(_: ScAssignStmt), Parent(Parent(_: ScArgumentExprList))) => false
-      case it if !it.isQualified => true
-      case Parent(call: ScMethodCall) => ref.qualifier.flatMap(blockFor(_)).filter(!_.isInCompiledFile).isDefined
-      case exp @ Parent(infix: ScInfixExpr) if infix.operation == exp => blockFor(infix.getBaseExpr).filter(!_.isInCompiledFile).isDefined
-      case _ => true
+      case Both(Parent(_: ScAssignStmt), Parent(Parent(_: ScArgumentExprList))) =>
+        false
+      case exp @ Parent(infix: ScInfixExpr) if infix.operation == exp =>
+        blockFor(infix.getBaseExpr).exists(!_.isInCompiledFile)
+      case it =>
+        if (it.isQualified)
+          ref.qualifier.flatMap(blockFor).exists(!_.isInCompiledFile)
+        else
+          !it.isInCompiledFile
     }
   }
 
