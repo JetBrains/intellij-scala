@@ -4,9 +4,9 @@ package psi
 
 import api.base._
 import api.base.types.{ScRefinement, ScExistentialClause, ScTypeElement}
-import api.toplevel.packaging.ScPackageContainer
 import api.toplevel.imports.usages.ImportUsed
 import api.toplevel.imports.{ScImportStmt, ScImportExpr, ScImportSelector, ScImportSelectors}
+import api.toplevel.packaging.{ScPackaging, ScPackageContainer}
 import api.toplevel.{ScTypeParametersOwner, ScEarlyDefinitions, ScTypedDefinition}
 import api.{ScPackageLike, ScalaFile, ScalaRecursiveElementVisitor}
 import com.intellij.psi.scope.PsiScopeProcessor
@@ -56,6 +56,26 @@ import caches.CachesUtil
  * User: Alexander Podkhalyuzin
  */
 object ScalaPsiUtil {
+  def withEtaExpansion(expr: ScExpression): Boolean = {
+    expr.getContext match {
+      case call: ScMethodCall => false
+      case p: ScParenthesisedExpr => withEtaExpansion(p)
+      case _ => true
+    }
+  }
+
+  def isLocalClass(td: PsiClass): Boolean = {
+    td.getParent match {
+      case tb: ScTemplateBody =>
+        val parent = PsiTreeUtil.getParentOfType(td, classOf[PsiClass], true)
+        if (parent == null) true
+        if (parent.isInstanceOf[ScNewTemplateDefinition]) return true
+        isLocalClass(parent)
+      case _: ScPackaging | _: ScalaFile => false
+      case _ => true
+    }
+  }
+
   def convertMemberName(s: String): String = {
     if (s == null || s.isEmpty) return s
     val s1 = if (s(0) == '`' && s.length() > 1) s.drop(1).dropRight(1) else s

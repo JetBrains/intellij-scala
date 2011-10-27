@@ -29,14 +29,14 @@ object InferUtil {
    * @return updated type and sequence of implicit parameters
    */
   def updateTypeWithImplicitParameters(res: ScType, element: PsiElement,
-                                       check: Boolean, withEtaExpansion: Boolean): (ScType, Option[Seq[ScalaResolveResult]]) = {
+                                       check: Boolean): (ScType, Option[Seq[ScalaResolveResult]]) = {
     var resInner = res
     var implicitParameters: Option[Seq[ScalaResolveResult]] = None
     res match {
-      case t@ScTypePolymorphicType(mt@ScMethodType(retType, params, impl), typeParams) if !impl && withEtaExpansion =>
+      case t@ScTypePolymorphicType(mt@ScMethodType(retType, params, impl), typeParams) if !impl =>
         // See SCL-3516
         val (updatedType, ps) = 
-          updateTypeWithImplicitParameters(t.copy(internalType = retType), element, check, withEtaExpansion)
+          updateTypeWithImplicitParameters(t.copy(internalType = retType), element, check)
         implicitParameters = ps
         updatedType match {
           case tpt: ScTypePolymorphicType =>
@@ -96,9 +96,9 @@ object InferUtil {
         implicitParameters = Some(resolveResults.toSeq)
         resInner = ScalaPsiUtil.localTypeInference(retType, params, exprs.toSeq, typeParams, safeCheck = check)
       }
-      case mt@ScMethodType(retType, params, isImplicit) if !isImplicit && withEtaExpansion =>
+      case mt@ScMethodType(retType, params, isImplicit) if !isImplicit =>
         // See SCL-3516
-        val (updatedType, ps) = updateTypeWithImplicitParameters(retType, element, check, withEtaExpansion)
+        val (updatedType, ps) = updateTypeWithImplicitParameters(retType, element, check)
         implicitParameters = ps
         resInner = mt.copy(returnType = updatedType)(mt.project, mt.scope)
       case ScMethodType(retType, params, isImplicit) if isImplicit => {

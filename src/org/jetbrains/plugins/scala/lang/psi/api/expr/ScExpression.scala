@@ -158,7 +158,7 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible with Ps
   }
 
   @volatile
-  private var implicitParameters: Option[Seq[ScalaResolveResult]] = None
+  protected var implicitParameters: Option[Seq[ScalaResolveResult]] = None
 
   private def typeWithUnderscore(ctx: TypingContext, ignoreBaseTypes: Boolean = false): TypeResult[ScType] = {
     getText.indexOf("_") match {
@@ -189,7 +189,7 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible with Ps
                         ignoreBaseTypes: Boolean = false): TypeResult[ScType] = {
     val inner = if (!fromUnderscoreSection) getNonValueType(ctx) else innerType(ctx)
     var res: ScType = inner match {
-      case Success(resa, _) => resa
+      case Success(r, _) => r
       case _ => return inner
     }
 
@@ -202,21 +202,18 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible with Ps
         }
       }
 
-      def withEtaExpantion(expr: ScExpression = this): Boolean = {
-        expr.getContext match {
-          case call: ScMethodCall => false
-          case p: ScParenthesisedExpr => withEtaExpantion(p)
-          case _ => true
-        }
+      val checkImplicitParameters = ScalaPsiUtil.withEtaExpansion(this)
+      if (checkImplicitParameters) {
+        val tuple = InferUtil.updateTypeWithImplicitParameters(res, this, checkExpectedType)
+        res = tuple._1
+        implicitParameters = tuple._2
       }
-
-      val tuple = InferUtil.updateTypeWithImplicitParameters(res, this, checkExpectedType, withEtaExpantion())
-      res = tuple._1
-      implicitParameters = tuple._2
     }
 
     def isMethodInvocation(expr: ScExpression = this): Boolean = {
       expr match {
+        case p: ScPrefixExpr => false
+        case p: ScPostfixExpr => false
         case _: MethodInvocation => true
         case p: ScParenthesisedExpr =>
           p.expr match {
@@ -235,7 +232,7 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible with Ps
           res = oldRes
           tryUpdateRes(false)
       }
-    } else {tryUpdateRes(false)}
+    }
 
     def removeMethodType(retType: ScType, updateType: ScType => ScType = t => t) {
       def updateRes(exp: Option[ScType]) {
