@@ -14,7 +14,7 @@ object LibraryDescriptor {
     }
     val all = list(LibraryLevel.Global) ++ list(LibraryLevel.Project)
     val (suitable, remaining) = all.partition(_.data.get.problem.isEmpty)
-    suitable.sortBy(_.data.get.version.get).reverse ++ remaining.sortBy(_.id.name.toLowerCase)
+    suitable.sortBy(_.data.get.version.getOrElse("Unknown")).reverse ++ remaining.sortBy(_.id.name.toLowerCase)
   }
   
   def createFor(id: LibraryId) = LibraryDescriptor(id, None)
