@@ -9,6 +9,8 @@ class FunctionParameterInfoCurringsTest extends FunctionParameterInfoTestBase {
 
   def testCurringDef = doTest
 
+  def testFoldLeft = doTest
+
   def testFunctionTypeCurrings = doTest
 
   def testNoCurrings = doTest
