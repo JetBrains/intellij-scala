@@ -56,6 +56,14 @@ import caches.CachesUtil
  * User: Alexander Podkhalyuzin
  */
 object ScalaPsiUtil {
+  def withEtaExpansion(expr: ScExpression): Boolean = {
+    expr.getContext match {
+      case call: ScMethodCall => false
+      case p: ScParenthesisedExpr => withEtaExpansion(p)
+      case _ => true
+    }
+  }
+
   def isLocalClass(td: PsiClass): Boolean = {
     td.getParent match {
       case tb: ScTemplateBody =>
