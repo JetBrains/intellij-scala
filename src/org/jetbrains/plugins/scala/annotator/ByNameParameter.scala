@@ -47,13 +47,6 @@ object ByNameParameter extends AnnotatorPart[ScExpression] {
     }
   }
 
-  private def conversionParameterOf(exp: ScExpression): Option[Parameter] = {
-    exp.getImplicitConversions._2
-            .flatMap(_.asOptionOf[ScFunction])
-            .flatMap(_.parameters.headOption)
-            .map(p => new Parameter(p))
-  }
-
   private def nonLiteralRangesIn(exp: ScExpression): Seq[TextRange] = {
     val literalRanges = exp.depthFirst.filterByType(classOf[ScLiteral]).map(_.getTextRange).toList
     val literalIndices = literalRanges.flatMap(r => List(r.getStartOffset, r.getEndOffset))
