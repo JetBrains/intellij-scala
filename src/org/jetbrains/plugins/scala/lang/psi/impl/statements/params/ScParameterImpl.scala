@@ -173,7 +173,7 @@ class ScParameterImpl extends ScalaStubBasedElementImpl[ScParameter] with ScPara
           }
           applyForFunction(tp, ScUnderScoreSectionUtil.underscores(f).length > 0)
         }
-        if (result == null) result = None
+        if (result == null || result == None) result = None //todo: x => foo(x)
         result
       }
       case _ => None

@@ -24,9 +24,19 @@ class ScUnderscoreSectionImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
         x.getNonValueType(TypingContext.empty)
       }
       case None => {
-        expectedType(false) match {
-          case Some(exp) => return Success(exp, Some(this))
-          case None =>
+        getContext match {
+          case typed: ScTypedStmt => {
+            overExpr match {
+              case Some(`typed`) => {
+                typed.typeElement match {
+                  case Some(te) => return te.getType(TypingContext.empty)
+                  case _ => return Failure("Typed statement is not complete for underscore section", Some(this))
+                }
+              }
+              case _ => return typed.getType(TypingContext.empty)
+            }
+          }
+          case _ =>
         }
         overExpr match {
           case None => Failure("No type inferred", None)
@@ -64,7 +74,7 @@ class ScUnderscoreSectionImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
                 case _ =>
               }
             }
-            if (result == null) {
+            if (result == null || result == None) {
               expectedType(false) match {
                 case Some(tp: ScType) => result = Some(tp)
                 case _ => result = None
