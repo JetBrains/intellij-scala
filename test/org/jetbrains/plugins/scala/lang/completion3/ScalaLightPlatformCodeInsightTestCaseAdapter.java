@@ -7,6 +7,8 @@ import com.intellij.openapi.application.WriteAction;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.projectRoots.JavaSdk;
+import com.intellij.openapi.projectRoots.Sdk;
 import com.intellij.openapi.roots.ContentEntry;
 import com.intellij.openapi.roots.ModifiableRootModel;
 import com.intellij.openapi.roots.ModuleRootManager;
@@ -31,6 +33,8 @@ import java.io.IOException;
  * @author Alexander Podkhalyuzin
  */
 public abstract class ScalaLightPlatformCodeInsightTestCaseAdapter extends LightPlatformCodeInsightTestCase {
+  private String JDK_HOME = TestUtils.getMockJdk();
+
   protected String rootPath() {
     return null;
   }
@@ -46,6 +50,11 @@ public abstract class ScalaLightPlatformCodeInsightTestCaseAdapter extends Light
     for (VirtualFile child : dir.getChildren()) {
       refreshDirectory(child);
     }
+  }
+
+  @Override
+  protected Sdk getProjectJDK() {
+    return JavaSdk.getInstance().createJdk("java sdk", JDK_HOME, false);
   }
 
   @Override
@@ -66,30 +75,38 @@ public abstract class ScalaLightPlatformCodeInsightTestCaseAdapter extends Light
 
       final ContentEntry contentEntry = rootModel.addContentEntry(testDataRoot);
       contentEntry.addSourceFolder(testDataRoot, false);
+      
     }
 
     // Add Scala Library
     final LibraryTable libraryTable = rootModel.getModuleLibraryTable();
-    final Library scalaLib = libraryTable.createLibrary("scala_lib");
-    final Library.ModifiableModel libModel = scalaLib.getModifiableModel();
-    final File libRoot = new File(TestUtils.getMockScalaLib());
-    assert(libRoot.exists());
+    Library.ModifiableModel libModel = null;
+    if (libraryTable.getLibraries().length == 0) {
+      final Library scalaLib = libraryTable.createLibrary("scala_lib");
+      libModel = scalaLib.getModifiableModel();
+      final File libRoot = new File(TestUtils.getMockScalaLib());
+      assert(libRoot.exists());
 
-    final File srcRoot = new File(TestUtils.getMockScalaSrc());
-    assert(srcRoot.exists());
+      final File srcRoot = new File(TestUtils.getMockScalaSrc());
+      assert(srcRoot.exists());
 
-    libModel.addRoot(VfsUtil.getUrlForLibraryRoot(libRoot), OrderRootType.CLASSES);
-    libModel.addRoot(VfsUtil.getUrlForLibraryRoot(srcRoot), OrderRootType.SOURCES);
-
-    ApplicationManager.getApplication().runWriteAction(new Runnable() {
-      public void run() {
-        libModel.commit();
-        rootModel.commit();
-        final StartupManagerImpl startupManager =
-            (StartupManagerImpl) StartupManager.getInstance(ourProject);
-        startupManager.startCacheUpdate();
-      }
-    });
+      libModel.addRoot(VfsUtil.getUrlForLibraryRoot(libRoot), OrderRootType.CLASSES);
+      libModel.addRoot(VfsUtil.getUrlForLibraryRoot(srcRoot), OrderRootType.SOURCES);
+      
+      
+    }
+    if (libModel != null || rootPath() != null) {
+      final Library.ModifiableModel finalLibModel = libModel;
+      ApplicationManager.getApplication().runWriteAction(new Runnable() {
+        public void run() {
+          if (finalLibModel != null)
+            finalLibModel.commit();
+          rootModel.commit();
+          final StartupManagerImpl startupManager = (StartupManagerImpl) StartupManager.getInstance(ourProject);
+          startupManager.startCacheUpdate();
+        }
+      });
+    }
   }
 
   protected Editor getEditorAdapter() {
