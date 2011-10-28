@@ -133,7 +133,7 @@ object InferUtil {
    * @param check we fail to get right type then if check throw SafeCheckException
    * @return updated type
    */
-  def updateAccordingToExpectedType(_nonValueType: TypeResult[ScType], fromUnderscoreSection: Boolean,
+  def updateAccordingToExpectedType(_nonValueType: TypeResult[ScType],
                                     fromImplicitParameters: Boolean,
                                     expectedType: Option[ScType], expr: ScExpression,
                                     check: Boolean): TypeResult[ScType] = {
@@ -153,18 +153,7 @@ object InferUtil {
             typeParams, shouldUndefineParameters = false, safeCheck = check)
           nonValueType = Success(update, Some(expr)) //here should work in different way:
         }
-        if (!fromUnderscoreSection) {
-          updateRes(expectedType.get)
-        } else {
-          expectedType.get match {
-            case ScFunctionType(retType, _) => updateRes(retType)
-            case p: ScParameterizedType => p.getFunctionType match {
-              case Some(ScFunctionType(retType, _)) => updateRes(retType)
-              case _ =>
-            }
-            case _ => //do not update res, we haven't expected type
-          }
-        }
+        updateRes(expectedType.get)
       }
       //todo: Something should be unified, that's bad to have fromImplicitParameters parameter.
       case Success(ScTypePolymorphicType(internal, typeParams), _) if expectedType != None && fromImplicitParameters => {
@@ -174,18 +163,7 @@ object InferUtil {
               Seq(new Expression(ScalaPsiUtil.undefineSubstitutor(typeParams).subst(internal.inferValueType))),
             typeParams, shouldUndefineParameters = false, safeCheck = check), Some(expr)) //here should work in different way:
         }
-        if (!fromUnderscoreSection) {
-          updateRes(expectedType.get)
-        } else {
-          expectedType.get match {
-            case ScFunctionType(retType, _) => updateRes(retType)
-            case p: ScParameterizedType => p.getFunctionType match {
-              case Some(ScFunctionType(retType, _)) => updateRes(retType)
-              case _ =>
-            }
-            case _ => //do not update res, we haven't expected type
-          }
-        }
+        updateRes(expectedType.get)
       }
       case _ =>
     }

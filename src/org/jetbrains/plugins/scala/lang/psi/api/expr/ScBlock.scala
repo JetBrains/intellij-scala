@@ -32,7 +32,7 @@ trait ScBlock extends ScExpression with ScDeclarationSequenceHolder with ScImpor
         case _ => types.Nothing
       }))
 
-      val et = expectedType.getOrElse(return Failure("Cannot infer type without expected type", Some(this)))
+      val et = expectedType(false).getOrElse(return Failure("Cannot infer type without expected type", Some(this)))
 
       return ScType.extractFunctionType(et) match {
         case Some(f @ ScFunctionType(_, params)) =>

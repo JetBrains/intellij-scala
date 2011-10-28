@@ -38,7 +38,7 @@ class ScThisReferenceImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with 
       getContext match {
         case r: ScReferenceExpression if r.qualifier.exists(_ == this) =>
           Success(ScThisType(td), Some(this))
-        case _ => expectedType match {
+        case _ => expectedType() match {
           case Some(t) if t.isStable =>
             Success(ScThisType(td), Some(this))
           case _ => 

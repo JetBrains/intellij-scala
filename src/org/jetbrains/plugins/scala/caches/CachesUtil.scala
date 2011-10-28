@@ -2,26 +2,39 @@ package org.jetbrains.plugins.scala
 package caches
 
 
-import com.intellij.psi.util.{CachedValueProvider, CachedValue}
+import com.intellij.psi.util.{CachedValuesManager, CachedValueProvider, CachedValue}
 import lang.psi.types.result.TypeResult
 import com.intellij.psi._
 import lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
 import lang.psi.api.expr.ScExpression.ExpressionTypeResult
 import lang.psi.api.base.types.ScTypeElement
 import com.intellij.openapi.util.{Computable, RecursionManager, RecursionGuard, Key}
-import util.CachedValueProvider.Result
 import lang.psi.api.expr.ScExpression
 import lang.psi.api.toplevel.imports.usages.ImportUsed
 import collection.mutable.{ArrayBuffer, Map, HashMap}
 import lang.resolve.ScalaResolveResult
 import lang.psi.types.{ScUndefinedSubstitutor, ScSubstitutor, Signature, ScType}
-import lang.psi.api.statements.params.{ScTypeParam, ScTypeParamClause, ScParameterClause}
+import lang.psi.api.statements.params.{ScTypeParamClause, ScParameterClause}
 
 /**
  * User: Alexander Podkhalyuzin
  * Date: 08.06.2009
  */
 object CachesUtil {
+  //Map cache keys
+  type MappedKey[Data, Result] = Key[CachedValue[HashMap[Data, Result]]]
+  val TYPE_AFTER_IMPLICIT_KEY: MappedKey[(Boolean, Boolean, Option[ScType], Boolean, Boolean), ExpressionTypeResult] =
+    Key.create("type.after.implicit.key")
+  val TYPE_WITHOUT_IMPLICITS: MappedKey[(Boolean, Boolean), TypeResult[ScType]] =
+    Key.create("type.without.implicits.key")
+  val NON_VALUE_TYPE_KEY: MappedKey[(Boolean, Boolean), TypeResult[ScType]] = Key.create("non.value.type.key")
+  val EXPECTED_TYPES_KEY: MappedKey[Boolean, Array[(ScType, Option[ScTypeElement])]] = Key.create("expected.types.key")
+  val SMART_EXPECTED_TYPE: MappedKey[Boolean, Option[ScType]] = Key.create("smart.expected.type")
+  val IMPLICIT_MAP1_KEY: MappedKey[(Option[ScType], Boolean), Seq[(ScType, PsiNamedElement, collection.Set[ImportUsed])]] =
+    Key.create("implicit.map1.key")
+  val IMPLICIT_MAP2_KEY: MappedKey[(Option[ScType], Boolean, Seq[ScType]), Seq[(ScType, PsiNamedElement, collection.Set[ImportUsed])]] =
+    Key.create("implicit.map2.key")
+
   //keys for cachedValue
   val REF_ELEMENT_SHAPE_RESOLVE_CONSTR_KEY: Key[CachedValue[Array[ResolveResult]]] =
     Key.create("ref.element.shape.resolve.constr.key")
@@ -31,10 +44,6 @@ object CachesUtil {
     ScType, ScSubstitutor, ScUndefinedSubstitutor)]]] =
     Key.create("implicit.simple.map.key")
   val NO_CONSTRUCTOR_RESOLVE_KEY: Key[CachedValue[Array[ResolveResult]]] = Key.create("no.constructor.resolve.key")
-  val IMPLICIT_MAP1_KEY: Key[CachedValue[Seq[(ScType, PsiNamedElement, collection.Set[ImportUsed])]]] =
-    Key.create("implicit.map1.key")
-  val IMPLICIT_MAP2_KEY: Key[CachedValue[Seq[(ScType, PsiNamedElement, collection.Set[ImportUsed])]]] =
-    Key.create("implicit.map2.key")
   val OBJECT_SYNTHETIC_MEMBERS_KEY: Key[CachedValue[Seq[PsiMethod]]] = Key.create("object.synthetic.members.key")
   val SYNTHETIC_MEMBERS_KEY: Key[CachedValue[Seq[PsiMethod]]] = Key.create("stynthetic.members.key")
   val DESUGARIZED_EXPR_KEY: Key[CachedValue[Option[ScExpression]]] = Key.create("desugarized.expr.key")
@@ -51,10 +60,6 @@ object CachesUtil {
   val IS_SCRIPT_FILE_KEY: Key[CachedValue[Boolean]] = Key.create("is.script.file.key")
   val FUNCTION_EFFECTIVE_PARAMETER_CLAUSE_KEY: Key[CachedValue[Seq[ScParameterClause]]] =
     Key.create("function.effective.parameter.clause.key")
-  val NON_VALUE_TYPE_KEY: Key[CachedValue[TypeResult[ScType]]] = Key.create("non.value.type.key")
-  val EXPECTED_TYPES_KEY: Key[CachedValue[Array[(ScType, Option[ScTypeElement])]]] = Key.create("expected.types.key")
-  val SMART_EXPECTED_TYPE: Key[CachedValue[Option[ScType]]] = Key.create("smart.expected.type")
-  val TYPE_AFTER_IMPLICIT_KEY: Key[CachedValue[ExpressionTypeResult]] = Key.create("type.after.implicit.key")
   val TYPE_WITHOUT_IMPLICITS_WITHOUT_UNDERSCORE: Key[CachedValue[TypeResult[ScType]]] =
     Key.create("type.without.implicits.without.underscore.key")
   val ALIASED_KEY: Key[CachedValue[TypeResult[ScType]]] = Key.create("alised.type.key")
@@ -71,7 +76,6 @@ object CachesUtil {
   val EFFECTIVE_PARAMETER_CLAUSE: Key[CachedValue[Seq[ScParameterClause]]] =
     Key.create("effective.parameter.clause.key")
   val PATTERN_EXPECTED_TYPE: Key[CachedValue[Option[ScType]]] = Key.create("pattern.expected.type.key")
-  val TYPE_WITHOUT_IMPLICITS: Key[CachedValue[TypeResult[ScType]]] = Key.create("type.without.implicits.key")
 
   //keys for getUserData
   val EXPRESSION_TYPING_KEY: Key[java.lang.Boolean] = Key.create("expression.typing.key")
@@ -80,20 +84,20 @@ object CachesUtil {
   val NAMED_PARAM_KEY: Key[java.lang.Boolean] = Key.create("named.key")
   val PACKAGE_OBJECT_KEY: Key[(ScTypeDefinition, java.lang.Long)] = Key.create("package.object.key")
 
-  def getWithRecurisionPreventing[Dom <: PsiElement, T](e: Dom, key: Key[CachedValue[T]],
-                                                        provider: MyProvider[Dom, T],
-                                                        defaultValue: => T): T = {
-    var computed: CachedValue[T] = e.getUserData(key)
+  def getWithRecursionPreventing[Dom <: PsiElement, Result](e: Dom, key: Key[CachedValue[Result]],
+                                                        provider: MyProvider[Dom, Result],
+                                                        defaultValue: => Result): Result = {
+    var computed: CachedValue[Result] = e.getUserData(key)
     if (computed == null) {
       val manager = PsiManager.getInstance(e.getProject).getCachedValuesManager
-      computed = manager.createCachedValue(new CachedValueProvider[T] {
-        def compute(): Result[T] = {
+      computed = manager.createCachedValue(new CachedValueProvider[Result] {
+        def compute(): CachedValueProvider.Result[Result] = {
           val guard = getRecursionGuard(key.toString)
           if (guard.currentStack().contains(e)) {
             return new CachedValueProvider.Result(defaultValue, provider.getDependencyItem)
           }
-          guard.doPreventingRecursion(e, false /* todo: true? */, new Computable[Result[T]] {
-            def compute(): Result[T] = provider.compute()
+          guard.doPreventingRecursion(e, false /* todo: true? */, new Computable[CachedValueProvider.Result[Result]] {
+            def compute(): CachedValueProvider.Result[Result] = provider.compute()
           }) match {
             case null => new CachedValueProvider.Result(defaultValue, provider.getDependencyItem)
             case notNull => notNull
@@ -124,5 +128,35 @@ object CachesUtil {
   private val guards: Map[String, RecursionGuard] = Map()
   private def getRecursionGuard(id: String): RecursionGuard = {
     guards.getOrElseUpdate(id, RecursionManager.createGuard(id))
+  }
+  
+  def getMappedWithRecursionPreventing[Dom <: PsiElement, Data, Result](e: Dom, data: Data,
+                                                                        key: Key[CachedValue[HashMap[Data, Result]]], 
+                                                                        builder: (Dom, Data) => Result,
+                                                                        defaultValue: => Result,
+                                                                        dependencyItem: Object): Result = {
+    var computed: CachedValue[HashMap[Data, Result]] = e.getUserData(key)
+    if (computed == null) {
+      val manager = PsiManager.getInstance(e.getProject).getCachedValuesManager
+      computed = manager.createCachedValue(new CachedValueProvider[HashMap[Data, Result]] {
+        def compute(): CachedValueProvider.Result[HashMap[Data, Result]] = {
+          new CachedValueProvider.Result(new HashMap[Data, Result](), dependencyItem)
+        }
+      }, false)
+      e.putUserData(key, computed)
+    }
+    val map = computed.getValue
+    map.getOrElseUpdate(data, {
+      val guard = getRecursionGuard(key.toString)
+      if (guard.currentStack().contains((e, data))) defaultValue
+      else {
+        guard.doPreventingRecursion((e, data), false, new Computable[Result] {
+          def compute(): Result = builder(e, data)
+        }) match {
+          case null => defaultValue
+          case notNull => notNull
+        }
+      }
+    })
   }
 }

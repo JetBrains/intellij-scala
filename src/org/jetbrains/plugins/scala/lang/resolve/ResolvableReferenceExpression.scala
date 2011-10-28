@@ -36,7 +36,7 @@ trait ResolvableReferenceExpression extends ScReferenceExpression {
 
   def shapeResolve: Array[ResolveResult] = {
     ProgressManager.checkCanceled()
-    CachesUtil.getWithRecurisionPreventing(this, CachesUtil.REF_EXPRESSION_SHAPE_RESOLVE_KEY,
+    CachesUtil.getWithRecursionPreventing(this, CachesUtil.REF_EXPRESSION_SHAPE_RESOLVE_KEY,
       new CachesUtil.MyProvider(this, (expr: ResolvableReferenceExpression) => shapeResolveInner)
       (PsiModificationTracker.MODIFICATION_COUNT), Array.empty[ResolveResult])
   }
