@@ -42,7 +42,7 @@ class CreateApplyQuickFix(ref: ScStableCodeReferenceElement, call: ScMethodCall)
 
     IdeDocumentHistory.getInstance(project).includeCurrentPlaceAsChangePlace()
 
-    val methodType = call.expectedType.map(_.presentableText)
+    val methodType = call.expectedType().map(_.presentableText)
     val parameters = parametersFor(ref)
 
     inWriteAction {

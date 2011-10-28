@@ -61,7 +61,7 @@ object Update extends Strategy {
     param.parentsInFile.findByType(classOf[ScFunctionExpr]) match {
       case Some(func) =>
         val index = func.parameters.indexOf(param)
-        func.expectedType.flatMap(ScType.extractFunctionType) match {
+        func.expectedType().flatMap(ScType.extractFunctionType) match {
           case Some(funcType) =>
             if (index >= 0 && index < funcType.arity) {
               val paramExpectedType = funcType.params(index)

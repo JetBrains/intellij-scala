@@ -8,4 +8,6 @@ class ScalaRenameParameterTest extends ScalaRenameTestBase {
   def testStableRef = doTest
 
   def testnaming = doTest
+
+  def testImplicitFunction = doTest
 }

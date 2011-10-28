@@ -31,18 +31,19 @@ private[expr] object ExpectedTypes {
    * Do not use this method inside of resolve or type inference.
    * Using this leads to SOE.
    */
-  def smartExpectedType(expr: ScExpression): Option[ScType] = smartExpectedTypeEx(expr).map(_._1)
+  def smartExpectedType(expr: ScExpression, fromUnderscore: Boolean = true): Option[ScType] =
+    smartExpectedTypeEx(expr, fromUnderscore).map(_._1)
 
-  def smartExpectedTypeEx(expr: ScExpression): Option[(ScType, Option[ScTypeElement])] = {
-    val types = expectedExprTypes(expr, true)
+  def smartExpectedTypeEx(expr: ScExpression, fromUnderscore: Boolean = true): Option[(ScType, Option[ScTypeElement])] = {
+    val types = expectedExprTypes(expr, true, fromUnderscore)
     types.length match {
       case 1 => Some(types(0))
       case _ => None
     }
   }
   
-  def expectedExprType(expr: ScExpression): Option[(ScType, Option[ScTypeElement])] = {
-    val types = expr.expectedTypesEx
+  def expectedExprType(expr: ScExpression, fromUnderscore: Boolean = true): Option[(ScType, Option[ScTypeElement])] = {
+    val types = expr.expectedTypesEx(fromUnderscore)
     types.length match {
       case 1 => Some(types(0))
       case _ => None
@@ -54,36 +55,21 @@ private[expr] object ExpectedTypes {
   /**
    * @return (expectedType, expectedTypeElement)
    */
-  def expectedExprTypes(expr: ScExpression, withResolvedFunction: Boolean = false): Array[(ScType, Option[ScTypeElement])] = {
-    //this method needs to replace expected type to return type if it's placholder function expression
-    def finalize(expr: ScExpression): Array[(ScType, Option[ScTypeElement])] = {
-      ScUnderScoreSectionUtil.underscores(expr).length match {
-        case 0 => expr.expectedTypesEx
-        case _ => {
-          val res = new ArrayBuffer[(ScType, Option[ScTypeElement])]
-          for (tp <- expr.expectedTypes) {
-            ScType.extractFunctionType(tp._1) match {
-              case Some(ScFunctionType(rt: ScType, _)) => res += rt
-              case None =>
-            }
-          }
-          res.toArray
-        }
-      }
-    }
-    expr.getContext match {
-      case p: ScParenthesisedExpr => p.expectedTypesEx
+  def expectedExprTypes(expr: ScExpression, withResolvedFunction: Boolean = false,
+                        fromUnderscore: Boolean = true): Array[(ScType, Option[ScTypeElement])] = {
+    val result: Array[(ScType, Option[ScTypeElement])] = expr.getContext match {
+      case p: ScParenthesisedExpr => p.expectedTypesEx(fromUnderscore)
       //see SLS[6.11]
       case b: ScBlockExpr => b.lastExpr match {
-        case Some(e) if e == expr => finalize(b)
+        case Some(e) if e == expr => b.expectedTypesEx(true)
         case _ => Array.empty
       }
       //see SLS[6.16]
       case cond: ScIfStmt if cond.condition.getOrElse(null: ScExpression) == expr => Array((types.Boolean, None))
-      case cond: ScIfStmt if cond.elseBranch != None => finalize(cond)
+      case cond: ScIfStmt if cond.elseBranch != None => cond.expectedTypesEx(true)
       //see SLA[6.22]
       case tb: ScTryBlock => tb.lastExpr match {
-        case Some(e) if e == expr => finalize(tb.getContext.asInstanceOf[ScTryStmt])
+        case Some(e) if e == expr => tb.getContext.asInstanceOf[ScTryStmt].expectedTypesEx(true)
         case _ => Array.empty
       }
       case fb: ScFinallyBlock => Array((types.Unit, None))
@@ -94,9 +80,9 @@ private[expr] object ExpectedTypes {
         Array((throwableType, None))
       //see SLS[8.4]
       case c: ScCaseClause => c.getContext.getContext match {
-        case m: ScMatchStmt => finalize(m)
+        case m: ScMatchStmt => m.expectedTypesEx(true)
         case b: ScBlockExpr if b.isAnonymousFunction => {
-          finalize(b).flatMap(tp => ScType.extractFunctionType(tp._1) match {
+          b.expectedTypesEx(true).flatMap(tp => ScType.extractFunctionType(tp._1) match {
             case Some(ScFunctionType(retType, _)) => Array[(ScType, Option[ScTypeElement])]((retType, None))
             case _ => ScType.extractPartialFunctionType(tp._1) match {
               case Some((des, param, ret)) => Array[(ScType, Option[ScTypeElement])]((ret, None))
@@ -105,16 +91,16 @@ private[expr] object ExpectedTypes {
           })
         }
         case cb: ScCatchBlock =>
-          finalize(cb.getContext.asInstanceOf[ScTryStmt])
+          cb.getContext.asInstanceOf[ScTryStmt].expectedTypesEx(true)
         case _ => Array.empty
       }
       //see SLS[6.23]
-      case f: ScFunctionExpr => finalize(f).flatMap(tp => ScType.extractFunctionType(tp._1) match {
+      case f: ScFunctionExpr => f.expectedTypesEx(true).flatMap(tp => ScType.extractFunctionType(tp._1) match {
         case Some(ScFunctionType(retType, _)) => Array[(ScType, Option[ScTypeElement])]((retType, None))
         case _ => Array[(ScType, Option[ScTypeElement])]()
       })
       case t: ScTypedStmt if t.getLastChild.isInstanceOf[ScSequenceArg] => {
-        t.expectedTypesEx
+        t.expectedTypesEx(true)
       }
       //SLS[6.13]
       case t: ScTypedStmt => {
@@ -176,7 +162,7 @@ private[expr] object ExpectedTypes {
         val exprs = tuple.exprs
         val actExpr = expr.getDeepSameElementInContext
         val index = exprs.indexOf(actExpr)
-        for (tp: ScType <- tuple.expectedTypes) {
+        for (tp: ScType <- tuple.expectedTypes(true)) {
           tp match {
             case ScTupleType(comps) if comps.length == tuple.exprs.length => {
               buffer += comps(index)
@@ -284,11 +270,22 @@ private[expr] object ExpectedTypes {
       case b: ScBlock if b.getContext.isInstanceOf[ScTryBlock]
               || b.getContext.getContext.getContext.isInstanceOf[ScCatchBlock]
               || b.getContext.isInstanceOf[ScCaseClause] => b.lastExpr match {
-        case Some(e) if e == expr => finalize(b)
+        case Some(e) if e == expr => b.expectedTypesEx(true)
         case _ => Array.empty
       }
       case _ => Array.empty
     }
+
+    if (fromUnderscore && ScUnderScoreSectionUtil.underscores(expr).length != 0) {
+      val res = new ArrayBuffer[(ScType, Option[ScTypeElement])]
+      for (tp <- result) {
+        ScType.extractFunctionType(tp._1) match {
+          case Some(ScFunctionType(rt: ScType, _)) => res += rt
+          case None =>
+        }
+      }
+      res.toArray
+    } else result
   }
 
   private def processArgsExpected(res: ArrayBuffer[ScType], expr: ScExpression, i: Int, tp: TypeResult[ScType],

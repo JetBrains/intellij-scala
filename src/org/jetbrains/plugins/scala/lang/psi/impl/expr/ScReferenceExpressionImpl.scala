@@ -166,7 +166,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
           }
           case _ => {
             val stableTypeRequired = {
-              val expectedTypeIsStable = expectedType.exists {_.isStable}
+              val expectedTypeIsStable = expectedType().exists {_.isStable}
               // TODO there are 4 cases in SLS 6.4, this is #2
               expectedTypeIsStable
             }

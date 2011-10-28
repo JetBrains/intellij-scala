@@ -40,7 +40,7 @@ class ReferenceExpressionResolver(shapesOnly: Boolean)
       case call: ScMethodCall =>
         val args = call.argumentExpressions ++ call.getContext.asInstanceOf[ScAssignStmt].getRExpression.toList
         ContextInfo(Some(args), () => None, false)
-      case section: ScUnderscoreSection => ContextInfo(None, () => section.expectedType, true)
+      case section: ScUnderscoreSection => ContextInfo(None, () => section.expectedType(), true)
       case inf: ScInfixExpr if ref == inf.operation => {
         ContextInfo(if (ref.rightAssoc) Some(Seq(inf.lOp)) else inf.rOp match {
           case tuple: ScTuple => Some(tuple.exprs) // See SCL-2001
@@ -51,7 +51,7 @@ class ReferenceExpressionResolver(shapesOnly: Boolean)
       case parents: ScParenthesisedExpr => getContextInfo(ref, parents)
       case postf: ScPostfixExpr if ref == postf.operation => getContextInfo(ref, postf)
       case pref: ScPrefixExpr if ref == pref.operation => getContextInfo(ref, pref)
-      case _ => ContextInfo(None, () => e.expectedType, false)
+      case _ => ContextInfo(None, () => e.expectedType(), false)
     }
   }
 
@@ -89,20 +89,14 @@ class ReferenceExpressionResolver(shapesOnly: Boolean)
         case parent@(_: ScPrefixExpr | _: ScPostfixExpr | _: ScInfixExpr) => parent
         case _ => reference
       }
-      expr.getText.indexOf("_") match {
-        case -1 => info.expectedType.apply() //optimization
-        case _ => {
-
-          val unders = ScUnderScoreSectionUtil.underscores(expr)
-          if (unders.length != 0) {
-            info.expectedType.apply() match {
-              case Some(ScFunctionType(ret, _)) => Some(ret)
-              case Some(p: ScParameterizedType) if p.getFunctionType != None => Some(p.typeArgs.last)
-              case other => other
-            }
-          } else info.expectedType.apply()
+      val unders = ScUnderScoreSectionUtil.underscores(expr)
+      if (unders.length != 0) {
+        info.expectedType.apply() match {
+          case Some(ScFunctionType(ret, _)) => Some(ret)
+          case Some(p: ScParameterizedType) if p.getFunctionType != None => Some(p.typeArgs.last)
+          case other => other
         }
-      }
+      } else info.expectedType.apply()
     }
 
     val prevInfoTypeParams = reference.qualifier match {
