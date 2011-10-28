@@ -145,7 +145,7 @@ class ScParameterImpl extends ScalaStubBasedElementImpl[ScParameter] with ScPara
       // an. fun's type
       case f: ScFunctionExpr => {
         var result: Option[ScType] = null //strange logic to handle problems with detecting type
-        for (tp <- f.expectedTypes if result != None) {
+        for (tp <- f.expectedTypes(false) if result != None) {
           def applyForFunction(tp: ScType, checkDeep: Boolean) {
             tp match {
               case ScFunctionType(ret, _) if checkDeep => applyForFunction(ret, false)

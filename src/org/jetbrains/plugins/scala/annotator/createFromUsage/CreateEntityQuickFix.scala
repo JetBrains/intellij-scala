@@ -138,8 +138,8 @@ abstract class CreateEntityQuickFix(ref: ScReferenceExpression,
   }
 
   private def typeFor(ref: ScReferenceExpression): Option[String]  = ref.getParent match {
-    case call: ScMethodCall => call.expectedType.map(_.presentableText)
-    case _ => ref.expectedType.map(_.presentableText)
+    case call: ScMethodCall => call.expectedType().map(_.presentableText)
+    case _ => ref.expectedType().map(_.presentableText)
   }
 
   private def parametersFor(ref: ScReferenceExpression): Option[String] = ref.parent.collect {
