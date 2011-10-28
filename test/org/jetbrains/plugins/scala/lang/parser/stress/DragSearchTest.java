@@ -32,7 +32,7 @@ import java.util.List;
  * @author ilyas
  */
 public class DragSearchTest extends BaseScalaFileSetTestCase {
-  protected static final int MAX_ROLLBACKS = 16;
+  protected static final int MAX_ROLLBACKS = 30;
 
   @NonNls
   private static final String DATA_PATH = "test/org/jetbrains/plugins/scala/lang/parser/stress/data/";
@@ -97,7 +97,7 @@ public class DragSearchTest extends BaseScalaFileSetTestCase {
     if (penals.size() > 0) {
       Console.println("[" + testName + "] Max rollbacks: " + ourMaximum);
       Console.println(" Look for example @: " + stickRanges(penals.toArray(new Pair[penals.size()]), fileText));
-      Assert.assertTrue("Too much rollbacks", ourMaximum < MAX_ROLLBACKS);
+      Assert.assertTrue("Too much rollbacks: " + ourMaximum, ourMaximum < MAX_ROLLBACKS);
     }
 
   }
