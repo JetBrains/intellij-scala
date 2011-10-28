@@ -394,8 +394,9 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible with Ps
       None, PsiModificationTracker.MODIFICATION_COUNT)
   }
 
-  def getImplicitConversions: (Seq[PsiNamedElement], Option[PsiNamedElement]) = {
-    val implicits: Seq[PsiNamedElement] = implicitMap().map(_._2) //todo: args?
+  def getImplicitConversions(fromUnder: Boolean = false): (Seq[PsiNamedElement], Option[PsiNamedElement]) = {
+    val implicits: Seq[PsiNamedElement] = implicitMap(fromUnder = fromUnder,
+      args = expectedTypes(fromUnder).toSeq).map(_._2)
     val implicitFunction: Option[PsiNamedElement] = getParent match {
       case ref: ScReferenceExpression => {
         val resolve = ref.multiResolve(false)
@@ -414,7 +415,8 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible with Ps
         case call: ScMethodCall => call.getImplicitFunction
         case _ => None
       }
-      case _ => getTypeAfterImplicitConversion(expectedOption = smartExpectedType()).implicitFunction
+      case _ => getTypeAfterImplicitConversion(expectedOption = smartExpectedType(),
+        fromUnderscore = fromUnder).implicitFunction
     }
     (implicits, implicitFunction)
   }
