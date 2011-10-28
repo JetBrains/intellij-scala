@@ -7,9 +7,9 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil
 import com.intellij.openapi.ui.popup.JBPopupFactory
 import javax.swing.{DefaultListModel, JList}
 import org.jetbrains.plugins.scala.lang.psi.presentation.ScImplicitFunctionListCellRenderer
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import com.intellij.psi.{PsiWhiteSpace, PsiElement, NavigatablePsiElement, PsiNamedElement}
 import collection.mutable.ArrayBuffer
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScUnderScoreSectionUtil, ScExpression}
 
 /**
  * User: Alexander Podkhalyuzin
@@ -29,7 +29,15 @@ class GoToImplicitConversionAction extends AnAction("Go to implicit conversion a
     if (!file.isInstanceOf[ScalaFile]) return
 
     def forExpr(expr: ScExpression): Boolean = {
-      val implicitConversions = expr.getImplicitConversions
+      val fromUnder = 
+        if (ScUnderScoreSectionUtil.isUnderscoreFunction(expr)) {
+          val conv1 = expr.getImplicitConversions(false)
+          val conv2 = expr.getImplicitConversions(true)
+          val cond = conv1._2 != None ^ conv2._2 != None
+          if (cond) conv2._2 != None
+          else false
+        } else false
+      val implicitConversions = expr.getImplicitConversions(fromUnder)
       val functions = implicitConversions._1
       if (functions.length == 0) return true
       val conversionFun = implicitConversions._2.getOrElse(null)
@@ -79,7 +87,9 @@ class GoToImplicitConversionAction extends AnAction("Go to implicit conversion a
         var parent = element
         while (parent != null) {
           parent match {
-            case expr: ScExpression if guard || expr.getImplicitConversions._2 != None => res += expr
+            case expr: ScExpression if guard || expr.getImplicitConversions(false)._2 != None ||
+              (ScUnderScoreSectionUtil.isUnderscoreFunction(expr) &&
+                expr.getImplicitConversions(true)._2 != None) => res += expr
             case _ =>
           }
           parent = parent.getParent
