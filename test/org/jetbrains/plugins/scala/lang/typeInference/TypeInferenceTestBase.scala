@@ -4,7 +4,6 @@ package typeInference
 
 import _root_.org.jetbrains.plugins.scala.lang.psi.types.ScType
 import base.ScalaPsiTestCase
-import com.intellij.openapi.vfs.{LocalFileSystem, VirtualFile}
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiComment, PsiManager}
 import java.io.File
@@ -14,26 +13,32 @@ import parser.ScalaElementTypes
 import psi.api.expr.ScExpression
 import psi.api.ScalaFile
 import psi.types.result.{TypingContext, Failure, Success}
+import completion3.ScalaLightPlatformCodeInsightTestCaseAdapter
+import util.TestUtils
+import com.intellij.openapi.util.io.FileUtil
+import com.intellij.openapi.vfs.{CharsetToolkit, LocalFileSystem, VirtualFile}
+import com.intellij.openapi.util.text.StringUtil
 
 /**
  * User: Alexander Podkhalyuzin
  * Date: 10.03.2009
  */
 
-abstract class TypeInferenceTestBase extends ScalaPsiTestCase {
+abstract class TypeInferenceTestBase extends ScalaLightPlatformCodeInsightTestCaseAdapter {
   private val startExprMarker = "/*start*/"
   private val endExprMarker = "/*end*/"
 
-  override def rootPath: String = super.rootPath + "typeInference/"
+  protected def folderPath: String = TestUtils.getTestDataPath + "/typeInference/"
 
-  protected def doTest = {
+  protected def doTest() {
     import _root_.junit.framework.Assert._
 
-    val filePath = rootPath + getTestName(false) + ".scala"
-    val file = LocalFileSystem.getInstance.refreshAndFindFileByPath(filePath.replace(File.separatorChar, '/'))
-    assert(file != null, "file " + filePath + " not found")
-    val scalaFile: ScalaFile = PsiManager.getInstance(myProject).findFile(file).asInstanceOf[ScalaFile]
-    val fileText = scalaFile.getText
+    val filePath = folderPath + getTestName(false) + ".scala"
+    val ioFile: File = new File(filePath)
+    var fileText: String = FileUtil.loadFile(ioFile, CharsetToolkit.UTF8)
+    fileText = StringUtil.convertLineSeparators(fileText)
+    configureFromFileTextAdapter(ioFile.getName, fileText)
+    val scalaFile: ScalaFile = getFileAdapter.asInstanceOf[ScalaFile]
     val offset = fileText.indexOf(startExprMarker)
     val startOffset = offset + startExprMarker.length
 
