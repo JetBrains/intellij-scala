@@ -68,7 +68,22 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
   def implicitMap(exp: Option[ScType] = None,
                   fromUnder: Boolean = false,
                   args: Seq[ScType] = Seq.empty): Seq[(ScType, PsiNamedElement, Set[ImportUsed])] = {
-    implicitMapFirstPart(exp, fromUnder) ++ implicitMapSecondPart(exp, fromUnder, args = args)
+    import collection.mutable.HashSet
+    val buffer = new ArrayBuffer[(ScType, PsiNamedElement, Set[ImportUsed])]
+    val seen = new HashSet[PsiNamedElement]
+    for (elem <- implicitMapFirstPart(exp, fromUnder)) {
+      if (!seen.contains(elem._2)) {
+        seen += elem._2
+        buffer += elem
+      }
+    }
+    for (elem <- implicitMapSecondPart(exp, fromUnder, args = args)) {
+      if (!seen.contains(elem._2)) {
+        seen += elem._2
+        buffer += elem
+      }
+    }
+    buffer.toSeq
   }
 
   def implicitMapFirstPart(exp: Option[ScType] = None,
