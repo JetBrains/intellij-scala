@@ -77,6 +77,7 @@ trait ScUnderscoreSection extends ScExpression {
 
 object ScUnderScoreSectionUtil {
   def underscores(expr: PsiElement): Seq[ScUnderscoreSection] = {
+    if (expr.getText.indexOf('_') == -1) return Seq.empty
     def inner(innerExpr: PsiElement): Seq[ScUnderscoreSection] = {
       innerExpr match {
         case under: ScUnderscoreSection => {

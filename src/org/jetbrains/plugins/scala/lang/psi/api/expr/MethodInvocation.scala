@@ -90,16 +90,7 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
    */
   def updateAccordingToExpectedType(nonValueType: TypeResult[ScType],
                                     check: Boolean = false): TypeResult[ScType] = {
-    val fromUnderscoreSection: Boolean = getText.indexOf("_") match {
-      case -1 => false
-      case _ => {
-        val unders = ScUnderScoreSectionUtil.underscores(this)
-        if (unders.length == 0) false
-        else true
-      }
-    }
-    InferUtil.updateAccordingToExpectedType(nonValueType, fromUnderscoreSection, false,
-      expectedType, this, check)
+    InferUtil.updateAccordingToExpectedType(nonValueType, false, expectedType(), this, check)
   }
 
   protected override def innerType(ctx: TypingContext): TypeResult[ScType] = {
@@ -119,7 +110,7 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
       case _ =>
     }
 
-    val withExpectedType = useExpectedType && expectedType != None //optimization to avoid except
+    val withExpectedType = useExpectedType && expectedType() != None //optimization to avoid except
 
     if (useExpectedType) nonValueType = updateAccordingToExpectedType(nonValueType, true)
 

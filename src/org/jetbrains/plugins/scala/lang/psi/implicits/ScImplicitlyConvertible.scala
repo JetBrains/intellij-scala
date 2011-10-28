@@ -73,42 +73,30 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
 
   def implicitMapFirstPart(exp: Option[ScType] = None,
                   fromUnder: Boolean = false): Seq[(ScType, PsiNamedElement, Set[ImportUsed])] = {
-    exp match {
-      case Some(expected) => return buildImplicitMap(exp, fromUnder, part = (true, false))
-      case None =>
-    }
-    if (fromUnder) return buildImplicitMap(exp, fromUnder, part = (true, false))
-    import org.jetbrains.plugins.scala.caches.CachesUtil._
-    get(this, CachesUtil.IMPLICIT_MAP1_KEY,
-      new MyProvider[ScImplicitlyConvertible, Seq[(ScType, PsiNamedElement, Set[ImportUsed])]](this, _ => {
-        buildImplicitMap(part = (true, false))
-      })(PsiModificationTracker.MODIFICATION_COUNT))
+    type Data = (Option[ScType], Boolean)
+    val data = (exp, fromUnder)
+
+    CachesUtil.getMappedWithRecursionPreventing(this, data, CachesUtil.IMPLICIT_MAP1_KEY,
+      (expr: ScExpression, data: Data) => buildImplicitMap(data._1, data._2, (true, false)), Seq.empty,
+      PsiModificationTracker.MODIFICATION_COUNT)
   }
 
   def implicitMapSecondPart(exp: Option[ScType] = None,
                             fromUnder: Boolean = false,
                             args: Seq[ScType] = Seq.empty): Seq[(ScType, PsiNamedElement, Set[ImportUsed])] = {
-    exp match {
-      case Some(expected) => return buildImplicitMap(exp, fromUnder, part = (false, true), args = args)
-      case None =>
-    }
-    if (fromUnder) return buildImplicitMap(exp, fromUnder, part = (false, true), args = args)
-    import org.jetbrains.plugins.scala.caches.CachesUtil._
-    //todo: make more careful args caching
-    get(this, CachesUtil.IMPLICIT_MAP2_KEY,
-      new MyProvider[ScImplicitlyConvertible, Seq[(ScType, PsiNamedElement, Set[ImportUsed])]](this, _ => {
-        buildImplicitMap(part = (false, true), args = args)
-      })(PsiModificationTracker.MODIFICATION_COUNT))
+    type Data = (Option[ScType], Boolean, Seq[ScType])
+    val data = (exp, fromUnder, args)
+
+    CachesUtil.getMappedWithRecursionPreventing(this, data, CachesUtil.IMPLICIT_MAP2_KEY,
+      (expr: ScExpression, data: Data) => buildImplicitMap(data._1, data._2, (false, true), data._3), Seq.empty,
+      PsiModificationTracker.MODIFICATION_COUNT)
   }
 
-  private def buildImplicitMap(exp: Option[ScType] = expectedType,
+  private def buildImplicitMap(exp: Option[ScType],
                                fromUnder: Boolean = false,
                                part: (Boolean, Boolean),
                                args: Seq[ScType] = Seq.empty): Seq[(ScType, PsiNamedElement, Set[ImportUsed])] = {
-    val typez: ScType =
-      if (!fromUnder) getTypeWithoutImplicits(TypingContext.empty).getOrElse(return Seq.empty)
-      else getTypeWithoutImplicitsWithoutUnderscore(TypingContext.empty).getOrElse(return Seq.empty)
-
+    val typez: ScType = getTypeWithoutImplicits(TypingContext.empty, fromUnderscore = fromUnder).getOrElse(return Seq.empty)
 
     val buffer = new ArrayBuffer[(ScalaResolveResult, ScType, ScType, ScSubstitutor, ScUndefinedSubstitutor)]
     if (part._1) {
@@ -175,9 +163,7 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
 
   private def buildSimpleImplicitMapInner(fromUnder: Boolean): ArrayBuffer[(ScalaResolveResult, ScType,
                                                                     ScType, ScSubstitutor, ScUndefinedSubstitutor)] = {
-    val typez: ScType =
-      if (!fromUnder) getTypeWithoutImplicits(TypingContext.empty).getOrElse(null)
-      else getTypeWithoutImplicitsWithoutUnderscore(TypingContext.empty).getOrElse(null)
+    val typez: ScType = getTypeWithoutImplicits(TypingContext.empty, fromUnderscore = fromUnder).getOrElse(null)
     if (typez == null) return ArrayBuffer.empty
     val processor = new CollectImplicitsProcessor
 

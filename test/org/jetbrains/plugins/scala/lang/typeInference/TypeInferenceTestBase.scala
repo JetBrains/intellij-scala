@@ -50,7 +50,7 @@ abstract class TypeInferenceTestBase extends ScalaPsiTestCase {
 
         val res = ScType.presentableText(ttypez)
         println("------------------------ " + scalaFile.getName + " ------------------------")
-        println("%s (expected types: [%s])".format(res, expr.expectedTypes.toList.map(ScType.presentableText).mkString(",")))
+        println("%s (expected types: [%s])".format(res, expr.expectedTypes().toList.map(ScType.presentableText).mkString(",")))
         val lastPsi = scalaFile.findElementAt(scalaFile.getText.length - 1)
         val text = lastPsi.getText
         val output = lastPsi.getNode.getElementType match {
@@ -62,12 +62,12 @@ abstract class TypeInferenceTestBase extends ScalaPsiTestCase {
         val Pattern = """expected: (.*)""".r
         output match {
           case "expected: <none>" =>
-            expr.expectedType match {
+            expr.expectedType() match {
               case Some(et) => fail("found unexpected expected type: %s".format(ScType.presentableText(et)))
               case None => // all good
             }
           case Pattern(expectedExpectedTypeText) =>
-            val actualExpectedType = expr.expectedType.getOrElse(Predef.error("no expected type"))
+            val actualExpectedType = expr.expectedType().getOrElse(Predef.error("no expected type"))
             val actualExpectedTypeText = ScType.presentableText(actualExpectedType)
             assertEquals(expectedExpectedTypeText, actualExpectedTypeText)
           case _ => assertEquals(output, res)

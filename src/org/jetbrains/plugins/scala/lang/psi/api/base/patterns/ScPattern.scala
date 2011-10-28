@@ -290,7 +290,7 @@ trait ScPattern extends ScalaPsiElement {
         if (thr != null) Some(ScType.designator(thr)) else None
       }
       case b : ScBlockExpr => {
-        b.expectedType match {
+        b.expectedType(false) match {
           case Some(et) =>
             ScType.extractFunctionType(et) match {
               case Some(ScFunctionType(_, Seq())) => Some(Unit)

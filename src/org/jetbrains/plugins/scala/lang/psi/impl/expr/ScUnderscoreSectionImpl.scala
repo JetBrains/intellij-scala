@@ -52,7 +52,7 @@ class ScUnderscoreSectionImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
             if (i < 0) return Failure("Not found under", None)
             var result: Option[ScType] = null //strange logic to handle problems with detecting type
             var forEqualsParamLength: Boolean = false //this is for working completion
-            for (tp <- expr.expectedTypes if result != None) {
+            for (tp <- expr.expectedTypes(false) if result != None) {
 
               def processFunctionType(tp: ScFunctionType) {
                 import tp.params
@@ -75,7 +75,7 @@ class ScUnderscoreSectionImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
               }
             }
             if (result == null) {
-              expectedType match {
+              expectedType(false) match {
                 case Some(tp: ScType) => result = Some(tp)
                 case _ => result = None
               }

@@ -47,8 +47,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
       elem match {
         case clazz: PsiClass => true
         case f: ScFunctionExpr => true
-        case e: ScExpression if e.getText.indexOf('_') != -1 &&
-          ScUnderScoreSectionUtil.underscores(e).length > 0 => true
+        case e: ScExpression if ScUnderScoreSectionUtil.underscores(e).length > 0 => true
         case _ => false
       }
     }

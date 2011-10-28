@@ -53,7 +53,7 @@ class ShowTypeInfoAction extends AnAction(ScalaBundle.message("type.info")) {
           val tpeWithoutImplicitsText = tpeWithoutImplicits.map(_.presentableText)
 
           val tpeText = tpe.presentableText
-          val expectedTypeText = expr.expectedType.map(_.presentableText)
+          val expectedTypeText = expr.expectedType().map(_.presentableText)
 
           val hint = (tpeWithoutImplicitsText, expectedTypeText) match {
             case (None, Some(expectedTypeText)) =>

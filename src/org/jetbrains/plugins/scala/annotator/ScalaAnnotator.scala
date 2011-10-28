@@ -515,7 +515,7 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
 
   private def checkExpressionType(expr: ScExpression, holder: AnnotationHolder, typeAware: Boolean) {
     val ExpressionTypeResult(exprType, importUsed, implicitFunction) =
-      expr.getTypeAfterImplicitConversion(expectedOption = expr.smartExpectedType)
+      expr.getTypeAfterImplicitConversion(expectedOption = expr.smartExpectedType())
     ImportTracker.getInstance(expr.getProject).
                     registerUsedImports(expr.getContainingFile.asInstanceOf[ScalaFile], importUsed)
 
@@ -542,7 +542,7 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
           case _ =>
         }
 
-        expr.expectedTypeEx match {
+        expr.expectedTypeEx(false) match {
           case Some((tp: ScType, _)) if tp equiv Unit => //do nothing
           case Some((tp: ScType, typeElement)) => {
             import org.jetbrains.plugins.scala.lang.psi.types._
