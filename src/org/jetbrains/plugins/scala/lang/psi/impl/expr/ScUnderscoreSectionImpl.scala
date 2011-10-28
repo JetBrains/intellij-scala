@@ -24,19 +24,9 @@ class ScUnderscoreSectionImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
         x.getNonValueType(TypingContext.empty)
       }
       case None => {
-        getContext match {
-          case typed: ScTypedStmt => {
-            overExpr match {
-              case Some(`typed`) => {
-                typed.typeElement match {
-                  case Some(te) => return te.getType(TypingContext.empty)
-                  case _ => return Failure("Typed statement is not complete for underscore section", Some(this))
-                }
-              }
-              case _ => return typed.getType(TypingContext.empty)
-            }
-          }
-          case _ =>
+        expectedType(false) match {
+          case Some(exp) => return Success(exp, Some(this))
+          case None =>
         }
         overExpr match {
           case None => Failure("No type inferred", None)
@@ -48,7 +38,7 @@ class ScUnderscoreSectionImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
               startOffset += e.getStartOffsetInParent
               e = e.getContext
             }
-            val i = unders.findIndexOf(_.getTextRange.getStartOffset == startOffset)
+            val i = unders.indexWhere(_.getTextRange.getStartOffset == startOffset)
             if (i < 0) return Failure("Not found under", None)
             var result: Option[ScType] = null //strange logic to handle problems with detecting type
             var forEqualsParamLength: Boolean = false //this is for working completion
