@@ -76,9 +76,11 @@ class ScalaResolveResult(val element: PsiNamedElement,
   //In valid program we should not have two resolve results with the same element but different substitutor,
   // so factor by element
   override def equals(other: Any): Boolean = other match {
-    case rr: ScalaResolveResult => element eq rr.element
+    case rr: ScalaResolveResult =>
+      if (element ne rr.element) return false
+      innerResolveResult == rr.innerResolveResult
     case _ => false
   }
 
-  override def hashCode: Int = element.hashCode
+  override def hashCode: Int = element.hashCode + innerResolveResult.hashCode() * 31
 }

@@ -88,17 +88,9 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
    * This method useful in case if you want to update some polymorphic type
    * according to method call expected type
    */
-  def updateAccordingToExpectedType(nonValueType: TypeResult[ScType]): TypeResult[ScType] = {
-    val fromUnderscoreSection: Boolean = getText.indexOf("_") match {
-      case -1 => false
-      case _ => {
-        val unders = ScUnderScoreSectionUtil.underscores(this)
-        if (unders.length == 0) false
-        else true
-      }
-    }
-    InferUtil.updateAccordingToExpectedType(nonValueType, fromUnderscoreSection, false,
-      expectedType, this, false /* todo: ? */)
+  def updateAccordingToExpectedType(nonValueType: TypeResult[ScType],
+                                    check: Boolean = false): TypeResult[ScType] = {
+    InferUtil.updateAccordingToExpectedType(nonValueType, false, expectedType(), this, check)
   }
 
   protected override def innerType(ctx: TypingContext): TypeResult[ScType] = {
@@ -113,15 +105,14 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
   private def tryToGetInnerType(ctx: TypingContext, useExpectedType: Boolean): TypeResult[ScType] = {
     var nonValueType: TypeResult[ScType] = getEffectiveInvokedExpr.getNonValueType(TypingContext.empty)
     this match {
-      case pref: ScPrefixExpr => return nonValueType //no arg exprs, just reference expression type
-      case postf: ScPostfixExpr => return nonValueType //no arg exprs, just reference expression type
+      case _: ScPrefixExpr => return nonValueType //no arg exprs, just reference expression type
+      case _: ScPostfixExpr => return nonValueType //no arg exprs, just reference expression type
       case _ =>
     }
 
-    val withExpectedType = useExpectedType && expectedType != None //optimization to avoid except
+    val withExpectedType = useExpectedType && expectedType() != None //optimization to avoid except
 
-    if (useExpectedType)
-      nonValueType = updateAccordingToExpectedType(nonValueType)
+    if (useExpectedType) nonValueType = updateAccordingToExpectedType(nonValueType, true)
 
     def checkConformance(retType: ScType, psiExprs: Seq[ScExpression], parameters: Seq[Parameter]) = {
       tuplizyCase(psiExprs) { t =>
@@ -176,9 +167,9 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
       case _ => None
     }
 
-    val invokedType = nonValueType.getOrElse(return nonValueType)
+    val invokedType: ScType = nonValueType.getOrElse(return nonValueType)
 
-    val res: ScType = checkApplication(invokedType, argumentExpressions).getOrElse {
+    var res: ScType = checkApplication(invokedType, argumentExpressions).getOrElse {
       this match {
         case methodCall: ScMethodCall => //todo: remove reference to method call
           var (processedType, importsUsed, implicitFunction) = 
@@ -194,8 +185,16 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
             matchedParametersVar = Seq()
             processedType
           }
-        case _ => return nonValueType
+        case _ => invokedType
       }
+    }
+
+    //Implicit parameters
+    val checkImplicitParameters = withEtaExpansion(this)
+    if (checkImplicitParameters) {
+      val tuple = InferUtil.updateTypeWithImplicitParameters(res, this, useExpectedType)
+      res = tuple._1
+      implicitParameters = tuple._2
     }
 
     Success(res, Some(this))

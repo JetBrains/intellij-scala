@@ -58,16 +58,20 @@ class BasicTest extends ApplicabilityTestBase {
     }
   }
 
-  //TODO check misses clauses extraction
   def testMissedParametersClause() {
+    //for functions and for constructors there are different message
+    //reason: you can't apply eta-expansion for constructors
     assertProblems("(p: A)", "") {
       case MissedParametersClause(_) :: Nil =>
+      case MissedValueParameter(Parameter("p")) :: Nil =>
     }
     assertProblems("(a: A, b: B)", "") {
       case MissedParametersClause(_) :: Nil =>
+      case MissedValueParameter(Parameter("a")) :: MissedValueParameter(Parameter("b")) :: Nil =>
     }
     assertProblems("(a: A)(b: B)", "") {
       case MissedParametersClause(_) :: Nil =>
+      case MissedValueParameter(Parameter("a")) :: Nil =>
     }
   }
 

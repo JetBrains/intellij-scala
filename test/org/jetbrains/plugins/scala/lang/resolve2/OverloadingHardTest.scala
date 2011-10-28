@@ -26,8 +26,6 @@ class OverloadingHardTest extends ResolveTestBase {
   def testFunctionObject = doTest
   def testFunctionObject1 = doTest
   def testFunctionObject2 = doTest
-  // TODO This is intermittently failing. Replacing HashSet with LinkedHashSet in the resolve processors
-  // gives a stable result (passing), but we should investigate the real problem.
   def testParameterlessFunction = doTest
   def testParameterlessFunction2 = doTest
 }

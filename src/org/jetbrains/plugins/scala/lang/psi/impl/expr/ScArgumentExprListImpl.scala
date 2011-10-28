@@ -77,7 +77,7 @@ class ScArgumentExprListImpl(node: ASTNode) extends ScalaPsiElementImpl(node) wi
     return -1
   }
 
-  lazy val invocationCount: Int = {
+  def invocationCount: Int = {
     callExpression match {
       case call: ScMethodCall => call.args.invocationCount + 1
       case _ => 1

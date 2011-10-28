@@ -126,7 +126,7 @@ class ScalaLanguageInjector(myInjectionConfiguration: Configuration) extends Mul
   }
 
   def implicitAnnotationOwnerFor(literal: ScLiteral): Option[PsiAnnotationOwner] = {
-    literal.getImplicitConversions._2.flatMap(_.asOptionOf[ScFunction]).flatMap(_.parameters.headOption)
+    literal.getImplicitConversions()._2.flatMap(_.asOptionOf[ScFunction]).flatMap(_.parameters.headOption)
   }
 
   private def assignmentTarget(assignment: ScAssignStmt): Option[PsiAnnotationOwner] = {

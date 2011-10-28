@@ -44,7 +44,7 @@ class ScConstructorImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
             case e: ScExtendsBlock => {
               e.getContext match {
                 case n: ScNewTemplateDefinition => {
-                  n.expectedType
+                  n.expectedType()
                 }
                 case _ => None
               }

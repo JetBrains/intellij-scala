@@ -56,6 +56,14 @@ import caches.CachesUtil
  * User: Alexander Podkhalyuzin
  */
 object ScalaPsiUtil {
+  def withEtaExpansion(expr: ScExpression): Boolean = {
+    expr.getContext match {
+      case call: ScMethodCall => false
+      case p: ScParenthesisedExpr => withEtaExpansion(p)
+      case _ => true
+    }
+  }
+
   def isLocalClass(td: PsiClass): Boolean = {
     td.getParent match {
       case tb: ScTemplateBody =>
@@ -290,11 +298,8 @@ object ScalaPsiUtil {
   }
 
   def isAnonymousExpression(expr: ScExpression): (Int, ScExpression) = {
-    expr.getText.indexOf("_") match {case -1 => case _ => {
-        val seq = ScUnderScoreSectionUtil.underscores(expr)
-        if (seq.length > 0) return (seq.length, expr)
-      }
-    }
+    val seq = ScUnderScoreSectionUtil.underscores(expr)
+    if (seq.length > 0) return (seq.length, expr)
     expr match {
       case b: ScBlockExpr =>
         if (b.statements != 1) (-1, expr) else if (b.lastExpr == None) (-1, expr) else isAnonymousExpression(b.lastExpr.get)

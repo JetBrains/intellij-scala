@@ -32,7 +32,7 @@ class SupsiciousInferredTypeInspection extends LocalInspectionTool {
           case blk: ScBlock if blk.lastExpr.forall(_ != expr) => false
           case _ => true
         }
-        if (exprResultUsed && expr.expectedType.isEmpty) {
+        if (exprResultUsed && expr.expectedType().isEmpty) {
           expr.getType(TypingContext.empty) match {
             case Success(inferredType, _) if inferredType == AnyVal || inferredType == Any =>
               val presentable = ScType.presentableText(inferredType)
