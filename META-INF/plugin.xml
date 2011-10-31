@@ -200,6 +200,9 @@
     <projectService serviceInterface="org.jetbrains.plugins.scala.compiler.ScalacSettings"
                     serviceImplementation="org.jetbrains.plugins.scala.compiler.ScalacSettings"/>
 
+    <projectService serviceInterface="org.jetbrains.plugins.scala.lang.scaladoc.generate.ScaladocSettings"
+            serviceImplementation="org.jetbrains.plugins.scala.lang.scaladoc.generate.ScaladocSettings"/>
+
     <inspectionToolProvider implementation="org.jetbrains.plugins.scala.codeInspection.ScalaInspectionsProvider"/>
     <quoteHandler fileType="Scala" className="org.jetbrains.plugins.scala.lang.editor.ScalaQuoteHandler"/>
 
@@ -335,6 +338,10 @@
     <action id="Scala.TypeInfo" class="org.jetbrains.plugins.scala.actions.ShowTypeInfoAction">
       <keyboard-shortcut first-keystroke="control alt shift T" keymap="$default"/>
       <add-to-group group-id="CodeEditorViewGroup" anchor="last"/>
+    </action>
+    <action id="Scala.GenerateScaladoc" class="org.jetbrains.plugins.scala.lang.scaladoc.generate.ScaladocAction"
+        text="GenerateScaladoc" description="GenerateScaladoc">
+      <add-to-group group-id="ToolsMenu" anchor="last"/>
     </action>
     <action id="Scala.ShowImplicitParameters" class="org.jetbrains.plugins.scala.actions.ShowImplicitParametersAction"
             text="Implicit &amp;Parameters" description="Show Implicit Parameters">
