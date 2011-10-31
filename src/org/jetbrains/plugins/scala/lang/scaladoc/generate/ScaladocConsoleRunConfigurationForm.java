@@ -68,35 +68,37 @@ public class ScaladocConsoleRunConfigurationForm extends DialogWrapper {
     }
   }
 
-  //todo: remove side effects from getters
+  public void saveSettings() {
+    ScaladocSettings settings = ScaladocSettings.getInstance(project);
+    settings.outputDir = getOutputDir();
+    settings.additionalFlags = getAdditionalFlags();
+    settings.openInBrowser = isShowInBrowser();
+    settings.verbose = isVerbose();
+    settings.docTitle = getDocTitle();
+    settings.maxHeapSize = getMaxHeapSize();
+  }
 
   public String getOutputDir() {
-    ScaladocSettings.getInstance(project).outputDir = destDirChooser.getText();
     return destDirChooser.getText();
   }
   
   public String getAdditionalFlags() {
-    ScaladocSettings.getInstance(project).additionalFlags = additionalFlagsField.getText();
     return additionalFlagsField.getText();
   }
 
   public boolean isShowInBrowser() {
-    ScaladocSettings.getInstance(project).openInBrowser = myOpenInBrowserCheckBox.isSelected();
     return myOpenInBrowserCheckBox.isSelected();
   }
   
   public boolean isVerbose() {
-    ScaladocSettings.getInstance(project).verbose = myVerboseCheckBox.isSelected();
     return myVerboseCheckBox.isSelected();
   }
 
   public String getDocTitle() {
-    ScaladocSettings.getInstance(project).docTitle = docTitle.getText();
     return docTitle.getText();
   }
 
   public String getMaxHeapSize() {
-    ScaladocSettings.getInstance(project).maxHeapSize = maxHeapSizeField.getText();
     return maxHeapSizeField.getText();
   }
 
@@ -105,6 +107,9 @@ public class ScaladocConsoleRunConfigurationForm extends DialogWrapper {
     return myPanel1;
   }
 
+  public JTextField getOutputDirChooser() {
+    return destDirChooser.getTextField();
+  }
 
   private FileChooserDescriptor addFileChooser(final String title,
                                                final TextFieldWithBrowseButton textField,
@@ -119,6 +124,4 @@ public class ScaladocConsoleRunConfigurationForm extends DialogWrapper {
     textField.addBrowseFolderListener(title, null, project, fileChooserDescriptor);
     return fileChooserDescriptor;
   }
-
-
 }

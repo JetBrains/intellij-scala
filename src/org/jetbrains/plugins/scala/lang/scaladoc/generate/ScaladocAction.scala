@@ -9,18 +9,19 @@ import com.intellij.execution.util.ExecutionErrorDialog
 import com.intellij.CommonBundle
 import javax.swing.JComponent
 import com.intellij.analysis.{BaseAnalysisActionDialog, AnalysisScope, BaseAnalysisAction}
+import com.intellij.ui.DocumentAdapter
+import javax.swing.event.DocumentEvent
+
 
 /**
  * User: Dmitry Naidanov
  * Date: 01.10.11
  */
 class ScaladocAction extends BaseAnalysisAction("Generate Scaladoc", "Scaladoc") {
-  //todo: remove ok action without output dir
-
   private var configurationDialog: ScaladocConsoleRunConfigurationForm = null
 
   def analyze(project: Project, scope: AnalysisScope) {
-
+    configurationDialog.saveSettings();
     val myConfig = new ScaladocConfiguration(configurationDialog, project, scope)
     try {
       val runner: ProgramRunner[_ <: JDOMExternalizable] =
@@ -35,7 +36,16 @@ class ScaladocAction extends BaseAnalysisAction("Generate Scaladoc", "Scaladoc")
 
   override def getAdditionalActionSettings(project: Project, dialog: BaseAnalysisActionDialog): JComponent = {
     configurationDialog = new ScaladocConsoleRunConfigurationForm(project)
+    configurationDialog.getOutputDirChooser.getDocument.addDocumentListener(new DocumentAdapter() {
+      def textChanged(e: DocumentEvent) {
+        updateAvailability(dialog)
+      }
+    })
+    updateAvailability(dialog)
     configurationDialog.createCenterPanel()
   }
 
+  private def updateAvailability(dialog: BaseAnalysisActionDialog) {
+    dialog.setOKActionEnabled(!configurationDialog.getOutputDir.isEmpty)
+  }
 }
