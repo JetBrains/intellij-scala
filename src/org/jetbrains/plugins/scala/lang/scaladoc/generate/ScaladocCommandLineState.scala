@@ -15,9 +15,9 @@ import com.intellij.ide.BrowserUtil
 import com.intellij.analysis.AnalysisScope
 import com.intellij.openapi.projectRoots.{JdkUtil, Sdk}
 import java.io.{FileOutputStream, IOException, PrintStream, File}
-import collection.mutable.MutableList
 import com.intellij.execution.ExecutionException
 import org.jetbrains.plugins.scala.config.ScalaFacet
+import scala.collection.mutable.{ListBuffer, MutableList}
 
 /**
  * User: Dmitry Naidanov
@@ -95,8 +95,45 @@ class ScaladocCommandLineState(env: ExecutionEnvironment, project: Project)
     acc
   }
 
-  def createJavaParameters() = {
+  private def processAdditionalParams(params: String) = {
+    val paramTokens = splitParams(params)
+    val result = ListBuffer[String]()
 
+    paramTokens.foldLeft(false) {
+      case (true, _) => false
+      case (_, param: String) if ScaladocCommandLineState.generatedParamsWithArgs.contains(param) => true
+      case (_, param: String) =>
+        if (!ScaladocCommandLineState.generatedParamsWithoutArgs.contains(param)) result += param
+        false
+    }
+
+    result
+  }
+
+ private def splitParams(params: String): List[String] = {
+   val result = ListBuffer[String]()
+
+   (params + " ").foldLeft((false, new StringBuilder(""))) {
+     case ((flag, acc), ' ') =>
+       if (flag) {
+         acc.append(' ')
+       } else {
+         result += acc.toString
+         acc.clear()
+       }
+       (flag, acc)
+     case ((flag, acc), '\"') =>
+       (!flag, acc)
+     case ((flag, acc), d) =>
+       acc.append(d)
+       (flag, acc)
+   }
+
+   result.result()
+ } 
+  
+
+  def createJavaParameters() = {
     import scala.collection.JavaConversions._
 
     val jp = new JavaParameters
@@ -137,7 +174,7 @@ class ScaladocCommandLineState(env: ExecutionEnvironment, project: Project)
     paramListSimple += docTitle
 
     if (additionalScaladocFlags.length() > 0) {
-      paramListSimple.addAll(additionalScaladocFlags.split(" ").toList) //todo: filter present settings
+      paramListSimple.addAll(processAdditionalParams(additionalScaladocFlags))
     }
 
     val sourcePath = OrderEnumerator.orderEntries(project).withoutLibraries().withoutSdk().getAllSourceRoots
@@ -151,7 +188,6 @@ class ScaladocCommandLineState(env: ExecutionEnvironment, project: Project)
         for (docFile <- documentableFiles) {
           paramListSimple += docFile.getPath
         }
-
       }
     }
 
@@ -181,4 +217,9 @@ class ScaladocCommandLineState(env: ExecutionEnvironment, project: Project)
 
     jp
   }
+}
+
+object ScaladocCommandLineState {
+  val generatedParamsWithArgs = List("-d", "-doc-title", "-classpath")
+  val generatedParamsWithoutArgs = List("-verbose")
 }
