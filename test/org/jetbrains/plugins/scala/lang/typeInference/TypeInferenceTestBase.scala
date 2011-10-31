@@ -31,7 +31,7 @@ abstract class TypeInferenceTestBase extends ScalaLightPlatformCodeInsightTestCa
   protected def folderPath: String = TestUtils.getTestDataPath + "/typeInference/"
 
   protected def doTest() {
-    import _root_.junit.framework.Assert._
+    import junit.framework.Assert._
 
     val filePath = folderPath + getTestName(false) + ".scala"
     val ioFile: File = new File(filePath)

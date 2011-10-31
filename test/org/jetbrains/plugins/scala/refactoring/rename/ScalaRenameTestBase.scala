@@ -1,80 +1,59 @@
 package org.jetbrains.plugins.scala
 package refactoring.rename
 
-import org.jetbrains.plugins.scala.base.ScalaPsiTestCase
-import com.intellij.openapi.fileEditor.{FileEditorManager, OpenFileDescriptor}
-import com.intellij.openapi.command.undo.UndoManager
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import com.intellij.openapi.fileEditor.impl.text.TextEditorProvider
-import org.jetbrains.plugins.scala.util.ScalaUtils
-import com.intellij.openapi.vfs.LocalFileSystem
 import java.io.File
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import com.intellij.refactoring.rename.RenameProcessor
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
-import com.intellij.psi.{PsiMethod, PsiElement, PsiManager}
+import com.intellij.psi.{PsiMethod, PsiElement}
+import lang.completion3.ScalaLightPlatformCodeInsightTestCaseAdapter
+import util.{TestUtils, ScalaUtils}
+import com.intellij.openapi.util.io.FileUtil
+import com.intellij.openapi.vfs.CharsetToolkit
+import com.intellij.openapi.util.text.StringUtil
+import com.intellij.refactoring.rename.{RenamePsiElementProcessor, RenameProcessor}
+import com.intellij.codeInsight.TargetElementUtilBase
+import com.intellij.psi.impl.source.tree.injected.InjectedLanguageUtil
 
 /**
  * User: Alexander Podkhalyuzin
  * Date: 30.09.2009
  */
 
-abstract class ScalaRenameTestBase extends ScalaPsiTestCase {
-  id : ScalaPsiTestCase =>
+abstract class ScalaRenameTestBase extends ScalaLightPlatformCodeInsightTestCaseAdapter {
   val caretMarker = "/*caret*/"
 
-  override protected def rootPath = super.rootPath + "rename/"
+  protected def folderPath: String = TestUtils.getTestDataPath + "/rename/"
 
-  private def substituteElement(element: PsiElement): PsiElement = {
-    element match {
-      case method: PsiMethod if method.isConstructor => method.getContainingClass
-      case _ => element
-    }
-  }
-
-  protected def doTest {
-    import _root_.junit.framework.Assert._
-    val filePath = rootPath + getTestName(false) + ".scala"
-    val file = LocalFileSystem.getInstance.findFileByPath(filePath.replace(File.separatorChar, '/'))
-    assert(file != null, "file " + filePath + " not found")
-    val scalaFile: ScalaFile = PsiManager.getInstance(myProject).findFile(file).asInstanceOf[ScalaFile]
-    val fileText = scalaFile.getText
+  protected def doTest() {
+    import junit.framework.Assert._
+    val filePath = folderPath + getTestName(false) + ".scala"
+    val ioFile: File = new File(filePath)
+    var fileText: String = FileUtil.loadFile(ioFile, CharsetToolkit.UTF8)
+    fileText = StringUtil.convertLineSeparators(fileText)
+    configureFromFileTextAdapter(ioFile.getName, fileText)
+    val scalaFile: ScalaFile = getFileAdapter.asInstanceOf[ScalaFile]
     val offset = fileText.indexOf(caretMarker) + caretMarker.length + 1
     assert(offset != caretMarker.length, "Not specified caret marker in test case. Use /*caret*/ in scala file for this.")
-    val element = scalaFile.findElementAt(offset).getParent
-    assert(element.isInstanceOf[ScReferenceElement], "Reference is not specified.")
-    val resolve = element.asInstanceOf[ScReferenceElement].resolve()
-    assert(resolve != null, "Cannot resolve Symbol")
-    val fileEditorManager = FileEditorManager.getInstance(myProject)
-    val editor = fileEditorManager.openTextEditor(new OpenFileDescriptor(myProject, file, offset), false)
+    getEditorAdapter.getCaretModel.moveToOffset(offset)
+    val element = TargetElementUtilBase.findTargetElement(
+      InjectedLanguageUtil.getEditorForInjectedLanguageNoCommit(getEditorAdapter, scalaFile),
+      TargetElementUtilBase.REFERENCED_ELEMENT_ACCEPTED | TargetElementUtilBase.ELEMENT_NAME_ACCEPTED)
+    assert(element != null, "Reference is not specified.")
 
     var res: String = null
-
     val lastPsi = scalaFile.findElementAt(scalaFile.getText.length - 1)
 
     //start to inline
-    try {
-      ScalaUtils.runWriteActionDoNotRequestConfirmation(new Runnable {
-        def run() {
-          new RenameProcessor(resolve.getProject, substituteElement(resolve), "NameAfterRename", false, false).run()
-        }
-      }, resolve.getProject, "Test")
-      res = scalaFile.getText.substring(0, lastPsi.getTextOffset).trim
-    }
-    catch {
-      case e: Exception => assert(false, e.getMessage + "\n" + e.getStackTrace)
-    }
-    finally {
-      ScalaUtils.runWriteAction(new Runnable {
-        def run() {
-          val undoManager = UndoManager.getInstance(getProject)
-          val fileEditor = TextEditorProvider.getInstance.getTextEditor(editor)
-          if (undoManager.isUndoAvailable(fileEditor)) {
-            undoManager.undo(fileEditor)
-          }
-        }
-      }, myProject, "Test")
-    }
+    ScalaUtils.runWriteAction(new Runnable {
+      def run() {
+        val subst = RenamePsiElementProcessor.forElement(element).substituteElementToRename(element, getEditorAdapter)
+        if (subst == null) return
+        new RenameProcessor(getProjectAdapter, subst, "NameAfterRename", false, false).run()
+      }
+    }, getProjectAdapter, "Test")
+    res = scalaFile.getText.substring(0, lastPsi.getTextOffset).trim
+
 
     println("------------------------ " + scalaFile.getName + " ------------------------")
     println(res)
