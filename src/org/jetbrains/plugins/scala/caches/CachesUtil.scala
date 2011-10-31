@@ -15,6 +15,7 @@ import collection.mutable.{ArrayBuffer, Map, HashMap}
 import lang.resolve.ScalaResolveResult
 import lang.psi.types.{ScUndefinedSubstitutor, ScSubstitutor, Signature, ScType}
 import lang.psi.api.statements.params.{ScTypeParamClause, ScParameterClause}
+import com.intellij.util.containers.ConcurrentHashMap
 
 /**
  * User: Alexander Podkhalyuzin
@@ -22,7 +23,7 @@ import lang.psi.api.statements.params.{ScTypeParamClause, ScParameterClause}
  */
 object CachesUtil {
   //Map cache keys
-  type MappedKey[Data, Result] = Key[CachedValue[HashMap[Data, Result]]]
+  type MappedKey[Data, Result] = Key[CachedValue[ConcurrentHashMap[Data, Result]]]
   val TYPE_AFTER_IMPLICIT_KEY: MappedKey[(Boolean, Boolean, Option[ScType], Boolean, Boolean), ExpressionTypeResult] =
     Key.create("type.after.implicit.key")
   val TYPE_WITHOUT_IMPLICITS: MappedKey[(Boolean, Boolean), TypeResult[ScType]] =
@@ -131,32 +132,37 @@ object CachesUtil {
   }
   
   def getMappedWithRecursionPreventing[Dom <: PsiElement, Data, Result](e: Dom, data: Data,
-                                                                        key: Key[CachedValue[HashMap[Data, Result]]], 
+                                                                        key: Key[CachedValue[ConcurrentHashMap[Data, Result]]],
                                                                         builder: (Dom, Data) => Result,
                                                                         defaultValue: => Result,
                                                                         dependencyItem: Object): Result = {
-    var computed: CachedValue[HashMap[Data, Result]] = e.getUserData(key)
+    var computed: CachedValue[ConcurrentHashMap[Data, Result]] = e.getUserData(key)
     if (computed == null) {
       val manager = PsiManager.getInstance(e.getProject).getCachedValuesManager
-      computed = manager.createCachedValue(new CachedValueProvider[HashMap[Data, Result]] {
-        def compute(): CachedValueProvider.Result[HashMap[Data, Result]] = {
-          new CachedValueProvider.Result(new HashMap[Data, Result](), dependencyItem)
+      computed = manager.createCachedValue(new CachedValueProvider[ConcurrentHashMap[Data, Result]] {
+        def compute(): CachedValueProvider.Result[ConcurrentHashMap[Data, Result]] = {
+          new CachedValueProvider.Result(new ConcurrentHashMap[Data, Result](), dependencyItem)
         }
       }, false)
       e.putUserData(key, computed)
     }
     val map = computed.getValue
-    map.getOrElseUpdate(data, {
-      val guard = getRecursionGuard(key.toString)
-      if (guard.currentStack().contains((e, data))) defaultValue
-      else {
-        guard.doPreventingRecursion((e, data), false, new Computable[Result] {
-          def compute(): Result = builder(e, data)
-        }) match {
-          case null => defaultValue
-          case notNull => notNull
+    var result = map.get(data)
+    if (result == null) {
+      result = {
+        val guard = getRecursionGuard(key.toString)
+        if (guard.currentStack().contains((e, data))) defaultValue
+        else {
+          guard.doPreventingRecursion((e, data), false, new Computable[Result] {
+            def compute(): Result = builder(e, data)
+          }) match {
+            case null => defaultValue
+            case notNull => notNull
+          }
         }
       }
-    })
+      map.put(data, result)
+    }
+    result
   }
 }
