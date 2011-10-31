@@ -18,8 +18,9 @@ import lang.resolve._
 import processor.ExpandedExtractorResolveProcessor
 import statements.params.ScParameter
 import caches.CachesUtil
-import util.PsiModificationTracker
 import psi.impl.ScalaPsiManager
+import util.{PsiTreeUtil, PsiModificationTracker}
+import toplevel.typedef.ScTemplateDefinition
 
 /**
  * @author Alexander Podkhalyuzin
@@ -80,9 +81,15 @@ trait ScPattern extends ScalaPsiElement {
       case Some(ScalaResolveResult(fun: ScFunction, substitutor: ScSubstitutor)) if fun.getName == "unapply" &&
               fun.parameters.length == 1 => {
         val subst = if (fun.typeParameters.length == 0) substitutor else {
-          val undefSubst = fun.typeParameters.foldLeft(ScSubstitutor.empty)((s, p) =>
+          var undefSubst = fun.typeParameters.foldLeft(ScSubstitutor.empty)((s, p) =>
             s.bindT((p.name, ScalaPsiUtil.getPsiElementId(p)), ScUndefinedType(new ScTypeParameterType(p,
               substitutor))))
+          val clazz = ScalaPsiUtil.getContextOfType(this, true, classOf[ScTemplateDefinition])
+          clazz match {
+            case clazz: ScTemplateDefinition =>
+              undefSubst = undefSubst.followed(new ScSubstitutor(ScThisType(clazz)))
+            case _ =>
+          }
           val funType = undefSubst.subst(fun.parameters(0).getType(TypingContext.empty) match {
             case Success(tp, _) => tp
             case _ => return None
