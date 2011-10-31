@@ -109,6 +109,10 @@ public abstract class ScalaLightPlatformCodeInsightTestCaseAdapter extends Light
     }
   }
 
+  protected VirtualFile getVFileAdapter() {
+    return getVFile();
+  }
+
   protected Editor getEditorAdapter() {
     return getEditor();
   }
