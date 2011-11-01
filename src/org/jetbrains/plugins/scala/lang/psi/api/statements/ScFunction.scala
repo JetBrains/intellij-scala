@@ -18,7 +18,6 @@ import psi.stubs.ScFunctionStub
 import types._
 import nonvalue._
 import result.{Failure, Success, TypingContext, TypeResult}
-import psi.impl.toplevel.synthetic.ScSyntheticFunction
 import expr.ScBlock
 import psi.impl.ScalaPsiElementFactory
 import lexer.ScalaTokenTypes
@@ -27,6 +26,7 @@ import collection.immutable.Set
 import java.lang.String
 import caches.CachesUtil
 import util.PsiModificationTracker
+import psi.impl.toplevel.synthetic.{ScSyntheticTypeParameter, ScSyntheticFunction}
 
 /**
  * @author Alexander Podkhalyuzin
@@ -101,9 +101,33 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
       case Some(_) => returnType.toOption
       case None => {
         val superReturnType = superMethodAndSubstitutor match {
-          case Some((fun: ScFunction, subst)) => fun.returnType.toOption.map(subst.subst(_))
-          case Some((fun: ScSyntheticFunction, subst)) => Some(subst.subst(fun.retType))
-          case Some((fun: PsiMethod, subst)) => Some(subst.subst(ScType.create(fun.getReturnType, getProject, getResolveScope)))
+          case Some((fun: ScFunction, subst)) =>
+            var typeParamSubst = ScSubstitutor.empty
+            fun.typeParameters.zip(typeParameters).foreach {
+              case (oldParam: ScTypeParam, newParam: ScTypeParam) => {
+                typeParamSubst = typeParamSubst.bindT((oldParam.getName, ScalaPsiUtil.getPsiElementId(oldParam)),
+                  new ScTypeParameterType(newParam, subst))
+              }
+            }
+            fun.returnType.toOption.map(typeParamSubst.followed(subst).subst(_))
+          case Some((fun: ScSyntheticFunction, subst)) =>
+            var typeParamSubst = ScSubstitutor.empty
+            fun.typeParameters.zip(typeParameters).foreach {
+              case (oldParam: ScSyntheticTypeParameter, newParam: ScTypeParam) => {
+                typeParamSubst = typeParamSubst.bindT((oldParam.getName, ScalaPsiUtil.getPsiElementId(oldParam)),
+                  new ScTypeParameterType(newParam, subst))
+              }
+            }
+            Some(subst.subst(fun.retType))
+          case Some((fun: PsiMethod, subst)) =>
+            var typeParamSubst = ScSubstitutor.empty
+            fun.getTypeParameters.zip(typeParameters).foreach {
+              case (oldParam: PsiTypeParameter, newParam: ScTypeParam) => {
+                typeParamSubst = typeParamSubst.bindT((oldParam.getName, ScalaPsiUtil.getPsiElementId(oldParam)),
+                  new ScTypeParameterType(newParam, subst))
+              }
+            }
+            Some(typeParamSubst.followed(subst).subst(ScType.create(fun.getReturnType, getProject, getResolveScope)))
           case _ => None
         }
         superReturnType
