@@ -6,8 +6,8 @@ package org.jetbrains.plugins.scala.lang.resolve2
  */
 
 class FunctionOperatorTest extends ResolveTestBase {
-  override def getTestDataPath: String = {
-    super.getTestDataPath + "function/operator/"
+  override def folderPath: String = {
+    super.folderPath + "function/operator/"
   }
 
   def testDot = doTest

@@ -6,8 +6,8 @@ package org.jetbrains.plugins.scala.lang.resolve2
  */
 
 class FunctionCountPriorityTest extends ResolveTestBase {
-  override def getTestDataPath: String = {
-    super.getTestDataPath + "function/count/priority/"
+  override def folderPath: String = {
+    super.folderPath + "function/count/priority/"
   }
 
   def testEmptyToAll = doTest

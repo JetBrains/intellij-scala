@@ -6,8 +6,8 @@ package org.jetbrains.plugins.scala.lang.resolve2
  */
 
 class ImportScopeClashTest extends ResolveTestBase {
-  override def getTestDataPath: String = {
-    super.getTestDataPath + "import/scope/clash/"
+  override def folderPath: String = {
+    super.folderPath + "import/scope/clash/"
   }
 
   def testInnerBlock = doTest

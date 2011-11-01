@@ -10,12 +10,12 @@ import org.jetbrains.plugins.scala.util.TestUtils;
  */
 public class PatternsResolveTest extends ScalaResolveTestCase {
 
-  public String getTestDataPath() {
-    return TestUtils.getTestDataPath() + "/resolve/";
+  public String folderPath() {
+    return super.folderPath() + "resolve/patterns/";
   }
 
-  public void testScalaCollectionFullyQualified() throws Exception {
-    PsiReference ref = configureByFile("patterns/ExtractorPattern.scala");
+  public void testExtractorPattern() throws Exception {
+    PsiReference ref = findReferenceAtCaret();
     assertTrue(ref.resolve() instanceof ScBindingPattern);
   }
 }

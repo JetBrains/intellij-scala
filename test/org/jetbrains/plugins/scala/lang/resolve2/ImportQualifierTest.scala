@@ -6,8 +6,8 @@ package org.jetbrains.plugins.scala.lang.resolve2
  */
 
 class ImportQualifierTest extends ResolveTestBase {
-  override def getTestDataPath: String = {
-    super.getTestDataPath + "import/qualifier/"
+  override def folderPath: String = {
+    super.folderPath + "import/qualifier/"
   }
 
   def testImport1 = doTest

@@ -7,8 +7,8 @@ package org.jetbrains.plugins.scala.lang.resolve2
  */
 
 class ElementMixTest extends ResolveTestBase {
-  override def getTestDataPath: String = {
-    super.getTestDataPath + "element/mix/"
+  override def folderPath: String = {
+    super.folderPath + "element/mix/"
   }
   //TODO classes clash
 //  def testCaseClassAndClass = doTest

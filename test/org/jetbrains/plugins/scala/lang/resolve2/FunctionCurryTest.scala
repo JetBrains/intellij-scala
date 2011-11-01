@@ -6,8 +6,8 @@ package org.jetbrains.plugins.scala.lang.resolve2
  */
 
 class FunctionCurryTest extends ResolveTestBase {
-  override def getTestDataPath: String = {
-    super.getTestDataPath + "function/curry/"
+  override def folderPath: String = {
+    super.folderPath + "function/curry/"
   }
 
   def testCurryiedToCurryied = doTest

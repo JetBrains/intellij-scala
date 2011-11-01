@@ -6,8 +6,8 @@ package org.jetbrains.plugins.scala.lang.resolve2
  */
 
 class ImportAccessTest extends ResolveTestBase {
-  override def getTestDataPath: String = {
-    super.getTestDataPath + "import/access/"
+  override def folderPath: String = {
+    super.folderPath + "import/access/"
   }
 
   //TODO accessible

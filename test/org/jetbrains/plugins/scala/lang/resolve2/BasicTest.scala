@@ -7,8 +7,8 @@ package org.jetbrains.plugins.scala.lang.resolve2
  */
 
 class BasicTest extends ResolveTestBase {
-  override def getTestDataPath: String = {
-    super.getTestDataPath + "basic/"
+  override def folderPath: String = {
+    super.folderPath + "basic/"
   }
 
   def testSimple = doTest

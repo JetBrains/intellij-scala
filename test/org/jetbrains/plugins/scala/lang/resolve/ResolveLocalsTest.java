@@ -13,44 +13,44 @@ import org.jetbrains.plugins.scala.util.TestUtils;
  */
 public class ResolveLocalsTest extends ScalaResolveTestCase{
 
-  public String getTestDataPath() {
-    return TestUtils.getTestDataPath() + "/resolve/local/";
+  public String folderPath() {
+    return super.folderPath() + "resolve/local/";
   }
 
-  public void testValueDef() throws Exception {
-    PsiReference ref = configureByFile("local1/local1.scala");
+  public void testlocal1() throws Exception {
+    PsiReference ref = findReferenceAtCaret();
     PsiElement resolved = ref.resolve();
     assertTrue(resolved instanceof ScReferencePattern);
     assertEquals(((ScReferencePattern) resolved).name(), "aaa");
   }
 
   public void testScalaKeyword() throws Exception {
-    PsiReference ref = configureByFile("ScalaKeyword.scala");
+    PsiReference ref = findReferenceAtCaret();
     PsiElement resolved = ref.resolve();
     assertNotNull(resolved);
     assertTrue(resolved instanceof ScParameter);
   }
 
-  public void testGillesThis() throws Exception {
-    PsiReference ref = configureByFile("this/gilles.scala");
+  public void testgilles() throws Exception {
+    PsiReference ref = findReferenceAtCaret();
     PsiElement resolved = ref.resolve();
     assertTrue(resolved instanceof ScFunction);
     assertEquals(((ScFunction) resolved).name(), "iii");
   }
 
-  public void testSecondaryConstructorParameter() throws Exception {
-    PsiReference ref = configureByFile("constrParam.scala");
+  public void testconstrParam() throws Exception {
+    PsiReference ref = findReferenceAtCaret();
     PsiElement resolved = ref.resolve();
     assertTrue(resolved instanceof ScParameter);
   }
 
-  public void testDefInAnonymous() throws Exception {
-    PsiReference ref = configureByFile("defInAnonymous.scala");
+  public void testdefInAnonymous() throws Exception {
+    PsiReference ref = findReferenceAtCaret();
     assertNotNull(ref.resolve());
   }
 
   public void testInfixType() throws Exception {
-    PsiReference ref = configureByFile("InfixType.scala");
+    PsiReference ref = findReferenceAtCaret();
     assertNotNull(ref.resolve());
   }
 }

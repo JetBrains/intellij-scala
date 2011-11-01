@@ -6,8 +6,8 @@ package org.jetbrains.plugins.scala.lang.resolve2
  */
 
 class ScopeTest extends ResolveTestBase {
-  override def getTestDataPath: String = {
-    super.getTestDataPath + "scope/"
+  override def folderPath: String = {
+    super.folderPath + "scope/"
   }
 
   def testBlock = doTest

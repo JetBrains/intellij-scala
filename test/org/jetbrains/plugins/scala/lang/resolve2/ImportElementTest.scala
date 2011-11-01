@@ -6,8 +6,8 @@ package org.jetbrains.plugins.scala.lang.resolve2
  */
 
 class ImportElementTest extends ResolveTestBase {
-  override def getTestDataPath: String = {
-    super.getTestDataPath + "import/element/"
+  override def folderPath: String = {
+    super.folderPath + "import/element/"
   }
 
   def testCaseClass() {doTest()}

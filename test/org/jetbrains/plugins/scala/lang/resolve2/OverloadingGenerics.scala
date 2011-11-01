@@ -5,8 +5,8 @@ package org.jetbrains.plugins.scala.lang.resolve2
  */
 
 class OverloadingGenerics extends ResolveTestBase {
-  override def getTestDataPath: String = {
-    super.getTestDataPath + "overloading/generics/"
+  override def folderPath: String = {
+    super.folderPath + "overloading/generics/"
   }
 
   def testDefaultValue = doTest

@@ -9,12 +9,12 @@ import org.jetbrains.plugins.scala.util.TestUtils;
 
 public class ImplicitParametersResolveTest extends ScalaResolveTestCase {
 
-  public String getTestDataPath() {
-    return TestUtils.getTestDataPath() + "/resolve/";
+  public String folderPath() {
+    return super.folderPath() + "resolve/implicitParameter";
   }
 
-  public void testLocalValAsImplicitParam() throws Exception {
-    PsiReference ref = configureByFile("implicitParameter/localValAsImplicitParam.scala");
+  public void testlocalValAsImplicitParam() throws Exception {
+    PsiReference ref = findReferenceAtCaret();
     assertTrue(ref.resolve() instanceof ScFunctionDefinition);
   }
 }

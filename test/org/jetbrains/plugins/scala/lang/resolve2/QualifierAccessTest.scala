@@ -7,12 +7,10 @@ import junit.framework.Assert
  * Pavel.Fatin, 02.02.2010
  */
 
-class QualifierAccessTest extends ResolveTestBase {
-  override def getTestDataPath: String = {
-    super.getTestDataPath + "qualifier/access/"
+class QualifierAccess/*Test extends ResolveTestBase {
+  override def folderPath: String = {
+    super.folderPath + "qualifier/access/"
   }
-
-  def testStub = Assert.assertTrue(true)
 
   //TODO accessible
 //  def testClassParameterValue = doTest
@@ -34,4 +32,4 @@ class QualifierAccessTest extends ResolveTestBase {
 //  def testTargetPrivate = doTest
   //TODO accessible
 //  def testTargetProtected = doTest
-}
+}*/

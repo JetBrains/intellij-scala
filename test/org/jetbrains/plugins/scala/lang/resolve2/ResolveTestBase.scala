@@ -36,22 +36,22 @@ abstract class ResolveTestBase extends ScalaResolveTestCase {
 
   override def setUp() {
     super.setUp()
+    configureReferences()
+  }
+
+  override def folderPath: String = {
+    super.folderPath() + "resolve2/"
+  }
+
+  def configureReferences(): PsiReference = {
     options = List()
     references = List()
-  }
 
-  override def getTestDataPath: String = {
-    TestUtils.getTestDataPath + "/resolve2/"
-  }
-
-  override def configureByFileText(text: String, fileName: String, parentDir: VirtualFile): PsiReference = {
-    myFile = if (parentDir == null) createFile(myModule, fileName, text) else createFile(myModule, parentDir, fileName, text)
-
-    val matches = pattern.findAllIn(text).matchData
+    val matches = pattern.findAllIn(getFileAdapter.getText).matchData
 
     for (m <- matches) {
       val parameters = parseParameters(m.group(1))
-      val reference = myFile.findReferenceAt(m.end)
+      val reference = getFileAdapter.findReferenceAt(m.end)
 
       assertKnown(parameters)
       Assert.assertNotNull("No reference found at offset " + m.end, references)
@@ -89,7 +89,6 @@ abstract class ResolveTestBase extends ScalaResolveTestCase {
   }
 
   def doTest(file: String) {
-    configureByFile(file)
     references.zip(options).foreach(it => doEachTest(it._1.asInstanceOf[ScReferenceElement], it._2))
   }
 
@@ -101,7 +100,7 @@ abstract class ResolveTestBase extends ScalaResolveTestCase {
             result.get.isAccessible,
             result.get.isApplicable) else (null, true, true)
 
-    def message = format(myFile.getText, _: String, lineOf(reference))
+    def message = format(getFileAdapter.getText, _: String, lineOf(reference))
 
     def assertEquals(name: String, v1: Any, v2: Any) {
       if(v1 != v2) Assert.fail(message(name + " - expected: " + v1 + ", actual: " + v2))

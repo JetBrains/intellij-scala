@@ -6,8 +6,8 @@ package org.jetbrains.plugins.scala.lang.resolve2
  */
 
 class FunctionAliasTest extends ResolveTestBase {
-  override def getTestDataPath: String = {
-    super.getTestDataPath + "function/alias/"
+  override def folderPath: String = {
+    super.folderPath + "function/alias/"
   }
 
   def testApply = doTest

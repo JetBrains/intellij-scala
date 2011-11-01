@@ -5,8 +5,8 @@ package org.jetbrains.plugins.scala.lang.resolve2
  */
 
 class Bug2Test extends ResolveTestBase {
-  override def getTestDataPath: String = {
-    super.getTestDataPath + "bug2/"
+  override def folderPath: String = {
+    super.folderPath + "bug2/"
   }
 
   def testSCL1717() {doTest()}

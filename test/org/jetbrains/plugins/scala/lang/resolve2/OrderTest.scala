@@ -6,8 +6,8 @@ package org.jetbrains.plugins.scala.lang.resolve2
  */
 
 class OrderTest extends ResolveTestBase {
-  override def getTestDataPath: String = {
-    super.getTestDataPath + "order/"
+  override def folderPath: String = {
+    super.folderPath + "order/"
   }
 
   def testBlock = doTest

@@ -6,8 +6,8 @@ package org.jetbrains.plugins.scala.lang.resolve2
  */
 
 class FunctionTypePriorityTest extends ResolveTestBase {
-  override def getTestDataPath: String = {
-    super.getTestDataPath + "function/type/priority/"
+  override def folderPath: String = {
+    super.folderPath + "function/type/priority/"
   }
 
   def testInheritanceHierarchy = doTest

@@ -18,34 +18,17 @@ import java.io.File;
  * @author ilyas
  */
 public class DependenciesResolveTest extends ScalaResolveTestCase {
-  public String getTestDataPath() {
-    return TestUtils.getTestDataPath() + "/resolve/aux1/";
+  public String folderPath() {
+    return super.folderPath() + "resolve/aux1/idea/";
   }
 
-  public void testCyclicSelfType() throws Exception {
-
-    final String filePath = "stevens/test/TestJava.java";
-    final String fullPath = getTestDataPath() + filePath;
-    final VirtualFile vFile = LocalFileSystem.getInstance().findFileByPath(fullPath.replace(File.separatorChar, '/')).getParent().getParent();
-    addSourceContentToRoots(myModule, vFile);
-
-    PsiReference ref = configureByFile(filePath);
-    final PsiElement resolved = ref.resolve();
-
-    assertTrue(resolved instanceof ScClass);
-
-    final ScClass clazz = (ScClass) resolved;
-    final PsiClass[] supers = clazz.getSupers();
-
-    assertTrue(supers.length == 1);
-    final String name = supers[0].getName();
-    assertTrue(name.equals("ScalaObject"));
-
+  @Override
+  protected String rootPath() {
+    return folderPath();
   }
 
-  public void testDependentClass() throws Exception {
-    final String filePath = "idea/LocalImport.scala";
-    PsiReference ref = configureByFile(filePath);
+  public void testLocalImport() throws Exception {
+    PsiReference ref = findReferenceAtCaret();
     final PsiElement resolved = ref.resolve();
 
     assertTrue(resolved instanceof ScPrimaryConstructor);
@@ -56,9 +39,8 @@ public class DependenciesResolveTest extends ScalaResolveTestCase {
 
   }
 
-  public void testDependentType() throws Exception {
-    final String filePath = "idea/LocalImport1.scala";
-    PsiReference ref = configureByFile(filePath);
+  public void testLocalImport1() throws Exception {
+    PsiReference ref = findReferenceAtCaret();
     final PsiElement resolved = ref.resolve();
 
     assertTrue(resolved instanceof ScTypeAlias);
@@ -69,9 +51,8 @@ public class DependenciesResolveTest extends ScalaResolveTestCase {
 
   }
 
-  public void testDependentValue() throws Exception {
-    final String filePath = "idea/LocalImport2.scala";
-    PsiReference ref = configureByFile(filePath);
+  public void testLocalImport2() throws Exception {
+    PsiReference ref = findReferenceAtCaret();
     final PsiElement resolved = ref.resolve();
 
     assertTrue(resolved instanceof PsiNamedElement);

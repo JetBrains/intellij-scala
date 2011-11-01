@@ -12,83 +12,68 @@ import org.jetbrains.plugins.scala.util.TestUtils;
  * @author ven
  */
 public class ResolveCallTest extends ScalaResolveTestCase {
-  public String getTestDataPath() {
-    return TestUtils.getTestDataPath() + "/resolve/";
+  public String folderPath() {
+    return super.folderPath() + "/resolve/call/";
   }
 
-  public void testIsInstanceOf() throws Exception {
-    PsiReference ref = configureByFile("call/isInstanceOf.scala");
+  public void testisInstanceOf() throws Exception {
+    PsiReference ref = findReferenceAtCaret();
     PsiElement resolved = ref.resolve();
     assertNotNull(resolved);
     assertTrue(resolved instanceof ScSyntheticFunction);
   }
 
   public void testAssignmentCall() throws Exception {
-    PsiReference ref = configureByFile("call/AssignmentCall.scala");
+    PsiReference ref = findReferenceAtCaret();
     PsiElement resolved = ref.resolve();
     assertNotNull(resolved);
     assertTrue(resolved instanceof ScFunction);
   }
 
   public void testImplicitConversionOfPrivate() throws Exception {
-    PsiReference ref = configureByFile("call/ImplicitConversionOfPrivate.scala");
+    PsiReference ref = findReferenceAtCaret();
     PsiElement resolved = ref.resolve();
     assertNotNull(resolved);
     assertTrue(resolved instanceof ScFunction); //this is not Java PsiMethod, which has private access
   }
 
-  public void testObjectApply() throws Exception {
-    PsiReference ref = configureByFile("call/objectApply.scala");
+  public void testobjectApply() throws Exception {
+    PsiReference ref = findReferenceAtCaret();
     PsiElement resolved = ref.resolve();
     assertTrue(resolved instanceof ScFunction);
     assertEquals("apply", ((ScFunction) resolved).getName());
   }
 
   public void testObjectGenericApply() throws Exception {
-    PsiReference ref = configureByFile("call/ObjectGenericApply.scala");
+    PsiReference ref = findReferenceAtCaret();
     PsiElement resolved = ref.resolve();
     assertTrue(resolved instanceof ScFunction);
     assertEquals("apply", ((ScFunction) resolved).getName());
   }
 
-  public void testStableRefPattern() throws Exception {
-    PsiReference ref = configureByFile("call/refPattern.scala");
+  public void testrefPattern() throws Exception {
+    PsiReference ref = findReferenceAtCaret();
     PsiElement resolved = ref.resolve();
     assertTrue(resolved instanceof ScFunction);
     assertEquals("foo", ((ScFunction) resolved).getName());
   }
 
   public void testSuperConstructorInvocation() throws Exception {
-    PsiReference ref = configureByFile("call/SuperConstructorInvocation.scala");
+    PsiReference ref = findReferenceAtCaret();
     PsiElement resolved = ref.resolve();
     assertTrue(resolved instanceof ScFunction);
     assertEquals("c", ((ScFunction) resolved).getContainingClass().getName());
   }
 
   public void testNamingParam() throws Exception {
-    PsiReference ref = configureByFile("call/NamingParam.scala");
+    PsiReference ref = findReferenceAtCaret();
     PsiElement resolved = ref.resolve();
     assertTrue(resolved instanceof ScParameter);
   }
 
-  public void testSimpleCallParensOmitted() throws Exception {
-    PsiReference ref = configureByFile("call/simpleCallParensOmitted.scala");
+  public void testsimpleCallParensOmitted() throws Exception {
+    PsiReference ref = findReferenceAtCaret();
     PsiElement resolved = ref.resolve();
     assertTrue(resolved instanceof ScFunctionDefinition);
   }
-
-  public void testResolveAmbiguousWithTypeParameter() throws Exception {
-    PsiReference ref = configureByFile("functions/typeParam1/tp1.scala");
-    PsiElement resolved = ref.resolve();
-    assertTrue(resolved instanceof ScFunctionDefinition);
-    assertEquals(resolved.getText(), "def gul[A](a:A): A = null.asInstanceOf[A]");
-  }
-
-  public void testResolveAmbiguousWithout() throws Exception {
-    PsiReference ref = configureByFile("functions/typeParam2/tp2.scala");
-    PsiElement resolved = ref.resolve();
-    assertTrue(resolved instanceof ScFunctionDefinition);
-    assertEquals(resolved.getText(), "def gul(i:Int) : Int = i");
-  }
-
 }

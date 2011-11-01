@@ -6,8 +6,8 @@ package org.jetbrains.plugins.scala.lang.resolve2
  */
 
 class FunctionCountTest extends ResolveTestBase {
-  override def getTestDataPath: String = {
-    super.getTestDataPath + "function/count/"
+  override def folderPath: String = {
+    super.folderPath + "function/count/"
   }
 
   def testEmptyToEmpty = doTest

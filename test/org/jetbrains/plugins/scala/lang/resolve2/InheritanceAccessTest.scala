@@ -6,8 +6,8 @@ package org.jetbrains.plugins.scala.lang.resolve2
  */
 
 class InheritanceAccessTest extends ResolveTestBase {
-  override def getTestDataPath: String = {
-    super.getTestDataPath + "inheritance/access/"
+  override def folderPath: String = {
+    super.folderPath + "inheritance/access/"
   }
 
   //TODO accessible
