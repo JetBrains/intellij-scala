@@ -15,6 +15,11 @@ import lang.psi.api.ScalaFile
 trait ConstructorAnnotator {
   // TODO duplication with application annotator.
   def annotateConstructor(constructor: ScConstructor, holder: AnnotationHolder) {
+    //in case if constructor is function
+    constructor.reference match {
+      case None => return
+      case _ =>
+    }
     val resolved = constructor.reference.toList.flatMap(_.resolveAllConstructors)
 
     resolved match {
