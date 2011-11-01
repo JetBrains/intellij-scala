@@ -65,7 +65,7 @@ case class ScProjectionType(projected: ScType, element: PsiNamedElement, subst: 
         proc.processType(projected, a, ResolveState.initial, true)
         val candidates = proc.candidates
         if (candidates.length == 1 && candidates(0).element.isInstanceOf[PsiNamedElement]) {
-          (candidates(0).element.asInstanceOf[PsiNamedElement], candidates(0).substitutor)
+          (candidates(0).element.asInstanceOf[PsiNamedElement], emptySubst followed candidates(0).substitutor)
         } else {
           (element, emptySubst followed subst)
         }
@@ -77,7 +77,7 @@ case class ScProjectionType(projected: ScType, element: PsiNamedElement, subst: 
         proc.processType(projected, d, ResolveState.initial, true)
         val candidates = proc.candidates
         if (candidates.length == 1 && candidates(0).element.isInstanceOf[PsiNamedElement]) {
-          (candidates(0).element.asInstanceOf[PsiNamedElement], candidates(0).substitutor)
+          (candidates(0).element.asInstanceOf[PsiNamedElement], emptySubst followed candidates(0).substitutor)
         } else {
           (element, emptySubst followed subst)
         }
@@ -89,7 +89,7 @@ case class ScProjectionType(projected: ScType, element: PsiNamedElement, subst: 
         proc.processType(projected, d, ResolveState.initial, true)
         val candidates = proc.candidates
         if (candidates.length == 1 && candidates(0).element.isInstanceOf[PsiNamedElement]) {
-          (candidates(0).element.asInstanceOf[PsiNamedElement], candidates(0).substitutor)
+          (candidates(0).element.asInstanceOf[PsiNamedElement], emptySubst followed candidates(0).substitutor)
         } else {
           (element, emptySubst followed subst)
         }
