@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.lang.completion3
 
-import org.jetbrains.plugins.scala.lang.completion3.ScalaCompletionTestBase
 import com.intellij.codeInsight.completion.CompletionType
 
 /**

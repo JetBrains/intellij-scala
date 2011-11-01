@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.util.TestUtils
  * @author jzaugg
  */
 class ImplicitPriorityTest extends ScalaResolveTestCase {
-  override def getTestDataPath: String = TestUtils.getTestDataPath() + "/resolve/implicitPriority/"
+  override def folderPath(): String = super.folderPath() + "resolve/implicitPriority/"
 
   def printResults(imports: ScalaObject) = {
     println("[" + getTestName(false) + "]")
@@ -20,9 +20,8 @@ class ImplicitPriorityTest extends ScalaResolveTestCase {
     println()
   }
 
-  def testLowPriorityImplicits() {
-    val path = "lowPriorityImplicits.scala"
-    configureByFile(path) match {
+  def testlowPriorityImplicits() {
+    findReferenceAtCaret() match {
       case r: PsiPolyVariantReference => {
         val results = r.multiResolve(false)
         assert(results.length == 1, results.mkString(","))
@@ -31,9 +30,8 @@ class ImplicitPriorityTest extends ScalaResolveTestCase {
     }
   }
 
-  def testLowPriorityImplicits2() {
-    val path = "lowPriorityImplicits2.scala"
-    configureByFile(path) match {
+  def testlowPriorityImplicits2() {
+    findReferenceAtCaret() match {
       case r: PsiPolyVariantReference => {
         val results = r.multiResolve(false)
         assert(results.length == 1, results.mkString(","))
@@ -42,9 +40,8 @@ class ImplicitPriorityTest extends ScalaResolveTestCase {
     }
   }
 
-  def testMostSpecificImplicit() {
-    val path = "mostSpecificImplicit.scala"
-    configureByFile(path) match {
+  def testmostSpecificImplicit() {
+    findReferenceAtCaret() match {
       case r: PsiPolyVariantReference => {
         val results = r.multiResolve(false)
         assert(results.length == 1, results.mkString(","))

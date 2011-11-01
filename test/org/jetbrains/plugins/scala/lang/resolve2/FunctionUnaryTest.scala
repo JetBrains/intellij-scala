@@ -6,8 +6,8 @@ package org.jetbrains.plugins.scala.lang.resolve2
  */
 
 class FunctionUnaryTest extends ResolveTestBase {
-  override def getTestDataPath: String = {
-    super.getTestDataPath + "function/unary/"
+  override def folderPath: String = {
+    super.folderPath + "function/unary/"
   }
 
   def testParenthesisedPrefix = doTest

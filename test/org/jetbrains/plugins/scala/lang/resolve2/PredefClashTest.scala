@@ -6,8 +6,8 @@ package org.jetbrains.plugins.scala.lang.resolve2
  */
 
 class PredefClashTest extends ResolveTestBase {
-  override def getTestDataPath: String = {
-    super.getTestDataPath + "predef/clash/"
+  override def folderPath: String = {
+    super.folderPath + "predef/clash/"
   }
 
   def testInherited = doTest

@@ -12,25 +12,17 @@ import com.intellij.psi.PsiClass;
  * @author ilyas
  */
 public class ResolvePackagingsTest extends ScalaResolveTestCase {
-  public String getTestDataPath() {
-    return TestUtils.getTestDataPath() + "/resolve/packages/";
+  public String folderPath() {
+    return super.folderPath() + "resolve/packages/solid/my/scala/stuff/";
   }
 
   @Override
-   public boolean allSourcesFromDirectory() {
-    return true;
+  protected String rootPath() {
+    return super.folderPath() + "resolve/packages/";
   }
 
-  public void testSeparatedPackages() throws Exception {
-    PsiReference ref = configureByFile("separated/my/scala/stuff/Main.scala");
-    final PsiElement psiElement = ref.resolve();
-    assertTrue(psiElement instanceof ScPrimaryConstructor);
-    final ScPrimaryConstructor aClass = (ScPrimaryConstructor) psiElement;
-    assertEquals(aClass.getContainingClass().getQualifiedName(),"my.scala.List");
-  }
-
-  public void testSolidPackages() throws Exception {
-    PsiReference ref = configureByFile("solid/my/scala/stuff/Main.scala");
+  public void testMain() throws Exception {
+    PsiReference ref = findReferenceAtCaret();
     final PsiElement psiElement = ref.resolve();
     assertTrue(psiElement instanceof ScPrimaryConstructor);
   }

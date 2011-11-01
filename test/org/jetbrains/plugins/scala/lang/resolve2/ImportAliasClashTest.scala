@@ -7,8 +7,8 @@ package org.jetbrains.plugins.scala.lang.resolve2
  */
 
 class ImportAliasClashTest extends ResolveTestBase {
-  override def getTestDataPath: String = {
-    super.getTestDataPath + "import/alias/clash/"
+  override def folderPath: String = {
+    super.folderPath + "import/alias/clash/"
   }
 
   //TODO importexclude

@@ -23,11 +23,16 @@ import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.roots.OrderRootType;
 import com.intellij.openapi.roots.libraries.Library;
 import com.intellij.openapi.roots.libraries.LibraryTable;
+import com.intellij.openapi.util.io.FileUtil;
+import com.intellij.openapi.util.text.StringUtil;
+import com.intellij.openapi.vfs.CharsetToolkit;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.psi.PsiReference;
 import com.intellij.testFramework.ResolveTestCase;
 import org.jetbrains.plugins.scala.ScalaLoader;
+import org.jetbrains.plugins.scala.lang.completion3.ScalaLightPlatformCodeInsightTestCaseAdapter;
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticClasses;
 import org.jetbrains.plugins.scala.util.TestUtils;
 
@@ -37,81 +42,37 @@ import java.io.IOException;
 /**
  * @author ilyas
  */
-public abstract class ScalaResolveTestCase extends ResolveTestCase {
-  private static String JDK_HOME = TestUtils.getMockJdk();
-
-  public abstract String getTestDataPath();
-
-  private void configureFile(final VirtualFile vFile, String exceptName, final VirtualFile newDir) {
-    if (vFile.isDirectory()) {
-      for (VirtualFile file : vFile.getChildren()) {
-        configureFile(file, exceptName, newDir);
-      }
-    } else {
-      if (vFile.getName().equals(exceptName)) {
-        return;
-      }
-      ApplicationManager.getApplication().runWriteAction(new Runnable() {
-        public void run() {
-          try {
-            vFile.copy(null, newDir, vFile.getName());
-          } catch (IOException e) {
-            e.printStackTrace();
-          }
-        }
-      });
-    }
+public abstract class ScalaResolveTestCase extends ScalaLightPlatformCodeInsightTestCaseAdapter {
+  public String folderPath() {
+    return TestUtils.getTestDataPath() + "/";
   }
-
-  public boolean allSourcesFromDirectory() {
-    return false;
-  }
-
-  public TestUtils.ScalaSdkVersion scalaSdkVersion() {
-    return TestUtils.DEFAULT_SCALA_SDK_VERSION;
+  
+  protected PsiReference findReferenceAtCaret() {
+    return getFileAdapter().findReferenceAt(getEditorAdapter().getCaretModel().getOffset());
   }
 
   protected void setUp() throws Exception {
     super.setUp();
-    final SyntheticClasses syntheticClasses = myProject.getComponent(SyntheticClasses.class);
+    final SyntheticClasses syntheticClasses = getProjectAdapter().getComponent(SyntheticClasses.class);
     if (!syntheticClasses.isClassesRegistered()) {
       syntheticClasses.registerClasses();
     }
-    ScalaLoader.loadScala();
 
-    final ModifiableRootModel rootModel = ModuleRootManager.getInstance(getModule()).getModifiableModel();
-
-    VirtualFile testDataRoot = LocalFileSystem.getInstance().findFileByPath(getTestDataPath());
-    String testName = getTestName(true) + ".scala";
-    assertNotNull(testDataRoot);
-    File dir = createTempDir("scalaTest");
-    VirtualFile vDir = LocalFileSystem.getInstance().
-        refreshAndFindFileByPath(dir.getCanonicalPath().replace(File.separatorChar, '/'));
-    assertNotNull(vDir);
-    if (allSourcesFromDirectory()) configureFile(testDataRoot, testName, vDir);
-
-    ContentEntry contentEntry = rootModel.addContentEntry(vDir);
-    rootModel.setSdk(JavaSdk.getInstance().createJdk("java sdk", JDK_HOME, false));
-    contentEntry.addSourceFolder(vDir, false);
-
-    // Add Scala Library
-    LibraryTable libraryTable = rootModel.getModuleLibraryTable();
-    Library scalaLib = libraryTable.createLibrary("scala_lib");
-    final Library.ModifiableModel libModel = scalaLib.getModifiableModel();
-    File libRoot = new File(TestUtils.getMockScalaLib(scalaSdkVersion()));
-    assertTrue(libRoot.exists());
-
-    File srcRoot = new File(TestUtils.getMockScalaSrc(scalaSdkVersion()));
-    assertTrue(srcRoot.exists());
-
-    libModel.addRoot(VfsUtil.getUrlForLibraryRoot(libRoot), OrderRootType.CLASSES);
-    libModel.addRoot(VfsUtil.getUrlForLibraryRoot(srcRoot), OrderRootType.SOURCES);
-
-    ApplicationManager.getApplication().runWriteAction(new Runnable() {
-      public void run() {
-        libModel.commit();
-        rootModel.commit();
-      }
-    });
+    String extention = ".scala";
+    String fileName = getTestName(false);
+    if (fileName.startsWith("JavaFileWithName")) {
+      extention = ".java";
+      fileName = fileName.substring("JavaFileWithName".length());
+    }
+    String filePath = folderPath() + File.separator + fileName + extention;
+    File ioFile = new File(filePath);
+    String fileText = FileUtil.loadFile(ioFile, CharsetToolkit.UTF8);
+    fileText = StringUtil.convertLineSeparators(fileText);
+    int offset = fileText.indexOf("<ref>");
+    fileText = fileText.replace("<ref>", "");
+    configureFromFileTextAdapter(ioFile.getName(), fileText);
+    if (offset != -1) {
+      getEditor().getCaretModel().moveToOffset(offset);
+    }
   }
 }

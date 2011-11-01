@@ -7,8 +7,8 @@ package org.jetbrains.plugins.scala.lang.resolve2
  */
 
 class TypeTest extends ResolveTestBase {
-  override def getTestDataPath: String = {
-    super.getTestDataPath + "type/"
+  override def folderPath: String = {
+    super.folderPath + "type/"
   }
 
   def testClassParameter = doTest

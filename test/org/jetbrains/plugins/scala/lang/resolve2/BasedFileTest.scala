@@ -6,8 +6,8 @@ package org.jetbrains.plugins.scala.lang.resolve2
  */
 
 class BasedFileTest extends ResolveTestBase {
-  override def getTestDataPath: String = {
-    super.getTestDataPath + "dir/"
+  override def folderPath: String = {
+    super.folderPath + "dir/"
   }
 
   def testFileBased = doTest

@@ -14,18 +14,17 @@ import psi.api.toplevel.typedef.ScObject
  */
 
 class ImportsUsagesTest extends ScalaResolveTestCase {
-  override def getTestDataPath: String = TestUtils.getTestDataPath() + "/resolve/imports/"
+  override def folderPath: String = super.folderPath() + "resolve/imports/simple/"
 
-  def printResults(imports: ScalaObject) = {
+  def printResults(imports: ScalaObject) {
     println("[" + getTestName(false) + "]")
     println("------------------------------------------------")
     println(imports)
     println()
   }
 
-  def testStaticJava(): Unit = {
-    val path = "simple/StaticJava.scala"
-    configureByFile(path) match {
+  def testStaticJava() {
+    findReferenceAtCaret() match {
       case r: PsiReference => {
         val resolve = r.resolve
         assert(resolve != null)
@@ -34,9 +33,8 @@ class ImportsUsagesTest extends ScalaResolveTestCase {
     }
   }
 
-  def testStaticJavaMethod(): Unit = {
-    val path = "simple/StaticJavaMethod.scala"
-    configureByFile(path) match {
+  def testStaticJavaMethod() {
+    findReferenceAtCaret() match {
       case r: PsiReference => {
         val resolve = r.resolve
         assert(resolve != null)
@@ -45,9 +43,8 @@ class ImportsUsagesTest extends ScalaResolveTestCase {
     }
   }
 
-  def testSynthticClassesPriority(): Unit = {
-    val path = "dependent/SynthticClassesPriority.scala"
-    configureByFile(path) match {
+  def testSynthticClassesPriority() {
+    findReferenceAtCaret() match {
       case r: PsiReference => {
         val resolve = r.resolve
         assert(resolve != null)
@@ -56,9 +53,8 @@ class ImportsUsagesTest extends ScalaResolveTestCase {
     }
   }
 
-  def testPredefPriority(): Unit = {
-    val path = "dependent/PredefPriority.scala"
-    configureByFile(path) match {
+  def testPredefPriority() {
+    findReferenceAtCaret() match {
       case r: PsiReference => {
         val resolve = r.resolve
         assert(resolve != null)
@@ -67,9 +63,8 @@ class ImportsUsagesTest extends ScalaResolveTestCase {
     }
   }
 
-  def testDependent(): Unit = {
-    val path = "dependent/aaa.scala"
-    configureByFile(path) match {
+  def testaaa() {
+    findReferenceAtCaret() match {
       case r: PsiPolyVariantReference => {
         val results = r.multiResolve(false)
 
@@ -89,9 +84,8 @@ class ImportsUsagesTest extends ScalaResolveTestCase {
   }
 
 
-  def testSimpleImport(): Unit = {
-    val path = "simple/SimpleImport.scala"
-    configureByFile(path) match {
+  def testSimpleImport() {
+    findReferenceAtCaret() match {
       case r: PsiPolyVariantReference => {
         val results = r.multiResolve(false)
 
@@ -111,9 +105,8 @@ class ImportsUsagesTest extends ScalaResolveTestCase {
   }
 
 
-  def testImportSelector(): Unit = {
-    val path = "selector/ImportSelector.scala"
-    configureByFile(path) match {
+  def testImportSelector() {
+    findReferenceAtCaret() match {
       case r: PsiPolyVariantReference => {
         val results = r.multiResolve(false)
 
@@ -133,9 +126,8 @@ class ImportsUsagesTest extends ScalaResolveTestCase {
     }
   }
 
-  def testShadowing1(): Unit = {
-    val path = "shadow1/Shadow.scala"
-    configureByFile(path) match {
+  def testShadow1() {
+    findReferenceAtCaret() match {
       case r: PsiPolyVariantReference => {
         val results = r.multiResolve(false)
 
@@ -155,9 +147,8 @@ class ImportsUsagesTest extends ScalaResolveTestCase {
     }
   }
 
-  def testShadowing2(): Unit = {
-    val path = "shadow2/Shadow.scala"
-    configureByFile(path) match {
+  def testShadow() {
+    findReferenceAtCaret() match {
       case r: PsiPolyVariantReference => {
         val results = r.multiResolve(false)
 
@@ -177,9 +168,8 @@ class ImportsUsagesTest extends ScalaResolveTestCase {
     }
   }
 
-  def testImplicits(): Unit = {
-    val path = "implicit/implicits.scala"
-    configureByFile(path) match {
+  def testimplicits() {
+    findReferenceAtCaret() match {
       case r: PsiPolyVariantReference => {
         val results = r.multiResolve(false)
 

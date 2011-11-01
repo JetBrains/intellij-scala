@@ -6,8 +6,8 @@ package org.jetbrains.plugins.scala.lang.resolve2
  */
 
 class FunctionDefaultTest extends ResolveTestBase {
-  override def getTestDataPath: String = {
-    super.getTestDataPath + "function/default/"
+  override def folderPath: String = {
+    super.folderPath + "function/default/"
   }
 
   def testFirstAsOne = doTest

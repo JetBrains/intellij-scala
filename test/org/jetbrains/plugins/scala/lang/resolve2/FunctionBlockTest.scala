@@ -6,8 +6,8 @@ package org.jetbrains.plugins.scala.lang.resolve2
  */
 
 class FunctionBlockTest extends ResolveTestBase {
-  override def getTestDataPath: String = {
-    super.getTestDataPath + "function/block/"
+  override def folderPath: String = {
+    super.folderPath + "function/block/"
   }
 
   def testBlocksToCurryied = doTest

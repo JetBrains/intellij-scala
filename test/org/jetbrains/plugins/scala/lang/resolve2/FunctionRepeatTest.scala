@@ -6,8 +6,8 @@ package org.jetbrains.plugins.scala.lang.resolve2
  */
 
 class FunctionRepeatTest extends ResolveTestBase {
-  override def getTestDataPath: String = {
-    super.getTestDataPath + "function/repeat/"
+  override def folderPath: String = {
+    super.folderPath + "function/repeat/"
   }
 
   def testArraya = doTest

@@ -6,8 +6,8 @@ package org.jetbrains.plugins.scala.lang.resolve2
  */
 
 class InheritanceSuperMultipleTest extends ResolveTestBase {
-  override def getTestDataPath: String = {
-    super.getTestDataPath + "inheritance/super/multiple/"
+  override def folderPath: String = {
+    super.folderPath + "inheritance/super/multiple/"
   }
 
   def testClashClass = doTest

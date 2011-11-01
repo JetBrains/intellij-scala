@@ -6,8 +6,8 @@ package org.jetbrains.plugins.scala.lang.resolve2
  */
 
 class QualifierSourceImmediateTest extends ResolveTestBase {
-  override def getTestDataPath: String = {
-    super.getTestDataPath + "qualifier/source/immediate/"
+  override def folderPath: String = {
+    super.folderPath + "qualifier/source/immediate/"
   }
 
   def testCaseClass = doTest

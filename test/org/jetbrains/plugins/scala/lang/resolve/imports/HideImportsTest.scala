@@ -10,7 +10,7 @@ import util.TestUtils
 import junit.framework.Assert
 
 class HideImportsTest extends ScalaResolveTestCase {
-  override def getTestDataPath: String = TestUtils.getTestDataPath + "/resolve/imports/"
+  override def folderPath: String = super.folderPath() + "resolve/imports/simple/"
 
   def printResults(imports: ScalaObject) {
     println("[" + getTestName(false) + "]")
@@ -20,8 +20,7 @@ class HideImportsTest extends ScalaResolveTestCase {
   }
 
   def testHidePredefImplicit() {
-    val path = "implicit/HidePredefImplicit.scala"
-    configureByFile(path) match {
+    findReferenceAtCaret() match {
       case r: PsiPolyVariantReference => {
         val results = r.multiResolve(false)
 

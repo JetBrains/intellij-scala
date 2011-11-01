@@ -1,18 +1,16 @@
 package org.jetbrains.plugins.scala.lang.resolve2
 
-import junit.framework.Assert
-
+import java.lang.String
 
 /**
  * Pavel.Fatin, 02.02.2010
  */
-
 class ImportPathTest extends ResolveTestBase {
-  override def getTestDataPath: String = {
-    super.getTestDataPath + "import/path/"
+  override def folderPath: String = {
+    super.folderPath + "import/path/"
   }
 
-  override def allSourcesFromDirectory: Boolean = true
+  protected override def rootPath(): String = folderPath
 
   def testDir = doTest
   //TODO ok

@@ -7,12 +7,10 @@ import junit.framework.Assert
  * Pavel.Fatin, 02.02.2010
  */
 
-class ScopeAccessTest extends ResolveTestBase {
-  override def getTestDataPath: String = {
-    super.getTestDataPath + "scope/access/"
+class ScopeAccess/*Test extends ResolveTestBase {
+  override def folderPath: String = {
+    super.folderPath + "scope/access/"
   }
-
-  def testStub = Assert.assertTrue(true)
 
   //TODO accessible
 //  def testPrivateCompanionClass = doTest
@@ -22,4 +20,4 @@ class ScopeAccessTest extends ResolveTestBase {
 //  def testPrivateThisCompanionClass = doTest
   //TODO accessible
 //  def testPrivateThisCompanionObject = doTest
-}
+}*/

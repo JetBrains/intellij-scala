@@ -6,8 +6,8 @@ package org.jetbrains.plugins.scala.lang.resolve2
  */
 
 class FunctionPartialTest extends ResolveTestBase {
-  override def getTestDataPath: String = {
-    super.getTestDataPath + "function/partial/"
+  override def folderPath: String = {
+    super.folderPath + "function/partial/"
   }
 
   def testAllToEmpty = doTest

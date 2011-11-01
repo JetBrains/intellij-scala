@@ -13,17 +13,17 @@ import org.jetbrains.plugins.scala.util.TestUtils;
 
 public class PackageObjectResolveTest extends ScalaResolveTestCase{
 
-  public String getTestDataPath() {
-    return TestUtils.getTestDataPath() + "/resolve/";
+  public String folderPath() {
+    return super.folderPath() + "resolve/packageObject/";
   }
 
-  public void testScalaCollectionFullyQualified() throws Exception {
-    PsiReference ref = configureByFile("packageObject/scalaCollectionFullyQualified.scala");
+  public void testscalaCollectionFullyQualified() throws Exception {
+    PsiReference ref = findReferenceAtCaret();
     assertTrue(ref.resolve() instanceof ScTypeDefinition);
   }
 
-  public void testScalaCollectionViaPackageObject() throws Exception {
-    PsiReference ref = configureByFile("packageObject/scalaCollectionViaPackageObject.scala");
+  public void testscalaCollectionViaPackageObject() throws Exception {
+    PsiReference ref = findReferenceAtCaret();
     PsiElement resolved = ref.resolve();
     assertTrue(resolved instanceof ScTypeAlias);
   }

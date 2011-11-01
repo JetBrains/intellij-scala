@@ -8,8 +8,8 @@ import junit.framework.Assert
  */
 
 class ImportRelationTest extends ResolveTestBase {
-  override def getTestDataPath: String = {
-    super.getTestDataPath + "import/relation/"
+  override def folderPath: String = {
+    super.folderPath + "import/relation/"
   }
 
   def testAbsolute = doTest

@@ -6,11 +6,9 @@ package org.jetbrains.plugins.scala.lang.resolve2
  */
 
 class BasedDirTest extends ResolveTestBase {
-  override def getTestDataPath: String = {
-    super.getTestDataPath + "dir/"
+  override def folderPath: String = {
+    super.folderPath + "dir/"
   }
-
-  override def allSourcesFromDirectory = true
 
   def testDirBased = doTest
 }
