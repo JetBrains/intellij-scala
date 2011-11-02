@@ -13,8 +13,8 @@ import com.intellij.psi.codeStyle.CodeStyleSettingsManager
 import collection.mutable.HashSet
 import com.intellij.psi.impl.source.tree.{TreeElement, FileElement}
 import com.intellij.psi.impl.source.DummyHolderFactory
+import expr.ScBlockImpl
 import formatting.settings.ScalaCodeStyleSettings
-import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.Expr
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
@@ -41,6 +41,7 @@ import api.base.patterns._
 import parser.parsing.params.{TypeParamClause, ImplicitParamClause}
 import java.lang.ClassCastException
 import com.intellij.util.IncorrectOperationException
+import parser.parsing.expressions.{Block, Expr}
 
 object ScalaPsiElementFactory {
 
@@ -210,6 +211,23 @@ object ScalaPsiElementFactory {
       }
       case x => x
     }
+  }
+
+  def createBlockExpressionWithoutBracesFromText(text: String, manager: PsiManager): ScBlockImpl = {
+    val context = PsiFileFactory.getInstance(manager.getProject).
+      createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension,
+      ScalaFileType.SCALA_FILE_TYPE, "").asInstanceOf[ScalaFile]
+    val holder: FileElement = DummyHolderFactory.createHolder(manager, context).getTreeElement
+    val builder: ScalaPsiBuilderImpl =
+      new ScalaPsiBuilderImpl(PsiBuilderFactory.getInstance.createBuilder(context.getProject, holder,
+        new ScalaLexer, ScalaFileType.SCALA_LANGUAGE, text))
+    Block.parse(builder, false, true)
+    val node = builder.getTreeBuilt
+    holder.rawAddChildren(node.asInstanceOf[TreeElement])
+    val psi = node.getPsi
+    if (psi.isInstanceOf[ScBlockImpl]) {
+      psi.asInstanceOf[ScBlockImpl]
+    } else null
   }
 
 

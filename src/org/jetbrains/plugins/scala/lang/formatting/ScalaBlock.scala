@@ -7,10 +7,7 @@ import settings.ScalaCodeStyleSettings
 import com.intellij.lang.ASTNode
 import com.intellij.psi.codeStyle.{CommonCodeStyleSettings, CodeStyleSettings}
 import com.intellij.openapi.util.TextRange
-import com.intellij.psi.PsiComment
 import org.jetbrains.plugins.scala.lang.psi.api.expr.xml._
-import com.intellij.psi.PsiErrorElement
-import com.intellij.psi.PsiWhiteSpace
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.formatting.processors._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -20,8 +17,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import java.util.List
 import scaladoc.psi.api.ScDocComment
-import com.intellij.formatting._
 import psi.api.toplevel.ScEarlyDefinitions
+import com.intellij.formatting._
+import com.intellij.psi.{TokenType, PsiComment, PsiErrorElement, PsiWhiteSpace}
 
 class ScalaBlock (val myParentBlock: ScalaBlock,
         private val myNode: ASTNode,
@@ -68,10 +66,15 @@ extends Object with ScalaTokenTypes with Block {
         }
       }
       case c: ScCaseClauses => new ChildAttributes(Indent.getNormalIndent, null)
+      case b: ScBlockExpr if b.lastExpr.map(_.isInstanceOf[ScFunctionExpr]).getOrElse(false) =>
+        var i = getSubBlocks.size() - newChildIndex
+        val elem = b.lastExpr.get.getNode.getTreePrev
+        if (elem.getElementType != TokenType.WHITE_SPACE || !elem.getText.contains("\n")) i = 0
+        val indent = i + (if (!braceShifted) 1 else 0)
+        new ChildAttributes(Indent.getSpaceIndent(indent * indentSize), null)
       case _: ScBlockExpr | _: ScEarlyDefinitions | _: ScTemplateBody | _: ScForStatement  | _: ScWhileStmt |
-           _: ScTryBlock | _: ScCatchBlock => {
+           _: ScTryBlock | _: ScCatchBlock =>
         new ChildAttributes(if (braceShifted) Indent.getNoneIndent else Indent.getNormalIndent, null)
-      }
       case p : ScPackaging if p.isExplicit => new ChildAttributes(Indent.getNormalIndent, null)
       case _: ScBlock => new ChildAttributes(Indent.getNoneIndent, null)
       case _: ScIfStmt => new ChildAttributes(Indent.getNormalIndent(scalaSettings.ALIGN_IF_ELSE),
