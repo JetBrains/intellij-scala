@@ -243,12 +243,12 @@ private[expr] object ExpectedTypes {
               else gen.multiType
             case _ => Array(callExpression.getNonValueType(TypingContext.empty))
           }
-          args.getParent match {
-            case call: ScMethodCall =>
-              tps = tps.map(call.updateAccordingToExpectedType(_))
-            case _ =>
+          val callOption = args.getParent match {
+            case call: ScMethodCall => Some(call)
+            case _ => None
           }
-          tps.foreach(processArgsExpected(res, expr, i, _, exprs))
+          callOption.foreach(call => tps = tps.map(call.updateAccordingToExpectedType(_)))
+          tps.foreach(processArgsExpected(res, expr, i, _, exprs, callOption))
         } else {
           //it's constructor
           args.getContext match {
@@ -290,7 +290,8 @@ private[expr] object ExpectedTypes {
   }
 
   private def processArgsExpected(res: ArrayBuffer[ScType], expr: ScExpression, i: Int, tp: TypeResult[ScType],
-                                  exprs: Seq[ScExpression]) {
+                                  exprs: Seq[ScExpression], call: Option[ScMethodCall] = None, 
+                                  forApply: Boolean = false) {
     def applyForParams(params: Seq[Parameter]) {
       val p: ScType =
         if (i >= params.length && params.length > 0 && params(params.length - 1).isRepeated)
@@ -341,7 +342,7 @@ private[expr] object ExpectedTypes {
           }
         } else applyForParams(newParams)
       }
-      case Success(t@ScTypePolymorphicType(anotherType, typeParams), _) => {
+      case Success(t@ScTypePolymorphicType(anotherType, typeParams), _) if !forApply => {
         import Expression._
         val applyProc =
           new MethodResolveProcessor(expr, "apply", List(exprs), Seq.empty, Seq.empty /* todo: ? */,
@@ -351,14 +352,19 @@ private[expr] object ExpectedTypes {
         if (cand.length == 1) {
           cand(0) match {
             case ScalaResolveResult(fun: ScFunction, s) => {
-              processArgsExpected(res, expr, i, Success(ScTypePolymorphicType(s.subst(fun.methodType), typeParams),
-                Some(expr)), exprs)
+              var polyType: TypeResult[ScType] = Success(s.subst(fun.polymorphicType) match {
+                case ScTypePolymorphicType(internal, params) =>
+                  ScTypePolymorphicType(internal, params ++ typeParams)
+                case tp => ScTypePolymorphicType(tp, typeParams)
+              }, Some(expr))
+              call.foreach(call => polyType = call.updateAccordingToExpectedType(polyType))
+              processArgsExpected(res, expr, i, polyType, exprs, forApply = true)
             }
             case _ =>
           }
         }
       }
-      case Success(anotherType, _) => {
+      case Success(anotherType, _) if !forApply => {
         import Expression._
         val applyProc =
           new MethodResolveProcessor(expr, "apply", List(exprs), Seq.empty, Seq.empty /* todo: ? */,
@@ -368,7 +374,9 @@ private[expr] object ExpectedTypes {
         if (cand.length == 1) {
           cand(0) match {
             case ScalaResolveResult(fun: ScFunction, subst) =>
-              processArgsExpected(res, expr, i, Success(subst.subst(fun.methodType), Some(expr)), exprs)
+              var polyType: TypeResult[ScType] = Success(subst.subst(fun.polymorphicType), Some(expr))
+              call.foreach(call => polyType = call.updateAccordingToExpectedType(polyType))
+              processArgsExpected(res, expr, i, polyType, exprs, forApply = true)
             case _ =>
           }
         }
