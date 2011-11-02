@@ -35,6 +35,7 @@ import refactoring.util.{ScalaVariableValidator, ConflictsReporter, ScalaRefacto
 import org.jetbrains.plugins.scala.extensions._
 import collection.mutable.HashSet
 import psi.types.result.TypingContext
+import psi.impl.expr.ScBlockImpl
 
 /**
 * User: Alexander Podkhalyuzin
@@ -156,6 +157,7 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Confli
       ScalaPsiUtil.getParentOfType(commonParent, occurrences.length == 1, classOf[ScalaFile], classOf[ScBlock],
         classOf[ScTemplateBody], classOf[ScCaseClause], classOf[ScFunctionDefinition], classOf[ScFunctionExpr])
     var needBraces = false
+    var needBlockWithoutBraces = false
     var elseBranch = false
     var parExpr: ScExpression = PsiTreeUtil.getParentOfType(commonParent, classOf[ScExpression], false)
     var prev: PsiElement = if (parExpr == null) file else parExpr.getParent
@@ -194,7 +196,9 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Confli
         case finBl: ScFinallyBlock if finBl.expression.getOrElse(null) == parExpr => needBraces = true
         case fE: ScFunctionExpr =>
           needBraces = fE.getContext match {
-            case be: ScBlockExpr if be.getChildren.size == 1 => false
+            case be: ScBlock if be.lastExpr == Some(fE) =>
+              needBlockWithoutBraces = true
+              false
             case _ => true
           }
         case clause: ScCaseClause => needBraces = false
@@ -301,11 +305,24 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Confli
                 case _ => null
               }
             }
-          }
+          } else if (needBlockWithoutBraces && parExpr != null && parExpr.isValid && parExpr.isInstanceOf[ScFunctionExpr]) {
+            parExpr match {
+              case f: ScFunctionExpr =>
+                f.result match {
+                  case Some(res) => parExpr = res
+                  case _ => needBlockWithoutBraces = false
+                }
+              case _ => needBlockWithoutBraces = false
+            }
+          } else needBlockWithoutBraces = false
           if (needBraces && parExpr != null && parExpr.isValid) {
             parExpr = parExpr.replaceExpression(ScalaPsiElementFactory.createExpressionFromText("{" + parExpr.getText + "}", file.getManager), false)
+          } else if (needBlockWithoutBraces && parExpr != null && parExpr.isValid) {
+            val fromText = ScalaPsiElementFactory.createBlockExpressionWithoutBracesFromText(parExpr.getText, file.getManager)
+            if (fromText != null)
+              parExpr = parExpr.replaceExpression(fromText, false)
           }
-          val parent = if (needBraces && parExpr != null && parExpr.isValid) parExpr
+          val parent = if ((needBraces || needBlockWithoutBraces) && parExpr != null && parExpr.isValid) parExpr
                        else container
           var createStmt = ScalaPsiElementFactory.createDeclaration(varType, varName, isVariable, ScalaRefactoringUtil.unparExpr(expression),
             file.getManager)
