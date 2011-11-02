@@ -10,3 +10,4 @@ object SCL3216 {
   import Implicits._
   /*start*/Foo.substring(0)/*end*/
 }
+//String
