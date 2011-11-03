@@ -126,7 +126,7 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
         case None => typez
       }
       for (obj <- ScalaPsiUtil.collectImplicitObjects(expandedType, this)) {
-        obj.processDeclarations(processor, ResolveState.initial, null, this)
+        processor.processType(obj, this, ResolveState.initial())
       }
       for ((pass, resolveResult, tp, rt, newSubst, subst) <- processor.candidatesS.map(forMap(_, typez)) if pass) {
         buffer += ((resolveResult, tp, rt, newSubst, subst))
