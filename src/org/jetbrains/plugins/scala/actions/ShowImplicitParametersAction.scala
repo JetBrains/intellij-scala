@@ -124,7 +124,7 @@ class ShowImplicitParametersAction extends AnAction("Show implicit parameters ac
         chooseExpression(expressions(0))
       } else {
         ScalaRefactoringUtil.showChooser(editor, expressions, elem =>
-          chooseExpression(elem.asInstanceOf[ScExpression]), "Go to implicit function", (expr: ScExpression) => {
+          chooseExpression(elem.asInstanceOf[ScExpression]), "Expressions", (expr: ScExpression) => {
           ScalaRefactoringUtil.getShortText(expr)
         })
       }
