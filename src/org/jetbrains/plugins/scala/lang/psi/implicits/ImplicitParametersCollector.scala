@@ -41,7 +41,7 @@ class ImplicitParametersCollector(place: PsiElement, tp: ScType, concreteType: S
 
     //todo: objects should be dependent
     for (obj <- ScalaPsiUtil.collectImplicitObjects(concreteType, place)) {
-      obj.processDeclarations(processor, ResolveState.initial, null, place)
+      processor.processType(obj, place, ResolveState.initial())
     }
 
     processor.candidatesS.toSeq
