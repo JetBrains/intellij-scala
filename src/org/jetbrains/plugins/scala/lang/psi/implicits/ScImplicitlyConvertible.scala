@@ -67,11 +67,12 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
 
   def implicitMap(exp: Option[ScType] = None,
                   fromUnder: Boolean = false,
-                  args: Seq[ScType] = Seq.empty): Seq[(ScType, PsiNamedElement, Set[ImportUsed])] = {
+                  args: Seq[ScType] = Seq.empty,
+                  exprType: Option[ScType] = None): Seq[(ScType, PsiNamedElement, Set[ImportUsed])] = {
     import collection.mutable.HashSet
     val buffer = new ArrayBuffer[(ScType, PsiNamedElement, Set[ImportUsed])]
     val seen = new HashSet[PsiNamedElement]
-    for (elem <- implicitMapFirstPart(exp, fromUnder)) {
+    for (elem <- implicitMapFirstPart(exp, fromUnder, exprType)) {
       if (!seen.contains(elem._2)) {
         seen += elem._2
         buffer += elem
@@ -87,31 +88,36 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
   }
 
   def implicitMapFirstPart(exp: Option[ScType] = None,
-                  fromUnder: Boolean = false): Seq[(ScType, PsiNamedElement, Set[ImportUsed])] = {
-    type Data = (Option[ScType], Boolean)
-    val data = (exp, fromUnder)
+                  fromUnder: Boolean = false,
+                  exprType: Option[ScType] = None): Seq[(ScType, PsiNamedElement, Set[ImportUsed])] = {
+    type Data = (Option[ScType], Boolean, Option[ScType])
+    val data = (exp, fromUnder, exprType)
 
     CachesUtil.getMappedWithRecursionPreventing(this, data, CachesUtil.IMPLICIT_MAP1_KEY,
-      (expr: ScExpression, data: Data) => buildImplicitMap(data._1, data._2, (true, false)), Seq.empty,
+      (expr: ScExpression, data: Data) => buildImplicitMap(data._1, data._2, (true, false), Seq.empty, data._3), Seq.empty,
       PsiModificationTracker.MODIFICATION_COUNT)
   }
 
   def implicitMapSecondPart(exp: Option[ScType] = None,
                             fromUnder: Boolean = false,
-                            args: Seq[ScType] = Seq.empty): Seq[(ScType, PsiNamedElement, Set[ImportUsed])] = {
-    type Data = (Option[ScType], Boolean, Seq[ScType])
-    val data = (exp, fromUnder, args)
+                            args: Seq[ScType] = Seq.empty,
+                            exprType: Option[ScType] = None): Seq[(ScType, PsiNamedElement, Set[ImportUsed])] = {
+    type Data = (Option[ScType], Boolean, Seq[ScType], Option[ScType])
+    val data = (exp, fromUnder, args, exprType)
 
     CachesUtil.getMappedWithRecursionPreventing(this, data, CachesUtil.IMPLICIT_MAP2_KEY,
-      (expr: ScExpression, data: Data) => buildImplicitMap(data._1, data._2, (false, true), data._3), Seq.empty,
+      (expr: ScExpression, data: Data) => buildImplicitMap(data._1, data._2, (false, true), data._3, data._4), Seq.empty,
       PsiModificationTracker.MODIFICATION_COUNT)
   }
 
   private def buildImplicitMap(exp: Option[ScType],
                                fromUnder: Boolean = false,
                                part: (Boolean, Boolean),
-                               args: Seq[ScType] = Seq.empty): Seq[(ScType, PsiNamedElement, Set[ImportUsed])] = {
-    val typez: ScType = getTypeWithoutImplicits(TypingContext.empty, fromUnderscore = fromUnder).getOrElse(return Seq.empty)
+                               args: Seq[ScType] = Seq.empty,
+                               exprType: Option[ScType] = None): Seq[(ScType, PsiNamedElement, Set[ImportUsed])] = {
+    val typez: ScType = exprType.getOrElse(
+      getTypeWithoutImplicits(TypingContext.empty, fromUnderscore = fromUnder).getOrElse(return Seq.empty)
+    )
 
     val buffer = new ArrayBuffer[(ScalaResolveResult, ScType, ScType, ScSubstitutor, ScUndefinedSubstitutor)]
     if (part._1) {
