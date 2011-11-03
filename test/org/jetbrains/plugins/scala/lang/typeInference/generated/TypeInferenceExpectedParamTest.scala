@@ -27,5 +27,7 @@ class TypeInferenceExpectedParamTest extends TypeInferenceTestBase {
 
   def testParamForSeq() {doTest()}
 
+  def testSCL2880() {doTest()}
+
   def testTuplingCase() {doTest()}
 }
