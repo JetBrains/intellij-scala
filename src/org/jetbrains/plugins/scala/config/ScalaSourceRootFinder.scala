@@ -1,22 +1,22 @@
 package org.jetbrains.plugins.scala.config
 
-import com.intellij.ide.util.newProjectWizard.SourceRootFinder
-import java.io.File
-import java.util.List
-import com.intellij.openapi.util.Pair
-import com.intellij.ide.util.JavaUtil
-import org.jetbrains.plugins.scala.ScalaFileType
+import com.intellij.ide.util.projectWizard.importSources.JavaSourceRootDetector
+import com.intellij.util.NullableFunction
+import java.lang.String
 
 /**
  * @author Alexander Podkhalyuzin
  */
+class ScalaSourceRootFinder extends JavaSourceRootDetector {
+  def getLanguageName: String = "Scala"
 
-class ScalaSourceRootFinder extends SourceRootFinder {
-  def findRoots(dir: File): List[Pair[File, String]] = {
-    ScalaDirUtil.suggestRoots(dir, ScalaFileType.SCALA_FILE_TYPE)
+  def getFileExtension: String = "scala"
+
+  def getPackageNameFetcher: NullableFunction[CharSequence, String] = {
+    new NullableFunction[CharSequence, String] {
+      def fun(dom: CharSequence): String = {
+        ScalaDirUtil.getPackageStatement(dom)
+      }
+    }
   }
-
-  def getDescription: String = null
-
-  def getName: String = "Scala"
 }
