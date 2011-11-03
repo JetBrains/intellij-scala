@@ -19,6 +19,10 @@ import base.types.{ScSequenceArg, ScTypeElement}
 import lang.resolve.{StdKinds, ScalaResolveResult}
 import lang.resolve.processor.MethodResolveProcessor
 import types.Compatibility.Expression
+import com.intellij.openapi.progress.ProgressManager
+import toplevel.imports.usages.ImportUsed
+import caches.CachesUtil
+import implicits.ScImplicitlyConvertible
 
 /**
  * @author ilyas
@@ -348,7 +352,20 @@ private[expr] object ExpectedTypes {
           new MethodResolveProcessor(expr, "apply", List(exprs), Seq.empty, Seq.empty /* todo: ? */,
             StdKinds.methodsOnly, isShapeResolve = true)
         applyProc.processType(anotherType, expr)
-        val cand = applyProc.candidates
+        var cand = applyProc.candidates
+        if (cand.length == 0 && call != None && !tp.isEmpty) {
+          val expr = call.get.getEffectiveInvokedExpr
+          //should think about implicit conversions
+          for ((t, implicitFunction, importsUsed) <- expr.implicitMap(exprType = Some(tp.get))) {
+            var state = ResolveState.initial.put(CachesUtil.IMPLICIT_FUNCTION, implicitFunction)
+            expr.getClazzForType(t) match {
+              case Some(cl: PsiClass) => state = state.put(ScImplicitlyConvertible.IMPLICIT_RESOLUTION_KEY, cl)
+              case _ =>
+            }
+            applyProc.processType(t, expr, state)
+          }
+          cand = applyProc.candidates
+        }
         if (cand.length == 1) {
           cand(0) match {
             case ScalaResolveResult(fun: ScFunction, s) => {
@@ -370,7 +387,20 @@ private[expr] object ExpectedTypes {
           new MethodResolveProcessor(expr, "apply", List(exprs), Seq.empty, Seq.empty /* todo: ? */,
             StdKinds.methodsOnly, isShapeResolve = true)
         applyProc.processType(anotherType, expr)
-        val cand = applyProc.candidates
+        var cand = applyProc.candidates
+        if (cand.length == 0 && call != None && !tp.isEmpty) {
+          val expr = call.get.getEffectiveInvokedExpr
+          //should think about implicit conversions
+          for ((t, implicitFunction, importsUsed) <- expr.implicitMap(exprType = Some(tp.get))) {
+            var state = ResolveState.initial.put(CachesUtil.IMPLICIT_FUNCTION, implicitFunction)
+            expr.getClazzForType(t) match {
+              case Some(cl: PsiClass) => state = state.put(ScImplicitlyConvertible.IMPLICIT_RESOLUTION_KEY, cl)
+              case _ =>
+            }
+            applyProc.processType(t, expr, state)
+          }
+          cand = applyProc.candidates
+        }
         if (cand.length == 1) {
           cand(0) match {
             case ScalaResolveResult(fun: ScFunction, subst) =>
