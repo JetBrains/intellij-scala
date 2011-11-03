@@ -39,7 +39,6 @@ class ImplicitParametersCollector(place: PsiElement, tp: ScType, concreteType: S
 
     processor.clear()
 
-    //todo: objects should be dependent
     for (obj <- ScalaPsiUtil.collectImplicitObjects(concreteType, place)) {
       processor.processType(obj, place, ResolveState.initial())
     }
