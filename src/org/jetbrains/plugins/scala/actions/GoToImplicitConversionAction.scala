@@ -112,7 +112,7 @@ class GoToImplicitConversionAction extends AnAction("Go to implicit conversion a
         chooseExpression(expressions(0))
       } else {
         ScalaRefactoringUtil.showChooser(editor, expressions, elem =>
-          chooseExpression(elem.asInstanceOf[ScExpression]), "Go to implicit function", (expr: ScExpression) => {
+          chooseExpression(elem.asInstanceOf[ScExpression]), "Expressions", (expr: ScExpression) => {
           ScalaRefactoringUtil.getShortText(expr)
         })
       }
