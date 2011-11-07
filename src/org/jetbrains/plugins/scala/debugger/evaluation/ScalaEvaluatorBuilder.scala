@@ -25,6 +25,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTrait, ScObj
 import util.DebuggerUtil
 import org.jetbrains.plugins.scala.lang.psi.types.{ScThisType, ScType}
 import collection.Seq
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
 
 /**
  * User: Alefas
@@ -308,6 +309,10 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
       evalThis(t.reference, new ScalaSuperEvaluator(_), e => new ScalaSuperDelegate(e))
     }
 
+    override def visitGenericCallExpression(call: ScGenericCall) {
+      call.referencedExpr.accept(this)
+    }
+
     def evaluateLocalMethod(resolve: PsiElement, argEvaluators: Seq[Evaluator]) {
       //local method
       val fun = resolve.asInstanceOf[ScFunction]
@@ -361,6 +366,35 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
       throw EvaluateExceptionUtil.createEvaluateException("Cannot evaluate local method")
     }
 
+    def evaluateSyntheticFunction(synth: ScSyntheticFunction, qual: Option[ScExpression], ref: ScReferenceExpression, 
+                                  argEvaluators: Seq[Evaluator]) {
+      synth.getName match {
+        case "isInstanceOf" =>
+          val eval = qual match {
+            case None => new ScalaThisEvaluator()
+            case Some(qual) =>
+              qual.accept(this)
+              myResult
+          }
+          import org.jetbrains.plugins.scala.lang.psi.types.Nothing
+          val tp = ref.getParent match {
+            case gen: ScGenericCall => gen.typeArgs match {
+              case Some(args) => args.typeArgs match {
+                case Seq(arg) => arg.calcType
+                case _ => Nothing
+              }
+              case None => Nothing
+            }
+            case _ => Nothing
+          }
+          val jvmName: JVMName = DebuggerUtil.getJVMQualifiedName(tp)
+          myResult = new ScalaInstanceofEvaluator(eval, new TypeEvaluator(jvmName))
+        case _ => //todo:
+          argEvaluators
+          throw EvaluateExceptionUtil.createEvaluateException("Cannot evaluate synthetic method: " + synth.getName)
+      }
+    }
+
     private def visitCall(ref: ScReferenceExpression, qual: Option[ScExpression], arguments: Seq[ScExpression]) {
       val resolve = ref.resolve()
       val argEvaluators: Seq[Evaluator] = arguments.map(arg => {
@@ -369,6 +403,10 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
       })
       if (resolve.isInstanceOf[ScFunction] && isLocalFunction(resolve.asInstanceOf[ScFunction])) {
         evaluateLocalMethod(resolve, argEvaluators)
+        return
+      } else if (resolve.isInstanceOf[ScSyntheticFunction]) {
+        val synth = resolve.asInstanceOf[ScSyntheticFunction]
+        evaluateSyntheticFunction(synth, qual, ref, argEvaluators)
         return
       } else if (resolve.isInstanceOf[ScFunction]) {
         val fun = resolve.asInstanceOf[ScFunction]
@@ -628,6 +666,10 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
           calcLocal
           return
         }
+      } else if (resolve.isInstanceOf[ScSyntheticFunction]) {
+        val synth = resolve.asInstanceOf[ScSyntheticFunction]
+        evaluateSyntheticFunction(synth, qualifier, ref, Seq.empty)
+        return
       } else if (resolve.isInstanceOf[ScFunction] && !resolve.getContext.isInstanceOf[ScTemplateBody]) {
         evaluateLocalMethod(resolve, Seq.empty)
       } else if (resolve.isInstanceOf[ScObject]) {

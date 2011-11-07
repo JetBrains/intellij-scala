@@ -18,6 +18,7 @@ import api.base.types.ScTypeElement
 import lang.resolve.{ResolveUtils, ScalaResolveResult}
 import lang.resolve.processor._
 import result._
+import api.ScalaElementVisitor
 
 /**
  * @author Alexander Podkhalyuzin
@@ -119,5 +120,16 @@ class ScGenericCallImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
       case expr => Array(expr.getNonValueType(TypingContext.empty))
     }
     typeResult.map(converReferencedType(_))
+  }
+
+  override def accept(visitor: ScalaElementVisitor) {
+    visitor.visitGenericCallExpression(this)
+  }
+
+  override def accept(visitor: PsiElementVisitor) {
+    visitor match {
+      case visitor: ScalaElementVisitor => visitor.visitGenericCallExpression(this)
+      case _ => super.accept(visitor)
+    }
   }
 }
