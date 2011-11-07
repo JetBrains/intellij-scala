@@ -138,12 +138,16 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
       throw EvaluateExceptionUtil.createEvaluateException("Anonymous functions are not supported")
     }
 
-    override def visitExprInParent(expr: ScParenthesisedExpr) = {
+    override def visitExprInParent(expr: ScParenthesisedExpr) {
       expr.expr match {
         case Some(expr) =>
           expr.accept(this)
         case None =>
       }
+    }
+
+    override def visitPrefixExpression(p: ScPrefixExpr) {
+      visitCall(p.operation, Some(p.operand), Seq.empty)
     }
 
     override def visitPostfixExpression(p: ScPostfixExpr) {
@@ -208,7 +212,6 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
 
       myResult = new WhileStatementEvaluator(condEvaluator, iterationEvaluator, null)
     }
-
 
     override def visitDoStatement(stmt: ScDoStmt) {
       val condEvaluator = stmt.condition match {
@@ -305,6 +308,59 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
       evalThis(t.reference, new ScalaSuperEvaluator(_), e => new ScalaSuperDelegate(e))
     }
 
+    def evaluateLocalMethod(resolve: PsiElement, argEvaluators: Seq[Evaluator]) {
+      //local method
+      val fun = resolve.asInstanceOf[ScFunction]
+      val name = NameTransformer.encode(fun.name)
+      val containingClass = getContainingClass(fun)
+      if (getContextClass == null) {
+        throw EvaluateExceptionUtil.createEvaluateException("Cannot evaluate local method")
+      }
+      val thisEvaluator: Evaluator = containingClass match {
+        case obj: ScObject if isStable(obj) =>
+          stableObjectEvaluator(obj)
+        case _ =>
+          var iterationCount = 0
+          var outerClass = getContextClass
+          while (outerClass != null && outerClass != containingClass) {
+            iterationCount += 1
+            outerClass = getContextClass(outerClass)
+          }
+          if (outerClass != null)
+            new ScalaThisEvaluator(iterationCount)
+          else null
+      }
+      if (thisEvaluator != null) {
+        if (fun.effectiveParameterClauses.lastOption.map(_.isImplicit).getOrElse(false)) {
+          //todo: find and pass implicit parameters
+          throw EvaluateExceptionUtil.createEvaluateException("passing implicit parameters is not supported")
+        }
+        val args = localParams(fun, getContextClass(fun))
+        val evaluators = argEvaluators ++ args.map(arg => {
+          val name = arg.asInstanceOf[PsiNamedElement].getName
+          val ref = ScalaPsiElementFactory.createExpressionWithContextFromText(name, position.getElementAt,
+            position.getElementAt).asInstanceOf[ScReferenceExpression]
+          val builder = new Builder(position)
+          builder.buildElement(ref)
+          var res = builder.myResult
+          if (arg.isInstanceOf[ScObject]) {
+            val qual = "scala.runtime.VolatileObjectRef"
+            val typeEvaluator = new TypeEvaluator(JVMNameUtil.getJVMRawText(qual))
+            res = new ScalaNewClassInstanceEvaluator(typeEvaluator,
+              JVMNameUtil.getJVMRawText("(Ljava/lang/Object;)V"), Array(res))
+          }
+          res
+        })
+        val methodEvaluator = new ScalaMethodEvaluator(
+          thisEvaluator, name, null /* todo? */ , evaluators, true, None,
+          DebuggerUtil.getSourcePositions(resolve.getNavigationElement)
+        )
+        myResult = methodEvaluator
+        return
+      }
+      throw EvaluateExceptionUtil.createEvaluateException("Cannot evaluate local method")
+    }
+
     private def visitCall(ref: ScReferenceExpression, qual: Option[ScExpression], arguments: Seq[ScExpression]) {
       val resolve = ref.resolve()
       val argEvaluators: Seq[Evaluator] = arguments.map(arg => {
@@ -312,48 +368,8 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
         myResult
       })
       if (resolve.isInstanceOf[ScFunction] && isLocalFunction(resolve.asInstanceOf[ScFunction])) {
-        //local method
-        val fun = resolve.asInstanceOf[ScFunction]
-        val name = NameTransformer.decode(fun.name)
-        val containingClass = getContainingClass(fun)
-        if (getContextClass == null) {
-          throw EvaluateExceptionUtil.createEvaluateException("Cannot evaluate local method")
-        }
-        var iterationCount = 0
-        var outerClass = getContextClass
-        while (outerClass != null && outerClass != containingClass) {
-          iterationCount += 1
-          outerClass = getContextClass(outerClass)
-        }
-        if (outerClass != null) {
-          val evaluator = new ScalaThisEvaluator(iterationCount)
-          if (fun.effectiveParameterClauses.lastOption.map(_.isImplicit).getOrElse(false)) {
-            //todo: find and pass implicit parameters
-            throw EvaluateExceptionUtil.createEvaluateException("passing implicit parameters is not supported")
-          }
-          val args = localParams(fun, getContextClass(fun))
-          val evaluators = argEvaluators ++ args.map(arg => {
-            val name = arg.asInstanceOf[PsiNamedElement].getName
-            val ref = ScalaPsiElementFactory.createExpressionWithContextFromText(name, position.getElementAt,
-              position.getElementAt).asInstanceOf[ScReferenceExpression]
-            val builder = new Builder(position)
-            builder.visitReferenceExpression(ref)
-            var res = builder.myResult
-            if (arg.isInstanceOf[ScObject]) {
-              val qual = "scala.runtime.VolatileObjectRef"
-              val typeEvaluator = new TypeEvaluator(JVMNameUtil.getJVMRawText(qual))
-              res = new ScalaNewClassInstanceEvaluator(typeEvaluator,
-                JVMNameUtil.getJVMRawText("(Ljava/lang/Object;)V"), Array(res))
-            }
-            res
-          })
-          val methodEvaluator = new ScalaMethodEvaluator(
-            evaluator, name, null /* todo? */, evaluators, true, None, DebuggerUtil.getSourcePositions(resolve.getNavigationElement)
-          )
-          myResult = methodEvaluator
-          return
-        }
-        throw EvaluateExceptionUtil.createEvaluateException("Cannot evaluate local method")
+        evaluateLocalMethod(resolve, argEvaluators)
+        return
       } else if (resolve.isInstanceOf[ScFunction]) {
         val fun = resolve.asInstanceOf[ScFunction]
         if (fun.effectiveParameterClauses.lastOption.map(_.isImplicit).getOrElse(false)) {
@@ -371,7 +387,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
                     throw EvaluateExceptionUtil.createEvaluateException("Implicit function conversions is not supported")
                   case _ =>
                     qual.accept(this)
-                    val name = NameTransformer.decode(fun.name)
+                    val name = NameTransformer.encode(fun.name)
                     myResult = new ScalaMethodEvaluator(myResult, name, null /* todo? */, argEvaluators, false,
                       traitImplementation(resolve), DebuggerUtil.getSourcePositions(resolve.getNavigationElement))
                     return
@@ -386,7 +402,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
                   throw EvaluateExceptionUtil.createEvaluateException("Evaluation of imported functions is not supported")
                 } else {
                   val evaluator = thisEvaluator(r)
-                  val name = NameTransformer.decode(fun.getName)
+                  val name = NameTransformer.encode(fun.getName)
                   myResult = new ScalaMethodEvaluator(evaluator, name, null /* todo? */, argEvaluators, false,
                     traitImplementation(resolve), DebuggerUtil.getSourcePositions(resolve.getNavigationElement))
                   return
@@ -479,7 +495,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
     }
 
     private def stableObjectEvaluator(obj: ScObject): Evaluator = {
-      val qual = obj.getQualifiedNameForDebugger.split('.').map(NameTransformer.decode(_)).mkString(".") + "$"
+      val qual = obj.getQualifiedNameForDebugger.split('.').map(NameTransformer.encode(_)).mkString(".") + "$"
       stableObjectEvaluator(qual)
     }
 
@@ -549,7 +565,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
         val isObject = resolve.isInstanceOf[ScObject]
 
         val namedElement = resolve.asInstanceOf[PsiNamedElement]
-        val name = NameTransformer.decode(namedElement.getName) + (if (isObject) "$module" else "")
+        val name = NameTransformer.encode(namedElement.getName) + (if (isObject) "$module" else "")
         val containingClass = getContainingClass(namedElement)
 
         if (getContextClass == null || getContextClass == containingClass) {
@@ -601,7 +617,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
             calcLocal
             return
           } else {
-            val name = NameTransformer.decode(resolve.asInstanceOf[PsiNamedElement].getName)
+            val name = NameTransformer.encode(resolve.asInstanceOf[PsiNamedElement].getName)
             val evaluator = new ScalaLocalVariableEvaluator(name, true)
             //it's simple, let's take parameter
             evaluator.setParameterIndex(pCount)
@@ -613,48 +629,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
           return
         }
       } else if (resolve.isInstanceOf[ScFunction] && !resolve.getContext.isInstanceOf[ScTemplateBody]) {
-        //local method
-        val fun = resolve.asInstanceOf[ScFunction]
-        val name = NameTransformer.decode(fun.name)
-        val containingClass = getContainingClass(fun)
-        if (getContextClass == null) {
-          throw EvaluateExceptionUtil.createEvaluateException("Cannot evaluate local method")
-        }
-        var iterationCount = 0
-        var outerClass = getContextClass
-        while (outerClass != null && outerClass != containingClass) {
-          iterationCount += 1
-          outerClass = getContextClass(outerClass)
-        }
-        if (outerClass != null) {
-          val evaluator = new ScalaThisEvaluator(iterationCount)
-          if (fun.effectiveParameterClauses.lastOption.map(_.isImplicit).getOrElse(false)) {
-            //todo: find and pass implicit parameters
-            throw EvaluateExceptionUtil.createEvaluateException("passing implicit parameters is not supported")
-          }
-          val args = localParams(fun, getContextClass(fun))
-          val evaluators = args.map(arg => {
-            val name = arg.asInstanceOf[PsiNamedElement].getName
-            val ref = ScalaPsiElementFactory.createExpressionWithContextFromText(name, position.getElementAt,
-              position.getElementAt).asInstanceOf[ScReferenceExpression]
-            val builder = new Builder(position)
-            builder.visitReferenceExpression(ref)
-            var res = builder.myResult
-            if (arg.isInstanceOf[ScObject]) {
-              val qual = "scala.runtime.VolatileObjectRef"
-              val typeEvaluator = new TypeEvaluator(JVMNameUtil.getJVMRawText(qual))
-              res = new ScalaNewClassInstanceEvaluator(typeEvaluator,
-                JVMNameUtil.getJVMRawText("(Ljava/lang/Object;)V"), Array(res))
-            }
-            res
-          })
-          val methodEvaluator = new ScalaMethodEvaluator(
-            evaluator, name, null /* todo? */, evaluators, true, None, DebuggerUtil.getSourcePositions(resolve.getNavigationElement)
-          )
-          myResult = methodEvaluator
-          return
-        }
-        throw EvaluateExceptionUtil.createEvaluateException("Cannot evaluate local method")
+        evaluateLocalMethod(resolve, Seq.empty)
       } else if (resolve.isInstanceOf[ScObject]) {
         val obj = resolve.asInstanceOf[ScObject]
         //here we have few possibilities
@@ -675,7 +650,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
                     throw EvaluateExceptionUtil.createEvaluateException("Implicit function conversions is not supported")
                   case _ =>
                     qual.accept(this)
-                    val name = NameTransformer.decode(obj.getName)
+                    val name = NameTransformer.encode(obj.getName)
                     myResult = new ScalaMethodEvaluator(myResult, name, null /* todo? */, Seq.empty, false,
                       traitImplementation(resolve), DebuggerUtil.getSourcePositions(resolve.getNavigationElement))
                     return
@@ -690,7 +665,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
                   throw EvaluateExceptionUtil.createEvaluateException("Evaluation of imported objects is not supported")
                 } else {
                   val evaluator = thisEvaluator(r)
-                  val name = NameTransformer.decode(obj.getName)
+                  val name = NameTransformer.encode(obj.getName)
                   myResult = new ScalaMethodEvaluator(evaluator, name, null /* todo? */, Seq.empty, false,
                     traitImplementation(resolve), DebuggerUtil.getSourcePositions(resolve.getNavigationElement))
                   return
@@ -716,7 +691,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
                     throw EvaluateExceptionUtil.createEvaluateException("Implicit function conversions is not supported")
                   case _ =>
                     qual.accept(this)
-                    val name = NameTransformer.decode(fun.name)
+                    val name = NameTransformer.encode(fun.name)
                     myResult = new ScalaMethodEvaluator(myResult, name, null /* todo? */, Seq.empty, false,
                       traitImplementation(resolve), DebuggerUtil.getSourcePositions(resolve.getNavigationElement))
                     return
@@ -731,7 +706,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
                   throw EvaluateExceptionUtil.createEvaluateException("Evaluation of imported functions is not supported")
                 } else {
                   val evaluator = thisEvaluator(r)
-                  val name = NameTransformer.decode(fun.getName)
+                  val name = NameTransformer.encode(fun.getName)
                   myResult = new ScalaMethodEvaluator(evaluator, name, null /* todo? */, Seq.empty, false,
                     traitImplementation(resolve), DebuggerUtil.getSourcePositions(resolve.getNavigationElement))
                   return
@@ -798,7 +773,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
                     throw EvaluateExceptionUtil.createEvaluateException("Implicit function conversions is not supported")
                   case _ =>
                     qual.accept(this)
-                    val name = NameTransformer.decode(named.name)
+                    val name = NameTransformer.encode(named.name)
                     myResult = new ScalaMethodEvaluator(myResult, name, null /* todo */, Seq.empty, false,
                       traitImplementation(resolve), DebuggerUtil.getSourcePositions(resolve.getNavigationElement))
                     return
@@ -813,7 +788,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
                   throw EvaluateExceptionUtil.createEvaluateException("Evaluation of imported fields is not supported")
                 } else {
                   val evaluator = thisEvaluator(r)
-                  val name = NameTransformer.decode(named.getName)
+                  val name = NameTransformer.encode(named.getName)
                   myResult = new ScalaMethodEvaluator(evaluator, name, null/* todo */, Seq.empty, false,
                     traitImplementation(resolve), DebuggerUtil.getSourcePositions(resolve.getNavigationElement))
                   return
@@ -869,11 +844,11 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
       } else if (resolve.isInstanceOf[ScPackage]) {
         val pack = resolve.asInstanceOf[ScPackage]
         //let's try to find package object:
-        val qual = (pack.getQualifiedName + ".package$").split('.').map(NameTransformer.decode(_)).mkString(".")
+        val qual = (pack.getQualifiedName + ".package$").split('.').map(NameTransformer.encode(_)).mkString(".")
         myResult = stableObjectEvaluator(qual)
       } else {
         //unresolved symbol => try to resolve it dynamically
-        val name = NameTransformer.decode(ref.refName)
+        val name = NameTransformer.encode(ref.refName)
         qualifier match {
           case Some(qual) =>
             qual.accept(this)
