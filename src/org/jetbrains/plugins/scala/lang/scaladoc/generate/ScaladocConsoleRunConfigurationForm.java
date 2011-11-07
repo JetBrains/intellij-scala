@@ -12,7 +12,7 @@ import javax.swing.*;
  * User: DarthGamer
  * Date: 01.10.11
  */
-public class ScaladocConsoleRunConfigurationForm extends DialogWrapper {
+public class ScaladocConsoleRunConfigurationForm {
   private JPanel myPanel1;
   private JTextField additionalFlagsField;
   private JLabel dirLabel;
@@ -23,22 +23,9 @@ public class ScaladocConsoleRunConfigurationForm extends DialogWrapper {
   private JTextField maxHeapSizeField;
   private Project project;
 
-
-  @Override
-  protected void doOKAction() {
-    super.doOKAction();
-  }
-
-  @Override
-  public void doCancelAction() {
-    super.doCancelAction();
-  }
-
   public ScaladocConsoleRunConfigurationForm(Project project) {
-    super(project);
     this.project = project;
     addFileChooser("Output dir", destDirChooser, project);
-    init();
 
     ScaladocSettings settings = ScaladocSettings.getInstance(project);
     if (settings.docTitle != null) {
@@ -102,7 +89,6 @@ public class ScaladocConsoleRunConfigurationForm extends DialogWrapper {
     return maxHeapSizeField.getText();
   }
 
-  @Override
   public JComponent createCenterPanel() {
     return myPanel1;
   }
@@ -111,7 +97,7 @@ public class ScaladocConsoleRunConfigurationForm extends DialogWrapper {
     return destDirChooser.getTextField();
   }
 
-  private FileChooserDescriptor addFileChooser(final String title,
+  private void addFileChooser(final String title,
                                                final TextFieldWithBrowseButton textField,
                                                final Project project) {
     final FileChooserDescriptor fileChooserDescriptor = new FileChooserDescriptor(false, true, false, false, false, false) {
@@ -122,6 +108,5 @@ public class ScaladocConsoleRunConfigurationForm extends DialogWrapper {
     };
     fileChooserDescriptor.setTitle(title);
     textField.addBrowseFolderListener(title, null, project, fileChooserDescriptor);
-    return fileChooserDescriptor;
   }
 }

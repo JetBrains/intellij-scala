@@ -14,7 +14,6 @@ import javax.swing.Icon
  */
 class ScaladocConfiguration(private val form: ScaladocConsoleRunConfigurationForm, private val project: Project,
                             private val scope: AnalysisScope) extends ModuleRunProfile {
-
   def getModules: Array[Module] = {
     Module.EMPTY_ARRAY
   }
@@ -37,5 +36,4 @@ class ScaladocConfiguration(private val form: ScaladocConsoleRunConfigurationFor
   def getIcon: Icon = null
 
   def checkConfiguration() {}
-
 }

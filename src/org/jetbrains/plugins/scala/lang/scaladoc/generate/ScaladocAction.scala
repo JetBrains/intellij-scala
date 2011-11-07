@@ -20,18 +20,32 @@ import javax.swing.event.DocumentEvent
 class ScaladocAction extends BaseAnalysisAction("Generate Scaladoc", "Scaladoc") {
   private var configurationDialog: ScaladocConsoleRunConfigurationForm = null
 
-  def analyze(project: Project, scope: AnalysisScope) {
-    configurationDialog.saveSettings();
-    val myConfig = new ScaladocConfiguration(configurationDialog, project, scope)
-    try {
-      val runner: ProgramRunner[_ <: JDOMExternalizable] =
-        RunnerRegistry.getInstance.getRunner(DefaultRunExecutor.EXECUTOR_ID, myConfig)
-      runner.execute(DefaultRunExecutor.getRunExecutorInstance,
-        new ExecutionEnvironment(myConfig, project, null, null, null))
-    } catch {
-      case e: ExecutionException => ExecutionErrorDialog.show(e, CommonBundle.getErrorTitle, project)
-    }
+  private def disposeForm() {
+    configurationDialog = null
+  }
 
+  def analyze(project: Project, scope: AnalysisScope) {
+    var myConfig: ScaladocConfiguration = null
+    try {
+      configurationDialog.saveSettings();
+      myConfig = new ScaladocConfiguration(configurationDialog, project, scope)
+      try {
+        val runner: ProgramRunner[_ <: JDOMExternalizable] =
+          RunnerRegistry.getInstance.getRunner(DefaultRunExecutor.EXECUTOR_ID, myConfig)
+          runner.execute(DefaultRunExecutor.getRunExecutorInstance,
+            new ExecutionEnvironment(myConfig, project, null, null, null))
+      } catch {
+        case e: ExecutionException => ExecutionErrorDialog.show(e, CommonBundle.getErrorTitle, project)
+      }
+    }
+    finally {
+      disposeForm()
+    }
+  }
+
+  override def canceled() {
+    super.canceled()
+    disposeForm()
   }
 
   override def getAdditionalActionSettings(project: Project, dialog: BaseAnalysisActionDialog): JComponent = {

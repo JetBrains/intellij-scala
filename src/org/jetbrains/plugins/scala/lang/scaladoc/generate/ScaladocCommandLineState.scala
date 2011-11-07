@@ -18,6 +18,8 @@ import java.io.{FileOutputStream, IOException, PrintStream, File}
 import com.intellij.execution.ExecutionException
 import org.jetbrains.plugins.scala.config.ScalaFacet
 import scala.collection.mutable.{ListBuffer, MutableList}
+import com.intellij.psi.PsiManager
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 
 /**
  * User: Dmitry Naidanov
@@ -28,6 +30,7 @@ class ScaladocCommandLineState(env: ExecutionEnvironment, project: Project)
         extends JavaCommandLineState(env) {
   setConsoleBuilder(TextConsoleBuilderFactory.getInstance.createBuilder(project))
   private val MAIN_CLASS = "scala.tools.nsc.ScalaDoc"
+  private val classpathDelimeter = File.pathSeparator
   private var outputDir: String = ""
   private var showInBrowser: Boolean = false
   private var additionalScaladocFlags: String = ""
@@ -82,13 +85,17 @@ class ScaladocCommandLineState(env: ExecutionEnvironment, project: Project)
 
   private def visitAll(file: VirtualFile, scope: AnalysisScope,
                        acc: MutableList[VirtualFile] = MutableList[VirtualFile]()): MutableList[VirtualFile] = {
+    if (file == null) return acc
     if (file.isDirectory) {
       for (c <- file.getChildren) {
         visitAll(c, scope, acc)
       }
     } else {
-      if (file.getExtension == "scala" && scope.contains(file)) {
-        acc += file
+      if (file.getExtension == "scala" && file.isValid && scope.contains(file)) {
+        PsiManager.getInstance(project).findFile(file) match {
+          case f: ScalaFile if !f.asInstanceOf[ScalaFile].isScriptFile() => acc += file
+          case _ => // do nothing
+        }
       }
     }
 
@@ -110,28 +117,27 @@ class ScaladocCommandLineState(env: ExecutionEnvironment, project: Project)
     result
   }
 
- private def splitParams(params: String): List[String] = {
-   val result = ListBuffer[String]()
+  private def splitParams(params: String): List[String] = {
+    val result = ListBuffer[String]()
 
-   (params + " ").foldLeft((false, new StringBuilder(""))) {
-     case ((flag, acc), ' ') =>
-       if (flag) {
-         acc.append(' ')
-       } else {
-         result += acc.toString
-         acc.clear()
-       }
-       (flag, acc)
-     case ((flag, acc), '\"') =>
-       (!flag, acc)
-     case ((flag, acc), d) =>
-       acc.append(d)
-       (flag, acc)
-   }
+    (params + " ").foldLeft((false, new StringBuilder(""))) {
+      case ((flag, acc), ' ') =>
+        if (flag) {
+          acc.append(' ')
+        } else {
+          result += acc.toString
+          acc.clear()
+        }
+        (flag, acc)
+      case ((flag, acc), '\"') =>
+        (!flag, acc)
+      case ((flag, acc), d) =>
+        acc.append(d)
+        (flag, acc)
+    }
 
-   result.result()
- } 
-  
+    result.result()
+  }
 
   def createJavaParameters() = {
     import scala.collection.JavaConversions._
@@ -146,8 +152,8 @@ class ScaladocCommandLineState(env: ExecutionEnvironment, project: Project)
     val facets = ScalaFacet.findIn(modules)
     if (facets.isEmpty) throw new ExecutionException("No facets are configured")
     val facet: ScalaFacet = facets(0)
-    val cpWithoutFacet = jp.getClassPath.getPathsString
-    jp.getClassPath.addAll(facet.classpath.split(";").toList)
+    val cpWithFacet = new StringBuilder(facet.classpath) //jp.getClassPath.getPathsString
+    jp.getClassPath.addAll(facet.classpath.split(classpathDelimeter).toList)
     jp.setCharset(null)
     jp.setMainClass(MAIN_CLASS)
 
@@ -164,7 +170,16 @@ class ScaladocCommandLineState(env: ExecutionEnvironment, project: Project)
     paramListSimple += outputDir
 
     paramListSimple += ("-classpath")
-    paramListSimple += cpWithoutFacet
+
+    for (sourceRoot <-
+         OrderEnumerator.orderEntries(project).withoutSdk().withoutModuleSourceEntries().withoutLibraries().sources().withoutSelfModuleOutput().getRoots) {
+      cpWithFacet.append(classpathDelimeter + sourceRoot.getPath)
+    }
+    for (sourceRoot <- OrderEnumerator.orderEntries(project).withoutSdk().getAllLibrariesAndSdkClassesRoots) {
+      cpWithFacet.append(classpathDelimeter + sourceRoot.getPath)
+    }
+
+    paramListSimple += cpWithFacet.mkString
 
     if (verbose) {
       paramListSimple += "-verbose"
