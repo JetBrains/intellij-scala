@@ -6,6 +6,27 @@ package org.jetbrains.plugins.scala.debugger.evaluateExpression
  */
 
 class ScalaExpressionsEvaluator extends ScalaDebuggerTestCase {
+  def testPrefixUnary() {
+    myFixture.addFileToProject("Sample.scala",
+      """
+      |object Sample {
+      |  class U {
+      |    def unary_!(): Boolean = false
+      |  }
+      |  def main(args: Array[String]) {
+      |    val u = new U
+      |    "stop here"
+      |  }
+      |}
+      """.stripMargin.trim()
+    )
+    addBreakpoint("Sample.scala", 6)
+    runDebugger("Sample") {
+      waitForBreakpoint()
+      evalEquals("!u", "false")
+    }
+  }
+
   def testThis() {
     myFixture.addFileToProject("Sample.scala",
       """

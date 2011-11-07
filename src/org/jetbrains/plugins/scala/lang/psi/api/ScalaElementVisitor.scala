@@ -48,6 +48,7 @@ class ScalaElementVisitor extends PsiElementVisitor {
   def visitSuperReference(t: ScSuperReference) {visitExpression(t)}
   def visitReferenceExpression(ref: ScReferenceExpression) { visitReference(ref); visitExpression(ref) }
   def visitPostfixExpression(p: ScPostfixExpr) { visitExpression(p) }
+  def visitPrefixExpression(p: ScPrefixExpr) { visitExpression(p) }
   def visitIfStatement(stmt: ScIfStmt) { visitExpression(stmt) }
   def visitLiteral(l: ScLiteral) {visitExpression(l)}
   def visitAssignmentStatement(stmt: ScAssignStmt) { visitExpression(stmt) }
