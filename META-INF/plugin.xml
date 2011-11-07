@@ -340,7 +340,7 @@
       <add-to-group group-id="CodeEditorViewGroup" anchor="last"/>
     </action>
     <action id="Scala.GenerateScaladoc" class="org.jetbrains.plugins.scala.lang.scaladoc.generate.ScaladocAction"
-        text="GenerateScaladoc" description="GenerateScaladoc">
+        text="Generate Scaladoc" description="Generate Scaladoc">
       <add-to-group group-id="ToolsMenu" anchor="last"/>
     </action>
     <action id="Scala.ShowImplicitParameters" class="org.jetbrains.plugins.scala.actions.ShowImplicitParametersAction"
