@@ -29,6 +29,17 @@ class ScalaSyntheticFunctionEvaluationTest extends ScalaDebuggerTestCase {
       evalEquals("y.isInstanceOf[B]", "true")
       evalEquals("y.isInstanceOf[String]", "false")
       evalEquals("\"\".isInstanceOf[String]", "true")
+      evalEquals("1 < 1", "false")
+      evalEquals("1 <= 1", "true")
+      evalEquals("1 + 2", "3")
+      evalEquals("3 - 1.5.toInt", "2")
+      evalEquals("false ^ true", "true")
+      evalEquals("!false", "true")
+      evalEquals("false | false", "false")
+      evalEquals("1 / 2", "0")
+      evalEquals("1 / 2.", "0.5")
+      evalEquals("5 % 2", "1")
+      evalEquals("1 << 2", "4")
     }
   }
 }

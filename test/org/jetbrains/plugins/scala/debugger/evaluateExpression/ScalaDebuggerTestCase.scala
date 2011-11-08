@@ -44,7 +44,9 @@ abstract class ScalaDebuggerTestCase extends ScalaCompilerTestCase {
       def run() {
         ScalaDebuggerTestCase.super.setUp()
         ScalaLoader.loadScala()
-        SyntheticClasses.get(getProject).registerClasses()
+        val cl = SyntheticClasses.get(getProject)
+        if (!cl.isClassesRegistered)
+          cl.registerClasses()
         PsiTestUtil.addLibrary(myModule, "scala-compiler",
           TestUtils.getTestDataPath.replace("\\", "/") + "/scala-compiler/", "scala-compiler.jar",
           "scala-library.jar")
