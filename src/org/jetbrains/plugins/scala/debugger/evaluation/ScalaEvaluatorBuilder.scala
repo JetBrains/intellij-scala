@@ -374,21 +374,6 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
         JVMNameUtil.getJVMRawText("(Ljava/lang/Object;)Ljava/lang/Object;"), Seq(boxEvaluator(eval)),
         false, None, Set.empty))
     }
-    private def complementEvaluator(eval: Evaluator): Evaluator = {
-      unboxEvaluator(new ScalaMethodEvaluator(BOXES_RUN_TIME, "complement",
-        JVMNameUtil.getJVMRawText("(Ljava/lang/Object;)Ljava/lang/Object;"), Seq(boxEvaluator(eval)),
-        false, None, Set.empty))
-    }
-    private def positiveEvaluator(eval: Evaluator): Evaluator = {
-      unboxEvaluator(new ScalaMethodEvaluator(BOXES_RUN_TIME, "positive",
-        JVMNameUtil.getJVMRawText("(Ljava/lang/Object;)Ljava/lang/Object;"), Seq(boxEvaluator(eval)),
-        false, None, Set.empty))
-    }
-    private def negativeEvaluator(eval: Evaluator): Evaluator = {
-      unboxEvaluator(new ScalaMethodEvaluator(BOXES_RUN_TIME, "negate",
-        JVMNameUtil.getJVMRawText("(Ljava/lang/Object;)Ljava/lang/Object;"), Seq(boxEvaluator(eval)),
-        false, None, Set.empty))
-    }
     private def eqEvaluator(left: Evaluator, right: Evaluator): Evaluator = {
       new ScalaEqEvaluator(left, right)
     }
