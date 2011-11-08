@@ -605,7 +605,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
       def collectArguments(call: ScMethodCall, collected: Seq[ScExpression] = Seq.empty) {
         call.getInvokedExpr match {
           case ref: ScReferenceExpression =>
-            visitCall(ref, ref.qualifier, call.argumentExpressions) //todo: handle case of apply
+            visitCall(ref, ref.qualifier, call.argumentExpressions ++ collected) //todo: handle case of apply
           case newCall: ScMethodCall =>
             collectArguments(newCall, call.argumentExpressions ++ collected)
           case _ =>

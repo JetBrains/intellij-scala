@@ -46,6 +46,24 @@ class ScalaMethodEvaluationTest extends ScalaDebuggerTestCase {
       evalEquals("foo", "2")
     }
   }
+  
+  def testCurriedFunction() {
+    myFixture.addFileToProject("Sample.scala",
+      """
+      |object Sample {
+      |  def foo(x: Int)(y: Int) = x * 2 + y
+      |  def main(args: Array[String]) {
+      |    "stop here"
+      |  }
+      |}
+      """.stripMargin.trim()
+    )
+    addBreakpoint("Sample.scala", 3)
+    runDebugger("Sample") {
+      waitForBreakpoint()
+      evalEquals("foo(1)(2)", "4")
+    }
+  }
 
   def testSimpleFunctionFromInner() {
     myFixture.addFileToProject("Sample.scala",
