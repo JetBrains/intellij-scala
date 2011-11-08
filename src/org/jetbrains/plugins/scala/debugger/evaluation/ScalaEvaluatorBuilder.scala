@@ -519,11 +519,11 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
             val leftEval = new ScalaArrayAccessEvaluator(myResult, argEvaluators(0))
             myResult = new AssignmentEvaluator(leftEval, argEvaluators(1))
           } else throw EvaluateExceptionUtil.createEvaluateException("Wrong number of parameters for Array.update method")
-        /* todo case "toString" =>
+        case "toString" =>
           if (argEvaluators.length == 0 && qual != None) {
             qual.get.accept(this)
             myResult = new ScalaMethodEvaluator(myResult, "toString", null/*todo*/, Nil, false, None, Set.empty)
-          } else throw EvaluateExceptionUtil.createEvaluateException("Wrong number of parameters for Array.toString method")*/
+          } else throw EvaluateExceptionUtil.createEvaluateException("Wrong number of parameters for Array.toString method")
         case _ =>
           throw EvaluateExceptionUtil.createEvaluateException("Array method not supported")
       }
