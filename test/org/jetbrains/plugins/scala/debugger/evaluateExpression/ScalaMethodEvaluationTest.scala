@@ -85,6 +85,44 @@ class ScalaMethodEvaluationTest extends ScalaDebuggerTestCase {
       evalEquals("foo(1)(2)", "4")
     }
   }
+  
+  def testArrayApplyFunction() {
+    myFixture.addFileToProject("Sample.scala",
+      """
+      |object Sample {
+      |  def main(args : Array[String]) {
+      |    val s = Array.ofDim[String](2, 2)
+      |    s(1)(1) = "test"
+      |    "stop here"
+      |  }
+      |}
+      """.stripMargin.trim()
+    )
+    addBreakpoint("Sample.scala", 4)
+    runDebugger("Sample") {
+      waitForBreakpoint()
+      evalEquals("s(1)(1)", "test")
+    }
+  }
+
+  def testArrayLengthFunction() {
+    myFixture.addFileToProject("Sample.scala",
+      """
+      |object Sample {
+      |  def main(args : Array[String]) {
+      |    val s = Array(1, 2, 3)
+      |    "stop here"
+      |  }
+      |}
+      """.stripMargin.trim()
+    )
+    addBreakpoint("Sample.scala", 3)
+    runDebugger("Sample") {
+      waitForBreakpoint()
+      evalEquals("s.length", "3")
+      evalEquals("s.length()", "3")
+    }
+  }
 
   def testSimpleFunctionFromInner() {
     myFixture.addFileToProject("Sample.scala",
