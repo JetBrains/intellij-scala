@@ -366,32 +366,148 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
       throw EvaluateExceptionUtil.createEvaluateException("Cannot evaluate local method")
     }
 
-    def evaluateSyntheticFunction(synth: ScSyntheticFunction, qual: Option[ScExpression], ref: ScReferenceExpression, 
+    private val BOXES_RUN_TIME = new TypeEvaluator(JVMNameUtil.getJVMRawText("scala.runtime.BoxesRunTime"))
+    private def boxEvaluator(eval: Evaluator): Evaluator = new BoxingEvaluator(eval)
+    private def unboxEvaluator(eval: Evaluator): Evaluator = new UnBoxingEvaluator(eval)
+    private def notEvaluator(eval: Evaluator): Evaluator = {
+      unboxEvaluator(new ScalaMethodEvaluator(BOXES_RUN_TIME, "takeNot",
+        JVMNameUtil.getJVMRawText("(Ljava/lang/Object;)Ljava/lang/Object;"), Seq(boxEvaluator(eval)),
+        false, None, Set.empty))
+    }
+    private def complementEvaluator(eval: Evaluator): Evaluator = {
+      unboxEvaluator(new ScalaMethodEvaluator(BOXES_RUN_TIME, "complement",
+        JVMNameUtil.getJVMRawText("(Ljava/lang/Object;)Ljava/lang/Object;"), Seq(boxEvaluator(eval)),
+        false, None, Set.empty))
+    }
+    private def positiveEvaluator(eval: Evaluator): Evaluator = {
+      unboxEvaluator(new ScalaMethodEvaluator(BOXES_RUN_TIME, "positive",
+        JVMNameUtil.getJVMRawText("(Ljava/lang/Object;)Ljava/lang/Object;"), Seq(boxEvaluator(eval)),
+        false, None, Set.empty))
+    }
+    private def negativeEvaluator(eval: Evaluator): Evaluator = {
+      unboxEvaluator(new ScalaMethodEvaluator(BOXES_RUN_TIME, "negate",
+        JVMNameUtil.getJVMRawText("(Ljava/lang/Object;)Ljava/lang/Object;"), Seq(boxEvaluator(eval)),
+        false, None, Set.empty))
+    }
+    private def eqEvaluator(left: Evaluator, right: Evaluator): Evaluator = {
+      new ScalaEqEvaluator(left, right)
+    }
+    private def neEvaluator(left: Evaluator, right: Evaluator): Evaluator = {
+      notEvaluator(eqEvaluator(left, right))
+    }
+    private def unaryEvaluator(eval: Evaluator, boxesRunTimeName: String): Evaluator = {
+      unboxEvaluator(new ScalaMethodEvaluator(BOXES_RUN_TIME, boxesRunTimeName,
+        JVMNameUtil.getJVMRawText("(Ljava/lang/Object;)Ljava/lang/Object;"), Seq(boxEvaluator(eval)),
+        false, None, Set.empty))
+    }
+    private def binaryEvaluator(left: Evaluator, right: Evaluator, boxesRunTimeName: String): Evaluator = {
+      unboxEvaluator(new ScalaMethodEvaluator(BOXES_RUN_TIME, boxesRunTimeName,
+        JVMNameUtil.getJVMRawText("(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;"),
+        Seq(boxEvaluator(left), boxEvaluator(right)), false, None, Set.empty)) 
+    }
+
+    private def evaluateSyntheticFunction(synth: ScSyntheticFunction, qual: Option[ScExpression], ref: ScReferenceExpression,
                                   argEvaluators: Seq[Evaluator]) {
-      synth.getName match {
-        case "isInstanceOf" =>
+      evaluateSyntheticFunctionForName(synth.getName, qual, ref, argEvaluators)
+    }
+
+    private def evaluateSyntheticFunctionForName(name: String, qual: Option[ScExpression], ref: ScReferenceExpression,
+                                  argEvaluators: Seq[Evaluator]) {
+      def unaryEval(operatorName: String, function: Evaluator => Evaluator) {
+        if (argEvaluators.length == 0) {
           val eval = qual match {
             case None => new ScalaThisEvaluator()
             case Some(qual) =>
               qual.accept(this)
               myResult
           }
-          import org.jetbrains.plugins.scala.lang.psi.types.Nothing
-          val tp = ref.getParent match {
-            case gen: ScGenericCall => gen.typeArgs match {
-              case Some(args) => args.typeArgs match {
-                case Seq(arg) => arg.calcType
-                case _ => Nothing
-              }
-              case None => Nothing
-            }
-            case _ => Nothing
+          myResult = function(eval)
+        } else throw EvaluateExceptionUtil.createEvaluateException("Wrong number of arguments for method '" +
+          operatorName + "'")
+      }
+      def unaryEvalForBoxes(operatorName: String, boxesName: String) {
+        unaryEval(operatorName, unaryEvaluator(_, boxesName))
+      }
+      def binaryEval(operatorName: String, function: (Evaluator, Evaluator) => Evaluator) {
+        if (argEvaluators.length == 1) {
+          val eval = qual match {
+            case None => new ScalaThisEvaluator()
+            case Some(qual) =>
+              qual.accept(this)
+              myResult
           }
-          val jvmName: JVMName = DebuggerUtil.getJVMQualifiedName(tp)
-          myResult = new ScalaInstanceofEvaluator(eval, new TypeEvaluator(jvmName))
+          myResult = function(eval, argEvaluators(0))
+        } else throw EvaluateExceptionUtil.createEvaluateException("Wrong number of arguments for method '" +
+          operatorName + "'")
+      }
+      def binaryEvalForBoxes(operatorName: String, boxesName: String) {
+        binaryEval(operatorName, binaryEvaluator(_, _, boxesName))
+      }
+      name match {
+        case "isInstanceOf" =>
+          unaryEval(name, eval => {
+            import org.jetbrains.plugins.scala.lang.psi.types.Nothing
+            val tp = ref.getParent match {
+              case gen: ScGenericCall => gen.typeArgs match {
+                case Some(args) => args.typeArgs match {
+                  case Seq(arg) => arg.calcType
+                  case _ => Nothing
+                }
+                case None => Nothing
+              }
+              case _ => Nothing
+            }
+            val jvmName: JVMName = DebuggerUtil.getJVMQualifiedName(tp)
+            new ScalaInstanceofEvaluator(eval, new TypeEvaluator(jvmName))
+          })
+        case "asInstanceOf" => unaryEval(name, identity) //todo: primitive type casting?
+        case "##" => unaryEval(name, eval => new ScalaMethodEvaluator(BOXES_RUN_TIME, "hashFromObject",
+          JVMNameUtil.getJVMRawText("(Ljava/lang/Object;)I"), Seq(new BoxingEvaluator(eval)),
+          false, None, Set.empty))
+        case "==" =>
+          binaryEval(name, (l, r) => new ScalaMethodEvaluator(BOXES_RUN_TIME, "equals",
+            JVMNameUtil.getJVMRawText("(Ljava/lang/Object;Ljava/lang/Object;)Z"), Seq(
+              new BoxingEvaluator(l), new BoxingEvaluator(r)),
+            false, None, Set.empty))
+        case "!=" =>
+          binaryEval(name, (l, r) =>new ScalaMethodEvaluator(BOXES_RUN_TIME, "equals",
+            JVMNameUtil.getJVMRawText("(Ljava/lang/Object;Ljava/lang/Object;)Z"), Seq(
+              new BoxingEvaluator(l), new BoxingEvaluator(r)),
+            false, None, Set.empty))
+        case "unary_!" => unaryEvalForBoxes("!", "takeNot")
+        case "unary_~" => unaryEvalForBoxes("~", "complement")
+        case "unary_+" => unaryEvalForBoxes("+", "positive")
+        case "unary_-" => unaryEvalForBoxes("-", "negate")
+        case "eq" => binaryEval(name, eqEvaluator(_, _))
+        case "ne" => binaryEval(name, neEvaluator(_, _))
+        case "<" => binaryEvalForBoxes(name, "testLessThan")
+        case ">" => binaryEvalForBoxes(name, "testGreaterThan")
+        case ">=" => binaryEvalForBoxes(name, "testGreaterOrEqualThan")
+        case "<=" => binaryEvalForBoxes(name, "testLessOrEqualThan")
+        case "+" => binaryEvalForBoxes(name, "add")
+        case "-" => binaryEvalForBoxes(name, "subtract")
+        case "*" => binaryEvalForBoxes(name, "multiply")
+        case "/" => binaryEvalForBoxes(name, "divide")
+        case "%" => binaryEvalForBoxes(name, "takeModulo")
+        case ">>" => binaryEvalForBoxes(name, "shiftSignedRight")
+        case "<<" => binaryEvalForBoxes(name, "shiftSignedLeft")
+        case ">>>" => binaryEvalForBoxes(name, "shiftLogicalRight")
+        case "&" => binaryEvalForBoxes(name, "takeAnd")
+        case "|" => binaryEvalForBoxes(name, "takeOr")
+        case "^" => binaryEvalForBoxes(name, "takeXor")
+        case "&&" => binaryEvalForBoxes(name, "takeConditionalAnd") //todo: don't eval if not needed
+        case "||" => binaryEvalForBoxes(name, "takeConditionalOr") //todo: don't eval if not needed
+        case "toInt" => unaryEvalForBoxes(name, "toInteger")
+        case "toChar" => unaryEvalForBoxes(name, "toCharacter")
+        case "toShort" => unaryEvalForBoxes(name, "toShort")
+        case "toByte" => unaryEvalForBoxes(name, "toByte")
+        case "toDouble" => unaryEvalForBoxes(name, "toDouble")
+        case "toLong" => unaryEvalForBoxes(name, "toLong")
+        case "toFloat" => unaryEvalForBoxes(name, "toFloat")
+        case "synchronized" =>
+          throw EvaluateExceptionUtil.createEvaluateException("synchronized statement is not supported")
         case _ => //todo:
-          argEvaluators
-          throw EvaluateExceptionUtil.createEvaluateException("Cannot evaluate synthetic method: " + synth.getName)
+          throw EvaluateExceptionUtil.createEvaluateException("Cannot evaluate synthetic method: " + name)
       }
     }
 

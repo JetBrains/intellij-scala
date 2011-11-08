@@ -50,7 +50,8 @@ class ScalaMethodEvaluator(objectEvaluator: Evaluator, methodName: String, signa
         var jdiMethod: Method = null
         if (signature != null) {
           if (!localMethod) {
-            jdiMethod = (referenceType.asInstanceOf[ClassType]).concreteMethodByName(mName, signature.getName(debugProcess))
+            jdiMethod = (referenceType.asInstanceOf[ClassType]).concreteMethodByName(methodName,
+              signature.getName(debugProcess))
           }
           if (jdiMethod == null && localMethod) {
             //try to find method$i
@@ -91,8 +92,13 @@ class ScalaMethodEvaluator(objectEvaluator: Evaluator, methodName: String, signa
                 var result = true
                 ApplicationManager.getApplication.runReadAction(new Runnable {
                   def run() {
-                    val lines = methodPosition.map(_.getLine)
-                    result = m.allLineLocations().find(l => lines.contains(l.lineNumber())) != None
+                    try {
+                      val lines = methodPosition.map(_.getLine)
+                      result = m.allLineLocations().find(l => lines.contains(l.lineNumber())) != None
+                    }
+                    catch {
+                      case e: Exception => //ignore
+                    }
                   }
                 })
                 result
