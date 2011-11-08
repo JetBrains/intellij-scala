@@ -602,14 +602,25 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
     }
 
     override def visitMethodCallExpression(call: ScMethodCall) {
-      def collectArguments(call: ScMethodCall, collected: Seq[ScExpression] = Seq.empty) {
+      def collectArguments(call: ScMethodCall, collected: Seq[ScExpression] = Seq.empty, tailString: String = "") {
+        if (call.isApplyOrUpdateCall) {
+          if (!call.isUpdateCall) {
+            val newExprText = new StringBuilder
+            newExprText.append("(").append(call.getInvokedExpr.getText).append(").apply").append(call.args.getText + tailString)
+            val expr = ScalaPsiElementFactory.createExpressionWithContextFromText(newExprText.toString(), call.getContext, call)
+            expr.accept(this)
+          } else {
+            //should be handled on assignment
+            throw EvaluateExceptionUtil.createEvaluateException("Update method is not supported")
+          }
+          return
+        }
         call.getInvokedExpr match {
           case ref: ScReferenceExpression =>
-            visitCall(ref, ref.qualifier, call.argumentExpressions ++ collected) //todo: handle case of apply
+            visitCall(ref, ref.qualifier, call.argumentExpressions ++ collected)
           case newCall: ScMethodCall =>
-            collectArguments(newCall, call.argumentExpressions ++ collected)
+            collectArguments(newCall, call.argumentExpressions ++ collected, call.args.getText + tailString)
           case _ =>
-            throw EvaluateExceptionUtil.createEvaluateException("Apply call not supported") //todo: !
         }
       }
       collectArguments(call)

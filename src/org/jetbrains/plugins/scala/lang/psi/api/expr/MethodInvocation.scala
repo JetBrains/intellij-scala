@@ -78,6 +78,14 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
   }
 
   /**
+   * true if this call is syntactic sugar for apply or update method.
+   */
+  def isApplyOrUpdateCall: Boolean = {
+    getType(TypingContext.empty)
+    applyOrUpdate
+  }
+
+  /**
    * It's arguments for method and infix call.
    * For prefix and postfix call it's just operation.
    * @return Element, which reflects arguments
@@ -178,9 +186,11 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
           if (useExpectedType) {
             updateAccordingToExpectedType(Success(processedType, None)).foreach(x => processedType = x)
           }
+          this.applyOrUpdate = true
           this.importsUsed = importsUsed
           this.implicitFunction = implicitFunction
           checkApplication(processedType, argumentExpressionsIncludeUpdateCall).getOrElse {
+            this.applyOrUpdate = false
             applicabilityProblemsVar = Seq(new DoesNotTakeParameters)
             matchedParametersVar = Seq()
             processedType
@@ -204,4 +214,5 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
   private var matchedParametersVar: Seq[(Parameter, ScExpression)] = Seq.empty
   private var importsUsed: collection.Set[ImportUsed] = collection.Set.empty
   private var implicitFunction: Option[PsiNamedElement] = None
+  private var applyOrUpdate: Boolean = false
 }
