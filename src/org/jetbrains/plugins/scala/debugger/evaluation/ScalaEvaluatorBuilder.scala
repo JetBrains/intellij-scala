@@ -148,19 +148,28 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
     }
 
     override def visitPrefixExpression(p: ScPrefixExpr) {
-      visitCall(p.operation, Some(p.operand), Seq.empty)
+      visitCall(p.operation, Some(p.operand), Seq.empty, s => {
+        val exprText = p.operation.refName + s
+        ScalaPsiElementFactory.createExpressionWithContextFromText(exprText, p.getContext, p)
+      })
     }
 
     override def visitPostfixExpression(p: ScPostfixExpr) {
       val qualifier = Some(p.operand)
       val resolve = p.operation.resolve()
-      visitReferenceNoParameters(qualifier, resolve, p.operation)
+      visitReferenceNoParameters(qualifier, resolve, p.operation, (s: String) => {
+        val exprText = s + " " + p.operation.refName
+        ScalaPsiElementFactory.createExpressionWithContextFromText(exprText, p.getContext, p)
+      })
     }
 
     override def visitReferenceExpression(ref: ScReferenceExpression) {
       val qualifier: Option[ScExpression] = ref.qualifier
       val resolve: PsiElement = ref.resolve()
-      visitReferenceNoParameters(qualifier, resolve, ref)
+      visitReferenceNoParameters(qualifier, resolve, ref, (s: String) => {
+        val exprText = s + "." + ref.refName
+        ScalaPsiElementFactory.createExpressionWithContextFromText(exprText, ref.getContext, ref)
+      })
     }
 
     override def visitIfStatement(stmt: ScIfStmt) {
@@ -540,7 +549,34 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
       }
     }
 
-    private def visitCall(ref: ScReferenceExpression, qual: Option[ScExpression], arguments: Seq[ScExpression]) {
+    private def replaceWithImplicitFunction(implicitFunction: PsiNamedElement, qual: ScExpression,
+                                            replaceWithImplicit: (String) => ScExpression) {
+      val context = ScalaPsiUtil.nameContext(implicitFunction)
+      val clazz = context.getContext match {
+        case tb: ScTemplateBody =>
+          PsiTreeUtil.getContextOfType(tb, classOf[PsiClass])
+        case _ => null
+      }
+      clazz match {
+        case o: ScObject if isStable(o) =>
+          val exprText = o.getQualifiedName + "." + implicitFunction.getName + "(" +
+            qual.getText + ")"
+          val expr = replaceWithImplicit(exprText)
+          expr.accept(this)
+          return
+        case o: ScObject => //todo: It can cover many cases!
+          throw EvaluateExceptionUtil.
+            createEvaluateException("Implicit conversions from dependent objects are not supported")
+        case _ => //from scope
+          val exprText = implicitFunction.getName + "(" + qual.getText + ")"
+          val expr = replaceWithImplicit(exprText)
+          expr.accept(this)
+          return
+      }
+    }
+
+    private def visitCall(ref: ScReferenceExpression, qualOption: Option[ScExpression], arguments: Seq[ScExpression],
+                          replaceWithImplicit: String => ScExpression) {
       val resolve = ref.resolve()
       val argEvaluators: Seq[Evaluator] = arguments.map(arg => {
         arg.accept(this)
@@ -550,22 +586,22 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
         case fun: ScFunction if isLocalFunction(fun) =>
           evaluateLocalMethod(resolve, argEvaluators)
         case synth: ScSyntheticFunction =>
-          evaluateSyntheticFunction(synth, qual, ref, argEvaluators)
+          evaluateSyntheticFunction(synth, qualOption, ref, argEvaluators)
         case fun: ScFunction if isArrayFunction(fun) =>
-          evaluateArrayMethod(fun.getName,  qual, argEvaluators)
+          evaluateArrayMethod(fun.getName,  qualOption, argEvaluators)
         case fun: ScFunction =>
           if (fun.effectiveParameterClauses.lastOption.map(_.isImplicit).getOrElse(false)) {
             //todo: find and pass implicit parameters
             throw EvaluateExceptionUtil.createEvaluateException("passing implicit parameters is not supported")
           }
-          qual match {
+          qualOption match {
             case Some(qual) =>
               ref.bind() match {
                 case Some(r: ScalaResolveResult) =>
                   r.implicitFunction match {
                     case Some(fun) =>
-                      //todo:
-                      throw EvaluateExceptionUtil.createEvaluateException("Implicit function conversions is not supported")
+                      replaceWithImplicitFunction(fun, qual, replaceWithImplicit)
+                      return
                     case _ =>
                       qual.accept(this)
                       val name = NameTransformer.encode(fun.name)
@@ -593,7 +629,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
           }
           throw EvaluateExceptionUtil.createEvaluateException("Cannot evaluate method")
         case method: PsiMethod =>
-          qual match {
+          qualOption match {
             case Some(qual) =>
               if (method.hasModifierProperty("static")) {
                 val eval =
@@ -607,8 +643,8 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
                   case Some(r: ScalaResolveResult) =>
                     r.implicitFunction match {
                       case Some(fun) =>
-                        //todo:
-                        throw EvaluateExceptionUtil.createEvaluateException("Implicit function conversions is not supported")
+                        replaceWithImplicitFunction(fun, qual, replaceWithImplicit)
+                        return
                       case _ =>
                         qual.accept(this)
                         val name = method.getName
@@ -641,7 +677,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
       }
     }
 
-    override def visitMethodCallExpression(call: ScMethodCall) {
+    override def visitMethodCallExpression(parentCall: ScMethodCall) {
       def collectArguments(call: ScMethodCall, collected: Seq[ScExpression] = Seq.empty, tailString: String = "") {
         if (call.isApplyOrUpdateCall) {
           if (!call.isUpdateCall) {
@@ -657,13 +693,17 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
         }
         call.getInvokedExpr match {
           case ref: ScReferenceExpression =>
-            visitCall(ref, ref.qualifier, call.argumentExpressions ++ collected)
+            visitCall(ref, ref.qualifier, call.argumentExpressions ++ collected, s => {
+              val exprText = s + "." + ref.refName + call.args.getText + tailString
+              ScalaPsiElementFactory.createExpressionWithContextFromText(exprText, parentCall.getContext,
+                parentCall)
+            })
           case newCall: ScMethodCall =>
             collectArguments(newCall, call.argumentExpressions ++ collected, call.args.getText + tailString)
           case _ =>
         }
       }
-      collectArguments(call)
+      collectArguments(parentCall)
     }
 
     override def visitInfixExpression(infix: ScInfixExpr) {
@@ -680,7 +720,10 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
           case _ =>
         }
       }
-      visitCall(operation, Some(infix.getBaseExpr), infix.argumentExpressions)
+      visitCall(operation, Some(infix.getBaseExpr), infix.argumentExpressions, s => {
+        val exprText = s + " " + operation.refName + " " + infix.getArgExpr.getText
+        ScalaPsiElementFactory.createExpressionWithContextFromText(exprText, infix.getContext, infix)
+      })
     }
 
     private def isStable(o: ScObject): Boolean = {
@@ -756,7 +799,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
 
     private def visitReferenceNoParameters(qualifier: Option[ScExpression],
                                            resolve: PsiElement,
-                                           ref: ScReferenceExpression) {
+                                           ref: ScReferenceExpression, replaceWithImplicit: String => ScExpression) {
       val isLocalValue = isLocalV(resolve)
       def calcLocal: Boolean = {
         val labeledValue = resolve.getUserData(CodeFragmentFactoryContextWrapper.LABEL_VARIABLE_VALUE_KEY)
@@ -855,8 +898,8 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
               case Some(r: ScalaResolveResult) =>
                 r.implicitFunction match {
                   case Some(fun) =>
-                    //todo:
-                    throw EvaluateExceptionUtil.createEvaluateException("Implicit function conversions is not supported")
+                    replaceWithImplicitFunction(fun, qual, replaceWithImplicit)
+                    return
                   case _ =>
                     qual.accept(this)
                     val name = NameTransformer.encode(obj.getName)
@@ -896,8 +939,8 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
               case Some(r: ScalaResolveResult) =>
                 r.implicitFunction match {
                   case Some(fun) =>
-                    //todo:
-                    throw EvaluateExceptionUtil.createEvaluateException("Implicit function conversions is not supported")
+                    replaceWithImplicitFunction(fun, qual, replaceWithImplicit)
+                    return
                   case _ =>
                     qual.accept(this)
                     val name = NameTransformer.encode(fun.name)
@@ -940,8 +983,8 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
                 case Some(r: ScalaResolveResult) =>
                   r.implicitFunction match {
                     case Some(fun) =>
-                      //todo:
-                      throw EvaluateExceptionUtil.createEvaluateException("Implicit function conversions is not supported")
+                      replaceWithImplicitFunction(fun, qual, replaceWithImplicit)
+                      return
                     case _ =>
                       qual.accept(this)
                       val name = method.getName
@@ -978,8 +1021,8 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
               case Some(r: ScalaResolveResult) =>
                 r.implicitFunction match {
                   case Some(fun) =>
-                    //todo:
-                    throw EvaluateExceptionUtil.createEvaluateException("Implicit function conversions is not supported")
+                    replaceWithImplicitFunction(fun, qual, replaceWithImplicit)
+                    return
                   case _ =>
                     qual.accept(this)
                     val name = NameTransformer.encode(named.name)
@@ -1022,8 +1065,8 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
                 case Some(r: ScalaResolveResult) =>
                   r.implicitFunction match {
                     case Some(fun) =>
-                      //todo:
-                      throw EvaluateExceptionUtil.createEvaluateException("Implicit function conversions is not supported")
+                      replaceWithImplicitFunction(fun, qual, replaceWithImplicit)
+                      return
                     case _ =>
                       qual.accept(this)
                       val name = field.getName
