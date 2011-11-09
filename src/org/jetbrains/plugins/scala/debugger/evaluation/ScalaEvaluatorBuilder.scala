@@ -26,6 +26,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.{ScThisType, ScType}
 import collection.Seq
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTrait, ScObject}
+import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 
 /**
  * User: Alefas
@@ -148,10 +149,10 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
     }
 
     override def visitPrefixExpression(p: ScPrefixExpr) {
-      visitCall(p.operation, Some(p.operand), Seq.empty, s => {
+      visitCall(p.operation, Some(p.operand), Nil, s => {
         val exprText = p.operation.refName + s
         ScalaPsiElementFactory.createExpressionWithContextFromText(exprText, p.getContext, p)
-      })
+      }, Map.empty, p)
     }
 
     override def visitPostfixExpression(p: ScPostfixExpr) {
@@ -576,24 +577,80 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
     }
 
     private def visitCall(ref: ScReferenceExpression, qualOption: Option[ScExpression], arguments: Seq[ScExpression],
-                          replaceWithImplicit: String => ScExpression) {
+                          replaceWithImplicit: String => ScExpression,
+                          matchedParameters: Map[Parameter, ScExpression], expr: ScExpression) {
       val resolve = ref.resolve()
-      val argEvaluators: Seq[Evaluator] = arguments.map(arg => {
+      def argEvaluators: Seq[Evaluator] = arguments.map(arg => {
         arg.accept(this)
         myResult
       })
       resolve match {
         case fun: ScFunction if isLocalFunction(fun) =>
-          evaluateLocalMethod(resolve, argEvaluators)
+          evaluateLocalMethod(resolve, argEvaluators) //todo: use matched parameters
         case synth: ScSyntheticFunction =>
-          evaluateSyntheticFunction(synth, qualOption, ref, argEvaluators)
+          evaluateSyntheticFunction(synth, qualOption, ref, argEvaluators) //todo: use matched parameters
         case fun: ScFunction if isArrayFunction(fun) =>
-          evaluateArrayMethod(fun.getName,  qualOption, argEvaluators)
+          evaluateArrayMethod(fun.getName,  qualOption, argEvaluators) //todo: use matched parameters
         case fun: ScFunction =>
-          if (fun.effectiveParameterClauses.lastOption.map(_.isImplicit).getOrElse(false)) {
-            //todo: find and pass implicit parameters
-            throw EvaluateExceptionUtil.createEvaluateException("passing implicit parameters is not supported")
-          }
+          val implicitParameters = fun.effectiveParameterClauses.lastOption.toSeq.flatMap(
+            (clause: ScParameterClause) => {
+              if (clause.isImplicit) clause.parameters
+              else Seq.empty
+            })
+          var argEvaluators: Seq[Evaluator] = fun.effectiveParameterClauses.flatMap(_.parameters).map(
+            (param: ScParameter) => {
+              val p = new Parameter(param)
+              val e = matchedParameters.getOrElse(p, null)
+              if (e != null) {
+                e.accept(this)
+                myResult
+              } else if (implicitParameters.contains(param)) {
+                val i = implicitParameters.indexOf(param)
+                expr.findImplicitParameters match {
+                  case Some(s) if s.length == implicitParameters.length =>
+                    s(i) match {
+                      case null =>
+                        throw EvaluateExceptionUtil.createEvaluateException("cannot find implicit parameters to pass")
+                      case ScalaResolveResult(param, _) =>
+                        val context = ScalaPsiUtil.nameContext(param)
+                        val clazz = context.getContext match {
+                          case _: ScTemplateBody | _: ScEarlyDefinitions =>
+                            ScalaPsiUtil.getContextOfType(context, true, classOf[PsiClass])
+                          case _ if context.isInstanceOf[ScClassParameter] =>
+                            ScalaPsiUtil.getContextOfType(context, true, classOf[PsiClass])
+                          case _ => null
+                        }
+                        clazz match {
+                          case o: ScObject if isStable(o) =>
+                            val exprText = o.getQualifiedName + "." + param.getName
+                            val e = ScalaPsiElementFactory.createExpressionWithContextFromText(exprText,
+                              expr.getContext, expr)
+                            e.accept(this)
+                            myResult
+                          case o: ScObject => //todo: It can cover many cases!
+                            throw EvaluateExceptionUtil.
+                              createEvaluateException("Implicit parameters from dependent objects are not supported")
+                          case _ => //from scope
+                            val exprText = param.getName
+                            val e = ScalaPsiElementFactory.createExpressionWithContextFromText(exprText,
+                              expr.getContext, expr)
+                            e.accept(this)
+                            myResult
+                        }
+                    }
+                  case None =>
+                    throw EvaluateExceptionUtil.createEvaluateException("cannot find implicit parameters to pass")
+                }
+              } else if (p.isDefault) {
+                //todo:
+                throw EvaluateExceptionUtil.createEvaluateException("passing default parameters is not supported")
+              } else null
+            })
+          if (argEvaluators.contains(null))
+            argEvaluators = arguments.map(arg => {
+              arg.accept(this)
+              myResult
+            })
           qualOption match {
             case Some(qual) =>
               ref.bind() match {
@@ -628,7 +685,11 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
               }
           }
           throw EvaluateExceptionUtil.createEvaluateException("Cannot evaluate method")
-        case method: PsiMethod =>
+        case method: PsiMethod => //here you can use just arguments
+          val argEvaluators: Seq[Evaluator] = arguments.map(arg => {
+            arg.accept(this)
+            myResult
+          })
           qualOption match {
             case Some(qual) =>
               if (method.hasModifierProperty("static")) {
@@ -672,13 +733,14 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
               }
           }
           throw EvaluateExceptionUtil.createEvaluateException("Cannot evaluate method")
-        case _ => //todo:
+        case _ => //todo: dynamic method invocation
           throw EvaluateExceptionUtil.createEvaluateException("Cannot evaluate method")
       }
     }
 
     override def visitMethodCallExpression(parentCall: ScMethodCall) {
-      def collectArguments(call: ScMethodCall, collected: Seq[ScExpression] = Seq.empty, tailString: String = "") {
+      def collectArguments(call: ScMethodCall, collected: Seq[ScExpression] = Seq.empty, tailString: String = "",
+                           matchedParameters: Map[Parameter, ScExpression] = Map.empty) {
         if (call.isApplyOrUpdateCall) {
           if (!call.isUpdateCall) {
             val newExprText = new StringBuilder
@@ -697,9 +759,10 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
               val exprText = s + "." + ref.refName + call.args.getText + tailString
               ScalaPsiElementFactory.createExpressionWithContextFromText(exprText, parentCall.getContext,
                 parentCall)
-            })
+            }, matchedParameters ++ call.matchedParameters.map(_.swap), parentCall)
           case newCall: ScMethodCall =>
-            collectArguments(newCall, call.argumentExpressions ++ collected, call.args.getText + tailString)
+            collectArguments(newCall, call.argumentExpressions ++ collected, call.args.getText + tailString,
+              matchedParameters ++ call.matchedParameters.map(_.swap))
           case _ =>
         }
       }
@@ -723,7 +786,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
       visitCall(operation, Some(infix.getBaseExpr), infix.argumentExpressions, s => {
         val exprText = s + " " + operation.refName + " " + infix.getArgExpr.getText
         ScalaPsiElementFactory.createExpressionWithContextFromText(exprText, infix.getContext, infix)
-      })
+      }, infix.matchedParameters.map(_.swap), infix)
     }
 
     private def isStable(o: ScObject): Boolean = {
@@ -927,91 +990,11 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
         }
         throw EvaluateExceptionUtil.createEvaluateException("Cannot evaluate object")
       } else if (resolve.isInstanceOf[ScFunction]) {
-        val fun = resolve.asInstanceOf[ScFunction]
-        if (fun.effectiveParameterClauses.lastOption.map(_.isImplicit).getOrElse(false)) {
-          //todo: find and pass implicit parameters
-          throw EvaluateExceptionUtil.createEvaluateException("passing implicit parameters is not supported")
-        }
-
-        qualifier match {
-          case Some(qual) =>
-            ref.bind() match {
-              case Some(r: ScalaResolveResult) =>
-                r.implicitFunction match {
-                  case Some(fun) =>
-                    replaceWithImplicitFunction(fun, qual, replaceWithImplicit)
-                    return
-                  case _ =>
-                    qual.accept(this)
-                    val name = NameTransformer.encode(fun.name)
-                    myResult = new ScalaMethodEvaluator(myResult, name, null /* todo? */, Seq.empty, false,
-                      traitImplementation(resolve), DebuggerUtil.getSourcePositions(resolve.getNavigationElement))
-                    return
-                }
-              case _ => //resolve not null => shouldn't be
-            }
-          case None =>
-            ref.bind() match {
-              case Some(r: ScalaResolveResult) =>
-                if (!r.importsUsed.isEmpty) {
-                  //todo:
-                  throw EvaluateExceptionUtil.createEvaluateException("Evaluation of imported functions is not supported")
-                } else {
-                  val evaluator = thisEvaluator(r)
-                  val name = NameTransformer.encode(fun.getName)
-                  myResult = new ScalaMethodEvaluator(evaluator, name, null /* todo? */, Seq.empty, false,
-                    traitImplementation(resolve), DebuggerUtil.getSourcePositions(resolve.getNavigationElement))
-                  return
-                }
-              case _ => //resolve not null => shouldn't be
-            }
-        }
-        throw EvaluateExceptionUtil.createEvaluateException("Cannot evaluate method")
+        visitCall(ref, qualifier, Nil, replaceWithImplicit, Map.empty, ref)
+        return
       } else if (resolve.isInstanceOf[PsiMethod]) {
-        val method = resolve.asInstanceOf[PsiMethod]
-        qualifier match {
-          case Some(qual) =>
-            if (method.hasModifierProperty("static")) {
-              val eval = 
-                new TypeEvaluator(JVMNameUtil.getContextClassJVMQualifiedName(SourcePosition.createFromElement(method)))
-              val name = method.getName
-              myResult = new ScalaMethodEvaluator(eval, name, null /* todo? */, Seq.empty, false,
-                traitImplementation(resolve), DebuggerUtil.getSourcePositions(resolve.getNavigationElement))
-              return
-            } else {
-              ref.bind() match {
-                case Some(r: ScalaResolveResult) =>
-                  r.implicitFunction match {
-                    case Some(fun) =>
-                      replaceWithImplicitFunction(fun, qual, replaceWithImplicit)
-                      return
-                    case _ =>
-                      qual.accept(this)
-                      val name = method.getName
-                      myResult = new ScalaMethodEvaluator(myResult, name, null /* todo? */, Seq.empty, false,
-                        traitImplementation(resolve), DebuggerUtil.getSourcePositions(resolve.getNavigationElement))
-                      return
-                  }
-                case _ => //resolve not null => shouldn't be
-              }
-            }
-          case None =>
-            ref.bind() match {
-              case Some(r: ScalaResolveResult) =>
-                if (!r.importsUsed.isEmpty) {
-                  //todo:
-                  throw EvaluateExceptionUtil.createEvaluateException("Evaluation of imported functions is not supported")
-                } else {
-                  val evaluator = thisEvaluator(r)
-                  val name = method.getName
-                  myResult = new ScalaMethodEvaluator(evaluator, name, null /* todo? */, Seq.empty, false,
-                    traitImplementation(resolve), DebuggerUtil.getSourcePositions(resolve.getNavigationElement))
-                  return
-                }
-              case _ => //resolve not null => shouldn't be
-            }
-        }
-        throw EvaluateExceptionUtil.createEvaluateException("Cannot evaluate method")
+        visitCall(ref, qualifier, Nil, replaceWithImplicit, Map.empty, ref)
+        return
       } else if (resolve.isInstanceOf[ScClassParameter] || resolve.isInstanceOf[ScBindingPattern]) {
         //this is scala "field"
         val named = resolve.asInstanceOf[ScNamedElement]
@@ -1107,10 +1090,10 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
             if (myResult == null) {
               throw EvaluateExceptionUtil.createEvaluateException("Cannot evaluate unresolved reference expression")
             }
-            myResult = new ScalaFieldEvaluator(myResult, ref => true, name) //todo: look for method?
+            myResult = new ScalaFieldEvaluator(myResult, ref => true, name)
             return
           case None =>
-            myResult = new ScalaLocalVariableEvaluator(name, false) //todo: look for method?
+            myResult = new ScalaLocalVariableEvaluator(name, false)
             return
         }
       }
