@@ -578,7 +578,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
 
     private def visitCall(ref: ScReferenceExpression, qualOption: Option[ScExpression], arguments: Seq[ScExpression],
                           replaceWithImplicit: String => ScExpression,
-                          matchedParameters: Map[Parameter, ScExpression], expr: ScExpression) {
+                          matchedParameters: Map[Parameter, Seq[ScExpression]], expr: ScExpression) {
       val resolve = ref.resolve()
       def argEvaluators: Seq[Evaluator] = arguments.map(arg => {
         arg.accept(this)
@@ -600,10 +600,21 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
           var argEvaluators: Seq[Evaluator] = fun.effectiveParameterClauses.flatMap(_.parameters).map(
             (param: ScParameter) => {
               val p = new Parameter(param)
-              val e = matchedParameters.getOrElse(p, null)
-              if (e != null) {
-                e.accept(this)
+              val e = matchedParameters.getOrElse(p, Seq.empty)
+              if (p.isRepeated) {
+                val exprText = "_root_.scala.collection.Seq.newBuilder[Any]" +
+                  (if (e.length > 0) e.sortBy(_.getTextRange.getStartOffset).map(_.getText).mkString(".+=(", ").+=(", ").result()") else "")
+                val newExpr = ScalaPsiElementFactory.createExpressionWithContextFromText(exprText, expr.getContext,
+                  expr)
+                newExpr.accept(this)
                 myResult
+              } else if (e.length > 0) {
+                if (e.length == 1) {
+                  e(0).accept(this)
+                  myResult
+                } else {
+                  throw EvaluateExceptionUtil.createEvaluateException("Wrong number of matched expressions")
+                }
               } else if (implicitParameters.contains(param)) {
                 val i = implicitParameters.indexOf(param)
                 expr.findImplicitParameters match {
@@ -786,7 +797,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
 
     override def visitMethodCallExpression(parentCall: ScMethodCall) {
       def collectArguments(call: ScMethodCall, collected: Seq[ScExpression] = Seq.empty, tailString: String = "",
-                           matchedParameters: Map[Parameter, ScExpression] = Map.empty) {
+                           matchedParameters: Map[Parameter, Seq[ScExpression]] = Map.empty) {
         if (call.isApplyOrUpdateCall) {
           if (!call.isUpdateCall) {
             val newExprText = new StringBuilder
@@ -805,10 +816,10 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
               val exprText = s + "." + ref.refName + call.args.getText + tailString
               ScalaPsiElementFactory.createExpressionWithContextFromText(exprText, parentCall.getContext,
                 parentCall)
-            }, matchedParameters ++ call.matchedParameters.map(_.swap), parentCall)
+            }, matchedParameters ++ call.matchedParametersMap, parentCall)
           case newCall: ScMethodCall =>
             collectArguments(newCall, call.argumentExpressions ++ collected, call.args.getText + tailString,
-              matchedParameters ++ call.matchedParameters.map(_.swap))
+              matchedParameters ++ call.matchedParametersMap)
           case _ =>
         }
       }
@@ -832,7 +843,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
       visitCall(operation, Some(infix.getBaseExpr), infix.argumentExpressions, s => {
         val exprText = s + " " + operation.refName + " " + infix.getArgExpr.getText
         ScalaPsiElementFactory.createExpressionWithContextFromText(exprText, infix.getContext, infix)
-      }, infix.matchedParameters.map(_.swap), infix)
+      }, infix.matchedParametersMap, infix)
     }
 
     private def isStable(o: ScObject): Boolean = {
