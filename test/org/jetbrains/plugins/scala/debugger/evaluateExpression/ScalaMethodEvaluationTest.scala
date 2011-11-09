@@ -105,6 +105,24 @@ class ScalaMethodEvaluationTest extends ScalaDebuggerTestCase {
     }
   }
 
+  def testImplicitConversion() {
+    myFixture.addFileToProject("Sample.scala",
+      """
+      |object Sample {
+      |  def main(args : Array[String]) {
+      |    "stop here"
+      |  }
+      |}
+      """.stripMargin.trim()
+    )
+    addBreakpoint("Sample.scala", 2)
+    runDebugger("Sample") {
+      waitForBreakpoint()
+      evalEquals("\"test\".dropRight(2)", "te")
+      evalEquals("\"3\" -> \"3\"", "(3,3)")
+    }
+  }
+
   def testArrayLengthFunction() {
     myFixture.addFileToProject("Sample.scala",
       """
