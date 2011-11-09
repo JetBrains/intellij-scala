@@ -232,4 +232,24 @@ class ScalaMethodEvaluationTest extends ScalaDebuggerTestCase {
       evalStartsWith("goo", "2")
     }
   }
+
+  def testDefaultAndNamedParameters() {
+    myFixture.addFileToProject("Sample.scala",
+      """
+      |object Sample {
+      |  def foo(x: Int, y: Int = 1, z: Int)(h: Int = x + y, m: Int) = x + y + z + h + m
+      |  def main(args: Array[String]) {
+      |    "stop here"
+      |  }
+      |}
+      """.stripMargin.trim()
+    )
+    addBreakpoint("Sample.scala", 3)
+    runDebugger("Sample") {
+      waitForBreakpoint()
+      evalEquals("foo(1, z = 1)(m = 1)", "6")
+      evalEquals("foo(1, 2, 1)(m = 1)", "8")
+      evalEquals("foo(1, 2, 1)(1, m = 1)", "6")
+    }
+  }
 }
