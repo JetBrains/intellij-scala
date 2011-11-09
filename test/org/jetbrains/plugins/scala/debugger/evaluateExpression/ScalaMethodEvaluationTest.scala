@@ -252,4 +252,24 @@ class ScalaMethodEvaluationTest extends ScalaDebuggerTestCase {
       evalEquals("foo(1, 2, 1)(1, m = 1)", "6")
     }
   }
+
+  def testRepeatedParameters() {
+    myFixture.addFileToProject("Sample.scala",
+      """
+      |object Sample {
+      |  def foo(x: String*) = x.foldLeft("")(_ + _)
+      |  def main(args: Array[String]) {
+      |    "stop here"
+      |  }
+      |}
+      """.stripMargin.trim()
+    )
+    addBreakpoint("Sample.scala", 3)
+    runDebugger("Sample") {
+      waitForBreakpoint()
+      evalEquals("foo(\"a\", \"b\", \"c\")", "abc")
+      evalEquals("foo(\"a\")", "a")
+      evalEquals("foo()", "")
+    }
+  }
 }
