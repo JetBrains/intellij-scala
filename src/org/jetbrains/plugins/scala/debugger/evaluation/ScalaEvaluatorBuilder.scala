@@ -850,7 +850,11 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
     }
 
     private def stableObjectEvaluator(obj: ScObject): Evaluator = {
-      val qual = obj.getQualifiedNameForDebugger.split('.').map(NameTransformer.encode(_)).mkString(".") + "$"
+      val qualName = 
+        if (obj.isPackageObject)
+          obj.getQualifiedName + ".package"
+        else obj.getQualifiedNameForDebugger
+      val qual = qualName.split('.').map(NameTransformer.encode(_)).mkString(".") + "$"
       stableObjectEvaluator(qual)
     }
 
