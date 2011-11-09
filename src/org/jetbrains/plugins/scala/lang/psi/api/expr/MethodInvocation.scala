@@ -60,6 +60,14 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
   }
 
   /**
+   * @return map of expressions and parameters
+   */
+  def matchedParametersMap: Map[Parameter, Seq[ScExpression]] = {
+    getType(TypingContext.empty)
+    matchedParametersVar.groupBy(_._1).map(t => t.copy(_2 = t._2.map(_._2)))
+  }
+
+  /**
    * In case if invoked expression converted implicitly to invoke apply or update method
    * @return imports used for implicit conversion
    */
