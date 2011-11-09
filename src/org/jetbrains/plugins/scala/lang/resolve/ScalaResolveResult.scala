@@ -4,9 +4,7 @@ package resolve
 
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.lang.psi.types._
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import psi.api.toplevel.imports.usages.ImportUsed
-import psi.api.statements.{ScFunctionDefinition, ScFunction}
 
 object ScalaResolveResult {
   def empty = new ScalaResolveResult(null, ScSubstitutor.empty, Set[ImportUsed]())
