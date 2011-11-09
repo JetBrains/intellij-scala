@@ -272,4 +272,31 @@ class ScalaMethodEvaluationTest extends ScalaDebuggerTestCase {
       evalEquals("foo()", "")
     }
   }
+
+  def testImplicitParameters() {
+    myFixture.addFileToProject("Sample.scala",
+      """
+      |object Sample {
+      |  def moo(x: Int)(implicit s: String) = x + s.length()
+      |  def foo(x: Int)(implicit y: Int) = {
+      |    implicit val s = "test"
+      |    "stop here"
+      |    x + y
+      |  }
+      |  def main(args: Array[String]) {
+      |    implicit val x = 1
+      |    foo(1)
+      |  }
+      |}
+      """.stripMargin.trim()
+    )
+    addBreakpoint("Sample.scala", 4)
+    runDebugger("Sample") {
+      waitForBreakpoint()
+      evalEquals("foo(1)", "2")
+      evalEquals("foo(1)(2)", "3")
+      evalEquals("moo(1)", "5")
+      evalEquals("moo(1)(\"a\")", "2")
+    }
+  }
 }
