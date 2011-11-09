@@ -346,10 +346,6 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
           else null
       }
       if (thisEvaluator != null) {
-        if (fun.effectiveParameterClauses.lastOption.map(_.isImplicit).getOrElse(false)) {
-          //todo: find and pass implicit parameters
-          throw EvaluateExceptionUtil.createEvaluateException("passing implicit parameters is not supported")
-        }
         val args = localParams(fun, getContextClass(fun))
         val evaluators = argEvaluators ++ args.map(arg => {
           val name = arg.asInstanceOf[PsiNamedElement].getName
@@ -618,6 +614,132 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
       }
     }
 
+    private def argumentEvaluators(fun: ScFunction, matchedParameters: Map[Parameter, Seq[ScExpression]],
+                               expr: ScExpression, qualOption: Option[ScExpression], ref: ScReferenceExpression,
+                               replaceWithImplicit: (String) => ScExpression, resolve: PsiElement,
+                               arguments: Seq[ScExpression]): Seq[Evaluator] = {
+      val implicitParameters = fun.effectiveParameterClauses.lastOption.toSeq.flatMap(
+        (clause: ScParameterClause) => {
+          if (clause.isImplicit) clause.parameters
+          else Seq.empty
+        })
+      val parameters = fun.effectiveParameterClauses.flatMap(_.parameters).map(new Parameter(_))
+      var argEvaluators: Seq[Evaluator] = fun.effectiveParameterClauses.foldLeft(Seq.empty[Evaluator])(
+        (seq: Seq[Evaluator], clause: ScParameterClause) => seq ++ clause.parameters.map {
+          case param =>
+            val p = new Parameter(param)
+            val e = matchedParameters.getOrElse(p, Seq.empty)
+            if (p.isRepeated) {
+              val exprText = "_root_.scala.collection.Seq.newBuilder[Any]" +
+                (if (e.length > 0) e.sortBy(_.getTextRange.getStartOffset).map(_.getText).mkString(".+=(", ").+=(", ").result()") else "")
+              val newExpr = ScalaPsiElementFactory.createExpressionWithContextFromText(exprText, expr.getContext,
+                expr)
+              newExpr.accept(this)
+              myResult
+            } else if (e.length > 0) {
+              if (e.length == 1) {
+                e(0).accept(this)
+                myResult
+              } else {
+                throw EvaluateExceptionUtil.createEvaluateException("Wrong number of matched expressions")
+              }
+            } else if (implicitParameters.contains(param)) {
+              val i = implicitParameters.indexOf(param)
+              expr.findImplicitParameters match {
+                case Some(s) if s.length == implicitParameters.length =>
+                  s(i) match {
+                    case null =>
+                      ScType.extractClass(p.paramType, Some(expr.getProject)) match {
+                        case Some(clazz) if clazz.getQualifiedName == "scala.reflect.ClassManifest" =>
+                          p.paramType match {
+                            case ScParameterizedType(tp, Seq(arg)) =>
+                              import org.jetbrains.plugins.scala.lang.psi.types._
+                              def text(arg: ScType): String = arg match {
+                                case Short => "_root_.scala.reflect.ClassManifest.Short"
+                                case Byte => "_root_.scala.reflect.ClassManifest.Byte"
+                                case Char => "_root_.scala.reflect.ClassManifest.Char"
+                                case Int => "_root_.scala.reflect.ClassManifest.Int"
+                                case Long => "_root_.scala.reflect.ClassManifest.Long"
+                                case Float => "_root_.scala.reflect.ClassManifest.Float"
+                                case Double => "_root_.scala.reflect.ClassManifest.Double"
+                                case Boolean => "_root_.scala.reflect.ClassManifest.Boolean"
+                                case Unit => "_root_.scala.reflect.ClassManifest.Unit"
+                                case Any => "_root_.scala.reflect.ClassManifest.Any"
+                                case AnyVal => "_root_.scala.reflect.ClassManifest.AnyVal"
+                                case Nothing => "_root_.scala.reflect.ClassManifest.Nothing"
+                                case Null => "_root_.scala.reflect.ClassManifest.Null"
+                                case Singleton => "_root_.scala.reflect.ClassManifest.Object"
+                                /*case JavaArrayType(arg) =>
+                                  "_root_.scala.reflect.ClassManifest.arrayType(" + text(arg) + ")"
+                                case ScParameterizedType(ScDesignatorType(clazz: ScClass), Seq(arg))
+                                  if clazz.getQualifiedName == "scala.Array" =>
+                                  "_root_.scala.reflect.ClassManifest.arrayType(" + text(arg) + ")"
+                                case ScParameterizedType(des, args) =>
+                                  ScType.extractClass(des, Option(expr.getProject)) match {
+                                    case Some(clazz) =>
+                                      "_root_.scala.reflect.ClassManifest.classType(" +
+                                    case _ => "null"
+                                  }
+                                case _ => ScType.extractClass(arg, Option(expr.getProject)) match {
+                                  case Some(clazz) =>
+                                  case _ => "null"
+                                }*/
+                                case _ => "null" //todo: something like above?
+                              }
+                              val e = ScalaPsiElementFactory.createExpressionWithContextFromText(text(arg),
+                                expr.getContext, expr)
+                              e.accept(this)
+                              myResult
+                            case _ =>
+                              throw EvaluateExceptionUtil.createEvaluateException("cannot find implicit parameters to pass")
+                          }
+                        case _ =>
+                          throw EvaluateExceptionUtil.createEvaluateException("cannot find implicit parameters to pass")
+                      }
+                    case ScalaResolveResult(param, _) =>
+                      val context = ScalaPsiUtil.nameContext(param)
+                      val clazz = context.getContext match {
+                        case _: ScTemplateBody | _: ScEarlyDefinitions =>
+                          ScalaPsiUtil.getContextOfType(context, true, classOf[PsiClass])
+                        case _ if context.isInstanceOf[ScClassParameter] =>
+                          ScalaPsiUtil.getContextOfType(context, true, classOf[PsiClass])
+                        case _ => null
+                      }
+                      clazz match {
+                        case o: ScObject if isStable(o) =>
+                          val exprText = o.getQualifiedName + "." + param.getName
+                          val e = ScalaPsiElementFactory.createExpressionWithContextFromText(exprText,
+                            expr.getContext, expr)
+                          e.accept(this)
+                          myResult
+                        case o: ScObject => //todo: It can cover many cases!
+                          throw EvaluateExceptionUtil.
+                            createEvaluateException("Implicit parameters from dependent objects are not supported")
+                        case _ => //from scope
+                          val exprText = param.getName
+                          val e = ScalaPsiElementFactory.createExpressionWithContextFromText(exprText,
+                            expr.getContext, expr)
+                          e.accept(this)
+                          myResult
+                      }
+                  }
+                case None =>
+                  throw EvaluateExceptionUtil.createEvaluateException("cannot find implicit parameters to pass")
+              }
+            } else if (p.isDefault) {
+              val methodName = fun.name + "$default$" + (parameters.indexOf(p) + 1)
+              functionEvaluator(qualOption, ref, replaceWithImplicit, methodName, seq, resolve)
+              myResult
+            } else null
+        })
+      if (argEvaluators.contains(null))
+        argEvaluators = arguments.map(arg => {
+          arg.accept(this)
+          myResult
+        })
+      argEvaluators
+    }
+
     private def visitCall(ref: ScReferenceExpression, qualOption: Option[ScExpression], arguments: Seq[ScExpression],
                           replaceWithImplicit: String => ScExpression,
                           matchedParameters: Map[Parameter, Seq[ScExpression]], expr: ScExpression) {
@@ -628,130 +750,16 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
       })
       resolve match {
         case fun: ScFunction if isLocalFunction(fun) =>
-          evaluateLocalMethod(resolve, argEvaluators) //todo: use matched parameters
+          evaluateLocalMethod(resolve,
+            argumentEvaluators(fun, matchedParameters, expr, qualOption, ref, replaceWithImplicit, resolve, arguments))
         case synth: ScSyntheticFunction =>
           evaluateSyntheticFunction(synth, qualOption, ref, argEvaluators) //todo: use matched parameters
         case fun: ScFunction if isArrayFunction(fun) =>
-          evaluateArrayMethod(fun.getName,  qualOption, argEvaluators) //todo: use matched parameters
+          evaluateArrayMethod(fun.getName,  qualOption,
+            argumentEvaluators(fun, matchedParameters, expr, qualOption, ref, replaceWithImplicit, resolve, arguments))
         case fun: ScFunction =>
-          val implicitParameters = fun.effectiveParameterClauses.lastOption.toSeq.flatMap(
-            (clause: ScParameterClause) => {
-              if (clause.isImplicit) clause.parameters
-              else Seq.empty
-            })
-          val parameters = fun.effectiveParameterClauses.flatMap(_.parameters).map(new Parameter(_))
-          var argEvaluators: Seq[Evaluator] = fun.effectiveParameterClauses.foldLeft(Seq.empty[Evaluator])(
-            (seq: Seq[Evaluator], clause: ScParameterClause) => seq ++ clause.parameters.map {case param =>
-              val p = new Parameter(param)
-              val e = matchedParameters.getOrElse(p, Seq.empty)
-              if (p.isRepeated) {
-                val exprText = "_root_.scala.collection.Seq.newBuilder[Any]" +
-                  (if (e.length > 0) e.sortBy(_.getTextRange.getStartOffset).map(_.getText).mkString(".+=(", ").+=(", ").result()") else "")
-                val newExpr = ScalaPsiElementFactory.createExpressionWithContextFromText(exprText, expr.getContext,
-                  expr)
-                newExpr.accept(this)
-                myResult
-              } else if (e.length > 0) {
-                if (e.length == 1) {
-                  e(0).accept(this)
-                  myResult
-                } else {
-                  throw EvaluateExceptionUtil.createEvaluateException("Wrong number of matched expressions")
-                }
-              } else if (implicitParameters.contains(param)) {
-                val i = implicitParameters.indexOf(param)
-                expr.findImplicitParameters match {
-                  case Some(s) if s.length == implicitParameters.length =>
-                    s(i) match {
-                      case null =>
-                        ScType.extractClass(p.paramType, Some(expr.getProject)) match {
-                          case Some(clazz) if clazz.getQualifiedName == "scala.reflect.ClassManifest" =>
-                            p.paramType match {
-                              case ScParameterizedType(tp, Seq(arg)) =>
-                                import org.jetbrains.plugins.scala.lang.psi.types._
-                                def text(arg: ScType): String = arg match {
-                                  case Short => "_root_.scala.reflect.ClassManifest.Short"
-                                  case Byte => "_root_.scala.reflect.ClassManifest.Byte"
-                                  case Char => "_root_.scala.reflect.ClassManifest.Char"
-                                  case Int => "_root_.scala.reflect.ClassManifest.Int"
-                                  case Long => "_root_.scala.reflect.ClassManifest.Long"
-                                  case Float => "_root_.scala.reflect.ClassManifest.Float"
-                                  case Double => "_root_.scala.reflect.ClassManifest.Double"
-                                  case Boolean => "_root_.scala.reflect.ClassManifest.Boolean"
-                                  case Unit => "_root_.scala.reflect.ClassManifest.Unit"
-                                  case Any => "_root_.scala.reflect.ClassManifest.Any"
-                                  case AnyVal => "_root_.scala.reflect.ClassManifest.AnyVal"
-                                  case Nothing => "_root_.scala.reflect.ClassManifest.Nothing"
-                                  case Null => "_root_.scala.reflect.ClassManifest.Null"
-                                  case Singleton => "_root_.scala.reflect.ClassManifest.Object"
-                                  /*case JavaArrayType(arg) =>
-                                    "_root_.scala.reflect.ClassManifest.arrayType(" + text(arg) + ")"
-                                  case ScParameterizedType(ScDesignatorType(clazz: ScClass), Seq(arg))
-                                    if clazz.getQualifiedName == "scala.Array" =>
-                                    "_root_.scala.reflect.ClassManifest.arrayType(" + text(arg) + ")"
-                                  case ScParameterizedType(des, args) =>
-                                    ScType.extractClass(des, Option(expr.getProject)) match {
-                                      case Some(clazz) =>
-                                        "_root_.scala.reflect.ClassManifest.classType(" +
-                                      case _ => "null"
-                                    }
-                                  case _ => ScType.extractClass(arg, Option(expr.getProject)) match {
-                                    case Some(clazz) =>
-                                    case _ => "null"
-                                  }*/
-                                  case _ => "null" //todo: something like above?
-                                }
-                                val e = ScalaPsiElementFactory.createExpressionWithContextFromText(text(arg),
-                                  expr.getContext, expr)
-                                e.accept(this)
-                                myResult
-                              case _ =>
-                                throw EvaluateExceptionUtil.createEvaluateException("cannot find implicit parameters to pass")
-                            }
-                          case _ =>
-                            throw EvaluateExceptionUtil.createEvaluateException("cannot find implicit parameters to pass")
-                        }
-                      case ScalaResolveResult(param, _) =>
-                        val context = ScalaPsiUtil.nameContext(param)
-                        val clazz = context.getContext match {
-                          case _: ScTemplateBody | _: ScEarlyDefinitions =>
-                            ScalaPsiUtil.getContextOfType(context, true, classOf[PsiClass])
-                          case _ if context.isInstanceOf[ScClassParameter] =>
-                            ScalaPsiUtil.getContextOfType(context, true, classOf[PsiClass])
-                          case _ => null
-                        }
-                        clazz match {
-                          case o: ScObject if isStable(o) =>
-                            val exprText = o.getQualifiedName + "." + param.getName
-                            val e = ScalaPsiElementFactory.createExpressionWithContextFromText(exprText,
-                              expr.getContext, expr)
-                            e.accept(this)
-                            myResult
-                          case o: ScObject => //todo: It can cover many cases!
-                            throw EvaluateExceptionUtil.
-                              createEvaluateException("Implicit parameters from dependent objects are not supported")
-                          case _ => //from scope
-                            val exprText = param.getName
-                            val e = ScalaPsiElementFactory.createExpressionWithContextFromText(exprText,
-                              expr.getContext, expr)
-                            e.accept(this)
-                            myResult
-                        }
-                    }
-                  case None =>
-                    throw EvaluateExceptionUtil.createEvaluateException("cannot find implicit parameters to pass")
-                }
-              } else if (p.isDefault) {
-                val methodName = fun.name + "$default$" + (parameters.indexOf(p) + 1)
-                functionEvaluator(qualOption, ref, replaceWithImplicit, methodName, seq, resolve)
-                myResult
-              } else null
-            })
-          if (argEvaluators.contains(null))
-            argEvaluators = arguments.map(arg => {
-              arg.accept(this)
-              myResult
-            })
+          val argEvaluators: Seq[Evaluator] =
+            argumentEvaluators(fun, matchedParameters, expr, qualOption, ref, replaceWithImplicit, resolve, arguments)
           functionEvaluator(qualOption, ref, replaceWithImplicit, fun.name, argEvaluators, resolve)
         case method: PsiMethod => //here you can use just arguments
           val argEvaluators: Seq[Evaluator] = arguments.map(arg => {
@@ -764,8 +772,8 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
                 val eval =
                   new TypeEvaluator(JVMNameUtil.getContextClassJVMQualifiedName(SourcePosition.createFromElement(method)))
                 val name = method.getName
-                myResult = new ScalaMethodEvaluator(eval, name, null /* todo? */, argEvaluators, false,
-                  traitImplementation(resolve), DebuggerUtil.getSourcePositions(resolve.getNavigationElement))
+                myResult = new ScalaMethodEvaluator(eval, name, JVMNameUtil.getJVMSignature(method), argEvaluators,
+                  false, traitImplementation(resolve), DebuggerUtil.getSourcePositions(resolve.getNavigationElement))
                 return
               } else {
                 ref.bind() match {
@@ -777,7 +785,8 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
                       case _ =>
                         qual.accept(this)
                         val name = method.getName
-                        myResult = new ScalaMethodEvaluator(myResult, name, null /* todo? */, argEvaluators, false,
+                        myResult = new ScalaMethodEvaluator(myResult, name, JVMNameUtil.getJVMSignature(method),
+                          argEvaluators, false,
                           traitImplementation(resolve), DebuggerUtil.getSourcePositions(resolve.getNavigationElement))
                         return
                     }
@@ -793,7 +802,8 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
                   } else {
                     val evaluator = thisEvaluator(r)
                     val name = method.getName
-                    myResult = new ScalaMethodEvaluator(evaluator, name, null /* todo? */, argEvaluators, false,
+                    myResult = new ScalaMethodEvaluator(evaluator, name, JVMNameUtil.getJVMSignature(method),
+                      argEvaluators, false,
                       traitImplementation(resolve), DebuggerUtil.getSourcePositions(resolve.getNavigationElement))
                     return
                   }
@@ -1009,14 +1019,6 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
           calcLocal
           return
         }
-      } else if (resolve.isInstanceOf[ScSyntheticFunction]) {
-        val synth = resolve.asInstanceOf[ScSyntheticFunction]
-        evaluateSyntheticFunction(synth, qualifier, ref, Seq.empty)
-        return
-      } else if (resolve.isInstanceOf[ScFunction] && isArrayFunction(resolve.asInstanceOf[ScFunction])) {
-        evaluateArrayMethod(resolve.asInstanceOf[ScFunction].getName, qualifier, Nil)
-      } else if (resolve.isInstanceOf[ScFunction] && !resolve.getContext.isInstanceOf[ScTemplateBody]) {
-        evaluateLocalMethod(resolve, Seq.empty)
       } else if (resolve.isInstanceOf[ScObject]) {
         val obj = resolve.asInstanceOf[ScObject]
         //here we have few possibilities
