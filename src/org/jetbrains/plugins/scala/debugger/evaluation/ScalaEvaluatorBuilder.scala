@@ -576,6 +576,48 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
       }
     }
 
+    private def functionEvaluator(qualOption: Option[ScExpression], ref: ScReferenceExpression,
+                                  replaceWithImplicit: (String) => ScExpression, funName: String,
+                                  argEvaluators: Seq[Evaluator], resolve: PsiElement) {
+      qualOption match {
+        case Some(qual) =>
+          ref.bind() match {
+            case Some(r: ScalaResolveResult) =>
+              r.implicitFunction match {
+                case Some(fun) =>
+                  replaceWithImplicitFunction(fun, qual, replaceWithImplicit)
+                  return
+                case _ =>
+                  qual.accept(this)
+                  val name = NameTransformer.encode(funName)
+                  myResult = new ScalaMethodEvaluator(myResult, name, null /* todo? */ , argEvaluators, false,
+                    traitImplementation(resolve), DebuggerUtil.getSourcePositions(resolve.getNavigationElement))
+                  return
+              }
+            case _ =>
+              //resolve not null => shouldn't be
+              throw EvaluateExceptionUtil.createEvaluateException("Cannot evaluate method")
+          }
+        case None =>
+          ref.bind() match {
+            case Some(r: ScalaResolveResult) =>
+              if (!r.importsUsed.isEmpty) {
+                //todo:
+                throw EvaluateExceptionUtil.createEvaluateException("Evaluation of imported functions is not supported")
+              } else {
+                val evaluator = thisEvaluator(r)
+                val name = NameTransformer.encode(funName)
+                myResult = new ScalaMethodEvaluator(evaluator, name, null /* todo? */ , argEvaluators, false,
+                  traitImplementation(resolve), DebuggerUtil.getSourcePositions(resolve.getNavigationElement))
+                return
+              }
+            case _ =>
+              //resolve not null => shouldn't be
+              throw EvaluateExceptionUtil.createEvaluateException("Cannot evaluate method")
+          }
+      }
+    }
+
     private def visitCall(ref: ScReferenceExpression, qualOption: Option[ScExpression], arguments: Seq[ScExpression],
                           replaceWithImplicit: String => ScExpression,
                           matchedParameters: Map[Parameter, Seq[ScExpression]], expr: ScExpression) {
@@ -597,8 +639,9 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
               if (clause.isImplicit) clause.parameters
               else Seq.empty
             })
-          var argEvaluators: Seq[Evaluator] = fun.effectiveParameterClauses.flatMap(_.parameters).map(
-            (param: ScParameter) => {
+          val parameters = fun.effectiveParameterClauses.flatMap(_.parameters).map(new Parameter(_))
+          var argEvaluators: Seq[Evaluator] = fun.effectiveParameterClauses.foldLeft(Seq.empty[Evaluator])(
+            (seq: Seq[Evaluator], clause: ScParameterClause) => seq ++ clause.parameters.map {case param =>
               val p = new Parameter(param)
               val e = matchedParameters.getOrElse(p, Seq.empty)
               if (p.isRepeated) {
@@ -699,8 +742,9 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
                     throw EvaluateExceptionUtil.createEvaluateException("cannot find implicit parameters to pass")
                 }
               } else if (p.isDefault) {
-                //todo:
-                throw EvaluateExceptionUtil.createEvaluateException("passing default parameters is not supported")
+                val methodName = fun.name + "$default$" + (parameters.indexOf(p) + 1)
+                functionEvaluator(qualOption, ref, replaceWithImplicit, methodName, seq, resolve)
+                myResult
               } else null
             })
           if (argEvaluators.contains(null))
@@ -708,40 +752,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
               arg.accept(this)
               myResult
             })
-          qualOption match {
-            case Some(qual) =>
-              ref.bind() match {
-                case Some(r: ScalaResolveResult) =>
-                  r.implicitFunction match {
-                    case Some(fun) =>
-                      replaceWithImplicitFunction(fun, qual, replaceWithImplicit)
-                      return
-                    case _ =>
-                      qual.accept(this)
-                      val name = NameTransformer.encode(fun.name)
-                      myResult = new ScalaMethodEvaluator(myResult, name, null /* todo? */, argEvaluators, false,
-                        traitImplementation(resolve), DebuggerUtil.getSourcePositions(resolve.getNavigationElement))
-                      return
-                  }
-                case _ => //resolve not null => shouldn't be
-              }
-            case None =>
-              ref.bind() match {
-                case Some(r: ScalaResolveResult) =>
-                  if (!r.importsUsed.isEmpty) {
-                    //todo:
-                    throw EvaluateExceptionUtil.createEvaluateException("Evaluation of imported functions is not supported")
-                  } else {
-                    val evaluator = thisEvaluator(r)
-                    val name = NameTransformer.encode(fun.getName)
-                    myResult = new ScalaMethodEvaluator(evaluator, name, null /* todo? */, argEvaluators, false,
-                      traitImplementation(resolve), DebuggerUtil.getSourcePositions(resolve.getNavigationElement))
-                    return
-                  }
-                case _ => //resolve not null => shouldn't be
-              }
-          }
-          throw EvaluateExceptionUtil.createEvaluateException("Cannot evaluate method")
+          functionEvaluator(qualOption, ref, replaceWithImplicit, fun.name, argEvaluators, resolve)
         case method: PsiMethod => //here you can use just arguments
           val argEvaluators: Seq[Evaluator] = arguments.map(arg => {
             arg.accept(this)
