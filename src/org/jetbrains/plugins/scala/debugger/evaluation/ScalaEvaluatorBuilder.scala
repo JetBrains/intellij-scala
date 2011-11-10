@@ -409,6 +409,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
     }
 
     private val BOXES_RUN_TIME = new TypeEvaluator(JVMNameUtil.getJVMRawText("scala.runtime.BoxesRunTime"))
+    private val BOXED_UNIT = new TypeEvaluator(JVMNameUtil.getJVMRawText("scala.runtime.BoxedUnit"))
     private def boxEvaluator(eval: Evaluator): Evaluator = new BoxingEvaluator(eval)
     private def unboxEvaluator(eval: Evaluator): Evaluator = new UnBoxingEvaluator(eval)
     private def notEvaluator(eval: Evaluator): Evaluator = {
@@ -421,6 +422,9 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
     }
     private def neEvaluator(left: Evaluator, right: Evaluator): Evaluator = {
       notEvaluator(eqEvaluator(left, right))
+    }
+    private def unitEvaluator(): Evaluator = {
+      new ScalaFieldEvaluator(BOXED_UNIT, _ => true, "UNIT")
     }
     private def unaryEvaluator(eval: Evaluator, boxesRunTimeName: String): Evaluator = {
       unboxEvaluator(new ScalaMethodEvaluator(BOXES_RUN_TIME, boxesRunTimeName,
@@ -952,20 +956,22 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
       super.visitInfixExpression(infix)
     }
 
-    override def visitExpression(expr: ScExpression) {
+    override def visitExpression(expr: ScExpression) {      
       //boxing and unboxing actions
-      def unbox() {myResult = unboxEvaluator(myResult)}
+      def unbox(typeTo: String) {myResult = unaryEvaluator(unboxEvaluator(myResult), typeTo)}
       def box() {myResult = boxEvaluator(myResult)}
       
       import org.jetbrains.plugins.scala.lang.psi.types._
       expr.smartExpectedType() match {
-        case Some(Int) => unbox()
-        case Some(Byte) => unbox()
-        case Some(Long) => unbox()
-        case Some(Boolean) => unbox()
-        case Some(Float) => unbox()
-        case Some(Short) => unbox()
-        case Some(Double) => unbox()
+        case Some(Int) => unbox("toInteger")
+        case Some(Byte) => unbox("toByte")
+        case Some(Long) => unbox("toLong")
+        case Some(Boolean) => myResult = unboxEvaluator(myResult)
+        case Some(Float) => unbox("toFloat")
+        case Some(Short) => unbox("toShort")
+        case Some(Double) => unbox("toDouble")
+        case Some(Char) => unbox("toCharacter")
+        case Some(Unit) => myResult = new BlockStatementEvaluator(Array(myResult, unitEvaluator()))
         case None => //nothing to do
         case _ => box()
       }

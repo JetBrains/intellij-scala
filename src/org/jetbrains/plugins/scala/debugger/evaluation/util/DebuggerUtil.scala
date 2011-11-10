@@ -116,7 +116,7 @@ object DebuggerUtil {
     }
   }
   
-  def getJVMStringForType(tp: ScType): String = {
+  def getJVMStringForType(tp: ScType, isParam: Boolean = true): String = {
     import org.jetbrains.plugins.scala.lang.psi.types._
     tp match {
       case AnyRef => "Ljava/lang/Object;"
@@ -132,6 +132,7 @@ object DebuggerUtil {
       case Long => "J"
       case Float => "F"
       case Double => "D"
+      case Unit if isParam => "Lscala/runtime/BoxedUnit;"
       case Unit => "V"
       case JavaArrayType(arg) => "[" + getJVMStringForType(arg)
       case ScParameterizedType(ScDesignatorType(clazz: PsiClass), Seq(arg)) 
@@ -154,7 +155,7 @@ object DebuggerUtil {
       if (!param.isRepeatedParameter) {
         getJVMStringForType(subst.subst(param.getType(TypingContext.empty).getOrAny))
       } else "Lscala/collection/Seq;").mkString("(", ",", ")") +
-      getJVMStringForType(subst.subst(function.returnType.getOrAny))
+      getJVMStringForType(subst.subst(function.returnType.getOrAny), false)
     JVMNameUtil.getJVMRawText(sign)
   }
   
