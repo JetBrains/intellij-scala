@@ -473,24 +473,29 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
 
   def ignoreReferencedElementAccessibility(): Boolean = true //todo: ?
 
+  override def setContext(element: PsiElement, child: PsiElement) = {
+    putCopyableUserData(ScalaFileImpl.CONTEXT_KEY, element)
+    putCopyableUserData(ScalaFileImpl.CHILD_KEY, child)
+  }
+
   override def getContext: PsiElement = {
-    context match {
+    getCopyableUserData(ScalaFileImpl.CONTEXT_KEY) match {
       case null => super.getContext
-      case _ => context
+      case _ => getCopyableUserData(ScalaFileImpl.CONTEXT_KEY)
     }
   }
 
   override def getPrevSibling: PsiElement = {
-    child match {
+    getCopyableUserData(ScalaFileImpl.CHILD_KEY) match {
       case null => super.getPrevSibling
-      case _ => child.getPrevSibling
+      case _ => getCopyableUserData(ScalaFileImpl.CHILD_KEY).getPrevSibling
     }
   }
 
   override def getNextSibling: PsiElement = {
     child match {
       case null => super.getNextSibling
-      case _ => child.getNextSibling
+      case _ => getCopyableUserData(ScalaFileImpl.CHILD_KEY).getNextSibling
     }
   }
 }
@@ -536,4 +541,6 @@ object ImplicitlyImported {
 
 private object ScalaFileImpl {
   val SCRIPT_KEY = new Key[java.lang.Boolean]("Is Script Key")
+  val CONTEXT_KEY = new Key[PsiElement]("context.key")
+  val CHILD_KEY = new Key[PsiElement]("child.key")
 }
