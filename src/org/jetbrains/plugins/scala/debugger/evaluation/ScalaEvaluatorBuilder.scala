@@ -45,24 +45,42 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
 
     private def getContextClass: PsiElement = myContextClass
 
-    private def isGenerateClass(elem: PsiElement): Boolean = {
+    private def isGenerateClass(elem: PsiElement, child: PsiElement): Boolean = {
       elem match {
         case clazz: PsiClass => true
         case f: ScFunctionExpr => true
+        case f: ScForStatement if f.body == Some(child) => true
         case e: ScExpression if ScUnderScoreSectionUtil.underscores(e).length > 0 => true
         case _ => false
       }
     }
     
+    private def anonClassCount(elem: PsiElement): Int = {
+      elem match {
+        case f: ScForStatement => f.enumerators.map(e => {
+          e.enumerators.length + e.generators.length + e.guards.length //todo: non irrefutable patterns?
+        }).getOrElse(1)
+        case _ => 1
+      }
+    }
+    
     private def getContainingClass(elem: PsiElement): PsiElement = {
       var element = elem.getParent
-      while (element != null && !isGenerateClass(element)) element = element.getParent
+      var child = elem
+      while (element != null && !isGenerateClass(element, child)) {
+        element = element.getParent
+        child = child.getParent
+      }
       if (element == null) getContextClass else element
     }
 
     private def getContextClass(elem: PsiElement): PsiElement = {
       var element = elem.getContext
-      while (element != null && !isGenerateClass(element)) element = element.getContext
+      var child = elem
+      while (element != null && !isGenerateClass(element, child)) {
+        element = element.getContext
+        child = child.getContext
+      }
       element
     }
 
@@ -250,7 +268,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
         var iterations = 0
         while (contextClass != null && !contextClass.isInstanceOf[PsiClass]) {
           contextClass = getContextClass(contextClass)
-          iterations += 1
+          iterations += anonClassCount(contextClass)
         }
         if (contextClass == null) myResult = evaluator(0)
         else myResult = evaluator(iterations)
@@ -268,7 +286,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
           var iterations = 0
           while (contextClass != null && contextClass != clazz) {
             contextClass = getContextClass(contextClass)
-            iterations += 1
+            iterations += anonClassCount(contextClass)
           }
           if (contextClass == null) myResult = evaluator(0)
           else myResult = evaluator(iterations)
@@ -280,7 +298,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
             contextClass.asInstanceOf[PsiClass].getName == null ||
             contextClass.asInstanceOf[PsiClass].getName == refName)) {
             contextClass = getContextClass(contextClass)
-            iterations += 1
+            iterations += anonClassCount(contextClass)
           }
           contextClass match {
             case o: ScObject if isStable(o) =>
@@ -339,7 +357,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
           var iterationCount = 0
           var outerClass = getContextClass
           while (outerClass != null && outerClass != containingClass) {
-            iterationCount += 1
+            iterationCount += anonClassCount(outerClass)
             outerClass = getContextClass(outerClass)
           }
           if (outerClass != null)
@@ -957,8 +975,8 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
       var iterationCount = 0
       var outerClass = getContextClass
       while (outerClass != null && outerClass != containingClass) {
-        iterationCount += 1
         outerClass = getContextClass(outerClass)
+        iterationCount += anonClassCount(outerClass)
       }
 
       if (outerClass != null)
@@ -1026,7 +1044,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
         var positionClass = getContextClass
         var outerClass = getContextClass(getContextClass)
         while (outerClass != null && outerClass != containingClass) {
-          iterationCount += 1
+          iterationCount += anonClassCount(outerClass)
           outerClass = getContextClass(outerClass)
           positionClass = getContextClass(positionClass)
         }
