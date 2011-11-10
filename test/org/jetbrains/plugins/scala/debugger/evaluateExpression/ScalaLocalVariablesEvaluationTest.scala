@@ -23,6 +23,48 @@ class ScalaLocalVariablesEvaluationTest extends ScalaDebuggerTestCase {
     }
   }
 
+  def testLocalFromForStatement() {
+    myFixture.addFileToProject("Sample.scala",
+      """
+      |object Sample {
+      |  def main(args: Array[String]) {
+      |    val x = 1
+      |    for (i <- 1 to 1) {
+      |      x
+      |      "stop here"
+      |    }
+      |  }
+      |}
+      """.stripMargin.trim()
+    )
+    addBreakpoint("Sample.scala", 5)
+    runDebugger("Sample") {
+      waitForBreakpoint()
+      evalEquals("x", "1")
+    }
+  }
+
+  def testLocalFromForStatementFromOutside() {
+    myFixture.addFileToProject("Sample.scala",
+      """
+      |object Sample {
+      |  def main(args: Array[String]) {
+      |    val x = 1
+      |    for (i <- 1 to 1) {
+      |      x
+      |      "stop here"
+      |    }
+      |  }
+      |}
+      """.stripMargin.trim()
+    )
+    addBreakpoint("Sample.scala", 3)
+    runDebugger("Sample") {
+      waitForBreakpoint()
+      evalEquals("x", "1")
+    }
+  }
+
   def testParam() {
     myFixture.addFileToProject("Sample.scala",
       """
