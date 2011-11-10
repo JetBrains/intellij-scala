@@ -6,6 +6,40 @@ package org.jetbrains.plugins.scala.debugger.evaluateExpression
  */
 
 class ScalaMethodEvaluationTest extends ScalaDebuggerTestCase {
+  def testBigInt() {
+    myFixture.addFileToProject("Sample.scala",
+      """
+      |object Sample {
+      |  def main(args: Array[String]) {
+      |    "stop here"
+      |  }
+      |}
+      """.stripMargin.trim()
+    )
+    addBreakpoint("Sample.scala", 2)
+    runDebugger("Sample") {
+      waitForBreakpoint()
+      evalStartsWith("BigInt(2)", "2")
+    }
+  }
+
+  def testBoxing() {
+    myFixture.addFileToProject("Sample.scala",
+      """
+      |object Sample {
+      |  def main(args: Array[String]) {
+      |    "stop here"
+      |  }
+      |}
+      """.stripMargin.trim()
+    )
+    addBreakpoint("Sample.scala", 2)
+    runDebugger("Sample") {
+      waitForBreakpoint()
+      evalStartsWith("1 -> 2", "(1,2)")
+    }
+  }
+
   def testChangingFunction() {
     myFixture.addFileToProject("Sample.scala",
       """

@@ -103,6 +103,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
         myResult = myCurrentFragmentEvaluator
       }
       myCurrentFragmentEvaluator = oldCurrentFragmentEvaluator
+      super.visitFile(file)
     }
 
     private def localParams(fun: ScFunction, context: PsiElement): Seq[PsiElement] = {
@@ -157,6 +158,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
 
     override def visitFunctionExpression(stmt: ScFunctionExpr) {
       throw EvaluateExceptionUtil.createEvaluateException("Anonymous functions are not supported")
+      super.visitFunctionExpression(stmt)
     }
 
     override def visitExprInParent(expr: ScParenthesisedExpr) {
@@ -165,6 +167,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
           expr.accept(this)
         case None =>
       }
+      super.visitExprInParent(expr)
     }
 
     override def visitPrefixExpression(p: ScPrefixExpr) {
@@ -172,6 +175,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
         val exprText = p.operation.refName + s
         ScalaPsiElementFactory.createExpressionWithContextFromText(exprText, p.getContext, p)
       }, Map.empty, p)
+      super.visitPrefixExpression(p)
     }
 
     override def visitPostfixExpression(p: ScPostfixExpr) {
@@ -181,6 +185,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
         val exprText = s + " " + p.operation.refName
         ScalaPsiElementFactory.createExpressionWithContextFromText(exprText, p.getContext, p)
       })
+      super.visitPostfixExpression(p)
     }
 
     override def visitReferenceExpression(ref: ScReferenceExpression) {
@@ -190,6 +195,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
         val exprText = s + "." + ref.refName
         ScalaPsiElementFactory.createExpressionWithContextFromText(exprText, ref.getContext, ref)
       })
+      super.visitReferenceExpression(ref)
     }
 
     override def visitIfStatement(stmt: ScIfStmt) {
@@ -212,6 +218,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
         myResult
       })
       myResult = new ScalaIfEvaluator(condEvaluator, ifBranch, elseBranch)
+      super.visitIfStatement(stmt)
     }
 
     override def visitLiteral(l: ScLiteral) {
@@ -222,6 +229,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
         throw EvaluateExceptionUtil.createEvaluateException("Literal has null value")
       }
       myResult = new ScalaLiteralEvaluator(value, tp)
+      super.visitLiteral(l)
     }
 
     override def visitWhileStatement(ws: ScWhileStmt) {
@@ -241,6 +249,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
       }
 
       myResult = new WhileStatementEvaluator(condEvaluator, iterationEvaluator, null)
+      super.visitWhileStatement(ws)
     }
 
     override def visitDoStatement(stmt: ScDoStmt) {
@@ -259,6 +268,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
           throw EvaluateExceptionUtil.createEvaluateException("Cannot evaluate do statement without body")
       }
       myResult = new ScalaDoStmtEvaluator(condEvaluator, iterationEvaluator)
+      super.visitDoStatement(stmt)
     }
 
     private def evalThis(ref: Option[ScStableCodeReferenceElement], evaluator: Int => ScalaThisEvaluator,
@@ -316,30 +326,37 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
         case Some(expr) => expr.accept(this)
         case None => throw EvaluateExceptionUtil.createEvaluateException("Cannot desugarize for statement")
       }
+      super.visitForExpression(expr)
     }
 
     override def visitTryExpression(tryStmt: ScTryStmt) {
       throw EvaluateExceptionUtil.createEvaluateException("Try expression is not supported")
+      super.visitTryExpression(tryStmt)
     }
 
     override def visitReturnStatement(ret: ScReturnStmt) {
       throw EvaluateExceptionUtil.createEvaluateException("Return statement is not supported")
+      super.visitReturnStatement(ret)
     }
 
     override def visitFunction(fun: ScFunction) {
-      throw EvaluateExceptionUtil.createEvaluateException("Function definition is not supported") //todo: ?
+      throw EvaluateExceptionUtil.createEvaluateException("Function definition is not supported")
+      super.visitFunction(fun)
     }
 
     override def visitThisReference(t: ScThisReference) {
       evalThis(t.reference, new ScalaThisEvaluator(_), e => e)
+      super.visitThisReference(t)
     }
 
     override def visitSuperReference(t: ScSuperReference) {
       evalThis(t.reference, new ScalaSuperEvaluator(_), e => new ScalaSuperDelegate(e))
+      super.visitSuperReference(t)
     }
 
     override def visitGenericCallExpression(call: ScGenericCall) {
       call.referencedExpr.accept(this)
+      super.visitGenericCallExpression(call)
     }
 
     def evaluateLocalMethod(resolve: PsiElement, argEvaluators: Seq[Evaluator]) {
@@ -911,6 +928,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
         }
       }
       collectArguments(parentCall)
+      super.visitMethodCallExpression(parentCall)
     }
 
     override def visitInfixExpression(infix: ScInfixExpr) {
@@ -931,6 +949,26 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
         val exprText = s + " " + operation.refName + " " + infix.getArgExpr.getText
         ScalaPsiElementFactory.createExpressionWithContextFromText(exprText, infix.getContext, infix)
       }, infix.matchedParametersMap, infix)
+      super.visitInfixExpression(infix)
+    }
+
+    override def visitExpression(expr: ScExpression) {
+      //boxing and unboxing actions
+      def unbox() {myResult = unboxEvaluator(myResult)}
+      def box() {myResult = boxEvaluator(myResult)}
+      
+      import org.jetbrains.plugins.scala.lang.psi.types._
+      expr.smartExpectedType() match {
+        case Some(Int) => unbox()
+        case Some(Byte) => unbox()
+        case Some(Long) => unbox()
+        case Some(Boolean) => unbox()
+        case Some(Float) => unbox()
+        case Some(Short) => unbox()
+        case Some(Double) => unbox()
+        case None => //nothing to do
+        case _ => box()
+      }
     }
 
     private def isStable(o: ScObject): Boolean = {
