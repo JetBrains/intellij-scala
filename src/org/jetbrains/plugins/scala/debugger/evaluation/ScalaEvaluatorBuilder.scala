@@ -640,7 +640,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
         (seq: Seq[Evaluator], clause: ScParameterClause) => seq ++ clause.parameters.map {
           case param =>
             val p = new Parameter(param)
-            val e = matchedParameters.getOrElse(p, Seq.empty)
+            val e = matchedParameters.find(_._1.name == p.name).map(_._2).getOrElse(Seq.empty)
             if (p.isRepeated) {
               val exprText = "_root_.scala.collection.Seq.newBuilder[Any]" +
                 (if (e.length > 0) e.sortBy(_.getTextRange.getStartOffset).map(_.getText).mkString(".+=(", ").+=(", ").result()") else "")
