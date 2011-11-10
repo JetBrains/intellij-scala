@@ -651,12 +651,22 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
             val p = new Parameter(param)
             val e = matchedParameters.find(_._1.name == p.name).map(_._2).getOrElse(Seq.empty).filter(_ != null)
             if (p.isRepeated) {
-              val exprText = "_root_.scala.collection.Seq.newBuilder[Any]" +
-                (if (e.length > 0) e.sortBy(_.getTextRange.getStartOffset).map(_.getText).mkString(".+=(", ").+=(", ").result()") else "")
-              val newExpr = ScalaPsiElementFactory.createExpressionWithContextFromText(exprText, expr.getContext,
-                expr)
-              newExpr.accept(this)
-              myResult
+              def tail: Evaluator = {
+                val exprText = "_root_.scala.collection.Seq.newBuilder[Any]" +
+                  (if (e.length > 0) e.sortBy(_.getTextRange.getStartOffset).map(_.getText).mkString(".+=(", ").+=(", ").result()") else "")
+                val newExpr = ScalaPsiElementFactory.createExpressionWithContextFromText(exprText, expr.getContext,
+                  expr)
+                newExpr.accept(this)
+                myResult
+              }
+              if (e.length == 1) {
+                e(0) match {
+                  case t: ScTypedStmt if t.isSequenceArg =>
+                    t.expr.accept(this)
+                    myResult
+                  case _ => tail
+                }
+              } else tail
             } else if (e.length > 0) {
               if (e.length == 1) {
                 e(0).accept(this)

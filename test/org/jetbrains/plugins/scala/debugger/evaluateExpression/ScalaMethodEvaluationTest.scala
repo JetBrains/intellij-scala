@@ -144,6 +144,25 @@ class ScalaMethodEvaluationTest extends ScalaDebuggerTestCase {
     }
   }
 
+  def testSequenceArgument() {
+    myFixture.addFileToProject("Sample.scala",
+      """
+      |object Sample {
+      |  def moo(x: String*) = x.foldLeft(0)(_ + _.length())
+      |  def main(args: Array[String]) {
+      |    val x = Seq("a", "b")
+      |    "stop here"
+      |  }
+      |}
+      """.stripMargin.trim()
+    )
+    addBreakpoint("Sample.scala", 4)
+    runDebugger("Sample") {
+      waitForBreakpoint()
+      evalEquals("moo(x: _*)", "2")
+    }
+  }
+
   def testArrayLengthFunction() {
     myFixture.addFileToProject("Sample.scala",
       """
