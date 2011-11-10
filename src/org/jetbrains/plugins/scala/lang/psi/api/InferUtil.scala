@@ -10,11 +10,11 @@ import statements.params.ScParameter
 import statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.SafeCheckException
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult, TypingContext}
 import org.jetbrains.plugins.scala.lang.psi.types._
 import nonvalue.{Parameter, ScMethodType, ScTypePolymorphicType}
 import toplevel.typedef.ScObject
+import com.intellij.psi.{PsiClass, PsiElement}
 
 /**
  * @author Alexander Podkhalyuzin
@@ -83,13 +83,15 @@ object InferUtil {
           } else {
             if (check) {
               //check if it's ClassManifest parameter:
-              ScType.extractClass(paramType, Some(element.getProject)) match {
-                case Some(clazz) if clazz.getQualifiedName == "scala.reflect.ClassManifest" => //do not throw, it's safe
-                case _ =>
-                  throw new SafeCheckException
+              paramType match {
+                case p@ScParameterizedType(ScDesignatorType(clazz: PsiClass), Seq(arg))
+                  if clazz.getQualifiedName == "scala.reflect.ClassManifest" => //do not throw, it's safe
+                  resolveResults += new ScalaResolveResult(clazz, p.substitutor)
+                case _ => throw new SafeCheckException
               }
+            } else {
+              resolveResults += null
             }
-            resolveResults += null
             exprs += new Expression(Any)
           }
         }
