@@ -241,7 +241,7 @@ object Compatibility {
     }
     else {
       if (exprs.length == parameters.length - 1 && !namedMode && parameters.last.isRepeated) 
-        return ConformanceExtResult(Seq.empty, undefSubst, defaultParameterUsed)
+        return ConformanceExtResult(Seq.empty, undefSubst, defaultParameterUsed, matched)
       
       val missed = for ((parameter: Parameter, b) <- parameters.zip(used);
                         if (!b && !parameter.isDefault)) yield MissedValueParameter(parameter)
