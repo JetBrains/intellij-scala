@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala.debugger.evaluation
 
 import com.intellij.debugger.SourcePosition
 import evaluator._
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import com.intellij.debugger.engine.evaluation._
@@ -27,6 +26,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticF
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTrait, ScObject}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import org.jetbrains.plugins.scala.lang.psi.types.{ScParameterizedType, ScThisType, ScType}
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClause, ScBindingPattern}
 
 /**
  * User: Alefas
@@ -129,6 +129,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
               !v.getContext.isInstanceOf[ScTemplateBody] && !v.getContext.isInstanceOf[ScEarlyDefinitions]
             case v: ScVariable =>
               !v.getContext.isInstanceOf[ScTemplateBody] && !v.getContext.isInstanceOf[ScEarlyDefinitions]
+            case clause: ScCaseClause => true
           }
         case o: ScObject =>
           !o.getContext.isInstanceOf[ScTemplateBody] && ScalaPsiUtil.getContextOfType(o, true, classOf[PsiClass]) != null
@@ -648,7 +649,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
         (seq: Seq[Evaluator], clause: ScParameterClause) => seq ++ clause.parameters.map {
           case param =>
             val p = new Parameter(param)
-            val e = matchedParameters.find(_._1.name == p.name).map(_._2).getOrElse(Seq.empty)
+            val e = matchedParameters.find(_._1.name == p.name).map(_._2).getOrElse(Seq.empty).filter(_ != null)
             if (p.isRepeated) {
               val exprText = "_root_.scala.collection.Seq.newBuilder[Any]" +
                 (if (e.length > 0) e.sortBy(_.getTextRange.getStartOffset).map(_.getText).mkString(".+=(", ").+=(", ").result()") else "")
