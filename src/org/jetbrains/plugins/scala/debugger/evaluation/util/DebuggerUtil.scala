@@ -150,8 +150,10 @@ object DebuggerUtil {
     val subst = function.typeParameters.foldLeft(ScSubstitutor.empty) {
       (subst, tp) => subst.bindT((tp.getName, ScalaPsiUtil.getPsiElementId(tp)), tp.upperBound.getOrAny)
     }
-    val sign = function.effectiveParameterClauses.flatMap(_.parameters).map(param => 
-      getJVMStringForType(subst.subst(param.getType(TypingContext.empty).getOrAny))).mkString("(", ",", ")") +
+    val sign = function.effectiveParameterClauses.flatMap(_.parameters).map(param =>
+      if (!param.isRepeatedParameter) {
+        getJVMStringForType(subst.subst(param.getType(TypingContext.empty).getOrAny))
+      } else "Lscala/collection/Seq;").mkString("(", ",", ")") +
       getJVMStringForType(subst.subst(function.returnType.getOrAny))
     JVMNameUtil.getJVMRawText(sign)
   }

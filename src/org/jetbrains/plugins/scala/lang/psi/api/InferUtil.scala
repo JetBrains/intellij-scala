@@ -84,9 +84,13 @@ object InferUtil {
             if (check) {
               //check if it's ClassManifest parameter:
               paramType match {
-                case p@ScParameterizedType(ScDesignatorType(clazz: PsiClass), Seq(arg))
-                  if clazz.getQualifiedName == "scala.reflect.ClassManifest" => //do not throw, it's safe
-                  resolveResults += new ScalaResolveResult(clazz, p.substitutor)
+                case p@ScParameterizedType(des, Seq(arg)) =>
+                  ScType.extractClass(des) match {
+                    case Some(clazz) if clazz.getQualifiedName == "scala.reflect.ClassManifest" =>
+                      //do not throw, it's safe
+                      resolveResults += new ScalaResolveResult(clazz, p.substitutor)
+                    case _ => throw new SafeCheckException
+                  }
                 case _ => throw new SafeCheckException
               }
             } else {
