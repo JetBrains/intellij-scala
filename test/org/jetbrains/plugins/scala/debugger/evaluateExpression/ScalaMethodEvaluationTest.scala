@@ -106,6 +106,26 @@ class ScalaMethodEvaluationTest extends ScalaDebuggerTestCase {
     }
   }
 
+  def testOverloadedFunction() {
+    myFixture.addFileToProject("Sample.scala",
+      """
+      |object Sample {
+      |  def foo(x: Int) = 1
+      |  def foo(x: String) = 2
+      |  def main(args: Array[String]) {
+      |    "stop here"
+      |  }
+      |}
+      """.stripMargin.trim()
+    )
+    addBreakpoint("Sample.scala", 4)
+    runDebugger("Sample") {
+      waitForBreakpoint()
+      evalEquals("foo(1)", "1")
+      evalEquals("foo(\"\")", "2")
+    }
+  }
+
   def testImplicitConversion() {
     myFixture.addFileToProject("Sample.scala",
       """
