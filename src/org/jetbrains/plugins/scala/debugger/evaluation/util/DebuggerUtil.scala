@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.debugger.evaluation.util
 
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import com.intellij.debugger.jdi.VirtualMachineProxyImpl
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
 import com.intellij.debugger.engine.evaluation.EvaluateExceptionUtil
@@ -14,6 +13,10 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTr
 import com.intellij.psi.{PsiElement, PsiClass}
 import com.intellij.lang.ASTNode
 import collection.mutable.{ArrayBuffer, HashSet}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
+import org.jetbrains.plugins.scala.lang.psi.types.{ScTypeParameterType, ScSubstitutor, ScType}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
+import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 
 /**
  * User: Alefas
@@ -111,6 +114,46 @@ object DebuggerUtil {
           case None => JVMNameUtil.getJVMRawText(ScType.canonicalText(tp))
         }
     }
+  }
+  
+  def getJVMStringForType(tp: ScType): String = {
+    import org.jetbrains.plugins.scala.lang.psi.types._
+    tp match {
+      case AnyRef => "Ljava/lang/Object;"
+      case Any => "Ljava/lang/Object;"
+      case Singleton => "Ljava/lang/Object;"
+      case Null => "Lscala/Null$;"
+      case Nothing => "Lscala/Nothing$;"
+      case Boolean => "Z"
+      case Byte => "B"
+      case Char => "C"
+      case Short => "S"
+      case Int => "I"
+      case Long => "J"
+      case Float => "F"
+      case Double => "D"
+      case Unit => "V"
+      case JavaArrayType(arg) => "[" + getJVMStringForType(arg)
+      case ScParameterizedType(ScDesignatorType(clazz: PsiClass), Seq(arg)) 
+        if clazz.getQualifiedName == "scala.Array" => "[" + getJVMStringForType(arg)
+      case _ =>
+        ScType.extractClass(tp) match {
+          case Some(obj: ScObject) => "L" + obj.getQualifiedNameForDebugger.replace('.', '/') + "$;"
+          case Some(obj: ScTypeDefinition) => "L" + obj.getQualifiedNameForDebugger.replace('.', '/') + ";"
+          case Some(clazz) => "L" + clazz.getQualifiedName.replace('.', '/') + ";"
+          case _ => "Ljava/lang/Object;"
+        }
+    }
+  }
+
+  def getFunctionJVMSignature(function: ScFunction): JVMName = {
+    val subst = function.typeParameters.foldLeft(ScSubstitutor.empty) {
+      (subst, tp) => subst.bindT((tp.getName, ScalaPsiUtil.getPsiElementId(tp)), tp.upperBound.getOrAny)
+    }
+    val sign = function.effectiveParameterClauses.flatMap(_.parameters).map(param => 
+      getJVMStringForType(subst.subst(param.getType(TypingContext.empty).getOrAny))).mkString("(", ",", ")") +
+      getJVMStringForType(subst.subst(function.returnType.getOrAny))
+    JVMNameUtil.getJVMRawText(sign)
   }
   
   def createValue(vm: VirtualMachineProxyImpl, tp: ScType, b: Boolean): Value = {

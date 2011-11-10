@@ -363,7 +363,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
           res
         })
         val methodEvaluator = new ScalaMethodEvaluator(
-          thisEvaluator, name, null /* todo? */ , evaluators, true, None,
+          thisEvaluator, name, DebuggerUtil.getFunctionJVMSignature(fun), evaluators, true, None,
           DebuggerUtil.getSourcePositions(resolve.getNavigationElement)
         )
         myResult = methodEvaluator
@@ -598,7 +598,11 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
                 case _ =>
                   qual.accept(this)
                   val name = NameTransformer.encode(funName)
-                  myResult = new ScalaMethodEvaluator(myResult, name, null /* todo? */ , argEvaluators, false,
+                  val signature = resolve match {
+                    case fun: ScFunction => DebuggerUtil.getFunctionJVMSignature(fun)
+                    case _ => null
+                  }
+                  myResult = new ScalaMethodEvaluator(myResult, name, signature , argEvaluators, false,
                     traitImplementation(resolve), DebuggerUtil.getSourcePositions(resolve.getNavigationElement))
                   return
               }
@@ -615,7 +619,11 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
               } else {
                 val evaluator = thisEvaluator(r)
                 val name = NameTransformer.encode(funName)
-                myResult = new ScalaMethodEvaluator(evaluator, name, null /* todo? */ , argEvaluators, false,
+                val signature = resolve match {
+                  case fun: ScFunction => DebuggerUtil.getFunctionJVMSignature(fun)
+                  case _ => null
+                }
+                myResult = new ScalaMethodEvaluator(evaluator, name, signature, argEvaluators, false,
                   traitImplementation(resolve), DebuggerUtil.getSourcePositions(resolve.getNavigationElement))
                 return
               }
