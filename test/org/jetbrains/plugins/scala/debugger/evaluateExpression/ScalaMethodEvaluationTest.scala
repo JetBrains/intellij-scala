@@ -39,6 +39,27 @@ class ScalaMethodEvaluationTest extends ScalaDebuggerTestCase {
       evalStartsWith("1 -> 2", "(1,2)")
     }
   }
+  
+  def testSmartBoxing() {
+    myFixture.addFileToProject("Sample.scala",
+      """
+      |object Sample {
+      |  def foo(x: AnyVal) = 1
+      |  def goo(x: Int) = x + 1
+      |  def main(args: Array[String]) {
+      |    val z = java.lang.Integer.valueOf(5)
+      |    "stop here"
+      |  }
+      |}
+      """.stripMargin.trim()
+    )
+    addBreakpoint("Sample.scala", 5)
+    runDebugger("Sample") {
+      waitForBreakpoint()
+      evalEquals("foo(1)", "1")
+      evalEquals("goo(z)", "6")
+    }
+  }  
 
   def testChangingFunction() {
     myFixture.addFileToProject("Sample.scala",
