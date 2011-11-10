@@ -65,7 +65,7 @@ class ScalaMethodEvaluationTest extends ScalaDebuggerTestCase {
     runDebugger("Sample") {
       waitForBreakpoint()
       evalEquals("a(-1)", "0")
-      evalEquals("Array(\"a\", \"b\")", "[a,d]")
+      evalEquals("Array(\"a\", \"b\")", "[a,b]")
     }
   }
   
