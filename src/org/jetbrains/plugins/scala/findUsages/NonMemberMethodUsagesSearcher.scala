@@ -20,16 +20,13 @@ class NonMemberMethodUsagesSearcher extends QueryExecutorBase[PsiReference, Meth
     val method: PsiMethod = p.getMethod
     val collector: SearchRequestCollector = p.getOptimizer
     val searchScope: SearchScope = p.getScope
-    var result = false
-    ScalaUtils.runReadAction(new Runnable {
-      def run() {
-        result = method.isConstructor
+    val newConsumer = new Processor[PsiReference] {
+      def process(t: PsiReference): Boolean = {
+        if (!method.isConstructor) return false
+        consumer.process(t)
       }
-    }, method.getProject, "NonMemberMethodUsagesSearcher")
-    if (result) {
-      return
     }
-    ReferencesSearch.searchOptimized(method, searchScope, false, collector, consumer)
+    ReferencesSearch.searchOptimized(method, searchScope, false, collector, newConsumer)
   }
 }
 
