@@ -16,6 +16,7 @@ class ScalaCodeFragmentFactory extends CodeFragmentFactory {
   def createCodeFragment(item: TextWithImports, context: PsiElement, project: Project): JavaCodeFragment = {
     val result: ScalaCodeFragment = new ScalaCodeFragment(project, item.getText)
     result.setContext(context, null)
+    result.addImportsFromString(item.getImports)
     result
   }
 
