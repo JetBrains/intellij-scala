@@ -6,6 +6,7 @@ import com.intellij.codeInsight.intention.IntentionAction
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiFile
+import debugger.evaluation.ScalaCodeFragment
 
 /**
  * Pavel Fatin
@@ -16,7 +17,10 @@ object ReportHighlightingErrorQuickFix extends IntentionAction {
 
   def startInWriteAction: Boolean = false
 
-  def isAvailable(project: Project, editor: Editor, file: PsiFile) = true
+  def isAvailable(project: Project, editor: Editor, file: PsiFile): Boolean = {
+    if (file.isInstanceOf[ScalaCodeFragment]) return false
+    true
+  }
 
   def invoke(project: Project, editor: Editor, file: PsiFile) {
     DesktopUtils.browse("http://youtrack.jetbrains.net/issues/SCL#newissue=yes")
