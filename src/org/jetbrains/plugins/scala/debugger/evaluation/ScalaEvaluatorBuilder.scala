@@ -915,6 +915,15 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
       }
     }
 
+    override def visitMatchStatement(ms: ScMatchStmt) = {
+      throw EvaluateExceptionUtil.createEvaluateException("Match statement is not supported")
+      super.visitMatchStatement(ms)
+    }
+
+    override def visitThrowExpression(throwStmt: ScThrowStmt) = {
+      throw EvaluateExceptionUtil.createEvaluateException("Throw statement is not supported")
+    }
+
     override def visitMethodCallExpression(parentCall: ScMethodCall) {
       def collectArguments(call: ScMethodCall, collected: Seq[ScExpression] = Seq.empty, tailString: String = "",
                            matchedParameters: Map[Parameter, Seq[ScExpression]] = Map.empty) {
