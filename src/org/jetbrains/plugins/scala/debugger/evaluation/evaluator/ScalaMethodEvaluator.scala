@@ -14,7 +14,7 @@ import com.intellij.openapi.application.ApplicationManager
  * User: Alefas
  * Date: 12.10.11
  */
-class ScalaMethodEvaluator(objectEvaluator: Evaluator, methodName: String, signature: JVMName,
+case class ScalaMethodEvaluator(objectEvaluator: Evaluator, methodName: String, signature: JVMName,
                            argumentEvaluators: Seq[Evaluator], localMethod: Boolean,
                            traitImplementation: Option[JVMName], methodPosition: Set[SourcePosition]) extends Evaluator {
   def getModifier: Modifier = null

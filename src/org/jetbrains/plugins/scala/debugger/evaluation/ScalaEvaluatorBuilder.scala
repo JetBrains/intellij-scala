@@ -924,9 +924,38 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
       throw EvaluateExceptionUtil.createEvaluateException("Throw statement is not supported")
     }
 
-    /*override def visitAssignmentStatement(stmt: ScAssignStmt) {
-
-    }*/
+    override def visitAssignmentStatement(stmt: ScAssignStmt) {
+      if (stmt.isNamedParameter) {
+        stmt.getRExpression match {
+          case Some(expr) =>
+            expr.accept(this)
+          case _ => throw EvaluateExceptionUtil.createEvaluateException("Cannot evaluate assign statement without expression")
+        }
+      } else {
+        stmt.getLExpression match {
+          case call: ScMethodCall =>
+            val exprText = "(" + call.getInvokedExpr.getText + ").update(" + call.args.exprs.map(_.getText).
+              mkString(", ") + (if (call.args.exprs.length > 0) ", " else "") + stmt.getRExpression.map(_.getText).
+              getOrElse("null") + ")"
+            val expr = ScalaPsiElementFactory.createExpressionWithContextFromText(exprText, stmt.getContext, stmt)
+            expr.accept(this)
+          case _ =>
+            stmt.getLExpression.accept(this)
+            val leftEvaluator = myResult
+            stmt.getRExpression match {
+              case Some(expr) => expr.accept(this)
+              case _ => throw EvaluateExceptionUtil.createEvaluateException("Cannot evaluate assign statement without expression")
+            }
+            val rightEvaluator = myResult
+            leftEvaluator match {
+              case m: ScalaMethodEvaluator =>
+                myResult = m.copy(methodName = m.methodName + "_$eq", argumentEvaluators = Seq(rightEvaluator)) //todo: signature?
+              case _ =>
+                myResult = new AssignmentEvaluator(leftEvaluator, rightEvaluator)
+            }
+        }
+      }
+    }
 
     override def visitMethodCallExpression(parentCall: ScMethodCall) {
       def collectArguments(call: ScMethodCall, collected: Seq[ScExpression] = Seq.empty, tailString: String = "",

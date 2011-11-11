@@ -26,6 +26,34 @@ class ScalaExpressionsEvaluator extends ScalaDebuggerTestCase {
       evalEquals("!u", "false")
     }
   }
+  
+  def testAssignment() {
+    myFixture.addFileToProject("Sample.scala",
+      """
+      |object Sample {
+      |  var m = 0
+      |  def main(args: Array[String]) {
+      |    var z = 1
+      |    val x: Array[Array[Int]] = Array(Array(1, 2), Array(2, 3))
+      |    "stop here"
+      |  }
+      |}
+      """.stripMargin.trim()
+    )
+    addBreakpoint("Sample.scala", 5)
+    runDebugger("Sample") {
+      waitForBreakpoint()
+      evalEquals("x(0)(0)", "1")
+      evalEquals("x(0)(0) = 2", "2")
+      evalEquals("x(0)(0)", "2")
+      evalEquals("z", "1")
+      evalEquals("z = 2", "2")
+      evalEquals("z", "2")
+      evalEquals("m", "0")
+      evalEquals("m = 2", "undefined")
+      evalEquals("m", "2")
+    }
+  }
 
   def testThis() {
     myFixture.addFileToProject("Sample.scala",
