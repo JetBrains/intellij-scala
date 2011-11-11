@@ -515,6 +515,12 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
         case ">" => binaryEvalForBoxes(name, "testGreaterThan")
         case ">=" => binaryEvalForBoxes(name, "testGreaterOrEqualThan")
         case "<=" => binaryEvalForBoxes(name, "testLessOrEqualThan")
+        case "+" if qual.map(_.getType(TypingContext.empty).getOrAny).filter(tp => {
+          ScType.extractClass(tp) match {
+            case Some(clazz) => clazz.getQualifiedName == "java.lang.String"
+            case _ => false
+          }
+        }) != None =>
         case "+" => binaryEvalForBoxes(name, "add")
         case "-" => binaryEvalForBoxes(name, "subtract")
         case "*" => binaryEvalForBoxes(name, "multiply")
@@ -839,6 +845,12 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
           if (clazzJVMName != null)
             myResult = new ClassObjectEvaluator(new TypeEvaluator(clazzJVMName))
           else myResult = new ScalaLiteralEvaluator(null, Null)
+        case synth: ScSyntheticFunction if synth.isStringPlusMethod && arguments.length == 1=>
+          val exprText = "(" + qualOption.map(_.getText).getOrElse("this") + ").concat(_root_.java.lang.String.valueOf(" +
+            arguments(0).getText + ")"
+          val expr = ScalaPsiElementFactory.createExpressionFromText(exprText, ref.getManager)
+          expr.accept(this)
+          myResult
         case synth: ScSyntheticFunction =>
           evaluateSyntheticFunction(synth, qualOption, ref, argEvaluators) //todo: use matched parameters
         case fun: ScFunction if isArrayFunction(fun) =>

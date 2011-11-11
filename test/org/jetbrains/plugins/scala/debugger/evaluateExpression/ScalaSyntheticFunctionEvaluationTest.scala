@@ -40,6 +40,7 @@ class ScalaSyntheticFunctionEvaluationTest extends ScalaDebuggerTestCase {
       evalEquals("1 / 2.", "0.5")
       evalEquals("5 % 2", "1")
       evalEquals("1 << 2", "4")
+      evalEquals("\"1\" + 1", "11")
     }
   }
 }
