@@ -16,7 +16,8 @@ import java.io.IOException;
 public class ScalaDocLexer extends MergingLexerAdapter {
   private static final TokenSet TOKENS_TO_MERGE = TokenSet.create(
     ScalaDocTokenType.DOC_COMMENT_DATA,
-    ScalaDocTokenType.DOC_WHITESPACE
+    ScalaDocTokenType.DOC_WHITESPACE,
+    ScalaDocTokenType.DOC_INNER_CODE
   );
 
   public ScalaDocLexer() {
@@ -141,6 +142,11 @@ public class ScalaDocLexer extends MergingLexerAdapter {
           myTokenType = lf || state == _ScalaDocLexer.PARAM_TAG_SPACE || state == _ScalaDocLexer.TAG_DOC_SPACE || state == _ScalaDocLexer.INLINE_TAG_NAME || state == _ScalaDocLexer.DOC_TAG_VALUE_IN_PAREN
                         ? ScalaDocTokenType.DOC_WHITESPACE
                         : ScalaDocTokenType.DOC_COMMENT_DATA;
+
+          if (!lf && state == _ScalaDocLexer.COMMENT_INNER_CODE) {
+            myTokenType = ScalaDocTokenType.DOC_INNER_CODE;
+          }
+
 
           return;
         }
