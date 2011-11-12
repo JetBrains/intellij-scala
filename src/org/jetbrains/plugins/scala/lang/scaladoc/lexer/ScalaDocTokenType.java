@@ -1,8 +1,8 @@
 package org.jetbrains.plugins.scala.lang.scaladoc.lexer;
 
-import com.intellij.psi.JavaDocTokenType;
 import com.intellij.psi.tree.TokenSet;
 import com.intellij.psi.tree.IElementType;
+import org.jetbrains.plugins.scala.lang.scaladoc.lexer.docsyntax.ScaladocSyntaxElementType;
 
 /**
  * User: Alexander Podkhalyuzin
@@ -26,12 +26,29 @@ public interface ScalaDocTokenType {
   IElementType DOC_TAG_VALUE_LT = new ScalaDocElementType("DOC_TAG_VALUE_LT");
   IElementType DOC_TAG_VALUE_GT = new ScalaDocElementType("DOC_TAG_VALUE_GT");
   IElementType DOC_TAG_VALUE_SHARP_TOKEN = new ScalaDocElementType("DOC_TAG_VALUE_SHARP_TOKEN");
+  IElementType DOC_MARKED_ELEMENT = new ScalaDocElementType("DOC_MARKED_ELEMENT");    //
+  IElementType DOC_INNER_CODE_TAG = new ScalaDocElementType("DOC_INNER_CODE_TAG");
+  IElementType DOC_LINK_CLOSE_TAG = new ScalaDocElementType("DOC_LINK_CLOSE_TAG");
+  IElementType DOC_INNER_CODE = new ScalaDocElementType("DOC_INNER_CODE");
+
+  ScaladocSyntaxElementType DOC_BOLD_TAG = new ScaladocSyntaxElementType("DOC_BOLD_TAG", 1);
+  ScaladocSyntaxElementType DOC_ITALIC_TAG = new ScaladocSyntaxElementType("DOC_ITALIC_TAG", 1 << 1);
+  ScaladocSyntaxElementType DOC_UNDERLINE_TAG = new ScaladocSyntaxElementType("DOC_UNDERLINE_TAG", 1 << 2);
+  ScaladocSyntaxElementType DOC_MONOSPACE_TAG = new ScaladocSyntaxElementType("DOC_MONOSPACE_TAG", 1 << 3);
+  ScaladocSyntaxElementType DOC_SUPERSCRIPT_TAG = new ScaladocSyntaxElementType("DOC_SUPERSCRIPT_TAG", 1 << 4);
+  ScaladocSyntaxElementType DOC_SUBSCRIPT_TAG = new ScaladocSyntaxElementType("DOC_SUBSCRIPT_TAG", 1 << 5);
+  ScaladocSyntaxElementType DOC_LINK_TAG = new ScaladocSyntaxElementType("DOC_LINK_TAG", 1 << 6);
+  ScaladocSyntaxElementType DOC_HTTP_LINK_TAG = new ScaladocSyntaxElementType("DOC_HTTP_LINK_TAG", 1 << 7);
+  ScaladocSyntaxElementType DOC_HEADER = new ScaladocSyntaxElementType("DOC_HEADER", 1 << 8);
+
 
   IElementType DOC_COMMENT_BAD_CHARACTER = new ScalaDocElementType("DOC_COMMENT_BAD_CHARACTER");
 
   TokenSet ALL_SCALADOC_TOKENS = TokenSet.create(
    DOC_COMMENT_START, DOC_COMMENT_END, DOC_COMMENT_DATA, DOC_WHITESPACE, DOC_COMMENT_LEADING_ASTERISKS, DOC_TAG_NAME,
    DOC_INLINE_TAG_START, DOC_INLINE_TAG_END, DOC_TAG_VALUE_TOKEN, DOC_TAG_VALUE_DOT, DOC_TAG_VALUE_COMMA,
-   DOC_TAG_VALUE_LPAREN, DOC_TAG_VALUE_RPAREN, DOC_TAG_VALUE_SHARP_TOKEN
+   DOC_TAG_VALUE_LPAREN, DOC_TAG_VALUE_RPAREN, DOC_TAG_VALUE_SHARP_TOKEN, DOC_MARKED_ELEMENT, DOC_BOLD_TAG,
+   DOC_ITALIC_TAG, DOC_UNDERLINE_TAG, DOC_MONOSPACE_TAG, DOC_SUPERSCRIPT_TAG, DOC_SUBSCRIPT_TAG, DOC_LINK_TAG,
+   DOC_HTTP_LINK_TAG, DOC_INNER_CODE_TAG, DOC_INNER_CODE, DOC_HEADER, DOC_LINK_CLOSE_TAG
   );
 }
