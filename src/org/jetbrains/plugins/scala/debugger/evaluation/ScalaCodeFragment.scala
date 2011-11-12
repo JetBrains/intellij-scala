@@ -7,6 +7,7 @@ import com.intellij.psi.IntentionFilterOwner.IntentionActionsFilter
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.JavaCodeFragment.{VisibilityChecker, ExceptionHandler}
 import com.intellij.psi._
+import impl.PsiModificationTrackerImpl
 import impl.source.PsiFileImpl
 import impl.source.tree.FileElement
 import scope.PsiScopeProcessor
@@ -14,15 +15,23 @@ import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiElementFactory, ScalaF
 import collection.mutable.{HashSet, HashMap}
 import com.intellij.openapi.editor.Document
 import com.intellij.openapi.command.undo.{BasicUndoableAction, UndoManager}
+import com.intellij.util.FileContentUtil
+import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer
+import com.intellij.codeInsight.daemon.impl.DaemonCodeAnalyzerImpl
+import com.intellij.openapi.util.TextRange
+import com.intellij.openapi.fileEditor.{OpenFileDescriptor, FileEditorManager}
+import com.intellij.openapi.editor.ex.{DocumentEx, EditorEx}
+import com.intellij.openapi.editor.impl.DocumentImpl
 
 /**
  * @author Alexander Podkhalyuzin
  */
 
 class ScalaCodeFragment(project: Project, text: String) extends {
+  private var vFile = new LightVirtualFile("Dummy.scala",
+    ScalaFileType.SCALA_FILE_TYPE, text)
   private var provider = new SingleRootFileViewProvider(
-    PsiManager.getInstance(project), new LightVirtualFile("Dummy.scala",
-      ScalaFileType.SCALA_FILE_TYPE, text), true)
+    PsiManager.getInstance(project), vFile, true)
 } with ScalaFileImpl(provider) with JavaCodeFragment {
   getViewProvider.asInstanceOf[SingleRootFileViewProvider].forceCachedPsi(this)
 
@@ -71,13 +80,16 @@ class ScalaCodeFragment(project: Project, text: String) extends {
 
   override def addImportForPath(path: String, ref: PsiElement) {
     imports += path
-    if (isPhysical) {
-      val project: Project = myManager.getProject
-      val document: Document = PsiDocumentManager.getInstance(project).getDocument(this)
-      UndoManager.getInstance(project).undoableActionPerformed(
-        new ScalaCodeFragment.ImportClassUndoableAction(path, document, imports)
-      )
-    }
+    myManager.beforeChange(false)
+    val project: Project = myManager.getProject
+    val document: Document = PsiDocumentManager.getInstance(project).getDocument(this)
+    UndoManager.getInstance(project).undoableActionPerformed(
+      new ScalaCodeFragment.ImportClassUndoableAction(path, document, imports)
+    )
+    //todo: that's a hack, how to remove it?..
+    PsiDocumentManager.getInstance(project).doPostponedOperationsAndUnblockDocument(document)
+    document.insertString(0, "a")
+    document.deleteString(0, 1)
   }
 
   override def processDeclarations(processor: PsiScopeProcessor, state: ResolveState,
@@ -94,9 +106,10 @@ class ScalaCodeFragment(project: Project, text: String) extends {
   override def clone(): PsiFileImpl = {
     val clone = cloneImpl(calcTreeElement.clone.asInstanceOf[FileElement]).asInstanceOf[ScalaCodeFragment]
     clone.imports = this.imports
+    clone.vFile = new LightVirtualFile("Dummy.scala",
+      ScalaFileType.SCALA_FILE_TYPE, getText)
     clone.provider = new SingleRootFileViewProvider(
-      PsiManager.getInstance(project), new LightVirtualFile("Dummy.scala",
-        ScalaFileType.SCALA_FILE_TYPE, getText), true)
+      PsiManager.getInstance(project), clone.vFile, true)
     clone.provider.forceCachedPsi(clone)
     clone
   }
