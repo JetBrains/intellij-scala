@@ -3,12 +3,10 @@ package org.jetbrains.plugins.scala.debugger.evaluation
 import com.intellij.debugger.SourcePosition
 import evaluator._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import com.intellij.debugger.engine.evaluation._
 import com.intellij.psi._
 import expression._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameterClause, ScParameter, ScClassParameter}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScVariable, ScValue}
 import reflect.NameTransformer
 import com.intellij.psi.util.PsiTreeUtil
 import collection.mutable.{HashSet, ArrayBuffer}
@@ -18,15 +16,17 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScEarlyDefinitions}
 import org.jetbrains.plugins.scala.lang.psi.api.{ScPackage, ScalaRecursiveElementVisitor, ScalaElementVisitor}
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScStableCodeReferenceElement, ScLiteral, ScReferenceElement}
 import com.intellij.debugger.engine.{JVMName, JVMNameUtil}
 import util.DebuggerUtil
 import collection.Seq
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTrait, ScObject}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import org.jetbrains.plugins.scala.lang.psi.types.{ScParameterizedType, ScThisType, ScType}
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClause, ScBindingPattern}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScClassParents, ScTemplateBody}
+import org.jetbrains.plugins.scala.lang.psi.api.statements._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTypeDefinition, ScClass, ScTrait, ScObject}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScPrimaryConstructor, ScStableCodeReferenceElement, ScLiteral, ScReferenceElement}
 
 /**
  * User: Alefas
@@ -1010,7 +1010,12 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
       super.visitInfixExpression(infix)
     }
 
-    override def visitExpression(expr: ScExpression) {      
+    override def visitExpression(expr: ScExpression) {
+      //check underscores
+      if (ScUnderScoreSectionUtil.isUnderscoreFunction(expr)) {
+        throw EvaluateExceptionUtil.createEvaluateException("Anonymous functions are not supported")
+      }
+
       //boxing and unboxing actions
       def unbox(typeTo: String) {myResult = unaryEvaluator(unboxEvaluator(myResult), typeTo)}
       def box() {myResult = boxEvaluator(myResult)}
@@ -1338,6 +1343,76 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
             return
         }
       }
+    }
+
+    override def visitVariableDefinition(varr: ScVariableDefinition) {
+      throw EvaluateExceptionUtil.createEvaluateException("Evaluation of variables is not supported")
+      super.visitVariableDefinition(varr)
+    }
+
+    override def visitPatternDefinition(pat: ScPatternDefinition) {
+      throw EvaluateExceptionUtil.createEvaluateException("Evaluation of values is not supported")
+      super.visitPatternDefinition(pat)
+    }
+
+    override def visitTypeDefintion(typedef: ScTypeDefinition) {
+      throw EvaluateExceptionUtil.createEvaluateException("Evaluation of local classes is not supported")
+      super.visitTypeDefintion(typedef)
+    }
+
+    override def visitNewTemplateDefinition(templ: ScNewTemplateDefinition) {
+      templ.extendsBlock.templateBody match {
+        case Some(tb) => throw EvaluateExceptionUtil.createEvaluateException("Anonymous classes are not supported")
+        case _ =>
+      }
+      templ.extendsBlock.templateParents match {
+        case Some(parents: ScClassParents) =>
+          if (parents.typeElements.length != 1) {
+            throw EvaluateExceptionUtil.createEvaluateException("Anonymous classes are not supported")
+          }
+          parents.constructor match {
+            case Some(constr) =>
+              val tp = constr.typeElement.calcType
+              val jvmName = ScType.extractClass(tp, Some(templ.getProject)) match {
+                case Some(clazz) => DebuggerUtil.getClassJVMName(clazz)
+                case _ => throw EvaluateExceptionUtil.createEvaluateException("Cannot evaluate new expression without class reference")
+              }
+              val typeEvaluator = new TypeEvaluator(jvmName)
+              val argumentEvaluators = constr.arguments.flatMap(_.exprs).map(expr => {
+                expr.accept(this)
+                myResult
+              }) //todo: make arguments better, like for method call
+              constr.reference match {
+                case Some(ref) =>
+                  ref.resolveAllConstructors match {
+                    case Array(ScalaResolveResult(named, subst)) =>
+                      val methodSignature = named match {
+                        case fun: ScFunction => DebuggerUtil.getFunctionJVMSignature(fun)
+                        case constr: ScPrimaryConstructor => DebuggerUtil.getFunctionJVMSignature(constr)
+                        case method: PsiMethod => JVMNameUtil.getJVMSignature(method)
+                        case clazz: ScClass => clazz.constructor match {
+                          case Some(constr) => DebuggerUtil.getFunctionJVMSignature(constr)
+                          case _ => JVMNameUtil.getJVMRawText("()V")
+                        }
+                        case clazz: PsiClass => JVMNameUtil.getJVMRawText("()V")
+                        case _ => JVMNameUtil.getJVMRawText("()V")
+                      }
+                      myResult = new ScalaMethodEvaluator(typeEvaluator, "<init>", methodSignature, argumentEvaluators, false, None,
+                        Set.empty)
+                    case _ =>
+                      myResult = new ScalaMethodEvaluator(typeEvaluator, "<init>", null, argumentEvaluators, false, None,
+                        Set.empty)
+                  }
+                case _ =>
+                  myResult = new ScalaMethodEvaluator(typeEvaluator, "<init>", null, argumentEvaluators, false, None,
+                    Set.empty)
+              }
+            case None => throw EvaluateExceptionUtil.createEvaluateException("Cannot evaluate expression without constructor call")
+          }
+        case _ => throw EvaluateExceptionUtil.createEvaluateException("Cannot evaluate expression without template parents")
+      }
+      
+      super.visitNewTemplateDefinition(templ)
     }
 
     def buildElement(element: PsiElement): ExpressionEvaluator = {
