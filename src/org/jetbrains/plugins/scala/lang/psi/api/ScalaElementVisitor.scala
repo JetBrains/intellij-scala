@@ -64,6 +64,7 @@ class ScalaElementVisitor extends PsiElementVisitor {
   def visitThrowExpression(throwStmt: ScThrowStmt) { visitExpression(throwStmt) }
   def visitTryExpression(tryStmt: ScTryStmt) { visitExpression(tryStmt) }
   def visitExprInParent(expr: ScParenthesisedExpr) {visitExpression(expr)}
+  def visitNewTemplateDefinition(templ: ScNewTemplateDefinition) {visitExpression(templ)}
 
   //type elements
   def visitSimpleTypeElement(simple: ScSimpleTypeElement) {visitElement(simple)}

@@ -17,6 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.types.{ScTypeParameterType, ScSubstitutor, ScType}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 
 /**
  * User: Alefas
@@ -148,14 +149,35 @@ object DebuggerUtil {
   }
 
   def getFunctionJVMSignature(function: ScFunction): JVMName = {
-    val subst = function.typeParameters.foldLeft(ScSubstitutor.empty) {
+    val typeParams = 
+      if (function.isConstructor) function.getContainingClass match {
+        case td: ScTypeDefinition => td.typeParameters
+        case _ => Seq.empty
+      } 
+      else function.typeParameters
+    val subst = typeParams.foldLeft(ScSubstitutor.empty) {
       (subst, tp) => subst.bindT((tp.getName, ScalaPsiUtil.getPsiElementId(tp)), tp.upperBound.getOrAny)
     }
     val sign = function.effectiveParameterClauses.flatMap(_.parameters).map(param =>
       if (!param.isRepeatedParameter) {
         getJVMStringForType(subst.subst(param.getType(TypingContext.empty).getOrAny))
       } else "Lscala/collection/Seq;").mkString("(", ",", ")") +
-      getJVMStringForType(subst.subst(function.returnType.getOrAny), false)
+      (if (!function.isConstructor) getJVMStringForType(subst.subst(function.returnType.getOrAny), false) else "V")
+    JVMNameUtil.getJVMRawText(sign)
+  }
+
+  def getFunctionJVMSignature(constr: ScPrimaryConstructor): JVMName = {
+    val typeParams = constr.getContainingClass match {
+      case td: ScTypeDefinition => td.typeParameters
+      case _ => Seq.empty
+    }
+    val subst = typeParams.foldLeft(ScSubstitutor.empty) {
+      (subst, tp) => subst.bindT((tp.getName, ScalaPsiUtil.getPsiElementId(tp)), tp.upperBound.getOrAny)
+    }
+    val sign = constr.effectiveParameterClauses.flatMap(_.parameters).map(param =>
+      if (!param.isRepeatedParameter) {
+        getJVMStringForType(subst.subst(param.getType(TypingContext.empty).getOrAny))
+      } else "Lscala/collection/Seq;").mkString("(", ",", ")") + "V"
     JVMNameUtil.getJVMRawText(sign)
   }
   

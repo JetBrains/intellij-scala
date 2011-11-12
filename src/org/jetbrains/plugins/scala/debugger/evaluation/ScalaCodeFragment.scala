@@ -12,6 +12,8 @@ import impl.source.tree.FileElement
 import scope.PsiScopeProcessor
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiElementFactory, ScalaFileImpl}
 import collection.mutable.{HashSet, HashMap}
+import com.intellij.openapi.editor.Document
+import com.intellij.openapi.command.undo.{BasicUndoableAction, UndoManager}
 
 /**
  * @author Alexander Podkhalyuzin
@@ -69,6 +71,13 @@ class ScalaCodeFragment(project: Project, text: String) extends {
 
   override def addImportForPath(path: String, ref: PsiElement) {
     imports += path
+    if (isPhysical) {
+      val project: Project = myManager.getProject
+      val document: Document = PsiDocumentManager.getInstance(project).getDocument(this)
+      UndoManager.getInstance(project).undoableActionPerformed(
+        new ScalaCodeFragment.ImportClassUndoableAction(path, document, imports)
+      )
+    }
   }
 
   override def processDeclarations(processor: PsiScopeProcessor, state: ResolveState,
@@ -91,4 +100,17 @@ class ScalaCodeFragment(project: Project, text: String) extends {
     clone.provider.forceCachedPsi(clone)
     clone
   }
+}
+
+object ScalaCodeFragment {
+  private class ImportClassUndoableAction(path: String, document: Document,
+                                          imports: HashSet[String]) extends BasicUndoableAction {
+    def undo() {
+      imports -= path
+    }
+    def redo() {
+      imports += path
+    }
+  }
+
 }

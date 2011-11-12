@@ -114,6 +114,10 @@ case class ScalaMethodEvaluator(objectEvaluator: Evaluator, methodName: String, 
       if (obj.isInstanceOf[ClassType]) {
         if (referenceType.isInstanceOf[ClassType]) {
           val jdiMethod = findMethod(referenceType)
+          if (jdiMethod != null && methodName == "<init>") {
+            import scala.collection.JavaConversions._
+            return debugProcess.newInstance(context, referenceType.asInstanceOf[ClassType], jdiMethod, args)
+          }
           if (jdiMethod != null && jdiMethod.isStatic) {
             import scala.collection.JavaConversions._
             return debugProcess.invokeMethod(context, referenceType.asInstanceOf[ClassType], jdiMethod, args)
