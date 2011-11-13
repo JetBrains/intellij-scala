@@ -37,7 +37,7 @@
 
   <extensions defaultExtensionNs="com.intellij">
     <statementUpDownMover implementation="org.jetbrains.plugins.scala.lang.refactoring.ScalaStatementMover"/>
-    <!--<debugger.codeFragmentFactory implementation="org.jetbrains.plugins.scala.debugger.evaluation.ScalaCodeFragmentFactory"/>-->
+    <debugger.codeFragmentFactory implementation="org.jetbrains.plugins.scala.debugger.evaluation.ScalaCodeFragmentFactory"/>
     <debugger.positionManagerFactory implementation="org.jetbrains.plugins.scala.debugger.ScalaPositionManagerFactory"/>
     <treeCopyHandler implementation="org.jetbrains.plugins.scala.lang.refactoring.util.ScalaChangeUtilSupport"/>
     <iconProvider implementation="org.jetbrains.plugins.scala.components.ScalaIconProvider"/>
@@ -259,6 +259,14 @@
 
     <intentionAction>
       <className>org.jetbrains.plugins.scala.codeInsight.intention.matcher.ExpandPatternIntention</className>
+    </intentionAction>
+
+    <intentionAction>
+      <className>org.jetbrains.plugins.scala.codeInsight.intention.types.ConvertToInfixIntention</className>
+    </intentionAction>
+
+    <intentionAction>
+      <className>org.jetbrains.plugins.scala.codeInsight.intention.types.ConvertFromInfixIntention</className>
     </intentionAction>
 
     <lang.elementManipulator forClass="org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral"
