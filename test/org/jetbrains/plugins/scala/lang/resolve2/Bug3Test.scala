@@ -16,4 +16,5 @@ class Bug3Test extends ResolveTestBase {
   def testValueFunction11() = doTest()
   def testSCL2169() = doTest()
   def testSCL2509() {doTest()}
+  def testSCL3773() {doTest()}
 }
