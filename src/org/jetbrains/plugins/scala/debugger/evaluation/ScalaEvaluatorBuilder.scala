@@ -1022,7 +1022,19 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
           case newCall: ScMethodCall =>
             collectArguments(newCall, call.argumentExpressions ++ collected, call.args.getText + tailString,
               matchedParameters ++ call.matchedParametersMap)
+          case gen: ScGenericCall =>
+            gen.referencedExpr match {
+              case ref: ScReferenceExpression =>
+                visitCall(ref, ref.qualifier, call.argumentExpressions ++ collected, s => {
+                  val exprText = s + "." + ref.refName + call.args.getText + tailString
+                  ScalaPsiElementFactory.createExpressionWithContextFromText(exprText, parentCall.getContext,
+                    parentCall)
+                }, matchedParameters ++ call.matchedParametersMap, parentCall)
+              case _ =>
+                throw EvaluateExceptionUtil.createEvaluateException("Method call is invalid")
+            }
           case _ =>
+            throw EvaluateExceptionUtil.createEvaluateException("Method call is invalid")
         }
       }
       collectArguments(parentCall)
@@ -1409,40 +1421,47 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
           parents.constructor match {
             case Some(constr) =>
               val tp = constr.typeElement.calcType
-              val jvmName = ScType.extractClass(tp, Some(templ.getProject)) match {
-                case Some(clazz) => DebuggerUtil.getClassJVMName(clazz)
-                case _ => throw EvaluateExceptionUtil.createEvaluateException("Cannot evaluate new expression without class reference")
-              }
-              val typeEvaluator = new TypeEvaluator(jvmName)
-              val argumentEvaluators = constr.arguments.flatMap(_.exprs).map(expr => {
-                expr.accept(this)
-                myResult
-              }) //todo: make arguments better, like for method call
-              constr.reference match {
-                case Some(ref) =>
-                  ref.resolveAllConstructors match {
-                    case Array(ScalaResolveResult(named, subst)) =>
-                      val methodSignature = named match {
-                        case fun: ScFunction => DebuggerUtil.getFunctionJVMSignature(fun)
-                        case constr: ScPrimaryConstructor => DebuggerUtil.getFunctionJVMSignature(constr)
-                        case method: PsiMethod => JVMNameUtil.getJVMSignature(method)
-                        case clazz: ScClass => clazz.constructor match {
-                          case Some(constr) => DebuggerUtil.getFunctionJVMSignature(constr)
-                          case _ => JVMNameUtil.getJVMRawText("()V")
-                        }
-                        case clazz: PsiClass => JVMNameUtil.getJVMRawText("()V")
-                        case _ => JVMNameUtil.getJVMRawText("()V")
+              ScType.extractClass(tp, Some(templ.getProject)) match {
+                case Some(clazz) if clazz.getQualifiedName == "scala.Array" =>
+                  val exprText = "_root_.scala.Array.ofDim" + constr.typeArgList.map(_.getText).getOrElse("") +
+                    constr.args.map(_.getText).getOrElse("(0)")
+                  val expr = ScalaPsiElementFactory.createExpressionWithContextFromText(exprText, templ.getContext, templ)
+                  expr.accept(this)
+                case Some(clazz) =>
+                  val jvmName = DebuggerUtil.getClassJVMName(clazz)
+                  val typeEvaluator = new TypeEvaluator(jvmName)
+                  val argumentEvaluators = constr.arguments.flatMap(_.exprs).map(expr => {
+                    expr.accept(this)
+                    myResult
+                  }) //todo: make arguments better, like for method call
+                  constr.reference match {
+                    case Some(ref) =>
+                      ref.resolveAllConstructors match {
+                        case Array(ScalaResolveResult(named, subst)) =>
+                          val methodSignature = named match {
+                            case fun: ScFunction => DebuggerUtil.getFunctionJVMSignature(fun)
+                            case constr: ScPrimaryConstructor => DebuggerUtil.getFunctionJVMSignature(constr)
+                            case method: PsiMethod => JVMNameUtil.getJVMSignature(method)
+                            case clazz: ScClass => clazz.constructor match {
+                              case Some(constr) => DebuggerUtil.getFunctionJVMSignature(constr)
+                              case _ => JVMNameUtil.getJVMRawText("()V")
+                            }
+                            case clazz: PsiClass => JVMNameUtil.getJVMRawText("()V")
+                            case _ => JVMNameUtil.getJVMRawText("()V")
+                          }
+                          myResult = new ScalaMethodEvaluator(typeEvaluator, "<init>", methodSignature, argumentEvaluators, false, None,
+                            Set.empty)
+                        case _ =>
+                          myResult = new ScalaMethodEvaluator(typeEvaluator, "<init>", null, argumentEvaluators, false, None,
+                            Set.empty)
                       }
-                      myResult = new ScalaMethodEvaluator(typeEvaluator, "<init>", methodSignature, argumentEvaluators, false, None,
-                        Set.empty)
                     case _ =>
                       myResult = new ScalaMethodEvaluator(typeEvaluator, "<init>", null, argumentEvaluators, false, None,
                         Set.empty)
                   }
-                case _ =>
-                  myResult = new ScalaMethodEvaluator(typeEvaluator, "<init>", null, argumentEvaluators, false, None,
-                    Set.empty)
+                case _ => throw EvaluateExceptionUtil.createEvaluateException("Cannot evaluate new expression without class reference")
               }
+
             case None => throw EvaluateExceptionUtil.createEvaluateException("Cannot evaluate expression without constructor call")
           }
         case _ => throw EvaluateExceptionUtil.createEvaluateException("Cannot evaluate expression without template parents")
