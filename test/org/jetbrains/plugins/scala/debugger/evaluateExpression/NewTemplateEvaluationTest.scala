@@ -20,6 +20,7 @@ class NewTemplateEvaluationTest extends ScalaDebuggerTestCase {
     runDebugger("Sample") {
       waitForBreakpoint()
       evalEquals("new StringBuilder(\"test\").append(23)", "test23")
+      evalEquals("new Array[Int](2)", "[0,0]")
     }
   }
 
