@@ -633,6 +633,11 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
     private def functionEvaluator(qualOption: Option[ScExpression], ref: ScReferenceExpression,
                                   replaceWithImplicit: (String) => ScExpression, funName: String,
                                   argEvaluators: Seq[Evaluator], resolve: PsiElement) {
+      ref.bind().foreach(r =>
+        if (r.tuplingUsed) {
+          throw EvaluateExceptionUtil.createEvaluateException("Tupling is unsupported. Use tuple expression.")
+        }
+      )
       qualOption match {
         case Some(qual) =>
           ref.bind() match {
