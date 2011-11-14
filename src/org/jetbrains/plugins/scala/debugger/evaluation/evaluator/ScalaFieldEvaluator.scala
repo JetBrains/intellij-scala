@@ -48,11 +48,18 @@ object ScalaFieldEvaluator {
   }
 }
 
-class ScalaFieldEvaluator(objectEvaluator: Evaluator, filter: ReferenceType => Boolean,  fieldName: String) extends Evaluator {
+class ScalaFieldEvaluator(objectEvaluator: Evaluator, filter: ReferenceType => Boolean,  fieldName: String,
+                          classPrivateThisField: Boolean = false) extends Evaluator {
   private var myEvaluatedQualifier: AnyRef = null
   private var myEvaluatedField: Field = null
   
   private def fieldByName(t: ReferenceType, fieldName: String): Field = {
+    if (classPrivateThisField) {
+      import scala.collection.JavaConversions._
+      for (field <- t.fields()) {
+        if (field.name().endsWith("$$" + fieldName)) return field
+      }
+    }
     var field = t.fieldByName(fieldName)
     if (field != null) {
       return field
