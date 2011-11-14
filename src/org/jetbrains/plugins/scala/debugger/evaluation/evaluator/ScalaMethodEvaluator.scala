@@ -32,7 +32,7 @@ case class ScalaMethodEvaluator(objectEvaluator: Evaluator, methodName: String, 
     if (!(obj.isInstanceOf[ObjectReference] || obj.isInstanceOf[ClassType])) {
       throw EvaluateExceptionUtil.createEvaluateException(DebuggerBundle.message("evaluation.error.evaluating.method", methodName))
     }
-    val args = argumentEvaluators.map(_.evaluate(context))
+    val args = argumentEvaluators.map(arg => arg.evaluate(context))
     try {
       val referenceType: ReferenceType =
       obj match {
