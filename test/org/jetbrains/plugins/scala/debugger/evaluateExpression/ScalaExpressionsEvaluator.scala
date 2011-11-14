@@ -68,6 +68,7 @@ class ScalaExpressionsEvaluator extends ScalaDebuggerTestCase {
       evalEquals("test2((1, 2))", "2")
       evalEquals("test2(Tuple2(1, 2))", "2")
       evalEquals("foo(1)(2)", "1")
+      evalEquals("scala.collection.immutable.HashSet.empty + 1 + 2", "Set(1, 2)")
     }
   }
   
