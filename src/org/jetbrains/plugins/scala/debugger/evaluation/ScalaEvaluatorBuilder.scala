@@ -932,8 +932,21 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
               }
           }
           throw EvaluateExceptionUtil.createEvaluateException("Cannot evaluate method")
-        case _ => //todo: dynamic method invocation
-          throw EvaluateExceptionUtil.createEvaluateException("Cannot evaluate method")
+        case _ =>
+          val argEvaluators: Seq[Evaluator] = arguments.map(arg => {
+            arg.accept(this)
+            myResult
+          })
+          qualOption match {
+            case Some(qual) =>
+              qual.accept(this)
+              val name = NameTransformer.encode(ref.refName)
+              myResult = new ScalaMethodEvaluator(myResult, name, null, argEvaluators, false, None, Set.empty)
+            case None =>
+              val evaluator = new ScalaThisEvaluator()
+              val name = NameTransformer.encode(ref.refName)
+              myResult = new ScalaMethodEvaluator(evaluator, name, null, argEvaluators, false, None, Set.empty)
+          }
       }
     }
 
