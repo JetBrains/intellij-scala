@@ -26,6 +26,23 @@ class ScalaExpressionsEvaluator extends ScalaDebuggerTestCase {
       evalEquals("!u", "false")
     }
   }
+
+  def testTupleExpr() {
+    myFixture.addFileToProject("Sample.scala",
+      """
+      |object Sample {
+      |  def main(args: Array[String]) {
+      |    "stop here"
+      |  }
+      |}
+      """.stripMargin.trim()
+    )
+    addBreakpoint("Sample.scala", 2)
+    runDebugger("Sample") {
+      waitForBreakpoint()
+      evalEquals("(1, 2, 3)", "(1,2,3)")
+    }
+  }
   
   def testAssignment() {
     myFixture.addFileToProject("Sample.scala",

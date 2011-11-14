@@ -10,6 +10,9 @@ import api.expr._
 import types._
 import result.{TypeResult, TypingContext, Success}
 import java.lang.String
+import api.ScalaElementVisitor
+import com.intellij.psi.PsiElementVisitor
+
 /**
  * @author ilyas, Alexander Podkhalyuzin
  */
@@ -29,6 +32,17 @@ class ScTupleImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScTuple 
         call.possibleApplications
       }
       case _ => Array.empty //todo: constructor
+    }
+  }
+
+  override def accept(visitor: ScalaElementVisitor) {
+    visitor.visitTupleExpr(this)
+  }
+
+  override def accept(visitor: PsiElementVisitor) {
+    visitor match {
+      case visitor: ScalaElementVisitor => visitor.visitTupleExpr(this)
+      case _ => super.accept(visitor)
     }
   }
 }
