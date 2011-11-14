@@ -550,6 +550,12 @@ object ScalaPsiElementFactory {
             var res: String = ""
             res += (if (typeParam.isContravariant) "-" else if (typeParam.isCovariant) "+" else "")
             res += typeParam.getName
+            typeParam.typeParametersClause match {
+              case None =>
+              case Some(x) =>
+                val nestedTypeParamClauseText = x.typeParameters.map(get).mkString("[", ",", "]")
+                res += nestedTypeParamClauseText
+            }
             typeParam.lowerBound foreach {
               case psi.types.Nothing =>
               case x => res =  res + " >: " + ScType.canonicalText(substitutor.subst(x))
