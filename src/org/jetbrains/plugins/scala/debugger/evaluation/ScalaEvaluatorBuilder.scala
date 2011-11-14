@@ -723,6 +723,8 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
               val i = implicitParameters.indexOf(param)
               expr.findImplicitParameters match {
                 case Some(s) if s.length == implicitParameters.length =>
+                  if (s(i) == null)
+                    throw EvaluateExceptionUtil.createEvaluateException("cannot find implicit parameters to pass")
                   s(i) match {
                     case ScalaResolveResult(clazz: ScTrait, substitutor)
                       if clazz.getQualifiedName == "scala.reflect.ClassManifest" =>
@@ -771,8 +773,6 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
                         case _ =>
                           throw EvaluateExceptionUtil.createEvaluateException("cannot find implicit parameters to pass")
                       }
-                    case null =>
-                      throw EvaluateExceptionUtil.createEvaluateException("cannot find implicit parameters to pass")
                     case ScalaResolveResult(param, _) =>
                       val context = ScalaPsiUtil.nameContext(param)
                       val clazz = context.getContext match {
