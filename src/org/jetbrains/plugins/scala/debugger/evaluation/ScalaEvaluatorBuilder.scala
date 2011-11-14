@@ -643,6 +643,17 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
                   return
                 case _ =>
                   qual.accept(this)
+                  r.getActualElement match {
+                    case o: ScObject if funName == "apply" =>
+                      if (isStable(o)) {
+                        myResult = stableObjectEvaluator(o)
+                      } else {
+                        val objName = NameTransformer.encode(o.getName)
+                        myResult = new ScalaMethodEvaluator(myResult, objName, null /* todo? */, Seq.empty, false,
+                          traitImplementation(o), DebuggerUtil.getSourcePositions(resolve.getNavigationElement))
+                      }
+                    case _ =>
+                  }
                   val name = NameTransformer.encode(funName)
                   val signature = resolve match {
                     case fun: ScFunction => DebuggerUtil.getFunctionJVMSignature(fun)
@@ -663,7 +674,18 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
                 //todo:
                 throw EvaluateExceptionUtil.createEvaluateException("Evaluation of imported functions is not supported")
               } else {
-                val evaluator = thisEvaluator(r)
+                var evaluator = thisEvaluator(r)
+                r.getActualElement match {
+                  case o: ScObject if funName == "apply" =>
+                    if (isStable(o)) {
+                      evaluator = stableObjectEvaluator(o)
+                    } else {
+                      val objName = NameTransformer.encode(o.getName)
+                      evaluator = new ScalaMethodEvaluator(evaluator, objName, null /* todo? */, Seq.empty, false,
+                        traitImplementation(o), DebuggerUtil.getSourcePositions(resolve.getNavigationElement))
+                    }
+                  case _ =>
+                }
                 val name = NameTransformer.encode(funName)
                 val signature = resolve match {
                   case fun: ScFunction => DebuggerUtil.getFunctionJVMSignature(fun)
