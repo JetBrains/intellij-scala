@@ -19,6 +19,7 @@ import com.intellij.psi.util._
 import icons._
 import impl.source.HierarchicalMethodSignatureImpl
 import lexer._
+import scope.PsiScopeProcessor
 import tree.TokenSet
 import types._
 import api.statements._
@@ -29,6 +30,7 @@ import toplevel.synthetic.{SyntheticClasses, JavaIdentifier}
 import fake.{FakePsiTypeParameterList}
 import collection.mutable.ArrayBuffer
 import api.toplevel.typedef.{ScTypeDefinition, ScMember}
+import com.intellij.openapi.progress.ProgressManager
 
 /**
  * @author ilyas
@@ -223,6 +225,33 @@ abstract class ScFunctionImpl extends ScalaStubBasedElementImpl[ScFunction] with
   override def setName(name: String): PsiElement = {
     if (isConstructor) this
     else super.setName(name)
+  }
+
+
+  override def processDeclarations(processor: PsiScopeProcessor, state: ResolveState,
+                                   lastParent: PsiElement, place: PsiElement): Boolean = {
+    // process function's process type parameters
+    if (!super[ScTypeParametersOwner].processDeclarations(processor, state, lastParent, place)) return false
+
+    lazy val parameterIncludingSynthetic: Seq[ScParameter] = effectiveParameterClauses.flatMap(_.parameters)
+    if (getStub == null) {
+      returnTypeElement match {
+        case Some(x) if lastParent != null && x.getStartOffsetInParent == lastParent.getStartOffsetInParent =>
+          for (p <- parameterIncludingSynthetic) {
+            ProgressManager.checkCanceled()
+            if (!processor.execute(p, state)) return false
+          }
+        case _ =>
+      }
+    } else {
+      if (lastParent != null && lastParent.getContext != lastParent.getParent) {
+        for (p <- parameterIncludingSynthetic) {
+          ProgressManager.checkCanceled()
+          if (!processor.execute(p, state)) return false
+        }
+      }
+    }
+    true
   }
 
   override def getOriginalElement: PsiElement = {
