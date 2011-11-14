@@ -1398,6 +1398,13 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
       super.visitVariableDefinition(varr)
     }
 
+    override def visitTupleExpr(tuple: ScTuple) {
+      val exprText = "_root_.scala.Tuple" + tuple.exprs.length + tuple.exprs.map(_.getText).mkString("(", ", ", ")")
+      val expr = ScalaPsiElementFactory.createExpressionWithContextFromText(exprText, tuple.getContext, tuple)
+      expr.accept(this)
+      super.visitTupleExpr(tuple)
+    }
+
     override def visitPatternDefinition(pat: ScPatternDefinition) {
       throw EvaluateExceptionUtil.createEvaluateException("Evaluation of values is not supported")
       super.visitPatternDefinition(pat)
