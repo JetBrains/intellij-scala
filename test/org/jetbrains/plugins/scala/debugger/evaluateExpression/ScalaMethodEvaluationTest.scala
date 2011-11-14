@@ -394,4 +394,27 @@ class ScalaMethodEvaluationTest extends ScalaDebuggerTestCase {
       evalEquals("moo(1)(\"a\")", "2")
     }
   }
+
+  def testCaseClasses() {
+    myFixture.addFileToProject("com/Sample.scala",
+      """
+      |package com
+      |case class A(x: Int)
+      |object Sample {
+      |  case class B(x: Int)
+      |  def main(args: Array[String]) {
+      |    "stop here"
+      |  }
+      |}
+      """.stripMargin.trim()
+    )
+    addBreakpoint("com/Sample.scala", 5)
+    runDebugger("com.Sample") {
+      waitForBreakpoint()
+      evalEquals("A(1)", "A(1)")
+      evalEquals("A.apply(1)", "A(1)")
+      evalEquals("B(1)", "B(1)")
+      evalEquals("B.apply(1)", "B(1)")
+    }
+  }
 }
