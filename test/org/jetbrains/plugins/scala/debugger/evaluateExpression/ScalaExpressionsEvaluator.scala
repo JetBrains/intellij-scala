@@ -43,6 +43,33 @@ class ScalaExpressionsEvaluator extends ScalaDebuggerTestCase {
       evalEquals("(1, 2, 3)", "(1,2,3)")
     }
   }
+
+  def testSmartBoxing() {
+    myFixture.addFileToProject("Sample.scala",
+      """
+      |object Sample {
+      |  def foo[T](x: T)(y: T) = x
+      |  def main(args: Array[String]) {
+      |    val tup = (1, 2)
+      |    "stop here"
+      |  }
+      |  def test(tup: (Int,  Int)) = tup._1
+      |  def test2(tup: Tuple2[Int,  Int]) = tup._2
+      |}
+      """.stripMargin.trim()
+    )
+    addBreakpoint("Sample.scala", 4)
+    runDebugger("Sample") {
+      waitForBreakpoint()
+      evalEquals("test(tup)", "1")
+      evalEquals("test((1, 2))", "1")
+      evalEquals("test(Tuple2(1, 2))", "1")
+      evalEquals("test2(tup)", "2")
+      evalEquals("test2((1, 2))", "2")
+      evalEquals("test2(Tuple2(1, 2))", "2")
+      evalEquals("foo(1)(2)", "1")
+    }
+  }
   
   def testAssignment() {
     myFixture.addFileToProject("Sample.scala",

@@ -630,6 +630,70 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
       }
     }
 
+
+    private def boxArguments(arguments: Seq[Evaluator], element: PsiElement): Seq[Evaluator] = {
+      element match {
+        case constr: ScPrimaryConstructor =>
+          val res = new ArrayBuffer[Evaluator]
+          var i = 0
+          val params = constr.effectiveParameterClauses.map(_.parameters).flatten
+          while (i < arguments.length) {
+            val evaluator = arguments(i)
+            if (params.length > i) {
+              val param = params(i)
+              import org.jetbrains.plugins.scala.lang.psi.types._
+              res += (param.getType(TypingContext.empty).getOrAny match {
+                case Boolean | Int | Char | Double | Float | Long | Byte | Short => evaluator
+                case _ => boxEvaluator(evaluator)
+              })
+            } else res += evaluator
+            i = i + 1
+          }
+          res.toSeq
+        case fun: ScFunction =>
+          val res = new ArrayBuffer[Evaluator]
+          var i = 0
+          val params = fun.effectiveParameterClauses.map(_.parameters).flatten
+          while (i < arguments.length) {
+            val evaluator = arguments(i)
+            if (params.length > i) {
+              val param = params(i)
+              import org.jetbrains.plugins.scala.lang.psi.types._
+              res += (param.getType(TypingContext.empty).getOrAny match {
+                case Boolean | Int | Char | Double | Float | Long | Byte | Short => evaluator
+                case _ => boxEvaluator(evaluator)
+              })
+            } else res += evaluator
+            i = i + 1
+          }
+          res.toSeq
+        case method: PsiMethod =>
+          val res = new ArrayBuffer[Evaluator]
+          var i = 0
+          val params = method.getParameterList.getParameters
+          while (i < arguments.length) {
+            val evaluator = arguments(i)
+            if (params.length > i) {
+              val param = params(i)
+              res += (param.getType match {
+                case PsiType.BOOLEAN => evaluator
+                case PsiType.INT => evaluator
+                case PsiType.CHAR => evaluator
+                case PsiType.DOUBLE => evaluator
+                case PsiType.FLOAT => evaluator
+                case PsiType.LONG => evaluator
+                case PsiType.BYTE => evaluator
+                case PsiType.SHORT => evaluator
+                case _ => boxEvaluator(evaluator)
+              })
+            } else res += evaluator
+            i = i + 1
+          }
+          res.toSeq
+        case _ => arguments
+      }
+    }
+
     private def functionEvaluator(qualOption: Option[ScExpression], ref: ScReferenceExpression,
                                   replaceWithImplicit: (String) => ScExpression, funName: String,
                                   argEvaluators: Seq[Evaluator], resolve: PsiElement) {
@@ -664,7 +728,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
                     case fun: ScFunction => DebuggerUtil.getFunctionJVMSignature(fun)
                     case _ => null
                   }
-                  myResult = new ScalaMethodEvaluator(myResult, name, signature , argEvaluators, false,
+                  myResult = new ScalaMethodEvaluator(myResult, name, signature, boxArguments(argEvaluators, resolve), false,
                     traitImplementation(resolve), DebuggerUtil.getSourcePositions(resolve.getNavigationElement))
                   return
               }
@@ -696,7 +760,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
                   case fun: ScFunction => DebuggerUtil.getFunctionJVMSignature(fun)
                   case _ => null
                 }
-                myResult = new ScalaMethodEvaluator(evaluator, name, signature, argEvaluators, false,
+                myResult = new ScalaMethodEvaluator(evaluator, name, signature, boxArguments(argEvaluators, resolve), false,
                   traitImplementation(resolve), DebuggerUtil.getSourcePositions(resolve.getNavigationElement))
                 return
               }
@@ -888,17 +952,14 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
             argumentEvaluators(fun, matchedParameters, expr, qualOption, ref, replaceWithImplicit, resolve, arguments)
           functionEvaluator(qualOption, ref, replaceWithImplicit, fun.name, argEvaluators, resolve)
         case method: PsiMethod => //here you can use just arguments
-          val argEvaluators: Seq[Evaluator] = arguments.map(arg => {
-            arg.accept(this)
-            myResult
-          })
           qualOption match {
             case Some(qual) =>
               if (method.hasModifierProperty("static")) {
                 val eval =
                   new TypeEvaluator(JVMNameUtil.getContextClassJVMQualifiedName(SourcePosition.createFromElement(method)))
                 val name = method.getName
-                myResult = new ScalaMethodEvaluator(eval, name, JVMNameUtil.getJVMSignature(method), argEvaluators,
+
+                myResult = new ScalaMethodEvaluator(eval, name, JVMNameUtil.getJVMSignature(method), boxArguments(argEvaluators, method),
                   false, traitImplementation(resolve), DebuggerUtil.getSourcePositions(resolve.getNavigationElement))
                 return
               } else {
@@ -912,7 +973,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
                         qual.accept(this)
                         val name = method.getName
                         myResult = new ScalaMethodEvaluator(myResult, name, JVMNameUtil.getJVMSignature(method),
-                          argEvaluators, false,
+                          boxArguments(argEvaluators, method), false,
                           traitImplementation(resolve), DebuggerUtil.getSourcePositions(resolve.getNavigationElement))
                         return
                     }
@@ -929,7 +990,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
                     val evaluator = thisEvaluator(r)
                     val name = method.getName
                     myResult = new ScalaMethodEvaluator(evaluator, name, JVMNameUtil.getJVMSignature(method),
-                      argEvaluators, false,
+                      boxArguments(argEvaluators, method), false,
                       traitImplementation(resolve), DebuggerUtil.getSourcePositions(resolve.getNavigationElement))
                     return
                   }
@@ -1461,7 +1522,8 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
                             case clazz: PsiClass => JVMNameUtil.getJVMRawText("()V")
                             case _ => JVMNameUtil.getJVMRawText("()V")
                           }
-                          myResult = new ScalaMethodEvaluator(typeEvaluator, "<init>", methodSignature, argumentEvaluators, false, None,
+                          myResult = new ScalaMethodEvaluator(typeEvaluator, "<init>", methodSignature,
+                            boxArguments(argumentEvaluators, named), false, None,
                             Set.empty)
                         case _ =>
                           myResult = new ScalaMethodEvaluator(typeEvaluator, "<init>", null, argumentEvaluators, false, None,
