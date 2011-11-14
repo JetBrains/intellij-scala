@@ -1191,184 +1191,180 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
         throw EvaluateExceptionUtil.createEvaluateException("Cannot load local variable from anonymous class")
       }
 
-      if (isLocalValue && isInsideLocalFunction(ref) == None) {
-        calcLocal
-        return
-      } else if (isLocalValue) {
-        val fun = isInsideLocalFunction(ref).get
-        val contextClass = getContextClass(fun)
-        if (PsiTreeUtil.isContextAncestor(contextClass, resolve, true)) {
-          val pCount = paramCount(fun, contextClass, resolve)
-          val context = getContextClass
-          if (context != contextClass) {
-            calcLocal
-            return
-          } else {
-            val name = NameTransformer.encode(resolve.asInstanceOf[PsiNamedElement].getName)
-            val evaluator = new ScalaLocalVariableEvaluator(name, true)
-            //it's simple, let's take parameter
-            evaluator.setParameterIndex(pCount)
-            myResult = evaluator
+      resolve match {
+        case _ if isLocalValue && isInsideLocalFunction(ref) == None =>
+          calcLocal
+        case _ if isLocalValue =>
+          val fun = isInsideLocalFunction(ref).get
+          val contextClass = getContextClass(fun)
+          if (PsiTreeUtil.isContextAncestor(contextClass, resolve, true)) {
+            val pCount = paramCount(fun, contextClass, resolve)
+            val context = getContextClass
+            if (context != contextClass) {
+              calcLocal
+            } else {
+              val name = NameTransformer.encode(resolve.asInstanceOf[PsiNamedElement].getName)
+              val evaluator = new ScalaLocalVariableEvaluator(name, true)
+              //it's simple, let's take parameter
+              evaluator.setParameterIndex(pCount)
+              myResult = evaluator
+            }
+          } else calcLocal
+        case o: ScObject =>
+          val obj = resolve.asInstanceOf[ScObject]
+          //here we have few possibilities
+          //1. top level object
+          if (isStable(obj)) {
+            myResult = stableObjectEvaluator(obj)
             return
           }
-        } else {
-          calcLocal
-          return
-        }
-      } else if (resolve.isInstanceOf[ScObject]) {
-        val obj = resolve.asInstanceOf[ScObject]
-        //here we have few possibilities
-        //1. top level object
-        if (isStable(obj)) {
-          myResult = stableObjectEvaluator(obj)
-          return
-        }
-        //2. object on reference
-        //3. object on implicit reference
-        qualifier match {
-          case Some(qual) =>
-            ref.bind() match {
-              case Some(r: ScalaResolveResult) =>
-                r.implicitFunction match {
-                  case Some(fun) =>
-                    replaceWithImplicitFunction(fun, qual, replaceWithImplicit)
-                    return
-                  case _ =>
-                    qual.accept(this)
-                    val name = NameTransformer.encode(obj.getName)
-                    myResult = new ScalaMethodEvaluator(myResult, name, null /* todo? */, Seq.empty, false,
-                      traitImplementation(resolve), DebuggerUtil.getSourcePositions(resolve.getNavigationElement))
-                    return
-                }
-              case _ => //resolve not null => shouldn't be
-            }
-          case None => 
-            ref.bind() match {
-              case Some(r: ScalaResolveResult) =>
-                if (!r.importsUsed.isEmpty) {
-                  //todo:
-                  throw EvaluateExceptionUtil.createEvaluateException("Evaluation of imported objects is not supported")
-                } else {
-                  val evaluator = thisEvaluator(r)
-                  val name = NameTransformer.encode(obj.getName)
-                  myResult = new ScalaMethodEvaluator(evaluator, name, null /* todo? */, Seq.empty, false,
-                    traitImplementation(resolve), DebuggerUtil.getSourcePositions(resolve.getNavigationElement))
-                  return
-                }
-              case _ => //resolve not null => shouldn't be
-            }
-        }
-        throw EvaluateExceptionUtil.createEvaluateException("Cannot evaluate object")
-      } else if (resolve.isInstanceOf[ScFunction]) {
-        visitCall(ref, qualifier, Nil, replaceWithImplicit, Map.empty, ref)
-        return
-      } else if (resolve.isInstanceOf[PsiMethod]) {
-        visitCall(ref, qualifier, Nil, replaceWithImplicit, Map.empty, ref)
-        return
-      } else if (resolve.isInstanceOf[ScSyntheticFunction]) {
-        visitCall(ref, qualifier, Nil, replaceWithImplicit, Map.empty, ref)
-        return
-      } else if (resolve.isInstanceOf[ScClassParameter] || resolve.isInstanceOf[ScBindingPattern]) {
-        //this is scala "field"
-        val named = resolve.asInstanceOf[ScNamedElement]
-        qualifier match {
-          case Some(qual) =>
-            ref.bind() match {
-              case Some(r: ScalaResolveResult) =>
-                r.implicitFunction match {
-                  case Some(fun) =>
-                    replaceWithImplicitFunction(fun, qual, replaceWithImplicit)
-                    return
-                  case _ =>
-                    qual.accept(this)
-                    val name = NameTransformer.encode(named.name)
-                    myResult = new ScalaMethodEvaluator(myResult, name, null /* todo */, Seq.empty, false,
-                      traitImplementation(resolve), DebuggerUtil.getSourcePositions(resolve.getNavigationElement))
-                    return
-                }
-              case None =>
-            }
-          case None =>
-            ref.bind() match {
-              case Some(r: ScalaResolveResult) =>
-                if (!r.importsUsed.isEmpty) {
-                  //todo:
-                  throw EvaluateExceptionUtil.createEvaluateException("Evaluation of imported fields is not supported")
-                } else {
-                  val evaluator = thisEvaluator(r)
-                  val name = NameTransformer.encode(named.getName)
-                  myResult = new ScalaMethodEvaluator(evaluator, name, null/* todo */, Seq.empty, false,
-                    traitImplementation(resolve), DebuggerUtil.getSourcePositions(resolve.getNavigationElement))
-                  return
-                }
-              case None =>
-            }
-        }
-
-        throw EvaluateExceptionUtil.createEvaluateException("Cannot evaluate value")
-      } else if (resolve.isInstanceOf[PsiField]) {
-        val field = resolve.asInstanceOf[PsiField]
-        qualifier match {
-          case Some(qual) =>
-            if (field.hasModifierProperty("static")) {
-              val eval =
-                new TypeEvaluator(JVMNameUtil.getContextClassJVMQualifiedName(SourcePosition.createFromElement(field)))
-              val name = field.getName
-              myResult = new ScalaFieldEvaluator(eval, ref => true,name)
-              return
-            } else {
+          //2. object on reference
+          //3. object on implicit reference
+          qualifier match {
+            case Some(qual) =>
               ref.bind() match {
                 case Some(r: ScalaResolveResult) =>
                   r.implicitFunction match {
                     case Some(fun) =>
                       replaceWithImplicitFunction(fun, qual, replaceWithImplicit)
-                      return
                     case _ =>
                       qual.accept(this)
-                      val name = field.getName
-                      myResult = new ScalaFieldEvaluator(myResult,
-                        ScalaFieldEvaluator.getFilter(getContainingClass(field)), name)
-                      return
+                      val name = NameTransformer.encode(obj.getName)
+                      myResult = new ScalaMethodEvaluator(myResult, name, null /* todo? */, Seq.empty, false,
+                        traitImplementation(resolve), DebuggerUtil.getSourcePositions(resolve.getNavigationElement))
                   }
-                case _ => //resolve not null => shouldn't be
               }
-            }
-          case None =>
-            ref.bind() match {
-              case Some(r: ScalaResolveResult) =>
-                if (!r.importsUsed.isEmpty) {
-                  //todo:
-                  throw EvaluateExceptionUtil.createEvaluateException("Evaluation of imported fileds is not supported")
-                } else {
-                  val evaluator = thisEvaluator(r)
-                  val name = field.getName
-                  myResult = new ScalaFieldEvaluator(evaluator,
-                    ScalaFieldEvaluator.getFilter(getContainingClass(field)), name)
-                  return
+            case None =>
+              ref.bind() match {
+                case Some(r: ScalaResolveResult) =>
+                  if (!r.importsUsed.isEmpty) {
+                    //todo:
+                    throw EvaluateExceptionUtil.createEvaluateException("Evaluation of imported objects is not supported")
+                  } else {
+                    val evaluator = thisEvaluator(r)
+                    val name = NameTransformer.encode(obj.getName)
+                    myResult = new ScalaMethodEvaluator(evaluator, name, null /* todo? */, Seq.empty, false,
+                      traitImplementation(resolve), DebuggerUtil.getSourcePositions(resolve.getNavigationElement))
+                  }
+              }
+          }
+        case _: PsiMethod | _: ScSyntheticFunction =>
+          visitCall(ref, qualifier, Nil, replaceWithImplicit, Map.empty, ref)
+        case c: ScClassParameter if c.isPrivateThis =>
+          //this is field if it's used outside of initialization
+          //name of this field ends with $$ + c.getName
+          //this is scala "field"
+          val named = resolve.asInstanceOf[ScNamedElement]
+          qualifier match {
+            case Some(qual) =>
+              ref.bind() match {
+                case Some(r: ScalaResolveResult) =>
+                  r.implicitFunction match {
+                    case Some(fun) =>
+                      replaceWithImplicitFunction(fun, qual, replaceWithImplicit)
+                    case _ =>
+                      qual.accept(this)
+                      val name = NameTransformer.encode(named.name)
+                      myResult = new ScalaFieldEvaluator(myResult, _ => true, name, true)
+                  }
+              }
+            case None =>
+              ref.bind() match {
+                case Some(r: ScalaResolveResult) =>
+                  if (!r.importsUsed.isEmpty) {
+                    //todo:
+                    throw EvaluateExceptionUtil.createEvaluateException("Evaluation of imported fields is not supported")
+                  } else {
+                    val evaluator = thisEvaluator(r)
+                    val name = NameTransformer.encode(named.getName)
+                    myResult = new ScalaFieldEvaluator(evaluator, _ => true, name, true)
+                  }
+              }
+          }
+        case _: ScClassParameter | _: ScBindingPattern =>
+          //this is scala "field"
+          val named = resolve.asInstanceOf[ScNamedElement]
+          qualifier match {
+            case Some(qual) =>
+              ref.bind() match {
+                case Some(r: ScalaResolveResult) =>
+                  r.implicitFunction match {
+                    case Some(fun) =>
+                      replaceWithImplicitFunction(fun, qual, replaceWithImplicit)
+                    case _ =>
+                      qual.accept(this)
+                      val name = NameTransformer.encode(named.name)
+                      myResult = new ScalaMethodEvaluator(myResult, name, null /* todo */, Seq.empty, false,
+                        traitImplementation(resolve), DebuggerUtil.getSourcePositions(resolve.getNavigationElement))
+                  }
+              }
+            case None =>
+              ref.bind() match {
+                case Some(r: ScalaResolveResult) =>
+                  if (!r.importsUsed.isEmpty) {
+                    //todo:
+                    throw EvaluateExceptionUtil.createEvaluateException("Evaluation of imported fields is not supported")
+                  } else {
+                    val evaluator = thisEvaluator(r)
+                    val name = NameTransformer.encode(named.getName)
+                    myResult = new ScalaMethodEvaluator(evaluator, name, null/* todo */, Seq.empty, false,
+                      traitImplementation(resolve), DebuggerUtil.getSourcePositions(resolve.getNavigationElement))
+                  }
+              }
+          }
+        case field: PsiField =>
+          qualifier match {
+            case Some(qual) =>
+              if (field.hasModifierProperty("static")) {
+                val eval =
+                  new TypeEvaluator(JVMNameUtil.getContextClassJVMQualifiedName(SourcePosition.createFromElement(field)))
+                val name = field.getName
+                myResult = new ScalaFieldEvaluator(eval, ref => true,name)
+              } else {
+                ref.bind() match {
+                  case Some(r: ScalaResolveResult) =>
+                    r.implicitFunction match {
+                      case Some(fun) =>
+                        replaceWithImplicitFunction(fun, qual, replaceWithImplicit)
+                      case _ =>
+                        qual.accept(this)
+                        val name = field.getName
+                        myResult = new ScalaFieldEvaluator(myResult,
+                          ScalaFieldEvaluator.getFilter(getContainingClass(field)), name)
+                    }
                 }
-              case _ => //resolve not null => shouldn't be
-            }
-        }
-      } else if (resolve.isInstanceOf[ScPackage]) {
-        val pack = resolve.asInstanceOf[ScPackage]
-        //let's try to find package object:
-        val qual = (pack.getQualifiedName + ".package$").split('.').map(NameTransformer.encode(_)).mkString(".")
-        myResult = stableObjectEvaluator(qual)
-      } else {
-        //unresolved symbol => try to resolve it dynamically
-        val name = NameTransformer.encode(ref.refName)
-        qualifier match {
-          case Some(qual) =>
-            qual.accept(this)
-            if (myResult == null) {
-              throw EvaluateExceptionUtil.createEvaluateException("Cannot evaluate unresolved reference expression")
-            }
-            myResult = new ScalaFieldEvaluator(myResult, ref => true, name)
-            return
-          case None =>
-            myResult = new ScalaLocalVariableEvaluator(name, false)
-            return
-        }
+              }
+            case None =>
+              ref.bind() match {
+                case Some(r: ScalaResolveResult) =>
+                  if (!r.importsUsed.isEmpty) {
+                    //todo:
+                    throw EvaluateExceptionUtil.createEvaluateException("Evaluation of imported fileds is not supported")
+                  } else {
+                    val evaluator = thisEvaluator(r)
+                    val name = field.getName
+                    myResult = new ScalaFieldEvaluator(evaluator,
+                      ScalaFieldEvaluator.getFilter(getContainingClass(field)), name)
+                  }
+              }
+          }
+        case pack: ScPackage =>
+          //let's try to find package object:
+          val qual = (pack.getQualifiedName + ".package$").split('.').map(NameTransformer.encode(_)).mkString(".")
+          myResult = stableObjectEvaluator(qual)
+        case _ =>
+          //unresolved symbol => try to resolve it dynamically
+          val name = NameTransformer.encode(ref.refName)
+          qualifier match {
+            case Some(qual) =>
+              qual.accept(this)
+              if (myResult == null) {
+                throw EvaluateExceptionUtil.createEvaluateException("Cannot evaluate unresolved reference expression")
+              }
+              myResult = new ScalaFieldEvaluator(myResult, ref => true, name)
+            case None =>
+              myResult = new ScalaLocalVariableEvaluator(name, false)
+          }
       }
     }
 

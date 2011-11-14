@@ -44,6 +44,15 @@ class ScClassParameterImpl(node: ASTNode) extends ScParameterImpl(node) with ScC
     findChildByType(ScalaTokenTypes.kVAR) != null
   }
 
+  def isPrivateThis: Boolean = {
+    if (!isEffectiveVal) return true
+    getModifierList.accessModifier match {
+      case Some(am) =>
+        am.isThis && am.isPrivate
+      case _ => false
+    }
+  }
+
   override def isStable: Boolean = {
     val stub = getStub
     if (stub != null) {

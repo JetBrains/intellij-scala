@@ -5,8 +5,6 @@ package api
 package statements
 package params
 
-import base.ScModifierList
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import toplevel.ScModifierListOwner
 import toplevel.typedef.{ScClass, ScMember}
 
@@ -16,8 +14,9 @@ import toplevel.typedef.{ScClass, ScMember}
 */
 
 trait ScClassParameter extends ScParameter with ScModifierListOwner with ScMember {
-  def isVal : Boolean
-  def isVar : Boolean
+  def isVal: Boolean
+  def isVar: Boolean
+  def isPrivateThis: Boolean
 
   /** Is the parmameter is explicitly marked as a val or a var; or a case class parameter that is automatically a val. */
   def isEffectiveVal = isVal || isVar || isCaseClassVal
