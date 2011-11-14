@@ -6,7 +6,7 @@ package org.jetbrains.plugins.scala.debugger.evaluateExpression
  */
 
 class ScalaMethodEvaluationTest extends ScalaDebuggerTestCase {
-  def testBigInt() {
+  def testBigIntAndSorted() {
     myFixture.addFileToProject("Sample.scala",
       """
       |object Sample {
@@ -20,6 +20,7 @@ class ScalaMethodEvaluationTest extends ScalaDebuggerTestCase {
     runDebugger("Sample") {
       waitForBreakpoint()
       evalStartsWith("BigInt(2)", "2")
+      evalEquals("Seq(4, 3, 2, 1).sorted", "List(1, 2, 3, 4)")
     }
   }
 
