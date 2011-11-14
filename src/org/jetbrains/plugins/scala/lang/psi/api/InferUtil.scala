@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult, T
 import org.jetbrains.plugins.scala.lang.psi.types._
 import nonvalue.{Parameter, ScMethodType, ScTypePolymorphicType}
 import toplevel.typedef.ScObject
-import com.intellij.psi.{PsiClass, PsiElement}
+import com.intellij.psi.PsiElement
 
 /**
  * @author Alexander Podkhalyuzin
@@ -94,7 +94,17 @@ object InferUtil {
                 case _ => throw new SafeCheckException
               }
             } else {
-              resolveResults += null
+              //check if it's ClassManifest parameter:
+              paramType match {
+                case p@ScParameterizedType(des, Seq(arg)) =>
+                  ScType.extractClass(des) match {
+                    case Some(clazz) if clazz.getQualifiedName == "scala.reflect.ClassManifest" =>
+                      //do not throw, it's safe
+                      resolveResults += new ScalaResolveResult(clazz, p.substitutor)
+                    case _ => resolveResults += null
+                  }
+                case _ => resolveResults += null
+              }
             }
             exprs += new Expression(Any)
           }
@@ -118,7 +128,17 @@ object InferUtil {
           if (results.length == 1) {
             resolveResults += results(0)
           } else {
-            resolveResults += null
+            //check if it's ClassManifest parameter:
+            paramType match {
+              case p@ScParameterizedType(des, Seq(arg)) =>
+                ScType.extractClass(des) match {
+                  case Some(clazz) if clazz.getQualifiedName == "scala.reflect.ClassManifest" =>
+                    //do not throw, it's safe
+                    resolveResults += new ScalaResolveResult(clazz, p.substitutor)
+                  case _ => resolveResults += null
+                }
+              case _ => resolveResults += null
+            }
           }
         }
         implicitParameters = Some(resolveResults.toSeq)

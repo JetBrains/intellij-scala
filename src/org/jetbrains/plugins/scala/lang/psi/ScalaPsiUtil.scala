@@ -13,7 +13,7 @@ import com.intellij.psi.scope.PsiScopeProcessor
 import api.toplevel.templates.ScTemplateBody
 import api.toplevel.typedef._
 import impl.expr.ScBlockExprImpl
-import impl.toplevel.typedef.{MixinNodes, TypeDefinitionMembers}
+import impl.toplevel.typedef.TypeDefinitionMembers
 import impl.{ScalaPsiManager, ScalaPsiElementFactory}
 import implicits.ScImplicitlyConvertible
 import com.intellij.openapi.progress.ProgressManager
@@ -42,7 +42,7 @@ import lang.resolve.processor._
 import lang.resolve.{ResolveTargets, ResolveUtils, ScalaResolveResult}
 import com.intellij.psi.impl.light.LightModifierList
 import collection.mutable.{HashSet, ArrayBuffer}
-import collection.immutable.{HashMap, Stream}
+import collection.immutable.Stream
 import com.intellij.psi.impl.source.PsiFileImpl
 import com.intellij.psi.stubs.StubElement
 import org.jetbrains.plugins.scala.extensions._
@@ -59,6 +59,7 @@ object ScalaPsiUtil {
   def withEtaExpansion(expr: ScExpression): Boolean = {
     expr.getContext match {
       case call: ScMethodCall => false
+      case g: ScGenericCall => withEtaExpansion(g)
       case p: ScParenthesisedExpr => withEtaExpansion(p)
       case _ => true
     }
