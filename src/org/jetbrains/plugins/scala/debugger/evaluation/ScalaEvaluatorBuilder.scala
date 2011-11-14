@@ -957,6 +957,11 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
       }
     }
 
+    override def visitTypedStmt(stmt: ScTypedStmt) {
+      stmt.expr.accept(this)
+      super.visitTypedStmt(stmt)
+    }
+
     override def visitMethodCallExpression(parentCall: ScMethodCall) {
       def collectArguments(call: ScMethodCall, collected: Seq[ScExpression] = Seq.empty, tailString: String = "",
                            matchedParameters: Map[Parameter, Seq[ScExpression]] = Map.empty) {
