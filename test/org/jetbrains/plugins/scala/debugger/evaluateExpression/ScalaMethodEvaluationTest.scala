@@ -277,6 +277,28 @@ class ScalaMethodEvaluationTest extends ScalaDebuggerTestCase {
       evalStartsWith("scala.collection.mutable.ArrayBuffer.newBuilder", "ArrayBuffer()")
     }
   }
+  
+  def testDynamicFunctionApplication() {
+    myFixture.addFileToProject("Sample.scala",
+      """
+      |class A
+      |class B extends A {
+      |  def foo() = 1
+      |}
+      |object Sample {
+      |  def main(args: Array[String]) {
+      |    val a: A = new B
+      |    "stop here"
+      |  }
+      |}
+      """.stripMargin.trim()
+    )
+    addBreakpoint("Sample.scala", 7)
+    runDebugger("Sample") {
+      waitForBreakpoint()
+      evalEquals("a.foo()", "1")
+    }
+  }
 
   def testSubstringFunction() {
     myFixture.addFileToProject("Sample.scala",
