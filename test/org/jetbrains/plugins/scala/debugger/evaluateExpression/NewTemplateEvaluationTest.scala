@@ -56,7 +56,7 @@ class NewTemplateEvaluationTest extends ScalaDebuggerTestCase {
       |}
       """.stripMargin.trim()
     )
-    addBreakpoint("Sample.scala", 3)
+    addBreakpoint("Sample.scala", 7)
     runDebugger("Sample") {
       waitForBreakpoint()
       evalStartsWith("new Expr(\"\")", "Sample$Expr")
