@@ -46,11 +46,11 @@ import collection.immutable.Stream
 import com.intellij.psi.impl.source.PsiFileImpl
 import com.intellij.psi.stubs.StubElement
 import org.jetbrains.plugins.scala.extensions._
-import java.lang.Exception
 import com.intellij.openapi.module.{ModuleUtil, Module}
 import config.ScalaFacet
 import reflect.NameTransformer
 import caches.CachesUtil
+import java.lang.{AssertionError, Exception}
 
 /**
  * User: Alexander Podkhalyuzin
@@ -812,6 +812,10 @@ object ScalaPsiUtil {
     val t = (sigs.get(element): @unchecked) match {
       //partial match
       case Some(x) => x.supers.map {_.info}
+      case None =>
+        throw new RuntimeException("internal error: could not find type matching: \n%s\n\nin class: \n%s".format(
+        element.getText, clazz.getText
+        ))
     }
     t
   }
