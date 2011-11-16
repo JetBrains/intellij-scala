@@ -269,6 +269,10 @@
       <className>org.jetbrains.plugins.scala.codeInsight.intention.types.ConvertFromInfixIntention</className>
     </intentionAction>
 
+    <intentionAction>
+      <className>org.jetbrains.plugins.scala.codeInsight.intention.types.ConvertImplicitBoundsToImplicitParameter</className>
+    </intentionAction>
+
     <lang.elementManipulator forClass="org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral"
                              implementationClass="org.jetbrains.plugins.scala.injection.ScalaStringLiteralManipulator"/>
 
