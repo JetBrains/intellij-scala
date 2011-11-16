@@ -228,6 +228,7 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
   }
 
   override def getStub: ScFileStub = super[PsiFileBase].getStub match {
+    case null => null
     case s: ScFileStub => s
     case _ =>
       val faultyContainer: VirtualFile = PsiUtilCore.getVirtualFile(this)
