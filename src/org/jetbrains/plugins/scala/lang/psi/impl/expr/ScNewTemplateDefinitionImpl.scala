@@ -19,6 +19,7 @@ import api.toplevel.typedef.ScTemplateDefinition
 import psi.stubs.ScTemplateDefinitionStub
 import icons.Icons
 import types._
+import api.ScalaElementVisitor
 
 /**
 * @author Alexander Podkhalyuzin
@@ -85,5 +86,16 @@ class ScNewTemplateDefinitionImpl private () extends ScalaStubBasedElementImpl[S
 
   override def findMethodsAndTheirSubstitutorsByName(name: String, checkBases: Boolean) = {
     super[ScNewTemplateDefinition].findMethodsAndTheirSubstitutorsByName(name, checkBases)
+  }
+
+  override def accept(visitor: ScalaElementVisitor) {
+    visitor.visitNewTemplateDefinition(this)
+  }
+
+  override def accept(visitor: PsiElementVisitor) {
+    visitor match {
+      case visitor: ScalaElementVisitor => visitor.visitNewTemplateDefinition(this)
+      case _ => super.accept(visitor)
+    }
   }
 }

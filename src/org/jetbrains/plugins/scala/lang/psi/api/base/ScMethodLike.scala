@@ -10,7 +10,7 @@ import toplevel.typedef.{ScTypeDefinition, ScMember}
 import impl.ScalaPsiElementFactory
 import caches.CachesUtil
 import com.intellij.psi.util.PsiModificationTracker
-import statements.params.{ScParameterClause, ScTypeParamClause}
+import statements.params.{ScParameters, ScParameterClause, ScTypeParamClause}
 
 /**
  * A member that can be converted to a ScMethodType, ie a method or a constructor.
@@ -46,6 +46,8 @@ trait ScMethodLike extends ScMember with PsiMethod {
   }
 
   def effectiveParameterClauses: Seq[ScParameterClause]
+
+  def parameterList: ScParameters
 
   private def getConstructorTypeParametersImpl: Option[ScTypeParamClause] = {
     this match {

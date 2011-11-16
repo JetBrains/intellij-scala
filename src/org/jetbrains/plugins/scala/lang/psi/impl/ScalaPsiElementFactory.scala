@@ -43,6 +43,7 @@ import java.lang.ClassCastException
 import com.intellij.util.IncorrectOperationException
 import com.intellij.openapi.project.Project
 import parser.parsing.expressions.{Block, Expr}
+import parser.parsing.base.Import
 
 object ScalaPsiElementFactory {
 
@@ -549,6 +550,12 @@ object ScalaPsiElementFactory {
             var res: String = ""
             res += (if (typeParam.isContravariant) "-" else if (typeParam.isCovariant) "+" else "")
             res += typeParam.getName
+            typeParam.typeParametersClause match {
+              case None =>
+              case Some(x) =>
+                val nestedTypeParamClauseText = x.typeParameters.map(get).mkString("[", ",", "]")
+                res += nestedTypeParamClauseText
+            }
             typeParam.lowerBound foreach {
               case psi.types.Nothing =>
               case x => res =  res + " >: " + ScType.canonicalText(substitutor.subst(x))
@@ -808,6 +815,22 @@ object ScalaPsiElementFactory {
       val res = expr.argumentExpressions.apply(0)
       res.setContext(context, child)
       res
+    } else null
+  }
+
+  def createImportFromTextWithContext(text: String, context: PsiElement, child: PsiElement): ScImportStmt = {
+    val holder: FileElement = DummyHolderFactory.createHolder(context.getManager, context).getTreeElement
+    val builder: ScalaPsiBuilderImpl =
+      new ScalaPsiBuilderImpl(PsiBuilderFactory.getInstance.createBuilder(context.getProject, holder,
+        new ScalaLexer, ScalaFileType.SCALA_LANGUAGE, text)) //Method call is not full to reproduce all possibilities
+    Import.parse(builder)
+    val node = builder.getTreeBuilt
+    holder.rawAddChildren(node.asInstanceOf[TreeElement])
+    val psi = node.getPsi
+    if (psi.isInstanceOf[ScImportStmt]) {
+      val stmt = psi.asInstanceOf[ScImportStmt]
+      stmt.setContext(context, child)
+      stmt
     } else null
   }
 

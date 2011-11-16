@@ -7,9 +7,7 @@ import com.intellij.debugger.ui.DebuggerPanelsManager
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.util.concurrency.Semaphore
-import com.intellij.debugger.ui.impl.watch.WatchItemDescriptor
 import com.intellij.debugger.engine.events.DebuggerContextCommandImpl
-import com.intellij.debugger.ui.tree.render.DescriptorLabelListener
 import org.jetbrains.plugins.scala.util.{ScalaUtils, TestUtils}
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.testFramework.builders.JavaModuleFixtureBuilder
@@ -23,15 +21,14 @@ import org.jetbrains.plugins.scala.ScalaLoader
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticClasses
 import com.intellij.debugger.engine.{ContextUtil, DebuggerUtils, SuspendContextImpl, DebugProcessImpl}
 import com.intellij.debugger.impl._
-import com.intellij.debugger.jdi.StackFrameProxyImpl
 import junit.framework.Assert
 import org.jetbrains.plugins.scala.debugger.evaluation.ScalaCodeFragmentFactory
 import com.intellij.psi.PsiCodeFragment
 import com.intellij.debugger.engine.evaluation._
-import com.intellij.debugger.{DebuggerBundle, DebuggerManagerEx}
+import com.intellij.debugger.DebuggerManagerEx
 import com.intellij.psi.search.GlobalSearchScope
-import expression.{EvaluatorBuilder, EvaluatorBuilderImpl}
-import com.sun.jdi.{VoidValue, ObjectReference}
+import expression.EvaluatorBuilder
+import com.sun.jdi.VoidValue
 
 /**
  * User: Alefas
@@ -44,7 +41,9 @@ abstract class ScalaDebuggerTestCase extends ScalaCompilerTestCase {
       def run() {
         ScalaDebuggerTestCase.super.setUp()
         ScalaLoader.loadScala()
-        SyntheticClasses.get(getProject).registerClasses()
+        val cl = SyntheticClasses.get(getProject)
+        if (!cl.isClassesRegistered)
+          cl.registerClasses()
         PsiTestUtil.addLibrary(myModule, "scala-compiler",
           TestUtils.getTestDataPath.replace("\\", "/") + "/scala-compiler/", "scala-compiler.jar",
           "scala-library.jar")
@@ -186,7 +185,7 @@ abstract class ScalaDebuggerTestCase extends ScalaCompilerTestCase {
   }
 
   protected def evalEquals(codeText: String, expected: String) {
-    Assert.assertEquals(evalResult(codeText), expected)
+    Assert.assertEquals(expected, evalResult(codeText))
   }
 
   protected def evalStartsWith(codeText: String, startsWith: String) {

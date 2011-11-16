@@ -236,6 +236,8 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
 
   def paramClauses: ScParameters
 
+  def parameterList: ScParameters = paramClauses // TODO merge
+
   def isProcedure = paramClauses.clauses.isEmpty
 
   def returnType: TypeResult[ScType]

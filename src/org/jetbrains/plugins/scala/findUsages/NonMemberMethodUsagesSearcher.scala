@@ -8,6 +8,7 @@ import search.{UsageSearchContext, SearchScope, SearchRequestCollector}
 import com.intellij.openapi.application.QueryExecutorBase
 import com.intellij.util.Processor
 import org.jetbrains.annotations.NotNull
+import org.jetbrains.plugins.scala.util.ScalaUtils
 
 /**
  * Searches for scala methods defined inside of local scopes, ie methods for which .getContainingClass == null.
@@ -19,10 +20,13 @@ class NonMemberMethodUsagesSearcher extends QueryExecutorBase[PsiReference, Meth
     val method: PsiMethod = p.getMethod
     val collector: SearchRequestCollector = p.getOptimizer
     val searchScope: SearchScope = p.getScope
-    if (method.isConstructor) {
-      return
+    val newConsumer = new Processor[PsiReference] {
+      def process(t: PsiReference): Boolean = {
+        if (!method.isConstructor) return false
+        consumer.process(t)
+      }
     }
-    ReferencesSearch.searchOptimized(method, searchScope, false, collector, consumer)
+    ReferencesSearch.searchOptimized(method, searchScope, false, collector, newConsumer)
   }
 }
 

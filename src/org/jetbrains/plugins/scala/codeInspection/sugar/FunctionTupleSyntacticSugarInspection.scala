@@ -11,6 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaFile}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSimpleTypeElement, ScInfixTypeElement, ScFunctionalTypeElement, ScParameterizedTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScClassParents, ScTraitParents}
+import extensions._
 
 class FunctionTupleSyntacticSugarInspection extends LocalInspectionTool {
   def getGroupDisplayName: String = InspectionsUtil.SCALA
@@ -83,9 +84,7 @@ object FunctionTupleSyntacticSugarInspection {
           case ft: ScFunctionalTypeElement => true // (Tuple2[A, B]) => B  ==>> ((A, B)) => C
           case _ => false
         }
-        parenthesisedIf(needParens) {
-          "(" + te.typeArgList.getText().drop(1).dropRight(1) + ")"
-        }
+        ("(" + te.typeArgList.getText().drop(1).dropRight(1) + ")").parenthesisedIf(needParens)
       }
       te.replace(createTypeElementFromText(typeTextWithParens, te.getManager))
     }
@@ -107,9 +106,7 @@ object FunctionTupleSyntacticSugarInspection {
           case ft: ScInfixTypeElement => true
           case _ => false
         }
-        parenthesisedIf(returnTypeNeedParens) {
-          returnType.getText
-        }
+        returnType.getText.parenthesisedIf(returnTypeNeedParens)
       }
       val typeTextWithParens = {
         val needParens = te.getContext match {
@@ -118,9 +115,7 @@ object FunctionTupleSyntacticSugarInspection {
           case _: ScConstructor | _: ScTraitParents | _: ScClassParents => true
           case _ => false
         }
-        parenthesisedIf(needParens) {
-          "(" + elemsInParamTypes.map(_.getText).mkString + ") => " + returnTypeTextWithParens
-        }
+        ("(" + elemsInParamTypes.map(_.getText).mkString + ") => " + returnTypeTextWithParens).parenthesisedIf(needParens)
       }
       te.replace(createTypeElementFromText(typeTextWithParens, te.getManager))
     }
@@ -129,8 +124,6 @@ object FunctionTupleSyntacticSugarInspection {
 
     def getFamilyName: String = getName
   }
-
-  def parenthesisedIf(condition: Boolean)(text: String) = if (condition) "(" + text + ")" else text
 }
 
 // TODO: Test

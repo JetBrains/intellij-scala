@@ -1647,7 +1647,7 @@ object Conformance {
                 case _ => return (true, uSubst)
               }
             }
-            val t = conformsInner(l, tp, visited + rClass, uSubst, true)
+            val t = conformsInner(l, tp, visited + rClass, uSubst, false)
             if (t._1) (true, t._2)
             else (false, uSubst)
           }
