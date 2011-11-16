@@ -151,7 +151,7 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
                 nonValueType = ScalaPsiUtil.localTypeInference(nonValueType.internalType,
                   Seq(new Parameter("", expected, false, false, false)),
                     Seq(new Expression(ScalaPsiUtil.undefineSubstitutor(nonValueType.typeParameters).subst(res.inferValueType))),
-                  nonValueType.typeParameters, shouldUndefineParameters = false) //here should work in different way:
+                  nonValueType.typeParameters, shouldUndefineParameters = false, filterTypeParams = false) //here should work in different way:
               }
               val fromUnderscore = c.newTemplate match {
                 case Some(n) => ScUnderScoreSectionUtil.underscores(n).length != 0
@@ -176,11 +176,10 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
           }
 
 
-          val pts = new ScSubstitutor(new HashMap[(String, String), ScType] ++ (typeParameters.map(tp =>
-            ((tp.name, ScalaPsiUtil.getPsiElementId(tp.ptp)),
-                  if (tp.upperType.equiv(Any)) tp.lowerType else if (tp.lowerType.equiv(Nothing)) tp.upperType
-                  else tp.lowerType))),
-            Map.empty, None)
+          val pts = nonValueType match {
+            case t: ScTypePolymorphicType => t.polymorphicTypeSubstitutor
+            case _ => ScSubstitutor.empty
+          }
           pts.subst(nonValueType.internalType) //todo: simple type element should have non value type
         }
         case None => res
