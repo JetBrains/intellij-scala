@@ -147,6 +147,13 @@ class ScSyntheticFunction(manager: PsiManager, val name: String,
                           val retType: ScType, val paramClauses: Seq[Seq[Parameter]],
                           typeParameterNames : Seq[String])
 extends SyntheticNamedElement(manager, name) with ScFun {
+  def isStringPlusMethod: Boolean = {
+    if (name != "+") return false
+    ScType.extractClass(retType, Some(manager.getProject)) match {
+      case Some(clazz) => clazz.getQualifiedName == "java.lang.String"
+      case _ => false
+    }
+  }
   
   def this(manager: PsiManager, name: String, retType: ScType, paramTypes: Seq[Seq[ScType]]) =
     this(manager, name, retType, paramTypes.map(_.map(new Parameter("", _, false, false, false))), Seq.empty)

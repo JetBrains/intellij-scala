@@ -16,10 +16,11 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlo
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester
-import org.jetbrains.plugins.scala.lang.psi.types.{ScType, Any}
+import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.debugger.evaluation.ScalaCodeFragment
 
 /**
  * Pavel Fatin
@@ -37,6 +38,9 @@ abstract class CreateEntityQuickFix(ref: ScReferenceExpression,
 
   def isAvailable(project: Project, editor: Editor, file: PsiFile): Boolean = {
     if (!ref.isValid) return false
+    if (!ref.getManager.isInProject(file)) return false
+    if (!file.isInstanceOf[ScalaFile]) return false
+    if (file.isInstanceOf[ScalaCodeFragment]) return false
     ref match {
       case Both(Parent(_: ScAssignStmt), Parent(Parent(_: ScArgumentExprList))) =>
         false

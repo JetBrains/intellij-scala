@@ -6,10 +6,11 @@ package base
 
 import api.toplevel.ScTypeBoundsOwner
 import lexer.ScalaTokenTypes
-import com.intellij.psi.util.PsiTreeUtil
 import api.base.types.ScTypeElement
 import psi.types.{ScType, Nothing, Any}
 import psi.types.result.{TypingContext, Success, TypeResult}
+import com.intellij.psi.util.{PsiUtil, PsiTreeUtil}
+import com.intellij.psi.PsiWhiteSpace
 
 trait ScTypeBoundsOwnerImpl extends ScTypeBoundsOwner {
   //todo[CYCLIC]
@@ -54,5 +55,18 @@ trait ScTypeBoundsOwnerImpl extends ScTypeBoundsOwner {
     for {v <- findChildrenByType(ScalaTokenTypes.tCOLON)
         t <- Option(ScalaPsiUtil.getNextSiblingOfType(v, classOf[ScTypeElement])).toList
     } yield t
+  }
+
+  override def removeImplicitBounds() {
+    var node = getNode.getFirstChildNode
+    while (node != null && !Set(ScalaTokenTypes.tCOLON, ScalaTokenTypes.tVIEW)(node.getElementType)) {
+      node = node.getTreeNext
+    }
+    if (node == null) return
+    node.getPsi.getPrevSibling match {
+      case ws: PsiWhiteSpace => ws.delete()
+      case _ =>
+    }
+    node.getTreeParent.removeRange(node, null)
   }
 }

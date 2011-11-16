@@ -48,10 +48,12 @@ class ScalaElementVisitor extends PsiElementVisitor {
   def visitSuperReference(t: ScSuperReference) {visitExpression(t)}
   def visitReferenceExpression(ref: ScReferenceExpression) { visitReference(ref); visitExpression(ref) }
   def visitPostfixExpression(p: ScPostfixExpr) { visitExpression(p) }
+  def visitPrefixExpression(p: ScPrefixExpr) { visitExpression(p) }
   def visitIfStatement(stmt: ScIfStmt) { visitExpression(stmt) }
   def visitLiteral(l: ScLiteral) {visitExpression(l)}
   def visitAssignmentStatement(stmt: ScAssignStmt) { visitExpression(stmt) }
   def visitMethodCallExpression(call: ScMethodCall) { visitExpression(call) }
+  def visitGenericCallExpression(call: ScGenericCall) { visitExpression(call) }
   def visitInfixExpression(infix: ScInfixExpr) {visitExpression(infix)}
   def visitWhileStatement(ws: ScWhileStmt) { visitExpression(ws) }
   def visitReturnStatement(ret: ScReturnStmt) { visitExpression(ret) }
@@ -62,6 +64,9 @@ class ScalaElementVisitor extends PsiElementVisitor {
   def visitThrowExpression(throwStmt: ScThrowStmt) { visitExpression(throwStmt) }
   def visitTryExpression(tryStmt: ScTryStmt) { visitExpression(tryStmt) }
   def visitExprInParent(expr: ScParenthesisedExpr) {visitExpression(expr)}
+  def visitNewTemplateDefinition(templ: ScNewTemplateDefinition) {visitExpression(templ)}
+  def visitTypedStmt(stmt: ScTypedStmt) {visitExpression(stmt)}
+  def visitTupleExpr(tuple: ScTuple) {visitExpression(tuple)}
 
   //type elements
   def visitSimpleTypeElement(simple: ScSimpleTypeElement) {visitElement(simple)}

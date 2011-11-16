@@ -21,7 +21,7 @@ import api.toplevel.typedef.{ScMember, ScTypeDefinition}
 import collection.Seq
 import api.base.types._
 import caches.CachesUtil
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ExpectedTypes, ScNewTemplateDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
 import com.intellij.psi.util.PsiModificationTracker
 
 /**

@@ -14,7 +14,7 @@ import com.intellij.openapi.application.ApplicationManager
  * User: Alefas
  * Date: 12.10.11
  */
-class ScalaMethodEvaluator(objectEvaluator: Evaluator, methodName: String, signature: JVMName,
+case class ScalaMethodEvaluator(objectEvaluator: Evaluator, methodName: String, signature: JVMName,
                            argumentEvaluators: Seq[Evaluator], localMethod: Boolean,
                            traitImplementation: Option[JVMName], methodPosition: Set[SourcePosition]) extends Evaluator {
   def getModifier: Modifier = null
@@ -32,7 +32,7 @@ class ScalaMethodEvaluator(objectEvaluator: Evaluator, methodName: String, signa
     if (!(obj.isInstanceOf[ObjectReference] || obj.isInstanceOf[ClassType])) {
       throw EvaluateExceptionUtil.createEvaluateException(DebuggerBundle.message("evaluation.error.evaluating.method", methodName))
     }
-    val args = argumentEvaluators.map(_.evaluate(context))
+    val args = argumentEvaluators.map(arg => arg.evaluate(context))
     try {
       val referenceType: ReferenceType =
       obj match {
@@ -50,7 +50,8 @@ class ScalaMethodEvaluator(objectEvaluator: Evaluator, methodName: String, signa
         var jdiMethod: Method = null
         if (signature != null) {
           if (!localMethod) {
-            jdiMethod = (referenceType.asInstanceOf[ClassType]).concreteMethodByName(mName, signature.getName(debugProcess))
+            jdiMethod = (referenceType.asInstanceOf[ClassType]).concreteMethodByName(methodName,
+              signature.getName(debugProcess))
           }
           if (jdiMethod == null && localMethod) {
             //try to find method$i
@@ -91,8 +92,13 @@ class ScalaMethodEvaluator(objectEvaluator: Evaluator, methodName: String, signa
                 var result = true
                 ApplicationManager.getApplication.runReadAction(new Runnable {
                   def run() {
-                    val lines = methodPosition.map(_.getLine)
-                    result = m.allLineLocations().find(l => lines.contains(l.lineNumber())) != None
+                    try {
+                      val lines = methodPosition.map(_.getLine)
+                      result = m.allLineLocations().find(l => lines.contains(l.lineNumber())) != None
+                    }
+                    catch {
+                      case e: Exception => //ignore
+                    }
                   }
                 })
                 result
@@ -108,6 +114,10 @@ class ScalaMethodEvaluator(objectEvaluator: Evaluator, methodName: String, signa
       if (obj.isInstanceOf[ClassType]) {
         if (referenceType.isInstanceOf[ClassType]) {
           val jdiMethod = findMethod(referenceType)
+          if (jdiMethod != null && methodName == "<init>") {
+            import scala.collection.JavaConversions._
+            return debugProcess.newInstance(context, referenceType.asInstanceOf[ClassType], jdiMethod, args)
+          }
           if (jdiMethod != null && jdiMethod.isStatic) {
             import scala.collection.JavaConversions._
             return debugProcess.invokeMethod(context, referenceType.asInstanceOf[ClassType], jdiMethod, args)

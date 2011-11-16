@@ -10,11 +10,11 @@ import statements.params.ScParameter
 import statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.SafeCheckException
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult, TypingContext}
 import org.jetbrains.plugins.scala.lang.psi.types._
 import nonvalue.{Parameter, ScMethodType, ScTypePolymorphicType}
 import toplevel.typedef.ScObject
+import com.intellij.psi.PsiElement
 
 /**
  * @author Alexander Podkhalyuzin
@@ -54,8 +54,7 @@ object InferUtil {
         while (iterator.hasNext) {
           val param = iterator.next()
           val paramType = abstractSubstitutor.subst(param.paramType) //we should do all of this with information known before
-          val concreteParamType = polymorphicSubst.subst(param.paramType)
-          val collector = new ImplicitParametersCollector(element, paramType, concreteParamType)
+          val collector = new ImplicitParametersCollector(element, paramType)
           val results = collector.collect
           if (results.length == 1) {
             resolveResults += results(0)
@@ -83,13 +82,29 @@ object InferUtil {
           } else {
             if (check) {
               //check if it's ClassManifest parameter:
-              ScType.extractClass(paramType, Some(element.getProject)) match {
-                case Some(clazz) if clazz.getQualifiedName == "scala.reflect.ClassManifest" => //do not throw, it's safe
-                case _ =>
-                  throw new SafeCheckException
+              paramType match {
+                case p@ScParameterizedType(des, Seq(arg)) =>
+                  ScType.extractClass(des) match {
+                    case Some(clazz) if clazz.getQualifiedName == "scala.reflect.ClassManifest" =>
+                      //do not throw, it's safe
+                      resolveResults += new ScalaResolveResult(clazz, p.substitutor)
+                    case _ => throw new SafeCheckException
+                  }
+                case _ => throw new SafeCheckException
+              }
+            } else {
+              //check if it's ClassManifest parameter:
+              paramType match {
+                case p@ScParameterizedType(des, Seq(arg)) =>
+                  ScType.extractClass(des) match {
+                    case Some(clazz) if clazz.getQualifiedName == "scala.reflect.ClassManifest" =>
+                      //do not throw, it's safe
+                      resolveResults += new ScalaResolveResult(clazz, p.substitutor)
+                    case _ => resolveResults += null
+                  }
+                case _ => resolveResults += null
               }
             }
-            resolveResults += null
             exprs += new Expression(Any)
           }
         }
@@ -107,12 +122,22 @@ object InferUtil {
         while (iterator.hasNext) {
           val param = iterator.next()
           val paramType = param.paramType //we should do all of this with information known before
-          val collector = new ImplicitParametersCollector(element, paramType, paramType /*TODO?*/)
+          val collector = new ImplicitParametersCollector(element, paramType)
           val results = collector.collect
           if (results.length == 1) {
             resolveResults += results(0)
           } else {
-            resolveResults += null
+            //check if it's ClassManifest parameter:
+            paramType match {
+              case p@ScParameterizedType(des, Seq(arg)) =>
+                ScType.extractClass(des) match {
+                  case Some(clazz) if clazz.getQualifiedName == "scala.reflect.ClassManifest" =>
+                    //do not throw, it's safe
+                    resolveResults += new ScalaResolveResult(clazz, p.substitutor)
+                  case _ => resolveResults += null
+                }
+              case _ => resolveResults += null
+            }
           }
         }
         implicitParameters = Some(resolveResults.toSeq)
@@ -150,7 +175,7 @@ object InferUtil {
           val update: ScTypePolymorphicType = ScalaPsiUtil.localTypeInference(m,
             Seq(Parameter("", expected, expected, false, false, false)),
             Seq(new Expression(ScalaPsiUtil.undefineSubstitutor(typeParams).subst(innerInternal.inferValueType))),
-            typeParams, shouldUndefineParameters = false, safeCheck = check)
+            typeParams, shouldUndefineParameters = false, safeCheck = check, filterTypeParams = false)
           nonValueType = Success(update, Some(expr)) //here should work in different way:
         }
         updateRes(expectedType.get)
@@ -161,7 +186,8 @@ object InferUtil {
           nonValueType = Success(ScalaPsiUtil.localTypeInference(internal,
             Seq(Parameter("", expected, expected, false, false, false)),
               Seq(new Expression(ScalaPsiUtil.undefineSubstitutor(typeParams).subst(internal.inferValueType))),
-            typeParams, shouldUndefineParameters = false, safeCheck = check), Some(expr)) //here should work in different way:
+            typeParams, shouldUndefineParameters = false, safeCheck = check,
+            filterTypeParams = false), Some(expr)) //here should work in different way:
         }
         updateRes(expectedType.get)
       }

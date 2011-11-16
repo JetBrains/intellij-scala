@@ -20,4 +20,6 @@ trait ScTypeBoundsOwner extends ScalaPsiElement {
   def lowerTypeElement: Option[ScTypeElement] = None
   def viewTypeElement: List[ScTypeElement] = Nil
   def contextBoundTypeElement: List[ScTypeElement] = Nil
+
+  def removeImplicitBounds() {}
 }

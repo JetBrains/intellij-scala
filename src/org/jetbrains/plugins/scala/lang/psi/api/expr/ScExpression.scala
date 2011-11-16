@@ -296,6 +296,13 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible with Ps
 
   @volatile
   protected var implicitParameters: Option[Seq[ScalaResolveResult]] = None
+
+  /**
+   * Warning! There is a hack in scala compiler for ClassManifest.
+   * In case of implicit parameter with type ClassManifest[T]
+   * this method will return ClassManifest with substitutor of type T.
+   * @return implicit parameters used for this expression
+   */
   def findImplicitParameters: Option[Seq[ScalaResolveResult]] = {
     ProgressManager.checkCanceled()
     getType(TypingContext.empty) //to update implicitParameters field
