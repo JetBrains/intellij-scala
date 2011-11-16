@@ -8,4 +8,4 @@ new A[String] {
   def any[X]: X = error("")
 }
 
-// String
+//Nothing
