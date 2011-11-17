@@ -10,10 +10,10 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
 import com.intellij.lang.ASTNode
 import lang.lexer._
 import com.intellij.psi._
-import psi.types.result.{Success, TypingContext}
 import scope.PsiScopeProcessor
 import api.ScalaElementVisitor
 import psi.types.ScType
+import psi.types.result.{TypeResult, Failure, Success, TypingContext}
 
 /**
 * @author Alexander Podkhalyuzin
@@ -44,8 +44,13 @@ class ScTypedPatternImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
 
   override def toString: String = "TypedPattern"
 
-  override def getType(ctx: TypingContext) = wrap(typePattern) flatMap {
-    tp => tp.typeElement.getType(ctx)
+  override def getType(ctx: TypingContext): TypeResult[ScType] = {
+    typePattern match {
+      case Some(tp) =>
+        if (tp.typeElement == null) return Failure("No type element for type pattern", Some(this))
+        tp.typeElement.getType(ctx)
+      case None => Failure("No type pattern", Some(this))
+    }
   }
 
   override def processDeclarations(processor: PsiScopeProcessor, state: ResolveState, lastParent: PsiElement,
