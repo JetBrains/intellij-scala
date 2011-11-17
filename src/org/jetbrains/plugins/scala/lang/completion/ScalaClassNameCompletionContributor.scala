@@ -62,7 +62,7 @@ class ScalaClassNameCompletionContributor extends CompletionContributor {
       }
       for {
         (el, _, _) <- ResolveUtils.getLookupElement(new ScalaResolveResult(psiClass),
-          isClassName = true, isInImport = isInImport)
+          isClassName = true, isInImport = isInImport, isInStableCodeReference = refElement != null)
       } {
         if (afterNewPattern.accepts(parameters.getPosition, context)) {
           result.addElement(getLookupElementFromClass(expectedTypesAfterNew, psiClass))
