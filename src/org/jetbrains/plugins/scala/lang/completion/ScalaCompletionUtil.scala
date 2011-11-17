@@ -80,8 +80,10 @@ object ScalaCompletionUtil {
       return null
     }
     var candidate: PsiElement = element.getContainingFile()
+    if (candidate == null || candidate.getNode == null) return null
     while (candidate.getNode().getChildren(null).length > 0) {
       candidate = candidate.findElementAt(offset)
+      if (candidate == null || candidate.getNode == null) return null
     }
     candidate
   }
