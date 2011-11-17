@@ -72,7 +72,7 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
         return stub.asInstanceOf[ScFileStub].getFileName
       }
       val virtualFile = getVirtualFile
-      DecompilerUtil.decompile(virtualFile.contentsToByteArray, virtualFile)._2
+      DecompilerUtil.decompile(virtualFile, virtualFile.contentsToByteArray).sourceName
     }
     else ""
   }
