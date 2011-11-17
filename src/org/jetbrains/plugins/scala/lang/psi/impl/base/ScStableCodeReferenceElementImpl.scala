@@ -41,7 +41,7 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
       case res: ScalaResolveResult =>
         import org.jetbrains.plugins.scala.lang.psi.types.Nothing
         val qualifier = res.fromType.getOrElse(Nothing)
-        ResolveUtils.getLookupElement(res, isInImport = isInImport, qualifierType = qualifier)
+        ResolveUtils.getLookupElement(res, isInImport = isInImport, qualifierType = qualifier, isInStableCodeReference = true)
       case r => Seq(r.getElement)
     }
   }
@@ -76,8 +76,12 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
       case e: ScImportExpr => if (e.selectorSet != None
               //import Class._ is not allowed
               || qualifier == None || e.singleWildcard) stableQualRef else stableImportSelector
-      case ste: ScSimpleTypeElement => if (incomplete) noPackagesClassCompletion // todo use the settings to include packages
-        else if (ste.singleton) stableQualRef else stableClass
+      case ste: ScSimpleTypeElement =>
+        if (incomplete) noPackagesClassCompletion // todo use the settings to include packages
+        else if (ste.getLastChild.isInstanceOf[PsiErrorElement]) stableQualRef
+
+        else if (ste.singleton) stableQualRef
+        else stableClass
       case _: ScTypeAlias => stableClass
       case _: ScConstructorPattern => objectOrValue
       case _: ScInfixPattern => objectOrValue

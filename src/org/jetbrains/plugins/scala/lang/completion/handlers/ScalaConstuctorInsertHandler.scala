@@ -5,7 +5,6 @@ import com.intellij.codeInsight.completion.{InsertionContext, InsertHandler}
 import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils.ScalaLookupObject
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTrait, ScClass}
-import com.intellij.psi.{PsiDocumentManager, PsiClass}
 import org.jetbrains.plugins.scala.overrideImplement.ScalaOIUtil
 import com.intellij.codeInsight.generation.ClassMember
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
@@ -17,6 +16,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScReferenceExpression, ScN
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScParameterizedTypeElement, ScParenthesisedTypeElement, ScSimpleTypeElement, ScTypeElement}
 import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil
+import com.intellij.codeInsight.AutoPopupController
+import com.intellij.openapi.util.Condition
+import com.intellij.psi.{PsiFile, PsiDocumentManager, PsiClass}
 
 /**
  * @author Alexander Podkhalyuzin
@@ -37,7 +39,22 @@ class ScalaConstuctorInsertHandler extends InsertHandler[LookupElement] {
     if (patchedObject == null) return
 
     patchedObject match {
-      case obj@ScalaLookupObject(clazz: PsiClass, _, _) => {
+      case ScalaLookupObject(obj: ScObject, _, _, _) => {
+        document.insertString(endOffset, ".")
+        endOffset += 1
+        editor.getCaretModel.moveToOffset(endOffset)
+        context.setLaterRunnable(new Runnable {
+          def run() {
+            AutoPopupController.getInstance(context.getProject).scheduleAutoPopup(
+              context.getEditor, new Condition[PsiFile] {
+                def value(t: PsiFile): Boolean = t == context.getFile
+              }
+            )
+          }
+        })
+        return
+      }
+      case obj@ScalaLookupObject(clazz: PsiClass, _, _, _) => {
         var hasNonEmptyParams = false
         clazz match {
           case c: ScClass =>

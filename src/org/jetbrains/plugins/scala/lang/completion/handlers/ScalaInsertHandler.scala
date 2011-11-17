@@ -9,10 +9,12 @@ import psi.impl.toplevel.synthetic.ScSyntheticFunction
 import psi.api.statements.{ScFunction, ScFun}
 import com.intellij.codeInsight.lookup.LookupElement
 import resolve.ResolveUtils.ScalaLookupObject
-import com.intellij.psi.{PsiNamedElement, PsiDocumentManager, PsiMethod}
 import extensions._
 import resolve.ResolveUtils
 import psi.api.expr._
+import psi.api.toplevel.typedef.ScObject
+import com.intellij.openapi.util.Condition
+import com.intellij.psi.{PsiFile, PsiNamedElement, PsiDocumentManager, PsiMethod}
 
 /**
  * User: Alexander Podkhalyuzin
@@ -68,7 +70,21 @@ class ScalaInsertHandler extends InsertHandler[LookupElement] {
     }
 
     patchedObject match {
-      case ScalaLookupObject(named: PsiNamedElement, isNamed, _) if isNamed => { //some is impossible here
+      case ScalaLookupObject(obj: ScObject, _, _, true) =>
+        document.insertString(endOffset, ".")
+        endOffset += 1
+        editor.getCaretModel.moveToOffset(endOffset)
+        context.setLaterRunnable(new Runnable {
+          def run() {
+            AutoPopupController.getInstance(context.getProject).scheduleAutoPopup(
+              context.getEditor, new Condition[PsiFile] {
+                def value(t: PsiFile): Boolean = t == context.getFile
+              }
+            )
+          }
+        })
+        return
+      case ScalaLookupObject(named: PsiNamedElement, isNamed, _, _) if isNamed => { //some is impossible here
         val shouldAddEqualsSign = element.getParent match {
           case ref: ScReferenceExpression =>
             ref.getParent match {
@@ -89,20 +105,20 @@ class ScalaInsertHandler extends InsertHandler[LookupElement] {
         }
         return
       }
-      case ScalaLookupObject(_: PsiMethod, _, true) => moveCaretIfNeeded()
-      case ScalaLookupObject(_: ScFun, _, true) => moveCaretIfNeeded()
-      case ScalaLookupObject(_: PsiMethod, _, _) | ScalaLookupObject(_: ScFun, _, _) => {
+      case ScalaLookupObject(_: PsiMethod, _, true, _) => moveCaretIfNeeded()
+      case ScalaLookupObject(_: ScFun, _, true, _) => moveCaretIfNeeded()
+      case ScalaLookupObject(_: PsiMethod, _, _, _) | ScalaLookupObject(_: ScFun, _, _, _) => {
 
         val (count, methodName, isAccessor) = patchedObject match {
-          case ScalaLookupObject(fun: ScFunction, _, _) => {
+          case ScalaLookupObject(fun: ScFunction, _, _, _) => {
             val clauses = fun.paramClauses.clauses
             if (clauses.length == 0) (-1, null, false)
             else if (clauses.apply(0).isImplicit) (-1, null, false)
             else (clauses(0).parameters.length, fun.getName, false)
           }
-          case ScalaLookupObject(method: PsiMethod, _, _) =>
+          case ScalaLookupObject(method: PsiMethod, _, _, _) =>
             (method.getParameterList.getParametersCount, method.getName, method.isAccessor)
-          case ScalaLookupObject(fun: ScFun, _, _) =>
+          case ScalaLookupObject(fun: ScFun, _, _, _) =>
             fun.paramClauses match {
               case Seq() => (-1, null, false)
               case clause :: clauses => (clause.length, fun.asInstanceOf[ScSyntheticFunction].name, false)
