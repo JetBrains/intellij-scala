@@ -70,7 +70,7 @@ class ScalaBasicCompletionTest extends ScalaCompletionTestBase {
       |  class Nested
       |}
       |object C {
-      |  val x: States<caret>
+      |  val x: States.<caret>
       |}
       """.stripMargin('|').replaceAll("\r", "").trim()
 
