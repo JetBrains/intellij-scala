@@ -46,11 +46,11 @@ import collection.immutable.{HashMap, Stream}
 import com.intellij.psi.impl.source.PsiFileImpl
 import com.intellij.psi.stubs.StubElement
 import org.jetbrains.plugins.scala.extensions._
-import java.lang.Exception
 import com.intellij.openapi.module.{ModuleUtil, Module}
 import config.ScalaFacet
 import reflect.NameTransformer
 import caches.CachesUtil
+import java.lang.{AssertionError, Exception}
 
 /**
  * User: Alexander Podkhalyuzin
@@ -321,6 +321,9 @@ object ScalaPsiUtil {
         case ScCompoundType(comps, _, _, _) => {
           comps.flatMap(collectParts(_, place))
         }
+        case p@ScParameterizedType(a: ScAbstractType, args) => {
+          collectParts(a, place) ++ args.flatMap(collectParts(_, place))
+        }
         case p@ScParameterizedType(des, args) => {
           (ScType.extractClass(p, projectOpt) match {
             case Some(pair) => Seq(tp)
@@ -348,6 +351,9 @@ object ScalaPsiUtil {
             case Some(pair) => Seq(tp)
             case _ => Seq.empty
           })
+        }
+        case ScAbstractType(_, lower, upper) => {
+          collectParts(lower, place) ++ collectParts(upper, place)
         }
         case _=> {
           ScType.extractClass(tp, projectOpt) match {
@@ -551,8 +557,10 @@ object ScalaPsiUtil {
   def localTypeInference(retType: ScType, params: Seq[Parameter], exprs: Seq[Expression],
                          typeParams: Seq[TypeParameter],
                          shouldUndefineParameters: Boolean = true,
-                         safeCheck: Boolean = false): ScTypePolymorphicType = {
-    localTypeInferenceWithApplicability(retType, params, exprs, typeParams, shouldUndefineParameters, safeCheck)._1
+                         safeCheck: Boolean = false,
+                         filterTypeParams: Boolean = true): ScTypePolymorphicType = {
+    localTypeInferenceWithApplicability(retType, params, exprs, typeParams, shouldUndefineParameters, safeCheck,
+      filterTypeParams)._1
   }
 
 
@@ -563,16 +571,18 @@ object ScalaPsiUtil {
   def localTypeInferenceWithApplicability(retType: ScType, params: Seq[Parameter], exprs: Seq[Expression],
                                           typeParams: Seq[TypeParameter],
                                           shouldUndefineParameters: Boolean = true,
-                                          safeCheck: Boolean = false): (ScTypePolymorphicType, Seq[ApplicabilityProblem]) = {
+                                          safeCheck: Boolean = false,
+                                          filterTypeParams: Boolean = true): (ScTypePolymorphicType, Seq[ApplicabilityProblem]) = {
     val (tp, problems, _) = localTypeInferenceWithApplicabilityExt(retType, params, exprs, typeParams,
-      shouldUndefineParameters, safeCheck)
+      shouldUndefineParameters, safeCheck, filterTypeParams)
     (tp, problems)
   }
 
   def localTypeInferenceWithApplicabilityExt(retType: ScType, params: Seq[Parameter], exprs: Seq[Expression],
                                              typeParams: Seq[TypeParameter],
                                              shouldUndefineParameters: Boolean = true,
-                                             safeCheck: Boolean = false
+                                             safeCheck: Boolean = false,
+                                             filterTypeParams: Boolean = true
     ): (ScTypePolymorphicType, Seq[ApplicabilityProblem], Seq[(Parameter, ScExpression)]) = {
     // See SCL-3052. TODO: SCL-3058
     // This corresponds to use of `isCompatible` in `Infer#methTypeArgs` in scalac, where `isCompatible` uses `weak_<:<`
@@ -585,27 +595,50 @@ object ScalaPsiUtil {
       var un: ScUndefinedSubstitutor = c.undefSubst
       c.undefSubst.getSubstitutor(!safeCheck) match {
         case Some(unSubst) =>
-          typeParams.foreach {case tp =>
-            val name = (tp.name, ScalaPsiUtil.getPsiElementId(tp.ptp))
-            if (un.lowerMap.contains(name) || un.upperMap.contains(name)) {
-              //todo: add only one of them according to variance
-              if (tp.lowerType != Nothing)
-                un = un.addLower(name, tp.lowerType) //todo: do not add this in case of cyclic type parameter
-              if (tp.upperType != Any)
-                un = un.addUpper(name, tp.upperType)
+          if (!filterTypeParams) {
+            ScTypePolymorphicType(retType, typeParams.map(tp => {
+              var lower = tp.lowerType
+              var upper = tp.upperType
+              for {
+                (name, addLower) <- un.lowerMap
+                if name == (tp.name, ScalaPsiUtil.getPsiElementId(tp.ptp))
+              } {
+                lower = Bounds.lub(lower, addLower)
+              }
+              for {
+                (name, addUpperSeq) <- un.upperMap
+                if name == (tp.name, ScalaPsiUtil.getPsiElementId(tp.ptp))
+                addUpper <- addUpperSeq
+              } {
+                upper = Bounds.glb(upper, addUpper)
+              }
+              if (safeCheck && !lower.conforms(upper, true))
+                throw new SafeCheckException
+              TypeParameter(tp.name, lower, upper, tp.ptp)
+            }))
+          } else {
+            typeParams.foreach {case tp =>
+              val name = (tp.name, ScalaPsiUtil.getPsiElementId(tp.ptp))
+              if (un.lowerMap.contains(name) || un.upperMap.contains(name)) {
+                //todo: add only one of them according to variance
+                if (tp.lowerType != Nothing)
+                  un = un.addLower(name, tp.lowerType) //todo: do not add this in case of cyclic type parameter
+                if (tp.upperType != Any)
+                  un = un.addUpper(name, tp.upperType)
+              }
             }
-          }
-          un.getSubstitutor match {
-            case Some(unSubst) =>
-              ScTypePolymorphicType(unSubst.subst(retType), typeParams.filter {case tp =>
-                val name = (tp.name, ScalaPsiUtil.getPsiElementId(tp.ptp))
-                !un.lowerMap.contains(name) && !un.upperMap.contains(name)
-              })
-            case _ =>
-              ScTypePolymorphicType(unSubst.subst(retType), typeParams.filter {case tp =>
-                val name = (tp.name, ScalaPsiUtil.getPsiElementId(tp.ptp))
-                !un.lowerMap.contains(name) && !un.upperMap.contains(name)
-              })
+            un.getSubstitutor match {
+              case Some(unSubst) =>
+                ScTypePolymorphicType(unSubst.subst(retType), typeParams.filter {case tp =>
+                  val name = (tp.name, ScalaPsiUtil.getPsiElementId(tp.ptp))
+                  !un.lowerMap.contains(name) && !un.upperMap.contains(name)
+                })
+              case _ =>
+                ScTypePolymorphicType(unSubst.subst(retType), typeParams.filter {case tp =>
+                  val name = (tp.name, ScalaPsiUtil.getPsiElementId(tp.ptp))
+                  !un.lowerMap.contains(name) && !un.upperMap.contains(name)
+                })
+            }
           }
         case None => throw new SafeCheckException
       }
@@ -811,6 +844,10 @@ object ScalaPsiUtil {
     val t = (sigs.get(element): @unchecked) match {
       //partial match
       case Some(x) => x.supers.map {_.info}
+      case None =>
+        throw new RuntimeException("internal error: could not find type matching: \n%s\n\nin class: \n%s".format(
+        element.getText, clazz.getText
+        ))
     }
     t
   }
@@ -1329,11 +1366,15 @@ object ScalaPsiUtil {
     if (params.isEmpty) None
     else {
       val fullClauseText: String = "(implicit " + clauseText + ")"
-      val paramClause: ScParameterClause = {
-        if (classParam) ScalaPsiElementFactory.createImplicitClassParamClauseFromTextWithContext(fullClauseText, paramOwner.getManager, paramClauses)
-        else ScalaPsiElementFactory.createImplicitClauseFromTextWithContext(fullClauseText, paramOwner.getManager, paramClauses)
+      try {
+        val paramClause: ScParameterClause = {
+          if (classParam) ScalaPsiElementFactory.createImplicitClassParamClauseFromTextWithContext(fullClauseText, paramOwner.getManager, paramClauses)
+          else ScalaPsiElementFactory.createImplicitClauseFromTextWithContext(fullClauseText, paramOwner.getManager, paramClauses)
+        }
+        Some(paramClause)
+      } catch {
+        case t: Throwable => None
       }
-      Some(paramClause)
     }
   }
 
