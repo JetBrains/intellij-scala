@@ -190,7 +190,6 @@
     <stubIndex implementation="org.jetbrains.plugins.scala.lang.psi.stubs.index.ScTypeAliasNameIndex"/>
     <stubIndex implementation="org.jetbrains.plugins.scala.lang.psi.stubs.index.ScDirectInheritorsIndex"/>
     <stubIndex implementation="org.jetbrains.plugins.scala.lang.psi.stubs.index.ScAnnotatedMemberIndex"/>
-    <fileBasedIndex implementation="org.jetbrains.plugins.scala.decompiler.ScalaDecompilerIndex"/>
 
     <projectService serviceInterface="org.jetbrains.plugins.scala.annotator.importsTracker.ImportTracker"
                     serviceImplementation="org.jetbrains.plugins.scala.annotator.importsTracker.ImportTracker"/>
