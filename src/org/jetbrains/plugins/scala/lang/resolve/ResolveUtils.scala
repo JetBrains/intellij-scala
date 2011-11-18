@@ -386,7 +386,8 @@ object ResolveUtils {
                        isClassName: Boolean = false,
                        isInImport: Boolean = false,
                        isOverloadedForClassName: Boolean = false,
-                       shouldImport: Boolean = false): Seq[(LookupElement, PsiElement, ScSubstitutor)] = {
+                       shouldImport: Boolean = false, 
+                       isInStableCodeReference: Boolean = false): Seq[(LookupElement, PsiElement, ScSubstitutor)] = {
     import org.jetbrains.plugins.scala.lang.psi.PresentationUtil.presentationString
     val element = resolveResult.element
     val substitutor = resolveResult.substitutor
@@ -553,6 +554,7 @@ object ResolveUtils {
       returnLookupElement.putUserData(isUnderlinedKey, new java.lang.Boolean(isUnderlined))
       returnLookupElement.putUserData(shouldImportKey, new java.lang.Boolean(shouldImport))
       returnLookupElement.putUserData(classNameKey, new java.lang.Boolean(isClassName))
+      returnLookupElement.putUserData(isInStableCodeReferenceKey, new java.lang.Boolean(isInStableCodeReference))
 
       (returnLookupElement, element, substitutor)
     }
@@ -576,8 +578,10 @@ object ResolveUtils {
   val typeParametersProblemKey: Key[java.lang.Boolean] = Key.create("type.parameters.problem.key")
   val typeParametersKey: Key[Seq[ScType]] = Key.create("type.parameters.key")
   val someSmartCompletionKey: Key[java.lang.Boolean] = Key.create("some.smart.completion.key")
+  val isInStableCodeReferenceKey: Key[java.lang.Boolean] = Key.create("is.in.stable.code.reference.key")
 
-  case class ScalaLookupObject(elem: PsiNamedElement, isNamedParameter: Boolean, isInImport: Boolean) {
+  case class ScalaLookupObject(elem: PsiNamedElement, isNamedParameter: Boolean, isInImport: Boolean,
+                               isInStableCodeReference: Boolean) {
     private var typeParameters: Seq[ScType] = Seq.empty
     var typeParametersProblem: Boolean = false
 

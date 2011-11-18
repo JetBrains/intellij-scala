@@ -14,7 +14,6 @@ import psi.ScalaPsiUtil
 import com.intellij.openapi.util.Computable
 import com.intellij.openapi.application.ApplicationManager
 import refactoring.util.ScalaNamesUtil
-import psi.api.base.ScReferenceElement
 import psi.impl.base.ScStableCodeReferenceElementImpl
 import lang.resolve.processor.CompletionProcessor
 import com.intellij.psi._
@@ -29,6 +28,7 @@ import psi.types.{ScAbstractType, ScType}
 import org.jetbrains.plugins.scala.lang.completion.ScalaSmartCompletionContributor._
 import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil._
 import psi.api.statements.params.ScClassParameter
+import psi.api.base.{ScStableCodeReferenceElement, ScReferenceElement}
 
 /**
  * @author Alexander Podkhalyuzin
@@ -97,7 +97,8 @@ class ScalaCompletionContributor extends CompletionContributor {
           def postProcessMethod(result: ScalaResolveResult) {
             import org.jetbrains.plugins.scala.lang.psi.types.Nothing
             val qualifier = result.fromType.getOrElse(Nothing)
-            for (variant <- ResolveUtils.getLookupElement(result, isInImport = isInImport, qualifierType = qualifier)) {
+            for (variant <- ResolveUtils.getLookupElement(result, isInImport = isInImport, qualifierType = qualifier,
+              isInStableCodeReference = ref.isInstanceOf[ScStableCodeReferenceElement])) {
               applyVariant(variant)
             }
           }
