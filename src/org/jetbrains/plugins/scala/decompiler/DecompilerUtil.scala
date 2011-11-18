@@ -28,6 +28,9 @@ object DecompilerUtil {
   private val SCALA_DECOMPILER_KEY = new Key[SoftReference[DecompilationResult]]("Is Scala File Key")
   
   case class DecompilationResult(isScala: Boolean, sourceName: String, sourceText: String, timeStamp: Long)
+  object DecompilationResult {
+    def empty: DecompilationResult = DecompilationResult(false, "", "", 0L)
+  }
 
   private def openedNotDisposedProjects: Array[Project] = {
     val manager = ProjectManager.getInstance
@@ -55,6 +58,8 @@ object DecompilerUtil {
     }
   def isScalaFile(file: VirtualFile, bytes: => Array[Byte]): Boolean = decompile(file, bytes).isScala
   def decompile(file: VirtualFile, bytes: => Array[Byte]): DecompilationResult = {
+    if (file.getFileType != StdFileTypes.CLASS) return DecompilationResult.empty
+    if (!file.isInstanceOf[VirtualFileWithId]) return DecompilationResult.empty
     val timeStamp = file.getTimeStamp
     var data = file.getUserData(SCALA_DECOMPILER_KEY)
     if (data == null || data.get() == null || data.get().timeStamp != timeStamp) {
