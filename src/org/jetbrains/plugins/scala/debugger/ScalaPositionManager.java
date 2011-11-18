@@ -119,40 +119,45 @@ public class ScalaPositionManager implements PositionManager {
 
 
   public ClassPrepareRequest createPrepareRequest(final ClassPrepareRequestor requestor, final SourcePosition position) throws NoDataException {
-    ScalaPsiElement sourceImage = ApplicationManager.getApplication().runReadAction(new Computable<ScalaPsiElement>() {
-      public ScalaPsiElement compute() {
-        return findReferenceTypeSourceImage(position);
-      }
+    final Ref<String> qName = new Ref<String>(null);
+    final Ref<ClassPrepareRequestor> waitRequestor = new Ref<ClassPrepareRequestor>(null);
+    ApplicationManager.getApplication().runReadAction(new Runnable() {
+      public void run() {
+        ScalaPsiElement sourceImage = ApplicationManager.getApplication().runReadAction(new Computable<ScalaPsiElement>() {
+          public ScalaPsiElement compute() {
+            return findReferenceTypeSourceImage(position);
+          }
+        });
+        if (sourceImage instanceof ScTypeDefinition && !ScalaPsiUtil.isLocalClass((PsiClass) sourceImage)) {
+          qName.set(getSpecificName(((ScTypeDefinition) sourceImage).getQualifiedNameForDebugger(), ((ScTypeDefinition) sourceImage).getClass()));
+        } else if (sourceImage instanceof ScFunctionExpr ||
+            sourceImage instanceof ScForStatement ||
+            sourceImage instanceof ScExtendsBlock ||
+            sourceImage instanceof ScCaseClauses && sourceImage.getParent() instanceof ScBlockExpr ||
+            sourceImage instanceof ScExpression /*by name argument*/ ||
+            sourceImage instanceof ScTypeDefinition) {
+          ScTypeDefinition typeDefinition = findEnclosingTypeDefinition(position);
+          if (typeDefinition != null) {
+            final String fqn = typeDefinition.getQualifiedNameForDebugger();
+            qName.set(fqn + "$*");
+          }
+        }
+        // Enclosing closure not found
+        if (qName.get() == null) {
+          ScTypeDefinition typeDefinition = findEnclosingTypeDefinition(position);
+          if (typeDefinition != null) {
+            qName.set(getSpecificName(typeDefinition.getQualifiedNameForDebugger(), typeDefinition.getClass()));
+          }
+          final PsiFile file = position.getFile();
+          if(file instanceof ScalaFile) {
+            qName.set(SCRIPT_HOLDER_CLASS_NAME + "*");
+          }
+        }
+        waitRequestor.set(new MyClassPrepareRequestor(position, requestor));      }
     });
-    String qName = null;
-    if (sourceImage instanceof ScTypeDefinition) {
-      qName = getSpecificName(((ScTypeDefinition) sourceImage).getQualifiedNameForDebugger(), ((ScTypeDefinition) sourceImage).getClass());
-    } else if (sourceImage instanceof ScFunctionExpr ||
-        sourceImage instanceof ScForStatement ||
-        sourceImage instanceof ScExtendsBlock ||
-        sourceImage instanceof ScCaseClauses && sourceImage.getParent() instanceof ScBlockExpr ||
-        sourceImage instanceof ScExpression /*by name argument*/) {
-      ScTypeDefinition typeDefinition = findEnclosingTypeDefinition(position);
-      if (typeDefinition != null) {
-        final String fqn = typeDefinition.getQualifiedNameForDebugger();
-        qName = fqn + "$*";
-      }
-    }
-    // Enclosing closure not found
-    if (qName == null) {
-      ScTypeDefinition typeDefinition = findEnclosingTypeDefinition(position);
-      if (typeDefinition != null) {
-        qName = getSpecificName(typeDefinition.getQualifiedNameForDebugger(), typeDefinition.getClass());
-      }
-      final PsiFile file = position.getFile();
-      if(file instanceof ScalaFile) {
-        qName = SCRIPT_HOLDER_CLASS_NAME + "*";
-      }
-      if (qName == null) throw new NoDataException();
-    }
-
-    ClassPrepareRequestor waitRequestor = new MyClassPrepareRequestor(position, requestor);
-    return myDebugProcess.getRequestsManager().createClassPrepareRequest(waitRequestor, qName);
+    if (qName.get() == null) throw new NoDataException();
+    if (waitRequestor.get() == null) throw new NoDataException();
+    return myDebugProcess.getRequestsManager().createClassPrepareRequest(waitRequestor.get(), qName.get());
   }
 
   public SourcePosition getSourcePosition(final Location location) throws NoDataException {
