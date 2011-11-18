@@ -11,6 +11,7 @@ import collection.mutable.HashSet
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScArgumentExprList, ScAssignStmt}
 import lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.extensions.inReadAction
 
 /**
  * User: Alexander Podkhalyuzin
@@ -21,44 +22,45 @@ class NamingParamsSearcher extends QueryExecutor[PsiReference, ReferencesSearch.
   def execute(queryParameters: ReferencesSearch.SearchParameters, consumer: Processor[PsiReference]): Boolean = {
     val scope = queryParameters.getScope
     val element = queryParameters.getElementToSearch
-    val ignoreAccess = queryParameters.isIgnoreAccessScope
-    element match {
-      case parameter: ScParameter => {
-        val name = parameter.getName
-        val collectedReferences = new HashSet[PsiReference]
-        val processor = new TextOccurenceProcessor {
-          def execute(element: PsiElement, offsetInElement: Int): Boolean = {
-            val references = element.getReferences
-            for (ref <- references if ref.getRangeInElement.contains(offsetInElement) && !collectedReferences.contains(ref)) {
-              ref match {
-                case refElement: ScReferenceElement => {
-                  refElement.getParent match {
-                    case assign: ScAssignStmt if assign.getLExpression == refElement &&
-                            assign.getParent.isInstanceOf[ScArgumentExprList] => {
-                      Option(refElement.resolve()) match {
-                        case Some(`parameter`) => if (!consumer.process(ref)) return false
-                        case Some(x: ScParameter) =>
-                          ScalaPsiUtil.parameterForSyntheticParameter(x) match {
-                            case Some(realParam) => if (!consumer.process(ref)) return false
-                            case None =>
-                          }
-                        case _ =>
+    inReadAction {
+      element match {
+        case parameter: ScParameter => {
+          val name = parameter.getName
+          val collectedReferences = new HashSet[PsiReference]
+          val processor = new TextOccurenceProcessor {
+            def execute(element: PsiElement, offsetInElement: Int): Boolean = {
+              val references = element.getReferences
+              for (ref <- references if ref.getRangeInElement.contains(offsetInElement) && !collectedReferences.contains(ref)) {
+                ref match {
+                  case refElement: ScReferenceElement => {
+                    refElement.getParent match {
+                      case assign: ScAssignStmt if assign.getLExpression == refElement &&
+                              assign.getParent.isInstanceOf[ScArgumentExprList] => {
+                        Option(refElement.resolve()) match {
+                          case Some(`parameter`) => if (!consumer.process(ref)) return false
+                          case Some(x: ScParameter) =>
+                            ScalaPsiUtil.parameterForSyntheticParameter(x) match {
+                              case Some(realParam) => if (!consumer.process(ref)) return false
+                              case None =>
+                            }
+                          case _ =>
+                        }
                       }
+                      case _ =>
                     }
-                    case _ =>
                   }
+                  case _ =>
                 }
-                case _ =>
               }
+              true
             }
-            true
           }
+          val helper: PsiSearchHelper = PsiSearchHelper.SERVICE.getInstance(parameter.getProject)
+          helper.processElementsWithWord(processor, scope, name, UsageSearchContext.IN_CODE, true)
         }
-        val helper: PsiSearchHelper = PsiManager.getInstance(parameter.getProject).getSearchHelper
-        helper.processElementsWithWord(processor, scope, name, UsageSearchContext.IN_CODE, true)
+        case _ =>
       }
-      case _ =>
+      true
     }
-    true
   }
 }
