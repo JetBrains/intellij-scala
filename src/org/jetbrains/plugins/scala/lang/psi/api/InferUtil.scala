@@ -54,8 +54,7 @@ object InferUtil {
         while (iterator.hasNext) {
           val param = iterator.next()
           val paramType = abstractSubstitutor.subst(param.paramType) //we should do all of this with information known before
-          val concreteParamType = polymorphicSubst.subst(param.paramType)
-          val collector = new ImplicitParametersCollector(element, paramType, concreteParamType)
+          val collector = new ImplicitParametersCollector(element, paramType)
           val results = collector.collect
           if (results.length == 1) {
             resolveResults += results(0)
@@ -107,7 +106,7 @@ object InferUtil {
         while (iterator.hasNext) {
           val param = iterator.next()
           val paramType = param.paramType //we should do all of this with information known before
-          val collector = new ImplicitParametersCollector(element, paramType, paramType /*TODO?*/)
+          val collector = new ImplicitParametersCollector(element, paramType)
           val results = collector.collect
           if (results.length == 1) {
             resolveResults += results(0)
@@ -150,7 +149,7 @@ object InferUtil {
           val update: ScTypePolymorphicType = ScalaPsiUtil.localTypeInference(m,
             Seq(Parameter("", expected, expected, false, false, false)),
             Seq(new Expression(ScalaPsiUtil.undefineSubstitutor(typeParams).subst(innerInternal.inferValueType))),
-            typeParams, shouldUndefineParameters = false, safeCheck = check)
+            typeParams, shouldUndefineParameters = false, safeCheck = check, filterTypeParams = false)
           nonValueType = Success(update, Some(expr)) //here should work in different way:
         }
         updateRes(expectedType.get)
@@ -161,7 +160,8 @@ object InferUtil {
           nonValueType = Success(ScalaPsiUtil.localTypeInference(internal,
             Seq(Parameter("", expected, expected, false, false, false)),
               Seq(new Expression(ScalaPsiUtil.undefineSubstitutor(typeParams).subst(internal.inferValueType))),
-            typeParams, shouldUndefineParameters = false, safeCheck = check), Some(expr)) //here should work in different way:
+            typeParams, shouldUndefineParameters = false, safeCheck = check,
+            filterTypeParams = false), Some(expr)) //here should work in different way:
         }
         updateRes(expectedType.get)
       }

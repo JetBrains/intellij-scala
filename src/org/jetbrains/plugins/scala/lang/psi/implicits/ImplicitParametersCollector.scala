@@ -23,7 +23,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScMe
  * User: Alexander Podkhalyuzin
  * Date: 23.11.2009
  */
-class ImplicitParametersCollector(place: PsiElement, tp: ScType, concreteType: ScType) {
+class ImplicitParametersCollector(place: PsiElement, tp: ScType) {
   def collect: Seq[ScalaResolveResult] = {
     val processor = new ImplicitParametersProcessor
     def treeWalkUp(placeForTreeWalkUp: PsiElement, lastParent: PsiElement) {
@@ -39,8 +39,7 @@ class ImplicitParametersCollector(place: PsiElement, tp: ScType, concreteType: S
 
     processor.clear()
 
-    //todo: objects should be dependent
-    for (obj <- ScalaPsiUtil.collectImplicitObjects(concreteType, place)) {
+    for (obj <- ScalaPsiUtil.collectImplicitObjects(tp, place)) {
       processor.processType(obj, place, ResolveState.initial())
     }
 
