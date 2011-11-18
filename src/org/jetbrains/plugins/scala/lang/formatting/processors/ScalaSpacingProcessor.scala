@@ -25,7 +25,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import com.intellij.formatting.Spacing
-import com.intellij.openapi.util.TextRange
 import com.intellij.psi.codeStyle.CommonCodeStyleSettings
 import com.intellij.psi.{PsiElement, PsiComment, PsiWhiteSpace}
 import psi.api.toplevel.imports. {ScImportSelectors, ScImportStmt}
@@ -34,8 +33,11 @@ import xml.ScXmlPattern
 import com.intellij.psi.javadoc.PsiDocComment
 import scaladoc.parser.ScalaDocElementTypes
 import psi.api.toplevel.ScEarlyDefinitions
+import com.intellij.openapi.util.TextRange
+import com.intellij.openapi.diagnostic.Logger
 
 object ScalaSpacingProcessor extends ScalaTokenTypes {
+  private val LOG = Logger.getInstance("#org.jetbrains.plugins.scala.lang.formatting.processors.ScalaSpacingProcessor")
   val NO_SPACING_WITH_NEWLINE = Spacing.createSpacing(0, 0, 0, true, 1);
   val NO_SPACING = Spacing.createSpacing(0, 0, 0, false, 0);
   val COMMON_SPACING = Spacing.createSpacing(1, 1, 0, true, 100);
@@ -88,23 +90,27 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
     val WITH_SPACING_DEPENDENT = (range: TextRange) => getDependentLFSpacing(keepBlankLinesInCode, 1, range)
     val ON_NEW_LINE = getSpacing(keepBlankLinesInCode, 0, 1)
     val DOUBLE_LINE = getSpacing(keepBlankLinesInCode, 0, 2)
-    def CONCRETE_LINES(x: Int) = Spacing.createSpacing(0, 0, x, keepLineBreaks, keepBlankLinesInCode)
     val leftNode = left.getNode
     val rightNode = right.getNode
     val fileText = leftNode.getPsi.getContainingFile.getText
-    def nodeText(node: ASTNode): String = {
-      getText(node, fileText)
-    }
 
     //new formatter spacing
     val leftElementType = leftNode.getElementType
     val rightElementType = rightNode.getElementType
     val leftPsi = leftNode.getPsi
     val rightPsi = rightNode.getPsi
+    val fileTextRange = new TextRange(0, fileText.length())
+
     /**
      * This is not nodes text! This is blocks text, which can be different from node.
      */
-    val (leftString, rightString) = (left.getTextRange.substring(fileText),
+    val (leftString, rightString) =
+      if (!fileTextRange.contains(left.getTextRange) ||
+        !fileTextRange.contains(right.getTextRange)) {
+        LOG.error("File text: \n%s\n\nDoesn't contains nodes:\n(%s, %s)".
+          format(fileText, leftPsi.getText, rightPsi.getText))
+        (leftPsi.getText, rightPsi.getText)
+      } else (left.getTextRange.substring(fileText),
             right.getTextRange.substring(fileText))
     import ScalaTokenTypes._
     if ((leftPsi.isInstanceOf[PsiComment] || leftPsi.isInstanceOf[PsiDocComment]) &&
