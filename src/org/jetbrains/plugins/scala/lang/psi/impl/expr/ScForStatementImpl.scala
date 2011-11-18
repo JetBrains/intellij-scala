@@ -196,7 +196,7 @@ class ScForStatementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
               Some(ScalaPsiElementFactory.createExpressionWithContextFromText(text, this.getContext, this))
             }
             catch {
-              case e: Exception => None
+              case e: Throwable => None
             }
           }
         case _ => None
