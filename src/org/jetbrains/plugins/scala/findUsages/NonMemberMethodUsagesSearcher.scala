@@ -22,7 +22,7 @@ class NonMemberMethodUsagesSearcher extends QueryExecutorBase[PsiReference, Meth
     val searchScope: SearchScope = p.getScope
     val newConsumer = new Processor[PsiReference] {
       def process(t: PsiReference): Boolean = {
-        if (!method.isConstructor) return false
+        if (!method.isConstructor) return true
         consumer.process(t)
       }
     }
