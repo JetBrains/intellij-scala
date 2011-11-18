@@ -149,6 +149,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
             case v: ScVariable =>
               !v.getContext.isInstanceOf[ScTemplateBody] && !v.getContext.isInstanceOf[ScEarlyDefinitions]
             case clause: ScCaseClause => true
+            case _ => true //todo: for generator/enumerators
           }
         case o: ScObject =>
           !o.getContext.isInstanceOf[ScTemplateBody] && ScalaPsiUtil.getContextOfType(o, true, classOf[PsiClass]) != null
