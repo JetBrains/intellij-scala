@@ -52,17 +52,6 @@ class ScalaClassNameInsertHandler extends ScalaInsertHandler {
         }
         ref.getNode.getTreeParent.replaceChild(ref.getNode, newRef.getNode)
         newRef.bindToElement(cl)
-        if (addDot == ".") {
-          context.setLaterRunnable(new Runnable {
-            def run() {
-              AutoPopupController.getInstance(context.getProject).scheduleAutoPopup(
-                context.getEditor, new Condition[PsiFile] {
-                  def value(t: PsiFile): Boolean = t == context.getFile
-                }
-              )
-            }
-          })
-        }
       case ScalaLookupObject(namedElement, _, _, _) =>
         val containingClass = ScalaPsiUtil.nameContext(namedElement) match {
           case memb: PsiMember =>
