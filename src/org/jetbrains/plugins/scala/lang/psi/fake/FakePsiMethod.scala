@@ -23,6 +23,8 @@ import java.util.{Collection, List}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.PsiClassFake
 import com.intellij.util.IncorrectOperationException
 import com.intellij.psi.PsiReferenceList.Role
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScValue, ScVariable}
 
 /**
  * User: Alexander Podkhalyuzin
@@ -90,7 +92,15 @@ class FakePsiMethod(
 
   def setName(name: String): PsiElement = new FakePsiMethod(navElement, name, params, retType, hasModifier)
 
-  def getModifierList: PsiModifierList = ScalaPsiUtil.getEmptyModifierList(getManager)
+  def getModifierList: PsiModifierList = navElement match {
+    case b: ScBindingPattern =>
+      b.nameContext match {
+        case v: ScVariable => v.getModifierList
+        case v: ScValue => v.getModifierList
+        case _ => ScalaPsiUtil.getEmptyModifierList(getManager)
+      }
+    case _ => ScalaPsiUtil.getEmptyModifierList(getManager)
+  }
 
   def findSuperMethods(parentClass: PsiClass): Array[PsiMethod] = PsiMethod.EMPTY_ARRAY
 
