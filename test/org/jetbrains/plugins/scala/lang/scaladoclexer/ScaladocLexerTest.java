@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.testcases.BaseScalaFileSetTestCase;
  */
 public class ScaladocLexerTest extends BaseScalaFileSetTestCase {
   @NonNls
-  private static final String DATA_PATH = "test/org/jetbrains/plugins/scala/lang/lexer/data/scaladoc";
+  private static final String DATA_PATH = "test/org/jetbrains/plugins/scala/lang/lexer/scaladocdata/scaladoc";
 
   public ScaladocLexerTest() {
     super(System.getProperty("path") != null ?

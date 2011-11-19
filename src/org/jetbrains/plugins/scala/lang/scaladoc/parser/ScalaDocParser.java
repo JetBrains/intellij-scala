@@ -1,11 +1,11 @@
 package org.jetbrains.plugins.scala.lang.scaladoc.parser;
 
-import com.intellij.lang.PsiParser;
 import com.intellij.lang.ASTNode;
 import com.intellij.lang.PsiBuilder;
+import com.intellij.lang.PsiParser;
 import com.intellij.psi.tree.IElementType;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.plugins.scala.lang.scaladoc.parser.parsing.ScalaDocParsing;
+import org.jetbrains.plugins.scala.lang.scaladoc.parser.parsing.MyScaladocParsing;
 
 /**
  * User: Alexander Podkhalyuzin
@@ -15,7 +15,8 @@ public class ScalaDocParser implements PsiParser {
   @NotNull
   public ASTNode parse(IElementType root, PsiBuilder builder) {
     PsiBuilder.Marker rootMarker = builder.mark();
-    new ScalaDocParsing().parse(builder);
+    //new ScalaDocParsing().parse(builder);
+    new MyScaladocParsing(builder).parse();
     rootMarker.done(root);
     return builder.getTreeBuilt();
   }

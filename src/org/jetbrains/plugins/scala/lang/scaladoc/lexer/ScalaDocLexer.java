@@ -108,17 +108,27 @@ public class ScalaDocLexer extends MergingLexerAdapter {
       myBufferIndex = myTokenEndOffset;
 
       if (myAfterLineBreak) {
+
         myAfterLineBreak = false;
+/*
         while (myTokenEndOffset < myBufferEndOffset && myBuffer.charAt(myTokenEndOffset) == '*' &&
                (myTokenEndOffset + 1 >= myBufferEndOffset || myBuffer.charAt(myTokenEndOffset + 1) != '/')) {
           myTokenEndOffset++;
         }
-
+*/
+        myInLeadingSpace = true;
+        if (myTokenEndOffset < myBufferEndOffset && myBuffer.charAt(myTokenEndOffset) == '*'
+            && (myTokenEndOffset + 1 >= myBufferEndOffset || myBuffer.charAt(myTokenEndOffset + 1) != '/')) {
+          myTokenEndOffset++;
+          myTokenType = ScalaDocTokenType.DOC_COMMENT_LEADING_ASTERISKS;
+          return;
+        }
+        /*
         myInLeadingSpace = true;
         if (myBufferIndex < myTokenEndOffset) {
           myTokenType = ScalaDocTokenType.DOC_COMMENT_LEADING_ASTERISKS;
           return;
-        }
+        }*/
       }
 
       if (myInLeadingSpace) {
