@@ -7,6 +7,15 @@ import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocElementType;
  * Date: 29.10.11
  */
 public class ScaladocSyntaxElementType extends ScalaDocElementType{
+/*  private static final HashMap<ScaladocSyntaxElementType, String> syntaxMapping =
+      new HashMap<ScaladocSyntaxElementType, String>();
+  static {
+    syntaxMapping.put(ScalaDocTokenType.DOC_BOLD_TAG,"'''");
+    syntaxMapping.put(ScalaDocTokenType.DOC_ITALIC_TAG, "''");
+    syntaxMapping.put(ScalaDocTokenType.DOC_UNDERLINE_TAG, "__");
+  }*/
+
+  
   private final int flagConst;
 
   public ScaladocSyntaxElementType(String debugName, int flagConst) {
@@ -23,7 +32,7 @@ public class ScaladocSyntaxElementType extends ScalaDocElementType{
     return super.toString() + " " + (~(getFlagConst() - 1) & getFlagConst());
   }
 
-  @Override
+/*  @Override
   public boolean equals(Object obj) {
     if (obj == null || obj.getClass() != this.getClass()) {
       return false;
@@ -35,5 +44,5 @@ public class ScaladocSyntaxElementType extends ScalaDocElementType{
   @Override
   public int hashCode() {
     return ~(flagConst - 1) & flagConst;
-  }
+  }*/
 }

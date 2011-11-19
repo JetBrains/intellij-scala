@@ -62,8 +62,10 @@ import org.jetbrains.plugins.scala.lang.scaladoc.lexer.docsyntax.*;
 %state COMMENT_DATA_START
 %state COMMENT_DATA
 %state TAG_DOC_SPACE
+%state PARAM_TAG_DOC_SPACE
 %state PARAM_TAG_SPACE
 %state DOC_TAG_VALUE
+%state PARAM_DOC_TAG_VALUE
 %state DOC_TAG_VALUE_IN_PAREN
 %state DOC_TAG_VALUE_IN_LTGT
 %state INLINE_TAG_NAME
@@ -112,35 +114,39 @@ scalaIdentifierWithPath = (({plainid} | "`" {stringLiteralExtra} "`")["."]?)+
 <COMMENT_DATA, COMMENT_INNER_CODE>  [\n\r]+{WHITE_DOC_SPACE_CHAR}* { return DOC_WHITESPACE; }
 
 
-<COMMENT_DATA, COMMENT_DATA_START> "__" {
+<COMMENT_DATA, COMMENT_DATA_START> ("__"|"\u005f\u005f") {
   return DOC_UNDERLINE_TAG;
 }
-<COMMENT_DATA, COMMENT_DATA_START> "'''" {
+<COMMENT_DATA, COMMENT_DATA_START> ("'''"|"\u0027\u0027\u0027") {
   return DOC_BOLD_TAG;
 }
-<COMMENT_DATA, COMMENT_DATA_START> "''" {
+<COMMENT_DATA, COMMENT_DATA_START> ("''"|"\u0027\u0027") {
   return DOC_ITALIC_TAG;
 }
-<COMMENT_DATA, COMMENT_DATA_START> "^" {
+<COMMENT_DATA, COMMENT_DATA_START> ("^"|"\u005e") {
   return DOC_SUPERSCRIPT_TAG;
 }
-<COMMENT_DATA, COMMENT_DATA_START> ",," {
+<COMMENT_DATA, COMMENT_DATA_START> (",,"|"\u002c\u002c") {
   return DOC_SUBSCRIPT_TAG;
 }
-<COMMENT_DATA, COMMENT_DATA_START> "`" {
+<COMMENT_DATA, COMMENT_DATA_START> ("`"|"\u0060") {
   return DOC_MONOSPACE_TAG;
 }
-<COMMENT_DATA, COMMENT_DATA_START, TAG_DOC_SPACE> "[[" {
+<COMMENT_DATA, COMMENT_DATA_START, TAG_DOC_SPACE> ("[["|"\u005b\u005b") {
   yybegin(CODE_LINK_INNER);
   return DOC_LINK_TAG;
 }
-<COMMENT_DATA, COMMENT_DATA_START> "{{{" {
+<COMMENT_DATA, COMMENT_DATA_START> ("{{{"|"\u007b\u007b\u007b") {
   yybegin(COMMENT_INNER_CODE);
   return DOC_INNER_CODE_TAG;
 }
-<COMMENT_DATA, COMMENT_DATA_START> =+ {
+<COMMENT_DATA> ("="|"\u003d")+ {
   return DOC_HEADER;
 }
+<COMMENT_DATA_START> ("="|"\u003d")+ {
+  return VALID_DOC_HEADER;
+}
+
 
 /*<COMMENT_INNER_CODE> [\t\f\n\r]+(\ )* {
   //yybegin(INNER_CODE_WHITESPACE);
@@ -155,12 +161,12 @@ scalaIdentifierWithPath = (({plainid} | "`" {stringLiteralExtra} "`")["."]?)+
   yybegin(COMMENT_INNER_CODE);
   return DOC_INNER_CODE;
 }
-<COMMENT_INNER_CODE> "}}}" {
+<COMMENT_INNER_CODE> ("}}}"|"\u007d\u007d\u007d") {
   yybegin(COMMENT_DATA);
   return DOC_INNER_CODE_TAG;
 }
 
-<COMMENT_DATA, COMMENT_DATA_START, TAG_DOC_SPACE> "[[" / "http:" {
+<COMMENT_DATA, COMMENT_DATA_START, TAG_DOC_SPACE> ("[["|"\u005b\u005b") / "http:" {
   yybegin(COMMENT_DATA);
   return DOC_HTTP_LINK_TAG;
 }
@@ -168,7 +174,7 @@ scalaIdentifierWithPath = (({plainid} | "`" {stringLiteralExtra} "`")["."]?)+
   yybegin(CODE_BAD_LINK);
   return DOC_COMMENT_DATA;
 }
-<CODE_LINK_INNER> {scalaIdentifierWithPath} / "]]" {
+<CODE_LINK_INNER> {scalaIdentifierWithPath} / ("]]"|"\u005d\u005d") {
   return DOC_COMMENT_DATA;
 }
 <CODE_BAD_LINK> . {
@@ -177,7 +183,7 @@ scalaIdentifierWithPath = (({plainid} | "`" {stringLiteralExtra} "`")["."]?)+
 /*<HTTP_LINK_INNER> . {
   return DOC_COMMENT_DATA;
 }*/
-<CODE_LINK_INNER, COMMENT_DATA, CODE_BAD_LINK> "]]" {
+<CODE_LINK_INNER, COMMENT_DATA, CODE_BAD_LINK, COMMENT_DATA_START> ("]]"|"\u005d\u005d") {
   yybegin(COMMENT_DATA);
   return DOC_LINK_CLOSE_TAG;
 }
@@ -200,13 +206,13 @@ scalaIdentifierWithPath = (({plainid} | "`" {stringLiteralExtra} "`")["."]?)+
 // <DOC_TAG_VALUE_IN_LTGT> {IDENTIFIER} { return DOC_TAG_VALUE_TOKEN; }
 // <DOC_TAG_VALUE_IN_LTGT> [\>] { yybegin(COMMENT_DATA); return DOC_TAG_VALUE_GT; }
 
-<COMMENT_DATA_START, COMMENT_DATA> "{" {
-  if (checkAhead('@')){
+<COMMENT_DATA_START, COMMENT_DATA> "{" / "@"{IDENTIFIER} {
+  /*if (checkAhead('@')){*/
     yybegin(INLINE_TAG_NAME);
-  }
+/*  }
   else{
     yybegin(COMMENT_DATA);
-  }
+  }*/
   return DOC_INLINE_TAG_START;
 }
 <INLINE_TAG_NAME> "@"{IDENTIFIER} { yybegin(INLINE_TAG_DOC_SPACE); return DOC_TAG_NAME; }
@@ -225,18 +231,25 @@ scalaIdentifierWithPath = (({plainid} | "`" {stringLiteralExtra} "`")["."]?)+
   return markStorage.isMarkedElement() ? markStorage.getMarkedElement() : DOC_COMMENT_DATA;
 }
  */
-<COMMENT_DATA_START> "@"{IDENTIFIER} { yybegin(TAG_DOC_SPACE); return DOC_TAG_NAME;  }
-<TAG_DOC_SPACE>  {WHITE_DOC_SPACE_CHAR}+ / "[[" {
+
+<COMMENT_DATA_START> "@"("param"|"tparam"|"throws") {yybegin(PARAM_TAG_DOC_SPACE); return DOC_TAG_NAME; }
+<PARAM_TAG_DOC_SPACE> {WHITE_DOC_SPACE_NO_NL}+ {yybegin(PARAM_DOC_TAG_VALUE); return DOC_WHITESPACE;}
+<PARAM_DOC_TAG_VALUE> ({plainid} | "`" {stringLiteralExtra} "`") {yybegin(COMMENT_DATA); return DOC_TAG_VALUE_TOKEN; }
+<PARAM_DOC_TAG_VALUE> [\r\n]+ {yybegin(COMMENT_DATA); return DOC_WHITESPACE;}
+
+<COMMENT_DATA_START> "@"{IDENTIFIER} {yybegin(TAG_DOC_SPACE); return DOC_TAG_NAME;  }
+<TAG_DOC_SPACE>  {WHITE_DOC_SPACE_CHAR}+ {
    yybegin(COMMENT_DATA);
    return DOC_WHITESPACE;
 }
+/*
 <TAG_DOC_SPACE>  {WHITE_DOC_SPACE_CHAR}+ {
   if (checkAhead('<') || checkAhead('\"') || checkAhead('\u007b')) yybegin(COMMENT_DATA);
   //else if (checkAhead('\u007b') ) yybegin(COMMENT_DATA); //lbrace -  there's some error in JLex when typing lbrace directly
   else yybegin(DOC_TAG_VALUE);
 
  return DOC_WHITESPACE;
-}
+} */
 <INLINE_TAG_DOC_SPACE> {WHITE_DOC_SPACE_CHAR}+ {
   yybegin(INLINE_DOC_TAG_VALUE);
   return DOC_WHITESPACE;

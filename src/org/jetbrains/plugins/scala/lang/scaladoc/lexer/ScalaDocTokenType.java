@@ -28,7 +28,7 @@ public interface ScalaDocTokenType {
   IElementType DOC_TAG_VALUE_SHARP_TOKEN = new ScalaDocElementType("DOC_TAG_VALUE_SHARP_TOKEN");
   IElementType DOC_MARKED_ELEMENT = new ScalaDocElementType("DOC_MARKED_ELEMENT");    //
   IElementType DOC_INNER_CODE_TAG = new ScalaDocElementType("DOC_INNER_CODE_TAG");
-  IElementType DOC_LINK_CLOSE_TAG = new ScalaDocElementType("DOC_LINK_CLOSE_TAG");
+  IElementType DOC_LINK_CLOSE_TAG = new ScaladocSyntaxElementType("DOC_LINK_CLOSE_TAG", 0);
   IElementType DOC_INNER_CODE = new ScalaDocElementType("DOC_INNER_CODE");
 
   ScaladocSyntaxElementType DOC_BOLD_TAG = new ScaladocSyntaxElementType("DOC_BOLD_TAG", 1);
@@ -40,6 +40,7 @@ public interface ScalaDocTokenType {
   ScaladocSyntaxElementType DOC_LINK_TAG = new ScaladocSyntaxElementType("DOC_LINK_TAG", 1 << 6);
   ScaladocSyntaxElementType DOC_HTTP_LINK_TAG = new ScaladocSyntaxElementType("DOC_HTTP_LINK_TAG", 1 << 7);
   ScaladocSyntaxElementType DOC_HEADER = new ScaladocSyntaxElementType("DOC_HEADER", 1 << 8);
+  ScaladocSyntaxElementType VALID_DOC_HEADER = new ScaladocSyntaxElementType("VALID_DOC_HEADER", 1 << 8);
 
 
   IElementType DOC_COMMENT_BAD_CHARACTER = new ScalaDocElementType("DOC_COMMENT_BAD_CHARACTER");
@@ -49,6 +50,6 @@ public interface ScalaDocTokenType {
    DOC_INLINE_TAG_START, DOC_INLINE_TAG_END, DOC_TAG_VALUE_TOKEN, DOC_TAG_VALUE_DOT, DOC_TAG_VALUE_COMMA,
    DOC_TAG_VALUE_LPAREN, DOC_TAG_VALUE_RPAREN, DOC_TAG_VALUE_SHARP_TOKEN, DOC_MARKED_ELEMENT, DOC_BOLD_TAG,
    DOC_ITALIC_TAG, DOC_UNDERLINE_TAG, DOC_MONOSPACE_TAG, DOC_SUPERSCRIPT_TAG, DOC_SUBSCRIPT_TAG, DOC_LINK_TAG,
-   DOC_HTTP_LINK_TAG, DOC_INNER_CODE_TAG, DOC_INNER_CODE, DOC_HEADER, DOC_LINK_CLOSE_TAG
+   DOC_HTTP_LINK_TAG, DOC_INNER_CODE_TAG, DOC_INNER_CODE, DOC_HEADER, DOC_LINK_CLOSE_TAG, VALID_DOC_HEADER
   );
 }
