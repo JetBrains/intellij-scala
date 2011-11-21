@@ -40,7 +40,8 @@ class NamingParamsSearcher extends QueryExecutor[PsiReference, ReferencesSearch.
                           case Some(`parameter`) => if (!consumer.process(ref)) return false
                           case Some(x: ScParameter) =>
                             ScalaPsiUtil.parameterForSyntheticParameter(x) match {
-                              case Some(realParam) => if (!consumer.process(ref)) return false
+                              case Some(realParam) =>
+                                if (realParam == parameter && !consumer.process(ref)) return false
                               case None =>
                             }
                           case _ =>
