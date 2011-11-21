@@ -121,4 +121,30 @@ class ScalaRenameBeansTest extends ScalaRenameTestBase {
 
     myFixture.checkResult(resultText)
   }
+  
+  def testRenameNamingParameter() {
+    val fileText =
+      """
+      |class Check {
+      |  def method(<caret>attrib: String) = {
+      |     CaseClass(attrib = attrib)
+      |  }
+      |}
+      |case class CaseClass(attrib: String) {}
+      """.stripMargin('|').replaceAll("\r", "").trim()
+    myFixture.configureByText("dummy.scala", fileText)
+    myFixture.renameElementAtCaret("y")
+
+    val resultText =
+      """
+      |class Check {
+      |  def method(<caret>y: String) = {
+      |     CaseClass(attrib = y)
+      |  }
+      |}
+      |case class CaseClass(attrib: String) {}
+      """.stripMargin('|').replaceAll("\r", "").trim()
+
+    myFixture.checkResult(resultText)
+  }
 }
