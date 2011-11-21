@@ -138,6 +138,11 @@ object MethodResolveProcessor {
       undefinedSubstitutor(elementForUndefining, s, proc).followed(ScalaPsiUtil.undefineSubstitutor(prevTypeInfo))
 
     def checkFunction(fun: PsiNamedElement): ConformanceExtResult = {
+      fun match {
+        case fun: ScFunction if fun.paramClauses.clauses.length == 0 => return ConformanceExtResult(Seq.empty)
+        case fun: ScFun if fun.paramClauses.isEmpty => return ConformanceExtResult(Seq.empty)
+        case _ =>
+      }
       expectedOption() match {
         case Some(ScFunctionType(retType, params)) => {
           val args = params.map(new Expression(_))
