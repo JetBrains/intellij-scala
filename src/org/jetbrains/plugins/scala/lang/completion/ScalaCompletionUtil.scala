@@ -80,8 +80,10 @@ object ScalaCompletionUtil {
       return null
     }
     var candidate: PsiElement = element.getContainingFile()
+    if (candidate == null || candidate.getNode == null) return null
     while (candidate.getNode().getChildren(null).length > 0) {
       candidate = candidate.findElementAt(offset)
+      if (candidate == null || candidate.getNode == null) return null
     }
     candidate
   }
@@ -255,12 +257,13 @@ object ScalaCompletionUtil {
     if (psi == null || !psi.isInstanceOf[PsiNamedElement]) return null
     val isInImport = item.getUserData(ResolveUtils.isInImportKey)
     val isNamedParameter = item.getUserData(ResolveUtils.isNamedParameterOrAssignment)
+    val isInReference = item.getUserData(ResolveUtils.isInStableCodeReferenceKey)
 
     val obj = ScalaLookupObject(psi.asInstanceOf[PsiNamedElement],
       if (isNamedParameter == null) false
       else isNamedParameter.booleanValue(),
       if (isInImport == null) false
-      else isInImport.booleanValue())
+      else isInImport.booleanValue(), Option(isInReference).map(_.booleanValue()).getOrElse(false))
     val typeParametersProblem = item.getUserData(ResolveUtils.typeParametersProblemKey)
     if (typeParametersProblem == java.lang.Boolean.TRUE)
       obj.typeParametersProblem = true

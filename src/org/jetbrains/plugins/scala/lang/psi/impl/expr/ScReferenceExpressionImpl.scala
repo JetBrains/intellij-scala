@@ -107,7 +107,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
       case res: ScalaResolveResult =>
         import org.jetbrains.plugins.scala.lang.psi.types.Nothing
         val qualifier = res.fromType.getOrElse(Nothing)
-        ResolveUtils.getLookupElement(res, isInImport = isInImport, qualifierType = qualifier)
+        ResolveUtils.getLookupElement(res, isInImport = isInImport, qualifierType = qualifier, isInStableCodeReference = false)
       case r => Seq(r.getElement)
     }
   }

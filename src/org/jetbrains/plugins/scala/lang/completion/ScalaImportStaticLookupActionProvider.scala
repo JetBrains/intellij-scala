@@ -17,7 +17,7 @@ class ScalaImportStaticLookupActionProvider extends LookupActionProvider {
     if (isClassName == null || !isClassName.booleanValue()) return
 
     element.getObject match {
-      case ScalaLookupObject(elem, _, _) if elem.isInstanceOf[PsiClass] => return
+      case ScalaLookupObject(elem, _, _, _) if elem.isInstanceOf[PsiClass] => return
       case _ =>
     }
 
