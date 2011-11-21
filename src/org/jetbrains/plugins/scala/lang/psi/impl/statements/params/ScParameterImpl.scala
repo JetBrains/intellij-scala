@@ -125,8 +125,8 @@ class ScParameterImpl extends ScalaStubBasedElementImpl[ScParameter] with ScPara
         }
       } else {
         typeElement match {
-          case None if isDefaultParam =>
-             getDefaultExpression match {
+          case None if baseDefaultParam =>
+             getActualDefaultExpression match {
                case Some(t) => t.getType(TypingContext.empty).getOrNothing
                case None => lang.psi.types.Nothing
              }
