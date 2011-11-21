@@ -12,8 +12,11 @@ import lang.completion.ScalaCompletionUtil
 import lang.psi.api.toplevel.imports.{ScImportSelectors, ScImportStmt}
 import lang.psi.ScalaPsiUtil
 import lang.psi.api.ScalaFile
-import com.intellij.psi.{PsiDocumentManager, PsiMember, PsiClass}
 import lang.resolve.ResolveUtils
+import lang.psi.api.toplevel.typedef.ScObject
+import com.intellij.codeInsight.AutoPopupController
+import com.intellij.openapi.util.Condition
+import com.intellij.psi.{PsiFile, PsiDocumentManager, PsiMember, PsiClass}
 
 /**
  * @author Alexander Podkhalyuzin
@@ -31,24 +34,36 @@ class ScalaClassNameInsertHandler extends ScalaInsertHandler {
     if (patchedObject == null) return
 
     patchedObject match {
-      case ScalaLookupObject(cl: PsiClass, _, _) =>
+      case ScalaLookupObject(cl: PsiClass, _, _, isInRef) =>
         while (ref.getParent != null && ref.getParent.isInstanceOf[ScReferenceElement] &&
                 (ref.getParent.asInstanceOf[ScReferenceElement].qualifier match {
                   case Some(r) => r != ref
                   case _ => true
                 }))
           ref = ref.getParent.asInstanceOf[ScReferenceElement]
+        val addDot = if (cl.isInstanceOf[ScObject] && isInRef) "." else ""
         val newRef = (useFullyQualifiedName, ref) match {
           case (false, ref: ScReferenceExpression) =>
-            ScalaPsiElementFactory.createExpressionFromText(cl.getName, cl.getManager).asInstanceOf[ScReferenceExpression]
+            ScalaPsiElementFactory.createExpressionFromText(cl.getName + addDot, cl.getManager).asInstanceOf[ScReferenceExpression]
           case (false, _) =>
-            ScalaPsiElementFactory.createReferenceFromText(cl.getName, cl.getManager)
+            ScalaPsiElementFactory.createReferenceFromText(cl.getName + addDot, cl.getManager)
           case (true, _) =>
-            ScalaPsiElementFactory.createReferenceFromText(cl.getQualifiedName, cl.getManager)
+            ScalaPsiElementFactory.createReferenceFromText(cl.getQualifiedName + addDot, cl.getManager)
         }
         ref.getNode.getTreeParent.replaceChild(ref.getNode, newRef.getNode)
         newRef.bindToElement(cl)
-      case ScalaLookupObject(namedElement, _, _) =>
+        if (addDot == ".") {
+          context.setLaterRunnable(new Runnable {
+            def run() {
+              AutoPopupController.getInstance(context.getProject).scheduleAutoPopup(
+                context.getEditor, new Condition[PsiFile] {
+                  def value(t: PsiFile): Boolean = t == context.getFile
+                }
+              )
+            }
+          })
+        }
+      case ScalaLookupObject(namedElement, _, _, _) =>
         val containingClass = ScalaPsiUtil.nameContext(namedElement) match {
           case memb: PsiMember =>
             memb.getContainingClass

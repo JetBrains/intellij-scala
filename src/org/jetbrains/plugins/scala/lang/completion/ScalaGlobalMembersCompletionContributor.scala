@@ -216,6 +216,6 @@ class ScalaGlobalMembersCompletionContributor extends CompletionContributor {
   private def createLookupElement(member: PsiNamedElement, clazz: PsiClass, shouldImport: Boolean,
                                   overloaded: Boolean = false): LookupElement = {
     ResolveUtils.getLookupElement(new ScalaResolveResult(member), isClassName = true,
-      isOverloadedForClassName = overloaded, shouldImport = shouldImport).apply(0)._1
+      isOverloadedForClassName = overloaded, shouldImport = shouldImport, isInStableCodeReference = false).apply(0)._1
   }
 }

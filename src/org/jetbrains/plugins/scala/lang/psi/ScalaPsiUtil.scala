@@ -1367,11 +1367,15 @@ object ScalaPsiUtil {
     if (params.isEmpty) None
     else {
       val fullClauseText: String = "(implicit " + clauseText + ")"
-      val paramClause: ScParameterClause = {
-        if (classParam) ScalaPsiElementFactory.createImplicitClassParamClauseFromTextWithContext(fullClauseText, paramOwner.getManager, paramClauses)
-        else ScalaPsiElementFactory.createImplicitClauseFromTextWithContext(fullClauseText, paramOwner.getManager, paramClauses)
+      try {
+        val paramClause: ScParameterClause = {
+          if (classParam) ScalaPsiElementFactory.createImplicitClassParamClauseFromTextWithContext(fullClauseText, paramOwner.getManager, paramClauses)
+          else ScalaPsiElementFactory.createImplicitClauseFromTextWithContext(fullClauseText, paramOwner.getManager, paramClauses)
+        }
+        Some(paramClause)
+      } catch {
+        case t: Throwable => None
       }
-      Some(paramClause)
     }
   }
 

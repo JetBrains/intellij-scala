@@ -44,7 +44,9 @@ import lang.resolve.processor.{ImplicitProcessor, ResolveProcessor, ResolverEnv}
 import com.intellij.psi.impl.ResolveScopeManager
 import com.intellij.openapi.module.ModuleManager
 import api.toplevel.typedef.ScObject
-import util.{PsiModificationTracker, PsiTreeUtil}
+import com.intellij.util.indexing.FileBasedIndex
+import util.{PsiUtilCore, PsiUtilBase, PsiModificationTracker, PsiTreeUtil}
+import com.intellij.openapi.diagnostic.Logger
 
 class ScalaFileImpl(viewProvider: FileViewProvider)
         extends PsiFileBase(viewProvider, ScalaFileType.SCALA_FILE_TYPE.getLanguage)
@@ -70,7 +72,7 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
         return stub.asInstanceOf[ScFileStub].getFileName
       }
       val virtualFile = getVirtualFile
-      DecompilerUtil.decompile(virtualFile.contentsToByteArray, virtualFile)._2
+      DecompilerUtil.decompile(virtualFile, virtualFile.contentsToByteArray).sourceName
     }
     else ""
   }
@@ -225,7 +227,17 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
     }
   }
 
-  override def getStub: ScFileStub = super[PsiFileBase].getStub.asInstanceOf[ScFileStub]
+  override def getStub: ScFileStub = super[PsiFileBase].getStub match {
+    case null => null
+    case s: ScFileStub => s
+    case _ =>
+      val faultyContainer: VirtualFile = PsiUtilCore.getVirtualFile(this)
+      ScalaFileImpl.LOG.error("Scala File has wrong stub file: " + faultyContainer)
+      if (faultyContainer != null && faultyContainer.isValid) {
+        FileBasedIndex.getInstance.requestReindex(faultyContainer)
+      }
+      null
+  }
 
   def getPackagings: Array[ScPackaging] = {
     val stub = getStub
@@ -540,6 +552,7 @@ object ImplicitlyImported {
 }
 
 private object ScalaFileImpl {
+  private var LOG: Logger = Logger.getInstance("#org.jetbrains.plugins.scala.lang.psi.impl.ScalaFileImpl")
   val SCRIPT_KEY = new Key[java.lang.Boolean]("Is Script Key")
   val CONTEXT_KEY = new Key[PsiElement]("context.key")
   val CHILD_KEY = new Key[PsiElement]("child.key")
