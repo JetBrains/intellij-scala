@@ -108,6 +108,10 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
       annotateAuxiliaryConstructor(element.asInstanceOf[ScConstrBlock], holder)
     }
 
+    if (element.isInstanceOf[ScParameter]) {
+      annotateParameter(element.asInstanceOf[ScParameter], holder)
+    }
+
     annotateScope(element, holder)
 
     if (isAdvancedHighlightingEnabled(element) && settings(element).SHOW_IMPLICIT_CONVERSIONS) {
