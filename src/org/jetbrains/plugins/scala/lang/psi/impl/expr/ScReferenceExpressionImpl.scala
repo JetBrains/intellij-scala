@@ -8,7 +8,7 @@ import _root_.org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyn
 import api.statements._
 import params.ScParameter
 import resolve._
-import processor.CompletionProcessor
+import processor.{MethodResolveProcessor, CompletionProcessor}
 import types._
 import nonvalue.ScTypePolymorphicType
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
@@ -217,10 +217,33 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
         } else computeType
       }
       case Some(ScalaResolveResult(obj: ScObject, s)) => {
-        fromType match {
-          case Some(tp) => ScProjectionType(tp, obj, s)
-          case _ => ScType.designator(obj)
+        def tail = {
+          fromType match {
+            case Some(tp) => ScProjectionType(tp, obj, s)
+            case _ => ScType.designator(obj)
+          }
         }
+        if (obj.isSyntheticObject) {
+          //hack to add Eta expansion for case classes
+          expectedType() match {
+            case Some(tp) =>
+              val expectedFunction = tp match {
+                case _: ScFunctionType => true
+                case p: ScParameterizedType => p.getFunctionType != None
+                case _ => false
+              }
+              if (expectedFunction) {
+                val tp = tail
+                val processor =
+                  new MethodResolveProcessor(this, "apply", Nil, Nil, Nil)
+                processor.processType(tp, this)
+                val candidates = processor.candidates
+                if (candidates.length != 1) tail
+                else convertBindToType(Some(candidates(0))).getOrElse(tail)
+              } else tail
+            case _ => tail
+          }
+        } else tail
       }
       case Some(ScalaResolveResult(typed: ScTypedDefinition, s)) => {
         val result = typed.getType(TypingContext.empty)
