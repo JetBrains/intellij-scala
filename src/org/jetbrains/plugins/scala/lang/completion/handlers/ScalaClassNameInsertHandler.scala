@@ -24,6 +24,7 @@ import com.intellij.psi.{PsiFile, PsiDocumentManager, PsiMember, PsiClass}
 
 class ScalaClassNameInsertHandler extends ScalaInsertHandler {
   override def handleInsert(context: InsertionContext, item: LookupElement) {
+    PsiDocumentManager.getInstance(context.getProject).commitDocument(context.getDocument)
     val startOffset = context.getStartOffset
     var ref: ScReferenceElement = PsiTreeUtil.findElementOfClassAtOffset(context.getFile, startOffset, classOf[ScReferenceElement], false)
     val useFullyQualifiedName = PsiTreeUtil.getParentOfType(ref, classOf[ScImportStmt]) != null &&
