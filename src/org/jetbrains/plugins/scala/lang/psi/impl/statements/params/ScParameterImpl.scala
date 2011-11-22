@@ -110,7 +110,6 @@ class ScParameterImpl extends ScalaStubBasedElementImpl[ScParameter] with ScPara
 
   def getInitializer = null
 
-  // todo rewrite to handle errors
   def getType(ctx: TypingContext) : TypeResult[ScType] = {
     val computeType: ScType = {
       val stub = getStub
@@ -126,6 +125,11 @@ class ScParameterImpl extends ScalaStubBasedElementImpl[ScParameter] with ScPara
         }
       } else {
         typeElement match {
+          case None if baseDefaultParam =>
+             getActualDefaultExpression match {
+               case Some(t) => t.getType(TypingContext.empty).getOrNothing
+               case None => lang.psi.types.Nothing
+             }
           case None => expectedParamType match {
             case Some(t) => t
             case None => lang.psi.types.Nothing
