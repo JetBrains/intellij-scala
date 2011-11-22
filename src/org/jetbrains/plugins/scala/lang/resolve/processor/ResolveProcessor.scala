@@ -241,7 +241,7 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
   }
 
   override def candidatesS: Set[ScalaResolveResult] = {
-    val res = candidatesSet ++ levelSet
+    var res = candidatesSet ++ levelSet
     /*
     This code works in following way:
     if we found to Types (from types namespace), which import is the same,
@@ -265,12 +265,36 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
         }
       })
 
-      res.filter(r => r.getActualElement match {
+      res = res.filter(r => r.getActualElement match {
         case o: ScObject => !problems.contains("Value:" + o.getQualifiedName)
         case c: PsiClass => !problems.contains("Type:" + c.getQualifiedName)
         case _ => true
       })
     } else res
+
+    /*
+    This is also hack for self type elements to filter duplicates.
+    For example:
+    trait IJTest {
+      self : MySub =>
+      type FooType
+      protected implicit def d: FooType
+    }
+    trait MySub extends IJTest {
+      type FooType = Long
+    }
+     */
+    res.filter {
+      case r@ScalaResolveResult(_: ScTypeAlias | _: ScClass | _: ScTrait, _) =>
+        res.foldLeft(true) {
+          case (false, _) => false
+          case (true, rr@ScalaResolveResult(_: ScTypeAlias | _: ScClass | _: ScTrait, _)) =>
+            rr.element.getName != r.element.getName ||
+            ScalaPsiUtil.superTypeMembers(rr.element).find(_ == r.element) == None
+          case (true, _) => true
+        }
+      case _ => true
+    }
   }
 
   object ScalaNameHint extends NameHint {
