@@ -5,7 +5,6 @@ package api
 package statements
 package params
 
-import expr.ScExpression
 import icons.Icons
 import javax.swing.Icon
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
@@ -14,6 +13,8 @@ import toplevel.{ScImportableDeclarationsOwner, ScModifierListOwner, ScTypedDefi
 import types.result.{TypeResult, TypingContext}
 import types.ScType
 import util.PsiTreeUtil
+import expr.{ScFunctionExpr, ScExpression}
+import base.ScPrimaryConstructor
 
 /**
  * @author Alexander Podkhalyuzin
@@ -49,6 +50,13 @@ trait ScParameter extends ScTypedDefinition with ScModifierListOwner with
   def getRealParameterType(ctx: TypingContext): TypeResult[ScType]
 
   def getSuperParameter: Option[ScParameter]
+
+  def expectedParamType: Option[ScType]
+
+  def owner: PsiElement = {
+    ScalaPsiUtil.getContextOfType(this, true, classOf[ScFunctionExpr],
+      classOf[ScFunction], classOf[ScPrimaryConstructor])
+  }
 
   def remove()
 
