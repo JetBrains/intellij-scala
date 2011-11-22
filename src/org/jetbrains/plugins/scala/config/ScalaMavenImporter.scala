@@ -12,6 +12,7 @@ import FileAPI._
 import org.jetbrains.idea.maven.model.{MavenArtifactInfo, MavenId}
 import org.jetbrains.idea.maven.server.{NativeMavenProjectHolder, MavenEmbedderWrapper}
 import org.jetbrains.plugins.scala.extensions._
+import com.intellij.openapi.project.Project
 
 /**
  * Pavel.Fatin, 03.08.2010
@@ -77,9 +78,10 @@ class ScalaMavenImporter extends FacetImporter[ScalaFacet, ScalaFacetConfigurati
     library
   }
 
-  override def resolve(project: MavenProject, nativeMavenProject: NativeMavenProjectHolder, embedder: MavenEmbedderWrapper) = {
-    validConfigurationIn(project).foreach { configuration =>
-      val repositories = project.getRemoteRepositories
+  override def resolve(project: Project, mavenProject: MavenProject, nativeMavenProject: NativeMavenProjectHolder,
+                       embedder: MavenEmbedderWrapper) {
+    validConfigurationIn(mavenProject).foreach { configuration =>
+      val repositories = mavenProject.getRemoteRepositories
 
       val compilerId = configuration.compilerId
       embedder.resolve(new MavenArtifactInfo(compilerId, "pom", null), repositories)
@@ -95,7 +97,7 @@ class ScalaMavenImporter extends FacetImporter[ScalaFacet, ScalaFacetConfigurati
       }
     }
   }
-  
+
   private def validConfigurationIn(project: MavenProject) =
     Some(new ScalaConfiguration(project)).filter(_.valid)
   
