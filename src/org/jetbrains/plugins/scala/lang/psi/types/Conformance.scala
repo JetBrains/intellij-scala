@@ -487,6 +487,16 @@ object Conformance {
       r.visitType(rightVisitor)
       if (result != null) return
 
+      rightVisitor = new TupleVisitor with FunctionVisitor with ThisVisitor with DesignatorVisitor
+        with ParameterizedAliasVisitor {}
+      r.visitType(rightVisitor)
+      if (result != null) return
+
+      rightVisitor = new AliasDesignatorVisitor with CompoundTypeVisitor with ExistentialVisitor
+        with ProjectionVisitor {}
+      r.visitType(rightVisitor)
+      if (result != null) return
+
       if (x eq Null) {
         result = (r == Nothing, undefinedSubst)
         return
@@ -523,16 +533,6 @@ object Conformance {
         result = (false, undefinedSubst)
         return
       }
-
-      rightVisitor = new TupleVisitor with FunctionVisitor with ThisVisitor with DesignatorVisitor
-      with ParameterizedAliasVisitor {}
-      r.visitType(rightVisitor)
-      if (result != null) return
-
-      rightVisitor = new AliasDesignatorVisitor with CompoundTypeVisitor with ExistentialVisitor
-        with ProjectionVisitor {}
-      r.visitType(rightVisitor)
-      if (result != null) return
     }
 
     override def visitFunctionType(f: ScFunctionType) {
