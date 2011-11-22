@@ -12,11 +12,11 @@ import java.lang.Boolean
 import com.intellij.openapi.util.Ref
 import org.jetbrains.plugins.scala.extensions._
 import com.intellij.openapi.extensions.Extensions
-import com.intellij.codeInsight.editorActions.{ReferenceTransferableData, CopyPasteReferenceProcessor, TextBlockTransferableData, CopyPastePostProcessor}
 import collection.mutable.{ListBuffer, ArrayBuffer}
 import com.intellij.codeInsight.editorActions.ReferenceTransferableData.ReferenceData
 import com.intellij.openapi.project.{DumbService, Project}
 import org.jetbrains.plugins.scala.ScalaFileType
+import com.intellij.codeInsight.editorActions._
 
 /**
  * User: Alexander Podkhalyuzin
@@ -25,7 +25,7 @@ import org.jetbrains.plugins.scala.ScalaFileType
 
 class JavaCopyPastePostProcessor extends CopyPastePostProcessor[TextBlockTransferableData] {
   private lazy val referenceProcessor = Extensions.getExtensions(CopyPastePostProcessor.EP_NAME)
-          .find(_.isInstanceOf[CopyPasteReferenceProcessor]).get
+          .find(_.isInstanceOf[JavaCopyPasteReferenceProcessor]).get
 
   private lazy val scalaProcessor = Extensions.getExtensions(CopyPastePostProcessor.EP_NAME)
             .find(_.isInstanceOf[ScalaCopyPastePostProcessor]).get.asInstanceOf[ScalaCopyPastePostProcessor]
