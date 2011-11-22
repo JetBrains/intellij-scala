@@ -56,7 +56,7 @@ class NamingParamsSearcher extends QueryExecutor[PsiReference, ReferencesSearch.
               true
             }
           }
-          val helper: PsiSearchHelper = PsiSearchHelper.SERVICE.getInstance(parameter.getProject)
+          val helper: PsiSearchHelper = PsiManager.getInstance(parameter.getProject).getSearchHelper
           helper.processElementsWithWord(processor, scope, name, UsageSearchContext.IN_CODE, true)
         }
         case _ =>

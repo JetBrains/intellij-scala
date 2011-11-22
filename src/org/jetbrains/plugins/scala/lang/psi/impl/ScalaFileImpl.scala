@@ -43,7 +43,7 @@ import lang.resolve.processor.{ImplicitProcessor, ResolveProcessor, ResolverEnv}
 import com.intellij.openapi.module.ModuleManager
 import api.toplevel.typedef.ScObject
 import com.intellij.util.indexing.FileBasedIndex
-import util.{PsiUtilCore, PsiUtilBase, PsiModificationTracker, PsiTreeUtil}
+import util.{PsiUtilBase, PsiModificationTracker, PsiTreeUtil}
 import com.intellij.openapi.diagnostic.Logger
 
 class ScalaFileImpl(viewProvider: FileViewProvider)
@@ -229,7 +229,7 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
     case null => null
     case s: ScFileStub => s
     case _ =>
-      val faultyContainer: VirtualFile = PsiUtilCore.getVirtualFile(this)
+      val faultyContainer: VirtualFile = PsiUtilBase.getVirtualFile(this)
       ScalaFileImpl.LOG.error("Scala File has wrong stub file: " + faultyContainer)
       if (faultyContainer != null && faultyContainer.isValid) {
         FileBasedIndex.getInstance.requestReindex(faultyContainer)

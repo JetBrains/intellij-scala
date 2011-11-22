@@ -43,15 +43,6 @@ class ScalaConstuctorInsertHandler extends InsertHandler[LookupElement] {
         document.insertString(endOffset, ".")
         endOffset += 1
         editor.getCaretModel.moveToOffset(endOffset)
-        context.setLaterRunnable(new Runnable {
-          def run() {
-            AutoPopupController.getInstance(context.getProject).scheduleAutoPopup(
-              context.getEditor, new Condition[PsiFile] {
-                def value(t: PsiFile): Boolean = t == context.getFile
-              }
-            )
-          }
-        })
         return
       }
       case obj@ScalaLookupObject(clazz: PsiClass, _, _, _) => {
