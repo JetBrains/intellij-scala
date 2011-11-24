@@ -86,8 +86,17 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
             case _ => Seq.empty
           }
         }
-        val (params1, params2) = (calcParams(t1, true), calcParams(t2, false))
-        if (lastRepeated(params1) && !lastRepeated(params2)) return false
+        var params1 = calcParams(t1, true)
+        val params2 = calcParams(t2, false)
+        if (lastRepeated(params1) && !lastRepeated(params2)) params1 = params1.map {
+          case p: Parameter => 
+            val seq = ScalaPsiManager.instance(r1.element.getProject).getCachedClass(r1.element.getResolveScope, 
+              "scala.collection.Seq")
+            if (seq != null)
+              Parameter(p.name, ScParameterizedType(ScDesignatorType(seq), Seq(p.paramType)), p.expectedType,
+                p.isDefault, false, p.isByName)
+            else p
+        }
         val i: Int = if (params1.length > 0) 0.max(length - params1.length) else 0
         val default: Expression = new Expression(if (params1.length > 0) params1.last.paramType else Nothing)
         val exprs: Seq[Expression] = params1.map(p => new Expression(p.paramType)) ++ Seq.fill(i)(default)
