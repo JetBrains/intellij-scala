@@ -76,18 +76,7 @@ trait ScReferenceElement extends ScalaPsiElement with ResolvableReferenceElement
               if (n.method.getName == method.getName) {
                 val methodContainingClass: ScTemplateDefinition = method.getContainingClass
                 val nodeMethodContainingClass: PsiClass = n.method.getContainingClass
-                val classesEquiv: Boolean = {
-                  val equal = methodContainingClass == nodeMethodContainingClass
-                  lazy val syntheticEquiv = td match {
-                    // TODO investigate why we need this.
-                    //      Trigger the CreateCaseClauses intention on `(null: Either[Int, String) match {}`, and without
-                    //      this we get unneeded imports: `import scala.{Left, Right}`
-                    //      Seems We end up with multiple instances of the synthetic companion object for a single case class
-                    case obj: ScObject if obj.isSyntheticObject && obj.getQualifiedName == nodeMethodContainingClass.getQualifiedName => true
-                    case _ => false
-                  }
-                  equal || syntheticEquiv
-                }
+                val classesEquiv: Boolean = ScEquivalenceUtil.smartEquivalence(methodContainingClass, nodeMethodContainingClass)
                 if (classesEquiv)
                   break = true
               }
