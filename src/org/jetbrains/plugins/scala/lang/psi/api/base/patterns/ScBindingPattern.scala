@@ -9,10 +9,11 @@ import com.intellij.navigation.NavigationItem
 import com.intellij.psi.impl.PsiManagerEx
 import com.intellij.psi.search.LocalSearchScope
 import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScTypedDefinition}
 import com.intellij.psi.{PsiClass, PsiElement}
 import toplevel.typedef.{ScMember, ScTypeDefinition}
 import statements._
+import toplevel.templates.ScTemplateBody
+import toplevel.{ScEarlyDefinitions, ScNamedElement, ScTypedDefinition}
 
 trait ScBindingPattern extends ScPattern with ScNamedElement with ScTypedDefinition with NavigationItem {
   override def getTextOffset: Int = nameId.getTextRange.getStartOffset
@@ -37,6 +38,18 @@ trait ScBindingPattern extends ScPattern with ScNamedElement with ScTypedDefinit
 
   override def isStable = getEnclosingVariable match {
     case None => true
+    case _ => false
+  }
+
+  def nameContext: PsiElement = ScalaPsiUtil.nameContext(this)
+  def isVar = nameContext.isInstanceOf[ScVariable]
+  def isVal = nameContext.isInstanceOf[ScValue]
+  def isClassMember = nameContext.getContext match {
+    case _: ScTemplateBody | _: ScEarlyDefinitions => true
+    case _ => false
+  }
+  def isBeanProperty: Boolean = nameContext match {
+    case a: ScAnnotationsHolder => a.hasAnnotation("scala.reflect.BeanProperty") != None
     case _ => false
   }
   
