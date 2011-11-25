@@ -37,7 +37,7 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
 
   /**
    * Important method for method calls like: foo(expr) = assign.
-   * Usually this is same as argumentExpreesions
+   * Usually this is same as argumentExpressions
    * @return arguments with additional argument if call in update position
    */
   def argumentExpressionsIncludeUpdateCall: Seq[ScExpression] = argumentExpressions

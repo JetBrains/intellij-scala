@@ -28,7 +28,11 @@ class ScInfixExprImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScIn
   override def argumentExpressions: Seq[ScExpression] = {
     if (isLeftAssoc) Seq(lOp) else rOp match {
       case tuple: ScTuple => tuple.exprs
-      case rOp => Seq(rOp)
+      case t: ScParenthesisedExpr => t.expr match {
+        case Some(expr) => Seq(expr)
+        case None => Seq(t)
+      }
+      case expr => Seq(expr)
     }
   }
 
@@ -83,7 +87,9 @@ class ScInfixExprImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScIn
   protected override def innerType(ctx: TypingContext): TypeResult[ScType] = {
     operation.bind() match {
       //this is assignment statement: x += 1 equals to x = x + 1
-      case Some(r) if r.element.getName + "=" == operation.refName => Success(Unit, Some(this))
+      case Some(r) if r.element.getName + "=" == operation.refName => 
+        super.innerType(ctx)
+        Success(Unit, Some(this))
       case _ => super.innerType(ctx)
     }
   }
