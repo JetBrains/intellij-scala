@@ -47,6 +47,7 @@ import api.toplevel.typedef.ScObject
 import com.intellij.util.indexing.FileBasedIndex
 import util.{PsiUtilCore, PsiUtilBase, PsiModificationTracker, PsiTreeUtil}
 import com.intellij.openapi.diagnostic.Logger
+import java.lang.String
 
 class ScalaFileImpl(viewProvider: FileViewProvider)
         extends PsiFileBase(viewProvider, ScalaFileType.SCALA_FILE_TYPE.getLanguage)
@@ -75,6 +76,11 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
       DecompilerUtil.decompile(virtualFile, virtualFile.contentsToByteArray).sourceName
     }
     else ""
+  }
+
+  override def getName: String = {
+    if (virtualFile != null) virtualFile.getName
+    else super.getName
   }
 
   override def getVirtualFile: VirtualFile = {
