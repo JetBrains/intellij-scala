@@ -24,10 +24,18 @@ import com.intellij.openapi.progress.ProgressManager
 import lang.resolve.processor.{CompletionProcessor, ResolveProcessor}
 import lang.resolve.{ScalaResolveResult, StdKinds}
 import com.intellij.psi.util.PsiTreeUtil
+import java.lang.ThreadLocal
 
 trait ScImportsHolder extends ScalaPsiElement {
 
   def getImportStatements: Seq[ScImportStmt] = collection.immutable.Seq(findChildrenByClassScala(classOf[ScImportStmt]).toSeq: _*)
+  
+  @volatile
+  private var modCount: Long = 0L
+
+  private val updating: ThreadLocal[Boolean] = new ThreadLocal[Boolean]() {
+    override def initialValue(): Boolean = false
+  }
 
   override def processDeclarations(processor: PsiScopeProcessor,
       state : ResolveState,
@@ -35,6 +43,7 @@ trait ScImportsHolder extends ScalaPsiElement {
       place: PsiElement): Boolean = {
     if (lastParent != null) {
       var run = ScalaPsiUtil.getPrevStubOrPsiElement(lastParent)
+      updateResolveCaches()
       while (run != null) {
         ProgressManager.checkCanceled()
         if (run.isInstanceOf[ScImportStmt] &&
@@ -43,6 +52,34 @@ trait ScImportsHolder extends ScalaPsiElement {
       }
     }
     true
+  }
+
+  /**
+   * This method is important to avoid SOE.
+   *
+   */
+  private def updateResolveCaches() {
+    val curModCount = getManager.getModificationTracker.getModificationCount
+    if (curModCount == modCount || updating.get()) return
+    updating.set(true)
+    try {
+      var child = getFirstChild
+      while (child != null) {
+        child match {
+          case i: ScImportStmt =>
+            for (expr <- i.importExprs) {
+              expr.reference match {
+                case Some(ref) => ref.multiResolve(false) //fill resolve cache to avoid SOE
+                case _ =>
+              }
+            }
+          case _ =>
+        }
+        child = ScalaPsiUtil.getNextStubOrPsiElement(child)
+      }
+    }
+    finally updating.set(false)
+    modCount = curModCount
   }
 
   def getImportsForLastParent(lastParent: PsiElement): Seq[ScImportStmt] = {
