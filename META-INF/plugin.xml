@@ -144,7 +144,7 @@
 
     <testSrcLocator implementation="org.jetbrains.plugins.scala.testingSupport.locationProvider.ScalaTestLocationProvider"/>
     <testCreator language="Scala" implementationClass="org.jetbrains.plugins.scala.testingSupport.ScalaTestCreator"/>
-    <testGenerator implementationClass="org.jetbrains.plugins.scala.testingSupport.ScalaTestGenerator"/>
+    <testGenerator language="Scala" implementationClass="org.jetbrains.plugins.scala.testingSupport.ScalaTestGenerator"/>
     <testFramework implementation="org.jetbrains.plugins.scala.testingSupport.specs2.Specs2TestFramework"/>
     <testFramework implementation="org.jetbrains.plugins.scala.testingSupport.specs.SpecsTestFramework"/>
     <testFramework implementation="org.jetbrains.plugins.scala.testingSupport.scalaTest.ScalatestTestFramework"/>
