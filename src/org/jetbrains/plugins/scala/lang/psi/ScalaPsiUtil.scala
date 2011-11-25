@@ -599,18 +599,34 @@ object ScalaPsiUtil {
             ScTypePolymorphicType(retType, typeParams.map(tp => {
               var lower = tp.lowerType
               var upper = tp.upperType
+              def hasRecursiveTypeParameters(typez: ScType): Boolean = {
+                var hasRecursiveTypeParameters = false
+                typez.recursiveUpdate {
+                  case tpt: ScTypeParameterType =>
+                    typeParams.find(tp => (tp.name, ScalaPsiUtil.getPsiElementId(tp.ptp)) ==(tpt.name, tpt.getId)) match {
+                      case None => (true, tpt)
+                      case _ =>
+                        hasRecursiveTypeParameters = true
+                        (true, tpt)
+                    }
+                  case tp: ScType => (hasRecursiveTypeParameters, tp)
+                }
+                hasRecursiveTypeParameters
+              }
               for {
                 (name, addLower) <- un.lowerMap
                 if name == (tp.name, ScalaPsiUtil.getPsiElementId(tp.ptp))
               } {
-                lower = Bounds.lub(lower, addLower)
+                if (hasRecursiveTypeParameters(lower)) lower = addLower
+                else lower = Bounds.lub(lower, addLower)
               }
               for {
                 (name, addUpperSeq) <- un.upperMap
                 if name == (tp.name, ScalaPsiUtil.getPsiElementId(tp.ptp))
                 addUpper <- addUpperSeq
               } {
-                upper = Bounds.glb(upper, addUpper)
+                if (hasRecursiveTypeParameters(upper)) upper = addUpper
+                else upper = Bounds.glb(upper, addUpper)
               }
               if (safeCheck && !lower.conforms(upper, true))
                 throw new SafeCheckException
