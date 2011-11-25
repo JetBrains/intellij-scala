@@ -11,6 +11,7 @@ import com.intellij.psi.{PsiManager, PsiFile}
 import lang.psi.api.ScalaFile
 import lang.psi.impl.ScalaPsiElementFactory
 import decompiler.DecompilerUtil.DecompilationResult
+import com.intellij.openapi.project.ProjectManager
 
 /**
  * @author ilyas
@@ -19,7 +20,8 @@ import decompiler.DecompilerUtil.DecompilationResult
 class ScClsStubBuilderFactory extends ClsStubBuilderFactory[ScalaFile] {
   def buildFileStub(vFile: VirtualFile, bytes: Array[Byte]): PsiFileStub[ScalaFile] = {
     val DecompilationResult(_, source, text, _) = DecompilerUtil.decompile(vFile, bytes)
-    val file = ScalaPsiElementFactory.createScalaFile(text.replace("\r", ""), PsiManager.getInstance(DecompilerUtil.obtainProject))
+    val file = ScalaPsiElementFactory.createScalaFile(text.replace("\r", ""),
+      PsiManager.getInstance(ProjectManager.getInstance().getDefaultProject))
     
     val adj = file.asInstanceOf[CompiledFileAdjuster]
     adj.setCompiled(true)
