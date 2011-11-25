@@ -533,6 +533,10 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
         expr.getParent match {
           case args: ScArgumentExprList => return
           case inf: ScInfixExpr if inf.getArgExpr == expr => return
+          case tuple: ScTuple if tuple.getContext.isInstanceOf[ScInfixExpr] &&
+            tuple.getContext.asInstanceOf[ScInfixExpr].getArgExpr == tuple => return
+          case e: ScParenthesisedExpr if e.getContext.isInstanceOf[ScInfixExpr] &&
+            e.getContext.asInstanceOf[ScInfixExpr].getArgExpr == e => return
           case t: ScTypedStmt if t.isSequenceArg => return
           case parent@(_: ScTuple | _: ScParenthesisedExpr) =>
             parent.getParent match {

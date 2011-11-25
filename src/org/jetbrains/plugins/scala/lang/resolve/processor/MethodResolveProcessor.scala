@@ -374,6 +374,8 @@ object MethodResolveProcessor {
         if (enableTupling) {
           val filtered2 = input.filter(r => {
             r.element match {
+              case fun: ScFun if fun.paramClauses.length > 0 =>
+                fun.paramClauses(0).length == 1
               case fun: ScFunction if fun.paramClauses.clauses.length > 0 =>
                 fun.paramClauses.clauses.apply(0).parameters.length == 1
               case p: ScPrimaryConstructor if p.parameterList.clauses.length > 0 =>
