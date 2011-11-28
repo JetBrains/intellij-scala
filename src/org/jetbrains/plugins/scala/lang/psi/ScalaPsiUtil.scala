@@ -213,8 +213,8 @@ object ScalaPsiUtil {
     checkImplicits(false, false)
     if (implicitMap.isEmpty) checkImplicits(true, false)
     if (implicitMap.isEmpty) checkImplicits(false, true)
-    if (implicitMap.length == 0) None
-    else if (implicitMap.length == 0) Some(implicitMap.apply(0))
+    if (implicitMap.isEmpty) None
+    else if (implicitMap.length == 1) Some(implicitMap.apply(0))
     else MostSpecificUtil(ref, 1).mostSpecificForImplicit(implicitMap.toSet)
   }
 

@@ -102,7 +102,7 @@ case class ScExistentialType(quantified : ScType,
         val iterator = list.iterator
         while (iterator.hasNext) {
           val (w1, w2) = iterator.next()
-          val t = Equivalence.equivInner(w1, unify.subst(w2), undefinedSubst, falseUndef)
+          val t = Equivalence.equivInner(unify.subst(w1), unify.subst(w2), undefinedSubst, falseUndef)
           if (!t._1) return (false, undefinedSubst)
           undefinedSubst = t._2
         }
@@ -157,8 +157,9 @@ case class ScExistentialType(quantified : ScType,
           })
         case ex: ScExistentialArgument => if (!rejected.contains(ex.name)) usedWildcards += ex //is it important?
         case ex: ScExistentialType =>
-          val newSet = if (ex ne this) rejected ++ ex.wildcards.map(_.name) else rejected
+          var newSet = if (ex ne this) rejected ++ ex.wildcards.map(_.name) else rejected
           checkRecursive(ex.quantified, newSet)
+          if (ex eq this) newSet = rejected ++ ex.wildcards.map(_.name)
           ex.wildcards.foreach(ex => {
             checkRecursive(ex.lowerBound, newSet)
             checkRecursive(ex.upperBound, newSet)
@@ -212,6 +213,24 @@ case class ScExistentialType(quantified : ScType,
 
     var updated = false
     //fourth rule
+    def hasWildcards(tp: ScType): Boolean = {
+      var res = false
+      tp.recursiveUpdate {
+        case tp@ScDesignatorType(element) => element match {
+          case a: ScTypeAlias if a.getContext.isInstanceOf[ScExistentialClause]
+            && wildcards.find(_.name == a.getName) != None =>
+            res = true
+            (res, tp)
+          case _ => (res,  tp)
+        }
+        case tp@ScTypeVariable(name) if wildcards.find(_.name == name) != None =>
+          res = true
+          (res, tp)
+        case tp: ScType => (res, tp)
+      }
+      res
+    }
+
     def updateRecursive(tp: ScType, rejected: HashSet[String], variance: Int): ScType = {
       if (variance == 0) return tp //optimization
       tp match {
@@ -263,9 +282,10 @@ case class ScExistentialType(quantified : ScType,
           }
           ScParameterizedType(designator, newTypeArgs)
         case ex@ScExistentialType(quantified, wildcards) =>
-          val newSet = if (ex ne this) rejected ++ ex.wildcards.map(_.name) else rejected
-          ScExistentialType(updateRecursive(quantified, newSet, variance),
-            wildcards.map(arg => ScExistentialArgument(arg.name, arg.args.map(arg =>
+          var newSet = if (ex ne this) rejected ++ ex.wildcards.map(_.name) else rejected
+          val q = updateRecursive(quantified, newSet, variance)
+          if (ex eq this) newSet = rejected ++ ex.wildcards.map(_.name)
+          ScExistentialType(q, wildcards.map(arg => ScExistentialArgument(arg.name, arg.args.map(arg =>
               updateRecursive(arg, newSet, -variance).asInstanceOf[ScTypeParameterType]),
               updateRecursive(arg.lowerBound, newSet, -variance), updateRecursive(arg.upperBound, newSet, variance))))
         case ScThisType(clazz) => tp
@@ -274,13 +294,13 @@ case class ScExistentialType(quantified : ScType,
             if (!rejected.contains(a.getName)) {
               wildcards.find(_.name == a.getName) match {
                 case Some(arg) => variance match {
-                  case 1 =>
+                  case 1 if !hasWildcards(arg.upperBound)=>
                     updated = true
                     arg.upperBound
-                  case -1 =>
+                  case -1 if !hasWildcards(arg.lowerBound)=>
                     updated = true
                     arg.lowerBound
-                  case 0 => tp
+                  case _ => tp
                 }
                 case _ => tp
               }
@@ -291,13 +311,13 @@ case class ScExistentialType(quantified : ScType,
           if (!rejected.contains(name)) {
             wildcards.find(_.name == name) match {
               case Some(arg) => variance match {
-                case 1 =>
+                case 1 if !hasWildcards(arg.upperBound) =>
                   updated = true
                   arg.upperBound
-                case -1 =>
+                case -1 if !hasWildcards(arg.lowerBound) =>
                   updated = true
                   arg.lowerBound
-                case 0 => tp
+                case _ => tp
               }
               case _ => tp
             }
@@ -312,13 +332,13 @@ case class ScExistentialType(quantified : ScType,
         case ScExistentialArgument(name, args, lowerBound, upperBound) =>
           if (!rejected.contains(name)) {
             variance match {
-              case 1 =>
+              case 1 if !hasWildcards(upperBound) =>
                 updated = true
                 upperBound
-              case -1 =>
+              case -1 if !hasWildcards(lowerBound) =>
                 updated = true
                 lowerBound
-              case 0 => tp
+              case _ => tp
             }
           } else tp
         case ScSkolemizedType(name, args, lower, upper) =>
