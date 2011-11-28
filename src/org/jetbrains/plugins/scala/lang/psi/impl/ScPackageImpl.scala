@@ -79,7 +79,7 @@ class ScPackageImpl(pack: PsiPackage) extends PsiPackageImpl(pack.getManager.asI
       else if (lite) {
         val scope: GlobalSearchScope = place.getResolveScope
         processor.handleEvent(PsiScopeProcessor.Event.SET_DECLARATION_HOLDER, this)
-        var classHint: ElementClassHint = processor.getHint(ElementClassHint.KEY)
+        val classHint: ElementClassHint = processor.getHint(ElementClassHint.KEY)
 
         if (classHint == null || classHint.shouldProcess(ElementClassHint.DeclarationKind.CLASS)) {
           val nameHint: NameHint = processor.getHint(NameHint.KEY)
