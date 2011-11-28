@@ -98,4 +98,6 @@ class TypeInferenceBugs5Test extends TypeInferenceTestBase {
   def testSCL3833() {doTest()}
 
   def testSCL3834() {doTest()}
+  
+  def testSCL3854() {doTest()}
 }
