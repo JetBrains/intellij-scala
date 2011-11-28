@@ -61,6 +61,8 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
 
   public boolean SPACE_AFTER_MODIFIERS_CONSTRUCTOR = false;
 
+  public boolean SPACE_BEFORE_INFIX_METHOD_CALL_PARENTHESES = false;
+
   public boolean IGNORE_PERFORMANCE_TO_FIND_ALL_CLASS_NAMES = false;
 
   public boolean DISABLE_LANGUAGE_INJECTION = true;

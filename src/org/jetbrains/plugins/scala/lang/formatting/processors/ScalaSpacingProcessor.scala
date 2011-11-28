@@ -696,7 +696,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
     // SCL-2601
     if ((rightNode.getPsi.isInstanceOf[ScUnitExpr] || rightNode.getPsi.isInstanceOf[ScTuple]) &&
             (leftNode.getTreeParent.getPsi.isInstanceOf[ScInfixExpr])) {
-      if (settings.SPACE_BEFORE_METHOD_CALL_PARENTHESES) return WITH_SPACING
+      if (scalaSettings.SPACE_BEFORE_INFIX_METHOD_CALL_PARENTHESES) return WITH_SPACING
       else return WITHOUT_SPACING
     }
 
