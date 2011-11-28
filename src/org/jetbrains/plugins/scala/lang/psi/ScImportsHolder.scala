@@ -63,7 +63,7 @@ trait ScImportsHolder extends ScalaPsiElement {
     if (curModCount == modCount || updating.get()) return
     updating.set(true)
     try {
-      var child = getFirstChild
+      var child = ScalaPsiUtil.getFirstStubOrPsiElement(this)
       while (child != null) {
         child match {
           case i: ScImportStmt =>
@@ -290,10 +290,10 @@ trait ScImportsHolder extends ScalaPsiElement {
       val syntheticPackage = ScSyntheticPackage.get(getSplitQualifierElement(qualifiedName)._1, getProject)
 
       val subPackages = if (syntheticPackage != null)
-        syntheticPackage.getSubPackages
+        syntheticPackage.getSubPackages(getResolveScope)
       else {
         val psiPack = ScPackageImpl(JavaPsiFacade.getInstance(getProject).findPackage(getSplitQualifierElement(qualifiedName)._1))
-        if (psiPack != null) psiPack.getSubPackages
+        if (psiPack != null) psiPack.getSubPackages(getResolveScope)
         else Array[PsiPackage]()
       }
       def checkImports(element: PsiElement) {
