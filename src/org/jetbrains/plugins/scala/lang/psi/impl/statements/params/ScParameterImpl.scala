@@ -48,6 +48,8 @@ class ScParameterImpl extends ScalaStubBasedElementImpl[ScParameter] with ScPara
     }
   }
 
+  override def isStable = false
+
   override def getNameIdentifier: PsiIdentifier = new JavaIdentifier(nameId)
 
   def getRealParameterType(ctx: TypingContext): TypeResult[ScType] = {
