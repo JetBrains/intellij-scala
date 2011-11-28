@@ -59,7 +59,8 @@ abstract class ScSyntheticPackage(name: String, manager: PsiManager)
      processor match {
       case bp: BaseProcessor => {
         if (bp.kinds.contains(PACKAGE)) {
-          for (subp <- getSubPackages) {
+          val subPackages = if (lastParent != null) getSubPackages(lastParent.getResolveScope) else getSubPackages
+          for (subp <- subPackages) {
             if (!processor.execute(subp, state)) return false
           }
         }

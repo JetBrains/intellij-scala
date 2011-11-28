@@ -718,6 +718,24 @@ object ScalaPsiUtil {
       case _ => true
     }
   }
+  
+  def getFirstStubOrPsiElement(elem: PsiElement): PsiElement = {
+    elem match {
+      case st: ScalaStubBasedElementImpl[_] if st.getStub != null => {
+        val stub = st.getStub
+        val childrenStubs = stub.getChildrenStubs
+        if (childrenStubs.size() > 0) childrenStubs.get(0).getPsi
+        else null
+      }
+      case file: PsiFileImpl if file.getStub != null => {
+        val stub = file.getStub
+        val childrenStubs = stub.getChildrenStubs
+        if (childrenStubs.size() > 0) childrenStubs.get(0).getPsi
+        else null
+      }
+      case _ => elem.getFirstChild
+    }
+  }
 
   def getPrevStubOrPsiElement(elem: PsiElement): PsiElement = {
     def workWithStub(stub: StubElement[_ <: PsiElement]): PsiElement = {
