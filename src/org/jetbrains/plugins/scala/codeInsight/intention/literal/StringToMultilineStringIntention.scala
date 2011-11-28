@@ -44,7 +44,7 @@ class StringToMultilineStringIntention extends PsiElementBaseIntentionAction {
           "\"\"\"" + s + "\"\"\""
         }
         val newString = ScalaPsiElementFactory.createExpressionFromText(newContent, element.getManager)
-        element.replace(newString)
+        lit.replace(newString)
         UndoUtil.markPsiFileForUndo(newString.getContainingFile)
       case _ =>
     }
