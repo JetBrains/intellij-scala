@@ -43,7 +43,7 @@ class ScClsStubBuilderFactory extends ClsStubBuilderFactory[ScalaFile] {
   }
 
   private def isInner(name: String, directory: Directory): Boolean = {
-    isInner(NameTransformer.encode(name), 0, directory)
+    isInner(NameTransformer.decode(name), 0, directory)
   }
 
   private def isInner(name: String, from: Int, directory: Directory): Boolean = {
@@ -63,7 +63,7 @@ class ScClsStubBuilderFactory extends ClsStubBuilderFactory[ScalaFile] {
     def contains(name: String): Boolean = {
       if (dir == null) return false
       !dir.getChildren.forall(child =>
-        child.getExtension != "class" || NameTransformer.encode(child.getNameWithoutExtension) == name
+        child.getExtension != "class" || NameTransformer.decode(child.getNameWithoutExtension) == name
       )
     }
   }
