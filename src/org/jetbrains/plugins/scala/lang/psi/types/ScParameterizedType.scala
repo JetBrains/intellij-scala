@@ -332,4 +332,11 @@ case class ScTypeVariable(name: String) extends ValueType{
   def visitType(visitor: ScalaTypeVisitor) {
     visitor.visitTypeVariable(this)
   }
+
+  override def equivInner(r: ScType, uSubst: ScUndefinedSubstitutor, falseUndef: Boolean): (Boolean, ScUndefinedSubstitutor) = {
+    r match {
+      case ScTypeVariable(`name`) => (true, uSubst)
+      case _ => (false, uSubst)
+    }
+  }
 }

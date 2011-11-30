@@ -7,29 +7,20 @@ import junit.framework.Assert
  * Pavel.Fatin, 02.02.2010
  */
 
-class QualifierAccess/*Test extends ResolveTestBase {
+class QualifierAccessTest extends ResolveTestBase {
   override def folderPath: String = {
     super.folderPath + "qualifier/access/"
   }
 
-  //TODO accessible
-//  def testClassParameterValue = doTest
-  //TODO accessible
-//  def testClassParameterVariable = doTest
-  //TODO accessible
-//  def testPrivateRef = doTest
-  //TODO accessible
-//  def testPrivateRefCaseClass = doTest
-  //TODO accessible
-//  def testPrivateThis = doTest
-  //TODO accessible
-//  def testPrivateThisCaseClass = doTest
-  //TODO accessible
-//  def testSourcePrivate = doTest
-  //TODO accessible
-//  def testSourceProtected = doTest
-  //TODO accessible
-//  def testTargetPrivate = doTest
-  //TODO accessible
-//  def testTargetProtected = doTest
-}*/
+  def testClassParameterValue = doTest
+  def testClassParameterVariable = doTest
+  def testPrivateRef = doTest
+  def testPrivateRefCaseClass = doTest
+  def testPrivateThis = doTest
+  def testPrivateThisCaseClass = doTest
+  def testSourcePrivate = doTest
+  def testSourceProtected = doTest
+  def testTargetPrivate = doTest
+  def testTargetProtected = doTest
+  def testQualifiedAccissibility = doTest
+}

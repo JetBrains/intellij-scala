@@ -25,7 +25,8 @@ class ExtractorResolveProcessor(ref: ScReferenceElement,
   override def execute(element: PsiElement, state: ResolveState): Boolean = {
     val named = element.asInstanceOf[PsiNamedElement]
     if (nameAndKindMatch(named, state)) {
-      if (!isAccessible(named, ref)) return true
+      val accessible = isAccessible(named, ref)
+      if (accessibility && !accessible) return true
       named match {
         case o: ScObject if o.isPackageObject => return true
         case obj: ScObject =>
@@ -33,7 +34,7 @@ class ExtractorResolveProcessor(ref: ScReferenceElement,
             val m = sign.method
             val subst = sign.substitutor
             new ScalaResolveResult(m, getSubst(state).followed(subst), getImports(state),
-              fromType = getFromType(state), parentElement = Some(obj))
+              fromType = getFromType(state), parentElement = Some(obj), isAccessible = accessible)
           }
           addResults(seq)
           //unapply has bigger priority then unapplySeq
@@ -42,14 +43,16 @@ class ExtractorResolveProcessor(ref: ScReferenceElement,
             val m = sign.method
             val subst = sign.substitutor
             new ScalaResolveResult(m, getSubst(state).followed(subst), getImports(state),
-              fromType = getFromType(state), parentElement = Some(obj))
+              fromType = getFromType(state), parentElement = Some(obj), isAccessible = accessible)
           }
           addResults(seq)
           return true
         case bind: ScBindingPattern =>
-          addResult(new ScalaResolveResult(bind, getSubst(state), getImports(state), fromType = getFromType(state)))
+          addResult(new ScalaResolveResult(bind, getSubst(state), getImports(state), fromType = getFromType(state),
+            isAccessible = accessible))
         case param: ScParameter =>
-          addResult(new ScalaResolveResult(param, getSubst(state), getImports(state), fromType = getFromType(state)))
+          addResult(new ScalaResolveResult(param, getSubst(state), getImports(state), fromType = getFromType(state),
+            isAccessible = accessible))
         case _ => return true
       }
     }

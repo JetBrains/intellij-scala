@@ -13,8 +13,7 @@ import java.lang.String
 import _root_.scala.tools.scalap.scalax.rules.scalasig.ClassFileParser.{ConstValueIndex, Annotation}
 import scala.reflect.generic.ByteCodecs
 import CharsetToolkit.UTF8
-import com.intellij.openapi.project.{DumbServiceImpl, Project, ProjectManager}
-import com.intellij.psi.search.GlobalSearchScope
+import com.intellij.openapi.project.{Project, ProjectManager}
 import com.intellij.openapi.vfs.newvfs.FileAttribute
 import com.intellij.reference.SoftReference
 
@@ -23,7 +22,7 @@ import com.intellij.reference.SoftReference
  */
 object DecompilerUtil {
   protected val LOG: Logger = Logger.getInstance("#org.jetbrains.plugins.scala.decompiler.DecompilerUtil");
-  val DECOMPILER_VERSION = 166
+  val DECOMPILER_VERSION = 169
   private val SCALA_DECOMPILER_FILE_ATTRIBUTE = new FileAttribute("_is_scala_compiled_", DECOMPILER_VERSION, true)
   private val SCALA_DECOMPILER_KEY = new Key[SoftReference[DecompilationResult]]("Is Scala File Key")
   

@@ -274,11 +274,17 @@ class ScUndefinedSubstitutor(val upperMap: Map[(String, String), Seq[ScType]], v
   def +(subst: ScUndefinedSubstitutor): ScUndefinedSubstitutor = addSubst(subst)
 
   def addLower(name: (String, String), _lower: ScType): ScUndefinedSubstitutor = {
-    val lower = _lower match {
-      case ScAbstractType(_, lower, _) => lower
-      case _ => _lower
-    }
-    if (lower.collectAbstracts.length != 0) return this
+    val lower = _lower.recursiveVarianceUpdate((tp: ScType, i: Int) => {
+      tp match {
+        case ScAbstractType(_, lower, upper) =>
+          i match {
+            case -1 => (false, lower)
+            case 1 => (false, upper)
+            case 0 => (false, ScExistentialArgument("_", Nil, lower, upper))
+          }
+        case _ => (true, tp)
+      }
+    }, -1)
     lowerMap.get(name) match {
       case Some(tp: ScType) => new ScUndefinedSubstitutor(upperMap, lowerMap.updated(name, Bounds.lub(lower, tp)))
       case None => new ScUndefinedSubstitutor(upperMap, lowerMap + Tuple(name, lower))
@@ -286,11 +292,17 @@ class ScUndefinedSubstitutor(val upperMap: Map[(String, String), Seq[ScType]], v
   }
 
   def addUpper(name: (String, String), _upper: ScType): ScUndefinedSubstitutor = {
-    val upper = _upper match {
-      case ScAbstractType(_, _, upper) => upper
-      case _ => _upper
-    }
-    if (upper.collectAbstracts.length != 0) return this
+    val upper = _upper.recursiveVarianceUpdate((tp: ScType, i: Int) => {
+      tp match {
+        case ScAbstractType(_, lower, upper) =>
+          i match {
+            case -1 => (false, lower)
+            case 1 => (false, upper)
+            case 0 => (false, ScExistentialArgument("_", Nil, lower, upper))
+          }
+        case _ => (true, tp)
+      }
+    }, 1)
     upperMap.get(name) match {
       case Some(seq: Seq[ScType]) => new ScUndefinedSubstitutor(upperMap.updated(name, Seq(upper) ++ seq), lowerMap)
       case None => new ScUndefinedSubstitutor(upperMap + Tuple(name, Seq(upper)), lowerMap)

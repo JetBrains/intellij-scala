@@ -5,7 +5,7 @@ package org.jetbrains.plugins.scala.refactoring.rename2
  * Date: 04.10.11
  */
 
-class ScalaRenameBeansTest extends ScalaRenameTestBase {
+class ScalaRenameTest extends ScalaRenameTestBase {
   def testRenameBeanProperty() {
     val fileText =
       """
@@ -116,6 +116,76 @@ class ScalaRenameBeansTest extends ScalaRenameTestBase {
       |
       |  isY()
       |  setY(2)
+      |}
+      """.stripMargin('|').replaceAll("\r", "").trim()
+
+    myFixture.checkResult(resultText)
+  }
+  
+  def testRenameNamingParameter() {
+    val fileText =
+      """
+      |class Check {
+      |  def method(<caret>attrib: String) = {
+      |     CaseClass(attrib = attrib)
+      |  }
+      |}
+      |case class CaseClass(attrib: String) {}
+      """.stripMargin('|').replaceAll("\r", "").trim()
+    myFixture.configureByText("dummy.scala", fileText)
+    myFixture.renameElementAtCaret("y")
+
+    val resultText =
+      """
+      |class Check {
+      |  def method(<caret>y: String) = {
+      |     CaseClass(attrib = y)
+      |  }
+      |}
+      |case class CaseClass(attrib: String) {}
+      """.stripMargin('|').replaceAll("\r", "").trim()
+
+    myFixture.checkResult(resultText)
+  }
+
+  def testRenameCaseClass() {
+    val fileText =
+      """
+      |class A {
+      |  case class Index()
+      |
+      |  Index() match {
+      |    case Index() =>
+      |  }
+      |}
+      |
+      |class B {
+      |  case class Index()
+      |
+      |  Index() match {
+      |    case <caret>Index() =>
+      |  }
+      |}
+      """.stripMargin('|').replaceAll("\r", "").trim()
+    myFixture.configureByText("dummy.scala", fileText)
+    myFixture.renameElementAtCaret("Inde")
+
+    val resultText =
+      """
+      |class A {
+      |  case class Index()
+      |
+      |  Index() match {
+      |    case Index() =>
+      |  }
+      |}
+      |
+      |class B {
+      |  case class Inde()
+      |
+      |  Inde() match {
+      |    case <caret>Inde() =>
+      |  }
       |}
       """.stripMargin('|').replaceAll("\r", "").trim()
 

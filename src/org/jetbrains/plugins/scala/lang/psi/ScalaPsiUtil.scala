@@ -213,8 +213,8 @@ object ScalaPsiUtil {
     checkImplicits(false, false)
     if (implicitMap.isEmpty) checkImplicits(true, false)
     if (implicitMap.isEmpty) checkImplicits(false, true)
-    if (implicitMap.length == 0) None
-    else if (implicitMap.length == 0) Some(implicitMap.apply(0))
+    if (implicitMap.isEmpty) None
+    else if (implicitMap.length == 1) Some(implicitMap.apply(0))
     else MostSpecificUtil(ref, 1).mostSpecificForImplicit(implicitMap.toSet)
   }
 
@@ -600,18 +600,34 @@ object ScalaPsiUtil {
             ScTypePolymorphicType(retType, typeParams.map(tp => {
               var lower = tp.lowerType
               var upper = tp.upperType
+              def hasRecursiveTypeParameters(typez: ScType): Boolean = {
+                var hasRecursiveTypeParameters = false
+                typez.recursiveUpdate {
+                  case tpt: ScTypeParameterType =>
+                    typeParams.find(tp => (tp.name, ScalaPsiUtil.getPsiElementId(tp.ptp)) ==(tpt.name, tpt.getId)) match {
+                      case None => (true, tpt)
+                      case _ =>
+                        hasRecursiveTypeParameters = true
+                        (true, tpt)
+                    }
+                  case tp: ScType => (hasRecursiveTypeParameters, tp)
+                }
+                hasRecursiveTypeParameters
+              }
               for {
                 (name, addLower) <- un.lowerMap
                 if name == (tp.name, ScalaPsiUtil.getPsiElementId(tp.ptp))
               } {
-                lower = Bounds.lub(lower, addLower)
+                if (hasRecursiveTypeParameters(lower)) lower = addLower
+                else lower = Bounds.lub(lower, addLower)
               }
               for {
                 (name, addUpperSeq) <- un.upperMap
                 if name == (tp.name, ScalaPsiUtil.getPsiElementId(tp.ptp))
                 addUpper <- addUpperSeq
               } {
-                upper = Bounds.glb(upper, addUpper)
+                if (hasRecursiveTypeParameters(upper)) upper = addUpper
+                else upper = Bounds.glb(upper, addUpper)
               }
               if (safeCheck && !lower.conforms(upper, true))
                 throw new SafeCheckException
@@ -701,6 +717,24 @@ object ScalaPsiUtil {
               _: ScPackageStatement | _: ScPackaging | _: ScTemplateParents | _: ScTemplateBody |
               _: ScExtendsBlock | _: ScTypeDefinition => return true*/
       case _ => true
+    }
+  }
+  
+  def getFirstStubOrPsiElement(elem: PsiElement): PsiElement = {
+    elem match {
+      case st: ScalaStubBasedElementImpl[_] if st.getStub != null => {
+        val stub = st.getStub
+        val childrenStubs = stub.getChildrenStubs
+        if (childrenStubs.size() > 0) childrenStubs.get(0).getPsi
+        else null
+      }
+      case file: PsiFileImpl if file.getStub != null => {
+        val stub = file.getStub
+        val childrenStubs = stub.getChildrenStubs
+        if (childrenStubs.size() > 0) childrenStubs.get(0).getPsi
+        else null
+      }
+      case _ => elem.getFirstChild
     }
   }
 
@@ -830,7 +864,10 @@ object ScalaPsiUtil {
     val t = (sigs.get(s): @unchecked) match {
       //partial match
       case Some(x) => x.supers.map {_.info}
-      case None => throw new RuntimeException("internal error: could not find signature matching: %s\namong: %s".format(s, sigs.mkString("\n")))
+      case None =>
+        throw new RuntimeException("internal error: could not find val matching: \n%s\n\nin class: \n%s".format(
+          x.getText, clazz.getText
+        ))
     }
     t
   }

@@ -29,9 +29,9 @@ class StableCodeReferenceElementResolver(reference: ResolvableStableCodeReferenc
     } else ref.getContext match {
       //last ref may import many elements with the same name
       case e: ScImportExpr if (e.selectorSet == None && !e.singleWildcard) =>
-        new CollectAllProcessor(kinds, ref, reference.refName)
+        new CollectAllForImportProcessor(kinds, ref, reference.refName)
       case e: ScImportExpr if e.singleWildcard => new ResolveProcessor(kinds, ref, reference.refName)
-      case _: ScImportSelector => new CollectAllProcessor(kinds, ref, reference.refName)
+      case _: ScImportSelector => new CollectAllForImportProcessor(kinds, ref, reference.refName)
       case constr: ScConstructorPattern =>
         new ExtractorResolveProcessor(ref, reference.refName, kinds, constr.expectedType)
       case infix: ScInfixPattern => new ExtractorResolveProcessor(ref, reference.refName, kinds, infix.expectedType)

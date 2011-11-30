@@ -26,40 +26,49 @@ class ConstructorResolveProcessor(constr: PsiElement, refName: String, args: Lis
     val named = element.asInstanceOf[PsiNamedElement]
     val subst = getSubst(state)
     if (nameAndKindMatch(named, state)) {
-      if (!isAccessible(named, ref)) return true
+      val accessible = isAccessible(named, ref)
+      if (accessibility && !accessible) return true
       named match {
         case clazz: PsiClass if clazz.getQualifiedName != null && !qualifiedNames.contains(clazz.getQualifiedName) => {
           qualifiedNames.add(clazz.getQualifiedName)
-          val constructors: Array[PsiMethod] = clazz.getConstructors.filter(isAccessible(_, ref))
+          val constructors: Array[PsiMethod] = 
+            if (accessibility) clazz.getConstructors.filter(isAccessible(_, ref))
+            else clazz.getConstructors
           if (constructors.isEmpty) {
             //this is for Traits for example. They can be in constructor position.
             // But they haven't constructors.
             addResult(new ScalaResolveResult(clazz, subst, getImports(state), boundClass = getBoundClass(state),
-              fromType = getFromType(state)))
+              fromType = getFromType(state), isAccessible = accessible))
           }
           else {
-            addResults(constructors.toSeq.map(new ScalaResolveResult(_, subst, getImports(state),
-              parentElement = Some(clazz), boundClass = getBoundClass(state), fromType = getFromType(state))))
+            addResults(constructors.toSeq.map(constr => new ScalaResolveResult(constr, subst, getImports(state),
+              parentElement = Some(clazz), boundClass = getBoundClass(state), fromType = getFromType(state),
+              isAccessible = isAccessible(constr, ref)
+            )))
           }
         }
         case ta: ScTypeAliasDeclaration => {
           addResult(new ScalaResolveResult(ta, subst, getImports(state), boundClass = getBoundClass(state),
-            fromType = getFromType(state)))
+            fromType = getFromType(state), isAccessible = accessible))
         }
         case ta: ScTypeAliasDefinition => {
           lazy val r = new ScalaResolveResult(ta, subst, getImports(state), boundClass = getBoundClass(state),
-            fromType = getFromType(state))
+            fromType = getFromType(state), isAccessible = true)
           val tp = ta.aliasedType(TypingContext.empty).getOrElse({
             addResult(r)
             return true
           })
           ScType.extractClassType(tp) match {
             case Some((clazz, s)) => {
-              val constructors: Array[PsiMethod] = clazz.getConstructors.filter(isAccessible(_, ref))
+              val constructors: Array[PsiMethod] = 
+                if (accessibility) clazz.getConstructors.filter(isAccessible(_, ref))
+                else clazz.getConstructors
               if (constructors.isEmpty) addResult(r)
               else {
-                addResults(constructors.toSeq.map(new ScalaResolveResult(_, subst.followed(s), getImports(state),
-                    parentElement = Some(ta), boundClass = getBoundClass(state), fromType = getFromType(state))))
+                addResults(constructors.toSeq.map(constr => new ScalaResolveResult(constr, subst.followed(s), getImports(state),
+                    parentElement = Some(ta), boundClass = getBoundClass(state), fromType = getFromType(state),
+                    isAccessible = isAccessible(constr, ref)
+                )))
               }
             }
             case _ => {
@@ -79,7 +88,8 @@ class ConstructorResolveProcessor(constr: PsiElement, refName: String, args: Lis
       if (superCandidates.size <= 1) superCandidates
       else {
         superCandidates.map(constr => new ScalaResolveResult(constr.getActualElement, constr.substitutor,
-          constr.importsUsed, boundClass = constr.boundClass, fromType = constr.fromType))
+          constr.importsUsed, boundClass = constr.boundClass, fromType = constr.fromType,
+          isAccessible = constr.isAccessible))
       }
     } else {
       super.candidatesS

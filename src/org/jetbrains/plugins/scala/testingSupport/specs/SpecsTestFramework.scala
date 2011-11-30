@@ -10,6 +10,7 @@ import com.intellij.testIntegration.JavaTestFramework
 import icons.Icons
 import com.intellij.psi.{PsiElement, PsiMethod, PsiClass, JavaPsiFacade}
 import lang.psi.ScalaPsiUtil
+import com.intellij.lang.Language
 
 class SpecsTestFramework extends JavaTestFramework {
   def isTestMethod(element: PsiElement): Boolean = false
@@ -44,4 +45,6 @@ class SpecsTestFramework extends JavaTestFramework {
   }
 
   def getMarkerClassFQName: String = "org.specs.Specification"
+
+  override def getLanguage: Language = ScalaFileType.SCALA_LANGUAGE
 }
