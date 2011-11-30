@@ -50,6 +50,8 @@ class TypeInferenceMethodCallTest extends TypeInferenceTestBase {
   def testRecursive() {doTest()}
 
   def testReduceLeft() {doTest()}
+  
+  def testRepeated2() {doTest()}
 
   def testSCL1760() {doTest()}
 

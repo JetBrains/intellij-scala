@@ -63,7 +63,9 @@ trait ResolvableStableCodeReferenceElement extends ScStableCodeReferenceElement 
     }
   }
 
-  def doResolve(ref: ScStableCodeReferenceElement, processor: BaseProcessor): Array[ResolveResult] = {
+  def doResolve(ref: ScStableCodeReferenceElement, processor: BaseProcessor,
+                accessibilityCheck: Boolean = true): Array[ResolveResult] = {
+    if (!accessibilityCheck) processor.doNotCheckAccessibility()
     var x = false
     //performance improvement
     ScalaPsiUtil.fileContext(ref) match {
@@ -122,7 +124,7 @@ trait ResolvableStableCodeReferenceElement extends ScStableCodeReferenceElement 
 
     val candidates = processor.candidatesS
     val filtered = candidates.filter(candidatesFilter)
-
+    if (accessibilityCheck && filtered.size == 0) return doResolve(ref, processor, false)
     filtered.toArray
   }
 

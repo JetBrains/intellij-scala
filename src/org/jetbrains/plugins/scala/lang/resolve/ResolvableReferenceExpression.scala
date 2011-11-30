@@ -62,13 +62,17 @@ trait ResolvableReferenceExpression extends ScReferenceExpression {
 
   def rightAssoc = refName.endsWith(":")
 
-  def doResolve(ref: ResolvableReferenceExpression, processor: BaseProcessor): Array[ResolveResult] = {
+  def doResolve(ref: ResolvableReferenceExpression, processor: BaseProcessor,
+                accessibilityCheck: Boolean = true): Array[ResolveResult] = {
+    if (!accessibilityCheck) processor.doNotCheckAccessibility()
     ref.qualifier match {
       case None => resolveUnqalified(ref, processor)
       case Some(superQ : ScSuperReference) => ResolveUtils.processSuperReference(superQ, processor, this)
       case Some(q) => processTypes(q, processor)
     }
-    processor.rrcandidates
+    val res = processor.rrcandidates
+    if (accessibilityCheck && res.length == 0) return doResolve(ref, processor, false)
+    res
   }
 
   private def resolveUnqalified(ref: ResolvableReferenceExpression, processor: BaseProcessor) {

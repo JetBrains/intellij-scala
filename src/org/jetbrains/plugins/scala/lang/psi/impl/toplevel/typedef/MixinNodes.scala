@@ -20,10 +20,12 @@ import com.intellij.psi.util.PsiModificationTracker
 abstract class MixinNodes {
   type T
   def equiv(t1: T, t2: T): Boolean
+  def same(t1: T, t2: T): Boolean
   def computeHashCode(t: T): Int
   def elemName(t: T): String
   def isAbstract(t: T): Boolean
   def isImplicit(t: T): Boolean
+  def isPrivate(t: T): Boolean
   
   class Node(val info: T, val substitutor: ScSubstitutor) {
     var supers: Seq[Node] = Seq.empty
@@ -32,9 +34,11 @@ abstract class MixinNodes {
 
   class Map extends HashMap[String, ArrayBuffer[(T, Node)]] {
     private[Map] val implicitNames: HashSet[String] = new HashSet[String]
+    private val privatesMap: HashMap[String, ArrayBuffer[(T, Node)]] = HashMap.empty
     def addToMap(key: T, node: Node) {
       val name = ScalaPsiUtil.convertMemberName(elemName(key))
-      getOrElseUpdate(name, new ArrayBuffer) += ((key, node))
+      (if (!isPrivate(key)) this else privatesMap).
+        getOrElseUpdate(name, new ArrayBuffer) += ((key, node))
       if (isImplicit(key)) implicitNames.add(name)
     }
 
@@ -48,10 +52,10 @@ abstract class MixinNodes {
     }
 
     private val calculatedNames: HashSet[String] = new HashSet
-    private val calculated: HashMap[String, NodesMap] = new HashMap
-    private val calculatedSupers: HashMap[String, NodesMap] = new HashMap
+    private val calculated: HashMap[String, AllNodes] = new HashMap
+    private val calculatedSupers: HashMap[String, AllNodes] = new HashMap
 
-    def forName(name: String): (NodesMap, NodesMap) = {
+    def forName(name: String): (AllNodes, AllNodes) = {
       val convertedName = ScalaPsiUtil.convertMemberName(name)
       synchronized {
         if (calculatedNames.contains(convertedName)) {
@@ -61,12 +65,17 @@ abstract class MixinNodes {
       val thisMap: NodesMap = toNodesMap(getOrElse(convertedName, new ArrayBuffer))
       val maps: List[NodesMap] = supersList.map(sup => toNodesMap(sup.getOrElse(convertedName, new ArrayBuffer)))
       val supers = mergeWithSupers(thisMap, mergeSupers(maps))
+      val list = (supersList).map(_.privatesMap.getOrElse(convertedName, new ArrayBuffer[(T, Node)])).flatten
+      val supersPrivates = toNodesSeq(list)
+      val thisPrivates = toNodesSeq(privatesMap.getOrElse(convertedName, new ArrayBuffer[(T, Node)]).toList ::: list)
+      val thisAllNodes = new AllNodes(thisMap, thisPrivates)
+      val supersAllNodes = new AllNodes(supers, supersPrivates)
       synchronized {
         calculatedNames.add(convertedName)
-        calculated.+=((convertedName, thisMap))
-        calculatedSupers.+=((convertedName, supers))
+        calculated.+=((convertedName, thisAllNodes))
+        calculatedSupers.+=((convertedName, supersAllNodes))
       }
-      (thisMap, supers)
+      (thisAllNodes, supersAllNodes)
     }
 
     @volatile
@@ -91,11 +100,21 @@ abstract class MixinNodes {
       names
     }
     
-    def forAll(): (HashMap[String, NodesMap], HashMap[String, NodesMap]) = {
+    def forAll(): (HashMap[String, AllNodes], HashMap[String, AllNodes]) = {
       for (name <- allNames()) forName(name)
       synchronized {
         (calculated, calculatedSupers)
       }
+    }
+    
+    private def toNodesSeq(seq: List[(T, Node)]): NodesSeq = {
+      val map = new HashMap[Int, List[(T, Node)]]
+      for (elem <- seq) {
+        val key = computeHashCode(elem._1)
+        val prev = map.getOrElse(key, List.empty)
+        map.update(key, elem :: prev)
+      }
+      new NodesSeq(map)
     }
     
     private def toNodesMap(buf: ArrayBuffer[(T, Node)]): NodesMap = {
@@ -145,6 +164,78 @@ abstract class MixinNodes {
         }
       }
       primarySupers
+    }
+  }
+  
+  class AllNodes(publics: NodesMap, privates: NodesSeq) {
+    def get(s: T): Option[Node] = {
+      publics.get(s) match {
+        case res: Some[Node] => res
+        case _ => privates.get(s)
+      }
+    }
+    
+    def foreach(p: ((T, Node)) => Unit) {
+      publics.foreach(p)
+      privates.map.values.flatten.foreach(p)
+    }
+    
+    def map[R](p: ((T, Node)) => R): Seq[R] = {
+      publics.map(p).toSeq ++ privates.map.values.flatten.map(p)
+    }
+
+    def filter(p: ((T, Node)) => Boolean): Seq[(T, Node)] = {
+      publics.filter(p).toSeq ++ privates.map.values.flatten.filter(p)
+    }
+
+    def flatMap[R](p: ((T, Node)) => Traversable[R]): Seq[R] = {
+      publics.flatMap(p).toSeq ++ privates.map.values.flatten.flatMap(p)
+    }
+    
+    def iterator: Iterator[(T, Node)] = {
+      new Iterator[(T, Node)] {
+        private val iter1 = publics.iterator
+        private val iter2 = privates.map.values.flatten.iterator
+        def hasNext: Boolean = iter1.hasNext || iter2.hasNext
+
+        def next(): (T, Node) = if (iter1.hasNext) iter1.next() else iter2.next()
+      }
+    }
+
+    def fastPhysicalSignatureGet(key: T): Option[Node] = {
+      publics.fastPhysicalSignatureGet(key) match {
+        case res: Some[Node] => res
+        case _ => privates.get(key)
+      }
+    }
+    
+    def isEmpty: Boolean = publics.isEmpty && privates.map.values.forall(_.isEmpty)
+  }
+  
+  class NodesSeq(private[MixinNodes] val map: HashMap[Int, List[(T, Node)]]) {
+    def get(s: T): Option[Node] = {
+      val list = map.getOrElse(computeHashCode(s), Nil)
+      val iterator = list.iterator
+      while (iterator.hasNext) {
+        val next = iterator.next()
+        if (same(s, next._1)) return Some(next._2)
+      }
+      None
+    }
+
+    def fastPhysicalSignatureGet(key: T): Option[Node] = {
+      val list = map.getOrElse(computeHashCode(key), List.empty)
+      list match {
+        case Nil => None
+        case x :: Nil => Some(x._2)
+        case e =>
+          val iterator = e.iterator
+          while (iterator.hasNext) {
+            val next = iterator.next()
+            if (same(key, next._1)) return Some(next._2)
+          }
+          None
+      }
     }
   }
 

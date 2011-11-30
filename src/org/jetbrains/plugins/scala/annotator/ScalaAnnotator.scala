@@ -398,25 +398,12 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
 
   private def checkAccessForReference(resolve: Array[ResolveResult], refElement: ScReferenceElement, holder: AnnotationHolder) {
     if (resolve.length != 1) return
-    resolve.apply(0) match {
-      case res: ScalaResolveResult => {
-        val memb: PsiMember = res.getElement match {
-          case member: PsiMember => member
-          case bind: ScBindingPattern => {
-            ScalaPsiUtil.nameContext(bind) match {
-              case member: PsiMember => member
-              case _ => return
-            }
-          }
-          case _ => return
-        }
-        if (!res.isNamedParameter && !ResolveUtils.isAccessible(memb, refElement)) {
-          val error = ScalaBundle.message("element.is.not.accessible", refElement.refName)
-          val annotation = holder.createErrorAnnotation(refElement.nameId, error)
-          annotation.setHighlightType(ProblemHighlightType.LIKE_UNKNOWN_SYMBOL)
-          //todo: fixes for changing access
-        }
-      }
+    resolve(0) match {
+      case r: ScalaResolveResult if !r.isAccessible =>
+        val error = "Symbol %s is inaccessible from this place".format(r.element.getName)
+        val annotation = holder.createErrorAnnotation(refElement.nameId, error)
+        annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
+      //todo: add fixes
       case _ =>
     }
   }

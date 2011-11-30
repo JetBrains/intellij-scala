@@ -9,5 +9,5 @@ object A {
 }
 
 class G extends A.B {
-  /* resolved: false */foo
+  /* accessible: false */foo
 }
