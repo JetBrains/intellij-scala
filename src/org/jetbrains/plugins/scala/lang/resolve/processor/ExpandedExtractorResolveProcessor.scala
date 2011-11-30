@@ -32,7 +32,8 @@ class ExpandedExtractorResolveProcessor(ref: ScReferenceElement,
   override def execute(element: PsiElement, state: ResolveState): Boolean = {
     val named = element.asInstanceOf[PsiNamedElement]
     if (nameAndKindMatch(named, state)) {
-      if (!isAccessible(named, ref)) return false
+      val accessible = isAccessible(named, ref)
+      if (accessibility && !accessible) return true
       named match {
         case bind: ScTypedDefinition => {
           val parentSubst = getSubst(state)
@@ -46,7 +47,8 @@ class ExpandedExtractorResolveProcessor(ref: ScReferenceElement,
               element match {
                 case fun: ScFunction if fun.name == "unapply" || (seq && fun.name == "unapplySeq") =>
                   buffer += new ScalaResolveResult(fun,
-                    parentSubst.followed(subst), parentImports, parentElement = Some(bind))
+                    parentSubst.followed(subst), parentImports, parentElement = Some(bind),
+                    isAccessible = accessible)
                 case _ =>
               }
               true
@@ -55,7 +57,7 @@ class ExpandedExtractorResolveProcessor(ref: ScReferenceElement,
           proc.processType(parentSubst.subst(typez), ref, ResolveState.initial)
           addResults(buffer.toSeq)
           if (candidatesSet.isEmpty && levelSet.isEmpty) {
-            buffer.clear
+            buffer.clear()
             seq = true
             proc.processType(parentSubst.subst(typez), ref, ResolveState.initial)
             addResults(buffer.toSeq)

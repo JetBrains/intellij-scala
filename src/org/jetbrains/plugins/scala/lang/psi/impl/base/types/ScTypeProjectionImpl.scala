@@ -85,16 +85,19 @@ class ScTypeProjectionImpl(node: ASTNode) extends ScalaPsiElementImpl (node) wit
     }
   }
 
-  def doResolve(proc: BaseProcessor) = {
+  def doResolve(processor: BaseProcessor, accessibilityCheck: Boolean = true): Array[ResolveResult] = {
+    if (!accessibilityCheck) processor.doNotCheckAccessibility()
     val projected = typeElement.getType(TypingContext.empty).getOrAny
-    proc.processType(projected, this)
-    proc.candidates.map {r : ScalaResolveResult =>
+    processor.processType(projected, this)
+    val res = processor.candidates.map {r : ScalaResolveResult =>
       r.element match {
         case mem: PsiMember if mem.getContainingClass != null =>
           new ScalaResolveResult(mem, r.substitutor/*.bindO(mem.getContainingClass, projected, this)*/, r.importsUsed)
         case _ => r : ResolveResult
       }
     }
+    if (accessibilityCheck && res.length == 0) return doResolve(processor, false)
+    res
   }
 
   def getSameNameVariants: Array[ResolveResult] = doResolve(new CompletionProcessor(getKinds(true), false, Some(refName)))

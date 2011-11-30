@@ -10,6 +10,10 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import types.result.{Success, TypeResult, Failure, TypingContext}
 import com.intellij.psi.PsiElement
 import types._
+import api.base.patterns.ScBindingPattern
+import api.statements.{ScVariable, ScValue, ScFunction}
+import api.statements.params.ScClassParameter
+import nonvalue.{ScTypePolymorphicType, ScMethodType}
 
 /**
  * @author Alexander Podkhalyuzin, ilyas
@@ -20,9 +24,25 @@ class ScUnderscoreSectionImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
 
   protected override def innerType(ctx: TypingContext): TypeResult[ScType] = {
     bindingExpr match {
-      case Some(x) => {
-        x.getNonValueType(TypingContext.empty)
-      }
+      case Some(ref: ScReferenceExpression) =>
+        def fun(): TypeResult[ScType] = {
+          ref.getNonValueType(TypingContext.empty).map {
+            case ScTypePolymorphicType(internalType, typeParameters) =>
+              ScTypePolymorphicType(ScMethodType(internalType, Nil, false)(getProject, getResolveScope), typeParameters)
+            case tp: ScType => ScMethodType(tp, Nil, false)(getProject, getResolveScope)
+          }
+        }
+        ref.resolve() match {
+          case f: ScFunction if f.paramClauses.clauses.length == 0 => fun()
+          case c: ScClassParameter if c.isVal | c.isVar => fun()
+          case b: ScBindingPattern =>
+            b.nameContext match {
+              case _: ScValue | _: ScVariable if b.isClassMember => fun()
+              case _ => ref.getNonValueType(TypingContext.empty)
+            }
+          case _ => ref.getNonValueType(TypingContext.empty)
+        }
+      case Some(expr) => expr.getNonValueType(TypingContext.empty)
       case None => {
         getContext match {
           case typed: ScTypedStmt => {

@@ -38,6 +38,8 @@ import com.intellij.openapi.progress.ProgressManager
 
 abstract class ScFunctionImpl extends ScalaStubBasedElementImpl[ScFunction] with ScMember
         with ScFunction with ScTypeParametersOwner {
+  override def isStable = false
+
   def nameId: PsiElement = {
     val n = getNode.findChildByType(ScalaTokenTypes.tIDENTIFIER) match {
       case null => getNode.findChildByType(ScalaTokenTypes.kTHIS)

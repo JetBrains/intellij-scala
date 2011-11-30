@@ -3,5 +3,5 @@ class Foo {
 }
 
 object Foo {
-	println(new Foo()./* line: 6, accessible: false */f)
+	println(new Foo()./* line: 2, accessible: false */f)
 }

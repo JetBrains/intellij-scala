@@ -229,7 +229,7 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
 
   def functionsByName(name: String): Seq[PsiMethod] = {
     (for ((p: PhysicalSignature, _) <- TypeDefinitionMembers.getSignatures(this).forName(name)._1) yield p.method).
-            toSeq ++ syntheticMembers.filter(_.getName == name)
+             ++(syntheticMembers.filter(_.getName == name))
   }
 
   //Java sources uses this method. Really it's not very useful. Parameter checkBases ignored

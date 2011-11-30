@@ -487,6 +487,16 @@ object Conformance {
       r.visitType(rightVisitor)
       if (result != null) return
 
+      rightVisitor = new TupleVisitor with FunctionVisitor with ThisVisitor with DesignatorVisitor
+        with ParameterizedAliasVisitor {}
+      r.visitType(rightVisitor)
+      if (result != null) return
+
+      rightVisitor = new AliasDesignatorVisitor with CompoundTypeVisitor with ExistentialVisitor
+        with ProjectionVisitor {}
+      r.visitType(rightVisitor)
+      if (result != null) return
+
       if (x eq Null) {
         result = (r == Nothing, undefinedSubst)
         return
@@ -523,16 +533,6 @@ object Conformance {
         result = (false, undefinedSubst)
         return
       }
-
-      rightVisitor = new TupleVisitor with FunctionVisitor with ThisVisitor with DesignatorVisitor
-      with ParameterizedAliasVisitor {}
-      r.visitType(rightVisitor)
-      if (result != null) return
-
-      rightVisitor = new AliasDesignatorVisitor with CompoundTypeVisitor with ExistentialVisitor
-        with ProjectionVisitor {}
-      r.visitType(rightVisitor)
-      if (result != null) return
     }
 
     override def visitFunctionType(f: ScFunctionType) {
@@ -1155,6 +1155,15 @@ object Conformance {
               return
             }
           }
+        } else if (des2.isInstanceOf[ScTypeParameterType] &&
+          des2.asInstanceOf[ScTypeParameterType].args.length == p2.typeArgs.length) {
+          val t = des2.asInstanceOf[ScTypeParameterType]
+          val subst = new ScSubstitutor(Map(t.args.zip(p.typeArgs).map {
+            case (tpt: ScTypeParameterType, tp: ScType) =>
+              ((tpt.param.getName, ScalaPsiUtil.getPsiElementId(tpt.param)), tp)
+          }: _*), Map.empty, None)
+          result = conformsInner(l, subst.subst(t.upper.v), visited, undefinedSubst, checkWeak)
+          return
         } else {
           if (des1.isInstanceOf[ScProjectionType]) {
             val proj1 = des1.asInstanceOf[ScProjectionType]
@@ -1186,6 +1195,17 @@ object Conformance {
             }
           }
         }
+      }
+
+      p.designator match {
+        case t: ScTypeParameterType if t.args.length == p.typeArgs.length =>
+          val subst = new ScSubstitutor(Map(t.args.zip(p.typeArgs).map {
+            case (tpt: ScTypeParameterType, tp: ScType) =>
+              ((tpt.param.getName, ScalaPsiUtil.getPsiElementId(tpt.param)), tp)
+          }: _*), Map.empty, None)
+          result = conformsInner(subst.subst(t.lower.v), r, visited, undefinedSubst, checkWeak)
+          return
+        case _ =>
       }
 
       rightVisitor = new AliasDesignatorVisitor with CompoundTypeVisitor with ExistentialVisitor

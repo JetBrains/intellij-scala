@@ -13,12 +13,9 @@ class BugTest extends ResolveTestBase {
   //TODO answer?
 //  def testIncomplete() {doTest()}
 
-  //TODO accessible
-//  def testSimplePrivateAccess() {doTest()}
-  //TODO accessible
-//  def testPrivateThis() {doTest()}
-  //TODO accessible
-//  def testProtectedThis() {doTest()}
+  def testSimplePrivateAccess() {doTest()}
+  def testPrivateThis() {doTest()}
+  def testProtectedThis() {doTest()}
   def testGetOrElse() {doTest()}
   def testAnonymousClassMethods() {doTest()}
   //TODO ok

@@ -32,11 +32,18 @@ import org.jetbrains.annotations.NotNull;
 // todo The null checks in this class were added because when ProgressManager.getInstance().getProgressIndicator()
 //      returned null when running the HighlightingPerformanceTest. Is there a better solution?
 public class DelegatingProgressIndicatorEx implements ProgressIndicatorEx {
-
   private ProgressIndicatorEx myDelegate;
 
   public DelegatingProgressIndicatorEx() {
     myDelegate = (ProgressIndicatorEx) ProgressManager.getInstance().getProgressIndicator();
+  }
+
+  public boolean isPopupWasShown() {
+    return myDelegate != null && myDelegate.isPopupWasShown();
+  }
+
+  public boolean isShowing() {
+    return myDelegate != null && myDelegate.isShowing();
   }
 
   public void addStateDelegate(@NotNull ProgressIndicatorEx delegate) {

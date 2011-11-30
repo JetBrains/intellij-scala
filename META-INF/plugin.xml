@@ -21,7 +21,7 @@
   <description>Plugin for Scala language support</description>
   <version>VERSION</version>
   <vendor logo="/org/jetbrains/plugins/scala/images/scala-small-logo.png" url="http://www.jetbrains.com">JetBrains Inc.</vendor>
-  <idea-version since-build="110.291" until-build="110.9999"/>
+  <idea-version since-build="111.1" until-build="111.9999"/>
   <depends optional="true" config-file="scala-maven-integration.xml">org.jetbrains.idea.maven</depends>
   <depends optional="true" config-file="intellilang-scala-support.xml">org.intellij.intelliLang</depends>
   <depends optional="true" config-file="copyright.xml">com.intellij.copyright</depends>
@@ -144,7 +144,7 @@
 
     <testSrcLocator implementation="org.jetbrains.plugins.scala.testingSupport.locationProvider.ScalaTestLocationProvider"/>
     <testCreator language="Scala" implementationClass="org.jetbrains.plugins.scala.testingSupport.ScalaTestCreator"/>
-    <testGenerator implementationClass="org.jetbrains.plugins.scala.testingSupport.ScalaTestGenerator"/>
+    <testGenerator language="Scala" implementationClass="org.jetbrains.plugins.scala.testingSupport.ScalaTestGenerator"/>
     <testFramework implementation="org.jetbrains.plugins.scala.testingSupport.specs2.Specs2TestFramework"/>
     <testFramework implementation="org.jetbrains.plugins.scala.testingSupport.specs.SpecsTestFramework"/>
     <testFramework implementation="org.jetbrains.plugins.scala.testingSupport.scalaTest.ScalatestTestFramework"/>

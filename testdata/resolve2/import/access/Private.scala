@@ -1,4 +1,4 @@
-import actors./* resolved: false */ReactorTask
+import actors./* */ReactorTask
 
-println(/* accessible: false */ ReactorTask.getClass)
+println(/* resolved: false */ ReactorTask.getClass)
 println(classOf[/* accessible: false */ ReactorTask])

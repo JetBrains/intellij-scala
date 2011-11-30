@@ -54,7 +54,8 @@ object Update extends Strategy {
   }
 
   def removeFromPattern(pattern: ScTypedPattern) {
-    pattern.typePattern.foreach(removeTypeAnnotation)
+    val newPattern = ScalaPsiElementFactory.createPatternFromText(pattern.getName, pattern.getManager)
+    pattern.replace(newPattern)
   }
 
   def addToParameter(param: ScParameter) {
