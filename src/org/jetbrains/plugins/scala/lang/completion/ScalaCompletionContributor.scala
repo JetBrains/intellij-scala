@@ -41,7 +41,7 @@ class ScalaCompletionContributor extends CompletionContributor {
       val expectedTypesAfterNew: Array[ScType] =
       if (afterNewPattern.accepts(parameters.getPosition, context)) {
         val element = parameters.getPosition
-        val newExpr = PsiTreeUtil.getParentOfType(element, classOf[ScNewTemplateDefinition])
+        val newExpr: ScNewTemplateDefinition = PsiTreeUtil.getParentOfType(element, classOf[ScNewTemplateDefinition])
         newExpr.expectedTypes().map(tp => tp match {
           case ScAbstractType(_, lower, upper) => upper
           case _ => tp
