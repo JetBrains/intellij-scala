@@ -8,6 +8,42 @@ import com.intellij.codeInsight.completion.CompletionType
  */
 
 class ScalaBasicCompletionTest extends ScalaCompletionTestBase {
+  def testInImportSelector() {
+    val fileText =
+      """
+      |import scala.collection.immutable.{VBuil<caret>}
+      """.stripMargin('|').replaceAll("\r", "").trim()
+    configureFromFileTextAdapter("dummy.scala", fileText)
+    val (activeLookup, _) = complete(1, CompletionType.BASIC)
+
+    val resultText =
+      """
+      |import scala.collection.immutable.{VectorBuilder<caret>}
+      """.stripMargin('|').replaceAll("\r", "").trim()
+
+    completeLookupItem(activeLookup.find(le => le.getLookupString == "VectorBuilder").get)
+    checkResultByText(resultText)
+  }
+
+  def testSCL3546() {
+    val fileText =
+      """
+      |class C(private[this] val abcdef: Any)
+      |new C(abcde<caret> = 0)
+      """.stripMargin('|').replaceAll("\r", "").trim()
+    configureFromFileTextAdapter("dummy.scala", fileText)
+    val (activeLookup, _) = complete(1, CompletionType.BASIC)
+
+    val resultText =
+      """
+      |class C(private[this] val abcdef: Any)
+      |new C(abcdef<caret> = 0)
+      """.stripMargin('|').replaceAll("\r", "").trim()
+
+    completeLookupItem(activeLookup.find(le => le.getLookupString == "abcdef").get)
+    checkResultByText(resultText)
+  }
+
   def testRecursion() {
     val fileText =
       """

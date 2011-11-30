@@ -13,8 +13,7 @@ import java.lang.String
 import _root_.scala.tools.scalap.scalax.rules.scalasig.ClassFileParser.{ConstValueIndex, Annotation}
 import scala.reflect.generic.ByteCodecs
 import CharsetToolkit.UTF8
-import com.intellij.openapi.project.{DumbServiceImpl, Project, ProjectManager}
-import com.intellij.psi.search.GlobalSearchScope
+import com.intellij.openapi.project.{Project, ProjectManager}
 import com.intellij.openapi.vfs.newvfs.FileAttribute
 import com.intellij.reference.SoftReference
 
