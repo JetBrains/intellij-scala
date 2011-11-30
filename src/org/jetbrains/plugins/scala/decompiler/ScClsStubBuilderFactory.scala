@@ -12,6 +12,7 @@ import lang.psi.api.ScalaFile
 import lang.psi.impl.ScalaPsiElementFactory
 import decompiler.DecompilerUtil.DecompilationResult
 import com.intellij.openapi.project.ProjectManager
+import reflect.NameTransformer
 
 /**
  * @author ilyas
@@ -35,4 +36,35 @@ class ScClsStubBuilderFactory extends ClsStubBuilderFactory[ScalaFile] {
   }
 
   def canBeProcessed(file: VirtualFile, bytes: Array[Byte]) = DecompilerUtil.isScalaFile(file, bytes)
+
+  def isInnerClass(file: VirtualFile): Boolean = {
+    if (file.getExtension != "class") return false
+    isInner(file.getNameWithoutExtension, new ParentDirectory(file.getParent))
+  }
+
+  private def isInner(name: String, directory: Directory): Boolean = {
+    isInner(NameTransformer.encode(name), 0, directory)
+  }
+
+  private def isInner(name: String, from: Int, directory: Directory): Boolean = {
+    val index: Int = name.indexOf('$', from)
+    index != -1 && (containsPart(directory, name, index) || isInner(name, index + 1, directory))
+  }
+
+  private def containsPart(directory: Directory, name: String, endIndex: Int): Boolean = {
+    endIndex > 0 && directory.contains(name.substring(0, endIndex))
+  }
+
+  private trait Directory {
+    def contains(name: String): Boolean
+  }
+
+  private class ParentDirectory(dir: VirtualFile) extends Directory {
+    def contains(name: String): Boolean = {
+      if (dir == null) return false
+      !dir.getChildren.forall(child =>
+        child.getExtension != "class" || NameTransformer.encode(child.getNameWithoutExtension) == name
+      )
+    }
+  }
 }
