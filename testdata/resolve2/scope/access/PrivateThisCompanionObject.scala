@@ -3,6 +3,6 @@ object Foo {
 }
 
 class Foo {
-	println(Foo./* line: 6, accessible: false */f)
+	println(Foo./* line: 2, accessible: false */f)
 }
 

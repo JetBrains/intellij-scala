@@ -199,19 +199,20 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
   def execute(element: PsiElement, state: ResolveState): Boolean = {
     val named = element.asInstanceOf[PsiNamedElement]
     if (nameAndKindMatch(named, state)) {
-      if (!isAccessible(named, ref)) return true
+      val accessible = isAccessible(named, ref)
+      if (accessibility && !accessible) return true
       named match {
         case o: ScObject if o.isPackageObject && JavaPsiFacade.getInstance(element.getProject).
                 findPackage(o.getQualifiedName) != null =>
         case pack: PsiPackage =>
-          addResult(new ScalaResolveResult(ScPackageImpl(pack), getSubst(state), getImports(state)))
+          addResult(new ScalaResolveResult(ScPackageImpl(pack), getSubst(state), getImports(state), isAccessible = accessible))
         case clazz: PsiClass if !isThisOrSuperResolve || PsiTreeUtil.isContextAncestor(clazz, ref, true) =>
           addResult(new ScalaResolveResult(named, getSubst(state),
-            getImports(state), boundClass = getBoundClass(state), fromType = getFromType(state)))
+            getImports(state), boundClass = getBoundClass(state), fromType = getFromType(state), isAccessible = accessible))
         case clazz: PsiClass => //do nothing, it's wrong class or object
         case _ =>
           addResult(new ScalaResolveResult(named, getSubst(state),
-            getImports(state), boundClass = getBoundClass(state), fromType = getFromType(state)))
+            getImports(state), boundClass = getBoundClass(state), fromType = getFromType(state), isAccessible = accessible))
       }
     }
     true

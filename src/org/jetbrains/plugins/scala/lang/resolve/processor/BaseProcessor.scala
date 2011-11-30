@@ -38,6 +38,9 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value]) extends PsiSc
 
   def changedLevel = true
 
+  protected var accessibility = true
+  def doNotCheckAccessibility() {accessibility = false}
+
   def rrcandidates: Array[ResolveResult] = {
     val set = candidatesS
     val size = set.size

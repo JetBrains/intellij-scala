@@ -29,7 +29,8 @@ class ScalaResolveResult(val element: PsiNamedElement,
                          val tuplingUsed: Boolean = false,
                          val isSetterFunction: Boolean = false,
                          val isAssignment: Boolean = false,
-                         val notCheckedResolveResult: Boolean = false) extends ResolveResult {
+                         val notCheckedResolveResult: Boolean = false, 
+                         val isAccessible: Boolean = true) extends ResolveResult {
 
   def getElement = element
 
@@ -52,8 +53,6 @@ class ScalaResolveResult(val element: PsiNamedElement,
     }
   }
 
-  def isAccessible = true
-
   def isValidResult = isAccessible && isApplicable
 
   def isCyclicReference = false
@@ -66,10 +65,12 @@ class ScalaResolveResult(val element: PsiNamedElement,
            tuplingUsed: Boolean = tuplingUsed,
            isSetterFunction: Boolean = isSetterFunction,
            isAssignment: Boolean = isAssignment,
-           notCheckedResolveResult: Boolean = notCheckedResolveResult): ScalaResolveResult =
+           notCheckedResolveResult: Boolean = notCheckedResolveResult, 
+           isAccessible: Boolean = isAccessible): ScalaResolveResult =
     new ScalaResolveResult(element, subst, importsUsed, nameShadow, implicitConversionClass, problems, boundClass,
       implicitFunction, implicitType, defaultParameterUsed, innerResolveResult, parentElement,
-      isNamedParameter, fromType, tuplingUsed, isSetterFunction, isAssignment, notCheckedResolveResult)
+      isNamedParameter, fromType, tuplingUsed, isSetterFunction, isAssignment, notCheckedResolveResult,
+      isAccessible)
 
   //In valid program we should not have two resolve results with the same element but different substitutor,
   // so factor by element

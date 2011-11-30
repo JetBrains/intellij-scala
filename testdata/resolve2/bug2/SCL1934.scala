@@ -19,7 +19,7 @@ package p3 {
 import p.Container
 
 object User {
-  Container./*resolved: false*/invisible
+  Container./*accessible: false*/invisible
 }
 
 }

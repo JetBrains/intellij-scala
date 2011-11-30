@@ -864,7 +864,10 @@ object ScalaPsiUtil {
     val t = (sigs.get(s): @unchecked) match {
       //partial match
       case Some(x) => x.supers.map {_.info}
-      case None => throw new RuntimeException("internal error: could not find signature matching: %s\namong: %s".format(s, sigs.mkString("\n")))
+      case None =>
+        throw new RuntimeException("internal error: could not find val matching: \n%s\n\nin class: \n%s".format(
+          x.getText, clazz.getText
+        ))
     }
     t
   }
