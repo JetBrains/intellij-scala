@@ -23,4 +23,5 @@ class QualifierAccessTest extends ResolveTestBase {
   def testTargetPrivate = doTest
   def testTargetProtected = doTest
   def testQualifiedAccissibility = doTest
+  def testSCL3857 = doTest
 }
