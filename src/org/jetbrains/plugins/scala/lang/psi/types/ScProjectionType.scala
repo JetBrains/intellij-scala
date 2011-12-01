@@ -114,6 +114,15 @@ case class ScProjectionType(projected: ScType, element: PsiNamedElement, subst: 
           case _ => (false, uSubst)
         }
       case proj2@ScProjectionType(p1, element1, subst1) => {
+        proj2.actualElement match {
+          case a: ScTypeAliasDefinition =>
+            val subst = proj2.actualSubst
+            return Equivalence.equivInner(this, subst.subst(a.aliasedType match {
+              case Success(tp, _) => tp
+              case _ => return (false, uSubst)
+            }), uSubst, falseUndef)
+          case _ =>
+        }
         if (actualElement != proj2.actualElement) {
           actualElement match {
             case o: ScObject =>
