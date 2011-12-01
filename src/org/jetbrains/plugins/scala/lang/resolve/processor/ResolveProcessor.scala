@@ -24,7 +24,9 @@ import psi.api.toplevel.ScNamedElement
 
 class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
                        val ref: PsiElement,
-                       val name: String) extends BaseProcessor(kinds) {
+                       val name: String) extends BaseProcessor(kinds) with PrecedenceHelper {
+  protected def getPlace: PsiElement = ref
+
   val isThisOrSuperResolve = ref.getParent match {
     case _: ScThisReference | _: ScSuperReference => true
     case _ => false
@@ -32,15 +34,6 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
 
   def emptyResultSet: Boolean = candidatesSet.isEmpty || levelSet.isEmpty
 
-  protected val qualifiedNamesSet: HashSet[String] = new HashSet[String]
-  protected val levelQualifiedNamesSet: HashSet[String] = new HashSet[String]
-  protected lazy val placePackageName: String = ResolveUtils.getPlacePackage(ref)
-  /**
-   * Contains highest precedence of all resolve results.
-   * 1 - import a._
-   * 2 - import a.x
-   * 3 - definition or declaration
-   */
   protected var precedence: Int = 0
 
   /**
@@ -51,123 +44,22 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
     precedence = 0
   }
 
-  protected val levelSet: collection.mutable.HashSet[ScalaResolveResult] = new collection.mutable.HashSet
-
-  /**
-   * Do not add ResolveResults through candidatesSet. It may break precedence. Use this method instead.
-   */
-  protected def addResult(result: ScalaResolveResult): Boolean = addResults(Seq(result))
-  protected def addResults(results: Seq[ScalaResolveResult]): Boolean = {
-    if (results.length == 0) return true
-    lazy val qualifiedName: String = {
-      results(0).getActualElement match {
-        case c: ScTypeParam => null
-        case c: ScObject => "Object:" + c.getQualifiedName
-        case c: PsiClass => "Class:" + c.getQualifiedName
-        case t: ScTypeAlias if t.getParent.isInstanceOf[ScTemplateBody] &&
-          t.getContainingClass != null => "TypeAlias:" + t.getContainingClass.getQualifiedName + "#" + t.getName
-        case p: PsiPackage => "Package:" + p.getQualifiedName
-        case _ => null
-      }
+  protected def getQualifiedName(result: ScalaResolveResult): String = {
+    result.getActualElement match {
+      case c: ScTypeParam => null
+      case c: ScObject => "Object:" + c.getQualifiedName
+      case c: PsiClass => "Class:" + c.getQualifiedName
+      case t: ScTypeAlias if t.getParent.isInstanceOf[ScTemplateBody] &&
+        t.getContainingClass != null => "TypeAlias:" + t.getContainingClass.getQualifiedName + "#" + t.getName
+      case p: PsiPackage => "Package:" + p.getQualifiedName
+      case _ => null
     }
-    def addResults() {
-      if (qualifiedName != null) levelQualifiedNamesSet += qualifiedName
-      levelSet ++= results
-    }
-    val currentPrecedence = getPrecendence(results(0))
-    if (currentPrecedence < precedence) return false
-    else if (currentPrecedence == precedence && levelSet.isEmpty) return false
-    else if (currentPrecedence == precedence && !levelSet.isEmpty) {
-      if (qualifiedName != null && (levelQualifiedNamesSet.contains(qualifiedName) ||
-              qualifiedNamesSet.contains(qualifiedName))) {
-        return false
-      }
-      addResults()
-    } else {
-      if (qualifiedName != null && (levelQualifiedNamesSet.contains(qualifiedName) ||
-              qualifiedNamesSet.contains(qualifiedName))) {
-        return false
-      } else {
-        precedence = currentPrecedence
-        val newSet = levelSet.filterNot(p => getPrecendence(p) < precedence)
-        levelSet.clear()
-        levelSet ++= newSet
-        levelQualifiedNamesSet.clear()
-        addResults()
-      }
-    }
-    true
   }
 
-  protected def getPrecendence(result: ScalaResolveResult): Int = {
-    def getPackagePrecedence(qualifier: String): Int = {
-      if (qualifier == null) return 6
-      val index: Int = qualifier.lastIndexOf('.')
-      if (index == -1) return 3
-      val q = qualifier.substring(0, index)
-      if (q == "java.lang") return 1
-      else if (q == "scala") return 2
-      else if (q == placePackageName) return 6
-      else return 3
-    }
-    def getClazzPrecedence(clazz: PsiClass): Int = {
-      val qualifier = clazz.getQualifiedName
-      if (qualifier == null) return 6
-      val index: Int = qualifier.lastIndexOf('.')
-      if (index == -1) return 6
-      val q = qualifier.substring(0, index)
-      if (q == "java.lang") return 1
-      else if (q == "scala") return 2
-      else if (PsiTreeUtil.isContextAncestor(clazz.getContainingFile, ref, true)) return 6
-      else return 3
-    }
-    if (result.importsUsed.size == 0) {
-      ScalaPsiUtil.nameContext(result.getActualElement) match {
-        case synthetic: ScSyntheticClass => return 2 //like scala.Int
-        case obj: ScObject if obj.isPackageObject => {
-          val qualifier = obj.getQualifiedName
-          return getPackagePrecedence(qualifier)
-        }
-        case pack: PsiPackage => {
-          val qualifier = pack.getQualifiedName
-          return getPackagePrecedence(qualifier)
-        }
-        case clazz: PsiClass => {
-          return getClazzPrecedence(clazz)
-        }
-        case _: ScBindingPattern | _: PsiMember => {
-          val clazzStub = ScalaPsiUtil.getContextOfType(result.getActualElement, false, classOf[PsiClass])
-          val clazz: PsiClass = clazzStub match {
-            case clazz: PsiClass => clazz
-            case _ => null
-          }
-          //val clazz = PsiTreeUtil.getParentOfType(result.getActualElement, classOf[PsiClass])
-          if (clazz == null) return 6
-          else {
-            clazz.getQualifiedName match {
-              case "scala.Predef" => return 2
-              case "scala.LowPriorityImplicits" => return 2
-              case "scala" => return 2
-              case _ => return 6
-            }
-          }
-        }
-        case _ =>
-      }
-      return 6
-    }
-    val importsUsedSeq = result.importsUsed.toSeq
-    val importUsed: ImportUsed = importsUsedSeq.apply(importsUsedSeq.length - 1)
-    // TODO this conflates imported functions and imported implicit views. ScalaResolveResult should really store
-    //      these separately.
-    importUsed match {
-      case _: ImportWildcardSelectorUsed => 4
-      case _: ImportSelectorUsed => 5
-      case ImportExprUsed(expr) => {
-        if (expr.singleWildcard) 4
-        else 5
-      }
-    }
+  protected def getTopPrecedence(result: ScalaResolveResult): Int = precedence
+
+  protected def setTopPrecedence(result: ScalaResolveResult, i: Int) {
+    precedence = i
   }
 
   override def changedLevel = {
