@@ -33,9 +33,10 @@ import refactoring.util.ScalaRefactoringUtil.IntroduceException
 import com.intellij.refactoring.util.CommonRefactoringUtil
 import refactoring.util.{ScalaVariableValidator, ConflictsReporter, ScalaRefactoringUtil}
 import org.jetbrains.plugins.scala.extensions._
-import collection.mutable.HashSet
 import psi.types.result.TypingContext
 import psi.impl.expr.ScBlockImpl
+import collection.immutable.TreeSet
+import collection.mutable.{ArrayBuffer, HashSet}
 
 /**
 * User: Alexander Podkhalyuzin
@@ -68,7 +69,7 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Confli
 
       val (expr: ScExpression, typez: ScType) = ScalaRefactoringUtil.getExpression(project, editor, file, startOffset, endOffset).
               getOrElse(showErrorMessage(ScalaBundle.message("cannot.refactor.not.expression"), project, editor))
-      val types = new HashSet[ScType]
+      val types = new ArrayBuffer[ScType]
 
       if (typez != psi.types.Unit) types += typez
       expr.getTypeWithoutImplicits(TypingContext.empty).foreach(types += _)
