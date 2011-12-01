@@ -161,7 +161,8 @@ object ScalaOIUtil {
             case _ if isProductAbstractMethod(m, clazz) =>
             case x if name == "$tag" || name == "$init$" =>
             case x if !withOwn && x.getContainingClass == clazz =>
-            case x if x.getContainingClass.isInterface && !x.getContainingClass.isInstanceOf[ScTrait] => {
+            case x if x.getContainingClass != null && x.getContainingClass.isInterface &&
+              !x.getContainingClass.isInstanceOf[ScTrait] => {
               buf2 += sign
             }
             case x if x.hasModifierProperty("abstract") => {
