@@ -351,7 +351,7 @@
       <keyboard-shortcut first-keystroke="control shift G" keymap="$default"/>
     </action>
     <action id="Scala.TypeInfo" class="org.jetbrains.plugins.scala.actions.ShowTypeInfoAction">
-      <keyboard-shortcut first-keystroke="control alt shift T" keymap="$default"/>
+      <keyboard-shortcut first-keystroke="alt EQUALS" keymap="$default"/>
       <add-to-group group-id="CodeEditorViewGroup" anchor="last"/>
     </action>
     <action id="Scala.GenerateScaladoc" class="org.jetbrains.plugins.scala.lang.scaladoc.generate.ScaladocAction"
