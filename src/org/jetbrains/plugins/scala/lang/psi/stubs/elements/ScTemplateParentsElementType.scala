@@ -5,11 +5,12 @@ package stubs
 package elements
 
 import api.base.ScModifierList
-import api.toplevel.templates.ScTemplateParents
 import com.intellij.util.io.StringRef
 import impl.ScTemplateParentsStubImpl
 import com.intellij.psi.stubs.{StubElement, IndexSink, StubOutputStream, StubInputStream}
 import com.intellij.psi.PsiElement
+import api.toplevel.templates.{ScClassParents, ScTemplateParents}
+
 /**
  * User: Alexander Podkhalyuzin
  * Date: 17.06.2009
@@ -23,10 +24,21 @@ abstract class ScTemplateParentsElementType[Func <: ScTemplateParents](debugName
     for (s <- array) {
       dataStream.writeName(s)
     }
+    stub.getConstructor match {
+      case Some(str) =>
+        dataStream.writeBoolean(true)
+        dataStream.writeName(str)
+      case _ =>
+        dataStream.writeBoolean(false)
+    }
   }
 
   def createStubImpl[ParentPsi <: PsiElement](psi: ScTemplateParents, parentStub: StubElement[ParentPsi]): ScTemplateParentsStub = {
-    new ScTemplateParentsStubImpl(parentStub, this, psi.typeElements.map(_.getText).toArray)
+    val constr = psi match {
+      case p: ScClassParents => p.constructor.map(_.getText)
+      case _ => None
+    }
+    new ScTemplateParentsStubImpl(parentStub, this, constr, psi.typeElementsWithoutConstructor.map(_.getText).toArray)
   }
 
   def deserializeImpl(dataStream: StubInputStream, parentStub: Any): ScTemplateParentsStub = {
@@ -35,7 +47,11 @@ abstract class ScTemplateParentsElementType[Func <: ScTemplateParents](debugName
     for (i <- 0 until length) {
       res(i) = dataStream.readName
     }
-    new ScTemplateParentsStubImpl(parentStub.asInstanceOf[StubElement[PsiElement]], this, res)
+    val constr = dataStream.readBoolean() match {
+      case true => Some(dataStream.readName())
+      case false => None
+    }
+    new ScTemplateParentsStubImpl(parentStub.asInstanceOf[StubElement[PsiElement]], this, constr, res)
   }
 
   def indexStub(stub: ScTemplateParentsStub, sink: IndexSink) {}

@@ -3,7 +3,6 @@ package lang
 package psi
 package impl
 
-import api.base.{ScIdList, ScPatternList, ScStableCodeReferenceElement}
 import api.ScalaFile
 import api.toplevel.packaging.ScPackaging
 import com.intellij.lang.{PsiBuilderFactory, ASTNode}
@@ -43,7 +42,8 @@ import java.lang.ClassCastException
 import com.intellij.util.IncorrectOperationException
 import com.intellij.openapi.project.Project
 import parser.parsing.expressions.{Block, Expr}
-import parser.parsing.base.Import
+import parser.parsing.base.{Constructor, Import}
+import api.base.{ScConstructor, ScIdList, ScPatternList, ScStableCodeReferenceElement}
 
 object ScalaPsiElementFactory {
 
@@ -872,6 +872,21 @@ object ScalaPsiElementFactory {
     if (psi.isInstanceOf[ScTypeElement]) {
       psi.asInstanceOf[ScalaPsiElement].setContext(context, child)
       psi.asInstanceOf[ScTypeElement]
+    } else null
+  }
+
+  def createConstructorTypeElementFromText(text: String, context: PsiElement, child: PsiElement): ScTypeElement = {
+    val holder: FileElement = DummyHolderFactory.createHolder(context.getManager, context).getTreeElement
+    val builder: ScalaPsiBuilder =
+      new ScalaPsiBuilderImpl(PsiBuilderFactory.getInstance.createBuilder(context.getProject, holder,
+        new ScalaLexer, ScalaFileType.SCALA_LANGUAGE, text))
+    Constructor.parse(builder)
+    val node = builder.getTreeBuilt
+    holder.rawAddChildren(node.asInstanceOf[TreeElement])
+    val psi = node.getPsi
+    if (psi.isInstanceOf[ScConstructor]) {
+      psi.asInstanceOf[ScalaPsiElement].setContext(context, child)
+      psi.asInstanceOf[ScConstructor].typeElement
     } else null
   }
 
