@@ -24,8 +24,15 @@ class Signature(val name: String, val typesEval: Stream[ScType], val paramLength
   def substitutedTypes: Stream[ScType] = ScalaPsiUtil.getTypesStream(types, substitutor.subst _)
 
   def equiv(other: Signature): Boolean = {
+    def fieldCheck(other: Signature): Boolean = {
+      def isField(s: Signature) = s.namedElement.map(_.isInstanceOf[PsiField]).getOrElse(false)
+      !isField(this) ^ isField(other)
+    }
+    
     name == other.name &&
-            ((typeParams.length == other.typeParams.length && paramTypesEquiv(other)) || (paramLength == other.paramLength && javaErasedEquiv(other)))
+            ((typeParams.length == other.typeParams.length && paramTypesEquiv(other)) || 
+              (paramLength == other.paramLength && javaErasedEquiv(other))) && fieldCheck(other)
+    
   }
 
   // This is a quick fix for SCL-2973.
