@@ -22,31 +22,40 @@ import types._
 class ScTemplateParentsStubImpl[ParentPsi <: PsiElement](parent: StubElement[ParentPsi],
                                                   elemType: IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement])
         extends StubBaseWrapper[ScTemplateParents](parent, elemType) with ScTemplateParentsStub {
-  private var typesStirng: Array[StringRef] = new Array[StringRef](0)
+  private var typesString: Array[StringRef] = new Array[StringRef](0)
 
   private var types: PatchedSoftReference[Array[ScTypeElement]] = null
+  
+  private var constructor: Option[StringRef] = None
 
   def this(parent: StubElement[ParentPsi],
           elemType: IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement],
+          constructor: Option[String],
           typesString: Array[String]) = {
     this(parent, elemType.asInstanceOf[IStubElementType[StubElement[PsiElement], PsiElement]])
-    this.typesStirng = typesString.map(StringRef.fromString(_))
+    this.typesString = typesString.map(StringRef.fromString(_))
+    this.constructor = constructor.map(StringRef.fromString(_))
   }
 
   def this(parent: StubElement[ParentPsi],
           elemType: IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement],
+          constructor: Option[StringRef],
           typesString: Array[StringRef]) = {
     this(parent, elemType.asInstanceOf[IStubElementType[StubElement[PsiElement], PsiElement]])
-    this.typesStirng = typesString
+    this.typesString = typesString
+    this.constructor = constructor
   }
 
-  def getTemplateParentsTypesTexts: Array[String] = typesStirng.map(StringRef.toString(_))
+  def getTemplateParentsTypesTexts: Array[String] = typesString.map(StringRef.toString(_))
 
+  def getConstructor: Option[String] = constructor.map(StringRef.toString(_))
 
   def getTemplateParentsTypes: Array[ScType] = {
-    if (types != null && types.get != null) return types.get.map((te: ScTypeElement) =>
-      te.getType(TypingContext.empty).getOrAny)
+    if (types != null && types.get != null) 
+      return types.get.map((te: ScTypeElement) => te.getType(TypingContext.empty).getOrAny)
     val res: Array[ScTypeElement] = {
+      constructor.map(s =>
+        ScalaPsiElementFactory.createConstructorTypeElementFromText(StringRef.toString(s), getPsi, null)).toArray ++
       getTemplateParentsTypesTexts.map(ScalaPsiElementFactory.createTypeElementFromText(_, getPsi, null))
     }
     types = new PatchedSoftReference[Array[ScTypeElement]](res)

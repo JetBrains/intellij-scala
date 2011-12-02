@@ -17,4 +17,6 @@ trait ScTemplateParentsStub extends StubElement[ScTemplateParents] {
   def getTemplateParentsTypesTexts: Array[String]
 
   def getTemplateParentsTypes: Array[ScType]
+
+  def getConstructor: Option[String]
 }
