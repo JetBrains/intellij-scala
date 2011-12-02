@@ -4,7 +4,6 @@ package resolve
 
 import com.intellij.psi.util.PsiTreeUtil
 import processor.{ImplicitProcessor, BaseProcessor}
-import psi.api.base.{ScAccessModifier, ScFieldId}
 import psi.api.ScalaFile
 import psi.api.toplevel.typedef._
 import psi.impl.toplevel.typedef.TypeDefinitionMembers
@@ -25,7 +24,6 @@ import com.intellij.openapi.application.ApplicationManager
 import result.{TypingContextOwner, Success, TypingContext}
 import scope.{NameHint, PsiScopeProcessor}
 import search.GlobalSearchScope
-import psi.api.expr.ScSuperReference
 import java.lang.String
 import com.intellij.lang.StdLanguages
 import com.intellij.psi.impl.source.resolve.JavaResolveUtil
@@ -34,6 +32,8 @@ import completion.handlers.{ScalaClassNameInsertHandler, ScalaInsertHandler}
 import psi.api.base.types.{ScTypeElement, ScSelfTypeElement}
 import com.intellij.openapi.util.Key
 import psi.impl.ScalaPsiManager
+import psi.api.base.{ScReferenceElement, ScAccessModifier, ScFieldId}
+import psi.api.expr.{ScThisReference, ScSuperReference}
 
 /**
  * @author ven
@@ -151,9 +151,27 @@ object ResolveUtils {
                 A member M marked with this modifier can be accessed only from
                 within the object in which it is defined.
               */
-              val enclosing = PsiTreeUtil.getContextOfType(scMember, true, classOf[ScTemplateDefinition])
-              if (enclosing == null) return true
-              return PsiTreeUtil.isContextAncestor(enclosing, place, false)
+              place match {
+                case ref: ScReferenceElement =>
+                  ref.qualifier match {
+                    case None =>
+                      val enclosing = PsiTreeUtil.getContextOfType(scMember, true, classOf[ScTemplateDefinition])
+                      if (enclosing == null) return true
+                      return PsiTreeUtil.isContextAncestor(enclosing, place, false)
+                    case Some(t: ScThisReference) =>
+                      val enclosing = PsiTreeUtil.getContextOfType(scMember, true, classOf[ScTemplateDefinition])
+                      if (enclosing == null) return true
+                      t.refTemplate match {
+                        case Some(t) => return t == enclosing
+                        case _ => return PsiTreeUtil.isContextAncestor(enclosing, place, false)
+                      }
+                    case _ => return false
+                  }
+                case _ =>
+                  val enclosing = PsiTreeUtil.getContextOfType(scMember, true, classOf[ScTemplateDefinition])
+                  if (enclosing == null) return true
+                  return PsiTreeUtil.isContextAncestor(enclosing, place, false)
+              }
             }
             val ref = am.getReference
             if (ref != null) {
@@ -269,6 +287,17 @@ object ResolveUtils {
             }
             val enclosing = ScalaPsiUtil.getContextOfType(scMember, true,
               classOf[ScalaFile], classOf[ScTemplateDefinition], classOf[ScPackaging])
+            if (am.isThis) {
+              place match {
+                case ref: ScReferenceElement =>
+                  ref.qualifier match {
+                    case None =>
+                    case Some(t: ScThisReference) =>
+                    case _ => return false
+                  }
+                case _ =>
+              }
+            }
             enclosing match {
               case td: ScTypeDefinition => {
                 if (PsiTreeUtil.isContextAncestor(td, place, false) ||
