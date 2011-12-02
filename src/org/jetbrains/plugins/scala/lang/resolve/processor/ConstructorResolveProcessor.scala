@@ -43,7 +43,7 @@ class ConstructorResolveProcessor(constr: PsiElement, refName: String, args: Lis
           else {
             addResults(constructors.toSeq.map(constr => new ScalaResolveResult(constr, subst, getImports(state),
               parentElement = Some(clazz), boundClass = getBoundClass(state), fromType = getFromType(state),
-              isAccessible = isAccessible(constr, ref)
+              isAccessible = isAccessible(constr, ref) && accessible
             )))
           }
         }
@@ -67,7 +67,7 @@ class ConstructorResolveProcessor(constr: PsiElement, refName: String, args: Lis
               else {
                 addResults(constructors.toSeq.map(constr => new ScalaResolveResult(constr, subst.followed(s), getImports(state),
                     parentElement = Some(ta), boundClass = getBoundClass(state), fromType = getFromType(state),
-                    isAccessible = isAccessible(constr, ref)
+                    isAccessible = isAccessible(constr, ref) && accessible
                 )))
               }
             }
