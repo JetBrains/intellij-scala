@@ -14,7 +14,6 @@ import java.lang.{Class, String}
 import java.util.Set
 import com.intellij.lang.parameterInfo._
 import lexer.ScalaTokenTypes
-import psi.api.base.patterns.{ScConstructorPattern, ScPattern, ScPatternArgumentList}
 import psi.api.base.types.{ScSimpleTypeElement, ScParameterizedTypeElement, ScTypeElement, ScTypeArgs}
 import psi.api.expr.ScGenericCall
 import psi.api.statements.params.ScTypeParam
@@ -27,9 +26,8 @@ import com.intellij.psi.{PsiMethod, PsiType, PsiTypeParameter, PsiClass}
  * User: Alexander Podkhalyuzin
  * Date: 22.02.2009
  */
-
 class ScalaTypeParameterInfoHandler extends ParameterInfoHandlerWithTabActionSupport[ScTypeArgs, Any, ScTypeElement] {
-  def getArgListStopSearchClasses: Set[_ <: Class[_]] = {
+  def getArgListStopSearchClasses: java.util.Set[_ <: Class[_]] = {
     java.util.Collections.singleton(classOf[PsiMethod])//todo: ?
   }
 
@@ -41,7 +39,7 @@ class ScalaTypeParameterInfoHandler extends ParameterInfoHandlerWithTabActionSup
 
   def getActualParametersRBraceType: IElementType = ScalaTokenTypes.tRBRACE
 
-  def getArgumentListAllowedParentClasses: Set[Class[_]] = {
+  def getArgumentListAllowedParentClasses: java.util.Set[Class[_]] = {
     val set = new java.util.HashSet[Class[_]]()
     set.add(classOf[ScParameterizedTypeElement])
     set.add(classOf[ScGenericCall])

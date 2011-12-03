@@ -40,7 +40,7 @@ import psi.api.statements.params.{ScClassParameter, ScParameter, ScParameterClau
  */
 
 class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActionSupport[ScArgumentExprList, Any, ScExpression] {
-  def getArgListStopSearchClasses: Set[_ <: Class[_]] = {
+  def getArgListStopSearchClasses: java.util.Set[_ <: Class[_]] = {
     java.util.Collections.singleton(classOf[PsiMethod])
   }
 
@@ -56,7 +56,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
 
   def getActualParametersRBraceType: IElementType = ScalaTokenTypes.tRBRACE
 
-  def getArgumentListAllowedParentClasses: Set[Class[_]] = {
+  def getArgumentListAllowedParentClasses: java.util.Set[Class[_]] = {
     val set = new HashSet[Class[_]]()
     set.add(classOf[ScMethodCall])
     set.add(classOf[ScConstructor])
@@ -120,7 +120,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
         //todo: var isGreen = true
         var namedMode = false
         def paramText(param: ScParameter, subst: ScSubstitutor) = {
-          ScalaDocumentationProvider.parseParameter(param, (t: ScType) => ScType.presentableText(subst.subst(t)))
+          ScalaDocumentationProvider.parseParameter(param, (t: ScType) => ScType.presentableText(subst.subst(t)), false)
         }
         def applyToParameters(parameters: Seq[(Parameter, String)], subst: ScSubstitutor, canBeNaming: Boolean,
                               isImplicit: Boolean = false) {
