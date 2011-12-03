@@ -35,6 +35,7 @@ import scaladoc.parser.ScalaDocElementTypes
 import psi.api.toplevel.ScEarlyDefinitions
 import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.diagnostic.Logger
+import refactoring.util.ScalaNamesUtil
 
 object ScalaSpacingProcessor extends ScalaTokenTypes {
   private val LOG = Logger.getInstance("#org.jetbrains.plugins.scala.lang.formatting.processors.ScalaSpacingProcessor")
@@ -633,7 +634,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
           return if (tp.nameId.getNode eq left) WITHOUT_SPACING else WITH_SPACING
       }
       return if (left.getElementType == ScalaTokenTypes.tIDENTIFIER &&
-              !getText(left, fileText).matches(".*[A-Za-z0-9]")) WITH_SPACING else WITHOUT_SPACING
+        ScalaNamesUtil.isIdentifier(getText(left, fileText) + ":")) WITH_SPACING else WITHOUT_SPACING
     }
     if (rightString.length > 0 && rightString(0) == ';') {
       if (settings.SPACE_BEFORE_SEMICOLON && !(rightNode.getTreeParent.getPsi.isInstanceOf[ScalaFile]) &&
