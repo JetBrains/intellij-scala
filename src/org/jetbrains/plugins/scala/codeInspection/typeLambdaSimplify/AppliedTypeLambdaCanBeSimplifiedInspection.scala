@@ -26,25 +26,26 @@ import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiManager, ScalaPsiEleme
  * Such a type can appear after overide/implement when using Type Lamdas.
  *
  * For example:
- *
+ * {{{
  * trait Parent[M[_]] { def abstracto(m: M[Int]) }
  *
  * trait Child1 extends Parent[({type l[a]=Either[String,a]})#l] {
  *    // implement methods
  * }
+ * }}}
  */
 class AppliedTypeLambdaCanBeSimplifiedInspection extends LocalInspectionTool {
   def getGroupDisplayName: String = InspectionsUtil.SCALA
 
   def getDisplayName: String = "Applied Type Lambda can be simplified"
 
-  def getShortName: String = getDisplayName
+  def getShortName: String = "ScalaAppliedTypeLambdaCanBeSimplified"
 
   override def isEnabledByDefault: Boolean = true
 
   override def getStaticDescription: String = "Simplifies types such as <br/><pre>({type l[a] = Either[String, a]})#l[Int]</pre><br/>to<br/><pre>Either[String, Int]</pre>"
 
-  override def getID: String = "AppliedTypeLambdaCanBeSimplified"
+  override def getID: String = "ScalaAppliedTypeLambdaCanBeSimplified"
 
   override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor = {
     if (!holder.getFile.isInstanceOf[ScalaFile]) return new PsiElementVisitor {}

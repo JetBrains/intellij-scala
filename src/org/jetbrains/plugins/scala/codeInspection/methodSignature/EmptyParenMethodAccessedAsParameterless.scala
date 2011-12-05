@@ -13,7 +13,7 @@ import quickfix.{AddGenericCallParentheses, AddCallParentheses}
   */
 
 class EmptyParenMethodAccessedAsParameterless extends AbstractMethodSignatureInspection(
-  "EmptyParenMethodAccessedAsParameterless", "Empty-paren method accessed as parameterless") {
+  "ScalaEmptyParenMethodAccessedAsParameterless", "Empty-paren method accessed as parameterless") {
 
   @Language("HTML")
   val description =

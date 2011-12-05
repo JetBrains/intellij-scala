@@ -5,16 +5,19 @@ package psi
 package impl
 
 
-import api.ScDocComment
 import com.intellij.psi.impl.source.tree.LazyParseablePsiElement
 import com.intellij.psi.javadoc.PsiDocTag
 import com.intellij.psi.tree.IElementType
 import java.lang.String
 import lang.psi.ScalaPsiElement
 import parser.ScalaDocElementTypes
-import com.intellij.psi.{PsiDocCommentOwner, PsiElement}
 import com.intellij.util.ReflectionCache
 import java.util.{List, ArrayList}
+import lang.psi.api.ScalaElementVisitor
+import com.intellij.psi.{PsiElementVisitor, PsiDocCommentOwner, PsiElement}
+import lexer.ScalaDocTokenType
+import api.{ScDocTag, ScDocComment}
+import collection.mutable.ArrayBuilder
 
 /**
  * User: Alexander Podkhalyuzin
@@ -32,13 +35,31 @@ class ScDocCommentImpl(text: CharSequence) extends LazyParseablePsiElement(Scala
   override def toString: String = "DocComment"
 
   //todo: implement me
-  def getTags: Array[PsiDocTag] = null
+  def getTags: Array[PsiDocTag] = findTagsByName(_ => true)
 
   def getDescriptionElements: Array[PsiElement] = null
 
-  def findTagByName(name: String): PsiDocTag = null
+  def findTagByName(name: String): PsiDocTag = if (findTagsByName(name).length > 0) findTagsByName(name)(0) else null
 
-  def findTagsByName(name: String): Array[PsiDocTag] = null
+  def findTagsByName(name: String): Array[PsiDocTag] = findTagsByName(a => a == name)
+  
+  def findTagsByName(filter: String => Boolean): Array[PsiDocTag] = {
+    var currentChild = getFirstChild
+    val answer = ArrayBuilder.make[PsiDocTag]()
+
+    while (currentChild != null && currentChild.getNode.getElementType != ScalaDocTokenType.DOC_COMMENT_END) {
+      currentChild match {
+        case docTag: ScDocTag if docTag.getNode.getElementType == ScalaDocElementTypes.DOC_TAG  &&
+          filter(docTag.getName) => answer += currentChild.asInstanceOf[PsiDocTag]
+        case _ =>
+
+      }
+      currentChild = currentChild.getNextSibling
+    }
+
+    answer.result()
+  }
+
 
   protected def findChildrenByClassScala[T >: Null <: ScalaPsiElement](aClass: Class[T]): Array[T] = {
     val result: List[T] = new ArrayList[T]
@@ -57,5 +78,16 @@ class ScDocCommentImpl(text: CharSequence) extends LazyParseablePsiElement(Scala
       cur = cur.getNextSibling
     }
     null
+  }
+
+  override def accept(visitor: ScalaElementVisitor) {
+    visitor.visitDocComment(this)
+  }
+
+  override def accept(visitor: PsiElementVisitor) {
+    visitor match {
+      case s: ScalaElementVisitor => accept(s)
+      case _ => super.accept(visitor)
+    }
   }
 }

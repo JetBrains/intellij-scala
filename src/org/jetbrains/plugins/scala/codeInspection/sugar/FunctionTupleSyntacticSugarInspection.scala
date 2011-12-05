@@ -18,13 +18,13 @@ class FunctionTupleSyntacticSugarInspection extends LocalInspectionTool {
 
   def getDisplayName: String = "Syntactic Sugar"
 
-  def getShortName: String = getDisplayName
+  def getShortName: String = "ScalaSyntacticSugar"
 
   override def isEnabledByDefault: Boolean = true
 
   override def getStaticDescription: String = "Detects explicit references to FunctionN and TupleN that could be replaced with syntactic sugar"
 
-  override def getID: String = "SyntacticSugar"
+  override def getID: String = "ScalaSyntacticSugar"
 
   override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor = {
     if (!holder.getFile.isInstanceOf[ScalaFile]) return new PsiElementVisitor {}

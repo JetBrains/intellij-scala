@@ -13,7 +13,7 @@ import quickfix.AddEmptyParentheses
  */
 
 class JavaMutatorMethodOverridenAsParameterless extends AbstractMethodSignatureInspection(
-  "JavaMutatorMethodOverridenAsParameterless", "Java mutator method overriden as parameterless") {
+  "ScalaJavaMutatorMethodOverridenAsParameterless", "Java mutator method overriden as parameterless") {
 
   @Language("HTML")
   val description =

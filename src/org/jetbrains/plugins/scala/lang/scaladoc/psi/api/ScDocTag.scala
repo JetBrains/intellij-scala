@@ -5,13 +5,13 @@ package psi
 package api
 
 
-import _root_.org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement 
+import _root_.org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
+import com.intellij.psi.javadoc.{PsiDocTagValue, PsiDocTag}
 
 /**
  * User: Alexander Podkhalyuzin
  * Date: 22.07.2008
  */
- 
-trait ScDocTag extends ScalaPsiElement {
-  
+
+trait ScDocTag extends ScalaPsiElement with PsiDocTag {
 }

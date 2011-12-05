@@ -18,7 +18,7 @@ ScalaFile
       PsiErrorElement:Inline tag
         <empty list>
       PsiElement(DOC_WHITESPACE)(' ')
-      PsiElement(DOC_TAG_VALUE_TOKEN)('asdfshgfdj')
+      PsiElement(DOC_COMMENT_DATA)('asdfshgfdj')
       PsiElement(DOC_INLINE_TAG_END)('}')
     PsiElement(DOC_COMMENT_DATA)(' ')
     DocSyntaxElement 4
@@ -42,7 +42,7 @@ ScalaFile
         PsiErrorElement:Inline tag
           <empty list>
         PsiElement(DOC_WHITESPACE)(' ')
-        PsiElement(DOC_TAG_VALUE_TOKEN)('asdfdsgh')
+        PsiElement(DOC_COMMENT_DATA)('asdfdsgh')
         PsiElement(DOC_INLINE_TAG_END)('}')
       PsiElement(DOC_WHITESPACE)('\n ')
       PsiElement(DOC_COMMENT_LEADING_ASTERISKS)('*')
@@ -56,7 +56,7 @@ ScalaFile
       PsiErrorElement:Inline tag
         <empty list>
       PsiElement(DOC_WHITESPACE)(' ')
-      PsiElement(DOC_TAG_VALUE_TOKEN)('__not a marked element__')
+      PsiElement(DOC_COMMENT_DATA)('__not a marked element__')
       PsiElement(DOC_INLINE_TAG_END)('}')
     PsiElement(DOC_COMMENT_DATA)(' ')
     DocSyntaxElement 1
@@ -69,7 +69,7 @@ ScalaFile
           PsiErrorElement:Inline tag
             <empty list>
           PsiElement(DOC_WHITESPACE)(' ')
-          PsiElement(DOC_TAG_VALUE_TOKEN)('linjkl')
+          PsiElement(DOC_COMMENT_DATA)('linjkl')
           PsiElement(DOC_INLINE_TAG_END)('}')
         PsiElement(DOC_BOLD_TAG 1)(''''')
         PsiErrorElement:Cross tags

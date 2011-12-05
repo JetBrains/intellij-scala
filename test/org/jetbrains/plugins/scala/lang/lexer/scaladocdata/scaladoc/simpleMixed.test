@@ -37,7 +37,13 @@ DOC_COMMENT_DATA { }
 DOC_TAG_NAME {@see}
 DOC_WHITESPACE { }
 DOC_LINK_TAG 64 {[[}
-DOC_COMMENT_DATA {scala.collections.mutable.HashMap}
+identifier {scala}
+. {.}
+identifier {collections}
+. {.}
+identifier {mutable}
+. {.}
+identifier {HashMap}
 DOC_LINK_CLOSE_TAG 0 {]]}
 DOC_WHITESPACE {
   }

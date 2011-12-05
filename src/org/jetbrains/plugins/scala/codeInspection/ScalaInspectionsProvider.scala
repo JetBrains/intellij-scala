@@ -14,6 +14,7 @@ import packageNameInspection.{ChainedPackageInspection, PackageNameInspection}
 import postfix.PostfixMethodCall
 import redundantReturnInspection.{EqualsBetweenInconvertibleTypes, RemoveRedundantReturnInspection}
 import sbt.SbtFileStructure
+import scaladoc._
 import shadow.VariablePatternShadowInspection
 import sugar.FunctionTupleSyntacticSugarInspection
 import collection.mutable.ArrayBuffer
@@ -33,24 +34,27 @@ class ScalaInspectionsProvider extends InspectionToolProvider {
   def getInspectionClasses: Array[java.lang.Class[_]] = {
     val res = new ArrayBuffer[java.lang.Class[_]]
     //todo: res += classOf[CyclicReferencesInspection]
-    res += classOf[FileNameInspection]
-    res += classOf[PackageNameInspection]
-    res += classOf[ScalaDeprecationInspection]
-    res += classOf[CaseClassParamInspection]
-    res += classOf[SupsiciousInferredTypeInspection]
+
+//    res += classOf[FileNameInspection]
+//    res += classOf[PackageNameInspection]
+//    res += classOf[ScalaDeprecationInspection]
+//    res += classOf[CaseClassParamInspection]
+//    res += classOf[SupsiciousInferredTypeInspection]
+
     //todo parser doesn't give info now to work this inspection
     //res += classOf[SuspiciousNewLineInMethodCall]
-    res += classOf[VarCouldBeValInspection]
-    res += classOf[ScalaUnusedSymbolInspection]
-    res += classOf[FunctionTupleSyntacticSugarInspection]
-    res += classOf[ScalaDefaultFileTemplateUsageInspection]
-    res += classOf[AppliedTypeLambdaCanBeSimplifiedInspection]
 
-    res += classOf[AccessorLikeMethodIsEmptyParen]
-    res += classOf[AccessorLikeMethodIsUnit]
-    res += classOf[EmptyParenMethodOverridenAsParameterless]
-    res += classOf[JavaAccessorMethodOverridenAsEmptyParen]
-    res += classOf[JavaMutatorMethodOverridenAsParameterless]
+//    res += classOf[VarCouldBeValInspection]
+//    res += classOf[ScalaUnusedSymbolInspection]
+//    res += classOf[FunctionTupleSyntacticSugarInspection]
+//    res += classOf[ScalaDefaultFileTemplateUsageInspection]
+//    res += classOf[AppliedTypeLambdaCanBeSimplifiedInspection]
+
+//    res += classOf[AccessorLikeMethodIsEmptyParen]
+//    res += classOf[AccessorLikeMethodIsUnit]
+//    res += classOf[EmptyParenMethodOverridenAsParameterless]
+//    res += classOf[JavaAccessorMethodOverridenAsEmptyParen]
+//    res += classOf[JavaMutatorMethodOverridenAsParameterless]
     res += classOf[MutatorLikeMethodIsParameterless]
     res += classOf[ParameterlessMemberOverridenAsEmptyParen]
     res += classOf[UnitMethodDeclaredWithTypeAnnotation]
@@ -76,6 +80,13 @@ class ScalaInspectionsProvider extends InspectionToolProvider {
     res += classOf[AbstractValueInTraitInspection]
 
     res += classOf[SbtFileStructure]
+    
+    //scaladoc
+//    res += classOf[ScalaDocInlinedTagInspection]
+//    res += classOf[ScalaDocUnbalancedHeaderInspection]
+//    res += classOf[ScalaDocUnknownTagInspection]
+//    res += classOf[ScalaDocUnknownParameterInspection]
+    //end of scaladoc
 
     if (ApplicationManager.getApplication.asInstanceOf[ApplicationImpl].isInternal) {
       res += classOf[AnnotatorBasedErrorInspection]

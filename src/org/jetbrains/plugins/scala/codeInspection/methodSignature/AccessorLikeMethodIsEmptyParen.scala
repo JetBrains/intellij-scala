@@ -11,7 +11,7 @@ import quickfix.RemoveParentheses
  */
 
 class AccessorLikeMethodIsEmptyParen extends AbstractMethodSignatureInspection(
-  "AccessorLikeMethodIsEmptyParen", "Method with accessor-like name is empty-paren") {
+  "ScalaAccessorLikeMethodIsEmptyParen", "Method with accessor-like name is empty-paren") {
 
   @Language("HTML")
   val description =

@@ -43,16 +43,18 @@ ScalaFile
     PsiElement(DOC_COMMENT_DATA)('  ')
     DocTag
       PsiElement(DOC_TAG_NAME)('@tparam')
-      PsiElement(DOC_WHITESPACE)(' ')
-      PsiElement(DOC_TAG_VALUE_TOKEN)('A')
+      PsiElement(DOC_COMMENT_DATA)(' ')
+      ScalaDocTagValue
+        PsiElement(DOC_TAG_VALUE_TOKEN)('A')
       PsiElement(DOC_COMMENT_DATA)('      the type of the keys contained in this hash map.')
       PsiElement(DOC_WHITESPACE)('\n ')
       PsiElement(DOC_COMMENT_LEADING_ASTERISKS)('*')
       PsiElement(DOC_COMMENT_DATA)('  ')
     DocTag
       PsiElement(DOC_TAG_NAME)('@tparam')
-      PsiElement(DOC_WHITESPACE)(' ')
-      PsiElement(DOC_TAG_VALUE_TOKEN)('B')
+      PsiElement(DOC_COMMENT_DATA)(' ')
+      ScalaDocTagValue
+        PsiElement(DOC_TAG_VALUE_TOKEN)('B')
       PsiElement(DOC_COMMENT_DATA)('      the type of the values associated with the keys.')
       PsiElement(DOC_WHITESPACE)('\n ')
       PsiElement(DOC_COMMENT_LEADING_ASTERISKS)('*')

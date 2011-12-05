@@ -9,6 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClause, ScP
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScVariableDefinition, ScPatternDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import toplevel.imports.ScImportExpr
+import org.jetbrains.plugins.scala.lang.scaladoc.psi.api._
 
 /**
  * @author ilyas
@@ -16,19 +17,21 @@ import toplevel.imports.ScImportExpr
  */
 
 class ScalaRecursiveElementVisitor extends ScalaElementVisitor {
-  override def visitElement(element: ScalaPsiElement): Unit = {
+  override def visitElement(element: ScalaPsiElement) {
     element.acceptChildren(this)
   }
 }
 
 class ScalaElementVisitor extends PsiElementVisitor {
 
-  override def visitFile(file: PsiFile) = file match {
-    case sf: ScalaFile => visitElement(sf)
-    case _ => visitElement(file)
+  override def visitFile(file: PsiFile) {
+    file match {
+      case sf: ScalaFile => visitElement(sf)
+      case _ => visitElement(file)
+    }
   }
 
-  def visitElement(element: ScalaPsiElement) = super.visitElement(element)
+  def visitElement(element: ScalaPsiElement) {super.visitElement(element)}
   def visitReference(ref: ScReferenceElement) { visitElement(ref) }
   def visitPatternDefinition(pat: ScPatternDefinition) { visitElement(pat) }
   def visitVariableDefinition(varr: ScVariableDefinition) { visitElement(varr) }
@@ -70,4 +73,11 @@ class ScalaElementVisitor extends PsiElementVisitor {
 
   //type elements
   def visitSimpleTypeElement(simple: ScSimpleTypeElement) {visitElement(simple)}
+
+  //scaladoc
+  def visitDocComment(s: ScDocComment) {visitComment(s)}
+  def visitScaladocElement(s: ScalaPsiElement) {visitElement(s)}
+  def visitWikiSyntax(s: ScDocSyntaxElement) {visitElement(s)}
+  def visitInlinedTag(s: ScDocInlinedTag) {visitElement(s)}
+  def visitTag(s: ScDocTag) {visitElement(s)}
 }

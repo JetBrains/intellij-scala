@@ -8,7 +8,12 @@ import com.intellij.lang.PsiBuilder
 import ScalaDocElementTypes._
 import lexer.docsyntax.ScaladocSyntaxElementType
 import lexer.ScalaDocTokenType._
-import com.intellij.psi.tree.IElementType
+import com.intellij.psi.tree.{TokenSet, IElementType}
+import com.intellij.lang.PsiBuilder.Marker
+import collection.immutable.HashMap
+import lang.parser.parsing.types.StableId
+import lang.parser.parsing.builder.ScalaPsiBuilderImpl
+import lang.lexer.ScalaTokenTypes
 
 /**
  * User: Dmitry Naidanov
@@ -45,6 +50,12 @@ class MyScaladocParsing(private val psiBuilder: PsiBuilder) extends ScalaDocElem
     if (isEndOfComment) return false
     
     builder.getTokenType match {
+      case DOC_LINK_CLOSE_TAG =>
+        builder.error("Closing link tag before opening")
+        builder.advanceLexer()
+      case DOC_INNER_CLOSE_CODE_TAG =>
+        builder.error("Closing code tag before opening")
+        builder.advanceLexer()
       case a: ScaladocSyntaxElementType =>
         parseWikiSyntax
         hasClosingElementsInWikiSyntax = false
@@ -54,13 +65,12 @@ class MyScaladocParsing(private val psiBuilder: PsiBuilder) extends ScalaDocElem
       case DOC_TAG_NAME =>
         parseTag
       case DOC_INNER_CODE_TAG =>
-        if (builder.getTokenText == "}}}") {
-          builder.error("Closing code tag before opening one")
-          builder.advanceLexer()
-        } else {
-          parseInnerCode
-        }
-      case _ =>
+        parseInnerCode
+      case DOC_COMMENT_DATA | DOC_COMMENT_BAD_CHARACTER | DOC_WHITESPACE | DOC_COMMENT_LEADING_ASTERISKS |
+           DOC_COMMENT_START | DOC_COMMENT_END | DOC_MACROS =>
+        builder.advanceLexer()
+      case badToken @ _ =>
+        System.out.println("Error: " + badToken)
         builder.advanceLexer()
     }
     
@@ -90,14 +100,14 @@ class MyScaladocParsing(private val psiBuilder: PsiBuilder) extends ScalaDocElem
       (element == tokenType ||
               ((tokenType == DOC_LINK_TAG) || (tokenType == DOC_HTTP_LINK_TAG)) && element == DOC_LINK_CLOSE_TAG)
     }
-
-    if (tokenText == "]]" || tokenText == "}}}") {
-      builder.error("Closing tag before opening one")
-      marker.done(tokenType)
-      return false
-    } else if (tokenType == DOC_HEADER) {
+    
+    if (tokenType == DOC_HEADER) {
       marker.drop()
       return false
+    }
+    
+    if (tokenType == DOC_LINK_TAG && builder.getTokenType == ScalaTokenTypes.tIDENTIFIER && !isEndOfComment) {
+      StableId.parse(new ScalaPsiBuilderImpl(builder), true, DOC_CODE_LINK_VALUE)
     }
 
     while (!isEndOfComment) {
@@ -136,8 +146,8 @@ class MyScaladocParsing(private val psiBuilder: PsiBuilder) extends ScalaDocElem
           } else {
             builder.error("Closing link element before opening one")
           }
-        case a: ScaladocSyntaxElementType =>
-          if (tokenType == a) {
+        case a: ScaladocSyntaxElementType if a == DOC_MONOSPACE_TAG || tokenType != DOC_MONOSPACE_TAG =>
+          if (tokenType == a) { //
             builder.advanceLexer()
             clearFlag(tokenType.getFlagConst)
             marker.done(tokenType)
@@ -159,7 +169,11 @@ class MyScaladocParsing(private val psiBuilder: PsiBuilder) extends ScalaDocElem
           if ParserUtils.lookAhead(builder, DOC_INLINE_TAG_START, DOC_TAG_NAME) && canHaveTags =>
           isInInlinedTag = true
           parseTag
-        case DOC_WHITESPACE =>
+        case DOC_WHITESPACE if tokenType != DOC_MONOSPACE_TAG =>
+          if (tokenType == DOC_LINK_TAG) {
+            marker.done(DOC_LINK_TAG)
+            return true
+          }
           if (!hasClosingElementsInWikiSyntax &&
                   (builder.getTokenText.indexOf("\n") == builder.getTokenText.lastIndexOf("\n"))) { //check is it single nl
             hasClosingElementsInWikiSyntax = true
@@ -193,7 +207,7 @@ class MyScaladocParsing(private val psiBuilder: PsiBuilder) extends ScalaDocElem
     }
     builder.advanceLexer()
     
-    while (!isEndOfComment && builder.getTokenType != DOC_INNER_CODE_TAG) {
+    while (!isEndOfComment && builder.getTokenType != DOC_INNER_CLOSE_CODE_TAG) {
       builder.advanceLexer()
     }
     if (isEndOfComment) {
@@ -209,7 +223,7 @@ class MyScaladocParsing(private val psiBuilder: PsiBuilder) extends ScalaDocElem
   private def parseTag(implicit builder: PsiBuilder): Boolean = {
     import MyScaladocParsing._
 
-    val marker = builder.mark
+    val marker = builder.mark()
     if (isInInlinedTag) {
       ParserUtils.getToken(builder, DOC_INLINE_TAG_START)
     }
@@ -224,33 +238,44 @@ class MyScaladocParsing(private val psiBuilder: PsiBuilder) extends ScalaDocElem
     
     if (isInInlinedTag) {
       builder.error("Inline tag")
-    } else {                //todo
+    } else {
       tagName match {
         case THROWS_TAG | PARAM_TAG | TYPE_PARAM_TAG =>
           if (!ParserUtils.lookAhead(builder, builder.getTokenType, DOC_TAG_VALUE_TOKEN)) builder.error("Missing tag param")
-        case SEE_TAG | AUTHOR_TAG | NOTE_TAG | RETURN_TAG | DEFINE_TAG | SINCE_TAG | VERSION_TAG =>
+        case SEE_TAG | AUTHOR_TAG | NOTE_TAG | RETURN_TAG | DEFINE_TAG | SINCE_TAG | VERSION_TAG |
+             USECASE_TAG | EXAMPLE_TAG =>
           //do nothing
         case _ =>
           builder.error("unknown tag")
       }
     }
     
+    
     while (!isEndOfComment(builder)) {
       if (isInInlinedTag) {
         val tokenType = builder.getTokenType
-        builder.advanceLexer()
         tokenType match {
           case DOC_INLINE_TAG_END =>
+            builder.advanceLexer()
             marker.done(DOC_INLINED_TAG)
             isInInlinedTag = false
             return true
-          case _ => // do nothing
+          case DOC_TAG_VALUE_TOKEN =>
+            val valueMarker = builder.mark()
+            builder.advanceLexer()
+            valueMarker.done(DOC_TAG_VALUE_TOKEN)
+          case _ =>
+            builder.advanceLexer()
         }
       } else if (DOC_TAG_NAME eq builder.getTokenType) {
         marker.done(DOC_TAG)
         return true
       } else if (builder.getTokenType.isInstanceOf[ScaladocSyntaxElementType]) {
         parseWikiSyntax
+      } else if (builder.getTokenType == DOC_TAG_VALUE_TOKEN) {
+        val tagValMarker = builder.mark()
+        builder.advanceLexer()
+        tagValMarker.done(DOC_TAG_VALUE_TOKEN)
       } else {
         builder.advanceLexer()
       }
@@ -263,19 +288,25 @@ class MyScaladocParsing(private val psiBuilder: PsiBuilder) extends ScalaDocElem
 }
 
 object MyScaladocParsing {
-  private val PARAM_TAG = "@param"
-  private val TYPE_PARAM_TAG = "@tparam"
-  private val THROWS_TAG = "@throws"
+  val PARAM_TAG = "@param"
+  val TYPE_PARAM_TAG = "@tparam"
+  val THROWS_TAG = "@throws"
 
-  private val SEE_TAG = "@see"
-  private val AUTHOR_TAG = "@author"
-  private val NOTE_TAG = "@note"
-  private val RETURN_TAG = "@return"
-  private val SINCE_TAG = "@since"
-  private val DEFINE_TAG = "@define"
-  private val VERSION_TAG = "@version"
+  val SEE_TAG = "@see"
+  val AUTHOR_TAG = "@author"
+  val NOTE_TAG = "@note"
+  val RETURN_TAG = "@return"
+  val SINCE_TAG = "@since"
+  val DEFINE_TAG = "@define"
+  val VERSION_TAG = "@version"
+  val TODO_TAG = "@todo"
+  val USECASE_TAG = "@usecase"
+  val EXAMPLE_TAG = "@example"
+  
+  val escapeSequencesForWiki = HashMap[String, String]("`" -> "&#96;", "^" -> "&#94;", "__" -> "&#95;&#95;",
+    "'''" -> "&#39;&#39;&#39;", "''" -> "&#39;&#39;", ",," -> "&#44;&#44;", "[[" -> "&#91;", "=" -> "&#61;")
 
-  private val INLINE_LINK_TAG = "@link"
-  private val INLINE_LITERAL_TAG = "@literal"
-  private val INLINE_CODE_TAG = "@code"
+  val allTags = List(PARAM_TAG, TYPE_PARAM_TAG, THROWS_TAG, SEE_TAG, AUTHOR_TAG, NOTE_TAG, RETURN_TAG, SINCE_TAG,
+    DEFINE_TAG, VERSION_TAG, TODO_TAG, USECASE_TAG, EXAMPLE_TAG)
+  val tagsWithParameters = List(PARAM_TAG, TYPE_PARAM_TAG, THROWS_TAG)
 }

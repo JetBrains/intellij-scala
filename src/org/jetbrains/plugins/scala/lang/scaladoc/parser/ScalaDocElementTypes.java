@@ -42,11 +42,8 @@ public interface ScalaDocElementTypes extends ScalaDocTokenType{
 
   ScalaDocElementType DOC_TAG = new ScalaDocElementType("ScalaDocTag");
   ScalaDocElementType DOC_INLINED_TAG = new ScalaDocElementType("ScalaDocInlinedTag");
-  ScalaDocElementType DOC_SYNTAX_ELEMENT = new ScalaDocElementType("ScalaDocSyntaxElement");
 
-  ScalaDocElementType DOC_REFERENCE_ELEMENT = new ScalaDocElementType("ScalaDocReferenceElement");
   ScalaDocElementType DOC_PARAM_REF = new ScalaDocElementType("ScalaDocParameterReference");
-  ScalaDocElementType DOC_TYPE_PARAM_REF = new ScalaDocElementType("ScalaDocTypeParameterReference");
   ScalaDocElementType DOC_METHOD_REF = new ScalaDocElementType("ScalaDocMethodReference");
   ScalaDocElementType DOC_FIELD_REF = new ScalaDocElementType("ScalaDocFieldReference");
   ScalaDocElementType DOC_METHOD_PARAMS = new ScalaDocElementType("ScalaDocMethodParameterList");
