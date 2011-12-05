@@ -8,12 +8,12 @@ import result.{Success, TypingContext}
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
-import params.{ScParameterClause, ScParameter, ScTypeParam}
+import params.{ScParameter, ScTypeParam}
 import util.PsiTreeUtil
 import collection.immutable.HashSet
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import collection.mutable.ArrayBuffer
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScMember}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody}
 
 /**
  * @param place        The call site
@@ -25,11 +25,15 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScMe
  */
 class ImplicitParametersCollector(place: PsiElement, tp: ScType) {
   def collect: Seq[ScalaResolveResult] = {
-    val processor = new ImplicitParametersProcessor
+    var processor = new ImplicitParametersProcessor(false)
     def treeWalkUp(placeForTreeWalkUp: PsiElement, lastParent: PsiElement) {
       if (placeForTreeWalkUp == null) return
       if (!placeForTreeWalkUp.processDeclarations(processor,
         ResolveState.initial(), lastParent, place)) return
+      place match {
+        case (_: ScTemplateBody | _: ScExtendsBlock) => //template body and inherited members are at the same level
+        case _ => if (!processor.changedLevel) return
+      }
       treeWalkUp(placeForTreeWalkUp.getContext, placeForTreeWalkUp)
     }
     treeWalkUp(place, null) //collecting all references from scope
@@ -37,7 +41,7 @@ class ImplicitParametersCollector(place: PsiElement, tp: ScType) {
     val candidates = processor.candidatesS.toSeq
     if (!candidates.isEmpty) return candidates
 
-    processor.clear()
+    processor = new ImplicitParametersProcessor(true)
 
     for (obj <- ScalaPsiUtil.collectImplicitObjects(tp, place)) {
       processor.processType(obj, place, ResolveState.initial())
@@ -46,10 +50,8 @@ class ImplicitParametersCollector(place: PsiElement, tp: ScType) {
     processor.candidatesS.toSeq
   }
 
-  class ImplicitParametersProcessor extends ImplicitProcessor(StdKinds.refExprLastRef) {
-    def clear() {
-      candidatesSet.clear()
-    }
+  class ImplicitParametersProcessor(withoutPrecedence: Boolean) extends ImplicitProcessor(StdKinds.refExprLastRef, withoutPrecedence) {
+    protected def getPlace: PsiElement = place
 
     def execute(element: PsiElement, state: ResolveState): Boolean = {
       if (!kindMatches(element)) return true
@@ -57,21 +59,20 @@ class ImplicitParametersCollector(place: PsiElement, tp: ScType) {
       val subst = getSubst(state)
       named match {
         case o: ScObject if o.hasModifierProperty("implicit") =>
-          candidatesSet += new ScalaResolveResult(o, subst, getImports(state))
+          addResult(new ScalaResolveResult(o, subst, getImports(state)))
         case param: ScParameter =>
           if (param.isImplicitParameter)
-            candidatesSet += new ScalaResolveResult(param, subst, getImports(state))
+            addResult(new ScalaResolveResult(param, subst, getImports(state)))
         case patt: ScBindingPattern => {
           val memb = ScalaPsiUtil.getContextOfType(patt, true, classOf[ScValue], classOf[ScVariable])
           memb match {
             case memb: ScMember if memb.hasModifierProperty("implicit") =>
-              candidatesSet += new ScalaResolveResult(named, subst, getImports(state))
+              addResult(new ScalaResolveResult(named, subst, getImports(state)))
             case _ =>
           }
         }
         case function: ScFunction if function.hasModifierProperty("implicit") => {
-          candidatesSet +=
-            new ScalaResolveResult(named, subst.followed(inferMethodTypesArgs(function, subst)), getImports(state))
+          addResult(new ScalaResolveResult(named, subst.followed(inferMethodTypesArgs(function, subst)), getImports(state)))
         }
         case _ =>
       }
@@ -153,7 +154,7 @@ class ImplicitParametersCollector(place: PsiElement, tp: ScType) {
         }
       }
 
-      val applicable = candidatesSet.map(forFilter).flatten
+      val applicable = super.candidatesS.map(forFilter).flatten
       new MostSpecificUtil(place, 1).mostSpecificForResolveResult(applicable) match {
         case Some(r) => HashSet(r)
         case _ => applicable

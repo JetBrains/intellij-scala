@@ -88,6 +88,9 @@ object InferUtil {
                     case Some(clazz) if clazz.getQualifiedName == "scala.reflect.ClassManifest" =>
                       //do not throw, it's safe
                       resolveResults += new ScalaResolveResult(clazz, p.substitutor)
+                    case Some(clazz) if clazz.getQualifiedName == "scala.reflect.Manifest" =>
+                      //do not throw, it's safe
+                      resolveResults += new ScalaResolveResult(clazz, p.substitutor)
                     case _ => throw new SafeCheckException
                   }
                 case _ => throw new SafeCheckException
@@ -98,6 +101,9 @@ object InferUtil {
                 case p@ScParameterizedType(des, Seq(arg)) =>
                   ScType.extractClass(des) match {
                     case Some(clazz) if clazz.getQualifiedName == "scala.reflect.ClassManifest" =>
+                      //do not throw, it's safe
+                      resolveResults += new ScalaResolveResult(clazz, p.substitutor)
+                    case Some(clazz) if clazz.getQualifiedName == "scala.reflect.Manifest" =>
                       //do not throw, it's safe
                       resolveResults += new ScalaResolveResult(clazz, p.substitutor)
                     case _ => resolveResults += null
@@ -132,6 +138,9 @@ object InferUtil {
               case p@ScParameterizedType(des, Seq(arg)) =>
                 ScType.extractClass(des) match {
                   case Some(clazz) if clazz.getQualifiedName == "scala.reflect.ClassManifest" =>
+                    //do not throw, it's safe
+                    resolveResults += new ScalaResolveResult(clazz, p.substitutor)
+                  case Some(clazz) if clazz.getQualifiedName == "scala.reflect.Manifest" =>
                     //do not throw, it's safe
                     resolveResults += new ScalaResolveResult(clazz, p.substitutor)
                   case _ => resolveResults += null

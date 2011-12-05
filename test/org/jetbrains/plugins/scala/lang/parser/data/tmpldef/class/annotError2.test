@@ -1,0 +1,36 @@
+@a
+
+@b
+class A
+------
+ScalaFile
+  PsiErrorElement:Wrong top statement declaration
+    <empty list>
+  PsiElement(@)('@')
+  ReferenceExpression
+    PsiElement(identifier)('a')
+  PsiWhiteSpace('\n\n')
+  ScClass
+    AnnotationsList
+      Annotation
+        PsiElement(@)('@')
+        AnnotationExpression
+          Constructor
+            SimpleTypeElement
+              CodeReferenceElement
+                PsiElement(identifier)('b')
+    Modifiers
+      <empty list>
+    PsiWhiteSpace('\n')
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('A')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      <empty list>

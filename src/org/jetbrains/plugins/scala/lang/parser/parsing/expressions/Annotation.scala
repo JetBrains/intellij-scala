@@ -20,22 +20,28 @@ import builder.ScalaPsiBuilder
 
 object Annotation {
   def parse(builder: ScalaPsiBuilder): Boolean = {
+    val rollbackMarker = builder.mark()
     val annotMarker = builder.mark
     builder.getTokenText match {
       case "@" => {
-        builder.advanceLexer //Ate @
+        builder.advanceLexer() //Ate @
       }
       case _ => {
-        annotMarker.drop
+        annotMarker.drop()
+        rollbackMarker.drop()
         return false
       }
     }
     if (!AnnotationExpr.parse(builder)) {
       builder error ScalaBundle.message("wrong.annotation.expression")
-      annotMarker.drop
+      annotMarker.drop()
     } else {
       annotMarker.done(ScalaElementTypes.ANNOTATION)
     }
+    if (builder.countNewlineBeforeCurrentToken >= 2) {
+      rollbackMarker.rollbackTo()
+      return false
+    } else rollbackMarker.drop()
     true
   }
 }

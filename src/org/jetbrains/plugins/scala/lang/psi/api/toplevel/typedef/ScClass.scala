@@ -60,7 +60,8 @@ trait ScClass extends ScTypeDefinition with ScParameterOwner {
             //          }
             //
             //        }
-            val objText = "object " + getName + "{\n  " + texts._1 + "\n  " + texts._2 + "\n" + "}"
+            val accessModifier = getModifierList.accessModifier.map(_.getText + " ").getOrElse("")
+            val objText = accessModifier + "object " + getName + "{\n  " + texts._1 + "\n  " + texts._2 + "\n" + "}"
             val next = ScalaPsiUtil.getNextStubOrPsiElement(this)
             val obj: ScObject =
               ScalaPsiElementFactory.createObjectWithContext(objText, getParent, if (next != null) next else this)

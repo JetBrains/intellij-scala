@@ -25,6 +25,7 @@ import lang.resolve.processor.{CompletionProcessor, ResolveProcessor}
 import lang.resolve.{ScalaResolveResult, StdKinds}
 import com.intellij.psi.util.PsiTreeUtil
 import java.lang.ThreadLocal
+import com.intellij.openapi.util.{Trinity, RecursionManager}
 
 trait ScImportsHolder extends ScalaPsiElement {
 
@@ -55,21 +56,29 @@ trait ScImportsHolder extends ScalaPsiElement {
   }
 
   /**
-   * This method is important to avoid SOE.
-   *
+   * This method is important to avoid SOE for long import lists.
    */
   private def updateResolveCaches() {
     val curModCount = getManager.getModificationTracker.getModificationCount
     if (curModCount == modCount || updating.get()) return
+    var updateModCount = true
     updating.set(true)
     try {
       var child = ScalaPsiUtil.getFirstStubOrPsiElement(this)
-      while (child != null) {
+      while (child != null && updateModCount) {
         child match {
           case i: ScImportStmt =>
             for (expr <- i.importExprs) {
               expr.reference match {
-                case Some(ref) => ref.multiResolve(false) //fill resolve cache to avoid SOE
+                case Some(ref) =>
+                  var qual = ref
+                  while (qual.qualifier != None) {
+                    qual = qual.qualifier.get
+                  }
+                  if (updateModCount && !ScImportsHolder.resolveCache.currentStack().contains(Trinity.create(ref, false, true)) &&
+                    !ScImportsHolder.resolveCache.currentStack().contains(Trinity.create(qual, false, true))) {
+                    ref.multiResolve(false) //fill resolve cache to avoid SOE
+                  } else updateModCount = false
                 case _ =>
               }
             }
@@ -77,9 +86,9 @@ trait ScImportsHolder extends ScalaPsiElement {
         }
         child = ScalaPsiUtil.getNextStubOrPsiElement(child)
       }
-    }
-    finally updating.set(false)
-    modCount = curModCount
+    } finally updating.set(false)
+    if (updateModCount)
+      modCount = curModCount
   }
 
   def getImportsForLastParent(lastParent: PsiElement): Seq[ScImportStmt] = {
@@ -470,4 +479,8 @@ trait ScImportsHolder extends ScalaPsiElement {
       remove(node)
     }
   }
+}
+
+object ScImportsHolder {
+  private val resolveCache = RecursionManager.createGuard("resolveCache")
 }

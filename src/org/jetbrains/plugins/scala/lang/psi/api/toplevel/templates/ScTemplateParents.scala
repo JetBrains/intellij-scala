@@ -19,5 +19,7 @@ import types.ScType
 trait ScTemplateParents extends ScalaPsiElement {
   def typeElements: Seq[ScTypeElement] =
     Seq(findChildrenByClassScala(classOf[ScTypeElement]): _*)
+  def typeElementsWithoutConstructor: Seq[ScTypeElement] =
+    findChildrenByClassScala(classOf[ScTypeElement])
   def superTypes: Seq[ScType]
 }

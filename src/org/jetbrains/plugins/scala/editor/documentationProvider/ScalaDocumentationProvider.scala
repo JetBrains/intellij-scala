@@ -219,16 +219,16 @@ object ScalaDocumentationProvider {
       mkString(if (elem.isImplicit) "(implicit " else "(", separator, ")")
   }
 
-  def parseParameter(param: ScParameter, typeToString: ScType => String): String = {
+  def parseParameter(param: ScParameter, typeToString: ScType => String, escape: Boolean = true): String = {
     val buffer: StringBuilder = new StringBuilder("")
-    buffer.append(parseAnnotations(param, typeToString, ' '))
+    buffer.append(parseAnnotations(param, typeToString, ' ', escape))
     param match {case cl: ScClassParameter => buffer.append(parseModifiers(cl)) case _ =>}
     buffer.append(param match {
       case c: ScClassParameter if c.isVal => "val "
       case c: ScClassParameter if c.isVar => "var "
       case _ => ""
     })
-    buffer.append(escapeHtml(param.name))
+    buffer.append(if (escape) escapeHtml(param.name) else param.name)
 
     buffer.append(parseType(param, t => {
       (if (param.isCallByNameParameter) "=> " else "") + typeToString(t)
@@ -304,7 +304,7 @@ object ScalaDocumentationProvider {
   }
 
   private def parseAnnotations(elem: ScAnnotationsHolder, typeToString: ScType => String,
-                               sep: Char = '\n'): String = {
+                               sep: Char = '\n', escape: Boolean = true): String = {
     val buffer: StringBuilder = new StringBuilder("")
     def parseAnnotation(elem: ScAnnotation): String = {
       var s = "@"
@@ -313,7 +313,7 @@ object ScalaDocumentationProvider {
       s += typeToString(constr.typeElement.getType(TypingContext.empty).getOrAny)
       if (attributes.length > 0) {
         val array = attributes.map {
-          ne: ScNamedElement => "val " + escapeHtml(ne.name)
+          ne: ScNamedElement => "val " + (if (escape) escapeHtml(ne.name) else ne.name)
         }
         s += array.mkString("{","; ","}")
       }

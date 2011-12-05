@@ -14,6 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
 import _root_.scala.collection.mutable.ArrayBuffer
 import result.TypingContext
 import util.{NameValidator, ScalaNamesUtil}
+
 /**
 * User: Alexander.Podkhalyuz
 * Date: 26.06.2008
@@ -26,10 +27,17 @@ object NameSuggester {
   }
   def suggestNames(expr: ScExpression): Array[String] = suggestNames(expr, emptyValidator(expr.getProject))
   def suggestNames(expr: ScExpression, validator: NameValidator): Array[String] = {
-    val names = new HashSet[String]
+    val names = new ArrayBuffer[String]
 
-    for (tpe <- expr.getType(TypingContext.empty)) {generateNamesByType(tpe, names, validator)}
-    generateNamesByExpr(expr, names, validator)
+    val types = new ArrayBuffer[ScType]()
+    val typez = expr.getType(TypingContext.empty).getOrElse(null)
+    if (typez != null && typez != Unit) types += typez
+    expr.getTypeWithoutImplicits(TypingContext.empty).foreach(types += _)
+    expr.getTypeIgnoreBaseType(TypingContext.empty).foreach(types += _)
+    if (typez != null && typez == Unit) types += typez
+    
+    for (tpe <- types.reverse) {generateNamesByType(tpe)(names, validator)}
+    generateNamesByExpr(expr)(names, validator)
     if (names.size == 0) {
       names += validator.validateName("value", true)
     }
@@ -40,8 +48,8 @@ object NameSuggester {
   }
 
   def suggestNamesByType(typez: ScType): Array[String] = {
-    val names = new HashSet[String]
-    generateNamesByType(typez, names, emptyValidator(null))
+    val names = new ArrayBuffer[String]
+    generateNamesByType(typez)(names, emptyValidator(null))
     if (names.size == 0) {
       names += "value"
     }
@@ -49,11 +57,15 @@ object NameSuggester {
       if (name != "class") name else "clazz"
     }).toList.reverse.toArray
   }
+  
+  private def add(s: String)(implicit validator: NameValidator, names: ArrayBuffer[String]) {
+    val name = validator.validateName(s, true)
+    if (!names.contains(name))
+      names += name
+  }
 
-  private def generateNamesByType(typez: ScType, names: HashSet[String], validator: NameValidator) {
-    def add(s: String) {
-      names += validator.validateName(s, true)
-    }
+  private def generateNamesByType(typez: ScType)(implicit names: ArrayBuffer[String], validator: NameValidator) {
+    
     typez match {
       case ValType(name) => {
         name match {
@@ -70,26 +82,26 @@ object NameSuggester {
         }
       }
       case ScTupleType(comps) => add("tuple")
-      case ScFunctionType(ret, params) if params.length == 0 => generateNamesByType(ret, names, validator)
+      case ScFunctionType(ret, params) if params.length == 0 => generateNamesByType(ret)
       case ScFunctionType(ret, params) => add("function");
       case ScDesignatorType(e) => {
         val name = e.getName
         if (name != null && name.toUpperCase == name) {
-          names += validator.validateName(deleteNonLetterFromString(name).toLowerCase, true)
+          add(deleteNonLetterFromString(name).toLowerCase)
         } else if (name == "String") {
           add("s")
         } else {
-          generateCamelNames(names, validator, name)
+          generateCamelNames(name)
         }
       }
       case ScProjectionType(p, e, s) => {
         val name = e.getName
         if (name != null && name.toUpperCase == name) {
-          names += validator.validateName(deleteNonLetterFromString(name).toLowerCase, true)
+          add(deleteNonLetterFromString(name).toLowerCase)
         } else if (name == "String") {
           add("s")
         } else {
-          generateCamelNames(names, validator, name)
+          generateCamelNames(name)
         }
       }
       case ScParameterizedType(des@ScDesignatorType(c: PsiClass), Seq(arg)) if c.getQualifiedName == "scala.Array" => {
@@ -109,7 +121,7 @@ object NameSuggester {
           case _ => 
         }
         if (s != "") add("arrayOf" + s)
-        generateNamesByType(des, names, validator)
+        generateNamesByType(des)
       }
       case JavaArrayType(arg) => {
         //todo: remove duplicate
@@ -131,34 +143,34 @@ object NameSuggester {
         if (s != "") add("arrayOf" + s)
       }
       case ScParameterizedType(des, typeArgs) => {
-        generateNamesByType(des, names, validator)
+        generateNamesByType(des)
       }
       case ScCompoundType(comps, _, _, _) => {
-        if (comps.size > 0) generateNamesByType(comps(0), names, validator)
+        if (comps.size > 0) generateNamesByType(comps(0))
       }
       case _ =>
     }
   }
 
-  private def generateNamesByExpr(expr: ScExpression, names: HashSet[String], validator: NameValidator) {
+  private def generateNamesByExpr(expr: ScExpression)(implicit names: ArrayBuffer[String], validator: NameValidator) {
     expr match {
-      case _: ScThisReference => names += validator.validateName("thisInstance", true)
-      case _: ScSuperReference => names += validator.validateName("superInstance", true)
+      case _: ScThisReference => add("thisInstance")
+      case _: ScSuperReference => add("superInstance")
       case x: ScReferenceElement if x.refName != null => {
         val name = x.refName
         if (name != null && name.toUpperCase == name) {
-          names += validator.validateName(name.toLowerCase, true)
+          add(name.toLowerCase)
         } else {
-          generateCamelNames(names, validator, name)
+          generateCamelNames(name)
         }
       }
       case x: ScMethodCall => {
-        generateNamesByExpr(x.getEffectiveInvokedExpr, names, validator)
+        generateNamesByExpr(x.getEffectiveInvokedExpr)
       }
       case _ => expr.getContext match {
-        case x: ScAssignStmt => x.assignName.foreach(names += _)
+        case x: ScAssignStmt => x.assignName.foreach(add(_))
         case x: ScArgumentExprList => x.matchedParameters.getOrElse(Map.empty).get(expr) match {
-          case Some(parameter) => names += parameter.name
+          case Some(parameter) => add(parameter.name)
           case _ =>
         }
         case _ =>
@@ -166,7 +178,7 @@ object NameSuggester {
     }
   }
 
-  private def generateCamelNames(names: HashSet[String], validator: NameValidator, name: String) {
+  private def generateCamelNames(name: String)(implicit names: ArrayBuffer[String], validator: NameValidator) {
     if (name == "") return
     val s1 = deleteNonLetterFromString(name)
     val s = if (Array("get", "set", "is").map(s1.startsWith(_)).contains(true))
@@ -178,11 +190,11 @@ object NameSuggester {
     for (i <- 0 to s.length - 1) {
       if (i == 0) {
         val candidate = s.substring(0, 1).toLowerCase + s.substring(1)
-        names += validator.validateName(candidate, true)
+        add(candidate)
       }
       else if (s(i) >= 'A' && s(i) <= 'Z') {
         val candidate = s.substring(i, i + 1).toLowerCase + s.substring(i + 1)
-        names += validator.validateName(candidate, true)
+        add(candidate)
       }
     }
   }

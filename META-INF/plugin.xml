@@ -336,8 +336,12 @@
       <keyboard-shortcut first-keystroke="alt control shift E" keymap="$default"/>
     </action>
     <action id="Scala.GoToImplicit" class="org.jetbrains.plugins.scala.actions.GoToImplicitConversionAction"
-        text="&amp;Implicit Conversion" description="Go To Implicit Conversion">
-      <keyboard-shortcut first-keystroke="control shift Q" keymap="$default"/>
+            text="&amp;Implicit Conversion" description="Go To Implicit Conversion">
+      <keyboard-shortcut keymap="$default" first-keystroke="control shift Q"/>
+      <keyboard-shortcut keymap="Mac OS X" first-keystroke="ctrl shift Q"/>
+      <keyboard-shortcut keymap="Mac OS X" first-keystroke="meta shift Q" remove="true"/>
+      <keyboard-shortcut keymap="Mac OS X 10.5+" first-keystroke="ctrl shift Q"/>
+      <keyboard-shortcut keymap="Mac OS X 10.5+" first-keystroke="meta shift Q" remove="true"/>
       <add-to-group group-id="GoToCodeGroup" anchor="last"/>
     </action>
     <action id="Scala.RenameJavaToScala" class="org.jetbrains.plugins.scala.conversion.RenameJavaToScalaAction"
@@ -347,7 +351,11 @@
       <keyboard-shortcut first-keystroke="control shift G" keymap="$default"/>
     </action>
     <action id="Scala.TypeInfo" class="org.jetbrains.plugins.scala.actions.ShowTypeInfoAction">
-      <keyboard-shortcut first-keystroke="control alt shift T" keymap="$default"/>
+      <keyboard-shortcut first-keystroke="alt EQUALS" keymap="$default"/>
+      <keyboard-shortcut first-keystroke="meta EQUALS" keymap="Mac OS X"/>
+      <keyboard-shortcut first-keystroke="alt EQUALS" keymap="Mac OS X" remove="true"/>
+      <keyboard-shortcut first-keystroke="meta EQUALS" keymap="Mac OS X 10.5+"/>
+      <keyboard-shortcut first-keystroke="alt EQUALS" keymap="Mac OS X 10.5+" remove="true"/>
       <add-to-group group-id="CodeEditorViewGroup" anchor="last"/>
     </action>
     <action id="Scala.GenerateScaladoc" class="org.jetbrains.plugins.scala.lang.scaladoc.generate.ScaladocAction"
