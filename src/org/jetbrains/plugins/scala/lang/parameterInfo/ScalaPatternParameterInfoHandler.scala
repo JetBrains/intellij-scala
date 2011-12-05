@@ -2,33 +2,25 @@ package org.jetbrains.plugins.scala
 package lang
 package parameterInfo
 
-import org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocumentationProvider
 import _root_.java.lang.{Class, String}
-import collection.mutable.{ArrayBuffer, HashSet}
+import collection.mutable.ArrayBuffer
 import com.intellij.codeInsight.CodeInsightBundle
 import com.intellij.psi._
-import psi.api.statements.params.{ScParameterClause, ScParameter}
-import com.intellij.codeInsight.completion.JavaCompletionUtil
-import com.intellij.codeInsight.lookup.{LookupItem, LookupElement}
+import com.intellij.codeInsight.lookup.LookupElement
 import com.intellij.psi.tree.IElementType
 import _root_.java.util.Set
 import com.intellij.lang.parameterInfo._
-
-
 import com.intellij.psi.util.PsiTreeUtil
-import psi.api.base.{ScPrimaryConstructor, ScStableCodeReferenceElement, ScConstructor}
-import psi.api.expr.{ScGenericCall, ScArgumentExprList, ScMethodCall, ScExpression}
-
+import psi.api.base.ScStableCodeReferenceElement
 import psi.api.statements.ScFunction
-import psi.api.toplevel.typedef.{ScTypeDefinition, ScObject, ScClass}
+import psi.api.toplevel.typedef.{ScObject, ScClass}
 import psi.ScalaPsiUtil
 import psi.types._
 import com.intellij.util.ArrayUtil
 import java.awt.Color
 import lexer.ScalaTokenTypes
 import psi.api.base.patterns.{ScPattern, ScConstructorPattern, ScPatternArgumentList}
-import lang.resolve.processor.ExpandedExtractorResolveProcessor
-import lang.resolve.{StdKinds, ResolveUtils, ScalaResolveResult}
+import lang.resolve.ScalaResolveResult
 import result.TypingContext
 
 /**
@@ -37,7 +29,7 @@ import result.TypingContext
  */
 
 class ScalaPatternParameterInfoHandler extends ParameterInfoHandlerWithTabActionSupport[ScPatternArgumentList, Any, ScPattern] {
-  def getArgListStopSearchClasses: Set[_ <: Class[_]] = {
+  def getArgListStopSearchClasses: java.util.Set[_ <: Class[_]] = {
     java.util.Collections.singleton(classOf[PsiMethod]) //todo: ?
   }
 
@@ -53,7 +45,7 @@ class ScalaPatternParameterInfoHandler extends ParameterInfoHandlerWithTabAction
 
   def getActualParametersRBraceType: IElementType = ScalaTokenTypes.tRBRACE
 
-  def getArgumentListAllowedParentClasses: Set[Class[_]] = {
+  def getArgumentListAllowedParentClasses: java.util.Set[Class[_]] = {
     val set = new java.util.HashSet[Class[_]]()
     set.add(classOf[ScConstructorPattern])
     set
