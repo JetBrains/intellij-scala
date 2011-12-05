@@ -13,8 +13,9 @@ class ProcesWatcher {
   }
 
   def running: Boolean = {
-    WatcherActor !? IsRunning match {
-      case b: Boolean => b
+    WatcherActor !? (100, IsRunning) match {
+      case Some(b: Boolean) => b
+      case None => false
     }
   }
 
