@@ -3,6 +3,7 @@ package lang
 package psi
 package impl
 
+import api.base.{ScIdList, ScPatternList, ScStableCodeReferenceElement}
 import api.ScalaFile
 import api.toplevel.packaging.ScPackaging
 import com.intellij.lang.{PsiBuilderFactory, ASTNode}
@@ -42,6 +43,9 @@ import java.lang.ClassCastException
 import com.intellij.util.IncorrectOperationException
 import com.intellij.openapi.project.Project
 import parser.parsing.expressions.{Block, Expr}
+import parser.parsing.base.Import
+import org.apache.commons.lang.StringUtils
+import scaladoc.psi.api.{ScDocResolvableCodeReference, ScDocSyntaxElement, ScDocComment}
 import parser.parsing.base.{Constructor, Import}
 import api.base.{ScConstructor, ScIdList, ScPatternList, ScStableCodeReferenceElement}
 
@@ -951,5 +955,46 @@ object ScalaPsiElementFactory {
       idList.asInstanceOf[ScalaPsiElement].setContext(context, child)
       idList
     } else null
+  }
+
+  def createDocCommentFromText(text: String, manager: PsiManager): ScDocComment = {
+    createScalaFile("/**\n" + text + "\n*/" + " class a { }", manager).typeDefinitions(0).docComment.get
+  }
+
+  def createMonospaceSyntaxFromText(text: String, manager: PsiManager): ScDocSyntaxElement = {
+    val docComment = createScalaFile("/**\n`" + text + "`\n*/" + " class a { }",
+      manager).typeDefinitions(0).docComment.get
+    docComment.getChildren()(2).asInstanceOf[ScDocSyntaxElement]
+  }
+
+  def createDocHeaderElement(length: Int, manager: PsiManager): PsiElement =
+    createScalaFile("/**=header" + StringUtils.repeat("=", length) + "*/\n class a {}",
+      manager).typeDefinitions(0).docComment.get.getNode.getChildren(null)(1).getLastChildNode.getPsi
+
+  def createDocWhiteSpace(manager: PsiManager): PsiElement =
+    createScalaFile("/**\n *\n*/ class a {}", manager).typeDefinitions(0).docComment.
+            get.getNode.getChildren(null)(1).getPsi
+
+  def createLeadingAsterisk(manager: PsiManager): PsiElement =
+    createScalaFile("/**\n *\n*/ class a {}", manager).typeDefinitions(0).docComment.
+            get.getNode.getChildren(null)(2).getPsi
+
+  def createDocSimpleData(text: String, manager: PsiManager): PsiElement =
+    createScalaFile("/**" + text + "\n*/ class a {}", manager).typeDefinitions(0).docComment.
+            get.getNode.getChildren(null)(1).getPsi
+
+  def createDocTagValue(text: String,  manager: PsiManager): PsiElement = {
+    createScalaFile("/**@param " + text + "\n*/ class a{}", manager).typeDefinitions(0).docComment.
+            get.getNode.getChildren(null)(1).getPsi
+  }
+
+  def createDocTagName(name: String, manager: PsiManager): PsiElement = {
+    createScalaFile("/**@" + name + " qwerty */", manager).typeDefinitions(0).docComment.
+            get.getNode.getChildren(null)(1).getChildren(null)(0).getPsi
+  }
+
+  def createDocLinkValue(text: String, manager: PsiManager): ScDocResolvableCodeReference = {
+    createScalaFile("/**[[" + text + "]]*/ class a{}", manager).typeDefinitions(0).docComment.
+            get.getNode.getChildren(null)(1).getChildren(null)(1).getPsi.asInstanceOf[ScDocResolvableCodeReference]
   }
 }

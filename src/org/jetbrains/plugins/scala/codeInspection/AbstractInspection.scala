@@ -15,7 +15,7 @@ abstract class AbstractInspection(id: String, name: String) extends LocalInspect
 
   final def getDisplayName = name
 
-  final def getShortName = name
+  final def getShortName = id
 
   override def isEnabledByDefault = true
 

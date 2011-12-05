@@ -5,7 +5,8 @@ package psi
 package api
 
 
-import _root_.org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement 
+import _root_.org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
+import com.intellij.psi.javadoc.PsiDocTagValue
 
 /**
  * User: Alexander Podkhalyuzin
@@ -13,5 +14,5 @@ import _root_.org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
  */
  
 trait ScDocInlinedTag extends ScalaPsiElement {
-  
+  def getValueElement: PsiDocTagValue
 }

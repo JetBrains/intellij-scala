@@ -41,7 +41,7 @@ class ScalaDeprecationInspection extends LocalInspectionTool {
       
       val description: String = Seq(Some("Symbol " + name + " is deprecated"),  message).flatten.mkString(". ")
       holder.registerProblem(holder.getManager.createProblemDescriptor(elementToHighlight, description, true,
-        ProblemHighlightType.LIKE_DEPRECATED))
+        ProblemHighlightType.LIKE_DEPRECATED, isOnTheFly))
     }
 
     new ScalaElementVisitor {
@@ -65,7 +65,7 @@ class ScalaDeprecationInspection extends LocalInspectionTool {
   }
 
   def getShortName: String = {
-    "Scala Deprecation"
+    "ScalaDeprecation"
   }
 
   override def getID: String = {

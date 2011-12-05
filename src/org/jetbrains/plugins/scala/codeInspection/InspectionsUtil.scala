@@ -11,5 +11,7 @@ object InspectionsUtil {
 
   val SCALA = "Scala: General"
 
+  val SCALADOC = "Scala: Scaladoc"
+
   val MethodSignature = "Scala: Method signature"
 }

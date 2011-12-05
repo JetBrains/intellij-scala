@@ -38,6 +38,9 @@ import lang.psi.api.expr.{ScInfixExpr, ScPrefixExpr, ScPostfixExpr, ScMethodCall
 import collection.mutable.ArrayBuffer
 import lang.psi.{ScalaPsiUtil, ScImportsHolder}
 import search.PsiShortNamesCache
+import lang.scaladoc.psi.api.ScDocResolvableCodeReference
+import lang.psi.impl.ScalaPsiElementFactory
+import extensions.inWriteAction
 
 /**
  * User: Alexander Podkhalyuzin
@@ -136,14 +139,18 @@ class ScalaImportClassFix(private var classes: Array[PsiClass], ref: ScReference
 
 
   class ScalaAddImportAction(editor: Editor, classes: Array[PsiClass], ref: ScReferenceElement) extends QuestionAction {
-    def addImport(clazz: PsiClass) {
+    def addImportOrReference(clazz: PsiClass) {
       ApplicationManager.getApplication().invokeLater(new Runnable() {
         def run() {
           if (!ref.isValid || !CodeInsightUtilBase.prepareFileForWrite(ref.getContainingFile)) return;
           ScalaUtils.runWriteAction(new Runnable {
             def run() {
               PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument)
-              ScalaImportClassFix.getImportHolder(ref, project).addImportForClass(clazz, ref)
+              if (!ref.isInstanceOf[ScDocResolvableCodeReference]) {
+                ScalaImportClassFix.getImportHolder(ref, project).addImportForClass(clazz, ref)
+              } else {
+                ref.replace(ScalaPsiElementFactory.createDocLinkValue(clazz.getQualifiedName, ref.getManager))
+              }
             }
           }, clazz.getProject, "Add import action")
         }
@@ -170,7 +177,7 @@ class ScalaImportClassFix(private var classes: Array[PsiClass], ref: ScReference
           }
           if (finalChoice) {
             PsiDocumentManager.getInstance(project).commitAllDocuments
-            addImport(selectedValue)
+            addImportOrReference(selectedValue)
             return FINAL_CHOICE
           }
           var qname: String = selectedValue.getQualifiedName
@@ -201,7 +208,9 @@ class ScalaImportClassFix(private var classes: Array[PsiClass], ref: ScReference
       for (clazz <- classes if !clazz.isValid) return false
 
       PsiDocumentManager.getInstance(project).commitAllDocuments()
-      if (classes.length == 1) addImport(classes(0))
+      if (classes.length == 1) {
+        addImportOrReference(classes(0))
+      }
       else chooseClass
 
       return true

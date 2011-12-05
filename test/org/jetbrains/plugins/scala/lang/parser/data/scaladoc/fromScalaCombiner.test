@@ -116,7 +116,7 @@ ScalaFile
       PsiElement(DOC_WHITESPACE)('\n   ')
       PsiElement(DOC_COMMENT_LEADING_ASTERISKS)('*')
       PsiElement(DOC_INNER_CODE)('  ')
-      PsiElement(DOC_INNER_CODE_TAG)('}}}')
+      PsiElement(DOC_INNER_CLOSE_CODE_TAG)('}}}')
     PsiElement(DOC_WHITESPACE)('\n   ')
     PsiElement(DOC_COMMENT_LEADING_ASTERISKS)('*')
     PsiElement(DOC_WHITESPACE)('\n   ')
@@ -134,8 +134,9 @@ ScalaFile
     PsiElement(DOC_COMMENT_DATA)('  ')
     DocTag
       PsiElement(DOC_TAG_NAME)('@tparam')
-      PsiElement(DOC_WHITESPACE)(' ')
-      PsiElement(DOC_TAG_VALUE_TOKEN)('N')
+      PsiElement(DOC_COMMENT_DATA)(' ')
+      ScalaDocTagValue
+        PsiElement(DOC_TAG_VALUE_TOKEN)('N')
       PsiElement(DOC_COMMENT_DATA)('      the type of elements contained by the ')
       DocSyntaxElement 8
         PsiElement(DOC_MONOSPACE_TAG 8)('`')
@@ -147,8 +148,9 @@ ScalaFile
       PsiElement(DOC_COMMENT_DATA)('  ')
     DocTag
       PsiElement(DOC_TAG_NAME)('@tparam')
-      PsiElement(DOC_WHITESPACE)(' ')
-      PsiElement(DOC_TAG_VALUE_TOKEN)('NewTo')
+      PsiElement(DOC_COMMENT_DATA)(' ')
+      ScalaDocTagValue
+        PsiElement(DOC_TAG_VALUE_TOKEN)('NewTo')
       PsiElement(DOC_COMMENT_DATA)('  the type of collection produced by the ')
       DocSyntaxElement 8
         PsiElement(DOC_MONOSPACE_TAG 8)('`')
@@ -160,8 +162,9 @@ ScalaFile
       PsiElement(DOC_COMMENT_DATA)('  ')
     DocTag
       PsiElement(DOC_TAG_NAME)('@param')
-      PsiElement(DOC_WHITESPACE)(' ')
-      PsiElement(DOC_TAG_VALUE_TOKEN)('other')
+      PsiElement(DOC_COMMENT_DATA)(' ')
+      ScalaDocTagValue
+        PsiElement(DOC_TAG_VALUE_TOKEN)('other')
       PsiElement(DOC_COMMENT_DATA)('   the other builder')
       PsiElement(DOC_WHITESPACE)('\n   ')
       PsiElement(DOC_COMMENT_LEADING_ASTERISKS)('*')

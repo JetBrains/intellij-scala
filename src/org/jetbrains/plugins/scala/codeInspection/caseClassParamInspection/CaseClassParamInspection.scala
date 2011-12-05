@@ -16,7 +16,7 @@ class CaseClassParamInspection extends LocalInspectionTool {
 
   def getDisplayName: String = "Case Class Parameter"
 
-  def getShortName: String = "Case Class Param"
+  def getShortName: String = "CaseClassParam"
 
   override def isEnabledByDefault: Boolean = true
 

@@ -16,7 +16,7 @@ class SupsiciousInferredTypeInspection extends LocalInspectionTool {
 
   def getDisplayName: String = "Suspicious Inferred Type"
 
-  def getShortName: String = "Suspicious Inferred Type"
+  def getShortName: String = "SuspiciousInferredType"
 
   override def isEnabledByDefault: Boolean =  false // jzaugg: Disabled by default while I try this out.
 

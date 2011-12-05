@@ -17,6 +17,8 @@ import lang.psi.api.toplevel.typedef.ScObject
 import com.intellij.codeInsight.AutoPopupController
 import com.intellij.openapi.util.Condition
 import com.intellij.psi.{PsiFile, PsiDocumentManager, PsiMember, PsiClass}
+import lang.scaladoc.psi.impl.ScDocResolvableCodeReferenceImpl
+import lang.scaladoc.psi.api.ScDocResolvableCodeReference
 
 /**
  * @author Alexander Podkhalyuzin
@@ -43,14 +45,7 @@ class ScalaClassNameInsertHandler extends ScalaInsertHandler {
                 }))
           ref = ref.getParent.asInstanceOf[ScReferenceElement]
         val addDot = if (cl.isInstanceOf[ScObject] && isInRef) "." else ""
-        val newRef = (useFullyQualifiedName, ref) match {
-          case (false, ref: ScReferenceExpression) =>
-            ScalaPsiElementFactory.createExpressionFromText(cl.getName + addDot, cl.getManager).asInstanceOf[ScReferenceExpression]
-          case (false, _) =>
-            ScalaPsiElementFactory.createReferenceFromText(cl.getName + addDot, cl.getManager)
-          case (true, _) =>
-            ScalaPsiElementFactory.createReferenceFromText(cl.getQualifiedName + addDot, cl.getManager)
-        }
+        val newRef = ref.createReplacingElementWithClassName(useFullyQualifiedName, cl)
         ref.getNode.getTreeParent.replaceChild(ref.getNode, newRef.getNode)
         newRef.bindToElement(cl)
         if (addDot == ".") {

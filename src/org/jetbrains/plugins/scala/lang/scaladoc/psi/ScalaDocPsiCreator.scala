@@ -4,12 +4,14 @@ package scaladoc
 package psi
 
 import _root_.org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
+import api.{ScDocTag, ScDocInlinedTag}
 import impl._
 import parser.ScalaDocElementTypes
 import com.intellij.lang.ASTNode
-import com.intellij.psi.PsiElement
 import lexer.docsyntax.ScaladocSyntaxElementType
 import lexer.ScalaDocTokenType
+import com.intellij.psi.{JavaDocTokenType, PsiElement}
+import lang.psi.impl.base.ScStableCodeReferenceElementImpl
 
 /**
 * User: Alexander Podkhalyuzin
@@ -36,11 +38,12 @@ object ScalaDocPsiCreator {
       case ScalaDocTokenType.DOC_INNER_CODE_TAG => new ScDocInnerCodeElementImpl(node)
       case DOC_TAG => new ScDocTagImpl(node)
       case DOC_INLINED_TAG => new ScDocInlinedTagImpl(node)
-      case DOC_REFERENCE_ELEMENT => new ScDocReferenceElementImpl(node)
       case DOC_PARAM_REF => new ScDocParamRefImpl(node)
       case DOC_METHOD_REF => new ScDocMethodRefImpl(node)
       case DOC_FIELD_REF => new ScDocFieldRefImpl(node)
       case DOC_METHOD_PARAMS => new ScDocMethodParamsImpl(node)
       case DOC_METHOD_PARAMETER => new ScDocMethodParameterImpl(node)
+      case ScalaDocTokenType.DOC_TAG_VALUE_TOKEN => new ScDocTagValueImpl(node)
+      case ScalaDocTokenType.DOC_CODE_LINK_VALUE => new ScDocResolvableCodeReferenceImpl(node)
     }
 }

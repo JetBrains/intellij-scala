@@ -64,6 +64,8 @@
     <facetType implementation="org.jetbrains.plugins.scala.config.ScalaFacetType"/>
     <completion.contributor language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.completion.ScalaKeywordCompletionContributor"/>
     <completion.contributor language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.completion.ScalaSmartCompletionContributor"/>
+    <completion.contributor language="Scala" id="scaladocTagsCompletionContributor"
+                            implementationClass="org.jetbrains.plugins.scala.lang.scaladoc.completion.ScalaDocCompletionContributor"/>
     <completion.contributor language="Scala" id="scalaCompletionContrubutor"
                             implementationClass="org.jetbrains.plugins.scala.lang.completion.ScalaCompletionContributor"/>
     <completion.contributor language="Scala" id="scalaClassNameCompletionContributor"
@@ -274,6 +276,78 @@
 
     <lang.elementManipulator forClass="org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral"
                              implementationClass="org.jetbrains.plugins.scala.injection.ScalaStringLiteralManipulator"/>
+
+    <!-- inspections -->
+    <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.fileNameInspection.FileNameInspection"
+                     displayName="File Name Inspection" groupName="Scala: General" shortName="ScalaFileName" id="ScalaFileName" level="WARNING"
+                     enabledByDefault="true" language="Scala"/>
+    <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.packageNameInspection.PackageNameInspection"
+                     displayName="Package Name Inspection" groupName="Scala: General" id="ScalaPackageName"
+                     shortName="ScalaPackageName" level="WARNING" enabledByDefault="true" language="Scala"/>
+    <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.deprecation.ScalaDeprecationInspection"
+                     displayName="Scala Deprecation" groupName="Scala: General" shortName="ScalaDeprecation"
+                     id="ScalaDeprecation" level="WARNING" enabledByDefault="true" language="Scala"/>
+    <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.caseClassParamInspection.CaseClassParamInspection"
+                     displayName="Case Class Parameter" groupName="Scala: General" shortName="CaseClassParam"
+                     id="CaseClassParam" level="WARNING" enabledByDefault="true" language="Scala"/>
+    <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.inference.SupsiciousInferredTypeInspection"
+                     displayName="Suspicious Inferred Type" groupName="Scala: General" shortName="SuspiciousInferredType"
+                     id="SuspiciousInferredType" level="WARNING" enabledByDefault="false" language="Scala"/>
+    <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.varCouldBeValInspection.VarCouldBeValInspection"
+                     displayName="'var' could be a 'val'" groupName="Scala: General" shortName="ScalaVarCouldBeVal"
+                     level="WARNING" enabledByDefault="true" language="Scala"/>
+    <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.unusedInspections.ScalaUnusedSymbolInspection"
+                     displayName="Unused Symbol" groupName="Scala: General" shortName="ScalaUnusedSymbol"
+                     level="WARNING" enabledByDefault="true" language="Scala"/>
+    <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.sugar.FunctionTupleSyntacticSugarInspection"
+                     displayName="Syntactic Sugar" groupName="Scala: General" shortName="ScalaSyntacticSugar"
+                     id="ScalaSyntacticSugar" level="WARNING" enabledByDefault="true" language="Scala"/>
+    <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.defaultFileTemplateInspection.ScalaDefaultFileTemplateUsageInspection"
+                     displayName="Default file template inspection" groupName="Scala: General" shortName="ScalaDefaultFileTemplate"
+                     id="ScalaDefFileTempl" level="WARNING" enabledByDefault="true" language="Scala"/>
+    <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.typeLambdaSimplify.AppliedTypeLambdaCanBeSimplifiedInspection"
+                     displayName="Applied Type Lambda can be simplified" groupName="Scala: General"
+                     shortName="ScalaAppliedTypeLambdaCanBeSimplified" id="ScalaAppliedTypeLambdaCanBeSimplified"
+                     level="WARNING" enabledByDefault="true" language="Scala"/>
+    <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.methodSignature.AccessorLikeMethodIsEmptyParen"
+                     displayName="Method with accessor-like name is empty-paren" groupName="Scala: Method signature"
+                     shortName="ScalaAccessorLikeMethodIsEmptyParen" level="WARNING"
+                     enabledByDefault="true" language="Scala"/>
+    <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.methodSignature.AccessorLikeMethodIsUnit"
+                     displayName="Method with accessor-like name has Unit result type" groupName="Scala: Method signature"
+                     shortName="ScalaAccessorLikeMethodIsUnit" id="ScalaAccessorLikeMethodIsUnit"
+                     level="WARNING" enabledByDefault="true" language="Scala"/>
+    <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.methodSignature.EmptyParenMethodAccessedAsParameterless"
+                     displayName="Empty-paren Scala method overriden as parameterless" groupName="Scala: Method signature"
+                     shortName="ScalaEmptyParenMethodAccessedAsParameterless" level="WARNING"
+                     enabledByDefault="true" language="Scala"/>
+    <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.methodSignature.JavaAccessorMethodOverridenAsEmptyParen"
+                     displayName="Java accessor method overriden as empty-paren" groupName="Scala: Method signature"
+                     shortName="ScalaJavaAccessorMethodOverridenAsEmptyParen" level="WARNING"
+                     enabledByDefault="true" language="Scala"/>
+    <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.methodSignature.JavaMutatorMethodOverridenAsParameterless"
+                     displayName="Java mutator method overriden as parameterless" groupName="Scala: Method signature"
+                     shortName="ScalaJavaMutatorMethodOverridenAsParameterless" level="WARNING"
+                     enabledByDefault="true" language="Scala"/>
+
+    <!-- scaladoc inspections -->
+    <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.scaladoc.ScalaDocUnclosedTagWithoutParserInspection"
+                     displayName="Tag Unclosed" groupName="Scaladoc" shortName="ScalaTagUnclosed" level="WARNING"
+                     enabledByDefault="true" language="Scala" />
+    <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.scaladoc.ScalaDocInlinedTagInspection"
+                     displayName="Inlined Tag" groupName="Scala: Scaladoc" shortName="ScalaInlinedTag" level="WARNING"
+                     enabledByDefault="true" language="Scala"/>
+    <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.scaladoc.ScalaDocUnbalancedHeaderInspection"
+                     displayName="Header tags unbalanced" groupName="Scala: Scaladoc" shortName="ScalaUnbalancedHeader" level="WARNING"
+                     enabledByDefault="true" language="Scala"/>
+    <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.scaladoc.ScalaDocUnknownTagInspection"
+                     displayName="Unknown tag" groupName="Scala: Scaladoc" shortName="UnknownTag" level="WARNING"
+                     enabledByDefault="true" language="Scala"/>
+    <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.scaladoc.ScalaDocUnknownParameterInspection"
+                     displayName="Unknown Parameter" groupName="Scala: Scaladoc" shortName="UnknownParameter" level="WARNING"
+                     enabledByDefault="true" language="Scala"/>
+    <!-- end of scaladoc inspections -->
+    <!-- end of inspections -->
 
   </extensions>
 

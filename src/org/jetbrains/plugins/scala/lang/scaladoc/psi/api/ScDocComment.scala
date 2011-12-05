@@ -6,8 +6,7 @@ package api
 
 
 import _root_.org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
-import com.intellij.psi.javadoc.PsiDocComment
-import com.intellij.psi.PsiComment
+import com.intellij.psi.javadoc.{PsiDocTag, PsiDocComment}
 
 /**
 * User: Alexander Podkhalyuzin
@@ -15,5 +14,6 @@ import com.intellij.psi.PsiComment
 */
 
 trait ScDocComment extends PsiDocComment with ScalaPsiElement {
-
+  def findTagsByName(name: String): Array[PsiDocTag]
+  def findTagsByName(filter: String => Boolean): Array[PsiDocTag]
 }

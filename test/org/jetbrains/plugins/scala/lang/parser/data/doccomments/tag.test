@@ -11,6 +11,6 @@ ScalaFile
     DocTag
       PsiElement(DOC_TAG_NAME)('@author')
       PsiElement(DOC_WHITESPACE)(' ')
-      PsiElement(DOC_TAG_VALUE_TOKEN)('Alexnder')
+      PsiElement(DOC_COMMENT_DATA)('Alexnder')
       PsiElement(DOC_WHITESPACE)('\n ')
     PsiElement(DOC_COMMENT_END)('*/')

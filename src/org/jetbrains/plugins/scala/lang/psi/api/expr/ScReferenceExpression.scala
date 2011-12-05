@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base._
 import com.intellij.psi._
 import psi.types.result.TypeResult
 import psi.types.ScType
-import lang.resolve.ScalaResolveResult
+import psi.impl.ScalaPsiElementFactory
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -35,6 +35,14 @@ trait ScReferenceExpression extends ScalaPsiElement with ScExpression with ScRef
   def shapeResolve: Array[ResolveResult]
 
   def shapeType: TypeResult[ScType]
+
+  override def createReplacingElementWithClassName(useFullQualifiedName: Boolean, clazz: PsiClass) = {
+    if (useFullQualifiedName) {
+      super.createReplacingElementWithClassName(useFullQualifiedName, clazz)
+    } else {
+      ScalaPsiElementFactory.createExpressionFromText(clazz.getName, clazz.getManager).asInstanceOf[ScReferenceExpression]
+    }
+  }
 }
 
 object ScReferenceExpression {

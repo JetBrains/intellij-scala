@@ -25,13 +25,13 @@ class PackageNameInspection extends LocalInspectionTool {
 
   def getDisplayName: String = "Package Name Inspection"
 
-  def getShortName: String = "Package Name"
+  def getShortName: String = "ScalaPackageName"
 
   override def isEnabledByDefault: Boolean = true
 
   override def getStaticDescription: String = "Inspection for files with package statement which does not correspond to package structure"
 
-  override def getID: String = "PackageName"
+  override def getID: String = "ScalaPackageName"
 
   override def checkFile(file: PsiFile, manager: InspectionManager, isOnTheFly: Boolean): Array[ProblemDescriptor] = {
     file match {

@@ -13,17 +13,23 @@ ScalaFile
     DocTag
       PsiElement(DOC_TAG_NAME)('@see')
       PsiElement(DOC_WHITESPACE)('  ')
-      DocInlinedTag
-        PsiElement(DOC_INLINE_TAG_START)('{')
-        PsiElement(DOC_TAG_NAME)('@aaa')
-        PsiElement(DOC_INLINE_TAG_END)('}')
+      PsiElement(DOC_INLINE_TAG_START)('{')
+    DocTag
+      PsiElement(DOC_TAG_NAME)('@aaa')
+      PsiErrorElement:unknown tag
+        <empty list>
+      PsiElement(DOC_INLINE_TAG_END)('}')
       PsiElement(DOC_WHITESPACE)('\n    ')
-      DocInlinedTag
-        PsiElement(DOC_INLINE_TAG_START)('{')
-        PsiElement(DOC_TAG_NAME)('@bbb')
-        PsiElement(DOC_INLINE_TAG_END)('}')
+      PsiElement(DOC_INLINE_TAG_START)('{')
+    DocTag
+      PsiElement(DOC_TAG_NAME)('@bbb')
+      PsiErrorElement:unknown tag
+        <empty list>
+      PsiElement(DOC_INLINE_TAG_END)('}')
       PsiElement(DOC_WHITESPACE)('\n   ')
     DocTag
       PsiElement(DOC_TAG_NAME)('@ccc')
+      PsiErrorElement:unknown tag
+        <empty list>
       PsiElement(DOC_WHITESPACE)('\n ')
     PsiElement(DOC_COMMENT_END)('*/')

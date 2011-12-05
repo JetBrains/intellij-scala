@@ -12,7 +12,7 @@ import quickfix.RemoveParentheses
  */
 
 class JavaAccessorMethodOverridenAsEmptyParen extends AbstractMethodSignatureInspection(
-  "JavaAccessorMethodOverridenAsEmptyParen", "Java accessor method overriden as empty-paren") {
+  "ScalaJavaAccessorMethodOverridenAsEmptyParen", "Java accessor method overriden as empty-paren") {
 
   @Language("HTML")
   val description =
