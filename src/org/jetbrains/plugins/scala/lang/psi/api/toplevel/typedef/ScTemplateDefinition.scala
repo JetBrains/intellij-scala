@@ -176,9 +176,13 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
                     case Some(ste) if (!PsiTreeUtil.isContextAncestor(ste, place, true)) &&
                       PsiTreeUtil.isContextAncestor(e.templateBody.getOrElse(null), place, true) => ste.typeElement match {
                       case Some(t) => (processor, place) match {
-                        case (b : BaseProcessor, s: ScalaPsiElement) => {
-                          if (!b.processType(t.getType(TypingContext.empty).getOrAny, s, state)) return false
-                        }
+                        case (b : BaseProcessor, s: ScalaPsiElement) =>
+                          val subst = state.get(ScSubstitutor.key) match {
+                            case null => new ScSubstitutor(ScThisType(this))
+                            case subst: ScSubstitutor => subst.followed(new ScSubstitutor(ScThisType(this)))
+                          }
+                          if (!b.processType(t.getType(TypingContext.empty).getOrAny, s,
+                            state.put(ScSubstitutor.key, subst))) return false
                         case _ =>
                       }
                       case None =>
