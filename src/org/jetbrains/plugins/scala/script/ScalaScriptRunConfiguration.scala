@@ -27,7 +27,6 @@ import com.intellij.openapi.module.{ModuleUtil, ModuleManager, Module}
 import com.intellij.openapi.options.SettingsEditor
 import com.intellij.openapi.projectRoots.{JavaSdkType, Sdk}
 import com.intellij.util.PathUtil
-import compiler.rt.ScalacRunner
 import lang.psi.api.ScalaFile
 import util.{ScalaUtils}
 
