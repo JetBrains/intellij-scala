@@ -14,7 +14,9 @@ import lang.psi.api.statements.{ScPatternDefinition, ScVariableDefinition}
 /**
  * Highlights the expressions that will be evaluated during construction.
  */
-class ScalaHighlightPrimaryConstructorExpressionsHandler(templateDef: ScTemplateDefinition, editor: Editor, file: PsiFile) extends HighlightUsagesHandlerBase[PsiElement](editor, file) {
+class ScalaHighlightPrimaryConstructorExpressionsHandler(templateDef: ScTemplateDefinition, editor: Editor,
+                                                         file: PsiFile, keyword: PsiElement) 
+  extends HighlightUsagesHandlerBase[PsiElement](editor, file) {
   def computeUsages(targets: List[PsiElement]) {
     val iterator = targets.listIterator
     while (iterator.hasNext) {
@@ -34,7 +36,7 @@ class ScalaHighlightPrimaryConstructorExpressionsHandler(templateDef: ScTemplate
       case v: ScVariableDefinition => Option(v.expr)
       case _ => None
     }
-    val constructorExprs = varAndValDefsExprs ++ eb.templateBody.toList.flatMap(_.exprs)
+    val constructorExprs = varAndValDefsExprs ++ eb.templateBody.toList.flatMap(_.exprs) ++ Seq(keyword)
     constructorExprs.toBuffer[PsiElement]
   }
 }

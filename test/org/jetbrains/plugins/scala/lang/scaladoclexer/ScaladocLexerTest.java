@@ -1,3 +1,4 @@
+/*
 package org.jetbrains.plugins.scala.lang.scaladoclexer;
 
 import junit.framework.Test;
@@ -5,10 +6,11 @@ import org.jetbrains.annotations.NonNls;
 import org.jetbrains.plugins.scala.lang.lexer.LexerTestBase;
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocLexer;
 
-/**
+*
  * User: Dmitry Naidanov
  * Date: 11/9/11
- */
+
+
 public class ScaladocLexerTest extends LexerTestBase {
   @NonNls
   private static final String DATA_PATH = "scala-plugin/test/org/jetbrains/plugins/scala/lang/lexer/scaladocdata/scaladoc";
@@ -21,3 +23,4 @@ public class ScaladocLexerTest extends LexerTestBase {
     return new ScaladocLexerTest();
   }
 }
+*/
