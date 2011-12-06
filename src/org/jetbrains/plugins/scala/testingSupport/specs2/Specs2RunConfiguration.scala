@@ -14,7 +14,7 @@ import com.intellij.openapi.util.{JDOMExternalizer, JDOMExternalizable}
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.{PsiPackage, JavaPsiFacade, PsiClass}
 import com.intellij.util.PathUtil
-import compiler.rt.ScalacRunner
+import compiler.rt.ClassRunner
 import _root_.scala.collection.mutable.HashSet
 import com.intellij.openapi.module.Module
 import com.intellij.execution.configurations._
@@ -153,7 +153,7 @@ class Specs2RunConfiguration(val project: Project, val configurationFactory: Con
         //params.getVMParametersList.addParametersString("-Xnoagent -Djava.compiler=NONE -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5009")
         params.setWorkingDirectory(workingDirectory)
 
-        val rtJarPath = PathUtil.getJarPathForClass(classOf[ScalacRunner])
+        val rtJarPath = PathUtil.getJarPathForClass(classOf[ClassRunner])
         params.getClassPath.add(rtJarPath)
         params.configureByModule(module, JavaParameters.JDK_AND_CLASSES_AND_TESTS)
 

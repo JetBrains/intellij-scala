@@ -32,7 +32,7 @@ import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.ScalaBundle;
 import org.jetbrains.plugins.scala.ScalaFileType;
-import org.jetbrains.plugins.scala.compiler.rt.ScalacRunner;
+import org.jetbrains.plugins.scala.compiler.rt.ClassRunner;
 import org.jetbrains.plugins.scala.components.CompileServerLauncher;
 import org.jetbrains.plugins.scala.config.*;
 import org.jetbrains.plugins.scala.util.ScalaUtils;
@@ -296,10 +296,8 @@ public class ScalacBackendCompiler extends ExternalCompiler {
     commandLine.add("-cp");
     final StringBuilder classPathBuilder = new StringBuilder();
 
-    if (!myFsc) {
-      String rtJarPath = PathUtil.getJarPathForClass(ScalacRunner.class);
-      classPathBuilder.append(rtJarPath).append(File.pathSeparator);
-    }
+    String rtJarPath = PathUtil.getJarPathForClass(ClassRunner.class);
+    classPathBuilder.append(rtJarPath).append(File.pathSeparator);
 
     if (myFsc) {
       Option<CompilerLibraryData> lib = Libraries.findBy(settings.COMPILER_LIBRARY_NAME, settings.COMPILER_LIBRARY_LEVEL, myProject);
@@ -315,33 +313,22 @@ public class ScalacBackendCompiler extends ExternalCompiler {
 
     commandLine.add(classPathBuilder.toString());
 
+    commandLine.add(ClassRunner.class.getName());
+
     if (myFsc) {
       commandLine.add("scala.tools.nsc.CompileClient");
     } else {
-      commandLine.add(ScalacRunner.class.getName());
+      commandLine.add("scala.tools.nsc.Main");
     }
 
     String[] parameters = facets.length > 0 ? facets[0].compilerParameters() : new String[] {};
-
-    if (myFsc) {
-      if (settings.INTERNAL_SERVER) {
-        int port = myProject.getComponent(CompileServerLauncher.class).port();
-        if (port != -1) {
-          commandLine.add("-server");
-          commandLine.add(String.format("%s:%s", InetAddress.getLocalHost().getHostAddress(), port));
-        }
-      } else {
-        commandLine.add("-server");
-        commandLine.add(String.format("%s:%s", settings.REMOTE_HOST, settings.REMOTE_PORT));
-      }
-    }
 
     try {
       File fileWithParams = File.createTempFile("scalac", ".tmp");
       fillFileWithScalacParams(chunk, fileWithParams, outputPath, myProject, parameters);
 
       String path = fileWithParams.getPath();
-      commandLine.add(myFsc ? "@" + path : path);
+      commandLine.add(path);
 
       if (LOG.isDebugEnabled()) {
         for (String s : commandLine) LOG.debug(s);
@@ -365,12 +352,26 @@ public class ScalacBackendCompiler extends ExternalCompiler {
 
   private void fillFileWithScalacParams(ModuleChunk chunk, File fileWithParameters, String outputPath,
                                                Project myProject, String[] parameters)
-      throws FileNotFoundException {
+      throws IOException {
 
     PrintStream printer = new PrintStream(new FileOutputStream(fileWithParameters));
 //    PrintStream printer = System.out;
 
     ScalacSettings settings = ScalacSettings.getInstance(myProject);
+
+    if (myFsc) {
+      if (settings.INTERNAL_SERVER) {
+        int port = myProject.getComponent(CompileServerLauncher.class).port();
+        if (port != -1) {
+          printer.println("-server");
+          printer.println(String.format("%s:%s", InetAddress.getLocalHost().getHostAddress(), port));
+        }
+      } else {
+        printer.println("-server");
+        printer.println(String.format("%s:%s", settings.REMOTE_HOST, settings.REMOTE_PORT));
+      }
+    }
+
     StringTokenizer tokenizer = new StringTokenizer(getEncodingOptions(), " ");
     while (tokenizer.hasMoreTokens()) {
       printer.println(tokenizer.nextToken());
@@ -385,10 +386,7 @@ public class ScalacBackendCompiler extends ExternalCompiler {
     
     printer.println(DESTINATION_COMPILER_PROPERTY);
 
-    if (myFsc) printer.print("\"");
-    printer.print(outputPath.replace('/', File.separatorChar));
-    if (myFsc) printer.print("\"");
-    printer.println();
+    printer.println(outputPath.replace('/', File.separatorChar));
 
     //write classpath
     printer.println("-cp");
@@ -397,8 +395,6 @@ public class ScalacBackendCompiler extends ExternalCompiler {
     final List<Module> modules = Arrays.asList(chunkModules);
     final Set<VirtualFile> sourceDependencies = new HashSet<VirtualFile>();
     final boolean isTestChunk = isTestChunk(chunk);
-
-    if (myFsc) printer.print("\"");
 
     for (Module module : modules) {
       if (ScalaUtils.isSuitableModule(module)) {
@@ -429,7 +425,6 @@ public class ScalacBackendCompiler extends ExternalCompiler {
         }
       }
     }
-    if (myFsc) printer.print("\"");
     printer.println();
 
     final HashSet<VirtualFile> filesToCompile = new HashSet<VirtualFile>();
@@ -437,10 +432,7 @@ public class ScalacBackendCompiler extends ExternalCompiler {
 
     //Print files to compile, both Java and Scala
     for (VirtualFile file : filesToCompile) {
-      if (myFsc) printer.print("\"");
-      printer.print(file.getPath());
-      if (myFsc) printer.print("\"");
-      printer.println();
+      printer.println(file.getPath());
     }
     if (settings.SCALAC_BEFORE) {
       // No need to pass .java files to scalac unless we are running it before javac.
@@ -481,10 +473,7 @@ public class ScalacBackendCompiler extends ExternalCompiler {
         addJavaSourceFiles(stream, file, filesToCompile);
       }
     } else if (src.getFileType() == StdFileTypes.JAVA && !filesToCompile.contains(src)) {
-      if (myFsc) stream.print("\"");
-      stream.print(src.getPath());
-      if (myFsc) stream.print("\"");
-      stream.println();
+      stream.println(src.getPath());
     }
   }
 
