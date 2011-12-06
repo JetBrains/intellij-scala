@@ -26,7 +26,7 @@ import java.util.List;
 
 public class ClassRunner {
   public static void main(String[] args) throws Exception {
-    if (args.length != 3) {
+    if (args.length != 2) {
       throw new RuntimeException("Wrong arguments: " + Arrays.asList(args).toString());
     }
 
