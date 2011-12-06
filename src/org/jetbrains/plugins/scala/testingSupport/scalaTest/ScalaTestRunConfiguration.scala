@@ -3,7 +3,6 @@ package testingSupport
 package scalaTest
 
 
-import java.io.File
 import collection.mutable.ArrayBuffer
 import com.intellij.execution._
 import com.intellij.execution.runners.{ProgramRunner, ExecutionEnvironment}
@@ -16,20 +15,17 @@ import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.{PsiPackage, JavaPsiFacade, PsiClass}
 import com.intellij.util.PathUtil
 import org.jdom.Element
-import collection.mutable.HashSet
 import com.intellij.openapi.module.Module
-import com.intellij.openapi.options.SettingsEditor
 import com.intellij.execution.configurations._
-import com.intellij.openapi.vfs.{JarFileSystem, VirtualFile}
-
-import com.intellij.openapi.projectRoots.JavaSdkType
-import com.intellij.openapi.roots.{OrderRootType, ModuleRootManager}
 import java.lang.String
 import lang.psi.impl.ScPackageImpl
 import specs.JavaSpecsRunner
 import config.ScalaFacet
 import collection.JavaConversions._
 import lang.psi.ScalaPsiUtil
+import com.intellij.openapi.options.{SettingsEditorGroup, SettingsEditor}
+import com.intellij.diagnostic.logging.LogConfigurationPanel
+import com.intellij.openapi.extensions.Extensions
 
 /**
  * User: Alexander Podkhalyuzin
@@ -37,7 +33,8 @@ import lang.psi.ScalaPsiUtil
  */
 
 class ScalaTestRunConfiguration(val project: Project, val configurationFactory: ConfigurationFactory, val name: String)
-        extends ModuleBasedConfiguration[RunConfigurationModule](name, new RunConfigurationModule(project), configurationFactory) {
+        extends ModuleBasedConfiguration[RunConfigurationModule](name, new RunConfigurationModule(project),
+          configurationFactory) with ScalaTestingConfiguration {
   val SCALA_HOME = "-Dscala.home="
   val CLASSPATH = "-Denv.classpath=\"%CLASSPATH%\""
   val EMACS = "-Denv.emacs=\"%EMACS%\""
@@ -168,19 +165,25 @@ class ScalaTestRunConfiguration(val project: Project, val configurationFactory: 
         params.getProgramParametersList.add("-r")
         params.getProgramParametersList.add(reporterClass)
         params.getProgramParametersList.addParametersString(testArgs)
+        for (ext <- Extensions.getExtensions(RunConfigurationExtension.EP_NAME)) {
+          ext.updateJavaParameters(ScalaTestRunConfiguration.this, params, getRunnerSettings)
+        }
         params
       }
 
 
       override def execute(executor: Executor, runner: ProgramRunner[_ <: JDOMExternalizable]): ExecutionResult = {
         val processHandler = startProcess
+        val runnerSettings = getRunnerSettings
         val config = ScalaTestRunConfiguration.this
+        JavaRunConfigurationExtensionManager.getInstance.attachExtensionsToProcess(config, processHandler, runnerSettings)
         val consoleProperties = new SMTRunnerConsoleProperties(config, "Scala", executor);
 
         // console view
         val testRunnerConsole: BaseTestsOutputConsoleView = SMTestRunnerConnectionUtil.createAndAttachConsole("Scala",
-          processHandler, consoleProperties, getRunnerSettings.asInstanceOf[RunnerSettings[_ <: JDOMExternalizable]],
-          getConfigurationSettings)
+            processHandler, consoleProperties, runnerSettings.asInstanceOf[RunnerSettings[_ <: JDOMExternalizable]],
+            getConfigurationSettings)
+
 
         new DefaultExecutionResult(testRunnerConsole, processHandler, createActions(testRunnerConsole, processHandler): _*)
       }
@@ -197,10 +200,17 @@ class ScalaTestRunConfiguration(val project: Project, val configurationFactory: 
 
   def getValidModules: java.util.List[Module] = ScalaFacet.findModulesIn(getProject).toList
 
-  def getConfigurationEditor: SettingsEditor[_ <: RunConfiguration] = new ScalaTestRunConfigurationEditor(project, this)
+  def getConfigurationEditor: SettingsEditor[_ <: RunConfiguration] = {
+    val group: SettingsEditorGroup[ScalaTestRunConfiguration] = new SettingsEditorGroup
+    group.addEditor(ExecutionBundle.message("run.configuration.configuration.tab.title"), new ScalaTestRunConfigurationEditor(project, this))
+    JavaRunConfigurationExtensionManager.getInstance.appendEditors(this, group)
+    group.addEditor(ExecutionBundle.message("logs.tab.title"), new LogConfigurationPanel)
+    group
+  }
 
   override def writeExternal(element: Element) {
     super.writeExternal(element)
+    JavaRunConfigurationExtensionManager.getInstance.writeExternal(this, element)
     writeModule(element)
     JDOMExternalizer.write(element, "path", getTestClassPath)
     JDOMExternalizer.write(element, "package", getTestPackagePath)
@@ -211,6 +221,7 @@ class ScalaTestRunConfiguration(val project: Project, val configurationFactory: 
 
   override def readExternal(element: Element) {
     super.readExternal(element)
+    JavaRunConfigurationExtensionManager.getInstance.writeExternal(this, element)
     readModule(element)
     testClassPath = JDOMExternalizer.readString(element, "path")
     testPackagePath = JDOMExternalizer.readString(element, "package")

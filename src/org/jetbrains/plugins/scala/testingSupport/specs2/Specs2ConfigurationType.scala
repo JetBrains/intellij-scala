@@ -42,8 +42,10 @@ class Specs2ConfigurationType extends LocatableConfigurationType {
       if (pack == null) return null
       val displayName = ScalaBundle.message("test.in.scope.specs2.presentable.text", pack.getQualifiedName)
       val settings = RunManager.getInstance(location.getProject).createRunConfiguration(displayName, confFactory)
-      settings.getConfiguration.asInstanceOf[Specs2RunConfiguration].setTestPackagePath(pack.getQualifiedName)
-      settings.getConfiguration.asInstanceOf[Specs2RunConfiguration].setGeneratedName(displayName)
+      val configuration = settings.getConfiguration.asInstanceOf[Specs2RunConfiguration]
+      configuration.setTestPackagePath(pack.getQualifiedName)
+      configuration.setGeneratedName(displayName)
+      JavaRunConfigurationExtensionManager.getInstance.extendCreatedConfiguration(configuration, location)
       return settings
     }
     val parent: ScTypeDefinition = PsiTreeUtil.getParentOfType(element, classOf[ScTypeDefinition], false)
@@ -83,7 +85,8 @@ class Specs2ConfigurationType extends LocatableConfigurationType {
     catch {
       case e =>
     }
-    return settings
+    JavaRunConfigurationExtensionManager.getInstance.extendCreatedConfiguration(runConfiguration, location)
+    settings
   }
 
   def isConfigurationByLocation(configuration: RunConfiguration, location: Location[_ <: PsiElement]): Boolean = {

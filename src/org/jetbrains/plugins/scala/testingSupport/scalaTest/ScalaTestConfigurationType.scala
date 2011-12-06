@@ -6,7 +6,6 @@ import _root_.java.lang.String
 import _root_.javax.swing.Icon
 import com.intellij.execution.configurations.{JavaRunConfigurationModule, RunConfiguration, ConfigurationType, ConfigurationFactory}
 import com.intellij.execution.impl.RunnerAndConfigurationSettingsImpl
-import com.intellij.execution.{RunManager, Location, RunnerAndConfigurationSettings, LocatableConfigurationType}
 import com.intellij.openapi.util.IconLoader
 import com.intellij.psi._
 import com.intellij.psi.search.GlobalSearchScope
@@ -17,6 +16,7 @@ import script.ScalaScriptRunConfigurationFactory
 import lang.psi.ScalaPsiUtil
 import com.intellij.openapi.module.{ModuleManager, Module}
 import com.intellij.facet.FacetManager
+import com.intellij.execution._
 
 /**
  * User: Alexander Podkhalyuzin
@@ -47,8 +47,10 @@ class ScalaTestConfigurationType extends LocatableConfigurationType {
       if (pack == null) return null
       val displayName = ScalaBundle.message("test.in.scope.scalatest.presentable.text", pack.getQualifiedName)
       val settings = RunManager.getInstance(location.getProject).createRunConfiguration(displayName, confFactory)
-      settings.getConfiguration.asInstanceOf[ScalaTestRunConfiguration].setTestPackagePath(pack.getQualifiedName)
-      settings.getConfiguration.asInstanceOf[ScalaTestRunConfiguration].setGeneratedName(displayName)
+      val configuration = settings.getConfiguration.asInstanceOf[ScalaTestRunConfiguration]
+      configuration.setTestPackagePath(pack.getQualifiedName)
+      configuration.setGeneratedName(displayName)
+      JavaRunConfigurationExtensionManager.getInstance.extendCreatedConfiguration(configuration, location)
       return settings
     }
     val parent: ScTypeDefinition = PsiTreeUtil.getParentOfType(element, classOf[ScTypeDefinition], false)
@@ -70,7 +72,8 @@ class ScalaTestConfigurationType extends LocatableConfigurationType {
     catch {
       case e =>
     }
-    return settings
+    JavaRunConfigurationExtensionManager.getInstance.extendCreatedConfiguration(runConfiguration, location)
+    settings
   }
 
   def isConfigurationByLocation(configuration: RunConfiguration, location: Location[_ <: PsiElement]): Boolean = {
