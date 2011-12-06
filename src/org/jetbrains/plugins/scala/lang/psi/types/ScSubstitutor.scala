@@ -10,6 +10,7 @@ import nonvalue.{Parameter, TypeParameter, ScTypePolymorphicType, ScMethodType}
 import com.intellij.psi._
 import api.toplevel.ScTypedDefinition
 import result.TypingContext
+import api.toplevel.typedef.ScTypeDefinition
 
 /**
 * @author ven
@@ -100,6 +101,36 @@ class ScSubstitutor(val tvMap: Map[(String, String), ScType],
             var tp = oldTp
             def update(typez: ScType): ScType = {
               ScType.extractDesignated(typez) match {
+                case Some((t: ScTypeDefinition, subst)) =>
+                  if (t == clazz) tp
+                  else if (ScalaPsiUtil.cachedDeepIsInheritor(t, clazz)) tp 
+                  else {
+                    t.selfType match {
+                      case Some(selfType) =>
+                        ScType.extractDesignated(selfType) match {
+                          case Some((cl: PsiClass, subst)) =>
+                            if (cl == clazz) tp
+                            else null
+                          case _ =>
+                            selfType match {
+                              case ScCompoundType(types, _, _, _) =>
+                                val iter = types.iterator
+                                while (iter.hasNext) {
+                                  val tps = iter.next()
+                                  ScType.extractClass(tps) match {
+                                    case Some(cl) => {
+                                      if (cl == clazz) return tp
+                                    }
+                                    case _ =>
+                                  }
+                                }
+                              case _ =>
+                            }
+                            null
+                        }
+                      case None => null
+                    }
+                  }
                 case Some((cl: PsiClass, subst)) => {
                   if (cl == clazz) tp
                   else if (ScalaPsiUtil.cachedDeepIsInheritor(cl, clazz)) tp
