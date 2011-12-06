@@ -13,8 +13,10 @@ import java.util.{ArrayList, List}
  * Date: 22.12.2009
  */
 
-class ScalaHighlightExitPointsHandler(fun: ScFunctionDefinition, editor: Editor, file: PsiFile) extends HighlightUsagesHandlerBase[PsiElement](editor, file) {
-  def computeUsages(targets: List[PsiElement]): Unit = {
+class ScalaHighlightExitPointsHandler(fun: ScFunctionDefinition, editor: Editor,
+                                      file: PsiFile, keyword: PsiElement)
+  extends HighlightUsagesHandlerBase[PsiElement](editor, file) {
+  def computeUsages(targets: List[PsiElement]) {
     val iterator = targets.listIterator
     while (iterator.hasNext) {
       val elem = iterator.next
@@ -22,7 +24,7 @@ class ScalaHighlightExitPointsHandler(fun: ScFunctionDefinition, editor: Editor,
     }
   }
 
-  def selectTargets(targets: List[PsiElement], selectionConsumer: Consumer[List[PsiElement]]): Unit = {
+  def selectTargets(targets: List[PsiElement], selectionConsumer: Consumer[List[PsiElement]]) {
     selectionConsumer.consume(targets)
   }
 
@@ -30,6 +32,7 @@ class ScalaHighlightExitPointsHandler(fun: ScFunctionDefinition, editor: Editor,
     val usages = fun.getReturnUsages
     val res = new ArrayList[PsiElement](usages.length)
     for (usage <- usages) res.add(usage)
+    res.add(keyword)
     res
   }
 }

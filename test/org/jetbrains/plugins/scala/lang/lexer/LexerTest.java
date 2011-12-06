@@ -15,21 +15,59 @@
 
 package org.jetbrains.plugins.scala.lang.lexer;
 
+import org.jetbrains.plugins.scala.Console;
+import com.intellij.lexer.Lexer;
+import com.intellij.psi.tree.IElementType;
 import junit.framework.Test;
 import org.jetbrains.annotations.NonNls;
+import org.jetbrains.plugins.scala.testcases.BaseScalaFileSetTestCase;
 
 /**
  * @author ilyas
  */
-public class LexerTest extends LexerTestBase {
+public class LexerTest extends BaseScalaFileSetTestCase {
+
   @NonNls
   private static final String DATA_PATH = "test/org/jetbrains/plugins/scala/lang/lexer/data";
 
   public LexerTest() {
-    super(DATA_PATH, new ScalaLexer());
+    super(System.getProperty("path") != null ?
+        System.getProperty("path") :
+        DATA_PATH
+    );
+  }
+
+
+  public String transform(String testName, String[] data) throws Exception {
+    String fileText = data[0];
+
+    Lexer lexer = new ScalaLexer();
+    lexer.start(fileText);
+
+    StringBuffer buffer = new StringBuffer();
+
+    IElementType type;
+    while ((type = lexer.getTokenType()) != null) {
+      CharSequence s = lexer.getBufferSequence();
+      s = s.subSequence(lexer.getTokenStart(), lexer.getTokenEnd());
+      buffer.append(type.toString()).append(" {").append(s).append("}");
+      lexer.advance();
+      if (lexer.getTokenType() != null) {
+        buffer.append("\n");
+      }
+    }
+
+    Console.println("------------------------ " + testName + " ------------------------");
+    Console.println(buffer.toString());
+    Console.println("");
+
+    return buffer.toString();
+
   }
 
   public static Test suite() {
     return new LexerTest();
   }
+
+
 }

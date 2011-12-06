@@ -24,12 +24,12 @@ class ScalaHighlightUsagesHandlerFactory extends  HighlightUsagesHandlerFactory 
     element.getNode.getElementType match {
       case ScalaTokenTypes.kRETURN => {
         val fun = PsiTreeUtil.getParentOfType(element, classOf[ScFunctionDefinition])
-        if (fun != null) return new ScalaHighlightExitPointsHandler(fun, editor, file)
+        if (fun != null) return new ScalaHighlightExitPointsHandler(fun, editor, file, element)
       }
       case ScalaTokenTypes.kDEF => {
         val fun = PsiTreeUtil.getParentOfType(element, classOf[ScFunction])
         fun match {
-          case d: ScFunctionDefinition => return new ScalaHighlightExitPointsHandler(d, editor, file)
+          case d: ScFunctionDefinition => return new ScalaHighlightExitPointsHandler(d, editor, file, element)
           case _ =>
         }
       }
@@ -37,7 +37,7 @@ class ScalaHighlightUsagesHandlerFactory extends  HighlightUsagesHandlerFactory 
         val patternNullable = PsiTreeUtil.getParentOfType(element, classOf[ScPatternDefinition])
         Option(patternNullable) match {
           case Some(pattern) if pattern.pList.allPatternsSimple && pattern.pList.patterns.length == 1 =>
-            return new ScalaHighlightExprResultHandler(pattern.expr, editor, file)
+            return new ScalaHighlightExprResultHandler(pattern.expr, editor, file, element)
           case _ =>
         }
       }
@@ -45,7 +45,7 @@ class ScalaHighlightUsagesHandlerFactory extends  HighlightUsagesHandlerFactory 
         val patternNullable = PsiTreeUtil.getParentOfType(element, classOf[ScVariableDefinition])
         Option(patternNullable) match {
           case Some(pattern) if pattern.pList.allPatternsSimple && pattern.pList.patterns.length == 1 =>
-            return new ScalaHighlightExprResultHandler(pattern.expr, editor, file)
+            return new ScalaHighlightExprResultHandler(pattern.expr, editor, file, element)
           case _ =>
         }
       }
@@ -55,14 +55,14 @@ class ScalaHighlightUsagesHandlerFactory extends  HighlightUsagesHandlerFactory 
           cc <- Option(caseClauseNullable)
           expr <- cc.expr
         } {
-          return new ScalaHighlightExprResultHandler(expr, editor, file)
+          return new ScalaHighlightExprResultHandler(expr, editor, file, element)
         }
       }
       case ScalaTokenTypes.kMATCH => {
         val matchStmtNullable = PsiTreeUtil.getParentOfType(element, classOf[ScMatchStmt])
         Option(matchStmtNullable) match {
           case Some(matchStmt) =>
-            return new ScalaHighlightExprResultHandler(matchStmt, editor, file)
+            return new ScalaHighlightExprResultHandler(matchStmt, editor, file, element)
           case _ =>
         }
       }
@@ -70,7 +70,7 @@ class ScalaHighlightUsagesHandlerFactory extends  HighlightUsagesHandlerFactory 
         val tryStmtNullable = PsiTreeUtil.getParentOfType(element, classOf[ScTryStmt])
         Option(tryStmtNullable) match {
           case Some(tryStmt) =>
-            return new ScalaHighlightExprResultHandler(tryStmt, editor, file)
+            return new ScalaHighlightExprResultHandler(tryStmt, editor, file, element)
           case _ =>
         }
       }
@@ -81,7 +81,7 @@ class ScalaHighlightUsagesHandlerFactory extends  HighlightUsagesHandlerFactory 
           if forStmt.isYield
           body <- forStmt.body
         } {
-          return new ScalaHighlightExprResultHandler(body, editor, file)
+          return new ScalaHighlightExprResultHandler(body, editor, file, element)
         }
       }
       case ScalaTokenTypes.kIF => {
@@ -89,7 +89,7 @@ class ScalaHighlightUsagesHandlerFactory extends  HighlightUsagesHandlerFactory 
         for {
           ifStmt <- Option(ifStmtNullable)
         } {
-          return new ScalaHighlightExprResultHandler(ifStmt, editor, file)
+          return new ScalaHighlightExprResultHandler(ifStmt, editor, file, element)
         }
       }
       case ScalaTokenTypes.tFUNTYPE => {
@@ -98,7 +98,7 @@ class ScalaHighlightUsagesHandlerFactory extends  HighlightUsagesHandlerFactory 
           funcExpr <- Option(funcExprNullable)
           resultExpr <- funcExpr.result
         } {
-          return new ScalaHighlightExprResultHandler(resultExpr, editor, file)
+          return new ScalaHighlightExprResultHandler(resultExpr, editor, file, element)
         }
       }
       case ScalaTokenTypes.kCLASS | ScalaTokenTypes.kTRAIT | ScalaTokenTypes.kOBJECT => {
@@ -106,7 +106,7 @@ class ScalaHighlightUsagesHandlerFactory extends  HighlightUsagesHandlerFactory 
         for {
           templateDef <- Option(templateDefOpt)
         } {
-          return new ScalaHighlightPrimaryConstructorExpressionsHandler(templateDef, editor, file)
+          return new ScalaHighlightPrimaryConstructorExpressionsHandler(templateDef, editor, file, element)
         }
       }
       case _ =>
