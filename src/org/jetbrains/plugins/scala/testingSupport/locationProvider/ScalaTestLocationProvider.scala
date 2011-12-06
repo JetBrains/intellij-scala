@@ -73,9 +73,9 @@ class ScalaTestLocationProvider extends TestLocationProvider {
       if (!(elementAtLine.isInstanceOf[PsiWhiteSpace])) {
         found = true
       }
-      var length: Int = elementAtLine.getTextLength
+      val length: Int = elementAtLine.getTextLength
       offset += (if (length > 1) length - 1 else 1)
     }
-    return PsiLocation.fromPsiElement(project, if (elementAtLine != null) elementAtLine else psiFile)
+    PsiLocation.fromPsiElement(project, if (elementAtLine != null) elementAtLine else psiFile)
   }
 }

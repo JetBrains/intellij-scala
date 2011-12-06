@@ -21,7 +21,6 @@ import compiler.rt.ScalacRunner
 import jdom.Element
 import _root_.scala.collection.mutable.HashSet
 import com.intellij.openapi.module.Module
-import com.intellij.openapi.options.SettingsEditor
 import com.intellij.execution.configurations._
 import com.intellij.openapi.vfs.{JarFileSystem, VirtualFile}
 import com.intellij.openapi.projectRoots.JavaSdkType
@@ -31,6 +30,10 @@ import lang.psi.impl.ScPackageImpl
 import config.ScalaFacet
 import collection.JavaConversions._
 import lang.psi.ScalaPsiUtil
+import com.intellij.openapi.extensions.Extensions
+import com.intellij.openapi.options.{SettingsEditorGroup, SettingsEditor}
+import scalaTest.ScalaTestRunConfigurationEditor
+import com.intellij.diagnostic.logging.LogConfigurationPanel
 
 /**
  * User: Alexander Podkhalyuzin
@@ -39,7 +42,8 @@ import lang.psi.ScalaPsiUtil
 
 
 class SpecsRunConfiguration(val project: Project, val configurationFactory: ConfigurationFactory, val name: String)
-        extends ModuleBasedConfiguration[RunConfigurationModule](name, new RunConfigurationModule(project), configurationFactory) {
+        extends ModuleBasedConfiguration[RunConfigurationModule](name, new RunConfigurationModule(project),
+          configurationFactory) with ScalaTestingConfiguration {
   val SCALA_HOME = "-Dscala.home="
   val CLASSPATH = "-Denv.classpath=\"%CLASSPATH%\""
   val EMACS = "-Denv.emacs=\"%EMACS%\""
@@ -174,6 +178,9 @@ class SpecsRunConfiguration(val project: Project, val configurationFactory: Conf
         for (cl <- classes) params.getProgramParametersList.add(cl.getQualifiedName)
         params.getProgramParametersList.add("-sus:" + getSystemFilter)
         params.getProgramParametersList.add("-ex:" + getExampleFilter)
+        for (ext <- Extensions.getExtensions(RunConfigurationExtension.EP_NAME)) {
+          ext.updateJavaParameters(SpecsRunConfiguration.this, params, getRunnerSettings)
+        }
         params
       }
 
@@ -181,11 +188,13 @@ class SpecsRunConfiguration(val project: Project, val configurationFactory: Conf
       override def execute(executor: Executor, runner: ProgramRunner[_ <: JDOMExternalizable]): ExecutionResult = {
         val processHandler = startProcess()
         val config = SpecsRunConfiguration.this
+        val runnerSettings = getRunnerSettings
+        JavaRunConfigurationExtensionManager.getInstance.attachExtensionsToProcess(config, processHandler, runnerSettings)
         val consoleProperties = new SMTRunnerConsoleProperties(config, "Scala", executor);
 
         // console view
         val testRunnerConsole: BaseTestsOutputConsoleView = SMTestRunnerConnectionUtil.createAndAttachConsole("Scala",
-          processHandler, consoleProperties, getRunnerSettings.asInstanceOf[RunnerSettings[_ <: JDOMExternalizable]],
+          processHandler, consoleProperties, runnerSettings,
           getConfigurationSettings)
 
         new DefaultExecutionResult(testRunnerConsole, processHandler,
@@ -204,10 +213,17 @@ class SpecsRunConfiguration(val project: Project, val configurationFactory: Conf
 
   def getValidModules: java.util.List[Module] = ScalaFacet.findModulesIn(getProject).toList
 
-  def getConfigurationEditor: SettingsEditor[_ <: RunConfiguration] = new SpecsRunConfigurationEditor(project, this)
+  def getConfigurationEditor: SettingsEditor[_ <: RunConfiguration] = {
+    val group: SettingsEditorGroup[SpecsRunConfiguration] = new SettingsEditorGroup
+    group.addEditor(ExecutionBundle.message("run.configuration.configuration.tab.title"), new SpecsRunConfigurationEditor(project, this))
+    JavaRunConfigurationExtensionManager.getInstance.appendEditors(this, group)
+    group.addEditor(ExecutionBundle.message("logs.tab.title"), new LogConfigurationPanel)
+    group
+  }
 
   override def writeExternal(element: Element) {
     super.writeExternal(element)
+    JavaRunConfigurationExtensionManager.getInstance.writeExternal(this, element)
     writeModule(element)
     JDOMExternalizer.write(element, "path", getTestClassPath)
     JDOMExternalizer.write(element, "vmparams", getJavaOptions)
@@ -220,17 +236,14 @@ class SpecsRunConfiguration(val project: Project, val configurationFactory: Conf
 
   override def readExternal(element: Element) {
     super.readExternal(element)
+    JavaRunConfigurationExtensionManager.getInstance.writeExternal(this, element)
     readModule(element)
     testClassPath = JDOMExternalizer.readString(element, "path")
     javaOptions = JDOMExternalizer.readString(element, "vmparams")
     testArgs = JDOMExternalizer.readString(element, "params")
-    //todo: this var should be removed after few releases. Creation date: 08.04.2010
-    var pp = JDOMExternalizer.readString(element, "packagepath")
-    if (pp != null) testPackagePath = pp
-    pp = JDOMExternalizer.readString(element, "workingDirectory")
-    if (pp != null) workingDirectory = pp
-    pp = JDOMExternalizer.readString(element, "sysFilter")
-    if (pp != null) sysFilter = pp
-    pp = JDOMExternalizer.readString(element, "exampleFilter")
+    testPackagePath = JDOMExternalizer.readString(element, "packagepath")
+    workingDirectory = JDOMExternalizer.readString(element, "workingDirectory")
+    sysFilter = JDOMExternalizer.readString(element, "sysFilter")
+    exampleFilter = JDOMExternalizer.readString(element, "exampleFilter")
   }
 }
