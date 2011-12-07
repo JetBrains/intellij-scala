@@ -12,6 +12,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScTypeParamCl
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScFunction}
 import com.intellij.openapi.project.Project
 import com.intellij.codeInspection._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
+import org.jetbrains.plugins.scala.lang.scaladoc.parser.parsing.MyScaladocParsing
 
 /**
  * User: Dmitry Naidanov
@@ -94,21 +96,27 @@ class ScalaDocUnknownParameterInspection extends LocalInspectionTool {
         s.getNextSiblingNotWhitespace match {
           case func: ScFunction =>
             doInspection(func.parameters, func.typeParameters)
-          case constr: ScPrimaryConstructor =>
-            constr.getClassTypeParameters match {
-              case a: Some[ScTypeParamClause] => 
-                doInspection(constr.parameters, a.get.typeParameters)
-              case None =>
-                doInspection(constr.parameters, null)
+          case clazz: ScClass =>
+            val constr = clazz.constructor
+            constr match {
+              case Some(primaryConstr: ScPrimaryConstructor) =>
+                primaryConstr.getClassTypeParameters match {
+                  case Some(a: ScTypeParamClause) =>
+                    doInspection(primaryConstr.parameters, a.typeParameters)
+                  case None =>
+                    doInspection(primaryConstr.parameters, null)
+                }
+              case None => registerBadParams()
             }
           case typeAlias: ScTypeAlias => //scaladoc can't process tparams for type alias now
-            for (tag <- s.findTagsByName("@tparam")) {
+            for (tag <- s.findTagsByName(MyScaladocParsing.TYPE_PARAM_TAG)) {
               holder.registerProblem(holder.getManager.createProblemDescriptor(
                 tag.getFirstChild, "Scaladoc can't process tparams for type alias now",
                 true, ProblemHighlightType.WEAK_WARNING, isOnTheFly))
             }
           case _ => //we can't have params/tparams here
-            for (tag <- s.findTagsByName(Set("@param", "@tparam").contains(_)) if tag.isInstanceOf[ScDocTag]) {
+            for (tag <- s.findTagsByName(Set(MyScaladocParsing.PARAM_TAG, MyScaladocParsing.TYPE_PARAM_TAG).contains(_))
+                 if tag.isInstanceOf[ScDocTag]) {
               holder.registerProblem(holder.getManager.createProblemDescriptor(
                 tag.getFirstChild, "@param and @tparams tags arn't allowed there",
                 true, ProblemHighlightType.GENERIC_ERROR, isOnTheFly, 
