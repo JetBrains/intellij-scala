@@ -9,7 +9,6 @@ import java.lang.String
 import com.intellij.openapi.util.TextRange
 import parser.parsing.MyScaladocParsing
 import lang.psi.api.toplevel.ScNamedElement
-import lang.psi.api.statements.ScFunction
 import lang.psi.api.base.ScPrimaryConstructor
 import api.{ScDocReferenceElement, ScDocComment, ScDocTag, ScDocTagValue}
 import collection.mutable.ArrayBuilder
@@ -20,6 +19,8 @@ import lang.psi.{ScalaPsiElement, ScalaPsiElementImpl}
 import resolve.{ScalaResolveResult, StdKinds, ResolveTargets}
 import refactoring.util.ScalaNamesUtil
 import com.intellij.psi.{PsiDocumentManager, ResolveResult, PsiReference, PsiElement}
+import lang.psi.api.toplevel.typedef.ScClass
+import lang.psi.api.statements.{ScTypeAlias, ScFunction}
 
 /**
  * User: Dmitry Naydanov
@@ -77,7 +78,10 @@ class ScDocTagValueImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
     parameters.foreach(result += _.getName)
     result.result()
   }
-  
+
+
+  override def isSoft: Boolean = getParent.asInstanceOf[ScDocTag].getName == MyScaladocParsing.THROWS_TAG
+
   def getParametersVariants: Array[ScNamedElement] = {
     import MyScaladocParsing.{PARAM_TAG, TYPE_PARAM_TAG}
     val parentTagType: String = getParent match {
@@ -111,15 +115,27 @@ class ScDocTagValueImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
         } else {
           filterParamsByName(TYPE_PARAM_TAG, func.typeParameters)
         }
-      case constr: ScPrimaryConstructor =>
-        if (parentTagType == PARAM_TAG) {
-          filterParamsByName(PARAM_TAG, constr.parameters)
+      case clazz: ScClass =>
+        val constr = clazz.constructor
+        
+        constr match {
+          case primaryConstr: Some[ScPrimaryConstructor] =>
+            if (parentTagType == PARAM_TAG) {
+              filterParamsByName(PARAM_TAG, primaryConstr.get.parameters)
+            } else {
+              primaryConstr.get.getClassTypeParameters match {
+                case tParam: Some[ScTypeParamClause] =>
+                  filterParamsByName(TYPE_PARAM_TAG, tParam.get.typeParameters)
+                case _ => Array.empty[ScNamedElement]
+              }
+            }
+          case None => Array.empty[ScNamedElement]
+        }
+      case typeAlias: ScTypeAlias =>
+        if (parentTagType == TYPE_PARAM_TAG) {
+          filterParamsByName(TYPE_PARAM_TAG, typeAlias.typeParameters)
         } else {
-          constr.getClassTypeParameters match {
-            case a: Some[ScTypeParamClause] =>
-              filterParamsByName(TYPE_PARAM_TAG, a.get.typeParameters)
-            case _ => Array[ScNamedElement]()
-          }
+          Array.empty[ScNamedElement]
         }
       case _ => Array.empty[ScNamedElement]
     }

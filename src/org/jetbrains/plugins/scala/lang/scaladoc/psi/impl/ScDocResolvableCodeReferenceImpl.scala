@@ -5,16 +5,21 @@ package psi
 package impl
 
 import com.intellij.lang.ASTNode
-import api.ScDocResolvableCodeReference
 import org.jetbrains.plugins.scala.lang.resolve.StdKinds._
 import lang.psi.impl.base.ScStableCodeReferenceElementImpl
 import lang.psi.api.base.ScStableCodeReferenceElement
-import lang.psi.impl.ScalaPsiElementFactory
 import resolve.processor.BaseProcessor
 import com.intellij.openapi.progress.ProgressManager
-import com.intellij.psi.{ResolveState, PsiElement, PsiClass}
 import lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody}
 import lang.psi.api.toplevel.imports.ScImportExpr
+import lang.psi.types.result.TypingContext
+import lang.psi.api.expr.{ScSuperReference, ScThisReference}
+import resolve.ResolveUtils
+import api.{ScDocComment, ScDocResolvableCodeReference}
+import com.intellij.psi.scope.PsiScopeProcessor
+import lang.psi.impl.ScPackageImpl._
+import com.intellij.psi.{JavaPsiFacade, ResolveState, PsiElement, PsiClass}
+import lang.psi.impl.{ScPackageImpl, ScalaPsiElementFactory}
 
 /**
  * User: Dmitry Naydanov
@@ -26,5 +31,15 @@ class ScDocResolvableCodeReferenceImpl(node: ASTNode) extends ScStableCodeRefere
 
   override def createReplacingElementWithClassName(useFullQualifiedName: Boolean, clazz: PsiClass) = {
     ScalaPsiElementFactory.createDocLinkValue(clazz.getQualifiedName, clazz.getManager)
+  }
+
+  override protected def processQualifier(ref: ScStableCodeReferenceElement, processor: BaseProcessor) {
+    pathQualifier match {
+      case None =>
+        val defaultPackage = ScPackageImpl(JavaPsiFacade.getInstance(getProject).findPackage(""))
+        defaultPackage.processDeclarations(processor, ResolveState.initial(), null, ref)
+      case Some(q: ScDocResolvableCodeReference) =>
+        q.multiResolve(true).foreach(processQualifierResolveResult(_, processor, ref))
+    }
   }
 }
