@@ -49,7 +49,7 @@ class ScalaTestConfigurationType extends LocatableConfigurationType {
       val settings = RunManager.getInstance(location.getProject).createRunConfiguration(displayName, confFactory)
       val configuration = settings.getConfiguration.asInstanceOf[ScalaTestRunConfiguration]
       configuration.setTestPackagePath(pack.getQualifiedName)
-      runConfiguration.setTestKind(ScalaTestRunConfigurationForm.TestKind.ALL_IN_PACKAGE)
+      configuration.setTestKind(ScalaTestRunConfigurationForm.TestKind.ALL_IN_PACKAGE)
       configuration.setGeneratedName(displayName)
       JavaRunConfigurationExtensionManager.getInstance.extendCreatedConfiguration(configuration, location)
       return settings
