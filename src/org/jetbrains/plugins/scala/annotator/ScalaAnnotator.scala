@@ -211,6 +211,9 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
   }
 
   private def checkNotQualifiedReferenceElement(refElement: ScReferenceElement, holder: AnnotationHolder) {
+    if (refElement.isSoft) {
+      return
+    }
 
     def getFix: Seq[IntentionAction] = {
       val classes = ScalaImportClassFix.getClasses(refElement, refElement.getProject)
@@ -360,6 +363,9 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
   }
 
   private def checkQualifiedReferenceElement(refElement: ScReferenceElement, holder: AnnotationHolder) {
+    if (refElement.isSoft) {
+      return
+    }
     AnnotatorHighlighter.highlightReferenceElement(refElement, holder)
     var resolve: Array[ResolveResult] = null
     resolve = refElement.multiResolve(false)

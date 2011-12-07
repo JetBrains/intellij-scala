@@ -93,38 +93,6 @@ trait ResolvableStableCodeReferenceElement extends ScStableCodeReferenceElement 
       case _ =>
     }
 
-    /*_qualifier() match {
-      case None => {
-        def treeWalkUp(place: PsiElement, lastParent: PsiElement) {
-          ProgressManager.checkCanceled()
-          place match {
-            case null =>
-            case p => {
-              if (!p.processDeclarations(processor,
-                ResolveState.initial,
-                lastParent, ref)) return
-              place match {
-                case (_: ScTemplateBody | _: ScExtendsBlock) => // template body and inherited members are at the same level.
-                case _ => if (!processor.changedLevel) return
-              }
-              treeWalkUp(place.getContext, place)
-            }
-          }
-        }
-        treeWalkUp(ref, null)
-      }
-      case Some(q: ScDocResolvableCodeReference) =>
-        q.multiResolve(true).foreach(processQualifierResolveResult(_, processor, ref))
-      case Some(q: ScStableCodeReferenceElement) => {
-        q.bind() match {
-          case Some(res) => processQualifierResolveResult(res, processor, ref)
-          case _ =>
-        }
-      }
-      case Some(thisQ: ScThisReference) => for (ttype <- thisQ.getType(TypingContext.empty)) processor.processType(ttype, this)
-      case Some(superQ: ScSuperReference) => ResolveUtils.processSuperReference(superQ, processor, this)
-    }*/
-
     processQualifier(ref, processor)
 
     val candidates = processor.candidatesS
