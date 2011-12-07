@@ -25,10 +25,10 @@ import lang.psi.ScalaPsiUtil
 import com.intellij.openapi.options.{SettingsEditorGroup, SettingsEditor}
 import com.intellij.diagnostic.logging.LogConfigurationPanel
 import com.intellij.openapi.extensions.Extensions
-import scalaTest.ScalaTestRunConfigurationForm.SearchForTest
 import reflect.BeanProperty
 import com.intellij.openapi.module.{ModuleManager, Module}
 import com.intellij.openapi.projectRoots.Sdk
+import scalaTest.ScalaTestRunConfigurationForm.{TestKind, SearchForTest}
 
 /**
  * User: Alexander Podkhalyuzin
@@ -56,7 +56,13 @@ class ScalaTestRunConfiguration(val project: Project, val configurationFactory: 
   }
 
   @BeanProperty
-  var searchTest: SearchForTest = SearchForTest.ACCROSS_MODULE_DEPENDENCIES;
+  var searchTest: SearchForTest = SearchForTest.ACCROSS_MODULE_DEPENDENCIES
+
+  @BeanProperty
+  var testName = ""
+
+  @BeanProperty
+  var testKind = TestKind.CLASS
 
   def getTestClassPath = testClassPath
   def getTestPackagePath = testPackagePath
@@ -84,19 +90,15 @@ class ScalaTestRunConfiguration(val project: Project, val configurationFactory: 
   override def suggestedName = getGeneratedName
 
   def apply(configuration: ScalaTestRunConfigurationForm) {
-    if (configuration.isClassSelected) {
-      setTestClassPath(configuration.getTestClassPath)
-      setTestPackagePath("")
-    }
-    else {
-      setTestClassPath("")
-      setTestPackagePath(configuration.getTestPackagePath)
-    }
+    testKind = configuration.getSelectedKind
+    setTestClassPath(configuration.getTestClassPath)
+    setTestPackagePath(configuration.getTestPackagePath)
     setSearchTest(configuration.getSearchForTest)
     setJavaOptions(configuration.getJavaOptions)
     setTestArgs(configuration.getTestArgs)
     setModule(configuration.getModule)
     setWorkingDirectory(configuration.getWorkingDirectory)
+    setTestName(configuration.getTestName)
   }
 
   def getClazz(path: String): PsiClass = {
@@ -116,10 +118,12 @@ class ScalaTestRunConfiguration(val project: Project, val configurationFactory: 
     var suiteClass: PsiClass = null
     var pack: PsiPackage = null
     try {
-      if (testClassPath != "")
-        clazz = getClazz(testClassPath)
-      else
-        pack = getPackage(testPackagePath)
+      testKind match {
+        case TestKind.CLASS | TestKind.TEST_NAME =>
+          clazz = getClazz(testClassPath)
+        case TestKind.ALL_IN_PACKAGE =>
+          pack = getPackage(testPackagePath)
+      }
       suiteClass = getClazz(SUITE_PATH)
     }
     catch {
@@ -196,6 +200,11 @@ class ScalaTestRunConfiguration(val project: Project, val configurationFactory: 
 
         params.getProgramParametersList.add("-s")
         for (cl <- classes) params.getProgramParametersList.add(cl.getQualifiedName)
+        
+        if (testKind == TestKind.TEST_NAME && testName != "") {
+          params.getProgramParametersList.add("-testName")
+          params.getProgramParametersList.add(testName)
+        }
 
         params.getProgramParametersList.add("-r")
         params.getProgramParametersList.add(reporterClass)
@@ -270,6 +279,8 @@ class ScalaTestRunConfiguration(val project: Project, val configurationFactory: 
     JDOMExternalizer.write(element, "params", getTestArgs)
     JDOMExternalizer.write(element, "workingDirectory", workingDirectory)
     JDOMExternalizer.write(element, "searchForTest", searchTest.toString)
+    JDOMExternalizer.write(element, "testName", testName)
+    JDOMExternalizer.write(element, "testKind", testKind.toString)
   }
 
   override def readExternal(element: Element) {
@@ -285,5 +296,7 @@ class ScalaTestRunConfiguration(val project: Project, val configurationFactory: 
     for (search <- SearchForTest.values()) {
       if (search.toString == s) searchTest = search
     }
+    testName = Option(JDOMExternalizer.readString(element, "testName")).getOrElse("")
+    testKind = TestKind.fromString(Option(JDOMExternalizer.readString(element, "testKind")).getOrElse("Class"))
   }
 }

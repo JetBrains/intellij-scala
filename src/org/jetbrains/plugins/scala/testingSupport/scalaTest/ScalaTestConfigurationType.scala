@@ -49,6 +49,7 @@ class ScalaTestConfigurationType extends LocatableConfigurationType {
       val settings = RunManager.getInstance(location.getProject).createRunConfiguration(displayName, confFactory)
       val configuration = settings.getConfiguration.asInstanceOf[ScalaTestRunConfiguration]
       configuration.setTestPackagePath(pack.getQualifiedName)
+      runConfiguration.setTestKind(ScalaTestRunConfigurationForm.TestKind.ALL_IN_PACKAGE)
       configuration.setGeneratedName(displayName)
       JavaRunConfigurationExtensionManager.getInstance.extendCreatedConfiguration(configuration, location)
       return settings
@@ -63,6 +64,7 @@ class ScalaTestConfigurationType extends LocatableConfigurationType {
     val testClassPath = parent.getQualifiedName
     val runConfiguration = settings.getConfiguration.asInstanceOf[ScalaTestRunConfiguration]
     runConfiguration.setTestClassPath(testClassPath)
+    runConfiguration.setTestKind(ScalaTestRunConfigurationForm.TestKind.CLASS)
     try {
       val module = ScalaPsiUtil.getModule(element)
       if (module != null) {
