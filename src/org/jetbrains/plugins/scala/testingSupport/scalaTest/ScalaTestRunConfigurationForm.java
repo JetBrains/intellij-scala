@@ -55,16 +55,27 @@ public class ScalaTestRunConfigurationForm {
   }
 
   private JComboBox kindComboBox;
+  private JTextField testNameTextField;
+  private JLabel testNameLabel;
+
   public static enum TestKind {
-    ALL_IN_PACKAGE, CLASS;
+    ALL_IN_PACKAGE, CLASS, TEST_NAME;
 
     @Override
     public String toString() {
       switch (this) {
         case ALL_IN_PACKAGE: return "All in package";
         case CLASS: return "Class";
+        case TEST_NAME: return "Test name";
         default: return "";
       }
+    }
+    
+    public static TestKind fromString(String s) {
+      if (s.equals("All in package")) return ALL_IN_PACKAGE;
+      else if (s.equals("Class")) return CLASS;
+      else if (s.equals("Test name")) return TEST_NAME;
+      else return null;
     }
   }
   
@@ -98,10 +109,16 @@ public class ScalaTestRunConfigurationForm {
       kindComboBox.addItem(testKind);
     }
 
-    if (configuration.getTestClassPath().equals("") && !configuration.getTestPackagePath().equals("")) {
-      setClassEnabled();
-    } else {
-      setPackageEnabled();
+    switch (configuration.getTestKind()) {
+      case ALL_IN_PACKAGE:
+        setPackageEnabled();
+        break;
+      case CLASS:
+        setClassEnabled();
+        break;
+      case TEST_NAME:
+        setTestNameEnabled();
+        break;
     }
     
     kindComboBox.addItemListener(new ItemListener() {
@@ -114,6 +131,9 @@ public class ScalaTestRunConfigurationForm {
             break;
           case CLASS:
             setClassEnabled();
+            break;
+          case TEST_NAME:
+            setTestNameEnabled();
             break;
         }
       }
@@ -143,11 +163,19 @@ public class ScalaTestRunConfigurationForm {
   private void setClassVisible(boolean visible) {
     testClassLabel.setVisible(visible);
     testClassTextField.setVisible(visible);
-  } 
+  }
+
+  private void setTestNameVisible(boolean visible) {
+    testNameLabel.setVisible(visible);
+    testNameTextField.setVisible(visible);
+    testClassLabel.setVisible(visible);
+    testClassTextField.setVisible(visible);
+  }
   
   private void disableAll() {
     setPackageVisible(false);
     setClassVisible(false);
+    setTestNameVisible(false);
   }
 
   private void setPackageEnabled() {
@@ -161,21 +189,33 @@ public class ScalaTestRunConfigurationForm {
     setClassVisible(true);
     kindComboBox.setSelectedItem(TestKind.CLASS);
   }
+  
+  private void setTestNameEnabled() {
+    disableAll();
+    setTestNameVisible(true);
+    kindComboBox.setSelectedItem(TestKind.TEST_NAME);
+  }
 
   public void apply(ScalaTestRunConfiguration configuration) {
     setTestClassPath(configuration.getTestClassPath());
     setJavaOptions(configuration.getJavaOptions());
     setTestArgs(configuration.getTestArgs());
     setTestPackagePath(configuration.getTestPackagePath());
-    if (getTestClassPath().equals("") && !getTestPackagePath().equals("")) {
-      setPackageEnabled();
-    }
-    else {
-      setClassEnabled();
+    switch (configuration.getTestKind()) {
+      case ALL_IN_PACKAGE:
+        setPackageEnabled();
+        break;
+      case CLASS:
+        setClassEnabled();
+        break;
+      case TEST_NAME:
+        setTestNameEnabled();
+        break;
     }
     setWorkingDirectory(configuration.getWorkingDirectory());
     myModuleSelector.applyTo(configuration);
     searchForTestsComboBox.setSelectedItem(configuration.getSearchTest());
+    setTestName(configuration.getTestName());
   }
 
   public TestKind getSelectedKind() {
@@ -184,14 +224,6 @@ public class ScalaTestRunConfigurationForm {
 
   public SearchForTest getSearchForTest() {
     return (SearchForTest) searchForTestsComboBox.getSelectedItem();
-  }
-
-  public boolean isClassSelected() {
-    return kindComboBox.getSelectedItem() == TestKind.CLASS;
-  }
-  
-  public boolean isPackageSelected() {
-    return kindComboBox.getSelectedItem() == TestKind.ALL_IN_PACKAGE;
   }
 
   public String getTestClassPath() {
@@ -232,6 +264,14 @@ public class ScalaTestRunConfigurationForm {
 
   public void setWorkingDirectory(String s) {
     workingDirectoryField.setText(s);
+  }
+  
+  public String getTestName() {
+    return testNameTextField.getText();
+  }
+  
+  public void setTestName(String s) {
+    testNameTextField.setText(s);
   }
 
   public JPanel getPanel() {
