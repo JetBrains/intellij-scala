@@ -15,7 +15,6 @@ import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.{PsiPackage, JavaPsiFacade, PsiClass}
 import com.intellij.util.PathUtil
 import org.jdom.Element
-import com.intellij.openapi.module.Module
 import com.intellij.execution.configurations._
 import java.lang.String
 import lang.psi.impl.ScPackageImpl
@@ -26,6 +25,10 @@ import lang.psi.ScalaPsiUtil
 import com.intellij.openapi.options.{SettingsEditorGroup, SettingsEditor}
 import com.intellij.diagnostic.logging.LogConfigurationPanel
 import com.intellij.openapi.extensions.Extensions
+import scalaTest.ScalaTestRunConfigurationForm.SearchForTest
+import reflect.BeanProperty
+import com.intellij.openapi.module.{ModuleManager, Module}
+import com.intellij.openapi.projectRoots.Sdk
 
 /**
  * User: Alexander Podkhalyuzin
@@ -51,6 +54,9 @@ class ScalaTestRunConfiguration(val project: Project, val configurationFactory: 
     if (base != null) base.getPath
     else ""
   }
+
+  @BeanProperty
+  var searchTest: SearchForTest = SearchForTest.ACCROSS_MODULE_DEPENDENCIES;
 
   def getTestClassPath = testClassPath
   def getTestPackagePath = testPackagePath
@@ -86,6 +92,7 @@ class ScalaTestRunConfiguration(val project: Project, val configurationFactory: 
       setTestClassPath("")
       setTestPackagePath(configuration.getTestPackagePath)
     }
+    setSearchTest(configuration.getSearchForTest)
     setJavaOptions(configuration.getJavaOptions)
     setTestArgs(configuration.getTestArgs)
     setModule(configuration.getModule)
@@ -125,9 +132,22 @@ class ScalaTestRunConfiguration(val project: Project, val configurationFactory: 
     if (clazz != null) {
       if (ScalaPsiUtil.cachedDeepIsInheritor(clazz, suiteClass)) classes += clazz
     } else {
+      val scope = searchTest match {
+        case SearchForTest.IN_WHOLE_PROJECT => GlobalSearchScope.allScope(getProject)
+        case SearchForTest.IN_SINGLE_MODULE => GlobalSearchScope.moduleScope(getModule)
+        case SearchForTest.ACCROSS_MODULE_DEPENDENCIES => 
+          var scope: GlobalSearchScope = GlobalSearchScope.moduleScope(getModule)
+          for (module <- ModuleManager.getInstance(getProject).getModules) {
+            if (ModuleManager.getInstance(getProject).isModuleDependent(module, getModule)) {
+              scope = scope.union(GlobalSearchScope.moduleScope(module))
+            }
+          }
+          scope
+      }
       def getClasses(pack: PsiPackage): Seq[PsiClass] = {
         val buffer = new ArrayBuffer[PsiClass]
-        buffer ++= pack.getClasses
+        
+        buffer ++= pack.getClasses(scope)
         for (p <- pack.getSubPackages) {
           buffer ++= getClasses(p)
         }
@@ -155,7 +175,22 @@ class ScalaTestRunConfiguration(val project: Project, val configurationFactory: 
 
         val rtJarPath = PathUtil.getJarPathForClass(classOf[JavaSpecsRunner])
         params.getClassPath.add(rtJarPath)
-        params.configureByModule(module, JavaParameters.JDK_AND_CLASSES_AND_TESTS)
+        searchTest match {
+          case SearchForTest.IN_WHOLE_PROJECT =>
+            var jdk: Sdk = null
+            for (module <- ModuleManager.getInstance(project).getModules if jdk == null) {
+              jdk = JavaParameters.getModuleJdk(module)
+            }
+            params.configureByProject(project, JavaParameters.JDK_AND_CLASSES_AND_TESTS, jdk)
+          case _ =>
+            params.configureByModule(module, JavaParameters.JDK_AND_CLASSES_AND_TESTS)
+            for (module <- ModuleManager.getInstance(getProject).getModules) {
+              if (ModuleManager.getInstance(getProject).isModuleDependent(module, getModule)) {
+                params.configureByModule(module, JavaParameters.JDK_AND_CLASSES_AND_TESTS,
+                  JavaParameters.getModuleJdk(getModule))
+              }
+            }
+        }
 
         params.setMainClass(mainClass)
 
@@ -200,6 +235,23 @@ class ScalaTestRunConfiguration(val project: Project, val configurationFactory: 
 
   def getValidModules: java.util.List[Module] = ScalaFacet.findModulesIn(getProject).toList
 
+  override def getModules: Array[Module] = {
+    searchTest match {
+      case SearchForTest.ACCROSS_MODULE_DEPENDENCIES if getModule != null =>
+        val buffer = new ArrayBuffer[Module]()
+        buffer += getModule
+        for (module <- ModuleManager.getInstance(getProject).getModules) {
+          if (ModuleManager.getInstance(getProject).isModuleDependent(module, getModule)) {
+            buffer += module
+          }
+        }
+        buffer.toArray
+      case SearchForTest.IN_SINGLE_MODULE if getModule != null => Array(getModule)
+      case SearchForTest.IN_WHOLE_PROJECT =>  ModuleManager.getInstance(getProject).getModules
+      case _ => Array.empty
+    }
+  }
+
   def getConfigurationEditor: SettingsEditor[_ <: RunConfiguration] = {
     val group: SettingsEditorGroup[ScalaTestRunConfiguration] = new SettingsEditorGroup
     group.addEditor(ExecutionBundle.message("run.configuration.configuration.tab.title"), new ScalaTestRunConfigurationEditor(project, this))
@@ -217,6 +269,7 @@ class ScalaTestRunConfiguration(val project: Project, val configurationFactory: 
     JDOMExternalizer.write(element, "vmparams", getJavaOptions)
     JDOMExternalizer.write(element, "params", getTestArgs)
     JDOMExternalizer.write(element, "workingDirectory", workingDirectory)
+    JDOMExternalizer.write(element, "searchForTest", searchTest.toString)
   }
 
   override def readExternal(element: Element) {
@@ -227,7 +280,10 @@ class ScalaTestRunConfiguration(val project: Project, val configurationFactory: 
     testPackagePath = JDOMExternalizer.readString(element, "package")
     javaOptions = JDOMExternalizer.readString(element, "vmparams")
     testArgs = JDOMExternalizer.readString(element, "params")
-    val pp = JDOMExternalizer.readString(element, "workingDirectory")
-    if (pp != null) workingDirectory = pp
+    workingDirectory = JDOMExternalizer.readString(element, "workingDirectory")
+    val s = JDOMExternalizer.readString(element, "searchForTest")
+    for (search <- SearchForTest.values()) {
+      if (search.toString == s) searchTest = search
+    }
   }
 }

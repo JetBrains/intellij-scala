@@ -6,7 +6,6 @@ import com.intellij.execution.ui.ClassBrowser;
 import com.intellij.execution.ui.ConfigurationModuleSelector;
 import com.intellij.ide.util.ClassFilter;
 import com.intellij.ide.util.PackageChooserDialog;
-import com.intellij.ide.util.TreeClassChooser;
 import com.intellij.openapi.fileChooser.FileChooserDescriptor;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
@@ -19,8 +18,8 @@ import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.ui.RawCommandLineEditor;
 
 import javax.swing.*;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 
 /**
  * User: Alexander Podkhalyuzin
@@ -32,14 +31,43 @@ public class ScalaTestRunConfigurationForm {
   private RawCommandLineEditor VMParamsTextField;
   private RawCommandLineEditor testOptionsTextField;
   private TextFieldWithBrowseButton testPackageTextField;
-  private JRadioButton testClassRadioButton;
-  private JRadioButton testPackageRadioButton;
   private JLabel testClassLabel;
   private JLabel testPackageLabel;
   private JComboBox moduleComboBox;
   private TextFieldWithBrowseButton workingDirectoryField;
-
+  private JPanel searchForTestsPanel;
   private ConfigurationModuleSelector myModuleSelector;
+
+
+  private JComboBox searchForTestsComboBox;
+  public static enum SearchForTest {
+    IN_WHOLE_PROJECT, IN_SINGLE_MODULE, ACCROSS_MODULE_DEPENDENCIES;
+
+    @Override
+    public String toString() {
+      switch (this) {
+        case ACCROSS_MODULE_DEPENDENCIES: return "Across module dependencies";
+        case IN_WHOLE_PROJECT: return "In whole project";
+        case IN_SINGLE_MODULE: return "In single module";
+        default: return "";
+      }
+    }
+  }
+
+  private JComboBox kindComboBox;
+  public static enum TestKind {
+    ALL_IN_PACKAGE, CLASS;
+
+    @Override
+    public String toString() {
+      switch (this) {
+        case ALL_IN_PACKAGE: return "All in package";
+        case CLASS: return "Class";
+        default: return "";
+      }
+    }
+  }
+  
 
   public ScalaTestRunConfigurationForm(final Project project, final ScalaTestRunConfiguration configuration) {
     myModuleSelector = new ConfigurationModuleSelector(project, moduleComboBox);
@@ -53,48 +81,85 @@ public class ScalaTestRunConfigurationForm {
     addPackageChooser(testPackageTextField, project);
     VMParamsTextField.setDialogCaption("VM parameters editor");
     testOptionsTextField.setDialogCaption("Additional options editor");
+
+    for (SearchForTest searchForTest : SearchForTest.values()) {
+      searchForTestsComboBox.addItem(searchForTest);
+    }
+    
+    searchForTestsComboBox.setSelectedItem(configuration.getSearchTest());
+    
+    searchForTestsComboBox.addItemListener(new ItemListener() {
+      public void itemStateChanged(ItemEvent e) {
+        setupModuleComboBox();
+      }
+    });
+
+    for (TestKind testKind : TestKind.values()) {
+      kindComboBox.addItem(testKind);
+    }
+
     if (configuration.getTestClassPath().equals("") && !configuration.getTestPackagePath().equals("")) {
       setClassEnabled();
     } else {
       setPackageEnabled();
     }
-    testClassRadioButton.addChangeListener(new ChangeListener() {
-      public void stateChanged(ChangeEvent e) {
-        if (testClassRadioButton.isSelected()) {
-          setClassEnabled();
-        } else {
-          setPackageEnabled();
+    
+    kindComboBox.addItemListener(new ItemListener() {
+      public void itemStateChanged(ItemEvent e) {
+        moduleComboBox.setEnabled(true);
+        switch ((TestKind) e.getItem()) {
+          case ALL_IN_PACKAGE:
+            setPackageEnabled();
+            setupModuleComboBox();
+            break;
+          case CLASS:
+            setClassEnabled();
+            break;
         }
       }
     });
-    testPackageRadioButton.addChangeListener(new ChangeListener() {
-      public void stateChanged(ChangeEvent e) {
-        if (testPackageRadioButton.isSelected()) {
-          testClassRadioButton.setSelected(false);
-        }
-        else {
-          testClassRadioButton.setSelected(true);
-        }
-      }
-    });
+  }
+
+  private void setupModuleComboBox() {
+    switch ((SearchForTest) searchForTestsComboBox.getSelectedItem()) {
+      case IN_WHOLE_PROJECT: 
+        moduleComboBox.setEnabled(false);
+        break;
+      case IN_SINGLE_MODULE:
+        moduleComboBox.setEnabled(true);
+        break;
+      case ACCROSS_MODULE_DEPENDENCIES:
+        moduleComboBox.setEnabled(true);
+        break;
+    }
+  }
+
+  private void setPackageVisible(boolean visible) {
+    testPackageLabel.setVisible(visible);
+    testPackageTextField.setVisible(visible);
+    searchForTestsPanel.setVisible(visible);
+  }
+  
+  private void setClassVisible(boolean visible) {
+    testClassLabel.setVisible(visible);
+    testClassTextField.setVisible(visible);
+  } 
+  
+  private void disableAll() {
+    setPackageVisible(false);
+    setClassVisible(false);
   }
 
   private void setPackageEnabled() {
-    testPackageLabel.setVisible(true);
-    testPackageTextField.setVisible(true);
-    testClassLabel.setVisible(false);
-    testClassTextField.setVisible(false);
-    testPackageRadioButton.setSelected(true);
-    testClassRadioButton.setSelected(false);
+    disableAll();
+    setPackageVisible(true);
+    kindComboBox.setSelectedItem(TestKind.ALL_IN_PACKAGE);
   }
 
   private void setClassEnabled() {
-    testPackageLabel.setVisible(false);
-    testPackageTextField.setVisible(false);
-    testClassLabel.setVisible(true);
-    testClassTextField.setVisible(true);
-    testPackageRadioButton.setSelected(false);
-    testClassRadioButton.setSelected(true);
+    disableAll();
+    setClassVisible(true);
+    kindComboBox.setSelectedItem(TestKind.CLASS);
   }
 
   public void apply(ScalaTestRunConfiguration configuration) {
@@ -110,10 +175,23 @@ public class ScalaTestRunConfigurationForm {
     }
     setWorkingDirectory(configuration.getWorkingDirectory());
     myModuleSelector.applyTo(configuration);
+    searchForTestsComboBox.setSelectedItem(configuration.getSearchTest());
+  }
+
+  public TestKind getSelectedKind() {
+    return (TestKind) kindComboBox.getSelectedItem();
+  }
+
+  public SearchForTest getSearchForTest() {
+    return (SearchForTest) searchForTestsComboBox.getSelectedItem();
   }
 
   public boolean isClassSelected() {
-    return testClassRadioButton.isSelected();
+    return kindComboBox.getSelectedItem() == TestKind.CLASS;
+  }
+  
+  public boolean isPackageSelected() {
+    return kindComboBox.getSelectedItem() == TestKind.ALL_IN_PACKAGE;
   }
 
   public String getTestClassPath() {
