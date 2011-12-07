@@ -99,12 +99,12 @@ class ScalaDocUnknownParameterInspection extends LocalInspectionTool {
           case clazz: ScClass =>
             val constr = clazz.constructor
             constr match {
-              case primaryConstr: Some[ScPrimaryConstructor] =>
-                constr.get.getClassTypeParameters match {
-                  case a: Some[ScTypeParamClause] =>
-                    doInspection(constr.get.parameters, a.get.typeParameters)
+              case Some(primaryConstr: ScPrimaryConstructor) =>
+                primaryConstr.getClassTypeParameters match {
+                  case Some(a: ScTypeParamClause) =>
+                    doInspection(primaryConstr.parameters, a.typeParameters)
                   case None =>
-                    doInspection(constr.get.parameters, null)
+                    doInspection(primaryConstr.parameters, null)
                 }
               case None => registerBadParams()
             }
@@ -115,7 +115,8 @@ class ScalaDocUnknownParameterInspection extends LocalInspectionTool {
                 true, ProblemHighlightType.WEAK_WARNING, isOnTheFly))
             }
           case _ => //we can't have params/tparams here
-            for (tag <- s.findTagsByName(Set(MyScaladocParsing.PARAM_TAG, MyScaladocParsing.TYPE_PARAM_TAG).contains(_)) if tag.isInstanceOf[ScDocTag]) {
+            for (tag <- s.findTagsByName(Set(MyScaladocParsing.PARAM_TAG, MyScaladocParsing.TYPE_PARAM_TAG).contains(_))
+                 if tag.isInstanceOf[ScDocTag]) {
               holder.registerProblem(holder.getManager.createProblemDescriptor(
                 tag.getFirstChild, "@param and @tparams tags arn't allowed there",
                 true, ProblemHighlightType.GENERIC_ERROR, isOnTheFly, 

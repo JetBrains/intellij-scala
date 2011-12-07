@@ -211,10 +211,6 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
   }
 
   private def checkNotQualifiedReferenceElement(refElement: ScReferenceElement, holder: AnnotationHolder) {
-    if (refElement.isSoft) {
-      return
-    }
-
     def getFix: Seq[IntentionAction] = {
       val classes = ScalaImportClassFix.getClasses(refElement, refElement.getProject)
       if (classes.length == 0) return Seq.empty
@@ -235,6 +231,11 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
         registerCreateFromUsageFixesFor(refElement, annotation)
       }
     }
+
+    if (refElement.isSoft) {
+      return
+    }
+
 
     if (resolve.length != 1) {
       refElement match {
@@ -310,6 +311,7 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
           }
         case _ =>
       }
+
       val error = ScalaBundle.message("cannot.resolve", refElement.refName)
       val annotation = holder.createErrorAnnotation(refElement.nameId, error)
       annotation.setHighlightType(ProblemHighlightType.LIKE_UNKNOWN_SYMBOL)
@@ -363,9 +365,6 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
   }
 
   private def checkQualifiedReferenceElement(refElement: ScReferenceElement, holder: AnnotationHolder) {
-    if (refElement.isSoft) {
-      return
-    }
     AnnotatorHighlighter.highlightReferenceElement(refElement, holder)
     var resolve: Array[ResolveResult] = null
     resolve = refElement.multiResolve(false)
@@ -387,7 +386,8 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
         case _ =>
       }
     }
-    if (refElement.isInstanceOf[ScDocResolvableCodeReference] && resolve.length > 0) return
+
+    if (refElement.isInstanceOf[ScDocResolvableCodeReference] && resolve.length > 0 || refElement.isSoft) return
     if (isAdvancedHighlightingEnabled(refElement) && resolve.length != 1) {
       refElement.getParent match {
         case _: ScImportSelector | _: ScImportExpr if resolve.length > 0 => return 
@@ -406,7 +406,7 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
   }
 
   private def checkAccessForReference(resolve: Array[ResolveResult], refElement: ScReferenceElement, holder: AnnotationHolder) {
-    if (resolve.length != 1) return
+    if (resolve.length != 1 || refElement.isSoft) return
     resolve(0) match {
       case r: ScalaResolveResult if !r.isAccessible =>
         val error = "Symbol %s is inaccessible from this place".format(r.element.getName)
