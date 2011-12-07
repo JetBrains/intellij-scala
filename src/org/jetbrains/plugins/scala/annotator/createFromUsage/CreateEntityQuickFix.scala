@@ -60,26 +60,28 @@ abstract class CreateEntityQuickFix(ref: ScReferenceExpression,
     PsiDocumentManager.getInstance(project).commitAllDocuments()
     if (!ref.isValid) return
 
-    if (!CodeInsightUtilBase.prepareFileForWrite(file)) return
-
     IdeDocumentHistory.getInstance(project).includeCurrentPlaceAsChangePlace()
 
     val entityType = typeFor(ref)
     val parameters = parametersFor(ref)
 
+    val placeholder = if (entityType.isDefined) "%s %s%s: Int" else "%s %s%s"
+    val text = placeholder.format(keyword, ref.nameId.getText, parameters.mkString)
+
+    val block = ref match {
+      case it if it.isQualified => Some(ref.qualifier.flatMap(blockFor).get)
+      case Parent(infix: ScInfixExpr) => Some(blockFor(infix.getBaseExpr).get)
+      case _ => None
+    }
+
+    if (!CodeInsightUtilBase.prepareFileForWrite(block.map(_.getContainingFile).getOrElse(file))) return
+
     inWriteAction {
-      val placeholder = if (entityType.isDefined) "%s %s%s: Int" else "%s %s%s"
-      val text = placeholder.format(keyword, ref.nameId.getText, parameters.mkString)
-
-      val entity = ref match {
-        case it if it.isQualified =>
-          createEntity(ref.qualifier.flatMap(blockFor).get, ref, text)
-        case Parent(infix: ScInfixExpr) =>
-          createEntity(blockFor(infix.getBaseExpr).get, ref, text)
-        case _ =>
-          createEntity(ref, text)
+      val entity = block match {
+        case Some(it) => createEntity(it, ref, text)
+        case None => createEntity(ref, text)
       }
-
+      
       ScalaPsiUtil.adjustTypes(entity)
 
       val builder = new TemplateBuilderImpl(entity)
