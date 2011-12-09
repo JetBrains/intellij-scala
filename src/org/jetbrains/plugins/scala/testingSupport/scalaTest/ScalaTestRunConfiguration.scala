@@ -10,7 +10,6 @@ import com.intellij.execution.testframework.sm.runner.SMTRunnerConsoleProperties
 import com.intellij.execution.testframework.sm.SMTestRunnerConnectionUtil
 import com.intellij.execution.testframework.ui.BaseTestsOutputConsoleView
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.util.{JDOMExternalizer, JDOMExternalizable}
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.{PsiPackage, JavaPsiFacade, PsiClass}
 import com.intellij.util.PathUtil
@@ -29,6 +28,10 @@ import reflect.BeanProperty
 import com.intellij.openapi.module.{ModuleManager, Module}
 import com.intellij.openapi.projectRoots.Sdk
 import scalaTest.ScalaTestRunConfigurationForm.{TestKind, SearchForTest}
+import testframework.sm.runner.ui.SMTRunnerConsoleView
+import testframework.TestFrameworkRunningModel
+import com.intellij.openapi.util.{Getter, JDOMExternalizer, JDOMExternalizable}
+import scalaTest.ScalaTestRunConfiguration.ScalaPropertiesExtension
 
 /**
  * User: Alexander Podkhalyuzin
@@ -167,7 +170,9 @@ class ScalaTestRunConfiguration(val project: Project, val configurationFactory: 
     val module = getModule
     if (module == null) throw new ExecutionException("Module is not specified")
 
-    val state = new JavaCommandLineState(env) {
+    val state = new JavaCommandLineState(env) with ScalaTestRunConfiguration.ScalaTestCommandLinePatcher {
+      val getClasses: Seq[String] = classes.map(_.getQualifiedName)
+
       protected override def createJavaParameters: JavaParameters = {
         val params = new JavaParameters();
 
@@ -198,12 +203,20 @@ class ScalaTestRunConfiguration(val project: Project, val configurationFactory: 
 
         params.setMainClass(mainClass)
 
-        params.getProgramParametersList.add("-s")
-        for (cl <- classes) params.getProgramParametersList.add(cl.getQualifiedName)
+        if (getFailedTests == null) {
+          params.getProgramParametersList.add("-s")
+          for (cl <- getClasses) params.getProgramParametersList.add(cl)
         
-        if (testKind == TestKind.TEST_NAME && testName != "") {
-          params.getProgramParametersList.add("-testName")
-          params.getProgramParametersList.add(testName)
+          if (testKind == TestKind.TEST_NAME && testName != "") {
+            params.getProgramParametersList.add("-testName")
+            params.getProgramParametersList.add(testName)
+          }
+        } else {
+          params.getProgramParametersList.add("-failedTests")
+          for (failed <- getFailedTests) {
+            params.getProgramParametersList.add(failed._1)
+            params.getProgramParametersList.add(failed._2)
+          }
         }
 
         params.getProgramParametersList.add("-r")
@@ -219,20 +232,35 @@ class ScalaTestRunConfiguration(val project: Project, val configurationFactory: 
       override def execute(executor: Executor, runner: ProgramRunner[_ <: JDOMExternalizable]): ExecutionResult = {
         val processHandler = startProcess
         val runnerSettings = getRunnerSettings
-        val config = ScalaTestRunConfiguration.this
-        JavaRunConfigurationExtensionManager.getInstance.attachExtensionsToProcess(config, processHandler, runnerSettings)
-        val consoleProperties = new SMTRunnerConsoleProperties(config, "Scala", executor);
+        if (getConfiguration() == null) setConfiguration(ScalaTestRunConfiguration.this)
+        val config = getConfiguration()
+        JavaRunConfigurationExtensionManager.getInstance.
+          attachExtensionsToProcess(ScalaTestRunConfiguration.this, processHandler, runnerSettings)
+        val consoleProperties = new SMTRunnerConsoleProperties(ScalaTestRunConfiguration.this, "Scala", executor)
+          with ScalaPropertiesExtension {
+          def getRunConfigurationBase: RunConfigurationBase = config
+        }
 
         // console view
-        val testRunnerConsole: BaseTestsOutputConsoleView = SMTestRunnerConnectionUtil.createAndAttachConsole("Scala",
+        val consoleView: BaseTestsOutputConsoleView = SMTestRunnerConnectionUtil.createAndAttachConsole("Scala",
             processHandler, consoleProperties, runnerSettings.asInstanceOf[RunnerSettings[_ <: JDOMExternalizable]],
             getConfigurationSettings)
 
+        val res = new DefaultExecutionResult(consoleView, processHandler,
+          createActions(consoleView, processHandler, executor): _*)
 
-        new DefaultExecutionResult(testRunnerConsole, processHandler, createActions(testRunnerConsole, processHandler): _*)
+        val rerunFailedTestsAction = new ScalaTestRerunFailedTestsAction(consoleView.getComponent)
+        rerunFailedTestsAction.init(consoleView.getProperties, getRunnerSettings, getConfigurationSettings)
+        rerunFailedTestsAction.setModelProvider(new Getter[TestFrameworkRunningModel] {
+          def get: TestFrameworkRunningModel = {
+            consoleView.asInstanceOf[SMTRunnerConsoleView].getResultsViewer
+          }
+        })
+        res.setRestartActions(rerunFailedTestsAction)
+        res
       }
     }
-    state;
+    state
   }
 
   def getModule: Module = {
@@ -298,5 +326,22 @@ class ScalaTestRunConfiguration(val project: Project, val configurationFactory: 
     }
     testName = Option(JDOMExternalizer.readString(element, "testName")).getOrElse("")
     testKind = TestKind.fromString(Option(JDOMExternalizer.readString(element, "testKind")).getOrElse("Class"))
+  }
+}
+
+object ScalaTestRunConfiguration {
+  private[scalaTest] trait ScalaTestCommandLinePatcher {
+    private var failedTests: Seq[(String, String)] = null
+    def setFailedTests(failedTests: Seq[(String, String)]) {this.failedTests = failedTests}
+    def getFailedTests = failedTests
+    
+    def getClasses: Seq[String]
+
+    @BeanProperty
+    var configuration: RunConfigurationBase = null
+  }
+
+  private[scalaTest] trait ScalaPropertiesExtension {
+    def getRunConfigurationBase: RunConfigurationBase
   }
 }

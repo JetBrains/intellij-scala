@@ -5,14 +5,8 @@ import org.scalatest.Stopper;
 import org.scalatest.Suite;
 import org.scalatest.Tracker;
 import org.scalatest.tools.Runner;
-import scala.Option;
-import scala.Some;
 import scala.None$;
 import scala.Some$;
-import scala.Tuple2;
-import scala.collection.immutable.List;
-import scala.collection.immutable.Map;
-import scala.collection.immutable.Set;
 
 import java.util.ArrayList;
 
@@ -20,9 +14,11 @@ import java.util.ArrayList;
  * @author Alexander Podkhalyuzin
  */
 public class ScalaTestRunner {
-  public static void main(String[] args) {
+  public static void main(String[] args) throws ClassNotFoundException, InstantiationException, IllegalAccessException {
     ArrayList<String> argsArray = new ArrayList<String>();
     ArrayList<String> classes = new ArrayList<String>();
+    ArrayList<String> failedTests = new ArrayList<String>();
+    boolean failedUsed = false;
     String testName = "";
     int i = 0;
     int classIndex = 0;
@@ -40,33 +36,45 @@ public class ScalaTestRunner {
         ++i;
         testName = args[i];
         ++i;
+      } else if (args[i].equals("-failedTests")) {
+        failedUsed = true;
+        ++i;
+        while (i < args.length && !args[i].startsWith("-")) {
+          failedTests.add(args[i]);
+          ++i;
+        }
       } else {
         argsArray.add(args[i]);
         ++i;
       }
     }
     String[] arga = argsArray.toArray(new String[argsArray.size()]);
-    if (testName.equals("")) {
+    if (failedUsed) {
+      i = 0;
+      while (i + 1 < failedTests.size()) {
+        runSingleTest(failedTests.get(i + 1), failedTests.get(i));
+        i += 2;
+      }
+    } else if (testName.equals("")) {
       for (String clazz : classes) {
         arga[classIndex] = clazz;
         Runner.run(arga);
       }
     } else {
       for (String clazz : classes) {
-        try {
-          Class<?> aClass = ScalaTestRunner.class.getClassLoader().loadClass(clazz);
-          Suite suite = (Suite) aClass.newInstance();
-          org.scalatest.Suite$class.run(suite, Some$.MODULE$.apply(testName), new ScalaTestReporter(), new Stopper() {
-            public boolean apply() {
-              return false;
-            }
-          }, Filter$.MODULE$.apply(),
-          scala.collection.immutable.Map$.MODULE$.empty(), None$.MODULE$, new Tracker());
-        } catch (InstantiationException e) {
-        } catch (IllegalAccessException e) {
-        } catch (ClassNotFoundException e) {
-        }
+        runSingleTest(testName, clazz);
       }
     }
+  }
+
+  private static void runSingleTest(String testName, String clazz) throws IllegalAccessException, InstantiationException, ClassNotFoundException {
+    Class<?> aClass = ScalaTestRunner.class.getClassLoader().loadClass(clazz);
+    Suite suite = (Suite) aClass.newInstance();
+    org.scalatest.Suite$class.run(suite, Some$.MODULE$.apply(testName), new ScalaTestReporter(), new Stopper() {
+      public boolean apply() {
+        return false;
+      }
+    }, Filter$.MODULE$.apply(),
+        scala.collection.immutable.Map$.MODULE$.empty(), None$.MODULE$, new Tracker());
   }
 }
