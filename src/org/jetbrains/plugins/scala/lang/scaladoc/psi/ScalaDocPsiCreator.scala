@@ -4,7 +4,7 @@ package scaladoc
 package psi
 
 import _root_.org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
-import api.{ScDocTag, ScDocInlinedTag}
+import api.{ScDocTagValue, ScDocTag, ScDocInlinedTag}
 import impl._
 import parser.ScalaDocElementTypes
 import com.intellij.lang.ASTNode
@@ -12,6 +12,7 @@ import lexer.docsyntax.ScaladocSyntaxElementType
 import lexer.ScalaDocTokenType
 import com.intellij.psi.{JavaDocTokenType, PsiElement}
 import lang.psi.impl.base.ScStableCodeReferenceElementImpl
+import parser.parsing.MyScaladocParsing
 
 /**
 * User: Alexander Podkhalyuzin
@@ -43,7 +44,20 @@ object ScalaDocPsiCreator {
       case DOC_FIELD_REF => new ScDocFieldRefImpl(node)
       case DOC_METHOD_PARAMS => new ScDocMethodParamsImpl(node)
       case DOC_METHOD_PARAMETER => new ScDocMethodParameterImpl(node)
-      case ScalaDocTokenType.DOC_TAG_VALUE_TOKEN => new ScDocTagValueImpl(node)
+      case ScalaDocTokenType.DOC_TAG_VALUE_TOKEN =>
+//        new ScDocTagValueImpl(node)
+        var parent = node.getTreeParent
+
+        while (parent != null && parent.getPsi != null && !parent.getPsi.isInstanceOf[ScDocTag]) {
+          parent = parent.getTreeParent
+        }
+
+        if (parent != null && parent.getPsi != null &&
+                parent.getPsi.asInstanceOf[ScDocTag].getName == MyScaladocParsing.THROWS_TAG) {
+          new ScDocThrowTagValueImpl(node)
+        } else {
+          new ScDocTagValueImpl(node)
+        }
       case ScalaDocTokenType.DOC_CODE_LINK_VALUE => new ScDocResolvableCodeReferenceImpl(node)
     }
 }
