@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.testingSupport.scalaTest;
 
 import org.scalatest.Filter$;
+import org.scalatest.Reporter;
 import org.scalatest.Stopper;
 import org.scalatest.Suite;
 import org.scalatest.Tracker;
@@ -18,6 +19,11 @@ public class ScalaTestRunner {
     ArrayList<String> argsArray = new ArrayList<String>();
     ArrayList<String> classes = new ArrayList<String>();
     ArrayList<String> failedTests = new ArrayList<String>();
+    boolean withLocation = false;
+    try {
+      Class<?> clazz = ScalaTestRunner.class.getClassLoader().loadClass("org.scalatest.events.Location");
+      if (clazz != null) withLocation = true;
+    } catch (Throwable ignore) {}
     boolean failedUsed = false;
     String testName = "";
     int i = 0;
@@ -43,6 +49,10 @@ public class ScalaTestRunner {
           failedTests.add(args[i]);
           ++i;
         }
+      } else if (args[i].equals("-r") && withLocation) {
+        argsArray.add(args[i]);
+        if (i + 1 < args.length) argsArray.add(args[i + 1] + "WithLocation");
+        i += 2;
       } else {
         argsArray.add(args[i]);
         ++i;
@@ -52,7 +62,7 @@ public class ScalaTestRunner {
     if (failedUsed) {
       i = 0;
       while (i + 1 < failedTests.size()) {
-        runSingleTest(failedTests.get(i + 1), failedTests.get(i));
+        runSingleTest(failedTests.get(i + 1), failedTests.get(i), withLocation);
         i += 2;
       }
     } else if (testName.equals("")) {
@@ -62,16 +72,21 @@ public class ScalaTestRunner {
       }
     } else {
       for (String clazz : classes) {
-        runSingleTest(testName, clazz);
+        runSingleTest(testName, clazz, withLocation);
       }
     }
     System.exit(0);
   }
 
-  private static void runSingleTest(String testName, String clazz) throws IllegalAccessException, InstantiationException, ClassNotFoundException {
+  private static void runSingleTest(String testName, String clazz, boolean withLocation) throws IllegalAccessException, InstantiationException, ClassNotFoundException {
     Class<?> aClass = ScalaTestRunner.class.getClassLoader().loadClass(clazz);
     Suite suite = (Suite) aClass.newInstance();
-    org.scalatest.Suite$class.run(suite, Some$.MODULE$.apply(testName), new ScalaTestReporter(), new Stopper() {
+    String reporterQualName = "org.jetbrains.plugins.scala.testingSupport.scalaTest.ScalaTestReporter";
+    if (withLocation) reporterQualName += "WithLocation";
+    Class<?> reporterClass = ScalaTestRunner.class.getClassLoader().
+        loadClass(reporterQualName);
+    Reporter reporter = (Reporter) reporterClass.newInstance();
+    org.scalatest.Suite$class.run(suite, Some$.MODULE$.apply(testName), reporter, new Stopper() {
       public boolean apply() {
         return false;
       }
