@@ -9,7 +9,7 @@ import com.intellij.openapi.module.Module
 import com.intellij.psi._
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.util.PsiTreeUtil
-import configurations.{JavaRunConfigurationModule, RunConfiguration, ConfigurationFactory}
+import configurations.{ConfigurationType, JavaRunConfigurationModule, RunConfiguration, ConfigurationFactory}
 import icons.Icons
 import lang.psi.api.toplevel.typedef.ScTypeDefinition
 import lang.psi.ScalaPsiUtil
@@ -26,7 +26,7 @@ import lang.psi.api.base.ScLiteral
  * Date: 22.02.2009
  */
 
-class SpecsConfigurationType extends LocatableConfigurationType {
+class SpecsConfigurationType extends ConfigurationType {
   val confFactory = new SpecsRunConfigurationFactory(this)
 
   def getIcon: Icon = Icons.SCALA_TEST
