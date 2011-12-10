@@ -41,5 +41,6 @@ public class JavaSpecs2Runner {
       String[] runnerArgsArray = runnerArgs.toArray(new String[runnerArgs.size()]);
       runner.main(runnerArgsArray);
     }
+    System.exit(0);
   }
 }

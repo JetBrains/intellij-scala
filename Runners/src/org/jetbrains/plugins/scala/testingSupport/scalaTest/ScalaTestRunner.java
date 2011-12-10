@@ -65,6 +65,7 @@ public class ScalaTestRunner {
         runSingleTest(testName, clazz);
       }
     }
+    System.exit(0);
   }
 
   private static void runSingleTest(String testName, String clazz) throws IllegalAccessException, InstantiationException, ClassNotFoundException {
