@@ -32,6 +32,7 @@ import testframework.sm.runner.ui.SMTRunnerConsoleView
 import testframework.TestFrameworkRunningModel
 import com.intellij.openapi.util.{Getter, JDOMExternalizer, JDOMExternalizable}
 import scalaTest.ScalaTestRunConfiguration.ScalaPropertiesExtension
+import com.intellij.openapi.components.PathMacroManager
 
 /**
  * User: Alexander Podkhalyuzin
@@ -71,7 +72,9 @@ class ScalaTestRunConfiguration(val project: Project, val configurationFactory: 
   def getTestPackagePath = testPackagePath
   def getTestArgs = testArgs
   def getJavaOptions = javaOptions
-  def getWorkingDirectory: String = workingDirectory
+  def getWorkingDirectory: String = {
+    ExternalizablePath.localPathValue(workingDirectory)
+  }
   def setTestClassPath(s: String) {testClassPath = s}
   def setTestPackagePath(s: String) {
     testPackagePath = s
@@ -83,7 +86,7 @@ class ScalaTestRunConfiguration(val project: Project, val configurationFactory: 
     javaOptions = s
   }
   def setWorkingDirectory(s: String) {
-    workingDirectory = s
+    workingDirectory = ExternalizablePath.urlValue(s)
   }
 
   private var generatedName: String = ""
@@ -111,6 +114,15 @@ class ScalaTestRunConfiguration(val project: Project, val configurationFactory: 
 
   def getPackage(path: String): PsiPackage = {
     ScPackageImpl.findPackage(project, path)
+  }
+
+  private def expandPath(_path: String): String = {
+    var path = _path
+    path = PathMacroManager.getInstance(project).expandPath(path)
+    if (getModule != null) {
+      path = PathMacroManager.getInstance(getModule).expandPath(path)
+    }
+    path
   }
 
   def getState(executor: Executor, env: ExecutionEnvironment): RunProfileState = {
@@ -178,7 +190,8 @@ class ScalaTestRunConfiguration(val project: Project, val configurationFactory: 
 
         params.setCharset(null)
         params.getVMParametersList.addParametersString(getJavaOptions)
-        params.setWorkingDirectory(getWorkingDirectory)
+        val wDir = getWorkingDirectory
+        params.setWorkingDirectory(expandPath(wDir))
 //        params.getVMParametersList.addParametersString("-Xnoagent -Djava.compiler=NONE -Xdebug " +
 //          "-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5010")
 
@@ -309,9 +322,11 @@ class ScalaTestRunConfiguration(val project: Project, val configurationFactory: 
     JDOMExternalizer.write(element, "searchForTest", searchTest.toString)
     JDOMExternalizer.write(element, "testName", testName)
     JDOMExternalizer.write(element, "testKind", testKind.toString)
+    PathMacroManager.getInstance(getProject).collapsePathsRecursively(element)
   }
 
   override def readExternal(element: Element) {
+    PathMacroManager.getInstance(getProject).expandPaths(element)
     super.readExternal(element)
     JavaRunConfigurationExtensionManager.getInstance.writeExternal(this, element)
     readModule(element)
