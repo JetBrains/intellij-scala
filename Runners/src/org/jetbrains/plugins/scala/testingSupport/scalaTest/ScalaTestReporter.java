@@ -37,6 +37,16 @@ public class ScalaTestReporter implements Reporter {
         duration = ((java.lang.Long) durationOption.get()).longValue();
       }
       String testName = ((TestSucceeded) event).testName();
+
+      Option<Formatter> formatter = event.formatter();
+      if (formatter instanceof Some) {
+        if (formatter.get() instanceof IndentedText) {
+          IndentedText t = (IndentedText) formatter.get();
+          String escaped = escapeString(t.formattedText() + "\n");
+          System.out.println("\n##teamcity[message text='" + escaped + "' status='WARNING'" + "]");
+        }
+      }
+
       System.out.println("\n##teamcity[testFinished name='" + escapeString(testName) +
           "' duration='"+ duration +"']");
     } else if (event instanceof TestFailed) {
@@ -91,6 +101,13 @@ public class ScalaTestReporter implements Reporter {
       }
     } else if (event instanceof InfoProvided) {
       String message = ((InfoProvided) event).message();
+      Option<Formatter> formatter = event.formatter();
+      if (formatter instanceof Some) {
+        if (formatter.get() instanceof IndentedText) {
+          IndentedText t = (IndentedText) formatter.get();
+          message = t.formattedText();
+        }
+      }
       String escapedMessage = escapeString(message + "\n");
       if (!escapedMessage.isEmpty()) {
         System.out.println("\n##teamcity[message text='" + escapedMessage + "' status='WARNING'" + "]");
