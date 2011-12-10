@@ -16,7 +16,6 @@ import com.intellij.util.PathUtil
 import org.jdom.Element
 import com.intellij.execution.configurations._
 import java.lang.String
-import lang.psi.impl.ScPackageImpl
 import specs.JavaSpecsRunner
 import config.ScalaFacet
 import collection.JavaConversions._
@@ -33,6 +32,8 @@ import testframework.TestFrameworkRunningModel
 import com.intellij.openapi.util.{Getter, JDOMExternalizer, JDOMExternalizable}
 import scalaTest.ScalaTestRunConfiguration.ScalaPropertiesExtension
 import com.intellij.openapi.components.PathMacroManager
+import lang.psi.impl.{ScalaPsiManager, ScPackageImpl}
+import lang.psi.api.toplevel.typedef.ScObject
 
 /**
  * User: Alexander Podkhalyuzin
@@ -107,13 +108,41 @@ class ScalaTestRunConfiguration(val project: Project, val configurationFactory: 
     setTestName(configuration.getTestName)
   }
 
-  def getClazz(path: String): PsiClass = {
-    val facade = JavaPsiFacade.getInstance(project)
-    facade.findClass(path, GlobalSearchScope.allScope(project))
+  def getClazz(path: String, withDependencies: Boolean): PsiClass = {
+    val classes = ScalaPsiManager.instance(project).getCachedClasses(getScope(withDependencies), path).
+      filter(!_.isInstanceOf[ScObject])
+    if (classes.isEmpty) null
+    else classes(0)
   }
 
   def getPackage(path: String): PsiPackage = {
     ScPackageImpl.findPackage(project, path)
+  }
+  
+  private def getScope(withDependencies: Boolean): GlobalSearchScope = {
+    def mScope(module: Module) = {
+      if (withDependencies) GlobalSearchScope.moduleWithDependenciesAndLibrariesScope(module)
+      else GlobalSearchScope.moduleScope(module)
+    }
+    testKind match {
+      case TestKind.ALL_IN_PACKAGE =>
+        searchTest match {
+          case SearchForTest.IN_WHOLE_PROJECT => GlobalSearchScope.allScope(project)
+          case SearchForTest.IN_SINGLE_MODULE if getModule != null => mScope(getModule)
+          case SearchForTest.ACCROSS_MODULE_DEPENDENCIES if getModule != null =>
+            var scope: GlobalSearchScope = mScope(getModule)
+            for (module <- ModuleManager.getInstance(getProject).getModules) {
+              if (ModuleManager.getInstance(getProject).isModuleDependent(module, getModule)) {
+                scope = scope.union(mScope(module))
+              }
+            }
+            scope
+          case _ => GlobalSearchScope.allScope(project)
+        }
+      case _ =>
+        if (getModule != null) mScope(getModule)
+        else GlobalSearchScope.allScope(project)
+    }
   }
 
   private def expandPath(_path: String): String = {
@@ -123,6 +152,50 @@ class ScalaTestRunConfiguration(val project: Project, val configurationFactory: 
       path = PathMacroManager.getInstance(getModule).expandPath(path)
     }
     path
+  }
+
+  override def checkConfiguration() {
+    super.checkConfiguration()
+
+     val suiteClass = getClazz(SUITE_PATH, true)
+
+    if (suiteClass == null) {
+      throw new RuntimeConfigurationException("ScalaTest is not specified")
+    }
+
+    testKind match {
+      case TestKind.ALL_IN_PACKAGE =>
+        searchTest match {
+          case SearchForTest.IN_WHOLE_PROJECT =>
+          case SearchForTest.IN_SINGLE_MODULE | SearchForTest.ACCROSS_MODULE_DEPENDENCIES =>
+            if (getModule == null) {
+              throw new RuntimeConfigurationException("Module is not specified")
+            }
+        }
+        val pack = JavaPsiFacade.getInstance(project).findPackage(getTestPackagePath)
+        if (pack == null) {
+          throw new RuntimeConfigurationException("Package doesn't exist")
+        }
+      case TestKind.CLASS | TestKind.TEST_NAME =>
+        if (getModule == null) {
+          throw new RuntimeConfigurationException("Module is not specified")
+        }
+        if (getTestClassPath == "") {
+          throw new RuntimeConfigurationException("Test Class is not specified")
+        }
+        val clazz = getClazz(getTestClassPath, false)
+        if (clazz == null) {
+          throw new RuntimeConfigurationException("Class %s is not found in module %s".format(getTestClassPath, 
+            getModule.getName))
+        }
+
+        if (!ScalaPsiUtil.cachedDeepIsInheritor(clazz, suiteClass)) {
+          throw new RuntimeConfigurationException("Class %s is not inheritor of Suite trait".format(getTestClassPath))
+        }
+        //todo: check test name
+    }
+    
+    JavaRunConfigurationExtensionManager.checkConfigurationIsValid(this)
   }
 
   def getState(executor: Executor, env: ExecutionEnvironment): RunProfileState = {
@@ -135,11 +208,11 @@ class ScalaTestRunConfiguration(val project: Project, val configurationFactory: 
     try {
       testKind match {
         case TestKind.CLASS | TestKind.TEST_NAME =>
-          clazz = getClazz(testClassPath)
+          clazz = getClazz(testClassPath, false)
         case TestKind.ALL_IN_PACKAGE =>
           pack = getPackage(testPackagePath)
       }
-      suiteClass = getClazz(SUITE_PATH)
+      suiteClass = getClazz(SUITE_PATH, true)
     }
     catch {
       case e => classNotFoundError()
@@ -151,18 +224,7 @@ class ScalaTestRunConfiguration(val project: Project, val configurationFactory: 
     if (clazz != null) {
       if (ScalaPsiUtil.cachedDeepIsInheritor(clazz, suiteClass)) classes += clazz
     } else {
-      val scope = searchTest match {
-        case SearchForTest.IN_WHOLE_PROJECT => GlobalSearchScope.allScope(getProject)
-        case SearchForTest.IN_SINGLE_MODULE => GlobalSearchScope.moduleScope(getModule)
-        case SearchForTest.ACCROSS_MODULE_DEPENDENCIES => 
-          var scope: GlobalSearchScope = GlobalSearchScope.moduleScope(getModule)
-          for (module <- ModuleManager.getInstance(getProject).getModules) {
-            if (ModuleManager.getInstance(getProject).isModuleDependent(module, getModule)) {
-              scope = scope.union(GlobalSearchScope.moduleScope(module))
-            }
-          }
-          scope
-      }
+      val scope = getScope(false)
       def getClasses(pack: PsiPackage): Seq[PsiClass] = {
         val buffer = new ArrayBuffer[PsiClass]
         

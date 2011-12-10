@@ -11,13 +11,13 @@ import com.intellij.psi._
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.util.PsiTreeUtil
 import icons.Icons
-import lang.psi.api.toplevel.typedef.ScTypeDefinition
 import script.ScalaScriptRunConfigurationFactory
 import lang.psi.ScalaPsiUtil
 import com.intellij.openapi.module.{ModuleManager, Module}
 import com.intellij.facet.FacetManager
 import com.intellij.execution._
 import com.intellij.openapi.roots.ProjectRootManager
+import lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
 
 /**
  * User: Alexander Podkhalyuzin
@@ -56,7 +56,7 @@ class ScalaTestConfigurationType extends ConfigurationType {
       return settings
     }
     val parent: ScTypeDefinition = PsiTreeUtil.getParentOfType(element, classOf[ScTypeDefinition], false)
-    if (parent == null) return null
+    if (parent == null || parent.isInstanceOf[ScObject]) return null
     val facade = JavaPsiFacade.getInstance(element.getProject)
     val suiteClazz = facade.findClass("org.scalatest.Suite", GlobalSearchScope.allScope(element.getProject))
     if (suiteClazz == null) return null
@@ -95,7 +95,7 @@ class ScalaTestConfigurationType extends ConfigurationType {
       }
     }
     val parent: ScTypeDefinition = PsiTreeUtil.getParentOfType(element, classOf[ScTypeDefinition])
-    if (parent == null) return false
+    if (parent == null || parent.isInstanceOf[ScObject]) return false
     val facade = JavaPsiFacade.getInstance(element.getProject)
     val suiteClazz = facade.findClass("org.scalatest.Suite", GlobalSearchScope.allScope(element.getProject))
     if (suiteClazz == null) return false
