@@ -17,13 +17,14 @@ import lang.psi.ScalaPsiUtil
 import com.intellij.openapi.module.{ModuleManager, Module}
 import com.intellij.facet.FacetManager
 import com.intellij.execution._
+import com.intellij.openapi.roots.ProjectRootManager
 
 /**
  * User: Alexander Podkhalyuzin
  * Date: 22.02.2009
  */
 
-class ScalaTestConfigurationType extends LocatableConfigurationType {
+class ScalaTestConfigurationType extends ConfigurationType {
   val confFactory = new ScalaTestRunConfigurationFactory(this)
 
   def getIcon: Icon = Icons.SCALA_TEST

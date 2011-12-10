@@ -7,7 +7,7 @@ import _root_.javax.swing.Icon
 import com.intellij.execution._
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
-import configurations.{RunConfiguration, ConfigurationFactory}
+import configurations.{ConfigurationType, RunConfiguration, ConfigurationFactory}
 import icons.Icons
 import lang.psi.api.toplevel.typedef.ScTypeDefinition
 import lang.psi.ScalaPsiUtil
@@ -18,7 +18,7 @@ import lang.psi.api.base.ScLiteral
  * User: Alexander Podkhalyuzin
  * Date: 03.05.2009
  */
-class Specs2ConfigurationType extends LocatableConfigurationType {
+class Specs2ConfigurationType extends ConfigurationType {
   val confFactory = new Specs2RunConfigurationFactory(this)
 
   def getIcon: Icon = Icons.SCALA_TEST
