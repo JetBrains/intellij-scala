@@ -67,7 +67,9 @@ public class ScalaTestReporter implements Reporter {
       System.out.println("\n##teamcity[testIgnored name='" + escapeString(testName) + "' message='" +
           escapeString("") + "']");
     } else if (event instanceof TestPending) {
-
+      String testName = ((TestPending) event).testName();
+      System.out.println("\n##teamcity[testFinished name='" + escapeString(testName) +
+          "' duration='" + 0 +"']");
     } else if (event instanceof SuiteStarting) {
       String suiteName = ((SuiteStarting) event).suiteName();
       System.out.println("\n##teamcity[testSuiteStarted name='" + escapeString(suiteName) + "']");
