@@ -2,16 +2,14 @@ package org.jetbrains.plugins.scala
 package base
 
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.{ScalaFileType}
+import org.jetbrains.plugins.scala.ScalaFileType
 import com.intellij.psi.{PsiElement, PsiWhiteSpace, PsiComment, PsiFileFactory}
-import junit.framework.{TestCase, Assert}
+import junit.framework.Assert
 import org.intellij.lang.annotations.Language
 import org.jetbrains.plugins.scala.extensions._
-import util.ScalaUtils
-import com.intellij.testFramework.builders.EmptyModuleFixtureBuilder
-import com.intellij.util.PathUtil
 import com.intellij.testFramework.fixtures._
 import com.intellij.testFramework.UsefulTestCase
+import com.intellij.psi.impl.source.tree.LeafPsiElement
 
 /**
  * Pavel.Fatin, 18.05.2010
@@ -61,6 +59,16 @@ abstract class SimpleTestCase extends UsefulTestCase {
     Assert.assertTrue("actual: " + actual.toString, pattern.isDefinedAt(actual))
   }
 
+  def describe(tree: PsiElement): String = toString(tree, 0)
+  
+  private def toString(root: PsiElement, level: Int): String = {
+    val indent = List.fill(level)("  ").mkString
+    val content = if (root.isInstanceOf[LeafPsiElement])
+      "\"%s\"".format(root.getText) else root.getClass.getSimpleName
+    val title = "%s%s\n".format(indent, content)
+    title + root.children.map(toString(_, level + 1)).mkString
+  }
+  
   class ScalaCode(@Language("Scala") s: String) {
     def stripComments: String =
       s.replaceAll("""(?s)/\*.*?\*/""", "")
