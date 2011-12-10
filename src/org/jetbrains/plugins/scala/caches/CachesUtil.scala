@@ -11,9 +11,9 @@ import lang.psi.api.base.types.ScTypeElement
 import com.intellij.openapi.util.{Computable, RecursionManager, RecursionGuard, Key}
 import lang.psi.api.expr.ScExpression
 import lang.psi.api.toplevel.imports.usages.ImportUsed
-import collection.mutable.{ArrayBuffer, Map, HashMap}
+import collection.mutable.ArrayBuffer
 import lang.resolve.ScalaResolveResult
-import lang.psi.types.{ScUndefinedSubstitutor, ScSubstitutor, Signature, ScType}
+import lang.psi.types.{ScUndefinedSubstitutor, ScSubstitutor, ScType}
 import lang.psi.api.statements.params.{ScTypeParamClause, ScParameterClause}
 import com.intellij.util.containers.ConcurrentHashMap
 
@@ -71,7 +71,6 @@ object CachesUtil {
   val PSI_RETURN_TYPE_KEY: Key[CachedValue[PsiType]] = Key.create("psi.return.type.key")
   val SUPER_TYPES_KEY: Key[CachedValue[List[ScType]]] = Key.create("super.types.key")
   val EXTENDS_BLOCK_SUPER_TYPES_KEY: Key[CachedValue[List[ScType]]] = Key.create("extends.block.super.types.key")
-  val SIGNATURES_MAP_KEY: Key[CachedValue[HashMap[Signature, ScType]]] = Key.create("signatures.map.key")
   val LINEARIZATION_KEY: Key[CachedValue[Seq[ScType]]] = Key.create("linearization.key")
   val FAKE_CLASS_COMPANION: Key[CachedValue[Option[ScObject]]] = Key.create("fake.class.companion.key")
   val EFFECTIVE_PARAMETER_CLAUSE: Key[CachedValue[Seq[ScParameterClause]]] =
@@ -126,9 +125,14 @@ object CachesUtil {
     def compute() = new CachedValueProvider.Result(builder(e), dependencyItem)
   }
 
-  private val guards: Map[String, RecursionGuard] = Map()
+  private val guards: ConcurrentHashMap[String, RecursionGuard] = new ConcurrentHashMap()
   private def getRecursionGuard(id: String): RecursionGuard = {
-    guards.getOrElseUpdate(id, RecursionManager.createGuard(id))
+    val guard = guards.get(id)
+    if (guard == null) {
+      val result = RecursionManager.createGuard(id)
+      guards.put(id, result)
+      result
+    } else guard
   }
   
   def getMappedWithRecursionPreventing[Dom <: PsiElement, Data, Result](e: Dom, data: Data,
