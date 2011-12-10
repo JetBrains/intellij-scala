@@ -83,6 +83,7 @@ public class JavaSpecsRunner {
         }
       }
     }
+    System.exit(0);
   }
 
   private static String findTestClassName(String clazz, StringBuilder diagnostics) {

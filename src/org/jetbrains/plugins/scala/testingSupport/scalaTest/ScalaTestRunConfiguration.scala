@@ -10,12 +10,10 @@ import com.intellij.execution.testframework.sm.runner.SMTRunnerConsoleProperties
 import com.intellij.execution.testframework.sm.SMTestRunnerConnectionUtil
 import com.intellij.execution.testframework.ui.BaseTestsOutputConsoleView
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.util.{JDOMExternalizer, JDOMExternalizable}
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.{PsiPackage, JavaPsiFacade, PsiClass}
 import com.intellij.util.PathUtil
 import org.jdom.Element
-import com.intellij.openapi.module.Module
 import com.intellij.execution.configurations._
 import java.lang.String
 import lang.psi.impl.ScPackageImpl
@@ -26,6 +24,14 @@ import lang.psi.ScalaPsiUtil
 import com.intellij.openapi.options.{SettingsEditorGroup, SettingsEditor}
 import com.intellij.diagnostic.logging.LogConfigurationPanel
 import com.intellij.openapi.extensions.Extensions
+import reflect.BeanProperty
+import com.intellij.openapi.module.{ModuleManager, Module}
+import com.intellij.openapi.projectRoots.Sdk
+import scalaTest.ScalaTestRunConfigurationForm.{TestKind, SearchForTest}
+import testframework.sm.runner.ui.SMTRunnerConsoleView
+import testframework.TestFrameworkRunningModel
+import com.intellij.openapi.util.{Getter, JDOMExternalizer, JDOMExternalizable}
+import scalaTest.ScalaTestRunConfiguration.ScalaPropertiesExtension
 
 /**
  * User: Alexander Podkhalyuzin
@@ -51,6 +57,15 @@ class ScalaTestRunConfiguration(val project: Project, val configurationFactory: 
     if (base != null) base.getPath
     else ""
   }
+
+  @BeanProperty
+  var searchTest: SearchForTest = SearchForTest.ACCROSS_MODULE_DEPENDENCIES
+
+  @BeanProperty
+  var testName = ""
+
+  @BeanProperty
+  var testKind = TestKind.CLASS
 
   def getTestClassPath = testClassPath
   def getTestPackagePath = testPackagePath
@@ -78,18 +93,15 @@ class ScalaTestRunConfiguration(val project: Project, val configurationFactory: 
   override def suggestedName = getGeneratedName
 
   def apply(configuration: ScalaTestRunConfigurationForm) {
-    if (configuration.isClassSelected) {
-      setTestClassPath(configuration.getTestClassPath)
-      setTestPackagePath("")
-    }
-    else {
-      setTestClassPath("")
-      setTestPackagePath(configuration.getTestPackagePath)
-    }
+    testKind = configuration.getSelectedKind
+    setTestClassPath(configuration.getTestClassPath)
+    setTestPackagePath(configuration.getTestPackagePath)
+    setSearchTest(configuration.getSearchForTest)
     setJavaOptions(configuration.getJavaOptions)
     setTestArgs(configuration.getTestArgs)
     setModule(configuration.getModule)
     setWorkingDirectory(configuration.getWorkingDirectory)
+    setTestName(configuration.getTestName)
   }
 
   def getClazz(path: String): PsiClass = {
@@ -109,10 +121,12 @@ class ScalaTestRunConfiguration(val project: Project, val configurationFactory: 
     var suiteClass: PsiClass = null
     var pack: PsiPackage = null
     try {
-      if (testClassPath != "")
-        clazz = getClazz(testClassPath)
-      else
-        pack = getPackage(testPackagePath)
+      testKind match {
+        case TestKind.CLASS | TestKind.TEST_NAME =>
+          clazz = getClazz(testClassPath)
+        case TestKind.ALL_IN_PACKAGE =>
+          pack = getPackage(testPackagePath)
+      }
       suiteClass = getClazz(SUITE_PATH)
     }
     catch {
@@ -125,9 +139,22 @@ class ScalaTestRunConfiguration(val project: Project, val configurationFactory: 
     if (clazz != null) {
       if (ScalaPsiUtil.cachedDeepIsInheritor(clazz, suiteClass)) classes += clazz
     } else {
+      val scope = searchTest match {
+        case SearchForTest.IN_WHOLE_PROJECT => GlobalSearchScope.allScope(getProject)
+        case SearchForTest.IN_SINGLE_MODULE => GlobalSearchScope.moduleScope(getModule)
+        case SearchForTest.ACCROSS_MODULE_DEPENDENCIES => 
+          var scope: GlobalSearchScope = GlobalSearchScope.moduleScope(getModule)
+          for (module <- ModuleManager.getInstance(getProject).getModules) {
+            if (ModuleManager.getInstance(getProject).isModuleDependent(module, getModule)) {
+              scope = scope.union(GlobalSearchScope.moduleScope(module))
+            }
+          }
+          scope
+      }
       def getClasses(pack: PsiPackage): Seq[PsiClass] = {
         val buffer = new ArrayBuffer[PsiClass]
-        buffer ++= pack.getClasses
+        
+        buffer ++= pack.getClasses(scope)
         for (p <- pack.getSubPackages) {
           buffer ++= getClasses(p)
         }
@@ -143,7 +170,9 @@ class ScalaTestRunConfiguration(val project: Project, val configurationFactory: 
     val module = getModule
     if (module == null) throw new ExecutionException("Module is not specified")
 
-    val state = new JavaCommandLineState(env) {
+    val state = new JavaCommandLineState(env) with ScalaTestRunConfiguration.ScalaTestCommandLinePatcher {
+      val getClasses: Seq[String] = classes.map(_.getQualifiedName)
+
       protected override def createJavaParameters: JavaParameters = {
         val params = new JavaParameters();
 
@@ -155,12 +184,40 @@ class ScalaTestRunConfiguration(val project: Project, val configurationFactory: 
 
         val rtJarPath = PathUtil.getJarPathForClass(classOf[JavaSpecsRunner])
         params.getClassPath.add(rtJarPath)
-        params.configureByModule(module, JavaParameters.JDK_AND_CLASSES_AND_TESTS)
+        searchTest match {
+          case SearchForTest.IN_WHOLE_PROJECT =>
+            var jdk: Sdk = null
+            for (module <- ModuleManager.getInstance(project).getModules if jdk == null) {
+              jdk = JavaParameters.getModuleJdk(module)
+            }
+            params.configureByProject(project, JavaParameters.JDK_AND_CLASSES_AND_TESTS, jdk)
+          case _ =>
+            params.configureByModule(module, JavaParameters.JDK_AND_CLASSES_AND_TESTS)
+            for (module <- ModuleManager.getInstance(getProject).getModules) {
+              if (ModuleManager.getInstance(getProject).isModuleDependent(module, getModule)) {
+                params.configureByModule(module, JavaParameters.JDK_AND_CLASSES_AND_TESTS,
+                  JavaParameters.getModuleJdk(getModule))
+              }
+            }
+        }
 
         params.setMainClass(mainClass)
 
-        params.getProgramParametersList.add("-s")
-        for (cl <- classes) params.getProgramParametersList.add(cl.getQualifiedName)
+        if (getFailedTests == null) {
+          params.getProgramParametersList.add("-s")
+          for (cl <- getClasses) params.getProgramParametersList.add(cl)
+        
+          if (testKind == TestKind.TEST_NAME && testName != "") {
+            params.getProgramParametersList.add("-testName")
+            params.getProgramParametersList.add(testName)
+          }
+        } else {
+          params.getProgramParametersList.add("-failedTests")
+          for (failed <- getFailedTests) {
+            params.getProgramParametersList.add(failed._1)
+            params.getProgramParametersList.add(failed._2)
+          }
+        }
 
         params.getProgramParametersList.add("-r")
         params.getProgramParametersList.add(reporterClass)
@@ -175,20 +232,35 @@ class ScalaTestRunConfiguration(val project: Project, val configurationFactory: 
       override def execute(executor: Executor, runner: ProgramRunner[_ <: JDOMExternalizable]): ExecutionResult = {
         val processHandler = startProcess
         val runnerSettings = getRunnerSettings
-        val config = ScalaTestRunConfiguration.this
-        JavaRunConfigurationExtensionManager.getInstance.attachExtensionsToProcess(config, processHandler, runnerSettings)
-        val consoleProperties = new SMTRunnerConsoleProperties(config, "Scala", executor);
+        if (getConfiguration() == null) setConfiguration(ScalaTestRunConfiguration.this)
+        val config = getConfiguration()
+        JavaRunConfigurationExtensionManager.getInstance.
+          attachExtensionsToProcess(ScalaTestRunConfiguration.this, processHandler, runnerSettings)
+        val consoleProperties = new SMTRunnerConsoleProperties(ScalaTestRunConfiguration.this, "Scala", executor)
+          with ScalaPropertiesExtension {
+          def getRunConfigurationBase: RunConfigurationBase = config
+        }
 
         // console view
-        val testRunnerConsole: BaseTestsOutputConsoleView = SMTestRunnerConnectionUtil.createAndAttachConsole("Scala",
+        val consoleView: BaseTestsOutputConsoleView = SMTestRunnerConnectionUtil.createAndAttachConsole("Scala",
             processHandler, consoleProperties, runnerSettings.asInstanceOf[RunnerSettings[_ <: JDOMExternalizable]],
             getConfigurationSettings)
 
+        val res = new DefaultExecutionResult(consoleView, processHandler,
+          createActions(consoleView, processHandler, executor): _*)
 
-        new DefaultExecutionResult(testRunnerConsole, processHandler, createActions(testRunnerConsole, processHandler): _*)
+        val rerunFailedTestsAction = new ScalaTestRerunFailedTestsAction(consoleView.getComponent)
+        rerunFailedTestsAction.init(consoleView.getProperties, getRunnerSettings, getConfigurationSettings)
+        rerunFailedTestsAction.setModelProvider(new Getter[TestFrameworkRunningModel] {
+          def get: TestFrameworkRunningModel = {
+            consoleView.asInstanceOf[SMTRunnerConsoleView].getResultsViewer
+          }
+        })
+        res.setRestartActions(rerunFailedTestsAction)
+        res
       }
     }
-    state;
+    state
   }
 
   def getModule: Module = {
@@ -199,6 +271,23 @@ class ScalaTestRunConfiguration(val project: Project, val configurationFactory: 
     new ScalaTestRunConfiguration(getProject, getFactory, getName)
 
   def getValidModules: java.util.List[Module] = ScalaFacet.findModulesIn(getProject).toList
+
+  override def getModules: Array[Module] = {
+    searchTest match {
+      case SearchForTest.ACCROSS_MODULE_DEPENDENCIES if getModule != null =>
+        val buffer = new ArrayBuffer[Module]()
+        buffer += getModule
+        for (module <- ModuleManager.getInstance(getProject).getModules) {
+          if (ModuleManager.getInstance(getProject).isModuleDependent(module, getModule)) {
+            buffer += module
+          }
+        }
+        buffer.toArray
+      case SearchForTest.IN_SINGLE_MODULE if getModule != null => Array(getModule)
+      case SearchForTest.IN_WHOLE_PROJECT =>  ModuleManager.getInstance(getProject).getModules
+      case _ => Array.empty
+    }
+  }
 
   def getConfigurationEditor: SettingsEditor[_ <: RunConfiguration] = {
     val group: SettingsEditorGroup[ScalaTestRunConfiguration] = new SettingsEditorGroup
@@ -217,6 +306,9 @@ class ScalaTestRunConfiguration(val project: Project, val configurationFactory: 
     JDOMExternalizer.write(element, "vmparams", getJavaOptions)
     JDOMExternalizer.write(element, "params", getTestArgs)
     JDOMExternalizer.write(element, "workingDirectory", workingDirectory)
+    JDOMExternalizer.write(element, "searchForTest", searchTest.toString)
+    JDOMExternalizer.write(element, "testName", testName)
+    JDOMExternalizer.write(element, "testKind", testKind.toString)
   }
 
   override def readExternal(element: Element) {
@@ -227,7 +319,29 @@ class ScalaTestRunConfiguration(val project: Project, val configurationFactory: 
     testPackagePath = JDOMExternalizer.readString(element, "package")
     javaOptions = JDOMExternalizer.readString(element, "vmparams")
     testArgs = JDOMExternalizer.readString(element, "params")
-    val pp = JDOMExternalizer.readString(element, "workingDirectory")
-    if (pp != null) workingDirectory = pp
+    workingDirectory = JDOMExternalizer.readString(element, "workingDirectory")
+    val s = JDOMExternalizer.readString(element, "searchForTest")
+    for (search <- SearchForTest.values()) {
+      if (search.toString == s) searchTest = search
+    }
+    testName = Option(JDOMExternalizer.readString(element, "testName")).getOrElse("")
+    testKind = TestKind.fromString(Option(JDOMExternalizer.readString(element, "testKind")).getOrElse("Class"))
+  }
+}
+
+object ScalaTestRunConfiguration {
+  private[scalaTest] trait ScalaTestCommandLinePatcher {
+    private var failedTests: Seq[(String, String)] = null
+    def setFailedTests(failedTests: Seq[(String, String)]) {this.failedTests = failedTests}
+    def getFailedTests = failedTests
+    
+    def getClasses: Seq[String]
+
+    @BeanProperty
+    var configuration: RunConfigurationBase = null
+  }
+
+  private[scalaTest] trait ScalaPropertiesExtension {
+    def getRunConfigurationBase: RunConfigurationBase
   }
 }
