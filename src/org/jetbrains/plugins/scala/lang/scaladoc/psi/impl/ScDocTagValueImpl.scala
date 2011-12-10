@@ -43,8 +43,6 @@ class ScDocTagValueImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
 
   def getValue: String = getText
 
-//  def getElement: PsiElement = getFirstChild
-  
   def bindToElement(element: PsiElement): PsiElement = {
     element match {
       case _ : ScParameter => this
