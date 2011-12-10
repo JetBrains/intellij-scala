@@ -188,6 +188,10 @@ object ScalaPsiElementFactory {
   def parseElement(text: String, manager: PsiManager): PsiElement = {
     parseFile(text, manager).getFirstChild
   }
+  
+  def createPackaging(name: String, manager: PsiManager): PsiElement = {
+    parseFile("package %s".format(name), manager).getFirstChild
+  }
 
   def createMethodFromText(text: String, manager: PsiManager): ScFunction = {
     val dummyFile = PsiFileFactory.getInstance(manager.getProject).

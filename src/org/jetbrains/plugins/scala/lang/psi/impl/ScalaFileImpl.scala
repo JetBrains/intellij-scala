@@ -192,43 +192,28 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
       new CachesUtil.MyProvider(this, (file: ScalaFile) => isScriptFileImpl)(this))
   }
 
-  /**
-   * Inconsistent with Scala syntax (nested packages)
-   */
-  @Deprecated
   def setPackageName(name: String) {
-    if (packageName == null) return
-
-    val document: Document = PsiDocumentManager.getInstance(getProject).getDocument(this)
-    val basePackage: Option[String] = for {
+    val basePackage = for {
       m <- Option(ScalaPsiUtil.getModule(this))
       facet <- ScalaFacet.findIn(m)
       p <- facet.basePackage
     } yield p
 
-    val packageText = basePackage match {
-      case Some(pack) if name.startsWith(pack + ".") =>
-        val remaining = name.stripPrefix(pack + ".").split("\\.")
-        (pack +: remaining).map("package " + _).mkString("\n") + "\n\n"
-      case _ => if (name.isEmpty) "" else "package " + name + "\n\n"
-    }
-
-    try {
-      stripPackagings(document)
-      document.insertString(0, packageText)
-    } finally {
-      PsiDocumentManager.getInstance(getProject).commitDocument(document)
-    }
+    setPackageName(basePackage.mkString, name)
   }
 
-  private def stripPackagings(document: Document) {
-    depthFirst.findByType(classOf[ScPackaging]).foreach { p =>
-      val startOffset = p.getTextOffset
-      val endOffset = startOffset + p.getTextLength
-      document.replaceString(startOffset, endOffset, p.getBodyText.trim)
-      PsiDocumentManager.getInstance(getProject).commitDocument(document)
-      stripPackagings(document)
-    }
+  def setPackageName(base: String, name: String) {
+    if (packageName == null) return
+
+    val splits = ScalaFileImpl.toVector(base) :: ScalaFileImpl.splitsIn(ScalaFileImpl.pathIn(this))
+
+    ScalaFileImpl.stripPackagesIn(this)
+
+    val vector = ScalaFileImpl.toVector(name)
+
+    val path = if (vector.nonEmpty) splits.foldLeft(List(vector))(ScalaFileImpl.splitAt) else Nil
+
+    ScalaFileImpl.addPathTo(this, path)
   }
 
   override def getStub: ScFileStub = super[PsiFileBase].getStub match {
@@ -524,7 +509,56 @@ object ImplicitlyImported {
 
 }
 
-private object ScalaFileImpl {
+object ScalaFileImpl {
   private var LOG: Logger = Logger.getInstance("#org.jetbrains.plugins.scala.lang.psi.impl.ScalaFileImpl")
   val SCRIPT_KEY = new Key[java.lang.Boolean]("Is Script Key")
+  val CONTEXT_KEY = new Key[PsiElement]("context.key")
+  val CHILD_KEY = new Key[PsiElement]("child.key")
+
+  def pathIn(root: PsiElement): List[List[String]] =
+    packagingsIn(root).map(packaging => toVector(packaging.getPackageName))
+
+  private def packagingsIn(root: PsiElement): List[ScPackaging] = {
+    root.children.findByType(classOf[ScPackaging]).headOption match {
+      case Some(packaging) => packaging :: packagingsIn(packaging)
+      case _ => Nil
+    }
+  }
+
+  def splitsIn(path: List[List[String]]): List[List[String]] =
+    path.scanLeft(List[String]())((vs, v) => vs ::: v).tail.dropRight(1)
+
+  def splitAt(path: List[List[String]], vector: List[String]): List[List[String]] = {
+    if (vector.isEmpty) path else path match {
+      case h :: t if h == vector => h :: t
+      case h :: t if vector.startsWith(h) => h :: splitAt(t, vector.drop(h.size))
+      case h :: t if h.startsWith(vector) => h.take(vector.size) :: h.drop(vector.size) :: t
+      case it => it
+    }
+  }
+  
+  def addPathTo(file: ScalaFile, path: List[List[String]]) {
+    val innermost = path.lastOption
+    path.reverse.foreach { packaging =>
+      addOuterPackagingTo(file, packaging.mkString("."), Some(packaging) == innermost)
+    }  
+  }
+
+  private def addOuterPackagingTo(file: ScalaFile, name: String, separate: Boolean) {
+    val packaging = ScalaPsiElementFactory.createPackaging(name, file.getManager)
+
+    if (file.children.isEmpty) {
+      file.add(packaging)
+    } else {
+      val delimiter = if (separate) "\n\n" else "\n"
+      file.addBefore(ScalaPsiElementFactory.parseElement(delimiter, file.getManager), file.getFirstChild)
+      file.wrapChildrenIn(packaging)
+    }
+  }
+  
+  def stripPackagesIn(file: ScalaFile) {
+    file.depthFirst.filterByType(classOf[ScPackaging]).toList.reverse.foreach(_.strip())
+  }
+  
+  def toVector(name: String): List[String] = if (name.isEmpty) Nil else name.split('.').toList
 }

@@ -9,25 +9,20 @@ import api.base.ScStableCodeReferenceElement
 import com.intellij.lang.ASTNode
 import com.intellij.psi._
 import com.intellij.psi.scope.PsiScopeProcessor
-import com.intellij.psi.stubs.IStubElementType
-import impl.file.PsiPackageImpl._
 import lexer.ScalaTokenTypes
 import parser.ScalaElementTypes
-import psi.ScalaPsiElementImpl
 import api.toplevel.packaging._
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScPackageContainerStub
-import psi.stubs.elements.wrappers.DummyASTNode
 import com.intellij.openapi.progress.ProgressManager
 import java.lang.String
-import api.toplevel.typedef.{ScObject, ScTypeDefinition}
+import api.toplevel.typedef.ScTypeDefinition
 import search.GlobalSearchScope
-import tree.{IElementType, TokenSet}
-import com.intellij.util.ArrayFactory
+import tree.TokenSet
 import collection.mutable.ArrayBuffer
-import caches.{CachesUtil, ScalaCachesManager}
+import caches.ScalaCachesManager
 
 /**
- * @author Alexander Podkhalyuzin
+ * @author Alexander Podkhalyuzin, Pavel Fatin
  * Date: 20.02.2008
  */
 
@@ -160,5 +155,16 @@ class ScPackagingImpl extends ScalaStubBasedElementImpl[ScPackageContainer] with
               getTextRange.getStartOffset
       return text.substring(startOffset, endOffset)
     }
+  }
+
+  def strip() {
+    if (isExplicit) {
+      deleteChildRange(getFirstChild, findChildByType(ScalaTokenTypes.tLBRACE))
+      lastChild.foreach(_.delete())
+    } else {
+      deleteChildren(children.take(3).toList)
+      deleteChildren(children.takeWhile(_.isInstanceOf[PsiWhiteSpace]).toList)
+    }
+    unwrapChildren()
   }
 }

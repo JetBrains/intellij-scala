@@ -20,4 +20,6 @@ trait ScPackaging extends ScToplevelElement with ScImportsHolder with ScPackageC
   def getBodyText: String
 
   def reference: Option[ScStableCodeReferenceElement]
+
+  def strip()
 }

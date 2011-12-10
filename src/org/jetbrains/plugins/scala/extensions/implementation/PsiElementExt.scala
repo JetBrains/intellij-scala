@@ -101,4 +101,29 @@ trait PsiElementExt {
     case sf: ScalaFile => Some(sf)
     case _ => None
   }
+  
+  def wrapChildrenIn(container: PsiElement): PsiElement = {
+    val elements = children.toList
+    repr.deleteChildRange(repr.getFirstChild, repr.getLastChild)
+    val wrapper = repr.add(container)
+    if (elements.nonEmpty) wrapper.addRange(elements.head, elements.last)
+    wrapper
+  }
+
+  def unwrapChildren(): Seq[PsiElement] = {
+    val elements = children.toList
+    val p = repr.getParent
+    val newChildren = if (children.nonEmpty) {
+      val first: PsiElement = p.addRangeAfter(elements.head, elements.last, repr)
+      first :: new NextSiblignsIterator(first).take(elements.size).toList
+    } else {
+      Nil
+    }
+    repr.delete()
+    newChildren
+  }
+  
+  def deleteChildren(children: Seq[PsiElement]) {
+    if (children.nonEmpty) repr.deleteChildRange(children.head, children.last)
+  }
 }
