@@ -228,7 +228,8 @@ class MyScaladocParsing(private val psiBuilder: PsiBuilder) extends ScalaDocElem
       ParserUtils.getToken(builder, DOC_INLINE_TAG_START)
     }
 
-    assert(builder.getTokenType eq DOC_TAG_NAME, builder.getTokenText + "  " + builder.getTokenType + "  " + builder.getCurrentOffset)
+    assert(builder.getTokenType eq DOC_TAG_NAME, builder.getTokenText + "  "
+            + builder.getTokenType + "  " + builder.getCurrentOffset)
     val tagName = builder.getTokenText
     if (!isEndOfComment) {
       builder.advanceLexer()
@@ -240,7 +241,12 @@ class MyScaladocParsing(private val psiBuilder: PsiBuilder) extends ScalaDocElem
       builder.error("Inline tag")
     } else {
       tagName match {
-        case THROWS_TAG | PARAM_TAG | TYPE_PARAM_TAG =>
+        case THROWS_TAG => 
+          if (!isEndOfComment) {
+            builder.advanceLexer()
+          }
+          StableId.parse(new ScalaPsiBuilderImpl(builder), true, DOC_TAG_VALUE_TOKEN)
+        case PARAM_TAG | TYPE_PARAM_TAG =>
           if (!ParserUtils.lookAhead(builder, builder.getTokenType, DOC_TAG_VALUE_TOKEN)) builder.error("Missing tag param")
         case SEE_TAG | AUTHOR_TAG | NOTE_TAG | RETURN_TAG | DEFINE_TAG | SINCE_TAG | VERSION_TAG |
              USECASE_TAG | EXAMPLE_TAG =>
@@ -304,9 +310,9 @@ object MyScaladocParsing {
   val EXAMPLE_TAG = "@example"
   
   val escapeSequencesForWiki = HashMap[String, String]("`" -> "&#96;", "^" -> "&#94;", "__" -> "&#95;&#95;",
-    "'''" -> "&#39;&#39;&#39;", "''" -> "&#39;&#39;", ",," -> "&#44;&#44;", "[[" -> "&#91;", "=" -> "&#61;")
+    "'''" -> "&#39;&#39;&#39;", "''" -> "&#39;&#39;", ",," -> "&#44;&#44;", "[[" -> "&#91;&#91;", "=" -> "&#61;")
 
-  val allTags = List(PARAM_TAG, TYPE_PARAM_TAG, THROWS_TAG, SEE_TAG, AUTHOR_TAG, NOTE_TAG, RETURN_TAG, SINCE_TAG,
+  val allTags = Set(PARAM_TAG, TYPE_PARAM_TAG, THROWS_TAG, SEE_TAG, AUTHOR_TAG, NOTE_TAG, RETURN_TAG, SINCE_TAG,
     DEFINE_TAG, VERSION_TAG, TODO_TAG, USECASE_TAG, EXAMPLE_TAG)
-  val tagsWithParameters = List(PARAM_TAG, TYPE_PARAM_TAG, THROWS_TAG)
+  val tagsWithParameters = Set(PARAM_TAG, TYPE_PARAM_TAG, THROWS_TAG)
 }

@@ -64,9 +64,11 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes;
 %state COMMENT_DATA
 %state TAG_DOC_SPACE
 %state PARAM_TAG_DOC_SPACE
+%state PARAM_THROWS_TAG_DOC_SPACE
 %state PARAM_TAG_SPACE
 %state DOC_TAG_VALUE
 %state PARAM_DOC_TAG_VALUE
+%state PARAM_DOC_THROWS_TAG_VALUE
 %state DOC_TAG_VALUE_IN_PAREN
 %state DOC_TAG_VALUE_IN_LTGT
 %state INLINE_TAG_NAME
@@ -211,7 +213,21 @@ scalaIdentifierWithPath = (({plainid} | "`" {stringLiteralExtra} "`")["."]?)+
   return DOC_COMMENT_DATA;
 }
 
-<COMMENT_DATA_START> "@"("param"|"tparam"|"throws") {yybegin(PARAM_TAG_DOC_SPACE); return DOC_TAG_NAME; }
+<COMMENT_DATA_START> "@throws" {yybegin(PARAM_THROWS_TAG_DOC_SPACE); return DOC_TAG_NAME; }
+<PARAM_THROWS_TAG_DOC_SPACE> {WHITE_DOC_SPACE_NO_NL}+ {yybegin(PARAM_DOC_THROWS_TAG_VALUE); return DOC_COMMENT_DATA;}
+<PARAM_THROWS_TAG_DOC_SPACE> {WHITE_DOC_SPACE_CHAR}+ {yybegin(COMMENT_DATA); return DOC_WHITESPACE;}
+<PARAM_DOC_THROWS_TAG_VALUE> ({plainid} | "`" {stringLiteralExtra} "`") {
+  yybegin(COMMENT_DATA);
+  return tIDENTIFIER;
+}
+<PARAM_DOC_THROWS_TAG_VALUE> ({plainid} | "`" {stringLiteralExtra} "`") / ["."] {
+  return tIDENTIFIER;
+}
+<PARAM_DOC_THROWS_TAG_VALUE> "." {
+  return tDOT;
+}
+
+<COMMENT_DATA_START> "@"("param"|"tparam") {yybegin(PARAM_TAG_DOC_SPACE); return DOC_TAG_NAME; }
 <PARAM_TAG_DOC_SPACE> {WHITE_DOC_SPACE_NO_NL}+ {yybegin(PARAM_DOC_TAG_VALUE); return DOC_COMMENT_DATA;}
 <PARAM_TAG_DOC_SPACE> {WHITE_DOC_SPACE_CHAR}+ {yybegin(COMMENT_DATA); return DOC_WHITESPACE;}
 <PARAM_DOC_TAG_VALUE> ({plainid} | "`" {stringLiteralExtra} "`") {yybegin(COMMENT_DATA); return DOC_TAG_VALUE_TOKEN; }
