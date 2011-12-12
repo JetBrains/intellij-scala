@@ -213,9 +213,10 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
 
     val vector = ScalaFileImpl.toVector(name)
 
-    val path = if (vector.nonEmpty) splits.foldLeft(List(vector))(ScalaFileImpl.splitAt) else Nil
-
-    ScalaFileImpl.addPathTo(this, path)
+    if (vector.nonEmpty) {
+      val path = splits.foldLeft(List(vector))(ScalaFileImpl.splitAt)
+      ScalaFileImpl.addPathTo(this, path)
+    }
   }
 
   override def getStub: ScFileStub = super[PsiFileBase].getStub match {
