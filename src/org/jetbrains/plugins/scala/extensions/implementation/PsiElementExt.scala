@@ -104,9 +104,14 @@ trait PsiElementExt {
   
   def wrapChildrenIn(container: PsiElement): PsiElement = {
     val elements = children.toList
-    repr.deleteChildRange(repr.getFirstChild, repr.getLastChild)
+
     val wrapper = repr.add(container)
-    if (elements.nonEmpty) wrapper.addRange(elements.head, elements.last)
+
+    if (elements.nonEmpty) {
+      wrapper.addRange(elements.head, elements.last)
+      repr.deleteChildRange(elements.head, elements.last)
+    }
+
     wrapper
   }
 
