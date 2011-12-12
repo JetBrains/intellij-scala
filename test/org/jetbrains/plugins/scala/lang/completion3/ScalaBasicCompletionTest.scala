@@ -113,4 +113,31 @@ class ScalaBasicCompletionTest extends ScalaCompletionTestBase {
     completeLookupItem(activeLookup.find(le => le.getLookupString == "States").get)
     checkResultByText(resultText)
   }
+
+  def testPrivateMethod() {
+    val fileText =
+      """
+      |class A {
+      |  private def fooaa = 1
+      |  def goo {
+      |    foo<caret>
+      |  }
+      |}
+      """.stripMargin('|').replaceAll("\r", "").trim()
+    configureFromFileTextAdapter("dummy.scala", fileText)
+    val (activeLookup, _) = complete(1, CompletionType.BASIC)
+
+    val resultText =
+      """
+      |class A {
+      |  private def fooaa = 1
+      |  def goo {
+      |    fooaa<caret>
+      |  }
+      |}
+      """.stripMargin('|').replaceAll("\r", "").trim()
+
+    completeLookupItem(activeLookup.find(le => le.getLookupString == "fooaa").get)
+    checkResultByText(resultText)
+  }
 }
