@@ -4,9 +4,6 @@ package scalaTest
 
 
 import com.intellij.execution.configurations.{RunConfiguration, ConfigurationType, ConfigurationFactory}
-import com.intellij.facet.FacetManager
-import com.intellij.openapi.module.ModuleManager
-import script.ScalaScriptRunConfiguration
 import com.intellij.openapi.project.Project
 import config.ScalaFacet
 
@@ -18,7 +15,7 @@ import config.ScalaFacet
 class ScalaTestRunConfigurationFactory(val typez: ConfigurationType) extends ConfigurationFactory(typez)  {
   def createTemplateConfiguration(project: Project): RunConfiguration = {
     val configuration = new ScalaTestRunConfiguration(project, this, "")
-    return configuration
+    configuration
   }
 
   override def createConfiguration(name: String, template: RunConfiguration): RunConfiguration = {

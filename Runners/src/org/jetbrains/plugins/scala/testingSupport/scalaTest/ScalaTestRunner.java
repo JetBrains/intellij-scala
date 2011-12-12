@@ -7,15 +7,19 @@ import org.scalatest.Suite;
 import org.scalatest.Tracker;
 import org.scalatest.tools.Runner;
 import scala.None$;
+import scala.Option;
 import scala.Some$;
+import scala.collection.immutable.Map;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 
 /**
  * @author Alexander Podkhalyuzin
  */
 public class ScalaTestRunner {
-  public static void main(String[] args) throws ClassNotFoundException, InstantiationException, IllegalAccessException {
+  public static void main(String[] args) throws ClassNotFoundException, InstantiationException, IllegalAccessException, NoSuchMethodException, InvocationTargetException {
     ArrayList<String> argsArray = new ArrayList<String>();
     ArrayList<String> classes = new ArrayList<String>();
     ArrayList<String> failedTests = new ArrayList<String>();
@@ -78,7 +82,8 @@ public class ScalaTestRunner {
     System.exit(0);
   }
 
-  private static void runSingleTest(String testName, String clazz, boolean withLocation) throws IllegalAccessException, InstantiationException, ClassNotFoundException {
+  private static void runSingleTest(String testName, String clazz, boolean withLocation) throws IllegalAccessException,
+      InstantiationException, ClassNotFoundException, NoSuchMethodException, InvocationTargetException {
     Class<?> aClass = ScalaTestRunner.class.getClassLoader().loadClass(clazz);
     Suite suite = (Suite) aClass.newInstance();
     String reporterQualName = "org.jetbrains.plugins.scala.testingSupport.scalaTest.ScalaTestReporter";
@@ -86,7 +91,10 @@ public class ScalaTestRunner {
     Class<?> reporterClass = ScalaTestRunner.class.getClassLoader().
         loadClass(reporterQualName);
     Reporter reporter = (Reporter) reporterClass.newInstance();
-    org.scalatest.Suite$class.run(suite, Some$.MODULE$.apply(testName), reporter, new Stopper() {
+    Class<?> suiteClass = Class.forName("org.scalatest.Suite");
+    Method method = suiteClass.getMethod("run", Option.class, Reporter.class, Stopper.class, org.scalatest.Filter.class,
+        Map.class, Option.class, Tracker.class);
+    method.invoke(suite, Some$.MODULE$.apply(testName), reporter, new Stopper() {
       public boolean apply() {
         return false;
       }

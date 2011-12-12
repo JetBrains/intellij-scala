@@ -18,9 +18,9 @@ import com.intellij.psi._
 class ScalaTestLocationProvider extends TestLocationProvider {
   private val SpecsHintPattern = """(\S+)\?filelocation=(.+):(.+)""".r
 
-  private val ScalaTestTopOfClassPattern = """TopOfClass:(\S+)""".r
-  private val ScalaTestTopOfMethodPattern = """TopOfMethod:(\S+):(\S+)""".r
-  private val ScalaTestLineInFinePattern = """LineInFile:(\S+):(.+):(.+)""".r
+  private val ScalaTestTopOfClassPattern = """TopOfClass:(\S+)TestName:(.+)""".r
+  private val ScalaTestTopOfMethodPattern = """TopOfMethod:(\S+):(\S+)TestName:(.+)""".r
+  private val ScalaTestLineInFinePattern = """LineInFile:(\S+):(.+):(.+)TestName:(.+)""".r
 
   def getLocation(protocolId: String, locationData: String, project: Project): List[Location[_ <: PsiElement]] = {
     protocolId match {
@@ -44,25 +44,22 @@ class ScalaTestLocationProvider extends TestLocationProvider {
         val res = new ArrayList[Location[_ <: PsiElement]]()
         val facade = JavaPsiFacade.getInstance(project)
         locationData match {
-          case ScalaTestTopOfClassPattern(className) =>
-            //val clazzes: Array[PsiClass] = facade.findClasses(className, GlobalSearchScope.allScope(project))
+          case ScalaTestTopOfClassPattern(className, testName) =>
             val clazz: PsiClass = facade.findClass(className, GlobalSearchScope.allScope(project))
-            if (clazz != null) res.add(PsiLocation.fromPsiElement[PsiClass](project, clazz))
-          case ScalaTestTopOfMethodPattern(className, methodName) =>
-            val testing = className
-            val testMethodId = methodName
+            if (clazz != null) res.add(new PsiLocationWithName(project, clazz, testName))
+          case ScalaTestTopOfMethodPattern(className, methodName, testName) =>
             val clazz: PsiClass = facade.findClass(className, GlobalSearchScope.allScope(project))
             if(clazz != null) {
               val methods = clazz.findMethodsByName(methodName, false)
-              methods.foreach { method => res.add(PsiLocation.fromPsiElement[PsiMethod](project, method)) }
+              methods.foreach { method => res.add(new PsiLocationWithName(project, method, testName)) }
             }
-          case ScalaTestLineInFinePattern(className, fileName, lineNumber) =>
+          case ScalaTestLineInFinePattern(className, fileName, lineNumber, testName) =>
             val clazzes: Array[PsiClass] = facade.findClasses(className, GlobalSearchScope.allScope(project))
             val found = clazzes.find(c => Option(c.getContainingFile).map(_.getName == fileName).getOrElse(false))
             found match {
               case Some(file) =>
-                res.add(createLocationFor(project, file.getContainingFile, lineNumber.toInt))
-              case _ => res.addAll(searchForClassByUnqualifiedName(project, className))
+                res.add(createLocationFor(project, file.getContainingFile, lineNumber.toInt, Some(testName)))
+              case _ =>
             }
           case _ =>
         }
@@ -79,7 +76,8 @@ class ScalaTestLocationProvider extends TestLocationProvider {
     res
   }
 
-  private def createLocationFor(project: Project, psiFile: PsiFile, lineNum: Int): Location[_ <: PsiElement] = {
+  private def createLocationFor(project: Project, psiFile: PsiFile, lineNum: Int,
+                                withName: Option[String] = None): Location[_ <: PsiElement] = {
     assert(lineNum > 0)
     val doc: Document = PsiDocumentManager.getInstance(project).getDocument(psiFile)
     if (doc == null) {
@@ -107,6 +105,11 @@ class ScalaTestLocationProvider extends TestLocationProvider {
       val length: Int = elementAtLine.getTextLength
       offset += (if (length > 1) length - 1 else 1)
     }
-    PsiLocation.fromPsiElement(project, if (elementAtLine != null) elementAtLine else psiFile)
+    withName match {
+      case Some(testName) =>
+        new PsiLocationWithName(project, if (elementAtLine != null) elementAtLine else psiFile, testName)
+      case _ =>
+        PsiLocation.fromPsiElement(project, if (elementAtLine != null) elementAtLine else psiFile)
+    }
   }
 }

@@ -11,6 +11,9 @@ import com.intellij.execution.testframework.AbstractTestProxy
 import java.util.{ArrayList, List}
 import com.intellij.execution.configurations.{RuntimeConfiguration, RunProfileState}
 import org.jetbrains.plugins.scala.testingSupport.scalaTest.ScalaTestRunConfiguration.{ScalaPropertiesExtension, ScalaTestCommandLinePatcher}
+import org.jetbrains.plugins.scala.testingSupport.locationProvider.PsiLocationWithName
+import com.intellij.execution.testframework.sm.runner.SMTestProxy
+import com.intellij.execution.testframework.sm.runner.states.TestStateInfo.Magnitude
 
 /**
  * User: Alexander Podkhalyuzin
@@ -26,6 +29,13 @@ class ScalaTestRerunFailedTestsAction(parent: JComponent)
     val configuration: RuntimeConfiguration = getModel.getProperties.getConfiguration
     new MyRunProfileAdapter(configuration) {
       def getModules: Array[Module] = configuration.getModules
+
+      def getTestName(failed: AbstractTestProxy): String = {
+        failed.getLocation(getProject) match {
+          case PsiLocationWithName(_, _, testName) => testName
+          case _ => failed.getName
+        }
+      }
 
       def getState(executor: Executor, env: ExecutionEnvironment): RunProfileState = {
         val extensionConfiguration =
@@ -47,9 +57,9 @@ class ScalaTestRerunFailedTestsAction(parent: JComponent)
               classNames.get(parent.getName) match {
                 case None =>
                   parent = parent.getParent
-                  if (parent == null) buffer += ((classNames.values.iterator.next(), failed.getName))
+                  if (parent == null) buffer += ((classNames.values.iterator.next(), getTestName(failed)))
                 case Some(s) =>
-                  buffer += ((s, failed.getName))
+                  buffer += ((s, getTestName(failed)))
                   parent = null
               }
             }
@@ -58,7 +68,7 @@ class ScalaTestRerunFailedTestsAction(parent: JComponent)
             extensionConfiguration.asInstanceOf[MyRunProfileAdapter].previoslyFailed != null) {
             var added = false
             for (f <- extensionConfiguration.asInstanceOf[MyRunProfileAdapter].previoslyFailed if !added) {
-              if (f._2 == failed.getName) {
+              if (f._2 == getTestName(failed)) {
                 buffer += f
                 added = true
               }
@@ -75,14 +85,22 @@ class ScalaTestRerunFailedTestsAction(parent: JComponent)
       }
     }
   }
+  
+  private def isFailed(test: AbstractTestProxy): Boolean = {
+    if (!test.isLeaf) return false
+    test match {
+      case test: SMTestProxy =>
+        val info = test.getMagnitudeInfo
+        info == Magnitude.FAILED_INDEX || info == Magnitude.ERROR_INDEX
+      case _ => !test.isPassed
+    }
+  }
 
   override def getFailedTests(project: Project): List[AbstractTestProxy] = {
     val list = new ArrayList[AbstractTestProxy]()
     val allTests = getModel.getRoot.getAllTests
     import scala.collection.JavaConversions._
-    for (test <- allTests) {
-      if (test.isLeaf && !test.isPassed) list add test
-    }
+    for (test <- allTests if isFailed(test)) list add test
     list
   }
 }

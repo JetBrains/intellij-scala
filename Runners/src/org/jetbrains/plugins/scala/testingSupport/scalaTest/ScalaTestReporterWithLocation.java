@@ -23,20 +23,21 @@ public class ScalaTestReporterWithLocation implements Reporter {
     return writer.getBuffer().toString();
   }
 
-  private String getLocationHint(String className, Option<Location> locationOption) {
+  private String getLocationHint(String className, Option<Location> locationOption, String testName) {
     if(locationOption instanceof Some) {
       Location location = locationOption.get();
       if(location instanceof TopOfClass)
-        return " locationHint='scalatest://TopOfClass:" + ((TopOfClass) location).className() + "'";
+        return " locationHint='scalatest://TopOfClass:" + ((TopOfClass) location).className() + "TestName:" + testName + "'";
       else if(location instanceof TopOfMethod) {
         TopOfMethod topOfMethod = (TopOfMethod) location;
         String methodId = topOfMethod.methodId();
         String methodName = methodId.substring(methodId.lastIndexOf('.') + 1, methodId.lastIndexOf('('));
-        return " locationHint='scalatest://TopOfMethod:" + topOfMethod.className() + ":" + methodName + "'";
+        return " locationHint='scalatest://TopOfMethod:" + topOfMethod.className() + ":" + methodName + "TestName:" + testName + "'";
       }
       else if(location instanceof LineInFile) {
         LineInFile lineInFile = (LineInFile) location;
-        return " locationHint='scalatest://LineInFile:" + className + ":" + lineInFile.fileName() +  ":" + lineInFile.lineNumber() + "'";
+        return " locationHint='scalatest://LineInFile:" + className + ":" + lineInFile.fileName() +  ":" +
+            lineInFile.lineNumber() + "TestName:" + testName + "'";
       }
       else
         return "";
@@ -53,7 +54,8 @@ public class ScalaTestReporterWithLocation implements Reporter {
     } else if (event instanceof TestStarting) {
       TestStarting testStarting = ((TestStarting) event);
       String testText = testStarting.testText();
-      String locationHint = getLocationHint(testStarting.suiteID(), testStarting.location());
+      String testName = testStarting.testName();
+      String locationHint = getLocationHint(testStarting.suiteID(), testStarting.location(), testName);
       System.out.println("\n##teamcity[testStarted name='" + escapeString(testText) + "'" + locationHint +
           " captureStandardOutput='true']");
     } else if (event instanceof TestSucceeded) {
@@ -99,7 +101,7 @@ public class ScalaTestReporterWithLocation implements Reporter {
     } else if (event instanceof SuiteStarting) {
       SuiteStarting suiteStarting = (SuiteStarting) event;
       String suiteName = suiteStarting.suiteName();
-      String locationHint = getLocationHint(suiteStarting.suiteID(), suiteStarting.location());
+      String locationHint = getLocationHint(suiteStarting.suiteID(), suiteStarting.location(), suiteName);
       System.out.println("\n##teamcity[testSuiteStarted name='" + escapeString(suiteName) + "'" + locationHint +
           " captureStandardOutput='true']");
     } else if (event instanceof SuiteCompleted) {
@@ -144,7 +146,7 @@ public class ScalaTestReporterWithLocation implements Reporter {
     else if(event instanceof ScopeOpened) {
       ScopeOpened scopeOpened = (ScopeOpened) event;
       String message = scopeOpened.message();
-      String locationHint = getLocationHint(scopeOpened.nameInfo().suiteID(), scopeOpened.location());
+      String locationHint = getLocationHint(scopeOpened.nameInfo().suiteID(), scopeOpened.location(), message);
       System.out.println("\n##teamcity[testSuiteStarted name='" + escapeString(message) + "'" + locationHint +
           " captureStandardOutput='true']");
     }
