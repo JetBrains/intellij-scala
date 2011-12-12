@@ -171,6 +171,12 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
   private def isScriptFileImpl: Boolean = {
     val stub = getStub
     if (stub == null) {
+      val empty = children.forall {
+        case _: PsiWhiteSpace => true
+        case _: PsiComment => true
+        case _ => false
+      }
+      if (empty) return true // treat empty or commented files as scripts to avoid project recompilations
       val childrenIterator = getNode.getChildren(null).iterator
       while (childrenIterator.hasNext) {
         val n = childrenIterator.next()
