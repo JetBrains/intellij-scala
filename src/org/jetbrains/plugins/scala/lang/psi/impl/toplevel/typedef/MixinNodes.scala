@@ -96,6 +96,7 @@ abstract class MixinNodes {
     def allNames(): Set[String] = {
       val names = new HashSet[String]
       names ++= keySet
+      names ++= privatesMap.keySet
       for (sup <- supersList) {names ++= sup.keySet}
       names
     }
