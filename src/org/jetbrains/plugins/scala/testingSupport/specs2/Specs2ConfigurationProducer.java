@@ -33,6 +33,7 @@ public class Specs2ConfigurationProducer extends RuntimeConfigurationProducer im
 
   @Nullable
   protected RunnerAndConfigurationSettingsImpl createConfigurationByElement(final Location location, final ConfigurationContext context) {
+    if (context.getModule() == null) return null;
     GlobalSearchScope scope = GlobalSearchScope.moduleWithDependenciesAndLibrariesScope(context.getModule(), true);
     if (ScalaPsiManager.instance(context.getProject()).getCachedClass(scope, "org.specs2.specification.SpecificationStructure") == null) return null;
     myPsiElement = location.getPsiElement();
