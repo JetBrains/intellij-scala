@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.testingSupport.scalaTest;
 
 import org.jetbrains.plugins.scala.testingSupport.TestRunnerUtil;
 import org.scalatest.Reporter;
+import org.scalatest.StackDepthException;
 import org.scalatest.events.*;
 import org.scalatest.events.Location;
 import scala.Option;
@@ -23,8 +24,9 @@ public class ScalaTestReporterWithLocation implements Reporter {
     return writer.getBuffer().toString();
   }
 
-  private String getLocationHint(String className, Option<Location> locationOption, String testName) {
-    if(locationOption instanceof Some) {
+  private String getLocationHint(Option<String> classNameOption, Option<Location> locationOption, String testName) {
+    if(classNameOption instanceof Some && locationOption instanceof Some) {
+      String className = classNameOption.get();
       Location location = locationOption.get();
       if(location instanceof TopOfClass)
         return " locationHint='scalatest://TopOfClass:" + ((TopOfClass) location).className() + "TestName:" + testName + "'";
@@ -55,7 +57,7 @@ public class ScalaTestReporterWithLocation implements Reporter {
       TestStarting testStarting = ((TestStarting) event);
       String testText = testStarting.testText();
       String testName = testStarting.testName();
-      String locationHint = getLocationHint(testStarting.suiteID(), testStarting.location(), testName);
+      String locationHint = getLocationHint(testStarting.suiteClassName(), testStarting.location(), testName);
       System.out.println("\n##teamcity[testStarted name='" + escapeString(testText) + "'" + locationHint +
           " captureStandardOutput='true']");
     } else if (event instanceof TestSucceeded) {
@@ -69,27 +71,39 @@ public class ScalaTestReporterWithLocation implements Reporter {
           "' duration='"+ duration +"']");
     } else if (event instanceof TestFailed) {
       boolean error = true;
-      Option<Throwable> throwableOption = ((TestFailed) event).throwable();
+      TestFailed testFailed = (TestFailed) event;
+      Option<Throwable> throwableOption = testFailed.throwable();
       String detail = "";
+      String locationHint = ""; //todo: ?
       if (throwableOption instanceof Some) {
-        if (throwableOption.get() instanceof AssertionError) error = false;
-        detail = getStackTraceString(throwableOption.get());
+        Throwable throwable = throwableOption.get();
+        if (throwable instanceof AssertionError) error = false;
+        detail = getStackTraceString(throwable);
+        /*if (throwable instanceof StackDepthException) {
+          StackDepthException stackDepthException = (StackDepthException) throwable;
+          String className = testFailed.suiteClassName() instanceof Some ? testFailed.suiteClassName().get() : null;
+          String fileName = stackDepthException.failedCodeFileName() instanceof Some ? stackDepthException.failedCodeFileName().get() : null;
+          Integer lineNumber = stackDepthException.failedCodeLineNumber() instanceof Some ? Integer.parseInt(stackDepthException.failedCodeLineNumber().get().toString()) : null;
+          if (className != null && fileName != null && lineNumber != null) {
+            locationHint = " locationHint='scalatest://LineInFile:" + className + ":" + fileName + ":" + lineNumber + "'";
+          }
+        }*/
       }
-      Option<Object> durationOption = ((TestFailed) event).duration();
+      Option<Object> durationOption = testFailed.duration();
       long duration = 0;
       if (durationOption instanceof Some) {
         duration = ((java.lang.Long) durationOption.get()).longValue();
       }
-      String testText = ((TestFailed) event).testText();
-      String message = ((TestFailed) event).message();
+      String testText = testFailed.testText();
+      String message = testFailed.message();
       long timeStamp = event.timeStamp();
       String res = "\n##teamcity[testFailed name='" + escapeString(testText) + "' message='" + escapeString(message) +
-          "' details='" + escapeString(detail) + "'";
+          "' details='" + escapeString(detail) + "' ";
       if (error) res += "error = '" + error + "'";
       res += "timestamp='" + escapeString(formatTimestamp(new Date(timeStamp))) + "']";
       System.out.println(res);
       System.out.println("\n##teamcity[testFinished name='" + escapeString(testText) +
-          "' duration='" + duration +"']");
+          "' duration='" + duration +"' captureStandardOutput='true' " + locationHint + "]");
     } else if (event instanceof TestIgnored) {
       String testText = ((TestIgnored) event).testText();
       System.out.println("\n##teamcity[testIgnored name='" + escapeString(testText) + "' message='" +
@@ -101,7 +115,7 @@ public class ScalaTestReporterWithLocation implements Reporter {
     } else if (event instanceof SuiteStarting) {
       SuiteStarting suiteStarting = (SuiteStarting) event;
       String suiteName = suiteStarting.suiteName();
-      String locationHint = getLocationHint(suiteStarting.suiteID(), suiteStarting.location(), suiteName);
+      String locationHint = getLocationHint(suiteStarting.suiteClassName(), suiteStarting.location(), suiteName);
       System.out.println("\n##teamcity[testSuiteStarted name='" + escapeString(suiteName) + "'" + locationHint +
           " captureStandardOutput='true']");
     } else if (event instanceof SuiteCompleted) {
@@ -146,7 +160,7 @@ public class ScalaTestReporterWithLocation implements Reporter {
     else if(event instanceof ScopeOpened) {
       ScopeOpened scopeOpened = (ScopeOpened) event;
       String message = scopeOpened.message();
-      String locationHint = getLocationHint(scopeOpened.nameInfo().suiteID(), scopeOpened.location(), message);
+      String locationHint = getLocationHint(scopeOpened.nameInfo().suiteClassName(), scopeOpened.location(), message);
       System.out.println("\n##teamcity[testSuiteStarted name='" + escapeString(message) + "'" + locationHint +
           " captureStandardOutput='true']");
     }
