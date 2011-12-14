@@ -20,6 +20,7 @@ import search.GlobalSearchScope
 import tree.TokenSet
 import collection.mutable.ArrayBuffer
 import caches.ScalaCachesManager
+import com.intellij.openapi.project.DumbService
 
 /**
  * @author Alexander Podkhalyuzin, Pavel Fatin
@@ -114,9 +115,11 @@ class ScPackagingImpl extends ScalaStubBasedElementImpl[ScPackageContainer] with
                                   state: ResolveState,
                                   lastParent: PsiElement,
                                   place: PsiElement): Boolean = {
+    if (DumbService.getInstance(getProject).isDumb) return true
+
     val pName = (if (prefix.length == 0) "" else prefix + ".") + getPackageName
     ProgressManager.checkCanceled()
-    var p = ScPackageImpl(JavaPsiFacade.getInstance(getProject).findPackage(pName))
+    val p = ScPackageImpl(JavaPsiFacade.getInstance(getProject).findPackage(pName))
     if (!(p == null || p.processDeclarations(processor, state, lastParent, place))) {
       return false
     }
