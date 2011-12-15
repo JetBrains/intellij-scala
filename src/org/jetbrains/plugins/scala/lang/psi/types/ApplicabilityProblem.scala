@@ -31,3 +31,5 @@ case class MissedParametersClause(clause: ScParameterClause) extends Applicabili
 case class MissedValueParameter(parameter: Parameter) extends ApplicabilityProblem
 //TODO expectedType -> parameter
 case class TypeMismatch(expression: ScExpression, expectedType: ScType) extends ApplicabilityProblem
+
+case object WrongTypeParameterInferred extends ApplicabilityProblem
