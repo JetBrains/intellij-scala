@@ -71,18 +71,20 @@ class ScalaInsertHandler extends InsertHandler[LookupElement] {
 
     patchedObject match {
       case ScalaLookupObject(obj: ScObject, _, _, true) =>
-        document.insertString(endOffset, ".")
-        endOffset += 1
-        editor.getCaretModel.moveToOffset(endOffset)
-        context.setLaterRunnable(new Runnable {
-          def run() {
-            AutoPopupController.getInstance(context.getProject).scheduleAutoPopup(
-              context.getEditor, new Condition[PsiFile] {
-                def value(t: PsiFile): Boolean = t == context.getFile
-              }
-            )
-          }
-        })
+        if (completionChar != '.') {
+          document.insertString(endOffset, ".")
+          endOffset += 1
+          editor.getCaretModel.moveToOffset(endOffset)
+          context.setLaterRunnable(new Runnable {
+            def run() {
+              AutoPopupController.getInstance(context.getProject).scheduleAutoPopup(
+                context.getEditor, new Condition[PsiFile] {
+                  def value(t: PsiFile): Boolean = t == context.getFile
+                }
+              )
+            }
+          })
+        }
         return
       case ScalaLookupObject(named: PsiNamedElement, isNamed, _, _) if isNamed => { //some is impossible here
         val shouldAddEqualsSign = element.getParent match {
