@@ -21,6 +21,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScValue, ScFunctionD
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScClass, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaRecursiveElementVisitor
 
 /**
  * User: Alexander Podkhalyuzin
@@ -57,6 +58,7 @@ class ScalaTestConfigurationProducer extends {
   private def getLocationClassAndTest(location: Location[_ <: PsiElement]): (String, String) = {
     val element = location.getPsiElement
     var clazz: ScTypeDefinition = PsiTreeUtil.getParentOfType(element, classOf[ScTypeDefinition], false)
+    val tb = clazz.extendsBlock.templateBody.getOrElse(null)
     if (clazz == null) return null
     while (PsiTreeUtil.getParentOfType(clazz, classOf[ScTypeDefinition], true) != null) {
       clazz = PsiTreeUtil.getParentOfType(clazz, classOf[ScTypeDefinition], true)
@@ -157,7 +159,8 @@ class ScalaTestConfigurationProducer extends {
       checkCallGeneral(call, namesSet, inv, true, false)
     }
 
-    def checkInfix(call: MethodInvocation, namesSet: Map[String, Set[String]], checkFirstArgIsUnitOrString: Boolean = false) = {
+    def checkInfix(call: MethodInvocation, namesSet: Map[String, Set[String]],
+                   checkFirstArgIsUnitOrString: Boolean = false) = {
       val inv: (MethodInvocation) => Option[String] = {
         case i: ScInfixExpr =>
           endupWithLitral(i.getBaseExpr)
@@ -174,7 +177,8 @@ class ScalaTestConfigurationProducer extends {
       checkCallGeneral(call, namesSet, inv, true, checkFirstArgIsUnitOrString)
     }
 
-    def checkInfixTagged(call: MethodInvocation, namesSet: Map[String, Set[String]], fqn: Set[String], checkFirstArgIsUnitOrString: Boolean = false) = {
+    def checkInfixTagged(call: MethodInvocation, namesSet: Map[String, Set[String]], fqn: Set[String], 
+                         checkFirstArgIsUnitOrString: Boolean = false, testNameIsAlwaysEmpty: Boolean = false) = {
       val inv: (MethodInvocation) => Option[String] = m => {
         def checkTagged(m: MethodInvocation): Option[String] = {
           m.getInvokedExpr match {
@@ -219,7 +223,7 @@ class ScalaTestConfigurationProducer extends {
             }
         }
       }
-      checkCallGeneral(call, namesSet, inv, true, checkFirstArgIsUnitOrString)
+      checkCallGeneral(call, namesSet, if (testNameIsAlwaysEmpty) _ => Some("") else inv, true, checkFirstArgIsUnitOrString)
     }
     
     implicit def s2set(s: String): Set[String] = Set(s) //todo: inline?
@@ -349,6 +353,125 @@ class ScalaTestConfigurationProducer extends {
       }
     }
 
+    def endupWithIt(it: ScReferenceExpression): Option[String] = {
+      var elem: PsiElement = it
+      var parent = it.getParent
+      while (parent != null && (!parent.isInstanceOf[ScTemplateBody] || parent != tb)) {
+        elem = parent
+        parent = parent.getParent
+      }
+      var sibling = elem.getPrevSibling
+      var result: Option[String] = null
+
+      val infix: (MethodInvocation) => Option[String] = {
+        case i: ScInfixExpr =>
+          endupWithLitral(i.getBaseExpr)
+        case call: MethodInvocation =>
+          call.getInvokedExpr match {
+            case ref: ScReferenceExpression =>
+              ref.qualifier match {
+                case Some(qual) => endupWithLitral(qual)
+                case _ => None
+              }
+            case _ => None
+          }
+      }
+
+      val call = (call: MethodInvocation) => {
+        val literal = call.argumentExpressions.apply(0)
+        endupWithLitral(literal)
+      }
+      
+      val visitor = new ScalaRecursiveElementVisitor {
+        override def visitReferenceExpression(ref: ScReferenceExpression) {
+          ref.refName match {
+            case "should" =>
+              ref.resolve() match {
+                case fun: ScFunction if fun.getContainingClass != null &&
+                  fun.getContainingClass.getQualifiedName == shouldFqn =>
+                  if (result == null) {
+                    ref.getParent match {
+                      case m: MethodInvocation => result = infix(m)
+                      case _ => result = None
+                    }
+                  }
+                case _ =>
+              }
+            case "must" =>
+              ref.resolve() match {
+                case fun: ScFunction if fun.getContainingClass != null &&
+                  fun.getContainingClass.getQualifiedName == mustFqn =>
+                  if (result == null) {
+                    ref.getParent match {
+                      case m: MethodInvocation => result = infix(m)
+                      case _ => result = None
+                    }
+                  }
+                case _ =>
+              }
+            case "can" =>
+              ref.resolve() match {
+                case fun: ScFunction if fun.getContainingClass != null &&
+                  fun.getContainingClass.getQualifiedName == canFqn =>
+                  if (result == null) {
+                    ref.getParent match {
+                      case m: MethodInvocation => result = infix(m)
+                      case _ => result = None
+                    }
+                  }
+                case _ =>
+              }
+            case "of" =>
+              ref.resolve() match {
+                case fun: ScFunction if fun.getContainingClass != null &&
+                  fun.getContainingClass.getQualifiedName == "org.scalatest.FlatSpec.BehaviorWord" =>
+                  if (result == null) {
+                    ref.getParent match {
+                      case m: MethodInvocation => result = call(m)
+                      case _ => result = None
+                    }
+                  }
+                case _ =>
+              }
+            case _ =>
+          }
+        }
+      }
+
+      while (sibling != null && result == null) {
+        sibling.accept(visitor)
+        sibling = sibling.getPrevSibling
+      }
+
+      if (result == null) return None
+      result
+    }
+
+    def checkInfixWithIt(call: MethodInvocation, namesSet: Map[String, Set[String]],
+                   checkFirstArgIsUnitOrString: Boolean = false) = {
+      val inv: (MethodInvocation) => Option[String] = {
+        case i: ScInfixExpr =>
+          i.getBaseExpr match {
+            case ref: ScReferenceExpression if ref.refName == "it" || ref.refName == "ignore" =>
+              endupWithIt(ref)
+            case _ =>
+              endupWithLitral(i.getBaseExpr)
+          }
+        case call: MethodInvocation =>
+          call.getInvokedExpr match {
+            case ref: ScReferenceExpression =>
+              ref.qualifier match {
+                case Some(ref: ScReferenceExpression) if ref.refName == "it" || ref.refName == "ignore" =>
+                  endupWithIt(ref)
+                case Some(qual) => endupWithLitral(qual)
+                case _ => None
+              }
+            case _ => None
+          }
+      }
+      checkCallGeneral(call, namesSet, inv, false, checkFirstArgIsUnitOrString)
+    }
+
     def checkFlatSpec(fqn: String): Option[String] = {
       if (!isInheritor(clazz, fqn)) return None
       val itFqn = fqn + ".ItWord"
@@ -359,20 +482,35 @@ class ScalaTestConfigurationProducer extends {
       val igFqn = fqn + ".IgnoreWord"
       val inFqn = fqn + ".InAndIgnoreMethods"
       val inTFqn = fqn + ".InAndIgnoreMethodsAfterTaggedAs"
-      checkInfix(PsiTreeUtil.getParentOfType(element, classOf[MethodInvocation], false),
+      val resFqn = "org.scalatest.verb.ResultOfStringPassedToVerb"
+      checkInfixTagged(PsiTreeUtil.getParentOfType(element, classOf[MethodInvocation], false),
         Map("in" -> Set(itVTFqn, itVFqn, igVFqn, igVTFqn, inFqn, inTFqn), 
-          "is" -> Set(itVTFqn, itVFqn, igVFqn, igVTFqn), "ignore" -> Set(itVFqn, itVTFqn, inFqn, inTFqn))) match {
+          "is" -> Set(itVTFqn, itVFqn, igVFqn, igVTFqn, resFqn), "ignore" -> Set(itVFqn, itVTFqn, inFqn, inTFqn)),
+          Set(itVFqn, igVFqn, resFqn), testNameIsAlwaysEmpty = true) match {
         case SuccessResult(_call, _testName, _) =>
           var testName = _testName
           var call = _call
           while (call != null) {
-            checkInfix(PsiTreeUtil.getParentOfType(call, classOf[MethodInvocation], true),
-              Map("should" -> Set(shouldFqn, itFqn, igFqn), "must" -> Set(mustFqn, itFqn, igFqn), 
-                "can" -> Set(canFqn, itFqn, igFqn)), true) match {
-              case SuccessResult(_call, _testName, middleName) =>
-                call = _call
-                testName = _testName + " " + middleName + " " + testName
-              case WrongResult => return None
+            val base = call match {
+              case i: ScInfixExpr =>
+                i.getBaseExpr
+              case m: MethodInvocation => m.getInvokedExpr match {
+                case ref: ScReferenceExpression => ref.qualifier.getOrElse(null)
+                case _ => null
+              }
+            }
+            base match {
+              case null => call = null
+              case m: MethodInvocation =>
+                checkInfixWithIt(m, Map("should" -> Set(shouldFqn, itFqn, igFqn), "must" -> Set(mustFqn, itFqn, igFqn),
+                    "can" -> Set(canFqn, itFqn, igFqn)), true) match {
+                  case SuccessResult(_call, _testName, middleName) =>
+                    call = _call
+                    testName = _testName + " " + middleName + (if (testName.isEmpty) "" else " ") + testName
+                  case WrongResult => return None
+                  case _ => call = null
+                }
+                call = m
               case _ => call = null
             }
           }
@@ -444,9 +582,9 @@ class ScalaTestConfigurationProducer extends {
       checkSpec("org.scalatest.fixture.FixtureSpec") ++
       checkSpec("org.scalatest.fixture.MultipleFixtureSpec") ++
       checkTestNGSuite("org.scalatest.testng.TestNGSuite") ++
-//      checkFlatSpec("org.scalatest.FlatSpec") ++
-//      checkFlatSpec("org.scalatest.fixture.FixtureFlatSpec") ++
-//      checkFlatSpec("org.scalatest.fixture.MultipleFixtureFlatSpec") ++
+      checkFlatSpec("org.scalatest.FlatSpec") ++
+      checkFlatSpec("org.scalatest.fixture.FixtureFlatSpec") ++
+      checkFlatSpec("org.scalatest.fixture.MultipleFixtureFlatSpec") ++
       checkWordSpec("org.scalatest.WordSpec") ++
       checkWordSpec("org.scalatest.fixture.FixtureWordSpec") ++
       checkWordSpec("org.scalatest.fixture.MultipleFixtureWordSpec")
