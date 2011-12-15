@@ -185,7 +185,7 @@ object MethodResolveProcessor {
       }
     }
 
-    element match {
+    val result = element match {
       //objects
       case obj: PsiClass => ConformanceExtResult(Seq.empty)
       case a: ScTypeAlias => ConformanceExtResult(Seq.empty)
@@ -230,6 +230,12 @@ object MethodResolveProcessor {
       case method: PsiMethod => ConformanceExtResult(Seq(new ApplicabilityProblem("2")))
       case _ => ConformanceExtResult(Seq.empty)
     }
+    if (result.problems.length == 0) {
+      result.undefSubst.getSubstitutor match {
+        case None => result.copy(problems = Seq(WrongTypeParameterInferred))
+        case _ => result
+      }
+    } else result
   }
 
   // TODO clean this up

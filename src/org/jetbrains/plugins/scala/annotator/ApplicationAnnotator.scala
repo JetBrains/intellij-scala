@@ -81,6 +81,7 @@ trait ApplicationAnnotator {
                     } else {
                       //TODO investigate case when assignment is null. It's possible when new Expression(ScType)
                     }
+                  case WrongTypeParameterInferred => //todo: ?
                   case _ => holder.createErrorAnnotation(call.argsElement, "Not applicable to " + signatureOf(f))
                 }
               }

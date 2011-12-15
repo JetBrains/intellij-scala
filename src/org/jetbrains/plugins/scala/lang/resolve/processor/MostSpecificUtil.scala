@@ -107,7 +107,7 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
         val i: Int = if (params1.length > 0) 0.max(length - params1.length) else 0
         val default: Expression = new Expression(if (params1.length > 0) params1.last.paramType else Nothing)
         val exprs: Seq[Expression] = params1.map(p => new Expression(p.paramType)) ++ Seq.fill(i)(default)
-         val conformance = Compatibility.checkConformance(false, params2, exprs, false)
+        val conformance = Compatibility.checkConformance(false, params2, exprs, false)
         var u = conformance._2
         if (!conformance._1) return false
         t2 match {
