@@ -40,18 +40,20 @@ class ScalaConstuctorInsertHandler extends InsertHandler[LookupElement] {
 
     patchedObject match {
       case ScalaLookupObject(obj: ScObject, _, _, _) => {
-        document.insertString(endOffset, ".")
-        endOffset += 1
-        editor.getCaretModel.moveToOffset(endOffset)
-        context.setLaterRunnable(new Runnable {
-          def run() {
-            AutoPopupController.getInstance(context.getProject).scheduleAutoPopup(
-              context.getEditor, new Condition[PsiFile] {
-                def value(t: PsiFile): Boolean = t == context.getFile
-              }
-            )
-          }
-        })
+        if (context.getCompletionChar != '.') {
+          document.insertString(endOffset, ".")
+          endOffset += 1
+          editor.getCaretModel.moveToOffset(endOffset)
+          context.setLaterRunnable(new Runnable {
+            def run() {
+              AutoPopupController.getInstance(context.getProject).scheduleAutoPopup(
+                context.getEditor, new Condition[PsiFile] {
+                  def value(t: PsiFile): Boolean = t == context.getFile
+                }
+              )
+            }
+          })
+        }
         return
       }
       case obj@ScalaLookupObject(clazz: PsiClass, _, _, _) => {
