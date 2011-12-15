@@ -3,13 +3,13 @@ package lang
 package refactoring
 package move
 
-import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.openapi.actionSystem.ex.DataConstantsEx
 import com.intellij.openapi.editor.Editor
 import com.intellij.psi.{PsiDirectory, PsiElement, PsiReference}
 import com.intellij.openapi.project.Project
 import com.intellij.refactoring.move.{MoveCallback, MoveHandlerDelegate}
 import psi.api.toplevel.typedef.ScTypeDefinition
+import com.intellij.openapi.actionSystem.{LangDataKeys, DataContext}
 
 /**
  * User: Alexander Podkhalyuzin
@@ -38,10 +38,11 @@ class ScalaMoveHandler extends MoveHandlerDelegate {
 
   override def tryToMove(element: PsiElement, project: Project,
                          dataContext: DataContext, reference: PsiReference, editor: Editor): Boolean = {
+    //todo: check move target: if it's source dir, then move class, otherwise move file.
     val valid = isValidSource(element)
     if (valid) {
       MoveRefactoringUtil.moveClass(project, Array[PsiElement](element),
-        dataContext.getData(DataConstantsEx.TARGET_PSI_ELEMENT).asInstanceOf[PsiElement], null)
+        LangDataKeys.TARGET_PSI_ELEMENT.getData(dataContext), null)
     } 
     valid
   }
