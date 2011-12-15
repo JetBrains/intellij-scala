@@ -23,6 +23,7 @@ class ScalaMoveHandler extends MoveHandlerDelegate {
 
   override def doMove(project: Project, elements: Array[PsiElement],
                       targetContainer: PsiElement, callback: MoveCallback) {
+    //todo: in case if targetContainer is not null, do not show move dialog, show confirmation like in Java
     MoveRefactoringUtil.moveClass(project, elements, targetContainer, callback)
   }
 
