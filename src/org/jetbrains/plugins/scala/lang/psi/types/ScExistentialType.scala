@@ -53,7 +53,12 @@ case class ScExistentialType(quantified : ScType,
   }
 
   private def skolemInner: ScType = {
-    val skolemSubst = wildcards.foldLeft(ScSubstitutor.empty) {(s, p) => s bindT ((p.name, ""), p.unpack)}
+    val unpacked = wildcards.map(_.unpack)
+    val skolemSubst = unpacked.foldLeft(ScSubstitutor.empty) {(s, p) => s bindT ((p.name, ""), p)}
+    unpacked.foreach((p: ScSkolemizedType) => {
+      p.upper = skolemSubst.subst(p.upper)
+      p.lower = skolemSubst.subst(p.lower)
+    })
     skolemSubst.subst(quantified)
   }
 
@@ -426,7 +431,7 @@ case class ScExistentialArgument(name : String, args : List[ScTypeParameterType]
   }
 }
 
-case class ScSkolemizedType(name : String, args : List[ScTypeParameterType], lower : ScType, upper : ScType)
+case class ScSkolemizedType(name : String, args : List[ScTypeParameterType], var lower : ScType, var upper : ScType)
   extends ValueType {
   def visitType(visitor: ScalaTypeVisitor) {
     visitor.visitSkolemizedType(this)
