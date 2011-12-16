@@ -43,6 +43,7 @@ class ShowImplicitParametersAction extends AnAction("Show implicit parameters ac
     val context = e.getDataContext
     val project = PlatformDataKeys.PROJECT.getData(context)
     val editor = PlatformDataKeys.EDITOR.getData(context)
+    if (editor == null) return
     val file = PsiUtilBase.getPsiFileInEditor(editor, project)
     if (!file.isInstanceOf[ScalaFile]) return
 
