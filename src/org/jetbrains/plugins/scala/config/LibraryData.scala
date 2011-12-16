@@ -12,7 +12,7 @@ import com.intellij.openapi.roots.libraries.Library
 
 abstract class LibraryData(protected val delegate: Library, name: String, 
                            prefix: String, bundle: String, marker: String) {
-  def version: Option[String] = jar.flatMap(readProperty(_, bundle, "version.number")) 
+  def version: Option[String] = jar.flatMap(readProperty(_, bundle, "version.number"))
 
   def classpath: String = files.map(_.getPath).mkString(File.pathSeparator)
   

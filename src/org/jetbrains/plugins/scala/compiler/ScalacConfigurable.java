@@ -37,6 +37,7 @@ public class ScalacConfigurable implements Configurable {
   private TextFieldWithBrowseButton mySharedDirectory;
   private JPanel myServerPanel;
   private JPanel myClientPanel;
+  private JTextField myIdleTimeout;
   private ScalacSettings mySettings;
   private Project myProject;
   private final LibraryRenderer myLibraryRenderer;
@@ -156,6 +157,7 @@ public class ScalacConfigurable implements Configurable {
     if (mySettings.COMPILER_LIBRARY_LEVEL != getCompilerLibraryLevel()) return true;
     if (!mySettings.MAXIMUM_HEAP_SIZE.equals(myMaximumHeapSize.getText())) return true;
     if (!mySettings.VM_PARAMETERS.equals(myVmParameters.getText())) return true;
+    if (!mySettings.IDLE_TIMEOUT.equals(myIdleTimeout.getText())) return true;
     if (!mySettings.FSC_OPTIONS.equals(myFscOptions.getText())) return true;
     if (mySettings.INTERNAL_SERVER != myRunInternalServerRadioButton.isSelected()) return true;
     if (!mySettings.REMOTE_HOST.equals(myRemoteHost.getText())) return true;
@@ -168,6 +170,7 @@ public class ScalacConfigurable implements Configurable {
   public void apply() throws ConfigurationException {
     mySettings.MAXIMUM_HEAP_SIZE = myMaximumHeapSize.getText();
     mySettings.VM_PARAMETERS = myVmParameters.getText();
+    mySettings.IDLE_TIMEOUT = myIdleTimeout.getText();
     mySettings.FSC_OPTIONS = myFscOptions.getText();
     mySettings.COMPILER_LIBRARY_NAME = getCompilerLibraryName();
     mySettings.COMPILER_LIBRARY_LEVEL = getCompilerLibraryLevel();
@@ -198,6 +201,7 @@ public class ScalacConfigurable implements Configurable {
     setCompilerLibraryById(new LibraryId(mySettings.COMPILER_LIBRARY_NAME, mySettings.COMPILER_LIBRARY_LEVEL));
     myMaximumHeapSize.setText(mySettings.MAXIMUM_HEAP_SIZE);
     myVmParameters.setText(mySettings.VM_PARAMETERS);
+    myIdleTimeout.setText(mySettings.IDLE_TIMEOUT);
     myFscOptions.setText(mySettings.FSC_OPTIONS);
     myRunInternalServerRadioButton.setSelected(mySettings.INTERNAL_SERVER);
     myConnectToExternalServerRadioButton.setSelected(!mySettings.INTERNAL_SERVER);
