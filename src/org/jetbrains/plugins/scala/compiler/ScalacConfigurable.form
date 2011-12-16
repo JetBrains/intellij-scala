@@ -76,7 +76,7 @@
                 </constraints>
                 <properties>
                   <enabled value="true"/>
-                  <text value="FSC &amp;options:"/>
+                  <text value="FSC server &amp;options:"/>
                 </properties>
               </component>
               <component id="787fb" class="javax.swing.JLabel">
