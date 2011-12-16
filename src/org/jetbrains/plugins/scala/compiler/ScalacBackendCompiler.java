@@ -370,6 +370,14 @@ public class ScalacBackendCompiler extends ExternalCompiler {
         printer.println("-server");
         printer.println(String.format("%s:%s", settings.REMOTE_HOST, settings.REMOTE_PORT));
       }
+
+      String compilerVersion = Libraries.findBy(settings.COMPILER_LIBRARY_NAME,
+          settings.COMPILER_LIBRARY_LEVEL, myProject).get().version().get();
+
+      if (compilerVersion.startsWith("2.9")) {
+        printer.println("-max-idle");
+        printer.println(settings.IDLE_TIMEOUT);
+      }
     }
 
     StringTokenizer tokenizer = new StringTokenizer(getEncodingOptions(), " ");
