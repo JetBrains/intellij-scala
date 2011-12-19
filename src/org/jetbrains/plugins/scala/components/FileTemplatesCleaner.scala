@@ -7,7 +7,6 @@ import javax.swing.event.HyperlinkEvent
 import org.intellij.lang.annotations.Language
 import org.jetbrains.plugins.scala.DesktopUtils
 import java.io.File
-import com.intellij.openapi.vfs.newvfs.persistent.FSRecords
 import com.intellij.openapi.application.{ApplicationManager, PathManager}
 
 /**
@@ -22,11 +21,9 @@ class FileTemplatesCleaner extends ApplicationComponent {
    <body>
     <p>To fix <a href="http://devnet.jetbrains.net/message/5286355">new class creation problem</a> Scala plugin needs to:
     <ol>
-      <li>update file templates,</li>
-      <li>invalidate caches,</li>
+      <li>reset Scala file templates,</li>
       <li>restart IDEA.</li>
     </ol></p>
-    <p style="color: #AA0000;">WARNING: Local History will be also cleared</p>
     <br>
     <a href=''>Perform the required actions</a>
    </body>
@@ -57,7 +54,7 @@ class FileTemplatesCleaner extends ApplicationComponent {
     val deleteRoot = rootFiles.size == orphanFiles.size
     orphanFiles.foreach(_.deleteForSure())
     if(deleteRoot) TemplatesRoot.deleteForSure()
-    FSRecords.invalidateCaches
+//    FSRecords.invalidateCaches
     ApplicationManager.getApplication.restart
   }
 
