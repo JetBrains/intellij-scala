@@ -50,12 +50,13 @@ object NameSuggester {
   def suggestNamesByType(typez: ScType): Array[String] = {
     val names = new ArrayBuffer[String]
     generateNamesByType(typez)(names, emptyValidator(null))
-    if (names.size == 0) {
-      names += "value"
-    }
-    (for (name <- names if name != "" && ScalaNamesUtil.isIdentifier(name) || name == "class") yield {
-      if (name != "class") name else "clazz"
-    }).toList.reverse.toArray
+    val result = names.map {
+      case "class" => "clazz"
+      case s => s
+    }.filter(name => name != "" && ScalaNamesUtil.isIdentifier(name))
+    if (result.length == 0) {
+      Array("value")
+    } else result.reverse.toArray
   }
   
   private def add(s: String)(implicit validator: NameValidator, names: ArrayBuffer[String]) {
