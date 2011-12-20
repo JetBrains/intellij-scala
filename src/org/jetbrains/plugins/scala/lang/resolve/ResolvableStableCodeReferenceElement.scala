@@ -32,7 +32,8 @@ trait ResolvableStableCodeReferenceElement extends ScStableCodeReferenceElement 
   private object ShapesResolverAllConstructors extends StableCodeReferenceElementResolver(this, true, true, false)
 
   def multiResolve(incomplete: Boolean): Array[ResolveResult] = {
-    ResolveCache.getInstance(getProject).resolveWithCaching(this, Resolver, true, incomplete)
+    val res: Array[ResolveResult] = ResolveCache.getInstance(getProject).resolveWithCaching(this, Resolver, true, incomplete)
+    res
   }
 
   protected def processQualifierResolveResult(res: ResolveResult, processor: BaseProcessor, ref: ScStableCodeReferenceElement) {

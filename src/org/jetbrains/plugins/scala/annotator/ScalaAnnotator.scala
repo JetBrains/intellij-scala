@@ -138,7 +138,7 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
       
       case x: ScFunction if x.getParent.isInstanceOf[ScTemplateBody] => {
         //todo: unhandled case abstract override
-        //checkOverrideMethods(x, holder)
+        checkOverrideMethods(x, holder)
       }
       case x: ScTemplateDefinition => {
         val tdParts = Seq(AbstractInstantiation, FinalClassInheritance, IllegalInheritance, ObjectCreationImpossible,

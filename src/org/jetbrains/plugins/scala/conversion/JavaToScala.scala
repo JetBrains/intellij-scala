@@ -15,7 +15,7 @@ import collection.mutable.{ListBuffer, ArrayBuffer, LinkedHashSet}
 import com.intellij.codeInsight.editorActions.ReferenceTransferableData.ReferenceData
 
 /**
- * @author: Alexander Podkhalyuzin
+ * Author: Alexander Podkhalyuzin
  * Date: 23.07.2009
  */
 

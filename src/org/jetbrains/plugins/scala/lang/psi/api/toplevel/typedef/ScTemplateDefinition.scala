@@ -119,7 +119,16 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
 
   def isScriptFileClass = getContainingFile match {case file: ScalaFile => file.isScriptFile() case _ => false}
 
-  override def processDeclarations(processor: PsiScopeProcessor,
+  def processDeclarations(processor: PsiScopeProcessor,
+                          oldState: ResolveState,
+                          lastParent: PsiElement,
+                          place: PsiElement) : Boolean = {
+    if (extendsBlock.templateBody != None &&
+      PsiTreeUtil.isContextAncestor(extendsBlock.templateBody.get, place, false) && lastParent != null) return true
+    processDeclarationsForTemplateBody(processor, oldState, lastParent, place)
+  }
+
+  def processDeclarationsForTemplateBody(processor: PsiScopeProcessor,
                                   oldState: ResolveState,
                                   lastParent: PsiElement,
                                   place: PsiElement) : Boolean = {

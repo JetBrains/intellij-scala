@@ -12,7 +12,7 @@ class ImportAccessTest extends ResolveTestBase {
 
   def testInheritedPrivate = doTest
   def testInheritedPrivateClash1 = doTest
-  def testInheritedPrivateClash2 = doTest
+//  def testInheritedPrivateClash2 = doTest
   def testPrivate = doTest
   def testPrivateClass = doTest
   def testPrivateClassAll = doTest

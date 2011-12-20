@@ -52,11 +52,11 @@ class ScNewTemplateDefinitionImpl private () extends ScalaStubBasedElementImpl[S
     }
   }
 
- override def processDeclarations(processor: PsiScopeProcessor, state: ResolveState,
+ override def processDeclarationsForTemplateBody(processor: PsiScopeProcessor, state: ResolveState,
                                           lastParent: PsiElement, place: PsiElement): Boolean =
   extendsBlock.templateBody match {
     case Some(body) if (PsiTreeUtil.isContextAncestor(body, place, false)) =>
-      super[ScNewTemplateDefinition].processDeclarations(processor, state, lastParent, place)
+      super[ScNewTemplateDefinition].processDeclarationsForTemplateBody(processor, state, lastParent, place)
     case _ => true
   }
   def nameId: PsiElement = null
@@ -73,6 +73,11 @@ class ScNewTemplateDefinitionImpl private () extends ScalaStubBasedElementImpl[S
     for (sup <- direct if !res.contains(sup)) res ++= sup.getSupers
     // return strict superclasses
     res.filter(_ != this).toArray
+  }
+
+  override def processDeclarations(processor: PsiScopeProcessor, state: ResolveState, lastParent: PsiElement,
+                                   place: PsiElement): Boolean = {
+    super[ScNewTemplateDefinition].processDeclarations(processor, state, lastParent, place)
   }
 
   override def getExtendsListTypes: Array[PsiClassType] = innerExtendsListTypes

@@ -59,12 +59,12 @@ class ScObjectImpl extends ScTypeDefinitionImpl with ScObject with ScTemplateDef
 
   override def isCase = hasModifierProperty("case")
 
-  override def processDeclarations(processor: PsiScopeProcessor,
+  override def processDeclarationsForTemplateBody(processor: PsiScopeProcessor,
                                    state: ResolveState,
                                    lastParent: PsiElement,
                                    place: PsiElement): Boolean = {
     if (DumbServiceImpl.getInstance(getProject).isDumb) return true
-    if (!super[ScTemplateDefinition].processDeclarations(processor, state, lastParent, place)) return false
+    if (!super[ScTemplateDefinition].processDeclarationsForTemplateBody(processor, state, lastParent, place)) return false
     if (isPackageObject && name != "`package`") {
       val qual = getQualifiedName
       val facade = JavaPsiFacade.getInstance(getProject)
@@ -73,6 +73,11 @@ class ScObjectImpl extends ScTypeDefinitionImpl with ScObject with ScTemplateDef
         return false
     }
     true
+  }
+
+  override def processDeclarations(processor: PsiScopeProcessor, state: ResolveState, lastParent: PsiElement,
+                                   place: PsiElement): Boolean = {
+    super[ScTemplateDefinition].processDeclarations(processor, state, lastParent, place)
   }
 
   def objectSyntheticMembers: Seq[PsiMethod] = {

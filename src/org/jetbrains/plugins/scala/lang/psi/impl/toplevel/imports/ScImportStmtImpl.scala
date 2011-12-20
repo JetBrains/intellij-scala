@@ -55,6 +55,22 @@ class ScImportStmtImpl extends ScalaStubBasedElementImpl[ScImportStmt] with ScIm
           case Some(ref) => ref
           case _ => return true
         }
+        val nameHint = processor.getHint(NameHint.KEY)
+        val name = if (nameHint == null) "" else nameHint.getName(state)
+        if (name != "" && !importExpr.singleWildcard) {
+          val decodedName = ScalaPsiUtil.convertMemberName(name)
+          importExpr.selectorSet match {
+            case Some(set) => set.selectors.
+                find(selector => ScalaPsiUtil.convertMemberName(selector.reference.refName) == decodedName) != None
+            case None => if (ScalaPsiUtil.convertMemberName(ref.refName) != decodedName) return true
+          }
+        }
+        val checkWildcardImorts = processor match {
+          case r: ResolveProcessor =>
+            if (!r.checkImports()) return true
+            r.checkWildcardImports()
+          case _ => true
+        }
         val exprQual: ScStableCodeReferenceElement = importExpr.selectorSet match {
           case Some(_) => ref
           case None if importExpr.singleWildcard => ref
@@ -82,6 +98,7 @@ class ScImportStmtImpl extends ScalaStubBasedElementImpl[ScImportStmt] with ScIm
                 newState = newState.put(BaseProcessor.FROM_TYPE_KEY, tp)
               }
               if (importExpr.singleWildcard) {
+                if (!checkWildcardImorts) return true
                 (elem, processor) match {
                   case (cl: PsiClass, processor: BaseProcessor) if !cl.isInstanceOf[ScTemplateDefinition] => {
                     if (!processor.processType(new ScDesignatorType(cl, true), place,
@@ -119,6 +136,7 @@ class ScImportStmtImpl extends ScalaStubBasedElementImpl[ScImportStmt] with ScIm
               // There is total import from stable id
               // import a.b.c.{d=>e, f=>_, _}
               if (set.hasWildcard) {
+                if (!checkWildcardImorts) return true
                 processor match {
                   case bp: BaseProcessor => {
                     ProgressManager.checkCanceled()

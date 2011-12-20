@@ -34,11 +34,16 @@ class ScTraitImpl extends ScTypeDefinitionImpl with ScTrait with ScTypeParameter
 
   import com.intellij.psi._
   import com.intellij.psi.scope.PsiScopeProcessor
-  override def processDeclarations(processor: PsiScopeProcessor,
+  override def processDeclarationsForTemplateBody(processor: PsiScopeProcessor,
                                   state: ResolveState,
                                   lastParent: PsiElement,
                                   place: PsiElement): Boolean = {
     super[ScTypeParametersOwner].processDeclarations(processor, state, lastParent, place) &&
+    super[ScTemplateDefinition].processDeclarationsForTemplateBody(processor, state, lastParent, place)
+  }
+
+  override def processDeclarations(processor: PsiScopeProcessor, state: ResolveState, lastParent: PsiElement,
+                                   place: PsiElement): Boolean = {
     super[ScTemplateDefinition].processDeclarations(processor, state, lastParent, place)
   }
 

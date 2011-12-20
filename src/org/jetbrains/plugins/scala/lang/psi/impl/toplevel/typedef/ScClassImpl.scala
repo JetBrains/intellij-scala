@@ -65,12 +65,12 @@ class ScClassImpl extends ScTypeDefinitionImpl with ScClass with ScTypeParameter
 
   import com.intellij.psi.{PsiElement, ResolveState}
   import com.intellij.psi.scope.PsiScopeProcessor
-  override def processDeclarations(processor: PsiScopeProcessor,
+  override def processDeclarationsForTemplateBody(processor: PsiScopeProcessor,
                                   state: ResolveState,
                                   lastParent: PsiElement,
                                   place: PsiElement): Boolean = {
     if (DumbServiceImpl.getInstance(getProject).isDumb) return true
-    if (!super[ScTemplateDefinition].processDeclarations(processor, state, lastParent, place)) return false
+    if (!super[ScTemplateDefinition].processDeclarationsForTemplateBody(processor, state, lastParent, place)) return false
 
     for (p <- parameters) {
       ProgressManager.checkCanceled()
@@ -80,6 +80,11 @@ class ScClassImpl extends ScTypeDefinitionImpl with ScClass with ScTypeParameter
     }
 
     super[ScTypeParametersOwner].processDeclarations(processor, state, lastParent, place)
+  }
+
+  override def processDeclarations(processor: PsiScopeProcessor, state: ResolveState, lastParent: PsiElement,
+                                   place: PsiElement): Boolean = {
+    super[ScTemplateDefinition].processDeclarations(processor, state, lastParent, place)
   }
 
   override def isCase: Boolean = hasModifierProperty("case")
