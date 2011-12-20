@@ -44,7 +44,7 @@ trait ScImportsHolder extends ScalaPsiElement {
       place: PsiElement): Boolean = {
     if (lastParent != null) {
       var run = ScalaPsiUtil.getPrevStubOrPsiElement(lastParent)
-      updateResolveCaches()
+//      updateResolveCaches()
       while (run != null) {
         ProgressManager.checkCanceled()
         if (run.isInstanceOf[ScImportStmt] &&

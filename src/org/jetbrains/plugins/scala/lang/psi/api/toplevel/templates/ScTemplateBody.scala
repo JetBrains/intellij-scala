@@ -8,9 +8,10 @@ package templates
 import base.types.ScSelfTypeElement
 import statements.{ScFunction, ScDeclaredElementsHolder, ScTypeAlias}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
-import toplevel.typedef.ScMember
 import api.toplevel.typedef._
 import expr.ScExpression
+import com.intellij.psi.scope.PsiScopeProcessor
+import com.intellij.psi.{PsiElement, ResolveState}
 
 /**
 * @author Alexander Podkhalyuzin

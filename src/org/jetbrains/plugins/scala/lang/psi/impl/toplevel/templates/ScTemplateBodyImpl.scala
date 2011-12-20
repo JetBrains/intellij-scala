@@ -7,14 +7,15 @@ package templates
 
 import api.base.types.ScSelfTypeElement
 import api.statements.{ScDeclaredElementsHolder, ScFunction, ScTypeAlias}
-import api.toplevel.typedef.{ScMember, ScTypeDefinition}
-import com.intellij.psi.PsiElement
 import com.intellij.lang.ASTNode
-import com.intellij.util.ArrayFactory
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates._
 import parser.ScalaElementTypes
-import stubs.{ScTemplateBodyStub, ScPrimaryConstructorStub}
+import stubs.ScTemplateBodyStub
 import api.expr.ScExpression
+import com.intellij.psi.scope.PsiScopeProcessor
+import com.intellij.psi.{ResolveState, PsiElement}
+import com.intellij.psi.util.PsiTreeUtil
+import api.toplevel.typedef.{ScTemplateDefinition, ScMember, ScTypeDefinition}
 
 /**
 * @author Alexander Podkhalyuzin
@@ -61,5 +62,14 @@ class ScTemplateBodyImpl extends ScalaStubBasedElementImpl[ScTemplateBody] with 
       case null => None
       case s => Some(s.asInstanceOf[ScSelfTypeElement])
     }
+  }
+
+  override def processDeclarations(processor: PsiScopeProcessor, state: ResolveState,
+                                   lastParent: PsiElement, place: PsiElement): Boolean = {
+    val td = PsiTreeUtil.getContextOfType(this, classOf[ScTemplateDefinition])
+    if (td != null) {
+      if (!td.processDeclarationsForTemplateBody(processor, state, td.extendsBlock, place)) return false
+    }
+    super.processDeclarations(processor, state, lastParent, place)
   }
 }
