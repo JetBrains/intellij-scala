@@ -35,12 +35,14 @@ object ScalaRecursionManager {
   private def addLast[Dom <: PsiElement](element: Dom, key: String, obj: Object) {
     recursionMap.get().get((element, key)) match {
       case Some(buffer) => buffer += obj
+      case _ => throw new RuntimeException("Match is not exhaustive")
     }
   }
 
   private def removeLast[Dom <: PsiElement](element: Dom, key: String) {
     recursionMap.get().get((element, key)) match {
       case Some(buffer) => buffer.remove(buffer.length - 1)
+      case _ => throw new RuntimeException("Match is not exhaustive")
     }
   }
 

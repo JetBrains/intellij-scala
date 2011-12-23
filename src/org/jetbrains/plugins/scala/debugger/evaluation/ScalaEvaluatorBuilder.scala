@@ -1325,6 +1325,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
                       myResult = new ScalaMethodEvaluator(myResult, name, null /* todo? */, Seq.empty, false,
                         traitImplementation(resolve), DebuggerUtil.getSourcePositions(resolve.getNavigationElement))
                   }
+                case _ => throw new RuntimeException("Match is not exhaustive")
               }
             case None =>
               ref.bind() match {
@@ -1338,6 +1339,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
                     myResult = new ScalaMethodEvaluator(evaluator, name, null /* todo? */, Seq.empty, false,
                       traitImplementation(resolve), DebuggerUtil.getSourcePositions(resolve.getNavigationElement))
                   }
+                case _ => throw new RuntimeException("Match is not exhaustive")
               }
           }
         case _: PsiMethod | _: ScSyntheticFunction =>
@@ -1359,6 +1361,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
                       val name = NameTransformer.encode(named.name)
                       myResult = new ScalaFieldEvaluator(myResult, _ => true, name, true)
                   }
+                case _ => throw new RuntimeException("Match is not exhaustive")
               }
             case None =>
               ref.bind() match {
@@ -1371,6 +1374,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
                     val name = NameTransformer.encode(named.getName)
                     myResult = new ScalaFieldEvaluator(evaluator, _ => true, name, true)
                   }
+                case _ => throw new RuntimeException("Match is not exhaustive")
               }
           }
         case _: ScClassParameter | _: ScBindingPattern =>
@@ -1389,6 +1393,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
                       myResult = new ScalaMethodEvaluator(myResult, name, null /* todo */, Seq.empty, false,
                         traitImplementation(resolve), DebuggerUtil.getSourcePositions(resolve.getNavigationElement))
                   }
+                case _ => throw new RuntimeException("Match is not exhaustive")
               }
             case None =>
               ref.bind() match {
@@ -1402,6 +1407,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
                     myResult = new ScalaMethodEvaluator(evaluator, name, null/* todo */, Seq.empty, false,
                       traitImplementation(resolve), DebuggerUtil.getSourcePositions(resolve.getNavigationElement))
                   }
+                case _ => throw new RuntimeException("Match is not exhaustive")
               }
           }
         case field: PsiField =>
@@ -1424,6 +1430,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
                         myResult = new ScalaFieldEvaluator(myResult,
                           ScalaFieldEvaluator.getFilter(getContainingClass(field)), name)
                     }
+                  case _ => throw new RuntimeException("Match is not exhaustive")
                 }
               }
             case None =>
@@ -1438,6 +1445,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
                     myResult = new ScalaFieldEvaluator(evaluator,
                       ScalaFieldEvaluator.getFilter(getContainingClass(field)), name)
                   }
+                case _ => throw new RuntimeException("Match is not exhaustive")
               }
           }
         case pack: ScPackage =>
