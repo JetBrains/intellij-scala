@@ -42,6 +42,10 @@ class ScalaFileImplTest extends SimpleTestCase {
 
     assertPathAddedAs("class C", List(List("a")), "package a\n\nclass C");
     assertPathAddedAs("class C", List(List("a"), List("b")), "package a\npackage b\n\nclass C");
+
+//    assertPathAddedAs("class C\n\n", List(List("a")), "package a\n\nclass C\n\n");
+
+//    assertPathAddedAs(" ", List(List("a")), "package a\n\n ");
   }
 
   def testSplitsIn() {

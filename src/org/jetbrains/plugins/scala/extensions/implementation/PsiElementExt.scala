@@ -6,6 +6,7 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiWhiteSpace, PsiFile, PsiReference, PsiElement}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 
 /**
  * Pavel Fatin
@@ -103,16 +104,27 @@ trait PsiElementExt {
   }
   
   def wrapChildrenIn(container: PsiElement): PsiElement = {
-    val elements = children.toList
-
-    val wrapper = repr.add(container)
-
-    if (elements.nonEmpty) {
-      wrapper.addRange(elements.head, elements.last)
-      repr.deleteChildRange(elements.head, elements.last)
+    if (repr.getFirstChild != null) {
+      val (a, b) = copy(repr.getFirstChild, repr.getLastChild)
+      repr.deleteChildRange(repr.getFirstChild, repr.getLastChild)
+      val wrapper = repr.add(container)
+      wrapper.addRange(a, b)
+      wrapper
+    } else {
+      repr.add(container)
     }
+  }
 
-    wrapper
+  private def copy(first: PsiElement, last: PsiElement): (PsiElement, PsiElement) = {
+    val file = ScalaPsiElementFactory.parseFile("", repr.getManager)
+    val a = file.addRange(first, last)
+    var e = first
+    var b = a
+    while (e != last) {
+      e = e.getNextSibling
+      b = b.getNextSibling
+    }
+    (a,  b)
   }
 
   def unwrapChildren(): Seq[PsiElement] = {
