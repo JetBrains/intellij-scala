@@ -12,7 +12,7 @@ import com.intellij.psi.PsiClass
  */
 
 class ScalaDocCompletionTest extends ScalaCompletionTestBase {
-  protected def genericCompletionComprasion(initialText: String, finalText: String, filter: LookupElement => Boolean) {
+  protected def genericCompletionComparison(initialText: String, finalText: String, filter: LookupElement => Boolean) {
     val fileText = initialText.stripMargin('|').replaceAll("\r", "").trim()
     val resultText = finalText.stripMargin('|').replaceAll("\r", "").trim()
 
@@ -22,12 +22,12 @@ class ScalaDocCompletionTest extends ScalaCompletionTestBase {
     completeLookupItem(activeLookup.find(cv => filter(cv)).get)
     checkResultByText(resultText)
   }
-  
+
   protected def genericCompletionComprasion(initialText: String,  finalText: String,  preferedLookupString: String) {
-    genericCompletionComprasion(initialText, finalText,
+    genericCompletionComparison(initialText, finalText,
       (le: LookupElement) => le.getLookupString == preferedLookupString)
   }
-  
+
   def testTagNameCompletion() {
     genericCompletionComprasion(
       """
@@ -65,7 +65,7 @@ class ScalaDocCompletionTest extends ScalaCompletionTestBase {
   }
 
   def testLinkCodeCompletion() {
-    genericCompletionComprasion(
+    genericCompletionComparison(
       """
       | /**
       |  *
