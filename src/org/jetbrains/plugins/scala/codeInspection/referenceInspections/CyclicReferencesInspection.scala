@@ -12,6 +12,7 @@ import lang.psi.api.base.ScReferenceElement
 import lang.psi.api.statements.ScTypeAliasDefinition
 import lang.psi.types.result.Failure
 import lang.psi.api.ScalaElementVisitor
+import lang.psi.api.expr.ScReferenceExpression
 
 /**
  * User: Alexander Podkhalyuzin
@@ -43,6 +44,10 @@ class CyclicReferencesInspection extends LocalInspectionTool {
     new ScalaElementVisitor {
       override def visitReference(ref: ScReferenceElement) {
         check(ref, holder)
+      }
+
+      override def visitReferenceExpression(ref: ScReferenceExpression) {
+        visitReference(ref)
       }
     }
   }

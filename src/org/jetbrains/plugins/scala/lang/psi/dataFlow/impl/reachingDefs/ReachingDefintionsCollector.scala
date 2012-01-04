@@ -9,8 +9,8 @@ import collection.mutable.ArrayBuffer
 import com.intellij.psi.{PsiNamedElement, PsiElement}
 import org.jetbrains.plugins.scala.lang.psi.controlFlow.impl.{ReadWriteVariableInstruction, DefineValueInstruction}
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiUtil, ScalaPsiElement}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScFunctionExpr
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScReferenceExpression, ScFunctionExpr}
 
 /**
  * @author ilyas

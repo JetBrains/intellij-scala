@@ -10,6 +10,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScVariab
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import toplevel.imports.ScImportExpr
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api._
+import collection.mutable.Stack
 
 /**
  * @author ilyas
@@ -17,8 +18,25 @@ import org.jetbrains.plugins.scala.lang.scaladoc.psi.api._
  */
 
 class ScalaRecursiveElementVisitor extends ScalaElementVisitor {
+  private val referencesStack = new Stack[ScReferenceExpression]()
+  
   override def visitElement(element: ScalaPsiElement) {
-    element.acceptChildren(this)
+    if (!referencesStack.isEmpty && referencesStack.top == element) {
+      referencesStack.pop()
+      referencesStack.push(null)
+    } else {
+      element.acceptChildren(this)
+    }
+  }
+
+  override def visitReferenceExpression(ref: ScReferenceExpression) {
+    try {
+      referencesStack.push(ref)
+      visitReference(ref)
+      visitExpression(ref)
+    } finally {
+      referencesStack.pop()
+    }
   }
 }
 
@@ -32,6 +50,8 @@ class ScalaElementVisitor extends PsiElementVisitor {
   }
 
   def visitElement(element: ScalaPsiElement) {super.visitElement(element)}
+
+  //Override also visitReferenceExpression!
   def visitReference(ref: ScReferenceElement) { visitElement(ref) }
   def visitPatternDefinition(pat: ScPatternDefinition) { visitElement(pat) }
   def visitVariableDefinition(varr: ScVariableDefinition) { visitElement(varr) }
@@ -46,10 +66,11 @@ class ScalaElementVisitor extends PsiElementVisitor {
 
 
   // Expressions
+  //Override also visitReferenceExpression!
   def visitExpression(expr: ScExpression) { visitElement(expr) }
   def visitThisReference(t: ScThisReference) {visitExpression(t)}
   def visitSuperReference(t: ScSuperReference) {visitExpression(t)}
-  def visitReferenceExpression(ref: ScReferenceExpression) { visitReference(ref); visitExpression(ref) }
+  def visitReferenceExpression(ref: ScReferenceExpression) {}
   def visitPostfixExpression(p: ScPostfixExpr) { visitExpression(p) }
   def visitPrefixExpression(p: ScPrefixExpr) { visitExpression(p) }
   def visitIfStatement(stmt: ScIfStmt) { visitExpression(stmt) }

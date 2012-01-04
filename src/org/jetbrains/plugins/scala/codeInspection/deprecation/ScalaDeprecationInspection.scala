@@ -9,6 +9,7 @@ import lang.psi.api.ScalaElementVisitor
 import lang.psi.api.statements.{ScFunction, ScAnnotationsHolder}
 import lang.psi.api.base.{ScReferenceElement, ScPrimaryConstructor}
 import org.jetbrains.plugins.scala.extensions._
+import lang.psi.api.expr.ScReferenceExpression
 
 
 /**
@@ -52,6 +53,10 @@ class ScalaDeprecationInspection extends LocalInspectionTool {
       override def visitReference(ref: ScReferenceElement) {
         if (!ref.isValid) return
         checkDeprecated(ref.resolve(), ref.nameId, ref.refName)
+      }
+
+      override def visitReferenceExpression(ref: ScReferenceExpression) {
+        visitReference(ref)
       }
     }
   }
