@@ -110,6 +110,10 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
       val buf = new HashSet[PsiElement]
       fun.accept(new ScalaRecursiveElementVisitor {
         override def visitReference(ref: ScReferenceElement) {
+          if (ref.qualifier != None) {
+            super.visitReference(ref)
+            return
+          }
           val elem = ref.resolve()
           if (elem != null) {
             var element = elem
@@ -122,6 +126,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
               }
             }
           }
+          super.visitReference(ref)
         }
       })
       buf.toSeq.filter(isLocalV(_)).sortBy(e => (e.isInstanceOf[ScObject], e.getTextRange.getStartOffset))
