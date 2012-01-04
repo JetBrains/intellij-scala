@@ -6,6 +6,7 @@ import org.jetbrains.plugins.scala.base.ScalaPsiTestCase
 import com.intellij.psi.PsiManager
 import java.io.File
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 
 /**
  * User: Alexander Podkhalyuzin

@@ -196,7 +196,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
         val exprText = s + "." + ref.refName
         ScalaPsiElementFactory.createExpressionWithContextFromText(exprText, ref.getContext, ref)
       })
-      super.visitReferenceExpression(ref)
+      visitExpression(ref)
     }
 
     override def visitIfStatement(stmt: ScIfStmt) {

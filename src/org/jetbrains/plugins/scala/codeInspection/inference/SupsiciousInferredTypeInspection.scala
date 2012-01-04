@@ -7,9 +7,9 @@ import com.intellij.codeInspection._
 import org.jetbrains.plugins.scala.codeInspection.InspectionsUtil
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, Any, AnyVal}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlock, ScBlockExpr, ScExpression}
 import com.intellij.psi.{PsiElementVisitor, PsiFile}
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaRecursiveElementVisitor, ScalaFile}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScReferenceExpression, ScBlock, ScBlockExpr, ScExpression}
 
 class SupsiciousInferredTypeInspection extends LocalInspectionTool {
   def getGroupDisplayName: String = InspectionsUtil.SCALA
@@ -27,7 +27,11 @@ class SupsiciousInferredTypeInspection extends LocalInspectionTool {
   override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor = {
     if (!holder.getFile.isInstanceOf[ScalaFile]) return new PsiElementVisitor {}
     new ScalaElementVisitor {
-      override def visitExpression(expr: ScExpression): Unit = {
+      override def visitReferenceExpression(ref: ScReferenceExpression) {
+        visitExpression(ref)
+      }
+
+      override def visitExpression(expr: ScExpression) {
         val exprResultUsed = expr.getContext match {
           case blk: ScBlock if blk.lastExpr.forall(_ != expr) => false
           case _ => true
