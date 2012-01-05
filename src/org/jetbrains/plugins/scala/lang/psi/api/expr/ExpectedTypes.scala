@@ -127,7 +127,13 @@ private[expr] object ExpectedTypes {
                   case v: ScVariable =>
                     Array((subst.subst(named.asInstanceOf[ScTypedDefinition].
                       getType(TypingContext.empty).getOrAny), v.typeElement))
-                  case f: ScFunction => Array.empty //todo: find functionName_= method and do as argument call expected type
+                  case f: ScFunction =>
+                    val res = new ArrayBuffer[ScType]
+                    val tps =
+                      if (!withResolvedFunction) ref.shapeMultiType
+                      else ref.multiType
+                    tps.foreach(processArgsExpected(res, expr, 0, _, Array(expr)))
+                    res.map(typeToPair).toArray
                   case p: ScParameter => {
                     //for named parameters
                     Array((subst.subst(p.getType(TypingContext.empty).getOrAny), p.typeElement))
