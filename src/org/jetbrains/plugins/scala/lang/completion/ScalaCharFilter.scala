@@ -14,14 +14,6 @@ class ScalaCharFilter extends CharFilter {
     if (!file.isInstanceOf[ScalaFile]) return null
     if (c == '[' || c == ']') return Result.SELECT_ITEM_AND_FINISH_LOOKUP
     if (c == ':') return Result.HIDE_LOOKUP
-    lookup.getPsiElement.getContext match {
-      // avoids:
-      //   "(va:" => "(var"
-      //   "(va<SPACE>" => "(var "
-      case x: ScParameterClause if Set(' ', ':').contains(c) => Result.HIDE_LOOKUP
-      case _: ScEnumerators | _: ScEnumerator | _: ScForStatement if Set(' ').contains(c) =>
-        Result.HIDE_LOOKUP
-      case _ => null
-    }
+    null
   }
 }
