@@ -48,7 +48,7 @@ class ScalaConsoleRunConfiguration(val project: Project, val configurationFactor
   val CLASSPATH = "-Denv.classpath=\"%CLASSPATH%\""
   val EMACS = "-Denv.emacs=\"%EMACS%\""
   val MAIN_CLASS = "org.jetbrains.plugins.scala.compiler.rt.ConsoleRunner"
-  private var javaOptions = ""
+  private var javaOptions = "-Djline.terminal=NONE"
   private var consoleArgs = ""
   private var workingDirectory = {
     val base = getProject.getBaseDir
@@ -157,7 +157,7 @@ class ScalaConsoleRunConfiguration(val project: Project, val configurationFactor
   override def writeExternal(element: Element) {
     super.writeExternal(element)
     writeModule(element)
-    JDOMExternalizer.write(element, "vmparams", getJavaOptions)
+    JDOMExternalizer.write(element, "vmparams4", getJavaOptions)
     JDOMExternalizer.write(element, "consoleArgs", getConsoleArgs)
     JDOMExternalizer.write(element, "workingDirectory", getWorkingDirectory)
   }
@@ -165,7 +165,11 @@ class ScalaConsoleRunConfiguration(val project: Project, val configurationFactor
   override def readExternal(element: Element) {
     super.readExternal(element)
     readModule(element)
-    javaOptions = JDOMExternalizer.readString(element, "vmparams")
+    javaOptions = JDOMExternalizer.readString(element, "vmparams4")
+    if (javaOptions == null) {
+      javaOptions = JDOMExternalizer.readString(element, "vmparams")
+      if (javaOptions != null) javaOptions += " -Djline.terminal=NONE"
+    }
     consoleArgs = JDOMExternalizer.readString(element, "consoleArgs")
     val str = JDOMExternalizer.readString(element, "workingDirectory")
     if (str != null)

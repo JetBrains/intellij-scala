@@ -35,6 +35,7 @@ public class ScalaConsoleRunConfigurationForm {
     myConfiguration = configuration;
     javaOptionsEditor.setName("VM options");
     javaOptionsEditor.setDialogCaption("VM options editor");
+    javaOptionsEditor.setText("-Djline.terminal=NONE");
     consoleArgsEditor.setName("Console arguments");
     consoleArgsEditor.setDialogCaption("Console arguments editor");
     addFileChooser("Choose Working Directory", workingDirectoryField, project);
