@@ -14,7 +14,7 @@ import resolve.ResolveUtils
 import psi.api.expr._
 import psi.api.toplevel.typedef.ScObject
 import com.intellij.openapi.util.Condition
-import com.intellij.psi.{PsiFile, PsiNamedElement, PsiDocumentManager, PsiMethod}
+import com.intellij.psi.{PsiFile, PsiNamedElement, PsiMethod}
 
 /**
  * User: Alexander Podkhalyuzin
@@ -26,8 +26,10 @@ class ScalaInsertHandler extends InsertHandler[LookupElement] {
     val editor = context.getEditor
     val document = editor.getDocument
     val completionChar: Char = context.getCompletionChar
-    if (completionChar == '(') {
-      context.setAddCompletionChar(false)
+    def disableParenthesesCompletionChar() {
+      if (completionChar == '(') {
+        context.setAddCompletionChar(false)
+      }
     }
     var startOffset = context.getStartOffset
     val lookupStringLength = item.getLookupString.length
@@ -128,6 +130,7 @@ class ScalaInsertHandler extends InsertHandler[LookupElement] {
         }
 
         if (count == 0 && !isAccessor) {
+          disableParenthesesCompletionChar()
           document.insertString(endOffset, "()")
           endOffset += 2
           editor.getCaretModel.moveToOffset(endOffset)
@@ -138,6 +141,7 @@ class ScalaInsertHandler extends InsertHandler[LookupElement] {
             case Both(ref: ScReferenceExpression, Parent(_: ScInfixExpr | _: ScPostfixExpr))
               if ref.qualifier != null =>
               if (count > 1) {
+                disableParenthesesCompletionChar()
                 document.insertString(endOffset, " ()")
                 endOffset += 3
                 editor.getCaretModel.moveToOffset(endOffset - 1)
@@ -154,6 +158,7 @@ class ScalaInsertHandler extends InsertHandler[LookupElement] {
                 endOffset += 2
                 editor.getCaretModel.moveToOffset(endOffset + someNum)
               } else if (endOffset == document.getTextLength || document.getCharsSequence.charAt(endOffset) != '(') {
+                disableParenthesesCompletionChar()
                 document.insertString(endOffset, "()")
                 endOffset += 2
                 editor.getCaretModel.moveToOffset(endOffset - 1)
