@@ -11,6 +11,8 @@ class TypeInferenceGenericCallTest extends TypeInferenceTestBase {
 
   def testConstructorInsideClass() {doTest()}
 
+  def testFewCalls() {doTest()}
+
   def testGenericFunction() {doTest()}
 
   def testInfixLeftAssocType() {doTest()}

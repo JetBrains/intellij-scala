@@ -1,0 +1,33 @@
+new X[Int][String][Boolean]
+------
+ScalaFile
+  GenericCall
+    GenericCall
+      NewTemplateDefinition
+        PsiElement(new)('new')
+        PsiWhiteSpace(' ')
+        ExtendsBlock
+          ClassParents
+            Constructor
+              ParametrizedTypeElement
+                SimpleTypeElement
+                  CodeReferenceElement
+                    PsiElement(identifier)('X')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  SimpleTypeElement
+                    CodeReferenceElement
+                      PsiElement(identifier)('Int')
+                  PsiElement(])(']')
+      TypeArgumentsList
+        PsiElement([)('[')
+        SimpleTypeElement
+          CodeReferenceElement
+            PsiElement(identifier)('String')
+        PsiElement(])(']')
+    TypeArgumentsList
+      PsiElement([)('[')
+      SimpleTypeElement
+        CodeReferenceElement
+          PsiElement(identifier)('Boolean')
+      PsiElement(])(']')
