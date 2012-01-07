@@ -5,5 +5,6 @@ class a {
 }
 /*
 class
+if
 object
 */
