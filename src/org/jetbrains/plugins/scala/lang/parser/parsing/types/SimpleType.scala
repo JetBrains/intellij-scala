@@ -8,6 +8,7 @@ import com.intellij.lang.PsiBuilder, org.jetbrains.plugins.scala.lang.lexer.Scal
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.ScalaBundle
 import builder.ScalaPsiBuilder
+import annotation.tailrec
 
 /**
 * @author Alexander Podkhalyuzin
@@ -24,14 +25,14 @@ import builder.ScalaPsiBuilder
 
 object SimpleType {
   def parse(builder: ScalaPsiBuilder): Boolean = {
-
-    def parseTail(curMarker: PsiBuilder.Marker) {
+    @tailrec
+    def parseTail(curMarker: PsiBuilder.Marker, checkSQBracket: Boolean = true) {
       builder.getTokenType match {
-        case ScalaTokenTypes.tLSQBRACKET => {
+        case ScalaTokenTypes.tLSQBRACKET if checkSQBracket => {
           val newMarker = curMarker.precede
           TypeArgs parse builder
           curMarker.done(ScalaElementTypes.TYPE_GENERIC_CALL)
-          parseTail(newMarker)
+          parseTail(newMarker, false)
         }
         case ScalaTokenTypes.tINNER_CLASS => {
           val newMarker = curMarker.precede
