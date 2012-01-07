@@ -9,6 +9,7 @@ import com.intellij.psi._
 import org.jetbrains.plugins.scala.lang.parser._
 import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil._
 import lexer.ScalaTokenTypes
+import psi.api.base.patterns.ScCaseClause
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -18,12 +19,11 @@ import lexer.ScalaTokenTypes
 class IfFilter extends ElementFilter {
   def isAcceptable(element: Object, context: PsiElement): Boolean = {
     if (context.isInstanceOf[PsiComment]) return false
-    val leaf = getLeafByOffset(context.getTextRange.getStartOffset, context);
+    val leaf = getLeafByOffset(context.getTextRange.getStartOffset, context)
     if (leaf != null) {
       var parent = leaf.getParent
       while (parent != null) {
-        if (parent.getNode.getElementType == ScalaElementTypes.CASE_CLAUSE ||
-                parent.getNode.getElementType == ScalaElementTypes.FOR_STMT) {
+        if (parent.getNode.getElementType == ScalaElementTypes.FOR_STMT) {
           import extensions._
           if (leaf.getParent != null && //reference
               leaf.getParent.getParent != null &&  //pattern
@@ -32,18 +32,30 @@ class IfFilter extends ElementFilter {
                 getNode.getElementType == ScalaTokenTypes.kCASE) return false
           return true
         }
+        parent match {
+          case clause: ScCaseClause =>
+            if (clause.guard != None) return false
+            var position = clause.funType match {
+              case Some(elem) => elem.getStartOffsetInParent
+              case None => clause.getTextLength
+            }
+            val text = clause.getText
+            while (text(position - 1).isWhitespace) position -= 1
+            return leaf.getTextRange.getEndOffset == clause.getTextRange.getStartOffset + position
+          case _ =>
+        }
         parent = parent.getParent
       }
     }
-    return false;
+    false
   }
 
   def isClassAcceptable(hintClass: java.lang.Class[_]): Boolean = {
-    return true;
+    true
   }
 
   @NonNls
   override def toString: String = {
-    return "'if' keyword filter"
+    "'if' keyword filter"
   }
 }

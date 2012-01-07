@@ -53,4 +53,25 @@ class ScalaKeywordCompletionTest extends ScalaCompletionTestBase {
     completeLookupItem(activeLookup.find(le => le.getLookupString == "val").get, ' ')
     checkResultByText(resultText)
   }
+
+  def testIfAfterCase() {
+    val fileText =
+      """
+      |1 match {
+      |  case a if<caret>
+      }}
+      """.stripMargin('|').replaceAll("\r", "").trim()
+    configureFromFileTextAdapter("dummy.scala", fileText)
+    val (activeLookup, _) = complete(1, CompletionType.BASIC)
+
+    val resultText =
+      """
+      |1 match {
+      |  case a if <caret>
+      }}
+      """.stripMargin('|').replaceAll("\r", "").trim()
+
+    completeLookupItem(activeLookup.find(le => le.getLookupString == "if").get, ' ')
+    checkResultByText(resultText)
+  }
 }
