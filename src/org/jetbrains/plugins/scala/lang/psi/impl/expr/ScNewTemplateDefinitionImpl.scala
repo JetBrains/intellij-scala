@@ -46,9 +46,16 @@ class ScNewTemplateDefinitionImpl private () extends ScalaStubBasedElementImpl[S
     })
     if (superTypes.length > 1 || !holders.isEmpty || !aliases.isEmpty) {
       new Success(ScCompoundType(superTypes, holders.toList, aliases.toList, ScSubstitutor.empty), Some(this))
-    } else superTypes.headOption match {
-      case s@Some(t) => Success(t, Some(this))
-      case None => Success(AnyRef, Some(this)) //this is new {} case
+    } else {
+      extendsBlock.templateParents match {
+        case Some(tp) if tp.typeElements.length == 1 =>
+          tp.typeElements(0).getNonValueType(ctx)
+        case _ =>
+          superTypes.headOption match {
+            case s@Some(t) => Success(t, Some(this))
+            case None => Success(AnyRef, Some(this)) //this is new {} case
+          }
+      }
     }
   }
 

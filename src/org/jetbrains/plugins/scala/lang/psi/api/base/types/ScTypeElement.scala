@@ -24,6 +24,8 @@ trait ScTypeElement extends ScalaPsiElement with TypingContextOwner {
       )(PsiModificationTracker.MODIFICATION_COUNT), Failure("Recursive type of type element", Some(this)))
   }
 
+  def getNonValueType(ctx: TypingContext): TypeResult[ScType] = innerType(ctx)
+
   protected def innerType(ctx: TypingContext): TypeResult[ScType]
 
   def calcType: ScType = getType(TypingContext.empty).getOrAny

@@ -86,11 +86,7 @@ class ScExtendsBlockImpl extends ScalaStubBasedElementImpl[ScExtendsBlock] with 
       }
     }
     templateParents match {
-      case Some(parents: ScTemplateParents) => {
-        val parentSupers: Seq[ScType] = parents.superTypes
-        val noInferValueType = getParentByStub.isInstanceOf[ScNewTemplateDefinition] && parentSupers.length == 1
-        parentSupers foreach {t => addType(if (noInferValueType) t else t.inferValueType)}
-      }
+      case Some(parents: ScTemplateParents) => parents.superTypes foreach {t => addType(t)}
       case _ =>
     }
     if (isUnderCaseClass) {
