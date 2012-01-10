@@ -1,0 +1,17 @@
+package org.jetbrains.plugins.scala.spellchecker
+
+import com.intellij.spellchecker.BundledDictionaryProvider
+import java.lang.String
+
+/**
+ * User: Alexander Podkhalyuzin
+ * Date: 10.01.12
+ */
+
+class ScalaBundledDictionaryProvider extends BundledDictionaryProvider {
+  def getBundledDictionaries: Array[String] = {
+    Array(
+      "scala.dic"
+    )
+  }
+}
