@@ -23,6 +23,8 @@ import collection.immutable.HashMap
 import api.expr.{ScSuperReference, ScThisReference, ScUnderScoreSectionUtil}
 import lang.resolve.ScalaResolveResult
 import api.base._
+import caches.CachesUtil
+import util.PsiModificationTracker
 
 /**
  * @author Alexander Podkhalyuzin
@@ -47,7 +49,16 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
     }
   }
 
-  protected def innerType(ctx: TypingContext): TypeResult[ScType] = {
+  protected def innerType(ctx: TypingContext): TypeResult[ScType] = innerNonValueType(ctx, true)
+
+  override def getNonValueType(ctx: TypingContext): TypeResult[ScType] = {
+    CachesUtil.getWithRecursionPreventing(this, CachesUtil.NON_VALUE_TYPE_ELEMENT_TYPE_KEY,
+        new CachesUtil.MyProvider[ScTypeElement, TypeResult[ScType]](
+        this, elem => innerNonValueType(ctx, false)
+      )(PsiModificationTracker.MODIFICATION_COUNT), Failure("Recursive non value type of type element", Some(this)))
+  }
+
+  private def innerNonValueType(ctx: TypingContext, inferValueType: Boolean): TypeResult[ScType] = {
     val lift: (ScType) => Success[ScType] = Success(_, Some(this))
 
     def parameterize(tp: ScType, clazz: PsiClass, subst: ScSubstitutor): ScType = {
@@ -175,12 +186,13 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
               c.arguments(i).exprs.map(new Expression(_)), nonValueType.typeParameters)
           }
 
-
-          val pts = nonValueType match {
-            case t: ScTypePolymorphicType => t.polymorphicTypeSubstitutor
-            case _ => ScSubstitutor.empty
-          }
-          pts.subst(nonValueType.internalType) //todo: simple type element should have non value type
+          if (inferValueType) {
+            val pts = nonValueType match {
+              case t: ScTypePolymorphicType => t.polymorphicTypeSubstitutor
+              case _ => ScSubstitutor.empty
+            }
+            pts.subst(nonValueType.internalType) //todo: simple type element should have non value type
+          } else nonValueType
         }
         case None => res
       }

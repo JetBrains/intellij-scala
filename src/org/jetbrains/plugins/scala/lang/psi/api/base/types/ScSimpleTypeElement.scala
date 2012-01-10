@@ -5,10 +5,13 @@ package api
 package base
 package types
 
+import psi.types.result.{TypeResult, TypingContext}
+import psi.types.ScType
+
 /**
-* @author Alexander Podkhalyuzin
-* Date: 22.02.2008
-*/
+ * Author: Alexander Podkhalyuzin
+ * Date: 22.02.2008
+ */
 trait ScSimpleTypeElement extends ScTypeElement {
 
   def reference: Option[ScStableCodeReferenceElement] = findChild(classOf[ScStableCodeReferenceElement])
