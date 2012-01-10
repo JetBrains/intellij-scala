@@ -190,8 +190,9 @@ private[expr] object ExpectedTypes {
           case _ => expr
         }
         val op = infix.operation
-        val tps = if (!withResolvedFunction) op.shapeMultiType else op.multiType
-        tps.foreach(processArgsExpected(res, zExpr, 0, _, Seq(zExpr)))
+        var tps = if (!withResolvedFunction) op.shapeMultiType else op.multiType
+        tps = tps.map(infix.updateAccordingToExpectedType(_))
+        tps.foreach(processArgsExpected(res, zExpr, 0, _, Seq(zExpr), Some(infix)))
         res.map(typeToPair).toArray
       }
       //SLS[4.1]
@@ -254,7 +255,7 @@ private[expr] object ExpectedTypes {
             case _ => Array(callExpression.getNonValueType(TypingContext.empty))
           }
           val callOption = args.getParent match {
-            case call: ScMethodCall => Some(call)
+            case call: MethodInvocation => Some(call)
             case _ => None
           }
           callOption.foreach(call => tps = tps.map(call.updateAccordingToExpectedType(_)))
@@ -300,7 +301,7 @@ private[expr] object ExpectedTypes {
   }
 
   private def processArgsExpected(res: ArrayBuffer[ScType], expr: ScExpression, i: Int, tp: TypeResult[ScType],
-                                  exprs: Seq[ScExpression], call: Option[ScMethodCall] = None, 
+                                  exprs: Seq[ScExpression], call: Option[MethodInvocation] = None,
                                   forApply: Boolean = false) {
     def applyForParams(params: Seq[Parameter]) {
       val p: ScType =
