@@ -227,6 +227,7 @@
          **/*.skeleton,
          **/*.xml,
          **/*.png,
+         **/*.dic,
          META-INF/**/*.xml"
          excludes="idea_pack/**/*"
         />
