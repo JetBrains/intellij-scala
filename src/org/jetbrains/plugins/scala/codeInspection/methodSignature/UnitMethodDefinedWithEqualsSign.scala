@@ -11,7 +11,7 @@ import quickfix.RemoveEqualsSign
  */
 
 class UnitMethodDefinedWithEqualsSign extends AbstractMethodSignatureInspection(
-  "UnitMethodDefinedWithEqualsSign", "Method with Unit result type defined with equals sign") {
+  "ScalaUnitMethodDefinedWithEqualsSign", "Method with Unit result type defined with equals sign") {
 
   @Language("HTML")
   val description =

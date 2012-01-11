@@ -37,16 +37,15 @@ class ScDocTagImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScDocTa
   def getContainingComment: PsiDocComment =
     if (getParent.isInstanceOf[PsiDocComment]) getParent.asInstanceOf[PsiDocComment] else null
 
-  def getNameElement: PsiElement = this
+  def getNameElement: PsiElement = findChildByType(ScalaDocTokenType.DOC_TAG_NAME)
 
   def getDataElements: Array[PsiElement] = getChildren
 
-  def getValueElement: PsiDocTagValue =
-    findChildByClass(classOf[PsiDocTagValue])
+  def getValueElement: PsiDocTagValue = findChildByClass(classOf[PsiDocTagValue])
   
   override def getName: String =
-    if (findChildByType(ScalaDocTokenType.DOC_TAG_NAME) != null) {
-      findChildByType(ScalaDocTokenType.DOC_TAG_NAME).getText
+    if (getNameElement != null) {
+      getNameElement.getText
     } else {
       null
     }

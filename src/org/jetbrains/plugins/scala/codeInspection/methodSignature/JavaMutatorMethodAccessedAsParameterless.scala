@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScUnderscoreSection, ScInf
  */
 
 class JavaMutatorMethodAccessedAsParameterless extends AbstractMethodSignatureInspection(
-  "JavaMutatorMethodAccessedAsParameterless", "Java mutator method accessed as parameterless") {
+  "ScalaJavaMutatorMethodAccessedAsParameterless", "Java mutator method accessed as parameterless") {
 
   @Language("HTML")
   override val description =

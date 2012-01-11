@@ -13,7 +13,7 @@ import quickfix.RemoveCallParentheses
  */
 
 class JavaAccessorMethodCalledAsEmptyParen extends AbstractMethodSignatureInspection(
-  "JavaAccessorMethodCalledAsEmptyParen", "Java accessor method called as empty-paren") {
+  "ScalaJavaAccessorMethodCalledAsEmptyParen", "Java accessor method called as empty-paren") {
 
   @Language("HTML")
   val description =

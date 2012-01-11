@@ -16,7 +16,7 @@ class ChainedPackageInspection extends LocalInspectionTool {
 
   def getDisplayName: String = "Chained Package Clause Inspection"
 
-  def getShortName: String = "Chained Package Clause"
+  def getShortName: String = "ScalaChainedPackageClause"
 
   override def isEnabledByDefault: Boolean = true
 

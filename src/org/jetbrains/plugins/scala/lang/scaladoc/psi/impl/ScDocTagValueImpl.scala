@@ -15,12 +15,12 @@ import collection.mutable.ArrayBuilder
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import lang.psi.api.statements.params.{ScTypeParam, ScParameter, ScTypeParamClause}
 import collection.Set
-import lang.psi.{ScalaPsiElement, ScalaPsiElementImpl}
 import resolve.{ScalaResolveResult, StdKinds, ResolveTargets}
 import refactoring.util.ScalaNamesUtil
 import com.intellij.psi.{PsiDocumentManager, ResolveResult, PsiReference, PsiElement}
-import lang.psi.api.toplevel.typedef.ScClass
 import lang.psi.api.statements.{ScTypeAlias, ScFunction}
+import lang.psi.api.toplevel.typedef.{ScTrait, ScClass}
+import lang.psi.{ScalaPsiUtil, ScalaPsiElement, ScalaPsiElementImpl}
 
 /**
  * User: Dmitry Naydanov
@@ -30,6 +30,8 @@ import lang.psi.api.statements.{ScTypeAlias, ScFunction}
 class ScDocTagValueImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScDocTagValue with ScDocReferenceElement {
   def nameId: PsiElement = this
 
+  override def getName = getText
+
   def qualifier: Option[ScalaPsiElement] = None
 
   def getKinds(incomplete: Boolean, completion: Boolean): Set[ResolveTargets.Value] = Set(ResolveTargets.VAL)
@@ -37,7 +39,9 @@ class ScDocTagValueImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
   def getSameNameVariants: Array[ResolveResult] = Array.empty
 
   def multiResolve(incompleteCode: Boolean): Array[ResolveResult] =
-    getParametersVariants.filter(_.getName == refName).map(new ScalaResolveResult(_))
+    getParametersVariants.filter(a =>
+      a.getName == refName || ScalaPsiUtil.convertMemberName(a.getName) == ScalaPsiUtil.convertMemberName(refName)).
+            map(new ScalaResolveResult(_))
 
   override def toString = "ScalaDocTagValue"
 
@@ -46,7 +50,9 @@ class ScDocTagValueImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
   def bindToElement(element: PsiElement): PsiElement = {
     element match {
       case _ : ScParameter => this
-      case _ : ScTypeParam => this
+      case _ : ScTypeParam =>
+        handleElementRename(element.getText)
+        this
       case _ => throw new UnsupportedOperationException("Can't bind to this element")
     }
   }
@@ -55,7 +61,7 @@ class ScDocTagValueImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
 
   override def isReferenceTo(element: PsiElement) = {
     if (resolve() == null || resolve() != element) false else true
-  }    
+  }
 
   override def handleElementRename(newElementName: String): PsiElement = {
     if (!ScalaNamesUtil.isIdentifier(newElementName)) return this
@@ -128,6 +134,12 @@ class ScDocTagValueImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
               }
             }
           case None => Array.empty[ScNamedElement]
+        }
+      case traitt: ScTrait => 
+        if (parentTagType == TYPE_PARAM_TAG) {
+          filterParamsByName(TYPE_PARAM_TAG, traitt.typeParameters)
+        } else {
+          Array.empty[ScNamedElement]
         }
       case typeAlias: ScTypeAlias =>
         if (parentTagType == TYPE_PARAM_TAG) {

@@ -11,7 +11,7 @@ import quickfix.InsertMissingEquals
  */
 
 class ApparentRefinementOfResultType extends AbstractMethodSignatureInspection(
-  "ApparentRefinementOfResultType", "Apparent refinement of result type; are you missing an '=' sign?") {
+  "ScalaApparentRefinementOfResultType", "Apparent refinement of result type; are you missing an '=' sign?") {
 
   @Language("HTML")
   val description = null

@@ -16,6 +16,8 @@ import resolve.StdKinds
 
 class ScDocThrowTagValueImpl(node: ASTNode) extends ScStableCodeReferenceElementImpl(node) with ScDocTagValue {
   def getValue: String = getText
+  
+  override def getName = getText
 
   override def isSoft: Boolean = true
 

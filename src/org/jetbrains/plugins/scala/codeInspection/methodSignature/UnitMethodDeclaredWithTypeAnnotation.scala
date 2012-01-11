@@ -10,7 +10,7 @@ import quickfix.RemoveTypeAnnotation
  */
 
 class UnitMethodDeclaredWithTypeAnnotation extends AbstractMethodSignatureInspection(
-  "UnitMethodDeclaredWithTypeAnnotation", "Redundant Unit result type annotation") {
+  "ScalaUnitMethodDeclaredWithTypeAnnotation", "Redundant Unit result type annotation") {
 
   @Language("HTML")
   val description =

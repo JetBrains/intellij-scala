@@ -12,8 +12,8 @@ import java.lang.String
 import com.intellij.codeInsight.lookup.LookupElement
 import lang.psi.api.base.ScStableCodeReferenceElement
 import psi.api.{ScDocComment, ScDocResolvableCodeReference, ScDocReferenceElement}
-import lang.psi.api.toplevel.typedef.ScClass
 import lang.psi.api.statements.{ScTypeAlias, ScFunction}
+import lang.psi.api.toplevel.typedef.{ScTrait, ScClass}
 
 
 /**
@@ -33,7 +33,7 @@ class ScalaDocCompletionContributor extends CompletionContributor {
         val allowedTags = posParent.asInstanceOf[ScDocComment].getNextSiblingNotWhitespace match {
           case _ : ScFunction => MyScaladocParsing.allTags
           case _ : ScClass => MyScaladocParsing.allTags - MyScaladocParsing.RETURN_TAG
-          case _ : ScTypeAlias => MyScaladocParsing.allTags --
+          case _ : ScTypeAlias | _: ScTrait => MyScaladocParsing.allTags --
                   Set(MyScaladocParsing.RETURN_TAG, MyScaladocParsing.THROWS_TAG, MyScaladocParsing.PARAM_TAG)
           case _ => MyScaladocParsing.allTags -- MyScaladocParsing.tagsWithParameters - MyScaladocParsing.RETURN_TAG
         }
