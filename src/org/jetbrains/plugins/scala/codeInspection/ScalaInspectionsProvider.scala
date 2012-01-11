@@ -55,31 +55,31 @@ class ScalaInspectionsProvider extends InspectionToolProvider {
 //    res += classOf[EmptyParenMethodOverridenAsParameterless]
 //    res += classOf[JavaAccessorMethodOverridenAsEmptyParen]
 //    res += classOf[JavaMutatorMethodOverridenAsParameterless]
-    res += classOf[MutatorLikeMethodIsParameterless]
-    res += classOf[ParameterlessMemberOverridenAsEmptyParen]
-    res += classOf[UnitMethodDeclaredWithTypeAnnotation]
-    res += classOf[UnitMethodDefinedLikeFunction]
-    res += classOf[UnitMethodDefinedWithEqualsSign]
-    res += classOf[UnitMethodIsParameterless]
+//    res += classOf[MutatorLikeMethodIsParameterless]
+//    res += classOf[ParameterlessMemberOverridenAsEmptyParen]
+//    res += classOf[UnitMethodDeclaredWithTypeAnnotation]
+//    res += classOf[UnitMethodDefinedLikeFunction]
+//    res += classOf[UnitMethodDefinedWithEqualsSign]
+//    res += classOf[UnitMethodIsParameterless]
 
-    res += classOf[EmptyParenMethodAccessedAsParameterless]
-    res += classOf[JavaAccessorMethodCalledAsEmptyParen]
-    res += classOf[JavaMutatorMethodAccessedAsParameterless]
+//    res += classOf[EmptyParenMethodAccessedAsParameterless]
+//    res += classOf[JavaAccessorMethodCalledAsEmptyParen]
+//    res += classOf[JavaMutatorMethodAccessedAsParameterless]
 
-    res += classOf[ApparentRefinementOfResultType]
+//    res += classOf[ApparentRefinementOfResultType]
 
-    res += classOf[PostfixMethodCall]
-    res += classOf[FloatLiteralEndingWithDecimalPoint]
-    res += classOf[ChainedPackageInspection]
-    res += classOf[RemoveRedundantReturnInspection]
-    res += classOf[VariablePatternShadowInspection]
+//    res += classOf[PostfixMethodCall]
+//    res += classOf[FloatLiteralEndingWithDecimalPoint]
+//    res += classOf[ChainedPackageInspection]
+//    res += classOf[RemoveRedundantReturnInspection]
+//    res += classOf[VariablePatternShadowInspection]
 
     // Disabled: SCL-3511
     // res += classOf[EqualsBetweenInconvertibleTypes]
 
-    res += classOf[AbstractValueInTraitInspection]
+//    res += classOf[AbstractValueInTraitInspection]
 
-    res += classOf[SbtFileStructure]
+//    res += classOf[SbtFileStructure]
     
     //scaladoc
 //    res += classOf[ScalaDocInlinedTagInspection]

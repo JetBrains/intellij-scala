@@ -102,7 +102,7 @@ public abstract class ParserUtils {
    * @return true if following sequence is like a given
    */
   public static boolean lookAhead(PsiBuilder builder, IElementType... elems) {
-    if (!elems[0].equals(builder.getTokenType())) return false;
+    if (elems.length == 0 || elems[0] == null || !elems[0].equals(builder.getTokenType())) return false;
 
     if (elems.length == 1) return true;
 

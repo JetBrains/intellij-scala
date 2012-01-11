@@ -10,7 +10,7 @@ import quickfix.RemoveParentheses
  */
 
 class ParameterlessMemberOverridenAsEmptyParen extends AbstractMethodSignatureInspection(
-  "ParameterlessMemberOverridenAsEmptyParen", "Parameterless Scala member overriden as empty-paren") {
+  "ScalaParameterlessMemberOverridenAsEmptyParen", "Parameterless Scala member overriden as empty-paren") {
 
   @Language("HTML")
   override val description =

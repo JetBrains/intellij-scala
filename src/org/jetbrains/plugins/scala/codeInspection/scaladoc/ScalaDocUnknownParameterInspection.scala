@@ -12,8 +12,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScTypeParamCl
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScFunction}
 import com.intellij.openapi.project.Project
 import com.intellij.codeInspection._
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.parsing.MyScaladocParsing
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTrait, ScClass}
 
 /**
  * User: Dmitry Naidanov
@@ -36,6 +36,7 @@ class ScalaDocUnknownParameterInspection extends LocalInspectionTool {
         val tagTypeParams = HashMap[String,ScDocTag]()
         val duplicatingParams = HashSet[ScDocTag]()
         
+        import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.convertMemberName
         def insertDuplicating(element: Option[ScDocTag], duplicateElement: ScDocTag) {
           element.foreach(duplicatingParams += (_, duplicateElement))
         }
@@ -43,12 +44,12 @@ class ScalaDocUnknownParameterInspection extends LocalInspectionTool {
         def paramsDif(paramList: scala.Seq[ScParameter], tagParamList: scala.Seq[ScTypeParam]) {
           if (paramList != null) {
             for (funcParam <- paramList) {
-              tagParams -= funcParam.getName
+              tagParams -= convertMemberName(funcParam.getName)
             }
           }
           if (tagParamList != null) {
             for (typeParam <- tagParamList) {
-              tagTypeParams -= typeParam.getName
+              tagTypeParams -= convertMemberName(typeParam.getName)
             }
           }
         }
@@ -58,11 +59,11 @@ class ScalaDocUnknownParameterInspection extends LocalInspectionTool {
             if (tagParam.getValueElement != null) {
               tagParam.getName match {
                 case "@param" =>
-                  insertDuplicating(tagParams.put(tagParam.getValueElement.getText, tagParam.asInstanceOf[ScDocTag]),
-                    tagParam.asInstanceOf[ScDocTag])
+                  insertDuplicating(tagParams.put(convertMemberName(tagParam.getValueElement.getText),
+                    tagParam.asInstanceOf[ScDocTag]), tagParam.asInstanceOf[ScDocTag])
                 case "@tparam" =>
-                  insertDuplicating(tagTypeParams.put(tagParam.getValueElement.getText, tagParam.asInstanceOf[ScDocTag]),
-                    tagParam.asInstanceOf[ScDocTag])
+                  insertDuplicating(tagTypeParams.put(convertMemberName(tagParam.getValueElement.getText),
+                    tagParam.asInstanceOf[ScDocTag]), tagParam.asInstanceOf[ScDocTag])
               }
             }
           }
@@ -108,6 +109,8 @@ class ScalaDocUnknownParameterInspection extends LocalInspectionTool {
                 }
               case None => registerBadParams()
             }
+          case traitt: ScTrait =>
+            doInspection(null, traitt.typeParameters)
           case typeAlias: ScTypeAlias => //scaladoc can't process tparams for type alias now
             for (tag <- s.findTagsByName(MyScaladocParsing.TYPE_PARAM_TAG)) {
               holder.registerProblem(holder.getManager.createProblemDescriptor(

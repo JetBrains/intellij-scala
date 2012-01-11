@@ -10,7 +10,7 @@ import quickfix.RemoveTypeAnnotationAndEqualSign
  */
 
 class UnitMethodDefinedLikeFunction extends AbstractMethodSignatureInspection(
-  "UnitMethodDefinedLikeFunction", "Method with Unit result type defined like function") {
+  "ScalaUnitMethodDefinedLikeFunction", "Method with Unit result type defined like function") {
 
   @Language("HTML")
   val description =

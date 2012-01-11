@@ -10,7 +10,7 @@ import quickfix.AddEmptyParentheses
  */
 
 class UnitMethodIsParameterless extends AbstractMethodSignatureInspection(
-  "UnitMethodIsParameterless", "Method with Unit result type is parameterless") {
+  "ScalaUnitMethodIsParameterless", "Method with Unit result type is parameterless") {
 
   @Language("HTML")
   val description =

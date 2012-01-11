@@ -21,14 +21,14 @@ import java.util.List;
  * Date: 12/5/11
  */
 public class ScaladocLinkResolveTest extends ScalaResolveTestCase {
+  private static final String testRef = "<testref>";
+
   @Override
   public String folderPath() {
     return super.folderPath() + "resolve/scaladoc";
   }
 
   protected List<Integer> getAllRef() throws IOException {
-    final String testRef = "<testref>";
-    
     String filePath = folderPath() + File.separator + getTestName(false) + ".scala";
     StringBuilder fileText = 
         new StringBuilder(StringUtil.convertLineSeparators(FileUtil.loadFile(new File(filePath), CharsetToolkit.UTF8)));
@@ -62,7 +62,6 @@ public class ScaladocLinkResolveTest extends ScalaResolveTestCase {
       } else {
         assertTrue(((ScNamedElement) resolved).getName().equals(((ScReferenceElement) ref).getText()));
       }
-
     }
   }
 

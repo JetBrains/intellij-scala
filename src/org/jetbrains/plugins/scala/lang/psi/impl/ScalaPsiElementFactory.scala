@@ -989,7 +989,7 @@ object ScalaPsiElementFactory {
 
   def createDocTagValue(text: String,  manager: PsiManager): PsiElement = {
     createScalaFile("/**@param " + text + "\n*/ class a{}", manager).typeDefinitions(0).docComment.
-            get.getNode.getChildren(null)(1).getPsi
+            get.getNode.getChildren(null)(1).getChildren(null)(2).getPsi
   }
 
   def createDocTagName(name: String, manager: PsiManager): PsiElement = {

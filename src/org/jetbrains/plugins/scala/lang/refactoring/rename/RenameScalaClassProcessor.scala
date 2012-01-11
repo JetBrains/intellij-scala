@@ -2,10 +2,16 @@ package org.jetbrains.plugins.scala.lang.refactoring.rename
 
 import com.intellij.refactoring.rename.RenameJavaClassProcessor
 import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import java.util.Map
 import java.lang.String
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScDocCommentOwner, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.scaladoc.parser.parsing.MyScaladocParsing
+import com.intellij.usageView.UsageInfo
+import com.intellij.refactoring.listeners.RefactoringElementListener
+import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.{ScDocTagValue, ScDocComment}
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 
 /**
  * User: Alexander Podkhalyuzin
@@ -14,10 +20,10 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 
 class RenameScalaClassProcessor extends RenameJavaClassProcessor {
   override def canProcessElement(element: PsiElement): Boolean = {
-    element.isInstanceOf[ScTypeDefinition]
+    element.isInstanceOf[ScTypeDefinition] || element.isInstanceOf[ScTypeParam]
   }
 
-  override def prepareRenaming(element: PsiElement, newName: String, allRenames: Map[PsiElement, String]) = {
+  override def prepareRenaming(element: PsiElement, newName: String, allRenames: Map[PsiElement, String]) {
     element match {
       case td: ScTypeDefinition => {
         ScalaPsiUtil.getCompanionModule(td) match {
@@ -29,6 +35,19 @@ class RenameScalaClassProcessor extends RenameJavaClassProcessor {
           allRenames.put(file, newName + ".scala")
         }
       }
+      case docTagParam: ScTypeParam =>
+        docTagParam.owner match {
+          case commentOwner: ScDocCommentOwner =>
+            commentOwner.getDocComment match {
+              case comment: ScDocComment =>
+                comment.findTagsByName(MyScaladocParsing.TYPE_PARAM_TAG).foreach {
+                  b => if (b.getValueElement != null && b.getValueElement.getText == docTagParam.getName)
+                    allRenames.put(b.getValueElement, newName)
+                }
+              case _ =>
+            }
+          case _ =>
+        }
       case _ =>
     }
   }
