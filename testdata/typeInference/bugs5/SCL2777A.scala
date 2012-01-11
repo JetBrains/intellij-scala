@@ -5,3 +5,4 @@ object Bla {
     /*start*/new HashSet + 1/*end*/
   }
 }
+//HashSet[Int]
