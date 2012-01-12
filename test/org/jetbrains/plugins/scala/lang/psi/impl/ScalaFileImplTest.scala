@@ -3,8 +3,10 @@ package lang
 package psi
 package impl
 
+import extensions._
 import org.junit.Assert
 import org.jetbrains.plugins.scala.base.SimpleTestCase
+import api.toplevel.typedef.ScClass
 
 /**
  * Pavel Fatin
@@ -21,6 +23,15 @@ class ScalaFileImplTest extends SimpleTestCase {
 
     assertPackagesStrippedAs("package a {\nclass A\npackage b {\nclass B\n}\n}", "class A\nclass B\n")
     assertPackagesStrippedAs("package a {\npackage b {\nclass A\n}\npackage c {\nclass B\n}\n}", "class A\nclass B\n")
+  }
+
+  def testStripPackagesIdentity() {
+    val file = parseText("package foo\nclass C")
+    val oldClass = file.depthFirst.findByType(classOf[ScClass]).get
+    ScalaFileImpl.stripPackagesIn(file)
+    val newClass = file.getFirstChild
+    Assert.assertSame(oldClass, newClass)
+    Assert.assertSame(file, newClass.getContainingFile)
   }
 
   def testPathIn() {
@@ -46,6 +57,15 @@ class ScalaFileImplTest extends SimpleTestCase {
 //    assertPathAddedAs("class C\n\n", List(List("a")), "package a\n\nclass C\n\n");
 
 //    assertPathAddedAs(" ", List(List("a")), "package a\n\n ");
+  }
+
+  def testSetPathIdentity() {
+    val file = parseText("class C")
+    val oldClass = file.getFirstChild
+    ScalaFileImpl.addPathTo(file, List(List("foo")))
+    val newClass = file.depthFirst.findByType(classOf[ScClass]).get
+    Assert.assertSame(oldClass, newClass)
+    Assert.assertSame(file, newClass.getContainingFile)
   }
 
   def testSplitsIn() {
@@ -89,6 +109,15 @@ class ScalaFileImplTest extends SimpleTestCase {
       "package foo\npackage bar\npackage moo\npackage goo\n\nclass C");
   }
 
+  def testSetPackageNameIdentity() {
+    val file = parseText("package foo\npackage bar\nclass C").asInstanceOf[ScalaFileImpl]
+    val oldClass = file.depthFirst.findByType(classOf[ScClass]).get
+    file.setPackageName("moo.goo", "")
+    val newClass = file.depthFirst.findByType(classOf[ScClass]).get
+    Assert.assertSame(oldClass, newClass)
+    Assert.assertSame(file, newClass.getContainingFile)
+  }
+  
   private def assertPackagesStrippedAs(before: String, after: String) {
     val file = parseText(before)
     ScalaFileImpl.stripPackagesIn(file)

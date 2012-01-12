@@ -4,9 +4,10 @@ import iterator._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.psi.{PsiWhiteSpace, PsiFile, PsiReference, PsiElement}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import com.intellij.psi.impl.source.codeStyle.CodeEditUtil
+import com.intellij.lang.ASTNode
+import com.intellij.psi._
 
 /**
  * Pavel Fatin
@@ -80,6 +81,12 @@ trait PsiElementExt {
 
   def nextSiblings: Iterator[PsiElement] = new NextSiblignsIterator(repr)
 
+  // Element + Prev. siblings
+  def prevElements: Iterator[PsiElement] = new PrevElementsIterator(repr)
+
+  // Element + Next siblings
+  def nextElements: Iterator[PsiElement] = new NextElementsIterator(repr)
+
   def children: Iterator[PsiElement] = new ChildrenIterator(repr)
 
   def isAncestorOf(e: PsiElement) = PsiTreeUtil.isAncestor(repr, e, true)
@@ -102,44 +109,40 @@ trait PsiElementExt {
     case sf: ScalaFile => Some(sf)
     case _ => None
   }
-  
-  def wrapChildrenIn(container: PsiElement): PsiElement = {
-    if (repr.getFirstChild != null) {
-      val (a, b) = copy(repr.getFirstChild, repr.getLastChild)
-      repr.deleteChildRange(repr.getFirstChild, repr.getLastChild)
-      val wrapper = repr.add(container)
-      wrapper.addRange(a, b)
-      wrapper
-    } else {
-      repr.add(container)
+
+  def wrapChildrenIn(container: PsiElement) {
+    if (repr.getFirstChild == null) return
+    setChildrenGenerated(repr.getNode)
+    moveOriginalChildren(repr, container)
+    moveOriginalChildren(container.getParent, repr)
+  }
+
+  def unwrapChildren() {
+    val node = repr.getNode
+    val parent = node.getTreeParent
+    if (node.getFirstChildNode != null) {
+      setChildrenGenerated(node)
+      parent.addChildren(node.getFirstChildNode, null, node)
+    }
+    parent.removeChild(node)
+  }
+
+  private def moveOriginalChildren(source: PsiElement, destination: PsiElement) {
+    if (source.getFirstChild == null) return
+
+    val sourceNode = source.getNode
+    val destinationNode = destination.getNode
+
+    destinationNode.addChildren(sourceNode.getFirstChildNode, null, null)
+  }
+
+  private def setChildrenGenerated(node: ASTNode) {
+    node.getChildren(null).foreach { it =>
+      CodeEditUtil.setNodeGenerated(it, true)
+      setChildrenGenerated(it)
     }
   }
 
-  private def copy(first: PsiElement, last: PsiElement): (PsiElement, PsiElement) = {
-    val file = ScalaPsiElementFactory.parseFile("", repr.getManager)
-    val a = file.addRange(first, last)
-    var e = first
-    var b = a
-    while (e != last) {
-      e = e.getNextSibling
-      b = b.getNextSibling
-    }
-    (a,  b)
-  }
-
-  def unwrapChildren(): Seq[PsiElement] = {
-    val elements = children.toList
-    val p = repr.getParent
-    val newChildren = if (children.nonEmpty) {
-      val first: PsiElement = p.addRangeAfter(elements.head, elements.last, repr)
-      first :: new NextSiblignsIterator(first).take(elements.size).toList
-    } else {
-      Nil
-    }
-    repr.delete()
-    newChildren
-  }
-  
   def deleteChildren(children: Seq[PsiElement]) {
     if (children.nonEmpty) repr.deleteChildRange(children.head, children.last)
   }

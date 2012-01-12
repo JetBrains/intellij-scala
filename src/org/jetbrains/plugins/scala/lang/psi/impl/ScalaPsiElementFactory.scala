@@ -187,6 +187,8 @@ object ScalaPsiElementFactory {
     dummyFile.getFirstChild.asInstanceOf[ScMatchStmt]
   }
 
+  def createScalaFile(manager: PsiManager): ScalaFile = ScalaPsiElementFactory.parseFile("", manager)
+  
   def parseFile(text: String, manager: PsiManager): ScalaFile = {
     val factory = PsiFileFactory.getInstance(manager.getProject)
     val name = DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension

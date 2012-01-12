@@ -1,5 +1,4 @@
-package pack1;
+package pack1
 
 class Class2 {
-
 }
