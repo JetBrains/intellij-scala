@@ -126,20 +126,22 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
         case _ =>
       }
     }
+    
+    if (element.isInstanceOf[ScFunctionDefinition]) {
+      val f: ScFunctionDefinition = element.asInstanceOf[ScFunctionDefinition]
+      if (!compiled && !f.isConstructor)
+        annotateFunction(f, holder, typeAware)
+    }
+    
+    if (element.isInstanceOf[ScFunction] && typeAware && !compiled && element.getParent.isInstanceOf[ScTemplateBody]) {
+      //todo: unhandled case abstract override
+      //todo: other kinds of members
+      //checkOverrideMethods(element.asInstanceOf[ScFunction], holder)
+    }
 
     element match {
       case a: ScAssignStmt => annotateAssignment(a, holder, typeAware)
-      
-      case ps: ScParameters => annotateParameters(ps, holder) 
-      
-      case f: ScFunctionDefinition if !compiled && !f.isConstructor => {
-        annotateFunction(f, holder, typeAware)
-      }
-      
-      case x: ScFunction if x.getParent.isInstanceOf[ScTemplateBody] => {
-        //todo: unhandled case abstract override
-        checkOverrideMethods(x, holder)
-      }
+      case ps: ScParameters => annotateParameters(ps, holder)
       case x: ScTemplateDefinition => {
         val tdParts = Seq(AbstractInstantiation, FinalClassInheritance, IllegalInheritance, ObjectCreationImpossible,
           MultipleInheritance, NeedsToBeAbstract, NeedsToBeTrait, SealedClassInheritance, UndefinedMember)
