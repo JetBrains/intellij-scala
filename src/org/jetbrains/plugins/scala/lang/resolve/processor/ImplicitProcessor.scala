@@ -2,12 +2,7 @@ package org.jetbrains.plugins.scala.lang.resolve.processor
 
 import org.jetbrains.plugins.scala.lang.resolve.ResolveTargets._
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
-import collection.mutable.{HashMap, HashSet}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
-import com.intellij.psi.{PsiPackage, PsiClass}
+import collection.mutable.HashMap
 import collection.Set
 
 /**
