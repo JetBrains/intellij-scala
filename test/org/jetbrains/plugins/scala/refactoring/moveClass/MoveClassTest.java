@@ -1,5 +1,6 @@
-package org.jetbrains.plugins.scala.lang.refactoring;
+package org.jetbrains.plugins.scala.refactoring.moveClass;
 
+import com.intellij.JavaTestUtil;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.projectRoots.impl.JavaSdkImpl;
 import com.intellij.openapi.vfs.LocalFileSystem;
@@ -7,8 +8,6 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.*;
 import com.intellij.psi.impl.source.PostprocessReformattingAspect;
 import com.intellij.psi.search.GlobalSearchScope;
-import com.intellij.refactoring.BaseRefactoringProcessor;
-import com.intellij.refactoring.PackageWrapper;
 import com.intellij.refactoring.move.moveClassesOrPackages.MoveClassesOrPackagesProcessor;
 import com.intellij.refactoring.move.moveClassesOrPackages.SingleSourceRootMoveDestination;
 import com.intellij.testFramework.PlatformTestUtil;
@@ -18,16 +17,15 @@ import org.jetbrains.annotations.NonNls;
 import java.io.File;
 
 public class MoveClassTest extends RefactoringTestCase {
-  // DONE
   public void testContextChange() throws Exception{
     doTest("contextChange1", new String[]{"pack1.Class1"}, "pack2");
     doTest("contextChange2", new String[]{"pack1.Class1"}, "pack2");
   }
-  // DONE
+
   public void testMoveMultiple() throws Exception{
     doTest("moveMultiple1", new String[]{"pack1.Class1", "pack1.Class2"}, "pack2");
   }
-  // DONE
+
   public void testSecondaryClass() throws Exception{
     doTest("secondaryClass", new String[]{"pack1.Class2"}, "pack1");
   }
@@ -44,10 +42,9 @@ public class MoveClassTest extends RefactoringTestCase {
     doTest("nonJava", new String[]{"pack1.Class1"}, "pack2");
   }
 
-  // TODO
-//  public void testRefInPropertiesFile() throws Exception{
-//    doTest("refInPropertiesFile", new String[]{"p1.MyClass"}, "p");
-//  }
+  public void testRefInPropertiesFile() throws Exception{
+    doTest("refInPropertiesFile", new String[]{"p1.MyClass"}, "p");
+  }
 
   /* IMPLEMENT: getReferences() in JspAttributeValueImpl should be dealed with (soft refs?)
 
@@ -56,7 +53,6 @@ public class MoveClassTest extends RefactoringTestCase {
   }
   */
 
-  // DONE
   public void testLocalClass() throws Exception{
     doTest("localClass", new String[]{"pack1.A"}, "pack2");
   }
@@ -109,7 +105,7 @@ public class MoveClassTest extends RefactoringTestCase {
 
     new MoveClassesOrPackagesProcessor(myProject, classes,
                                        new SingleSourceRootMoveDestination(PackageWrapper.create(JavaDirectoryService
-                                           .getInstance().getPackage(dirs[0])), dirs[0]),
+                                         .getInstance().getPackage(dirs[0])), dirs[0]),
                                        true, true, null).run();
     PsiDocumentManager.getInstance(myProject).commitAllDocuments();
     FileDocumentManager.getInstance().saveAllDocuments();
