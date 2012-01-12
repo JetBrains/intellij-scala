@@ -179,7 +179,9 @@ object DecompilerUtil {
 
       DecompilationResult(true, sourceFileName, sourceText, file.getTimeStamp)
     } catch {
-      case t: Throwable => DecompilationResult(false, "", "", file.getTimeStamp)
+      case t: Throwable =>
+        LOG.info(t)
+        DecompilationResult(false, "", "", file.getTimeStamp)
     }
   }
 }
