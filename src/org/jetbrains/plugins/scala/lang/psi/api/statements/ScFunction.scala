@@ -178,7 +178,7 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
   }
 
   /**
-   * Returns pure `function' type as it was defined as a field with functional value
+   * Returns pure 'function' type as it was defined as a field with functional value
    */
   def methodType(result: Option[ScType]): ScType = {
     val clauses = effectiveParameterClauses
@@ -280,7 +280,7 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
 
   /**
    * Seek parameter with appropriate name in appropriate parameter clause.
-   * @param parameter name
+   * @param name parameter name
    * @param clausePosition = -1, effective clause number, if -1 then parameter in any explicit? clause
    */
   def getParamByName(name: String, clausePosition: Int = -1): Option[ScParameter] = {
