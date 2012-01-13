@@ -437,7 +437,7 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible with Ps
         case tr: ScTryStmt => {
           calculateReturns0(tr.tryBlock)
           tr.catchBlock match {
-            case Some(cBlock) => cBlock.getBranches.foreach(calculateReturns0)
+            case Some(cBlock) => cBlock.expression.foreach(calculateReturns0)
             case None =>
           }
         }

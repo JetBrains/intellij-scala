@@ -352,10 +352,10 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
   case class CatchInfo(cc: ScCaseClause) extends HandleInfo(cc)
   case class FinallyInfo(fb: ScFinallyBlock) extends HandleInfo(fb)
 
-  override def visitTryExpression(tryStmt: ScTryStmt) = {
+  override def visitTryExpression(tryStmt: ScTryStmt) {
     val handledExnTypes = tryStmt.catchBlock match {
       case None => Nil
-      case Some(cb) => for (cl <- cb.caseClauses) yield CatchInfo(cl)
+      case Some(cb) => Nil //todo:
     }
     myCatchedExnStack pushAll handledExnTypes
     var catchedExnCount = handledExnTypes.size
@@ -382,15 +382,15 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
 
       val headAfterTry = myHead
       def processCatch(fin: InstructionImpl) = tryStmt.catchBlock.map {cb =>
-        for (cc <- cb.caseClauses) {
-          myHead = headAfterTry
+        for (cc <- Nil /* todo: ? */) {
+          /*myHead = headAfterTry
           cc.accept(this)
           if (fin == null) {
             addPendingEdge(tryStmt, myHead)
           } else {
             addEdge(myHead, fin)
           }
-          myHead = null
+          myHead = null*/
         }
       }
 

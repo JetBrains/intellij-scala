@@ -7,7 +7,6 @@ package expr
 import com.intellij.psi.scope.PsiScopeProcessor
 import statements.{ScDeclaredElementsHolder, ScTypeAlias}
 import toplevel.templates.ScTemplateBody
-import toplevel.typedef.{ScObject, ScTypeDefinition, ScTemplateDefinition, ScMember}
 import base.patterns.{ScCaseClauses, ScCaseClause}
 import types.result.{Failure, Success, TypingContext, TypeResult}
 import collection.mutable.HashMap
@@ -16,9 +15,10 @@ import com.intellij.psi.util.PsiTreeUtil
 import impl.{ScalaPsiManager, ScalaPsiElementFactory}
 import types._
 import com.intellij.psi.{PsiElement, ResolveState}
+import toplevel.typedef._
 
 /**
- * @author ilyas
+ * Author: ilyas, alefas
  */
 
 trait ScBlock extends ScExpression with ScDeclarationSequenceHolder with ScImportsHolder {
@@ -32,18 +32,27 @@ trait ScBlock extends ScExpression with ScDeclarationSequenceHolder with ScImpor
         case _ => types.Nothing
       }))
 
-      val et = expectedType(false).getOrElse(return Failure("Cannot infer type without expected type", Some(this)))
-
-      return ScType.extractFunctionType(et) match {
-        case Some(f @ ScFunctionType(_, params)) =>
-            Success(new ScFunctionType(clausesType, params.map(_.removeAbstracts))(f.getProject, f.getScope),
-              Some(this))
-        case None =>
-          ScType.extractPartialFunctionType(et) match {
-            case Some((des, param, _)) =>
-              Success(ScParameterizedType(des, Seq(param.removeAbstracts, clausesType)), Some(this))
+      getContext match {
+        case c: ScCatchBlock =>
+          val manager = ScalaPsiManager.instance(getProject)
+          val funs = manager.getCachedClasses(getResolveScope, "scala.PartialFunction")
+          val fun = funs.find(_.isInstanceOf[ScTrait]).getOrElse(return Failure("Cannot find PartialFunction class", Some(this)))
+          val throwable = manager.getCachedClass(getResolveScope, "java.lang.Throwable")
+          if (throwable == null) return Failure("Cannot find Throwable class", Some(this))
+          return Success(ScParameterizedType(ScDesignatorType(fun), Seq(ScDesignatorType(throwable), clausesType)), Some(this))
+        case _ =>
+          val et = expectedType(false).getOrElse(return Failure("Cannot infer type without expected type", Some(this)))
+          return ScType.extractFunctionType(et) match {
+            case Some(f@ScFunctionType(_, params)) =>
+              Success(new ScFunctionType(clausesType, params.map(_.removeAbstracts))(f.getProject, f.getScope),
+                Some(this))
             case None =>
-              Failure("Cannot infer type without expected type of scala.FunctionN or scala.PartialFunction", Some(this))
+              ScType.extractPartialFunctionType(et) match {
+                case Some((des, param, _)) =>
+                  Success(ScParameterizedType(des, Seq(param.removeAbstracts, clausesType)), Some(this))
+                case None =>
+                  Failure("Cannot infer type without expected type of scala.FunctionN or scala.PartialFunction", Some(this))
+              }
           }
       }
     }
