@@ -178,7 +178,7 @@ trait ResolvableReferenceExpression extends ScReferenceExpression {
               for (method <- clazz.getMethods) {
                 method match {
                   case p: PsiAnnotationMethod => {
-                    if (p.getName == ref.refName) {
+                    if (ScalaPsiUtil.memberNamesEquals(p.getName, ref.refName)) {
                       baseProcessor.execute(p, ResolveState.initial)
                     }
                   }
@@ -199,7 +199,7 @@ trait ResolvableReferenceExpression extends ScReferenceExpression {
                     case assignStmt: ScAssignStmt => {
                       assignStmt.getLExpression match {
                         case ref: ScReferenceExpression => {
-                          val ind = methods.indexWhere(_.getName == ref.refName)
+                          val ind = methods.indexWhere(p => ScalaPsiUtil.memberNamesEquals(p.getName, ref.refName))
                           if (ind != -1) methods.remove(ind)
                           else tail()
                         }
@@ -278,7 +278,7 @@ trait ResolvableReferenceExpression extends ScReferenceExpression {
           case assignStmt: ScAssignStmt => {
             assignStmt.getLExpression match {
               case ref: ScReferenceExpression => {
-                val ind = params.indexWhere(_.name == ref.refName)
+                val ind = params.indexWhere(p => ScalaPsiUtil.memberNamesEquals(p.name, ref.refName))
                 if (ind != -1) params.remove(ind)
                 else tail()
               }
