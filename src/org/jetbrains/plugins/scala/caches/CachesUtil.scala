@@ -156,8 +156,9 @@ object CachesUtil {
     if (result == null) {
       result = {
         val guard = getRecursionGuard(key.toString)
-        if (guard.currentStack().contains((e, data))) defaultValue
-        else {
+        if (guard.currentStack().contains((e, data))) {
+          defaultValue
+        } else {
           guard.doPreventingRecursion((e, data), false, new Computable[Result] {
             def compute(): Result = builder(e, data)
           }) match {

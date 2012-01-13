@@ -21,7 +21,7 @@ import com.intellij.codeInspection._
 import org.jetbrains.plugins.scala.annotator.intention._
 import org.jetbrains.plugins.scala.overrideImplement.ScalaOIUtil
 import params.{ScParameter, ScParameters, ScClassParameter}
-import patterns.{ScInfixPattern, ScBindingPattern}
+import patterns.ScInfixPattern
 import quickfix.modifiers.{RemoveModifierQuickFix, AddModifierQuickFix}
 import modifiers.ModifierChecker
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
