@@ -224,24 +224,15 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
         }
       }
       case Some(ScalaResolveResult(value: ScSyntheticValue, _)) => value.tp
-      case Some(ScalaResolveResult(fun: ScFunction, s)) => {
-        //prevent infinite recursion for recursive method invocation
-        var result: ScType =
-          ScalaRecursionManager.functionRecursionGuard.doPreventingRecursion(this, true, new Computable[ScType] {
-            def compute(): ScType = s.subst(fun.polymorphicType)
-          })
-        if (result == null) {
-          val optionResult: Option[ScType] = {
-            fun.definedReturnType match {
-              case s: Success[ScType] => Some(s.get)
-              case fail: Failure => None
-            }
+      case Some(ScalaResolveResult(fun: ScFunction, s)) if fun.isProbablyRecursive =>
+        val optionResult: Option[ScType] = {
+          fun.definedReturnType match {
+            case s: Success[ScType] => Some(s.get)
+            case fail: Failure => None
           }
-          if (optionResult == None) return Failure("Cannot infer recursive method type", Some(this))
-          result = s.subst(fun.polymorphicType(optionResult))
         }
-        result
-      }
+        s.subst(fun.polymorphicType(optionResult))
+      case Some(ScalaResolveResult(fun: ScFunction, s)) => s.subst(fun.polymorphicType)
       case Some(ScalaResolveResult(param: ScParameter, s)) if param.isRepeatedParameter => {
         val seqClass = JavaPsiFacade.getInstance(getProject).
                 findClass("scala.collection.Seq", getResolveScope)
@@ -301,9 +292,8 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
       case Some(ScalaResolveResult(clazz: PsiClass, _)) => new ScDesignatorType(clazz, true) //static Java class
       case Some(ScalaResolveResult(field: PsiField, s)) =>
         s.subst(ScType.create(field.getType, field.getProject, getResolveScope))
-      case Some(ScalaResolveResult(method: PsiMethod, s)) => {
+      case Some(ScalaResolveResult(method: PsiMethod, s)) =>
         ResolveUtils.javaPolymorphicType(method, s, getResolveScope)
-      }
       case _ => return Failure("Cannot resolve expression", Some(this))
     }
     qualifier match {
