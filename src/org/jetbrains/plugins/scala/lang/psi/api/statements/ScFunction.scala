@@ -286,14 +286,14 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
   def getParamByName(name: String, clausePosition: Int = -1): Option[ScParameter] = {
     clausePosition match {
       case -1 => {
-        for (param <- parameters if param.name == name) return Some(param)
+        for (param <- parameters if ScalaPsiUtil.memberNamesEquals(param.name, name)) return Some(param)
         None
       }
       case i if i < 0 => None
       case i if i >= effectiveParameterClauses.length => None
       case i => {
         val clause: ScParameterClause = effectiveParameterClauses.apply(i)
-        for (param <- clause.parameters if param.name == name) return Some(param)
+        for (param <- clause.parameters if ScalaPsiUtil.memberNamesEquals(param.name, name)) return Some(param)
         None
       }
     }
