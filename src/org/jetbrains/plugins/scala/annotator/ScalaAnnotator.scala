@@ -22,6 +22,7 @@ import org.jetbrains.plugins.scala.annotator.intention._
 import org.jetbrains.plugins.scala.overrideImplement.ScalaOIUtil
 import params.{ScParameter, ScParameters, ScClassParameter}
 import patterns.ScInfixPattern
+import processor.MethodResolveProcessor
 import quickfix.modifiers.{RemoveModifierQuickFix, AddModifierQuickFix}
 import modifiers.ModifierChecker
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
@@ -40,13 +41,13 @@ import com.intellij.openapi.editor.markup.{EffectType, TextAttributes}
 import java.awt.{Font, Color}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import components.HighlightingAdvisor
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.extensions._
 import collection.{Seq, Set}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.{ReadValueUsed, WriteValueUsed, ValueUsed, ImportUsed}
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocResolvableCodeReference
+import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiManager, ScalaPsiElementFactory}
 
 /**
  *    User: Alexander Podkhalyuzin
@@ -59,6 +60,7 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
         with TypedStatementAnnotator with PatternDefinitionAnnotator
         with ControlFlowInspections with ConstructorAnnotator
         with DumbAware {
+
   override def annotate(element: PsiElement, holder: AnnotationHolder) {
     val typeAware = isAdvancedHighlightingEnabled(element)
 
@@ -111,6 +113,10 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
 
     if (element.isInstanceOf[ScParameter]) {
       annotateParameter(element.asInstanceOf[ScParameter], holder)
+    }
+    
+    if (element.isInstanceOf[ScCatchBlock]) {
+      checkCatchBlockGeneralizedRule(element.asInstanceOf[ScCatchBlock], holder)
     }
 
     annotateScope(element, holder)
@@ -191,6 +197,43 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
 
   def isAdvancedHighlightingEnabled(element: PsiElement): Boolean = {
     HighlightingAdvisor.getInstance(element.getProject).enabled
+  }
+
+  def checkCatchBlockGeneralizedRule(block: ScCatchBlock, holder: AnnotationHolder) {
+    block.expression match {
+      case Some(expr) =>
+        val tp = expr.getType(TypingContext.empty).getOrAny
+        val throwable = ScalaPsiManager.instance(expr.getProject).getCachedClass(expr.getResolveScope, "java.lang.Throwable")
+        if (throwable == null) return
+        val throwableType = ScDesignatorType(throwable)
+        def checkMember(memberName: String, checkReturnType: Boolean) {
+          val processor = new MethodResolveProcessor(expr, memberName, List(Seq(new Compatibility.Expression(throwableType))),
+            Seq.empty, Seq.empty)
+          processor.processType(tp, expr)
+          val candidates = processor.candidates
+          if (candidates.length != 1) {
+            val error = ScalaBundle.message("method.is.not.member", memberName, ScType.presentableText(tp))
+            val annotation = holder.createErrorAnnotation(expr, error)
+            annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR)
+          } else if (checkReturnType) {
+            def error() {
+              val error = ScalaBundle.message("expected.type.boolean", memberName)
+              val annotation = holder.createErrorAnnotation(expr, error)
+              annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR)
+            }
+            candidates(0) match {
+              case ScalaResolveResult(fun: ScFunction, subst) =>
+                if (fun.returnType.isEmpty || !Equivalence.equiv(subst.subst(fun.returnType.get), Boolean)) {
+                  error()
+                }
+              case _ => error()
+            }
+          }
+        }
+        checkMember("isDefinedAt", true)
+        checkMember("apply", false)  
+      case _ =>
+    }
   }
 
   private def checkTypeParamBounds(sTypeParam: ScTypeBoundsOwner, holder: AnnotationHolder) {}
