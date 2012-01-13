@@ -23,10 +23,10 @@ import psi.impl.ScalaPsiElementFactory
 import lexer.ScalaTokenTypes
 import base.ScMethodLike
 import collection.immutable.Set
-import java.lang.String
 import caches.CachesUtil
 import util.PsiModificationTracker
 import psi.impl.toplevel.synthetic.{ScSyntheticTypeParameter, ScSyntheticFunction}
+import java.lang.{ThreadLocal, String}
 
 /**
  * @author Alexander Podkhalyuzin
@@ -79,6 +79,12 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
   }
 
   def isParameterless = paramClauses.clauses.isEmpty
+  
+  private val probablyRecursive: ThreadLocal[Boolean] = new ThreadLocal[Boolean]() {
+    override def initialValue(): Boolean = false
+  }
+  def isProbablyRecursive = probablyRecursive.get()
+  def setProbablyRecursive(b: Boolean) {probablyRecursive.set(b)}
 
   def isEmptyParen = paramClauses.clauses.size == 1 && paramClauses.params.size == 0
 

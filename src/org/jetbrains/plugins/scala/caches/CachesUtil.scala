@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala
 package caches
 
 
-import com.intellij.psi.util.{CachedValuesManager, CachedValueProvider, CachedValue}
 import lang.psi.types.result.TypeResult
 import com.intellij.psi._
 import lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
@@ -16,6 +15,10 @@ import lang.resolve.ScalaResolveResult
 import lang.psi.types.{ScUndefinedSubstitutor, ScSubstitutor, ScType}
 import lang.psi.api.statements.params.{ScTypeParamClause, ScParameterClause}
 import com.intellij.util.containers.ConcurrentHashMap
+import util.{PsiTreeUtil, CachedValuesManager, CachedValueProvider, CachedValue}
+import lang.psi.api.statements.ScFunction
+import scala.util.control.ControlThrowable
+import caches.CachesUtil.ProbablyRecursionException
 
 /**
  * User: Alexander Podkhalyuzin
@@ -171,4 +174,68 @@ object CachesUtil {
     }
     result
   }
+
+  def getMappedWithRecursionPreventingWithRollback[Dom <: PsiElement, Data, Result](e: Dom, data: Data,
+                                                                        key: Key[CachedValue[ConcurrentHashMap[Data, Result]]],
+                                                                        builder: (Dom, Data) => Result,
+                                                                        defaultValue: => Result,
+                                                                        dependencyItem: Object): Result = {
+    var computed: CachedValue[ConcurrentHashMap[Data, Result]] = e.getUserData(key)
+    if (computed == null) {
+      val manager = CachedValuesManager.getManager(e.getProject)
+      computed = manager.createCachedValue(new CachedValueProvider[ConcurrentHashMap[Data, Result]] {
+        def compute(): CachedValueProvider.Result[ConcurrentHashMap[Data, Result]] = {
+          new CachedValueProvider.Result(new ConcurrentHashMap[Data, Result](), dependencyItem)
+        }
+      }, false)
+      e.putUserData(key, computed)
+    }
+    val map = computed.getValue
+    var result = map.get(data)
+    if (result == null) {
+      result = {
+        val guard = getRecursionGuard(key.toString)
+        if (guard.currentStack().contains((e, data))) {
+          val fun = PsiTreeUtil.getContextOfType(e, true, classOf[ScFunction])
+          if (fun == null || fun.isProbablyRecursive) defaultValue
+          else {
+            fun.setProbablyRecursive(true)
+            throw new ProbablyRecursionException(e, data, key, Set(fun))
+          }
+        } else {
+          guard.doPreventingRecursion((e, data), false, new Computable[Result] {
+            def compute(): Result = {
+              try {
+                builder(e, data)
+              }
+              catch {
+                case ProbablyRecursionException(`e`, `data`, k, set) if k == key =>
+                  try {
+                    builder(e, data)
+                  }
+                  finally set.foreach(_.setProbablyRecursive(false))
+                case t@ProbablyRecursionException(ee, data, k, set) if k == key =>
+                  val fun = PsiTreeUtil.getContextOfType(e, true, classOf[ScFunction])
+                  if (fun == null || fun.isProbablyRecursive) throw t
+                  else {
+                    fun.setProbablyRecursive(true)
+                    throw ProbablyRecursionException(ee, data, k, set + fun)
+                  }
+              }
+            }
+          }) match {
+            case null => defaultValue
+            case notNull => notNull
+          }
+        }
+      }
+      map.put(data, result)
+    }
+    result
+  }
+  
+  private case class ProbablyRecursionException[Dom <: PsiElement, Data, T](elem: Dom,
+                                                                            data: Data,
+                                                                            key: Key[T],
+                                                                            set: Set[ScFunction]) extends ControlThrowable
 }
