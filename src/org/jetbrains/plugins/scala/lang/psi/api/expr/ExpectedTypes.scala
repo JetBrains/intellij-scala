@@ -85,6 +85,8 @@ private[expr] object ExpectedTypes {
       //see SLS[8.4]
       case c: ScCaseClause => c.getContext.getContext match {
         case m: ScMatchStmt => m.expectedTypesEx(true)
+        case b: ScBlockExpr if b.isAnonymousFunction && b.getContext.isInstanceOf[ScCatchBlock] =>
+          b.getContext.getContext.asInstanceOf[ScTryStmt].expectedTypesEx(true)
         case b: ScBlockExpr if b.isAnonymousFunction => {
           b.expectedTypesEx(true).flatMap(tp => ScType.extractFunctionType(tp._1) match {
             case Some(ScFunctionType(retType, _)) => Array[(ScType, Option[ScTypeElement])]((retType, None))
@@ -94,8 +96,6 @@ private[expr] object ExpectedTypes {
             }
           })
         }
-        case cb: ScCatchBlock =>
-          cb.getContext.asInstanceOf[ScTryStmt].expectedTypesEx(true)
         case _ => Array.empty
       }
       //see SLS[6.23]
