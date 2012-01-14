@@ -19,12 +19,12 @@ import com.intellij.testFramework.fixtures.{LightCodeInsightFixtureTestCase}
 class ControlFlowTest extends LightCodeInsightFixtureTestCase {
   protected override def getBasePath = TestUtils.getTestDataPath + "/controlFlow/"
 
-  override def setUp = {
-    super.setUp
+  override def setUp() {
+    super.setUp()
     myFixture.setTestDataPath(getBasePath)
   }
 
-  def doTest {
+  def doTest() {
     val input: java.util.List[String] = TestUtils.readInput(getBasePath + getTestName(true) + ".test")
     myFixture.configureByText(ScalaFileType.SCALA_FILE_TYPE, input.get(0))
     val file: ScalaFile = myFixture.getFile.asInstanceOf[ScalaFile]
@@ -40,23 +40,23 @@ class ControlFlowTest extends LightCodeInsightFixtureTestCase {
 
   protected def dumpControlFlow(instructions: Seq[Instruction]) = instructions.mkString("\n")
 
-  def testAssignment = doTest
-  def testIfStatement = doTest
-  def testIfStatement2 = doTest
-  def testWhile = doTest
-  def testWhile2 = doTest
-  def testMatch1 = doTest
-  def testFor1 = doTest
-  def testFor2 = doTest
-  def testDoWhile1 = doTest
-  def testReturn1 = doTest
-  def testMethod1 = doTest
-  def testThrow1 = doTest
-  def testKaplan_1703 = doTest
-  def testKaplan_1703_2 = doTest
-  def testTry1 = doTest
-  def testTry2 = doTest
-  def testTry3 = doTest
+  def testAssignment() {doTest()}
+  def testIfStatement() {doTest()}
+  def testIfStatement2() {doTest()}
+  def testWhile() {doTest()}
+  def testWhile2() {doTest()}
+  def testMatch1() {doTest()}
+  def testFor1() {doTest()}
+  def testFor2() {doTest()}
+  def testDoWhile1() {doTest()}
+  def testReturn1() {doTest()}
+  def testMethod1() {doTest()}
+  def testThrow1() {doTest()}
+  def testKaplan_1703() {doTest()}
+  def testKaplan_1703_2() {doTest()}
+  def testTry1() {doTest()}
+  def testTry2() {doTest()}
+  def testTry3() {doTest()}
 
 }
 
