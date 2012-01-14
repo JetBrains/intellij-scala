@@ -279,8 +279,8 @@ class FunctionAnnotatorTest extends SimpleTestCase {
   }
 
   def testUnitReturnUnresolvedExpression() {
-    assertMatches(messages("def f { return new C }")) {
-      case Warning("new C", RedundantReturnData()) :: Nil =>
+    assertMatches(messages("def f { return new A }")) {
+      case Warning("new A", RedundantReturnData()) :: Nil =>
     }
   }
 
@@ -291,8 +291,8 @@ class FunctionAnnotatorTest extends SimpleTestCase {
   }
 
   def testTypeUnitReturnUnresolvedExpression() {
-    assertMatches(messages("def f: Unit = { return new C }")) {
-      case Warning("new C", RedundantReturnData()) :: Nil =>
+    assertMatches(messages("def f: Unit = { return new A }")) {
+      case Warning("new A", RedundantReturnData()) :: Nil =>
     }
   }
 
