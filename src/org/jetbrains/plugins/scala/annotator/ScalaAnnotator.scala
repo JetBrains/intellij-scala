@@ -35,7 +35,6 @@ import types.ScTypeElement
 import scala.Some
 import com.intellij.openapi.project.DumbAware
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.lang.psi.types.result.{TypingContext, TypeResult, Success}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression.ExpressionTypeResult
 import com.intellij.openapi.editor.markup.{EffectType, TextAttributes}
 import java.awt.{Font, Color}
@@ -48,6 +47,7 @@ import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocResolvableCodeReference
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiManager, ScalaPsiElementFactory}
+import result.{Failure, TypingContext, TypeResult, Success}
 
 /**
  *    User: Alexander Podkhalyuzin
@@ -116,7 +116,7 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
     }
     
     if (element.isInstanceOf[ScCatchBlock]) {
-      checkCatchBlockGeneralizedRule(element.asInstanceOf[ScCatchBlock], holder)
+      checkCatchBlockGeneralizedRule(element.asInstanceOf[ScCatchBlock], holder, typeAware)
     }
 
     annotateScope(element, holder)
@@ -199,14 +199,14 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
     HighlightingAdvisor.getInstance(element.getProject).enabled
   }
 
-  def checkCatchBlockGeneralizedRule(block: ScCatchBlock, holder: AnnotationHolder) {
+  def checkCatchBlockGeneralizedRule(block: ScCatchBlock, holder: AnnotationHolder, typeAware: Boolean) {
     block.expression match {
       case Some(expr) =>
         val tp = expr.getType(TypingContext.empty).getOrAny
         val throwable = ScalaPsiManager.instance(expr.getProject).getCachedClass(expr.getResolveScope, "java.lang.Throwable")
         if (throwable == null) return
         val throwableType = ScDesignatorType(throwable)
-        def checkMember(memberName: String, checkReturnType: Boolean) {
+        def checkMember(memberName: String, checkReturnTypeIsBoolean: Boolean) {
           val processor = new MethodResolveProcessor(expr, memberName, List(Seq(new Compatibility.Expression(throwableType))),
             Seq.empty, Seq.empty)
           processor.processType(tp, expr)
@@ -215,7 +215,7 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
             val error = ScalaBundle.message("method.is.not.member", memberName, ScType.presentableText(tp))
             val annotation = holder.createErrorAnnotation(expr, error)
             annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR)
-          } else if (checkReturnType) {
+          } else if (checkReturnTypeIsBoolean) {
             def error() {
               val error = ScalaBundle.message("expected.type.boolean", memberName)
               val annotation = holder.createErrorAnnotation(expr, error)
@@ -227,6 +227,36 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
                   error()
                 }
               case _ => error()
+            }
+          } else {
+            block.getContext match {
+              case t: ScTryStmt =>
+                t.expectedTypeEx(false) match {
+                  case Some((tp: ScType, _)) if tp equiv Unit => //do nothing
+                  case Some((tp: ScType, typeElement)) => {
+                    import org.jetbrains.plugins.scala.lang.psi.types._
+                    val returnType = candidates(0) match {
+                      case ScalaResolveResult(fun: ScFunction, subst) => fun.returnType.map(subst.subst(_))
+                      case _ => return
+                    }
+                    val expectedType = Success(tp, None)
+                    val conformance = ScalaAnnotator.smartCheckConformance(expectedType, returnType)
+                    if (!conformance) {
+                      if (typeAware) {
+                        val error = ScalaBundle.message("expr.type.does.not.conform.expected.type",
+                          ScType.presentableText(returnType.getOrNothing), ScType.presentableText(expectedType.get))
+                        val annotation: Annotation = holder.createErrorAnnotation(expr, error)
+                        annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
+                        typeElement match {
+                          case Some(te) => annotation.registerFix(new ChangeTypeFix(te, returnType.getOrNothing))
+                          case None =>
+                        }
+                      }
+                    }
+                  }
+                  case _ => //do nothing
+                }
+              case _ =>
             }
           }
         }

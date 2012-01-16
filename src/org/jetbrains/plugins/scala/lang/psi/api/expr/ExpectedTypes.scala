@@ -77,6 +77,7 @@ private[expr] object ExpectedTypes {
         case _ => Array.empty
       }
       case fb: ScFinallyBlock => Array((types.Unit, None))
+      case cb: ScCatchBlock => Array.empty
       case te: ScThrowStmt =>
         // Not in the SLS, but in the implementation.
         val throwableClass = JavaPsiFacade.getInstance(te.getProject).findClass("java.lang.Throwable", te.getResolveScope)
