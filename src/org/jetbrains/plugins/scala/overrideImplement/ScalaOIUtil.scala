@@ -162,15 +162,10 @@ object ScalaOIUtil {
             case x if name == "$tag" || name == "$init$" =>
             case x if !withOwn && x.getContainingClass == clazz =>
             case x if x.getContainingClass != null && x.getContainingClass.isInterface &&
-              !x.getContainingClass.isInstanceOf[ScTrait] => {
+              !x.getContainingClass.isInstanceOf[ScTrait] => buf2 += sign
+            case x if x.hasModifierProperty("abstract") => buf2 += sign
+            case x: ScFunctionDeclaration if x.hasAnnotation("scala.native") == None =>
               buf2 += sign
-            }
-            case x if x.hasModifierProperty("abstract") => {
-              buf2 += sign
-            }
-            case x: ScFunctionDeclaration => {
-              buf2 += sign
-            }
             case _ =>
           }
         }
@@ -224,7 +219,7 @@ object ScalaOIUtil {
         case sign: PhysicalSignature => {
           sign.method match {
             case _ if isProductAbstractMethod(sign.method, clazz) => buf2 += sign
-            case _: ScFunctionDeclaration =>
+            case f: ScFunctionDeclaration if f.hasAnnotation("scala.native") == None =>
             case x if x.getName == "$tag" || x.getName == "$init$"=>
             case x: ScFunction if x.isSyntheticCopy =>
             case x if x.getContainingClass == clazz =>
