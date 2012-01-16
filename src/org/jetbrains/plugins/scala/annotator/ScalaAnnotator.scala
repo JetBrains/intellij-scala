@@ -47,7 +47,7 @@ import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocResolvableCodeReference
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiManager, ScalaPsiElementFactory}
-import result.{Failure, TypingContext, TypeResult, Success}
+import result.{TypingContext, TypeResult, Success}
 
 /**
  *    User: Alexander Podkhalyuzin
