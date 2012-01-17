@@ -76,21 +76,31 @@ class DependencyTest extends SimpleTestCase {
     """, ("C", "ScFunctionDefinition", "O.C"))
   }
 
-  def testImportedFunction() {
+  def testFunction() {
     assertDependenciesAre("""
     object O {
-      object Holder {
-        def foo() {}
-      }
-      import Holder.foo
+      def foo() {}
       foo()
-    }""",
-      ("Holder", "ScObject", "O.Holder"), ("foo", "ScFunctionDefinition", "O.Holder.foo"))
+    }
+    """, ("foo", "ScFunctionDefinition", "O.foo"))
   }
 
-  // imported object
-  // imported value
-  // imported variable
+  def testValue() {
+    assertDependenciesAre("""
+    object O {
+      val foo = 1
+      foo
+    }""", ("foo", "ReferencePattern", "O.foo"))
+  }
+
+  def testVariable() {
+    assertDependenciesAre("""
+    object O {
+      var foo = 1
+      foo
+    }""", ("foo", "ReferencePattern", "O.foo"))
+  }
+
   // package
   // unapply
   // implicit conversions
