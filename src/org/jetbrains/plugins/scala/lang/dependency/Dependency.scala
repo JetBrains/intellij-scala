@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala
 package lang.dependency
 
-import lang.psi.api.base.patterns.ScConstructorPattern
 import lang.psi.impl.toplevel.synthetic.ScSyntheticClass
 import extensions._
 import com.intellij.psi._
@@ -10,6 +9,7 @@ import lang.psi.api.expr.{ScInfixExpr, ScPostfixExpr}
 import lang.psi.api.statements.ScFunctionDefinition
 import lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScMember}
 import annotator.intention.ScalaImportClassFix
+import lang.psi.api.base.patterns.{ScReferencePattern, ScConstructorPattern}
 
 /**
  * Pavel Fatin
@@ -84,6 +84,8 @@ object Dependency {
             withEntity(obj.getQualifiedName)
           case (member: ScMember) && ContainingClass(obj: ScObject) =>
             withMember(obj.getQualifiedName, member.getName)
+          case (pattern: ScReferencePattern) && Parent(Parent(ContainingClass(obj: ScObject))) =>
+            withMember(obj.getQualifiedName, pattern.getName)
           case (function: ScFunctionDefinition) && ContainingClass(obj: ScClass)
             if function.isConstructor =>
             withEntity(obj.getQualifiedName)
