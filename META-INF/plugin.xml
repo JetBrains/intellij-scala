@@ -206,7 +206,6 @@
     <projectService serviceInterface="org.jetbrains.plugins.scala.lang.scaladoc.generate.ScaladocSettings"
             serviceImplementation="org.jetbrains.plugins.scala.lang.scaladoc.generate.ScaladocSettings"/>
 
-    <inspectionToolProvider implementation="org.jetbrains.plugins.scala.codeInspection.ScalaInspectionsProvider"/>
     <quoteHandler fileType="Scala" className="org.jetbrains.plugins.scala.lang.editor.ScalaQuoteHandler"/>
 
     <extendWordSelectionHandler implementation="org.jetbrains.plugins.scala.editor.selectioner.ScalaWordSelectioner"/>
@@ -401,6 +400,10 @@
                      displayName="SBT Light Configuration File Structure" groupName="Scala: General"
                      shortName="ScalaSbtFileStructure" level="WARNING"
                      enabledByDefault="true" language="Scala"/>
+    <!--<localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.allErrorsInspection.AnnotatorBasedErrorInspection"
+                     displayName="All Errors Tool" groupName="Scala: General"
+                     shortName="ScalaAllErrors" level="WARNING"
+                     enabledByDefault="false" language="Scala"/>-->
 
     <!-- scaladoc inspections -->
     <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.scaladoc.ScalaDocUnclosedTagWithoutParserInspection"
