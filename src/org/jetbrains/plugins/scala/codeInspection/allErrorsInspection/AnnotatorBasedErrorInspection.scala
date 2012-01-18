@@ -19,7 +19,7 @@ class AnnotatorBasedErrorInspection extends LocalInspectionTool {
 
   def getDisplayName: String = "All Errors Tool"
 
-  def getShortName: String = "All errors"
+  def getShortName: String = "ScalaAllErrors"
 
   override def isEnabledByDefault: Boolean = false
 
