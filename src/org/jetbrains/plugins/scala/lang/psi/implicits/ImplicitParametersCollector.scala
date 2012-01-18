@@ -8,7 +8,7 @@ import result.{Success, TypingContext}
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
-import params.{ScParameter, ScTypeParam}
+import params.{ScClassParameter, ScParameter, ScTypeParam}
 import util.PsiTreeUtil
 import collection.immutable.HashSet
 import collection.mutable.ArrayBuffer
@@ -59,19 +59,26 @@ class ImplicitParametersCollector(place: PsiElement, tp: ScType) {
       val subst = getSubst(state)
       named match {
         case o: ScObject if o.hasModifierProperty("implicit") =>
+          if (!ResolveUtils.isAccessible(o, getPlace)) return true
           addResult(new ScalaResolveResult(o, subst, getImports(state)))
-        case param: ScParameter =>
-          if (param.isImplicitParameter)
-            addResult(new ScalaResolveResult(param, subst, getImports(state)))
+        case param: ScParameter if param.isImplicitParameter =>
+          param match {
+            case c: ScClassParameter =>
+              if (!ResolveUtils.isAccessible(c, getPlace)) return true
+            case _ =>
+          }
+          addResult(new ScalaResolveResult(param, subst, getImports(state)))
         case patt: ScBindingPattern => {
           val memb = ScalaPsiUtil.getContextOfType(patt, true, classOf[ScValue], classOf[ScVariable])
           memb match {
             case memb: ScMember if memb.hasModifierProperty("implicit") =>
+              if (!ResolveUtils.isAccessible(memb, getPlace)) return true
               addResult(new ScalaResolveResult(named, subst, getImports(state)))
             case _ =>
           }
         }
         case function: ScFunction if function.hasModifierProperty("implicit") => {
+          if (!ResolveUtils.isAccessible(function, getPlace)) return true
           addResult(new ScalaResolveResult(named, subst.followed(inferMethodTypesArgs(function, subst)), getImports(state)))
         }
         case _ =>

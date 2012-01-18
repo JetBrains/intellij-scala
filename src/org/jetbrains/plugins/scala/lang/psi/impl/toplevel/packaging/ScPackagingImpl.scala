@@ -169,8 +169,8 @@ class ScPackagingImpl extends ScalaStubBasedElementImpl[ScPackageContainer] with
       lastChild.foreach(_.delete())
     } else {
       deleteChildren(children.take(3).toList)
-      deleteChildren(children.takeWhile(_.isInstanceOf[PsiWhiteSpace]).toList)
     }
+    deleteChildren(children.takeWhile(_.isInstanceOf[PsiWhiteSpace]).toList)
     unwrapChildren()
   }
 }

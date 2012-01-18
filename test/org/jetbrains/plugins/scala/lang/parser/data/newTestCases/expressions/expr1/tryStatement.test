@@ -63,22 +63,23 @@ ScalaFile
           CatchBlock
             PsiElement(catch)('catch')
             PsiWhiteSpace(' ')
-            PsiElement({)('{')
-            PsiWhiteSpace('\n    ')
-            CaseClauses
-              CaseClause
-                PsiElement(case)('case')
-                PsiWhiteSpace(' ')
-                LiteralPattern
+            BlockExpression
+              PsiElement({)('{')
+              PsiWhiteSpace('\n    ')
+              CaseClauses
+                CaseClause
+                  PsiElement(case)('case')
+                  PsiWhiteSpace(' ')
+                  LiteralPattern
+                    Literal
+                      PsiElement(integer)('1')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>)('=>')
+                  PsiWhiteSpace(' ')
                   Literal
-                    PsiElement(integer)('1')
-                PsiWhiteSpace(' ')
-                PsiElement(=>)('=>')
-                PsiWhiteSpace(' ')
-                Literal
-                  PsiElement(integer)('2')
-            PsiWhiteSpace('\n  ')
-            PsiElement(})('}')
+                    PsiElement(integer)('2')
+              PsiWhiteSpace('\n  ')
+              PsiElement(})('}')
           PsiWhiteSpace('\n  ')
           FinallyBlock
             PsiElement(finally)('finally')

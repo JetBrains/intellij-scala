@@ -17,13 +17,14 @@ ScalaFile
     CatchBlock
       PsiElement(catch)('catch')
       PsiWhiteSpace(' ')
-      PsiElement({)('{')
-      CaseClauses
-        CaseClause
-          PsiElement(case)('case')
-          PsiErrorElement:Pattern expected
-            <empty list>
-      PsiElement(})('}')
+      BlockExpression
+        PsiElement({)('{')
+        CaseClauses
+          CaseClause
+            PsiElement(case)('case')
+            PsiErrorElement:Pattern expected
+              <empty list>
+        PsiElement(})('}')
   PsiWhiteSpace('\n\n')
   TryStatement
     TryBlock
@@ -35,11 +36,12 @@ ScalaFile
     CatchBlock
       PsiElement(catch)('catch')
       PsiWhiteSpace(' ')
-      PsiElement(()('(')
-      ReferenceExpression
-        PsiElement(identifier)('b')
-      PsiErrorElement:')' expected
-        <empty list>
+      ExpressionInParenthesis
+        PsiElement(()('(')
+        ReferenceExpression
+          PsiElement(identifier)('b')
+        PsiErrorElement:')' expected
+          <empty list>
   PsiElement(})('}')
   PsiWhiteSpace('\n\n')
   TryStatement
@@ -52,19 +54,27 @@ ScalaFile
     CatchBlock
       PsiElement(catch)('catch')
       PsiWhiteSpace(' ')
-      PsiElement({)('{')
-      ReferenceExpression
-        PsiElement(identifier)('b')
-      PsiErrorElement:'}' expected
-        <empty list>
-      PsiElement())(')')
-      PsiWhiteSpace('\n\n')
-      PsiElement(try)('try')
-      PsiWhiteSpace(' ')
-      PsiElement(identifier)('a')
-      PsiWhiteSpace(' ')
-      PsiElement(catch)('catch')
-      PsiWhiteSpace(' ')
-      PsiElement({)('{')
-      PsiElement(catch)('catch')
-      PsiElement(})('}')
+      BlockExpression
+        PsiElement({)('{')
+        ReferenceExpression
+          PsiElement(identifier)('b')
+        PsiErrorElement:'}' expected
+          <empty list>
+        PsiElement())(')')
+        PsiWhiteSpace('\n\n')
+        TryStatement
+          TryBlock
+            PsiElement(try)('try')
+            PsiWhiteSpace(' ')
+            ReferenceExpression
+              PsiElement(identifier)('a')
+          PsiWhiteSpace(' ')
+          CatchBlock
+            PsiElement(catch)('catch')
+            PsiWhiteSpace(' ')
+            BlockExpression
+              PsiElement({)('{')
+              PsiErrorElement:'}' expected
+                <empty list>
+              PsiElement(catch)('catch')
+              PsiElement(})('}')

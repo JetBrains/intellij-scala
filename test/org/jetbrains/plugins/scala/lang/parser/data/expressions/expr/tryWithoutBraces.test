@@ -33,21 +33,22 @@ ScalaFile
           CatchBlock
             PsiElement(catch)('catch')
             PsiWhiteSpace(' ')
-            PsiElement({)('{')
-            CaseClauses
-              CaseClause
-                PsiElement(case)('case')
-                PsiWhiteSpace(' ')
-                TypedPattern
-                  PsiElement(identifier)('e')
-                  PsiElement(:)(':')
+            BlockExpression
+              PsiElement({)('{')
+              CaseClauses
+                CaseClause
+                  PsiElement(case)('case')
                   PsiWhiteSpace(' ')
-                  TypePattern
-                    SimpleTypeElement
-                      CodeReferenceElement
-                        PsiElement(identifier)('Throwable')
-                PsiWhiteSpace(' ')
-                PsiElement(=>)('=>')
-            PsiElement(})('}')
+                  TypedPattern
+                    PsiElement(identifier)('e')
+                    PsiElement(:)(':')
+                    PsiWhiteSpace(' ')
+                    TypePattern
+                      SimpleTypeElement
+                        CodeReferenceElement
+                          PsiElement(identifier)('Throwable')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>)('=>')
+              PsiElement(})('}')
         PsiWhiteSpace('\n')
         PsiElement(})('}')

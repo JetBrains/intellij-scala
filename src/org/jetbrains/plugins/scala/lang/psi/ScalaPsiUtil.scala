@@ -83,6 +83,11 @@ object ScalaPsiUtil {
     NameTransformer.decode(s1)
   }
 
+  def memberNamesEquals(l: String, r: String): Boolean = {
+    if (l == r) return true
+    convertMemberName(l) == convertMemberName(r)
+  }
+
   def cachedDeepIsInheritor(clazz: PsiClass, base: PsiClass): Boolean = {
     val manager = ScalaPsiManager.instance(clazz.getProject)
     manager.cachedDeepIsInheritor(clazz, base)

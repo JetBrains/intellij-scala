@@ -141,44 +141,8 @@ object Expr1 {
         builder.getTokenType match {
           case ScalaTokenTypes.kCATCH => {
             builder.advanceLexer() //Ate catch
-            val openToken = builder.getTokenType
-            openToken match {
-              case ScalaTokenTypes.tLBRACE | ScalaTokenTypes.tLPARENTHESIS => {
-                builder.advanceLexer() //Ate {
-                if (openToken == ScalaTokenTypes.tLBRACE) {
-                  builder.enableNewlines
-                }
-                val isRef = Path parse (builder, ScalaElementTypes.REFERENCE_EXPRESSION)
-                (openToken, isRef) match {
-                  case (ScalaTokenTypes.tLPARENTHESIS, true) =>
-                    builder.getTokenType match {
-                      case ScalaTokenTypes.tRPARENTHESIS =>
-                        builder.advanceLexer()
-                      case _ =>
-                        builder error ErrMsg("rparenthesis.expected")
-                    }
-                  case (ScalaTokenTypes.tLBRACE, true) =>
-                    ParserUtils.parseLoopUntilRBrace(builder, () => {})
-                    builder.restoreNewlinesState
-
-                  case (ScalaTokenTypes.tLPARENTHESIS, false) =>
-                    builder error ErrMsg("wrong.qual.identifier")
-                  case (ScalaTokenTypes.tLBRACE, false) =>
-                    def foo() {
-                      if (!CaseClauses.parse(builder)) {
-                        builder error ErrMsg("case.clauses.or.qualified.reference.expected")
-                      }
-                    }
-
-                    ParserUtils.parseLoopUntilRBrace(builder, foo _)
-                    builder.restoreNewlinesState
-                }
-              }
-              case _ => {
-                if (!Path.parse(builder, ScalaElementTypes.REFERENCE_EXPRESSION)) {
-                  builder error ErrMsg("case.clauses.or.qualified.reference.expected")
-                }
-              }
+            if (!Expr.parse(builder)) {
+              builder.error(ErrMsg("wrong.expression"))
             }
             catchMarker.done(ScalaElementTypes.CATCH_BLOCK)
           }

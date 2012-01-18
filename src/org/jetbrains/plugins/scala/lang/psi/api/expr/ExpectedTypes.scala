@@ -77,6 +77,7 @@ private[expr] object ExpectedTypes {
         case _ => Array.empty
       }
       case fb: ScFinallyBlock => Array((types.Unit, None))
+      case cb: ScCatchBlock => Array.empty
       case te: ScThrowStmt =>
         // Not in the SLS, but in the implementation.
         val throwableClass = JavaPsiFacade.getInstance(te.getProject).findClass("java.lang.Throwable", te.getResolveScope)
@@ -85,6 +86,8 @@ private[expr] object ExpectedTypes {
       //see SLS[8.4]
       case c: ScCaseClause => c.getContext.getContext match {
         case m: ScMatchStmt => m.expectedTypesEx(true)
+        case b: ScBlockExpr if b.isAnonymousFunction && b.getContext.isInstanceOf[ScCatchBlock] =>
+          b.getContext.getContext.asInstanceOf[ScTryStmt].expectedTypesEx(true)
         case b: ScBlockExpr if b.isAnonymousFunction => {
           b.expectedTypesEx(true).flatMap(tp => ScType.extractFunctionType(tp._1) match {
             case Some(ScFunctionType(retType, _)) => Array[(ScType, Option[ScTypeElement])]((retType, None))
@@ -94,8 +97,6 @@ private[expr] object ExpectedTypes {
             }
           })
         }
-        case cb: ScCatchBlock =>
-          cb.getContext.asInstanceOf[ScTryStmt].expectedTypesEx(true)
         case _ => Array.empty
       }
       //see SLS[6.23]

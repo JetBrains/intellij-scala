@@ -292,7 +292,7 @@ trait ScPattern extends ScalaPsiElement {
         case Some(e) => Some(e.getType(TypingContext.empty).getOrAny)
         case _ => None
       }
-      case _: ScCatchBlock => {
+      case b: ScBlockExpr if b.getContext.isInstanceOf[ScCatchBlock] => {
         val thr = JavaPsiFacade.getInstance(getProject).findClass("java.lang.Throwable", getResolveScope)
         if (thr != null) Some(ScType.designator(thr)) else None
       }

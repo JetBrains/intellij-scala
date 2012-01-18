@@ -29,7 +29,7 @@ class Specs2ConfigurationType extends ConfigurationType {
 
   def getConfigurationFactories: Array[ConfigurationFactory] = Array[ConfigurationFactory](confFactory)
 
-  def getId: String = "Specs2RunConfiguration"
+  def getId: String = "Specs2RunConfiguration" //if you want to change id, change it in Android plugin too
 
 
   def createConfigurationByLocation(location: Location[_ <: PsiElement]): RunnerAndConfigurationSettings = {

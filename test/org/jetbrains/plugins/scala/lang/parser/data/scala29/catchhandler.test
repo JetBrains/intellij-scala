@@ -28,10 +28,11 @@ ScalaFile
     CatchBlock
       PsiElement(catch)('catch')
       PsiWhiteSpace(' ')
-      PsiElement({)('{')
-      ReferenceExpression
-        PsiElement(identifier)('b')
-      PsiElement(})('}')
+      BlockExpression
+        PsiElement({)('{')
+        ReferenceExpression
+          PsiElement(identifier)('b')
+        PsiElement(})('}')
   PsiWhiteSpace('\n')
   TryStatement
     TryBlock
@@ -43,10 +44,11 @@ ScalaFile
     CatchBlock
       PsiElement(catch)('catch')
       PsiWhiteSpace(' ')
-      PsiElement(()('(')
-      ReferenceExpression
-        PsiElement(identifier)('b')
-      PsiElement())(')')
+      ExpressionInParenthesis
+        PsiElement(()('(')
+        ReferenceExpression
+          PsiElement(identifier)('b')
+        PsiElement())(')')
   PsiWhiteSpace('\n')
   TryStatement
     TryBlock

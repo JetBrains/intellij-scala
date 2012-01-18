@@ -18,11 +18,11 @@ import api.base.patterns.ScBindingPattern
 import api.statements._
 import api.toplevel.{ScModifierListOwner, ScTypedDefinition}
 import api.toplevel.typedef._
-import params.{ScParameter, ScTypeParam}
 import lang.resolve.processor.ImplicitProcessor
-import lang.resolve.{StdKinds, ScalaResolveResult}
+import params.{ScClassParameter, ScParameter, ScTypeParam}
 import psi.impl.ScalaPsiManager
 import api.toplevel.templates.{ScExtendsBlock, ScTemplateBody}
+import lang.resolve.{ResolveUtils, StdKinds, ScalaResolveResult}
 
 /**
  * @author ilyas
@@ -316,9 +316,9 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
       element match {
         case named: PsiNamedElement if kindMatches(element) => named match {
           //there is special case for Predef.conforms method
-          case f: ScFunction if f.hasModifierProperty("implicit") && !isConformsMethod(f)=> {
+          case f: ScFunction if f.hasModifierProperty("implicit") && !isConformsMethod(f) => {
+            if (!ResolveUtils.isAccessible(f, getPlace)) return true
             val clauses = f.paramClauses.clauses
-            val followed = subst.followed(inferMethodTypesArgs(f, subst))
             //filtered cases
             if (clauses.length > 2 || (clauses.length == 2 && !clauses(1).isImplicit)) return true
             if (clauses.length == 0) {
@@ -331,6 +331,7 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
             ScalaPsiUtil.nameContext(b) match {
               case d: ScDeclaredElementsHolder if (d.isInstanceOf[ScValue] || d.isInstanceOf[ScVariable]) &&
                       d.asInstanceOf[ScModifierListOwner].hasModifierProperty("implicit") => {
+                if (!ResolveUtils.isAccessible(d.asInstanceOf[ScMember], getPlace)) return true
                 val tp = subst.subst(b.getType(TypingContext.empty).getOrElse(return true))
                 if (funType == null || !tp.conforms(funType)) return true
                 addResult(new ScalaResolveResult(b, subst, getImports(state)))
@@ -339,11 +340,17 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
             }
           }
           case param: ScParameter if param.isImplicitParameter => {
+            param match {
+              case c: ScClassParameter =>
+                if (!ResolveUtils.isAccessible(c, getPlace)) return true
+              case _ =>
+            }
             val tp = subst.subst(param.getType(TypingContext.empty).getOrElse(return true))
             if (funType == null || !tp.conforms(funType)) return true
             addResult(new ScalaResolveResult(param, subst, getImports(state)))
           }
           case obj: ScObject if obj.hasModifierProperty("implicit") => {
+            if (!ResolveUtils.isAccessible(obj, getPlace)) return true
             val tp = subst.subst(obj.getType(TypingContext.empty).getOrElse(return true))
             if (funType == null || !tp.conforms(funType)) return true
             addResult(new ScalaResolveResult(obj, subst, getImports(state)))

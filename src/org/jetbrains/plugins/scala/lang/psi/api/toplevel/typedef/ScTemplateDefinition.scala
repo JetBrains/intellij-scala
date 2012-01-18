@@ -7,7 +7,6 @@ package typedef
 
 import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.util.ArrayFactory
 import psi.impl.ScalaPsiElementFactory
 import psi.impl.toplevel.typedef.TypeDefinitionMembers
 import parser.ScalaElementTypes
@@ -16,16 +15,11 @@ import templates.ScExtendsBlock
 import com.intellij.openapi.progress.ProgressManager
 import types.result.{TypingContext, TypeResult}
 import lang.resolve.processor.BaseProcessor
-import statements.params.ScClassParameter
 import java.util.ArrayList
 import types._
-import psi.impl.toplevel.synthetic.ScSyntheticFunction
-import fake.FakePsiMethod
-import lexer.ScalaTokenTypes
 import com.intellij.psi._
 import base.types.ScSelfTypeElement
 import search.GlobalSearchScope
-import caches.CachesUtil
 import com.intellij.openapi.project.{DumbServiceImpl, DumbService}
 
 /**

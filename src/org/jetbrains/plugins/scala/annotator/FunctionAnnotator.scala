@@ -3,7 +3,6 @@ package annotator
 
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScReturnStmt}
 import com.intellij.lang.annotation.AnnotationHolder
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
@@ -12,6 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult}
 import lang.psi.api.base.ScReferenceElement
 import quickfix.ReportHighlightingErrorQuickFix
 import org.jetbrains.plugins.scala.annotator.AnnotatorUtils._
+import lang.psi.api.expr.{ScCatchBlock, ScExpression, ScReturnStmt}
 
 /**
  * Pavel.Fatin, 18.05.2010
@@ -46,12 +46,13 @@ trait FunctionAnnotator {
       val explicitReturn = usage.isInstanceOf[ScReturnStmt]
       val emptyReturn = explicitReturn && usage.asInstanceOf[ScReturnStmt].expr.isEmpty
       val anyReturn = usageType == AnyType
+      val underCatchBlock = usage.getContext.isInstanceOf[ScCatchBlock]
 
       if (explicitReturn && hasAssign && !explicitType) {
         needsTypeAnnotation()
       } else if (unitFunction && explicitReturn && !emptyReturn) {
         redundantReturnExpression()
-      } else if (!unitFunction && !anyReturn && !usageType.conforms(functionType)) {
+      } else if (!unitFunction && !anyReturn && !underCatchBlock && !usageType.conforms(functionType)) {
         typeMismatch()
       }
 

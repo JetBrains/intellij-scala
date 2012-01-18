@@ -83,9 +83,9 @@
     <weigher key="completion" implementationClass="org.jetbrains.plugins.scala.lang.completion.weighter.ScalaParameterCompletionWeigher"
              id="scalaParameterCompletionWeigher" order="after scalaMethodCompletionWeigher, before stats"/>
     <weigher key="proximity" implementationClass="org.jetbrains.plugins.scala.lang.completion.weighter.ScalaClassObjectWeigher"
-             id="scalaClassObjectWeigher" order="before explicitlyImported"/>
+             id="scalaClassObjectWeigher" order="before samePsiMember"/>
     <weigher key="proximity" implementationClass="org.jetbrains.plugins.scala.lang.completion.weighter.ScalaExplicitlyImportedWeigher"
-             id="scalaExplicitlyImportedWeigher" order="before scalaClassObjectWeigher"/>
+             id="scalaExplicitlyImportedWeigher" order="before explicitlyImported"/>
     <psi.referenceContributor implementation="org.jetbrains.plugins.scala.lang.references.ScalaReferenceContributor"/>
     <codeInsight.overrideMethod language="Scala" implementationClass="org.jetbrains.plugins.scala.overrideImplement.ScalaOverrideMethodsHandler"/>
     <lookup.charFilter implementation="org.jetbrains.plugins.scala.lang.completion.ScalaCharFilter"/>
@@ -116,8 +116,8 @@
     <nameSuggestionProvider implementation="org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.ScalaNameSuggestionProvider"/>
     <definitionsSearch implementation="org.jetbrains.plugins.scala.lang.psi.impl.search.MethodImplementationsSearch"/>
     <antCustomCompiler implementation="org.jetbrains.plugins.scala.ant.ScalaAntCustomCompilerProvider"/>
-    <refactoring.moveHandler implementation="org.jetbrains.plugins.scala.lang.refactoring.move.ScalaMoveHandler" order="first"/>
-    <refactoring.moveClassHandler implementation="org.jetbrains.plugins.scala.lang.refactoring.move.ScalaMoveClassHandler" order="first"/>
+    <refactoring.moveClassHandler implementation="org.jetbrains.plugins.scala.lang.refactoring.move.MoveScalaClassHandler" order="first"/>
+    <!--<moveFileHandler implementation="org.jetbrains.plugins.scala.lang.refactoring.move.MoveScalaFileHandler" order="first"/>-->
     <refactoring.inlineHandler language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.refactoring.inline.ScalaInlineHandler"/>
     <refactoring.introduceParameterMethodUsagesProcessor implementation="org.jetbrains.plugins.scala.lang.refactoring.introduceParameter.ScalaIntroduceParameterMethodUsagesProcessor"/>
     <refactoring.safeDeleteProcessor implementation="org.jetbrains.plugins.scala.lang.refactoring.delete.ScalaSafeDeleteProcessorDelegate" order="first"/>
@@ -170,7 +170,7 @@
     <lang.namesValidator language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesValidator"/>
     <editorNotificationProvider implementation="org.jetbrains.plugins.scala.config.ScalaAttachSourcesNotificationProvider"/>
     <!--<editorFileSwapper implementation="org.jetbrains.plugins.scala.config.ScalaEditorFileSwapper"/>-->
-    <sourceRootFinder implementation="org.jetbrains.plugins.scala.config.ScalaSourceRootFinder"/>
+    <projectStructureDetector implementation="org.jetbrains.plugins.scala.config.ScalaSourceRootFinder"/>
 
     <configurationType implementation="org.jetbrains.plugins.scala.script.ScalaScriptConfigurationType"/>
     <configurationType implementation="org.jetbrains.plugins.scala.console.ScalaConsoleConfigurationType"/>
