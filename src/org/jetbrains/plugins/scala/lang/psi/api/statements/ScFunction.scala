@@ -23,10 +23,10 @@ import psi.impl.ScalaPsiElementFactory
 import lexer.ScalaTokenTypes
 import base.ScMethodLike
 import collection.immutable.Set
-import java.lang.String
 import caches.CachesUtil
 import util.PsiModificationTracker
 import psi.impl.toplevel.synthetic.{ScSyntheticTypeParameter, ScSyntheticFunction}
+import java.lang.{ThreadLocal, String}
 
 /**
  * @author Alexander Podkhalyuzin
@@ -79,6 +79,12 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
   }
 
   def isParameterless = paramClauses.clauses.isEmpty
+  
+  private val probablyRecursive: ThreadLocal[Boolean] = new ThreadLocal[Boolean]() {
+    override def initialValue(): Boolean = false
+  }
+  def isProbablyRecursive = probablyRecursive.get()
+  def setProbablyRecursive(b: Boolean) {probablyRecursive.set(b)}
 
   def isEmptyParen = paramClauses.clauses.size == 1 && paramClauses.params.size == 0
 
@@ -178,7 +184,7 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
   }
 
   /**
-   * Returns pure `function' type as it was defined as a field with functional value
+   * Returns pure 'function' type as it was defined as a field with functional value
    */
   def methodType(result: Option[ScType]): ScType = {
     val clauses = effectiveParameterClauses
@@ -280,20 +286,20 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
 
   /**
    * Seek parameter with appropriate name in appropriate parameter clause.
-   * @param parameter name
+   * @param name parameter name
    * @param clausePosition = -1, effective clause number, if -1 then parameter in any explicit? clause
    */
   def getParamByName(name: String, clausePosition: Int = -1): Option[ScParameter] = {
     clausePosition match {
       case -1 => {
-        for (param <- parameters if param.name == name) return Some(param)
+        for (param <- parameters if ScalaPsiUtil.memberNamesEquals(param.name, name)) return Some(param)
         None
       }
       case i if i < 0 => None
       case i if i >= effectiveParameterClauses.length => None
       case i => {
         val clause: ScParameterClause = effectiveParameterClauses.apply(i)
-        for (param <- clause.parameters if param.name == name) return Some(param)
+        for (param <- clause.parameters if ScalaPsiUtil.memberNamesEquals(param.name, name)) return Some(param)
         None
       }
     }

@@ -20,6 +20,7 @@ import com.intellij.psi._
 import com.intellij.psi.impl.PsiManagerEx
 import com.intellij.psi.impl.file.impl.FileManagerImpl
 import com.intellij.psi.impl.migration.PsiMigrationManager
+import com.intellij.psi.impl.source.codeStyle.CodeEditUtil
 import org.jetbrains.annotations.Nullable
 import api.toplevel.ScToplevelElement
 import com.intellij.openapi.progress.ProgressManager
@@ -223,6 +224,10 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
       val path = splits.foldLeft(List(vector))(ScalaFileImpl.splitAt)
       ScalaFileImpl.addPathTo(this, path)
     }
+
+    depthFirst.foreach(it => CodeEditUtil.disablePostponedFormatting(it.getNode))
+
+    CodeEditUtil.markToReformat(getNode, true)
   }
 
   override def getStub: ScFileStub = super[PsiFileBase].getStub match {

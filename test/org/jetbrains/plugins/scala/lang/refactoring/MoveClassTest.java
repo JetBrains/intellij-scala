@@ -18,15 +18,16 @@ import org.jetbrains.annotations.NonNls;
 import java.io.File;
 
 public class MoveClassTest extends RefactoringTestCase {
+  // DONE
   public void testContextChange() throws Exception{
     doTest("contextChange1", new String[]{"pack1.Class1"}, "pack2");
     doTest("contextChange2", new String[]{"pack1.Class1"}, "pack2");
   }
-
+  // DONE
   public void testMoveMultiple() throws Exception{
     doTest("moveMultiple1", new String[]{"pack1.Class1", "pack1.Class2"}, "pack2");
   }
-
+  // DONE
   public void testSecondaryClass() throws Exception{
     doTest("secondaryClass", new String[]{"pack1.Class2"}, "pack1");
   }
@@ -55,6 +56,7 @@ public class MoveClassTest extends RefactoringTestCase {
   }
   */
 
+  // DONE
   public void testLocalClass() throws Exception{
     doTest("localClass", new String[]{"pack1.A"}, "pack2");
   }

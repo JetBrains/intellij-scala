@@ -86,7 +86,7 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible with Ps
       }
     }
     
-    CachesUtil.getMappedWithRecursionPreventing(this, data, CachesUtil.TYPE_AFTER_IMPLICIT_KEY, compute,
+    CachesUtil.getMappedWithRecursionPreventingWithRollback(this, data, CachesUtil.TYPE_AFTER_IMPLICIT_KEY, compute,
       ExpressionTypeResult(Failure("Recursive getTypeAfterImplicitConversion", Some(this)), Set.empty, None),
       PsiModificationTracker.MODIFICATION_COUNT)
   }
@@ -272,7 +272,7 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible with Ps
       Success(valType, Some(this))
     }
     
-    CachesUtil.getMappedWithRecursionPreventing(this, data, CachesUtil.TYPE_WITHOUT_IMPLICITS,
+    CachesUtil.getMappedWithRecursionPreventingWithRollback(this, data, CachesUtil.TYPE_WITHOUT_IMPLICITS,
       compute, Failure("Recursive getTypeWithoutImplicits", Some(this)), PsiModificationTracker.MODIFICATION_COUNT)
   }
 
@@ -338,7 +338,7 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible with Ps
       }
     }
 
-    CachesUtil.getMappedWithRecursionPreventing(this, data, CachesUtil.NON_VALUE_TYPE_KEY,
+    CachesUtil.getMappedWithRecursionPreventingWithRollback(this, data, CachesUtil.NON_VALUE_TYPE_KEY,
       compute, Failure("Recursive getNonValueType", Some(this)), PsiModificationTracker.MODIFICATION_COUNT)
   }
 
@@ -437,7 +437,7 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible with Ps
         case tr: ScTryStmt => {
           calculateReturns0(tr.tryBlock)
           tr.catchBlock match {
-            case Some(cBlock) => cBlock.getBranches.foreach(calculateReturns0)
+            case Some(cBlock) => cBlock.expression.foreach(calculateReturns0)
             case None =>
           }
         }

@@ -4,7 +4,7 @@ import org.jetbrains.plugins.scala.annotator.AnnotatorPart
 import com.intellij.lang.annotation.AnnotationHolder
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScDeclaration, ScFunctionDeclaration, ScTypeAliasDeclaration}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScAnnotationsHolder, ScDeclaration, ScFunctionDeclaration, ScTypeAliasDeclaration}
 
 /**
  * Pavel Fatin
@@ -22,7 +22,12 @@ object UndefinedMember extends AnnotatorPart[ScTemplateDefinition] {
     if (!isNew && !isObject) return
 
     definition.members.foreach {
-      case declaration: ScDeclaration => holder.createErrorAnnotation(declaration, Message)
+      case declaration: ScDeclaration => 
+        val isNative = declaration match {
+          case a: ScAnnotationsHolder => a.hasAnnotation("scala.native") != None
+          case _ => false
+        }
+        if (!isNative) holder.createErrorAnnotation(declaration, Message)
       case _ =>
     }
   }

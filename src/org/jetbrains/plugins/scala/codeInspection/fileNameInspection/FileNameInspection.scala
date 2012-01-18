@@ -11,6 +11,7 @@ import com.intellij.codeInspection.ex.ProblemDescriptorImpl
 import com.intellij.psi.PsiFile
 import java.lang.String
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
+import com.intellij.lang.injection.InjectedLanguageManager
 
 /**
  * User: Alexander Podkhalyuzin
@@ -31,7 +32,10 @@ class FileNameInspection extends LocalInspectionTool {
   override def getID: String = "ScalaFileName"
 
   override def checkFile(file: PsiFile, manager: InspectionManager, isOnTheFly: Boolean): Array[ProblemDescriptor] = {
-    if (!file.isInstanceOf[ScalaFile]) return Array[ProblemDescriptor]()
+    if (!file.isInstanceOf[ScalaFile] ||
+            InjectedLanguageManager.getInstance(file.getProject).isInjectedFragment(file))
+      return Array[ProblemDescriptor]()
+
     val name = file.getName().substring(0, file.getName.length - 6)
     val scalaFile = file.asInstanceOf[ScalaFile]
     var hasProblems = true

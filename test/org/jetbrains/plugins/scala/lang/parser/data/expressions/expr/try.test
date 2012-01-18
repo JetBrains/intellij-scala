@@ -45,33 +45,34 @@ ScalaFile
           PsiWhiteSpace(' ')
           CatchBlock
             PsiElement(catch)('catch')
-            PsiElement({)('{')
-            PsiWhiteSpace('\n    ')
-            CaseClauses
-              CaseClause
-                PsiElement(case)('case')
-                PsiWhiteSpace(' ')
-                StableElementPattern
-                  ReferenceExpression
-                    PsiElement(identifier)('IOException')
-                PsiWhiteSpace(' ')
-                PsiElement(=>)('=>')
-                PsiWhiteSpace(' ')
-                Literal
-                  PsiElement(string content)('"do nothing"')
+            BlockExpression
+              PsiElement({)('{')
               PsiWhiteSpace('\n    ')
-              CaseClause
-                PsiElement(case)('case')
-                PsiWhiteSpace(' ')
-                StableElementPattern
-                  ReferenceExpression
-                    PsiElement(identifier)('DivisionByZeroException')
-                PsiWhiteSpace(' ')
-                PsiElement(=>)('=>')
-                PsiWhiteSpace(' ')
-                Literal
-                  PsiElement(string content)('"you have a problem"')
-            PsiWhiteSpace('\n  ')
-            PsiElement(})('}')
+              CaseClauses
+                CaseClause
+                  PsiElement(case)('case')
+                  PsiWhiteSpace(' ')
+                  StableElementPattern
+                    ReferenceExpression
+                      PsiElement(identifier)('IOException')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>)('=>')
+                  PsiWhiteSpace(' ')
+                  Literal
+                    PsiElement(string content)('"do nothing"')
+                PsiWhiteSpace('\n    ')
+                CaseClause
+                  PsiElement(case)('case')
+                  PsiWhiteSpace(' ')
+                  StableElementPattern
+                    ReferenceExpression
+                      PsiElement(identifier)('DivisionByZeroException')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>)('=>')
+                  PsiWhiteSpace(' ')
+                  Literal
+                    PsiElement(string content)('"you have a problem"')
+              PsiWhiteSpace('\n  ')
+              PsiElement(})('}')
         PsiWhiteSpace('\n')
         PsiElement(})('}')

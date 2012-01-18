@@ -6,6 +6,6 @@ import java.io.File;
 
 public class JavaTestUtil {
   static String getJavaTestDataPath() {
-    return new File(new File(TestUtils.getTestDataPath()).getParentFile().getParentFile(), "testdata").getPath();
+    return TestUtils.getTestDataPath();
   }
 }

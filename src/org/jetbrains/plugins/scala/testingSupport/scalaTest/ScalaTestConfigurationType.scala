@@ -28,5 +28,5 @@ class ScalaTestConfigurationType extends ConfigurationType {
 
   def getConfigurationFactories: Array[ConfigurationFactory] = Array[ConfigurationFactory](confFactory)
 
-  def getId: String = "ScalaTestRunConfiguration"
+  def getId: String = "ScalaTestRunConfiguration" //if you want to change id, change it in Android plugin too
 }
