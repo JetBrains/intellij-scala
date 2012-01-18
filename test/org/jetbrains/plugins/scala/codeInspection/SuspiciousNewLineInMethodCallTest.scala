@@ -5,7 +5,6 @@ import base.SimpleTestCase
 import com.intellij.codeInspection.{ProblemDescriptor, InspectionManager}
 
 class SuspiciousNewLineInMethodCallTest extends SimpleTestCase {
-  import SuspiciousNewLineInMethodCall._
 
   def testStub = {}
 
