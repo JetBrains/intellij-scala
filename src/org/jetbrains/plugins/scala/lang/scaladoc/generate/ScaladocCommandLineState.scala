@@ -171,13 +171,16 @@ class ScaladocCommandLineState(env: ExecutionEnvironment, project: Project)
 
     paramListSimple += ("-classpath")
 
-    for (sourceRoot <-
+    for (sourceRoot <- OrderEnumerator.orderEntries(project).sources().withoutSelfModuleOutput().getRoots) {
+      cpWithFacet.append(classpathDelimeter + sourceRoot.getPath)
+    }
+    /*for (sourceRoot <-
          OrderEnumerator.orderEntries(project).withoutSdk().withoutModuleSourceEntries().withoutLibraries().sources().withoutSelfModuleOutput().getRoots) {
       cpWithFacet.append(classpathDelimeter + sourceRoot.getPath)
     }
     for (sourceRoot <- OrderEnumerator.orderEntries(project).withoutSdk().getAllLibrariesAndSdkClassesRoots) {
       cpWithFacet.append(classpathDelimeter + sourceRoot.getPath)
-    }
+    }*/
 
     paramListSimple += cpWithFacet.mkString
 
