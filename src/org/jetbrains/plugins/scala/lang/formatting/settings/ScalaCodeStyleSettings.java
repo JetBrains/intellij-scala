@@ -65,7 +65,7 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
 
   public boolean IGNORE_PERFORMANCE_TO_FIND_ALL_CLASS_NAMES = false;
 
-  public boolean DISABLE_LANGUAGE_INJECTION = true;
+  public boolean DISABLE_LANGUAGE_INJECTION = false;
 
   public boolean SPACE_BEFORE_TYPE_COLON = false;
   public boolean SPACE_AFTER_TYPE_COLON = true;
