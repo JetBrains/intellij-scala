@@ -19,7 +19,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.resolve._
 import com.intellij.codeInspection._
 import org.jetbrains.plugins.scala.annotator.intention._
-import org.jetbrains.plugins.scala.overrideImplement.ScalaOIUtil
 import params.{ScParameter, ScParameters, ScClassParameter}
 import patterns.ScInfixPattern
 import processor.MethodResolveProcessor
@@ -29,7 +28,7 @@ import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettin
 import com.intellij.psi._
 import com.intellij.psi.codeStyle.CodeStyleSettingsManager
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeBoundsOwner
-import quickfix.{ChangeTypeFix, ReportHighlightingErrorQuickFix, ImplementMethodsQuickFix}
+import quickfix.{ChangeTypeFix, ReportHighlightingErrorQuickFix}
 import template._
 import scala.Some
 import com.intellij.openapi.project.DumbAware
@@ -46,15 +45,14 @@ import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocResolvableCodeRefe
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiManager, ScalaPsiElementFactory}
 import result.{TypingContext, TypeResult, Success}
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaFile}
-import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
-import types.{ScTypeProjection, ScSimpleTypeElement, ScTypeElement}
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import types.{ScTypeProjection, ScTypeElement}
 
 /**
  *    User: Alexander Podkhalyuzin
  *    Date: 23.06.2008
  */
-
-class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotator 
+class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotator
         with ParametersAnnotator with ApplicationAnnotator
         with AssignmentAnnotator with VariableDefinitionAnnotator
         with TypedStatementAnnotator with PatternDefinitionAnnotator
@@ -164,7 +162,7 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
         if (typeAware && !compiled && fun.getParent.isInstanceOf[ScTemplateBody]) {
           //todo: unhandled case abstract override
           //todo: other kinds of members
-          //checkOverrideMethods(element.asInstanceOf[ScFunction], holder)
+          checkOverrideMethods(fun, holder)
         }
         super.visitFunction(fun)
       }
@@ -557,34 +555,6 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
             registerUsedImports(element.getContainingFile.asInstanceOf[ScalaFile], result.importsUsed)
   }
 
-  private def checkImplementedMethods(clazz: ScTemplateDefinition, holder: AnnotationHolder) {
-    clazz match {
-      case _: ScTrait => return
-      case _ =>
-    }
-    if (clazz.hasModifierProperty("abstract")) return
-    if (ScalaOIUtil.getMembersToImplement(clazz).length > 0) {
-      val error = clazz match {
-        case _: ScClass => ScalaBundle.message("class.must.declared.abstract", clazz.getName)
-        case _: ScObject => ScalaBundle.message("object.must.implement", clazz.getName)
-        case _: ScNewTemplateDefinition => ScalaBundle.message("anonymous.class.must.declared.abstract")
-      }
-      val start = clazz.getTextRange.getStartOffset
-      val eb = clazz.extendsBlock
-      val end = eb.templateBody match {
-        case Some(x) => {
-          val shifted = eb.findElementAt(x.getStartOffsetInParent - 1) match {case w: PsiWhiteSpace => w case _ => x}
-          shifted.getTextRange.getStartOffset
-        }
-        case None => eb.getTextRange.getEndOffset
-      }
-
-      val annotation: Annotation = holder.createErrorAnnotation(new TextRange(start, end), error)
-      annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
-      annotation.registerFix(new ImplementMethodsQuickFix(clazz))
-    }
-  }
-
   private def checkOverrideMethods(method: ScFunction, holder: AnnotationHolder) {
     val signatures = method.superSignatures
     if (signatures.length == 0) {
@@ -595,26 +565,33 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
         annotation.registerFix(new RemoveModifierQuickFix(method, "override"))
       }
     } else {
-      if (!method.hasModifierProperty("override") && !method.isInstanceOf[ScFunctionDeclaration]) {
-        def isConcrete(signature: Signature): Boolean = if (signature.namedElement != None)
-          ScalaPsiUtil.nameContext(signature.namedElement.get) match {
-            case _: ScFunctionDefinition => true
-            case method: PsiMethod if !method.hasModifierProperty(PsiModifier.ABSTRACT) && !method.isConstructor => true
-            case _: ScPatternDefinition => true
-            case _: ScVariableDeclaration => true
-            case _: ScClassParameter => true
-            case _ => false
-          } else false
-        def isConcretes: Boolean = {
-          for (signature <- signatures if isConcrete(signature)) return true
-          false
+      def isConcreteElement(element: PsiElement): Boolean = {
+        element match {
+          case _: ScFunctionDefinition => true
+          case f: ScFunctionDeclaration if f.isNative => true
+          case _: ScFunctionDeclaration => false
+          case _: ScFun => true
+          case method: PsiMethod if !method.hasModifierProperty(PsiModifier.ABSTRACT) && !method.isConstructor => true
+          case method: PsiMethod if method.hasModifierProperty("native") => true
+          case _: ScPatternDefinition => true
+          case _: ScVariableDeclaration => true
+          case _: ScClassParameter => true
+          case f: ScFunction if f.isNative => true
+          case _ => false
         }
-        if (isConcretes) {
-          val annotation: Annotation = holder.createErrorAnnotation(method.nameId.getTextRange,
-            ScalaBundle.message("method.needs.override.modifier", method.getName))
-          annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
-          annotation.registerFix(new AddModifierQuickFix(method, "override"))
-        }
+      }
+      def isConcrete(signature: Signature): Boolean =
+        if (signature.namedElement != None) {
+          val element = ScalaPsiUtil.nameContext(signature.namedElement.get)
+          isConcreteElement(element)
+        } else false
+      var isConcretes = false
+      for (signature <- signatures if !isConcretes && isConcrete(signature)) isConcretes = true
+      if (isConcretes && !method.hasModifierProperty("override")) {
+        val annotation: Annotation = holder.createErrorAnnotation(method.nameId.getTextRange,
+          ScalaBundle.message("method.needs.override.modifier", method.getName))
+        annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
+        annotation.registerFix(new AddModifierQuickFix(method, "override"))
       }
     }
   }

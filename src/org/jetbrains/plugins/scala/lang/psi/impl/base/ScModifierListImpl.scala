@@ -4,15 +4,12 @@ package psi
 package impl
 package base
 
-
 import api.expr.ScAnnotations
-import com.intellij.util.ArrayFactory
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import com.intellij.lang.ASTNode
 import com.intellij.psi.tree.IElementType
 import stubs.ScModifiersStub
-
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.api.base._
@@ -23,7 +20,6 @@ import api.ScalaElementVisitor
 * @author Alexander Podkhalyuzin
 * Date: 22.02.2008
 */
-
 class ScModifierListImpl extends ScalaStubBasedElementImpl[ScModifierList] with ScModifierList {
   def this(node: ASTNode) = {this(); setNode(node)}
   def this(stub: ScModifiersStub) = {this(); setStub(stub); setNode(null)}

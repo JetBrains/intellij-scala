@@ -99,6 +99,10 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
     }
   }
 
+  def isNative: Boolean = {
+    hasAnnotation("scala.native") != None
+  }
+
   /**
    * This method is important for expected type evaluation.
    */
