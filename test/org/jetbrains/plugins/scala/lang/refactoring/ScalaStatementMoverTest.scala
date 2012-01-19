@@ -41,8 +41,12 @@ class ScalaStatementMoverTest extends StatementMoverTestBase {
     "|def a\n\ndef b" movedDownIs "def b\n\ndef a"
   }
 
-  def testOtherStatement {
-    "|def a\nv = 1\ndef b" moveDownIsDisabled;
+  def testExpressionAsSource {
+    "|v = 1\ndef a" moveDownIsDisabled;
+  }
+
+  def testExpressionAsTarget {
+    "|def a\nv = 1\ndef b" movedDownIs "v = 1\ndef a\ndef b";
   }
 
   def testSkipComment {

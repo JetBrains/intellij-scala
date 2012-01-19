@@ -11,6 +11,7 @@ import lang.psi.ScalaPsiElement
 import lang.psi.api.base.patterns.ScCaseClause
 import com.intellij.psi.{PsiComment, PsiWhiteSpace, PsiElement, PsiFile}
 import org.jetbrains.plugins.scala.extensions._
+import lang.psi.api.expr.ScExpression
 
 /**
  * Pavel Fatin
@@ -22,12 +23,19 @@ class ScalaStatementMover extends LineMover {
     if(editor.getSelectionModel.hasSelection) return false
     if(!file.isInstanceOf[ScalaFile]) return false
 
+    val canBeTarget: PsiElement => Boolean = {
+      case _: ScExpression => true
+      case _: ScMember => true
+      case _: ScCaseClause => true
+      case _ => false
+    }
+
     def aim[T <: ScalaPsiElement](cl: Class[T]): Option[(LineRange, LineRange)] = {
       findElementAt(cl, editor, file, info.toMove.startLine).flatMap { source =>
         val siblings = if(down) source.nextSiblings else source.prevSiblings
         siblings.filter(!_.isInstanceOf[PsiComment] )
-                .takeWhile(it => it.isInstanceOf[PsiWhiteSpace] || cl.isAssignableFrom(it.getClass))
-                .findByType(cl)
+                .takeWhile(it => it.isInstanceOf[PsiWhiteSpace] || canBeTarget(it))
+                .find(canBeTarget)
                 .map(target => (rangeOf(source, editor), rangeOf(target, editor)))
       }
     }
