@@ -83,14 +83,14 @@ class ScParameterizedTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(
     }
   }
 
-    override def accept(visitor: ScalaElementVisitor) {
-        visitor.visitParameterizedTypeElement(this)
-      }
+  override def accept(visitor: ScalaElementVisitor) {
+    visitor.visitParameterizedTypeElement(this)
+  }
 
-      override def accept(visitor: PsiElementVisitor) {
-        visitor match {
-          case s: ScalaElementVisitor => s.visitParameterizedTypeElement(this)
-          case _ => super.accept(visitor)
-        }
-      }
+  override def accept(visitor: PsiElementVisitor) {
+    visitor match {
+      case s: ScalaElementVisitor => s.visitParameterizedTypeElement(this)
+      case _ => super.accept(visitor)
+    }
+  }
 }
