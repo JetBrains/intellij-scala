@@ -27,7 +27,6 @@ import modifiers.ModifierChecker
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import com.intellij.psi._
 import com.intellij.psi.codeStyle.CodeStyleSettingsManager
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeBoundsOwner
 import quickfix.{ChangeTypeFix, ReportHighlightingErrorQuickFix}
 import template._
 import scala.Some
@@ -47,6 +46,7 @@ import result.{TypingContext, TypeResult, Success}
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaFile}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import types.{ScTypeProjection, ScTypeElement}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScNamedElement, ScModifierListOwner, ScTypeBoundsOwner}
 
 /**
  *    User: Alexander Podkhalyuzin
@@ -160,8 +160,6 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
 
       override def visitFunction(fun: ScFunction) {
         if (typeAware && !compiled && fun.getParent.isInstanceOf[ScTemplateBody]) {
-          //todo: unhandled case abstract override
-          //todo: other kinds of members
           checkOverrideMethods(fun, holder)
         }
         super.visitFunction(fun)
@@ -213,6 +211,43 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
       override def visitParameters(parameters: ScParameters) {
         annotateParameters(parameters, holder)
         super.visitParameters(parameters)
+      }
+
+      override def visitTypeDefintion(typedef: ScTypeDefinition) {
+        if (typeAware && !compiled && typedef.getParent.isInstanceOf[ScTemplateBody]) {
+          checkOverrideTypes(typedef, holder)
+        }
+        super.visitTypeDefintion(typedef)
+      }
+
+      override def visitTypeAlias(alias: ScTypeAlias) {
+        if (typeAware && !compiled && alias.getParent.isInstanceOf[ScTemplateBody]) {
+          checkOverrideTypes(alias, holder)
+        }
+        super.visitTypeAlias(alias)
+      }
+
+      override def visitVariable(varr: ScVariable) {
+        if (typeAware && !compiled && (varr.getParent.isInstanceOf[ScTemplateBody] ||
+          varr.getParent.isInstanceOf[ScEarlyDefinitions])) {
+          checkOverrideVars(varr, holder)
+        }
+        super.visitVariable(varr)
+      }
+
+      override def visitValue(v: ScValue) {
+        if (typeAware && !compiled && (v.getParent.isInstanceOf[ScTemplateBody] ||
+          v.getParent.isInstanceOf[ScEarlyDefinitions])) {
+          checkOverrideVals(v, holder)
+        }
+        super.visitValue(v)
+      }
+
+      override def visitClassParameter(parameter: ScClassParameter) {
+        if (typeAware && !compiled) {
+          checkOverrideClassParameters(parameter, holder)
+        }
+        super.visitClassParameter(parameter)
       }
     }
     annotateScope(element, holder)
@@ -555,43 +590,95 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
             registerUsedImports(element.getContainingFile.asInstanceOf[ScalaFile], result.importsUsed)
   }
 
+  private def isConcreteElement(element: PsiElement): Boolean = {
+    element match {
+      case _: ScFunctionDefinition => true
+      case f: ScFunctionDeclaration if f.isNative => true
+      case _: ScFunctionDeclaration => false
+      case _: ScFun => true
+      case method: PsiMethod if !method.hasModifierProperty(PsiModifier.ABSTRACT) && !method.isConstructor => true
+      case method: PsiMethod if method.hasModifierProperty("native") => true
+      case _: ScPatternDefinition => true
+      case _: ScVariableDefinition => true
+      case _: ScClassParameter => true
+      case _: ScTypeDefinition => true
+      case _: ScTypeAliasDefinition => true
+      case _ => false
+    }
+  }
+
   private def checkOverrideMethods(method: ScFunction, holder: AnnotationHolder) {
-    val signatures = method.superSignatures
-    if (signatures.length == 0) {
-      if (method.hasModifierProperty("override")) {
-        val annotation: Annotation = holder.createErrorAnnotation(method.nameId.getTextRange,
-          ScalaBundle.message("method.overrides.nothing", method.getName))
+    def isConcrete(signature: Signature): Boolean =
+      if (signature.namedElement != None) {
+        val element = ScalaPsiUtil.nameContext(signature.namedElement.get)
+        isConcreteElement(element)
+      } else false
+    checkOverrideMembers(method, method, method.superSignatures, isConcrete, "Method", holder)
+  }
+
+  private def checkOverrideVals(v: ScValue, holder: AnnotationHolder) {
+    def isConcrete(signature: Signature): Boolean =
+      if (signature.namedElement != None) {
+        val element = ScalaPsiUtil.nameContext(signature.namedElement.get)
+        isConcreteElement(element)
+      } else false
+    
+    v.declaredElements.foreach(td => {
+      checkOverrideMembers(td, v, ScalaPsiUtil.superValsSignatures(td), isConcrete, "Value", holder)
+    })
+  }
+
+  private def checkOverrideVars(v: ScVariable, holder: AnnotationHolder) {
+    def isConcrete(signature: Signature): Boolean =
+      if (signature.namedElement != None) {
+        val element = ScalaPsiUtil.nameContext(signature.namedElement.get)
+        isConcreteElement(element)
+      } else false
+
+    v.declaredElements.foreach(td => {
+      checkOverrideMembers(td, v, ScalaPsiUtil.superValsSignatures(td), isConcrete, "Variable", holder)
+    })
+  }
+
+  private def checkOverrideClassParameters(v: ScClassParameter, holder: AnnotationHolder) {
+    def isConcrete(signature: Signature): Boolean =
+      if (signature.namedElement != None) {
+        val element = ScalaPsiUtil.nameContext(signature.namedElement.get)
+        isConcreteElement(element)
+      } else false
+
+    checkOverrideMembers(v, v, ScalaPsiUtil.superValsSignatures(v), isConcrete, "Parameter", holder)
+  }
+
+  private def checkOverrideTypes(tp: ScNamedElement with ScModifierListOwner, holder: AnnotationHolder) {
+    tp match {
+      case c: ScTypeDefinition =>
+      case a: ScTypeAlias =>
+      case _ => return
+    }
+    checkOverrideMembers(tp, tp, ScalaPsiUtil.superTypeMembers(tp), isConcreteElement, "Type", holder)
+  }
+  private def checkOverrideMembers[T <: ScNamedElement, Res](member: T, 
+                                                             owner: ScModifierListOwner,
+                                                             superSignatures: Seq[Res], 
+                                                             isConcrete: Res => Boolean,
+                                                             memberType: String,
+                                                             holder: AnnotationHolder) {
+    if (superSignatures.length == 0) {
+      if (owner.hasModifierProperty("override")) {
+        val annotation: Annotation = holder.createErrorAnnotation(member.nameId.getTextRange,
+          ScalaBundle.message("member.overrides.nothing", memberType, member.getName))
         annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
-        annotation.registerFix(new RemoveModifierQuickFix(method, "override"))
+        annotation.registerFix(new RemoveModifierQuickFix(owner, "override"))
       }
     } else {
-      def isConcreteElement(element: PsiElement): Boolean = {
-        element match {
-          case _: ScFunctionDefinition => true
-          case f: ScFunctionDeclaration if f.isNative => true
-          case _: ScFunctionDeclaration => false
-          case _: ScFun => true
-          case method: PsiMethod if !method.hasModifierProperty(PsiModifier.ABSTRACT) && !method.isConstructor => true
-          case method: PsiMethod if method.hasModifierProperty("native") => true
-          case _: ScPatternDefinition => true
-          case _: ScVariableDeclaration => true
-          case _: ScClassParameter => true
-          case f: ScFunction if f.isNative => true
-          case _ => false
-        }
-      }
-      def isConcrete(signature: Signature): Boolean =
-        if (signature.namedElement != None) {
-          val element = ScalaPsiUtil.nameContext(signature.namedElement.get)
-          isConcreteElement(element)
-        } else false
       var isConcretes = false
-      for (signature <- signatures if !isConcretes && isConcrete(signature)) isConcretes = true
-      if (isConcretes && !method.hasModifierProperty("override")) {
-        val annotation: Annotation = holder.createErrorAnnotation(method.nameId.getTextRange,
-          ScalaBundle.message("method.needs.override.modifier", method.getName))
+      for (signature <- superSignatures if !isConcretes && isConcrete(signature)) isConcretes = true
+      if (isConcretes && !owner.hasModifierProperty("override")) {
+        val annotation: Annotation = holder.createErrorAnnotation(member.nameId.getTextRange,
+          ScalaBundle.message("member.needs.override.modifier", memberType, member.getName))
         annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
-        annotation.registerFix(new AddModifierQuickFix(method, "override"))
+        annotation.registerFix(new AddModifierQuickFix(owner, "override"))
       }
     }
   }

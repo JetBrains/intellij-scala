@@ -7,12 +7,11 @@ package statements
 import expr.ScBlock
 import javax.swing.Icon
 import toplevel.templates.ScExtendsBlock
-import toplevel.{ScTypedDefinition}
+import toplevel.ScTypedDefinition
 import types.ScType
 import toplevel.typedef._
 import base.types.ScTypeElement
 import expr.ScBlockStatement
-import org.jetbrains.plugins.scala.lang.psi.types.Any
 import icons.Icons
 import types.result.{TypeResult, TypingContext, Success}
 import com.intellij.psi.PsiElement

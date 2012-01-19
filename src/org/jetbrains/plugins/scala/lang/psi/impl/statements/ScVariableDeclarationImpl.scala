@@ -10,6 +10,8 @@ import api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import psi.types.result.TypingContext
+import api.ScalaElementVisitor
+import com.intellij.psi.PsiElementVisitor
 
 /**
  * @author Alexander Podkhalyuzin
@@ -34,13 +36,16 @@ class ScVariableDeclarationImpl extends ScalaStubBasedElementImpl[ScVariable] wi
     else findChild(classOf[ScTypeElement])
   }
 
-  def getIdList: ScIdList = {
-    /*val stub = getStub
-    if (stub != null) {
-      stub.asInstanceOf[ScVariableStub].getIdsContainer match {
-        case Some(x) => x
-        case None => null
-      }
-    } else */ findChildByClass(classOf[ScIdList])
+  def getIdList: ScIdList = findChildByClass(classOf[ScIdList])
+
+  override def accept(visitor: ScalaElementVisitor) {
+    visitor.visitVariableDeclaration(this)
+  }
+
+  override def accept(visitor: PsiElementVisitor) {
+    visitor match {
+      case s: ScalaElementVisitor => s.visitVariableDeclaration(this)
+      case _ => super.accept(visitor)
+    }
   }
 }

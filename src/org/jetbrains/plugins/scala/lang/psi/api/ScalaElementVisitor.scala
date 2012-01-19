@@ -7,12 +7,11 @@ import com.intellij.psi.{PsiFile, PsiElementVisitor}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClause, ScPattern}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
-import statements.params.{ScParameters, ScParameter}
-import statements.{ScFunctionDefinition, ScFunction, ScVariableDefinition, ScPatternDefinition}
+import statements._
+import params.{ScClassParameter, ScParameters, ScParameter}
 import toplevel.imports.ScImportExpr
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api._
 import collection.mutable.Stack
-import org.jetbrains.plugins.scala.lang.psi.impl.statements.params.ScParametersImpl
 
 /**
  * @author ilyas
@@ -45,7 +44,7 @@ class ScalaRecursiveElementVisitor extends ScalaElementVisitor {
     try {
       referencesStack.push(proj)
       visitReference(proj)
-      visitTypeProjection(proj)
+      visitTypeElement(proj)
     } finally {
       referencesStack.pop()
     }
@@ -53,6 +52,12 @@ class ScalaRecursiveElementVisitor extends ScalaElementVisitor {
 }
 
 class ScalaElementVisitor extends PsiElementVisitor {
+  def visitTypeAliasDefinition(alias: ScTypeAliasDefinition) {visitTypeAlias(alias)}
+
+  def visitTypeAlias(alias: ScTypeAlias) {visitElement(alias)}
+
+  def visitTypeAliasDeclaration(alias: ScTypeAliasDeclaration) {visitTypeAlias(alias)}
+
   def visitParameters(parameters: ScParameters) {visitElement(parameters)}
 
   def visitModifierList(modifierList: ScModifierList) {visitElement(modifierList)}
@@ -75,8 +80,13 @@ class ScalaElementVisitor extends PsiElementVisitor {
   //Override also visitReferenceExpression! and visitTypeProjection!
   def visitReference(ref: ScReferenceElement) { visitElement(ref) }
   def visitParameter(parameter: ScParameter) {visitElement(parameter)}
-  def visitPatternDefinition(pat: ScPatternDefinition) { visitElement(pat) }
-  def visitVariableDefinition(varr: ScVariableDefinition) { visitElement(varr) }
+  def visitClassParameter(parameter: ScClassParameter) {visitParameter(parameter)}
+  def visitPatternDefinition(pat: ScPatternDefinition) { visitValue(pat) }
+  def visitValueDeclaration(v: ScValueDeclaration) {visitValue(v)}
+  def visitVariableDefinition(varr: ScVariableDefinition) { visitVariable(varr) }
+  def visitVariableDeclaration(varr: ScVariableDeclaration) {visitVariable(varr) }
+  def visitVariable(varr: ScVariable) {visitElement(varr)}
+  def visitValue(v: ScValue) {visitElement(v)}
   def visitCaseClause(cc: ScCaseClause) { visitElement(cc) }
   def visitPattern(pat: ScPattern) { visitElement(pat) }
   def visitEnumerator(enum: ScEnumerator) { visitElement(enum) }
