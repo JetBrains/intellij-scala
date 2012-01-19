@@ -10,6 +10,8 @@ import psi.ScalaPsiElementImpl
 import lang.psi.types._
 import com.intellij.lang.ASTNode
 import result.{Failure, Success, TypingContext}
+import api.ScalaElementVisitor
+import com.intellij.psi.PsiElementVisitor
 
 /**
  * @author ilyas, Alexander Podkhalyuzin
@@ -34,4 +36,15 @@ class ScFunctionalTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(nod
     val result = Success(funType, Some(this))
     (for (f@Failure(_, _) <- Seq(returnTypeRes) ++ paramTypes) yield f).foldLeft(result)(_.apply(_))
   }
+
+    override def accept(visitor: ScalaElementVisitor) {
+        visitor.visitFunctionalTypeElement(this)
+      }
+
+      override def accept(visitor: PsiElementVisitor) {
+        visitor match {
+          case s: ScalaElementVisitor => s.visitFunctionalTypeElement(this)
+          case _ => super.accept(visitor)
+        }
+      }
 }

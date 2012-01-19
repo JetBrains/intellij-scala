@@ -21,6 +21,7 @@ import api.toplevel.typedef.ScClass
 import types.Conformance.AliasType
 import api.base.types.ScTypeElement
 import collection.mutable.ArrayBuffer
+import api.ScalaElementVisitor
 
 /**
  * @author Alexander Podkhalyuzin
@@ -286,6 +287,17 @@ class ScParameterImpl extends ScalaStubBasedElementImpl[ScParameter] with ScPara
     }
     for (elem <- toRemove) {
       elem.getTreeParent.removeChild(elem)
+    }
+  }
+
+  override def accept(visitor: ScalaElementVisitor) {
+    visitor.visitParameter(this)
+  }
+
+  override def accept(visitor: PsiElementVisitor) {
+    visitor match {
+      case s: ScalaElementVisitor => s.visitParameter(this)
+      case _ => super.accept(visitor)
     }
   }
 }

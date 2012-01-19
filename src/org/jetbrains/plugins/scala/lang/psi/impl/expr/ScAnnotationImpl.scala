@@ -7,18 +7,14 @@ package expr
 import _root_.org.jetbrains.plugins.scala.lang.psi.types.ScType
 import com.intellij.lang.ASTNode
 import com.intellij.psi.meta.PsiMetaData
-
 import com.intellij.psi._
-
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import psi.stubs.ScAnnotationStub
-import util.PsiTreeUtil
-import org.jetbrains.plugins.scala.lang.psi.types.Any
 import types.result.TypingContext
-import api.toplevel.typedef.ScClass
 import com.intellij.openapi.util.Comparing
 import lexer.ScalaTokenTypes
 import api.base.types.ScTypeElement
+import api.ScalaElementVisitor
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -158,5 +154,16 @@ class ScAnnotationImpl extends ScalaStubBasedElementImpl[ScAnnotation] with ScAn
       }
     }
     return findDeclaredAttributeValue(attributeName).asInstanceOf[T]
+  }
+
+  override def accept(visitor: ScalaElementVisitor) {
+    visitor.visitAnnotation(this)
+  }
+
+  override def accept(visitor: PsiElementVisitor) {
+    visitor match {
+      case s: ScalaElementVisitor => s.visitAnnotation(this)
+      case _ => super.accept(visitor)
+    }
   }
 }

@@ -5,15 +5,15 @@ package impl
 package base
 package types
 
-import api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
 import com.intellij.lang.ASTNode
 
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 import base.ScTypeBoundsOwnerImpl
-import collection.Set
-import psi.types.result.{Success, TypingContext}
-import psi.types.{ScDesignatorType, ScExistentialType, ScExistentialArgument}
+import psi.types.result.TypingContext
+import psi.types.ScExistentialArgument
+import api.ScalaElementVisitor
+import com.intellij.psi.PsiElementVisitor
 
 /**
 * @author Alexander Podkhalyuzin
@@ -27,4 +27,15 @@ class ScWildcardTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
     lb <- lowerBound;
     ub <- upperBound
   ) yield new ScExistentialArgument("_", Nil, lb, ub)
+
+  override def accept(visitor: ScalaElementVisitor) {
+    visitor.visitWildcardTypeElement(this)
+  }
+
+  override def accept(visitor: PsiElementVisitor) {
+    visitor match {
+      case s: ScalaElementVisitor => s.visitWildcardTypeElement(this)
+      case _ => super.accept(visitor)
+    }
+  }
 }

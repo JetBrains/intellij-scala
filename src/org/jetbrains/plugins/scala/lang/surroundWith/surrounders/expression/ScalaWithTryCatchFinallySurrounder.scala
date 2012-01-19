@@ -13,7 +13,6 @@ import lang.psi.api.expr._
 * @author Alexander Podkhalyuzin
 * Date: 04.05.2008
 */
-
 class ScalaWithTryCatchFinallySurrounder extends ScalaExpressionSurrounder {
   override def getTemplateAsString(elements: Array[PsiElement]): String = {
     "try {\n" + super.getTemplateAsString(elements) + "\n}\ncatch {\n case _ => \n}\n finally {}"

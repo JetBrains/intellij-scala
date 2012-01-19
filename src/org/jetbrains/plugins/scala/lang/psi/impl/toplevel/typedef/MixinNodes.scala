@@ -289,7 +289,6 @@ abstract class MixinNodes {
     var place: Option[PsiElement] = None
     val map = new Map
     val superTypesBuff = new ListBuffer[Map]
-    //val superTypesBuff = new ListBuffer[(Map, ScSubstitutor)]
     val (superTypes, subst, thisTypeSubst): (Seq[ScType], ScSubstitutor, ScSubstitutor) = tp match {
       case cp: ScCompoundType => {
         processRefinement(cp, map, place)

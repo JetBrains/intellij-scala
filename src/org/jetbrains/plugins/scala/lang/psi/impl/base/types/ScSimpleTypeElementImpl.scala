@@ -25,6 +25,7 @@ import lang.resolve.ScalaResolveResult
 import api.base._
 import caches.CachesUtil
 import util.PsiModificationTracker
+import api.ScalaElementVisitor
 
 /**
  * @author Alexander Podkhalyuzin
@@ -263,6 +264,17 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
             }
         }
       case None => ScSimpleTypeElementImpl.calculateReferenceType(pathElement, false)
+    }
+  }
+
+  override def accept(visitor: ScalaElementVisitor) {
+    visitor.visitSimpleTypeElement(this)
+  }
+
+  override def accept(visitor: PsiElementVisitor) {
+    visitor match {
+      case s: ScalaElementVisitor => s.visitSimpleTypeElement(this)
+      case _ => super.accept(visitor)
     }
   }
 }

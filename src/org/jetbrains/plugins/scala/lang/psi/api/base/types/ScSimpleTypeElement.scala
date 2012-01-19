@@ -5,9 +5,6 @@ package api
 package base
 package types
 
-import psi.types.result.{TypeResult, TypingContext}
-import psi.types.ScType
-
 /**
  * Author: Alexander Podkhalyuzin
  * Date: 22.02.2008
@@ -20,6 +17,4 @@ trait ScSimpleTypeElement extends ScTypeElement {
   def singleton: Boolean
 
   def findConstructor: Option[ScConstructor]
-
-  override def accept(visitor: ScalaElementVisitor) {visitor.visitSimpleTypeElement(this)}
 }

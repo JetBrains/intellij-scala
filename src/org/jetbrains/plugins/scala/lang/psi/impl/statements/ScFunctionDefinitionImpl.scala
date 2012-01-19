@@ -27,13 +27,6 @@ import api.statements.params.ScParameter
  */
 
 class ScFunctionDefinitionImpl extends ScFunctionImpl with ScFunctionDefinition {
-  override def accept(visitor: PsiElementVisitor): Unit = {
-    visitor match {
-      case visitor: ScalaElementVisitor => super.accept(visitor)
-      case _ => super.accept(visitor)
-    }
-  }
-
   def this(node: ASTNode) = {this (); setNode(node)}
 
   def this(stub: ScFunctionStub) = {this (); setStub(stub); setNode(null)}
@@ -142,4 +135,15 @@ class ScFunctionDefinitionImpl extends ScFunctionImpl with ScFunctionDefinition 
   }
 
   def isSecondaryConstructor: Boolean = name == "this"
+
+  override def accept(visitor: ScalaElementVisitor) {
+    visitor.visitFunctionDefinition(this)
+  }
+
+  override def accept(visitor: PsiElementVisitor) {
+    visitor match {
+      case s: ScalaElementVisitor => s.visitFunctionDefinition(this)
+      case _ => super.accept(visitor)
+    }
+  }
 }

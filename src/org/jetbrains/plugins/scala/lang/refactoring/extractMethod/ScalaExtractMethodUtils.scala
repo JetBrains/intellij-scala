@@ -2,34 +2,24 @@ package org.jetbrains.plugins.scala.lang
 package refactoring.extractMethod
 
 import _root_.com.intellij.psi._
-import _root_.com.intellij.refactoring.rename.RenameProcessor
 import _root_.com.intellij.refactoring.util.ParameterTablePanel.VariableData
 import _root_.org.jetbrains.annotations.Nullable
-import _root_.org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScPattern}
 import _root_.org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
 import _root_.org.jetbrains.plugins.scala.lang.psi.{ScalaPsiUtil, ScalaPsiElement}
 import _root_.org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import com.intellij.openapi.ui.popup.{JBPopupFactory, JBPopupAdapter, LightweightWindowEvent}
-import com.intellij.openapi.editor.Editor
-import com.intellij.codeInsight.unwrap.ScopeHighlighter
-import javax.swing.{DefaultListModel, DefaultListCellRenderer, JList}
-import java.awt.Component
-import javax.swing.event.{ListSelectionListener, ListSelectionEvent}
 import java.util.ArrayList
-import com.intellij.openapi.util.Pass
 import com.intellij.refactoring.util.ParameterTablePanel
 import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiParameter
 import org.jetbrains.plugins.scala.lang.psi.dataFlow.impl.reachingDefs.VariableInfo
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
-import com.intellij.psi.impl.source.PsiClassReferenceType
 import java.lang.String
 import collection.mutable.ArrayBuffer
 import psi.api.{ScalaElementVisitor, ScalaRecursiveElementVisitor}
 import psi.api.toplevel.{ScTypeParametersOwner, ScNamedElement, ScTypedDefinition}
 import psi.api.expr._
-import psi.api.statements.{ScVariable, ScValue, ScFunction}
+import psi.api.statements.{ScValue, ScFunction}
 import psi.api.statements.params.{ScParameter, ScTypeParam}
 import scala.util.Sorting
 import psi.types.nonvalue.Parameter
@@ -127,11 +117,11 @@ object ScalaExtractMethodUtils {
       }
     }
     builder.append("\n}")
-    val method = ScalaPsiElementFactory.createMethodFromText(builder.toString, settings.elements.apply(0).getManager)
+    val method = ScalaPsiElementFactory.createMethodFromText(builder.toString(), settings.elements.apply(0).getManager)
 
 
     val returnVisitor = new ScalaRecursiveElementVisitor {
-      override def visitReturnStatement(ret: ScReturnStmt): Unit = {
+      override def visitReturnStatement(ret: ScReturnStmt) {
         if (ret.returnFunction != Some(method)) return
         val text = ret.expr match {
           case Some(t) if !settings.lastReturn => "Some(" + t.getText + ")"
@@ -142,7 +132,7 @@ object ScalaExtractMethodUtils {
         val retText = new StringBuilder("return ")
         if (settings.returns.length == 0 || settings.lastReturn) retText.append(text)
         else retText.append("(").append(text).append(", None)")
-        val retElem = ScalaPsiElementFactory.createExpressionFromText(retText.toString, ret.getManager)
+        val retElem = ScalaPsiElementFactory.createExpressionFromText(retText.toString(), ret.getManager)
         ret.replace(retElem)
         super.visitReturnStatement(ret)
       }
@@ -157,8 +147,8 @@ object ScalaExtractMethodUtils {
     }
 
     val visitor = new ScalaRecursiveElementVisitor() {
-      override def visitReference(ref: ScReferenceElement) = {
-        ref.bind match {
+      override def visitReference(ref: ScReferenceElement) {
+        ref.bind() match {
           case Some(ScalaResolveResult(named: PsiNamedElement, subst: ScSubstitutor)) =>{
             if (named.getContainingFile == method.getContainingFile && named.getTextOffset < offset &&
                     !named.getName.startsWith("_")) {
@@ -166,7 +156,7 @@ object ScalaExtractMethodUtils {
               var break = false
               for (param <- settings.parameters if !break) {
                 if (param.oldName == oldName) {
-                  def tail: Unit = {
+                  def tail() {
                     if (param.oldName != param.newName) {
                       val newRef = ScalaPsiElementFactory.createExpressionFromText(param.newName, method.getManager)
                       ref.getParent.getNode.replaceChild(ref.getNode, newRef.getNode)
@@ -179,11 +169,11 @@ object ScalaExtractMethodUtils {
                     }
                     case _ if param.isEmptyParamFunction => {
                       ref.getParent match {
-                        case ref: ScReferenceElement if ref.refName == "apply" => tail
-                        case call: ScMethodCall => tail
+                        case ref: ScReferenceElement if ref.refName == "apply" => tail()
+                        case call: ScMethodCall => tail()
                         case _ => {
                           ref.asInstanceOf[ScExpression].expectedType() match {
-                            case Some(ScFunctionType(_, params)) if params.length == 0 => tail
+                            case Some(ScFunctionType(_, params)) if params.length == 0 => tail()
                             case _ => {
                               //we need to replace by method call
                               val newRef = ScalaPsiElementFactory.createExpressionFromText(param.newName + "()", method.getManager)
@@ -194,7 +184,7 @@ object ScalaExtractMethodUtils {
                       }
                     }
                     case _ => {
-                      tail
+                      tail()
                     }
                   }
                   break = true
@@ -210,14 +200,14 @@ object ScalaExtractMethodUtils {
 
     val bindTo = new ArrayBuffer[(PsiNamedElement, String)]
     val newVisitor = new ScalaRecursiveElementVisitor() {
-      override def visitElement(element: ScalaPsiElement) = {
+      override def visitElement(element: ScalaPsiElement) {
         element match {
           case named: PsiNamedElement if named != method && named.getTextOffset < offset => {
             var break = false
             for (param <- settings.parameters if !break) {
               if (param.oldName == named.getName) {
                 if (param.oldName != param.newName) {
-                  bindTo += Tuple(named, param.newName)
+                  bindTo += ((named, param.newName))
                 }
                 break = true
               }
@@ -253,9 +243,9 @@ object ScalaExtractMethodUtils {
     if (!variable.element.isInstanceOf[ScTypedDefinition]) return null
     val definition = variable.element.asInstanceOf[ScTypedDefinition]
 
-    def checkIsMutable(ref: ScReferenceElement): Unit = {
+    def checkIsMutable(ref: ScReferenceElement) {
       if (ScalaPsiUtil.isLValue(ref)) {
-        ref.bind match {
+        ref.bind() match {
           case Some(ScalaResolveResult(elem, _)) if elem == definition => isMutable = true
           case _ =>
         }
@@ -263,7 +253,7 @@ object ScalaExtractMethodUtils {
     }
 
     val visitor = new ScalaRecursiveElementVisitor {
-      override def visitReference(ref: ScReferenceElement) = {
+      override def visitReference(ref: ScReferenceElement) {
         checkIsMutable(ref)
         super.visitReference(ref)
       }
@@ -353,7 +343,7 @@ object ScalaExtractMethodUtils {
     val data = buffer.toArray
     var list: ArrayBuffer[ExtractMethodParameter] = new ArrayBuffer[ExtractMethodParameter]
     for (d <- data) {
-      var variableData: ScalaVariableData = d.asInstanceOf[ScalaVariableData]
+      val variableData: ScalaVariableData = d.asInstanceOf[ScalaVariableData]
       var param: ExtractMethodParameter = getParameter(d, variableData)
       list += param
     }
@@ -363,15 +353,15 @@ object ScalaExtractMethodUtils {
   }
 
   def getReturns(myOutput: Array[VariableInfo], elements: Array[PsiElement]): Array[ExtractMethodReturn] = {
-    var list: ArrayList[ExtractMethodReturn] = new ArrayList[ExtractMethodReturn]
+    val list: ArrayList[ExtractMethodReturn] = new ArrayList[ExtractMethodReturn]
     for (info <- myOutput) {
-      var data: ScalaVariableData = ScalaExtractMethodUtils.convertVariableData(info, elements).asInstanceOf[ScalaVariableData]
-      var tp: FakePsiType = data.`type`.asInstanceOf[FakePsiType]
-      var aReturn: ExtractMethodReturn = new ExtractMethodReturn(info.element.getName, tp.tp, data.isInsideOfElements,
+      val data: ScalaVariableData = ScalaExtractMethodUtils.convertVariableData(info, elements).asInstanceOf[ScalaVariableData]
+      val tp: FakePsiType = data.`type`.asInstanceOf[FakePsiType]
+      val aReturn: ExtractMethodReturn = new ExtractMethodReturn(info.element.getName, tp.tp, data.isInsideOfElements,
         ScalaPsiUtil.nameContext(info.element).isInstanceOf[ScValue] ||
-                ScalaPsiUtil.nameContext(info.element).isInstanceOf[ScFunction])
+          ScalaPsiUtil.nameContext(info.element).isInstanceOf[ScFunction])
       list.add(aReturn)
     }
-    return list.toArray(new Array[ExtractMethodReturn](list.size))
+    list.toArray(new Array[ExtractMethodReturn](list.size))
   }
 }

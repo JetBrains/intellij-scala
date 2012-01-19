@@ -80,7 +80,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
     }
   }
 
-  def showParameterInfo(element: ScArgumentExprList, context: CreateParameterInfoContext): Unit = {
+  def showParameterInfo(element: ScArgumentExprList, context: CreateParameterInfoContext) {
     context.showHint(element, element.getTextRange.getStartOffset, this)
   }
 

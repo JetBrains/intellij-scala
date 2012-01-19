@@ -11,6 +11,7 @@ import stubs.ScParamClausesStub;
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import com.intellij.psi._
 import scope.PsiScopeProcessor
+import api.ScalaElementVisitor
 
 /**
 * @author Alexander Podkhalyuzin
@@ -59,5 +60,16 @@ class ScParametersImpl extends ScalaStubBasedElementImpl[ScParameters] with ScPa
       }
     }
     true
+  }
+
+  override def accept(visitor: ScalaElementVisitor) {
+    visitor.visitParameters(this)
+  }
+
+  override def accept(visitor: PsiElementVisitor) {
+    visitor match {
+      case s: ScalaElementVisitor => s.visitParameters(this)
+      case _ => super.accept(visitor)
+    }
   }
 }

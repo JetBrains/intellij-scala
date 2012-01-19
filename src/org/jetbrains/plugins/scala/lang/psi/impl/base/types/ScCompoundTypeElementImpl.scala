@@ -13,6 +13,8 @@ import api.base.types._
 import scala.Some
 import psi.types.result.{Failure, Success, TypingContext}
 import psi.types.{ScSubstitutor, ScCompoundType, Any}
+import api.ScalaElementVisitor
+import com.intellij.psi.PsiElementVisitor
 
 /**
  * @author Alexander Podkhalyuzin
@@ -28,4 +30,15 @@ class ScCompoundTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
       case Some(r) => collectFailures(comps, Any)(new ScCompoundType(_, r.holders.toList, r.types.toList, ScSubstitutor.empty))
     }
   }
+
+    override def accept(visitor: ScalaElementVisitor) {
+        visitor.visitCompoundTypeElement(this)
+      }
+
+      override def accept(visitor: PsiElementVisitor) {
+        visitor match {
+          case s: ScalaElementVisitor => s.visitCompoundTypeElement(this)
+          case _ => super.accept(visitor)
+        }
+      }
 }

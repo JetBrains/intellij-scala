@@ -14,7 +14,6 @@ import api.toplevel.ScTypeParametersOwner
 import collection.immutable.HashMap
 import api.statements.{ScTypeAliasDefinition, ScFunction}
 import types.ScSimpleTypeElementImpl
-import com.intellij.psi.{PsiClass, PsiTypeParameterListOwner, PsiMethod}
 import api.statements.params.ScTypeParam
 import psi.types._
 import nonvalue.{ScTypePolymorphicType, TypeParameter}
@@ -23,6 +22,8 @@ import resolve.{ResolveUtils, ScalaResolveResult}
 import collection.mutable.ArrayBuffer
 import collection.Seq
 import api.base.types.{ScTypeElement, ScParameterizedTypeElement, ScSimpleTypeElement}
+import api.ScalaElementVisitor
+import com.intellij.psi.{PsiElementVisitor, PsiClass, PsiTypeParameterListOwner, PsiMethod}
 
 /**
 * @author Alexander Podkhalyuzin
@@ -183,6 +184,17 @@ class ScConstructorImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
           case _ => None
         }
       case _ => None
+    }
+  }
+
+  override def accept(visitor: ScalaElementVisitor) {
+    visitor.visitConstructor(this)
+  }
+
+  override def accept(visitor: PsiElementVisitor) {
+    visitor match {
+      case s: ScalaElementVisitor => s.visitConstructor(this)
+      case _ => super.accept(visitor)
     }
   }
 }

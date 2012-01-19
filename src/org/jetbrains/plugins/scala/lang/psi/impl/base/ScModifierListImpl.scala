@@ -17,6 +17,7 @@ import com.intellij.psi._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import collection.mutable.ArrayBuffer
+import api.ScalaElementVisitor
 
 /**
 * @author Alexander Podkhalyuzin
@@ -236,6 +237,17 @@ class ScModifierListImpl extends ScalaStubBasedElementImpl[ScModifierList] with 
 
   def addAnnotation(qualifiedName: String): PsiAnnotation = {
     null
+  }
+
+  override def accept(visitor: ScalaElementVisitor) {
+    visitor.visitModifierList(this)
+  }
+
+  override def accept(visitor: PsiElementVisitor) {
+    visitor match {
+      case s: ScalaElementVisitor => s.visitModifierList(this)
+      case _ => super.accept(visitor)
+    }
   }
 }
 
