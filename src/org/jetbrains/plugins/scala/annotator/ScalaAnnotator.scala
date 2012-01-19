@@ -45,8 +45,9 @@ import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiManager, ScalaPsiEleme
 import result.{TypingContext, TypeResult, Success}
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaFile}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import types.{ScTypeProjection, ScTypeElement}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScNamedElement, ScModifierListOwner, ScTypeBoundsOwner}
+import types.{ScParameterizedTypeElement, ScTypeProjection, ScTypeElement}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel._
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 
 /**
  *    User: Alexander Podkhalyuzin
@@ -82,6 +83,34 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
             case _ =>
           }
         }
+      }
+
+      override def visitParameterizedTypeElement(parameterized: ScParameterizedTypeElement) {
+        val tp = parameterized.typeElement.getType(TypingContext.empty)
+        tp match {
+          case Success(res, _) =>
+            ScType.extractDesignated(res) match {
+              case Some((t: ScTypeParametersOwner, subst)) =>
+                val typeParametersLength = t.typeParameters.length
+                val argsLength = parameterized.typeArgList.typeArgs.length
+                if (typeParametersLength != argsLength) {
+                  val error = "Wrong number of type parameters. Expected: " + typeParametersLength + ", actual: " + argsLength
+                  val leftBracket = parameterized.typeArgList.getNode.findChildByType(ScalaTokenTypes.tLSQBRACKET)
+                  if (leftBracket != null) {
+                    val annotation = holder.createErrorAnnotation(leftBracket, error)
+                    annotation.setHighlightType(ProblemHighlightType.ERROR)
+                  }
+                  val rightBracket = parameterized.typeArgList.getNode.findChildByType(ScalaTokenTypes.tRSQBRACKET)
+                  if (rightBracket != null) {
+                    val annotation = holder.createErrorAnnotation(rightBracket, error)
+                    annotation.setHighlightType(ProblemHighlightType.ERROR)
+                  }
+                }
+              case _ =>
+            }
+          case _ =>
+        }
+        super.visitParameterizedTypeElement(parameterized)
       }
 
       override def visitExpression(expr: ScExpression) {
