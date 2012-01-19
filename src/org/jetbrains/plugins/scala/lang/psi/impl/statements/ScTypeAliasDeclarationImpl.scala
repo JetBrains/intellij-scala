@@ -17,7 +17,8 @@ import org.jetbrains.plugins.scala.lang.psi.types.{Nothing, Any}
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.psi.PsiElement
+import api.ScalaElementVisitor
+import com.intellij.psi.{PsiElementVisitor, PsiElement}
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -94,4 +95,15 @@ class ScTypeAliasDeclarationImpl extends ScalaStubBasedElementImpl[ScTypeAlias] 
   }
 
   override def getOriginalElement: PsiElement = super[ScTypeAliasDeclaration].getOriginalElement
+
+  override def accept(visitor: ScalaElementVisitor) {
+    visitor.visitTypeAliasDeclaration(this)
+  }
+
+  override def accept(visitor: PsiElementVisitor) {
+    visitor match {
+      case s: ScalaElementVisitor => s.visitTypeAliasDeclaration(this)
+      case _ => super.accept(visitor)
+    }
+  }
 }

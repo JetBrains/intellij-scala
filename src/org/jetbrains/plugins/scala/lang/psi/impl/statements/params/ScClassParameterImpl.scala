@@ -11,8 +11,9 @@ import stubs.elements.wrappers.DummyASTNode
 import stubs.ScParameterStub
 
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
-import com.intellij.psi.{PsiClass, PsiElement}
 import api.toplevel.typedef.ScClass
+import api.ScalaElementVisitor
+import com.intellij.psi.{PsiElementVisitor, PsiClass, PsiElement}
 
 /**
 * @author Alexander Podkhalyuzin
@@ -74,5 +75,16 @@ class ScClassParameterImpl(node: ASTNode) extends ScParameterImpl(node) with ScC
       if (param.name == name) return param
     }
     this
+  }
+
+  override def accept(visitor: ScalaElementVisitor) {
+    visitor.visitClassParameter(this)
+  }
+
+  override def accept(visitor: PsiElementVisitor) {
+    visitor match {
+      case s: ScalaElementVisitor => s.visitClassParameter(this)
+      case _ => super.accept(visitor)
+    }
   }
 }

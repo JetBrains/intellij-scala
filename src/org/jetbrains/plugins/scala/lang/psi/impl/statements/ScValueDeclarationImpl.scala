@@ -14,6 +14,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import psi.types.Nothing
 import psi.types.result.{Failure, TypingContext}
+import api.ScalaElementVisitor
+import com.intellij.psi.PsiElementVisitor
 
 /**
  * @author Alexander Podkhalyuzin
@@ -48,5 +50,16 @@ class ScValueDeclarationImpl extends ScalaStubBasedElementImpl[ScValue] with ScV
     if (stub != null) {
       stub.getChildrenByType(ScalaElementTypes.IDENTIFIER_LIST, JavaArrayFactoryUtil.ScIdListFactory).apply(0)
     } else findChildByClass(classOf[ScIdList])
+  }
+
+  override def accept(visitor: ScalaElementVisitor) {
+    visitor.visitValueDeclaration(this)
+  }
+
+  override def accept(visitor: PsiElementVisitor) {
+    visitor match {
+      case s: ScalaElementVisitor => s.visitValueDeclaration(this)
+      case _ => super.accept(visitor)
+    }
   }
 }
