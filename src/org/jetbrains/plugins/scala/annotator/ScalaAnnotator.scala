@@ -31,14 +31,11 @@ import com.intellij.psi.codeStyle.CodeStyleSettingsManager
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeBoundsOwner
 import quickfix.{ChangeTypeFix, ReportHighlightingErrorQuickFix, ImplementMethodsQuickFix}
 import template._
-import types.ScTypeElement
 import scala.Some
 import com.intellij.openapi.project.DumbAware
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression.ExpressionTypeResult
 import com.intellij.openapi.editor.markup.{EffectType, TextAttributes}
 import java.awt.{Font, Color}
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import components.HighlightingAdvisor
 import org.jetbrains.plugins.scala.extensions._
 import collection.{Seq, Set}
@@ -48,6 +45,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocResolvableCodeReference
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiManager, ScalaPsiElementFactory}
 import result.{TypingContext, TypeResult, Success}
+import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaFile}
+import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
+import types.{ScTypeProjection, ScSimpleTypeElement, ScTypeElement}
 
 /**
  *    User: Alexander Podkhalyuzin
@@ -69,125 +69,179 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
       case _ => false
     }
 
-    if (!compiled && element.isInstanceOf[ScExpression]) {
-      val expr = element.asInstanceOf[ScExpression]
-      checkExpressionType(expr, holder, typeAware)
-      checkExpressionImplicitParameters(expr, holder)
-      ByNameParameter.annotate(expr, holder, typeAware)
-    }
+    val visitor = new ScalaElementVisitor {
+      private def expressionPart(expr: ScExpression) {
+        if (!compiled) {
+          checkExpressionType(expr, holder, typeAware)
+          checkExpressionImplicitParameters(expr, holder)
+          ByNameParameter.annotate(expr, holder, typeAware)
+        }
 
-    if (element.isInstanceOf[ScTypeElement]) {
-      checkTypeElementForm(element.asInstanceOf[ScTypeElement], holder)
-    }
-
-    if (element.isInstanceOf[ScAnnotation]) {
-      checkAnnotationType(element.asInstanceOf[ScAnnotation], holder)
-    }
-
-    if (element.isInstanceOf[ScForStatement]) {
-      checkForStmtUsedTypes(element.asInstanceOf[ScForStatement], holder)
-    }
-
-    if (element.isInstanceOf[ScVariableDefinition]) {
-      annotateVariableDefinition(element.asInstanceOf[ScVariableDefinition], holder, typeAware)
-    }
-
-    if (element.isInstanceOf[ScTypedStmt]) {
-      annotateTypedStatement(element.asInstanceOf[ScTypedStmt], holder, typeAware)
-    }
-
-    if (!compiled && element.isInstanceOf[ScPatternDefinition]) {
-      annotatePatternDefinition(element.asInstanceOf[ScPatternDefinition], holder, typeAware)
-    }
-    if (element.isInstanceOf[ScMethodCall]) {
-      val call = element.asInstanceOf[ScMethodCall]
-      checkMethodCallImplicitConversion(call, holder)
-      annotateMethodCall(call, holder)
-    }
-    if (element.isInstanceOf[ScSelfInvocation]) {
-      checkSelfInvocation(element.asInstanceOf[ScSelfInvocation], holder)
-    }
-    if (element.isInstanceOf[ScConstrBlock]) {
-      annotateAuxiliaryConstructor(element.asInstanceOf[ScConstrBlock], holder)
-    }
-
-    if (element.isInstanceOf[ScParameter]) {
-      annotateParameter(element.asInstanceOf[ScParameter], holder)
-    }
-    
-    if (element.isInstanceOf[ScCatchBlock]) {
-      checkCatchBlockGeneralizedRule(element.asInstanceOf[ScCatchBlock], holder, typeAware)
-    }
-
-    annotateScope(element, holder)
-
-    if (isAdvancedHighlightingEnabled(element) && settings(element).SHOW_IMPLICIT_CONVERSIONS) {
-      element match {
-        case expr: ScExpression =>
+        if (isAdvancedHighlightingEnabled(element) && settings(element).SHOW_IMPLICIT_CONVERSIONS) {
           expr.getTypeExt(TypingContext.empty) match {
             case ExpressionTypeResult(Success(t, _), _, Some(implicitFunction)) =>
               highlightImplicitView(expr, implicitFunction, t, expr, holder)
             case _ =>
           }
-        case _ =>
-      }
-    }
-    
-    if (element.isInstanceOf[ScFunctionDefinition]) {
-      val f: ScFunctionDefinition = element.asInstanceOf[ScFunctionDefinition]
-      if (!compiled && !f.isConstructor)
-        annotateFunction(f, holder, typeAware)
-    }
-    
-    if (element.isInstanceOf[ScFunction] && typeAware && !compiled && element.getParent.isInstanceOf[ScTemplateBody]) {
-      //todo: unhandled case abstract override
-      //todo: other kinds of members
-      //checkOverrideMethods(element.asInstanceOf[ScFunction], holder)
-    }
-
-    element match {
-      case a: ScAssignStmt => annotateAssignment(a, holder, typeAware)
-      case ps: ScParameters => annotateParameters(ps, holder)
-      case x: ScTemplateDefinition => {
-        val tdParts = Seq(AbstractInstantiation, FinalClassInheritance, IllegalInheritance, ObjectCreationImpossible,
-          MultipleInheritance, NeedsToBeAbstract, NeedsToBeTrait, SealedClassInheritance, UndefinedMember)
-        tdParts.foreach(_.annotate(x, holder, typeAware))
-        x match {
-          case cls: ScClass =>
-            val clsParts = Seq(CaseClassWithoutParamList, HasImplicitParamAndBound)
-            clsParts.foreach(_.annotate(cls, holder, typeAware))
-          case trt: ScTrait =>
-            val traitParts = Seq(TraitHasImplicitBound)
-            traitParts.foreach(_.annotate(trt, holder, typeAware))
-          case _ => 
         }
       }
-      case ref: ScReferenceElement => {
+
+      override def visitExpression(expr: ScExpression) {
+        expressionPart(expr)
+        super.visitExpression(expr)
+      }
+
+      override def visitReferenceExpression(ref: ScReferenceExpression) {
+        referencePart(ref)
+        visitExpression(ref)
+      }
+
+      override def visitTypeElement(te: ScTypeElement) {
+        checkTypeElementForm(te, holder)
+        super.visitTypeElement(te)
+      }
+
+      override def visitAnnotation(annotation: ScAnnotation) {
+        checkAnnotationType(annotation, holder)
+        super.visitAnnotation(annotation)
+      }
+
+      override def visitForExpression(expr: ScForStatement) {
+        checkForStmtUsedTypes(expr, holder)
+        super.visitForExpression(expr)
+      }
+
+      override def visitVariableDefinition(varr: ScVariableDefinition) {
+        annotateVariableDefinition(varr, holder, typeAware)
+        super.visitVariableDefinition(varr)
+      }
+
+      override def visitTypedStmt(stmt: ScTypedStmt) {
+        annotateTypedStatement(stmt, holder, typeAware)
+        super.visitTypedStmt(stmt)
+      }
+
+      override def visitPatternDefinition(pat: ScPatternDefinition) {
+        if (!compiled) {
+          annotatePatternDefinition(pat, holder, typeAware)
+        }
+        super.visitPatternDefinition(pat)
+      }
+
+      override def visitMethodCallExpression(call: ScMethodCall) {
+        checkMethodCallImplicitConversion(call, holder)
+        annotateMethodCall(call, holder)
+        super.visitMethodCallExpression(call)
+      }
+
+      override def visitSelfInvocation(self: ScSelfInvocation) {
+        checkSelfInvocation(self, holder)
+        super.visitSelfInvocation(self)
+      }
+
+      override def visitConstrBlock(constr: ScConstrBlock) {
+        annotateAuxiliaryConstructor(constr, holder)
+        super.visitConstrBlock(constr)
+      }
+
+      override def visitParameter(parameter: ScParameter) {
+        annotateParameter(parameter, holder)
+        super.visitParameter(parameter)
+      }
+
+      override def visitCatchBlock(c: ScCatchBlock) {
+        checkCatchBlockGeneralizedRule(c, holder, typeAware)
+        super.visitCatchBlock(c)
+      }
+
+      override def visitFunctionDefinition(fun: ScFunctionDefinition) {
+        if (!compiled && !fun.isConstructor)
+          annotateFunction(fun, holder, typeAware)
+        super.visitFunctionDefinition(fun)
+      }
+
+      override def visitFunction(fun: ScFunction) {
+        if (typeAware && !compiled && fun.getParent.isInstanceOf[ScTemplateBody]) {
+          //todo: unhandled case abstract override
+          //todo: other kinds of members
+          //checkOverrideMethods(element.asInstanceOf[ScFunction], holder)
+        }
+        super.visitFunction(fun)
+      }
+
+      override def visitAssignmentStatement(stmt: ScAssignStmt) {
+        annotateAssignment(stmt, holder, typeAware)
+        super.visitAssignmentStatement(stmt)
+      }
+
+      override def visitTypeProjection(proj: ScTypeProjection) {
+        referencePart(proj)
+        visitTypeElement(proj)
+      }
+
+      private def referencePart(ref: ScReferenceElement) {
         if(typeAware) annotateReference(ref, holder)
         ref.qualifier match {
           case None => checkNotQualifiedReferenceElement(ref, holder)
           case Some(_) => checkQualifiedReferenceElement(ref, holder)
         }
       }
-      case constructor: ScConstructor => {
-        if(typeAware) annotateConstructor(constructor, holder)
+
+      override def visitReference(ref: ScReferenceElement) {
+        referencePart(ref)
+        super.visitReference(ref)
       }
-      case impExpr: ScImportExpr => {
-        checkImportExpr(impExpr, holder)
+
+      override def visitImportExpr(expr: ScImportExpr) {
+        checkImportExpr(expr, holder)
+        super.visitImportExpr(expr)
       }
-      case ret: ScReturnStmt => {
+
+      override def visitReturnStatement(ret: ScReturnStmt) {
         checkExplicitTypeForReturnStatement(ret, holder)
+        super.visitReturnStatement(ret)
       }
-      case ml: ScModifierList => {
-        ModifierChecker.checkModifiers(ml, holder)
+
+      override def visitConstructor(constr: ScConstructor) {
+        if(typeAware) annotateConstructor(constr, holder)
+        super.visitConstructor(constr)
       }
-      case sTypeParam: ScTypeBoundsOwner => {
-        checkTypeParamBounds(sTypeParam, holder)
+
+      override def visitModifierList(modifierList: ScModifierList) {
+        ModifierChecker.checkModifiers(modifierList, holder)
+        super.visitModifierList(modifierList)
       }
-      case _ => AnnotatorHighlighter.highlightElement(element, holder)
+
+      override def visitParameters(parameters: ScParameters) {
+        annotateParameters(parameters, holder)
+        super.visitParameters(parameters)
+      }
+    }
+    annotateScope(element, holder)
+    element.accept(visitor)
+    AnnotatorHighlighter.highlightElement(element, holder)
+
+    if (element.isInstanceOf[ScTemplateDefinition]) {
+      val templateDefinition = element.asInstanceOf[ScTemplateDefinition]
+      val tdParts = Seq(AbstractInstantiation, FinalClassInheritance, IllegalInheritance, ObjectCreationImpossible,
+        MultipleInheritance, NeedsToBeAbstract, NeedsToBeTrait, SealedClassInheritance, UndefinedMember)
+      tdParts.foreach(_.annotate(templateDefinition, holder, typeAware))
+      templateDefinition match {
+        case cls: ScClass =>
+          val clsParts = Seq(CaseClassWithoutParamList, HasImplicitParamAndBound)
+          clsParts.foreach(_.annotate(cls, holder, typeAware))
+        case trt: ScTrait =>
+          val traitParts = Seq(TraitHasImplicitBound)
+          traitParts.foreach(_.annotate(trt, holder, typeAware))
+        case _ =>
+      }
     }
 
-    super[ControlFlowInspections].annotate(element, holder)
+    if (element.isInstanceOf[ScTypeBoundsOwner]) {
+      val sTypeParam = element.asInstanceOf[ScTypeBoundsOwner]
+      checkTypeParamBounds(sTypeParam, holder)
+    }
+    //todo: super[ControlFlowInspections].annotate(element, holder)
   }
 
   private def settings(element: PsiElement): ScalaCodeStyleSettings = {

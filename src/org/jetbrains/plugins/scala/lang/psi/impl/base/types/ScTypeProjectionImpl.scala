@@ -5,18 +5,12 @@ package impl
 package base
 package types
 
-
-import api.statements.{ScTypeAliasDeclaration, ScTypeAliasDefinition, ScTypeAlias}
-import api.toplevel.ScNamedElement
-import com.intellij.psi.impl.PsiManagerEx
-
 import com.intellij.psi.impl.source.resolve.ResolveCache
 import com.intellij.util.IncorrectOperationException
 import lexer.ScalaTokenTypes
 import psi.ScalaPsiElementImpl
 import api.base.types._
 import psi.types._
-
 import com.intellij.lang.ASTNode
 import lang.resolve._
 import processor.{CompletionProcessor, ResolveProcessor, BaseProcessor}
@@ -24,22 +18,12 @@ import result.{TypeResult, Failure, Success, TypingContext}
 import com.intellij.psi._
 import api.ScalaElementVisitor
 import api.toplevel.imports.ScImportStmt
-import caches.ScalaRecursionManager
-import com.intellij.openapi.util.Computable
 
 /**
 * @author Alexander Podkhalyuzin
 * Date: 13.03.2008
 */
-
 class ScTypeProjectionImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with ScTypeProjection {
-  override def accept(visitor: PsiElementVisitor): Unit = {
-    visitor match {
-      case visitor: ScalaElementVisitor => super.accept(visitor)
-      case _ => super.accept(visitor)
-    }
-  }
-
   override def toString: String = "TypeProjection"
 
   protected def innerType(ctx: TypingContext) = {
@@ -101,4 +85,15 @@ class ScTypeProjectionImpl(node: ASTNode) extends ScalaPsiElementImpl (node) wit
   }
 
   def getSameNameVariants: Array[ResolveResult] = doResolve(new CompletionProcessor(getKinds(true), false, Some(refName)))
+
+  override def accept(visitor: ScalaElementVisitor) {
+    visitor.visitTypeProjection(this)
+  }
+
+  override def accept(visitor: PsiElementVisitor) {
+    visitor match {
+      case s: ScalaElementVisitor => s.visitTypeProjection(this)
+      case _ => super.accept(visitor)
+    }
+  }
 }

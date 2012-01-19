@@ -10,6 +10,8 @@ import api.base.types._
 import psi.types._
 import com.intellij.lang.ASTNode
 import result.{TypeResult, TypingContext}
+import api.ScalaElementVisitor
+import com.intellij.psi.PsiElementVisitor
 
 /**
  * @author Alexander Podkhalyuzin, ilyas
@@ -31,4 +33,14 @@ class ScInfixTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) wi
   }
   yield new ScParameterizedType(ScType.designator(element), Seq(lType, rType))
 
+    override def accept(visitor: ScalaElementVisitor) {
+        visitor.visitInfixTypeElement(this)
+      }
+
+      override def accept(visitor: PsiElementVisitor) {
+        visitor match {
+          case s: ScalaElementVisitor => s.visitInfixTypeElement(this)
+          case _ => super.accept(visitor)
+        }
+      }
 }

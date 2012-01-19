@@ -12,8 +12,9 @@ import org.jetbrains.plugins.scala.lang.psi.types._
 import result.{TypeResult, Success, Failure, TypingContext}
 import api.base.ScConstructor
 import resolve.ScalaResolveResult
-import com.intellij.psi.{PsiTypeParameterListOwner, PsiNamedElement, PsiMethod}
 import api.toplevel.ScTypeParametersOwner
+import api.ScalaElementVisitor
+import com.intellij.psi.{PsiElementVisitor, PsiTypeParameterListOwner, PsiNamedElement, PsiMethod}
 
 /**
  * @author Alexander Podkhalyuzin, ilyas
@@ -81,4 +82,15 @@ class ScParameterizedTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(
         (for (f@Failure(_, _) <- typeArgs) yield f).foldLeft(Success(result, Some(this)))(_.apply(_))
     }
   }
+
+    override def accept(visitor: ScalaElementVisitor) {
+        visitor.visitParameterizedTypeElement(this)
+      }
+
+      override def accept(visitor: PsiElementVisitor) {
+        visitor match {
+          case s: ScalaElementVisitor => s.visitParameterizedTypeElement(this)
+          case _ => super.accept(visitor)
+        }
+      }
 }

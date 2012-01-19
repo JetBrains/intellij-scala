@@ -10,12 +10,13 @@ import psi.ScalaPsiElementImpl
 import api.base.types._
 import api.statements.{ScTypeAliasDeclaration, ScValueDeclaration}
 import com.intellij.lang.ASTNode
-import com.intellij.psi.{ResolveState, PsiElement}
 
 import _root_.scala.collection.mutable.ListBuffer
 import collection.Set
 import psi.types._
 import result.{TypeResult, Success, Failure, TypingContext}
+import api.ScalaElementVisitor
+import com.intellij.psi.{PsiElementVisitor, ResolveState, PsiElement}
 
 /**
 * @author Alexander Podkhalyuzin
@@ -81,4 +82,15 @@ class ScExistentialTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(no
     }
     true
   }
+
+    override def accept(visitor: ScalaElementVisitor) {
+        visitor.visitExistentialTypeElement(this)
+      }
+
+      override def accept(visitor: PsiElementVisitor) {
+        visitor match {
+          case s: ScalaElementVisitor => s.visitExistentialTypeElement(this)
+          case _ => super.accept(visitor)
+        }
+      }
 }

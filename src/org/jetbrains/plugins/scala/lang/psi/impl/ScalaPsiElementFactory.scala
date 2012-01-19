@@ -671,7 +671,7 @@ object ScalaPsiElementFactory {
         res = res + (if (omitParamList) "" else ")")
         val retType = substitutor.subst(ScType.create(method.getReturnType, method.getProject))
         val retAndBody = (needsInferType, retType) match {
-          case (_, Unit) =>
+          case (_, _) if retType.equiv(Unit) =>
             " {}"
           case (true, _) =>
             var text = ScType.canonicalText(retType)

@@ -17,18 +17,17 @@ import api.toplevel.typedef.{ScTemplateDefinition, ScClass}
 import api.toplevel.ScTypeParametersOwner
 import types.result.{Success, Failure, TypeResult}
 import types.nonvalue.{ScTypePolymorphicType, TypeParameter}
-import types.{Any, Nothing, ScType}
-import api.base.{ScMethodLike, ScPrimaryConstructor}
+import types.ScType
+import api.base.ScMethodLike
 import collection.Seq
+import api.ScalaElementVisitor
 
 /**
 * @author Alexander Podkhalyuzin
 * Date: 22.02.2008
 */
-
 class ScSelfInvocationImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScSelfInvocation {
   override def toString: String = "SelfInvocation"
-
 
   def bind: Option[PsiElement] = bindInternal(false)
 
@@ -84,5 +83,16 @@ class ScSelfInvocationImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with
 
   def multiType(i: Int): Seq[TypeResult[ScType]] = {
     bindMultiInternal(false).map(pe => workWithBindInternal(Some(pe), i))
+  }
+
+  override def accept(visitor: ScalaElementVisitor) {
+    visitor.visitSelfInvocation(this)
+  }
+
+  override def accept(visitor: PsiElementVisitor) {
+    visitor match {
+      case s: ScalaElementVisitor => s.visitSelfInvocation(this)
+      case _ => super.accept(visitor)
+    }
   }
 }
