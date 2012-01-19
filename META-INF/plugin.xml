@@ -442,9 +442,6 @@
     <component>
       <implementation-class>org.jetbrains.plugins.scala.ScalaLoader</implementation-class>
     </component>
-    <component>
-      <implementation-class>org.jetbrains.plugins.scala.components.FileTemplatesCleaner</implementation-class>
-    </component>
   </application-components>
 
   <project-components>
