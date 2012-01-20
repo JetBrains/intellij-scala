@@ -860,6 +860,7 @@ object ScalaPsiUtil {
     val clazz: ScTemplateDefinition = nameContext(typed) match {
       case e @ (_: ScValue | _: ScVariable) if e.getParent.isInstanceOf[ScTemplateBody] =>
         e.asInstanceOf[ScMember].getContainingClass
+      case e: ScClassParameter if e.isEffectiveVal => e.getContainingClass
       case e @ (_: ScObject) if e.getParent.isInstanceOf[ScTemplateBody] =>
         e.containingClass.orNull // todo unify these two cases.
       case _ => return empty
