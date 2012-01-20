@@ -3,7 +3,6 @@ package org.jetbrains.plugins.scala.actions
 import com.intellij.openapi.actionSystem.{PlatformDataKeys, AnActionEvent, AnAction}
 import com.intellij.psi.util.PsiUtilBase
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil
 import collection.mutable.ArrayBuffer
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
@@ -15,6 +14,9 @@ import com.intellij.openapi.ui.popup.JBPopupFactory
 import com.intellij.psi.{NavigatablePsiElement, PsiNamedElement, PsiWhiteSpace, PsiElement}
 import org.jetbrains.plugins.scala.lang.psi.presentation.{ScImplicitParametersListCellRenderer, ScImplicitFunctionListCellRenderer}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScNewTemplateDefinition, ScExpression}
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScConstructor
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScTypeElement, ScParameterizedTypeElement, ScSimpleTypeElement}
 
 /**
  * User: Alefas
@@ -38,6 +40,49 @@ class ShowImplicitParametersAction extends AnAction("Show implicit parameters ac
       case _ => named.getName
     }
   }
+  
+  private def implicitParams(expr: PsiElement): Option[Seq[ScalaResolveResult]] = {
+    def checkTypeElement(element: ScTypeElement): Option[Option[scala.Seq[ScalaResolveResult]]] = {
+      def checkSimpleType(s: ScSimpleTypeElement) = {
+        s.findImplicitParameters
+      }
+      element match {
+        case s: ScSimpleTypeElement =>
+          return Some(checkSimpleType(s))
+        case p: ScParameterizedTypeElement =>
+          p.typeElement match {
+            case s: ScSimpleTypeElement =>
+              return Some(checkSimpleType(s))
+            case _ =>
+          }
+        case _ =>
+      }
+      None
+    }
+    expr match {
+      case expr: ScNewTemplateDefinition =>
+        expr.extendsBlock.templateParents match {
+          case Some(tp) =>
+            val elements = tp.typeElements
+            if (elements.length > 0) {
+              checkTypeElement(elements(0)) match {
+                case Some(x) => return x
+                case None =>
+              }
+            }
+          case _ =>
+        }
+      case expr: ScExpression =>
+        return expr.findImplicitParameters
+      case constr: ScConstructor =>
+        checkTypeElement(constr.typeElement) match {
+          case Some(x) => return x
+          case _ =>
+        }
+      case _ =>
+    }
+    None
+  }
 
   def actionPerformed(e: AnActionEvent) {
     val context = e.getDataContext
@@ -47,8 +92,8 @@ class ShowImplicitParametersAction extends AnAction("Show implicit parameters ac
     val file = PsiUtilBase.getPsiFileInEditor(editor, project)
     if (!file.isInstanceOf[ScalaFile]) return
 
-    def forExpr(expr: ScExpression) {
-      val implicitParameters = expr.findImplicitParameters
+    def forExpr(expr: PsiElement) {
+      val implicitParameters = implicitParams(expr)
       implicitParameters match {
         case None | Some(Seq()) =>
           ScalaActionUtil.showHint(editor, "No implicit parameters")
@@ -96,15 +141,20 @@ class ShowImplicitParametersAction extends AnAction("Show implicit parameters ac
           w.getText.contains("\n") => file.findElementAt(offset - 1)
         case p => p
       }
-      def getExpressions: Array[ScExpression] = {
-        val res = new ArrayBuffer[ScExpression]
+      def getExpressions: Array[PsiElement] = {
+        val res = new ArrayBuffer[PsiElement]
         var parent = element
         while (parent != null) {
-          parent match {
-            case expr: ScExpression =>
-              expr.findImplicitParameters match {
-                case Some(seq) if seq.length > 0 => res += expr
+          implicitParams(parent) match {
+            case Some(seq) if seq.length > 0 =>
+              parent match {
+                case constr: ScConstructor =>
+                  var p = constr.getParent
+                  if (p != null) p = p.getParent
+                  if (p != null) p = p.getParent
+                  if (!p.isInstanceOf[ScNewTemplateDefinition]) res += parent
                 case _ =>
+                  res += parent
               }
             case _ =>
           }
@@ -113,7 +163,7 @@ class ShowImplicitParametersAction extends AnAction("Show implicit parameters ac
         res.toArray
       }
       val expressions = getExpressions
-      def chooseExpression(expr: ScExpression) {
+      def chooseExpression(expr: PsiElement) {
         editor.getSelectionModel.setSelection(expr.getTextRange.getStartOffset,
           expr.getTextRange.getEndOffset)
         forExpr(expr)
@@ -125,8 +175,12 @@ class ShowImplicitParametersAction extends AnAction("Show implicit parameters ac
         chooseExpression(expressions(0))
       } else {
         ScalaRefactoringUtil.showChooser(editor, expressions, elem =>
-          chooseExpression(elem.asInstanceOf[ScExpression]), "Expressions", (expr: ScExpression) => {
-          ScalaRefactoringUtil.getShortText(expr)
+          chooseExpression(elem), "Expressions", (expr: PsiElement) => {
+          expr match {
+            case expr: ScExpression =>
+              ScalaRefactoringUtil.getShortText(expr)
+            case _ => expr.getText.slice(0, 20)
+          }
         })
       }
     }

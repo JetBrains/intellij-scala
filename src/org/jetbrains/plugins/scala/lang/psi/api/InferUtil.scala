@@ -160,8 +160,8 @@ object InferUtil {
   /**
    * Util method to update type accoding to expected type
    * @param _nonValueType type, to update it should be PolymorphicType(MethodType)
-   * @param fromUnderscoreSection we shouldn't update if it's anonymous function
-   *                              also we can update just for simple type without function
+   * @param fromImplicitParameters we shouldn't update if it's anonymous function
+   *                               also we can update just for simple type without function
    * @param expectedType appropriate expected type
    * @param expr place
    * @param check we fail to get right type then if check throw SafeCheckException
