@@ -90,6 +90,8 @@ object TypeDefinitionMembers {
             case Some(a: ScAccessModifier) => a.isUnqualifiedPrivateOrThis
             case _ => false
           }
+        case Some(n: PsiModifierListOwner) =>
+          n.hasModifierProperty("private")
         case _ => false
       }
     }
@@ -231,6 +233,7 @@ object TypeDefinitionMembers {
             case Some(a: ScAccessModifier) => a.isUnqualifiedPrivateOrThis
             case _ => false
           }
+        case n: PsiModifierListOwner => n.hasModifierProperty("private")
         case _ => false
       }
     }
@@ -282,6 +285,8 @@ object TypeDefinitionMembers {
             case Some(a: ScAccessModifier) => a.isUnqualifiedPrivateOrThis
             case _ => false
           }
+        case Some(n: PsiModifierListOwner) =>
+          n.hasModifierProperty("private")
         case _ => false
       }
     }
