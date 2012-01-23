@@ -24,7 +24,9 @@ class ChangeTypeFix(typeElement: ScTypeElement, newType: ScType) extends Intenti
   def isAvailable(project: Project, editor: Editor, file: PsiFile): Boolean = typeElement.isValid && typeElement.getManager.isInProject(file)
 
   def invoke(project: Project, editor: Editor, file: PsiFile) {
+    if (!typeElement.isValid) return
     if (!CodeInsightUtilBase.prepareFileForWrite(typeElement.getContainingFile)) return
+    if (typeElement.getParent == null || typeElement.getParent.getNode == null) return
     val newTypeElement = ScalaPsiElementFactory.createTypeElementFromText(newType.canonicalText, typeElement.getManager)
     typeElement.replace(newTypeElement)
     ScalaPsiUtil.adjustTypes(newTypeElement)
