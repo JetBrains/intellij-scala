@@ -17,6 +17,7 @@ trait ScInfixExpr extends ScExpression with MethodInvocation with ScSugarCallExp
 
   def operation : ScReferenceExpression = findChildrenByClassScala(classOf[ScExpression]).apply(1) match {
     case re : ScReferenceExpression => re
+    case _ => throw new RuntimeException("Wrong infix expression: " + getText)
   }
 
   def rOp: ScExpression = findChildrenByClassScala(classOf[ScExpression]).apply(2)
