@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala
 package lang
 package psi
 
+import api.statements.ScTypeAliasDefinition
 import api.toplevel.templates.ScTemplateBody
 import com.intellij.psi.impl.source.codeStyle.CodeEditUtil
 import impl.{ScPackageImpl, ScalaPsiElementFactory}
@@ -26,6 +27,8 @@ import lang.resolve.{ScalaResolveResult, StdKinds}
 import com.intellij.psi.util.PsiTreeUtil
 import java.lang.ThreadLocal
 import com.intellij.openapi.util.{Trinity, RecursionManager}
+import types.result.TypingContext
+import types.ScDesignatorType
 
 trait ScImportsHolder extends ScalaPsiElement {
 
@@ -164,6 +167,16 @@ trait ScImportsHolder extends ScalaPsiElement {
     ref match {
       case ref: ScReferenceElement => {
         if (!ref.isValid || ref.isReferenceTo(clazz)) return
+        ref.bind() match {
+          case Some(ScalaResolveResult(t: ScTypeAliasDefinition, subst)) if t.typeParameters.isEmpty =>
+            for (tp <- t.aliasedType(TypingContext.empty)) {
+              tp match {
+                case ScDesignatorType(c: PsiClass) if c == clazz => return
+                case _ =>
+              }
+            }
+          case _ =>
+        }
       }
       case _ =>
     }
