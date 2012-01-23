@@ -479,4 +479,14 @@ case class ScSkolemizedType(name : String, args : List[ScTypeParameterType], var
       case _ => (false, uSubst)
     }
   }
+
+  override def equals(obj: Any): Boolean = {
+    obj match {
+      case ScSkolemizedType(name, args, _, _) =>
+        name == this.name && args.equals(this.args)
+      case _ => false
+    }
+  }
+
+  override def hashCode(): Int = name.hashCode() + args.hashCode() * 31
 }
