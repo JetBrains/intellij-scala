@@ -41,6 +41,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScExtendsBloc
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject;
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTrait;
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition;
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -132,7 +133,7 @@ public class ScalaPositionManager implements PositionManager {
             return findReferenceTypeSourceImage(position);
           }
         });
-        if (sourceImage instanceof ScTypeDefinition && !ScalaPsiUtil.isLocalClass((PsiClass) sourceImage)) {
+        if (sourceImage instanceof ScTypeDefinition && !isLocalOrUnderDelayedInit((PsiClass) sourceImage)) {
           qName.set(getSpecificName(((ScTypeDefinition) sourceImage).getQualifiedNameForDebugger(), ((ScTypeDefinition) sourceImage).getClass()));
         } else if (sourceImage instanceof ScFunctionExpr ||
             sourceImage instanceof ScForStatement ||
@@ -158,6 +159,18 @@ public class ScalaPositionManager implements PositionManager {
           }
         }
         waitRequestor.set(new MyClassPrepareRequestor(position, requestor));
+      }
+
+      private boolean isLocalOrUnderDelayedInit(PsiClass definition) {
+        if (definition instanceof ScObject) {
+          ScObject obj = (ScObject) definition;
+          ScalaPsiManager manager = ScalaPsiManager.instance(definition.getProject());
+          PsiClass clazz = manager.getCachedClass(definition.getResolveScope(), "scala.DelayedInit");
+          if (clazz != null && manager.cachedDeepIsInheritor(definition, clazz)) {
+            return true;
+          }
+        }
+        return ScalaPsiUtil.isLocalClass((PsiClass) definition);
       }
     });
     if (qName.get() == null) throw new NoDataException();
