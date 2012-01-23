@@ -182,6 +182,7 @@ trait ScPattern extends ScalaPsiElement {
                   case tp => Seq(tp)
                 }
                 if (tupleArgs.length == 0) return None
+                if (i < tupleArgs.length - 1) return Some(subst.subst(tupleArgs(i)))
                 val lastArg = tupleArgs(tupleArgs.length - 1)
                 (Seq(lastArg) ++ BaseTypes.get(lastArg)).find({
                   case ScParameterizedType(des, args) if args.length == 1 && (ScType.extractClass(des) match {
