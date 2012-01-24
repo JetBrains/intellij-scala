@@ -16,6 +16,9 @@ import impl.{ScalaPsiManager, ScalaPsiElementFactory}
 import types._
 import com.intellij.psi.{PsiElement, ResolveState}
 import toplevel.typedef._
+import com.intellij.psi.tree.TokenSet
+import lexer.ScalaTokenTypes
+import com.intellij.lang.ASTNode
 
 /**
  * Author: ilyas, alefas
@@ -127,6 +130,13 @@ trait ScBlock extends ScExpression with ScDeclarationSequenceHolder with ScImpor
   def exprs: Seq[ScExpression] = collection.immutable.Seq(findChildrenByClassScala(classOf[ScExpression]).toSeq: _*)
   def statements: Seq[ScBlockStatement] =
     collection.immutable.Seq(findChildrenByClassScala(classOf[ScBlockStatement]).toSeq: _*)
+  
+  def hasRBrace: Boolean = getNode.getChildren(TokenSet.create(ScalaTokenTypes.tRBRACE)).length == 1
+  
+  def getRBrace: Option[ASTNode] = getNode.getChildren(TokenSet.create(ScalaTokenTypes.tRBRACE)) match {
+    case Array(node) => Some(node)
+    case _ => None
+  }
 
   def lastExpr = findLastChild(classOf[ScExpression])
   def lastStatement = findLastChild(classOf[ScBlockStatement])

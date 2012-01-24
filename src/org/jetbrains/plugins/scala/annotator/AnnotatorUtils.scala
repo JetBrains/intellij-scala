@@ -7,15 +7,15 @@ import com.intellij.psi.PsiElement
 import com.intellij.openapi.util.TextRange
 import com.intellij.lang.annotation.AnnotationHolder
 import com.intellij.lang.annotation.Annotation
-import lang.psi.api.expr.ScExpression
 import lang.psi.api.base.types.ScTypeElement
 import quickfix.ReportHighlightingErrorQuickFix
 import lang.psi.api.toplevel.ScTypeParametersOwner
 import lang.psi.api.statements.params.ScParameters
+import lang.psi.api.expr.{ScBlockExpr, ScExpression}
 
 /**
  * @author Aleksander Podkhalyuzin
- * @date 25.03.2009
+ * Date: 25.03.2009
  */
 
 private[annotator] object AnnotatorUtils {
@@ -43,7 +43,11 @@ private[annotator] object AnnotatorUtils {
     expression.getTypeAfterImplicitConversion().tr.foreach {actual =>
       val expected = typeElement.calcType
       if (!actual.conforms(expected)) {
-        val annotation = holder.createErrorAnnotation(expression,
+        val expr = expression match {
+          case b: ScBlockExpr => b.getRBrace.map(_.getPsi).getOrElse(b)
+          case _ => expression
+        }
+        val annotation = holder.createErrorAnnotation(expr,
           "Type mismatch, found: %s, required: %s".format(actual.presentableText, expected.presentableText))
         annotation.registerFix(ReportHighlightingErrorQuickFix)
       }
