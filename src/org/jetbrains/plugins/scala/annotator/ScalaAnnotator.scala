@@ -792,7 +792,12 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
               if (typeAware) {
                 val error = ScalaBundle.message("expr.type.does.not.conform.expected.type",
                   ScType.presentableText(exprType.getOrNothing), ScType.presentableText(expectedType.get))
-                val annotation: Annotation = holder.createErrorAnnotation(expr, error)
+                val markedPsi = (expr, expr.getParent) match {
+                  case (b: ScBlockExpr, _) => b.getRBrace.map(_.getPsi).getOrElse(expr)
+                  case (_, b: ScBlockExpr) => b.getRBrace.map(_.getPsi).getOrElse(expr)
+                  case _ => expr
+                }
+                val annotation: Annotation = holder.createErrorAnnotation(markedPsi, error)
                 annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
                 typeElement match {
                   case Some(te) => annotation.registerFix(new ChangeTypeFix(te, exprType.getOrNothing))

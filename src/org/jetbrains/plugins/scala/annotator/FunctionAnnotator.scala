@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult}
 import lang.psi.api.base.ScReferenceElement
 import quickfix.ReportHighlightingErrorQuickFix
 import org.jetbrains.plugins.scala.annotator.AnnotatorUtils._
-import lang.psi.api.expr.{ScCatchBlock, ScExpression, ScReturnStmt}
+import lang.psi.api.expr.{ScBlockExpr, ScCatchBlock, ScExpression, ScReturnStmt}
 
 /**
  * Pavel.Fatin, 18.05.2010
@@ -71,7 +71,11 @@ trait FunctionAnnotator {
           val key = if (explicitReturn) "return.type.does.not.conform" else "return.expression.does.not.conform"
           val message = ScalaBundle.message(key, usageType.presentableText, functionType.presentableText)
           val returnExpression = if (explicitReturn) usage.asInstanceOf[ScReturnStmt].expr else None
-          val annotation = holder.createErrorAnnotation(returnExpression.getOrElse(usage), message)
+          val expr = returnExpression.getOrElse(usage) match {
+            case b: ScBlockExpr => b.getRBrace.map(_.getPsi).getOrElse(b)
+            case expr => expr
+          }
+          val annotation = holder.createErrorAnnotation(expr, message)
           annotation.registerFix(ReportHighlightingErrorQuickFix)
         }
       }
