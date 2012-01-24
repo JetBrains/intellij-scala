@@ -4,7 +4,6 @@ import com.intellij.execution.runners.ExecutionEnvironment
 import com.intellij.openapi.project.Project
 import com.intellij.execution.filters.TextConsoleBuilderFactory
 import com.intellij.execution.configurations._
-import com.intellij.openapi.module.ModuleManager
 import com.intellij.openapi.roots._
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.projectRoots.ex.PathUtilEx
@@ -20,6 +19,8 @@ import org.jetbrains.plugins.scala.config.ScalaFacet
 import scala.collection.mutable.{ListBuffer, MutableList}
 import com.intellij.psi.PsiManager
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import com.intellij.openapi.module.{Module, ModuleManager}
+import java.util.regex.Pattern
 
 /**
  * User: Dmitry Naidanov
@@ -84,22 +85,29 @@ class ScaladocCommandLineState(env: ExecutionEnvironment, project: Project)
   }
 
   private def visitAll(file: VirtualFile, scope: AnalysisScope,
-                       acc: MutableList[VirtualFile] = MutableList[VirtualFile]()): MutableList[VirtualFile] = {
-    if (file == null) return acc
-    if (file.isDirectory) {
-      for (c <- file.getChildren) {
-        visitAll(c, scope, acc)
-      }
-    } else {
-      if (file.getExtension == "scala" && file.isValid && scope.contains(file)) {
-        PsiManager.getInstance(project).findFile(file) match {
-          case f: ScalaFile if !f.asInstanceOf[ScalaFile].isScriptFile() => acc += file
-          case _ => // do nothing
+                       acc: MutableList[VirtualFile] = MutableList[VirtualFile]()): List[VirtualFile] = {
+
+    def visitInner(file: VirtualFile, scope: AnalysisScope,
+                   acc: MutableList[VirtualFile] = MutableList[VirtualFile]()): MutableList[VirtualFile] = {
+      if (file == null) return acc
+      if (file.isDirectory) {
+        for (c <- file.getChildren) {
+          visitInner(c, scope, acc)
+        }
+      } else {
+        if (file.getExtension == "scala" && file.isValid && scope.contains(file)) {
+          PsiManager.getInstance(project).findFile(file) match {
+            case f: ScalaFile if !f.asInstanceOf[ScalaFile].isScriptFile() => acc += file
+            case _ => // do nothing
+          }
         }
       }
+
+      acc
     }
 
-    acc
+    val answer = visitInner(file, scope, acc)
+    answer.toList
   }
 
   private def processAdditionalParams(params: String) = {
@@ -141,6 +149,7 @@ class ScaladocCommandLineState(env: ExecutionEnvironment, project: Project)
 
   def createJavaParameters() = {
     import scala.collection.JavaConversions._
+    val MutableHashSet = collection.mutable.HashSet
 
     val jp = new JavaParameters
     val jdk: Sdk = PathUtilEx.getAnyJdk(project)
@@ -152,7 +161,8 @@ class ScaladocCommandLineState(env: ExecutionEnvironment, project: Project)
     val facets = ScalaFacet.findIn(modules)
     if (facets.isEmpty) throw new ExecutionException("No facets are configured")
     val facet: ScalaFacet = facets(0)
-    val cpWithFacet = new StringBuilder(facet.classpath) //jp.getClassPath.getPathsString
+    val classpathWithFacet = ListBuffer.apply[String]()
+    val sourcepathWithFacet = ListBuffer.apply[String]()
     jp.getClassPath.addAll(facet.classpath.split(classpathDelimeter).toList)
     jp.setCharset(null)
     jp.setMainClass(MAIN_CLASS)
@@ -164,25 +174,87 @@ class ScaladocCommandLineState(env: ExecutionEnvironment, project: Project)
 
     val paramList = jp.getProgramParametersList
 
-    val paramListSimple = scala.collection.mutable.ListBuffer[String]()
+    val paramListSimple =  ListBuffer.apply[String]()
+
+
+    val sourcePath = OrderEnumerator.orderEntries(project).withoutLibraries().withoutSdk().getAllSourceRoots
+    val documentableFilesList = ListBuffer.apply[String]()
+    val allModules = MutableHashSet.apply(modules: _*)
+    val modulesNeeded = MutableHashSet.apply[Module]()
+
+    def filterModulesList(files: VirtualFile*) {
+      modulesNeeded ++= allModules.filter(m => files.exists(f => m.getModuleScope.contains(f)))
+      allModules --= modulesNeeded
+    }
+    
+    def collectCPSources(target: OrderEnumerator, classesCollector: collection.mutable.HashSet[String],
+                         sourcesCollector: collection.mutable.HashSet[String]) {
+      Set(classesCollector -> target.classes(), sourcesCollector -> target.sources()).foreach {
+        entry => entry._1 ++= entry._2.withoutSelfModuleOutput().getRoots.map {
+          virtualFile => virtualFile.getPath.replaceAll(Pattern.quote(".") + "(\\S{2,6})" + Pattern.quote("!/"), ".$1/")
+        }
+      }
+    }
+
+    def filterNeededModuleSources() {
+      val allEntries = MutableHashSet.apply[String]()
+      val allSourceEntries = MutableHashSet.apply[String]()
+
+      if (modulesNeeded.nonEmpty) {
+        for (module <- modulesNeeded) {
+          collectCPSources(OrderEnumerator.orderEntries(module), allEntries, allSourceEntries)
+        }
+      } else {
+        collectCPSources(OrderEnumerator.orderEntries(project), allEntries, allSourceEntries)
+      }
+      allEntries.foreach(a => classpathWithFacet.append(a))
+      allSourceEntries.foreach(a => sourcepathWithFacet.append(a))
+    }
+
+    var needFilter = false
+
+    scope.getScopeType match {
+      case AnalysisScope.PROJECT =>
+        modulesNeeded ++= allModules
+      case AnalysisScope.MODULE =>
+        modules.find(scope containsModule _) match {
+          case Some(a) => modulesNeeded += a
+          case None =>
+        }
+      case AnalysisScope.MODULES => 
+        for (module <- modules) {
+          if (scope.containsModule(module)){
+            modulesNeeded += module
+          }
+        }
+      case _ => needFilter = true
+    }
+
+    for (className <- sourcePath) {
+      val children = className.getChildren
+
+      for (c <- children) {
+        val documentableFiles = visitAll(c, scope)
+        if (needFilter) {
+          filterModulesList(documentableFiles: _*)
+        }
+
+        for (docFile <- documentableFiles) {
+          documentableFilesList += docFile.getPath
+        }
+      }
+    }
+
+    filterNeededModuleSources()
 
     paramListSimple += "-d"
     paramListSimple += outputDir
 
-    paramListSimple += ("-classpath")
+    paramListSimple += "-classpath"
+    paramListSimple += classpathWithFacet.mkString(classpathDelimeter)
 
-    for (sourceRoot <- OrderEnumerator.orderEntries(project).sources().withoutSelfModuleOutput().getRoots) {
-      cpWithFacet.append(classpathDelimeter + sourceRoot.getPath)
-    }
-    /*for (sourceRoot <-
-         OrderEnumerator.orderEntries(project).withoutSdk().withoutModuleSourceEntries().withoutLibraries().sources().withoutSelfModuleOutput().getRoots) {
-      cpWithFacet.append(classpathDelimeter + sourceRoot.getPath)
-    }
-    for (sourceRoot <- OrderEnumerator.orderEntries(project).withoutSdk().getAllLibrariesAndSdkClassesRoots) {
-      cpWithFacet.append(classpathDelimeter + sourceRoot.getPath)
-    }*/
-
-    paramListSimple += cpWithFacet.mkString
+    paramListSimple += "-sourcepath"
+    paramListSimple += sourcepathWithFacet.mkString(classpathDelimeter)
 
     if (verbose) {
       paramListSimple += "-verbose"
@@ -195,19 +267,7 @@ class ScaladocCommandLineState(env: ExecutionEnvironment, project: Project)
       paramListSimple.addAll(processAdditionalParams(additionalScaladocFlags))
     }
 
-    val sourcePath = OrderEnumerator.orderEntries(project).withoutLibraries().withoutSdk().getAllSourceRoots
-
-    for (className <- sourcePath) {
-      val children = className.getChildren
-
-      for (c <- children) {
-        val documentableFiles = visitAll(c, scope)
-
-        for (docFile <- documentableFiles) {
-          paramListSimple += docFile.getPath
-        }
-      }
-    }
+    paramListSimple ++= documentableFilesList
 
     if (JdkUtil.useDynamicClasspath(project)) {
       try {
