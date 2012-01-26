@@ -7,24 +7,17 @@ package types
  * @author ilyas
  */
 
-import api.statements.{ScTypeAliasDefinition, ScTypeAlias}
-import api.toplevel.{ScTypeParametersOwner}
+import api.statements.ScTypeAliasDefinition
+import api.toplevel.ScTypeParametersOwner
 import api.statements.params.ScTypeParam
-import nonvalue.NonValueType
 import psi.impl.ScalaPsiManager
-import api.base.{ScStableCodeReferenceElement, ScPathElement}
-import lang.resolve.ScalaResolveResult
 import com.intellij.openapi.project.Project
 import com.intellij.psi.search.GlobalSearchScope
-import caches.CachesUtil
-
-
-
 import com.intellij.psi._
 import result.{Success, TypingContext}
 import api.toplevel.typedef.{ScTypeDefinition, ScClass}
 import collection.mutable.ArrayBuffer
-import collection.immutable.{ListMap, ::, Map, HashMap}
+import collection.immutable.{ListMap, Map}
 
 case class JavaArrayType(arg: ScType) extends ValueType {
 
@@ -100,7 +93,6 @@ case class ScParameterizedType(designator : ScType, typeArgs : Seq[ScType]) exte
 
   private def substitutorInner : ScSubstitutor = {
     def forParams[T](paramsIterator: Iterator[T], initial: ScSubstitutor, map: T => ScTypeParameterType): ScSubstitutor = {
-      var res = initial
       val argsIterator = typeArgs.iterator
       val builder = ListMap.newBuilder[(String, String), ScType]
       while (paramsIterator.hasNext && argsIterator.hasNext) {
