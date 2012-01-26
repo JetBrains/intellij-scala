@@ -8,6 +8,7 @@ import com.intellij.psi.search.GlobalSearchScope
 import api.toplevel.typedef.{ScClass, ScTrait}
 import decompiler.DecompilerUtil
 import com.intellij.psi.{PsiElement, JavaPsiFacade, PsiClass}
+import impl.ScalaPsiManager
 
 /**
 * @author ilyas
@@ -21,8 +22,7 @@ case class ScTupleType(components: Seq[ScType])(project: Project, scope: GlobalS
 
   def resolveTupleTrait(project: Project): Option[ScParameterizedType] = {
     def findClass(fullyQualifiedName: String) : Option[PsiClass] = {
-        val psiFacade = JavaPsiFacade.getInstance(project)
-        Option(psiFacade.findClass(tupleTraitName, getScope))
+      Option(ScalaPsiManager.instance(project).getCachedClass(getScope, tupleTraitName))
     }
     findClass(tupleTraitName) match {
       case Some(t: ScClass) => {
