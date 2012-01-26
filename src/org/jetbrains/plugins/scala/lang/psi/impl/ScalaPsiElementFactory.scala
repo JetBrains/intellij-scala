@@ -40,7 +40,6 @@ import api.toplevel.templates.{ScTemplateParents, ScTemplateBody}
 import api.base.patterns._
 import parser.parsing.params.{TypeParamClause, ImplicitParamClause}
 import java.lang.ClassCastException
-import com.intellij.util.IncorrectOperationException
 import com.intellij.openapi.project.Project
 import parser.parsing.expressions.{Block, Expr}
 import parser.parsing.base.Import
@@ -48,6 +47,7 @@ import org.apache.commons.lang.StringUtils
 import scaladoc.psi.api.{ScDocResolvableCodeReference, ScDocSyntaxElement, ScDocComment}
 import parser.parsing.base.{Constructor, Import}
 import api.base.{ScConstructor, ScIdList, ScPatternList, ScStableCodeReferenceElement}
+import com.intellij.util.IncorrectOperationException
 
 object ScalaPsiElementFactory {
 
@@ -849,7 +849,9 @@ object ScalaPsiElementFactory {
             createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension,
       ScalaFileType.SCALA_FILE_TYPE, "var f: " + text).asInstanceOf[ScalaFile]
     try {
-      dummyFile.getLastChild.getLastChild.asInstanceOf[ScTypeElement]
+      val child = dummyFile.getLastChild.getLastChild
+      if (child == null) throw new IncorrectOperationException("wrong type element to parse: " + text)
+      child.asInstanceOf[ScTypeElement]
     }
     catch {
       case cce: ClassCastException => throw new IncorrectOperationException("wrong type element to parse: " + text)
