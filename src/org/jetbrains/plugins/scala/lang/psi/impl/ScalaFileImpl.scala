@@ -17,8 +17,6 @@ import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import psi.api.toplevel.packaging._
 import com.intellij.openapi.roots._
 import com.intellij.psi._
-import com.intellij.psi.impl.PsiManagerEx
-import com.intellij.psi.impl.file.impl.FileManagerImpl
 import com.intellij.psi.impl.migration.PsiMigrationManager
 import com.intellij.psi.impl.source.codeStyle.CodeEditUtil
 import org.jetbrains.annotations.Nullable
@@ -29,7 +27,6 @@ import api.{ScControlFlowOwner, ScalaFile}
 import psi.controlFlow.impl.ScalaControlFlowBuilder
 import api.base.ScStableCodeReferenceElement
 import scope.PsiScopeProcessor
-import com.intellij.openapi.editor.Document
 import decompiler.{DecompilerUtil, CompiledFileAdjuster}
 import collection.mutable.ArrayBuffer
 import com.intellij.psi.search.GlobalSearchScope
@@ -43,10 +40,8 @@ import caches.CachesUtil
 import lang.resolve.ResolveUtils
 import lang.resolve.processor.{ImplicitProcessor, ResolveProcessor, ResolverEnv}
 import com.intellij.psi.impl.ResolveScopeManager
-import com.intellij.openapi.module.ModuleManager
-import api.toplevel.typedef.ScObject
 import com.intellij.util.indexing.FileBasedIndex
-import util.{PsiUtilCore, PsiUtilBase, PsiModificationTracker, PsiTreeUtil}
+import util.{PsiUtilCore, PsiModificationTracker, PsiTreeUtil}
 import com.intellij.openapi.diagnostic.Logger
 import java.lang.String
 
@@ -488,7 +483,7 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
 
   def ignoreReferencedElementAccessibility(): Boolean = true //todo: ?
 
-  override def setContext(element: PsiElement, child: PsiElement) = {
+  override def setContext(element: PsiElement, child: PsiElement) {
     putCopyableUserData(ScalaFileImpl.CONTEXT_KEY, element)
     putCopyableUserData(ScalaFileImpl.CHILD_KEY, child)
   }
