@@ -62,7 +62,7 @@ class ScalaSmartCompletionContributor extends CompletionContributor {
                         result.addElement(el)
                         elementAdded = true
                       }
-                    case None =>
+                    case _ =>
                   }
                 case _ =>
               }
