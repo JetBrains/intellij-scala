@@ -94,13 +94,13 @@ class FunctionAnnotatorTest extends SimpleTestCase {
 
   def testTypeEmpty() {
     assertMatches(messages("def f: A = { }")) {
-      case Error("{ }", TypeMismatch()) :: Nil =>
+      case Error("}", TypeMismatch()) :: Nil =>
     }
   }
 
   def testTypeAbsolutelyEmpty() {
     assertMatches(messages("def f: A = {}")) {
-      case Error("{}", TypeMismatch()) :: Nil =>
+      case Error("}", TypeMismatch()) :: Nil =>
     }
   }
 
