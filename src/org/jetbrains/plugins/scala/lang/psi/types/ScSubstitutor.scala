@@ -286,6 +286,8 @@ class ScSubstitutor(val tvMap: Map[(String, String), ScType],
 
 class ScUndefinedSubstitutor(val upperMap: Map[(String, String), Seq[ScType]], val lowerMap: Map[(String, String), ScType]) {
   def this() = this(HashMap.empty, HashMap.empty)
+  
+  def isEmpty: Boolean = upperMap.isEmpty && lowerMap.isEmpty
 
   //todo: this is can be rewritten in more fast way
   def addSubst(subst: ScUndefinedSubstitutor): ScUndefinedSubstitutor = {

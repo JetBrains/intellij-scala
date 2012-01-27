@@ -3,27 +3,25 @@ package lang
 package psi
 package types
 
-import caches.CachesUtil
 import com.intellij.openapi.progress.ProgressManager
-import nonvalue.{ScTypePolymorphicType, NonValueType, ScMethodType}
+import nonvalue.{ScTypePolymorphicType, ScMethodType}
 import psi.impl.toplevel.synthetic.ScSyntheticClass
 import api.statements._
 import params._
 import api.toplevel.typedef.ScTypeDefinition
-import impl.toplevel.typedef.TypeDefinitionMembers
 import _root_.scala.collection.immutable.HashSet
 
 import com.intellij.psi._
-import com.intellij.psi.util.PsiModificationTracker
 import collection.Seq
-import collection.mutable.HashMap
 import lang.resolve.processor.CompoundTypeCheckProcessor
 import result.{TypingContext, TypeResult}
 import api.base.patterns.ScBindingPattern
 import api.base.ScFieldId
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
 import api.toplevel.{ScTypeParametersOwner, ScNamedElement}
-import com.intellij.openapi.util.{Computable, RecursionManager, RecursionGuard}
+import java.util.concurrent.ConcurrentHashMap
+import com.intellij.openapi.diagnostic.Logger
+import com.intellij.openapi.util.{Computable, RecursionManager}
 
 object Conformance {
   /**
@@ -1638,63 +1636,76 @@ object Conformance {
   }
 
   val guard = RecursionManager.createGuard("conformance.guard")
+  
+  val cache: ConcurrentHashMap[(ScType, ScType, Boolean), (Boolean, ScUndefinedSubstitutor)] =
+    new ConcurrentHashMap[(ScType, ScType, Boolean), (Boolean, ScUndefinedSubstitutor)]()
 
-  def conformsInner(l: ScType, r: ScType, visited: Set[PsiClass], uSubst: ScUndefinedSubstitutor,
+  def conformsInner(l: ScType, r: ScType, visited: Set[PsiClass], unSubst: ScUndefinedSubstitutor,
                             checkWeak: Boolean = false): (Boolean, ScUndefinedSubstitutor) = {
     ProgressManager.checkCanceled()
 
-    val res = guard.doPreventingRecursion((l, r, checkWeak), true, new Computable[(Boolean, ScUndefinedSubstitutor)] {
-      def compute(): (Boolean, ScUndefinedSubstitutor) = {
-        val leftVisitor = new LeftConformanceVisitor(l, r, visited, uSubst, checkWeak)
-        l.visitType(leftVisitor)
-        if (leftVisitor.getResult != null) return leftVisitor.getResult
+    val key = (l, r, checkWeak)
 
-        //tail, based on class inheritance
-        ScType.extractClassType(r) match {
-          case Some((clazz: PsiClass, _)) if visited.contains(clazz) => (false, uSubst)
-          case Some((rClass: PsiClass, subst: ScSubstitutor)) => {
-            ScType.extractClass(l) match {
-              case Some(lClass) => {
-                if (rClass.getQualifiedName == "java.lang.Object" ) {
-                  return conformsInner(l, AnyRef, visited, uSubst, checkWeak)
-                } else if (lClass.getQualifiedName == "java.lang.Object") {
-                  return conformsInner(AnyRef, r, visited, uSubst, checkWeak)
-                }
-                val inh = smartIsInheritor(rClass, subst, lClass)
-                if (!inh._1) return (false, uSubst)
-                val tp = inh._2
-                //Special case for higher kind types passed to generics.
-                if (lClass.hasTypeParameters) {
-                  l match {
-                    case p: ScParameterizedType =>
-                    case f: ScFunctionType =>
-                    case t: ScTupleType =>
-                    case _ => return (true, uSubst)
-                  }
-                }
-                val t = conformsInner(l, tp, visited + rClass, uSubst, false)
-                if (t._1) (true, t._2)
-                else (false, uSubst)
+    val tuple = cache.get(key)
+    if (tuple != null) {
+      if (unSubst.isEmpty) return tuple
+      return tuple.copy(_2 = unSubst + tuple._2)
+    }
+
+    val uSubst = new ScUndefinedSubstitutor()
+
+    def compute(): (Boolean, ScUndefinedSubstitutor) = {
+      val leftVisitor = new LeftConformanceVisitor(l, r, visited, uSubst, checkWeak)
+      l.visitType(leftVisitor)
+      if (leftVisitor.getResult != null) return leftVisitor.getResult
+
+      //tail, based on class inheritance
+      ScType.extractClassType(r) match {
+        case Some((clazz: PsiClass, _)) if visited.contains(clazz) => (false, uSubst)
+        case Some((rClass: PsiClass, subst: ScSubstitutor)) => {
+          ScType.extractClass(l) match {
+            case Some(lClass) => {
+              if (rClass.getQualifiedName == "java.lang.Object") {
+                return conformsInner(l, AnyRef, visited, uSubst, checkWeak)
+              } else if (lClass.getQualifiedName == "java.lang.Object") {
+                return conformsInner(AnyRef, r, visited, uSubst, checkWeak)
               }
-              case _ => (false, uSubst)
+              val inh = smartIsInheritor(rClass, subst, lClass)
+              if (!inh._1) return (false, uSubst)
+              val tp = inh._2
+              //Special case for higher kind types passed to generics.
+              if (lClass.hasTypeParameters) {
+                l match {
+                  case p: ScParameterizedType =>
+                  case f: ScFunctionType =>
+                  case t: ScTupleType =>
+                  case _ => return (true, uSubst)
+                }
+              }
+              val t = conformsInner(l, tp, visited + rClass, uSubst, false)
+              if (t._1) (true, t._2)
+              else (false, uSubst)
             }
-          }
-          case _ => {
-            val bases: Seq[ScType] = BaseTypes.get(r)
-            val iterator = bases.iterator
-            while (iterator.hasNext) {
-              ProgressManager.checkCanceled()
-              val tp = iterator.next()
-              val t = conformsInner(l, tp, visited, uSubst, true)
-              if (t._1) return (true, t._2)
-            }
-            (false, uSubst)
+            case _ => (false, uSubst)
           }
         }
+        case _ => {
+          val bases: Seq[ScType] = BaseTypes.get(r)
+          val iterator = bases.iterator
+          while (iterator.hasNext) {
+            ProgressManager.checkCanceled()
+            val tp = iterator.next()
+            val t = conformsInner(l, tp, visited, uSubst, true)
+            if (t._1) return (true, t._2)
+          }
+          (false, uSubst)
+        }
       }
-    })
-    if (res == null) return (false, uSubst)
-    res
+    }
+    val res = compute()
+    cache.put(key, res)
+    if (unSubst.isEmpty) return res
+    res.copy(_2 = unSubst + res._2)
   }
 
   private def smartIsInheritor(leftClass: PsiClass, substitutor: ScSubstitutor, rightClass: PsiClass) : (Boolean, ScType) = {

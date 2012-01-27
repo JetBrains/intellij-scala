@@ -11,6 +11,7 @@ import api.base.types.ScExistentialClause
 import nonvalue._
 import api.toplevel.typedef.ScTypeDefinition
 import api.statements.params.ScTypeParam
+import java.lang.ThreadLocal
 
 /**
 * @author ilyas
@@ -479,14 +480,32 @@ case class ScSkolemizedType(name : String, args : List[ScTypeParameterType], var
       case _ => (false, uSubst)
     }
   }
+  
+  private val inEquals = new ThreadLocal[Boolean] {
+    override def initialValue(): Boolean = false
+  }
 
   override def equals(obj: Any): Boolean = {
+    if (inEquals.get) return true
     obj match {
-      case ScSkolemizedType(name, args, _, _) =>
-        name == this.name && args.equals(this.args)
+      case ScSkolemizedType(name, args, lower, upper) =>
+        inEquals.set(true)
+        val res = name == this.name && args.equals(this.args) && lower.equals(this.lower) && upper.equals(this.upper)
+        inEquals.set(false)
+        res
       case _ => false
     }
   }
+  
+  private val inHashCode = new ThreadLocal[Boolean] {
+    override def initialValue(): Boolean = false
+  }
 
-  override def hashCode(): Int = name.hashCode() + args.hashCode() * 31
+  override def hashCode(): Int = {
+    if (inHashCode.get()) return 0
+    inHashCode.set(true)
+    val res = name.hashCode() + args.hashCode() * 31 + lower.hashCode()* 31 * 31 + upper.hashCode() * 31 * 31 * 31
+    inHashCode.set(false)
+    res
+  }
 }

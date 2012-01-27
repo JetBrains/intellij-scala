@@ -124,6 +124,7 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
         classMap.clear()
         classesMap.clear()
         inheritorsMap.clear()
+        Conformance.cache.clear()
       }
     })
 
@@ -137,6 +138,7 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
         classMap.clear()
         classesMap.clear()
         inheritorsMap.clear()
+        Conformance.cache.clear()
       }
     })
   }
