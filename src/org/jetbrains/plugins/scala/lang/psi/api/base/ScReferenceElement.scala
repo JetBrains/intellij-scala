@@ -105,6 +105,13 @@ trait ScReferenceElement extends ScalaPsiElement with ResolvableReferenceElement
           case _ =>
         }
       }
+      case c: PsiClass if c.getName == refName => {
+        resolved match {
+          case method: PsiMethod if method.isConstructor =>
+            if (c == method.getContainingClass) return true
+          case _ =>
+        }
+      }
       case _ =>
     }
     isIndirectReferenceTo(resolved, element)
