@@ -1643,7 +1643,7 @@ object Conformance {
                             checkWeak: Boolean = false): (Boolean, ScUndefinedSubstitutor) = {
     ProgressManager.checkCanceled()
 
-    guard.doPreventingRecursion((l, r, checkWeak), true, new Computable[(Boolean, ScUndefinedSubstitutor)] {
+    val res = guard.doPreventingRecursion((l, r, checkWeak), true, new Computable[(Boolean, ScUndefinedSubstitutor)] {
       def compute(): (Boolean, ScUndefinedSubstitutor) = {
         val leftVisitor = new LeftConformanceVisitor(l, r, visited, uSubst, checkWeak)
         l.visitType(leftVisitor)
@@ -1693,6 +1693,8 @@ object Conformance {
         }
       }
     })
+    if (res == null) return (false, uSubst)
+    res
   }
 
   private def smartIsInheritor(leftClass: PsiClass, substitutor: ScSubstitutor, rightClass: PsiClass) : (Boolean, ScType) = {
