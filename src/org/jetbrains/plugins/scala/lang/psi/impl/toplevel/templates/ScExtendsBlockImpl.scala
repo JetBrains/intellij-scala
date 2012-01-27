@@ -99,14 +99,40 @@ class ScExtendsBlockImpl extends ScalaStubBasedElementImpl[ScExtendsBlock] with 
     }
     buffer.toList
   }
+  
+  private def supersInner: Seq[PsiClass] = {
+    val buffer = new ListBuffer[PsiClass]
+    def addClass(t: PsiClass) {
+      buffer += t
+    }
+    templateParents match {
+      case Some(parents: ScTemplateParents) => parents.supers foreach {t => addClass(t)}
+      case _ =>
+    }
+    if (isUnderCaseClass) {
+      val prod = scalaProductClass
+      if (prod != null) buffer += prod
+    }
+    if (!isScalaObject) {
+      val obj = scalaObjectClass
+      if (obj != null) buffer += obj
+    }
+    buffer.toSeq
+  }
+  
+  private def scalaProductClass: PsiClass =
+    ScalaPsiManager.instance(getProject).getCachedClass(getResolveScope, "scala.Product")
+
+  private def scalaObjectClass: PsiClass =
+    ScalaPsiManager.instance(getProject).getCachedClass(getResolveScope, "scala.ScalaObject")
 
   private def scalaProduct: ScType = {
-    val sp = ScalaPsiManager.instance(getProject).getCachedClass(getResolveScope, "scala.Product")
+    val sp = scalaProductClass
     if (sp != null) ScType.designator(sp) else null
   }
 
   private def scalaObject: ScType = {
-    val so = ScalaPsiManager.instance(getProject).getCachedClass(getResolveScope, "scala.ScalaObject")
+    val so = scalaObjectClass
     if (so != null) ScType.designator(so) else null
   }
 
@@ -121,16 +147,10 @@ class ScExtendsBlockImpl extends ScalaStubBasedElementImpl[ScExtendsBlock] with 
     }
   }
 
-  def supers = {
-    val buf = new ArrayBuffer[PsiClass]
-    for (t <- superTypes) {
-      ScType.extractClass(t) match {
-        case Some(c) => buf += c
-        case None =>
-      }
-    }
-
-    buf.toArray[PsiClass]
+  def supers: Seq[PsiClass] = {
+    CachesUtil.get(this, CachesUtil.EXTENDS_BLOCK_SUPERS_KEY,
+      new CachesUtil.MyProvider(this, (expr: ScExtendsBlock) => supersInner)
+      (PsiModificationTracker.MODIFICATION_COUNT))
   }
 
   def directSupersNames: Seq[String] = {

@@ -265,23 +265,17 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
 
         drv match {
           case drg: ScTemplateDefinition =>
-            val supers = drg.superTypes
-            val supersIterator = supers.iterator
+            val supersIterator = drg.supers.iterator
             while (supersIterator.hasNext) {
-              val t = supersIterator.next()
-              ScType.extractClass(t) match {
-                case Some(c) => {
-                  val value = baseClass match {
-                    case _: ScTrait if c.isInstanceOf[ScTrait] => true
-                    case _: ScClass if c.isInstanceOf[ScClass] => true
-                    case _ if !c.isInstanceOf[ScTemplateDefinition] => true
-                    case _ => false
-                  }
-                  if (value && c.getName == baseName && c.getQualifiedName == baseQualifiedName && value) return true
-                  if (deep && isInheritorInner(base, c, deep)) return true
-                }
-                case _ =>
+              val c = supersIterator.next()
+              val value = baseClass match {
+                case _: ScTrait if c.isInstanceOf[ScTrait] => true
+                case _: ScClass if c.isInstanceOf[ScClass] => true
+                case _ if !c.isInstanceOf[ScTemplateDefinition] => true
+                case _ => false
               }
+              if (value && c.getName == baseName && c.getQualifiedName == baseQualifiedName && value) return true
+              if (deep && isInheritorInner(base, c, deep)) return true
             }
           case _ =>
             val supers = drv.getSuperTypes

@@ -61,4 +61,16 @@ class ScTemplateParentsStubImpl[ParentPsi <: PsiElement](parent: StubElement[Par
     types = new PatchedSoftReference[Array[ScTypeElement]](res)
     res.map((te: ScTypeElement) => te.getType(TypingContext.empty).getOrAny)
   }
+
+  def getTemplateParentsTypeElements: Array[ScTypeElement] = {
+    if (types != null && types.get != null)
+      return types.get
+    val res: Array[ScTypeElement] = {
+      constructor.map(s =>
+        ScalaPsiElementFactory.createConstructorTypeElementFromText(StringRef.toString(s), getPsi, null)).toArray ++
+        getTemplateParentsTypesTexts.map(ScalaPsiElementFactory.createTypeElementFromText(_, getPsi, null))
+    }
+    types = new PatchedSoftReference[Array[ScTypeElement]](res)
+    res
+  }
 }
