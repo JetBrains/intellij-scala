@@ -22,4 +22,5 @@ class Bug3Test extends ResolveTestBase {
   def testSCL3898() {doTest()}
   def testSCL3992() {doTest()}
   def testSCL4001() {doTest()}
+  def testSCL4014() {doTest()}
 }

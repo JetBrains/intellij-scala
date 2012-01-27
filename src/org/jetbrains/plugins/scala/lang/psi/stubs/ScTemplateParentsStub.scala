@@ -7,6 +7,7 @@ package stubs
 import api.toplevel.templates.ScTemplateParents
 import com.intellij.psi.stubs.StubElement
 import types.ScType
+import api.base.types.ScTypeElement
 
 /**
  * User: Alexander Podkhalyuzin
@@ -14,6 +15,8 @@ import types.ScType
  */
 
 trait ScTemplateParentsStub extends StubElement[ScTemplateParents] {
+  def getTemplateParentsTypeElements: Array[ScTypeElement]
+
   def getTemplateParentsTypesTexts: Array[String]
 
   def getTemplateParentsTypes: Array[ScType]
