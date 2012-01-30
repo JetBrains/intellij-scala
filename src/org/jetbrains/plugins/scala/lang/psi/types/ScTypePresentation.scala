@@ -77,7 +77,7 @@ trait ScTypePresentation {
           inner(ret, false)
         }
         case ScThisType(clazz: ScTypeDefinition) =>
-          buffer.append(nameWithPointFun(clazz)).append("this")
+          buffer.append(clazz.getName + ".").append("this")
           appendTypeTail(stable)
         case ScThisType(clazz) =>
           buffer.append("this")
