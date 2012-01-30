@@ -136,7 +136,7 @@ object ScalaPsiUtil {
             case (res, _) => res.getOrAny
           }
         val qual = "scala.Tuple" + exprTypes.length
-        val tupleClass = JavaPsiFacade.getInstance(manager.getProject).findClass(qual, scope)
+        val tupleClass = ScalaPsiManager.instance(manager.getProject).getCachedClass(scope, qual)
         if (tupleClass == null)
           None
         else

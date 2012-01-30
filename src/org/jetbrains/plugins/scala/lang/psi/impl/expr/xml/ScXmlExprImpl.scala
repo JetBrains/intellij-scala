@@ -20,6 +20,7 @@ import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.xml._
 import types.result.{TypingContext, TypeResult, Success}
+import api.toplevel.typedef.ScObject
 
 /**
 * @author Alexander Podkhalyuzin
@@ -31,8 +32,9 @@ class ScXmlExprImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with ScXml
 
   protected override def innerType(ctx: TypingContext): TypeResult[ScType] = {
     def getType(s: String): ScType = {
-      val nodeType = JavaPsiFacade.getInstance(getProject).findClass(s, getResolveScope)
-      if (nodeType != null) ScType.designator(nodeType) else types.Nothing
+      val typez = ScalaPsiManager.instance(getProject).getCachedClasses(getResolveScope, s).filter(!_.isInstanceOf[ScObject])
+      if (typez.length != 0) ScType.designator(typez(0))
+      else types.Nothing
     }
     Success(getElements.length match {
       case 0 => types.Any

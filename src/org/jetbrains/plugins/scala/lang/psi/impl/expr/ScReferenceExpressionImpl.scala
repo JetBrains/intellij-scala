@@ -234,8 +234,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
         s.subst(fun.polymorphicType(optionResult))
       case Some(ScalaResolveResult(fun: ScFunction, s)) => s.subst(fun.polymorphicType)
       case Some(ScalaResolveResult(param: ScParameter, s)) if param.isRepeatedParameter => {
-        val seqClass = JavaPsiFacade.getInstance(getProject).
-                findClass("scala.collection.Seq", getResolveScope)
+        val seqClass = ScalaPsiManager.instance(getProject).getCachedClass("scala.collection.Seq", getResolveScope, ScalaPsiManager.ClassCategory.TYPE)
         val result = param.getType(TypingContext.empty)
         val computeType = s.subst(result match {
           case Success(tp, _) => tp

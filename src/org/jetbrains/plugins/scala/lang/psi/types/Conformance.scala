@@ -22,6 +22,7 @@ import api.toplevel.{ScTypeParametersOwner, ScNamedElement}
 import java.util.concurrent.ConcurrentHashMap
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.util.{Computable, RecursionManager}
+import psi.impl.ScalaPsiManager
 
 object Conformance {
   /**
@@ -252,7 +253,7 @@ object Conformance {
           }
           ScType.extractDesignated(l) match {
             case Some((el, _)) => {
-              val notNullClass = JavaPsiFacade.getInstance(el.getProject).findClass("scala.NotNull", el.getResolveScope)
+              val notNullClass = ScalaPsiManager.instance(el.getProject).getCachedClass("scala.NotNull", el.getResolveScope, ScalaPsiManager.ClassCategory.TYPE)
               val notNullType = ScDesignatorType(notNullClass)
               result = (!conforms(notNullType, l), undefinedSubst) //todo: think about undefinedSubst
             }

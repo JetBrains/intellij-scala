@@ -11,7 +11,6 @@ import toplevel.synthetic.{SyntheticPackageCreator, ScSyntheticPackage}
 import types._
 import com.intellij.openapi.util.Key
 import com.intellij.psi.search.GlobalSearchScope
-import api.toplevel.typedef.ScObject
 import com.intellij.ProjectTopics
 import com.intellij.openapi.roots.{ModuleRootEvent, ModuleRootListener}
 import com.intellij.reference.SoftReference
@@ -21,6 +20,7 @@ import java.util.Map
 import com.intellij.psi._
 import com.intellij.util.containers.WeakValueHashMap
 import java.util.concurrent.{ConcurrentHashMap, ConcurrentMap}
+import api.toplevel.typedef.{ScClass, ScObject}
 
 class ScalaPsiManager(project: Project) extends ProjectComponent {
   private val implicitObjectMap: ConcurrentMap[String, SoftReference[java.util.Map[GlobalSearchScope, Seq[ScObject]]]] =
@@ -70,6 +70,8 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
     }
     result
   }
+  
+
 
   def getCachedClass(scope: GlobalSearchScope, fqn: String): PsiClass = {
     def calc(): Option[PsiClass] = Option(JavaPsiFacade.getInstance(project).findClass(fqn, scope))
@@ -87,6 +89,19 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
       map.put(scope, result)
     }
     result.getOrElse(null)
+  }
+
+  import ScalaPsiManager.ClassCategory._
+  def getCachedClass(fqn: String, scope: GlobalSearchScope, classCategory: ClassCategory): PsiClass = {
+    val allClasses = getCachedClasses(scope, fqn)
+    val classes = 
+      classCategory match {
+        case ALL => allClasses
+        case OBJECT => allClasses.filter(_.isInstanceOf[ScObject])
+        case TYPE => allClasses.filter(!_.isInstanceOf[ScObject])
+      }
+    if (classes.length == 0) null
+    else classes(0)
   }
 
   def getCachedClasses(scope: GlobalSearchScope, fqn: String): Array[PsiClass] = {
@@ -197,4 +212,9 @@ object ScalaPsiManager {
   def instance(project : Project) = project.getComponent(classOf[ScalaPsiManager])
 
   def typeVariable(tp : PsiTypeParameter): ScTypeParameterType = instance(tp.getProject).typeVariable(tp)
+
+  object ClassCategory extends Enumeration {
+    type ClassCategory = Value
+    val ALL, OBJECT, TYPE = Value
+  }
 }

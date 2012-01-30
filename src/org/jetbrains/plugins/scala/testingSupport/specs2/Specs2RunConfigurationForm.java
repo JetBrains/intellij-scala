@@ -16,7 +16,6 @@ import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiPackage;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.ui.RawCommandLineEditor;
-import org.jetbrains.plugins.scala.testingSupport.specs.SpecsRunConfiguration;
 
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;

@@ -45,11 +45,12 @@ class ScLiteralImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScLite
       }
       case ScalaTokenTypes.tCHAR => Char
       case ScalaTokenTypes.tSYMBOL => {
-        val sym = JavaPsiFacade.getInstance(getProject).findClass("scala.Symbol", getResolveScope)
+        val sym = ScalaPsiManager.instance(getProject).getCachedClass("scala.Symbol", getResolveScope,
+          ScalaPsiManager.ClassCategory.TYPE)
         if (sym != null) ScType.designator(sym) else Nothing
       }
       case ScalaTokenTypes.tSTRING | ScalaTokenTypes.tWRONG_STRING | ScalaTokenTypes.tMULTILINE_STRING => {
-        val str = JavaPsiFacade.getInstance(getProject).findClass("java.lang.String", getResolveScope)
+        val str = ScalaPsiManager.instance(getProject).getCachedClass(getResolveScope, "java.lang.String")
         if (str != null) ScType.designator(str) else Nothing
       }
       case ScalaTokenTypes.kTRUE | ScalaTokenTypes.kFALSE => Boolean
