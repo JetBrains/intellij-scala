@@ -85,9 +85,13 @@ object TypeDefinitionMembers {
 
     def isPrivate(t: Signature): Boolean = {
       t.namedElement match {
-        case Some(n: ScModifierListOwner) =>
-          n.getModifierList.accessModifier match {
-            case Some(a: ScAccessModifier) => a.isUnqualifiedPrivateOrThis
+        case Some(named: ScNamedElement) =>
+          ScalaPsiUtil.nameContext(named) match {
+            case s: ScModifierListOwner =>
+              s.getModifierList.accessModifier match {
+                case Some(a: ScAccessModifier) => a.isUnqualifiedPrivateOrThis
+                case _ => false
+              }
             case _ => false
           }
         case Some(n: PsiModifierListOwner) =>
@@ -280,9 +284,13 @@ object TypeDefinitionMembers {
 
     def isPrivate(t: Signature): Boolean = {
       t.namedElement match {
-        case Some(n: ScModifierListOwner) =>
-          n.getModifierList.accessModifier match {
-            case Some(a: ScAccessModifier) => a.isUnqualifiedPrivateOrThis
+        case Some(named: ScNamedElement) =>
+          ScalaPsiUtil.nameContext(named) match {
+            case s: ScModifierListOwner =>
+              s.getModifierList.accessModifier match {
+                case Some(a: ScAccessModifier) => a.isUnqualifiedPrivateOrThis
+                case _ => false
+              }
             case _ => false
           }
         case Some(n: PsiModifierListOwner) =>
