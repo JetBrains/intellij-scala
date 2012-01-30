@@ -1,42 +1,22 @@
 package org.jetbrains.plugins.scala
 package script
 
-import collection.mutable.{HashSet, ArrayBuffer}
-import com.intellij.compiler.impl.javaCompiler.ModuleChunk
-import com.intellij.compiler.ModuleCompilerUtil
 import com.intellij.execution.configurations._
 import com.intellij.execution.filters._
-import com.intellij.openapi.fileEditor.FileDocumentManager
-import com.intellij.openapi.project.{Project}
-
-import com.intellij.openapi.util.text.StringUtil
-import com.intellij.psi.{PsiManager, PsiFile}
-import java.io.{File}
-import com.intellij.openapi.vfs.{JarFileSystem, VirtualFile}
-import com.intellij.openapi.roots.{OrderEntry, ModuleOrderEntry, OrderRootType, ModuleRootManager}
-
-import com.intellij.openapi.util.{JDOMExternalizer}
-import com.intellij.execution.process.ProcessHandler
+import com.intellij.openapi.project.Project
+import com.intellij.psi.PsiManager
+import com.intellij.openapi.vfs.VirtualFile
+import com.intellij.openapi.util.JDOMExternalizer
 import com.intellij.execution.runners.ExecutionEnvironment
-import com.intellij.execution.ui.{ConsoleViewContentType, ConsoleView}
-import com.intellij.execution.{CantRunException, ExecutionException, Executor}
-import com.intellij.facet.FacetManager
-import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent}
-import com.intellij.openapi.editor.actions.EnterAction
-import com.intellij.openapi.module.{ModuleUtil, ModuleManager, Module}
+import com.intellij.execution.{ExecutionException, Executor}
+import com.intellij.openapi.module.{ModuleUtil, Module}
 import com.intellij.openapi.options.SettingsEditor
-import com.intellij.openapi.projectRoots.{JavaSdkType, Sdk}
-import com.intellij.util.PathUtil
 import lang.psi.api.ScalaFile
-import util.{ScalaUtils}
-
-
-
 import com.intellij.vcsUtil.VcsUtil
-import java.util.{Arrays, Collection}
 import org.jdom.Element
-import config.ScalaFacet
 import collection.JavaConversions._
+import compiler.ScalacSettings
+import config.{Libraries, CompilerLibraryData, ScalaFacet}
 
 /**
  * User: Alexander Podkhalyuzin
@@ -64,11 +44,21 @@ class ScalaScriptRunConfiguration(val project: Project, val configurationFactory
   def getJavaOptions = javaOptions
   def getConsoleArgs = consoleArgs
   def getWorkingDirectory: String = workingDirectory
-  def setScriptPath(s: String): Unit = scriptPath = s
-  def setScriptArgs(s: String): Unit = scriptArgs = s
-  def setJavaOptions(s: String): Unit = javaOptions = s
-  def setConsoleArgs(s: String): Unit = consoleArgs = s
-  def setWorkingDirectory(s: String): Unit = workingDirectory = s
+  def setScriptPath(s: String) {
+    scriptPath = s
+  }
+  def setScriptArgs(s: String) {
+    scriptArgs = s
+  }
+  def setJavaOptions(s: String) {
+    javaOptions = s
+  }
+  def setConsoleArgs(s: String) {
+    consoleArgs = s
+  }
+  def setWorkingDirectory(s: String) {
+    workingDirectory = s
+  }
 
   def apply(params: ScalaScriptRunConfigurationForm) {
     setScriptArgs(params.getScriptArgs)
@@ -79,18 +69,18 @@ class ScalaScriptRunConfiguration(val project: Project, val configurationFactory
   }
 
   def getState(executor: Executor, env: ExecutionEnvironment): RunProfileState = {
-    def fileNotFoundError {
+    def fileNotFoundError() {
       throw new ExecutionException("Scala script file not found.")
     }
     try {
       val file: VirtualFile = VcsUtil.getVirtualFile(scriptPath)
       PsiManager.getInstance(project).findFile(file) match {
         case f: ScalaFile if f.isScriptFile() =>
-        case _ => fileNotFoundError
+        case _ => fileNotFoundError()
       }
     }
     catch {
-      case e => fileNotFoundError
+      case e => fileNotFoundError()
     }
 
     val module = getModule
@@ -116,7 +106,17 @@ class ScalaScriptRunConfiguration(val project: Project, val configurationFactory
         params.getProgramParametersList.add(params.getClassPath.getPathsString)
         ScalaFacet.findIn(module).foreach {
           case facet =>
-            facet.files.foreach(params.getClassPath.add(_))
+            val files =
+              if (facet.fsc) {
+                val settings = ScalacSettings.getInstance(getProject)
+                val lib: Option[CompilerLibraryData] = Libraries.findBy(settings.COMPILER_LIBRARY_NAME,
+                  settings.COMPILER_LIBRARY_LEVEL, getProject)
+                lib match {
+                  case Some(lib) => lib.files
+                  case _ => facet.files
+                }
+              } else facet.files
+            files.foreach(params.getClassPath.add(_))
         }
         val array = getConsoleArgs.trim.split("\\s+").filter(!_.trim().isEmpty)
         params.getProgramParametersList.addAll(array: _*)
@@ -142,7 +142,7 @@ class ScalaScriptRunConfiguration(val project: Project, val configurationFactory
       case e =>
     }
     if (module == null) module = getConfigurationModule.getModule
-    return module
+    module
   }
 
   def createInstance: ModuleBasedConfiguration[_ <: RunConfigurationModule] =
@@ -152,7 +152,7 @@ class ScalaScriptRunConfiguration(val project: Project, val configurationFactory
 
   def getConfigurationEditor: SettingsEditor[_ <: RunConfiguration] = new ScalaScriptRunConfigurationEditor(project, this)
 
-  override def writeExternal(element: Element): Unit = {
+  override def writeExternal(element: Element) {
     super.writeExternal(element)
     writeModule(element)
     JDOMExternalizer.write(element, "path", getScriptPath)
@@ -162,7 +162,7 @@ class ScalaScriptRunConfiguration(val project: Project, val configurationFactory
     JDOMExternalizer.write(element, "workingDirectory", workingDirectory)
   }
 
-  override def readExternal(element: Element): Unit = {
+  override def readExternal(element: Element) {
     super.readExternal(element)
     readModule(element)
     scriptPath = JDOMExternalizer.readString(element, "path")
@@ -177,23 +177,22 @@ class ScalaScriptRunConfiguration(val project: Project, val configurationFactory
     import Filter._
     new Filter {
       def applyFilter(line: String, entireLength: Int): Result = {
-        var start = entireLength - line.length
+        val start = entireLength - line.length
         var end = entireLength - line.length
         if (line.startsWith("(fragment of ")) {
           try {
             var cache = line.replaceFirst("[(][f][r][a][g][m][e][n][t][ ][o][f][ ]", "")
-            val fileName = cache.substring(0, cache.indexOf("):"))
             cache = cache.replaceFirst("[^)]*[)][:]", "")
             val lineNumber = Integer.parseInt(cache.substring(0, cache.indexOf(":")))
             cache = cache.replaceFirst("[^:]", "")
             end += line.length - cache.length
             val hyperlink = new OpenFileHyperlinkInfo(getProject, file, lineNumber-1)
-            return new Result(start, end, hyperlink)
+            new Result(start, end, hyperlink)
           }
           catch {
             case _ => return null
           }
-        } else return null
+        } else null
       }
     }
   }

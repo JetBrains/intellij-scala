@@ -69,7 +69,7 @@ class ScalaFacet(module: Module, name: String,
     getConfiguration.getState.updateCompilerParameters(parameters)
   }
   
-  def pluginPaths: Array[String] = getConfiguration.getState.pluginPaths 
+  def pluginPaths: Array[String] = getConfiguration.getState.pluginPaths
   
   def pluginPaths_=(paths: Array[String]) {
     getConfiguration.getState.pluginPaths = paths
@@ -85,7 +85,7 @@ class ScalaFacet(module: Module, name: String,
 
   def compilerLibraryId: LibraryId = {
     val data = getConfiguration.getState
-    return new LibraryId(data.compilerLibraryName, data.compilerLibraryLevel)
+    new LibraryId(data.compilerLibraryName, data.compilerLibraryLevel)
   }
 
   def basePackage: Option[String] = {

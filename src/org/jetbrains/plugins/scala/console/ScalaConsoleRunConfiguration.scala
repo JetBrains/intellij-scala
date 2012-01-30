@@ -1,41 +1,26 @@
 package org.jetbrains.plugins.scala
 package console
 
-import _root_.scala.collection.mutable.ArrayBuffer
-import _root_.scala.collection.mutable.HashSet
 import com.intellij.execution.configurations._
-import com.intellij.execution.filters.{Filter, TextConsoleBuilderImpl}
-
-import com.intellij.execution.impl.{ConsoleInputListener, ConsoleViewImpl}
+import com.intellij.execution.filters.TextConsoleBuilderImpl
 import com.intellij.execution.ui.ConsoleView
-import com.intellij.ide.util.PropertiesComponent
-import com.intellij.openapi.actionSystem.{CustomShortcutSet, AnActionEvent, AnAction}
-import com.intellij.openapi.fileEditor.{OpenFileDescriptor, FileEditorManager}
-import com.intellij.openapi.fileTypes.FileTypeManager
-
-import com.intellij.openapi.vfs.{LocalFileSystem, JarFileSystem, VirtualFile}
-import com.intellij.openapi.wm.WindowManager
-import com.intellij.psi.PsiDocumentManager
-import java.awt.event.{KeyEvent, InputEvent}
+import com.intellij.openapi.vfs.{JarFileSystem, VirtualFile}
 import com.intellij.openapi.project.Project
 import com.intellij.util.PathUtil
-import icons.Icons
 import java.lang.String
-import javax.swing.filechooser.{FileFilter, FileView}
-import javax.swing.{Icon, JFileChooser, KeyStroke}
 import org.jdom.Element
 import com.intellij.openapi.options.SettingsEditor
 import com.intellij.openapi.module.{ModuleManager, Module}
-import util.ScalaUtils
 import com.intellij.openapi.projectRoots.{JdkUtil, JavaSdkType}
 import java.io._
-import config.ScalaFacet
+import collection.mutable.HashSet
 import collection.JavaConversions._
 import com.intellij.openapi.roots.{CompilerModuleExtension, OrderRootType, ModuleRootManager}
-import com.intellij.execution.console.ConsoleHistoryController
-import com.intellij.execution.runners.{ProgramRunner, ConsoleExecuteActionHandler, ExecutionEnvironment}
-import com.intellij.openapi.util.{JDOMExternalizable, JDOMExternalizer}
-import com.intellij.execution.{ExecutionResult, CantRunException, ExecutionException, Executor}
+import com.intellij.execution.runners.ExecutionEnvironment
+import com.intellij.openapi.util.JDOMExternalizer
+import com.intellij.execution.{CantRunException, ExecutionException, Executor}
+import config.{CompilerLibraryData, Libraries, ScalaFacet}
+import compiler.ScalacSettings
 
 /**
  * User: Alexander Podkhalyuzin
@@ -101,7 +86,18 @@ class ScalaConsoleRunConfiguration(val project: Project, val configurationFactor
         //params.getVMParametersList.addParametersString("-Xnoagent -Djava.compiler=NONE -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5009")
 //        params.getVMParametersList.add(SCALA_HOME  + scalaSdkPath)
 
-        params.getClassPath.addAllFiles(facet.files)
+        val files =
+          if (facet.fsc) {
+            val settings = ScalacSettings.getInstance(getProject)
+            val lib: Option[CompilerLibraryData] = Libraries.findBy(settings.COMPILER_LIBRARY_NAME,
+              settings.COMPILER_LIBRARY_LEVEL, getProject)
+            lib match {
+              case Some(lib) => lib.files
+              case _ => facet.files
+            }
+          } else facet.files
+
+        params.getClassPath.addAllFiles(files)
 
         val rtJarPath = PathUtil.getJarPathForClass(classOf[_root_.org.jetbrains.plugins.scala.compiler.rt.ConsoleRunner])
         params.getClassPath.add(rtJarPath)
@@ -121,8 +117,7 @@ class ScalaConsoleRunConfiguration(val project: Project, val configurationFactor
             params.getProgramParametersList.add("@" + fileWithParams.getPath)
           }
           catch {
-            case e: IOException => {
-              //todo:
+            case ignore: IOException => {
             }
           }
         } else {
