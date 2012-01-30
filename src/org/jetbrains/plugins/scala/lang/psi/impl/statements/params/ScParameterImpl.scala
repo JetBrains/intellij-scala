@@ -55,7 +55,7 @@ class ScParameterImpl extends ScalaStubBasedElementImpl[ScParameter] with ScPara
     if (!isRepeatedParameter) return getType(ctx)
     getType(ctx) match {
       case f@Success(tp: ScType, elem) => {
-        val seq = JavaPsiFacade.getInstance(getProject).findClass("scala.collection.Seq", getResolveScope)
+        val seq = ScalaPsiManager.instance(getProject).getCachedClass("scala.collection.Seq", getResolveScope, ScalaPsiManager.ClassCategory.TYPE)
         if (seq != null) {
           Success(new ScParameterizedType(ScType.designator(seq), Seq(tp)), elem)
         } else f

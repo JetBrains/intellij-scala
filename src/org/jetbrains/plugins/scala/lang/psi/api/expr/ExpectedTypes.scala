@@ -23,6 +23,8 @@ import com.intellij.openapi.progress.ProgressManager
 import toplevel.imports.usages.ImportUsed
 import caches.CachesUtil
 import implicits.ScImplicitlyConvertible
+import psi.impl.ScalaPsiManager
+import toplevel.typedef.ScObject
 
 /**
  * @author ilyas
@@ -80,7 +82,7 @@ private[expr] object ExpectedTypes {
       case cb: ScCatchBlock => Array.empty
       case te: ScThrowStmt =>
         // Not in the SLS, but in the implementation.
-        val throwableClass = JavaPsiFacade.getInstance(te.getProject).findClass("java.lang.Throwable", te.getResolveScope)
+        val throwableClass = ScalaPsiManager.instance(te.getProject).getCachedClass(te.getResolveScope, "java.lang.Throwable")
         val throwableType = if (throwableClass != null) new ScDesignatorType(throwableClass) else Any
         Array((throwableType, None))
       //see SLS[8.4]
@@ -324,9 +326,10 @@ private[expr] object ExpectedTypes {
           case _ => res += p
         }
       } else if (expr.isInstanceOf[ScTypedStmt] && expr.asInstanceOf[ScTypedStmt].isSequenceArg && params.length > 0) {
-        val seqClass: PsiClass = JavaPsiFacade.getInstance(expr.getProject).findClass("scala.collection.Seq", expr.getResolveScope)
-        if (seqClass != null) {
-          val tp = ScParameterizedType(ScType.designator(seqClass), Seq(params(params.length - 1).paramType))
+        val seqClass: Array[PsiClass] = ScalaPsiManager.instance(expr.getProject).
+          getCachedClasses(expr.getResolveScope, "scala.collection.Seq").filter(!_.isInstanceOf[ScObject])
+        if (seqClass.length != 0) {
+          val tp = ScParameterizedType(ScType.designator(seqClass(0)), Seq(params(params.length - 1).paramType))
           res += tp
         }
       } else res += p

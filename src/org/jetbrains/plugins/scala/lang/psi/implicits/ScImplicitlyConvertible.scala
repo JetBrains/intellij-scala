@@ -221,7 +221,7 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
       ProgressManager.checkCanceled()
       lazy val funType: ScParameterizedType = {
         val fun = "scala.Function1"
-        val funClass = JavaPsiFacade.getInstance(this.getProject).findClass(fun, this.getResolveScope)
+        val funClass = ScalaPsiManager.instance(getProject).getCachedClass(fun, this.getResolveScope, ScalaPsiManager.ClassCategory.TYPE)
         funClass match {
           case cl: ScTrait => new ScParameterizedType(ScType.designator(funClass), cl.typeParameters.map(tp =>
             new ScUndefinedType(new ScTypeParameterType(tp, ScSubstitutor.empty), 1)))

@@ -17,6 +17,7 @@ import com.intellij.openapi.progress.ProgressManager
 import search.GlobalSearchScope
 import collection.Seq
 import api.base.ScPrimaryConstructor
+import psi.impl.ScalaPsiManager
 
 /**
  * @author ven
@@ -52,7 +53,7 @@ object Compatibility {
 
   def seqClassFor(expr: ScTypedStmt): PsiClass = {
     seqClass.getOrElse {
-      JavaPsiFacade.getInstance(expr.getProject).findClass("scala.collection.Seq", expr.getResolveScope)
+      ScalaPsiManager.instance(expr.getProject).getCachedClass("scala.collection.Seq", expr.getResolveScope, ScalaPsiManager.ClassCategory.TYPE)
     }
   }
 

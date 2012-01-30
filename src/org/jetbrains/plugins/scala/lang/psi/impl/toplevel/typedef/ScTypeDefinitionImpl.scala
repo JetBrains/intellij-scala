@@ -56,7 +56,7 @@ abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTemplate
   }
 
   override def isAnnotationType: Boolean = {
-    val annotation = JavaPsiFacade.getInstance(getProject).findClass("scala.Annotation",getResolveScope)
+    val annotation = ScalaPsiManager.instance(getProject).getCachedClass("scala.Annotation",getResolveScope, ScalaPsiManager.ClassCategory.TYPE)
     if (annotation == null) return false
     isInheritor(annotation, true)
   }
