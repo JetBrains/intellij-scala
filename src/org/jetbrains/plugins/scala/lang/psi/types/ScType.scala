@@ -262,7 +262,7 @@ object ScType extends ScTypePresentation with ScTypePsiTypeBridge {
       t.upperBound.flatMap(expandAliases)
     case t: ScTypeAliasDefinition if t.typeParameters.isEmpty =>
       t.aliasedType(TypingContext.empty)
-    case pt: ScParameterizedType =>
+    case pt: ScParameterizedType if Conformance.isAliasType(pt) != None =>
       val expandedDesignator = expandAliases(pt.designator)
       val expandedTypeArgsResult: TypeResult[Seq[ScType]] = TypeResult.sequence(pt.typeArgs.map(expandAliases))
       TypeResult.ap2(expandedDesignator, expandedTypeArgsResult) {
@@ -280,7 +280,7 @@ object ScType extends ScTypePresentation with ScTypePsiTypeBridge {
   def extractFunctionType(tp: ScType): Option[ScFunctionType] = expandAliases(tp).getOrAny match {
     case ft: ScFunctionType => Some(ft)
     case pt: ScParameterizedType =>
-      pt.getFunctionType.flatMap(extractFunctionType)
+      pt.getFunctionType
     case _ => None
   }
 
