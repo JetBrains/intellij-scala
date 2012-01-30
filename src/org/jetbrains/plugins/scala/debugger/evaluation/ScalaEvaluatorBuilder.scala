@@ -507,10 +507,11 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
               new BoxingEvaluator(l), new BoxingEvaluator(r)),
             false, None, Set.empty))
         case "!=" =>
-          binaryEval(name, (l, r) =>new ScalaMethodEvaluator(BOXES_RUN_TIME, "equals",
+          binaryEval(name, (l, r) => new ScalaMethodEvaluator(BOXES_RUN_TIME, "equals",
             JVMNameUtil.getJVMRawText("(Ljava/lang/Object;Ljava/lang/Object;)Z"), Seq(
               new BoxingEvaluator(l), new BoxingEvaluator(r)),
             false, None, Set.empty))
+          myResult = unaryEvaluator(myResult, "takeNot")
         case "unary_!" => unaryEvalForBoxes("!", "takeNot")
         case "unary_~" => unaryEvalForBoxes("~", "complement")
         case "unary_+" => unaryEvalForBoxes("+", "positive")

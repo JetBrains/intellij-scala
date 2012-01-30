@@ -224,4 +224,21 @@ class ScalaExpressionsEvaluator extends ScalaDebuggerTestCase {
       evalEquals("if (false) \"text\" else \"next\"", "next")
     }
   }
+
+  def testNotNull() {
+    myFixture.addFileToProject("Sample.scala",
+      """
+      |object Sample {
+      |  def main(args: Array[String]) {
+      |    "stop here"
+      |  }
+      |}
+      """.stripMargin.trim()
+    )
+    addBreakpoint("Sample.scala", 2)
+    runDebugger("Sample") {
+      waitForBreakpoint()
+      evalEquals("\"text\" != null", "true")
+    }
+  }
 }
