@@ -15,10 +15,10 @@
 
 package org.jetbrains.plugins.scala.highlighter;
 
+import com.intellij.codeInsight.daemon.impl.HighlightInfoType;
 import com.intellij.openapi.editor.HighlighterColors;
 import com.intellij.openapi.editor.SyntaxHighlighterColors;
 import com.intellij.openapi.editor.colors.TextAttributesKey;
-import com.intellij.codeInsight.daemon.impl.HighlightInfoType;
 import org.jetbrains.annotations.NonNls;
 
 /**
@@ -71,6 +71,12 @@ public class DefaultHighlighter {
   static final String DOC_COMMENT_ID = "ScalaDoc comment";
   @NonNls
   static final String SCALA_DOC_TAG_ID = "ScalaDoc comment tag";
+  @NonNls
+  static final String SCALA_DOC_HTML_TAG_ID = "ScalaDoc html tag";
+  @NonNls
+  static final String SCALA_DOC_WIKI_SYNTAX_ID = "ScalaDoc wiki syntax elements";
+  @NonNls
+  static final String SCALA_DOC_HTML_ESCAPE_ID = "ScalaDoc html escape sequences";
   @NonNls
   static final String SCALA_DOC_MARKUP_ID = "ScalaDoc comment markup";
   @NonNls
@@ -127,6 +133,9 @@ public class DefaultHighlighter {
   public static TextAttributesKey OBJECT = createKey(OBJECT_ID, HighlightInfoType.CLASS_NAME.getAttributesKey());
   public static TextAttributesKey CLASS = createKey(CLASS_ID, HighlightInfoType.CLASS_NAME.getAttributesKey());
   public static TextAttributesKey SCALA_DOC_TAG = createKey(SCALA_DOC_TAG_ID, SyntaxHighlighterColors.DOC_COMMENT_TAG);
+  public static TextAttributesKey SCALA_DOC_HTML_TAG = createKey(SCALA_DOC_HTML_TAG_ID, SyntaxHighlighterColors.DOC_COMMENT_MARKUP);
+  public static TextAttributesKey SCALA_DOC_WIKI_SYNTAX = createKey(SCALA_DOC_WIKI_SYNTAX_ID,SyntaxHighlighterColors.DOC_COMMENT_MARKUP);
+  public static TextAttributesKey SCALA_DOC_HTML_ESCAPE = createKey(SCALA_DOC_HTML_ESCAPE_ID, SyntaxHighlighterColors.DOC_COMMENT_MARKUP);
   public static TextAttributesKey SCALA_DOC_MARKUP = createKey(SCALA_DOC_MARKUP_ID, SyntaxHighlighterColors.DOC_COMMENT_MARKUP);
   public static TextAttributesKey ABSTRACT_CLASS = createKey(ABSTRACT_CLASS_ID, HighlightInfoType.ABSTRACT_CLASS_NAME.getAttributesKey());
   public static TextAttributesKey TRAIT = createKey(TRAIT_ID, HighlightInfoType.INTERFACE_NAME.getAttributesKey());

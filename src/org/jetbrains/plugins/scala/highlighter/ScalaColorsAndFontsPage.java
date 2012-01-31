@@ -1,19 +1,16 @@
 package org.jetbrains.plugins.scala.highlighter;
 
-import com.intellij.application.options.colors.InspectionColorSettingsPage;
-import com.intellij.openapi.editor.SyntaxHighlighterColors;
 import com.intellij.openapi.editor.colors.TextAttributesKey;
 import com.intellij.openapi.fileTypes.SyntaxHighlighter;
 import com.intellij.openapi.fileTypes.SyntaxHighlighterFactory;
-import com.intellij.openapi.options.OptionsBundle;
 import com.intellij.openapi.options.colors.AttributesDescriptor;
 import com.intellij.openapi.options.colors.ColorDescriptor;
 import com.intellij.openapi.options.colors.ColorSettingsPage;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.plugins.scala.icons.Icons;
 import org.jetbrains.plugins.scala.ScalaFileType;
+import org.jetbrains.plugins.scala.icons.Icons;
 
 import javax.swing.*;
 import java.util.HashMap;
@@ -60,6 +57,9 @@ public class ScalaColorsAndFontsPage implements ColorSettingsPage {
         new AttributesDescriptor(DefaultHighlighter.BLOCK_COMMENT_ID, DefaultHighlighter.BLOCK_COMMENT),
         new AttributesDescriptor(DefaultHighlighter.DOC_COMMENT_ID, DefaultHighlighter.DOC_COMMENT),
         new AttributesDescriptor(DefaultHighlighter.SCALA_DOC_TAG_ID, DefaultHighlighter.SCALA_DOC_TAG),
+        new AttributesDescriptor(DefaultHighlighter.SCALA_DOC_HTML_TAG_ID, DefaultHighlighter.SCALA_DOC_HTML_TAG),
+        new AttributesDescriptor(DefaultHighlighter.SCALA_DOC_WIKI_SYNTAX_ID, DefaultHighlighter.SCALA_DOC_WIKI_SYNTAX),
+        new AttributesDescriptor(DefaultHighlighter.SCALA_DOC_HTML_ESCAPE_ID, DefaultHighlighter.SCALA_DOC_HTML_ESCAPE),
         new AttributesDescriptor(DefaultHighlighter.CLASS_ID, DefaultHighlighter.CLASS),
         new AttributesDescriptor(DefaultHighlighter.ABSTRACT_CLASS_ID, DefaultHighlighter.ABSTRACT_CLASS),
         new AttributesDescriptor(DefaultHighlighter.OBJECT_ID, DefaultHighlighter.OBJECT),
@@ -100,7 +100,9 @@ public class ScalaColorsAndFontsPage implements ColorSettingsPage {
   public String getDemoText() {
     return "<keyword>import</keyword> scala<dot>.</dot>collection<dot>.</dot>mutable<dot>.</dot>_\n\n" +
         "<scaladoc>/**\n" +
-        " * ScalaDoc comment: <code>Some code</code>\n" +
+        " * ScalaDoc comment: <scaladocHtml><code></scaladocHtml>Some code<scaladocHtml></code></scaladocHtml>\n" +
+        " * Html escape sequence <htmlDocEscape>&#94;</htmlDocEscape>\n" +
+        " * <wikiElement>''</wikiElement>Text<wikiElement>''</wikiElement>  \n" +
         " * <tag>@author</tag> IntelliJ\n" +
         " */</scaladoc>\n" +
         "<keyword>class</keyword> <class>ScalaClass</class><par>(</par><param>x</param><colon>:</colon> <predef>Int</predef><par>)</par>" +
@@ -177,6 +179,9 @@ public class ScalaColorsAndFontsPage implements ColorSettingsPage {
     map.put("methoddecl", DefaultHighlighter.METHOD_DECLARATION);
     map.put("pattern", DefaultHighlighter.PATTERN);
     map.put("typeAlias", DefaultHighlighter.TYPE_ALIAS);
+    map.put("wikiElement", DefaultHighlighter.SCALA_DOC_WIKI_SYNTAX);
+    map.put("scaladocHtml", DefaultHighlighter.SCALA_DOC_HTML_TAG);
+    map.put("htmlDocEscape", DefaultHighlighter.SCALA_DOC_HTML_ESCAPE);
     return map;
   }
 }

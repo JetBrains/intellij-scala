@@ -106,14 +106,12 @@ extends Object with ScalaTokenTypes with Block {
     ScalaSpacingProcessor.getSpacing(child1.asInstanceOf[ScalaBlock], child2.asInstanceOf[ScalaBlock])
   }
 
-  def getSubBlocks: List[Block] = {
+  def getSubBlocks(): List[Block] = {
     import collection.JavaConversions._
-    if (mySubBlocks == null && myLastNode == null) {
-      mySubBlocks = getDummyBlocks(myNode, this).filterNot(
-        _.asInstanceOf[ScalaBlock].getNode.getElementType == ScalaTokenTypes.tWHITE_SPACE_IN_LINE)
-    } else if (mySubBlocks == null) {
-      mySubBlocks = getDummyBlocks(myNode, myLastNode, this).filterNot(
-        _.asInstanceOf[ScalaBlock].getNode.getElementType == ScalaTokenTypes.tWHITE_SPACE_IN_LINE)
+    if (mySubBlocks == null) {
+      mySubBlocks = getDummyBlocks(myNode, myLastNode, this).filterNot {
+        _.asInstanceOf[ScalaBlock].getNode.getElementType == ScalaTokenTypes.tWHITE_SPACE_IN_LINE
+      }
     }
     mySubBlocks
   }

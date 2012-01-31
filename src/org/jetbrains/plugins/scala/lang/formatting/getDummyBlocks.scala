@@ -26,11 +26,21 @@ import com.intellij.psi.codeStyle.CodeStyleSettings
 import org.jetbrains.plugins.scala.lang.psi.api.expr.xml._
 import ScalaWrapManager._
 import psi.api.toplevel.{ScEarlyDefinitions, ScModifierListOwner}
+import scaladoc.lexer.ScalaDocTokenType
+import scaladoc.parser.ScalaDocElementTypes
+import scaladoc.psi.api.{ScDocTag, ScDocComment}
+import scaladoc.parser.parsing.MyScaladocParsing
+import com.intellij.formatting.Alignment.Anchor
+import extensions.&&
 
 object getDummyBlocks {
   val fieldGroupAlignmentKey: Key[Alignment] = Key.create("field.group.alignment.key")
 
-  def apply(node: ASTNode, block: ScalaBlock): ArrayList[Block] = {
+  def apply(firstNode: ASTNode, lastNode: ASTNode, block: ScalaBlock): ArrayList[Block] =
+    if (lastNode != null) applyInner(firstNode, lastNode, block) else applyInner(firstNode, block)
+
+
+  private def applyInner(node: ASTNode, block: ScalaBlock): ArrayList[Block] = {
     val children = node.getChildren(null)
     val subBlocks = new ArrayList[Block]
     var prevChild: ASTNode = null
@@ -67,6 +77,27 @@ object getDummyBlocks {
       }
       case _: ScMethodCall => {
         subBlocks.addAll(getMethodCallOrRefExprSubBlocks(node, block))
+        return subBlocks
+      }
+      case _
+        if node.getElementType == ScalaDocElementTypes.DOC_TAG &&
+                MyScaladocParsing.tagsWithParameters.contains(node.getPsi.asInstanceOf[ScDocTag].getName) =>
+        val docTag = node.getPsi.asInstanceOf[ScDocTag]
+        val tagValNode = if (docTag.getValueElement != null) docTag.getValueElement.getNode else null
+        if (tagValNode != null) {
+          var nextSibl = docTag.getFirstChild.getNode
+          while (nextSibl != tagValNode.getTreeNext && subBlocks.size() < 3) {
+            subBlocks.add(new ScalaBlock(block, nextSibl, null, null, Indent.getNoneIndent,
+              arrangeSuggestedWrapForChild(block, nextSibl, scalaSettings, block.suggestedWrap), block.getSettings))
+
+            nextSibl = nextSibl.getTreeNext
+          }
+
+          if (nextSibl != null) {
+            val intBlock = new ScalaBlock(block, nextSibl, docTag.getLastChild.getNode, null, Indent.getNoneIndent,
+              arrangeSuggestedWrapForChild(block, nextSibl, scalaSettings, block.suggestedWrap), block.getSettings)
+            subBlocks.add(intBlock)
+        }
         return subBlocks
       }
       case _ =>
@@ -146,15 +177,23 @@ object getDummyBlocks {
     subBlocks
   }
 
-  def apply(node: ASTNode, lastNode: ASTNode, block: ScalaBlock): ArrayList[Block] = {
+  private def applyInner(node: ASTNode, lastNode: ASTNode, block: ScalaBlock): ArrayList[Block] = {
     val settings = block.getSettings.getCustomSettings(classOf[ScalaCodeStyleSettings])
     val subBlocks = new ArrayList[Block]
+
     var child = node
+    val normalAligment = Alignment.createAlignment(true)
     do {
       val indent = ScalaIndentProcessor.getChildIndent(block, child)
       if (isCorrectBlock(child) && !child.getPsi.isInstanceOf[ScTemplateParents]) {
-        val childWrap = arrangeSuggestedWrapForChild(block, child, settings, block.suggestedWrap)
-        subBlocks.add(new ScalaBlock(block, child, null, null, indent, childWrap, block.getSettings))
+        val (childAlignment, childWrap) = if ( node.getTreeParent.getElementType == ScalaDocElementTypes.DOC_TAG &&
+                child.getElementType != ScalaDocTokenType.DOC_WHITESPACE &&
+                child.getElementType != ScalaDocTokenType.DOC_COMMENT_LEADING_ASTERISKS &&
+                child.getText.trim().length() > 0)
+            (normalAligment, Wrap.createWrap(WrapType.NONE, false)) else
+            (null, arrangeSuggestedWrapForChild(block, child, settings, block.suggestedWrap))
+
+        subBlocks.add(new ScalaBlock(block, child, null, childAlignment, indent, childWrap, block.getSettings))
       } else if (isCorrectBlock(child)) {
         subBlocks.addAll(getTemplateParentsBlocks(child, block))
       }

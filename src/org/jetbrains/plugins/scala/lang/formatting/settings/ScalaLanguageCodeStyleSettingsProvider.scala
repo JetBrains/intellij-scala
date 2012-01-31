@@ -135,8 +135,9 @@ class ScalaLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSettingsPr
       showCustomOption("ALIGN_COMPOSITE_PATTERN", "Align multiline pattern alternatives",
         CodeStyleSettingsCustomizable.WRAPPING_BINARY_OPERATION)
       showCustomOption("PLACE_SELF_TYPE_ON_NEW_LINE", "Place self type on new line", CLASS_DEFINITION)
-
       showCustomOption("KEEP_XML_FORMATTING", "Keep xml formatting", XML_FORMATTING)
+      showCustomOption("KEEP_ONE_LINE_LAMBDAS_IN_ARG_LIST", "Do not format one-line lambdas in arg list",
+        CodeStyleSettingsCustomizable.WRAPPING_KEEP)
     }
 
     if (settingsType == SettingsType.SPACING_SETTINGS) {
@@ -149,6 +150,12 @@ class ScalaLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSettingsPr
       showCustomOption("USE_SCALADOC2_FORMATTING", "Use formatting for ScalaDoc2 options",
         CodeStyleSettingsCustomizable.SPACES_OTHER)
       showCustomOption("SPACE_BEFORE_INFIX_METHOD_CALL_PARENTHESES", "Space before infix method call parentheses",
+        CodeStyleSettingsCustomizable.SPACES_BEFORE_PARENTHESES)
+      showCustomOption("INSERT_WHITESPACES_IN_SIMPLE_ONE_LINE_METHOD", "Insert whitespaces in simple one line methods",
+        CodeStyleSettingsCustomizable.SPACES_OTHER)
+      showCustomOption("SPACE_BEFORE_INFIX_LIKE_METHOD_PARENTHESES", "Space before infix method parentheses",
+        CodeStyleSettingsCustomizable.SPACES_BEFORE_PARENTHESES)
+      showCustomOption("PRESERVE_SPACE_AFTER_METHOD_DECLARATION_NAME", "Preserve space before method parentheses",
         CodeStyleSettingsCustomizable.SPACES_BEFORE_PARENTHESES)
     }
 

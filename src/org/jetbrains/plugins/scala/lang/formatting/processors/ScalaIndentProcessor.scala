@@ -6,7 +6,6 @@ package processors
 import com.intellij.formatting._
 import psi.api.ScalaFile
 import scaladoc.lexer.ScalaDocTokenType
-import scaladoc.psi.api.ScDocComment
 import settings.ScalaCodeStyleSettings
 import com.intellij.lang.ASTNode
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
@@ -22,6 +21,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.xml._
 import com.intellij.psi.codeStyle.CommonCodeStyleSettings
 import com.intellij.psi.PsiComment
 import psi.api.toplevel.ScEarlyDefinitions
+import scaladoc.psi.api.ScDocComment
 
 
 object ScalaIndentProcessor extends ScalaTokenTypes {
@@ -164,9 +164,17 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
       case _: ScExtendsBlock if settings.CLASS_BRACE_STYLE == CommonCodeStyleSettings.NEXT_LINE_SHIFTED ||
         settings.CLASS_BRACE_STYLE == CommonCodeStyleSettings.NEXT_LINE_SHIFTED2 => Indent.getNormalIndent
       case _: ScExtendsBlock => Indent.getNoneIndent //Template body
-      case _: ScParameterClause if  scalaSettings.NOT_CONTINUATION_INDENT_FOR_PARAMS => {
+      case cl: ScParameterClause if  scalaSettings.NOT_CONTINUATION_INDENT_FOR_PARAMS => {
         if (child.getElementType == ScalaTokenTypes.tRPARENTHESIS) return Indent.getNoneIndent
-        else return Indent.getNormalIndent
+        else {
+          val parent = node.getTreeParent
+          if (parent != null && parent.getPsi.isInstanceOf[ScParameters] && parent.getTreeParent != null) {
+            if (parent.getTreeParent.getPsi.isInstanceOf[ScFunctionExpr]) {
+              return Indent.getNoneIndent
+            }
+          }
+          return Indent.getNormalIndent
+        }
       }
       case _: ScParenthesisedExpr | _: ScParenthesisedPattern | _: ScParenthesisedExpr =>
         Indent.getContinuationWithoutFirstIndent(settings.ALIGN_MULTILINE_PARENTHESIZED_EXPRESSION)
