@@ -33,10 +33,19 @@ import org.jetbrains.plugins.scala.lang.scaladoc.parser.ScalaDocElementTypes;
 public class ScalaBraceMatcher implements PairedBraceMatcher {
 
   private static final BracePair[] PAIRS = new BracePair[]{
-          new BracePair(ScalaTokenTypes.tLPARENTHESIS, ScalaTokenTypes.tRPARENTHESIS, false),
-          new BracePair(ScalaTokenTypes.tLSQBRACKET, ScalaTokenTypes.tRSQBRACKET, false),
-          new BracePair(ScalaTokenTypes.tLBRACE, ScalaTokenTypes.tRBRACE, true),
-          new BracePair(ScalaTokenTypesEx.SCALA_IN_XML_INJECTION_START, ScalaTokenTypesEx.SCALA_IN_XML_INJECTION_END, true)
+      new BracePair(ScalaTokenTypes.tLPARENTHESIS, ScalaTokenTypes.tRPARENTHESIS, false),
+      new BracePair(ScalaTokenTypes.tLSQBRACKET, ScalaTokenTypes.tRSQBRACKET, false),
+      new BracePair(ScalaTokenTypes.tLBRACE, ScalaTokenTypes.tRBRACE, true),
+      new BracePair(ScalaTokenTypesEx.SCALA_IN_XML_INJECTION_START, ScalaTokenTypesEx.SCALA_IN_XML_INJECTION_END, true),
+      new BracePair(ScalaDocElementTypes.DOC_LINK_TAG, ScalaDocElementTypes.DOC_LINK_CLOSE_TAG, true),
+      new BracePair(ScalaDocElementTypes.DOC_HTTP_LINK_TAG, ScalaDocElementTypes.DOC_LINK_CLOSE_TAG, true),
+      new BracePair(ScalaDocElementTypes.DOC_INNER_CODE_TAG, ScalaDocElementTypes.DOC_INNER_CLOSE_CODE_TAG, true),
+      new BracePair(ScalaDocElementTypes.DOC_UNDERLINE_TAG, ScalaDocElementTypes.DOC_COMMON_CLOSE_WIKI_TAG, true),
+      new BracePair(ScalaDocElementTypes.DOC_BOLD_TAG, ScalaDocElementTypes.DOC_COMMON_CLOSE_WIKI_TAG, true),
+      new BracePair(ScalaDocElementTypes.DOC_ITALIC_TAG, ScalaDocElementTypes.DOC_COMMON_CLOSE_WIKI_TAG, true),
+      new BracePair(ScalaDocElementTypes.DOC_MONOSPACE_TAG, ScalaDocElementTypes.DOC_COMMON_CLOSE_WIKI_TAG, true),
+      new BracePair(ScalaDocElementTypes.DOC_SUBSCRIPT_TAG, ScalaDocElementTypes.DOC_COMMON_CLOSE_WIKI_TAG, true),
+      new BracePair(ScalaDocElementTypes.DOC_SUPERSCRIPT_TAG, ScalaDocElementTypes.DOC_COMMON_CLOSE_WIKI_TAG, true)
   };
 
   public BracePair[] getPairs() {

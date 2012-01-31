@@ -4,33 +4,40 @@ package refactoring
 package util
 
 import com.intellij.openapi.application.ApplicationManager
-import com.intellij.lexer.Lexer
-import org.jetbrains.plugins.scala.lang.lexer.ScalaLexer
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import lexer.{ScalaLexer, ScalaTokenTypes}
 
 /**
  * User: Alexander Podkhalyuzin
  * Date: 24.06.2008
  */
 object ScalaNamesUtil {
-  def isIdentifier(text: String): Boolean = {
-    ApplicationManager.getApplication.assertReadAccessAllowed
+  private def checkGeneric(text: String, predicate: ScalaLexer => Boolean): Boolean = {
+    ApplicationManager.getApplication.assertReadAccessAllowed()
     if (text == null || text == "") return false
-
-    val lexer = new ScalaLexer();
-    lexer.start(text, 0, text.length, 0)
-    if (lexer.getTokenType != ScalaTokenTypes.tIDENTIFIER) return false
-    lexer.advance
+    
+    val lexer = new ScalaLexer()
+    lexer.start(text, 0, text.length(), 0)
+    if (!predicate(lexer)) return false
+    lexer.advance()
     lexer.getTokenType == null
+  }
+
+  private def isOpCharacter(c : Char) : Boolean = {
+    c match {
+      case '~' | '!' | '@' | '#' | '%' | '^' | '*' | '+' | '-' | '<' | '>' | '?' | ':' | '=' | '&' | '|' | '/' | '\\' =>
+        true
+      case ch =>
+        Character.getType(ch) == Character.MATH_SYMBOL.toInt || Character.getType(ch) == Character.OTHER_SYMBOL.toInt
+    }
+  }
+
+  def isIdentifier(text: String): Boolean = {
+    checkGeneric(text, lexer => lexer.getTokenType == ScalaTokenTypes.tIDENTIFIER)
   }
 
   def isKeyword(text: String): Boolean = {
-    ApplicationManager.getApplication.assertReadAccessAllowed
-
-    val lexer = new ScalaLexer
-    lexer.start(text,0,text.length,0)
-    if (lexer.getTokenType == null || !ScalaTokenTypes.KEYWORDS.contains(lexer.getTokenType)) return false
-    lexer.advance
-    lexer.getTokenType == null
+    checkGeneric(text, lexer => lexer.getTokenType != null && ScalaTokenTypes.KEYWORDS.contains(lexer.getTokenType))
   }
+  
+  def isOperatorName(text: String): Boolean = isIdentifier(text) && isOpCharacter(text(0))
 }

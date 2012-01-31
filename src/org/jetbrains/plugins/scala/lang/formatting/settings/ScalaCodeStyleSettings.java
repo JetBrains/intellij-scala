@@ -2,9 +2,8 @@ package org.jetbrains.plugins.scala.lang.formatting.settings;
 
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.codeStyle.CodeStyleSettings;
-import com.intellij.psi.codeStyle.CustomCodeStyleSettings;
 import com.intellij.psi.codeStyle.CodeStyleSettingsManager;
-import static com.intellij.psi.codeStyle.CommonCodeStyleSettings.*;
+import com.intellij.psi.codeStyle.CustomCodeStyleSettings;
 
 /**
  * User: Alexander Podkhalyuzin
@@ -62,6 +61,7 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
   public boolean SPACE_AFTER_MODIFIERS_CONSTRUCTOR = false;
 
   public boolean SPACE_BEFORE_INFIX_METHOD_CALL_PARENTHESES = false;
+  public boolean INSERT_WHITESPACES_IN_SIMPLE_ONE_LINE_METHOD = false;
 
   public boolean IGNORE_PERFORMANCE_TO_FIND_ALL_CLASS_NAMES = false;
 
@@ -74,8 +74,12 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
   //spcaing settings:
   public boolean SPACE_BEFORE_BRACE_METHOD_CALL = true;
   public boolean SPACE_BEFORE_MATCH_LBRACE = true;
+  public boolean KEEP_ONE_LINE_LAMBDAS_IN_ARG_LIST = false;
 
   public boolean USE_SCALADOC2_FORMATTING = false;
+  
+  public boolean PRESERVE_SPACE_AFTER_METHOD_DECLARATION_NAME = false;
+  public boolean SPACE_BEFORE_INFIX_LIKE_METHOD_PARENTHESES = false;
 
   //xml formatting
   public boolean KEEP_XML_FORMATTING = false;

@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.lang.scaladoc.lexer;
 
-import com.intellij.psi.tree.TokenSet;
 import com.intellij.psi.tree.IElementType;
+import com.intellij.psi.tree.TokenSet;
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.docsyntax.ScaladocSyntaxElementType;
 
 /**
@@ -33,6 +33,8 @@ public interface ScalaDocTokenType {
   IElementType DOC_INNER_CLOSE_CODE_TAG = new ScalaDocElementType("DOC_INNER_CLOSE_CODE_TAG");
   IElementType DOC_MACROS = new ScalaDocElementType("DOC_MACROS");
   IElementType DOC_CODE_LINK_VALUE = new ScalaDocElementType("DOC_CODE_LINK_VALUE");
+  IElementType DOC_HTML_ESCAPE_HIGHLIGHTED_ELEMENT = new ScalaDocElementType("DOC_HTML_ESCAPE_HIGHLIGHTED_ELEMENT");
+  IElementType DOC_COMMON_CLOSE_WIKI_TAG = new ScalaDocElementType("DOC_COMMON_CLOSE_WIKI_TAG");
 
   ScaladocSyntaxElementType DOC_BOLD_TAG = new ScaladocSyntaxElementType("DOC_BOLD_TAG", 1);
   ScaladocSyntaxElementType DOC_ITALIC_TAG = new ScaladocSyntaxElementType("DOC_ITALIC_TAG", 1 << 1);

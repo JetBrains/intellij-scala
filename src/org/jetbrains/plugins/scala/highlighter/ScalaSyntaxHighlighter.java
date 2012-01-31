@@ -15,6 +15,7 @@
 
 package org.jetbrains.plugins.scala.highlighter;
 
+import com.intellij.lexer.HtmlHighlightingLexer;
 import com.intellij.lexer.LayeredLexer;
 import com.intellij.lexer.Lexer;
 import com.intellij.lexer.StringLiteralLexer;
@@ -24,15 +25,21 @@ import com.intellij.psi.StringEscapesTokenTypes;
 import com.intellij.psi.tree.IElementType;
 import com.intellij.psi.tree.TokenSet;
 import com.intellij.psi.tree.xml.IXmlLeafElementType;
-import static com.intellij.psi.xml.XmlTokenType.*;
+import com.intellij.psi.xml.XmlTokenType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.lang.lexer.ScalaLexer;
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes;
-import static org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypesEx.SCALA_XML_CONTENT;
+import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocLexer;
+import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType;
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.ScalaDocElementTypes;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Stack;
+
+import static com.intellij.psi.xml.XmlTokenType.*;
+import static org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes.tIDENTIFIER;
+import static org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypesEx.SCALA_XML_CONTENT;
 
 /**
  * @author ilyas
@@ -56,6 +63,25 @@ public class ScalaSyntaxHighlighter extends SyntaxHighlighterBase {
   // XML tags
   static final TokenSet tXML_TAGS = TokenSet.create(
           ScalaTokenTypes.tOPENXMLTAG
+  );
+
+  //Html escape sequences
+  static final TokenSet tSCALADOC_HTML_ESCAPE = TokenSet.create(
+      ScalaDocTokenType.DOC_HTML_ESCAPE_HIGHLIGHTED_ELEMENT
+  );
+
+  // XML tags in ScalaDoc
+  static final TokenSet tSCALADOC_HTML_TAGS = TokenSet.create(
+      XML_TAG_NAME, XML_START_TAG_START, XML_EMPTY_ELEMENT_END, XML_END_TAG_START, XML_TAG_END
+  );
+
+  //ScalaDoc Wiki syntax elements
+  static final TokenSet tSCALADOC_WIKI_SYNTAX = TokenSet.create(
+      ScalaDocTokenType.DOC_BOLD_TAG, ScalaDocTokenType.DOC_ITALIC_TAG, ScalaDocTokenType.DOC_MONOSPACE_TAG,
+      ScalaDocTokenType.DOC_SUBSCRIPT_TAG, ScalaDocTokenType.DOC_SUPERSCRIPT_TAG, ScalaDocTokenType.DOC_UNDERLINE_TAG,
+      ScalaDocTokenType.DOC_LINK_TAG, ScalaDocTokenType.DOC_LINK_CLOSE_TAG, ScalaDocTokenType.DOC_HTTP_LINK_TAG,
+      ScalaDocTokenType.DOC_INNER_CODE_TAG, ScalaDocTokenType.DOC_INNER_CLOSE_CODE_TAG,
+      ScalaDocTokenType.DOC_COMMON_CLOSE_WIKI_TAG
   );
 
   // Variables
@@ -172,6 +198,11 @@ public class ScalaSyntaxHighlighter extends SyntaxHighlighterBase {
           ScalaTokenTypes.tCOMMA
   );
 
+  //ScalaDoc comment tags like @see
+  static final TokenSet tCOMMENT_TAGS = TokenSet.create(
+      ScalaDocTokenType.DOC_TAG_NAME
+  );
+
   private static final Map<IElementType, TextAttributesKey> ATTRIBUTES = new HashMap<IElementType, TextAttributesKey>();
   private boolean treatDocCommentAsBlockComment;
 
@@ -202,7 +233,13 @@ public class ScalaSyntaxHighlighter extends SyntaxHighlighterBase {
 
     SyntaxHighlighterBase.fillMap(ATTRIBUTES, tOPS, DefaultHighlighter.ASSIGN);
     SyntaxHighlighterBase.fillMap(ATTRIBUTES, tXML_TAGS, DefaultHighlighter.ASSIGN);
-
+    SyntaxHighlighterBase.fillMap(ATTRIBUTES, tCOMMENT_TAGS, DefaultHighlighter.SCALA_DOC_TAG);
+    SyntaxHighlighterBase.fillMap(ATTRIBUTES, TokenSet.orSet(ScalaDocTokenType.ALL_SCALADOC_TOKENS.minus(tCOMMENT_TAGS),
+        TokenSet.create(ScalaDocTokenType.DOC_COMMENT_BAD_CHARACTER,
+            ScalaDocTokenType.DOC_HTML_ESCAPE_HIGHLIGHTED_ELEMENT)), DefaultHighlighter.DOC_COMMENT);
+    SyntaxHighlighterBase.fillMap(ATTRIBUTES, tSCALADOC_HTML_TAGS, DefaultHighlighter.SCALA_DOC_HTML_TAG);
+    SyntaxHighlighterBase.fillMap(ATTRIBUTES, tSCALADOC_WIKI_SYNTAX, DefaultHighlighter.SCALA_DOC_WIKI_SYNTAX);
+    SyntaxHighlighterBase.fillMap(ATTRIBUTES, tSCALADOC_HTML_ESCAPE, DefaultHighlighter.SCALA_DOC_HTML_ESCAPE);
   }
 
 
@@ -220,7 +257,15 @@ public class ScalaSyntaxHighlighter extends SyntaxHighlighterBase {
       
       registerSelfStoppingLayer(new StringLiteralLexer('\'', ScalaTokenTypes.tSTRING),
                                 new IElementType[]{ScalaTokenTypes.tCHAR}, IElementType.EMPTY_ARRAY);
-      
+
+      LayeredLexer lexer = new LayeredLexer(new ScalaDocLexerHighlightingWrapper());
+
+      ScalaHtmlHighlightingLexerWrapper htmlLexer = new ScalaHtmlHighlightingLexerWrapper();
+
+      lexer.registerLayer(htmlLexer, ScalaDocTokenType.DOC_COMMENT_DATA);
+
+      registerSelfStoppingLayer(lexer, new IElementType[]{ScalaDocElementTypes.SCALA_DOC_COMMENT},
+          IElementType.EMPTY_ARRAY);
     }
   }
   
@@ -252,6 +297,68 @@ public class ScalaSyntaxHighlighter extends SyntaxHighlighterBase {
     }
   }
 
+  private static class ScalaHtmlHighlightingLexerWrapper extends HtmlHighlightingLexer {
+    @Override
+    public IElementType getTokenType() {
+      IElementType htmlType = super.getTokenType();
+
+      if (htmlType == XML_CHAR_ENTITY_REF) {
+        return ScalaDocTokenType.DOC_HTML_ESCAPE_HIGHLIGHTED_ELEMENT;
+      } else if (htmlType == XML_DATA_CHARACTERS || htmlType == XML_BAD_CHARACTER ||
+          XmlTokenType.COMMENTS.contains(htmlType)) {
+        return ScalaDocTokenType.DOC_COMMENT_DATA;
+      }
+
+      return htmlType;
+    }
+  }
+
+  private static class ScalaDocLexerHighlightingWrapper extends ScalaDocLexer {
+    private static TokenSet SYNTAX_TO_SWAP = tSCALADOC_WIKI_SYNTAX.minus(TokenSet.create(ScalaDocTokenType.DOC_LINK_TAG,
+        ScalaDocTokenType.DOC_LINK_CLOSE_TAG, ScalaDocTokenType.DOC_HTTP_LINK_TAG, ScalaDocTokenType.DOC_INNER_CODE_TAG,
+        ScalaDocTokenType.DOC_INNER_CLOSE_CODE_TAG));
+
+    private Stack<IElementType> elements = new Stack<IElementType>();
+
+    @Override
+    public IElementType getTokenType() {
+      IElementType tokenType = super.getTokenType();
+
+      if (tokenType == ScalaTokenTypes.tDOT || tokenType == tIDENTIFIER) {
+        return ScalaDocTokenType.DOC_COMMENT_DATA;
+      } else if (!elements.isEmpty() && elements.peek() == ScalaDocTokenType.DOC_COMMON_CLOSE_WIKI_TAG) {
+        return ScalaDocTokenType.DOC_COMMON_CLOSE_WIKI_TAG;
+      }
+
+      return tokenType;
+    }
+
+    @Override
+    public void start(CharSequence buffer, int startOffset, int endOffset, int initialState) {
+      elements.clear();
+      super.start(buffer, startOffset, endOffset, initialState);
+    }
+
+    @Override
+    public void advance() {
+      super.advance();
+      if (!elements.isEmpty() && elements.peek() == ScalaDocTokenType.DOC_COMMON_CLOSE_WIKI_TAG) {
+        elements.pop();
+        elements.pop(); //will never be empty there
+      }
+
+      IElementType token = super.getTokenType();
+
+      if (SYNTAX_TO_SWAP.contains(token)) {
+        if (elements.isEmpty() || elements.peek() != token) {
+          elements.push(token);
+        } else {
+          elements.push(ScalaDocTokenType.DOC_COMMON_CLOSE_WIKI_TAG);
+        }
+      }
+    }
+  }
+  
   @NotNull
   public TextAttributesKey[] getTokenHighlights(IElementType iElementType) {
     return pack(ATTRIBUTES.get(iElementType));

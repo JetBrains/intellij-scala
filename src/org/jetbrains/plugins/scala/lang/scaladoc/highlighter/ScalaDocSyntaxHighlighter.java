@@ -26,7 +26,7 @@ public class ScalaDocSyntaxHighlighter extends SyntaxHighlighterBase implements 
   }
 
   static final TokenSet tCOMMENT_TAGS = TokenSet.create(
-     DOC_TAG_NAME 
+     DOC_TAG_NAME
   );
 
   static {
