@@ -84,21 +84,31 @@ object getDummyBlocks {
                 MyScaladocParsing.tagsWithParameters.contains(node.getPsi.asInstanceOf[ScDocTag].getName) =>
         val docTag = node.getPsi.asInstanceOf[ScDocTag]
         val tagValNode = if (docTag.getValueElement != null) docTag.getValueElement.getNode else null
-        if (tagValNode != null) {
-          var nextSibl = docTag.getFirstChild.getNode
-          while (nextSibl != tagValNode.getTreeNext && subBlocks.size() < 3) {
-            subBlocks.add(new ScalaBlock(block, nextSibl, null, null, Indent.getNoneIndent,
-              arrangeSuggestedWrapForChild(block, nextSibl, scalaSettings, block.suggestedWrap), block.getSettings))
 
-            nextSibl = nextSibl.getTreeNext
+        if (tagValNode != null) {
+          var hasValidData = false
+          var nextSiblTagVal = tagValNode.getTreeNext
+          while (!hasValidData && nextSiblTagVal != null) {
+            if (nextSiblTagVal.getText.trim().length > 0 && nextSiblTagVal.getText != "*") hasValidData = true
+            nextSiblTagVal = nextSiblTagVal.getTreeNext
           }
 
-          if (nextSibl != null) {
-            val intBlock = new ScalaBlock(block, nextSibl, docTag.getLastChild.getNode, null, Indent.getNoneIndent,
-              arrangeSuggestedWrapForChild(block, nextSibl, scalaSettings, block.suggestedWrap), block.getSettings)
-            subBlocks.add(intBlock)
-        }
-        return subBlocks
+          if (hasValidData) {
+            var nextSibl = docTag.getFirstChild.getNode
+            while (nextSibl != tagValNode.getTreeNext && subBlocks.size() < 3) {
+              subBlocks.add(new ScalaBlock(block, nextSibl, null, null, Indent.getNoneIndent,
+                arrangeSuggestedWrapForChild(block, nextSibl, scalaSettings, block.suggestedWrap), block.getSettings))
+
+              nextSibl = nextSibl.getTreeNext
+            }
+
+            if (nextSibl != null) {
+              val intBlock = new ScalaBlock(block, nextSibl, docTag.getLastChild.getNode, null, Indent.getNoneIndent,
+                arrangeSuggestedWrapForChild(block, nextSibl, scalaSettings, block.suggestedWrap), block.getSettings)
+              subBlocks.add(intBlock)
+            }
+            return subBlocks
+          }
       }
       case _ =>
     }
