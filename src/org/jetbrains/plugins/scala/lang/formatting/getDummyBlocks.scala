@@ -93,7 +93,7 @@ object getDummyBlocks {
             nextSiblTagVal = nextSiblTagVal.getTreeNext
           }
 
-          if (hasValidData) {
+          if (false) {
             var nextSibl = docTag.getFirstChild.getNode
             while (nextSibl != tagValNode.getTreeNext && subBlocks.size() < 3) {
               subBlocks.add(new ScalaBlock(block, nextSibl, null, null, Indent.getNoneIndent,
