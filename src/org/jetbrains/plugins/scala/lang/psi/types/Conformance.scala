@@ -23,6 +23,7 @@ import java.util.concurrent.ConcurrentHashMap
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.util.{Computable, RecursionManager}
 import psi.impl.ScalaPsiManager
+import extensions.toPsiClassExt
 
 object Conformance {
   /**
@@ -819,7 +820,7 @@ object Conformance {
           val args = p2.typeArgs
           val des = p2.designator
           if (args.length == 1 && (ScType.extractClass(des) match {
-            case Some(q) => q.getQualifiedName == "scala.Array"
+            case Some(q) => q.qualifiedName == "scala.Array"
             case _ => false
           })) {
             val arg = a1.arg
@@ -1018,7 +1019,7 @@ object Conformance {
           val args = p.typeArgs
           val des = p.designator
           if (args.length == 1 && (ScType.extractClass(des) match {
-            case Some(q) => q.getQualifiedName == "scala.Array"
+            case Some(q) => q.qualifiedName == "scala.Array"
             case _ => false
           })) {
             val arg = r.asInstanceOf[JavaArrayType].arg
@@ -1666,9 +1667,9 @@ object Conformance {
         case Some((rClass: PsiClass, subst: ScSubstitutor)) => {
           ScType.extractClass(l) match {
             case Some(lClass) => {
-              if (rClass.getQualifiedName == "java.lang.Object") {
+              if (rClass.qualifiedName == "java.lang.Object") {
                 return conformsInner(l, AnyRef, visited, uSubst, checkWeak)
-              } else if (lClass.getQualifiedName == "java.lang.Object") {
+              } else if (lClass.qualifiedName == "java.lang.Object") {
                 return conformsInner(AnyRef, r, visited, uSubst, checkWeak)
               }
               val inh = smartIsInheritor(rClass, subst, lClass)

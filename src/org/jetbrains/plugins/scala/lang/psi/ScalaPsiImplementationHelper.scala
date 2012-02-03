@@ -8,6 +8,7 @@ import com.intellij.psi.{PsiClass, JavaPsiFacade, PsiFile}
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.openapi.module.Module
 import java.util.List
+import org.jetbrains.plugins.scala.extensions.toPsiClassExt
 
 object ScalaPsiImplementationHelper {
   def getOriginalClass(psiClass: PsiClass): PsiClass = {
@@ -17,7 +18,7 @@ object ScalaPsiImplementationHelper {
     val idx: ProjectFileIndex = ProjectRootManager.getInstance(project).getFileIndex
     if (vFile == null || !idx.isInLibrarySource(vFile)) return psiClass
     val orderEntries: List[OrderEntry] = idx.getOrderEntriesForFile(vFile)
-    val fqn: String = psiClass.getQualifiedName
+    val fqn: String = psiClass.qualifiedName
     if (fqn == null) return psiClass
     val classes: Array[PsiClass] = JavaPsiFacade.getInstance(project).findClasses(fqn, new GlobalSearchScope((project)) {
       def compare(file1: VirtualFile, file2: VirtualFile): Int = 0

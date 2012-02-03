@@ -24,6 +24,7 @@ import settings.ScalaApplicationSettings
 import lang.psi.types.result.{Failure, Success, TypingContext}
 import javax.swing.{JComponent, JCheckBox}
 import collection.immutable.HashSet
+import extensions.toPsiClassExt
 
 /**
  * User: Alexander Podkhalyuzin
@@ -191,7 +192,7 @@ object ScalaOIUtil {
         if (m.getName == "apply") return true
         if (m.getName == "canEqual") return true
         val clazz = m.getContainingClass
-        clazz != null && clazz.getQualifiedName == "scala.Product" &&
+        clazz != null && clazz.qualifiedName == "scala.Product" &&
           (m.getName match {
             case "productArity" | "productElement" => true
             case _ => false

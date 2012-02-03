@@ -14,6 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
 import _root_.scala.collection.mutable.ArrayBuffer
 import result.TypingContext
 import util.{NameValidator, ScalaNamesUtil}
+import extensions.toPsiClassExt
 
 /**
 * User: Alexander.Podkhalyuz
@@ -105,7 +106,7 @@ object NameSuggester {
           generateCamelNames(name)
         }
       }
-      case ScParameterizedType(des@ScDesignatorType(c: PsiClass), Seq(arg)) if c.getQualifiedName == "scala.Array" => {
+      case ScParameterizedType(des@ScDesignatorType(c: PsiClass), Seq(arg)) if c.qualifiedName == "scala.Array" => {
         var s = ""
         arg match {
           case ValType(name) => {

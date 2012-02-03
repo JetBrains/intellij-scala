@@ -43,7 +43,7 @@ object SbtFile {
               }
             }
             val objectsToImport = Seq("sbt.Plugin", "sbt.Build").flatMap(objectInheritorsOf)
-            objectsToImport.map(_.getQualifiedName).map("import %s._" format _).mkString(";")
+            objectsToImport.map(_.qualifiedName).map("import %s._" format _).mkString(";")
           }
 
           // See https://github.com/harrah/xsbt/wiki/Basic-Configuration

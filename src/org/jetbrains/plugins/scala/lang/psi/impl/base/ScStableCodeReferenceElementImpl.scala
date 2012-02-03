@@ -21,6 +21,7 @@ import api.base.patterns.{ScInfixPattern, ScConstructorPattern}
 import api.base.types.{ScParameterizedTypeElement, ScInfixTypeElement, ScSimpleTypeElement}
 import processor.CompletionProcessor
 import api.ScalaElementVisitor
+import extensions.toPsiClassExt
 
 /**
  * @author AlexanderPodkhalyuzin
@@ -115,7 +116,7 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
           nameId.getNode.getTreeParent.replaceChild(nameId.getNode, ref.nameId.getNode)
           return ref
         }
-        val qname = c.getQualifiedName
+        val qname = c.qualifiedName
         if (qname != null) org.jetbrains.plugins.scala.annotator.intention.
                 ScalaImportClassFix.getImportHolder(ref = this, project = getProject).
                 addImportForClass(c, ref = this) //todo: correct handling

@@ -20,6 +20,7 @@ import psi.stubs.ScTemplateDefinitionStub
 import icons.Icons
 import types._
 import api.ScalaElementVisitor
+import extensions.toPsiClassExt
 
 /**
 * @author Alexander Podkhalyuzin
@@ -41,7 +42,7 @@ class ScNewTemplateDefinitionImpl private () extends ScalaStubBasedElementImpl[S
     }
 
     val superTypes = extendsBlock.superTypes.filter(_ match {
-      case ScDesignatorType(clazz: PsiClass) => clazz.getQualifiedName != "scala.ScalaObject"
+      case ScDesignatorType(clazz: PsiClass) => clazz.qualifiedName != "scala.ScalaObject"
       case _ => true
     })
     if (superTypes.length > 1 || !holders.isEmpty || !aliases.isEmpty) {
@@ -72,7 +73,7 @@ class ScNewTemplateDefinitionImpl private () extends ScalaStubBasedElementImpl[S
 
   override def getSupers: Array[PsiClass] = {
     val direct = extendsBlock.supers.filter(_ match {
-      case clazz: PsiClass => clazz.getQualifiedName != "scala.ScalaObject"
+      case clazz: PsiClass => clazz.qualifiedName != "scala.ScalaObject"
       case _ => true
     }).toArray
     val res = new ArrayBuffer[PsiClass]

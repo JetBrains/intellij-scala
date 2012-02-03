@@ -66,7 +66,7 @@ class ScObjectImpl extends ScTypeDefinitionImpl with ScObject with ScTemplateDef
     if (DumbServiceImpl.getInstance(getProject).isDumb) return true
     if (!super[ScTemplateDefinition].processDeclarationsForTemplateBody(processor, state, lastParent, place)) return false
     if (isPackageObject && name != "`package`") {
-      val qual = getQualifiedName
+      val qual = qualifiedName
       val facade = JavaPsiFacade.getInstance(getProject)
       val pack = facade.findPackage(qual) //do not wrap into ScPackage to avoid SOE
       if (pack != null && !ResolveUtils.packageProcessDeclarations(pack, processor, state, lastParent, place))

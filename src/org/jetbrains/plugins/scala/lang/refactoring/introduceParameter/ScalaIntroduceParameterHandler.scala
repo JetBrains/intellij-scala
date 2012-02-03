@@ -151,7 +151,7 @@ class ScalaIntroduceParameterHandler extends RefactoringActionHandler with Confl
     val res: StringBuilder = new StringBuilder(method.getName)
     method.containingClass match {
       case Some(td) =>
-        val qual = td.getQualifiedName
+        val qual = td.qualifiedName
         if (qual == null) res.append(" (<anonymous>)")
         else res.append(" (").append(qual).append(")")
       case _ => res.append(" (<local>)")

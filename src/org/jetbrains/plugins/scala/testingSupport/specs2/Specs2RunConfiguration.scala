@@ -30,6 +30,7 @@ import lang.psi.ScalaPsiUtil
 import com.intellij.openapi.extensions.Extensions
 import com.intellij.openapi.options.{SettingsEditorGroup, SettingsEditor}
 import com.intellij.diagnostic.logging.LogConfigurationPanel
+import extensions.toPsiClassExt
 
 /**
  * User: Alexander Podkhalyuzin
@@ -161,7 +162,7 @@ class Specs2RunConfiguration(val project: Project, val configurationFactory: Con
 
         val programParams = params.getProgramParametersList
         for (cl <- classes) {
-          programParams.add(cl.getQualifiedName)
+          programParams.add(cl.qualifiedName)
         }
         programParams.add("--")
         programParams.addParametersString(getTestArgs)

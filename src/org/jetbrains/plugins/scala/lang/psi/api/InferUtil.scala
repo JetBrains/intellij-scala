@@ -15,6 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.types._
 import nonvalue.{Parameter, ScMethodType, ScTypePolymorphicType}
 import toplevel.typedef.ScObject
 import com.intellij.psi.PsiElement
+import org.jetbrains.plugins.scala.extensions.toPsiClassExt
 
 /**
  * @author Alexander Podkhalyuzin
@@ -85,10 +86,10 @@ object InferUtil {
               paramType match {
                 case p@ScParameterizedType(des, Seq(arg)) =>
                   ScType.extractClass(des) match {
-                    case Some(clazz) if clazz.getQualifiedName == "scala.reflect.ClassManifest" =>
+                    case Some(clazz) if clazz.qualifiedName == "scala.reflect.ClassManifest" =>
                       //do not throw, it's safe
                       resolveResults += new ScalaResolveResult(clazz, p.substitutor)
-                    case Some(clazz) if clazz.getQualifiedName == "scala.reflect.Manifest" =>
+                    case Some(clazz) if clazz.qualifiedName == "scala.reflect.Manifest" =>
                       //do not throw, it's safe
                       resolveResults += new ScalaResolveResult(clazz, p.substitutor)
                     case _ => throw new SafeCheckException
@@ -100,10 +101,10 @@ object InferUtil {
               paramType match {
                 case p@ScParameterizedType(des, Seq(arg)) =>
                   ScType.extractClass(des) match {
-                    case Some(clazz) if clazz.getQualifiedName == "scala.reflect.ClassManifest" =>
+                    case Some(clazz) if clazz.qualifiedName == "scala.reflect.ClassManifest" =>
                       //do not throw, it's safe
                       resolveResults += new ScalaResolveResult(clazz, p.substitutor)
-                    case Some(clazz) if clazz.getQualifiedName == "scala.reflect.Manifest" =>
+                    case Some(clazz) if clazz.qualifiedName == "scala.reflect.Manifest" =>
                       //do not throw, it's safe
                       resolveResults += new ScalaResolveResult(clazz, p.substitutor)
                     case _ => resolveResults += null
@@ -137,10 +138,10 @@ object InferUtil {
             paramType match {
               case p@ScParameterizedType(des, Seq(arg)) =>
                 ScType.extractClass(des) match {
-                  case Some(clazz) if clazz.getQualifiedName == "scala.reflect.ClassManifest" =>
+                  case Some(clazz) if clazz.qualifiedName == "scala.reflect.ClassManifest" =>
                     //do not throw, it's safe
                     resolveResults += new ScalaResolveResult(clazz, p.substitutor)
-                  case Some(clazz) if clazz.getQualifiedName == "scala.reflect.Manifest" =>
+                  case Some(clazz) if clazz.qualifiedName == "scala.reflect.Manifest" =>
                     //do not throw, it's safe
                     resolveResults += new ScalaResolveResult(clazz, p.substitutor)
                   case _ => resolveResults += null

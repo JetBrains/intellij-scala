@@ -24,6 +24,7 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys
 import org.jetbrains.plugins.scala.lang.resolve.processor.{CompletionProcessor, CollectMethodsProcessor}
 import org.jetbrains.plugins.scala.lang.resolve.{StdKinds, ScalaResolveResult, ResolveUtils}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScVariable, ScValue}
+import org.jetbrains.plugins.scala.extensions.toPsiClassExt
 
 /**
  * @author Alexander Podkhalyuzin
@@ -65,7 +66,7 @@ class ScalaGlobalMembersCompletionContributor extends CompletionContributor {
       case memb: PsiMember =>
         val containingClass = memb.getContainingClass
         if (containingClass == null) return false
-        val qualifiedName = containingClass.getQualifiedName + "." + member.getName
+        val qualifiedName = containingClass.qualifiedName + "." + member.getName
         for (excluded <- CodeInsightSettings.getInstance.EXCLUDED_PACKAGES) {
           if (qualifiedName == excluded || qualifiedName.startsWith(excluded + ".")) {
             return false
@@ -100,7 +101,7 @@ class ScalaGlobalMembersCompletionContributor extends CompletionContributor {
           case _ => null
         }
         if (containingClass == null) return false
-        val qualName = containingClass.getQualifiedName
+        val qualName = containingClass.qualifiedName
         if (qualName == null) return false
         for {
           element <- elemsSet
@@ -111,8 +112,8 @@ class ScalaGlobalMembersCompletionContributor extends CompletionContributor {
             case _ => null
           }
           if cClass != null
-          if cClass.getQualifiedName != null
-          if cClass.getQualifiedName == qualName
+          if cClass.qualifiedName != null
+          if cClass.qualifiedName == qualName
         } {
           return true
         }
@@ -196,7 +197,7 @@ class ScalaGlobalMembersCompletionContributor extends CompletionContributor {
           case _ => null
         }
         if (containingClass == null) return false
-        val qualName = containingClass.getQualifiedName
+        val qualName = containingClass.qualifiedName
         if (qualName == null) return false
         for {
           element <- elemsSet
@@ -207,8 +208,8 @@ class ScalaGlobalMembersCompletionContributor extends CompletionContributor {
             case _ => null
           }
           if cClass != null
-          if cClass.getQualifiedName != null
-          if cClass.getQualifiedName == qualName
+          if cClass.qualifiedName != null
+          if cClass.qualifiedName == qualName
         } {
           return true
         }

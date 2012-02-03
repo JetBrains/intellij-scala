@@ -12,6 +12,7 @@ import result.{Failure, Success, TypingContext}
 import com.intellij.openapi.project.Project
 import api.toplevel.typedef.ScObject
 import api.statements._
+import extensions.toPsiClassExt
 
 trait ScTypePsiTypeBridge {
   /**
@@ -28,7 +29,7 @@ trait ScTypePsiTypeBridge {
         val result = classType.resolveGenerics
         result.getElement match {
           case tp: PsiTypeParameter => ScalaPsiManager.typeVariable(tp)
-          case clazz if clazz != null && clazz.getQualifiedName == "java.lang.Object" => {
+          case clazz if clazz != null && clazz.qualifiedName == "java.lang.Object" => {
             if (paramTopLevel && treatJavaObjectAsAny) Any
             else AnyRef
           }
@@ -122,7 +123,7 @@ trait ScTypePsiTypeBridge {
       case ScCompoundType(Seq(t, _*), _, _, _) => toPsi(t, project, scope)
       case ScDesignatorType(c: PsiClass) => JavaPsiFacade.getInstance(project).getElementFactory.createType(c, PsiSubstitutor.EMPTY)
       case ScParameterizedType(ScDesignatorType(c: PsiClass), args) =>
-        if (c.getQualifiedName == "scala.Array" && args.length == 1)
+        if (c.qualifiedName == "scala.Array" && args.length == 1)
           new PsiArrayType(toPsi(args(0), project, scope))
         else {
           val subst = args.zip(c.getTypeParameters).foldLeft(PsiSubstitutor.EMPTY)
@@ -130,7 +131,7 @@ trait ScTypePsiTypeBridge {
           JavaPsiFacade.getInstance(project).getElementFactory.createType(c, subst)
         }
       case ScParameterizedType(proj@ScProjectionType(pr, element, subst), args) => proj.actualElement match {
-        case c: PsiClass => if (c.getQualifiedName == "scala.Array" && args.length == 1)
+        case c: PsiClass => if (c.qualifiedName == "scala.Array" && args.length == 1)
           new PsiArrayType(toPsi(args(0), project, scope))
         else {
           val subst = args.zip(c.getTypeParameters).foldLeft(PsiSubstitutor.EMPTY)
@@ -152,7 +153,7 @@ trait ScTypePsiTypeBridge {
           clazz match {
             case syn: ScSyntheticClass => toPsi(syn.t, project, scope)
             case _ => {
-              val fqn = clazz.getQualifiedName
+              val fqn = clazz.qualifiedName
               JavaPsiFacade.getInstance(project).getElementFactory.createTypeByFQClassName(if (fqn != null) fqn else "java.lang.Object", scope)
             }
           }

@@ -17,6 +17,7 @@ import com.intellij.psi.{PsiClassType, PsiElement, PsiClass}
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi.util.PsiModificationTracker
 import com.intellij.openapi.project.Project
+import extensions.toPsiClassExt
 
 abstract class MixinNodes {
   type T
@@ -306,7 +307,7 @@ abstract class MixinNodes {
         else
           clazz match {
             case template: ScTypeDefinition => {
-              if (template.getQualifiedName == "scala.Predef") isPredef = true
+              if (template.qualifiedName == "scala.Predef") isPredef = true
               place = Some(template.extendsBlock)
               processScala(template, ScSubstitutor.empty, map, place)
               val lin = MixinNodes.linearization(template, collection.immutable.HashSet.empty)
@@ -362,7 +363,7 @@ abstract class MixinNodes {
       ScType.extractClassType(superType, place.map(_.getProject)) match {
         case Some((superClass, s)) =>
           // Do not include scala.ScalaObject to Predef's base types to prevent SOE
-          if (!(superClass.getQualifiedName == "scala.ScalaObject" && isPredef)) {
+          if (!(superClass.qualifiedName == "scala.ScalaObject" && isPredef)) {
             val newSubst = combine(s, subst, superClass).followed(thisTypeSubst)
             val newMap = new Map
             superClass match {
@@ -409,7 +410,7 @@ abstract class MixinNodes {
 object MixinNodes {
   def linearization(clazz: PsiClass, visited: collection.immutable.HashSet[PsiClass]): Seq[ScType] = {
     clazz match {
-      case obj: ScObject if obj.isPackageObject && obj.getQualifiedName == "scala" => {
+      case obj: ScObject if obj.isPackageObject && obj.qualifiedName == "scala" => {
         return Seq(ScType.designator(obj))
       }
       case _ =>
@@ -442,7 +443,7 @@ object MixinNodes {
         case clazz: PsiClass => clazz.getSuperTypes.map(tp => tp match {
           case ctp: PsiClassType =>
             val cl = ctp.resolve()
-            if (cl != null && cl.getQualifiedName == "java.lang.Object") ScDesignatorType(cl)
+            if (cl != null && cl.qualifiedName == "java.lang.Object") ScDesignatorType(cl)
             else ScType.create(tp, clazz.getProject)
           case _ => ScType.create(tp, clazz.getProject)
         }).toSeq
@@ -458,14 +459,14 @@ object MixinNodes {
     val set: HashSet[String] = new HashSet //to add here qualified names of classes
     def classString(clazz: PsiClass): String = {
       clazz match {
-        case obj: ScObject => "Object: " + obj.getQualifiedName
-        case tra: ScTrait => "Trait: " + tra.getQualifiedName
-        case _ => "Class: " + clazz.getQualifiedName
+        case obj: ScObject => "Object: " + obj.qualifiedName
+        case tra: ScTrait => "Trait: " + tra.qualifiedName
+        case _ => "Class: " + clazz.qualifiedName
       }
     }
     def add(tp: ScType) {
       ScType.extractClass(tp, project) match {
-        case Some(clazz) if clazz.getQualifiedName != null && !set.contains(classString(clazz)) => {
+        case Some(clazz) if clazz.qualifiedName != null && !set.contains(classString(clazz)) => {
           tp +=: buffer
           set += classString(clazz)
         }

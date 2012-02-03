@@ -65,7 +65,7 @@ class SpecsConfigurationType extends ConfigurationType {
     if (!ScalaPsiUtil.cachedDeepIsInheritor(parent, suiteClazz)) return null
     val settings = RunManager.getInstance(location.getProject).createRunConfiguration(parent.getName, confFactory)
     val runConfiguration = settings.getConfiguration.asInstanceOf[SpecsRunConfiguration]
-    val testClassPath = parent.getQualifiedName
+    val testClassPath = parent.qualifiedName
     runConfiguration.setTestClassPath(testClassPath)
 
     // If the selected element is a non-empty string literal, we assume that this
@@ -118,8 +118,8 @@ class SpecsConfigurationType extends ConfigurationType {
     if (suiteClazz == null) return false
     if (!ScalaPsiUtil.cachedDeepIsInheritor(parent, suiteClazz)) return false
     configuration match {
-      case configuration: SpecsRunConfiguration => return parent.getQualifiedName == configuration.getTestClassPath
-      case _ => return false
+      case configuration: SpecsRunConfiguration => parent.qualifiedName == configuration.getTestClassPath
+      case _ => false
     }
   }
 }

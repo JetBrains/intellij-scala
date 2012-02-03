@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.lang.resolve;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiReference;
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition;
 
 /**
  * User: Alexander Podkhalyuzin
@@ -16,7 +17,7 @@ public class ResolveClassLevelImportTest extends ScalaResolveTestCase {
   public void testclassLevelImport() throws Exception {
     PsiReference ref = findReferenceAtCaret();
     PsiElement resolved = ref.resolve();
-    assertTrue(resolved instanceof PsiClass);
-    assertEquals(((PsiClass) resolved).getQualifiedName(), "scala.collection.immutable.Map");
+    assertTrue(resolved instanceof ScTemplateDefinition);
+    assertEquals(((ScTemplateDefinition) resolved).qualifiedName(), "scala.collection.immutable.Map");
   }
 }

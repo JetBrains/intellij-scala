@@ -15,6 +15,7 @@ import lang.psi.ScalaPsiUtil
 import ScalaMarkerType.ScCellRenderer
 import lang.psi.api.toplevel.ScTypedDefinition
 import lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition}
+import extensions.toPsiClassExt
 
 /**
  * User: Alexander Podkhalyuzin
@@ -67,7 +68,7 @@ private object ScalaGoToSuperActionHandler {
 
     def templateSupers(template: ScTemplateDefinition): Array[PsiElement] = {
       def ignored = Set("java.lang.Object", "scala.ScalaObject", "scala.Any", "scala.AnyRef")
-      val supers = template.supers.filterNot((x: PsiClass) => ignored.contains(x.getQualifiedName))
+      val supers = template.supers.filterNot((x: PsiClass) => ignored.contains(x.qualifiedName))
       HashSet[PsiClass](supers: _*).toArray
     }
 

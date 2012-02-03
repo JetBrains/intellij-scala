@@ -15,6 +15,7 @@ import com.intellij.openapi.util.Comparing
 import lexer.ScalaTokenTypes
 import api.base.types.ScTypeElement
 import api.ScalaElementVisitor
+import extensions.toPsiClassExt
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -38,7 +39,7 @@ class ScAnnotationImpl extends ScalaStubBasedElementImpl[ScAnnotation] with ScAn
 
   def getQualifiedName: String = getClazz match {
     case None => null
-    case Some(c) => c.getQualifiedName
+    case Some(c) => c.qualifiedName
   }
 
   def typeElement: ScTypeElement = {

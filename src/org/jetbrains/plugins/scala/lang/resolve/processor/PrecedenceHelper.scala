@@ -9,6 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.{ImportE
 import com.intellij.psi.{PsiElement, PsiMember, PsiPackage, PsiClass}
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResult}
 import collection.mutable.HashSet
+import org.jetbrains.plugins.scala.extensions.toPsiClassExt
 
 /**
  * User: Alexander Podkhalyuzin
@@ -88,7 +89,7 @@ trait PrecedenceHelper {
       else return 3
     }
     def getClazzPrecedence(clazz: PsiClass): Int = {
-      val qualifier = clazz.getQualifiedName
+      val qualifier = clazz.qualifiedName
       if (qualifier == null) return 6
       val index: Int = qualifier.lastIndexOf('.')
       if (index == -1) return 6
@@ -102,7 +103,7 @@ trait PrecedenceHelper {
       ScalaPsiUtil.nameContext(result.getActualElement) match {
         case synthetic: ScSyntheticClass => return 2 //like scala.Int
         case obj: ScObject if obj.isPackageObject => {
-          val qualifier = obj.getQualifiedName
+          val qualifier = obj.qualifiedName
           return getPackagePrecedence(qualifier)
         }
         case pack: PsiPackage => {
@@ -121,7 +122,7 @@ trait PrecedenceHelper {
           //val clazz = PsiTreeUtil.getParentOfType(result.getActualElement, classOf[PsiClass])
           if (clazz == null) return 6
           else {
-            clazz.getQualifiedName match {
+            clazz.qualifiedName match {
               case "scala.Predef" => return 2
               case "scala.LowPriorityImplicits" => return 2
               case "scala" => return 2

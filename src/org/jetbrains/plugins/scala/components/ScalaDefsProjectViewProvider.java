@@ -29,6 +29,7 @@ import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.SyntheticElement;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile;
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition;
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition;
 
 import java.util.ArrayList;
@@ -89,7 +90,11 @@ public class ScalaDefsProjectViewProvider implements TreeStructureProvider {
     @Override
     public String getTitle() {
       PsiClass value = getValue();
-      return value != null && value.isValid() ? value.getQualifiedName() : null;
+      if (value != null && value.isValid()) {
+        if (value instanceof ScTemplateDefinition) {
+          return ((ScTemplateDefinition) value).qualifiedName();
+        } else return value.getQualifiedName();
+      } else return null;
     }
   }
 

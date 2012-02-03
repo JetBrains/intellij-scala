@@ -81,7 +81,7 @@ class ScAccessModifierImpl extends ScalaStubBasedElementImpl[ScAccessModifier] w
         new TextRange(0, id.getTextLength).shiftRight(id.getStartOffsetInParent)
       }
       def getCanonicalText = resolve match {
-        case td : ScTypeDefinition => td.getQualifiedName
+        case td : ScTypeDefinition => td.qualifiedName
         case p : PsiPackage => p.getQualifiedName
         case _ => null
       }

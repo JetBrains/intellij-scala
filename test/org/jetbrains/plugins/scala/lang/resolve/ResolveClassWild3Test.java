@@ -19,6 +19,6 @@ public class ResolveClassWild3Test extends ScalaResolveTestCase {
     PsiReference ref = findReferenceAtCaret();
     PsiElement resolved = ref.resolve();
     assertTrue(resolved instanceof ScClass);
-    assertEquals(((PsiClass) resolved).getQualifiedName(), "AAA.CaseClass");
+    assertEquals(((ScClass) resolved).qualifiedName(), "AAA.CaseClass");
   }
 }

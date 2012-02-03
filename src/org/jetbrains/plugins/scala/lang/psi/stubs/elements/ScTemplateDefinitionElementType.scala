@@ -42,7 +42,7 @@ extends ScStubElementType[ScTemplateDefinitionStub, ScTemplateDefinition](debugN
 
     val isImplicitObject = psi.isInstanceOf[ScObject] && psi.hasModifierProperty("implicit")
 
-    new ScTemplateDefinitionStubImpl[ParentPsi](parent, this, psi.getName, psi.getQualifiedName,
+    new ScTemplateDefinitionStubImpl[ParentPsi](parent, this, psi.getName, psi.qualifiedName,
       fileName, signs, isPO, isSFC, isDepr, isImplicitObject)
   }
 

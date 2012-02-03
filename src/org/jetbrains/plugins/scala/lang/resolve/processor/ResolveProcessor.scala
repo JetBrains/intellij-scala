@@ -21,6 +21,7 @@ import reflect.NameTransformer
 import collection.mutable.HashSet
 import psi.api.toplevel.typedef.{ScClass, ScTrait, ScMember, ScObject}
 import psi.api.toplevel.ScNamedElement
+import extensions.toPsiClassExt
 
 class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
                        val ref: PsiElement,
@@ -51,10 +52,10 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
   protected def getQualifiedName(result: ScalaResolveResult): String = {
     result.getActualElement match {
       case c: ScTypeParam => null
-      case c: ScObject => "Object:" + c.getQualifiedName
-      case c: PsiClass => "Class:" + c.getQualifiedName
+      case c: ScObject => "Object:" + c.qualifiedName
+      case c: PsiClass => "Class:" + c.qualifiedName
       case t: ScTypeAlias if t.getParent.isInstanceOf[ScTemplateBody] &&
-        t.getContainingClass != null => "TypeAlias:" + t.getContainingClass.getQualifiedName + "#" + t.getName
+        t.getContainingClass != null => "TypeAlias:" + t.getContainingClass.qualifiedName + "#" + t.getName
       case p: PsiPackage => "Package:" + p.getQualifiedName
       case _ => null
     }
@@ -99,7 +100,7 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
       if (accessibility && !accessible) return true
       named match {
         case o: ScObject if o.isPackageObject && JavaPsiFacade.getInstance(element.getProject).
-                findPackage(o.getQualifiedName) != null =>
+                findPackage(o.qualifiedName) != null =>
         case pack: PsiPackage =>
           addResult(new ScalaResolveResult(ScPackageImpl(pack), getSubst(state), getImports(state), isAccessible = accessible))
         case clazz: PsiClass if !isThisOrSuperResolve || PsiTreeUtil.isContextAncestor(clazz, ref, true) =>
@@ -155,7 +156,7 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
       }).map(r => {
         val elem = r.getActualElement
         val context = ScalaPsiUtil.nameContext(elem)
-        val pref = context.asInstanceOf[ScMember].getContainingClass.getQualifiedName
+        val pref = context.asInstanceOf[ScMember].getContainingClass.qualifiedName
         elem match {
           case _: ScClass | _: ScTrait | _: ScTypeAlias => "Type:" + pref + "." + elem.getName
           case _ => "Value:" + pref + "." + elem.getName
@@ -163,8 +164,8 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
       })
 
       res = res.filter(r => r.getActualElement match {
-        case o: ScObject => !problems.contains("Value:" + o.getQualifiedName)
-        case c: PsiClass => !problems.contains("Type:" + c.getQualifiedName)
+        case o: ScObject => !problems.contains("Value:" + o.qualifiedName)
+        case c: PsiClass => !problems.contains("Type:" + c.qualifiedName)
         case _ => true
       })
     } else res

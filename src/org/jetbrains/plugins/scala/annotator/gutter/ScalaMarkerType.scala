@@ -26,6 +26,7 @@ import lang.psi.api.toplevel.ScNamedElement
 import lang.psi.api.toplevel.typedef.{ScTypeDefinition, ScTrait, ScMember, ScObject}
 import lang.psi.api.statements._
 import lang.psi.types.{Signature}
+import extensions.toPsiClassExt
 
 /**
  * User: Alexander Podkhalyuzin
@@ -58,8 +59,8 @@ object ScalaMarkerType {
           assert(optionClazz != None)
           val clazz = optionClazz.get
           if (!GutterUtil.isOverrides(element, signatures))
-            ScalaBundle.message("implements.method.from.super", clazz.getQualifiedName)
-          else ScalaBundle.message("overrides.method.from.super", clazz.getQualifiedName)
+            ScalaBundle.message("implements.method.from.super", clazz.qualifiedName)
+          else ScalaBundle.message("overrides.method.from.super", clazz.qualifiedName)
         }
         case _: ScValue | _: ScVariable => {
           val signatures = new ArrayBuffer[Signature]
@@ -73,8 +74,8 @@ object ScalaMarkerType {
           assert(optionClazz != None)
           val clazz = optionClazz.get
           if (!GutterUtil.isOverrides(element, signatures))
-            ScalaBundle.message("implements.val.from.super", clazz.getQualifiedName)
-          else ScalaBundle.message("overrides.val.from.super", clazz.getQualifiedName)
+            ScalaBundle.message("implements.val.from.super", clazz.qualifiedName)
+          else ScalaBundle.message("overrides.val.from.super", clazz.qualifiedName)
         }
         case x@(_: ScTypeDefinition | _: ScTypeAlias) => {
           val superMembers = ScalaPsiUtil.superTypeMembers(x.asInstanceOf[PsiNamedElement])

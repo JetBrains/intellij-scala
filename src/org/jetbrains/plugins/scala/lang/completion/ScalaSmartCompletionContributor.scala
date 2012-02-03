@@ -27,6 +27,7 @@ import com.intellij.util.{Processor, ProcessingContext}
 import com.intellij.codeInsight.lookup._
 import org.jetbrains.plugins.scala.icons.Icons
 import collection.mutable.{HashSet, ArrayBuffer}
+import org.jetbrains.plugins.scala.extensions.toPsiClassExt
 
 /**
  * User: Alexander Podkhalyuzin
@@ -55,7 +56,7 @@ class ScalaSmartCompletionContributor extends CompletionContributor {
               typez.foreach {
                 case ScParameterizedType(tp, Seq(arg)) if !elementAdded =>
                   ScType.extractClass(tp, Some(elem.getProject)) match {
-                    case Some(clazz) if clazz.getQualifiedName == "scala.Option" =>
+                    case Some(clazz) if clazz.qualifiedName == "scala.Option" =>
                       if (!scType.equiv(Nothing) && scType.conforms(arg)) {
                         el.putUserData(ResolveUtils.someSmartCompletionKey, java.lang.Boolean.TRUE)
 
@@ -523,7 +524,7 @@ private[completion] object ScalaSmartCompletionContributor {
     ScType.extractClassType(tp, Some(place.getProject)) match {
       case Some((clazz: PsiClass, subst: ScSubstitutor)) =>
         //filter base types (it's important for scala 2.9)
-        clazz.getQualifiedName match {
+        clazz.qualifiedName match {
           case "scala.Boolean" | "scala.Int" | "scala.Long" | "scala.Byte" | "scala.Short" | "scala.AnyVal" |
                "scala.Char" | "scala.Unit" | "scala.Float" | "scala.Double" | "scala.Any" => return null
           case _ =>
@@ -532,8 +533,8 @@ private[completion] object ScalaSmartCompletionContributor {
         if (clazz.getContainingClass != null && (!clazz.getContainingClass.isInstanceOf[ScObject] ||
           clazz.hasModifierProperty("static"))) return null
         if (!ResolveUtils.isAccessible(clazz, place)) return null
-        if (addedClasses.contains(clazz.getQualifiedName)) return null
-        addedClasses += clazz.getQualifiedName
+        if (addedClasses.contains(clazz.qualifiedName)) return null
+        addedClasses += clazz.qualifiedName
         getLookupElementFromTypeAndClass(tp, clazz, subst, renderer, insertHandler)
       case _ => null
     }

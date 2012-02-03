@@ -124,7 +124,7 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
         while (filesIterator.hasNext) {
           val file = filesIterator.next()
           if (typeDefinitions.length == 0) return this
-          val qual = typeDefinitions.apply(0).getQualifiedName
+          val qual = typeDefinitions.apply(0).qualifiedName
           def scanFile(file: VirtualFile): Option[PsiElement] = {
             val children: Array[VirtualFile] = file.getChildren
             if (children != null) {
@@ -138,7 +138,7 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
                       val clazzIterator = o.getClasses.iterator
                       while (clazzIterator.hasNext) {
                         val clazz = clazzIterator.next()
-                        if (qual == clazz.getQualifiedName) {
+                        if (qual == clazz.qualifiedName) {
                           return Some(o)
                         }
                       }
@@ -397,7 +397,7 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
   private def isScalaPredefinedClass = {
     def inner(file: ScalaFile): java.lang.Boolean = {
       java.lang.Boolean.valueOf(file.typeDefinitions.length == 1 &&
-        Set("scala", "scala.Predef").contains(file.typeDefinitions.apply(0).getQualifiedName))
+        Set("scala", "scala.Predef").contains(file.typeDefinitions.apply(0).qualifiedName))
     }
     CachesUtil.get[ScalaFile, java.lang.Boolean](this, CachesUtil.SCALA_PREDEFINED_KEY,
       new CachesUtil.MyProvider[ScalaFile, java.lang.Boolean](this, e => inner(e))
@@ -406,7 +406,7 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
   
   
   def isScalaPredefinedClassInner = typeDefinitions.length == 1 &&
-    Set("scala", "scala.Predef").contains(typeDefinitions.apply(0).getQualifiedName)
+    Set("scala", "scala.Predef").contains(typeDefinitions.apply(0).qualifiedName)
 
 
   override def findReferenceAt(offset: Int): PsiReference = super.findReferenceAt(offset)
@@ -521,7 +521,7 @@ object ImplicitlyImported {
 
   def implicitlyImportedObjects(manager: PsiManager, scope: GlobalSearchScope,
                                 fqn: String): Seq[PsiClass] = {
-    implicitlyImportedObjects(manager, scope).filter(_.getQualifiedName == fqn)
+    implicitlyImportedObjects(manager, scope).filter(_.qualifiedName == fqn)
   }
 
   def implicitlyImportedObjects(manager: PsiManager, scope: GlobalSearchScope): Seq[PsiClass] = {

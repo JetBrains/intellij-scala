@@ -40,7 +40,7 @@ import lang.psi.{ScalaPsiUtil, ScImportsHolder}
 import search.PsiShortNamesCache
 import lang.scaladoc.psi.api.ScDocResolvableCodeReference
 import lang.psi.impl.ScalaPsiElementFactory
-import extensions.inWriteAction
+import extensions.{toPsiClassExt, inWriteAction}
 
 /**
  * User: Alexander Podkhalyuzin
@@ -50,7 +50,7 @@ import extensions.inWriteAction
 class ScalaImportClassFix(private var classes: Array[PsiClass], ref: ScReferenceElement) extends {
     val project = ref.getProject
   } with  HintAction {
-  def getText = ScalaBundle.message("import.with", classes(0).getQualifiedName)
+  def getText = ScalaBundle.message("import.with", classes(0).qualifiedName)
 
   def getFamilyName = ScalaBundle.message("import.class")
 
@@ -71,13 +71,13 @@ class ScalaImportClassFix(private var classes: Array[PsiClass], ref: ScReference
     if (!ref.isValid) return false
     if (ref.qualifier != None) return false
     ref.getContext match {
-      case postf: ScPostfixExpr if postf.operation == ref => return false
-      case pref: ScPrefixExpr if pref.operation == ref => return false
-      case inf: ScInfixExpr if inf.operation == ref => return false
+      case postf: ScPostfixExpr if postf.operation == ref => false
+      case pref: ScPrefixExpr if pref.operation == ref => false
+      case inf: ScInfixExpr if inf.operation == ref => false
       case _ => {
         classes = ScalaImportClassFix.getClasses(ref, project)
         classes.length match {
-          case 0 => return false
+          case 0 => false
           case 1 if scalaSettings.ADD_UNAMBIGIOUS_IMPORTS_ON_THE_FLY  &&
                   !caretNear(editor) => {
             CommandProcessor.getInstance().runUndoTransparentAction(new Runnable {
@@ -85,11 +85,11 @@ class ScalaImportClassFix(private var classes: Array[PsiClass], ref: ScReference
                 new ScalaAddImportAction(editor, classes, ref).execute()
               }
             })
-            return false
+            false
           }
           case _ => {
             fixesAction(editor)
-            return true
+            true
           }
         }
       }
@@ -123,8 +123,8 @@ class ScalaImportClassFix(private var classes: Array[PsiClass], ref: ScReference
         if (classes.length > 0 && offset >= startOffset(editor) && offset <= endOffset(editor) && editor != null &&
                 offset <= editor.getDocument.getTextLength) {
           HintManager.getInstance().showQuestionHint(editor,
-          if (classes.length == 1) classes(0).getQualifiedName + "? Alt+Enter"
-          else classes(0).getQualifiedName + "? (multiple choices...) Alt+Enter",
+          if (classes.length == 1) classes(0).qualifiedName + "? Alt+Enter"
+          else classes(0).qualifiedName + "? (multiple choices...) Alt+Enter",
           offset,
           offset + ref.getTextLength(),
           action)
@@ -149,7 +149,7 @@ class ScalaImportClassFix(private var classes: Array[PsiClass], ref: ScReference
               if (!ref.isInstanceOf[ScDocResolvableCodeReference]) {
                 ScalaImportClassFix.getImportHolder(ref, project).addImportForClass(clazz, ref)
               } else {
-                ref.replace(ScalaPsiElementFactory.createDocLinkValue(clazz.getQualifiedName, ref.getManager))
+                ref.replace(ScalaPsiElementFactory.createDocLinkValue(clazz.qualifiedName, ref.getManager))
               }
             }
           }, clazz.getProject, "Add import action")
@@ -157,17 +157,17 @@ class ScalaImportClassFix(private var classes: Array[PsiClass], ref: ScReference
       })
     }
 
-    def chooseClass {
+    def chooseClass() {
       val list = new JList(classes.asInstanceOf[Array[Object]])
       list.setCellRenderer(new FQNameCellRenderer())
 
       val popup = new BaseListPopupStep[PsiClass](QuickFixBundle.message("class.to.import.chooser.title"), classes) {
         override def getIconFor(aValue: PsiClass): Icon = {
-          return aValue.getIcon(0)
+          aValue.getIcon(0)
         }
 
         override def getTextFor(value: PsiClass): String = {
-          return ObjectUtils.assertNotNull(value.getQualifiedName)
+          ObjectUtils.assertNotNull(value.qualifiedName)
         }
 
         import PopupStep.FINAL_CHOICE
@@ -176,29 +176,29 @@ class ScalaImportClassFix(private var classes: Array[PsiClass], ref: ScReference
             return FINAL_CHOICE
           }
           if (finalChoice) {
-            PsiDocumentManager.getInstance(project).commitAllDocuments
+            PsiDocumentManager.getInstance(project).commitAllDocuments()
             addImportOrReference(selectedValue)
             return FINAL_CHOICE
           }
-          var qname: String = selectedValue.getQualifiedName
+          val qname: String = selectedValue.qualifiedName
           if (qname == null) return FINAL_CHOICE
           val toExclude: java.util.List[String] = AddImportAction.getAllExcludableStrings(qname)
-          return new BaseListPopupStep[String](null, toExclude) {
+          new BaseListPopupStep[String](null, toExclude) {
             override def onChosen(selectedValue: String, finalChoice: Boolean): PopupStep[_] = {
               if (finalChoice) {
                 AddImportAction.excludeFromImport(project, selectedValue)
               }
-              return super.onChosen(selectedValue, finalChoice)
+              super.onChosen(selectedValue, finalChoice)
             }
 
             override def getTextFor(value: String): String = {
-              return "Exclude '" + value + "' from auto-import"
+              "Exclude '" + value + "' from auto-import"
             }
           }
         }
 
         override def hasSubstep(selectedValue: PsiClass): Boolean = {
-          return true
+          true
         }
       }
       JBPopupFactory.getInstance.createListPopup(popup).showInBestPositionFor(editor)
@@ -213,7 +213,7 @@ class ScalaImportClassFix(private var classes: Array[PsiClass], ref: ScReference
       }
       else chooseClass
 
-      return true
+      true
     }
   }
 }
@@ -269,7 +269,7 @@ object ScalaImportClassFix {
     val buffer = new ArrayBuffer[PsiClass]
     for (clazz <- classes) {
       def addClazz(clazz: PsiClass) {
-        if (clazz != null && clazz.getQualifiedName() != null && clazz.getQualifiedName.indexOf(".") > 0 &&
+        if (clazz != null && clazz.qualifiedName != null && clazz.qualifiedName.indexOf(".") > 0 &&
           ResolveUtils.kindMatches(clazz, kinds) && notInner(clazz, ref) && ResolveUtils.isAccessible(clazz, ref) &&
           !JavaCompletionUtil.isInExcludedPackage(clazz)) {
           buffer += clazz

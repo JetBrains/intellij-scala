@@ -48,6 +48,7 @@ import scaladoc.psi.api.{ScDocResolvableCodeReference, ScDocSyntaxElement, ScDoc
 import parser.parsing.base.{Constructor, Import}
 import api.base.{ScConstructor, ScIdList, ScPatternList, ScStableCodeReferenceElement}
 import com.intellij.util.IncorrectOperationException
+import extensions.toPsiClassExt
 
 object ScalaPsiElementFactory {
 
@@ -304,7 +305,7 @@ object ScalaPsiElementFactory {
   }
 
   def createImportStatementFromClass(holder: ScImportsHolder, clazz: PsiClass, manager: PsiManager): ScImportStmt = {
-    val qualifiedName = clazz.getQualifiedName
+    val qualifiedName = clazz.qualifiedName
     val packageName = holder match {
       case packaging: ScPackaging => packaging.getPackageName
       case _ => {
@@ -533,7 +534,7 @@ object ScalaPsiElementFactory {
     }
     imp.resolve match {
       case x: PsiClass => {
-        x.getQualifiedName == clazz.getQualifiedName
+        x.qualifiedName == clazz.qualifiedName
       }
       case _ => false
     }
@@ -753,7 +754,7 @@ object ScalaPsiElementFactory {
       case ValType("Char" | "Int" | "Byte") => "0"
       case ValType("Long") => "0L"
       case ValType("Float" | "Double") => "0.0"
-      case ScDesignatorType(c: PsiClass) if c.getQualifiedName == "java.lang.String" => "\"\""
+      case ScDesignatorType(c: PsiClass) if c.qualifiedName == "java.lang.String" => "\"\""
       case _ => "null"
     }
   }

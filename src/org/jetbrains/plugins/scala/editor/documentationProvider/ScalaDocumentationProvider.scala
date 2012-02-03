@@ -27,6 +27,7 @@ import lang.psi.api.base.{ScReferenceElement, ScConstructor, ScAccessModifier, S
 import lang.resolve.ScalaResolveResult
 import lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.extensions
+import extensions.toPsiClassExt
 import lang.scaladoc.lexer.ScalaDocTokenType
 import lang.scaladoc.parser.parsing.MyScaladocParsing
 import lang.scaladoc.psi.api.{ScDocTag, ScDocSyntaxElement, ScDocComment}
@@ -88,7 +89,7 @@ class ScalaDocumentationProvider extends CodeDocumentationProvider {
     e match {
       case clazz: ScTypeDefinition => {
         val buffer: StringBuilder = new StringBuilder("")
-        val qualName = clazz.getQualifiedName
+        val qualName = clazz.qualifiedName
         val pack = {
           val lastIndexOf = qualName.lastIndexOf(".")
           if (lastIndexOf >= 0) qualName.substring(0, lastIndexOf) else ""
@@ -336,7 +337,7 @@ class ScalaDocumentationProvider extends CodeDocumentationProvider {
                         args.headOption match {
                           case a: Some[ScType] =>
                             ScType.extractClass(a.get, Option(function.getProject)) match {
-                              case Some(clazz) => buffer append clazz.getQualifiedName
+                              case Some(clazz) => buffer append clazz.qualifiedName
                               case _ =>
                             }
                           case _ =>
@@ -392,8 +393,8 @@ object ScalaDocumentationProvider {
   private def parseClassUrl(elem: ScMember): String = {
     val clazz = elem.getContainingClass
     if (clazz == null) return ""
-    "<a href=\"psi_element://" + escapeHtml(clazz.getQualifiedName) + "\"><code>" +
-      escapeHtml(clazz.getQualifiedName) + "</code></a>"
+    "<a href=\"psi_element://" + escapeHtml(clazz.qualifiedName) + "\"><code>" +
+      escapeHtml(clazz.qualifiedName) + "</code></a>"
   }
 
   private def parseParameters(elem: ScParameterOwner, typeToString: ScType => String, spaces: Int): String = {
@@ -471,7 +472,7 @@ object ScalaDocumentationProvider {
     def accessQualifier(x: ScAccessModifier): String = (x.getReference match {
       case null => ""             case ref => ref.resolve match {
         case clazz: PsiClass => "[<a href=\"psi_element://" +
-                escapeHtml(clazz.getQualifiedName) + "\"><code>" +
+                escapeHtml(clazz.qualifiedName) + "\"><code>" +
                 (x.idText match {case Some(text) => text case None => ""}) + "</code></a>]"
         case pack: PsiPackage => "[" + escapeHtml(pack.getQualifiedName) + "]"
         case _ => x.idText match {case Some(text) => "[" + text + "]" case None => ""}
@@ -557,7 +558,7 @@ object ScalaDocumentationProvider {
         }
         val (s1, s2) = elem.getContainingClass match {
           case e: PsiClass if withDescription => ("<b>Description copied from class: </b><a href=\"psi_element://" +
-                  escapeHtml(e.getQualifiedName) + "\"><code>" + escapeHtml(e.getName) + "</code></a><p>", "</p>")
+                  escapeHtml(e.qualifiedName) + "\"><code>" + escapeHtml(e.getName) + "</code></a><p>", "</p>")
           case _ => ("", "")
         }
         s1 + (elem match {

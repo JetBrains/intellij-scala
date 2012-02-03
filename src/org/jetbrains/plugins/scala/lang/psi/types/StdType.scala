@@ -8,6 +8,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.{PsiElement, PsiManager}
 import impl.ScalaPsiManager
+import extensions.toPsiClassExt
 
 
 abstract case class StdType(name: String, tSuper: Option[StdType]) extends ValueType {
@@ -32,13 +33,13 @@ abstract case class StdType(name: String, tSuper: Option[StdType]) extends Value
       case (l: StdType, _: StdType) => (l == r, subst)
       case (AnyRef, _) => {
         ScType.extractClass(r) match {
-          case Some(clazz) if clazz.getQualifiedName == "java.lang.Object" => (true, subst)
+          case Some(clazz) if clazz.qualifiedName == "java.lang.Object" => (true, subst)
           case _ => (false, subst)
         }
       }
       case (_, _) => {
         ScType.extractClass(r) match {
-          case Some(clazz) if clazz.getQualifiedName == "scala." + name => (true, subst)
+          case Some(clazz) if clazz.qualifiedName == "scala." + name => (true, subst)
           case _ => (false, subst)
         }
       }

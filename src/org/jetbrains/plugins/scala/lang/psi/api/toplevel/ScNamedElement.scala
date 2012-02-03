@@ -56,7 +56,7 @@ trait ScNamedElement extends ScalaPsiElement with PsiNameIdentifierOwner with Na
       def getPresentableText(): String = name
       def getTextAttributesKey(): TextAttributesKey = null
       def getLocationString(): String = clazz match {
-        case _: ScTypeDefinition => "(" + clazz.getQualifiedName + ")"
+        case _: ScTypeDefinition => "(" + clazz.qualifiedName + ")"
         case x: ScNewTemplateDefinition => "(<anonymous>)"
         case _ => ""
       }

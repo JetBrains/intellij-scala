@@ -12,6 +12,7 @@ import api.toplevel.ScTypedDefinition
 import resolve.processor.ResolveProcessor
 import resolve.ResolveTargets
 import com.intellij.psi.{PsiClass, ResolveState, PsiNamedElement}
+import extensions.toPsiClassExt
 
 /**
  * @author ilyas
@@ -230,7 +231,7 @@ case class ScDesignatorType(element: PsiNamedElement) extends ValueType {
   override def getValType: Option[StdType] = {
     element match {
       case clazz: PsiClass =>
-        ScType.baseTypesQualMap.get(clazz.getQualifiedName)
+        ScType.baseTypesQualMap.get(clazz.qualifiedName)
       case _ => None
     }
   }

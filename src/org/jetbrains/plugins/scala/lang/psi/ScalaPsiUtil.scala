@@ -45,12 +45,12 @@ import collection.mutable.{HashSet, ArrayBuffer}
 import collection.immutable.Stream
 import com.intellij.psi.impl.source.PsiFileImpl
 import com.intellij.psi.stubs.StubElement
-import org.jetbrains.plugins.scala.extensions._
 import com.intellij.openapi.module.{ModuleUtil, Module}
 import config.ScalaFacet
 import reflect.NameTransformer
 import caches.CachesUtil
 import java.lang.{AssertionError, Exception}
+import extensions._
 
 /**
  * User: Alexander Podkhalyuzin
@@ -464,7 +464,7 @@ object ScalaPsiUtil {
         case scp: ScParameter => scp.getType(TypingContext.empty).getOrNothing
         case p =>
           val treatJavaObjectAsAny = p.parents.findByType(classOf[PsiClass]) match {
-            case Some(cls) if cls.getQualifiedName == "java.lang.Object" => true // See SCL-3036
+            case Some(cls) if cls.qualifiedName == "java.lang.Object" => true // See SCL-3036
             case _ => false
           }
           ScType.create(p.getType, p.getProject, paramTopLevel = true, treatJavaObjectAsAny = treatJavaObjectAsAny)
@@ -801,7 +801,7 @@ object ScalaPsiUtil {
       case ScFunctionType(retType, _) => Some(retType)
       case ScParameterizedType(des, args) => {
         ScType.extractClass(des) match {
-          case Some(clazz) if clazz.getQualifiedName.startsWith("scala.Function") => Some(args(args.length - 1))
+          case Some(clazz) if clazz.qualifiedName.startsWith("scala.Function") => Some(args(args.length - 1))
           case _ => None
         }
       }
@@ -921,8 +921,8 @@ object ScalaPsiUtil {
             x.replace(ScalaPsiElementFactory.createReferenceFromText(clazz.getName, clazz.getManager)).
                     asInstanceOf[ScStableCodeReferenceElement].bindToElement(clazz)
           case m: ScTypeAlias if m.getContainingClass != null && (
-                  m.getContainingClass.getQualifiedName == "scala.Predef" ||
-                  m.getContainingClass.getQualifiedName == "scala") => {
+                  m.getContainingClass.qualifiedName == "scala.Predef" ||
+                  m.getContainingClass.qualifiedName == "scala") => {
             x.replace(ScalaPsiElementFactory.createReferenceFromText(m.getName, m.getManager)).
                     asInstanceOf[ScStableCodeReferenceElement].bindToElement(m)
           }

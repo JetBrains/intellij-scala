@@ -169,7 +169,7 @@ class ScalaLineMarkerProvider(daemonSettings: DaemonCodeAnalyzerSettings, colors
 
 private object GutterUtil {
   def collectInheritingClasses(clazz: ScTypeDefinition, result: Collection[LineMarkerInfo[_ <: PsiElement]]) {
-    if ("scala.ScalaObject".equals(clazz.getQualifiedName)) return
+    if ("scala.ScalaObject".equals(clazz.qualifiedName)) return
 
     val inheritor = ClassInheritorsSearch.search(clazz, false).findFirst
     if (inheritor != null) {

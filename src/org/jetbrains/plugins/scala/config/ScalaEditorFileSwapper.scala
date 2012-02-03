@@ -7,8 +7,8 @@ import com.intellij.psi.search.GlobalSearchScope
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import com.intellij.openapi.fileEditor.impl.EditorFileSwapper
+import org.jetbrains.plugins.scala.extensions.toPsiClassExt
 
-//todo: possibly join with JavaEditorFileSwapper (code is almost the same)
 object ScalaEditorFileSwapper {
   def findSourceFile(project: Project, eachFile: VirtualFile): VirtualFile = {
     val psiFile: PsiFile = PsiManager.getInstance(project).findFile(eachFile)
@@ -31,7 +31,7 @@ object ScalaEditorFileSwapper {
     if (!(psiFile.isInstanceOf[ScalaFile])) return null
     val classes: Array[PsiClass] = (psiFile.asInstanceOf[ScalaFile]).getClasses
     if (classes.length == 0) return null
-    val fqn: String = classes(0).getQualifiedName
+    val fqn: String = classes(0).qualifiedName
     if (fqn == null) return null
     fqn
   }

@@ -12,10 +12,11 @@ import api.toplevel.typedef.{ScTypeDefinition, ScObject}
 import api.statements._
 import api.base.patterns.{ScReferencePattern, ScBindingPattern}
 import params.ScTypeParam
+import extensions.toPsiClassExt
 
 trait ScTypePresentation {
   def presentableText(t: ScType) = typeText(t, _.getName, {
-      case obj: ScObject if obj.getQualifiedName == "scala.Predef" => ""
+      case obj: ScObject if obj.qualifiedName == "scala.Predef" => ""
       case pack: PsiPackage => ""
       case e => e.getName + "."
     }
@@ -24,8 +25,8 @@ trait ScTypePresentation {
   def urlText(t: ScType) = {
     def nameFun(e: PsiNamedElement, withPoint: Boolean): String = {
       e match {
-        case obj: ScObject if withPoint && obj.getQualifiedName == "scala.Predef" => ""
-        case e: PsiClass => "<a href=\"psi_element://" + e.getQualifiedName + "\"><code>" +
+        case obj: ScObject if withPoint && obj.qualifiedName == "scala.Predef" => ""
+        case e: PsiClass => "<a href=\"psi_element://" + e.qualifiedName + "\"><code>" +
                 StringEscapeUtils.escapeHtml(e.getName) +
                 "</code></a>" + (if (withPoint) "." else "")
         case pack: PsiPackage if withPoint => ""
@@ -40,7 +41,7 @@ trait ScTypePresentation {
     def nameFun(e: PsiNamedElement, withPoint: Boolean): String = {
       (e match {
         case c: PsiClass => {
-          val qname = c.getQualifiedName
+          val qname = c.qualifiedName
           if (qname != null && qname != c.getName /* exlude default package*/ ) "_root_." + qname else c.getName
         }
         case p: PsiPackage => "_root_." + p.getQualifiedName

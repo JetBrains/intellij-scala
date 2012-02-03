@@ -5,6 +5,7 @@ package completion3
 import com.intellij.codeInsight.completion.CompletionType
 import com.intellij.codeInsight.lookup.LookupElement
 import com.intellij.psi.PsiClass
+import extensions.toPsiClassExt
 
 /**
  * User: Dmitry Naydanov
@@ -78,7 +79,7 @@ class ScalaDocCompletionTest extends ScalaCompletionTestBase {
       |  * [[java.util.HashMap
       |  */
       """,
-      (al: LookupElement) => al.getObject.asInstanceOf[PsiClass].getQualifiedName == "java.util.HashMap"
+      (al: LookupElement) => al.getObject.asInstanceOf[PsiClass].qualifiedName == "java.util.HashMap"
     )
   }
 

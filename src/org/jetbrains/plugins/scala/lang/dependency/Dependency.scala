@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala
 package lang.dependency
 
 import lang.psi.impl.toplevel.synthetic.ScSyntheticClass
-import extensions._
 import com.intellij.psi._
 import lang.psi.api.base.{ScReferenceElement, ScPrimaryConstructor}
 import lang.psi.api.expr.{ScInfixExpr, ScPostfixExpr}
@@ -10,6 +9,7 @@ import lang.psi.api.statements.ScFunctionDefinition
 import lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScMember}
 import annotator.intention.ScalaImportClassFix
 import lang.psi.api.base.patterns.{ScReferencePattern, ScConstructorPattern}
+import extensions._
 
 /**
  * Pavel Fatin
@@ -65,7 +65,7 @@ object Dependency {
       case Parent(_: ScConstructorPattern) =>
         target match {
           case ContainingClass(aClass) =>
-            withEntity(aClass.getQualifiedName)
+            withEntity(aClass.qualifiedName)
           case aClass: ScSyntheticClass => None
           case _ => None
         }
@@ -74,26 +74,26 @@ object Dependency {
           case e: ScSyntheticClass =>
             None
           case e: PsiClass =>
-            withEntity(e.getQualifiedName)
+            withEntity(e.qualifiedName)
           case e: PsiPackage =>
             withEntity(e.getQualifiedName)
           case (_: ScPrimaryConstructor) && Parent(e: ScClass) =>
-            withEntity(e.getQualifiedName)
+            withEntity(e.qualifiedName)
           case (function: ScFunctionDefinition) && ContainingClass(obj: ScObject)
             if function.isSynthetic =>
-            withEntity(obj.getQualifiedName)
+            withEntity(obj.qualifiedName)
           case (member: ScMember) && ContainingClass(obj: ScObject) =>
-            withMember(obj.getQualifiedName, member.getName)
+            withMember(obj.qualifiedName, member.getName)
           case (pattern: ScReferencePattern) && Parent(Parent(ContainingClass(obj: ScObject))) =>
-            withMember(obj.getQualifiedName, pattern.getName)
+            withMember(obj.qualifiedName, pattern.getName)
           case (function: ScFunctionDefinition) && ContainingClass(obj: ScClass)
             if function.isConstructor =>
-            withEntity(obj.getQualifiedName)
+            withEntity(obj.qualifiedName)
           case (method: PsiMethod) && ContainingClass(e: PsiClass)
             if method.isConstructor =>
-            withEntity(e.getQualifiedName)
+            withEntity(e.qualifiedName)
           case (member: PsiMember) && ContainingClass(e: PsiClass) =>
-            withMember(e.getQualifiedName, member.getName)
+            withMember(e.qualifiedName, member.getName)
           case _ => None
         }
     }

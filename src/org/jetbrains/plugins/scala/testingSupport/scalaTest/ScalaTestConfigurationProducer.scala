@@ -22,6 +22,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScCl
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaRecursiveElementVisitor
+import org.jetbrains.plugins.scala.extensions.toPsiClassExt
 
 /**
  * User: Alexander Podkhalyuzin
@@ -66,7 +67,7 @@ class ScalaTestConfigurationProducer extends {
     if (!clazz.isInstanceOf[ScClass]) return (null, null)
     if (clazz.hasModifierProperty("abstract")) return (null, null)
     if (!isInheritor(clazz, "org.scalatest.Suite")) return (null, null)
-    val testClassPath = clazz.getQualifiedName
+    val testClassPath = clazz.qualifiedName
     
     sealed trait ReturnResult
     case class SuccessResult(invocation: MethodInvocation, testName: String, middleName: String) extends ReturnResult
@@ -106,7 +107,7 @@ class ScalaTestConfigurationProducer extends {
                         case Success(Unit, _) => failedToCheck = false
                         case Success(tp, _) =>
                           ScType.extractClass(tp) match {
-                            case Some(clazz) if clazz.getQualifiedName == "java.lang.String" =>
+                            case Some(clazz) if clazz.qualifiedName == "java.lang.String" =>
                               call.argumentExpressions.apply(0) match {
                                 case l: ScLiteral if l.isString =>
                                   failedToCheck = false
@@ -122,7 +123,7 @@ class ScalaTestConfigurationProducer extends {
                   }
               }
             }
-            if (containingClass != null && fqns.find(_ == containingClass.getQualifiedName) != None) {
+            if (containingClass != null && fqns.find(_ == containingClass.qualifiedName) != None) {
               if (!failedToCheck) {
                 val res = inv(call)
                 if (res.isDefined) return SuccessResult(call, res.get, middleName)
@@ -187,7 +188,7 @@ class ScalaTestConfigurationProducer extends {
               resolve match {
                 case fun: ScFunction =>
                   val clazz = fun.getContainingClass
-                  if (clazz != null && fqn.contains(clazz.getQualifiedName)) {
+                  if (clazz != null && fqn.contains(clazz.qualifiedName)) {
                     m match {
                       case i: ScInfixExpr => endupWithLitral(i.getBaseExpr)
                       case _ => m.getInvokedExpr match {
@@ -388,7 +389,7 @@ class ScalaTestConfigurationProducer extends {
             case "should" =>
               ref.resolve() match {
                 case fun: ScFunction if fun.getContainingClass != null &&
-                  fun.getContainingClass.getQualifiedName == shouldFqn =>
+                  fun.getContainingClass.qualifiedName == shouldFqn =>
                   if (result == null) {
                     ref.getParent match {
                       case m: MethodInvocation => result = infix(m)
@@ -400,7 +401,7 @@ class ScalaTestConfigurationProducer extends {
             case "must" =>
               ref.resolve() match {
                 case fun: ScFunction if fun.getContainingClass != null &&
-                  fun.getContainingClass.getQualifiedName == mustFqn =>
+                  fun.getContainingClass.qualifiedName == mustFqn =>
                   if (result == null) {
                     ref.getParent match {
                       case m: MethodInvocation => result = infix(m)
@@ -412,7 +413,7 @@ class ScalaTestConfigurationProducer extends {
             case "can" =>
               ref.resolve() match {
                 case fun: ScFunction if fun.getContainingClass != null &&
-                  fun.getContainingClass.getQualifiedName == canFqn =>
+                  fun.getContainingClass.qualifiedName == canFqn =>
                   if (result == null) {
                     ref.getParent match {
                       case m: MethodInvocation => result = infix(m)
@@ -424,7 +425,7 @@ class ScalaTestConfigurationProducer extends {
             case "of" =>
               ref.resolve() match {
                 case fun: ScFunction if fun.getContainingClass != null &&
-                  fun.getContainingClass.getQualifiedName == "org.scalatest.FlatSpec.BehaviorWord" =>
+                  fun.getContainingClass.qualifiedName == "org.scalatest.FlatSpec.BehaviorWord" =>
                   if (result == null) {
                     ref.getParent match {
                       case m: MethodInvocation => result = call(m)

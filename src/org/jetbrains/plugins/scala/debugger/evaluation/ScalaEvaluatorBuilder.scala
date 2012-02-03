@@ -27,6 +27,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScClassParen
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTypeDefinition, ScClass, ScTrait, ScObject}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScPrimaryConstructor, ScStableCodeReferenceElement, ScLiteral, ScReferenceElement}
+import org.jetbrains.plugins.scala.extensions.toPsiClassExt
 
 /**
  * User: Alefas
@@ -524,7 +525,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
         case "<=" => binaryEvalForBoxes(name, "testLessOrEqualThan")
         case "+" if qual.map(_.getType(TypingContext.empty).getOrAny).filter(tp => {
           ScType.extractClass(tp) match {
-            case Some(clazz) => clazz.getQualifiedName == "java.lang.String"
+            case Some(clazz) => clazz.qualifiedName == "java.lang.String"
             case _ => false
           }
         }) != None =>
@@ -592,7 +593,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
       fun.getContext match {
         case tb: ScTemplateBody =>
           fun.getContainingClass match {
-            case clazz: ScClass if clazz.getQualifiedName == "scala.Array" => true
+            case clazz: ScClass if clazz.qualifiedName == "scala.Array" => true
             case _ => false
           }
         case _ => false
@@ -604,7 +605,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
       fun.getContext match {
         case tb: ScTemplateBody =>
           fun.getContainingClass match {
-            case clazz: PsiClass if clazz.getQualifiedName == "scala.Predef" => true
+            case clazz: PsiClass if clazz.qualifiedName == "scala.Predef" => true
             case _ => false
           }
         case _ => false
@@ -621,7 +622,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
       }
       clazz match {
         case o: ScObject if isStable(o) =>
-          val exprText = o.getQualifiedName + "." + implicitFunction.getName + "(" +
+          val exprText = o.qualifiedName + "." + implicitFunction.getName + "(" +
             qual.getText + ")"
           val expr = replaceWithImplicit(exprText)
           expr.accept(this)
@@ -825,7 +826,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
                     throw EvaluateExceptionUtil.createEvaluateException("cannot find implicit parameters to pass")
                   s(i) match {
                     case ScalaResolveResult(clazz: ScTrait, substitutor)
-                      if clazz.getQualifiedName == "scala.reflect.ClassManifest" =>
+                      if clazz.qualifiedName == "scala.reflect.ClassManifest" =>
                       val argType = substitutor.subst(clazz.getType(TypingContext.empty).get)
                       argType match {
                         case ScParameterizedType(tp, Seq(arg)) =>
@@ -849,7 +850,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
                               "_root_.scala.reflect.ClassManifest.arrayType(" + text(arg) + ")"
                             case ScParameterizedType(ScDesignatorType(clazz: ScClass), Seq(arg))
 
-                              if clazz.getQualifiedName == "scala.Array" =>
+                              if clazz.qualifiedName == "scala.Array" =>
                               "_root_.scala.reflect.ClassManifest.arrayType(" + text(arg) + ")"
                             /*case ScParameterizedType(des, args) =>
                               ScType.extractClass(des, Option(expr.getProject)) match {
@@ -859,7 +860,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
                               }*/   //todo:
                             case _ => ScType.extractClass(arg, Option(expr.getProject)) match {
                               case Some(clazz) => "_root_.scala.reflect.ClassManifest.classType(classOf[_root_." +
-                                clazz.getQualifiedName + "])"
+                                clazz.qualifiedName + "])"
                               case _ => "_root_.scala.reflect.ClassManifest.classType(classOf[_root_.java.lang." +
                                 "Object])"
                             }
@@ -882,7 +883,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
                       }
                       clazz match {
                         case o: ScObject if isStable(o) =>
-                          val exprText = o.getQualifiedName + "." + param.getName
+                          val exprText = o.qualifiedName + "." + param.getName
                           val e = ScalaPsiElementFactory.createExpressionWithContextFromText(exprText,
                             expr.getContext, expr)
                           e.accept(this)
@@ -1178,7 +1179,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
     private def stableObjectEvaluator(obj: ScObject): Evaluator = {
       val qualName = 
         if (obj.isPackageObject)
-          obj.getQualifiedName + ".package"
+          obj.qualifiedName + ".package"
         else obj.getQualifiedNameForDebugger
       val qual = qualName.split('.').map(NameTransformer.encode(_)).mkString(".") + "$"
       stableObjectEvaluator(qual)
@@ -1510,7 +1511,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
             case Some(constr) =>
               val tp = constr.typeElement.calcType
               ScType.extractClass(tp, Some(templ.getProject)) match {
-                case Some(clazz) if clazz.getQualifiedName == "scala.Array" =>
+                case Some(clazz) if clazz.qualifiedName == "scala.Array" =>
                   val exprText = "_root_.scala.Array.ofDim" + constr.typeArgList.map(_.getText).getOrElse("") +
                     constr.args.map(_.getText).getOrElse("(0)")
                   val expr = ScalaPsiElementFactory.createExpressionWithContextFromText(exprText, templ.getContext, templ)

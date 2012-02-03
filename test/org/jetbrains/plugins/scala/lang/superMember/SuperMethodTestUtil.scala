@@ -7,6 +7,7 @@ import psi.api.statements.ScFunction
 import psi.api.toplevel.typedef.{ScMember}
 import psi.ScalaPsiUtil
 import com.intellij.psi.{PsiMember, PsiNamedElement, PsiFile}
+import extensions.toPsiClassExt
 
 /**
  * User: Alexander Podkhalyuzin
@@ -29,7 +30,7 @@ object SuperMethodTestUtil {
                 case member: PsiMember =>
                   val clazz = member.getContainingClass
                   if (clazz != null)
-                    clazz.getQualifiedName + "."
+                    clazz.qualifiedName + "."
                   else ""
                 case _ => ""
               }

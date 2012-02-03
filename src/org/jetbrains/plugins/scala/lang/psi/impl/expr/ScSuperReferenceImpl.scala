@@ -19,6 +19,7 @@ import com.intellij.lang.ASTNode
 import types.result.{TypingContext, Failure}
 import api.ScalaElementVisitor
 import com.intellij.psi.{PsiElementVisitor, PsiElement, PsiReference, PsiClass}
+import extensions.toPsiClassExt
 
 /**
 * @author Alexander Podkhalyuzin
@@ -57,7 +58,7 @@ class ScSuperReferenceImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with
       def getElement = ScSuperReferenceImpl.this
       def getRangeInElement = new TextRange(0, id.getTextLength).shiftRight(id.getStartOffsetInParent)
       def getCanonicalText = resolve match {
-        case c : PsiClass => c.getQualifiedName
+        case c : PsiClass => c.qualifiedName
         case _ => null
       }
       def isSoft: Boolean = false

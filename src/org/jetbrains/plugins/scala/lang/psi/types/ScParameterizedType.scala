@@ -18,6 +18,7 @@ import result.{Success, TypingContext}
 import api.toplevel.typedef.{ScTypeDefinition, ScClass}
 import collection.mutable.ArrayBuffer
 import collection.immutable.{ListMap, Map}
+import extensions.toPsiClassExt
 
 case class JavaArrayType(arg: ScType) extends ValueType {
 
@@ -61,7 +62,7 @@ case class JavaArrayType(arg: ScType) extends ValueType {
       case JavaArrayType(arg2) => Equivalence.equivInner (arg, arg2, uSubst, falseUndef)
       case ScParameterizedType(des, args) if args.length == 1 => {
         ScType.extractClass(des) match {
-          case Some(td) if td.getQualifiedName == "scala.Array" => Equivalence.equivInner(arg, args(0), uSubst, falseUndef)
+          case Some(td) if td.qualifiedName == "scala.Array" => Equivalence.equivInner(arg, args(0), uSubst, falseUndef)
           case _ => (false, uSubst)
         }
       }
@@ -224,7 +225,7 @@ case class ScParameterizedType(designator : ScType, typeArgs : Seq[ScType]) exte
    * @return (typeDef, typeArgs)
    */
   private def getStandardType(prefix: String): Option[(ScTypeDefinition, Seq[ScType])] = {
-    def startsWith(clazz: PsiClass, qualNamePrefix: String) = clazz.getQualifiedName != null && clazz.getQualifiedName.startsWith(qualNamePrefix)
+    def startsWith(clazz: PsiClass, qualNamePrefix: String) = clazz.qualifiedName != null && clazz.qualifiedName.startsWith(qualNamePrefix)
 
     ScType.extractClassType(designator) match {
       case Some((clazz: ScTypeDefinition, sub)) if startsWith(clazz, prefix) =>
