@@ -37,6 +37,19 @@ class Derived extends Base {
     }
   }
 
+  def testClassParameter() {
+    assertMatches(messages(
+      """
+object ppp {
+class A(x: Int)
+class B(val x: Int) extends A(x)
+case class C(x: Int) extends A(x)
+}
+      """)) {
+      case Nil =>
+    }
+  }
+
   def testVal() {
     assertMatches(messages(
       """

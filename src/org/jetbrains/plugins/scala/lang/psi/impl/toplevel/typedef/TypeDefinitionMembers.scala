@@ -85,6 +85,7 @@ object TypeDefinitionMembers {
 
     def isPrivate(t: Signature): Boolean = {
       t.namedElement match {
+        case Some(param: ScClassParameter) if !param.isEffectiveVal => true
         case Some(named: ScNamedElement) =>
           ScalaPsiUtil.nameContext(named) match {
             case s: ScModifierListOwner =>
@@ -155,12 +156,7 @@ object TypeDefinitionMembers {
           case constr: ScPrimaryConstructor => {
             val parameters = constr.parameters
             for (param <- parameters if isBridge(place, param)) {
-              if (!param.isEffectiveVal && place != None && place.get == template.extendsBlock) {
-                //this is class parameter without val or var, it's like private val
-                addSignature(new Signature(param.name, Stream.empty, 0, subst, Some(param)))
-              } else {
-                addSignature(new Signature(param.name, Stream.empty, 0, subst, Some(param)))
-              }
+               addSignature(new Signature(param.name, Stream.empty, 0, subst, Some(param)))
             }
           }
           case f: ScFunction if isBridge(place, f) && !f.isConstructor && f.parameters.length == 0 =>
@@ -284,6 +280,7 @@ object TypeDefinitionMembers {
 
     def isPrivate(t: Signature): Boolean = {
       t.namedElement match {
+        case Some(c: ScClassParameter) if !c.isEffectiveVal => true
         case Some(named: ScNamedElement) =>
           ScalaPsiUtil.nameContext(named) match {
             case s: ScModifierListOwner =>
@@ -355,15 +352,10 @@ object TypeDefinitionMembers {
           case constr: ScPrimaryConstructor => {
             val parameters = constr.parameters
             for (param <- parameters if isBridge(place, param)) {
-              if (!param.isEffectiveVal && place != None && place.get == template.extendsBlock) {
-                //this is class parameter without val or var, it's like private val
-                addSignature(new Signature(param.name, Stream.empty, 0, subst, Some(param)))
-              } else if (isBridge(place, param)) {
-                lazy val t = param.getType(TypingContext.empty).getOrAny
-                addSignature(new Signature(param.name, Stream.empty, 0, subst, Some(param)))
-                if (!param.isStable) addSignature(new Signature(param.name + "_=", ScalaPsiUtil.getSingletonStream(t), 1, subst,
-                  Some(param)))
-              }
+              lazy val t = param.getType(TypingContext.empty).getOrAny
+              addSignature(new Signature(param.name, Stream.empty, 0, subst, Some(param)))
+              if (!param.isStable) addSignature(new Signature(param.name + "_=", ScalaPsiUtil.getSingletonStream(t), 1, subst,
+                Some(param)))
             }
           }
           case f: ScFunction if isBridge(place, f) && !f.isConstructor =>
