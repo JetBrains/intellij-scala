@@ -16,6 +16,8 @@ import com.intellij.psi.stubs.NamedStub
  */
 
 trait ScFunctionStub extends NamedStub[ScFunction] {
+  def isImplicit: Boolean
+
   def isDeclaration: Boolean
 
   def getAnnotations : Array[String]

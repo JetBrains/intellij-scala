@@ -31,11 +31,12 @@ extends StubBaseWrapper[ScFunction](parent, elemType) with ScFunctionStub {
   private var myReturnTypeElement: PatchedSoftReference[Option[ScTypeElement]] = null
   private var myBodyExpression: PatchedSoftReference[Option[ScExpression]] = null
   private var assign: Boolean = false
+  private var _implicit: Boolean = false
 
   def this(parent: StubElement[ParentPsi],
           elemType: IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement],
           name: String, isDeclaration: Boolean, annotations: Array[String], typeText: String, bodyText: String,
-          assign: Boolean) = {
+          assign: Boolean, isImplicit: Boolean) = {
     this(parent, elemType.asInstanceOf[IStubElementType[StubElement[PsiElement], PsiElement]])
     this.name = StringRef.fromString(name)
     this.declaration = isDeclaration
@@ -43,12 +44,13 @@ extends StubBaseWrapper[ScFunction](parent, elemType) with ScFunctionStub {
     this.typeText = StringRef.fromString(typeText)
     this.bodyText = StringRef.fromString(bodyText)
     this.assign = assign
+    _implicit = isImplicit
   }
 
   def this(parent: StubElement[ParentPsi],
           elemType: IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement],
           name: StringRef, isDeclaration: Boolean, annotations: Array[StringRef], typeText: StringRef, bodyText: StringRef,
-          assign: Boolean) = {
+          assign: Boolean, isImplicit: Boolean) = {
     this(parent, elemType.asInstanceOf[IStubElementType[StubElement[PsiElement], PsiElement]])
     this.name = name
     this.declaration = isDeclaration
@@ -56,6 +58,7 @@ extends StubBaseWrapper[ScFunction](parent, elemType) with ScFunctionStub {
     this.typeText = typeText
     this.bodyText = bodyText
     this.assign = assign
+    _implicit = isImplicit
   }
 
   def getName: String = StringRef.toString(name)
@@ -95,4 +98,6 @@ extends StubBaseWrapper[ScFunction](parent, elemType) with ScFunctionStub {
   def getReturnTypeText: String = StringRef.toString(typeText)
 
   def hasAssign: Boolean = assign
+
+  def isImplicit: Boolean = _implicit
 }

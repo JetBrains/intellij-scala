@@ -3,7 +3,6 @@ package org.jetbrains.plugins.scala.lang.completion
 import com.intellij.codeInsight.lookup.LookupElement
 import com.intellij.codeInsight.completion._
 import com.intellij.psi._
-import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, ResolveUtils}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScPrefixExpr, ScPostfixExpr, ScInfixExpr, ScReferenceExpression}
 import com.intellij.featureStatistics.FeatureUsageTracker
@@ -18,29 +17,44 @@ import collection.mutable.HashSet
 import com.intellij.openapi.keymap.KeymapUtil
 import com.intellij.openapi.actionSystem.{ActionManager, IdeActions}
 import org.jetbrains.plugins.scala.caches.ScalaCachesManager
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScVariable, ScValue}
+import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
+import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import stubs.StubIndex
+import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys
+import org.jetbrains.plugins.scala.lang.resolve.processor.{CompletionProcessor, CollectMethodsProcessor}
+import org.jetbrains.plugins.scala.lang.resolve.{StdKinds, ScalaResolveResult, ResolveUtils}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScVariable, ScValue}
 
 /**
  * @author Alexander Podkhalyuzin
  */
 
-class ScalaGlobalMembersCompletionContributor extends CompletionContributor {
+class ScalaGlobalMembersCompletionContributor extends CompletionContributor {  
   extend(CompletionType.CLASS_NAME, psiElement, new CompletionProvider[CompletionParameters]() {
     def addCompletions(parameters: CompletionParameters, context: ProcessingContext,
                        result: CompletionResultSet) {
-      if (result.getPrefixMatcher.getPrefix == "") return
       val position: PsiElement = parameters.getPosition
       if (!position.getContainingFile.isInstanceOf[ScalaFile]) return
       val parent: PsiElement = position.getParent
       parent match {
-        case ref: ScReferenceExpression if ref.qualifier == None =>
-          ref.getParent match {
-            case inf: ScInfixExpr if inf.operation == ref => return
-            case posf: ScPostfixExpr if posf.operation == ref => return
-            case pref: ScPrefixExpr if pref.operation == ref => return
-            case _ =>
+        case ref: ScReferenceExpression =>
+          val qualifier = ref.qualifier match {
+            case Some(qual) => qual
+            case None =>
+              ref.getParent match {
+                case inf: ScInfixExpr if inf.operation == ref => inf.getBaseExpr
+                case posf: ScPostfixExpr if posf.operation == ref => posf.getBaseExpr
+                case pref: ScPrefixExpr if pref.operation == ref => pref.getBaseExpr
+                case _ =>
+                  if (result.getPrefixMatcher.getPrefix == "") return
+                  complete(ref, result, parameters.getOriginalFile)
+                  return
+              }
           }
-          complete(ref, result, parameters.getOriginalFile)
+          val typeWithoutImplicits = qualifier.getTypeWithoutImplicits(TypingContext.empty)
+          if (typeWithoutImplicits.isEmpty) return
+          val tp = typeWithoutImplicits.get
+          completeImplicits(ref, result, parameters.getOriginalFile, tp)
         case _ =>
       }
     }
@@ -62,6 +76,90 @@ class ScalaGlobalMembersCompletionContributor extends CompletionContributor {
           case _: ScTypeDefinition => false
           case _ => memb.hasModifierProperty("static")
         }
+    }
+  }
+
+  private def completeImplicits(ref: ScReferenceExpression, result: CompletionResultSet, originalFile: PsiFile,
+                                originalType: ScType) {
+    FeatureUsageTracker.getInstance.triggerFeatureUsed(JavaCompletionFeatures.GLOBAL_MEMBER_NAME)
+    val matcher: PrefixMatcher = result.getPrefixMatcher
+    val scope: GlobalSearchScope = ref.getResolveScope
+    val file = ref.getContainingFile
+
+    val elemsSet = new HashSet[PsiNamedElement]
+    def addElemToSet(elem: PsiNamedElement) {
+      elemsSet += elem
+    }
+
+    def elemsSetContains(elem: PsiNamedElement): Boolean = {
+      if (elem.getContainingFile == originalFile) {
+        //complex logic to detect static methods in same file, which we shouldn't import
+        val name = elem.getName
+        val containingClass = ScalaPsiUtil.nameContext(elem) match {
+          case member: PsiMember => member.getContainingClass
+          case _ => null
+        }
+        if (containingClass == null) return false
+        val qualName = containingClass.getQualifiedName
+        if (qualName == null) return false
+        for {
+          element <- elemsSet
+          if element.getName == name
+          if element.getContainingFile == file
+          cClass = ScalaPsiUtil.nameContext(element) match {
+            case member: PsiMember => member.getContainingClass
+            case _ => null
+          }
+          if cClass != null
+          if cClass.getQualifiedName != null
+          if cClass.getQualifiedName == qualName
+        } {
+          return true
+        }
+        false
+      } else elemsSet.contains(elem)
+    }
+
+    val collection = StubIndex.getInstance.get(ScalaIndexKeys.IMPLICITS_KEY, "implicit", file.getProject, scope)
+    
+    import scala.collection.JavaConversions._
+    
+    val proc = new ref.CollectImplicitsProcessor(true)
+    for (element <- collection) {
+      element match {
+        case v: ScValue =>
+          for (d <- v.declaredElements if isStatic(d)) {
+            proc.execute(d, ResolveState.initial())
+          }
+        case f: ScFunction if isStatic(f) =>
+          proc.execute(element, ResolveState.initial())
+        case _ =>
+      }
+    }
+    val candidates = proc.candidates.map(ref.forMap(_, originalType))
+
+    ref.getVariants(false, false).foreach {
+      case (_, elem: PsiNamedElement, _) => addElemToSet(elem)
+      case elem: PsiNamedElement => addElemToSet(elem)
+    }
+
+    val iterator = candidates.iterator
+    while (iterator.hasNext) {
+      val next = iterator.next()
+      if (next._1) {
+        val retTp = next._4
+        val c = new CompletionProcessor(StdKinds.methodRef)
+        c.processType(retTp, ref)
+        for (elem <- c.candidates) {
+          val shouldImport = !elemsSetContains(elem.getElement)
+          //todo: overloads?
+          val lookup: LookupElement = ResolveUtils.getLookupElement(elem, isClassName = true,
+            isOverloadedForClassName = false, shouldImport = shouldImport, isInStableCodeReference = false).apply(0)._1
+          lookup.putUserData(ResolveUtils.usedImportStaticQuickfixKey, java.lang.Boolean.TRUE)
+          lookup.putUserData(ResolveUtils.elementToImportKey, next._2.getElement)
+          result.addElement(lookup)
+        }
+      }
     }
   }
 

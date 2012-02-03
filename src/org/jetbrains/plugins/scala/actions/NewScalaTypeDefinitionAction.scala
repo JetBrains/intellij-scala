@@ -62,11 +62,8 @@ class NewScalaTypeDefinitionAction extends CreateTemplateInPackageAction[ScTypeD
     val file: PsiFile = createClassFromTemplate(directory, newName, templateName);
     if (file.isInstanceOf[ScalaFile]) {
       val scalaFile = file.asInstanceOf[ScalaFile]
-      val classes = scalaFile.getClasses
-      if (classes.length == 1 && classes(0).isInstanceOf[ScTypeDefinition]) {
-        val definition = classes(0).asInstanceOf[ScTypeDefinition]
-        return definition
-      }
+      val typeDefinitions = scalaFile.typeDefinitions
+      if (typeDefinitions.length == 1) return typeDefinitions(0)
     }
     null
   }

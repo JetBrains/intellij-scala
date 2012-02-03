@@ -32,29 +32,32 @@ extends StubBaseWrapper[ScValue](parent, elemType) with ScValueStub {
   private var myBodyExpression: PatchedSoftReference[Option[ScExpression]] = null
   private var myIds: PatchedSoftReference[Option[ScIdList]] = null
   private var myPatterns: PatchedSoftReference[Option[ScPatternList]] = null
+  private var _implicit: Boolean = false
 
   def this(parent: StubElement[ParentPsi],
           elemType: IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement],
           names: Array[String], isDeclaration: Boolean, typeText: String, bodyText: String,
-          containerText: String) = {
+          containerText: String, isImplicit: Boolean) = {
     this(parent, elemType.asInstanceOf[IStubElementType[StubElement[PsiElement], PsiElement]])
     this.names = for (name <- names) yield StringRef.fromString(name)
     this.declaration = isDeclaration
     this.typeText = StringRef.fromString(typeText)
     this.bodyText = StringRef.fromString(bodyText)
     this.containerText = StringRef.fromString(containerText)
+    this._implicit = isImplicit
   }
 
   def this(parent: StubElement[ParentPsi],
           elemType: IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement],
           names: Array[StringRef], isDeclaration: Boolean, typeText: StringRef, bodyText: StringRef,
-          containerText: StringRef) = {
+          containerText: StringRef, isImplicit: Boolean) = {
     this(parent, elemType.asInstanceOf[IStubElementType[StubElement[PsiElement], PsiElement]])
     this.names = names
     this.declaration = isDeclaration
     this.typeText = typeText
     this.bodyText = bodyText
     this.containerText = containerText
+    this._implicit = isImplicit
   }
 
   def getNames: Array[String] = for (name <- names) yield StringRef.toString(name) //todo: remove it if unused
@@ -116,4 +119,6 @@ extends StubBaseWrapper[ScValue](parent, elemType) with ScValueStub {
   def getBodyText: String = StringRef.toString(bodyText)
 
   def getBindingsContainerText: String = StringRef.toString(containerText)
+
+  def isImplicit: Boolean = _implicit
 }
