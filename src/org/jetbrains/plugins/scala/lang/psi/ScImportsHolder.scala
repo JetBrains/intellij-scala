@@ -29,6 +29,7 @@ import java.lang.ThreadLocal
 import com.intellij.openapi.util.{Trinity, RecursionManager}
 import types.result.TypingContext
 import types.ScDesignatorType
+import extensions.toPsiClassExt
 
 trait ScImportsHolder extends ScalaPsiElement {
 
@@ -180,20 +181,20 @@ trait ScImportsHolder extends ScalaPsiElement {
       }
       case _ =>
     }
-    addImportForPath(clazz.getQualifiedName, ref)
+    addImportForPath(clazz.qualifiedName, ref)
   }
 
   def addImportForPsiNamedElement(elem: PsiNamedElement, ref: PsiElement) {
     ScalaPsiUtil.nameContext(elem) match {
       case memb: PsiMember =>
         val containingClass = memb.getContainingClass
-        if (containingClass != null && containingClass.getQualifiedName != null) {
+        if (containingClass != null && containingClass.qualifiedName != null) {
           ref match {
             case ref: ScReferenceElement =>
               if (!ref.isValid || ref.isReferenceTo(elem)) return
             case _ =>
           }
-          val qual = Seq(containingClass.getQualifiedName, elem.getName).filter(_ != "").mkString(".")
+          val qual = Seq(containingClass.qualifiedName, elem.getName).filter(_ != "").mkString(".")
           addImportForPath(qual)
         }
       case _ =>
@@ -216,7 +217,7 @@ trait ScImportsHolder extends ScalaPsiElement {
         if (qualifier != null) { //in case "import scala" it can be null
           val qn = qualifier.resolve() match {
             case pack: PsiPackage => pack.getQualifiedName
-            case clazz: PsiClass => clazz.getQualifiedName
+            case clazz: PsiClass => clazz.qualifiedName
             case _ => ""
           }
           if (qn == classPackageQualifier) {
@@ -329,7 +330,7 @@ trait ScImportsHolder extends ScalaPsiElement {
               if (subPackages.map(_.getName).contains(firstQualifier.getText)) {
                 var classPackageQualifier = getSplitQualifierElement(firstQualifier.resolve() match {
                   case pack: PsiPackage => pack.getQualifiedName
-                  case cl: PsiClass => cl.getQualifiedName
+                  case cl: PsiClass => cl.qualifiedName
                   case _ => return
                 })._1
                 var importString = qualifier.getText

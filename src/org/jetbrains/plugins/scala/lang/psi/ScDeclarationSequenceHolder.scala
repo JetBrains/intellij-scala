@@ -25,7 +25,7 @@ trait ScDeclarationSequenceHolder extends ScalaPsiElement {
         ProgressManager.checkCanceled()
         place match {
           case id: ScStableCodeReferenceElement => run match {
-            case po: ScObject if po.isPackageObject && id.qualName == po.getQualifiedName => // do nothing
+            case po: ScObject if po.isPackageObject && id.qualName == po.qualifiedName => // do nothing
             case _ => if (!processElement(run, processor, state)) return false
           }
           case _ => if (!processElement(run, processor, state)) return false

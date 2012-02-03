@@ -78,7 +78,7 @@ class ExpandPatternIntention extends PsiElementBaseIntentionAction {
               case Some(primaryConstructor) =>
                 val parameters = primaryConstructor.effectiveFirstParameterSection
                 val constructorParams = parameters.map(_.getName).mkParenString
-                Some(cls.getQualifiedName + constructorParams)
+                Some(cls.qualifiedName + constructorParams)
               case None => None
             }
           case _ => None

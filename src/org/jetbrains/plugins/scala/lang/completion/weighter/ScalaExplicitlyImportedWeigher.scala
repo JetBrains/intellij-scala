@@ -14,6 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import org.jetbrains.plugins.scala.lang.psi.{ScImportsHolder, ScalaPsiUtil}
 import collection.mutable.ArrayBuffer
 import com.intellij.openapi.util.Key
+import org.jetbrains.plugins.scala.extensions.toPsiClassExt
 
 /**
   * @author Alexander Podkhalyuzin
@@ -51,7 +52,7 @@ class ScalaExplicitlyImportedWeigher extends ProximityWeigher {
               case ScalaResolveResult(pack: PsiPackage, _) =>
                 if (qualNoPoint == pack.getQualifiedName) return Some(3)
               case ScalaResolveResult(clazz: PsiClass, _) =>
-                if (qualNoPoint == clazz.getQualifiedName) return Some(3)
+                if (qualNoPoint == clazz.qualifiedName) return Some(3)
               case _ =>
             }
         } else if (expr.selectorSet != None) {
@@ -59,7 +60,7 @@ class ScalaExplicitlyImportedWeigher extends ProximityWeigher {
             for (resolve <- selector.reference.multiResolve(false)) {
               resolve match {
                 case ScalaResolveResult(clazz: PsiClass, _) =>
-                  if (qual == clazz.getQualifiedName) return Some(3)
+                  if (qual == clazz.qualifiedName) return Some(3)
                 case _ =>
               }
             }
@@ -70,7 +71,7 @@ class ScalaExplicitlyImportedWeigher extends ProximityWeigher {
               for (resolve <- ref.multiResolve(false))
                 resolve match {
                   case ScalaResolveResult(clazz: PsiClass, _) =>
-                    if (qual == clazz.getQualifiedName) return Some(3)
+                    if (qual == clazz.qualifiedName) return Some(3)
                   case _ =>
                 }
             case None =>
@@ -92,7 +93,7 @@ class ScalaExplicitlyImportedWeigher extends ProximityWeigher {
         val clazz: PsiClass = member.getContainingClass
         clazz match {
           case obj: ScObject =>
-            val qualNoPoint = obj.getQualifiedName
+            val qualNoPoint = obj.qualifiedName
             if (qualNoPoint != null) {
               val qual = qualNoPoint + "." + member.getName
               applyQualifier(qual, position) match {
@@ -119,8 +120,8 @@ class ScalaExplicitlyImportedWeigher extends ProximityWeigher {
       return 3
     }
     element match {
-      case clazz: PsiClass if clazz.getQualifiedName != null =>
-        val qual: String = clazz.getQualifiedName
+      case clazz: PsiClass if clazz.qualifiedName != null =>
+        val qual: String = clazz.qualifiedName
         applyQualifier(qual, position) match {
           case Some(x) => return x
           case None =>
@@ -132,7 +133,7 @@ class ScalaExplicitlyImportedWeigher extends ProximityWeigher {
         }
       case member: PsiMember if member.hasModifierProperty("static") =>
         val clazz = member.getContainingClass
-        val qualNoPoint = clazz.getQualifiedName
+        val qualNoPoint = clazz.qualifiedName
         if (qualNoPoint != null) {
           val qual = qualNoPoint + "." + member.getName
           applyQualifier(qual, position) match {

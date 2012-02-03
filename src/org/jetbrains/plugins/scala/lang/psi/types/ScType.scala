@@ -317,7 +317,7 @@ object ScType extends ScTypePresentation with ScTypePsiTypeBridge {
    */
   def designator(element: PsiNamedElement): ScType = {
     element match {
-      case td: ScClass => StdType.QualNameToType.getOrElse(td.getQualifiedName, new ScDesignatorType(element))
+      case td: ScClass => StdType.QualNameToType.getOrElse(td.qualifiedName, new ScDesignatorType(element))
       case _ =>
         element.getParent match {
           case td: ScTemplateBody =>

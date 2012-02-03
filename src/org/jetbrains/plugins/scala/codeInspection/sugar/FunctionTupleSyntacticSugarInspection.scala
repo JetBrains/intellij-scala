@@ -31,7 +31,7 @@ class FunctionTupleSyntacticSugarInspection extends LocalInspectionTool {
 
     object QualifiedName {
       def unapply(p: PsiElement): Option[String] = p match {
-        case x: PsiClass => Some(x.getQualifiedName)
+        case x: PsiClass => Some(x.qualifiedName)
         case _ => None
       }
     }

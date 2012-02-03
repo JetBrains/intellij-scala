@@ -21,6 +21,7 @@ import caches.CachesUtil
 import psi.impl.ScalaPsiManager
 import util.{PsiTreeUtil, PsiModificationTracker}
 import toplevel.typedef.ScTemplateDefinition
+import extensions.toPsiClassExt
 
 /**
  * @author Alexander Podkhalyuzin
@@ -113,8 +114,8 @@ trait ScPattern extends ScalaPsiElement {
             if (subst.subst(rt).equiv(lang.psi.types.Boolean)) return None
             rt match {
               case ScParameterizedType(des, args) if (ScType.extractClass(des) match {
-                case Some(clazz) if clazz.getQualifiedName == "scala.Option" ||
-                        clazz.getQualifiedName == "scala.Some" => true
+                case Some(clazz) if clazz.qualifiedName == "scala.Option" ||
+                        clazz.qualifiedName == "scala.Some" => true
                 case _ => false
               }) => {
                 if (args.length != 1) return None
@@ -167,8 +168,8 @@ trait ScPattern extends ScalaPsiElement {
           case Success(rt, _) =>
             subst.subst(rt) match {
               case ScParameterizedType(des, args) if (ScType.extractClass(des) match {
-                case Some(clazz) if clazz.getQualifiedName == "scala.Option" ||
-                        clazz.getQualifiedName == "scala.Some" => true
+                case Some(clazz) if clazz.qualifiedName == "scala.Option" ||
+                        clazz.qualifiedName == "scala.Some" => true
                 case _ => false
               }) => {
                 if (args.length != 1) return None
@@ -186,7 +187,7 @@ trait ScPattern extends ScalaPsiElement {
                 val lastArg = tupleArgs(tupleArgs.length - 1)
                 (Seq(lastArg) ++ BaseTypes.get(lastArg)).find({
                   case ScParameterizedType(des, args) if args.length == 1 && (ScType.extractClass(des) match {
-                    case Some(clazz) if clazz.getQualifiedName == "scala.collection.Seq" => true
+                    case Some(clazz) if clazz.qualifiedName == "scala.collection.Seq" => true
                     case _ => false
                   }) => true
                   case _ => false

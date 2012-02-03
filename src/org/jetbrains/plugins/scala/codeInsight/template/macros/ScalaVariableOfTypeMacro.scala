@@ -18,6 +18,7 @@ import util.MacroUtil
 import lang.psi.types.result.TypingContext
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiClass, PsiDocumentManager}
+import extensions.toPsiClassExt
 
 /**
  * User: Alexander Podkhalyuzin
@@ -48,7 +49,7 @@ class ScalaVariableOfTypeMacro extends Macro {
           val clazz = PsiTreeUtil.getParentOfType(r.element, classOf[PsiClass])
           if (clazz == null) true
           else {
-            clazz.getQualifiedName match {
+            clazz.qualifiedName match {
               case "scala.Predef" => false
               case "scala" => false
               case _ => true
@@ -76,7 +77,7 @@ class ScalaVariableOfTypeMacro extends Macro {
                 case  _ => {
                   for (expr <- exprs) {
                     if ((ScType.extractClass(t) match {
-                      case Some(x) => x.getQualifiedName
+                      case Some(x) => x.qualifiedName
                       case None => ""
                     }) == expr) array += new LookupItem(variant.getElement, variant.getElement.getName)
                   }
@@ -106,7 +107,7 @@ class ScalaVariableOfTypeMacro extends Macro {
           val clazz = PsiTreeUtil.getParentOfType(r.element, classOf[PsiClass])
           if (clazz == null) true
           else {
-            clazz.getQualifiedName match {
+            clazz.qualifiedName match {
               case "scala.Predef" => false
               case "scala" => false
               case _ => true
@@ -132,7 +133,7 @@ class ScalaVariableOfTypeMacro extends Macro {
                 case _ => {
                   for (expr <- exprs) {
                     if ((ScType.extractClassType(t, Some(file.getProject)) match {
-                      case Some((x, _)) => x.getQualifiedName
+                      case Some((x, _)) => x.qualifiedName
                       case None => ""
                     }) == expr.calculateResult(context).toString) return new TextResult(variant.getElement.getName)
                   }

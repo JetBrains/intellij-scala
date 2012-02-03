@@ -20,6 +20,7 @@ import com.intellij.psi.{PsiFile, PsiDocumentManager, PsiMember, PsiClass}
 import lang.scaladoc.psi.impl.ScDocResolvableCodeReferenceImpl
 import lang.scaladoc.psi.api.ScDocResolvableCodeReference
 import annotator.intention.ScalaImportClassFix
+import extensions.toPsiClassExt
 
 /**
  * @author Alexander Podkhalyuzin
@@ -99,7 +100,7 @@ class ScalaClassNameInsertHandler extends ScalaInsertHandler {
                       ScalaPsiUtil.nameContext(element) match {
                         case memb: PsiMember =>
                           val containingClass = memb.getContainingClass
-                          if (containingClass != null && containingClass.getQualifiedName != null) {
+                          if (containingClass != null && containingClass.qualifiedName != null) {
                             ScalaImportClassFix.getImportHolder(ref, ref.getProject).
                               addImportForPsiNamedElement(element, null)
                           }

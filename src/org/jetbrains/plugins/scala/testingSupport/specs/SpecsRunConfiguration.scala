@@ -34,6 +34,7 @@ import com.intellij.openapi.extensions.Extensions
 import com.intellij.openapi.options.{SettingsEditorGroup, SettingsEditor}
 import scalaTest.ScalaTestRunConfigurationEditor
 import com.intellij.diagnostic.logging.LogConfigurationPanel
+import extensions.toPsiClassExt
 
 /**
  * User: Alexander Podkhalyuzin
@@ -175,7 +176,7 @@ class SpecsRunConfiguration(val project: Project, val configurationFactory: Conf
         params.setMainClass(MAIN_CLASS)
 
         params.getProgramParametersList.add("-s")
-        for (cl <- classes) params.getProgramParametersList.add(cl.getQualifiedName)
+        for (cl <- classes) params.getProgramParametersList.add(cl.qualifiedName)
         params.getProgramParametersList.add("-sus:" + getSystemFilter)
         params.getProgramParametersList.add("-ex:" + getExampleFilter)
         for (ext <- Extensions.getExtensions(RunConfigurationExtension.EP_NAME)) {

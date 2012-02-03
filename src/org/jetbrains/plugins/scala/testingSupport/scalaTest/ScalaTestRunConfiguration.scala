@@ -34,6 +34,7 @@ import scalaTest.ScalaTestRunConfiguration.ScalaPropertiesExtension
 import com.intellij.openapi.components.PathMacroManager
 import lang.psi.impl.{ScalaPsiManager, ScPackageImpl}
 import lang.psi.api.toplevel.typedef.ScObject
+import extensions.toPsiClassExt
 
 /**
  * User: Alexander Podkhalyuzin
@@ -245,7 +246,7 @@ class ScalaTestRunConfiguration(val project: Project, val configurationFactory: 
     if (module == null) throw new ExecutionException("Module is not specified")
 
     val state = new JavaCommandLineState(env) with ScalaTestRunConfiguration.ScalaTestCommandLinePatcher {
-      val getClasses: Seq[String] = classes.map(_.getQualifiedName)
+      val getClasses: Seq[String] = classes.map(_.qualifiedName)
 
       protected override def createJavaParameters: JavaParameters = {
         val params = new JavaParameters();

@@ -20,6 +20,7 @@ import com.intellij.psi.scope.PsiScopeProcessor
 import lang.psi.impl.ScPackageImpl._
 import com.intellij.psi.{JavaPsiFacade, ResolveState, PsiElement, PsiClass}
 import lang.psi.impl.{ScPackageImpl, ScalaPsiElementFactory}
+import extensions.toPsiClassExt
 
 /**
  * User: Dmitry Naydanov
@@ -30,7 +31,7 @@ class ScDocResolvableCodeReferenceImpl(node: ASTNode) extends ScStableCodeRefere
   override def getKinds(incomplete: Boolean, completion: Boolean) = stableImportSelector
 
   override def createReplacingElementWithClassName(useFullQualifiedName: Boolean, clazz: PsiClass) = {
-    ScalaPsiElementFactory.createDocLinkValue(clazz.getQualifiedName, clazz.getManager)
+    ScalaPsiElementFactory.createDocLinkValue(clazz.qualifiedName, clazz.getManager)
   }
 
   override protected def processQualifier(ref: ScStableCodeReferenceElement, processor: BaseProcessor) {

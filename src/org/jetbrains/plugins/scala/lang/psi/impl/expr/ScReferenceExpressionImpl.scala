@@ -29,6 +29,7 @@ import api.base.patterns.{ScBindingPattern, ScReferencePattern}
 import api.base.ScFieldId
 import com.intellij.util.IncorrectOperationException
 import annotator.intention.ScalaImportClassFix
+import extensions.toPsiClassExt
 
 /**
  * @author AlexanderPodkhalyuzin
@@ -61,7 +62,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
           throw new IncorrectOperationException("class does not match expected kind")
         if (refName != c.getName)
           throw new IncorrectOperationException("class does not match expected name")
-        val qualName = c.getQualifiedName
+        val qualName = c.qualifiedName
         if (qualName != null) {
           org.jetbrains.plugins.scala.annotator.intention.
                   ScalaImportClassFix.getImportHolder(ref = this, project = getProject).
@@ -77,7 +78,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
         ScalaPsiUtil.nameContext(elem) match {
           case memb: PsiMember =>
             val containingClass = memb.getContainingClass
-            if (containingClass != null && containingClass.getQualifiedName != null) {
+            if (containingClass != null && containingClass.qualifiedName != null) {
               ScalaImportClassFix.getImportHolder(this, getProject).
                 addImportForPsiNamedElement(elem, this)
             }

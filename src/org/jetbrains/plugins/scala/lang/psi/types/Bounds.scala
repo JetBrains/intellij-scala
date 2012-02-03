@@ -11,6 +11,7 @@ import collection.mutable.{ArrayBuffer, Set, HashSet}
 import api.statements.ScTypeAliasDefinition
 import result.TypingContext
 import com.intellij.psi.util.InheritanceUtil
+import extensions.toPsiClassExt
 
 object Bounds {
   private class Options(val tp: ScType) {
@@ -61,13 +62,13 @@ object Bounds {
         JavaArrayType(calcForTypeParamWithoutVariance(arg1, arg2))
       }
       case (JavaArrayType(arg), ScParameterizedType(des, args)) if args.length == 1 && (ScType.extractClass(des) match {
-        case Some(q) => q.getQualifiedName == "scala.Array"
+        case Some(q) => q.qualifiedName == "scala.Array"
         case _ => false
       }) => {
         ScParameterizedType(des, Seq(calcForTypeParamWithoutVariance(arg, args(0))))
       }
       case (ScParameterizedType(des, args), JavaArrayType(arg)) if args.length == 1 && (ScType.extractClass(des) match {
-        case Some(q) => q.getQualifiedName == "scala.Array"
+        case Some(q) => q.qualifiedName == "scala.Array"
         case _ => false
       }) => {
         ScParameterizedType(des, Seq(calcForTypeParamWithoutVariance(arg, args(0))))

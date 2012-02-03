@@ -18,6 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.{ScTypeParameterType, ScSubsti
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
+import org.jetbrains.plugins.scala.extensions.toPsiClassExt
 
 /**
  * User: Alefas
@@ -103,7 +104,7 @@ object DebuggerUtil {
         buff.append(getJVMQualifiedName(arg))
         buff.append("[]")
         buff.toName
-      case ScParameterizedType(arr, Seq(arg)) if ScType.extractClass(arr).map(_.getQualifiedName == "scala.Array").
+      case ScParameterizedType(arr, Seq(arg)) if ScType.extractClass(arr).map(_.qualifiedName == "scala.Array").
         getOrElse(false) =>
         val buff = new JVMNameBuffer()
         buff.append(getJVMQualifiedName(arg))
@@ -137,12 +138,12 @@ object DebuggerUtil {
       case Unit => "V"
       case JavaArrayType(arg) => "[" + getJVMStringForType(arg)
       case ScParameterizedType(ScDesignatorType(clazz: PsiClass), Seq(arg)) 
-        if clazz.getQualifiedName == "scala.Array" => "[" + getJVMStringForType(arg)
+        if clazz.qualifiedName == "scala.Array" => "[" + getJVMStringForType(arg)
       case _ =>
         ScType.extractClass(tp) match {
           case Some(obj: ScObject) => "L" + obj.getQualifiedNameForDebugger.replace('.', '/') + "$;"
           case Some(obj: ScTypeDefinition) => "L" + obj.getQualifiedNameForDebugger.replace('.', '/') + ";"
-          case Some(clazz) => "L" + clazz.getQualifiedName.replace('.', '/') + ";"
+          case Some(clazz) => "L" + clazz.qualifiedName.replace('.', '/') + ";"
           case _ => "Ljava/lang/Object;"
         }
     }

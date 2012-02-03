@@ -10,6 +10,7 @@ import lang.psi.api.statements.{ScTypeAliasDefinition, ScTypeAliasDeclaration}
 import lang.psi.types.result.TypingContext
 import lang.psi.types.ScType
 import lang.psi.impl.toplevel.synthetic.ScSyntheticClass
+import extensions.toPsiClassExt
 
 /**
  * User: Alexander Podkhalyuzin
@@ -29,8 +30,8 @@ class ConstructorResolveProcessor(constr: PsiElement, refName: String, args: Lis
       val accessible = isAccessible(named, ref)
       if (accessibility && !accessible) return true
       named match {
-        case clazz: PsiClass if clazz.getQualifiedName != null && !qualifiedNames.contains(clazz.getQualifiedName) => {
-          qualifiedNames.add(clazz.getQualifiedName)
+        case clazz: PsiClass if clazz.qualifiedName != null && !qualifiedNames.contains(clazz.qualifiedName) => {
+          qualifiedNames.add(clazz.qualifiedName)
           val constructors: Array[PsiMethod] = 
             if (accessibility) clazz.getConstructors.filter(isAccessible(_, ref))
             else clazz.getConstructors

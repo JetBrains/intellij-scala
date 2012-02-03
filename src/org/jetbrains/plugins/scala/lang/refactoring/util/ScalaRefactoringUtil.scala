@@ -34,6 +34,7 @@ import psi.ScalaPsiElement
 import psi.api.base.ScLiteral
 import com.intellij.openapi.editor.{VisualPosition, Editor}
 import com.intellij.openapi.actionSystem.DataContext
+import extensions.toPsiClassExt
 
 /**
  * User: Alexander Podkhalyuzin
@@ -335,7 +336,7 @@ object ScalaRefactoringUtil {
       case n: ScNewTemplateDefinition => {
         builder.append("new ")
         val types = n.extendsBlock.superTypes.filter(_ match {
-          case ScDesignatorType(clazz: PsiClass) => clazz.getQualifiedName != "scala.ScalaObject"
+          case ScDesignatorType(clazz: PsiClass) => clazz.qualifiedName != "scala.ScalaObject"
           case _ => true
         })
         for (tp <- types) {

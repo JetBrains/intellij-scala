@@ -21,6 +21,7 @@ import com.intellij.psi._
 import base.types.ScSelfTypeElement
 import search.GlobalSearchScope
 import com.intellij.openapi.project.{DumbServiceImpl, DumbService}
+import extensions.toPsiClassExt
 
 /**
  * @author ven
@@ -81,7 +82,7 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
   def typeDefinitions: Seq[ScTypeDefinition] = extendsBlock.typeDefinitions
 
   def selfTypeElement: Option[ScSelfTypeElement] = {
-    val qual = getQualifiedName
+    val qual = qualifiedName
     if (qual != null && (qual == "scala.Predef" || qual == "scala")) return None
     extendsBlock.selfTypeElement
   }
@@ -258,7 +259,7 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
 
   def isInheritor(baseClass: PsiClass, deep: Boolean): Boolean = {
     val visited: _root_.java.util.Set[PsiClass] = new _root_.java.util.HashSet[PsiClass]
-    val baseQualifiedName = baseClass.getQualifiedName
+    val baseQualifiedName = baseClass.qualifiedName
     val baseName = baseClass.getName
     def isInheritorInner(base: PsiClass, drv: PsiClass, deep: Boolean): Boolean = {
       ProgressManager.checkCanceled()
@@ -276,7 +277,7 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
                 case _ if !c.isInstanceOf[ScTemplateDefinition] => true
                 case _ => false
               }
-              if (value && c.getName == baseName && c.getQualifiedName == baseQualifiedName && value) return true
+              if (value && c.getName == baseName && c.qualifiedName == baseQualifiedName && value) return true
               if (deep && isInheritorInner(base, c, deep)) return true
             }
           case _ =>
@@ -286,7 +287,7 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
               val psiT = supersIterator.next()
               val c = psiT.resolveGenerics.getElement
               if (c != null) {
-                if (c.getName == baseName && c.getQualifiedName == baseQualifiedName) return true
+                if (c.getName == baseName && c.qualifiedName == baseQualifiedName) return true
                 if (deep && isInheritorInner(base, c, deep)) return true
               }
             }

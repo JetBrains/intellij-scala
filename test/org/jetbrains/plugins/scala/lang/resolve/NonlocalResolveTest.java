@@ -45,8 +45,8 @@ public class NonlocalResolveTest extends ScalaResolveTestCase{
     PsiReference ref = findReferenceAtCaret();
     PsiElement resolved = ref.resolve();
     assertNotNull(resolved);
-    assertTrue(resolved instanceof PsiClass);
-    assertEquals("scala.Math", ((PsiClass) resolved).getQualifiedName());
+    assertTrue(resolved instanceof ScTemplateDefinition);
+    assertEquals("scala.Math", ((ScTemplateDefinition) resolved).qualifiedName());
   }
 
   public void testCompoundTypesOverriding() throws Exception {
@@ -135,7 +135,7 @@ public class NonlocalResolveTest extends ScalaResolveTestCase{
     PsiReference ref = findReferenceAtCaret();
     final PsiElement t = ref.resolve();
     assertTrue(t instanceof ScTrait);
-    assertEquals(((ScTrait) t).getQualifiedName(), "Symbols.Symbol");
+    assertEquals(((ScTrait) t).qualifiedName(), "Symbols.Symbol");
   }
 
   public void testsubstAliasBound() throws Exception {

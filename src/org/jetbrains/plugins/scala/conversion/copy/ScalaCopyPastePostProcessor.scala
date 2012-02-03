@@ -50,7 +50,7 @@ class ScalaCopyPastePostProcessor extends CopyPastePostProcessor[DependencyData]
         tr = exp.getTypeAfterImplicitConversion();
         named <- tr.implicitFunction;
         Both(member, ContainingClass(obj: ScObject)) <- named.asOptionOf[ScMember])
-      yield ImplicitConversionDependency(element, startOffset, obj.getQualifiedName, member.getName)
+      yield ImplicitConversionDependency(element, startOffset, obj.qualifiedName, member.getName)
 
     new DependencyData(referenceDependencies ++ conversionDependencies)
   }
@@ -66,23 +66,23 @@ class ScalaCopyPastePostProcessor extends CopyPastePostProcessor[DependencyData]
       case Parent(_: ScConstructorPattern) =>
         target match {
           case ContainingClass(aClass) =>
-            Some(PatternDependency(element, startOffset, aClass.getQualifiedName))
+            Some(PatternDependency(element, startOffset, aClass.qualifiedName))
           case aClass: ScSyntheticClass =>
-            Some(PatternDependency(element, startOffset, aClass.getQualifiedName))
+            Some(PatternDependency(element, startOffset, aClass.qualifiedName))
           case _ => None
         }
       case _ =>
         Some(target) collect pf( // workaround for scalac pattern matcher bug. See SCL-3150
-        {case e: PsiClass => TypeDependency(element, startOffset, e.getQualifiedName)},
+        {case e: PsiClass => TypeDependency(element, startOffset, e.qualifiedName)},
         {case e: PsiPackage => PackageDependency(element, startOffset, e.getQualifiedName)},
         {case Both(_: ScPrimaryConstructor, Parent(parent: PsiClass)) =>
-          PrimaryConstructorDependency(element, startOffset, parent.getQualifiedName)},
+          PrimaryConstructorDependency(element, startOffset, parent.qualifiedName)},
         {case Both(member: ScMember, ContainingClass(obj: ScObject)) =>
-          MemberDependency(element, startOffset, obj.getQualifiedName, member.getName)},
+          MemberDependency(element, startOffset, obj.qualifiedName, member.getName)},
         {case Both(method: PsiMethod, ContainingClass(aClass: PsiClass)) if method.isConstructor =>
-          TypeDependency(element, startOffset, aClass.getQualifiedName)},
+          TypeDependency(element, startOffset, aClass.qualifiedName)},
         {case Both(member: PsiMember, ContainingClass(aClass: PsiClass)) =>
-          MemberDependency(element, startOffset, aClass.getQualifiedName, member.getName)}
+          MemberDependency(element, startOffset, aClass.qualifiedName, member.getName)}
         )
     }
   }

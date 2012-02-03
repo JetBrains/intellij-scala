@@ -8,6 +8,7 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiReference;
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement;
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement;
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition;
 import org.jetbrains.plugins.scala.lang.psi.impl.statements.params.ScParameterImpl;
 import org.jetbrains.plugins.scala.lang.psi.impl.statements.params.ScTypeParamImpl;
 
@@ -58,7 +59,9 @@ public class ScaladocLinkResolveTest extends ScalaResolveTestCase {
       assertTrue(expectedClass.isAssignableFrom(resolved.getClass()));
 
       if (expectedClass == PsiClass.class) {
-        assertTrue(((PsiClass) resolved).getQualifiedName().equals(((ScReferenceElement) ref).getText()));
+        String qualifiedName = ((PsiClass) resolved).getQualifiedName();
+        if (resolved instanceof ScTemplateDefinition) qualifiedName = ((ScTemplateDefinition) resolved).qualifiedName();
+        assertTrue(qualifiedName.equals(((ScReferenceElement) ref).getText()));
       } else {
         assertTrue(((ScNamedElement) resolved).getName().equals(((ScReferenceElement) ref).getText()));
       }

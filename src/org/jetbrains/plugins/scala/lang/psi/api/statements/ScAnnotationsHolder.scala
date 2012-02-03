@@ -15,6 +15,7 @@ import com.intellij.psi.tree.TokenSet
 import parser.ScalaElementTypes
 import com.intellij.util.ArrayFactory
 import com.intellij.psi._
+import extensions.toPsiClassExt
 
 /**
  * User: Alexander Podkhalyuzin
@@ -46,11 +47,11 @@ trait ScAnnotationsHolder extends ScalaPsiElement with PsiAnnotationOwner {
     text.substring(text.lastIndexOf(".", 0) + 1, text.length)
   })
 
-  def hasAnnotation(clazz: PsiClass): Boolean = hasAnnotation(clazz.getQualifiedName) != None
+  def hasAnnotation(clazz: PsiClass): Boolean = hasAnnotation(clazz.qualifiedName) != None
 
   def hasAnnotation(qualifiedName: String): Option[ScAnnotation] = {
     annotations.find(_.typeElement.getType(TypingContext.empty).getOrAny match {
-      case ScDesignatorType(clazz: PsiClass) => clazz.getQualifiedName == qualifiedName
+      case ScDesignatorType(clazz: PsiClass) => clazz.qualifiedName == qualifiedName
       case _ => false
     })
   }

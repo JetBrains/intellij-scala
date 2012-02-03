@@ -23,6 +23,7 @@ import api.base.types._
 import caches.CachesUtil
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
 import com.intellij.psi.util.PsiModificationTracker
+import extensions.toPsiClassExt
 
 /**
  * @author AlexanderPodkhalyuzin
@@ -72,7 +73,7 @@ class ScExtendsBlockImpl extends ScalaStubBasedElementImpl[ScExtendsBlock] with 
   def isScalaObject: Boolean = {
     getParentByStub match {
       case clazz: PsiClass =>
-        clazz.getQualifiedName == "scala.ScalaObject"
+        clazz.qualifiedName == "scala.ScalaObject"
       case _ => false
     }
   }

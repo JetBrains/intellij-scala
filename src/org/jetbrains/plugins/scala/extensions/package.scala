@@ -3,9 +3,9 @@ package org.jetbrains.plugins.scala
 import com.intellij.openapi.util.Computable
 import com.intellij.openapi.application.ApplicationManager
 import extensions.implementation._
-import com.intellij.psi.{PsiElement, PsiMethod}
 import com.intellij.psi.impl.source.PostprocessReformattingAspect
 import com.intellij.openapi.project.Project
+import com.intellij.psi.{PsiClass, PsiElement, PsiMethod}
 
 /**
   * Pavel Fatin
@@ -32,6 +32,8 @@ package object extensions {
   implicit def toPsiElementExt(e: PsiElement) = new PsiElementExt {
     override def repr = e
   }
+  
+  implicit def toPsiClassExt(e: PsiClass) = new PsiClassExt(e)
 
   implicit def toPipedObject[T](value: T) = new PipedObject[T](value)
 

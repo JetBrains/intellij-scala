@@ -188,7 +188,7 @@ object ResolveUtils {
                 if (placeEnclosing == null) return false //not Scala
                 val placePackageName = placeEnclosing match {
                   case file: ScalaFile => file.getPackageName
-                  case obj: ScObject => obj.getQualifiedName
+                  case obj: ScObject => obj.qualifiedName
                   case pack: ScPackaging => pack.fqn
                 }
                 packageContains(packageName, placePackageName)
@@ -198,7 +198,7 @@ object ResolveUtils {
                   PsiTreeUtil.isContextAncestor(td, place, false) ||
                           PsiTreeUtil.isContextAncestor(ScalaPsiUtil.getCompanionModule(td).getOrElse(null: PsiElement),
                             place, false) || (td.isInstanceOf[ScObject] &&
-                          td.asInstanceOf[ScObject].isPackageObject && processPackage(td.getQualifiedName))
+                          td.asInstanceOf[ScObject].isPackageObject && processPackage(td.qualifiedName))
                 }
                 case pack: PsiPackage => {
                   val packageName = pack.getQualifiedName
@@ -256,7 +256,7 @@ object ResolveUtils {
                 if (placeEnclosing == null) return Some(false) //not Scala
                 val placePackageName = placeEnclosing match {
                   case file: ScalaFile => file.getPackageName
-                  case obj: ScObject => obj.getQualifiedName
+                  case obj: ScObject => obj.qualifiedName
                   case pack: ScPackaging => pack.fqn
                 }
                 if (packageContains(packageName, placePackageName)) return Some(true)
@@ -268,7 +268,7 @@ object ResolveUtils {
                           getCompanionModule(td).getOrElse(null: PsiElement), place, false)) return true
                   td match {
                     case o: ScObject if o.isPackageObject =>
-                      processPackage(o.getQualifiedName) match {
+                      processPackage(o.qualifiedName) match {
                         case Some(x) => return x
                         case None =>
                       }

@@ -19,6 +19,6 @@ public class ResolveClassLoc2Test extends ScalaResolveTestCase {
     PsiReference ref = findReferenceAtCaret();
     PsiElement resolved = ref.resolve();
     assertTrue(resolved instanceof ScTrait);
-    assertEquals(((PsiClass) resolved).getQualifiedName(), "MyTrait");
+    assertEquals(((ScTrait) resolved).qualifiedName(), "MyTrait");
   }
 }

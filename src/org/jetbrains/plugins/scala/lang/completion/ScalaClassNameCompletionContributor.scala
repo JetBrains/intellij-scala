@@ -24,6 +24,7 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticClasses
 import org.jetbrains.plugins.scala.config.ScalaFacet
 import com.intellij.openapi.module.{ModuleUtil, Module}
+import org.jetbrains.plugins.scala.extensions.toPsiClassExt
 
 class ScalaClassNameCompletionContributor extends CompletionContributor {
   import ScalaSmartCompletionContributor._
@@ -88,7 +89,7 @@ class ScalaClassNameCompletionContributor extends CompletionContributor {
        }
      }).getOrElse(true)
     for (clazz <- SyntheticClasses.get(project).all.valuesIterator) {
-      if (checkSynthetic || !ScType.baseTypesQualMap.contains(clazz.getQualifiedName)) {
+      if (checkSynthetic || !ScType.baseTypesQualMap.contains(clazz.qualifiedName)) {
         addClass(clazz)
       }
     }

@@ -128,7 +128,7 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value]) extends PsiSc
     ProgressManager.checkCanceled()
 
     t match {
-      case ScDesignatorType(clazz: PsiClass) if clazz.getQualifiedName == "java.lang.String" => {
+      case ScDesignatorType(clazz: PsiClass) if clazz.qualifiedName == "java.lang.String" => {
         val plusMethod: ScType => ScSyntheticFunction = SyntheticClasses.get(place.getProject).stringPlusMethod
         if (plusMethod != null) execute(plusMethod(t), state) //add + method
       }

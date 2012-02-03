@@ -24,7 +24,7 @@ public class ResolveClassLocTest extends ScalaResolveTestCase {
       PsiReference ref = findReferenceAtCaret();
       PsiElement resolved = ref.resolve();
       assertTrue(resolved instanceof ScTrait);
-      assertEquals(((PsiClass) resolved).getQualifiedName(), "org.MyTrait");
+      assertEquals(((ScTrait) resolved).qualifiedName(), "org.MyTrait");
     }
     finally {
       CodeStyleSettingsManager.getInstance(getProjectAdapter()).getCurrentSettings().

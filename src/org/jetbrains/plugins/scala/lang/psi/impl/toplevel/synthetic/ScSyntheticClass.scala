@@ -32,6 +32,7 @@ import api.toplevel.typedef.{ScObject, ScTemplateDefinition}
 import api.ScalaFile
 import collection.Seq
 import com.intellij.util.{ReflectionCache, IncorrectOperationException}
+import extensions.toPsiClassExt
 
 abstract class SyntheticNamedElement(val manager: PsiManager, name: String)
 extends LightElement(manager, ScalaFileType.SCALA_LANGUAGE) with PsiNameIdentifierOwner {
@@ -150,7 +151,7 @@ extends SyntheticNamedElement(manager, name) with ScFun {
   def isStringPlusMethod: Boolean = {
     if (name != "+") return false
     ScType.extractClass(retType, Some(manager.getProject)) match {
-      case Some(clazz) => clazz.getQualifiedName == "java.lang.String"
+      case Some(clazz) => clazz.qualifiedName == "java.lang.String"
       case _ => false
     }
   }
@@ -475,7 +476,7 @@ object Unit
       }
     } else null
     for (obj <- syntheticObjects) {
-      if (obj.getQualifiedName == qName) return obj
+      if (obj.qualifiedName == qName) return obj
     }
     null
   }
@@ -485,7 +486,7 @@ object Unit
     val c = findClass(qName, scope)
     if (c != null) res += c
     for (obj <- syntheticObjects) {
-      if (obj.getQualifiedName == qName) res += obj
+      if (obj.qualifiedName == qName) res += obj
     }
     res.toArray
   }

@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.util
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import com.intellij.psi.{PsiElement, PsiClass}
 import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.plugins.scala.extensions.toPsiClassExt
 
 /**
  * @author Alexander Podkhalyuzin
@@ -17,8 +18,8 @@ object ScEquivalenceUtil {
       if (containingClass2 != null) return areClassesEquivalent(containingClazz1, containingClass2)
       else return false
     } else if (containingClass2 != null) return false
-    if (clazz1.getQualifiedName != clazz2.getQualifiedName) return false
-    val isSomeClassLocalOrAnonymous = clazz1.getQualifiedName == null || clazz2.getQualifiedName == null ||
+    if (clazz1.qualifiedName != clazz2.qualifiedName) return false
+    val isSomeClassLocalOrAnonymous = clazz1.qualifiedName == null || clazz2.qualifiedName == null ||
       PsiTreeUtil.getContextOfType(clazz1, true, classOf[PsiClass]) != null ||
       PsiTreeUtil.getContextOfType(clazz2, true, classOf[PsiClass]) != null
     

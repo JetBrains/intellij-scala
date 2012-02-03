@@ -6,6 +6,7 @@ import com.intellij.openapi.util.Computable;
 import com.intellij.psi.PsiClass;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject;
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition;
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTrait;
 import org.jetbrains.plugins.scala.util.ScalaUtils;
 
@@ -16,6 +17,9 @@ public class ScalaJVMNameMapper implements NameMapper {
 
   public String getQualifiedName(@NotNull final PsiClass clazz) {
     String qualifiedName = ApplicationManager.getApplication().runReadAction(new Computable<String>() {public String compute() {
+      if (clazz instanceof ScTemplateDefinition) {
+        return ((ScTemplateDefinition) clazz).qualifiedName();
+      }
       return clazz.getQualifiedName();
     }
     });

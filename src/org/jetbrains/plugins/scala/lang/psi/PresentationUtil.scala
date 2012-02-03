@@ -95,7 +95,7 @@ object PresentationUtil {
         val buffer: StringBuilder = new StringBuilder("")
         fun.getParent match {
           case body: ScTemplateBody if fun.getContainingClass != null => {
-            val qual = fun.getContainingClass.getQualifiedName
+            val qual = fun.getContainingClass.qualifiedName
             if (qual != null) {
               buffer.append(qual).append(".")
             }

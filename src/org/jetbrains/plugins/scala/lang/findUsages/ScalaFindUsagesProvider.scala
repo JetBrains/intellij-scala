@@ -16,6 +16,7 @@ import org.jetbrains.annotations.{Nullable, NotNull}
 import com.intellij.psi.tree.TokenSet
 import psi.impl.toplevel.PsiClassFake
 import psi.api.statements.params.ScTypeParam
+import extensions.toPsiClassExt
 
 class ScalaFindUsagesProvider extends FindUsagesProvider {
   @Nullable
@@ -73,9 +74,9 @@ class ScalaFindUsagesProvider extends FindUsagesProvider {
       }
       case x: PsiVariable => x.getName
       case x: PsiFile => x.getName
-      case x: ScTypeDefinition => x.getQualifiedName
+      case x: ScTypeDefinition => x.qualifiedName
       case x: ScNamedElement => x.getName
-      case c: PsiClass if !c.isInstanceOf[PsiClassFake] => c.getQualifiedName
+      case c: PsiClass if !c.isInstanceOf[PsiClassFake] => c.qualifiedName
       case _ => element.getText
     }
     Option(name) getOrElse "anonymous"
@@ -89,9 +90,9 @@ class ScalaFindUsagesProvider extends FindUsagesProvider {
               PsiFormatUtilBase.SHOW_TYPE)
       case c: PsiVariable => c.getName
       case c: PsiFile => c.getName
-      case c: ScTypeDefinition => if (useFullName) c.getQualifiedName else c.getName
+      case c: ScTypeDefinition => if (useFullName) c.qualifiedName else c.getName
       case c: ScNamedElement => c.getName
-      case c: PsiClass if !c.isInstanceOf[PsiClassFake] => if (useFullName) c.getQualifiedName else c.getName
+      case c: PsiClass if !c.isInstanceOf[PsiClassFake] => if (useFullName) c.qualifiedName else c.getName
       case _ => element.getText
     }
     Option(name) getOrElse "anonymous"

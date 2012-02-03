@@ -17,6 +17,7 @@ import psi.impl.ScalaPsiElementFactory
 import statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
 import expr.ScReferenceExpression
+import extensions.toPsiClassExt
 
 /**
  * @author Alexander Podkhalyuzin
@@ -64,7 +65,7 @@ trait ScReferenceElement extends ScalaPsiElement with ResolvableReferenceElement
 
   def createReplacingElementWithClassName(useFullQualifiedName: Boolean, clazz: PsiClass): ScReferenceElement =
     ScalaPsiElementFactory.createReferenceFromText(
-      if (useFullQualifiedName) clazz.getQualifiedName else clazz.getName, clazz.getManager)
+      if (useFullQualifiedName) clazz.qualifiedName else clazz.getName, clazz.getManager)
 
   def isReferenceTo(element: PsiElement, resolved: PsiElement): Boolean = {
     if (ScEquivalenceUtil.smartEquivalence(resolved, element)) return true

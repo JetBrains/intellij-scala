@@ -125,7 +125,7 @@ abstract class ResolveTestBase extends ScalaResolveTestCase {
       }
 
       if (options.contains(Path)) {
-        assertEquals(Path, options(Path), target.asInstanceOf[ScTypeDefinition].getQualifiedName)
+        assertEquals(Path, options(Path), target.asInstanceOf[ScTypeDefinition].qualifiedName)
       }
 
       if (options.contains(File) || options.contains(Offset) || options.contains(Line)) {
