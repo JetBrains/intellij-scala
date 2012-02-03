@@ -25,4 +25,5 @@ trait ScValueStub extends StubElement[ScValue] {
   def getBodyExpr: Option[ScExpression]
   def getIdsContainer: Option[ScIdList]
   def getPatternsContainer: Option[ScPatternList]
+  def isImplicit: Boolean
 }

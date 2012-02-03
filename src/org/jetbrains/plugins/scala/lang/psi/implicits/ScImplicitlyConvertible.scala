@@ -216,7 +216,7 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
     result
   }
 
-  private def forMap(r: ScalaResolveResult, typez: ScType) = {
+  def forMap(r: ScalaResolveResult, typez: ScType): (Boolean, ScalaResolveResult, ScType, ScType, ScSubstitutor, ScUndefinedSubstitutor) = {
     if (!PsiTreeUtil.isContextAncestor(ScalaPsiUtil.nameContext(r.element), this, false)) { //to prevent infinite recursion
       ProgressManager.checkCanceled()
       lazy val funType: ScParameterizedType = {
@@ -297,7 +297,7 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
   }
 
 
-  private class CollectImplicitsProcessor(withoutPrecedence: Boolean) extends ImplicitProcessor(StdKinds.refExprLastRef, withoutPrecedence) {
+  class CollectImplicitsProcessor(withoutPrecedence: Boolean) extends ImplicitProcessor(StdKinds.refExprLastRef, withoutPrecedence) {
     //can be null (in Unit tests or without library)
     private val funType: ScParameterizedType = {
       val funClass: PsiClass = ScalaPsiManager.instance(getProject).getCachedClass(getResolveScope, "scala.Function1")

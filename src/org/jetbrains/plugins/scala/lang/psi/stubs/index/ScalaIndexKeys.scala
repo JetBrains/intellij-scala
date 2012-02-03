@@ -8,10 +8,11 @@ import api.statements.{ScFunction, ScValue, ScTypeAlias, ScVariable}
 import api.toplevel.packaging.ScPackageContainer
 
 import api.toplevel.templates.ScExtendsBlock
-import api.toplevel.typedef.ScTypeDefinition
 import com.intellij.psi.PsiClass
 import com.intellij.psi.stubs.StubIndexKey
 import api.expr.ScAnnotation
+import api.toplevel.ScNamedElement
+import api.toplevel.typedef.{ScMember, ScTypeDefinition}
 
 /**
  * @author ilyas
@@ -33,4 +34,5 @@ object ScalaIndexKeys {
   val VARIABLE_NAME_KEY: StubIndexKey[String, ScVariable] = StubIndexKey.createIndexKey("sc.variable.name")
   val TYPE_ALIAS_NAME_KEY: StubIndexKey[String, ScTypeAlias] = StubIndexKey.createIndexKey("sc.type.alias.name")
   val SUPER_CLASS_NAME_KEY: StubIndexKey[String, ScExtendsBlock] = StubIndexKey.createIndexKey("sc.super.class.name")
+  val IMPLICITS_KEY: StubIndexKey[String, ScMember] = StubIndexKey.createIndexKey("sc.implicit.function.name")
 }

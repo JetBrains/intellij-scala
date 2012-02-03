@@ -19,6 +19,7 @@ import com.intellij.openapi.util.Condition
 import com.intellij.psi.{PsiFile, PsiDocumentManager, PsiMember, PsiClass}
 import lang.scaladoc.psi.impl.ScDocResolvableCodeReferenceImpl
 import lang.scaladoc.psi.api.ScDocResolvableCodeReference
+import annotator.intention.ScalaImportClassFix
 
 /**
  * @author Alexander Podkhalyuzin
@@ -90,8 +91,21 @@ class ScalaClassNameInsertHandler extends ScalaInsertHandler {
                   if (shouldImport == null || !shouldImport.booleanValue()) {
                     qualifyReference(ref)
                   } else {
-                    //import static
-                    ref.bindToElement(namedElement)
+                    val element = item.getUserData(ResolveUtils.elementToImportKey)
+                    if (element == null) {
+                      //import static
+                      ref.bindToElement(namedElement)
+                    } else {
+                      ScalaPsiUtil.nameContext(element) match {
+                        case memb: PsiMember =>
+                          val containingClass = memb.getContainingClass
+                          if (containingClass != null && containingClass.getQualifiedName != null) {
+                            ScalaImportClassFix.getImportHolder(ref, ref.getProject).
+                              addImportForPsiNamedElement(element, null)
+                          }
+                        case _ =>
+                      }
+                    }
                   }
                 case _ =>
               }

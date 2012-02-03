@@ -18,7 +18,6 @@ import psi.api.statements._
 import com.intellij.codeInsight.lookup._
 import params.{ScClassParameter, ScParameter, ScTypeParam}
 import psi.{ScalaPsiUtil, ScalaPsiElement}
-import psi.api.toplevel.ScTypeParametersOwner
 import psi.impl.toplevel.synthetic.{ScSyntheticClass, ScSyntheticValue}
 import com.intellij.openapi.application.ApplicationManager
 import result.{TypingContextOwner, Success, TypingContext}
@@ -34,6 +33,7 @@ import com.intellij.openapi.util.Key
 import psi.impl.ScalaPsiManager
 import psi.api.base.{ScReferenceElement, ScAccessModifier, ScFieldId}
 import psi.api.expr.{ScThisReference, ScSuperReference}
+import psi.api.toplevel.{ScNamedElement, ScTypeParametersOwner}
 
 /**
  * @author ven
@@ -608,6 +608,7 @@ object ResolveUtils {
   val typeParametersKey: Key[Seq[ScType]] = Key.create("type.parameters.key")
   val someSmartCompletionKey: Key[java.lang.Boolean] = Key.create("some.smart.completion.key")
   val isInStableCodeReferenceKey: Key[java.lang.Boolean] = Key.create("is.in.stable.code.reference.key")
+  val elementToImportKey: Key[PsiNamedElement] = Key.create("element.to.import.key")
 
   case class ScalaLookupObject(elem: PsiNamedElement, isNamedParameter: Boolean, isInImport: Boolean,
                                isInStableCodeReference: Boolean) {

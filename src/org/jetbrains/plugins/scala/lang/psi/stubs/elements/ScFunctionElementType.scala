@@ -44,8 +44,9 @@ extends ScStubElementType[ScFunctionStub, ScFunction](debugName) {
         case _ => false
       }
     }
+    val isImplicit = psi.hasModifierProperty("implicit")
     new ScFunctionStubImpl[ParentPsi](parentStub, this, psi.name, psi.isInstanceOf[ScFunctionDeclaration],
-      psi.annotationNames.toArray, returnTypeText, bodyText, assign)
+      psi.annotationNames.toArray, returnTypeText, bodyText, assign, isImplicit)
   }
 
   def serialize(stub: ScFunctionStub, dataStream: StubOutputStream) {
@@ -59,6 +60,7 @@ extends ScStubElementType[ScFunctionStub, ScFunction](debugName) {
     dataStream.writeName(stub.getReturnTypeText)
     dataStream.writeName(stub.getBodyText)
     dataStream.writeBoolean(stub.hasAssign)
+    dataStream.writeBoolean(stub.isImplicit)
   }
 
   def deserializeImpl(dataStream: StubInputStream, parentStub: Any): ScFunctionStub = {
@@ -73,7 +75,8 @@ extends ScStubElementType[ScFunctionStub, ScFunction](debugName) {
     val returnTypeText = dataStream.readName
     val bodyText = dataStream.readName
     val assign = dataStream.readBoolean
-    new ScFunctionStubImpl(parent, this, name, isDecl, annotations, returnTypeText, bodyText, assign)
+    val isImplicit = dataStream.readBoolean()
+    new ScFunctionStubImpl(parent, this, name, isDecl, annotations, returnTypeText, bodyText, assign, isImplicit)
   }
 
   def indexStub(stub: ScFunctionStub, sink: IndexSink) {
@@ -82,5 +85,6 @@ extends ScStubElementType[ScFunctionStub, ScFunction](debugName) {
     if (name != null) {
       sink.occurrence(ScalaIndexKeys.METHOD_NAME_KEY, name)
     }
+    if (stub.isImplicit) sink.occurrence(ScalaIndexKeys.IMPLICITS_KEY, "implicit")
   }
 }

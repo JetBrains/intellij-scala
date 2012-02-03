@@ -133,7 +133,9 @@ abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTemplate
   @volatile
   private var qualNameModCount: Long = -1
 
-  override def getQualifiedName: String = {
+  override def getQualifiedName: String = qualifiedName
+
+  override def qualifiedName: String = {
     val stub = getStub
     if (stub != null) {
       stub.asInstanceOf[ScTemplateDefinitionStub].qualName

@@ -27,6 +27,8 @@ import com.intellij.openapi.project.{DumbServiceImpl, DumbService}
  */
 trait ScTemplateDefinition extends ScNamedElement with PsiClass {
   import com.intellij.psi.PsiMethod
+  def qualifiedName: String = null
+
   def extendsBlock: ScExtendsBlock = {
     this match {
       case st: ScalaStubBasedElementImpl[_] => {

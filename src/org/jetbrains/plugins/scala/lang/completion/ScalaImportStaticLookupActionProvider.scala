@@ -23,6 +23,8 @@ class ScalaImportStaticLookupActionProvider extends LookupActionProvider {
 
     val shouldImport = element.getUserData(ResolveUtils.shouldImportKey)
     if (shouldImport == null) return
+    val importStatic = element.getUserData(ResolveUtils.usedImportStaticQuickfixKey)
+    if (importStatic != null) return
 
     val checkIcon: Icon = PlatformIcons.CHECK_ICON
     val icon: Icon =
