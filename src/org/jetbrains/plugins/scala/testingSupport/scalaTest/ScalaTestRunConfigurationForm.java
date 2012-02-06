@@ -16,6 +16,8 @@ import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiPackage;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.ui.RawCommandLineEditor;
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil;
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager;
 
 import javax.swing.*;
 import java.awt.event.ItemEvent;
@@ -284,18 +286,27 @@ public class ScalaTestRunConfigurationForm {
      ClassBrowser browser = new ClassBrowser(project, title) {
        protected ClassFilter.ClassFilterWithScope getFilter() throws ClassBrowser.NoFilterException {
          return new ClassFilter.ClassFilterWithScope() {
+           private String SUITE_PATH = "org.scalatest.Suite";
+           
            public GlobalSearchScope getScope() {
+             Module module = getModule();
+             if (module != null) return GlobalSearchScope.moduleWithDependenciesAndLibrariesScope(module);
              return GlobalSearchScope.allScope(project);
            }
 
            public boolean isAccepted(PsiClass aClass) {
-             return true;
+             if (!getScope().accept(aClass.getContainingFile().getVirtualFile())) return false;
+             PsiClass[] classes = ScalaPsiManager.instance(project).getCachedClasses(getScope(), SUITE_PATH);
+             for (PsiClass psiClass : classes) {
+               if (ScalaPsiUtil.cachedDeepIsInheritor(aClass, psiClass)) return true;
+             }
+             return false;
            }
          };
        }
 
        protected PsiClass findClass(String className) {
-         return JavaPsiFacade.getInstance(project).findClass(className);
+         return ScalaPsiManager.instance(project).getCachedClass(GlobalSearchScope.allScope(project), className);
        }
      };
 
