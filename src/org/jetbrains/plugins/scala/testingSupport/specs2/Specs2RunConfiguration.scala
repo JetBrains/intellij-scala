@@ -22,7 +22,6 @@ import com.intellij.openapi.vfs.{JarFileSystem, VirtualFile}
 import com.intellij.openapi.projectRoots.JavaSdkType
 import com.intellij.openapi.roots.{OrderRootType, ModuleRootManager}
 import reflect.BeanProperty
-import lang.psi.impl.ScPackageImpl
 import config.ScalaFacet
 import org.jdom.Element
 import scala.collection.JavaConversions._
@@ -31,6 +30,7 @@ import com.intellij.openapi.extensions.Extensions
 import com.intellij.openapi.options.{SettingsEditorGroup, SettingsEditor}
 import com.intellij.diagnostic.logging.LogConfigurationPanel
 import extensions.toPsiClassExt
+import lang.psi.impl.{ScalaPsiManager, ScPackageImpl}
 
 /**
  * User: Alexander Podkhalyuzin
@@ -90,13 +90,11 @@ class Specs2RunConfiguration(val project: Project, val configurationFactory: Con
   }
 
   def getClazz(path: String): PsiClass = {
-    val facade = JavaPsiFacade.getInstance(project)
-    facade.findClass(path, GlobalSearchScope.allScope(project))
+    ScalaPsiManager.instance(getProject).getCachedClass(GlobalSearchScope.allScope(project), path)
   }
 
   def getClazzes(path: String): Array[PsiClass] = {
-    val facade = JavaPsiFacade.getInstance(project)
-    facade.findClasses(path, GlobalSearchScope.allScope(project))
+    ScalaPsiManager.instance(getProject).getCachedClasses(GlobalSearchScope.allScope(project), path)
   }
 
   def getPackage(path: String): PsiPackage = {

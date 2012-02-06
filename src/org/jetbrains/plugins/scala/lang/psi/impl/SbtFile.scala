@@ -29,14 +29,12 @@ object SbtFile {
                           place: PsiElement): Boolean = {
 
     if (isSbtFile(file)) {
-      val facade = JavaPsiFacade.getInstance(file.getProject)
-
       findSbtProjectModule(file.getProject).foreach {
         mod =>
           val sbtProjectModuleScope = mod.getModuleWithDependenciesAndLibrariesScope(false)
           val buildAndPluginImports: String = {
             def objectInheritorsOf(fqn: String): Seq[ScObject] = {
-              val cls: PsiClass = facade.findClass(fqn, sbtProjectModuleScope)
+              val cls: PsiClass = ScalaPsiManager.instance(file.getProject).getCachedClass(fqn, sbtProjectModuleScope, ScalaPsiManager.ClassCategory.OBJECT)
               if (cls == null) Seq()
               else ClassInheritorsSearch.search(cls, sbtProjectModuleScope, true).toArray(PsiClass.EMPTY_ARRAY).collect {
                 case x: ScObject => x
