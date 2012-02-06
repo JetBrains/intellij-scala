@@ -17,6 +17,7 @@ import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiPackage;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.ui.RawCommandLineEditor;
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager;
 
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
@@ -198,7 +199,7 @@ public class SpecsRunConfigurationForm {
        }
 
        protected PsiClass findClass(String className) {
-         return JavaPsiFacade.getInstance(project).findClass(className);
+         return ScalaPsiManager.instance(project).getCachedClass(GlobalSearchScope.allScope(project), className);
        }
      };
 
