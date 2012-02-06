@@ -36,8 +36,8 @@ class ScalaClassFinder(project: Project) extends PsiElementFinder {
     clazz match {
       case c: ScClass if c.isCase =>
         val base = ScalaPsiUtil.getBaseCompanionModule(c)
-        if (c != None) return null
-        else return c.fakeCompanionModule.getOrElse(null)
+        if (c != None) null
+        else c.fakeCompanionModule.getOrElse(null)
       case _ => null
     }
   }
@@ -51,5 +51,20 @@ class ScalaClassFinder(project: Project) extends PsiElementFinder {
       ScalaCachesManager.getInstance(project).getNamesCache.getClassNames(psiPackage, scope)
     else
       super.getClassNames(psiPackage, scope)
+  }
+
+  override def getClasses(psiPackage: PsiPackage, scope: GlobalSearchScope): Array[PsiClass] = {
+    val settings = ScalaPsiUtil.getSettings(psiPackage.getProject)
+    if (settings.IGNORE_PERFORMANCE_TO_FIND_ALL_CLASS_NAMES) {
+      val otherClassNames = getClassNames(psiPackage, scope)
+      val result: ArrayBuffer[PsiClass] = new ArrayBuffer[PsiClass]()
+      import scala.collection.JavaConversions._
+      for (clazzName <- otherClassNames) {
+        val qualName = psiPackage.getQualifiedName + "." + clazzName
+        val c = ScalaPsiManager.instance(project).getCachedClasses(scope, qualName)
+        result ++= c
+      }
+      result.toArray
+    } else super.getClasses(psiPackage, scope)
   }
 }
