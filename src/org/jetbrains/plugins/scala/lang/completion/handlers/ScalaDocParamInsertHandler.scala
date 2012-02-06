@@ -39,11 +39,14 @@ class ScalaDocParamInsertHandler extends EnterHandlerDelegateAdapter {
       }
     }
     val tagParent = nextParent.asInstanceOf[ScDocTag]
-    if (tagParent.getValueElement == null) {
+    val tagValueElement = tagParent.getValueElement
+    val tagNameElement = tagParent.getNameElement
+
+    if (tagParent.getNameElement == null) {
       return Result.Continue
     }
 
-    val probData = tagParent.getValueElement.getNextSibling
+    val probData = if (tagValueElement != null) tagValueElement.getNextSibling else tagNameElement.getNextSibling
     if (probData == null) {
       return Result.Continue
     }
@@ -52,7 +55,7 @@ class ScalaDocParamInsertHandler extends EnterHandlerDelegateAdapter {
     val endOffset = probData.getTextRange.getStartOffset + (if (probData.getText.trim().length() != 0)
       probData.getText.indexWhere(_ != ' ') else 1)
 
-    if (document.getLineNumber(caretOffset) - 1 == document.getLineNumber(tagParent.getValueElement.getTextOffset)) {
+    if (document.getLineNumber(caretOffset) - 1 == document.getLineNumber(tagParent.getNameElement.getTextOffset)) {
       val toInsert = StringUtil.repeat(" ", endOffset - startOffset)
       ApplicationManager.getApplication.runWriteAction(new Runnable {
         def run() {
