@@ -170,7 +170,7 @@
     <lang.importOptimizer language="Scala" implementationClass="org.jetbrains.plugins.scala.editor.importOptimizer.ScalaImportOptimizer"/>
     <lang.namesValidator language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesValidator"/>
     <editorNotificationProvider implementation="org.jetbrains.plugins.scala.config.ScalaAttachSourcesNotificationProvider"/>
-    <!--<editorFileSwapper implementation="org.jetbrains.plugins.scala.config.ScalaEditorFileSwapper"/>-->
+    <editorFileSwapper implementation="org.jetbrains.plugins.scala.config.ScalaEditorFileSwapper"/>
     <projectStructureDetector implementation="org.jetbrains.plugins.scala.config.ScalaSourceRootFinder"/>
 
     <configurationType implementation="org.jetbrains.plugins.scala.script.ScalaScriptConfigurationType"/>
