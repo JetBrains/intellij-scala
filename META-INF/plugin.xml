@@ -394,6 +394,10 @@
                      displayName="Suspicious shadowing by a Variable Pattern" groupName="Scala: General"
                      shortName="VariablePatternShadow" level="WARNING"
                      enabledByDefault="true" language="Scala"/>
+    <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.shadow.TypeParameterShadowInspection"
+                     displayName="Suspicious shadowing by a Type Parameter" groupName="Scala: General"
+                     shortName="TypeParameterShadowInspection" level="WARNING"
+                     enabledByDefault="true" language="Scala"/>
     <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.valInTraitInspection.AbstractValueInTraitInspection"
                      displayName="Abstract Value in Trait" groupName="Scala: General"
                      shortName="ScalaAbstractValueInTrait" level="WARNING"
