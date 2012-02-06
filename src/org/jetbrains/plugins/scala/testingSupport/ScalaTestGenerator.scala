@@ -11,10 +11,10 @@ import com.intellij.openapi.ui.Messages
 import com.intellij.codeInsight.{CodeInsightBundle, CodeInsightUtil}
 import com.intellij.psi._
 import search.GlobalSearchScope
-import lang.psi.impl.ScalaPsiElementFactory
 import extensions._
 import lang.psi.api.toplevel.typedef.ScTypeDefinition
 import lang.psi.api.base.ScStableCodeReferenceElement
+import lang.psi.impl.{ScalaPsiManager, ScalaPsiElementFactory}
 
 
 class ScalaTestGenerator extends TestGenerator {
@@ -47,7 +47,8 @@ class ScalaTestGenerator extends TestGenerator {
     val scope: GlobalSearchScope = GlobalSearchScope.allScope(project)
     val fqName = d.getSuperClassName
     if (fqName != null) {
-      val psiClass: Option[PsiClass] = Option(JavaPsiFacade.getInstance(project).findClass(fqName, scope))
+      val psiClass: Option[PsiClass] = Option(ScalaPsiManager.instance(project).getCachedClass(fqName, scope,
+        ScalaPsiManager.ClassCategory.TYPE))
       addSuperClass(typeDefinition, psiClass, fqName)
     }
     val positionElement = typeDefinition.extendsBlock.templateBody.map(_.getFirstChild).getOrElse(typeDefinition)

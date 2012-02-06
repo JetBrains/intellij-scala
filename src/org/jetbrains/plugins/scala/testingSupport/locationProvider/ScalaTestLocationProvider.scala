@@ -8,6 +8,7 @@ import java.lang.String
 import java.util.{ArrayList, List}
 import com.intellij.openapi.editor.Document
 import com.intellij.psi._
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 
 /**
  * User: Alexander Podkhalyuzin
@@ -42,19 +43,21 @@ class ScalaTestLocationProvider extends TestLocationProvider {
         }
       case "scalatest" =>
         val res = new ArrayList[Location[_ <: PsiElement]]()
-        val facade = JavaPsiFacade.getInstance(project)
         locationData match {
           case ScalaTestTopOfClassPattern(className, testName) =>
-            val clazz: PsiClass = facade.findClass(className, GlobalSearchScope.allScope(project))
+            val clazz: PsiClass = ScalaPsiManager.instance(project).getCachedClass(className,
+              GlobalSearchScope.allScope(project), ScalaPsiManager.ClassCategory.TYPE)
             if (clazz != null) res.add(new PsiLocationWithName(project, clazz, testName))
           case ScalaTestTopOfMethodPattern(className, methodName, testName) =>
-            val clazz: PsiClass = facade.findClass(className, GlobalSearchScope.allScope(project))
+            val clazz: PsiClass = ScalaPsiManager.instance(project).getCachedClass(className,
+              GlobalSearchScope.allScope(project), ScalaPsiManager.ClassCategory.TYPE)
             if(clazz != null) {
               val methods = clazz.findMethodsByName(methodName, false)
               methods.foreach { method => res.add(new PsiLocationWithName(project, method, testName)) }
             }
           case ScalaTestLineInFinePattern(className, fileName, lineNumber, testName) =>
-            val clazzes: Array[PsiClass] = facade.findClasses(className, GlobalSearchScope.allScope(project))
+            val clazzes: Array[PsiClass] =
+              ScalaPsiManager.instance(project).getCachedClasses(GlobalSearchScope.allScope(project), className)
             val found = clazzes.find(c => Option(c.getContainingFile).map(_.getName == fileName).getOrElse(false))
             found match {
               case Some(file) =>
@@ -70,8 +73,8 @@ class ScalaTestLocationProvider extends TestLocationProvider {
 
   private def searchForClassByUnqualifiedName(project: Project, locationData: String): ArrayList[Location[_ <: PsiElement]] = {
     val res = new ArrayList[Location[_ <: PsiElement]]()
-    val facade = JavaPsiFacade.getInstance(project)
-    val clazz: PsiClass = facade.findClass(locationData, GlobalSearchScope.allScope(project))
+    val clazz: PsiClass = ScalaPsiManager.instance(project).getCachedClass(locationData,
+      GlobalSearchScope.allScope(project), ScalaPsiManager.ClassCategory.TYPE)
     if (clazz != null) res.add(PsiLocation.fromPsiElement[PsiClass](project, clazz))
     res
   }

@@ -3,11 +3,10 @@ package org.jetbrains.plugins.scala.config
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi._
-import com.intellij.psi.search.GlobalSearchScope
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import com.intellij.openapi.fileEditor.impl.EditorFileSwapper
-import org.jetbrains.plugins.scala.extensions.toPsiClassExt
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 
 object ScalaEditorFileSwapper {
   def findSourceFile(project: Project, eachFile: VirtualFile): VirtualFile = {
@@ -18,7 +17,11 @@ object ScalaEditorFileSwapper {
     }
     val fqn: String = getFQN(psiFile)
     if (fqn == null) return null
-    val clazz: PsiClass = JavaPsiFacade.getInstance(project).findClass(fqn, GlobalSearchScope.allScope(project))
+    val classes = ScalaPsiManager.instance(project).getCachedClasses(psiFile.getResolveScope, fqn)
+    var clazz: PsiClass = null
+    for (cl <- classes if clazz == null) {
+      if (cl.getContainingFile == psiFile) clazz = cl
+    }
     if (!clazz.isInstanceOf[ScTypeDefinition]) return null
     val sourceClass: PsiClass = (clazz.asInstanceOf[ScTypeDefinition]).getSourceMirrorClass
     if (sourceClass == null || (sourceClass eq clazz)) return null
@@ -29,7 +32,7 @@ object ScalaEditorFileSwapper {
 
   def getFQN(psiFile: PsiFile): String = {
     if (!(psiFile.isInstanceOf[ScalaFile])) return null
-    val classes: Array[PsiClass] = (psiFile.asInstanceOf[ScalaFile]).getClasses
+    val classes = (psiFile.asInstanceOf[ScalaFile]).typeDefinitions
     if (classes.length == 0) return null
     val fqn: String = classes(0).qualifiedName
     if (fqn == null) return null

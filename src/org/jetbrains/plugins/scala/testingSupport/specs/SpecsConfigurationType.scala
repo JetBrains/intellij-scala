@@ -14,6 +14,7 @@ import icons.Icons
 import lang.psi.api.toplevel.typedef.ScTypeDefinition
 import lang.psi.ScalaPsiUtil
 import lang.psi.api.base.ScLiteral
+import lang.psi.impl.ScalaPsiManager
 
 /**
  * User: Alexander Podkhalyuzin
@@ -59,8 +60,8 @@ class SpecsConfigurationType extends ConfigurationType {
     val parent: ScTypeDefinition = PsiTreeUtil.getParentOfType(element, classOf[ScTypeDefinition], false)
     val parentLiteral: ScLiteral = PsiTreeUtil.getParentOfType(element, classOf[ScLiteral], false)
     if (parent == null) return null
-    val facade = JavaPsiFacade.getInstance(element.getProject)
-    val suiteClazz = facade.findClass("org.specs.Specification", element.getResolveScope)
+    val suiteClazz = ScalaPsiManager.instance(parent.getProject).getCachedClass("org.specs.Specification",
+      element.getResolveScope, ScalaPsiManager.ClassCategory.TYPE)
     if (suiteClazz == null) return null
     if (!ScalaPsiUtil.cachedDeepIsInheritor(parent, suiteClazz)) return null
     val settings = RunManager.getInstance(location.getProject).createRunConfiguration(parent.getName, confFactory)
@@ -113,8 +114,8 @@ class SpecsConfigurationType extends ConfigurationType {
     }
     val parent: ScTypeDefinition = PsiTreeUtil.getParentOfType(element, classOf[ScTypeDefinition])
     if (parent == null) return false
-    val facade = JavaPsiFacade.getInstance(element.getProject)
-    val suiteClazz = facade.findClass("org.specs.Specification", element.getResolveScope)
+    val suiteClazz = ScalaPsiManager.instance(parent.getProject).getCachedClass("org.specs.Specification",
+      element.getResolveScope, ScalaPsiManager.ClassCategory.TYPE)
     if (suiteClazz == null) return false
     if (!ScalaPsiUtil.cachedDeepIsInheritor(parent, suiteClazz)) return false
     configuration match {

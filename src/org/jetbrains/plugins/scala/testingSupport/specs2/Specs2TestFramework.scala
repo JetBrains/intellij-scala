@@ -11,6 +11,7 @@ import icons.Icons
 import com.intellij.psi.{PsiElement, PsiMethod, PsiClass, JavaPsiFacade}
 import lang.psi.ScalaPsiUtil
 import com.intellij.lang.Language
+import lang.psi.impl.ScalaPsiManager
 
 class Specs2TestFramework extends JavaTestFramework {
   def isTestMethod(element: PsiElement): Boolean = false
@@ -39,7 +40,8 @@ class Specs2TestFramework extends JavaTestFramework {
     val parent: ScTypeDefinition = PsiTreeUtil.getParentOfType(clazz, classOf[ScTypeDefinition], false)
     if (parent == null) return false
     val facade = JavaPsiFacade.getInstance(clazz.getProject)
-    val suiteClazz: PsiClass = facade.findClass(getMarkerClassFQName, clazz.getResolveScope)
+    val suiteClazz: PsiClass = ScalaPsiManager.instance(parent.getProject).
+      getCachedClass(getMarkerClassFQName, clazz.getResolveScope, ScalaPsiManager.ClassCategory.TYPE)
     if (suiteClazz == null) return false
     ScalaPsiUtil.cachedDeepIsInheritor(parent, suiteClazz)
   }
