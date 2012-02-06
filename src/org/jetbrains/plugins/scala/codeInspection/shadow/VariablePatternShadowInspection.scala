@@ -5,18 +5,8 @@ package shadow
 import com.intellij.openapi.project.Project
 import com.intellij.codeInspection.{ProblemDescriptor, ProblemsHolder}
 import lang.psi.impl.ScalaPsiElementFactory
-import extensions._
 import lang.psi.api.base.patterns.{ScCaseClause, ScReferencePattern}
 import com.intellij.psi.PsiElement
-import com.intellij.openapi.editor.Editor
-import com.intellij.psi.impl.source.tree.injected.InjectedLanguageUtil
-import com.intellij.injected.editor.EditorWindow
-import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.fileEditor.impl.text.TextEditorPsiDataProvider
-import com.intellij.openapi.actionSystem.impl.SimpleDataContext
-import com.intellij.ide.DataManager
-import com.intellij.refactoring.actions.RenameElementAction
-import com.intellij.openapi.actionSystem._
 import lang.psi.ScalaPsiUtil
 import lang.resolve.processor.ResolveProcessor
 import lang.psi.api.base.ScStableCodeReferenceElement
@@ -52,33 +42,4 @@ class ConvertToStableIdentifierPatternFix(ref: ScReferencePattern)
   }
 }
 
-class RenameVariablePatternFix(ref: ScReferencePattern) extends AbstractFix("Rename Variable Pattern", ref) {
-  def doApplyFix(project: Project, descriptor: ProblemDescriptor) {
-    if (!ref.isValid) return
-    val action: AnAction = new RenameElementAction
-    val event: AnActionEvent = actionEventForElement(descriptor, project, action)
-    invokeLater {
-      action.actionPerformed(event)
-    }
-  }
-
-  private def actionEventForElement(descriptor: ProblemDescriptor, project: Project, action: AnAction): AnActionEvent = {
-    import collection.JavaConversions._
-    import collection.mutable
-
-    val map = mutable.Map[String, AnyRef]()
-    val psiElement = descriptor.getPsiElement
-    val containingFile = ref.getContainingFile
-    val editor: Editor = InjectedLanguageUtil.openEditorFor(containingFile, project)
-    if (editor.isInstanceOf[EditorWindow]) {
-      map.put(PlatformDataKeys.EDITOR.getName, editor)
-      map.put(LangDataKeys.PSI_ELEMENT.getName, ref)
-    } else if (ApplicationManager.getApplication.isUnitTestMode) {
-      val element = new TextEditorPsiDataProvider().getData(LangDataKeys.PSI_ELEMENT.getName,
-        editor, containingFile.getVirtualFile)
-      map.put(LangDataKeys.PSI_ELEMENT.getName, element)
-    }
-    val dataContext = SimpleDataContext.getSimpleContext(map, DataManager.getInstance.getDataContext)
-    new AnActionEvent(null, dataContext, "", action.getTemplatePresentation, ActionManager.getInstance, 0)
-  }
-}
+class RenameVariablePatternFix(ref: ScReferencePattern) extends RenameElementQuickfix(ref, "Rename Variable Pattern")
