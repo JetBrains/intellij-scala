@@ -129,6 +129,12 @@
     <highlightVisitor implementation="org.jetbrains.plugins.scala.annotator.ScalaAnnotatorHighlightVisitor"/>
     <commentCompleteHandler implementation="org.jetbrains.plugins.scala.lang.scaladoc.ScalaIsCommentComplete"/>
 
+    <!--Enter Handler for ScalaDoc Param comments-->
+    <enterHandlerDelegate implementation="org.jetbrains.plugins.scala.lang.completion.handlers.ScalaDocParamInsertHandler"/>
+
+    <!--Language Injector for ScalaDoc Inner Code-->
+    <!--<languageInjector implementation="org.jetbrains.plugins.scala.lang.scaladoc.injection.ScalaDocInnerCodeInjector"/>-->
+
     <javaMainMethodProvider implementation="org.jetbrains.plugins.scala.runner.ScalaMainMethodProvider"/>
     <annotatedElementsSearch implementation="org.jetbrains.plugins.scala.lang.psi.impl.search.ScalaAnnotatedMembersSearcher"/>
     <referencesSearch implementation="org.jetbrains.plugins.scala.findUsages.parameters.NamingParamsSearcher"/>
