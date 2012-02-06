@@ -35,6 +35,7 @@ import com.intellij.openapi.components.PathMacroManager
 import lang.psi.impl.{ScalaPsiManager, ScPackageImpl}
 import lang.psi.api.toplevel.typedef.ScObject
 import extensions.toPsiClassExt
+import lang.psi.api.ScPackage
 
 /**
  * User: Alexander Podkhalyuzin
@@ -205,13 +206,13 @@ class ScalaTestRunConfiguration(val project: Project, val configurationFactory: 
     }
     var clazz: PsiClass = null
     var suiteClass: PsiClass = null
-    var pack: PsiPackage = null
+    var pack: ScPackage = null
     try {
       testKind match {
         case TestKind.CLASS | TestKind.TEST_NAME =>
           clazz = getClazz(testClassPath, false)
         case TestKind.ALL_IN_PACKAGE =>
-          pack = getPackage(testPackagePath)
+          pack = ScPackageImpl(getPackage(testPackagePath))
       }
       suiteClass = getClazz(SUITE_PATH, true)
     }
@@ -226,12 +227,12 @@ class ScalaTestRunConfiguration(val project: Project, val configurationFactory: 
       if (ScalaPsiUtil.cachedDeepIsInheritor(clazz, suiteClass)) classes += clazz
     } else {
       val scope = getScope(false)
-      def getClasses(pack: PsiPackage): Seq[PsiClass] = {
+      def getClasses(pack: ScPackage): Seq[PsiClass] = {
         val buffer = new ArrayBuffer[PsiClass]
         
         buffer ++= pack.getClasses(scope)
         for (p <- pack.getSubPackages) {
-          buffer ++= getClasses(p)
+          buffer ++= getClasses(ScPackageImpl(p))
         }
         buffer.toSeq
       }
