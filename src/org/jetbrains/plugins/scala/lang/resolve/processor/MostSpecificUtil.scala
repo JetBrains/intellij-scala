@@ -88,8 +88,9 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
         }
         var params1 = calcParams(t1, true)
         val params2 = calcParams(t2, false)
-        if (t1.isInstanceOf[ScTypePolymorphicType] && t2.isInstanceOf[ScTypePolymorphicType] &&
-          (lastRepeated(params1) ^ lastRepeated(params2))) return lastRepeated(params2) //todo: this is hack!!! see SCL-3846
+        if (((t1.isInstanceOf[ScTypePolymorphicType] && t2.isInstanceOf[ScTypePolymorphicType]) || 
+              (!(m1.isInstanceOf[ScFunction] || m1.isInstanceOf[ScFun]) || !(m2.isInstanceOf[ScFunction] || m2.isInstanceOf[ScFun]))) &&
+          (lastRepeated(params1) ^ lastRepeated(params2))) return lastRepeated(params2) //todo: this is hack!!! see SCL-3846, SCL-4048
         if (lastRepeated(params1) && !lastRepeated(params2)) params1 = params1.map {
           case p: Parameter if p.isRepeated =>
             val seq = ScalaPsiManager.instance(r1.element.getProject).getCachedClass(r1.element.getResolveScope, 
