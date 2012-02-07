@@ -15,12 +15,6 @@ import com.intellij.lang.annotation.AnnotationSession
  */
 
 class AnnotatorBasedErrorInspection extends LocalInspectionTool {
-  def getGroupDisplayName: String = InspectionsUtil.SCALA
-
-  def getDisplayName: String = "All Errors Tool"
-
-  def getShortName: String = "ScalaAllErrors"
-
   override def isEnabledByDefault: Boolean = false
 
   override def getStaticDescription: String = "Inspection shows all files in which there are some errors"

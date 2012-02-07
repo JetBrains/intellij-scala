@@ -20,13 +20,7 @@ import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettin
  * Date: 08.07.2009
  */
 
-class PackageNameInspection extends LocalInspectionTool {
-  def getGroupDisplayName: String = InspectionsUtil.SCALA
-
-  def getDisplayName: String = "Package Name Inspection"
-
-  def getShortName: String = "ScalaPackageName"
-
+class ScalaPackageNameInspection extends LocalInspectionTool {
   override def isEnabledByDefault: Boolean = true
 
   override def getStaticDescription: String = "Inspection for files with package statement which does not correspond to package structure"

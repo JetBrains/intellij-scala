@@ -18,13 +18,7 @@ import com.intellij.lang.injection.InjectedLanguageManager
  * Date: 02.07.2009
  */
 
-class FileNameInspection extends LocalInspectionTool {
-  def getGroupDisplayName: String = InspectionsUtil.SCALA
-
-  def getDisplayName: String = "File Name Inspection"
-
-  def getShortName: String = "ScalaFileName"
-
+class ScalaFileNameInspection extends LocalInspectionTool {
   override def isEnabledByDefault: Boolean = true
 
   override def getStaticDescription: String = "Inspection for files without type definition with corresponding name"

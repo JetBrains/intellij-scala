@@ -14,12 +14,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScClassParen
 import extensions._
 
 class FunctionTupleSyntacticSugarInspection extends LocalInspectionTool {
-  def getGroupDisplayName: String = InspectionsUtil.SCALA
-
-  def getDisplayName: String = "Syntactic Sugar"
-
-  def getShortName: String = "ScalaSyntacticSugar"
-
   override def isEnabledByDefault: Boolean = true
 
   override def getStaticDescription: String = "Detects explicit references to FunctionN and TupleN that could be replaced with syntactic sugar"

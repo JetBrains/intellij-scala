@@ -9,12 +9,6 @@ import ex.UnfairLocalInspectionTool
 // This is checked in ScalaUnusedSymbolPass, the inspection is to allow this to be
 // turned on/off in the Inspections settings.
 class VarCouldBeValInspection extends LocalInspectionTool with UnfairLocalInspectionTool {
-  def getGroupDisplayName: String = InspectionsUtil.SCALA
-
-  def getDisplayName: String = "'var' could be a 'val'"
-
-  def getShortName: String = VarCouldBeValInspection.ShortName
-
   override def isEnabledByDefault: Boolean = true
 
   override def getStaticDescription: String = "Detects local 'var'-s that are never assigned to."

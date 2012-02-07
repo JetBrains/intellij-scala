@@ -271,7 +271,7 @@ object ScalaImportClassFix {
       def addClazz(clazz: PsiClass) {
         if (clazz != null && clazz.qualifiedName != null && clazz.qualifiedName.indexOf(".") > 0 &&
           ResolveUtils.kindMatches(clazz, kinds) && notInner(clazz, ref) && ResolveUtils.isAccessible(clazz, ref) &&
-          !JavaCompletionUtil.isInExcludedPackage(clazz)) {
+          !JavaCompletionUtil.isInExcludedPackage(clazz, true)) {
           buffer += clazz
         }
       }

@@ -9,7 +9,7 @@ import quickfix.AddEmptyParentheses
  * Pavel Fatin
  */
 
-class UnitMethodIsParameterless extends AbstractMethodSignatureInspection(
+class UnitMethodIsParameterlessInspection extends AbstractMethodSignatureInspection(
   "ScalaUnitMethodIsParameterless", "Method with Unit result type is parameterless") {
 
   @Language("HTML")

@@ -11,7 +11,7 @@ import lang.psi.impl.ScalaPsiElementFactory
 import lang.psi.api.base.ScLiteral
 import lang.psi.api.expr.{ScArgumentExprList, ScInfixExpr, ScParenthesisedExpr, ScPostfixExpr}
 
-class PostfixMethodCall extends AbstractInspection("UseOfPostfixMethodCall", "Use of postfix method call"){
+class PostfixMethodCallInspection extends AbstractInspection("UseOfPostfixMethodCall", "Use of postfix method call"){
   @Language("HTML")
   val description =
 """Postfix method invokation, <code>f a</code>, can interfere with semicolon inference.

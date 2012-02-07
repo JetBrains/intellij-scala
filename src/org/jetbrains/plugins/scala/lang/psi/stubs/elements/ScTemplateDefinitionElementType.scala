@@ -42,13 +42,14 @@ extends ScStubElementType[ScTemplateDefinitionStub, ScTemplateDefinition](debugN
 
     val isImplicitObject = psi.isInstanceOf[ScObject] && psi.hasModifierProperty("implicit")
 
-    new ScTemplateDefinitionStubImpl[ParentPsi](parent, this, psi.getName, psi.qualifiedName,
+    new ScTemplateDefinitionStubImpl[ParentPsi](parent, this, psi.getName, psi.qualifiedName, psi.getQualifiedName,
       fileName, signs, isPO, isSFC, isDepr, isImplicitObject)
   }
 
   def serialize(stub: ScTemplateDefinitionStub, dataStream: StubOutputStream) {
     dataStream.writeName(stub.getName)
     dataStream.writeName(stub.qualName)
+    dataStream.writeName(stub.javaQualName)
     dataStream.writeBoolean(stub.isPackageObject)
     dataStream.writeBoolean(stub.isScriptFileClass)
     dataStream.writeName(stub.sourceFileName)
@@ -62,6 +63,7 @@ extends ScStubElementType[ScTemplateDefinitionStub, ScTemplateDefinition](debugN
   override def deserializeImpl(dataStream: StubInputStream, parentStub: Any): ScTemplateDefinitionStub = {
     val name = dataStream.readName
     val qualName = dataStream.readName
+    val javaQualName = dataStream.readName()
     val isPO = dataStream.readBoolean
     val isSFC = dataStream.readBoolean
     val fileName = dataStream.readName
@@ -71,7 +73,7 @@ extends ScStubElementType[ScTemplateDefinitionStub, ScTemplateDefinition](debugN
     val parent = parentStub.asInstanceOf[StubElement[PsiElement]]
     val isDepr = dataStream.readBoolean
     val isImplcitObject = dataStream.readBoolean
-    new ScTemplateDefinitionStubImpl(parent, this, name, qualName, fileName, methodNames, isPO, isSFC, isDepr,
+    new ScTemplateDefinitionStubImpl(parent, this, name, qualName, javaQualName, fileName, methodNames, isPO, isSFC, isDepr,
       isImplcitObject)
   }
 
@@ -80,12 +82,19 @@ extends ScStubElementType[ScTemplateDefinitionStub, ScTemplateDefinition](debugN
     val name = stub.getName
     if (name != null) {
       sink.occurrence(ScalaIndexKeys.SHORT_NAME_KEY, name)
-      sink.occurrence(JavaStubIndexKeys.CLASS_SHORT_NAMES, name)
     }
+    val javaName = Option(stub.javaQualName).flatMap(_.split('.').lastOption)
+    javaName match {
+      case Some(name) =>
+        sink.occurrence(JavaStubIndexKeys.CLASS_SHORT_NAMES, name)
+      case _ =>
+    }
+    val jfqn = stub.javaQualName
+    if (jfqn != null)
+      sink.occurrence[PsiClass, java.lang.Integer](JavaStubIndexKeys.CLASS_FQN, jfqn.hashCode)
     val fqn = stub.qualName
     if (fqn != null) {
       sink.occurrence[PsiClass, java.lang.Integer](ScalaIndexKeys.FQN_KEY, fqn.hashCode)
-      sink.occurrence[PsiClass, java.lang.Integer](JavaStubIndexKeys.CLASS_FQN, fqn.hashCode)
       val i = fqn.lastIndexOf(".")
       val pack =
         if (i == -1) ""

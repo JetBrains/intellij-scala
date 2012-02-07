@@ -9,7 +9,7 @@ import quickfix.RemoveTypeAnnotation
  * Pavel Fatin
  */
 
-class UnitMethodDeclaredWithTypeAnnotation extends AbstractMethodSignatureInspection(
+class UnitMethodDeclaredWithTypeAnnotationInspection extends AbstractMethodSignatureInspection(
   "ScalaUnitMethodDeclaredWithTypeAnnotation", "Redundant Unit result type annotation") {
 
   @Language("HTML")

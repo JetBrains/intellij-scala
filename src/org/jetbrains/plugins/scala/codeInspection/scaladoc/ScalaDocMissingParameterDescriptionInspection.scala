@@ -16,12 +16,6 @@ import com.intellij.codeInspection.{ProblemHighlightType, ProblemsHolder, LocalI
  */
 
 class ScalaDocMissingParameterDescriptionInspection extends LocalInspectionTool {
-  def getGroupDisplayName: String = InspectionsUtil.SCALADOC
-
-  def getDisplayName: String = "Parameter description is missing "
-
-  def getShortName: String = "ScalaParameterDescriprionIsMissing"
-
   override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor = {
     new ScalaElementVisitor {
       override def visitTag(s: ScDocTag) {

@@ -9,7 +9,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.codeInspection.{ProblemDescriptor, ProblemsHolder}
 import lang.psi.impl.ScalaPsiElementFactory
 
-class FloatLiteralEndingWithDecimalPoint extends AbstractInspection("FloatLiteralEndingWithDecimalPoint", "Floating point literal ending with '.'"){
+class FloatLiteralEndingWithDecimalPointInspection extends AbstractInspection("FloatLiteralEndingWithDecimalPoint", "Floating point literal ending with '.'"){
   @Language("HTML")
   val description: String =
 """It is recommended to avoid floating point literals ending with a decimal point ('.'). This prevents confusion with method call syntax."""

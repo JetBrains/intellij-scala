@@ -17,6 +17,8 @@ trait ScTemplateDefinitionStub extends PsiClassStub[ScTemplateDefinition] {
 
   def qualName: String
 
+  def javaQualName: String
+
   def sourceFileName: String
 
   def getSourceFileName: String = sourceFileName
