@@ -9,7 +9,7 @@ import quickfix.RemoveTypeAnnotationAndEqualSign
  * Pavel Fatin
  */
 
-class UnitMethodDefinedLikeFunction extends AbstractMethodSignatureInspection(
+class UnitMethodDefinedLikeFunctionInspection extends AbstractMethodSignatureInspection(
   "ScalaUnitMethodDefinedLikeFunction", "Method with Unit result type defined like function") {
 
   @Language("HTML")

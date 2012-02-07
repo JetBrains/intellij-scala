@@ -10,6 +10,7 @@ import com.intellij.psi.{PsiElement, PsiClass}
 import com.intellij.util.io.StringRef
 import com.intellij.psi.stubs.{StubElement, IStubElementType, StubBase}
 import api.toplevel.typedef.{ScTemplateDefinition, ScTypeDefinition}
+import com.intellij.psi.tree.IElementType
 
 /**
  * @author ilyas
@@ -21,6 +22,7 @@ extends StubBaseWrapper[ScTemplateDefinition](parent, elemType) with ScTemplateD
 
   var myName: String = _
   var myQualName: String = _
+  var myJavaQualName: String = _
   var mySourceFileName: String = _
   var myMethodNames: Array[String] = Array[String]()
   private var _isScriptFileClass: Boolean = _
@@ -32,6 +34,7 @@ extends StubBaseWrapper[ScTemplateDefinition](parent, elemType) with ScTemplateD
           elemType: IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement],
           name: String,
           qualName: String,
+          javaQualName: String,
           sourceFileName: String,
           methodNames: Array[String],
           isPackageObject: Boolean,
@@ -42,6 +45,7 @@ extends StubBaseWrapper[ScTemplateDefinition](parent, elemType) with ScTemplateD
     mySourceFileName = sourceFileName
     myName = name
     myQualName = qualName
+    myJavaQualName = javaQualName
     myMethodNames = methodNames
     this._isPackageObject = isPackageObject
     _isScriptFileClass = isScriptFileClass
@@ -53,6 +57,7 @@ extends StubBaseWrapper[ScTemplateDefinition](parent, elemType) with ScTemplateD
           elemType: IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement],
           name: StringRef,
           qualName: StringRef,
+          javaQualName: StringRef,
           sourceFileName: StringRef,
           methodNames: Array[StringRef],
           isPackageObject: Boolean,
@@ -63,6 +68,7 @@ extends StubBaseWrapper[ScTemplateDefinition](parent, elemType) with ScTemplateD
     mySourceFileName = StringRef.toString(sourceFileName)
     myName = StringRef.toString(name)
     myQualName = StringRef.toString(qualName)
+    myJavaQualName = StringRef.toString(javaQualName)
     myMethodNames = methodNames.map(StringRef.toString(_))
     this._isPackageObject = isPackageObject
     _isScriptFileClass = isScriptFileClass
@@ -76,6 +82,8 @@ extends StubBaseWrapper[ScTemplateDefinition](parent, elemType) with ScTemplateD
   def sourceFileName = mySourceFileName
 
   def qualName = myQualName
+
+  def javaQualName = myJavaQualName
 
   def getName = myName
 

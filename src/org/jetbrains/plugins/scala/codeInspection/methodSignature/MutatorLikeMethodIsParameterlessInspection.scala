@@ -10,7 +10,7 @@ import quickfix.AddEmptyParentheses
  * Pavel Fatin
  */
 
-class MutatorLikeMethodIsParameterless extends AbstractMethodSignatureInspection(
+class MutatorLikeMethodIsParameterlessInspection extends AbstractMethodSignatureInspection(
   "ScalaMutatorLikeMethodIsParameterless", "Method with mutator-like name is parameterless") {
 
   @Language("HTML")

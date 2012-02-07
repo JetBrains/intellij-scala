@@ -66,18 +66,6 @@ class ScalaDeprecationInspection extends LocalInspectionTool {
     }
   }
 
-  def getDisplayName: String = {
-    "Scala Deprecation"
-  }
-
-  def getGroupDisplayName: String = {
-    InspectionsUtil.SCALA
-  }
-
-  def getShortName: String = {
-    "ScalaDeprecation"
-  }
-
   override def getID: String = {
     "ScalaDeprecation"
   }

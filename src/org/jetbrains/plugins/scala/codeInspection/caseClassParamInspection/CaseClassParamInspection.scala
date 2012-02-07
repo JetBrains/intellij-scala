@@ -12,12 +12,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaRecur
 
 
 class CaseClassParamInspection extends LocalInspectionTool {
-  def getGroupDisplayName: String = InspectionsUtil.SCALA
-
-  def getDisplayName: String = "Case Class Parameter"
-
-  def getShortName: String = "CaseClassParam"
-
   override def isEnabledByDefault: Boolean = true
 
   override def getStaticDescription: String = "Inspection for redundant 'val' modifier on case class parameters"

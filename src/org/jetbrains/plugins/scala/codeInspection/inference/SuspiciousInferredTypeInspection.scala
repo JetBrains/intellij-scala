@@ -11,13 +11,7 @@ import com.intellij.psi.{PsiElementVisitor, PsiFile}
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaRecursiveElementVisitor, ScalaFile}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScReferenceExpression, ScBlock, ScBlockExpr, ScExpression}
 
-class SupsiciousInferredTypeInspection extends LocalInspectionTool {
-  def getGroupDisplayName: String = InspectionsUtil.SCALA
-
-  def getDisplayName: String = "Suspicious Inferred Type"
-
-  def getShortName: String = "SuspiciousInferredType"
-
+class SuspiciousInferredTypeInspection extends LocalInspectionTool {
   override def isEnabledByDefault: Boolean =  false // jzaugg: Disabled by default while I try this out.
 
   override def getStaticDescription: String = "Detects inferred types of Any or AnyVal"

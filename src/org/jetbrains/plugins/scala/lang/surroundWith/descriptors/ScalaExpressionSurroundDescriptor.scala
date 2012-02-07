@@ -13,13 +13,9 @@ import psi.ScalaPsiUtil
 import com.intellij.lang.surroundWith.Surrounder
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiFile
-import com.intellij.codeInsight.CodeInsightUtil
-import com.intellij.featureStatistics.FeatureUsageTracker
-import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.PsiWhiteSpace;
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 
-import org.jetbrains.plugins.scala.util.DebugPrint
 
 import org.jetbrains.plugins.scala.lang.surroundWith.surrounders.expression._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -134,4 +130,6 @@ class ScalaExpressionSurroundDescriptor extends SurroundDescriptor {
     if (result == null) return null
     result
   }
+
+  def isExclusive: Boolean = false
 }

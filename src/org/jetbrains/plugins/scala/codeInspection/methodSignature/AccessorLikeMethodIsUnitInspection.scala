@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.extensions._
  * Pavel Fatin
  */
 
-class AccessorLikeMethodIsUnit extends AbstractMethodSignatureInspection(
+class AccessorLikeMethodIsUnitInspection extends AbstractMethodSignatureInspection(
   "ScalaAccessorLikeMethodIsUnit", "Method with accessor-like name has Unit result type") {
 
   @Language("HTML")

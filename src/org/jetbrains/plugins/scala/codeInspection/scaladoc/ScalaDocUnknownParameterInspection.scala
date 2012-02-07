@@ -21,12 +21,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTrait, ScCla
  */
 
 class ScalaDocUnknownParameterInspection extends LocalInspectionTool {
-  def getGroupDisplayName: String = InspectionsUtil.SCALADOC
-
-  def getDisplayName: String = "Unknown Parameter"
-
-  def getShortName: String = "UnknownParameter"
-
   override def isEnabledByDefault: Boolean = true
 
   override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor = {

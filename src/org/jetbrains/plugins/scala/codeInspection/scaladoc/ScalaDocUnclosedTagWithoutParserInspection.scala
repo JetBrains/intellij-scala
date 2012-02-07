@@ -20,12 +20,6 @@ import com.intellij.openapi.util.TextRange
  */
 
 class ScalaDocUnclosedTagWithoutParserInspection extends LocalInspectionTool {
-  def getGroupDisplayName: String = InspectionsUtil.SCALADOC
-
-  def getDisplayName: String = "Unclosed Tag"
-
-  def getShortName: String = "ScalaTagUnclosed"
-
   override def isEnabledByDefault: Boolean = true
 
   override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor = {

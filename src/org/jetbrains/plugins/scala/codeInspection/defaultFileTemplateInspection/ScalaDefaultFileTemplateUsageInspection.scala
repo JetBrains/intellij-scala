@@ -9,12 +9,6 @@ import com.intellij.codeInspection._
  */
 
 class ScalaDefaultFileTemplateUsageInspection extends LocalInspectionTool {
-  def getShortName: String = "ScalaDefaultFileTemplate"
-
-  def getDisplayName: String = "Default file template inspection"
-
-  def getGroupDisplayName: String = InspectionsUtil.SCALA
-
   override def isEnabledByDefault: Boolean = true
 
   override def getStaticDescription: String = "Inspection to show default file template usage"

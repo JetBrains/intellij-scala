@@ -12,12 +12,6 @@ import com.intellij.openapi.project.Project
 import org.intellij.lang.annotations.Language
 
 class ChainedPackageInspection extends LocalInspectionTool {
-  def getGroupDisplayName: String = InspectionsUtil.SCALA
-
-  def getDisplayName: String = "Chained Package Clause Inspection"
-
-  def getShortName: String = "ScalaChainedPackageClause"
-
   override def isEnabledByDefault: Boolean = true
 
   @Language("HTML")

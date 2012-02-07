@@ -9,7 +9,7 @@ import org.intellij.lang.annotations.Language
  * Pavel Fatin
  */
 
-class EmptyParenMethodOverridenAsParameterless extends AbstractMethodSignatureInspection(
+class EmptyParenMethodOverridenAsParameterlessInspection extends AbstractMethodSignatureInspection(
   "ScalaEmptyParenMethodOverridenAsParameterless", "Empty-paren Scala method overriden as parameterless") {
 
   @Language("HTML")

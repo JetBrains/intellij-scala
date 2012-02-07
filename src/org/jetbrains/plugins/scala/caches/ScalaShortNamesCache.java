@@ -101,8 +101,8 @@ public class ScalaShortNamesCache extends PsiShortNamesCache {
   }
 
   public ScTypeDefinition getPackageObjectByName(@NotNull @NonNls String fqn, @NotNull GlobalSearchScope scope) {
-    final Collection<? extends PsiElement> classes = StubIndex.getInstance().get(ScalaIndexKeys.PACKAGE_OBJECT_KEY(), fqn.hashCode(),
-        myProject, new ScalaSourceFilterScope(scope, myProject));
+    final Collection<? extends PsiElement> classes = StubIndex.getInstance().get(ScalaIndexKeys.PACKAGE_OBJECT_KEY(),
+        fqn.hashCode(), myProject, new ScalaSourceFilterScope(scope, myProject));
     for (PsiElement element: classes) {
       if (!(element instanceof PsiClass)) {
         VirtualFile faultyContainer = PsiUtilBase.getVirtualFile(element);

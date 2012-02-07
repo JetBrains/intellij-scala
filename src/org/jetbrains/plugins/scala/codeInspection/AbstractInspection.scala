@@ -11,12 +11,6 @@ import org.jetbrains.plugins.scala.extensions.VisitorWrapper
 abstract class AbstractInspection(id: String, name: String) extends LocalInspectionTool {
   override final def getID = id
 
-  def getGroupDisplayName = InspectionsUtil.SCALA
-
-  final def getDisplayName = name
-
-  final def getShortName = id
-
   override def isEnabledByDefault = true
 
   override def getStaticDescription = description

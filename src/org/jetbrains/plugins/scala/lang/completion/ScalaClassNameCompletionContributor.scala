@@ -51,7 +51,7 @@ class ScalaClassNameCompletionContributor extends CompletionContributor {
     def addClass(psiClass: PsiClass) {
       val isExcluded: Boolean = ApplicationManager.getApplication.runReadAction(new Computable[Boolean] {
         def compute: Boolean = {
-          JavaCompletionUtil.isInExcludedPackage(psiClass)
+          JavaCompletionUtil.isInExcludedPackage(psiClass, true)
         }
       }).booleanValue
       if (isExcluded) return

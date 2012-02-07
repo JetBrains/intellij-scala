@@ -4,7 +4,7 @@ package psi
 package impl
 
 import com.intellij.psi.scope.PsiScopeProcessor
-import com.intellij.psi.{PsiClass, JavaPsiFacade, ResolveState, PsiElement}
+import com.intellij.psi.{PsiClass, ResolveState, PsiElement}
 import com.intellij.psi.search.searches.ClassInheritorsSearch
 import com.intellij.openapi.module.{Module, ModuleManager}
 import com.intellij.openapi.project.Project

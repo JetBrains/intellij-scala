@@ -17,14 +17,6 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
  */
 
 class ScalaDocUnbalancedHeaderInspection extends LocalInspectionTool {
-  def getGroupDisplayName: String = InspectionsUtil.SCALADOC
-
-  def getDisplayName: String = "Header tags unbalanced"
-
-  def getShortName: String = "ScalaUnbalancedHeader"
-
-  override def isEnabledByDefault: Boolean = true
-
   override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor = {
     new ScalaElementVisitor {
       import ScalaDocTokenType._

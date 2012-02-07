@@ -17,12 +17,6 @@ import com.intellij.codeInspection._
  */
 
 class ScalaDocUnknownTagInspection extends LocalInspectionTool {
-  def getGroupDisplayName: String = InspectionsUtil.SCALADOC
-
-  def getDisplayName: String = "Unknown tag"
-
-  def getShortName: String = "UnknownTag"
-
   override def isEnabledByDefault: Boolean = true
 
   override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor = {
