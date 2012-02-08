@@ -128,7 +128,10 @@ class ReferenceExpressionResolver(shapesOnly: Boolean)
           override def candidatesS: Set[ScalaResolveResult] = {
             if (!smartProcessor) super.candidatesS
             else {
-              levelSet ++= reference.shapeResolve.map(_.asInstanceOf[ScalaResolveResult])
+              val iterator = reference.shapeResolve.map(_.asInstanceOf[ScalaResolveResult]).iterator
+              while (iterator.hasNext) {
+                levelSet.add(iterator.next)
+              }
               super.candidatesS
             }
           }

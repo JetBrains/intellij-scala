@@ -14,11 +14,11 @@ import collection.immutable.HashSet
 import collection.mutable.ArrayBuffer
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScMember}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody}
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 
 /**
  * @param place        The call site
  * @param tp           Search for an implicit definition of this type. May have type variables.
- * @param concreteType The type from which to determine the implicit scope.
  *
  * User: Alexander Podkhalyuzin
  * Date: 23.11.2009
@@ -87,6 +87,7 @@ class ImplicitParametersCollector(place: PsiElement, tp: ScType) {
     }
 
     override def candidatesS: scala.collection.Set[ScalaResolveResult] = {
+      val clazz = ScType.extractClass(tp)
       def forFilter(c: ScalaResolveResult): Option[ScalaResolveResult] = {
         def compute(): Option[ScalaResolveResult] = {
           val subst = c.substitutor
@@ -116,34 +117,50 @@ class ImplicitParametersCollector(place: PsiElement, tp: ScType) {
             }
             case fun: ScFunction if !PsiTreeUtil.isContextAncestor(fun, place, false) => {
               val oneImplicit = fun.paramClauses.clauses.length == 1 && fun.paramClauses.clauses.apply(0).isImplicit
-              fun.getType(TypingContext.empty) match {
-                case Success(funType: ScType, _) => {
-                  if (subst.subst(funType) conforms tp) {
-                    Conformance.undefinedSubst(tp, subst.subst(funType)).getSubstitutor match {
-                      case Some(substitutor) =>
-                        Some(c.copy(subst.followed(substitutor)))
-                      //failed to get implicit parameter, there is no substitution to resolve constraints
-                      case None => None
-                    }
-                  }
-                  else {
-                    subst.subst(funType) match {
-                      case ScFunctionType(ret, params) if params.length == 0 || oneImplicit =>
-                        if (!ret.conforms(tp)) None
-                        else {
-                          Conformance.undefinedSubst(tp, ret).getSubstitutor match {
-                            case Some(substitutor) =>
-                              Some(c.copy(subst.followed(substitutor)))
-                            //failed to get implicit parameter, there is no substitution to resolve constraints
-                            case None => None
-                          }
-                        }
-                      case _ => None
-                    }
-                  }
+              var doNotCheck = false
+              if (!oneImplicit && fun.paramClauses.clauses.length > 0) {
+                clazz match {
+                  case Some(clazz) =>
+                    val clause = fun.paramClauses.clauses(0)
+                    val funNum = clause.parameters.length
+                    val qName = "scala.Function" + funNum
+                    val manager = ScalaPsiManager.instance(fun.getProject)
+                    val funClass = manager.getCachedClass(qName, fun.getResolveScope, ScalaPsiManager.ClassCategory.TYPE)
+                    if (!ScalaPsiUtil.cachedDeepIsInheritor(funClass, clazz)) doNotCheck = true
+                  case _ =>
                 }
-                case _ => None
               }
+
+              if (!doNotCheck) {
+                fun.getType(TypingContext.empty) match {
+                  case Success(funType: ScType, _) => {
+                    if (subst.subst(funType) conforms tp) {
+                      Conformance.undefinedSubst(tp, subst.subst(funType)).getSubstitutor match {
+                        case Some(substitutor) =>
+                          Some(c.copy(subst.followed(substitutor)))
+                        //failed to get implicit parameter, there is no substitution to resolve constraints
+                        case None => None
+                      }
+                    }
+                    else {
+                      subst.subst(funType) match {
+                        case ScFunctionType(ret, params) if params.length == 0 || oneImplicit =>
+                          if (!ret.conforms(tp)) None
+                          else {
+                            Conformance.undefinedSubst(tp, ret).getSubstitutor match {
+                              case Some(substitutor) =>
+                                Some(c.copy(subst.followed(substitutor)))
+                              //failed to get implicit parameter, there is no substitution to resolve constraints
+                              case None => None
+                            }
+                          }
+                        case _ => None
+                      }
+                    }
+                  }
+                  case _ => None
+                }
+              } else None
             }
             case _ => None
           }

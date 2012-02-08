@@ -20,7 +20,7 @@ import java.util.Map
 import com.intellij.psi._
 import com.intellij.util.containers.WeakValueHashMap
 import java.util.concurrent.{ConcurrentHashMap, ConcurrentMap}
-import api.toplevel.typedef.{ScClass, ScObject}
+import api.toplevel.typedef.ScObject
 
 class ScalaPsiManager(project: Project) extends ProjectComponent {
   private val implicitObjectMap: ConcurrentMap[String, SoftReference[java.util.Map[GlobalSearchScope, Seq[ScObject]]]] =

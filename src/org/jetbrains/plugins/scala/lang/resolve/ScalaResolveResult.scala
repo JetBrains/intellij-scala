@@ -33,6 +33,8 @@ class ScalaResolveResult(val element: PsiNamedElement,
                          val isAccessible: Boolean = true) extends ResolveResult {
 
   def getElement = element
+  
+  lazy val name: String = element.getName
 
   /**
    * this is important to get precedence information

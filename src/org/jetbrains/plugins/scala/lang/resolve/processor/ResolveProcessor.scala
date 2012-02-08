@@ -69,7 +69,10 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
 
   override def changedLevel = {
     def update: Boolean = {
-      candidatesSet ++= levelSet
+      val iterator = levelSet.iterator()
+      while (iterator.hasNext) {
+        candidatesSet += iterator.next()
+      }
       qualifiedNamesSet ++= levelQualifiedNamesSet
       levelSet.clear()
       levelQualifiedNamesSet.clear()
@@ -139,7 +142,11 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
   }
 
   override def candidatesS: Set[ScalaResolveResult] = {
-    var res = candidatesSet ++ levelSet
+    var res = candidatesSet
+    val iterator = levelSet.iterator()
+    while (iterator.hasNext) {
+      res += iterator.next()
+    }
     /*
     This code works in following way:
     if we found to Types (from types namespace), which import is the same,
