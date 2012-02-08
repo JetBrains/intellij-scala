@@ -54,11 +54,13 @@ public class ScalaSupportWizard {
     fieldLibraryName.getDocument().addDocumentListener(libraryUpdater);
     
     comboCompilerLevel.setModel(new DefaultComboBoxModel(
-        new LibraryLevel[] {LibraryLevel.Project, LibraryLevel.Global}));
+        new LibraryLevel[] {LibraryLevel.Global, LibraryLevel.Project}));
+    comboCompilerLevel.setSelectedItem(LibraryLevel.Project);
     comboCompilerLevel.setRenderer(new LevelRenderer());
     comboCompilerLevel.addActionListener(compilerUpdater);
     
     comboLibraryLevel.setModel(new DefaultComboBoxModel(LibraryLevel.values()));
+    comboLibraryLevel.setSelectedItem(LibraryLevel.Project);
     comboLibraryLevel.setRenderer(new LevelRenderer());
     comboLibraryLevel.addActionListener(libraryUpdater);
   }
