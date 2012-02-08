@@ -8,7 +8,6 @@ import com.intellij.navigation.ItemPresentation
 import com.intellij.openapi.editor.colors.TextAttributesKey
 import expr.ScNewTemplateDefinition
 import impl.toplevel.synthetic.JavaIdentifier
-import impl.ScalaPsiElementFactory
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
 import psi.ScalaPsiElement
@@ -17,19 +16,20 @@ import templates.ScTemplateBody
 import typedef._
 import base.patterns.ScCaseClause
 import icons.Icons
+import psi.impl.{ScalaPsiManager, ScalaPsiElementFactory}
 
 trait ScNamedElement extends ScalaPsiElement with PsiNameIdentifierOwner with NavigatablePsiElement {
-
   def name: String = {
     this match {
       case st: StubBasedPsiElement[_] =>  st.getStub match {
         case namedStub: NamedStub[_] => namedStub.getName
-        case _ if nameId == null => throw new AssertionError("NameId is null for type definition: " + st.getText)
-        case _ => nameId.getText
+        case _ => nameInner
       }
-      case _ => nameId.getText
+      case _ => nameInner
     }
   }
+
+  def nameInner: String = nameId.getText
 
   override def getTextOffset: Int = nameId.getTextRange.getStartOffset
 

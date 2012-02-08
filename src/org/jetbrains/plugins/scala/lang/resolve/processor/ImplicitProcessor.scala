@@ -18,7 +18,7 @@ abstract class ImplicitProcessor(kinds: Set[Value], withoutPrecedence: Boolean) 
   protected def getQualifiedName(result: ScalaResolveResult): String = {
     result.isRenamed match {
       case Some(str) => str
-      case None => result.getElement.getName
+      case None => result.name
     }
   }
 
@@ -37,14 +37,24 @@ abstract class ImplicitProcessor(kinds: Set[Value], withoutPrecedence: Boolean) 
 
   override def changedLevel: Boolean = {
     if (levelSet.isEmpty) return true
-    candidatesSet ++= levelSet
+    val iterator = levelSet.iterator()
+    while (iterator.hasNext) {
+      candidatesSet += iterator.next()
+    }
     qualifiedNamesSet ++= levelQualifiedNamesSet
     levelSet.clear()
     levelQualifiedNamesSet.clear()
     true
   }
 
-  override def candidatesS: Set[ScalaResolveResult] = candidatesSet ++ levelSet
+  override def candidatesS: Set[ScalaResolveResult] = {
+    val res = candidatesSet
+    val iterator = levelSet.iterator()
+    while (iterator.hasNext) {
+      res += iterator.next()
+    }
+    res
+  }
 
   override protected def filterNot(p: ScalaResolveResult, n: ScalaResolveResult): Boolean = {
     getQualifiedName(p) == getQualifiedName(n) && super.filterNot(p, n)

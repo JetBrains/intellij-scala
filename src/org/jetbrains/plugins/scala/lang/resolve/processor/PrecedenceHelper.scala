@@ -21,7 +21,7 @@ trait PrecedenceHelper {
 
   protected def getPlace: PsiElement
   protected lazy val placePackageName: String = ResolveUtils.getPlacePackage(getPlace)
-  protected val levelSet: collection.mutable.HashSet[ScalaResolveResult] = new collection.mutable.HashSet
+  protected val levelSet: java.util.HashSet[ScalaResolveResult] = new java.util.HashSet
   protected val qualifiedNamesSet: HashSet[String] = new HashSet[String]
   protected val levelQualifiedNamesSet: HashSet[String] = new HashSet[String]
 
@@ -49,7 +49,10 @@ trait PrecedenceHelper {
     lazy val qualifiedName: String = getQualifiedName(results(0))
     def addResults() {
       if (qualifiedName != null) levelQualifiedNamesSet += qualifiedName
-      levelSet ++= results
+      val iterator = results.iterator
+      while (iterator.hasNext) {
+        levelSet.add(iterator.next())
+      }
     }
     val currentPrecedence = getPrecedence(results(0))
     if (currentPrecedence < getTopPrecedence(results(0))) return false
@@ -67,9 +70,13 @@ trait PrecedenceHelper {
         return false
       } else {
         setTopPrecedence(results(0), currentPrecedence)
-        val newSet = levelSet.filterNot(filterNot(_, results(0)))
-        levelSet.clear()
-        levelSet ++= newSet
+        val levelSetIterator = levelSet.iterator()
+        while (levelSetIterator.hasNext) {
+          val next = levelSetIterator.next()
+          if (filterNot(next, results(0))) {
+            levelSetIterator.remove()
+          }
+        }
         levelQualifiedNamesSet.clear()
         addResults()
       }
