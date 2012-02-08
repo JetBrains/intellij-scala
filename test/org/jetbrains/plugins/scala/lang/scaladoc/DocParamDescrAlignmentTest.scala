@@ -50,7 +50,17 @@ class DocParamDescrAlignmentTest extends ScalaDocEnterActionTestBase {
   def testEnterWithInvalidParam() {
     val header = "/**\n * @param    "
     val testText = "\n */"
-    val stub = "/**\n * @param   \n * " + testText
+    val stub = "/**\n * @param   \n *" + StringUtil.repeat(" ", " @param".length) + testText
+
+    checkGeneratedTextFromString(header, testText, stub)
+  }
+
+  def testEnterWithTagWithoutValue() {
+    val descrText = "something"
+    val spaces = StringUtil.repeat(" ", 4)
+    val header = "/**\n * @see" + spaces + descrText + " "
+    val testText = "\n */"
+    val stub = "/**\n * @see" + spaces + descrText + "\n" + " *" + StringUtil.repeat(" ", " @see".length) + spaces + testText
 
     checkGeneratedTextFromString(header, testText, stub)
   }

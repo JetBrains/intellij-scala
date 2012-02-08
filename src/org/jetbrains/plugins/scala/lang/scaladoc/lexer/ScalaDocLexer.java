@@ -149,7 +149,9 @@ public class ScalaDocLexer extends MergingLexerAdapter {
         }
 
         if (myBufferIndex < myTokenEndOffset) {
-          myTokenType = lf || state == _ScalaDocLexer.PARAM_TAG_SPACE || state == _ScalaDocLexer.TAG_DOC_SPACE || state == _ScalaDocLexer.INLINE_TAG_NAME || state == _ScalaDocLexer.DOC_TAG_VALUE_IN_PAREN
+          myTokenType = lf || state == _ScalaDocLexer.PARAM_TAG_SPACE || state == _ScalaDocLexer.TAG_DOC_SPACE || 
+              state == _ScalaDocLexer.INLINE_TAG_NAME || state == _ScalaDocLexer.DOC_TAG_VALUE_IN_PAREN ||
+              myBuffer.toString().substring(myBufferIndex, myTokenEndOffset - 1).trim().length() == 0
                         ? ScalaDocTokenType.DOC_WHITESPACE
                         : ScalaDocTokenType.DOC_COMMENT_DATA;
 

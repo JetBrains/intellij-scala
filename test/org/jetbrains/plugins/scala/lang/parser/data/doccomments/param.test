@@ -8,16 +8,17 @@ ScalaFile
     PsiElement(DOC_COMMENT_START)('/**')
     PsiElement(DOC_WHITESPACE)('\n ')
     PsiElement(DOC_COMMENT_LEADING_ASTERISKS)('*')
-    PsiElement(DOC_COMMENT_DATA)(' ')
+    PsiElement(DOC_WHITESPACE)(' ')
     DocTag
       PsiElement(DOC_TAG_NAME)('@param')
       PsiElement(DOC_COMMENT_DATA)(' ')
       ScalaDocTagValue
         PsiElement(DOC_TAG_VALUE_TOKEN)('String')
-      PsiElement(DOC_COMMENT_DATA)(' this is book's test')
+      PsiElement(DOC_WHITESPACE)(' ')
+      PsiElement(DOC_COMMENT_DATA)('this is book's test')
       PsiElement(DOC_WHITESPACE)('\n ')
       PsiElement(DOC_COMMENT_LEADING_ASTERISKS)('*')
-      PsiElement(DOC_COMMENT_DATA)(' ')
+      PsiElement(DOC_WHITESPACE)(' ')
     DocTag
       PsiElement(DOC_TAG_NAME)('@param')
       PsiElement(DOC_COMMENT_DATA)(' ')
