@@ -80,22 +80,23 @@ object getDummyBlocks {
         return subBlocks
       }
       case _
-        if node.getElementType == ScalaDocElementTypes.DOC_TAG &&
-                MyScaladocParsing.tagsWithParameters.contains(node.getPsi.asInstanceOf[ScDocTag].getName) =>
+        if node.getElementType == ScalaDocElementTypes.DOC_TAG /*&&
+                MyScaladocParsing.tagsWithParameters.contains(node.getPsi.asInstanceOf[ScDocTag].getName)*/ =>
         val docTag = node.getPsi.asInstanceOf[ScDocTag]
-        val tagValNode = if (docTag.getValueElement != null) docTag.getValueElement.getNode else null
+        val tagConcernedNode = if (docTag.getValueElement != null) docTag.getValueElement.getNode else
+          (if (docTag.getNameElement != null) docTag.getNameElement.getNode else null)
 
-        if (tagValNode != null) {
+        if (tagConcernedNode != null) {
           var hasValidData = false
-          var nextSiblTagVal = tagValNode.getTreeNext
+          var nextSiblTagVal = tagConcernedNode.getTreeNext
           while (!hasValidData && nextSiblTagVal != null) {
             if (nextSiblTagVal.getText.trim().length > 0 && nextSiblTagVal.getText != "*") hasValidData = true
             nextSiblTagVal = nextSiblTagVal.getTreeNext
           }
 
-          if (false) {
+          if (hasValidData) {
             var nextSibl = docTag.getFirstChild.getNode
-            while (nextSibl != tagValNode.getTreeNext && subBlocks.size() < 3) {
+            while (nextSibl != tagConcernedNode.getTreeNext && subBlocks.size() < 3) {
               subBlocks.add(new ScalaBlock(block, nextSibl, null, null, Indent.getNoneIndent,
                 arrangeSuggestedWrapForChild(block, nextSibl, scalaSettings, block.suggestedWrap), block.getSettings))
 

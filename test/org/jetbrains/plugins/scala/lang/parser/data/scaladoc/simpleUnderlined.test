@@ -9,10 +9,11 @@ ScalaFile
     PsiElement(DOC_COMMENT_START)('/**')
     PsiElement(DOC_WHITESPACE)('\n ')
     PsiElement(DOC_COMMENT_LEADING_ASTERISKS)('*')
-    PsiElement(DOC_COMMENT_DATA)(' This is plain text')
+    PsiElement(DOC_WHITESPACE)(' ')
+    PsiElement(DOC_COMMENT_DATA)('This is plain text')
     PsiElement(DOC_WHITESPACE)('\n ')
     PsiElement(DOC_COMMENT_LEADING_ASTERISKS)('*')
-    PsiElement(DOC_COMMENT_DATA)(' ')
+    PsiElement(DOC_WHITESPACE)(' ')
     DocSyntaxElement 4
       PsiElement(DOC_UNDERLINE_TAG 4)('__')
       PsiElement(DOC_COMMENT_DATA)('this is underlined node ')

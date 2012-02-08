@@ -111,7 +111,8 @@ class MyScaladocParsing(private val psiBuilder: PsiBuilder) extends ScalaDocElem
     }
 
     while (!isEndOfComment) {
-      if ((builder.getTokenType != DOC_WHITESPACE) && (builder.getTokenType != DOC_COMMENT_LEADING_ASTERISKS)) {
+      if (!(builder.getTokenType == DOC_WHITESPACE && builder.getTokenText.contains("\n")) &&
+              builder.getTokenType != DOC_COMMENT_LEADING_ASTERISKS) {
         hasClosingElementsInWikiSyntax = false
       }
       builder.getTokenType match {
@@ -249,7 +250,7 @@ class MyScaladocParsing(private val psiBuilder: PsiBuilder) extends ScalaDocElem
         case PARAM_TAG | TYPE_PARAM_TAG =>
           if (!ParserUtils.lookAhead(builder, builder.getTokenType, DOC_TAG_VALUE_TOKEN)) builder.error("Missing tag param")
         case SEE_TAG | AUTHOR_TAG | NOTE_TAG | RETURN_TAG | DEFINE_TAG | SINCE_TAG | VERSION_TAG |
-             USECASE_TAG | EXAMPLE_TAG =>
+             USECASE_TAG | EXAMPLE_TAG | TODO_TAG =>
           //do nothing
         case _ =>
           builder.error("unknown tag")

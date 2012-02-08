@@ -13,7 +13,8 @@ ScalaFile
     PsiElement(DOC_COMMENT_START)('/**')
     PsiElement(DOC_WHITESPACE)('\n ')
     PsiElement(DOC_COMMENT_LEADING_ASTERISKS)('*')
-    PsiElement(DOC_COMMENT_DATA)(' plain text plain text plain text plain text plain text ')
+    PsiElement(DOC_WHITESPACE)(' ')
+    PsiElement(DOC_COMMENT_DATA)('plain text plain text plain text plain text plain text ')
     DocSyntaxElement 16
       PsiElement(DOC_SUPERSCRIPT_TAG 16)('^')
       PsiElement(DOC_COMMENT_DATA)('superscript_')
@@ -24,7 +25,7 @@ ScalaFile
       PsiElement(DOC_SUPERSCRIPT_TAG 16)('^')
     PsiElement(DOC_WHITESPACE)('\n ')
     PsiElement(DOC_COMMENT_LEADING_ASTERISKS)('*')
-    PsiElement(DOC_COMMENT_DATA)(' ')
+    PsiElement(DOC_WHITESPACE)(' ')
     DocSyntaxElement 32
       PsiElement(DOC_SUBSCRIPT_TAG 32)(',,')
       PsiElement(DOC_COMMENT_DATA)('closed by new paragraph subscript')
@@ -34,7 +35,7 @@ ScalaFile
       <empty list>
     PsiElement(DOC_WHITESPACE)('\n ')
     PsiElement(DOC_COMMENT_LEADING_ASTERISKS)('*')
-    PsiElement(DOC_COMMENT_DATA)(' ')
+    PsiElement(DOC_WHITESPACE)(' ')
     DocSyntaxElement 4
       PsiElement(DOC_UNDERLINE_TAG 4)('__')
       DocInlinedTag
@@ -48,7 +49,7 @@ ScalaFile
       PsiElement(DOC_UNDERLINE_TAG 4)('__')
     PsiElement(DOC_WHITESPACE)('\n ')
     PsiElement(DOC_COMMENT_LEADING_ASTERISKS)('*')
-    PsiElement(DOC_COMMENT_DATA)(' ')
+    PsiElement(DOC_WHITESPACE)(' ')
     DocSyntaxElement 2
       PsiElement(DOC_ITALIC_TAG 2)('''')
       PsiElement(DOC_COMMENT_DATA)('illegal italic')
@@ -63,7 +64,7 @@ ScalaFile
       PsiElement(DOC_COMMENT_DATA)('54231')
       PsiElement(DOC_WHITESPACE)('\n ')
       PsiElement(DOC_COMMENT_LEADING_ASTERISKS)('*')
-      PsiElement(DOC_COMMENT_DATA)(' ')
+      PsiElement(DOC_WHITESPACE)(' ')
       DocSyntaxElement 3
         PsiElement(DOC_BOLD_TAG 1)(''''')
         PsiElement(DOC_ITALIC_TAG 2)('''')
@@ -83,7 +84,7 @@ ScalaFile
       PsiElement(DOC_ITALIC_TAG 2)('''')
     PsiElement(DOC_WHITESPACE)('\n ')
     PsiElement(DOC_COMMENT_LEADING_ASTERISKS)('*')
-    PsiElement(DOC_COMMENT_DATA)(' ')
+    PsiElement(DOC_WHITESPACE)(' ')
     DocTag
       PsiElement(DOC_TAG_NAME)('@see')
       PsiElement(DOC_WHITESPACE)(' ')

@@ -44,11 +44,11 @@ import com.intellij.openapi.project.Project
 import parser.parsing.expressions.{Block, Expr}
 import parser.parsing.base.Import
 import org.apache.commons.lang.StringUtils
-import scaladoc.psi.api.{ScDocResolvableCodeReference, ScDocSyntaxElement, ScDocComment}
 import parser.parsing.base.{Constructor, Import}
 import api.base.{ScConstructor, ScIdList, ScPatternList, ScStableCodeReferenceElement}
 import com.intellij.util.IncorrectOperationException
 import extensions.toPsiClassExt
+import scaladoc.psi.api.{ScDocInnerCodeElement, ScDocResolvableCodeReference, ScDocSyntaxElement, ScDocComment}
 
 object ScalaPsiElementFactory {
 
@@ -1005,5 +1005,10 @@ object ScalaPsiElementFactory {
   def createDocLinkValue(text: String, manager: PsiManager): ScDocResolvableCodeReference = {
     createScalaFile("/**[[" + text + "]]*/ class a{}", manager).typeDefinitions(0).docComment.
             get.getNode.getChildren(null)(1).getChildren(null)(1).getPsi.asInstanceOf[ScDocResolvableCodeReference]
+  }
+
+  def createDocInnerCode(text: String, manager: PsiManager): ScDocInnerCodeElement = {
+    createScalaFile("/**{{{" + text + "}}}\n*/\n class a{}", manager).typeDefinitions(0).docComment.get.getNode.
+            getChildren(null)(1).getPsi.asInstanceOf[ScDocInnerCodeElement]
   }
 }

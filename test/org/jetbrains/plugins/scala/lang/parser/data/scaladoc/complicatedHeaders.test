@@ -13,7 +13,7 @@ ScalaFile
     PsiElement(DOC_COMMENT_START)('/**')
     PsiElement(DOC_WHITESPACE)('\n ')
     PsiElement(DOC_COMMENT_LEADING_ASTERISKS)('*')
-    PsiElement(DOC_COMMENT_DATA)(' ')
+    PsiElement(DOC_WHITESPACE)(' ')
     DocSyntaxElement 256
       PsiElement(VALID_DOC_HEADER 256)('==')
       PsiElement(DOC_COMMENT_DATA)('header')
@@ -29,7 +29,7 @@ ScalaFile
     PsiElement(DOC_COMMENT_DATA)(' bfejwhbfiewfh upw')
     PsiElement(DOC_WHITESPACE)('\n ')
     PsiElement(DOC_COMMENT_LEADING_ASTERISKS)('*')
-    PsiElement(DOC_COMMENT_DATA)(' ')
+    PsiElement(DOC_WHITESPACE)(' ')
     DocSyntaxElement 256
       PsiElement(VALID_DOC_HEADER 256)('==')
       PsiElement(DOC_COMMENT_DATA)('closed by paragraph header 3')
@@ -39,14 +39,14 @@ ScalaFile
       <empty list>
     PsiElement(DOC_WHITESPACE)('\n ')
     PsiElement(DOC_COMMENT_LEADING_ASTERISKS)('*')
-    PsiElement(DOC_COMMENT_DATA)(' ')
+    PsiElement(DOC_WHITESPACE)(' ')
     DocSyntaxElement 256
       PsiElement(VALID_DOC_HEADER 256)('===')
       PsiElement(DOC_COMMENT_DATA)('closed by another header 4')
       PsiElement(DOC_HEADER 256)('=')
       PsiElement(DOC_WHITESPACE)('\n ')
       PsiElement(DOC_COMMENT_LEADING_ASTERISKS)('*')
-      PsiElement(DOC_COMMENT_DATA)(' ')
+      PsiElement(DOC_WHITESPACE)(' ')
       PsiErrorElement:Header closed by opening new one
         <empty list>
     DocSyntaxElement 256
@@ -60,7 +60,8 @@ ScalaFile
       PsiElement(DOC_COMMENT_DATA)('loooooooooooooooooooooooooooooooooooooooooooong')
       PsiElement(DOC_WHITESPACE)('\n ')
       PsiElement(DOC_COMMENT_LEADING_ASTERISKS)('*')
-      PsiElement(DOC_COMMENT_DATA)(' header 6')
+      PsiElement(DOC_WHITESPACE)(' ')
+      PsiElement(DOC_COMMENT_DATA)('header 6')
       PsiElement(DOC_HEADER 256)('=')
     PsiElement(DOC_WHITESPACE)('\n ')
     PsiElement(DOC_COMMENT_END)('*/')

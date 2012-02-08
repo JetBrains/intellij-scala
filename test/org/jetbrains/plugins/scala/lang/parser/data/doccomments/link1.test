@@ -7,7 +7,7 @@ ScalaFile
     PsiElement(DOC_COMMENT_START)('/**')
     PsiElement(DOC_WHITESPACE)('\n ')
     PsiElement(DOC_COMMENT_LEADING_ASTERISKS)('*')
-    PsiElement(DOC_COMMENT_DATA)(' ')
+    PsiElement(DOC_WHITESPACE)(' ')
     DocTag
       PsiElement(DOC_TAG_NAME)('@link')
       PsiErrorElement:unknown tag

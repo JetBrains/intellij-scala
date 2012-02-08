@@ -10,6 +10,8 @@ import lang.scaladoc.psi.api.ScDocTag
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.psi.{PsiDocumentManager, PsiFile}
+import org.jetbrains.plugins.scala.extensions
+import lang.scaladoc.lexer.ScalaDocTokenType
 
 /**
  * User: Dmitry Naydanov
@@ -24,9 +26,9 @@ class ScalaDocParamInsertHandler extends EnterHandlerDelegateAdapter {
 
     val scalaFile = file.asInstanceOf[ScalaFile]
     val caretOffset = editor.getCaretModel.getOffset
-    scalaFile.elementAt(caretOffset) match {
-      case None => return Result.Continue
-      case _ =>
+
+    if (scalaFile.elementAt(caretOffset).isEmpty) {
+      return Result.Continue
     }
 
     var nextParent = scalaFile.elementAt(caretOffset).get
@@ -34,7 +36,7 @@ class ScalaDocParamInsertHandler extends EnterHandlerDelegateAdapter {
 
     while (!nextParent.isInstanceOf[ScDocTag]) {
       nextParent = nextParent.getParent
-      if (nextParent == scalaFile) {
+      if (nextParent == null) {
         return Result.Continue
       }
     }
@@ -50,19 +52,22 @@ class ScalaDocParamInsertHandler extends EnterHandlerDelegateAdapter {
     if (probData == null) {
       return Result.Continue
     }
+    val nextProbData = if (probData.getNextSibling != null) probData.getNextSibling.getNode else null
 
     val startOffset = tagParent.getNameElement.getTextRange.getStartOffset
-    val endOffset = probData.getTextRange.getStartOffset + (if (probData.getText.trim().length() != 0)
-      probData.getText.indexWhere(_ != ' ') else 1)
-
+    val endOffset = probData.getTextRange.getStartOffset + (nextProbData match {
+      case null => 0
+      case _ if nextProbData.getElementType == ScalaDocTokenType.DOC_COMMENT_DATA => probData.getTextLength
+      case _ if nextProbData.getElementType == ScalaDocTokenType.DOC_COMMENT_LEADING_ASTERISKS => 1
+      case _ => 0
+    })
+    
     if (document.getLineNumber(caretOffset) - 1 == document.getLineNumber(tagParent.getNameElement.getTextOffset)) {
       val toInsert = StringUtil.repeat(" ", endOffset - startOffset)
-      ApplicationManager.getApplication.runWriteAction(new Runnable {
-        def run() {
-          document.insertString(caretOffset, toInsert)
-          PsiDocumentManager.getInstance(file.getProject).commitDocument(document)
-        }
-      })
+      extensions.inWriteAction {
+        document.insertString(caretOffset, toInsert)
+        PsiDocumentManager.getInstance(file.getProject).commitDocument(document)
+      }
     }
 
 
