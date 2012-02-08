@@ -54,7 +54,7 @@ public class ScalaSupportWizard {
     fieldLibraryName.getDocument().addDocumentListener(libraryUpdater);
     
     comboCompilerLevel.setModel(new DefaultComboBoxModel(
-        new LibraryLevel[] {LibraryLevel.Global, LibraryLevel.Project}));
+        new LibraryLevel[] {LibraryLevel.Project, LibraryLevel.Global}));
     comboCompilerLevel.setRenderer(new LevelRenderer());
     comboCompilerLevel.addActionListener(compilerUpdater);
     
@@ -183,11 +183,9 @@ public class ScalaSupportWizard {
       labelState.setIcon(null);
     }
 
-    fieldCompilerName.setText(Libraries.uniqueName("scala-compiler-" + distribution.compilerVersion(), 
-        getCompilerLibraryId().level(), myProject));
+    fieldCompilerName.setText(Libraries.uniqueName("scala-compiler", getCompilerLibraryId().level(), myProject));
 
-    fieldLibraryName.setText(Libraries.uniqueName("scala-library-" + distribution.libraryVersion(),
-        getStandardLibraryId().level(), myProject));
+    fieldLibraryName.setText(Libraries.uniqueName("scala-library", getStandardLibraryId().level(), myProject));
   }
 
   public JComponent getComponent() {
