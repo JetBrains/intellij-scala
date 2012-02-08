@@ -124,9 +124,9 @@ class ImplicitParametersCollector(place: PsiElement, tp: ScType) {
                     val clause = fun.paramClauses.clauses(0)
                     val funNum = clause.parameters.length
                     val qName = "scala.Function" + funNum
-                    val manager = ScalaPsiManager.instance(fun.getProject)
-                    val funClass = manager.getCachedClass(qName, fun.getResolveScope, ScalaPsiManager.ClassCategory.TYPE)
-                    if (!ScalaPsiUtil.cachedDeepIsInheritor(funClass, clazz)) doNotCheck = true
+                    val classQualifiedName = clazz.getQualifiedName
+                    if (classQualifiedName != qName && classQualifiedName != "java.lang.Object" &&
+                        classQualifiedName != "scala.ScalaObject") doNotCheck = true
                   case _ =>
                 }
               }
