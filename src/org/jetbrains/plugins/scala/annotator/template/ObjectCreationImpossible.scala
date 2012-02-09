@@ -6,6 +6,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition}
 import org.jetbrains.plugins.scala.annotator.quickfix.ImplementMethodsQuickFix
 import org.jetbrains.plugins.scala.overrideImplement.{ScAliasMember, ScalaOIUtil}
+import com.intellij.codeInsight.generation.{PsiElementClassMember, ClassMemberWithElement}
 
 /**
  * Pavel Fatin
@@ -24,7 +25,6 @@ object ObjectCreationImpossible extends AnnotatorPart[ScTemplateDefinition] {
 
     val refs = definition.refs
 
-    val hasBody = definition.extendsBlock.templateBody.isDefined
     val hasAbstract = refs.flatMap(_._2.toSeq).exists(t => isAbstract(t._1))
 
     if(hasAbstract) {
@@ -35,7 +35,14 @@ object ObjectCreationImpossible extends AnnotatorPart[ScTemplateDefinition] {
           val undefined = for {
             member <- toMembers(getMembersToImplement(definition))
             if !member.isInstanceOf[ScAliasMember] // See SCL-2887
-          } yield (member.getText, member.getParentNodeDelegate.getText)
+          } yield {
+            try {
+              (member.getText, member.getParentNodeDelegate.getText)
+            } catch {
+              case iae: IllegalArgumentException =>
+                throw new RuntimeException("memer: " + member.getText, iae)
+            }
+          }
 
           if(undefined.nonEmpty) {
             val element = if(isNew) refElement else definition.asInstanceOf[ScObject].nameId
