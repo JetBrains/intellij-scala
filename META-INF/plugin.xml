@@ -412,6 +412,10 @@
                      displayName="SBT Light Configuration File Structure" groupName="Scala: General"
                      shortName="SbtFileStructure" level="WARNING"
                      enabledByDefault="true" language="Scala"/>
+    <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.semicolon.ScalaUnnecessarySemicolonInspection"
+                     displayName="Scala unnecessary semicolon inspection" groupName="Scala: General"
+                     shortName="ScalaUnnecessarySemicolon" level="WARNING"
+                     enabledByDefault="false" language="Scala"/>
     <!--<localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.allErrorsInspection.AnnotatorBasedErrorInspection"
                      displayName="All Errors Tool" groupName="Scala: General"
                      shortName="ScalaAllErrors" level="WARNING"

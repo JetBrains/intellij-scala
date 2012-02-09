@@ -9,10 +9,6 @@ import org.jetbrains.plugins.scala.extensions.VisitorWrapper
  * Pavel Fatin
  */
 abstract class AbstractInspection(id: String, name: String) extends LocalInspectionTool {
-  override final def getID = id
-
-  override def isEnabledByDefault = true
-
   override def getStaticDescription = description
 
   @Language("HTML")
