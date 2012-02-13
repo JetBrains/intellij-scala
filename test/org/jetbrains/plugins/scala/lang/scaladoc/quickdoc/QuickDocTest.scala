@@ -51,7 +51,7 @@ class QuickDocTest extends ScalaLightPlatformCodeInsightTestCaseAdapter {
       | class A {}
       """
     val testText = "aa\n     <dl><dt><b>See Also:</b></dt> <dd>someting</dd>\n    " +
-            "<dd></dd></dl><br><br><b>Example:</b><br> aaa\n     <br><br><b>Note:</b><br> qwerty"
+            " </dl><br><br><b>Example:</b><br> aaa\n     <br><br><b>Note:</b><br> qwerty"
 
     generateSimpleByText(fileText, testText)
   }
@@ -210,7 +210,7 @@ class QuickDocTest extends ScalaLightPlatformCodeInsightTestCaseAdapter {
       |   */
       | val a = 1
       """
-    val testText = "\n     <dl><dt><b>See Also:</b></dt>\n    <dd></dd></dl><br><br><b>Note:</b><br> aaaaa "
+    val testText = "\n     <dl><dt><b>See Also:</b></dt>\n     </dl><br><br><b>Note:</b><br> aaaaa "
 
     generateSimpleByText(fileText, testText)
   }

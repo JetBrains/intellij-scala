@@ -55,10 +55,9 @@ class ScalaDocParamInsertHandler extends EnterHandlerDelegateAdapter {
     val nextProbData = if (probData.getNextSibling != null) probData.getNextSibling.getNode else null
 
     val startOffset = tagParent.getNameElement.getTextRange.getStartOffset
-    val endOffset = probData.getTextRange.getStartOffset + (nextProbData match {
-      case null => 0
-      case _ if nextProbData.getElementType == ScalaDocTokenType.DOC_COMMENT_DATA => probData.getTextLength
-      case _ if nextProbData.getElementType == ScalaDocTokenType.DOC_COMMENT_LEADING_ASTERISKS => 1
+    val endOffset = probData.getTextRange.getStartOffset + (Option(nextProbData).map(_.getElementType) match {
+      case Some(ScalaDocTokenType.DOC_COMMENT_DATA) => probData.getTextLength
+      case Some(ScalaDocTokenType.DOC_COMMENT_LEADING_ASTERISKS) => 1
       case _ => 0
     })
     

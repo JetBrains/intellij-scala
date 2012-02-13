@@ -80,8 +80,7 @@ object getDummyBlocks {
         return subBlocks
       }
       case _
-        if node.getElementType == ScalaDocElementTypes.DOC_TAG /*&&
-                MyScaladocParsing.tagsWithParameters.contains(node.getPsi.asInstanceOf[ScDocTag].getName)*/ =>
+        if node.getElementType == ScalaDocElementTypes.DOC_TAG =>
         val docTag = node.getPsi.asInstanceOf[ScDocTag]
         val tagConcernedNode = if (docTag.getValueElement != null) docTag.getValueElement.getNode else
           (if (docTag.getNameElement != null) docTag.getNameElement.getNode else null)

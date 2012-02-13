@@ -24,7 +24,7 @@ class DocStubGenerationTest extends ScalaDocEnterActionTestBase {
   }
 
   def testMethodSpecificStub() {
-    genericTestStub("  /**\n   * \n   * @throws java.io.IOException \n   * @return \n     */\n" +
+    genericTestStub("  /**\n   * \n   * @throws java.io.IOException\n   * @return\n   */\n" +
             " @throws(classOf[java.io.IOException])\n def f(): Int = {1}}",
       " @throws(classOf[java.io.IOException])\n def f(): Int = {1}}")
   }
