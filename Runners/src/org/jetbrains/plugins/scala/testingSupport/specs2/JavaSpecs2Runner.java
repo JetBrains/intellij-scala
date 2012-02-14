@@ -19,7 +19,7 @@ public class JavaSpecs2Runner {
 
   private static final String DELIMITER = "--";
 
-  public static void main(String[] args) {
+  public static void main(String[] args) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
     NotifierRunner runner = new NotifierRunner(new JavaSpecs2Notifier());
     List<String> classNames = new ArrayList<String>();
     List<String> specsTestArgs = new ArrayList<String>();
@@ -38,8 +38,9 @@ public class JavaSpecs2Runner {
       List<String> runnerArgs = new ArrayList<String>();
       runnerArgs.add(className);
       runnerArgs.addAll(specsTestArgs);
-      String[] runnerArgsArray = runnerArgs.toArray(new String[runnerArgs.size()]);
-      runner.main(runnerArgsArray);
+      Object runnerArgsArray = runnerArgs.toArray(new String[runnerArgs.size()]);
+      Method method = runner.getClass().getMethod("main", String[].class);
+      method.invoke(runner, runnerArgsArray);
     }
     System.exit(0);
   }
