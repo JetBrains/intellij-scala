@@ -35,6 +35,10 @@ object FunDef {
     }
     builder.getTokenType match {
       case ScalaTokenTypes.tIDENTIFIER => {
+        // Handle `def macro foo()`. Not that `macro` is not a keyword.
+        if (builder.getTokenText == "macro" && builder.lookAhead(1) == ScalaTokenTypes.tIDENTIFIER) {
+          builder.advanceLexer();
+        }
         FunSig parse builder
         builder.getTokenType match {
           case ScalaTokenTypes.tCOLON => {
