@@ -1,0 +1,99 @@
+package org.jetbrains.plugins.scala.lang.psi.light
+
+import com.intellij.psi._
+import impl.light.LightMethod
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScTypedDefinition, ScModifierListOwner}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScMember}
+
+/**
+ * User: Alefas
+ * Date: 18.02.12
+ */
+class PsiTypedDefinitionWrapper(val typedDefinition: ScTypedDefinition, isStatic: Boolean, isInterface: Boolean,
+                                role: PsiTypedDefinitionWrapper.DefinitionRole.DefinitionRole,
+                                cClass: Option[PsiClass] = None) extends {
+  val elementFactory = JavaPsiFacade.getInstance(typedDefinition.getProject).getElementFactory
+  val containingClass = {
+    if (cClass != None) cClass.get
+    else
+      typedDefinition.nameContext match {
+        case s: ScMember =>
+          val res = s.getContainingClass
+          if (isStatic) {
+            res match {
+              case o: ScObject => o.fakeCompanionClassOrCompanionClass
+              case _ => res
+            }
+          } else res
+        case _ => null
+      }
+  }
+  val methodText = PsiTypedDefinitionWrapper.methodText(typedDefinition, isStatic, isInterface, role)
+  val method: PsiMethod = {
+    try {
+      elementFactory.createMethodFromText(methodText, containingClass)
+    } catch {
+      case e => elementFactory.createMethodFromText("public void FAILED_TO_DECOMPILE_METHOD() {}", containingClass)
+    }
+  }
+} with LightMethod(typedDefinition.getManager, method, containingClass) {
+  override def getNavigationElement: PsiElement = typedDefinition
+
+  override def canNavigate: Boolean = typedDefinition.canNavigate
+
+  override def canNavigateToSource: Boolean = typedDefinition.canNavigateToSource
+
+  override def getParent: PsiElement = containingClass
+}
+
+object PsiTypedDefinitionWrapper {
+  object DefinitionRole extends Enumeration {
+    type DefinitionRole = Value
+    val SIMPLE_ROLE, GETTER, IS_GETTER, SETTER = Value
+  }
+  import DefinitionRole._
+
+  def methodText(b: ScTypedDefinition, isStatic: Boolean, isInterface: Boolean, role: DefinitionRole): String = {
+    val builder = new StringBuilder
+
+    ScalaPsiUtil.nameContext(b) match {
+      case m: ScModifierListOwner =>
+        builder.append(JavaConversionUtil.modifiers(m, isStatic))
+      case _ =>
+    }
+
+    val result = b.getType(TypingContext.empty)
+    result match {
+      case _ if role == SETTER => builder.append("void")
+      case Success(tp, _) => builder.append(JavaConversionUtil.typeText(tp, b.getProject, b.getResolveScope))
+      case _ => builder.append("java.lang.Object")
+    }
+
+    builder.append(" ")
+    val name = role match {
+      case SIMPLE_ROLE => b.getName
+      case GETTER => "get" + b.getName.capitalize
+      case IS_GETTER => "is" + b.getName.capitalize
+      case SETTER => "set" + b.getName.capitalize
+    }
+    builder.append(name)
+    if (role != SETTER) {
+      builder.append("()")
+    } else {
+      builder.append("(")
+      result match {
+        case Success(tp, _) => builder.append(JavaConversionUtil.typeText(tp, b.getProject, b.getResolveScope))
+        case _ => builder.append("java.lang.Object")
+      }
+      builder.append(" ").append(b.getName).append(")")
+    }
+    if (!isInterface)
+      builder.append(" {}")
+    else
+      builder.append(";")
+
+    builder.toString()
+  }
+}

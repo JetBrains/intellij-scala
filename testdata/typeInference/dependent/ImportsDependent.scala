@@ -10,7 +10,7 @@ object Test {
   import First.{O => FO}, Second.{O => SO}
 
   val x: FO = 1
-  val z: SO = 1
-  /*start*/z/*end*/
+  val zz: SO = 1
+  /*start*/zz/*end*/
 }
 //Second.O

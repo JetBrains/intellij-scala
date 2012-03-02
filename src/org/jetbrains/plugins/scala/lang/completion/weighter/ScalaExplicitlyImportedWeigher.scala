@@ -15,6 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.{ScImportsHolder, ScalaPsiUtil}
 import collection.mutable.ArrayBuffer
 import com.intellij.openapi.util.Key
 import org.jetbrains.plugins.scala.extensions.toPsiClassExt
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 
 /**
   * @author Alexander Podkhalyuzin
@@ -95,7 +96,11 @@ class ScalaExplicitlyImportedWeigher extends ProximityWeigher {
           case obj: ScObject =>
             val qualNoPoint = obj.qualifiedName
             if (qualNoPoint != null) {
-              val qual = qualNoPoint + "." + member.getName
+              val memberName = member match {
+                case named: ScNamedElement => named.name
+                case _ => member.getName
+              }
+              val qual = qualNoPoint + "." + memberName
               applyQualifier(qual, position) match {
                 case Some(x) => return Some(x)
                 case None =>
@@ -135,7 +140,11 @@ class ScalaExplicitlyImportedWeigher extends ProximityWeigher {
         val clazz = member.getContainingClass
         val qualNoPoint = clazz.qualifiedName
         if (qualNoPoint != null) {
-          val qual = qualNoPoint + "." + member.getName
+          val memberName = member match {
+            case named: ScNamedElement => named.name
+            case _ => member.getName
+          }
+          val qual = qualNoPoint + "." + memberName
           applyQualifier(qual, position) match {
             case Some(x) => return x
             case None =>

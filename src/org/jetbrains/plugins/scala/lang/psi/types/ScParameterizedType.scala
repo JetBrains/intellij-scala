@@ -18,12 +18,12 @@ import result.{Success, TypingContext}
 import api.toplevel.typedef.{ScTypeDefinition, ScClass}
 import collection.mutable.ArrayBuffer
 import collection.immutable.{ListMap, Map}
-import extensions.toPsiClassExt
+import extensions.{toPsiNamedElementExt, toPsiClassExt}
 
 case class JavaArrayType(arg: ScType) extends ValueType {
 
   def getParameterizedType(project: Project, scope: GlobalSearchScope): Option[ScType] = {
-    val arrayClasses = JavaPsiFacade.getInstance(project).findClasses("scala.Array", scope)
+    val arrayClasses = ScalaPsiManager.instance(project).getCachedClasses(scope, "scala.Array")
     var arrayClass: PsiClass = null
     for (clazz <- arrayClasses) {
       clazz match {
@@ -164,7 +164,7 @@ case class ScParameterizedType(designator : ScType, typeArgs : Seq[ScType]) exte
           case _ => return (false, undefinedSubst)
         })
         val genericSubst = ScalaPsiUtil.
-                typesCallSubstitutor(a.typeParameters.map(tp => (tp.getName, ScalaPsiUtil.getPsiElementId(tp))), args)
+                typesCallSubstitutor(a.typeParameters.map(tp => (tp.name, ScalaPsiUtil.getPsiElementId(tp))), args)
         Equivalence.equivInner(genericSubst.subst(lBound), r, undefinedSubst, falseUndef)
       }
       case (ScParameterizedType(ScDesignatorType(a: ScTypeAliasDefinition), args), _) => {
@@ -173,7 +173,7 @@ case class ScParameterizedType(designator : ScType, typeArgs : Seq[ScType]) exte
           case _ => return (false, undefinedSubst)
         }
         val genericSubst = ScalaPsiUtil.
-                typesCallSubstitutor(a.typeParameters.map(tp => (tp.getName, ScalaPsiUtil.getPsiElementId(tp))), args)
+                typesCallSubstitutor(a.typeParameters.map(tp => (tp.name, ScalaPsiUtil.getPsiElementId(tp))), args)
         Equivalence.equivInner(genericSubst.subst(lBound), r, undefinedSubst, falseUndef)
       }
       case (ScParameterizedType(designator, typeArgs), ScParameterizedType(designator1, typeArgs1)) => {
@@ -260,7 +260,7 @@ case class ScTypeParameterType(name: String, args: List[ScTypeParameterType],
                               lower: Suspension[ScType], upper: Suspension[ScType],
                               param: PsiTypeParameter) extends ValueType {
   def this(ptp: PsiTypeParameter, s: ScSubstitutor) = {
-    this(ptp match {case tp: ScTypeParam => tp.name case _ => ptp.getName},
+    this(ptp match {case tp: ScTypeParam => tp.name case _ => ptp.name},
          ptp match {case tp: ScTypeParam => tp.typeParameters.toList.map{new ScTypeParameterType(_, s)}
            case _ => ptp.getTypeParameters.toList.map(new ScTypeParameterType(_, s))},
          ptp match {case tp: ScTypeParam =>

@@ -17,6 +17,7 @@ import java.util.Arrays
 import toplevel.typedef.TypeDefinitionMembers
 import api.toplevel.ScTypedDefinition
 import types._
+import extensions.toPsiNamedElementExt
 
 /**
  * User: Alexander Podkhalyuzin
@@ -46,11 +47,11 @@ object ScalaOverridengMemberSearch {
       def inheritorsOfType(name: String): Boolean = {
         inheritor match {
             case inheritor: ScTypeDefinition =>
-              for (aliass <- inheritor.aliases if name == aliass.getName) {
+              for (aliass <- inheritor.aliases if name == aliass.name) {
                 buffer += aliass
                 if (!deep) return false
               }
-              for (td <- inheritor.typeDefinitions if !td.isObject && name == td.getName) {
+              for (td <- inheritor.typeDefinitions if !td.isObject && name == td.name) {
                 buffer += td
                 if (!deep) return false
               }
@@ -61,13 +62,13 @@ object ScalaOverridengMemberSearch {
 
       member match {
         case alias: ScTypeAlias =>
-          val continue = inheritorsOfType(alias.getName)
+          val continue = inheritorsOfType(alias.name)
           if (!continue) return false
         case td: ScTypeDefinition if !td.isObject =>
-          val continue = inheritorsOfType(td.getName)
+          val continue = inheritorsOfType(td.name)
           if (!continue) return false
         case _: PsiNamedElement =>
-          val signsIterator = TypeDefinitionMembers.getSignatures(inheritor).forName(member.getName)._1.iterator
+          val signsIterator = TypeDefinitionMembers.getSignatures(inheritor).forName(member.name)._1.iterator
           while (signsIterator.hasNext) {
             val (t: Signature, node: TypeDefinitionMembers.SignatureNodes.Node) = signsIterator.next()
             if (t.namedElement != None && PsiTreeUtil.getParentOfType(t.namedElement.get,

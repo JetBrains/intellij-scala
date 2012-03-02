@@ -27,7 +27,7 @@ trait ScValue extends ScBlockStatement with ScMember with ScDocCommentOwner with
 
   def declaredElements: Seq[ScTypedDefinition]
 
-  def declaredNames: Seq[String] = declaredElements.map(_.getName)
+  def declaredNames: Seq[String] = declaredElements.map(_.name)
 
   def typeElement: Option[ScTypeElement]
 

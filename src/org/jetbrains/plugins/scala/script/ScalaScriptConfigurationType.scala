@@ -12,6 +12,7 @@ import icons.Icons
 import javax.swing.Icon
 import java.lang.String
 import lang.psi.api.ScalaFile
+import extensions.toPsiNamedElementExt
 
 /**
  * User: Alexander Podkhalyuzin
@@ -34,17 +35,17 @@ class ScalaScriptConfigurationType extends LocatableConfigurationType {
   def createConfigurationByLocation(location: Location[_ <: PsiElement]): RunnerAndConfigurationSettings = {
     val file = location.getPsiElement.getContainingFile
     file match {
-      case null => return null
+      case null => null
       case scalaFile: ScalaFile if scalaFile.isScriptFile() => {
-        val settings = RunManager.getInstance(location.getProject).createRunConfiguration(scalaFile.getName, confFactory)
+        val settings = RunManager.getInstance(location.getProject).createRunConfiguration(scalaFile.name, confFactory)
         val conf: ScalaScriptRunConfiguration = settings.getConfiguration.asInstanceOf[ScalaScriptRunConfiguration]
         val module = ModuleUtil.findModuleForFile(scalaFile.getVirtualFile, scalaFile.getProject)
         if (module == null || !ScalaFacet.isPresentIn(module)) return null
         conf.setModule(module)
         conf.setScriptPath(scalaFile.getVirtualFile.getPath)
-        return settings
+        settings
       }
-      case _ => return null
+      case _ => null
     }
   }
 
@@ -53,9 +54,9 @@ class ScalaScriptConfigurationType extends LocatableConfigurationType {
       case conf: ScalaScriptRunConfiguration => {
         val file: PsiFile = location.getPsiElement.getContainingFile
         if (file == null || !file.isInstanceOf[ScalaFile]) return false
-        return conf.getScriptPath.trim == file.getVirtualFile.getPath.trim
+        conf.getScriptPath.trim == file.getVirtualFile.getPath.trim
       }
-      case _ => return false
+      case _ => false
     }
   }
 }

@@ -20,7 +20,7 @@ import com.intellij.psi.{PsiFile, PsiDocumentManager, PsiMember, PsiClass}
 import lang.scaladoc.psi.impl.ScDocResolvableCodeReferenceImpl
 import lang.scaladoc.psi.api.ScDocResolvableCodeReference
 import annotator.intention.ScalaImportClassFix
-import extensions.toPsiClassExt
+import extensions.{toPsiNamedElementExt, toPsiClassExt}
 
 /**
  * @author Alexander Podkhalyuzin
@@ -78,7 +78,7 @@ class ScalaClassNameInsertHandler extends ScalaInsertHandler {
               val shouldImport = item.getUserData(ResolveUtils.shouldImportKey)
               def qualifyReference(ref: ScReferenceExpression) {
                 val newRef = ScalaPsiElementFactory.createExpressionFromText(
-                  containingClass.getName + "." + ref.getText,
+                  containingClass.name + "." + ref.getText,
                   containingClass.getManager).asInstanceOf[ScReferenceExpression]
                 ref.getNode.getTreeParent.replaceChild(ref.getNode, newRef.getNode)
                 newRef.qualifier.get.asInstanceOf[ScReferenceExpression].bindToElement(containingClass)

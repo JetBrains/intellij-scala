@@ -21,6 +21,7 @@ import psi.api.toplevel.typedef.ScTypeDefinition
 import psi.types.{ScType, ScSubstitutor}
 import resolve.ScalaResolveResult
 import com.intellij.psi.{PsiMethod, PsiType, PsiTypeParameter, PsiClass}
+import extensions.toPsiNamedElementExt
 
 /**
  * User: Alexander Podkhalyuzin
@@ -80,7 +81,7 @@ class ScalaTypeParameterInfoHandler extends ParameterInfoHandlerWithTabActionSup
                       //todo: check type
                       false
                     }
-                    var paramText = param.getName
+                    var paramText = param.name
                     if (param.isContravariant) paramText = "-" + paramText
                     else if (param.isCovariant) paramText = "+" + paramText
                     param.lowerBound foreach {
@@ -111,7 +112,7 @@ class ScalaTypeParameterInfoHandler extends ParameterInfoHandlerWithTabActionSup
                       //todo: check type
                       false
                     }
-                    var paramText = param.getName
+                    var paramText = param.name
                     if (paramText == "?") paramText = "_"
                     val refTypes = param.getExtendsList.getReferencedTypes
                     if (refTypes.length != 0) {

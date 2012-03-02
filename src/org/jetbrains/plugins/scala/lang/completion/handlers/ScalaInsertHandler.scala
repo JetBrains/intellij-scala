@@ -118,10 +118,10 @@ class ScalaInsertHandler extends InsertHandler[LookupElement] {
             val clauses = fun.paramClauses.clauses
             if (clauses.length == 0) (-1, null, false)
             else if (clauses.apply(0).isImplicit) (-1, null, false)
-            else (clauses(0).parameters.length, fun.getName, false)
+            else (clauses(0).parameters.length, fun.name, false)
           }
           case ScalaLookupObject(method: PsiMethod, _, _, _) =>
-            (method.getParameterList.getParametersCount, method.getName, method.isAccessor)
+            (method.getParameterList.getParametersCount, method.name, method.isAccessor)
           case ScalaLookupObject(fun: ScFun, _, _, _) =>
             fun.paramClauses match {
               case Seq() => (-1, null, false)

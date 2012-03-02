@@ -29,7 +29,7 @@ import java.lang.ThreadLocal
 import com.intellij.openapi.util.{Trinity, RecursionManager}
 import types.result.TypingContext
 import types.ScDesignatorType
-import extensions.toPsiClassExt
+import extensions.{toPsiNamedElementExt, toPsiClassExt}
 
 trait ScImportsHolder extends ScalaPsiElement {
 
@@ -194,7 +194,7 @@ trait ScImportsHolder extends ScalaPsiElement {
               if (!ref.isValid || ref.isReferenceTo(elem)) return
             case _ =>
           }
-          val qual = Seq(containingClass.qualifiedName, elem.getName).filter(_ != "").mkString(".")
+          val qual = Seq(containingClass.qualifiedName, elem.name).filter(_ != "").mkString(".")
           addImportForPath(qual)
         }
       case _ =>
@@ -269,14 +269,14 @@ trait ScImportsHolder extends ScalaPsiElement {
     for (candidate <- completionProcessor.candidatesS) {
       candidate match {
         case ScalaResolveResult(pack: PsiPackage, _) => {
-          if (names.contains(pack.getName)) {
-            var index = packs.findIndexOf(_.getName == pack.getName)
+          if (names.contains(pack.name)) {
+            var index = packs.findIndexOf(_.name == pack.name)
             while(index != -1) {
               packs.remove(index)
-              index = packs.findIndexOf(_.getName == pack.getName)
+              index = packs.findIndexOf(_.name == pack.name)
             }
           } else {
-            names += pack.getName
+            names += pack.name
             packs += pack
           }
         }
@@ -285,7 +285,7 @@ trait ScImportsHolder extends ScalaPsiElement {
 
     }
     val packages = packs.map(_.getQualifiedName)
-    val packagesName = packs.map(_.getName)
+    val packagesName = packs.map(_.name)
 
     var importSt: ScImportStmt = null
 
@@ -327,7 +327,7 @@ trait ScImportsHolder extends ScalaPsiElement {
               var firstQualifier = qualifier
               if (firstQualifier.getText == "_root_") return
               while (firstQualifier.qualifier != None) firstQualifier = firstQualifier.qualifier.get
-              if (subPackages.map(_.getName).contains(firstQualifier.getText)) {
+              if (subPackages.map(_.name).contains(firstQualifier.getText)) {
                 var classPackageQualifier = getSplitQualifierElement(firstQualifier.resolve() match {
                   case pack: PsiPackage => pack.getQualifiedName
                   case cl: PsiClass => cl.qualifiedName

@@ -4,10 +4,7 @@ package psi
 package stubs
 
 import com.intellij.psi.impl.java.stubs.PsiClassStub
-import com.intellij.psi.{PsiElement, PsiClass}
-import com.intellij.util.io.StringRef
-import com.intellij.psi.stubs.{StubElement, IStubElementType, NamedStub}
-import api.toplevel.typedef.{ScTemplateDefinition, ScTypeDefinition}
+import api.toplevel.typedef.ScTemplateDefinition
 
 /**
  * @author ilyas
@@ -36,4 +33,8 @@ trait ScTemplateDefinitionStub extends PsiClassStub[ScTemplateDefinition] {
    * @return method names
    */
   def methodNames: Array[String]
+
+  def additionalJavaNames: Array[String]
+
+  def javaName: String
 }

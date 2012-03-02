@@ -11,6 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScTypeParam, 
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
+import org.jetbrains.plugins.scala.extensions.toPsiNamedElementExt
 
 /**
  * @author Alexander Podkhalyuzin
@@ -35,7 +36,7 @@ class CompoundTypeCheckProcessor(decl: ScNamedElement, undefSubst: ScUndefinedSu
     if (!element.isInstanceOf[PsiNamedElement]) return true
     val namedElement = element.asInstanceOf[PsiNamedElement]
     val subst = getSubst(state)
-    if (namedElement.getName != decl.name) return true
+    if (namedElement.name != decl.name) return true
 
     var undef = undefSubst
 
@@ -170,7 +171,7 @@ class CompoundTypeCheckProcessor(decl: ScNamedElement, undefSubst: ScUndefinedSu
     val iterator2 = tps2.iterator
     while (iterator1.hasNext && iterator2.hasNext) {
       val (tp1, tp2) = (iterator1.next(), iterator2.next())
-      res = res bindT ((tp2.getName, ScalaPsiUtil.getPsiElementId(tp2)), ScalaPsiManager.typeVariable(tp1))
+      res = res bindT ((tp2.name, ScalaPsiUtil.getPsiElementId(tp2)), ScalaPsiManager.typeVariable(tp1))
     }
     res
   }

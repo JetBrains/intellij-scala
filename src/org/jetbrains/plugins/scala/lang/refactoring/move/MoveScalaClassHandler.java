@@ -73,7 +73,7 @@ public class MoveScalaClassHandler implements MoveClassHandler {
         correctOldClassReferences(newClass, aClass);
         aClass.delete();
       }
-      else if (((ScalaFile)file).getClasses().length > 1) {
+      else if (((ScalaFile)file).typeDefinitionsArray().length > 1) {
 //        correctSelfReferences(aClass, newPackage);
         final PsiClass created = ScalaDirectoryService.createClassFromTemplate(moveDestination, aClass.getName(), "Scala Class", false);
 //        if (aClass.getDocComment() == null) {
@@ -143,7 +143,7 @@ public class MoveScalaClassHandler implements MoveClassHandler {
   public String getName(PsiClass clazz) {
     final PsiFile file = clazz.getContainingFile();
     if (!(file instanceof ScalaFile)) return null;
-    return ((ScalaFile)file).getClasses().length > 1 ? clazz.getName() + "." + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension() : file.getName();
+    return ((ScalaFile)file).typeDefinitionsArray().length > 1 ? clazz.getName() + "." + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension() : file.getName();
   }
 
   @Override

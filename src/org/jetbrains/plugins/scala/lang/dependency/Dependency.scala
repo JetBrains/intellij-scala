@@ -10,6 +10,7 @@ import lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScMember}
 import annotator.intention.ScalaImportClassFix
 import lang.psi.api.base.patterns.{ScReferencePattern, ScConstructorPattern}
 import extensions._
+import lang.psi.api.toplevel.ScNamedElement
 
 /**
  * Pavel Fatin
@@ -83,9 +84,13 @@ object Dependency {
             if function.isSynthetic =>
             withEntity(obj.qualifiedName)
           case (member: ScMember) && ContainingClass(obj: ScObject) =>
-            withMember(obj.qualifiedName, member.getName)
+            val memberName = member match {
+              case named: ScNamedElement => named.name
+              case _ => member.getName
+            }
+            withMember(obj.qualifiedName, memberName)
           case (pattern: ScReferencePattern) && Parent(Parent(ContainingClass(obj: ScObject))) =>
-            withMember(obj.qualifiedName, pattern.getName)
+            withMember(obj.qualifiedName, pattern.name)
           case (function: ScFunctionDefinition) && ContainingClass(obj: ScClass)
             if function.isConstructor =>
             withEntity(obj.qualifiedName)
@@ -93,7 +98,11 @@ object Dependency {
             if method.isConstructor =>
             withEntity(e.qualifiedName)
           case (member: PsiMember) && ContainingClass(e: PsiClass) =>
-            withMember(e.qualifiedName, member.getName)
+            val memberName = member match {
+              case named: ScNamedElement => named.name
+              case _ => member.getName
+            }
+            withMember(e.qualifiedName, memberName)
           case _ => None
         }
     }

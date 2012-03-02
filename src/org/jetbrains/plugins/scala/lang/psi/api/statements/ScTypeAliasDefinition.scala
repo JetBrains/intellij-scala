@@ -23,7 +23,7 @@ trait ScTypeAliasDefinition extends ScTypeAlias {
 
   def aliasedType(ctx: TypingContext): TypeResult[ScType] = {
     if (ctx.visited.contains(this)) {
-      new Failure(ScalaBundle.message("circular.dependency.detected", getName), Some(this)) {override def isCyclic = true}
+      new Failure(ScalaBundle.message("circular.dependency.detected", name), Some(this)) {override def isCyclic = true}
     } else {
       val stub = this.asInstanceOf[ScalaStubBasedElementImpl[_ <: PsiElement]].getStub
       if (stub != null) {

@@ -18,7 +18,7 @@ import util.MacroUtil
 import lang.psi.types.result.TypingContext
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiClass, PsiDocumentManager}
-import extensions.toPsiClassExt
+import extensions.{toPsiNamedElementExt, toPsiClassExt}
 
 /**
  * User: Alexander Podkhalyuzin
@@ -62,14 +62,14 @@ class ScalaVariableOfTypeMacro extends Macro {
               for (t <- typed.getType(TypingContext.empty))
               exprs.apply(0) match {
                 case "" => {
-                  val item = new LookupItem(variant.getElement, variant.getElement.getName)
+                  val item = new LookupItem(variant.getElement, variant.getElement.name)
                   item.setTypeText(ScType.presentableText(t))
                   array += item
                 }
                 case "foreach" => {
                   ScType.extractClass(t) match {
                     case Some(x: ScTypeDefinition) => {
-                      if (!x.functionsByName("foreach").isEmpty) array += new LookupItem(variant.getElement, variant.getElement.getName)
+                      if (!x.functionsByName("foreach").isEmpty) array += new LookupItem(variant.getElement, variant.getElement.name)
                     }
                     case _ =>
                   }
@@ -79,7 +79,7 @@ class ScalaVariableOfTypeMacro extends Macro {
                     if ((ScType.extractClass(t) match {
                       case Some(x) => x.qualifiedName
                       case None => ""
-                    }) == expr) array += new LookupItem(variant.getElement, variant.getElement.getName)
+                    }) == expr) array += new LookupItem(variant.getElement, variant.getElement.name)
                   }
                 }
               }
@@ -120,12 +120,12 @@ class ScalaVariableOfTypeMacro extends Macro {
               for (t <- typed.getType(TypingContext.empty))
               exprs.apply(0).calculateResult(context).toString match {
                 case "" => {
-                  return new TextResult(variant.getElement.getName)
+                  return new TextResult(variant.getElement.name)
                 }
                 case "foreach" => {
                   ScType.extractClassType(t, Some(file.getProject)) match {
                     case Some((x: ScTypeDefinition, _)) => {
-                      if (!x.functionsByName("foreach").isEmpty) return new TextResult(variant.getElement.getName)
+                      if (!x.functionsByName("foreach").isEmpty) return new TextResult(variant.getElement.name)
                     }
                     case _ =>
                   }
@@ -135,7 +135,7 @@ class ScalaVariableOfTypeMacro extends Macro {
                     if ((ScType.extractClassType(t, Some(file.getProject)) match {
                       case Some((x, _)) => x.qualifiedName
                       case None => ""
-                    }) == expr.calculateResult(context).toString) return new TextResult(variant.getElement.getName)
+                    }) == expr.calculateResult(context).toString) return new TextResult(variant.getElement.name)
                   }
                 }
               }

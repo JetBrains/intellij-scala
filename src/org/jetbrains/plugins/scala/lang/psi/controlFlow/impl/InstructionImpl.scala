@@ -48,7 +48,7 @@ case class DefineValueInstruction(override val num: Int,
                                   namedElement: ScNamedElement,
                                   mutable: Boolean)
         extends InstructionImpl(num, Some(namedElement)) {
-  private val myName = namedElement.getName
+  private val myName = namedElement.name
 
   def getName = myName
 

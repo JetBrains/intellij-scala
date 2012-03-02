@@ -9,6 +9,7 @@ import java.util.{ArrayList, List}
 import com.intellij.openapi.editor.Document
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
+import org.jetbrains.plugins.scala.extensions.toPsiNamedElementExt
 
 /**
  * User: Alexander Podkhalyuzin
@@ -28,9 +29,8 @@ class ScalaTestLocationProvider extends TestLocationProvider {
       case "scala" =>
         locationData match {
           case SpecsHintPattern(className, fileName, lineNumber) =>
-            val facade = JavaPsiFacade.getInstance(project)
-            val clazzes: Array[PsiClass] = facade.findClasses(className, GlobalSearchScope.allScope(project))
-            val found = clazzes.find(c => Option(c.getContainingFile).map(_.getName == fileName).getOrElse(false))
+            val clazzes = ScalaPsiManager.instance(project).getCachedClasses(GlobalSearchScope.allScope(project), className)
+            val found = clazzes.find(c => Option(c.getContainingFile).map(_.name == fileName).getOrElse(false))
 
             found match {
               case Some(file) =>
@@ -58,7 +58,7 @@ class ScalaTestLocationProvider extends TestLocationProvider {
           case ScalaTestLineInFinePattern(className, fileName, lineNumber, testName) =>
             val clazzes: Array[PsiClass] =
               ScalaPsiManager.instance(project).getCachedClasses(GlobalSearchScope.allScope(project), className)
-            val found = clazzes.find(c => Option(c.getContainingFile).map(_.getName == fileName).getOrElse(false))
+            val found = clazzes.find(c => Option(c.getContainingFile).map(_.name == fileName).getOrElse(false))
             found match {
               case Some(file) =>
                 res.add(createLocationFor(project, file.getContainingFile, lineNumber.toInt, Some(testName)))

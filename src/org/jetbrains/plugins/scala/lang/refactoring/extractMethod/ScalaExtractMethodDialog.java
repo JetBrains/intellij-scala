@@ -14,6 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.PresentationUtil;
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil;
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction;
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScValue;
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement;
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition;
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody;
 import org.jetbrains.plugins.scala.lang.psi.dataFlow.impl.reachingDefs.ReachingDefintionsCollector;
@@ -213,7 +214,12 @@ public class ScalaExtractMethodDialog extends DialogWrapper {
       ScalaExtractMethodUtils.ScalaVariableData data =
           (ScalaExtractMethodUtils.ScalaVariableData) ScalaExtractMethodUtils.convertVariableData(info, myElements);
       ScalaExtractMethodUtils.FakePsiType tp = (ScalaExtractMethodUtils.FakePsiType) data.type;
-      ExtractMethodReturn aReturn = new ExtractMethodReturn(info.element().getName(), tp.tp(), 
+      String name = info.element().getName();
+      if (info.element() instanceof ScNamedElement) {
+        ScNamedElement named = (ScNamedElement) info.element();
+        name = named.name();
+      }
+      ExtractMethodReturn aReturn = new ExtractMethodReturn(name, tp.tp(),
           data.isInsideOfElements(), ScalaPsiUtil.nameContext(info.element()) instanceof ScValue ||
           ScalaPsiUtil.nameContext(info.element()) instanceof ScFunction);
       list.add(aReturn);

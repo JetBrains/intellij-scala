@@ -27,7 +27,7 @@ import lang.psi.api.base.{ScReferenceElement, ScConstructor, ScAccessModifier, S
 import lang.resolve.ScalaResolveResult
 import lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.extensions
-import extensions.toPsiClassExt
+import extensions.{toPsiNamedElementExt, toPsiClassExt}
 import lang.scaladoc.lexer.ScalaDocTokenType
 import lang.scaladoc.parser.parsing.MyScaladocParsing
 import lang.scaladoc.psi.api.{ScDocTag, ScDocSyntaxElement, ScDocComment}
@@ -240,7 +240,7 @@ class ScalaDocumentationProvider extends CodeDocumentationProvider {
       owner.getDocComment match {
         case scalaComment: ScDocComment =>
           for (docTag <- scalaComment.findTagsByName(Set(PARAM_TAG, TYPE_PARAM_TAG).contains( _ ))) {
-            docTag.getName match {
+            docTag.name match {
               case PARAM_TAG => registerInheritedParam(inheritedParams, docTag)
               case TYPE_PARAM_TAG => registerInheritedParam(inheritedTParams, docTag)
             }
@@ -259,31 +259,31 @@ class ScalaDocumentationProvider extends CodeDocumentationProvider {
 
     def processParams(owner: ScParameterOwner) {
       for (param <- owner.parameters) {
-        if (inheritedParams.contains(param.getName)) {
-          val paramText = inheritedParams.get(param.getName).get.getText
+        if (inheritedParams.contains(param.name)) {
+          val paramText = inheritedParams.get(param.name).get.getText
           buffer.append(leadingAsterisks).append(paramText.substring(0, paramText.lastIndexOf("\n") + 1))
         } else {
-          buffer.append(leadingAsterisks).append(PARAM_TAG).append(" ").append(param.getName).append("\n")
+          buffer.append(leadingAsterisks).append(PARAM_TAG).append(" ").append(param.name).append("\n")
         }
       }
     }
 
     def processTypeParams(owner: ScTypeParametersOwner) {
       for (tparam <- owner.typeParameters) {
-        if (inheritedTParams.contains(tparam.getName)) {
-          val paramText = inheritedTParams.get(tparam.getName).get.getText
+        if (inheritedTParams.contains(tparam.name)) {
+          val paramText = inheritedTParams.get(tparam.name).get.getText
           buffer.append(leadingAsterisks).append(paramText.substring(0, paramText.lastIndexOf("\n") + 1))
         } else if (inheritedTParams.contains("<" + tparam +">")) {
-          val paramTag = inheritedTParams.get("<" + tparam.getName + ">").get
+          val paramTag = inheritedTParams.get("<" + tparam.name + ">").get
           val descriptionText =
             paramTag.getText.substring(paramTag.getValueElement.getTextOffset + paramTag.getValueElement.getTextLength)
           val parameterName = paramTag.getValueElement.getText
 
-          buffer.append(leadingAsterisks).append("@").append(paramTag.getName).append(" ").
+          buffer.append(leadingAsterisks).append("@").append(paramTag.name).append(" ").
                   append(parameterName.substring(1, parameterName.length - 1)).append(" ").
                   append(descriptionText.substring(0, descriptionText.lastIndexOf("\n") + 1))
         } else {
-          buffer.append(leadingAsterisks).append(TYPE_PARAM_TAG).append(" ").append(tparam.getName).append("\n")
+          buffer.append(leadingAsterisks).append(TYPE_PARAM_TAG).append(" ").append(tparam.name).append("\n")
         }
       }
     }
@@ -522,7 +522,7 @@ object ScalaDocumentationProvider {
     }
     def getTypeParams(fun: ScTypeParametersOwner): String = {
       if (fun.typeParameters.length > 0) {
-        fun.typeParameters.map(param => escapeHtml(param.getName)).mkString("<", " , ", ">")
+        fun.typeParameters.map(param => escapeHtml(param.name)).mkString("<", " , ", ">")
       } else {
         ""
       }
@@ -558,7 +558,7 @@ object ScalaDocumentationProvider {
         }
         val (s1, s2) = elem.getContainingClass match {
           case e: PsiClass if withDescription => ("<b>Description copied from class: </b><a href=\"psi_element://" +
-                  escapeHtml(e.qualifiedName) + "\"><code>" + escapeHtml(e.getName) + "</code></a><p>", "</p>")
+                  escapeHtml(e.qualifiedName) + "\"><code>" + escapeHtml(e.name) + "</code></a><p>", "</p>")
           case _ => ("", "")
         }
         s1 + (elem match {
@@ -616,7 +616,7 @@ object ScalaDocumentationProvider {
     var isFirst = true
 
     def visitTags(element: ScDocTag) {
-      element.getName match {
+      element.name match {
         case MyScaladocParsing.TODO_TAG | MyScaladocParsing.NOTE_TAG | MyScaladocParsing.EXAMPLE_TAG =>
           if (isFirst) {
             commentBody.append("<br/><br/>")
@@ -668,7 +668,7 @@ object ScalaDocumentationProvider {
               result.append("}")
             }
           case ScalaDocTokenType.DOC_COMMENT_DATA if element.getParent.isInstanceOf[ScDocTag] &&
-                  element.getParent.asInstanceOf[ScDocTag].getName == MyScaladocParsing.SEE_TAG =>
+                  element.getParent.asInstanceOf[ScDocTag].name == MyScaladocParsing.SEE_TAG =>
             result.append("<dd>").append(element.getText.trim()).append("</dd>")
           case _ if replaceWikiScheme.contains(element.getText) &&
                   (element.getParent.getFirstChild == element || element.getParent.getLastChild == element) =>
@@ -710,7 +710,7 @@ object ScalaDocumentationProvider {
   private def getMemberHeader(member: ScMember): String = {
     if (!member.getParent.isInstanceOf[ScTemplateBody]) return ""
     if (!member.getParent.getParent.getParent.isInstanceOf[ScTypeDefinition]) return ""
-    member.getContainingClass.getName + " " + member.getContainingClass.getPresentation.getLocationString + "\n"
+    member.getContainingClass.name + " " + member.getContainingClass.getPresentation.getLocationString + "\n"
   }
 
   private def getOneLine(s: String): String = {
@@ -862,7 +862,7 @@ object ScalaDocumentationProvider {
     (parameter match {
       case clParameter: ScClassParameter => {
         val clazz = PsiTreeUtil.getParentOfType(clParameter, classOf[ScTypeDefinition])
-        clazz.getName + " " + clazz.getPresentation.getLocationString + "\n" +
+        clazz.name + " " + clazz.getPresentation.getLocationString + "\n" +
                 (if (clParameter.isVal) "val " else if (clParameter.isVar) "var " else "") + clParameter.name +
                 ": " + ScType.presentableText(subst.subst(clParameter.getType(TypingContext.empty).getOrAny))
       }

@@ -26,7 +26,7 @@ import lang.psi.api.toplevel.ScNamedElement
 import lang.psi.api.toplevel.typedef.{ScTypeDefinition, ScTrait, ScMember, ScObject}
 import lang.psi.api.statements._
 import lang.psi.types.{Signature}
-import extensions.toPsiClassExt
+import extensions.{toPsiNamedElementExt, toPsiClassExt}
 
 /**
  * User: Alexander Podkhalyuzin
@@ -81,7 +81,7 @@ object ScalaMarkerType {
           val superMembers = ScalaPsiUtil.superTypeMembers(x.asInstanceOf[PsiNamedElement])
           assert(superMembers.length != 0)
           val optionClazz = superMembers(0)
-          ScalaBundle.message("overrides.type.from.super", optionClazz.getName)
+          ScalaBundle.message("overrides.type.from.super", optionClazz.name)
         }
         case _ => null
       }
@@ -192,8 +192,8 @@ object ScalaMarkerType {
       for (member <- members) overrides ++= ScalaOverridengMemberSearch.search(member)
       if (overrides.length == 0) return
       val title = if (GutterUtil.isAbstract(element)) ScalaBundle.
-              message("navigation.title.implementation.member", members(0).getName, "" + overrides.length)
-                  else ScalaBundle.message("navigation.title.overrider.member", members(0).getName, "" + overrides.length)
+              message("navigation.title.implementation.member", members(0).name, "" + overrides.length)
+                  else ScalaBundle.message("navigation.title.overrider.member", members(0).name, "" + overrides.length)
       val renderer = new ScCellRenderer
       Arrays.sort(overrides.map(_.asInstanceOf[PsiElement]).toArray, renderer.getComparator)
       PsiElementListNavigator.openTargets(e, overrides.map(_.asInstanceOf[NavigatablePsiElement]).toArray, title, renderer)
@@ -226,8 +226,8 @@ object ScalaMarkerType {
       val inheritors = ClassInheritorsSearch.search(clazz, clazz.getUseScope, true).toArray(PsiClass.EMPTY_ARRAY)
       if (inheritors.length == 0) return
       val title = clazz match {
-        case _: ScTrait => ScalaBundle.message("goto.implementation.chooser.title", clazz.getName, "" + inheritors.length)
-        case _ => ScalaBundle.message("navigation.title.subclass", clazz.getName, "" + inheritors.length)
+        case _: ScTrait => ScalaBundle.message("goto.implementation.chooser.title", clazz.name, "" + inheritors.length)
+        case _ => ScalaBundle.message("navigation.title.subclass", clazz.name, "" + inheritors.length)
       }
       val renderer = new PsiClassListCellRenderer
       Arrays.sort(inheritors, renderer.getComparator)
@@ -266,7 +266,7 @@ object ScalaMarkerType {
           val presentation = x.getPresentation
           presentation.getPresentableText + " " + presentation.getLocationString
         }
-        case x: PsiNamedElement => x.getName
+        case x: PsiNamedElement => x.name
         case _ => defaultPresentation
       }
     }

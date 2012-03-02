@@ -10,6 +10,7 @@ import com.intellij.ide.util.{PsiClassListCellRenderer, PsiElementListCellRender
 import javax.swing.{Icon, JList}
 import com.intellij.psi.{PsiClass, PsiElement, PsiNamedElement, PsiMethod}
 import java.lang.String
+import org.jetbrains.plugins.scala.extensions.toPsiNamedElementExt
 
 /**
  * User: Alexander Podkhalyuzin
@@ -35,13 +36,13 @@ class ScImplicitFunctionListCellRenderer(actual: PsiNamedElement) extends PsiEle
   override def getElementText(element: PsiNamedElement) = {
     element match {
       case method: ScFunction => {
-        method.getName + PresentationUtil.presentationString(method.paramClauses) + ": " +
+        method.name + PresentationUtil.presentationString(method.paramClauses) + ": " +
                 PresentationUtil.presentationString(method.returnType.
                         getOrAny)
       }
-      case b: ScBindingPattern => b.getName + ": " +
+      case b: ScBindingPattern => b.name + ": " +
               PresentationUtil.presentationString(b.getType(TypingContext.empty).getOrAny)
-      case _ => element.getName
+      case _ => element.name
     }
   }
 

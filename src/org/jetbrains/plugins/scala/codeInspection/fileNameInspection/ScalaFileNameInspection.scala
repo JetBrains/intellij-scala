@@ -12,6 +12,7 @@ import com.intellij.psi.PsiFile
 import java.lang.String
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
 import com.intellij.lang.injection.InjectedLanguageManager
+import extensions.toPsiNamedElementExt
 
 /**
  * User: Alexander Podkhalyuzin
@@ -30,24 +31,24 @@ class ScalaFileNameInspection extends LocalInspectionTool {
             InjectedLanguageManager.getInstance(file.getProject).isInjectedFragment(file))
       return Array[ProblemDescriptor]()
 
-    val name = file.getName().substring(0, file.getName.length - 6)
+    val name = file.name.substring(0, file.name.length - 6)
     val scalaFile = file.asInstanceOf[ScalaFile]
     var hasProblems = true
-    for (clazz <- scalaFile.getClasses) {
+    for (clazz <- scalaFile.typeDefinitions) {
       clazz match {
-        case o: ScObject if file.getName == "package.scala" && o.isPackageObject => hasProblems = false
-        case _ if clazz.getName == name => hasProblems = false
+        case o: ScObject if file.name == "package.scala" && o.isPackageObject => hasProblems = false
+        case _ if clazz.name == name => hasProblems = false
         case _ =>
       }
     }
 
     val res = new ArrayBuffer[ProblemDescriptor]
     if (hasProblems) {
-      for (clazz <- scalaFile.getClasses;
+      for (clazz <- scalaFile.typeDefinitions;
            scalaClass: ScTypeDefinition = clazz.asInstanceOf[ScTypeDefinition]) {
         res += manager.createProblemDescriptor(scalaClass.nameId, "Class doesn't correspond to file name",
           Array[LocalQuickFix](new ScalaRenameClassQuickFix(scalaClass, name),
-            new ScalaRenameFileQuickFix(scalaFile, clazz.getName + ".scala")), ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
+            new ScalaRenameFileQuickFix(scalaFile, clazz.name + ".scala")), ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
       }
     }
     return res.toArray

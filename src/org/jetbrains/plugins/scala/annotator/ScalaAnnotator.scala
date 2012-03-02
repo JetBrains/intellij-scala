@@ -599,7 +599,7 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
     if (resolve.length != 1 || refElement.isSoft) return
     resolve(0) match {
       case r: ScalaResolveResult if !r.isAccessible =>
-        val error = "Symbol %s is inaccessible from this place".format(r.element.getName)
+        val error = "Symbol %s is inaccessible from this place".format(r.element.name)
         val annotation = holder.createErrorAnnotation(refElement.nameId, error)
         annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
       //todo: add fixes

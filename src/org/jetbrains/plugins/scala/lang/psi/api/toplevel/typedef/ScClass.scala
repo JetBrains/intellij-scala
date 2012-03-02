@@ -7,10 +7,9 @@ package typedef
 
 import base.ScPrimaryConstructor
 import impl.ScalaPsiElementFactory
-import types.ScType
 import lexer.ScalaTokenTypes
 import com.intellij.psi.PsiElement
-import statements.params.{ScParameterClause, ScTypeParam, ScParameters}
+import statements.params.ScParameters
 import statements.{ScFunction, ScFunctionDefinition, ScParameterOwner}
 import caches.CachesUtil
 import com.intellij.psi.util.PsiModificationTracker
@@ -61,7 +60,7 @@ trait ScClass extends ScTypeDefinition with ScParameterOwner {
             //
             //        }
             val accessModifier = getModifierList.accessModifier.map(_.getText + " ").getOrElse("")
-            val objText = accessModifier + "object " + getName + "{\n  " + texts._1 + "\n  " + texts._2 + "\n" + "}"
+            val objText = accessModifier + "object " + name + "{\n  " + texts._1 + "\n  " + texts._2 + "\n" + "}"
             val next = ScalaPsiUtil.getNextStubOrPsiElement(this)
             val obj: ScObject =
               ScalaPsiElementFactory.createObjectWithContext(objText, getParent, if (next != null) next else this)
@@ -82,7 +81,7 @@ trait ScClass extends ScTypeDefinition with ScParameterOwner {
   }
 
   protected def typeParamString : String = if (typeParameters.length > 0) typeParameters.map(param => {
-    var paramText = param.getName
+    var paramText = param.name
     param.lowerTypeElement foreach {
       case tp => paramText = paramText + " >: " + tp.getText
     }

@@ -6,7 +6,6 @@ import com.intellij.debugger.SourcePosition;
 import com.intellij.debugger.engine.CompoundPositionManager;
 import com.intellij.debugger.engine.DebugProcess;
 import com.intellij.debugger.engine.DebugProcessImpl;
-import com.intellij.debugger.engine.jdi.VirtualMachineProxy;
 import com.intellij.debugger.requests.ClassPrepareRequestor;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.diagnostic.Logger;
@@ -15,7 +14,10 @@ import com.intellij.openapi.roots.impl.DirectoryIndex;
 import com.intellij.openapi.util.Computable;
 import com.intellij.openapi.util.Ref;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.psi.*;
+import com.intellij.psi.PsiClass;
+import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiFile;
+import com.intellij.psi.PsiManager;
 import com.intellij.psi.search.FilenameIndex;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.psi.util.PsiTreeUtil;
@@ -30,18 +32,21 @@ import com.sun.jdi.request.ClassPrepareRequest;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.scala.ScalaLoader;
-import org.jetbrains.plugins.scala.caches.ScalaCachesManager;
+import org.jetbrains.plugins.scala.caches.ScalaShortNamesCacheManager;
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement;
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil;
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile;
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClauses;
-import org.jetbrains.plugins.scala.lang.psi.api.expr.*;
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScArguments;
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockExpr;
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression;
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScForStatement;
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScFunctionExpr;
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScExtendsBlock;
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject;
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTrait;
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition;
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager;
+import scala.collection.Seq;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -227,8 +232,8 @@ public class ScalaPositionManager implements PositionManager {
     int dollar = originalQName.indexOf('$');
     final String qName = dollar >= 0 ? originalQName.substring(0, dollar) : originalQName;
 
-    final PsiClass[] classes = ScalaCachesManager.getInstance(project).getNamesCache().getClassesByFQName(qName, searchScope);
-    PsiClass clazz = classes.length == 1 ? classes[0] : null;
+    final Seq<PsiClass> classes = ScalaShortNamesCacheManager.getInstance(project).getClassesByFQName(qName, searchScope);
+    PsiClass clazz = classes.length() == 1 ? classes.apply(0) : null;
     if (clazz != null && clazz.isValid()) {
       return clazz.getNavigationElement().getContainingFile();
     }

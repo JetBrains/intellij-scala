@@ -44,6 +44,7 @@ import com.intellij.util.indexing.FileBasedIndex
 import util.{PsiUtilCore, PsiModificationTracker, PsiTreeUtil}
 import com.intellij.openapi.diagnostic.Logger
 import java.lang.String
+import api.toplevel.typedef.{ScClass, ScTrait, ScObject}
 
 class ScalaFileImpl(viewProvider: FileViewProvider)
         extends PsiFileBase(viewProvider, ScalaFileType.SCALA_FILE_TYPE.getLanguage)
@@ -134,7 +135,15 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
                 if (child.getName == sourceFile) {
                   val psiSource = getManager.findFile(child)
                   psiSource match {
-                    case o: PsiClassOwner => {
+                    case o: ScalaFile =>
+                      val clazzIterator = o.typeDefinitions.iterator
+                      while (clazzIterator.hasNext) {
+                        val clazz = clazzIterator.next()
+                        if (qual == clazz.qualifiedName) {
+                          return Some(o)
+                        }
+                      }
+                    case o: PsiClassOwner =>
                       val clazzIterator = o.getClasses.iterator
                       while (clazzIterator.hasNext) {
                         val clazz = clazzIterator.next()
@@ -142,7 +151,6 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
                           return Some(o)
                         }
                       }
-                    }
                     case _ =>
                   }
                 }
@@ -244,7 +252,11 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
     } else findChildrenByClass(classOf[ScPackaging])
   }
 
-  def getPackageName: String = ""
+  def getPackageName: String = {
+    val res = packageName
+    if (res == null) ""
+    else res
+  }
 
   @Nullable
   def packageName: String = {
@@ -278,7 +290,25 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
 
   override def getClasses: Array[PsiClass] = {
     if (!isScriptFile) {
-      typeDefinitions.toArray[PsiClass]
+      val arrayBuffer = new ArrayBuffer[PsiClass]()
+      for (definition <- typeDefinitions) {
+        arrayBuffer += definition
+        definition match {
+          case o: ScObject =>
+            o.fakeCompanionClass match {
+              case Some(clazz) => arrayBuffer += clazz
+              case _ =>
+            }
+          case t: ScTrait => arrayBuffer += t.fakeCompanionClass
+          case c: ScClass =>
+            c.fakeCompanionModule match {
+              case Some(m) => arrayBuffer += m
+              case _ =>
+            }
+          case _ =>
+        }
+      }
+      arrayBuffer.toArray
     } else PsiClass.EMPTY_ARRAY
   }
 
@@ -411,16 +441,6 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
 
   override def findReferenceAt(offset: Int): PsiReference = super.findReferenceAt(offset)
 
-  /*private var context: PsiElement = null
-
-
-  override def getContext: PsiElement = {
-    if (context != null) context
-    else super.getContext
-  }
-
-  def setContext(context: PsiElement): Unit = this.context = context*/
-
   private var myControlFlow: Seq[Instruction] = null
 
   def getControlFlow(cached: Boolean) = {
@@ -442,7 +462,7 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
       }
     }
     val res = new HashSet[String]
-    typeDefinitions.foreach(td => res.add(td.getName))
+    typeDefinitions.foreach(td => res.add(td.name))
     res
   }
 
@@ -538,11 +558,12 @@ object ImplicitlyImported {
     val filter = new ScalaSourceFilterScope(scope, manager.getProject)
     res.filter(c => filter.contains(c.getContainingFile.getVirtualFile))
   }
+
   private def implicitlyImportedObjectsImpl(manager: PsiManager): Seq[PsiClass] = {
     val res = new ArrayBuffer[PsiClass]
     for (obj <- objects) {
-      res ++= JavaPsiFacade.getInstance(manager.getProject).
-              findClasses(obj, GlobalSearchScope.allScope(manager.getProject))
+      res ++= ScalaPsiManager.instance(manager.getProject).
+              getCachedClasses(GlobalSearchScope.allScope(manager.getProject), obj)
     }
     res.toSeq
   }

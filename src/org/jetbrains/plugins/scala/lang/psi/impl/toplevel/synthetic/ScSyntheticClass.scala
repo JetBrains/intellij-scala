@@ -89,7 +89,7 @@ extends SyntheticNamedElement(manager, className) with PsiClass with PsiClassFak
 
       def getTextAttributesKey: TextAttributesKey = null
 
-      def getPresentableText: String = This.getName
+      def getPresentableText: String = This.className
 
       def getIcon(open: Boolean): Icon = This.getIcon(0)
     }

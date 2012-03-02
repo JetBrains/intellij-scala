@@ -18,7 +18,7 @@ import psi.impl.base.ScFieldIdImpl
 class ScFieldIdElementType[Func <: ScFieldId]
 extends ScStubElementType[ScFieldIdStub, ScFieldId]("field id") {
   def createStubImpl[ParentPsi <: PsiElement](psi: ScFieldId, parentStub: StubElement[ParentPsi]): ScFieldIdStub = {
-    new ScFieldIdStubImpl[ParentPsi](parentStub, this, psi.getName)
+    new ScFieldIdStubImpl[ParentPsi](parentStub, this, psi.name)
   }
 
   def serialize(stub: ScFieldIdStub, dataStream: StubOutputStream): Unit = {

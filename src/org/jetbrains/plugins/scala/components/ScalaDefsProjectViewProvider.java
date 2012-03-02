@@ -18,22 +18,32 @@ package org.jetbrains.plugins.scala.components;
 import com.intellij.ide.projectView.PresentationData;
 import com.intellij.ide.projectView.TreeStructureProvider;
 import com.intellij.ide.projectView.ViewSettings;
+import com.intellij.ide.projectView.impl.nodes.AbstractPsiBasedNode;
 import com.intellij.ide.projectView.impl.nodes.ClassTreeNode;
 import com.intellij.ide.projectView.impl.nodes.PsiFileNode;
 import com.intellij.ide.util.treeView.AbstractTreeNode;
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Iconable;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiClass;
-import com.intellij.psi.PsiClassOwner;
-import com.intellij.psi.PsiDirectory;
-import com.intellij.psi.SyntheticElement;
+import com.intellij.psi.PsiElement;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile;
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction;
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias;
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScValue;
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScVariable;
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement;
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition;
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember;
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition;
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition;
+import scala.collection.Iterator;
+import scala.collection.Seq;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -47,7 +57,7 @@ public class ScalaDefsProjectViewProvider implements TreeStructureProvider {
       return true;
     } else {
       String fileName = virtualFile.getNameWithoutExtension();
-      String className = type.getName();
+      String className = type.name();
       return fileName.equals(className);
     }
   }
@@ -61,17 +71,21 @@ public class ScalaDefsProjectViewProvider implements TreeStructureProvider {
     
     for (AbstractTreeNode child : children) {
       Object childValue = child.getValue();
-      Object parentValue = parent.getValue();
 
-      boolean insertFile = childValue instanceof ScTypeDefinition
-          && parentValue instanceof PsiDirectory
-          && !hasNameOfFile((ScTypeDefinition) childValue);
-
-      result.add(insertFile
-          ? new MyClassOwnerTreeNode(getFile((ScTypeDefinition) childValue), settings)
-          : child instanceof ClassTreeNode
-          ? new MyClassOwnerTreeNodeDecorator((ClassTreeNode) child)
-          : child);
+      if (childValue instanceof ScalaFile) {
+        ScalaFile file = (ScalaFile) childValue;
+        if (!file.isScriptFile(true)) {
+          ScTypeDefinition[] definitions = file.typeDefinitionsArray();
+          if (definitions.length == 1 && hasNameOfFile(definitions[0])) {
+            result.add(new TypeDefinitionTreeNode(new ClassTreeNode(file.getProject(), definitions[0], settings)));
+          } else {
+            result.add(new ScalaFileTreeNode(file, settings));
+          }
+        } else result.add(new ScalaFileTreeNode(file, settings));
+      } else if (childValue instanceof ScTemplateDefinition && child instanceof ClassTreeNode &&
+          !(child instanceof TypeDefinitionTreeNode)) {
+        result.add(new TypeDefinitionTreeNode((ClassTreeNode) child));
+      } else result.add(child);
     }
     
     return result;
@@ -82,9 +96,12 @@ public class ScalaDefsProjectViewProvider implements TreeStructureProvider {
     return null;
   }
 
-  private static class MyClassOwnerTreeNodeDecorator extends ClassTreeNode {
-    public MyClassOwnerTreeNodeDecorator(ClassTreeNode delegate) {
+  private static class TypeDefinitionTreeNode extends ClassTreeNode {
+    public TypeDefinitionTreeNode(ClassTreeNode delegate) {
       super(delegate.getProject(), delegate.getValue(), delegate.getSettings());
+      if (delegate.getValue() instanceof ScTemplateDefinition) {
+        myName = ((ScTemplateDefinition) delegate.getValue()).name();
+      }
     }
 
     @Override
@@ -96,20 +113,91 @@ public class ScalaDefsProjectViewProvider implements TreeStructureProvider {
         } else return value.getQualifiedName();
       } else return null;
     }
+
+    @Override
+    public void updateImpl(PresentationData data) {
+      final PsiClass aClass = getValue();
+      if (aClass != null && aClass instanceof ScTemplateDefinition) {
+        data.setPresentableText(((ScTemplateDefinition) aClass).name());
+      } else super.updateImpl(data);
+    }
+
+    @Override
+    public Collection<AbstractTreeNode> getChildrenImpl() {
+      if (!getSettings().isShowMembers()) return super.getChildrenImpl();
+      ArrayList<AbstractTreeNode> result = new ArrayList<AbstractTreeNode>();
+      PsiClass value = getValue();
+      if (value != null && value.isValid()) {
+        if (value instanceof ScTemplateDefinition) {
+          ScTemplateDefinition definition = (ScTemplateDefinition) value;
+          Seq<ScMember> members = definition.members();
+          Iterator<ScMember> iterator = members.iterator();
+          while (iterator.hasNext()) {
+            ScMember member = iterator.next();
+            if (member instanceof PsiClass) {
+              result.add(new TypeDefinitionTreeNode(new ClassTreeNode(getProject(), (PsiClass) member, getSettings())));
+            } else if (member instanceof ScNamedElement) {
+              result.add(new ScNamedElementTreeNode(getProject(), (ScNamedElement) member, getSettings()));
+            } else if (member instanceof ScValue) {
+              ScValue v = (ScValue) member;
+              Iterator<ScTypedDefinition> declared = v.declaredElements().iterator();
+              while (declared.hasNext()) {
+                ScTypedDefinition typed = declared.next();
+                result.add(new ScNamedElementTreeNode(getProject(), typed, getSettings()));
+              }
+            } else if (member instanceof ScVariable) {
+              ScVariable v = (ScVariable) member;
+              Iterator<ScTypedDefinition> declared = v.declaredElements().iterator();
+              while (declared.hasNext()) {
+                ScTypedDefinition typed = declared.next();
+                result.add(new ScNamedElementTreeNode(getProject(), typed, getSettings()));
+              }
+            }
+          }
+        }
+      }
+      return result;
+    }
+
+    private class ScNamedElementTreeNode extends AbstractPsiBasedNode<ScNamedElement> {
+      public ScNamedElementTreeNode(Project project, ScNamedElement function, ViewSettings settings) {
+        super(project, function, settings);
+      }
+
+      @Override
+      protected PsiElement extractPsiFromValue() {
+        return getValue();
+      }
+
+      @Override
+      protected Collection<AbstractTreeNode> getChildrenImpl() {
+        return Collections.emptyList();
+      }
+
+      @Override
+      protected void updateImpl(PresentationData data) {
+        ScNamedElement namedElement = getValue();
+        if (namedElement != null) {
+          String text = namedElement.name();
+          data.setPresentableText(text);
+        }
+      }
+    }
   }
 
-  private static class MyClassOwnerTreeNode extends PsiFileNode {
-    public MyClassOwnerTreeNode(PsiClassOwner classOwner, ViewSettings settings) {
-      super(classOwner.getProject(), classOwner, settings);
+  private static class ScalaFileTreeNode extends PsiFileNode {
+    public ScalaFileTreeNode(ScalaFile scalaFile, ViewSettings settings) {
+      super(scalaFile.getProject(), scalaFile, settings);
     }
 
     @Override
     public Collection<AbstractTreeNode> getChildrenImpl() {
       final ViewSettings settings = getSettings();
       final ArrayList<AbstractTreeNode> result = new ArrayList<AbstractTreeNode>();
-      for (PsiClass aClass : ((PsiClassOwner) getValue()).getClasses()) {
-        if (!(aClass instanceof SyntheticElement)) {
-          result.add(new ClassTreeNode(myProject, aClass, settings));
+      ScalaFile owner = (ScalaFile) getValue();
+      if (!owner.isScriptFile(true)) {
+        for (PsiClass aClass : owner.typeDefinitionsArray()) {
+          result.add(new TypeDefinitionTreeNode(new ClassTreeNode(myProject, aClass, settings)));
         }
       }
       return result;
@@ -117,7 +205,7 @@ public class ScalaDefsProjectViewProvider implements TreeStructureProvider {
    
     protected void updateImpl(PresentationData data) {
       super.updateImpl(data);
-      data.setPresentableText(getValue().getName());
+      data.setPresentableText(((ScalaFile) getValue()).getName());
       data.setIcons(getValue().getIcon(Iconable.ICON_FLAG_READ_STATUS));
     }
   }

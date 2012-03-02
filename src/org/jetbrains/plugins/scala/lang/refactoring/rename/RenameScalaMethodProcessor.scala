@@ -19,6 +19,7 @@ import psi.impl.search.ScalaOverridengMemberSearch
 import psi.api.base.ScPrimaryConstructor
 import collection.mutable.ArrayBuffer
 import psi.fake.FakePsiMethod
+import extensions.toPsiNamedElementExt
 
 /**
  * User: Alexander Podkhalyuzin
@@ -39,8 +40,8 @@ class RenameScalaMethodProcessor extends RenameJavaMethodProcessor {
       case _ =>
     }
     for (elem <- ScalaOverridengMemberSearch.search(function, true)) {
-      val overriderName = elem.getName
-      val baseName = function.getName
+      val overriderName = elem.name
+      val baseName = function.name
       //val newOverriderName = RefactoringUtil.suggestNewOverriderName(overriderName, baseName, newName)
       if (overriderName == baseName) {
         allRenames.put(elem, newName)
@@ -56,12 +57,12 @@ class RenameScalaMethodProcessor extends RenameJavaMethodProcessor {
     if (!buff.isEmpty) {
       val dialog = new WarningDialog(function.getProject,
         "Function has getters or setters with same name. Rename them as well?")
-      dialog.show
+      dialog.show()
 
       if (dialog.getExitCode == DialogWrapper.OK_EXIT_CODE) {
         val shortNewName = if (newName.endsWith("_=")) newName.substring(0, newName.length - 2) else newName
         for (elem <- buff) {
-          allRenames.put(elem, if (elem.getName.endsWith("_=")) shortNewName + "_=" else shortNewName)
+          allRenames.put(elem, if (elem.name.endsWith("_=")) shortNewName + "_=" else shortNewName)
         }
       }
     }
@@ -73,7 +74,7 @@ class RenameScalaMethodProcessor extends RenameJavaMethodProcessor {
     element match {case x: ScPrimaryConstructor => return x.getContainingClass case _ =>}
     val function: ScFunction = element match {case x: ScFunction => x case _ => return element}
     if (function.isConstructor) return function.getContainingClass
-    function.getName match {
+    function.name match {
       case "apply" | "unapply" | "unapplySeq" => {
         return function.getContainingClass
       }
@@ -82,18 +83,18 @@ class RenameScalaMethodProcessor extends RenameJavaMethodProcessor {
 
     val signs = function.superSignatures
     if (signs.length == 0) return function
-    val dialog = new WarningDialog(function.getProject, ScalaBundle.message("method.has.supers", function.getName))
-    dialog.show
+    val dialog = new WarningDialog(function.getProject, ScalaBundle.message("method.has.supers", function.name))
+    dialog.show()
 
-    if (dialog.getExitCode() == DialogWrapper.OK_EXIT_CODE) return function
+    if (dialog.getExitCode == DialogWrapper.OK_EXIT_CODE) return function
     //todo: add choosing superMember
 
-    return null
+    null
   }
   private class WarningDialog(project: Project, text: String) extends DialogWrapper(project, true) {
     setTitle(IdeBundle.message("title.warning"))
     setButtonsAlignment(SwingConstants.CENTER)
-    setOKButtonText(CommonBundle.getYesButtonText())
+    setOKButtonText(CommonBundle.getYesButtonText)
     init()
 
     def createCenterPanel: JComponent = null

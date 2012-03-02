@@ -8,20 +8,15 @@ import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.openapi.util.Key
 import collection.Set
-import psi.api.base.patterns.ScBindingPattern
 import psi.ScalaPsiUtil
-import psi.api.toplevel.imports.usages.{ImportExprUsed, ImportSelectorUsed, ImportWildcardSelectorUsed, ImportUsed}
-import psi.impl.toplevel.synthetic.ScSyntheticClass
 import psi.impl.ScPackageImpl
 import psi.api.statements.params.ScTypeParam
 import psi.api.expr.{ScSuperReference, ScThisReference}
 import psi.api.statements.ScTypeAlias
 import psi.api.toplevel.templates.ScTemplateBody
 import reflect.NameTransformer
-import collection.mutable.HashSet
 import psi.api.toplevel.typedef.{ScClass, ScTrait, ScMember, ScObject}
-import psi.api.toplevel.ScNamedElement
-import extensions.toPsiClassExt
+import extensions.{toPsiNamedElementExt, toPsiClassExt}
 
 class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
                        val ref: PsiElement,
@@ -55,7 +50,7 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
       case c: ScObject => "Object:" + c.qualifiedName
       case c: PsiClass => "Class:" + c.qualifiedName
       case t: ScTypeAlias if t.getParent.isInstanceOf[ScTemplateBody] &&
-        t.getContainingClass != null => "TypeAlias:" + t.getContainingClass.qualifiedName + "#" + t.getName
+        t.getContainingClass != null => "TypeAlias:" + t.getContainingClass.qualifiedName + "#" + t.name
       case p: PsiPackage => "Package:" + p.getQualifiedName
       case _ => null
     }
@@ -121,11 +116,7 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
   protected def nameAndKindMatch(named: PsiNamedElement, state: ResolveState): Boolean = {
     val nameSet = state.get(ResolverEnv.nameKey)
     val elName = if (nameSet == null) {
-      val name = named match {
-        case named: ScNamedElement => named.name //todo: it's not the same. It can't be class name in scala.
-          //so class name in ScFunctionImpl.getName for constructors is only for Java
-        case _ => named.getName
-      }
+      val name = named.name
       if (name == null) return false
       if (name == "") return false
       if (name.charAt(0) == '`') name.substring(1, name.length - 1) else name
@@ -165,8 +156,8 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
         val context = ScalaPsiUtil.nameContext(elem)
         val pref = context.asInstanceOf[ScMember].getContainingClass.qualifiedName
         elem match {
-          case _: ScClass | _: ScTrait | _: ScTypeAlias => "Type:" + pref + "." + elem.getName
-          case _ => "Value:" + pref + "." + elem.getName
+          case _: ScClass | _: ScTrait | _: ScTypeAlias => "Type:" + pref + "." + elem.name
+          case _ => "Value:" + pref + "." + elem.name
         }
       })
 
@@ -194,7 +185,7 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
         res.foldLeft(true) {
           case (false, _) => false
           case (true, rr@ScalaResolveResult(_: ScTypeAlias | _: ScClass | _: ScTrait, _)) =>
-            rr.element.getName != r.element.getName ||
+            rr.element.name != r.element.name ||
             ScalaPsiUtil.superTypeMembers(rr.element).find(_ == r.element) == None
           case (true, _) => true
         }

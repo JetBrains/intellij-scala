@@ -27,6 +27,7 @@ import caches.CachesUtil
 import util.PsiModificationTracker
 import psi.ScalaPsiUtil.SafeCheckException
 import api.{InferUtil, ScalaElementVisitor}
+import extensions.toPsiNamedElementExt
 
 /**
  * @author Alexander Podkhalyuzin
@@ -117,7 +118,7 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
               val params = method.getConstructorTypeParameters.map(_.typeParameters).getOrElse(Seq.empty)
               val subst = new ScSubstitutor(s.typeParameters.zip(params).map {
                 case (tpClass: ScTypeParam, tpConstr: ScTypeParam) => {
-                  ((tpClass.getName, ScalaPsiUtil.getPsiElementId(tpClass)),
+                  ((tpClass.name, ScalaPsiUtil.getPsiElementId(tpClass)),
                     new ScTypeParameterType(tpConstr, ScSubstitutor.empty))
                 }
               }.toMap, Map.empty, None)
@@ -147,7 +148,7 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
                 tp.lowerBound.getOrNothing, tp.upperBound.getOrAny, tp))
         }
         case ptp: PsiTypeParameterListOwner if ptp.getTypeParameters.length > 0 => {
-          ptp.getTypeParameters.toSeq.map(ptp => new TypeParameter(ptp.getName,
+          ptp.getTypeParameters.toSeq.map(ptp => new TypeParameter(ptp.name,
             Nothing, Any, ptp)) //todo: add lower and upper bound
         }
         case _ =>
@@ -257,7 +258,7 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
                     tp.lowerBound.getOrNothing, tp.upperBound.getOrAny, tp))
             }
             case ptp: PsiTypeParameterListOwner if ptp.getTypeParameters.length > 0 => {
-              ptp.getTypeParameters.toSeq.map(ptp => new TypeParameter(ptp.getName,
+              ptp.getTypeParameters.toSeq.map(ptp => new TypeParameter(ptp.name,
                 Nothing, Any, ptp)) //todo: add lower and upper bound
             }
             case _ => return res

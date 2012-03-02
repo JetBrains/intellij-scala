@@ -15,9 +15,9 @@ import com.intellij.openapi.util.Comparing
 import lexer.ScalaTokenTypes
 import api.base.types.ScTypeElement
 import api.ScalaElementVisitor
-import extensions.toPsiClassExt
+import extensions.{toPsiNamedElementExt, toPsiClassExt}
 
-/** 
+/**
 * @author Alexander Podkhalyuzin
 * Date: 07.03.2008
 */
@@ -76,14 +76,14 @@ class ScAnnotationImpl extends ScalaStubBasedElementImpl[ScAnnotation] with ScAn
         val methods = c.getMethods
         val iterator = methods.iterator
         while (!iterator.isEmpty) {
-          val method = iterator.next
-          if (method.isInstanceOf[PsiAnnotationMethod] && Comparing.equal(method.getName, attributeName)) {
+          val method = iterator.next()
+          if (method.isInstanceOf[PsiAnnotationMethod] && Comparing.equal(method.name, attributeName)) {
             return (method.asInstanceOf[PsiAnnotationMethod]).getDefaultValue
           }
         }
       case _ =>
     }
-    return null
+    null
   }
 
   def getNameReferenceElement: PsiJavaCodeReferenceElement = null
@@ -154,7 +154,7 @@ class ScAnnotationImpl extends ScalaStubBasedElementImpl[ScAnnotation] with ScAn
           ScalaPsiElementFactory.createExpressionFromText(namePrefix + value.getText, value.getManager), null)
       }
     }
-    return findDeclaredAttributeValue(attributeName).asInstanceOf[T]
+    findDeclaredAttributeValue(attributeName).asInstanceOf[T]
   }
 
   override def accept(visitor: ScalaElementVisitor) {

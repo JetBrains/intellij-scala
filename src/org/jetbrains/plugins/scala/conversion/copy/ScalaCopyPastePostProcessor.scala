@@ -21,6 +21,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticC
 import com.intellij.codeInsight.CodeInsightSettings
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScInfixExpr, ScPostfixExpr, ScExpression}
 import com.intellij.openapi.ui.DialogWrapper
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 
 /**
  * Pavel Fatin
@@ -50,7 +51,7 @@ class ScalaCopyPastePostProcessor extends CopyPastePostProcessor[DependencyData]
         tr = exp.getTypeAfterImplicitConversion();
         named <- tr.implicitFunction;
         Both(member, ContainingClass(obj: ScObject)) <- named.asOptionOf[ScMember])
-      yield ImplicitConversionDependency(element, startOffset, obj.qualifiedName, member.getName)
+      yield ImplicitConversionDependency(element, startOffset, obj.qualifiedName, named.name)
 
     new DependencyData(referenceDependencies ++ conversionDependencies)
   }
@@ -78,11 +79,17 @@ class ScalaCopyPastePostProcessor extends CopyPastePostProcessor[DependencyData]
         {case Both(_: ScPrimaryConstructor, Parent(parent: PsiClass)) =>
           PrimaryConstructorDependency(element, startOffset, parent.qualifiedName)},
         {case Both(member: ScMember, ContainingClass(obj: ScObject)) =>
-          MemberDependency(element, startOffset, obj.qualifiedName, member.getName)},
+          MemberDependency(element, startOffset, obj.qualifiedName, member match {
+            case named: ScNamedElement => named.name
+            case _ => member.getName
+          })},
         {case Both(method: PsiMethod, ContainingClass(aClass: PsiClass)) if method.isConstructor =>
           TypeDependency(element, startOffset, aClass.qualifiedName)},
         {case Both(member: PsiMember, ContainingClass(aClass: PsiClass)) =>
-          MemberDependency(element, startOffset, aClass.qualifiedName, member.getName)}
+          MemberDependency(element, startOffset, aClass.qualifiedName, member match {
+            case named: ScNamedElement => named.name
+            case _ => member.getName
+          })}
         )
     }
   }

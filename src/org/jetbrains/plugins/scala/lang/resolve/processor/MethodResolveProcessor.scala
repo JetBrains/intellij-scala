@@ -267,11 +267,11 @@ object MethodResolveProcessor {
         s.followed(
           if (typeArgElements.length != 0 && typeParameters.length == typeArgElements.length) {
             ScalaPsiUtil.genericCallSubstitutor(typeParameters.map(p =>
-              (p.getName, ScalaPsiUtil.getPsiElementId(p))), typeArgElements)
+              (p.name, ScalaPsiUtil.getPsiElementId(p))), typeArgElements)
           } else {
             typeParameters.foldLeft(ScSubstitutor.empty) {
               (subst: ScSubstitutor, tp: PsiTypeParameter) =>
-                subst.bindT((tp.getName, ScalaPsiUtil.getPsiElementId(tp)),
+                subst.bindT((tp.name, ScalaPsiUtil.getPsiElementId(tp)),
                   new ScUndefinedType(new ScTypeParameterType(tp, ScSubstitutor.empty)))
             }
           })
@@ -292,11 +292,11 @@ object MethodResolveProcessor {
         s.followed(
           if (typeArgElements.length != 0 && p.getTypeParameters.length == typeArgElements.length) {
             ScalaPsiUtil.genericCallSubstitutor(p.getTypeParameters.map(p =>
-              (p.getName, ScalaPsiUtil.getPsiElementId(p))), typeArgElements)
+              (p.name, ScalaPsiUtil.getPsiElementId(p))), typeArgElements)
           } else {
             p.getTypeParameters.foldLeft(ScSubstitutor.empty) {
               (subst: ScSubstitutor, tp: PsiTypeParameter) =>
-                subst.bindT((tp.getName, ScalaPsiUtil.getPsiElementId(tp)),
+                subst.bindT((tp.name, ScalaPsiUtil.getPsiElementId(tp)),
                   new ScUndefinedType(new ScTypeParameterType(tp, ScSubstitutor.empty)))
             }
           })

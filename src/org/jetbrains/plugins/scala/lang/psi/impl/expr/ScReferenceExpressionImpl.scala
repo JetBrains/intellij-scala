@@ -23,13 +23,10 @@ import com.intellij.psi.util.PsiTreeUtil
 import api.ScalaElementVisitor
 import api.toplevel.typedef.{ScObject, ScClass, ScTypeDefinition, ScTrait}
 import api.toplevel.imports.ScImportStmt
-import caches.ScalaRecursionManager
-import com.intellij.openapi.util.Computable
-import api.base.patterns.{ScBindingPattern, ScReferencePattern}
-import api.base.ScFieldId
+import api.base.patterns.ScReferencePattern
 import com.intellij.util.IncorrectOperationException
 import annotator.intention.ScalaImportClassFix
-import extensions.toPsiClassExt
+import extensions.{toPsiNamedElementExt, toPsiClassExt}
 
 /**
  * @author AlexanderPodkhalyuzin
@@ -60,7 +57,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
       case c: PsiClass => {
         if (!ResolveUtils.kindMatches(element, getKinds(false)))
           throw new IncorrectOperationException("class does not match expected kind")
-        if (refName != c.getName)
+        if (refName != c.name)
           throw new IncorrectOperationException("class does not match expected name")
         val qualName = c.qualifiedName
         if (qualName != null) {
@@ -73,7 +70,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
       case t: ScTypeAlias =>
         throw new IncorrectOperationException("type does not match expected kind")
       case elem: PsiNamedElement =>
-        if (refName != elem.getName)
+        if (refName != elem.name)
           throw new IncorrectOperationException("named element does not match expected name")
         ScalaPsiUtil.nameContext(elem) match {
           case memb: PsiMember =>

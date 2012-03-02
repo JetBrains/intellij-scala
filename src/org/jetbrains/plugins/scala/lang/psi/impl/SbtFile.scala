@@ -10,11 +10,12 @@ import com.intellij.openapi.module.{Module, ModuleManager}
 import com.intellij.openapi.project.Project
 import api.toplevel.typedef.ScObject
 import api.ScalaFile
+import extensions.toPsiNamedElementExt
 
 // TODO Add a proper file type?
 object SbtFile {
   def isSbtFile(file: ScalaFile): Boolean = {
-    file.isScriptFile() && file.getName != null && file.getName.endsWith("." + ScalaFileType.SBT_FILE_EXTENSION)
+    file.isScriptFile() && file.name != null && file.name.endsWith("." + ScalaFileType.SBT_FILE_EXTENSION)
   }
 
   def findSbtProjectModule(project: Project): Option[Module] = {

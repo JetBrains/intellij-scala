@@ -8,6 +8,7 @@ import lang.psi.api.ScalaElementVisitor
 import lang.scaladoc.psi.api.ScDocTag
 import lang.scaladoc.lexer.ScalaDocTokenType
 import com.intellij.codeInspection.{ProblemHighlightType, ProblemsHolder, LocalInspectionTool, LocalInspectionEP}
+import extensions.toPsiNamedElementExt
 
 
 /**
@@ -19,7 +20,7 @@ class ScalaDocMissingParameterDescriptionInspection extends LocalInspectionTool 
   override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor = {
     new ScalaElementVisitor {
       override def visitTag(s: ScDocTag) {
-        if (!ScalaDocMissingParameterDescriptionInspection.OurTags.contains(s.getName) || s.getValueElement == null) {
+        if (!ScalaDocMissingParameterDescriptionInspection.OurTags.contains(s.name) || s.getValueElement == null) {
           return
         }
 

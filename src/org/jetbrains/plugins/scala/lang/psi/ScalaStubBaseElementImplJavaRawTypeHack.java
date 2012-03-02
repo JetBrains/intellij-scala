@@ -22,7 +22,7 @@ public abstract class ScalaStubBaseElementImplJavaRawTypeHack<T extends PsiEleme
   @NotNull
   @Override
   public IStubElementType getElementType() {
-    if (getNode() != DummyASTNode.getInstanceForJava() && getNode() != null)
+    if (getNode() != DummyASTNode.getInstanceForJava())
       return (IStubElementType) getNode().getElementType();
     else return getStub().getStubType();
   }

@@ -22,7 +22,7 @@ import lexer.ScalaTokenTypes
 import psi.api.base.patterns.{ScPattern, ScConstructorPattern, ScPatternArgumentList}
 import lang.resolve.ScalaResolveResult
 import result.TypingContext
-import extensions.toPsiClassExt
+import extensions.{toPsiNamedElementExt, toPsiClassExt}
 
 /**
  * User: Alexander Podkhalyuzin
@@ -75,7 +75,7 @@ class ScalaPatternParameterInfoHandler extends ParameterInfoHandlerWithTabAction
           //todo: join this match statement with same in FunctionParameterHandler to fix code duplicate.
           case (sign: PhysicalSignature, i: Int) => {
             //i  can be -1 (it's update method)
-            val methodName = sign.method.getName
+            val methodName = sign.method.name
 
             val subst = sign.substitutor
             val p = sign.method match {
@@ -163,7 +163,7 @@ class ScalaPatternParameterInfoHandler extends ParameterInfoHandlerWithTabAction
    * @return 'paramName: ParamType' if `sign` is a synthetic unapply method; otherwise 'ParamType'
    */
   private def paramTextFor(sign: PhysicalSignature, o: Int, paramTypeText: String): String = {
-    if (sign.method.getName == "unapply") {
+    if (sign.method.name == "unapply") {
       sign.method match {
         case fun: ScFunction if fun.parameters.headOption.exists(_.name == "x$0") =>
           val companionClass: Option[ScClass] = fun.containingClass match {

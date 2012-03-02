@@ -30,6 +30,7 @@ import psi.ScalaPsiUtil.convertMemberName
 import api.toplevel.{ScNamedElement, ScModifierListOwner, ScTypedDefinition}
 import api.base.{ScAccessModifier, ScFieldId, ScPrimaryConstructor}
 import api.ScalaFile
+import extensions.toPsiNamedElementExt
 
 /**
  * @author ven
@@ -209,11 +210,11 @@ object TypeDefinitionMembers {
 
   object TypeNodes extends MixinNodes {
     type T = PsiNamedElement //class or type alias
-    def equiv(t1: PsiNamedElement, t2: PsiNamedElement) = t1.getName == t2.getName
+    def equiv(t1: PsiNamedElement, t2: PsiNamedElement) = t1.name == t2.name
 
-    def computeHashCode(t: PsiNamedElement) = t.getName.hashCode
+    def computeHashCode(t: PsiNamedElement) = t.name.hashCode
 
-    def elemName(t: PsiNamedElement) = t.getName
+    def elemName(t: PsiNamedElement) = t.name
 
     def isAbstract(t: PsiNamedElement) = t match {
       case _: ScTypeAliasDeclaration => true
@@ -473,9 +474,9 @@ object TypeDefinitionMembers {
     if (isJavaSourceEnum && shouldProcessMethods(processor)) {
       val elementFactory: PsiElementFactory = JavaPsiFacade.getInstance(clazz.getProject).getElementFactory
       //todo: cache like in PsiClassImpl
-      val valuesMethod: PsiMethod = elementFactory.createMethodFromText("public static " + clazz.getName +
+      val valuesMethod: PsiMethod = elementFactory.createMethodFromText("public static " + clazz.name +
               "[] values() {}", clazz)
-      val valueOfMethod: PsiMethod = elementFactory.createMethodFromText("public static " + clazz.getName +
+      val valueOfMethod: PsiMethod = elementFactory.createMethodFromText("public static " + clazz.name +
               " valueOf(String name) throws IllegalArgumentException {}", clazz)
       val values = new LightMethod(clazz.getManager, valuesMethod, clazz)
       val valueOf = new LightMethod(clazz.getManager, valueOfMethod, clazz)
@@ -537,7 +538,6 @@ object TypeDefinitionMembers {
     val name = if (nameHint == null) "" else nameHint.getName(state)
     val decodedName = if (name != null) convertMemberName(name) else ""
     val isScalaProcessor = processor.isInstanceOf[BaseProcessor]
-    val isNotScalaProcessor = !isScalaProcessor
     def checkName(s: String): Boolean = {
       if (name == null || name == "") true
       else convertMemberName(s) == decodedName
@@ -554,12 +554,11 @@ object TypeDefinitionMembers {
     val processVals = shouldProcessVals(processor)
     val processMethods = shouldProcessMethods(processor)
     val processValsForScala = isScalaProcessor && processVals
-    val processValsForJava = isNotScalaProcessor && processMethods
     val processOnlyStable = shouldProcessOnlyStable(processor)
 
     import collection.mutable.HashMap
     def process[T <: MixinNodes](signatures: T#Map): Boolean = {
-      if (processValsForScala || processValsForJava || processMethods) {
+      if (processValsForScala || processMethods) {
         def runForValInfo(n: T#Node): Boolean = {
           val elem = n.info.asInstanceOf[Signature].namedElement match {
             case Some(named) => named
@@ -567,11 +566,11 @@ object TypeDefinitionMembers {
           }
           elem match {
             case p: ScClassParameter if processValsForScala && !p.isVar && !p.isVal &&
-              (checkName(p.getName) || checkNameGetSetIs(p.getName)) && isScalaProcessor => {
+              (checkName(p.name) || checkNameGetSetIs(p.name)) && isScalaProcessor => {
               val clazz = PsiTreeUtil.getContextOfType(p, true, classOf[ScTemplateDefinition])
               if (clazz != null && clazz.isInstanceOf[ScClass] && !p.isEffectiveVal) {
                 //this is member only for class scope
-                if (PsiTreeUtil.isContextAncestor(clazz, place, false) && checkName(p.getName)) {
+                if (PsiTreeUtil.isContextAncestor(clazz, place, false) && checkName(p.name)) {
                   //we can accept this member
                   if (!processor.execute(elem, state.put(ScSubstitutor.key, n.substitutor followed subst)))
                     return false
@@ -585,7 +584,7 @@ object TypeDefinitionMembers {
             case _ => if (!tail) return false
           }
           def tail: Boolean = {
-            if (processValsForScala && checkName(elem.getName) &&
+            if (processValsForScala && checkName(elem.name) &&
               !processor.execute(elem, state.put(ScSubstitutor.key, n.substitutor followed subst))) return false
 
             //this is for Java: to find methods, which are vals in Scala
@@ -599,24 +598,6 @@ object TypeDefinitionMembers {
                     if (!BeanProperty.processBeanPropertyDeclarations(annotated, context, processor, t, state))
                       return false
                   case _ =>
-                }
-                // Expose the accessor method for vals and vars to Java.
-                if (processValsForJava) {
-                  context match {
-                    case classParam: ScClassParameter if classParam.isEffectiveVal =>
-                      if (!processor.execute(new FakePsiMethod(classParam, t.getName, Array.empty,
-                        classParam.getType(TypingContext.empty).getOrAny, classParam.hasModifierProperty _), state))
-                        return false
-                    case value: ScValue =>
-                      if (!processor.execute(new FakePsiMethod(value, t.getName, Array.empty,
-                        value.getType(TypingContext.empty).getOrAny, value.hasModifierProperty _), state))
-                        return false
-                    case variable: ScVariable =>
-                      if (!processor.execute(new FakePsiMethod(variable, t.getName, Array.empty,
-                        variable.getType(TypingContext.empty).getOrAny, variable.hasModifierProperty _), state))
-                        return false
-                    case _ =>
-                  }
                 }
               }
               case _ =>
@@ -641,7 +622,7 @@ object TypeDefinitionMembers {
                     val substitutor = phys.substitutor followed subst
                     if (!processor.execute(method, state.put(ScSubstitutor.key, substitutor))) return false
                   case phys: PhysicalSignature => //do nothing
-                  case _ if processValsForScala || processValsForJava =>
+                  case _ if processValsForScala =>
                     if (!runForValInfo(n)) return false
                   case _ => //do nothing
                 }
@@ -651,7 +632,7 @@ object TypeDefinitionMembers {
           }
           if (!checkList(decodedName)) return false
 
-          if (processValsForScala || processValsForJava) {
+          if (processValsForScala) {
             def checkPrefix(s: String): Boolean = {
               if (decodedName.startsWith(s)) {
                 val n = decodedName.substring(s.length())
@@ -675,12 +656,12 @@ object TypeDefinitionMembers {
             sig match {
               case phys: PhysicalSignature if processMethods =>
                 val method = phys.method
-                if (checkName(method.getName)) {
+                if (checkName(method.name)) {
                   val substitutor = n.substitutor followed subst
                   if (!processor.execute(method, state.put(ScSubstitutor.key, substitutor))) return false
                 }
               case phys: PhysicalSignature => //do nothing
-              case _ if processValsForScala || processValsForJava =>
+              case _ if processValsForScala =>
                 if (!runForValInfo(n)) return false
               case _ => //do nothing
             }
@@ -696,12 +677,12 @@ object TypeDefinitionMembers {
               sig match {
                 case phys: PhysicalSignature if processMethods =>
                   val method = phys.method
-                  if (checkName(method.getName)) {
+                  if (checkName(method.name)) {
                     val substitutor = n.substitutor followed subst
                     if (!processor.execute(method, state.put(ScSubstitutor.key, substitutor))) return false
                   }
                 case phys: PhysicalSignature => //do nothing
-                case _ if processValsForScala || processValsForJava =>
+                case _ if processValsForScala =>
                   if (!runForValInfo(n)) return false
                 case _ => //do nothing
               }
@@ -717,7 +698,7 @@ object TypeDefinitionMembers {
               case phys: PhysicalSignature => phys.method
               case _ => null
             }
-            if (method != null && checkName(method.getName)) {
+            if (method != null && checkName(method.name)) {
               val substitutor = n.substitutor followed subst
               if (!processor.execute(method, state.put(ScSubstitutor.key, substitutor))) return Some(false)
             }
@@ -765,7 +746,7 @@ object TypeDefinitionMembers {
           val iterator = valuesIterator.next().iterator
           while (iterator.hasNext) {
             val (_, n) = iterator.next()
-            if (checkName(n.info.getName)) {
+            if (checkName(n.info.name)) {
               ProgressManager.checkCanceled()
               if (!processor.execute(n.info, state.put(ScSubstitutor.key, n.substitutor followed subst))) return false
             }
@@ -790,7 +771,7 @@ object TypeDefinitionMembers {
           val iterator = valuesIterator.next().iterator
           while (iterator.hasNext) {
             val (_, n) = iterator.next()
-            if (checkName(n.info.getName)) {
+            if (checkName(n.info.name)) {
               ProgressManager.checkCanceled()
               if (n.info.isInstanceOf[ScTypeDefinition] &&
                 !processor.execute(n.info, state.put(ScSubstitutor.key, n.substitutor followed subst))) return false

@@ -19,6 +19,7 @@ import psi.api.ScalaFile
 import psi.types.result.{TypingContext, Failure, Success}
 import org.jetbrains.plugins.scala.base.ScalaPsiTestCase
 import com.intellij.psi.{PsiNamedElement, PsiComment, PsiManager}
+import extensions.toPsiNamedElementExt
 
 /**
  * User: Alexander Podkhalyuzin
@@ -50,14 +51,14 @@ abstract class ImplicitsTestBase extends ScalaPsiTestCase {
     val expr: ScExpression = PsiTreeUtil.findElementOfClassAtRange(scalaFile, startOffset + addOne, endOffset, classOf[ScExpression])
     assert(expr != null, "Not specified expression in range to infer type.")
     val implicitConversions = expr.getImplicitConversions(false)
-    val res = implicitConversions._1.map(_.getName).sorted.mkString("Seq(", ",\n    ", ")") + ",\n" + (
+    val res = implicitConversions._1.map(_.name).sorted.mkString("Seq(", ",\n    ", ")") + ",\n" + (
             implicitConversions._2 match {
               case None => "None"
-              case Some(elem: PsiNamedElement) => "Some(" + elem.getName + ")"
+              case Some(elem: PsiNamedElement) => "Some(" + elem.name + ")"
               case _ => assert(false, "elem is not PsiNamedElement")
             }
             )
-    println("------------------------ " + scalaFile.getName + " ------------------------")
+    println("------------------------ " + scalaFile.name + " ------------------------")
     println(res)
     val lastPsi = scalaFile.findElementAt(scalaFile.getText.length - 1)
     val text = lastPsi.getText

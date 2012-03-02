@@ -16,7 +16,8 @@ import templates.ScTemplateBody
 import typedef._
 import base.patterns.ScCaseClause
 import icons.Icons
-import psi.impl.{ScalaPsiManager, ScalaPsiElementFactory}
+import psi.impl.ScalaPsiElementFactory
+import reflect.NameTransformer
 
 trait ScNamedElement extends ScalaPsiElement with PsiNameIdentifierOwner with NavigatablePsiElement {
   def name: String = {
@@ -33,7 +34,9 @@ trait ScNamedElement extends ScalaPsiElement with PsiNameIdentifierOwner with Na
 
   override def getTextOffset: Int = nameId.getTextRange.getStartOffset
 
-  override def getName = name
+  override def getName = NameTransformer.encode(name)
+
+  def javaName = getName //todo: join with getName
 
   def nameId: PsiElement
 
@@ -53,9 +56,9 @@ trait ScNamedElement extends ScalaPsiElement with PsiNameIdentifierOwner with Na
     var parent: PsiElement = this
     while (parent != null && !(parent.isInstanceOf[ScMember])) parent = parent.getParent
     new ItemPresentation {
-      def getPresentableText(): String = name
-      def getTextAttributesKey(): TextAttributesKey = null
-      def getLocationString(): String = clazz match {
+      def getPresentableText: String = name
+      def getTextAttributesKey: TextAttributesKey = null
+      def getLocationString: String = clazz match {
         case _: ScTypeDefinition => "(" + clazz.qualifiedName + ")"
         case x: ScNewTemplateDefinition => "(<anonymous>)"
         case _ => ""

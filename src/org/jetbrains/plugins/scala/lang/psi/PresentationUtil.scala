@@ -9,8 +9,9 @@ import org.jetbrains.plugins.scala.decompiler.DecompilerUtil
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.util.ScalaUtils
 import types.nonvalue.Parameter
-import types.{ScParameterizedType, ScType, ScSubstitutor}
+import types.{ScType, ScSubstitutor}
 import refactoring.util.ScTypeUtil
+import org.jetbrains.plugins.scala.extensions.{toPsiClassExt, toPsiNamedElementExt}
 
 /**
  * User: Alexander Podkhalyuzin
@@ -28,7 +29,7 @@ object PresentationUtil {
         if (clause.isImplicit) buffer.append("implicit ")
         buffer.append(clause.parameters.map(presentationString(_, substitutor)).mkString(", "))
         buffer.append(")")
-        buffer.toString
+        buffer.toString()
       }
       case param: ScParameter => ScalaDocumentationProvider.parseParameter(param, presentationString(_, substitutor))
       case param: Parameter => {
@@ -37,7 +38,7 @@ object PresentationUtil {
         builder.append(": " + presentationString(param.paramType, substitutor))
         if (param.isRepeated) builder.append("*")
         if (param.isDefault) builder.append(" = _")
-        builder.toString
+        builder.toString()
       }
       case tp: ScType => ScType.presentableText(substitutor.subst(tp))
       case tp: PsiType => presentationString(ScType.create(tp, DecompilerUtil.obtainProject), substitutor)
@@ -45,7 +46,7 @@ object PresentationUtil {
         tp.typeParameters.map(t => presentationString(t, substitutor)).mkString("[", ", ", "]")
       }
       case param: ScTypeParam => {
-        var paramText = param.getName
+        var paramText = param.name
         if (param.isContravariant) paramText = "-" + paramText
         else if (param.isCovariant) paramText = "+" + paramText
         param.lowerBound foreach {
@@ -65,7 +66,7 @@ object PresentationUtil {
         paramText
       }
       case param: PsiTypeParameter => {
-        var paramText = param.getName
+        var paramText = param.name
         //todo: possibly add supers and extends?
         paramText
       }
@@ -79,17 +80,17 @@ object PresentationUtil {
         val lastSize = buffer.length
         for (a <- list.getAnnotations) {
           if (lastSize != buffer.length) buffer.append(" ")
-          val element = a.getNameReferenceElement();
+          val element = a.getNameReferenceElement
           if (element != null) buffer.append("@").append(element.getText)
         }
         if (lastSize != buffer.length) buffer.append(" ")
-        val name = param.getName
+        val name = param.name
         if (name != null) {
           buffer.append(name)
         }
         buffer.append(": ")
         buffer.append(presentationString(param.getType, substitutor)) //todo: create param type, java.lang.Object => Any
-        buffer.toString
+        buffer.toString()
       }
       case fun: ScFunction => {
         val buffer: StringBuilder = new StringBuilder("")
@@ -102,16 +103,16 @@ object PresentationUtil {
           }
           case _ =>
         }
-        buffer.append(fun.getName)
+        buffer.append(fun.name)
         fun.typeParametersClause match {case Some(tpc) => buffer.append(presentationString(tpc)) case _ =>}
         buffer.append(presentationString(fun.paramClauses, substitutor)).append(": ")
         buffer.append(presentationString(fun.returnType.getOrAny, substitutor))
-        buffer.toString
+        buffer.toString()
       }
       case elem: PsiElement => elem.getText
       case null => ""
       case _ => obj.toString
     }
-    return res.replace(ScalaUtils.typeParameter, "T")
+    res.replace(ScalaUtils.typeParameter, "T")
   }
 }

@@ -21,6 +21,7 @@ import java.lang.String
 import lang.psi.api.ScalaFile
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.roots.{ProjectRootManager, ProjectFileIndex}
+import extensions.toPsiNamedElementExt
 
 /**
  * User: Alexander Podkhalyuzin
@@ -28,7 +29,7 @@ import com.intellij.openapi.roots.{ProjectRootManager, ProjectFileIndex}
  */
 
 class ScalaMoveToPackageQuickFix(file: ScalaFile, packQualName: String) extends LocalQuickFix {
-  def applyFix(project: Project, descriptor: ProblemDescriptor): Unit = {
+  def applyFix(project: Project, descriptor: ProblemDescriptor) {
     if (!CodeInsightUtilBase.prepareFileForWrite(file)) return
     val packageName = packQualName
     val fileIndex: ProjectFileIndex = ProjectRootManager.getInstance(project).getFileIndex
@@ -38,20 +39,20 @@ class ScalaMoveToPackageQuickFix(file: ScalaFile, packQualName: String) extends 
     if (directory == null) {
       return
     }
-    val error = RefactoringMessageUtil.checkCanCreateFile(directory, file.getName)
+    val error = RefactoringMessageUtil.checkCanCreateFile(directory, file.name)
     if (error != null) {
       Messages.showMessageDialog(project, error, CommonBundle.getErrorTitle, Messages.getErrorIcon)
       return
     }
     new MoveClassesOrPackagesProcessor(
       project,
-      Array[PsiElement](file.getClasses.apply(0)),
+      Array[PsiElement](file.typeDefinitions.apply(0)),
       new SingleSourceRootMoveDestination(PackageWrapper.create(JavaDirectoryService.getInstance().getPackage(directory)), directory), false,
       false,
-      null).run;
+      null).run()
   }
 
-  def getName: String = "Move File " + file.getName + " To Package " + packQualName
+  def getName: String = "Move File " + file.name + " To Package " + packQualName
 
   def getFamilyName: String = "Move File To Package"
 }

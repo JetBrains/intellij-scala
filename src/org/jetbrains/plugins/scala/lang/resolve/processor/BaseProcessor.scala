@@ -162,9 +162,9 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value]) extends PsiSc
         if (isJavaSourceEnum) {
           val elementFactory: PsiElementFactory = JavaPsiFacade.getInstance(e.getProject).getElementFactory
           //todo: cache like in PsiClassImpl
-          val valuesMethod: PsiMethod = elementFactory.createMethodFromText("public static " + e.getName +
+          val valuesMethod: PsiMethod = elementFactory.createMethodFromText("public static " + e.name +
                   "[] values() {}", e)
-          val valueOfMethod: PsiMethod = elementFactory.createMethodFromText("public static " + e.getName +
+          val valueOfMethod: PsiMethod = elementFactory.createMethodFromText("public static " + e.name +
                   " valueOf(String name) throws IllegalArgumentException {}", e)
           val values = new LightMethod(e.getManager, valuesMethod, e)
           val valueOf = new LightMethod(e.getManager, valueOfMethod, e)
@@ -224,7 +224,7 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value]) extends PsiSc
           val methods = obj.getMethods.iterator
           while (methods.hasNext) {
             val method = methods.next()
-            if (name == "AnyRef" || namesSet.contains(method.getName)) {
+            if (name == "AnyRef" || namesSet.contains(method.name)) {
               if (!execute(method, state)) return false
             }
           }

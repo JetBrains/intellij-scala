@@ -30,14 +30,14 @@ class ScClassParameterImpl(node: ASTNode) extends ScParameterImpl(node) with ScC
 
   override def toString: String = "ClassParameter"
 
-  def isVal: Boolean = {
+  override def isVal: Boolean = {
     val stub = getStub
     if (stub != null) {
       return stub.asInstanceOf[ScParameterStub].isVal
     }
     findChildByType(ScalaTokenTypes.kVAL) != null
   }
-  def isVar: Boolean = {
+  override def isVar: Boolean = {
     val stub = getStub
     if (stub != null) {
       return stub.asInstanceOf[ScParameterStub].isVar

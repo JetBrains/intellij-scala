@@ -28,14 +28,14 @@ object ScalaInplaceVariableRenamer {
         ScalaPsiUtil.nameContext(name) match {
           case v@(_: ScValue | _: ScVariable | _: ScFunction | _: ScCaseClause) if !v.getParent.isInstanceOf[ScTemplateBody] &&
                   !v.isInstanceOf[ScClassParameter] && !v.getParent.isInstanceOf[ScEarlyDefinitions] => {
-            val stringToSearch = name.getName
+            val stringToSearch = name.name
             val usages = new ArrayList[UsageInfo]
             if (stringToSearch != null) {
               TextOccurrencesUtil.addUsagesInStringsAndComments(element, stringToSearch, usages, new TextOccurrencesUtil.UsageInfoFactory {
                 def createUsageInfo(usage: PsiElement, startOffset: Int, endOffset: Int): UsageInfo = new UsageInfo(usage)
               });
             }
-            return usages.isEmpty
+            usages.isEmpty
           }
           case _ => false
         }

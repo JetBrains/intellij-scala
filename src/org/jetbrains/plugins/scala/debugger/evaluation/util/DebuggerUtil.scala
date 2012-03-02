@@ -157,7 +157,7 @@ object DebuggerUtil {
       } 
       else function.typeParameters
     val subst = typeParams.foldLeft(ScSubstitutor.empty) {
-      (subst, tp) => subst.bindT((tp.getName, ScalaPsiUtil.getPsiElementId(tp)), tp.upperBound.getOrAny)
+      (subst, tp) => subst.bindT((tp.name, ScalaPsiUtil.getPsiElementId(tp)), tp.upperBound.getOrAny)
     }
     val sign = function.effectiveParameterClauses.flatMap(_.parameters).map(param =>
       if (!param.isRepeatedParameter) {
@@ -173,7 +173,7 @@ object DebuggerUtil {
       case _ => Seq.empty
     }
     val subst = typeParams.foldLeft(ScSubstitutor.empty) {
-      (subst, tp) => subst.bindT((tp.getName, ScalaPsiUtil.getPsiElementId(tp)), tp.upperBound.getOrAny)
+      (subst, tp) => subst.bindT((tp.name, ScalaPsiUtil.getPsiElementId(tp)), tp.upperBound.getOrAny)
     }
     val sign = constr.effectiveParameterClauses.flatMap(_.parameters).map(param =>
       if (!param.isRepeatedParameter) {

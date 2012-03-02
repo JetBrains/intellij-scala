@@ -17,7 +17,6 @@ import org.jetbrains.plugins.scala.extensions.inReadAction
  * User: Alexander Podkhalyuzin
  * Date: 17.08.2009
  */
-
 class NamingParamsSearcher extends QueryExecutor[PsiReference, ReferencesSearch.SearchParameters] {
   def execute(queryParameters: ReferencesSearch.SearchParameters, consumer: Processor[PsiReference]): Boolean = {
     val scope = queryParameters.getScope
@@ -25,7 +24,7 @@ class NamingParamsSearcher extends QueryExecutor[PsiReference, ReferencesSearch.
     inReadAction {
       element match {
         case parameter: ScParameter => {
-          val name = parameter.getName
+          val name = parameter.name
           val collectedReferences = new HashSet[PsiReference]
           val processor = new TextOccurenceProcessor {
             def execute(element: PsiElement, offsetInElement: Int): Boolean = {

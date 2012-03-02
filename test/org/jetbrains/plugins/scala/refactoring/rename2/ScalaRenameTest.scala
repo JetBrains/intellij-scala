@@ -191,4 +191,29 @@ class ScalaRenameTest extends ScalaRenameTestBase {
 
     myFixture.checkResult(resultText)
   }
+
+  //todo:
+  /*def testObjectToCaseClass() {
+    val fileText =
+      """
+      |object ObjectToCaseClass {
+      |  case class Test1(a: Int)
+      |  Test1(2)
+      |  <caret>Test1.apply(1)
+      |}
+      """.stripMargin('|').replaceAll("\r", "").trim()
+    myFixture.configureByText("dummy.scala", fileText)
+    myFixture.renameElementAtCaret("I")
+
+    val resultText =
+      """
+      |object ObjectToCaseClass {
+      |  case class I(a: Int)
+      |  I(2)
+      |  <caret>I.apply(1)
+      |}
+      """.stripMargin('|').replaceAll("\r", "").trim()
+
+    myFixture.checkResult(resultText)
+  }*/
 }

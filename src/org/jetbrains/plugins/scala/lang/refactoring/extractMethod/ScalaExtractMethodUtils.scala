@@ -24,6 +24,7 @@ import psi.api.statements.params.{ScParameter, ScTypeParam}
 import scala.util.Sorting
 import psi.types.nonvalue.Parameter
 import psi.types._
+import org.jetbrains.plugins.scala.extensions.toPsiNamedElementExt
 
 /**
  * User: Alexander Podkhalyuzin
@@ -151,8 +152,8 @@ object ScalaExtractMethodUtils {
         ref.bind() match {
           case Some(ScalaResolveResult(named: PsiNamedElement, subst: ScSubstitutor)) =>{
             if (named.getContainingFile == method.getContainingFile && named.getTextOffset < offset &&
-                    !named.getName.startsWith("_")) {
-              val oldName = named.getName
+                    !named.name.startsWith("_")) {
+              val oldName = named.name
               var break = false
               for (param <- settings.parameters if !break) {
                 if (param.oldName == oldName) {
@@ -205,7 +206,7 @@ object ScalaExtractMethodUtils {
           case named: PsiNamedElement if named != method && named.getTextOffset < offset => {
             var break = false
             for (param <- settings.parameters if !break) {
-              if (param.oldName == named.getName) {
+              if (param.oldName == named.name) {
                 if (param.oldName != param.newName) {
                   bindTo += ((named, param.newName))
                 }
@@ -234,7 +235,7 @@ object ScalaExtractMethodUtils {
                           val tp: ScType, val param: FakePsiParameter)
           extends ParameterTablePanel.VariableData(param, new FakePsiType(tp)) {
     passAsParameter = true
-    name = param.getName
+    name = param.name
   }
 
   @Nullable
@@ -274,7 +275,7 @@ object ScalaExtractMethodUtils {
         new ScFunctionType(retType, Seq.empty)(definition.getProject, definition.getResolveScope)
       case _ => retType
     }
-    val param = new FakePsiParameter(definition.getManager, ScalaFileType.SCALA_LANGUAGE, new Parameter("", tp, false, false, false), definition.getName)
+    val param = new FakePsiParameter(definition.getManager, ScalaFileType.SCALA_LANGUAGE, new Parameter("", tp, false, false, false), definition.name)
     new ScalaVariableData(definition, isMutable, isInside, tp, param)
   }
 
@@ -321,7 +322,7 @@ object ScalaExtractMethodUtils {
   }
 
   def getParameter(d: VariableData, variableData: ScalaVariableData): ExtractMethodParameter = {
-    new ExtractMethodParameter(d.variable.getName, d.name, false, (d.`type`.asInstanceOf[FakePsiType]).tp,
+    new ExtractMethodParameter(d.variable.name, d.name, false, (d.`type`.asInstanceOf[FakePsiType]).tp,
         variableData.isMutable, d.passAsParameter, variableData.vari.isInstanceOf[ScFunction],
         variableData.vari.isInstanceOf[ScFunction] && variableData.vari.asInstanceOf[ScFunction].parameters.length == 0,
         ScalaPsiUtil.nameContext(variableData.vari) match {
@@ -357,7 +358,7 @@ object ScalaExtractMethodUtils {
     for (info <- myOutput) {
       val data: ScalaVariableData = ScalaExtractMethodUtils.convertVariableData(info, elements).asInstanceOf[ScalaVariableData]
       val tp: FakePsiType = data.`type`.asInstanceOf[FakePsiType]
-      val aReturn: ExtractMethodReturn = new ExtractMethodReturn(info.element.getName, tp.tp, data.isInsideOfElements,
+      val aReturn: ExtractMethodReturn = new ExtractMethodReturn(info.element.name, tp.tp, data.isInsideOfElements,
         ScalaPsiUtil.nameContext(info.element).isInstanceOf[ScValue] ||
           ScalaPsiUtil.nameContext(info.element).isInstanceOf[ScFunction])
       list.add(aReturn)

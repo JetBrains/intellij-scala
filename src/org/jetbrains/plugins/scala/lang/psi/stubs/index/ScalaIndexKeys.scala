@@ -20,12 +20,14 @@ import api.toplevel.typedef.{ScMember, ScTypeDefinition}
 
 object ScalaIndexKeys {
 
+  val ALL_CLASS_NAMES: StubIndexKey[String, PsiClass] = StubIndexKey.createIndexKey("sc.all.class.names")
   val SHORT_NAME_KEY: StubIndexKey[String, PsiClass]  = StubIndexKey.createIndexKey("sc.class.shortName")
   val FQN_KEY: StubIndexKey[java.lang.Integer, PsiClass]  = StubIndexKey.createIndexKey("sc.class.fqn")
   val PACKAGE_OBJECT_KEY: StubIndexKey[java.lang.Integer, PsiClass]  = StubIndexKey.createIndexKey("sc.package.object.fqn")
   val PACKAGE_FQN_KEY: StubIndexKey[java.lang.Integer, ScPackageContainer]  = StubIndexKey.createIndexKey("sc.package.fqn")
   val METHOD_NAME_KEY: StubIndexKey[String, ScFunction] = StubIndexKey.createIndexKey("sc.method.name")
   val CLASS_NAME_IN_PACKAGE_KEY: StubIndexKey[String, PsiClass] = StubIndexKey.createIndexKey("sc.class.name.in.package")
+  val JAVA_CLASS_NAME_IN_PACKAGE_KEY: StubIndexKey[String, PsiClass] = StubIndexKey.createIndexKey("sc.java.class.name.in.package")
   val IMPLICIT_OBJECT_KEY: StubIndexKey[String, PsiClass] = StubIndexKey.createIndexKey("sc.implcit.object")
   @deprecated
   val METHOD_NAME_TO_CLASS_KEY: StubIndexKey[String, ScTypeDefinition] = StubIndexKey.createIndexKey("sc.method.name.class")

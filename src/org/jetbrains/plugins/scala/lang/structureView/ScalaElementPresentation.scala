@@ -10,6 +10,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base._
 import psi.api.ScalaFile
 import com.intellij.openapi.project.IndexNotReadyException
 import psi.types.{ScSubstitutor, ScType}
+import extensions.toPsiNamedElementExt
 
 /**
 * @author Alexander Podkhalyuzin
@@ -20,7 +21,7 @@ object ScalaElementPresentation {
 
   //TODO refactor with name getters
 
-  def getFilePresentableText(file: ScalaFile): String = file.getName
+  def getFilePresentableText(file: ScalaFile): String = file.name
 
   def getPackagingPresentableText(packaging: ScPackaging): String = packaging.getPackageName
 
@@ -38,7 +39,7 @@ object ScalaElementPresentation {
   def getMethodPresentableText(function: ScFunction, short: Boolean = true,
                                subst: ScSubstitutor = ScSubstitutor.empty): String = {
     val presentableText: StringBuffer = new StringBuffer
-    presentableText.append(if (!function.isConstructor) function.getName else "this")
+    presentableText.append(if (!function.isConstructor) function.name else "this")
 
     function.typeParametersClause match {
       case Some(clause) => presentableText.append(clause.getText)

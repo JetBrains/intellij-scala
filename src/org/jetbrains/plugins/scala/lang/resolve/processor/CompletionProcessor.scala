@@ -12,6 +12,7 @@ import psi.ScalaPsiUtil
 import caches.CachesUtil
 import psi.api.statements.ScFunction
 import psi.types.{ScType, PhysicalSignature, Signature, ScSubstitutor}
+import extensions.toPsiNamedElementExt
 
 
 class CompletionProcessor(override val kinds: Set[ResolveTargets.Value],
@@ -24,7 +25,7 @@ class CompletionProcessor(override val kinds: Set[ResolveTargets.Value],
 
   def execute(element: PsiElement, state: ResolveState): Boolean = {
     forName match {
-      case Some(name) if element.isInstanceOf[PsiNamedElement] && element.asInstanceOf[PsiNamedElement].getName != name => return true
+      case Some(name) if element.isInstanceOf[PsiNamedElement] && element.asInstanceOf[PsiNamedElement].name != name => return true
       case _ =>
     }
     lazy val substitutor: ScSubstitutor = {
@@ -57,7 +58,7 @@ class CompletionProcessor(override val kinds: Set[ResolveTargets.Value],
 
     element match {
       case fun: ScFunction if fun.isConstructor => return true//do not add constructor
-      case td: ScTypeDefinition if !names.contains(Tuple(td.getName, false)) => {
+      case td: ScTypeDefinition if !names.contains(Tuple(td.name, false)) => {
         if (kindMatches(td)) {
           val result = new ScalaResolveResult(td, substitutor, nameShadow = isRenamed,
             implicitFunction = implFunction, fromType = fromType)
@@ -87,7 +88,7 @@ class CompletionProcessor(override val kinds: Set[ResolveTargets.Value],
               }
             }
             case bindingPattern: ScBindingPattern => {
-              val sign = new Signature(isRenamed.getOrElse(bindingPattern.getName), Stream.empty, 0,
+              val sign = new Signature(isRenamed.getOrElse(bindingPattern.name), Stream.empty, 0,
                 substitutor, Some(bindingPattern))
               if (!signatures.contains(sign)) {
                 signatures += sign
@@ -98,12 +99,12 @@ class CompletionProcessor(override val kinds: Set[ResolveTargets.Value],
               }
             }
             case _ => {
-              if (!names.contains((named.getName, isNamedParameter))) {
+              if (!names.contains((named.name, isNamedParameter))) {
                 val result = new ScalaResolveResult(named, substitutor, nameShadow = isRenamed,
                   implicitFunction = implFunction, isNamedParameter = isNamedParameter, fromType = fromType)
                 candidatesSet += result
                 postProcess(result)
-                names += Tuple(isRenamed.getOrElse(named.getName), isNamedParameter)
+                names += Tuple(isRenamed.getOrElse(named.name), isNamedParameter)
               }
             }
           }

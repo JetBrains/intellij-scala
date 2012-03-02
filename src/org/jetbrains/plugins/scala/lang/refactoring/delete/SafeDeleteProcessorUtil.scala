@@ -383,7 +383,7 @@ object SafeDeleteProcessorUtil {
         else if (element.isInstanceOf[PsiDocMethodOrFieldRef]) {
           if ((element.asInstanceOf[PsiDocMethodOrFieldRef]).getSignature != null) {
             @NonNls val newText: StringBuffer = new StringBuffer
-            newText.append("/** @see #").append(method.getName).append('(')
+            newText.append("/** @see #").append(method.name).append('(')
             val parameters: java.util.List[PsiParameter] = new ArrayList[PsiParameter](Arrays.asList(method.getParameterList.getParameters: _*))
             parameters.remove(parameter)
             newText.append(StringUtil.join(parameters, new Function[PsiParameter, String] {

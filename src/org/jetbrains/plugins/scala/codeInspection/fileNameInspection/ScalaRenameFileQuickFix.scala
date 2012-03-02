@@ -9,6 +9,7 @@ import java.lang.String
 import lang.psi.api.ScalaFile
 import com.intellij.refactoring.rename.RenameProcessor
 import com.intellij.openapi.application.{ApplicationManager, Application}
+import extensions.toPsiNamedElementExt
 
 /**
  * User: Alexander Podkhalyuzin
@@ -26,7 +27,7 @@ class ScalaRenameFileQuickFix(file: ScalaFile, name: String) extends LocalQuickF
     })
   }
 
-  def getName: String = "Rename File " + file.getName + " to " + name
+  def getName: String = "Rename File " + file.name + " to " + name
 
   def getFamilyName: String = "Rename File"
 }

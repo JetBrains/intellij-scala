@@ -27,6 +27,9 @@ import caches.CachesUtil
 import util.PsiModificationTracker
 import psi.impl.toplevel.synthetic.{ScSyntheticTypeParameter, ScSyntheticFunction}
 import java.lang.{ThreadLocal, String}
+import extensions.toPsiNamedElementExt
+import com.intellij.util.containers.ConcurrentHashMap
+import light.ScFunctionWrapper
 
 /**
  * @author Alexander Podkhalyuzin
@@ -38,8 +41,6 @@ trait ScFun extends ScTypeParametersOwner {
   def retType: ScType
 
   def paramClauses: Seq[Seq[Parameter]]
-
-  def typeParameters: Seq[ScTypeParam]
 
   def methodType: ScType = {
     paramClauses.foldRight[ScType](retType) {
@@ -115,7 +116,7 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
             var typeParamSubst = ScSubstitutor.empty
             fun.typeParameters.zip(typeParameters).foreach {
               case (oldParam: ScTypeParam, newParam: ScTypeParam) => {
-                typeParamSubst = typeParamSubst.bindT((oldParam.getName, ScalaPsiUtil.getPsiElementId(oldParam)),
+                typeParamSubst = typeParamSubst.bindT((oldParam.name, ScalaPsiUtil.getPsiElementId(oldParam)),
                   new ScTypeParameterType(newParam, subst))
               }
             }
@@ -124,7 +125,7 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
             var typeParamSubst = ScSubstitutor.empty
             fun.typeParameters.zip(typeParameters).foreach {
               case (oldParam: ScSyntheticTypeParameter, newParam: ScTypeParam) => {
-                typeParamSubst = typeParamSubst.bindT((oldParam.getName, ScalaPsiUtil.getPsiElementId(oldParam)),
+                typeParamSubst = typeParamSubst.bindT((oldParam.name, ScalaPsiUtil.getPsiElementId(oldParam)),
                   new ScTypeParameterType(newParam, subst))
               }
             }
@@ -133,7 +134,7 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
             var typeParamSubst = ScSubstitutor.empty
             fun.getTypeParameters.zip(typeParameters).foreach {
               case (oldParam: PsiTypeParameter, newParam: ScTypeParam) => {
-                typeParamSubst = typeParamSubst.bindT((oldParam.getName, ScalaPsiUtil.getPsiElementId(oldParam)),
+                typeParamSubst = typeParamSubst.bindT((oldParam.name, ScalaPsiUtil.getPsiElementId(oldParam)),
                   new ScTypeParameterType(newParam, subst))
               }
             }
@@ -321,10 +322,10 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
   def getGetterOrSetterFunction: Option[ScFunction] = {
     getContainingClass match {
       case clazz: ScTemplateDefinition => {
-        if (getName.endsWith("_=")) {
-          clazz.functions.find(_.getName == getName.substring(0, getName.length - 2))
+        if (name.endsWith("_=")) {
+          clazz.functions.find(_.name == name.substring(0, name.length - 2))
         } else if (!hasParameterClause) {
-          clazz.functions.find(_.getName == getName + "_=")
+          clazz.functions.find(_.name == name + "_=")
         } else None
       }
       case _ => None
@@ -332,7 +333,7 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
   }
 
   /**
-   * physical getContainingClass.
+   * Physical getContainingClass.
    */
   def containingClass: Option[ScTemplateDefinition] = {
     var parent = getParent
@@ -369,6 +370,20 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
       paramClauses.addClause(newClause)
     }
     this
+  }
+
+  private var functionWrapper: ConcurrentHashMap[(Boolean, Boolean, Option[PsiClass]), (ScFunctionWrapper, Long)] =
+    new ConcurrentHashMap()
+
+  def getFunctionWrapper(isStatic: Boolean, isInterface: Boolean, cClass: Option[PsiClass] = None): ScFunctionWrapper = {
+    val curModCount = getManager.getModificationTracker.getOutOfCodeBlockModificationCount
+    val r = functionWrapper.get(isStatic, isInterface, cClass)
+    if (r != null && r._2 == curModCount) {
+      return r._1
+    }
+    val res = new ScFunctionWrapper(this, isStatic, isInterface, cClass)
+    functionWrapper.put((isStatic, isInterface, cClass), (res, curModCount))
+    res
   }
 }
 

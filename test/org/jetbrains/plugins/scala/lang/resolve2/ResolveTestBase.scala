@@ -8,6 +8,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinitio
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
 import java.lang.String
 import com.intellij.psi.{PsiNamedElement, PsiReference, PsiElement}
+import org.jetbrains.plugins.scala.extensions.toPsiNamedElementExt
 
 /**
  * Pavel.Fatin, 02.02.2010
@@ -137,7 +138,7 @@ abstract class ResolveTestBase extends ScalaResolveTestCase {
       }
 
       val expectedName = if (options.contains(Name)) options(Name) else referenceName
-      assertEquals(Name, expectedName, target.asInstanceOf[PsiNamedElement].getName)
+      assertEquals(Name, expectedName, target.asInstanceOf[PsiNamedElement].name)
 
       if (options.contains(Line)) {
         assertEquals(Line, options(Line).toInt, lineOf(target))

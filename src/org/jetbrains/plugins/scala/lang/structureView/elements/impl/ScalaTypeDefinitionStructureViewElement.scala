@@ -21,7 +21,7 @@ import _root_.scala.collection.mutable._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.lang.psi.api.base._
-import extensions.toPsiClassExt
+import extensions.{toPsiNamedElementExt, toPsiClassExt}
 
 /**
 * @author Alexander Podkhalyuzin
@@ -67,7 +67,7 @@ class ScalaTypeDefinitionStructureViewElement(private val element: ScTypeDefinit
         sign match {
           case sign: PhysicalSignature => {
             sign.method match {
-              case x if x.getName == "$tag" || x.getName == "$init$" =>
+              case x if x.name == "$tag" || x.name == "$init$" =>
               case x if x.getContainingClass.qualifiedName == "java.lang.Object" =>
               case x if x.getContainingClass == clazz =>
               case x: ScFunction => children += new ScalaFunctionStructureViewElement(x, true)

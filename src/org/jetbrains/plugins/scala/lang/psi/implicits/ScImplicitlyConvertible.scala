@@ -23,6 +23,7 @@ import params.{ScClassParameter, ScParameter, ScTypeParam}
 import psi.impl.ScalaPsiManager
 import api.toplevel.templates.{ScExtendsBlock, ScTemplateBody}
 import lang.resolve.{ResolveUtils, StdKinds, ScalaResolveResult}
+import extensions.toPsiClassExt
 
 /**
  * @author ilyas
@@ -274,14 +275,14 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
             var uSubst = Conformance.undefinedSubst(newSubst.subst(tp), typez)
             //todo: improve it to make it right
             val removeTParametersSubst = new ScSubstitutor(f.typeParameters.map((param: ScTypeParam) => {
-              ((param.getName, ScalaPsiUtil.getPsiElementId(param)), ScExistentialArgument("_", List.empty, Nothing, Any))
+              ((param.name, ScalaPsiUtil.getPsiElementId(param)), ScExistentialArgument("_", List.empty, Nothing, Any))
             }).toMap, Map.empty, None)
             for (tParam <- f.typeParameters) {
               val lowerType: ScType = tParam.lowerBound.getOrNothing
-              if (lowerType != Nothing) uSubst = uSubst.addLower((tParam.getName, ScalaPsiUtil.getPsiElementId(tParam)),
+              if (lowerType != Nothing) uSubst = uSubst.addLower((tParam.name, ScalaPsiUtil.getPsiElementId(tParam)),
                 removeTParametersSubst.subst(subst.subst(lowerType)))
               val upperType: ScType = tParam.upperBound.getOrAny
-              if (upperType != Any) uSubst = uSubst.addUpper((tParam.getName, ScalaPsiUtil.getPsiElementId(tParam)),
+              if (upperType != Any) uSubst = uSubst.addUpper((tParam.name, ScalaPsiUtil.getPsiElementId(tParam)),
                 removeTParametersSubst.subst(subst.subst(upperType)))
             }
             //todo: pass implicit parameters
@@ -372,7 +373,7 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
    */
   def inferMethodTypesArgs(fun: ScFunction, classSubst: ScSubstitutor) = {
     fun.typeParameters.foldLeft(ScSubstitutor.empty) {
-      (subst, tp) => subst.bindT((tp.getName, ScalaPsiUtil.getPsiElementId(tp)),
+      (subst, tp) => subst.bindT((tp.name, ScalaPsiUtil.getPsiElementId(tp)),
         ScUndefinedType(new ScTypeParameterType(tp: ScTypeParam, classSubst)))
     }
   }

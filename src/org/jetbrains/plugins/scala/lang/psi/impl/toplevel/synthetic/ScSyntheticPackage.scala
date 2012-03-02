@@ -5,11 +5,8 @@ package impl
 package toplevel
 package synthetic
 
-import caches.ScalaCachesManager
-import java.util.ArrayList
 import api.toplevel.packaging.ScPackageContainer
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.impl.light.LightElement
 import com.intellij.psi.search.GlobalSearchScope
@@ -19,18 +16,14 @@ import stubs.index.ScalaIndexKeys
 import com.intellij.psi._
 import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.util.IncorrectOperationException
-import com.intellij.openapi.diagnostic.Logger
-import collection.JavaConversions
-import collection.mutable.{ArrayBuffer, HashSet}
-import com.intellij.psi.util.PsiUtilBase
-import com.intellij.util.indexing.FileBasedIndex
+import collection.mutable.HashSet
 import lang.resolve.processor.BaseProcessor
 import api.toplevel.typedef.ScClass
+import extensions.toPsiNamedElementExt
 
 /**
  * @author ilyas
  */
-
 abstract class ScSyntheticPackage(name: String, manager: PsiManager)
         extends LightElement(manager, ScalaFileType.SCALA_LANGUAGE) with PsiPackage {
 
@@ -78,8 +71,6 @@ abstract class ScSyntheticPackage(name: String, manager: PsiManager)
 
 
 object ScSyntheticPackage {
-  private var LOG: Logger = Logger.getInstance("#org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticPackage")
-
   def get(fqn: String, project: Project): ScSyntheticPackage = {
     val i = fqn.lastIndexOf(".")
     val name = if (i < 0) fqn else fqn.substring(i + 1)
@@ -101,7 +92,7 @@ object ScSyntheticPackage {
         val pname = if (i < 0) "" else fqn.substring(0, i)
         new ScSyntheticPackage(name, PsiManager.getInstance(project)) {
           def containsClassNamed(name: String): Boolean = {
-            getClasses.find(_.getName == name) != None
+            getClasses.find(_.name == name) != None
           }
 
           def getQualifiedName = fqn

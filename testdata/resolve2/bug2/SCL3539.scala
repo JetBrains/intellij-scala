@@ -8,9 +8,9 @@ object Z {
 }
 
 class G extends /* line: 1 */Z("") {
-  new /* line: 2, applicable: false */Z("")
+  new /* line: 2, applicable: false, name: this */Z("")
 }
 
 object G {
-  new /* line: 2, applicable: false */Z("")
+  new /* line: 2, applicable: false, name: this */Z("")
 }

@@ -8,11 +8,15 @@ import impl.toplevel.synthetic.ScSyntheticClass
 import nonvalue.NonValueType
 import com.intellij.psi._
 import com.intellij.psi.search.GlobalSearchScope
+import impl.source.PsiImmediateClassType
 import result.{Failure, Success, TypingContext}
 import com.intellij.openapi.project.Project
 import api.toplevel.typedef.ScObject
 import api.statements._
 import extensions.toPsiClassExt
+import light.PsiClassWrapper
+import com.intellij.pom.java.LanguageLevel
+import com.intellij.psi.PsiClassType.ClassResolveResult
 
 trait ScTypePsiTypeBridge {
   /**
@@ -40,6 +44,10 @@ trait ScTypePsiTypeBridge {
             }
             val tps = clazz.getTypeParameters
             def constructTypeForClass(clazz: PsiClass): ScType = {
+              clazz match {
+                case wrapper: PsiClassWrapper => return constructTypeForClass(wrapper.definition)
+                case _ =>
+              }
               val containingClass: PsiClass = clazz.getContainingClass
               if (containingClass == null) {
                 ScDesignatorType(clazz)
@@ -100,20 +108,29 @@ trait ScTypePsiTypeBridge {
     }
   }
 
-  def toPsi(t: ScType, project: Project, scope: GlobalSearchScope): PsiType = {
+  def toPsi(t: ScType, project: Project, scope: GlobalSearchScope, noPrimitives: Boolean = false): PsiType = {
     if (t.isInstanceOf[NonValueType]) return toPsi(t.inferValueType, project, scope)
     def javaObj = JavaPsiFacade.getInstance(project).getElementFactory.createTypeByFQClassName("java.lang.Object", scope)
     t match {
-      case Unit => PsiType.VOID
-      case Boolean => PsiType.BOOLEAN
-      case Char => PsiType.CHAR
-      case Int => PsiType.INT
-      case Long => PsiType.LONG
-      case Float => PsiType.FLOAT
-      case Double => PsiType.DOUBLE
-      case Byte => PsiType.BYTE
-      case Short => PsiType.SHORT
-      case Null => PsiType.NULL
+      case Any => javaObj
+      case AnyRef => javaObj
+      case Unit => if (noPrimitives) javaObj else PsiType.VOID
+      case Boolean => if (noPrimitives) javaObj else PsiType.BOOLEAN
+      case Char => if (noPrimitives) javaObj else PsiType.CHAR
+      case Int => if (noPrimitives) javaObj else PsiType.INT
+      case Long => if (noPrimitives) javaObj else PsiType.LONG
+      case Float => if (noPrimitives) javaObj else PsiType.FLOAT
+      case Double => if (noPrimitives) javaObj else PsiType.DOUBLE
+      case Byte => if (noPrimitives) javaObj else PsiType.BYTE
+      case Short => if (noPrimitives) javaObj else PsiType.SHORT
+      case Null =>
+        /*val nullClazz = JavaPsiFacade.getInstance(project).findClass("scala.runtime.Null$", scope)
+        new PsiImmediateClassType(nullClazz, PsiSubstitutor.EMPTY)*/
+        javaObj
+      case Nothing =>
+        /*val nullClazz = JavaPsiFacade.getInstance(project).findClass("scala.runtime.Nothing$", scope)
+        new PsiImmediateClassType(nullClazz, PsiSubstitutor.EMPTY)*/
+        javaObj
       case fun: ScFunctionType => fun.resolveFunctionTrait(project) match {
         case Some(tp) => toPsi(tp, project, scope) case _ => javaObj
       }
@@ -127,7 +144,7 @@ trait ScTypePsiTypeBridge {
           new PsiArrayType(toPsi(args(0), project, scope))
         else {
           val subst = args.zip(c.getTypeParameters).foldLeft(PsiSubstitutor.EMPTY)
-                    {case (s, (targ, tp)) => s.put(tp, toPsi(targ, project, scope))}
+                    {case (s, (targ, tp)) => s.put(tp, toPsi(targ, project, scope, true))}
           JavaPsiFacade.getInstance(project).getElementFactory.createType(c, subst)
         }
       case ScParameterizedType(proj@ScProjectionType(pr, element, subst), args) => proj.actualElement match {
@@ -141,7 +158,7 @@ trait ScTypePsiTypeBridge {
         case a: ScTypeAliasDefinition =>
           a.aliasedType(TypingContext.empty) match {
             case Success(c: ScParameterizedType, _) =>
-              toPsi(c.copy(typeArgs = args), project, scope)
+              toPsi(c.copy(typeArgs = args), project, scope, noPrimitives)
             case _ => javaObj
           }
         case _ => javaObj
@@ -160,7 +177,7 @@ trait ScTypePsiTypeBridge {
         }
         case elem: ScTypeAliasDefinition => {
           elem.aliasedType(TypingContext.empty) match {
-            case Success(t, _) => toPsi(t, project, scope)
+            case Success(t, _) => toPsi(t, project, scope, noPrimitives)
             case Failure(_, _) => javaObj
           }
         }
@@ -168,6 +185,17 @@ trait ScTypePsiTypeBridge {
       }
       case tpt: ScTypeParameterType =>
         EmptySubstitutor.getInstance().substitute(tpt.param)
+      case argument: ScExistentialArgument =>
+        val upper = argument.upperBound
+        if (upper.equiv(Any)) {
+          val lower = argument.lowerBound
+          if (lower.equiv(Nothing)) PsiWildcardType.createUnbounded(PsiManager.getInstance(project))
+          else {
+            PsiWildcardType.createSuper(PsiManager.getInstance(project), toPsi(lower, project, scope))
+          }
+        } else {
+          PsiWildcardType.createExtends(PsiManager.getInstance(project), toPsi(upper, project, scope))
+        }
       case _ => javaObj
     }
   }

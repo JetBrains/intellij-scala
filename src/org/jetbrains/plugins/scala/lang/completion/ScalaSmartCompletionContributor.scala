@@ -27,7 +27,7 @@ import com.intellij.util.{Processor, ProcessingContext}
 import com.intellij.codeInsight.lookup._
 import org.jetbrains.plugins.scala.icons.Icons
 import collection.mutable.{HashSet, ArrayBuffer}
-import org.jetbrains.plugins.scala.extensions.toPsiClassExt
+import org.jetbrains.plugins.scala.extensions.{toPsiNamedElementExt, toPsiClassExt}
 
 /**
  * User: Alexander Podkhalyuzin
@@ -474,7 +474,7 @@ private[completion] object ScalaSmartCompletionContributor {
         case _ =>
       }
       var tailText: String = ""
-      val itemText: String = psiClass.getName + (tp match {
+      val itemText: String = psiClass.name + (tp match {
         case ScParameterizedType(_, tps) =>
           tps.map(tp => ScType.presentableText(subst.subst(tp))).mkString("[", ", ", "]")
         case _ => ""
@@ -500,7 +500,7 @@ private[completion] object ScalaSmartCompletionContributor {
   def getLookupElementFromTypeAndClass(tp: ScType, psiClass: PsiClass, subst: ScSubstitutor,
                                 renderer: (ScType, PsiClass, ScSubstitutor) => LookupElementRenderer[LookupElement],
                                 insertHandler: InsertHandler[LookupElement]): LookupElement = {
-    val name: String = psiClass.getName
+    val name: String = psiClass.name
     var lookupBuilder: LookupElementBuilder = LookupElementBuilder.create(psiClass, name)
     lookupBuilder = lookupBuilder.setRenderer(renderer(tp, psiClass, subst))
     var lookupElement: LookupElement = lookupBuilder
@@ -548,7 +548,7 @@ private[completion] object ScalaSmartCompletionContributor {
       case Some((clazz, subst)) =>
         ClassInheritorsSearch.search(clazz, true).forEach(new Processor[PsiClass] {
           def process(clazz: PsiClass): Boolean = {
-            if (clazz.getName == null || clazz.getName == "") return true
+            if (clazz.name == null || clazz.name == "") return true
             val undefines: Seq[ScUndefinedType] = clazz.getTypeParameters.map(ptp =>
               new ScUndefinedType(new ScTypeParameterType(ptp, ScSubstitutor.empty))
             )

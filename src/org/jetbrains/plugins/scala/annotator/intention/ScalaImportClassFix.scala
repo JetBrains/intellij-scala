@@ -41,6 +41,7 @@ import search.PsiShortNamesCache
 import lang.scaladoc.psi.api.ScDocResolvableCodeReference
 import lang.psi.impl.ScalaPsiElementFactory
 import extensions.{toPsiClassExt, inWriteAction}
+import caches.ScalaShortNamesCacheManager
 
 /**
  * User: Alexander Podkhalyuzin
@@ -264,7 +265,7 @@ object ScalaImportClassFix {
   def getClasses(ref: ScReferenceElement, myProject: Project): Array[PsiClass] = {
     if (!ref.isValid) return Array.empty
     val kinds = ref.getKinds(false)
-    val cache = PsiShortNamesCache.getInstance(myProject)
+    val cache = ScalaShortNamesCacheManager.getInstance(myProject)
     val classes = cache.getClassesByName(ref.refName, ref.getResolveScope)
     val buffer = new ArrayBuffer[PsiClass]
     for (clazz <- classes) {

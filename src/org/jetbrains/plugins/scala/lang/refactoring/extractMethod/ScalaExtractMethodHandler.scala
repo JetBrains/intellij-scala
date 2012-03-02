@@ -28,6 +28,7 @@ import psi.api.statements.{ScFunction, ScFunctionDefinition}
 import psi.api.{ScalaElementVisitor, ScalaRecursiveElementVisitor, ScalaFile}
 import psi.api.base.patterns.ScCaseClause
 import psi.types.result.TypingContext
+import org.jetbrains.plugins.scala.extensions.toPsiNamedElementExt
 
 /**
  * User: Alexander Podkhalyuzin
@@ -243,7 +244,7 @@ class ScalaExtractMethodHandler extends RefactoringActionHandler {
     val processor = new CompletionProcessor(StdKinds.refExprLastRef)
     PsiTreeUtil.treeWalkUp(processor, element, null, ResolveState.initial)
     val allNames = new HashSet[String]()
-    allNames ++= processor.candidatesS.map(rr => rr.element.getName)
+    allNames ++= processor.candidatesS.map(rr => rr.element.name)
     def generateFreshName(s: String): String = {
       var freshName = s
       var count = 0

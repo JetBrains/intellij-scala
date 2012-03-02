@@ -48,7 +48,7 @@
     <errorHandler implementation="com.intellij.diagnostic.ITNReporter"/>
     <fileTypeFactory implementation="org.jetbrains.plugins.scala.ScalaFileTypeFactory"/>
     <syntaxHighlighter key="Scala" implementationClass="org.jetbrains.plugins.scala.highlighter.ScalaSyntaxHighlighter"/>
-    <treeStructureProvider implementation="org.jetbrains.plugins.scala.components.ScalaDefsProjectViewProvider"/>
+    <treeStructureProvider implementation="org.jetbrains.plugins.scala.components.ScalaDefsProjectViewProvider" order="last"/>
     <lang.braceMatcher language="Scala" implementationClass="org.jetbrains.plugins.scala.highlighter.ScalaBraceMatcher"/>
     <lang.parserDefinition language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.parser.ScalaParserDefinition"/>
     <lang.commenter language="Scala" implementationClass="org.jetbrains.plugins.scala.highlighter.ScalaCommenter"/>
@@ -111,7 +111,7 @@
     <lang.documentationProvider language="Scala" implementationClass="org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocumentationProvider"/>
     <renamePsiElementProcessor implementation="org.jetbrains.plugins.scala.lang.refactoring.rename.RenameScalaMethodProcessor" order="first"/>
     <renamePsiElementProcessor implementation="org.jetbrains.plugins.scala.lang.refactoring.rename.RenameScalaValsProcessor" order="first"/>
-    <renamePsiElementProcessor implementation="org.jetbrains.plugins.scala.lang.refactoring.rename.RenameFakeMethodProcessor" order="first"/>
+    <renamePsiElementProcessor implementation="org.jetbrains.plugins.scala.lang.refactoring.rename.RenameLightProcessor" order="first"/>
     <renamePsiElementProcessor implementation="org.jetbrains.plugins.scala.lang.refactoring.rename.RenameScalaClassProcessor" order="first"/>
     <renamePsiElementProcessor implementation="org.jetbrains.plugins.scala.lang.refactoring.rename.RenameScalaSyntheticParamProcessor" order="first"/>
     <nameSuggestionProvider implementation="org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.ScalaNameSuggestionProvider"/>
@@ -128,6 +128,7 @@
     <typeDeclarationProvider implementation="org.jetbrains.plugins.scala.annotator.gutter.ScalaGotoTypeDeclarationProvider"/>
     <highlightVisitor implementation="org.jetbrains.plugins.scala.annotator.ScalaAnnotatorHighlightVisitor"/>
     <commentCompleteHandler implementation="org.jetbrains.plugins.scala.lang.scaladoc.ScalaIsCommentComplete"/>
+    <elementDescriptionProvider implementation="org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.ScalaClassElementDescriptionProvider"/>
 
     <!--Enter Handler for ScalaDoc Param comments-->
     <enterHandlerDelegate implementation="org.jetbrains.plugins.scala.lang.completion.handlers.ScalaDocParamInsertHandler"/>
@@ -138,11 +139,13 @@
     <javaMainMethodProvider implementation="org.jetbrains.plugins.scala.runner.ScalaMainMethodProvider"/>
     <annotatedElementsSearch implementation="org.jetbrains.plugins.scala.lang.psi.impl.search.ScalaAnnotatedMembersSearcher"/>
     <referencesSearch implementation="org.jetbrains.plugins.scala.findUsages.parameters.NamingParamsSearcher"/>
+    <referencesSearch implementation="org.jetbrains.plugins.scala.findUsages.typeDef.ObjectTraitReferenceSearcher"/>
     <referencesSearch implementation="org.jetbrains.plugins.scala.findUsages.apply.ApplyMethodSearcher"/>
     <referencesSearch implementation="org.jetbrains.plugins.scala.findUsages.apply.UnapplyMethodSearcher"/>
     <referencesSearch implementation="org.jetbrains.plugins.scala.findUsages.vals.JavaValsUsagesSearcher"/>
+    <referencesSearch implementation="org.jetbrains.plugins.scala.findUsages.function.JavaFunctionUsagesSearcher"/>
     <methodReferencesSearch implementation="org.jetbrains.plugins.scala.findUsages.NonMemberMethodUsagesSearcher"/>
-    <findUsagesHandlerFactory implementation="org.jetbrains.plugins.scala.findUsages.factory.ScalaFindUsagesHandlerFactory"/>
+    <findUsagesHandlerFactory implementation="org.jetbrains.plugins.scala.findUsages.factory.ScalaFindUsagesHandlerFactory" order="first"/>
 
     <codeInsight.parameterInfo language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.parameterInfo.ScalaFunctionParameterInfoHandler"/>
     <codeInsight.parameterInfo language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.parameterInfo.ScalaPatternParameterInfoHandler"/>
@@ -162,6 +165,7 @@
 
     <java.elementFinder implementation="org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticClasses"/>
     <java.elementFinder implementation="org.jetbrains.plugins.scala.finder.ScalaClassFinder" order="first"/>
+    <java.elementFinder implementation="org.jetbrains.plugins.scala.finder.ScalaPackageFinder" order="first"/>
     <java.shortNamesCache implementation="org.jetbrains.plugins.scala.caches.ScalaShortNamesCache"/>
     <typeHierarchyProvider language="Scala" implementationClass="org.jetbrains.plugins.scala.hierarchy.ScalaTypeHierarchyProvider"/>
     <methodHierarchyProvider language="Scala" implementationClass="org.jetbrains.plugins.scala.hierarchy.ScalaMethodHierarchyProvider"/>
@@ -187,12 +191,15 @@
     <configurationProducer implementation="org.jetbrains.plugins.scala.testingSupport.specs.SpecsConfigurationProducer"/>
     <configurationProducer implementation="org.jetbrains.plugins.scala.testingSupport.specs2.Specs2ConfigurationProducer"/>
     <configurationProducer implementation="org.jetbrains.plugins.scala.testingSupport.scalaTest.ScalaTestConfigurationProducer"/>
+    <configurationProducer implementation="org.jetbrains.plugins.scala.runner.ScalaApplicationConfigurationProducer"/>
 
     <stubElementTypeHolder class="org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes"/>
     <!--Stub indeces -->
+    <stubIndex implementation="org.jetbrains.plugins.scala.lang.psi.stubs.index.ScAllClassNamesIndex"/>
     <stubIndex implementation="org.jetbrains.plugins.scala.lang.psi.stubs.index.ScShortClassNameIndex"/>
     <stubIndex implementation="org.jetbrains.plugins.scala.lang.psi.stubs.index.ScFullClassNameIndex"/>
     <stubIndex implementation="org.jetbrains.plugins.scala.lang.psi.stubs.index.ScClassNameInPackageIndex"/>
+    <stubIndex implementation="org.jetbrains.plugins.scala.lang.psi.stubs.index.ScJavaClassNameInPackageIndex"/>
     <stubIndex implementation="org.jetbrains.plugins.scala.lang.psi.stubs.index.ScImplicitObjectKey"/>
     <stubIndex implementation="org.jetbrains.plugins.scala.lang.psi.stubs.index.ScImplicitsKey"/>
     <stubIndex implementation="org.jetbrains.plugins.scala.lang.psi.stubs.index.ScPackageObjectIndex"/>
@@ -474,7 +481,7 @@
       <implementation-class>org.jetbrains.plugins.scala.codeInspection.unusedInspections.ScalaUnusedSymbolPassFactory</implementation-class>
     </component>
     <component>
-      <implementation-class>org.jetbrains.plugins.scala.caches.ScalaCachesManager</implementation-class>
+      <implementation-class>org.jetbrains.plugins.scala.caches.ScalaShortNamesCacheManager</implementation-class>
     </component>
     <component>
       <implementation-class>org.jetbrains.plugins.scala.components.CompilerProjectComponent</implementation-class>

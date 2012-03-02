@@ -28,7 +28,7 @@ extends ScStubElementType[ScValueStub, ScValue](debugName) {
       else psi.asInstanceOf[ScPatternDefinition].pList.getText
     val isImplicit = psi.hasModifierProperty("implicit")
     new ScValueStubImpl[ParentPsi](parentStub, this,
-      (for (elem <- psi.declaredElements) yield elem.getName).toArray, isDecl, typeText, bodyText, containerText,
+      (for (elem <- psi.declaredElements) yield elem.name).toArray, isDecl, typeText, bodyText, containerText,
       isImplicit)
   }
 

@@ -17,6 +17,7 @@ import collection.Seq
 import result.{Success, TypeResult, TypingContext}
 import api.ScalaElementVisitor
 import com.intellij.psi.{PsiElementVisitor, PsiParameter, PsiMethod, PsiTypeParameter}
+import extensions.toPsiNamedElementExt
 
 /**
  * @author Alexander Podkhalyuzin
@@ -47,7 +48,7 @@ class ScInfixExprImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScIn
         case ScalaResolveResult(method: PsiMethod, s: ScSubstitutor) => {
           val subst = if (method.getTypeParameters.length != 0) {
             val subst = method.getTypeParameters.foldLeft(ScSubstitutor.empty) {
-              (subst, tp) => subst.bindT((tp.getName, ScalaPsiUtil.getPsiElementId(tp)), ScUndefinedType(tp match {
+              (subst, tp) => subst.bindT((tp.name, ScalaPsiUtil.getPsiElementId(tp)), ScUndefinedType(tp match {
                 case tp: ScTypeParam => new ScTypeParameterType(tp: ScTypeParam, s)
                 case tp: PsiTypeParameter => new ScTypeParameterType(tp, s)
               }))
@@ -88,7 +89,7 @@ class ScInfixExprImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScIn
   protected override def innerType(ctx: TypingContext): TypeResult[ScType] = {
     operation.bind() match {
       //this is assignment statement: x += 1 equals to x = x + 1
-      case Some(r) if r.element.getName + "=" == operation.refName => 
+      case Some(r) if r.element.name + "=" == operation.refName =>
         super.innerType(ctx)
         Success(Unit, Some(this))
       case _ => super.innerType(ctx)

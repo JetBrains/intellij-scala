@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
 import _root_.scala.collection.mutable.ArrayBuffer
 import result.TypingContext
 import util.{NameValidator, ScalaNamesUtil}
-import extensions.toPsiClassExt
+import extensions.{toPsiNamedElementExt, toPsiClassExt}
 
 /**
 * User: Alexander.Podkhalyuz
@@ -87,7 +87,7 @@ object NameSuggester {
       case ScFunctionType(ret, params) if params.length == 0 => generateNamesByType(ret)
       case ScFunctionType(ret, params) => add("function");
       case ScDesignatorType(e) => {
-        val name = e.getName
+        val name = e.name
         if (name != null && name.toUpperCase == name) {
           add(deleteNonLetterFromString(name).toLowerCase)
         } else if (name == "String") {
@@ -97,7 +97,7 @@ object NameSuggester {
         }
       }
       case ScProjectionType(p, e, s) => {
-        val name = e.getName
+        val name = e.name
         if (name != null && name.toUpperCase == name) {
           add(deleteNonLetterFromString(name).toLowerCase)
         } else if (name == "String") {
@@ -115,7 +115,7 @@ object NameSuggester {
           case ScTupleType(_) => s = "Tuples"
           case ScFunctionType(_,_) => s = "Functions"
           case ScDesignatorType(e) => {
-            val seq: Seq[String] = getCamelNames(e.getName)
+            val seq: Seq[String] = getCamelNames(e.name)
             if (seq.length > 0) {
               s = seq(seq.length - 1).substring(0,1).toUpperCase + seq(seq.length - 1).substring(1, seq(seq.length - 1).length) + "s" 
             }
@@ -135,7 +135,7 @@ object NameSuggester {
           case ScTupleType(_) => s = "Tuples"
           case ScFunctionType(_,_) => s = "Functions"
           case ScDesignatorType(e) => {
-            val seq: Seq[String] = getCamelNames(e.getName)
+            val seq: Seq[String] = getCamelNames(e.name)
             if (seq.length > 0) {
               s = seq(seq.length - 1).substring(0,1).toUpperCase + seq(seq.length - 1).substring(1, seq(seq.length - 1).length) + "s"
             }

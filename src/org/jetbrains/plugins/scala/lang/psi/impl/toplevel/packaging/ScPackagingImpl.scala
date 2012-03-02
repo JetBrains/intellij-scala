@@ -19,8 +19,8 @@ import api.toplevel.typedef.ScTypeDefinition
 import search.GlobalSearchScope
 import tree.TokenSet
 import collection.mutable.ArrayBuffer
-import caches.ScalaCachesManager
 import com.intellij.openapi.project.DumbService
+import caches.ScalaShortNamesCacheManager
 
 /**
  * @author Alexander Podkhalyuzin, Pavel Fatin
@@ -139,9 +139,7 @@ class ScPackagingImpl extends ScalaStubBasedElementImpl[ScPackageContainer] with
   }
   
   def findPackageObject(scope: GlobalSearchScope): Option[ScTypeDefinition] = {
-    val manager = ScalaCachesManager.getInstance(getProject)
-    val cache = manager.getNamesCache
-    Option(cache.getPackageObjectByName(getPackageName, scope))
+    Option(ScalaShortNamesCacheManager.getInstance(getProject).getPackageObjectByName(getPackageName, scope))
   }
 
 

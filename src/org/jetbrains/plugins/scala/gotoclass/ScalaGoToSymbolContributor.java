@@ -12,6 +12,7 @@ import org.jetbrains.plugins.scala.finder.ScalaSourceFilterScope;
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings;
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScValue;
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScVariable;
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement;
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody;
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys;
 
@@ -60,7 +61,9 @@ public class ScalaGoToSymbolContributor implements ChooseByNameContributor {
         for (PsiNamedElement elem : elems) {
           if (elem instanceof NavigationItem) {
             final NavigationItem navigationItem = (NavigationItem) elem;
-            if (name.equals(navigationItem.getName())) items.add(navigationItem);
+            String navigationItemName = navigationItem.getName();
+            if (navigationItem instanceof ScNamedElement) navigationItemName = ((ScNamedElement) navigationItem).name();
+            if (name.equals(navigationItemName)) items.add(navigationItem);
           }
         }
       }
@@ -72,7 +75,9 @@ public class ScalaGoToSymbolContributor implements ChooseByNameContributor {
         final PsiNamedElement[] elems = el.declaredElementsArray();
         for (PsiNamedElement elem : elems) {
           final NavigationItem navigationItem = (NavigationItem) elem;
-          if (name.equals(navigationItem.getName())) items.add(navigationItem);
+          String navigationItemName = navigationItem.getName();
+          if (navigationItem instanceof ScNamedElement) navigationItemName = ((ScNamedElement) navigationItem).name();
+          if (name.equals(navigationItemName)) items.add(navigationItem);
         }
       }
     }

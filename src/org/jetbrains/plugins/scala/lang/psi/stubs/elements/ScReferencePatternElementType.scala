@@ -19,7 +19,7 @@ import psi.impl.base.patterns.ScReferencePatternImpl
 class ScReferencePatternElementType[Func <: ScReferencePattern]
 extends ScStubElementType[ScReferencePatternStub, ScReferencePattern]("reference pattern") {
   def createStubImpl[ParentPsi <: PsiElement](psi: ScReferencePattern, parentStub: StubElement[ParentPsi]): ScReferencePatternStub = {
-    new ScReferencePatternStubImpl[ParentPsi](parentStub, this, psi.getName)
+    new ScReferencePatternStubImpl[ParentPsi](parentStub, this, psi.name)
   }
 
   def serialize(stub: ScReferencePatternStub, dataStream: StubOutputStream): Unit = {

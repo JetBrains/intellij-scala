@@ -28,7 +28,7 @@ extends ScStubElementType[ScParameterStub, ScParameter](debugName) {
     }
     val isCallByName = psi.isCallByNameParameter
     val defaultExprText = psi.getActualDefaultExpression.map(_.getText)
-    new ScParameterStubImpl[ParentPsi](parentStub, this, psi.getName, typeText, psi.isStable, psi.baseDefaultParam,
+    new ScParameterStubImpl[ParentPsi](parentStub, this, psi.name, typeText, psi.isStable, psi.baseDefaultParam,
       psi.isRepeatedParameter, isVal, isVar, isCallByName, defaultExprText)
   }
 
