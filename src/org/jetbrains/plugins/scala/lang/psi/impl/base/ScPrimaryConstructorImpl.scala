@@ -37,7 +37,7 @@ class ScPrimaryConstructorImpl extends ScalaStubBasedElementImpl[ScPrimaryConstr
   override def hasModifier: Boolean = false
 
   def getClassNameText: String = {
-    getNode.getTreeParent.getPsi.asInstanceOf[ScTypeDefinition].getName
+    getNode.getTreeParent.getPsi.asInstanceOf[ScTypeDefinition].name
   }
 
   override def toString: String = "PrimaryConstructor"
@@ -47,7 +47,7 @@ class ScPrimaryConstructorImpl extends ScalaStubBasedElementImpl[ScPrimaryConstr
     getStubOrPsiChild(ScalaElementTypes.PARAM_CLAUSES)
   }
 
-  override def getName: String = getContainingClass.getName
+  override def getName: String = getContainingClass.name
 
   def getNameIdentifier: PsiIdentifier = null
 

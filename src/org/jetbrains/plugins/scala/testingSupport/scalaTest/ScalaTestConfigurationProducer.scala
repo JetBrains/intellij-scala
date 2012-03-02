@@ -525,8 +525,8 @@ class ScalaTestConfigurationProducer extends {
       var fun = PsiTreeUtil.getParentOfType(element, classOf[ScFunctionDefinition], false)
       while (fun != null) {
         if (fun.getParent.isInstanceOf[ScTemplateBody] && fun.getContainingClass == clazz) {
-          if (fun.getName.startsWith("test")) {
-            return Some(fun.getName)
+          if (fun.name.startsWith("test")) {
+            return Some(fun.name)
           }
         }
         fun = PsiTreeUtil.getParentOfType(fun, classOf[ScFunctionDefinition], true)
@@ -540,7 +540,7 @@ class ScalaTestConfigurationProducer extends {
       while (fun != null) {
         if (fun.getParent.isInstanceOf[ScTemplateBody] && fun.getContainingClass == clazz) {
           if (fun.hasAnnotation(annot) != None) {
-            return Some(fun.getName)
+            return Some(fun.name)
           }
         }
         fun = PsiTreeUtil.getParentOfType(fun, classOf[ScFunctionDefinition], true)

@@ -21,12 +21,12 @@ import lang.parser.ScalaElementTypes
 import lang.psi.api.base.patterns.{ScPattern, ScCaseClause}
 import lang.psi.api.expr.{ScReferenceExpression, ScExpression, ScMatchStmt}
 import com.intellij.psi.util.PsiTreeUtil
-import extensions._
 import com.intellij.openapi.util.TextRange
 import lang.psi.impl.{ScalaFileImpl, ScalaPsiElementFactory}
 import com.intellij.psi.search.searches.{ClassInheritorsSearch, DirectClassInheritorsSearch}
 import com.intellij.psi._
 import lang.psi.api.base.{ScReferenceElement, ScStableCodeReferenceElement}
+import extensions._
 
 final class CreateCaseClausesIntention extends PsiElementBaseIntentionAction {
   def getFamilyName: String = "Pattern Matching"
@@ -61,7 +61,7 @@ final class CreateCaseClausesIntention extends PsiElementBaseIntentionAction {
     val enumConsts: Array[PsiEnumConstant] = cls.getFields.collect {
       case enumConstant: PsiEnumConstant => enumConstant
     }
-    val caseClauseTexts = enumConsts.map(ec => "case %s.%s =>".format(cls.getName, ec.getName))
+    val caseClauseTexts = enumConsts.map(ec => "case %s.%s =>".format(cls.name, ec.name))
     val newMatchStmt = ScalaPsiElementFactory.createMatch(expr.getText, caseClauseTexts, element.getManager)
     matchStmt.replace(newMatchStmt)
     bindReferences(newMatchStmt, (_ => cls))
@@ -79,7 +79,7 @@ final class CreateCaseClausesIntention extends PsiElementBaseIntentionAction {
   private def bindReference(caseClause: ScCaseClause, bindTo: PsiNamedElement) {
     val pattern: ScPattern = caseClause.pattern.get
     val ref = pattern.depthFirst.collect {
-      case x: ScReferenceElement if x.refName == bindTo.getName => x
+      case x: ScReferenceElement if x.refName == bindTo.name => x
     }.next()
     ref.bindToElement(bindTo)
   }
@@ -95,7 +95,7 @@ final class CreateCaseClausesIntention extends PsiElementBaseIntentionAction {
    * @return (caseClauseText, elementToBind)
    */
   private def caseClauseText(td: ScTypeDefinition): (String, PsiNamedElement) = {
-    val refText = td.getName
+    val refText = td.name
     val (pattern, bindTo) = td match {
       case obj: ScObject => (refText, obj)
       case cls: ScClass if cls.isCase =>
@@ -103,7 +103,7 @@ final class CreateCaseClausesIntention extends PsiElementBaseIntentionAction {
         val text = cls.constructor match {
           case Some(primaryConstructor) =>
             val parameters = primaryConstructor.effectiveFirstParameterSection
-            val bindings = parameters.map(_.getName).mkString("( ", ", ", ")")
+            val bindings = parameters.map(_.name).mkString("( ", ", ", ")")
             refText + bindings
           case None =>
             refText + "()"

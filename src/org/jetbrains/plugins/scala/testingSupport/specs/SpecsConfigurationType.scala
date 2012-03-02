@@ -64,7 +64,7 @@ class SpecsConfigurationType extends ConfigurationType {
       element.getResolveScope, ScalaPsiManager.ClassCategory.TYPE)
     if (suiteClazz == null) return null
     if (!ScalaPsiUtil.cachedDeepIsInheritor(parent, suiteClazz)) return null
-    val settings = RunManager.getInstance(location.getProject).createRunConfiguration(parent.getName, confFactory)
+    val settings = RunManager.getInstance(location.getProject).createRunConfiguration(parent.name, confFactory)
     val runConfiguration = settings.getConfiguration.asInstanceOf[SpecsRunConfiguration]
     val testClassPath = parent.qualifiedName
     runConfiguration.setTestClassPath(testClassPath)

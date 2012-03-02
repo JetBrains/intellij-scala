@@ -17,7 +17,7 @@ import psi.impl.ScalaPsiElementFactory
 import statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
 import expr.ScReferenceExpression
-import extensions.toPsiClassExt
+import extensions.{toPsiNamedElementExt, toPsiClassExt}
 
 /**
  * @author Alexander Podkhalyuzin
@@ -65,21 +65,21 @@ trait ScReferenceElement extends ScalaPsiElement with ResolvableReferenceElement
 
   def createReplacingElementWithClassName(useFullQualifiedName: Boolean, clazz: PsiClass): ScReferenceElement =
     ScalaPsiElementFactory.createReferenceFromText(
-      if (useFullQualifiedName) clazz.qualifiedName else clazz.getName, clazz.getManager)
+      if (useFullQualifiedName) clazz.qualifiedName else clazz.name, clazz.getManager)
 
   def isReferenceTo(element: PsiElement, resolved: PsiElement): Boolean = {
     if (ScEquivalenceUtil.smartEquivalence(resolved, element)) return true
     element match {
-      case td: ScTypeDefinition if td.getName == refName => {
+      case td: ScTypeDefinition if td.name == refName => {
         resolved match {
           case method: PsiMethod if method.isConstructor => {
             if (td == method.getContainingClass) return true
           }
-          case method: ScFunction if Set("apply", "unapply", "unapplySeq").contains(method.getName) => {
+          case method: ScFunction if Set("apply", "unapply", "unapplySeq").contains(method.name) => {
             var break = false
             val methods = td.allMethods
             for (n <- methods if !break) {
-              if (n.method.getName == method.getName) {
+              if (n.method.name == method.name) {
                 val methodContainingClass: ScTemplateDefinition = method.getContainingClass
                 val nodeMethodContainingClass: PsiClass = n.method.getContainingClass
                 val classesEquiv: Boolean = ScEquivalenceUtil.smartEquivalence(methodContainingClass, nodeMethodContainingClass)
@@ -106,7 +106,7 @@ trait ScReferenceElement extends ScalaPsiElement with ResolvableReferenceElement
           case _ =>
         }
       }
-      case c: PsiClass if c.getName == refName => {
+      case c: PsiClass if c.name == refName => {
         resolved match {
           case method: PsiMethod if method.isConstructor =>
             if (c == method.getContainingClass) return true

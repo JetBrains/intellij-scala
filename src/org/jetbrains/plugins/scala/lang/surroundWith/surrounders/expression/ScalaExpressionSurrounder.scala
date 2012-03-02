@@ -14,18 +14,11 @@ import com.intellij.lang.surroundWith.Surrounder
 import com.intellij.psi.{PsiElement, PsiWhiteSpace}
 import psi.impl.ScalaPsiElementFactory
 import psi.ScalaPsiUtil
-;
-import com.intellij.openapi.editor.Editor;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.TextRange;
-import com.intellij.openapi.diagnostic.Logger;
+import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.project.Project
 
 import com.intellij.openapi.util.TextRange
-import org.jetbrains.plugins.scala.util.DebugPrint
 import com.intellij.lang.ASTNode
-import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.Expr
-
-
 
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -34,7 +27,6 @@ import lang.psi.api.statements._
 /*
  * Surrounds an expression and return an expression
  */
-
 abstract class ScalaExpressionSurrounder extends Surrounder {
   def isApplicable(element : PsiElement) : Boolean = {
     element match {
@@ -87,7 +79,7 @@ abstract class ScalaExpressionSurrounder extends Surrounder {
         childNode.getTreeParent.removeChild(childNode)
       }
     }
-    return getSurroundSelectionRange(newNode);
+    getSurroundSelectionRange(newNode);
   }
 
   def getTemplateAsString(elements: Array[PsiElement]): String = {
@@ -95,7 +87,7 @@ abstract class ScalaExpressionSurrounder extends Surrounder {
     for (element <- elements) {
       s = s + element.getNode.getText
     }
-    return s
+    s
   }
 
   def getSurroundSelectionRange (node : ASTNode) : TextRange

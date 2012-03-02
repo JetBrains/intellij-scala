@@ -60,7 +60,7 @@ case class ScProjectionType(projected: ScType, element: PsiNamedElement, subst: 
     val emptySubst = new ScSubstitutor(Map.empty, Map.empty, Some(projected))
     element match {
       case a: ScTypeAlias => {
-        val name = a.getName
+        val name = a.name
         import ResolveTargets._
         val proc = new ResolveProcessor(ValueSet(CLASS), a, name)
         proc.processType(projected, a, ResolveState.initial, true)
@@ -72,7 +72,7 @@ case class ScProjectionType(projected: ScType, element: PsiNamedElement, subst: 
         }
       }
       case d: ScTypedDefinition if d.isStable => {
-        val name = d.getName
+        val name = d.name
         import ResolveTargets._
         val proc = new ResolveProcessor(ValueSet(VAL, OBJECT), d, name)
         proc.processType(projected, d, ResolveState.initial, true)
@@ -84,7 +84,7 @@ case class ScProjectionType(projected: ScType, element: PsiNamedElement, subst: 
         }
       }
       case d: ScTypeDefinition => {
-        val name = d.getName
+        val name = d.name
         import ResolveTargets._
         val proc = new ResolveProcessor(ValueSet(CLASS), d, name) //ScObject in ScTypedDefinition case.
         proc.processType(projected, d, ResolveState.initial, true)

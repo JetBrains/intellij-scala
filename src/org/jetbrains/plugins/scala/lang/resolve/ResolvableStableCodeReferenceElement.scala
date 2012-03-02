@@ -23,7 +23,7 @@ import caches.CachesUtil
 import psi.api.{ScPackage, ScalaFile}
 import psi.impl.ScalaPsiManager
 import scaladoc.psi.api.ScDocResolvableCodeReference
-import extensions.toPsiClassExt
+import extensions.{toPsiNamedElementExt, toPsiClassExt}
 
 trait ResolvableStableCodeReferenceElement extends ScStableCodeReferenceElement {
   private object Resolver extends StableCodeReferenceElementResolver(this, false, false, false)
@@ -148,13 +148,10 @@ trait ResolvableStableCodeReferenceElement extends ScStableCodeReferenceElement 
 
   private def candidatesFilter(result: ScalaResolveResult) = {
     result.element match {
-      case c: PsiClass if c.getName == c.qualifiedName => c.getContainingFile match {
+      case c: PsiClass if c.name == c.qualifiedName => c.getContainingFile match {
         case s: ScalaFile => true // scala classes are available from default package
         // Other classes from default package are available only for top-level Scala statements
-        case _ => PsiTreeUtil.getContextOfType(this, true, classOf[ScPackaging]) == null && (getContainingFile match {
-          case s: ScalaFile => s.getPackageName.length == 0
-          case _ => true
-        })
+        case _ => PsiTreeUtil.getContextOfType(this, true, classOf[ScPackaging]) == null
       }
       case _ => true
     }

@@ -79,7 +79,7 @@ trait ScopeAnnotator {
 
   private def nameOf(element: ScNamedElement): String = element match {
     case f: ScFunction if !f.getParent.isInstanceOf[ScBlockExpr] => f.name + signatureOf(f)
-    case _ => element.getName
+    case _ => element.name
   }
 
   private def signatureOf(f: ScFunction): String = {

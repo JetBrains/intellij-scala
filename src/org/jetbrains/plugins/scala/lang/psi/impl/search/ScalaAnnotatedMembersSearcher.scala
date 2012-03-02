@@ -14,7 +14,7 @@ import com.intellij.psi.stubs.StubIndex
 import stubs.index.ScAnnotatedMemberIndex
 import api.expr.{ScAnnotations, ScAnnotation}
 import stubs.util.ScalaStubsUtil
-import extensions.toPsiClassExt
+import extensions.{toPsiNamedElementExt, toPsiClassExt}
 
 /**
  * User: Alexander Podkhalyuzin
@@ -25,16 +25,16 @@ class ScalaAnnotatedMembersSearcher extends QueryExecutor[PsiMember, AnnotatedEl
 
   def execute(p: AnnotatedElementsSearch.Parameters, consumer: Processor[PsiMember]): Boolean = {
     val annClass = p.getAnnotationClass
-    assert(annClass.isAnnotationType(), "Annotation type should be passed to annotated members search")
+    assert(annClass.isAnnotationType, "Annotation type should be passed to annotated members search")
     val annotationFQN = annClass.qualifiedName
     assert(annotationFQN != null)
 
     val scope = p.getScope match {case x: GlobalSearchScope => x case _ => return true}
 
-    ApplicationManager.getApplication().runReadAction(new Computable[Boolean] {
+    ApplicationManager.getApplication.runReadAction(new Computable[Boolean] {
       def compute: Boolean = {
         val candidates: java.util.Collection[_ <: PsiElement] = StubIndex.getInstance.get(ScAnnotatedMemberIndex.KEY,
-          annClass.getName, annClass.getProject, scope)
+          annClass.name, annClass.getProject, scope)
         val iter = candidates.iterator
         while (iter.hasNext) {
           val next = iter.next
@@ -54,6 +54,6 @@ class ScalaAnnotatedMembersSearcher extends QueryExecutor[PsiMember, AnnotatedEl
     })
 
 
-    return true;
+    true
   }
 }

@@ -12,13 +12,13 @@ import api.toplevel.typedef.{ScTypeDefinition, ScObject}
 import api.statements._
 import api.base.patterns.{ScReferencePattern, ScBindingPattern}
 import params.ScTypeParam
-import extensions.toPsiClassExt
+import extensions.{toPsiNamedElementExt, toPsiClassExt}
 
 trait ScTypePresentation {
-  def presentableText(t: ScType) = typeText(t, _.getName, {
+  def presentableText(t: ScType) = typeText(t, _.name, {
       case obj: ScObject if obj.qualifiedName == "scala.Predef" => ""
       case pack: PsiPackage => ""
-      case e => e.getName + "."
+      case e => e.name + "."
     }
   )
 
@@ -27,10 +27,10 @@ trait ScTypePresentation {
       e match {
         case obj: ScObject if withPoint && obj.qualifiedName == "scala.Predef" => ""
         case e: PsiClass => "<a href=\"psi_element://" + e.qualifiedName + "\"><code>" +
-                StringEscapeUtils.escapeHtml(e.getName) +
+                StringEscapeUtils.escapeHtml(e.name) +
                 "</code></a>" + (if (withPoint) "." else "")
         case pack: PsiPackage if withPoint => ""
-        case _ => StringEscapeUtils.escapeHtml(e.getName) + "."
+        case _ => StringEscapeUtils.escapeHtml(e.name) + "."
       }
     }
     typeText(t, nameFun(_, false), nameFun(_, true))
@@ -42,10 +42,10 @@ trait ScTypePresentation {
       (e match {
         case c: PsiClass => {
           val qname = c.qualifiedName
-          if (qname != null && qname != c.getName /* exlude default package*/ ) "_root_." + qname else c.getName
+          if (qname != null && qname != c.name /* exlude default package*/ ) "_root_." + qname else c.name
         }
         case p: PsiPackage => "_root_." + p.getQualifiedName
-        case _ => e.getName
+        case _ => e.name
       }) + (if (withPoint) "." else "")
     }
     typeText(t, nameFun(_, false), nameFun(_, true))
@@ -78,7 +78,7 @@ trait ScTypePresentation {
           inner(ret, false)
         }
         case ScThisType(clazz: ScTypeDefinition) =>
-          buffer.append(clazz.getName + ".").append("this")
+          buffer.append(clazz.name + ".").append("this")
           appendTypeTail(stable)
         case ScThisType(clazz) =>
           buffer.append("this")
@@ -92,7 +92,7 @@ trait ScTypePresentation {
           //todo:
           val e = proj.actualElement
           val s = proj.actualSubst
-          val refName = e.getName
+          val refName = e.name
           def appendPointType() {
             e match {
               case obj: ScObject => appendTypeTail(stable)
@@ -210,7 +210,7 @@ trait ScTypePresentation {
                     ta.typeParameters.map(param => typeParamText(param, s, nameFun, nameWithPointFun)).mkString("[", ", ", "]")
                   else ""
 
-                  val decl = "type " + ta.getName + paramsText
+                  val decl = "type " + ta.name + paramsText
 
                   val defnText = ta match {
                     case tad: ScTypeAliasDefinition =>
@@ -269,7 +269,7 @@ trait ScTypePresentation {
 
   private def typeParamText(param: ScTypeParam, subst: ScSubstitutor, nameFun: PsiNamedElement => String, nameWithPointFun: PsiNamedElement => String): String = {
     def typeText0(tp: ScType) = typeText(subst.subst(tp), nameFun, nameWithPointFun)
-    var paramText = param.getName
+    var paramText = param.name
     if (param.isContravariant) paramText = "-" + paramText
     else if (param.isCovariant) paramText = "+" + paramText
     param.lowerBound foreach {

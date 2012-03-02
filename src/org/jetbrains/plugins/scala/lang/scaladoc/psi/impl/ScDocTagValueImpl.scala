@@ -21,6 +21,7 @@ import com.intellij.psi.{PsiDocumentManager, ResolveResult, PsiReference, PsiEle
 import lang.psi.api.statements.{ScTypeAlias, ScFunction}
 import lang.psi.api.toplevel.typedef.{ScTrait, ScClass}
 import lang.psi.{ScalaPsiUtil, ScalaPsiElement, ScalaPsiElementImpl}
+import extensions.toPsiNamedElementExt
 
 /**
  * User: Dmitry Naydanov
@@ -40,7 +41,7 @@ class ScDocTagValueImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
 
   def multiResolve(incompleteCode: Boolean): Array[ResolveResult] =
     getParametersVariants.filter(a =>
-      a.getName == refName || ScalaPsiUtil.convertMemberName(a.getName) == ScalaPsiUtil.convertMemberName(refName)).
+      a.name == refName || ScalaPsiUtil.convertMemberName(a.name) == ScalaPsiUtil.convertMemberName(refName)).
             map(new ScalaResolveResult(_))
 
   override def toString = "ScalaDocTagValue"
@@ -79,17 +80,17 @@ class ScDocTagValueImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
     if (parameters == null) {
       return Array[AnyRef]()
     }
-    parameters.foreach(result += _.getName)
+    parameters.foreach(result += _.name)
     result.result()
   }
 
 
-  override def isSoft: Boolean = getParent.asInstanceOf[ScDocTag].getName == MyScaladocParsing.THROWS_TAG
+  override def isSoft: Boolean = getParent.asInstanceOf[ScDocTag].name == MyScaladocParsing.THROWS_TAG
 
   def getParametersVariants: Array[ScNamedElement] = {
     import MyScaladocParsing.{PARAM_TAG, TYPE_PARAM_TAG}
     val parentTagType: String = getParent match {
-      case a: ScDocTag => a.getName
+      case a: ScDocTag => a.name
       case _ => null
     }
     var parent = getParent
@@ -108,7 +109,7 @@ class ScDocTagValueImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
         yield tag.getValueElement.getText).toSet
 
       val result = ArrayBuilder.make[ScNamedElement]()
-      params.filter(param => !paramsSet.contains(param.getName)).foreach(result += _)
+      params.filter(param => !paramsSet.contains(param.name)).foreach(result += _)
       result.result()
     }
 

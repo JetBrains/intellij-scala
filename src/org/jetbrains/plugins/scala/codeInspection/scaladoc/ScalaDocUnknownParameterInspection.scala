@@ -14,6 +14,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.codeInspection._
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.parsing.MyScaladocParsing
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTrait, ScClass}
+import extensions.toPsiNamedElementExt
 
 /**
  * User: Dmitry Naidanov
@@ -38,12 +39,12 @@ class ScalaDocUnknownParameterInspection extends LocalInspectionTool {
         def paramsDif(paramList: scala.Seq[ScParameter], tagParamList: scala.Seq[ScTypeParam]) {
           if (paramList != null) {
             for (funcParam <- paramList) {
-              tagParams -= convertMemberName(funcParam.getName)
+              tagParams -= convertMemberName(funcParam.name)
             }
           }
           if (tagParamList != null) {
             for (typeParam <- tagParamList) {
-              tagTypeParams -= convertMemberName(typeParam.getName)
+              tagTypeParams -= convertMemberName(typeParam.name)
             }
           }
         }
@@ -51,7 +52,7 @@ class ScalaDocUnknownParameterInspection extends LocalInspectionTool {
         def collectDocParams() {
           for (tagParam <- s.findTagsByName(Set("@param", "@tparam").contains(_))) {
             if (tagParam.getValueElement != null) {
-              tagParam.getName match {
+              tagParam.name match {
                 case "@param" =>
                   insertDuplicating(tagParams.put(convertMemberName(tagParam.getValueElement.getText),
                     tagParam.asInstanceOf[ScDocTag]), tagParam.asInstanceOf[ScDocTag])

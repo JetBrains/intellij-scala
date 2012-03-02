@@ -21,6 +21,7 @@ import toplevel.synthetic.JavaIdentifier
 import icons.Icons
 import types.ScType
 import types.result.{Failure, Success}
+import extensions.toPsiNamedElementExt
 
 /**
 * @author Alexander Podkhalyuzin
@@ -48,7 +49,7 @@ class ScTypeParamImpl extends ScalaStubBasedElementImpl[ScTypeParam] with ScType
     }
     val containingFile = getContainingFile
     if (containingFile == null) return "NoFile"
-    containingFile.getName
+    containingFile.name
   }
 
   def getIndex: Int = 0

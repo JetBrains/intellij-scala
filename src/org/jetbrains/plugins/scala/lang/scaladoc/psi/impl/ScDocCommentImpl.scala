@@ -18,6 +18,7 @@ import com.intellij.psi.{PsiElementVisitor, PsiDocCommentOwner, PsiElement}
 import lexer.ScalaDocTokenType
 import api.{ScDocTag, ScDocComment}
 import collection.mutable.ArrayBuilder
+import extensions.toPsiNamedElementExt
 
 /**
  * User: Alexander Podkhalyuzin
@@ -50,7 +51,7 @@ class ScDocCommentImpl(text: CharSequence) extends LazyParseablePsiElement(Scala
     while (currentChild != null && currentChild.getNode.getElementType != ScalaDocTokenType.DOC_COMMENT_END) {
       currentChild match {
         case docTag: ScDocTag if docTag.getNode.getElementType == ScalaDocElementTypes.DOC_TAG  &&
-          filter(docTag.getName) => answer += currentChild.asInstanceOf[PsiDocTag]
+          filter(docTag.name) => answer += currentChild.asInstanceOf[PsiDocTag]
         case _ =>
 
       }

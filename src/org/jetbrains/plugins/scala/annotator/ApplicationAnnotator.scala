@@ -12,10 +12,10 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticF
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameters, ScParameter}
 import com.intellij.psi.{PsiElement, PsiParameter, PsiNamedElement, PsiMethod}
-import extensions._
 import lang.psi.api.statements.{ScValue, ScFunction}
 import codeInspection.varCouldBeValInspection.ValToVarQuickFix
 import lang.psi.api.expr.{MethodInvocation, ScReferenceExpression, ScInfixExpr, ScMethodCall}
+import extensions._
 
 /**
  * Pavel.Fatin, 31.05.2010
@@ -41,7 +41,7 @@ trait ApplicationAnnotator {
 
                 r.problems.foreach {
                   case DoesNotTakeParameters() =>
-                    holder.createErrorAnnotation(call.argsElement, f.getName + " does not take parameters")
+                    holder.createErrorAnnotation(call.argsElement, f.name + " does not take parameters")
                   case ExcessArgument(argument) =>
                     if (argument != null) {
                       holder.createErrorAnnotation(argument, "Too many arguments for method " + nameOf(f))
@@ -62,7 +62,7 @@ trait ApplicationAnnotator {
                   case MissedValueParameter(_) => // simultaneously handled above
                   case UnresolvedParameter(_) => // don't show function inapplicability, unresolved
                   case MalformedDefinition() =>
-                    holder.createErrorAnnotation(call.getInvokedExpr, f.getName + " has malformed definition")
+                    holder.createErrorAnnotation(call.getInvokedExpr, f.name + " has malformed definition")
                   case ExpansionForNonRepeatedParameter(expression) =>
                     if (expression != null) {
                       holder.createErrorAnnotation(expression, "Expansion for non-repeated parameter")
@@ -170,7 +170,7 @@ trait ApplicationAnnotator {
     }
   }
   
-  private def nameOf(f: PsiNamedElement) = f.getName + signatureOf(f)
+  private def nameOf(f: PsiNamedElement) = f.name + signatureOf(f)
 
   private def signatureOf(f: PsiNamedElement): String = f match {
     case f: ScFunction =>

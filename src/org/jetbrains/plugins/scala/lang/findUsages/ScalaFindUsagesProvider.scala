@@ -8,15 +8,14 @@ import com.intellij.psi.util.PsiFormatUtil
 import com.intellij.psi.util.PsiFormatUtilBase
 import com.intellij.lang.cacheBuilder.{DefaultWordsScanner, WordsScanner}
 import lexer.{ScalaLexer, ScalaTokenTypes}
-import psi.api.statements.{ScFunction, ScValue, ScTypeAlias, ScVariable}
+import psi.api.statements.{ScValue, ScTypeAlias, ScVariable}
 import psi.api.toplevel.ScNamedElement
 import psi.api.toplevel.typedef.{ScClass, ScTypeDefinition, ScTrait, ScObject}
 import com.intellij.lang.findUsages.FindUsagesProvider
 import org.jetbrains.annotations.{Nullable, NotNull}
-import com.intellij.psi.tree.TokenSet
 import psi.impl.toplevel.PsiClassFake
 import psi.api.statements.params.ScTypeParam
-import extensions.toPsiClassExt
+import extensions.{toPsiNamedElementExt, toPsiClassExt}
 
 class ScalaFindUsagesProvider extends FindUsagesProvider {
   @Nullable
@@ -72,10 +71,10 @@ class ScalaFindUsagesProvider extends FindUsagesProvider {
         if (x.getContainingClass != null) res = res + " of " + getDescriptiveName(x.getContainingClass)
         res
       }
-      case x: PsiVariable => x.getName
-      case x: PsiFile => x.getName
+      case x: PsiVariable => x.name
+      case x: PsiFile => x.name
       case x: ScTypeDefinition => x.qualifiedName
-      case x: ScNamedElement => x.getName
+      case x: ScNamedElement => x.name
       case c: PsiClass if !c.isInstanceOf[PsiClassFake] => c.qualifiedName
       case _ => element.getText
     }
@@ -88,11 +87,11 @@ class ScalaFindUsagesProvider extends FindUsagesProvider {
       case c: PsiMethod => PsiFormatUtil.formatMethod(c, PsiSubstitutor.EMPTY,
               PsiFormatUtilBase.SHOW_NAME | PsiFormatUtilBase.SHOW_PARAMETERS,
               PsiFormatUtilBase.SHOW_TYPE)
-      case c: PsiVariable => c.getName
-      case c: PsiFile => c.getName
-      case c: ScTypeDefinition => if (useFullName) c.qualifiedName else c.getName
-      case c: ScNamedElement => c.getName
-      case c: PsiClass if !c.isInstanceOf[PsiClassFake] => if (useFullName) c.qualifiedName else c.getName
+      case c: PsiVariable => c.name
+      case c: PsiFile => c.name
+      case c: ScTypeDefinition => if (useFullName) c.qualifiedName else c.name
+      case c: ScNamedElement => c.name
+      case c: PsiClass if !c.isInstanceOf[PsiClassFake] => if (useFullName) c.qualifiedName else c.name
       case _ => element.getText
     }
     Option(name) getOrElse "anonymous"

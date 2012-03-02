@@ -19,13 +19,14 @@ import collection.mutable.ArrayBuffer
 import psi.fake.FakePsiMethod
 import psi.api.statements.params.{ScParameters, ScParameter}
 import psi.api.toplevel.templates.{ScTemplateBody, ScExtendsBlock}
-import psi.api.toplevel.typedef.ScTypeDefinition
 import psi.api.toplevel.ScTypedDefinition
 import util.PsiModificationTracker
 import caches.CachesUtil
 import psi.types.result.{Success, TypingContext}
 import psi.types.nonvalue.{ScMethodType, ScTypePolymorphicType}
 import psi.types._
+import extensions.toPsiNamedElementExt
+import psi.api.toplevel.typedef.{ScTemplateDefinition, ScTypeDefinition}
 
 trait ResolvableReferenceExpression extends ScReferenceExpression {
   private object Resolver extends ReferenceExpressionResolver(false)
@@ -173,12 +174,12 @@ trait ResolvableReferenceExpression extends ScReferenceExpression {
         val tp: ScType = te.getType(TypingContext.empty).getOrElse(return)
         val typeArgs: Seq[ScTypeElement] = constr.typeArgList.map(_.typeArgs).getOrElse(Seq())
         ScType.extractClassType(tp) match {
-          case Some((clazz, subst)) if !clazz.isInstanceOf[ScTypeDefinition] && clazz.isAnnotationType => {
+          case Some((clazz, subst)) if !clazz.isInstanceOf[ScTemplateDefinition] && clazz.isAnnotationType => {
             if (!baseProcessor.isInstanceOf[CompletionProcessor]) {
               for (method <- clazz.getMethods) {
                 method match {
                   case p: PsiAnnotationMethod => {
-                    if (ScalaPsiUtil.memberNamesEquals(p.getName, ref.refName)) {
+                    if (ScalaPsiUtil.memberNamesEquals(p.name, ref.refName)) {
                       baseProcessor.execute(p, ResolveState.initial)
                     }
                   }
@@ -199,7 +200,7 @@ trait ResolvableReferenceExpression extends ScReferenceExpression {
                     case assignStmt: ScAssignStmt => {
                       assignStmt.getLExpression match {
                         case ref: ScReferenceExpression => {
-                          val ind = methods.indexWhere(p => ScalaPsiUtil.memberNamesEquals(p.getName, ref.refName))
+                          val ind = methods.indexWhere(p => ScalaPsiUtil.memberNamesEquals(p.name, ref.refName))
                           if (ind != -1) methods.remove(ind)
                           else tail()
                         }

@@ -16,6 +16,7 @@ import collection.JavaConversions
 import com.intellij.psi._
 import impl.source.resolve.reference.impl.providers.{FileReference, FileReferenceSet}
 import com.intellij.openapi.diagnostic.Logger
+import extensions.toPsiNamedElementExt
 
 class ScalaReferenceContributor extends PsiReferenceContributor {
 
@@ -52,7 +53,7 @@ class FilePathReferenceProvider extends PsiReferenceProvider {
         val directory: PsiDirectory = psiManager.findDirectory(root)
         if (directory != null) {
           val aPackage: PsiPackage = JavaDirectoryService.getInstance.getPackage(directory)
-          if (aPackage != null && aPackage.getName != null) {
+          if (aPackage != null && aPackage.name != null) {
             try {
               val createMethod = Class.forName("com.intellij.psi.impl.source.resolve.reference.impl.providers.PackagePrefixFileSystemItem").getMethod("create", classOf[PsiDirectory])
               createMethod.invoke(directory)

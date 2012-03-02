@@ -33,7 +33,7 @@ object NeedsToBeAbstract extends AnnotatorPart[ScTemplateDefinition] {
 
     if(!undefined.isEmpty) {
       val annotation = holder.createErrorAnnotation(definition.nameId,
-        message(kindOf(definition), definition.getName, undefined: _*))
+        message(kindOf(definition), definition.name, undefined: _*))
       definition match {
         case owner: ScModifierListOwner => annotation.registerFix(new AddModifierQuickFix(owner, "abstract"))
         case _ =>

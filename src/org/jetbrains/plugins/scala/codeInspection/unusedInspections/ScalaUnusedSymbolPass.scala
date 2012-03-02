@@ -30,6 +30,7 @@ import com.intellij.codeInsight.daemon.impl._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import annotator.importsTracker.ScalaRefCountHolder
 import collection.mutable.ArrayBuffer._
+import extensions.toPsiNamedElementExt
 
 // TODO merge with UnusedImportPass (?)
 class ScalaUnusedSymbolPass(file: PsiFile, editor: Editor) extends TextEditorHighlightingPass(file.getProject, editor.getDocument) {
@@ -93,7 +94,7 @@ class ScalaUnusedSymbolPass(file: PsiFile, editor: Editor) extends TextEditorHig
   /** Processes a ScDeclaredElementsHolder that is not accessible outside of the defining class/companion, ie locals or private or private[this] */
   private def processLocalDeclaredElementHolder(declElementHolder: ScDeclaredElementsHolder, state: UnusedPassState) {
     val isSpecialDef = declElementHolder match {
-      case x: PsiMethod => ScFunction.isSpecial(x.getName)
+      case x: PsiMethod => ScFunction.isSpecial(x.name)
       case _ => false
     }
     val isImplicit = declElementHolder match {

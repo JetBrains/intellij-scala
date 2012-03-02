@@ -17,7 +17,7 @@ import com.intellij.psi.{PsiClassType, PsiElement, PsiClass}
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi.util.PsiModificationTracker
 import com.intellij.openapi.project.Project
-import extensions.toPsiClassExt
+import extensions.{toPsiNamedElementExt, toPsiClassExt}
 
 abstract class MixinNodes {
   type T
@@ -383,7 +383,7 @@ abstract class MixinNodes {
   def combine(superSubst : ScSubstitutor, derived : ScSubstitutor, superClass : PsiClass) = {
     var res : ScSubstitutor = ScSubstitutor.empty
     for (tp <- superClass.getTypeParameters) {
-      res = res bindT ((tp.getName, ScalaPsiUtil.getPsiElementId(tp)),
+      res = res bindT ((tp.name, ScalaPsiUtil.getPsiElementId(tp)),
         derived.subst(superSubst.subst(ScalaPsiManager.typeVariable(tp))))
     }
     superClass match {
@@ -408,7 +408,8 @@ abstract class MixinNodes {
 }
 
 object MixinNodes {
-  def linearization(clazz: PsiClass, visited: collection.immutable.HashSet[PsiClass]): Seq[ScType] = {
+  import scala.collection.immutable.{HashSet => IHashSet}
+  def linearization(clazz: PsiClass, visited: IHashSet[PsiClass] = IHashSet.empty): Seq[ScType] = {
     clazz match {
       case obj: ScObject if obj.isPackageObject && obj.qualifiedName == "scala" => {
         return Seq(ScType.designator(obj))
@@ -418,11 +419,10 @@ object MixinNodes {
 
     if (visited.contains(clazz)) return Seq.empty
     CachesUtil.get(clazz, CachesUtil.LINEARIZATION_KEY,
-      new CachesUtil.MyProvider(clazz, (clazz: PsiClass) => linearizationInner(clazz, visited + clazz)) //todo: bad reference to 'visited'
+    new CachesUtil.MyProvider(clazz, (clazz: PsiClass) => linearizationInner(clazz, visited + clazz)) //todo: bad reference to 'visited'
       (PsiModificationTracker.OUT_OF_CODE_BLOCK_MODIFICATION_COUNT))
   }
-  
-  import scala.collection.immutable.{HashSet => IHashSet}
+
 
   def linearization(compound: ScCompoundType): Seq[ScType] = {
     val comps = compound.components
@@ -430,7 +430,7 @@ object MixinNodes {
     generalLinearization(None, compound, false, comps, IHashSet.empty)
   }
 
-  def linearizationInner(clazz: PsiClass, visited: IHashSet[PsiClass]): Seq[ScType] = {
+  private def linearizationInner(clazz: PsiClass, visited: IHashSet[PsiClass]): Seq[ScType] = {
     ProgressManager.checkCanceled()
     val tp = {
       if (clazz.getTypeParameters.length == 0) ScType.designator(clazz)
@@ -453,7 +453,7 @@ object MixinNodes {
     generalLinearization(Some(clazz.getProject), tp, true, supers, visited)
   }
   
-  def generalLinearization(project: Option[Project], tp: ScType, addTp: Boolean, supers: Seq[ScType], 
+  private def generalLinearization(project: Option[Project], tp: ScType, addTp: Boolean, supers: Seq[ScType],
                            visited: IHashSet[PsiClass]): Seq[ScType] = {
     val buffer = new ListBuffer[ScType]
     val set: HashSet[String] = new HashSet //to add here qualified names of classes

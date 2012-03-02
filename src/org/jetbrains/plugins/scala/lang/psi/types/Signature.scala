@@ -10,6 +10,7 @@ import com.intellij.ide.highlighter.JavaFileType
 import util.MethodSignatureUtil
 import psi.impl.toplevel.synthetic.ScSyntheticFunction
 import api.statements.params.ScParameters
+import extensions.toPsiNamedElementExt
 
 class Signature(val name: String, val typesEval: Stream[ScType], val paramLength: Int,
                 val typeParams: Array[PsiTypeParameter], val substitutor: ScSubstitutor,
@@ -80,7 +81,7 @@ class Signature(val name: String, val typesEval: Stream[ScType], val paramLength
     val iterator2 = tps2.iterator
     while (iterator1.hasNext && iterator2.hasNext) {
       val (tp1, tp2) = (iterator1.next(), iterator2.next())
-      res = res bindT ((tp2.getName, ScalaPsiUtil.getPsiElementId(tp2)), ScalaPsiManager.typeVariable(tp1))
+      res = res bindT ((tp2.name, ScalaPsiUtil.getPsiElementId(tp2)), ScalaPsiManager.typeVariable(tp1))
     }
     res
   }
@@ -117,7 +118,7 @@ object PhysicalSignature {
 }
 
 class PhysicalSignature(val method: PsiMethod, override val substitutor: ScSubstitutor)
-        extends Signature(method.getName, PhysicalSignature.typesEval(method), PhysicalSignature.paramLength(method),
+        extends Signature(method.name, PhysicalSignature.typesEval(method), PhysicalSignature.paramLength(method),
           method.getTypeParameters, substitutor, Some(method)) {
 
   override def hasRepeatedParam: Boolean = {

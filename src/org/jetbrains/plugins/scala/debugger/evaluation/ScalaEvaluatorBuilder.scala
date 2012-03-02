@@ -27,7 +27,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScClassParen
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTypeDefinition, ScClass, ScTrait, ScObject}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScPrimaryConstructor, ScStableCodeReferenceElement, ScLiteral, ScReferenceElement}
-import org.jetbrains.plugins.scala.extensions.toPsiClassExt
+import org.jetbrains.plugins.scala.extensions.{toPsiNamedElementExt, toPsiClassExt}
 
 /**
  * User: Alefas
@@ -312,8 +312,8 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
           var contextClass = getContextClass
           var iterations = 0
           while (contextClass != null && (!contextClass.isInstanceOf[PsiClass] ||
-            contextClass.asInstanceOf[PsiClass].getName == null ||
-            contextClass.asInstanceOf[PsiClass].getName == refName)) {
+            contextClass.asInstanceOf[PsiClass].name == null ||
+            contextClass.asInstanceOf[PsiClass].name == refName)) {
             contextClass = getContextClass(contextClass)
             iterations += anonClassCount(contextClass)
           }
@@ -391,7 +391,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
       if (thisEvaluator != null) {
         val args = localParams(fun, getContextClass(fun))
         val evaluators = argEvaluators ++ args.map(arg => {
-          val name = arg.asInstanceOf[PsiNamedElement].getName
+          val name = arg.asInstanceOf[PsiNamedElement].name
           val ref = ScalaPsiElementFactory.createExpressionWithContextFromText(name, position.getElementAt,
             position.getElementAt).asInstanceOf[ScReferenceExpression]
           val builder = new Builder(position)
@@ -446,7 +446,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
 
     private def evaluateSyntheticFunction(synth: ScSyntheticFunction, qual: Option[ScExpression], ref: ScReferenceExpression,
                                   argEvaluators: Seq[Evaluator]) {
-      evaluateSyntheticFunctionForName(synth.getName, qual, ref, argEvaluators)
+      evaluateSyntheticFunctionForName(synth.name, qual, ref, argEvaluators)
     }
 
     private def evaluateSyntheticFunctionForName(name: String, qual: Option[ScExpression], ref: ScReferenceExpression,
@@ -622,7 +622,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
       }
       clazz match {
         case o: ScObject if isStable(o) =>
-          val exprText = o.qualifiedName + "." + implicitFunction.getName + "(" +
+          val exprText = o.qualifiedName + "." + implicitFunction.name + "(" +
             qual.getText + ")"
           val expr = replaceWithImplicit(exprText)
           expr.accept(this)
@@ -631,7 +631,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
           throw EvaluateExceptionUtil.
             createEvaluateException("Implicit conversions from dependent objects are not supported")
         case _ => //from scope
-          val exprText = implicitFunction.getName + "(" + qual.getText + ")"
+          val exprText = implicitFunction.name + "(" + qual.getText + ")"
           val expr = replaceWithImplicit(exprText)
           expr.accept(this)
           return
@@ -725,7 +725,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
                       if (isStable(o)) {
                         myResult = stableObjectEvaluator(o)
                       } else {
-                        val objName = NameTransformer.encode(o.getName)
+                        val objName = NameTransformer.encode(o.name)
                         myResult = new ScalaMethodEvaluator(myResult, objName, null /* todo? */, Seq.empty, false,
                           traitImplementation(o), DebuggerUtil.getSourcePositions(resolve.getNavigationElement))
                       }
@@ -757,7 +757,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
                     if (isStable(o)) {
                       evaluator = stableObjectEvaluator(o)
                     } else {
-                      val objName = NameTransformer.encode(o.getName)
+                      val objName = NameTransformer.encode(o.name)
                       evaluator = new ScalaMethodEvaluator(evaluator, objName, null /* todo? */, Seq.empty, false,
                         traitImplementation(o), DebuggerUtil.getSourcePositions(resolve.getNavigationElement))
                     }
@@ -883,7 +883,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
                       }
                       clazz match {
                         case o: ScObject if isStable(o) =>
-                          val exprText = o.qualifiedName + "." + param.getName
+                          val exprText = o.qualifiedName + "." + param.name
                           val e = ScalaPsiElementFactory.createExpressionWithContextFromText(exprText,
                             expr.getContext, expr)
                           e.accept(this)
@@ -892,7 +892,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
                           throw EvaluateExceptionUtil.
                             createEvaluateException("Implicit parameters from dependent objects are not supported")
                         case _ => //from scope
-                          val exprText = param.getName
+                          val exprText = param.name
                           val e = ScalaPsiElementFactory.createExpressionWithContextFromText(exprText,
                             expr.getContext, expr)
                           e.accept(this)
@@ -953,7 +953,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
         case synth: ScSyntheticFunction =>
           evaluateSyntheticFunction(synth, qualOption, ref, argEvaluators) //todo: use matched parameters
         case fun: ScFunction if isArrayFunction(fun) =>
-          evaluateArrayMethod(fun.getName,  qualOption,
+          evaluateArrayMethod(fun.name,  qualOption,
             argumentEvaluators(fun, matchedParameters, expr, qualOption, ref, replaceWithImplicit, resolve, arguments))
         case fun: ScFunction =>
           val argEvaluators: Seq[Evaluator] =
@@ -965,7 +965,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
               if (method.hasModifierProperty("static")) {
                 val eval =
                   new TypeEvaluator(JVMNameUtil.getContextClassJVMQualifiedName(SourcePosition.createFromElement(method)))
-                val name = method.getName
+                val name = method.name
 
                 myResult = new ScalaMethodEvaluator(eval, name, JVMNameUtil.getJVMSignature(method), boxArguments(argEvaluators, method),
                   false, traitImplementation(resolve), DebuggerUtil.getSourcePositions(resolve.getNavigationElement))
@@ -979,7 +979,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
                         return
                       case _ =>
                         qual.accept(this)
-                        val name = method.getName
+                        val name = method.name
                         myResult = new ScalaMethodEvaluator(myResult, name, JVMNameUtil.getJVMSignature(method),
                           boxArguments(argEvaluators, method), false,
                           traitImplementation(resolve), DebuggerUtil.getSourcePositions(resolve.getNavigationElement))
@@ -996,7 +996,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
                     throw EvaluateExceptionUtil.createEvaluateException("Evaluation of imported functions is not supported")
                   } else {
                     val evaluator = thisEvaluator(r)
-                    val name = method.getName
+                    val name = method.name
                     myResult = new ScalaMethodEvaluator(evaluator, name, JVMNameUtil.getJVMSignature(method),
                       boxArguments(argEvaluators, method), false,
                       traitImplementation(resolve), DebuggerUtil.getSourcePositions(resolve.getNavigationElement))
@@ -1119,7 +1119,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
       val operation = infix.operation
       if (operation.refName.endsWith("=")) {
         operation.resolve() match {
-          case n: PsiNamedElement if n.getName + "=" == operation.refName =>
+          case n: PsiNamedElement if n.name + "=" == operation.refName =>
             val exprText = new StringBuilder
             exprText.append(infix.getBaseExpr.getText).append(" = ").append(infix.getBaseExpr.getText).
               append(" ").append(operation.refName.dropRight(1)).append(" ").append(infix.getArgExpr.getText)
@@ -1251,7 +1251,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
         val isObject = resolve.isInstanceOf[ScObject]
 
         val namedElement = resolve.asInstanceOf[PsiNamedElement]
-        val name = NameTransformer.encode(namedElement.getName) + (if (isObject) "$module" else "")
+        val name = NameTransformer.encode(namedElement.name) + (if (isObject) "$module" else "")
         val containingClass = getContainingClass(namedElement)
 
         if (getContextClass == null || getContextClass == containingClass) {
@@ -1302,7 +1302,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
             if (context != contextClass) {
               calcLocal
             } else {
-              val name = NameTransformer.encode(resolve.asInstanceOf[PsiNamedElement].getName)
+              val name = NameTransformer.encode(resolve.asInstanceOf[PsiNamedElement].name)
               val evaluator = new ScalaLocalVariableEvaluator(name, true)
               //it's simple, let's take parameter
               evaluator.setParameterIndex(pCount)
@@ -1328,7 +1328,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
                       replaceWithImplicitFunction(fun, qual, replaceWithImplicit)
                     case _ =>
                       qual.accept(this)
-                      val name = NameTransformer.encode(obj.getName)
+                      val name = NameTransformer.encode(obj.name)
                       myResult = new ScalaMethodEvaluator(myResult, name, null /* todo? */, Seq.empty, false,
                         traitImplementation(resolve), DebuggerUtil.getSourcePositions(resolve.getNavigationElement))
                   }
@@ -1342,7 +1342,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
                     throw EvaluateExceptionUtil.createEvaluateException("Evaluation of imported objects is not supported")
                   } else {
                     val evaluator = thisEvaluator(r)
-                    val name = NameTransformer.encode(obj.getName)
+                    val name = NameTransformer.encode(obj.name)
                     myResult = new ScalaMethodEvaluator(evaluator, name, null /* todo? */, Seq.empty, false,
                       traitImplementation(resolve), DebuggerUtil.getSourcePositions(resolve.getNavigationElement))
                   }
@@ -1378,7 +1378,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
                     throw EvaluateExceptionUtil.createEvaluateException("Evaluation of imported fields is not supported")
                   } else {
                     val evaluator = thisEvaluator(r)
-                    val name = NameTransformer.encode(named.getName)
+                    val name = NameTransformer.encode(named.name)
                     myResult = new ScalaFieldEvaluator(evaluator, _ => true, name, true)
                   }
                 case _ => throw new RuntimeException("Match is not exhaustive")
@@ -1410,7 +1410,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
                     throw EvaluateExceptionUtil.createEvaluateException("Evaluation of imported fields is not supported")
                   } else {
                     val evaluator = thisEvaluator(r)
-                    val name = NameTransformer.encode(named.getName)
+                    val name = NameTransformer.encode(named.name)
                     myResult = new ScalaMethodEvaluator(evaluator, name, null/* todo */, Seq.empty, false,
                       traitImplementation(resolve), DebuggerUtil.getSourcePositions(resolve.getNavigationElement))
                   }
@@ -1423,7 +1423,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
               if (field.hasModifierProperty("static")) {
                 val eval =
                   new TypeEvaluator(JVMNameUtil.getContextClassJVMQualifiedName(SourcePosition.createFromElement(field)))
-                val name = field.getName
+                val name = field.name
                 myResult = new ScalaFieldEvaluator(eval, ref => true,name)
               } else {
                 ref.bind() match {
@@ -1433,7 +1433,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
                         replaceWithImplicitFunction(fun, qual, replaceWithImplicit)
                       case _ =>
                         qual.accept(this)
-                        val name = field.getName
+                        val name = field.name
                         myResult = new ScalaFieldEvaluator(myResult,
                           ScalaFieldEvaluator.getFilter(getContainingClass(field)), name)
                     }
@@ -1448,7 +1448,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
                     throw EvaluateExceptionUtil.createEvaluateException("Evaluation of imported fileds is not supported")
                   } else {
                     val evaluator = thisEvaluator(r)
-                    val name = field.getName
+                    val name = field.name
                     myResult = new ScalaFieldEvaluator(evaluator,
                       ScalaFieldEvaluator.getFilter(getContainingClass(field)), name)
                   }

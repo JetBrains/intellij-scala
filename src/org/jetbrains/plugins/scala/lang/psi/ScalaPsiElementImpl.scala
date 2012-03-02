@@ -136,6 +136,16 @@ abstract class ScalaStubBasedElementImpl[T <: PsiElement]
     SharedImplUtil.getParent(getNode)
   }
 
+  def getLastChildStub: PsiElement = {
+    val stub = getStub
+    if (stub != null) {
+      val children = stub.getChildrenStubs
+      if (children.size() == 0) return null
+      return children.get(children.size() - 1).getPsi
+    }
+    getLastChild
+  }
+
   override def findLastChildByType(t: IElementType) = {
     super[ScalaPsiElement].findLastChildByType(t)
   }

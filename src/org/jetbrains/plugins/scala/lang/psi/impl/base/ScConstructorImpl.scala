@@ -24,6 +24,7 @@ import collection.Seq
 import api.base.types.{ScTypeElement, ScParameterizedTypeElement, ScSimpleTypeElement}
 import api.ScalaElementVisitor
 import com.intellij.psi.{PsiElementVisitor, PsiClass, PsiTypeParameterListOwner, PsiMethod}
+import extensions.toPsiNamedElementExt
 
 /**
 * @author Alexander Podkhalyuzin
@@ -127,7 +128,7 @@ class ScConstructorImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
         }
         case ptp: PsiTypeParameterListOwner if ptp.getTypeParameters.length > 0 => {
           ptp.getTypeParameters.toSeq.map(ptp =>
-            new TypeParameter(ptp.getName,
+            new TypeParameter(ptp.name,
               Nothing, Any, ptp)) //todo: add lower and upper bound
         }
         case _ => return Success(res, Some(this))

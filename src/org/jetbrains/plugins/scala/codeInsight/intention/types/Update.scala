@@ -54,7 +54,7 @@ object Update extends Strategy {
   }
 
   def removeFromPattern(pattern: ScTypedPattern) {
-    val newPattern = ScalaPsiElementFactory.createPatternFromText(pattern.getName, pattern.getManager)
+    val newPattern = ScalaPsiElementFactory.createPatternFromText(pattern.name, pattern.getManager)
     pattern.replace(newPattern)
   }
 
@@ -82,7 +82,7 @@ object Update extends Strategy {
   }
 
   def removeFromParameter(param: ScParameter) {
-    val newParam = ScalaPsiElementFactory.createParameterFromText(param.getName, param.getManager)
+    val newParam = ScalaPsiElementFactory.createParameterFromText(param.name, param.getManager)
     param.replace(newParam)
   }
 

@@ -6,20 +6,17 @@ package base
 package patterns
 
 import api.base.patterns._
-import api.toplevel.imports.ScImportStmt
 import com.intellij.psi.scope.PsiScopeProcessor
-import psi.ScalaPsiElementImpl
 import com.intellij.lang.ASTNode
 import com.intellij.psi._
 import lang.lexer._
 import psi.stubs.ScReferencePatternStub
 import psi.types.result.{Failure, TypingContext, Success}
-import psi.types.{ScSubstitutor, ScCompoundType, ScType, Nothing}
+import psi.types.ScType
 import com.intellij.psi.util.PsiTreeUtil
 import api.toplevel.typedef.ScMember
 import api.{ScalaElementVisitor, ScalaFile}
-import lang.resolve.processor.BaseProcessor
-import api.statements.{ScPatternDefinition, ScDeclaredElementsHolder}
+import api.statements.ScDeclaredElementsHolder
 import api.base.ScPatternList
 import extensions._
 
@@ -27,9 +24,8 @@ import extensions._
  * @author Alexander Podkhalyuzin
  * Date: 28.02.2008
  */
-
 class ScReferencePatternImpl private () extends ScalaStubBasedElementImpl[ScReferencePattern] with ScReferencePattern {
-  override def accept(visitor: PsiElementVisitor): Unit = {
+  override def accept(visitor: PsiElementVisitor) {
     visitor match {
       case visitor: ScalaElementVisitor => super.accept(visitor)
       case _ => super.accept(visitor)
@@ -50,7 +46,7 @@ class ScReferencePatternImpl private () extends ScalaStubBasedElementImpl[ScRefe
   override def getType(ctx: TypingContext) = {
     expectedType match {
       case Some(x) => Success(x, Some(this))
-      case _ => Failure("cannot define expected type", Some(this))
+      case _ => Failure("Cannot define expected type", Some(this))
     }
   }
 
@@ -61,7 +57,7 @@ class ScReferencePatternImpl private () extends ScalaStubBasedElementImpl[ScRefe
       if (parent != null) {
         val navElem = parent.getNavigationElement
         navElem match {
-          case holder: ScDeclaredElementsHolder => holder.declaredElements.find(_.getName == name).getOrElse(navElem)
+          case holder: ScDeclaredElementsHolder => holder.declaredElements.find(_.name == name).getOrElse(navElem)
           case x => x
         }
       }
@@ -80,11 +76,9 @@ class ScReferencePatternImpl private () extends ScalaStubBasedElementImpl[ScRefe
         val context: PsiElement = pList.getContext
         context.getContext.deleteChildRange(context, context)
       case pList: ScPatternList if pList.allPatternsSimple && pList.patterns.startsWith(Seq(this)) =>
-        val context: PsiElement = pList.getContext
         val end = this.nextSiblings.find(_.getNode.getElementType == ScalaTokenTypes.tCOMMA).get.getNextSiblingNotWhitespace.getPrevSibling
         pList.deleteChildRange(this, end)
       case pList: ScPatternList if pList.allPatternsSimple =>
-        val context: PsiElement = pList.getContext
         val start = this.prevSiblings.find(_.getNode.getElementType == ScalaTokenTypes.tCOMMA).get.getPrevSiblingNotWhitespace.getNextSibling
         pList.deleteChildRange(start, this)
       case x =>

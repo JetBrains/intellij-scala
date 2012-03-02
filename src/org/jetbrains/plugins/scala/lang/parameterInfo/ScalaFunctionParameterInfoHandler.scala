@@ -33,6 +33,7 @@ import result.TypingContext
 import psi.fake.FakePsiMethod
 import collection.Seq
 import psi.api.statements.params.{ScClassParameter, ScParameter, ScParameterClause}
+import extensions.toPsiNamedElementExt
 
 /**
  * User: Alexander Podkhalyuzin
@@ -309,7 +310,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                       case tp => tp
                     }
 
-                    val name = param.getName
+                    val name = param.name
                     if (name != null) {
                       buffer.append(name)
                     }
@@ -388,7 +389,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                   if (gen == null) return ScSubstitutor.empty
                   val tp: Array[(String, String)] = element match {
                     case tpo: ScTypeParametersOwner => tpo.typeParameters.map(p => (p.name, ScalaPsiUtil.getPsiElementId(p))).toArray
-                    case ptpo: PsiTypeParameterListOwner => ptpo.getTypeParameters.map(p => (p.getName, ScalaPsiUtil.getPsiElementId(p)))
+                    case ptpo: PsiTypeParameterListOwner => ptpo.getTypeParameters.map(p => (p.name, ScalaPsiUtil.getPsiElementId(p)))
                     case _ => return ScSubstitutor.empty
                   }
                   val typeArgs: Seq[ScTypeElement] = gen.arguments
@@ -511,7 +512,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                     }
                     case clazz: PsiClass if clazz.isAnnotationType => {
                       val resulting: (Seq[(String, ScType, PsiAnnotationMemberValue)], Int) =
-                        Tuple(clazz.getMethods.toSeq.filter(_.isInstanceOf[PsiAnnotationMethod]).map(meth => Tuple(meth.getName,
+                        Tuple(clazz.getMethods.toSeq.filter(_.isInstanceOf[PsiAnnotationMethod]).map(meth => Tuple(meth.name,
                           ScType.create(meth.getReturnType, meth.getProject, meth.getResolveScope),
                           meth.asInstanceOf[PsiAnnotationMethod].getDefaultValue)), i)
                       res += resulting
@@ -520,7 +521,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                       for (constructor <- clazz.getConstructors) {
                         typeElement match {
                           case gen: ScParameterizedTypeElement => {
-                            val tp = clazz.getTypeParameters.map(p => (p.getName, ScalaPsiUtil.getPsiElementId(p)))
+                            val tp = clazz.getTypeParameters.map(p => (p.name, ScalaPsiUtil.getPsiElementId(p)))
                             val typeArgs: Seq[ScTypeElement] = gen.typeArgList.typeArgs
                             val map = new collection.mutable.HashMap[(String, String), ScType]
                             for (i <- 0 to Math.min(tp.length, typeArgs.length) - 1) {

@@ -34,6 +34,8 @@ import psi.impl.ScalaPsiManager
 import psi.api.base.{ScReferenceElement, ScAccessModifier, ScFieldId}
 import psi.api.expr.{ScThisReference, ScSuperReference}
 import psi.api.toplevel.{ScNamedElement, ScTypeParametersOwner}
+import caches.ScalaShortNamesCacheManager
+import extensions.toPsiNamedElementExt
 
 /**
  * @author ven
@@ -108,7 +110,7 @@ object ResolveUtils {
     if (m.getTypeParameters.length == 0) javaMethodType(m, s, scope, returnType)
     else {
       ScTypePolymorphicType(javaMethodType(m, s, scope, returnType), m.getTypeParameters.map(tp =>
-        TypeParameter(tp.getName, Nothing, Any, tp))) //todo: add lower and upper bounds
+        TypeParameter(tp.name, Nothing, Any, tp))) //todo: add lower and upper bounds
     }
   }
 
@@ -187,7 +189,7 @@ object ResolveUtils {
                   placeEnclosing = context(placeEnclosing)
                 if (placeEnclosing == null) return false //not Scala
                 val placePackageName = placeEnclosing match {
-                  case file: ScalaFile => file.getPackageName
+                  case file: ScalaFile => ""
                   case obj: ScObject => obj.qualifiedName
                   case pack: ScPackaging => pack.fqn
                 }
@@ -225,14 +227,14 @@ object ResolveUtils {
                 }
                 case _ => {
                   val packageName = enclosing match {
-                    case file: ScalaFile => file.getPackageName
+                    case file: ScalaFile => ""
                     case packaging: ScPackaging => packaging.getPackageName
                   }
                   val placeEnclosing: PsiElement = ScalaPsiUtil.
                           getContextOfType(place, true, classOf[ScPackaging], classOf[ScalaFile])
                   if (placeEnclosing == null) return false //not Scala
                   val placePackageName = placeEnclosing match {
-                    case file: ScalaFile => file.getPackageName
+                    case file: ScalaFile => ""
                     case pack: ScPackaging => pack.getPackageName
                   }
                   packageContains(packageName, placePackageName)
@@ -255,7 +257,7 @@ object ResolveUtils {
                   placeEnclosing = context(placeEnclosing)
                 if (placeEnclosing == null) return Some(false) //not Scala
                 val placePackageName = placeEnclosing match {
-                  case file: ScalaFile => file.getPackageName
+                  case file: ScalaFile => ""
                   case obj: ScObject => obj.qualifiedName
                   case pack: ScPackaging => pack.fqn
                 }
@@ -335,14 +337,14 @@ object ResolveUtils {
               case _ => {
                 //same as for private
                 val packageName = enclosing match {
-                  case file: ScalaFile => file.getPackageName
+                  case file: ScalaFile => ""
                   case packaging: ScPackaging => packaging.fullPackageName
                 }
                 val placeEnclosing: PsiElement = ScalaPsiUtil.
                         getContextOfType(place, true, classOf[ScPackaging], classOf[ScalaFile])
                 if (placeEnclosing == null) return false //not Scala
                 val placePackageName = placeEnclosing match {
-                  case file: ScalaFile => file.getPackageName
+                  case file: ScalaFile => ""
                   case pack: ScPackaging => pack.fullPackageName
                 }
                 packageContains(packageName, placePackageName)
@@ -381,6 +383,7 @@ object ResolveUtils {
           false
         } else {
           val packageName = member.getContainingFile match {
+            case s: ScalaFile => ""
             case f: PsiClassOwner => f.getPackageName
             case _ => return false
           }
@@ -388,7 +391,7 @@ object ResolveUtils {
                   getContextOfType(place, true, classOf[ScPackaging], classOf[ScalaFile])
           if (placeEnclosing == null) return false
           val placePackageName = placeEnclosing match {
-            case file: ScalaFile => file.getPackageName
+            case file: ScalaFile => ""
             case pack: ScPackaging => pack.fullPackageName
           }
           packageContains(packageName, placePackageName)
@@ -421,7 +424,7 @@ object ResolveUtils {
     val element = resolveResult.element
     val substitutor = resolveResult.substitutor
     val isRenamed: Option[String] = resolveResult.isRenamed match {
-      case Some(x) if element.getName != x => Some(x)
+      case Some(x) if element.name != x => Some(x)
       case _ => None
     }
 
@@ -496,7 +499,7 @@ object ResolveUtils {
                   if (shouldImport && isClassName && containingClass != null)
                     " " + containingClass.getPresentation.getLocationString
                   else if (isClassName && containingClass != null)
-                    " in " + containingClass.getName + " " + containingClass.getPresentation.getLocationString
+                    " in " + containingClass.name + " " + containingClass.getPresentation.getLocationString
                   else ""
                   )
               }
@@ -543,7 +546,7 @@ object ResolveUtils {
                   if (shouldImport && isClassName && containingClass != null)
                     " " + containingClass.getPresentation.getLocationString
                   else if (isClassName && containingClass != null)
-                    " in " + containingClass.getName + " " + containingClass.getPresentation.getLocationString
+                    " in " + containingClass.name + " " + containingClass.getPresentation.getLocationString
                   else ""
                   )
                 presentation.setTailText(tailText1)
@@ -562,10 +565,10 @@ object ResolveUtils {
                 case memb: PsiMember => memb.getContainingClass
                 case _ => null
               }
-              if (containingClass != null) containingClass.getName + "." + name
+              if (containingClass != null) containingClass.name + "." + name
               else name
             } else name
-            else name + "<=" + element.getName
+            else name + "<=" + element.name
           val someKey = Option(ignore.getUserData(someSmartCompletionKey)).map(_.booleanValue()).getOrElse(false)
           if (someKey) itemText = "Some(" + itemText + ")"
           presentation.setItemText(itemText)
@@ -588,7 +591,7 @@ object ResolveUtils {
       (returnLookupElement, element, substitutor)
     }
 
-    val name: String = isRenamed.getOrElse(element.getName)
+    val name: String = isRenamed.getOrElse(element.name)
     val Setter = """(.*)_=""".r
     name match {
       case Setter(prefix) =>
@@ -697,7 +700,22 @@ object ResolveUtils {
           } finally {
             base.setClassKind(true)
           }
-        } else pack.processDeclarations(processor, state, lastParent, place)
+        } else {
+          try {
+            base.setClassKind(false)
+            val manager = ScalaPsiManager.instance(pack.getProject)
+            var iterator = manager.getClasses(pack, place.getResolveScope).iterator
+            while (iterator.hasNext) {
+              val clazz = iterator.next()
+              if (!processor.execute(clazz, state)) return false
+            }
+
+            //process subpackages
+            pack.processDeclarations(processor, state, lastParent, place)
+          } finally {
+            base.setClassKind(true)
+          }
+        }
       case _ => pack.processDeclarations(processor, state, lastParent, place)
     }
   }

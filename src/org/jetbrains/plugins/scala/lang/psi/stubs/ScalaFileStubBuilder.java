@@ -16,7 +16,7 @@ public class ScalaFileStubBuilder extends DefaultStubBuilder {
   @Override
   protected StubElement createStubForFile(PsiFile file) {
     ScalaFile s = (ScalaFile) file;
-    return new ScFileStubImpl(s, StringRef.fromString(s.getPackageName()), StringRef.fromString(s.sourceName()),
+    return new ScFileStubImpl(s, StringRef.fromString(s.packageName()), StringRef.fromString(s.sourceName()),
         s.isCompiled(), s.isScriptFile(false));
   }
 }

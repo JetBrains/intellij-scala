@@ -12,12 +12,13 @@ import collection.Iterator
 import scope.PsiScopeProcessor.Event
 import scope.{NameHint, ElementClassHint, PsiScopeProcessor}
 import toplevel.synthetic.SyntheticClasses
-import org.jetbrains.plugins.scala.caches.{CachesUtil, ScalaCachesManager}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import com.intellij.openapi.util.Key
 import collection.mutable.HashSet
-import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils
-import org.jetbrains.plugins.scala.lang.resolve.processor.ImplicitProcessor
+import org.jetbrains.plugins.scala.caches.{ScalaShortNamesCacheManager, CachesUtil}
+import org.jetbrains.plugins.scala.extensions.toPsiNamedElementExt
+import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, ImplicitProcessor}
+import org.jetbrains.plugins.scala.lang.resolve.{StdKinds, ResolveUtils}
 
 /**
  * User: Alexander Podkhalyuzin
@@ -37,21 +38,16 @@ class ScPackageImpl(pack: PsiPackage) extends PsiPackageImpl(pack.getManager.asI
       if (!processor.isInstanceOf[ImplicitProcessor]) {
         val namesSet = new HashSet[String]
 
-        if (!pack.processDeclarations(new PsiScopeProcessor {
+        val namesProcessor = new BaseProcessor(StdKinds.stableImportSelector) {
           def execute(element: PsiElement, state: ResolveState): Boolean = {
             element match {
-              case clazz: PsiClass => namesSet += clazz.getName
+              case clazz: PsiClass => namesSet += clazz.name
               case _ =>
             }
             processor.execute(element, state)
           }
-
-          def getHint[T](hintKey: Key[T]): T = processor.getHint(hintKey)
-
-          def handleEvent(event: Event, associated: AnyRef) {
-            processor.handleEvent(event, associated)
-          }
-        }, state, lastParent, place)) return false
+        }
+        if (!ResolveUtils.packageProcessDeclarations(pack, namesProcessor, state, lastParent, place)) return false
 
         //Process synthetic classes for scala._ package
         /**
@@ -62,13 +58,13 @@ class ScPackageImpl(pack: PsiPackage) extends PsiPackageImpl(pack.getManager.asI
         def alreadyContains(className: String) = namesSet.contains(className)
 
         for (synth <- SyntheticClasses.get(getProject).getAll) {
-          if (!alreadyContains(synth.getName)) processor.execute(synth, ResolveState.initial)
+          if (!alreadyContains(synth.name)) processor.execute(synth, ResolveState.initial)
         }
         for (synthObj <- SyntheticClasses.get(getProject).syntheticObjects) {
 
           // Assume that is the scala package contained a class with the same names as the synthetic object,
           // then it must also contain the object.
-          if (!alreadyContains(synthObj.getName)) processor.execute(synthObj, ResolveState.initial)
+          if (!alreadyContains(synthObj.name)) processor.execute(synthObj, ResolveState.initial)
         }
       }
     } else {
@@ -126,7 +122,7 @@ class ScPackageImpl(pack: PsiPackage) extends PsiPackageImpl(pack.getManager.asI
   private def findClassesByName(name: String, scope: GlobalSearchScope): Array[PsiClass] = {
     val qName: String = getQualifiedName
     val classQName: String = if (qName.length > 0) qName + "." + name else name
-    JavaPsiFacade.getInstance(getProject).findClasses(classQName, scope)
+    ScalaPsiManager.instance(getProject).getCachedClasses(scope, classQName)
   }
 
   private def processClassesByName(processor: PsiScopeProcessor, state: ResolveState, place: PsiElement,
@@ -145,13 +141,12 @@ class ScPackageImpl(pack: PsiPackage) extends PsiPackageImpl(pack.getManager.asI
   }
 
   def findPackageObject(scope: GlobalSearchScope): Option[ScTypeDefinition] = {
-    val manager = ScalaCachesManager.getInstance(getProject)
+    val manager = ScalaShortNamesCacheManager.getInstance(getProject)
 
     var tuple = pack.getUserData(CachesUtil.PACKAGE_OBJECT_KEY)
     val count = getManager.getModificationTracker.getOutOfCodeBlockModificationCount
     if (tuple == null || tuple._2.longValue != count) {
-      val cache = manager.getNamesCache
-      val clazz = cache.getPackageObjectByName(getQualifiedName, scope)
+      val clazz = manager.getPackageObjectByName(getQualifiedName, scope)
       tuple = (clazz, java.lang.Long.valueOf(count)) // TODO is it safe to cache this ignoring `scope`?
       pack.putUserData(CachesUtil.PACKAGE_OBJECT_KEY, tuple)
     }

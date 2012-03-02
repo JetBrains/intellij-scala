@@ -97,10 +97,6 @@ class ScNewTemplateDefinitionImpl private () extends ScalaStubBasedElementImpl[S
   override def isInheritor(baseClass: PsiClass, deep: Boolean): Boolean =
     super[ScNewTemplateDefinition].isInheritor(baseClass, deep)
 
-  override def findMethodsAndTheirSubstitutorsByName(name: String, checkBases: Boolean) = {
-    super[ScNewTemplateDefinition].findMethodsAndTheirSubstitutorsByName(name, checkBases)
-  }
-
   override def accept(visitor: ScalaElementVisitor) {
     visitor.visitNewTemplateDefinition(this)
   }
@@ -110,5 +106,47 @@ class ScNewTemplateDefinitionImpl private () extends ScalaStubBasedElementImpl[S
       case visitor: ScalaElementVisitor => visitor.visitNewTemplateDefinition(this)
       case _ => super.accept(visitor)
     }
+  }
+
+
+  override def findMethodBySignature(patternMethod: PsiMethod, checkBases: Boolean): PsiMethod = {
+    super[ScNewTemplateDefinition].findMethodBySignature(patternMethod, checkBases)
+  }
+
+  override def findMethodsBySignature(patternMethod: PsiMethod, checkBases: Boolean): Array[PsiMethod] = {
+    super[ScNewTemplateDefinition].findMethodsBySignature(patternMethod, checkBases)
+  }
+
+  import com.intellij.openapi.util.{Pair => IPair}
+  import java.util.{List => JList}
+  import java.util.{Collection => JCollection}
+
+  override def findMethodsByName(name: String, checkBases: Boolean): Array[PsiMethod] = {
+    super[ScNewTemplateDefinition].findMethodsByName(name, checkBases)
+  }
+
+  override def findFieldByName(name: String, checkBases: Boolean): PsiField = {
+    super[ScNewTemplateDefinition].findFieldByName(name, checkBases)
+  }
+
+  override def findInnerClassByName(name: String, checkBases: Boolean): PsiClass = {
+    super[ScNewTemplateDefinition].findInnerClassByName(name, checkBases)
+  }
+
+  override def getAllFields: Array[PsiField] = {
+    super[ScNewTemplateDefinition].getAllFields
+  }
+
+  override def findMethodsAndTheirSubstitutorsByName(name: String,
+                                                     checkBases: Boolean): JList[IPair[PsiMethod, PsiSubstitutor]] = {
+    super[ScNewTemplateDefinition].findMethodsAndTheirSubstitutorsByName(name, checkBases)
+  }
+
+  override def getAllMethodsAndTheirSubstitutors: JList[IPair[PsiMethod, PsiSubstitutor]] = {
+    super[ScNewTemplateDefinition].getAllMethodsAndTheirSubstitutors
+  }
+
+  override def getVisibleSignatures: JCollection[HierarchicalMethodSignature] = {
+    super[ScNewTemplateDefinition].getVisibleSignatures
   }
 }

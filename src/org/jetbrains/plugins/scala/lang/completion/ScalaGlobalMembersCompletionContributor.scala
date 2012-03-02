@@ -16,15 +16,15 @@ import com.intellij.util.ProcessingContext
 import collection.mutable.HashSet
 import com.intellij.openapi.keymap.KeymapUtil
 import com.intellij.openapi.actionSystem.{ActionManager, IdeActions}
-import org.jetbrains.plugins.scala.caches.ScalaCachesManager
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import stubs.StubIndex
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys
-import org.jetbrains.plugins.scala.lang.resolve.processor.{CompletionProcessor, CollectMethodsProcessor}
+import org.jetbrains.plugins.scala.lang.resolve.processor.CompletionProcessor
 import org.jetbrains.plugins.scala.lang.resolve.{StdKinds, ScalaResolveResult, ResolveUtils}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScVariable, ScValue}
-import org.jetbrains.plugins.scala.extensions.toPsiClassExt
+import org.jetbrains.plugins.scala.caches.ScalaShortNamesCacheManager
+import org.jetbrains.plugins.scala.extensions.{toPsiNamedElementExt, toPsiClassExt}
 
 /**
  * @author Alexander Podkhalyuzin
@@ -66,7 +66,7 @@ class ScalaGlobalMembersCompletionContributor extends CompletionContributor {
       case memb: PsiMember =>
         val containingClass = memb.getContainingClass
         if (containingClass == null) return false
-        val qualifiedName = containingClass.qualifiedName + "." + member.getName
+        val qualifiedName = containingClass.qualifiedName + "." + member.name
         for (excluded <- CodeInsightSettings.getInstance.EXCLUDED_PACKAGES) {
           if (qualifiedName == excluded || qualifiedName.startsWith(excluded + ".")) {
             return false
@@ -95,7 +95,7 @@ class ScalaGlobalMembersCompletionContributor extends CompletionContributor {
     def elemsSetContains(elem: PsiNamedElement): Boolean = {
       if (elem.getContainingFile == originalFile) {
         //complex logic to detect static methods in same file, which we shouldn't import
-        val name = elem.getName
+        val name = elem.name
         val containingClass = ScalaPsiUtil.nameContext(elem) match {
           case member: PsiMember => member.getContainingClass
           case _ => null
@@ -105,7 +105,7 @@ class ScalaGlobalMembersCompletionContributor extends CompletionContributor {
         if (qualName == null) return false
         for {
           element <- elemsSet
-          if element.getName == name
+          if element.name == name
           if element.getContainingFile == file
           cClass = ScalaPsiUtil.nameContext(element) match {
             case member: PsiMember => member.getContainingClass
@@ -191,7 +191,7 @@ class ScalaGlobalMembersCompletionContributor extends CompletionContributor {
     def elemsSetContains(elem: PsiNamedElement): Boolean = {
       if (elem.getContainingFile == originalFile) {
         //complex logic to detect static methods in same file, which we shouldn't import
-        val name = elem.getName
+        val name = elem.name
         val containingClass = ScalaPsiUtil.nameContext(elem) match {
           case member: PsiMember => member.getContainingClass
           case _ => null
@@ -201,7 +201,7 @@ class ScalaGlobalMembersCompletionContributor extends CompletionContributor {
         if (qualName == null) return false
         for {
           element <- elemsSet
-          if element.getName == name
+          if element.name == name
           if element.getContainingFile == file
           cClass = ScalaPsiUtil.nameContext(element) match {
             case member: PsiMember => member.getContainingClass
@@ -222,8 +222,7 @@ class ScalaGlobalMembersCompletionContributor extends CompletionContributor {
       case elem: PsiNamedElement => addElemToSet(elem)
     }
 
-    val namesCache: PsiShortNamesCache =
-      PsiShortNamesCache.getInstance(ref.getProject)
+    val namesCache = ScalaShortNamesCacheManager.getInstance(ref.getProject)
 
     val methodNamesIterator = namesCache.getAllMethodNames.iterator
 
@@ -244,7 +243,7 @@ class ScalaGlobalMembersCompletionContributor extends CompletionContributor {
 
               val overloads = containingClass match {
                 case o: ScObject => o.functionsByName(methodName)
-                case _ => containingClass.getAllMethods.toSeq.filter(m => m.getName == methodName)
+                case _ => containingClass.getAllMethods.toSeq.filter(m => m.name == methodName)
               }
               assert(!overloads.isEmpty)
               if (overloads.size == 1) {
@@ -283,19 +282,18 @@ class ScalaGlobalMembersCompletionContributor extends CompletionContributor {
       }
     }
 
-    val scalaNamesManager = ScalaCachesManager.getInstance(ref.getProject).getNamesCache
-
-    val scalaFieldsIterator = scalaNamesManager.getAllScalaFieldNames.iterator
+    val scalaFieldsIterator = ScalaShortNamesCacheManager.getInstance(ref.getProject).getAllScalaFieldNames.iterator
 
     while (scalaFieldsIterator.hasNext) {
       val fieldName = scalaFieldsIterator.next()
       if (matcher.prefixMatches(fieldName)) {
-        val fieldsIterator = scalaNamesManager.getScalaFieldsByName(fieldName, scope).iterator
+        val fieldsIterator = ScalaShortNamesCacheManager.getInstance(ref.getProject).
+          getScalaFieldsByName(fieldName, scope).iterator
         while (fieldsIterator.hasNext) {
           val field = fieldsIterator.next()
           val namedElement = field match {
-            case v: ScValue => v.declaredElements.find(_.getName == fieldName).getOrElse(null)
-            case v: ScVariable => v.declaredElements.find(_.getName == fieldName).getOrElse(null)
+            case v: ScValue => v.declaredElements.find(_.name == fieldName).getOrElse(null)
+            case v: ScVariable => v.declaredElements.find(_.name == fieldName).getOrElse(null)
           }
           if (namedElement != null && isStatic(namedElement)) {
             val containingClass: PsiClass = field.getContainingClass

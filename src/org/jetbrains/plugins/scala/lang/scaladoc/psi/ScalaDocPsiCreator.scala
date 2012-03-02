@@ -13,6 +13,7 @@ import lexer.ScalaDocTokenType
 import com.intellij.psi.{JavaDocTokenType, PsiElement}
 import lang.psi.impl.base.ScStableCodeReferenceElementImpl
 import parser.parsing.MyScaladocParsing
+import extensions.toPsiNamedElementExt
 
 /**
 * User: Alexander Podkhalyuzin
@@ -53,7 +54,7 @@ object ScalaDocPsiCreator {
         }
 
         if (parent != null && parent.getPsi != null &&
-                parent.getPsi.asInstanceOf[ScDocTag].getName == MyScaladocParsing.THROWS_TAG) {
+                parent.getPsi.asInstanceOf[ScDocTag].name == MyScaladocParsing.THROWS_TAG) {
           new ScDocThrowTagValueImpl(node)
         } else {
           new ScDocTagValueImpl(node)

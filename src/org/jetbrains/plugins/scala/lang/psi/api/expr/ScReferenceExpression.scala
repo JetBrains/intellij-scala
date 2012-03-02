@@ -10,6 +10,7 @@ import com.intellij.psi._
 import psi.types.result.TypeResult
 import psi.types.ScType
 import psi.impl.ScalaPsiElementFactory
+import extensions.toPsiNamedElementExt
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -40,7 +41,7 @@ trait ScReferenceExpression extends ScalaPsiElement with ScExpression with ScRef
     if (useFullQualifiedName) {
       super.createReplacingElementWithClassName(useFullQualifiedName, clazz)
     } else {
-      ScalaPsiElementFactory.createExpressionFromText(clazz.getName, clazz.getManager).asInstanceOf[ScReferenceExpression]
+      ScalaPsiElementFactory.createExpressionFromText(clazz.name, clazz.getManager).asInstanceOf[ScReferenceExpression]
     }
   }
 }

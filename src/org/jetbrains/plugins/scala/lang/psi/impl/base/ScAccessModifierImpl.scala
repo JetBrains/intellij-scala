@@ -18,7 +18,9 @@ import lexer.ScalaTokenTypes
 
 import com.intellij.lang.ASTNode
 import com.intellij.psi.util.PsiTreeUtil
-import psi.stubs.ScAccessModifierStub;
+import psi.stubs.ScAccessModifierStub
+import extensions.toPsiNamedElementExt
+;
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -90,7 +92,7 @@ class ScAccessModifierImpl extends ScalaStubBasedElementImpl[ScAccessModifier] w
       def handleElementRename(newElementName: String) = doRename(newElementName)
       def bindToElement(e : PsiElement) = e match {
         case td : ScTypeDefinition => doRename(td.name)
-        case p : PsiPackage => doRename(p.getName)
+        case p : PsiPackage => doRename(p.name)
         case _ => throw new IncorrectOperationException("cannot bind to anything but type definition or package")
       }
 
@@ -103,7 +105,7 @@ class ScAccessModifierImpl extends ScalaStubBasedElementImpl[ScAccessModifier] w
 
       def isReferenceTo(element: PsiElement) = element match {
         case td : ScTypeDefinition => td.name == text.get && resolve == td
-        case p : PsiPackage => p.getName == text.get && resolve == p
+        case p : PsiPackage => p.name == text.get && resolve == p
         case _ => false
       }
 
@@ -112,7 +114,7 @@ class ScAccessModifierImpl extends ScalaStubBasedElementImpl[ScAccessModifier] w
         def findPackage(qname : String) : PsiPackage = {
           var pack: PsiPackage = ScPackageImpl(JavaPsiFacade.getInstance(getProject).findPackage(qname))
           while (pack != null) {
-            if (pack.getName == name) return pack
+            if (pack.name == name) return pack
             pack = pack.getParentPackage
           }
           null
@@ -121,7 +123,7 @@ class ScAccessModifierImpl extends ScalaStubBasedElementImpl[ScAccessModifier] w
         def find(e : PsiElement) : PsiNamedElement = e match {
           case null => null
           case td : ScTypeDefinition if td.name == name => td
-          case file : ScalaFile => findPackage(file.getPackageName)
+          case file : ScalaFile => findPackage("")
           case container : ScPackageContainer => findPackage(container.fqn)
           case _ => find(e.getParent)
         }
@@ -130,19 +132,21 @@ class ScAccessModifierImpl extends ScalaStubBasedElementImpl[ScAccessModifier] w
 
       def getVariants: Array[Object] = {
         val buff = new ArrayBuffer[Object]
-        def processPackages(qname : String) = {
+        def processPackages(qname : String) {
           var pack: PsiPackage = ScPackageImpl(JavaPsiFacade.getInstance(getProject).findPackage(qname))
-          while (pack != null && pack.getName != null) {
+          while (pack != null && pack.name != null) {
             buff += pack
             pack = pack.getParentPackage
           }
         }
-        def append(e : PsiElement) : Unit = e match {
-          case null =>
-          case td : ScTypeDefinition => buff += td; append(td.getParent)
-          case file : ScalaFile => processPackages(file.getPackageName)
-          case container : ScPackageContainer => processPackages(container.fqn)
-          case _ => append(e.getParent)
+        def append(e : PsiElement) {
+          e match {
+            case null =>
+            case td: ScTypeDefinition => buff += td; append(td.getParent)
+            case file: ScalaFile => processPackages("")
+            case container: ScPackageContainer => processPackages(container.fqn)
+            case _ => append(e.getParent)
+          }
         }
         append(getParent)
         buff.toArray

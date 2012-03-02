@@ -3,14 +3,14 @@ package org.jetbrains.plugins.scala.util
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import com.intellij.psi.{PsiElement, PsiClass}
 import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.plugins.scala.extensions.toPsiClassExt
+import org.jetbrains.plugins.scala.extensions.{toPsiNamedElementExt, toPsiClassExt}
 
 /**
  * @author Alexander Podkhalyuzin
  */
 object ScEquivalenceUtil {
   def areClassesEquivalent(clazz1: PsiClass, clazz2: PsiClass): Boolean = {
-    if (clazz1.getName != clazz2.getName) return false
+    if (clazz1.name != clazz2.name) return false
     if (clazz1 == clazz2) return true
     val containingClazz1: PsiClass = clazz1.getContainingClass
     val containingClass2: PsiClass = clazz2.getContainingClass

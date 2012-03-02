@@ -9,13 +9,11 @@ import impl.ScalaFileImpl
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import com.intellij.psi.util._
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import com.intellij.psi.stubs.StubElement
 import templates.{ScExtendsBlock, ScTemplateBody}
 import com.intellij.psi.impl.source.PsiFileImpl
 import collection.mutable.ArrayBuffer
 import base.ScPrimaryConstructor
-import extensions._
 import statements.params.ScClassParameter
 import statements.ScFunction
 
@@ -65,12 +63,7 @@ trait ScMember extends ScalaPsiElement with ScModifierListOwner with PsiMember {
   }
 
   override def hasModifierProperty(name: String) = {
-    if (name == PsiModifier.STATIC) {
-      getContainingClass match {
-        case obj: ScObject => true
-        case _ => false
-      }
-    } else if (name == PsiModifier.PUBLIC) {
+    if (name == PsiModifier.PUBLIC) {
       !hasModifierProperty("private") && !hasModifierProperty("protected")
     } else super.hasModifierProperty(name)
   }
@@ -90,7 +83,7 @@ trait ScMember extends ScalaPsiElement with ScModifierListOwner with PsiMember {
             val membersIterator = c.members.iterator
             val buf: ArrayBuffer[ScMember] = new ArrayBuffer[ScMember]
             while (membersIterator.hasNext) {
-              val member = membersIterator.next
+              val member = membersIterator.next()
               if (isSimilarMemberForNavigation(member, false)) buf += member
             }
             if (buf.length == 0) this

@@ -65,7 +65,7 @@ class ScImportStmtImpl extends ScalaStubBasedElementImpl[ScImportStmt] with ScIm
             case None => if (ScalaPsiUtil.convertMemberName(ref.refName) != decodedName) return true
           }
         }
-        val checkWildcardImorts = processor match {
+        val checkWildcardImports = processor match {
           case r: ResolveProcessor =>
             if (!r.checkImports()) return true
             r.checkWildcardImports()
@@ -98,7 +98,7 @@ class ScImportStmtImpl extends ScalaStubBasedElementImpl[ScImportStmt] with ScIm
                 newState = newState.put(BaseProcessor.FROM_TYPE_KEY, tp)
               }
               if (importExpr.singleWildcard) {
-                if (!checkWildcardImorts) return true
+                if (!checkWildcardImports) return true
                 (elem, processor) match {
                   case (cl: PsiClass, processor: BaseProcessor) if !cl.isInstanceOf[ScTemplateDefinition] => {
                     if (!processor.processType(new ScDesignatorType(cl, true), place,
@@ -136,7 +136,7 @@ class ScImportStmtImpl extends ScalaStubBasedElementImpl[ScImportStmt] with ScIm
               // There is total import from stable id
               // import a.b.c.{d=>e, f=>_, _}
               if (set.hasWildcard) {
-                if (!checkWildcardImorts) return true
+                if (!checkWildcardImports) return true
                 processor match {
                   case bp: BaseProcessor => {
                     ProgressManager.checkCanceled()

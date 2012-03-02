@@ -12,7 +12,7 @@ import com.intellij.openapi.progress.ProgressManager
 class ScalaIconProvider extends IconProvider {
   @Nullable
   override def getIcon(element: PsiElement, flags: Int): Icon = {
-    ProgressManager.checkCanceled
+    ProgressManager.checkCanceled()
     if (element == null) return null
     if (element.isInstanceOf[ScalaFile]) {
       val file = element.asInstanceOf[ScalaFile]
@@ -22,8 +22,8 @@ class ScalaIconProvider extends IconProvider {
       val defs = file.typeDefinitions
       val clazzIterator = defs.iterator
       while (clazzIterator.hasNext) {
-        val clazz = clazzIterator.next
-        if (name.equals(clazz.getName)) return clazz.getIcon(flags)
+        val clazz = clazzIterator.next()
+        if (name.equals(clazz.name)) return clazz.getIcon(flags)
       }
       if (!defs.isEmpty) return defs(0).getIcon(flags)
     }

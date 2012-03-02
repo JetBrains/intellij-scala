@@ -30,12 +30,12 @@ object BaseTypes {
                 aliasedType.getOrElse(return Seq.empty)))
       case ScParameterizedType(ScDesignatorType(ta: ScTypeAliasDefinition), args) => {
         val genericSubst = ScalaPsiUtil.
-                typesCallSubstitutor(ta.typeParameters.map(tp => (tp.getName, ScalaPsiUtil.getPsiElementId(tp))), args)
+                typesCallSubstitutor(ta.typeParameters.map(tp => (tp.name, ScalaPsiUtil.getPsiElementId(tp))), args)
         BaseTypes.get(genericSubst.subst(ta.aliasedType.getOrElse(return Seq.empty)))
       }
       case ScParameterizedType(p: ScProjectionType, args) if p.actualElement.isInstanceOf[ScTypeAliasDefinition] => {
         val genericSubst = ScalaPsiUtil.
-                typesCallSubstitutor(p.actualElement.asInstanceOf[ScTypeAliasDefinition].typeParameters.map(tp => (tp.getName, ScalaPsiUtil.getPsiElementId(tp)
+                typesCallSubstitutor(p.actualElement.asInstanceOf[ScTypeAliasDefinition].typeParameters.map(tp => (tp.name, ScalaPsiUtil.getPsiElementId(tp)
                 )), args)
         val s = p.actualSubst.followed(genericSubst)
         BaseTypes.get(s.subst(p.actualElement.asInstanceOf[ScTypeAliasDefinition].aliasedType.getOrElse(return Seq.empty)))

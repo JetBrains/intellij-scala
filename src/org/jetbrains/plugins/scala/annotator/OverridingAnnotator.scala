@@ -95,7 +95,7 @@ trait OverridingAnnotator {
     if (superSignatures.length == 0) {
       if (owner.hasModifierProperty("override")) {
         val annotation: Annotation = holder.createErrorAnnotation(member.nameId,
-          ScalaBundle.message("member.overrides.nothing", memberType, member.getName))
+          ScalaBundle.message("member.overrides.nothing", memberType, member.name))
         annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
         annotation.registerFix(new RemoveModifierQuickFix(owner, "override"))
       }
@@ -104,7 +104,7 @@ trait OverridingAnnotator {
       for (signature <- superSignatures if !isConcretes && isConcrete(signature)) isConcretes = true
       if (isConcretes && !owner.hasModifierProperty("override")) {
         val annotation: Annotation = holder.createErrorAnnotation(member.nameId,
-          ScalaBundle.message("member.needs.override.modifier", memberType, member.getName))
+          ScalaBundle.message("member.needs.override.modifier", memberType, member.name))
         annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
         annotation.registerFix(new AddModifierQuickFix(owner, "override"))
       }

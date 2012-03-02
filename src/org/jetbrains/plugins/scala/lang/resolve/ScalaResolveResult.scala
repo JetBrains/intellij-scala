@@ -5,6 +5,7 @@ package resolve
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.lang.psi.types._
 import psi.api.toplevel.imports.usages.ImportUsed
+import extensions.toPsiNamedElementExt
 
 object ScalaResolveResult {
   def empty = new ScalaResolveResult(null, ScSubstitutor.empty, Set[ImportUsed]())
@@ -34,7 +35,7 @@ class ScalaResolveResult(val element: PsiNamedElement,
 
   def getElement = element
   
-  lazy val name: String = element.getName
+  lazy val name: String = element.name
 
   /**
    * this is important to get precedence information

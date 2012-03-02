@@ -31,7 +31,7 @@ class ScalaPackageNameInspection extends LocalInspectionTool {
     file match {
       case file: ScalaFile => {
         if (file.isScriptFile()) return null
-        if (file.getClasses.length == 0) return null
+        if (file.typeDefinitions.length == 0) return null
 
         val dir = file.getContainingDirectory
         if (dir == null) return null
@@ -54,7 +54,7 @@ class ScalaPackageNameInspection extends LocalInspectionTool {
         val prefix = if (module != null && settings.IGNORE_PERFORMANCE_TO_FIND_ALL_CLASS_NAMES) {
           ScalaFacet.findIn(module).flatMap(f => f.basePackage).getOrElse("")
         } else ""
-        val expectedFilePackageName = file.getClasses.head match {
+        val expectedFilePackageName = file.typeDefinitions.head match {
           case obj: ScObject if obj.hasPackageKeyword =>
             Option(pack.getParentPackage).map(_.getQualifiedName).getOrElse("")
           case _ =>

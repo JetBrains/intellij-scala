@@ -5,13 +5,17 @@ package api
 package toplevel
 
 import fake.FakePsiMethod
+import typedef._
 import types.result.{TypingContext, TypingContextOwner}
 import com.intellij.openapi.util.text.StringUtil
 import types.ScType
 import statements.params.ScClassParameter
-import com.intellij.psi.PsiMethod
 import statements.{ScAnnotationsHolder, ScVariable, ScValue}
 import types.nonvalue.Parameter
+import com.intellij.psi.{PsiElement, PsiClass, PsiMethod}
+import com.intellij.util.containers.ConcurrentHashMap
+import collection.mutable.ArrayBuffer
+import light.{PsiClassWrapper, StaticPsiTypedDefinitionWrapper, PsiTypedDefinitionWrapper}
 
 /**
  * Member definitions, classes, named patterns which have types
@@ -71,4 +75,38 @@ trait ScTypedDefinition extends ScNamedElement with TypingContextOwner {
     beanMethodsCache = res
     res
   }
+
+  import PsiTypedDefinitionWrapper.DefinitionRole._
+  private var typedDefinitionWrapper: ConcurrentHashMap[(Boolean, Boolean, DefinitionRole, Option[PsiClass]), (PsiTypedDefinitionWrapper, Long)] =
+    new ConcurrentHashMap()
+
+  def getTypedDefinitionWrapper(isStatic: Boolean, isInterface: Boolean, role: DefinitionRole,
+                                cClass: Option[PsiClass] = None): PsiTypedDefinitionWrapper = {
+    val curModCount = getManager.getModificationTracker.getOutOfCodeBlockModificationCount
+    val r = typedDefinitionWrapper.get(isStatic, isInterface, role, cClass)
+    if (r != null && r._2 == curModCount) {
+      return r._1
+    }
+    val res = new PsiTypedDefinitionWrapper(this, isStatic, isInterface, role, cClass)
+    typedDefinitionWrapper.put((isStatic, isInterface, role, cClass), (res, curModCount))
+    res
+  }
+
+  private var staticTypedDefinitionWrapper: ConcurrentHashMap[(DefinitionRole, PsiClassWrapper), (StaticPsiTypedDefinitionWrapper, Long)] =
+    new ConcurrentHashMap()
+
+  def getStaticTypedDefinitionWrapper(role: DefinitionRole, cClass: PsiClassWrapper): StaticPsiTypedDefinitionWrapper = {
+    val curModCount = getManager.getModificationTracker.getOutOfCodeBlockModificationCount
+    val r = staticTypedDefinitionWrapper.get(role, cClass)
+    if (r != null && r._2 == curModCount) {
+      return r._1
+    }
+    val res = new StaticPsiTypedDefinitionWrapper(this, role, cClass)
+    staticTypedDefinitionWrapper.put((role, cClass), (res, curModCount))
+    res
+  }
+
+  def nameContext: PsiElement = ScalaPsiUtil.nameContext(this)
+  def isVar: Boolean = false
+  def isVal: Boolean = false
 }

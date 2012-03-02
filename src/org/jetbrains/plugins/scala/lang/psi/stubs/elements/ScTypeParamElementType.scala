@@ -48,7 +48,7 @@ class ScTypeParamElementType[Func <: ScTypeParam]
     }
     val viewText = psi.viewTypeElement.toArray.map(_.getText)
     val contextText = psi.contextBoundTypeElement.toArray.map(_.getText)
-    new ScTypeParamStubImpl(parentStub.asInstanceOf[StubElement[PsiElement]], this, psi.getName,
+    new ScTypeParamStubImpl(parentStub.asInstanceOf[StubElement[PsiElement]], this, psi.name,
       upperText, lowerText, viewText, contextText, psi.isCovariant, psi.isContravariant,
       psi.getTextRange.getStartOffset, psi.getContainingFileName)
   }

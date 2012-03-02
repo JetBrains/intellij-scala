@@ -8,16 +8,14 @@ import com.intellij.psi.{PsiClass, PsiElement}
 import com.intellij.util.io.StringRef
 import impl.ScTemplateDefinitionStubImpl
 import com.intellij.psi.stubs.{StubElement, IndexSink, StubOutputStream, StubInputStream}
-import com.intellij.lang.ASTNode
-import index.{ScFullClassNameIndex, ScalaIndexKeys, ScShortClassNameIndex}
+import index.ScalaIndexKeys
 import api.toplevel.typedef.{ScTemplateDefinition, ScObject, ScTypeDefinition}
 import api.expr.ScAnnotation
-import com.intellij.psi.impl.java.stubs.index.{JavaStubIndexKeys, JavaFullClassNameIndex, JavaShortClassNameIndex}
+import com.intellij.psi.impl.java.stubs.index.JavaStubIndexKeys
 
 /**
- * @author ilyas
+ * @author ilyas, alefas
  */
-
 abstract class ScTemplateDefinitionElementType[TypeDef <: ScTemplateDefinition](debugName: String)
 extends ScStubElementType[ScTemplateDefinitionStub, ScTemplateDefinition](debugName) {
 
@@ -42,8 +40,11 @@ extends ScStubElementType[ScTemplateDefinitionStub, ScTemplateDefinition](debugN
 
     val isImplicitObject = psi.isInstanceOf[ScObject] && psi.hasModifierProperty("implicit")
 
-    new ScTemplateDefinitionStubImpl[ParentPsi](parent, this, psi.getName, psi.qualifiedName, psi.getQualifiedName,
-      fileName, signs, isPO, isSFC, isDepr, isImplicitObject)
+    val javaName = psi.javaName
+    val additionalJavaNames = psi.additionalJavaNames
+
+    new ScTemplateDefinitionStubImpl[ParentPsi](parent, this, psi.name, psi.qualifiedName, psi.getQualifiedName,
+      fileName, signs, isPO, isSFC, isDepr, isImplicitObject, javaName, additionalJavaNames)
   }
 
   def serialize(stub: ScTemplateDefinitionStub, dataStream: StubOutputStream) {
@@ -58,6 +59,10 @@ extends ScStubElementType[ScTemplateDefinitionStub, ScTemplateDefinition](debugN
     for (name <- methodNames) dataStream.writeName(name)
     dataStream.writeBoolean(stub.isDeprecated)
     dataStream.writeBoolean(stub.isImplicitObject)
+    dataStream.writeName(stub.javaName)
+    val additionalNames = stub.additionalJavaNames
+    dataStream.writeInt(additionalNames.length)
+    for (name <- additionalNames) dataStream.writeName(name)
   }
 
   override def deserializeImpl(dataStream: StubInputStream, parentStub: Any): ScTemplateDefinitionStub = {
@@ -73,8 +78,12 @@ extends ScStubElementType[ScTemplateDefinitionStub, ScTemplateDefinition](debugN
     val parent = parentStub.asInstanceOf[StubElement[PsiElement]]
     val isDepr = dataStream.readBoolean
     val isImplcitObject = dataStream.readBoolean
+    val javaName = dataStream.readName()
+    val lengthA = dataStream.readInt()
+    val additionalNames = new Array[StringRef](lengthA)
+    for (i <- 0 until lengthA) additionalNames(i) = dataStream.readName()
     new ScTemplateDefinitionStubImpl(parent, this, name, qualName, javaQualName, fileName, methodNames, isPO, isSFC, isDepr,
-      isImplcitObject)
+      isImplcitObject, javaName, additionalNames)
   }
 
   def indexStub(stub: ScTemplateDefinitionStub, sink: IndexSink) {
@@ -83,15 +92,22 @@ extends ScStubElementType[ScTemplateDefinitionStub, ScTemplateDefinition](debugN
     if (name != null) {
       sink.occurrence(ScalaIndexKeys.SHORT_NAME_KEY, name)
     }
-    val javaName = Option(stub.javaQualName).flatMap(_.split('.').lastOption)
-    javaName match {
-      case Some(name) =>
-        sink.occurrence(JavaStubIndexKeys.CLASS_SHORT_NAMES, name)
-      case _ =>
+    val javaName = stub.javaName
+    if (javaName != null) sink.occurrence(JavaStubIndexKeys.CLASS_SHORT_NAMES, javaName)
+    sink.occurrence(ScalaIndexKeys.ALL_CLASS_NAMES, javaName)
+    val additionalNames = stub.additionalJavaNames
+    for (name <- additionalNames) {
+      sink.occurrence(ScalaIndexKeys.ALL_CLASS_NAMES, name)
     }
-    val jfqn = stub.javaQualName
-    if (jfqn != null)
-      sink.occurrence[PsiClass, java.lang.Integer](JavaStubIndexKeys.CLASS_FQN, jfqn.hashCode)
+    val javaFqn = stub.javaQualName
+    if (javaFqn != null) {
+      sink.occurrence[PsiClass, java.lang.Integer](JavaStubIndexKeys.CLASS_FQN, javaFqn.hashCode)
+      val i = javaFqn.lastIndexOf(".")
+      val pack =
+        if (i == -1) ""
+        else javaFqn.substring(0, i)
+      sink.occurrence(ScalaIndexKeys.JAVA_CLASS_NAME_IN_PACKAGE_KEY, pack)
+    }
     val fqn = stub.qualName
     if (fqn != null) {
       sink.occurrence[PsiClass, java.lang.Integer](ScalaIndexKeys.FQN_KEY, fqn.hashCode)
@@ -112,7 +128,5 @@ extends ScStubElementType[ScTemplateDefinitionStub, ScTemplateDefinition](debugN
           else fqn.substring(0, index).hashCode
         })
     }
-
-
   }
 }

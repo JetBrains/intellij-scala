@@ -11,6 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.{LightScalaTestCase, ScalaFileType}
 import scala.util.Sorting
+import org.jetbrains.plugins.scala.extensions.toPsiNamedElementExt
 
 /**
  * @author ilyas
@@ -47,10 +48,10 @@ class ReachingDefsCollectTest extends LightScalaTestCase {
     var builder: StringBuilder = new StringBuilder
     builder.append("INPUT:\n")
     builder.append(Sorting.stableSort(infos.inputVariables.
-            map(p => p.element.toString + " : " + p.element.getName + (if (p.isRef) " [ref]" else "")).toSeq).mkString("\n"))
+            map(p => p.element.toString + " : " + p.element.name + (if (p.isRef) " [ref]" else "")).toSeq).mkString("\n"))
     builder.append("\nOUTPUT:\n")
     builder.append(Sorting.stableSort(infos.outputVariables.
-            map(p => p.element.toString + " : " + p.element.getName).toSeq).mkString("\n"))
+            map(p => p.element.toString + " : " + p.element.name).toSeq).mkString("\n"))
     return builder.toString()
   }
 

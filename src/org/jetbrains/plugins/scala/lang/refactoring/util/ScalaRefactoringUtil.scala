@@ -213,8 +213,8 @@ object ScalaRefactoringUtil {
     def compare(element1: PsiElement, element2: PsiElement): Int = {
       if (element1 == element2) return 0
       if (element1.isInstanceOf[ScParameter] && element2.isInstanceOf[ScParameter]) {
-        val name1 = element1.asInstanceOf[ScParameter].getName
-        val name2 = element2.asInstanceOf[ScParameter].getName
+        val name1 = element1.asInstanceOf[ScParameter].name
+        val name2 = element2.asInstanceOf[ScParameter].name
         if (name1 != null && name2 != null) {
           return name1.compareTo(name2)
         }

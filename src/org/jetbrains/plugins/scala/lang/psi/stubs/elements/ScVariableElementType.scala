@@ -37,11 +37,11 @@ extends ScStubElementType[ScVariableStub, ScVariable](debugName) {
     val containerText = if (isDecl) psi.asInstanceOf[ScVariableDeclaration].getIdList.getText
       else psi.asInstanceOf[ScVariableDefinition].pList.getText
     new ScVariableStubImpl[ParentPsi](parentStub, this,
-      (for (elem <- psi.declaredElements) yield elem.getName).toArray,
+      (for (elem <- psi.declaredElements) yield elem.name).toArray,
       isDecl, typeText, bodyText, containerText)
   }
 
-  def serialize(stub: ScVariableStub, dataStream: StubOutputStream): Unit = {
+  def serialize(stub: ScVariableStub, dataStream: StubOutputStream) {
     dataStream.writeBoolean(stub.isDeclaration)
     val names = stub.getNames
     dataStream.writeInt(names.length)
@@ -63,7 +63,7 @@ extends ScStubElementType[ScVariableStub, ScVariable](debugName) {
     new ScVariableStubImpl(parent, this, names, isDecl, typeText, bodyText, bindingsText)
   }
 
-  def indexStub(stub: ScVariableStub, sink: IndexSink): Unit = {
+  def indexStub(stub: ScVariableStub, sink: IndexSink) {
     val names = stub.getNames
     for (name <- names if name != null) {
       sink.occurrence(ScalaIndexKeys.VARIABLE_NAME_KEY, name)

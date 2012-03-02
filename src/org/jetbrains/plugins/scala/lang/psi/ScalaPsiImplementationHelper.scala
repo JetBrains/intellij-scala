@@ -7,6 +7,7 @@ import com.intellij.openapi.roots.{OrderEntry, ProjectRootManager, ProjectFileIn
 import com.intellij.psi.{PsiClass, JavaPsiFacade, PsiFile}
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.openapi.module.Module
+import impl.ScalaPsiManager
 import java.util.List
 import org.jetbrains.plugins.scala.extensions.toPsiClassExt
 
@@ -20,7 +21,7 @@ object ScalaPsiImplementationHelper {
     val orderEntries: List[OrderEntry] = idx.getOrderEntriesForFile(vFile)
     val fqn: String = psiClass.qualifiedName
     if (fqn == null) return psiClass
-    val classes: Array[PsiClass] = JavaPsiFacade.getInstance(project).findClasses(fqn, new GlobalSearchScope((project)) {
+    val classes: Array[PsiClass] = ScalaPsiManager.instance(project).getCachedClasses(new GlobalSearchScope((project)) {
       def compare(file1: VirtualFile, file2: VirtualFile): Int = 0
       def contains(file: VirtualFile): Boolean = {
         val entries: List[OrderEntry] = idx.getOrderEntriesForFile(file)
@@ -36,7 +37,7 @@ object ScalaPsiImplementationHelper {
       }
       def isSearchInModuleContent(aModule: Module): Boolean = false
       def isSearchInLibraries: Boolean = true
-    })
+    }, fqn)
     if (classes.length == 0) psiClass
     else if (classes.length == 1) classes(0)
     else {

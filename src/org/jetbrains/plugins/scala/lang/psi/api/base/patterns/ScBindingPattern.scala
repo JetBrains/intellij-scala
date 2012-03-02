@@ -10,10 +10,11 @@ import com.intellij.psi.impl.ResolveScopeManager
 import com.intellij.psi.search.LocalSearchScope
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiClass, PsiElement}
-import toplevel.typedef.{ScMember, ScTypeDefinition}
 import statements._
 import toplevel.templates.ScTemplateBody
 import toplevel.{ScEarlyDefinitions, ScNamedElement, ScTypedDefinition}
+import extensions.toPsiNamedElementExt
+import toplevel.typedef.{ScTemplateDefinition, ScMember, ScTypeDefinition}
 
 trait ScBindingPattern extends ScPattern with ScNamedElement with ScTypedDefinition with NavigationItem {
   override def getTextOffset: Int = nameId.getTextRange.getStartOffset
@@ -40,10 +41,10 @@ trait ScBindingPattern extends ScPattern with ScNamedElement with ScTypedDefinit
     case None => true
     case _ => false
   }
-  
-  def nameContext: PsiElement = ScalaPsiUtil.nameContext(this)
-  def isVar = nameContext.isInstanceOf[ScVariable]
-  def isVal = nameContext.isInstanceOf[ScValue]
+
+  override def isVar: Boolean = nameContext.isInstanceOf[ScVariable]
+  override def isVal: Boolean = nameContext.isInstanceOf[ScValue]
+
   def isClassMember = nameContext.getContext match {
     case _: ScTemplateBody | _: ScEarlyDefinitions => true
     case _ => false
@@ -52,8 +53,8 @@ trait ScBindingPattern extends ScPattern with ScNamedElement with ScTypedDefinit
     case a: ScAnnotationsHolder => a.hasAnnotation("scala.reflect.BeanProperty") != None
     case _ => false
   }
-  
-  def getContainingClass: PsiClass = {
+
+  def getContainingClass: ScTemplateDefinition = {
     ScalaPsiUtil.nameContext(this) match {
       case memb: ScMember => memb.getContainingClass
       case _ => null
@@ -76,7 +77,7 @@ trait ScBindingPattern extends ScPattern with ScNamedElement with ScTypedDefinit
           val elemsIterator = d.declaredElements.iterator
           while (elemsIterator.hasNext) {
             val nextElem = elemsIterator.next()
-            if (nextElem.getName == getName) return nextElem
+            if (nextElem.name == name) return nextElem
           }
         case _ =>
       }

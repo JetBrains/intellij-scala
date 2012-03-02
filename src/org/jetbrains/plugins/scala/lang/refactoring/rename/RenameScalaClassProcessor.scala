@@ -6,12 +6,12 @@ import java.util.Map
 import java.lang.String
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScDocCommentOwner, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.parsing.MyScaladocParsing
-import com.intellij.usageView.UsageInfo
-import com.intellij.refactoring.listeners.RefactoringElementListener
-import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.{ScDocTagValue, ScDocComment}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocComment
+import org.jetbrains.plugins.scala.extensions.toPsiNamedElementExt
+import com.intellij.openapi.editor.Editor
+import org.jetbrains.plugins.scala.lang.psi.light.PsiClassWrapper
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTrait, ScObject, ScDocCommentOwner, ScTypeDefinition}
 
 /**
  * User: Alexander Podkhalyuzin
@@ -20,7 +20,14 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 
 class RenameScalaClassProcessor extends RenameJavaClassProcessor {
   override def canProcessElement(element: PsiElement): Boolean = {
-    element.isInstanceOf[ScTypeDefinition] || element.isInstanceOf[ScTypeParam]
+    element.isInstanceOf[ScTypeDefinition] || element.isInstanceOf[PsiClassWrapper] || element.isInstanceOf[ScTypeParam]
+  }
+
+  override def substituteElementToRename(element: PsiElement, editor: Editor): PsiElement = {
+    element match {
+      case wrapper: PsiClassWrapper => wrapper.definition
+      case _ => element
+    }
   }
 
   override def prepareRenaming(element: PsiElement, newName: String, allRenames: Map[PsiElement, String]) {
@@ -31,7 +38,7 @@ class RenameScalaClassProcessor extends RenameJavaClassProcessor {
           case _ =>
         }
         val file = td.getContainingFile
-        if (file != null && file.getName == td.getName + ".scala") {
+        if (file != null && file.name == td.name + ".scala") {
           allRenames.put(file, newName + ".scala")
         }
       }
@@ -41,13 +48,25 @@ class RenameScalaClassProcessor extends RenameJavaClassProcessor {
             commentOwner.getDocComment match {
               case comment: ScDocComment =>
                 comment.findTagsByName(MyScaladocParsing.TYPE_PARAM_TAG).foreach {
-                  b => if (b.getValueElement != null && b.getValueElement.getText == docTagParam.getName)
+                  b => if (b.getValueElement != null && b.getValueElement.getText == docTagParam.name)
                     allRenames.put(b.getValueElement, newName)
                 }
               case _ =>
             }
           case _ =>
         }
+      case _ =>
+    }
+
+    //put rename for fake object companion class
+    element match {
+      case o: ScObject =>
+        o.fakeCompanionClass match {
+          case Some(clazz) => allRenames.put(clazz, newName + "$")
+          case None =>
+        }
+      case t: ScTrait =>
+        allRenames.put(t.fakeCompanionClass, newName + "$class")
       case _ =>
     }
   }

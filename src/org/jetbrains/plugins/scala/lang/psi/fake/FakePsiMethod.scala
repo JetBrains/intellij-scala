@@ -1,8 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.fake
 
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import com.intellij.psi._
-import impl.light.{LightModifierList, LightElement}
+import impl.light.LightElement
 import impl.source.HierarchicalMethodSignatureImpl
 import java.lang.String
 import javadoc.PsiDocComment
@@ -11,25 +10,19 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinitio
 import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import com.intellij.lang.Language
-import util.{MethodSignatureBase, PsiTreeUtil, MethodSignatureBackedByPsiMethod, MethodSignature}
+import util.{PsiTreeUtil, MethodSignatureBackedByPsiMethod}
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.psi.types._
 import nonvalue.Parameter
-import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
-import com.intellij.openapi.util.Pair
-import java.util.{Collection, List}
-import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.PsiClassFake
-import com.intellij.util.IncorrectOperationException
-import com.intellij.psi.PsiReferenceList.Role
+import java.util.List
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScValue, ScVariable}
 
 /**
  * User: Alexander Podkhalyuzin
  */
-
 class FakePsiMethod(
         val navElement: PsiElement,
         name: String,
@@ -43,7 +36,7 @@ class FakePsiMethod(
     val language = navElement.getLanguage
   } with LightElement(manager, language) with PsiMethod {
   def this(value: ScTypedDefinition, hasModifier: String => Boolean) = {
-    this(value, value.getName, Array.empty, value.getType(TypingContext.empty).getOrAny, hasModifier)
+    this(value, value.name, Array.empty, value.getType(TypingContext.empty).getOrAny, hasModifier)
   }
   override def toString: String = name + "()"
 
@@ -167,7 +160,7 @@ class FakePsiParameter(manager: PsiManager, language: Language, parameter: Param
 
   def computeConstantValue: AnyRef = null
 
-  def normalizeDeclaration: Unit = {}
+  def normalizeDeclaration() {}
 
   def hasInitializer: Boolean = false
 

@@ -142,7 +142,7 @@ case class ScExistentialType(quantified : ScType,
           checkRecursive(lower, rejected)
           checkRecursive(upper, rejected)
         case c@ScCompoundType(comps, decls, typeDecls, _) =>
-          val newSet = rejected ++ typeDecls.map(_.getName)
+          val newSet = rejected ++ typeDecls.map(_.name)
           comps.foreach(checkRecursive(_, newSet))
           c.signatureMap.foreach(tuple => checkRecursive(tuple._2, newSet))
           c.types.foreach(tuple => {
@@ -224,7 +224,7 @@ case class ScExistentialType(quantified : ScType,
       tp.recursiveUpdate {
         case tp@ScDesignatorType(element) => element match {
           case a: ScTypeAlias if a.getContext.isInstanceOf[ScExistentialClause]
-            && wildcards.find(_.name == a.getName) != None =>
+            && wildcards.find(_.name == a.name) != None =>
             res = true
             (res, tp)
           case _ => (res,  tp)
@@ -247,7 +247,7 @@ case class ScExistentialType(quantified : ScType,
         case t@ScTupleType(components) =>
           ScTupleType(components.map(updateRecursive(_, rejected, variance)))(t.getProject, t.getScope)
         case c@ScCompoundType(components, decls, typeDecls, subst) =>
-          val newSet = rejected ++ typeDecls.map(_.getName)
+          val newSet = rejected ++ typeDecls.map(_.name)
           new ScCompoundType(components, decls, typeDecls, subst, c.signatureMap.map {
             case (sign, tp) => (sign, updateRecursive(tp, newSet, variance))
           }, c.types.map {
@@ -297,8 +297,8 @@ case class ScExistentialType(quantified : ScType,
         case ScThisType(clazz) => tp
         case ScDesignatorType(element) => element match {
           case a: ScTypeAlias if a.getContext.isInstanceOf[ScExistentialClause] =>
-            if (!rejected.contains(a.getName)) {
-              wildcards.find(_.name == a.getName) match {
+            if (!rejected.contains(a.name)) {
+              wildcards.find(_.name == a.name) match {
                 case Some(arg) => variance match {
                   case 1 if !hasWildcards(arg.upperBound)=>
                     updated = true

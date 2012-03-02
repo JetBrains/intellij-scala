@@ -19,7 +19,7 @@ import com.intellij.lang.ASTNode
 import types.result.{TypingContext, Failure}
 import api.ScalaElementVisitor
 import com.intellij.psi.{PsiElementVisitor, PsiElement, PsiReference, PsiClass}
-import extensions.toPsiClassExt
+import extensions.{toPsiNamedElementExt, toPsiClassExt}
 
 /**
 * @author Alexander Podkhalyuzin
@@ -65,7 +65,7 @@ class ScSuperReferenceImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with
 
       def handleElementRename(newElementName: String) = doRename(newElementName)
       def bindToElement(e : PsiElement) = e match {
-        case c : PsiClass => doRename(c.getName)
+        case c : PsiClass => doRename(c.name)
         case _ => throw new IncorrectOperationException("cannot bind to anything but class")
       }
 
@@ -76,7 +76,7 @@ class ScSuperReferenceImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with
       }
 
       def isReferenceTo(element: PsiElement) = element match {
-        case c : PsiClass => c.getName == id.getText && resolve == c
+        case c : PsiClass => c.name == id.getText && resolve == c
         case _ => false
       }
 
@@ -105,7 +105,7 @@ class ScSuperReferenceImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with
       val name = id.getText
       for (t <- types) {
         ScType.extractClass(t) match {
-          case Some(c) if name == c.getName => return Some(t)
+          case Some(c) if name == c.name => return Some(t)
           case _ =>
         }
       }
@@ -114,7 +114,7 @@ class ScSuperReferenceImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with
   }
 
   private def superTypes: Option[Seq[ScType]] = reference match {
-    case Some(q) => q.resolve match {
+    case Some(q) => q.resolve() match {
       case clazz : PsiClass => Some(clazz.getSuperTypes.map {t => ScType.create(t, getProject, getResolveScope)})
       case _ => None
     }

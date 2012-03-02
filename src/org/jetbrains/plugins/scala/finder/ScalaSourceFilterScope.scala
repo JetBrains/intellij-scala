@@ -7,12 +7,12 @@ import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.fileTypes.{FileType, StdFileTypes}
 import com.intellij.openapi.module.Module
+import org.jetbrains.plugins.scala.decompiler.DecompilerUtil
 
 /**
  * User: Alexander Podkhalyuzin
  * Date: 17.02.2010
  */
-
 class ScalaSourceFilterScope(myDelegate: GlobalSearchScope, project: Project) extends GlobalSearchScope(project) {
   val myIndex = ProjectRootManager.getInstance(project).getFileIndex
 
@@ -31,6 +31,7 @@ class ScalaSourceFilterScope(myDelegate: GlobalSearchScope, project: Project) ex
   def contains(file: VirtualFile): Boolean = {
     val fileType: FileType = file.getFileType
     (null == myDelegate || myDelegate.contains(file)) && (ScalaFileType.SCALA_FILE_TYPE == fileType &&
-            myIndex.isInSourceContent(file) || StdFileTypes.CLASS == fileType && myIndex.isInLibraryClasses(file))
+            myIndex.isInSourceContent(file) || StdFileTypes.CLASS == fileType && myIndex.isInLibraryClasses(file) &&
+            DecompilerUtil.isScalaFile(file))
   }
 }

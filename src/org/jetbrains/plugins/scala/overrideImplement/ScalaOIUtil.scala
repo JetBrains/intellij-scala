@@ -24,7 +24,7 @@ import settings.ScalaApplicationSettings
 import lang.psi.types.result.{Failure, Success, TypingContext}
 import javax.swing.{JComponent, JCheckBox}
 import collection.immutable.HashSet
-import extensions.toPsiClassExt
+import extensions.{toPsiNamedElementExt, toPsiClassExt}
 
 /**
  * User: Alexander Podkhalyuzin
@@ -157,7 +157,7 @@ object ScalaOIUtil {
       element match {
         case sign: PhysicalSignature => {
           val m = sign.method
-          val name = if (m == null) "" else m.getName
+          val name = if (m == null) "" else m.name
           m match {
             case _ if isProductAbstractMethod(m, clazz) =>
             case x if name == "$tag" || name == "$init$" =>
@@ -189,11 +189,11 @@ object ScalaOIUtil {
     if (visited.contains(clazz)) return false
     clazz match {
       case td: ScTypeDefinition if td.isCase => {
-        if (m.getName == "apply") return true
-        if (m.getName == "canEqual") return true
+        if (m.name == "apply") return true
+        if (m.name == "canEqual") return true
         val clazz = m.getContainingClass
         clazz != null && clazz.qualifiedName == "scala.Product" &&
-          (m.getName match {
+          (m.name match {
             case "productArity" | "productElement" => true
             case _ => false
           })
@@ -221,7 +221,7 @@ object ScalaOIUtil {
           sign.method match {
             case _ if isProductAbstractMethod(sign.method, clazz) => buf2 += sign
             case f: ScFunctionDeclaration if f.hasAnnotation("scala.native") == None =>
-            case x if x.getName == "$tag" || x.getName == "$init$"=>
+            case x if x.name == "$tag" || x.name == "$init$"=>
             case x: ScFunction if x.isSyntheticCopy =>
             case x if x.getContainingClass == clazz =>
             case x: PsiModifierListOwner if x.hasModifierProperty("abstract")
@@ -230,7 +230,7 @@ object ScalaOIUtil {
             case method => {
               var flag = false
               if (method match {case x: ScFunction => x.parameters.length == 0 case _ => method.getParameterList.getParametersCount == 0}) {
-                for (pair <- clazz.allVals; v = pair._1) if (v.getName == method.getName) {
+                for (pair <- clazz.allVals; v = pair._1) if (v.name == method.name) {
                   ScalaPsiUtil.nameContext(v) match {
                     case x: ScValue if x.getContainingClass == clazz => flag = true
                     case x: ScVariable if x.getContainingClass == clazz => flag = true
@@ -250,11 +250,11 @@ object ScalaOIUtil {
               for (signe <- clazz.allMethods if signe.method.getContainingClass == clazz) {
                 //getContainingClass == clazz so we sure that this is ScFunction (it is safe cast)
                 signe.method match {
-                  case fun: ScFunction => if (fun.parameters.length == 0 && fun.getName == x.getName) flag = true
+                  case fun: ScFunction => if (fun.parameters.length == 0 && x.declaredElements.exists(_.name == fun.name)) flag = true
                   case _ =>  //todo: ScPrimaryConstructor?
                 }
               }
-              for (pair <- clazz.allVals; v = pair._1) if (v.getName == name.getName) {
+              for (pair <- clazz.allVals; v = pair._1) if (v.name == name.name) {
                 ScalaPsiUtil.nameContext(v) match {
                   case x: ScValue if x.getContainingClass == clazz => flag = true
                   case x: ScVariable if x.getContainingClass == clazz => flag = true
@@ -269,9 +269,9 @@ object ScalaOIUtil {
                 //getContainingClass == clazz so we sure that this is ScFunction (it is safe cast)
                 if (signe.method.isInstanceOf[ScFunction] &&
                         signe.method.asInstanceOf[ScFunction].parameters.length == 0 &&
-                        signe.method.getName == x.getName) flag = true
+                        x.declaredElements.exists(_.name == signe.method.name)) flag = true
               }
-              for (pair <- clazz.allVals; v = pair._1) if (v.getName == name.getName) {
+              for (pair <- clazz.allVals; v = pair._1) if (v.name == name.name) {
                 ScalaPsiUtil.nameContext(v) match {
                   case x: ScValue if x.getContainingClass == clazz => flag = true
                   case x: ScVariable if x.getContainingClass == clazz => flag = true
@@ -298,8 +298,8 @@ object ScalaOIUtil {
     def getObjectByName: ScalaObject = {
       for (obj <- seq) {
         obj match {
-          case sign: PhysicalSignature if sign.method.getName == methodName => return sign
-          case obj@(name: PsiNamedElement, subst: ScSubstitutor) if name.getName == methodName => return obj
+          case sign: PhysicalSignature if sign.method.name == methodName => return sign
+          case obj@(name: PsiNamedElement, subst: ScSubstitutor) if name.name == methodName => return obj
           case _ =>
         }
       }

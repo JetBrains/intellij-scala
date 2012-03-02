@@ -67,7 +67,7 @@ class ScalaTestGenerator extends TestGenerator {
     }
     psiClass match {
       case Some(cls) =>
-        val classParents = addExtendsRef(cls.getName)
+        val classParents = addExtendsRef(cls.name)
         classParents.depthFirst.filterByType(classOf[ScStableCodeReferenceElement]).next().bindToElement(cls)
       case None =>
         addExtendsRef(fqName)

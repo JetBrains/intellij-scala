@@ -8,6 +8,7 @@ import lang.psi.api.toplevel.ScTypedDefinition
 import lang.refactoring.namesSuggester.NameSuggester
 import lang.psi.types.result.{Success, TypingContext}
 import lang.psi.types.{JavaArrayType, ScParameterizedType, ScType}
+import extensions.toPsiNamedElementExt
 
 /**
  * User: Alexander Podkhalyuzin
@@ -58,7 +59,7 @@ object SuggestNamesUtil {
             case "foreach" => "foreach"
           }), context, true).
                   map(_.asInstanceOf[LookupItem[_]].getObject.asInstanceOf[PsiNamedElement]).
-                  filter(_.getName == x(1))
+                  filter(_.name == x(1))
           if (items.length == 0) return Array[String]("x")
           items(0) match {
             case typed: ScTypedDefinition => typed.getType(TypingContext.empty) match {

@@ -5,35 +5,20 @@ package impl
 package statements
 package params
 
-import com.intellij.util.ArrayFactory
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
-
-import com.intellij.psi.tree.TokenSet
 import com.intellij.lang.ASTNode
-import com.intellij.psi.tree.IElementType
-import psi.stubs.{ScTypeParamClauseStub, ScModifiersStub}
-
+import psi.stubs.ScTypeParamClauseStub
 import com.intellij.psi._
-import com.intellij.psi.scope.PsiScopeProcessor
-
-import org.jetbrains.annotations._
-
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.icons.Icons
-
-
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import collection.mutable.ArrayBuffer
-import api.toplevel.packaging.ScPackaging
+import scope.PsiScopeProcessor
+import lang.resolve.processor.BaseProcessor
 
 
-/** 
+/**
 * @author Alexander Podkhalyuzin
-* Date: 22.02.2008
+* @since 22.02.2008
 */
-
 class ScTypeParamClauseImpl extends ScalaStubBasedElementImpl[ScTypeParamClause] with ScTypeParamClause {
   def this(node: ASTNode) = {this(); setNode(node)}
   def this(stub: ScTypeParamClauseStub) = {this(); setStub(stub); setNode(null)}
@@ -60,7 +45,19 @@ class ScTypeParamClauseImpl extends ScalaStubBasedElementImpl[ScTypeParamClause]
         curr = curr.getNextSibling
       }
       buffer.toSeq
-      //findChildrenByClass(classOf[ScTypeParam]).toSeq
     }
+  }
+
+  def getTypeParameters: Array[PsiTypeParameter] = typeParameters.toArray
+
+  def getTypeParameterIndex(typeParameter: PsiTypeParameter): Int = typeParameters.indexOf(typeParameter)
+
+  override def processDeclarations(processor: PsiScopeProcessor, state: ResolveState, lastParent: PsiElement, place: PsiElement): Boolean = {
+    if (!processor.isInstanceOf[BaseProcessor]) {
+      for (param <- typeParameters) {
+        if (!processor.execute(param, state)) return false
+      }
+    }
+    true
   }
 }

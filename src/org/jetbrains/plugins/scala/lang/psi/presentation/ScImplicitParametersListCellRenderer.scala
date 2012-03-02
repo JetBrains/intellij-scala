@@ -7,6 +7,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.PresentationUtil
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
+import org.jetbrains.plugins.scala.extensions.toPsiNamedElementExt
 
 /**
  * User: Alexander Podkhalyuzin
@@ -15,16 +16,16 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 
 class ScImplicitParametersListCellRenderer extends PsiElementListCellRenderer[PsiNamedElement] {
   def getElementText(element: PsiNamedElement): String = {
-    if (element.getName == "NotFoundParameter") return "Parameter not found"
+    if (element.name == "NotFoundParameter") return "Parameter not found"
     element match {
       case method: ScFunction => {
-        method.getName + PresentationUtil.presentationString(method.paramClauses) + ": " +
+        method.name + PresentationUtil.presentationString(method.paramClauses) + ": " +
           PresentationUtil.presentationString(method.returnType.
             getOrAny)
       }
-      case b: ScTypedDefinition => b.getName + ": " +
+      case b: ScTypedDefinition => b.name + ": " +
         PresentationUtil.presentationString(b.getType(TypingContext.empty).getOrAny)
-      case _ => element.getName
+      case _ => element.name
     }
   }
 

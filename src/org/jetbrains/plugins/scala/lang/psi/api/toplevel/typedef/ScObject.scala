@@ -5,9 +5,9 @@ package api
 package toplevel
 package typedef
 
-import com.intellij.psi.{PsiElement, PsiMethod}
 import lexer.ScalaTokenTypes
-import statements.{ScFunction, ScDeclaredElementsHolder}
+import statements.ScDeclaredElementsHolder
+import com.intellij.psi.{PsiClass, PsiElement, PsiMethod}
 
 /**
 * @author Alexander Podkhalyuzin
@@ -37,4 +37,8 @@ trait ScObject extends ScTypeDefinition with ScTypedDefinition with ScMember wit
   def declaredElements = Seq(this)
 
   def hasPackageKeyword: Boolean
+
+  def fakeCompanionClass: Option[PsiClass]
+
+  def fakeCompanionClassOrCompanionClass: PsiClass
 }

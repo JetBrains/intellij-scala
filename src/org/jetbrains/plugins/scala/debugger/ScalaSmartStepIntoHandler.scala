@@ -70,7 +70,7 @@ class ScalaSmartStepIntoHandler extends JvmSmartStepIntoHandler {
                       val funApply = funTrait.functionsByName("apply").apply(0)
                       clazz.allMethods.foreach((signature: PhysicalSignature) => {
                         signature.method match {
-                          case fun: ScFunction if fun.getName == "apply" && fun.superMethods.contains(funApply) =>
+                          case fun: ScFunction if fun.name == "apply" && fun.superMethods.contains(funApply) =>
                             methods += fun
                           case _ =>
                         }

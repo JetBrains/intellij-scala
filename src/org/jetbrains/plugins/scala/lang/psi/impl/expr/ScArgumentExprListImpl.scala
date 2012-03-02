@@ -19,6 +19,7 @@ import api.base.{ScStableCodeReferenceElement, ScPrimaryConstructor, ScConstruct
 import com.intellij.psi._
 import lexer.ScalaTokenTypes
 import nonvalue.Parameter
+import extensions.toPsiNamedElementExt
 
 /**
 * @author Alexander Podkhalyuzin
@@ -161,14 +162,14 @@ class ScArgumentExprListImpl(node: ASTNode) extends ScalaPsiElementImpl(node) wi
                         fun.typeParameters.map(p => (p.name, ScalaPsiUtil.getPsiElementId(p)))
                       }
                       case method: PsiMethod => {
-                        method.getTypeParameters.map(p => (p.getName, ScalaPsiUtil.getPsiElementId(p)))
+                        method.getTypeParameters.map(p => (p.name, ScalaPsiUtil.getPsiElementId(p)))
                       }
                     }
                     s.followed(ScalaPsiUtil.genericCallSubstitutor(tp, gen))
                   }
                   case _ if method.getTypeParameters.length != 0 => {
                     val subst = method.getTypeParameters.foldLeft(ScSubstitutor.empty) {
-                      (subst, tp) => subst.bindT((tp.getName, ScalaPsiUtil.getPsiElementId(tp)), ScUndefinedType(tp match {
+                      (subst, tp) => subst.bindT((tp.name, ScalaPsiUtil.getPsiElementId(tp)), ScUndefinedType(tp match {
                         case tp: ScTypeParam => new ScTypeParameterType(tp: ScTypeParam, s)
                         case tp: PsiTypeParameter => new ScTypeParameterType(tp, s)
                       }))

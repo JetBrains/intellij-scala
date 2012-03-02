@@ -148,7 +148,7 @@ class ScalaIntroduceParameterHandler extends RefactoringActionHandler with Confl
   }
 
   private def getTextForElement(method: ScFunctionDefinition): String = {
-    val res: StringBuilder = new StringBuilder(method.getName)
+    val res: StringBuilder = new StringBuilder(method.name)
     method.containingClass match {
       case Some(td) =>
         val qual = td.qualifiedName

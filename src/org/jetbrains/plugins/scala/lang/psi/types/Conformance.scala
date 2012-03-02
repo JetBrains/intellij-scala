@@ -23,7 +23,7 @@ import java.util.concurrent.ConcurrentHashMap
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.util.{Computable, RecursionManager}
 import psi.impl.ScalaPsiManager
-import extensions.toPsiClassExt
+import extensions.{toPsiNamedElementExt, toPsiClassExt}
 
 object Conformance {
   /**
@@ -47,14 +47,14 @@ object Conformance {
         Some(AliasType(ta, ta.lowerBound.map(subst.subst(_)), ta.upperBound.map(subst.subst(_))))
       case ScParameterizedType(ScDesignatorType(ta: ScTypeAlias), args) => {
         val genericSubst = ScalaPsiUtil.
-          typesCallSubstitutor(ta.typeParameters.map(tp => (tp.getName, ScalaPsiUtil.getPsiElementId(tp))), args)
+          typesCallSubstitutor(ta.typeParameters.map(tp => (tp.name, ScalaPsiUtil.getPsiElementId(tp))), args)
         Some(AliasType(ta, ta.lowerBound.map(genericSubst.subst(_)), ta.upperBound.map(genericSubst.subst(_))))
       }
       case ScParameterizedType(p: ScProjectionType, args) if p.actualElement.isInstanceOf[ScTypeAlias] => {
         val ta: ScTypeAlias = p.actualElement.asInstanceOf[ScTypeAlias]
         val subst: ScSubstitutor = p.actualSubst
         val genericSubst = ScalaPsiUtil.
-          typesCallSubstitutor(ta.typeParameters.map(tp => (tp.getName, ScalaPsiUtil.getPsiElementId(tp))), args)
+          typesCallSubstitutor(ta.typeParameters.map(tp => (tp.name, ScalaPsiUtil.getPsiElementId(tp))), args)
         val s = subst.followed(genericSubst)
         Some(AliasType(ta, ta.lowerBound.map(s.subst(_)), ta.upperBound.map(s.subst(_))))
       }
@@ -343,7 +343,7 @@ object Conformance {
             }
             val uBound = subst.subst(upper)
             val genericSubst = ScalaPsiUtil.
-              typesCallSubstitutor(a.typeParameters.map(tp => (tp.getName, ScalaPsiUtil.getPsiElementId(tp))), args)
+              typesCallSubstitutor(a.typeParameters.map(tp => (tp.name, ScalaPsiUtil.getPsiElementId(tp))), args)
             val s = subst.followed(genericSubst)
             result = conformsInner(l, s.subst(uBound), visited, undefinedSubst)
           case des: ScDesignatorType =>
@@ -358,7 +358,7 @@ object Conformance {
                   return
               }
               val genericSubst = ScalaPsiUtil.
-                typesCallSubstitutor(a.typeParameters.map(tp => (tp.getName, ScalaPsiUtil.getPsiElementId(tp))), args)
+                typesCallSubstitutor(a.typeParameters.map(tp => (tp.name, ScalaPsiUtil.getPsiElementId(tp))), args)
               result = conformsInner(l, genericSubst.subst(uBound), visited, undefinedSubst)
             }
           case _ =>
@@ -961,7 +961,7 @@ object Conformance {
           }
           val lBound = subst.subst(lower)
           val genericSubst = ScalaPsiUtil.
-            typesCallSubstitutor(a.typeParameters.map(tp => (tp.getName, ScalaPsiUtil.getPsiElementId(tp))), args)
+            typesCallSubstitutor(a.typeParameters.map(tp => (tp.name, ScalaPsiUtil.getPsiElementId(tp))), args)
           val s = subst.followed(genericSubst)
           result = conformsInner(s.subst(lBound), r, visited, undefinedSubst)
           return
@@ -983,7 +983,7 @@ object Conformance {
                 return
             }
             val genericSubst = ScalaPsiUtil.
-              typesCallSubstitutor(a.typeParameters.map(tp => (tp.getName, ScalaPsiUtil.getPsiElementId(tp))), p.typeArgs)
+              typesCallSubstitutor(a.typeParameters.map(tp => (tp.name, ScalaPsiUtil.getPsiElementId(tp))), p.typeArgs)
             result = conformsInner(genericSubst.subst(lBound), r, visited, undefinedSubst)
             return
           }
@@ -1001,7 +1001,7 @@ object Conformance {
                 return
             }
             val genericSubst = ScalaPsiUtil.
-              typesCallSubstitutor(a.typeParameters.map(tp => (tp.getName, ScalaPsiUtil.getPsiElementId(tp))), p.typeArgs)
+              typesCallSubstitutor(a.typeParameters.map(tp => (tp.name, ScalaPsiUtil.getPsiElementId(tp))), p.typeArgs)
             val t = conformsInner(genericSubst.subst(uBound), r, visited, undefinedSubst)
             if (!t._1) {
               result = (false, undefinedSubst)
@@ -1161,7 +1161,7 @@ object Conformance {
           val t = des2.asInstanceOf[ScTypeParameterType]
           val subst = new ScSubstitutor(Map(t.args.zip(p.typeArgs).map {
             case (tpt: ScTypeParameterType, tp: ScType) =>
-              ((tpt.param.getName, ScalaPsiUtil.getPsiElementId(tpt.param)), tp)
+              ((tpt.param.name, ScalaPsiUtil.getPsiElementId(tpt.param)), tp)
           }: _*), Map.empty, None)
           result = conformsInner(l, subst.subst(t.upper.v), visited, undefinedSubst, checkWeak)
           return
@@ -1202,7 +1202,7 @@ object Conformance {
         case t: ScTypeParameterType if t.args.length == p.typeArgs.length =>
           val subst = new ScSubstitutor(Map(t.args.zip(p.typeArgs).map {
             case (tpt: ScTypeParameterType, tp: ScType) =>
-              ((tpt.param.getName, ScalaPsiUtil.getPsiElementId(tpt.param)), tp)
+              ((tpt.param.name, ScalaPsiUtil.getPsiElementId(tpt.param)), tp)
           }: _*), Map.empty, None)
           result = conformsInner(subst.subst(t.lower.v), r, visited, undefinedSubst, checkWeak)
           return

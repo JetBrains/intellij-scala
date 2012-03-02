@@ -4,10 +4,11 @@ package superMember
 
 import com.intellij.psi.util.PsiTreeUtil
 import psi.api.statements.ScFunction
-import psi.api.toplevel.typedef.{ScMember}
+import psi.api.toplevel.typedef.ScMember
 import psi.ScalaPsiUtil
 import com.intellij.psi.{PsiMember, PsiNamedElement, PsiFile}
 import extensions.toPsiClassExt
+import psi.api.toplevel.ScNamedElement
 
 /**
  * User: Alexander Podkhalyuzin
@@ -37,6 +38,7 @@ object SuperMethodTestUtil {
             case _ => ""
           }
           res.append(s + (sign.namedElement match {
+                    case Some(x: ScNamedElement) => x.name
                     case Some(x: PsiNamedElement) => x.getName
                     case _ => "Something"
                   }) + "\n")

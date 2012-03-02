@@ -12,11 +12,12 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import javax.swing.{JList, DefaultListModel}
 import com.intellij.openapi.ui.popup.JBPopupFactory
 import com.intellij.psi.{NavigatablePsiElement, PsiNamedElement, PsiWhiteSpace, PsiElement}
-import org.jetbrains.plugins.scala.lang.psi.presentation.{ScImplicitParametersListCellRenderer, ScImplicitFunctionListCellRenderer}
+import org.jetbrains.plugins.scala.lang.psi.presentation.ScImplicitParametersListCellRenderer
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScNewTemplateDefinition, ScExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScTypeElement, ScParameterizedTypeElement, ScSimpleTypeElement}
+import org.jetbrains.plugins.scala.extensions.toPsiNamedElementExt
 
 /**
  * User: Alefas
@@ -33,11 +34,11 @@ class ShowImplicitParametersAction extends AnAction("Show implicit parameters ac
     ScalaPsiUtil.nameContext(named).getContext match {
       case _: ScTemplateBody | _: ScEarlyDefinitions =>
         rr.fromType match {
-          case Some(tp) => named.getName //todo:
-          case None => named.getName //todo:
+          case Some(tp) => named.name //todo:
+          case None => named.name //todo:
         }
       //Local value
-      case _ => named.getName
+      case _ => named.name
     }
   }
   

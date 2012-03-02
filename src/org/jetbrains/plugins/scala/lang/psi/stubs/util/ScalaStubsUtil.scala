@@ -5,20 +5,19 @@ package stubs
 package util
 
 
-import _root_.org.jetbrains.plugins.scala.lang.psi.stubs.index.{ScDirectInheritorsIndex, ScAnnotatedMemberIndex}
-import api.toplevel.templates.ScExtendsBlock
-import com.intellij.psi.search.{GlobalSearchScope, SearchScope}
+import _root_.org.jetbrains.plugins.scala.lang.psi.stubs.index.ScDirectInheritorsIndex
+import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.stubs.StubIndex
 import com.intellij.psi.{PsiElement, PsiClass}
 import elements.ScTemplateDefinitionElementType
-import java.util.ArrayList
 import psi.impl.toplevel.templates.ScExtendsBlockImpl
 import com.intellij.util.indexing.FileBasedIndex
 import com.intellij.openapi.diagnostic.Logger
-import api.toplevel.typedef.{ScTemplateDefinition, ScTypeDefinition, ScMember}
-import collection.mutable.{HashSet, ArrayBuffer}
+import api.toplevel.typedef.ScTemplateDefinition
+import collection.mutable.ArrayBuffer
 import api.expr.ScAnnotation
-import com.intellij.psi.util.{PsiUtilCore, PsiUtilBase, PsiUtil}
+import com.intellij.psi.util.PsiUtilCore
+import extensions.toPsiNamedElementExt
 
 /**
  * User: Alexander Podkhalyuzin
@@ -27,11 +26,11 @@ import com.intellij.psi.util.{PsiUtilCore, PsiUtilBase, PsiUtil}
 
 object ScalaStubsUtil {
   def getClassInheritors(clazz: PsiClass, scope: GlobalSearchScope): Seq[ScTemplateDefinition] = {
-    val name: String = clazz.getName()
+    val name: String = clazz.name
     if (name == null) return Seq.empty
     val inheritors = new ArrayBuffer[ScTemplateDefinition]
     val iterator: java.util.Iterator[PsiElement] =
-      StubIndex.getInstance().get(ScDirectInheritorsIndex.KEY, name, clazz.getProject(), scope).iterator.
+      StubIndex.getInstance().get(ScDirectInheritorsIndex.KEY, name, clazz.getProject, scope).iterator.
               asInstanceOf[java.util.Iterator[PsiElement]]
     while (iterator.hasNext) {
       val extendsBlock: PsiElement = iterator.next
@@ -55,28 +54,28 @@ object ScalaStubsUtil {
 
   def checkPsiForExtendsBlock(element: PsiElement): Boolean = {
     element match {
-      case x: ScExtendsBlockImpl => return true
+      case x: ScExtendsBlockImpl => true
       case _ => {
         val faultyContainer = PsiUtilCore.getVirtualFile(element)
         LOG.error("Wrong Psi in Psi list: " + faultyContainer)
         if (faultyContainer != null && faultyContainer.isValid) {
           FileBasedIndex.getInstance.requestReindex(faultyContainer)
         }
-        return false
+        false
       }
     }
   }
 
   def checkPsiForAnnotation(element: PsiElement): Boolean = {
     element match {
-      case x: ScAnnotation => return true
+      case x: ScAnnotation => true
       case _ => {
         val faultyContainer = PsiUtilCore.getVirtualFile(element)
         LOG.error("Wrong Psi in Psi list: " + faultyContainer)
         if (faultyContainer != null && faultyContainer.isValid) {
           FileBasedIndex.getInstance.requestReindex(faultyContainer)
         }
-        return false
+        false
       }
     }
   }

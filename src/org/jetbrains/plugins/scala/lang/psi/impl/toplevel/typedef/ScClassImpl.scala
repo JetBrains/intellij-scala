@@ -8,7 +8,6 @@ package typedef
 import api.base.ScPrimaryConstructor
 import psi.stubs.ScTemplateDefinitionStub
 import com.intellij.openapi.progress.ProgressManager
-import collection.mutable.ArrayBuffer
 import com.intellij.lang.ASTNode
 
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
@@ -16,13 +15,17 @@ import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.icons.Icons
 
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 import com.intellij.psi._
 import api.ScalaElementVisitor
 import lang.resolve.processor.BaseProcessor
 import caches.CachesUtil
 import util.PsiModificationTracker
 import com.intellij.openapi.project.DumbServiceImpl
+import types.ScType
+import api.toplevel.{ScTypedDefinition, ScTypeParametersOwner}
+import collection.mutable.{HashSet, ArrayBuffer}
+import light.StaticPsiMethodWrapper
+import api.statements._
 
 /**
  * @author Alexander.Podkhalyuzin
@@ -33,6 +36,13 @@ class ScClassImpl extends ScTypeDefinitionImpl with ScClass with ScTypeParameter
     visitor match {
       case visitor: ScalaElementVisitor => super.accept(visitor)
       case _ => super.accept(visitor)
+    }
+  }
+
+  override def additionalJavaNames: Array[String] = {
+    fakeCompanionModule match {
+      case Some(m) => Array(m.javaName)
+      case _ => Array.empty
     }
   }
 
@@ -89,11 +99,127 @@ class ScClassImpl extends ScTypeDefinitionImpl with ScClass with ScTypeParameter
 
   override def isCase: Boolean = hasModifierProperty("case")
 
+  import org.jetbrains.plugins.scala.lang.psi.light.PsiTypedDefinitionWrapper.DefinitionRole._
+
+  override def getMethods: Array[PsiMethod] = {
+    getAllMethods.filter(_.getContainingClass == this)
+  }
+
   override def getAllMethods: Array[PsiMethod] = {
-    constructor match {
-      case Some(c) => Array[PsiMethod](c) ++ super.getAllMethods
-      case _ => super.getAllMethods
+    val res = new ArrayBuffer[PsiMethod]()
+    val names = new HashSet[String]
+    res ++= getConstructors
+    val linearization = MixinNodes.linearization(this).flatMap(tp => ScType.extractClass(tp, Some(getProject)))
+    def getClazz(t: ScTrait): PsiClass = {
+      var index = linearization.indexWhere(_ == t)
+      while (index >= 0) {
+        val clazz = linearization(index)
+        if (!clazz.isInterface) return clazz
+        index -= 1
+      }
+      this
     }
+    val signatures = TypeDefinitionMembers.getSignatures(this).forAll()._1.valuesIterator
+    while (signatures.hasNext) {
+      val signature = signatures.next()
+      signature.foreach {
+        case (t, node) => node.info.namedElement match {
+          case Some(fun: ScFunction) if !fun.isConstructor && fun.getContainingClass.isInstanceOf[ScTrait] &&
+            fun.isInstanceOf[ScFunctionDefinition] =>
+            res += fun.getFunctionWrapper(false, false, Some(getClazz(fun.getContainingClass.asInstanceOf[ScTrait])))
+            names += fun.getName
+          case Some(fun: ScFunction) if !fun.isConstructor => 
+            res += fun.getFunctionWrapper(false, fun.isInstanceOf[ScFunctionDeclaration])
+            names += fun.getName
+          case Some(method: PsiMethod) if !method.isConstructor => 
+            res += method
+            names += method.getName
+          case Some(t: ScTypedDefinition) if t.isVal || t.isVar =>
+            val (isInterface, cClass) = t.nameContext match {
+              case m: ScMember =>
+                val b = m.isInstanceOf[ScPatternDefinition] || m.isInstanceOf[ScVariableDefinition]
+                (b, m.getContainingClass match {
+                  case t: ScTrait =>
+                    if (b) {
+                      Some(getClazz(t))
+                    } else None
+                  case _ => None
+                })
+              case _ => (false, None)
+            }
+            res += t.getTypedDefinitionWrapper(false, isInterface, SIMPLE_ROLE, cClass)
+            names += t.getName
+            t.nameContext match {
+              case s: ScAnnotationsHolder =>
+                val beanProperty = s.hasAnnotation("scala.reflect.BeanProperty") != None
+                val booleanBeanProperty = s.hasAnnotation("scala.reflect.BooleanBeanProperty") != None
+                if (beanProperty) {
+                  res += t.getTypedDefinitionWrapper(false, isInterface, GETTER, cClass)
+                  names += "get" + t.getName.capitalize
+                  if (t.isVar) {
+                    res += t.getTypedDefinitionWrapper(false, isInterface, SETTER, cClass)
+                    names += "set" + t.getName.capitalize
+                  }
+                } else if (booleanBeanProperty) {
+                  res += t.getTypedDefinitionWrapper(false, isInterface, IS_GETTER, cClass)
+                  names += "is" + t.getName.capitalize
+                  if (t.isVar) {
+                    res += t.getTypedDefinitionWrapper(false, isInterface, SETTER, cClass)
+                    names += "set" + t.getName.capitalize
+                  }
+                }
+              case _ =>
+            }
+          case _ =>
+        }
+      }
+    }
+    
+    ScalaPsiUtil.getCompanionModule(this) match {
+      case Some(o: ScObject) =>
+        def add(method: PsiMethod) {
+          if (!names.contains(method.getName)) {
+            res += method
+          }
+        }
+        val signatures = TypeDefinitionMembers.getSignatures(o).forAll()._1.valuesIterator
+        while (signatures.hasNext) {
+          val signature = signatures.next()
+          signature.foreach {
+            case (t, node) =>
+              node.info.namedElement match {
+                case Some(fun: ScFunction) if !fun.isConstructor => add(fun.getFunctionWrapper(true, false))
+                case Some(method: PsiMethod) if !method.isConstructor => {
+                  if (method.getContainingClass != null && method.getContainingClass.getQualifiedName != "java.lang.Object") {
+                    add(StaticPsiMethodWrapper.getWrapper(method, this))
+                  }
+                }
+                case Some(t: ScTypedDefinition) if t.isVal || t.isVar =>
+                  add(t.getTypedDefinitionWrapper(true, false, SIMPLE_ROLE))
+                  t.nameContext match {
+                    case s: ScAnnotationsHolder =>
+                      val beanProperty = s.hasAnnotation("scala.reflect.BeanProperty") != None
+                      val booleanBeanProperty = s.hasAnnotation("scala.reflect.BooleanBeanProperty") != None
+                      if (beanProperty) {
+                        add(t.getTypedDefinitionWrapper(true, false, GETTER))
+                        if (t.isVar) {
+                          add(t.getTypedDefinitionWrapper(true, false, SETTER))
+                        }
+                      } else if (booleanBeanProperty) {
+                        add(t.getTypedDefinitionWrapper(true, false, IS_GETTER))
+                        if (t.isVar) {
+                          add(t.getTypedDefinitionWrapper(true, false, SETTER))
+                        }
+                      }
+                    case _ =>
+                  }
+                case _ =>
+              }
+          }
+        }
+      case _ =>
+    }
+    res.toArray
   }
 
   override def getConstructors: Array[PsiMethod] = {
@@ -153,7 +279,13 @@ class ScClassImpl extends ScTypeDefinitionImpl with ScClass with ScTypeParameter
         }.mkString(start, ", ", ")")
     }.mkString("")
 
-    val returnType = name + typeParameters.map(_.getName).mkString("[", ",", "]")
+    val returnType = name + typeParameters.map(_.name).mkString("[", ",", "]")
     "def copy" + typeParamString + paramString + " : " + returnType + " = throw new Error(\"\")"
+  }
+
+  override def getTypeParameterList: PsiTypeParameterList = typeParametersClause.getOrElse(null)
+
+  override def getInterfaces: Array[PsiClass] = {
+    getSupers.filter(_.isInterface)
   }
 }

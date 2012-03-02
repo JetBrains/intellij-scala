@@ -23,7 +23,7 @@ trait FunctionAnnotator {
       function.depthFirst.foreach {
         case ref: ScReferenceElement if ref.isReferenceTo(function) => {
           for (target <- ref.advancedResolve; if target.isApplicable) {
-            val message = ScalaBundle.message("function.recursive.need.result.type", function.getName)
+            val message = ScalaBundle.message("function.recursive.need.result.type", function.name)
             holder.createErrorAnnotation(ref, message)
           }
         }
@@ -57,7 +57,7 @@ trait FunctionAnnotator {
       }
 
       def needsTypeAnnotation() = {
-        val message = ScalaBundle.message("function.must.define.type.explicitly", function.getName)
+        val message = ScalaBundle.message("function.must.define.type.explicitly", function.name)
         holder.createErrorAnnotation(usage.asInstanceOf[ScReturnStmt].returnKeyword, message)
       }
 

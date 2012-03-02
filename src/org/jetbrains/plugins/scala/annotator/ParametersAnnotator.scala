@@ -24,11 +24,11 @@ trait ParametersAnnotator {
   def annotateParameter(parameter: ScParameter, holder: AnnotationHolder) {
     parameter.owner match {
       case null =>
-        holder.createErrorAnnotation(parameter, "Parameter hasn't owner: " + parameter.getName)
+        holder.createErrorAnnotation(parameter, "Parameter hasn't owner: " + parameter.name)
       case method: ScMethodLike =>
         parameter.typeElement match {
           case None =>
-            holder.createErrorAnnotation(parameter, "Missing type annotation for parameter: " + parameter.getName)
+            holder.createErrorAnnotation(parameter, "Missing type annotation for parameter: " + parameter.name)
           case _ =>
         }
       case fun: ScFunctionExpr =>
@@ -36,7 +36,7 @@ trait ParametersAnnotator {
           case None =>
             parameter.expectedParamType match {
               case None =>
-                holder.createErrorAnnotation(parameter, "Missing parameter type: " + parameter.getName)
+                holder.createErrorAnnotation(parameter, "Missing parameter type: " + parameter.name)
               case _ =>
             }
           case _ =>

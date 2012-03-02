@@ -21,7 +21,7 @@ import api.base.patterns.{ScInfixPattern, ScConstructorPattern}
 import api.base.types.{ScParameterizedTypeElement, ScInfixTypeElement, ScSimpleTypeElement}
 import processor.CompletionProcessor
 import api.ScalaElementVisitor
-import extensions.toPsiClassExt
+import extensions.{toPsiNamedElementExt, toPsiClassExt}
 
 /**
  * @author AlexanderPodkhalyuzin
@@ -111,8 +111,8 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
               else getContext.getText
             else getText
           })
-        if (nameId.getText != c.getName) {
-          val ref = ScalaPsiElementFactory.createReferenceFromText(c.getName, getManager)
+        if (nameId.getText != c.name) {
+          val ref = ScalaPsiElementFactory.createReferenceFromText(c.name, getManager)
           nameId.getNode.getTreeParent.replaceChild(nameId.getNode, ref.nameId.getNode)
           return ref
         }

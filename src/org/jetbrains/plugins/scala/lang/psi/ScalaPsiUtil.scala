@@ -49,7 +49,7 @@ import com.intellij.openapi.module.{ModuleUtil, Module}
 import config.ScalaFacet
 import reflect.NameTransformer
 import caches.CachesUtil
-import java.lang.{AssertionError, Exception}
+import java.lang.Exception
 import extensions._
 
 /**
@@ -390,12 +390,12 @@ object ScalaPsiUtil {
               aliasedType.getOrAny), visited, update)
           case ScParameterizedType(ScDesignatorType(ta: ScTypeAliasDefinition), args) => {
             val genericSubst = ScalaPsiUtil.
-              typesCallSubstitutor(ta.typeParameters.map(tp => (tp.getName, ScalaPsiUtil.getPsiElementId(tp))), args)
+              typesCallSubstitutor(ta.typeParameters.map(tp => (tp.name, ScalaPsiUtil.getPsiElementId(tp))), args)
             return collectObjects(genericSubst.subst(ta.aliasedType.getOrAny), visited, update)
           }
           case ScParameterizedType(p: ScProjectionType, args) if p.actualElement.isInstanceOf[ScTypeAliasDefinition] => {
             val genericSubst = ScalaPsiUtil.
-              typesCallSubstitutor(p.actualElement.asInstanceOf[ScTypeAliasDefinition].typeParameters.map(tp => (tp.getName, ScalaPsiUtil.getPsiElementId(tp)
+              typesCallSubstitutor(p.actualElement.asInstanceOf[ScTypeAliasDefinition].typeParameters.map(tp => (tp.name, ScalaPsiUtil.getPsiElementId(tp)
               )), args)
             val s = p.actualSubst.followed(genericSubst)
             return collectObjects(s.subst(p.actualElement.asInstanceOf[ScTypeAliasDefinition].
@@ -539,7 +539,7 @@ object ScalaPsiUtil {
         case p: PsiTypeParameter => " in: Java" //Two parameters from Java can't be used with same name in same place
         case _ => {
           val containingFile: PsiFile = elem.getContainingFile
-          " in:" + (if (containingFile != null) containingFile.getName else "NoFile") + ":" +
+          " in:" + (if (containingFile != null) containingFile.name else "NoFile") + ":" +
             (if (elem.getTextRange != null) elem.getTextRange.getStartOffset else "NoRange")
         }
       }
@@ -852,7 +852,7 @@ object ScalaPsiUtil {
   }
 
   def namedElementSig(x: PsiNamedElement): Signature =
-    new Signature(x.getName, Stream.empty, 0, ScSubstitutor.empty, Some(x))
+    new Signature(x.name, Stream.empty, 0, ScSubstitutor.empty, Some(x))
 
   def superValsSignatures(x: PsiNamedElement): Seq[Signature] = {
     val empty = Seq.empty 
@@ -866,7 +866,7 @@ object ScalaPsiUtil {
       case _ => return empty
     }
     val s = namedElementSig(x)
-    val sigs = TypeDefinitionMembers.getSignatures(clazz).forName(x.getName)._1
+    val sigs = TypeDefinitionMembers.getSignatures(clazz).forName(x.name)._1
     val t = (sigs.get(s): @unchecked) match {
       //partial match
       case Some(x) => x.supers.map {_.info}
@@ -884,7 +884,7 @@ object ScalaPsiUtil {
       case e @ (_: ScTypeAlias | _: ScTrait | _: ScClass) if e.getParent.isInstanceOf[ScTemplateBody] => e.asInstanceOf[ScMember].getContainingClass
       case _ => return empty
     }
-    val sigs = TypeDefinitionMembers.getTypes(clazz).forName(element.getName)._1
+    val sigs = TypeDefinitionMembers.getTypes(clazz).forName(element.name)._1
     val t = (sigs.get(element): @unchecked) match {
       //partial match
       case Some(x) => x.supers.map {_.info}
@@ -923,7 +923,7 @@ object ScalaPsiUtil {
           case m: ScTypeAlias if m.getContainingClass != null && (
                   m.getContainingClass.qualifiedName == "scala.Predef" ||
                   m.getContainingClass.qualifiedName == "scala") => {
-            x.replace(ScalaPsiElementFactory.createReferenceFromText(m.getName, m.getManager)).
+            x.replace(ScalaPsiElementFactory.createReferenceFromText(m.name, m.getManager)).
                     asInstanceOf[ScStableCodeReferenceElement].bindToElement(m)
           }
           case _ => adjustTypes(child)
@@ -977,7 +977,7 @@ object ScalaPsiUtil {
   def getUnapplyMethods(clazz: PsiClass): Seq[PhysicalSignature] = {
     getMethodsForName(clazz, "unapply") ++ getMethodsForName(clazz, "unapplySeq") ++
     (clazz match {
-      case c: ScObject => c.objectSyntheticMembers.filter(s => s.getName == "unapply" || s.getName == "unapplySeq").
+      case c: ScObject => c.objectSyntheticMembers.filter(s => s.name == "unapply" || s.name == "unapplySeq").
               map(new PhysicalSignature(_, ScSubstitutor.empty))
       case _ => Seq.empty[PhysicalSignature]
     })
@@ -1032,7 +1032,7 @@ object ScalaPsiUtil {
   def getBaseCompanionModule(clazz: PsiClass): Option[ScTypeDefinition] = {
     if (!clazz.isInstanceOf[ScTypeDefinition]) return None
     val td = clazz.asInstanceOf[ScTypeDefinition]
-    val name: String = td.getName
+    val name: String = td.name
     val scope: PsiElement = td.getContext
     val arrayOfElements: Array[PsiElement] = scope match {
       case stub: StubBasedPsiElement[_] if stub.getStub != null =>
@@ -1048,7 +1048,7 @@ object ScalaPsiUtil {
             case td: ScTypeDefinition => td
             case _ => null: ScTypeDefinition
           }).find((child: ScTypeDefinition) =>
-          child.isInstanceOf[ScObject] && child.asInstanceOf[ScObject].getName == name)
+          child.isInstanceOf[ScObject] && child.asInstanceOf[ScObject].name == name)
       }
       case _: ScObject => {
         arrayOfElements.map((child: PsiElement) =>
@@ -1057,7 +1057,7 @@ object ScalaPsiUtil {
             case _ => null: ScTypeDefinition
           }).find((child: ScTypeDefinition) =>
           (child.isInstanceOf[ScClass] || child.isInstanceOf[ScTrait])
-                  && child.asInstanceOf[ScTypeDefinition].getName == name)
+                  && child.asInstanceOf[ScTypeDefinition].name == name)
       }
       case _ => None
     }

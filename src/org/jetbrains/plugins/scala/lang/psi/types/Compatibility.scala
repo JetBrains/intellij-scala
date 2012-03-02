@@ -18,6 +18,7 @@ import search.GlobalSearchScope
 import collection.Seq
 import api.base.ScPrimaryConstructor
 import psi.impl.ScalaPsiManager
+import extensions.toPsiNamedElementExt
 
 /**
  * @author ven
@@ -254,11 +255,11 @@ object Compatibility {
 
   def toParameter(p: ScParameter, substitutor: ScSubstitutor) = {
     val t = substitutor.subst(p.getType(TypingContext.empty).getOrNothing)
-    new Parameter(p.getName, t, p.isDefaultParam, p.isRepeatedParameter, p.isCallByNameParameter)
+    new Parameter(p.name, t, p.isDefaultParam, p.isRepeatedParameter, p.isCallByNameParameter)
   }
   def toParameter(p: PsiParameter) = {
     val t = ScType.create(p.getType, p.getProject, paramTopLevel = true)
-    new Parameter(if (p.isInstanceOf[ClsParameterImpl]) "" else p.getName, t, false, p.isVarArgs, false)
+    new Parameter(if (p.isInstanceOf[ClsParameterImpl]) "" else p.name, t, false, p.isVarArgs, false)
   }
 
   // TODO refactor a lot of duplication out of this method 
@@ -350,7 +351,7 @@ object Compatibility {
           return ConformanceExtResult(part.map(new MissedValueParameter(_)))
         }
 
-        val res = checkConformanceExt(true, parameters.map{param: ScParameter => new Parameter(param.getName, {
+        val res = checkConformanceExt(true, parameters.map{param: ScParameter => new Parameter(param.name, {
           substitutor.subst(param.getType(TypingContext.empty).getOrNothing)
         }, param.isDefaultParam, param.isRepeatedParameter, param.isRepeatedParameter)}, exprs, checkWithImplicits, isShapesResolve)
         res

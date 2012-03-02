@@ -24,7 +24,7 @@ class ScalaRenameClassQuickFix(clazz: ScTypeDefinition, name: String) extends Lo
     })
   }
 
-  def getName: String = "Rename Type Definition " + clazz.getName + " to " + name
+  def getName: String = "Rename Type Definition " + clazz.name + " to " + name
 
   def getFamilyName: String = "Rename Type Definition"
 }

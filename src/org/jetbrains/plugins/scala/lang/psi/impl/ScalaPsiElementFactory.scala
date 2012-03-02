@@ -47,8 +47,8 @@ import org.apache.commons.lang.StringUtils
 import parser.parsing.base.{Constructor, Import}
 import api.base.{ScConstructor, ScIdList, ScPatternList, ScStableCodeReferenceElement}
 import com.intellij.util.IncorrectOperationException
-import extensions.toPsiClassExt
 import scaladoc.psi.api.{ScDocInnerCodeElement, ScDocResolvableCodeReference, ScDocSyntaxElement, ScDocComment}
+import extensions.{toPsiNamedElementExt, toPsiClassExt}
 
 object ScalaPsiElementFactory {
 
@@ -554,13 +554,13 @@ object ScalaPsiElementFactory {
         if (res != "") res = res + "\n"
         if (!method.getModifierList.hasModifierProperty("override") && isOverride) res = res + "override "
         res = res + method.getModifierList.getText + " "
-        res = res + "def " + method.getName
+        res = res + "def " + method.name
         //adding type parameters
         if (method.typeParameters.length > 0) {
           def get(typeParam: ScTypeParam): String = {
             var res: String = ""
             res += (if (typeParam.isContravariant) "-" else if (typeParam.isCovariant) "+" else "")
-            res += typeParam.getName
+            res += typeParam.name
             typeParam.typeParametersClause match {
               case None =>
               case Some(x) =>
@@ -589,7 +589,7 @@ object ScalaPsiElementFactory {
         if (method.paramClauses != null) {
           for (paramClause <- method.paramClauses.clauses) {
             def get(param: ScParameter): String = {
-              var res: String = param.getName
+              var res: String = param.name
               param.typeElement foreach {
                 x => res += (if (res.endsWith("_")) " " else "") + ": " +
                   (if (param.isCallByNameParameter) "=>" else "") +
@@ -631,13 +631,13 @@ object ScalaPsiElementFactory {
           }
         }
         if (isOverride && !hasOverride) res = res + "override "
-        res = res + "def " + changeKeyword(method.getName)
+        res = res + "def " + changeKeyword(method.name)
         if (method.hasTypeParameters) {
           val params = method.getTypeParameters
           val strings = for (param <- params) yield {
             var res = ""
             val par: PsiTypeParameter = param
-            res = par.getName
+            res = par.name
             val types = par.getExtendsListTypes
             if (types.length > 0) {
               res += " <: "
@@ -657,7 +657,7 @@ object ScalaPsiElementFactory {
 
         res = res + (if (omitParamList) "" else "(")
         for (param <- method.getParameterList.getParameters) {
-          val paramName = param.getName match {
+          val paramName = param.name match {
             case null => param match {case param: ClsParameterImpl => param.getStub.getName case _ => null}
             case x => x
           }
@@ -700,11 +700,11 @@ object ScalaPsiElementFactory {
       alias match {
         case alias: ScTypeAliasDefinition => {
           (if (alias.getModifierList.hasModifierProperty("override")) "" else "override ") +
-                  alias.getModifierList.getText + " type " + alias.getName + " = " +
+                  alias.getModifierList.getText + " type " + alias.name + " = " +
                   ScType.canonicalText(substitutor.subst(alias.aliasedType(TypingContext.empty).getOrAny))
         }
         case alias: ScTypeAliasDeclaration => {
-          alias.getModifierList.getText + " type " + alias.getName + " = " + body
+          alias.getModifierList.getText + " type " + alias.name + " = " + body
         }
       }
     }

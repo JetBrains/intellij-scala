@@ -47,7 +47,7 @@ public class ScalaDirectoryService {
     }
     if (element == null) return null;
     final ScalaFile file = (ScalaFile) element.getContainingFile();
-    PsiClass[] classes = file.getClasses();
+    PsiClass[] classes = file.typeDefinitionsArray();
     if (classes.length < 1) {
       throw new IncorrectOperationException(getIncorrectTemplateMessage(templateName));
     }
