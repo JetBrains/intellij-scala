@@ -15,5 +15,5 @@ class Parent {
 }
 
 class Child extends Parent {
-  override def doSmth(smth: => String) = null
+  override def doSmth(smth: => String) {}
 }

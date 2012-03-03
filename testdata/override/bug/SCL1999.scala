@@ -15,5 +15,5 @@ trait Parent {
 }
 
 class Child extends Parent {
-  def m(p: (T) forSome {type T <: Number}) = null
+  def m(p: (T) forSome {type T <: Number}) {}
 }
