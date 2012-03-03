@@ -4,15 +4,14 @@ package fileNameInspection
 
 
 import collection.mutable.ArrayBuffer
-import com.intellij.codeHighlighting.HighlightDisplayLevel
 import lang.psi.api.ScalaFile
 import com.intellij.codeInspection._
-import com.intellij.codeInspection.ex.ProblemDescriptorImpl
 import com.intellij.psi.PsiFile
 import java.lang.String
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
 import com.intellij.lang.injection.InjectedLanguageManager
 import extensions.toPsiNamedElementExt
+import console.ScalaLanguageConsoleView
 
 /**
  * User: Alexander Podkhalyuzin
@@ -28,8 +27,8 @@ class ScalaFileNameInspection extends LocalInspectionTool {
 
   override def checkFile(file: PsiFile, manager: InspectionManager, isOnTheFly: Boolean): Array[ProblemDescriptor] = {
     if (!file.isInstanceOf[ScalaFile] ||
-            InjectedLanguageManager.getInstance(file.getProject).isInjectedFragment(file))
-      return Array[ProblemDescriptor]()
+            InjectedLanguageManager.getInstance(file.getProject).isInjectedFragment(file)) return Array.empty
+    if (file.getName == ScalaLanguageConsoleView.SCALA_CONSOLE) return Array.empty
 
     val name = file.name.substring(0, file.name.length - 6)
     val scalaFile = file.asInstanceOf[ScalaFile]
@@ -51,6 +50,6 @@ class ScalaFileNameInspection extends LocalInspectionTool {
             new ScalaRenameFileQuickFix(scalaFile, clazz.name + ".scala")), ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
       }
     }
-    return res.toArray
+    res.toArray
   }
 }

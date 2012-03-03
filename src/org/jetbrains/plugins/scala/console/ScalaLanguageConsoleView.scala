@@ -11,7 +11,7 @@ import com.intellij.execution.console.{ConsoleHistoryController, LanguageConsole
  */
 
 class ScalaLanguageConsoleView(project: Project) extends {
-  val scalaConsole = new ScalaLanguageConsole(project, "Scala Console")
+  val scalaConsole = new ScalaLanguageConsole(project, ScalaLanguageConsoleView.SCALA_CONSOLE)
 } with LanguageConsoleViewImpl(project, scalaConsole) {
   override def attachToProcess(processHandler: ProcessHandler) {
     super.attachToProcess(processHandler)
@@ -29,4 +29,8 @@ class ScalaLanguageConsoleView(project: Project) extends {
     val action = AbstractConsoleRunnerWithHistory.createConsoleExecAction(scalaConsole, processHandler, handler)
     action.registerCustomShortcutSet(action.getShortcutSet, scalaConsole.getComponent)
   }
+}
+
+object ScalaLanguageConsoleView {
+  val SCALA_CONSOLE = "Scala Console"
 }
