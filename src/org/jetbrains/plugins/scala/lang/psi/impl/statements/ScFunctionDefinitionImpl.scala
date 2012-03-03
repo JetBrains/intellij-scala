@@ -152,7 +152,13 @@ class ScFunctionDefinitionImpl extends ScFunctionImpl with ScFunctionDefinition 
 
   def isSecondaryConstructor: Boolean = name == "this"
 
-  def isMacro: Boolean = (this: ScalaPsiElement).findChildrenByType(ScalaTokenTypes.tIDENTIFIER).size == 2
+  def isMacro: Boolean = {
+    val stub = getStub
+    if (stub != null) {
+      return stub.asInstanceOf[ScFunctionStub].isMacro
+    }
+    (this: ScalaPsiElement).findChildrenByType(ScalaTokenTypes.tIDENTIFIER).size == 2
+  }
 
   private def syntheticMacroFunctionPreamble: Option[ScBlock] = {
     CachesUtil.get(this, CachesUtil.MACRO_FUNCTION_PREAMBLE,
