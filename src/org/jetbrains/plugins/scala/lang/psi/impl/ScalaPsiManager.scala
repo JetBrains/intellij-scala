@@ -4,7 +4,6 @@ package psi
 package impl
 
 import api.statements.params.ScTypeParam
-import com.intellij.openapi.project.Project
 import com.intellij.openapi.components.ProjectComponent
 import toplevel.synthetic.{SyntheticPackageCreator, ScSyntheticPackage}
 import light.PsiClassWrapper
@@ -15,7 +14,6 @@ import com.intellij.ProjectTopics
 import com.intellij.openapi.roots.{ModuleRootEvent, ModuleRootListener}
 import com.intellij.reference.SoftReference
 import collection.Seq
-import java.util.Map
 import com.intellij.psi._
 import com.intellij.util.containers.WeakValueHashMap
 import impl.{JavaPsiFacadeImpl, PsiManagerEx}
@@ -23,6 +21,16 @@ import java.util.concurrent.{ConcurrentHashMap, ConcurrentMap}
 import caches.ScalaShortNamesCacheManager
 import api.toplevel.typedef.{ScTemplateDefinition, ScObject}
 import extensions.toPsiNamedElementExt
+import com.intellij.openapi.project.{DumbServiceImpl, Project}
+import java.util.{Collections, Map}
+import stubs.StubIndex
+import psi.stubs.index.ScalaIndexKeys
+import finder.ScalaSourceFilterScope
+import com.intellij.openapi.vfs.VirtualFile
+import util.PsiUtilCore
+import com.intellij.util.indexing.FileBasedIndex
+import com.intellij.openapi.diagnostic.Logger
+import collection.mutable.HashSet
 
 class ScalaPsiManager(project: Project) extends ProjectComponent {
   private val implicitObjectMap: ConcurrentMap[String, SoftReference[java.util.Map[GlobalSearchScope, Seq[ScObject]]]] =
@@ -45,6 +53,12 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
 
   private val scalaPackageClassesMap: ConcurrentMap[GlobalSearchScope, Array[PsiClass]] =
     new ConcurrentHashMap[GlobalSearchScope, Array[PsiClass]]
+
+  private val javaPackageClassNamesMap: ConcurrentMap[(GlobalSearchScope, String), java.util.Set[String]] =
+    new ConcurrentHashMap[(GlobalSearchScope, String), java.util.Set[String]]
+
+  private val scalaPackageClassNamesMap: ConcurrentMap[(GlobalSearchScope, String), HashSet[String]] =
+    new ConcurrentHashMap[(GlobalSearchScope, String), HashSet[String]]
   
   def cachedDeepIsInheritor(clazz: PsiClass, base: PsiClass): Boolean = {
     val ref = inheritorsMap.get(clazz)
@@ -205,6 +219,75 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
     result
   }
 
+  import java.util.{Set => JSet}
+  def getJavaPackageClassNames(psiPackage: PsiPackage, scope: GlobalSearchScope): JSet[String] = {
+    val qualifier: String = psiPackage.getQualifiedName
+    def calc: JSet[String] = {
+      if (DumbServiceImpl.getInstance(project).isDumb) return Collections.emptySet()
+      val classes = StubIndex.getInstance.get(ScalaIndexKeys.JAVA_CLASS_NAME_IN_PACKAGE_KEY, qualifier, project,
+        new ScalaSourceFilterScope(scope, project))
+      import java.util.HashSet
+      var strings: HashSet[String] = new HashSet[String]
+      val classesIterator = classes.iterator()
+      while (classesIterator.hasNext) {
+        val element = classesIterator.next()
+        if (!(element.isInstanceOf[PsiClass])) {
+          var faultyContainer: VirtualFile = PsiUtilCore.getVirtualFile(element)
+          ScalaPsiManager.LOG.error("Wrong Psi in Psi list: " + faultyContainer)
+          if (faultyContainer != null && faultyContainer.isValid) {
+            FileBasedIndex.getInstance.requestReindex(faultyContainer)
+          }
+          return null
+        }
+        var clazz: PsiClass = element.asInstanceOf[PsiClass]
+        strings add clazz.getName
+        clazz match {
+          case t: ScTemplateDefinition =>
+            for (name <- t.additionalJavaNames) strings add name
+          case _ =>
+        }
+      }
+      strings
+    }
+    var res = javaPackageClassNamesMap.get(scope, qualifier)
+    if (res == null) {
+      res = calc
+      javaPackageClassNamesMap.put((scope, qualifier), res)
+    }
+    res
+  }
+
+  def getScalaClassNames(psiPackage: PsiPackage, scope: GlobalSearchScope): HashSet[String] = {
+    val qualifier: String = psiPackage.getQualifiedName
+    def calc: HashSet[String] = {
+      if (DumbServiceImpl.getInstance(project).isDumb) return HashSet.empty
+      val classes = StubIndex.getInstance.get(ScalaIndexKeys.CLASS_NAME_IN_PACKAGE_KEY, qualifier, project,
+        new ScalaSourceFilterScope(scope, project))
+      var strings: HashSet[String] = new HashSet[String]
+      val classesIterator = classes.iterator()
+      while (classesIterator.hasNext) {
+        val element = classesIterator.next()
+        if (!(element.isInstanceOf[PsiClass])) {
+          var faultyContainer: VirtualFile = PsiUtilCore.getVirtualFile(element)
+          ScalaPsiManager.LOG.error("Wrong Psi in Psi list: " + faultyContainer)
+          if (faultyContainer != null && faultyContainer.isValid) {
+            FileBasedIndex.getInstance.requestReindex(faultyContainer)
+          }
+          return null
+        }
+        var clazz: PsiClass = element.asInstanceOf[PsiClass]
+        strings += clazz.name
+      }
+      strings
+    }
+    var res = scalaPackageClassNamesMap.get(scope, qualifier)
+    if (res == null) {
+      res = calc
+      scalaPackageClassNamesMap.put((scope, qualifier), res)
+    }
+    res
+  }
+
   def projectOpened() {}
   def projectClosed() {}
   def getComponentName = "ScalaPsiManager"
@@ -224,6 +307,8 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
         classFacadeMap.clear()
         classesFacadeMap.clear()
         inheritorsMap.clear()
+        scalaPackageClassesMap.clear()
+        javaPackageClassNamesMap.clear()
         Conformance.cache.clear()
       }
     })
@@ -240,6 +325,8 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
         classFacadeMap.clear()
         classesFacadeMap.clear()
         inheritorsMap.clear()
+        scalaPackageClassesMap.clear()
+        javaPackageClassNamesMap.clear()
         Conformance.cache.clear()
       }
     })
@@ -294,6 +381,8 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
 }
 
 object ScalaPsiManager {
+  private val LOG: Logger = Logger.getInstance("#org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager")
+
   val TYPE_VARIABLE_KEY: Key[ScTypeParameterType] = Key.create("type.variable.key")
 
   def instance(project : Project) = project.getComponent(classOf[ScalaPsiManager])
