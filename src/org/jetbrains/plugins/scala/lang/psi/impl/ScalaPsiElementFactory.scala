@@ -609,7 +609,7 @@ object ScalaPsiElementFactory {
         val retAndBody = (needsInferType, retType) match {
           case (_, Some(tp)) if tp.equiv(Unit) =>
             " {}"
-          case _ if !method.hasAssign =>
+          case (_, None) if !method.hasAssign =>
             " {}"
           case (true, Some(retType)) =>
             var text = ScType.canonicalText(retType)

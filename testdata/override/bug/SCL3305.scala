@@ -33,5 +33,5 @@ abstract class B {
 }
 
 class C extends B {
-  def foo(v: Nested2) = null
+  def foo(v: Nested2) {}
 }
