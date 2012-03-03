@@ -30,12 +30,12 @@ import psi.fake.FakePsiMethod
 import completion.handlers.{ScalaClassNameInsertHandler, ScalaInsertHandler}
 import psi.api.base.types.{ScTypeElement, ScSelfTypeElement}
 import com.intellij.openapi.util.Key
-import psi.impl.ScalaPsiManager
 import psi.api.base.{ScReferenceElement, ScAccessModifier, ScFieldId}
 import psi.api.expr.{ScThisReference, ScSuperReference}
 import psi.api.toplevel.{ScNamedElement, ScTypeParametersOwner}
 import caches.ScalaShortNamesCacheManager
 import extensions.toPsiNamedElementExt
+import psi.impl.{ScPackageImpl, ScalaPsiManager}
 
 /**
  * @author ven
@@ -687,31 +687,49 @@ object ResolveUtils {
           try {
             base.setClassKind(false)
 
-            val manager = ScalaPsiManager.instance(pack.getProject)
-            val qName = pack.getQualifiedName
-            val fqn = if (qName.length() > 0) qName + "." + name else name
-            val classes: Array[PsiClass] = manager.getCachedClasses(place.getResolveScope, fqn)
-            for (clazz <- classes) {
-              if (!processor.execute(clazz, state)) return false
+            if (base.getClassKindInner) {
+              val manager = ScalaPsiManager.instance(pack.getProject)
+              val qName = pack.getQualifiedName
+              val fqn = if (qName.length() > 0) qName + "." + name else name
+              val classes: Array[PsiClass] = manager.getCachedClasses(place.getResolveScope, fqn)
+              for (clazz <- classes) {
+                if (!processor.execute(clazz, state)) return false
+              }
             }
-            
+
             //process subpackages
-            pack.processDeclarations(processor, state, lastParent, place)
+            if (base.kinds.contains(ResolveTargets.PACKAGE)) {
+              pack match {
+                case s: ScPackageImpl =>
+                  s.pack.processDeclarations(processor, state, lastParent, place)
+                case _ =>
+                  pack.processDeclarations(processor, state, lastParent, place)
+              }
+            } else true
           } finally {
             base.setClassKind(true)
           }
         } else {
           try {
-            base.setClassKind(false)
-            val manager = ScalaPsiManager.instance(pack.getProject)
-            var iterator = manager.getClasses(pack, place.getResolveScope).iterator
-            while (iterator.hasNext) {
-              val clazz = iterator.next()
-              if (!processor.execute(clazz, state)) return false
+            if (base.getClassKindInner) {
+              base.setClassKind(false)
+              val manager = ScalaPsiManager.instance(pack.getProject)
+              var iterator = manager.getClasses(pack, place.getResolveScope).iterator
+              while (iterator.hasNext) {
+                val clazz = iterator.next()
+                if (!processor.execute(clazz, state)) return false
+              }
             }
 
-            //process subpackages
-            pack.processDeclarations(processor, state, lastParent, place)
+            if (base.kinds.contains(ResolveTargets.PACKAGE)) {
+              //process subpackages
+              pack match {
+                case s: ScPackageImpl =>
+                  s.pack.processDeclarations(processor, state, lastParent, place)
+                case _ =>
+                  pack.processDeclarations(processor, state, lastParent, place)
+              }
+            } else true
           } finally {
             base.setClassKind(true)
           }

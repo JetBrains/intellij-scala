@@ -80,7 +80,10 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value]) extends PsiSc
     classKind = b
   }
   def getClassKind = {
-    classKind && ((kinds contains ResolveTargets.CLASS) ||
+    classKind && getClassKindInner
+  }
+  def getClassKindInner = {
+    ((kinds contains ResolveTargets.CLASS) ||
       (kinds contains ResolveTargets.OBJECT) ||
       (kinds contains ResolveTargets.METHOD))
   }
