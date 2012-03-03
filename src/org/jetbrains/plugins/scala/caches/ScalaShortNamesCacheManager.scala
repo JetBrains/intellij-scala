@@ -272,26 +272,7 @@ class ScalaShortNamesCacheManager(project: Project) extends ProjectComponent {
   }
 
   def getClassNames(psiPackage: PsiPackage, scope: GlobalSearchScope): HashSet[String] = {
-    if (DumbServiceImpl.getInstance(project).isDumb) return HashSet.empty
-    var qualifier: String = psiPackage.getQualifiedName
-    val classes = StubIndex.getInstance.get(ScalaIndexKeys.CLASS_NAME_IN_PACKAGE_KEY, qualifier, project,
-      new ScalaSourceFilterScope(scope, project))
-    var strings: HashSet[String] = new HashSet[String]
-    val classesIterator = classes.iterator()
-    while (classesIterator.hasNext) {
-      val element = classesIterator.next()
-      if (!(element.isInstanceOf[PsiClass])) {
-        var faultyContainer: VirtualFile = PsiUtilCore.getVirtualFile(element)
-        LOG.error("Wrong Psi in Psi list: " + faultyContainer)
-        if (faultyContainer != null && faultyContainer.isValid) {
-          FileBasedIndex.getInstance.requestReindex(faultyContainer)
-        }
-        return null
-      }
-      var clazz: PsiClass = element.asInstanceOf[PsiClass]
-      strings += clazz.name
-    }
-    strings
+    ScalaPsiManager.instance(project).getScalaClassNames(psiPackage, scope)
   }
 
   def getAllClassNames: Seq[String] = {

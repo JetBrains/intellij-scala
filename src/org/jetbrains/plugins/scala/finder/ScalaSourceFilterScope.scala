@@ -5,9 +5,8 @@ import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.project.Project
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.openapi.vfs.VirtualFile
-import com.intellij.openapi.fileTypes.{FileType, StdFileTypes}
+import com.intellij.openapi.fileTypes.StdFileTypes
 import com.intellij.openapi.module.Module
-import org.jetbrains.plugins.scala.decompiler.DecompilerUtil
 
 /**
  * User: Alexander Podkhalyuzin
@@ -29,9 +28,10 @@ class ScalaSourceFilterScope(myDelegate: GlobalSearchScope, project: Project) ex
   }
 
   def contains(file: VirtualFile): Boolean = {
-    val fileType: FileType = file.getFileType
-    (null == myDelegate || myDelegate.contains(file)) && (ScalaFileType.SCALA_FILE_TYPE == fileType &&
-            myIndex.isInSourceContent(file) || StdFileTypes.CLASS == fileType && myIndex.isInLibraryClasses(file) &&
-            DecompilerUtil.isScalaFile(file))
+    val extention = file.getExtension
+    (null == myDelegate || myDelegate.contains(file)) && (
+      ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension == extention &&
+        myIndex.isInSourceContent(file) ||
+        StdFileTypes.CLASS.getDefaultExtension == extention && myIndex.isInLibraryClasses(file))
   }
 }

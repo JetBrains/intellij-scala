@@ -67,32 +67,7 @@ class ScalaClassFinder(project: Project) extends PsiElementFinder {
   override def findPackage(qName: String): PsiPackage = null
 
   override def getClassNames(psiPackage: PsiPackage, scope: GlobalSearchScope): Set[String] = {
-    if (DumbServiceImpl.getInstance(project).isDumb) return Collections.emptySet()
-    var qualifier: String = psiPackage.getQualifiedName
-    val classes = StubIndex.getInstance.get(ScalaIndexKeys.JAVA_CLASS_NAME_IN_PACKAGE_KEY, qualifier, project,
-      new ScalaSourceFilterScope(scope, project))
-    import java.util.HashSet
-    var strings: HashSet[String] = new HashSet[String]
-    val classesIterator = classes.iterator()
-    while (classesIterator.hasNext) {
-      val element = classesIterator.next()
-      if (!(element.isInstanceOf[PsiClass])) {
-        var faultyContainer: VirtualFile = PsiUtilCore.getVirtualFile(element)
-        LOG.error("Wrong Psi in Psi list: " + faultyContainer)
-        if (faultyContainer != null && faultyContainer.isValid) {
-          FileBasedIndex.getInstance.requestReindex(faultyContainer)
-        }
-        return null
-      }
-      var clazz: PsiClass = element.asInstanceOf[PsiClass]
-      strings add clazz.getName
-      clazz match {
-        case t: ScTemplateDefinition =>
-          for (name <- t.additionalJavaNames) strings add name
-        case _ =>
-      }
-    }
-    strings
+    ScalaPsiManager.instance(project).getJavaPackageClassNames(psiPackage, scope)
   }
 
   override def getClasses(psiPackage: PsiPackage, scope: GlobalSearchScope): Array[PsiClass] = {
