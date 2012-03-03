@@ -25,8 +25,13 @@ import org.jetbrains.plugins.scala.lang.resolve.{StdKinds, ResolveUtils}
  * Date: 22.04.2010
  */
 
-class ScPackageImpl(pack: PsiPackage) extends PsiPackageImpl(pack.getManager.asInstanceOf[PsiManagerEx],
+class ScPackageImpl(val pack: PsiPackage) extends PsiPackageImpl(pack.getManager.asInstanceOf[PsiManagerEx],
         pack.getQualifiedName) with ScPackage {
+  def superProcessDeclarations(processor: PsiScopeProcessor, state: ResolveState,
+                                    lastParent: PsiElement, place: PsiElement): Boolean = {
+    super.processDeclarations(processor, state, lastParent, place)
+  }
+
   override def processDeclarations(processor: PsiScopeProcessor, state: ResolveState,
                                    lastParent: PsiElement, place: PsiElement): Boolean = {
     processDeclarations(processor, state, lastParent, place, false)
@@ -36,18 +41,7 @@ class ScPackageImpl(pack: PsiPackage) extends PsiPackageImpl(pack.getManager.asI
                           lastParent: PsiElement, place: PsiElement, lite: Boolean): Boolean = {
     if (place.getLanguage == ScalaFileType.SCALA_LANGUAGE && pack.getQualifiedName == "scala") {
       if (!processor.isInstanceOf[ImplicitProcessor]) {
-        val namesSet = new HashSet[String]
-
-        val namesProcessor = new BaseProcessor(StdKinds.stableImportSelector) {
-          def execute(element: PsiElement, state: ResolveState): Boolean = {
-            element match {
-              case clazz: PsiClass => namesSet += clazz.name
-              case _ =>
-            }
-            processor.execute(element, state)
-          }
-        }
-        if (!ResolveUtils.packageProcessDeclarations(pack, namesProcessor, state, lastParent, place)) return false
+        val namesSet = ScalaShortNamesCacheManager.getInstance(getProject).getClassNames(pack, getResolveScope)
 
         //Process synthetic classes for scala._ package
         /**
