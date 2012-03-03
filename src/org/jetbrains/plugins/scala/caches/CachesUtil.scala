@@ -8,7 +8,6 @@ import lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
 import lang.psi.api.expr.ScExpression.ExpressionTypeResult
 import lang.psi.api.base.types.ScTypeElement
 import com.intellij.openapi.util.{Computable, RecursionManager, RecursionGuard, Key}
-import lang.psi.api.expr.ScExpression
 import lang.psi.api.toplevel.imports.usages.ImportUsed
 import collection.mutable.ArrayBuffer
 import lang.resolve.ScalaResolveResult
@@ -19,6 +18,7 @@ import util.{PsiTreeUtil, CachedValuesManager, CachedValueProvider, CachedValue}
 import lang.psi.api.statements.ScFunction
 import scala.util.control.ControlThrowable
 import caches.CachesUtil.ProbablyRecursionException
+import lang.psi.api.expr.{ScBlock, ScExpression}
 
 /**
  * User: Alexander Podkhalyuzin
@@ -81,6 +81,8 @@ object CachesUtil {
   val EFFECTIVE_PARAMETER_CLAUSE: Key[CachedValue[Seq[ScParameterClause]]] =
     Key.create("effective.parameter.clause.key")
   val PATTERN_EXPECTED_TYPE: Key[CachedValue[Option[ScType]]] = Key.create("pattern.expected.type.key")
+  val MACRO_FUNCTION_PREAMBLE: Key[CachedValue[Option[ScBlock]]] =
+      Key.create("macro.function.preamble.key")
 
   //keys for getUserData
   val EXPRESSION_TYPING_KEY: Key[java.lang.Boolean] = Key.create("expression.typing.key")

@@ -216,7 +216,9 @@ private[expr] object ExpectedTypes {
         case None => false
         case Some(b) => b == expr.getSameElementInContext
       }) => {
-        v.returnTypeElement match {
+        if (v.isMacro)
+          Array((lang.psi.types.Any /*TODO should be _context.type*/, None))
+        else v.returnTypeElement match {
           case Some(te) => v.returnType.toOption.map(x => (x, Some(te))).toArray
           case _ => v.getInheritedReturnType.map(typeToPair).toArray
         }
