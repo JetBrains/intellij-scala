@@ -39,6 +39,8 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes;
 
 %{ // User code
 
+  private boolean isOddItalicBold = false;;
+
   public _ScalaDocLexer() {
     this((java.io.Reader)null);
   }
@@ -121,11 +123,20 @@ scalaIdentifierWithPath = (({plainid} | "`" {stringLiteralExtra} "`")["."]?)+
 <COMMENT_DATA, COMMENT_DATA_START> ("__"|"\u005f\u005f") {
   return DOC_UNDERLINE_TAG;
 }
-<COMMENT_DATA, COMMENT_DATA_START> ("'''"|"\u0027\u0027\u0027") {
-  return DOC_BOLD_TAG;
-}
 <COMMENT_DATA, COMMENT_DATA_START> ("''"|"\u0027\u0027") {
   return DOC_ITALIC_TAG;
+}
+<COMMENT_DATA, COMMENT_DATA_START> "'''" / ("''"[^"'"]) {
+  if (isOddItalicBold) {
+    isOddItalicBold = false;
+    yypushback(1);
+    return DOC_ITALIC_TAG;
+  }
+  isOddItalicBold = true;
+  return DOC_BOLD_TAG;
+}
+<COMMENT_DATA, COMMENT_DATA_START> ("'''"|"\u0027\u0027\u0027") {
+  return DOC_BOLD_TAG;
 }
 <COMMENT_DATA, COMMENT_DATA_START> ("^"|"\u005e") {
   return DOC_SUPERSCRIPT_TAG;

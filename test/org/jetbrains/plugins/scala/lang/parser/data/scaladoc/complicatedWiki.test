@@ -80,11 +80,15 @@ ScalaFile
             PsiElement(DOC_UNDERLINE_TAG 4)('__')
           PsiElement(DOC_SUPERSCRIPT_TAG 16)('^')
         PsiElement(DOC_COMMENT_DATA)('abcd')
+        PsiElement(DOC_ITALIC_TAG 2)('''')
+        PsiErrorElement:Cross tags
+          <empty list>
         PsiElement(DOC_BOLD_TAG 1)(''''')
-      PsiElement(DOC_ITALIC_TAG 2)('''')
-    PsiElement(DOC_WHITESPACE)('\n ')
-    PsiElement(DOC_COMMENT_LEADING_ASTERISKS)('*')
-    PsiElement(DOC_WHITESPACE)(' ')
+      PsiElement(DOC_WHITESPACE)('\n ')
+      PsiElement(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      PsiElement(DOC_WHITESPACE)(' ')
+    PsiErrorElement:Wiki syntax element closed by tag
+      <empty list>
     DocTag
       PsiElement(DOC_TAG_NAME)('@see')
       PsiElement(DOC_WHITESPACE)(' ')

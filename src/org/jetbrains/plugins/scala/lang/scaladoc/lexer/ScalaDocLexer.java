@@ -35,6 +35,10 @@ public class ScalaDocLexer extends MergingLexerAdapter {
     private boolean myAfterLineBreak;
     private boolean myInLeadingSpace;
 
+    private boolean needItalic;
+    private boolean needCorrectAfterItalic;
+    private boolean hasPreviousBold;
+
     public AsteriskStripperLexer(final _ScalaDocLexer flex) {
       myFlex = flex;
     }
@@ -83,7 +87,6 @@ public class ScalaDocLexer extends MergingLexerAdapter {
       return myTokenEndOffset;
     }
 
-
     public final void advance() {
       locateToken();
       myTokenType = null;
@@ -110,25 +113,14 @@ public class ScalaDocLexer extends MergingLexerAdapter {
       if (myAfterLineBreak) {
 
         myAfterLineBreak = false;
-/*
-        while (myTokenEndOffset < myBufferEndOffset && myBuffer.charAt(myTokenEndOffset) == '*' &&
-               (myTokenEndOffset + 1 >= myBufferEndOffset || myBuffer.charAt(myTokenEndOffset + 1) != '/')) {
-          myTokenEndOffset++;
-        }
-*/
         myInLeadingSpace = true;
+
         if (myTokenEndOffset < myBufferEndOffset && myBuffer.charAt(myTokenEndOffset) == '*'
             && (myTokenEndOffset + 1 >= myBufferEndOffset || myBuffer.charAt(myTokenEndOffset + 1) != '/')) {
           myTokenEndOffset++;
           myTokenType = ScalaDocTokenType.DOC_COMMENT_LEADING_ASTERISKS;
           return;
         }
-        /*
-        myInLeadingSpace = true;
-        if (myBufferIndex < myTokenEndOffset) {
-          myTokenType = ScalaDocTokenType.DOC_COMMENT_LEADING_ASTERISKS;
-          return;
-        }*/
       }
 
       if (myInLeadingSpace) {
@@ -159,7 +151,6 @@ public class ScalaDocLexer extends MergingLexerAdapter {
             myTokenType = ScalaDocTokenType.DOC_INNER_CODE;
           }
 
-
           return;
         }
       }
@@ -169,10 +160,35 @@ public class ScalaDocLexer extends MergingLexerAdapter {
 
     private void flexLocateToken() {
       try {
+        if (needItalic) {
+          myTokenType = ScalaDocTokenType.DOC_ITALIC_TAG;
+          --myBufferIndex;
+          myTokenEndOffset = myBufferIndex + 2;
+          needItalic = false;
+          needCorrectAfterItalic = true;
+          return;
+        } else if (needCorrectAfterItalic) {
+          needCorrectAfterItalic = false;
+          ++myBufferIndex;
+        }
+
         myState = myFlex.yystate();
         myFlex.goTo(myBufferIndex);
         myTokenType = myFlex.advance();
         myTokenEndOffset = myFlex.getTokenEnd();
+
+        if (myTokenType == ScalaDocTokenType.DOC_BOLD_TAG && myTokenEndOffset < myBufferEndOffset - 1
+            && myBuffer.charAt(myTokenEndOffset) == '\'' && myBuffer.charAt(myTokenEndOffset + 1) != '\'') {
+          needItalic = true;
+          myTokenType = ScalaDocTokenType.DOC_ITALIC_TAG;
+          --myTokenEndOffset;
+        }
+        if (myTokenType == ScalaDocTokenType.DOC_BOLD_TAG) {
+          hasPreviousBold = true;
+        } else if (myTokenType == ScalaDocTokenType.DOC_ITALIC_TAG && hasPreviousBold) {
+          hasPreviousBold = false;
+
+        }
       }
       catch (IOException e) {
         // Can't be

@@ -45,7 +45,8 @@ public class ScalaBraceMatcher implements PairedBraceMatcher {
       new BracePair(ScalaDocElementTypes.DOC_ITALIC_TAG, ScalaDocElementTypes.DOC_COMMON_CLOSE_WIKI_TAG, true),
       new BracePair(ScalaDocElementTypes.DOC_MONOSPACE_TAG, ScalaDocElementTypes.DOC_COMMON_CLOSE_WIKI_TAG, true),
       new BracePair(ScalaDocElementTypes.DOC_SUBSCRIPT_TAG, ScalaDocElementTypes.DOC_COMMON_CLOSE_WIKI_TAG, true),
-      new BracePair(ScalaDocElementTypes.DOC_SUPERSCRIPT_TAG, ScalaDocElementTypes.DOC_COMMON_CLOSE_WIKI_TAG, true)
+      new BracePair(ScalaDocElementTypes.DOC_SUPERSCRIPT_TAG, ScalaDocElementTypes.DOC_COMMON_CLOSE_WIKI_TAG, true),
+      new BracePair(ScalaTokenTypes.tOPENXMLTAG, ScalaTokenTypes.tCLOSEXMLTAG, true)
   };
 
   public BracePair[] getPairs() {

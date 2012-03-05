@@ -48,6 +48,7 @@
     <errorHandler implementation="com.intellij.diagnostic.ITNReporter"/>
     <fileTypeFactory implementation="org.jetbrains.plugins.scala.ScalaFileTypeFactory"/>
     <syntaxHighlighter key="Scala" implementationClass="org.jetbrains.plugins.scala.highlighter.ScalaSyntaxHighlighter"/>
+    <lang.syntaxHighlighterFactory key="Scala" implementationClass="org.jetbrains.plugins.scala.highlighter.ScalaSyntaxHighlighterFactory"/>
     <treeStructureProvider implementation="org.jetbrains.plugins.scala.components.ScalaDefsProjectViewProvider" order="last"/>
     <lang.braceMatcher language="Scala" implementationClass="org.jetbrains.plugins.scala.highlighter.ScalaBraceMatcher"/>
     <lang.parserDefinition language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.parser.ScalaParserDefinition"/>
@@ -58,7 +59,8 @@
     <lang.refactoringSupport language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.refactoring.ScalaRefactoringSupportProvider"/>
     <lang.surroundDescriptor language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.surroundWith.descriptors.ScalaExpressionSurroundDescriptor"/>
     <lang.psiStructureViewFactory language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.structureView.ScalaStructureViewFactory"/>
-    <typedHandler implementation="org.jetbrains.plugins.scala.editor.typedHandler.ScalaTypedHandler"/>
+    <typedHandler implementation="org.jetbrains.plugins.scala.editor.typedHandler.ScalaTypedHandler" order="first"/>
+    <backspaceHandlerDelegate implementation="org.jetbrains.plugins.scala.editor.backspaceHandler.ScalaBackspaceHandler"/>
     <joinLinesHandler implementation="org.jetbrains.plugins.scala.editor.joinlines.PackageJoinLinesHandler"/>
     <lang.smartEnterProcessor language="Scala" implementationClass="org.jetbrains.plugins.scala.editor.smartEnter.PackageSplitLinesProcessor"/>
     <frameworkSupport implementation="org.jetbrains.plugins.scala.config.ScalaFacetSupportProvider"/>
@@ -130,11 +132,9 @@
     <commentCompleteHandler implementation="org.jetbrains.plugins.scala.lang.scaladoc.ScalaIsCommentComplete"/>
     <elementDescriptionProvider implementation="org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.ScalaClassElementDescriptionProvider"/>
 
-    <!--Enter Handler for ScalaDoc Param comments-->
+    <!--Enter Handler for ScalaDoc -->
     <enterHandlerDelegate implementation="org.jetbrains.plugins.scala.lang.completion.handlers.ScalaDocParamInsertHandler"/>
-
-    <!--Language Injector for ScalaDoc Inner Code-->
-    <!--<languageInjector implementation="org.jetbrains.plugins.scala.lang.scaladoc.injection.ScalaDocInnerCodeInjector"/>-->
+    <!--/Handler-->
 
     <javaMainMethodProvider implementation="org.jetbrains.plugins.scala.runner.ScalaMainMethodProvider"/>
     <annotatedElementsSearch implementation="org.jetbrains.plugins.scala.lang.psi.impl.search.ScalaAnnotatedMembersSearcher"/>

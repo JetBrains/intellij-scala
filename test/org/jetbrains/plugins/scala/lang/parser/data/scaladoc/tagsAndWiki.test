@@ -71,22 +71,20 @@ ScalaFile
           PsiElement(DOC_WHITESPACE)(' ')
           PsiElement(DOC_COMMENT_DATA)('linjkl')
           PsiElement(DOC_INLINE_TAG_END)('}')
-        PsiElement(DOC_BOLD_TAG 1)(''''')
-        PsiErrorElement:Cross tags
-          <empty list>
         PsiElement(DOC_ITALIC_TAG 2)('''')
+      PsiElement(DOC_BOLD_TAG 1)(''''')
+    PsiElement(DOC_WHITESPACE)('\n ')
+    PsiElement(DOC_COMMENT_LEADING_ASTERISKS)('*')
+    PsiElement(DOC_WHITESPACE)(' ')
+    DocSyntaxElement 32
+      PsiElement(DOC_SUBSCRIPT_TAG 32)(',,')
+      PsiElement(DOC_WHITESPACE)(' ')
+      PsiElement(DOC_COMMENT_DATA)('unclosed marked element')
       PsiElement(DOC_WHITESPACE)('\n ')
       PsiElement(DOC_COMMENT_LEADING_ASTERISKS)('*')
       PsiElement(DOC_WHITESPACE)(' ')
-      DocSyntaxElement 33
-        PsiElement(DOC_SUBSCRIPT_TAG 32)(',,')
-        PsiElement(DOC_WHITESPACE)(' ')
-        PsiElement(DOC_COMMENT_DATA)('unclosed marked element')
-        PsiElement(DOC_WHITESPACE)('\n ')
-        PsiElement(DOC_COMMENT_LEADING_ASTERISKS)('*')
-        PsiElement(DOC_WHITESPACE)(' ')
-      PsiErrorElement:Wiki syntax element closed by tag
-        <empty list>
+    PsiErrorElement:Wiki syntax element closed by tag
+      <empty list>
     DocTag
       PsiElement(DOC_TAG_NAME)('@see')
       PsiElement(DOC_WHITESPACE)(' ')

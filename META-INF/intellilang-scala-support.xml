@@ -9,6 +9,7 @@
 
   <extensions defaultExtensionNs="com.intellij">
     <multiHostInjector implementation="org.jetbrains.plugins.scala.injection.ScalaLanguageInjector"/>
+    <!--<multiHostInjector implementation="org.jetbrains.plugins.scala.lang.scaladoc.injection.ScalaDocInnerCodeInjector"/>-->
   </extensions>
 
 </idea-plugin>

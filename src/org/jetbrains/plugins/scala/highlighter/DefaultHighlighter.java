@@ -80,6 +80,8 @@ public class DefaultHighlighter {
   @NonNls
   static final String SCALA_DOC_MARKUP_ID = "ScalaDoc comment markup";
   @NonNls
+  static final String SCALA_DOC_TAG_PARAM_VALUE_ID = "ScalaDoc @param value";
+  @NonNls
   static final String ABSTRACT_CLASS_ID = "Scala Abstract class";
   @NonNls
   static final String TRAIT_ID = "Scala Trait";
@@ -113,6 +115,10 @@ public class DefaultHighlighter {
   static final String PATTERN_ID = "Scala Pattern value";
   @NonNls
   static final String TYPE_ALIAS_ID = "Scala Type Alias";
+  @NonNls
+  static final String XML_TEXT_ID = "Scala XML Text";
+  @NonNls
+  static final String XML_TAG_ID = "Scala XML Tag";
 
   public static TextAttributesKey LINE_COMMENT = createKey(LINE_COMMENT_ID, SyntaxHighlighterColors.LINE_COMMENT);
   public static TextAttributesKey BLOCK_COMMENT = createKey(BLOCK_COMMENT_ID, SyntaxHighlighterColors.JAVA_BLOCK_COMMENT);
@@ -137,6 +143,7 @@ public class DefaultHighlighter {
   public static TextAttributesKey SCALA_DOC_WIKI_SYNTAX = createKey(SCALA_DOC_WIKI_SYNTAX_ID,SyntaxHighlighterColors.DOC_COMMENT_MARKUP);
   public static TextAttributesKey SCALA_DOC_HTML_ESCAPE = createKey(SCALA_DOC_HTML_ESCAPE_ID, SyntaxHighlighterColors.DOC_COMMENT_MARKUP);
   public static TextAttributesKey SCALA_DOC_MARKUP = createKey(SCALA_DOC_MARKUP_ID, SyntaxHighlighterColors.DOC_COMMENT_MARKUP);
+  public static TextAttributesKey SCALA_DOC_TAG_PARAM_VALUE = createKey(SCALA_DOC_TAG_PARAM_VALUE_ID, SyntaxHighlighterColors.DOC_COMMENT_TAG);
   public static TextAttributesKey ABSTRACT_CLASS = createKey(ABSTRACT_CLASS_ID, HighlightInfoType.ABSTRACT_CLASS_NAME.getAttributesKey());
   public static TextAttributesKey TRAIT = createKey(TRAIT_ID, HighlightInfoType.INTERFACE_NAME.getAttributesKey());
   public static TextAttributesKey LOCAL_VALUES = createKey(LOCAL_VALUES_ID, HighlightInfoType.LOCAL_VARIABLE.getAttributesKey());
@@ -157,6 +164,8 @@ public class DefaultHighlighter {
   public static TextAttributesKey ASSIGN = createKey(ASSIGN_ID, SyntaxHighlighterColors.OPERATION_SIGN);
   public static TextAttributesKey BAD_CHARACTER = createKey(BAD_CHARACTER_ID, HighlighterColors.BAD_CHARACTER);
   public static TextAttributesKey DOC_COMMENT = createKey(DOC_COMMENT_ID, SyntaxHighlighterColors.DOC_COMMENT);
+  public static TextAttributesKey XML_TEXT = createKey(XML_TEXT_ID, SyntaxHighlighterColors.STRING);
+  public static TextAttributesKey XML_TAG = createKey(XML_TAG_ID, SyntaxHighlighterColors.DOC_COMMENT_TAG);
 
   private static TextAttributesKey createKey(String externalName, TextAttributesKey prototype) {
     return TextAttributesKey.createTextAttributesKey(externalName, prototype.getDefaultAttributes());
