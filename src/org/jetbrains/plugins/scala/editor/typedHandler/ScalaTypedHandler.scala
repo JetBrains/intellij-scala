@@ -2,51 +2,189 @@ package org.jetbrains.plugins.scala.editor.typedHandler
 
 import com.intellij.codeInsight.editorActions.TypedHandlerDelegate
 import com.intellij.codeInsight.editorActions.TypedHandlerDelegate.Result
-import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
 import com.intellij.psi.codeStyle.CodeStyleManager
-import com.intellij.openapi.application.ApplicationManager
-import com.intellij.psi.{PsiDocumentManager, PsiWhiteSpace, PsiFile}
+import com.intellij.openapi.editor.{Document, Editor}
+import org.jetbrains.plugins.scala.lang.scaladoc.lexer.docsyntax.ScaladocSyntaxElementType
+import com.intellij.psi.{PsiElement, PsiDocumentManager, PsiWhiteSpace, PsiFile}
+import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocComment
+import com.intellij.openapi.fileTypes.FileType
+import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
+import org.jetbrains.plugins.scala.extensions
+import org.jetbrains.plugins.scala.lang.psi.api.expr.xml.{ScXmlStartTag, ScXmlExpr}
+import com.intellij.psi.xml.XmlTokenType
+
 
 /**
  * @author Alexander Podkhalyuzin
+ * @author Dmitry Naydanov
  */
-
 class ScalaTypedHandler extends TypedHandlerDelegate {
   override def charTyped(c: Char, project: Project, editor: Editor, file: PsiFile): Result = {
     if (!file.isInstanceOf[ScalaFile]) return Result.CONTINUE
-    if (c == ' ') {
-      val offset = editor.getCaretModel.getOffset
-      val document = editor.getDocument
-      val text = document.getText
-      if (offset >= 6 && offset < text.length && text.substring(offset - 6, offset) == " case ") {
-        val action: Runnable = new Runnable {
-          def run: Unit = {
-            PsiDocumentManager.getInstance(project).commitDocument(document)
+
+    val offset = editor.getCaretModel.getOffset
+    val element = file.findElementAt(offset - 1)
+    if (element == null) return Result.CONTINUE
+
+    val document = editor.getDocument
+    val text = document.getText
+    var myTask: (Document, Project, PsiElement, Int) => Unit = null
+
+    if (isInDocComment(element)) {//we don't have to check offset >= 3 because "/**" is already has 3 characters
+      myTask = getScaladocTask(text, offset)
+    } else if (c == ' ' && offset >= 6 && offset < text.length && text.substring(offset - 6, offset) == " case ") {
+      myTask = indentCase(file)
+    } else if (isInPlace(element, classOf[ScXmlExpr])) {
+      c match {
+        case '>' => myTask = completeXmlTag(tag => "</" + Option(tag.getTagName).getOrElse("") + ">") _
+        //        case '/' => myTask = completeXmlTag(_ => ">") _           //TODO CopyPaste from XmlSlashHandler
+        case _ =>
+      }
+    }
+
+    if (myTask == null) return Result.CONTINUE
+
+    extensions.inWriteAction {
+      PsiDocumentManager.getInstance(project).commitDocument(document)
+    }
+
+    myTask(document, project, file.findElementAt(offset - 1), offset) // prev element is not valid here
+    Result.STOP
+  }
+
+  override def beforeCharTyped(c: Char, project: Project, editor: Editor, file: PsiFile, fileType: FileType): Result = {
+    if (!file.isInstanceOf[ScalaFile]) return Result.CONTINUE
+
+    val offset = editor.getCaretModel.getOffset
+    val element = file.findElementAt(offset)
+    val prevElement = file.findElementAt(offset - 1)
+    if (element == null) return Result.CONTINUE
+    val elementType = element.getNode.getElementType
+
+    if ((c == '"' && elementType == ScalaTokenTypes.tMULTILINE_STRING &&
+            element.getTextOffset + element.getTextLength - offset < 4) ||
+            isInDocComment(element) && (elementType.isInstanceOf[ScaladocSyntaxElementType] ||
+                    elementType == ScalaDocTokenType.DOC_INNER_CLOSE_CODE_TAG) &&
+                    element.getParent.getLastChild == element && element.getText.startsWith("" + c) &&
+                    !(elementType == ScalaDocTokenType.DOC_ITALIC_TAG && element.getPrevSibling != null
+                            && element.getPrevSibling.getNode.getElementType == ScalaDocTokenType.DOC_ITALIC_TAG)) {
+      editor.getCaretModel.moveCaretRelatively(1, 0, false, false, false)
+      return Result.STOP
+    } else if (element.getParent != null && element.getParent.isInstanceOf[ScXmlStartTag]) {
+
+      val offsetInName = offset + 2 - (element.getNode.getElementType match {
+        case XmlTokenType.XML_NAME => element.getTextOffset
+        case XmlTokenType.XML_TAG_END =>
+          if (prevElement != null && prevElement.getNode.getElementType == XmlTokenType.XML_NAME) {
+            prevElement.getTextOffset
+          } else {
+            return Result.CONTINUE
           }
+        case _ => return Result.CONTINUE
+      })
+
+      val openingTag = element.getParent.asInstanceOf[ScXmlStartTag]
+      val closingTag = openingTag.getClosingTag
+
+      if (closingTag.getText.substring(2, closingTag.getTextLength - 1) == openingTag.getTagName) {
+        extensions.inWriteAction {
+          editor.getDocument.insertString(closingTag.getTextOffset + offsetInName, "" + c)
+          PsiDocumentManager.getInstance(file.getProject).commitDocument(editor.getDocument)
         }
-        ApplicationManager.getApplication.runWriteAction(action)
-        val element = file.findElementAt(offset - 1)
-        if (element.isInstanceOf[PsiWhiteSpace] || ScalaPsiUtil.isLineTerminator(element)) {
-          val anotherElement = file.findElementAt(offset - 2)
-          if (anotherElement.getNode.getElementType == ScalaTokenTypes.kCASE &&
-                  anotherElement.getParent.isInstanceOf[ScCaseClause]) {
-            val action: Runnable = new Runnable {
-              def run: Unit = {
-                PsiDocumentManager.getInstance(project).commitDocument(document)
-                CodeStyleManager.getInstance(project).adjustLineIndent(file, anotherElement.getTextRange)
-              }
-            }
-            ApplicationManager.getApplication.runWriteAction(action)
-            return Result.STOP
-          }
+      }
+
+      return Result.CONTINUE
+    } else if (c == '"' && element.getNode.getElementType != ScalaTokenTypes.tSTRING &&
+            prevElement != null && prevElement.getNode.getElementType == ScalaTokenTypes.tSTRING &&
+            prevElement.getParent.getText == "\"\"") {
+      completeMultilineString(editor, project, element, offset)
+    }
+
+    Result.CONTINUE
+  }
+
+  private def isInDocComment(element: PsiElement): Boolean = isInPlace(element, classOf[ScDocComment])
+
+  private def isInPlace(element: PsiElement, place: Class[_ <: PsiElement]): Boolean = {
+    if (element == null || place == null) return false
+
+    var nextParent = element.getParent
+    while (nextParent != null) {
+      if (place.isAssignableFrom(nextParent.getClass)) return true
+      nextParent = nextParent.getParent
+    }
+    false
+  }
+
+  private def completeScalaDocWikiSyntax(tagToInsert: String)(document: Document, project: Project, element: PsiElement, offset: Int) {
+    if (element.getNode.getElementType.isInstanceOf[ScaladocSyntaxElementType] || tagToInsert == "}}}") {
+      insertAndCommit(offset, tagToInsert, document, project)
+    }
+  }
+
+  private def completeScalaDocBoldSyntaxElement(document: Document, project: Project, element: PsiElement, offset: Int) {
+    if (element.getNode.getElementType.isInstanceOf[ScaladocSyntaxElementType]) {
+      insertAndCommit(offset, "'", document, project)
+    }
+  }
+
+  private def completeXmlTag(insert: ScXmlStartTag => String)(document: Document, project: Project, element: PsiElement, offset: Int) {
+    if (element != null && element.getParent != null && element.getParent.isInstanceOf[ScXmlStartTag]) {
+      insertAndCommit(offset, insert(element.getParent.asInstanceOf[ScXmlStartTag]), document, project)
+    }
+  }
+
+  def completeMultilineString(editor: Editor, project: Project, element: PsiElement, offset: Int) {
+    extensions.inWriteAction {
+      val document = editor.getDocument
+      document.insertString(offset, "\"\"\"")
+      PsiDocumentManager.getInstance(project).commitDocument(document)
+    }
+  }
+
+  private def insertAndCommit(offset: Int, text: String, document: Document, project: Project) {
+    extensions.inWriteAction {
+      document.insertString(offset, text)
+      PsiDocumentManager.getInstance(project).commitDocument(document)
+    }
+  }
+
+  private def getScaladocTask(text: String, offset: Int): (Document, Project, PsiElement, Int) => Unit = {
+    import ScalaTypedHandler._
+
+    if (text.substring(offset - 3, offset) == "'''") {
+      completeScalaDocBoldSyntaxElement
+    } else if (wiki1LTagMatch.contains(text.substring(offset - 1, offset))) {
+      completeScalaDocWikiSyntax(text.substring(offset - 1, offset))
+    } else if (wiki2LTagMatch.contains(text.substring(offset - 2, offset))) {
+      completeScalaDocWikiSyntax(wiki2LTagMatch.get(text.substring(offset - 2, offset)).get)
+    } else if (text.substring(offset - 3, offset) == "{{{") {
+      completeScalaDocWikiSyntax("}}}")
+    } else {
+      null
+    }
+  }
+
+  private def indentCase(file: PsiFile)(document: Document, project: Project, element: PsiElement, offset: Int) {
+    if (element.isInstanceOf[PsiWhiteSpace] || ScalaPsiUtil.isLineTerminator(element)) {
+      val anotherElement = file.findElementAt(offset - 2)
+      if (anotherElement.getNode.getElementType == ScalaTokenTypes.kCASE &&
+              anotherElement.getParent.isInstanceOf[ScCaseClause]) {
+        extensions.inWriteAction {
+          PsiDocumentManager.getInstance(project).commitDocument(document)
+          CodeStyleManager.getInstance(project).adjustLineIndent(file, anotherElement.getTextRange)
         }
       }
     }
-    Result.CONTINUE
   }
+}
+
+object ScalaTypedHandler {
+  val wiki1LTagMatch = Set("^", "`")
+  val wiki2LTagMatch = Map("__" -> "__", "''" -> "''", ",," -> ",,", "[[" -> "]]")
 }

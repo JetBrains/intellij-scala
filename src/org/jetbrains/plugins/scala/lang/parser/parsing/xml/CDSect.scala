@@ -4,10 +4,11 @@ package parser
 package parsing
 package xml
 
-import com.intellij.lang.PsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import com.intellij.psi.xml.XmlTokenType
 import builder.ScalaPsiBuilder
+import lexer.ScalaTokenTypesEx
+import com.intellij.lang.{ASTNode, PsiBuilder}
 
 /**
 * @author Alexander Podkhalyuzin
@@ -20,12 +21,13 @@ object CDSect {
     builder.getTokenType match {
       case XmlTokenType.XML_CDATA_START => builder.advanceLexer()
       case _ => {
-        cDataMarker.drop
+        cDataMarker.drop()
         return false
       }
     }
     builder.getTokenType match {
-      case XmlTokenType.XML_DATA_CHARACTERS => builder.advanceLexer
+      case XmlTokenType.XML_DATA_CHARACTERS => builder.advanceLexer()
+      case ScalaTokenTypesEx.SCALA_IN_XML_INJECTION_START => ScalaExpr.parse(builder)
       case _ =>
     }
     builder.getTokenType match {
@@ -33,6 +35,6 @@ object CDSect {
       case _ => builder error ErrMsg("xml.cdata.end.expected")
     }
     cDataMarker.done(ScalaElementTypes.XML_CD_SECT)
-    return true
+    true
   }
 }

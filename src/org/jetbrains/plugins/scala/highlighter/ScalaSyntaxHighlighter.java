@@ -24,7 +24,6 @@ import com.intellij.openapi.fileTypes.SyntaxHighlighterBase;
 import com.intellij.psi.StringEscapesTokenTypes;
 import com.intellij.psi.tree.IElementType;
 import com.intellij.psi.tree.TokenSet;
-import com.intellij.psi.tree.xml.IXmlLeafElementType;
 import com.intellij.psi.xml.XmlTokenType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.lang.lexer.ScalaLexer;
@@ -38,8 +37,7 @@ import java.util.Map;
 import java.util.Stack;
 
 import static com.intellij.psi.xml.XmlTokenType.*;
-import static org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes.tIDENTIFIER;
-import static org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypesEx.SCALA_XML_CONTENT;
+import static org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes.*;
 
 /**
  * @author ilyas
@@ -62,7 +60,11 @@ public class ScalaSyntaxHighlighter extends SyntaxHighlighterBase {
 
   // XML tags
   static final TokenSet tXML_TAGS = TokenSet.create(
-          ScalaTokenTypes.tOPENXMLTAG
+      tOPENXMLTAG, tCLOSEXMLTAG, tXMLTAGPART, tBADCLOSEXMLTAG
+  );
+
+  static final TokenSet tXML_TEXT = TokenSet.create(
+      XML_DATA_CHARACTERS
   );
 
   //Html escape sequences
@@ -83,6 +85,9 @@ public class ScalaSyntaxHighlighter extends SyntaxHighlighterBase {
       ScalaDocTokenType.DOC_INNER_CODE_TAG, ScalaDocTokenType.DOC_INNER_CLOSE_CODE_TAG,
       ScalaDocTokenType.DOC_COMMON_CLOSE_WIKI_TAG
   );
+
+  //for value in @param value
+  static final TokenSet tDOC_TAG_PARAM = TokenSet.create(ScalaDocTokenType.DOC_TAG_VALUE_TOKEN);
 
   // Variables
   static final TokenSet tVARIABLES = TokenSet.create(
@@ -236,10 +241,13 @@ public class ScalaSyntaxHighlighter extends SyntaxHighlighterBase {
     SyntaxHighlighterBase.fillMap(ATTRIBUTES, tCOMMENT_TAGS, DefaultHighlighter.SCALA_DOC_TAG);
     SyntaxHighlighterBase.fillMap(ATTRIBUTES, TokenSet.orSet(ScalaDocTokenType.ALL_SCALADOC_TOKENS.minus(tCOMMENT_TAGS),
         TokenSet.create(ScalaDocTokenType.DOC_COMMENT_BAD_CHARACTER,
-            ScalaDocTokenType.DOC_HTML_ESCAPE_HIGHLIGHTED_ELEMENT)), DefaultHighlighter.DOC_COMMENT);
+        ScalaDocTokenType.DOC_HTML_ESCAPE_HIGHLIGHTED_ELEMENT)), DefaultHighlighter.DOC_COMMENT);
     SyntaxHighlighterBase.fillMap(ATTRIBUTES, tSCALADOC_HTML_TAGS, DefaultHighlighter.SCALA_DOC_HTML_TAG);
     SyntaxHighlighterBase.fillMap(ATTRIBUTES, tSCALADOC_WIKI_SYNTAX, DefaultHighlighter.SCALA_DOC_WIKI_SYNTAX);
     SyntaxHighlighterBase.fillMap(ATTRIBUTES, tSCALADOC_HTML_ESCAPE, DefaultHighlighter.SCALA_DOC_HTML_ESCAPE);
+    SyntaxHighlighterBase.fillMap(ATTRIBUTES, tXML_TAGS, DefaultHighlighter.XML_TAG);
+    SyntaxHighlighterBase.fillMap(ATTRIBUTES, tXML_TEXT, DefaultHighlighter.XML_TEXT);
+    SyntaxHighlighterBase.fillMap(ATTRIBUTES, tDOC_TAG_PARAM, DefaultHighlighter.SCALA_DOC_TAG_PARAM_VALUE);
   }
 
 
@@ -256,20 +264,23 @@ public class ScalaSyntaxHighlighter extends SyntaxHighlighterBase {
                                 new IElementType[]{ScalaTokenTypes.tSTRING}, IElementType.EMPTY_ARRAY);
       
       registerSelfStoppingLayer(new StringLiteralLexer('\'', ScalaTokenTypes.tSTRING),
-                                new IElementType[]{ScalaTokenTypes.tCHAR}, IElementType.EMPTY_ARRAY);
+          new IElementType[]{ScalaTokenTypes.tCHAR}, IElementType.EMPTY_ARRAY);
 
-      LayeredLexer lexer = new LayeredLexer(new ScalaDocLexerHighlightingWrapper());
+      LayeredLexer scalaDocLexer = new LayeredLexer(new ScalaDocLexerHighlightingWrapper());
 
-      ScalaHtmlHighlightingLexerWrapper htmlLexer = new ScalaHtmlHighlightingLexerWrapper();
+      scalaDocLexer.registerLayer(new ScalaHtmlHighlightingLexerWrapper(), ScalaDocTokenType.DOC_COMMENT_DATA);
 
-      lexer.registerLayer(htmlLexer, ScalaDocTokenType.DOC_COMMENT_DATA);
-
-      registerSelfStoppingLayer(lexer, new IElementType[]{ScalaDocElementTypes.SCALA_DOC_COMMENT},
+      registerSelfStoppingLayer(scalaDocLexer, new IElementType[]{ScalaDocElementTypes.SCALA_DOC_COMMENT},
           IElementType.EMPTY_ARRAY);
     }
   }
   
   private static class CustomScalaLexer extends ScalaLexer {
+    private Stack<String> openingTags = new Stack<String>();
+    private boolean tagMatch = false;
+    private boolean isInClosingTag = false;
+    private boolean afterStartTagStart = false;
+
     public CustomScalaLexer(boolean treatDocCommentAsBlockComment) {
       super(treatDocCommentAsBlockComment);
     }
@@ -283,17 +294,51 @@ public class ScalaSyntaxHighlighter extends SyntaxHighlighterBase {
       myBuffer = buffer;
       myBufferEnd = buffer.length();
       myTokenType = null;
+      openingTags = new Stack<String>();
+      tagMatch = false;
+      isInClosingTag = false;
+      afterStartTagStart = false;
     }
 
     public IElementType getTokenType() {
       IElementType type = super.getTokenType();
-      if (type instanceof IXmlLeafElementType ||
-          XML_WHITE_SPACE == type ||
-          type == XML_REAL_WHITE_SPACE ||
-          type == TAG_WHITE_SPACE) {
-        return SCALA_XML_CONTENT;
+
+      if (type == XML_START_TAG_START) {
+        return tOPENXMLTAG;
+      } else if (type == XML_TAG_END && isInClosingTag) {
+        return tagMatch ? tCLOSEXMLTAG : tBADCLOSEXMLTAG;
+      } else if (type == XML_NAME) {
+        return tXMLTAGPART;
+      } else if (type == XML_EMPTY_ELEMENT_END) {
+        return tCLOSEXMLTAG;
+      } else if (tSCALADOC_HTML_TAGS.contains(type)) {
+        return tXMLTAGPART;
       }
+
       return type;
+    }
+
+    @Override
+    public void advance() {
+      IElementType type = super.getTokenType();
+      String tokenText = getTokenText();
+      super.advance();
+
+      if (type == XML_END_TAG_START) {
+        isInClosingTag = true;
+      } else if (type == XML_EMPTY_ELEMENT_END) {
+        openingTags.pop();
+      } else if (type == XML_TAG_END && isInClosingTag) {
+        isInClosingTag = false;
+        if (tagMatch) {
+          openingTags.pop();
+        }
+      } else if (type == XML_NAME && (afterStartTagStart || isInClosingTag)) {
+        if (!isInClosingTag) openingTags.push(tokenText); else tagMatch = !openingTags.empty() && openingTags.peek().equals(tokenText);
+        afterStartTagStart = false;
+      } else if (type == XML_START_TAG_START) {
+        afterStartTagStart = true;
+      }
     }
   }
 

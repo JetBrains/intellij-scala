@@ -6,6 +6,7 @@ package expr
 package xml
 
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
+import com.intellij.psi.xml.XmlTokenType
 
 /**
 * @author Alexander Podkhalyuzin
@@ -13,5 +14,12 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 */
 
 trait ScXmlStartTag extends ScalaPsiElement {
+  def getTagName = findChildrenByType(XmlTokenType.XML_NAME).headOption.map(_.getText).getOrElse(null)
 
+  def getClosingTag: ScXmlEndTag = {
+    if (getParent != null && getParent.getLastChild.isInstanceOf[ScXmlEndTag]) {
+      return getParent.getLastChild.asInstanceOf[ScXmlEndTag]
+    }
+    null
+  }
 }

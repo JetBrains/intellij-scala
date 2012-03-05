@@ -60,6 +60,7 @@ public class ScalaColorsAndFontsPage implements ColorSettingsPage {
         new AttributesDescriptor(DefaultHighlighter.SCALA_DOC_HTML_TAG_ID, DefaultHighlighter.SCALA_DOC_HTML_TAG),
         new AttributesDescriptor(DefaultHighlighter.SCALA_DOC_WIKI_SYNTAX_ID, DefaultHighlighter.SCALA_DOC_WIKI_SYNTAX),
         new AttributesDescriptor(DefaultHighlighter.SCALA_DOC_HTML_ESCAPE_ID, DefaultHighlighter.SCALA_DOC_HTML_ESCAPE),
+        new AttributesDescriptor(DefaultHighlighter.SCALA_DOC_TAG_PARAM_VALUE_ID, DefaultHighlighter.SCALA_DOC_TAG_PARAM_VALUE),
         new AttributesDescriptor(DefaultHighlighter.CLASS_ID, DefaultHighlighter.CLASS),
         new AttributesDescriptor(DefaultHighlighter.ABSTRACT_CLASS_ID, DefaultHighlighter.ABSTRACT_CLASS),
         new AttributesDescriptor(DefaultHighlighter.OBJECT_ID, DefaultHighlighter.OBJECT),
@@ -82,6 +83,8 @@ public class ScalaColorsAndFontsPage implements ColorSettingsPage {
         new AttributesDescriptor(DefaultHighlighter.BAD_CHARACTER_ID, DefaultHighlighter.BAD_CHARACTER),
         new AttributesDescriptor(DefaultHighlighter.ANNOTATION_ID, DefaultHighlighter.ANNOTATION),
         new AttributesDescriptor(DefaultHighlighter.ANNOTATION_ATTRIBUTE_ID, DefaultHighlighter.ANNOTATION_ATTRIBUTE),
+        new AttributesDescriptor(DefaultHighlighter.XML_TEXT_ID, DefaultHighlighter.XML_TEXT),
+        new AttributesDescriptor(DefaultHighlighter.XML_TAG_ID, DefaultHighlighter.XML_TAG)
     };
   }
 
@@ -103,6 +106,7 @@ public class ScalaColorsAndFontsPage implements ColorSettingsPage {
         " * ScalaDoc comment: <scaladocHtml><code></scaladocHtml>Some code<scaladocHtml></code></scaladocHtml>\n" +
         " * Html escape sequence <htmlDocEscape>&#94;</htmlDocEscape>\n" +
         " * <wikiElement>''</wikiElement>Text<wikiElement>''</wikiElement>  \n" +
+        " * <tag>@param</tag> <paramtagval>x</paramtagval> Int param \n" +
         " * <tag>@author</tag> IntelliJ\n" +
         " */</scaladoc>\n" +
         "<keyword>class</keyword> <class>ScalaClass</class><par>(</par><param>x</param><colon>:</colon> <predef>Int</predef><par>)</par>" +
@@ -123,6 +127,7 @@ public class ScalaColorsAndFontsPage implements ColorSettingsPage {
         "    <keyword>case</keyword> <pattern>x</pattern> => <pattern>x</pattern>\n" +
         "  <brace>}<brace>\n" +
         "  <keyword>type</keyword> <typeAlias>G</typeAlias> <assign>=</assign> <predef>Int</predef>\n" +
+        "  val xml = <xmltag><a></xmltag><xmltext>text in xml</xmltext><xmltag></a></xmltag>\n" +
         "<brace>}</brace>\n" +
         "\n" +
         "<blockcomment>/*\n" +
@@ -182,6 +187,9 @@ public class ScalaColorsAndFontsPage implements ColorSettingsPage {
     map.put("wikiElement", DefaultHighlighter.SCALA_DOC_WIKI_SYNTAX);
     map.put("scaladocHtml", DefaultHighlighter.SCALA_DOC_HTML_TAG);
     map.put("htmlDocEscape", DefaultHighlighter.SCALA_DOC_HTML_ESCAPE);
+    map.put("paramtagval", DefaultHighlighter.SCALA_DOC_TAG_PARAM_VALUE);
+    map.put("xmltext", DefaultHighlighter.XML_TEXT);
+    map.put("xmltag", DefaultHighlighter.XML_TAG);
     return map;
   }
 }

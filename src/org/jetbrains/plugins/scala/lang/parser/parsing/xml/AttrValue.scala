@@ -26,7 +26,7 @@ object AttrValue {
       case XmlTokenType.XML_ATTRIBUTE_VALUE_START_DELIMITER => {
         builder.advanceLexer()
         builder.getTokenType match {
-          case XmlTokenType.XML_ATTRIBUTE_VALUE_TOKEN => builder.advanceLexer()
+          case XmlTokenType.XML_ATTRIBUTE_VALUE_TOKEN | XmlTokenType.XML_CHAR_ENTITY_REF => builder.advanceLexer()
           case _ =>
         }
         builder.getTokenType match {
@@ -36,12 +36,12 @@ object AttrValue {
       }
       case _ => {
         if (!ScalaExpr.parse(builder)) {
-          attrValueMarker.drop
+          attrValueMarker.drop()
           return false
         }
       }
     }
-    attrValueMarker.drop
-    return true
+    attrValueMarker.drop()
+    true
   }
 }

@@ -43,8 +43,9 @@ object Content {
           builder.advanceLexer()
         }
         case XmlTokenType.XML_CHAR_ENTITY_REF => {
-          builder.advanceLexer
+          builder.advanceLexer()
         }
+        case XmlTokenType.XML_ENTITY_REF_TOKEN => builder.advanceLexer()
         case _ => {
           if (isReturn) return
         }
@@ -52,7 +53,7 @@ object Content {
       subparse()
     }
     subparse()
-    contentMarker.drop
-    return true
+    contentMarker.drop()
+    true
   }
 }

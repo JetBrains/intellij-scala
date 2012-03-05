@@ -15,16 +15,13 @@
 
 package org.jetbrains.plugins.scala.lang.lexer;
 
-import com.intellij.lexer.DocCommentTokenTypes;
 import com.intellij.psi.tree.IElementType;
 import com.intellij.psi.tree.TokenSet;
-import static com.intellij.psi.xml.XmlTokenType.*;
-import static org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes.*;
-
-import com.intellij.psi.xml.XmlTokenType;
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes;
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType;
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.ScalaDocElementTypes;
+
+import static com.intellij.psi.xml.XmlTokenType.*;
+import static org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes.*;
 
 /**
  * @author ilyas
@@ -154,6 +151,8 @@ public interface ScalaTokenTypes {
   ////////////////////////// xml tag /////////////////////////////////////////////////////////////////////////////////////
   final IElementType tOPENXMLTAG = new ScalaElementType("opened xml tag");
   final IElementType tCLOSEXMLTAG = new ScalaElementType("closed xml tag");
+  final IElementType tBADCLOSEXMLTAG = new ScalaElementType("closing tag without opening");
+  final IElementType tXMLTAGPART = new ScalaElementType("tag part");
   final IElementType tBEGINSCALAEXPR = new ScalaElementType("begin of scala expression");
   final IElementType tENDSCALAEXPR = new ScalaElementType("end of scala expression");
 

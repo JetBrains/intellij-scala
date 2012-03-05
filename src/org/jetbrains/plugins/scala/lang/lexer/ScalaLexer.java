@@ -20,15 +20,12 @@ import com.intellij.lexer.LexerPosition;
 import com.intellij.lexer.LexerState;
 import com.intellij.lexer.XmlLexer;
 import com.intellij.psi.tree.IElementType;
-import static com.intellij.psi.xml.XmlTokenType.*;
 import com.intellij.util.containers.Stack;
-import com.intellij.util.text.CharArrayCharSequence;
 import gnu.trove.TIntStack;
 import org.jetbrains.annotations.Nullable;
-import static org.jetbrains.plugins.scala.lang.lexer.ScalaPlainLexer.SCALA_CORE_MASK;
-import static org.jetbrains.plugins.scala.lang.lexer.ScalaPlainLexer.SCALA_CORE_SHIFT;
+
+import static com.intellij.psi.xml.XmlTokenType.*;
 import static org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypesEx.*;
-import org.jetbrains.plugins.scala.lang.lexer.core._ScalaCoreLexer;
 
 
 /**
@@ -100,7 +97,8 @@ public class ScalaLexer extends Lexer {
 
       if (type == SCALA_XML_CONTENT_START) {
         myCurrentLexer = myXmlLexer;
-        myCurrentLexer.start(getBufferSequence(), start, myBufferEnd, myXmlState);
+        myXmlState = 0;
+        myCurrentLexer.start(getBufferSequence(), start, myBufferEnd, 0);
         myLayeredTagStack.push(new Stack<MyOpenXmlTag>());
         myLayeredTagStack.peek().push(new MyOpenXmlTag());
         myTokenType = myCurrentLexer.getTokenType();
