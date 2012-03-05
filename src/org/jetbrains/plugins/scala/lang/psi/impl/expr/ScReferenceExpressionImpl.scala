@@ -21,12 +21,12 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
 import api.ScalaElementVisitor
-import api.toplevel.typedef.{ScObject, ScClass, ScTypeDefinition, ScTrait}
 import api.toplevel.imports.ScImportStmt
 import api.base.patterns.ScReferencePattern
 import com.intellij.util.IncorrectOperationException
 import annotator.intention.ScalaImportClassFix
 import extensions.{toPsiNamedElementExt, toPsiClassExt}
+import api.toplevel.typedef._
 
 /**
  * @author AlexanderPodkhalyuzin
@@ -290,7 +290,48 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
       case Some(ScalaResolveResult(field: PsiField, s)) =>
         s.subst(ScType.create(field.getType, field.getProject, getResolveScope))
       case Some(ScalaResolveResult(method: PsiMethod, s)) =>
-        ResolveUtils.javaPolymorphicType(method, s, getResolveScope)
+        if (method.getName == "getClass" && method.getContainingClass != null &&
+          method.getContainingClass.getQualifiedName == "java.lang.Object") {
+          val clazz = ScalaPsiManager.instance(getProject).getCachedClass("java.lang.Class", getResolveScope,
+            ScalaPsiManager.ClassCategory.TYPE)
+          def convertQualifier(tp: TypeResult[ScType]): Option[ScType] = {
+            if (clazz != null) {
+              tp match {
+                case Success(tp, _) =>
+                  val actualType = tp match {
+                    case ScThisType(clazz) => ScDesignatorType(clazz)
+                    case ScDesignatorType(o: ScObject) => Any
+                    case ScCompoundType(comps, _, _, _) =>
+                      if (comps.length == 0) Any
+                      else comps(0)
+                    case _ => tp
+                  }
+                  Some(ScParameterizedType(ScDesignatorType(clazz),
+                    Seq(ScExistentialArgument("_", Nil, Nothing, actualType))))
+                case _ => None
+              }
+            } else None
+          }
+          val returnType: Option[ScType] = qualifier match {
+            case Some(qual) =>
+              convertQualifier(qual.getType(TypingContext.empty))
+            case None =>
+              getContext match {
+                case i: ScInfixExpr if i.operation == this =>
+                  convertQualifier(i.lOp.getType(TypingContext.empty))
+                case i: ScPostfixExpr if i.operation == this =>
+                  convertQualifier(i.operand.getType(TypingContext.empty))
+                case _ =>
+                  val containingClass = PsiTreeUtil.getContextOfType(this, true, classOf[ScTemplateDefinition])
+                  if (containingClass != null) {
+                    convertQualifier(containingClass.getType(TypingContext.empty))
+                  } else None
+              }
+          }
+          ResolveUtils.javaPolymorphicType(method, s, getResolveScope, returnType)
+        } else {
+          ResolveUtils.javaPolymorphicType(method, s, getResolveScope)
+        }
       case _ => return Failure("Cannot resolve expression", Some(this))
     }
     qualifier match {
