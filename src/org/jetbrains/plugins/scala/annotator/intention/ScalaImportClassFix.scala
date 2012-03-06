@@ -117,7 +117,7 @@ class ScalaImportClassFix(private var classes: Array[PsiClass], ref: ScReference
         if (!ref.isValid) return
         if (ref.resolve != null) return
 
-        if (HintManagerImpl.getInstanceImpl.hasShownHintsThatWillHideByOtherHint()) return
+        if (HintManagerImpl.getInstanceImpl.hasShownHintsThatWillHideByOtherHint(true)) return
         val action = new ScalaAddImportAction(editor, classes: Array[PsiClass], ref: ScReferenceElement)
 
         val offset = ref.getTextRange.getStartOffset
