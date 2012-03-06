@@ -9,10 +9,10 @@ import com.intellij.util.containers.HashSet
 import collection.mutable.ArrayBuffer
 import impl.java.stubs.index.JavaStubIndexKeys
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTrait, ScClass, ScObject}
-import com.intellij.util.ArrayUtil
 import stubs.StubIndex
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys
 import org.jetbrains.plugins.scala.finder.ScalaSourceFilterScope
+import com.intellij.util.{Processor, ArrayUtil}
 
 /**
  * @author ilyas
@@ -57,6 +57,11 @@ class ScalaShortNamesCache(project: Project) extends PsiShortNamesCache {
       }
     }
     res.toArray
+  }
+
+  def processMethodsWithName(name: String, scope: GlobalSearchScope, processor: Processor[PsiMethod]): Boolean = {
+    //todo:
+    true
   }
 
   def getAllClassNames: Array[String] = {
