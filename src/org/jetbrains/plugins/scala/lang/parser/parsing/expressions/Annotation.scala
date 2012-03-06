@@ -19,7 +19,7 @@ import builder.ScalaPsiBuilder
  */
 
 object Annotation {
-  def parse(builder: ScalaPsiBuilder): Boolean = {
+  def parse(builder: ScalaPsiBuilder, countLinesAfterAnnotation: Boolean = true): Boolean = {
     val rollbackMarker = builder.mark()
     val annotMarker = builder.mark
     builder.getTokenText match {
@@ -38,7 +38,7 @@ object Annotation {
     } else {
       annotMarker.done(ScalaElementTypes.ANNOTATION)
     }
-    if (builder.countNewlineBeforeCurrentToken >= 2) {
+    if (countLinesAfterAnnotation && builder.countNewlineBeforeCurrentToken >= 2) {
       rollbackMarker.rollbackTo()
       return false
     } else rollbackMarker.drop()
