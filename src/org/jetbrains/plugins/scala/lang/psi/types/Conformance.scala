@@ -24,6 +24,7 @@ import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.util.{Computable, RecursionManager}
 import psi.impl.ScalaPsiManager
 import extensions.{toPsiNamedElementExt, toPsiClassExt}
+import com.intellij.util.containers.ConcurrentWeakHashMap
 
 object Conformance {
   /**
@@ -1639,8 +1640,8 @@ object Conformance {
 
   val guard = RecursionManager.createGuard("conformance.guard")
   
-  val cache: ConcurrentHashMap[(ScType, ScType, Boolean), (Boolean, ScUndefinedSubstitutor)] =
-    new ConcurrentHashMap[(ScType, ScType, Boolean), (Boolean, ScUndefinedSubstitutor)]()
+  val cache: ConcurrentWeakHashMap[(ScType, ScType, Boolean), (Boolean, ScUndefinedSubstitutor)] =
+    new ConcurrentWeakHashMap[(ScType, ScType, Boolean), (Boolean, ScUndefinedSubstitutor)]()
 
   def conformsInner(l: ScType, r: ScType, visited: Set[PsiClass], unSubst: ScUndefinedSubstitutor,
                             checkWeak: Boolean = false): (Boolean, ScUndefinedSubstitutor) = {
