@@ -1,69 +1,50 @@
 package org.jetbrains.plugins.scala
 package lang.scaladoc
 
-import lang.completion3.ScalaLightPlatformCodeInsightTestCaseAdapter
-import com.intellij.openapi.editor.actionSystem.EditorActionManager
-import com.intellij.openapi.actionSystem.DataContext
+import lang.completion3.ScalaLightCodeInsightFixtureTestAdapter
 
 /**
  * User: Dmitry Naydanov
  * Date: 2/25/12
  */
 
-class WikiTagAutoCompletionTest extends ScalaLightPlatformCodeInsightTestCaseAdapter {
-  private def checkGeneratedText(text: String, assumedStub: String, charTyped: Char) {
-    val caretIndex = text.indexOf("<caret>")
+class WikiTagAutoCompletionTest extends ScalaLightCodeInsightFixtureTestAdapter {
 
-    configureFromFileTextAdapter("dummy.scala", text.replace("<caret>", ""))
-    val typedHandler = EditorActionManager.getInstance().getTypedAction
-    getEditorAdapter.getCaretModel.moveToOffset(caretIndex)
-
-    typedHandler.actionPerformed(getEditorAdapter, charTyped, new DataContext {
-      def getData(dataId: String): AnyRef = {
-        dataId match {
-          case "Language" | "language" => getFileAdapter.getLanguage
-          case "Project" | "project" => getFileAdapter.getProject
-          case _ => null
-        }
-      }
-    })
-
-    assert(getFileAdapter.getText == assumedStub)
-  }
+  import ScalaLightCodeInsightFixtureTestAdapter.CARET_MARKER
 
   def testCodeLinkAC() {
-    val text = "/** [<caret> */"
+    val text = "/** [" + CARET_MARKER + " */"
     val assumedStub = "/** [[]] */"
-    checkGeneratedText(text, assumedStub, '[')
+    checkGeneratedTextAfterTyping(text, assumedStub, '[')
   }
 
   def testInnerCodeAC() {
-    val text = "/** {{<caret> */"
+    val text = "/** {{" + CARET_MARKER + " */"
     val assumedStub = "/** {{{}}} */"
-    checkGeneratedText(text, assumedStub, '{')
+    checkGeneratedTextAfterTyping(text, assumedStub, '{')
   }
 
   def testMonospaceAC() {
-    val text = "/** <caret> */"
+    val text = "/** " + CARET_MARKER + " */"
     val assumedStub = "/** `` */"
-    checkGeneratedText(text, assumedStub, '`')
+    checkGeneratedTextAfterTyping(text, assumedStub, '`')
   }
 
   def testSuperscriptAC() {
-    val text = "/** <caret> */"
+    val text = "/** " + CARET_MARKER + " */"
     val assumedStub = "/** ^^ */"
-    checkGeneratedText(text, assumedStub, '^')
+    checkGeneratedTextAfterTyping(text, assumedStub, '^')
   }
 
   def testSubscriptAC() {
-    val text = "/** ,<caret> */"
+    val text = "/** ," + CARET_MARKER + " */"
     val assumedStub = "/** ,,,, */"
-    checkGeneratedText(text, assumedStub, ',')
+    checkGeneratedTextAfterTyping(text, assumedStub, ',')
   }
 
   def testBoldSimpleAC() {
-    val text = "/** ''<caret>'' */"
+    val text = "/** ''" + CARET_MARKER + "'' */"
     val assumedStub = "/** '''''' */"
-    checkGeneratedText(text, assumedStub, '\'')
+    checkGeneratedTextAfterTyping(text, assumedStub, '\'')
   }
 }

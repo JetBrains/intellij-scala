@@ -1,8 +1,7 @@
 package org.jetbrains.plugins.scala
 package lang.xml
 
-import com.intellij.codeInsight.folding.CodeFoldingManager
-import com.intellij.testFramework.fixtures.LightCodeInsightFixtureTestCase
+import lang.completion3.ScalaLightCodeInsightFixtureTestAdapter
 
 
 /**
@@ -10,14 +9,7 @@ import com.intellij.testFramework.fixtures.LightCodeInsightFixtureTestCase
  * Date: 3/3/12
  */
 
-class XmlParserBugTest extends LightCodeInsightFixtureTestCase {
-  private def checkErrors(text: String) {
-    myFixture.configureByText("dummy.scala", text)
-    CodeFoldingManager.getInstance(getProject).buildInitialFoldings(myFixture.getEditor)
-
-    myFixture.testHighlighting(false, false, false, myFixture.getFile.getVirtualFile)
-  }
-
+class XmlParserBugTest extends ScalaLightCodeInsightFixtureTestAdapter {
   def testSCL1699() {
     val text =
       """
@@ -26,13 +18,13 @@ class XmlParserBugTest extends LightCodeInsightFixtureTestCase {
       | }
       """.stripMargin.replace("\r", "")
 
-    checkErrors(text)
+    checkTextHasNoErrors(text)
   }
 
   def testSCL3388() {
     val text = "class A { val xml = <span>&rarr;</span> }"
 
-    checkErrors(text)
+    checkTextHasNoErrors(text)
   }
 
   def testSCL3299() {
@@ -44,6 +36,6 @@ class XmlParserBugTest extends LightCodeInsightFixtureTestCase {
       | }
       """.stripMargin.replace("\r", "")
 
-    checkErrors(text)
+    checkTextHasNoErrors(text)
   }
 }

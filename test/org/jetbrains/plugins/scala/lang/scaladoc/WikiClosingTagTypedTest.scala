@@ -1,154 +1,126 @@
 package org.jetbrains.plugins.scala
 package lang.scaladoc
 
-import lang.completion3.ScalaLightPlatformCodeInsightTestCaseAdapter
-import com.intellij.openapi.editor.actionSystem.EditorActionManager
-import com.intellij.openapi.actionSystem.DataContext
+import lang.completion3.ScalaLightCodeInsightFixtureTestAdapter
 
 /**
  * User: Dmitry Naydanov
  * Date: 2/25/12
  */
 
-class WikiClosingTagTypedTest extends ScalaLightPlatformCodeInsightTestCaseAdapter {
-   private def checkGeneratedTextAndCaretPosition(text: String, assumedStub: String, charTyped: Char, caretPosition: Int) {
-     val caretIndex = text.indexOf("<caret>")
+class WikiClosingTagTypedTest extends ScalaLightCodeInsightFixtureTestAdapter {
 
-     configureFromFileTextAdapter("dummy.scala", text.replace("<caret>", ""))
-     val typedHandler = EditorActionManager.getInstance().getTypedAction
-     getEditorAdapter.getCaretModel.moveToOffset(caretIndex)
-
-     typedHandler.actionPerformed(getEditorAdapter, charTyped, new DataContext {
-       def getData(dataId: String): AnyRef = {
-         dataId match {
-           case "Language" | "language" => getFileAdapter.getLanguage
-           case "Project" | "project" => getFileAdapter.getProject
-           case _ => null
-         }
-       }
-     })
-
-     assert(getFileAdapter.getText == assumedStub)
-     assert(getEditorAdapter.getCaretModel.getOffset == caretPosition)
-   }
+  import ScalaLightCodeInsightFixtureTestAdapter.CARET_MARKER
 
   def testCodeLinkClosingTagInput() {
-    val text = "/** [[java.lang.String<caret>]] */"
-    val stub1 = "/** [[java.lang.String]"
-    val stub2 = "] */"
+    val text = "/** [[java.lang.String" + CARET_MARKER + "]] */"
+    val assumedStub = "/** [[java.lang.String]" + CARET_MARKER + "] */"
 
-    checkGeneratedTextAndCaretPosition(text, stub1 + stub2, ']', stub1.length())
+    checkGeneratedTextAfterTyping(text, assumedStub, ']')
   }
 
   def testInnerCodeClosingTagInput() {
     val text =
-    """
+      ("""
     |  /**
     |    *
     |    * {{{
     |    *  class A {
     |    *    def f() {}
-    |    * } }}<caret>}
+    |    * } }}""" + CARET_MARKER + """}
     |    */
-    """.stripMargin.replace("\r", "")
-    val stub1 =
-    """
-    |  /**
-    |    *
-    |    * {{{
-    |    *  class A {
-    |    *    def f() {}
-    |    * } }}}""".stripMargin.replace("\r", "")
-    val stub2 =
-    """
-    |    */
-    """.stripMargin.replace("\r", "")
+    """).stripMargin.replace("\r", "")
 
-    checkGeneratedTextAndCaretPosition(text, stub1 + stub2, '}', stub1.length())
+    val assumedStub =
+      ("""
+    |  /**
+    |    *
+    |    * {{{
+    |    *  class A {
+    |    *    def f() {}
+    |    * } }}}""" + CARET_MARKER + """
+    |    */
+    """).stripMargin.replace("\r", "")
+
+    checkGeneratedTextAfterTyping(text, assumedStub, '}')
   }
 
   def testItalicClosingTagInput() {
     val text =
-      """
+      ("""
       | /**
       |   * ''blah blah blah blah
-      |   *   blah blah blah '<caret>'
+      |   *   blah blah blah '""" + CARET_MARKER + """'
       |   */
-      """.stripMargin.replace("\r", "")
-    val stub1 =
-      """
-      | /**
-      |   * ''blah blah blah blah
-      |   *   blah blah blah ''""".stripMargin.replace("\r", "")
-    val stub2 =
-      """
-      |   */
-      """.stripMargin.replace("\r", "")
+      """).stripMargin.replace("\r", "")
 
-    checkGeneratedTextAndCaretPosition(text, stub1 + stub2, '\'', stub1.length())
+    val assumedStub =
+      ("""
+      | /**
+      |   * ''blah blah blah blah
+      |   *   blah blah blah ''""" + CARET_MARKER + """
+      |   */
+      """).stripMargin.replace("\r", "")
+
+    checkGeneratedTextAfterTyping(text, assumedStub, '\'')
   }
 
   def testSuperscriptClosingTagInput() {
-    val text = "/** 2^2<caret>^ = 4 */"
-    val stub1 = "/** 2^2^"
-    val stub2 = " = 4 */"
+    val text = "/** 2^2" + CARET_MARKER + "^ = 4 */"
+    val assumedStub = "/** 2^2^" + CARET_MARKER + " = 4 */"
 
-    checkGeneratedTextAndCaretPosition(text, stub1 + stub2, '^', stub1.length())
+    checkGeneratedTextAfterTyping(text, assumedStub, '^')
   }
 
   def testMonospaceClosingTag() {
     val text =
-      """
+      ("""
       | /**
-      |   * `blah-blah<caret>`
+      |   * `blah-blah""" + CARET_MARKER + """`
       |   */
-      """.stripMargin.replace("\r", "")
-    val stub1 =
-      """
-      | /**
-      |   * `blah-blah`""".stripMargin.replace("\r", "")
-    val stub2 =
-      """
-      |   */
-      """.stripMargin.replace("\r", "")
+      """).stripMargin.replace("\r", "")
 
-    checkGeneratedTextAndCaretPosition(text, stub1 + stub2, '`', stub1.length())
+    val assumedStub =
+      ("""
+      | /**
+      |   * `blah-blah`""" + CARET_MARKER + """
+      |   */
+      """).stripMargin.replace("\r", "")
+
+    checkGeneratedTextAfterTyping(text, assumedStub, '`')
   }
 
   def testBoldClosingTag() {
-    val text = "/** '''blah blah blah'<caret>'' */"
-    val stub1 = "/** '''blah blah blah''"
-    val stub2 = "' */"
+    val text = "/** '''blah blah blah'" + CARET_MARKER + "'' */"
+    val assumedStub = "/** '''blah blah blah''" + CARET_MARKER + "' */"
 
-    checkGeneratedTextAndCaretPosition(text, stub1 + stub2, '\'', stub1.length())
+    checkGeneratedTextAfterTyping(text, assumedStub, '\'')
   }
 
   def testUnderlinedClosingTag() {
     val text =
-      """
+      ("""
       | /**
       |   * __blah blahblahblahblahblah
-      |   *       blah blah blah blah<caret>__
+      |   *       blah blah blah blah""" + CARET_MARKER + """__
       |   */
-      """.stripMargin.replace("\r", "")
-    val stub1 =
-      """
-      | /**
-      |   * __blah blahblahblahblahblah
-      |   *       blah blah blah blah_""".stripMargin.replace("\r", "")
-    val stub2 =
-      """_
-      |   */
-      """.stripMargin.replace("\r", "")
+      """).stripMargin.replace("\r", "")
 
-    checkGeneratedTextAndCaretPosition(text, stub1 + stub2, '_', stub1.length())
+    val assumedStub =
+      ("""
+      | /**
+      |   * __blah blahblahblahblahblah
+      |   *       blah blah blah blah_""" + CARET_MARKER + """_
+      |   */
+      """).stripMargin.replace("\r", "")
+
+    checkGeneratedTextAfterTyping(text, assumedStub, '_')
   }
 
   def testBoldTagEmpty() {
-    val text = "/** '''<caret>''' */"
-    val stub1 = "/** ''''"
-    val stub2 = "'' */"
+    val text = "/** '''" + CARET_MARKER + "''' */"
+    val assumedStub = "/** ''''" + CARET_MARKER + "'' */"
 
-    checkGeneratedTextAndCaretPosition(text, stub1 + stub2, '\'', stub1.length())
+    checkGeneratedTextAfterTyping(text, assumedStub, '\'')
   }
 }

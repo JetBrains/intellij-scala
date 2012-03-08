@@ -64,7 +64,8 @@ public class ScalaSyntaxHighlighter extends SyntaxHighlighterBase {
   );
 
   static final TokenSet tXML_TEXT = TokenSet.create(
-      XML_DATA_CHARACTERS
+      XML_DATA_CHARACTERS, XML_ATTRIBUTE_VALUE_TOKEN, XML_ATTRIBUTE_VALUE_START_DELIMITER,
+      XML_ATTRIBUTE_VALUE_END_DELIMITER
   );
 
   //Html escape sequences
@@ -327,7 +328,9 @@ public class ScalaSyntaxHighlighter extends SyntaxHighlighterBase {
       if (type == XML_END_TAG_START) {
         isInClosingTag = true;
       } else if (type == XML_EMPTY_ELEMENT_END) {
-        openingTags.pop();
+        if (!openingTags.empty()) {
+          openingTags.pop();
+        }
       } else if (type == XML_TAG_END && isInClosingTag) {
         isInClosingTag = false;
         if (tagMatch) {

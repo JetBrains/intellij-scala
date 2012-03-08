@@ -59,6 +59,12 @@ class ScalaBackspaceHandler extends BackspaceHandlerDelegate {
         editor.getCaretModel.moveCaretRelatively(-1, 0, false, false, false)
         PsiDocumentManager.getInstance(file.getProject).commitDocument(editor.getDocument)
       }
+    } else if (element.getNode.getElementType == XmlTokenType.XML_ATTRIBUTE_VALUE_START_DELIMITER && element.getNextSibling != null &&
+      element.getNextSibling.getNode.getElementType == XmlTokenType.XML_ATTRIBUTE_VALUE_END_DELIMITER) {
+        extensions.inWriteAction {
+          editor.getDocument.deleteString(element.getTextOffset + 1, element.getTextOffset + 2)
+          PsiDocumentManager.getInstance(file.getProject).commitDocument(editor.getDocument)
+        }
     }
 
     def needCorrecrWiki(element: PsiElement) = (element.getNode.getElementType.isInstanceOf[ScaladocSyntaxElementType]
