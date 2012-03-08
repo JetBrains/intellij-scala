@@ -15,8 +15,10 @@ import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocComment
 import com.intellij.openapi.fileTypes.FileType
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
 import org.jetbrains.plugins.scala.extensions
-import org.jetbrains.plugins.scala.lang.psi.api.expr.xml.{ScXmlStartTag, ScXmlExpr}
 import com.intellij.psi.xml.XmlTokenType
+import com.intellij.lexer.XmlLexer
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
+import org.jetbrains.plugins.scala.lang.psi.api.expr.xml._
 
 
 /**
@@ -35,15 +37,25 @@ class ScalaTypedHandler extends TypedHandlerDelegate {
     val text = document.getText
     var myTask: (Document, Project, PsiElement, Int) => Unit = null
 
+    def chooseXmlTask(withAttr: Boolean) {
+      c match {
+        case '>' => myTask = completeXmlTag(tag => "</" + Option(tag.getTagName).getOrElse("") + ">") _
+        case '/' => myTask = completeEmptyXmlTag(editor) _
+        case '=' if withAttr => myTask = completeXmlAttributeQuote(editor) _
+        case _ =>
+      }
+    }
+
     if (isInDocComment(element)) {//we don't have to check offset >= 3 because "/**" is already has 3 characters
       myTask = getScaladocTask(text, offset)
     } else if (c == ' ' && offset >= 6 && offset < text.length && text.substring(offset - 6, offset) == " case ") {
       myTask = indentCase(file)
-    } else if (isInPlace(element, classOf[ScXmlExpr])) {
-      c match {
-        case '>' => myTask = completeXmlTag(tag => "</" + Option(tag.getTagName).getOrElse("") + ">") _
-        //        case '/' => myTask = completeXmlTag(_ => ">") _           //TODO CopyPaste from XmlSlashHandler
-        case _ =>
+    } else if (isInPlace(element, classOf[ScXmlExpr], classOf[ScXmlPattern])) {
+      chooseXmlTask(true)
+    } else if (element.getPrevSibling != null && element.getPrevSibling.getNode.getElementType == ScalaElementTypes.CASE_CLAUSES) {
+      val ltIndex = element.getPrevSibling.getText.indexOf("<")
+      if (ltIndex > "case ".length - 1 && element.getPrevSibling.getText.substring(0, ltIndex).trim() == "case") {
+        chooseXmlTask(false)
       }
     }
 
@@ -66,17 +78,29 @@ class ScalaTypedHandler extends TypedHandlerDelegate {
     if (element == null) return Result.CONTINUE
     val elementType = element.getNode.getElementType
 
-    if ((c == '"' && elementType == ScalaTokenTypes.tMULTILINE_STRING &&
+    def moveCaret() {
+      editor.getCaretModel.moveCaretRelatively(1, 0, false, false, false)
+    }
+
+    if ((c == '"' && elementType == ScalaTokenTypes.tMULTILINE_STRING &&                            // TODO split "if" condition
             element.getTextOffset + element.getTextLength - offset < 4) ||
             isInDocComment(element) && (elementType.isInstanceOf[ScaladocSyntaxElementType] ||
                     elementType == ScalaDocTokenType.DOC_INNER_CLOSE_CODE_TAG) &&
                     element.getParent.getLastChild == element && element.getText.startsWith("" + c) &&
                     !(elementType == ScalaDocTokenType.DOC_ITALIC_TAG && element.getPrevSibling != null
                             && element.getPrevSibling.getNode.getElementType == ScalaDocTokenType.DOC_ITALIC_TAG)) {
-      editor.getCaretModel.moveCaretRelatively(1, 0, false, false, false)
+      moveCaret()
+      return Result.STOP
+    } else if (c == '"' && element.getNode.getElementType == XmlTokenType.XML_ATTRIBUTE_VALUE_END_DELIMITER) {
+      moveCaret()
+      return Result.STOP
+    } else if ((c == '>' || c == '/') && element.getNode.getElementType == XmlTokenType.XML_EMPTY_ELEMENT_END) {
+      moveCaret()
+      return Result.STOP
+    } else if (c == '>' && element.getNode.getElementType == XmlTokenType.XML_TAG_END) {
+      moveCaret()
       return Result.STOP
     } else if (element.getParent != null && element.getParent.isInstanceOf[ScXmlStartTag]) {
-
       val offsetInName = offset + 2 - (element.getNode.getElementType match {
         case XmlTokenType.XML_NAME => element.getTextOffset
         case XmlTokenType.XML_TAG_END =>
@@ -87,6 +111,10 @@ class ScalaTypedHandler extends TypedHandlerDelegate {
           }
         case _ => return Result.CONTINUE
       })
+
+      if (offsetInName >= element.getParent.asInstanceOf[ScXmlStartTag].getTagName.length) {
+        return Result.CONTINUE
+      }
 
       val openingTag = element.getParent.asInstanceOf[ScXmlStartTag]
       val closingTag = openingTag.getClosingTag
@@ -110,12 +138,12 @@ class ScalaTypedHandler extends TypedHandlerDelegate {
 
   private def isInDocComment(element: PsiElement): Boolean = isInPlace(element, classOf[ScDocComment])
 
-  private def isInPlace(element: PsiElement, place: Class[_ <: PsiElement]): Boolean = {
+  private def isInPlace(element: PsiElement, place : Class[_ <: PsiElement]*): Boolean = {
     if (element == null || place == null) return false
 
     var nextParent = element.getParent
     while (nextParent != null) {
-      if (place.isAssignableFrom(nextParent.getClass)) return true
+      if (place.exists(_.isAssignableFrom(nextParent.getClass))) return true
       nextParent = nextParent.getParent
     }
     false
@@ -139,7 +167,15 @@ class ScalaTypedHandler extends TypedHandlerDelegate {
     }
   }
 
-  def completeMultilineString(editor: Editor, project: Project, element: PsiElement, offset: Int) {
+  private def completeXmlAttributeQuote(editor: Editor)(document: Document, project: Project, element: PsiElement, offset: Int) {
+    if (element != null && element.getNode.getElementType == XmlTokenType.XML_EQ && element.getParent != null &&
+            element.getParent.isInstanceOf[ScXmlAttribute]) {
+      insertAndCommit(offset, "\"\"", document, project)
+      editor.getCaretModel.moveCaretRelatively(1, 0, false, false, false)
+    }
+  }
+
+  private def completeMultilineString(editor: Editor, project: Project, element: PsiElement, offset: Int) {
     extensions.inWriteAction {
       val document = editor.getDocument
       document.insertString(offset, "\"\"\"")
@@ -179,6 +215,29 @@ class ScalaTypedHandler extends TypedHandlerDelegate {
           PsiDocumentManager.getInstance(project).commitDocument(document)
           CodeStyleManager.getInstance(project).adjustLineIndent(file, anotherElement.getTextRange)
         }
+      }
+    }
+  }
+
+  private def completeEmptyXmlTag(editor: Editor)(document: Document, project: Project, element: PsiElement, offset: Int) {
+    if (element != null && element.getNode.getElementType == XmlTokenType.XML_DATA_CHARACTERS && element.getText == "/" &&
+            element.getPrevSibling != null && element.getPrevSibling.isInstanceOf[ScXmlStartTag]) {
+      val xmlLexer = new XmlLexer()
+      xmlLexer.start(element.getPrevSibling.getText + "/>")
+      xmlLexer.advance()
+
+      if (xmlLexer.getTokenType != XmlTokenType.XML_START_TAG_START) return
+
+      while (xmlLexer.getTokenEnd < xmlLexer.getBufferEnd) {
+        xmlLexer.advance()
+      }
+
+      if (xmlLexer.getTokenType != XmlTokenType.XML_EMPTY_ELEMENT_END) return
+
+      extensions.inWriteAction {
+        document.insertString(offset, ">")
+        editor.getCaretModel.moveCaretRelatively(1, 0, false, false, false)
+        PsiDocumentManager.getInstance(project).commitDocument(document)
       }
     }
   }
