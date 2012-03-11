@@ -31,6 +31,4 @@ trait ScFunctionStub extends NamedStub[ScFunction] {
   def getBodyText: String
 
   def hasAssign: Boolean
-
-  def isMacro: Boolean
 }

@@ -45,12 +45,8 @@ extends ScStubElementType[ScFunctionStub, ScFunction](debugName) {
       }
     }
     val isImplicit = psi.hasModifierProperty("implicit")
-    val isMacro = psi match {
-      case fDef: ScFunctionDefinition => fDef.isMacro
-      case _ => false
-    }
     new ScFunctionStubImpl[ParentPsi](parentStub, this, psi.name, psi.isInstanceOf[ScFunctionDeclaration],
-      psi.annotationNames.toArray, returnTypeText, bodyText, assign, isImplicit, isMacro)
+      psi.annotationNames.toArray, returnTypeText, bodyText, assign, isImplicit)
   }
 
   def serialize(stub: ScFunctionStub, dataStream: StubOutputStream) {
@@ -65,7 +61,6 @@ extends ScStubElementType[ScFunctionStub, ScFunction](debugName) {
     dataStream.writeName(stub.getBodyText)
     dataStream.writeBoolean(stub.hasAssign)
     dataStream.writeBoolean(stub.isImplicit)
-    dataStream.writeBoolean(stub.isMacro)
   }
 
   def deserializeImpl(dataStream: StubInputStream, parentStub: Any): ScFunctionStub = {
@@ -81,8 +76,7 @@ extends ScStubElementType[ScFunctionStub, ScFunction](debugName) {
     val bodyText = dataStream.readName
     val assign = dataStream.readBoolean
     val isImplicit = dataStream.readBoolean()
-    val isMacro = dataStream.readBoolean()
-    new ScFunctionStubImpl(parent, this, name, isDecl, annotations, returnTypeText, bodyText, assign, isImplicit, isMacro)
+    new ScFunctionStubImpl(parent, this, name, isDecl, annotations, returnTypeText, bodyText, assign, isImplicit)
   }
 
   def indexStub(stub: ScFunctionStub, sink: IndexSink) {

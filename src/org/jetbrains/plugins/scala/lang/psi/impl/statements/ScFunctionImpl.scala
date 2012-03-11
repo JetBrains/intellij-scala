@@ -41,10 +41,9 @@ abstract class ScFunctionImpl extends ScalaStubBasedElementImpl[ScFunction] with
   override def isStable = false
 
   def nameId: PsiElement = {
-    // last child to handle `def macro foo()`
-    val n = findLastChildByType(ScalaTokenTypes.tIDENTIFIER) match {
+    val n = getNode.findChildByType(ScalaTokenTypes.tIDENTIFIER) match {
       case null => getNode.findChildByType(ScalaTokenTypes.kTHIS)
-      case n1 => n1.getNode
+      case n => n
     }
     if (n == null) {
       return ScalaPsiElementFactory.createIdentifier(getStub.asInstanceOf[ScFunctionStub].getName, getManager).getPsi

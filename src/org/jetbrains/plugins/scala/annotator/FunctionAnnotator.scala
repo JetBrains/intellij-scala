@@ -33,12 +33,10 @@ trait FunctionAnnotator {
 
     checkImplicitParametersAndBounds(function, function.clauses, holder)
 
-    for {
-      functionType <- function.returnType
-      if !function.isMacro
-      usage <- function.getReturnUsages
-      usageType <- typeOf(usage)
-    } {
+    for (functionType <- function.returnType;
+         usage <- function.getReturnUsages;
+         usageType <- typeOf(usage)) {
+
       val explicitType = function.hasExplicitType
       val unitType = functionType == UnitType
 
