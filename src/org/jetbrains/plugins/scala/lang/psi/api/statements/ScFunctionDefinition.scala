@@ -31,8 +31,6 @@ trait ScFunctionDefinition extends ScFunction with ScControlFlowOwner {
 
   def isSecondaryConstructor: Boolean
 
-  def isMacro: Boolean
-  
   private var staticTraitFunctionWrapper: ConcurrentHashMap[(PsiClassWrapper), (StaticTraitScFunctionWrapper, Long)] =
     new ConcurrentHashMap()
 

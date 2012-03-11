@@ -18,10 +18,8 @@ import api.base.types.ScTypeElement
 import collection.mutable.ArrayBuffer
 import psi.controlFlow.Instruction
 import psi.controlFlow.impl.ScalaControlFlowBuilder
-import api.ScalaElementVisitor
+import api.{ScalaElementVisitor, ScalaRecursiveElementVisitor}
 import api.statements.params.ScParameter
-import caches.CachesUtil
-import com.intellij.psi.util.PsiModificationTracker
 
 /**
  * @author Alexander Podkhalyuzin
@@ -37,20 +35,6 @@ class ScFunctionDefinitionImpl extends ScFunctionImpl with ScFunctionDefinition 
                                    state: ResolveState,
                                    lastParent: PsiElement,
                                    place: PsiElement): Boolean = {
-    val isInMacroBody = body match {
-      case Some(b) if isMacro =>
-        b == place || b.isAncestorOf(place)
-      case _ =>
-        false
-    }
-
-    if (isInMacroBody) {
-      return syntheticMacroFunctionPreamble match {
-        case Some(block) => block.processDeclarations(processor, state, block.getLastChild, place)
-        case None => true
-      }
-    }
-
     //process function's parameters for dependent method types, and process type parameters
     if (!super[ScFunctionImpl].processDeclarations(processor, state, lastParent, place)) return false
 
@@ -151,44 +135,6 @@ class ScFunctionDefinitionImpl extends ScFunctionImpl with ScFunctionDefinition 
   }
 
   def isSecondaryConstructor: Boolean = name == "this"
-
-  def isMacro: Boolean = {
-    val stub = getStub
-    if (stub != null) {
-      return stub.asInstanceOf[ScFunctionStub].isMacro
-    }
-    (this: ScalaPsiElement).findChildrenByType(ScalaTokenTypes.tIDENTIFIER).size == 2
-  }
-
-  private def syntheticMacroFunctionPreamble: Option[ScBlock] = {
-    CachesUtil.get(this, CachesUtil.MACRO_FUNCTION_PREAMBLE,
-      new CachesUtil.MyProvider(this, (p: ScFunctionDefinition) => syntheticMacroFunctionPreambleInner)
-      (PsiModificationTracker.MODIFICATION_COUNT))
-  }
-
-  /**
-   * The body of a macro sees an alternative list of parameters, the desugaring is
-   * described [https://github.com/scala/scala/blob/master/src/compiler/scala/tools/nsc/typechecker/Macros.scala#L29].
-   *
-   * It's easier to process these as a block of code, rather than an alternative
-   * parameter list.
-   */
-  private def syntheticMacroFunctionPreambleInner: Option[ScBlock] = {
-    if (isMacro) {
-      val c1 = "val _context: _root_.scala.reflect.macro.Context = null\n"
-      val c2 = "val _this: _context.Tree = null\n"
-      val c3 = if (typeParameters.isEmpty) None
-      else {
-        val s = typeParameters.map(tp => "val %s : _context.Tree = null\n".format(tp.name)).mkString("")
-        Some(s)
-      }
-      val c4 = parameters.map(tp => "val %s : _context.Tree = null\n".format(tp.name)).mkString("")
-      val paramClausesText: Seq[String] = Seq(c1, c2) ++ c3 ++ Seq(c4, "import _context._;")
-      val blk = ScalaPsiElementFactory.createBlockExpressionWithoutBracesFromText(paramClausesText.mkString("\n"), getManager)
-      blk.setContext(getContext, this)
-      Some(blk)
-    } else None
-  }
 
   override def accept(visitor: ScalaElementVisitor) {
     visitor.visitFunctionDefinition(this)
