@@ -142,6 +142,7 @@ object ScalaElementTypes {
 
   /**************** functions *************************/
   val FUNCTION_DEFINITION = new ScFunctionDefinitionElementType
+  val MACRO_DEFINITION = new ScMacroDefinitionElementType
   val FUN_SIG = new ScalaElementType("function signature")
   val CONSTR_EXPR = new ScalaElementType("constructor expression")
   val SELF_INVOCATION = new ScalaElementType("self invocation")

@@ -39,6 +39,8 @@ class TypeInferenceMethodCallTest extends TypeInferenceTestBase {
 
   def testLibraryList() {doTest()}
 
+  def testMacroCall() {doTest()}
+
   def testMapApply() {doTest()}
 
   def testObjectApplyCall() {doTest()}
