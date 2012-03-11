@@ -15,13 +15,14 @@ import com.intellij.lang.ASTNode
 import com.intellij.psi._
 import com.intellij.psi.PsiElement
 import com.intellij.util.IncorrectOperationException
-import api.statements.ScTypeAlias
 import api.expr.{ScSuperReference, ScThisReference}
 import api.base.patterns.{ScInfixPattern, ScConstructorPattern}
 import api.base.types.{ScParameterizedTypeElement, ScInfixTypeElement, ScSimpleTypeElement}
+import impl.source.tree.LeafPsiElement
 import processor.CompletionProcessor
 import api.ScalaElementVisitor
 import extensions.{toPsiNamedElementExt, toPsiClassExt}
+import api.statements.{ScMacroDefinition, ScTypeAlias}
 
 /**
  * @author AlexanderPodkhalyuzin
@@ -71,6 +72,18 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
 
   def getKinds(incomplete: Boolean, completion: Boolean): Set[ResolveTargets.Value] = {
     import StdKinds._
+
+    // The qualified identifer immediately following the `mqcro` keyword
+    // may only refer to a method.
+    def isInMacroDef = getContext match {
+      case _: ScMacroDefinition =>
+        prevSiblings.exists {
+          case l: LeafPsiElement if l.getNode.getElementType == ScalaTokenTypes.kMACRO => true
+          case _ => false
+        }
+      case _ => false
+    }
+
     getContext match {
       case _ if completion => stableImportSelector
       case _: ScStableCodeReferenceElement => stableQualRef
@@ -89,6 +102,7 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
       case _: ScThisReference | _: ScSuperReference => stableClassOrObject
       case _: ScImportSelector => stableImportSelector
       case _: ScInfixTypeElement => stableClass
+      case _ if isInMacroDef => methodsOnly
       case _ => stableQualRef
     }
   }

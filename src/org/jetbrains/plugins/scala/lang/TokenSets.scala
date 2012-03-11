@@ -19,7 +19,7 @@ object TokenSets {
 
   val PROPERTY_NAMES = TokenSet.create(tIDENTIFIER)
 
-  val TMPL_OR_PACKAGING_DEF_BIT_SET = TokenSet.create(PACKAGING, OBJECT_DEF, CLASS_DEF, TRAIT_DEF, FUNCTION_DEFINITION)
+  val TMPL_OR_PACKAGING_DEF_BIT_SET = TokenSet.create(PACKAGING, OBJECT_DEF, CLASS_DEF, TRAIT_DEF, FUNCTION_DEFINITION, MACRO_DEFINITION)
 
   val PACKAGING_BIT_SET = TokenSet.create(PACKAGING)
 
@@ -109,7 +109,7 @@ object TokenSets {
 
   val ALIASES_SET = TokenSet.create(ScalaElementTypes.TYPE_DECLARATION, ScalaElementTypes.TYPE_DEFINITION)
 
-  val FUNCTIONS = TokenSet.create(ScalaElementTypes.FUNCTION_DECLARATION, ScalaElementTypes.FUNCTION_DEFINITION)
+  val FUNCTIONS = TokenSet.create(ScalaElementTypes.FUNCTION_DECLARATION, ScalaElementTypes.FUNCTION_DEFINITION, ScalaElementTypes.MACRO_DEFINITION)
 
   val VALUES = TokenSet.create(ScalaElementTypes.VALUE_DECLARATION, ScalaElementTypes.PATTERN_DEFINITION)
 

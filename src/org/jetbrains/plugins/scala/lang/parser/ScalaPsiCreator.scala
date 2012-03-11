@@ -84,6 +84,7 @@ object ScalaPsiCreator {
       case ScalaElementTypes.PATTERN_DEFINITION => new ScPatternDefinitionImpl(node)
       case ScalaElementTypes.VARIABLE_DEFINITION => new ScVariableDefinitionImpl(node)
       case ScalaElementTypes.FUNCTION_DEFINITION => new ScFunctionDefinitionImpl(node)
+      case ScalaElementTypes.MACRO_DEFINITION => new ScMacroDefinitionImpl(node)
       case ScalaElementTypes.TYPE_DEFINITION => new ScTypeAliasDefinitionImpl(node)
       case ScalaElementTypes.EARLY_DEFINITIONS => new ScEarlyDefinitionsImpl(node)
 
