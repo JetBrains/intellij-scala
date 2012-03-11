@@ -24,7 +24,7 @@ object AnnotationExpr {
   def parse(builder: ScalaPsiBuilder): Boolean = {
     val annotExprMarker = builder.mark
     if (!Constructor.parse(builder, true)) {
-      annotExprMarker.drop
+      annotExprMarker.drop()
       return false
     }
     builder.getTokenType match {

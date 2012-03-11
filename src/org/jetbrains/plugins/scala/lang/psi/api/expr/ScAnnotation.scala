@@ -28,11 +28,5 @@ trait ScAnnotation extends ScalaPsiElement with PsiAnnotation {
    */
   def constructor = annotationExpr.constr
 
-  /**
-   * Return attributes for current annotation (NameValuePair).
-   * @return annotation attributes.
-   */
-  def attributes = annotationExpr.getAttributes
-
   def typeElement: ScTypeElement
 }

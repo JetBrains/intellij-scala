@@ -490,29 +490,22 @@ object ScalaDocumentationProvider {
     })
     val modifiers = Array("abstract", "final", "sealed", "implicit", "lazy", "override")
     for (modifier <- modifiers if elem.hasModifierProperty(modifier)) buffer.append(modifier + " ")
-    buffer.toString
+    buffer.toString()
   }
 
   private def parseAnnotations(elem: ScAnnotationsHolder, typeToString: ScType => String,
                                sep: Char = '\n', escape: Boolean = true): String = {
     val buffer: StringBuilder = new StringBuilder("")
     def parseAnnotation(elem: ScAnnotation): String = {
-      var s = "@"
+      var res = new StringBuilder("@")
       val constr: ScConstructor = elem.constructor
-      val attributes = elem.attributes
-      s += typeToString(constr.typeElement.getType(TypingContext.empty).getOrAny)
-      if (attributes.length > 0) {
-        val array = attributes.map {
-          ne: ScNamedElement => "val " + (if (escape) escapeHtml(ne.name) else ne.name)
-        }
-        s += array.mkString("{","; ","}")
-      }
-      s
+      res.append(typeToString(constr.typeElement.getType(TypingContext.empty).getOrAny))
+      res.toString()
     }
     for (ann <- elem.annotations) {
       buffer.append(parseAnnotation(ann) + sep)
     }
-    buffer.toString
+    buffer.toString()
   }
 
 
