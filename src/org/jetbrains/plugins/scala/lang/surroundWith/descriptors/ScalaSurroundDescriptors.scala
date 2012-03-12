@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.surroundWith.SurroundDescriptors;
 
 class ScalaSurroundDescriptors extends SurroundDescriptors {
   private val SURROUND_DESCRIPTORS : Array[SurroundDescriptor] = Array.apply(
-    new ScalaExpressionSurroundDescriptor()
+    new ScalaExpressionSurroundDescriptor(), new ScalaDocCommentDataSurroundDescriptor()
   )
 
   override def getSurroundDescriptors : Array[SurroundDescriptor] = SURROUND_DESCRIPTORS

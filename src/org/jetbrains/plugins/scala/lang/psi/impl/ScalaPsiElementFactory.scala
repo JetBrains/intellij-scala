@@ -991,7 +991,7 @@ object ScalaPsiElementFactory {
             get.getNode.getChildren(null)(2).getPsi
 
   def createDocSimpleData(text: String, manager: PsiManager): PsiElement =
-    createScalaFile("/**" + text + "\n*/ class a {}", manager).typeDefinitions(0).docComment.
+    createScalaFile("/**" + text + "*/ class a {}", manager).typeDefinitions(0).docComment.
             get.getNode.getChildren(null)(1).getPsi
 
   def createDocTagValue(text: String,  manager: PsiManager): PsiElement = {
