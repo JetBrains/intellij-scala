@@ -10,7 +10,6 @@ import java.util.ArrayList
 import psi.ScalaPsiUtil
 import psi.api.statements._
 import com.intellij.openapi.util.Key
-import com.intellij.psi.{PsiComment, PsiWhiteSpace, PsiElement}
 import com.intellij.formatting._
 import com.intellij.psi.tree._
 import com.intellij.lang.ASTNode
@@ -32,6 +31,8 @@ import scaladoc.psi.api.{ScDocTag, ScDocComment}
 import scaladoc.parser.parsing.MyScaladocParsing
 import com.intellij.formatting.Alignment.Anchor
 import extensions.&&
+import collection.mutable.{ArrayBuffer, ArrayBuilder}
+import com.intellij.psi.{PsiErrorElement, PsiComment, PsiWhiteSpace, PsiElement}
 
 object getDummyBlocks {
   val fieldGroupAlignmentKey: Key[Alignment] = Key.create("field.group.alignment.key")
@@ -191,23 +192,64 @@ object getDummyBlocks {
     val settings = block.getSettings.getCustomSettings(classOf[ScalaCodeStyleSettings])
     val subBlocks = new ArrayList[Block]
 
-    var child = node
+    def flattenChildren(multilineNode: ASTNode, buffer: ArrayBuffer[ASTNode]) {
+      for (nodeChild <- multilineNode.getChildren(null)) {
+        if (nodeChild.getText.contains("\n") && nodeChild.getFirstChildNode != null) {
+          flattenChildren(nodeChild, buffer)
+        } else {
+          buffer += nodeChild
+        }
+      }
+    }
+
     val normalAligment = Alignment.createAlignment(true)
-    do {
-      val indent = ScalaIndentProcessor.getChildIndent(block, child)
-      if (isCorrectBlock(child) && !child.getPsi.isInstanceOf[ScTemplateParents]) {
-        val (childAlignment, childWrap) = if ( node.getTreeParent.getElementType == ScalaDocElementTypes.DOC_TAG &&
-                child.getElementType != ScalaDocTokenType.DOC_WHITESPACE &&
-                child.getElementType != ScalaDocTokenType.DOC_COMMENT_LEADING_ASTERISKS &&
-                child.getText.trim().length() > 0)
+
+    if (ScalaDocTokenType.ALL_SCALADOC_TOKENS.contains(node.getElementType) ||
+            (node.getTreeParent != null && node.getTreeParent.getElementType == ScalaDocElementTypes.DOC_TAG &&
+                    node.getPsi.isInstanceOf[PsiErrorElement])) {
+      val children = ArrayBuffer[ASTNode]()
+      var scaladocNode = node
+
+      do {
+        if (scaladocNode.getText.contains("\n")) {
+          flattenChildren(scaladocNode, children)
+        } else {
+          children += scaladocNode
+        }
+
+      } while (scaladocNode != lastNode && (scaladocNode = scaladocNode.getTreeNext, true)._2);
+
+
+      children.foreach { child =>
+        val indent = ScalaIndentProcessor.getChildIndent(block, child)
+
+        if (isCorrectBlock(child)) {
+          val (childAlignment, childWrap) = if ( node.getTreeParent.getElementType == ScalaDocElementTypes.DOC_TAG &&
+                  child.getElementType != ScalaDocTokenType.DOC_WHITESPACE &&
+                  child.getElementType != ScalaDocTokenType.DOC_COMMENT_LEADING_ASTERISKS &&
+                  child.getText.trim().length() > 0)
             (normalAligment, Wrap.createWrap(WrapType.NONE, false)) else
             (null, arrangeSuggestedWrapForChild(block, child, settings, block.suggestedWrap))
 
-        subBlocks.add(new ScalaBlock(block, child, null, childAlignment, indent, childWrap, block.getSettings))
-      } else if (isCorrectBlock(child)) {
-        subBlocks.addAll(getTemplateParentsBlocks(child, block))
+          subBlocks.add(new ScalaBlock(block, child, null, childAlignment, indent, childWrap, block.getSettings))
+        }
       }
-    } while (child != lastNode && {child = child.getTreeNext; true})
+    } else {
+      var child = node
+
+      do {
+        val indent = ScalaIndentProcessor.getChildIndent(block, child)
+        if (isCorrectBlock(child) && !child.getPsi.isInstanceOf[ScTemplateParents]) {
+          val (childAlignment, childWrap) = (null, arrangeSuggestedWrapForChild(block, child, settings, block.suggestedWrap))
+
+          subBlocks.add(new ScalaBlock(block, child, null, childAlignment, indent, childWrap, block.getSettings))
+        } else if (isCorrectBlock(child)) {
+          subBlocks.addAll(getTemplateParentsBlocks(child, block))
+        }
+      } while (child != lastNode && {child = child.getTreeNext; true})
+    }
+
+
     subBlocks
   }
 

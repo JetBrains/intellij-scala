@@ -5,6 +5,9 @@ import com.intellij.openapi.command.CommandProcessor
 import com.intellij.openapi.actionSystem.IdeActions
 import com.intellij.codeInsight.folding.CodeFoldingManager
 import com.intellij.testFramework.fixtures.{CodeInsightTestFixture, LightCodeInsightFixtureTestCase}
+import com.intellij.codeInsight.generation.surroundWith.SurroundWithHandler
+import com.intellij.lang.surroundWith.{SurroundDescriptor, Surrounder}
+import util.ScalaToolsFactory
 
 /**
  * User: Dmitry Naydanov
@@ -13,6 +16,25 @@ import com.intellij.testFramework.fixtures.{CodeInsightTestFixture, LightCodeIns
 
 class ScalaLightCodeInsightFixtureTestAdapter extends LightCodeInsightFixtureTestCase {
   import ScalaLightCodeInsightFixtureTestAdapter.CARET_MARKER
+
+  protected def checkAfterSurroundWith(text: String, assumedText: String, surrounder: Surrounder, canSurround: Boolean) {
+    myFixture.configureByText("dummy.scala", text)
+    val scaladocSurroundDescriptor = ScalaToolsFactory.getInstance().createSurroundDescriptors().getSurroundDescriptors()(1)
+    val selectionModel = myFixture.getEditor.getSelectionModel
+
+    val elementsToSurround =
+      scaladocSurroundDescriptor.getElementsToSurround(myFixture.getFile, selectionModel.getSelectionStart, selectionModel.getSelectionEnd)
+
+    if (!canSurround) {
+      assert(elementsToSurround == null || elementsToSurround.isEmpty, elementsToSurround.mkString("![", ",", "]!"))
+    } else {
+      assert(!elementsToSurround.isEmpty, "No elements to surround!")
+      extensions.inWriteAction {
+        SurroundWithHandler.invoke(myFixture.getProject, myFixture.getEditor, myFixture.getFile, surrounder)
+      }
+      myFixture.checkResult(assumedText)
+    }
+  }
 
   protected def checkTextHasNoErrors(text: String) {
     myFixture.configureByText("dummy.scala", text)
