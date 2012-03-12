@@ -23,16 +23,33 @@ class ScalaDocCommentDataSurroundDescriptor extends SurroundDescriptor {
     if (endOffset == startOffset) return PsiElement.EMPTY_ARRAY
 
     val validBoundElements = Set(DOC_COMMENT_DATA, DOC_WHITESPACE)
-    def checkBoundElement(element: PsiElement) = element != null && validBoundElements.contains(element.getNode.getElementType)
+
+
+    def checkBoundElement(element: PsiElement): Boolean = validBoundElements.contains(element.getNode.getElementType)
+
+    def checkSyntaxBoundElement(element: PsiElement, isStart: Boolean): Boolean =
+      element.getNode.getElementType.isInstanceOf[ScaladocSyntaxElementType] &&
+            (isStart && startOffset == element.getTextOffset || !isStart && endOffset == element.getTextRange.getEndOffset)
 
 
     val startElement = file.findElementAt(startOffset)
-    if (!checkBoundElement(startElement)) {
-      return PsiElement.EMPTY_ARRAY
+    val endElement = file.findElementAt(endOffset - 1)
+
+    if (startElement == null || endElement == null || startElement.getParent != endElement.getParent) return PsiElement.EMPTY_ARRAY
+
+    val isFirstElementMarked = if (checkBoundElement(startElement)) { //cannot extract function because of return
+      false
+    } else {
+      if (checkSyntaxBoundElement(startElement, true)) true else return PsiElement.EMPTY_ARRAY
     }
 
-    val endElement = file.findElementAt(endOffset - 1)
-    if (!checkBoundElement(endElement) || endElement.getParent != startElement.getParent) {
+    val isLastElementMarked = if (checkBoundElement(endElement)) {
+      false
+    } else {
+      if (checkSyntaxBoundElement(endElement, false)) true else return PsiElement.EMPTY_ARRAY
+    }
+
+    if ((isLastElementMarked ^ isFirstElementMarked) && startElement.getNextSibling == endElement) {
       return PsiElement.EMPTY_ARRAY
     }
 
@@ -62,7 +79,7 @@ class ScalaDocCommentDataSurroundDescriptor extends SurroundDescriptor {
       nextElement = nextElement.getNextSibling
     }
 
-    (elementsToSurround + endElement).toArray
+    (elementsToSurround += endElement).toArray
   }
 
   def getSurrounders: Array[Surrounder] = surrounders
