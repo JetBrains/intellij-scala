@@ -195,4 +195,24 @@ class XmlClosingTagAutoCompletionTest extends ScalaLightCodeInsightFixtureTestAd
 
     checkGeneratedTextSlash(text, assumedStub)
   }
+
+  def testSwallowGtAfterEmptyTagEnd() {
+    val text = "class A { val xml = <aaa/>" + CARET_MARKER + " }"
+
+    checkGeneratedTextGt(text, text)
+  }
+
+  def testSwallowGtAfterEmptyTagEndInXmlPattern() {
+    val text =
+      ("""
+      | val xml = <aaa attr="<aaa//>" />
+      |
+      | xml match {
+      |   case <aaa/>""" + CARET_MARKER +
+      """|  => 1
+      | }
+      """).stripMargin.replace("\r", "")
+
+    checkGeneratedTextGt(text, text)
+  }
 }

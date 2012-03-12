@@ -100,6 +100,8 @@ class ScalaTypedHandler extends TypedHandlerDelegate {
     } else if (c == '>' && element.getNode.getElementType == XmlTokenType.XML_TAG_END) {
       moveCaret()
       return Result.STOP
+    } else if (c == '>' && prevElement != null && prevElement.getNode.getElementType == XmlTokenType.XML_EMPTY_ELEMENT_END) {
+      return Result.STOP
     } else if (element.getParent != null && element.getParent.isInstanceOf[ScXmlStartTag]) {
       val offsetInName = offset + 2 - (element.getNode.getElementType match {
         case XmlTokenType.XML_NAME => element.getTextOffset
