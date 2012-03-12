@@ -116,6 +116,28 @@ class SurroundWithWikiSyntaxTest extends ScalaLightCodeInsightFixtureTestAdapter
     }
   }
 
+  def testSurroundAlreadyMarkedElement1() {
+    checkAllSurrounders {
+      """
+      | /**
+      |   * blah """ + SELECTION_START_MARKER + """^blah blah
+      |   * jhsdbjbhsafd^""" + SELECTION_END_MARKER + """ dajsdgf
+      |   */
+      """
+    }
+  }
+
+  def testSurroundAlreadyMarkedElement2() {
+    checkAllSurrounders {
+      """
+      | /**
+      |   * blah ,,""" + SELECTION_START_MARKER + """blah blha
+      |   * blah blah""" + SELECTION_END_MARKER + """,, blah
+      |   */
+      """
+    }
+  }
+
   def testCannotSurroundCrossTags() {
     val text =
       ("""
@@ -149,6 +171,17 @@ class SurroundWithWikiSyntaxTest extends ScalaLightCodeInsightFixtureTestAdapter
        |   * @see   some""" + SELECTION_END_MARKER + """thing
        |   */
        """).stripMargin.replace("\r", "")
+
+    checkAfterSurroundWith(text, "", surrounders(0), false)
+  }
+
+  def testCannotSurroundCrossTag2() {
+    val text =
+      ("""
+      | /**
+      |   * blah""" + SELECTION_START_MARKER + """__blah""" + SELECTION_END_MARKER + """blah__
+      |   */
+      """).stripMargin.replace("\r", "")
 
     checkAfterSurroundWith(text, "", surrounders(0), false)
   }
