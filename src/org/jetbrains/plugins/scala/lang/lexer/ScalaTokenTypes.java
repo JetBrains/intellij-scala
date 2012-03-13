@@ -143,6 +143,7 @@ public interface ScalaTokenTypes {
   final IElementType kWHILE = new ScalaElementType("while");
   final IElementType kWITH = new ScalaElementType("with");
   final IElementType kYIELD = new ScalaElementType("yield");
+  final IElementType kMACRO = new ScalaElementType("macro");
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   ///////////////////////// variables and constants //////////////////////////////////////////////////////////////////////
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -240,7 +241,8 @@ public interface ScalaTokenTypes {
           kVAR,
           kWHILE,
           kWITH,
-          kYIELD
+          kYIELD,
+          kMACRO
   );
 
   TokenSet IDENTIFIER_TOKEN_SET = TokenSet.create(tIDENTIFIER);

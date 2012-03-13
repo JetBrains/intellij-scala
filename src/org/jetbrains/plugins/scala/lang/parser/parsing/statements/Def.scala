@@ -20,6 +20,7 @@ import builder.ScalaPsiBuilder
  *          ('val' ValDef
  *         | 'var' VarDef
  *         | 'def' FunDef
+ *         | 'def' MacroDef
  *         | 'type' {nl} TypeDef)
  */
 
@@ -74,11 +75,13 @@ object Def {
         }
       }
       case ScalaTokenTypes.kDEF => {
-        if (FunDef parse builder) {
+        if (MacroDef parse builder) {
+          defMarker.done(ScalaElementTypes.MACRO_DEFINITION)
+          true
+        } else if (FunDef parse builder) {
           defMarker.done(ScalaElementTypes.FUNCTION_DEFINITION)
           true
-        }
-        else {
+        } else {
           defMarker.rollbackTo()
           false
         }

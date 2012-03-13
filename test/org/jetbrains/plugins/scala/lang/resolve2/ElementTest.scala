@@ -22,6 +22,7 @@ class ElementTest extends ResolveTestBase {
   def testFunctionDefinition = doTest
   def testFunctionParameter = doTest
   def testFunctionParameterClause = doTest
+  def testMacroDefinition = doTest
   def testNamedParameter = doTest
   def testConstructorParameter = doTest
   def testTypeAlias = doTest

@@ -185,7 +185,8 @@ public class ScalaSyntaxHighlighter extends SyntaxHighlighterBase {
           ScalaTokenTypes.kVAR,
           ScalaTokenTypes.kWHILE,
           ScalaTokenTypes.kWITH,
-          ScalaTokenTypes.kYIELD
+          ScalaTokenTypes.kYIELD,
+          ScalaTokenTypes.kMACRO
   );
 
   static final TokenSet tOPS = TokenSet.create(
