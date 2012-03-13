@@ -11,6 +11,7 @@ import util.MethodSignatureUtil
 import psi.impl.toplevel.synthetic.ScSyntheticFunction
 import api.statements.params.ScParameters
 import extensions.toPsiNamedElementExt
+import collection.mutable.ArrayBuffer
 
 class Signature(val name: String, val typesEval: Stream[ScType], val paramLength: Int,
                 val typeParams: Array[PsiTypeParameter], val substitutor: ScSubstitutor,
@@ -95,7 +96,7 @@ class Signature(val name: String, val typesEval: Stream[ScType], val paramLength
     name.hashCode * 31
   }
 
-  def hasRepeatedParam: Boolean = false
+  def hasRepeatedParam: Seq[Int] = Seq.empty
 }
 
 
@@ -121,14 +122,22 @@ class PhysicalSignature(val method: PsiMethod, override val substitutor: ScSubst
         extends Signature(method.name, PhysicalSignature.typesEval(method), PhysicalSignature.paramLength(method),
           method.getTypeParameters, substitutor, Some(method)) {
 
-  override def hasRepeatedParam: Boolean = {
-    val lastParam = method.getParameterList match {
-      case p: ScParameters => p.params.lastOption
-      case p => p.getParameters.lastOption
-    }
-    lastParam match {
-      case Some(p: PsiParameter) => p.isVarArgs
-      case _ => false
+  override def hasRepeatedParam: Seq[Int] = {
+    method.getParameterList match {
+      case p: ScParameters =>
+        val params = p.params
+        val res = new ArrayBuffer[Int]()
+        var i = 0
+        while (i < params.length) {
+          if (params(i).isRepeatedParameter) res += i
+          i += 1
+        }
+        res.toSeq
+      case p =>
+        val parameters = p.getParameters
+        if (parameters.length == 0) return Seq.empty
+        if (parameters(parameters.length - 1).isVarArgs) return Seq(parameters.length - 1)
+        Seq.empty
     }
   }
 
