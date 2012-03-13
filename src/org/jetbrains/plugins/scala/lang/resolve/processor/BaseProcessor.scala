@@ -188,7 +188,8 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value]) extends PsiSc
                 getOrElse(return true), place, state)
       case p@ScParameterizedType(des, typeArgs) => {
         p.designator match {
-          case ScTypeParameterType(_, _, _, upper, _) => processType(p.substitutor.subst(upper.v), place, state.put(ScSubstitutor.key, ScSubstitutor.empty))
+          case ScTypeParameterType(_, _, _, upper, _) => processType(p.substitutor.subst(upper.v), place,
+            state.put(ScSubstitutor.key, new ScSubstitutor(p)))
           case _ => p.designated match {
             case Some(des) => processElement(des, p.substitutor, place, state)
             case None => true

@@ -152,6 +152,13 @@ class ScSubstitutor(val tvMap: Map[(String, String), ScType],
                           case _ =>
                         }
                       }
+                    case t: ScTypeParameterType => return update(t.upper.v)
+                    case p@ScParameterizedType(des, typeArgs) => {
+                      p.designator match {
+                        case ScTypeParameterType(_, _, _, upper, _) => return update(p.substitutor.subst(upper.v))
+                        case _ =>
+                      }
+                    }
                     case _ =>
                   }
                   null
