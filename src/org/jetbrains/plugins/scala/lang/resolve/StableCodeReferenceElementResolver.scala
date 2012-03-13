@@ -8,9 +8,9 @@ import psi.api.base.patterns.{ScConstructorPattern, ScInfixPattern}
 import psi.api.toplevel.imports.{ScImportExpr, ScImportSelector}
 import psi.api.base.ScStableCodeReferenceElement
 import psi.types.Compatibility.Expression
-import psi.api.statements.ScTypeAlias
 import psi.api.expr.{ScSuperReference, ScThisReference}
 import psi.api.base.types.{ScInfixTypeElement, ScSimpleTypeElement, ScParameterizedTypeElement}
+import psi.api.statements.{ScMacroDefinition, ScTypeAlias}
 
 class StableCodeReferenceElementResolver(reference: ResolvableStableCodeReferenceElement, shapeResolve: Boolean,
                                           allConstructorResults: Boolean, noConstructorResolve: Boolean)
