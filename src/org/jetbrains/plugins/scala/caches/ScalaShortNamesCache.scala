@@ -7,11 +7,9 @@ import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.search.PsiShortNamesCache
 import com.intellij.util.containers.HashSet
 import collection.mutable.ArrayBuffer
-import impl.java.stubs.index.JavaStubIndexKeys
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTrait, ScClass, ScObject}
 import stubs.StubIndex
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys
-import org.jetbrains.plugins.scala.finder.ScalaSourceFilterScope
 import com.intellij.util.{Processor, ArrayUtil}
 
 /**

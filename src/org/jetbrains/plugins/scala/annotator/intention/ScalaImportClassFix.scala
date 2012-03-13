@@ -33,15 +33,14 @@ import com.intellij.codeInsight.daemon.QuickFixBundle
 import com.intellij.util.ObjectUtils
 import javax.swing.{Icon, JList}
 import com.intellij.codeInsight.daemon.impl.actions.AddImportAction
-import com.intellij.openapi.ui.popup.{JBPopupFactory, PopupStep, PopupChooserBuilder}
+import com.intellij.openapi.ui.popup.{JBPopupFactory, PopupStep}
 import lang.psi.api.expr.{ScInfixExpr, ScPrefixExpr, ScPostfixExpr, ScMethodCall}
 import collection.mutable.ArrayBuffer
 import lang.psi.{ScalaPsiUtil, ScImportsHolder}
-import search.PsiShortNamesCache
 import lang.scaladoc.psi.api.ScDocResolvableCodeReference
-import lang.psi.impl.ScalaPsiElementFactory
-import extensions.{toPsiClassExt, inWriteAction}
+import extensions.toPsiClassExt
 import caches.ScalaShortNamesCacheManager
+import lang.psi.impl.{ScalaPsiManager, ScalaPsiElementFactory}
 
 /**
  * User: Alexander Podkhalyuzin
@@ -57,7 +56,7 @@ class ScalaImportClassFix(private var classes: Array[PsiClass], ref: ScReference
 
   def isAvailable(project: Project, editor: Editor, file: PsiFile) = file.isInstanceOf[ScalaFile]
 
-  def invoke(project: Project, editor: Editor, file: PsiFile) = {
+  def invoke(project: Project, editor: Editor, file: PsiFile) {
     CommandProcessor.getInstance().runUndoTransparentAction(new Runnable {
       def run() {
         if (!ref.isValid) return
@@ -113,7 +112,7 @@ class ScalaImportClassFix(private var classes: Array[PsiClass], ref: ScReference
 
   private def fixesAction(editor: Editor) {
     ApplicationManager.getApplication.invokeLater(new Runnable {
-      def run {
+      def run() {
         if (!ref.isValid) return
         if (ref.resolve != null) return
 
@@ -127,7 +126,7 @@ class ScalaImportClassFix(private var classes: Array[PsiClass], ref: ScReference
           if (classes.length == 1) classes(0).qualifiedName + "? Alt+Enter"
           else classes(0).qualifiedName + "? (multiple choices...) Alt+Enter",
           offset,
-          offset + ref.getTextLength(),
+          offset + ref.getTextLength,
           action)
           return
         }
@@ -141,7 +140,7 @@ class ScalaImportClassFix(private var classes: Array[PsiClass], ref: ScReference
 
   class ScalaAddImportAction(editor: Editor, classes: Array[PsiClass], ref: ScReferenceElement) extends QuestionAction {
     def addImportOrReference(clazz: PsiClass) {
-      ApplicationManager.getApplication().invokeLater(new Runnable() {
+      ApplicationManager.getApplication.invokeLater(new Runnable() {
         def run() {
           if (!ref.isValid || !CodeInsightUtilBase.prepareFileForWrite(ref.getContainingFile)) return;
           ScalaUtils.runWriteAction(new Runnable {
@@ -212,7 +211,7 @@ class ScalaImportClassFix(private var classes: Array[PsiClass], ref: ScReference
       if (classes.length == 1) {
         addImportOrReference(classes(0))
       }
-      else chooseClass
+      else chooseClass()
 
       true
     }
@@ -265,7 +264,7 @@ object ScalaImportClassFix {
   def getClasses(ref: ScReferenceElement, myProject: Project): Array[PsiClass] = {
     if (!ref.isValid) return Array.empty
     val kinds = ref.getKinds(false)
-    val cache = ScalaShortNamesCacheManager.getInstance(myProject)
+    val cache = ScalaPsiManager.instance(myProject)
     val classes = cache.getClassesByName(ref.refName, ref.getResolveScope)
     val buffer = new ArrayBuffer[PsiClass]
     for (clazz <- classes) {
