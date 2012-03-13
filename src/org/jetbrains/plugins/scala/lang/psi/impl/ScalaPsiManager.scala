@@ -9,7 +9,6 @@ import toplevel.synthetic.{SyntheticPackageCreator, ScSyntheticPackage}
 import light.PsiClassWrapper
 import types._
 import com.intellij.openapi.util.Key
-import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.ProjectTopics
 import com.intellij.openapi.roots.{ModuleRootEvent, ModuleRootListener}
 import com.intellij.reference.SoftReference
@@ -31,6 +30,7 @@ import util.PsiUtilCore
 import com.intellij.util.indexing.FileBasedIndex
 import com.intellij.openapi.diagnostic.Logger
 import collection.mutable.HashSet
+import com.intellij.psi.search.{PsiShortNamesCache, GlobalSearchScope}
 
 class ScalaPsiManager(project: Project) extends ProjectComponent {
   private val implicitObjectMap: ConcurrentMap[String, SoftReference[java.util.Map[GlobalSearchScope, Seq[ScObject]]]] =
@@ -140,6 +140,13 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
       map.put(scope, result)
     }
     result.getOrElse(null)
+  }
+
+  def getClassesByName(name: String, scope: GlobalSearchScope): Seq[PsiClass] = {
+    val scalaClasses = ScalaShortNamesCacheManager.getInstance(project).getClassesByName(name, scope)
+    scalaClasses ++ PsiShortNamesCache.getInstance(project).getClassesByName(name, scope).filterNot(p =>
+      p.isInstanceOf[ScTemplateDefinition] || p.isInstanceOf[PsiClassWrapper]
+    )
   }
 
   import ScalaPsiManager.ClassCategory._
