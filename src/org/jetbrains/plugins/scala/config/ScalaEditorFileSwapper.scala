@@ -5,8 +5,9 @@ import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
-import com.intellij.openapi.fileEditor.impl.EditorFileSwapper
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
+import com.intellij.openapi.fileEditor.impl.{EditorWithProviderComposite, EditorFileSwapper}
+import com.intellij.openapi.util.Pair
 
 object ScalaEditorFileSwapper {
   def findSourceFile(project: Project, eachFile: VirtualFile): VirtualFile = {
@@ -41,6 +42,8 @@ object ScalaEditorFileSwapper {
 }
 
 class ScalaEditorFileSwapper extends EditorFileSwapper {
-  def getFileToSwapTo(project: Project, original: VirtualFile): VirtualFile =
-    ScalaEditorFileSwapper.findSourceFile(project, original)
+  def getFileToSwapTo(project: Project,
+                      editorWithProviderComposite: EditorWithProviderComposite): Pair[VirtualFile, Integer] = {
+    Pair.create(ScalaEditorFileSwapper.findSourceFile(project, editorWithProviderComposite.getFile), null)
+  }
 }

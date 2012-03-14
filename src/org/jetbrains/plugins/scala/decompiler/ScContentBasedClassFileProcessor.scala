@@ -14,15 +14,17 @@ import com.intellij.openapi.fileTypes.{StdFileTypes, FileType}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.impl.compiled.ClsRepositoryPsiElement
-import com.intellij.psi.PsiManager
 import lang.psi.stubs.ScFileStub
 import lang.formatting.settings.ScalaCodeStyleSettings
 import com.intellij.psi.codeStyle.CodeStyleSettingsManager
+import com.intellij.psi.{PsiFile, PsiManager}
 
 /**
  * @author ilyas
  */
 class ScContentBasedClassFileProcessor extends ContentBasedClassFileProcessor {
+
+  def getDecompiledPsiFile(clsFile: PsiFile): PsiFile = null
 
   def isApplicable(project: Project, vFile: VirtualFile): Boolean = {
     val ft = vFile.getFileType
