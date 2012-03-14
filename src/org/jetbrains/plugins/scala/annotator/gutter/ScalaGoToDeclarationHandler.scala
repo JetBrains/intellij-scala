@@ -12,6 +12,7 @@ import lang.psi.api.expr.{ScMethodCall, ScReferenceExpression, ScSelfInvocation}
 import lang.resolve.{ScalaResolveResult, ResolvableReferenceElement}
 import com.intellij.psi.{PsiNamedElement, PsiElement}
 import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.actionSystem.DataContext
 
 /**
  * User: Alexander Podkhalyuzin
@@ -20,7 +21,9 @@ import com.intellij.openapi.editor.Editor
 
 class ScalaGoToDeclarationHandler extends GotoDeclarationHandler {
 
-  def getGotoDeclarationTargets(sourceElement: PsiElement, editor: Editor): Array[PsiElement] = {
+  def getActionText(context: DataContext): String = null
+
+  def getGotoDeclarationTargets(sourceElement: PsiElement, offset: Int, editor: Editor): Array[PsiElement] = {
     if (sourceElement == null) return null
     if (sourceElement.getLanguage != ScalaFileType.SCALA_LANGUAGE) return null;
 
