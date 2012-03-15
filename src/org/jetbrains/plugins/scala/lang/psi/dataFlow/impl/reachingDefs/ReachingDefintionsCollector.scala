@@ -31,8 +31,8 @@ object ReachingDefintionsCollector {
     collectVariableInfo(elements, elementToScopeMapper(scope))
   /**
    * @param elements a fragment to analyze
-   * @param scope since Extract Method refactoring is in fact RDC's main client, it should define a scope
-   *              where to look for captured variables 
+   * @param isInScope since Extract Method refactoring is in fact RDC's main client, it should define a scope
+   *                  where to look for captured variables
    */
   def collectVariableInfo(elements: Seq[PsiElement], isInScope: (PsiElement) => Boolean): FragmentVariableInfos = {
     import PsiTreeUtil._
@@ -43,6 +43,11 @@ object ReachingDefintionsCollector {
     // CFG -> DFA
     val commonParent = findCommonParent(elements: _*)
     val cfowner = getParentOfType(commonParent, classOf[ScControlFlowOwner])
+    if (cfowner == null) {
+      val message = "cfowner == null: " + elements.map(_.getText).mkString("(", ", ", ")") + "\n" + "files: " +
+        elements.map(_.getContainingFile.getName).mkString("(", ", ", ")")
+      throw new RuntimeException(message)
+    }
     val cfg = cfowner.getControlFlow(false) //todo: make cache more right to not get PsiInvalidAccess
     val engine = new DfaEngine(cfg, ReachingDefinitionsInstance, ReachingDefinitionsLattice)
     val dfaResult = engine.performDFA
