@@ -23,7 +23,7 @@ class ScalaClassFinder(project: Project) extends PsiElementFinder {
     val res = new ArrayBuffer[PsiClass]
     for (clazz <- classes) {
       clazz match {
-        case o: ScObject =>
+        case o: ScObject if !o.isPackageObject =>
           o.fakeCompanionClass match {
             case Some(clazz) => res += clazz
             case _ =>
