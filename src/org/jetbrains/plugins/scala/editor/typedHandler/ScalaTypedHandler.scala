@@ -102,33 +102,6 @@ class ScalaTypedHandler extends TypedHandlerDelegate {
       return Result.STOP
     } else if (c == '>' && prevElement != null && prevElement.getNode.getElementType == XmlTokenType.XML_EMPTY_ELEMENT_END) {
       return Result.STOP
-    } else if (element.getParent != null && element.getParent.isInstanceOf[ScXmlStartTag]) {
-      val offsetInName = offset + 2 - (element.getNode.getElementType match {
-        case XmlTokenType.XML_NAME => element.getTextOffset
-        case XmlTokenType.XML_TAG_END =>
-          if (prevElement != null && prevElement.getNode.getElementType == XmlTokenType.XML_NAME) {
-            prevElement.getTextOffset
-          } else {
-            return Result.CONTINUE
-          }
-        case _ => return Result.CONTINUE
-      })
-
-      if (offsetInName >= element.getParent.asInstanceOf[ScXmlStartTag].getTagName.length) {
-        return Result.CONTINUE
-      }
-
-      val openingTag = element.getParent.asInstanceOf[ScXmlStartTag]
-      val closingTag = openingTag.getClosingTag
-
-      if (closingTag.getText.substring(2, closingTag.getTextLength - 1) == openingTag.getTagName) {
-        extensions.inWriteAction {
-          editor.getDocument.insertString(closingTag.getTextOffset + offsetInName, "" + c)
-          PsiDocumentManager.getInstance(file.getProject).commitDocument(editor.getDocument)
-        }
-      }
-
-      return Result.CONTINUE
     } else if (c == '"' && element.getNode.getElementType != ScalaTokenTypes.tSTRING &&
             prevElement != null && prevElement.getNode.getElementType == ScalaTokenTypes.tSTRING &&
             prevElement.getParent.getText == "\"\"") {
