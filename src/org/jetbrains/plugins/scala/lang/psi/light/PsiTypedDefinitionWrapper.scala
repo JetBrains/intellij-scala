@@ -16,7 +16,7 @@ class PsiTypedDefinitionWrapper(val typedDefinition: ScTypedDefinition, isStatic
                                 cClass: Option[PsiClass] = None) extends {
   val elementFactory = JavaPsiFacade.getInstance(typedDefinition.getProject).getElementFactory
   val containingClass = {
-    if (cClass != None) cClass.get
+    val result = if (cClass != None) cClass.get
     else
       typedDefinition.nameContext match {
         case s: ScMember =>
@@ -29,6 +29,12 @@ class PsiTypedDefinitionWrapper(val typedDefinition: ScTypedDefinition, isStatic
           } else res
         case _ => null
       }
+    if (result == null) {
+      val message = "Containing class is null: " + typedDefinition.getContainingFile.getText + "\n" +
+        "typed Definition: " + typedDefinition.getTextRange.getStartOffset
+      throw new RuntimeException(message)
+    }
+    result
   }
   val methodText = PsiTypedDefinitionWrapper.methodText(typedDefinition, isStatic, isInterface, role)
   val method: PsiMethod = {
