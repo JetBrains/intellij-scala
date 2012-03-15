@@ -30,7 +30,9 @@ class ScalaFileNameInspection extends LocalInspectionTool {
             InjectedLanguageManager.getInstance(file.getProject).isInjectedFragment(file)) return Array.empty
     if (file.getName == ScalaLanguageConsoleView.SCALA_CONSOLE) return Array.empty
 
-    val name = file.name.substring(0, file.name.length - 6)
+    val virtualFile = file.getVirtualFile
+    if (virtualFile == null) return Array.empty
+    val name = virtualFile.getNameWithoutExtension
     val scalaFile = file.asInstanceOf[ScalaFile]
     var hasProblems = true
     for (clazz <- scalaFile.typeDefinitions) {
