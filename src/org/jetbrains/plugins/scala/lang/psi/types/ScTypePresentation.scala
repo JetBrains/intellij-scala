@@ -7,12 +7,12 @@ import com.intellij.psi._
 import result.TypingContext
 import org.apache.commons.lang.StringEscapeUtils
 import org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocumentationProvider
-import refactoring.util.ScTypeUtil
 import api.toplevel.typedef.{ScTypeDefinition, ScObject}
 import api.statements._
 import api.base.patterns.{ScReferencePattern, ScBindingPattern}
 import params.ScTypeParam
 import extensions.{toPsiNamedElementExt, toPsiClassExt}
+import refactoring.util.{ScalaNamesUtil, ScTypeUtil}
 
 trait ScTypePresentation {
   def presentableText(t: ScType) = typeText(t, _.name, {
@@ -38,15 +38,18 @@ trait ScTypePresentation {
 
   //todo: resolve cases when java type have keywords as name (type -> `type`)
   def canonicalText(t: ScType) = {
+    def removeKeywords(s: String): String = {
+      s.split('.').map(s => if (ScalaNamesUtil.isKeyword(s)) "`" + s + "`" else s).mkString(".")
+    }
     def nameFun(e: PsiNamedElement, withPoint: Boolean): String = {
-      (e match {
+      removeKeywords((e match {
         case c: PsiClass => {
           val qname = c.qualifiedName
           if (qname != null && qname != c.name /* exlude default package*/ ) "_root_." + qname else c.name
         }
         case p: PsiPackage => "_root_." + p.getQualifiedName
         case _ => e.name
-      }) + (if (withPoint) "." else "")
+      }) + (if (withPoint) "." else ""))
     }
     typeText(t, nameFun(_, false), nameFun(_, true))
   }
