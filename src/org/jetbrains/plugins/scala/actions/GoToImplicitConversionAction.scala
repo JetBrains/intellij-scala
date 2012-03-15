@@ -25,6 +25,7 @@ class GoToImplicitConversionAction extends AnAction("Go to implicit conversion a
     val context = e.getDataContext
     val project = PlatformDataKeys.PROJECT.getData(context)
     val editor = PlatformDataKeys.EDITOR.getData(context)
+    if (project == null || editor == null) return
     val file = PsiUtilBase.getPsiFileInEditor(editor, project)
     if (!file.isInstanceOf[ScalaFile]) return
 
