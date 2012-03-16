@@ -322,9 +322,9 @@ class ScUndefinedSubstitutor(val upperMap: Map[(String, String), Seq[ScType]], v
       tp match {
         case ScAbstractType(_, lower, upper) =>
           i match {
-            case -1 => (false, lower)
-            case 1 => (false, upper)
-            case 0 => (false, ScExistentialArgument("_", Nil, lower, upper))
+            case -1 => (true, lower)
+            case 1 => (true, upper)
+            case 0 => (true, ScExistentialArgument("_", Nil, lower, upper))
           }
         case _ => (true, tp)
       }
@@ -340,9 +340,9 @@ class ScUndefinedSubstitutor(val upperMap: Map[(String, String), Seq[ScType]], v
       tp match {
         case ScAbstractType(_, lower, upper) =>
           i match {
-            case -1 => (false, lower)
-            case 1 => (false, upper)
-            case 0 => (false, ScExistentialArgument("_", Nil, lower, upper))
+            case -1 => (true, lower)
+            case 1 => (true, upper)
+            case 0 => (true, ScExistentialArgument("_", Nil, lower, upper))
           }
         case _ => (true, tp)
       }
