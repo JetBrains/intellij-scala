@@ -4,13 +4,13 @@ package psi
 package types
 
 import com.intellij.openapi.util.Key
-import collection.immutable.{Map, HashMap}
 import java.lang.String
-import nonvalue.{Parameter, TypeParameter, ScTypePolymorphicType, ScMethodType}
+import nonvalue.{TypeParameter, ScTypePolymorphicType, ScMethodType}
 import com.intellij.psi._
 import api.toplevel.ScTypedDefinition
 import result.TypingContext
 import api.toplevel.typedef.ScTypeDefinition
+import collection.immutable.{HashMap, Map}
 
 /**
 * @author ven
@@ -291,9 +291,11 @@ class ScSubstitutor(val tvMap: Map[(String, String), ScType],
   }
 }
 
-class ScUndefinedSubstitutor(val upperMap: Map[(String, String), Seq[ScType]], val lowerMap: Map[(String, String), ScType]) {
+class ScUndefinedSubstitutor(val upperMap: Map[(String, String), Seq[ScType]], val lowerMap: Map[(String, String), Seq[ScType]]) {
+  type Name = (String, String)
+
   def this() = this(HashMap.empty, HashMap.empty)
-  
+
   def isEmpty: Boolean = upperMap.isEmpty && lowerMap.isEmpty
 
   //todo: this is can be rewritten in more fast way
@@ -304,8 +306,10 @@ class ScUndefinedSubstitutor(val upperMap: Map[(String, String), Seq[ScType]], v
         res = res.addUpper(name, upper)
       }
     }
-    for ((name, lower) <- subst.lowerMap) {
-      res = res.addLower(name, lower)
+    for ((name, seq) <- subst.lowerMap) {
+      for (lower <- seq) {
+        res = res.addLower(name, lower)
+      }
     }
 
     res
@@ -313,7 +317,7 @@ class ScUndefinedSubstitutor(val upperMap: Map[(String, String), Seq[ScType]], v
 
   def +(subst: ScUndefinedSubstitutor): ScUndefinedSubstitutor = addSubst(subst)
 
-  def addLower(name: (String, String), _lower: ScType): ScUndefinedSubstitutor = {
+  def addLower(name: Name, _lower: ScType): ScUndefinedSubstitutor = {
     val lower = _lower.recursiveVarianceUpdate((tp: ScType, i: Int) => {
       tp match {
         case ScAbstractType(_, lower, upper) =>
@@ -326,12 +330,12 @@ class ScUndefinedSubstitutor(val upperMap: Map[(String, String), Seq[ScType]], v
       }
     }, -1)
     lowerMap.get(name) match {
-      case Some(tp: ScType) => new ScUndefinedSubstitutor(upperMap, lowerMap.updated(name, Bounds.lub(lower, tp)))
-      case None => new ScUndefinedSubstitutor(upperMap, lowerMap + Tuple(name, lower))
+      case Some(seq: Seq[ScType]) => new ScUndefinedSubstitutor(upperMap, lowerMap.updated(name, Seq(lower) ++ seq))
+      case None => new ScUndefinedSubstitutor(upperMap, lowerMap + Tuple(name, Seq(lower)))
     }
   }
 
-  def addUpper(name: (String, String), _upper: ScType): ScUndefinedSubstitutor = {
+  def addUpper(name: Name, _upper: ScType): ScUndefinedSubstitutor = {
     val upper = _upper.recursiveVarianceUpdate((tp: ScType, i: Int) => {
       tp match {
         case ScAbstractType(_, lower, upper) =>
@@ -348,55 +352,153 @@ class ScUndefinedSubstitutor(val upperMap: Map[(String, String), Seq[ScType]], v
       case None => new ScUndefinedSubstitutor(upperMap + Tuple(name, Seq(upper)), lowerMap)
     }
   }
-  
+
   def getSubstitutor: Option[ScSubstitutor] = getSubstitutor(false)
 
+  val names: Set[Name] = {
+    upperMap.keySet ++ lowerMap.keySet
+  }
+  import collection.mutable.{HashMap => MHashMap}
+  import collection.immutable.{HashMap => IHashMap}
+  val lMap = new MHashMap[Name, ScType]
+  val rMap = new MHashMap[Name, ScType]
+
   def getSubstitutor(notNonable: Boolean): Option[ScSubstitutor] = {
-    import collection.mutable.HashMap
-    val tvMap = new HashMap[(String, String), ScType]
-    for (tuple <- lowerMap) {
-      tvMap += tuple
-    }
-    var break = false
-    for ((name, seq) <- upperMap if !break) {
+    import collection.immutable.HashSet
+    val tvMap = new MHashMap[Name, ScType]
+
+    def solve(name: Name, visited: HashSet[Name]): Option[ScType] = {
+      if (visited.contains(name)) {
+        tvMap += Tuple(name, Nothing)
+        return None
+      }
       tvMap.get(name) match {
-        case Some(lower: ScType) => {
-          if (!notNonable)
-            for (upper <- seq if !break) {
-              if (!lower.conforms(upper)) break = true
-            }
-        }
-        case None if seq.length > 1 => tvMap += Tuple(name, Bounds.glb(seq, false))
-        case None if seq.length == 0 => tvMap += Tuple(name, Nothing)
-        case None => tvMap += Tuple(name, seq(0))
+        case Some(tp) => Some(tp)
+        case _ =>
+          lowerMap.get(name) match {
+            case Some(seq) =>
+              var res = false
+              def checkRecursive(tp: ScType): Boolean = {
+                tp.recursiveUpdate {
+                  case tpt: ScTypeParameterType =>
+                    val otherName = (tpt.name, tpt.getId)
+                    if (names.contains(otherName)) {
+                        res = true
+                        solve(otherName, visited + name) match {
+                          case None if !notNonable => return false
+                          case _ =>
+                        }
+                    }
+                    (false, tpt)
+                  case ScUndefinedType(tpt) =>
+                    val otherName = (tpt.name, tpt.getId)
+                    if (names.contains(otherName)) {
+                      res = true
+                      solve(otherName, visited + name) match {
+                        case None if !notNonable => return false
+                        case _ =>
+                      }
+                    }
+                    (false, tpt)
+                  case tp: ScType => (false, tp)
+                }
+                true
+              }
+              for (p <- seq) {
+                if (!checkRecursive(p)) {
+                  tvMap += Tuple(name, Nothing)
+                  return None
+                }
+              }
+              if (seq.nonEmpty) {
+                val subst = if (res) new ScSubstitutor(IHashMap.empty ++ tvMap, Map.empty, None) else ScSubstitutor.empty
+                var lower = subst.subst(seq(0))
+                var i = 1
+                while (i < seq.length) {
+                  lower = Bounds.lub(lower, seq(i))
+                  i += 1
+                }
+                lMap += Tuple(name, lower)
+                tvMap += Tuple(name, lower)
+              }
+            case None =>
+          }
+          upperMap.get(name) match {
+            case Some(seq) =>
+              var res = false
+              def checkRecursive(tp: ScType): Boolean = {
+                tp.recursiveUpdate {
+                  case tpt: ScTypeParameterType =>
+                    val otherName = (tpt.name, tpt.getId)
+                    if (names.contains(otherName)) {
+                      res = true
+                      solve(otherName, visited + name) match {
+                        case None if !notNonable => return false
+                        case _ =>
+                      }
+                    }
+                    (false, tpt)
+                  case ScUndefinedType(tpt) =>
+                    val otherName = (tpt.name, tpt.getId)
+                    if (names.contains(otherName)) {
+                      res = true
+                      solve(otherName, visited + name) match {
+                        case None if !notNonable => return false
+                        case _ =>
+                      }
+                    }
+                    (false, tpt)
+                  case tp: ScType => (false, tp)
+                }
+                true
+              }
+              for (p <- seq) {
+                if (!checkRecursive(p)) {
+                  tvMap += Tuple(name, Nothing)
+                  return None
+                }
+              }
+              if (seq.nonEmpty) {
+                var rType: ScType = Nothing
+                val subst = if (res) new ScSubstitutor(IHashMap.empty ++ tvMap, Map.empty, None) else ScSubstitutor.empty
+                if (seq.length == 1) {
+                  rType = subst.subst(seq(0))
+                  rMap += Tuple(name, rType)
+                } else if (seq.length > 1) {
+                  rType = Bounds.glb(seq.map(subst.subst(_)), false)
+                  rMap += Tuple(name, rType)
+                }
+                tvMap.get(name) match {
+                  case Some(lower) =>
+                    if (!notNonable) {
+                      for (upper <- seq) {
+                        if (!lower.conforms(subst.subst(upper))) {
+                          return None
+                        }
+                      }
+                    }
+                  case None => tvMap += Tuple(name, rType)
+                }
+              }
+            case None =>
+          }
+
+          if (tvMap.get(name) == None) {
+            tvMap += Tuple(name, Nothing)
+          }
+          tvMap.get(name)
       }
     }
-    if (break) return None
-    val map = collection.immutable.HashMap.empty[(String, String), ScType] ++ tvMap
-    //val subst = new ScSubstitutor(map, collection.immutable.HashMap.empty, collection.immutable.HashMap.empty)
-    val subst = map.toSeq.foldLeft(ScSubstitutor.empty)((a, b) => a.bindT(b._1, b._2))
-    Some(subst.followed(subst).followed(subst))
-  }
-}
-
-object ScUndefinedSubstitutor {
-  def removeUndefindes(tp: ScType): ScType = tp match {
-     case f@ScFunctionType(ret, params) => new ScFunctionType(removeUndefindes(ret),
-      collection.immutable.Seq(params.map(removeUndefindes _).toSeq : _*))(f.getProject, f.getScope)
-    case t1@ScTupleType(comps) => new ScTupleType(comps map {removeUndefindes _})(t1.getProject, t1.getScope)
-    case ScProjectionType(proj, element, subst) => new ScProjectionType(removeUndefindes(proj), element, subst)
-    case tpt : ScTypeParameterType => tpt
-    case u: ScUndefinedType => u.tpt
-    case tv : ScTypeVariable => tv
-    case ScDesignatorType(e) => tp
-    case JavaArrayType(arg) => JavaArrayType(removeUndefindes(arg))
-    case ScParameterizedType (des, typeArgs) => ScParameterizedType(removeUndefindes(des),
-      collection.immutable.Seq(typeArgs.map(removeUndefindes _).toSeq: _*))
-    case ScExistentialArgument(name, args, lower, upper) =>
-      new ScExistentialArgument(name, args, removeUndefindes(lower), removeUndefindes(upper))
-    case ex@ScExistentialType(q, wildcards) => {
-      new ScExistentialType(removeUndefindes(q), wildcards)
+    val namesIterator = names.iterator
+    while (namesIterator.hasNext) {
+      val name = namesIterator.next()
+      solve(name, HashSet.empty) match {
+        case Some(tp) => // do nothing
+        case None if !notNonable => return None
+        case _ =>
+      }
     }
-    case _ => tp
+    val subst = new ScSubstitutor(IHashMap.empty ++ tvMap, Map.empty, None)
+    Some(subst)
   }
 }
