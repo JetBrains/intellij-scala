@@ -10,20 +10,20 @@ import com.intellij.openapi.util.Key
 import com.intellij.psi.util.{PsiTreeUtil, CachedValue, PsiModificationTracker}
 import types._
 import _root_.scala.collection.Set
-import result.TypingContext
 import com.intellij.psi._
 import collection.mutable.ArrayBuffer
-import api.expr.ScExpression
 import api.base.patterns.ScBindingPattern
 import api.statements._
 import api.toplevel.{ScModifierListOwner, ScTypedDefinition}
 import api.toplevel.typedef._
 import lang.resolve.processor.ImplicitProcessor
 import params.{ScClassParameter, ScParameter, ScTypeParam}
-import psi.impl.ScalaPsiManager
 import api.toplevel.templates.{ScExtendsBlock, ScTemplateBody}
 import lang.resolve.{ResolveUtils, StdKinds, ScalaResolveResult}
 import extensions.toPsiClassExt
+import psi.impl.{ScalaPsiElementFactory, ScalaPsiManager}
+import api.expr.{ScMethodCall, ScExpression}
+import result.{Success, TypingContext}
 
 /**
  * @author ilyas
@@ -146,7 +146,18 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
       val (r, tp, retTp, newSubst, uSubst) = tuple
 
       r.element match {
-        case f: ScFunction if f.hasTypeParameters => {
+        case f: ScFunction if f.hasTypeParameters =>
+          //Fake expression to solve type
+          /*val fakeExpression =
+            ScalaPsiElementFactory.createExpressionWithContextFromText(ScImplicitlyConvertible.IMPLICIT_CALL_TEXT, this.getContext, this).
+              asInstanceOf[ScMethodCall]
+          ScImplicitlyConvertible.setupFakeCall(fakeExpression, r, typez, exp)
+
+          fakeExpression.getTypeWithoutImplicits(TypingContext.empty) match {
+            case Success(tp, _) => result += ((tp, r.element, r.importsUsed))
+            case _ => (false, r, tp, retTp)
+          }*/
+
           uSubst.getSubstitutor match {
             case Some(substitutor) =>
               exp match {
@@ -163,7 +174,6 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
               }
             case _ => (false, r, tp, retTp)
           }
-        }
         case _ =>
           result += ((retTp, r.element, r.importsUsed))
       }
@@ -273,20 +283,43 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
         r.element match {
           case f: ScFunction if f.hasTypeParameters => {
             var uSubst = Conformance.undefinedSubst(newSubst.subst(tp), typez)
-            //todo: improve it to make it right
-            val removeTParametersSubst = new ScSubstitutor(f.typeParameters.map((param: ScTypeParam) => {
-              ((param.name, ScalaPsiUtil.getPsiElementId(param)), ScExistentialArgument("_", List.empty, Nothing, Any))
-            }).toMap, Map.empty, None)
-            for (tParam <- f.typeParameters) {
-              val lowerType: ScType = tParam.lowerBound.getOrNothing
-              if (lowerType != Nothing) uSubst = uSubst.addLower((tParam.name, ScalaPsiUtil.getPsiElementId(tParam)),
-                removeTParametersSubst.subst(subst.subst(lowerType)))
-              val upperType: ScType = tParam.upperBound.getOrAny
-              if (upperType != Any) uSubst = uSubst.addUpper((tParam.name, ScalaPsiUtil.getPsiElementId(tParam)),
-                removeTParametersSubst.subst(subst.subst(upperType)))
+            uSubst.getSubstitutor(false) match {
+              case Some(unSubst) =>
+                def hasRecursiveTypeParameters(typez: ScType): Boolean = {
+
+                  var hasRecursiveTypeParameters = false
+                  typez.recursiveUpdate {
+                    case tpt: ScTypeParameterType =>
+                      f.typeParameters.find(tp => (tp.name, ScalaPsiUtil.getPsiElementId(tp)) == (tpt.name, tpt.getId)) match {
+                        case None => (true, tpt)
+                        case _ =>
+                          hasRecursiveTypeParameters = true
+                          (true, tpt)
+                      }
+                    case tp: ScType => (hasRecursiveTypeParameters, tp)
+                  }
+                  hasRecursiveTypeParameters
+                }
+                for (tParam <- f.typeParameters) {
+                  val lowerType: ScType = tParam.lowerBound.getOrNothing
+                  if (lowerType != Nothing) {
+                    val substedLower = unSubst.subst(subst.subst(lowerType))
+                    if (!hasRecursiveTypeParameters(substedLower)) {
+                      uSubst = uSubst.addLower((tParam.name, ScalaPsiUtil.getPsiElementId(tParam)), substedLower)
+                    }
+                  }
+                  val upperType: ScType = tParam.upperBound.getOrAny
+                  if (upperType != Any) {
+                    val substedUpper = unSubst.subst(subst.subst(upperType))
+                    if (!hasRecursiveTypeParameters(substedUpper)) {
+                      uSubst = uSubst.addUpper((tParam.name, ScalaPsiUtil.getPsiElementId(tParam)), substedUpper)
+                    }
+                  }
+                }
+                //todo: pass implicit parameters
+                (true, r, tp, retTp, newSubst, uSubst)
+              case _ => (false, r, tp, retTp, null: ScSubstitutor, null: ScUndefinedSubstitutor)
             }
-            //todo: pass implicit parameters
-            (true, r, tp, retTp, newSubst, uSubst)
           }
           case _ =>
             (true, r, tp, retTp, newSubst, null: ScUndefinedSubstitutor)
@@ -384,4 +417,18 @@ object ScImplicitlyConvertible {
   val IMPLICIT_CONVERSIONS_KEY: Key[CachedValue[collection.Map[ScType, Set[(ScFunctionDefinition, Set[ImportUsed])]]]] = Key.create("implicit.conversions.key")
 
   case class Implicit(tp: ScType, fun: ScTypedDefinition, importsUsed: Set[ImportUsed])
+
+  val IMPLICIT_REFERENCE_NAME = "implicitReferenceName"
+  val IMPLICIT_EXPRESSION_NAME = "implicitExpressionName"
+  val IMPLICIT_CALL_TEXT = IMPLICIT_REFERENCE_NAME + "(" + IMPLICIT_EXPRESSION_NAME + ")"
+
+  val FAKE_RESOLVE_RESULT_KEY: Key[ScalaResolveResult] = Key.create("fake.resolve.result.key")
+  val FAKE_EXPRESSION_TYPE_KEY: Key[ScType] = Key.create("fake.expr.type.key")
+  val FAKE_EXPECTED_TYPE_KEY: Key[Option[ScType]] = Key.create("fake.expected.type.key")
+
+  def setupFakeCall(expr: ScMethodCall, rr: ScalaResolveResult, tp: ScType, expected: Option[ScType]) {
+    expr.getInvokedExpr.putUserData(FAKE_RESOLVE_RESULT_KEY, rr)
+    expr.args.exprs.apply(0).putUserData(FAKE_EXPRESSION_TYPE_KEY, tp)
+    expr.putUserData(FAKE_EXPECTED_TYPE_KEY, expected)
+  }
 }

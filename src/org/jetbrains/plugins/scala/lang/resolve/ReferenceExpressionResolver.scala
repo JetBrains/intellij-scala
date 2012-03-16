@@ -14,6 +14,7 @@ import psi.types.{Equivalence, ScParameterizedType, ScFunctionType, ScType}
 import collection.Set
 import psi.types.result.TypingContext
 import psi.types.nonvalue.{TypeParameter, ScTypePolymorphicType}
+import psi.implicits.ScImplicitlyConvertible
 
 class ReferenceExpressionResolver(shapesOnly: Boolean)
         extends ResolveCache.PolyVariantResolver[ResolvableReferenceExpression] {
@@ -81,6 +82,11 @@ class ReferenceExpressionResolver(shapesOnly: Boolean)
 
   def resolve(reference: ResolvableReferenceExpression, incomplete: Boolean): Array[ResolveResult] = {
     val name = if(reference.isUnaryOperator) "unary_" + reference.refName else reference.refName
+
+    if (name == ScImplicitlyConvertible.IMPLICIT_REFERENCE_NAME) {
+      val data = reference.getUserData(ScImplicitlyConvertible.FAKE_RESOLVE_RESULT_KEY)
+      if (data != null) return Array(data)
+    }
 
     val info = getContextInfo(reference, reference)
 
