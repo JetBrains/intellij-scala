@@ -16,8 +16,6 @@ import extensions._
 class FunctionTupleSyntacticSugarInspection extends LocalInspectionTool {
   override def isEnabledByDefault: Boolean = true
 
-  override def getStaticDescription: String = "Detects explicit references to FunctionN and TupleN that could be replaced with syntactic sugar"
-
   override def getID: String = "ScalaSyntacticSugar"
 
   override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor = {

@@ -14,9 +14,6 @@ import com.intellij.codeInspection.{ProblemHighlightType, ProblemsHolder}
 
 class AbstractValueInTraitInspection
         extends AbstractInspection("ScalaAbstractValueInTrait", "Abstract Value in Trait") {
-  val description =
-    """Abstract values and variables in trait may cause errors during initialization."""
-
   def actionFor(holder: ProblemsHolder) = {
     //todo: we should use dataflow analysis to get if it's safe to use declaration here
     case v: ScValueDeclaration if v.getParent.isInstanceOf[ScTemplateBody] =>

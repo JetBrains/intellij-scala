@@ -11,8 +11,6 @@ import com.intellij.codeInspection._
 class ScalaDefaultFileTemplateUsageInspection extends LocalInspectionTool {
   override def isEnabledByDefault: Boolean = true
 
-  override def getStaticDescription: String = "Inspection to show default file template usage"
-
   override def getID: String = "ScalaDefFileTempl"
 
   override def checkFile(file: PsiFile, manager: InspectionManager, isOnTheFly: Boolean): Array[ProblemDescriptor] = {

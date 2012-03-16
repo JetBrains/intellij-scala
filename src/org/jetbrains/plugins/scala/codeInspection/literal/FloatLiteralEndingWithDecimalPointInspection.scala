@@ -10,10 +10,6 @@ import com.intellij.codeInspection.{ProblemDescriptor, ProblemsHolder}
 import lang.psi.impl.ScalaPsiElementFactory
 
 class FloatLiteralEndingWithDecimalPointInspection extends AbstractInspection("FloatLiteralEndingWithDecimalPoint", "Floating point literal ending with '.'"){
-  @Language("HTML")
-  val description: String =
-"""It is recommended to avoid floating point literals ending with a decimal point ('.'). This prevents confusion with method call syntax."""
-
   def actionFor(holder: ProblemsHolder): PartialFunction[PsiElement, Any] = {
     case lit: ScLiteral if lit.getText.endsWith(".") =>
       holder.registerProblem(lit, getDisplayName, new MakeDoubleFix(lit), new MakeFloatFix(lit), new AddZeroAfterDecimalPoint(lit))

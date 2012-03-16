@@ -12,7 +12,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
  */
 
 class TypeParameterShadowInspection extends AbstractInspection("TypeParameterShadowInspection", "Suspicious shadowing by a Type Parameter") {
-  val description: String = """Detects a Type Parameter that shadows other Type Parameter defined in the enclosing scope."""
 
   def actionFor(holder: ProblemsHolder): PartialFunction[PsiElement, Any] = {
     case refPat: ScTypeParam => check(refPat, holder)

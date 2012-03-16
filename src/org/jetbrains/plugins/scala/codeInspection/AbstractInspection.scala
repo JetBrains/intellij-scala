@@ -9,12 +9,7 @@ import org.jetbrains.plugins.scala.extensions.VisitorWrapper
  * Pavel Fatin
  */
 abstract class  AbstractInspection(id: String, name: String) extends LocalInspectionTool {
-  override def getStaticDescription = description
-
   override def getDisplayName: String = name
-
-  @Language("HTML")
-  val description: String
 
   override final def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean) = VisitorWrapper(actionFor(holder))
 

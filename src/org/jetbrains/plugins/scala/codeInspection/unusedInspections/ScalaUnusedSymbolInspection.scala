@@ -11,8 +11,6 @@ import com.intellij.codeInspection.ex.UnfairLocalInspectionTool
 class ScalaUnusedSymbolInspection extends LocalInspectionTool with UnfairLocalInspectionTool {
   override def isEnabledByDefault: Boolean = true
 
-  override def getStaticDescription: String = "Detects local symbols that are not used"
-
   override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor = {
     new PsiElementVisitor {}
   }

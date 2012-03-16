@@ -13,14 +13,6 @@ import quickfix.AddEmptyParentheses
 class MutatorLikeMethodIsParameterlessInspection extends AbstractMethodSignatureInspection(
   "ScalaMutatorLikeMethodIsParameterless", "Method with mutator-like name is parameterless") {
 
-  @Language("HTML")
-  override val description =
- """Methods with mutator-like name are expected to have <a href="http://en.wikipedia.org/wiki/Side_effect_(computer_science)">side effects</a>.
-
-The convention is that you include parentheses if the method has side effects.
-
-<small>* Refer to Programming in Scala, 5.3 Operators are methods</small>"""
-
   def actionFor(holder: ProblemsHolder) = {
     case f: ScFunction if f.hasMutatorLikeName && f.isParameterless && !f.hasUnitResultType && f.superMethods.isEmpty =>
       holder.registerProblem(f.nameId, getDisplayName, new AddEmptyParentheses(f))

@@ -17,6 +17,9 @@ import extensions.toPsiNamedElementExt
  */
 
 class ScalaDocMissingParameterDescriptionInspection extends LocalInspectionTool {
+
+  override def getDisplayName: String = "Missing Parameter Description"
+
   override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor = {
     new ScalaElementVisitor {
       override def visitTag(s: ScDocTag) {

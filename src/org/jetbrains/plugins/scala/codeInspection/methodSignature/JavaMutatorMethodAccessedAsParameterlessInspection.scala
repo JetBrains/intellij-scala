@@ -15,15 +15,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScUnderscoreSection, ScInf
 class JavaMutatorMethodAccessedAsParameterlessInspection extends AbstractMethodSignatureInspection(
   "ScalaJavaMutatorMethodAccessedAsParameterless", "Java mutator method accessed as parameterless") {
 
-  @Language("HTML")
-  override val description =
-"""Methods that has mutators-like name are expected to have <a href="http://en.wikipedia.org/wiki/Side_effect_(computer_science)">side effects</a>.
-
-The convention is that you include empty parentheses in method call
-if the method has side effects.
-
-<small>* Refer to Programming in Scala, 5.3 Operators are methods</small>"""
-
   def actionFor(holder: ProblemsHolder) = {
     case e: ScReferenceExpression if !e.getParent.isInstanceOf[ScMethodCall] &&
             !e.getParent.isInstanceOf[ScInfixExpr] &&
