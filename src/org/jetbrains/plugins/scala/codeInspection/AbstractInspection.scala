@@ -8,8 +8,10 @@ import org.jetbrains.plugins.scala.extensions.VisitorWrapper
 /**
  * Pavel Fatin
  */
-abstract class AbstractInspection(id: String, name: String) extends LocalInspectionTool {
+abstract class  AbstractInspection(id: String, name: String) extends LocalInspectionTool {
   override def getStaticDescription = description
+
+  override def getDisplayName: String = name
 
   @Language("HTML")
   val description: String

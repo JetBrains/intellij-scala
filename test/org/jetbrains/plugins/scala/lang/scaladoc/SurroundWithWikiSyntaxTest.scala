@@ -185,6 +185,18 @@ class SurroundWithWikiSyntaxTest extends ScalaLightCodeInsightFixtureTestAdapter
 
     checkAfterSurroundWith(text, "", surrounders(0), false)
   }
+
+  def testCannotSurroundCrossTagWithWSAndSyntax() {
+    val text =
+      ("""
+      | /**
+      |   * blah blah """ + SELECTION_START_MARKER + """__blah blah
+      |   *     blah bl""" + SELECTION_END_MARKER + """ah blah __
+      |   */
+      """).stripMargin.replace("\r", "")
+
+    checkAfterSurroundWith(text, "", surrounders(0), false)
+  }
 }
 
 object SurroundWithWikiSyntaxTest {
