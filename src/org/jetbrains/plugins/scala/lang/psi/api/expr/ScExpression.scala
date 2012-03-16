@@ -276,7 +276,15 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible with Ps
       compute, Failure("Recursive getTypeWithoutImplicits", Some(this)), PsiModificationTracker.MODIFICATION_COUNT)
   }
 
-  def getType(ctx: TypingContext): TypeResult[ScType] = getTypeAfterImplicitConversion().tr
+  def getType(ctx: TypingContext): TypeResult[ScType] = {
+    this match {
+      case ref: ScReferenceExpression if ref.refName == ScImplicitlyConvertible.IMPLICIT_EXPRESSION_NAME =>
+        val data = getUserData(ScImplicitlyConvertible.FAKE_EXPRESSION_TYPE_KEY)
+        if (data != null) return Success(data, Some(this))
+      case _ =>
+    }
+    getTypeAfterImplicitConversion().tr
+  }
   def getTypeIgnoreBaseType(ctx: TypingContext): TypeResult[ScType] = getTypeAfterImplicitConversion(ignoreBaseTypes = true).tr
   def getTypeExt(ctx: TypingContext): ScExpression.ExpressionTypeResult = getTypeAfterImplicitConversion()
 
@@ -384,7 +392,15 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible with Ps
   }
 
 
-  def expectedType(fromUnderscore: Boolean = true): Option[ScType] = expectedTypeEx(fromUnderscore).map(_._1)
+  def expectedType(fromUnderscore: Boolean = true): Option[ScType] = {
+    this match {
+      case ref: ScMethodCall if ref.getText == ScImplicitlyConvertible.IMPLICIT_CALL_TEXT =>
+        val data = getUserData(ScImplicitlyConvertible.FAKE_EXPECTED_TYPE_KEY)
+        if (data != null) return data
+      case _ =>
+    }
+    expectedTypeEx(fromUnderscore).map(_._1)
+  }
 
   def expectedTypeEx(fromUnderscore: Boolean = true): Option[(ScType, Option[ScTypeElement])] =
     ExpectedTypes.expectedExprType(this, fromUnderscore)
