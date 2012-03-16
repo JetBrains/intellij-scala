@@ -12,7 +12,6 @@ import com.intellij.psi.{PsiErrorElement, PsiWhiteSpace, PsiComment, PsiElement}
 import lang.psi.api.toplevel.imports.ScImportStmt
 
 class SbtFileStructureInspection extends AbstractInspection("ScalaSbtFileStructure", "SBT Light Configuration File Structure") {
-  val description: String = "Checks that .sbt files contain only an optional import section followed by blank line delimited setting expressions."
 
   def actionFor(holder: ProblemsHolder): PartialFunction[PsiElement, Any] = {
     case f: ScalaFile if SbtFile.isSbtFile(f) =>

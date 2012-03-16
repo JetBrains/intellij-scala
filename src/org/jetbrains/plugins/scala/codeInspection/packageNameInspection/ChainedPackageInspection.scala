@@ -14,12 +14,6 @@ import org.intellij.lang.annotations.Language
 class ChainedPackageInspection extends LocalInspectionTool {
   override def isEnabledByDefault: Boolean = true
 
-  @Language("HTML")
-  override val getStaticDescription =
-"""Files within a module should consistently use <a href="http://www.scala-lang.org/docu/files/package-clauses/packageclauses.html">Chained Package Clauses</a>
- starting with the base package configured in the Scala Facet.
-"""
-
   override def getID: String = "ScalaChainedPackageClause"
 
   override def checkFile(file: PsiFile, manager: InspectionManager, isOnTheFly: Boolean): Array[ProblemDescriptor] = {

@@ -14,8 +14,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScReferenceExpression, ScB
 class SuspiciousInferredTypeInspection extends LocalInspectionTool {
   override def isEnabledByDefault: Boolean =  false // jzaugg: Disabled by default while I try this out.
 
-  override def getStaticDescription: String = "Detects inferred types of Any or AnyVal"
-
   override def getID: String = "SuspiciousInferredType"
 
   override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor = {

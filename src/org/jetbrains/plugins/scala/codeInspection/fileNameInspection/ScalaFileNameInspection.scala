@@ -21,8 +21,6 @@ import console.ScalaLanguageConsoleView
 class ScalaFileNameInspection extends LocalInspectionTool {
   override def isEnabledByDefault: Boolean = true
 
-  override def getStaticDescription: String = "Inspection for files without type definition with corresponding name"
-
   override def getID: String = "ScalaFileName"
 
   override def checkFile(file: PsiFile, manager: InspectionManager, isOnTheFly: Boolean): Array[ProblemDescriptor] = {

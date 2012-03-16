@@ -16,8 +16,6 @@ class EqualsBetweenInconvertibleTypes extends AbstractInspection(
   "ScalaEqualsBetweenInconvertibleTypes",
   ScalaBundle.message("equals.between.inconvertible.types.display.name")
 ) {
-  @Language("HTML")
-  override val description = ScalaBundle.message("equals.between.inconvertible.types.description")
 
   def actionFor(holder: ProblemsHolder) = {
     case invocation: MethodInvocation =>

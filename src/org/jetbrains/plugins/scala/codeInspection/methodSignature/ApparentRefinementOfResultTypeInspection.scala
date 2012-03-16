@@ -13,9 +13,6 @@ import quickfix.InsertMissingEquals
 class ApparentRefinementOfResultTypeInspection extends AbstractMethodSignatureInspection(
   "ScalaApparentRefinementOfResultType", "Apparent refinement of result type; are you missing an '=' sign?") {
 
-  @Language("HTML")
-  val description = null
-
   def actionFor(holder: ProblemsHolder) = {
     case f: ScFunctionDeclaration  => f.typeElement match {
       case Some(e: ScCompoundTypeElement) if e.refinement.isDefined =>

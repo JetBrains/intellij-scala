@@ -37,8 +37,6 @@ import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiManager, ScalaPsiEleme
 class AppliedTypeLambdaCanBeSimplifiedInspection extends LocalInspectionTool {
   override def isEnabledByDefault: Boolean = true
 
-  override def getStaticDescription: String = "Simplifies types such as <br/><pre>({type l[a] = Either[String, a]})#l[Int]</pre><br/>to<br/><pre>Either[String, Int]</pre>"
-
   override def getID: String = "ScalaAppliedTypeLambdaCanBeSimplified"
 
   override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor = {

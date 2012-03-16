@@ -12,10 +12,6 @@ import lang.psi.api.base.ScLiteral
 import lang.psi.api.expr.{ScArgumentExprList, ScInfixExpr, ScParenthesisedExpr, ScPostfixExpr}
 
 class PostfixMethodCallInspection extends AbstractInspection("UseOfPostfixMethodCall", "Use of postfix method call"){
-  @Language("HTML")
-  val description =
-"""Postfix method invokation, <code>f a</code>, can interfere with semicolon inference.
-It is <a href="http://twitter.com/#!/odersky/status/49882758968905728">recommended</a> to use <code>f.a</code> instead."""
 
   def actionFor(holder: ProblemsHolder): PartialFunction[PsiElement, Any] = {
     case pexpr: ScPostfixExpr if !safe(pexpr) =>

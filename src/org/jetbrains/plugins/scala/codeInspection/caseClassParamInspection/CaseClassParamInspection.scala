@@ -14,8 +14,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaRecur
 class CaseClassParamInspection extends LocalInspectionTool {
   override def isEnabledByDefault: Boolean = true
 
-  override def getStaticDescription: String = "Inspection for redundant 'val' modifier on case class parameters"
-
   override def getID: String = "CaseClassParam"
 
   override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor = {

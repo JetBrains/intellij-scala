@@ -17,8 +17,6 @@ import com.intellij.lang.annotation.AnnotationSession
 class AnnotatorBasedErrorInspection extends LocalInspectionTool {
   override def isEnabledByDefault: Boolean = false
 
-  override def getStaticDescription: String = "Inspection shows all files in which there are some errors"
-
   override def getID: String = "AllErrorsTool"
 
   override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor = {

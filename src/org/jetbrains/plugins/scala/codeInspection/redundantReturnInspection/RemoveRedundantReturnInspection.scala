@@ -10,9 +10,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScReturnStmt
 
 
 class RemoveRedundantReturnInspection extends AbstractInspection("ScalaRedundantReturn", "Redundant Return") {
-  @Language("HTML")
-  override val description =
-"""The last statement in a method is automatically returned, use of the `return` keyword is redundant."""
 
   def actionFor(holder: ProblemsHolder) = {
     case function: ScFunctionDefinition =>

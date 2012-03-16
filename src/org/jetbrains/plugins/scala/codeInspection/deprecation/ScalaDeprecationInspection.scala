@@ -74,5 +74,4 @@ class ScalaDeprecationInspection extends LocalInspectionTool {
     true
   }
 
-  override def getStaticDescription: String = "This inspection reports where deprecated code is used in the specified inspection scope."
 }

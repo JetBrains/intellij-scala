@@ -23,8 +23,6 @@ import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettin
 class ScalaPackageNameInspection extends LocalInspectionTool {
   override def isEnabledByDefault: Boolean = true
 
-  override def getStaticDescription: String = "Inspection for files with package statement which does not correspond to package structure"
-
   override def getID: String = "ScalaPackageName"
 
   override def checkFile(file: PsiFile, manager: InspectionManager, isOnTheFly: Boolean): Array[ProblemDescriptor] = {

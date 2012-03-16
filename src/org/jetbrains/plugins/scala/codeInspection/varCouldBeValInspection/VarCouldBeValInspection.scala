@@ -11,8 +11,6 @@ import ex.UnfairLocalInspectionTool
 class VarCouldBeValInspection extends LocalInspectionTool with UnfairLocalInspectionTool {
   override def isEnabledByDefault: Boolean = true
 
-  override def getStaticDescription: String = "Detects local 'var'-s that are never assigned to."
-
   override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor = {
     new PsiElementVisitor {}
   }

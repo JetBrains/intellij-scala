@@ -13,9 +13,6 @@ import lang.psi.api.base.ScStableCodeReferenceElement
 import lang.resolve.{ResolvableStableCodeReferenceElement, StdKinds}
 
 class VariablePatternShadowInspection extends AbstractInspection("VariablePatternShadow", "Suspicious shadowing by a Variable Pattern") {
-  val description: String = """Detects a Variable Pattern that shadows a stable identifier defined in the enclosing scope.
-  To perform an equality test against that value, use backticks, e.g. <code>val foo = 0; 0 match {case `foo` => }</code>
-  """
 
   def actionFor(holder: ProblemsHolder): PartialFunction[PsiElement, Any] = {
     case refPat: ScReferencePattern => check(refPat, holder)

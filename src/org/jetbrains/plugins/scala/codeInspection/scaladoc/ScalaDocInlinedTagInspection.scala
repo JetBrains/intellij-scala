@@ -19,11 +19,13 @@ import org.jetbrains.plugins.scala.lang.scaladoc.parser.parsing.MyScaladocParsin
 class ScalaDocInlinedTagInspection extends LocalInspectionTool {
   override def isEnabledByDefault: Boolean = true
 
+  override def getDisplayName: String = "Inlined Tag"
+
   override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor = {
     new ScalaElementVisitor {
       override def visitInlinedTag(s: ScDocInlinedTag) {
         holder.registerProblem(holder.getManager.createProblemDescriptor(s, getDisplayName, true,
-          ProblemHighlightType.GENERIC_ERROR, isOnTheFly, new ScalaDocInlinedTagDeleteQuickFix(s),
+          ProblemHighlightType.GENERIC_ERROR_OR_WARNING, isOnTheFly, new ScalaDocInlinedTagDeleteQuickFix(s),
           new ScalaDocInlinedTagReplaceQuickFix(s)))
       }
     }
