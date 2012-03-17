@@ -200,6 +200,13 @@
         <include name="**/scala-library.jar"/>
       </fileset>
     </copy>
+
+    <copy todir="${temp.jar.dir}/Scala/lib">
+      <fileset dir="${scala.aux.lib}">
+        <include name="**/scalatest-finders*.jar"/>
+      </fileset>
+    </copy>
+
     <copy todir="${temp.jar.dir}/Scala/lib">
       <fileset dir="${scalap.dir}">
         <include name="**/scalap.jar"/>

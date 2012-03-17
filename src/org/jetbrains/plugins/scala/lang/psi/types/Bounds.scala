@@ -129,10 +129,10 @@ object Bounds {
     }
     if (baseClass.getClazz.getTypeParameters.length == 0) return baseClassDesignator
     (superSubstitutor(baseClass.getClazz, clazz1.getClazz, clazz1.getSubst),
-            superSubstitutor(baseClass. getClazz, clazz2.getClazz, clazz2.getSubst)) match {
+      superSubstitutor(baseClass. getClazz, clazz2.getClazz, clazz2.getSubst)) match {
       case (Some(superSubst1), Some(superSubst2)) => {
         val tp = ScParameterizedType(baseClassDesignator, baseClass.getClazz.
-                getTypeParameters.map(tp => ScalaPsiManager.instance(baseClass.getClazz.getProject).typeVariable(tp)))
+          getTypeParameters.map(tp => ScalaPsiManager.instance(baseClass.getClazz.getProject).typeVariable(tp)))
         val tp1 = superSubst1.subst(tp).asInstanceOf[ScParameterizedType]
         val tp2 = superSubst2.subst(tp).asInstanceOf[ScParameterizedType]
         val resTypeArgs = new ArrayBuffer[ScType]
@@ -168,7 +168,7 @@ object Bounds {
         }
         val iterator = superTypes.iterator
         while(iterator.hasNext) {
-          val st = iterator.next
+          val st = iterator.next()
           ScType.extractClassType(st) match {
             case None =>
             case Some((c, s)) => superSubstitutor(base, c, s, visited) match {
@@ -211,7 +211,7 @@ object Bounds {
         i = i + 1
       }
       if (!break) {
-        res += Tuple(aClass, x, y)
+        res += ((aClass, x, y))
       }
     }
     def checkClasses(aClasses: Seq[Options], baseIndex: Int = -1) {
