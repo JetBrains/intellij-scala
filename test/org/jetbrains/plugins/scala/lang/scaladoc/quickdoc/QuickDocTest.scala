@@ -166,13 +166,19 @@ class QuickDocTest extends ScalaLightPlatformCodeInsightTestCaseAdapter {
     val fileText =
       """
       | /** &&
+      |   * [[http://yandex.ru     ]]
+      |   * [[http://jetbrains.com/idea/scala   Scala Plugin        ]]
+      |   * [[http://google.com This is google]]
       |   * [[http://scala-lang.org]]
       |   * ,,__[[http://jetbrains.com]]__,,
       |   * [[java.lang.String]] ^[[java.lang.Integer]]^ &&
       |   */
       | val a = 1
       """
-    val testText = "\n     <a href=\"http://scala-lang.org\">http://scala-lang.org</a>\n     " +
+    val testText = "\n     <a href=\"http://yandex.ru     \">http://yandex.ru     </a>\n     " +
+            "<a href=\"http://jetbrains.com/idea/scala\">  Scala Plugin</a>\n     " +
+            "<a href=\"http://google.com\">This is google</a>" +
+            "\n     <a href=\"http://scala-lang.org\">http://scala-lang.org</a>\n     " +
             "<sub><u><a href=\"http://jetbrains.com}</u></sub>\n     " +
             "<a href=\"psi_element://java.lang.String\"><code>String</code></a> " +
             "<sup><a href=\"psi_element://java.lang.Integer\"><code>Integer</code></a></sup> "

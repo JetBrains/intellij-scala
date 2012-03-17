@@ -656,13 +656,25 @@ object ScalaDocumentationProvider {
           case ScalaDocTokenType.DOC_LINK_TAG => result.append("{@link ")
           case ScalaDocTokenType.DOC_LINK_CLOSE_TAG => 
             if (element.getParent.getNode.getFirstChildNode.getElementType == ScalaDocTokenType.DOC_HTTP_LINK_TAG) {
-              result.append("\">" + element.getPrevSibling.getText + "</a>")
+              val linkText = element.getPrevSibling.getText
+              if (linkText.trim().contains(" ")) {
+                val trimmedText = linkText.trim()
+                val spaceIndex = trimmedText.indexOf(" ")
+                result.append(trimmedText.substring(0, spaceIndex)).append("\">").append(trimmedText.substring(spaceIndex + 1)).append("</a>")
+              } else {
+                result.append("\">" + linkText + "</a>")
+              }
             } else {
               result.append("}")
             }
           case ScalaDocTokenType.DOC_COMMENT_DATA if element.getParent.isInstanceOf[ScDocTag] &&
                   element.getParent.asInstanceOf[ScDocTag].name == MyScaladocParsing.SEE_TAG =>
             result.append("<dd>").append(element.getText.trim()).append("</dd>")
+          case ScalaDocTokenType.DOC_COMMENT_DATA
+            if element.getPrevSibling != null && element.getPrevSibling.getNode.getElementType == ScalaDocTokenType.DOC_HTTP_LINK_TAG =>
+            if (!element.getText.trim().contains(" ")) {
+              result.append(element.getText)
+            }
           case _ if replaceWikiScheme.contains(element.getText) &&
                   (element.getParent.getFirstChild == element || element.getParent.getLastChild == element) =>
             val prefix =  if (element.getParent.getFirstChild == element) "<" else "</"
