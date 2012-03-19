@@ -11,12 +11,12 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, PsiFile}
-import java.util.ArrayList
 import lang.psi.api.toplevel.imports.usages.{ImportWildcardSelectorUsed, ImportSelectorUsed, ImportExprUsed, ImportUsed}
 import lang.psi.api.toplevel.imports.{ScImportSelector, ScImportStmt}
 import lang.psi.api.ScalaFile
 import com.intellij.lang.annotation.{AnnotationSession, Annotation}
 import com.intellij.codeInsight.daemon.impl.analysis.{HighlightLevelUtil, HighlightInfoHolder}
+import java.util.{Collections, ArrayList}
 
 /**
  * User: Alexander Podkhalyuzin
@@ -69,6 +69,9 @@ class ScalaUnusedImportPass(file: PsiFile, editor: Editor)
       }
       UpdateHighlightersUtil.setHighlightersToEditor(file.getProject, editor.getDocument, 0,
         file.getTextLength, list, getColorsScheme, getId)
+    } else if (file.isInstanceOf[ScalaFile]) {
+      UpdateHighlightersUtil.setHighlightersToEditor(file.getProject, editor.getDocument, 0,
+        file.getTextLength, Collections.emptyList(), getColorsScheme, getId)
     }
   }
 }

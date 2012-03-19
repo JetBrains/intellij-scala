@@ -28,6 +28,7 @@ import analysis.HighlightLevelUtil
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import annotator.importsTracker.ScalaRefCountHolder
 import extensions.toPsiNamedElementExt
+import java.util.Collections
 
 // TODO merge with UnusedImportPass (?)
 class ScalaUnusedSymbolPass(file: PsiFile, editor: Editor) extends TextEditorHighlightingPass(file.getProject, editor.getDocument) {
@@ -47,6 +48,9 @@ class ScalaUnusedSymbolPass(file: PsiFile, editor: Editor) extends TextEditorHig
         UpdateHighlightersUtil.setHighlightersToEditor(file.getProject, editor.getDocument, 0, file.getTextLength,
           highlightInfos, getColorsScheme, getId)
         highlightInfos.clear()
+      case sFile: ScalaFile =>
+        UpdateHighlightersUtil.setHighlightersToEditor(file.getProject, editor.getDocument, 0, file.getTextLength,
+          Collections.emptyList(), getColorsScheme, getId)
       case _ =>
     }
   }
