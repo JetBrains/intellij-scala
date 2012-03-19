@@ -49,7 +49,7 @@ trait ScTypePresentation {
         }
         case p: PsiPackage => "_root_." + p.getQualifiedName
         case _ => e.name
-      }) + (if (withPoint) "." else ""))
+      })) + (if (withPoint) "." else "")
     }
     typeText(t, nameFun(_, false), nameFun(_, true))
   }
