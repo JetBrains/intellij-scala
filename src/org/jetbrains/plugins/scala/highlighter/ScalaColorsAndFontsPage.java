@@ -53,6 +53,9 @@ public class ScalaColorsAndFontsPage implements ColorSettingsPage {
         new AttributesDescriptor(DefaultHighlighter.SEMICOLON_ID, DefaultHighlighter.SEMICOLON),
         new AttributesDescriptor(DefaultHighlighter.DOT_ID, DefaultHighlighter.DOT),
         new AttributesDescriptor(DefaultHighlighter.COMMA_ID, DefaultHighlighter.COMMA),
+        new AttributesDescriptor(DefaultHighlighter.MUTABLE_COLLECTION_ID, DefaultHighlighter.MUTABLE_COLLECTION),
+        new AttributesDescriptor(DefaultHighlighter.IMMUTABLE_COLLECTION_ID, DefaultHighlighter.IMMUTABLE_COLLECTION),
+        new AttributesDescriptor(DefaultHighlighter.JAVA_COLLECTION_ID, DefaultHighlighter.JAVA_COLLECTION),
         new AttributesDescriptor(DefaultHighlighter.LINE_COMMENT_ID, DefaultHighlighter.LINE_COMMENT),
         new AttributesDescriptor(DefaultHighlighter.BLOCK_COMMENT_ID, DefaultHighlighter.BLOCK_COMMENT),
         new AttributesDescriptor(DefaultHighlighter.DOC_COMMENT_ID, DefaultHighlighter.DOC_COMMENT),
@@ -101,7 +104,8 @@ public class ScalaColorsAndFontsPage implements ColorSettingsPage {
   @NonNls
   @NotNull
   public String getDemoText() {
-    return "<keyword>import</keyword> scala<dot>.</dot>collection<dot>.</dot>mutable<dot>.</dot>_\n\n" +
+    return "<keyword>import</keyword> scala<dot>.</dot>collection<dot>.</dot>mutable<dot>.</dot>_\n" +
+        "<keyword>import</keyword> java<dot>.</dot>util<dot>.</dot>TreeMap\n\n" +
         "<scaladoc>/**\n" +
         " * ScalaDoc comment: <scaladocHtml><code></scaladocHtml>Some code<scaladocHtml></code></scaladocHtml>\n" +
         " * Html escape sequence <htmlDocEscape>&#94;</htmlDocEscape>\n" +
@@ -135,6 +139,9 @@ public class ScalaColorsAndFontsPage implements ColorSettingsPage {
         " */</blockcomment>\n" +
         "<keyword>object</keyword> <object>Object</object> <brace>{</brace>\n" +
         "  <keyword>val</keyword> <val>layer</val> <assign>=</assign> <number>-5.0</number>\n" +
+        "  <keyword>val</keyword> <val>mutableCollection</val> <assign>=</assign> <mutablec>HashMap</mutablec>[<predef>Int</predef>,  <predef>Int</predef>]()\n" +
+        "  <keyword>val</keyword> <val>immutableCollection</val> <assign>=</assign> <immutablec>List</immutablec>(<number>1</number><comma>,</comma> <number>2</number>)\n" +
+        "  <keyword>val</keyword> <val>javaCollection</val> <assign>=</assign> <keyword>new</keyword> <javac>TreeMap</javac>[<predef>Int</predef>,  <predef>Int</predef>]()\n\n" +
         "  <keyword>def</keyword> <methoddecl>foo</methoddecl><colon>:</colon> <class>ScalaClass</class> <assign>=</assign> " +
         "<keyword>new</keyword> <class>ScalaClass</class><par>(</par><number>23</number>, " +
         "<number>9</number><par>)</par>\n" +
@@ -163,6 +170,9 @@ public class ScalaColorsAndFontsPage implements ColorSettingsPage {
     map.put("dot", DefaultHighlighter.DOT);
     map.put("semicolon", DefaultHighlighter.SEMICOLON);
     map.put("comma", DefaultHighlighter.COMMA);
+    map.put("mutablec", DefaultHighlighter.MUTABLE_COLLECTION);
+    map.put("immutablec", DefaultHighlighter.IMMUTABLE_COLLECTION);
+    map.put("javac", DefaultHighlighter.JAVA_COLLECTION);
     map.put("number", DefaultHighlighter.NUMBER);
     map.put("linecomment", DefaultHighlighter.LINE_COMMENT);
     map.put("blockcomment", DefaultHighlighter.BLOCK_COMMENT);
