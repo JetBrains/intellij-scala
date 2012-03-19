@@ -237,8 +237,10 @@ case class ScDesignatorType(element: PsiNamedElement) extends ValueType {
   }
 
   private var isStaticClass = false
-  //You can use this method to check if it's Java class,
-  // which is used for getting static context => no implicit conversion
+  /**
+   * You can use this method to check if it's Java class,
+   * which is used for getting static context => no implicit conversion
+   */
   def isStatic = isStaticClass
   def this(elem: PsiNamedElement, isStaticClass: Boolean) {
     this (elem)

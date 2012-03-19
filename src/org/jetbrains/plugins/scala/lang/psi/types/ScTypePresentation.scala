@@ -10,8 +10,8 @@ import org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocumentati
 import api.toplevel.typedef.{ScTypeDefinition, ScObject}
 import api.statements._
 import api.base.patterns.{ScReferencePattern, ScBindingPattern}
-import params.ScTypeParam
 import extensions.{toPsiNamedElementExt, toPsiClassExt}
+import params.{ScParameter, ScTypeParam}
 import refactoring.util.{ScalaNamesUtil, ScTypeUtil}
 
 trait ScTypePresentation {
@@ -87,7 +87,7 @@ trait ScTypePresentation {
           buffer.append("this")
           appendTypeTail(stable)
         case ScTupleType(comps) => buffer.append("("); appendSeq(comps, ", ", false); buffer.append(")")
-        case ScDesignatorType(e@(_: ScObject | _: ScReferencePattern)) =>
+        case ScDesignatorType(e@(_: ScObject | _: ScReferencePattern | _: ScParameter)) =>
           buffer.append(nameFun(e))
           appendTypeTail(stable)
         case ScDesignatorType(e) => buffer.append(nameFun(e))
