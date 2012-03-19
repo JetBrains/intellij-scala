@@ -14,8 +14,15 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameters,
 import com.intellij.psi.{PsiElement, PsiParameter, PsiNamedElement, PsiMethod}
 import lang.psi.api.statements.{ScValue, ScFunction}
 import codeInspection.varCouldBeValInspection.ValToVarQuickFix
-import lang.psi.api.expr.{MethodInvocation, ScReferenceExpression, ScInfixExpr, ScMethodCall}
 import extensions._
+import highlighter.DefaultHighlighter
+import com.intellij.openapi.editor.colors.TextAttributesKey
+import lang.lexer.ScalaTokenTypes
+import lang.parser.ScalaElementTypes
+import lang.psi.api.expr._
+import lang.psi.api.base.types.ScSimpleTypeElement
+import lang.psi.impl.ScalaPsiManager
+import lang.psi.impl.ScalaPsiManager.ClassCategory
 
 /**
  * Pavel.Fatin, 31.05.2010
@@ -100,6 +107,34 @@ trait ApplicationAnnotator {
     }
   }
 
+  def annotateSimpleTypeCollection(element: ScSimpleTypeElement, holder: AnnotationHolder) {
+    import ApplicationAnnotator._
+
+    def simpleAnnotate(annotationText: String, annotationAttributes: TextAttributesKey) {
+      val annotation = holder.createInfoAnnotation(element, annotationText)
+      annotation.setTextAttributes(annotationAttributes)
+    }
+
+    def conformsByNames(tp: ScType, qn: List[String]): Boolean = {
+      qn.exists(textName =>
+        tp.conforms(ScType.designator(ScalaPsiManager.instance(element.getProject).getCachedClass(textName, element.getResolveScope, ClassCategory.TYPE))))
+
+    }
+
+    Option(element.calcType).foreach(a => {
+      val text = a.canonicalText
+      val b = SCALA_PREDEF_IMMUTABLE_BASES
+
+      if (text.startsWith(SCALA_COLLECTION_IMMUTABLE_BASE) || SCALA_PREDEF_IMMUTABLE_BASES.contains(text)) {
+        simpleAnnotate(SCALA_IMMUTABLE_COLLECTION_MESSAGE, DefaultHighlighter.IMMUTABLE_COLLECTION)
+      } else if (text.startsWith(SCALA_COLLECTION_MUTABLE_BASE)) {
+        simpleAnnotate(SCALA_MUTABLE_COLLECTION_MESSAGE, DefaultHighlighter.MUTABLE_COLLECTION)
+      } else if (conformsByNames(a, JAVA_COLLECTIONS_BASES)) {
+        simpleAnnotate(JAVA_COLECTION_MESSAGE, DefaultHighlighter.JAVA_COLLECTION)
+      }
+    })
+  }
+
   /**
    * Annotates: val a = 1; a += 1;
    */
@@ -126,6 +161,36 @@ trait ApplicationAnnotator {
   }
 
   def annotateMethodCall(call: ScMethodCall, holder: AnnotationHolder) {
+    //anyway we want to highlight standart collections
+    def highlightScalaCollection(text: String, textAttributes: TextAttributesKey) {
+      var refElement = call.findFirstChildByType(ScalaElementTypes.REFERENCE_EXPRESSION)
+
+      if (refElement == null) {
+        val genericCall = call.findFirstChildByType(ScalaElementTypes.GENERIC_CALL)
+        if (genericCall == null || !genericCall.isInstanceOf[ScGenericCall]) return
+
+        refElement = genericCall.asInstanceOf[ScGenericCall].findFirstChildByType(ScalaElementTypes.REFERENCE_EXPRESSION)
+        if (refElement == null) return
+      }
+
+      val elementText = refElement.getText
+
+      if (!elementText.contains(".") || elementText.endsWith(".apply") || elementText.endsWith(".make")) {
+        val highlightedElement = if (!refElement.getText.endsWith(".apply") && !refElement.getText.endsWith(".make")) refElement
+        else
+        if (refElement.getFirstChild != null) refElement.getFirstChild else return
+        val annotation = holder.createInfoAnnotation(highlightedElement, text)
+        annotation.setTextAttributes(textAttributes)
+      }
+    }
+
+    import ApplicationAnnotator._
+    call.allTypes.headOption.foreach(a => if (a.canonicalText.startsWith(SCALA_COLLECTION_MUTABLE_BASE)) {
+      highlightScalaCollection(SCALA_MUTABLE_COLLECTION_MESSAGE, DefaultHighlighter.MUTABLE_COLLECTION)
+    } else if (a.canonicalText.startsWith(SCALA_COLLECTION_IMMUTABLE_BASE)) {
+      highlightScalaCollection(SCALA_IMMUTABLE_COLLECTION_MESSAGE, DefaultHighlighter.IMMUTABLE_COLLECTION)
+    })
+
     //do we need to check it:
     call.getEffectiveInvokedExpr match {
       case ref: ScReferenceElement =>
@@ -135,6 +200,7 @@ trait ApplicationAnnotator {
         }
       case _ => //unhandled case (only ref expressions was checked)
     }
+
     val problems = call.applicationProblems
     val missed = for (MissedValueParameter(p) <- problems) yield p.name + ": " + p.paramType.presentableText
 
@@ -208,4 +274,15 @@ trait ApplicationAnnotator {
   }
 
   private def parenthesise(items: Seq[_]) = items.mkString("(", ", ", ")")
+}
+
+object ApplicationAnnotator {
+  val JAVA_COLLECTIONS_BASES = List("java.util.Map", "java.util.Collection")
+  val SCALA_COLLECTION_MUTABLE_BASE = "_root_.scala.collection.mutable."
+  val SCALA_COLLECTION_IMMUTABLE_BASE = "_root_.scala.collection.immutable."
+  val SCALA_PREDEF_IMMUTABLE_BASES = Set("_root_.scala.PredefMap", "_root_.scala.PredefSet", "scalaList",
+    "scalaNil", "scalaStream", "scalaVector", "scalaSeq")
+  val SCALA_MUTABLE_COLLECTION_MESSAGE = "Standart Mutable Scala Collection"
+  val SCALA_IMMUTABLE_COLLECTION_MESSAGE = "Standart Immutable Scala Collection"
+  val JAVA_COLECTION_MESSAGE = "Java Collection"
 }

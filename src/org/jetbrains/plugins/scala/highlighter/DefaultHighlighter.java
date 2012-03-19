@@ -19,7 +19,11 @@ import com.intellij.codeInsight.daemon.impl.HighlightInfoType;
 import com.intellij.openapi.editor.HighlighterColors;
 import com.intellij.openapi.editor.SyntaxHighlighterColors;
 import com.intellij.openapi.editor.colors.TextAttributesKey;
+import com.intellij.openapi.editor.markup.EffectType;
+import com.intellij.openapi.editor.markup.TextAttributes;
 import org.jetbrains.annotations.NonNls;
+
+import java.awt.*;
 
 /**
  * @author ilyas
@@ -57,6 +61,12 @@ public class DefaultHighlighter {
   static final String DOT_ID = "Scala Dot";
   @NonNls
   static final String COMMA_ID = "Scala Comma";
+  @NonNls
+  static final String MUTABLE_COLLECTION_ID = "Scala Mutable Collection";
+  @NonNls
+  static final String IMMUTABLE_COLLECTION_ID = "Scala Immutable Collection";
+  @NonNls
+  static final String JAVA_COLLECTION_ID = "Standart Java Collection";
   @NonNls
   static final String TYPEPARAM_ID = "Scala Type parameter";
   @NonNls
@@ -134,6 +144,12 @@ public class DefaultHighlighter {
   public static TextAttributesKey SEMICOLON = createKey(SEMICOLON_ID, SyntaxHighlighterColors.COMMA);
   public static TextAttributesKey DOT = createKey(DOT_ID, SyntaxHighlighterColors.DOT);
   public static TextAttributesKey COMMA = createKey(COMMA_ID, SyntaxHighlighterColors.COMMA);
+  public static TextAttributesKey MUTABLE_COLLECTION = TextAttributesKey.createTextAttributesKey(MUTABLE_COLLECTION_ID,
+      new TextAttributes(null, null, new Color(226, 158, 194), EffectType.BOLD_DOTTED_LINE, Font.PLAIN));
+  public static TextAttributesKey IMMUTABLE_COLLECTION = TextAttributesKey.createTextAttributesKey(IMMUTABLE_COLLECTION_ID,
+      new TextAttributes(null, null, new Color(172, 203, 121), EffectType.BOLD_DOTTED_LINE, Font.PLAIN));
+  public static TextAttributesKey JAVA_COLLECTION = TextAttributesKey.createTextAttributesKey(JAVA_COLLECTION_ID,
+      new TextAttributes(null, null, new Color(129, 194, 195), EffectType.BOLD_DOTTED_LINE, Font.PLAIN));
   public static TextAttributesKey PREDEF = createKey(PREDEF_ID, SyntaxHighlighterColors.COMMA);
   public static TextAttributesKey TYPEPARAM = createKey(TYPEPARAM_ID, HighlightInfoType.TYPE_PARAMETER_NAME.getAttributesKey());
   public static TextAttributesKey OBJECT = createKey(OBJECT_ID, HighlightInfoType.CLASS_NAME.getAttributesKey());

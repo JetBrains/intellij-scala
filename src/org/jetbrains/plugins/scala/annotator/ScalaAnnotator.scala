@@ -7,7 +7,6 @@ import com.intellij.openapi.util.Key
 import com.intellij.psi.util.PsiTreeUtil
 import controlFlow.ControlFlowInspections
 import createFromUsage._
-import highlighter.AnnotatorHighlighter
 import importsTracker._
 import lang.psi.api.statements._
 import lang.psi.api.toplevel.typedef._
@@ -44,20 +43,22 @@ import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiManager, ScalaPsiEleme
 import result.{TypingContext, TypeResult, Success}
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaFile}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import types.{ScParameterizedTypeElement, ScTypeProjection, ScTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager.ClassCategory
+import highlighter.{DefaultHighlighter, AnnotatorHighlighter}
+import types.{ScSimpleTypeElement, ScParameterizedTypeElement, ScTypeProjection, ScTypeElement}
 
 /**
- *    User: Alexander Podkhalyuzin
- *    Date: 23.06.2008
+ * User: Alexander Podkhalyuzin
+ * Date: 23.06.2008
  */
 class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotator
-        with ParametersAnnotator with ApplicationAnnotator
-        with AssignmentAnnotator with VariableDefinitionAnnotator
-        with TypedStatementAnnotator with PatternDefinitionAnnotator
-        with ControlFlowInspections with ConstructorAnnotator with OverridingAnnotator
-        with DumbAware {
+with ParametersAnnotator with ApplicationAnnotator
+with AssignmentAnnotator with VariableDefinitionAnnotator
+with TypedStatementAnnotator with PatternDefinitionAnnotator
+with ControlFlowInspections with ConstructorAnnotator with OverridingAnnotator
+with DumbAware {
 
   override def annotate(element: PsiElement, holder: AnnotationHolder) {
     val typeAware = isAdvancedHighlightingEnabled(element)
@@ -204,7 +205,7 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
       }
 
       private def referencePart(ref: ScReferenceElement) {
-        if(typeAware) annotateReference(ref, holder)
+        if (typeAware) annotateReference(ref, holder)
         ref.qualifier match {
           case None => checkNotQualifiedReferenceElement(ref, holder)
           case Some(_) => checkQualifiedReferenceElement(ref, holder)
@@ -226,8 +227,14 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
         super.visitReturnStatement(ret)
       }
 
+
+      override def visitSimpleTypeElement(simple: ScSimpleTypeElement) {
+        annotateSimpleTypeCollection(simple, holder)
+        super.visitSimpleTypeElement(simple)
+      }
+
       override def visitConstructor(constr: ScConstructor) {
-        if(typeAware) annotateConstructor(constr, holder)
+        if (typeAware) annotateConstructor(constr, holder)
         super.visitConstructor(constr)
       }
 
@@ -257,7 +264,7 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
 
       override def visitVariable(varr: ScVariable) {
         if (typeAware && !compiled && (varr.getParent.isInstanceOf[ScTemplateBody] ||
-          varr.getParent.isInstanceOf[ScEarlyDefinitions])) {
+                varr.getParent.isInstanceOf[ScEarlyDefinitions])) {
           checkOverrideVars(varr, holder)
         }
         super.visitVariable(varr)
@@ -265,7 +272,7 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
 
       override def visitValue(v: ScValue) {
         if (typeAware && !compiled && (v.getParent.isInstanceOf[ScTemplateBody] ||
-          v.getParent.isInstanceOf[ScEarlyDefinitions])) {
+                v.getParent.isInstanceOf[ScEarlyDefinitions])) {
           checkOverrideVals(v, holder)
         }
         super.visitValue(v)
@@ -376,7 +383,7 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
           }
         }
         checkMember("isDefinedAt", true)
-        checkMember("apply", false)  
+        checkMember("apply", false)
       case _ =>
     }
   }
@@ -384,13 +391,13 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
   private def checkTypeParamBounds(sTypeParam: ScTypeBoundsOwner, holder: AnnotationHolder) {}
 
   private def registerUsedElement(element: PsiElement, resolveResult: ScalaResolveResult,
-                                   checkWrite: Boolean) {
+                                  checkWrite: Boolean) {
     val named = resolveResult.getElement
     val file = element.getContainingFile
     if (named.isValid && named.getContainingFile == file) {
       val value: ValueUsed = element match {
         case ref: ScReferenceExpression if checkWrite &&
-          ScalaPsiUtil.isPossiblyAssignment(ref.asInstanceOf[PsiElement]) => WriteValueUsed(named)
+                ScalaPsiUtil.isPossiblyAssignment(ref.asInstanceOf[PsiElement]) => WriteValueUsed(named)
         case _ => ReadValueUsed(named)
       }
       val holder = ScalaRefCountHolder.getInstance(file)
@@ -511,24 +518,27 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
   }
 
   private def registerCreateFromUsageFixesFor(ref: ScReferenceElement, annotation: Annotation) {
-      ref match {
-        case Both(exp: ScReferenceExpression, Parent(_: ScMethodCall)) =>
-          annotation.registerFix(new CreateMethodQuickFix(exp))
-        case Both(exp: ScReferenceExpression, Parent(infix: ScInfixExpr)) if infix.operation == exp =>
-          annotation.registerFix(new CreateMethodQuickFix(exp))
-        case exp: ScReferenceExpression =>
-          annotation.registerFix(new CreateParameterlessMethodQuickFix(exp))
-          annotation.registerFix(new CreateValueQuickFix(exp))
-          annotation.registerFix(new CreateVariableQuickFix(exp))
-        case _ =>
-      }
+    ref match {
+      case Both(exp: ScReferenceExpression, Parent(_: ScMethodCall)) =>
+        annotation.registerFix(new CreateMethodQuickFix(exp))
+      case Both(exp: ScReferenceExpression, Parent(infix: ScInfixExpr)) if infix.operation == exp =>
+        annotation.registerFix(new CreateMethodQuickFix(exp))
+      case exp: ScReferenceExpression =>
+        annotation.registerFix(new CreateParameterlessMethodQuickFix(exp))
+        annotation.registerFix(new CreateValueQuickFix(exp))
+        annotation.registerFix(new CreateVariableQuickFix(exp))
+      case _ =>
     }
+  }
 
   private def highlightImplicitMethod(expr: ScExpression, resolveResult: ScalaResolveResult, refElement: ScReferenceElement,
-                              fun: PsiNamedElement, holder: AnnotationHolder) {
+                                      fun: PsiNamedElement, holder: AnnotationHolder) {
     import org.jetbrains.plugins.scala.lang.psi.types.Any
 
-    val typeTo = resolveResult.implicitType match {case Some(tp) => tp case _ => Any}
+    val typeTo = resolveResult.implicitType match {
+      case Some(tp) => tp
+      case _ => Any
+    }
     highlightImplicitView(expr, fun, typeTo, refElement.nameId, holder)
   }
 
@@ -580,7 +590,7 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
     if (refElement.isInstanceOf[ScDocResolvableCodeReference] && resolve.length > 0 || refElement.isSoft) return
     if (isAdvancedHighlightingEnabled(refElement) && resolve.length != 1) {
       refElement.getParent match {
-        case _: ScImportSelector | _: ScImportExpr if resolve.length > 0 => return 
+        case _: ScImportSelector | _: ScImportExpr if resolve.length > 0 => return
         case _ =>
       }
       val error = ScalaBundle.message("cannot.resolve", refElement.refName)
@@ -621,14 +631,14 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
   private def checkMethodCallImplicitConversion(call: ScMethodCall, holder: AnnotationHolder) {
     val importUsed = call.getImportsUsed
     ImportTracker.getInstance(call.getProject).
-      registerUsedImports(call.getContainingFile.asInstanceOf[ScalaFile], importUsed)
+            registerUsedImports(call.getContainingFile.asInstanceOf[ScalaFile], importUsed)
   }
 
   private def checkExpressionType(expr: ScExpression, holder: AnnotationHolder, typeAware: Boolean) {
     val ExpressionTypeResult(exprType, importUsed, implicitFunction) =
       expr.getTypeAfterImplicitConversion(expectedOption = expr.smartExpectedType())
     ImportTracker.getInstance(expr.getProject).
-                    registerUsedImports(expr.getContainingFile.asInstanceOf[ScalaFile], importUsed)
+            registerUsedImports(expr.getContainingFile.asInstanceOf[ScalaFile], importUsed)
 
     expr match {
       case m: ScMatchStmt =>
@@ -641,9 +651,9 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
           case args: ScArgumentExprList => return
           case inf: ScInfixExpr if inf.getArgExpr == expr => return
           case tuple: ScTuple if tuple.getContext.isInstanceOf[ScInfixExpr] &&
-            tuple.getContext.asInstanceOf[ScInfixExpr].getArgExpr == tuple => return
+                  tuple.getContext.asInstanceOf[ScInfixExpr].getArgExpr == tuple => return
           case e: ScParenthesisedExpr if e.getContext.isInstanceOf[ScInfixExpr] &&
-            e.getContext.asInstanceOf[ScInfixExpr].getArgExpr == e => return
+                  e.getContext.asInstanceOf[ScInfixExpr].getArgExpr == e => return
           case t: ScTypedStmt if t.isSequenceArg => return
           case parent@(_: ScTuple | _: ScParenthesisedExpr) =>
             parent.getParent match {
@@ -754,7 +764,7 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
   private def checkImportExpr(impExpr: ScImportExpr, holder: AnnotationHolder) {
     if (impExpr.qualifier == null) {
       val annotation: Annotation = holder.createErrorAnnotation(impExpr.getTextRange,
-          ScalaBundle.message("import.expr.should.be.qualified"))
+        ScalaBundle.message("import.expr.should.be.qualified"))
       annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR)
     }
   }
