@@ -622,13 +622,6 @@ object Conformance {
       r.visitType(rightVisitor)
       if (result != null) return
 
-      rightVisitor = new ExistentialSimplification with SkolemizeVisitor
-        with ParameterizedSkolemizeVisitor with OtherNonvalueTypesVisitor with NothingNullVisitor
-        with ExistentialArgumentVisitor with TypeParameterTypeVisitor with TupleVisitor with FunctionVisitor
-        with ThisVisitor with DesignatorVisitor {}
-      r.visitType(rightVisitor)
-      if (result != null) return
-
       rightVisitor = new ParameterizedAliasVisitor with AliasDesignatorVisitor {}
       r.visitType(rightVisitor)
       if (result != null) return
@@ -685,6 +678,15 @@ object Conformance {
       rightVisitor = new ParameterizedAliasVisitor with AliasDesignatorVisitor {}
       r.visitType(rightVisitor)
       if (result != null) return
+
+      if (r.isInstanceOf[ScProjectionType] &&
+        ScEquivalenceUtil.smartEquivalence(r.asInstanceOf[ScProjectionType].actualElement, proj.actualElement)) {
+        val proj1 = r.asInstanceOf[ScProjectionType]
+        val projected1 = proj.projected
+        val projected2 = proj1.projected
+        result = conformsInner(projected1, projected2, visited, undefinedSubst)
+        if (result != null) return
+      }
 
       if (proj.actualElement.isInstanceOf[ScTypeAlias]) {
         val ta = proj.actualElement.asInstanceOf[ScTypeAlias]
@@ -1375,7 +1377,7 @@ object Conformance {
       if (result != null) return
 
       rightVisitor = new ExistentialSimplification with SkolemizeVisitor
-        with ParameterizedSkolemizeVisitor with OtherNonvalueTypesVisitor with NothingNullVisitor {}
+        with ParameterizedSkolemizeVisitor with OtherNonvalueTypesVisitor with NothingNullVisitor with DesignatorVisitor {}
       r.visitType(rightVisitor)
       if (result != null) return
 
