@@ -3,7 +3,6 @@ package codeInspection
 package unusedInspections
 
 import com.intellij.codeInspection._
-import com.intellij.psi.search.searches.ReferencesSearch
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.editor.Editor
@@ -13,8 +12,6 @@ import collection.mutable.Buffer
 import com.intellij.lang.annotation.{Annotation, AnnotationSession}
 import com.intellij.codeInsight.intention.IntentionAction
 import com.intellij.codeInsight.CodeInsightUtilBase
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScReferenceExpression, ScInfixExpr, ScAssignStmt}
-import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import com.intellij.profile.codeInspection.InspectionProjectProfileManager
 import varCouldBeValInspection.VarCouldBeValInspection
@@ -25,12 +22,11 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, Sc
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScVariableDefinition, ScDeclaredElementsHolder}
 import com.intellij.psi._
-import com.intellij.codeInsight.daemon.{DaemonCodeAnalyzer, HighlightDisplayKey}
+import com.intellij.codeInsight.daemon.HighlightDisplayKey
 import com.intellij.codeInsight.daemon.impl._
 import analysis.HighlightLevelUtil
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import annotator.importsTracker.ScalaRefCountHolder
-import collection.mutable.ArrayBuffer._
 import extensions.toPsiNamedElementExt
 
 // TODO merge with UnusedImportPass (?)
