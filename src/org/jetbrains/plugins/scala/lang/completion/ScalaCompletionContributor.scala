@@ -109,8 +109,7 @@ class ScalaCompletionContributor extends CompletionContributor {
               )
             case refImpl: ScReferenceExpressionImpl =>
               refImpl.doResolve(refImpl,
-                new CompletionProcessor(refImpl.getKinds(false, true), collectImplicits = true,
-                  postProcess = postProcessMethod _)
+                new CompletionProcessor(refImpl.getKinds(false, true), collectImplicits = true, postProcess = postProcessMethod _)
               )
             case refImpl: ScTypeProjectionImpl =>
               refImpl.doResolve(new CompletionProcessor(refImpl.getKinds(false, true), postProcess = postProcessMethod _))

@@ -59,19 +59,19 @@ object Bounds {
       case (_, ex : ScExistentialType) => lub(t1, ex.skolem)
       case (_: ValType, _: ValType) => types.AnyVal
       case (JavaArrayType(arg1), JavaArrayType(arg2)) => {
-        JavaArrayType(calcForTypeParamWithoutVariance(arg1, arg2))
+        JavaArrayType(calcForTypeParamWithoutVariance(arg1, arg2, depth, checkWeak))
       }
       case (JavaArrayType(arg), ScParameterizedType(des, args)) if args.length == 1 && (ScType.extractClass(des) match {
         case Some(q) => q.qualifiedName == "scala.Array"
         case _ => false
       }) => {
-        ScParameterizedType(des, Seq(calcForTypeParamWithoutVariance(arg, args(0))))
+        ScParameterizedType(des, Seq(calcForTypeParamWithoutVariance(arg, args(0), depth, checkWeak)))
       }
       case (ScParameterizedType(des, args), JavaArrayType(arg)) if args.length == 1 && (ScType.extractClass(des) match {
         case Some(q) => q.qualifiedName == "scala.Array"
         case _ => false
       }) => {
-        ScParameterizedType(des, Seq(calcForTypeParamWithoutVariance(arg, args(0))))
+        ScParameterizedType(des, Seq(calcForTypeParamWithoutVariance(arg, args(0), depth, checkWeak)))
       }
       case _ => {
 
@@ -108,14 +108,17 @@ object Bounds {
     }
   }
 
-  private def calcForTypeParamWithoutVariance(substed1: ScType, substed2: ScType): ScType = {
+  private def calcForTypeParamWithoutVariance(substed1: ScType, substed2: ScType, depth: Int, checkWeak: Boolean): ScType = {
     if (substed1 equiv substed2) substed1 else {
       if (substed1 conforms substed2) {
         new ScExistentialArgument("_", List.empty, substed1, substed2)
       } else if (substed2 conforms substed1) {
         new ScExistentialArgument("_", List.empty, substed2, substed1)
+      } else if (depth == 0) {
+        new ScExistentialArgument("_", List.empty, Bounds.glb(substed1, substed2), Bounds.lub(substed1, substed2, depth + 1, checkWeak))
       } else {
-        new ScExistentialArgument("_", List.empty, Bounds.glb(substed1, substed2), Bounds.lub(substed1, substed2))
+        //todo: this is wrong, actually we should pick lub, just without merging parameters in this method
+        new ScExistentialArgument("_", List.empty, Bounds.glb(substed1, substed2), Any)
       }
     }
   }
@@ -129,7 +132,7 @@ object Bounds {
     }
     if (baseClass.getClazz.getTypeParameters.length == 0) return baseClassDesignator
     (superSubstitutor(baseClass.getClazz, clazz1.getClazz, clazz1.getSubst),
-      superSubstitutor(baseClass. getClazz, clazz2.getClazz, clazz2.getSubst)) match {
+      superSubstitutor(baseClass.getClazz, clazz2.getClazz, clazz2.getSubst)) match {
       case (Some(superSubst1), Some(superSubst2)) => {
         val tp = ScParameterizedType(baseClassDesignator, baseClass.getClazz.
           getTypeParameters.map(tp => ScalaPsiManager.instance(baseClass.getClazz.getProject).typeVariable(tp)))
@@ -142,7 +145,7 @@ object Bounds {
           resTypeArgs += (baseClass.getClazz.getTypeParameters.apply(i) match {
             case scp: ScTypeParam if scp.isCovariant => if (depth < 2) lub(substed1, substed2, depth + 1, checkWeak) else Any
             case scp: ScTypeParam if scp.isContravariant => glb(substed1, substed2, checkWeak)
-            case _ => calcForTypeParamWithoutVariance(substed1, substed2)
+            case _ => calcForTypeParamWithoutVariance(substed1, substed2, depth, checkWeak)
           })
         }
         ScParameterizedType(baseClassDesignator, resTypeArgs.toSeq)
