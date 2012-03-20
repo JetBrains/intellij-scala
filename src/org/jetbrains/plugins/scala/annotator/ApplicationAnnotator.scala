@@ -116,8 +116,11 @@ trait ApplicationAnnotator {
     }
 
     def conformsByNames(tp: ScType, qn: List[String]): Boolean = {
-      qn.exists(textName =>
-        tp.conforms(ScType.designator(ScalaPsiManager.instance(element.getProject).getCachedClass(textName, element.getResolveScope, ClassCategory.TYPE))))
+      qn.exists(textName => {
+        val cachedClass = ScalaPsiManager.instance(element.getProject).getCachedClass(textName, element.getResolveScope, ClassCategory.TYPE)
+        if (cachedClass == null) false
+        else tp.conforms(ScType.designator(cachedClass))
+      })
 
     }
 
