@@ -10,7 +10,6 @@ import com.intellij.openapi.diagnostic.Logger
 import com.intellij.psi.util.PsiUtilCore
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScVariable, ScValue}
-import com.intellij.openapi.project.{DumbServiceImpl, Project}
 import collection.mutable.{HashSet, ArrayBuffer}
 import com.intellij.psi._
 import search.{PsiShortNamesCache, GlobalSearchScope}
@@ -18,6 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObj
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import scala.Predef._
 import org.jetbrains.plugins.scala.extensions.{toPsiNamedElementExt, toPsiClassExt}
+import com.intellij.openapi.project.{DumbService, DumbServiceImpl, Project}
 
 /**
  * User: Alefas
@@ -204,6 +204,8 @@ class ScalaShortNamesCacheManager(project: Project) extends ProjectComponent {
   }
 
   def getPackageObjectByName(fqn: String, scope: GlobalSearchScope): ScTypeDefinition = {
+    if (DumbService.getInstance(project).isDumb) return null
+
     val classes = StubIndex.getInstance.get[java.lang.Integer, PsiClass](ScalaIndexKeys.PACKAGE_OBJECT_KEY,
       fqn.hashCode, project, scope)
     val classesIterator = classes.iterator()
