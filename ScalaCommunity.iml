@@ -23,7 +23,7 @@
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module" module-name="Runners" />
     <orderEntry type="library" name="main-scala-library" level="project" />
-    <orderEntry type="library" name="scalatest-finders_2.9.1-1.0.0" level="project" />
+    <orderEntry type="library" name="scalatest-finders" level="project" />
   </component>
 </module>
 
