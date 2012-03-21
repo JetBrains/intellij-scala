@@ -28,6 +28,8 @@ class ScalaShortNamesCacheManager(project: Project) extends ProjectComponent {
   private val LOG: Logger = Logger.getInstance("#org.jetbrains.plugins.scala.caches.ScalaShortNamesCacheManager")
 
   def getClassByFQName(name: String, scope: GlobalSearchScope): PsiClass = {
+    if (DumbServiceImpl.getInstance(project).isDumb) return null
+
     val classes = StubIndex.getInstance.get[java.lang.Integer, PsiClass](ScalaIndexKeys.FQN_KEY, name.hashCode, project,
       new ScalaSourceFilterScope(scope, project))
     val iterator = classes.iterator()
