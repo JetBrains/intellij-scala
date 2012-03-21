@@ -194,7 +194,9 @@ trait ScTypePsiTypeBridge {
             PsiWildcardType.createSuper(PsiManager.getInstance(project), toPsi(lower, project, scope))
           }
         } else {
-          PsiWildcardType.createExtends(PsiManager.getInstance(project), toPsi(upper, project, scope))
+          val psi = toPsi(upper, project, scope)
+          if (psi.isInstanceOf[PsiWildcardType]) javaObj
+          else PsiWildcardType.createExtends(PsiManager.getInstance(project), psi)
         }
       case _ => javaObj
     }
