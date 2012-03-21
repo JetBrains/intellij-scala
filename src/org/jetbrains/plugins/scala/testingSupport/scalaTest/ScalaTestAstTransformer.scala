@@ -18,6 +18,8 @@ import com.intellij.openapi.module.Module
 import com.intellij.openapi.roots.{OrderRootType, ModuleRootManager}
 import java.io.File
 import java.net.{URLClassLoader, URL}
+import lang.psi.impl.toplevel.typedef.MixinNodes
+import lang.psi.types.ScType
 
 /**
  * @author cheeseng
@@ -25,7 +27,9 @@ import java.net.{URLClassLoader, URL}
  */
 class ScalaTestAstTransformer {
   def getFinder(clazz: ScClass, module: Module): Option[Finder] = {
-    val clazzWithStyleOpt = clazz.supers.find {
+    val clazzWithStyleOpt = MixinNodes.linearization(clazz).flatMap {
+      tp => ScType.extractClass(tp, Some(clazz.getProject))
+    }.find {
       psiClass =>
         psiClass match {
           case scClass: ScClass => scClass.hasAnnotation("org.scalatest.Style") != None
