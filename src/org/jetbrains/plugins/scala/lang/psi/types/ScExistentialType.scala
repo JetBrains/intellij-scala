@@ -66,13 +66,20 @@ case class ScExistentialType(quantified : ScType,
   override def removeAbstracts = ScExistentialType(quantified.removeAbstracts, 
     wildcards.map(_.removeAbstracts.asInstanceOf[ScExistentialArgument]))
 
-  override def recursiveUpdate(update: ScType => (Boolean, ScType)): ScType = {
+  override def recursiveUpdate(update: ScType => (Boolean, ScType), visited: HashSet[ScType]): ScType = {
+    if (visited.contains(this)) {
+      return update(this) match {
+        case (true, res) => res
+        case _ => this
+      }
+    }
+    val newVisited = visited + this
     update(this) match {
       case (true, res) => res
       case _ =>
         try {
-          ScExistentialType(quantified.recursiveUpdate(update),
-            wildcards.map(_.recursiveUpdate(update).asInstanceOf[ScExistentialArgument]))
+          ScExistentialType(quantified.recursiveUpdate(update, newVisited),
+            wildcards.map(_.recursiveUpdate(update, newVisited).asInstanceOf[ScExistentialArgument]))
         }
         catch {
           case cce: ClassCastException => throw new RecursiveUpdateException
@@ -396,11 +403,18 @@ case class ScExistentialArgument(name : String, args : List[ScTypeParameterType]
 
   override def removeAbstracts = ScExistentialArgument(name, args, lowerBound.removeAbstracts, upperBound.removeAbstracts)
 
-  override def recursiveUpdate(update: ScType => (Boolean, ScType)): ScType = {
+  override def recursiveUpdate(update: ScType => (Boolean, ScType), visited: HashSet[ScType]): ScType = {
+    if (visited.contains(this)) {
+      return update(this) match {
+        case (true, res) => res
+        case _ => this
+      }
+    }
+    val newVisited = visited + this
     update(this) match {
       case (true, res) => res
       case _ =>
-        ScExistentialArgument(name, args, lowerBound.recursiveUpdate(update), upperBound.recursiveUpdate(update))
+        ScExistentialArgument(name, args, lowerBound.recursiveUpdate(update, newVisited), upperBound.recursiveUpdate(update, newVisited))
     }
   }
 
@@ -440,11 +454,18 @@ case class ScSkolemizedType(name : String, args : List[ScTypeParameterType], var
 
   override def removeAbstracts = ScSkolemizedType(name, args, lower.removeAbstracts, upper.removeAbstracts)
 
-  override def recursiveUpdate(update: ScType => (Boolean, ScType)): ScType = {
+  override def recursiveUpdate(update: ScType => (Boolean, ScType), visited: HashSet[ScType]): ScType = {
+    if (visited.contains(this)) {
+      return update(this) match {
+        case (true, res) => res
+        case _ => this
+      }
+    }
+    val newVisited = visited + this
     update(this) match {
       case (true, res) => res
       case _ =>
-        ScSkolemizedType(name, args, lower.recursiveUpdate(update), upper.recursiveUpdate(update))
+        ScSkolemizedType(name, args, lower.recursiveUpdate(update, newVisited), upper.recursiveUpdate(update, newVisited))
     }
   }
 

@@ -13,6 +13,7 @@ import resolve.processor.ResolveProcessor
 import resolve.ResolveTargets
 import com.intellij.psi.{PsiClass, ResolveState, PsiNamedElement}
 import extensions.toPsiClassExt
+import collection.immutable.HashSet
 
 /**
  * @author ilyas
@@ -26,11 +27,17 @@ import extensions.toPsiClassExt
 case class ScProjectionType(projected: ScType, element: PsiNamedElement, subst: ScSubstitutor) extends ValueType {
   override def removeAbstracts = ScProjectionType(projected.removeAbstracts, element, subst)
 
-  override def recursiveUpdate(update: ScType => (Boolean, ScType)): ScType = {
+  override def recursiveUpdate(update: ScType => (Boolean, ScType), visited: HashSet[ScType]): ScType = {
+    if (visited.contains(this)) {
+      return update(this) match {
+        case (true, res) => res
+        case _ => this
+      }
+    }
     update(this) match {
       case (true, res) => res
       case _ =>
-        ScProjectionType(projected.recursiveUpdate(update), element, subst)
+        ScProjectionType(projected.recursiveUpdate(update, visited + this), element, subst)
     }
   }
 
