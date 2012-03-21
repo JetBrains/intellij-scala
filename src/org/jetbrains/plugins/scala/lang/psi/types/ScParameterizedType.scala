@@ -17,8 +17,8 @@ import com.intellij.psi._
 import result.{Success, TypingContext}
 import api.toplevel.typedef.{ScTypeDefinition, ScClass}
 import collection.mutable.ArrayBuffer
-import collection.immutable.{ListMap, Map}
 import extensions.{toPsiNamedElementExt, toPsiClassExt}
+import collection.immutable.{HashSet, ListMap, Map}
 
 case class JavaArrayType(arg: ScType) extends ValueType {
 
@@ -41,11 +41,17 @@ case class JavaArrayType(arg: ScType) extends ValueType {
 
   override def removeAbstracts = JavaArrayType(arg.removeAbstracts)
 
-  override def recursiveUpdate(update: ScType => (Boolean, ScType)): ScType = {
+  override def recursiveUpdate(update: ScType => (Boolean, ScType), visited: HashSet[ScType]): ScType = {
+    if (visited.contains(this)) {
+      return update(this) match {
+        case (true, res) => res
+        case _ => this
+      }
+    }
     update(this) match {
       case (true, res) => res
       case _ =>
-        JavaArrayType(arg.recursiveUpdate(update))
+        JavaArrayType(arg.recursiveUpdate(update, visited + this))
     }
   }
 
@@ -123,11 +129,18 @@ case class ScParameterizedType(designator : ScType, typeArgs : Seq[ScType]) exte
 
   override def removeAbstracts = ScParameterizedType(designator.removeAbstracts, typeArgs.map(_.removeAbstracts))
 
-  override def recursiveUpdate(update: ScType => (Boolean, ScType)): ScType = {
+  override def recursiveUpdate(update: ScType => (Boolean, ScType), visited: HashSet[ScType]): ScType = {
+    if (visited.contains(this)) {
+      return update(this) match {
+        case (true, res) => res
+        case _ => this
+      }
+    }
+    val newVisited = visited + this
     update(this) match {
       case (true, res) => res
       case _ =>
-        ScParameterizedType(designator.recursiveUpdate(update), typeArgs.map(_.recursiveUpdate(update)))
+        ScParameterizedType(designator.recursiveUpdate(update, newVisited), typeArgs.map(_.recursiveUpdate(update, newVisited)))
     }
   }
 

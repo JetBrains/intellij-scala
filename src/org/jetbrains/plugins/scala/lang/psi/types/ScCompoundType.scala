@@ -4,9 +4,9 @@ package psi
 package types
 
 import api.statements._
-import collection.mutable.{ListBuffer, HashMap}
 import result.{TypingContext, Failure}
 import com.intellij.psi.PsiElement
+import collection.mutable.{HashSet, ListBuffer, HashMap}
 
 /**
  * Substitutor should be meaningful only for decls and typeDecls. Components shouldn't be applied by substitutor.
@@ -107,11 +107,19 @@ case class ScCompoundType(components: Seq[ScType], decls: Seq[ScDeclaredElements
 
   override def removeAbstracts = ScCompoundType(components.map(_.removeAbstracts), decls, typeDecls, subst)
 
-  override def recursiveUpdate(update: ScType => (Boolean, ScType)): ScType = {
+  import collection.immutable.{HashSet => IHashSet}
+
+  override def recursiveUpdate(update: ScType => (Boolean, ScType), visited: IHashSet[ScType]): ScType = {
+    if (visited.contains(this)) {
+      return update(this) match {
+        case (true, res) => res
+        case _ => this
+      }
+    }
     update(this) match {
       case (true, res) => res
       case _ =>
-        ScCompoundType(components.map(_.recursiveUpdate(update)), decls, typeDecls, subst)
+        ScCompoundType(components.map(_.recursiveUpdate(update, visited + this)), decls, typeDecls, subst)
     }
   }
 
@@ -132,7 +140,7 @@ case class ScCompoundType(components: Seq[ScType], decls: Seq[ScDeclaredElements
         val list = components.zip(r.components)
         val iterator = list.iterator
         while (iterator.hasNext) {
-          val (w1, w2) = iterator.next
+          val (w1, w2) = iterator.next()
           val t = Equivalence.equivInner(w1, w2, undefinedSubst, falseUndef)
           if (!t._1) return (false, undefinedSubst)
           undefinedSubst = t._2

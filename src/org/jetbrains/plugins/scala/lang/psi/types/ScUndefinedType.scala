@@ -4,6 +4,7 @@ package psi
 package types
 
 import nonvalue.NonValueType
+import collection.immutable.HashSet
 
 /**
  * Use this type if you want to resolve generics.
@@ -57,13 +58,20 @@ case class ScAbstractType(tpt: ScTypeParameterType, lower: ScType, upper: ScType
 
   override def removeAbstracts = simplifyType
 
-  override def recursiveUpdate(update: ScType => (Boolean, ScType)): ScType = {
+  override def recursiveUpdate(update: ScType => (Boolean, ScType), visited: HashSet[ScType]): ScType = {
+    if (visited.contains(this)) {
+      return update(this) match {
+        case (true, res) => res
+        case _ => this
+      }
+    }
+    val newVisited = visited + this
     update(this) match {
       case (true, res) => res
       case _ =>
         try {
-          ScAbstractType(tpt.recursiveUpdate(update).asInstanceOf[ScTypeParameterType], lower.recursiveUpdate(update),
-            upper.recursiveUpdate(update))
+          ScAbstractType(tpt.recursiveUpdate(update, newVisited).asInstanceOf[ScTypeParameterType], lower.recursiveUpdate(update, newVisited),
+            upper.recursiveUpdate(update, newVisited))
         }
         catch {
           case cce: ClassCastException => throw new RecursiveUpdateException

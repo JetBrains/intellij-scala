@@ -93,6 +93,8 @@ trait ScType {
     override def getMessage: String = "Type mismatch after update method"
   }
 
+  import collection.immutable.{HashSet => IHashSet}
+
   /**
    * use 'update' to replace appropriate type part with another type
    * 'update' should return true if type changed, false otherwise.
@@ -100,7 +102,7 @@ trait ScType {
    *
    * default implementation for types, which don't contain other types.
    */
-  def recursiveUpdate(update: ScType => (Boolean, ScType)): ScType = {
+  def recursiveUpdate(update: ScType => (Boolean, ScType), visited: IHashSet[ScType] = IHashSet.empty): ScType = {
     val res = update(this)
     if (res._1) res._2
     else this

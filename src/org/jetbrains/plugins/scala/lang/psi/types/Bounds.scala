@@ -37,26 +37,26 @@ object Bounds {
     res
   }
 
-  def lub(t1: ScType, t2: ScType, checkWeak: Boolean = false): ScType = lub(t1, t2, 0, checkWeak)
+  def lub(t1: ScType, t2: ScType, checkWeak: Boolean = false): ScType = lub(t1, t2, 0, checkWeak)(false)
 
   def weakLub(t1: ScType, t2: ScType): ScType = lub(t1, t2, checkWeak = true)
 
-  private def lub(t1: ScType, t2: ScType, depth : Int, checkWeak: Boolean): ScType = {
+  private def lub(t1: ScType, t2: ScType, depth : Int, checkWeak: Boolean)(implicit stopAddingUpperBound: Boolean): ScType = {
     if (t1.conforms(t2, checkWeak)) t2
     else if (t2.conforms(t1, checkWeak)) t1
     else (t1, t2) match {
       case (fun@ScFunctionType(rt1, p1), ScFunctionType(rt2, p2)) if p1.length == p2.length =>
-        new ScFunctionType(lub(rt1, rt2),
+        new ScFunctionType(lub(rt1, rt2, 0, checkWeak),
           collection.immutable.Seq(p1.toSeq.zip(p2.toSeq).map({case (t1, t2) => glb(t1, t2, checkWeak)}).toSeq: _*))(fun.getProject, fun.getScope)
       case (t1@ScTupleType(c1), ScTupleType(c2)) if c1.length == c2.length =>
-        new ScTupleType(collection.immutable.Seq(c1.toSeq.zip(c2.toSeq).map({case (t1, t2) => lub(t1, t2, checkWeak)}).toSeq: _*))(t1.getProject, t1.getScope)
+        new ScTupleType(collection.immutable.Seq(c1.toSeq.zip(c2.toSeq).map({case (t1, t2) => lub(t1, t2, 0, checkWeak)}).toSeq: _*))(t1.getProject, t1.getScope)
 
-      case (ScSkolemizedType(_, Nil, _, upper), _) => lub(upper, t2)
-      case (_, ScSkolemizedType(_, Nil, _, upper)) => lub(t1, upper)
-      case (ScTypeParameterType(_, Nil, _, upper, _), _) => lub(upper.v, t2)
-      case (_, ScTypeParameterType(_, Nil, _, upper, _)) => lub(t1, upper.v)
-      case (ex : ScExistentialType, _) => lub(ex.skolem, t2)
-      case (_, ex : ScExistentialType) => lub(t1, ex.skolem)
+      case (ScSkolemizedType(_, Nil, _, upper), _) => lub(upper, t2, 0, checkWeak)
+      case (_, ScSkolemizedType(_, Nil, _, upper)) => lub(t1, upper, 0, checkWeak)
+      case (ScTypeParameterType(_, Nil, _, upper, _), _) => lub(upper.v, t2, 0, checkWeak)
+      case (_, ScTypeParameterType(_, Nil, _, upper, _)) => lub(t1, upper.v, 0, checkWeak)
+      case (ex : ScExistentialType, _) => lub(ex.skolem, t2, 0, checkWeak)
+      case (_, ex : ScExistentialType) => lub(t1, ex.skolem, 0, checkWeak)
       case (_: ValType, _: ValType) => types.AnyVal
       case (JavaArrayType(arg1), JavaArrayType(arg2)) => {
         JavaArrayType(calcForTypeParamWithoutVariance(arg1, arg2, depth, checkWeak))
@@ -108,14 +108,15 @@ object Bounds {
     }
   }
 
-  private def calcForTypeParamWithoutVariance(substed1: ScType, substed2: ScType, depth: Int, checkWeak: Boolean): ScType = {
+  private def calcForTypeParamWithoutVariance(substed1: ScType, substed2: ScType, depth: Int, checkWeak: Boolean)
+                                             (implicit stopAddingUpperBound: Boolean): ScType = {
     if (substed1 equiv substed2) substed1 else {
       if (substed1 conforms substed2) {
         new ScExistentialArgument("_", List.empty, substed1, substed2)
       } else if (substed2 conforms substed1) {
         new ScExistentialArgument("_", List.empty, substed2, substed1)
-      } else if (depth == 0) {
-        new ScExistentialArgument("_", List.empty, Bounds.glb(substed1, substed2), Bounds.lub(substed1, substed2, depth + 1, checkWeak))
+      } else if (!stopAddingUpperBound) {
+        new ScExistentialArgument("_", List.empty, Bounds.glb(substed1, substed2), Bounds.lub(substed1, substed2, 0, checkWeak)(true))
       } else {
         //todo: this is wrong, actually we should pick lub, just without merging parameters in this method
         new ScExistentialArgument("_", List.empty, Bounds.glb(substed1, substed2), Any)
@@ -123,7 +124,8 @@ object Bounds {
     }
   }
 
-  private def getTypeForAppending(clazz1: Options, clazz2: Options, baseClass: Options, depth: Int, checkWeak: Boolean): ScType = {
+  private def getTypeForAppending(clazz1: Options, clazz2: Options, baseClass: Options, depth: Int, checkWeak: Boolean)
+                                 (implicit stopAddingUpperBound: Boolean): ScType = {
     val baseClassDesignator = {
       baseClass.projectionOption match {
         case Some(proj) => ScProjectionType(proj, baseClass.getClazz, ScSubstitutor.empty)

@@ -8,6 +8,7 @@ import com.intellij.psi.search.GlobalSearchScope
 import api.toplevel.typedef.ScTrait
 import com.intellij.psi.{PsiManager, PsiClass}
 import impl.ScalaPsiManager
+import collection.immutable.HashSet
 
 /**
 * @author ilyas
@@ -37,11 +38,18 @@ case class ScFunctionType(returnType: ScType, params: Seq[ScType])(project: Proj
   override def removeAbstracts =
     new ScFunctionType(returnType.removeAbstracts, params.map(_.removeAbstracts))(project, scope)
 
-  override def recursiveUpdate(update: ScType => (Boolean, ScType)): ScType = {
+  override def recursiveUpdate(update: ScType => (Boolean, ScType), visited: HashSet[ScType]): ScType = {
+    if (visited.contains(this)) {
+      return update(this) match {
+        case (true, res) => res
+        case _ => this
+      }
+    }
+    val newVisited = visited + this
     update(this) match {
       case (true, res) => res
       case _ =>
-        new ScFunctionType(returnType.recursiveUpdate(update), params.map(_.recursiveUpdate(update)))(project, scope)
+        new ScFunctionType(returnType.recursiveUpdate(update, newVisited), params.map(_.recursiveUpdate(update, newVisited)))(project, scope)
     }
   }
 

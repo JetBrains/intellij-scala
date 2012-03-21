@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.lang.psi.types.nonvalue
 
-import collection.immutable.HashMap
 import org.jetbrains.plugins.scala.lang.psi.types._
 import com.intellij.openapi.project.Project
 import com.intellij.psi.search.GlobalSearchScope
@@ -9,6 +8,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, 
 import result.TypingContext
 import com.intellij.psi.{PsiNamedElement, PsiTypeParameter}
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiManager, ScalaPsiElementFactory}
+import collection.immutable.{HashSet, HashMap}
 
 /**
  * @author ilyas
@@ -60,12 +60,19 @@ case class ScMethodType(returnType: ScType, params: Seq[Parameter], isImplicit: 
   override def removeAbstracts = new ScMethodType(returnType.removeAbstracts,
     params.map(p => p.copy(paramType = p.paramType.removeAbstracts)), isImplicit)(project, scope)
 
-  override def recursiveUpdate(update: ScType => (Boolean, ScType)): ScType = {
+  override def recursiveUpdate(update: ScType => (Boolean, ScType), visited: HashSet[ScType]): ScType = {
+    if (visited.contains(this)) {
+      return update(this) match {
+        case (true, res) => res
+        case _ => this
+      }
+    }
+    val newVisited = visited + this
     update(this) match {
       case (true, res) => res
       case _ =>
-        new ScMethodType(returnType.recursiveUpdate(update),
-          params.map(p => p.copy(paramType = p.paramType.recursiveUpdate(update))), isImplicit)(project, scope)
+        new ScMethodType(returnType.recursiveUpdate(update, newVisited),
+          params.map(p => p.copy(paramType = p.paramType.recursiveUpdate(update, newVisited))), isImplicit)(project, scope)
     }
   }
 
@@ -184,12 +191,19 @@ case class ScTypePolymorphicType(internalType: ScType, typeParameters: Seq[TypeP
     TypeParameter(tp.name, tp.lowerType.removeAbstracts, tp.upperType.removeAbstracts, tp.ptp)
   }))
 
-  override def recursiveUpdate(update: ScType => (Boolean, ScType)): ScType = {
+  override def recursiveUpdate(update: ScType => (Boolean, ScType), visited: HashSet[ScType]): ScType = {
+    if (visited.contains(this)) {
+      return update(this) match {
+        case (true, res) => res
+        case _ => this
+      }
+    }
+    val newVisited = visited + this
     update(this) match {
       case (true, res) => res
       case _ =>
-        ScTypePolymorphicType(internalType.recursiveUpdate(update), typeParameters.map(tp => {
-          TypeParameter(tp.name, tp.lowerType.recursiveUpdate(update), tp.upperType.recursiveUpdate(update), tp.ptp)
+        ScTypePolymorphicType(internalType.recursiveUpdate(update, newVisited), typeParameters.map(tp => {
+          TypeParameter(tp.name, tp.lowerType.recursiveUpdate(update, newVisited), tp.upperType.recursiveUpdate(update, newVisited), tp.ptp)
         }))
     }
   }

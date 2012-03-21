@@ -9,6 +9,7 @@ import api.toplevel.typedef.{ScClass, ScTrait}
 import decompiler.DecompilerUtil
 import com.intellij.psi.{PsiElement, JavaPsiFacade, PsiClass}
 import impl.ScalaPsiManager
+import collection.immutable.HashSet
 
 /**
 * @author ilyas
@@ -58,11 +59,17 @@ case class ScTupleType(components: Seq[ScType])(project: Project, scope: GlobalS
 
   override def removeAbstracts = ScTupleType(components.map(_.removeAbstracts))(project, scope)
 
-  override def recursiveUpdate(update: ScType => (Boolean, ScType)): ScType = {
+  override def recursiveUpdate(update: ScType => (Boolean, ScType), visited: HashSet[ScType]): ScType = {
+    if (visited.contains(this)) {
+      return update(this) match {
+        case (true, res) => res
+        case _ => this
+      }
+    }
     update(this) match {
       case (true, res) => res
       case _ =>
-        ScTupleType(components.map(_.recursiveUpdate(update)))(project, scope)
+        ScTupleType(components.map(_.recursiveUpdate(update, visited + this)))(project, scope)
     }
   }
 
