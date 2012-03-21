@@ -50,6 +50,7 @@ object InferUtil {
         val polymorphicSubst = t.polymorphicTypeSubstitutor
         val abstractSubstitutor: ScSubstitutor = t.abstractTypeSubstitutor
         val exprs = new ArrayBuffer[Expression]
+        val paramsForInfer = new ArrayBuffer[Parameter]()
         val resolveResults = new ArrayBuffer[ScalaResolveResult]
         val iterator = params.iterator
         while (iterator.hasNext) {
@@ -80,43 +81,33 @@ object InferUtil {
                 exprs += new Expression(polymorphicSubst subst funType)
               }
             }
+            paramsForInfer += param
           } else {
-            if (check) {
-              //check if it's ClassManifest parameter:
-              paramType match {
+            def checkManifest(fun: ScalaResolveResult => Unit) {
+              val result = paramType match {
                 case p@ScParameterizedType(des, Seq(arg)) =>
                   ScType.extractClass(des) match {
                     case Some(clazz) if clazz.qualifiedName == "scala.reflect.ClassManifest" =>
                       //do not throw, it's safe
-                      resolveResults += new ScalaResolveResult(clazz, p.substitutor)
+                      new ScalaResolveResult(clazz, p.substitutor)
                     case Some(clazz) if clazz.qualifiedName == "scala.reflect.Manifest" =>
                       //do not throw, it's safe
-                      resolveResults += new ScalaResolveResult(clazz, p.substitutor)
-                    case _ => throw new SafeCheckException
+                      new ScalaResolveResult(clazz, p.substitutor)
+                    case _ => null
                   }
-                case _ => throw new SafeCheckException
+                case _ => null
               }
-            } else {
-              //check if it's ClassManifest parameter:
-              paramType match {
-                case p@ScParameterizedType(des, Seq(arg)) =>
-                  ScType.extractClass(des) match {
-                    case Some(clazz) if clazz.qualifiedName == "scala.reflect.ClassManifest" =>
-                      //do not throw, it's safe
-                      resolveResults += new ScalaResolveResult(clazz, p.substitutor)
-                    case Some(clazz) if clazz.qualifiedName == "scala.reflect.Manifest" =>
-                      //do not throw, it's safe
-                      resolveResults += new ScalaResolveResult(clazz, p.substitutor)
-                    case _ => resolveResults += null
-                  }
-                case _ => resolveResults += null
-              }
+              fun(result)
             }
-            exprs += new Expression(Any)
+            //check if it's ClassManifest parameter:
+            checkManifest(r => {
+              if (r == null && check) throw  new SafeCheckException
+              else resolveResults += r
+            })
           }
         }
         implicitParameters = Some(resolveResults.toSeq)
-        resInner = ScalaPsiUtil.localTypeInference(retType, params, exprs.toSeq, typeParams, safeCheck = check)
+        resInner = ScalaPsiUtil.localTypeInference(retType, paramsForInfer, exprs, typeParams, safeCheck = check)
       }
       case mt@ScMethodType(retType, params, isImplicit) if !isImplicit =>
         // See SCL-3516

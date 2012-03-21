@@ -134,26 +134,61 @@ class ImplicitParametersCollector(place: PsiElement, tp: ScType) {
               if (!doNotCheck) {
                 fun.getType(TypingContext.empty) match {
                   case Success(funType: ScType, _) => {
-                    if (subst.subst(funType) conforms tp) {
-                      Conformance.undefinedSubst(tp, subst.subst(funType)).getSubstitutor match {
+
+                    def checkType(ret: ScType): Option[ScalaResolveResult] = {
+                      var uSubst = Conformance.undefinedSubst(tp, ret)
+                      uSubst.getSubstitutor match {
                         case Some(substitutor) =>
-                          Some(c.copy(subst.followed(substitutor)))
+                          def hasRecursiveTypeParameters(typez: ScType): Boolean = {
+
+                            var hasRecursiveTypeParameters = false
+                            typez.recursiveUpdate {
+                              case tpt: ScTypeParameterType =>
+                                fun.typeParameters.find(tp => (tp.name, ScalaPsiUtil.getPsiElementId(tp)) == (tpt.name, tpt.getId)) match {
+                                  case None => (true, tpt)
+                                  case _ =>
+                                    hasRecursiveTypeParameters = true
+                                    (true, tpt)
+                                }
+                              case tp: ScType => (hasRecursiveTypeParameters, tp)
+                            }
+                            hasRecursiveTypeParameters
+                          }
+                          for (tParam <- fun.typeParameters) {
+                            val lowerType: ScType = tParam.lowerBound.getOrNothing
+                            if (lowerType != Nothing) {
+                              val substedLower = substitutor.subst(subst.subst(lowerType))
+                              if (!hasRecursiveTypeParameters(substedLower)) {
+                                uSubst = uSubst.addLower((tParam.name, ScalaPsiUtil.getPsiElementId(tParam)), substedLower)
+                              }
+                            }
+                            val upperType: ScType = tParam.upperBound.getOrAny
+                            if (upperType != Any) {
+                              val substedUpper = substitutor.subst(subst.subst(upperType))
+                              if (!hasRecursiveTypeParameters(substedUpper)) {
+                                uSubst = uSubst.addUpper((tParam.name, ScalaPsiUtil.getPsiElementId(tParam)), substedUpper)
+                              }
+                            }
+                          }
+
+                          uSubst.getSubstitutor match {
+                            case Some(substitutor) =>
+                              Some(c.copy(subst.followed(substitutor)))
+
+                            case None => None
+                          }
+
                         //failed to get implicit parameter, there is no substitution to resolve constraints
                         case None => None
                       }
                     }
+
+                    if (subst.subst(funType) conforms tp) checkType(subst.subst(funType))
                     else {
                       subst.subst(funType) match {
                         case ScFunctionType(ret, params) if params.length == 0 || oneImplicit =>
                           if (!ret.conforms(tp)) None
-                          else {
-                            Conformance.undefinedSubst(tp, ret).getSubstitutor match {
-                              case Some(substitutor) =>
-                                Some(c.copy(subst.followed(substitutor)))
-                              //failed to get implicit parameter, there is no substitution to resolve constraints
-                              case None => None
-                            }
-                          }
+                          else checkType(ret)
                         case _ => None
                       }
                     }
