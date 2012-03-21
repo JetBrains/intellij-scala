@@ -17,7 +17,6 @@ import codeInspection.varCouldBeValInspection.ValToVarQuickFix
 import extensions._
 import highlighter.DefaultHighlighter
 import com.intellij.openapi.editor.colors.TextAttributesKey
-import lang.lexer.ScalaTokenTypes
 import lang.parser.ScalaElementTypes
 import lang.psi.api.expr._
 import lang.psi.api.base.types.ScSimpleTypeElement
