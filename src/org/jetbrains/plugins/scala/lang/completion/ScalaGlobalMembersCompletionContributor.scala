@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.lang.completion
 import com.intellij.codeInsight.lookup.LookupElement
 import com.intellij.codeInsight.completion._
 import com.intellij.psi._
+import lookups.{ScalaLookupItem, LookupElementManager}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScPrefixExpr, ScPostfixExpr, ScInfixExpr, ScReferenceExpression}
 import com.intellij.featureStatistics.FeatureUsageTracker
@@ -140,7 +141,7 @@ class ScalaGlobalMembersCompletionContributor extends CompletionContributor {
     val candidates = proc.candidates.map(ref.forMap(_, originalType))
 
     ref.getVariants(false, false).foreach {
-      case (_, elem: PsiNamedElement, _) => addElemToSet(elem)
+      case ScalaLookupItem(elem: PsiNamedElement) => addElemToSet(elem)
       case elem: PsiNamedElement => addElemToSet(elem)
     }
 
@@ -154,10 +155,10 @@ class ScalaGlobalMembersCompletionContributor extends CompletionContributor {
         for (elem <- c.candidates) {
           val shouldImport = !elemsSetContains(elem.getElement)
           //todo: overloads?
-          val lookup: LookupElement = ResolveUtils.getLookupElement(elem, isClassName = true,
-            isOverloadedForClassName = false, shouldImport = shouldImport, isInStableCodeReference = false).apply(0)._1
-          lookup.putUserData(ResolveUtils.usedImportStaticQuickfixKey, java.lang.Boolean.TRUE)
-          lookup.putUserData(ResolveUtils.elementToImportKey, next._2.getElement)
+          val lookup: ScalaLookupItem = LookupElementManager.getLookupElement(elem, isClassName = true,
+            isOverloadedForClassName = false, shouldImport = shouldImport, isInStableCodeReference = false).apply(0)
+          lookup.usedImportStaticQuickfix = true
+          lookup.elementToImport = next._2.getElement
           result.addElement(lookup)
         }
       }
@@ -218,7 +219,7 @@ class ScalaGlobalMembersCompletionContributor extends CompletionContributor {
     }
 
     ref.getVariants(false, false).foreach {
-      case (_, elem: PsiNamedElement, _) => addElemToSet(elem)
+      case ScalaLookupItem(elem) => addElemToSet(elem)
       case elem: PsiNamedElement => addElemToSet(elem)
     }
 
@@ -312,7 +313,7 @@ class ScalaGlobalMembersCompletionContributor extends CompletionContributor {
 
   private def createLookupElement(member: PsiNamedElement, clazz: PsiClass, shouldImport: Boolean,
                                   overloaded: Boolean = false): LookupElement = {
-    ResolveUtils.getLookupElement(new ScalaResolveResult(member), isClassName = true,
-      isOverloadedForClassName = overloaded, shouldImport = shouldImport, isInStableCodeReference = false).apply(0)._1
+    LookupElementManager.getLookupElement(new ScalaResolveResult(member), isClassName = true,
+      isOverloadedForClassName = overloaded, shouldImport = shouldImport, isInStableCodeReference = false).apply(0)
   }
 }

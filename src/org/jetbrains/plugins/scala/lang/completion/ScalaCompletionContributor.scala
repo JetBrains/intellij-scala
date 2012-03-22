@@ -3,6 +3,7 @@ package lang
 package completion
 
 import com.intellij.codeInsight.completion._
+import lookups.{ScalaLookupItem, LookupElementManager}
 import psi.api.ScalaFile
 import com.intellij.util.ProcessingContext
 import com.intellij.patterns.PlatformPatterns
@@ -54,7 +55,8 @@ class ScalaCompletionContributor extends CompletionContributor {
           val isInImport = ScalaPsiUtil.getParentOfType(ref, classOf[ScImportStmt]) != null
           def applyVariant(variant: Object) {
             variant match {
-              case (el: LookupElement, elem: PsiElement, _) => {
+              case el: ScalaLookupItem => {
+                val elem = el.element
                 elem match {
                   case fun: ScFun => result.addElement(el)
                   case clazz: PsiClass => {
@@ -97,7 +99,7 @@ class ScalaCompletionContributor extends CompletionContributor {
           def postProcessMethod(result: ScalaResolveResult) {
             import org.jetbrains.plugins.scala.lang.psi.types.Nothing
             val qualifier = result.fromType.getOrElse(Nothing)
-            for (variant <- ResolveUtils.getLookupElement(result, isInImport = isInImport, qualifierType = qualifier,
+            for (variant <- LookupElementManager.getLookupElement(result, isInImport = isInImport, qualifierType = qualifier,
               isInStableCodeReference = ref.isInstanceOf[ScStableCodeReferenceElement])) {
               applyVariant(variant)
             }

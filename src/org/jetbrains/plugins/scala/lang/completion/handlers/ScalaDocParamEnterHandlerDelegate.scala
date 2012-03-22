@@ -18,7 +18,7 @@ import lang.scaladoc.lexer.ScalaDocTokenType
  * Date: 2/1/12
  */
 
-class ScalaDocParamInsertHandler extends EnterHandlerDelegateAdapter {
+class ScalaDocParamEnterHandlerDelegate extends EnterHandlerDelegateAdapter {
   override def postProcessEnter(file: PsiFile, editor: Editor, dataContext: DataContext): Result = {
     if (!file.isInstanceOf[ScalaFile]) {
       return Result.Continue

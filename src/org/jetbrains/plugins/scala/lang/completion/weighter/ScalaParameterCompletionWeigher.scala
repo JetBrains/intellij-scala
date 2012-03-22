@@ -4,6 +4,7 @@ import com.intellij.codeInsight.lookup.LookupElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil
 import com.intellij.codeInsight.completion.{CompletionWeigher, CompletionLocation}
+import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 
 /**
  * @author Alexander Podkhalyuzin
@@ -20,13 +21,9 @@ class ScalaParameterCompletionWeigher extends CompletionWeigher {
   }
 
   def weigh(element: LookupElement, location: CompletionLocation): Comparable[_] = {
-    val obj = element.getObject
-    obj match {
-      case param: ScParameter =>
-        val isNamed = ScalaCompletionUtil.getScalaLookupObject(element).isNamedParameter
-        ParameterNameComparable(isNamed)
-      case _ =>
-        ParameterNameComparable(false)
+    element match {
+      case item@ScalaLookupItem(param: ScParameter) => ParameterNameComparable(item.isNamedParameter)
+      case _ => ParameterNameComparable(false)
     }
   }
 }

@@ -18,6 +18,7 @@ import result.{TypeResult, Failure, Success, TypingContext}
 import com.intellij.psi._
 import api.ScalaElementVisitor
 import api.toplevel.imports.ScImportStmt
+import completion.lookups.LookupElementManager
 
 /**
 * @author Alexander Podkhalyuzin
@@ -54,7 +55,7 @@ class ScTypeProjectionImpl(node: ASTNode) extends ScalaPsiElementImpl (node) wit
       case res: ScalaResolveResult =>
         import org.jetbrains.plugins.scala.lang.psi.types.Nothing
         val qualifier = res.fromType.getOrElse(Nothing)
-        ResolveUtils.getLookupElement(res, isInImport = isInImport, qualifierType = qualifier, isInStableCodeReference = false)
+        LookupElementManager.getLookupElement(res, isInImport = isInImport, qualifierType = qualifier, isInStableCodeReference = false)
       case r => Seq(r.getElement)
     }
   }

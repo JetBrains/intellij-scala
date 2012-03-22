@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.completion
 
-import handlers.{ScalaGenerateAnonymousFunctionInsertHandler, ScalaConstuctorInsertHandler}
+import handlers.{ScalaGenerateAnonymousFunctionInsertHandler, ScalaConstructorInsertHandler}
+import lookups.ScalaLookupItem
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import com.intellij.codeInsight.completion._
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
@@ -45,7 +46,9 @@ class ScalaSmartCompletionContributor extends CompletionContributor {
     if (typez.length == 0 || typez.forall(_ == types.Nothing)) return
     for (variant <- variants) {
       variant match {
-        case (el: LookupElement, elem: PsiElement, subst: ScSubstitutor) => {
+        case el: ScalaLookupItem => {
+          val elem = el.element
+          val subst = el.substitutor
           def checkType(tp: ScType) {
             val scType = subst.subst(tp)
             import types.Nothing
@@ -58,8 +61,7 @@ class ScalaSmartCompletionContributor extends CompletionContributor {
                   ScType.extractClass(tp, Some(elem.getProject)) match {
                     case Some(clazz) if clazz.qualifiedName == "scala.Option" =>
                       if (!scType.equiv(Nothing) && scType.conforms(arg)) {
-                        el.putUserData(ResolveUtils.someSmartCompletionKey, java.lang.Boolean.TRUE)
-
+                        el.someSmartCompletion = true
                         result.addElement(el)
                         elementAdded = true
                       }
@@ -69,8 +71,7 @@ class ScalaSmartCompletionContributor extends CompletionContributor {
               }
             }
           }
-          val userData = el.getUserData(ResolveUtils.isNamedParameterOrAssignment)
-          if (userData == null || !userData.booleanValue())
+          if (!el.isNamedParameterOrAssignment)
             elem match {
               case fun: ScSyntheticFunction => checkType(fun.retType)
               case fun: ScFunction => checkType(fun.returnType.getOrAny)
@@ -381,7 +382,7 @@ class ScalaSmartCompletionContributor extends CompletionContributor {
         })
         for (typez <- types) {
           val element: LookupElement = convertTypeToLookupElement(typez, newExpr, addedClasses,
-            new AfterNewLookupElementRenderer(_, _, _), new ScalaConstuctorInsertHandler)
+            new AfterNewLookupElementRenderer(_, _, _), new ScalaConstructorInsertHandler)
           if (element != null) {
             result.addElement(element)
           }
@@ -389,7 +390,7 @@ class ScalaSmartCompletionContributor extends CompletionContributor {
 
         for (typez <- types) {
           collectInheritorsForType(typez, newExpr, addedClasses, result, new AfterNewLookupElementRenderer(_, _, _),
-            new ScalaConstuctorInsertHandler)
+            new ScalaConstructorInsertHandler)
         }
       }
     })
@@ -442,12 +443,11 @@ private[completion] object ScalaSmartCompletionContributor {
         undef.getSubstitutor match {
           case Some(subst) =>
             val lookupElement = getLookupElementFromTypeAndClass(subst.subst(noUndefType), clazz,
-              ScSubstitutor.empty, new AfterNewLookupElementRenderer(_, _, _), new ScalaConstuctorInsertHandler)
+              ScSubstitutor.empty, new AfterNewLookupElementRenderer(_, _, _), new ScalaConstructorInsertHandler)
             for (undefine <- undefines) {
               subst.subst(undefine) match {
                 case ScUndefinedType(_) =>
-                  lookupElement.putUserData(ResolveUtils.typeParametersProblemKey,
-                    new java.lang.Boolean(true))
+                  lookupElement.typeParametersProblem = true
                 case _ =>
               }
             }
@@ -457,10 +457,9 @@ private[completion] object ScalaSmartCompletionContributor {
       }
     }
     val lookupElement = getLookupElementFromTypeAndClass(noUndefType, clazz, ScSubstitutor.empty,
-      new AfterNewLookupElementRenderer(_, _, _), new ScalaConstuctorInsertHandler)
+      new AfterNewLookupElementRenderer(_, _, _), new ScalaConstructorInsertHandler)
     if (undefines.length > 0) {
-      lookupElement.putUserData(ResolveUtils.typeParametersProblemKey,
-        new java.lang.Boolean(true))
+      lookupElement.typeParametersProblem = true
     }
     lookupElement
   }
@@ -499,20 +498,20 @@ private[completion] object ScalaSmartCompletionContributor {
 
   def getLookupElementFromTypeAndClass(tp: ScType, psiClass: PsiClass, subst: ScSubstitutor,
                                 renderer: (ScType, PsiClass, ScSubstitutor) => LookupElementRenderer[LookupElement],
-                                insertHandler: InsertHandler[LookupElement]): LookupElement = {
+                                insertHandler: InsertHandler[LookupElement]): ScalaLookupItem = {
     val name: String = psiClass.name
-    var lookupBuilder: LookupElementBuilder = LookupElementBuilder.create(psiClass, name)
-    lookupBuilder = lookupBuilder.setRenderer(renderer(tp, psiClass, subst))
-    var lookupElement: LookupElement = lookupBuilder
+    val lookupElement: ScalaLookupItem = new ScalaLookupItem(psiClass, name) {
+      override def renderElement(presentation: LookupElementPresentation) {
+        renderer(tp, psiClass, subst).renderElement(this, presentation)
+      }
+    }
     if (ApplicationManager.getApplication.isUnitTestMode || psiClass.isInterface ||
       psiClass.isInstanceOf[ScTrait] || psiClass.hasModifierProperty("abstract"))
-      lookupElement =
-        (if (ApplicationManager.getApplication.isUnitTestMode) AutoCompletionPolicy.ALWAYS_AUTOCOMPLETE
-        else AutoCompletionPolicy.NEVER_AUTOCOMPLETE).applyPolicy(lookupBuilder)
-    lookupElement = LookupElementDecorator.withInsertHandler(lookupElement, new ScalaConstuctorInsertHandler)
+        lookupElement.setAutoCompletionPolicy(if (ApplicationManager.getApplication.isUnitTestMode) AutoCompletionPolicy.ALWAYS_AUTOCOMPLETE
+        else AutoCompletionPolicy.NEVER_AUTOCOMPLETE)
+    lookupElement.setInsertHandler(new ScalaConstructorInsertHandler)
     tp match {
-      case ScParameterizedType(_, tps) =>
-        lookupElement.putUserData(ResolveUtils.typeParametersKey, tps)
+      case ScParameterizedType(_, tps) => lookupElement.typeParameters = tps
       case _ =>
     }
     lookupElement
@@ -520,7 +519,7 @@ private[completion] object ScalaSmartCompletionContributor {
 
   def convertTypeToLookupElement(tp: ScType, place: PsiElement, addedClasses: HashSet[String],
                                  renderer: (ScType, PsiClass, ScSubstitutor) => LookupElementRenderer[LookupElement],
-                                 insertHandler: InsertHandler[LookupElement]): LookupElement = {
+                                 insertHandler: InsertHandler[LookupElement]): ScalaLookupItem = {
     ScType.extractClassType(tp, Some(place.getProject)) match {
       case Some((clazz: PsiClass, subst: ScSubstitutor)) =>
         //filter base types (it's important for scala 2.9)
@@ -577,7 +576,7 @@ private[completion] object ScalaSmartCompletionContributor {
                   for (undefine <- undefines) {
                     undefSubst.subst(undefine) match {
                       case ScUndefinedType(_) =>
-                        lookupElement.putUserData(ResolveUtils.typeParametersProblemKey, new java.lang.Boolean(true))
+                        lookupElement.typeParametersProblem = true
                       case _ =>
                     }
                   }
