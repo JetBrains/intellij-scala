@@ -232,4 +232,25 @@ class ScalaBasicCompletionTest extends ScalaCompletionTestBase {
     completeLookupItem(activeLookup.find(le => le.getLookupString == "ListBuffer").get, '[')
     checkResultByText(resultText)
   }
+
+  def testSeq() {
+    val fileText =
+      """
+      |class A {
+      |  val f = Se<caret>
+      |}
+      """.stripMargin.replaceAll("\r", "").trim()
+    configureFromFileTextAdapter("dummy.scala", fileText)
+    val (activeLookup, _) = complete(0, CompletionType.BASIC)
+
+    val resultText =
+      """
+      |class A {
+      |  val f = Seq(<caret>)
+      |}
+      """.stripMargin.replaceAll("\r", "").trim()
+
+    completeLookupItem(activeLookup.find(le => le.getLookupString == "Seq").get, '(')
+    checkResultByText(resultText)
+  }
 }
