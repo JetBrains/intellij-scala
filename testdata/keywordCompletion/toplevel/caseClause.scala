@@ -7,6 +7,7 @@ class a {
 abstract
 case
 class
+def
 do
 false
 final
@@ -29,5 +30,8 @@ throw
 trait
 true
 try
+type
+val
+var
 while
 */

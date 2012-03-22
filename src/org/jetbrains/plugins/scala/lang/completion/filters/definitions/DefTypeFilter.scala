@@ -3,8 +3,8 @@ package lang
 package completion
 package filters.definitions
 
-import com.intellij.psi.filters.ElementFilter;
-import org.jetbrains.annotations.NonNls;
+import com.intellij.psi.filters.ElementFilter
+import org.jetbrains.annotations.NonNls
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates._
@@ -13,16 +13,16 @@ import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil._
 import org.jetbrains.plugins.scala.lang.lexer._
 import org.jetbrains.plugins.scala.lang.parser._
 import psi.api.ScalaFile
+import psi.api.base.patterns.ScCaseClause
 
 /** 
 * @author Alexander Podkhalyuzin
 * Date: 28.05.2008
 */
-
 class DefTypeFilter extends ElementFilter {
   def isAcceptable(element: Object, context: PsiElement): Boolean = {
     if (context.isInstanceOf[PsiComment]) return false
-    val leaf = getLeafByOffset(context.getTextRange.getStartOffset, context);
+    val leaf = getLeafByOffset(context.getTextRange.getStartOffset, context)
     if (leaf != null) {
       val parent = leaf.getParent
       parent match {
@@ -30,7 +30,7 @@ class DefTypeFilter extends ElementFilter {
         case _ => return false
       }
       parent.getParent match {
-        case parent@(_: ScBlockExpr | _: ScTemplateBody | _: ScClassParameter | _: ScalaFile)
+        case parent@(_: ScBlock | _: ScCaseClause | _: ScTemplateBody | _: ScClassParameter | _: ScalaFile)
           if !parent.isInstanceOf[ScalaFile] || parent.asInstanceOf[ScalaFile].isScriptFile() => {
           if ((leaf.getPrevSibling == null || leaf.getPrevSibling.getPrevSibling == null ||
             leaf.getPrevSibling.getPrevSibling.getNode.getElementType != ScalaTokenTypes.kDEF) &&
@@ -50,8 +50,7 @@ class DefTypeFilter extends ElementFilter {
   }
 
   @NonNls
-  override def toString
-  : String = {
-    "'def' keyword filter";
+  override def toString: String = {
+    "'def', 'type' keyword filter"
   }
 }
