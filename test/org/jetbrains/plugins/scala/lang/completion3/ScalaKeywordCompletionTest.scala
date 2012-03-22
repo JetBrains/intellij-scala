@@ -59,7 +59,7 @@ class ScalaKeywordCompletionTest extends ScalaCompletionTestBase {
       """
       |1 match {
       |  case a if<caret>
-      }}
+      |}
       """.stripMargin('|').replaceAll("\r", "").trim()
     configureFromFileTextAdapter("dummy.scala", fileText)
     val (activeLookup, _) = complete(1, CompletionType.BASIC)
@@ -68,10 +68,56 @@ class ScalaKeywordCompletionTest extends ScalaCompletionTestBase {
       """
       |1 match {
       |  case a if <caret>
-      }}
+      |}
       """.stripMargin('|').replaceAll("\r", "").trim()
 
     completeLookupItem(activeLookup.find(le => le.getLookupString == "if").get, ' ')
+    checkResultByText(resultText)
+  }
+
+  def testValUnderCaseClause() {
+    val fileText =
+      """
+      |1 match {
+      |  case 1 =>
+      |    val<caret>
+      |}
+      """.stripMargin('|').replaceAll("\r", "").trim()
+    configureFromFileTextAdapter("dummy.scala", fileText)
+    val (activeLookup, _) = complete(1, CompletionType.BASIC)
+
+    val resultText =
+      """
+      |1 match {
+      |  case 1 =>
+      |    val <caret>
+      |}
+      """.stripMargin('|').replaceAll("\r", "").trim()
+
+    completeLookupItem(activeLookup.find(le => le.getLookupString == "val").get, ' ')
+    checkResultByText(resultText)
+  }
+
+  def testDefUnderCaseClause() {
+    val fileText =
+      """
+      |1 match {
+      |  case 1 =>
+      |    def<caret>
+      |}
+      """.stripMargin('|').replaceAll("\r", "").trim()
+    configureFromFileTextAdapter("dummy.scala", fileText)
+    val (activeLookup, _) = complete(1, CompletionType.BASIC)
+
+    val resultText =
+      """
+      |1 match {
+      |  case 1 =>
+      |    def <caret>
+      |}
+      """.stripMargin('|').replaceAll("\r", "").trim()
+
+    completeLookupItem(activeLookup.find(le => le.getLookupString == "def").get, ' ')
     checkResultByText(resultText)
   }
 }

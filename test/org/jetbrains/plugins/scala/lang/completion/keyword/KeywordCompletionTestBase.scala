@@ -21,8 +21,8 @@ abstract class KeywordCompletionTestBase extends ScalaPsiTestCase {
 
   override def rootPath: String = super.rootPath + "keywordCompletion/"
 
-  protected def doTest {
-    import _root_.junit.framework.Assert._
+  protected def doTest() {
+    import org.junit.Assert._
 
     val testName = getTestName(false)
     val filePath = rootPath + testName + ".scala"

@@ -1,5 +1,5 @@
 class A {
-  a match {
+  1 match {
     case t => /*caret*/
   }
 }
@@ -7,6 +7,7 @@ class A {
 abstract
 case
 class
+def
 do
 false
 final
@@ -29,5 +30,8 @@ throw
 trait
 true
 try
+type
+val
+var
 while
 */

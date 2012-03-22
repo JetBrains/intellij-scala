@@ -13,6 +13,7 @@ import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil._
 import org.jetbrains.plugins.scala.lang.lexer._
 import org.jetbrains.plugins.scala.lang.parser._
 import psi.api.ScalaFile
+import psi.api.base.patterns.ScCaseClause
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -22,9 +23,9 @@ import psi.api.ScalaFile
 class DefinitionsFilter extends ElementFilter {
   def isAcceptable(element: Object, context: PsiElement): Boolean = {
     if (context.isInstanceOf[PsiComment]) return false
-    val leaf = getLeafByOffset(context.getTextRange.getStartOffset, context);
+    val leaf = getLeafByOffset(context.getTextRange.getStartOffset, context)
     if (leaf != null) {
-      val parent = leaf.getParent;
+      val parent = leaf.getParent
       parent match {
         case _: ScClassParameter =>
           return true
@@ -34,7 +35,14 @@ class DefinitionsFilter extends ElementFilter {
       def findParent(p: PsiElement): PsiElement = {
         if (p == null) return null
         p.getParent match {
-          case parent@(_: ScBlockExpr | _: ScTemplateBody | _: ScClassParameter | _: ScalaFile) => {
+          case parent@(_: ScBlock | _: ScCaseClause | _: ScTemplateBody | _: ScClassParameter | _: ScalaFile) => {
+            if (parent.isInstanceOf[ScCaseClause]) {
+              val clause = parent.asInstanceOf[ScCaseClause]
+              clause.funType match {
+                case Some(elem) => if (leaf.getTextRange.getStartOffset <= elem.getTextRange.getStartOffset) return null
+                case _ => return null
+              }
+            }
             if (!parent.isInstanceOf[ScalaFile] || parent.asInstanceOf[ScalaFile].isScriptFile())
               if ((leaf.getPrevSibling == null || leaf.getPrevSibling.getPrevSibling == null ||
                 leaf.getPrevSibling.getPrevSibling.getNode.getElementType != ScalaTokenTypes.kDEF) &&
@@ -60,6 +68,6 @@ class DefinitionsFilter extends ElementFilter {
 
   @NonNls
   override def toString: String = {
-    "val, var, type keyword filter";
+    "val, var keyword filter"
   }
 }

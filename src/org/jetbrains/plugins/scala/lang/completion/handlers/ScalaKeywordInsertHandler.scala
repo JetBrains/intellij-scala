@@ -13,7 +13,7 @@ import com.intellij.openapi.util.TextRange
  */
 
 class ScalaKeywordInsertHandler(val keyword: String) extends InsertHandler[LookupElement] {
-  def handleInsert(context: InsertionContext, item: LookupElement): Unit = {
+  def handleInsert(context: InsertionContext, item: LookupElement) {
     val editor = context.getEditor
     val document = editor.getDocument
     val offset = context.getStartOffset + keyword.length
