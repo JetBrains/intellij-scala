@@ -120,4 +120,50 @@ class ScalaKeywordCompletionTest extends ScalaCompletionTestBase {
     completeLookupItem(activeLookup.find(le => le.getLookupString == "def").get, ' ')
     checkResultByText(resultText)
   }
+
+  def testIfParentheses() {
+    val fileText =
+      """
+      |1 match {
+      |  case 1 =>
+      |    if<caret>
+      |}
+      """.stripMargin('|').replaceAll("\r", "").trim()
+    configureFromFileTextAdapter("dummy.scala", fileText)
+    val (activeLookup, _) = complete(1, CompletionType.BASIC)
+
+    val resultText =
+      """
+      |1 match {
+      |  case 1 =>
+      |    if (<caret>)
+      |}
+      """.stripMargin('|').replaceAll("\r", "").trim()
+
+    completeLookupItem(activeLookup.find(le => le.getLookupString == "if").get, '(')
+    checkResultByText(resultText)
+  }
+
+  def testTryBraces() {
+    val fileText =
+      """
+      |1 match {
+      |  case 1 =>
+      |    try<caret>
+      |}
+      """.stripMargin('|').replaceAll("\r", "").trim()
+    configureFromFileTextAdapter("dummy.scala", fileText)
+    val (activeLookup, _) = complete(1, CompletionType.BASIC)
+
+    val resultText =
+      """
+      |1 match {
+      |  case 1 =>
+      |    try {<caret>}
+      |}
+      """.stripMargin('|').replaceAll("\r", "").trim()
+
+    completeLookupItem(activeLookup.find(le => le.getLookupString == "try").get, '{')
+    checkResultByText(resultText)
+  }
 }
