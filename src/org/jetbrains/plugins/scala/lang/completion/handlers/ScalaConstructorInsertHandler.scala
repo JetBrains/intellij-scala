@@ -28,6 +28,8 @@ class ScalaConstructorInsertHandler extends InsertHandler[LookupElement] {
     val document = editor.getDocument
     if (context.getCompletionChar == '(') {
       context.setAddCompletionChar(false)
+    } else if (context.getCompletionChar == '[') {
+      context.setAddCompletionChar(false)
     }
     val startOffset = context.getStartOffset
     val lookupStringLength = item.getLookupString.length
