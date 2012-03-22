@@ -29,4 +29,28 @@ class ScalaSmartCompletionTest extends ScalaCompletionTestBase {
 
     completeLookupItem(activeLookup.find(le => le.getLookupString == "concat").get)
     checkResultByText(resultText)
-  }}
+  }
+
+  def testAfterNew() {
+    val fileText =
+      """
+      |import collection.mutable.ListBuffer
+      |class A {
+      |  val f: ListBuffer[String] = new <caret>
+      |}
+      """.stripMargin.replaceAll("\r", "").trim()
+    configureFromFileTextAdapter("dummy.scala", fileText)
+    val (activeLookup, _) = complete(1, CompletionType.SMART)
+
+    val resultText =
+      """
+      |import collection.mutable.ListBuffer
+      |class A {
+      |  val f: ListBuffer[String] = new ListBuffer[String]<caret>
+      |}
+      """.stripMargin.replaceAll("\r", "").trim()
+
+    completeLookupItem(activeLookup.find(le => le.getLookupString == "ListBuffer").get, '[')
+    checkResultByText(resultText)
+  }
+}

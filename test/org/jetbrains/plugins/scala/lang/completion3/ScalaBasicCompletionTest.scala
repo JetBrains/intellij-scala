@@ -186,4 +186,50 @@ class ScalaBasicCompletionTest extends ScalaCompletionTestBase {
     completeLookupItem(activeLookup.find(le => le.getLookupString == "theMap").get, '(')
     checkResultByText(resultText)
   }
+
+  def testAfterNew() {
+    val fileText =
+      """
+      |import collection.mutable.ListBuffer
+      |class A {
+      |  val f = new <caret>
+      |}
+      """.stripMargin.replaceAll("\r", "").trim()
+    configureFromFileTextAdapter("dummy.scala", fileText)
+    val (activeLookup, _) = complete(1, CompletionType.BASIC)
+
+    val resultText =
+      """
+      |import collection.mutable.ListBuffer
+      |class A {
+      |  val f = new ListBuffer[<caret>]
+      |}
+      """.stripMargin.replaceAll("\r", "").trim()
+
+    completeLookupItem(activeLookup.find(le => le.getLookupString == "ListBuffer").get, '[')
+    checkResultByText(resultText)
+  }
+
+  def testAfterNewWithImport() {
+    val fileText =
+      """
+      |class A {
+      |  val f = new LBuff<caret>
+      |}
+      """.stripMargin.replaceAll("\r", "").trim()
+    configureFromFileTextAdapter("dummy.scala", fileText)
+    val (activeLookup, _) = complete(2, CompletionType.BASIC)
+
+    val resultText =
+      """
+      |import collection.mutable.ListBuffer
+      |
+      |class A {
+      |  val f = new ListBuffer[<caret>]
+      |}
+      """.stripMargin.replaceAll("\r", "").trim()
+
+    completeLookupItem(activeLookup.find(le => le.getLookupString == "ListBuffer").get, '[')
+    checkResultByText(resultText)
+  }
 }
