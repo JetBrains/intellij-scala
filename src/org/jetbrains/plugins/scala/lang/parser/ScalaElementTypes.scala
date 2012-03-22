@@ -7,7 +7,6 @@ import psi.stubs.elements.signatures.{ScClassParameterElementType, ScParameterEl
 import com.intellij.psi.stubs.PsiFileStub
 import psi.api.statements.{ScFunction, ScVariable, ScValue}
 import com.intellij.psi.tree.{ICompositeElementType, IErrorCounterReparseableElementType, IElementType, IStubFileElementType}
-import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiFile
 import com.intellij.pom.java.LanguageLevel
 import psi.impl.expr.ScBlockExprImpl
@@ -15,6 +14,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.lexer.Lexer
 import lexer.{ScalaTokenTypes, ScalaLexer, ScalaElementType}
 import org.jetbrains.annotations.NotNull
+import com.intellij.lang.{Language, ASTNode}
 
 /**
  * User: Dmitry.Krasilschikov
@@ -276,19 +276,19 @@ object ScalaElementTypes {
     ScalaFileType.SCALA_LANGUAGE) with ICompositeElementType {
 
     override def createNode(text: CharSequence): ASTNode = {
-      return new ScBlockExprImpl(text)
+      new ScBlockExprImpl(text)
     }
 
     @NotNull def createCompositeNode: ASTNode = {
-      return new ScBlockExprImpl(null)
+      new ScBlockExprImpl(null)
     }
 
-    def getErrorsCount(seq: CharSequence, project: Project): Int = {
+    def getErrorsCount(seq: CharSequence, fileLanguage: Language, project: Project): Int = {
       import IErrorCounterReparseableElementType._
       val lexer: Lexer = new ScalaLexer
       lexer.start(seq)
       if (lexer.getTokenType != ScalaTokenTypes.tLBRACE) return FATAL_ERROR
-      lexer.advance
+      lexer.advance()
       var balance: Int = 1
       var flag = false
       while (!flag) {
@@ -300,9 +300,9 @@ object ScalaElementTypes {
         } else if (tp == ScalaTokenTypes.tRBRACE) {
           balance -= 1
         }
-        lexer.advance
+        lexer.advance()
       }
-      return balance
+      balance
     }
   }
 }
