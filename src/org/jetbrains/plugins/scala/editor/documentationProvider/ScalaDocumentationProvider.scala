@@ -22,7 +22,6 @@ import util.{MethodSignatureBackedByPsiMethod, PsiTreeUtil}
 import search.searches.SuperMethodsSearch
 import com.intellij.openapi.project.IndexNotReadyException
 import lang.psi.{PresentationUtil, ScalaPsiUtil}
-import lang.resolve.ResolveUtils.ScalaLookupObject
 import lang.psi.api.base.{ScReferenceElement, ScConstructor, ScAccessModifier, ScPrimaryConstructor}
 import lang.resolve.ScalaResolveResult
 import lang.psi.impl.ScalaPsiElementFactory
@@ -30,12 +29,12 @@ import org.jetbrains.plugins.scala.extensions
 import extensions.{toPsiNamedElementExt, toPsiClassExt}
 import lang.scaladoc.lexer.ScalaDocTokenType
 import lang.scaladoc.parser.parsing.MyScaladocParsing
-import lang.scaladoc.psi.api.{ScDocTag, ScDocSyntaxElement, ScDocComment}
-import lang.psi.api.base.patterns.{ScReferencePattern, ScBindingPattern}
-import com.intellij.lang.documentation.{CodeDocumentationProvider, DocumentationProvider}
+import lang.scaladoc.psi.api.{ScDocTag, ScDocComment}
+import lang.psi.api.base.patterns.ScBindingPattern
+import com.intellij.lang.documentation.CodeDocumentationProvider
 import java.lang.String
-import lang.lexer.ScalaTokenTypes
 import collection.mutable.HashMap
+import lang.completion.lookups.ScalaLookupItem
 
 /**
  * User: Alexander Podkhalyuzin
@@ -44,11 +43,11 @@ import collection.mutable.HashMap
 
 class ScalaDocumentationProvider extends CodeDocumentationProvider {
   import ScalaDocumentationProvider._
-  def getDocumentationElementForLookupItem(psiManager: PsiManager, `object` : Object,
+  def getDocumentationElementForLookupItem(psiManager: PsiManager, obj : Object,
                                            element: PsiElement): PsiElement = {
-    `object` match {
+    obj match {
       case (_, element: PsiElement, _) => element
-      case ScalaLookupObject(element: PsiElement, _, _, _) => element
+      case el: ScalaLookupItem => el.element
       case element: PsiElement => element
       case _ => null
     }

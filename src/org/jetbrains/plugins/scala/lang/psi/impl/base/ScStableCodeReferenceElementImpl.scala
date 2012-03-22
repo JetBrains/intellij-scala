@@ -5,6 +5,7 @@ package impl
 package base
 
 import org.jetbrains.plugins.scala.lang._
+import completion.lookups.LookupElementManager
 import lexer.ScalaTokenTypes
 import psi.ScalaPsiElementImpl
 import psi.api.base._
@@ -43,7 +44,7 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
       case res: ScalaResolveResult =>
         import org.jetbrains.plugins.scala.lang.psi.types.Nothing
         val qualifier = res.fromType.getOrElse(Nothing)
-        ResolveUtils.getLookupElement(res, isInImport = isInImport, qualifierType = qualifier, isInStableCodeReference = true)
+        LookupElementManager.getLookupElement(res, isInImport = isInImport, qualifierType = qualifier, isInStableCodeReference = true)
       case r => Seq(r.getElement)
     }
   }

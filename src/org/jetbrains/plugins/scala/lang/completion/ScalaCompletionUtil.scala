@@ -25,7 +25,6 @@ import org.jetbrains.plugins.scala.lang.lexer._
 import org.jetbrains.plugins.scala.lang.parser._
 import com.intellij.codeInsight.completion.{PrefixMatcher, CompletionParameters}
 import com.intellij.codeInsight.lookup.LookupElement
-import lang.resolve.ResolveUtils.ScalaLookupObject
 import lang.resolve.ResolveUtils
 import refactoring.namesSuggester.NameSuggester
 import types.ScType
@@ -38,6 +37,22 @@ import formatting.settings.ScalaCodeStyleSettings
 */
 
 object ScalaCompletionUtil {
+  def shouldRunClassNameCompletion(parameters: CompletionParameters, prefixMatcher: PrefixMatcher): Boolean = {
+    val element = parameters.getPosition
+    val settings = CodeStyleSettingsManager.getSettings(element.getProject).
+      getCustomSettings(classOf[ScalaCodeStyleSettings])
+    if (!settings.USE_CLASS_NAME_COMPLETION_EVERYWHERE && parameters.getInvocationCount < 2) return false
+    if (element.getNode.getElementType == ScalaTokenTypes.tIDENTIFIER) {
+      element.getParent match {
+        case ref: ScReferenceElement if ref.qualifier != None => return false
+        case _ =>
+      }
+    }
+    val prefix = prefixMatcher.getPrefix
+    val capitalized = prefix.length() > 0 && prefix.substring(0, 1).capitalize == prefix.substring(0, 1)
+    capitalized || parameters.isRelaxedMatching
+  }
+
   def generateAnonymousFunctionText(braceArgs: Boolean, params: scala.Seq[ScType], canonical: Boolean,
                                     withoutEnd: Boolean = false): String = {
     val text = new StringBuilder()
@@ -236,40 +251,5 @@ object ScalaCompletionUtil {
     false
   }
 
-  def shouldRunClassNameCompletion(parameters: CompletionParameters, prefixMatcher: PrefixMatcher): Boolean = {
-    val element = parameters.getPosition
-    val settings = CodeStyleSettingsManager.getSettings(element.getProject).
-      getCustomSettings(classOf[ScalaCodeStyleSettings])
-    if (!settings.USE_CLASS_NAME_COMPLETION_EVERYWHERE && parameters.getInvocationCount < 2) return false
-    if (element.getNode.getElementType == ScalaTokenTypes.tIDENTIFIER) {
-      element.getParent match {
-        case ref: ScReferenceElement if ref.qualifier != None => return false
-        case _ =>
-      }
-    }
-    val prefix = prefixMatcher.getPrefix
-    val capitalized = prefix.length() > 0 && prefix.substring(0, 1).capitalize == prefix.substring(0, 1)
-    capitalized || parameters.isRelaxedMatching
-  }
 
-  def getScalaLookupObject(item: LookupElement): ScalaLookupObject = {
-    val psi = item.getObject
-    if (psi == null || !psi.isInstanceOf[PsiNamedElement]) return null
-    val isInImport = item.getUserData(ResolveUtils.isInImportKey)
-    val isNamedParameter = item.getUserData(ResolveUtils.isNamedParameterOrAssignment)
-    val isInReference = item.getUserData(ResolveUtils.isInStableCodeReferenceKey)
-
-    val obj = ScalaLookupObject(psi.asInstanceOf[PsiNamedElement],
-      if (isNamedParameter == null) false
-      else isNamedParameter.booleanValue(),
-      if (isInImport == null) false
-      else isInImport.booleanValue(), Option(isInReference).map(_.booleanValue()).getOrElse(false))
-    val typeParametersProblem = item.getUserData(ResolveUtils.typeParametersProblemKey)
-    if (typeParametersProblem == java.lang.Boolean.TRUE)
-      obj.typeParametersProblem = true
-    val typeParameters = item.getUserData(ResolveUtils.typeParametersKey)
-    if (typeParameters != null)
-      obj.setTypeParameters(typeParameters)
-    obj
-  }
 }

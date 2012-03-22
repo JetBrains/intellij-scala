@@ -7,6 +7,7 @@ import com.intellij.patterns.PlatformPatterns.psiElement
 import com.intellij.util.Consumer
 import com.intellij.psi.PsiClass
 import com.intellij.codeInsight.completion._
+import lookups.LookupElementManager
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTrait, ScClass}
@@ -62,7 +63,7 @@ class ScalaClassNameCompletionContributor extends CompletionContributor {
         case _ =>
       }
       for {
-        (el, _, _) <- ResolveUtils.getLookupElement(new ScalaResolveResult(psiClass),
+        el <- LookupElementManager.getLookupElement(new ScalaResolveResult(psiClass),
           isClassName = true, isInImport = isInImport, isInStableCodeReference = refElement != null)
       } {
         if (afterNewPattern.accepts(parameters.getPosition, context)) {

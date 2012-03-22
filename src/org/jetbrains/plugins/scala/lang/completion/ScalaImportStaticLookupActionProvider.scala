@@ -4,8 +4,7 @@ import javax.swing.Icon
 import com.intellij.util.ui.EmptyIcon
 import com.intellij.util.{PlatformIcons, Consumer}
 import com.intellij.codeInsight.lookup.{LookupElement, Lookup, LookupElementAction, LookupActionProvider}
-import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils
-import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils.ScalaLookupObject
+import lookups.ScalaLookupItem
 import com.intellij.psi.PsiClass
 
 /**
@@ -13,28 +12,23 @@ import com.intellij.psi.PsiClass
  */
 class ScalaImportStaticLookupActionProvider extends LookupActionProvider {
   def fillActions(element: LookupElement, lookup: Lookup, consumer: Consumer[LookupElementAction]) {
-    val isClassName = element.getUserData(ResolveUtils.classNameKey)
-    if (isClassName == null || !isClassName.booleanValue()) return
+    element match {
+      case elem: ScalaLookupItem if elem.element.isInstanceOf[PsiClass] => return
+      case elem: ScalaLookupItem =>
+        if (!elem.isClassName) return
+        if (!elem.usedImportStaticQuickfix) return
 
-    element.getObject match {
-      case ScalaLookupObject(elem, _, _, _) if elem.isInstanceOf[PsiClass] => return
+        val checkIcon: Icon = PlatformIcons.CHECK_ICON
+        val icon: Icon =
+          if (!elem.shouldImport) checkIcon
+          else new EmptyIcon(checkIcon.getIconWidth, checkIcon.getIconHeight)
+        consumer.consume(new LookupElementAction(icon, "Import method") {
+          def performLookupAction: LookupElementAction.Result = {
+            elem.usedImportStaticQuickfix = true
+            new LookupElementAction.Result.ChooseItem(element)
+          }
+        })
       case _ =>
     }
-
-    val shouldImport = element.getUserData(ResolveUtils.shouldImportKey)
-    if (shouldImport == null) return
-    val importStatic = element.getUserData(ResolveUtils.usedImportStaticQuickfixKey)
-    if (importStatic != null) return
-
-    val checkIcon: Icon = PlatformIcons.CHECK_ICON
-    val icon: Icon =
-      if (!shouldImport.booleanValue()) checkIcon
-      else new EmptyIcon(checkIcon.getIconWidth, checkIcon.getIconHeight)
-    consumer.consume(new LookupElementAction(icon, "Import method") {
-      def performLookupAction: LookupElementAction.Result = {
-        element.putUserData(ResolveUtils.usedImportStaticQuickfixKey, java.lang.Boolean.TRUE)
-        new LookupElementAction.Result.ChooseItem(element)
-      }
-    })
   }
 }

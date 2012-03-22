@@ -8,13 +8,12 @@ import com.intellij.codeInsight.completion._
 import psi.impl.toplevel.synthetic.ScSyntheticFunction
 import psi.api.statements.{ScFunction, ScFun}
 import com.intellij.codeInsight.lookup.LookupElement
-import resolve.ResolveUtils.ScalaLookupObject
 import extensions._
-import resolve.ResolveUtils
 import psi.api.expr._
 import psi.api.toplevel.typedef.ScObject
 import com.intellij.openapi.util.Condition
 import com.intellij.psi.{PsiFile, PsiNamedElement, PsiMethod}
+import lookups.ScalaLookupItem
 
 /**
  * User: Alexander Podkhalyuzin
@@ -22,7 +21,9 @@ import com.intellij.psi.{PsiFile, PsiNamedElement, PsiMethod}
  */
 
 class ScalaInsertHandler extends InsertHandler[LookupElement] {
-  override def handleInsert(context: InsertionContext, item: LookupElement) {
+  override def handleInsert(context: InsertionContext, _item: LookupElement) {
+    if (!_item.isInstanceOf[ScalaLookupItem]) return
+    val item = _item.asInstanceOf[ScalaLookupItem]
     val editor = context.getEditor
     val document = editor.getDocument
     val completionChar: Char = context.getCompletionChar
@@ -34,12 +35,9 @@ class ScalaInsertHandler extends InsertHandler[LookupElement] {
     var startOffset = context.getStartOffset
     val lookupStringLength = item.getLookupString.length
 
-    val patchedObject = ScalaCompletionUtil.getScalaLookupObject(item)
-    if (patchedObject == null) return
     var endOffset = startOffset + lookupStringLength
 
-    val some = Option(item.getUserData(ResolveUtils.someSmartCompletionKey)).
-      map(_.booleanValue()).getOrElse(false)
+    val some = item.someSmartCompletion
     val someNum = if (some) 1 else 0
     val file = context.getFile
     val element = file.findElementAt(startOffset)
@@ -71,8 +69,8 @@ class ScalaInsertHandler extends InsertHandler[LookupElement] {
       }
     }
 
-    patchedObject match {
-      case ScalaLookupObject(obj: ScObject, _, _, true) =>
+    item.element match {
+      case obj: ScObject if item.isInStableCodeReference  =>
         if (completionChar != '.') {
           document.insertString(endOffset, ".")
           endOffset += 1
@@ -88,7 +86,7 @@ class ScalaInsertHandler extends InsertHandler[LookupElement] {
           })
         }
         return
-      case ScalaLookupObject(named: PsiNamedElement, isNamed, _, _) if isNamed => { //some is impossible here
+      case named: PsiNamedElement if item.isNamedParameter => { //some is impossible here
         val shouldAddEqualsSign = element.getParent match {
           case ref: ScReferenceExpression =>
             ref.getParent match {
@@ -109,20 +107,20 @@ class ScalaInsertHandler extends InsertHandler[LookupElement] {
         }
         return
       }
-      case ScalaLookupObject(_: PsiMethod, _, true, _) => moveCaretIfNeeded()
-      case ScalaLookupObject(_: ScFun, _, true, _) => moveCaretIfNeeded()
-      case ScalaLookupObject(_: PsiMethod, _, _, _) | ScalaLookupObject(_: ScFun, _, _, _) => {
+      case _: PsiMethod if item.isInImport => moveCaretIfNeeded()
+      case _: ScFun if item.isInImport => moveCaretIfNeeded()
+      case _: PsiMethod | _: ScFun => {
 
-        val (count, methodName, isAccessor) = patchedObject match {
-          case ScalaLookupObject(fun: ScFunction, _, _, _) => {
+        val (count, methodName, isAccessor) = item.element match {
+          case fun: ScFunction => {
             val clauses = fun.paramClauses.clauses
             if (clauses.length == 0) (-1, null, false)
             else if (clauses.apply(0).isImplicit) (-1, null, false)
             else (clauses(0).parameters.length, fun.name, false)
           }
-          case ScalaLookupObject(method: PsiMethod, _, _, _) =>
+          case method: PsiMethod =>
             (method.getParameterList.getParametersCount, method.name, method.isAccessor)
-          case ScalaLookupObject(fun: ScFun, _, _, _) =>
+          case fun: ScFun =>
             fun.paramClauses match {
               case Seq() => (-1, null, false)
               case clause :: clauses => (clause.length, fun.asInstanceOf[ScSyntheticFunction].name, false)

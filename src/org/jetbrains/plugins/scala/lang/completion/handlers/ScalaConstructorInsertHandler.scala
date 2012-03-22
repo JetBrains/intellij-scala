@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala.lang.completion.handlers
 
 import com.intellij.codeInsight.lookup.LookupElement
 import com.intellij.codeInsight.completion.{InsertionContext, InsertHandler}
-import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils.ScalaLookupObject
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTrait, ScClass}
 import org.jetbrains.plugins.scala.overrideImplement.ScalaOIUtil
@@ -12,19 +11,18 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScTemplateParents, ScExtendsBlock, ScTemplateBody}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScReferenceExpression, ScNewTemplateDefinition}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScParameterizedTypeElement, ScParenthesisedTypeElement, ScSimpleTypeElement, ScTypeElement}
-import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScParameterizedTypeElement, ScSimpleTypeElement, ScTypeElement}
 import com.intellij.codeInsight.AutoPopupController
 import com.intellij.openapi.util.Condition
 import com.intellij.psi.{PsiFile, PsiDocumentManager, PsiClass}
+import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 
 /**
  * @author Alexander Podkhalyuzin
  */
 
-class ScalaConstuctorInsertHandler extends InsertHandler[LookupElement] {
+class ScalaConstructorInsertHandler extends InsertHandler[LookupElement] {
   def handleInsert(context: InsertionContext, item: LookupElement) {
     val editor = context.getEditor
     val document = editor.getDocument
@@ -35,11 +33,8 @@ class ScalaConstuctorInsertHandler extends InsertHandler[LookupElement] {
     val lookupStringLength = item.getLookupString.length
     var endOffset = startOffset + lookupStringLength
 
-    val patchedObject = ScalaCompletionUtil.getScalaLookupObject(item)
-    if (patchedObject == null) return
-
-    patchedObject match {
-      case ScalaLookupObject(obj: ScObject, _, _, _) => {
+    item match {
+      case ScalaLookupItem(obj: ScObject) => {
         if (context.getCompletionChar != '.') {
           document.insertString(endOffset, ".")
           endOffset += 1
@@ -56,7 +51,7 @@ class ScalaConstuctorInsertHandler extends InsertHandler[LookupElement] {
         }
         return
       }
-      case obj@ScalaLookupObject(clazz: PsiClass, _, _, _) => {
+      case item@ScalaLookupItem(clazz: PsiClass) => {
         var hasNonEmptyParams = false
         clazz match {
           case c: ScClass =>
@@ -69,12 +64,12 @@ class ScalaConstuctorInsertHandler extends InsertHandler[LookupElement] {
             clazz.getConstructors.foreach(meth => if (meth.getParameterList.getParametersCount > 0) hasNonEmptyParams = true)
         }
         if (context.getCompletionChar == '(') hasNonEmptyParams = true
-        if (obj.typeParametersProblem) {
+        if (item.typeParametersProblem) {
           document.insertString(endOffset, "[]")
           endOffset += 2
           editor.getCaretModel.moveToOffset(endOffset - 1)
-        } else if (obj.getTypeParameters.length > 0) {
-          val str = obj.getTypeParameters.map(ScType.canonicalText(_)).mkString("[", ", ", "]")
+        } else if (item.typeParameters.length > 0) {
+          val str = item.typeParameters.map(ScType.canonicalText(_)).mkString("[", ", ", "]")
           document.insertString(endOffset, str)
           endOffset += str.length()
           editor.getCaretModel.moveToOffset(endOffset)
@@ -82,7 +77,7 @@ class ScalaConstuctorInsertHandler extends InsertHandler[LookupElement] {
         if (hasNonEmptyParams) {
           document.insertString(endOffset, "()")
           endOffset += 2
-          if (!obj.typeParametersProblem)
+          if (!item.typeParametersProblem)
             editor.getCaretModel.moveToOffset(endOffset - 1)
         }
 
@@ -92,7 +87,7 @@ class ScalaConstuctorInsertHandler extends InsertHandler[LookupElement] {
           clazz.hasModifierProperty("abstract")) {
           document.insertString(endOffset, " {}")
           endOffset += 3
-          if (!obj.typeParametersProblem)
+          if (!item.typeParametersProblem)
             editor.getCaretModel.moveToOffset(endOffset - 1)
         }
         PsiDocumentManager.getInstance(context.getProject).commitDocument(document)
@@ -129,7 +124,7 @@ class ScalaConstuctorInsertHandler extends InsertHandler[LookupElement] {
         }
 
         if ((clazz.isInterface || clazz.isInstanceOf[ScTrait] ||
-          clazz.hasModifierProperty("abstract")) && !obj.typeParametersProblem) {
+          clazz.hasModifierProperty("abstract")) && !item.typeParametersProblem) {
           context.setLaterRunnable(new Runnable {
             def run() {
               val file = context.getFile

@@ -27,6 +27,7 @@ import com.intellij.util.IncorrectOperationException
 import annotator.intention.ScalaImportClassFix
 import extensions.{toPsiNamedElementExt, toPsiClassExt}
 import api.toplevel.typedef._
+import completion.lookups.LookupElementManager
 
 /**
  * @author AlexanderPodkhalyuzin
@@ -105,7 +106,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
       case res: ScalaResolveResult =>
         import org.jetbrains.plugins.scala.lang.psi.types.Nothing
         val qualifier = res.fromType.getOrElse(Nothing)
-        ResolveUtils.getLookupElement(res, isInImport = isInImport, qualifierType = qualifier, isInStableCodeReference = false)
+        LookupElementManager.getLookupElement(res, isInImport = isInImport, qualifierType = qualifier, isInStableCodeReference = false)
       case r => Seq(r.getElement)
     }
   }

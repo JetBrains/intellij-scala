@@ -14,7 +14,7 @@ import util.ScalaToolsFactory
  * Date: 3/5/12
  */
 
-class ScalaLightCodeInsightFixtureTestAdapter extends LightCodeInsightFixtureTestCase {
+abstract class ScalaLightCodeInsightFixtureTestAdapter extends LightCodeInsightFixtureTestCase {
   import ScalaLightCodeInsightFixtureTestAdapter.CARET_MARKER
 
   protected def checkAfterSurroundWith(text: String, assumedText: String, surrounder: Surrounder, canSurround: Boolean) {
