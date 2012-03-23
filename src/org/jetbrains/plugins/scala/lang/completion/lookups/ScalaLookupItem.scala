@@ -213,7 +213,7 @@ class ScalaLookupItem(val element: PsiNamedElement, name: String) extends Lookup
     if (isSomeSmartCompletion) itemText = "Some(" + itemText + ")"
     presentation.setItemText(itemText)
     presentation.setStrikeout(isDeprecated)
-    presentation.setItemTextBold(isBold)
+    presentation.setItemTextBold(bold)
     if (ScalaPsiUtil.getSettings(element.getProject).SHOW_IMPLICIT_CONVERSIONS)
       presentation.setItemTextUnderlined(isUnderlined)
   }

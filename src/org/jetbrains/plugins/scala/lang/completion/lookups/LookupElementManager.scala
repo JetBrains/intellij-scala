@@ -5,6 +5,7 @@ import org.jetbrains.plugins.scala.extensions.toPsiNamedElementExt
 import org.jetbrains.plugins.scala.lang.psi.types.{Nothing, ScType}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext, TypingContextOwner}
 import com.intellij.psi._
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 
 /**
  * @author Alefas
@@ -40,7 +41,7 @@ object LookupElementManager {
             case _ => null
           }
           if (clazz != null)
-            element match {
+            ScalaPsiUtil.nameContext(element) match {
               case m: PsiMember => {
                 if (m.getContainingClass == clazz) isBold = true
               }
