@@ -102,7 +102,7 @@ class ScalaSmartCompletionContributor extends CompletionContributor {
           case call: ScMethodCall => //todo: it's update method
           case leftExpression: ScExpression => {
             //we can expect that the type is same for left and right parts.
-            acceptTypes(ref.expectedType().toList.toSeq, ref.getVariants, result,
+            acceptTypes(ref.expectedTypes(), ref.getVariants, result,
               ref.getResolveScope, parameters.getInvocationCount > 1)
           }
         }

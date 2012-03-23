@@ -16,15 +16,18 @@ import api.statements.{ScTypeAliasDefinition, ScFunction}
 import types.ScSimpleTypeElementImpl
 import api.statements.params.ScTypeParam
 import psi.types._
-import nonvalue.{ScTypePolymorphicType, TypeParameter}
+import nonvalue.Parameter._
+import nonvalue.ScMethodType._
+import nonvalue.{Parameter, ScMethodType, ScTypePolymorphicType, TypeParameter}
 import result.{Success, Failure, TypeResult, TypingContext}
-import resolve.{ResolveUtils, ScalaResolveResult}
+import lang.resolve.{ResolveUtils, ScalaResolveResult}
 import collection.mutable.ArrayBuffer
 import collection.Seq
 import api.base.types.{ScTypeElement, ScParameterizedTypeElement, ScSimpleTypeElement}
 import api.ScalaElementVisitor
-import com.intellij.psi.{PsiElementVisitor, PsiClass, PsiTypeParameterListOwner, PsiMethod}
 import extensions.toPsiNamedElementExt
+import api.toplevel.typedef.ScTemplateDefinition
+import com.intellij.psi._
 
 /**
 * @author Alexander Podkhalyuzin
@@ -151,9 +154,16 @@ class ScConstructorImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
           val buffer = new ArrayBuffer[TypeResult[ScType]]
           val resolve = if (isShape) ref.shapeResolveConstr else ref.resolveAllConstructors
           resolve.foreach(r => r match {
-            case r@ScalaResolveResult(constr: PsiMethod, subst) => {
+            case r@ScalaResolveResult(constr: PsiMethod, subst) =>
               buffer += workWithResolveResult(constr, r, subst, s, ref)
-            }
+            case ScalaResolveResult(clazz: PsiClass, subst) if !clazz.isInstanceOf[ScTemplateDefinition] && clazz.isAnnotationType =>
+              val params = clazz.getMethods.flatMap {
+                case p: PsiAnnotationMethod =>
+                  val paramType = subst.subst(ScType.create(p.getReturnType, getProject, getResolveScope))
+                  Seq(Parameter(p.getName, paramType, paramType, p.getDefaultValue != null, false, false))
+                case _ => Seq.empty
+              }
+              buffer += Success(ScMethodType(ScDesignatorType(clazz), params, false)(getProject, getResolveScope), Some(this))
             case _ =>
           })
           buffer.toSeq

@@ -24,7 +24,7 @@ import toplevel.imports.usages.ImportUsed
 import caches.CachesUtil
 import implicits.ScImplicitlyConvertible
 import psi.impl.ScalaPsiManager
-import toplevel.typedef.ScObject
+import toplevel.typedef.{ScTemplateDefinition, ScObject}
 
 /**
  * @author ilyas
@@ -268,8 +268,10 @@ private[expr] object ExpectedTypes {
           args.getContext match {
             case constr: ScConstructor => {
               val j = constr.arguments.indexOf(args)
-              if (!withResolvedFunction) constr.shapeMultiType(j).foreach(processArgsExpected(res, expr, i, _, exprs))
-              else constr.multiType(j).foreach(processArgsExpected(res, expr, i, _, exprs))
+              var tps =
+                if (!withResolvedFunction) constr.shapeMultiType(j)
+                else constr.multiType(j)
+              tps.foreach(processArgsExpected(res, expr, i, _, exprs))
             }
             case s: ScSelfInvocation => {
               val j = s.arguments.indexOf(args)
