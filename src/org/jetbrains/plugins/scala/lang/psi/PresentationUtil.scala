@@ -41,6 +41,8 @@ object PresentationUtil {
         builder.toString()
       }
       case tp: ScType => ScType.presentableText(substitutor.subst(tp))
+      case tp: PsiEllipsisType =>
+        presentationString(tp.getComponentType, substitutor) + "*"
       case tp: PsiType => presentationString(ScType.create(tp, DecompilerUtil.obtainProject), substitutor)
       case tp: ScTypeParamClause => {
         tp.typeParameters.map(t => presentationString(t, substitutor)).mkString("[", ", ", "]")
