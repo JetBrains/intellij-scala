@@ -74,11 +74,11 @@ class ScalaCompletionContributor extends CompletionContributor {
                   case clazz: PsiClass =>
                     val isExcluded: Boolean = ApplicationManager.getApplication.runReadAction(new Computable[Boolean] {
                       def compute: Boolean = {
-                        JavaCompletionUtil.isInExcludedPackage(clazz, true) || (lookingForAnnotations && !clazz.isAnnotationType)
+                        JavaCompletionUtil.isInExcludedPackage(clazz, true)
                       }
-                    }).booleanValue
+                    })
 
-                    if (!isExcluded && !classNameCompletion) {
+                    if (!isExcluded && !classNameCompletion && (!lookingForAnnotations || clazz.isAnnotationType)) {
                       if (afterNewPattern.accepts(parameters.getPosition, context)) {
                         addElement(getLookupElementFromClass(expectedTypesAfterNew, clazz))
                       } else {
