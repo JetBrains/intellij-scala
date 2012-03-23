@@ -17,6 +17,7 @@ import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
+import com.intellij.psi.PsiManager;
 import com.intellij.testFramework.LightPlatformCodeInsightTestCase;
 import com.intellij.util.Processor;
 import org.jetbrains.annotations.NonNls;
@@ -48,6 +49,10 @@ public abstract class ScalaLightPlatformCodeInsightTestCaseAdapter extends Light
     for (VirtualFile child : dir.getChildren()) {
       refreshDirectory(child);
     }
+  }
+
+  protected VirtualFile getSourceRootAdapter() {
+    return getSourceRoot();
   }
 
   @Override
@@ -146,6 +151,10 @@ public abstract class ScalaLightPlatformCodeInsightTestCaseAdapter extends Light
 
   protected PsiFile getFileAdapter() {
     return getFile();
+  }
+
+  protected PsiManager getPsiManagerAdapter() {
+    return getPsiManager();
   }
 
   protected void configureFromFileTextAdapter(@NonNls final String fileName,
