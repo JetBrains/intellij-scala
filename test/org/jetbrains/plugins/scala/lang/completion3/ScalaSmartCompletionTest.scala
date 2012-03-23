@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.completion3
 
 import com.intellij.codeInsight.completion.CompletionType
+import org.junit.Assert
 
 /**
  * User: Alexander Podkhalyuzin
@@ -52,5 +53,23 @@ class ScalaSmartCompletionTest extends ScalaCompletionTestBase {
 
     completeLookupItem(activeLookup.find(le => le.getLookupString == "ListBuffer").get, '[')
     checkResultByText(resultText)
+  }
+  
+  def testFilterPrivates() {
+    val fileText =
+      """
+      |class Test {
+      |  def foo(): String = ""
+      |  private def bar(): String = ""
+      |}
+      |
+      |object O extends App {
+      |  val s: String = new Test().bar<caret>
+      |}
+      """.stripMargin.replaceAll("\r", "").trim()
+    configureFromFileTextAdapter("dummy.scala", fileText)
+    val (activeLookup, _) = complete(1, CompletionType.SMART)
+
+    Assert.assertNull(activeLookup)
   }
 }
