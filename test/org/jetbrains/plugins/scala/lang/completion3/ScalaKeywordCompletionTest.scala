@@ -168,6 +168,25 @@ class ScalaKeywordCompletionTest extends ScalaCompletionTestBase {
     checkResultByText(resultText)
   }
 
+  def testDoWhile() {
+    val fileText =
+      """
+      |do {} whi<caret>
+      |1
+      """.stripMargin('|').replaceAll("\r", "").trim()
+    configureFromFileTextAdapter("dummy.scala", fileText)
+    val (activeLookup, _) = complete(1, CompletionType.BASIC)
+
+    val resultText =
+      """
+      |do {} while (<caret>)
+      |1
+      """.stripMargin('|').replaceAll("\r", "").trim()
+
+    completeLookupItem(activeLookup.find(le => le.getLookupString == "while").get, '(')
+    checkResultByText(resultText)
+  }
+
   def testFilterFinal() {
     val fileText =
       """

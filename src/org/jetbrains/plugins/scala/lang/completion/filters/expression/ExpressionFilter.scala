@@ -3,29 +3,24 @@ package lang
 package completion
 package filters.expression
 
-import com.intellij.lang.ASTNode
-import psi.api.base.patterns.ScStableReferenceElementPattern;
-import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiErrorElement;
-import com.intellij.psi.filters.ElementFilter;
-import org.jetbrains.annotations.NonNls;
-import org.jetbrains.plugins.scala.lang.psi._
+import psi.api.base.patterns.ScStableReferenceElementPattern
+import com.intellij.psi.filters.ElementFilter
+import org.jetbrains.annotations.NonNls
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.parser._
 import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil._
 
 /** 
-* @author Alexander Podkhalyuzin
-* Date: 22.05.2008
-*/
-
+ * @author Alexander Podkhalyuzin
+ * @since 22.05.2008
+ */
 class ExpressionFilter extends ElementFilter {
   def isAcceptable(element: Object, context: PsiElement): Boolean = {
     if (context.isInstanceOf[PsiComment]) return false
-    val leaf = getLeafByOffset(context.getTextRange().getStartOffset(), context);
+    val leaf = getLeafByOffset(context.getTextRange.getStartOffset, context)
     if (leaf != null) {
-      val parent = leaf.getParent();
+      val parent = leaf.getParent
       if (parent.isInstanceOf[ScReferenceExpression] && !parent.getParent.isInstanceOf[ScPostfixExpr] &&
               !parent.getParent.isInstanceOf[ScStableReferenceElementPattern] &&
               (parent.getPrevSibling == null ||
@@ -34,15 +29,15 @@ class ExpressionFilter extends ElementFilter {
         return true
       }
     }
-    return false;
+    false
   }
 
   def isClassAcceptable(hintClass: java.lang.Class[_]): Boolean = {
-    return true;
+    true
   }
 
   @NonNls
-  override def toString(): String = {
-    return "simple expressions keyword filter";
+  override def toString: String = {
+    "simple expressions keyword filter"
   }
 }
