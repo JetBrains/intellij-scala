@@ -119,7 +119,12 @@ class ScalaInsertHandler extends InsertHandler[LookupElement] {
             else (clauses(0).parameters.length, fun.name, false)
           }
           case method: PsiMethod =>
-            (method.getParameterList.getParametersCount, method.name, method.isAccessor)
+            def isStringSpecialMethod: Boolean = {
+              Set("hashCode", "length", "trim").contains(method.getName) &&
+                method.getContainingClass != null &&
+                method.getContainingClass.getQualifiedName == "java.lang.String"
+            }
+            (method.getParameterList.getParametersCount, method.name, method.isAccessor || isStringSpecialMethod)
           case fun: ScFun =>
             fun.paramClauses match {
               case Seq() => (-1, null, false)

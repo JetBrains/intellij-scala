@@ -297,4 +297,25 @@ class ScalaBasicCompletionTest extends ScalaCompletionTestBase {
     completeLookupItem(activeLookup.find(le => le.getLookupString == "deprecated").get, '\t')
     checkResultByText(resultText)
   }
+
+  def testStringLength() {
+    val fileText =
+      """
+      |class A {
+      |  "".len<caret>
+      |}
+      """.stripMargin.replaceAll("\r", "").trim()
+    configureFromFileTextAdapter("dummy.scala", fileText)
+    val (activeLookup, _) = complete(0, CompletionType.BASIC)
+
+    val resultText =
+      """
+      |class A {
+      |  "".length<caret>
+      |}
+      """.stripMargin.replaceAll("\r", "").trim()
+
+    completeLookupItem(activeLookup.find(le => le.getLookupString == "length").get, '\t')
+    checkResultByText(resultText)
+  }
 }
