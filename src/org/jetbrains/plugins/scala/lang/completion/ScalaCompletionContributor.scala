@@ -30,6 +30,7 @@ import org.jetbrains.plugins.scala.lang.completion.ScalaSmartCompletionContribut
 import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil._
 import psi.api.statements.params.ScClassParameter
 import psi.api.base.{ScStableCodeReferenceElement, ScReferenceElement}
+import com.intellij.patterns.PlatformPatterns._
 
 /**
  * @author Alexander Podkhalyuzin
@@ -39,6 +40,7 @@ import psi.api.base.{ScStableCodeReferenceElement, ScReferenceElement}
 class ScalaCompletionContributor extends CompletionContributor {
   extend(CompletionType.BASIC, PlatformPatterns.psiElement(ScalaTokenTypes.tIDENTIFIER), new CompletionProvider[CompletionParameters] {
     def addCompletions(parameters: CompletionParameters, context: ProcessingContext, result: CompletionResultSet) {
+      result.restartCompletionWhenNothingMatches()
       val expectedTypesAfterNew: Array[ScType] =
       if (afterNewPattern.accepts(parameters.getPosition, context)) {
         val element = parameters.getPosition
@@ -50,6 +52,17 @@ class ScalaCompletionContributor extends CompletionContributor {
       } else Array.empty
       //if prefix is capitalized, class name completion is enabled
       val classNameCompletion = shouldRunClassNameCompletion(parameters, result.getPrefixMatcher)
+      val insertedElement: PsiElement = parameters.getPosition
+      if (!insertedElement.getContainingFile.isInstanceOf[ScalaFile]) return
+      val lookingForAnnotations: Boolean = psiElement.afterLeaf("@").accepts(insertedElement)
+
+      var elementAdded = false
+      def addElement(el: LookupElement) {
+        if (result.getPrefixMatcher.prefixMatches(el))
+          elementAdded = true
+        result.addElement(el)
+      }
+
       parameters.getPosition.getParent match {
         case ref: ScReferenceElement => {
           val isInImport = ScalaPsiUtil.getParentOfType(ref, classOf[ScImportStmt]) != null
@@ -58,39 +71,39 @@ class ScalaCompletionContributor extends CompletionContributor {
               case el: ScalaLookupItem => {
                 val elem = el.element
                 elem match {
-                  case fun: ScFun => result.addElement(el)
-                  case clazz: PsiClass => {
+                  case clazz: PsiClass =>
                     val isExcluded: Boolean = ApplicationManager.getApplication.runReadAction(new Computable[Boolean] {
                       def compute: Boolean = {
-                        JavaCompletionUtil.isInExcludedPackage(clazz, true)
+                        JavaCompletionUtil.isInExcludedPackage(clazz, true) || (lookingForAnnotations && !clazz.isAnnotationType)
                       }
                     }).booleanValue
 
                     if (!isExcluded && !classNameCompletion) {
                       if (afterNewPattern.accepts(parameters.getPosition, context)) {
-                        result.addElement(getLookupElementFromClass(expectedTypesAfterNew, clazz))
+                        addElement(getLookupElementFromClass(expectedTypesAfterNew, clazz))
                       } else {
-                        result.addElement(el)
+                        addElement(el)
                       }
                     }
-                  }
+                  case _ if lookingForAnnotations =>
+                  case fun: ScFun => addElement(el)
                   case param: ScClassParameter =>
-                    result.addElement(el)
+                    addElement(el)
                   case memb: PsiMember => {
                     if (parameters.getInvocationCount > 1 || ResolveUtils.isAccessible(memb, parameters.getPosition))
-                      result.addElement(el)
+                      addElement(el)
                   }
                   case patt: ScBindingPattern => {
                     val context = ScalaPsiUtil.nameContext(patt)
                     context match {
                       case memb: PsiMember => {
                         if (parameters.getInvocationCount > 1 ||
-                          ResolveUtils.isAccessible(memb, parameters.getPosition)) result.addElement(el)
+                          ResolveUtils.isAccessible(memb, parameters.getPosition)) addElement(el)
                       }
-                      case _ => result.addElement(el)
+                      case _ => addElement(el)
                     }
                   }
-                  case _ => result.addElement(el)
+                  case _ => addElement(el)
                 }
               }
               case _ =>
@@ -123,6 +136,9 @@ class ScalaCompletionContributor extends CompletionContributor {
         }
         case _ =>
       }
+      if (!elementAdded && !classNameCompletion && ScalaCompletionUtil.shouldRunClassNameCompletion(parameters, result.getPrefixMatcher, false)) {
+          ScalaClassNameCompletionContributor.completeClassName(parameters, context, result)
+      }
     }
   })
 
@@ -137,7 +153,7 @@ class ScalaCompletionContributor extends CompletionContributor {
 override def beforeCompletion(context: CompletionInitializationContext) {
     val offset = context.getStartOffset - 1
     val file = context.getFile
-    val element = file.findElementAt(offset);
+    val element = file.findElementAt(offset)
     val ref = file.findReferenceAt(offset)
     if (element != null && ref != null) {
       val text = ref match {
