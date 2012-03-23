@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.completion3
 
 import com.intellij.codeInsight.completion.CompletionType
+import org.junit.Assert
 
 /**
  * User: Alexander Podkhalyuzin
@@ -165,5 +166,18 @@ class ScalaKeywordCompletionTest extends ScalaCompletionTestBase {
 
     completeLookupItem(activeLookup.find(le => le.getLookupString == "try").get, '{')
     checkResultByText(resultText)
+  }
+
+  def testFilterFinal() {
+    val fileText =
+      """
+      |class Test {
+      |  def fina<caret>
+      |}
+      """.stripMargin.replaceAll("\r", "").trim()
+    configureFromFileTextAdapter("dummy.scala", fileText)
+    val (activeLookup, _) = complete(1, CompletionType.SMART)
+
+    Assert.assertNull(activeLookup)
   }
 }
