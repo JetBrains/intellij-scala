@@ -72,4 +72,25 @@ class ScalaSmartCompletionTest extends ScalaCompletionTestBase {
 
     Assert.assertNull(activeLookup)
   }
+
+  def testFalse() {
+    val fileText =
+      """
+      |class A {
+      |  val f: Boolean = <caret>
+      |}
+      """.stripMargin.replaceAll("\r", "").trim()
+    configureFromFileTextAdapter("dummy.scala", fileText)
+    val (activeLookup, _) = complete(1, CompletionType.SMART)
+
+    val resultText =
+      """
+      |class A {
+      |  val f: Boolean = false<caret>
+      |}
+      """.stripMargin.replaceAll("\r", "").trim()
+
+    completeLookupItem(activeLookup.find(le => le.getLookupString == "false").get, '\t')
+    checkResultByText(resultText)
+  }
 }
