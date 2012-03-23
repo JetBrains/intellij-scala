@@ -4,9 +4,6 @@ import com.intellij.codeInsight.completion.CompletionType
 import com.intellij.codeInsight.lookup.LookupElementPresentation
 import org.junit.Assert
 import com.intellij.openapi.vfs.VfsUtil
-import com.intellij.openapi.fileEditor.FileDocumentManager
-import com.intellij.openapi.editor.Document
-import com.intellij.psi.PsiJavaFile
 
 /**
  * @author Alefas
