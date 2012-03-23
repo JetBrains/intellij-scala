@@ -45,7 +45,6 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
   private JCheckBox importMembersUsingUnderscoreCheckBox;
   private JCheckBox myDisableLanguageInjection;
   private JCheckBox methodCallBodiesCheckBox;
-  private JCheckBox useClassNameAutocompletionCheckBox;
 
   public ScalaCodeStylePanel(CodeStyleSettings settings) {
     super(settings);
@@ -82,7 +81,6 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
     scalaSettings.ADD_FULL_QUALIFIED_IMPORTS = addFullQualifiedImportsCheckBox.isSelected();
     scalaSettings.CLASS_COUNT_TO_USE_IMPORT_ON_DEMAND = (Integer) classCountSpinner.getValue();
     scalaSettings.IMPORTS_MEMBERS_USING_UNDERSCORE = importMembersUsingUnderscoreCheckBox.isSelected();
-    scalaSettings.USE_CLASS_NAME_COMPLETION_EVERYWHERE = useClassNameAutocompletionCheckBox.isSelected();
 
     scalaSettings.SEARCH_ALL_SYMBOLS = searchAllSymbolsIncludeCheckBox.isSelected();
     scalaSettings.ENABLE_JAVA_TO_SCALA_CONVERSION = enableConversionOnCopyCheckBox.isSelected();
@@ -135,7 +133,6 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
     if (scalaSettings.ADD_IMPORT_MOST_CLOSE_TO_REFERENCE != addImportStatementInCheckBox.isSelected()) return true;
     if (scalaSettings.ADD_FULL_QUALIFIED_IMPORTS != addFullQualifiedImportsCheckBox.isSelected()) return true;
     if (scalaSettings.IMPORTS_MEMBERS_USING_UNDERSCORE != importMembersUsingUnderscoreCheckBox.isSelected()) return true;
-    if (scalaSettings.USE_CLASS_NAME_COMPLETION_EVERYWHERE != useClassNameAutocompletionCheckBox.isSelected()) return true;
 
     if (scalaSettings.SEARCH_ALL_SYMBOLS != searchAllSymbolsIncludeCheckBox.isSelected()) return true;
     if (scalaSettings.ENABLE_JAVA_TO_SCALA_CONVERSION != enableConversionOnCopyCheckBox.isSelected()) return true;
@@ -178,7 +175,6 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
     setValue(addFullQualifiedImportsCheckBox, settings.ADD_FULL_QUALIFIED_IMPORTS);
     setValue(classCountSpinner, settings.CLASS_COUNT_TO_USE_IMPORT_ON_DEMAND);
     setValue(importMembersUsingUnderscoreCheckBox, settings.IMPORTS_MEMBERS_USING_UNDERSCORE);
-    setValue(useClassNameAutocompletionCheckBox, settings.USE_CLASS_NAME_COMPLETION_EVERYWHERE);
 
     setValue(searchAllSymbolsIncludeCheckBox, settings.SEARCH_ALL_SYMBOLS);
     setValue(enableConversionOnCopyCheckBox, settings.ENABLE_JAVA_TO_SCALA_CONVERSION);

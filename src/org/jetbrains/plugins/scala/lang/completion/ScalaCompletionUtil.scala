@@ -37,11 +37,12 @@ import formatting.settings.ScalaCodeStyleSettings
 */
 
 object ScalaCompletionUtil {
-  def shouldRunClassNameCompletion(parameters: CompletionParameters, prefixMatcher: PrefixMatcher): Boolean = {
+  def shouldRunClassNameCompletion(parameters: CompletionParameters, prefixMatcher: PrefixMatcher,
+                                   checkInvocationCount: Boolean = true): Boolean = {
     val element = parameters.getPosition
     val settings = CodeStyleSettingsManager.getSettings(element.getProject).
       getCustomSettings(classOf[ScalaCodeStyleSettings])
-    if (!settings.USE_CLASS_NAME_COMPLETION_EVERYWHERE && parameters.getInvocationCount < 2) return false
+    if (checkInvocationCount && parameters.getInvocationCount < 2) return false
     if (element.getNode.getElementType == ScalaTokenTypes.tIDENTIFIER) {
       element.getParent match {
         case ref: ScReferenceElement if ref.qualifier != None => return false

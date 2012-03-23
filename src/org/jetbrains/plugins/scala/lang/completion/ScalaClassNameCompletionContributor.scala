@@ -26,9 +26,31 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticCla
 import org.jetbrains.plugins.scala.config.ScalaFacet
 import com.intellij.openapi.module.{ModuleUtil, Module}
 import org.jetbrains.plugins.scala.extensions.toPsiClassExt
+import ScalaSmartCompletionContributor._
 
 class ScalaClassNameCompletionContributor extends CompletionContributor {
-  import ScalaSmartCompletionContributor._
+  import ScalaClassNameCompletionContributor._
+
+  extend(CompletionType.CLASS_NAME, psiElement, new CompletionProvider[CompletionParameters] {
+    def addCompletions(parameters: CompletionParameters, context: ProcessingContext,
+                       result: CompletionResultSet) {
+      if (completeClassName(parameters, context, result)) return
+      result.stopHere()
+    }
+  })
+
+  extend(CompletionType.BASIC, PlatformPatterns.psiElement(ScalaTokenTypes.tIDENTIFIER).
+    withParent(classOf[ScReferenceElement]), new CompletionProvider[CompletionParameters] {
+    def addCompletions(parameters: CompletionParameters, context: ProcessingContext, result: CompletionResultSet) {
+      if (shouldRunClassNameCompletion(parameters, result.getPrefixMatcher)) {
+        completeClassName(parameters, context, result)
+      }
+      result.stopHere()
+    }
+  })
+}
+
+object ScalaClassNameCompletionContributor {
   def completeClassName(parameters: CompletionParameters, context: ProcessingContext,
                         result: CompletionResultSet): Boolean = {
     val expectedTypesAfterNew: Array[ScType] =
@@ -76,19 +98,19 @@ class ScalaClassNameCompletionContributor extends CompletionContributor {
 
     val project = insertedElement.getProject
     val module: Module = ModuleUtil.findModuleForPsiElement(parameters.getOriginalPosition)
-     val checkSynthetic = if (module == null) true else ScalaFacet.findIn(module).map(facet => {
-       val version = facet.version
-       if (version.length() < 3) true //let's think about 2.9
-       else {
-         val substring = version.substring(0, 3)
-         try {
-           substring.toDouble < 2.9 - Double.MinPositiveValue
-         }
-         catch {
-           case n: NumberFormatException => true //let's think about 2.9
-         }
-       }
-     }).getOrElse(true)
+    val checkSynthetic = if (module == null) true else ScalaFacet.findIn(module).map(facet => {
+      val version = facet.version
+      if (version.length() < 3) true //let's think about 2.9
+      else {
+        val substring = version.substring(0, 3)
+        try {
+          substring.toDouble < 2.9 - Double.MinPositiveValue
+        }
+        catch {
+          case n: NumberFormatException => true //let's think about 2.9
+        }
+      }
+    }).getOrElse(true)
     for (clazz <- SyntheticClasses.get(project).all.valuesIterator) {
       if (checkSynthetic || !ScType.baseTypesQualMap.contains(clazz.qualifiedName)) {
         addClass(clazz)
@@ -108,22 +130,4 @@ class ScalaClassNameCompletionContributor extends CompletionContributor {
       })
     false
   }
-
-  extend(CompletionType.CLASS_NAME, psiElement, new CompletionProvider[CompletionParameters] {
-    def addCompletions(parameters: CompletionParameters, context: ProcessingContext,
-                       result: CompletionResultSet) {
-      if (completeClassName(parameters, context, result)) return
-      result.stopHere()
-    }
-  })
-
-  extend(CompletionType.BASIC, PlatformPatterns.psiElement(ScalaTokenTypes.tIDENTIFIER).
-    withParent(classOf[ScReferenceElement]), new CompletionProvider[CompletionParameters] {
-    def addCompletions(parameters: CompletionParameters, context: ProcessingContext, result: CompletionResultSet) {
-      if (shouldRunClassNameCompletion(parameters, result.getPrefixMatcher)) {
-        completeClassName(parameters, context, result)
-      }
-      result.stopHere()
-    }
-  })
 }
