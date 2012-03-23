@@ -309,11 +309,13 @@ object MyScaladocParsing {
   val TODO_TAG = "@todo"
   val USECASE_TAG = "@usecase"
   val EXAMPLE_TAG = "@example"
-  
+  val DEPRECATED_TAG = "@deprecated"
+  val MIGRATION_TAG = "@migration"
+
   val escapeSequencesForWiki = HashMap[String, String]("`" -> "&#96;", "^" -> "&#94;", "__" -> "&#95;&#95;",
     "'''" -> "&#39;&#39;&#39;", "''" -> "&#39;&#39;", ",," -> "&#44;&#44;", "[[" -> "&#91;&#91;", "=" -> "&#61;")
 
   val allTags = Set(PARAM_TAG, TYPE_PARAM_TAG, THROWS_TAG, SEE_TAG, AUTHOR_TAG, NOTE_TAG, RETURN_TAG, SINCE_TAG,
-    DEFINE_TAG, VERSION_TAG, TODO_TAG, USECASE_TAG, EXAMPLE_TAG)
+    DEFINE_TAG, VERSION_TAG, TODO_TAG, USECASE_TAG, EXAMPLE_TAG, DEPRECATED_TAG, MIGRATION_TAG)
   val tagsWithParameters = Set(PARAM_TAG, TYPE_PARAM_TAG, THROWS_TAG)
 }

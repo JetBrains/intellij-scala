@@ -228,11 +228,6 @@ with DumbAware {
       }
 
 
-      override def visitSimpleTypeElement(simple: ScSimpleTypeElement) {
-        annotateSimpleTypeCollection(simple, holder)
-        super.visitSimpleTypeElement(simple)
-      }
-
       override def visitConstructor(constr: ScConstructor) {
         if (typeAware) annotateConstructor(constr, holder)
         super.visitConstructor(constr)
