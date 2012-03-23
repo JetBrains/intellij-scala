@@ -5,6 +5,7 @@ import com.intellij.codeInsight.completion.{CompletionLocation, CompletionWeighe
 import com.intellij.psi.PsiMethod
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.extensions.toPsiNamedElementExt
+import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 
 /**
  * @author Alexander Podkhalyuzin
@@ -23,7 +24,10 @@ class ScalaMethodCompletionWeigher extends CompletionWeigher {
 
 
   def weigh(element: LookupElement, location: CompletionLocation): Comparable[_] = {
-    val obj = element.getObject
+    val obj = element match {
+      case s: ScalaLookupItem => s.element
+      case _ => element.getObject
+    }
     obj match {
       case psi: ScFunction =>
         MethodNameComparable(psi.name, psi.parameters.length > 0)

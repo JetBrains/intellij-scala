@@ -29,7 +29,7 @@ class ScalaKeywordInsertHandler(val keyword: String) extends InsertHandler[Looku
       case _ => {
         def addSpace(addCompletionChar: Boolean = false) {
           context.setAddCompletionChar(addCompletionChar)
-          if (document.getText.charAt(offset) != ' ')
+          if (document.getTextLength <= offset || document.getText.charAt(offset) != ' ')
             document.insertString(offset, " ")
           editor.getCaretModel.moveToOffset(offset + 1)
         }
