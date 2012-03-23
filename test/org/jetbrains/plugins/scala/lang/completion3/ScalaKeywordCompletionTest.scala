@@ -180,4 +180,16 @@ class ScalaKeywordCompletionTest extends ScalaCompletionTestBase {
 
     Assert.assertNull(activeLookup)
   }
+
+  def testFilterImplicit() {
+    val fileText =
+      """
+      |def foo(p: (Int => Int)) {}
+      |foo((impl<caret>: Int) => 0)
+      """.stripMargin.replaceAll("\r", "").trim()
+    configureFromFileTextAdapter("dummy.scala", fileText)
+    val (activeLookup, _) = complete(1, CompletionType.SMART)
+
+    Assert.assertNull(activeLookup)
+  }
 }
