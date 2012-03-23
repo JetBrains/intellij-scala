@@ -79,7 +79,7 @@
                             order="before scalaClassNameCompletionContributor"/>
     <completion.confidence language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.completion.ScalaCompletionConfidence"/>
     <lookup.actionProvider implementation="org.jetbrains.plugins.scala.lang.completion.ScalaImportStaticLookupActionProvider"/>
-    <weigher key="completionSorting" implementationClass="org.jetbrains.plugins.scala.lang.completion.weighter.ScalaContainingClassWiegher"
+    <weigher key="completion" implementationClass="org.jetbrains.plugins.scala.lang.completion.weighter.ScalaContainingClassWiegher"
              id="scalaContainingClassWeigher" order="before sLookupString"/>
     <weigher key="completion" implementationClass="org.jetbrains.plugins.scala.lang.completion.weighter.ScalaMethodCompletionWeigher"
              id="scalaMethodCompletionWeigher" order="after negativeStats, before stats"/>

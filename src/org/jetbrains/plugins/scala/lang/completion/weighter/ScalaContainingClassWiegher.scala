@@ -13,8 +13,8 @@ class ScalaContainingClassWiegher extends CompletionWeigher {
   def weigh(element: LookupElement, location: CompletionLocation): Comparable[_] = {
     element match {
       case element: ScalaLookupItem =>
-        if (element.isBold) new Integer(0)
-        else if (element.isUnderlined) new Integer(2)
+        if (element.bold) new Integer(2)
+        else if (element.isUnderlined) new Integer(0)
         else new Integer(1)
       case _ => new Integer(1)
     }
