@@ -44,6 +44,8 @@ class ScFunctionWrapper(val function: ScFunction, isStatic: Boolean, isInterface
   override def canNavigateToSource: Boolean = function.canNavigateToSource
 
   override def getParent: PsiElement = containingClass
+
+  override def getTextOffset: Int = function.getTextOffset
 }
 
 object ScFunctionWrapper {
