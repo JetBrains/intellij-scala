@@ -58,7 +58,7 @@ object AnnotatorHighlighter {
 
   def highlightReferenceElement(refElement: ScReferenceElement, holder: AnnotationHolder) {
 
-    def annotateCollectionByType(resolvedType: ScType, needAnnotateParent: Boolean) {
+    def annotateCollectionByType(resolvedType: ScType) {
 
       def conformsByNames(tp: ScType, qn: List[String]): Boolean = {
         qn.exists(textName => {
@@ -69,14 +69,7 @@ object AnnotatorHighlighter {
       }
 
       def simpleAnnotate(annotationText: String, annotationAttributes: TextAttributesKey) {
-        val elementToAnnotate = if (!needAnnotateParent ||
-                !(refElement.getParent != null && refElement.getParent.isInstanceOf[ScReferenceElement])) {
-          refElement.nameId
-        } else {
-          refElement.getParent.asInstanceOf[ScReferenceElement].nameId
-        }
-
-        val annotation = holder.createInfoAnnotation(elementToAnnotate, annotationText)
+        val annotation = holder.createInfoAnnotation(refElement.nameId, annotationText)
         annotation.setTextAttributes(annotationAttributes)
       }
 
@@ -103,7 +96,7 @@ object AnnotatorHighlighter {
     }
 
     def annotateCollection(resolvedClazz: PsiClass, needAnnotateParent: Boolean) {
-      annotateCollectionByType(ScType.designator(resolvedClazz), false)
+      annotateCollectionByType(ScType.designator(resolvedClazz))
     }
 
     val c = ScalaPsiUtil.getParentOfType(refElement, classOf[ScConstructor])
@@ -129,16 +122,13 @@ object AnnotatorHighlighter {
       case _: ScTypeParam => {
         annotation.setTextAttributes(DefaultHighlighter.TYPEPARAM)
       }
-      case x: ScTypeAlias => {
-        val originalElement = x.asInstanceOf[ScTypeAlias].getOriginalElement
-        if (originalElement.isInstanceOf[ScTypeAliasDefinition] && originalElement.asInstanceOf[ScTypeAliasDefinition].aliasedTypeElement != null) {
-          Option(originalElement.asInstanceOf[ScTypeAliasDefinition]).foreach(d => {
-            Option(d.aliasedTypeElement).foreach(a => annotateCollectionByType(a.calcType, false))
-          })
+      case x: ScTypeAlias =>
+        x.getOriginalElement match {
+          case originalElement: ScTypeAliasDefinition =>
+            originalElement.aliasedType.foreach(annotateCollectionByType(_))
+          case _ =>
         }
-
         annotation.setTextAttributes(DefaultHighlighter.TYPE_ALIAS)
-      }
       case c: ScClass if referenceIsToCompanionObjectOfClass(refElement) => {
         annotation.setTextAttributes(DefaultHighlighter.OBJECT)
       }
@@ -168,7 +158,7 @@ object AnnotatorHighlighter {
         parent match {
           case r@(_: ScValue | _: ScVariable) => {
             Option(x.getContainingClass).foreach(a => if (SCALA_PREDEFINED_OBJECTS.contains(a.qualifiedName)) {
-              x.getType(TypingContext.empty).foreach(annotateCollectionByType(_, false))
+              x.getType(TypingContext.empty).foreach(annotateCollectionByType(_))
             })
 
             getParentByStub(parent) match {
