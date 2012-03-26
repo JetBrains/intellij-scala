@@ -16,16 +16,16 @@ import org.jetbrains.plugins.scala.extensions.toPsiClassExt
  * Date: 01.12.11
  */
 
-trait PrecedenceHelper {
+trait PrecedenceHelper[T] {
   this: BaseProcessor =>
 
   protected def getPlace: PsiElement
   protected lazy val placePackageName: String = ResolveUtils.getPlacePackage(getPlace)
   protected val levelSet: java.util.HashSet[ScalaResolveResult] = new java.util.HashSet
-  protected val qualifiedNamesSet: HashSet[String] = new HashSet[String]
-  protected val levelQualifiedNamesSet: HashSet[String] = new HashSet[String]
+  protected val qualifiedNamesSet: HashSet[T] = new HashSet[T]
+  protected val levelQualifiedNamesSet: HashSet[T] = new HashSet[T]
 
-  protected def getQualifiedName(result: ScalaResolveResult): String
+  protected def getQualifiedName(result: ScalaResolveResult): T
 
   /**
    * Returns highest precedence of all resolve results.
@@ -46,7 +46,7 @@ trait PrecedenceHelper {
   protected def addResult(result: ScalaResolveResult): Boolean = addResults(Seq(result))
   protected def addResults(results: Seq[ScalaResolveResult]): Boolean = {
     if (results.length == 0) return true
-    lazy val qualifiedName: String = getQualifiedName(results(0))
+    lazy val qualifiedName: T = getQualifiedName(results(0))
     def addResults() {
       if (qualifiedName != null) levelQualifiedNamesSet += qualifiedName
       val iterator = results.iterator
@@ -55,14 +55,15 @@ trait PrecedenceHelper {
       }
     }
     val currentPrecedence = getPrecedence(results(0))
-    if (currentPrecedence < getTopPrecedence(results(0))) return false
-    else if (currentPrecedence == getTopPrecedence(results(0)) && levelSet.isEmpty) return false
-    else if (currentPrecedence == getTopPrecedence(results(0)) && !levelSet.isEmpty) {
+    val topPrecedence = getTopPrecedence(results(0))
+    if (currentPrecedence < topPrecedence) return false
+    else if (currentPrecedence == topPrecedence && levelSet.isEmpty) return false
+    else if (currentPrecedence == topPrecedence && !levelSet.isEmpty) {
       if (isCheckForEqualPrecedence && qualifiedName != null &&
         (levelQualifiedNamesSet.contains(qualifiedName) ||
         qualifiedNamesSet.contains(qualifiedName))) {
         return false
-      }
+      } else if (qualifiedName != null && qualifiedNamesSet.contains(qualifiedName)) return false
       addResults()
     } else {
       if (qualifiedName != null && (levelQualifiedNamesSet.contains(qualifiedName) ||

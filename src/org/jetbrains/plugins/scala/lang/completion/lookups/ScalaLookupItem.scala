@@ -16,13 +16,13 @@ import util.PsiTreeUtil
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportSelectors, ScImportStmt}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import com.intellij.codeInsight.AutoPopupController
-import com.intellij.openapi.util.Condition
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.annotator.intention.ScalaImportClassFix
 import org.jetbrains.plugins.scala.extensions.{toPsiClassExt, toPsiNamedElementExt}
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScSubstitutor}
+import com.intellij.openapi.util.{Comparing, Condition}
 
 /**
  * @author Alefas
@@ -106,6 +106,15 @@ class ScalaLookupItem(val element: PsiNamedElement, name: String) extends Lookup
   private val containingClass = ScalaPsiUtil.nameContext(element) match {
     case memb: PsiMember => memb.getContainingClass
     case _ => null
+  }
+
+  override def equals(o: Any): Boolean = {
+    if (!super.equals(o)) return false
+    o match {
+      case s: ScalaLookupItem => if (isNamedParameter != s.isNamedParameter) return false
+      case _ =>
+    }
+    true
   }
 
   override def renderElement(presentation: LookupElementPresentation) {

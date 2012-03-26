@@ -252,8 +252,8 @@ trait ScImportsHolder extends ScalaPsiElement {
       case ss => ss.mkString("{", ", ", "}")
     }
 
-    val completionProcessor = new CompletionProcessor(StdKinds.packageRef)
     val place = getLastChild
+    val completionProcessor = new CompletionProcessor(StdKinds.packageRef, place)
     def treeWalkUp(place: PsiElement, lastParent: PsiElement) {
       place match {
         case null =>
