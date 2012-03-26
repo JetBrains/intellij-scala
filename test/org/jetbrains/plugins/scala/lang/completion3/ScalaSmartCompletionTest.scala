@@ -93,6 +93,7 @@ class ScalaSmartCompletionTest extends ScalaCompletionTestBase {
     completeLookupItem(activeLookup.find(le => le.getLookupString == "false").get, '\t')
     checkResultByText(resultText)
   }
+
   def testClassOf() {
     val fileText =
       """
@@ -106,7 +107,7 @@ class ScalaSmartCompletionTest extends ScalaCompletionTestBase {
     val resultText =
       """
       |class A {
-      |  val f: Class[_] = classOf<caret>
+      |  val f: Class[_] = classOf[<caret>]
       |}
       """.stripMargin.replaceAll("\r", "").trim()
 
