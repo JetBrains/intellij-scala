@@ -150,7 +150,7 @@ class ScalaGlobalMembersCompletionContributor extends CompletionContributor {
       val next = iterator.next()
       if (next._1) {
         val retTp = next._4
-        val c = new CompletionProcessor(StdKinds.methodRef)
+        val c = new CompletionProcessor(StdKinds.methodRef, ref)
         c.processType(retTp, ref)
         for (elem <- c.candidates) {
           val shouldImport = !elemsSetContains(elem.getElement)

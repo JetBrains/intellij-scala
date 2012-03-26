@@ -95,7 +95,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
   override def getVariants(implicits: Boolean, filterNotNamedVariants: Boolean): Array[Object] = {
     val isInImport: Boolean = ScalaPsiUtil.getParentOfType(this, classOf[ScImportStmt]) != null
 
-    doResolve(this, new CompletionProcessor(getKinds(true), implicits)).filter(r => {
+    doResolve(this, new CompletionProcessor(getKinds(true), this, implicits)).filter(r => {
       if (filterNotNamedVariants) {
         r match {
           case res: ScalaResolveResult => res.isNamedParameter
@@ -111,7 +111,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
     }
   }
 
-  def getSameNameVariants: Array[ResolveResult] = doResolve(this, new CompletionProcessor(getKinds(true), true, Some(refName)))
+  def getSameNameVariants: Array[ResolveResult] = doResolve(this, new CompletionProcessor(getKinds(true), this, true, Some(refName)))
 
   def getKinds(incomplete: Boolean, completion: Boolean = false) = {
     getContext match {

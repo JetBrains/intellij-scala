@@ -119,15 +119,14 @@ class ScalaCompletionContributor extends CompletionContributor {
           }
           ref match {
             case refImpl: ScStableCodeReferenceElementImpl =>
-              refImpl.doResolve(refImpl,
-                new CompletionProcessor(refImpl.getKinds(false, true), postProcess = postProcessMethod _)
-              )
+              val processor = new CompletionProcessor(refImpl.getKinds(false, true), refImpl, postProcess = postProcessMethod _)
+              refImpl.doResolve(refImpl, processor)
             case refImpl: ScReferenceExpressionImpl =>
-              refImpl.doResolve(refImpl,
-                new CompletionProcessor(refImpl.getKinds(false, true), collectImplicits = true, postProcess = postProcessMethod _)
-              )
+              val processor = new CompletionProcessor(refImpl.getKinds(false, true), refImpl, collectImplicits = true, postProcess = postProcessMethod _)
+              refImpl.doResolve(refImpl, processor)
             case refImpl: ScTypeProjectionImpl =>
-              refImpl.doResolve(new CompletionProcessor(refImpl.getKinds(false, true), postProcess = postProcessMethod _))
+              val processor = new CompletionProcessor(refImpl.getKinds(false, true), refImpl, postProcess = postProcessMethod _)
+              refImpl.doResolve(processor)
             case _ =>
               for (variant <- ref.getVariants()) {
                 applyVariant(variant)

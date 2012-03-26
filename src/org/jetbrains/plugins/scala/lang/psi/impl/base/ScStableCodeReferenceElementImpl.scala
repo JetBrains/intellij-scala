@@ -40,7 +40,7 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
 
   def getVariants: Array[Object] = {
     val isInImport: Boolean = ScalaPsiUtil.getParentOfType(this, classOf[ScImportStmt]) != null
-    doResolve(this, new CompletionProcessor(getKinds(true))).flatMap {
+    doResolve(this, new CompletionProcessor(getKinds(true), this)).flatMap {
       case res: ScalaResolveResult =>
         import org.jetbrains.plugins.scala.lang.psi.types.Nothing
         val qualifier = res.fromType.getOrElse(Nothing)
@@ -142,7 +142,7 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
     }
   }
 
-  def getSameNameVariants: Array[ResolveResult] = doResolve(this, new CompletionProcessor(getKinds(true), false, Some(refName)))
+  def getSameNameVariants: Array[ResolveResult] = doResolve(this, new CompletionProcessor(getKinds(true), this, false, Some(refName)))
 
   override def delete() {
     getContext match {

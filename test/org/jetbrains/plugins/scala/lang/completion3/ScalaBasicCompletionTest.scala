@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.completion3
 
 import com.intellij.codeInsight.completion.CompletionType
+import org.junit.Assert
 
 /**
  * User: Alefas
@@ -317,5 +318,80 @@ class ScalaBasicCompletionTest extends ScalaCompletionTestBase {
 
     completeLookupItem(activeLookup.find(le => le.getLookupString == "length").get, '\t')
     checkResultByText(resultText)
+  }
+
+  def testNamedParametersCompletion() {
+    val fileText =
+      """
+      |class A {
+      |  def foo(xxxx: Int) {
+      |    foo(xxx<caret>)
+      |  }
+      |}
+      """.stripMargin.replaceAll("\r", "").trim()
+    configureFromFileTextAdapter("dummy.scala", fileText)
+    val (activeLookup, _) = complete(0, CompletionType.BASIC)
+    Assert.assertTrue(activeLookup.length == 2)
+  }
+  
+  def testHiding1() {
+    val fileText =
+      """
+      |class SmartValueInitializerCompletion {
+      |  def foo(x: Int) {}
+      |  def foo(x: Boolean) {}
+      |  def goo() {
+      |    def foo(x: Int, y: Int) {}
+      |    val x = 123
+      |    f<caret>
+      |  }
+      |}
+      """.stripMargin.replaceAll("\r", "").trim()
+    configureFromFileTextAdapter("dummy.scala", fileText)
+    val (activeLookup, _) = complete(0, CompletionType.BASIC)
+    Assert.assertTrue(activeLookup.filter(_.getLookupString == "foo").length == 1)
+  }
+
+  def testHiding2() {
+    val fileText =
+      """
+      |class SmartValueInitializerCompletion {
+      |  def foo(x: Int) {}
+      |  def foo(x: Boolean) {}
+      |  f<caret>
+      |  def goo() {
+      |    def foo(x: Int, y: Int) {}
+      |    val x = 123
+      |  }
+      |}
+      """.stripMargin.replaceAll("\r", "").trim()
+    configureFromFileTextAdapter("dummy.scala", fileText)
+    val (activeLookup, _) = complete(0, CompletionType.BASIC)
+    Assert.assertTrue(activeLookup.filter(_.getLookupString == "foo").length == 2)
+  }
+
+  def testHiding3() {
+    val fileText =
+      """
+      |class SmartValueInitializerCompletion {
+      |  val foo: Int = 1
+      |  def goo(foo: Int) {
+      |    f<caret>
+      |  }
+      |}
+      """.stripMargin.replaceAll("\r", "").trim()
+    configureFromFileTextAdapter("dummy.scala", fileText)
+    val (activeLookup, _) = complete(0, CompletionType.BASIC)
+    Assert.assertTrue(activeLookup.filter(_.getLookupString == "foo").length == 1)
+  }
+
+  def testHidingImplicits() {
+    val fileText =
+      """
+      |"".<caret>
+      """.stripMargin.replaceAll("\r", "").trim()
+    configureFromFileTextAdapter("dummy.scala", fileText)
+    val (activeLookup, _) = complete(0, CompletionType.BASIC)
+    Assert.assertTrue(activeLookup.filter(_.getLookupString == "x").length == 0)
   }
 }
