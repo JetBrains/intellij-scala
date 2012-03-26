@@ -93,4 +93,24 @@ class ScalaSmartCompletionTest extends ScalaCompletionTestBase {
     completeLookupItem(activeLookup.find(le => le.getLookupString == "false").get, '\t')
     checkResultByText(resultText)
   }
+  def testClassOf() {
+    val fileText =
+      """
+      |class A {
+      |  val f: Class[_] = <caret>
+      |}
+      """.stripMargin.replaceAll("\r", "").trim()
+    configureFromFileTextAdapter("dummy.scala", fileText)
+    val (activeLookup, _) = complete(1, CompletionType.SMART)
+
+    val resultText =
+      """
+      |class A {
+      |  val f: Class[_] = classOf<caret>
+      |}
+      """.stripMargin.replaceAll("\r", "").trim()
+
+    completeLookupItem(activeLookup.find(le => le.getLookupString == "classOf").get, '\t')
+    checkResultByText(resultText)
+  }
 }
