@@ -19,17 +19,20 @@ import types.result.{TypeResult, Failure, TypingContext}
 */
 
 trait ScTypeAliasDefinition extends ScTypeAlias {
-  def aliasedTypeElement = findChildByClassScala(classOf[ScTypeElement])
+  def aliasedTypeElement: ScTypeElement = {
+    val stub = this.asInstanceOf[ScalaStubBasedElementImpl[_ <: PsiElement]].getStub
+    if (stub != null) {
+      return stub.asInstanceOf[ScTypeAliasStub].getTypeElement
+    }
+
+    findChildByClassScala(classOf[ScTypeElement])
+  }
 
   def aliasedType(ctx: TypingContext): TypeResult[ScType] = {
     if (ctx.visited.contains(this)) {
       new Failure(ScalaBundle.message("circular.dependency.detected", name), Some(this)) {override def isCyclic = true}
     } else {
-      val stub = this.asInstanceOf[ScalaStubBasedElementImpl[_ <: PsiElement]].getStub
-      if (stub != null) {
-        stub.asInstanceOf[ScTypeAliasStub].getTypeElement.getType(ctx(this))
-      } else 
-        aliasedTypeElement.getType(ctx(this))
+      aliasedTypeElement.getType(ctx(this))
     }
   }
 
