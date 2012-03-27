@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.completion3
 
 import com.intellij.codeInsight.completion.CompletionType
+import org.junit.Assert
 
 /**
  * @author Alexander Podkhalyuzin
@@ -174,5 +175,43 @@ class TUI {
 """.replaceAll("\r", "").trim()
 
     checkResultByText(resultText)
+  }
+
+  def testGlobalMember8() {
+    val fileText =
+"""
+object BlahBlahBlahContainer {
+  private def doSmthPrivate() {}
+  def doSmthPublic() {}
+}
+
+class Test {
+  def test() {
+    dsp<caret>
+  }
+}
+""".replaceAll("\r", "").trim()
+    configureFromFileTextAdapter("dummy7.scala", fileText)
+    val (activeLookup, _) = complete(completionType = CompletionType.CLASS_NAME)
+    Assert.assertTrue(activeLookup.find(_.getLookupString == "doSmthPrivate") == None)
+  }
+
+  def testGlobalMember9() {
+    val fileText =
+      """
+      object BlahBlahBlahContainer {
+        private def doSmthPrivate() {}
+        def doSmthPublic() {}
+      }
+
+      class Test {
+        def test() {
+          dsp<caret>
+        }
+      }
+      """.replaceAll("\r", "").trim()
+    configureFromFileTextAdapter("dummy7.scala", fileText)
+    val (activeLookup, _) = complete(completionType = CompletionType.CLASS_NAME, time = 2)
+    Assert.assertTrue(activeLookup.find(_.getLookupString == "doSmthPrivate") != None)
   }
 }

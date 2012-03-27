@@ -9,7 +9,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScPrefixExpr, ScPostfixExp
 import com.intellij.featureStatistics.FeatureUsageTracker
 import search.{PsiShortNamesCache, GlobalSearchScope}
 import gnu.trove.THashSet
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTypeDefinition, ScObject}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import com.intellij.codeInsight.CodeInsightSettings
 import com.intellij.patterns.PlatformPatterns.psiElement
@@ -26,6 +25,7 @@ import org.jetbrains.plugins.scala.lang.resolve.{StdKinds, ScalaResolveResult, R
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScVariable, ScValue}
 import org.jetbrains.plugins.scala.caches.ScalaShortNamesCacheManager
 import org.jetbrains.plugins.scala.extensions.{toPsiNamedElementExt, toPsiClassExt}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTypeDefinition, ScObject}
 
 /**
  * @author Alexander Podkhalyuzin
@@ -49,7 +49,7 @@ class ScalaGlobalMembersCompletionContributor extends CompletionContributor {
                 case pref: ScPrefixExpr if pref.operation == ref => pref.getBaseExpr
                 case _ =>
                   if (result.getPrefixMatcher.getPrefix == "") return
-                  complete(ref, result, parameters.getOriginalFile)
+                  complete(ref, result, parameters.getOriginalFile, parameters.getInvocationCount)
                   return
               }
           }
@@ -165,7 +165,7 @@ class ScalaGlobalMembersCompletionContributor extends CompletionContributor {
     }
   }
 
-  private def complete(ref: ScReferenceExpression, result: CompletionResultSet, originalFile: PsiFile) {
+  private def complete(ref: ScReferenceExpression, result: CompletionResultSet, originalFile: PsiFile, invocationCount: Int) {
     FeatureUsageTracker.getInstance.triggerFeatureUsed(JavaCompletionFeatures.GLOBAL_MEMBER_NAME)
     val matcher: PrefixMatcher = result.getPrefixMatcher
     val scope: GlobalSearchScope = ref.getResolveScope
@@ -227,6 +227,10 @@ class ScalaGlobalMembersCompletionContributor extends CompletionContributor {
 
     val methodNamesIterator = namesCache.getAllMethodNames.iterator
 
+    def isAccessible(member: PsiMember, containingClass: PsiClass): Boolean = {
+      invocationCount >= 2 || (ResolveUtils.isAccessible(member, ref) && ResolveUtils.isAccessible(containingClass, ref))
+    }
+
     while (methodNamesIterator.hasNext) {
       val methodName = methodNamesIterator.next()
       if (matcher.prefixMatches(methodName)) {
@@ -237,8 +241,7 @@ class ScalaGlobalMembersCompletionContributor extends CompletionContributor {
           if (isStatic(method)) {
             val containingClass: PsiClass = method.getContainingClass
             assert(containingClass != null)
-            if (classes.add(containingClass) &&
-              ResolveUtils.isAccessible(containingClass, ref)) {
+            if (classes.add(containingClass) && isAccessible(method, containingClass)) {
               val shouldImport = !elemsSetContains(method)
               showHint(shouldImport)
 
@@ -272,7 +275,7 @@ class ScalaGlobalMembersCompletionContributor extends CompletionContributor {
           if (isStatic(field)) {
             val containingClass: PsiClass = field.getContainingClass
             assert(containingClass != null)
-            if (ResolveUtils.isAccessible(field, ref)) {
+            if (isAccessible(field, containingClass)) {
               val shouldImport = !elemsSetContains(field)
               showHint(shouldImport)
 
@@ -299,7 +302,7 @@ class ScalaGlobalMembersCompletionContributor extends CompletionContributor {
           if (namedElement != null && isStatic(namedElement)) {
             val containingClass: PsiClass = field.getContainingClass
             assert(containingClass != null)
-            if (ResolveUtils.isAccessible(field, ref)) {
+            if (isAccessible(field, containingClass)) {
               val shouldImport = !elemsSetContains(namedElement)
               showHint(shouldImport)
 

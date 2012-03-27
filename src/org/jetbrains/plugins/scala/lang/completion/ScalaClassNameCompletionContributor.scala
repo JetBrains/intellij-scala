@@ -63,6 +63,7 @@ object ScalaClassNameCompletionContributor {
         })
       } else Array.empty
     val insertedElement: PsiElement = parameters.getPosition
+    val invocationCount = parameters.getInvocationCount
     if (!insertedElement.getContainingFile.isInstanceOf[ScalaFile]) return true
     val lookingForAnnotations: Boolean = psiElement.afterLeaf("@").accepts(insertedElement)
     val isInImport = ScalaPsiUtil.getParentOfType(insertedElement, classOf[ScImportStmt]) != null
@@ -77,7 +78,9 @@ object ScalaClassNameCompletionContributor {
           JavaCompletionUtil.isInExcludedPackage(psiClass, true)
         }
       }).booleanValue
+      val isAccessible = invocationCount >= 2 || ResolveUtils.isAccessible(psiClass, insertedElement)
       if (isExcluded) return
+      if (!isAccessible) return
       if (lookingForAnnotations && !psiClass.isAnnotationType) return
       psiClass match {
         case _: ScClass | _: ScTrait if !isInImport && !onlyClasses => return
