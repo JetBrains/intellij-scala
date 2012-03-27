@@ -11,6 +11,7 @@ class ScalaCharFilter extends CharFilter {
     val file = lookup.getPsiFile
     if (!file.isInstanceOf[ScalaFile]) return null
     if (c == '[' || c == '{' || c == ')' || c == ']' || c == '}') return Result.SELECT_ITEM_AND_FINISH_LOOKUP
+    if (c == '`') return Result.ADD_TO_PREFIX
     if (c == ':') return Result.HIDE_LOOKUP
     null
   }
