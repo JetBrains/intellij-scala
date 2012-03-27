@@ -109,7 +109,10 @@ object ScSyntheticPackage {
           }
 
           def getClasses(scope: GlobalSearchScope) =
-            getClasses.filter{clazz => scope.contains(clazz.getContainingFile.getVirtualFile)}
+            getClasses.filter{clazz => {
+              val file = clazz.getContainingFile.getVirtualFile
+              file != null && scope.contains(file)
+            }}
 
           def getParentPackage = ScPackageImpl.findPackage(project, pname)
 
