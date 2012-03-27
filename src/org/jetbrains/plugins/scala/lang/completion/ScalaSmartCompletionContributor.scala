@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.lang.completion
 
 import handlers.{ScalaKeywordInsertHandler, ScalaGenerateAnonymousFunctionInsertHandler, ScalaConstructorInsertHandler}
-import lookups.ScalaLookupItem
+import lookups.{LookupElementManager, ScalaLookupItem}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import com.intellij.codeInsight.completion._
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
@@ -93,8 +93,7 @@ class ScalaSmartCompletionContributor extends CompletionContributor {
     }
     if (typez.find(_.equiv(types.Boolean)) != None) {
       for (keyword <- Set("false", "true")) {
-        val builder: LookupElementBuilder = LookupElementBuilder.create(keyword)
-        result.addElement(builder.setBold().setInsertHandler(new ScalaKeywordInsertHandler(keyword))) //todo: add , if needed
+        result.addElement(LookupElementManager.getKeywrodLookupElement(keyword, place))
       }
     }
   }

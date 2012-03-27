@@ -12,6 +12,7 @@ import com.intellij.patterns.PlatformPatterns
 import filters.other._
 import filters.toplevel.{TemplateFilter, TraitFilter, ImportFilter, PackageFilter}
 import handlers.ScalaKeywordInsertHandler
+import lookups.LookupElementManager
 
 /**
  * User: Alexander Podkhalyuzin
@@ -25,8 +26,7 @@ class ScalaKeywordCompletionContributor extends CompletionContributor {
       new CompletionProvider[CompletionParameters] {
         def addCompletions(parameters: CompletionParameters, context: ProcessingContext, result: CompletionResultSet) {
           for (keyword <- keywords) {
-            val builder: LookupElementBuilder = LookupElementBuilder.create(keyword)
-            result.addElement(builder.setBold().setInsertHandler(new ScalaKeywordInsertHandler(keyword)))
+            result.addElement(LookupElementManager.getKeywrodLookupElement(keyword, parameters.getPosition))
           }
         }
       })
@@ -38,8 +38,7 @@ class ScalaKeywordCompletionContributor extends CompletionContributor {
       new CompletionProvider[CompletionParameters] {
         def addCompletions(parameters: CompletionParameters, context: ProcessingContext, result: CompletionResultSet) {
           for (keyword <- keywords) {
-            val builder: LookupElementBuilder = LookupElementBuilder.create(keyword)
-            result.addElement(builder.setBold().setInsertHandler(new ScalaKeywordInsertHandler(keyword)))
+            result.addElement(LookupElementManager.getKeywrodLookupElement(keyword, parameters.getPosition))
           }
         }
       })
