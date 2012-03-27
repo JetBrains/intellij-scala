@@ -7,7 +7,7 @@ import com.intellij.patterns.PlatformPatterns.psiElement
 import com.intellij.util.Consumer
 import com.intellij.psi.PsiClass
 import com.intellij.codeInsight.completion._
-import lookups.LookupElementManager
+import lookups.{ScalaLookupItem, LookupElementManager}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTrait, ScClass}
@@ -17,7 +17,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScConstructorPatte
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.util.Computable
 import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.types.{ScAbstractType, ScType}
 import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil._
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScReferenceElement, ScStableCodeReferenceElement}
@@ -25,8 +24,10 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticClasses
 import org.jetbrains.plugins.scala.config.ScalaFacet
 import com.intellij.openapi.module.{ModuleUtil, Module}
-import org.jetbrains.plugins.scala.extensions.toPsiClassExt
-import ScalaSmartCompletionContributor._
+import org.jetbrains.plugins.scala.lang.completion.ScalaAfterNewCompletionUtil._
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScReferenceExpression, ScNewTemplateDefinition}
+import collection.mutable.HashMap
+import org.jetbrains.plugins.scala.extensions.{toPsiNamedElementExt, toPsiClassExt}
 
 class ScalaClassNameCompletionContributor extends CompletionContributor {
   import ScalaClassNameCompletionContributor._
@@ -67,11 +68,30 @@ object ScalaClassNameCompletionContributor {
     if (!insertedElement.getContainingFile.isInstanceOf[ScalaFile]) return true
     val lookingForAnnotations: Boolean = psiElement.afterLeaf("@").accepts(insertedElement)
     val isInImport = ScalaPsiUtil.getParentOfType(insertedElement, classOf[ScImportStmt]) != null
-    val refElement = ScalaPsiUtil.getParentOfType(insertedElement, classOf[ScStableCodeReferenceElement])
-    val onlyClasses = refElement != null && (refElement.getContext match {
+    val stableRefElement = ScalaPsiUtil.getParentOfType(insertedElement, classOf[ScStableCodeReferenceElement])
+    val refElement = ScalaPsiUtil.getParentOfType(insertedElement, classOf[ScReferenceElement])
+    val onlyClasses = stableRefElement != null && (stableRefElement.getContext match {
       case _: ScConstructorPattern => false
       case _ => true
     })
+
+    val renamesMap = new HashMap[String, (String, PsiNamedElement)]()
+    val reverseRenamesMap = new HashMap[String, PsiNamedElement]()
+
+    refElement match {
+      case ref: PsiReference => ref.getVariants().foreach {
+        case s: ScalaLookupItem =>
+          s.isRenamed match {
+            case Some(name) =>
+              renamesMap += ((s.element.name, (name, s.element)))
+              reverseRenamesMap += ((name, s.element))
+            case None =>
+          }
+        case _ =>
+      }
+      case _ =>
+    }
+
     def addClass(psiClass: PsiClass) {
       val isExcluded: Boolean = ApplicationManager.getApplication.runReadAction(new Computable[Boolean] {
         def compute: Boolean = {
@@ -87,12 +107,13 @@ object ScalaClassNameCompletionContributor {
         case _: ScObject if !isInImport && onlyClasses => return
         case _ =>
       }
+      val renamed = renamesMap.get(psiClass.getName).filter(_._2 == psiClass).map(_._1)
       for {
-        el <- LookupElementManager.getLookupElement(new ScalaResolveResult(psiClass),
-          isClassName = true, isInImport = isInImport, isInStableCodeReference = refElement != null)
+        el <- LookupElementManager.getLookupElement(new ScalaResolveResult(psiClass, nameShadow = renamed),
+          isClassName = true, isInImport = isInImport, isInStableCodeReference = stableRefElement != null)
       } {
         if (afterNewPattern.accepts(parameters.getPosition, context)) {
-          result.addElement(getLookupElementFromClass(expectedTypesAfterNew, psiClass))
+          result.addElement(getLookupElementFromClass(expectedTypesAfterNew, psiClass, renamesMap))
         } else {
           result.addElement(el)
         }
@@ -114,13 +135,16 @@ object ScalaClassNameCompletionContributor {
         }
       }
     }).getOrElse(true)
+
+
     for (clazz <- SyntheticClasses.get(project).all.valuesIterator) {
       if (checkSynthetic || !ScType.baseTypesQualMap.contains(clazz.qualifiedName)) {
         addClass(clazz)
       }
     }
 
-    AllClassesGetter.processJavaClasses(parameters, result.getPrefixMatcher, parameters.getInvocationCount <= 1,
+    val prefixMatcher = result.getPrefixMatcher
+    AllClassesGetter.processJavaClasses(parameters, prefixMatcher, parameters.getInvocationCount <= 1,
       new Consumer[PsiClass] {
         def consume(psiClass: PsiClass) {
           //todo: filter according to position
@@ -131,6 +155,17 @@ object ScalaClassNameCompletionContributor {
           addClass(psiClass)
         }
       })
+
+    for ((name, elem) <- reverseRenamesMap) {
+      elem match {
+        case clazz: PsiClass =>
+          if (prefixMatcher.prefixMatches(name) && !prefixMatcher.prefixMatches(clazz.name)) {
+            addClass(clazz)
+          }
+        case _ =>
+      }
+    }
+
     false
   }
 }

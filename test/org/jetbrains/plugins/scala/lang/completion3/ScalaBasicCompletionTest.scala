@@ -4,10 +4,9 @@ import com.intellij.codeInsight.completion.CompletionType
 import org.junit.Assert
 
 /**
- * User: Alefas
- * Date: 06.10.11
+ * @author Alefas
+ * @since 06.10.11
  */
-
 class ScalaBasicCompletionTest extends ScalaCompletionTestBase {
   def testInImportSelector() {
     val fileText =
@@ -393,5 +392,28 @@ class ScalaBasicCompletionTest extends ScalaCompletionTestBase {
     configureFromFileTextAdapter("dummy.scala", fileText)
     val (activeLookup, _) = complete(0, CompletionType.BASIC)
     Assert.assertTrue(activeLookup.filter(_.getLookupString == "x").length == 0)
+  }
+
+  def testBasicRenamed() {
+    val fileText =
+      """
+      |import java.util.{ArrayList => BLLLL}
+      |object Test extends App {
+      |  val al: java.util.List[Int] = new BL<caret>
+      |}
+      """.stripMargin.replaceAll("\r", "").trim()
+    configureFromFileTextAdapter("dummy.scala", fileText)
+    val (activeLookup, _) = complete(1, CompletionType.BASIC)
+
+    val resultText =
+      """
+      |import java.util.{ArrayList => BLLLL}
+      |object Test extends App {
+      |  val al: java.util.List[Int] = new BLLLL[Int](<caret>)
+      |}
+      """.stripMargin.replaceAll("\r", "").trim()
+
+    completeLookupItem(activeLookup.find(le => le.getLookupString == "BLLLL").get, '\t')
+    checkResultByText(resultText)
   }
 }

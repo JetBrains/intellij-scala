@@ -26,11 +26,13 @@ import com.intellij.codeInsight.lookup.LookupElement
 import psi.api.toplevel.imports.ScImportStmt
 import psi.api.expr.ScNewTemplateDefinition
 import psi.types.{ScAbstractType, ScType}
-import org.jetbrains.plugins.scala.lang.completion.ScalaSmartCompletionContributor._
 import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil._
 import psi.api.statements.params.ScClassParameter
 import psi.api.base.{ScStableCodeReferenceElement, ScReferenceElement}
 import com.intellij.patterns.PlatformPatterns._
+import org.jetbrains.plugins.scala.lang.completion.ScalaAfterNewCompletionUtil._
+import collection.immutable.HashMap
+import extensions.toPsiNamedElementExt
 
 /**
  * @author Alexander Podkhalyuzin
@@ -72,6 +74,9 @@ class ScalaCompletionContributor extends CompletionContributor {
                 val elem = el.element
                 elem match {
                   case clazz: PsiClass =>
+                    import collection.mutable.{HashMap => MHashMap}
+                    val renamedMap = new MHashMap[String, (String, PsiNamedElement)]
+                    el.isRenamed.foreach(name => renamedMap += ((clazz.name, (name, clazz))))
                     val isExcluded: Boolean = ApplicationManager.getApplication.runReadAction(new Computable[Boolean] {
                       def compute: Boolean = {
                         JavaCompletionUtil.isInExcludedPackage(clazz, true)
@@ -80,7 +85,7 @@ class ScalaCompletionContributor extends CompletionContributor {
 
                     if (!isExcluded && !classNameCompletion && (!lookingForAnnotations || clazz.isAnnotationType)) {
                       if (afterNewPattern.accepts(parameters.getPosition, context)) {
-                        addElement(getLookupElementFromClass(expectedTypesAfterNew, clazz))
+                        addElement(getLookupElementFromClass(expectedTypesAfterNew, clazz, renamedMap))
                       } else {
                         addElement(el)
                       }
