@@ -54,6 +54,7 @@ class ScalaConstructorInsertHandler extends InsertHandler[LookupElement] {
         return
       }
       case item@ScalaLookupItem(clazz: PsiClass) => {
+        val isRenamed = item.isRenamed != None
         var hasNonEmptyParams = false
         clazz match {
           case c: ScClass =>
@@ -116,7 +117,7 @@ class ScalaConstructorInsertHandler extends InsertHandler[LookupElement] {
                   }
                   case _ => null
                 }
-                if (ref != null) {
+                if (ref != null && !isRenamed) {
                   ref.bindToElement(clazz)
                 }
               }

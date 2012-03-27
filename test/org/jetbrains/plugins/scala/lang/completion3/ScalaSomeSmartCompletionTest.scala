@@ -53,7 +53,7 @@ class TUI {
   class A
   def foo(x: Option[A]) = 1
   val z = new A
-  foo(Some(z), <caret>)
+  foo(Some(z),<caret>)
 }
 """.replaceAll("\r", "").trim()
 

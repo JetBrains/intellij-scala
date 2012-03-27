@@ -22,7 +22,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.annotator.intention.ScalaImportClassFix
 import org.jetbrains.plugins.scala.extensions.{toPsiClassExt, toPsiNamedElementExt}
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScSubstitutor}
-import com.intellij.openapi.util.{Comparing, Condition}
+import com.intellij.openapi.util.Condition
 
 /**
  * @author Alefas
@@ -34,7 +34,7 @@ class ScalaLookupItem(val element: PsiNamedElement, name: String) extends Lookup
   def isClassName: Boolean = _isClassName
 
   private var _isRenamed: Option[String] = None
-  private[lookups] def isRenamed_=(t: Option[String]) {_isRenamed = t}
+  def isRenamed_=(t: Option[String]) {_isRenamed = t}
   def isRenamed: Option[String] = _isRenamed
 
   private var _isAssignment: Boolean = false
@@ -218,7 +218,7 @@ class ScalaLookupItem(val element: PsiNamedElement, name: String) extends Lookup
         if (containingClass != null) containingClass.name + "." + name
         else name
       } else name
-      else name + "<=" + element.name
+      else name + " <= " + element.name
     if (isSomeSmartCompletion) itemText = "Some(" + itemText + ")"
     presentation.setItemText(itemText)
     presentation.setStrikeout(isDeprecated)
@@ -243,6 +243,7 @@ class ScalaLookupItem(val element: PsiNamedElement, name: String) extends Lookup
       val file = ref.getContainingFile
 
       element match {
+        case cl: PsiClass if isRenamed != None => //do nothing
         case cl: PsiClass =>
           while (ref.getParent != null && ref.getParent.isInstanceOf[ScReferenceElement] &&
             (ref.getParent.asInstanceOf[ScReferenceElement].qualifier match {

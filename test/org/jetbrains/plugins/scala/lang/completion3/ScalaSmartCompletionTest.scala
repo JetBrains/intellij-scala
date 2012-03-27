@@ -127,4 +127,27 @@ class ScalaSmartCompletionTest extends ScalaCompletionTestBase {
     completeLookupItem(activeLookup.find(le => le.getLookupString == "classOf").get, '\t')
     checkResultByText(resultText)
   }
+
+  def testSmartRenamed() {
+    val fileText =
+      """
+      |import java.util.{ArrayList => BLLLL}
+      |object Test extends App {
+      |  val al: java.util.List[Int] = new BL<caret>
+      |}
+      """.stripMargin.replaceAll("\r", "").trim()
+    configureFromFileTextAdapter("dummy.scala", fileText)
+    val (activeLookup, _) = complete(1, CompletionType.SMART)
+
+    val resultText =
+      """
+      |import java.util.{ArrayList => BLLLL}
+      |object Test extends App {
+      |  val al: java.util.List[Int] = new BLLLL[Int](<caret>)
+      |}
+      """.stripMargin.replaceAll("\r", "").trim()
+
+    completeLookupItem(activeLookup.find(le => le.getLookupString == "BLLLL").get, '\t')
+    checkResultByText(resultText)
+  }
 }
