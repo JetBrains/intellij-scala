@@ -416,4 +416,25 @@ class ScalaBasicCompletionTest extends ScalaCompletionTestBase {
     completeLookupItem(activeLookup.find(le => le.getLookupString == "BLLLL").get, '\t')
     checkResultByText(resultText)
   }
+
+  def testYield() {
+    val fileText =
+      """
+      |object Test extends App {
+      |  Thread.<caret>
+      |}
+      """.stripMargin.replaceAll("\r", "").trim()
+    configureFromFileTextAdapter("dummy.scala", fileText)
+    val (activeLookup, _) = complete(1, CompletionType.BASIC)
+
+    val resultText =
+      """
+      |object Test extends App {
+      |  Thread.`yield`()
+      |}
+      """.stripMargin.replaceAll("\r", "").trim()
+
+    completeLookupItem(activeLookup.find(le => le.getLookupString == "`yield`").get, '\t')
+    checkResultByText(resultText)
+  }
 }
