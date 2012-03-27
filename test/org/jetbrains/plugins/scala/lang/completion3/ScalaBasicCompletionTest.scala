@@ -437,4 +437,27 @@ class ScalaBasicCompletionTest extends ScalaCompletionTestBase {
     completeLookupItem(activeLookup.find(le => le.getLookupString == "`yield`").get, '\t')
     checkResultByText(resultText)
   }
+
+  def testInfix() {
+    val fileText =
+      """
+      |class a {
+      |  def foo(x: Int): Boolean = false
+      |  false || this.fo<caret>
+      |}
+      """.stripMargin.replaceAll("\r", "").trim()
+    configureFromFileTextAdapter("dummy.scala", fileText)
+    val (activeLookup, _) = complete(1, CompletionType.BASIC)
+
+    val resultText =
+      """
+      |class a {
+      |  def foo(x: Int): Boolean = false
+      |  false || this.foo(<caret>)
+      |}
+      """.stripMargin.replaceAll("\r", "").trim()
+
+    completeLookupItem(activeLookup.find(le => le.getLookupString == "foo").get, '\t')
+    checkResultByText(resultText)
+  }
 }
