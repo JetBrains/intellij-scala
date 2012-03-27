@@ -11,7 +11,6 @@ import com.intellij.psi.filters.{TextFilter, AndFilter, NotFilter, ElementFilter
 import com.intellij.patterns.PlatformPatterns
 import filters.other._
 import filters.toplevel.{TemplateFilter, TraitFilter, ImportFilter, PackageFilter}
-import handlers.ScalaKeywordInsertHandler
 import lookups.LookupElementManager
 
 /**
