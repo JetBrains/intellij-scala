@@ -16,6 +16,7 @@ import collection.mutable.ArrayBuffer
 import com.intellij.openapi.util.Key
 import org.jetbrains.plugins.scala.extensions.toPsiClassExt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
+import annotation.tailrec
 
 /**
   * @author Alexander Podkhalyuzin
@@ -25,21 +26,24 @@ class ScalaExplicitlyImportedWeigher extends ProximityWeigher {
     if (position == null) return None
     val index = qual.lastIndexOf('.')
     val qualNoPoint = if (index < 0) null else qual.substring(0, index)
-    var buffer: ArrayBuffer[ScImportStmt] = position.getUserData(ScalaExplicitlyImportedWeigher.key)
-    def treeWalkup(place: PsiElement, lastParent: PsiElement) {
-      if (place == null) return
-      place match {
-        case holder: ScImportsHolder =>
-          buffer ++= holder.getImportsForLastParent(lastParent)
-          if (place.isInstanceOf[ScalaFile]) return
-        case _ =>
+    val tuple: (ArrayBuffer[ScImportStmt], Long) = position.getUserData(ScalaExplicitlyImportedWeigher.key)
+    var buffer: ArrayBuffer[ScImportStmt] = if (tuple != null) tuple._1 else null
+    val currentModCount = position.getManager.getModificationTracker.getModificationCount
+    if (buffer == null || tuple._2 != currentModCount) {
+      @tailrec
+      def treeWalkup(place: PsiElement, lastParent: PsiElement) {
+        if (place == null) return
+        place match {
+          case holder: ScImportsHolder =>
+            buffer ++= holder.getImportsForLastParent(lastParent)
+            if (place.isInstanceOf[ScalaFile]) return
+          case _ =>
+        }
+        treeWalkup(place.getContext, place)
       }
-      treeWalkup(place.getContext, place)
-    }
-    if (buffer == null) {
       buffer = new ArrayBuffer[ScImportStmt]()
       treeWalkup(position.getContext, position)
-      position.putUserData(ScalaExplicitlyImportedWeigher.key, buffer)
+      position.putUserData(ScalaExplicitlyImportedWeigher.key, (buffer, currentModCount))
     }
     val iter = buffer.iterator
     while (iter.hasNext) {
@@ -171,5 +175,5 @@ class ScalaExplicitlyImportedWeigher extends ProximityWeigher {
 }
 
 object ScalaExplicitlyImportedWeigher {
-  private[weighter] val key: Key[ArrayBuffer[ScImportStmt]] = Key.create("scala.explicitly.imported.weigher.key")
+  private[weighter] val key: Key[(ArrayBuffer[ScImportStmt], Long)] = Key.create("scala.explicitly.imported.weigher.key")
 }
