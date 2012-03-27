@@ -121,7 +121,7 @@ object ScalaClassNameCompletionContributor {
     }
 
     val project = insertedElement.getProject
-    val module: Module = ModuleUtil.findModuleForPsiElement(parameters.getOriginalPosition)
+    val module: Module = ModuleUtil.findModuleForPsiElement(parameters.getOriginalFile)
     val checkSynthetic = if (module == null) true else ScalaFacet.findIn(module).map(facet => {
       val version = facet.version
       if (version.length() < 3) true //let's think about 2.9
