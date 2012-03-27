@@ -9,6 +9,7 @@ import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.{PsiElement, PsiManager}
 import impl.ScalaPsiManager
 import extensions.toPsiClassExt
+import api.toplevel.typedef.ScObject
 
 
 abstract case class StdType(name: String, tSuper: Option[StdType]) extends ValueType {
@@ -39,6 +40,7 @@ abstract case class StdType(name: String, tSuper: Option[StdType]) extends Value
       }
       case (_, _) => {
         ScType.extractClass(r) match {
+          case Some(o: ScObject)  => (false, subst)
           case Some(clazz) if clazz.qualifiedName == "scala." + name => (true, subst)
           case _ => (false, subst)
         }
