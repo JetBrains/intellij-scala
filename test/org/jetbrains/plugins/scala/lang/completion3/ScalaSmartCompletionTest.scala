@@ -73,6 +73,19 @@ class ScalaSmartCompletionTest extends ScalaCompletionTestBase {
     Assert.assertNull(activeLookup)
   }
 
+  def testFilterObjectDouble() {
+    val fileText =
+      """
+      |class Test {
+      |  val x: Double = <caret>
+      |}
+      """.stripMargin.replaceAll("\r", "").trim()
+    configureFromFileTextAdapter("dummy.scala", fileText)
+    val (activeLookup, _) = complete(1, CompletionType.SMART)
+
+    Assert.assertTrue(activeLookup.find(_.getLookupString == "Double") == None)
+  }
+
   def testFalse() {
     val fileText =
       """

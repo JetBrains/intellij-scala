@@ -237,6 +237,7 @@ case class ScThisType(clazz: ScTemplateDefinition) extends ValueType {
 case class ScDesignatorType(element: PsiNamedElement) extends ValueType {
   override def getValType: Option[StdType] = {
     element match {
+      case o: ScObject => None
       case clazz: PsiClass =>
         ScType.baseTypesQualMap.get(clazz.qualifiedName)
       case _ => None
