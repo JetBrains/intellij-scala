@@ -6,7 +6,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.{Nothing, ScType}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext, TypingContextOwner}
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import com.intellij.codeInsight.lookup.{LookupElement, LookupElementBuilder, LookupItem}
+import com.intellij.codeInsight.lookup.LookupElement
 
 /**
  * @author Alefas

@@ -30,9 +30,9 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
  * @since 22.03.12
  */
 class ScalaLookupItem(val element: PsiNamedElement, _name: String) extends {
-  val name: String = if (ScalaNamesUtil.isKeyword(_name)) "`" + _name + "`"
-                     else _name
+  val name: String = if (ScalaNamesUtil.isKeyword(_name)) "`" + _name + "`" else _name
 } with LookupItem[PsiNamedElement](element, name) {
+
   private var _isClassName: Boolean = false
   private[lookups] def isClassName_=(t: Boolean) {_isClassName = t}
   def isClassName: Boolean = _isClassName
