@@ -460,4 +460,46 @@ class ScalaBasicCompletionTest extends ScalaCompletionTestBase {
     completeLookupItem(activeLookup.find(le => le.getLookupString == "foo").get, '\t')
     checkResultByText(resultText)
   }
+
+  def testPrefixedThis() {
+    val fileText =
+      """
+      |class aaa {
+      |  a<caret>
+      |}
+      """.stripMargin.replaceAll("\r", "").trim()
+    configureFromFileTextAdapter("dummy.scala", fileText)
+    val (activeLookup, _) = complete(1, CompletionType.BASIC)
+
+    val resultText =
+      """
+      |class aaa {
+      |  aaa.this<caret>
+      |}
+      """.stripMargin.replaceAll("\r", "").trim()
+
+    completeLookupItem(activeLookup.find(le => le.getLookupString == "aaa.this").get, '\t')
+    checkResultByText(resultText)
+  }
+
+  def testPrefixedSuper() {
+    val fileText =
+      """
+      |class aaa {
+      |  a<caret>
+      |}
+      """.stripMargin.replaceAll("\r", "").trim()
+    configureFromFileTextAdapter("dummy.scala", fileText)
+    val (activeLookup, _) = complete(1, CompletionType.BASIC)
+
+    val resultText =
+      """
+      |class aaa {
+      |  aaa.super<caret>
+      |}
+      """.stripMargin.replaceAll("\r", "").trim()
+
+    completeLookupItem(activeLookup.find(le => le.getLookupString == "aaa.super").get, '\t')
+    checkResultByText(resultText)
+  }
 }

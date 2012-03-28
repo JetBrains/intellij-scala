@@ -33,6 +33,7 @@ import com.intellij.patterns.PlatformPatterns._
 import org.jetbrains.plugins.scala.lang.completion.ScalaAfterNewCompletionUtil._
 import collection.immutable.HashMap
 import extensions.toPsiNamedElementExt
+import psi.api.toplevel.typedef.ScTemplateDefinition
 
 /**
  * @author Alexander Podkhalyuzin
@@ -129,6 +130,23 @@ class ScalaCompletionContributor extends CompletionContributor {
             case refImpl: ScReferenceExpressionImpl =>
               val processor = new CompletionProcessor(refImpl.getKinds(false, true), refImpl, collectImplicits = true, postProcess = postProcessMethod _)
               refImpl.doResolve(refImpl, processor)
+              if (ScalaCompletionUtil.completeThis(refImpl)) {
+                var parent: PsiElement = refImpl
+                while (parent != null) {
+                  parent match {
+                    case t: ScNewTemplateDefinition => //do nothing, impossible to invoke
+                    case t: ScTemplateDefinition =>
+                      var lookupString = t.name + ".this"
+                      var el = new ScalaLookupItem(t, lookupString)
+                      addElement(el)
+                      lookupString = t.name + ".super"
+                      el = new ScalaLookupItem(t, lookupString)
+                      addElement(el)
+                    case _ =>
+                  }
+                  parent = parent.getContext
+                }
+              }
             case refImpl: ScTypeProjectionImpl =>
               val processor = new CompletionProcessor(refImpl.getKinds(false, true), refImpl, postProcess = postProcessMethod _)
               refImpl.doResolve(processor)

@@ -37,6 +37,19 @@ import formatting.settings.ScalaCodeStyleSettings
 */
 
 object ScalaCompletionUtil {
+  def completeThis(ref: ScReferenceExpression): Boolean = {
+    ref.qualifier match {
+      case Some(_) => false
+      case None =>
+        ref.getParent match {
+          case inf: ScInfixExpr if inf.operation == ref => false
+          case postf: ScPostfixExpr if postf.operation == ref => false
+          case pref: ScPrefixExpr if pref.operation == ref => false
+          case _ => true
+        }
+    }
+  }
+
   def shouldRunClassNameCompletion(parameters: CompletionParameters, prefixMatcher: PrefixMatcher,
                                    checkInvocationCount: Boolean = true): Boolean = {
     val element = parameters.getPosition
