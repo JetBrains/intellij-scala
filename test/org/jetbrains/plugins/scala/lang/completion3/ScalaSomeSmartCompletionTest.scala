@@ -164,7 +164,7 @@ class TUI {
       """
       |class TT {
       |  class GG {
-      |    val al: Option[TT] = Somef(TT.this)<caret>
+      |    val al: Option[TT] = Some(TT.this)<caret>
       |  }
       |}
       """.stripMargin.replaceAll("\r", "").trim()
