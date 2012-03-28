@@ -6,7 +6,6 @@ import com.intellij.codeInsight.lookup.{LookupElementPresentation, LookupItem}
 import org.jetbrains.plugins.scala.lang.psi.PresentationUtil._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
-import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAliasDefinition, ScFunction, ScFun}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
@@ -14,7 +13,6 @@ import com.intellij.psi._
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScReferenceElement, ScFieldId}
 import util.PsiTreeUtil
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportSelectors, ScImportStmt}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import com.intellij.codeInsight.AutoPopupController
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
@@ -24,17 +22,19 @@ import org.jetbrains.plugins.scala.extensions.{toPsiClassExt, toPsiNamedElementE
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScSubstitutor}
 import com.intellij.openapi.util.Condition
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTemplateDefinition, ScObject}
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
 
 /**
  * @author Alefas
  * @since 22.03.12
  */
 class ScalaLookupItem(val element: PsiNamedElement, _name: String) extends {
-  val name: String = if (ScalaNamesUtil.isKeyword(_name)) "`" + _name + "`" else _name
+  val name: String = if (ScalaNamesUtil.isKeyword(_name) && _name != "this") "`" + _name + "`" else _name
 } with LookupItem[PsiNamedElement](element, name) {
 
   private var _isClassName: Boolean = false
-  private[lookups] def isClassName_=(t: Boolean) {_isClassName = t}
+  def isClassName_=(t: Boolean) {_isClassName = t}
   def isClassName: Boolean = _isClassName
 
   private var _isRenamed: Option[String] = None
@@ -42,43 +42,39 @@ class ScalaLookupItem(val element: PsiNamedElement, _name: String) extends {
   def isRenamed: Option[String] = _isRenamed
 
   private var _isAssignment: Boolean = false
-  private[lookups] def isAssignment_=(t: Boolean) {_isAssignment = t}
+  def isAssignment_=(t: Boolean) {_isAssignment = t}
   def isAssignment: Boolean = _isAssignment
 
   private var _substitutor: ScSubstitutor = ScSubstitutor.empty
-  private[lookups] def substitutor_=(t: ScSubstitutor) {_substitutor = t}
+  def substitutor_=(t: ScSubstitutor) {_substitutor = t}
   def substitutor: ScSubstitutor = _substitutor
 
   private var _shouldImport: Boolean = false
-  private[lookups] def shouldImport_=(t: Boolean) {_shouldImport = t}
+  def shouldImport_=(t: Boolean) {_shouldImport = t}
   def shouldImport: Boolean = _shouldImport
 
   private var _isOverloadedForClassName: Boolean = false
-  private[lookups] def isOverloadedForClassName_=(t: Boolean) {_isOverloadedForClassName = t}
+  def isOverloadedForClassName_=(t: Boolean) {_isOverloadedForClassName = t}
   def isOverloadedForClassName: Boolean = _isOverloadedForClassName
 
   private var _isNamedParameter: Boolean = false
-  private[lookups] def isNamedParameter_=(t: Boolean) {_isNamedParameter = t}
+  def isNamedParameter_=(t: Boolean) {_isNamedParameter = t}
   def isNamedParameter: Boolean = _isNamedParameter
 
-  private var _isSomeSmartCompletion: Boolean = false
-  private[lookups] def isSomeSmartCompletion_=(t: Boolean) {_isSomeSmartCompletion = t}
-  def isSomeSmartCompletion: Boolean = _isSomeSmartCompletion
-
   private var _isDeprecated: Boolean = false
-  private[lookups] def isDeprecated_=(t: Boolean) {_isDeprecated = t}
+  def isDeprecated_=(t: Boolean) {_isDeprecated = t}
   def isDeprecated: Boolean = _isDeprecated
 
   private var _isUnderlined: Boolean = false
-  private[lookups] def isUnderlined_=(t: Boolean) {_isUnderlined = t}
+  def isUnderlined_=(t: Boolean) {_isUnderlined = t}
   def isUnderlined: Boolean = _isUnderlined
 
   private var _isInImport: Boolean = false
-  private[lookups] def isInImport_=(t: Boolean) {_isInImport = t}
+  def isInImport_=(t: Boolean) {_isInImport = t}
   def isInImport: Boolean = _isInImport
 
   private var _isInStableCodeReference: Boolean = false
-  private[lookups] def isInStableCodeReference_=(t: Boolean) {_isInStableCodeReference = t}
+  def isInStableCodeReference_=(t: Boolean) {_isInStableCodeReference = t}
   def isInStableCodeReference: Boolean = _isInStableCodeReference
 
   private var _usedImportStaticQuickfixKey: Boolean = false
@@ -102,7 +98,7 @@ class ScalaLookupItem(val element: PsiNamedElement, _name: String) extends {
   def typeParameters: Seq[ScType] = _typeParameters
 
   private var _bold: Boolean = false
-  private[lookups] def bold_=(t: Boolean) {_bold = t}
+  def bold_=(t: Boolean) {_bold = t}
   def bold: Boolean = _bold
 
   def isNamedParameterOrAssignment = isNamedParameter || isAssignment
@@ -183,6 +179,17 @@ class ScalaLookupItem(val element: PsiNamedElement, _name: String) extends {
       case clazz: PsiClass => {
         val location: String = clazz.getPresentation.getLocationString
         presentation.setTailText(tailText + " " + location, true)
+        if (name == "this" || name.endsWith(".this")) {
+          clazz match {
+            case t: ScTemplateDefinition =>
+              t.getTypeWithProjections(TypingContext.empty, true) match {
+                case Success(tp, _) =>
+                  presentation.setTypeText(tp.presentableText)
+                case _ =>
+              }
+            case _ =>
+          }
+        }
       }
       case alias: ScTypeAliasDefinition => {
         presentation.setTypeText(presentationString(alias.aliasedType.getOrAny, substitutor))
@@ -223,7 +230,7 @@ class ScalaLookupItem(val element: PsiNamedElement, _name: String) extends {
         else name
       } else name
       else name + " <= " + element.name
-    if (isSomeSmartCompletion) itemText = "Some(" + itemText + ")"
+    if (someSmartCompletion) itemText = "Some(" + itemText + ")"
     presentation.setItemText(itemText)
     presentation.setStrikeout(isDeprecated)
     presentation.setItemTextBold(bold)
