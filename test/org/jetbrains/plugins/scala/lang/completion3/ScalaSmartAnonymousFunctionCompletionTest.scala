@@ -82,4 +82,25 @@ foo(2)((i: Int) =><caret>)
     completeLookupItem(activeLookup.find(le => le.getLookupString == "").get)
     checkResultByText(resultText)
   }
+
+  def testAliasType() {
+    val fileText =
+      """
+      |type T >: Int => String
+      |def zoo(p: T) {}
+      |zoo(<caret>)
+      """.stripMargin.replaceAll("\r", "").trim()
+    configureFromFileTextAdapter("dummy.scala", fileText)
+    val (activeLookup, prefix) = complete(2, CompletionType.SMART)
+
+    val resultText =
+      """
+      |type T >: Int => String
+      |def zoo(p: T) {}
+      |zoo((i: Int) =><caret>)
+      """.stripMargin.replaceAll("\r", "").trim()
+
+    completeLookupItem(activeLookup.find(le => le.getLookupString == "").get)
+    checkResultByText(resultText)
+  }
 }
