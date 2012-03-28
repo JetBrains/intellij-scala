@@ -80,11 +80,13 @@
     <completion.confidence language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.completion.ScalaCompletionConfidence"/>
     <lookup.actionProvider implementation="org.jetbrains.plugins.scala.lang.completion.ScalaImportStaticLookupActionProvider"/>
     <weigher key="completion" implementationClass="org.jetbrains.plugins.scala.lang.completion.weighter.ScalaContainingClassWiegher"
-             id="scalaContainingClassWeigher" order="before sLookupString"/>
+             id="scalaContainingClassWeigher" order="before scalaParameterCompletionWeigher"/>
     <weigher key="completion" implementationClass="org.jetbrains.plugins.scala.lang.completion.weighter.ScalaMethodCompletionWeigher"
              id="scalaMethodCompletionWeigher" order="after negativeStats, before stats"/>
     <weigher key="completion" implementationClass="org.jetbrains.plugins.scala.lang.completion.weighter.ScalaParameterCompletionWeigher"
              id="scalaParameterCompletionWeigher" order="after scalaMethodCompletionWeigher, before stats"/>
+    <weigher key="completion" implementationClass="org.jetbrains.plugins.scala.lang.completion.weighter.ScalaClassesCompletionWeigher"
+             id="scalaClassesCompletionWeigher" order="before proximity"/>
     <weigher key="proximity" implementationClass="org.jetbrains.plugins.scala.lang.completion.weighter.ScalaClassObjectWeigher"
              id="scalaClassObjectWeigher" order="before samePsiMember"/>
     <weigher key="proximity" implementationClass="org.jetbrains.plugins.scala.lang.completion.weighter.ScalaExplicitlyImportedWeigher"

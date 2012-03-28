@@ -45,6 +45,7 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
   private JCheckBox importMembersUsingUnderscoreCheckBox;
   private JCheckBox myDisableLanguageInjection;
   private JCheckBox methodCallBodiesCheckBox;
+  private JCheckBox useScalaClassesPriorityCheckBox;
 
   public ScalaCodeStylePanel(CodeStyleSettings settings) {
     super(settings);
@@ -106,6 +107,7 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
 
     scalaSettings.IGNORE_PERFORMANCE_TO_FIND_ALL_CLASS_NAMES = myResolveToAllClassesCheckBox.isSelected();
     scalaSettings.DISABLE_LANGUAGE_INJECTION = myDisableLanguageInjection.isSelected();
+    scalaSettings.SCALA_CLASSES_PRIORITY = useScalaClassesPriorityCheckBox.isSelected();
   }
 
   @SuppressWarnings({"ConstantConditions", "RedundantIfStatement"})
@@ -157,6 +159,8 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
     if (scalaSettings.DISABLE_LANGUAGE_INJECTION != myDisableLanguageInjection.isSelected())
       return true;
 
+    if (scalaSettings.SCALA_CLASSES_PRIORITY != useScalaClassesPriorityCheckBox.isSelected()) return true;
+
     return false;
   }
 
@@ -201,6 +205,7 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
     setValue(myResolveToAllClassesCheckBox, settings.IGNORE_PERFORMANCE_TO_FIND_ALL_CLASS_NAMES);
 
     setValue(myDisableLanguageInjection, settings.DISABLE_LANGUAGE_INJECTION);
+    setValue(useScalaClassesPriorityCheckBox, settings.SCALA_CLASSES_PRIORITY);
   }
 
   private static void setValue(JSpinner spinner, int value) {

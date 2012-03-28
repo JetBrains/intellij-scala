@@ -84,6 +84,9 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
   //xml formatting
   public boolean KEEP_XML_FORMATTING = false;
 
+  //completion
+  public boolean SCALA_CLASSES_PRIORITY = true;
+
   public ScalaCodeStyleSettings(CodeStyleSettings container) {
     super("ScalaCodeStyleSettings", container);
   }
