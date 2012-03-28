@@ -152,19 +152,6 @@ class ScalaSmartCompletionContributor extends CompletionContributor {
     }
   }
 
-  def completeThis(ref: ScReferenceExpression): Boolean = {
-    ref.qualifier match {
-      case Some(_) => false
-      case None =>
-        ref.getParent match {
-          case inf: ScInfixExpr if inf.operation == ref => false
-          case postf: ScPostfixExpr if postf.operation == ref => false
-          case pref: ScPrefixExpr if pref.operation == ref => false
-          case _ => true
-        }
-    }
-  }
-
 
 
   /*
@@ -183,7 +170,7 @@ class ScalaSmartCompletionContributor extends CompletionContributor {
           case leftExpression: ScExpression => {
             //we can expect that the type is same for left and right parts.
             acceptTypes(ref.expectedTypes(), ref.getVariants, result,
-              ref.getResolveScope, parameters.getInvocationCount > 1, completeThis(ref), element)
+              ref.getResolveScope, parameters.getInvocationCount > 1, ScalaCompletionUtil.completeThis(ref), element)
           }
         }
       } else { //so it's left expression
@@ -203,7 +190,7 @@ class ScalaSmartCompletionContributor extends CompletionContributor {
       val element = parameters.getPosition
       val ref = element.getParent.asInstanceOf[ScReferenceExpression]
       acceptTypes(ref.expectedType().toList.toSeq, ref.getVariants, result, ref.getResolveScope,
-        parameters.getInvocationCount > 1, completeThis(ref), element)
+        parameters.getInvocationCount > 1, ScalaCompletionUtil.completeThis(ref), element)
     }
   })
 
@@ -217,7 +204,7 @@ class ScalaSmartCompletionContributor extends CompletionContributor {
       val fun: ScFunction = PsiTreeUtil.getParentOfType(ref, classOf[ScFunction])
       if (fun == null) return
       acceptTypes(Seq[ScType](fun.returnType.getOrAny), ref.getVariants, result,
-        ref.getResolveScope, parameters.getInvocationCount > 1, completeThis(ref), element)
+        ref.getResolveScope, parameters.getInvocationCount > 1, ScalaCompletionUtil.completeThis(ref), element)
     }
   })
 
@@ -335,7 +322,7 @@ class ScalaSmartCompletionContributor extends CompletionContributor {
       val element = parameters.getPosition
       val referenceExpression = element.getParent.asInstanceOf[ScReferenceExpression]
       acceptTypes(referenceExpression.expectedTypes(), referenceExpression.getVariants, result,
-        referenceExpression.getResolveScope, parameters.getInvocationCount > 1,completeThis(referenceExpression), element)
+        referenceExpression.getResolveScope, parameters.getInvocationCount > 1,ScalaCompletionUtil.completeThis(referenceExpression), element)
     }
   })
 
@@ -353,9 +340,9 @@ class ScalaSmartCompletionContributor extends CompletionContributor {
         val ifStmt = ref.getParent.asInstanceOf[ScIfStmt]
         if (ifStmt.condition.getOrElse(null: ScExpression) == ref)
           acceptTypes(ref.expectedTypes(), ref.getVariants, result,
-            ref.getResolveScope, parameters.getInvocationCount > 1, completeThis(ref), element)
+            ref.getResolveScope, parameters.getInvocationCount > 1, ScalaCompletionUtil.completeThis(ref), element)
         else acceptTypes(ifStmt.expectedTypes(), ref.getVariants, result,
-          ref.getResolveScope, parameters.getInvocationCount > 1, completeThis(ref), element)
+          ref.getResolveScope, parameters.getInvocationCount > 1, ScalaCompletionUtil.completeThis(ref), element)
       }
     })
 
@@ -372,9 +359,9 @@ class ScalaSmartCompletionContributor extends CompletionContributor {
         val whileStmt = ref.getParent.asInstanceOf[ScWhileStmt]
         if (whileStmt.condition.getOrElse(null: ScExpression) == ref)
           acceptTypes(ref.expectedTypes(), ref.getVariants, result,
-            ref.getResolveScope, parameters.getInvocationCount > 1, completeThis(ref), element)
+            ref.getResolveScope, parameters.getInvocationCount > 1, ScalaCompletionUtil.completeThis(ref), element)
         else acceptTypes(ref.expectedTypes(), ref.getVariants, result,
-          ref.getResolveScope, parameters.getInvocationCount > 1, completeThis(ref), element)
+          ref.getResolveScope, parameters.getInvocationCount > 1, ScalaCompletionUtil.completeThis(ref), element)
       }
     })
 
@@ -391,9 +378,9 @@ class ScalaSmartCompletionContributor extends CompletionContributor {
         val doStmt = ref.getParent.asInstanceOf[ScDoStmt]
         if (doStmt.condition.getOrElse(null: ScExpression) == ref)
           acceptTypes(ref.expectedTypes(), ref.getVariants, result,
-            ref.getResolveScope, parameters.getInvocationCount > 1, completeThis(ref), element)
+            ref.getResolveScope, parameters.getInvocationCount > 1, ScalaCompletionUtil.completeThis(ref), element)
         else acceptTypes(ref.expectedTypes(), ref.getVariants, result,
-          ref.getResolveScope, parameters.getInvocationCount > 1, completeThis(ref), element)
+          ref.getResolveScope, parameters.getInvocationCount > 1, ScalaCompletionUtil.completeThis(ref), element)
       }
     })
 
@@ -420,7 +407,7 @@ class ScalaSmartCompletionContributor extends CompletionContributor {
             typez ++= ref.expectedTypes()
           }
         }
-        acceptTypes(typez, ref.getVariants, result, ref.getResolveScope, parameters.getInvocationCount > 1, completeThis(ref), element)
+        acceptTypes(typez, ref.getVariants, result, ref.getResolveScope, parameters.getInvocationCount > 1, ScalaCompletionUtil.completeThis(ref), element)
       }
     })
 
@@ -432,7 +419,7 @@ class ScalaSmartCompletionContributor extends CompletionContributor {
                        result: CompletionResultSet) {
       val element = parameters.getPosition
       val ref = element.getParent.asInstanceOf[ScReferenceExpression]
-      acceptTypes(ref.expectedTypes(), ref.getVariants, result, ref.getResolveScope, parameters.getInvocationCount > 1, completeThis(ref), element)
+      acceptTypes(ref.expectedTypes(), ref.getVariants, result, ref.getResolveScope, parameters.getInvocationCount > 1, ScalaCompletionUtil.completeThis(ref), element)
     }
   })
 
@@ -444,7 +431,7 @@ class ScalaSmartCompletionContributor extends CompletionContributor {
                        result: CompletionResultSet) {
       val element = parameters.getPosition
       val ref = element.getParent.asInstanceOf[ScReferenceExpression]
-      acceptTypes(ref.expectedTypes(), ref.getVariants, result, ref.getResolveScope, parameters.getInvocationCount > 1, completeThis(ref), element)
+      acceptTypes(ref.expectedTypes(), ref.getVariants, result, ref.getResolveScope, parameters.getInvocationCount > 1, ScalaCompletionUtil.completeThis(ref), element)
     }
   })
 
@@ -456,7 +443,7 @@ class ScalaSmartCompletionContributor extends CompletionContributor {
                        result: CompletionResultSet) {
       val element = parameters.getPosition
       val ref = element.getParent.asInstanceOf[ScReferenceExpression]
-      acceptTypes(ref.expectedTypes(), ref.getVariants, result, ref.getResolveScope, parameters.getInvocationCount > 1, completeThis(ref), element)
+      acceptTypes(ref.expectedTypes(), ref.getVariants, result, ref.getResolveScope, parameters.getInvocationCount > 1, ScalaCompletionUtil.completeThis(ref), element)
     }
   })
 
@@ -467,7 +454,7 @@ class ScalaSmartCompletionContributor extends CompletionContributor {
     def addCompletions(parameters: CompletionParameters, context: ProcessingContext, result: CompletionResultSet) {
       val element = parameters.getPosition
       val ref = element.getParent.asInstanceOf[ScReferenceExpression]
-      acceptTypes(ref.expectedType().toList.toSeq, ref.getVariants, result, ref.getResolveScope, parameters.getInvocationCount > 1, completeThis(ref), element)
+      acceptTypes(ref.expectedType().toList.toSeq, ref.getVariants, result, ref.getResolveScope, parameters.getInvocationCount > 1, ScalaCompletionUtil.completeThis(ref), element)
     }
   })
 
@@ -478,7 +465,7 @@ class ScalaSmartCompletionContributor extends CompletionContributor {
     def addCompletions(parameters: CompletionParameters, context: ProcessingContext, result: CompletionResultSet) {
       val element = parameters.getPosition
       val ref = element.getParent.asInstanceOf[ScReferenceExpression]
-      acceptTypes(ref.expectedTypes(), ref.getVariants, result, ref.getResolveScope, parameters.getInvocationCount > 1, completeThis(ref), element)
+      acceptTypes(ref.expectedTypes(), ref.getVariants, result, ref.getResolveScope, parameters.getInvocationCount > 1, ScalaCompletionUtil.completeThis(ref), element)
     }
   })
 
@@ -489,7 +476,7 @@ class ScalaSmartCompletionContributor extends CompletionContributor {
     def addCompletions(parameters: CompletionParameters, context: ProcessingContext, result: CompletionResultSet) {
       val element = parameters.getPosition
       val ref = element.getParent.asInstanceOf[ScReferenceExpression]
-      acceptTypes(ref.expectedTypes(), ref.getVariants, result, ref.getResolveScope, parameters.getInvocationCount > 1, completeThis(ref), element)
+      acceptTypes(ref.expectedTypes(), ref.getVariants, result, ref.getResolveScope, parameters.getInvocationCount > 1, ScalaCompletionUtil.completeThis(ref), element)
     }
   })
 
