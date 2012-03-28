@@ -221,4 +221,38 @@ class ScalaSmartCompletionTest extends ScalaCompletionTestBase {
     if (activeLookup != null) completeLookupItem(activeLookup.find(le => le.getLookupString == "TT.this").get, '\t')
     checkResultByText(resultText)
   }
+
+  def testWhile() {
+    val fileText =
+      """
+      |while (<caret>) {}
+      """.stripMargin.replaceAll("\r", "").trim()
+    configureFromFileTextAdapter("dummy.scala", fileText)
+    val (activeLookup, _) = complete(1, CompletionType.SMART)
+
+    val resultText =
+      """
+      |while (true<caret>) {}
+      """.stripMargin.replaceAll("\r", "").trim()
+
+    if (activeLookup != null) completeLookupItem(activeLookup.find(le => le.getLookupString == "true").get, '\t')
+    checkResultByText(resultText)
+  }
+
+  def testDoWhile() {
+    val fileText =
+      """
+      |do {} while (<caret>)
+      """.stripMargin.replaceAll("\r", "").trim()
+    configureFromFileTextAdapter("dummy.scala", fileText)
+    val (activeLookup, _) = complete(1, CompletionType.SMART)
+
+    val resultText =
+      """
+      |do {} while (true<caret>)
+      """.stripMargin.replaceAll("\r", "").trim()
+
+    if (activeLookup != null) completeLookupItem(activeLookup.find(le => le.getLookupString == "true").get, '\t')
+    checkResultByText(resultText)
+  }
 }
