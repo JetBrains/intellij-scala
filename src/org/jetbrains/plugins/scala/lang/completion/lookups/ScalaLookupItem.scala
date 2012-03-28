@@ -101,6 +101,10 @@ class ScalaLookupItem(val element: PsiNamedElement, _name: String) extends {
   def bold_=(t: Boolean) {_bold = t}
   def bold: Boolean = _bold
 
+  private var _etaExpanded: Boolean = false
+  def etaExpanded_=(t: Boolean) {_etaExpanded = t}
+  def etaExpanded: Boolean = _etaExpanded
+
   def isNamedParameterOrAssignment = isNamedParameter || isAssignment
 
   private val containingClass = ScalaPsiUtil.nameContext(element) match {
@@ -138,7 +142,8 @@ class ScalaLookupItem(val element: PsiNamedElement, _name: String) extends {
     element match {
       //scala
       case fun: ScFunction => {
-        presentation.setTypeText(presentationString(fun.returnType.getOrAny, substitutor))
+        val scType = if (!etaExpanded) fun.returnType.getOrAny else fun.getType(TypingContext.empty).getOrAny
+        presentation.setTypeText(presentationString(scType, substitutor))
         val tailText1 = if (isAssignment) {
           " = " + presentationString(fun.paramClauses, substitutor)
         } else {
@@ -153,7 +158,9 @@ class ScalaLookupItem(val element: PsiNamedElement, _name: String) extends {
             else ""
             )
         }
-        presentation.setTailText(tailText1)
+        if (!etaExpanded)
+          presentation.setTailText(tailText1)
+        else presentation.setTailText(" _")
       }
       case fun: ScFun => {
         presentation.setTypeText(presentationString(fun.retType, substitutor))

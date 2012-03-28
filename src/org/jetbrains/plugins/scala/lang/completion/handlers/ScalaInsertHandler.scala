@@ -148,7 +148,11 @@ class ScalaInsertHandler extends InsertHandler[LookupElement] {
 
         if (count == 0 && !isAccessor) {
           disableParenthesesCompletionChar()
-          document.insertString(endOffset, "()")
+          if (item.etaExpanded) {
+            document.insertString(endOffset, " _")
+          } else {
+            document.insertString(endOffset, "()")
+          }
           endOffset += 2
           editor.getCaretModel.moveToOffset(endOffset)
         } else if (count > 0) {
@@ -158,9 +162,15 @@ class ScalaInsertHandler extends InsertHandler[LookupElement] {
             case Both(ref: ScReferenceExpression, Parent(inf: ScInfixExpr)) if inf.operation == ref =>
               if (count > 1) {
                 disableParenthesesCompletionChar()
-                document.insertString(endOffset, " ()")
-                endOffset += 3
-                editor.getCaretModel.moveToOffset(endOffset - 1)
+                if (!item.etaExpanded) {
+                  document.insertString(endOffset, " ()")
+                  endOffset += 3
+                  editor.getCaretModel.moveToOffset(endOffset - 1)
+                } else {
+                  document.insertString(endOffset, " _")
+                  endOffset += 2
+                  editor.getCaretModel.moveToOffset(endOffset)
+                }
               } else {
                 document.insertString(endOffset, " ")
                 endOffset += 1
@@ -175,9 +185,15 @@ class ScalaInsertHandler extends InsertHandler[LookupElement] {
                 editor.getCaretModel.moveToOffset(endOffset + someNum)
               } else if (endOffset == document.getTextLength || document.getCharsSequence.charAt(endOffset) != '(') {
                 disableParenthesesCompletionChar()
-                document.insertString(endOffset, "()")
-                endOffset += 2
-                editor.getCaretModel.moveToOffset(endOffset - 1)
+                if (!item.etaExpanded) {
+                  document.insertString(endOffset, "()")
+                  endOffset += 2
+                  editor.getCaretModel.moveToOffset(endOffset - 1)
+                } else {
+                  document.insertString(endOffset, " _")
+                  endOffset += 2
+                  editor.getCaretModel.moveToOffset(endOffset)
+                }
                 AutoPopupController.getInstance(element.getProject).autoPopupParameterInfo(editor, element)
               } else if (completionChar != ',') {
                 editor.getCaretModel.moveToOffset(endOffset + 1 + someNum)

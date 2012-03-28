@@ -55,19 +55,22 @@ class ScalaSmartCompletionContributor extends CompletionContributor {
         case el: ScalaLookupItem if isAccessible(el) => {
           val elem = el.element
           val subst = el.substitutor
-          def checkType(tp: ScType) {
+          def checkType(tp: ScType, etaExpended: Boolean = false): Boolean = {
+            var elementAdded = false
             val scType = subst.subst(tp)
             import types.Nothing
             if (!scType.equiv(Nothing) && typez.find(scType conforms _) != None) {
+              elementAdded = true
+              if (etaExpended) el.etaExpanded = true
               result.addElement(el)
             } else if (completeSome) {
-              var elementAdded = false
               typez.foreach {
                 case ScParameterizedType(tp, Seq(arg)) if !elementAdded =>
                   ScType.extractClass(tp, Some(elem.getProject)) match {
                     case Some(clazz) if clazz.qualifiedName == "scala.Option" || clazz.getQualifiedName == "scala.Some" =>
                       if (!scType.equiv(Nothing) && scType.conforms(arg)) {
                         el.someSmartCompletion = true
+                        if (etaExpended) el.etaExpanded = true
                         result.addElement(el)
                         elementAdded = true
                       }
@@ -76,11 +79,22 @@ class ScalaSmartCompletionContributor extends CompletionContributor {
                 case _ =>
               }
             }
+            elementAdded
           }
           if (!el.isNamedParameterOrAssignment)
             elem match {
               case fun: ScSyntheticFunction => checkType(fun.retType)
-              case fun: ScFunction => checkType(fun.returnType.getOrAny)
+              case fun: ScFunction =>
+                val added = fun.returnType match {
+                  case Success(tp, _) => checkType(tp)
+                  case _ => false
+                }
+                if (!added) {
+                  fun.getType(TypingContext.empty) match {
+                    case Success(tp, _) => checkType(tp, true)
+                    case _ =>
+                  }
+                }
               case meth: PsiMethod => checkType(ScType.create(meth.getReturnType, meth.getProject, scope))
               case typed: ScTypedDefinition =>
                 if (!PsiTreeUtil.isContextAncestor(typed.nameContext, place, false))
