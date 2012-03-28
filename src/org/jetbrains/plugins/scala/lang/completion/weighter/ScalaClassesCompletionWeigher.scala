@@ -5,7 +5,6 @@ import com.intellij.codeInsight.completion.{CompletionLocation, CompletionWeighe
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import com.intellij.psi.PsiClass
-import com.intellij.psi.codeStyle.CodeStyleSettingsManager
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 
 /**
