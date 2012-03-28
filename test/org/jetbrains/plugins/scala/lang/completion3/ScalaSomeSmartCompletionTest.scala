@@ -147,4 +147,29 @@ class TUI {
 
     checkResultByText(resultText)
   }
+
+  def testOuterThis() {
+    val fileText =
+      """
+      |class TT {
+      |  class GG {
+      |    val al: Option[TT] = <caret>
+      |  }
+      |}
+      """.stripMargin.replaceAll("\r", "").trim()
+    configureFromFileTextAdapter("dummy.scala", fileText)
+    val (activeLookup, _) = complete(2, CompletionType.SMART)
+
+    val resultText =
+      """
+      |class TT {
+      |  class GG {
+      |    val al: Option[TT] = Somef(TT.this)<caret>
+      |  }
+      |}
+      """.stripMargin.replaceAll("\r", "").trim()
+
+    if (activeLookup != null) completeLookupItem(activeLookup.find(le => le.getLookupString == "TT.this").get, '\t')
+    checkResultByText(resultText)
+  }
 }

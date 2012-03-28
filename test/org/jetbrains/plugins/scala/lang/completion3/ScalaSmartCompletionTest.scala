@@ -150,4 +150,75 @@ class ScalaSmartCompletionTest extends ScalaCompletionTestBase {
     completeLookupItem(activeLookup.find(le => le.getLookupString == "BLLLL").get, '\t')
     checkResultByText(resultText)
   }
+
+  def testThis() {
+    val fileText =
+      """
+      |class TT {
+      |  val al: TT = <caret>
+      |}
+      """.stripMargin.replaceAll("\r", "").trim()
+    configureFromFileTextAdapter("dummy.scala", fileText)
+    val (activeLookup, _) = complete(1, CompletionType.SMART)
+
+    val resultText =
+      """
+      |class TT {
+      |  val al: TT = this<caret>
+      |}
+      """.stripMargin.replaceAll("\r", "").trim()
+
+    if (activeLookup != null) completeLookupItem(activeLookup.find(le => le.getLookupString == "this").get, '\t')
+    checkResultByText(resultText)
+  }
+
+  def testInnerThis() {
+    val fileText =
+      """
+      |class TT {
+      |  class GG {
+      |    val al: GG = <caret>
+      |  }
+      |}
+      """.stripMargin.replaceAll("\r", "").trim()
+    configureFromFileTextAdapter("dummy.scala", fileText)
+    val (activeLookup, _) = complete(1, CompletionType.SMART)
+
+    val resultText =
+      """
+      |class TT {
+      |  class GG {
+      |    val al: GG = this<caret>
+      |  }
+      |}
+      """.stripMargin.replaceAll("\r", "").trim()
+
+    if (activeLookup != null) completeLookupItem(activeLookup.find(le => le.getLookupString == "this").get, '\t')
+    checkResultByText(resultText)
+  }
+
+  def testOuterThis() {
+    val fileText =
+      """
+      |class TT {
+      |  class GG {
+      |    val al: TT = <caret>
+      |  }
+      |}
+      """.stripMargin.replaceAll("\r", "").trim()
+    configureFromFileTextAdapter("dummy.scala", fileText)
+    val (activeLookup, _) = complete(1, CompletionType.SMART)
+
+    val resultText =
+      """
+      |class TT {
+      |  class GG {
+      |    val al: TT = TT.this<caret>
+      |  }
+      |}
+      """.stripMargin.replaceAll("\r", "").trim()
+
+    if (activeLookup != null) completeLookupItem(activeLookup.find(le => le.getLookupString == "TT.this").get, '\t')
+    checkResultByText(resultText)
+  }
 }

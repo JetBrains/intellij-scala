@@ -14,6 +14,7 @@ import psi.api.toplevel.typedef.ScObject
 import com.intellij.openapi.util.Condition
 import com.intellij.psi.{PsiFile, PsiNamedElement, PsiMethod}
 import lookups.ScalaLookupItem
+import psi.api.base.ScStableCodeReferenceElement
 
 /**
  * User: Alexander Podkhalyuzin
@@ -45,7 +46,14 @@ class ScalaInsertHandler extends InsertHandler[LookupElement] {
       var elem = element
       var parent = elem.getParent
       while (parent match {
+        case _: ScStableCodeReferenceElement =>
+          parent.getParent match {
+            case _: ScThisReference | _: ScSuperReference => true
+            case _ => false
+          }
         case _: ScReferenceExpression => true
+        case _: ScThisReference => true
+        case _: ScSuperReference => true
         case inf: ScInfixExpr if elem == inf.operation => true
         case pref: ScPrefixExpr if elem == pref.operation => true
         case postf: ScPostfixExpr if elem == postf.operation => true

@@ -11,10 +11,9 @@ import org.jetbrains.plugins.scala.lang.psi._
 import api.base.ScReferenceElement
 import api.statements._
 import api.toplevel.ScTypedDefinition
-import api.toplevel.typedef.ScMember
+import api.toplevel.typedef.{ScTemplateDefinition, ScMember}
 import params.ScParameter
 import types._
-import result.TypingContext
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.patterns.{ElementPattern, StandardPatterns, PlatformPatterns}
 import com.intellij.patterns.PsiElementPattern.Capture
@@ -27,6 +26,7 @@ import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.completion.ScalaAfterNewCompletionUtil._
 import collection.mutable.{HashMap, HashSet, ArrayBuffer}
 import org.jetbrains.plugins.scala.extensions.{toPsiNamedElementExt, toPsiClassExt}
+import result.{Success, TypingContext}
 
 /**
  * User: Alexander Podkhalyuzin
@@ -65,7 +65,7 @@ class ScalaSmartCompletionContributor extends CompletionContributor {
               typez.foreach {
                 case ScParameterizedType(tp, Seq(arg)) if !elementAdded =>
                   ScType.extractClass(tp, Some(elem.getProject)) match {
-                    case Some(clazz) if clazz.qualifiedName == "scala.Option" =>
+                    case Some(clazz) if clazz.qualifiedName == "scala.Option" || clazz.getQualifiedName == "scala.Some" =>
                       if (!scType.equiv(Nothing) && scType.conforms(arg)) {
                         el.someSmartCompletion = true
                         result.addElement(el)
@@ -82,7 +82,9 @@ class ScalaSmartCompletionContributor extends CompletionContributor {
               case fun: ScSyntheticFunction => checkType(fun.retType)
               case fun: ScFunction => checkType(fun.returnType.getOrAny)
               case meth: PsiMethod => checkType(ScType.create(meth.getReturnType, meth.getProject, scope))
-              case typed: ScTypedDefinition => for (tt <- typed.getType(TypingContext.empty)) checkType(tt)
+              case typed: ScTypedDefinition =>
+                if (!PsiTreeUtil.isContextAncestor(typed.nameContext, place, false))
+                  for (tt <- typed.getType(TypingContext.empty)) checkType(tt)
               case _ =>
             }
         }
@@ -93,6 +95,43 @@ class ScalaSmartCompletionContributor extends CompletionContributor {
       for (keyword <- Set("false", "true")) {
         result.addElement(LookupElementManager.getKeywrodLookupElement(keyword, place))
       }
+    }
+    var parent = place
+    var foundClazz = false
+    while (parent != null) {
+      parent match {
+        case t: ScNewTemplateDefinition if foundClazz => //do nothing, impossible to invoke
+        case t: ScTemplateDefinition =>
+          t.getTypeWithProjections(TypingContext.empty, true) match {
+            case Success(scType, _) =>
+              import types.Nothing
+              val lookupString = (if (foundClazz) t.name + "." else "") + "this"
+              val el = new ScalaLookupItem(t, lookupString)
+              if (!scType.equiv(Nothing) && typez.find(scType conforms _) != None) {
+                if (!foundClazz) el.bold = true
+                result.addElement(el)
+              } else if (completeSome) {
+                var elementAdded = false
+                typez.foreach {
+                  case ScParameterizedType(tp, Seq(arg)) if !elementAdded =>
+                    ScType.extractClass(tp, Some(place.getProject)) match {
+                      case Some(clazz) if clazz.qualifiedName == "scala.Option" || clazz.getQualifiedName == "scala.Some" =>
+                        if (!scType.equiv(Nothing) && scType.conforms(arg)) {
+                          el.someSmartCompletion = true
+                          result.addElement(el)
+                          elementAdded = true
+                        }
+                      case _ =>
+                    }
+                  case _ =>
+                }
+              }
+            case _ =>
+          }
+          foundClazz = true
+        case _ =>
+      }
+      parent = parent.getContext
     }
   }
 
