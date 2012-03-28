@@ -360,6 +360,25 @@ class ScalaSmartCompletionContributor extends CompletionContributor {
     })
 
   /*
+   do expr while (ref)
+   do ref while (expr)
+  */
+  extend(CompletionType.SMART, superParentPattern(classOf[ScDoStmt]),
+    new CompletionProvider[CompletionParameters] {
+      def addCompletions(parameters: CompletionParameters, context: ProcessingContext,
+                         result: CompletionResultSet) {
+        val element = parameters.getPosition
+        val ref = element.getParent.asInstanceOf[ScReferenceExpression]
+        val doStmt = ref.getParent.asInstanceOf[ScDoStmt]
+        if (doStmt.condition.getOrElse(null: ScExpression) == ref)
+          acceptTypes(ref.expectedTypes(), ref.getVariants, result,
+            ref.getResolveScope, parameters.getInvocationCount > 1, completeThis(ref), element)
+        else acceptTypes(ref.expectedTypes(), ref.getVariants, result,
+          ref.getResolveScope, parameters.getInvocationCount > 1, completeThis(ref), element)
+      }
+    })
+
+  /*
     expr op ref
     expr ref name
     ref op expr

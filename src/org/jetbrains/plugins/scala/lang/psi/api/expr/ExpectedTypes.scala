@@ -78,6 +78,10 @@ private[expr] object ExpectedTypes {
         case Some(e) if e == expr => tb.getContext.asInstanceOf[ScTryStmt].expectedTypesEx(true)
         case _ => Array.empty
       }
+      case wh: ScWhileStmt if wh.condition.getOrElse(null: ScExpression) == expr => Array((types.Boolean, None))
+      case wh: ScWhileStmt => Array((types.Unit, None))
+      case d: ScDoStmt if d.condition.getOrElse(null: ScExpression) == expr => Array((types.Boolean, None))
+      case d: ScDoStmt => Array((types.Unit, None))
       case fb: ScFinallyBlock => Array((types.Unit, None))
       case cb: ScCatchBlock => Array.empty
       case te: ScThrowStmt =>
