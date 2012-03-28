@@ -27,6 +27,7 @@ import org.jetbrains.plugins.scala.lang.completion.ScalaAfterNewCompletionUtil._
 import collection.mutable.{HashMap, HashSet, ArrayBuffer}
 import org.jetbrains.plugins.scala.extensions.{toPsiNamedElementExt, toPsiClassExt}
 import result.{Success, TypingContext}
+import types.Conformance.AliasType
 
 /**
  * User: Alexander Podkhalyuzin
@@ -225,15 +226,19 @@ class ScalaSmartCompletionContributor extends CompletionContributor {
     val braceArgs = args.isBraceArgs
     val expects = referenceExpression.expectedTypes()
     for (expected <- expects) {
-      val actualParams: Seq[ScType] = expected match {
+      def params(tp: ScType): Seq[ScType] = tp match {
         case ScFunctionType(_, params) => params
         case p: ScParameterizedType if p.getFunctionType != None =>
           p.getFunctionType match {
             case Some(ScFunctionType(_, params)) => params
             case _ => null
           }
-        case _ => null
+        case _ => Conformance.isAliasType(tp) match {
+          case Some(AliasType(_, Success(lowerType, _), _)) => params(lowerType)
+          case _ => null
+        }
       }
+      val actualParams = params(expected)
       if (actualParams != null) {
         val params = actualParams match {
           case Seq(ScTupleType(params)) if braceArgs => params
