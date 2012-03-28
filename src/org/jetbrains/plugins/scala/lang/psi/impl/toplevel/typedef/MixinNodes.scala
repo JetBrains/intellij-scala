@@ -357,6 +357,10 @@ abstract class MixinNodes {
           }
     }
 
+    if (superTypes.length > 0 && superTypes(0).toString.startsWith("SeqView")) {
+      "stop"
+    }
+
     val iter = superTypes.iterator
     while (iter.hasNext) {
       val superType = iter.next()

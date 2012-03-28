@@ -40,23 +40,7 @@ object TypeDefinitionMembers {
   private val LOG: Logger = Logger.getInstance("#org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers")
 
   def isBridge(place: Option[PsiElement], memb: PsiMember): Boolean = {
-    if (place == None) return true
-
-    //this is to make place and member on same level (resolve from library source)
-    var member: PsiMember = memb
-    memb.getContainingFile match {
-      case file: ScalaFile if file.isCompiled => {
-        place.get.getContainingFile match {
-          case file: ScalaFile if file.isCompiled =>
-          case _ if !member.isInstanceOf[ScMember] =>
-            member = memb.getOriginalElement.asInstanceOf[PsiMember]
-          case _ =>
-        }
-      }
-      case _ =>
-    }
-
-    member match {
+    memb match {
       case f: ScFunction if f.isBridge => false
       case _ => true
     }
