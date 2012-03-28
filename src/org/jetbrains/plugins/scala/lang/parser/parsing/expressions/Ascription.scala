@@ -4,10 +4,9 @@ package parser
 package parsing
 package expressions
 
-import com.intellij.lang.PsiBuilder
 import lexer.ScalaTokenTypes
-import types.InfixType
 import builder.ScalaPsiBuilder
+import parsing.types.{Type, InfixType}
 
 /**
 * @author Alexander Podkhalyuzin
@@ -19,21 +18,21 @@ object Ascription {
     val ascriptionMarker = builder.mark
     builder.getTokenType match {
       case ScalaTokenTypes.tCOLON => {
-        builder.advanceLexer //Ate :
+        builder.advanceLexer() //Ate :
       }
       case _ => {
-        ascriptionMarker.drop
+        ascriptionMarker.drop()
         return false
       }
     }
     builder.getTokenType match {
       case ScalaTokenTypes.tUNDER => {
         val seqArgMarker = builder.mark
-        ascriptionMarker.drop
-        builder.advanceLexer //Ate _
+        ascriptionMarker.drop()
+        builder.advanceLexer() //Ate _
         builder.getTokenText match {
           case "*" => {
-            builder.advanceLexer //Ate *
+            builder.advanceLexer() //Ate *
           }
           case _ => {
             builder error ScalaBundle.message("star.expected")
@@ -44,8 +43,8 @@ object Ascription {
       }
       case _ => {}
     }
-    if (!InfixType.parse(builder)) {
-      var x = 0;
+    if (!Type.parse(builder)) {
+      var x = 0
       val annotationsMarker = builder.mark
       while (Annotation.parse(builder)) {
         x = x + 1
@@ -53,7 +52,7 @@ object Ascription {
       annotationsMarker.done(ScalaElementTypes.ANNOTATIONS)
       if (x == 0) builder error ScalaBundle.message("annotation.expected")
     }
-    ascriptionMarker.drop
-    return true
+    ascriptionMarker.drop()
+    true
   }
 }

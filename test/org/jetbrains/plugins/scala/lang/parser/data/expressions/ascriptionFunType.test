@@ -1,0 +1,214 @@
+class CurriedFuncTest {
+
+  def func[T](i: Int,  b: Boolean,  func: T => Any) = func
+
+  def alias[T] = func(1, _: Boolean,  _: T => Any)
+
+  def alias2[T] = func(1, _: Boolean,  _: Function1[T, Any])
+}
+-----
+ScalaFile
+  ScClass
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('CurriedFuncTest')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('func')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter
+              PsiElement(identifier)('T')
+            PsiElement(])(']')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('i')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleTypeElement
+                    CodeReferenceElement
+                      PsiElement(identifier)('Int')
+              PsiElement(,)(',')
+              PsiWhiteSpace('  ')
+              Parameter
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('b')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleTypeElement
+                    CodeReferenceElement
+                      PsiElement(identifier)('Boolean')
+              PsiElement(,)(',')
+              PsiWhiteSpace('  ')
+              Parameter
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('func')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  FunctionalType
+                    SimpleTypeElement
+                      CodeReferenceElement
+                        PsiElement(identifier)('T')
+                    PsiWhiteSpace(' ')
+                    PsiElement(=>)('=>')
+                    PsiWhiteSpace(' ')
+                    SimpleTypeElement
+                      CodeReferenceElement
+                        PsiElement(identifier)('Any')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression
+            PsiElement(identifier)('func')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('alias')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter
+              PsiElement(identifier)('T')
+            PsiElement(])(']')
+          Parameters
+            <empty list>
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MethodCall
+            ReferenceExpression
+              PsiElement(identifier)('func')
+            ArgumentList
+              PsiElement(()('(')
+              Literal
+                PsiElement(integer)('1')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              TypedStatement
+                UnderscoreSection
+                  PsiElement(_)('_')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                SimpleTypeElement
+                  CodeReferenceElement
+                    PsiElement(identifier)('Boolean')
+              PsiElement(,)(',')
+              PsiWhiteSpace('  ')
+              TypedStatement
+                UnderscoreSection
+                  PsiElement(_)('_')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                FunctionalType
+                  SimpleTypeElement
+                    CodeReferenceElement
+                      PsiElement(identifier)('T')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>)('=>')
+                  PsiWhiteSpace(' ')
+                  SimpleTypeElement
+                    CodeReferenceElement
+                      PsiElement(identifier)('Any')
+              PsiElement())(')')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('alias2')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter
+              PsiElement(identifier)('T')
+            PsiElement(])(']')
+          Parameters
+            <empty list>
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MethodCall
+            ReferenceExpression
+              PsiElement(identifier)('func')
+            ArgumentList
+              PsiElement(()('(')
+              Literal
+                PsiElement(integer)('1')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              TypedStatement
+                UnderscoreSection
+                  PsiElement(_)('_')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                SimpleTypeElement
+                  CodeReferenceElement
+                    PsiElement(identifier)('Boolean')
+              PsiElement(,)(',')
+              PsiWhiteSpace('  ')
+              TypedStatement
+                UnderscoreSection
+                  PsiElement(_)('_')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParametrizedTypeElement
+                  SimpleTypeElement
+                    CodeReferenceElement
+                      PsiElement(identifier)('Function1')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    SimpleTypeElement
+                      CodeReferenceElement
+                        PsiElement(identifier)('T')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    SimpleTypeElement
+                      CodeReferenceElement
+                        PsiElement(identifier)('Any')
+                    PsiElement(])(']')
+              PsiElement())(')')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
