@@ -50,7 +50,7 @@ class CompileServerLauncher(project: Project) extends ProjectComponent {
     val options = if (reportsPort) "-v" :: additionalOptions else additionalOptions
 
     val process = runProcess(environment, "scala.tools.nsc.CompileServer", vmParameters, options)
-    val port = if (reportsPort) Some(readPort(process)) else None
+    val port = if (reportsPort) readPort(process) else None
 
     instance = Some(ServerInstance(environment, process, port))
 
@@ -106,11 +106,12 @@ class CompileServerLauncher(project: Project) extends ProjectComponent {
     new ProcessBuilder(args: _*).redirectErrorStream(true).start();
   }
 
-  private def readPort(process: Process): Int = {
+  private def readPort(process: Process): Option[Int] = {
     val source = Source.fromInputStream(process.getInputStream)
     try {
-      val line = source.getLines().next()
-      PortPattern.findFirstIn(line).get.toInt
+      source.getLines().toStream.headOption.flatMap { line =>
+        PortPattern.findFirstIn(line).map(_.toInt)
+      }
     } finally {
       source.close()
     }
