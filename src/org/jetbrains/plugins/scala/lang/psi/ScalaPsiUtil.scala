@@ -175,6 +175,16 @@ object ScalaPsiUtil {
     }
   }
 
+  /**
+  Pick all type parameters by method maps them to the appropriate type arguments, if they are
+   */
+  def inferMethodTypesArgs(fun: ScFunction, classSubst: ScSubstitutor) = {
+    fun.typeParameters.foldLeft(ScSubstitutor.empty) {
+      (subst, tp) => subst.bindT((tp.name, ScalaPsiUtil.getPsiElementId(tp)),
+        new ScUndefinedType(new ScTypeParameterType(tp: ScTypeParam, classSubst), 1))
+    }
+  }
+
   def findImplicitConversion(e: ScExpression, refName: String, kinds: collection.Set[ResolveTargets.Value],
                              ref: PsiElement, processor: BaseProcessor):
     Option[(ScType, PsiNamedElement, collection.Set[ImportUsed])] = {
@@ -193,8 +203,8 @@ object ScalaPsiUtil {
         if (noApplicability) e.implicitMap(args = args)
         else if (!secondPart) e.implicitMapFirstPart()
         else e.implicitMapSecondPart(args = args)
-      implicitMap = mp.filter({
-        case (t: ScType, fun: PsiNamedElement, importsUsed: collection.Set[ImportUsed]) => {
+      implicitMap = mp.flatMap({
+        case triple@(t: ScType, fun: PsiNamedElement, importsUsed: collection.Set[ImportUsed]) => {
           ProgressManager.checkCanceled()
           if (!isHardCoded || !t.isInstanceOf[ValType]) {
             val newProc = new ResolveProcessor(kinds, ref, refName)
@@ -203,15 +213,35 @@ object ScalaPsiUtil {
             if (!noApplicability && res && processor.isInstanceOf[MethodResolveProcessor]) {
               val mrp = processor.asInstanceOf[MethodResolveProcessor]
               val newProc = new MethodResolveProcessor(ref, refName, mrp.argumentClauses, mrp.typeArgElements,
-                Seq.empty /* todo? */, kinds,
+                fun match {
+                  case fun: ScFunction if fun.hasTypeParameters => fun.typeParameters.map(tp => TypeParameter(tp.name, Nothing, Any, tp))
+                  case _ => Seq.empty
+                }, kinds,
                 mrp.expectedOption, mrp.isUnderscore, mrp.isShapeResolve, mrp.constructorResolve)
               val tp = t
               newProc.processType(tp, e, ResolveState.initial)
-              val cand = newProc.candidatesS
-              val filtered = !cand.filter(_.isApplicable).isEmpty
-              filtered
-            } else res
-          } else false
+              val candidates = newProc.candidatesS.filter(_.isApplicable)
+              if (candidates.isEmpty) Seq.empty
+              else {
+                fun match {
+                  case fun: ScFunction if fun.hasTypeParameters =>
+                    val rr = candidates.iterator.next()
+                    rr.resultUndef match {
+                      case Some(undef) =>
+                        undef.getSubstitutor match {
+                          case Some(subst) => Seq((subst.subst(t), fun, importsUsed))
+                          case _ => Seq(triple)
+                        }
+                      case _ => Seq(triple)
+                    }
+                  case _ => Seq(triple)
+                }
+              }
+            } else {
+              if (res) Seq(triple)
+              else Seq.empty
+            }
+          } else Seq.empty
         }
       })
     }
