@@ -20,10 +20,9 @@ import lang.resolve.processor.ImplicitProcessor
 import params.{ScClassParameter, ScParameter, ScTypeParam}
 import api.toplevel.templates.{ScExtendsBlock, ScTemplateBody}
 import lang.resolve.{ResolveUtils, StdKinds, ScalaResolveResult}
-import extensions.toPsiClassExt
-import psi.impl.{ScalaPsiElementFactory, ScalaPsiManager}
+import psi.impl.ScalaPsiManager
 import api.expr.{ScMethodCall, ScExpression}
-import result.{Success, TypingContext}
+import result.TypingContext
 
 /**
  * @author ilyas
@@ -147,17 +146,6 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
 
       r.element match {
         case f: ScFunction if f.hasTypeParameters =>
-          //Fake expression to solve type
-          /*val fakeExpression =
-            ScalaPsiElementFactory.createExpressionWithContextFromText(ScImplicitlyConvertible.IMPLICIT_CALL_TEXT, this.getContext, this).
-              asInstanceOf[ScMethodCall]
-          ScImplicitlyConvertible.setupFakeCall(fakeExpression, r, typez, exp)
-
-          fakeExpression.getTypeWithoutImplicits(TypingContext.empty) match {
-            case Success(tp, _) => result += ((tp, r.element, r.importsUsed))
-            case _ => (false, r, tp, retTp)
-          }*/
-
           uSubst.getSubstitutor match {
             case Some(substitutor) =>
               exp match {
@@ -274,7 +262,7 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
         }
       }
       val newSubst = r.element match {
-        case f: ScFunction => inferMethodTypesArgs(f, r.substitutor)
+        case f: ScFunction => ScalaPsiUtil.inferMethodTypesArgs(f, r.substitutor)
         case _ => ScSubstitutor.empty
       }
       if (!typez.weakConforms(newSubst.subst(tp))) {
@@ -399,16 +387,6 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
 
   private def isConformsMethod(f: ScFunction): Boolean = {
     f.name == "conforms" && Option(f.getContainingClass).flatMap(cls => Option(cls.qualifiedName)).exists(_ == "scala.Predef")
-  }
-
-  /**
-   * Pick all type parameters by method maps them to the appropriate type arguments.
-   */
-  def inferMethodTypesArgs(fun: ScFunction, classSubst: ScSubstitutor) = {
-    fun.typeParameters.foldLeft(ScSubstitutor.empty) {
-      (subst, tp) => subst.bindT((tp.name, ScalaPsiUtil.getPsiElementId(tp)),
-        ScUndefinedType(new ScTypeParameterType(tp: ScTypeParam, classSubst)))
-    }
   }
 }
 

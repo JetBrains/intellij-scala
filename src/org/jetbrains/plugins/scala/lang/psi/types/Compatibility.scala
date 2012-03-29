@@ -285,7 +285,7 @@ object Compatibility {
         val parameters: Seq[ScParameter] = fun.effectiveParameterClauses.headOption.toList.flatMap(_.parameters)
         
         val clashedAssignments = clashedAssignmentsIn(exprs)
-        val unresolved = for(Expression(assignment @ NamedAssignStmt(name)) <- exprs;
+        val unresolved = for(Expression(assignment@NamedAssignStmt(name)) <- exprs
                              if !parameters.exists(_.name == name)) yield assignment
         
         if(!unresolved.isEmpty || !clashedAssignments.isEmpty) {

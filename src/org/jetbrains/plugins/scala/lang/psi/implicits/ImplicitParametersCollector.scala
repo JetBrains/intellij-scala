@@ -79,7 +79,7 @@ class ImplicitParametersCollector(place: PsiElement, tp: ScType) {
         }
         case function: ScFunction if function.hasModifierProperty("implicit") => {
           if (!ResolveUtils.isAccessible(function, getPlace)) return true
-          addResult(new ScalaResolveResult(named, subst.followed(inferMethodTypesArgs(function, subst)), getImports(state)))
+          addResult(new ScalaResolveResult(named, subst.followed(ScalaPsiUtil.inferMethodTypesArgs(function, subst)), getImports(state)))
         }
         case _ =>
       }
@@ -217,17 +217,6 @@ class ImplicitParametersCollector(place: PsiElement, tp: ScType) {
       new MostSpecificUtil(place, 1).mostSpecificForResolveResult(applicable) match {
         case Some(r) => HashSet(r)
         case _ => applicable
-      }
-    }
-
-
-    /**
-     Pick all type parameters by method maps them to the appropriate type arguments, if they are
-     */
-    def inferMethodTypesArgs(fun: ScFunction, classSubst: ScSubstitutor) = {
-      fun.typeParameters.foldLeft(ScSubstitutor.empty) {
-        (subst, tp) => subst.bindT((tp.name, ScalaPsiUtil.getPsiElementId(tp)),
-          new ScUndefinedType(new ScTypeParameterType(tp: ScTypeParam, classSubst), 1))
       }
     }
   }

@@ -336,13 +336,13 @@ object MethodResolveProcessor {
                 r.copy(innerResolveResult = Some(rr.copy(problems = pr.problems,
                   defaultParameterUsed = pr.defaultParameterUsed)))
               }
-              case _ => r.copy(problems = pr.problems, defaultParameterUsed = pr.defaultParameterUsed)
+              case _ => r.copy(problems = pr.problems, defaultParameterUsed = pr.defaultParameterUsed, resultUndef = Some(pr.undefSubst))
             }
           }
         }
       } else input.map(r => {
         val pr = problemsFor(r, applicationImplicits, proc)
-        r.copy(problems = pr.problems, defaultParameterUsed = pr.defaultParameterUsed)
+        r.copy(problems = pr.problems, defaultParameterUsed = pr.defaultParameterUsed, resultUndef = Some(pr.undefSubst))
       })
     }
     var mapped = mapper(false)

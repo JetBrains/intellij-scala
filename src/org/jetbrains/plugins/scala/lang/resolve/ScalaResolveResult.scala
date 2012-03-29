@@ -31,7 +31,8 @@ class ScalaResolveResult(val element: PsiNamedElement,
                          val isSetterFunction: Boolean = false,
                          val isAssignment: Boolean = false,
                          val notCheckedResolveResult: Boolean = false, 
-                         val isAccessible: Boolean = true) extends ResolveResult {
+                         val isAccessible: Boolean = true,
+                         val resultUndef: Option[ScUndefinedSubstitutor] = None) extends ResolveResult {
 
   def getElement = element
   
@@ -69,11 +70,11 @@ class ScalaResolveResult(val element: PsiNamedElement,
            isSetterFunction: Boolean = isSetterFunction,
            isAssignment: Boolean = isAssignment,
            notCheckedResolveResult: Boolean = notCheckedResolveResult, 
-           isAccessible: Boolean = isAccessible): ScalaResolveResult =
+           isAccessible: Boolean = isAccessible, resultUndef: Option[ScUndefinedSubstitutor] = None): ScalaResolveResult =
     new ScalaResolveResult(element, subst, importsUsed, nameShadow, implicitConversionClass, problems, boundClass,
       implicitFunction, implicitType, defaultParameterUsed, innerResolveResult, parentElement,
       isNamedParameter, fromType, tuplingUsed, isSetterFunction, isAssignment, notCheckedResolveResult,
-      isAccessible)
+      isAccessible, resultUndef)
 
   //In valid program we should not have two resolve results with the same element but different substitutor,
   // so factor by element
