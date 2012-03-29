@@ -328,8 +328,8 @@ class ScalaTestAstTransformer {
 
   def testSelection(location: Location[_ <: PsiElement]): Option[Selection] = {
     val element = location.getPsiElement
-    val typeDef = PsiTreeUtil.getParentOfType(element, classOf[ScTypeDefinition], false)
-    val clazz = typeDef.asInstanceOf[ScClass]
+    val clazz = PsiTreeUtil.getParentOfType(element, classOf[ScClass], false)
+    if (clazz == null) return None
     val finderOpt = getFinder(clazz, location.getModule)
     finderOpt match {
       case Some(finder) =>
