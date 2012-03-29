@@ -12,6 +12,7 @@ import lang.psi.api.base.patterns.ScCaseClause
 import com.intellij.psi.{PsiComment, PsiWhiteSpace, PsiElement, PsiFile}
 import org.jetbrains.plugins.scala.extensions._
 import lang.psi.api.expr.ScExpression
+import lang.psi.api.toplevel.imports.ScImportStmt
 
 /**
  * Pavel Fatin
@@ -27,6 +28,7 @@ class ScalaStatementMover extends LineMover {
       case _: ScExpression => true
       case _: ScMember => true
       case _: ScCaseClause => true
+      case _: ScImportStmt => true
       case _ => false
     }
 
@@ -40,7 +42,7 @@ class ScalaStatementMover extends LineMover {
       }
     }
 
-    val destination = aim(classOf[ScCaseClause]).orElse(aim(classOf[ScMember]))
+    val destination = aim(classOf[ScCaseClause]).orElse(aim(classOf[ScMember])).orElse(aim(classOf[ScImportStmt]))
 
     destination.foreach { it =>
       info.toMove = it._1

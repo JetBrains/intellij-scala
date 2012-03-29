@@ -24,7 +24,7 @@ class ScalaStatementMoverTest extends StatementMoverTestBase {
     "def a\ndef b\n|def c" moveDownIsDisabled
   }
 
-  def testCursorPositioning {
+  def testCursorPositioning() {
     "|def a\ndef b" movedDownIs "def b\ndef a";
     "def| a\ndef b" movedDownIs "def b\ndef a";
     "def a|\ndef b" movedDownIs "def b\ndef a";
@@ -32,7 +32,7 @@ class ScalaStatementMoverTest extends StatementMoverTestBase {
     "def a {}|\ndef b {}" movedDownIs "def b {}\ndef a {}";
   }
 
-  def testCursorLinePositioning {
+  def testCursorLinePositioning() {
     "def a {\n|\n}\ndef b {\n\n}" moveDownIsDisabled
   }
 
@@ -41,25 +41,25 @@ class ScalaStatementMoverTest extends StatementMoverTestBase {
     "|def a\n\ndef b" movedDownIs "def b\n\ndef a"
   }
 
-  def testExpressionAsSource {
+  def testExpressionAsSource() {
     "|v = 1\ndef a" moveDownIsDisabled;
   }
 
-  def testExpressionAsTarget {
+  def testExpressionAsTarget() {
     "|def a\nv = 1\ndef b" movedDownIs "v = 1\ndef a\ndef b";
   }
 
-  def testSkipComment {
+  def testSkipComment() {
     "|def a\n//comment\n\ndef b" movedDownIs "def b\n//comment\n\ndef a";
   }
 
-  def testSourceComment {
+  def testSourceComment() {
     "//source\n|def a\ndef b" movedDownIs "def b\n//source\ndef a";
     "//source 1\n//source 2\n|def a\ndef b" movedDownIs "def b\n//source 1\n//source 2\ndef a";
     "//foo\n\n//source\n|def a\ndef b" movedDownIs "//foo\n\ndef b\n//source\ndef a";
   }
 
-  def testDestinationComment {
+  def testDestinationComment() {
     "//source\ndef a\n|def b" movedUpIs "def b\n//source\ndef a";
     "//source 1\n//source 2\ndef a\n|def b" movedUpIs "def b\n//source 1\n//source 2\ndef a";
     "//foo\n\n//source\ndef a\n|def b" movedUpIs "//foo\n\ndef b\n//source\ndef a";
@@ -73,7 +73,7 @@ class ScalaStatementMoverTest extends StatementMoverTestBase {
     "|def a {\n// method a\n}\n\ndef b" movedDownIs "def b\n\ndef a {\n// method a\n}"
   }
 
-  def testCaseClause {
+  def testCaseClause() {
     "1 switch {\n|case 1 =>\ncase 2 =>\ncase 3 =>\n}}" moveUpIsDisabled;
     "1 switch {\n|case 1 =>\ncase 2 =>\ncase 3 =>\n}}" movedDownIs "1 switch {\ncase 2 =>\ncase 1 =>\ncase 3 =>\n}}";
 
@@ -84,8 +84,16 @@ class ScalaStatementMoverTest extends StatementMoverTestBase {
     "1 switch {\ncase 1 =>\ncase 2 =>\n|case 3 =>\n}}" moveDownIsDisabled;
   }
 
-  def testMultilineCaseClause {
+  def testMultilineCaseClause() {
     "1 switch {\n|case 1 =>{\n//clause 1\n}\n\ncase 2 =>\n}}" movedDownIs "1 switch {\ncase 2 =>\n\ncase 1 =>{\n//clause 1\n}\n}}";
     "1 switch {\n|case 1 =>\n\ncase 2 =>{\n//clause 2\n}\n}}" movedDownIs "1 switch {\ncase 2 =>{\n//clause 2\n}\n\ncase 1 =>\n}}";
+  }
+
+  def testMoveOverImportStatement() {
+    "import foo.bar\n|def baz = { 1\n2\n }" movedUpIs "def baz = { 1\n2\n }\nimport foo.bar"
+    "|def baz = { 1\n2\n }\nimport foo.bar" movedDownIs "import foo.bar\ndef baz = { 1\n2\n }"
+
+    "|import foo.bar\ndef baz = { 1\n2\n }" movedDownIs "def baz = { 1\n2\n }\nimport foo.bar"
+    "def baz = { 1\n2\n }\n|import foo.bar" movedUpIs "import foo.bar\ndef baz = { 1\n2\n }"
   }
 }
