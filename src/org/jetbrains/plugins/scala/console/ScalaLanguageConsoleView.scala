@@ -40,17 +40,17 @@ class ScalaExecuteConsoleEnterAction(console: ScalaLanguageConsole, processHandl
   def actionPerformed(e: AnActionEvent) {
     val editor = PlatformDataKeys.EDITOR.getData(e.getDataContext)
     if (editor != null) {
-      val document = editor.getDocument
+      val document = console.getEditorDocument
       val text = document.getText
 
       // Process input and add to history
-      val range: TextRange = new TextRange(0, document.getTextLength)
-      editor.getSelectionModel.setSelection(range.getStartOffset, range.getEndOffset)
-      console.addCurrentToHistory(range, false, true)
-      model.addToHistory(text)
-
-      editor.getCaretModel.moveToOffset(0)
       extensions.inWriteAction {
+        val range: TextRange = new TextRange(0, document.getTextLength)
+        editor.getSelectionModel.setSelection(range.getStartOffset, range.getEndOffset)
+        console.addCurrentToHistory(range, false, true)
+        model.addToHistory(text)
+
+        editor.getCaretModel.moveToOffset(0)
         editor.getDocument.setText("")
       }
 
