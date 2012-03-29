@@ -28,6 +28,7 @@ import org.jetbrains.plugins.scala.lang.completion.ScalaAfterNewCompletionUtil._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScReferenceExpression, ScNewTemplateDefinition}
 import collection.mutable.HashMap
 import org.jetbrains.plugins.scala.extensions.{toPsiNamedElementExt, toPsiClassExt}
+import org.jetbrains.plugins.scala.lang.psi.light.PsiClassWrapper
 
 class ScalaClassNameCompletionContributor extends CompletionContributor {
   import ScalaClassNameCompletionContributor._
@@ -148,6 +149,10 @@ object ScalaClassNameCompletionContributor {
       new Consumer[PsiClass] {
         def consume(psiClass: PsiClass) {
           //todo: filter according to position
+          psiClass match {
+            case p: PsiClassWrapper => return
+            case _ =>
+          }
           ScalaPsiUtil.getCompanionModule(psiClass) match {
             case Some(c) => addClass(c)
             case _ =>
