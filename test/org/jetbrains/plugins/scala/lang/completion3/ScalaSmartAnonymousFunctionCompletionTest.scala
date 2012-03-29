@@ -26,6 +26,142 @@ foo(2)((i: Int) =><caret>)
     checkResultByText(resultText)
   }
 
+  def testSimpleCaseTest() {
+    val fileText =
+"""
+def foo(x: String => String) = 1
+foo {<caret>}
+""".replaceAll("\r", "").trim()
+    configureFromFileTextAdapter("dummy.scala", fileText)
+    val (activeLookup, prefix) = complete(2, CompletionType.SMART)
+
+    val resultText =
+"""
+def foo(x: String => String) = 1
+foo {case s: String =><caret>}
+""".replaceAll("\r", "").trim()
+
+    completeLookupItem(activeLookup.find(le => le.getLookupString == "").get)
+    checkResultByText(resultText)
+  }
+
+  def testSimple() {
+    val fileText =
+"""
+def foo(x: String => String) = 1
+foo(<caret>)
+""".replaceAll("\r", "").trim()
+    configureFromFileTextAdapter("dummy.scala", fileText)
+    val (activeLookup, prefix) = complete(2, CompletionType.SMART)
+
+    val resultText =
+"""
+def foo(x: String => String) = 1
+foo((s: String) =><caret>)
+""".replaceAll("\r", "").trim()
+
+    completeLookupItem(activeLookup.find(le => le.getLookupString == "").get)
+    checkResultByText(resultText)
+  }
+
+  def testJustTuple() {
+    val fileText =
+"""
+def foo(x: Tuple2[Int, Int] => Int) = 1
+foo(<caret>)
+""".replaceAll("\r", "").trim()
+    configureFromFileTextAdapter("dummy.scala", fileText)
+    val (activeLookup, prefix) = complete(2, CompletionType.SMART)
+
+    val resultText =
+"""
+def foo(x: Tuple2[Int, Int] => Int) = 1
+foo((tuple: (Int, Int)) =><caret>)
+""".replaceAll("\r", "").trim()
+
+    completeLookupItem(activeLookup.find(le => le.getLookupString == "").get)
+    checkResultByText(resultText)
+  }
+
+  def testCaseTuple() {
+    val fileText =
+"""
+def foo(x: Tuple2[Int, Int] => Int) = 1
+foo{<caret>}
+""".replaceAll("\r", "").trim()
+    configureFromFileTextAdapter("dummy.scala", fileText)
+    val (activeLookup, prefix) = complete(2, CompletionType.SMART)
+
+    val resultText =
+"""
+def foo(x: Tuple2[Int, Int] => Int) = 1
+foo{case (i: Int, i0: Int) =><caret>}
+""".replaceAll("\r", "").trim()
+
+    completeLookupItem(activeLookup.find(le => le.getLookupString == "").get)
+    checkResultByText(resultText)
+  }
+
+  def testAbstractTypeInfoWithUpper() {
+    val fileText =
+"""
+def foo[T <: Runnable](x: (T, String) => String) = 1
+foo(<caret>)
+""".replaceAll("\r", "").trim()
+    configureFromFileTextAdapter("dummy.scala", fileText)
+    val (activeLookup, prefix) = complete(2, CompletionType.SMART)
+
+    val resultText =
+"""
+def foo[T <: Runnable](x: (T, String) => String) = 1
+foo((value: Runnable, s: String) =><caret>)
+""".replaceAll("\r", "").trim()
+
+    completeLookupItem(activeLookup.find(le => le.getLookupString == "").get)
+    checkResultByText(resultText)
+  }
+
+  def testAbstractTypeInfoWithLower() {
+    val fileText =
+"""
+def foo[T >: Int](x: (T, String) => String) = 1
+foo(<caret>)
+""".replaceAll("\r", "").trim()
+    configureFromFileTextAdapter("dummy.scala", fileText)
+    val (activeLookup, prefix) = complete(2, CompletionType.SMART)
+
+    val resultText =
+"""
+def foo[T >: Int](x: (T, String) => String) = 1
+foo((value: Int, s: String) =><caret>)
+""".replaceAll("\r", "").trim()
+
+    completeLookupItem(activeLookup.find(le => le.getLookupString == "").get)
+    checkResultByText(resultText)
+  }
+
+  def testAbstractTypeInfoTypeParameters() {
+    val fileText =
+"""
+def foo[T <: Runnable](x: T => String) = 1
+class X extends Runnable
+foo[X](<caret>)
+""".replaceAll("\r", "").trim()
+    configureFromFileTextAdapter("dummy.scala", fileText)
+    val (activeLookup, prefix) = complete(2, CompletionType.SMART)
+
+    val resultText =
+"""
+def foo[T <: Runnable](x: T => String) = 1
+class X extends Runnable
+foo[X]((x: X) =><caret>)
+""".replaceAll("\r", "").trim()
+
+    completeLookupItem(activeLookup.find(le => le.getLookupString == "").get)
+    checkResultByText(resultText)
+  }
+
+
   def testFewParams() {
     val fileText =
       """
