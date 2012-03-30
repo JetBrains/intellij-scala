@@ -4,14 +4,12 @@ package psi
 package stubs
 package elements
 
-import _root_.scala.collection.mutable.ArrayBuffer
 import api.statements.{ScVariableDefinition, ScVariable, ScVariableDeclaration}
 import com.intellij.psi.PsiElement
 import com.intellij.psi.stubs.{StubElement, IndexSink, StubOutputStream, StubInputStream}
 import com.intellij.util.io.StringRef
 import impl.ScVariableStubImpl
 import index.ScalaIndexKeys
-import java.io.IOException
 import com.intellij.util.IncorrectOperationException
 
 /**
@@ -38,7 +36,7 @@ extends ScStubElementType[ScVariableStub, ScVariable](debugName) {
       else psi.asInstanceOf[ScVariableDefinition].pList.getText
     new ScVariableStubImpl[ParentPsi](parentStub, this,
       (for (elem <- psi.declaredElements) yield elem.name).toArray,
-      isDecl, typeText, bodyText, containerText)
+      isDecl, typeText, bodyText, containerText, psi.getContainingClass == null)
   }
 
   def serialize(stub: ScVariableStub, dataStream: StubOutputStream) {
@@ -49,6 +47,7 @@ extends ScStubElementType[ScVariableStub, ScVariable](debugName) {
     dataStream.writeName(stub.getTypeText)
     dataStream.writeName(stub.getBodyText)
     dataStream.writeName(stub.getBindingsContainerText)
+    dataStream.writeBoolean(stub.isLocal)
   }
 
   def deserializeImpl(dataStream: StubInputStream, parentStub: Any): ScVariableStub = {
@@ -60,7 +59,8 @@ extends ScStubElementType[ScVariableStub, ScVariable](debugName) {
     val typeText = StringRef.toString(dataStream.readName)
     val bodyText = StringRef.toString(dataStream.readName)
     val bindingsText = StringRef.toString(dataStream.readName)
-    new ScVariableStubImpl(parent, this, names, isDecl, typeText, bodyText, bindingsText)
+    val isLocal = dataStream.readBoolean()
+    new ScVariableStubImpl(parent, this, names, isDecl, typeText, bodyText, bindingsText, isLocal)
   }
 
   def indexStub(stub: ScVariableStub, sink: IndexSink) {

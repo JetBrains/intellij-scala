@@ -33,11 +33,12 @@ extends StubBaseWrapper[ScValue](parent, elemType) with ScValueStub {
   private var myIds: PatchedSoftReference[Option[ScIdList]] = null
   private var myPatterns: PatchedSoftReference[Option[ScPatternList]] = null
   private var _implicit: Boolean = false
+  private var local: Boolean = false
 
   def this(parent: StubElement[ParentPsi],
           elemType: IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement],
           names: Array[String], isDeclaration: Boolean, typeText: String, bodyText: String,
-          containerText: String, isImplicit: Boolean) = {
+          containerText: String, isImplicit: Boolean, isLocal: Boolean) = {
     this(parent, elemType.asInstanceOf[IStubElementType[StubElement[PsiElement], PsiElement]])
     this.names = for (name <- names) yield StringRef.fromString(name)
     this.declaration = isDeclaration
@@ -45,12 +46,13 @@ extends StubBaseWrapper[ScValue](parent, elemType) with ScValueStub {
     this.bodyText = StringRef.fromString(bodyText)
     this.containerText = StringRef.fromString(containerText)
     this._implicit = isImplicit
+    local = isLocal
   }
 
   def this(parent: StubElement[ParentPsi],
           elemType: IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement],
           names: Array[StringRef], isDeclaration: Boolean, typeText: StringRef, bodyText: StringRef,
-          containerText: StringRef, isImplicit: Boolean) = {
+          containerText: StringRef, isImplicit: Boolean, isLocal: Boolean) = {
     this(parent, elemType.asInstanceOf[IStubElementType[StubElement[PsiElement], PsiElement]])
     this.names = names
     this.declaration = isDeclaration
@@ -58,7 +60,10 @@ extends StubBaseWrapper[ScValue](parent, elemType) with ScValueStub {
     this.bodyText = bodyText
     this.containerText = containerText
     this._implicit = isImplicit
+    local = isLocal
   }
+
+  def isLocal: Boolean = local
 
   def getNames: Array[String] = for (name <- names) yield StringRef.toString(name) //todo: remove it if unused
 

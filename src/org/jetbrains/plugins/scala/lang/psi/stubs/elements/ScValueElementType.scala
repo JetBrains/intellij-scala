@@ -29,7 +29,7 @@ extends ScStubElementType[ScValueStub, ScValue](debugName) {
     val isImplicit = psi.hasModifierProperty("implicit")
     new ScValueStubImpl[ParentPsi](parentStub, this,
       (for (elem <- psi.declaredElements) yield elem.name).toArray, isDecl, typeText, bodyText, containerText,
-      isImplicit)
+      isImplicit, psi.getContainingClass == null)
   }
 
   def serialize(stub: ScValueStub, dataStream: StubOutputStream) {
@@ -41,6 +41,7 @@ extends ScStubElementType[ScValueStub, ScValue](debugName) {
     dataStream.writeName(stub.getBodyText)
     dataStream.writeName(stub.getBindingsContainerText)
     dataStream.writeBoolean(stub.isImplicit)
+    dataStream.writeBoolean(stub.isLocal)
   }
 
   def deserializeImpl(dataStream: StubInputStream, parentStub: Any): ScValueStub = {
@@ -53,7 +54,8 @@ extends ScStubElementType[ScValueStub, ScValue](debugName) {
     val bodyText = dataStream.readName
     val bindingsText = dataStream.readName
     val isImplicit = dataStream.readBoolean()
-    new ScValueStubImpl(parent, this, names, isDecl, typeText, bodyText, bindingsText, isImplicit)
+    val isLocal = dataStream.readBoolean()
+    new ScValueStubImpl(parent, this, names, isDecl, typeText, bodyText, bindingsText, isImplicit, isLocal)
   }
 
   def indexStub(stub: ScValueStub, sink: IndexSink) {

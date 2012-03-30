@@ -32,11 +32,12 @@ extends StubBaseWrapper[ScFunction](parent, elemType) with ScFunctionStub {
   private var myBodyExpression: PatchedSoftReference[Option[ScExpression]] = null
   private var assign: Boolean = false
   private var _implicit: Boolean = false
+  private var local: Boolean = false
 
   def this(parent: StubElement[ParentPsi],
           elemType: IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement],
           name: String, isDeclaration: Boolean, annotations: Array[String], typeText: String, bodyText: String,
-          assign: Boolean, isImplicit: Boolean) = {
+          assign: Boolean, isImplicit: Boolean, isLocal: Boolean) = {
     this(parent, elemType.asInstanceOf[IStubElementType[StubElement[PsiElement], PsiElement]])
     this.name = StringRef.fromString(name)
     this.declaration = isDeclaration
@@ -45,12 +46,13 @@ extends StubBaseWrapper[ScFunction](parent, elemType) with ScFunctionStub {
     this.bodyText = StringRef.fromString(bodyText)
     this.assign = assign
     _implicit = isImplicit
+    local = isLocal
   }
 
   def this(parent: StubElement[ParentPsi],
           elemType: IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement],
           name: StringRef, isDeclaration: Boolean, annotations: Array[StringRef], typeText: StringRef, bodyText: StringRef,
-          assign: Boolean, isImplicit: Boolean) = {
+          assign: Boolean, isImplicit: Boolean, isLocal: Boolean) = {
     this(parent, elemType.asInstanceOf[IStubElementType[StubElement[PsiElement], PsiElement]])
     this.name = name
     this.declaration = isDeclaration
@@ -59,7 +61,10 @@ extends StubBaseWrapper[ScFunction](parent, elemType) with ScFunctionStub {
     this.bodyText = bodyText
     this.assign = assign
     _implicit = isImplicit
+    local = isLocal
   }
+
+  def isLocal: Boolean = local
 
   def getName: String = StringRef.toString(name)
 

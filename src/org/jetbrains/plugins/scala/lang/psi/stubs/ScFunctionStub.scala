@@ -6,8 +6,6 @@ package stubs
 import api.base.types.ScTypeElement
 import api.expr.ScExpression
 import api.statements.ScFunction
-import com.intellij.psi.impl.cache.TypeInfo
-import com.intellij.psi.PsiType
 import com.intellij.psi.stubs.NamedStub
 
 /**
@@ -15,7 +13,7 @@ import com.intellij.psi.stubs.NamedStub
  * Date: 14.10.2008
  */
 
-trait ScFunctionStub extends NamedStub[ScFunction] {
+trait ScFunctionStub extends NamedStub[ScFunction] with ScMemberOrLocal {
   def isImplicit: Boolean
 
   def isDeclaration: Boolean

@@ -44,7 +44,7 @@ extends ScStubElementType[ScTemplateDefinitionStub, ScTemplateDefinition](debugN
     val additionalJavaNames = psi.additionalJavaNames
 
     new ScTemplateDefinitionStubImpl[ParentPsi](parent, this, psi.name, psi.qualifiedName, psi.getQualifiedName,
-      fileName, signs, isPO, isSFC, isDepr, isImplicitObject, javaName, additionalJavaNames)
+      fileName, signs, isPO, isSFC, isDepr, isImplicitObject, javaName, additionalJavaNames, psi.getContainingClass == null)
   }
 
   def serialize(stub: ScTemplateDefinitionStub, dataStream: StubOutputStream) {
@@ -63,6 +63,7 @@ extends ScStubElementType[ScTemplateDefinitionStub, ScTemplateDefinition](debugN
     val additionalNames = stub.additionalJavaNames
     dataStream.writeInt(additionalNames.length)
     for (name <- additionalNames) dataStream.writeName(name)
+    dataStream.writeBoolean(stub.isLocal)
   }
 
   override def deserializeImpl(dataStream: StubInputStream, parentStub: Any): ScTemplateDefinitionStub = {
@@ -82,8 +83,9 @@ extends ScStubElementType[ScTemplateDefinitionStub, ScTemplateDefinition](debugN
     val lengthA = dataStream.readInt()
     val additionalNames = new Array[StringRef](lengthA)
     for (i <- 0 until lengthA) additionalNames(i) = dataStream.readName()
+    val isLocal = dataStream.readBoolean()
     new ScTemplateDefinitionStubImpl(parent, this, name, qualName, javaQualName, fileName, methodNames, isPO, isSFC, isDepr,
-      isImplcitObject, javaName, additionalNames)
+      isImplcitObject, javaName, additionalNames, isLocal)
   }
 
   def indexStub(stub: ScTemplateDefinitionStub, sink: IndexSink) {
