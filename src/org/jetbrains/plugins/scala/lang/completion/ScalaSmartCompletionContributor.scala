@@ -127,6 +127,9 @@ class ScalaSmartCompletionContributor extends CompletionContributor {
               applyVariant(LookupElementManager.getLookupElement(new ScalaResolveResult(td), isClassName = true,
                 isOverloadedForClassName = false, shouldImport = true, isInStableCodeReference = false).apply(0))
             })
+          case o: ScObject =>
+            applyVariant(LookupElementManager.getLookupElement(new ScalaResolveResult(o), isClassName = true,
+              isOverloadedForClassName = false, shouldImport = true, isInStableCodeReference = false).apply(0))
           case _ =>
         }
       }
