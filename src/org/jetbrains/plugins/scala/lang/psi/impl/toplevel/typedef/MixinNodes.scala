@@ -310,7 +310,7 @@ abstract class MixinNodes {
               if (template.qualifiedName == "scala.Predef") isPredef = true
               place = Some(template.extendsBlock)
               processScala(template, ScSubstitutor.empty, map, place)
-              val lin = MixinNodes.linearization(template, collection.immutable.HashSet.empty)
+              val lin = MixinNodes.linearization(template)
               var zSubst = new ScSubstitutor(Predef.Map.empty, Predef.Map.empty, Some(ScThisType(template)))
               var placer = template.getContext
               while (placer != null) {
@@ -338,7 +338,7 @@ abstract class MixinNodes {
                 }
                 placer = placer.getContext
               }
-              (MixinNodes.linearization(template, collection.immutable.HashSet.empty),
+              (MixinNodes.linearization(template),
                 Bounds.putAliases(template, ScSubstitutor.empty), zSubst)
             }
             case syn: ScSyntheticClass => {
@@ -348,7 +348,7 @@ abstract class MixinNodes {
             case clazz: PsiClass => {
               place = Some(clazz.getLastChild)
               processJava(clazz, ScSubstitutor.empty, map, place)
-              val lin = MixinNodes.linearization(clazz, collection.immutable.HashSet.empty)
+              val lin = MixinNodes.linearization(clazz)
               (if (!lin.isEmpty) lin.tail else lin,
                 ScSubstitutor.empty, ScSubstitutor.empty)
             }
@@ -413,7 +413,7 @@ abstract class MixinNodes {
 
 object MixinNodes {
   import scala.collection.immutable.{HashSet => IHashSet}
-  def linearization(clazz: PsiClass, visited: IHashSet[PsiClass] = IHashSet.empty): Seq[ScType] = {
+  def linearization(clazz: PsiClass): Seq[ScType] = {
     clazz match {
       case obj: ScObject if obj.isPackageObject && obj.qualifiedName == "scala" => {
         return Seq(ScType.designator(obj))
@@ -421,20 +421,19 @@ object MixinNodes {
       case _ =>
     }
 
-    if (visited.contains(clazz)) return Seq.empty
-    CachesUtil.get(clazz, CachesUtil.LINEARIZATION_KEY,
-    new CachesUtil.MyProvider(clazz, (clazz: PsiClass) => linearizationInner(clazz, visited + clazz)) //todo: bad reference to 'visited'
-      (PsiModificationTracker.OUT_OF_CODE_BLOCK_MODIFICATION_COUNT))
+    CachesUtil.getWithRecursionPreventing(clazz, CachesUtil.LINEARIZATION_KEY,
+    new CachesUtil.MyProvider(clazz, (clazz: PsiClass) => linearizationInner(clazz)) //todo: bad reference to 'visited'
+      (PsiModificationTracker.OUT_OF_CODE_BLOCK_MODIFICATION_COUNT), Seq.empty)
   }
 
 
   def linearization(compound: ScCompoundType): Seq[ScType] = {
     val comps = compound.components
 
-    generalLinearization(None, compound, false, comps, IHashSet.empty)
+    generalLinearization(None, compound, false, comps)
   }
 
-  private def linearizationInner(clazz: PsiClass, visited: IHashSet[PsiClass]): Seq[ScType] = {
+  private def linearizationInner(clazz: PsiClass): Seq[ScType] = {
     ProgressManager.checkCanceled()
     val tp = {
       if (clazz.getTypeParameters.length == 0) ScType.designator(clazz)
@@ -454,11 +453,10 @@ object MixinNodes {
       }
     }
     
-    generalLinearization(Some(clazz.getProject), tp, true, supers, visited)
+    generalLinearization(Some(clazz.getProject), tp, true, supers)
   }
   
-  private def generalLinearization(project: Option[Project], tp: ScType, addTp: Boolean, supers: Seq[ScType],
-                           visited: IHashSet[PsiClass]): Seq[ScType] = {
+  private def generalLinearization(project: Option[Project], tp: ScType, addTp: Boolean, supers: Seq[ScType]): Seq[ScType] = {
     val buffer = new ListBuffer[ScType]
     val set: HashSet[String] = new HashSet //to add here qualified names of classes
     def classString(clazz: PsiClass): String = {
@@ -495,7 +493,7 @@ object MixinNodes {
       val tp = iterator.next()
       ScType.extractClassType(tp) match {
         case Some((clazz, subst)) => {
-          val lin = linearization(clazz, visited)
+          val lin = linearization(clazz)
           val newIterator = lin.reverseIterator
           while (newIterator.hasNext) {
             val tp = newIterator.next()
