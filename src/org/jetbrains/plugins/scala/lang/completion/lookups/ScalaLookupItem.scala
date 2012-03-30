@@ -291,7 +291,7 @@ class ScalaLookupItem(val element: PsiNamedElement, _name: String) extends {
             PsiDocumentManager.getInstance(file.getProject).commitDocument(document)
             file match {
               case scalaFile: ScalaFile =>
-                val elem = scalaFile.findElementAt(startOffset)
+                val elem = scalaFile.findElementAt(startOffset + (if (someSmartCompletion) 5 else 0))
                 def qualifyReference(ref: ScReferenceExpression) {
                   val newRef = ScalaPsiElementFactory.createExpressionFromText(
                     containingClass.name + "." + ref.getText,
