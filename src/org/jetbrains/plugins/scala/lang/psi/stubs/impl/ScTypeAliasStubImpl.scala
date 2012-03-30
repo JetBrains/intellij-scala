@@ -28,18 +28,22 @@ extends StubBaseWrapper[ScTypeAlias](parent, elemType) with ScTypeAliasStub {
   private var myLowerTypeElement: PatchedSoftReference[ScTypeElement] = null
   private var upperTypeElementText: StringRef = _
   private var myUpperTypeElement: PatchedSoftReference[ScTypeElement] = null
+  private var local: Boolean = false
 
   def this(parent: StubElement[ParentPsi],
           elemType: IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement],
           name: String, isDeclaration: Boolean, typeElementText: String, lowerTypeElementText: String,
-                  upperTypeElementText: String) = {
+                  upperTypeElementText: String, isLocal: Boolean) = {
     this(parent, elemType.asInstanceOf[IStubElementType[StubElement[PsiElement], PsiElement]])
     this.name = StringRef.fromString(name)
     this.declaration = isDeclaration
     this.typeElementText = StringRef.fromString(typeElementText)
     this.lowerTypeElementText = StringRef.fromString(lowerTypeElementText)
     this.upperTypeElementText = StringRef.fromString(upperTypeElementText)
+    local = isLocal
   }
+
+  def isLocal: Boolean = local
 
   def getName: String = StringRef.toString(name)
 
@@ -52,7 +56,7 @@ extends StubBaseWrapper[ScTypeAlias](parent, elemType) with ScTypeAliasStub {
       ScalaPsiElementFactory.createTypeElementFromText(getTypeElementText, getPsi, null)
     }
     myTypeElement = new PatchedSoftReference[ScTypeElement](res)
-    return res
+    res
   }
 
   def getTypeElementText: String = typeElementText.toString
@@ -64,7 +68,7 @@ extends StubBaseWrapper[ScTypeAlias](parent, elemType) with ScTypeAliasStub {
       ScalaPsiElementFactory.createTypeElementFromText(getUpperBoundElementText, getPsi, null)
     }
     myUpperTypeElement = new PatchedSoftReference[ScTypeElement](res)
-    return res
+    res
   }
 
   def getUpperBoundElementText: String = upperTypeElementText.toString
@@ -76,7 +80,7 @@ extends StubBaseWrapper[ScTypeAlias](parent, elemType) with ScTypeAliasStub {
       ScalaPsiElementFactory.createTypeElementFromText(getLowerBoundElementText, getPsi, null)
     }
     myLowerTypeElement = new PatchedSoftReference[ScTypeElement](res)
-    return res
+    res
   }
 
   def getLowerBoundElementText: String = lowerTypeElementText.toString

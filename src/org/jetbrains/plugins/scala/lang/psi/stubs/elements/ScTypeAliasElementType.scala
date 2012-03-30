@@ -34,15 +34,16 @@ extends ScStubElementType[ScTypeAliasStub, ScTypeAlias](debugName) {
       if (!isDeclaration) ""
       else psi.asInstanceOf[ScTypeAliasDeclaration].upperTypeElement.map(_.getText).getOrElse("")
     }
-    new ScTypeAliasStubImpl[ParentPsi](parentStub, this, psi.name, isDeclaration, typeElementText, lower, upper)
+    new ScTypeAliasStubImpl[ParentPsi](parentStub, this, psi.name, isDeclaration, typeElementText, lower, upper, psi.getContainingClass == null)
   }
 
-  def serialize(stub: ScTypeAliasStub, dataStream: StubOutputStream): Unit = {
+  def serialize(stub: ScTypeAliasStub, dataStream: StubOutputStream) {
     dataStream.writeName(stub.getName)
     dataStream.writeBoolean(stub.isDeclaration)
     dataStream.writeName(stub.getTypeElementText)
     dataStream.writeName(stub.getLowerBoundElementText)
     dataStream.writeName(stub.getUpperBoundElementText)
+    dataStream.writeBoolean(stub.isLocal)
   }
 
   def deserializeImpl(dataStream: StubInputStream, parentStub: Any): ScTypeAliasStub = {
@@ -52,10 +53,11 @@ extends ScStubElementType[ScTypeAliasStub, ScTypeAlias](debugName) {
     val typeElementText = dataStream.readName.toString
     val lower = dataStream.readName.toString
     val upper = dataStream.readName.toString
-    new ScTypeAliasStubImpl(parent, this, name, isDecl, typeElementText, lower, upper)
+    val isLocal = dataStream.readBoolean()
+    new ScTypeAliasStubImpl(parent, this, name, isDecl, typeElementText, lower, upper, isLocal)
   }
 
-  def indexStub(stub: ScTypeAliasStub, sink: IndexSink): Unit = {
+  def indexStub(stub: ScTypeAliasStub, sink: IndexSink) {
     val name = stub.getName
     if (name != null) {
       sink.occurrence(ScalaIndexKeys.TYPE_ALIAS_NAME_KEY, name)

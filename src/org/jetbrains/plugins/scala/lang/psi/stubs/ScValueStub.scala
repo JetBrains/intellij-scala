@@ -15,7 +15,7 @@ import com.intellij.psi.stubs.{StubElement, NamedStub}
  * Date: 17.10.2008
  */
 
-trait ScValueStub extends StubElement[ScValue] {
+trait ScValueStub extends StubElement[ScValue] with ScMemberOrLocal {
   def isDeclaration: Boolean
   def getNames: Array[String]
   def getBodyText: String

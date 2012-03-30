@@ -32,18 +32,22 @@ extends StubBaseWrapper[ScVariable](parent, elemType) with ScVariableStub {
   private var myBodyExpression: PatchedSoftReference[Option[ScExpression]] = null
   private var myIds: PatchedSoftReference[Option[ScIdList]] = null
   private var myPatterns: PatchedSoftReference[Option[ScPatternList]] = null
+  private var local: Boolean = false
 
   def this(parent: StubElement[ParentPsi],
            elemType: IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement],
            names: Array[String], isDeclaration: Boolean, typeText: String, bodyText: String,
-           containerText: String) = {
+           containerText: String, isLocal: Boolean) = {
     this(parent, elemType.asInstanceOf[IStubElementType[StubElement[PsiElement], PsiElement]])
     this.names = for (name <- names) yield StringRef.fromString(name)
     this.declaration = isDeclaration
     this.typeText = StringRef.fromString(typeText)
     this.bodyText = StringRef.fromString(bodyText)
     this.containerText = StringRef.fromString(containerText)
+    local = isLocal
   }
+
+  def isLocal: Boolean = local
 
   def getNames: Array[String] = for (name <- names) yield StringRef.toString(name) //todo: remove it
 

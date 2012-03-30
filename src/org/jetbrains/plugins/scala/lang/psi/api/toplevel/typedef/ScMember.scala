@@ -16,6 +16,7 @@ import collection.mutable.ArrayBuffer
 import base.ScPrimaryConstructor
 import statements.params.ScClassParameter
 import statements.ScFunction
+import psi.stubs.ScMemberOrLocal
 
 /**
   * @author Alexander Podkhalyuzin
@@ -28,6 +29,15 @@ trait ScMember extends ScalaPsiElement with ScModifierListOwner with PsiMember {
     * `object a { def foo { def bar = 0 }}`
     */
   def getContainingClass: ScTemplateDefinition = {
+    val stub: StubElement[_ <: PsiElement] = this match {
+      case file: PsiFileImpl => file.getStub
+      case st: ScalaStubBasedElementImpl[_] => st.getStub
+      case _ => null
+    }
+    stub match {
+      case m: ScMemberOrLocal if m.isLocal => return null
+      case _ =>
+    }
     val context = getContext
     (getContainingClassLoose, this) match {
       case (null, _) => null
@@ -60,6 +70,18 @@ trait ScMember extends ScalaPsiElement with ScModifierListOwner with PsiMember {
       }
       PsiTreeUtil.getContextOfType(this, true, classOf[ScTemplateDefinition])
     }
+  }
+
+  def isLocal: Boolean = {
+    val stub: StubElement[_ <: PsiElement] = this match {
+      case file: PsiFileImpl => file.getStub
+      case st: ScalaStubBasedElementImpl[_] => st.getStub
+      case _ => null
+    }
+    if (stub.isInstanceOf[ScMemberOrLocal]) {
+      return stub.asInstanceOf[ScMemberOrLocal].isLocal
+    }
+    getContainingClass == null
   }
 
   override def hasModifierProperty(name: String) = {

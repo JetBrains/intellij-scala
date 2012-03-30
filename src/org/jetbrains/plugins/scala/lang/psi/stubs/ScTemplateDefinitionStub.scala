@@ -10,7 +10,7 @@ import api.toplevel.typedef.ScTemplateDefinition
  * @author ilyas
  */
 
-trait ScTemplateDefinitionStub extends PsiClassStub[ScTemplateDefinition] {
+trait ScTemplateDefinitionStub extends PsiClassStub[ScTemplateDefinition] with ScMemberOrLocal {
 
   def qualName: String
 

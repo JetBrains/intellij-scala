@@ -916,13 +916,12 @@ object ScalaPsiUtil {
     val empty = Seq.empty 
     val typed = x match {case x: ScTypedDefinition => x case _ => return empty}
     val clazz: ScTemplateDefinition = nameContext(typed) match {
-      case e @ (_: ScValue | _: ScVariable) if e.getParent.isInstanceOf[ScTemplateBody] =>
+      case e @ (_: ScValue | _: ScVariable | _:ScObject) if e.getParent.isInstanceOf[ScTemplateBody] =>
         e.asInstanceOf[ScMember].getContainingClass
       case e: ScClassParameter if e.isEffectiveVal => e.getContainingClass
-      case e @ (_: ScObject) if e.getParent.isInstanceOf[ScTemplateBody] =>
-        e.containingClass.orNull // todo unify these two cases.
       case _ => return empty
     }
+    if (clazz == null) return empty
     val s = namedElementSig(x)
     val sigs = TypeDefinitionMembers.getSignatures(clazz).forName(x.name)._1
     val t = (sigs.get(s): @unchecked) match {
@@ -942,6 +941,7 @@ object ScalaPsiUtil {
       case e @ (_: ScTypeAlias | _: ScTrait | _: ScClass) if e.getParent.isInstanceOf[ScTemplateBody] => e.asInstanceOf[ScMember].getContainingClass
       case _ => return empty
     }
+    if (clazz == null) return empty
     val sigs = TypeDefinitionMembers.getTypes(clazz).forName(element.name)._1
     val t = (sigs.get(element): @unchecked) match {
       //partial match

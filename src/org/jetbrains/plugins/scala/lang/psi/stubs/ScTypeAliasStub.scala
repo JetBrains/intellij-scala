@@ -12,7 +12,7 @@ import com.intellij.psi.stubs.NamedStub
  * Date: 18.10.2008
  */
 
-trait ScTypeAliasStub extends NamedStub[ScTypeAlias] {
+trait ScTypeAliasStub extends NamedStub[ScTypeAlias] with ScMemberOrLocal {
   def isDeclaration: Boolean
 
   def getTypeElementText: String

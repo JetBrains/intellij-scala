@@ -31,6 +31,7 @@ extends StubBaseWrapper[ScTemplateDefinition](parent, elemType) with ScTemplateD
   private var _isPackageObject: Boolean = _
   private var _isDeprecated: Boolean = _
   private var _isImplicitObject: Boolean = _
+  private var local: Boolean = false
 
   def this(parent: StubElement[ParentPsi],
           elemType: IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement],
@@ -44,7 +45,8 @@ extends StubBaseWrapper[ScTemplateDefinition](parent, elemType) with ScTemplateD
           isDeprecated: Boolean,
           isImplicitObject: Boolean,
           javaName: String,
-          additionalJavaNames: Array[String]) {
+          additionalJavaNames: Array[String],
+          isLocal: Boolean) {
     this (parent, elemType.asInstanceOf[IStubElementType[StubElement[PsiElement], PsiElement]])
     mySourceFileName = sourceFileName
     myName = name
@@ -57,6 +59,7 @@ extends StubBaseWrapper[ScTemplateDefinition](parent, elemType) with ScTemplateD
     _isScriptFileClass = isScriptFileClass
     _isDeprecated = isDeprecated
     _isImplicitObject = isImplicitObject
+    local = isLocal
   }
 
   def this(parent: StubElement[ParentPsi],
@@ -71,7 +74,8 @@ extends StubBaseWrapper[ScTemplateDefinition](parent, elemType) with ScTemplateD
           isDeprecated: Boolean,
           isImplicitObject: Boolean,
           javaName: StringRef,
-          additionalJavaNames: Array[StringRef]) {
+          additionalJavaNames: Array[StringRef],
+          isLocal: Boolean) {
     this (parent, elemType.asInstanceOf[IStubElementType[StubElement[PsiElement], PsiElement]])
     mySourceFileName = StringRef.toString(sourceFileName)
     myName = StringRef.toString(name)
@@ -84,8 +88,11 @@ extends StubBaseWrapper[ScTemplateDefinition](parent, elemType) with ScTemplateD
     _isScriptFileClass = isScriptFileClass
     _isDeprecated = isDeprecated
     _isImplicitObject = isImplicitObject
+    local = isLocal
   }
 
+
+  def isLocal: Boolean = local
 
   def isPackageObject: Boolean = _isPackageObject
 

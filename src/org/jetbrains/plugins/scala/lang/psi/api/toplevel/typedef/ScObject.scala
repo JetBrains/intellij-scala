@@ -15,13 +15,6 @@ import com.intellij.psi.{PsiClass, PsiElement, PsiMethod}
 */
 
 trait ScObject extends ScTypeDefinition with ScTypedDefinition with ScMember with ScDeclaredElementsHolder {
-
-  override def getContainingClass: ScTemplateDefinition = null
-
-  // TODO jzaugg I added this method rather than redefining getContainingClass to be conservative.
-  //             Would anything break if getContainingClass didn't return null?
-  def containingClass: Option[ScTemplateDefinition] = Option(super[ScMember].getContainingClass)
-
   //Is this object generated as case class companion module
   private var isSyntheticCaseClassCompanion: Boolean = false
   def isSyntheticObject: Boolean = isSyntheticCaseClassCompanion
