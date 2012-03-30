@@ -172,4 +172,27 @@ class TUI {
     if (activeLookup != null) completeLookupItem(activeLookup.find(le => le.getLookupString == "TT.this").get, '\t')
     checkResultByText(resultText)
   }
+
+  def testSomeScalaEnum() {
+    val fileText =
+      """
+      |object Scala extends Enumeration {type Scala = Value; val aaa, bbb, ccc = Value}
+      |class A {
+      |  val x: Option[Scala.Scala] = a<caret>
+      |}
+      """.stripMargin.replaceAll("\r", "").trim()
+    configureFromFileTextAdapter("dummy.scala", fileText)
+    val (activeLookup, _) = complete(2, CompletionType.SMART)
+
+    val resultText =
+      """
+      |object Scala extends Enumeration {type Scala = Value; val aaa, bbb, ccc = Value}
+      |class A {
+      |  val x: Option[Scala.Scala] = Some(Scala.aaa)<caret>
+      |}
+      """.stripMargin.replaceAll("\r", "").trim()
+
+    if (activeLookup != null) completeLookupItem(activeLookup.find(le => le.getLookupString == "aaa").get, '\t')
+    checkResultByText(resultText)
+  }
 }
