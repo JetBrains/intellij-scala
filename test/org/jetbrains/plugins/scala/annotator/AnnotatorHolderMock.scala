@@ -20,9 +20,15 @@ class AnnotatorHolderMock extends AnnotationHolder {
   
   def createInfoAnnotation(range: TextRange, message: String) = null
 
-  def createInfoAnnotation(node: ASTNode, message: String) = null
+  def createInfoAnnotation(node: ASTNode, message: String) = {
+    myAnnotations ::= Info(node.getText, message)
+    FakeAnnotation
+  }
 
-  def createInfoAnnotation(elt: PsiElement, message: String) = null
+  def createInfoAnnotation(elt: PsiElement, message: String) = {
+    myAnnotations ::= Info(elt.getText, message)
+    FakeAnnotation
+  }
 
   def createInformationAnnotation(range: TextRange, message: String) = null
 
