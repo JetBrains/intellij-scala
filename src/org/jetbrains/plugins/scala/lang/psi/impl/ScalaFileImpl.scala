@@ -378,7 +378,7 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
 
     if (!SbtFile.processDeclarations(this, processor, state, lastParent, place)) return false
 
-    val implObjIter = ImplicitlyImported.implicitlyImportedObjects(getManager, scope).iterator
+    val implObjIter = ImplicitlyImported.allImplicitlyImportedObjects(getManager, scope).iterator
     while (implObjIter.hasNext) {
       val clazz = implObjIter.next()
       ProgressManager.checkCanceled()
@@ -539,12 +539,20 @@ object ImplicitlyImported {
   private val importedObjects: WeakHashMap[Project, Seq[PsiClass]] = new WeakHashMap[Project, Seq[PsiClass]]
   private val modCount: WeakHashMap[Project, Long] = new WeakHashMap[Project, Long]
 
-  def implicitlyImportedObjects(manager: PsiManager, scope: GlobalSearchScope,
-                                fqn: String): Seq[PsiClass] = {
-    implicitlyImportedObjects(manager, scope).filter(_.qualifiedName == fqn)
+  def implicitlyImportedObject(manager: PsiManager, scope: GlobalSearchScope,
+                                fqn: String): Option[PsiClass] = {
+    implicitlyImportedObjects(manager, scope).filter(_.qualifiedName == fqn).headOption
   }
 
-  def implicitlyImportedObjects(manager: PsiManager, scope: GlobalSearchScope): Seq[PsiClass] = {
+  def allImplicitlyImportedObjects(manager: PsiManager, scope: GlobalSearchScope): Seq[PsiClass] = {
+    val buf: ArrayBuffer[PsiClass] = new ArrayBuffer[PsiClass]()
+    for (obj <- objects) {
+      implicitlyImportedObject(manager, scope, obj).foreach(buf += _)
+    }
+    buf.toSeq
+  }
+
+  private def implicitlyImportedObjects(manager: PsiManager, scope: GlobalSearchScope): Seq[PsiClass] = {
     var res: Seq[PsiClass] = importedObjects.get(manager.getProject).getOrElse(null)
     val count = manager.getModificationTracker.getJavaStructureModificationCount
     val count1: Option[Long] = modCount.get(manager.getProject)

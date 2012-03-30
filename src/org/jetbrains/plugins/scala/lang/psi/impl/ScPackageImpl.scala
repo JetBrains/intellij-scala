@@ -88,11 +88,10 @@ class ScPackageImpl(val pack: PsiPackage) extends PsiPackageImpl(pack.getManager
     //for Scala
     if (place.getLanguage == ScalaFileType.SCALA_LANGUAGE) {
       if (getQualifiedName == "scala") {
-        val iterator: Iterator[PsiClass] = ImplicitlyImported.implicitlyImportedObjects(place.getManager,
-          place.getResolveScope, "scala").iterator
-        while (!iterator.isEmpty) {
-          val obj = iterator.next()
-          if (!obj.processDeclarations(processor, state, lastParent, place)) return false
+        ImplicitlyImported.implicitlyImportedObject(place.getManager, place.getResolveScope, "scala") match {
+          case Some(obj) =>
+            if (!obj.processDeclarations(processor, state, lastParent, place)) return false
+          case _ =>
         }
       } else {
         findPackageObject(place.getResolveScope) match {
