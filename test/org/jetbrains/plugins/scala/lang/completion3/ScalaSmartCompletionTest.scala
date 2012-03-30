@@ -380,4 +380,27 @@ class ScalaSmartCompletionTest extends ScalaCompletionTestBase {
     if (activeLookup != null) completeLookupItem(activeLookup.find(le => le.getLookupString == "getInstance").get, '\t')
     checkResultByText(resultText)
   }
+
+  def testScalaFactoryApply() {
+    val fileText =
+      """
+      |case class Scala()
+      |class A {
+      |  val x: Scala = <caret>
+      |}
+      """.stripMargin.replaceAll("\r", "").trim()
+    configureFromFileTextAdapter("dummy.scala", fileText)
+    val (activeLookup, _) = complete(1, CompletionType.SMART)
+
+    val resultText =
+      """
+      |case class Scala()
+      |class A {
+      |  val x: Scala = Scala.apply()<caret>
+      |}
+      """.stripMargin.replaceAll("\r", "").trim()
+
+    if (activeLookup != null) completeLookupItem(activeLookup.find(le => le.getLookupString == "apply").get, '\t')
+    checkResultByText(resultText)
+  }
 }
