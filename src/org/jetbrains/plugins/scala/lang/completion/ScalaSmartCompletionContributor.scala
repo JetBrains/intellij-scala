@@ -11,13 +11,12 @@ import org.jetbrains.plugins.scala.lang.psi._
 import api.base.ScReferenceElement
 import api.statements._
 import api.toplevel.ScTypedDefinition
-import api.toplevel.typedef.{ScTemplateDefinition, ScMember}
+import api.toplevel.typedef._
 import params.ScParameter
 import types._
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.patterns.{ElementPattern, StandardPatterns, PlatformPatterns}
 import com.intellij.patterns.PsiElementPattern.Capture
-import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils
 import com.intellij.psi._
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.util.ProcessingContext
@@ -28,6 +27,7 @@ import collection.mutable.{HashMap, HashSet, ArrayBuffer}
 import org.jetbrains.plugins.scala.extensions.{toPsiNamedElementExt, toPsiClassExt}
 import result.{Success, TypingContext}
 import types.Conformance.AliasType
+import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, ResolveUtils}
 
 /**
  * User: Alexander Podkhalyuzin
@@ -51,7 +51,8 @@ class ScalaSmartCompletionContributor extends CompletionContributor {
     }
 
     if (typez.length == 0 || typez.forall(_ == types.Nothing)) return
-    for (variant <- variants) {
+
+    def applyVariant(variant: Object): AnyVal = {
       variant match {
         case el: ScalaLookupItem if isAccessible(el) => {
           val elem = el.element
@@ -100,12 +101,78 @@ class ScalaSmartCompletionContributor extends CompletionContributor {
               case typed: ScTypedDefinition =>
                 if (!PsiTreeUtil.isContextAncestor(typed.nameContext, place, false))
                   for (tt <- typed.getType(TypingContext.empty)) checkType(tt)
+              case f: PsiField =>
+                checkType(ScType.create(f.getType, f.getProject, scope))
               case _ =>
             }
         }
         case _ =>
       }
     }
+
+    //enum and factory methods
+    for (tp <- typez) {
+      def checkObject(o: ScObject) {
+        o.members.foreach {
+          case function: ScFunction =>
+            applyVariant(LookupElementManager.getLookupElement(new ScalaResolveResult(function), isClassName = true,
+              isOverloadedForClassName = false, shouldImport = true, isInStableCodeReference = false).apply(0))
+          case v: ScValue =>
+            v.declaredElements.foreach(td => {
+              applyVariant(LookupElementManager.getLookupElement(new ScalaResolveResult(td), isClassName = true,
+                isOverloadedForClassName = false, shouldImport = true, isInStableCodeReference = false).apply(0))
+            })
+          case v: ScVariable =>
+            v.declaredElements.foreach(td => {
+              applyVariant(LookupElementManager.getLookupElement(new ScalaResolveResult(td), isClassName = true,
+                isOverloadedForClassName = false, shouldImport = true, isInStableCodeReference = false).apply(0))
+            })
+          case _ =>
+        }
+      }
+      def checkTypeProjection(tp: ScType) {
+        tp match {
+          case ScProjectionType(proj, _: ScTypeAlias | _: ScClass | _: ScTrait, subst) =>
+            ScType.extractClass(proj) match {
+              case Some(o: ScObject) if ResolveUtils.isAccessible(o, place) && ScalaPsiUtil.hasStablePath(o) => checkObject(o)
+              case _ =>
+            }
+          case _ =>
+        }
+      }
+      def checkType(tp: ScType) {
+        ScType.extractClass(tp) match {
+          case Some(c: ScClass) if c.qualifiedName == "scala.Option" || c.qualifiedName == "scala.Some" =>
+            tp match {
+              case ScParameterizedType(_, Seq(tp)) => checkType(tp)
+              case _ =>
+            }
+          case Some(o: ScObject) => //do nothing
+          case Some(clazz: ScTypeDefinition) =>
+            checkTypeProjection(tp)
+            ScalaPsiUtil.getCompanionModule(clazz) match {
+              case Some(o: ScObject) if ResolveUtils.isAccessible(o, place) && ScalaPsiUtil.hasStablePath(o) => checkObject(o)
+              case _ => //do nothing
+            }
+          case Some(p: PsiClass) if ResolveUtils.isAccessible(p, place) =>
+            p.getAllMethods.foreach(method => {
+              if (method.hasModifierProperty("static") && ResolveUtils.isAccessible(method, place)) {
+                applyVariant(LookupElementManager.getLookupElement(new ScalaResolveResult(method), isClassName = true,
+                  isOverloadedForClassName = false, shouldImport = true, isInStableCodeReference = false).apply(0))
+              }
+            })
+            p.getFields.foreach(field => {
+              if (field.hasModifierProperty("static") && ResolveUtils.isAccessible(field, place)) {
+                applyVariant(LookupElementManager.getLookupElement(new ScalaResolveResult(field), isClassName = true,
+                  isOverloadedForClassName = false, shouldImport = true, isInStableCodeReference = false).apply(0))
+              }
+            })
+          case _ => checkTypeProjection(tp)
+        }
+      }
+      checkType(tp)
+    }
+    variants.foreach(applyVariant)
     if (typez.find(_.equiv(types.Boolean)) != None) {
       for (keyword <- Set("false", "true")) {
         result.addElement(LookupElementManager.getKeywrodLookupElement(keyword, place))

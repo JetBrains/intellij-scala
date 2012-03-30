@@ -2,6 +2,8 @@ package org.jetbrains.plugins.scala.lang.completion3
 
 import com.intellij.codeInsight.completion.CompletionType
 import org.junit.Assert
+import com.intellij.openapi.vfs.VfsUtil
+import com.intellij.codeInsight.lookup.LookupElementPresentation
 
 /**
  * User: Alexander Podkhalyuzin
@@ -291,6 +293,91 @@ class ScalaSmartCompletionTest extends ScalaCompletionTestBase {
       """.stripMargin.replaceAll("\r", "").trim()
 
     if (activeLookup != null) completeLookupItem(activeLookup.find(le => le.getLookupString == "foo").get, '\t')
+    checkResultByText(resultText)
+  }
+
+  def testJavaEnum() {
+    val javaFileText =
+      """
+      |package a;
+      |
+      |public enum Java {
+      |  aaa, bbb, ccc
+      |}
+      """.stripMargin('|').replaceAll("\r", "").trim()
+    val fileText =
+      """
+      |import a.Java
+      |class A {
+      |  val x: Java = a<caret>
+      |}
+      """.stripMargin('|').replaceAll("\r", "").trim()
+    val myVFile = getSourceRootAdapter.createChildDirectory(null, "a").createChildData(null, "Java.java")
+    VfsUtil.saveText(myVFile, javaFileText)
+    configureFromFileTextAdapter("dummy.scala", fileText)
+    val (activeLookup, _) = complete(1, CompletionType.SMART)
+
+    val resultText =
+      """
+      |import a.Java
+      |class A {
+      |  val x: Java = Java.aaa<caret>
+      |}
+      """.stripMargin('|').replaceAll("\r", "").trim()
+
+    if (activeLookup != null) completeLookupItem(activeLookup.find(le => le.getLookupString == "aaa").get, '\t')
+    checkResultByText(resultText)
+  }
+
+  def testScalaEnum() {
+    val fileText =
+      """
+      |object Scala extends Enumeration {type Scala = Value; val aaa, bbb, ccc = Value}
+      |class A {
+      |  val x: Scala.Scala = a<caret>
+      |}
+      """.stripMargin.replaceAll("\r", "").trim()
+    configureFromFileTextAdapter("dummy.scala", fileText)
+    val (activeLookup, _) = complete(1, CompletionType.SMART)
+
+    val resultText =
+      """
+      |object Scala extends Enumeration {type Scala = Value; val aaa, bbb, ccc = Value}
+      |class A {
+      |  val x: Scala.Scala = Scala.aaa<caret>
+      |}
+      """.stripMargin.replaceAll("\r", "").trim()
+
+    if (activeLookup != null) completeLookupItem(activeLookup.find(le => le.getLookupString == "aaa").get, '\t')
+    checkResultByText(resultText)
+  }
+
+  def testScalaFactoryMethod() {
+    val fileText =
+      """
+      |class Scala
+      |object Scala {
+      |  def getInstance() = new Scala
+      |}
+      |class A {
+      |  val x: Scala = get<caret>
+      |}
+      """.stripMargin.replaceAll("\r", "").trim()
+    configureFromFileTextAdapter("dummy.scala", fileText)
+    val (activeLookup, _) = complete(1, CompletionType.SMART)
+
+    val resultText =
+      """
+      |class Scala
+      |object Scala {
+      |  def getInstance() = new Scala
+      |}
+      |class A {
+      |  val x: Scala = Scala.getInstance()<caret>
+      |}
+      """.stripMargin.replaceAll("\r", "").trim()
+
+    if (activeLookup != null) completeLookupItem(activeLookup.find(le => le.getLookupString == "getInstance").get, '\t')
     checkResultByText(resultText)
   }
 }

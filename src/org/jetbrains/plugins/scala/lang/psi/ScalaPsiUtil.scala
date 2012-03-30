@@ -1121,6 +1121,19 @@ object ScalaPsiUtil {
     }
   }
 
+  def hasStablePath(o: ScObject): Boolean = {
+    o.getContext match {
+      case f: ScalaFile => return true
+      case p: ScPackaging => return true
+      case _ =>
+    }
+    o.getContainingClass match {
+      case null => false
+      case o: ScObject => hasStablePath(o)
+      case _ => false
+    }
+  }
+
   def getPsiSubstitutor(subst: ScSubstitutor, project: Project, scope: GlobalSearchScope): PsiSubstitutor = {
     case class PseudoPsiSubstitutor(substitutor: ScSubstitutor) extends PsiSubstitutor {
       def putAll(parentClass: PsiClass, mappings: Array[PsiType]): PsiSubstitutor = PsiSubstitutor.EMPTY
