@@ -219,7 +219,7 @@ object Bounds {
         res += ((aClass, x, y))
       }
     }
-    def checkClasses(aClasses: Seq[Options], baseIndex: Int = -1) {
+    def checkClasses(aClasses: Seq[Options], baseIndex: Int = -1, visited: HashSet[PsiClass] = HashSet.empty) {
       if (aClasses.length == 0) return
       val aIter = aClasses.iterator
       var i = 0
@@ -230,7 +230,8 @@ object Bounds {
         var j = 0
         while (!break && bIter.hasNext) {
           val bClass = bIter.next()
-          if (InheritanceUtil.isInheritorOrSelf(bClass.getClazz, aClass.getClazz, true)) {
+          val clazz = aClass.getClazz
+          if (InheritanceUtil.isInheritorOrSelf(bClass.getClazz, clazz, true)) {
             addClass(aClass, if (baseIndex == -1) i else baseIndex, j)
             break = true
           } else {
@@ -241,10 +242,11 @@ object Bounds {
               }
               case None => ScSubstitutor.empty
             }
-            checkClasses(aClass.getClazz match {
-              case t: ScTemplateDefinition => t.superTypes.map(tp => new Options(subst.subst(tp)))
-              case p: PsiClass => p.getSupers.map(cl => new Options(ScType.designator(cl)))
-            }, if (baseIndex == -1) i else baseIndex)
+            if (!visited.contains(clazz))
+              checkClasses(clazz match {
+                case t: ScTemplateDefinition => t.superTypes.map(tp => new Options(subst.subst(tp)))
+                case p: PsiClass => p.getSupers.map(cl => new Options(ScType.designator(cl)))
+              }, if (baseIndex == -1) i else baseIndex, visited + clazz)
           }
           j += 1
         }
