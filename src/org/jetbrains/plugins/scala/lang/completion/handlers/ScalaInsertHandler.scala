@@ -20,8 +20,34 @@ import psi.api.base.ScStableCodeReferenceElement
  * User: Alexander Podkhalyuzin
  * Date: 28.07.2008
  */
+object ScalaInsertHandler {
+  def getItemParametersAndAccessorStatus(item: ScalaLookupItem): (Int, String, Boolean) = {
+    item.element match {
+      case fun: ScFunction => {
+        val clauses = fun.paramClauses.clauses
+        if (clauses.length == 0) (-1, null, false)
+        else if (clauses.apply(0).isImplicit) (-1, null, false)
+        else (clauses(0).parameters.length, fun.name, false)
+      }
+      case method: PsiMethod =>
+        def isStringSpecialMethod: Boolean = {
+          Set("hashCode", "length", "trim").contains(method.getName) &&
+            method.getContainingClass != null &&
+            method.getContainingClass.getQualifiedName == "java.lang.String"
+        }
+        (method.getParameterList.getParametersCount, method.name, method.isAccessor || isStringSpecialMethod)
+      case fun: ScFun =>
+        fun.paramClauses match {
+          case Seq() => (-1, null, false)
+          case clause :: clauses => (clause.length, fun.asInstanceOf[ScSyntheticFunction].name, false)
+        }
+      case _ => (0, item.element.name, true)
+    }
+  }
+}
 
 class ScalaInsertHandler extends InsertHandler[LookupElement] {
+  import ScalaInsertHandler._
   override def handleInsert(context: InsertionContext, _item: LookupElement) {
     if (!_item.isInstanceOf[ScalaLookupItem]) return
     val item = _item.asInstanceOf[ScalaLookupItem]
@@ -34,7 +60,7 @@ class ScalaInsertHandler extends InsertHandler[LookupElement] {
       }
     }
     var startOffset = context.getStartOffset
-    val lookupStringLength = item.getLookupString.length
+    val lookupStringLength = context.getTailOffset - context.getStartOffset
 
     var endOffset = startOffset + lookupStringLength
 
@@ -124,28 +150,7 @@ class ScalaInsertHandler extends InsertHandler[LookupElement] {
         endOffset += 1
         editor.getCaretModel.moveToOffset(endOffset + someNum)
       case _: PsiMethod | _: ScFun => {
-
-        val (count, methodName, isAccessor) = item.element match {
-          case fun: ScFunction => {
-            val clauses = fun.paramClauses.clauses
-            if (clauses.length == 0) (-1, null, false)
-            else if (clauses.apply(0).isImplicit) (-1, null, false)
-            else (clauses(0).parameters.length, fun.name, false)
-          }
-          case method: PsiMethod =>
-            def isStringSpecialMethod: Boolean = {
-              Set("hashCode", "length", "trim").contains(method.getName) &&
-                method.getContainingClass != null &&
-                method.getContainingClass.getQualifiedName == "java.lang.String"
-            }
-            (method.getParameterList.getParametersCount, method.name, method.isAccessor || isStringSpecialMethod)
-          case fun: ScFun =>
-            fun.paramClauses match {
-              case Seq() => (-1, null, false)
-              case clause :: clauses => (clause.length, fun.asInstanceOf[ScSyntheticFunction].name, false)
-            }
-        }
-
+        val (count, _, isAccessor) = getItemParametersAndAccessorStatus(item)
         if (count == 0 && !isAccessor) {
           disableParenthesesCompletionChar()
           if (item.etaExpanded) {
