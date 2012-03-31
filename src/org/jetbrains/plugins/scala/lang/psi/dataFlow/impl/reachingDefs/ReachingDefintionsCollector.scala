@@ -126,6 +126,7 @@ object ReachingDefintionsCollector {
             val isReferenceParameter = isInClosure(ref) && ScalaPsiUtil.isLValue(ref)
             inputDefs + VariableInfo(named, isReferenceParameter)
           case _ =>
+            super.visitReference(ref)
         }
       }
     }

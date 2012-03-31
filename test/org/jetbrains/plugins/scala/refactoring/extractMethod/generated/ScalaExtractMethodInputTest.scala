@@ -31,6 +31,8 @@ class ScalaExtractMethodInputTest extends ScalaExtractMethodTestBase {
 
   def testInput = doTest
 
+  def testInputScl4081 = doTest
+
   def testInsideClojure = doTest
 
   def testLazyInput = doTest
