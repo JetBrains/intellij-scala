@@ -68,6 +68,7 @@
     <facetType implementation="org.jetbrains.plugins.scala.config.ScalaFacetType"/>
     <completion.contributor language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.completion.ScalaKeywordCompletionContributor"/>
     <completion.contributor language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.completion.ScalaSmartCompletionContributor"/>
+    <completion.contributor language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.completion.ScalaMemberNameCompletionContributor"/>
     <completion.contributor language="Scala" id="scaladocTagsCompletionContributor"
                             implementationClass="org.jetbrains.plugins.scala.lang.scaladoc.completion.ScalaDocCompletionContributor"/>
     <completion.contributor language="Scala" id="scalaCompletionContrubutor"

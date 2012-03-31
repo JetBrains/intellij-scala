@@ -31,7 +31,6 @@ import psi.api.statements.params.ScClassParameter
 import psi.api.base.{ScStableCodeReferenceElement, ScReferenceElement}
 import com.intellij.patterns.PlatformPatterns._
 import org.jetbrains.plugins.scala.lang.completion.ScalaAfterNewCompletionUtil._
-import collection.immutable.HashMap
 import extensions.toPsiNamedElementExt
 import psi.api.toplevel.typedef.ScTemplateDefinition
 
@@ -155,11 +154,11 @@ class ScalaCompletionContributor extends CompletionContributor {
                 applyVariant(variant)
               }
           }
+          if (!elementAdded && !classNameCompletion && ScalaCompletionUtil.shouldRunClassNameCompletion(parameters, result.getPrefixMatcher, false)) {
+            ScalaClassNameCompletionContributor.completeClassName(parameters, context, result)
+          }
         }
         case _ =>
-      }
-      if (!elementAdded && !classNameCompletion && ScalaCompletionUtil.shouldRunClassNameCompletion(parameters, result.getPrefixMatcher, false)) {
-          ScalaClassNameCompletionContributor.completeClassName(parameters, context, result)
       }
     }
   })
