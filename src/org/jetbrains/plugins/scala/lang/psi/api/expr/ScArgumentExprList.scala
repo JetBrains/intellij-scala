@@ -66,6 +66,15 @@ trait ScArgumentExprList extends ScArguments {
    */
   def matchedParameters: Option[Map[ScExpression, Parameter]]
 
+  def parameterOf(argExpr: ScExpression): Option[Parameter] = matchedParameters.flatMap {
+    (params) =>
+      argExpr match {
+        case a: ScAssignStmt =>
+          params.get(argExpr).orElse(parameterOf(a.getRExpression.getOrElse(return None)))
+        case _ => params.get(argExpr)
+      }
+  }
+
   /**
    * Return possible applications without using resolve of reference to this call (to avoid SOE)
    */

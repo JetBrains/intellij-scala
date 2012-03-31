@@ -16,6 +16,7 @@ import com.intellij.psi.{PsiElement, PsiClass, PsiMethod}
 import com.intellij.util.containers.ConcurrentHashMap
 import collection.mutable.ArrayBuffer
 import light.{PsiClassWrapper, StaticPsiTypedDefinitionWrapper, PsiTypedDefinitionWrapper}
+import extensions.toSeqExt
 
 /**
  * Member definitions, classes, named patterns which have types
@@ -33,7 +34,9 @@ trait ScTypedDefinition extends ScNamedElement with TypingContextOwner {
   private var modCount: Long = 0L
 
   def getBeanMethods: Seq[PsiMethod] = {
-    implicit def arr2arr(a: Array[ScType]): Array[Parameter] = a.map(new Parameter("", _, false, false, false))
+    implicit def arr2arr(a: Array[ScType]): Array[Parameter] = a.toSeq.mapWithIndex {
+      case (tpe, index) => new Parameter("", tpe, false, false, false, index)
+    }.toArray
     def getBeanMethodsInner(t: ScTypedDefinition): Seq[PsiMethod] = {
       def valueSeq(v: ScAnnotationsHolder with ScModifierListOwner): Seq[PsiMethod] = {
         val beanProperty = v.hasAnnotation("scala.reflect.BeanProperty").isDefined

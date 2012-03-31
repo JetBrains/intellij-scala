@@ -13,8 +13,8 @@ import toplevel.{ScImportableDeclarationsOwner, ScModifierListOwner, ScTypedDefi
 import types.result.{TypeResult, TypingContext}
 import types.ScType
 import util.PsiTreeUtil
-import expr.{ScFunctionExpr, ScExpression}
 import base.ScPrimaryConstructor
+import expr.{ScArgumentExprList, ScFunctionExpr, ScExpression}
 
 /**
  * @author Alexander Podkhalyuzin
@@ -65,4 +65,6 @@ trait ScParameter extends ScTypedDefinition with ScModifierListOwner with
     if (clause == null) return false
     clause.isImplicit
   }
+
+  def index = getParent.asInstanceOf[ScParameterClause].parameters.indexOf(this)
 }

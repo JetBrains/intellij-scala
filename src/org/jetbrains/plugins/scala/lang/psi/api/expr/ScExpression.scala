@@ -334,9 +334,10 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible with Ps
       val unders = ScUnderScoreSectionUtil.underscores(this)
       if (unders.length == 0) innerType(TypingContext.empty)
       else {
-        val params = unders.map {u =>
-          new Parameter("", u.getNonValueType(TypingContext.empty,
-            ignoreBaseType).getOrAny.inferValueType, false, false, false)
+        val params = unders.zipWithIndex.map {
+          case (u, index) =>
+            val tpe = u.getNonValueType(TypingContext.empty, ignoreBaseType).getOrAny.inferValueType
+            new Parameter("", tpe, false, false, false, index)
         }
         val methType =
           new ScMethodType(getTypeAfterImplicitConversion(ignoreBaseTypes = ignoreBaseType,
