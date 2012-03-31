@@ -299,8 +299,13 @@
     <intentionAction>
       <className>org.jetbrains.plugins.scala.codeInsight.intention.argument.AddNameToArgumentIntention</className>
     </intentionAction>
+
     <intentionAction>
       <className>org.jetbrains.plugins.scala.codeInsight.intention.argument.PermuteArgumentsIntention</className>
+    </intentionAction>
+
+    <intentionAction>
+      <className>org.jetbrains.plugins.scala.codeInsight.intention.imports.ImportAdditionalIdentifiersIntention</className>
     </intentionAction>
 
     <lang.elementManipulator forClass="org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral"
