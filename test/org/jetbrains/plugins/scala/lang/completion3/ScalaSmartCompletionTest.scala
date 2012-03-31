@@ -426,4 +426,35 @@ class ScalaSmartCompletionTest extends ScalaCompletionTestBase {
     if (activeLookup != null) completeLookupItem(activeLookup.find(le => le.getLookupString == "empty").get, '\t')
     checkResultByText(resultText)
   }
+  
+  def testChainedSecondCompletion() {
+    val fileText =
+      """
+      |object YY {
+      |  def foo(): YY = new YY
+      |  val x: OP = <caret>
+      |}
+      |class YY {
+      |  def goo(x: Int) = new OP
+      |}
+      |class OP
+      """.stripMargin.replaceAll("\r", "").trim()
+    configureFromFileTextAdapter("dummy.scala", fileText)
+    val (activeLookup, _) = complete(2, CompletionType.SMART)
+
+    val resultText =
+      """
+      |object YY {
+      |  def foo(): YY = new YY
+      |  val x: OP = foo().goo(<caret>)
+      |}
+      |class YY {
+      |  def goo(x: Int) = new OP
+      |}
+      |class OP
+      """.stripMargin.replaceAll("\r", "").trim()
+
+    if (activeLookup != null) completeLookupItem(activeLookup.find(le => le.getLookupString == "foo.goo").get, '\t')
+    checkResultByText(resultText)
+  }
 }
