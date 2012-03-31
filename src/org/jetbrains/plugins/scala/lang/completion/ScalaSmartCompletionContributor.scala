@@ -87,17 +87,20 @@ class ScalaSmartCompletionContributor extends CompletionContributor {
             elem match {
               case fun: ScSyntheticFunction => checkType(fun.retType)
               case fun: ScFunction =>
+                val infer = ScalaPsiUtil.inferMethodTypesArgs(fun, subst)
                 val added = fun.returnType match {
-                  case Success(tp, _) => checkType(tp)
+                  case Success(tp, _) => checkType(infer.subst(tp))
                   case _ => false
                 }
                 if (!added) {
                   fun.getType(TypingContext.empty) match {
-                    case Success(tp, _) => checkType(tp, true)
+                    case Success(tp, _) => checkType(infer.subst(tp), true)
                     case _ =>
                   }
                 }
-              case meth: PsiMethod => checkType(ScType.create(meth.getReturnType, meth.getProject, scope))
+              case meth: PsiMethod =>
+                val infer = ScalaPsiUtil.inferMethodTypesArgs(meth, subst)
+                checkType(infer.subst(ScType.create(meth.getReturnType, meth.getProject, scope)))
               case typed: ScTypedDefinition =>
                 if (!PsiTreeUtil.isContextAncestor(typed.nameContext, place, false))
                   for (tt <- typed.getType(TypingContext.empty)) checkType(tt)

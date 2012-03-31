@@ -403,4 +403,27 @@ class ScalaSmartCompletionTest extends ScalaCompletionTestBase {
     if (activeLookup != null) completeLookupItem(activeLookup.find(le => le.getLookupString == "apply").get, '\t')
     checkResultByText(resultText)
   }
+
+  def testScalaHashSetEmpty() {
+    val fileText =
+      """
+      |import collection.mutable.HashSet
+      |class A {
+      |  val x: HashSet[String] = <caret>
+      |}
+      """.stripMargin.replaceAll("\r", "").trim()
+    configureFromFileTextAdapter("dummy.scala", fileText)
+    val (activeLookup, _) = complete(1, CompletionType.SMART)
+
+    val resultText =
+      """
+      |import collection.mutable.HashSet
+      |class A {
+      |  val x: HashSet[String] = HashSet.empty<caret>
+      |}
+      """.stripMargin.replaceAll("\r", "").trim()
+
+    if (activeLookup != null) completeLookupItem(activeLookup.find(le => le.getLookupString == "empty").get, '\t')
+    checkResultByText(resultText)
+  }
 }

@@ -178,10 +178,19 @@ object ScalaPsiUtil {
   /**
   Pick all type parameters by method maps them to the appropriate type arguments, if they are
    */
-  def inferMethodTypesArgs(fun: ScFunction, classSubst: ScSubstitutor) = {
-    fun.typeParameters.foldLeft(ScSubstitutor.empty) {
-      (subst, tp) => subst.bindT((tp.name, ScalaPsiUtil.getPsiElementId(tp)),
-        new ScUndefinedType(new ScTypeParameterType(tp: ScTypeParam, classSubst), 1))
+  def inferMethodTypesArgs(fun: PsiMethod, classSubst: ScSubstitutor): ScSubstitutor = {
+
+    fun match {
+      case fun: ScFunction =>
+        fun.typeParameters.foldLeft(ScSubstitutor.empty) {
+          (subst, tp) => subst.bindT((tp.name, ScalaPsiUtil.getPsiElementId(tp)),
+            new ScUndefinedType(new ScTypeParameterType(tp: ScTypeParam, classSubst), 1))
+        }
+      case fun: PsiMethod =>
+        fun.getTypeParameters.foldLeft(ScSubstitutor.empty) {
+          (subst, tp) => subst.bindT((tp.name, ScalaPsiUtil.getPsiElementId(tp)),
+            new ScUndefinedType(new ScTypeParameterType(tp: PsiTypeParameter, classSubst), 1))
+        }
     }
   }
 
