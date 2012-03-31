@@ -19,9 +19,6 @@ import com.intellij.psi.xml.XmlTokenType
 import com.intellij.lexer.XmlLexer
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.api.expr.xml._
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
-import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportSelector, ScImportStmt, ScImportExpr}
 
 
 /**
@@ -60,9 +57,6 @@ class ScalaTypedHandler extends TypedHandlerDelegate {
       if (ltIndex > "case ".length - 1 && element.getPrevSibling.getText.substring(0, ltIndex).trim() == "case") {
         chooseXmlTask(false)
       }
-    } else if (c == ',' && element.getPrevSibling != null && element.getPrevSibling.getNode.getElementType == ScalaElementTypes.IMPORT_STMT &&
-            PsiTreeUtil.findChildOfType(element.getPrevSibling, classOf[ScImportSelector]) == null) {
-      myTask = completeImportSelector(editor)
     }
 
     if (myTask == null) return Result.CONTINUE
@@ -161,28 +155,6 @@ class ScalaTypedHandler extends TypedHandlerDelegate {
       val document = editor.getDocument
       document.insertString(offset, "\"\"\"")
       PsiDocumentManager.getInstance(project).commitDocument(document)
-    }
-  }
-
-  /**
-   * Adds an import selector.
-   *
-   * {{{
-   *   import a.b.c<CARET/>,
-   *   import a.b.{c, <CARET/>}
-   * }}}
-   */
-  private def completeImportSelector(editor: Editor)(document: Document, project: Project, element: PsiElement, offset: Int) {
-    if (element != null && element.getPrevSibling != null && element.getPrevSibling.isInstanceOf[ScImportExpr]) {
-      extensions.inWriteAction {
-        val identifier = element.getContainingFile.findElementAt(element.getPrevSibling.getTextRange.getEndOffset - 1)
-        if (identifier != null) {
-          document.insertString(offset, " }")
-          document.insertString(identifier.getTextOffset, "{")
-          editor.getCaretModel.moveCaretRelatively(1, 0, false, false, false)
-        }
-        PsiDocumentManager.getInstance(project).commitDocument(document)
-      }
     }
   }
 
