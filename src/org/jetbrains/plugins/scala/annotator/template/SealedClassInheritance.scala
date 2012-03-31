@@ -24,7 +24,7 @@ object SealedClassInheritance extends AnnotatorPart[ScTemplateDefinition] {
 
     definition.refs.foreach {
       case (refElement, Some((psiClass: ScTypeDefinition, _))) if psiClass.getModifierList.hasModifierProperty("sealed") &&
-              psiClass.getContainingFile != refElement.getContainingFile => {
+              psiClass.getContainingFile.getNavigationElement != refElement.getContainingFile.getNavigationElement => {
         holder.createErrorAnnotation(refElement,
           "Illegal inheritance from sealed %s %s".format(kindOf(psiClass).toLowerCase, psiClass.name))
       }
