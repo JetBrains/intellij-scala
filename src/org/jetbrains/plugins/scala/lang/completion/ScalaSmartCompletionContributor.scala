@@ -41,7 +41,7 @@ class ScalaSmartCompletionContributor extends CompletionContributor {
   }
 
   private def acceptTypes(typez: Seq[ScType], variants: Array[Object], result: CompletionResultSet,
-                          scope: GlobalSearchScope, completeSome: Boolean, completeThis: Boolean, place: PsiElement) {
+                          scope: GlobalSearchScope, secondCompletion: Boolean, completeThis: Boolean, place: PsiElement) {
     def isAccessible(el: ScalaLookupItem): Boolean = {
       ScalaPsiUtil.nameContext(el.element) match {
         case memb: ScMember =>
@@ -52,7 +52,7 @@ class ScalaSmartCompletionContributor extends CompletionContributor {
 
     if (typez.length == 0 || typez.forall(_ == types.Nothing)) return
 
-    def applyVariant(variant: Object): AnyVal = {
+    def applyVariant(variant: Object, checkForSecondCompletion: Boolean = false): AnyVal = {
       variant match {
         case el: ScalaLookupItem if isAccessible(el) => {
           val elem = el.element
@@ -65,7 +65,7 @@ class ScalaSmartCompletionContributor extends CompletionContributor {
               elementAdded = true
               if (etaExpended) el.etaExpanded = true
               result.addElement(el)
-            } else if (completeSome) {
+            } else {
               typez.foreach {
                 case ScParameterizedType(tp, Seq(arg)) if !elementAdded =>
                   ScType.extractClass(tp, Some(elem.getProject)) match {
@@ -80,6 +80,9 @@ class ScalaSmartCompletionContributor extends CompletionContributor {
                   }
                 case _ =>
               }
+            }
+            if (!elementAdded && checkForSecondCompletion && secondCompletion) {
+
             }
             elementAdded
           }
@@ -178,7 +181,7 @@ class ScalaSmartCompletionContributor extends CompletionContributor {
       }
       checkType(tp)
     }
-    variants.foreach(applyVariant)
+    variants.foreach(applyVariant(_, true))
     if (typez.find(_.equiv(types.Boolean)) != None) {
       for (keyword <- Set("false", "true")) {
         result.addElement(LookupElementManager.getKeywrodLookupElement(keyword, place))
@@ -199,7 +202,7 @@ class ScalaSmartCompletionContributor extends CompletionContributor {
                 if (!scType.equiv(Nothing) && typez.find(scType conforms _) != None) {
                   if (!foundClazz) el.bold = true
                   result.addElement(el)
-                } else if (completeSome) {
+                } else {
                   var elementAdded = false
                   typez.foreach {
                     case ScParameterizedType(tp, Seq(arg)) if !elementAdded =>

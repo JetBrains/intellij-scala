@@ -502,4 +502,25 @@ class ScalaBasicCompletionTest extends ScalaCompletionTestBase {
     completeLookupItem(activeLookup.find(le => le.getLookupString == "aaa.super").get, '\t')
     checkResultByText(resultText)
   }
+
+  def testCompanionObjectName() {
+    val fileText =
+      """
+      |class aaa {
+      |}
+      |object a<caret>
+      """.stripMargin.replaceAll("\r", "").trim()
+    configureFromFileTextAdapter("dummy.scala", fileText)
+    val (activeLookup, _) = complete(1, CompletionType.BASIC)
+
+    val resultText =
+      """
+      |class aaa {
+      |}
+      |object aaa<caret>
+      """.stripMargin.replaceAll("\r", "").trim()
+
+    completeLookupItem(activeLookup.find(le => le.getLookupString == "aaa").get, '\t')
+    checkResultByText(resultText)
+  }
 }
