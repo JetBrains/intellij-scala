@@ -9,6 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.{ConformanceExtR
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUsed
 import com.intellij.psi.{PsiNamedElement, PsiElement}
+import org.jetbrains.plugins.scala.extensions.toSeqExt
 
 /**
  * Pavel Fatin, Alexander Podkhalyuzin.
@@ -167,8 +168,8 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
       } else tail
     }
 
-    def functionParams(params: Seq[ScType]): Seq[Parameter] = params.zipWithIndex.map {
-      case (tp, i) => new Parameter("v" + (i + 1), tp, false, false, false)
+    def functionParams(params: Seq[ScType]): Seq[Parameter] = params.mapWithIndex {
+      case (tp, i) => new Parameter("v" + (i + 1), tp, false, false, false, i)
     }
 
     def checkApplication(tpe: ScType, args: Seq[ScExpression]): Option[ScType] = tpe match {

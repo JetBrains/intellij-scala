@@ -21,4 +21,14 @@ class SeqExt[CC[X] <: Seq[X], A](value: CC[A]) {
     }
     b.result()
   }
+
+  def mapWithIndex[B](f: (A, Int) => B)(implicit cbf: CanBuildTo[B, CC]): CC[B] = {
+    val b = cbf()
+    var i = 0
+    for (x <- value) {
+      b += f(x, i)
+      i += 1
+    }
+    b.result()
+  }
 }

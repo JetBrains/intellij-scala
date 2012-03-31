@@ -28,8 +28,8 @@ import psi.fake.FakePsiMethod
 import psi.api.base.types.{ScTypeElement, ScSelfTypeElement}
 import psi.api.base.{ScReferenceElement, ScAccessModifier, ScFieldId}
 import psi.api.expr.{ScThisReference, ScSuperReference}
-import extensions.toPsiNamedElementExt
 import psi.impl.{ScPackageImpl, ScalaPsiManager}
+import extensions.{toSeqExt, toPsiNamedElementExt}
 
 /**
  * @author ven
@@ -91,13 +91,15 @@ object ResolveUtils {
       case (_, None) => s.subst(ScType.create(m.getReturnType, m.getProject, scope))
       case (_, Some(x)) => x
     }
-    new ScMethodType(retType, m.getParameterList.getParameters.map((param: PsiParameter) => {
-      var psiType = param.getType
-      if (param.isVarArgs && psiType.isInstanceOf[PsiArrayType]) {
-        psiType = psiType.asInstanceOf[PsiArrayType].getComponentType
+    new ScMethodType(retType, m.getParameterList.getParameters.toSeq.mapWithIndex {
+      case (param, index) => {
+        var psiType = param.getType
+        if (param.isVarArgs && psiType.isInstanceOf[PsiArrayType]) {
+          psiType = psiType.asInstanceOf[PsiArrayType].getComponentType
+        }
+        new Parameter("", s.subst(ScType.create(psiType, m.getProject, scope, paramTopLevel = true)), false, param.isVarArgs, false, index)
       }
-      new Parameter("", s.subst(ScType.create(psiType, m.getProject, scope, paramTopLevel = true)), false, param.isVarArgs, false)
-    }).toSeq, false)(m.getProject, scope)
+    }.toSeq, false)(m.getProject, scope)
   }
 
   def javaPolymorphicType(m: PsiMethod, s: ScSubstitutor, scope: GlobalSearchScope = null, returnType: Option[ScType] = None): NonValueType = {

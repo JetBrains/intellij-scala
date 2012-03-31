@@ -27,7 +27,7 @@ import caches.CachesUtil
 import util.PsiModificationTracker
 import psi.ScalaPsiUtil.SafeCheckException
 import api.{InferUtil, ScalaElementVisitor}
-import extensions.toPsiNamedElementExt
+import extensions.{toSeqExt, toPsiNamedElementExt}
 
 /**
  * @author Alexander Podkhalyuzin
@@ -78,18 +78,27 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
     def getConstructorParams(constr: PsiMethod, subst: ScSubstitutor): (Seq[Seq[Parameter]], Boolean) = {
       constr match {
         case fun: ScFunction =>
-          (fun.effectiveParameterClauses.map(_.parameters.map(p => new Parameter(p.name,
-            subst.subst(p.getType(TypingContext.empty).getOrAny), p.isDefaultParam,
-            p.isRepeatedParameter, p.isCallByNameParameter))),
+          (fun.effectiveParameterClauses.map(_.parameters.mapWithIndex {
+            case (p, index) =>
+              new Parameter(p.name,
+                subst.subst(p.getType(TypingContext.empty).getOrAny), p.isDefaultParam,
+                p.isRepeatedParameter, p.isCallByNameParameter, index)
+          }),
             fun.parameterList.clauses.lastOption.map(_.isImplicit).getOrElse(false))
         case f: ScPrimaryConstructor =>
-          (f.effectiveParameterClauses.map(_.parameters.map(p => new Parameter(p.name,
-            subst.subst(p.getType(TypingContext.empty).getOrAny), p.isDefaultParam,
-            p.isRepeatedParameter, p.isCallByNameParameter))),
+          (f.effectiveParameterClauses.map(_.parameters.mapWithIndex {
+            case (p, index) =>
+              new Parameter(p.name,
+                subst.subst(p.getType(TypingContext.empty).getOrAny), p.isDefaultParam,
+                p.isRepeatedParameter, p.isCallByNameParameter, index)
+          }),
             f.parameterList.clauses.lastOption.map(_.isImplicit).getOrElse(false))
         case m: PsiMethod =>
-          (Seq(m.getParameterList.getParameters.toSeq.map(p => new Parameter("",
-            ScType.create(p.getType, getProject, getResolveScope, paramTopLevel = true), false, p.isVarArgs, false))),
+          (Seq(m.getParameterList.getParameters.toSeq.mapWithIndex {
+            case (p, index) =>
+              val paramType = ScType.create(p.getType, getProject, getResolveScope, paramTopLevel = true)
+              new Parameter("", paramType, false, p.isVarArgs, false, index)
+          }),
             false)
       }
     }
@@ -186,7 +195,7 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
               case Some(expected) if withExpected => {
                 def updateRes(expected: ScType) {
                   nonValueType = ScalaPsiUtil.localTypeInference(nonValueType.internalType,
-                    Seq(new Parameter("", expected, false, false, false)),
+                    Seq(new Parameter("", expected, false, false, false, 0)),
                       Seq(new Expression(ScalaPsiUtil.undefineSubstitutor(nonValueType.typeParameters).subst(res.inferValueType))),
                     nonValueType.typeParameters, shouldUndefineParameters = false, filterTypeParams = false) //here should work in different way:
                 }

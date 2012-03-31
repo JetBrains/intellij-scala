@@ -32,7 +32,7 @@ import api.toplevel.typedef.{ScObject, ScTemplateDefinition}
 import api.ScalaFile
 import collection.Seq
 import com.intellij.util.{ReflectionCache, IncorrectOperationException}
-import extensions.toPsiClassExt
+import extensions.{toSeqExt, toPsiClassExt}
 
 abstract class SyntheticNamedElement(val manager: PsiManager, name: String)
 extends LightElement(manager, ScalaFileType.SCALA_LANGUAGE) with PsiNameIdentifierOwner {
@@ -157,7 +157,9 @@ extends SyntheticNamedElement(manager, name) with ScFun {
   }
   
   def this(manager: PsiManager, name: String, retType: ScType, paramTypes: Seq[Seq[ScType]]) =
-    this(manager, name, retType, paramTypes.map(_.map(new Parameter("", _, false, false, false))), Seq.empty)
+    this(manager, name, retType, paramTypes.mapWithIndex {
+      case (p, index) => p.map(new Parameter("", _, false, false, false, index))
+    }, Seq.empty)
 
   val typeParams: Seq[ScSyntheticTypeParameter] =
     typeParameterNames.map {name => new ScSyntheticTypeParameter(manager, name, this)}
@@ -226,7 +228,7 @@ class SyntheticClasses(project: Project) extends PsiElementFinder with ProjectCo
     anyRef.addMethod(new ScSyntheticFunction(manager, "eq", Boolean, Seq(Seq(AnyRef))))
     anyRef.addMethod(new ScSyntheticFunction(manager, "ne", Boolean, Seq(Seq((AnyRef)))))
     anyRef.addMethod(new ScSyntheticFunction(manager, "synchronized", Any, Seq.empty, Seq.singleton(ScalaUtils.typeParameter)) {
-      override val paramClauses: Seq[Seq[Parameter]] = Seq(Seq(new Parameter("", ScalaPsiManager.typeVariable(typeParams(0)), false, false, false)))
+      override val paramClauses: Seq[Seq[Parameter]] = Seq(Seq(new Parameter("", ScalaPsiManager.typeVariable(typeParams(0)), false, false, false, 0)))
       override val retType: ScType = ScalaPsiManager.typeVariable(typeParams(0))
     })
 

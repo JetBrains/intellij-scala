@@ -242,9 +242,11 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
           case (seq: Seq[(String, ScType, PsiAnnotationMemberValue)], i: Int) => {
             if (seq.length == 0) buffer.append(CodeInsightBundle.message("parameter.info.no.parameters"))
             else {
-              val paramsSeq: Seq[(Parameter, String)] = seq.map(t =>
-                (new Parameter(t._1, t._2, t._3 != null, false, false), t._1 + ": " + ScType.presentableText(t._2) + (
-                  if (t._3 != null) " = " + t._3.getText else "")))
+              val paramsSeq: Seq[(Parameter, String)] = seq.zipWithIndex.map {
+                case (t, paramIndex) =>
+                  (new Parameter(t._1, t._2, t._3 != null, false, false, paramIndex), t._1 + ": " + ScType.presentableText(t._2) + (
+                          if (t._3 != null) " = " + t._3.getText else ""))
+              }
               applyToParameters(paramsSeq, ScSubstitutor.empty, true, false)
             }
           }

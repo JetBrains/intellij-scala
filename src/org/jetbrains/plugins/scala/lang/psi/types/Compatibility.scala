@@ -255,11 +255,11 @@ object Compatibility {
 
   def toParameter(p: ScParameter, substitutor: ScSubstitutor) = {
     val t = substitutor.subst(p.getType(TypingContext.empty).getOrNothing)
-    new Parameter(p.name, t, p.isDefaultParam, p.isRepeatedParameter, p.isCallByNameParameter)
+    new Parameter(p.name, t, p.isDefaultParam, p.isRepeatedParameter, p.isCallByNameParameter, p.index)
   }
   def toParameter(p: PsiParameter) = {
     val t = ScType.create(p.getType, p.getProject, paramTopLevel = true)
-    new Parameter(if (p.isInstanceOf[ClsParameterImpl]) "" else p.name, t, false, p.isVarArgs, false)
+    new Parameter(if (p.isInstanceOf[ClsParameterImpl]) "" else p.name, t, false, p.isVarArgs, false, -1)
   }
 
   // TODO refactor a lot of duplication out of this method 
@@ -346,14 +346,14 @@ object Compatibility {
         if (shortage > 0) { 
           val part = obligatory.takeRight(shortage).map { p =>
             val t = p.getType(TypingContext.empty).getOrAny
-            new Parameter(p.name, t, p.isDefaultParam, p.isRepeatedParameter, p.isCallByNameParameter)
+            new Parameter(p.name, t, p.isDefaultParam, p.isRepeatedParameter, p.isCallByNameParameter, p.index)
           }
           return ConformanceExtResult(part.map(new MissedValueParameter(_)))
         }
 
         val res = checkConformanceExt(true, parameters.map{param: ScParameter => new Parameter(param.name, {
           substitutor.subst(param.getType(TypingContext.empty).getOrNothing)
-        }, param.isDefaultParam, param.isRepeatedParameter, param.isRepeatedParameter)}, exprs, checkWithImplicits, isShapesResolve)
+        }, param.isDefaultParam, param.isRepeatedParameter, param.isRepeatedParameter, param.index)}, exprs, checkWithImplicits, isShapesResolve)
         res
       }
       case method: PsiMethod => {
@@ -382,7 +382,7 @@ object Compatibility {
             case _ => tp
           }
           else tp
-        }, false, param.isVarArgs, false)}, exprs, checkWithImplicits, isShapesResolve)
+        }, false, param.isVarArgs, false, -1)}, exprs, checkWithImplicits, isShapesResolve)
       }
       case _ => ConformanceExtResult(Seq(new ApplicabilityProblem("22")))
     }
