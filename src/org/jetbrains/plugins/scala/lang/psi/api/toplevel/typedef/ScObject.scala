@@ -34,4 +34,11 @@ trait ScObject extends ScTypeDefinition with ScTypedDefinition with ScMember wit
   def fakeCompanionClass: Option[PsiClass]
 
   def fakeCompanionClassOrCompanionClass: PsiClass
+
+  /** Is this object accessible from a stable path from the root package? */
+  def isStatic: Boolean = getContainingClass match {
+    case obj: ScObject => obj.isStatic
+    case null => true
+    case _ => false
+  }
 }
