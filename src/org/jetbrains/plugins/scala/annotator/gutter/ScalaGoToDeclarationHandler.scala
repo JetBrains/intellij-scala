@@ -8,11 +8,11 @@ import lang.psi.ScalaPsiUtil
 import lang.psi.api.toplevel.typedef.{ScTypeDefinition, ScObject, ScClass}
 import lang.psi.api.statements.params.ScParameter
 import com.intellij.codeInsight.navigation.actions.GotoDeclarationHandler
-import lang.psi.api.expr.{ScMethodCall, ScReferenceExpression, ScSelfInvocation}
-import lang.resolve.{ScalaResolveResult, ResolvableReferenceElement}
+import lang.resolve.ResolvableReferenceElement
 import com.intellij.psi.{PsiNamedElement, PsiElement}
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.actionSystem.DataContext
+import lang.psi.api.expr.{ScAssignStmt, ScMethodCall, ScSelfInvocation}
 
 /**
  * User: Alexander Podkhalyuzin
@@ -26,6 +26,25 @@ class ScalaGoToDeclarationHandler extends GotoDeclarationHandler {
   def getGotoDeclarationTargets(sourceElement: PsiElement, offset: Int, editor: Editor): Array[PsiElement] = {
     if (sourceElement == null) return null
     if (sourceElement.getLanguage != ScalaFileType.SCALA_LANGUAGE) return null;
+
+    if (sourceElement.getNode.getElementType == ScalaTokenTypes.tASSIGN) {
+      return sourceElement.getParent match {
+        case assign: ScAssignStmt =>
+          assign.getLExpression match {
+            case ref: ResolvableReferenceElement => ref.bind() match {
+              case Some(x) if x.isSetterFunction => Array(x.element)
+              case _ => null
+            }
+            case methodCall: ScMethodCall =>
+              methodCall.applyOrUpdateElement match {
+                case Some(x) => return Array(x)
+                case None => null
+              }
+            case _ => null
+          }
+        case _ => null
+      }
+    }
 
     if (sourceElement.getNode.getElementType == ScalaTokenTypes.kTHIS) {
       sourceElement.getParent match {
