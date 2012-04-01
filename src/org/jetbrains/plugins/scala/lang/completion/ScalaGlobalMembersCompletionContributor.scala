@@ -26,6 +26,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScVariab
 import org.jetbrains.plugins.scala.caches.ScalaShortNamesCacheManager
 import org.jetbrains.plugins.scala.extensions.{toPsiNamedElementExt, toPsiClassExt}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTypeDefinition, ScObject}
+import org.jetbrains.plugins.scala.lang.psi.impl.search.ScalaOverridengMemberSearch
+import com.intellij.psi.search.searches.ClassInheritorsSearch
 
 /**
  * @author Alexander Podkhalyuzin
@@ -65,7 +67,13 @@ class ScalaGlobalMembersCompletionContributor extends CompletionContributor {
   private def isStatic(member: PsiNamedElement): Boolean = {
     ScalaPsiUtil.nameContext(member) match {
       case memb: PsiMember =>
-        val containingClass = memb.getContainingClass
+       isStatic(member, memb.getContainingClass)
+    }
+  }
+
+  private def isStatic(member: PsiNamedElement, containingClass: PsiClass): Boolean = {
+    ScalaPsiUtil.nameContext(member) match {
+      case memb: PsiMember =>
         if (containingClass == null) return false
         val qualifiedName = containingClass.qualifiedName + "." + member.name
         for (excluded <- CodeInsightSettings.getInstance.EXCLUDED_PACKAGES) {
@@ -74,7 +82,9 @@ class ScalaGlobalMembersCompletionContributor extends CompletionContributor {
           }
         }
         containingClass match {
-          case o: ScObject => true
+          case o: ScObject if o.isStatic =>
+            // filter out type class instances, such as scala.math.Numeric.String, to avoid too many results.
+            !o.hasModifierProperty("implicit")
           case _: ScTypeDefinition => false
           case _ => memb.hasModifierProperty("static")
         }
@@ -238,8 +248,13 @@ class ScalaGlobalMembersCompletionContributor extends CompletionContributor {
         val methodsIterator = namesCache.getMethodsByName(methodName, scope).iterator
         while (methodsIterator.hasNext) {
           val method = methodsIterator.next()
-          if (isStatic(method)) {
-            val containingClass: PsiClass = method.getContainingClass
+          val inheritors = ClassInheritorsSearch.search(method.getContainingClass, method.getContainingClass.getUseScope, true).toArray(PsiClass.EMPTY_ARRAY)
+          val currentAndInheritors = Iterator(method.getContainingClass) ++ inheritors.iterator
+          for {
+            containingClass <- currentAndInheritors
+            if isStatic(method, containingClass)
+          } {
+            //val containingClass: PsiClass = method.getContainingClass
             assert(containingClass != null)
             if (classes.add(containingClass) && isAccessible(method, containingClass)) {
               val shouldImport = !elemsSetContains(method)
@@ -299,8 +314,12 @@ class ScalaGlobalMembersCompletionContributor extends CompletionContributor {
             case v: ScValue => v.declaredElements.find(_.name == fieldName).getOrElse(null)
             case v: ScVariable => v.declaredElements.find(_.name == fieldName).getOrElse(null)
           }
-          if (namedElement != null && isStatic(namedElement)) {
-            val containingClass: PsiClass = field.getContainingClass
+          val inheritors = ClassInheritorsSearch.search(field.getContainingClass, field.getContainingClass.getUseScope, true).toArray(PsiClass.EMPTY_ARRAY)
+          val currentAndInheritors = Iterator(field.getContainingClass) ++ inheritors.iterator
+          for {
+            containingClass <- currentAndInheritors
+            if namedElement != null && isStatic(namedElement, containingClass)
+          } {
             assert(containingClass != null)
             if (isAccessible(field, containingClass)) {
               val shouldImport = !elemsSetContains(namedElement)
@@ -316,7 +335,7 @@ class ScalaGlobalMembersCompletionContributor extends CompletionContributor {
 
   private def createLookupElement(member: PsiNamedElement, clazz: PsiClass, shouldImport: Boolean,
                                   overloaded: Boolean = false): LookupElement = {
-    LookupElementManager.getLookupElement(new ScalaResolveResult(member), isClassName = true,
+    LookupElementManager.getLookupElement(new ScalaResolveResult(member), qualifierType = ScType.designator(clazz), isClassName = true,
       isOverloadedForClassName = overloaded, shouldImport = shouldImport, isInStableCodeReference = false).apply(0)
   }
 }
