@@ -324,17 +324,17 @@ object ScalaPsiUtil {
   }
 
   def processTypeForUpdateOrApply(tp: ScType, call: ScMethodCall,
-                                  isShape: Boolean): Option[(ScType, collection.Set[ImportUsed], Option[PsiNamedElement])] = {
+                                  isShape: Boolean): Option[(ScType, collection.Set[ImportUsed], Option[PsiNamedElement], Option[PsiElement])] = {
     import call._
 
-    def checkCandidates(withImplicits: Boolean): Option[(ScType, collection.Set[ImportUsed], Option[PsiNamedElement])] = {
-      val candidates = processTypeForUpdateOrApplyCandidates(call, tp, isShape, noImplicits = !withImplicits)
+    def checkCandidates(withImplicits: Boolean): Option[(ScType, collection.Set[ImportUsed], Option[PsiNamedElement], Option[PsiElement])] = {
+      val candidates: Array[ScalaResolveResult] = processTypeForUpdateOrApplyCandidates(call, tp, isShape, noImplicits = !withImplicits)
       PartialFunction.condOpt(candidates) {
         case Array(r@ScalaResolveResult(fun: PsiMethod, s: ScSubstitutor)) => fun match {
-          case fun: ScFun => (s.subst(fun.polymorphicType), r.importsUsed, r.implicitFunction)
-          case fun: ScFunction => (s.subst(fun.polymorphicType), r.importsUsed, r.implicitFunction)
+          case fun: ScFun => (s.subst(fun.polymorphicType), r.importsUsed, r.implicitFunction, Some(fun))
+          case fun: ScFunction => (s.subst(fun.polymorphicType), r.importsUsed, r.implicitFunction, Some(fun))
           case meth: PsiMethod => (ResolveUtils.javaPolymorphicType(meth, s, getResolveScope), r.importsUsed,
-            r.implicitFunction)
+                  r.implicitFunction, Some(fun))
         }
       }
     }

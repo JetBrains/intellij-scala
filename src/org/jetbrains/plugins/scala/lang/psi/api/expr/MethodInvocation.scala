@@ -91,6 +91,11 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
    */
   def isApplyOrUpdateCall: Boolean = {
     getType(TypingContext.empty)
+    applyOrUpdate.isDefined
+  }
+
+  def applyOrUpdateElement: Option[PsiElement] = {
+    getType(TypingContext.empty)
     applyOrUpdate
   }
 
@@ -189,17 +194,18 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
     var res: ScType = checkApplication(invokedType, argumentExpressions).getOrElse {
       this match {
         case methodCall: ScMethodCall => //todo: remove reference to method call
-          var (processedType, importsUsed, implicitFunction) = 
-            ScalaPsiUtil.processTypeForUpdateOrApply(invokedType, methodCall, false).
-              getOrElse((Nothing, this.importsUsed, this.implicitFunction))
+          var (processedType, importsUsed, implicitFunction, applyOrUpdateElement) =
+            ScalaPsiUtil.processTypeForUpdateOrApply(invokedType, methodCall, false).getOrElse {
+              (Nothing, this.importsUsed, this.implicitFunction, this.applyOrUpdateElement)
+            }
           if (useExpectedType) {
             updateAccordingToExpectedType(Success(processedType, None)).foreach(x => processedType = x)
           }
-          this.applyOrUpdate = true
+          this.applyOrUpdate = applyOrUpdateElement
           this.importsUsed = importsUsed
           this.implicitFunction = implicitFunction
           checkApplication(processedType, argumentExpressionsIncludeUpdateCall).getOrElse {
-            this.applyOrUpdate = false
+            this.applyOrUpdate = None
             applicabilityProblemsVar = Seq(new DoesNotTakeParameters)
             matchedParametersVar = Seq()
             processedType
@@ -223,5 +229,5 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
   private var matchedParametersVar: Seq[(Parameter, ScExpression)] = Seq.empty
   private var importsUsed: collection.Set[ImportUsed] = collection.Set.empty
   private var implicitFunction: Option[PsiNamedElement] = None
-  private var applyOrUpdate: Boolean = false
+  private var applyOrUpdate: Option[PsiElement] = None
 }
