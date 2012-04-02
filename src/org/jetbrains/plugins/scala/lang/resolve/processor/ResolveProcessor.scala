@@ -50,7 +50,7 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
       case c: ScObject => "Object:" + c.qualifiedName
       case c: PsiClass => "Class:" + c.qualifiedName
       case t: ScTypeAlias if t.getParent.isInstanceOf[ScTemplateBody] &&
-        t.getContainingClass != null => "TypeAlias:" + t.getContainingClass.qualifiedName + "#" + t.name
+        t.containingClass != null => "TypeAlias:" + t.containingClass.qualifiedName + "#" + t.name
       case p: PsiPackage => "Package:" + p.getQualifiedName
       case _ => null
     }
@@ -148,13 +148,13 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
     if (res.size > 1) {
       val problems = res.filter(r => ScalaPsiUtil.nameContext(r.getActualElement) match {
         case memb: ScMember =>
-          memb.getContext.isInstanceOf[ScTemplateBody] && memb.getContainingClass.isInstanceOf[ScObject] &&
-            memb.getContainingClass.asInstanceOf[ScObject].isPackageObject
+          memb.getContext.isInstanceOf[ScTemplateBody] && memb.containingClass.isInstanceOf[ScObject] &&
+            memb.containingClass.asInstanceOf[ScObject].isPackageObject
         case _ => false
       }).map(r => {
         val elem = r.getActualElement
         val context = ScalaPsiUtil.nameContext(elem)
-        val pref = context.asInstanceOf[ScMember].getContainingClass.qualifiedName
+        val pref = context.asInstanceOf[ScMember].containingClass.qualifiedName
         elem match {
           case _: ScClass | _: ScTrait | _: ScTypeAlias => "Type:" + pref + "." + elem.name
           case _ => "Value:" + pref + "." + elem.name

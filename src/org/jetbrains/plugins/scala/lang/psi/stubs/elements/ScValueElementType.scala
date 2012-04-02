@@ -29,7 +29,7 @@ extends ScStubElementType[ScValueStub, ScValue](debugName) {
     val isImplicit = psi.hasModifierProperty("implicit")
     new ScValueStubImpl[ParentPsi](parentStub, this,
       (for (elem <- psi.declaredElements) yield elem.name).toArray, isDecl, typeText, bodyText, containerText,
-      isImplicit, psi.getContainingClass == null)
+      isImplicit, psi.containingClass == null)
   }
 
   def serialize(stub: ScValueStub, dataStream: StubOutputStream) {

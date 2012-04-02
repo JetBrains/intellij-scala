@@ -151,7 +151,7 @@ object DebuggerUtil {
 
   def getFunctionJVMSignature(function: ScFunction): JVMName = {
     val typeParams = 
-      if (function.isConstructor) function.getContainingClass match {
+      if (function.isConstructor) function.containingClass match {
         case td: ScTypeDefinition => td.typeParameters
         case _ => Seq.empty
       } 
@@ -168,7 +168,7 @@ object DebuggerUtil {
   }
 
   def getFunctionJVMSignature(constr: ScPrimaryConstructor): JVMName = {
-    val typeParams = constr.getContainingClass match {
+    val typeParams = constr.containingClass match {
       case td: ScTypeDefinition => td.typeParameters
       case _ => Seq.empty
     }

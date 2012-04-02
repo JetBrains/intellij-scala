@@ -85,10 +85,10 @@ class ScalaTestConfigurationProducer extends {
           val resolve = ref.resolve()
           if (resolve != null) {
             val containingClass = resolve match {
-              case fun: ScMember => fun.getContainingClass
+              case fun: ScMember => fun.containingClass
               case p: ScBindingPattern =>
                 p.nameContext match {
-                  case v: ScMember => v.getContainingClass
+                  case v: ScMember => v.containingClass
                   case _ => null
                 }
               case _ => null
@@ -187,7 +187,7 @@ class ScalaTestConfigurationProducer extends {
               val resolve = ref.resolve()
               resolve match {
                 case fun: ScFunction =>
-                  val clazz = fun.getContainingClass
+                  val clazz = fun.containingClass
                   if (clazz != null && fqn.contains(clazz.qualifiedName)) {
                     m match {
                       case i: ScInfixExpr => endupWithLitral(i.getBaseExpr)
@@ -388,8 +388,8 @@ class ScalaTestConfigurationProducer extends {
           ref.refName match {
             case "should" =>
               ref.resolve() match {
-                case fun: ScFunction if fun.getContainingClass != null &&
-                  fun.getContainingClass.qualifiedName == shouldFqn =>
+                case fun: ScFunction if fun.containingClass != null &&
+                  fun.containingClass.qualifiedName == shouldFqn =>
                   if (result == null) {
                     ref.getParent match {
                       case m: MethodInvocation => result = infix(m)
@@ -400,8 +400,8 @@ class ScalaTestConfigurationProducer extends {
               }
             case "must" =>
               ref.resolve() match {
-                case fun: ScFunction if fun.getContainingClass != null &&
-                  fun.getContainingClass.qualifiedName == mustFqn =>
+                case fun: ScFunction if fun.containingClass != null &&
+                  fun.containingClass.qualifiedName == mustFqn =>
                   if (result == null) {
                     ref.getParent match {
                       case m: MethodInvocation => result = infix(m)
@@ -412,8 +412,8 @@ class ScalaTestConfigurationProducer extends {
               }
             case "can" =>
               ref.resolve() match {
-                case fun: ScFunction if fun.getContainingClass != null &&
-                  fun.getContainingClass.qualifiedName == canFqn =>
+                case fun: ScFunction if fun.containingClass != null &&
+                  fun.containingClass.qualifiedName == canFqn =>
                   if (result == null) {
                     ref.getParent match {
                       case m: MethodInvocation => result = infix(m)
@@ -424,8 +424,8 @@ class ScalaTestConfigurationProducer extends {
               }
             case "of" =>
               ref.resolve() match {
-                case fun: ScFunction if fun.getContainingClass != null &&
-                  fun.getContainingClass.qualifiedName == "org.scalatest.FlatSpec.BehaviorWord" =>
+                case fun: ScFunction if fun.containingClass != null &&
+                  fun.containingClass.qualifiedName == "org.scalatest.FlatSpec.BehaviorWord" =>
                   if (result == null) {
                     ref.getParent match {
                       case m: MethodInvocation => result = call(m)
@@ -524,7 +524,7 @@ class ScalaTestConfigurationProducer extends {
       if (!isInheritor(clazz, fqn)) return None
       var fun = PsiTreeUtil.getParentOfType(element, classOf[ScFunctionDefinition], false)
       while (fun != null) {
-        if (fun.getParent.isInstanceOf[ScTemplateBody] && fun.getContainingClass == clazz) {
+        if (fun.getParent.isInstanceOf[ScTemplateBody] && fun.containingClass == clazz) {
           if (fun.name.startsWith("test")) {
             return Some(fun.name)
           }
@@ -538,7 +538,7 @@ class ScalaTestConfigurationProducer extends {
       if (!isInheritor(clazz, fqn)) return None
       var fun = PsiTreeUtil.getParentOfType(element, classOf[ScFunctionDefinition], false)
       while (fun != null) {
-        if (fun.getParent.isInstanceOf[ScTemplateBody] && fun.getContainingClass == clazz) {
+        if (fun.getParent.isInstanceOf[ScTemplateBody] && fun.containingClass == clazz) {
           if (fun.hasAnnotation(annot) != None) {
             return Some(fun.name)
           }

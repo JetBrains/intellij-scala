@@ -33,7 +33,7 @@ public class DependenciesResolveTest extends ScalaResolveTestCase {
 
     assertTrue(resolved instanceof ScPrimaryConstructor);
 
-    final ScClass clazz = (ScClass) ((ScPrimaryConstructor) resolved).getContainingClass();
+    final ScClass clazz = (ScClass) ((ScPrimaryConstructor) resolved).containingClass();
     final String name = clazz.getName();
     assertTrue(name.equals("Description"));
 

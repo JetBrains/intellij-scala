@@ -30,7 +30,8 @@ object JavaConversionUtil {
       case holder: ScAnnotationsHolder =>
         val keywordAnnotations = Map("scala.native" -> "native", "scala.annotation.strictfp" -> "strictfp",
           "scala.volatile" -> "volatile", "scala.transient" -> "transient")
-        for (annotation <- holder.annotations if !keywordAnnotations.values.toSet.contains(annotation.getQualifiedName)) {
+        for (annotation <- holder.annotations if !keywordAnnotations.values.toSet.contains(annotation.getQualifiedName) &&
+             annotation.getQualifiedName != "scala.throws") {
           builder.append("@").append(annotation.getQualifiedName)
           annotation.constructor.args match {
             case Some(args) =>

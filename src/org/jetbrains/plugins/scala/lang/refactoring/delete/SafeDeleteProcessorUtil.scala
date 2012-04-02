@@ -205,7 +205,7 @@ object SafeDeleteProcessorUtil {
     if (constructor.getParameterList.getParameters.length > 0) return false
     val body: PsiCodeBlock = constructor.getBody
     if (body != null && body.getStatements.length > 0) return false
-    return constructor.getContainingClass.getConstructors.length == 1
+    return constructor.containingClass.getConstructors.length == 1
   }
 
   def validateOverridingMethods(originalMethod: PsiMethod, originalReferences: Collection[PsiReference],
@@ -294,7 +294,7 @@ object SafeDeleteProcessorUtil {
   }
 
   def canBePrivate(method: PsiMethod, references: Collection[PsiReference], deleted: Collection[_ <: PsiElement], allElementsToDelete: Array[PsiElement]): Boolean = {
-    val containingClass: PsiClass = method.getContainingClass
+    val containingClass: PsiClass = method.containingClass
     if (containingClass == null) {
       return false
     }
@@ -396,7 +396,7 @@ object SafeDeleteProcessorUtil {
               override def deleteElement: Unit = {
                 val javadocMethodReference: PsiDocMethodOrFieldRef#MyReference = element.getReference.asInstanceOf[PsiDocMethodOrFieldRef#MyReference]
                 if (javadocMethodReference != null) {
-                  javadocMethodReference.bindToText(method.getContainingClass, newText)
+                  javadocMethodReference.bindToText(method.containingClass, newText)
                 }
               }
             })

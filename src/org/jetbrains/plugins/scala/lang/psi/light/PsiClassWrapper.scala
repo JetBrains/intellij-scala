@@ -18,8 +18,9 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.light.PsiTypedDefinitionWrapper.DefinitionRole._
 import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTrait, ScObject, ScTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTrait, ScObject, ScTemplateDefinition}
+import org.jetbrains.plugins.scala.extensions.{toPsiClassExt, toPsiMemberExt}
 
 /**
  * @author Alefas
@@ -71,7 +72,7 @@ class PsiClassWrapper(val definition: ScTemplateDefinition,
               node.info.namedElement match {
                 case Some(fun: ScFunction) if !fun.isConstructor => res += fun.getFunctionWrapper(true, false)
                 case Some(method: PsiMethod) if !method.isConstructor => {
-                  if (method.getContainingClass != null && method.getContainingClass.getQualifiedName != "java.lang.Object") {
+                  if (method.containingClass != null && method.containingClass.qualifiedName != "java.lang.Object") {
                     res += StaticPsiMethodWrapper.getWrapper(method, this)
                   }
                 }
@@ -168,7 +169,16 @@ class PsiClassWrapper(val definition: ScTemplateDefinition,
 
   def getInnerClasses: Array[PsiClass] = {
     definition match {
-      case o: ScObject => Array.empty //todo:
+      case o: ScObject =>
+        o.members.flatMap {
+          case o: ScObject => o.fakeCompanionClass match {
+            case Some(clazz) => Seq(o, clazz)
+            case None => Seq(o)
+          }
+          case t: ScTrait => Seq(t, t.fakeCompanionClass)
+          case c: ScClass => Seq(c)
+          case _ => Seq.empty
+        }.toArray
       case _ => definition.getInnerClasses //todo:
     }
   }
@@ -212,7 +222,7 @@ class PsiClassWrapper(val definition: ScTemplateDefinition,
   }
 
   def findInnerClassByName(name: String, checkBases: Boolean): PsiClass = {
-    definition.findInnerClassByName(name, checkBases)
+    PsiClassImplUtil.findInnerByName(this, name, checkBases)
   }
 
   def getLBrace: PsiElement = {

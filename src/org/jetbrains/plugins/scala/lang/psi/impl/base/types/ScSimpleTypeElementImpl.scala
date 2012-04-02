@@ -27,7 +27,7 @@ import caches.CachesUtil
 import util.PsiModificationTracker
 import psi.ScalaPsiUtil.SafeCheckException
 import api.{InferUtil, ScalaElementVisitor}
-import extensions.{toSeqExt, toPsiNamedElementExt}
+import extensions.{toPsiMemberExt, toSeqExt, toPsiNamedElementExt}
 
 /**
  * @author Alexander Podkhalyuzin
@@ -118,7 +118,7 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
     
     def typeForConstructor(ref: ScStableCodeReferenceElement, constr: PsiMethod,
                            _subst: ScSubstitutor, parentElement: PsiNamedElement): ScType = {
-      val clazz = constr.getContainingClass
+      val clazz = constr.containingClass
       val (constrTypParameters: Seq[ScTypeParam], constrSubst: ScSubstitutor) = parentElement match {
         case ta: ScTypeAliasDefinition => (Seq.empty, ScSubstitutor.empty)
         case s: ScTypeParametersOwner if s.typeParameters.length > 0 =>
@@ -384,7 +384,7 @@ object ScSimpleTypeElementImpl {
       }
     }) match {
       case Some(r@ScalaResolveResult(n: PsiMethod, resolveSubstitutor)) if n.isConstructor =>
-        (n.getContainingClass, resolveSubstitutor, r.fromType)
+        (n.containingClass, resolveSubstitutor, r.fromType)
       case Some(r@ScalaResolveResult(n: PsiNamedElement, subst: ScSubstitutor)) => (n, subst, r.fromType)
       case _ => return Failure("Cannot resolve reference", Some(ref))
     }

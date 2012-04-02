@@ -32,8 +32,8 @@ object ScalaInsertHandler {
       case method: PsiMethod =>
         def isStringSpecialMethod: Boolean = {
           Set("hashCode", "length", "trim").contains(method.getName) &&
-            method.getContainingClass != null &&
-            method.getContainingClass.getQualifiedName == "java.lang.String"
+            method.containingClass != null &&
+            method.containingClass.getQualifiedName == "java.lang.String"
         }
         (method.getParameterList.getParametersCount, method.name, method.isAccessor || isStringSpecialMethod)
       case fun: ScFun =>
@@ -143,8 +143,8 @@ class ScalaInsertHandler extends InsertHandler[LookupElement] {
       }
       case _: PsiMethod if item.isInImport => moveCaretIfNeeded()
       case _: ScFun if item.isInImport => moveCaretIfNeeded()
-      case fun: ScFunction if fun.name == "classOf" && fun.getContainingClass != null &&
-        fun.getContainingClass.qualifiedName == "scala.Predef" =>
+      case fun: ScFunction if fun.name == "classOf" && fun.containingClass != null &&
+        fun.containingClass.qualifiedName == "scala.Predef" =>
         context.setAddCompletionChar(false)
         document.insertString(endOffset, "[]")
         endOffset += 1

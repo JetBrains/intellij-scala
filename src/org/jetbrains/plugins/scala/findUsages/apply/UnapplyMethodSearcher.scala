@@ -33,7 +33,7 @@ class UnapplyMethodSearcher extends QueryExecutor[PsiReference, ReferencesSearch
             }
           }
 
-          fun.containingClass match {
+          Option(fun.containingClass) match {
             case Some(obj: ScObject) => ReferencesSearch.search(obj, scope, ignoreAccess).forEach(processor)
             case _ =>
           }

@@ -43,7 +43,7 @@ object StaticTraitScFunctionWrapper {
     }
 
     builder.append(" ")
-    val name = if (!function.isConstructor) function.getName else function.getContainingClass.getName
+    val name = if (!function.isConstructor) function.getName else function.containingClass.getName
     builder.append(name)
 
     val qualName = containingClass.getQualifiedName

@@ -15,6 +15,7 @@ import api.toplevel.{ScTypedDefinition, ScTypeParametersOwner}
 import api.statements._
 import collection.mutable.ArrayBuffer
 import light.PsiClassWrapper
+import extensions.toPsiMemberExt
 
 /**
 * @author Alexander Podkhalyuzin
@@ -62,7 +63,7 @@ class ScTraitImpl extends ScTypeDefinitionImpl with ScTrait with ScTypeParameter
   import org.jetbrains.plugins.scala.lang.psi.light.PsiTypedDefinitionWrapper.DefinitionRole._
 
   override def getMethods: Array[PsiMethod] = {
-    getAllMethods.filter(_.getContainingClass == this)
+    getAllMethods.filter(_.containingClass == this)
   }
 
   override def getAllMethods: Array[PsiMethod] = {
@@ -73,7 +74,7 @@ class ScTraitImpl extends ScTypeDefinitionImpl with ScTrait with ScTypeParameter
       val signature = signatures.next()
       signature.foreach {
         case (t, node) => node.info.namedElement match {
-          case Some(fun: ScFunction) if !fun.isConstructor && fun.getContainingClass.isInstanceOf[ScTrait] &&
+          case Some(fun: ScFunction) if !fun.isConstructor && fun.containingClass.isInstanceOf[ScTrait] &&
             fun.isInstanceOf[ScFunctionDefinition] =>
             res += fun.getFunctionWrapper(false, true)
           case Some(fun: ScFunction) if !fun.isConstructor =>

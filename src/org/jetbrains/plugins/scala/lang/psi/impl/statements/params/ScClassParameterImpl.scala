@@ -63,10 +63,10 @@ class ScClassParameterImpl(node: ASTNode) extends ScParameterImpl(node) with ScC
   }
 
   override def getOriginalElement: PsiElement = {
-    val containingClass = getContainingClass
-    if (containingClass == null) return this
-    val originalClass: PsiClass = containingClass.getOriginalElement.asInstanceOf[PsiClass]
-    if (containingClass eq originalClass) return this
+    val ccontainingClass = containingClass
+    if (ccontainingClass == null) return this
+    val originalClass: PsiClass = ccontainingClass.getOriginalElement.asInstanceOf[PsiClass]
+    if (ccontainingClass eq originalClass) return this
     if (!originalClass.isInstanceOf[ScClass]) return this
     val c = originalClass.asInstanceOf[ScClass]
     val iterator = c.parameters.iterator

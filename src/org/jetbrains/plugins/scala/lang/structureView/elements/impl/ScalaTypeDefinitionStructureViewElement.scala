@@ -21,7 +21,7 @@ import _root_.scala.collection.mutable._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.lang.psi.api.base._
-import extensions.{toPsiNamedElementExt, toPsiClassExt}
+import extensions.{toPsiMemberExt, toPsiNamedElementExt, toPsiClassExt}
 
 /**
 * @author Alexander Podkhalyuzin
@@ -68,8 +68,8 @@ class ScalaTypeDefinitionStructureViewElement(private val element: ScTypeDefinit
           case sign: PhysicalSignature => {
             sign.method match {
               case x if x.name == "$tag" || x.name == "$init$" =>
-              case x if x.getContainingClass.qualifiedName == "java.lang.Object" =>
-              case x if x.getContainingClass == clazz =>
+              case x if x.containingClass.qualifiedName == "java.lang.Object" =>
+              case x if x.containingClass == clazz =>
               case x: ScFunction => children += new ScalaFunctionStructureViewElement(x, true)
               case x: PsiMethod => children += new PsiMethodTreeElement(x, true)
             }
@@ -77,8 +77,8 @@ class ScalaTypeDefinitionStructureViewElement(private val element: ScTypeDefinit
           case _ => {
             sign.namedElement match {
               case Some(named: ScNamedElement) => ScalaPsiUtil.nameContext(named) match {
-                case x: ScValue if x.getContainingClass != clazz => children += new ScalaValueStructureViewElement(named.nameId, true)
-                case x: ScVariable if x.getContainingClass != clazz => children += new ScalaVariableStructureViewElement(named.nameId, true)
+                case x: ScValue if x.containingClass != clazz => children += new ScalaValueStructureViewElement(named.nameId, true)
+                case x: ScVariable if x.containingClass != clazz => children += new ScalaVariableStructureViewElement(named.nameId, true)
                 case _ =>
               }
               case _ =>
@@ -93,7 +93,7 @@ class ScalaTypeDefinitionStructureViewElement(private val element: ScTypeDefinit
         t = typex._1
         if t.isInstanceOf[ScTypeAlias]
         alias = t.asInstanceOf[ScTypeAlias]
-        if alias.getContainingClass != clazz
+        if alias.containingClass != clazz
       } children += new ScalaTypeAliasStructureViewElement(alias, true)
 
       for (typeDef <- element.typeDefinitions)

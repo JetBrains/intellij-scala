@@ -36,7 +36,7 @@ extends ScStubElementType[ScVariableStub, ScVariable](debugName) {
       else psi.asInstanceOf[ScVariableDefinition].pList.getText
     new ScVariableStubImpl[ParentPsi](parentStub, this,
       (for (elem <- psi.declaredElements) yield elem.name).toArray,
-      isDecl, typeText, bodyText, containerText, psi.getContainingClass == null)
+      isDecl, typeText, bodyText, containerText, psi.containingClass == null)
   }
 
   def serialize(stub: ScVariableStub, dataStream: StubOutputStream) {

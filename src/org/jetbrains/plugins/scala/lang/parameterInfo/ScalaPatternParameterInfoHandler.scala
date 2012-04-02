@@ -166,7 +166,7 @@ class ScalaPatternParameterInfoHandler extends ParameterInfoHandlerWithTabAction
     if (sign.method.name == "unapply") {
       sign.method match {
         case fun: ScFunction if fun.parameters.headOption.exists(_.name == "x$0") =>
-          val companionClass: Option[ScClass] = fun.containingClass match {
+          val companionClass: Option[ScClass] = Option(fun.containingClass) match {
             case Some(x: ScObject) => ScalaPsiUtil.getCompanionModule(x) match {
               case Some(x: ScClass) => Some(x)
               case _ => None

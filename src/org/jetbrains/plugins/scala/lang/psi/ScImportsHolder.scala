@@ -29,7 +29,7 @@ import java.lang.ThreadLocal
 import com.intellij.openapi.util.{Trinity, RecursionManager}
 import types.result.TypingContext
 import types.ScDesignatorType
-import extensions.{toPsiNamedElementExt, toPsiClassExt}
+import extensions.{toPsiMemberExt, toPsiNamedElementExt, toPsiClassExt}
 
 trait ScImportsHolder extends ScalaPsiElement {
 
@@ -187,7 +187,7 @@ trait ScImportsHolder extends ScalaPsiElement {
   def addImportForPsiNamedElement(elem: PsiNamedElement, ref: PsiElement) {
     ScalaPsiUtil.nameContext(elem) match {
       case memb: PsiMember =>
-        val containingClass = memb.getContainingClass
+        val containingClass = memb.containingClass
         if (containingClass != null && containingClass.qualifiedName != null) {
           ref match {
             case ref: ScReferenceElement =>

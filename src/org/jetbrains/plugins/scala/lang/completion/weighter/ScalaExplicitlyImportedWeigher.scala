@@ -14,9 +14,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import org.jetbrains.plugins.scala.lang.psi.{ScImportsHolder, ScalaPsiUtil}
 import collection.mutable.ArrayBuffer
 import com.intellij.openapi.util.Key
-import org.jetbrains.plugins.scala.extensions.toPsiClassExt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import annotation.tailrec
+import org.jetbrains.plugins.scala.extensions.{toPsiMemberExt, toPsiClassExt}
 
 /**
   * @author Alexander Podkhalyuzin
@@ -95,7 +95,7 @@ class ScalaExplicitlyImportedWeigher extends ProximityWeigher {
   def applyToMember(member: ScMember, position: PsiElement): Option[Integer] = {
     member.getContext match {
       case tb: ScTemplateBody =>
-        val clazz: PsiClass = member.getContainingClass
+        val clazz: PsiClass = member.containingClass
         clazz match {
           case obj: ScObject =>
             val qualNoPoint = obj.qualifiedName
@@ -141,7 +141,7 @@ class ScalaExplicitlyImportedWeigher extends ProximityWeigher {
           case None =>
         }
       case member: PsiMember if member.hasModifierProperty("static") =>
-        val clazz = member.getContainingClass
+        val clazz = member.containingClass
         val qualNoPoint = clazz.qualifiedName
         if (qualNoPoint != null) {
           val memberName = member match {

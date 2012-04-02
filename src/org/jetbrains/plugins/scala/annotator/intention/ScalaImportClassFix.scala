@@ -249,7 +249,7 @@ object ScalaImportClassFix {
           case _: ScalaFile => true
           case _: ScPackaging => true
           case _: ScTemplateBody => {
-            Option(t.getContainingClass) match {
+            Option(t.containingClass) match {
               case Some(obj: ScObject) => ResolveUtils.isAccessible(obj, ref) && notInner(obj, ref)
               case _ => false
             }

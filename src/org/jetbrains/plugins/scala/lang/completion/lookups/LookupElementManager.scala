@@ -1,12 +1,12 @@
 package org.jetbrains.plugins.scala.lang.completion.lookups
 
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
-import org.jetbrains.plugins.scala.extensions.toPsiNamedElementExt
 import org.jetbrains.plugins.scala.lang.psi.types.{Nothing, ScType}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext, TypingContextOwner}
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import com.intellij.codeInsight.lookup.LookupElement
+import org.jetbrains.plugins.scala.extensions.{toPsiMemberExt, toPsiNamedElementExt}
 
 /**
  * @author Alefas
@@ -48,7 +48,7 @@ object LookupElementManager {
           if (clazz != null)
             ScalaPsiUtil.nameContext(element) match {
               case m: PsiMember => {
-                if (m.getContainingClass == clazz) isBold = true
+                if (m.containingClass == clazz) isBold = true
               }
               case _ =>
             }

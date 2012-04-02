@@ -17,13 +17,13 @@ class AbstractValueInTraitInspection
   def actionFor(holder: ProblemsHolder) = {
     //todo: we should use dataflow analysis to get if it's safe to use declaration here
     case v: ScValueDeclaration if v.getParent.isInstanceOf[ScTemplateBody] =>
-      v.getContainingClass match {
+      v.containingClass match {
         case t: ScTrait =>
           holder.registerProblem(v, "Abstract value used in trait", ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
         case _ =>
       }
     case v: ScVariableDeclaration =>
-      v.getContainingClass match {
+      v.containingClass match {
         case t: ScTrait =>
           holder.registerProblem(v, "Abstract variable used in trait", ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
         case _ =>

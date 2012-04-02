@@ -15,6 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import com.intellij.psi._
+import org.jetbrains.plugins.scala.extensions.toPsiMemberExt
 
 /**
  * @author Alefas
@@ -34,7 +35,7 @@ class ScalaApplicationConfigurationProducer extends JavaRuntimeConfigurationProd
     var currentElement: PsiElement = element
     var method: PsiMethod = findMain(currentElement)
     while (method != null) {
-      val aClass: PsiClass = method.getContainingClass
+      val aClass: PsiClass = method.containingClass
       if (ConfigurationUtil.MAIN_CLASS.value(aClass)) {
         myPsiElement = method
         return createConfiguration(aClass, context, location)
@@ -126,7 +127,7 @@ class ScalaApplicationConfigurationProducer extends JavaRuntimeConfigurationProd
       def isMainMethod(method: PsiMethod): Option[PsiMethod] = {
         method match {
           case f: ScFunction =>
-            f.getContainingClass match {
+            f.containingClass match {
               case o: ScObject =>
                 val wrapper = f.getFunctionWrapper(true, false)
                 if (PsiMethodUtil.isMainMethod(wrapper)) Some(wrapper)

@@ -11,12 +11,12 @@ import com.intellij.psi.search.GlobalSearchScope
 import impl.source.PsiImmediateClassType
 import result.{Failure, Success, TypingContext}
 import com.intellij.openapi.project.Project
-import api.toplevel.typedef.ScObject
 import api.statements._
-import extensions.toPsiClassExt
 import light.PsiClassWrapper
 import com.intellij.pom.java.LanguageLevel
 import com.intellij.psi.PsiClassType.ClassResolveResult
+import api.toplevel.typedef.{ScTypeDefinition, ScObject}
+import extensions.{toPsiMemberExt, toPsiClassExt}
 
 trait ScTypePsiTypeBridge {
   /**
@@ -26,7 +26,7 @@ trait ScTypePsiTypeBridge {
   def create(psiType: PsiType, project: Project, scope: GlobalSearchScope = null, deep: Int = 0,
              paramTopLevel: Boolean = false, treatJavaObjectAsAny: Boolean = true): ScType = {
     if (deep > 3) // Cranked up from 2 to 3 to solve SCL-2976. But why is this really needed?
-      return Any;
+      return Any
 
     psiType match {
       case classType: PsiClassType => {
@@ -48,7 +48,7 @@ trait ScTypePsiTypeBridge {
                 case wrapper: PsiClassWrapper => return constructTypeForClass(wrapper.definition)
                 case _ =>
               }
-              val containingClass: PsiClass = clazz.getContainingClass
+              val containingClass: PsiClass = clazz.containingClass
               if (containingClass == null) {
                 ScDesignatorType(clazz)
               } else {
@@ -183,6 +183,7 @@ trait ScTypePsiTypeBridge {
         }
         case _ => javaObj
       }
+      case ScThisType(clazz) => JavaPsiFacade.getInstance(project).getElementFactory.createType(clazz, PsiSubstitutor.EMPTY)
       case tpt: ScTypeParameterType =>
         EmptySubstitutor.getInstance().substitute(tpt.param)
       case argument: ScExistentialArgument =>

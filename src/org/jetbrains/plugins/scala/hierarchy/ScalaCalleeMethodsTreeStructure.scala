@@ -12,6 +12,7 @@ import com.intellij.ide.hierarchy.call.CallHierarchyNodeDescriptor
 import collection.mutable.{HashMap, ArrayBuffer}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScFunction}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
+import org.jetbrains.plugins.scala.extensions.toPsiMemberExt
 
 /**
  * @author Alexander Podkhalyuzin
@@ -39,7 +40,7 @@ class ScalaCalleeMethodsTreeStructure(project: Project, method: PsiMethod, mySco
         ScalaCalleeMethodsTreeStructure.visitor(body, methods)
     }
     val baseMethod: PsiMethod = (getBaseDescriptor.asInstanceOf[CallHierarchyNodeDescriptor]).getTargetElement.asInstanceOf[PsiMethod]
-    val baseClass: PsiClass = baseMethod.getContainingClass
+    val baseClass: PsiClass = baseMethod.containingClass
     val methodToDescriptorMap: HashMap[PsiMethod, CallHierarchyNodeDescriptor] =
       new HashMap[PsiMethod, CallHierarchyNodeDescriptor]
     val result: ArrayBuffer[CallHierarchyNodeDescriptor] = new ArrayBuffer[CallHierarchyNodeDescriptor]

@@ -15,7 +15,7 @@ import com.intellij.lang.findUsages.FindUsagesProvider
 import org.jetbrains.annotations.{Nullable, NotNull}
 import psi.impl.toplevel.PsiClassFake
 import psi.api.statements.params.ScTypeParam
-import extensions.{toPsiNamedElementExt, toPsiClassExt}
+import extensions.{toPsiMemberExt, toPsiNamedElementExt, toPsiClassExt}
 
 class ScalaFindUsagesProvider extends FindUsagesProvider {
   @Nullable
@@ -68,7 +68,7 @@ class ScalaFindUsagesProvider extends FindUsagesProvider {
         var res = PsiFormatUtil.formatMethod(x, PsiSubstitutor.EMPTY,
         PsiFormatUtilBase.SHOW_NAME | PsiFormatUtilBase.SHOW_PARAMETERS,
         PsiFormatUtilBase.SHOW_TYPE)
-        if (x.getContainingClass != null) res = res + " of " + getDescriptiveName(x.getContainingClass)
+        if (x.containingClass != null) res = res + " of " + getDescriptiveName(x.containingClass)
         res
       }
       case x: PsiVariable => x.name

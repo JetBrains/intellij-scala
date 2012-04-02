@@ -71,12 +71,12 @@ class RenameScalaMethodProcessor extends RenameJavaMethodProcessor {
 
 
   override def substituteElementToRename(element: PsiElement, editor: Editor): PsiElement = {
-    element match {case x: ScPrimaryConstructor => return x.getContainingClass case _ =>}
+    element match {case x: ScPrimaryConstructor => return x.containingClass case _ =>}
     val function: ScFunction = element match {case x: ScFunction => x case _ => return element}
-    if (function.isConstructor) return function.getContainingClass
+    if (function.isConstructor) return function.containingClass
     function.name match {
       case "apply" | "unapply" | "unapplySeq" => {
-        return function.getContainingClass
+        return function.containingClass
       }
       case _ =>
     }

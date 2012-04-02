@@ -22,7 +22,7 @@ trait ScClassParameter extends ScParameter with ScModifierListOwner with ScMembe
   def isEffectiveVal = isVal || isVar || isCaseClassVal
 
   /** Is the parameter automatically a val, due to it's position in a case class parameter list */
-  def isCaseClassVal = getContainingClass match {
+  def isCaseClassVal = containingClass match {
     case c: ScClass if c.isCase =>
       val isInPrimaryConstructorFirstParamSection = c.constructor match {
         case Some(const) => const.effectiveFirstParameterSection.contains(this)

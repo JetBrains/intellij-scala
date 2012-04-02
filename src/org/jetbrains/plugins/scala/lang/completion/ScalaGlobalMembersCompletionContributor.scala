@@ -24,8 +24,8 @@ import org.jetbrains.plugins.scala.lang.resolve.processor.CompletionProcessor
 import org.jetbrains.plugins.scala.lang.resolve.{StdKinds, ScalaResolveResult, ResolveUtils}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScVariable, ScValue}
 import org.jetbrains.plugins.scala.caches.ScalaShortNamesCacheManager
-import org.jetbrains.plugins.scala.extensions.{toPsiNamedElementExt, toPsiClassExt}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTypeDefinition, ScObject}
+import org.jetbrains.plugins.scala.extensions.{toPsiMemberExt, toPsiNamedElementExt, toPsiClassExt}
 
 /**
  * @author Alexander Podkhalyuzin
@@ -65,7 +65,7 @@ class ScalaGlobalMembersCompletionContributor extends CompletionContributor {
   private def isStatic(member: PsiNamedElement): Boolean = {
     ScalaPsiUtil.nameContext(member) match {
       case memb: PsiMember =>
-        val containingClass = memb.getContainingClass
+        val containingClass = memb.containingClass
         if (containingClass == null) return false
         val qualifiedName = containingClass.qualifiedName + "." + member.name
         for (excluded <- CodeInsightSettings.getInstance.EXCLUDED_PACKAGES) {
@@ -98,7 +98,7 @@ class ScalaGlobalMembersCompletionContributor extends CompletionContributor {
         //complex logic to detect static methods in same file, which we shouldn't import
         val name = elem.name
         val containingClass = ScalaPsiUtil.nameContext(elem) match {
-          case member: PsiMember => member.getContainingClass
+          case member: PsiMember => member.containingClass
           case _ => null
         }
         if (containingClass == null) return false
@@ -109,7 +109,7 @@ class ScalaGlobalMembersCompletionContributor extends CompletionContributor {
           if element.name == name
           if element.getContainingFile == file
           cClass = ScalaPsiUtil.nameContext(element) match {
-            case member: PsiMember => member.getContainingClass
+            case member: PsiMember => member.containingClass
             case _ => null
           }
           if cClass != null
@@ -194,7 +194,7 @@ class ScalaGlobalMembersCompletionContributor extends CompletionContributor {
         //complex logic to detect static methods in same file, which we shouldn't import
         val name = elem.name
         val containingClass = ScalaPsiUtil.nameContext(elem) match {
-          case member: PsiMember => member.getContainingClass
+          case member: PsiMember => member.containingClass
           case _ => null
         }
         if (containingClass == null) return false
@@ -205,7 +205,7 @@ class ScalaGlobalMembersCompletionContributor extends CompletionContributor {
           if element.name == name
           if element.getContainingFile == file
           cClass = ScalaPsiUtil.nameContext(element) match {
-            case member: PsiMember => member.getContainingClass
+            case member: PsiMember => member.containingClass
             case _ => null
           }
           if cClass != null
@@ -239,7 +239,7 @@ class ScalaGlobalMembersCompletionContributor extends CompletionContributor {
         while (methodsIterator.hasNext) {
           val method = methodsIterator.next()
           if (isStatic(method)) {
-            val containingClass: PsiClass = method.getContainingClass
+            val containingClass: PsiClass = method.containingClass
             assert(containingClass != null)
             if (classes.add(containingClass) && isAccessible(method, containingClass)) {
               val shouldImport = !elemsSetContains(method)
@@ -273,7 +273,7 @@ class ScalaGlobalMembersCompletionContributor extends CompletionContributor {
         while (fieldsIterator.hasNext) {
           val field = fieldsIterator.next()
           if (isStatic(field)) {
-            val containingClass: PsiClass = field.getContainingClass
+            val containingClass: PsiClass = field.containingClass
             assert(containingClass != null)
             if (isAccessible(field, containingClass)) {
               val shouldImport = !elemsSetContains(field)
@@ -300,7 +300,7 @@ class ScalaGlobalMembersCompletionContributor extends CompletionContributor {
             case v: ScVariable => v.declaredElements.find(_.name == fieldName).getOrElse(null)
           }
           if (namedElement != null && isStatic(namedElement)) {
-            val containingClass: PsiClass = field.getContainingClass
+            val containingClass: PsiClass = field.containingClass
             assert(containingClass != null)
             if (isAccessible(field, containingClass)) {
               val shouldImport = !elemsSetContains(namedElement)

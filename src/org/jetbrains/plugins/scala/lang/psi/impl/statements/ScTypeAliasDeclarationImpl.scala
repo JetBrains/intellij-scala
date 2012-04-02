@@ -89,7 +89,7 @@ class ScTypeAliasDeclarationImpl extends ScalaStubBasedElementImpl[ScTypeAlias] 
     new ItemPresentation() {
       def getPresentableText: String = name
       def getTextAttributesKey: TextAttributesKey = null
-      def getLocationString: String = "(" + ScTypeAliasDeclarationImpl.this.getContainingClass.qualifiedName + ")"
+      def getLocationString: String = "(" + ScTypeAliasDeclarationImpl.this.containingClass.qualifiedName + ")"
       override def getIcon(open: Boolean) = ScTypeAliasDeclarationImpl.this.getIcon(0)
     }
   }

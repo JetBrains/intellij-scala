@@ -926,8 +926,8 @@ object ScalaPsiUtil {
     val typed = x match {case x: ScTypedDefinition => x case _ => return empty}
     val clazz: ScTemplateDefinition = nameContext(typed) match {
       case e @ (_: ScValue | _: ScVariable | _:ScObject) if e.getParent.isInstanceOf[ScTemplateBody] =>
-        e.asInstanceOf[ScMember].getContainingClass
-      case e: ScClassParameter if e.isEffectiveVal => e.getContainingClass
+        e.asInstanceOf[ScMember].containingClass
+      case e: ScClassParameter if e.isEffectiveVal => e.containingClass
       case _ => return empty
     }
     if (clazz == null) return empty
@@ -947,7 +947,7 @@ object ScalaPsiUtil {
   def superTypeMembers(element: PsiNamedElement): Seq[PsiNamedElement] = {
     val empty = Seq.empty
     val clazz: ScTemplateDefinition = nameContext(element) match {
-      case e @ (_: ScTypeAlias | _: ScTrait | _: ScClass) if e.getParent.isInstanceOf[ScTemplateBody] => e.asInstanceOf[ScMember].getContainingClass
+      case e @ (_: ScTypeAlias | _: ScTrait | _: ScClass) if e.getParent.isInstanceOf[ScTemplateBody] => e.asInstanceOf[ScMember].containingClass
       case _ => return empty
     }
     if (clazz == null) return empty
@@ -987,9 +987,9 @@ object ScalaPsiUtil {
           case clazz: PsiClass =>
             x.replace(ScalaPsiElementFactory.createReferenceFromText(clazz.getName, clazz.getManager)).
                     asInstanceOf[ScStableCodeReferenceElement].bindToElement(clazz)
-          case m: ScTypeAlias if m.getContainingClass != null && (
-                  m.getContainingClass.qualifiedName == "scala.Predef" ||
-                  m.getContainingClass.qualifiedName == "scala") => {
+          case m: ScTypeAlias if m.containingClass != null && (
+                  m.containingClass.qualifiedName == "scala.Predef" ||
+                  m.containingClass.qualifiedName == "scala") => {
             x.replace(ScalaPsiElementFactory.createReferenceFromText(m.name, m.getManager)).
                     asInstanceOf[ScStableCodeReferenceElement].bindToElement(m)
           }
@@ -1136,7 +1136,7 @@ object ScalaPsiUtil {
       case p: ScPackaging => return true
       case _ =>
     }
-    o.getContainingClass match {
+    o.containingClass match {
       case null => false
       case o: ScObject => hasStablePath(o)
       case _ => false
@@ -1406,12 +1406,12 @@ object ScalaPsiUtil {
     if (fun == null) {
       None
     } else if (fun.isSyntheticCopy) {
-      fun.getContainingClass match {
+      fun.containingClass match {
         case td: ScClass if td.isCase => paramFromConstructor(td)
         case _ => None
       }
     } else if (fun.isSyntheticApply) {
-      getCompanionModule(fun.getContainingClass) match {
+      getCompanionModule(fun.containingClass) match {
         case Some(td: ScClass) if td.isCase => paramFromConstructor(td)
         case _ => None
       }

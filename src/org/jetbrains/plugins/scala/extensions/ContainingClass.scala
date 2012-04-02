@@ -11,7 +11,7 @@ object ContainingClass {
     if (e == null) {
       None
     } else {
-      val aClass = e.getContainingClass
+      val aClass = e.containingClass
       if (aClass == null) None else Some(aClass)
     }
   }

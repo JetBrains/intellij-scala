@@ -22,6 +22,7 @@ import icons.Icons
 import types.ScType
 import types.result.{Failure, Success}
 import extensions.toPsiNamedElementExt
+import api.toplevel.typedef.ScTemplateDefinition
 
 /**
 * @author Alexander Podkhalyuzin
@@ -58,7 +59,7 @@ class ScTypeParamImpl extends ScalaStubBasedElementImpl[ScTypeParam] with ScType
     case _ => null
   }
 
-  override def getContainingClass() = null
+  override def getContainingClass: ScTemplateDefinition = null
 
   def isCovariant: Boolean = {
     val stub = getStub

@@ -38,7 +38,7 @@ public class NonlocalResolveTest extends ScalaResolveTestCase{
     PsiElement resolved = ref.resolve();
     assertTrue(resolved instanceof ScFunction);
     ScFunction function = (ScFunction) resolved;
-    assertEquals(function.getContainingClass().getName(), "ArrayBuffer");
+    assertEquals(function.containingClass().getName(), "ArrayBuffer");
   }
 
   public void testMathSimple() throws Exception {
@@ -55,7 +55,7 @@ public class NonlocalResolveTest extends ScalaResolveTestCase{
     assertNotNull(resolved);
     assertTrue(resolved instanceof ScFunction);
     ScFunction fun = (ScFunction) resolved;
-    ScTemplateDefinition clazz = fun.getContainingClass();
+    ScTemplateDefinition clazz = fun.containingClass();
     assertTrue(clazz.getName().equals("C"));    
   }
 

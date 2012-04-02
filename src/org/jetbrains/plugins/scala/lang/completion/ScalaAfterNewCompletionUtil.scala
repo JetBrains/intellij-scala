@@ -14,9 +14,9 @@ import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils
 import com.intellij.codeInsight.completion.{CompletionResultSet, InsertHandler}
 import com.intellij.psi.search.searches.ClassInheritorsSearch
 import com.intellij.util.Processor
-import org.jetbrains.plugins.scala.extensions.{toPsiNamedElementExt, toPsiClassExt}
 import collection.mutable.{HashMap, HashSet}
 import com.intellij.psi.{PsiNamedElement, PsiElement, PsiDocCommentOwner, PsiClass}
+import org.jetbrains.plugins.scala.extensions.{toPsiMemberExt, toPsiNamedElementExt, toPsiClassExt}
 
 /**
  * @author Alefas
@@ -152,7 +152,7 @@ object ScalaAfterNewCompletionUtil {
           case _ =>
         }
         //todo: filter inner classes smarter (how? don't forget deep inner classes)
-        if (clazz.getContainingClass != null && (!clazz.getContainingClass.isInstanceOf[ScObject] ||
+        if (clazz.containingClass != null && (!clazz.containingClass.isInstanceOf[ScObject] ||
           clazz.hasModifierProperty("static"))) return null
         if (!ResolveUtils.isAccessible(clazz, place)) return null
         if (addedClasses.contains(clazz.qualifiedName)) return null

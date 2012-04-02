@@ -54,18 +54,19 @@ trait ScBindingPattern extends ScPattern with ScNamedElement with ScTypedDefinit
     case _ => false
   }
 
-  def getContainingClass: ScTemplateDefinition = {
+  def containingClass: ScTemplateDefinition = {
     ScalaPsiUtil.nameContext(this) match {
-      case memb: ScMember => memb.getContainingClass
+      case memb: ScMember => memb.containingClass
       case _ => null
     }
   }
 
+
   def getOriginalElement: PsiElement = {
-    val containingClass = getContainingClass
-    if (containingClass == null) return this
-    val originalClass: PsiClass = containingClass.getOriginalElement.asInstanceOf[PsiClass]
-    if (containingClass eq originalClass) return this
+    val ccontainingClass = containingClass
+    if (ccontainingClass == null) return this
+    val originalClass: PsiClass = ccontainingClass.getOriginalElement.asInstanceOf[PsiClass]
+    if (ccontainingClass eq originalClass) return this
     if (!originalClass.isInstanceOf[ScTypeDefinition]) return this
     val c = originalClass.asInstanceOf[ScTypeDefinition]
     val membersIterator = c.members.iterator

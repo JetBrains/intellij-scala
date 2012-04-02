@@ -24,7 +24,7 @@ import settings.ScalaApplicationSettings
 import lang.psi.types.result.{Failure, Success, TypingContext}
 import javax.swing.{JComponent, JCheckBox}
 import collection.immutable.HashSet
-import extensions.{toPsiNamedElementExt, toPsiClassExt}
+import extensions.{toPsiMemberExt, toPsiNamedElementExt, toPsiClassExt}
 
 /**
  * User: Alexander Podkhalyuzin
@@ -37,27 +37,27 @@ object ScalaOIUtil {
     for (candidate <- candidates) {
       candidate match {
         case sign: PhysicalSignature => {
-          assert(sign.method.getContainingClass != null, "Containing Class is null: " + sign.method.getText)
+          assert(sign.method.containingClass != null, "Containing Class is null: " + sign.method.getText)
           classMembersBuf += new ScMethodMember(sign)
         }
         case (name: PsiNamedElement, subst: ScSubstitutor) => {
           ScalaPsiUtil.nameContext(name) match {
             case x: ScValue => {
-              assert(x.getContainingClass != null, "Containing Class is null: " + x.getText)
+              assert(x.containingClass != null, "Containing Class is null: " + x.getText)
               name match {
                 case y: ScTypedDefinition => classMembersBuf += new ScValueMember(x, y, subst)
                 case _ => throw new IncorrectOperationException("Not supported type:" + x)
               }
             }
             case x: ScVariable => {
-              assert(x.getContainingClass != null, "Containing Class is null: " + x.getText)
+              assert(x.containingClass != null, "Containing Class is null: " + x.getText)
               name match {
                 case y: ScTypedDefinition => classMembersBuf += new ScVariableMember(x, y, subst)
                 case _ => throw new IncorrectOperationException("Not supported type:" + x)
               }
             }
             case x: ScTypeAlias => {
-              assert(x.getContainingClass != null, "Containing Class is null: " + x.getText)
+              assert(x.containingClass != null, "Containing Class is null: " + x.getText)
               classMembersBuf += new ScAliasMember(x, subst)
             }
             case x => throw new IncorrectOperationException("Not supported type:" + x)
@@ -161,9 +161,9 @@ object ScalaOIUtil {
           m match {
             case _ if isProductAbstractMethod(m, clazz) =>
             case x if name == "$tag" || name == "$init$" =>
-            case x if !withOwn && x.getContainingClass == clazz =>
-            case x if x.getContainingClass != null && x.getContainingClass.isInterface &&
-              !x.getContainingClass.isInstanceOf[ScTrait] => buf2 += sign
+            case x if !withOwn && x.containingClass == clazz =>
+            case x if x.containingClass != null && x.containingClass.isInterface &&
+              !x.containingClass.isInstanceOf[ScTrait] => buf2 += sign
             case x if x.hasModifierProperty("abstract") => buf2 += sign
             case x: ScFunctionDeclaration if x.hasAnnotation("scala.native") == None =>
               buf2 += sign
@@ -172,9 +172,9 @@ object ScalaOIUtil {
         }
         case (name: PsiNamedElement, subst: ScSubstitutor) => {
           ScalaPsiUtil.nameContext(name) match {
-            case x: ScValueDeclaration if withOwn || x.getContainingClass != clazz => buf2 += element
-            case x: ScVariableDeclaration if withOwn || x.getContainingClass != clazz => buf2 += element
-            case x: ScTypeAliasDeclaration if withOwn || x.getContainingClass != clazz => buf2 += element
+            case x: ScValueDeclaration if withOwn || x.containingClass != clazz => buf2 += element
+            case x: ScVariableDeclaration if withOwn || x.containingClass != clazz => buf2 += element
+            case x: ScTypeAliasDeclaration if withOwn || x.containingClass != clazz => buf2 += element
             case _ =>
           }
         }
@@ -191,7 +191,7 @@ object ScalaOIUtil {
       case td: ScTypeDefinition if td.isCase => {
         if (m.name == "apply") return true
         if (m.name == "canEqual") return true
-        val clazz = m.getContainingClass
+        val clazz = m.containingClass
         clazz != null && clazz.qualifiedName == "scala.Product" &&
           (m.name match {
             case "productArity" | "productElement" => true
@@ -223,7 +223,7 @@ object ScalaOIUtil {
             case f: ScFunctionDeclaration if f.hasAnnotation("scala.native") == None =>
             case x if x.name == "$tag" || x.name == "$init$"=>
             case x: ScFunction if x.isSyntheticCopy =>
-            case x if x.getContainingClass == clazz =>
+            case x if x.containingClass == clazz =>
             case x: PsiModifierListOwner if x.hasModifierProperty("abstract")
                 || x.hasModifierProperty("final") /*|| x.hasModifierProperty("sealed")*/ =>
             case x if x.isConstructor =>
@@ -232,8 +232,8 @@ object ScalaOIUtil {
               if (method match {case x: ScFunction => x.parameters.length == 0 case _ => method.getParameterList.getParametersCount == 0}) {
                 for (pair <- clazz.allVals; v = pair._1) if (v.name == method.name) {
                   ScalaPsiUtil.nameContext(v) match {
-                    case x: ScValue if x.getContainingClass == clazz => flag = true
-                    case x: ScVariable if x.getContainingClass == clazz => flag = true
+                    case x: ScValue if x.containingClass == clazz => flag = true
+                    case x: ScVariable if x.containingClass == clazz => flag = true
                     case _ =>
                   }
                 }
@@ -245,10 +245,10 @@ object ScalaOIUtil {
         case (name: PsiNamedElement, subst: ScSubstitutor) => {
           ScalaPsiUtil.nameContext(name) match {
             case x: PsiModifierListOwner if x.hasModifierProperty("final") =>
-            case x: ScPatternDefinition if x.getContainingClass != clazz => {
+            case x: ScPatternDefinition if x.containingClass != clazz => {
               var flag = false
-              for (signe <- clazz.allMethods if signe.method.getContainingClass == clazz) {
-                //getContainingClass == clazz so we sure that this is ScFunction (it is safe cast)
+              for (signe <- clazz.allMethods if signe.method.containingClass == clazz) {
+                //containingClass == clazz so we sure that this is ScFunction (it is safe cast)
                 signe.method match {
                   case fun: ScFunction => if (fun.parameters.length == 0 && x.declaredElements.exists(_.name == fun.name)) flag = true
                   case _ =>  //todo: ScPrimaryConstructor?
@@ -256,31 +256,31 @@ object ScalaOIUtil {
               }
               for (pair <- clazz.allVals; v = pair._1) if (v.name == name.name) {
                 ScalaPsiUtil.nameContext(v) match {
-                  case x: ScValue if x.getContainingClass == clazz => flag = true
-                  case x: ScVariable if x.getContainingClass == clazz => flag = true
+                  case x: ScValue if x.containingClass == clazz => flag = true
+                  case x: ScVariable if x.containingClass == clazz => flag = true
                   case _ =>
                 }
               }
               if (!flag) buf2 += element
             }
-            case x: ScVariableDefinition if x.getContainingClass != clazz => {
+            case x: ScVariableDefinition if x.containingClass != clazz => {
               var flag = false
-              for (signe <- clazz.allMethods if signe.method.getContainingClass == clazz) {
-                //getContainingClass == clazz so we sure that this is ScFunction (it is safe cast)
+              for (signe <- clazz.allMethods if signe.method.containingClass == clazz) {
+                //containingClass == clazz so we sure that this is ScFunction (it is safe cast)
                 if (signe.method.isInstanceOf[ScFunction] &&
                         signe.method.asInstanceOf[ScFunction].parameters.length == 0 &&
                         x.declaredElements.exists(_.name == signe.method.name)) flag = true
               }
               for (pair <- clazz.allVals; v = pair._1) if (v.name == name.name) {
                 ScalaPsiUtil.nameContext(v) match {
-                  case x: ScValue if x.getContainingClass == clazz => flag = true
-                  case x: ScVariable if x.getContainingClass == clazz => flag = true
+                  case x: ScValue if x.containingClass == clazz => flag = true
+                  case x: ScVariable if x.containingClass == clazz => flag = true
                   case _ =>
                 }
               }
               if (!flag) buf2 += element
             }
-            case x: ScTypeAliasDefinition if x.getContainingClass != clazz => buf2 += element
+            case x: ScTypeAliasDefinition if x.containingClass != clazz => buf2 += element
             case _ =>
           }
         }

@@ -25,9 +25,9 @@ import collection.mutable.ArrayBuffer
 import collection.Seq
 import api.base.types.{ScTypeElement, ScParameterizedTypeElement, ScSimpleTypeElement}
 import api.ScalaElementVisitor
-import extensions.toPsiNamedElementExt
 import api.toplevel.typedef.ScTemplateDefinition
 import com.intellij.psi._
+import extensions.{toPsiMemberExt, toPsiNamedElementExt}
 
 /**
 * @author Alexander Podkhalyuzin
@@ -108,7 +108,7 @@ class ScConstructorImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
     def workWithResolveResult(constr: PsiMethod, r: ScalaResolveResult,
                               subst: ScSubstitutor, s: ScSimpleTypeElement,
                               ref: ScStableCodeReferenceElement): TypeResult[ScType] = {
-      val clazz = constr.getContainingClass
+      val clazz = constr.containingClass
       val tp = r.getActualElement match {
         case ta: ScTypeAliasDefinition => subst.subst(ta.aliasedType.getOrElse(return FAILURE))
         case _ =>

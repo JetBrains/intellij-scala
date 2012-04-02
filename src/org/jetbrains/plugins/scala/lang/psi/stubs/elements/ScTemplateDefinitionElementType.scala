@@ -12,6 +12,7 @@ import index.ScalaIndexKeys
 import api.toplevel.typedef.{ScTemplateDefinition, ScObject, ScTypeDefinition}
 import api.expr.ScAnnotation
 import com.intellij.psi.impl.java.stubs.index.JavaStubIndexKeys
+import extensions.toPsiMemberExt
 
 /**
  * @author ilyas, alefas
@@ -44,7 +45,7 @@ extends ScStubElementType[ScTemplateDefinitionStub, ScTemplateDefinition](debugN
     val additionalJavaNames = psi.additionalJavaNames
 
     new ScTemplateDefinitionStubImpl[ParentPsi](parent, this, psi.name, psi.qualifiedName, psi.getQualifiedName,
-      fileName, signs, isPO, isSFC, isDepr, isImplicitObject, javaName, additionalJavaNames, psi.getContainingClass == null)
+      fileName, signs, isPO, isSFC, isDepr, isImplicitObject, javaName, additionalJavaNames, psi.containingClass == null)
   }
 
   def serialize(stub: ScTemplateDefinitionStub, dataStream: StubOutputStream) {

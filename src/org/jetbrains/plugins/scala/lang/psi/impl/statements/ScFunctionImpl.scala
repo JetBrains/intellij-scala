@@ -74,7 +74,7 @@ abstract class ScFunctionImpl extends ScalaStubBasedElementImpl[ScFunction] with
   }
 
   def superMethods: Seq[PsiMethod] = {
-    val clazz = getContainingClass
+    val clazz = containingClass
     if (clazz != null) TypeDefinitionMembers.getSignatures(clazz).forName(name)._1.
           get(new PhysicalSignature(this, ScSubstitutor.empty)).getOrElse(return Seq.empty).supers.
       filter(_.info.isInstanceOf[PhysicalSignature]).map {_.info.asInstanceOf[PhysicalSignature].method}
@@ -84,7 +84,7 @@ abstract class ScFunctionImpl extends ScalaStubBasedElementImpl[ScFunction] with
   def superMethod: Option[PsiMethod] = superMethodAndSubstitutor.map(_._1)
 
   def superMethodAndSubstitutor: Option[(PsiMethod, ScSubstitutor)] = {
-    val clazz = getContainingClass
+    val clazz = containingClass
     if (clazz != null) {
       val option = TypeDefinitionMembers.getSignatures(clazz).forName(name)._1.
           fastPhysicalSignatureGet(new PhysicalSignature(this, ScSubstitutor.empty))
@@ -98,7 +98,7 @@ abstract class ScFunctionImpl extends ScalaStubBasedElementImpl[ScFunction] with
 
   def superSignatures: Seq[Signature] = {
     //todo: fastPhysicalSignatureGet?
-    val clazz = getContainingClass
+    val clazz = containingClass
     val s = new PhysicalSignature(this, ScSubstitutor.empty)
     if (clazz == null) return Seq(s)
     val t = TypeDefinitionMembers.getSignatures(clazz).forName(name)._1.get(s) match {
@@ -257,10 +257,10 @@ abstract class ScFunctionImpl extends ScalaStubBasedElementImpl[ScFunction] with
   }
 
   override def getOriginalElement: PsiElement = {
-    val containingClass = getContainingClass
-    if (containingClass == null) return this
-    val originalClass: PsiClass = containingClass.getOriginalElement.asInstanceOf[PsiClass]
-    if (containingClass eq originalClass) return this
+    val ccontainingClass = containingClass
+    if (ccontainingClass == null) return this
+    val originalClass: PsiClass = ccontainingClass.getOriginalElement.asInstanceOf[PsiClass]
+    if (ccontainingClass eq originalClass) return this
     if (!originalClass.isInstanceOf[ScTypeDefinition]) return this
     val c = originalClass.asInstanceOf[ScTypeDefinition]
     val membersIterator = c.members.iterator

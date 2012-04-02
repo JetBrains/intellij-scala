@@ -132,14 +132,36 @@ abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTemplate
 
   override def getTextOffset: Int = nameId.getTextRange.getStartOffset
 
-  override def getContainingClass = super[ScTypeDefinition].getContainingClass
+  override def getContainingClass: PsiClass = {
+    super[ScTypeDefinition].getContainingClass match {
+      case o: ScObject => o.fakeCompanionClassOrCompanionClass
+      case containingClass => containingClass
+    }
+  }
 
   @volatile
   private var qualName: String = null
   @volatile
   private var qualNameModCount: Long = -1
 
-  override def getQualifiedName: String = qualifiedName
+  @volatile
+  private var javaQualName: String = null
+  @volatile
+  private var javaQualNameModCount: Long = -1
+
+  override def getQualifiedName: String = {
+    val stub = getStub
+    if (stub != null) {
+      stub.asInstanceOf[ScTemplateDefinitionStub].javaQualName
+    } else {
+      val count = getManager.getModificationTracker.getOutOfCodeBlockModificationCount
+      if (javaQualName != null && count == javaQualNameModCount) return javaQualName
+      val res = qualifiedName(".", encodeName = true)
+      javaQualNameModCount = count
+      javaQualName = res
+      res
+    }
+  }
 
   override def qualifiedName: String = {
     val stub = getStub
@@ -369,7 +391,7 @@ abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTemplate
         else if (hasModifierProperty("protected")) PsiUtil.ACCESS_LEVEL_PROTECTED
         else PsiUtil.ACCESS_LEVEL_PUBLIC
       }
-      VisibilityIcons.setVisibilityIcon(accessLevel, rowIcon);
+      VisibilityIcons.setVisibilityIcon(accessLevel, rowIcon)
     }
     rowIcon
   }
@@ -392,7 +414,7 @@ abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTemplate
   }
 
   override def getAllInnerClasses: Array[PsiClass] = {
-    members.filter(_.isInstanceOf[PsiClass]).map(_.asInstanceOf[PsiClass]).toArray  //todo: possible add base classes inners
+    PsiClassImplUtil.getAllInnerClasses(this)
   }
 
   override def findInnerClassByName(name: String, checkBases: Boolean): PsiClass = {

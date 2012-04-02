@@ -17,7 +17,7 @@ import psi.impl.ScalaPsiElementFactory
 import statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
 import expr.ScReferenceExpression
-import extensions.{toPsiNamedElementExt, toPsiClassExt}
+import extensions.{toPsiMemberExt, toPsiNamedElementExt, toPsiClassExt}
 
 /**
  * @author Alexander Podkhalyuzin
@@ -73,15 +73,15 @@ trait ScReferenceElement extends ScalaPsiElement with ResolvableReferenceElement
       case td: ScTypeDefinition if td.name == refName => {
         resolved match {
           case method: PsiMethod if method.isConstructor => {
-            if (td == method.getContainingClass) return true
+            if (td == method.containingClass) return true
           }
           case method: ScFunction if Set("apply", "unapply", "unapplySeq").contains(method.name) => {
             var break = false
             val methods = td.allMethods
             for (n <- methods if !break) {
               if (n.method.name == method.name) {
-                val methodContainingClass: ScTemplateDefinition = method.getContainingClass
-                val nodeMethodContainingClass: PsiClass = n.method.getContainingClass
+                val methodContainingClass: ScTemplateDefinition = method.containingClass
+                val nodeMethodContainingClass: PsiClass = n.method.containingClass
                 val classesEquiv: Boolean = ScEquivalenceUtil.smartEquivalence(methodContainingClass, nodeMethodContainingClass)
                 if (classesEquiv)
                   break = true
@@ -109,7 +109,7 @@ trait ScReferenceElement extends ScalaPsiElement with ResolvableReferenceElement
       case c: PsiClass if c.name == refName => {
         resolved match {
           case method: PsiMethod if method.isConstructor =>
-            if (c == method.getContainingClass) return true
+            if (c == method.containingClass) return true
           case _ =>
         }
       }
@@ -126,7 +126,7 @@ trait ScReferenceElement extends ScalaPsiElement with ResolvableReferenceElement
    * @see http://youtrack.jetbrains.net/issue/SCL-3132
    */
   private def isIndirectReferenceTo(resolved: PsiElement, element: PsiElement): Boolean = {
-    def isDefinedInObject(memb: ScMember) = memb.getContainingClass.isInstanceOf[ScObject]
+    def isDefinedInObject(memb: ScMember) = memb.containingClass.isInstanceOf[ScObject]
     (resolved, element) match {
       case (_, obj: ScObject) =>
         // TODO indirect references via vals, e.g. `package object scala { val List = scala.collection.immutable.List }` ?

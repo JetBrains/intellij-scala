@@ -54,13 +54,6 @@ object ScalaPsiElementFactory {
 
   private val DUMMY = "dummy."
 
-  /*def createMethodFromVariable(variable: ScVariable): PsiMethod = {
-    val clazz = variable.getContainingClass
-    if (clazz == null || !clazz.isInstanceOf[ScTypeDefinition]) return null
-    val text = "package " + clazz.asInstanceOf[ScTypeDefinition].getPath + "\n" +
-            "class " +
-  } */
-
   def createScalaFileFromText(text: String, project: Project): ScalaFile = {
     PsiFileFactory.getInstance(project).
       createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension,

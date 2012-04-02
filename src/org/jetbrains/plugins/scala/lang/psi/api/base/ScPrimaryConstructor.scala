@@ -72,7 +72,7 @@ trait ScPrimaryConstructor extends ScMember with ScMethodLike {
 
   private def syntheticParamClause: Option[ScParameterClause] = {
     val hasImplicit = parameterList.clauses.exists(_.isImplicit)
-    if (hasImplicit) None else ScalaPsiUtil.syntheticParamClause(getContainingClass.asInstanceOf[ScTypeParametersOwner], parameterList, classParam = true)
+    if (hasImplicit) None else ScalaPsiUtil.syntheticParamClause(containingClass.asInstanceOf[ScTypeParametersOwner], parameterList, classParam = true)
   }
 
   def methodType(result: Option[ScType]): ScType = {

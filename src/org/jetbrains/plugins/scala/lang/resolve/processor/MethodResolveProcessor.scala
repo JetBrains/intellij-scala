@@ -177,7 +177,7 @@ object MethodResolveProcessor {
       }
     }
     def javaConstructorCompatibility(constr: PsiMethod): ConformanceExtResult = {
-      val classTypeParmeters = constr.getContainingClass.getTypeParameters
+      val classTypeParmeters = constr.containingClass.getTypeParameters
       if (typeArgElements.length == 0 || typeArgElements.length == classTypeParmeters.length) {
         Compatibility.compatible(constr, substitutor, argumentClauses, checkWithImplicits, ref.getResolveScope, isShapeResolve)
       } else {
@@ -263,7 +263,7 @@ object MethodResolveProcessor {
           })
       //todo: this case is impossible case for reasons mentioned above
       case (_, method: PsiMethod) if method.isConstructor => // Java constructors
-        val typeParameters = method.getContainingClass.getTypeParameters
+        val typeParameters = method.containingClass.getTypeParameters
         s.followed(
           if (typeArgElements.length != 0 && typeParameters.length == typeArgElements.length) {
             ScalaPsiUtil.genericCallSubstitutor(typeParameters.map(p =>

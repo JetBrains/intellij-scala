@@ -20,7 +20,7 @@ class PsiTypedDefinitionWrapper(val typedDefinition: ScTypedDefinition, isStatic
     else
       typedDefinition.nameContext match {
         case s: ScMember =>
-          val res = s.getContainingClass
+          val res = s.containingClass
           if (isStatic) {
             res match {
               case o: ScObject => o.fakeCompanionClassOrCompanionClass
