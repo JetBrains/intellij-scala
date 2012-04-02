@@ -15,17 +15,16 @@
 
 package org.jetbrains.plugins.scala.lang.editor;
 
-import com.intellij.codeInsight.editorActions.QuoteHandler;
 import com.intellij.codeInsight.editorActions.JavaLikeQuoteHandler;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.highlighter.HighlighterIterator;
+import com.intellij.psi.PsiElement;
 import com.intellij.psi.tree.IElementType;
 import com.intellij.psi.tree.TokenSet;
-import com.intellij.psi.PsiElement;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes;
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral;
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * @author ilyas
@@ -35,8 +34,8 @@ public class ScalaQuoteHandler implements JavaLikeQuoteHandler {
   public boolean isClosingQuote(HighlighterIterator iterator, int offset) {
     final IElementType tokenType = iterator.getTokenType();
 
-    if (tokenType == ScalaTokenTypes.tSTRING ||
-        tokenType == ScalaTokenTypes.tCHAR) {
+    if (tokenType == ScalaTokenTypes.tSTRING || tokenType == ScalaTokenTypes.tCHAR ||
+        tokenType == ScalaTokenTypes.tINTERPOLATED_STRING_END) {
       int start = iterator.getStart();
       int end = iterator.getEnd();
       return end - start >= 1 && offset == end - 1;
@@ -47,7 +46,7 @@ public class ScalaQuoteHandler implements JavaLikeQuoteHandler {
   public boolean isOpeningQuote(HighlighterIterator iterator, int offset) {
     final IElementType tokenType = iterator.getTokenType();
 
-    if (tokenType == ScalaTokenTypes.tWRONG_STRING) {
+    if (tokenType == ScalaTokenTypes.tWRONG_STRING || tokenType == ScalaTokenTypes.tINTERPOLATED_STRING) {
       int start = iterator.getStart();
       return offset == start;
     }
@@ -62,7 +61,8 @@ public class ScalaQuoteHandler implements JavaLikeQuoteHandler {
     final IElementType tokenType = iterator.getTokenType();
     return tokenType == ScalaTokenTypes.tSTRING ||
         tokenType == ScalaTokenTypes.tCHAR ||
-        tokenType == ScalaTokenTypes.tMULTILINE_STRING;
+        tokenType == ScalaTokenTypes.tMULTILINE_STRING ||
+        tokenType == ScalaTokenTypes.tINTERPOLATED_STRING;
   }
 
   public TokenSet getConcatenatableStringTokenTypes() {
@@ -74,7 +74,7 @@ public class ScalaQuoteHandler implements JavaLikeQuoteHandler {
   }
 
   public TokenSet getStringTokenTypes() {
-    return TokenSet.create(ScalaTokenTypes.tSTRING);
+    return TokenSet.create(ScalaTokenTypes.tSTRING, ScalaTokenTypes.tINTERPOLATED_STRING);
   }
 
   public boolean isAppropriateElementTypeForLiteral(@NotNull IElementType tokenType) {

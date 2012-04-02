@@ -1,0 +1,143 @@
+val a = s"blah blah ${
+  class B(i: Int) {
+    val a = i
+
+    def f(): B = {
+      this
+    }
+  }
+  (new B(1)).f().a
+} blah"
+-----
+ScalaFile
+  ScPatternDefinition
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern
+        PsiElement(identifier)('a')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    Literal
+      PsiElement(interpolated string id)('s')
+      PsiElement(interpolated string)('"blah blah ')
+      PsiElement(interpolated string injection)('$')
+      BlockExpression
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScClass
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(class)('class')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('B')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                ClassParameter
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('i')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    SimpleTypeElement
+                      CodeReferenceElement
+                        PsiElement(identifier)('Int')
+                PsiElement())(')')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            ScTemplateBody
+              PsiElement({)('{')
+              PsiWhiteSpace('\n    ')
+              ScPatternDefinition
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(val)('val')
+                PsiWhiteSpace(' ')
+                ListOfPatterns
+                  ReferencePattern
+                    PsiElement(identifier)('a')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                ReferenceExpression
+                  PsiElement(identifier)('i')
+              PsiWhiteSpace('\n\n    ')
+              ScFunctionDefinition
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(def)('def')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('f')
+                Parameters
+                  ParametersClause
+                    PsiElement(()('(')
+                    PsiElement())(')')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                SimpleTypeElement
+                  CodeReferenceElement
+                    PsiElement(identifier)('B')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                BlockExpression
+                  PsiElement({)('{')
+                  PsiWhiteSpace('\n      ')
+                  ThisReference
+                    PsiElement(this)('this')
+                  PsiWhiteSpace('\n    ')
+                  PsiElement(})('}')
+              PsiWhiteSpace('\n  ')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n  ')
+        ReferenceExpression
+          MethodCall
+            ReferenceExpression
+              ExpressionInParenthesis
+                PsiElement(()('(')
+                NewTemplateDefinition
+                  PsiElement(new)('new')
+                  PsiWhiteSpace(' ')
+                  ExtendsBlock
+                    ClassParents
+                      Constructor
+                        SimpleTypeElement
+                          CodeReferenceElement
+                            PsiElement(identifier)('B')
+                        ArgumentList
+                          PsiElement(()('(')
+                          Literal
+                            PsiElement(integer)('1')
+                          PsiElement())(')')
+                PsiElement())(')')
+              PsiElement(.)('.')
+              PsiElement(identifier)('f')
+            ArgumentList
+              PsiElement(()('(')
+              PsiElement())(')')
+          PsiElement(.)('.')
+          PsiElement(identifier)('a')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+      PsiElement(interpolated string)(' blah')
+      PsiElement(interpolated string end)('"')

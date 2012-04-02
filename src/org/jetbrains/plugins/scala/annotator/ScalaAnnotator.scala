@@ -48,6 +48,7 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager.ClassCategory
 import highlighter.{DefaultHighlighter, AnnotatorHighlighter}
 import types.{ScSimpleTypeElement, ScParameterizedTypeElement, ScTypeProjection, ScTypeElement}
+import org.jetbrains.plugins.scala.lang.references.ScalaReferenceContributor
 
 /**
  * User: Alexander Podkhalyuzin
@@ -126,6 +127,14 @@ with DumbAware {
       override def visitTypeElement(te: ScTypeElement) {
         checkTypeElementForm(te, holder)
         super.visitTypeElement(te)
+      }
+
+
+      override def visitLiteral(l: ScLiteral) {
+        if (l.isInstanceOf[ScInterpolatedStringLiteral] && l.getFirstChild != null) {
+          highlightWrongInterpolatedStringPrefix(l.asInstanceOf[ScInterpolatedStringLiteral], holder)
+        }
+        super.visitLiteral(l)
       }
 
       override def visitAnnotation(annotation: ScAnnotation) {
@@ -609,6 +618,17 @@ with DumbAware {
         annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
       //todo: add fixes
       case _ =>
+    }
+  }
+
+  private def highlightWrongInterpolatedStringPrefix(l: ScInterpolatedStringLiteral, holder: AnnotationHolder) {
+    val ref = l.findReferenceAt(0)
+    assert (ref != null)
+
+    if (ref.resolve() == null) {
+      val annotation = holder.createErrorAnnotation(l.getFirstChild.getTextRange,
+        ScalaBundle.message("cannot.resolve.in.StringContext", l.getFirstChild.getText))
+      annotation.setHighlightType(ProblemHighlightType.LIKE_UNKNOWN_SYMBOL)
     }
   }
 

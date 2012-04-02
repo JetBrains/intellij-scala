@@ -22,7 +22,6 @@ import com.intellij.testFramework.LightPlatformCodeInsightTestCase;
 import com.intellij.util.Processor;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticClasses;
-import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticPackageHelper;
 import org.jetbrains.plugins.scala.util.TestUtils;
 
 import java.io.File;
@@ -62,6 +61,10 @@ public abstract class ScalaLightPlatformCodeInsightTestCaseAdapter extends Light
 
   @Override
   protected void setUp() throws Exception {
+    setUp(TestUtils.DEFAULT_SCALA_SDK_VERSION);
+  }
+
+  protected void setUp(TestUtils.ScalaSdkVersion libVersion) throws Exception {
     super.setUp();
     final SyntheticClasses syntheticClasses = getProject().getComponent(SyntheticClasses.class);
     if (!syntheticClasses.isClassesRegistered()) {
@@ -106,16 +109,7 @@ public abstract class ScalaLightPlatformCodeInsightTestCaseAdapter extends Light
       final LibraryTable libraryTable = rootModel.getModuleLibraryTable();
       final Library scalaLib = libraryTable.createLibrary(scalaLibraryName);
       libModel = scalaLib.getModifiableModel();
-      final File libRoot = new File(TestUtils.getMockScalaLib());
-      assert(libRoot.exists());
-
-      final File srcRoot = new File(TestUtils.getMockScalaSrc());
-      assert(srcRoot.exists());
-
-      libModel.addRoot(VfsUtil.getUrlForLibraryRoot(libRoot), OrderRootType.CLASSES);
-      libModel.addRoot(VfsUtil.getUrlForLibraryRoot(srcRoot), OrderRootType.SOURCES);
-      
-      
+      addLibraryRoots(libVersion, libModel);
     }
     if (libModel != null || rootModel != null) {
       final Library.ModifiableModel finalLibModel = libModel;
@@ -131,6 +125,17 @@ public abstract class ScalaLightPlatformCodeInsightTestCaseAdapter extends Light
         }
       });
     }
+  }
+
+  private void addLibraryRoots(TestUtils.ScalaSdkVersion version, Library.ModifiableModel libModel) {
+    final File libRoot = new File(TestUtils.getMockScalaLib(version));
+    assert (libRoot.exists());
+
+    final File srcRoot = new File(TestUtils.getMockScalaSrc(version));
+    assert (srcRoot.exists());
+
+    libModel.addRoot(VfsUtil.getUrlForLibraryRoot(libRoot), OrderRootType.CLASSES);
+    libModel.addRoot(VfsUtil.getUrlForLibraryRoot(srcRoot), OrderRootType.SOURCES);
   }
 
   protected VirtualFile getVFileAdapter() {

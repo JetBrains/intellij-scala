@@ -82,7 +82,8 @@ class ScalaTypedHandler extends TypedHandlerDelegate {
       editor.getCaretModel.moveCaretRelatively(1, 0, false, false, false)
     }
 
-    if ((c == '"' && elementType == ScalaTokenTypes.tMULTILINE_STRING &&                            // TODO split "if" condition
+    // TODO split "if" condition
+    if ((c == '"' && Set(ScalaTokenTypes.tMULTILINE_STRING, ScalaTokenTypes.tINTERPOLATED_STRING_END).contains(elementType) &&
             element.getTextOffset + element.getTextLength - offset < 4) ||
             isInDocComment(element) && (elementType.isInstanceOf[ScaladocSyntaxElementType] ||
                     elementType == ScalaDocTokenType.DOC_INNER_CLOSE_CODE_TAG) &&
@@ -102,10 +103,16 @@ class ScalaTypedHandler extends TypedHandlerDelegate {
       return Result.STOP
     } else if (c == '>' && prevElement != null && prevElement.getNode.getElementType == XmlTokenType.XML_EMPTY_ELEMENT_END) {
       return Result.STOP
-    } else if (c == '"' && element.getNode.getElementType != ScalaTokenTypes.tSTRING &&
-            prevElement != null && prevElement.getNode.getElementType == ScalaTokenTypes.tSTRING &&
-            prevElement.getParent.getText == "\"\"") {
-      completeMultilineString(editor, project, element, offset)
+    } else if (c == '"' && prevElement != null) {
+      val prevType = prevElement.getNode.getElementType
+
+      if (elementType != ScalaTokenTypes.tSTRING && prevType == ScalaTokenTypes.tSTRING &&
+              prevElement.getParent.getText == "\"\"") {
+        completeMultilineString(editor, project, element, offset)
+      } else if (prevType == ScalaTokenTypes.tINTERPOLATED_STRING_END && elementType != ScalaTokenTypes.tINTERPOLATED_STRING_END &&
+              Set("f\"\"", "s\"\"").contains(prevElement.getParent.getText)) {
+        completeMultilineString(editor, project, element, offset)
+      }
     }
 
     Result.CONTINUE

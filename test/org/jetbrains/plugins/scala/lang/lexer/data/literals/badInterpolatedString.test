@@ -1,0 +1,56 @@
+object A {
+  val a = s"blah blah
+
+  val b = s"blaah $ "
+
+  val c = s" blah ${  "
+}
+-----
+object {object}
+white space in line { }
+identifier {A}
+white space in line { }
+{ {{}
+white space in line {
+  }
+val {val}
+white space in line { }
+identifier {a}
+white space in line { }
+= {=}
+white space in line { }
+interpolated string id {s}
+interpolated string {"blah blah}
+wrong string content {
+}
+white space in line {
+  }
+val {val}
+white space in line { }
+identifier {b}
+white space in line { }
+= {=}
+white space in line { }
+interpolated string id {s}
+interpolated string {"blaah }
+wrong string content {$}
+white space in line { }
+wrong string content {"}
+white space in line {
+
+  }
+val {val}
+white space in line { }
+identifier {c}
+white space in line { }
+= {=}
+white space in line { }
+interpolated string id {s}
+interpolated string {" blah }
+interpolated string injection {$}
+{ {{}
+white space in line {  }
+wrong string content {"}
+white space in line {
+}
+} {}}

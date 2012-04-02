@@ -9,6 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
 import java.lang.String
 import com.intellij.psi.{PsiNamedElement, PsiReference, PsiElement}
 import org.jetbrains.plugins.scala.extensions.toPsiNamedElementExt
+import org.jetbrains.plugins.scala.util.TestUtils.ScalaSdkVersion
 
 /**
  * Pavel.Fatin, 02.02.2010
@@ -36,7 +37,12 @@ abstract class ResolveTestBase extends ScalaResolveTestCase {
 
 
   override def setUp() {
-    super.setUp()
+    setUp(TestUtils.DEFAULT_SCALA_SDK_VERSION)
+  }
+
+
+  override def setUp(version: ScalaSdkVersion) {
+    super.setUp(version)
     configureReferences()
   }
 

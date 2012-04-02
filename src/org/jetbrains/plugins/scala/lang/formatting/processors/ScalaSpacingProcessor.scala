@@ -226,6 +226,16 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
       else if (settings.SPACE_WITHIN_PARENTHESES) return WITH_SPACING
       else return WITHOUT_SPACING
     }
+
+    //for interpolated strings
+    if (leftElementType == tINTERPOLATED_STRING_ID && Set(tINTERPOLATED_STRING, tINTERPOLATED_MULTILINE_STRING).contains(rightElementType)) {
+      return WITHOUT_SPACING
+    }
+    if (Set(leftElementType, rightElementType).contains(tINTERPOLATED_STRING_INJECTION) || rightElementType == tINTERPOLATED_STRING_END) {
+      return Spacing.getReadOnlySpacing
+    }
+
+
     if (rightElementType == tRPARENTHESIS &&
             (rightPsi.getParent.isInstanceOf[ScParenthesisedExpr] ||
                     rightPsi.getParent.isInstanceOf[ScParameterizedTypeElement] ||

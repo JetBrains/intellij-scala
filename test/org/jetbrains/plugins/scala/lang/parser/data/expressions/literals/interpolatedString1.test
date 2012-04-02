@@ -1,0 +1,67 @@
+class A {
+  val i = 100
+  val a = s"${i}"
+}
+-----
+ScalaFile
+  ScClass
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('A')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern
+              PsiElement(identifier)('i')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          Literal
+            PsiElement(integer)('100')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern
+              PsiElement(identifier)('a')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          Literal
+            PsiElement(interpolated string id)('s')
+            PsiElement(interpolated string)('"')
+            PsiElement(interpolated string injection)('$')
+            BlockExpression
+              PsiElement({)('{')
+              ReferenceExpression
+                PsiElement(identifier)('i')
+              PsiElement(})('}')
+            PsiElement(interpolated string end)('"')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
