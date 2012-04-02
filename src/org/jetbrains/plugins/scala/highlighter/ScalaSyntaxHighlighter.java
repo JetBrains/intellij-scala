@@ -126,12 +126,20 @@ public class ScalaSyntaxHighlighter extends SyntaxHighlighterBase {
           ScalaTokenTypes.tMULTILINE_STRING,
           ScalaTokenTypes.tWRONG_STRING,
           ScalaTokenTypes.tCHAR,
-          ScalaTokenTypes.tSYMBOL
+          ScalaTokenTypes.tSYMBOL,
+          ScalaTokenTypes.tINTERPOLATED_MULTILINE_STRING,
+          ScalaTokenTypes.tINTERPOLATED_STRING,
+          ScalaTokenTypes.tINTERPOLATED_STRING_ID,
+          ScalaTokenTypes.tINTERPOLATED_STRING_END
+  );
+
+  static final TokenSet tINTERPOLATED_STRINGS = TokenSet.create(
+      ScalaTokenTypes.tINTERPOLATED_STRING_INJECTION
   );
   
   // Valid escape in string
   static final TokenSet tVALID_STRING_ESCAPE = TokenSet.create(
-          StringEscapesTokenTypes.VALID_STRING_ESCAPE_TOKEN
+          StringEscapesTokenTypes.VALID_STRING_ESCAPE_TOKEN, ScalaTokenTypes.tINTERPOLATED_STRING_ESCAPE
   );
   
   // Invalid character escape in string
@@ -250,6 +258,7 @@ public class ScalaSyntaxHighlighter extends SyntaxHighlighterBase {
     SyntaxHighlighterBase.fillMap(ATTRIBUTES, tXML_TAGS, DefaultHighlighter.XML_TAG);
     SyntaxHighlighterBase.fillMap(ATTRIBUTES, tXML_TEXT, DefaultHighlighter.XML_TEXT);
     SyntaxHighlighterBase.fillMap(ATTRIBUTES, tDOC_TAG_PARAM, DefaultHighlighter.SCALA_DOC_TAG_PARAM_VALUE);
+    SyntaxHighlighterBase.fillMap(ATTRIBUTES, tINTERPOLATED_STRINGS, DefaultHighlighter.INTERPOLATED_STRING_INJECTION);
   }
 
 
@@ -268,8 +277,12 @@ public class ScalaSyntaxHighlighter extends SyntaxHighlighterBase {
       registerSelfStoppingLayer(new StringLiteralLexer('\'', ScalaTokenTypes.tSTRING),
           new IElementType[]{ScalaTokenTypes.tCHAR}, IElementType.EMPTY_ARRAY);
 
-      LayeredLexer scalaDocLexer = new LayeredLexer(new ScalaDocLexerHighlightingWrapper());
+      //interpolated string highlighting
+      registerLayer(new LayeredLexer(new StringLiteralLexer(StringLiteralLexer.NO_QUOTE_CHAR, ScalaTokenTypes.tINTERPOLATED_STRING)),
+          ScalaTokenTypes.tINTERPOLATED_STRING);
 
+      //scaladoc highlighting
+      LayeredLexer scalaDocLexer = new LayeredLexer(new ScalaDocLexerHighlightingWrapper());
       scalaDocLexer.registerLayer(new ScalaHtmlHighlightingLexerWrapper(), ScalaDocTokenType.DOC_COMMENT_DATA);
 
       registerSelfStoppingLayer(scalaDocLexer, new IElementType[]{ScalaDocElementTypes.SCALA_DOC_COMMENT},

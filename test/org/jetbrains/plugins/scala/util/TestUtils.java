@@ -105,7 +105,7 @@ public class TestUtils {
   }
 
   public enum ScalaSdkVersion {
-    _2_8("mockScalaLib"), _2_9("mockScala29Lib");
+    _2_8("mockScalaLib"), _2_9("mockScala29Lib"), _2_10("mockScala210Lib");
     private String path;
 
     ScalaSdkVersion(String path) {

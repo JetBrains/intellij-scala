@@ -62,6 +62,8 @@ public class DefaultHighlighter {
   @NonNls
   static final String COMMA_ID = "Scala Comma";
   @NonNls
+  static final String INTERPOLATED_STRING_INJECTION_ID = "Interpolated String Injection";
+  @NonNls
   static final String MUTABLE_COLLECTION_ID = "Scala Mutable Collection";
   @NonNls
   static final String IMMUTABLE_COLLECTION_ID = "Scala Immutable Collection";
@@ -144,6 +146,8 @@ public class DefaultHighlighter {
   public static TextAttributesKey SEMICOLON = createKey(SEMICOLON_ID, SyntaxHighlighterColors.COMMA);
   public static TextAttributesKey DOT = createKey(DOT_ID, SyntaxHighlighterColors.DOT);
   public static TextAttributesKey COMMA = createKey(COMMA_ID, SyntaxHighlighterColors.COMMA);
+  public static TextAttributesKey INTERPOLATED_STRING_INJECTION = TextAttributesKey.createTextAttributesKey(INTERPOLATED_STRING_INJECTION_ID,
+      new TextAttributes(new Color(0, 184, 187), null, null, null, Font.BOLD));
   public static TextAttributesKey MUTABLE_COLLECTION = TextAttributesKey.createTextAttributesKey(MUTABLE_COLLECTION_ID,
       new TextAttributes(null, null, new Color(226, 158, 194), EffectType.BOLD_DOTTED_LINE, Font.PLAIN));
   public static TextAttributesKey IMMUTABLE_COLLECTION = TextAttributesKey.createTextAttributesKey(IMMUTABLE_COLLECTION_ID,

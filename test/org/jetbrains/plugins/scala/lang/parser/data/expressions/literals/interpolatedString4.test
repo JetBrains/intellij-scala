@@ -1,0 +1,58 @@
+def f(): String = {
+  s"""blah blah $a blah ${a + b + c}"""
+}
+-----
+ScalaFile
+  ScFunctionDefinition
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('f')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        PsiElement())(')')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    SimpleTypeElement
+      CodeReferenceElement
+        PsiElement(identifier)('String')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    BlockExpression
+      PsiElement({)('{')
+      PsiWhiteSpace('\n  ')
+      Literal
+        PsiElement(interpolated string id)('s')
+        PsiElement(interpolatedmultiline string)('"""blah blah ')
+        PsiElement(interpolated string injection)('$')
+        CodeReferenceElement
+          PsiElement(identifier)('a')
+        PsiElement(interpolatedmultiline string)(' blah ')
+        PsiElement(interpolated string injection)('$')
+        BlockExpression
+          PsiElement({)('{')
+          InfixExpression
+            InfixExpression
+              ReferenceExpression
+                PsiElement(identifier)('a')
+              PsiWhiteSpace(' ')
+              ReferenceExpression
+                PsiElement(identifier)('+')
+              PsiWhiteSpace(' ')
+              ReferenceExpression
+                PsiElement(identifier)('b')
+            PsiWhiteSpace(' ')
+            ReferenceExpression
+              PsiElement(identifier)('+')
+            PsiWhiteSpace(' ')
+            ReferenceExpression
+              PsiElement(identifier)('c')
+          PsiElement(})('}')
+        PsiElement(interpolated string end)('"""')
+      PsiWhiteSpace('\n')
+      PsiElement(})('}')

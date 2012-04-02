@@ -140,6 +140,11 @@
     <enterHandlerDelegate implementation="org.jetbrains.plugins.scala.lang.completion.handlers.ScalaDocParamEnterHandlerDelegate"/>
     <!--/Handler-->
 
+    <!--Enter Handler for inserting "+" in interpolated strings-->
+    <enterHandlerDelegate implementation="org.jetbrains.plugins.scala.editor.enterHandler.InterpolatedStringEnterHandler"
+                          order="first"/>
+    <!--/Handler-->
+
     <javaMainMethodProvider implementation="org.jetbrains.plugins.scala.runner.ScalaMainMethodProvider"/>
     <annotatedElementsSearch implementation="org.jetbrains.plugins.scala.lang.psi.impl.search.ScalaAnnotatedMembersSearcher"/>
     <referencesSearch implementation="org.jetbrains.plugins.scala.findUsages.parameters.NamingParamsSearcher"/>
@@ -239,6 +244,10 @@
     <lang.fileViewProviderFactory language="Scala" implementationClass="org.jetbrains.plugins.scala.decompiler.ScClassFileViewProviderFactory"/>
 
     <spellchecker.bundledDictionaryProvider implementation="org.jetbrains.plugins.scala.spellchecker.ScalaBundledDictionaryProvider"/>
+
+    <intentionAction>
+      <className>org.jetbrains.plugins.scala.codeInsight.intention.literal.InsertGapIntoStringIntention</className>
+    </intentionAction>
 
     <intentionAction>
       <className>org.jetbrains.plugins.scala.codeInsight.intention.types.ToggleTypeAnnotation</className>

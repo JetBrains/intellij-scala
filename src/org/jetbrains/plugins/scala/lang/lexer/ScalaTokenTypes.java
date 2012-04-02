@@ -62,6 +62,12 @@ public interface ScalaTokenTypes {
 
   final IElementType tSTRING = new ScalaElementType("string content");
   final IElementType tMULTILINE_STRING = new ScalaElementType("multiline string");
+  final IElementType tINTERPOLATED_STRING = new ScalaElementType("interpolated string");
+  final IElementType tINTERPOLATED_MULTILINE_STRING = new ScalaElementType("interpolatedmultiline string");
+  final IElementType tINTERPOLATED_STRING_ID = new ScalaElementType("interpolated string id");
+  final IElementType tINTERPOLATED_STRING_INJECTION = new ScalaElementType("interpolated string injection");
+  final IElementType tINTERPOLATED_STRING_END = new ScalaElementType("interpolated string end");
+  final IElementType tINTERPOLATED_STRING_ESCAPE = new ScalaElementType("interpolated string escape");
   final IElementType tWRONG_STRING = new ScalaElementType("wrong string content");
 
   final IElementType tCHAR = new ScalaElementType("Character");

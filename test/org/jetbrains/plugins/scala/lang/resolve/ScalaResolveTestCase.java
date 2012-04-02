@@ -15,29 +15,15 @@
 
 package org.jetbrains.plugins.scala.lang.resolve;
 
-import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.projectRoots.JavaSdk;
-import com.intellij.openapi.roots.ContentEntry;
-import com.intellij.openapi.roots.ModifiableRootModel;
-import com.intellij.openapi.roots.ModuleRootManager;
-import com.intellij.openapi.roots.OrderRootType;
-import com.intellij.openapi.roots.libraries.Library;
-import com.intellij.openapi.roots.libraries.LibraryTable;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.openapi.vfs.CharsetToolkit;
-import com.intellij.openapi.vfs.LocalFileSystem;
-import com.intellij.openapi.vfs.VfsUtil;
-import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiReference;
-import com.intellij.testFramework.ResolveTestCase;
-import org.jetbrains.plugins.scala.ScalaLoader;
 import org.jetbrains.plugins.scala.lang.completion3.ScalaLightPlatformCodeInsightTestCaseAdapter;
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticClasses;
 import org.jetbrains.plugins.scala.util.TestUtils;
 
 import java.io.File;
-import java.io.IOException;
 
 /**
  * @author ilyas
@@ -51,8 +37,13 @@ public abstract class ScalaResolveTestCase extends ScalaLightPlatformCodeInsight
     return getFileAdapter().findReferenceAt(getEditorAdapter().getCaretModel().getOffset());
   }
 
+  @Override
   protected void setUp() throws Exception {
-    super.setUp();
+    setUp(TestUtils.DEFAULT_SCALA_SDK_VERSION);
+  }
+
+  protected void setUp(TestUtils.ScalaSdkVersion version) throws Exception {
+    super.setUp(version);
     final SyntheticClasses syntheticClasses = getProjectAdapter().getComponent(SyntheticClasses.class);
     if (!syntheticClasses.isClassesRegistered()) {
       syntheticClasses.registerClasses();

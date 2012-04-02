@@ -145,6 +145,7 @@ object ScalaPsiCreator {
   /********************** TOKENS **********************/
   /********************* LITERALS *********************/
     case ScalaElementTypes.LITERAL => new ScLiteralImpl(node)
+    case ScalaElementTypes.INTERPOLATED_STRING_LITERAL => new ScInterpolatedStringLiteralImpl(node)
 
     /********************** TYPES ************************/
 

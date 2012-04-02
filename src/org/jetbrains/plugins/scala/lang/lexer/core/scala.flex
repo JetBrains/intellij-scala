@@ -26,6 +26,15 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes;
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 %{
+    //do we need to close interpolated String ${}
+    private boolean insideInterpolatedStringBracers = false;
+    private boolean insideInterpolatedMultilineStringBracers = false;
+    //to get id after $ in interpolated String
+    private boolean haveIdInString = false;
+    private boolean haveIdInMultilineString = false;
+    //bracers count inside injection
+    private int structuralBracers = 0;
+
     // Stack for braces
     private Stack <IElementType> braceStack = new Stack<IElementType>();
 
@@ -52,7 +61,18 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes;
     }
 
     private IElementType process(IElementType type){
-        return type;
+      if (type == tIDENTIFIER && (haveIdInString || haveIdInMultilineString)) {
+
+       if (haveIdInString) {
+         haveIdInString = false;
+         yybegin(INSIDE_INTERPOLATED_STRING);
+       } else {
+         haveIdInMultilineString = false;
+         yybegin(INSIDE_MULTI_LINE_INTERPOLATED_STRING);
+       }
+      }
+
+      return type;
     }
 %}
 
@@ -128,6 +148,21 @@ STRING_BEGIN = \"([^\\\"\r\n]|{ESCAPE_SEQUENCE})*
 STRING_LITERAL={STRING_BEGIN} \"
 MULTI_LINE_STRING = \"\"\" ( (\"(\")?)? [^\"] )* \"\"\" (\")* // Multi-line string
 
+////////String Interpolation////////
+INTERPOLATED_STRING_ID = ("s"|"f"|"id")
+
+INTERPOLATED_STRING_BEGIN = \"([^\\\"\r\n\$]|{ESCAPE_SEQUENCE})*
+INTERPOLATED_STRING_PART = ([^\\\"\r\n\$]|{ESCAPE_SEQUENCE})*
+
+INTERPOLATED_MULTI_LINE_STRING_BEGIN = \"\"\" ( (\"(\")?)? [^\"\$] )*
+INTERPOLATED_MULTI_LINE_STRING_PART = ( (\"(\")?)? [^\"\$] )*
+
+INTERPOLATED_STRING_ESCAPE = "$$"
+INTERPOLATED_STRING_VARIABLE = "$"({identifier})
+//INTERPOLATED_STRING_EXPRESSION_START = "${"
+////////////////////////////////////
+
+
 WRONG_STRING = {STRING_BEGIN}
 
 charEscapeSeq = \\[^\r\n]
@@ -155,6 +190,9 @@ XML_BEGIN = "<" ("_" | [:jletter:]) | "<!--" | "<?" ("_" | [:jletter:]) | "<![CD
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 %state COMMON_STATE
+%xstate WAIT_FOR_INTERPOLATED_STRING
+%xstate INSIDE_INTERPOLATED_STRING
+%xstate INSIDE_MULTI_LINE_INTERPOLATED_STRING
 %xstate WAIT_FOR_XML
 
 %%
@@ -187,6 +225,99 @@ XML_BEGIN = "<" ("_" | [:jletter:]) | "<!--" | "<?" ("_" | [:jletter:]) | "<![CD
 {SH_COMMENT}                            { return process(tSH_COMMENT); }
 
 
+{INTERPOLATED_STRING_ID} / ({INTERPOLATED_STRING_BEGIN} | {INTERPOLATED_MULTI_LINE_STRING_BEGIN}) {
+  yybegin(WAIT_FOR_INTERPOLATED_STRING);
+  return process(tINTERPOLATED_STRING_ID);
+}
+
+<WAIT_FOR_INTERPOLATED_STRING> {
+  {INTERPOLATED_STRING_BEGIN} {
+    yybegin(INSIDE_INTERPOLATED_STRING);
+    return process(tINTERPOLATED_STRING);
+  }
+
+  {INTERPOLATED_MULTI_LINE_STRING_BEGIN} {
+    yybegin(INSIDE_MULTI_LINE_INTERPOLATED_STRING);
+    return process(tINTERPOLATED_MULTILINE_STRING);
+  }
+}
+
+<INSIDE_INTERPOLATED_STRING> {
+  {INTERPOLATED_STRING_ESCAPE} {
+    return process(tINTERPOLATED_STRING_ESCAPE);
+  }
+
+  {INTERPOLATED_STRING_PART} {
+    return process(tINTERPOLATED_STRING);
+  }
+
+  "$"{identifier} {
+    if (yycharat(1) != '$') {
+      haveIdInString = true;
+      yybegin(COMMON_STATE);
+      yypushback(yytext().length() - 1);
+      return process(tINTERPOLATED_STRING_INJECTION);
+    } else {
+      yypushback(yytext().length() - 2);
+      return process(tINTERPOLATED_STRING_ESCAPE);
+    }
+  }
+
+  \" {
+    yybegin(COMMON_STATE);
+    return process(tINTERPOLATED_STRING_END);
+  }
+
+  "$" / "{" {
+    yybegin(COMMON_STATE);
+    insideInterpolatedStringBracers = true;
+    return process(tINTERPOLATED_STRING_INJECTION);
+  }
+
+  [^] {
+    yybegin(COMMON_STATE);
+    return process(tWRONG_STRING);
+  }
+}
+
+<INSIDE_MULTI_LINE_INTERPOLATED_STRING> {
+  {INTERPOLATED_STRING_ESCAPE} {
+    return process(tINTERPOLATED_STRING_ESCAPE);
+  }
+
+  {INTERPOLATED_MULTI_LINE_STRING_PART} {
+    return process(tINTERPOLATED_MULTILINE_STRING);
+  }
+
+  "$"{identifier} {
+    if (yycharat(1) != '$') {
+      haveIdInMultilineString = true;
+      yybegin(COMMON_STATE);
+      yypushback(yytext().length() - 1);
+      return process(tINTERPOLATED_STRING_INJECTION);
+    } else {
+      yypushback(yytext().length() - 2);
+      return process(tINTERPOLATED_STRING_ESCAPE);
+    }
+  }
+
+  \"\"\" {
+      yybegin(COMMON_STATE);
+      return process(tINTERPOLATED_STRING_END);
+  }
+
+  "$" / "{" {
+      yybegin(COMMON_STATE);
+      insideInterpolatedMultilineStringBracers = true;
+      return process(tINTERPOLATED_STRING_INJECTION);
+  }
+
+  [^] {   yybegin(COMMON_STATE);
+    yypushback(yytext().length());
+  }
+}
+
+
 {STRING_LITERAL}                        {   return process(tSTRING);  }
 
 {MULTI_LINE_STRING}                     {   return process(tMULTILINE_STRING);  }
@@ -205,14 +336,34 @@ XML_BEGIN = "<" ("_" | [:jletter:]) | "<!--" | "<?" ("_" | [:jletter:]) | "<![CD
                                             return process(tLSQBRACKET); }
 "]"                                     {   return popBraceStack(tRSQBRACKET); }
 
-"{"                                     {   braceStack.push(tLBRACE);
+"{"                                     {   if (insideInterpolatedStringBracers || insideInterpolatedMultilineStringBracers) {
+                                              ++structuralBracers;
+                                            }
+
+                                            braceStack.push(tLBRACE);
                                             return process(tLBRACE); }
-"{"{XML_BEGIN}                          {   braceStack.push(tLBRACE);
+"{"{XML_BEGIN}                          {   if (insideInterpolatedStringBracers || insideInterpolatedMultilineStringBracers) {
+                                              ++structuralBracers;
+                                            }
+                                            braceStack.push(tLBRACE);
                                             yypushback(yytext().length() - 1);
                                             yybegin(WAIT_FOR_XML);
                                             return process(tLBRACE); }
 
-"}"                                     {   return popBraceStack(tRBRACE); }
+"}"                                     {   if (insideInterpolatedStringBracers || insideInterpolatedMultilineStringBracers) {
+                                              --structuralBracers;
+                                              if (structuralBracers == 0) {
+                                                 if (insideInterpolatedMultilineStringBracers) {
+                                                    yybegin(INSIDE_MULTI_LINE_INTERPOLATED_STRING);
+                                                    insideInterpolatedMultilineStringBracers = false;
+                                                 } else {
+                                                    yybegin(INSIDE_INTERPOLATED_STRING);
+                                                    insideInterpolatedStringBracers = false;
+                                                 }
+                                              }
+
+                                            }
+                                            return popBraceStack(tRBRACE); }
 
 "("                                     {   braceStack.push(tLPARENTHESIS);
                                             return process(tLPARENTHESIS); }

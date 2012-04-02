@@ -1,0 +1,201 @@
+object A {
+  val a = s"""blah blah"""
+  val b =
+    s"""
+      $a blah
+      blah
+    """
+  val c = s"""hjklhkjl $b $$  ${a.length + b.length} blah blah"""
+  val d = f"""blah blah"""
+  val e = f"""sss $a $b $c dfkjh"""
+  val f = f"""
+    ssdkhfjs
+    ${
+      class A {
+        def f(i: Int) = i + 2
+      }
+
+      (new A).f(1)
+    }
+    sdfhjkusd
+  """
+
+  val g = f"""blah blah $ blah"""
+}
+-----
+object {object}
+white space in line { }
+identifier {A}
+white space in line { }
+{ {{}
+white space in line {
+  }
+val {val}
+white space in line { }
+identifier {a}
+white space in line { }
+= {=}
+white space in line { }
+interpolated string id {s}
+interpolatedmultiline string {"""blah blah}
+interpolated string end {"""}
+white space in line {
+  }
+val {val}
+white space in line { }
+identifier {b}
+white space in line { }
+= {=}
+white space in line {
+    }
+interpolated string id {s}
+interpolatedmultiline string {"""
+      }
+interpolated string injection {$}
+identifier {a}
+interpolatedmultiline string { blah
+      blah
+    }
+interpolated string end {"""}
+white space in line {
+  }
+val {val}
+white space in line { }
+identifier {c}
+white space in line { }
+= {=}
+white space in line { }
+interpolated string id {s}
+interpolatedmultiline string {"""hjklhkjl }
+interpolated string injection {$}
+identifier {b}
+interpolatedmultiline string { }
+interpolated string escape {$$}
+interpolatedmultiline string {  }
+interpolated string injection {$}
+{ {{}
+identifier {a}
+. {.}
+identifier {length}
+white space in line { }
+identifier {+}
+white space in line { }
+identifier {b}
+. {.}
+identifier {length}
+} {}}
+interpolatedmultiline string { blah blah}
+interpolated string end {"""}
+white space in line {
+  }
+val {val}
+white space in line { }
+identifier {d}
+white space in line { }
+= {=}
+white space in line { }
+interpolated string id {f}
+interpolatedmultiline string {"""blah blah}
+interpolated string end {"""}
+white space in line {
+  }
+val {val}
+white space in line { }
+identifier {e}
+white space in line { }
+= {=}
+white space in line { }
+interpolated string id {f}
+interpolatedmultiline string {"""sss }
+interpolated string injection {$}
+identifier {a}
+interpolatedmultiline string { }
+interpolated string injection {$}
+identifier {b}
+interpolatedmultiline string { }
+interpolated string injection {$}
+identifier {c}
+interpolatedmultiline string { dfkjh}
+interpolated string end {"""}
+white space in line {
+  }
+val {val}
+white space in line { }
+identifier {f}
+white space in line { }
+= {=}
+white space in line { }
+interpolated string id {f}
+interpolatedmultiline string {"""
+    ssdkhfjs
+    }
+interpolated string injection {$}
+{ {{}
+white space in line {
+      }
+class {class}
+white space in line { }
+identifier {A}
+white space in line { }
+{ {{}
+white space in line {
+        }
+def {def}
+white space in line { }
+identifier {f}
+( {(}
+identifier {i}
+: {:}
+white space in line { }
+identifier {Int}
+) {)}
+white space in line { }
+= {=}
+white space in line { }
+identifier {i}
+white space in line { }
+identifier {+}
+white space in line { }
+integer {2}
+white space in line {
+      }
+} {}}
+white space in line {
+
+      }
+( {(}
+new {new}
+white space in line { }
+identifier {A}
+) {)}
+. {.}
+identifier {f}
+( {(}
+integer {1}
+) {)}
+white space in line {
+    }
+} {}}
+interpolatedmultiline string {
+    sdfhjkusd
+  }
+interpolated string end {"""}
+white space in line {
+
+  }
+val {val}
+white space in line { }
+identifier {g}
+white space in line { }
+= {=}
+white space in line { }
+interpolated string id {f}
+interpolatedmultiline string {"""blah blah }
+identifier {$}
+white space in line { }
+identifier {blah}
+string content {""}
+wrong string content {"}
+white space in line {
+}
+} {}}
