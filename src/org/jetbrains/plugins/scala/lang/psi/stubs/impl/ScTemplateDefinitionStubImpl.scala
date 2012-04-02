@@ -33,7 +33,7 @@ extends StubBaseWrapper[ScTemplateDefinition](parent, elemType) with ScTemplateD
   private var _isImplicitObject: Boolean = _
   private var local: Boolean = false
 
-  def this(parent: StubElement[ParentPsi],
+  def  this(parent: StubElement[ParentPsi],
           elemType: IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement],
           name: String,
           qualName: String,

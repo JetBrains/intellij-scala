@@ -23,6 +23,6 @@ public class ResolvePackagings2Test extends ScalaResolveTestCase {
     final PsiElement psiElement = ref.resolve();
     assertTrue(psiElement instanceof ScPrimaryConstructor);
     final ScPrimaryConstructor aClass = (ScPrimaryConstructor) psiElement;
-    assertEquals(aClass.getContainingClass().qualifiedName(), "my.scala.List");
+    assertEquals(aClass.containingClass().qualifiedName(), "my.scala.List");
   }
 }

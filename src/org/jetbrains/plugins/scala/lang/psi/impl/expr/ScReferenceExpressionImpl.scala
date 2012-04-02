@@ -25,9 +25,9 @@ import api.toplevel.imports.ScImportStmt
 import api.base.patterns.ScReferencePattern
 import com.intellij.util.IncorrectOperationException
 import annotator.intention.ScalaImportClassFix
-import extensions.{toPsiNamedElementExt, toPsiClassExt}
 import api.toplevel.typedef._
 import completion.lookups.LookupElementManager
+import extensions.{toPsiMemberExt, toPsiNamedElementExt, toPsiClassExt}
 
 /**
  * @author AlexanderPodkhalyuzin
@@ -75,7 +75,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
           throw new IncorrectOperationException("named element does not match expected name")
         ScalaPsiUtil.nameContext(elem) match {
           case memb: PsiMember =>
-            val containingClass = memb.getContainingClass
+            val containingClass = memb.containingClass
             if (containingClass != null && containingClass.qualifiedName != null) {
               ScalaImportClassFix.getImportHolder(this, getProject).
                 addImportForPsiNamedElement(elem, this)
@@ -291,8 +291,8 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
       case Some(ScalaResolveResult(field: PsiField, s)) =>
         s.subst(ScType.create(field.getType, field.getProject, getResolveScope))
       case Some(ScalaResolveResult(method: PsiMethod, s)) =>
-        if (method.getName == "getClass" && method.getContainingClass != null &&
-          method.getContainingClass.getQualifiedName == "java.lang.Object") {
+        if (method.getName == "getClass" && method.containingClass != null &&
+          method.containingClass.getQualifiedName == "java.lang.Object") {
           val clazz = ScalaPsiManager.instance(getProject).getCachedClass("java.lang.Class", getResolveScope,
             ScalaPsiManager.ClassCategory.TYPE)
           def convertQualifier(tp: TypeResult[ScType]): Option[ScType] = {

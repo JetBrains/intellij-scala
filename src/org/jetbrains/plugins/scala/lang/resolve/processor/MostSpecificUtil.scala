@@ -16,6 +16,7 @@ import psi.types._
 import psi.api.statements._
 import psi.api.toplevel.imports.usages.ImportUsed
 import psi.impl.ScalaPsiManager
+import org.jetbrains.plugins.scala.extensions.toPsiMemberExt
 
 /**
  * User: Alexander Podkhalyuzin
@@ -140,7 +141,7 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
     val element = ScalaPsiUtil.nameContext(r.element)
     element match {
       case memb: PsiMember => {
-        val clazz = memb.getContainingClass
+        val clazz = memb.containingClass
         if (clazz == null) None else Some(clazz)
       }
       case _ => None

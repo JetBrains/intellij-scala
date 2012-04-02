@@ -592,7 +592,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
     private def isArrayFunction(fun: ScFunction): Boolean = {
       fun.getContext match {
         case tb: ScTemplateBody =>
-          fun.getContainingClass match {
+          fun.containingClass match {
             case clazz: ScClass if clazz.qualifiedName == "scala.Array" => true
             case _ => false
           }
@@ -604,7 +604,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
       if (fun.name != "classOf") return false
       fun.getContext match {
         case tb: ScTemplateBody =>
-          fun.getContainingClass match {
+          fun.containingClass match {
             case clazz: PsiClass if clazz.qualifiedName == "scala.Predef" => true
             case _ => false
           }

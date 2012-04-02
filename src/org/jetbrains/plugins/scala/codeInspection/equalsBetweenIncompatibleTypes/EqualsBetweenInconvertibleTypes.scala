@@ -31,7 +31,7 @@ class EqualsBetweenInconvertibleTypes extends AbstractInspection(
                   case _ => ref.qualifier
                 }
                 x.getElement match {
-                  case x: ScSyntheticFunction if x.name == "==" /*&& x.getContainingClass.getQualifiedName == "scala.Any"*/ =>
+                  case x: ScSyntheticFunction if x.name == "==" =>
                     (base, invocation.argumentExpressions) match {
                       case (Some(baseExpression), Seq(arg)) => checkCompatiblity(baseExpression, arg, holder, invocation)
                       case _ =>

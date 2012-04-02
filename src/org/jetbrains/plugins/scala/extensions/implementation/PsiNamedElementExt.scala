@@ -1,7 +1,8 @@
 package org.jetbrains.plugins.scala.extensions.implementation
 
-import com.intellij.psi.PsiNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
+import com.intellij.psi.{PsiClass, PsiMember, PsiNamedElement}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
 
 /**
  * User: Alefas
@@ -12,6 +13,15 @@ class PsiNamedElementExt(named: PsiNamedElement) {
     named match {
       case named: ScNamedElement => named.name
       case named => named.getName
+    }
+  }
+}
+
+class PsiMemberExt(member: PsiMember) {
+  def containingClass: PsiClass = {
+    member match {
+      case member: ScMember => member.containingClass
+      case _ => member.getContainingClass
     }
   }
 }

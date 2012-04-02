@@ -270,7 +270,7 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
   private def syntheticParamClause: Option[ScParameterClause] = {
     val hasImplicit = clauses.exists(_.clauses.exists(_.isImplicit))
     if (isConstructor) {
-      getContainingClass match {
+      containingClass match {
         case owner: ScTypeParametersOwner =>
           if (hasImplicit) None else ScalaPsiUtil.syntheticParamClause(owner, paramClauses, classParam = false)
         case _ => None
@@ -323,7 +323,7 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
   }
 
   def getGetterOrSetterFunction: Option[ScFunction] = {
-    getContainingClass match {
+    containingClass match {
       case clazz: ScTemplateDefinition => {
         if (name.endsWith("_=")) {
           clazz.functions.find(_.name == name.substring(0, name.length - 2))
@@ -333,21 +333,6 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
       }
       case _ => None
     }
-  }
-
-  /**
-   * Physical getContainingClass.
-   */
-  def containingClass: Option[ScTemplateDefinition] = {
-    var parent = getParent
-    while (parent != null) {
-      parent match {
-        case t: ScTemplateDefinition => return Some(t)
-        case b: ScBlock => return None
-        case _ => parent = parent.getParent
-      }
-    }
-    None
   }
 
   def isBridge: Boolean = {

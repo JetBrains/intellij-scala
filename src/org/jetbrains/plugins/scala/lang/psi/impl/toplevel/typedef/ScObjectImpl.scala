@@ -26,6 +26,7 @@ import api.toplevel.ScTypedDefinition
 import light.{EmptyPrivateConstructor, PsiClassWrapper}
 import api.statements._
 import types.ScType
+import extensions.toPsiMemberExt
 
 /**
  * @author Alexander Podkhalyuzin
@@ -198,8 +199,10 @@ class ScObjectImpl extends ScTypeDefinitionImpl with ScObject with ScTemplateDef
 
   import org.jetbrains.plugins.scala.lang.psi.light.PsiTypedDefinitionWrapper.DefinitionRole._
 
+  override def getInnerClasses: Array[PsiClass] = Array.empty
+
   override def getMethods: Array[PsiMethod] = {
-    getAllMethods.filter(_.getContainingClass == this)
+    getAllMethods.filter(_.containingClass == this)
   }
 
   override def getAllMethods: Array[PsiMethod] = {
@@ -220,16 +223,16 @@ class ScObjectImpl extends ScTypeDefinitionImpl with ScObject with ScTemplateDef
       val signature = signatures.next()
       signature.foreach {
         case (t, node) => node.info.namedElement match {
-          case Some(fun: ScFunction) if !fun.isConstructor && fun.getContainingClass.isInstanceOf[ScTrait] &&
+          case Some(fun: ScFunction) if !fun.isConstructor && fun.containingClass.isInstanceOf[ScTrait] &&
             fun.isInstanceOf[ScFunctionDefinition] =>
-            res += fun.getFunctionWrapper(false, false, Some(getClazz(fun.getContainingClass.asInstanceOf[ScTrait])))
+            res += fun.getFunctionWrapper(false, false, Some(getClazz(fun.containingClass.asInstanceOf[ScTrait])))
           case Some(fun: ScFunction) if !fun.isConstructor => res += fun.getFunctionWrapper(false, fun.isInstanceOf[ScFunctionDeclaration])
           case Some(method: PsiMethod) if !method.isConstructor => res += method
           case Some(t: ScTypedDefinition) if t.isVal || t.isVar =>
             val (isInterface, cClass) = t.nameContext match {
               case m: ScMember =>
                 val b = m.isInstanceOf[ScPatternDefinition] || m.isInstanceOf[ScVariableDefinition]
-                (b, m.getContainingClass match {
+                (b, m.containingClass match {
                   case t: ScTrait =>
                     if (b) {
                       Some(getClazz(t))

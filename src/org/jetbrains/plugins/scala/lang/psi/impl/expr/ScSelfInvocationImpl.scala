@@ -59,7 +59,7 @@ class ScSelfInvocationImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with
     val (res: ScType, clazz: ScTemplateDefinition) = bindInternal match {
       case Some(c: ScMethodLike) =>
         val methodType = ScType.nested(c.methodType, i).getOrElse(return Failure("Not enough parameter sections", Some(this)))
-        (methodType, c.getContainingClass)
+        (methodType, c.containingClass)
       case _ => return Failure("Cannot shape resolve self invocation", Some(this))
     }
     clazz match {

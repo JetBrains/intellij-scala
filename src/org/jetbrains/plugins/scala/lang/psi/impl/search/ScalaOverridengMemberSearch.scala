@@ -17,7 +17,7 @@ import java.util.Arrays
 import toplevel.typedef.TypeDefinitionMembers
 import api.toplevel.ScTypedDefinition
 import types._
-import extensions.toPsiNamedElementExt
+import extensions.{toPsiMemberExt, toPsiNamedElementExt}
 
 /**
  * User: Alexander Podkhalyuzin
@@ -38,7 +38,7 @@ object ScalaOverridengMemberSearch {
     }
 
     val parentClass = member match {
-      case m: PsiMethod => m.getContainingClass
+      case m: PsiMethod => m.containingClass
       case x: PsiNamedElement => PsiTreeUtil.getParentOfType(x, classOf[ScTemplateDefinition])
     }
     val buffer = new ArrayBuffer[PsiNamedElement]

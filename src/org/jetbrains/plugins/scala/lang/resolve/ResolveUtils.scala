@@ -29,7 +29,7 @@ import psi.api.base.types.{ScTypeElement, ScSelfTypeElement}
 import psi.api.base.{ScReferenceElement, ScAccessModifier, ScFieldId}
 import psi.api.expr.{ScThisReference, ScSuperReference}
 import psi.impl.{ScPackageImpl, ScalaPsiManager}
-import extensions.{toSeqExt, toPsiNamedElementExt}
+import extensions.{toPsiMemberExt, toSeqExt, toPsiNamedElementExt}
 
 /**
  * @author ven
@@ -112,7 +112,7 @@ object ResolveUtils {
 
   def isAccessible(memb: PsiMember, place: PsiElement): Boolean = {
     if (place.getLanguage == StdLanguages.JAVA) {
-      return JavaResolveUtil.isAccessible(memb, memb.getContainingClass, memb.getModifierList, place, null, null)
+      return JavaResolveUtil.isAccessible(memb, memb.containingClass, memb.getModifierList, place, null, null)
     }
 
     import ScalaPsiUtil.getPlaceTd
@@ -353,7 +353,7 @@ object ResolveUtils {
         if (member.hasModifierProperty("public")) true
         else if (member.hasModifierProperty("private")) false
         else if (member.hasModifierProperty("protected")) {
-          val clazz = member.getContainingClass
+          val clazz = member.containingClass
           val isConstr = member match {case m: PsiMethod => m.isConstructor case _ => false}
           var placeTd = getPlaceTd(place, isConstr)
           if (isConstr) {

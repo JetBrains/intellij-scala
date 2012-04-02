@@ -23,12 +23,14 @@ import psi.stubs.ScMemberOrLocal
   * Date: 04.05.2008
   */
 trait ScMember extends ScalaPsiElement with ScModifierListOwner with PsiMember {
+  def getContainingClass: PsiClass = containingClass
+
   /**
     * getContainingClassStrict(bar) == null in
     *
     * `object a { def foo { def bar = 0 }}`
     */
-  def getContainingClass: ScTemplateDefinition = {
+  def containingClass: ScTemplateDefinition = {
     val stub: StubElement[_ <: PsiElement] = this match {
       case file: PsiFileImpl => file.getStub
       case st: ScalaStubBasedElementImpl[_] => st.getStub
@@ -81,12 +83,14 @@ trait ScMember extends ScalaPsiElement with ScModifierListOwner with PsiMember {
     if (stub.isInstanceOf[ScMemberOrLocal]) {
       return stub.asInstanceOf[ScMemberOrLocal].isLocal
     }
-    getContainingClass == null
+    containingClass == null
   }
 
   override def hasModifierProperty(name: String) = {
     if (name == PsiModifier.PUBLIC) {
       !hasModifierProperty("private") && !hasModifierProperty("protected")
+    } else if (name == PsiModifier.STATIC) {
+      containingClass.isInstanceOf[ScObject]
     } else super.hasModifierProperty(name)
   }
 

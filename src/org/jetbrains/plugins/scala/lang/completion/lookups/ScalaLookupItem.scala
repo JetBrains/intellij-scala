@@ -18,12 +18,12 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.annotator.intention.ScalaImportClassFix
-import org.jetbrains.plugins.scala.extensions.{toPsiClassExt, toPsiNamedElementExt}
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScSubstitutor}
 import com.intellij.openapi.util.Condition
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTemplateDefinition, ScObject}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
+import org.jetbrains.plugins.scala.extensions.{toPsiMemberExt, toPsiClassExt, toPsiNamedElementExt}
 
 /**
  * @author Alefas
@@ -108,7 +108,7 @@ class ScalaLookupItem(val element: PsiNamedElement, _name: String) extends {
   def isNamedParameterOrAssignment = isNamedParameter || isAssignment
 
   private val containingClass = ScalaPsiUtil.nameContext(element) match {
-    case memb: PsiMember => memb.getContainingClass
+    case memb: PsiMember => memb.containingClass
     case _ => null
   }
 
@@ -230,7 +230,7 @@ class ScalaLookupItem(val element: PsiNamedElement, _name: String) extends {
     var itemText: String =
       if (isRenamed == None) if (isClassName && shouldImport) {
         val containingClass = ScalaPsiUtil.nameContext(element) match {
-          case memb: PsiMember => memb.getContainingClass
+          case memb: PsiMember => memb.containingClass
           case _ => null
         }
         if (containingClass != null) containingClass.name + "." + name
@@ -311,7 +311,7 @@ class ScalaLookupItem(val element: PsiNamedElement, _name: String) extends {
                       } else {
                         ScalaPsiUtil.nameContext(elementToImport) match {
                           case memb: PsiMember =>
-                            val containingClass = memb.getContainingClass
+                            val containingClass = memb.containingClass
                             if (containingClass != null && containingClass.qualifiedName != null) {
                               ScalaImportClassFix.getImportHolder(ref, ref.getProject).addImportForPsiNamedElement(elementToImport, null)
                             }

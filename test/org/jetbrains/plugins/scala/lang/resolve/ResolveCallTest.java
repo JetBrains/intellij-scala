@@ -62,7 +62,7 @@ public class ResolveCallTest extends ScalaResolveTestCase {
     PsiReference ref = findReferenceAtCaret();
     PsiElement resolved = ref.resolve();
     assertTrue(resolved instanceof ScFunction);
-    assertEquals("c", ((ScFunction) resolved).getContainingClass().getName());
+    assertEquals("c", ((ScFunction) resolved).containingClass().getName());
   }
 
   public void testNamingParam() throws Exception {

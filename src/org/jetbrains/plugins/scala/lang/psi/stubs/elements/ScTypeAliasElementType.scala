@@ -34,7 +34,7 @@ extends ScStubElementType[ScTypeAliasStub, ScTypeAlias](debugName) {
       if (!isDeclaration) ""
       else psi.asInstanceOf[ScTypeAliasDeclaration].upperTypeElement.map(_.getText).getOrElse("")
     }
-    new ScTypeAliasStubImpl[ParentPsi](parentStub, this, psi.name, isDeclaration, typeElementText, lower, upper, psi.getContainingClass == null)
+    new ScTypeAliasStubImpl[ParentPsi](parentStub, this, psi.name, isDeclaration, typeElementText, lower, upper, psi.containingClass == null)
   }
 
   def serialize(stub: ScTypeAliasStub, dataStream: StubOutputStream) {

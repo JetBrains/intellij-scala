@@ -386,7 +386,7 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
   }
 
   private def isConformsMethod(f: ScFunction): Boolean = {
-    f.name == "conforms" && Option(f.getContainingClass).flatMap(cls => Option(cls.qualifiedName)).exists(_ == "scala.Predef")
+    f.name == "conforms" && Option(f.containingClass).flatMap(cls => Option(cls.qualifiedName)).exists(_ == "scala.Predef")
   }
 }
 

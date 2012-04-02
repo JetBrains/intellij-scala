@@ -93,7 +93,7 @@ private[annotator] object ModifierChecker {
                   }
                 }
                 case e: ScMember if e.getParent.isInstanceOf[ScTemplateBody] || e.getParent.isInstanceOf[ScEarlyDefinitions] => {
-                  val redundant = (e.getContainingClass, e) match {
+                  val redundant = (e.containingClass, e) match {
                     case (obj: ScObject, valMember: ScPatternDefinition) if valMember.typeElement.isEmpty &&
                             valMember.pList.allPatternsSimple => false // SCL-899
                     case (cls, _) if cls.hasModifierProperty("final") => true
@@ -144,7 +144,7 @@ private[annotator] object ModifierChecker {
                 case member: ScMember if !member.isInstanceOf[ScTemplateBody] &&
                         member.getParent.isInstanceOf[ScTemplateBody] => {
                   // 'abstract override' modifier only allowed for members of traits
-                  if (!member.getContainingClass.isInstanceOf[ScTrait] && owner.hasModifierProperty("override")) {
+                  if (!member.containingClass.isInstanceOf[ScTrait] && owner.hasModifierProperty("override")) {
                     proccessError(ScalaBundle.message("abstract.override.modifier.is.not.allowed"), modifierPsi, holder,
                       new RemoveModifierQuickFix(owner, "abstract"))
                   } else {

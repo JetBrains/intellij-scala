@@ -270,10 +270,10 @@ class ScalaTestAstTransformer {
           val resolve = ref.resolve()
           val containingClassName = if (resolve != null) {
             resolve match {
-              case fun: ScMember => fun.getContainingClass.qualifiedName
+              case fun: ScMember => fun.containingClass.qualifiedName
               case p: ScBindingPattern =>
                 p.nameContext match {
-                  case v: ScMember => v.getContainingClass.qualifiedName
+                  case v: ScMember => v.containingClass.qualifiedName
                   case _ => null
                 }
               case _ => null
@@ -299,7 +299,7 @@ class ScalaTestAstTransformer {
     }
 
     def getScalaTestMethodDefinition(methodDef: ScFunctionDefinition): Option[StMethodDefinition] = {
-      val containingClass = methodDef.getContainingClass
+      val containingClass = methodDef.containingClass
       if (containingClass != null) {
         // For inner method, this will be null
         val className = containingClass.qualifiedName

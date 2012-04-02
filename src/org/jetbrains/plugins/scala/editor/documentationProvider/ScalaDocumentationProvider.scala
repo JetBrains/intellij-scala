@@ -26,7 +26,6 @@ import lang.psi.api.base.{ScReferenceElement, ScConstructor, ScAccessModifier, S
 import lang.resolve.ScalaResolveResult
 import lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.extensions
-import extensions.{toPsiNamedElementExt, toPsiClassExt}
 import lang.scaladoc.lexer.ScalaDocTokenType
 import lang.scaladoc.parser.parsing.MyScaladocParsing
 import lang.scaladoc.psi.api.{ScDocTag, ScDocComment}
@@ -35,6 +34,7 @@ import com.intellij.lang.documentation.CodeDocumentationProvider
 import java.lang.String
 import collection.mutable.HashMap
 import lang.completion.lookups.ScalaLookupItem
+import org.jetbrains.plugins.scala.extensions.{toPsiMemberExt, toPsiNamedElementExt, toPsiClassExt}
 
 /**
  * User: Alexander Podkhalyuzin
@@ -390,7 +390,7 @@ object ScalaDocumentationProvider {
     buffer.toString()
   }
   private def parseClassUrl(elem: ScMember): String = {
-    val clazz = elem.getContainingClass
+    val clazz = elem.containingClass
     if (clazz == null) return ""
     "<a href=\"psi_element://" + escapeHtml(clazz.qualifiedName) + "\"><code>" +
       escapeHtml(clazz.qualifiedName) + "</code></a>"
@@ -548,7 +548,7 @@ object ScalaDocumentationProvider {
             JavaDocumentationProvider.generateExternalJavadoc(dummyFile.getClasses.apply(0).getAllMethods.apply(0))
           case _ => JavaDocumentationProvider.generateExternalJavadoc(dummyFile.getClasses.apply(0))
         }
-        val (s1, s2) = elem.getContainingClass match {
+        val (s1, s2) = elem.containingClass match {
           case e: PsiClass if withDescription => ("<b>Description copied from class: </b><a href=\"psi_element://" +
                   escapeHtml(e.qualifiedName) + "\"><code>" + escapeHtml(e.name) + "</code></a><p>", "</p>")
           case _ => ("", "")
@@ -714,7 +714,7 @@ object ScalaDocumentationProvider {
   private def getMemberHeader(member: ScMember): String = {
     if (!member.getParent.isInstanceOf[ScTemplateBody]) return ""
     if (!member.getParent.getParent.getParent.isInstanceOf[ScTypeDefinition]) return ""
-    member.getContainingClass.name + " " + member.getContainingClass.getPresentation.getLocationString + "\n"
+    member.containingClass.name + " " + member.containingClass.getPresentation.getLocationString + "\n"
   }
 
   private def getOneLine(s: String): String = {

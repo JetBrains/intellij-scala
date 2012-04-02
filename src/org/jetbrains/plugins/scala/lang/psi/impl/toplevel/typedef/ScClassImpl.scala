@@ -26,6 +26,7 @@ import api.toplevel.{ScTypedDefinition, ScTypeParametersOwner}
 import collection.mutable.{HashSet, ArrayBuffer}
 import light.StaticPsiMethodWrapper
 import api.statements._
+import extensions.toPsiMemberExt
 
 /**
  * @author Alexander.Podkhalyuzin
@@ -102,7 +103,7 @@ class ScClassImpl extends ScTypeDefinitionImpl with ScClass with ScTypeParameter
   import org.jetbrains.plugins.scala.lang.psi.light.PsiTypedDefinitionWrapper.DefinitionRole._
 
   override def getMethods: Array[PsiMethod] = {
-    getAllMethods.filter(_.getContainingClass == this)
+    getAllMethods.filter(_.containingClass == this)
   }
 
   override def getAllMethods: Array[PsiMethod] = {
@@ -124,9 +125,9 @@ class ScClassImpl extends ScTypeDefinitionImpl with ScClass with ScTypeParameter
       val signature = signatures.next()
       signature.foreach {
         case (t, node) => node.info.namedElement match {
-          case Some(fun: ScFunction) if !fun.isConstructor && fun.getContainingClass.isInstanceOf[ScTrait] &&
+          case Some(fun: ScFunction) if !fun.isConstructor && fun.containingClass.isInstanceOf[ScTrait] &&
             fun.isInstanceOf[ScFunctionDefinition] =>
-            res += fun.getFunctionWrapper(false, false, Some(getClazz(fun.getContainingClass.asInstanceOf[ScTrait])))
+            res += fun.getFunctionWrapper(false, false, Some(getClazz(fun.containingClass.asInstanceOf[ScTrait])))
             names += fun.getName
           case Some(fun: ScFunction) if !fun.isConstructor => 
             res += fun.getFunctionWrapper(false, fun.isInstanceOf[ScFunctionDeclaration])
@@ -138,7 +139,7 @@ class ScClassImpl extends ScTypeDefinitionImpl with ScClass with ScTypeParameter
             val (isInterface, cClass) = t.nameContext match {
               case m: ScMember =>
                 val b = m.isInstanceOf[ScPatternDefinition] || m.isInstanceOf[ScVariableDefinition]
-                (b, m.getContainingClass match {
+                (b, m.containingClass match {
                   case t: ScTrait =>
                     if (b) {
                       Some(getClazz(t))
@@ -190,7 +191,7 @@ class ScClassImpl extends ScTypeDefinitionImpl with ScClass with ScTypeParameter
               node.info.namedElement match {
                 case Some(fun: ScFunction) if !fun.isConstructor => add(fun.getFunctionWrapper(true, false))
                 case Some(method: PsiMethod) if !method.isConstructor => {
-                  if (method.getContainingClass != null && method.getContainingClass.getQualifiedName != "java.lang.Object") {
+                  if (method.containingClass != null && method.containingClass.getQualifiedName != "java.lang.Object") {
                     add(StaticPsiMethodWrapper.getWrapper(method, this))
                   }
                 }

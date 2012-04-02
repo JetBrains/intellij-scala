@@ -115,7 +115,7 @@ class ScalaSmartCompletionContributor extends CompletionContributor {
                 val second = checkForSecondCompletion && fun.paramClauses.flatten.length == 0
                 checkType(fun.retType, ScSubstitutor.empty, second)
               case fun: ScFunction =>
-                if (fun.getContainingClass != null && fun.getContainingClass.qualifiedName == "scala.Predef") {
+                if (fun.containingClass != null && fun.containingClass.qualifiedName == "scala.Predef") {
                   fun.name match {
                     case "implicitly" | "identity" | "locally" => return
                     case _ =>

@@ -19,6 +19,7 @@ import com.intellij.psi._
 import api.ScalaElementVisitor
 import api.toplevel.imports.ScImportStmt
 import completion.lookups.LookupElementManager
+import extensions.toPsiMemberExt
 
 /**
 * @author Alexander Podkhalyuzin
@@ -76,7 +77,7 @@ class ScTypeProjectionImpl(node: ASTNode) extends ScalaPsiElementImpl (node) wit
     processor.processType(projected, this)
     val res = processor.candidates.map {r : ScalaResolveResult =>
       r.element match {
-        case mem: PsiMember if mem.getContainingClass != null =>
+        case mem: PsiMember if mem.containingClass != null =>
           new ScalaResolveResult(mem, r.substitutor/*.bindO(mem.getContainingClass, projected, this)*/, r.importsUsed)
         case _ => r : ResolveResult
       }

@@ -5,7 +5,7 @@ import com.intellij.openapi.application.ApplicationManager
 import extensions.implementation._
 import com.intellij.psi.impl.source.PostprocessReformattingAspect
 import com.intellij.openapi.project.Project
-import com.intellij.psi.{PsiNamedElement, PsiClass, PsiElement, PsiMethod}
+import com.intellij.psi._
 
 /**
   * Pavel Fatin
@@ -36,6 +36,8 @@ package object extensions {
   implicit def toPsiClassExt(e: PsiClass) = new PsiClassExt(e)
 
   implicit def toPsiNamedElementExt(e: PsiNamedElement) = new PsiNamedElementExt(e)
+
+  implicit def toPsiMemberExt(e: PsiMember) = new PsiMemberExt(e)
 
   implicit def toPipedObject[T](value: T) = new PipedObject[T](value)
 

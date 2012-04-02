@@ -13,6 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import collection.mutable.{HashMap, HashSet}
 import util.PsiTreeUtil
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
+import org.jetbrains.plugins.scala.extensions.toPsiMemberExt
 
 /**
  * @author Alexander Podkhalyuzin
@@ -30,10 +31,10 @@ final class ScalaCallerMethodsTreeStructure(project: Project, method: PsiMethod,
     val baseMethod: PsiMethod = (getBaseDescriptor.asInstanceOf[CallHierarchyNodeDescriptor]).getTargetElement.asInstanceOf[PsiMethod]
     val containing = baseMethod match {
       case mem: ScMember => mem.getContainingClassLoose
-      case x => x.getContainingClass
+      case x => x.containingClass
     }
     val searchScope: SearchScope = getSearchScope(scopeType, containing)
-    val originalClass: PsiClass = method.getContainingClass
+    val originalClass: PsiClass = method.containingClass
     assert(originalClass != null)
     val originalType: PsiClassType = JavaPsiFacade.getElementFactory(myProject).createType(originalClass)
     val methodsToFind = new HashSet[PsiMethod]

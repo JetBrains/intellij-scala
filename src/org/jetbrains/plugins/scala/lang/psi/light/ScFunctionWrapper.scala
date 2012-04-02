@@ -18,7 +18,7 @@ class ScFunctionWrapper(val function: ScFunction, isStatic: Boolean, isInterface
   val containingClass = {
     if (cClass != None) cClass.get
     else {
-      val res = function.getContainingClass
+      val res = function.containingClass
       if (isStatic) {
         res match {
           case o: ScObject => o.fakeCompanionClassOrCompanionClass
@@ -37,7 +37,7 @@ class ScFunctionWrapper(val function: ScFunction, isStatic: Boolean, isInterface
     }
   }
 } with LightMethod(function.getManager, method, containingClass) {
-  override def getNavigationElement: PsiElement = function
+  override def getNavigationElement: PsiElement = function.getNavigationElement
 
   override def canNavigate: Boolean = function.canNavigate
 
@@ -109,7 +109,7 @@ object ScFunctionWrapper {
     }
 
     builder.append(" ")
-    val name = if (!function.isConstructor) function.getName else function.getContainingClass.getName
+    val name = if (!function.isConstructor) function.getName else function.containingClass.getName
     builder.append(name)
 
     builder.append(function.effectiveParameterClauses.flatMap(_.parameters).map { case param =>

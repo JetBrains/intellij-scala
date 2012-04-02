@@ -26,7 +26,7 @@ import lang.psi.api.toplevel.ScNamedElement
 import lang.psi.api.toplevel.typedef.{ScTypeDefinition, ScTrait, ScMember, ScObject}
 import lang.psi.api.statements._
 import lang.psi.types.{Signature}
-import extensions.{toPsiNamedElementExt, toPsiClassExt}
+import extensions.{toPsiMemberExt, toPsiNamedElementExt, toPsiClassExt}
 
 /**
  * User: Alexander Podkhalyuzin
@@ -53,7 +53,7 @@ object ScalaMarkerType {
           //removed assertion, because can be change before adding gutter, so just need to return ""
           if (signatures.length == 0) return ""
           val optionClazz = signatures(0).namedElement.map(ScalaPsiUtil.nameContext(_)).flatMap {
-            case member: PsiMember => Option(member.getContainingClass)
+            case member: PsiMember => Option(member.containingClass)
             case _ => None
           }
           assert(optionClazz != None)
@@ -68,7 +68,7 @@ object ScalaMarkerType {
           for (z <- bindings) signatures ++= ScalaPsiUtil.superValsSignatures(z)
           assert(signatures.length != 0)
           val optionClazz = signatures(0).namedElement.map(ScalaPsiUtil.nameContext(_)).flatMap {
-            case member: PsiMember => Option(member.getContainingClass)
+            case member: PsiMember => Option(member.containingClass)
             case _ => None
           }
           assert(optionClazz != None)
@@ -242,12 +242,12 @@ object ScalaMarkerType {
       }
 
       element match {
-        case method: PsiMethod if method.getContainingClass != null => {
-          val presentation = method.getContainingClass.getPresentation
+        case method: PsiMethod if method.containingClass != null => {
+          val presentation = method.containingClass.getPresentation
           if (presentation != null)
             presentation.getPresentableText + " " + presentation.getLocationString
           else {
-            ClassPresentationUtil.getNameForClass(method.getContainingClass, false)
+            ClassPresentationUtil.getNameForClass(method.containingClass, false)
           }
         }
         case xlass: PsiClass => {
@@ -255,7 +255,7 @@ object ScalaMarkerType {
           presentation.getPresentableText + " " + presentation.getLocationString
         }
         case x: PsiNamedElement if ScalaPsiUtil.nameContext(x).isInstanceOf[ScMember] => {
-          val containing = ScalaPsiUtil.nameContext(x).asInstanceOf[ScMember].getContainingClass
+          val containing = ScalaPsiUtil.nameContext(x).asInstanceOf[ScMember].containingClass
           if (containing == null) defaultPresentation
           else  {
             val presentation = containing.getPresentation

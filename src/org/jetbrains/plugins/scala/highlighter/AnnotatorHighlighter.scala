@@ -161,7 +161,7 @@ object AnnotatorHighlighter {
         val parent = x.nameContext
         parent match {
           case r@(_: ScValue | _: ScVariable) => {
-            Option(x.getContainingClass).foreach(a => if (SCALA_PREDEFINED_OBJECTS.contains(a.qualifiedName)) {
+            Option(x.containingClass).foreach(a => if (SCALA_PREDEFINED_OBJECTS.contains(a.qualifiedName)) {
               x.getType(TypingContext.empty).foreach(annotateCollectionByType(_))
             })
 
@@ -208,7 +208,7 @@ object AnnotatorHighlighter {
         }
         if (x != null) {
           val fun = x.asInstanceOf[ScFunction]
-          val clazz = fun.getContainingClass
+          val clazz = fun.containingClass
           clazz match {
             case o: ScObject if o.objectSyntheticMembers.contains(fun) =>
               annotation.setTextAttributes(DefaultHighlighter.OBJECT_METHOD_CALL)
