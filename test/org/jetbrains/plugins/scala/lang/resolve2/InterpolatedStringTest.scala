@@ -15,13 +15,13 @@ class InterpolatedStringTest extends ResolveTestBase {
     super.setUp(TestUtils.ScalaSdkVersion._2_10)
   }
 
-  def testIdResolve() {
+  def testPrefixResolve() {
     doTest()
   }
 
-  def testIdCannotResolve() {
+  /*def testIdCannotResolve() { //TODO we'll do something when it will be implemented in the compiler
     doTest()
-  }
+  }*/
 
   def testResolveInsideString() {
     doTest()
