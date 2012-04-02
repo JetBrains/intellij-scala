@@ -69,15 +69,15 @@ class ScalaConsoleRunConfiguration(val project: Project, val configurationFactor
       throw new ExecutionException("No Scala facet configured for module " + module.getName)
     }
 
-    val rootManager = ModuleRootManager.getInstance(module);
+    val rootManager = ModuleRootManager.getInstance(module)
     val sdk = rootManager.getSdk
     if (sdk == null || !(sdk.getSdkType.isInstanceOf[JavaSdkType])) {
-      throw CantRunException.noJdkForModule(module);
+      throw CantRunException.noJdkForModule(module)
     }
 
     val state = new JavaCommandLineState(env) {
       protected override def createJavaParameters: JavaParameters = {
-        val params = new JavaParameters();
+        val params = new JavaParameters()
 
         params.setJdk(sdk)
 
@@ -136,8 +136,8 @@ class ScalaConsoleRunConfiguration(val project: Project, val configurationFactor
         consoleView
       }
     }
-    state.setConsoleBuilder(consoleBuilder);
-    state;
+    state.setConsoleBuilder(consoleBuilder)
+    state
   }
 
   def getModule: Module = getConfigurationModule.getModule
@@ -179,7 +179,7 @@ class ScalaConsoleRunConfiguration(val project: Project, val configurationFactor
   private def getClassPath(module: Module): String = {
     val moduleRootManager = ModuleRootManager.getInstance(module)
     val entries = moduleRootManager.getOrderEntries
-    val cpVFiles = new HashSet[VirtualFile];
+    val cpVFiles = new HashSet[VirtualFile]
     cpVFiles ++= CompilerModuleExtension.getInstance(module).getOutputRoots(true)
     for (orderEntry <- entries) {
       cpVFiles ++= orderEntry.getFiles(OrderRootType.CLASSES)
