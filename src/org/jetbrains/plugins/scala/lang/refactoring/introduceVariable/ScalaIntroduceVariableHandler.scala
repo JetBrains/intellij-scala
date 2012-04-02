@@ -45,7 +45,7 @@ import collection.mutable.{ArrayBuffer, HashSet}
 
 class ScalaIntroduceVariableHandler extends RefactoringActionHandler with ConflictsReporter {
   val REFACTORING_NAME = ScalaBundle.message("introduce.variable.title")
-  var deleteOccurrence = false;
+  var deleteOccurrence = false
 
   def invoke(project: Project, editor: Editor, file: PsiFile, dataContext: DataContext) {
     def invokes() {
@@ -365,7 +365,7 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Confli
       }
     }
 
-    ScalaUtils.runWriteAction(runnable, editor.getProject, REFACTORING_NAME);
+    ScalaUtils.runWriteAction(runnable, editor.getProject, REFACTORING_NAME)
     editor.getSelectionModel.removeSelection()
   }
 
