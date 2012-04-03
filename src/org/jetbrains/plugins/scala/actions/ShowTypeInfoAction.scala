@@ -1,29 +1,20 @@
 package org.jetbrains.plugins.scala
 package actions
 
-import _root_.com.intellij.codeInsight.hint.{HintUtil, HintManager, HintManagerImpl}
-import _root_.com.intellij.codeInsight.{TargetElementUtilBase}
+import _root_.com.intellij.codeInsight.TargetElementUtilBase
 import _root_.com.intellij.openapi.actionSystem.{AnAction, AnActionEvent, PlatformDataKeys}
 import _root_.com.intellij.psi._
 import _root_.com.intellij.psi.util.PsiUtilBase
-import _root_.com.intellij.util.ui.UIUtil
-import _root_.java.awt.event.{MouseEvent, MouseMotionAdapter}
-import _root_.com.intellij.openapi.ui.{MultiLineLabelUI}
-import _root_.com.intellij.openapi.editor.{Editor}
 import _root_.org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import _root_.org.jetbrains.plugins.scala.ScalaBundle
-import lang.psi.api.statements.{ScFunction, ScFunctionDeclaration, ScFunctionDefinition}
+import lang.psi.api.statements.ScFunction
 import lang.psi.api.statements.params.ScParameter
-import lang.psi.api.base.patterns.{ScBindingPattern, ScReferencePattern}
+import lang.psi.api.base.patterns.ScBindingPattern
 import lang.psi.api.base.ScFieldId
 import lang.psi.types.{ScType, ScSubstitutor}
-import javax.swing.JLabel
 import org.jetbrains.plugins.scala.extensions._
 import lang.refactoring.util.ScalaRefactoringUtil
 import lang.psi.api.expr.ScExpression
-import java.awt.{Color, Point}
-import com.intellij.openapi.util.JDOMUtil
-import com.intellij.ui.{HintHint, LightweightHint}
 
 /**
  * Pavel.Fatin, 16.04.2010

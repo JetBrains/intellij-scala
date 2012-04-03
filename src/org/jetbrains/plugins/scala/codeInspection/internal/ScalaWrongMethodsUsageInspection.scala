@@ -65,6 +65,7 @@ class ScalaWrongMethodsUsageInspection extends LocalInspectionTool {
                           }
                         case _ =>
                       }
+                      parent = parent.getParent
                     }
                     holder.registerProblem(ref.nameId, "Don't use this method, use appropriate method implemented for Scala, or use " +
                       "\"for Java only\" text in bounded doc comment owner ScalaDoc",
