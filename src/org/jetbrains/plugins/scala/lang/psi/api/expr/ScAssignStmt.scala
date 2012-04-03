@@ -45,3 +45,8 @@ trait ScAssignStmt extends ScExpression {
 object NamedAssignStmt {
   def unapply(st: ScAssignStmt): Option[String] = st.assignName
 }
+
+object ScAssignStmt {
+  def unapply(st: ScAssignStmt): Option[(ScExpression, Option[ScExpression])] =
+    Some(st.getLExpression, st.getRExpression)
+}

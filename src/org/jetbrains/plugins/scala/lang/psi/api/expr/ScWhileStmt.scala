@@ -16,3 +16,8 @@ trait ScWhileStmt extends ScExpression {
 
   override def accept(visitor: ScalaElementVisitor) = visitor.visitWhileStatement(this)
 }
+
+object ScWhileStmt {
+  def unapply(statement: ScWhileStmt): Option[(Option[ScExpression], Option[ScExpression])] =
+    Some((statement.condition, statement.body))
+}
