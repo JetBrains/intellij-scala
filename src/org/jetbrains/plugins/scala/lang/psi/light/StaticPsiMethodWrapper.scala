@@ -1,11 +1,10 @@
 package org.jetbrains.plugins.scala.lang.psi.light
 
-import com.intellij.psi.impl.light.LightMethod
 import com.intellij.psi.{PsiModifierList, PsiClass, PsiMethod}
-import org.jetbrains.plugins.groovy.lang.psi.impl.synthetic.LightModifierList
-import java.util.{HashSet => JHashSet}
 import com.intellij.openapi.util.Key
 import collection.immutable.HashMap
+import com.intellij.psi.impl.light.{LightModifierList, LightMethod}
+import org.jetbrains.plugins.scala.ScalaFileType
 
 /**
  * @author Alefas
@@ -22,7 +21,7 @@ class StaticPsiMethodWrapper private (val method: PsiMethod, containingClass: Ps
     }
   }
 
-  override def getModifierList: PsiModifierList = new LightModifierList(getManager, new JHashSet[String]) {
+  override def getModifierList: PsiModifierList = new LightModifierList(getManager, ScalaFileType.SCALA_LANGUAGE) {
     override def hasModifierProperty(name: String): Boolean = {
       name match {
         case "static" => true
