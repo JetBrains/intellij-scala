@@ -61,6 +61,7 @@ object DecompilerUtil {
     if (!file.isInstanceOf[VirtualFileWithId]) return DecompilationResult.empty
     val timeStamp = file.getTimeStamp
     var data = file.getUserData(SCALA_DECOMPILER_KEY)
+    var res: DecompilationResult = if (data == null) null else data.get()
     if (data == null || data.get() == null || data.get().timeStamp != timeStamp) {
       val readAttribute = SCALA_DECOMPILER_FILE_ATTRIBUTE.readAttribute(file)
       def updateAttributeAndData() {
@@ -75,7 +76,7 @@ object DecompilerUtil {
         } catch {
           case e: IOException =>
         }
-        data = new SoftReference[DecompilationResult](decompilationResult)
+        res = decompilationResult
       }
       if (readAttribute != null) {
         try {
@@ -84,19 +85,16 @@ object DecompilerUtil {
           val sourceText = readAttribute.readUTF()
           val attributeTimeStamp = readAttribute.readLong()
           if (attributeTimeStamp != timeStamp) updateAttributeAndData()
-          else {
-            data = new SoftReference[DecompilationResult](
-              DecompilationResult(isScala, sourceName, sourceText, attributeTimeStamp)
-            )
-          }
+          else res = DecompilationResult(isScala, sourceName, sourceText, attributeTimeStamp)
         }
         catch {
           case e: IOException => updateAttributeAndData()
         }
       } else updateAttributeAndData()
+      data = new SoftReference[DecompilationResult](res)
       file.putUserData(SCALA_DECOMPILER_KEY, data)
     }
-    data.get()
+    res
   }
 
   private val SOURCE_FILE = "SourceFile"
