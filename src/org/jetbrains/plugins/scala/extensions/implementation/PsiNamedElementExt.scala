@@ -8,7 +8,12 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
  * User: Alefas
  * Date: 16.02.12
  */
+
+
 class PsiNamedElementExt(named: PsiNamedElement) {
+  /**
+   * Second match branch is for Java only.
+   */
   def name: String = {
     named match {
       case named: ScNamedElement => named.name
@@ -18,6 +23,9 @@ class PsiNamedElementExt(named: PsiNamedElement) {
 }
 
 class PsiMemberExt(member: PsiMember) {
+  /**
+   * Second match branch is for Java only.
+   */
   def containingClass: PsiClass = {
     member match {
       case member: ScMember => member.containingClass
