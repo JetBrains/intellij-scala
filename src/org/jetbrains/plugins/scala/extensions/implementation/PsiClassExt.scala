@@ -8,6 +8,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefin
  * Date: 03.02.12
  */
 class PsiClassExt(clazz: PsiClass) {
+  /**
+   * Second match branch is for Java only.
+   */
   def qualifiedName: String = {
     clazz match {
       case t: ScTemplateDefinition => t.qualifiedName
