@@ -2,14 +2,12 @@ package org.jetbrains.plugins.scala
 package codeInspection
 package inference
 
-import collection.mutable.ArrayBuffer
 import com.intellij.codeInspection._
-import org.jetbrains.plugins.scala.codeInspection.InspectionsUtil
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, Any, AnyVal}
-import com.intellij.psi.{PsiElementVisitor, PsiFile}
-import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaRecursiveElementVisitor, ScalaFile}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScReferenceExpression, ScBlock, ScBlockExpr, ScExpression}
+import com.intellij.psi.PsiElementVisitor
+import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaFile}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScReferenceExpression, ScBlock, ScExpression}
 
 class SuspiciousInferredTypeInspection extends LocalInspectionTool {
   override def isEnabledByDefault: Boolean =  false // jzaugg: Disabled by default while I try this out.
