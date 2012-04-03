@@ -323,6 +323,9 @@
     <inspectionToolProvider implementation="org.jetbrains.plugins.scala.codeInspection.internal.ScalaInternalInspectionsProvider"/>
 
     <!-- inspections -->
+    <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.infiniteCycle.InfiniteLoopInspection"
+                     displayName="Infinite Loop Statement" groupName="Scala: General" shortName="InfiniteLoop" id="InfiniteLoopInspection" level="WARNING"
+                     enabledByDefault="true" language="Scala"/>
     <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.fileNameInspection.ScalaFileNameInspection"
                      displayName="File Name Inspection" groupName="Scala: General" shortName="ScalaFileName" id="ScalaFileName" level="WARNING"
                      enabledByDefault="true" language="Scala"/>

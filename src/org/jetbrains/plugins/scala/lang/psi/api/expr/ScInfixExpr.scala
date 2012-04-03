@@ -42,3 +42,8 @@ trait ScInfixExpr extends ScExpression with MethodInvocation with ScSugarCallExp
 
   def argsElement: PsiElement = getArgExpr
 }
+
+object ScInfixExpr {
+  def unapply(it: ScInfixExpr): Some[(ScExpression, ScReferenceExpression, ScExpression)] =
+    Some(it.lOp, it.operation, it.rOp)
+}
