@@ -8,23 +8,18 @@ import org.jetbrains.plugins.scala.ScalaFileType
 import com.intellij.psi._
 import impl.PsiManagerEx
 import java.lang.String
-import collection.Iterator
-import scope.PsiScopeProcessor.Event
 import scope.{NameHint, ElementClassHint, PsiScopeProcessor}
 import toplevel.synthetic.SyntheticClasses
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
-import com.intellij.openapi.util.Key
-import collection.mutable.HashSet
 import org.jetbrains.plugins.scala.caches.{ScalaShortNamesCacheManager, CachesUtil}
 import org.jetbrains.plugins.scala.extensions.toPsiNamedElementExt
-import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, ImplicitProcessor}
-import org.jetbrains.plugins.scala.lang.resolve.{StdKinds, ResolveUtils}
+import org.jetbrains.plugins.scala.lang.resolve.processor.ImplicitProcessor
+import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils
 
 /**
  * User: Alexander Podkhalyuzin
  * Date: 22.04.2010
  */
-
 class ScPackageImpl(val pack: PsiPackage) extends PsiPackageImpl(pack.getManager.asInstanceOf[PsiManagerEx],
         pack.getQualifiedName) with ScPackage {
   def superProcessDeclarations(processor: PsiScopeProcessor, state: ResolveState,
@@ -41,7 +36,8 @@ class ScPackageImpl(val pack: PsiPackage) extends PsiPackageImpl(pack.getManager
                           lastParent: PsiElement, place: PsiElement, lite: Boolean): Boolean = {
     if (place.getLanguage == ScalaFileType.SCALA_LANGUAGE && pack.getQualifiedName == "scala") {
       if (!processor.isInstanceOf[ImplicitProcessor]) {
-        val namesSet = ScalaShortNamesCacheManager.getInstance(getProject).getClassNames(pack, getResolveScope)
+        val namesSet = ScalaShortNamesCacheManager.getInstance(getProject).
+          getClassNames(pack, place.getResolveScope)
 
         //Process synthetic classes for scala._ package
         /**
