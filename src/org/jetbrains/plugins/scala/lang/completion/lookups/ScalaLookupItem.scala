@@ -29,7 +29,7 @@ import org.jetbrains.plugins.scala.extensions.{toPsiMemberExt, toPsiClassExt, to
  * @author Alefas
  * @since 22.03.12
  */
-class ScalaLookupItem(val element: PsiNamedElement, _name: String) extends {
+class ScalaLookupItem(val element: PsiNamedElement, _name: String, containingClass0: Option[PsiClass] = None) extends {
   val name: String = if (ScalaNamesUtil.isKeyword(_name) && _name != "this") "`" + _name + "`" else _name
 } with LookupItem[PsiNamedElement](element, name) {
 
@@ -107,15 +107,15 @@ class ScalaLookupItem(val element: PsiNamedElement, _name: String) extends {
 
   def isNamedParameterOrAssignment = isNamedParameter || isAssignment
 
-  private val containingClass = ScalaPsiUtil.nameContext(element) match {
+  val containingClass = containingClass0.getOrElse(ScalaPsiUtil.nameContext(element) match {
     case memb: PsiMember => memb.containingClass
     case _ => null
-  }
+  })
 
   override def equals(o: Any): Boolean = {
     if (!super.equals(o)) return false
     o match {
-      case s: ScalaLookupItem => if (isNamedParameter != s.isNamedParameter) return false
+      case s: ScalaLookupItem => if (isNamedParameter != s.isNamedParameter || containingClass.getNavigationElement != s.containingClass.getNavigationElement) return false
       case _ =>
     }
     true
@@ -229,10 +229,6 @@ class ScalaLookupItem(val element: PsiNamedElement, _name: String) extends {
       presentation.setIcon(element.getIcon(0))
     var itemText: String =
       if (isRenamed == None) if (isClassName && shouldImport) {
-        val containingClass = ScalaPsiUtil.nameContext(element) match {
-          case memb: PsiMember => memb.containingClass
-          case _ => null
-        }
         if (containingClass != null) containingClass.name + "." + name
         else name
       } else name
