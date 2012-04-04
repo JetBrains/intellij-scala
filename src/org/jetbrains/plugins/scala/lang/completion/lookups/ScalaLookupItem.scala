@@ -115,7 +115,7 @@ class ScalaLookupItem(val element: PsiNamedElement, _name: String, containingCla
   override def equals(o: Any): Boolean = {
     if (!super.equals(o)) return false
     o match {
-      case s: ScalaLookupItem => if (isNamedParameter != s.isNamedParameter || containingClass.getNavigationElement != s.containingClass.getNavigationElement) return false
+      case s: ScalaLookupItem => if (isNamedParameter != s.isNamedParameter || containingClass != s.containingClass) return false
       case _ =>
     }
     true

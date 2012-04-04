@@ -2,6 +2,8 @@ package org.jetbrains.plugins.scala.lang.completion3
 
 import com.intellij.codeInsight.completion.CompletionType
 import org.junit.Assert
+import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
+import org.jetbrains.plugins.scala.extensions.toPsiNamedElementExt
 
 /**
  * @author Alexander Podkhalyuzin
@@ -213,5 +215,35 @@ class Test {
     configureFromFileTextAdapter("dummy7.scala", fileText)
     val (activeLookup, _) = complete(completionType = CompletionType.CLASS_NAME, time = 2)
     Assert.assertTrue(activeLookup.find(_.getLookupString == "doSmthPrivate") != None)
+  }
+
+  def testGlobalMemberInherited() {
+    val fileText =
+      """
+      class Base {
+        def zeeGlobalDefInherited = 0
+        val zeeGlobalValInherited = 0
+      }
+
+      object D1 extends Base {
+        def zeeGlobalDef = 0
+        def zeeGlobalVal = 0
+      }
+
+      package object D2 extends Base
+
+      class Test {
+        def test() {
+          zeeGlobal<caret>
+        }
+      }
+      """.replaceAll("\r", "").trim()
+    configureFromFileTextAdapter("dummyGlobalMemberInherited.scala", fileText)
+    val (activeLookup, _) = complete(completionType = CompletionType.CLASS_NAME, time = 2)
+    val lookups = activeLookup.collect {
+      case sli: ScalaLookupItem => sli.containingClass.name + "." + sli.getLookupString
+    }
+    val expected = Set("D1.zeeGlobalDefInherited", "D1.zeeGlobalValInherited", "D1.zeeGlobalDef", "D1.zeeGlobalVal", "D2.zeeGlobalDefInherited", "D2.zeeGlobalValInherited")
+    Assert.assertEquals(expected, lookups.toSet)
   }
 }
