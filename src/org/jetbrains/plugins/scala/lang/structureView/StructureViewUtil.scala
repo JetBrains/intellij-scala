@@ -23,7 +23,7 @@ object StructureViewUtil {
     res.toString
   }
   def getParametersAsString(x: ScParameterClause, short: Boolean, subst: ScSubstitutor): String = {
-    val res = new StringBuffer("");
+    val res = new StringBuffer("")
     for (param <- x.parameters) {
       if (short) {
         param.paramType match {
