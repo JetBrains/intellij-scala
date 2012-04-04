@@ -248,7 +248,7 @@ class ScalaGlobalMembersCompletionContributor extends CompletionContributor {
         val methodsIterator = namesCache.getMethodsByName(methodName, scope).iterator
         while (methodsIterator.hasNext) {
           val method = methodsIterator.next()
-          val inheritors = ClassInheritorsSearch.search(method.containingClass, method.containingClass.getUseScope, true).toArray(PsiClass.EMPTY_ARRAY)
+          val inheritors = ClassInheritorsSearch.search(method.containingClass, scope, true).toArray(PsiClass.EMPTY_ARRAY)
           val currentAndInheritors = Iterator(method.containingClass) ++ inheritors.iterator
           for {
             containingClass <- currentAndInheritors
@@ -313,7 +313,7 @@ class ScalaGlobalMembersCompletionContributor extends CompletionContributor {
             case v: ScValue => v.declaredElements.find(_.name == fieldName).getOrElse(null)
             case v: ScVariable => v.declaredElements.find(_.name == fieldName).getOrElse(null)
           }
-          val inheritors = ClassInheritorsSearch.search(field.containingClass, field.containingClass.getResolveScope, true).toArray(PsiClass.EMPTY_ARRAY)
+          val inheritors = ClassInheritorsSearch.search(field.containingClass, scope, true).toArray(PsiClass.EMPTY_ARRAY)
           val currentAndInheritors = Iterator(field.containingClass) ++ inheritors.iterator
           for {
             containingClass <- currentAndInheritors
