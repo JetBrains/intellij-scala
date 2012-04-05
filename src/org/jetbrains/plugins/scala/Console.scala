@@ -5,7 +5,7 @@ package org.jetbrains.plugins.scala
  */
 
 object Console {
-  private val Enabled = false 
+  private val Enabled = false
 
   def print(x: Any) {
     if (Enabled) Predef.print(x)
