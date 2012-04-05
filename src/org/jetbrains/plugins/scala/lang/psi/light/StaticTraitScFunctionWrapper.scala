@@ -19,7 +19,7 @@ class StaticTraitScFunctionWrapper(val function: ScFunction, containingClass: Ps
       case e => elementFactory.createMethodFromText("public void FAILED_TO_DECOMPILE_METHOD() {}", containingClass)
     }
   }
-} with LightMethod(function.getManager, method, containingClass) {
+} with LightMethod(function.getManager, method, containingClass) with LightScalaMethod {
   override def getNavigationElement: PsiElement = function
 
   override def canNavigate: Boolean = function.canNavigate
