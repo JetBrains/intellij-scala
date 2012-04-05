@@ -1233,6 +1233,7 @@ public class _ScalaCoreLexer implements FlexLexer, ScalaTokenTypesEx {
    * @param newState the new lexical state
    */
   public final void yybegin(int newState) {
+    assert (newState < _ScalaCoreLexer.ZZ_LEXSTATE.length);
     zzLexicalState = newState;
   }
 

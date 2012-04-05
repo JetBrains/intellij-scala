@@ -12,7 +12,6 @@ import com.intellij.openapi.editor.{ScrollType, Editor}
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil
 import com.intellij.openapi.application.ApplicationManager
-import com.intellij.refactoring.util.RefactoringMessageDialog
 import com.intellij.refactoring.{HelpID, RefactoringActionHandler}
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.lang.psi.dataFlow.impl.reachingDefs.ReachingDefintionsCollector
@@ -29,6 +28,7 @@ import psi.api.{ScalaElementVisitor, ScalaRecursiveElementVisitor, ScalaFile}
 import psi.api.base.patterns.ScCaseClause
 import psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.extensions.toPsiNamedElementExt
+import com.intellij.refactoring.util.{CommonRefactoringUtil, RefactoringMessageDialog}
 
 /**
  * User: Alexander Podkhalyuzin
@@ -50,13 +50,17 @@ class ScalaExtractMethodHandler extends RefactoringActionHandler {
   }
 
   private def invokeOnEditor(project: Project, editor: Editor, file: ScalaFile, dataContext: DataContext) {
+    if (!ScalaRefactoringUtil.ensureFileWritable(project, file)) {
+      showErrorMessage(ScalaBundle.message("file.is.not.writable"), project, editor)
+      return
+    }
     if (!editor.getSelectionModel.hasSelection) return
     ScalaRefactoringUtil.trimSpacesAndComments(editor, file, false)
     val startElement: PsiElement = file.findElementAt(editor.getSelectionModel.getSelectionStart)
     val endElement: PsiElement = file.findElementAt(editor.getSelectionModel.getSelectionEnd - 1)
     val elements = ScalaPsiUtil.getElementsRange(startElement, endElement).toArray
     if (elements.length == 0) {
-      showErrorMessage(ScalaBundle.message("cannot.extract.empty.message"), project)
+      showErrorMessage(ScalaBundle.message("cannot.extract.empty.message"), project, editor)
       return
     }
 
@@ -102,7 +106,7 @@ class ScalaExtractMethodHandler extends RefactoringActionHandler {
     val fun = PsiTreeUtil.getParentOfType(elements(0), classOf[ScFunctionDefinition])
     for (element <- elements if fun != null && hasReturn == None) {
       if (element.isInstanceOf[ScSelfInvocation]) {
-        showErrorMessage(ScalaBundle.message("cannot.extract.self.invocation"), project)
+        showErrorMessage(ScalaBundle.message("cannot.extract.self.invocation"), project, editor)
         return
       }
 
@@ -357,10 +361,8 @@ class ScalaExtractMethodHandler extends RefactoringActionHandler {
     }, REFACTORING_NAME, null)
   }
 
-  private def showErrorMessage(text: String, project: Project) {
+  private def showErrorMessage(text: String, project: Project, editor: Editor) {
     if (ApplicationManager.getApplication.isUnitTestMode) throw new RuntimeException(text)
-    val dialog = new RefactoringMessageDialog(REFACTORING_NAME, text,
-            HelpID.EXTRACT_METHOD, "OptionPane.errorIcon", false, project)
-    dialog.show()
+    CommonRefactoringUtil.showErrorHint(project, editor, text, REFACTORING_NAME, HelpID.EXTRACT_METHOD)
   }
 }
