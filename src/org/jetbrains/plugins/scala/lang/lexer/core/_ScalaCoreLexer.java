@@ -1339,7 +1339,7 @@ public class _ScalaCoreLexer implements FlexLexer, ScalaTokenTypesEx {
     int zzCurrentPosL;
     int zzMarkedPosL;
     int zzEndReadL = zzEndRead;
-    char[] zzBufferL = zzBuffer.toString().toCharArray();
+    CharSequence zzBufferL = zzBuffer;
     char[] zzBufferArrayL = zzBufferArray;
     char [] zzCMapL = ZZ_CMAP;
 
@@ -1361,7 +1361,7 @@ public class _ScalaCoreLexer implements FlexLexer, ScalaTokenTypesEx {
         while (true) {
 
           if (zzCurrentPosL < zzEndReadL)
-            zzInput = zzBufferArrayL != null ? zzBufferArrayL[zzCurrentPosL++]:zzBufferL[zzCurrentPosL++];
+            zzInput = zzBufferArrayL != null ? zzBufferArrayL[zzCurrentPosL++]:zzBufferL.charAt(zzCurrentPosL++);
           else if (zzAtEOF) {
             zzInput = YYEOF;
             break zzForAction;
@@ -1374,14 +1374,14 @@ public class _ScalaCoreLexer implements FlexLexer, ScalaTokenTypesEx {
             // get translated positions and possibly new buffer
             zzCurrentPosL  = zzCurrentPos;
             zzMarkedPosL   = zzMarkedPos;
-            zzBufferL      = zzBuffer.toString().toCharArray();
+            zzBufferL      = zzBuffer;
             zzEndReadL     = zzEndRead;
             if (eof) {
               zzInput = YYEOF;
               break zzForAction;
             }
             else {
-              zzInput = zzBufferArrayL != null ? zzBufferArrayL[zzCurrentPosL++]:zzBufferL[zzCurrentPosL++];
+              zzInput = zzBufferArrayL != null ? zzBufferArrayL[zzCurrentPosL++]:zzBufferL.charAt(zzCurrentPosL++);
             }
           }
           int zzNext = zzTransL[ zzRowMapL[zzState] + zzCMapL[zzInput] ];
@@ -1572,11 +1572,11 @@ public class _ScalaCoreLexer implements FlexLexer, ScalaTokenTypesEx {
           // general lookahead, find correct zzMarkedPos
           { int zzFState = 8;
             int zzFPos = zzStartRead;
-            if (zzFin.length <= zzBufferL.length) { zzFin = new boolean[zzBufferL.length+1]; }
+            if (zzFin.length <= zzBufferL.length()) { zzFin = new boolean[zzBufferL.length()+1]; }
             boolean zzFinL[] = zzFin;
             while (zzFState != -1 && zzFPos < zzMarkedPos) {
               if ((zzAttrL[zzFState] & 1) == 1) { zzFinL[zzFPos] = true; } 
-              zzInput = zzBufferL[zzFPos++];
+              zzInput = zzBufferL.charAt(zzFPos++);
               zzFState = zzTransL[ zzRowMapL[zzFState] + zzCMapL[zzInput] ];
             }
             if (zzFState != -1 && (zzAttrL[zzFState] & 1) == 1) { zzFinL[zzFPos] = true; } 
@@ -1584,7 +1584,7 @@ public class _ScalaCoreLexer implements FlexLexer, ScalaTokenTypesEx {
             zzFState = 9;
             zzFPos = zzMarkedPos;
             while (!zzFinL[zzFPos] || (zzAttrL[zzFState] & 1) != 1) {
-              zzInput = zzBufferL[--zzFPos];
+              zzInput = zzBufferL.charAt(--zzFPos);
               zzFState = zzTransL[ zzRowMapL[zzFState] + zzCMapL[zzInput] ];
             };
             zzMarkedPos = zzFPos;
@@ -1673,11 +1673,11 @@ public class _ScalaCoreLexer implements FlexLexer, ScalaTokenTypesEx {
           // general lookahead, find correct zzMarkedPos
           { int zzFState = 6;
             int zzFPos = zzStartRead;
-            if (zzFin.length <= zzBufferL.length) { zzFin = new boolean[zzBufferL.length+1]; }
+            if (zzFin.length <= zzBufferL.length()) { zzFin = new boolean[zzBufferL.length()+1]; }
             boolean zzFinL[] = zzFin;
             while (zzFState != -1 && zzFPos < zzMarkedPos) {
               if ((zzAttrL[zzFState] & 1) == 1) { zzFinL[zzFPos] = true; } 
-              zzInput = zzBufferL[zzFPos++];
+              zzInput = zzBufferL.charAt(zzFPos++);
               zzFState = zzTransL[ zzRowMapL[zzFState] + zzCMapL[zzInput] ];
             }
             if (zzFState != -1 && (zzAttrL[zzFState] & 1) == 1) { zzFinL[zzFPos] = true; } 
@@ -1685,7 +1685,7 @@ public class _ScalaCoreLexer implements FlexLexer, ScalaTokenTypesEx {
             zzFState = 7;
             zzFPos = zzMarkedPos;
             while (!zzFinL[zzFPos] || (zzAttrL[zzFState] & 1) != 1) {
-              zzInput = zzBufferL[--zzFPos];
+              zzInput = zzBufferL.charAt(--zzFPos);
               zzFState = zzTransL[ zzRowMapL[zzFState] + zzCMapL[zzInput] ];
             };
             zzMarkedPos = zzFPos;
