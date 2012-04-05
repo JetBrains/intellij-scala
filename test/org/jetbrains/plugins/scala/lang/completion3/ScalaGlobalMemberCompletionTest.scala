@@ -179,6 +179,29 @@ class TUI {
     checkResultByText(resultText)
   }
 
+  def testGlobalMemberJava() {
+    val fileText =
+"""
+class TUI {
+  activeCoun<caret>
+}
+""".replaceAll("\r", "").trim()
+    configureFromFileTextAdapter("dummy7.scala", fileText)
+    val (activeLookup, _) = complete(completionType = CompletionType.CLASS_NAME)
+
+    val resultText =
+"""
+class TUI {
+  Thread.activeCount()<caret>
+}
+""".replaceAll("\r", "").trim()
+
+    if (activeLookup != null)
+      completeLookupItem(activeLookup.find(le => le.getLookupString == "activeCount").get)
+
+    checkResultByText(resultText)
+  }
+
   def testGlobalMember8() {
     val fileText =
 """

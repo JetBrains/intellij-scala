@@ -9,7 +9,6 @@ import com.intellij.util.indexing.FileBasedIndex
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.psi.util.PsiUtilCore
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScVariable, ScValue}
 import collection.mutable.{HashSet, ArrayBuffer}
 import com.intellij.psi._
 import search.{PsiShortNamesCache, GlobalSearchScope}
@@ -18,6 +17,8 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import scala.Predef._
 import org.jetbrains.plugins.scala.extensions.{toPsiNamedElementExt, toPsiClassExt}
 import com.intellij.openapi.project.{DumbService, DumbServiceImpl, Project}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScVariable, ScValue}
+import org.jetbrains.plugins.scala.lang.psi.light.{LightScalaMethod, ScFunctionWrapper}
 
 /**
  * User: Alefas
@@ -163,34 +164,48 @@ class ScalaShortNamesCacheManager(project: Project) extends ProjectComponent {
   }
 
   def getMethodsByName(name: String, scope: GlobalSearchScope): Seq[PsiMethod] = {
-    val methods = StubIndex.getInstance.get(ScalaIndexKeys.METHOD_NAME_KEY, name, project, new ScalaSourceFilterScope(scope, project))
-    val list: ArrayBuffer[PsiMethod] = new ArrayBuffer[PsiMethod]
-    var method: PsiMethod = null
-    var count: Int = 0
-    val methodsIterator = methods.iterator()
-    while (methodsIterator.hasNext) {
-      val element = methodsIterator.next()
-      if (!(element.isInstanceOf[PsiMethod])) {
-        var faultyContainer: VirtualFile = PsiUtilCore.getVirtualFile(element)
-        LOG.error("Wrong Psi in Psi list: " + faultyContainer)
-        if (faultyContainer != null && faultyContainer.isValid) {
-          FileBasedIndex.getInstance.requestReindex(faultyContainer)
+    def scalaMethods: Seq[PsiMethod] = {
+      val methods = StubIndex.getInstance.get(ScalaIndexKeys.METHOD_NAME_KEY, name, project, new ScalaSourceFilterScope(scope, project))
+      val list: ArrayBuffer[PsiMethod] = new ArrayBuffer[PsiMethod]
+      var method: PsiMethod = null
+      var count: Int = 0
+      val methodsIterator = methods.iterator()
+      while (methodsIterator.hasNext) {
+        val element = methodsIterator.next()
+        if (!(element.isInstanceOf[PsiMethod])) {
+          var faultyContainer: VirtualFile = PsiUtilCore.getVirtualFile(element)
+          LOG.error("Wrong Psi in Psi list: " + faultyContainer)
+          if (faultyContainer != null && faultyContainer.isValid) {
+            FileBasedIndex.getInstance.requestReindex(faultyContainer)
+          }
+          return Seq.empty
         }
-        return Seq.empty
+        method = element.asInstanceOf[PsiMethod]
+        if (name == method.name) {
+          list += method
+          count += 1
+        }
       }
-      method = element.asInstanceOf[PsiMethod]
-      if (name == method.name) {
-        list += method
-        count += 1
-      }
+      if (count == 0) Seq.empty
+      if (count == 1) Seq(method)
+      list.toSeq
     }
-    if (count == 0) return Seq.empty
-    if (count == 1) return Seq(method)
-    list.toSeq
+    def javaMethods: Seq[PsiMethod] = {
+      PsiShortNamesCache.getInstance(project).getMethodsByName(name, scope).filter {
+        case f: ScFunction => false
+        case f: LightScalaMethod => false
+        case _ => true
+      }.toSeq
+    }
+    scalaMethods ++ javaMethods
   }
 
   def getFieldsByName(name: String, scope: GlobalSearchScope): Array[PsiField] = {
     PsiShortNamesCache.getInstance(project).getFieldsByName(name, scope)
+  }
+
+  def getAllJavaMethodNames: Array[String] = {
+    PsiShortNamesCache.getInstance(project).getAllMethodNames
   }
 
   def getAllFieldNames: Array[String] = {

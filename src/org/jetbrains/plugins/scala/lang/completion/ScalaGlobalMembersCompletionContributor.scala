@@ -232,7 +232,7 @@ class ScalaGlobalMembersCompletionContributor extends CompletionContributor {
 
     val namesCache = ScalaShortNamesCacheManager.getInstance(ref.getProject)
 
-    val methodNamesIterator = namesCache.getAllMethodNames.iterator
+    val methodNamesIterator = namesCache.getAllMethodNames.iterator ++ namesCache.getAllJavaMethodNames.iterator
 
     def isAccessible(member: PsiMember, containingClass: PsiClass): Boolean = {
       invocationCount >= 2 || (ResolveUtils.isAccessible(member, ref) && ResolveUtils.isAccessible(containingClass, ref))
@@ -245,7 +245,7 @@ class ScalaGlobalMembersCompletionContributor extends CompletionContributor {
         val methodsIterator = namesCache.getMethodsByName(methodName, scope).iterator
         while (methodsIterator.hasNext) {
           val method = methodsIterator.next()
-          val inheritors = {
+          val inheritors: Array[PsiClass] = {
             if (method.isInstanceOf[ScFunction])
               ClassInheritorsSearch.search(method.containingClass, scope, true).toArray(PsiClass.EMPTY_ARRAY)
             else Array.empty
