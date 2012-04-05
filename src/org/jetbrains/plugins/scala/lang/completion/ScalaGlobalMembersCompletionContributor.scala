@@ -7,7 +7,7 @@ import lookups.{ScalaLookupItem, LookupElementManager}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScPrefixExpr, ScPostfixExpr, ScInfixExpr, ScReferenceExpression}
 import com.intellij.featureStatistics.FeatureUsageTracker
-import search.{PsiShortNamesCache, GlobalSearchScope}
+import search.GlobalSearchScope
 import gnu.trove.THashSet
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import com.intellij.codeInsight.CodeInsightSettings
@@ -24,16 +24,14 @@ import org.jetbrains.plugins.scala.lang.resolve.processor.CompletionProcessor
 import org.jetbrains.plugins.scala.lang.resolve.{StdKinds, ScalaResolveResult, ResolveUtils}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScVariable, ScValue}
 import org.jetbrains.plugins.scala.caches.ScalaShortNamesCacheManager
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTypeDefinition, ScObject}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTypeDefinition, ScObject}
 import org.jetbrains.plugins.scala.extensions.{toPsiMemberExt, toPsiNamedElementExt, toPsiClassExt}
-import org.jetbrains.plugins.scala.lang.psi.impl.search.ScalaOverridengMemberSearch
 import com.intellij.psi.search.searches.ClassInheritorsSearch
 
 /**
  * @author Alexander Podkhalyuzin
  */
-
-class ScalaGlobalMembersCompletionContributor extends CompletionContributor {  
+class ScalaGlobalMembersCompletionContributor extends CompletionContributor {
   extend(CompletionType.CLASS_NAME, psiElement, new CompletionProvider[CompletionParameters]() {
     def addCompletions(parameters: CompletionParameters, context: ProcessingContext,
                        result: CompletionResultSet) {
@@ -94,7 +92,6 @@ class ScalaGlobalMembersCompletionContributor extends CompletionContributor {
   private def completeImplicits(ref: ScReferenceExpression, result: CompletionResultSet, originalFile: PsiFile,
                                 originalType: ScType) {
     FeatureUsageTracker.getInstance.triggerFeatureUsed(JavaCompletionFeatures.GLOBAL_MEMBER_NAME)
-    val matcher: PrefixMatcher = result.getPrefixMatcher
     val scope: GlobalSearchScope = ref.getResolveScope
     val file = ref.getContainingFile
 
