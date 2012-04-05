@@ -248,7 +248,11 @@ class ScalaGlobalMembersCompletionContributor extends CompletionContributor {
         val methodsIterator = namesCache.getMethodsByName(methodName, scope).iterator
         while (methodsIterator.hasNext) {
           val method = methodsIterator.next()
-          val inheritors = ClassInheritorsSearch.search(method.containingClass, scope, true).toArray(PsiClass.EMPTY_ARRAY)
+          val inheritors = {
+            if (method.isInstanceOf[ScFunction])
+              ClassInheritorsSearch.search(method.containingClass, scope, true).toArray(PsiClass.EMPTY_ARRAY)
+            else Array.empty
+          }
           val currentAndInheritors = Iterator(method.containingClass) ++ inheritors.iterator
           for {
             containingClass <- currentAndInheritors
@@ -263,11 +267,10 @@ class ScalaGlobalMembersCompletionContributor extends CompletionContributor {
                 case o: ScObject => o.functionsByName(methodName)
                 case _ => containingClass.getAllMethods.toSeq.filter(m => m.name == methodName)
               }
-              assert(!overloads.isEmpty)
               if (overloads.size == 1) {
                 result.addElement(createLookupElement(method, containingClass, shouldImport))
               }
-              else {
+              else if (overloads.size > 1) {
                 val lookup = createLookupElement(if (overloads(0).getParameterList.getParametersCount == 0)
                   overloads(1) else overloads(0), containingClass, shouldImport, true)
                 result.addElement(lookup)
@@ -313,18 +316,20 @@ class ScalaGlobalMembersCompletionContributor extends CompletionContributor {
             case v: ScValue => v.declaredElements.find(_.name == fieldName).getOrElse(null)
             case v: ScVariable => v.declaredElements.find(_.name == fieldName).getOrElse(null)
           }
-          val inheritors = ClassInheritorsSearch.search(field.containingClass, scope, true).toArray(PsiClass.EMPTY_ARRAY)
-          val currentAndInheritors = Iterator(field.containingClass) ++ inheritors.iterator
-          for {
-            containingClass <- currentAndInheritors
-            if namedElement != null && isStatic(namedElement, containingClass)
-          } {
-            assert(containingClass != null)
-            if (isAccessible(field, containingClass)) {
-              val shouldImport = !elemsSetContains(namedElement)
-              showHint(shouldImport)
+          if (field.containingClass != null) {
+            val inheritors = ClassInheritorsSearch.search(field.containingClass, scope, true).toArray(PsiClass.EMPTY_ARRAY)
+            val currentAndInheritors = Iterator(field.containingClass) ++ inheritors.iterator
+            for {
+              containingClass <- currentAndInheritors
+              if namedElement != null && isStatic(namedElement, containingClass)
+            } {
+              assert(containingClass != null)
+              if (isAccessible(field, containingClass)) {
+                val shouldImport = !elemsSetContains(namedElement)
+                showHint(shouldImport)
 
-              result.addElement(createLookupElement(namedElement, containingClass, shouldImport))
+                result.addElement(createLookupElement(namedElement, containingClass, shouldImport))
+              }
             }
           }
         }
@@ -334,7 +339,8 @@ class ScalaGlobalMembersCompletionContributor extends CompletionContributor {
 
   private def createLookupElement(member: PsiNamedElement, clazz: PsiClass, shouldImport: Boolean,
                                   overloaded: Boolean = false): LookupElement = {
-    LookupElementManager.getLookupElement(new ScalaResolveResult(member), qualifierType = ScType.designator(clazz), isClassName = true,
-      isOverloadedForClassName = overloaded, shouldImport = shouldImport, isInStableCodeReference = false).apply(0)
+    LookupElementManager.getLookupElement(new ScalaResolveResult(member), isClassName = true,
+      isOverloadedForClassName = overloaded, shouldImport = shouldImport,
+      isInStableCodeReference = false, containingClass = Some(clazz)).apply(0)
   }
 }

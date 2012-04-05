@@ -303,7 +303,7 @@ class ScalaLookupItem(val element: PsiNamedElement, _name: String, containingCla
                     else {
                       if (elementToImport == null) {
                         //import static
-                        ref.bindToElement(elementToImport)
+                        ref.bindToElement(element, Some(containingClass))
                       } else {
                         ScalaPsiUtil.nameContext(elementToImport) match {
                           case memb: PsiMember =>

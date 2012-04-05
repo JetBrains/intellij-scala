@@ -184,10 +184,10 @@ trait ScImportsHolder extends ScalaPsiElement {
     addImportForPath(clazz.qualifiedName, ref)
   }
 
-  def addImportForPsiNamedElement(elem: PsiNamedElement, ref: PsiElement) {
+  def addImportForPsiNamedElement(elem: PsiNamedElement, ref: PsiElement, cClass: Option[PsiClass] = None) {
     ScalaPsiUtil.nameContext(elem) match {
       case memb: PsiMember =>
-        val containingClass = memb.containingClass
+        val containingClass = cClass.getOrElse(memb.containingClass)
         if (containingClass != null && containingClass.qualifiedName != null) {
           ref match {
             case ref: ScReferenceElement =>
