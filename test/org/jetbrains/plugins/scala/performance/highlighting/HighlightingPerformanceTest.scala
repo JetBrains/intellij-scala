@@ -56,7 +56,7 @@ object addressbook {
      """ + "\"\"\"" + """table { border-right: 1px solid #cccccc; }
         th { background-color: #cccccc; }
         td { border-left: 1px solid #acacac; }
-        td { border-bottom: 1px solid #acacac;""" + "\"\"\"" + """}
+        td { border-bottom: 1px solid #acacac; }""" + "\"\"\"" + """}
       </style>
     </head>;
 
