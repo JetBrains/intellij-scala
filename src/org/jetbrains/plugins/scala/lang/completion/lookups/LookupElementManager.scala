@@ -23,7 +23,8 @@ object LookupElementManager {
                 isInImport: Boolean = false,
                 isOverloadedForClassName: Boolean = false,
                 shouldImport: Boolean = false,
-                isInStableCodeReference: Boolean = false): Seq[ScalaLookupItem] = {
+                isInStableCodeReference: Boolean = false,
+                containingClass: Option[PsiClass] = None): Seq[ScalaLookupItem] = {
     val element = resolveResult.element
     val substitutor = resolveResult.substitutor
     val isRenamed: Option[String] = resolveResult.isRenamed match {
@@ -31,7 +32,7 @@ object LookupElementManager {
       case _ => None
     }
     def getLookupElementInternal(isAssignment: Boolean, name: String): ScalaLookupItem = {
-      var lookupItem: ScalaLookupItem = new ScalaLookupItem(element, name, ScType.extractClass(qualifierType, Some(resolveResult.element.getProject)))
+      var lookupItem: ScalaLookupItem = new ScalaLookupItem(element, name, containingClass)
       lookupItem.isClassName = isClassName
       var isBold = false
       var isDeprecated = false

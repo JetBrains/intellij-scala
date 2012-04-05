@@ -16,7 +16,7 @@ class ScalaImportStaticLookupActionProvider extends LookupActionProvider {
       case elem: ScalaLookupItem if elem.element.isInstanceOf[PsiClass] => return
       case elem: ScalaLookupItem =>
         if (!elem.isClassName) return
-        if (!elem.usedImportStaticQuickfix) return
+        if (elem.usedImportStaticQuickfix) return
 
         val checkIcon: Icon = PlatformIcons.CHECK_ICON
         val icon: Icon =
@@ -25,7 +25,7 @@ class ScalaImportStaticLookupActionProvider extends LookupActionProvider {
         consumer.consume(new LookupElementAction(icon, "Import method") {
           def performLookupAction: LookupElementAction.Result = {
             elem.usedImportStaticQuickfix = true
-            new LookupElementAction.Result.ChooseItem(element)
+            new LookupElementAction.Result.ChooseItem(elem)
           }
         })
       case _ =>

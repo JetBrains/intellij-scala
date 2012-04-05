@@ -44,6 +44,8 @@ trait ScReferenceExpression extends ScalaPsiElement with ScExpression with ScRef
       ScalaPsiElementFactory.createExpressionFromText(clazz.name, clazz.getManager).asInstanceOf[ScReferenceExpression]
     }
   }
+
+  def bindToElement(element: PsiElement, containingClass: Option[PsiClass]): PsiElement
 }
 
 object ScReferenceExpression {

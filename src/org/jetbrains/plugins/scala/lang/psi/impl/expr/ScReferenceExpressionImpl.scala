@@ -50,7 +50,9 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
     visitor.visitReferenceExpression(this)
   }
 
-  def bindToElement(element: PsiElement): PsiElement = {
+  def bindToElement(element: PsiElement): PsiElement = bindToElement(element, None)
+
+  def bindToElement(element: PsiElement, containingClass: Option[PsiClass]): PsiElement = {
     if (isReferenceTo(element)) return this
     element match {
       case _: ScTrait => this
@@ -75,10 +77,10 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
           throw new IncorrectOperationException("named element does not match expected name")
         ScalaPsiUtil.nameContext(elem) match {
           case memb: PsiMember =>
-            val containingClass = memb.containingClass
-            if (containingClass != null && containingClass.qualifiedName != null) {
+            val cClass = containingClass.getOrElse(memb.containingClass)
+            if (cClass != null && cClass.qualifiedName != null) {
               ScalaImportClassFix.getImportHolder(this, getProject).
-                addImportForPsiNamedElement(elem, this)
+                addImportForPsiNamedElement(elem, this, Some(cClass))
             }
           case _ =>
         }
