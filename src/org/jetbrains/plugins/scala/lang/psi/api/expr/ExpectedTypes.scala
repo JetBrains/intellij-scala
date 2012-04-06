@@ -68,20 +68,20 @@ private[expr] object ExpectedTypes {
       case p: ScParenthesisedExpr => p.expectedTypesEx(fromUnderscore)
       //see SLS[6.11]
       case b: ScBlockExpr => b.lastExpr match {
-        case Some(e) if e == expr => b.expectedTypesEx(true)
+        case Some(e) if e == expr.getSameElementInContext => b.expectedTypesEx(true)
         case _ => Array.empty
       }
       //see SLS[6.16]
-      case cond: ScIfStmt if cond.condition.getOrElse(null: ScExpression) == expr => Array((types.Boolean, None))
+      case cond: ScIfStmt if cond.condition.getOrElse(null: ScExpression) == expr.getSameElementInContext => Array((types.Boolean, None))
       case cond: ScIfStmt if cond.elseBranch != None => cond.expectedTypesEx(true)
       //see SLA[6.22]
       case tb: ScTryBlock => tb.lastExpr match {
         case Some(e) if e == expr => tb.getContext.asInstanceOf[ScTryStmt].expectedTypesEx(true)
         case _ => Array.empty
       }
-      case wh: ScWhileStmt if wh.condition.getOrElse(null: ScExpression) == expr => Array((types.Boolean, None))
+      case wh: ScWhileStmt if wh.condition.getOrElse(null: ScExpression) == expr.getSameElementInContext => Array((types.Boolean, None))
       case wh: ScWhileStmt => Array((types.Unit, None))
-      case d: ScDoStmt if d.condition.getOrElse(null: ScExpression) == expr => Array((types.Boolean, None))
+      case d: ScDoStmt if d.condition.getOrElse(null: ScExpression) == expr.getSameElementInContext => Array((types.Boolean, None))
       case d: ScDoStmt => Array((types.Unit, None))
       case fb: ScFinallyBlock => Array((types.Unit, None))
       case cb: ScCatchBlock => Array.empty
@@ -122,9 +122,9 @@ private[expr] object ExpectedTypes {
         }
       }
       //SLS[6.15]
-      case a: ScAssignStmt if a.getRExpression.getOrElse(null: ScExpression) == expr => {
+      case a: ScAssignStmt if a.getRExpression.getOrElse(null: ScExpression) == expr.getSameElementInContext => {
         a.getLExpression match {
-          case ref: ScReferenceExpression if !a.getParent.isInstanceOf[ScArgumentExprList] ||
+          case ref: ScReferenceExpression if !a.getContext.isInstanceOf[ScArgumentExprList] ||
                   expr.isInstanceOf[ScUnderscoreSection] /* See SCL-3512, TODO SCL-3525 */ => {
             ref.bind() match {
               case Some(ScalaResolveResult(named: PsiNamedElement, subst: ScSubstitutor)) => {
@@ -190,8 +190,8 @@ private[expr] object ExpectedTypes {
         }
         buffer.map(typeToPair).toArray
       }
-      case infix: ScInfixExpr if ((infix.isLeftAssoc && infix.lOp == expr) ||
-              (!infix.isLeftAssoc && infix.rOp == expr)) && !expr.isInstanceOf[ScTuple] => {
+      case infix: ScInfixExpr if ((infix.isLeftAssoc && infix.lOp == expr.getSameElementInContext) ||
+              (!infix.isLeftAssoc && infix.rOp == expr.getSameElementInContext)) && !expr.isInstanceOf[ScTuple] => {
         val res = new ArrayBuffer[ScType]
         val zExpr: ScExpression = expr match {
           case p: ScParenthesisedExpr => p.expr.getOrElse(return Array.empty)
