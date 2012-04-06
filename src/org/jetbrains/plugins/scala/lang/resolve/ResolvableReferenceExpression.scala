@@ -350,11 +350,12 @@ trait ResolvableReferenceExpression extends ScReferenceExpression {
           rp.resetPrecedence() //do not clear candidate set, we want wrong resolve, if don't found anything
         case _ =>
       }
-      collectImplicits(e, processor)
+      val noImplicitsForArgs = candidates.size > 0
+      collectImplicits(e, processor, noImplicitsForArgs)
     }
   }
 
-  private def collectImplicits(e: ScExpression, processor: BaseProcessor) {
+  private def collectImplicits(e: ScExpression, processor: BaseProcessor, noImplicitsForArgs: Boolean) {
     processor match {
       case _: CompletionProcessor => {
         for ((t, fun, importsUsed) <- e.implicitMap()) { //todo: args?
@@ -369,6 +370,7 @@ trait ResolvableReferenceExpression extends ScReferenceExpression {
         }
         return
       }
+      case m: MethodResolveProcessor => m.noImplicitsForArgs = true
       case _ =>
     }
     val name = processor match {
@@ -376,7 +378,7 @@ trait ResolvableReferenceExpression extends ScReferenceExpression {
       case _ => refName
     }
     val (t: ScType, fun: PsiNamedElement, importsUsed: collection.Set[ImportUsed]) =
-      ScalaPsiUtil.findImplicitConversion(e, name, processor.kinds, this, processor) match {
+      ScalaPsiUtil.findImplicitConversion(e, name, processor.kinds, this, processor, noImplicitsForArgs) match {
         case Some(a) => a
         case None => return
       }
