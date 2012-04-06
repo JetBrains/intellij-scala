@@ -245,32 +245,36 @@ class ScalaGlobalMembersCompletionContributor extends CompletionContributor {
         val methodsIterator = namesCache.getMethodsByName(methodName, scope).iterator
         while (methodsIterator.hasNext) {
           val method = methodsIterator.next()
-          val inheritors: Array[PsiClass] = {
-            if (method.isInstanceOf[ScFunction])
-              ClassInheritorsSearch.search(method.containingClass, scope, true).toArray(PsiClass.EMPTY_ARRAY)
-            else Array.empty
-          }
-          val currentAndInheritors = Iterator(method.containingClass) ++ inheritors.iterator
-          for {
-            containingClass <- currentAndInheritors
-            if isStatic(method, containingClass)
-          } {
-            assert(containingClass != null)
-            if (classes.add(containingClass) && isAccessible(method, containingClass)) {
-              val shouldImport = !elemsSetContains(method)
-              showHint(shouldImport)
+          val cClass = method.containingClass
+          if (cClass != null) {
+            val inheritors: Array[PsiClass] = {
+              if (method.isInstanceOf[ScFunction])
+                ClassInheritorsSearch.search(cClass, scope, true).toArray(PsiClass.EMPTY_ARRAY)
+              else Array.empty
+            }
+            val currentAndInheritors = Iterator(cClass) ++ inheritors.iterator
+            for {
+              containingClass <- currentAndInheritors
+              if isStatic(method, containingClass)
+            } {
+              assert(containingClass != null)
+              if (classes.add(containingClass) && isAccessible(method, containingClass)) {
+                val shouldImport = !elemsSetContains(method)
+                showHint(shouldImport)
 
-              val overloads = containingClass match {
-                case o: ScObject => o.functionsByName(methodName)
-                case _ => containingClass.getAllMethods.toSeq.filter(m => m.name == methodName)
-              }
-              if (overloads.size == 1) {
-                result.addElement(createLookupElement(method, containingClass, shouldImport))
-              }
-              else if (overloads.size > 1) {
-                val lookup = createLookupElement(if (overloads(0).getParameterList.getParametersCount == 0)
-                  overloads(1) else overloads(0), containingClass, shouldImport, true)
-                result.addElement(lookup)
+                val overloads = containingClass match {
+                  case o: ScObject => o.functionsByName(methodName)
+                  case _ => containingClass.getAllMethods.toSeq.filter(m => m.name == methodName)
+                }
+                if (overloads.size == 1) {
+                  result.addElement(createLookupElement(method, containingClass, shouldImport))
+                }
+                else if (overloads.size > 1) {
+                  val lookup = createLookupElement(if (overloads(0).getParameterList.getParametersCount == 0)
+                    overloads(1)
+                  else overloads(0), containingClass, shouldImport, true)
+                  result.addElement(lookup)
+                }
               }
             }
           }
