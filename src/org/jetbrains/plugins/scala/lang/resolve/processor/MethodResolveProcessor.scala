@@ -35,7 +35,8 @@ class MethodResolveProcessor(override val ref: PsiElement,
                              val isUnderscore: Boolean = false,
                              var isShapeResolve: Boolean = false,
                              val constructorResolve: Boolean = false,
-                             val enableTupling: Boolean = false) extends ResolveProcessor(kinds, ref, refName) {
+                             val enableTupling: Boolean = false,
+                             var noImplicitsForArgs: Boolean = false) extends ResolveProcessor(kinds, ref, refName) {
   private def isUpdate: Boolean = {
     if (ref == null) return false
     ref.getContext match {
@@ -348,7 +349,7 @@ object MethodResolveProcessor {
     var mapped = mapper(false)
     var filtered = mapped.filter(_.isApplicableInternal)
 
-    if (filtered.isEmpty) {
+    if (filtered.isEmpty && !noImplicitsForArgs) {
       //check with implicits
       mapped = mapper(true)
       filtered = mapped.filter(_.isApplicableInternal)

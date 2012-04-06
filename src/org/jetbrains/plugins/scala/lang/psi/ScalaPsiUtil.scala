@@ -195,7 +195,7 @@ object ScalaPsiUtil {
   }
 
   def findImplicitConversion(e: ScExpression, refName: String, kinds: collection.Set[ResolveTargets.Value],
-                             ref: PsiElement, processor: BaseProcessor):
+                             ref: PsiElement, processor: BaseProcessor, noImplicitsForArgs: Boolean):
     Option[(ScType, PsiNamedElement, collection.Set[ImportUsed])] = {
     //TODO! remove this after find a way to improve implicits according to compiler.
     val isHardCoded = refName == "+" &&
@@ -226,7 +226,7 @@ object ScalaPsiUtil {
                   case fun: ScFunction if fun.hasTypeParameters => fun.typeParameters.map(tp => TypeParameter(tp.name, Nothing, Any, tp))
                   case _ => Seq.empty
                 }, kinds,
-                mrp.expectedOption, mrp.isUnderscore, mrp.isShapeResolve, mrp.constructorResolve)
+                mrp.expectedOption, mrp.isUnderscore, mrp.isShapeResolve, mrp.constructorResolve, noImplicitsForArgs = noImplicitsForArgs)
               val tp = t
               newProc.processType(tp, e, ResolveState.initial)
               val candidates = newProc.candidatesS.filter(_.isApplicable)
