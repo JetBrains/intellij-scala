@@ -35,41 +35,20 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes;
     //bracers count inside injection
     private int structuralBracers = 0;
 
-    // Stack for braces
-    private Stack <IElementType> braceStack = new Stack<IElementType>();
-
-    /* removes brace from stack */
-    private IElementType popBraceStack(IElementType elem){
-     if (
-          !braceStack.isEmpty() &&
-          (
-            (elem.equals(tRSQBRACKET) && tLSQBRACKET.equals(braceStack.peek())) ||
-            (elem.equals(tRBRACE) && tLBRACE.equals(braceStack.peek())) ||
-            (elem.equals(tRPARENTHESIS) && tLPARENTHESIS.equals(braceStack.peek()))
-          )
-        ) {
-          braceStack.pop();
-          return process(elem);
-        } else if (elem.equals(tFUNTYPE)) {
-          if (!braceStack.isEmpty() && kCASE.equals(braceStack.peek())) {
-            braceStack.pop();
-          }
-          return process(elem);
-        } else {
-          return process(elem);
-        }
+    public boolean isInsideInterpolatedStringInjection() {
+      return structuralBracers > 0;
     }
 
     private IElementType process(IElementType type){
       if (type == tIDENTIFIER && (haveIdInString || haveIdInMultilineString)) {
 
-       if (haveIdInString) {
-         haveIdInString = false;
-         yybegin(INSIDE_INTERPOLATED_STRING);
-       } else {
-         haveIdInMultilineString = false;
-         yybegin(INSIDE_MULTI_LINE_INTERPOLATED_STRING);
-       }
+        if (haveIdInString) {
+          haveIdInString = false;
+          yybegin(INSIDE_INTERPOLATED_STRING);
+        } else {
+          haveIdInMultilineString = false;
+          yybegin(INSIDE_MULTI_LINE_INTERPOLATED_STRING);
+        }
       }
 
       return type;
@@ -193,30 +172,19 @@ XML_BEGIN = "<" ("_" | [:jletter:]) | "<!--" | "<?" ("_" | [:jletter:]) | "<![CD
 %xstate WAIT_FOR_INTERPOLATED_STRING
 %xstate INSIDE_INTERPOLATED_STRING
 %xstate INSIDE_MULTI_LINE_INTERPOLATED_STRING
-%xstate WAIT_FOR_XML
 
 %%
 
-<YYINITIAL>{
-{XML_BEGIN}                             {   yybegin(COMMON_STATE);
-                                            yypushback(yytext().length());
-                                            return SCALA_XML_CONTENT_START;
-                                        }
-}
-
+//YYINITIAL is alias for WAIT_FOR_XML, so state will be initial after every space or new line token
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////  XML processing ///////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-<WAIT_FOR_XML>{
+<YYINITIAL>{
 
 {XML_BEGIN}                             {   yybegin(COMMON_STATE);
                                             yypushback(yytext().length());
                                             return SCALA_XML_CONTENT_START;
-                                        }
-
-[^]                                     {   yybegin(COMMON_STATE);
-                                            yypushback(yytext().length());
                                         }
 }
 
@@ -332,22 +300,19 @@ XML_BEGIN = "<" ("_" | [:jletter:]) | "<!--" | "<?" ("_" | [:jletter:]) | "<![CD
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////// braces ///////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-"["                                     {   braceStack.push(tLSQBRACKET);
-                                            return process(tLSQBRACKET); }
-"]"                                     {   return popBraceStack(tRSQBRACKET); }
+"["                                     {   return process(tLSQBRACKET); }
+"]"                                     {   return process(tRSQBRACKET); }
 
 "{"                                     {   if (insideInterpolatedStringBracers || insideInterpolatedMultilineStringBracers) {
                                               ++structuralBracers;
                                             }
 
-                                            braceStack.push(tLBRACE);
                                             return process(tLBRACE); }
 "{"{XML_BEGIN}                          {   if (insideInterpolatedStringBracers || insideInterpolatedMultilineStringBracers) {
                                               ++structuralBracers;
                                             }
-                                            braceStack.push(tLBRACE);
                                             yypushback(yytext().length() - 1);
-                                            yybegin(WAIT_FOR_XML);
+                                            yybegin(YYINITIAL);
                                             return process(tLBRACE); }
 
 "}"                                     {   if (insideInterpolatedStringBracers || insideInterpolatedMultilineStringBracers) {
@@ -363,16 +328,14 @@ XML_BEGIN = "<" ("_" | [:jletter:]) | "<!--" | "<?" ("_" | [:jletter:]) | "<![CD
                                               }
 
                                             }
-                                            return popBraceStack(tRBRACE); }
+                                            return process(tRBRACE); }
 
-"("                                     {   braceStack.push(tLPARENTHESIS);
-                                            return process(tLPARENTHESIS); }
+"("                                     {   return process(tLPARENTHESIS); }
 
-"("{XML_BEGIN}                          {   braceStack.push(tLPARENTHESIS);
-                                            yypushback(yytext().length() - 1);
-                                            yybegin(WAIT_FOR_XML);
+"("{XML_BEGIN}                          {   yypushback(yytext().length() - 1);
+                                            yybegin(YYINITIAL);
                                             return process(tLPARENTHESIS); }
-")"                                     {   return popBraceStack(tRPARENTHESIS); }
+")"                                     {   return process(tRPARENTHESIS); }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////// keywords /////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -382,8 +345,7 @@ XML_BEGIN = "<" ("_" | [:jletter:]) | "<!--" | "<?" ("_" | [:jletter:]) | "<![CD
 "case" / ({LineTerminator}|{WhiteSpace})+("class" | "object")
                                         {   return process(kCASE); }
 
-"case"                                  {   braceStack.push(kCASE);
-                                            return process(kCASE); }
+"case"                                  {   return process(kCASE); }
                                             
 "catch"                                 {   return process(kCATCH); }
 "class"                                 {   return process(kCLASS); }
@@ -434,9 +396,9 @@ XML_BEGIN = "<" ("_" | [:jletter:]) | "<!--" | "<?" ("_" | [:jletter:]) | "<![CD
 ":"                                     {   return process(tCOLON);  }
 "="                                     {   return process(tASSIGN);  }
 
-"=>"                                    {   return popBraceStack(tFUNTYPE); }
-"\\u21D2"                               {   return popBraceStack(tFUNTYPE); }
-"\u21D2"                                {   return popBraceStack(tFUNTYPE); }
+"=>"                                    {   return process(tFUNTYPE); }
+"\\u21D2"                               {   return process(tFUNTYPE); }
+"\u21D2"                                {   return process(tFUNTYPE); }
 
 "<-"                                    {   return process(tCHOOSE); }
 "\\u2190"                               {   return process(tCHOOSE); }
@@ -465,9 +427,9 @@ XML_BEGIN = "<" ("_" | [:jletter:]) | "<!--" | "<?" ("_" | [:jletter:]) | "<![CD
                                         {   return process(tINTEGER);  }
 {floatingPointLiteral}                  {   return process(tFLOAT);      }
 {integerLiteral}                        {   return process(tINTEGER);  }
-{WhiteSpace}                            {   yybegin(WAIT_FOR_XML);
+{WhiteSpace}                            {   yybegin(YYINITIAL);
                                             return process(tWHITE_SPACE_IN_LINE);  }
-{mNLS}                                  {   yybegin(WAIT_FOR_XML);
+{mNLS}                                  {   yybegin(YYINITIAL);
                                             return process(tWHITE_SPACE_IN_LINE); }
 
 ////////////////////// STUB ///////////////////////////////////////////////

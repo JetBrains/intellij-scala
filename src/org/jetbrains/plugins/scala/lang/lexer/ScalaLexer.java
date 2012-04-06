@@ -79,7 +79,8 @@ public class ScalaLexer extends Lexer {
     int state = 0;
     if (myLayeredTagStack.size() > 0) state = 239;
     if (myXmlState != 0) state = 239;
-    if (myScalaPlainLexer.getState() != 0) state = 239;
+    int scalaState = myScalaPlainLexer.getState();
+    if (scalaState != 0) state = 239;
     return state;
   }
 

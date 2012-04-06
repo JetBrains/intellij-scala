@@ -26,6 +26,16 @@ import java.io.Reader;
  */
 public class ScalaFlexLexer extends FlexAdapter {
   public ScalaFlexLexer() {
-    super(new _ScalaCoreLexer((Reader)  null));
+    super(new _ScalaCoreLexer((Reader) null));
+  }
+
+  public _ScalaCoreLexer getScalaCoreLexer() {
+    return (_ScalaCoreLexer) getFlex();
+  }
+
+  @Override
+  public int getState() {
+    return super.getState() << 1 |
+        (getScalaCoreLexer().isInsideInterpolatedStringInjection() ? 1 : 0);
   }
 }
