@@ -14,7 +14,7 @@ import lang.psi.types.nonvalue.Parameter
  */
 
 class PermuteArgumentsIntention extends PsiElementBaseIntentionAction {
-  def getFamilyName = "Argument Conversion"
+  def getFamilyName = "Permute arguments"
 
   override def getText = "Permute arguments to match the parameter declaration order"
 

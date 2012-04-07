@@ -16,7 +16,7 @@ import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
 
 class StringToMultilineStringIntention extends PsiElementBaseIntentionAction {
-  def getFamilyName: String = "String Conversion"
+  def getFamilyName: String = "Regular/Multi-line String conversion"
 
   def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean = {
     val literalExpression: ScLiteral = PsiTreeUtil.getParentOfType(element, classOf[ScLiteral], false)

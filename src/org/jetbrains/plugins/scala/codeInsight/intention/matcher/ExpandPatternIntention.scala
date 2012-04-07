@@ -20,18 +20,19 @@ import lang.psi.types.{ScType, ScSubstitutor}
 import extensions._
 import lang.refactoring.namesSuggester.NameSuggester
 import lang.psi.api.base.patterns.{ScWildcardPattern, ScReferencePattern, ScPattern, ScCaseClause}
+import org.apache.commons.lang.StringUtils
 
 /**
   * Expands reference or wildcard pattern to a constructor/tuple pattern.
   */
 // TODO avoid name clashes, avoid more FQNs with adjustTypes.
 class ExpandPatternIntention extends PsiElementBaseIntentionAction {
-  def getFamilyName: String = "Pattern Matching"
+  def getFamilyName: String = "Expand to Constructor pattern"
 
   def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean = {
     findReferencePattern(element) match {
       case Some((_, newPatternText)) =>
-        setText("Expand to: " + newPatternText)
+        setText("Expand to: " + StringUtils.abbreviate(newPatternText, 25))
         true
       case _ => false
     }

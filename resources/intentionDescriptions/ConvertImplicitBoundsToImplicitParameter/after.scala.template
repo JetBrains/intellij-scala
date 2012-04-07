@@ -1,0 +1,1 @@
+def method[A, B]</spot>(a: Int)(implicit evidence$1: Manifest[A], evidence$2: B => Ordered[B])

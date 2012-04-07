@@ -1,0 +1,1 @@
+def method<spot>[A: Manifest, B <%< Ordered[B]]</spot>(a: Int)

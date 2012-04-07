@@ -15,7 +15,7 @@ import com.intellij.psi.{PsiWhiteSpace, PsiDocumentManager, PsiElement}
  */
 
 class ImportAdditionalIdentifiersIntention extends PsiElementBaseIntentionAction {
-  def getFamilyName = "Import Statements"
+  def getFamilyName = "Import additional identifiers"
 
   override def getText = "Import additional identifiers from qualifier"
 

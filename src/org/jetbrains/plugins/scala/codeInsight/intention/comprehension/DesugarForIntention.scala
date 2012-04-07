@@ -12,7 +12,7 @@ import extensions._
 import lang.psi.impl.ScalaPsiElementFactory
 
 class DesugarForIntention extends PsiElementBaseIntentionAction {
-  def getFamilyName = "For comprehension conversion"
+  def getFamilyName = "Convert to desugared expression"
 
   override def getText = "Convert for comprehension to desugared expression"
 

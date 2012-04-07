@@ -7,43 +7,41 @@ import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.editor.Editor
 import lang.psi.types.result.TypingContext
-import lang.psi.impl.search.ScalaDirectClassInheritorsSearcher
 import collection.Seq
 import java.lang.String
-import lang.psi.types.{ScSubstitutor, ScType, ScDesignatorType}
+import lang.psi.types.{ScSubstitutor, ScType}
 import lang.psi.ScalaPsiUtil
 import com.intellij.codeInsight.CodeInsightUtilBase
 import com.intellij.openapi.fileEditor.ex.IdeDocumentHistory
-import lang.psi.api.toplevel.ScTypedDefinition
 import lang.psi.api.toplevel.typedef.{ScTypeDefinition, ScObject, ScClass}
-import lang.lexer.{ScalaElementType, ScalaTokenTypes}
-import lang.parser.ScalaElementTypes
 import lang.psi.api.base.patterns.{ScPattern, ScCaseClause}
-import lang.psi.api.expr.{ScReferenceExpression, ScExpression, ScMatchStmt}
-import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.openapi.util.TextRange
-import lang.psi.impl.{ScalaFileImpl, ScalaPsiElementFactory}
-import com.intellij.psi.search.searches.{ClassInheritorsSearch, DirectClassInheritorsSearch}
+import lang.psi.api.expr.{ScExpression, ScMatchStmt}
+import lang.psi.impl.ScalaPsiElementFactory
+import com.intellij.psi.search.searches.ClassInheritorsSearch
 import com.intellij.psi._
-import lang.psi.api.base.{ScReferenceElement, ScStableCodeReferenceElement}
+import lang.psi.api.base.ScReferenceElement
 import extensions._
 
 final class CreateCaseClausesIntention extends PsiElementBaseIntentionAction {
-  def getFamilyName: String = "Pattern Matching"
-
-  override def getText: String = "Add case clauses"
+  def getFamilyName: String = "Generate case clauses"
 
   def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean = {
-    findSurroundingMatch(element).isDefined
+    findSurroundingMatch(element) match {
+      case Some((_, scrutineeType)) =>
+        setText(getFamilyName + " for variants of " + scrutineeType)
+        true
+      case None =>
+        false
+    }
   }
 
   override def invoke(project: Project, editor: Editor, element: PsiElement) {
     findSurroundingMatch(element) match {
-      case Some(f) =>
+      case Some((action, _)) =>
         PsiDocumentManager.getInstance(project).commitAllDocuments()
         if (!CodeInsightUtilBase.prepareFileForWrite(element.getContainingFile)) return
         IdeDocumentHistory.getInstance(project).includeCurrentPlaceAsChangePlace()
-        f(project, editor, element)
+        action(project, editor, element)
       case None =>
     }
   }
@@ -121,15 +119,15 @@ final class CreateCaseClausesIntention extends PsiElementBaseIntentionAction {
   /**
    * @return (matchStmt, matchExpression, matchExpressionClass)
    */
-  private def findSurroundingMatch(element: PsiElement): Option[(Project, Editor, PsiElement) => Unit] = {
+  private def findSurroundingMatch(element: PsiElement): Option[((Project, Editor, PsiElement) => Unit, String)] = {
     element.getParent match {
       case x: ScMatchStmt if x.caseClauses.isEmpty =>
         val classType: Option[(PsiClass, ScSubstitutor)] = x.expr.flatMap(_.getType(TypingContext.empty).toOption).
                 flatMap(t => ScType.extractClassType(t, Some(element.getProject)))
 
         classType match {
-          case Some((cls: ScClass, subst)) if cls.hasModifierProperty("sealed") => Some(addMatchClausesForSealedClass(x, x.expr.get, cls))
-          case Some((cls: PsiClass, subst)) if cls.isEnum => Some(addMatchClausesForEnum(x, x.expr.get, cls))
+          case Some((cls: ScClass, subst)) if cls.hasModifierProperty("sealed") => Some(addMatchClausesForSealedClass(x, x.expr.get, cls), "Sealed Type")
+          case Some((cls: PsiClass, subst)) if cls.isEnum => Some(addMatchClausesForEnum(x, x.expr.get, cls), "Java Enumeration")
           case _ => None
         }
       case _ => None

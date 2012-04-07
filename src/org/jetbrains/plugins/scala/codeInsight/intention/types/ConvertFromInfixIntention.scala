@@ -16,9 +16,9 @@ import lang.psi.api.base.types.{ScParenthesisedTypeElement, ScInfixTypeElement}
 
 /** Converts type element `(A @@ B)` to `@@[A, B]` */
 class ConvertFromInfixIntention extends PsiElementBaseIntentionAction {
-  def getFamilyName = "Convert Type"
+  def getFamilyName = "Use Prefix Type Syntax"
 
-  override def getText = "Use Prefix Type Syntax"
+  override def getText = getFamilyName
 
   def isAvailable(project: Project, editor: Editor, element: PsiElement) = {
     element match {

@@ -1,0 +1,3 @@
+trait <~>[A, B]
+
+def foo(a: <spot>Int <~> Int</spot>)

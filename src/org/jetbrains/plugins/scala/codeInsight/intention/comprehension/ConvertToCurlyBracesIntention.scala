@@ -14,9 +14,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScForStatement
  */
 
 class ConvertToCurlyBracesIntention extends PsiElementBaseIntentionAction {
-  def getFamilyName = "Parentheses Conversion"
+  def getFamilyName = "Convert to curly braces"
 
-  override def getText = "Convert to curly braces"
+  override def getText = getFamilyName
 
   def isAvailable(project: Project, editor: Editor, element: PsiElement) = {
     element match {
