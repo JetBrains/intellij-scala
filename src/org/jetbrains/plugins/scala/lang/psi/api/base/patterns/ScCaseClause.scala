@@ -17,9 +17,9 @@ import lexer.ScalaTokenTypes
 */
 
 trait ScCaseClause extends ScalaPsiElement {
-  def pattern = findChild(classOf[ScPattern])
-  def expr = findChild(classOf[ScExpression])
-  def guard = findChild(classOf[ScGuard])
+  def pattern: Option[ScPattern] = findChild(classOf[ScPattern])
+  def expr: Option[ScExpression] = findChild(classOf[ScExpression])
+  def guard: Option[ScGuard] = findChild(classOf[ScGuard])
   def funType: Option[PsiElement] = {
     val result = getNode.getChildren(TokenSet.create(ScalaTokenTypes.tFUNTYPE, 
       ScalaTokenTypes.tFUNTYPE_ASCII))
