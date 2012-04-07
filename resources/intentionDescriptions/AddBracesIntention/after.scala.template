@@ -1,0 +1,15 @@
+def method() = {
+  expr
+}
+
+if (x) {
+  "true"
+} else {
+  "false"
+}
+
+try {
+  x
+} finally {
+  z.close()
+}
