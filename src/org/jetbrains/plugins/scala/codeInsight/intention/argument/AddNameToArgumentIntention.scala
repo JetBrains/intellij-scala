@@ -35,7 +35,7 @@ class AddNameToArgumentIntention extends PsiElementBaseIntentionAction {
 
   private def check(project: Project, editor: Editor, element: PsiElement): Option[() => Unit] = {
     val containingArgList: Option[ScArgumentExprList] = element.parents.collectFirst {
-      case al: ScArgumentExprList => al
+      case al: ScArgumentExprList if !al.isBraceArgs => al
     }
     containingArgList match {
       case Some(al) =>
