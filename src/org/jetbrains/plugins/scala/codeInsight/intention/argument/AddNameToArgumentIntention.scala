@@ -17,7 +17,7 @@ import lang.psi.types.nonvalue.Parameter
  */
 
 class AddNameToArgumentIntention extends PsiElementBaseIntentionAction {
-  def getFamilyName = "Argument Conversion"
+  def getFamilyName = "Use named arguments"
 
   override def getText = "Use named arguments for current and subsequent arguments"
 

@@ -7,15 +7,16 @@ import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScArgumentExprList
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import java.lang.String
 
 /**
  * Pavel Fatin
  */
 
 class ArgumentToBlockExpressionIntention extends PsiElementBaseIntentionAction {
-  def getFamilyName = "Argument Conversion"
+  def getFamilyName = "Convert to block expression"
 
-  override def getText = "Convert to block expression"
+  override def getText: String = getFamilyName
 
   def isAvailable(project: Project, editor: Editor, element: PsiElement) = {
     element match {

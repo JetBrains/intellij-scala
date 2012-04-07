@@ -14,9 +14,9 @@ import com.intellij.psi.{TokenType, PsiElement}
  */
 
 class ConvertToParenthesesIntention extends PsiElementBaseIntentionAction {
-  def getFamilyName = "Parentheses Conversion"
+  def getFamilyName = "Convert to parentheses"
 
-  override def getText = "Convert to parentheses"
+  override def getText = getFamilyName
 
   def isAvailable(project: Project, editor: Editor, element: PsiElement) = {
     element match {

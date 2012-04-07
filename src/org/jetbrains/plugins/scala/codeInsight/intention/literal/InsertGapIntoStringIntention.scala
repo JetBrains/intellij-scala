@@ -15,14 +15,13 @@ import com.intellij.psi.{PsiDocumentManager, PsiElement}
 class InsertGapIntoStringIntention extends PsiElementBaseIntentionAction {
   import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes._
 
+  def getFamilyName: String = "Insert gap"
 
   override def getText: String = "Insert gap with concatenation: (\" +  + \")"
 
+
   def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean = element != null &&
           Set(tSTRING, tMULTILINE_STRING).contains(element.getNode.getElementType)
-
-
-  def getFamilyName: String = "String Conversions"
 
   override def invoke(project: Project, editor: Editor, element: PsiElement) {
     def insertString(str: String, caretMove: Int) {

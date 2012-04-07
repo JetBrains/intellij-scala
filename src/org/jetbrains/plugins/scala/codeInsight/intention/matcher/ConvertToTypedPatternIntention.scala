@@ -20,9 +20,9 @@ import lang.psi.api.toplevel.typedef.{ScClass, ScObject}
 
 
 class ConvertToTypedPatternIntention extends PsiElementBaseIntentionAction {
-  def getFamilyName = "Pattern Matching"
+  def getFamilyName = "Convert to typed pattern"
 
-  override def getText = "Convert to typed pattern"
+  override def getText = getFamilyName
 
   def isAvailable(project: Project, editor: Editor, element: PsiElement) = {
     element match {
