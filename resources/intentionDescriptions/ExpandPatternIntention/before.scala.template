@@ -2,5 +2,6 @@ case class Person(name: String, age: Int)
 
 p match {
   case Seq(<spot>person: Person</spot>) => "a person"
+  case Seq(<spot>person: Person</spot>) => "a person"
   case _ => "other"
 }
