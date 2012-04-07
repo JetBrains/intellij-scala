@@ -1,0 +1,5 @@
+def method() = <spot>expr</spot>
+
+if (x) <spot>"true"</spot> else <spot>"false"</spot>
+
+try <spot>x</spot> finally <spot>z.close()</spot>
