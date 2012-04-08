@@ -181,11 +181,11 @@ private[expr] object ExpectedTypes {
         val actExpr = expr.getDeepSameElementInContext
         val index = exprs.indexOf(actExpr)
         for (tp: ScType <- tuple.expectedTypes(true)) {
-          tp match {
-            case ScTupleType(comps) if comps.length == tuple.exprs.length => {
+          ScType.extractTupleType(tp) match {
+            case Some(ScTupleType(comps)) if comps.length == tuple.exprs.length => {
               buffer += comps(index)
             }
-            case _ =>
+            case None =>
           }
         }
         buffer.map(typeToPair).toArray
@@ -344,15 +344,11 @@ private[expr] object ExpectedTypes {
     tp match {
       case Success(ScMethodType(_, params, _), _) => {
         if (params.length == 1 && !params.apply(0).isRepeated && exprs.length > 1) {
-          params.apply(0).paramType match {
-            case ScTupleType(args) => applyForParams(args.zipWithIndex.map {
+          ScType.extractTupleType(params.apply(0).paramType) match {
+            case Some(ScTupleType(args)) => applyForParams(args.zipWithIndex.map {
               case (tpe, index) => new Parameter("", tpe, false, false, false, index)
             })
-            case p: ScParameterizedType if p.getTupleType != None =>
-              applyForParams(p.getTupleType.get.components.zipWithIndex.map {
-                case (tpe, index) => new Parameter("", tpe, false, false, false, index)
-              })
-            case _ =>
+            case None =>
           }
         } else applyForParams(params)
       }
@@ -360,15 +356,11 @@ private[expr] object ExpectedTypes {
         val subst = t.abstractTypeSubstitutor
         val newParams = params.map(p => p.copy(paramType = subst.subst(p.paramType)))
         if (newParams.length == 1 && !newParams.apply(0).isRepeated && exprs.length > 1) {
-          newParams.apply(0).paramType match {
-            case ScTupleType(args) => applyForParams(args.zipWithIndex.map {
+          ScType.extractTupleType(newParams.apply(0).paramType) match {
+            case Some(ScTupleType(args)) => applyForParams(args.zipWithIndex.map {
               case (tpe, index) => new Parameter("", tpe, false, false, false, index)
             })
-            case p: ScParameterizedType if p.getTupleType != None =>
-              applyForParams(p.getTupleType.get.components.mapWithIndex {
-                case (tpe, index) => new Parameter("", tpe, false, false, false, index)
-              })
-            case _ =>
+            case None =>
           }
         } else applyForParams(newParams)
       }
