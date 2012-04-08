@@ -250,7 +250,9 @@ object ScType extends ScTypePresentation with ScTypePsiTypeBridge {
    * @see http://youtrack.jetbrains.net/issue/SCL-2872
    */
   // TODO This is all a bit ad-hoc. What can we learn from scalac?
-  // TODO perhaps we need to choose the lower bound if we are in a contravariant position.
+  // TODO perhaps we need to choose the lower bound if we are in a contravariant position. We get away
+  //      with this as we currently only rely on this method to determine covariant types: the parameter
+  //      types of FunctionN, or the elements of TupleN
   def expandAliases(tp: ScType): TypeResult[ScType] = tp match {
     case proj@ScProjectionType(p, elem, subst) => proj.actualElement match {
       case t: ScTypeAliasDefinition if t.typeParameters.isEmpty =>
@@ -259,6 +261,7 @@ object ScType extends ScTypePresentation with ScTypePsiTypeBridge {
         t.upperBound.flatMap(upper => expandAliases(proj.actualSubst.subst(upper)))
       case _ => Success(tp, None)
     }
+    case at: ScAbstractType => Success(at.upper, None) // ugly hack for SCL-3592
     case ScDesignatorType(t: ScType) => expandAliases(t)
     case ScDesignatorType(ta: ScTypeAliasDefinition) => expandAliases(ta.aliasedType(TypingContext.empty).getOrNothing)
     case t: ScTypeAliasDeclaration if t.typeParameters.isEmpty =>
@@ -271,6 +274,7 @@ object ScType extends ScTypePresentation with ScTypePsiTypeBridge {
       TypeResult.ap2(expandedDesignator, expandedTypeArgsResult) {
         ScParameterizedType(_, _)
       }
+
     case tp => Success(tp, None)
   }
 
