@@ -13,6 +13,7 @@ class TypeTest extends ResolveTestBase {
 
   def testClassParameter = doTest
   def testClassTypeParameter = doTest
+  def testDependentMethodTypeBound = doTest
   def testFunction = doTest
   def testFunctionParameter = doTest
   def testFunctionTypeParameter = doTest

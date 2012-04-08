@@ -31,4 +31,12 @@ class SeqExt[CC[X] <: Seq[X], A](value: CC[A]) {
     }
     b.result()
   }
+
+  def foreachWithIndex[B](f: (A, Int) => B) {
+    var i = 0
+    for (x <- value) {
+      f(x, i)
+      i += 1
+    }
+  }
 }

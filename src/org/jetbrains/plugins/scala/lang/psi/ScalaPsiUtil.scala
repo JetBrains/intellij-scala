@@ -51,6 +51,7 @@ import reflect.NameTransformer
 import caches.CachesUtil
 import java.lang.Exception
 import extensions._
+import collection.Seq
 
 /**
  * User: Alexander Podkhalyuzin
@@ -1473,20 +1474,30 @@ object ScalaPsiUtil {
       i += 1
       "evidence$" + i
     }
-    def synthParams(typeParam: ScTypeParam): Seq[String] = {
+    def synthParams(typeParam: ScTypeParam): Seq[(String, ScTypeElement => Unit)] = {
       val views = typeParam.viewTypeElement.toSeq.map {
-        vte => "%s: _root_.scala.Function1[%s, %s]".format(nextName(), typeParam.name, vte.getText)
+        vte =>
+          val code = "%s: _root_.scala.Function1[%s, %s]".format(nextName(), typeParam.name, vte.getText)
+          def updateAnalog(typeElement: ScTypeElement) {
+            vte.analog = Some(typeElement)
+          }
+          (code, updateAnalog _)
       }
       val bounds = typeParam.contextBoundTypeElement.map {
-        cbte => "%s: %s[%s]".format(nextName(), cbte.getText, typeParam.name)
+        (cbte: ScTypeElement) =>
+          val code = "%s: %s[%s]".format(nextName(), cbte.getText, typeParam.name)
+          def updateAnalog(typeElement: ScTypeElement) {
+            cbte.analog = Some(typeElement)
+          }
+          (code, updateAnalog _)
       }
       views ++ bounds
     }
-    val params = paramOwner.typeParameters match {
+    val params: Seq[(String, (ScTypeElement) => Unit)] = paramOwner.typeParameters match {
       case null => Seq()
       case xs => xs.flatMap(synthParams)
     }
-    val clauseText = params.mkString(",")
+    val clauseText = params.map(_._1).mkString(",")
     if (params.isEmpty) None
     else {
       val fullClauseText: String = "(implicit " + clauseText + ")"
@@ -1494,6 +1505,12 @@ object ScalaPsiUtil {
         val paramClause: ScParameterClause = {
           if (classParam) ScalaPsiElementFactory.createImplicitClassParamClauseFromTextWithContext(fullClauseText, paramOwner.getManager, paramClauses)
           else ScalaPsiElementFactory.createImplicitClauseFromTextWithContext(fullClauseText, paramOwner.getManager, paramClauses)
+        }
+        paramClause.parameters.foreachWithIndex {
+          (param, index) =>
+            val updateAnalog: (ScTypeElement) => Unit = params(index)._2
+            updateAnalog(param.typeElement.get)
+            ()
         }
         Some(paramClause)
       } catch {
