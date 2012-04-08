@@ -260,6 +260,7 @@ object ScType extends ScTypePresentation with ScTypePsiTypeBridge {
       case _ => Success(tp, None)
     }
     case ScDesignatorType(t: ScType) => expandAliases(t)
+    case ScDesignatorType(ta: ScTypeAliasDefinition) => expandAliases(ta.aliasedType(TypingContext.empty).getOrNothing)
     case t: ScTypeAliasDeclaration if t.typeParameters.isEmpty =>
       t.upperBound.flatMap(expandAliases)
     case t: ScTypeAliasDefinition if t.typeParameters.isEmpty =>
