@@ -146,13 +146,10 @@ object MethodResolveProcessor {
         case fun: ScFun if fun.paramClauses.isEmpty => return ConformanceExtResult(Seq.empty)
         case _ =>
       }
-      expectedOption() match {
+      val expectedFunctionType: Option[ScFunctionType] = expectedOption().flatMap(ScType.extractFunctionType)
+      expectedFunctionType match {
         case Some(ScFunctionType(retType, params)) => {
           val args = params.map(new Expression(_))
-          Compatibility.compatible(fun, substitutor, List(args), false, ref.getResolveScope, isShapeResolve)
-        }
-        case Some(p@ScParameterizedType(des, typeArgs)) if p.getFunctionType != None => {
-          val args = typeArgs.slice(0, typeArgs.length - 1).map(new Expression(_))
           Compatibility.compatible(fun, substitutor, List(args), false, ref.getResolveScope, isShapeResolve)
         }
         case _ => {
