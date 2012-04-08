@@ -8,12 +8,13 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
 import com.intellij.lang.ASTNode
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import types.result.{Success, TypeResult, Failure, TypingContext}
-import com.intellij.psi.PsiElement
 import types._
 import api.base.patterns.ScBindingPattern
 import api.statements.{ScVariable, ScValue, ScFunction}
 import api.statements.params.ScClassParameter
 import nonvalue.{ScTypePolymorphicType, ScMethodType}
+import api.ScalaElementVisitor
+import com.intellij.psi.{PsiElementVisitor, PsiElement}
 
 /**
  * @author Alexander Podkhalyuzin, ilyas
@@ -90,7 +91,7 @@ class ScUnderscoreSectionImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
               }
 
               ScType.extractFunctionType(tp) match {
-                case Some(ft @ ScFunctionType(_, params)) if params.length >= unders.length => processFunctionType(ft)
+                case Some(ft@ScFunctionType(_, params)) if params.length >= unders.length => processFunctionType(ft)
                 case _ =>
               }
             }
@@ -107,6 +108,17 @@ class ScUnderscoreSectionImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
           }
         }
       }
+    }
+  }
+
+  override def accept(visitor: ScalaElementVisitor) {
+    visitor.visitUnderscoreExpression(this)
+  }
+
+  override def accept(visitor: PsiElementVisitor) {
+    visitor match {
+      case visitor: ScalaElementVisitor => visitor.visitUnderscoreExpression(this)
+      case _ => super.accept(visitor)
     }
   }
 }

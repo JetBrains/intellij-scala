@@ -213,6 +213,10 @@ with DumbAware {
         visitTypeElement(proj)
       }
 
+      override def visitUnderscoreExpression(under: ScUnderscoreSection) {
+        checkUnboundUnderscore(under, holder)
+      }
+
       private def referencePart(ref: ScReferenceElement) {
         if (typeAware) annotateReference(ref, holder)
         ref.qualifier match {
@@ -738,6 +742,23 @@ with DumbAware {
         }
       }
       case _ =>
+    }
+  }
+
+  private def checkUnboundUnderscore(under: ScUnderscoreSection, holder: AnnotationHolder) {
+    if (under.getText == "_") {
+      ScalaPsiUtil.getParentOfType(under, classOf[ScVariableDefinition]) match {
+        case varDef: ScVariableDefinition if varDef.expr == under =>
+          if (varDef.containingClass == null) {
+            val error = ScalaBundle.message("local.variables.must.be.initialized")
+            val annotation: Annotation = holder.createErrorAnnotation(under, error)
+            annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
+          }
+        case _ =>
+          val error = ScalaBundle.message("unbound.placeholder.parameter")
+          val annotation: Annotation = holder.createErrorAnnotation(under, error)
+          annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
+      }
     }
   }
 
