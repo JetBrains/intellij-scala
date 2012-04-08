@@ -753,11 +753,16 @@ with DumbAware {
             val error = ScalaBundle.message("local.variables.must.be.initialized")
             val annotation: Annotation = holder.createErrorAnnotation(under, error)
             annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
+          } else if (varDef.typeElement.isEmpty) {
+            val error = ScalaBundle.message("unbound.placeholder.parameter")
+            val annotation: Annotation = holder.createErrorAnnotation(under, error)
+            annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
           }
         case _ =>
-          val error = ScalaBundle.message("unbound.placeholder.parameter")
-          val annotation: Annotation = holder.createErrorAnnotation(under, error)
-          annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
+          // TODO properly detect unbound placeholders, e.g. ( { _; (_: Int) } ) and report them.
+          //  val error = ScalaBundle.message("unbound.placeholder.parameter")
+          //  val annotation: Annotation = holder.createErrorAnnotation(under, error)
+          //  annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
       }
     }
   }
