@@ -24,6 +24,10 @@ import psi.api.statements._
 import psi.api.toplevel.templates.ScTemplateBody
 import util.ScalaRefactoringUtil
 import com.intellij.usageView.UsageInfo
+import psi.ScalaPsiUtil
+import psi.api.base.ScStableCodeReferenceElement
+import collection.JavaConverters.iterableAsScalaIterableConverter
+import com.intellij.lang.refactoring.InlineHandler.Settings
 
 /**
  * User: Alexander Podkhalyuzin
@@ -116,7 +120,11 @@ class ScalaInlineHandler extends InlineHandler {
       ScalaRefactoringUtil.highlightOccurrences(element.getProject, buffer.toArray, editor)
       if (refs.size == 0) {
         CommonRefactoringUtil.showErrorHint(element.getProject, editor, "Variable is never used.", "Scala Inline Variable", HelpID.INLINE_VARIABLE)
-        return null
+        return Settings.CANNOT_INLINE_SETTINGS
+      }
+      if (refs.asScala.exists(ref => ScalaPsiUtil.getParentOfType(ref.getElement, classOf[ScStableCodeReferenceElement]) != null)) {
+        CommonRefactoringUtil.showErrorHint(element.getProject, editor, "Value is used in a stable reference and cannot be inlined", "Scala Inline Variable", HelpID.INLINE_VARIABLE)
+        return Settings.CANNOT_INLINE_SETTINGS
       }
       val application = ApplicationManager.getApplication;
       if (!application.isUnitTestMode) {
