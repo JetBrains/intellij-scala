@@ -24,6 +24,7 @@ import psi.api.{ScPackage, ScalaFile}
 import psi.impl.ScalaPsiManager
 import scaladoc.psi.api.ScDocResolvableCodeReference
 import extensions.{toPsiNamedElementExt, toPsiClassExt}
+import psi.api.base.types.ScSimpleTypeElement
 
 trait ResolvableStableCodeReferenceElement extends ScStableCodeReferenceElement {
   private object Resolver extends StableCodeReferenceElementResolver(this, false, false, false)
@@ -110,6 +111,10 @@ trait ResolvableStableCodeReferenceElement extends ScStableCodeReferenceElement 
           ProgressManager.checkCanceled()
           place match {
             case null =>
+            case p: ScSimpleTypeElement if p.analog.isDefined =>
+              // this allows the type elements in a context or view bound to be path-dependent types, based on parameters.
+              // See ScalaPsiUtil.syntheticParamClause and StableCodeReferenceElementResolver#computeEffectiveParameterClauses
+              treeWalkUp(p.analog.get, lastParent)
             case p => {
               if (!p.processDeclarations(processor,
                 ResolveState.initial,

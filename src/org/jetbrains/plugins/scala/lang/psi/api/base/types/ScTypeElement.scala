@@ -29,4 +29,7 @@ trait ScTypeElement extends ScalaPsiElement with TypingContextOwner {
   protected def innerType(ctx: TypingContext): TypeResult[ScType]
 
   def calcType: ScType = getType(TypingContext.empty).getOrAny
+
+  /** Link from a view or context bound to the type element of the corresponding synthetic parameter. */
+  var analog: Option[ScTypeElement] = None
 }
