@@ -74,10 +74,10 @@ class ScalaInlineHandler extends InlineHandler {
     val expr = ScalaRefactoringUtil.unparExpr(element match {
       case rp: ScBindingPattern => {
         PsiTreeUtil.getParentOfType(rp, classOf[ScDeclaredElementsHolder]) match {
-          case v: ScPatternDefinition if !v.getParent.isInstanceOf[ScTemplateBody] && v.declaredElements.length == 1 => {
+          case v: ScPatternDefinition if !v.getParent.isInstanceOf[ScTemplateBody] && v.declaredElements == Seq(element) => {
             v.expr
           }
-          case v: ScVariableDefinition if !v.getParent.isInstanceOf[ScTemplateBody] && v.declaredElements.length == 1 => {
+          case v: ScVariableDefinition if !v.getParent.isInstanceOf[ScTemplateBody] && v.declaredElements == Seq(element) => {
             v.expr
           }
           case _ => return null
@@ -149,7 +149,7 @@ class ScalaInlineHandler extends InlineHandler {
     element match {
       case rp: ScBindingPattern => {
         PsiTreeUtil.getParentOfType(rp, classOf[ScDeclaredElementsHolder]) match {
-          case v: ScValue if !v.getParent.isInstanceOf[ScTemplateBody] && v.declaredElements.length == 1 => {
+          case v: ScValue if !v.getParent.isInstanceOf[ScTemplateBody] && v.declaredElements == Seq(element) => {
             getSettingsForLocal(v)
           }
           /*case v: ScVariable if !v.getParent.isInstanceOf[ScTemplateBody] && v.declaredElements.length == 1 => {
