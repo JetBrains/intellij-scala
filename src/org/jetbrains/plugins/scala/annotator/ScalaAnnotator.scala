@@ -759,7 +759,7 @@ with DumbAware {
             annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
           }
         case _ =>
-          // TODO properly detect unbound placeholders, e.g. ( { _; (_: Int) } ) and report them.
+          // TODO SCL-2610 properly detect unbound placeholders, e.g. ( { _; (_: Int) } ) and report them.
           //  val error = ScalaBundle.message("unbound.placeholder.parameter")
           //  val annotation: Annotation = holder.createErrorAnnotation(under, error)
           //  annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
