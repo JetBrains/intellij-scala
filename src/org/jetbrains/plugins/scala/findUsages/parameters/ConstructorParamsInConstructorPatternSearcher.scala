@@ -31,8 +31,8 @@ import com.intellij.usages.{UsageInfoToUsageConverter, Usage}
  */
 class ConstructorParamsInConstructorPatternSearcher extends CustomUsageSearcher {
   def processElementUsages(element: PsiElement, processor0: Processor[Usage], options: FindUsagesOptions) {
-    val scope = element.getResolveScope
     inReadAction {
+      val scope = element.getResolveScope
       element match {
         case parameter: ScClassParameter => {
           ScalaPsiUtil.getParentOfType(parameter, classOf[ScClass]) match {
