@@ -4,22 +4,42 @@ package findUsages
 
 import com.intellij.psi.PsiElement
 import psi.api.toplevel.imports.ScImportExpr
-import com.intellij.usages.impl.rules.{UsageType, UsageTypeProvider}
 import org.jetbrains.plugins.scala.extensions._
 import com.intellij.psi.util.PsiTreeUtil
-import psi.api.expr.ScNewTemplateDefinition
 import psi.api.toplevel.typedef.ScTemplateDefinition
 import psi.api.statements.{ScVariable, ScValue, ScPatternDefinition, ScFunction}
 import psi.api.toplevel.templates.{ScTemplateBody, ScTemplateParents}
 import psi.api.statements.params.ScParameter
 import com.intellij.usageView.UsageViewBundle
 import psi.api.base.patterns.{ScTypedPattern, ScConstructorPattern}
+import com.intellij.usages.impl.rules.{UsageTypeProviderEx, UsageType, UsageTypeProvider}
+import com.intellij.usages.{PsiElementUsageTarget, UsageTarget}
+import psi.api.expr.{ScReferenceExpression, ScNewTemplateDefinition}
+import psi.api.base.ScReferenceElement
 
-final class ScalaUsageTypeProvider extends UsageTypeProvider {
-  def getUsageType(element: PsiElement): UsageType = {
+final class ScalaUsageTypeProvider extends UsageTypeProviderEx {
+  def getUsageType(element: PsiElement): UsageType = getUsageType(element, null)
+
+  def getUsageType(element: PsiElement, targets: Array[UsageTarget]): UsageType = {
     import PsiTreeUtil._
     def parentOfType[T <: PsiElement : Manifest]: Option[T] = Option(getParentOfType[T](element, classManifest[T].erasure.asInstanceOf[Class[T]]))
+
     if (element.containingScalaFile.isDefined) {
+
+      /** Classify an element found by [[org.jetbrains.plugins.scala.findUsages.parameters.ConstructorParamsInConstructorPatternSearcher]] */
+      (element, targets) match {
+        case (ref: ScReferenceElement, Array(only: PsiElementUsageTarget)) =>
+          ref.bind() match {
+            case Some(x) =>
+              val targetElement = only.getElement
+              if (x.element != targetElement) {
+                return UsageType.READ // TODO custom usage type?
+              }
+            case None =>
+          }
+        case _ =>
+      }
+
       for (ie <- parentOfType[ScImportExpr]) {
         return UsageType.CLASS_IMPORT
       }
