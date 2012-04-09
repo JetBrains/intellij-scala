@@ -12,7 +12,6 @@ import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.wm.WindowManager
 import com.intellij.psi.codeStyle.CodeStyleManager
 import com.intellij.psi.search.searches.ReferencesSearch
-import com.intellij.psi.{PsiReference, PsiElement}
 import com.intellij.refactoring.util.{CommonRefactoringUtil, RefactoringMessageDialog}
 import com.intellij.refactoring.HelpID
 import com.intellij.psi.util.PsiTreeUtil
@@ -28,6 +27,8 @@ import psi.ScalaPsiUtil
 import psi.api.base.ScStableCodeReferenceElement
 import collection.JavaConverters.iterableAsScalaIterableConverter
 import com.intellij.lang.refactoring.InlineHandler.Settings
+import com.intellij.psi.{PsiIdentifier, PsiReference, PsiElement}
+import com.intellij.psi.impl.source.codeStyle.CodeEditUtil
 
 /**
  * User: Alexander Podkhalyuzin
@@ -66,6 +67,8 @@ class ScalaInlineHandler extends InlineHandler {
           case _ => return
         }
       }
+      case funDef: ScFunctionDefinition =>
+        CodeEditUtil.removeChild(funDef.getParent.getNode, funDef.getNode)
       case _ => return
     }
   }
@@ -74,15 +77,17 @@ class ScalaInlineHandler extends InlineHandler {
     val expr = ScalaRefactoringUtil.unparExpr(element match {
       case rp: ScBindingPattern => {
         PsiTreeUtil.getParentOfType(rp, classOf[ScDeclaredElementsHolder]) match {
-          case v: ScPatternDefinition if !v.getParent.isInstanceOf[ScTemplateBody] && v.declaredElements == Seq(element) => {
+          case v: ScPatternDefinition if v.isLocal && v.declaredElements == Seq(element) => {
             v.expr
           }
-          case v: ScVariableDefinition if !v.getParent.isInstanceOf[ScTemplateBody] && v.declaredElements == Seq(element) => {
+          case v: ScVariableDefinition if v.isLocal && v.declaredElements == Seq(element) => {
             v.expr
           }
           case _ => return null
         }
       }
+      case funDef: ScFunctionDefinition if funDef.isLocal && funDef.parameters.isEmpty =>
+        funDef.body.orNull
       case _ => return null
     })
     new InlineHandler.Inliner {
@@ -109,7 +114,7 @@ class ScalaInlineHandler extends InlineHandler {
   }
 
   def prepareInlineElement(element: PsiElement, editor: Editor, invokedOnReference: Boolean): InlineHandler.Settings = {
-    def getSettingsForLocal(v: ScDeclaredElementsHolder): InlineHandler.Settings = {
+    def getSettingsForLocal(v: ScDeclaredElementsHolder, inlineTitleSuffix: String, inlineDescriptionSuffix: String): InlineHandler.Settings = {
       val bind = v.declaredElements.apply(0)
       val refs: java.util.Collection[PsiReference] = ReferencesSearch.search(bind).findAll
       val buffer: ArrayBuffer[PsiElement] = new ArrayBuffer[PsiElement]()
@@ -118,8 +123,9 @@ class ScalaInlineHandler extends InlineHandler {
         buffer += iterator.next.getElement
       }
       ScalaRefactoringUtil.highlightOccurrences(element.getProject, buffer.toArray, editor)
+      val inlineTitle = "Scala Inline " + inlineTitleSuffix
       if (refs.size == 0) {
-        CommonRefactoringUtil.showErrorHint(element.getProject, editor, "Variable is never used.", "Scala Inline Variable", HelpID.INLINE_VARIABLE)
+        CommonRefactoringUtil.showErrorHint(element.getProject, editor, "Variable is never used.", inlineTitle, HelpID.INLINE_VARIABLE)
         return Settings.CANNOT_INLINE_SETTINGS
       }
       if (refs.asScala.exists(ref => ScalaPsiUtil.getParentOfType(ref.getElement, classOf[ScStableCodeReferenceElement]) != null)) {
@@ -128,9 +134,9 @@ class ScalaInlineHandler extends InlineHandler {
       }
       val application = ApplicationManager.getApplication;
       if (!application.isUnitTestMode) {
-        val question = "Inline local variable?"
+        val question = "Inline " + inlineDescriptionSuffix + "?"
         val dialog = new RefactoringMessageDialog(
-          "Scala Inline Variable",
+          inlineTitle,
           question,
           HelpID.INLINE_VARIABLE,
           "OptionPane.questionIcon",
@@ -149,8 +155,8 @@ class ScalaInlineHandler extends InlineHandler {
     element match {
       case rp: ScBindingPattern => {
         PsiTreeUtil.getParentOfType(rp, classOf[ScDeclaredElementsHolder]) match {
-          case v: ScValue if !v.getParent.isInstanceOf[ScTemplateBody] && v.declaredElements == Seq(element) => {
-            getSettingsForLocal(v)
+          case v: ScValue if v.isLocal && v.declaredElements == Seq(element) => {
+            getSettingsForLocal(v, "Variable", "local variable")
           }
           /*case v: ScVariable if !v.getParent.isInstanceOf[ScTemplateBody] && v.declaredElements.length == 1 => {
             getSettingsForLocal(v)
@@ -158,6 +164,8 @@ class ScalaInlineHandler extends InlineHandler {
           case _ => null
         }
       }
+      case funDef: ScFunctionDefinition if funDef.isLocal && funDef.body.isDefined && funDef.parameters.isEmpty =>
+        getSettingsForLocal(funDef, "Method", "local method")
       case _ => null
     }
   }
