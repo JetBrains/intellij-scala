@@ -16,6 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.extensions.toPsiMemberExt
+import org.jetbrains.plugins.scala.lang.psi.light.ScFunctionWrapper
 
 /**
  * @author Alefas
@@ -37,7 +38,11 @@ class ScalaApplicationConfigurationProducer extends JavaRuntimeConfigurationProd
     while (method != null) {
       val aClass: PsiClass = method.containingClass
       if (ConfigurationUtil.MAIN_CLASS.value(aClass)) {
-        myPsiElement = method
+        myPsiElement = method match {
+          case fun: ScFunction => fun.getFirstChild
+          case fun: ScFunctionWrapper => fun.function.getFirstChild
+          case elem => elem.getFirstChild
+        }
         return createConfiguration(aClass, context, location)
       }
       currentElement = method.getParent
@@ -49,6 +54,9 @@ class ScalaApplicationConfigurationProducer extends JavaRuntimeConfigurationProd
     createConfiguration(aClass, context, location)
   }
 
+  /**
+   * This is not for Java only. However it uses getClasses, to have possibility use [[com.intellij.psi.util.PsiMethodUtil.findMainInClass]]
+   */
   private def getMainClass(_element: PsiElement): PsiClass = {
     var element = _element
     while (element != null) {
