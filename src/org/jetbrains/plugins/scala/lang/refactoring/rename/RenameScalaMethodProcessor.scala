@@ -8,11 +8,9 @@ import com.intellij.ide.IdeBundle
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.{Messages, DialogWrapper}
-import com.intellij.psi.PsiElement
 import com.intellij.refactoring.rename.RenameJavaMethodProcessor
 import java.awt.{GridLayout, BorderLayout}
 
-import java.util.Map
 import javax.swing._
 import psi.api.statements.ScFunction
 import psi.impl.search.ScalaOverridengMemberSearch
@@ -20,6 +18,10 @@ import psi.api.base.ScPrimaryConstructor
 import collection.mutable.ArrayBuffer
 import psi.fake.FakePsiMethod
 import extensions.toPsiNamedElementExt
+import java.util.{Collection, Map}
+import com.intellij.psi.{PsiReference, PsiElement}
+import collection.JavaConverters.{asJavaCollectionConverter, iterableAsScalaIterableConverter}
+import resolve.ResolvableReferenceElement
 
 /**
  * User: Alexander Podkhalyuzin
@@ -31,6 +33,8 @@ class RenameScalaMethodProcessor extends RenameJavaMethodProcessor {
     (element.isInstanceOf[ScFunction] || element.isInstanceOf[ScPrimaryConstructor]) &&
       !element.isInstanceOf[FakePsiMethod]
   }
+
+  override def findReferences(element: PsiElement) = ScalaRenameUtil.filterAliasedReferences(super.findReferences(element))
 
   override def prepareRenaming(element: PsiElement, newName: String, allRenames: Map[PsiElement, String]) {
     val function = element match {case x: ScFunction => x case _ => return}

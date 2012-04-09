@@ -93,6 +93,8 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
 
   def execute(element: PsiElement, state: ResolveState): Boolean = {
     val named = element.asInstanceOf[PsiNamedElement]
+    def nameShadow: Option[String] = Option(state.get(ResolverEnv.nameKey))
+
     if (nameAndKindMatch(named, state)) {
       val accessible = isAccessible(named, ref)
       if (accessibility && !accessible) return true
@@ -100,14 +102,14 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
         case o: ScObject if o.isPackageObject && JavaPsiFacade.getInstance(element.getProject).
                 findPackage(o.qualifiedName) != null =>
         case pack: PsiPackage =>
-          addResult(new ScalaResolveResult(ScPackageImpl(pack), getSubst(state), getImports(state), isAccessible = accessible))
+          addResult(new ScalaResolveResult(ScPackageImpl(pack), getSubst(state), getImports(state), nameShadow, isAccessible = accessible))
         case clazz: PsiClass if !isThisOrSuperResolve || PsiTreeUtil.isContextAncestor(clazz, ref, true) =>
           addResult(new ScalaResolveResult(named, getSubst(state),
-            getImports(state), boundClass = getBoundClass(state), fromType = getFromType(state), isAccessible = accessible))
+            getImports(state), nameShadow, boundClass = getBoundClass(state), fromType = getFromType(state), isAccessible = accessible))
         case clazz: PsiClass => //do nothing, it's wrong class or object
         case _ =>
           addResult(new ScalaResolveResult(named, getSubst(state),
-            getImports(state), boundClass = getBoundClass(state), fromType = getFromType(state), isAccessible = accessible))
+            getImports(state), nameShadow, boundClass = getBoundClass(state), fromType = getFromType(state), isAccessible = accessible))
       }
     }
     true

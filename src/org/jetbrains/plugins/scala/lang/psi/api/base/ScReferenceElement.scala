@@ -70,12 +70,12 @@ trait ScReferenceElement extends ScalaPsiElement with ResolvableReferenceElement
   def isReferenceTo(element: PsiElement, resolved: PsiElement): Boolean = {
     if (ScEquivalenceUtil.smartEquivalence(resolved, element)) return true
     element match {
-      case td: ScTypeDefinition if td.name == refName => {
+      case td: ScTypeDefinition => {
         resolved match {
           case method: PsiMethod if method.isConstructor => {
             if (td == method.containingClass) return true
           }
-          case method: ScFunction if Set("apply", "unapply", "unapplySeq").contains(method.name) => {
+          case method: ScFunction if td.name == refName && Set("apply", "unapply", "unapplySeq").contains(method.name) => {
             var break = false
             val methods = td.allMethods
             for (n <- methods if !break) {
@@ -97,7 +97,7 @@ trait ScReferenceElement extends ScalaPsiElement with ResolvableReferenceElement
             }
             if (break) return true
           }
-          case obj: ScObject if obj.isSyntheticObject => {
+          case obj: ScObject if td.name == refName && obj.isSyntheticObject => {
             ScalaPsiUtil.getCompanionModule(td) match {
               case Some(td) if td == obj => return true
               case _ =>
