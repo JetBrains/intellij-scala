@@ -185,7 +185,7 @@ private[expr] object ExpectedTypes {
             case Some(ScTupleType(comps)) if comps.length == tuple.exprs.length => {
               buffer += comps(index)
             }
-            case None =>
+            case _ =>
           }
         }
         buffer.map(typeToPair).toArray
