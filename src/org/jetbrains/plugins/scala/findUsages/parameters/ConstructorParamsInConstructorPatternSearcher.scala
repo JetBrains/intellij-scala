@@ -15,6 +15,9 @@ import lang.psi.api.toplevel.typedef.ScClass
 import lang.psi.api.statements.params.{ScClassParameter, ScParameter}
 import org.eclipse.jdt.internal.core.search.matching.ConstructorPattern
 import lang.psi.api.base.patterns.ScConstructorPattern
+import com.intellij.find.findUsages.{FindUsagesOptions, CustomUsageSearcher}
+import com.intellij.usageView.UsageInfo
+import com.intellij.usages.{UsageInfoToUsageConverter, Usage}
 
 /**
  * {{{
@@ -26,10 +29,9 @@ import lang.psi.api.base.patterns.ScConstructorPattern
  *
  * User: Jason Zaugg
  */
-class ConstructorParamsInConstructorPatternSearcher extends QueryExecutor[PsiReference, ReferencesSearch.SearchParameters] {
-  def execute(queryParameters: ReferencesSearch.SearchParameters, consumer: Processor[PsiReference]): Boolean = {
-    val scope = queryParameters.getScope
-    val element = queryParameters.getElementToSearch
+class ConstructorParamsInConstructorPatternSearcher extends CustomUsageSearcher {
+  def processElementUsages(element: PsiElement, processor0: Processor[Usage], options: FindUsagesOptions) {
+    val scope = element.getResolveScope
     inReadAction {
       element match {
         case parameter: ScClassParameter => {
@@ -44,10 +46,16 @@ class ConstructorParamsInConstructorPatternSearcher extends QueryExecutor[PsiRef
                         case Some(x) =>
                           x.bindings match {
                             case Seq(only) =>
-                              ReferencesSearch.search(only, scope, false).forEach(consumer)
+                              ReferencesSearch.search(only, scope, false).forEach(new Processor[PsiReference] {
+                                def process(t: PsiReference): Boolean = {
+                                  val descriptor = new UsageInfoToUsageConverter.TargetElementsDescriptor(Array(), Array(only))
+                                  val usage = UsageInfoToUsageConverter.convert(descriptor, new UsageInfo(t))
+                                  processor0.process(usage)
+                                }
+                              })
                             case _ =>
                               true
-                              // too complex
+                            // too complex
                           }
                         case None =>
                           true
