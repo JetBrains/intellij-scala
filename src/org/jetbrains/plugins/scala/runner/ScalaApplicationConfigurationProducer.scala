@@ -67,7 +67,7 @@ class ScalaApplicationConfigurationProducer extends JavaRuntimeConfigurationProd
             return aClass
           }
         case file: ScalaFile =>
-          val classes: Array[PsiClass] = file.getClasses
+          val classes: Array[PsiClass] = file.getClasses //this call is ok
           for (aClass <- classes) {
             if (PsiMethodUtil.findMainInClass(aClass) != null) {
               return aClass
