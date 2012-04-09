@@ -1479,7 +1479,7 @@ object ScalaPsiUtil {
         vte =>
           val code = "%s: _root_.scala.Function1[%s, %s]".format(nextName(), typeParam.name, vte.getText)
           def updateAnalog(typeElement: ScTypeElement) {
-            vte.analog = Some(typeElement)
+            vte.analog = typeElement
           }
           (code, updateAnalog _)
       }
@@ -1487,7 +1487,7 @@ object ScalaPsiUtil {
         (cbte: ScTypeElement) =>
           val code = "%s: %s[%s]".format(nextName(), cbte.getText, typeParam.name)
           def updateAnalog(typeElement: ScTypeElement) {
-            cbte.analog = Some(typeElement)
+            cbte.analog = typeElement
           }
           (code, updateAnalog _)
       }
