@@ -148,7 +148,7 @@
     <javaMainMethodProvider implementation="org.jetbrains.plugins.scala.runner.ScalaMainMethodProvider"/>
     <annotatedElementsSearch implementation="org.jetbrains.plugins.scala.lang.psi.impl.search.ScalaAnnotatedMembersSearcher"/>
     <referencesSearch implementation="org.jetbrains.plugins.scala.findUsages.parameters.NamingParamsSearcher"/>
-    <referencesSearch implementation="org.jetbrains.plugins.scala.findUsages.parameters.ConstructorParamsInConstructorPatternSearcher"/>
+    <!--<referencesSearch implementation="org.jetbrains.plugins.scala.findUsages.parameters.ConstructorParamsInConstructorPatternSearcher"/>-->
     <referencesSearch implementation="org.jetbrains.plugins.scala.findUsages.typeDef.ObjectTraitReferenceSearcher"/>
     <referencesSearch implementation="org.jetbrains.plugins.scala.findUsages.apply.ApplyMethodSearcher"/>
     <referencesSearch implementation="org.jetbrains.plugins.scala.findUsages.apply.UnapplyMethodSearcher"/>
