@@ -607,7 +607,8 @@ object ScalaPsiElementFactory {
           case (true, Some(retType)) =>
             var text = ScType.canonicalText(retType)
             if (text == "_root_.java.lang.Object") text = "AnyRef"
-            ": " + text + " = " + body
+            val colon = if (method.paramClauses.clauses.isEmpty && method.typeParameters.isEmpty && ScalaNamesUtil.isIdentifier(method.name + ":")) " : " else ": "
+            colon + text + " = " + body
           case _ =>
             " = " + body
         }
