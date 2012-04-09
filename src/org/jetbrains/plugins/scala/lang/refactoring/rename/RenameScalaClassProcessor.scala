@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala.lang.refactoring.rename
 
 import com.intellij.refactoring.rename.RenameJavaClassProcessor
-import com.intellij.psi.PsiElement
 import java.util.Map
 import java.lang.String
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
@@ -12,6 +11,9 @@ import org.jetbrains.plugins.scala.extensions.toPsiNamedElementExt
 import com.intellij.openapi.editor.Editor
 import org.jetbrains.plugins.scala.lang.psi.light.PsiClassWrapper
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTrait, ScObject, ScDocCommentOwner, ScTypeDefinition}
+import com.intellij.psi.{PsiReference, PsiElement}
+import org.jetbrains.plugins.scala.lang.resolve.ResolvableReferenceElement
+import collection.JavaConverters.{asJavaCollectionConverter, iterableAsScalaIterableConverter}
 
 /**
  * User: Alexander Podkhalyuzin
@@ -29,6 +31,8 @@ class RenameScalaClassProcessor extends RenameJavaClassProcessor {
       case _ => element
     }
   }
+
+  override def findReferences(element: PsiElement) = ScalaRenameUtil.filterAliasedReferences(super.findReferences(element))
 
   override def prepareRenaming(element: PsiElement, newName: String, allRenames: Map[PsiElement, String]) {
     element match {

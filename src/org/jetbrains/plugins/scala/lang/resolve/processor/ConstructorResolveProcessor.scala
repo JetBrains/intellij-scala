@@ -26,6 +26,8 @@ class ConstructorResolveProcessor(constr: PsiElement, refName: String, args: Lis
   override def execute(element: PsiElement, state: ResolveState): Boolean = {
     val named = element.asInstanceOf[PsiNamedElement]
     val subst = getSubst(state)
+    def nameShadow0: Option[String] = Option(state.get(ResolverEnv.nameKey))
+
     if (nameAndKindMatch(named, state)) {
       val accessible = isAccessible(named, ref)
       if (accessibility && !accessible) return true
@@ -38,22 +40,22 @@ class ConstructorResolveProcessor(constr: PsiElement, refName: String, args: Lis
           if (constructors.isEmpty) {
             //this is for Traits for example. They can be in constructor position.
             // But they haven't constructors.
-            addResult(new ScalaResolveResult(clazz, subst, getImports(state), boundClass = getBoundClass(state),
+            addResult(new ScalaResolveResult(clazz, subst, getImports(state), nameShadow0, boundClass = getBoundClass(state),
               fromType = getFromType(state), isAccessible = accessible))
           }
           else {
-            addResults(constructors.toSeq.map(constr => new ScalaResolveResult(constr, subst, getImports(state),
+            addResults(constructors.toSeq.map(constr => new ScalaResolveResult(constr, subst, getImports(state), nameShadow0,
               parentElement = Some(clazz), boundClass = getBoundClass(state), fromType = getFromType(state),
               isAccessible = isAccessible(constr, ref) && accessible
             )))
           }
         }
         case ta: ScTypeAliasDeclaration => {
-          addResult(new ScalaResolveResult(ta, subst, getImports(state), boundClass = getBoundClass(state),
+          addResult(new ScalaResolveResult(ta, subst, getImports(state), nameShadow0, boundClass = getBoundClass(state),
             fromType = getFromType(state), isAccessible = accessible))
         }
         case ta: ScTypeAliasDefinition => {
-          lazy val r = new ScalaResolveResult(ta, subst, getImports(state), boundClass = getBoundClass(state),
+          lazy val r = new ScalaResolveResult(ta, subst, getImports(state), nameShadow0, boundClass = getBoundClass(state),
             fromType = getFromType(state), isAccessible = true)
           val tp = ta.aliasedType(TypingContext.empty).getOrElse({
             addResult(r)
@@ -67,7 +69,7 @@ class ConstructorResolveProcessor(constr: PsiElement, refName: String, args: Lis
               if (constructors.isEmpty) addResult(r)
               else {
                 addResults(constructors.toSeq.map(constr => new ScalaResolveResult(constr, subst.followed(s), getImports(state),
-                    parentElement = Some(ta), boundClass = getBoundClass(state), fromType = getFromType(state),
+                    nameShadow0, parentElement = Some(ta), boundClass = getBoundClass(state), fromType = getFromType(state),
                     isAccessible = isAccessible(constr, ref) && accessible
                 )))
               }

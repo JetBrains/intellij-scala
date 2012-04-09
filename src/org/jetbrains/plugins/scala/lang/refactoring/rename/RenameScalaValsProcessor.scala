@@ -38,6 +38,8 @@ class RenameScalaValsProcessor extends RenameJavaMemberProcessor {
     case _ => false
   }
 
+  override def findReferences(element: PsiElement) = ScalaRenameUtil.filterAliasedReferences(super.findReferences(element))
+
   override def prepareRenaming(element: PsiElement, newName: String, allRenames: Map[PsiElement, String]) {
     val namedElement = element match {case x: PsiNamedElement => x case _ => return}
     def addBeanMethods(element: PsiElement, newName: String) {
