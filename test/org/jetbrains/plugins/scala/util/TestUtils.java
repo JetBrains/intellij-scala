@@ -86,7 +86,16 @@ public class TestUtils {
       ClassLoader loader = TestUtils.class.getClassLoader();
       URL resource = loader.getResource("testdata");
       try {
-        TEST_DATA_PATH = new File("scala-plugin", "testdata").getAbsolutePath();
+        // jzaugg: this logic was added to stay backwards compatible. Does anyone/anything
+        // rely on this working from the working directory one level higher than "./scala-plugin"? If not,
+        // we can just simplify to use `f2`
+        File f1 = new File("scala-plugin", "testdata");
+        if (f1.exists()) {
+          TEST_DATA_PATH = f1.getAbsolutePath();
+        } else {
+          File f2 = new File("testdata");
+          TEST_DATA_PATH = f2.getAbsolutePath();
+        }
         if (resource != null) {
           TEST_DATA_PATH = new File(resource.toURI()).getPath().replace(File.separatorChar, '/');
         }
