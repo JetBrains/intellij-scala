@@ -27,6 +27,7 @@ import collection.mutable.{HashSet, ArrayBuffer}
 import light.StaticPsiMethodWrapper
 import api.statements._
 import extensions.toPsiMemberExt
+import params.ScClassParameter
 
 /**
  * @author Alexander.Podkhalyuzin
@@ -135,7 +136,8 @@ class ScClassImpl extends ScTypeDefinitionImpl with ScClass with ScTypeParameter
           case Some(method: PsiMethod) if !method.isConstructor => 
             res += method
             names += method.getName
-          case Some(t: ScTypedDefinition) if t.isVal || t.isVar =>
+          case Some(t: ScTypedDefinition) if t.isVal || t.isVar ||
+            (t.isInstanceOf[ScClassParameter] && t.asInstanceOf[ScClassParameter].isCaseClassVal) =>
             val (isInterface, cClass) = t.nameContext match {
               case m: ScMember =>
                 val b = m.isInstanceOf[ScPatternDefinition] || m.isInstanceOf[ScVariableDefinition]
