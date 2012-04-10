@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.debugger
 
 import com.intellij.debugger.actions.JvmSmartStepIntoHandler
 import com.intellij.debugger.SourcePosition
+import evaluation.util.DebuggerUtil
 import java.util.{List => JList}
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.editor.Document
@@ -18,6 +19,8 @@ import org.jetbrains.plugins.scala.lang.psi.types.{PhysicalSignature, ScDesignat
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSimpleTypeElement, ScParameterizedTypeElement}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
+import com.intellij.debugger.engine.RequestHint.SmartStepFilter
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 
 /**
  * User: Alexander Podkhalyuzin
@@ -146,5 +149,17 @@ class ScalaSmartStepIntoHandler extends JvmSmartStepIntoHandler {
       element = element.getNextSibling
     }
     methods.toList
+  }
+
+  override def getSmartStepFilter(method: PsiMethod): SmartStepFilter = {
+    method match {
+      case f: ScFunction =>
+        val clazz = f.getContainingClass
+        new SmartStepFilter(DebuggerUtil.getClassJVMName(clazz, true), method.getName, DebuggerUtil.getFunctionJVMSignature(f))
+      case f: ScPrimaryConstructor =>
+        val clazz = f.getContainingClass
+        new SmartStepFilter(DebuggerUtil.getClassJVMName(clazz, true), "<init>", DebuggerUtil.getFunctionJVMSignature(f))
+      case _ => super.getSmartStepFilter(method)
+    }
   }
 }
