@@ -542,7 +542,9 @@ object ScalaPsiElementFactory {
     val substitutor = sign.substitutor
     method match {
       case method: ScFunction => {
-        body = getStandardValue(substitutor subst method.getType(TypingContext.empty).getOrAny)
+        val retType = method.returnType.toOption.map(t => substitutor.subst(t))
+
+        body = getStandardValue(retType.getOrElse(Any))
         res = res + method.getFirstChild.getText
         if (res != "") res = res + "\n"
         if (!method.getModifierList.hasModifierProperty("override") && isOverride) res = res + "override "
@@ -594,9 +596,6 @@ object ScalaPsiElementFactory {
             val strings = (for (t <- paramClause.parameters) yield get(t))
             res += strings.mkString(if (paramClause.isImplicit) "(implicit " else "(", ", ", ")")
           }
-        }
-        val retType = {
-          method.returnTypeElement.flatMap(_.getType(TypingContext.empty).toOption).map(t => substitutor.subst(t))
         }
 
         val retAndBody = (needsInferType, retType) match {

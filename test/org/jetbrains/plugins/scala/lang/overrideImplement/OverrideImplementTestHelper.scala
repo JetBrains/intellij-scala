@@ -41,14 +41,14 @@ object OverrideImplementTestHelper {
    *  <typeDefinition>
    *  Use <caret> to specify caret position.
    */
-  def transform(myProject: Project, file: PsiFile, offset: Int, isImplement: Boolean, methodName: String): String = {
+  def transform(myProject: Project, file: PsiFile, offset: Int, isImplement: Boolean, methodName: String, needsInferType: Boolean): String = {
     var element: PsiElement = file.findElementAt(offset)
     while (element != null && !element.isInstanceOf[ScTypeDefinition]) element = element.getParent
     val clazz = element match {
       case null => assert(false, "caret must be in type definition"); return "error"
       case x: ScTypeDefinition => x
     }
-    val method = ScalaOIUtil.getMethod(clazz, methodName, isImplement)
+    val method = ScalaOIUtil.getMethod(clazz, methodName, isImplement, needsInferType)
     val anchor = ScalaOIUtil.getAnchor(offset, clazz)
     val runnable = new Runnable() {
       def run() {

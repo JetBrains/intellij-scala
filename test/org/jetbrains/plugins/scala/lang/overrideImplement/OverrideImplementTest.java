@@ -195,8 +195,26 @@ public class OverrideImplementTest extends PsiTestCase {
     runTest(name);
   }
 
+  public void testUnitInferredReturn() throws Exception {
+    String name = "simpleTests/unitInferredOverride.scala";
+    runTest(name);
+  }
+
+  public void testInferredReturn() throws Exception {
+    String name = "simpleTests/returnInferredOverride.scala";
+    runTest(name);
+  }
+
+  public void testNoExplicitReturn() throws Exception {
+    String name = "simpleTests/noExplicitReturn.scala";
+    runTest(name, false);
+  }
 
   private void runTest(String name) throws Exception {
+    runTest(name, true);
+  }
+
+  private void runTest(String name, boolean needsInferType) throws Exception {
     String filePath = rootPath + name;
     final VirtualFile vFile = LocalFileSystem.getInstance().refreshAndFindFileByPath(filePath.
         replace(File.separatorChar, '/'));
@@ -219,7 +237,7 @@ public class OverrideImplementTest extends PsiTestCase {
 
     myFile = createFile(myModule, fileName, fileText);
 
-    String actual = OverrideImplementTestHelper.transform(myProject, myFile, offset, isImplement, methodName);
+    String actual = OverrideImplementTestHelper.transform(myProject, myFile, offset, isImplement, methodName, needsInferType);
     assertEquals(expected, actual);
   }
 }
