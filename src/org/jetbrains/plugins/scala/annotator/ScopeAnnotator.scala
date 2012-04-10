@@ -89,7 +89,7 @@ trait ScopeAnnotator {
       f.paramClauses.clauses.map(clause => format(clause.parameters, clause.paramTypes)).mkString
   }
 
-  private def eraseType(s: String) = if(s.startsWith("Array[")) s else TypeParameters.replaceFirstIn(s, "")
+  private def eraseType(s: String) = if(s.startsWith("Array[") || s.startsWith("_root_.scala.Array[")) s else TypeParameters.replaceFirstIn(s, "")
 
   private def format(parameters: Seq[ScParameter], types: Seq[ScType]) = {
     val parts = parameters.zip(types).map {
