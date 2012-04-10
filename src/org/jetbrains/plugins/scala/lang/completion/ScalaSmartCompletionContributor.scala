@@ -151,118 +151,121 @@ class ScalaSmartCompletionContributor extends CompletionContributor {
       }
     }
 
-    //enum and factory methods
-    for (tp <- typez) {
-      def checkObject(o: ScObject) {
-        o.members.foreach {
-          case function: ScFunction =>
-            applyVariant(LookupElementManager.getLookupElement(new ScalaResolveResult(function), isClassName = true,
-              isOverloadedForClassName = false, shouldImport = true, isInStableCodeReference = false).apply(0))
-          case v: ScValue =>
-            v.declaredElements.foreach(td => {
-              applyVariant(LookupElementManager.getLookupElement(new ScalaResolveResult(td), isClassName = true,
-                isOverloadedForClassName = false, shouldImport = true, isInStableCodeReference = false).apply(0))
-            })
-          case v: ScVariable =>
-            v.declaredElements.foreach(td => {
-              applyVariant(LookupElementManager.getLookupElement(new ScalaResolveResult(td), isClassName = true,
-                isOverloadedForClassName = false, shouldImport = true, isInStableCodeReference = false).apply(0))
-            })
-          case o: ScObject =>
-            applyVariant(LookupElementManager.getLookupElement(new ScalaResolveResult(o), isClassName = true,
-              isOverloadedForClassName = false, shouldImport = true, isInStableCodeReference = false).apply(0))
-          case _ =>
-        }
-      }
-      def checkTypeProjection(tp: ScType) {
-        tp match {
-          case ScProjectionType(proj, _: ScTypeAlias | _: ScClass | _: ScTrait, subst) =>
-            ScType.extractClass(proj) match {
-              case Some(o: ScObject) if ResolveUtils.isAccessible(o, place) && ScalaPsiUtil.hasStablePath(o) => checkObject(o)
+    place match {
+      case ref: ScReferenceExpression if ref.smartQualifier == None =>
+        //enum and factory methods
+        for (tp <- typez) {
+          def checkObject(o: ScObject) {
+            o.members.foreach {
+              case function: ScFunction =>
+                applyVariant(LookupElementManager.getLookupElement(new ScalaResolveResult(function), isClassName = true,
+                  isOverloadedForClassName = false, shouldImport = true, isInStableCodeReference = false).apply(0))
+              case v: ScValue =>
+                v.declaredElements.foreach(td => {
+                  applyVariant(LookupElementManager.getLookupElement(new ScalaResolveResult(td), isClassName = true,
+                    isOverloadedForClassName = false, shouldImport = true, isInStableCodeReference = false).apply(0))
+                })
+              case v: ScVariable =>
+                v.declaredElements.foreach(td => {
+                  applyVariant(LookupElementManager.getLookupElement(new ScalaResolveResult(td), isClassName = true,
+                    isOverloadedForClassName = false, shouldImport = true, isInStableCodeReference = false).apply(0))
+                })
+              case o: ScObject =>
+                applyVariant(LookupElementManager.getLookupElement(new ScalaResolveResult(o), isClassName = true,
+                  isOverloadedForClassName = false, shouldImport = true, isInStableCodeReference = false).apply(0))
               case _ =>
             }
-          case _ =>
-        }
-      }
-      def checkType(tp: ScType) {
-        ScType.extractClass(tp) match {
-          case Some(c: ScClass) if c.qualifiedName == "scala.Option" || c.qualifiedName == "scala.Some" =>
+          }
+          def checkTypeProjection(tp: ScType) {
             tp match {
-              case ScParameterizedType(_, Seq(tp)) => checkType(tp)
-              case _ =>
-            }
-          case Some(o: ScObject) => //do nothing
-          case Some(clazz: ScTypeDefinition) =>
-            checkTypeProjection(tp)
-            ScalaPsiUtil.getCompanionModule(clazz) match {
-              case Some(o: ScObject) if ResolveUtils.isAccessible(o, place) && ScalaPsiUtil.hasStablePath(o) => checkObject(o)
-              case _ => //do nothing
-            }
-          case Some(p: PsiClass) if ResolveUtils.isAccessible(p, place) =>
-            p.getAllMethods.foreach(method => {
-              if (method.hasModifierProperty("static") && ResolveUtils.isAccessible(method, place)) {
-                applyVariant(LookupElementManager.getLookupElement(new ScalaResolveResult(method), isClassName = true,
-                  isOverloadedForClassName = false, shouldImport = true, isInStableCodeReference = false).apply(0))
-              }
-            })
-            p.getFields.foreach(field => {
-              if (field.hasModifierProperty("static") && ResolveUtils.isAccessible(field, place)) {
-                applyVariant(LookupElementManager.getLookupElement(new ScalaResolveResult(field), isClassName = true,
-                  isOverloadedForClassName = false, shouldImport = true, isInStableCodeReference = false).apply(0))
-              }
-            })
-          case _ => checkTypeProjection(tp)
-        }
-      }
-      checkType(tp)
-    }
-    variants.foreach(applyVariant(_, true))
-    if (typez.find(_.equiv(types.Boolean)) != None) {
-      for (keyword <- Set("false", "true")) {
-        result.addElement(LookupElementManager.getKeywrodLookupElement(keyword, place))
-      }
-    }
-    if (completeThis) {
-      var parent = place
-      var foundClazz = false
-      while (parent != null) {
-        parent match {
-          case t: ScNewTemplateDefinition if foundClazz => //do nothing, impossible to invoke
-          case t: ScTemplateDefinition =>
-            t.getTypeWithProjections(TypingContext.empty, true) match {
-              case Success(scType, _) =>
-                import types.Nothing
-                val lookupString = (if (foundClazz) t.name + "." else "") + "this"
-                val el = new ScalaLookupItem(t, lookupString)
-                if (!scType.equiv(Nothing) && typez.find(scType conforms _) != None) {
-                  if (!foundClazz) el.bold = true
-                  result.addElement(el)
-                } else {
-                  var elementAdded = false
-                  typez.foreach {
-                    case ScParameterizedType(tp, Seq(arg)) if !elementAdded =>
-                      ScType.extractClass(tp, Some(place.getProject)) match {
-                        case Some(clazz) if clazz.qualifiedName == "scala.Option" || clazz.getQualifiedName == "scala.Some" =>
-                          if (!scType.equiv(Nothing) && scType.conforms(arg)) {
-                            el.someSmartCompletion = true
-                            result.addElement(el)
-                            elementAdded = true
-                          }
-                        case _ =>
-                      }
-                    case _ =>
-                  }
+              case ScProjectionType(proj, _: ScTypeAlias | _: ScClass | _: ScTrait, subst) =>
+                ScType.extractClass(proj) match {
+                  case Some(o: ScObject) if ResolveUtils.isAccessible(o, place) && ScalaPsiUtil.hasStablePath(o) => checkObject(o)
+                  case _ =>
                 }
               case _ =>
             }
-            foundClazz = true
-          case _ =>
+          }
+          def checkType(tp: ScType) {
+            ScType.extractClass(tp) match {
+              case Some(c: ScClass) if c.qualifiedName == "scala.Option" || c.qualifiedName == "scala.Some" =>
+                tp match {
+                  case ScParameterizedType(_, Seq(tp)) => checkType(tp)
+                  case _ =>
+                }
+              case Some(o: ScObject) => //do nothing
+              case Some(clazz: ScTypeDefinition) =>
+                checkTypeProjection(tp)
+                ScalaPsiUtil.getCompanionModule(clazz) match {
+                  case Some(o: ScObject) if ResolveUtils.isAccessible(o, place) && ScalaPsiUtil.hasStablePath(o) => checkObject(o)
+                  case _ => //do nothing
+                }
+              case Some(p: PsiClass) if ResolveUtils.isAccessible(p, place) =>
+                p.getAllMethods.foreach(method => {
+                  if (method.hasModifierProperty("static") && ResolveUtils.isAccessible(method, place)) {
+                    applyVariant(LookupElementManager.getLookupElement(new ScalaResolveResult(method), isClassName = true,
+                      isOverloadedForClassName = false, shouldImport = true, isInStableCodeReference = false).apply(0))
+                  }
+                })
+                p.getFields.foreach(field => {
+                  if (field.hasModifierProperty("static") && ResolveUtils.isAccessible(field, place)) {
+                    applyVariant(LookupElementManager.getLookupElement(new ScalaResolveResult(field), isClassName = true,
+                      isOverloadedForClassName = false, shouldImport = true, isInStableCodeReference = false).apply(0))
+                  }
+                })
+              case _ => checkTypeProjection(tp)
+            }
+          }
+          checkType(tp)
         }
-        parent = parent.getContext
-      }
+        variants.foreach(applyVariant(_, true))
+        if (typez.find(_.equiv(types.Boolean)) != None) {
+          for (keyword <- Set("false", "true")) {
+            result.addElement(LookupElementManager.getKeywrodLookupElement(keyword, place))
+          }
+        }
+        if (completeThis) {
+          var parent = place
+          var foundClazz = false
+          while (parent != null) {
+            parent match {
+              case t: ScNewTemplateDefinition if foundClazz => //do nothing, impossible to invoke
+              case t: ScTemplateDefinition =>
+                t.getTypeWithProjections(TypingContext.empty, true) match {
+                  case Success(scType, _) =>
+                    import types.Nothing
+                    val lookupString = (if (foundClazz) t.name + "." else "") + "this"
+                    val el = new ScalaLookupItem(t, lookupString)
+                    if (!scType.equiv(Nothing) && typez.find(scType conforms _) != None) {
+                      if (!foundClazz) el.bold = true
+                      result.addElement(el)
+                    } else {
+                      var elementAdded = false
+                      typez.foreach {
+                        case ScParameterizedType(tp, Seq(arg)) if !elementAdded =>
+                          ScType.extractClass(tp, Some(place.getProject)) match {
+                            case Some(clazz) if clazz.qualifiedName == "scala.Option" || clazz.getQualifiedName == "scala.Some" =>
+                              if (!scType.equiv(Nothing) && scType.conforms(arg)) {
+                                el.someSmartCompletion = true
+                                result.addElement(el)
+                                elementAdded = true
+                              }
+                            case _ =>
+                          }
+                        case _ =>
+                      }
+                    }
+                  case _ =>
+                }
+                foundClazz = true
+              case _ =>
+            }
+            parent = parent.getContext
+          }
+        }
+      case _ => variants.foreach(applyVariant(_, true))
     }
   }
-
 
 
   /*
