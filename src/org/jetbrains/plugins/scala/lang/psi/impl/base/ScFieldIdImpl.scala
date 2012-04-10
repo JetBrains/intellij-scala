@@ -10,7 +10,7 @@ import com.intellij.lang.ASTNode
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import stubs.{ScFieldIdStub}
 import psi.types.result.{Success, TypingContext}
-import api.statements.{ScTypedDeclaration, ScVariable}
+import api.statements.{ScValue, ScTypedDeclaration, ScVariable}
 
 /**
  * @author ilyas
@@ -44,4 +44,8 @@ class ScFieldIdImpl private () extends ScalaStubBasedElementImpl[ScFieldId] with
       case _ => throw new UnsupportedOperationException("Cannot delete on id in a list of field ides.")
     }
   }
+
+  override def isVar: Boolean = nameContext.isInstanceOf[ScVariable]
+
+  override def isVal: Boolean = nameContext.isInstanceOf[ScValue]
 }
