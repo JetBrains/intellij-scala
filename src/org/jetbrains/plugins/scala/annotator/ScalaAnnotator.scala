@@ -1,9 +1,7 @@
 package org.jetbrains.plugins.scala
 package annotator
 
-import collection.mutable.HashSet
 import com.intellij.codeInsight.intention.IntentionAction
-import com.intellij.openapi.util.Key
 import com.intellij.psi.util.PsiTreeUtil
 import controlFlow.ControlFlowInspections
 import createFromUsage._
@@ -49,6 +47,8 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager.ClassCategory
 import highlighter.{DefaultHighlighter, AnnotatorHighlighter}
 import types.{ScSimpleTypeElement, ScParameterizedTypeElement, ScTypeProjection, ScTypeElement}
 import org.jetbrains.plugins.scala.lang.references.ScalaReferenceContributor
+import com.intellij.openapi.util.{TextRange, Key}
+import collection.mutable.{ArrayBuffer, HashSet}
 
 /**
  * User: Alexander Podkhalyuzin
@@ -62,12 +62,12 @@ with ControlFlowInspections with ConstructorAnnotator with OverridingAnnotator
 with DumbAware {
 
   override def annotate(element: PsiElement, holder: AnnotationHolder) {
-    val typeAware = isAdvancedHighlightingEnabled(element)
-
     val compiled = element.getContainingFile match {
       case file: ScalaFile => file.isCompiled
       case _ => false
     }
+
+    val typeAware = isAdvancedHighlightingEnabled(element)
 
     val visitor = new ScalaElementVisitor {
       private def expressionPart(expr: ScExpression) {
@@ -166,7 +166,7 @@ with DumbAware {
 
       override def visitMethodCallExpression(call: ScMethodCall) {
         checkMethodCallImplicitConversion(call, holder)
-        annotateMethodCall(call, holder)
+        if (typeAware) annotateMethodCall(call, holder)
         super.visitMethodCallExpression(call)
       }
 
@@ -326,7 +326,33 @@ with DumbAware {
   }
 
   def isAdvancedHighlightingEnabled(element: PsiElement): Boolean = {
-    HighlightingAdvisor.getInstance(element.getProject).enabled
+    if (!HighlightingAdvisor.getInstance(element.getProject).enabled) return false
+    val containingFile = element.getContainingFile
+    def calculate(): HashSet[TextRange] = {
+      val text = containingFile.getText
+      val indexes = new ArrayBuffer[Int]
+      var lastIndex = 0
+      while (text.indexOf("/*_*/", lastIndex) >= 0) {
+        lastIndex = text.indexOf("/*_*/", lastIndex) + 5
+        indexes += lastIndex
+      }
+      if (indexes.length == 0) return HashSet.empty
+      if (indexes.length % 2 != 0) indexes += text.length
+
+      val res = new HashSet[TextRange]
+      for (i <- 0 until indexes.length by 2) {
+        res += new TextRange(indexes(i), indexes(i + 1))
+      }
+      res
+    }
+    var data = containingFile.getUserData(ScalaAnnotator.ignoreHighlightingKey)
+    val count = containingFile.getManager.getModificationTracker.getModificationCount
+    if (data == null || data._1 != count) {
+      data = (count, calculate())
+      containingFile.putUserData(ScalaAnnotator.ignoreHighlightingKey, data)
+    }
+    val offset = element.getTextOffset
+    data._2.forall(!_.contains(offset))
   }
 
   def checkCatchBlockGeneralizedRule(block: ScCatchBlock, holder: AnnotationHolder, typeAware: Boolean) {
@@ -820,6 +846,8 @@ with DumbAware {
 }
 
 object ScalaAnnotator {
+  val ignoreHighlightingKey: Key[(Long, HashSet[TextRange])] = Key.create("ignore.highlighting.key")
+
   val usedImportsKey: Key[HashSet[ImportUsed]] = Key.create("used.imports.key")
 
   /**
