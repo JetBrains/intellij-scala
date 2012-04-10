@@ -291,9 +291,8 @@ object ScalaOIUtil {
     buf2.toSeq
   }
 
-
-
-  def getMethod(clazz: ScTypeDefinition, methodName: String, isImplement: Boolean): ScMember = {
+  // TODO: this is only called from tests, too much code here that is being tested that *isn't* real.
+  def getMethod(clazz: ScTypeDefinition, methodName: String, isImplement: Boolean, needsInferType: Boolean = true): ScMember = {
     val seq: Seq[ScalaObject] = if (isImplement) getMembersToImplement(clazz) else getMembersToOverride(clazz)
     def getObjectByName: ScalaObject = {
       for (obj <- seq) {
@@ -317,7 +316,7 @@ object ScalaOIUtil {
       case sign: PhysicalSignature => {
         val method: PsiMethod = sign.method
         val sign1 = sign.updateSubst(addUpdateThisType)
-        ScalaPsiElementFactory.createOverrideImplementMethod(sign1, method.getManager, !isImplement, true)
+        ScalaPsiElementFactory.createOverrideImplementMethod(sign1, method.getManager, !isImplement, needsInferType)
       }
       case (name: PsiNamedElement, subst: ScSubstitutor) => {
         val element: PsiElement = ScalaPsiUtil.nameContext(name)
