@@ -1,8 +1,6 @@
 package org.jetbrains.plugins.scala.runner
 
 import com.intellij.openapi.module.Module
-import com.intellij.openapi.util.text.StringUtil
-import com.intellij.execution.junit.{JavaRuntimeConfigurationProducerBase, RuntimeConfigurationProducer}
 import com.intellij.psi.util.PsiMethodUtil
 import com.intellij.execution.configurations.ConfigurationUtil
 import com.intellij.openapi.project.Project
