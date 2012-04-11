@@ -12,11 +12,8 @@ import com.intellij.openapi.util.TextRange
 import refactoring.util.ScalaNamesUtil
 import statements.{ScTypeAliasDefinition, ScFunction}
 import toplevel.typedef._
-import psi.types._
 import psi.impl.ScalaPsiElementFactory
-import statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
-import expr.ScReferenceExpression
 import extensions.{toPsiMemberExt, toPsiNamedElementExt, toPsiClassExt}
 
 /**
@@ -125,47 +122,18 @@ trait ScReferenceElement extends ScalaPsiElement with ResolvableReferenceElement
    *
    * @see http://youtrack.jetbrains.net/issue/SCL-3132
    */
-  private def isIndirectReferenceTo(resolved: PsiElement, element: PsiElement): Boolean = {
-    def isDefinedInObject(memb: ScMember) = memb.containingClass.isInstanceOf[ScObject]
+  def isIndirectReferenceTo(resolved: PsiElement, element: PsiElement): Boolean = {
+    if (resolved == null) return false
     (resolved, element) match {
-      case (_, obj: ScObject) =>
-        // TODO indirect references via vals, e.g. `package object scala { val List = scala.collection.immutable.List }` ?
-      case (typeAlias: ScTypeAliasDefinition, cls: PsiClass) if isDefinedInObject(typeAlias) =>
-        if (cls.getTypeParameters.length != typeAlias.typeParameters.length) {
-          return false
-        } else if (cls.hasTypeParameters) {
-          val typeParamsAreAppliedInOrderToCorrectClass = typeAlias.aliasedType.getOrAny match {
-            case pte: ScParameterizedType =>
-              val refersToClass = Equivalence.equiv(pte.designator, ScType.designator(cls))
-              val typeParamsAppliedInOrder = (pte.typeArgs corresponds typeAlias.typeParameters) {
-                case (tpt: ScTypeParameterType, tp) if tpt.param == tp => true
-                case _ => false
-              }
-              refersToClass && typeParamsAppliedInOrder
-            case _ => false
-          }
-          val varianceAndBoundsMatch = cls match {
-            case sc: ScClass =>
-              (typeAlias.typeParameters corresponds sc.typeParameters) {
-                case (tp1, tp2) => tp1.variance == tp2.variance && tp1.upperBound == tp2.upperBound && tp1.lowerBound == tp2.lowerBound &&
-                        tp1.contextBound.isEmpty && tp2.contextBound.isEmpty && tp1.viewBound.isEmpty && tp2.viewBound.isEmpty
-              }
-            case _ => // Java class
-              (typeAlias.typeParameters corresponds cls.getTypeParameters) {
-                case (tp1, tp2) => tp1.variance == ScTypeParam.Invariant && tp1.upperTypeElement.isEmpty && tp2.getExtendsListTypes.isEmpty &&
-                        tp1.lowerTypeElement.isEmpty && tp1.contextBound.isEmpty && tp1.viewBound.isEmpty
-              }
-          }
-          typeParamsAreAppliedInOrderToCorrectClass && varianceAndBoundsMatch
-        } else {
-          val clsType = ScType.designator(cls)
-          typeAlias.typeParameters.isEmpty && Equivalence.equiv(typeAlias.aliasedType.getOrElse(return false), clsType)
-        }
+      case (typeAlias: ScTypeAliasDefinition, cls: PsiClass) =>
+        typeAlias.isExactAliasFor(cls)
       case _ =>
+        // TODO indirect references via vals, e.g. `package object scala { val List = scala.collection.immutable.List }` ?
+
+        val originalElement = element.getOriginalElement
+        if (originalElement != element) isReferenceTo(originalElement, resolved)
+        else false
     }
-    val originalElement = element.getOriginalElement
-    if (originalElement != element) isReferenceTo(originalElement, resolved)
-    else false
   }
 
   def qualifier: Option[ScalaPsiElement]

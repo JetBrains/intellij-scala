@@ -8,10 +8,10 @@ import _root_.org.jetbrains.plugins.scala.lang.psi.types.ScType
 import base.types.ScTypeElement
 import caches.CachesUtil
 import com.intellij.psi.util.{PsiModificationTracker, CachedValueProvider, CachedValue}
-import com.intellij.psi.{PsiManager, PsiElement}
 import stubs.ScTypeAliasStub
 import toplevel.ScNamedElement
 import types.result.{TypeResult, Failure, TypingContext}
+import com.intellij.psi.{PsiClass, PsiManager, PsiElement}
 
 /**
 * @author Alexander Podkhalyuzin
@@ -44,4 +44,6 @@ trait ScTypeAliasDefinition extends ScTypeAlias {
 
   def lowerBound: TypeResult[ScType] = aliasedType(TypingContext.empty)
   def upperBound: TypeResult[ScType] = aliasedType(TypingContext.empty)
+
+  def isExactAliasFor(cls: PsiClass): Boolean
 }
