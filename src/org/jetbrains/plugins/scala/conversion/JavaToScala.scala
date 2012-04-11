@@ -13,6 +13,7 @@ import java.lang.String
 import com.intellij.openapi.util.TextRange
 import collection.mutable.{ListBuffer, ArrayBuffer, LinkedHashSet}
 import com.intellij.codeInsight.editorActions.ReferenceTransferableData.ReferenceData
+import com.intellij.find.findUsages.FindUsagesUtil
 
 /**
  * Author: Alexander Podkhalyuzin
@@ -264,10 +265,18 @@ object JavaToScala {
       case p: PsiPrefixExpression => {
         p.getOperationTokenType match {
           case JavaTokenType.PLUSPLUS => {
-            res.append("({i += 1; i - 1})".replace("i", convertPsiToText(p.getOperand)))
+            if (!canBeSimpified(p)) {
+              res.append("({i += 1; i - 1})".replace("i", convertPsiToText(p.getOperand)))
+            } else {
+              res.append(convertPsiToText(p.getOperand)).append(" += 1")
+            }
           }
           case JavaTokenType.MINUSMINUS => {
-            res.append("({i -= 1; i + 1})".replace("i", convertPsiToText(p.getOperand)))
+            if (!canBeSimpified(p)) {
+              res.append("({i -= 1; i + 1})".replace("i", convertPsiToText(p.getOperand)))
+            } else {
+              res.append(convertPsiToText(p.getOperand)).append(" -= 1")
+            }
           }
           case _ => {
             res.append(p.getOperationSign.getText).append(convertPsiToText(p.getOperand))
@@ -277,10 +286,18 @@ object JavaToScala {
       case p: PsiPostfixExpression => {
         p.getOperationTokenType match {
           case JavaTokenType.PLUSPLUS => {
-            res.append("({i += 1; i})".replace("i", convertPsiToText(p.getOperand)))
+            if (!canBeSimpified(p)) {
+              res.append("({i += 1; i})".replace("i", convertPsiToText(p.getOperand)))
+            } else {
+              res.append(convertPsiToText(p.getOperand)).append(" += 1")
+            }
           }
           case JavaTokenType.MINUSMINUS => {
-            res.append("({i -= 1; i})".replace("i", convertPsiToText(p.getOperand)))
+            if (!canBeSimpified(p)) {
+              res.append("({i -= 1; i})".replace("i", convertPsiToText(p.getOperand)))
+            } else {
+              res.append(convertPsiToText(p.getOperand)).append(" -= 1")
+            }
           }
         }
       }
@@ -348,13 +365,13 @@ object JavaToScala {
         var params = convertPsiToText(m.getParameterList)
         if (params == "" && m.isConstructor) params = "()"
         res.append(params)
-        if (!m.isConstructor) res.append(" : ").append(convertPsiToText(m.getReturnTypeElement))
+        if (!m.isConstructor && m.getReturnType != PsiType.VOID) res.append(" : ").append(convertPsiToText(m.getReturnTypeElement))
         if (m.getBody != null) {
-          if (!m.isConstructor) res.append(" = ")
+          if (!m.isConstructor && m.getReturnType != PsiType.VOID) res.append(" = ")
           if (m.isConstructor) {
             res.append("{\nthis()\n")
             for (st <- m.getBody.getStatements) res.append(convertPsiToText(st)).append("\n")
-            res.append("}");
+            res.append("}")
           } else {
             res.append(convertPsiToText(m.getBody))
           }
@@ -390,7 +407,40 @@ object JavaToScala {
         res.append(convertPsiToText(l.getModifierList)).append(" ")
         if (l.hasModifierProperty("final")) {
           res.append(" val ")
-        } else res.append(" var ")
+        } else {
+          val parent = PsiTreeUtil.getParentOfType(l, classOf[PsiCodeBlock], classOf[PsiBlockStatement])
+          var haveUsage = false
+          if (parent != null) {
+            parent.accept(new JavaRecursiveElementVisitor {
+              override def visitPostfixExpression(expression: PsiPostfixExpression) {
+                if (expression.getOperationTokenType == JavaTokenType.PLUSPLUS || expression.getOperationTokenType == JavaTokenType.MINUSMINUS) {
+                  expression.getOperand match {
+                    case ref: PsiReferenceExpression => if (ref.resolve() == l) haveUsage = true
+                    case _ =>
+                  }
+                }
+              }
+
+              override def visitPrefixExpression(expression: PsiPrefixExpression) {
+                if (expression.getOperationTokenType == JavaTokenType.PLUSPLUS || expression.getOperationTokenType == JavaTokenType.MINUSMINUS) {
+                  expression.getOperand match {
+                    case ref: PsiReferenceExpression if ref.resolve() == l => haveUsage = true
+                    case _ =>
+                  }
+                }
+              }
+
+              override def visitAssignmentExpression(expression: PsiAssignmentExpression) {
+                expression.getLExpression match {
+                  case ref: PsiReferenceExpression if ref.resolve() == l => haveUsage = true
+                  case _ =>
+                }
+              }
+            })
+          }
+          if (haveUsage) res.append(" var ")
+          else res.append(" val ")
+        }
         res.append(escapeKeyword(l.getName)).append(" : ")
         res.append(convertPsiToText(l.getTypeElement))
         if (l.getInitializer != null) {
@@ -543,7 +593,7 @@ object JavaToScala {
         } {
           res.append(convertPsiToText(a)).append(" ")
         }
-        
+
         if (m.hasModifierProperty("volatile")) {
           res.append("@volatile\n")
         }
@@ -663,6 +713,22 @@ object JavaToScala {
         val returnType = method.getReturnType
         returnType != null && returnType.isInstanceOf[PsiArrayType];
       }
+      case _ => false
+    }
+  }
+
+  /**
+   * @param expr prefix or postfix expression
+   * @return true if this expression is under block
+   */
+  private def canBeSimpified(expr: PsiExpression): Boolean = {
+    expr.getParent match {
+      case b: PsiExpressionStatement =>
+        b.getParent match {
+          case b: PsiBlockStatement => true
+          case b: PsiCodeBlock => true
+          case _ => false
+        }
       case _ => false
     }
   }

@@ -60,15 +60,16 @@ class JavaCopyPastePostProcessor extends CopyPastePostProcessor[TextBlockTransfe
 
       val shift = startOffsets.headOption.getOrElse(0)
 
-      val data = refs.getData.map { it =>
-        new ReferenceData(it.startOffset + shift, it.endOffset + shift, it.qClassName, it.staticMemberName)
-      }
+      val data: Seq[ReferenceData] = if (refs != null)
+        refs.getData.map { it =>
+          new ReferenceData(it.startOffset + shift, it.endOffset + shift, it.qClassName, it.staticMemberName)
+        } else Seq.empty
 
       val newText = JavaToScala.convertPsisToText(buffer.toArray, dependencies, data)
 
       new ConvertedCode(newText, dependencies.toArray)
     } catch {
-      case _ => null
+      case e => null
     }
   }
 
