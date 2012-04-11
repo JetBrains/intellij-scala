@@ -63,10 +63,11 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
   def cachedDeepIsInheritor(clazz: PsiClass, base: PsiClass): Boolean = {
     val ref = inheritorsMap.get(clazz)
     var map: ConcurrentMap[PsiClass, java.lang.Boolean] = null
-    if (ref == null || ref.get() == null) {
+    map = if (ref == null) null else ref.get()
+    if (map == null) {
       map = new ConcurrentHashMap()
       inheritorsMap.put(clazz, new SoftReference(map))
-    } else map = ref.get()
+    }
 
     val b = map.get(base)
     if (b != null) return b.booleanValue()
