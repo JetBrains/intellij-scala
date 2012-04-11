@@ -4,13 +4,13 @@ package codeInsight.intention.types
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScPatternDefinition, ScVariableDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScTypedPattern}
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.extensions._
 import lang.psi.ScalaPsiUtil
 import lang.psi.api.expr.ScFunctionExpr
 import lang.psi.api.statements.params.{ScParameterClause, ScParameter}
+import lang.psi.api.base.patterns.{ScWildcardPattern, ScBindingPattern, ScTypedPattern}
 
 /**
  * Pavel.Fatin, 28.04.2010
@@ -48,6 +48,12 @@ object Update extends Strategy {
   }
 
   def addToPattern(pattern: ScBindingPattern) {
+    pattern.expectedType.foreach {
+      addTypeAnnotation(_, pattern.getParent, pattern)
+    }
+  }
+
+  def addToWildcardPattern(pattern: ScWildcardPattern) {
     pattern.expectedType.foreach {
       addTypeAnnotation(_, pattern.getParent, pattern)
     }
