@@ -11,7 +11,6 @@ import impl.PsiClassImplUtil
 import javax.swing._
 import java.util.Collection
 import java.util.List
-import com.intellij.openapi.util.Pair
 import com.intellij.openapi.util.text.StringUtil
 import collection.mutable.ArrayBuffer
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
@@ -21,6 +20,7 @@ import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTrait, ScObject, ScTemplateDefinition}
 import org.jetbrains.plugins.scala.extensions.{toPsiClassExt, toPsiMemberExt}
+import com.intellij.openapi.util.{TextRange, Pair}
 
 /**
  * @author Alefas
@@ -360,6 +360,10 @@ class PsiClassWrapper(val definition: ScTemplateDefinition,
   override def canNavigateToSource: Boolean = {
     definition.canNavigateToSource
   }
+
+  override def getTextRange: TextRange = definition.getTextRange
+
+  override def getTextOffset: Int = definition.getTextOffset
 
   def hasTypeParameters: Boolean = false
 
