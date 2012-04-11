@@ -24,7 +24,9 @@ class ToggleTypeAnnotation extends PsiElementBaseIntentionAction {
     if(element == null) {
       false
     } else {
-      def message(key: String) = setText(ScalaBundle.message(key))
+      def message(key: String) {
+        setText(ScalaBundle.message(key))
+      }
       complete(new Description(message), element)
     }
   }
@@ -90,7 +92,6 @@ class ToggleTypeAnnotation extends PsiElementBaseIntentionAction {
             func.expectedType().flatMap(ScType.extractFunctionType) match {
               case Some(funcType) =>
                 if (index >= 0 && index < funcType.arity) {
-                  val paramExpectedType = funcType.params(index)
                   strategy.addToParameter(param)
                   return true
                 }
@@ -102,13 +103,18 @@ class ToggleTypeAnnotation extends PsiElementBaseIntentionAction {
     }
 
     for (pattern <- element.parentsInFile.findByType(classOf[ScBindingPattern])) {
-
       pattern match {
         case p: ScTypedPattern if (p.typePattern.isDefined) =>
           strategy.removeFromPattern(p)
-        case _ => strategy.addToPattern(pattern)
+          return true
+        case _: ScReferencePattern =>
+          strategy.addToPattern(pattern)
+          return true
+        case _ =>
       }
-
+    }
+    for (pattern <- element.parentsInFile.findByType(classOf[ScWildcardPattern])) {
+      strategy.addToWildcardPattern(pattern)
       return true
     }
 
