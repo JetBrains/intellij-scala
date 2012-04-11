@@ -127,6 +127,37 @@ class ScalaRenameAliasedTest extends ScalaRenameTestBase {
     myFixture.checkResult(resultText)
   }
 
+  def testRenameAliasOfTypeAliasToClass() {
+    val fileText =
+      """
+      |object test {
+      |  class X
+      |  object A { type oldAliasName<caret> = X}
+      |  new A.oldAliasName: A.oldAliasName
+      |  import A.{oldAliasName => aliasedAliasName}
+      |  new aliasedAliasName: aliasedAliasName
+      |}
+      |""".stripMargin('|').replaceAll("\r", "").trim()
+    myFixture.configureByText("dummy.scala", fileText)
+    val objectElement = myFixture.getElementAtCaret
+    val usages = myFixture.findUsages(objectElement)
+    Assert.assertEquals(usages.size(), 4) // TODO should be five, usage in `new aliasedAliasName` is not found.
+    myFixture.renameElementAtCaret("newAliasName")
+
+    val resultText =
+      """
+      |object test {
+      |  class X
+      |  object A { type newAliasName<caret> = X}
+      |  new A.newAliasName: A.newAliasName
+      |  import A.{newAliasName => aliasedAliasName}
+      |  new aliasedAliasName: aliasedAliasName
+      |}
+      |""".stripMargin('|').replaceAll("\r", "").trim()
+
+    myFixture.checkResult(resultText)
+  }
+
   def testRenameTypeAliasToClass() {
     val fileText =
       """
