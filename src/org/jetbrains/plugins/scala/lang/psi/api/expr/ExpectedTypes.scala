@@ -292,7 +292,7 @@ private[expr] object ExpectedTypes {
               || b.getContext.getContext.getContext.isInstanceOf[ScCatchBlock]
               || b.getContext.isInstanceOf[ScCaseClause] 
               || b.getContext.isInstanceOf[ScFunctionExpr] => b.lastExpr match {
-        case Some(e) if e == expr => b.expectedTypesEx(true)
+        case Some(e) if expr.getSameElementInContext == e => b.expectedTypesEx(true)
         case _ => Array.empty
       }
       case _ => Array.empty

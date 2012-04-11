@@ -151,7 +151,7 @@ class ScalaSmartCompletionContributor extends CompletionContributor {
       }
     }
 
-    place match {
+    place.getParent match {
       case ref: ScReferenceExpression if ref.smartQualifier == None =>
         //enum and factory methods
         for (tp <- typez) {
