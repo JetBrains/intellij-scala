@@ -31,6 +31,7 @@ import com.intellij.openapi.options.{SettingsEditorGroup, SettingsEditor}
 import com.intellij.diagnostic.logging.LogConfigurationPanel
 import extensions.toPsiClassExt
 import lang.psi.impl.{ScalaPsiManager, ScPackageImpl}
+import lang.psi.api.ScPackage
 
 /**
  * User: Alexander Podkhalyuzin
@@ -121,19 +122,19 @@ class Specs2RunConfiguration(val project: Project, val configurationFactory: Con
     if (classOrObjects.isEmpty && pack == null) throwClassNotFoundError()
     if (suiteClass == null)
       throw new ExecutionException("Specs2 not specified.")
-    val classes = new ArrayBuffer[PsiClass]
+    val classes = new HashSet[PsiClass]
     if (!classOrObjects.isEmpty) {
       classes ++= classOrObjects.filter(ScalaPsiUtil.cachedDeepIsInheritor(_, suiteClass))
     } else {
-      def getClasses(pack: PsiPackage): Seq[PsiClass] = {
+      def getClasses(pack: ScPackage): Seq[PsiClass] = {
         val buffer = new ArrayBuffer[PsiClass]
         buffer ++= pack.getClasses
         for (p <- pack.getSubPackages) {
-          buffer ++= getClasses(p)
+          buffer ++= getClasses(ScPackageImpl(p))
         }
         buffer.toSeq
       }
-      for (cl <- getClasses(pack)) {
+      for (cl <- getClasses(ScPackageImpl(pack))) {
         if (ScalaPsiUtil.cachedDeepIsInheritor(cl, suiteClass)) classes += cl
       }
     }
