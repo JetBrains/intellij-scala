@@ -1187,6 +1187,7 @@ object ScalaPsiUtil {
       case (_: ScReferenceExpression, _) if expr.getText == "_" => false
       case (_: ScReferenceExpression, _: ScTuple) => false
       case (_: ScReferenceExpression, _: ScXmlExpr) => false
+      case (_: ScReferenceExpression, _: ScParenthesisedExpr) => false
       case (_: ScReferenceExpression, _) => true
       case (_: ScGenericCall, _: ScReferenceExpression) => false
       case (_: ScGenericCall, _: ScMethodCall) => false
@@ -1235,6 +1236,7 @@ object ScalaPsiUtil {
       case (_: ScInfixExpr, _: ScTuple) => false
       case (_: ScInfixExpr, _: ScXmlExpr) => false
       case (_: ScInfixExpr, _: ScPrefixExpr) => false
+      case (_: ScInfixExpr, _: ScParenthesisedExpr) => false
       case (par: ScInfixExpr, child: ScInfixExpr) => {
         import ParserUtils._
         import InfixExpr._
