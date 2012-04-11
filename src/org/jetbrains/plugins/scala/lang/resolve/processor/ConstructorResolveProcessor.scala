@@ -55,8 +55,7 @@ class ConstructorResolveProcessor(constr: PsiElement, refName: String, args: Lis
             fromType = getFromType(state), isAccessible = accessible))
         }
         case ta: ScTypeAliasDefinition => {
-          lazy val r = new ScalaResolveResult(ta, subst, getImports(state), nameShadow0, boundClass = getBoundClass(state),
-            fromType = getFromType(state), isAccessible = true)
+          lazy val r = new ScalaResolveResult(ta, subst, getImports(state), nameShadow0, boundClass = getBoundClass(state), fromType = getFromType(state), isAccessible = true)
           val tp = ta.aliasedType(TypingContext.empty).getOrElse({
             addResult(r)
             return true
