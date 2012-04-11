@@ -62,20 +62,25 @@ class ScalaGoToDeclarationHandler extends GotoDeclarationHandler {
       val file = sourceElement.getContainingFile
       val ref = file.findReferenceAt(sourceElement.getTextRange.getStartOffset)
       if (ref == null) return null
-      val resolved = ref.resolve()
-      if (resolved == null) return null
-
-      val mainTargets = goToTargets(resolved)
-      val extraTargets: Seq[PsiElement] = ref match {
+      val targets = ref match {
         case resRef: ResolvableReferenceElement =>
-          // `x` should resolve to the apply method and the val in :
-          //
-          // object A { def apply() }; val x = A; x()
-          val inner: Option[PsiNamedElement] = resRef.bind().flatMap(_.innerResolveResult).map(_.getElement)
-          inner.map(goToTargets).getOrElse(Seq())
-        case _ => Seq()
+          resRef.bind() match {
+            case Some(x) =>
+              /**
+               * Extra targets:
+               *
+               * actualElement              type alias used to access a constructor.
+               *                            See also [[org.jetbrains.plugins.scala.findUsages.TypeAliasUsagesSearcher]]
+               * innerResolveResult#element apply method
+               */
+              val all = Seq(x.getActualElement, x.element) ++ x.innerResolveResult.map(_.getElement)
+              all.distinct flatMap goToTargets
+            case None => null
+          }
+        case r =>
+          Set(r.resolve()) flatMap goToTargets
       }
-      return (mainTargets ++ extraTargets).toArray
+      return targets.toArray
     }
     null
   }
