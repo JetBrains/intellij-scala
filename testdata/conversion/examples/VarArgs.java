@@ -11,7 +11,7 @@ package java
 
 
 object VarArgs {
-  def x(args: String*): Unit = {
+  def x(args: String*) {
     x("one", "two", "three")
   }
 }

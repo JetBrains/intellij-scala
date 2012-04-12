@@ -9,7 +9,7 @@ class A {
   }
 }
 /*
-var a: Array[Int] = new Array[Int](3)
+val a: Array[Int] = new Array[Int](3)
 
 
 for (i <- a) {

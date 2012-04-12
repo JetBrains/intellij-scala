@@ -22,7 +22,7 @@ import java.lang.SuppressWarnings
 
 @SuppressWarnings(value = Array("foo"))
 @SuppressWarnings(Array("bar")) object Annotated {
-  @SuppressWarnings(value = Array("bar"), x = 1, array = Array(1, 2, 3), inner = new SuppressWarnings) def main(@SuppressWarnings(Array("baz")) @Deprecated args: Array[String]): Unit = {
+  @SuppressWarnings(value = Array("bar"), x = 1, array = Array(1, 2, 3), inner = new SuppressWarnings) def main(@SuppressWarnings(Array("baz")) @Deprecated args: Array[String]) {
   }
 }
 */
