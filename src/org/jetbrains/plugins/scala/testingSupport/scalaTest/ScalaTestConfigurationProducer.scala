@@ -565,28 +565,36 @@ class ScalaTestConfigurationProducer extends {
     implicit def o2e(x: Option[String]): OptionExtension = new OptionExtension(x)
 
 
-    val oldResult = (testClassPath, checkFunSuite("org.scalatest.FunSuite") ++
+    val oldResult = (testClassPath,
+      checkFunSuite("org.scalatest.FunSuite") ++
+      checkFunSuite("org.scalatest.fixture.FunSuite") ++
       checkFunSuite("org.scalatest.fixture.FixtureFunSuite") ++
       checkFunSuite("org.scalatest.fixture.MultipleFixtureFunSuite") ++
       checkFeatureSpec("org.scalatest.FeatureSpec") ++
+      checkFeatureSpec("org.scalatest.fixture.FeatureSpec") ++
       checkFeatureSpec("org.scalatest.fixture.FixtureFeatureSpec") ++
       checkFeatureSpec("org.scalatest.fixture.MultipleFixtureFeatureSpec") ++
       checkFreeSpec("org.scalatest.FreeSpec") ++
+      checkFreeSpec("org.scalatest.fixture.FreeSpec") ++
       checkFreeSpec("org.scalatest.fixture.FixtureFreeSpec") ++
       checkFreeSpec("org.scalatest.fixture.MultipleFixtureFreeSpec") ++
       checkJUnit3Suite("org.scalatest.junit.JUnit3Suite") ++
       checkJUnitSuite("org.scalatest.junit.JUnitSuite") ++
       checkPropSpec("org.scalatest.PropSpec") ++
+      checkPropSpec("org.scalatest.fixture.PropSpec") ++
       checkPropSpec("org.scalatest.fixture.FixturePropSpec") ++
       checkPropSpec("org.scalatest.fixture.MultipleFixturePropSpec") ++
       checkSpec("org.scalatest.Spec") ++
+      checkSpec("org.scalatest.fixture.Spec") ++
       checkSpec("org.scalatest.fixture.FixtureSpec") ++
       checkSpec("org.scalatest.fixture.MultipleFixtureSpec") ++
       checkTestNGSuite("org.scalatest.testng.TestNGSuite") ++
       checkFlatSpec("org.scalatest.FlatSpec") ++
+      checkFlatSpec("org.scalatest.fixture.FlatSpec") ++
       checkFlatSpec("org.scalatest.fixture.FixtureFlatSpec") ++
       checkFlatSpec("org.scalatest.fixture.MultipleFixtureFlatSpec") ++
       checkWordSpec("org.scalatest.WordSpec") ++
+      checkWordSpec("org.scalatest.fixture.WordSpec") ++
       checkWordSpec("org.scalatest.fixture.FixtureWordSpec") ++
       checkWordSpec("org.scalatest.fixture.MultipleFixtureWordSpec")
       getOrElse null)
