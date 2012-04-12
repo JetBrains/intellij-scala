@@ -70,27 +70,27 @@ class PsiClassWrapper(val definition: ScTemplateDefinition,
           signature.foreach {
             case (t, node) =>
               node.info.namedElement match {
-                case Some(fun: ScFunction) if !fun.isConstructor => res += fun.getFunctionWrapper(true, false)
+                case Some(fun: ScFunction) if !fun.isConstructor => res += fun.getFunctionWrapper(true, false, Some(definition))
                 case Some(method: PsiMethod) if !method.isConstructor => {
                   if (method.containingClass != null && method.containingClass.qualifiedName != "java.lang.Object") {
                     res += StaticPsiMethodWrapper.getWrapper(method, this)
                   }
                 }
                 case Some(t: ScTypedDefinition) if t.isVal || t.isVar =>
-                  res += t.getTypedDefinitionWrapper(true, false, SIMPLE_ROLE)
+                  res += t.getTypedDefinitionWrapper(true, false, SIMPLE_ROLE, Some(definition))
                   t.nameContext match {
                     case s: ScAnnotationsHolder =>
                       val beanProperty = s.hasAnnotation("scala.reflect.BeanProperty") != None
                       val booleanBeanProperty = s.hasAnnotation("scala.reflect.BooleanBeanProperty") != None
                       if (beanProperty) {
-                        res += t.getTypedDefinitionWrapper(true, false, GETTER)
+                        res += t.getTypedDefinitionWrapper(true, false, GETTER, Some(definition))
                         if (t.isVar) {
-                          res += t.getTypedDefinitionWrapper(true, false, SETTER)
+                          res += t.getTypedDefinitionWrapper(true, false, SETTER, Some(definition))
                         }
                       } else if (booleanBeanProperty) {
-                        res += t.getTypedDefinitionWrapper(true, false, IS_GETTER)
+                        res += t.getTypedDefinitionWrapper(true, false, IS_GETTER, Some(definition))
                         if (t.isVar) {
-                          res += t.getTypedDefinitionWrapper(true, false, SETTER)
+                          res += t.getTypedDefinitionWrapper(true, false, SETTER, Some(definition))
                         }
                       }
                     case _ =>

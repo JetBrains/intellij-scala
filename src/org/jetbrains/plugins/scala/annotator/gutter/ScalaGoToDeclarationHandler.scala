@@ -75,7 +75,7 @@ class ScalaGoToDeclarationHandler extends GotoDeclarationHandler {
                */
               val all = Seq(x.getActualElement, x.element) ++ x.innerResolveResult.map(_.getElement)
               all.distinct flatMap goToTargets
-            case None => null
+            case None => return null
           }
         case r =>
           Set(r.resolve()) flatMap goToTargets

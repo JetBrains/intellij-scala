@@ -49,6 +49,9 @@ class ScFunctionWrapper(val function: ScFunction, isStatic: Boolean, isInterface
 }
 
 object ScFunctionWrapper {
+  /**
+   * This is for Java only.
+   */
   def methodText(function: ScFunction, isStatic: Boolean, isInterface: Boolean, cClass: Option[PsiClass]): String = {
     val builder = new StringBuilder
 
