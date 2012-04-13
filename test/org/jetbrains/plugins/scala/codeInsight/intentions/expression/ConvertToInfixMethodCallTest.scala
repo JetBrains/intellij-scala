@@ -82,4 +82,11 @@ class ConvertToInfixMethodCallTest extends ScalaIntentionTestBase {
     doTest(text, resultText)
   }
 
+  def testConvertFromInfixMethodCall10() {
+    val text = "x.map<caret>(_ > 9)"
+    val resultText = "x map<caret> (_ > 9)"
+
+    doTest(text, resultText)
+  }
+
 }

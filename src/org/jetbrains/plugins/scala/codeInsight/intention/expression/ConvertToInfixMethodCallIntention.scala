@@ -72,6 +72,8 @@ class ConvertToInfixMethodCallIntention extends PsiElementBaseIntentionAction {
         case _: ScGenericCall => argsBuilder.replace(argsBuilder.length - 1, argsBuilder.length, "").replace(0, 1, "")
         case _: ScXmlExpr => argsBuilder.replace(argsBuilder.length - 1, argsBuilder.length, "").replace(0, 1, "")
         case _: ScMethodCall => argsBuilder.replace(argsBuilder.length - 1, argsBuilder.length, "").replace(0, 1, "")
+        case infix: ScInfixExpr if (infix.getBaseExpr.isInstanceOf[ScUnderscoreSection]) =>
+          argsBuilder.insert(0, "(").append(")")
         case _ =>  argsBuilder
       }
     }
