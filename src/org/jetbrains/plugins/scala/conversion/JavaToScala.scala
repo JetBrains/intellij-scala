@@ -6,14 +6,14 @@ import com.intellij.codeInsight.AnnotationUtil
 import com.intellij.lang.StdLanguages
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
-import copy.dependency.{MemberDependency, TypeDependency, Dependency}
+import copy.Association
 import lang.refactoring.util.ScalaNamesUtil
 import lang.psi.types.ScType
 import java.lang.String
 import com.intellij.openapi.util.TextRange
 import collection.mutable.{ListBuffer, ArrayBuffer, LinkedHashSet}
 import com.intellij.codeInsight.editorActions.ReferenceTransferableData.ReferenceData
-import com.intellij.find.findUsages.FindUsagesUtil
+import lang.dependency.{DependencyKind, Path}
 
 /**
  * Author: Alexander Podkhalyuzin
@@ -28,7 +28,7 @@ object JavaToScala {
   }
 
   def convertPsiToText(element: PsiElement)
-                      (implicit dependencies: ListBuffer[Dependency] = new ListBuffer(),
+                      (implicit associations: ListBuffer[Association] = new ListBuffer(),
                        refs: Seq[ReferenceData] = Seq.empty, offset: Offset = new Offset(0)): String = {
     if (element == null) return ""
     if (element.getLanguage != StdLanguages.JAVA) return ""
@@ -38,18 +38,19 @@ object JavaToScala {
     class SpecificOffset(override val value: Int) extends Offset(value)
     implicit def startOffset = new SpecificOffset(offset.value + res.length)
 
-    def dependencyFor(element: PsiElement) = {
+    def associationFor(element: PsiElement) = {
       refs.find(ref => new TextRange(ref.startOffset, ref.endOffset) == element.getTextRange).map { ref =>
         val i = startOffset.value
+        val range = new TextRange(i, i + element.getTextLength)
         if(ref.staticMemberName == null) {
-          TypeDependency(i, i + element.getTextLength, ref.qClassName)
+          Association(DependencyKind.Reference, range, Path(ref.qClassName))
         } else {
-          MemberDependency(i, i + element.getTextLength, ref.qClassName, ref.staticMemberName)
+          Association(DependencyKind.Reference, range, Path(ref.qClassName, ref.staticMemberName))
         }
       }
     }
 
-    dependencies ++= dependencyFor(element).toSeq
+    associations ++= associationFor(element).toSeq
 
     def append(elements: Seq[PsiElement], prefix: String = "(", separator: String = ", ", suffix: String = ")") {
       if (elements.nonEmpty) {
@@ -329,17 +330,17 @@ object JavaToScala {
       }
       case n: PsiNewExpression if n.getAnonymousClass == null => {
         if (n.getArrayInitializer != null) {
-          for(ref <- Option(n.getClassReference)) dependencies ++= dependencyFor(ref).toSeq
+          for(ref <- Option(n.getClassReference)) associations ++= associationFor(ref).toSeq
           res.append(ScType.presentableText(ScType.create(n.getType, n.getProject)))
           append(n.getArrayInitializer.getInitializers)
         } else if (n.getArrayDimensions.length > 0) {
           res.append("new ")
-          for(ref <- Option(n.getClassReference)) dependencies ++= dependencyFor(ref).toSeq
+          for(ref <- Option(n.getClassReference)) associations ++= associationFor(ref).toSeq
           res.append(ScType.presentableText(ScType.create(n.getType, n.getProject)))
           append(n.getArrayDimensions)
         } else {
           res.append("new ")
-          for(ref <- Option(n.getClassReference)) dependencies ++= dependencyFor(ref).toSeq
+          for(ref <- Option(n.getClassReference)) associations ++= associationFor(ref).toSeq
           res.append(ScType.presentableText(ScType.create(n.getType, n.getProject)))
           if (n.getArgumentList.getExpressions.size == 0) {
             // if the new expression is used as a qualifier, force parentheses for empty argument list
@@ -697,11 +698,11 @@ object JavaToScala {
   }
 
   def convertPsisToText(elements: Array[PsiElement],
-                       dependencies: ListBuffer[Dependency] = new ListBuffer(),
+                       associations: ListBuffer[Association] = new ListBuffer(),
                        refs: Seq[ReferenceData] = Seq.empty): String = {
     val res = new StringBuilder("")
     for (element <- elements) {
-      res.append(convertPsiToText(element)(dependencies, refs, new Offset(res.length))).append("\n")
+      res.append(convertPsiToText(element)(associations, refs, new Offset(res.length))).append("\n")
     }
     res.delete(res.length - 1, res.length)
     res.toString()
