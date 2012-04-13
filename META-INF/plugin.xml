@@ -122,6 +122,7 @@
     <renamePsiElementProcessor implementation="org.jetbrains.plugins.scala.lang.refactoring.rename.RenameScalaClassProcessor" order="first"/>
     <renamePsiElementProcessor implementation="org.jetbrains.plugins.scala.lang.refactoring.rename.RenameScalaSyntheticParamProcessor" order="first"/>
     <renamePsiElementProcessor implementation="org.jetbrains.plugins.scala.lang.refactoring.rename.RenameScalaTypeAliasProcessor" order="first"/>
+    <renameHandler implementation="org.jetbrains.plugins.scala.lang.refactoring.rename.XmlRenameHandler" />
     <nameSuggestionProvider implementation="org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.ScalaNameSuggestionProvider"/>
     <definitionsSearch implementation="org.jetbrains.plugins.scala.lang.psi.impl.search.MethodImplementationsSearch"/>
     <antCustomCompiler implementation="org.jetbrains.plugins.scala.ant.ScalaAntCustomCompilerProvider"/>
@@ -145,6 +146,10 @@
     <!--Enter Handler for inserting "+" in interpolated strings-->
     <enterHandlerDelegate implementation="org.jetbrains.plugins.scala.editor.enterHandler.InterpolatedStringEnterHandler"
                           order="first"/>
+    <!--/Handler-->
+
+    <!--Enter Handler for multiline strings-->
+    <!--<enterHandlerDelegate implementation="org.jetbrains.plugins.scala.editor.enterHandler.MultilineStringEnterHandler"/>-->
     <!--/Handler-->
 
     <javaMainMethodProvider implementation="org.jetbrains.plugins.scala.runner.ScalaMainMethodProvider"/>
@@ -256,6 +261,14 @@
       <className>org.jetbrains.plugins.scala.codeInsight.intention.literal.InsertGapIntoStringIntention</className>
     </intentionAction>
 
+    <!--<intentionAction>
+      <className>org.jetbrains.plugins.scala.codeInsight.intention.literal.AddStripMarginToMLStringIntention</className>
+    </intentionAction>
+
+    <intentionAction>
+      <className>org.jetbrains.plugins.scala.codeInsight.intention.literal.AddReplaceSlashRToMLStringIntention</className>
+    </intentionAction>
+-->
     <intentionAction>
       <category>Scala/Type</category>
       <className>org.jetbrains.plugins.scala.codeInsight.intention.types.ToggleTypeAnnotation</className>
@@ -493,6 +506,9 @@
                      displayName="Scala unnecessary semicolon inspection" groupName="Scala: General"
                      shortName="ScalaUnnecessarySemicolon" level="WARNING"
                      enabledByDefault="false" language="Scala"/>
+    <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.xml.XmlUnmatchedTagInspection"
+                     displayName="Unmatched Tag" groupName="Scala: General" shortName="UnmatchedTag" level="ERROR"
+                     enabledByDefault="true" language="Scala"/>
     <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.imports.SingleImportInspection"
                      displayName="Unnecessary braces in import inspection"
                      groupName="Scala: General" shortName="SingleImport"

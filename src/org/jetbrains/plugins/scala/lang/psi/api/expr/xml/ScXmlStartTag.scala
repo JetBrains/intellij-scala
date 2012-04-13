@@ -7,19 +7,20 @@ package xml
 
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import com.intellij.psi.xml.XmlTokenType
+import com.intellij.psi.PsiElement
 
 /**
 * @author Alexander Podkhalyuzin
 * Date: 21.04.2008
 */
 
-trait ScXmlStartTag extends ScalaPsiElement {
-  def getTagName = findChildrenByType(XmlTokenType.XML_NAME).headOption.map(_.getText).getOrElse(null)
-
+trait ScXmlStartTag extends ScXmlPairedTag {
   def getClosingTag: ScXmlEndTag = {
     if (getParent != null && getParent.getLastChild.isInstanceOf[ScXmlEndTag]) {
       return getParent.getLastChild.asInstanceOf[ScXmlEndTag]
     }
     null
   }
+
+  def getMatchedTag: ScXmlPairedTag = getClosingTag
 }

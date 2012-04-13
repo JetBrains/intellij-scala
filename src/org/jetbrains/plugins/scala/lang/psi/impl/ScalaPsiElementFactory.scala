@@ -49,6 +49,7 @@ import api.base.{ScConstructor, ScIdList, ScPatternList, ScStableCodeReferenceEl
 import com.intellij.util.IncorrectOperationException
 import scaladoc.psi.api.{ScDocInnerCodeElement, ScDocResolvableCodeReference, ScDocSyntaxElement, ScDocComment}
 import extensions.{toPsiNamedElementExt, toPsiClassExt}
+import api.expr.xml.{ScXmlStartTag, ScXmlEndTag}
 
 object ScalaPsiElementFactory {
 
@@ -1005,5 +1006,14 @@ object ScalaPsiElementFactory {
   def createDocInnerCode(text: String, manager: PsiManager): ScDocInnerCodeElement = {
     createScalaFile("/**{{{" + text + "}}}\n*/\n class a{}", manager).typeDefinitions(0).docComment.get.getNode.
             getChildren(null)(1).getPsi.asInstanceOf[ScDocInnerCodeElement]
+  }
+
+  def createXmlEndTag(tagName: String, manager: PsiManager): ScXmlEndTag = {
+    createScalaFile("val a = <" + tagName + "></" + tagName + ">", manager).getFirstChild.getLastChild.getFirstChild.getLastChild.asInstanceOf[ScXmlEndTag]
+  }
+
+  def createXmlStartTag(tagName: String, manager: PsiManager, attributes: String = ""): ScXmlStartTag = {
+    createScalaFile("val a = <" + tagName + attributes + "></" + tagName + ">", manager).
+            getFirstChild.getLastChild.getFirstChild.getFirstChild.asInstanceOf[ScXmlStartTag]
   }
 }

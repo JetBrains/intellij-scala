@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.lang.psi.api
 
 import base.types._
 import base.{ScModifierList, ScConstructor, ScLiteral, ScReferenceElement}
+import expr.xml.{ScXmlEndTag, ScXmlStartTag}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import com.intellij.psi.{PsiFile, PsiElementVisitor}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -152,4 +153,8 @@ class ScalaElementVisitor extends PsiElementVisitor {
   def visitWikiSyntax(s: ScDocSyntaxElement) {visitElement(s)}
   def visitInlinedTag(s: ScDocInlinedTag) {visitElement(s)}
   def visitTag(s: ScDocTag) {visitElement(s)}
+
+  //xml
+  def visitXmlStartTag(s: ScXmlStartTag) {visitElement(s)}
+  def visitXmlEndTag(s: ScXmlEndTag) {visitElement(s)}
 }
