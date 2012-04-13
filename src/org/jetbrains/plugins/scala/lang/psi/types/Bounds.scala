@@ -44,67 +44,76 @@ object Bounds {
   private def lub(t1: ScType, t2: ScType, depth : Int, checkWeak: Boolean)(implicit stopAddingUpperBound: Boolean): ScType = {
     if (t1.conforms(t2, checkWeak)) t2
     else if (t2.conforms(t1, checkWeak)) t1
-    else (t1, t2) match {
-      case (fun@ScFunctionType(rt1, p1), ScFunctionType(rt2, p2)) if p1.length == p2.length =>
-        new ScFunctionType(lub(rt1, rt2, 0, checkWeak),
-          collection.immutable.Seq(p1.toSeq.zip(p2.toSeq).map({case (t1, t2) => glb(t1, t2, checkWeak)}).toSeq: _*))(fun.getProject, fun.getScope)
-      case (t1@ScTupleType(c1), ScTupleType(c2)) if c1.length == c2.length =>
-        new ScTupleType(collection.immutable.Seq(c1.toSeq.zip(c2.toSeq).map({case (t1, t2) => lub(t1, t2, 0, checkWeak)}).toSeq: _*))(t1.getProject, t1.getScope)
+    else {
+      def lubWithExpandedAliases(t1: ScType, t2: ScType): ScType = {
+        (t1, t2) match {
+          case (fun@ScFunctionType(rt1, p1), ScFunctionType(rt2, p2)) if p1.length == p2.length =>
+            new ScFunctionType(lub(rt1, rt2, 0, checkWeak),
+              collection.immutable.Seq(p1.toSeq.zip(p2.toSeq).map({
+                case (t1, t2) => glb(t1, t2, checkWeak)
+              }).toSeq: _*))(fun.getProject, fun.getScope)
+          case (t1@ScTupleType(c1), ScTupleType(c2)) if c1.length == c2.length =>
+            new ScTupleType(collection.immutable.Seq(c1.toSeq.zip(c2.toSeq).map({
+              case (t1, t2) => lub(t1, t2, 0, checkWeak)
+            }).toSeq: _*))(t1.getProject, t1.getScope)
 
-      case (ScSkolemizedType(_, Nil, _, upper), _) => lub(upper, t2, 0, checkWeak)
-      case (_, ScSkolemizedType(_, Nil, _, upper)) => lub(t1, upper, 0, checkWeak)
-      case (ScTypeParameterType(_, Nil, _, upper, _), _) => lub(upper.v, t2, 0, checkWeak)
-      case (_, ScTypeParameterType(_, Nil, _, upper, _)) => lub(t1, upper.v, 0, checkWeak)
-      case (ex : ScExistentialType, _) => lub(ex.skolem, t2, 0, checkWeak)
-      case (_, ex : ScExistentialType) => lub(t1, ex.skolem, 0, checkWeak)
-      case (_: ValType, _: ValType) => types.AnyVal
-      case (JavaArrayType(arg1), JavaArrayType(arg2)) => {
-        JavaArrayType(calcForTypeParamWithoutVariance(arg1, arg2, depth, checkWeak))
-      }
-      case (JavaArrayType(arg), ScParameterizedType(des, args)) if args.length == 1 && (ScType.extractClass(des) match {
-        case Some(q) => q.qualifiedName == "scala.Array"
-        case _ => false
-      }) => {
-        ScParameterizedType(des, Seq(calcForTypeParamWithoutVariance(arg, args(0), depth, checkWeak)))
-      }
-      case (ScParameterizedType(des, args), JavaArrayType(arg)) if args.length == 1 && (ScType.extractClass(des) match {
-        case Some(q) => q.qualifiedName == "scala.Array"
-        case _ => false
-      }) => {
-        ScParameterizedType(des, Seq(calcForTypeParamWithoutVariance(arg, args(0), depth, checkWeak)))
-      }
-      case _ => {
+          case (ScSkolemizedType(_, Nil, _, upper), _) => lub(upper, t2, 0, checkWeak)
+          case (_, ScSkolemizedType(_, Nil, _, upper)) => lub(t1, upper, 0, checkWeak)
+          case (ScTypeParameterType(_, Nil, _, upper, _), _) => lub(upper.v, t2, 0, checkWeak)
+          case (_, ScTypeParameterType(_, Nil, _, upper, _)) => lub(t1, upper.v, 0, checkWeak)
+          case (ex: ScExistentialType, _) => lub(ex.skolem, t2, 0, checkWeak)
+          case (_, ex: ScExistentialType) => lub(t1, ex.skolem, 0, checkWeak)
+          case (_: ValType, _: ValType) => types.AnyVal
+          case (JavaArrayType(arg1), JavaArrayType(arg2)) => {
+            JavaArrayType(calcForTypeParamWithoutVariance(arg1, arg2, depth, checkWeak))
+          }
+          case (JavaArrayType(arg), ScParameterizedType(des, args)) if args.length == 1 && (ScType.extractClass(des) match {
+            case Some(q) => q.qualifiedName == "scala.Array"
+            case _ => false
+          }) => {
+            ScParameterizedType(des, Seq(calcForTypeParamWithoutVariance(arg, args(0), depth, checkWeak)))
+          }
+          case (ScParameterizedType(des, args), JavaArrayType(arg)) if args.length == 1 && (ScType.extractClass(des) match {
+            case Some(q) => q.qualifiedName == "scala.Array"
+            case _ => false
+          }) => {
+            ScParameterizedType(des, Seq(calcForTypeParamWithoutVariance(arg, args(0), depth, checkWeak)))
+          }
+          case _ => {
 
-        val aOptions: Seq[Options] = {
-          t1 match {
-            case ScCompoundType(comps1, decls1, typeDecls1, subst1) => comps1.map(new Options(_))
-            case _ => Seq(new Options(t1))
+            val aOptions: Seq[Options] = {
+              t1 match {
+                case ScCompoundType(comps1, decls1, typeDecls1, subst1) => comps1.map(new Options(_))
+                case _ => Seq(new Options(t1))
+              }
+            }
+            val bOptions: Seq[Options] = {
+              t2 match {
+                case ScCompoundType(comps1, decls1, typeDecls1, subst1) => comps1.map(new Options(_))
+                case _ => Seq(new Options(t2))
+              }
+            }
+            if (aOptions.find(_.isEmpty) != None || bOptions.find(_.isEmpty) != None) Any
+            else {
+              val buf = new ArrayBuffer[ScType]
+              val supers: Array[(Options, Int, Int)] =
+                getLeastUpperClasses(aOptions, bOptions)
+              for (sup <- supers) {
+                val tp = getTypeForAppending(aOptions(sup._2), bOptions(sup._3), sup._1, depth, checkWeak)
+                if (tp != Any) buf += tp
+              }
+              buf.toArray match {
+                case a: Array[ScType] if a.length == 0 => Any
+                case a: Array[ScType] if a.length == 1 => a(0)
+                case many =>
+                  new ScCompoundType(collection.immutable.Seq(many.toSeq: _*), Seq.empty, Seq.empty, ScSubstitutor.empty)
+              }
+            }
+            //todo: refinement for compound types
           }
         }
-        val bOptions: Seq[Options] = {
-          t2 match {
-            case ScCompoundType(comps1, decls1, typeDecls1, subst1) => comps1.map(new Options(_))
-            case _ => Seq(new Options(t2))
-          }
-        }
-        if (aOptions.find(_.isEmpty) != None || bOptions.find(_.isEmpty) != None) Any
-        else {
-          val buf = new ArrayBuffer[ScType]
-          val supers: Array[(Options, Int, Int)] =
-            getLeastUpperClasses(aOptions, bOptions)
-          for (sup <- supers) {
-            val tp = getTypeForAppending(aOptions(sup._2), bOptions(sup._3), sup._1, depth, checkWeak)
-            if (tp != Any) buf += tp
-          }
-          buf.toArray match {
-            case a: Array[ScType] if a.length == 0 => Any
-            case a: Array[ScType] if a.length == 1 => a(0)
-            case many =>
-              new ScCompoundType(collection.immutable.Seq(many.toSeq: _*), Seq.empty, Seq.empty, ScSubstitutor.empty)
-          }
-        }
-        //todo: refinement for compound types
       }
+      lubWithExpandedAliases(ScType.expandAliases(t1).getOrElse(t1), ScType.expandAliases(t2).getOrElse(t2))
     }
   }
 
@@ -116,7 +125,7 @@ object Bounds {
       } else if (substed2 conforms substed1) {
         new ScExistentialArgument("_", List.empty, substed2, substed1)
       } else if (!stopAddingUpperBound) {
-        new ScExistentialArgument("_", List.empty, Bounds.glb(substed1, substed2), Bounds.lub(substed1, substed2, 0, checkWeak)(true))
+        new ScExistentialArgument("_", List.empty, Bounds.glb(substed1, substed2), Bounds.lub(substed1, substed2, 0, false)(true))
       } else {
         //todo: this is wrong, actually we should pick lub, just without merging parameters in this method
         new ScExistentialArgument("_", List.empty, Bounds.glb(substed1, substed2), Any)
