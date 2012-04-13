@@ -4,19 +4,19 @@ package lang.dependency
 import lang.psi.impl.toplevel.synthetic.ScSyntheticClass
 import com.intellij.psi._
 import lang.psi.api.base.{ScReferenceElement, ScPrimaryConstructor}
-import lang.psi.api.expr.{ScInfixExpr, ScPostfixExpr}
 import lang.psi.api.statements.ScFunctionDefinition
 import lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScMember}
 import annotator.intention.ScalaImportClassFix
 import lang.psi.api.base.patterns.{ScReferencePattern, ScConstructorPattern}
 import extensions._
 import lang.psi.api.toplevel.ScNamedElement
+import lang.psi.api.expr.{ScInfixExpr, ScPostfixExpr}
 
 /**
  * Pavel Fatin
  */
 
-case class Dependency(source: PsiElement, target: PsiElement, path: Path) {
+case class Dependency(kind: DependencyKind, source: PsiElement, target: PsiElement, path: Path) {
   def isExternal = source.getContainingFile != target.getContainingFile
 
   // TODO Bind references
@@ -32,10 +32,6 @@ case class Dependency(source: PsiElement, target: PsiElement, path: Path) {
       case _ =>
     }
   }
-}
-
-case class Path(entity: String, member: Option[String] = None) {
-  def asString = member.map("%s.%s".format(entity, _)).getOrElse(entity)
 }
 
 object Dependency {
@@ -57,10 +53,10 @@ object Dependency {
 
   private def dependencyFor(reference: ScReferenceElement, target: PsiElement): Option[Dependency] = {
     def withEntity(entity: String) =
-      Some(new Dependency(reference, target, Path(entity)))
+      Some(new Dependency(DependencyKind.Reference, reference, target, Path(entity)))
 
     def withMember(entity: String, member: String) =
-      Some(new Dependency(reference, target, Path(entity, Some(member))))
+      Some(new Dependency(DependencyKind.Reference, reference, target, Path(entity, Some(member))))
 
     reference match {
       case Parent(_: ScConstructorPattern) =>
