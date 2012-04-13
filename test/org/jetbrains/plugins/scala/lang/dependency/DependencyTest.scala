@@ -67,13 +67,82 @@ class DependencyTest extends SimpleTestCase {
     """, ("C", "ScFunctionDefinition", "O.C"))
   }
 
-  def testCaseClassApply() {
+  def testCaseClassCopy() {
+    assertDependenciesAre("""
+    object O {
+      case class C(v: Any)
+      C(null).copy(v = null)
+    }
+    """, ("C", "ScFunctionDefinition", "O.C"))
+  }
+
+
+  def testSyntheticApply() {
     assertDependenciesAre("""
     object O {
       case class C()
       C()
     }
     """, ("C", "ScFunctionDefinition", "O.C"))
+  }
+
+  def testSyntheticUnapply() {
+    assertDependenciesAre("""
+    object O {
+      case class C()
+      null match {
+        case C() =>
+      }
+    }
+    """, ("C", "ScFunctionDefinition", "O.C"))
+  }
+
+  def testSyntheticUnapplySeq() {
+    assertDependenciesAre("""
+    object O {
+      case class C(seq: Any*)
+      null match {
+        case C(1, 2, 3) =>
+      }
+    }
+    """, ("C", "ScFunctionDefinition", "O.C"))
+  }
+
+  def testExplicitApply() {
+    assertDependenciesAre("""
+    object O {
+      object Foo {
+        def apply() {}
+      }
+      Foo()
+    }
+    """, ("Foo", "ScFunctionDefinition", "O.Foo"))
+  }
+
+  def testExplicitUnapply() {
+    assertDependenciesAre("""
+    object O {
+      object Foo {
+        def unapply() {}
+      }
+      null match {
+        case Foo() =>
+      }
+    }
+    """, ("Foo", "ScFunctionDefinition", "O.Foo"))
+  }
+
+  def testExplicitUnapplySeq() {
+    assertDependenciesAre("""
+    object O {
+      object Foo {
+        def unapplySeq(): Seq[Any] = null
+      }
+      null match {
+        case Foo(1, 2, 3) =>
+      }
+    }
+    """, ("Foo", "ScFunctionDefinition", "O.Foo"))
   }
 
   def testFunction() {
@@ -102,7 +171,6 @@ class DependencyTest extends SimpleTestCase {
   }
 
   // package
-  // unapply
   // implicit conversions
 
   private def assertDependenciesAre(@Language("Scala") code: String, expectations: (String, String, String)*) {
