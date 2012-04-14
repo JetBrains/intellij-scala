@@ -16,6 +16,7 @@ import nonvalue.{Parameter, ScMethodType, ScTypePolymorphicType}
 import toplevel.typedef.ScObject
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.extensions.toPsiClassExt
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 
 /**
  * @author Alexander Podkhalyuzin
@@ -194,6 +195,28 @@ object InferUtil {
       }
       case _ =>
     }
-    nonValueType
+
+    // interim fix for SCL-3905.
+    def applyImplicitViewToResult(mt: ScMethodType): ScType = {
+      expectedType.flatMap(ScType.extractFunctionType) match {
+        case Some(ScFunctionType(expectedRet, expectedParams)) if expectedParams.length == mt.params.length =>
+          val dummyExpr = ScalaPsiElementFactory.createExpressionFromText("null: " + mt.returnType.canonicalText, expr.getManager)
+          dummyExpr.setContext(expr.getContext, expr)
+          val updatedResultType = dummyExpr.getTypeAfterImplicitConversion(expectedOption = Some(expectedRet))
+
+          // TODO these values should be propagated back to the ExpressionTypeResult
+          // updatedResultType.implicitFunction
+          // updatedResultType.importsUsed
+
+          new ScMethodType(updatedResultType.tr.getOrElse(mt.returnType), mt.params, mt.isImplicit)(mt.project, mt.scope)
+        case x => mt
+      }
+    }
+
+    nonValueType.map {
+      case tpt @ ScTypePolymorphicType(mt: ScMethodType, typeParams) => tpt.copy(internalType = applyImplicitViewToResult(mt))
+      case mt: ScMethodType => applyImplicitViewToResult(mt)
+      case tp => tp
+    }
   }
 }
