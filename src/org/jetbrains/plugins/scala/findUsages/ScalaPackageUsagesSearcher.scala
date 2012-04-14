@@ -16,16 +16,10 @@ import lang.psi.impl.ScPackageImpl
 class ScalaPackageUsagesSearcher extends QueryExecutorBase[PsiReference, ReferencesSearch.SearchParameters](true) {
 
   def processQuery(@NotNull parameters: ReferencesSearch.SearchParameters, @NotNull consumer: Processor[PsiReference]) {
+
     val target: PsiElement = parameters.getElementToSearch
     val scPack = target match {
-      case directory: PsiDirectory =>
-        JavaDirectoryService.getInstance.getPackage(directory) match {
-          case pack: PsiPackage =>
-            ScPackageImpl(pack)
-          case _ => return
-        }
-      case pack: PsiPackage =>
-        ScPackageImpl(pack)
+      case pack: PsiPackage => ScPackageImpl(pack)
       case _ => return
     }
     val name = scPack.name
