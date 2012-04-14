@@ -11,11 +11,11 @@ import com.intellij.openapi.project.{DumbService, Project}
 import com.intellij.openapi.util.Ref
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.annotator.intention.ScalaImportClassFix
-import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import com.intellij.codeInsight.CodeInsightSettings
 import com.intellij.openapi.ui.DialogWrapper
 import org.jetbrains.plugins.scala.lang.dependency.Dependency
+import org.jetbrains.plugins.scala.extensions._
 
 /**
  * Pavel Fatin
@@ -67,7 +67,7 @@ class ScalaCopyPastePostProcessor extends CopyPastePostProcessor[Associations] {
     if (bindingsToRestore.isEmpty) return
 
     val bs = if (CodeInsightSettings.getInstance().ADD_IMPORTS_ON_PASTE == CodeInsightSettings.ASK) {
-      val dialog = new RestoreReferencesDialog(project, bindingsToRestore.map(_.path).sorted.toArray)
+      val dialog = new RestoreReferencesDialog(project, bindingsToRestore.map(_.path.toOption.getOrElse("")).sorted.toArray)
       dialog.show()
       val selectedPahts = dialog.getSelectedElements
       if (dialog.getExitCode == DialogWrapper.OK_EXIT_CODE)
