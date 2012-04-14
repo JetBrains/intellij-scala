@@ -25,9 +25,9 @@ import com.intellij.openapi.util.TextRange
 
 class XmlRenameHandler extends RenameHandler {
   def isAvailableOnDataContext(dataContext: DataContext): Boolean = {
-    if (!PlatformDataKeys.EDITOR.getData(dataContext).getSettings.isVariableInplaceRenameEnabled) return false
-
     val editor = PlatformDataKeys.EDITOR.getData(dataContext);
+    if (editor == null || !editor.getSettings.isVariableInplaceRenameEnabled) return false
+
     val file = LangDataKeys.PSI_FILE.getData(dataContext)
     val element = file.findElementAt(editor.getCaretModel.getOffset)
 
