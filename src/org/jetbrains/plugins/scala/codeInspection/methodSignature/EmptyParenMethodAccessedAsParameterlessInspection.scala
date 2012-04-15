@@ -7,6 +7,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.extensions.Parent
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import quickfix.{AddGenericCallParentheses, AddCallParentheses}
+import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
+import org.jetbrains.plugins.scala.lang.psi.types.{ScFunctionType, ScType}
 
 /**
   * Pavel Fatin
@@ -31,7 +33,14 @@ class EmptyParenMethodAccessedAsParameterlessInspection extends AbstractMethodSi
         case _: ScMethodCall | _: ScInfixExpr | _: ScPrefixExpr | _: ScUnderscoreSection => // okay
         case _ => e.resolve() match {
           case (f: ScFunction) if f.isEmptyParen =>
-            holder.registerProblem(e.nameId, getDisplayName, new AddCallParentheses(e))
+            e.getType(TypingContext.empty).toOption.flatMap(ScType.extractFunctionType) match {
+              case Some(ScFunctionType(_, Seq())) =>
+                // might have been eta-expanded to () => A, so don't worn.
+                // this avoids false positives. To be more accurate, we would need an 'etaExpanded'
+                // flag in ScalaResolveResult.
+              case None =>
+                holder.registerProblem(e.nameId, getDisplayName, new AddCallParentheses(e))
+            }
           case _ =>
         }
       }
