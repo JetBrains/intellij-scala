@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.lang.resolve._
 import com.intellij.codeInspection._
 import org.jetbrains.plugins.scala.annotator.intention._
 import params.{ScParameter, ScParameters, ScClassParameter}
-import patterns.ScInfixPattern
+import patterns.{ScConstructorPattern, ScPattern, ScInfixPattern}
 import processor.MethodResolveProcessor
 import modifiers.ModifierChecker
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
@@ -58,7 +58,8 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
 with ParametersAnnotator with ApplicationAnnotator
 with AssignmentAnnotator with VariableDefinitionAnnotator
 with TypedStatementAnnotator with PatternDefinitionAnnotator
-with ControlFlowInspections with ConstructorAnnotator with OverridingAnnotator
+with ConstructorPatternAnnotator with ControlFlowInspections
+with ConstructorAnnotator with OverridingAnnotator
 with DumbAware {
 
   override def annotate(element: PsiElement, holder: AnnotationHolder) {
@@ -162,6 +163,15 @@ with DumbAware {
           annotatePatternDefinition(pat, holder, typeAware)
         }
         super.visitPatternDefinition(pat)
+      }
+
+      override def visitPattern(pat: ScPattern) {
+        pat match {
+          case consPat: ScConstructorPattern =>
+            annotateConstructorPattern(consPat, holder, typeAware)
+          case _ =>
+        }
+        super.visitPattern(pat)
       }
 
       override def visitMethodCallExpression(call: ScMethodCall) {
