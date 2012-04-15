@@ -7,14 +7,14 @@ class CallByNameInput {
 }
 /*
 class CallByNameInput {
-  def testMethodName(x: => Int) {
-    x + 44
-  }
-
   def foo(x: => Int) {
     /*start*/
     testMethodName(x)
     /*end*/
+  }
+
+  def testMethodName(x: => Int) {
+    x + 44
   }
 }
 */

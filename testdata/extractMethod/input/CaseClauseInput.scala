@@ -13,11 +13,6 @@ class CaseClauseInput {
 }
 /*
 class CaseClauseInput {
-  def testMethodName(x: Int) {
-    x + 1
-    x + 2
-  }
-
   def foo {
     1 match {
       case x => {
@@ -27,6 +22,11 @@ class CaseClauseInput {
       }
       case _ =>
     }
+  }
+
+  def testMethodName(x: Int) {
+    x + 1
+    x + 2
   }
 }
 */

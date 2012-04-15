@@ -11,12 +11,6 @@ class DefNoParamInput {
 }
 /*
 class DefNoParamInput {
-  def testMethodName(goo: () => Int): Int = {
-    val x = goo()
-    val y = goo()
-    x
-  }
-
   def foo {
     def goo: Int = 23
 
@@ -24,6 +18,12 @@ class DefNoParamInput {
     val x: Int = testMethodName(goo _)
     /*end*/
     x + goo
+  }
+
+  def testMethodName(goo: () => Int): Int = {
+    val x = goo()
+    val y = goo()
+    x
   }
 }
 */

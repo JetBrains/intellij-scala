@@ -9,16 +9,16 @@ class FunTypeParam {
 }
 /*
 class FunTypeParam {
-  def testMethodName[T](x: T, y: T) {
-    x
-    y
-  }
-
   def f[T](x: T) {
     val y = x
     /*start*/
     testMethodName(x, y)
     /*end*/
+  }
+
+  def testMethodName[T](x: T, y: T) {
+    x
+    y
   }
 }
 

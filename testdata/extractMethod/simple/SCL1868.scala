@@ -3,10 +3,10 @@ object A {
 }
 /*
 object A {
+  def foo = /*start*/testMethodName/*end*/
+
   def testMethodName: Int = {
     42 + 239
   }
-
-  def foo = /*start*/testMethodName/*end*/
 }
 */

@@ -27,8 +27,9 @@ import psi.api.statements.{ScFunction, ScFunctionDefinition}
 import psi.api.{ScalaElementVisitor, ScalaRecursiveElementVisitor, ScalaFile}
 import psi.api.base.patterns.ScCaseClause
 import psi.types.result.TypingContext
-import org.jetbrains.plugins.scala.extensions.toPsiNamedElementExt
 import com.intellij.refactoring.util.{CommonRefactoringUtil, RefactoringMessageDialog}
+import org.jetbrains.plugins.scala.extensions.{toPsiElementExt, Parent, toPsiNamedElementExt}
+import com.intellij.psi.codeStyle.CodeStyleManager
 
 /**
  * User: Alexander Podkhalyuzin
@@ -277,9 +278,18 @@ class ScalaExtractMethodHandler extends RefactoringActionHandler {
       def run() {
         stop()
         PsiDocumentManager.getInstance(editor.getProject).commitDocument(editor.getDocument)
-        val sibling = settings.nextSibling
-        sibling.getParent.getNode.addChild(method.getNode, sibling.getNode)
-        sibling.getParent.getNode.addChild(ScalaPsiElementFactory.createNewLineNode(method.getManager), sibling.getNode)
+
+        settings.nextSibling match {
+          case s@Parent(_: ScTemplateBody) =>
+            // put the extract method *below* the current code if it is added to a template body.
+            val nextSibling = s.getNextSiblingNotWhitespaceComment
+            s.getParent.getNode.addChild(ScalaPsiElementFactory.createNewLineNode(method.getManager), nextSibling.getNode)
+            s.getParent.getNode.addChild(method.getNode, nextSibling.getNode)
+            s.getParent.getNode.addChild(ScalaPsiElementFactory.createNewLineNode(method.getManager), nextSibling.getNode)
+          case s =>
+            s.getParent.getNode.addChild(method.getNode, s.getNode)
+            s.getParent.getNode.addChild(ScalaPsiElementFactory.createNewLineNode(method.getManager), s.getNode)
+        }
         val methodCall = new StringBuilder(settings.methodName)
         if (settings.parameters.find(p => p.passAsParameter) != None) {
           val paramStrings = new ArrayBuffer[String]
@@ -351,6 +361,9 @@ class ScalaExtractMethodHandler extends RefactoringActionHandler {
           settings.elements.apply(i).getParent.getNode.removeChild(settings.elements.apply(i).getNode)
           i = i + 1
         }
+
+        val manager = CodeStyleManager.getInstance(method.getProject)
+        manager.reformat(method)
       }
     }
     CommandProcessor.getInstance.executeCommand(editor.getProject, new Runnable {

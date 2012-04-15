@@ -8,15 +8,15 @@ class Simple {
 }
 /*
 class Simple {
-  def testMethodName: Int = {
-    1 + 1
-    2 + 3
-  }
-
   def foo = {
     /*start*/
     testMethodName
     /*end*/
+  }
+
+  def testMethodName: Int = {
+    1 + 1
+    2 + 3
   }
 }
 */
