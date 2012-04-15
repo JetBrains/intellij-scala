@@ -18,8 +18,6 @@ import lang.psi.impl.ScalaPsiElementFactory
 import lang.psi.api.expr.{ScMethodCall, ScForStatement, ScExpression}
 import lang.psi.api.toplevel.packaging.ScPackaging
 import lang.psi.{ScImportsHolder, ScalaPsiUtil, ScalaPsiElement}
-import lang.formatting.settings.ScalaCodeStyleSettings
-import com.intellij.psi.codeStyle.CodeStyleSettingsManager
 
 /**
  * User: Alexander Podkhalyuzin
@@ -32,21 +30,12 @@ class ScalaImportOptimizer extends ImportOptimizer {
       val scalaFile: ScalaFile = file.asInstanceOf[ScalaFile]
       def sortImports {
         def getImportHolder(ref: PsiElement): ScImportsHolder = {
-          PsiTreeUtil.getParentOfType(ref, classOf[ScPackaging]) match {
-            case null => ref.getContainingFile.asInstanceOf[ScImportsHolder]
-            case packaging: ScPackaging => packaging
-          }
+          (ref.getChildren find { psi =>
+            psi.isInstanceOf[ScPackaging]
+          } getOrElse(ref.getContainingFile)).asInstanceOf[ScImportsHolder]
         }
         val importHolder: ScImportsHolder = getImportHolder(scalaFile)
-
-        val importsList = scalaFile.getChildren filter {
-          _ match {
-            case imp: ScImportStmt => {
-              true
-            }
-            case _ => false
-          }
-        }
+        val importsList = importHolder.getImportStatements
         val importsSorted = importsList sortBy { imp =>
           imp.getText
         } map { _.copy() }
