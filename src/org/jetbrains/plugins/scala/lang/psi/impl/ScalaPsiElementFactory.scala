@@ -661,7 +661,7 @@ object ScalaPsiElementFactory {
           res = res + (if (pName.endsWith("_")) pName + " " else pName) + ": "
           val scType: ScType = substitutor.subst(ScType.create(param.getTypeElement.getType, method.getProject))
           var text = ScType.canonicalText(scType)
-          if (text == "_root_.java.lang.Object") text = "Any"
+          if (text == "AnyRef") text = "scala.Any"
           res = res + text + ", "
         }
         if (paramCount > 0) res = res.substring(0, res.length - 2)
@@ -672,7 +672,7 @@ object ScalaPsiElementFactory {
             " {}"
           case (true, _) =>
             var text = ScType.canonicalText(retType)
-            if (text == "_root_.java.lang.Object") text = "AnyRef"
+            if (text == "Any") text = "AnyRef"
             ": " + text + " = " + body
           case (false, _) =>
             " = " + body
