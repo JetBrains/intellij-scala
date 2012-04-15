@@ -4,13 +4,13 @@ import com.intellij.openapi.project.Project
 import com.intellij.codeInspection.ProblemDescriptor
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.codeInspection.AbstractFix
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScPostfixExpr, ScGenericCall, ScMethodCall, ScReferenceExpression}
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
 
 /**
  * Pavel Fatin
  */
 
-class AddCallParentheses(e: ScReferenceExpression) extends AbstractFix("Add call parentheses", e) {
+class AddCallParentheses(e: ScExpression) extends AbstractFix("Add call parentheses", e) {
   def doApplyFix(project: Project, descriptor: ProblemDescriptor) {
     if (!e.isValid) return
     val exprToFix = e.getParent match {

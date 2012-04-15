@@ -2,11 +2,12 @@ package org.jetbrains.plugins.scala.codeInspection.methodSignature
 
 import com.intellij.codeInspection._
 import org.intellij.lang.annotations.Language
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import com.intellij.psi.PsiMethod
 import org.jetbrains.plugins.scala.extensions._
 import quickfix.AddCallParentheses
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScUnderscoreSection, ScInfixExpr, ScMethodCall, ScReferenceExpression}
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiUtil, ScalaPsiElement}
+import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 
 /**
  * Pavel Fatin
@@ -21,7 +22,16 @@ class JavaMutatorMethodAccessedAsParameterlessInspection extends AbstractMethodS
             !e.getParent.isInstanceOf[ScUnderscoreSection] && e.isValid => e.resolve() match {
         case _: ScalaPsiElement => // do nothing
         case (m: PsiMethod) if m.isMutator =>
-          holder.registerProblem(e.nameId, getDisplayName, new AddCallParentheses(e))
+          e.getParent match {
+            case gen: ScGenericCall =>
+              ScalaPsiUtil.findCall(gen) match {
+                case None =>
+                  holder.registerProblem(e.nameId, getDisplayName, new AddCallParentheses(gen))
+                case Some(mc) =>
+              }
+            case _ =>
+              holder.registerProblem(e.nameId, getDisplayName, new AddCallParentheses(e))
+          }
         case _ =>
     }
   }
