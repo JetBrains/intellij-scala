@@ -227,7 +227,7 @@ class ScalaPatternParameterInfoHandler extends ParameterInfoHandlerWithTabAction
                 for (variant <- variants if variant.isInstanceOf[ScalaResolveResult]) {
                   val r = variant.asInstanceOf[ScalaResolveResult]
                   r.element match {
-                    case fun: ScFunction =>
+                    case fun: ScFunction if fun.parameters.nonEmpty =>
                       val substitutor = r.substitutor
                       val subst = if (fun.typeParameters.length == 0) substitutor
                       else {
