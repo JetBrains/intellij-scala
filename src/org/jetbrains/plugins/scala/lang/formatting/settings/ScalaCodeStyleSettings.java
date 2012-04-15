@@ -20,6 +20,7 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
   public boolean ADD_IMPORT_MOST_CLOSE_TO_REFERENCE = false;
   public boolean ADD_FULL_QUALIFIED_IMPORTS = false;
   public boolean IMPORTS_MEMBERS_USING_UNDERSCORE = true;
+  public boolean SORT_IMPORTS = true;
 
   public boolean SEARCH_ALL_SYMBOLS = false;
   public boolean ENABLE_JAVA_TO_SCALA_CONVERSION = true;
