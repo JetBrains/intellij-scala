@@ -11,6 +11,8 @@ class FunctionParameterInfoApplyTest extends FunctionParameterInfoTestBase {
 
   def testGenericClassApply = doTest
 
+  def testGenericClassApply2 = doTest
+
   def testObjectApply = doTest
 
   def testObjectGenericApply = doTest

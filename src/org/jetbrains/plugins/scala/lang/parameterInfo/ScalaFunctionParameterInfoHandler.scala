@@ -121,7 +121,10 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
         //todo: var isGreen = true
         var namedMode = false
         def paramText(param: ScParameter, subst: ScSubstitutor) = {
-          ScalaDocumentationProvider.parseParameter(param, (t: ScType) => ScType.presentableText(subst.subst(t)), false)
+          ScalaDocumentationProvider.parseParameter(param,
+            (t: ScType) =>
+              ScType.presentableText(subst.subst(t)),
+          false)
         }
         def applyToParameters(parameters: Seq[(Parameter, String)], subst: ScSubstitutor, canBeNaming: Boolean,
                               isImplicit: Boolean = false) {
@@ -408,8 +411,12 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                         sign <- ScalaPsiUtil.getApplyMethods(clazz)
                         if ResolveUtils.isAccessible(sign.method, args)
                       } {
-                        res += ((new PhysicalSignature(sign.method, subst.followed(sign.
-                                substitutor).followed(collectSubstitutor(sign.method))), 0))
+                        val subst1 = {
+                          val signSubst = sign.substitutor
+                          val collectSubst = collectSubstitutor(sign.method)
+                          signSubst.followed(subst).followed(collectSubst)
+                        }
+                        res += ((new PhysicalSignature(sign.method, subst1), 0))
                       }
                       if (canBeUpdate) {
                         for{
