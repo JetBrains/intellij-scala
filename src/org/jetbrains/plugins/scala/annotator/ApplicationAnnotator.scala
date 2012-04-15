@@ -37,6 +37,24 @@ trait ApplicationAnnotator {
         r.element match {
           case f@(_: ScFunction | _: PsiMethod | _: ScSyntheticFunction) => {
             reference.getContext match {
+              case genCall: ScGenericCall =>
+                val missing = for (MissedTypeParameter(p) <- r.problems) yield p.name
+                missing match {
+                  case Seq() =>
+                  case as =>
+                    holder.createErrorAnnotation(genCall.typeArgs.getOrElse(genCall),
+                      "Unspecified type parameters: " + as.mkString(", "))
+                }
+                r.problems.foreach {
+                  case MissedTypeParameter(_) =>
+                    // handled in bulk above
+                  case DoesNotTakeTypeParameters =>
+                    holder.createErrorAnnotation(genCall.typeArgs.getOrElse(genCall), f.name + " does not take type parameters")
+                  case ExcessTypeArgument(arg) =>
+                    holder.createErrorAnnotation(arg, "Too many type arguments for " + f.name)
+                  case _ =>
+                    //holder.createErrorAnnotation(call.argsElement, "Not applicable to " + signatureOf(f))
+                }
               case call: MethodInvocation => {
                 val missed =
                   for (MissedValueParameter(p) <- r.problems) yield p.name + ": " + p.paramType.presentableText

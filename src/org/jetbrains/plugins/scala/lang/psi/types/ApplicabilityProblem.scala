@@ -1,8 +1,9 @@
 package org.jetbrains.plugins.scala.lang.psi.types
 
-import nonvalue.Parameter
+import nonvalue.{TypeParameter, Parameter}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAssignStmt, ScExpression}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterClause}
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScTypeParam, ScParameter, ScParameterClause}
 
 /**
  * Pavel.Fatin, 02.06.2010
@@ -25,11 +26,14 @@ case class UnresolvedParameter(assignment: ScAssignStmt) extends ApplicabilityPr
 case class ExpansionForNonRepeatedParameter(argument: ScExpression) extends ApplicabilityProblem
 
 // applicability problem
-case class DoesNotTakeParameters extends ApplicabilityProblem
+case class DoesNotTakeParameters() extends ApplicabilityProblem
 case class ExcessArgument(argument: ScExpression) extends ApplicabilityProblem
 case class MissedParametersClause(clause: ScParameterClause) extends ApplicabilityProblem
 case class MissedValueParameter(parameter: Parameter) extends ApplicabilityProblem
 //TODO expectedType -> parameter
 case class TypeMismatch(expression: ScExpression, expectedType: ScType) extends ApplicabilityProblem
-
 case object WrongTypeParameterInferred extends ApplicabilityProblem
+
+case object DoesNotTakeTypeParameters extends ApplicabilityProblem
+case class ExcessTypeArgument(argument: ScTypeElement) extends ApplicabilityProblem
+case class MissedTypeParameter(param: TypeParameter) extends ApplicabilityProblem

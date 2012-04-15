@@ -17,12 +17,13 @@ import psi.api.toplevel.typedef.{ScClass, ScObject}
 import psi.impl.toplevel.synthetic.ScSyntheticFunction
 import psi.impl.ScPackageImpl
 import caches.CachesUtil
-import psi.types.Compatibility.{ConformanceExtResult, Expression}
 import psi.{ScalaPsiElement, ScalaPsiUtil}
 import psi.api.expr._
-import org.jetbrains.plugins.scala.extensions._
 import psi.api.base.{ScMethodLike, ScPrimaryConstructor}
 import psi.api.toplevel.{ScTypeParametersOwner, ScTypedDefinition}
+import extensions._
+import psi.types.Compatibility.ConformanceExtResult._
+import psi.types.Compatibility.{ConformanceExtResult, Expression}
 
 //todo: remove all argumentClauses, we need just one of them
 class MethodResolveProcessor(override val ref: PsiElement,
@@ -212,21 +213,40 @@ object MethodResolveProcessor {
         checkFunction(fun.asInstanceOf[PsiNamedElement])
       }
       //simple application including empty application
-      case tp: ScTypeParametersOwner if (typeArgElements.length == 0 ||
-              typeArgElements.length == tp.typeParameters.length) && tp.isInstanceOf[PsiNamedElement] => {
+      case tp: ScTypeParametersOwner with PsiNamedElement => {
         val args = argumentClauses.headOption.toList
-        Compatibility.compatible(tp.asInstanceOf[PsiNamedElement], substitutor, args, checkWithImplicits,
-          ref.getResolveScope, isShapeResolve)
+
+        val typeArgCount = typeArgElements.length
+        val typeParamCount = tp.typeParameters.length
+        if (typeArgCount > 0 && typeArgCount != typeParamCount) {
+          val problems: Seq[ApplicabilityProblem] = if (typeParamCount == 0) Seq(DoesNotTakeTypeParameters)
+          else if (typeParamCount < typeArgCount)
+            typeArgElements.drop(typeParamCount).map(ExcessTypeArgument(_))
+          else
+            tp.typeParameters.drop(typeArgCount).map(ptp => MissedTypeParameter(TypeParameter(ptp.name, /*TODO*/Nothing, Any, ptp)))
+          new ConformanceExtResult(problems)
+        } else {
+          Compatibility.compatible(tp.asInstanceOf[PsiNamedElement], substitutor, args, checkWithImplicits,
+            ref.getResolveScope, isShapeResolve)
+        }
       }
-      case tp: PsiTypeParameterListOwner if (typeArgElements.length == 0 ||
-              typeArgElements.length == tp.getTypeParameters.length) &&
-              tp.isInstanceOf[PsiNamedElement] => {
-        val args = argumentClauses.headOption.toList
-        Compatibility.compatible(tp.asInstanceOf[PsiNamedElement], substitutor, args, checkWithImplicits,
-          ref.getResolveScope, isShapeResolve)
+      case tp: PsiTypeParameterListOwner with PsiNamedElement => {
+        val typeArgCount = typeArgElements.length
+        val typeParamCount = tp.getTypeParameters.length
+        if (typeArgCount > 0 && typeArgCount != typeParamCount) {
+          val problems: Seq[ApplicabilityProblem] = if (typeParamCount == 0)
+            Seq(DoesNotTakeTypeParameters)
+          else if (typeParamCount < typeArgCount)
+            typeArgElements.drop(typeParamCount).map(ExcessTypeArgument(_))
+          else
+            tp.getTypeParameters.drop(typeArgCount).map(ptp => MissedTypeParameter(TypeParameter(ptp.name, /*TODO*/Nothing, Any, ptp)))
+          new ConformanceExtResult(problems)
+        } else {
+          val args = argumentClauses.headOption.toList
+          Compatibility.compatible(tp, substitutor, args, checkWithImplicits,
+            ref.getResolveScope, isShapeResolve)
+        }
       }
-      //for functions => applicability problem, no type parameters clause
-      case method: PsiMethod => ConformanceExtResult(Seq(new ApplicabilityProblem("2")))
       case _ => ConformanceExtResult(Seq.empty)
     }
     if (result.problems.length == 0) {
