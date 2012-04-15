@@ -97,7 +97,25 @@ class ApplicationAnnotatorTest extends SimpleTestCase {
               Error("Seq(null): _*", "Expansion for non-repeated parameter") :: Nil =>
     }
   }
-  
+
+  def testDoesNotTakeTypeParameters {
+    assertMatches(messages("def f = 0; f[Any]")) {
+      case Error("[Any]", "f does not take type parameters") :: Nil =>
+    }
+  }
+
+  def testMissingTypeParameter {
+    assertMatches(messages("def f[A, B] = 0; f[Any]")) {
+      case Error("[Any]", "Unspecified type parameters: B") :: Nil =>
+    }
+  }
+
+  def testExcessTypeParameter {
+    assertMatches(messages("def f[A] = 0; f[Any, Any]")) {
+      case Error("Any", "Too many type arguments for f") :: Nil =>
+    }
+  }
+
   def messages(@Language(value = "Scala", prefix = Header) code: String): List[Message] = {
     val annotator = new ApplicationAnnotator() {}
     val mock = new AnnotatorHolderMock
