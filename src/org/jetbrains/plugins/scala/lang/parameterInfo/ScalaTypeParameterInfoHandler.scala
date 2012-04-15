@@ -17,11 +17,13 @@ import lexer.ScalaTokenTypes
 import psi.api.base.types.{ScSimpleTypeElement, ScParameterizedTypeElement, ScTypeElement, ScTypeArgs}
 import psi.api.expr.ScGenericCall
 import psi.api.statements.params.ScTypeParam
-import psi.api.toplevel.typedef.ScTypeDefinition
 import psi.types.{ScType, ScSubstitutor}
-import resolve.ScalaResolveResult
 import com.intellij.psi.{PsiMethod, PsiType, PsiTypeParameter, PsiClass}
 import extensions.toPsiNamedElementExt
+import resolve.{ResolvableReferenceExpression, ScalaResolveResult}
+import psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
+import psi.api.statements.{ScTypeAlias, ScFunction}
+import psi.api.toplevel.ScTypeParametersOwner
 
 /**
  * User: Alexander Podkhalyuzin
@@ -29,7 +31,7 @@ import extensions.toPsiNamedElementExt
  */
 class ScalaTypeParameterInfoHandler extends ParameterInfoHandlerWithTabActionSupport[ScTypeArgs, Any, ScTypeElement] {
   def getArgListStopSearchClasses: java.util.Set[_ <: Class[_]] = {
-    java.util.Collections.singleton(classOf[PsiMethod])//todo: ?
+    java.util.Collections.singleton(classOf[PsiMethod]) //todo: ?
   }
 
   def getActualParameterDelimiterType: IElementType = ScalaTokenTypes.tCOMMA
@@ -53,7 +55,7 @@ class ScalaTypeParameterInfoHandler extends ParameterInfoHandlerWithTabActionSup
 
   def getParameterCloseChars: String = "{},];\n"
 
-  def getParametersForDocumentation(p: Any, context: ParameterInfoContext): Array[Object] =  ArrayUtil.EMPTY_OBJECT_ARRAY
+  def getParametersForDocumentation(p: Any, context: ParameterInfoContext): Array[Object] = ArrayUtil.EMPTY_OBJECT_ARRAY
 
   def findElementForUpdatingParameterInfo(context: UpdateParameterInfoContext): ScTypeArgs = {
     findCall(context)
@@ -69,61 +71,23 @@ class ScalaTypeParameterInfoHandler extends ParameterInfoHandlerWithTabActionSup
         val index = context.getCurrentParameterIndex
         val buffer: StringBuilder = new StringBuilder("")
         p match {
+          case (owner: ScTypeParametersOwner, substitutor: ScSubstitutor) => {
+            val params = owner.typeParameters
+            appendScTypeParams(params, buffer, index, substitutor)
+          }
+          case (method: PsiMethod, substitutor: ScSubstitutor) => {
+            val params = method.getTypeParameters
+            appendPsiTypeParams(params, buffer, index, substitutor)
+          }
           case (clazz: PsiClass, substitutor: ScSubstitutor) => {
             clazz match {
               case td: ScTypeDefinition => {
-                val params = td.typeParameters
-                if (params.length == 0) buffer.append(CodeInsightBundle.message("parameter.info.no.parameters"))
-                else {
-                  buffer.append(params.map((param: ScTypeParam) => {
-                    val isBold = if (params.indexOf(param) == index) true
-                    else {
-                      //todo: check type
-                      false
-                    }
-                    var paramText = param.name
-                    if (param.isContravariant) paramText = "-" + paramText
-                    else if (param.isCovariant) paramText = "+" + paramText
-                    param.lowerBound foreach {
-                      case psi.types.Nothing =>
-                      case tp: ScType => paramText = paramText + " >: " + ScType.presentableText(substitutor.subst(tp))
-                    }
-                    param.upperBound foreach {
-                      case psi.types.Any =>
-                      case tp: ScType => paramText = paramText + " <: " + ScType.presentableText(substitutor.subst(tp))
-                    }
-                    param.viewBound foreach {
-                      (tp: ScType) => paramText = paramText + " <% " + ScType.presentableText(substitutor.subst(tp))
-                    }
-                    param.contextBound foreach {
-                      (tp: ScType) => paramText = paramText + " : " + ScType.presentableText(substitutor.subst(tp))
-                    }
-                    if (isBold) "<b>" + paramText + "</b>" else paramText
-                  }).mkString(", "))
-                }
+                val params: Seq[ScTypeParam] = td.typeParameters
+                appendScTypeParams(params, buffer, index, substitutor)
               }
-              case _ => {
+              case _ =>
                 val params = clazz.getTypeParameters
-                if (params.length == 0) buffer.append(CodeInsightBundle.message("parameter.info.no.parameters"))
-                else {
-                  buffer.append(params.map((param: PsiTypeParameter) => {
-                    val isBold = if (params.indexOf(param) == index) true
-                    else {
-                      //todo: check type
-                      false
-                    }
-                    var paramText = param.name
-                    if (paramText == "?") paramText = "_"
-                    val refTypes = param.getExtendsList.getReferencedTypes
-                    if (refTypes.length != 0) {
-                      paramText = paramText + refTypes.map((typez: PsiType) => {
-                        ScType.presentableText(substitutor.subst(ScType.create(typez, param.getProject)))
-                      }).mkString(" <: ", " with ", "")
-                    }
-                    if (isBold) "<b>" + paramText + "</b>" else paramText
-                  }).mkString(", "))
-                }
-              }
+                appendPsiTypeParams(params, buffer, index, substitutor)
             }
           }
           case _ =>
@@ -145,13 +109,67 @@ class ScalaTypeParameterInfoHandler extends ParameterInfoHandlerWithTabActionSup
     }
   }
 
+  private def appendPsiTypeParams(params: Array[PsiTypeParameter], buffer: scala.StringBuilder, index: Int, substitutor: ScSubstitutor) {
+    if (params.length == 0) buffer.append(CodeInsightBundle.message("parameter.info.no.parameters"))
+    else {
+      buffer.append(params.map((param: PsiTypeParameter) => {
+        val isBold = if (params.indexOf(param) == index) true
+        else {
+          //todo: check type
+          false
+        }
+        var paramText = param.name
+        if (paramText == "?") paramText = "_"
+        val refTypes = param.getExtendsList.getReferencedTypes
+        if (refTypes.length != 0) {
+          paramText = paramText + refTypes.map((typez: PsiType) => {
+            ScType.presentableText(substitutor.subst(ScType.create(typez, param.getProject)))
+          }).mkString(" <: ", " with ", "")
+        }
+        if (isBold) "<b>" + paramText + "</b>" else paramText
+      }).mkString(", "))
+    }
+  }
+
+  private def appendScTypeParams(params: scala.Seq[ScTypeParam], buffer: scala.StringBuilder, index: Int, substitutor: ScSubstitutor): StringBuilder = {
+    if (params.length == 0) buffer.append(CodeInsightBundle.message("parameter.info.no.parameters"))
+    else {
+      buffer.append(params.map((param: ScTypeParam) => {
+        val isBold = if (params.indexOf(param) == index) true
+        else {
+          //todo: check type
+          false
+        }
+        var paramText = param.name
+        if (param.isContravariant) paramText = "-" + paramText
+        else if (param.isCovariant) paramText = "+" + paramText
+        param.lowerBound foreach {
+          case psi.types.Nothing =>
+          case tp: ScType => paramText = paramText + " >: " + ScType.presentableText(substitutor.subst(tp))
+        }
+        param.upperBound foreach {
+          case psi.types.Any =>
+          case tp: ScType => paramText = paramText + " <: " + ScType.presentableText(substitutor.subst(tp))
+        }
+        param.viewBound foreach {
+          (tp: ScType) => paramText = paramText + " <% " + ScType.presentableText(substitutor.subst(tp))
+        }
+        param.contextBound foreach {
+          (tp: ScType) => paramText = paramText + " : " + ScType.presentableText(substitutor.subst(tp))
+        }
+        if (isBold) "<b>" + paramText + "</b>" else paramText
+      }).mkString(", "))
+    }
+  }
+
   def showParameterInfo(element: ScTypeArgs, context: CreateParameterInfoContext): Unit = {
     context.showHint(element, element.getTextRange.getStartOffset, this)
   }
 
   def getParametersForLookup(item: LookupElement, context: ParameterInfoContext): Array[Object] = null
 
-  def updateParameterInfo(o: ScTypeArgs, context: UpdateParameterInfoContext): Unit = {//todo: join all this methods in all handlers to remove duplicates
+  def updateParameterInfo(o: ScTypeArgs, context: UpdateParameterInfoContext): Unit = {
+    //todo: join all this methods in all handlers to remove duplicates
     if (context.getParameterOwner != o) context.removeHint
     val offset = context.getOffset
     var child = o.getNode.getFirstChildNode
@@ -176,19 +194,35 @@ class ScalaTypeParameterInfoHandler extends ParameterInfoHandlerWithTabActionSup
           val res: ArrayBuffer[Object] = new ArrayBuffer[Object]
           args.getParent match {
             case gen: ScGenericCall => {
-              //todo:
+              gen.referencedExpr match {
+                case resRef: ResolvableReferenceExpression =>
+                  val bind = resRef.bind()
+                  bind match {
+                    case Some(r@ScalaResolveResult(method: PsiMethod, substitutor)) =>
+                      res += Tuple2(r.getElement, substitutor)
+                    case _ =>
+
+                  }
+                case _ =>
+              }
             }
             case elem: ScParameterizedTypeElement => {
               elem.typeElement match {
                 case simp: ScSimpleTypeElement => {
                   simp.reference match {
                     case Some(ref) => {
-                      ref.bind match {
+                      ref.bind() match {
                         case Some(r@ScalaResolveResult(method: PsiMethod, substitutor)) => {
-                          res += Tuple(r.getActualElement, substitutor)
+                          res += Tuple2(r.getActualElement, substitutor)
                         }
                         case Some(ScalaResolveResult(element: PsiClass, substitutor)) => {
-                          res += Tuple(element, substitutor)
+                          res += Tuple2(element, substitutor)
+                        }
+//                        case Some(ScalaResolveResult(element: ScTypeAlias, substitutor)) => {
+//                          res += Tuple2(element, substitutor)
+//                        }
+                        case Some(ScalaResolveResult(element: ScTypeParametersOwner, substitutor)) => {
+                          res += Tuple2(element, substitutor)
                         }
                         case _ =>
                       }
