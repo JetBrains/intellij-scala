@@ -8,15 +8,15 @@ class LazyInput {
 }
 /*
 class LazyInput {
-  def testMethodName(x: => Int) {
-    x + 77
-  }
-
   def foo {
     lazy val x = 44
     /*start*/
     testMethodName(x)
     /*end*/
+  }
+
+  def testMethodName(x: => Int) {
+    x + 77
   }
 }
 */

@@ -8,15 +8,15 @@ class OneInput {
 }
 /*
 class OneInput {
-  def testMethodName(i: Int) {
-    i * i
-  }
-
   def foo {
     val i = 34
     /*start*/
     testMethodName(i)
     /*end*/
+  }
+
+  def testMethodName(i: Int) {
+    i * i
   }
 }
 */

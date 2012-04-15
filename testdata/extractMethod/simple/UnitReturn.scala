@@ -9,17 +9,17 @@ class UnitReturn {
 }
 /*
 class UnitReturn {
-  def testMethodName {
-    1;
-    ()
-  }
-
   def foo {
     var i = 23
     /*start*/
     testMethodName
     /*end*/
     val j = i
+  }
+
+  def testMethodName {
+    1;
+    ()
   }
 }
 */

@@ -14,13 +14,6 @@ class A {
 }
 /*
 class A {
-  def testMethodName[T, G](x: T, y: G, z: T): T = {
-    y: G
-    z: T
-    val u = x
-    u
-  }
-
   def foo[T](x: T) {
     def goo[G](y: G) {
       val z: T = x
@@ -30,6 +23,13 @@ class A {
       u
     }
     goo(3)
+  }
+
+  def testMethodName[T, G](x: T, y: G, z: T): T = {
+    y: G
+    z: T
+    val u = x
+    u
   }
 }
 */

@@ -10,17 +10,17 @@ class InsideClojure {
 }
 /*
 class InsideClojure {
-  def testMethodName(p: Int): Int = {
-    p + 1
-    p + 2
-  }
-
   def foo = {
     {p: Int => {
       /*start*/
       testMethodName(p)
       /*end*/
     }}
+  }
+
+  def testMethodName(p: Int): Int = {
+    p + 1
+    p + 2
   }
 }
 */
