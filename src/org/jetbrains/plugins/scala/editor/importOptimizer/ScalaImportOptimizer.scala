@@ -15,8 +15,11 @@ import collection.Set
 import lang.psi.api.{ScalaRecursiveElementVisitor, ScalaFile}
 import lang.psi.api.toplevel.imports.{ScImportExpr, ScImportStmt}
 import lang.psi.impl.ScalaPsiElementFactory
-import lang.psi.{ScalaPsiUtil, ScalaPsiElement}
 import lang.psi.api.expr.{ScMethodCall, ScForStatement, ScExpression}
+import lang.psi.api.toplevel.packaging.ScPackaging
+import lang.psi.{ScImportsHolder, ScalaPsiUtil, ScalaPsiElement}
+import lang.formatting.settings.ScalaCodeStyleSettings
+import com.intellij.psi.codeStyle.CodeStyleSettingsManager
 
 /**
  * User: Alexander Podkhalyuzin
@@ -27,6 +30,36 @@ class ScalaImportOptimizer extends ImportOptimizer {
   def processFile(file: PsiFile): Runnable = {
     if (file.isInstanceOf[ScalaFile]) {
       val scalaFile: ScalaFile = file.asInstanceOf[ScalaFile]
+      def sortImports {
+        def getImportHolder(ref: PsiElement): ScImportsHolder = {
+          PsiTreeUtil.getParentOfType(ref, classOf[ScPackaging]) match {
+            case null => ref.getContainingFile.asInstanceOf[ScImportsHolder]
+            case packaging: ScPackaging => packaging
+          }
+        }
+        val importHolder: ScImportsHolder = getImportHolder(scalaFile)
+
+        val importsList = scalaFile.getChildren filter {
+          _ match {
+            case imp: ScImportStmt => {
+              true
+            }
+            case _ => false
+          }
+        }
+        val importsSorted = importsList sortBy { imp =>
+          imp.getText
+        } map { _.copy() }
+        if (!importsList.isEmpty) {
+          val first = importsList(0);
+          importsSorted foreach { imp =>
+            importHolder.addImportBefore(imp, first);
+          }
+          importsList foreach { imp =>
+            importHolder.deleteImportStmt(imp.asInstanceOf[ScImportStmt])
+          }
+        }
+      }
       def getUnusedImports: HashSet[ImportUsed] = {
         val usedImports = new HashSet[ImportUsed]
         file.accept(new ScalaRecursiveElementVisitor {
@@ -150,6 +183,8 @@ class ScalaImportOptimizer extends ImportOptimizer {
           documentManager.commitDocument(documentManager.getDocument(scalaFile))
           //todo: add removing blank lines (last)
           //todo: add other optimizing
+          sortImports
+          documentManager.commitDocument(documentManager.getDocument(scalaFile))
         }
       }
     } else {
