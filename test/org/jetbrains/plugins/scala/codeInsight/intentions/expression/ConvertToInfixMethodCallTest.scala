@@ -75,16 +75,23 @@ class ConvertToInfixMethodCallTest extends ScalaIntentionTestBase {
     doTest(text, resultText)
   }
 
-  def testConvertFromInfixMethodCall9() {
+  def testConvertToInfixMethodCall9() {
     val text = "1.<caret>+(2 * 3)"
     val resultText = "1 <caret>+ 2 * 3"
 
     doTest(text, resultText)
   }
 
-  def testConvertFromInfixMethodCall10() {
+  def testConvertToInfixMethodCall10() {
     val text = "x.map<caret>(_ > 9)"
     val resultText = "x map<caret> (_ > 9)"
+
+    doTest(text, resultText)
+  }
+
+  def testConvertToInfixMethodCall11() {
+    val text = "this.<caret>foo(1)"
+    val resultText = "this <caret>foo 1"
 
     doTest(text, resultText)
   }
