@@ -20,6 +20,7 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
   public boolean ADD_IMPORT_MOST_CLOSE_TO_REFERENCE = false;
   public boolean ADD_FULL_QUALIFIED_IMPORTS = false;
   public boolean IMPORTS_MEMBERS_USING_UNDERSCORE = true;
+  public boolean SORT_IMPORTS = true;
 
   public boolean SEARCH_ALL_SYMBOLS = false;
   public boolean ENABLE_JAVA_TO_SCALA_CONVERSION = true;
@@ -51,6 +52,7 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
   public int CLOSURE_BRACE_FORCE = 0;
   public int CASE_CLAUSE_BRACE_FORCE = 0;
   public boolean PLACE_CLOSURE_PARAMETERS_ON_NEW_LINE = true;
+  public boolean SPACE_BEFORE_CLOSURE_PARAMETERS = true;
   public boolean PLACE_SELF_TYPE_ON_NEW_LINE = true;
   public boolean ALIGN_IF_ELSE = false;
   //indents
