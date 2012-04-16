@@ -11,6 +11,7 @@ import lang.psi.api.base.patterns.{ScReferencePattern, ScConstructorPattern}
 import extensions._
 import lang.psi.api.toplevel.ScNamedElement
 import lang.psi.api.expr.{ScInfixExpr, ScPostfixExpr}
+import lang.psi.types.ScType
 
 /**
  * Pavel Fatin
@@ -35,12 +36,14 @@ case class Dependency(kind: DependencyKind, source: PsiElement, target: PsiEleme
 }
 
 object Dependency {
+  // While we can rely on result.actualElement, there are several bugs related to unapply(Seq)
+  // and it's impossible to rebind such targets later (if needed)
   def dependenciesIn(element: PsiElement): Seq[Dependency] = {
     val references = element.depthFirst.filterByType(classOf[ScReferenceElement]).filter(isPrimary).toList
 
     references.flatMap { reference =>
-      reference.resolve().toOption.flatMap { target =>
-        dependencyFor(reference, target)
+      reference.bind().flatMap { result =>
+        dependencyFor(reference, result.element, result.fromType)
       }
     }
   }
@@ -51,7 +54,7 @@ object Dependency {
     case it => it.qualifier.isEmpty
   }
 
-  private def dependencyFor(reference: ScReferenceElement, target: PsiElement): Option[Dependency] = {
+  private def dependencyFor(reference: ScReferenceElement, target: PsiElement, fromType: Option[ScType]): Option[Dependency] = {
     def withEntity(entity: String) =
       Some(new Dependency(DependencyKind.Reference, reference, target, Path(entity)))
 
@@ -94,11 +97,13 @@ object Dependency {
             if method.isConstructor =>
             withEntity(e.qualifiedName)
           case (member: PsiMember) && ContainingClass(e: PsiClass) =>
+            val objectName = fromType.flatMap(it => ScType.extractClass(it, Some(e.getProject)))
+                    .map(_.qualifiedName).getOrElse(e.qualifiedName)
             val memberName = member match {
               case named: ScNamedElement => named.name
               case _ => member.getName
             }
-            withMember(e.qualifiedName, memberName)
+            withMember(objectName, memberName)
           case _ => None
         }
     }
