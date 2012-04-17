@@ -18,7 +18,8 @@ class SingleImportInspection extends LocalInspectionTool {
   override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor = {
     new ScalaElementVisitor {
       override def visitImportExpr(importExpr: ScImportExpr) {
-        if (importExpr.selectors.length == 1) {
+        if (importExpr.selectors.length == 1 &&
+                (importExpr.selectors(0).getFirstChild == importExpr.selectors(0).getLastChild)) {
           holder.registerProblem(holder.getManager.createProblemDescriptor(importExpr.selectorSet.get,
             InspectionBundle.message("single.import"),
             new RemoveBracesForSingleImportQuickFix(importExpr),
