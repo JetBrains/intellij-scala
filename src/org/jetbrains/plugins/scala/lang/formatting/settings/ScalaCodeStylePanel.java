@@ -31,6 +31,7 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
   private JCheckBox shellCommentsInScriptCheckBox;
   private JCheckBox blockCommentsCheckBox;
   private JCheckBox packagingsCheckBox;
+  private JCheckBox multilineStringCheckBox;
   private JCheckBox headerImportStatementsCheckBox;
   private JCheckBox enableConversionOnCopyCheckBox;
   private JCheckBox donTShowDialogCheckBox;
@@ -97,6 +98,7 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
     scalaSettings.FOLD_TYPE_LAMBDA = typeLamdasCheckBox.isSelected();
     scalaSettings.FOLD_SHELL_COMMENTS = shellCommentsInScriptCheckBox.isSelected();
     scalaSettings.FOLD_PACKAGINGS = packagingsCheckBox.isSelected();
+    scalaSettings.FOLD_MULTILINE_STRING = multilineStringCheckBox.isSelected();
     scalaSettings.FOLD_IMPORT_IN_HEADER = headerImportStatementsCheckBox.isSelected();
     scalaSettings.FOLD_BLOCK_COMMENTS = blockCommentsCheckBox.isSelected();
 
@@ -148,6 +150,7 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
     if (scalaSettings.FOLD_IMPORT_IN_HEADER != headerImportStatementsCheckBox.isSelected()) return true;
     if (scalaSettings.FOLD_IMPORT_STATEMENTS != importStatementsCheckBox.isSelected()) return true;
     if (scalaSettings.FOLD_PACKAGINGS != packagingsCheckBox.isSelected()) return true;
+    if (scalaSettings.FOLD_MULTILINE_STRING != multilineStringCheckBox.isSelected()) return true;
     if (scalaSettings.FOLD_SCALADOC != scaladocCommentsCheckBox.isSelected()) return true;
     if (scalaSettings.FOLD_SHELL_COMMENTS != shellCommentsInScriptCheckBox.isSelected()) return true;
     if (scalaSettings.FOLD_TEMPLATE_BODIES != templateBodiesCheckBox.isSelected()) return true;
@@ -192,6 +195,7 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
     setValue(headerImportStatementsCheckBox, settings.FOLD_IMPORT_IN_HEADER);
     setValue(importStatementsCheckBox, settings.FOLD_IMPORT_STATEMENTS);
     setValue(packagingsCheckBox, settings.FOLD_PACKAGINGS);
+    setValue(multilineStringCheckBox, settings.FOLD_MULTILINE_STRING);
     setValue(scaladocCommentsCheckBox, settings.FOLD_SCALADOC);
     setValue(shellCommentsInScriptCheckBox, settings.FOLD_SHELL_COMMENTS);
     setValue(templateBodiesCheckBox, settings.FOLD_TEMPLATE_BODIES);

@@ -23,6 +23,7 @@ import com.intellij.openapi.util._
 import params.ScTypeParamClause
 import psi.api.base.patterns.ScCaseClause
 import lexer.ScalaTokenTypes
+import psi.api.base.ScLiteral
 
 /*
 *
@@ -55,6 +56,8 @@ class ScalaFoldingBuilder extends FoldingBuilder {
           descriptors += (new FoldingDescriptor(node,
             new TextRange(node.getTextRange.getStartOffset + PACKAGE_KEYWORD.length + 1, node.getTextRange.getEndOffset)))
         }
+        case p: ScLiteral if p.isMultiLineString =>
+          descriptors += (new FoldingDescriptor(node, node.getTextRange))
         case _ =>
       }
       if (node.getTreeParent != null && node.getTreeParent.getPsi.isInstanceOf[ScFunction]) {
@@ -159,6 +162,8 @@ class ScalaFoldingBuilder extends FoldingBuilder {
           node.getTreeParent.getElementType == ScalaElementTypes.FUNCTION_DEFINITION && settings.FOLD_BLOCK => true
         case _ if node.getPsi.isInstanceOf[ScTypeProjection] && settings.FOLD_TYPE_LAMBDA => true
         case _ if node.getPsi.isInstanceOf[ScTypeElement] && settings.FOLD_TYPE_LAMBDA => true
+        case _ if node.getPsi.isInstanceOf[ScLiteral] &&
+           node.getPsi.asInstanceOf[ScLiteral].isMultiLineString && settings.FOLD_MULTILINE_STRING => true
         case _ => false
       }
     }
