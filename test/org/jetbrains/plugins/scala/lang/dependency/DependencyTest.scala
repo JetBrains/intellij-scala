@@ -170,6 +170,18 @@ class DependencyTest extends SimpleTestCase {
     }""", ("foo", "ReferencePattern", "O.foo"))
   }
 
+  def testInheritedMemberImport() {
+    assertDependenciesAre("""
+    object O {
+      trait A {
+        def foo() {}
+      }
+      object B extends A
+      import B._
+      foo()
+    }""", ("A", "ScTrait", "O.A"), ("B", "ScObject", "O.B"), ("foo", "ScFunctionDefinition", "O.B.foo"))
+  }
+
   // package
   // implicit conversions
 
