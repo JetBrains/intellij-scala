@@ -110,7 +110,8 @@ private class ScalaConfiguration(project: MavenProject) {
   def libraryId = new MavenId("org.scala-lang", "scala-library", compilerVersion.mkString)
 
   private def compilerPlugin =
-    project.findPlugin("org.scala-tools", "maven-scala-plugin").toOption.filter(!_.isDefault)
+    project.findPlugin("org.scala-tools", "maven-scala-plugin").toOption.filter(!_.isDefault).orElse(
+      project.findPlugin("net.alchim31.maven", "maven-scala-plugin").toOption.filter(!_.isDefault))
 
   private def compilerConfiguration = compilerPlugin.flatMap(_.getConfigurationElement.toOption)
 
