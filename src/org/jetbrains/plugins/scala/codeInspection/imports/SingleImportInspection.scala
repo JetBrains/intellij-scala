@@ -6,6 +6,7 @@ import lang.psi.api.ScalaElementVisitor
 import lang.psi.api.toplevel.imports.ScImportExpr
 import com.intellij.codeInspection.{ProblemHighlightType, ProblemsHolder, LocalInspectionTool}
 import codeInspection.InspectionBundle
+import lang.psi.api.base.ScStableCodeReferenceElement
 
 /**
  * @author Ksenia.Sautina
@@ -19,7 +20,7 @@ class SingleImportInspection extends LocalInspectionTool {
     new ScalaElementVisitor {
       override def visitImportExpr(importExpr: ScImportExpr) {
         if (importExpr.selectors.length == 1 &&
-                (importExpr.selectors(0).getFirstChild == importExpr.selectors(0).getLastChild)) {
+                (importExpr.selectors(0).getLastChild.isInstanceOf[ScStableCodeReferenceElement])) {
           holder.registerProblem(holder.getManager.createProblemDescriptor(importExpr.selectorSet.get,
             InspectionBundle.message("single.import"),
             new RemoveBracesForSingleImportQuickFix(importExpr),
