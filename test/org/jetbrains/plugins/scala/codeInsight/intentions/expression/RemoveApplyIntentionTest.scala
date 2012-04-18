@@ -67,25 +67,86 @@ class RemoveApplyIntentionTest extends ScalaIntentionTestBase {
     doTest(text, resultText)
   }
 
-  //todo HintManager
-//  def testRemoveApply6() {
-//    val text = """
-//    |  object D {
-//    |    def foo()(implicit x: String) = B
-//    |    implicit val s: String = ""
-//    |
-//    |    foo().<caret>apply(1)
-//    |  }
-//    """.stripMargin.replace("\r", "").trim
-//    val resultText = """
-//    |  object D {
-//    |    def foo()(implicit x: String) = B
-//    |    implicit val s: String = ""
-//    |
-//    |    foo().<caret>apply(1)
-//    |  }
-//    """.stripMargin.replace("\r", "").trim
-//
-//    doTest(text, resultText)
-//  }
+  def testRemoveApply6() {
+    val text = """
+    |  object D {
+    |    def foo()(implicit x: String) = B
+    |    implicit val s: String = ""
+    |
+    |    foo().<caret>apply(1)
+    |  }
+    """.stripMargin.replace("\r", "").trim
+    val resultText = """
+    |  object D {
+    |    def foo()(implicit x: String) = B
+    |    implicit val s: String = ""
+    |
+    |    foo().<caret>apply(1)
+    |  }
+    """.stripMargin.replace("\r", "").trim
+
+    try {
+      doTest(text, resultText)
+    } catch {
+        case _: RuntimeException => // Expected, so continue
+    }
+  }
+
+  def testRemoveApply7() {
+    val text = """
+    |  object P {
+    |    class AAAA()(implicit s: String) extends (Int => Int) {
+    |      def this(x: Int) {
+    |        this()
+    |      }
+    |      def apply(v1: Int) = v1 + 1
+    |    }
+    |
+    |    implicit val s: String = "text"
+    |    (new AAAA()).ap<caret>ply(1)
+    |  }
+    """.stripMargin.replace("\r", "").trim
+    val resultText = """
+    |  object P {
+    |    class AAAA()(implicit s: String) extends (Int => Int) {
+    |      def this(x: Int) {
+    |        this()
+    |      }
+    |      def apply(v1: Int) = v1 + 1
+    |    }
+    |
+    |    implicit val s: String = "text"
+    |    (new AAAA()).ap<caret>ply(1)
+    |  }
+    """.stripMargin.replace("\r", "").trim
+
+    try {
+      doTest(text, resultText)
+    } catch {
+        case _: RuntimeException => // Expected, so continue
+    }
+  }
+
+  def testRemoveApply8() {
+    val text = """
+    |  object A {
+    |    def foo = B
+    |    def foo(x: Int) = B
+    |    foo.a<caret>pply(1)
+    |  }
+    """.stripMargin.replace("\r", "").trim
+    val resultText = """
+    |  object A {
+    |    def foo = B
+    |    def foo(x: Int) = B
+    |    foo.a<apply>pply(1)
+    |  }
+    """.stripMargin.replace("\r", "").trim
+
+    try {
+      doTest(text, resultText)
+    } catch {
+        case _: RuntimeException => // Expected, so continue
+    }
+  }
 }
