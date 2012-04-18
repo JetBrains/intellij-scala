@@ -18,6 +18,7 @@ import com.intellij.psi.{PsiNamedElement, PsiMethod, PsiDocumentManager, PsiElem
 import lang.psi.api.toplevel.templates.{ScClassParents, ScTemplateBody}
 import lang.psi.api.base.ScPrimaryConstructor
 import codeInspection.InspectionBundle
+import com.intellij.openapi.application.ApplicationManager
 
 /**
  * @author Ksenia.Sautina
@@ -107,7 +108,7 @@ class RemoveApplyIntention extends PsiElementBaseIntentionAction {
           }
 
           if (flag) {
-            HintManager.getInstance().showErrorHint(editor, InspectionBundle.message("remove.apply.overloaded",
+            showHint(editor, InspectionBundle.message("remove.apply.overloaded",
               resolved.asInstanceOf[PsiNamedElement].name))
             return
           }
@@ -122,7 +123,7 @@ class RemoveApplyIntention extends PsiElementBaseIntentionAction {
               case fun: ScFunction =>
                 val clauses = fun.effectiveParameterClauses
                 if (clauses.length > 1 && clauses.last.isImplicit && clauses.length == cmc + 1) {
-                  HintManager.getInstance().showErrorHint(editor, InspectionBundle.message("remove.apply.implicit.parameter",
+                  showHint(editor, InspectionBundle.message("remove.apply.implicit.parameter",
                     resolve.asInstanceOf[PsiNamedElement].name))
                   return
                 }
@@ -144,17 +145,15 @@ class RemoveApplyIntention extends PsiElementBaseIntentionAction {
                       case con: ScPrimaryConstructor =>
                         val clauses = con.effectiveParameterClauses
                         if (clauses.length > 1 && clauses.last.isImplicit && clauses.length == argsCount + 1) {
-                          HintManager.getInstance().showErrorHint(editor,
-                            InspectionBundle.message("remove.apply.constructor.implicit.parameter",
+                          showHint(editor, InspectionBundle.message("remove.apply.constructor.implicit.parameter",
                               parents.constructor.get.getText))
                           return
                         }
                       case fun: ScFunction =>
                         val clauses = fun.effectiveParameterClauses
                         if (clauses.length > 1 && clauses.last.isImplicit && clauses.length == argsCount + 1) {
-                          HintManager.getInstance().showErrorHint(editor,
-                            InspectionBundle.message("remove.apply.constructor.implicit.parameter",
-                              parents.constructor.get.getText))
+                          showHint(editor, InspectionBundle.message("remove.apply.constructor.implicit.parameter",
+                                                          parents.constructor.get.getText))
                           return
                         }
                       case _ =>
@@ -182,6 +181,14 @@ class RemoveApplyIntention extends PsiElementBaseIntentionAction {
     call.getInvokedExpr match {
       case call: ScMethodCall => 1 + countMethodCall(call)
       case _ => 1
+    }
+  }
+
+  def showHint(editor: Editor, hint: String) {
+    if (ApplicationManager.getApplication.isUnitTestMode) {
+      throw new RuntimeException(hint)
+    } else {
+      HintManager.getInstance().showErrorHint(editor, hint)
     }
   }
 }
