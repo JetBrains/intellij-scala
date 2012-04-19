@@ -12,8 +12,8 @@ import com.intellij.lang.annotation.AnnotationHolder
 import com.intellij.psi.PsiElement
 import AnnotatorUtils._
 import quickfix.modifiers.RemoveModifierQuickFix
-import lang.psi.api.statements.{ScTypeAlias, ScPatternDefinition, ScDeclaration}
 import lang.psi.api.toplevel.{ScEarlyDefinitions, ScModifierListOwner}
+import lang.psi.api.statements.{ScValueDeclaration, ScTypeAlias, ScPatternDefinition, ScDeclaration}
 
 /**
  * @author Aleksander Podkhalyuzin
@@ -69,6 +69,10 @@ private[annotator] object ModifierChecker {
                   proccessError(ScalaBundle.message("lazy.modifier.is.not.allowed.with.param"), modifierPsi, holder,
                     new RemoveModifierQuickFix(owner, "lazy"))
                 }
+                case declaration: ScValueDeclaration =>
+                  if (!declaration.children.exists(_.getText == "="))
+                    proccessError(ScalaBundle.message("lazy.values.may.not.be.abstract"), modifierPsi, holder,
+                      new RemoveModifierQuickFix(owner, "lazy"))
                 case _ => {
                   proccessError(ScalaBundle.message("lazy.modifier.is.not.allowed.here"), modifierPsi, holder,
                     new RemoveModifierQuickFix(owner, "lazy"))
