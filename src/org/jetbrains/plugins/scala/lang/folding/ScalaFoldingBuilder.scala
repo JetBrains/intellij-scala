@@ -10,10 +10,8 @@ import _root_.scala.collection.mutable._
 import psi.api.toplevel.packaging.ScPackaging
 import java.lang.String
 import psi.impl.statements.ScTypeAliasDefinitionImpl
-import com.intellij.psi.PsiElement
 import psi.api.base.types.{ScTypeElement, ScCompoundTypeElement, ScParenthesisedTypeElement, ScTypeProjection}
 import com.intellij.lang.ASTNode
-import com.intellij.openapi.editor.{FoldingGroup, Document}
 import com.intellij.lang.folding.FoldingBuilder
 import com.intellij.lang.folding.FoldingDescriptor
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
@@ -24,6 +22,9 @@ import params.ScTypeParamClause
 import psi.api.base.patterns.ScCaseClause
 import lexer.ScalaTokenTypes
 import psi.api.base.ScLiteral
+import com.intellij.psi.tree.IElementType
+import com.intellij.openapi.editor.{Document, FoldingGroup}
+import com.intellij.psi.{TokenType, PsiComment, PsiElement}
 
 /*
 *
@@ -36,7 +37,8 @@ class ScalaFoldingBuilder extends FoldingBuilder {
 
   private def appendDescriptors(node: ASTNode,
                                document: Document,
-                               descriptors: ArrayBuffer[FoldingDescriptor]) {
+                               descriptors: ArrayBuffer[FoldingDescriptor],
+                               processedComments: HashSet[PsiElement]) {
 
 
     val psi = node.getPsi
@@ -103,16 +105,19 @@ class ScalaFoldingBuilder extends FoldingBuilder {
           descriptors ++= Seq(d1, d2)
         case _ =>
       }
+    } else if (node.getElementType == ScalaTokenTypes.tLINE_COMMENT) {
+      addCommentFolds(node.getPsi.asInstanceOf[PsiComment], processedComments, descriptors)
     }
 
-    for (ch <- psi.getChildren; val child = ch.getNode) {
-      appendDescriptors(child, document, descriptors)
+    for (child <- node.getChildren(null)) {
+      appendDescriptors(child, document, descriptors, processedComments)
     }
   }
 
   def buildFoldRegions(astNode: ASTNode, document: Document): Array[FoldingDescriptor] = {
     val descriptors = new ArrayBuffer[FoldingDescriptor]
-    appendDescriptors(astNode, document, descriptors);
+    val processedComments = new HashSet[PsiElement]
+    appendDescriptors(astNode, document, descriptors, processedComments);
     descriptors.toArray
   }
 
@@ -199,6 +204,37 @@ class ScalaFoldingBuilder extends FoldingBuilder {
       next = next.getTreeNext
     }
     last
+  }
+
+  private def addCommentFolds(comment: PsiComment, processedComments: Set[PsiElement],
+                              descriptors: ArrayBuffer[FoldingDescriptor]) {
+    if (processedComments.contains(comment) || comment.getTokenType != ScalaTokenTypes.tLINE_COMMENT) {
+      return
+    }
+
+    var end: PsiElement = null
+    var current: PsiElement = comment.getNextSibling
+    var flag = true
+
+    while (current != null && flag == true) {
+      val node: ASTNode = current.getNode
+      if (node != null) {
+        val elementType: IElementType = node.getElementType
+        if (elementType == ScalaTokenTypes.tLINE_COMMENT) {
+          end = current
+          processedComments.add(current)
+        }
+        if (elementType != ScalaTokenTypes.tLINE_COMMENT && elementType != TokenType.WHITE_SPACE) {
+          flag = false
+        }
+      }
+      current = current.getNextSibling
+    }
+
+    if (end != null) {
+      descriptors += (new FoldingDescriptor(comment,
+        new TextRange(comment.getTextRange.getStartOffset, end.getTextRange.getEndOffset)))
+    }
   }
 }
 
