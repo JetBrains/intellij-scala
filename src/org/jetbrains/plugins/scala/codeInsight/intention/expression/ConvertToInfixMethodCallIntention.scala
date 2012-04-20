@@ -98,12 +98,10 @@ class ConvertToInfixMethodCallIntention extends PsiElementBaseIntentionAction {
 
     val infixExpr = ScalaPsiElementFactory.createExpressionFromText(expr.toString(), element.getManager)
     infixExpr.asInstanceOf[ScInfixExpr].getBaseExpr.replaceExpression(exprA, true)
-
     infixExpr.asInstanceOf[ScInfixExpr].getArgExpr.replaceExpression(exprB, true)
 
     val size = infixExpr.asInstanceOf[ScInfixExpr].operation.nameId.getTextRange.getStartOffset -
             infixExpr.getTextRange.getStartOffset
-
 
     inWriteAction {
       methodCallExpr.replaceExpression(infixExpr, true)
