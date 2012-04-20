@@ -376,6 +376,16 @@
       <className>org.jetbrains.plugins.scala.codeInsight.intention.expression.RemoveApplyIntention</className>
     </intentionAction>
 
+    <intentionAction>
+      <category>Scala/Expressions</category>
+      <className>org.jetbrains.plugins.scala.codeInsight.intention.expression.FlipComparisonInInfixExprIntention</className>
+    </intentionAction>
+
+    <intentionAction>
+      <category>Scala/Expressions</category>
+      <className>org.jetbrains.plugins.scala.codeInsight.intention.expression.FlipComparisonInMethodCallExprIntention</className>
+    </intentionAction>
+
     <lang.elementManipulator forClass="org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral"
                              implementationClass="org.jetbrains.plugins.scala.injection.ScalaStringLiteralManipulator"/>
 
