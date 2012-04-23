@@ -31,7 +31,7 @@ class FlipComparisonInInfixExprIntention extends PsiElementBaseIntentionAction {
 
     val oper = infixExpr.operation.nameId.getText
     
-    if (oper != "equals" && oper != "==" && oper != "!=" && oper != "eq" &&
+    if (oper != "equals" && oper != "==" && oper != "!=" && oper != "eq" && oper != "ne" &&
         oper != ">" && oper != "<" && oper != ">=" && oper != "<=")
       return false
 
@@ -55,11 +55,11 @@ class FlipComparisonInInfixExprIntention extends PsiElementBaseIntentionAction {
       case "==" => "=="
       case "!=" => "!="
       case "eq" => "eq"
+      case "ne" => "ne"
       case ">" => "<"
       case "<" => ">"
       case ">=" => "<="
       case "<=" => ">="
-      case _ =>
     }
 
     expr.append(infixExpr.getArgExpr.getText).append(" ").append(oper).

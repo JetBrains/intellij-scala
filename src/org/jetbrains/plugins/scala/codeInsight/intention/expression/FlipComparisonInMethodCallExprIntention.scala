@@ -34,7 +34,7 @@ class FlipComparisonInMethodCallExprIntention extends PsiElementBaseIntentionAct
 
     val oper = ((methodCallExpr.getInvokedExpr).asInstanceOf[ScReferenceExpression]).nameId.getText
 
-    if (oper != "equals" && oper != "==" && oper != "!=" && oper != "eq" &&
+    if (oper != "equals" && oper != "==" && oper != "!=" && oper != "eq" && oper != "ne" &&
             oper != ">" && oper != "<" && oper != ">=" && oper != "<=")
       return false
 
@@ -62,11 +62,11 @@ class FlipComparisonInMethodCallExprIntention extends PsiElementBaseIntentionAct
       case "==" => "=="
       case "!=" => "!="
       case "eq" => "eq"
+      case "ne" => "ne"
       case ">" => "<"
       case "<" => ">"
       case ">=" => "<="
       case "<=" => ">="
-      case _ =>
     }
 
     argsBuilder.append(methodCallExpr.args.getText)
