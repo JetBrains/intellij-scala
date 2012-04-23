@@ -58,6 +58,10 @@ object Bounds {
 
   def weakLub(t1: ScType, t2: ScType): ScType = lub(t1, t2, checkWeak = true)
 
+  private def lub(seq: Seq[ScType], depth : Int, checkWeak: Boolean)(implicit stopAddingUpperBound: Boolean): ScType = {
+    seq.reduce((l: ScType, r: ScType) => lub(l,r, depth, checkWeak))
+  }
+
   private def lub(t1: ScType, t2: ScType, depth : Int, checkWeak: Boolean)(implicit stopAddingUpperBound: Boolean): ScType = {
     if (t1.conforms(t2, checkWeak)) t2
     else if (t2.conforms(t1, checkWeak)) t1
@@ -151,7 +155,7 @@ object Bounds {
             case _ => Seq(t)
           }
           val typesToCover = getTypesForLubEvaluation(substed1) ++ getTypesForLubEvaluation(substed2)
-          val newLub = Bounds.lub(typesToCover)
+          val newLub = Bounds.lub(typesToCover, 0, false)(true)
           new ScExistentialArgument("_", List.empty, newGlb, newLub)
         } else {
           //todo: this is wrong, actually we should pick lub, just without merging parameters in this method
