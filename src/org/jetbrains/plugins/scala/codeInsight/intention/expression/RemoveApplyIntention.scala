@@ -51,6 +51,21 @@ class RemoveApplyIntention extends PsiElementBaseIntentionAction {
   }
 
   override def invoke(project: Project, editor: Editor, element: PsiElement) {
+    def countMethodCall(call: ScMethodCall): Int = {
+      call.getInvokedExpr match {
+        case call: ScMethodCall => 1 + countMethodCall(call)
+        case _ => 1
+      }
+    }
+
+    def showHint(editor: Editor, hint: String) {
+      if (ApplicationManager.getApplication.isUnitTestMode) {
+        throw new RuntimeException(hint)
+      } else {
+        HintManager.getInstance().showErrorHint(editor, hint)
+      }
+    }
+
     val expr: ScMethodCall = PsiTreeUtil.getParentOfType(element, classOf[ScMethodCall], false)
     if (expr == null || !expr.isValid) return
 
@@ -174,21 +189,6 @@ class RemoveApplyIntention extends PsiElementBaseIntentionAction {
       expr.replace(newExpr)
       editor.getCaretModel.moveToOffset(start)
       PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument)
-    }
-  }
-
-  def countMethodCall(call: ScMethodCall): Int = {
-    call.getInvokedExpr match {
-      case call: ScMethodCall => 1 + countMethodCall(call)
-      case _ => 1
-    }
-  }
-
-  def showHint(editor: Editor, hint: String) {
-    if (ApplicationManager.getApplication.isUnitTestMode) {
-      throw new RuntimeException(hint)
-    } else {
-      HintManager.getInstance().showErrorHint(editor, hint)
     }
   }
 }
