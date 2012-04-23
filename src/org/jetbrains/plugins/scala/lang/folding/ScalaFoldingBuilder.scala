@@ -144,6 +144,8 @@ class ScalaFoldingBuilder extends FoldingBuilder {
         case ScalaTokenTypes.tSH_COMMENT => return "#!...!#"
         case _ =>
       }
+      if (node.getPsi.isInstanceOf[ScLiteral] && node.getPsi.asInstanceOf[ScLiteral].isMultiLineString)
+        return "\"\"\"...\"\"\""
     }
     if (node.getTreeParent != null && (ScalaElementTypes.FUNCTION_DEFINITION == node.getTreeParent.getElementType
             || ScalaElementTypes.ARG_EXPRS == node.getTreeParent.getElementType
