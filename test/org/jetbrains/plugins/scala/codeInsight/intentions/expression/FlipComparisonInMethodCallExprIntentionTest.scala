@@ -82,4 +82,11 @@ class FlipComparisonInMethodCallExprIntentionTest extends ScalaIntentionTestBase
     doTest(text, resultText)
   }
 
+  def testFlip11() {
+    val text = "if (aClass.n<caret>e(b)) return"
+    val resultText = "if (b.n<caret>e(aClass)) return"
+
+    doTest(text, resultText)
+  }
+
 }
