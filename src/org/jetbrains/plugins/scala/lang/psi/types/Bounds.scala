@@ -14,6 +14,10 @@ import com.intellij.psi.util.InheritanceUtil
 import extensions.toPsiClassExt
 
 object Bounds {
+  def lub(seq: Seq[ScType]): ScType = {
+    seq.reduce((l: ScType, r: ScType) => lub(l,r))
+  }
+
   private class Options(val tp: ScType) {
     val extract: Option[(PsiClass, ScSubstitutor)] = ScType.extractClassType(tp)
     def isEmpty = extract == None
@@ -25,8 +29,21 @@ object Bounds {
   def glb(t1: ScType, t2: ScType, checkWeak: Boolean = false) = {
     if (t1.conforms(t2, checkWeak)) t1
     else if (t2.conforms(t1, checkWeak)) t2
-    else new ScCompoundType(Seq(t1, t2), Seq.empty, Seq.empty, ScSubstitutor.empty)
+    else {
+      def appendToExistentialCompoundType(ex: ScExistentialArgument, t2: ScType) = {
+        val innerCompoundType = ex.lowerBound.asInstanceOf[ScCompoundType]
+        ScCompoundType(innerCompoundType.components :+ t2, Seq.empty, Seq.empty, ScSubstitutor.empty)
+      }
+      (t1, t2) match {
+        case (ex@ScExistentialArgument(_, _, ScCompoundType(components, _, _, _), _), _) =>
+          appendToExistentialCompoundType(ex, t2)
+        case (_, ex@ScExistentialArgument(_, _, ScCompoundType(components, _, _, _), _)) =>
+          appendToExistentialCompoundType(ex, t1)
+        case _ => ScCompoundType(Seq(t1, t2), Seq.empty, Seq.empty, ScSubstitutor.empty)
+      }
+    }
   }
+
 
   def glb(typez: Seq[ScType], checkWeak: Boolean): ScType = {
     if (typez.length == 1) typez(0)
@@ -124,11 +141,22 @@ object Bounds {
         new ScExistentialArgument("_", List.empty, substed1, substed2)
       } else if (substed2 conforms substed1) {
         new ScExistentialArgument("_", List.empty, substed2, substed1)
-      } else if (!stopAddingUpperBound) {
-        new ScExistentialArgument("_", List.empty, Bounds.glb(substed1, substed2), Bounds.lub(substed1, substed2, 0, false)(true))
       } else {
-        //todo: this is wrong, actually we should pick lub, just without merging parameters in this method
-        new ScExistentialArgument("_", List.empty, Bounds.glb(substed1, substed2), Any)
+        val newGlb = Bounds.glb(substed1, substed2)
+        if (!stopAddingUpperBound) {
+          //don't calculate the lub of the types themselves, but of the components of their compound types (if existing)
+          // example: the lub of "_ >: Int with Double <: AnyVal" & Long we need here should be AnyVal, not Any
+          def getTypesForLubEvaluation(t: ScType) = t match {
+            case ScExistentialArgument(_, _, ScCompoundType(components, _, _, _), _) => components
+            case _ => Seq(t)
+          }
+          val typesToCover = getTypesForLubEvaluation(substed1) ++ getTypesForLubEvaluation(substed2)
+          val newLub = Bounds.lub(typesToCover)
+          new ScExistentialArgument("_", List.empty, newGlb, newLub)
+        } else {
+          //todo: this is wrong, actually we should pick lub, just without merging parameters in this method
+          new ScExistentialArgument("_", List.empty, newGlb, Any)
+        } 
       }
     }
   }
