@@ -21,7 +21,7 @@ class ToggleTypeAnnotation extends PsiElementBaseIntentionAction {
   def getFamilyName = ScalaBundle.message("intention.type.annotation.toggle.family")
 
   def isAvailable(project: Project, editor: Editor, element: PsiElement) = {
-    if(element == null) {
+    if (element == null) {
       false
     } else {
       def message(key: String) {
@@ -36,10 +36,10 @@ class ToggleTypeAnnotation extends PsiElementBaseIntentionAction {
   }
 
   def complete(strategy: Strategy, element: PsiElement): Boolean = {
-    for{function <- element.parentsInFile.findByType(classOf[ScFunctionDefinition])
-        if function.hasAssign
-        body <- function.body
-        if (!body.isAncestorOf(element))} {
+    for {function <- element.parentsInFile.findByType(classOf[ScFunctionDefinition])
+         if function.hasAssign
+         body <- function.body
+         if (!body.isAncestorOf(element))} {
 
       if (function.returnTypeElement.isDefined)
         strategy.removeFromFunction(function)
@@ -49,12 +49,12 @@ class ToggleTypeAnnotation extends PsiElementBaseIntentionAction {
       return true
     }
 
-    for{value <- element.parentsInFile.findByType(classOf[ScPatternDefinition])
-        if (value.expr.toOption.map(!_.isAncestorOf(element)).getOrElse(true))
-        if (value.pList.allPatternsSimple)
-        bindings = value.bindings
-        if (bindings.size == 1)
-        binding <- bindings} {
+    for {value <- element.parentsInFile.findByType(classOf[ScPatternDefinition])
+         if (value.expr.toOption.map(!_.isAncestorOf(element)).getOrElse(true))
+         if (value.pList.allPatternsSimple)
+         bindings = value.bindings
+         if (bindings.size == 1)
+         binding <- bindings} {
 
       if (value.typeElement.isDefined)
         strategy.removeFromValue(value)
@@ -64,12 +64,12 @@ class ToggleTypeAnnotation extends PsiElementBaseIntentionAction {
       return true
     }
 
-    for{variable <- element.parentsInFile.findByType(classOf[ScVariableDefinition])
-        if (variable.expr.toOption.map(!_.isAncestorOf(element)).getOrElse(true))
-        if (variable.pList.allPatternsSimple)
-        bindings = variable.bindings
-        if (bindings.size == 1)
-        binding <- bindings} {
+    for {variable <- element.parentsInFile.findByType(classOf[ScVariableDefinition])
+         if (variable.expr.toOption.map(!_.isAncestorOf(element)).getOrElse(true))
+         if (variable.pList.allPatternsSimple)
+         bindings = variable.bindings
+         if (bindings.size == 1)
+         binding <- bindings} {
 
       if (variable.typeElement.isDefined)
         strategy.removeFromVariable(variable)

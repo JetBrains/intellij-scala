@@ -8,9 +8,10 @@ import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.extensions._
 import lang.psi.ScalaPsiUtil
-import lang.psi.api.expr.ScFunctionExpr
-import lang.psi.api.statements.params.{ScParameterClause, ScParameter}
 import lang.psi.api.base.patterns.{ScWildcardPattern, ScBindingPattern, ScTypedPattern}
+import lang.psi.api.statements.params.{ScParameterClause, ScParameter}
+import lang.psi.api.expr.{ScInfixExpr, ScFunctionExpr}
+import com.intellij.psi.util.PsiTreeUtil
 
 /**
  * Pavel.Fatin, 28.04.2010
@@ -89,7 +90,14 @@ object Update extends Strategy {
 
   def removeFromParameter(param: ScParameter) {
     val newParam = ScalaPsiElementFactory.createParameterFromText(param.name, param.getManager)
-    param.replace(newParam)
+    val newClause = ScalaPsiElementFactory.createClauseForFunctionExprFromText(newParam.getText, param.getManager)
+    val expr : ScFunctionExpr = PsiTreeUtil.getParentOfType(param, classOf[ScFunctionExpr], false)
+    if (expr != null && expr.parameters.size == 1 &&
+            (expr.params.clauses(0).getText.startsWith("(") && expr.params.clauses(0).getText.endsWith(")"))) {
+      expr.params.clauses(0).replace(newClause)
+    } else {
+      param.replace(newParam)
+    }
   }
 
   def addTypeAnnotation(t: ScType, context: PsiElement, anchor: PsiElement) {
