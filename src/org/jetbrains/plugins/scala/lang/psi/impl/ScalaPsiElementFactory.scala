@@ -80,6 +80,15 @@ object ScalaPsiElementFactory {
     fun.paramClauses.clauses.apply(0)
   }
 
+  def createClauseForFunctionExprFromText(clauseText: String, manager: PsiManager): ScParameterClause = {
+    val text = clauseText + " => null"
+    val dummyFile = PsiFileFactory.getInstance(manager.getProject).
+            createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension,
+      ScalaFileType.SCALA_FILE_TYPE, text).asInstanceOf[ScalaFile]
+    val fun = dummyFile.getFirstChild.asInstanceOf[ScFunctionExpr]
+    fun.params.clauses(0)
+  }
+
   def createImplicitClauseFromTextWithContext(clauseText: String, manager: PsiManager,
                                               context: PsiElement): ScParameterClause = {
     val text = clauseText
