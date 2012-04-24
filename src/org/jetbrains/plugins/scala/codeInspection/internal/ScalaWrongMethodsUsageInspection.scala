@@ -39,6 +39,7 @@ class ScalaWrongMethodsUsageInspection extends LocalInspectionTool {
         map += (("getQualifiedName", Seq("com.intellij.psi.PsiClass")))
         map += (("getName", Seq("com.intellij.navigation.NavigationItem", "com.intellij.psi.PsiNamedElement")))
         map += (("getClasses", Seq("com.intellij.psi.PsiClassOwner")))
+        map += (("getClassNames", Seq("com.intellij.psi.PsiClassOwnerEx")))
         resolve match {
           case m: PsiMethod =>
             map.get(m.name) match {
