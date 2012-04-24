@@ -453,16 +453,20 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
 
   import java.util.Set
   import java.util.HashSet
-  import java.util.Collections
   def getClassNames: Set[String] = {
-    if (isCompiled) {
-      val name = getVirtualFile.getNameWithoutExtension
-      if (name != "package") {
-        return Collections.singleton(NameTransformer.decode(name))
-      }
-    }
     val res = new HashSet[String]
-    typeDefinitions.foreach(td => res.add(td.name))
+    typeDefinitions.foreach {
+      case clazz: ScClass => res.add(clazz.getName)
+      case o: ScObject =>
+        res.add(o.getName)
+        o.fakeCompanionClass match {
+          case Some(clazz) => res.add(clazz.getName)
+          case _ =>
+        }
+      case t: ScTrait =>
+      res.add(t.getName)
+      res.add(t.fakeCompanionClass.getName)
+    }
     res
   }
 
