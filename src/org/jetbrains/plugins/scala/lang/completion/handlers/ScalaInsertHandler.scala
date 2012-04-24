@@ -33,13 +33,14 @@ object ScalaInsertHandler {
         def isStringSpecialMethod: Boolean = {
           Set("hashCode", "length", "trim").contains(method.getName) &&
             method.containingClass != null &&
-            method.containingClass.getQualifiedName == "java.lang.String"
+            method.containingClass.qualifiedName == "java.lang.String"
         }
         (method.getParameterList.getParametersCount, method.name, method.isAccessor || isStringSpecialMethod)
       case fun: ScFun =>
-        fun.paramClauses match {
-          case Seq() => (-1, null, false)
-          case clause :: clauses => (clause.length, fun.asInstanceOf[ScSyntheticFunction].name, false)
+        if (fun.paramClauses.isEmpty) (-1, null, false)
+        else {
+          val clause = fun.paramClauses.head
+          (clause.length, fun.asInstanceOf[ScSyntheticFunction].name, false)
         }
       case _ => (0, item.element.name, true)
     }
