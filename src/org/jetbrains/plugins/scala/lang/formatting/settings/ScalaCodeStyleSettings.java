@@ -26,22 +26,6 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
   public boolean DONT_SHOW_CONVERSION_DIALOG = false;
   public boolean TREAT_DOC_COMMENT_AS_BLOCK_COMMENT = false;
 
-  //collapse by default
-  public boolean FOLD_FILE_HEADER = true;
-  public boolean FOLD_IMPORT_STATEMENTS = false;
-  public boolean FOLD_SCALADOC = false;
-  public boolean FOLD_BLOCK = false;
-  public boolean FOLD_ARGUMENT_BLOCK = false;
-  public boolean FOLD_TEMPLATE_BODIES = false;
-  public boolean FOLD_SHELL_COMMENTS = true;
-  public boolean FOLD_BLOCK_COMMENTS = false;
-  public boolean FOLD_LINE_COMMENT_SEQUENCE = false;
-  public boolean FOLD_PACKAGINGS = false;
-  public boolean FOLD_IMPORT_IN_HEADER = true;
-  public boolean FOLD_TYPE_LAMBDA = false;
-  public boolean FOLD_MULTILINE_STRING = false;
-  public boolean FOLD_CUSTOM_REGION = false;
-
   public boolean SHOW_IMPLICIT_CONVERSIONS = true;
   public boolean SHOW_ARGUMENTS_TO_BY_NAME_PARAMETERS = false;
   public boolean INCLUDE_BLOCK_EXPRESSIONS = false;

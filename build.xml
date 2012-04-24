@@ -181,6 +181,9 @@
     <copy file="${base.dir}/src/org/jetbrains/plugins/scala/codeInspection/InspectionBundle.properties"
           tofile="${main.dest}/org/jetbrains/plugins/scala/codeInspection/InspectionBundle.properties"/>
 
+    <copy file="${base.dir}/src/org/jetbrains/plugins/scala/editor/EditorBundle.properties"
+          tofile="${main.dest}/org/jetbrains/plugins/scala/editor/EditorBundle.properties"/>
+
     <!-- Write plugin version, Since and Until attributes -->
     <replace file="${main.dest}/META-INF/plugin.xml" token="VERSION" value="${plugin.version}"/>
     <!--<replace file="${main.dest}/META-INF/plugin.xml" token="SINCE_IDEA" value="${since.idea.build}"/>

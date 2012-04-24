@@ -23,21 +23,10 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
   private JCheckBox addUnambiguousImportsOnCheckBox;
   private JCheckBox addImportStatementInCheckBox;
   private JCheckBox searchAllSymbolsIncludeCheckBox;
-  private JCheckBox fileHeaderCheckBox;
-  private JCheckBox importStatementsCheckBox;
-  private JCheckBox scaladocCommentsCheckBox;
-  private JCheckBox blockExpressionsCheckBox;
-  private JCheckBox templateBodiesCheckBox;
-  private JCheckBox shellCommentsInScriptCheckBox;
-  private JCheckBox blockCommentsCheckBox;
-  private JCheckBox packagingsCheckBox;
-  private JCheckBox multilineStringCheckBox;
-  private JCheckBox headerImportStatementsCheckBox;
   private JCheckBox enableConversionOnCopyCheckBox;
   private JCheckBox donTShowDialogCheckBox;
   private JCheckBox addFullQualifiedImportsCheckBox;
   private JCheckBox showImplicitConversionsInCheckBox;
-  private JCheckBox typeLamdasCheckBox;
   private JCheckBox myResolveToAllClassesCheckBox;
   private JCheckBox showArgumentsToByNameParametersCheckBox;
   private JCheckBox includeBlockExpressionsExpressionsCheckBox;
@@ -45,10 +34,7 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
   private JCheckBox treatDocCommentAsBlockComment;
   private JCheckBox importMembersUsingUnderscoreCheckBox;
   private JCheckBox myDisableLanguageInjection;
-  private JCheckBox methodCallBodiesCheckBox;
   private JCheckBox useScalaClassesPriorityCheckBox;
-  private JCheckBox lineCommentsCheckBox;
-  private JCheckBox customRegionCheckBox;
 
   public ScalaCodeStylePanel(CodeStyleSettings settings) {
     super(settings);
@@ -91,21 +77,6 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
     scalaSettings.DONT_SHOW_CONVERSION_DIALOG = donTShowDialogCheckBox.isSelected();
     scalaSettings.TREAT_DOC_COMMENT_AS_BLOCK_COMMENT = treatDocCommentAsBlockComment.isSelected();
 
-    scalaSettings.FOLD_FILE_HEADER = fileHeaderCheckBox.isSelected();
-    scalaSettings.FOLD_IMPORT_STATEMENTS = importStatementsCheckBox.isSelected();
-    scalaSettings.FOLD_SCALADOC = scaladocCommentsCheckBox.isSelected();
-    scalaSettings.FOLD_BLOCK = blockExpressionsCheckBox.isSelected();
-    scalaSettings.FOLD_ARGUMENT_BLOCK = methodCallBodiesCheckBox.isSelected();
-    scalaSettings.FOLD_TEMPLATE_BODIES = templateBodiesCheckBox.isSelected();
-    scalaSettings.FOLD_TYPE_LAMBDA = typeLamdasCheckBox.isSelected();
-    scalaSettings.FOLD_SHELL_COMMENTS = shellCommentsInScriptCheckBox.isSelected();
-    scalaSettings.FOLD_PACKAGINGS = packagingsCheckBox.isSelected();
-    scalaSettings.FOLD_MULTILINE_STRING = multilineStringCheckBox.isSelected();
-    scalaSettings.FOLD_CUSTOM_REGION = customRegionCheckBox.isSelected();
-    scalaSettings.FOLD_IMPORT_IN_HEADER = headerImportStatementsCheckBox.isSelected();
-    scalaSettings.FOLD_BLOCK_COMMENTS = blockCommentsCheckBox.isSelected();
-    scalaSettings.FOLD_LINE_COMMENT_SEQUENCE = lineCommentsCheckBox.isSelected();
-
     scalaSettings.SHOW_IMPLICIT_CONVERSIONS = showImplicitConversionsInCheckBox.isSelected();
     scalaSettings.SHOW_ARGUMENTS_TO_BY_NAME_PARAMETERS = showArgumentsToByNameParametersCheckBox.isSelected();
     scalaSettings.INCLUDE_BLOCK_EXPRESSIONS = includeBlockExpressionsExpressionsCheckBox.isSelected();
@@ -147,21 +118,6 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
     if (scalaSettings.DONT_SHOW_CONVERSION_DIALOG != donTShowDialogCheckBox.isSelected()) return true;
     if (scalaSettings.TREAT_DOC_COMMENT_AS_BLOCK_COMMENT != treatDocCommentAsBlockComment.isSelected()) return true;
 
-    if (scalaSettings.FOLD_BLOCK != blockExpressionsCheckBox.isSelected()) return true;
-    if (scalaSettings.FOLD_ARGUMENT_BLOCK != methodCallBodiesCheckBox.isSelected()) return true;
-    if (scalaSettings.FOLD_BLOCK_COMMENTS != blockCommentsCheckBox.isSelected()) return true;
-    if (scalaSettings.FOLD_LINE_COMMENT_SEQUENCE != lineCommentsCheckBox.isSelected()) return true;
-    if (scalaSettings.FOLD_FILE_HEADER != fileHeaderCheckBox.isSelected()) return true;
-    if (scalaSettings.FOLD_IMPORT_IN_HEADER != headerImportStatementsCheckBox.isSelected()) return true;
-    if (scalaSettings.FOLD_IMPORT_STATEMENTS != importStatementsCheckBox.isSelected()) return true;
-    if (scalaSettings.FOLD_PACKAGINGS != packagingsCheckBox.isSelected()) return true;
-    if (scalaSettings.FOLD_MULTILINE_STRING != multilineStringCheckBox.isSelected()) return true;
-    if (scalaSettings.FOLD_CUSTOM_REGION != customRegionCheckBox.isSelected()) return true;
-    if (scalaSettings.FOLD_SCALADOC != scaladocCommentsCheckBox.isSelected()) return true;
-    if (scalaSettings.FOLD_SHELL_COMMENTS != shellCommentsInScriptCheckBox.isSelected()) return true;
-    if (scalaSettings.FOLD_TEMPLATE_BODIES != templateBodiesCheckBox.isSelected()) return true;
-    if (scalaSettings.FOLD_TYPE_LAMBDA != typeLamdasCheckBox.isSelected()) return true;
-
     if (scalaSettings.IGNORE_PERFORMANCE_TO_FIND_ALL_CLASS_NAMES != myResolveToAllClassesCheckBox.isSelected())
       return true;
 
@@ -193,21 +149,6 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
     setValue(enableConversionOnCopyCheckBox, settings.ENABLE_JAVA_TO_SCALA_CONVERSION);
     setValue(donTShowDialogCheckBox, settings.DONT_SHOW_CONVERSION_DIALOG);
     setValue(treatDocCommentAsBlockComment, settings.TREAT_DOC_COMMENT_AS_BLOCK_COMMENT);
-
-    setValue(blockExpressionsCheckBox, settings.FOLD_BLOCK);
-    setValue(methodCallBodiesCheckBox, settings.FOLD_ARGUMENT_BLOCK);
-    setValue(blockCommentsCheckBox, settings.FOLD_BLOCK_COMMENTS);
-    setValue(lineCommentsCheckBox, settings.FOLD_LINE_COMMENT_SEQUENCE);
-    setValue(fileHeaderCheckBox, settings.FOLD_FILE_HEADER);
-    setValue(headerImportStatementsCheckBox, settings.FOLD_IMPORT_IN_HEADER);
-    setValue(importStatementsCheckBox, settings.FOLD_IMPORT_STATEMENTS);
-    setValue(packagingsCheckBox, settings.FOLD_PACKAGINGS);
-    setValue(multilineStringCheckBox, settings.FOLD_MULTILINE_STRING);
-    setValue(customRegionCheckBox, settings.FOLD_CUSTOM_REGION);
-    setValue(scaladocCommentsCheckBox, settings.FOLD_SCALADOC);
-    setValue(shellCommentsInScriptCheckBox, settings.FOLD_SHELL_COMMENTS);
-    setValue(templateBodiesCheckBox, settings.FOLD_TEMPLATE_BODIES);
-    setValue(typeLamdasCheckBox, settings.FOLD_TYPE_LAMBDA);
 
     setValue(showImplicitConversionsInCheckBox, settings.SHOW_IMPLICIT_CONVERSIONS);
     setValue(showArgumentsToByNameParametersCheckBox, settings.SHOW_ARGUMENTS_TO_BY_NAME_PARAMETERS);
