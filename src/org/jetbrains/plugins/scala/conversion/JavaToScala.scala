@@ -690,9 +690,8 @@ object JavaToScala {
           }
         })
       case e: PsiEmptyStatement =>
-      case e: PsiIdentifier => res.append(e.getText)
-      case k: PsiKeyword => res.append(k.getText)
-      case e => throw new UnsupportedOperationException("PsiElement: " +  e + " is not supported for this converter.")
+      case e: PsiErrorElement =>
+      case e => res.append(e.getText)
     }
     res.toString()
   }
