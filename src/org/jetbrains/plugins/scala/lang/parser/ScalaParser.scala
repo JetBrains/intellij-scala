@@ -21,6 +21,12 @@ class ScalaParser extends PsiParser {
         Program.parse(new ScalaPsiBuilderImpl(builder))
         rootMarker.done(root)
     }
-    builder.getTreeBuilt
+    try {
+      builder.getTreeBuilt
+    }
+    catch {
+      case t: Throwable if t.getMessage != null &&
+        t.getMessage.contains("unbalanced") => throw new RuntimeException("Error during parsing: " + builder.getOriginalText, t)
+    }
   }
 }

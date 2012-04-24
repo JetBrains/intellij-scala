@@ -4,7 +4,6 @@ package parser
 package parsing
 package expressions
 
-import com.intellij.lang.PsiBuilder
 import lexer.ScalaTokenTypes
 import patterns.CaseClauses
 import builder.ScalaPsiBuilder
@@ -19,17 +18,16 @@ import util.ParserUtils
  * BlockExpr ::= '{' CaseClauses '}'
  *             | '{' Block '}'
  */
-
 object BlockExpr {
   def parse(builder: ScalaPsiBuilder): Boolean = {
     val blockExprMarker = builder.mark
     builder.getTokenType match {
       case ScalaTokenTypes.tLBRACE => {
-        builder.advanceLexer
+        builder.advanceLexer()
         builder.enableNewlines
       }
       case _ => {
-        blockExprMarker.drop
+        blockExprMarker.drop()
         return false
       }
     }
@@ -37,15 +35,15 @@ object BlockExpr {
       builder.getTokenType match {
         case ScalaTokenTypes.kCASE => {
           val backMarker = builder.mark
-          builder.advanceLexer
+          builder.advanceLexer()
           builder.getTokenType match {
             case ScalaTokenTypes.kCLASS |
                  ScalaTokenTypes.kOBJECT => {
-               backMarker.rollbackTo
+               backMarker.rollbackTo()
               Block parse builder
             }
             case _ => {
-              backMarker.rollbackTo
+              backMarker.rollbackTo()
               CaseClauses parse builder
             }
           }
@@ -58,6 +56,6 @@ object BlockExpr {
     ParserUtils.parseLoopUntilRBrace(builder, foo _)
     builder.restoreNewlinesState
     blockExprMarker.done(ScalaElementTypes.BLOCK_EXPR)
-    return true
+    true
   }
 }
