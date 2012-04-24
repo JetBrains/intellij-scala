@@ -3,7 +3,6 @@ package testingSupport
 package scalaTest
 
 
-import collection.mutable.ArrayBuffer
 import com.intellij.execution._
 import com.intellij.execution.runners.{ProgramRunner, ExecutionEnvironment}
 import com.intellij.execution.testframework.sm.runner.SMTRunnerConsoleProperties
@@ -36,6 +35,7 @@ import lang.psi.impl.{ScalaPsiManager, ScPackageImpl}
 import lang.psi.api.toplevel.typedef.ScObject
 import extensions.toPsiClassExt
 import lang.psi.api.ScPackage
+import collection.mutable.{HashSet, ArrayBuffer}
 
 /**
  * User: Alexander Podkhalyuzin
@@ -222,7 +222,7 @@ class ScalaTestRunConfiguration(val project: Project, val configurationFactory: 
     if (clazz == null && pack == null) classNotFoundError()
     if (suiteClass == null)
       throw new ExecutionException("ScalaTest not specified.")
-    val classes = new ArrayBuffer[PsiClass]
+    val classes = new HashSet[PsiClass]
     if (clazz != null) {
       if (ScalaPsiUtil.cachedDeepIsInheritor(clazz, suiteClass)) classes += clazz
     } else {
@@ -247,7 +247,7 @@ class ScalaTestRunConfiguration(val project: Project, val configurationFactory: 
     if (module == null) throw new ExecutionException("Module is not specified")
 
     val state = new JavaCommandLineState(env) with ScalaTestRunConfiguration.ScalaTestCommandLinePatcher {
-      val getClasses: Seq[String] = classes.map(_.qualifiedName)
+      val getClasses: Seq[String] = classes.map(_.qualifiedName).toSeq
 
       protected override def createJavaParameters: JavaParameters = {
         val params = new JavaParameters();

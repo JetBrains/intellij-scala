@@ -138,13 +138,13 @@ object DecompilerUtil {
           case Some(p) if (p.name != "<empty>") => {
             val path = p.path
             if (!isPackageObject) {
-              stream.print("package ");
-              stream.print(path);
+              stream.print("package ")
+              stream.print(path)
               stream.print("\n")
             } else {
               val i = path.lastIndexOf(".")
               if (i > 0) {
-                stream.print("package ");
+                stream.print("package ")
                 stream.print(path.substring(0, i))
                 stream.print("\n")
               }
