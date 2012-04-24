@@ -15,10 +15,15 @@ import com.intellij.psi.PsiElement
 trait ScInfixExpr extends ScExpression with MethodInvocation with ScSugarCallExpr {
   def lOp: ScExpression = findChildrenByClassScala(classOf[ScExpression]).apply(0)
 
-  def operation : ScReferenceExpression = findChildrenByClassScala(classOf[ScExpression]).apply(1) match {
-    case re : ScReferenceExpression => re
-    case _ => throw new RuntimeException("Wrong infix expression: " + getText)
+  def operation : ScReferenceExpression = {
+    val children = findChildrenByClassScala(classOf[ScExpression])
+    if (children.length < 2) throw new RuntimeException("Wrong infix expression: " + getText)
+    children.apply(1) match {
+      case re : ScReferenceExpression => re
+      case _ => throw new RuntimeException("Wrong infix expression: " + getText)
+    }
   }
+
 
   def rOp: ScExpression = findChildrenByClassScala(classOf[ScExpression]).apply(2)
 
