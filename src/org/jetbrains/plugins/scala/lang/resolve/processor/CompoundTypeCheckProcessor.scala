@@ -131,7 +131,7 @@ class CompoundTypeCheckProcessor(decl: ScNamedElement, undefSubst: ScUndefinedSu
         val sign1 = new PhysicalSignature(method, subst)
         val sign2 = new PhysicalSignature(decl.asInstanceOf[PsiMethod], substitutor)
         var t = sign1.paramTypesEquivExtended(sign2, undef, false)
-        if (!t._1) return false
+        if (!t._1) return true
         undef = t._2
         innerUndefinedSubstitutor = undef
 
