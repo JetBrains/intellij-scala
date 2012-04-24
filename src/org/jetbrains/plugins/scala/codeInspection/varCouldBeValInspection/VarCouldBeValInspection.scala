@@ -17,7 +17,7 @@ class VarCouldBeValInspection extends LocalInspectionTool with UnfairLocalInspec
 }
 
 object VarCouldBeValInspection {
-  val ShortName: String = "ScalaVarCouldBeVal"
+  val ShortName: String = "VarCouldBeVal"
 }
 
 // TODO Test
