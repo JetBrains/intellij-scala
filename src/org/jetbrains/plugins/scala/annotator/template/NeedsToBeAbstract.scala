@@ -33,7 +33,7 @@ object NeedsToBeAbstract extends AnnotatorPart[ScTemplateDefinition] {
 
     if(!undefined.isEmpty) {
       val annotation = holder.createErrorAnnotation(definition.nameId,
-        message(kindOf(definition), definition.name, undefined: _*))
+        message(kindOf(definition), definition.name, undefined(0)))
       definition match {
         case owner: ScModifierListOwner => annotation.registerFix(new AddModifierQuickFix(owner, "abstract"))
         case _ =>
@@ -44,8 +44,8 @@ object NeedsToBeAbstract extends AnnotatorPart[ScTemplateDefinition] {
     }
   }
 
-  def message(kind: String, name: String, members: (String, String)*) = {
+  def message(kind: String, name: String, member: (String, String)) = {
     "%s %s needs to be abstract, since %s".format(kind, name,
-      members.map(p => " member %s in %s is not defined".format(p._1, p._2)).mkString("; "))
+      " member %s in %s is not defined".format(member._1, member._2))
   }
 }
