@@ -48,7 +48,7 @@ class ScalaWrongMethodsUsageInspection extends LocalInspectionTool {
                   case clazz =>
                     val instance = ScalaPsiManager.instance(holder.getProject)
                     val cachedClass = instance.getCachedClass(m.getResolveScope, clazz)
-                    if (cachedClass != null) {
+                    if (cachedClass != null && containingClass != null) {
                       if (cachedClass == containingClass || instance.cachedDeepIsInheritor(cachedClass, containingClass)) {
                         true
                       } else false
