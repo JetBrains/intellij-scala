@@ -184,6 +184,10 @@ class ScalaFoldingBuilder extends FoldingBuilder {
     else {
       node.getElementType match {
         case ScalaTokenTypes.tBLOCK_COMMENT if settings.FOLD_BLOCK_COMMENTS => true
+        case ScalaTokenTypes.tLINE_COMMENT if
+              (!isCustomRegionStart(node.getText) && settings.FOLD_LINE_COMMENT_SEQUENCE) => true
+        case ScalaTokenTypes.tLINE_COMMENT if
+              (isCustomRegionStart(node.getText) && settings.FOLD_CUSTOM_REGION) => true
         case ScalaDocElementTypes.SCALA_DOC_COMMENT if settings.FOLD_SCALADOC => true
         case ScalaElementTypes.TEMPLATE_BODY if settings.FOLD_TEMPLATE_BODIES => true
         case ScalaElementTypes.PACKAGING if settings.FOLD_PACKAGINGS => true

@@ -47,6 +47,8 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
   private JCheckBox myDisableLanguageInjection;
   private JCheckBox methodCallBodiesCheckBox;
   private JCheckBox useScalaClassesPriorityCheckBox;
+  private JCheckBox lineCommentsCheckBox;
+  private JCheckBox customRegionCheckBox;
 
   public ScalaCodeStylePanel(CodeStyleSettings settings) {
     super(settings);
@@ -99,8 +101,10 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
     scalaSettings.FOLD_SHELL_COMMENTS = shellCommentsInScriptCheckBox.isSelected();
     scalaSettings.FOLD_PACKAGINGS = packagingsCheckBox.isSelected();
     scalaSettings.FOLD_MULTILINE_STRING = multilineStringCheckBox.isSelected();
+    scalaSettings.FOLD_CUSTOM_REGION = customRegionCheckBox.isSelected();
     scalaSettings.FOLD_IMPORT_IN_HEADER = headerImportStatementsCheckBox.isSelected();
     scalaSettings.FOLD_BLOCK_COMMENTS = blockCommentsCheckBox.isSelected();
+    scalaSettings.FOLD_LINE_COMMENT_SEQUENCE = lineCommentsCheckBox.isSelected();
 
     scalaSettings.SHOW_IMPLICIT_CONVERSIONS = showImplicitConversionsInCheckBox.isSelected();
     scalaSettings.SHOW_ARGUMENTS_TO_BY_NAME_PARAMETERS = showArgumentsToByNameParametersCheckBox.isSelected();
@@ -146,11 +150,13 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
     if (scalaSettings.FOLD_BLOCK != blockExpressionsCheckBox.isSelected()) return true;
     if (scalaSettings.FOLD_ARGUMENT_BLOCK != methodCallBodiesCheckBox.isSelected()) return true;
     if (scalaSettings.FOLD_BLOCK_COMMENTS != blockCommentsCheckBox.isSelected()) return true;
+    if (scalaSettings.FOLD_LINE_COMMENT_SEQUENCE != lineCommentsCheckBox.isSelected()) return true;
     if (scalaSettings.FOLD_FILE_HEADER != fileHeaderCheckBox.isSelected()) return true;
     if (scalaSettings.FOLD_IMPORT_IN_HEADER != headerImportStatementsCheckBox.isSelected()) return true;
     if (scalaSettings.FOLD_IMPORT_STATEMENTS != importStatementsCheckBox.isSelected()) return true;
     if (scalaSettings.FOLD_PACKAGINGS != packagingsCheckBox.isSelected()) return true;
     if (scalaSettings.FOLD_MULTILINE_STRING != multilineStringCheckBox.isSelected()) return true;
+    if (scalaSettings.FOLD_CUSTOM_REGION != customRegionCheckBox.isSelected()) return true;
     if (scalaSettings.FOLD_SCALADOC != scaladocCommentsCheckBox.isSelected()) return true;
     if (scalaSettings.FOLD_SHELL_COMMENTS != shellCommentsInScriptCheckBox.isSelected()) return true;
     if (scalaSettings.FOLD_TEMPLATE_BODIES != templateBodiesCheckBox.isSelected()) return true;
@@ -191,11 +197,13 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
     setValue(blockExpressionsCheckBox, settings.FOLD_BLOCK);
     setValue(methodCallBodiesCheckBox, settings.FOLD_ARGUMENT_BLOCK);
     setValue(blockCommentsCheckBox, settings.FOLD_BLOCK_COMMENTS);
+    setValue(lineCommentsCheckBox, settings.FOLD_LINE_COMMENT_SEQUENCE);
     setValue(fileHeaderCheckBox, settings.FOLD_FILE_HEADER);
     setValue(headerImportStatementsCheckBox, settings.FOLD_IMPORT_IN_HEADER);
     setValue(importStatementsCheckBox, settings.FOLD_IMPORT_STATEMENTS);
     setValue(packagingsCheckBox, settings.FOLD_PACKAGINGS);
     setValue(multilineStringCheckBox, settings.FOLD_MULTILINE_STRING);
+    setValue(customRegionCheckBox, settings.FOLD_CUSTOM_REGION);
     setValue(scaladocCommentsCheckBox, settings.FOLD_SCALADOC);
     setValue(shellCommentsInScriptCheckBox, settings.FOLD_SHELL_COMMENTS);
     setValue(templateBodiesCheckBox, settings.FOLD_TEMPLATE_BODIES);
