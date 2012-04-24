@@ -250,7 +250,7 @@ class ScalaTestRunConfiguration(val project: Project, val configurationFactory: 
       val getClasses: Seq[String] = classes.map(_.qualifiedName).toSeq
 
       protected override def createJavaParameters: JavaParameters = {
-        val params = new JavaParameters();
+        val params = new JavaParameters()
 
         params.setCharset(null)
         params.getVMParametersList.addParametersString(getJavaOptions)
