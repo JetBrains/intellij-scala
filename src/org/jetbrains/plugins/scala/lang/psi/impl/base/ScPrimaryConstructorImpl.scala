@@ -19,6 +19,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import api.expr.ScAnnotations
 import toplevel.synthetic.JavaIdentifier
 import java.util.{ArrayList, List}
+import javax.swing.Icon
+import org.jetbrains.plugins.scala.icons.Icons
 
 /**
 * @author Alexander Podkhalyuzin
@@ -32,6 +34,8 @@ class ScPrimaryConstructorImpl extends ScalaStubBasedElementImpl[ScPrimaryConstr
   override def hasAnnotation: Boolean = {
     !(getNode.getFirstChildNode.getFirstChildNode == null)
   }
+
+  override def getIcon(flags: Int): Icon = Icons.FUNCTION
 
   //todo rewrite me!
   override def hasModifier: Boolean = false
