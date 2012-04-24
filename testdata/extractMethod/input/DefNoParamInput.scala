@@ -3,6 +3,7 @@ class DefNoParamInput {
     def goo: Int = 23
 
     /*start*/
+
     val x = goo
     val y = goo
     /*end*/
@@ -15,6 +16,7 @@ class DefNoParamInput {
     def goo: Int = 23
 
     /*start*/
+
     val x: Int = testMethodName(goo _)
     /*end*/
     x + goo

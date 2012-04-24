@@ -26,7 +26,7 @@ import extensions.toPsiNamedElementExt
  */
  
 class ScDocCommentImpl(text: CharSequence) extends LazyParseablePsiElement(ScalaDocElementTypes.SCALA_DOC_COMMENT, text) with ScDocComment {
-  def getOwner: PsiDocCommentOwner = getNextSiblingNotWhitespace match {
+  def getOwner: PsiDocCommentOwner = getParent match {
     case owner: PsiDocCommentOwner if owner.getDocComment eq this => owner
     case _ => null
   }
