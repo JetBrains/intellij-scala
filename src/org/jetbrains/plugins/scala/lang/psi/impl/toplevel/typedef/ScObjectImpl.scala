@@ -76,11 +76,6 @@ class ScObjectImpl extends ScTypeDefinitionImpl with ScObject with ScTemplateDef
 
   override def getIconInner = if (isPackageObject) Icons.PACKAGE_OBJECT else Icons.OBJECT
 
-  override def getQualifiedName: String = {
-    if (isPackageObject) return super.getQualifiedName + ".package$"
-    super.getQualifiedName + "$"
-  }
-
   override def getName: String = {
     if (isPackageObject) return "package$"
     super.getName + "$"
