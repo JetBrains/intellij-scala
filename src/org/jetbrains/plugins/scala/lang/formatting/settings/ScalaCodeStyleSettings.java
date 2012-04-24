@@ -35,10 +35,12 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
   public boolean FOLD_TEMPLATE_BODIES = false;
   public boolean FOLD_SHELL_COMMENTS = true;
   public boolean FOLD_BLOCK_COMMENTS = false;
+  public boolean FOLD_LINE_COMMENT_SEQUENCE = false;
   public boolean FOLD_PACKAGINGS = false;
   public boolean FOLD_IMPORT_IN_HEADER = true;
   public boolean FOLD_TYPE_LAMBDA = false;
   public boolean FOLD_MULTILINE_STRING = false;
+  public boolean FOLD_CUSTOM_REGION = false;
 
   public boolean SHOW_IMPLICIT_CONVERSIONS = true;
   public boolean SHOW_ARGUMENTS_TO_BY_NAME_PARAMETERS = false;
