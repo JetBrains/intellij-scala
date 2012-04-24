@@ -1,0 +1,21 @@
+// comment
+var a: Int
+-----
+ScalaFile
+  ScVariableDeclaration
+    PsiComment(comment)('// comment')
+    PsiWhiteSpace('\n')
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(var)('var')
+    PsiWhiteSpace(' ')
+    ListOfIdentifiers
+      Field identifier
+        PsiElement(identifier)('a')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    SimpleTypeElement
+      CodeReferenceElement
+        PsiElement(identifier)('Int')

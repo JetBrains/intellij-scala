@@ -10,4 +10,6 @@ class ObjectExt[T](v: T) {
   def asOptionOf[E: ClassManifest]: Option[E] = if(classManifest[E].erasure.isInstance(v)) Some(v.asInstanceOf[E]) else None
 
   def getOrElse[H >: T](default: H): H = if (v == null) default else v
+
+  def collectOption[B](pf : scala.PartialFunction[T, B]) = Some(v).collect(pf)
 }

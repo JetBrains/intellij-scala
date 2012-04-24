@@ -5,7 +5,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging.ScPackageCont
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScIfStmt, ScBlock, ScNewTemplateDefinition}
-import com.intellij.psi.{PsiComment, PsiWhiteSpace, PsiElement}
+import com.intellij.psi.PsiElement
 
 /**
  * Pavel.Fatin, 20.01.2010
@@ -14,75 +14,11 @@ trait ScalaSeparatorProvider {
   val DefaultGroup = 0
   val MultilineLevel = 10
 
-  //TODO remove commments handling when SCL-1751 will be fixed
   def isSeparatorNeeded(element: PsiElement): Boolean = {
-    if (isKnown(element) && !hasUpperComment(element)) {
-      if (element.isInstanceOf[PsiComment]) {
-        if (!isLineTail(element)) {
-          val e = getCommentedElement(element)
-          if (e.isDefined) doIfSeparatorNeeded(e.get) else false
-        } else false
-      } else {
-        doIfSeparatorNeeded(element)
-      }
-    } else false
+    isKnown(element) && doIfSeparatorNeeded(element)
   }
 
-  def isKnown(element: PsiElement) = {
-    element.isInstanceOf[PsiComment] || groupOf(element).isDefined
-  }
-
-  def getCommentedElement(element: PsiElement): Option[PsiElement] = {
-    var lines = 0
-    var e = element.getNextSibling
-    while (e != null) {
-      val count = getNewLinesCount(e)
-      if (count > 0) {
-        lines += count
-        if (count > 1) {
-          return None
-        }
-      } else {
-        if (getGroup(e).isDefined) {
-          return if (lines > 0) Some(e) else None
-        }
-      }
-      e = e.getNextSibling
-    }
-    None
-  }
-
-  def hasUpperComment(element: PsiElement): Boolean = {
-    var lines = 0
-    var e = element.getPrevSibling
-    while (e != null) {
-      val count = getNewLinesCount(e)
-      if (count > 0) {
-        lines += count
-      } else {
-        return lines == 1 && e.isInstanceOf[PsiComment] && !isLineTail(e)
-      }
-      e = e.getPrevSibling
-    }
-    false
-  }
-
-  def isLineTail(element: PsiElement): Boolean = {
-    var e = element.getPrevSibling
-    while (e != null) {
-      if (groupOf(e).isDefined) return true
-      if (getNewLinesCount(e) > 0) return false
-      e = e.getPrevSibling
-    }
-    false
-  }
-
-  def getNewLinesCount(element: PsiElement) = {
-    val text = element.getText
-    if (element.isInstanceOf[PsiWhiteSpace])
-      augmentString(text).count(_ == '\n')
-    else 0
-  }
+  def isKnown(element: PsiElement) = groupOf(element).isDefined
 
   def doIfSeparatorNeeded(element: PsiElement) = {
     if (isSeparationContainer(element.getParent) && hasElementAbove(element)) {
@@ -123,7 +59,7 @@ trait ScalaSeparatorProvider {
 
   //TODO remove ".trim" when SCL-1746 will be fixed
   def isMultiline(element: PsiElement) = {
-    hasUpperComment(element) || element.getText.trim.contains('\n') // trim to bypass SCL-1746
+    element.getText.trim.contains('\n') // trim to bypass SCL-1746
   }
 
   def isSeparationContainer(element: PsiElement): Boolean = {

@@ -36,7 +36,7 @@ class ScalaDocParamEnterHandlerDelegate extends EnterHandlerDelegateAdapter {
 
     while (!nextParent.isInstanceOf[ScDocTag]) {
       nextParent = nextParent.getParent
-      if (nextParent == null) {
+      if (nextParent == null || nextParent.isInstanceOf[ScalaFile]) {
         return Result.Continue
       }
     }
