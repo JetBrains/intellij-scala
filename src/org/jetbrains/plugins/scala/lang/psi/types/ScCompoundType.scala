@@ -31,7 +31,11 @@ case class ScCompoundType(components: Seq[ScType], decls: Seq[ScDeclaredElements
 
   //compound types are checked by checking the set of signatures in their refinements
   val signatureMapVal: HashMap[Signature, ScType] = new HashMap[Signature, ScType] {
-    override def elemHashCode(s : Signature) = s.name.hashCode * 31 + s.paramLength
+    override def elemHashCode(s : Signature) = s.name.hashCode * 31 + {
+      val length = s.paramLength
+      if (length.sum == 0) List(0).hashCode()
+      else length.hashCode()
+    }
   }
   private val typesVal = new HashMap[String, Bounds]
   private val problemsVal: ListBuffer[Failure] = new ListBuffer
