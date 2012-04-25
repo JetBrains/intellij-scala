@@ -488,7 +488,7 @@ object ScalaDocumentationProvider {
       case None => ""
     })
     val modifiers = Array("abstract", "final", "sealed", "implicit", "lazy", "override")
-    for (modifier <- modifiers if elem.hasModifierProperty(modifier)) buffer.append(modifier + " ")
+    for (modifier <- modifiers if elem.hasModifierPropertyScala(modifier)) buffer.append(modifier + " ")
     buffer.toString()
   }
 

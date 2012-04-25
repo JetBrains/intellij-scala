@@ -29,7 +29,7 @@ import psi.api.base.types.{ScTypeElement, ScSelfTypeElement}
 import psi.api.base.{ScReferenceElement, ScAccessModifier, ScFieldId}
 import psi.api.expr.{ScThisReference, ScSuperReference}
 import psi.impl.{ScPackageImpl, ScalaPsiManager}
-import extensions.{toPsiMemberExt, toSeqExt, toPsiNamedElementExt}
+import extensions.{toPsiModifierListOwnerExt, toPsiMemberExt, toSeqExt, toPsiNamedElementExt}
 
 /**
  * @author ven
@@ -72,7 +72,7 @@ object ResolveUtils {
             case _: PsiMethod => kinds contains METHOD
             case _: ScFun => kinds contains METHOD
             case _: ScSyntheticValue => kinds contains VAL
-            case f: PsiField => (kinds contains VAR) || (f.hasModifierProperty(PsiModifier.FINAL) && kinds.contains(VAL))
+            case f: PsiField => (kinds contains VAR) || (f.hasModifierPropertyScala(PsiModifier.FINAL) && kinds.contains(VAL))
             case _ => false
           })
 

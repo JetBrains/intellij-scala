@@ -83,6 +83,9 @@ class ScTraitImpl extends ScTypeDefinitionImpl with ScTrait with ScTypeParameter
             res += method
           case Some(t: ScTypedDefinition) if t.isVal || t.isVar =>
             res += t.getTypedDefinitionWrapper(false, true, SIMPLE_ROLE)
+            if (t.isVar) {
+              res += t.getTypedDefinitionWrapper(false, isInterface, EQ)
+            }
             t.nameContext match {
               case s: ScAnnotationsHolder =>
                 val beanProperty = s.hasAnnotation("scala.reflect.BeanProperty") != None

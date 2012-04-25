@@ -46,7 +46,7 @@ object StaticPsiTypedDefinitionWrapper {
 
     val result = b.getType(TypingContext.empty)
     result match {
-      case _ if role == SETTER => builder.append("void")
+      case _ if role == SETTER || role == EQ => builder.append("void")
       case Success(tp, _) => builder.append(JavaConversionUtil.typeText(tp, b.getProject, b.getResolveScope))
       case _ => builder.append("java.lang.Object")
     }
@@ -60,10 +60,11 @@ object StaticPsiTypedDefinitionWrapper {
       case GETTER => "get" + b.getName.capitalize
       case IS_GETTER => "is" + b.getName.capitalize
       case SETTER => "set" + b.getName.capitalize
+      case EQ => b.getName + "_$eq"
     }
     builder.append(name)
 
-    if (role != SETTER) {
+    if (role != SETTER && role != EQ) {
       builder.append("(" + paramText + ")")
     } else {
       builder.append("(").append(paramText).append(", ")

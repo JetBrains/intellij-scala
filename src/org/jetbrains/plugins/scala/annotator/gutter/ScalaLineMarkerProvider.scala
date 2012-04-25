@@ -29,6 +29,7 @@ import lang.psi.api.base.{ScPrimaryConstructor, ScReferenceElement}
 import collection.Seq
 import params.ScParameter
 import lang.psi.types.{Signature}
+import extensions.toPsiModifierListOwnerExt
 
 
 /**
@@ -220,9 +221,9 @@ private object GutterUtil {
               ScalaPsiUtil.nameContext(named) match {
                 case fun: ScFunctionDefinition => return true
                 case fun: ScFunction =>
-                case method: PsiMethod if !method.hasModifierProperty("abstract") => return true
+                case method: PsiMethod if !method.hasAbstractModifier => return true
                 case _: ScVariableDefinition | _: ScPatternDefinition => return true
-                case f: PsiField if !f.hasModifierProperty("abstract") => return true
+                case f: PsiField if !f.hasAbstractModifier => return true
                 case _: ScVariableDeclaration =>
                 case _: ScValueDeclaration =>
                 case _: ScParameter => return true

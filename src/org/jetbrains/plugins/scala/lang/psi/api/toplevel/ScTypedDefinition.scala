@@ -5,7 +5,6 @@ package api
 package toplevel
 
 import fake.FakePsiMethod
-import typedef._
 import types.result.{TypingContext, TypingContextOwner}
 import com.intellij.openapi.util.text.StringUtil
 import types.ScType
@@ -14,7 +13,6 @@ import statements.{ScAnnotationsHolder, ScVariable, ScValue}
 import types.nonvalue.Parameter
 import com.intellij.psi.{PsiElement, PsiClass, PsiMethod}
 import com.intellij.util.containers.ConcurrentHashMap
-import collection.mutable.ArrayBuffer
 import light.{PsiClassWrapper, StaticPsiTypedDefinitionWrapper, PsiTypedDefinitionWrapper}
 import extensions.toSeqExt
 
@@ -80,7 +78,7 @@ trait ScTypedDefinition extends ScNamedElement with TypingContextOwner {
   }
 
   import PsiTypedDefinitionWrapper.DefinitionRole._
-  private var typedDefinitionWrapper: ConcurrentHashMap[(Boolean, Boolean, DefinitionRole, Option[PsiClass]), (PsiTypedDefinitionWrapper, Long)] =
+  private val typedDefinitionWrapper: ConcurrentHashMap[(Boolean, Boolean, DefinitionRole, Option[PsiClass]), (PsiTypedDefinitionWrapper, Long)] =
     new ConcurrentHashMap()
 
   def getTypedDefinitionWrapper(isStatic: Boolean, isInterface: Boolean, role: DefinitionRole,
@@ -95,7 +93,7 @@ trait ScTypedDefinition extends ScNamedElement with TypingContextOwner {
     res
   }
 
-  private var staticTypedDefinitionWrapper: ConcurrentHashMap[(DefinitionRole, PsiClassWrapper), (StaticPsiTypedDefinitionWrapper, Long)] =
+  private val staticTypedDefinitionWrapper: ConcurrentHashMap[(DefinitionRole, PsiClassWrapper), (StaticPsiTypedDefinitionWrapper, Long)] =
     new ConcurrentHashMap()
 
   def getStaticTypedDefinitionWrapper(role: DefinitionRole, cClass: PsiClassWrapper): StaticPsiTypedDefinitionWrapper = {
