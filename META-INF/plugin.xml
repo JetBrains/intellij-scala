@@ -44,10 +44,13 @@
     <colorSettingsPage implementation="org.jetbrains.plugins.scala.highlighter.ScalaColorsAndFontsPage"/>
     <codeFoldingOptionsProvider instance="org.jetbrains.plugins.scala.editor.codeFolding.ScalaCodeFoldingOptionsProvider"/>
     <langCodeStyleSettingsProvider implementation="org.jetbrains.plugins.scala.lang.formatting.settings.ScalaLanguageCodeStyleSettingsProvider"/>
+    <projectConfigurable instance="org.jetbrains.plugins.scala.settings.ScalaProjectSettingsConfigurable"/>
     <applicationService serviceInterface="org.jetbrains.plugins.scala.settings.ScalaApplicationSettings"
         serviceImplementation="org.jetbrains.plugins.scala.settings.ScalaApplicationSettings"/>
     <applicationService serviceInterface="org.jetbrains.plugins.scala.settings.ScalaCodeFoldingSettings"
         serviceImplementation="org.jetbrains.plugins.scala.settings.ScalaCodeFoldingSettings"/>
+    <applicationService serviceInterface="org.jetbrains.plugins.scala.settings.ScalaProjectSettings"
+                        serviceImplementation="org.jetbrains.plugins.scala.settings.ScalaProjectSettings"/>
     <errorHandler implementation="com.intellij.diagnostic.ITNReporter"/>
     <fileTypeFactory implementation="org.jetbrains.plugins.scala.ScalaFileTypeFactory"/>
     <syntaxHighlighter key="Scala" implementationClass="org.jetbrains.plugins.scala.highlighter.ScalaSyntaxHighlighter"/>

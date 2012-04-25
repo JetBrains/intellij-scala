@@ -24,6 +24,7 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTemplateDefinition, ScObject}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
 import org.jetbrains.plugins.scala.extensions.{toPsiMemberExt, toPsiClassExt, toPsiNamedElementExt}
+import org.jetbrains.plugins.scala.settings._
 
 /**
  * @author Alefas
@@ -237,7 +238,7 @@ class ScalaLookupItem(val element: PsiNamedElement, _name: String, containingCla
     presentation.setItemText(itemText)
     presentation.setStrikeout(isDeprecated)
     presentation.setItemTextBold(bold)
-    if (ScalaPsiUtil.getSettings(element.getProject).SHOW_IMPLICIT_CONVERSIONS)
+    if (ScalaProjectSettings.getInstance(element.getProject).isShowImplisitConversions)
       presentation.setItemTextUnderlined(isUnderlined)
   }
 

@@ -26,11 +26,10 @@ import com.intellij.openapi.fileTypes.SyntaxHighlighter;
 import com.intellij.openapi.fileTypes.SyntaxHighlighterFactory;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.psi.codeStyle.CodeStyleSettingsManager;
 import com.intellij.util.ArrayUtil;
-import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings;
 import org.jetbrains.plugins.scala.lang.scaladoc.highlighter.ScalaDocSyntaxHighlighter;
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.ScalaDocElementTypes;
+import org.jetbrains.plugins.scala.settings.ScalaProjectSettings;
 
 import static org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypesEx.SCALA_XML_CONTENT;
 
@@ -55,7 +54,8 @@ public class ScalaEditorHighlighter extends LayeredLexerEditorHighlighter {
   }
 
   private static ScalaSyntaxHighlighter createSyntaxHighlighter(Project project) {
-    boolean treatDocCommentAsBlockComment = CodeStyleSettingsManager.getSettings(project).getCustomSettings(ScalaCodeStyleSettings.class).TREAT_DOC_COMMENT_AS_BLOCK_COMMENT;
+    boolean treatDocCommentAsBlockComment =
+        ScalaProjectSettings.getInstance(project).isTreatDocCommentAsBlockComment();
     return new ScalaSyntaxHighlighter(treatDocCommentAsBlockComment);
   }
 

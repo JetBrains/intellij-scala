@@ -16,6 +16,7 @@ import com.intellij.codeInsight.CodeInsightSettings
 import com.intellij.openapi.ui.DialogWrapper
 import org.jetbrains.plugins.scala.lang.dependency.Dependency
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.settings._
 
 /**
  * Pavel Fatin
@@ -47,8 +48,6 @@ class ScalaCopyPastePostProcessor extends CopyPastePostProcessor[Associations] {
                               caretColumn: Int, indented: Ref[Boolean], value: Associations) {
     if (DumbService.getInstance(project).isDumb) return
 
-    val settings = ScalaCodeStyleSettings.getInstance(project)
-
     if (CodeInsightSettings.getInstance().ADD_IMPORTS_ON_PASTE == CodeInsightSettings.NO) return
 
     val file = PsiDocumentManager.getInstance(project).getPsiFile(editor.getDocument)
@@ -60,7 +59,8 @@ class ScalaCopyPastePostProcessor extends CopyPastePostProcessor[Associations] {
     val bindings = for(association <- value.associations;
                        element <- elementFor(association, file, bounds)
                        if (!association.kind.isSatisfiedIn(element)))
-    yield Binding(element, association.path.asString(settings.IMPORTS_MEMBERS_USING_UNDERSCORE))
+    yield Binding(element, association.path.asString(ScalaProjectSettings.getInstance(project).
+              isImportMembersUsingUnderScore))
 
     val bindingsToRestore = bindings.distinctBy(_.path)
 

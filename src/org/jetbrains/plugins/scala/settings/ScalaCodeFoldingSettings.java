@@ -15,7 +15,7 @@ import org.jetbrains.annotations.NotNull;
 import java.io.File;
 
 @State(
-    name = "ScalaApplicationSettings",
+    name = "ScalaCodeFoldingSettings",
     storages = {
         @Storage(
             id = "scala_folding_settings",
@@ -24,16 +24,37 @@ import java.io.File;
 )
 
 public class ScalaCodeFoldingSettings implements PersistentStateComponent<ScalaCodeFoldingSettings>, ExportableComponent {
+  private boolean FOLD_ARGUMENT_BLOCK = false;
+  private boolean FOLD_TEMPLATE_BODIES = false;
+  private boolean FOLD_SHELL_COMMENTS = true;
+  private boolean FOLD_BLOCK_COMMENTS = false;
+  private boolean FOLD_PACKAGINGS = false;
+  private boolean FOLD_TYPE_LAMBDA = false;
+  private boolean FOLD_MULTILINE_STRING = false;
+  private boolean FOLD_CUSTOM_REGION = false;
+  private boolean FOLD_MULTILINE_BLOCKS = false;
 
-  public boolean FOLD_ARGUMENT_BLOCK = false;
-  public boolean FOLD_TEMPLATE_BODIES = false;
-  public boolean FOLD_SHELL_COMMENTS = true;
-  public boolean FOLD_BLOCK_COMMENTS = false;
-  public boolean FOLD_PACKAGINGS = false;
-  public boolean FOLD_TYPE_LAMBDA = false;
-  public boolean FOLD_MULTILINE_STRING = false;
-  public boolean FOLD_CUSTOM_REGION = false;
-  public boolean FOLD_MULTILINE_BLOCKS = false;
+  public static ScalaCodeFoldingSettings getInstance() {
+    return ServiceManager.getService(ScalaCodeFoldingSettings.class);
+  }
+
+  public ScalaCodeFoldingSettings getState() {
+    return this;
+  }
+
+  public void loadState(ScalaCodeFoldingSettings scalaCodeFoldingSettings) {
+    XmlSerializerUtil.copyBean(scalaCodeFoldingSettings, this);
+  }
+
+  @NotNull
+  public File[] getExportFiles() {
+    return new File[]{PathManager.getOptionsFile("scala_folding_settings")};
+  }
+
+  @NotNull
+  public String getPresentableName() {
+    return "Code Folding Settings";
+  }
 
   public boolean isCollapseFileHeaders() {
     return CodeFoldingSettings.getInstance().COLLAPSE_FILE_HEADER;
@@ -147,25 +168,4 @@ public class ScalaCodeFoldingSettings implements PersistentStateComponent<ScalaC
     FOLD_MULTILINE_BLOCKS = value;
   }
 
-  public ScalaCodeFoldingSettings getState() {
-    return this;
-  }
-
-  public void loadState(ScalaCodeFoldingSettings scalaCodeFoldingSettings) {
-    XmlSerializerUtil.copyBean(scalaCodeFoldingSettings, this);
-  }
-
-  public static ScalaCodeFoldingSettings getInstance() {
-    return ServiceManager.getService(ScalaCodeFoldingSettings.class);
-  }
-
-  @NotNull
-  public File[] getExportFiles() {
-    return new File[]{PathManager.getOptionsFile("scala_folding_settings")};
-  }
-
-  @NotNull
-  public String getPresentableName() {
-    return "Code Folding Settings";
-  }
 }

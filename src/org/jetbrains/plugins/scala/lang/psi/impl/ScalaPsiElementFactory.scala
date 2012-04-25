@@ -3,18 +3,15 @@ package lang
 package psi
 package impl
 
-import api.base.{ScIdList, ScPatternList, ScStableCodeReferenceElement}
 import api.ScalaFile
 import api.toplevel.packaging.ScPackaging
 import com.intellij.lang.{PsiBuilderFactory, ASTNode}
 import com.intellij.psi.impl.compiled.ClsParameterImpl
 import api.statements._
-import com.intellij.psi.codeStyle.CodeStyleSettingsManager
 import collection.mutable.HashSet
 import com.intellij.psi.impl.source.tree.{TreeElement, FileElement}
 import com.intellij.psi.impl.source.DummyHolderFactory
 import expr.ScBlockImpl
-import formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
@@ -42,7 +39,6 @@ import parser.parsing.params.{TypeParamClause, ImplicitParamClause}
 import java.lang.ClassCastException
 import com.intellij.openapi.project.Project
 import parser.parsing.expressions.{Block, Expr}
-import parser.parsing.base.Import
 import org.apache.commons.lang.StringUtils
 import parser.parsing.base.{Constructor, Import}
 import api.base.{ScConstructor, ScIdList, ScPatternList, ScStableCodeReferenceElement}
@@ -50,6 +46,7 @@ import com.intellij.util.IncorrectOperationException
 import scaladoc.psi.api.{ScDocInnerCodeElement, ScDocResolvableCodeReference, ScDocSyntaxElement, ScDocComment}
 import extensions.{toPsiNamedElementExt, toPsiClassExt}
 import api.expr.xml.{ScXmlStartTag, ScXmlEndTag}
+import settings._
 
 object ScalaPsiElementFactory {
 
@@ -342,9 +339,8 @@ object ScalaPsiElementFactory {
     names ++= expr.getNames
     for (expr <- exprs) names ++= expr.getNames
     if ((names("_") ||
-            CodeStyleSettingsManager.getSettings(manager.getProject).
-                    getCustomSettings(classOf[ScalaCodeStyleSettings]).
-              CLASS_COUNT_TO_USE_IMPORT_ON_DEMAND <= names.size) &&
+            ScalaProjectSettings.getInstance(manager.getProject).getClassCountToUseImportOnDemand <=
+                    names.size) &&
             names.filter(_.indexOf("=>") != -1).toSeq.size == 0) text = text + "._"
     else {
       text = text + ".{"

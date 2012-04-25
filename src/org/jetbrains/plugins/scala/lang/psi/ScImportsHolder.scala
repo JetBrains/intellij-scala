@@ -30,6 +30,7 @@ import com.intellij.openapi.util.{Trinity, RecursionManager}
 import types.result.TypingContext
 import types.ScDesignatorType
 import extensions.{toPsiMemberExt, toPsiNamedElementExt, toPsiClassExt}
+import settings._
 
 trait ScImportsHolder extends ScalaPsiElement {
 
@@ -241,7 +242,7 @@ trait ScImportsHolder extends ScalaPsiElement {
     simpleName +=: selectors
     
     if (!hasRenamedImport && (selectors.exists(_ == "_") ||
-      selectors.length >= ScalaPsiUtil.getSettings(getProject).CLASS_COUNT_TO_USE_IMPORT_ON_DEMAND)) {
+      selectors.length >= ScalaProjectSettings.getInstance(getProject).getClassCountToUseImportOnDemand)) {
       selectors.clear()
       selectors += "_"
       isPlaceHolderImport = true
@@ -293,7 +294,7 @@ trait ScImportsHolder extends ScalaPsiElement {
       val (pre, last) = getSplitQualifierElement(classPackageQualifier)
       if (ScalaNamesUtil.isKeyword(last)) importString = "`" + last + "`" + "." + importString
       else importString = last + "." + importString
-      if ((!ScalaPsiUtil.getSettings(getProject).ADD_FULL_QUALIFIED_IMPORTS ||
+      if ((!ScalaProjectSettings.getInstance(getProject).isAddFullQualifiedImports ||
               classPackageQualifier.indexOf(".") == -1) &&
               packages.contains(classPackageQualifier)) {
         importSt = ScalaPsiElementFactory.createImportFromText("import " + importString, getManager)

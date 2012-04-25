@@ -3,21 +3,15 @@ package decompiler
 
 import _root_.org.jetbrains.plugins.scala.highlighter.ScalaSyntaxHighlighter
 
-import com.intellij.psi.impl.PsiManagerImpl
-
-import java.io.{File, ByteArrayOutputStream}
 
 import lang.psi.api.ScalaFile
 import com.intellij.lang.Language
-import com.intellij.openapi.fileTypes.{StdFileTypes, FileType, ContentBasedClassFileProcessor}
-import com.intellij.openapi.fileTypes.{StdFileTypes, FileType}
+import com.intellij.openapi.fileTypes.ContentBasedClassFileProcessor
+import com.intellij.openapi.fileTypes.StdFileTypes
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
-import com.intellij.psi.impl.compiled.ClsRepositoryPsiElement
-import lang.psi.stubs.ScFileStub
-import lang.formatting.settings.ScalaCodeStyleSettings
-import com.intellij.psi.codeStyle.CodeStyleSettingsManager
 import com.intellij.psi.{PsiFile, PsiManager}
+import settings._
 
 /**
  * @author ilyas
@@ -37,8 +31,8 @@ class ScContentBasedClassFileProcessor extends ContentBasedClassFileProcessor {
   }
 
   def createHighlighter(project: Project, file: VirtualFile) = {
-    val treatDocCommentAsBlockComment = CodeStyleSettingsManager.getSettings(project).
-      getCustomSettings(classOf[ScalaCodeStyleSettings]).TREAT_DOC_COMMENT_AS_BLOCK_COMMENT;
+    val treatDocCommentAsBlockComment = ScalaProjectSettings.getInstance(project).
+            isTreatDocCommentAsBlockComment;
     new ScalaSyntaxHighlighter(treatDocCommentAsBlockComment)
   }
 

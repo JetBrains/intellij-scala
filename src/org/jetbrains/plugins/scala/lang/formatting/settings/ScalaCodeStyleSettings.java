@@ -14,22 +14,41 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
   public static ScalaCodeStyleSettings getInstance(Project project) {
     return CodeStyleSettingsManager.getSettings(project).getCustomSettings(ScalaCodeStyleSettings.class);
   }
-
+  @Deprecated
   public boolean ADD_UNAMBIGIOUS_IMPORTS_ON_THE_FLY = false;
+  @Deprecated
   public int CLASS_COUNT_TO_USE_IMPORT_ON_DEMAND = 5;
+  @Deprecated
   public boolean ADD_IMPORT_MOST_CLOSE_TO_REFERENCE = false;
+  @Deprecated
   public boolean ADD_FULL_QUALIFIED_IMPORTS = false;
+  @Deprecated
   public boolean IMPORTS_MEMBERS_USING_UNDERSCORE = true;
 
+  @Deprecated
   public boolean SEARCH_ALL_SYMBOLS = false;
+  @Deprecated
   public boolean ENABLE_JAVA_TO_SCALA_CONVERSION = true;
+  @Deprecated
   public boolean DONT_SHOW_CONVERSION_DIALOG = false;
+  @Deprecated
   public boolean TREAT_DOC_COMMENT_AS_BLOCK_COMMENT = false;
 
+  @Deprecated
   public boolean SHOW_IMPLICIT_CONVERSIONS = true;
+  @Deprecated
   public boolean SHOW_ARGUMENTS_TO_BY_NAME_PARAMETERS = false;
+  @Deprecated
   public boolean INCLUDE_BLOCK_EXPRESSIONS = false;
+  @Deprecated
   public boolean INCLUDE_LITERALS = false;
+
+  @Deprecated
+  public boolean IGNORE_PERFORMANCE_TO_FIND_ALL_CLASS_NAMES = false;
+  @Deprecated
+  public boolean DISABLE_LANGUAGE_INJECTION = false;
+  @Deprecated
+  public boolean SCALA_CLASSES_PRIORITY = true;
 
   public boolean WRAP_BEFORE_WITH_KEYWORD = false;
   public int METHOD_BRACE_FORCE = 0;
@@ -50,10 +69,6 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
   public boolean SPACE_BEFORE_INFIX_METHOD_CALL_PARENTHESES = false;
   public boolean INSERT_WHITESPACES_IN_SIMPLE_ONE_LINE_METHOD = false;
 
-  public boolean IGNORE_PERFORMANCE_TO_FIND_ALL_CLASS_NAMES = false;
-
-  public boolean DISABLE_LANGUAGE_INJECTION = false;
-
   public boolean SPACE_BEFORE_TYPE_COLON = false;
   public boolean SPACE_AFTER_TYPE_COLON = true;
 
@@ -70,9 +85,6 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
 
   //xml formatting
   public boolean KEEP_XML_FORMATTING = false;
-
-  //completion
-  public boolean SCALA_CLASSES_PRIORITY = true;
 
   public ScalaCodeStyleSettings(CodeStyleSettings container) {
     super("ScalaCodeStyleSettings", container);

@@ -9,11 +9,10 @@ import com.intellij.codeInspection._
 import java.lang.String
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi._
-import codeStyle.CodeStyleSettingsManager
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import com.intellij.openapi.module.{ModuleUtil, Module}
 import config.ScalaFacet
-import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
+import settings._
 
 /**
  * User: Alexander Podkhalyuzin
@@ -45,11 +44,9 @@ class ScalaPackageNameInspection extends LocalInspectionTool {
                     "problems with resolve to classes from this file", ProblemHighlightType.GENERIC_ERROR_OR_WARNING,
             isOnTheFly, buffer: _*)
 
-        val settings = CodeStyleSettingsManager.getSettings(file.getProject).
-          getCustomSettings(classOf[ScalaCodeStyleSettings])
-
         val module: Module = ModuleUtil.findModuleForPsiElement(file)
-        val prefix = if (module != null && settings.IGNORE_PERFORMANCE_TO_FIND_ALL_CLASS_NAMES) {
+        val prefix = if (module != null &&
+          ScalaProjectSettings.getInstance(file.getProject).isIgnorePerformance) {
           ScalaFacet.findIn(module).flatMap(f => f.basePackage).getOrElse("")
         } else ""
         val expectedFilePackageName = file.typeDefinitions.head match {
