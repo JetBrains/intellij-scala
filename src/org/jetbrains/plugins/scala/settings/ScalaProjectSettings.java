@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.settings;
 
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.PathManager;
 import com.intellij.openapi.components.*;
 import com.intellij.openapi.project.Project;
@@ -51,10 +52,12 @@ public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProj
   private boolean SCALA_CLASSES_PRIORITY = scalaSettings.SCALA_CLASSES_PRIORITY;
 
   public static ScalaProjectSettings getInstance() {
+    if (ApplicationManager.getApplication().isUnitTestMode()) return new ScalaProjectSettings();
     return ServiceManager.getService(ScalaProjectSettings.class);
   }
 
   public static ScalaProjectSettings getInstance(Project project) {
+    if (ApplicationManager.getApplication().isUnitTestMode()) return new ScalaProjectSettings();
     return project == null ? getInstance() : ServiceManager.getService(project, ScalaProjectSettings.class);
   }
 
