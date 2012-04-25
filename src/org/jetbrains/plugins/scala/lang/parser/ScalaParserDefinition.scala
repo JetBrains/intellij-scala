@@ -24,9 +24,7 @@ import com.intellij.openapi.application.ApplicationManager
 class ScalaParserDefinition extends ScalaParserDefinitionWrapper{
 
   def createLexer(project: Project) = {
-    val treatDocCommentAsBlockComment = if (!ApplicationManager.getApplication.isUnitTestMode) {
-      ScalaProjectSettings.getInstance(project).isTreatDocCommentAsBlockComment
-    } else false;
+    val treatDocCommentAsBlockComment = ScalaProjectSettings.getInstance(project).isTreatDocCommentAsBlockComment
     new ScalaLexer(treatDocCommentAsBlockComment)
   }
 
