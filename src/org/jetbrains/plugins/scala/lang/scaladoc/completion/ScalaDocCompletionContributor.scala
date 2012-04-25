@@ -30,7 +30,7 @@ class ScalaDocCompletionContributor extends CompletionContributor {
       }
       
       if (posParent != null) {
-        val allowedTags = posParent.asInstanceOf[ScDocComment].getNextSiblingNotWhitespace match {
+        val allowedTags = posParent.asInstanceOf[ScDocComment].getOwner match {
           case _ : ScFunction => MyScaladocParsing.allTags
           case _ : ScClass => MyScaladocParsing.allTags - MyScaladocParsing.RETURN_TAG
           case _ : ScTypeAlias | _: ScTrait => MyScaladocParsing.allTags --

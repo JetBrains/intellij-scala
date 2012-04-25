@@ -16,7 +16,7 @@ import types.{TypeArgs, Type}
  */
 object MacroDef {
   def parse(builder: ScalaPsiBuilder): Boolean = {
-    val marker = builder.mark;
+    val marker = builder.mark
     builder.getTokenType match {
       case ScalaTokenTypes.kDEF => builder.advanceLexer()
       case _ => {

@@ -6,7 +6,6 @@ import com.intellij.openapi.editor.{RangeMarker, Editor}
 import java.awt.datatransfer.{DataFlavor, Transferable}
 import com.intellij.psi.{PsiDocumentManager, PsiJavaFile, PsiElement, PsiFile}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import com.intellij.psi.codeStyle.{CodeStyleSettingsManager, CodeStyleManager}
 import java.lang.Boolean
 import org.jetbrains.plugins.scala.extensions._
@@ -18,6 +17,7 @@ import org.jetbrains.plugins.scala.ScalaFileType
 import com.intellij.codeInsight.editorActions._
 import com.intellij.openapi.util.{TextRange, Ref}
 import com.intellij.openapi.diagnostic.Logger
+import settings._
 
 /**
  * User: Alexander Podkhalyuzin
@@ -34,11 +34,9 @@ class JavaCopyPastePostProcessor extends CopyPastePostProcessor[TextBlockTransfe
           .find(_.isInstanceOf[ScalaCopyPastePostProcessor]).get.asInstanceOf[ScalaCopyPastePostProcessor]
 
   def collectTransferableData(file: PsiFile, editor: Editor, startOffsets: Array[Int], endOffsets: Array[Int]): TextBlockTransferableData = {
-    val settings = CodeStyleSettingsManager.getSettings(file.getProject)
-            .getCustomSettings(classOf[ScalaCodeStyleSettings])
-
     if (DumbService.getInstance(file.getProject).isDumb) return null
-    if (!settings.ENABLE_JAVA_TO_SCALA_CONVERSION || !file.isInstanceOf[PsiJavaFile]) return null
+    if (!ScalaProjectSettings.getInstance(file.getProject).isEnableJavaToScalaConversion ||
+        !file.isInstanceOf[PsiJavaFile]) return null;
 
     val buffer = new ArrayBuffer[PsiElement]
 
@@ -86,9 +84,7 @@ class JavaCopyPastePostProcessor extends CopyPastePostProcessor[TextBlockTransfe
   }
 
   def processTransferableData(project: Project, editor: Editor, bounds: RangeMarker, i: Int, ref: Ref[Boolean], value: TextBlockTransferableData) {
-    val settings = CodeStyleSettingsManager.getSettings(project)
-    val scalaSettings: ScalaCodeStyleSettings = settings.getCustomSettings(classOf[ScalaCodeStyleSettings])
-    if (!scalaSettings.ENABLE_JAVA_TO_SCALA_CONVERSION) return
+    if (!ScalaProjectSettings.getInstance(project).isEnableJavaToScalaConversion) return
     if (value == null) return
     val file = PsiDocumentManager.getInstance(project).getPsiFile(editor.getDocument)
     if (!file.isInstanceOf[ScalaFile]) return
@@ -98,8 +94,8 @@ class JavaCopyPastePostProcessor extends CopyPastePostProcessor[TextBlockTransfe
       case _ => ("", Array.empty)
     }
     if (text == "") return //copy as usually
-    if (!scalaSettings.DONT_SHOW_CONVERSION_DIALOG) dialog.show()
-    if (scalaSettings.DONT_SHOW_CONVERSION_DIALOG || dialog.isOK) {
+    if (!ScalaProjectSettings.getInstance(project).isDontShowConversionDialog) dialog.show()
+    if (ScalaProjectSettings.getInstance(project).isDontShowConversionDialog || dialog.isOK) {
       val shiftedAssociations = inWriteAction {
         editor.getDocument.replaceString(bounds.getStartOffset, bounds.getEndOffset, text)
         editor.getCaretModel.moveToOffset(bounds.getStartOffset + text.length)

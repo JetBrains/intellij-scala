@@ -39,6 +39,8 @@ class ScalaWrongMethodsUsageInspection extends LocalInspectionTool {
         map += (("getQualifiedName", Seq("com.intellij.psi.PsiClass")))
         map += (("getName", Seq("com.intellij.navigation.NavigationItem", "com.intellij.psi.PsiNamedElement")))
         map += (("getClasses", Seq("com.intellij.psi.PsiClassOwner")))
+        map += (("getClassNames", Seq("com.intellij.psi.PsiClassOwnerEx")))
+        map += (("hasModifierProperty", Seq("com.intellij.psi.PsiModifierListOwner")))
         resolve match {
           case m: PsiMethod =>
             map.get(m.name) match {
@@ -48,7 +50,7 @@ class ScalaWrongMethodsUsageInspection extends LocalInspectionTool {
                   case clazz =>
                     val instance = ScalaPsiManager.instance(holder.getProject)
                     val cachedClass = instance.getCachedClass(m.getResolveScope, clazz)
-                    if (cachedClass != null) {
+                    if (cachedClass != null && containingClass != null) {
                       if (cachedClass == containingClass || instance.cachedDeepIsInheritor(cachedClass, containingClass)) {
                         true
                       } else false

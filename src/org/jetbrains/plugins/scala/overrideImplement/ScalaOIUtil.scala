@@ -24,7 +24,7 @@ import settings.ScalaApplicationSettings
 import lang.psi.types.result.{Failure, Success, TypingContext}
 import javax.swing.{JComponent, JCheckBox}
 import collection.immutable.HashSet
-import extensions.{toPsiMemberExt, toPsiNamedElementExt, toPsiClassExt}
+import extensions._
 
 /**
  * User: Alexander Podkhalyuzin
@@ -164,7 +164,7 @@ object ScalaOIUtil {
             case x if !withOwn && x.containingClass == clazz =>
             case x if x.containingClass != null && x.containingClass.isInterface &&
               !x.containingClass.isInstanceOf[ScTrait] => buf2 += sign
-            case x if x.hasModifierProperty("abstract") => buf2 += sign
+            case x if x.hasModifierPropertyScala("abstract") => buf2 += sign
             case x: ScFunctionDeclaration if x.hasAnnotation("scala.native") == None =>
               buf2 += sign
             case _ =>
@@ -224,8 +224,8 @@ object ScalaOIUtil {
             case x if x.name == "$tag" || x.name == "$init$"=>
             case x: ScFunction if x.isSyntheticCopy =>
             case x if x.containingClass == clazz =>
-            case x: PsiModifierListOwner if x.hasModifierProperty("abstract")
-                || x.hasModifierProperty("final") /*|| x.hasModifierProperty("sealed")*/ =>
+            case x: PsiModifierListOwner if x.hasModifierPropertyScala("abstract")
+                || x.hasModifierPropertyScala("final") /*|| x.hasModifierProperty("sealed")*/ =>
             case x if x.isConstructor =>
             case method => {
               var flag = false
@@ -244,7 +244,7 @@ object ScalaOIUtil {
         }
         case (name: PsiNamedElement, subst: ScSubstitutor) => {
           ScalaPsiUtil.nameContext(name) match {
-            case x: PsiModifierListOwner if x.hasModifierProperty("final") =>
+            case x: PsiModifierListOwner if x.hasModifierPropertyScala("final") =>
             case x: ScPatternDefinition if x.containingClass != clazz => {
               var flag = false
               for (signe <- clazz.allMethods if signe.method.containingClass == clazz) {

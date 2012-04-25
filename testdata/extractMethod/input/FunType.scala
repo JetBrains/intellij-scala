@@ -2,6 +2,7 @@ class FunType {
   def a = {
     val y = (_: Int) + 1
     /*start*/
+
     val z = y
     y(1)
     /*end*/
@@ -13,6 +14,7 @@ class FunType {
   def a = {
     val y = (_: Int) + 1
     /*start*/
+
     val z: (Int) => Int = testMethodName(y)
     /*end*/
     z

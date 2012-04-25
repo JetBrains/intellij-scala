@@ -46,6 +46,17 @@ class ScFunctionWrapper(val function: ScFunction, isStatic: Boolean, isInterface
   override def getParent: PsiElement = containingClass
 
   override def getTextOffset: Int = function.getTextOffset
+
+  override def hasModifierProperty(name: String): Boolean = {
+    name match {
+      case "abstract" if isInterface => true
+      case _ => super.hasModifierProperty(name)
+    }
+  }
+
+  override def getPrevSibling: PsiElement = function.getPrevSibling
+
+  override def getNextSibling: PsiElement = function.getNextSibling
 }
 
 object ScFunctionWrapper {

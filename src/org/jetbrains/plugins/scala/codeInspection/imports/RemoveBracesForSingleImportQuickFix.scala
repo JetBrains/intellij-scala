@@ -17,7 +17,13 @@ class RemoveBracesForSingleImportQuickFix(importExpr: ScImportExpr) extends Loca
     if (!importExpr.isValid) return
 
     val buf = new StringBuilder
-    buf.append(importExpr.qualifier.getText).append(".").append(importExpr.getNames(0))
+    buf.append(importExpr.qualifier.getText).append(".")
+
+    if (importExpr.singleWildcard) {
+     buf.append("_")
+    } else {
+     buf.append(importExpr.getNames(0))
+    }
 
     val newImportExpr = ScalaPsiElementFactory.createImportExprFromText(buf.toString(), importExpr.getManager)
 

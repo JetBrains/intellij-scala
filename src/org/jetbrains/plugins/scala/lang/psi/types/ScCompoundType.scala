@@ -5,8 +5,7 @@ package types
 
 import api.statements._
 import result.{TypingContext, Failure}
-import com.intellij.psi.PsiElement
-import collection.mutable.{HashSet, ListBuffer, HashMap}
+import collection.mutable.{ListBuffer, HashMap}
 
 /**
  * Substitutor should be meaningful only for decls and typeDecls. Components shouldn't be applied by substitutor.
@@ -31,7 +30,11 @@ case class ScCompoundType(components: Seq[ScType], decls: Seq[ScDeclaredElements
 
   //compound types are checked by checking the set of signatures in their refinements
   val signatureMapVal: HashMap[Signature, ScType] = new HashMap[Signature, ScType] {
-    override def elemHashCode(s : Signature) = s.name.hashCode * 31 + s.paramLength
+    override def elemHashCode(s : Signature) = s.name.hashCode * 31 + {
+      val length = s.paramLength
+      if (length.sum == 0) List(0).hashCode()
+      else length.hashCode()
+    }
   }
   private val typesVal = new HashMap[String, Bounds]
   private val problemsVal: ListBuffer[Failure] = new ListBuffer
@@ -91,8 +94,8 @@ case class ScCompoundType(components: Seq[ScType], decls: Seq[ScDeclaredElements
   }
 
   def typesMatch(types1 : HashMap[String, Bounds], subst1: ScSubstitutor,
-                         types2 : HashMap[String, Bounds], subst2: ScSubstitutor) : Boolean = {
-    if (types1.size != types.size) return false
+                         types2 : HashMap[String, Bounds], subst2: ScSubstitutor): Boolean = {
+    if (types1.size != types.size) false
     else {
       for ((name, bounds1) <- types1) {
         types2.get(name) match {
@@ -150,7 +153,7 @@ case class ScCompoundType(components: Seq[ScType], decls: Seq[ScDeclaredElements
 
         val iterator2 = signatureMap.iterator
         while (iterator2.hasNext) {
-          val (sig, t) = iterator2.next
+          val (sig, t) = iterator2.next()
           r.signatureMap.get(sig) match {
             case None => false
             case Some(t1) => {
@@ -165,11 +168,11 @@ case class ScCompoundType(components: Seq[ScType], decls: Seq[ScDeclaredElements
         val subst1 = subst
         val types2 = r.types
         val subst2 = r.subst
-        if (types1.size != types.size) return (false, undefinedSubst)
+        if (types1.size != types.size) (false, undefinedSubst)
         else {
           val types1iterator = types1.iterator
           while (types1iterator.hasNext) {
-            val (name, bounds1) = types1iterator.next
+            val (name, bounds1) = types1iterator.next()
             types2.get(name) match {
               case None => return (false, undefinedSubst)
               case Some (bounds2) => {

@@ -9,14 +9,15 @@ import com.intellij.navigation.NavigationItem
 import com.intellij.psi.impl.ResolveScopeManager
 import com.intellij.psi.search.LocalSearchScope
 import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.psi.{PsiClass, PsiElement}
 import statements._
 import toplevel.templates.ScTemplateBody
 import toplevel.{ScEarlyDefinitions, ScNamedElement, ScTypedDefinition}
-import extensions.toPsiNamedElementExt
 import toplevel.typedef.{ScTemplateDefinition, ScMember, ScTypeDefinition}
+import com.intellij.psi.javadoc.PsiDocComment
+import extensions.{toPsiMemberExt, toPsiNamedElementExt}
+import com.intellij.psi._
 
-trait ScBindingPattern extends ScPattern with ScNamedElement with ScTypedDefinition with NavigationItem {
+trait ScBindingPattern extends ScPattern with ScNamedElement with ScTypedDefinition with NavigationItem with PsiDocCommentOwner {
   override def getTextOffset: Int = nameId.getTextRange.getStartOffset
 
   def isWildcard: Boolean
@@ -84,5 +85,43 @@ trait ScBindingPattern extends ScPattern with ScNamedElement with ScTypedDefinit
       }
     }
     this
+  }
+
+  def getDocComment: PsiDocComment = {
+    nameContext match {
+      case d: PsiDocCommentOwner => d.getDocComment
+      case _ => null
+    }
+  }
+
+  def isDeprecated: Boolean = {
+    nameContext match {
+      case d: PsiDocCommentOwner => d.isDeprecated
+      case _ => false
+    }
+  }
+
+  /**
+   * It's for Java only
+   */
+  def getContainingClass: PsiClass = {
+    nameContext match {
+      case m: PsiMember => m.getContainingClass
+      case _ => null
+    }
+  }
+
+  def getModifierList: PsiModifierList = {
+    nameContext match {
+      case owner: PsiModifierListOwner => owner.getModifierList
+      case _ => null
+    }
+  }
+
+  def hasModifierProperty(name: String): Boolean = {
+    nameContext match {
+      case owner: PsiModifierListOwner => owner.hasModifierProperty(name)
+      case _ => false
+    }
   }
 }

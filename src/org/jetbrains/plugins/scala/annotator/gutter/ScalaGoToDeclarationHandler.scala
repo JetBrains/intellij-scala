@@ -9,10 +9,11 @@ import lang.psi.api.toplevel.typedef.{ScTypeDefinition, ScObject, ScClass}
 import lang.psi.api.statements.params.ScParameter
 import com.intellij.codeInsight.navigation.actions.GotoDeclarationHandler
 import lang.resolve.ResolvableReferenceElement
-import com.intellij.psi.{PsiNamedElement, PsiElement}
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.actionSystem.DataContext
 import lang.psi.api.expr.{ScAssignStmt, ScMethodCall, ScSelfInvocation}
+import com.intellij.psi.{PsiMethod, PsiNamedElement, PsiElement}
+import extensions.toPsiMemberExt
 
 /**
  * User: Alexander Podkhalyuzin
@@ -25,7 +26,7 @@ class ScalaGoToDeclarationHandler extends GotoDeclarationHandler {
 
   def getGotoDeclarationTargets(sourceElement: PsiElement, offset: Int, editor: Editor): Array[PsiElement] = {
     if (sourceElement == null) return null
-    if (sourceElement.getLanguage != ScalaFileType.SCALA_LANGUAGE) return null;
+    if (sourceElement.getLanguage != ScalaFileType.SCALA_LANGUAGE) return null
 
     if (sourceElement.getNode.getElementType == ScalaTokenTypes.tASSIGN) {
       return sourceElement.getParent match {
@@ -74,7 +75,14 @@ class ScalaGoToDeclarationHandler extends GotoDeclarationHandler {
                * innerResolveResult#element apply method
                */
               val all = Seq(x.getActualElement, x.element) ++ x.innerResolveResult.map(_.getElement)
-              all.distinct flatMap goToTargets
+              x.element match {
+                case c: PsiMethod if c.isConstructor =>
+                  val clazz = c.containingClass
+                  if (clazz == x.getActualElement) Seq(x.element).flatMap(goToTargets)
+                  else all.distinct flatMap goToTargets
+                case _ =>
+                  all.distinct flatMap goToTargets
+              }
             case None => return null
           }
         case r =>

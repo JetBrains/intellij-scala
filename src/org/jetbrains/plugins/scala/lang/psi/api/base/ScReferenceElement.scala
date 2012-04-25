@@ -70,7 +70,7 @@ trait ScReferenceElement extends ScalaPsiElement with ResolvableReferenceElement
       case td: ScTypeDefinition => {
         resolved match {
           case method: PsiMethod if method.isConstructor => {
-            if (td == method.containingClass) return true
+            if (ScEquivalenceUtil.smartEquivalence(td, method.containingClass)) return true
           }
           case method: ScFunction if td.name == refName && Set("apply", "unapply", "unapplySeq").contains(method.name) => {
             var break = false
@@ -120,7 +120,7 @@ trait ScReferenceElement extends ScalaPsiElement with ResolvableReferenceElement
    *
    * object Predef { type Throwable = java.lang.Throwable }
    *
-   * @see http://youtrack.jetbrains.net/issue/SCL-3132
+   * [[http://youtrack.jetbrains.net/issue/SCL-3132 SCL-3132]]
    */
   def isIndirectReferenceTo(resolved: PsiElement, element: PsiElement): Boolean = {
     if (resolved == null) return false

@@ -108,13 +108,24 @@
     <mkdir dir="${main.dest}/META-INF"/>
     <mkdir dir="${main.dest}"/>
     <mkdir dir="${runners.dest}"/>
+    <mkdir dir="${main.dest}/intentionDescriptions"/>
 
     <copy todir="${main.dest}/META-INF">
       <fileset dir="${base.dir}/META-INF"/>
     </copy>
 
+
+    <copy todir="${main.dest}/intentionDescriptions">
+      <fileset dir="${base.dir}/resources/intentionDescriptions">
+        <include name="**/*.template"/>
+        <include name="**/*.html"/>
+      </fileset>
+    </copy>
     <copy todir="${main.dest}">
-      <fileset dir="${base.dir}/resources/"/>
+      <fileset dir="${base.dir}/resources/">
+        <exclude name="intentionDescriptions"/>
+        <exclude name="intentionDescriptions/*"/>
+      </fileset>
     </copy>
 
     <!-- Compile runners -->
@@ -169,6 +180,9 @@
 
     <copy file="${base.dir}/src/org/jetbrains/plugins/scala/codeInspection/InspectionBundle.properties"
           tofile="${main.dest}/org/jetbrains/plugins/scala/codeInspection/InspectionBundle.properties"/>
+
+    <copy file="${base.dir}/src/org/jetbrains/plugins/scala/editor/EditorBundle.properties"
+          tofile="${main.dest}/org/jetbrains/plugins/scala/editor/EditorBundle.properties"/>
 
     <!-- Write plugin version, Since and Until attributes -->
     <replace file="${main.dest}/META-INF/plugin.xml" token="VERSION" value="${plugin.version}"/>

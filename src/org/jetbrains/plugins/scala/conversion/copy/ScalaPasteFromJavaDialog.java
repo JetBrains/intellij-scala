@@ -2,9 +2,7 @@ package org.jetbrains.plugins.scala.conversion.copy;
 
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
-import com.intellij.psi.codeStyle.CodeStyleSettings;
-import com.intellij.psi.codeStyle.CodeStyleSettingsManager;
-import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings;
+import org.jetbrains.plugins.scala.settings.ScalaProjectSettings;
 
 import javax.swing.*;
 import java.awt.*;
@@ -42,7 +40,7 @@ public class ScalaPasteFromJavaDialog extends DialogWrapper {
 
   protected void doOKAction() {
     if (donTShowThisCheckBox.isSelected()) {
-      CodeStyleSettingsManager.getSettings(myProject).getCustomSettings(ScalaCodeStyleSettings.class).DONT_SHOW_CONVERSION_DIALOG = true;
+      ScalaProjectSettings.getInstance(myProject).setDontShowConversionDialog(true);
     }
     super.doOKAction();
   }

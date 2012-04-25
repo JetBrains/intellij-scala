@@ -3,6 +3,7 @@ class DefEmptyParam {
     def goo(): Int = 435
 
     /*start*/
+
     val g = goo
     val f = goo()
     /*end*/
@@ -15,6 +16,7 @@ class DefEmptyParam {
     def goo(): Int = 435
 
     /*start*/
+
     val f: Int = testMethodName(goo _)
     /*end*/
     f
