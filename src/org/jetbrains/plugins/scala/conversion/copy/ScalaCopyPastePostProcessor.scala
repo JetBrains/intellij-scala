@@ -30,7 +30,7 @@ class ScalaCopyPastePostProcessor extends CopyPastePostProcessor[Associations] {
 
     val associations = for((startOffset, endOffset) <- startOffsets.zip(endOffsets);
                            element <- CollectHighlightsUtil.getElementsInRange(file, startOffset, endOffset);
-                           dependency <- Dependency.dependenciesIn(element);
+                           dependency <- Dependency.dependenciesIn(element) if dependency.isExternal;
                            range = dependency.source.getTextRange.shiftRight(-startOffset))
     yield Association(dependency.kind, range, dependency.path)
 
