@@ -11,20 +11,19 @@ import params._
 import api.toplevel.typedef.ScTypeDefinition
 import _root_.scala.collection.immutable.HashSet
 
-import com.intellij.psi._
 import collection.Seq
 import lang.resolve.processor.CompoundTypeCheckProcessor
 import result.{TypingContext, TypeResult}
 import api.base.patterns.ScBindingPattern
 import api.base.ScFieldId
-import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
 import api.toplevel.{ScTypeParametersOwner, ScNamedElement}
-import java.util.concurrent.ConcurrentHashMap
-import com.intellij.openapi.diagnostic.Logger
-import com.intellij.openapi.util.{Computable, RecursionManager}
+import com.intellij.openapi.util.RecursionManager
 import psi.impl.ScalaPsiManager
 import extensions.{toPsiNamedElementExt, toPsiClassExt}
 import com.intellij.util.containers.ConcurrentWeakHashMap
+import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
+import scala.Some
+import com.intellij.psi._
 
 object Conformance {
   /**

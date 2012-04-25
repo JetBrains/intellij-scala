@@ -50,6 +50,21 @@ trait ScModifierListOwner extends ScalaPsiElement with PsiModifierListOwner {
   }
 
   def hasModifierProperty(name: String): Boolean = {
+    hasModifierPropertyInner(name)
+  }
+
+  def hasModifierPropertyScala(name: String): Boolean = {
+    if (name == PsiModifier.PUBLIC) {
+      return !hasModifierPropertyScala("private") && !hasModifierPropertyScala("protected")
+    }
+    hasModifierPropertyInner(name)
+  }
+
+  def hasAbstractModifier: Boolean = hasModifierPropertyInner("abstract")
+
+  def hasFinalModifier: Boolean = hasModifierPropertyInner("final")
+
+  private def hasModifierPropertyInner(name: String): Boolean = {
     this match {
       case st: ScalaStubBasedElementImpl[_] =>  {
         val stub: StubElement[_ <: PsiElement] = st.getStub
@@ -63,8 +78,7 @@ trait ScModifierListOwner extends ScalaPsiElement with PsiModifierListOwner {
       }
       case _ =>
     }
-    if (getModifierList != null)
-      getModifierList.hasModifierProperty(name: String)
+    if (getModifierList != null) getModifierList.hasModifierProperty(name: String)
     else false
   }
 

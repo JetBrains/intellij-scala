@@ -9,27 +9,21 @@ import api.statements.params.ScClassParameter
 import com.intellij.psi._
 import impl.compiled.ClsClassImpl
 import impl.light.LightMethod
-import impl.source.resolve.JavaResolveUtil
 import scope.{NameHint, PsiScopeProcessor, ElementClassHint}
 import api.toplevel.typedef._
 import api.statements._
 import types.result.TypingContext
 import com.intellij.openapi.util.Key
-import fake.FakePsiMethod
 import com.intellij.openapi.progress.ProgressManager
 import util._
-import synthetic.ScSyntheticClass
-import lang.resolve.ResolveUtils
 import reflect.NameTransformer
 import com.intellij.openapi.diagnostic.Logger
 import types._
 import caches.CachesUtil
-import gnu.trove.THashMap
 import lang.resolve.processor.{ImplicitProcessor, BaseProcessor}
 import psi.ScalaPsiUtil.convertMemberName
 import api.toplevel.{ScNamedElement, ScModifierListOwner, ScTypedDefinition}
 import api.base.{ScAccessModifier, ScFieldId, ScPrimaryConstructor}
-import api.ScalaFile
 import extensions.toPsiNamedElementExt
 
 /**

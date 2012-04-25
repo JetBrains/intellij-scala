@@ -4,6 +4,7 @@ import com.intellij.lang.annotation.AnnotationHolder
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import com.intellij.psi.PsiClass
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTrait, ScObject}
+import org.jetbrains.plugins.scala.extensions.toPsiModifierListOwnerExt
 
 /**
  * Pavel Fatin
@@ -33,7 +34,7 @@ trait AnnotatorPart[T <: ScalaPsiElement] {
   protected def isAbstract(entity: PsiClass) = entity match {
     case _: ScTrait => true
     case c: PsiClass if c.isInterface => true && !c.isAnnotationType
-    case c: PsiClass if c.hasModifierProperty("abstract") => true
+    case c: PsiClass if c.hasAbstractModifier => true
     case _ => false
   }
 }

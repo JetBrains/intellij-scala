@@ -1,0 +1,20 @@
+// comment
+type A = Int
+-----
+ScalaFile
+  ScTypeAliasDefinition
+    PsiComment(comment)('// comment')
+    PsiWhiteSpace('\n')
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(type)('type')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('A')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    SimpleTypeElement
+      CodeReferenceElement
+        PsiElement(identifier)('Int')

@@ -149,14 +149,20 @@ abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTemplate
   @volatile
   private var javaQualNameModCount: Long = -1
 
-  override def getQualifiedName: String = {
+  override final def getQualifiedName: String = {
     val stub = getStub
     if (stub != null) {
       stub.asInstanceOf[ScTemplateDefinitionStub].javaQualName
     } else {
       val count = getManager.getModificationTracker.getOutOfCodeBlockModificationCount
       if (javaQualName != null && count == javaQualNameModCount) return javaQualName
-      val res = qualifiedName(".", encodeName = true)
+      var res = qualifiedName(".", encodeName = true)
+      this match {
+        case o: ScObject =>
+          if (o.isPackageObject) res = res + ".package$"
+          else res = res + "$"
+        case _ =>
+      }
       javaQualNameModCount = count
       javaQualName = res
       res

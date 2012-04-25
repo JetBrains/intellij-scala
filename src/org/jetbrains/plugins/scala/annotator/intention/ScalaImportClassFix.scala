@@ -39,8 +39,8 @@ import collection.mutable.ArrayBuffer
 import lang.psi.{ScalaPsiUtil, ScImportsHolder}
 import lang.scaladoc.psi.api.ScDocResolvableCodeReference
 import extensions.toPsiClassExt
-import caches.ScalaShortNamesCacheManager
 import lang.psi.impl.{ScalaPsiManager, ScalaPsiElementFactory}
+import settings._
 
 /**
  * User: Alexander Podkhalyuzin
@@ -66,7 +66,6 @@ class ScalaImportClassFix(private var classes: Array[PsiClass], ref: ScReference
     })
   }
 
-  private val scalaSettings: ScalaCodeStyleSettings = CodeStyleSettingsManager.getSettings(project).getCustomSettings(classOf[ScalaCodeStyleSettings])
   def showHint(editor: Editor): Boolean = {
     if (!ref.isValid) return false
     if (ref.qualifier != None) return false
@@ -78,7 +77,7 @@ class ScalaImportClassFix(private var classes: Array[PsiClass], ref: ScReference
         classes = ScalaImportClassFix.getClasses(ref, project)
         classes.length match {
           case 0 => false
-          case 1 if scalaSettings.ADD_UNAMBIGIOUS_IMPORTS_ON_THE_FLY  &&
+          case 1 if ScalaProjectSettings.getInstance(project).isAddUnambigiousImportsOnTheFly  &&
                   !caretNear(editor) => {
             CommandProcessor.getInstance().runUndoTransparentAction(new Runnable {
               def run() {
@@ -220,9 +219,7 @@ class ScalaImportClassFix(private var classes: Array[PsiClass], ref: ScReference
 
 object ScalaImportClassFix {
   def getImportHolder(ref: PsiElement, project: Project): ScImportsHolder = {
-    val scalaSettings: ScalaCodeStyleSettings =
-      CodeStyleSettingsManager.getSettings(project).getCustomSettings(classOf[ScalaCodeStyleSettings])
-    if (scalaSettings.ADD_IMPORT_MOST_CLOSE_TO_REFERENCE)
+    if (ScalaProjectSettings.getInstance(project).isAddImportMostCloseToReference)
       PsiTreeUtil.getParentOfType(ref, classOf[ScImportsHolder])
     else {
       PsiTreeUtil.getParentOfType(ref, classOf[ScPackaging]) match {

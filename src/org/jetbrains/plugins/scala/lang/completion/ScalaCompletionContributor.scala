@@ -94,10 +94,6 @@ class ScalaCompletionContributor extends CompletionContributor {
                   case fun: ScFun => addElement(el)
                   case param: ScClassParameter =>
                     addElement(el)
-                  case memb: PsiMember => {
-                    if (parameters.getInvocationCount > 1 || ResolveUtils.isAccessible(memb, parameters.getPosition))
-                      addElement(el)
-                  }
                   case patt: ScBindingPattern => {
                     val context = ScalaPsiUtil.nameContext(patt)
                     context match {
@@ -107,6 +103,10 @@ class ScalaCompletionContributor extends CompletionContributor {
                       }
                       case _ => addElement(el)
                     }
+                  }
+                  case memb: PsiMember => {
+                    if (parameters.getInvocationCount > 1 || ResolveUtils.isAccessible(memb, parameters.getPosition))
+                      addElement(el)
                   }
                   case _ => addElement(el)
                 }

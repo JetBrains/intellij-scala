@@ -100,7 +100,6 @@ class ScDocTagValueImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
 
     if (parent == null || (parentTagType != PARAM_TAG && parentTagType != TYPE_PARAM_TAG))
       return Array.empty[ScNamedElement]
-    val sibl = parent.asInstanceOf[ScDocComment].getNextSiblingNotWhitespace
 
     def filterParamsByName(tagName: String, params: Seq[ScNamedElement]): Array[ScNamedElement] = {
       val paramsSet =
@@ -113,7 +112,7 @@ class ScDocTagValueImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
       result.result()
     }
 
-    sibl match {
+    parent.getParent match {
       case func: ScFunction =>
         if (parentTagType == PARAM_TAG) {
           filterParamsByName(PARAM_TAG, func.parameters)

@@ -29,10 +29,12 @@ object Def {
   def parse(builder: ScalaPsiBuilder, isMod: Boolean): Boolean = parse(builder, isMod, false)
   def parse(builder: ScalaPsiBuilder, isMod: Boolean, isImplicit: Boolean): Boolean = {
     val defMarker = builder.mark
+    defMarker.setCustomEdgeTokenBinders(ScalaTokenBinders.PRECEEDING_COMMENTS_TOKEN, null)
     if (isMod || isImplicit) {
       val annotationsMarker = builder.mark
       while (Annotation.parse(builder)) {}
       annotationsMarker.done(ScalaElementTypes.ANNOTATIONS)
+      annotationsMarker.setCustomEdgeTokenBinders(ScalaTokenBinders.DEFAULT_LEFT_EDGE_BINDER, null)
       //parse modifiers
       val modifierMarker = builder.mark
       if (isMod) {

@@ -39,6 +39,8 @@ package object extensions {
 
   implicit def toPsiMemberExt(e: PsiMember) = new PsiMemberExt(e)
 
+  implicit def toPsiModifierListOwnerExt(e: PsiModifierListOwner) = new PsiModifierListOwnerExt(e)
+
   implicit def toPipedObject[T](value: T) = new PipedObject[T](value)
 
   implicit def toRichIterator[A](it: Iterator[A]) = new IteratorExt[A](it)

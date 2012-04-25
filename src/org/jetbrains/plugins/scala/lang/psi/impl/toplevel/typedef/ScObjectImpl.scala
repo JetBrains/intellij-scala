@@ -76,11 +76,6 @@ class ScObjectImpl extends ScTypeDefinitionImpl with ScObject with ScTemplateDef
 
   override def getIconInner = if (isPackageObject) Icons.PACKAGE_OBJECT else Icons.OBJECT
 
-  override def getQualifiedName: String = {
-    if (isPackageObject) return super.getQualifiedName + ".package$"
-    super.getQualifiedName + "$"
-  }
-
   override def getName: String = {
     if (isPackageObject) return "package$"
     super.getName + "$"
@@ -242,6 +237,9 @@ class ScObjectImpl extends ScTypeDefinitionImpl with ScObject with ScTemplateDef
               case _ => (false, None)
             }
             res += t.getTypedDefinitionWrapper(false, isInterface, SIMPLE_ROLE, cClass)
+            if (t.isVar) {
+              res += t.getTypedDefinitionWrapper(false, isInterface, EQ, cClass)
+            }
             t.nameContext match {
               case s: ScAnnotationsHolder =>
                 val beanProperty = s.hasAnnotation("scala.reflect.BeanProperty") != None

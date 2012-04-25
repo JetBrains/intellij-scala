@@ -20,9 +20,7 @@ import params.{ScParameter, ScParameters, ScClassParameter}
 import patterns.{ScConstructorPattern, ScPattern, ScInfixPattern}
 import processor.MethodResolveProcessor
 import modifiers.ModifierChecker
-import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import com.intellij.psi._
-import com.intellij.psi.codeStyle.CodeStyleSettingsManager
 import quickfix.{ChangeTypeFix, ReportHighlightingErrorQuickFix}
 import template._
 import scala.Some
@@ -43,12 +41,11 @@ import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaFile}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager.ClassCategory
-import highlighter.{DefaultHighlighter, AnnotatorHighlighter}
-import types.{ScSimpleTypeElement, ScParameterizedTypeElement, ScTypeProjection, ScTypeElement}
-import org.jetbrains.plugins.scala.lang.references.ScalaReferenceContributor
+import highlighter.AnnotatorHighlighter
+import types.{ScParameterizedTypeElement, ScTypeProjection, ScTypeElement}
 import com.intellij.openapi.util.{TextRange, Key}
 import collection.mutable.{ArrayBuffer, HashSet}
+import settings._
 
 /**
  * User: Alexander Podkhalyuzin
@@ -78,7 +75,8 @@ with DumbAware {
           ByNameParameter.annotate(expr, holder, typeAware)
         }
 
-        if (isAdvancedHighlightingEnabled(element) && settings(element).SHOW_IMPLICIT_CONVERSIONS) {
+        if (isAdvancedHighlightingEnabled(element) &&
+                ScalaProjectSettings.getInstance(element.getProject).isShowImplisitConversions) {
           expr.getTypeExt(TypingContext.empty) match {
             case ExpressionTypeResult(Success(t, _), _, Some(implicitFunction)) =>
               highlightImplicitView(expr, implicitFunction, t, expr, holder)
@@ -330,11 +328,6 @@ with DumbAware {
     //todo: super[ControlFlowInspections].annotate(element, holder)
   }
 
-  private def settings(element: PsiElement): ScalaCodeStyleSettings = {
-    CodeStyleSettingsManager.getSettings(element.getProject)
-            .getCustomSettings(classOf[ScalaCodeStyleSettings])
-  }
-
   def isAdvancedHighlightingEnabled(element: PsiElement): Boolean = {
     if (!HighlightingAdvisor.getInstance(element.getProject).enabled) return false
     val containingFile = element.getContainingFile
@@ -507,7 +500,8 @@ with DumbAware {
     checkAccessForReference(resolve, refElement, holder)
     checkForwardReference(resolve, refElement, holder)
 
-    if (settings(refElement).SHOW_IMPLICIT_CONVERSIONS && resolve.length == 1) {
+    if (ScalaProjectSettings.getInstance(refElement.getProject).isShowImplisitConversions &&
+            resolve.length == 1) {
       val resolveResult = resolve(0).asInstanceOf[ScalaResolveResult]
       refElement match {
         case e: ScReferenceExpression if e.getParent.isInstanceOf[ScPrefixExpr] &&
@@ -619,7 +613,8 @@ with DumbAware {
     }
     checkAccessForReference(resolve, refElement, holder)
     if (refElement.isInstanceOf[ScExpression] &&
-            settings(refElement).SHOW_IMPLICIT_CONVERSIONS && resolve.length == 1) {
+            ScalaProjectSettings.getInstance(refElement.getProject).isShowImplisitConversions &&
+            resolve.length == 1) {
       val resolveResult = resolve(0).asInstanceOf[ScalaResolveResult]
       resolveResult.implicitFunction match {
         case Some(fun) => {
@@ -727,7 +722,7 @@ with DumbAware {
           case Some((tp: ScType, typeElement)) => {
             import org.jetbrains.plugins.scala.lang.psi.types._
             val expectedType = Success(tp, None)
-            if (settings(expr).SHOW_IMPLICIT_CONVERSIONS) {
+            if (ScalaProjectSettings.getInstance(expr.getProject).isShowImplisitConversions) {
               implicitFunction match {
                 case Some(fun) => {
                   //todo:

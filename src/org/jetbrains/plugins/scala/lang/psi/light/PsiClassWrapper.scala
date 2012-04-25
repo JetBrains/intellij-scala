@@ -78,6 +78,9 @@ class PsiClassWrapper(val definition: ScTemplateDefinition,
                 }
                 case Some(t: ScTypedDefinition) if t.isVal || t.isVar =>
                   res += t.getTypedDefinitionWrapper(true, false, SIMPLE_ROLE, Some(definition))
+                  if (t.isVar) {
+                    res += t.getTypedDefinitionWrapper(false, isInterface, EQ)
+                  }
                   t.nameContext match {
                     case s: ScAnnotationsHolder =>
                       val beanProperty = s.hasAnnotation("scala.reflect.BeanProperty") != None

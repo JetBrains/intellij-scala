@@ -342,15 +342,17 @@ object JavaToScala {
           res.append("new ")
           for(ref <- Option(n.getClassReference)) associations ++= associationFor(ref).toSeq
           res.append(ScType.presentableText(ScType.create(n.getType, n.getProject)))
-          if (n.getArgumentList.getExpressions.size == 0) {
-            // if the new expression is used as a qualifier, force parentheses for empty argument list
-            n.getParent match {
-              case r: PsiJavaCodeReferenceElement if n == r.getQualifier => res.append("()")
-              case _ =>
+          if (n.getArgumentList != null) {
+            if (n.getArgumentList.getExpressions.size == 0) {
+              // if the new expression is used as a qualifier, force parentheses for empty argument list
+              n.getParent match {
+                case r: PsiJavaCodeReferenceElement if n == r.getQualifier => res.append("()")
+                case _ =>
+              }
             }
-          }
-          else {
-            res.append(convertPsiToText(n.getArgumentList))
+            else {
+              res.append(convertPsiToText(n.getArgumentList))
+            }
           }
         }
       }
@@ -688,11 +690,8 @@ object JavaToScala {
           }
         })
       case e: PsiEmptyStatement =>
-      case e => {
-        throw new UnsupportedOperationException("PsiElement: " +  e + " is not supported for this" +
-                " converter.")
-      }
-      //case e => res.append(e.toString)
+      case e: PsiErrorElement =>
+      case e => res.append(e.getText)
     }
     res.toString()
   }

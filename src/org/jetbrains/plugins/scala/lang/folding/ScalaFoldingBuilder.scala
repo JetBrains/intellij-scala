@@ -2,27 +2,29 @@ package org.jetbrains.plugins.scala
 package lang
 package folding
 
-import com.intellij.psi.codeStyle.CodeStyleSettingsManager
 import com.intellij.psi.impl.source.tree.LeafPsiElement
-import formatting.settings.ScalaCodeStyleSettings
 import scaladoc.parser.ScalaDocElementTypes
 import _root_.scala.collection.mutable._
 import psi.api.toplevel.packaging.ScPackaging
 import java.lang.String
 import psi.impl.statements.ScTypeAliasDefinitionImpl
-import com.intellij.psi.PsiElement
 import psi.api.base.types.{ScTypeElement, ScCompoundTypeElement, ScParenthesisedTypeElement, ScTypeProjection}
 import com.intellij.lang.ASTNode
-import com.intellij.openapi.editor.{FoldingGroup, Document}
 import com.intellij.lang.folding.FoldingBuilder
 import com.intellij.lang.folding.FoldingDescriptor
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import com.intellij.openapi.util._
 import params.ScTypeParamClause
 import psi.api.base.patterns.ScCaseClause
 import lexer.ScalaTokenTypes
+import psi.api.base.ScLiteral
+import com.intellij.psi.tree.IElementType
+import com.intellij.openapi.editor.{Document, FoldingGroup}
+import com.intellij.psi._
+import parser.ScalaElementTypes
+import settings.ScalaCodeFoldingSettings
+import scala.Boolean
 
 /*
 *
@@ -34,20 +36,25 @@ class ScalaFoldingBuilder extends FoldingBuilder {
   import ScalaFoldingUtil._
 
   private def appendDescriptors(node: ASTNode,
-                               document: Document,
-                               descriptors: ArrayBuffer[FoldingDescriptor]) {
+                                document: Document,
+                                descriptors: ArrayBuffer[FoldingDescriptor],
+                                processedComments: HashSet[PsiElement],
+                                processedRegions: HashSet[PsiElement]) {
 
 
     val psi = node.getPsi
     if (isMultiline(node) || isMultilineImport(node)) {
       node.getElementType match {
         case ScalaTokenTypes.tBLOCK_COMMENT | ScalaTokenTypes.tSH_COMMENT | ScalaElementTypes.TEMPLATE_BODY |
-                ScalaDocElementTypes.SCALA_DOC_COMMENT => descriptors += (new FoldingDescriptor(node, node.getTextRange))
+             ScalaDocElementTypes.SCALA_DOC_COMMENT => descriptors += (new FoldingDescriptor(node, node.getTextRange))
         case ScalaElementTypes.IMPORT_STMT if isGoodImport(node) => {
           descriptors += (new FoldingDescriptor(node,
             new TextRange(node.getTextRange.getStartOffset + IMPORT_KEYWORD.length + 1, getImportEnd(node))))
         }
-        case ScalaElementTypes.MATCH_STMT => 
+        case ScalaElementTypes.MATCH_STMT =>
+          descriptors += (new FoldingDescriptor(node,
+            new TextRange(node.getTextRange.getStartOffset + node.getPsi.asInstanceOf[ScMatchStmt].expr.get.getTextLength +
+                    MATCH_KEYWORD.length + 2, node.getTextRange.getEndOffset)))
         case _ =>
       }
       psi match {
@@ -55,15 +62,16 @@ class ScalaFoldingBuilder extends FoldingBuilder {
           descriptors += (new FoldingDescriptor(node,
             new TextRange(node.getTextRange.getStartOffset + PACKAGE_KEYWORD.length + 1, node.getTextRange.getEndOffset)))
         }
+        case p: ScLiteral if p.isMultiLineString =>
+          descriptors += (new FoldingDescriptor(node, node.getTextRange))
+        case p: ScArgumentExprList =>
+          descriptors += (new FoldingDescriptor(node, node.getTextRange))
         case _ =>
       }
-      if (node.getTreeParent != null && node.getTreeParent.getPsi.isInstanceOf[ScFunction]) {
-        psi match {
-          case _: ScBlockExpr => descriptors += new FoldingDescriptor(node, node.getTextRange)
-          case _ =>
-        }
-      }
-      if (node.getTreeParent != null && node.getTreeParent.getPsi.isInstanceOf[ScArgumentExprList]) {
+      if (node.getTreeParent != null &&
+              (node.getTreeParent.getPsi.isInstanceOf[ScFunction] ||
+                      node.getTreeParent.getPsi.isInstanceOf[ScArgumentExprList] ||
+                      node.getTreeParent.getPsi.isInstanceOf[ScPatternDefinition])) {
         psi match {
           case _: ScBlockExpr => descriptors += new FoldingDescriptor(node, node.getTextRange)
           case _ =>
@@ -100,16 +108,29 @@ class ScalaFoldingBuilder extends FoldingBuilder {
           descriptors ++= Seq(d1, d2)
         case _ =>
       }
+    } else if (node.getElementType == ScalaTokenTypes.tLINE_COMMENT) {
+      val stack = new Stack[PsiElement]
+      if (!isCustomRegionStart(node.getText) && !isCustomRegionEnd(node.getText)) {
+        addCommentFolds(node.getPsi.asInstanceOf[PsiComment], processedComments, descriptors)
+      } else if (isCustomRegionStart(node.getText)) {
+        if (isTagRegionStart(node.getText)) {
+          addCustomRegionFolds(node.getPsi, processedRegions, descriptors, true, stack)
+        } else if (isSimpleRegionStart(node.getText)) {
+          addCustomRegionFolds(node.getPsi, processedRegions, descriptors, false, stack)
+        }
+      }
     }
 
-    for (ch <- psi.getChildren; val child = ch.getNode) {
-      appendDescriptors(child, document, descriptors)
+    for (child <- node.getChildren(null)) {
+      appendDescriptors(child, document, descriptors, processedComments, processedRegions)
     }
   }
 
   def buildFoldRegions(astNode: ASTNode, document: Document): Array[FoldingDescriptor] = {
     val descriptors = new ArrayBuffer[FoldingDescriptor]
-    appendDescriptors(astNode, document, descriptors);
+    val processedComments = new HashSet[PsiElement]
+    val processedRegions = new HashSet[PsiElement]
+    appendDescriptors(astNode, document, descriptors, processedComments, processedRegions);
     descriptors.toArray
   }
 
@@ -121,44 +142,93 @@ class ScalaFoldingBuilder extends FoldingBuilder {
         case ScalaElementTypes.TEMPLATE_BODY => return "{...}"
         case ScalaElementTypes.PACKAGING => return "{...}"
         case ScalaElementTypes.IMPORT_STMT => return "..."
+        case ScalaElementTypes.MATCH_STMT => return "{...}"
         case ScalaTokenTypes.tSH_COMMENT if node.getText.charAt(0) == ':' => return "::#!...::!#"
         case ScalaTokenTypes.tSH_COMMENT => return "#!...!#"
         case _ =>
       }
-    } 
+      if (node.getPsi != null) {
+        if (node.getPsi.isInstanceOf[ScLiteral] && node.getPsi.asInstanceOf[ScLiteral].isMultiLineString)
+          return "\"\"\"...\"\"\""
+        if (node.getPsi.isInstanceOf[ScArgumentExprList])
+          return "(...)"
+      }
+    }
     if (node.getTreeParent != null && (ScalaElementTypes.FUNCTION_DEFINITION == node.getTreeParent.getElementType
-        || ScalaElementTypes.ARG_EXPRS == node.getTreeParent.getElementType
-        || ScalaElementTypes.INFIX_EXPR == node.getTreeParent.getElementType)) {
+            || ScalaElementTypes.ARG_EXPRS == node.getTreeParent.getElementType
+            || ScalaElementTypes.INFIX_EXPR == node.getTreeParent.getElementType
+            || ScalaElementTypes.PATTERN_DEFINITION == node.getTreeParent.getElementType)) {
       node.getPsi match {
         case _: ScBlockExpr => return "{...}"
         case _ => return null
       }
+    }
+    node.getElementType match {
+      case ScalaTokenTypes.tLINE_COMMENT =>
+        if (!isCustomRegionStart(node.getText))
+          return "/.../"
+        else {
+          if (isTagRegionStart(node.getText)) {
+            val customText: String = node.getText.replaceFirst(".*desc\\s*=\\s*\"(.*)\".*", "$1").trim
+            return if (customText.isEmpty) "..." else customText
+          } else if (isSimpleRegionStart(node.getText)) {
+            val customText: String = node.getText.replaceFirst("..?\\s*region(.*)", "$1").trim
+            return if (customText.isEmpty) "..." else customText
+          }
+        }
+      case _ => return null
     }
 
     null
   }
 
   def isCollapsedByDefault(node: ASTNode): Boolean = {
-    val settings: ScalaCodeStyleSettings =
-      CodeStyleSettingsManager.getSettings(node.getPsi.getProject).getCustomSettings(classOf[ScalaCodeStyleSettings])
     if (node.getTreeParent.getElementType == ScalaElementTypes.FILE &&
-      node.getTreePrev == null && node.getElementType != ScalaElementTypes.PACKAGING && settings.FOLD_FILE_HEADER) true
+            node.getTreePrev == null && node.getElementType != ScalaElementTypes.PACKAGING &&
+            ScalaCodeFoldingSettings.getInstance().isCollapseFileHeaders) true
     else if (node.getTreeParent.getElementType == ScalaElementTypes.FILE &&
-      node.getElementType == ScalaElementTypes.IMPORT_STMT && settings.FOLD_IMPORT_IN_HEADER) true
+            node.getElementType == ScalaElementTypes.IMPORT_STMT &&
+            ScalaCodeFoldingSettings.getInstance().isCollapseImports) true
+    else if (node.getTreeParent != null &&
+            ScalaElementTypes.PATTERN_DEFINITION == node.getTreeParent.getElementType &&
+            ScalaCodeFoldingSettings.getInstance().isCollapseMultilineBlocks) true
     else {
       node.getElementType match {
-        case ScalaTokenTypes.tBLOCK_COMMENT if settings.FOLD_BLOCK_COMMENTS => true
-        case ScalaDocElementTypes.SCALA_DOC_COMMENT if settings.FOLD_SCALADOC => true
-        case ScalaElementTypes.TEMPLATE_BODY if settings.FOLD_TEMPLATE_BODIES => true
-        case ScalaElementTypes.PACKAGING if settings.FOLD_PACKAGINGS => true
-        case ScalaElementTypes.IMPORT_STMT if settings.FOLD_IMPORT_STATEMENTS => true
-        case ScalaTokenTypes.tSH_COMMENT if settings.FOLD_SHELL_COMMENTS => true
+        case ScalaTokenTypes.tBLOCK_COMMENT
+          if ScalaCodeFoldingSettings.getInstance().isCollapseBlockComments => true
+        case ScalaTokenTypes.tLINE_COMMENT
+          if (!isCustomRegionStart(node.getText) &&
+                  ScalaCodeFoldingSettings.getInstance().isCollapseLineComments) => true
+        case ScalaTokenTypes.tLINE_COMMENT
+          if (isCustomRegionStart(node.getText) &&
+                  ScalaCodeFoldingSettings.getInstance().isCollapseCustomRegions) => true
+        case ScalaDocElementTypes.SCALA_DOC_COMMENT
+          if ScalaCodeFoldingSettings.getInstance().isCollapseScalaDocComments => true
+        case ScalaElementTypes.TEMPLATE_BODY
+          if ScalaCodeFoldingSettings.getInstance().isCollapseTemplateBodies => true
+        case ScalaElementTypes.PACKAGING
+          if ScalaCodeFoldingSettings.getInstance().isCollapsePackagings => true
+        case ScalaElementTypes.IMPORT_STMT
+          if ScalaCodeFoldingSettings.getInstance().isCollapseImports => true
+        case ScalaTokenTypes.tSH_COMMENT if
+        ScalaCodeFoldingSettings.getInstance().isCollapseShellComments => true
+        case ScalaElementTypes.MATCH_STMT
+          if ScalaCodeFoldingSettings.getInstance().isCollapseMultilineBlocks => true
         case _ if node.getPsi.isInstanceOf[ScBlockExpr] &&
-          node.getTreeParent.getElementType == ScalaElementTypes.ARG_EXPRS && settings.FOLD_ARGUMENT_BLOCK => true
+                node.getTreeParent.getElementType == ScalaElementTypes.ARG_EXPRS &&
+                ScalaCodeFoldingSettings.getInstance().isCollapseMethodCallBodies => true
         case _ if node.getPsi.isInstanceOf[ScBlockExpr] &&
-          node.getTreeParent.getElementType == ScalaElementTypes.FUNCTION_DEFINITION && settings.FOLD_BLOCK => true
-        case _ if node.getPsi.isInstanceOf[ScTypeProjection] && settings.FOLD_TYPE_LAMBDA => true
-        case _ if node.getPsi.isInstanceOf[ScTypeElement] && settings.FOLD_TYPE_LAMBDA => true
+                node.getTreeParent.getElementType == ScalaElementTypes.FUNCTION_DEFINITION &&
+                ScalaCodeFoldingSettings.getInstance().isCollapseMethodCall => true
+        case _ if node.getPsi.isInstanceOf[ScTypeProjection] &&
+                ScalaCodeFoldingSettings.getInstance().isCollapseTypeLambdas => true
+        case _ if node.getPsi.isInstanceOf[ScTypeElement] &&
+                ScalaCodeFoldingSettings.getInstance().isCollapseTypeLambdas => true
+        case _ if node.getPsi.isInstanceOf[ScLiteral] &&
+                node.getPsi.asInstanceOf[ScLiteral].isMultiLineString &&
+                ScalaCodeFoldingSettings.getInstance().isCollapseMultilineStrings => true
+        case _ if node.getPsi.isInstanceOf[ScArgumentExprList] &&
+                ScalaCodeFoldingSettings.getInstance().isCollapseMultilineBlocks => true
         case _ => false
       }
     }
@@ -195,21 +265,114 @@ class ScalaFoldingBuilder extends FoldingBuilder {
     }
     last
   }
+
+  private def addCommentFolds(comment: PsiComment, processedComments: Set[PsiElement],
+                              descriptors: ArrayBuffer[FoldingDescriptor]) {
+    if (processedComments.contains(comment) || comment.getTokenType != ScalaTokenTypes.tLINE_COMMENT) {
+      return
+    }
+
+    var end: PsiElement = null
+    var current: PsiElement = comment.getNextSibling
+    var flag = true
+
+    while (current != null && flag == true) {
+      val node: ASTNode = current.getNode
+      if (node != null) {
+        val elementType: IElementType = node.getElementType
+        if (elementType == ScalaTokenTypes.tLINE_COMMENT) {
+          end = current
+          processedComments.add(current)
+        }
+        if (elementType != ScalaTokenTypes.tLINE_COMMENT && elementType != TokenType.WHITE_SPACE) {
+          flag = false
+        }
+      }
+      current = current.getNextSibling
+      if (current != null && (isCustomRegionStart(current.getText) || isCustomRegionEnd(current.getText))) {
+        flag = false
+      }
+    }
+
+    if (end != null) {
+      descriptors += (new FoldingDescriptor(comment,
+        new TextRange(comment.getTextRange.getStartOffset, end.getTextRange.getEndOffset)))
+    }
+  }
+
+  private def addCustomRegionFolds(element: PsiElement, processedRegions: Set[PsiElement],
+                                   descriptors: ArrayBuffer[FoldingDescriptor], isTagRegion: Boolean,
+                                   stack: Stack[PsiElement]) {
+    var end: PsiElement = null
+    var current: PsiElement = element.getNextSibling
+    var flag = true
+
+    while (current != null && flag == true) {
+      val node: ASTNode = current.getNode
+      if (node != null) {
+        val elementType: IElementType = node.getElementType
+        if (elementType == ScalaTokenTypes.tLINE_COMMENT && isCustomRegionEnd(node.getText)) {
+          if ((isTagRegion && isTagRegionEnd(node.getText)) || (!isTagRegion && isSimpleRegionEnd(node.getText))) {
+            if (!processedRegions.contains(current) && stack.isEmpty) {
+              end = current
+              processedRegions.add(current)
+              flag = false
+            }
+          }
+          if (!stack.isEmpty) stack.pop()
+        }
+        if (elementType == ScalaTokenTypes.tLINE_COMMENT && isCustomRegionStart(node.getText)) {
+            stack.push(node.getPsi)
+        }
+      }
+      current = current.getNextSibling
+    }
+
+    if (end != null) {
+      descriptors += (new FoldingDescriptor(element,
+        new TextRange(element.getTextRange.getStartOffset, end.getTextRange.getEndOffset)))
+    }
+  }
+
+  private def isCustomRegionStart(elementText: String): Boolean = {
+    isTagRegionStart(elementText) || isSimpleRegionStart(elementText)
+  }
+
+  private def isTagRegionStart(elementText: String): Boolean = {
+    elementText.contains("<editor-fold")
+  }
+
+  private def isSimpleRegionStart(elementText: String): Boolean = {
+    elementText.contains("region") && elementText.matches("..?\\s*region.*")
+  }
+
+  private def isCustomRegionEnd(elementText: String): Boolean = {
+    isTagRegionEnd(elementText) || isSimpleRegionEnd(elementText)
+  }
+
+  private def isTagRegionEnd(elementText: String): Boolean = {
+    elementText.contains("</editor-fold")
+  }
+
+  private def isSimpleRegionEnd(elementText: String): Boolean = {
+    elementText.contains("endregion")
+  }
 }
 
 private[folding] object ScalaFoldingUtil {
   val IMPORT_KEYWORD = "import"
   val PACKAGE_KEYWORD = "package"
+  val MATCH_KEYWORD = "match"
 }
 
 /**
  * Extractor for:
  *
- *    ({type λ[α] = Either.LeftProjection[α, Int]})#λ
+ * ({type λ[α] = Either.LeftProjection[α, Int]})#λ
  *
  * Which can be folded to:
  *
- *    λ[α] = Either.LeftProjection[α, Int]
+ * λ[α] = Either.LeftProjection[α, Int]
  */
 object TypeLambda {
   def unapply(psi: PsiElement): Option[(String, ScTypeParamClause, ScTypeElement)] = psi match {
