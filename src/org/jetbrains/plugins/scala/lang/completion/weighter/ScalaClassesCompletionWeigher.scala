@@ -5,7 +5,7 @@ import com.intellij.codeInsight.completion.{CompletionLocation, CompletionWeighe
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import com.intellij.psi.PsiClass
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.settings._
 
 /**
  * @author Alefas
@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
  */
 class ScalaClassesCompletionWeigher extends CompletionWeigher {
   def weigh(element: LookupElement, location: CompletionLocation): Comparable[_] = {
-    if (!ScalaPsiUtil.getSettings(location.getProject).SCALA_CLASSES_PRIORITY) return null
+    if (!ScalaProjectSettings.getInstance(location.getProject).isScalaPriority) return null
     element match {
       case s: ScalaLookupItem =>
         s.element match {

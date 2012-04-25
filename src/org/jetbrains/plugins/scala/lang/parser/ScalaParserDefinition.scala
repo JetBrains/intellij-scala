@@ -15,8 +15,7 @@ import com.intellij.psi.tree.TokenSet
 import org.jetbrains.plugins.scala.lang.lexer.ScalaLexer
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import psi.impl.ScalaFileImpl
-import formatting.settings.ScalaCodeStyleSettings
-import com.intellij.psi.codeStyle.CodeStyleSettingsManager
+import settings._
 
 /**
  * @author ilyas
@@ -24,8 +23,8 @@ import com.intellij.psi.codeStyle.CodeStyleSettingsManager
 class ScalaParserDefinition extends ScalaParserDefinitionWrapper{
 
   def createLexer(project: Project) = {
-    val treatDocCommentAsBlockComment = CodeStyleSettingsManager.getSettings(project).
-      getCustomSettings(classOf[ScalaCodeStyleSettings]).TREAT_DOC_COMMENT_AS_BLOCK_COMMENT;
+    val treatDocCommentAsBlockComment = ScalaProjectSettings.getInstance(project).
+            isTreatDocCommentAsBlockComment;
     new ScalaLexer(treatDocCommentAsBlockComment)
   }
 
