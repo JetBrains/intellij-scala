@@ -151,6 +151,9 @@ class ScClassImpl extends ScTypeDefinitionImpl with ScClass with ScTypeParameter
               case _ => (false, None)
             }
             res += t.getTypedDefinitionWrapper(false, isInterface, SIMPLE_ROLE, cClass)
+            if (t.isVar) {
+              res += t.getTypedDefinitionWrapper(false, isInterface, EQ, cClass)
+            }
             names += t.getName
             t.nameContext match {
               case s: ScAnnotationsHolder =>
@@ -199,6 +202,9 @@ class ScClassImpl extends ScTypeDefinitionImpl with ScClass with ScTypeParameter
                 }
                 case Some(t: ScTypedDefinition) if t.isVal || t.isVar =>
                   add(t.getTypedDefinitionWrapper(true, false, SIMPLE_ROLE))
+                  if (t.isVar) {
+                    add(t.getTypedDefinitionWrapper(false, isInterface, EQ))
+                  }
                   t.nameContext match {
                     case s: ScAnnotationsHolder =>
                       val beanProperty = s.hasAnnotation("scala.reflect.BeanProperty") != None

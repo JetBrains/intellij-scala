@@ -4,7 +4,7 @@ import org.jetbrains.plugins.scala.annotator.AnnotatorPart
 import com.intellij.lang.annotation.AnnotationHolder
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
-import org.jetbrains.plugins.scala.extensions.toPsiNamedElementExt
+import org.jetbrains.plugins.scala.extensions.{toPsiModifierListOwnerExt, toPsiNamedElementExt}
 
 /**
  * Pavel Fatin
@@ -20,7 +20,7 @@ object FinalClassInheritance extends AnnotatorPart[ScTemplateDefinition] {
     if (newInstance && !hasBody) return
 
     definition.refs.foreach {
-      case (refElement, Some((psiClass, _))) if psiClass.getModifierList.hasModifierProperty("final") =>
+      case (refElement, Some((psiClass, _))) if psiClass.hasFinalModifier =>
         holder.createErrorAnnotation(refElement,
           "Illegal inheritance from final %s %s".format(kindOf(psiClass).toLowerCase, psiClass.name))
       case _ =>

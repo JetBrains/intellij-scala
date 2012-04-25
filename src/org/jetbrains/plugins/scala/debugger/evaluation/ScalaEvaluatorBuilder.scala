@@ -27,7 +27,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScClassParen
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTypeDefinition, ScClass, ScTrait, ScObject}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScPrimaryConstructor, ScStableCodeReferenceElement, ScLiteral, ScReferenceElement}
-import org.jetbrains.plugins.scala.extensions.{toPsiNamedElementExt, toPsiClassExt}
+import org.jetbrains.plugins.scala.extensions.{toPsiModifierListOwnerExt, toPsiNamedElementExt, toPsiClassExt}
 
 /**
  * User: Alefas
@@ -962,7 +962,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
         case method: PsiMethod => //here you can use just arguments
           qualOption match {
             case Some(qual) =>
-              if (method.hasModifierProperty("static")) {
+              if (method.hasModifierPropertyScala("static")) {
                 val eval =
                   new TypeEvaluator(JVMNameUtil.getContextClassJVMQualifiedName(SourcePosition.createFromElement(method)))
                 val name = method.name
@@ -1420,7 +1420,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
         case field: PsiField =>
           qualifier match {
             case Some(qual) =>
-              if (field.hasModifierProperty("static")) {
+              if (field.hasModifierPropertyScala("static")) {
                 val eval =
                   new TypeEvaluator(JVMNameUtil.getContextClassJVMQualifiedName(SourcePosition.createFromElement(field)))
                 val name = field.name

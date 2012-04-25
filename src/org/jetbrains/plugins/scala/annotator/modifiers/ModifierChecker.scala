@@ -14,6 +14,7 @@ import AnnotatorUtils._
 import quickfix.modifiers.RemoveModifierQuickFix
 import lang.psi.api.toplevel.{ScEarlyDefinitions, ScModifierListOwner}
 import lang.psi.api.statements.{ScValueDeclaration, ScTypeAlias, ScPatternDefinition, ScDeclaration}
+import extensions.toPsiModifierListOwnerExt
 
 /**
  * @author Aleksander Podkhalyuzin
@@ -35,8 +36,8 @@ private[annotator] object ModifierChecker {
         ("private", "protected"),
         if (withPrivate) ("private", "override") else ("", "")
         )
-      for ((bad1, bad2) <- illegalCombinations if (bad1 == text && owner.hasModifierProperty(bad2)) ||
-              (bad2 == text && owner.hasModifierProperty(bad1))) {
+      for ((bad1, bad2) <- illegalCombinations if (bad1 == text && owner.hasModifierPropertyScala(bad2)) ||
+              (bad2 == text && owner.hasModifierPropertyScala(bad1))) {
         proccessError(ScalaBundle.message("illegal.modifiers.combination", bad1, bad2), element, holder,
           new RemoveModifierQuickFix(owner, text))
         return false
@@ -100,7 +101,7 @@ private[annotator] object ModifierChecker {
                   val redundant = (e.containingClass, e) match {
                     case (obj: ScObject, valMember: ScPatternDefinition) if valMember.typeElement.isEmpty &&
                             valMember.pList.allPatternsSimple => false // SCL-899
-                    case (cls, _) if cls.hasModifierProperty("final") => true
+                    case (cls, _) if cls.hasFinalModifier => true
                     case _ => false
                   }
                   if (redundant) {
@@ -113,7 +114,7 @@ private[annotator] object ModifierChecker {
                   }
                 }
                 case e: ScClassParameter => {
-                  if (PsiTreeUtil.getParentOfType(e, classOf[ScTypeDefinition]).hasModifierProperty("final")) {
+                  if (PsiTreeUtil.getParentOfType(e, classOf[ScTypeDefinition]).hasFinalModifier) {
                     if (checkDublicates(modifierPsi, "final")) {
                       proccessWarning(ScalaBundle.message("final.modifier.is.redundant.with.final.parents"), modifierPsi, holder,
                         new RemoveModifierQuickFix(owner, "final"))

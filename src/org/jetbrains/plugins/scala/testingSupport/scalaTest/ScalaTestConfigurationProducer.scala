@@ -22,7 +22,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScCl
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaRecursiveElementVisitor
-import org.jetbrains.plugins.scala.extensions.toPsiClassExt
+import org.jetbrains.plugins.scala.extensions.{toPsiModifierListOwnerExt, toPsiClassExt}
 
 /**
  * User: Alexander Podkhalyuzin
@@ -65,7 +65,7 @@ class ScalaTestConfigurationProducer extends {
       clazz = PsiTreeUtil.getParentOfType(clazz, classOf[ScTypeDefinition], true)
     }
     if (!clazz.isInstanceOf[ScClass]) return (null, null)
-    if (clazz.hasModifierProperty("abstract")) return (null, null)
+    if (clazz.hasModifierPropertyScala("abstract")) return (null, null)
     if (!isInheritor(clazz, "org.scalatest.Suite")) return (null, null)
     val testClassPath = clazz.qualifiedName
 

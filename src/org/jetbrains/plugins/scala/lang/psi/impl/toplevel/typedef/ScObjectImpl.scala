@@ -237,6 +237,9 @@ class ScObjectImpl extends ScTypeDefinitionImpl with ScObject with ScTemplateDef
               case _ => (false, None)
             }
             res += t.getTypedDefinitionWrapper(false, isInterface, SIMPLE_ROLE, cClass)
+            if (t.isVar) {
+              res += t.getTypedDefinitionWrapper(false, isInterface, EQ, cClass)
+            }
             t.nameContext match {
               case s: ScAnnotationsHolder =>
                 val beanProperty = s.hasAnnotation("scala.reflect.BeanProperty") != None

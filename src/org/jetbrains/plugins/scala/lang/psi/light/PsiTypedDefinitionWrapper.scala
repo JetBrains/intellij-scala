@@ -52,12 +52,23 @@ class PsiTypedDefinitionWrapper(val typedDefinition: ScTypedDefinition, isStatic
   override def canNavigateToSource: Boolean = typedDefinition.canNavigateToSource
 
   override def getParent: PsiElement = containingClass
+
+  override def hasModifierProperty(name: String): Boolean = {
+    name match {
+      case "abstract" if isInterface => true
+      case _ => super.hasModifierProperty(name)
+    }
+  }
+
+  override def getPrevSibling: PsiElement = typedDefinition.getPrevSibling
+
+  override def getNextSibling: PsiElement = typedDefinition.getNextSibling
 }
 
 object PsiTypedDefinitionWrapper {
   object DefinitionRole extends Enumeration {
     type DefinitionRole = Value
-    val SIMPLE_ROLE, GETTER, IS_GETTER, SETTER = Value
+    val SIMPLE_ROLE, GETTER, IS_GETTER, SETTER, EQ = Value
   }
   import DefinitionRole._
 
@@ -72,7 +83,7 @@ object PsiTypedDefinitionWrapper {
 
     val result = b.getType(TypingContext.empty)
     result match {
-      case _ if role == SETTER => builder.append("void")
+      case _ if role == SETTER || role == EQ => builder.append("void")
       case Success(tp, _) => builder.append(JavaConversionUtil.typeText(tp, b.getProject, b.getResolveScope))
       case _ => builder.append("java.lang.Object")
     }
@@ -83,9 +94,10 @@ object PsiTypedDefinitionWrapper {
       case GETTER => "get" + b.getName.capitalize
       case IS_GETTER => "is" + b.getName.capitalize
       case SETTER => "set" + b.getName.capitalize
+      case EQ => b.getName + "_$eq"
     }
     builder.append(name)
-    if (role != SETTER) {
+    if (role != SETTER && role != EQ) {
       builder.append("()")
     } else {
       builder.append("(")

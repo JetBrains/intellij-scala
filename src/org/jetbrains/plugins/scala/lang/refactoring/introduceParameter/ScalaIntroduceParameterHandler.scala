@@ -24,6 +24,7 @@ import com.intellij.ide.util.SuperMethodWarningUtil
 import com.intellij.refactoring.{RefactoringBundle, HelpID, RefactoringActionHandler}
 import collection.mutable.{HashSet, ArrayBuffer}
 import psi.types.result.TypingContext
+import extensions.toPsiModifierListOwnerExt
 
 /**
  * User: Alexander Podkhalyuzin
@@ -175,7 +176,7 @@ class ScalaIntroduceParameterHandler extends RefactoringActionHandler with Confl
   }
 
   private def isLibraryInterfaceMethod(method: PsiMethod): Boolean = {
-    (method.hasModifierProperty(PsiModifier.ABSTRACT) || method.isInstanceOf[ScFunctionDefinition]) &&
+    (method.hasModifierPropertyScala(PsiModifier.ABSTRACT) || method.isInstanceOf[ScFunctionDefinition]) &&
       !method.getManager.isInProject(method)
   }
 }

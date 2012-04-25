@@ -104,6 +104,16 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
     hasAnnotation("scala.native") != None
   }
 
+  override def hasModifierProperty(name: String): Boolean = {
+    if (name == "abstract") {
+      containingClass match {
+        case t: ScTrait => return true
+        case _ =>
+      }
+    }
+    super.hasModifierProperty(name)
+  }
+
   /**
    * This method is important for expected type evaluation.
    */

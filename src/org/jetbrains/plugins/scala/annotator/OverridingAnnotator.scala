@@ -11,6 +11,7 @@ import com.intellij.codeInspection.ProblemHighlightType
 import params.ScClassParameter
 import quickfix.modifiers.{AddModifierQuickFix, RemoveModifierQuickFix}
 import com.intellij.lang.annotation.{Annotation, AnnotationHolder}
+import org.jetbrains.plugins.scala.extensions.toPsiModifierListOwnerExt
 
 /**
  * User: Alexander Podkhalyuzin
@@ -24,8 +25,8 @@ trait OverridingAnnotator {
       case f: ScFunctionDeclaration if f.isNative => true
       case _: ScFunctionDeclaration => false
       case _: ScFun => true
-      case method: PsiMethod if !method.hasModifierProperty(PsiModifier.ABSTRACT) && !method.isConstructor => true
-      case method: PsiMethod if method.hasModifierProperty("native") => true
+      case method: PsiMethod if !method.hasAbstractModifier && !method.isConstructor => true
+      case method: PsiMethod if method.hasModifierProperty(PsiModifier.NATIVE) => true
       case _: ScPatternDefinition => true
       case _: ScVariableDefinition => true
       case _: ScClassParameter => true

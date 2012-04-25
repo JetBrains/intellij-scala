@@ -16,7 +16,7 @@ import com.intellij.psi.search.searches.ClassInheritorsSearch
 import com.intellij.util.Processor
 import collection.mutable.{HashMap, HashSet}
 import com.intellij.psi.{PsiNamedElement, PsiElement, PsiDocCommentOwner, PsiClass}
-import org.jetbrains.plugins.scala.extensions.{toPsiMemberExt, toPsiNamedElementExt, toPsiClassExt}
+import org.jetbrains.plugins.scala.extensions.{toPsiModifierListOwnerExt, toPsiMemberExt, toPsiNamedElementExt, toPsiClassExt}
 
 /**
  * @author Alefas
@@ -92,7 +92,7 @@ object ScalaAfterNewCompletionUtil {
       psiClass match {
         case clazz: PsiClass => {
           if (psiClass.isInterface || psiClass.isInstanceOf[ScTrait] ||
-            psiClass.hasModifierProperty("abstract")) {
+            psiClass.hasModifierPropertyScala("abstract")) {
             tailText += " {...}"
           }
           val location: String = clazz.getPresentation.getLocationString
@@ -126,7 +126,7 @@ object ScalaAfterNewCompletionUtil {
     }
     lookupElement.isRenamed = isRenamed
     if (ApplicationManager.getApplication.isUnitTestMode || psiClass.isInterface ||
-      psiClass.isInstanceOf[ScTrait] || psiClass.hasModifierProperty("abstract"))
+      psiClass.isInstanceOf[ScTrait] || psiClass.hasModifierPropertyScala("abstract"))
       lookupElement.setAutoCompletionPolicy(if (ApplicationManager.getApplication.isUnitTestMode) AutoCompletionPolicy.ALWAYS_AUTOCOMPLETE
       else AutoCompletionPolicy.NEVER_AUTOCOMPLETE)
     lookupElement.setInsertHandler(new ScalaConstructorInsertHandler)
@@ -153,7 +153,7 @@ object ScalaAfterNewCompletionUtil {
         }
         //todo: filter inner classes smarter (how? don't forget deep inner classes)
         if (clazz.containingClass != null && (!clazz.containingClass.isInstanceOf[ScObject] ||
-          clazz.hasModifierProperty("static"))) return null
+          clazz.hasModifierPropertyScala("static"))) return null
         if (!ResolveUtils.isAccessible(clazz, place)) return null
         if (addedClasses.contains(clazz.qualifiedName)) return null
         addedClasses += clazz.qualifiedName
