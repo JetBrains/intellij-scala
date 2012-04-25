@@ -111,6 +111,14 @@ object ResolveUtils {
   }
 
   def isAccessible(memb: PsiMember, place: PsiElement): Boolean = {
+    memb match {
+      case b: ScBindingPattern =>
+        b.nameContext match {
+          case memb: ScMember => return isAccessible(memb, place)
+          case _ =>
+        }
+      case _ =>
+    }
     if (place.getLanguage == StdLanguages.JAVA) {
       return JavaResolveUtil.isAccessible(memb, memb.containingClass, memb.getModifierList, place, null, null)
     }
