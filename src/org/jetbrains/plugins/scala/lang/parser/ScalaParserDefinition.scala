@@ -16,6 +16,7 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaLexer
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import psi.impl.ScalaFileImpl
 import settings._
+import com.intellij.openapi.application.ApplicationManager
 
 /**
  * @author ilyas
@@ -23,8 +24,9 @@ import settings._
 class ScalaParserDefinition extends ScalaParserDefinitionWrapper{
 
   def createLexer(project: Project) = {
-    val treatDocCommentAsBlockComment = ScalaProjectSettings.getInstance(project).
-            isTreatDocCommentAsBlockComment;
+    val treatDocCommentAsBlockComment = if (!ApplicationManager.getApplication.isUnitTestMode) {
+      ScalaProjectSettings.getInstance(project).isTreatDocCommentAsBlockComment
+    } else false;
     new ScalaLexer(treatDocCommentAsBlockComment)
   }
 
