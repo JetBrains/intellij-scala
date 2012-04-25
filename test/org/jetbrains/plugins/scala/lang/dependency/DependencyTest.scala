@@ -97,6 +97,17 @@ class DependencyTest extends SimpleTestCase {
     """, ("C", "ScFunctionDefinition", "O.C"))
   }
 
+  def testSyntheticInfixUnapply() {
+    assertDependenciesAre("""
+    object O {
+      case class C(a: Any, b: Any)
+      null match {
+        case _ C _ =>
+      }
+    }
+    """, ("C", "ScFunctionDefinition", "O.C"))
+  }
+
   def testSyntheticUnapplySeq() {
     assertDependenciesAre("""
     object O {
@@ -112,7 +123,7 @@ class DependencyTest extends SimpleTestCase {
     assertDependenciesAre("""
     object O {
       object Foo {
-        def apply() {}
+        def apply() = null
       }
       Foo()
     }
@@ -123,10 +134,23 @@ class DependencyTest extends SimpleTestCase {
     assertDependenciesAre("""
     object O {
       object Foo {
-        def unapply() {}
+        def unapply() = null
       }
       null match {
         case Foo() =>
+      }
+    }
+    """, ("Foo", "ScFunctionDefinition", "O.Foo"))
+  }
+
+  def testExplicitInfixUnapply() {
+    assertDependenciesAre("""
+    object O {
+      object Foo {
+        def unapply(v: Any): Option[(Any, Any)] = null
+      }
+      null match {
+        case _ Foo _ =>
       }
     }
     """, ("Foo", "ScFunctionDefinition", "O.Foo"))
@@ -184,6 +208,7 @@ class DependencyTest extends SimpleTestCase {
 
   // package
   // implicit conversions
+  // import, T
 
   private def assertDependenciesAre(@Language("Scala") code: String, expectations: (String, String, String)*) {
     val file = parseText(code)
