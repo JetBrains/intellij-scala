@@ -8,22 +8,21 @@ import psi.impl.ScalaPsiManager
 import com.intellij.psi._
 import com.intellij.ide.highlighter.JavaFileType
 import util.MethodSignatureUtil
-import psi.impl.toplevel.synthetic.ScSyntheticFunction
 import api.statements.params.ScParameters
 import extensions.toPsiNamedElementExt
 import collection.mutable.ArrayBuffer
 
-class Signature(val name: String, val typesEval: Stream[ScType], val paramLength: Int,
+class Signature(val name: String, val typesEval: List[Stream[ScType]], val paramLength: List[Int],
                 val typeParams: Array[PsiTypeParameter], val substitutor: ScSubstitutor,
                 val namedElement: Option[PsiNamedElement]) {
 
   def this(name: String, stream: Stream[ScType], paramLength: Int, substitutor: ScSubstitutor,
            namedElement: Option[PsiNamedElement]) =
-    this (name, stream, paramLength, Array[PsiTypeParameter](), substitutor, namedElement)
+    this(name, List(stream), List(paramLength), Array.empty, substitutor, namedElement)
 
-  def types: scala.Stream[ScType] = typesEval
+  private def types: List[Stream[ScType]] = typesEval
 
-  def substitutedTypes: Stream[ScType] = ScalaPsiUtil.getTypesStream(types, substitutor.subst _)
+  def substitutedTypes: List[Stream[ScType]] = types.map(ScalaPsiUtil.getTypesStream(_, substitutor.subst _))
 
   def equiv(other: Signature): Boolean = {
     def fieldCheck(other: Signature): Boolean = {
@@ -37,8 +36,6 @@ class Signature(val name: String, val typesEval: Stream[ScType], val paramLength
     
   }
 
-  // This is a quick fix for SCL-2973.
-  // TODO Handle this properly
   def javaErasedEquiv(other: Signature): Boolean = {
     (this, other) match {
       case (ps1: PhysicalSignature, ps2: PhysicalSignature) if ps1.isJava && ps2.isJava =>
@@ -56,22 +53,37 @@ class Signature(val name: String, val typesEval: Stream[ScType], val paramLength
   }
 
 
-  // TODO SCL-3518, SCL-3519
   def paramTypesEquivExtended(other: Signature, uSubst: ScUndefinedSubstitutor,
                               falseUndef: Boolean): (Boolean, ScUndefinedSubstitutor) = {
     var undefSubst = uSubst
-    if (paramLength != other.paramLength) return (false, undefSubst)
+    if (paramLength != other.paramLength && !(paramLength.sum == 0 && other.paramLength.sum == 0)) return (false, undefSubst)
     if (hasRepeatedParam != other.hasRepeatedParam) return (false, undefSubst)
     val unified1 = unify(substitutor, typeParams, typeParams)
     val unified2 = unify(other.substitutor, typeParams, other.typeParams)
-    val typesIterator = substitutedTypes.iterator
-    val otherTypesIterator = other.substitutedTypes.iterator
-    while (typesIterator.hasNext && otherTypesIterator.hasNext) {
-      val t1 = typesIterator.next()
-      val t2 = otherTypesIterator.next()
-      val t = Equivalence.equivInner(unified2.subst(t2), unified1.subst(t1), undefSubst, falseUndef)
-      if (!t._1) return (false, undefSubst)
-      undefSubst = t._2
+    val clauseIterator = substitutedTypes.iterator
+    val otherClauseIterator = other.substitutedTypes.iterator
+    while (clauseIterator.hasNext && otherClauseIterator.hasNext) {
+      val clause1 = clauseIterator.next()
+      val clause2 = otherClauseIterator.next()
+      val typesIterator = clause1.iterator
+      val otherTypesIterator = clause2.iterator
+      while (typesIterator.hasNext && otherTypesIterator.hasNext) {
+        val t1 = typesIterator.next()
+        val t2 = otherTypesIterator.next()
+        val tp2 = unified2.subst(t2)
+        val tp1 = unified1.subst(t1)
+        var t = Equivalence.equivInner(tp2, tp1, undefSubst, falseUndef)
+        if (!t._1 && tp1.equiv(AnyRef) && this.isJava) {
+          t = Equivalence.equivInner(tp2, Any, undefSubst, falseUndef)
+        }
+        if (!t._1 && tp2.equiv(AnyRef) && other.isJava) {
+          t = Equivalence.equivInner(Any, tp1, undefSubst, falseUndef)
+        }
+        if (!t._1) {
+          return (false, undefSubst)
+        }
+        undefSubst = t._2
+      }
     }
     (true, undefSubst)
   }
@@ -96,6 +108,8 @@ class Signature(val name: String, val typesEval: Stream[ScType], val paramLength
     name.hashCode * 31
   }
 
+  def isJava: Boolean = false
+
   def hasRepeatedParam: Seq[Int] = Seq.empty
 }
 
@@ -103,18 +117,18 @@ class Signature(val name: String, val typesEval: Stream[ScType], val paramLength
 
 import com.intellij.psi.PsiMethod
 object PhysicalSignature {
-  private def typesEval(method: PsiMethod) = method match {
+  private def typesEval(method: PsiMethod): List[Stream[ScType]] = method match {
     case fun: ScFunction =>
-      ScalaPsiUtil.getTypesStream(fun.effectiveParameterClauses.flatMap(_.parameters))
-    case _ => ScalaPsiUtil.getTypesStream(method.getParameterList match {
+      fun.effectiveParameterClauses.map(clause => ScalaPsiUtil.getTypesStream(clause.parameters)).toList
+    case _ => List(ScalaPsiUtil.getTypesStream(method.getParameterList match {
       case p: ScParameters => p.params
       case p => p.getParameters.toSeq
-    })
+    }))
   }
 
-  private def paramLength(method: PsiMethod) = method match {
-    case fun: ScFunction => fun.effectiveParameterClauses.map(_.parameters.length).sum
-    case _ => method.getParameterList.getParametersCount
+  private def paramLength(method: PsiMethod): List[Int] = method match {
+    case fun: ScFunction => fun.effectiveParameterClauses.map(_.parameters.length).toList
+    case _ => List(method.getParameterList.getParametersCount)
   }
 }
 
@@ -145,5 +159,5 @@ class PhysicalSignature(val method: PsiMethod, override val substitutor: ScSubst
 
   def updateSubst(f: ScSubstitutor => ScSubstitutor): PhysicalSignature = new PhysicalSignature(method, f(substitutor))
 
-  def isJava = method.getLanguage == JavaFileType.INSTANCE.getLanguage
+  override def isJava = method.getLanguage == JavaFileType.INSTANCE.getLanguage
 }
