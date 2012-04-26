@@ -58,7 +58,7 @@ trait ResolvableStableCodeReferenceElement extends ScStableCodeReferenceElement 
       }
       case ScalaResolveResult(pack: ScPackage, s) =>
         pack.processDeclarations(processor, ResolveState.initial.put(ScSubstitutor.key, s),
-          null, ResolvableStableCodeReferenceElement.this, true)
+          null, ResolvableStableCodeReferenceElement.this)
       case other: ScalaResolveResult => {
         other.element.processDeclarations(processor, ResolveState.initial.put(ScSubstitutor.key, other.substitutor),
           null, ResolvableStableCodeReferenceElement.this)
