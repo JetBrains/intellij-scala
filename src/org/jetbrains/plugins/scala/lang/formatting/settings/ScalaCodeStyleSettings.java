@@ -70,7 +70,7 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
   public boolean SPACE_AFTER_MODIFIERS_CONSTRUCTOR = false;
 
   public boolean SPACE_BEFORE_INFIX_METHOD_CALL_PARENTHESES = false;
-  public boolean INSERT_WHITESPACES_IN_SIMPLE_ONE_LINE_METHOD = false;
+  public boolean INSERT_WHITESPACES_IN_SIMPLE_ONE_LINE_METHOD = true;
 
   public boolean SPACE_BEFORE_TYPE_COLON = false;
   public boolean SPACE_AFTER_TYPE_COLON = true;
