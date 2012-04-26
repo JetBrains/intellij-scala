@@ -7,6 +7,7 @@ package expr
 import base.ScConstructor
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.PsiElement
+import collection.mutable.{ListBuffer, ArrayBuffer}
 
 /**
 * @author Alexander Podkhalyuzin
@@ -94,7 +95,20 @@ object ScUnderScoreSectionUtil {
             case _ => Seq.empty
           }
         }
-        case _ => innerExpr.getChildren.toSeq.flatMap(inner(_))
+        case _ =>
+          val res = new ListBuffer[ScUnderscoreSection]
+          val children = innerExpr.getChildren
+          var i = 0
+          while (i < children.length) {
+            val in = inner(children(i))
+            if (in.length > 1) {
+              res ++= in
+            } else if (in.length == 1) {
+              res += in(0)
+            }
+            i += 1
+          }
+          res.toSeq
       }
     }
     inner(expr)

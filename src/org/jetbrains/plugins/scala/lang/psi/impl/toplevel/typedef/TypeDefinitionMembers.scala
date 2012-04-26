@@ -395,14 +395,38 @@ object TypeDefinitionMembers {
   import PsiModificationTracker.{OUT_OF_CODE_BLOCK_MODIFICATION_COUNT => dep_item}
 
   def getParameterlessSignatures(clazz: PsiClass): PMap = {
+    clazz match {
+      case o: ScObject =>
+        val qual = o.qualifiedName
+        if (qual == "scala" || qual == "scala.Predef") {
+          return o.getHardParameterlessSignatures
+        }
+      case _ =>
+    }
     get(clazz, parameterlessKey, new MyProvider(clazz, {clazz: PsiClass => ParameterlessNodes.build(clazz)})(dep_item))
   }
 
   def getTypes(clazz: PsiClass): TMap = {
+    clazz match {
+      case o: ScObject =>
+        val qual = o.qualifiedName
+        if (qual == "scala" || qual == "scala.Predef") {
+          return o.getHardTypes
+        }
+      case _ =>
+    }
     get(clazz, typesKey, new MyProvider(clazz, {clazz: PsiClass => TypeNodes.build(clazz)})(dep_item))
   }
 
   def getSignatures(c: PsiClass): SMap = {
+    c match {
+      case o: ScObject =>
+        val qual = o.qualifiedName
+        if (qual == "scala" || qual == "scala.Predef") {
+          return o.getHardSignatures
+        }
+      case _ =>
+    }
     get(c, signaturesKey, new MyProvider(c, {c: PsiClass => SignatureNodes.build(c)})(dep_item))
   }
 

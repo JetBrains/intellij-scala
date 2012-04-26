@@ -13,8 +13,8 @@ import toplevel.synthetic.SyntheticClasses
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.caches.{ScalaShortNamesCacheManager, CachesUtil}
 import org.jetbrains.plugins.scala.extensions.toPsiNamedElementExt
-import org.jetbrains.plugins.scala.lang.resolve.processor.ImplicitProcessor
 import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils
+import org.jetbrains.plugins.scala.lang.resolve.processor.{ResolveProcessor, ImplicitProcessor}
 
 /**
  * User: Alexander Podkhalyuzin
@@ -29,21 +29,19 @@ class ScPackageImpl(val pack: PsiPackage) extends PsiPackageImpl(pack.getManager
 
   override def processDeclarations(processor: PsiScopeProcessor, state: ResolveState,
                                    lastParent: PsiElement, place: PsiElement): Boolean = {
-    processDeclarations(processor, state, lastParent, place, false)
-  }
-
-  def processDeclarations(processor: PsiScopeProcessor, state: ResolveState,
-                          lastParent: PsiElement, place: PsiElement, lite: Boolean): Boolean = {
     if (place.getLanguage == ScalaFileType.SCALA_LANGUAGE && pack.getQualifiedName == "scala") {
       if (!processor.isInstanceOf[ImplicitProcessor]) {
-        val namesSet = ScalaShortNamesCacheManager.getInstance(getProject).
-          getClassNames(pack, place.getResolveScope)
+        val scope = processor match {
+          case r: ResolveProcessor => r.getResolveScope
+          case _ => place.getResolveScope
+        }
+        val namesSet = ScalaShortNamesCacheManager.getInstance(getProject).getClassNames(pack, scope)
 
         //Process synthetic classes for scala._ package
         /**
          * Does the "scala" package already contain a class named `className`?
          *
-         * @see http://youtrack.jetbrains.net/issue/SCL-2913
+         * [[http://youtrack.jetbrains.net/issue/SCL-2913]]
          */
         def alreadyContains(className: String) = namesSet.contains(className)
 
@@ -58,39 +56,23 @@ class ScPackageImpl(val pack: PsiPackage) extends PsiPackageImpl(pack.getManager
         }
       }
     } else {
-      def process: Boolean =
-        ResolveUtils.packageProcessDeclarations(pack, processor, state, lastParent, place)
-
-      if (!lite && !process) return false
-      else if (lite) {
-        val scope: GlobalSearchScope = place.getResolveScope
-        processor.handleEvent(PsiScopeProcessor.Event.SET_DECLARATION_HOLDER, this)
-        val classHint: ElementClassHint = processor.getHint(ElementClassHint.KEY)
-
-        if (classHint == null || classHint.shouldProcess(ElementClassHint.DeclarationKind.CLASS)) {
-          val nameHint: NameHint = processor.getHint(NameHint.KEY)
-          if (nameHint != null) {
-            val shortName: String = nameHint.getName(state)
-            if (processClassesByName(processor, state, place, scope, shortName)) return false
-            val aPackage: PsiPackage = findSubPackageByName(nameHint.getName(state))
-            if (aPackage != null) {
-              if (!processor.execute(aPackage, state)) return false
-            }
-          } else if (!process) return false
-        } else if (!process) return false
-      }
+      if (!ResolveUtils.packageProcessDeclarations(pack, processor, state, lastParent, place)) return false
     }
 
     //for Scala
     if (place.getLanguage == ScalaFileType.SCALA_LANGUAGE) {
+      val scope = processor match {
+        case r: ResolveProcessor => r.getResolveScope
+        case _ => place.getResolveScope
+      }
       if (getQualifiedName == "scala") {
-        ImplicitlyImported.implicitlyImportedObject(place.getManager, place.getResolveScope, "scala") match {
+        ImplicitlyImported.implicitlyImportedObject(place.getManager, scope, "scala") match {
           case Some(obj) =>
             if (!obj.processDeclarations(processor, state, lastParent, place)) return false
           case _ =>
         }
       } else {
-        findPackageObject(place.getResolveScope) match {
+        findPackageObject(scope) match {
           case Some(obj) =>
             if (!obj.processDeclarations(processor, state, lastParent, place)) return false
           case None =>
@@ -103,7 +85,7 @@ class ScPackageImpl(val pack: PsiPackage) extends PsiPackageImpl(pack.getManager
   private def findSubPackageByName(name: String): PsiPackage = {
     val qName: String = getQualifiedName
     val subpackageQName: String = if (qName.length > 0) qName + "." + name else name
-    var aPackage: PsiPackage = JavaPsiFacade.getInstance(getProject).findPackage(subpackageQName)
+    val aPackage: PsiPackage = JavaPsiFacade.getInstance(getProject).findPackage(subpackageQName)
     if (aPackage == null) return null
     aPackage
   }

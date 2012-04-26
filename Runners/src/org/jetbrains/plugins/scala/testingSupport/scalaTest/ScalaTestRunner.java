@@ -11,6 +11,7 @@ import scala.Option;
 import scala.Some$;
 import scala.collection.immutable.Map;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -30,6 +31,7 @@ public class ScalaTestRunner {
     } catch (Throwable ignore) {}
     boolean failedUsed = false;
     String testName = "";
+    boolean showProgressMessages = true;
     int i = 0;
     int classIndex = 0;
     while (i < args.length) {
@@ -45,6 +47,10 @@ public class ScalaTestRunner {
       } else if (args[i].equals("-testName")) {
         ++i;
         testName = args[i];
+        ++i;
+      } else if (args[i].equals("-showProgressMessages")) {
+        ++i;
+        showProgressMessages = Boolean.parseBoolean(args[i]);
         ++i;
       } else if (args[i].equals("-failedTests")) {
         failedUsed = true;
@@ -66,16 +72,19 @@ public class ScalaTestRunner {
     if (failedUsed) {
       i = 0;
       while (i + 1 < failedTests.size()) {
+        configureReporter(showProgressMessages);
         runSingleTest(failedTests.get(i + 1), failedTests.get(i), withLocation);
         i += 2;
       }
     } else if (testName.equals("")) {
       for (String clazz : classes) {
         arga[classIndex] = clazz;
+        configureReporter(showProgressMessages);
         Runner.run(arga);
       }
     } else {
       for (String clazz : classes) {
+        configureReporter(showProgressMessages);
         runSingleTest(testName, clazz, withLocation);
       }
     }
@@ -100,5 +109,19 @@ public class ScalaTestRunner {
       }
     }, Filter$.MODULE$.apply(),
         scala.collection.immutable.Map$.MODULE$.empty(), None$.MODULE$, new Tracker());
+  }
+
+  private static void configureReporter(boolean showProgressMessages) {
+    try {
+      Class<?> aClass = Class.forName("org.jetbrains.plugins.scala.testingSupport.scalaTest.ScalaTestReporter");
+      Field field = aClass.getField("myShowProgressMessages");
+      field.set(null, showProgressMessages);
+    } catch (IllegalAccessException e) {
+      throw new RuntimeException(e);
+    } catch (NoSuchFieldException e) {
+      throw new RuntimeException(e);
+    } catch (ClassNotFoundException e) {
+      throw new RuntimeException(e);
+    }
   }
 }
