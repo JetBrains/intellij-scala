@@ -382,9 +382,11 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
     while (implObjIter.hasNext) {
       val clazz = implObjIter.next()
       ProgressManager.checkCanceled()
-      
+
+      val millis = System.currentTimeMillis()
       if (clazz != null && !isScalaPredefinedClass &&
         !clazz.processDeclarations(processor, state, null, place)) return false
+      println(clazz.qualifiedName + ": " + (System.currentTimeMillis() - millis))
     }
 
     import toplevel.synthetic.SyntheticClasses
