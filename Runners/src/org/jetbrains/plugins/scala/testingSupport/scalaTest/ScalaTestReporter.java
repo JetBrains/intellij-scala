@@ -15,6 +15,8 @@ import static org.jetbrains.plugins.scala.testingSupport.TestRunnerUtil.*;
  * @author Alexander Podkhalyuzin
  */
 public class ScalaTestReporter implements Reporter {
+  public static boolean myShowProgressMessages = true;
+
   private String getStackTraceString(Throwable throwable) {
     StringWriter writer = new StringWriter();
     throwable.printStackTrace(new PrintWriter(writer));
@@ -42,8 +44,10 @@ public class ScalaTestReporter implements Reporter {
       if (formatter instanceof Some) {
         if (formatter.get() instanceof IndentedText) {
           IndentedText t = (IndentedText) formatter.get();
-          String escaped = escapeString(t.formattedText() + "\n");
-          System.out.println("\n##teamcity[message text='" + escaped + "' status='INFO'" + "]");
+          if (myShowProgressMessages) {
+            String escaped = escapeString(t.formattedText() + "\n");
+            System.out.println("\n##teamcity[message text='" + escaped + "' status='INFO'" + "]");
+          }
         }
       }
 
@@ -108,9 +112,11 @@ public class ScalaTestReporter implements Reporter {
           message = t.formattedText();
         }
       }
-      String escapedMessage = escapeString(message.replaceFirst("\\s+$", ""));
-      if (!escapedMessage.isEmpty()) {
-        System.out.println("\n##teamcity[message text='" + escapedMessage + ":|n' status='INFO'" + "]");
+      if (myShowProgressMessages) {
+        String escapedMessage = escapeString(message.replaceFirst("\\s+$", ""));
+        if (!escapedMessage.isEmpty()) {
+          System.out.println("\n##teamcity[message text='" + escapedMessage + ":|n' status='INFO'" + "]");
+        }
       }
     } else if (event instanceof RunStopped) {
 

@@ -11,7 +11,6 @@ import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.psi.JavaPsiFacade;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiPackage;
 import com.intellij.psi.search.GlobalSearchScope;
@@ -59,6 +58,7 @@ public class ScalaTestRunConfigurationForm {
   private JComboBox kindComboBox;
   private JTextField testNameTextField;
   private JLabel testNameLabel;
+  private JCheckBox myShowProgressMessagesCheckBox;
 
   public static enum TestKind {
     ALL_IN_PACKAGE, CLASS, TEST_NAME;
@@ -218,6 +218,7 @@ public class ScalaTestRunConfigurationForm {
     myModuleSelector.applyTo(configuration);
     searchForTestsComboBox.setSelectedItem(configuration.getSearchTest());
     setTestName(configuration.getTestName());
+    setShowProgressMessages(configuration.getShowProgressMessages());
   }
 
   public TestKind getSelectedKind() {
@@ -274,6 +275,14 @@ public class ScalaTestRunConfigurationForm {
   
   public void setTestName(String s) {
     testNameTextField.setText(s);
+  }
+
+  public boolean getShowProgressMessages() {
+    return myShowProgressMessagesCheckBox.isSelected();
+  }
+
+  public void setShowProgressMessages(boolean b) {
+    myShowProgressMessagesCheckBox.setSelected(b);
   }
 
   public JPanel getPanel() {
