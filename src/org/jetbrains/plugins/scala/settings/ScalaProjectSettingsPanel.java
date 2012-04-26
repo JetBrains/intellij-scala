@@ -24,6 +24,7 @@ public class ScalaProjectSettingsPanel {
   private JCheckBox enableConversionOnCopyCheckBox;
   private JCheckBox donTShowDialogCheckBox;
   private JCheckBox addFullQualifiedImportsCheckBox;
+  private JCheckBox sortImportsCheckBox;
   private JCheckBox showImplicitConversionsInCheckBox;
   private JCheckBox myResolveToAllClassesCheckBox;
   private JCheckBox showArgumentsToByNameParametersCheckBox;
@@ -65,6 +66,7 @@ public class ScalaProjectSettingsPanel {
     ScalaProjectSettings.getInstance().setAddUnambigiousImportsOnTheFly(addUnambiguousImportsOnCheckBox.isSelected());
     ScalaProjectSettings.getInstance().setAddImportMostCloseToReference(addImportStatementInCheckBox.isSelected());
     ScalaProjectSettings.getInstance().setAddFullQualifiedImports(addFullQualifiedImportsCheckBox.isSelected());
+    ScalaProjectSettings.getInstance().setSortImports(sortImportsCheckBox.isSelected());
     ScalaProjectSettings.getInstance().setClassCountToUseImportOnDemand((Integer) classCountSpinner.getValue());
     ScalaProjectSettings.getInstance().setImportMembersUsingUnderScore(importMembersUsingUnderscoreCheckBox.isSelected());
 
@@ -103,6 +105,8 @@ public class ScalaProjectSettingsPanel {
         addImportStatementInCheckBox.isSelected()) return true;
     if (ScalaProjectSettings.getInstance().isAddFullQualifiedImports() !=
         addFullQualifiedImportsCheckBox.isSelected()) return true;
+    if (ScalaProjectSettings.getInstance().isSortImports() !=
+        sortImportsCheckBox.isSelected()) return true;
     if (ScalaProjectSettings.getInstance().isImportMembersUsingUnderScore() !=
         importMembersUsingUnderscoreCheckBox.isSelected()) return true;
 
@@ -142,6 +146,8 @@ public class ScalaProjectSettingsPanel {
         ScalaProjectSettings.getInstance().isAddImportMostCloseToReference());
     setValue(addFullQualifiedImportsCheckBox,
         ScalaProjectSettings.getInstance().isAddFullQualifiedImports());
+    setValue(sortImportsCheckBox,
+        ScalaProjectSettings.getInstance().isSortImports());
     setValue(classCountSpinner,
         ScalaProjectSettings.getInstance().getClassCountToUseImportOnDemand());
     setValue(importMembersUsingUnderscoreCheckBox,
@@ -184,5 +190,9 @@ public class ScalaProjectSettingsPanel {
 
   private static void setValue(final JComboBox box, final int value) {
     box.setSelectedIndex(value);
+  }
+
+  private void createUIComponents() {
+    // TODO: place custom component creation code here
   }
 }
