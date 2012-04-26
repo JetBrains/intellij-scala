@@ -235,19 +235,19 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
       val classes = StubIndex.getInstance.get(ScalaIndexKeys.JAVA_CLASS_NAME_IN_PACKAGE_KEY, qualifier, project,
         new ScalaSourceFilterScope(scope, project))
       import java.util.HashSet
-      var strings: HashSet[String] = new HashSet[String]
+      val strings: HashSet[String] = new HashSet[String]
       val classesIterator = classes.iterator()
       while (classesIterator.hasNext) {
         val element = classesIterator.next()
         if (!(element.isInstanceOf[PsiClass])) {
-          var faultyContainer: VirtualFile = PsiUtilCore.getVirtualFile(element)
+          val faultyContainer: VirtualFile = PsiUtilCore.getVirtualFile(element)
           ScalaPsiManager.LOG.error("Wrong Psi in Psi list: " + faultyContainer)
           if (faultyContainer != null && faultyContainer.isValid) {
             FileBasedIndex.getInstance.requestReindex(faultyContainer)
           }
           return null
         }
-        var clazz: PsiClass = element.asInstanceOf[PsiClass]
+        val clazz: PsiClass = element.asInstanceOf[PsiClass]
         strings add clazz.getName
         clazz match {
           case t: ScTemplateDefinition =>
@@ -276,14 +276,14 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
       while (classesIterator.hasNext) {
         val element = classesIterator.next()
         if (!(element.isInstanceOf[PsiClass])) {
-          var faultyContainer: VirtualFile = PsiUtilCore.getVirtualFile(element)
+          val faultyContainer: VirtualFile = PsiUtilCore.getVirtualFile(element)
           ScalaPsiManager.LOG.error("Wrong Psi in Psi list: " + faultyContainer)
           if (faultyContainer != null && faultyContainer.isValid) {
             FileBasedIndex.getInstance.requestReindex(faultyContainer)
           }
           return null
         }
-        var clazz: PsiClass = element.asInstanceOf[PsiClass]
+        val clazz: PsiClass = element.asInstanceOf[PsiClass]
         strings += clazz.name
       }
       strings
