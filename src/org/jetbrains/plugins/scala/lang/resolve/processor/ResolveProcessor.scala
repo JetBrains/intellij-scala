@@ -17,10 +17,20 @@ import psi.api.toplevel.templates.ScTemplateBody
 import reflect.NameTransformer
 import psi.api.toplevel.typedef.{ScClass, ScTrait, ScMember, ScObject}
 import extensions.{toPsiNamedElementExt, toPsiClassExt}
+import com.intellij.psi.search.GlobalSearchScope
 
 class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
                        val ref: PsiElement,
                        val name: String) extends BaseProcessor(kinds) with PrecedenceHelper[String] {
+  @volatile
+  private var resolveScope: GlobalSearchScope = null
+  def getResolveScope: GlobalSearchScope = {
+    if (resolveScope == null) {
+      resolveScope = ref.getResolveScope
+    }
+    resolveScope
+  }
+
   protected def getPlace: PsiElement = ref
 
   val isThisOrSuperResolve = ref.getParent match {

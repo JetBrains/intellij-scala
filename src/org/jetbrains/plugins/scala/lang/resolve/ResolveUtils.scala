@@ -3,7 +3,7 @@ package lang
 package resolve
 
 import com.intellij.psi.util.PsiTreeUtil
-import processor.{ImplicitProcessor, BaseProcessor}
+import processor.{ResolveProcessor, ImplicitProcessor, BaseProcessor}
 import psi.api.ScalaFile
 import psi.api.toplevel.typedef._
 import psi.impl.toplevel.typedef.TypeDefinitionMembers
@@ -115,7 +115,7 @@ object ResolveUtils {
       case b: ScBindingPattern =>
         b.nameContext match {
           case memb: ScMember => return isAccessible(memb, place)
-          case _ =>
+          case _ => return true
         }
       case _ =>
     }
@@ -481,7 +481,11 @@ object ResolveUtils {
               val manager = ScalaPsiManager.instance(pack.getProject)
               val qName = pack.getQualifiedName
               val fqn = if (qName.length() > 0) qName + "." + name else name
-              val classes: Array[PsiClass] = manager.getCachedClasses(place.getResolveScope, fqn)
+              val scope = base match {
+                case r: ResolveProcessor => r.getResolveScope
+                case _ => place.getResolveScope
+              }
+              val classes: Array[PsiClass] = manager.getCachedClasses(scope, fqn)
               for (clazz <- classes) {
                 if (!processor.execute(clazz, state)) return false
               }
@@ -504,7 +508,11 @@ object ResolveUtils {
             if (base.getClassKindInner) {
               base.setClassKind(false)
               val manager = ScalaPsiManager.instance(pack.getProject)
-              var iterator = manager.getClasses(pack, place.getResolveScope).iterator
+              val scope = base match {
+                case r: ResolveProcessor => r.getResolveScope
+                case _ => place.getResolveScope
+              }
+              val iterator = manager.getClasses(pack, scope).iterator
               while (iterator.hasNext) {
                 val clazz = iterator.next()
                 if (!processor.execute(clazz, state)) return false

@@ -12,7 +12,6 @@ import com.intellij.psi.javadoc.{PsiDocTag, PsiDocComment}
 * User: Alexander Podkhalyuzin
 * Date: 22.07.2008
 */
-
 trait ScDocComment extends PsiDocComment with ScalaPsiElement {
   def findTagsByName(name: String): Array[PsiDocTag]
   def findTagsByName(filter: String => Boolean): Array[PsiDocTag]

@@ -293,4 +293,31 @@ class ScObjectImpl extends ScTypeDefinitionImpl with ScObject with ScTemplateDef
   override def getInterfaces: Array[PsiClass] = {
     getSupers.filter(_.isInterface)
   }
+
+  @volatile
+  private var hardParameterlessSignatures: TypeDefinitionMembers.ParameterlessNodes.Map = null
+  def getHardParameterlessSignatures: TypeDefinitionMembers.ParameterlessNodes.Map = {
+    if (hardParameterlessSignatures == null) {
+      hardParameterlessSignatures = TypeDefinitionMembers.ParameterlessNodes.build(this)
+    }
+    hardParameterlessSignatures
+  }
+
+  @volatile
+  private var hardTypes: TypeDefinitionMembers.TypeNodes.Map = null
+  def getHardTypes: TypeDefinitionMembers.TypeNodes.Map = {
+    if (hardTypes == null) {
+      hardTypes = TypeDefinitionMembers.TypeNodes.build(this)
+    }
+    hardTypes
+  }
+
+  @volatile
+  private var hardSignatures: TypeDefinitionMembers.SignatureNodes.Map = null
+  def getHardSignatures: TypeDefinitionMembers.SignatureNodes.Map = {
+    if (hardSignatures == null) {
+      hardSignatures = TypeDefinitionMembers.SignatureNodes.build(this)
+    }
+    hardSignatures
+  }
 }

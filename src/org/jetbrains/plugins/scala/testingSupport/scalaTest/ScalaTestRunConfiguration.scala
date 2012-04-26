@@ -71,6 +71,9 @@ class ScalaTestRunConfiguration(val project: Project, val configurationFactory: 
   @BeanProperty
   var testKind = TestKind.CLASS
 
+  @BeanProperty
+  var showProgressMessages = true
+
   def getTestClassPath = testClassPath
   def getTestPackagePath = testPackagePath
   def getTestArgs = testArgs
@@ -108,6 +111,7 @@ class ScalaTestRunConfiguration(val project: Project, val configurationFactory: 
     setModule(configuration.getModule)
     setWorkingDirectory(configuration.getWorkingDirectory)
     setTestName(configuration.getTestName)
+    setShowProgressMessages(configuration.getShowProgressMessages)
   }
 
   def getClazz(path: String, withDependencies: Boolean): PsiClass = {
@@ -299,6 +303,8 @@ class ScalaTestRunConfiguration(val project: Project, val configurationFactory: 
         params.getProgramParametersList.add("-r")
         params.getProgramParametersList.add(reporterClass)
         params.getProgramParametersList.addParametersString(testArgs)
+        params.getProgramParametersList.add("-showProgressMessages")
+        params.getProgramParametersList.add(showProgressMessages.toString)
         for (ext <- Extensions.getExtensions(RunConfigurationExtension.EP_NAME)) {
           ext.updateJavaParameters(ScalaTestRunConfiguration.this, params, getRunnerSettings)
         }
@@ -386,6 +392,7 @@ class ScalaTestRunConfiguration(val project: Project, val configurationFactory: 
     JDOMExternalizer.write(element, "searchForTest", searchTest.toString)
     JDOMExternalizer.write(element, "testName", testName)
     JDOMExternalizer.write(element, "testKind", testKind.toString)
+    JDOMExternalizer.write(element, "showProgressMessages", testKind.toString)
     PathMacroManager.getInstance(getProject).collapsePathsRecursively(element)
   }
 
@@ -405,6 +412,7 @@ class ScalaTestRunConfiguration(val project: Project, val configurationFactory: 
     }
     testName = Option(JDOMExternalizer.readString(element, "testName")).getOrElse("")
     testKind = TestKind.fromString(Option(JDOMExternalizer.readString(element, "testKind")).getOrElse("Class"))
+    showProgressMessages = JDOMExternalizer.readBoolean(element, "showProgressMessages")
   }
 }
 

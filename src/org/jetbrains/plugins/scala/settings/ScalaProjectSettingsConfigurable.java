@@ -17,7 +17,7 @@ public class ScalaProjectSettingsConfigurable implements Configurable {
   private ScalaProjectSettingsPanel myPanel;
 
   public ScalaProjectSettingsConfigurable(Project project) {
-    myPanel = new ScalaProjectSettingsPanel();
+    myPanel = new ScalaProjectSettingsPanel(project);
     myComponent = myPanel.getPanel();
   }
 

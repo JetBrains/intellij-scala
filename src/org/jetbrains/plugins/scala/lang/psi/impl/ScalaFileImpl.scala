@@ -382,7 +382,7 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
     while (implObjIter.hasNext) {
       val clazz = implObjIter.next()
       ProgressManager.checkCanceled()
-      
+
       if (clazz != null && !isScalaPredefinedClass &&
         !clazz.processDeclarations(processor, state, null, place)) return false
     }

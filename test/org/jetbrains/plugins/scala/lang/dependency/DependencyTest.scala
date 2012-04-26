@@ -209,6 +209,7 @@ class DependencyTest extends SimpleTestCase {
   // package
   // implicit conversions
   // import, T
+  // injected
 
   private def assertDependenciesAre(@Language("Scala") code: String, expectations: (String, String, String)*) {
     val file = parseText(code)

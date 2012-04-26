@@ -21,7 +21,6 @@ import caches.ScalaShortNamesCacheManager
 import api.toplevel.typedef.{ScTemplateDefinition, ScObject}
 import extensions.toPsiNamedElementExt
 import com.intellij.openapi.project.{DumbServiceImpl, Project}
-import java.util.{Collections, Map}
 import stubs.StubIndex
 import psi.stubs.index.ScalaIndexKeys
 import finder.ScalaSourceFilterScope
@@ -31,6 +30,7 @@ import com.intellij.util.indexing.FileBasedIndex
 import com.intellij.openapi.diagnostic.Logger
 import collection.mutable.HashSet
 import com.intellij.psi.search.{PsiShortNamesCache, GlobalSearchScope}
+import java.util.{Arrays, Collections, Map}
 
 class ScalaPsiManager(project: Project) extends ProjectComponent {
   private val implicitObjectMap: ConcurrentMap[String, SoftReference[java.util.Map[GlobalSearchScope, Seq[ScObject]]]] =
@@ -186,7 +186,17 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
   def getCachedClasses(scope: GlobalSearchScope, fqn: String): Array[PsiClass] = {
     def calc(): Array[PsiClass] = {
       val classes = getCachedFacadeClasses(scope, fqn)
-      classes ++ ScalaShortNamesCacheManager.getInstance(project).getClassesByFQName(fqn, scope)
+      val fromScala = ScalaShortNamesCacheManager.getInstance(project).getClassesByFQName(fqn, scope)
+      if (classes.length == 0) {
+        fromScala.toArray
+      } else if (fromScala.length == 0) {
+        classes
+      } else {
+        val res = new Array[PsiClass](classes.length + fromScala.length)
+        System.arraycopy(classes, 0, res, 0, classes.length)
+        System.arraycopy(fromScala.toArray, 0, res, classes.length, fromScala.length)
+        res
+      }
     }
 
     val reference = classesMap.get(fqn)
@@ -204,7 +214,7 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
     result
   }
 
-  def getCachedFacadeClasses(scope: GlobalSearchScope, fqn: String): Array[PsiClass] = {
+  private def getCachedFacadeClasses(scope: GlobalSearchScope, fqn: String): Array[PsiClass] = {
     def calc(): Array[PsiClass] = {
       val classes = JavaPsiFacade.getInstance(project).findClasses(fqn, scope).filterNot(p =>
         p.isInstanceOf[ScTemplateDefinition] || p.isInstanceOf[PsiClassWrapper]
@@ -235,19 +245,19 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
       val classes = StubIndex.getInstance.get(ScalaIndexKeys.JAVA_CLASS_NAME_IN_PACKAGE_KEY, qualifier, project,
         new ScalaSourceFilterScope(scope, project))
       import java.util.HashSet
-      var strings: HashSet[String] = new HashSet[String]
+      val strings: HashSet[String] = new HashSet[String]
       val classesIterator = classes.iterator()
       while (classesIterator.hasNext) {
         val element = classesIterator.next()
         if (!(element.isInstanceOf[PsiClass])) {
-          var faultyContainer: VirtualFile = PsiUtilCore.getVirtualFile(element)
+          val faultyContainer: VirtualFile = PsiUtilCore.getVirtualFile(element)
           ScalaPsiManager.LOG.error("Wrong Psi in Psi list: " + faultyContainer)
           if (faultyContainer != null && faultyContainer.isValid) {
             FileBasedIndex.getInstance.requestReindex(faultyContainer)
           }
           return null
         }
-        var clazz: PsiClass = element.asInstanceOf[PsiClass]
+        val clazz: PsiClass = element.asInstanceOf[PsiClass]
         strings add clazz.getName
         clazz match {
           case t: ScTemplateDefinition =>
@@ -276,14 +286,14 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
       while (classesIterator.hasNext) {
         val element = classesIterator.next()
         if (!(element.isInstanceOf[PsiClass])) {
-          var faultyContainer: VirtualFile = PsiUtilCore.getVirtualFile(element)
+          val faultyContainer: VirtualFile = PsiUtilCore.getVirtualFile(element)
           ScalaPsiManager.LOG.error("Wrong Psi in Psi list: " + faultyContainer)
           if (faultyContainer != null && faultyContainer.isValid) {
             FileBasedIndex.getInstance.requestReindex(faultyContainer)
           }
           return null
         }
-        var clazz: PsiClass = element.asInstanceOf[PsiClass]
+        val clazz: PsiClass = element.asInstanceOf[PsiClass]
         strings += clazz.name
       }
       strings
