@@ -20,12 +20,10 @@ import java.io.File;
 @State(
     name = "ScalaProjectSettings",
     storages = {
-        @Storage(
-            id = "scala_project_settings",
-            file = "$APP_CONFIG$/scala_project_settings.xml"
-        )}
+        @Storage(file = "$WORKSPACE_FILE$"),
+        @Storage(file = "$PROJECT_CONFIG_DIR$/scala_settings.xml", scheme = StorageScheme.DIRECTORY_BASED)
+    }
 )
-
 public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProjectSettings>, ExportableComponent {
   private ScalaCodeStyleSettings scalaSettings =
       CodeStyleSettingsManager.getInstance().getCurrentSettings().getCustomSettings(ScalaCodeStyleSettings.class);
@@ -52,12 +50,10 @@ public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProj
   private boolean SCALA_CLASSES_PRIORITY = scalaSettings.SCALA_CLASSES_PRIORITY;
 
   public static ScalaProjectSettings getInstance() {
-    if (ApplicationManager.getApplication().isUnitTestMode()) return new ScalaProjectSettings();
     return ServiceManager.getService(ScalaProjectSettings.class);
   }
 
   public static ScalaProjectSettings getInstance(Project project) {
-    if (ApplicationManager.getApplication().isUnitTestMode()) return new ScalaProjectSettings();
     return project == null ? getInstance() : ServiceManager.getService(project, ScalaProjectSettings.class);
   }
 
