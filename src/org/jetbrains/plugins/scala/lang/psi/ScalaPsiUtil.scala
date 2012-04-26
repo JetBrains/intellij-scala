@@ -41,7 +41,6 @@ import com.intellij.openapi.roots.{ProjectRootManager, ProjectFileIndex}
 import lang.resolve.processor._
 import lang.resolve.{ResolveTargets, ResolveUtils, ScalaResolveResult}
 import com.intellij.psi.impl.light.LightModifierList
-import collection.mutable.{HashSet, ArrayBuffer}
 import collection.immutable.Stream
 import com.intellij.psi.impl.source.PsiFileImpl
 import com.intellij.psi.stubs.StubElement
@@ -52,6 +51,7 @@ import caches.CachesUtil
 import java.lang.Exception
 import extensions._
 import collection.Seq
+import collection.mutable.{ListBuffer, HashSet, ArrayBuffer}
 
 /**
  * User: Alexander Podkhalyuzin
@@ -362,44 +362,52 @@ object ScalaPsiUtil {
 
   def collectImplicitObjects(tp: ScType, place: PsiElement): Seq[ScType] = {
     val projectOpt = Option(place).map(_.getProject)
-    def collectParts(tp: ScType, place: PsiElement): Seq[ScType] = {
+    val parts: ListBuffer[ScType] = new ListBuffer[ScType]
+    def collectParts(tp: ScType, place: PsiElement) {
       tp match {
         case ScCompoundType(comps, _, _, _) => {
-          comps.flatMap(collectParts(_, place))
+          comps.foreach(collectParts(_, place))
         }
         case p@ScParameterizedType(a: ScAbstractType, args) => {
-          collectParts(a, place) ++ args.flatMap(collectParts(_, place))
+          collectParts(a, place)
+          args.foreach(collectParts(_, place))
         }
         case p@ScParameterizedType(des, args) => {
-          (ScType.extractClass(p, projectOpt) match {
-            case Some(pair) => Seq(tp)
-            case _ => Seq.empty
-          }) ++ args.flatMap(collectParts(_, place))
+          ScType.extractClass(p, projectOpt) match {
+            case Some(pair) => parts += tp
+            case _ =>
+          }
+          args.foreach(collectParts(_, place))
         }
         case j: JavaArrayType => {
           val parameterizedType = j.getParameterizedType(place.getProject, place.getResolveScope)
-          collectParts(parameterizedType.getOrElse(return Seq.empty), place)
+          collectParts(parameterizedType.getOrElse(return), place)
         }
         case f@ScFunctionType(retType, params) => {
-          (ScType.extractClass(tp, projectOpt) match {
-            case Some(pair) => Seq(tp)
-            case _ => Seq.empty
-          }) ++ params.flatMap(collectParts(_, place)) ++ collectParts(retType, place)
+          ScType.extractClass(tp, projectOpt) match {
+            case Some(pair) => parts += tp
+            case _ =>
+          }
+          params.foreach(collectParts(_, place))
+          collectParts(retType, place)
         }
         case f@ScTupleType(params) => {
-          (ScType.extractClass(tp, projectOpt) match {
-            case Some(pair) => Seq(tp)
-            case _ => Seq.empty
-          }) ++ params.flatMap(collectParts(_, place))
+          ScType.extractClass(tp, projectOpt) match {
+            case Some(pair) => parts += tp
+            case _ =>
+          }
+          params.foreach(collectParts(_, place))
         }
         case proj@ScProjectionType(projected, _, _) => {
-          collectParts(projected, place) ++ (ScType.extractClass(tp, projectOpt) match {
-            case Some(pair) => Seq(tp)
-            case _ => Seq.empty
-          })
+          collectParts(projected, place)
+          ScType.extractClass(tp, projectOpt) match {
+            case Some(pair) => parts += tp
+            case _ =>
+          }
         }
         case ScAbstractType(_, lower, upper) => {
-          collectParts(lower, place) ++ collectParts(upper, place)
+          collectParts(lower, place)
+          collectParts(upper, place)
         }
         case _=> {
           ScType.extractClass(tp, projectOpt) match {
@@ -409,13 +417,14 @@ object ScalaPsiUtil {
                   x.findPackageObject(place.getResolveScope).toIterator
                 case _ => Iterator()
               }
-              Seq(tp) ++ packObjects.map(ScDesignatorType(_))
-            case _ => Seq.empty
+              parts += tp
+              packObjects.foreach(p => parts += ScDesignatorType(p))
+            case _ =>
           }
         }
       }
     }
-    val parts: Seq[ScType] = collectParts(tp, place)
+    collectParts(tp, place)
     val res: HashSet[ScType] = new HashSet
     for (part <- parts) {
       //todo: is it reasonable to make it as part of BaseTypes?
