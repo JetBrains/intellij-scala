@@ -287,7 +287,7 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value]) extends PsiSc
           case _ => true
         }
       case pack: ScPackage =>
-        pack.processDeclarations(this, state.put(ScSubstitutor.key, newSubst), null, place, true)
+        pack.processDeclarations(this, state.put(ScSubstitutor.key, newSubst), null, place)
       case des =>
         des.processDeclarations(this, state.put(ScSubstitutor.key, newSubst), null, place)
     }
