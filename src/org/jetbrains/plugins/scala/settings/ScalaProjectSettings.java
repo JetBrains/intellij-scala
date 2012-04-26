@@ -1,10 +1,8 @@
 package org.jetbrains.plugins.scala.settings;
 
-import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.PathManager;
 import com.intellij.openapi.components.*;
 import com.intellij.openapi.project.Project;
-import com.intellij.psi.codeStyle.CodeStyleSettings;
 import com.intellij.psi.codeStyle.CodeStyleSettingsManager;
 import com.intellij.util.xmlb.XmlSerializerUtil;
 import org.jetbrains.annotations.NotNull;
@@ -49,12 +47,8 @@ public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProj
 
   private boolean SCALA_CLASSES_PRIORITY = scalaSettings.SCALA_CLASSES_PRIORITY;
 
-  public static ScalaProjectSettings getInstance() {
-    return ServiceManager.getService(ScalaProjectSettings.class);
-  }
-
-  public static ScalaProjectSettings getInstance(Project project) {
-    return project == null ? getInstance() : ServiceManager.getService(project, ScalaProjectSettings.class);
+  public static ScalaProjectSettings getInstance(@NotNull Project project) {
+    return ServiceManager.getService(project, ScalaProjectSettings.class);
   }
 
   public ScalaProjectSettings getState() {
