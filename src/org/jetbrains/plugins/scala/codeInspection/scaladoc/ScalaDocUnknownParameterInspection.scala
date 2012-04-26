@@ -89,7 +89,7 @@ class ScalaDocUnknownParameterInspection extends LocalInspectionTool {
           registerBadParams()
         }
         
-        s.getNextSiblingNotWhitespace match {
+        s.getOwner match {
           case func: ScFunction =>
             doInspection(func.parameters, func.typeParameters)
           case clazz: ScClass =>
