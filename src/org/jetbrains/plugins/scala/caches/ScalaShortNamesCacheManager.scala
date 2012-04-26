@@ -67,7 +67,7 @@ class ScalaShortNamesCacheManager(project: Project) extends ProjectComponent {
     while (iterator.hasNext) {
       val element = iterator.next()
       if (!(element.isInstanceOf[PsiClass])) {
-        var faultyContainer: VirtualFile = PsiUtilCore.getVirtualFile(element)
+        val faultyContainer: VirtualFile = PsiUtilCore.getVirtualFile(element)
         LOG.error("Wrong Psi in Psi list: " + faultyContainer)
         if (faultyContainer != null && faultyContainer.isValid) {
           FileBasedIndex.getInstance.requestReindex(faultyContainer)

@@ -13,8 +13,8 @@ import toplevel.synthetic.SyntheticClasses
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.caches.{ScalaShortNamesCacheManager, CachesUtil}
 import org.jetbrains.plugins.scala.extensions.toPsiNamedElementExt
-import org.jetbrains.plugins.scala.lang.resolve.processor.ImplicitProcessor
 import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils
+import org.jetbrains.plugins.scala.lang.resolve.processor.{ResolveProcessor, ImplicitProcessor}
 
 /**
  * User: Alexander Podkhalyuzin
@@ -36,8 +36,12 @@ class ScPackageImpl(val pack: PsiPackage) extends PsiPackageImpl(pack.getManager
                           lastParent: PsiElement, place: PsiElement, lite: Boolean): Boolean = {
     if (place.getLanguage == ScalaFileType.SCALA_LANGUAGE && pack.getQualifiedName == "scala") {
       if (!processor.isInstanceOf[ImplicitProcessor]) {
+        val scope = processor match {
+          case r: ResolveProcessor => r.getResolveScope
+          case _ => place.getResolveScope
+        }
         val namesSet = ScalaShortNamesCacheManager.getInstance(getProject).
-          getClassNames(pack, place.getResolveScope)
+          getClassNames(pack, scope)
 
         //Process synthetic classes for scala._ package
         /**
@@ -103,7 +107,7 @@ class ScPackageImpl(val pack: PsiPackage) extends PsiPackageImpl(pack.getManager
   private def findSubPackageByName(name: String): PsiPackage = {
     val qName: String = getQualifiedName
     val subpackageQName: String = if (qName.length > 0) qName + "." + name else name
-    var aPackage: PsiPackage = JavaPsiFacade.getInstance(getProject).findPackage(subpackageQName)
+    val aPackage: PsiPackage = JavaPsiFacade.getInstance(getProject).findPackage(subpackageQName)
     if (aPackage == null) return null
     aPackage
   }
