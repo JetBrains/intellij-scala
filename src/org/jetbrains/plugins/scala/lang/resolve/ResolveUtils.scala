@@ -115,7 +115,7 @@ object ResolveUtils {
       case b: ScBindingPattern =>
         b.nameContext match {
           case memb: ScMember => return isAccessible(memb, place)
-          case _ =>
+          case _ => return true
         }
       case _ =>
     }
