@@ -206,7 +206,7 @@ public class OverrideImplementTest extends PsiTestCase {
   }
 
   public void testNoExplicitReturn() throws Exception {
-    String name = "simpleTests/noExplicitReturn.scala";
+    String name = "simpleTests/NoExplicitReturn.scala";
     runTest(name, false);
   }
 
