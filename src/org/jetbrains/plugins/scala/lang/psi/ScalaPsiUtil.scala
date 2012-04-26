@@ -427,32 +427,35 @@ object ScalaPsiUtil {
     collectParts(tp, place)
     val res: HashSet[ScType] = new HashSet
     for (part <- parts) {
-      //todo: is it reasonable to make it as part of BaseTypes?
       //here we want to convert projection types to right projections
-      import collection.immutable.{HashSet => IHashSet}
-      def collectObjects(tp: ScType, visited: IHashSet[PsiClass], update: Option[ScSubstitutor] = None): Seq[ScType] = {
+      val visited = new HashSet[PsiClass]()
+      def collectObjects(tp: ScType, update: Option[ScSubstitutor] = None) {
         tp match {
-          case Any => return Seq.empty
-          case ScDesignatorType(ta: ScTypeAliasDefinition) => return collectObjects(ta.aliasedType.getOrAny, visited)
+          case Any => return
+          case ScDesignatorType(ta: ScTypeAliasDefinition) =>
+            collectObjects(ta.aliasedType.getOrAny, update)
+            return
           case p: ScProjectionType if p.actualElement.isInstanceOf[ScTypeAliasDefinition] =>
-            return collectObjects(p.actualSubst.subst(p.actualElement.asInstanceOf[ScTypeAliasDefinition].
-              aliasedType.getOrAny), visited, update)
+            collectObjects(p.actualSubst.subst(p.actualElement.asInstanceOf[ScTypeAliasDefinition].
+              aliasedType.getOrAny), update)
+            return
           case ScParameterizedType(ScDesignatorType(ta: ScTypeAliasDefinition), args) => {
             val genericSubst = ScalaPsiUtil.
               typesCallSubstitutor(ta.typeParameters.map(tp => (tp.name, ScalaPsiUtil.getPsiElementId(tp))), args)
-            return collectObjects(genericSubst.subst(ta.aliasedType.getOrAny), visited, update)
+            collectObjects(genericSubst.subst(ta.aliasedType.getOrAny), update)
+            return
           }
           case ScParameterizedType(p: ScProjectionType, args) if p.actualElement.isInstanceOf[ScTypeAliasDefinition] => {
             val genericSubst = ScalaPsiUtil.
               typesCallSubstitutor(p.actualElement.asInstanceOf[ScTypeAliasDefinition].typeParameters.map(tp => (tp.name, ScalaPsiUtil.getPsiElementId(tp)
               )), args)
             val s = p.actualSubst.followed(genericSubst)
-            return collectObjects(s.subst(p.actualElement.asInstanceOf[ScTypeAliasDefinition].
-              aliasedType.getOrAny), visited, update)
+            collectObjects(s.subst(p.actualElement.asInstanceOf[ScTypeAliasDefinition].
+              aliasedType.getOrAny), update)
+            return
           }
           case _ =>
         }
-        val res: HashSet[ScType] = new HashSet
         ScType.extractClass(tp, projectOpt) match {
           case Some(clazz: PsiClass) if !visited.contains(clazz) =>
             clazz match {
@@ -479,19 +482,22 @@ object ScalaPsiUtil {
             clazz match {
               case td: ScTemplateDefinition =>
                 td.superTypes.foreach((tp: ScType) => {
-                  res ++= collectObjects(tp, visited + clazz, newSubst)
+                  visited += clazz
+                  collectObjects(tp, newSubst)
+                  visited -= clazz
                 })
               case clazz: PsiClass =>
                 clazz.getSuperTypes.foreach(tp => {
                   val stp = ScType.create(tp, place.getProject, place.getResolveScope)
-                  res ++= collectObjects(stp, visited + clazz, newSubst)
+                  visited += clazz
+                  collectObjects(stp, newSubst)
+                  visited -= clazz
                 })
             }
           case _ =>
         }
-        res.toSeq
       }
-      res ++= collectObjects (part, IHashSet.empty)
+      collectObjects(part)
     }
     res.toSeq
   }
