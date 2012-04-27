@@ -25,6 +25,8 @@ import psi.ScalaPsiUtil.convertMemberName
 import api.toplevel.{ScNamedElement, ScModifierListOwner, ScTypedDefinition}
 import api.base.{ScAccessModifier, ScFieldId, ScPrimaryConstructor}
 import extensions.toPsiNamedElementExt
+import caches.CachesUtil.MyOptionalProvider
+import api.ScalaFile
 
 /**
  * @author ven
@@ -403,7 +405,9 @@ object TypeDefinitionMembers {
         }
       case _ =>
     }
-    get(clazz, parameterlessKey, new MyProvider(clazz, {clazz: PsiClass => ParameterlessNodes.build(clazz)})(dep_item))
+    get(clazz, parameterlessKey, new MyOptionalProvider(clazz, {clazz: PsiClass => ParameterlessNodes.build(clazz)})(
+      ScalaPsiUtil.getDependentItem(clazz)
+    ))
   }
 
   def getTypes(clazz: PsiClass): TMap = {
@@ -415,11 +419,13 @@ object TypeDefinitionMembers {
         }
       case _ =>
     }
-    get(clazz, typesKey, new MyProvider(clazz, {clazz: PsiClass => TypeNodes.build(clazz)})(dep_item))
+    get(clazz, typesKey, new MyOptionalProvider(clazz, {clazz: PsiClass => TypeNodes.build(clazz)})(
+      ScalaPsiUtil.getDependentItem(clazz)
+    ))
   }
 
-  def getSignatures(c: PsiClass): SMap = {
-    c match {
+  def getSignatures(clazz: PsiClass): SMap = {
+    clazz match {
       case o: ScObject =>
         val qual = o.qualifiedName
         if (qual == "scala" || qual == "scala.Predef") {
@@ -427,7 +433,9 @@ object TypeDefinitionMembers {
         }
       case _ =>
     }
-    get(c, signaturesKey, new MyProvider(c, {c: PsiClass => SignatureNodes.build(c)})(dep_item))
+    get(clazz, signaturesKey, new MyOptionalProvider(clazz, {c: PsiClass => SignatureNodes.build(c)})(
+      ScalaPsiUtil.getDependentItem(clazz)
+    ))
   }
 
   //todo: this method requires refactoring

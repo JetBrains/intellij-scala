@@ -43,7 +43,7 @@ public class ScalaProjectSettingsPanel {
   }
 
   protected EditorHighlighter createHighlighter(EditorColorsScheme scheme) {
-    return new ScalaEditorHighlighter(null, null, scheme);
+    return new ScalaEditorHighlighter(myProject, null, scheme);
   }
 
   protected int getRightMargin() {
