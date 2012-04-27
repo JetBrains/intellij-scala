@@ -57,6 +57,20 @@ import collection.mutable.{ListBuffer, HashSet, ArrayBuffer}
  * User: Alexander Podkhalyuzin
  */
 object ScalaPsiUtil {
+  def getDependentItem(element: PsiElement,
+                       dep_item: Object = PsiModificationTracker.OUT_OF_CODE_BLOCK_MODIFICATION_COUNT): Option[Object] = {
+    element.getContainingFile match {
+      case file: ScalaFile if file.isCompiled =>
+        var dir = file.getParent
+        while (dir != null) {
+          if (dir.getName == "scala-library.jar") return None
+          dir = dir.getParent
+        }
+        Some(dep_item)
+      case _ => Some(dep_item)
+    }
+  }
+
   def withEtaExpansion(expr: ScExpression): Boolean = {
     expr.getContext match {
       case call: ScMethodCall => false

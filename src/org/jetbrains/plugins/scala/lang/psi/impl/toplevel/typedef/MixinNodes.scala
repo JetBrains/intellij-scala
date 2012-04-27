@@ -18,6 +18,9 @@ import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi.util.PsiModificationTracker
 import com.intellij.openapi.project.Project
 import extensions.{toPsiNamedElementExt, toPsiClassExt}
+import com.intellij.psi.impl.compiled.ClsClassImpl
+import api.ScalaFile
+import com.intellij.psi.util.PsiModificationTracker._
 
 abstract class MixinNodes {
   type T
@@ -421,9 +424,15 @@ object MixinNodes {
       case _ =>
     }
 
+    val item = clazz match {
+      case c: ClsClassImpl => None
+      case td: ScTemplateDefinition if td.getContainingFile.asInstanceOf[ScalaFile].isCompiled => None
+      case _ => Some(PsiModificationTracker.OUT_OF_CODE_BLOCK_MODIFICATION_COUNT)
+    }
+
     CachesUtil.getWithRecursionPreventing(clazz, CachesUtil.LINEARIZATION_KEY,
-    new CachesUtil.MyProvider(clazz, (clazz: PsiClass) => linearizationInner(clazz)) //todo: bad reference to 'visited'
-      (PsiModificationTracker.OUT_OF_CODE_BLOCK_MODIFICATION_COUNT), Seq.empty)
+    new CachesUtil.MyOptionalProvider(clazz, (clazz: PsiClass) => linearizationInner(clazz)) //todo: bad reference to 'visited'
+      (item), Seq.empty)
   }
 
 

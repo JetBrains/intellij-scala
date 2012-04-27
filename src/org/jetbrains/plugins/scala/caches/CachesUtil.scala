@@ -90,7 +90,7 @@ object CachesUtil {
   val PACKAGE_OBJECT_KEY: Key[(ScTypeDefinition, java.lang.Long)] = Key.create("package.object.key")
 
   def getWithRecursionPreventing[Dom <: PsiElement, Result](e: Dom, key: Key[CachedValue[Result]],
-                                                        provider: MyProvider[Dom, Result],
+                                                        provider: MyProviderTrait[Dom, Result],
                                                         defaultValue: => Result): Result = {
     var computed: CachedValue[Result] = e.getUserData(key)
     if (computed == null) {
@@ -99,12 +99,21 @@ object CachesUtil {
         def compute(): CachedValueProvider.Result[Result] = {
           val guard = getRecursionGuard(key.toString)
           if (guard.currentStack().contains(e)) {
-            return new CachedValueProvider.Result(defaultValue, provider.getDependencyItem)
+            provider.getDependencyItem match {
+              case Some(item) =>
+                return new CachedValueProvider.Result(defaultValue, item)
+              case _ =>
+                return new CachedValueProvider.Result(defaultValue)
+            }
           }
           guard.doPreventingRecursion(e, false /* todo: true? */, new Computable[CachedValueProvider.Result[Result]] {
             def compute(): CachedValueProvider.Result[Result] = provider.compute()
           }) match {
-            case null => new CachedValueProvider.Result(defaultValue, provider.getDependencyItem)
+            case null =>
+              provider.getDependencyItem match {
+                case Some(item) => new CachedValueProvider.Result(defaultValue, item)
+                case _ => new CachedValueProvider.Result(defaultValue)
+              }
             case notNull => notNull
           }
         }
@@ -124,10 +133,26 @@ object CachesUtil {
     computed.getValue
   }
 
-  class MyProvider[Dom, T](e: Dom, builder: Dom => T)(dependencyItem: Object) extends CachedValueProvider[T] {
-    def getDependencyItem: Object = dependencyItem
+  trait MyProviderTrait[Dom, T] extends CachedValueProvider[T] {
+    private[CachesUtil] def getDependencyItem: Option[Object]
+  }
+
+  class MyProvider[Dom, T](e: Dom, builder: Dom => T)(dependencyItem: Object) extends MyProviderTrait[Dom, T] {
+    private[CachesUtil] def getDependencyItem: Option[Object] = Some(dependencyItem)
 
     def compute() = new CachedValueProvider.Result(builder(e), dependencyItem)
+  }
+
+  class MyOptionalProvider[Dom, T](e: Dom, builder: Dom => T)(dependencyItem: Option[Object]) extends MyProviderTrait[Dom, T] {
+    private[CachesUtil] def getDependencyItem: Option[Object] = dependencyItem
+
+    def compute() = {
+      dependencyItem match {
+        case Some(dependencyItem) =>
+          new CachedValueProvider.Result(builder(e), dependencyItem)
+        case _ => new CachedValueProvider.Result(builder(e))
+      }
+    }
   }
 
   private val guards: ConcurrentHashMap[String, RecursionGuard] = new ConcurrentHashMap()
