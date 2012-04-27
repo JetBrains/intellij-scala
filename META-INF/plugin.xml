@@ -155,7 +155,7 @@
     <!--/Handler-->
 
     <!--Enter Handler for multiline strings-->
-    <!--<enterHandlerDelegate implementation="org.jetbrains.plugins.scala.editor.enterHandler.MultilineStringEnterHandler"/>-->
+    <enterHandlerDelegate implementation="org.jetbrains.plugins.scala.editor.enterHandler.MultilineStringEnterHandler" order="first"/>
     <!--/Handler-->
 
     <javaMainMethodProvider implementation="org.jetbrains.plugins.scala.runner.ScalaMainMethodProvider"/>
@@ -268,14 +268,17 @@
       <className>org.jetbrains.plugins.scala.codeInsight.intention.literal.InsertGapIntoStringIntention</className>
     </intentionAction>
 
-    <!--<intentionAction>
+
+    <intentionAction>
+      <category>Scala/String</category>
       <className>org.jetbrains.plugins.scala.codeInsight.intention.literal.AddStripMarginToMLStringIntention</className>
     </intentionAction>
 
     <intentionAction>
+      <category>Scala/String</category>
       <className>org.jetbrains.plugins.scala.codeInsight.intention.literal.AddReplaceSlashRToMLStringIntention</className>
     </intentionAction>
--->
+
     <intentionAction>
       <category>Scala/Type</category>
       <className>org.jetbrains.plugins.scala.codeInsight.intention.types.ToggleTypeAnnotation</className>

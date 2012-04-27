@@ -12,5 +12,6 @@ class ScalaTabbedCodeStylePanel(currentSettings: CodeStyleSettings, settings: Co
   extends TabbedLanguageCodeStylePanel(ScalaFileType.SCALA_LANGUAGE, currentSettings, settings) {
   protected override def initTabs(settings: CodeStyleSettings) {
     super.initTabs(settings)
+    addTab(new MultiLineStringCodeStylePanel(settings))
   }
 }

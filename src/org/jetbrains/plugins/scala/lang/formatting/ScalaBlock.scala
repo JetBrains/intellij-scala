@@ -20,6 +20,7 @@ import scaladoc.psi.api.ScDocComment
 import psi.api.toplevel.ScEarlyDefinitions
 import com.intellij.formatting._
 import com.intellij.psi.{TokenType, PsiComment, PsiErrorElement, PsiWhiteSpace}
+import psi.api.base.ScLiteral
 
 class ScalaBlock (val myParentBlock: ScalaBlock,
         private val myNode: ASTNode,
@@ -30,7 +31,7 @@ class ScalaBlock (val myParentBlock: ScalaBlock,
         private val mySettings: CodeStyleSettings)
 extends Object with ScalaTokenTypes with Block {
 
-  private var mySubBlocks: List[Block] = null
+  protected var mySubBlocks: List[Block] = null
 
   def getNode = myNode
 
@@ -68,6 +69,9 @@ extends Object with ScalaTokenTypes with Block {
         }
       }
       case c: ScCaseClauses => new ChildAttributes(Indent.getNormalIndent, null)
+      case l: ScLiteral
+        if l.isMultiLineString && scalaSettings.MULTILINE_STRING_SUPORT != ScalaCodeStyleSettings.MULTILINE_STRING_NONE =>
+        new ChildAttributes(Indent.getSpaceIndent(3, true), null)
       case b: ScBlockExpr if b.lastExpr.map(_.isInstanceOf[ScFunctionExpr]).getOrElse(false) =>
         var i = getSubBlocks.size() - newChildIndex
         val elem = b.lastExpr.get.getNode.getTreePrev
