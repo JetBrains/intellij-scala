@@ -4,11 +4,8 @@ package parser
 package parsing
 package expressions
 
-import com.intellij.lang.PsiBuilder
 import lexer.ScalaTokenTypes
 import builder.ScalaPsiBuilder
-import types.StableId
-import base.Ids
 
 /**
 * @author Alexander Podkhalyuzin
@@ -26,7 +23,6 @@ Literal ::= ['-']integerLiteral
             | false
             | null
 */
-
 object Literal {
   def parse(builder: ScalaPsiBuilder): Boolean = {
     val marker = builder.mark()
@@ -77,6 +73,7 @@ object Literal {
         true
       case ScalaTokenTypes.tINTERPOLATED_MULTILINE_STRING | ScalaTokenTypes.tINTERPOLATED_STRING =>
         builder.advanceLexer()
+        marker.done(ScalaElementTypes.INTERPOLATED_STRING_LITERAL)
         true
       case ScalaTokenTypes.tINTEGER | ScalaTokenTypes.tFLOAT |
            ScalaTokenTypes.kTRUE | ScalaTokenTypes.kFALSE |
