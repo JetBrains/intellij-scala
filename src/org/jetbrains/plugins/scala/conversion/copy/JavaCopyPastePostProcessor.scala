@@ -77,8 +77,8 @@ class JavaCopyPastePostProcessor extends CopyPastePostProcessor[TextBlockTransfe
   }
 
   def extractTransferableData(content: Transferable): TextBlockTransferableData = {
-    if (content.isDataFlavorSupported(ConvertedCode.flavor))
-      content.getTransferData(ConvertedCode.flavor).asInstanceOf[TextBlockTransferableData]
+    if (content.isDataFlavorSupported(ConvertedCode.Flavor))
+      content.getTransferData(ConvertedCode.Flavor).asInstanceOf[TextBlockTransferableData]
     else
       null
   }
@@ -150,10 +150,10 @@ class JavaCopyPastePostProcessor extends CopyPastePostProcessor[TextBlockTransfe
 
     def getOffsetCount: Int = 0
 
-    def getFlavor: DataFlavor = ConvertedCode.flavor
+    def getFlavor: DataFlavor = ConvertedCode.Flavor
   }
 
   object ConvertedCode {
-    val flavor: DataFlavor = new DataFlavor(classOf[JavaCopyPastePostProcessor], "class: ScalaCopyPastePostProcessor")
+    lazy val Flavor: DataFlavor = new DataFlavor(classOf[ConvertedCode], "JavaToScalaConvertedCode")
   }
 }

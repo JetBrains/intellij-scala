@@ -13,10 +13,11 @@ import com.intellij.psi._
 import org.jetbrains.plugins.scala.annotator.intention.ScalaImportClassFix
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import com.intellij.codeInsight.CodeInsightSettings
-import com.intellij.openapi.ui.DialogWrapper
 import org.jetbrains.plugins.scala.lang.dependency.Dependency
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.settings._
+import com.intellij.openapi.ui.DialogWrapper
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
 
 /**
  * Pavel Fatin
@@ -31,7 +32,8 @@ class ScalaCopyPastePostProcessor extends CopyPastePostProcessor[Associations] {
 
     val associations = for((startOffset, endOffset) <- startOffsets.zip(endOffsets);
                            element <- CollectHighlightsUtil.getElementsInRange(file, startOffset, endOffset);
-                           dependency <- Dependency.dependenciesIn(element) if dependency.isExternal;
+                           reference <- element.asOptionOf[ScReferenceElement];
+                           dependency <- Dependency.dependencyFor(reference) if dependency.isExternal;
                            range = dependency.source.getTextRange.shiftRight(-startOffset))
     yield Association(dependency.kind, range, dependency.path)
 
