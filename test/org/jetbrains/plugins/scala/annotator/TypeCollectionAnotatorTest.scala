@@ -4,9 +4,8 @@ package annotator
 import lang.psi.api.ScalaFile
 import lang.psi.api.base.ScReferenceElement
 import highlighter.AnnotatorHighlighter
-import com.intellij.psi.{PsiFileFactory}
-import base.ScalaFixtureTestCase
 import lang.completion3.ScalaLightPlatformCodeInsightTestCaseAdapter
+import settings.ScalaProjectSettings
 
 /**
  * User: Dmitry Naydanov
@@ -17,6 +16,13 @@ class TypeCollectionAnotatorTest extends ScalaLightPlatformCodeInsightTestCaseAd
   private val immutableCollectionMessage = ScalaBundle.message("scala.immutable.collection")
   private val mutableCollectionMessage = ScalaBundle.message("scala.mutable.collection")
   private val javaCollectionMessage = ScalaBundle.message("java.collection")
+
+  protected override def setUp() {
+    super.setUp()
+
+    ScalaProjectSettings.getInstance(getProjectAdapter).
+      setCollectionTypeHighlightingLevel(ScalaProjectSettings.COLLECTION_TYPE_HIGHLIGHTING_ALL)
+  }
 
   private def annotate(text: String, holder: AnnotatorHolderMock) {
     configureFromFileTextAdapter("dummy.scala", text.replace("\r", ""))
