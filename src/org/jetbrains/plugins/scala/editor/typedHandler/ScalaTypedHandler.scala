@@ -174,6 +174,9 @@ class ScalaTypedHandler extends TypedHandlerDelegate {
 
   private def getScaladocTask(text: String, offset: Int): (Document, Project, PsiElement, Int) => Unit = {
     import ScalaTypedHandler._
+    if (offset < 3 || text.length < offset) {
+      return null
+    }
 
     if (text.substring(offset - 3, offset) == "'''") {
       completeScalaDocBoldSyntaxElement

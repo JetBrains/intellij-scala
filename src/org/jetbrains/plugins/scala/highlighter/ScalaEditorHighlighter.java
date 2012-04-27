@@ -54,8 +54,8 @@ public class ScalaEditorHighlighter extends LayeredLexerEditorHighlighter {
   }
 
   private static ScalaSyntaxHighlighter createSyntaxHighlighter(Project project) {
-    boolean treatDocCommentAsBlockComment =
-        ScalaProjectSettings.getInstance(project).isTreatDocCommentAsBlockComment();
+    boolean treatDocCommentAsBlockComment = project != null ?
+        ScalaProjectSettings.getInstance(project).isTreatDocCommentAsBlockComment() : false;
     return new ScalaSyntaxHighlighter(treatDocCommentAsBlockComment);
   }
 
