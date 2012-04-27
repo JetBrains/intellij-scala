@@ -424,15 +424,9 @@ object MixinNodes {
       case _ =>
     }
 
-    val item = clazz match {
-      case c: ClsClassImpl => None
-      case td: ScTemplateDefinition if td.getContainingFile.asInstanceOf[ScalaFile].isCompiled => None
-      case _ => Some(PsiModificationTracker.OUT_OF_CODE_BLOCK_MODIFICATION_COUNT)
-    }
-
     CachesUtil.getWithRecursionPreventing(clazz, CachesUtil.LINEARIZATION_KEY,
     new CachesUtil.MyOptionalProvider(clazz, (clazz: PsiClass) => linearizationInner(clazz)) //todo: bad reference to 'visited'
-      (item), Seq.empty)
+      (ScalaPsiUtil.getDependentItem(clazz)), Seq.empty)
   }
 
 

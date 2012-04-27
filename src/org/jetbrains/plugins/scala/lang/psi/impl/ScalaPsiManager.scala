@@ -10,7 +10,6 @@ import light.PsiClassWrapper
 import types._
 import com.intellij.openapi.util.Key
 import com.intellij.ProjectTopics
-import com.intellij.openapi.roots.{ModuleRootEvent, ModuleRootListener}
 import com.intellij.reference.SoftReference
 import collection.Seq
 import com.intellij.psi._
@@ -30,7 +29,8 @@ import com.intellij.util.indexing.FileBasedIndex
 import com.intellij.openapi.diagnostic.Logger
 import collection.mutable.HashSet
 import com.intellij.psi.search.{PsiShortNamesCache, GlobalSearchScope}
-import java.util.{Arrays, Collections, Map}
+import java.util.{Collections, Map}
+import com.intellij.openapi.roots.{ModuleRootEvent, ModuleRootListener}
 
 class ScalaPsiManager(project: Project) extends ProjectComponent {
   private val implicitObjectMap: ConcurrentMap[String, SoftReference[java.util.Map[GlobalSearchScope, Seq[ScObject]]]] =
@@ -331,7 +331,6 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
         Conformance.cache.clear()
       }
     })
-
 
     project.getMessageBus.connect.subscribe(ProjectTopics.PROJECT_ROOTS, new ModuleRootListener {
       def beforeRootsChange(event: ModuleRootEvent) {
