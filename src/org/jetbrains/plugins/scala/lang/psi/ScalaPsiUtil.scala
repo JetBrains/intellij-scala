@@ -52,6 +52,7 @@ import java.lang.Exception
 import extensions._
 import collection.Seq
 import collection.mutable.{ListBuffer, HashSet, ArrayBuffer}
+import com.intellij.psi.impl.compiled.ClsFileImpl
 
 /**
  * User: Alexander Podkhalyuzin
@@ -66,7 +67,8 @@ object ScalaPsiUtil {
           if (dir.getName == "scala-library.jar") return None
           dir = dir.getParent
         }
-        Some(dep_item)
+        Some(ProjectRootManager.getInstance(element.getProject))
+      case cls: ClsFileImpl => Some(ProjectRootManager.getInstance(element.getProject))
       case _ => Some(dep_item)
     }
   }
