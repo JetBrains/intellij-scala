@@ -30,11 +30,11 @@ import extensions.{toPsiMemberExt, toPsiNamedElementExt, toPsiClassExt}
 
 class ScalaTypeDefinitionStructureViewElement(private val element: ScTypeDefinition) extends ScalaStructureViewElement(element, false) {
 
-  def getPresentation(): ItemPresentation = {
+  def getPresentation: ItemPresentation = {
     new ScalaTypeDefinitionItemPresentation(element);
   }
 
-  def getChildren(): Array[TreeElement] = {
+  def getChildren: Array[TreeElement] = {
     val children = new ArrayBuffer[TreeElement]
     val clazz: ScTypeDefinition = element.asInstanceOf[ScTypeDefinition]
     val members = clazz.members
@@ -102,6 +102,6 @@ class ScalaTypeDefinitionStructureViewElement(private val element: ScTypeDefinit
     catch {
       case e: IndexNotReadyException => //do nothing, this is indexing
     }
-    return children.toArray
+    children.toArray
   }
 }
