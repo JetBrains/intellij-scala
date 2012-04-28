@@ -20,18 +20,18 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBod
 class ScalaVariableValidator(introduceVariableBase: ConflictsReporter,
                              myProject: Project,
                              selectedExpr: ScExpression,
-                             occurrences: Array[TextRange],
+                              noOccurrences: Boolean,
                              enclosingContainerAll: PsiElement, enclosingOne: PsiElement) extends NameValidator {
   def getProject(): Project = {
     myProject
   }
 
   def isOK(dialog: NamedDialog): Boolean = {
-    if (occurrences.length == 0) return true
+    if (noOccurrences) return true
     val name = dialog.getEnteredName
     val allOcc = dialog.isReplaceAllOccurrences
     val conflicts = isOKImpl(name, allOcc)
-    return conflicts.length == 0 || introduceVariableBase.reportConflicts(conflicts, myProject)
+    conflicts.length == 0 || introduceVariableBase.reportConflicts(conflicts, myProject)
   }
 
   def isOKImpl(name: String, allOcc: Boolean): Array[String] = {
@@ -64,7 +64,7 @@ class ScalaVariableValidator(introduceVariableBase: ConflictsReporter,
         }
       }
     }
-    return buf.toArray
+    buf.toArray
   }
 
   private def validateUp(element: PsiElement, name: String): Array[String] = {
@@ -107,7 +107,7 @@ class ScalaVariableValidator(introduceVariableBase: ConflictsReporter,
         case _ => buf ++= validateUp(parent, name)
       }
     }
-    return buf.toArray
+    buf.toArray
   }
 
   private def validateDown(element: PsiElement, name: String, allOcc: Boolean): Array[String] = {
@@ -177,11 +177,11 @@ class ScalaVariableValidator(introduceVariableBase: ConflictsReporter,
         from = from.getNextSibling
       }
     }
-    return buf.toArray
+    buf.toArray
   }
 
   def validateName(name: String, increaseNumber: Boolean): String = {
-    if (occurrences.length == 0) return name
+    if (noOccurrences) return name
     var res = name
     if (isOKImpl(res, false).length == 0) return res
     if (!increaseNumber) return ""
@@ -191,6 +191,6 @@ class ScalaVariableValidator(introduceVariableBase: ConflictsReporter,
       i = i + 1
       res = name + i
     }
-    return res
+    res
   }
 }

@@ -88,7 +88,7 @@ class ScalaIntroduceParameterHandler extends RefactoringActionHandler with Confl
       val occurrences: Array[TextRange] = ScalaRefactoringUtil.getOccurrences(ScalaRefactoringUtil.unparExpr(expr),
         function.body.getOrElse(function))
       // Getting settings
-      val validator = new ScalaVariableValidator(this, project, expr, occurrences, function, function)
+      val validator = new ScalaVariableValidator(this, project, expr, occurrences.isEmpty, function, function)
       // Add occurrences highlighting
       if (occurrences.length > 1)
         ScalaRefactoringUtil.highlightOccurrences(project, occurrences, editor)
