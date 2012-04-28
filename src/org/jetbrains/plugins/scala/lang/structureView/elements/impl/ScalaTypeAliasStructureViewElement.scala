@@ -16,6 +16,6 @@ import psi.api.toplevel.typedef.ScTypeDefinition
  */
  
 class ScalaTypeAliasStructureViewElement(private val element: ScTypeAlias, val isInherited: Boolean) extends ScalaStructureViewElement(element, isInherited)  {
-  def getPresentation(): ItemPresentation = new ScalaTypeAliasItemPresentation(element, isInherited)
+  def getPresentation: ItemPresentation = new ScalaTypeAliasItemPresentation(element, isInherited)
 
-  def getChildren(): Array[TreeElement] = new Array[TreeElement](0)}
+  def getChildren: Array[TreeElement] = new Array[TreeElement](0)}

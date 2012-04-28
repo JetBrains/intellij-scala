@@ -17,7 +17,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging._
 * @author Alexander Podkhalyuzin
 * Date: 04.05.2008
 */
-
 class ScalaFileStructureViewElement(file: ScalaFile) extends ScalaStructureViewElement(file, false) {
   def getPresentation: ItemPresentation = {
     new ScalaFileItemPresentation(file);
@@ -25,12 +24,6 @@ class ScalaFileStructureViewElement(file: ScalaFile) extends ScalaStructureViewE
 
   def getChildren: Array[TreeElement] = {
     val children = new ArrayBuffer[ScalaStructureViewElement]
-    /*for (td <- file.immediateTypeDefinitions) {
-      children += new ScalaTypeDefinitionStructureViewElement(td)
-    }
-    for (p <- file.packagings) {
-      children += new ScalaPackagingStructureViewElement(p)
-    }*/
     for (child <- file.getChildren) {
       child match {
         case td: ScTypeDefinition => {

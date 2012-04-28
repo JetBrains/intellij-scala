@@ -28,6 +28,7 @@ import util.PsiModificationTracker
 import psi.ScalaPsiUtil.SafeCheckException
 import api.{InferUtil, ScalaElementVisitor}
 import extensions.{toPsiMemberExt, toSeqExt, toPsiNamedElementExt}
+import com.intellij.openapi.progress.ProgressManager
 
 /**
  * @author Alexander Podkhalyuzin
@@ -62,6 +63,7 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
   }
 
   private def innerNonValueType(ctx: TypingContext, inferValueType: Boolean): TypeResult[ScType] = {
+    ProgressManager.checkCanceled()
     val lift: (ScType) => Success[ScType] = Success(_, Some(this))
 
     def parametrise(tp: ScType, clazz: PsiClass, subst: ScSubstitutor): ScType = {
