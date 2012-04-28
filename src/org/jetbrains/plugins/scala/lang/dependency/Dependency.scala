@@ -103,14 +103,19 @@ object Dependency {
           case (method: PsiMethod) && ContainingClass(e: PsiClass)
             if method.isConstructor =>
             withEntity(e.qualifiedName)
+          case (method: PsiMember) && ContainingClass(e: PsiClass)
+            if method.getModifierList.hasModifierProperty("static") =>
+            withMember(e.qualifiedName, method.getName)
           case (member: PsiMember) && ContainingClass(e: PsiClass) =>
-            val objectName = fromType.flatMap(it => ScType.extractClass(it, Some(e.getProject)))
-                    .map(_.qualifiedName).getOrElse(e.qualifiedName)
-            val memberName = member match {
-              case named: ScNamedElement => named.name
-              case _ => member.getName
+            fromType.flatMap(it => ScType.extractClass(it, Some(e.getProject))) match {
+              case Some(entity: ScObject) =>
+                val memberName = member match {
+                  case named: ScNamedElement => named.name
+                  case _ => member.getName
+                }
+                withMember(entity.qualifiedName, memberName)
+              case _ => None
             }
-            withMember(objectName, memberName)
           case _ => None
         }
     }
