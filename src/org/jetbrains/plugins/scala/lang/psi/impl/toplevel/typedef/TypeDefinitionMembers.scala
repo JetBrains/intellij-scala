@@ -341,9 +341,18 @@ object TypeDefinitionMembers {
           }
           case f: ScFunction if isBridge(place, f) && !f.isConstructor =>
             addSignature(new PhysicalSignature(f, subst))
-          case c: ScClass if c.isCase && c.fakeCompanionModule != None && isBridge(place, c) =>
-            val o = c.fakeCompanionModule.get
-            addSignature(new Signature(o.name, Stream.empty, 0, subst, Some(o)))
+          case c: ScClass =>
+            if (c.isCase && c.fakeCompanionModule != None && isBridge(place, c)) {
+              val o = c.fakeCompanionModule.get
+              addSignature(new Signature(o.name, Stream.empty, 0, subst, Some(o)))
+            }
+            if (c.hasModifierProperty("implicit")) {
+              c.getSyntheticImplicitMethod match {
+                case Some(impl) =>
+                  addSignature(new PhysicalSignature(impl, subst))
+                case _ =>
+              }
+            }
           case o: ScObject if (isBridge(place, o)) =>
             addSignature(new Signature(o.name, Stream.empty, 0, subst, Some(o)))
           case _ =>

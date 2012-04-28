@@ -20,7 +20,7 @@ import lang.psi.api.toplevel.packaging.ScPackaging
 
 /**
  * @author Aleksander Podkhalyuzin
- * @date 25.03.2009
+ * @since 25.03.2009
  */
 
 private[annotator] object ModifierChecker {
@@ -205,6 +205,7 @@ private[annotator] object ModifierChecker {
                         if (clauses.length == 0) errorResult()
                         else {
                           if (clauses(0).parameters.length != 1) errorResult()
+                          if (clauses(0).parameters(0).isRepeatedParameter) errorResult()
                           if (clauses.length > 2 || (clauses.length == 2 && !clauses(1).isImplicit)) errorResult()
                         }
                       case _ => errorResult()
