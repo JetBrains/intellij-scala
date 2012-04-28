@@ -15,6 +15,8 @@ import quickfix.modifiers.RemoveModifierQuickFix
 import lang.psi.api.toplevel.{ScEarlyDefinitions, ScModifierListOwner}
 import lang.psi.api.statements.{ScValueDeclaration, ScTypeAlias, ScPatternDefinition, ScDeclaration}
 import extensions.toPsiModifierListOwnerExt
+import lang.psi.api.ScalaFile
+import lang.psi.api.toplevel.packaging.ScPackaging
 
 /**
  * @author Aleksander Podkhalyuzin
@@ -169,22 +171,48 @@ private[annotator] object ModifierChecker {
                     holder, new RemoveModifierQuickFix(owner, "override"))
                 }
                 case member: ScMember if member.getParent.isInstanceOf[ScTemplateBody] ||
-                  member.getParent.isInstanceOf[ScEarlyDefinitions] => {
+                  member.getParent.isInstanceOf[ScEarlyDefinitions] =>
                   checkDublicates(modifierPsi, "override")
-                }
                 case param: ScClassParameter => checkDublicates(modifierPsi, "override")
-                case _ => {
+                case _ =>
                   proccessError(ScalaBundle.message("override.modifier.is.not.allowed"), modifierPsi, holder,
                     new RemoveModifierQuickFix(owner, "override"))
-                }
               }
             }
             case "implicit" => {
               owner match {
-                case _: ScClass | _: ScTrait | _: ScTypeAlias => {
-                  proccessError("'implicit' modifier can be used only for values, variables and methods",
+                case c@(_: ScClass | _: ScObject)=>
+                  val onTopLevel = c.getContext match {
+                    case file: ScalaFile if !file.isScriptFile() => true
+                    case p: ScPackaging => true
+                    case _ => false
+                  }
+                  if (onTopLevel) {
+                    proccessError("'implicit' modifier cannot be used for top-level objects",
+                      modifierPsi, holder, new RemoveModifierQuickFix(owner, "implicit"))
+                  } else if (c.isInstanceOf[ScClass]) {
+                    val clazz = c.asInstanceOf[ScClass]
+
+                    def errorResult() {
+                      proccessError("implicit class must have a primary constructor with exactly one " +
+                        "argument in first parameter list",
+                        modifierPsi, holder, new RemoveModifierQuickFix(owner, "implicit"))
+                    }
+
+                    clazz.constructor match {
+                      case Some(constr) =>
+                        val clauses = constr.parameterList.clauses
+                        if (clauses.length == 0) errorResult()
+                        else {
+                          if (clauses(0).parameters.length != 1) errorResult()
+                          if (clauses.length > 2 || (clauses.length == 2 && !clauses(1).isImplicit)) errorResult()
+                        }
+                      case _ => errorResult()
+                    }
+                  }
+                case _: ScTrait | _: ScTypeAlias =>
+                  proccessError("'implicit' modifier can be used only for values, variables, methods and classes",
                     modifierPsi, holder, new RemoveModifierQuickFix(owner, "implicit"))
-                }
                 case _ => checkDublicates(modifierPsi, "implicit")
               }
             }
