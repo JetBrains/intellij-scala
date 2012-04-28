@@ -24,7 +24,8 @@ class ScalaGoToDeclarationHandler extends GotoDeclarationHandler {
 
   def getActionText(context: DataContext): String = null
 
-  def getGotoDeclarationTargets(sourceElement: PsiElement, offset: Int, editor: Editor): Array[PsiElement] = {
+  def getGotoDeclarationTargets(_sourceElement: PsiElement, offset: Int, editor: Editor): Array[PsiElement] = {
+    val sourceElement = _sourceElement.getContainingFile.findElementAt(offset)
     if (sourceElement == null) return null
     if (sourceElement.getLanguage != ScalaFileType.SCALA_LANGUAGE) return null
 
@@ -117,7 +118,10 @@ class ScalaGoToDeclarationHandler extends GotoDeclarationHandler {
               case _ => Seq(o)
             }
           case td: ScTypeDefinition if td.syntheticMembers.contains(fun) => Seq(td)
-          case _ => Seq(element)
+          case _ => fun.getSyntheticNavigationElement match {
+            case Some(element) => Seq(element)
+            case None => Seq(element)
+          }
         }
       case o: ScObject =>
         ScalaPsiUtil.getCompanionModule(o) match {

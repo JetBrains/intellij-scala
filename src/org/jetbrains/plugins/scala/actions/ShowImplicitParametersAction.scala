@@ -18,6 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScNewTemplateDefinition, S
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScTypeElement, ScParameterizedTypeElement, ScSimpleTypeElement}
 import org.jetbrains.plugins.scala.extensions.toPsiNamedElementExt
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 
 /**
  * User: Alefas
@@ -117,6 +118,11 @@ class ShowImplicitParametersAction extends AnAction("Show implicit parameters ac
             def run() {
               val method = list.getSelectedValue.asInstanceOf[PsiNamedElement]
               method match {
+                case f: ScFunction =>
+                  f.getSyntheticNavigationElement match {
+                    case Some(n: NavigatablePsiElement) => n.navigate(true)
+                    case _ => f.navigate(true)
+                  }
                 case n: NavigatablePsiElement => n.navigate(true)
                 case _ => //do nothing
               }
