@@ -18,6 +18,9 @@ import com.intellij.codeInsight.editorActions._
 import com.intellij.openapi.util.{TextRange, Ref}
 import com.intellij.openapi.diagnostic.Logger
 import settings._
+import com.intellij.diagnostic.LogMessageEx
+import com.intellij.util.ExceptionUtil
+import com.intellij.diagnostic.errordialog.Attachment
 
 /**
  * User: Alexander Podkhalyuzin
@@ -71,7 +74,9 @@ class JavaCopyPastePostProcessor extends CopyPastePostProcessor[TextBlockTransfe
       new ConvertedCode(newText, associations.toArray)
     } catch {
       case e =>
-        Log.error("Error during Java association copying", e)
+        val selections = (startOffsets, endOffsets).zipped.map((a, b) => file.getText.substring(a, b))
+        val attachments = selections.zipWithIndex.map(p => new Attachment("Selection-%d.java".format(p._2 + 1), p._1))
+        Log.error(LogMessageEx.createEvent(e.getMessage, ExceptionUtil.getThrowableText(e), attachments: _*))
         null
     }
   }
