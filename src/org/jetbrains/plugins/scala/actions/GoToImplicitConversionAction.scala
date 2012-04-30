@@ -10,6 +10,7 @@ import org.jetbrains.plugins.scala.lang.psi.presentation.ScImplicitFunctionListC
 import com.intellij.psi.{PsiWhiteSpace, PsiElement, NavigatablePsiElement, PsiNamedElement}
 import collection.mutable.ArrayBuffer
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScUnderScoreSectionUtil, ScExpression}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 
 /**
  * User: Alexander Podkhalyuzin
@@ -59,6 +60,11 @@ class GoToImplicitConversionAction extends AnAction("Go to implicit conversion a
         def run() {
           val method = list.getSelectedValue.asInstanceOf[PsiNamedElement]
           method match {
+            case f: ScFunction =>
+              f.getSyntheticNavigationElement match {
+                case Some(n: NavigatablePsiElement) => n.navigate(true)
+                case _ => f.navigate(true)
+              }
             case n: NavigatablePsiElement => n.navigate(true)
             case _ => //do nothing
           }

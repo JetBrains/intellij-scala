@@ -36,15 +36,22 @@ case class Dependency(kind: DependencyKind, source: PsiElement, target: PsiEleme
 }
 
 object Dependency {
+  def dependenciesIn(scope: PsiElement): Seq[Dependency] = {
+    scope.depthFirst
+            .filterByType(classOf[ScReferenceElement])
+            .toList
+            .flatMap(reference => dependencyFor(reference).toList)
+  }
+
   // While we can rely on result.actualElement, there are several bugs related to unapply(Seq)
   // and it's impossible to rebind such targets later (if needed)
-  def dependenciesIn(element: PsiElement): Seq[Dependency] = {
-    val references = element.depthFirst.filterByType(classOf[ScReferenceElement]).filter(isPrimary).toList
-
-    references.flatMap { reference =>
+  def dependencyFor(reference: ScReferenceElement): Option[Dependency] = {
+    if (isPrimary(reference)) {
       reference.bind().flatMap { result =>
         dependencyFor(reference, result.element, result.fromType)
       }
+    } else {
+      None
     }
   }
 
@@ -96,14 +103,19 @@ object Dependency {
           case (method: PsiMethod) && ContainingClass(e: PsiClass)
             if method.isConstructor =>
             withEntity(e.qualifiedName)
+          case (method: PsiMember) && ContainingClass(e: PsiClass)
+            if method.getModifierList.hasModifierProperty("static") =>
+            withMember(e.qualifiedName, method.getName)
           case (member: PsiMember) && ContainingClass(e: PsiClass) =>
-            val objectName = fromType.flatMap(it => ScType.extractClass(it, Some(e.getProject)))
-                    .map(_.qualifiedName).getOrElse(e.qualifiedName)
-            val memberName = member match {
-              case named: ScNamedElement => named.name
-              case _ => member.getName
+            fromType.flatMap(it => ScType.extractClass(it, Some(e.getProject))) match {
+              case Some(entity: ScObject) =>
+                val memberName = member match {
+                  case named: ScNamedElement => named.name
+                  case _ => member.getName
+                }
+                withMember(entity.qualifiedName, memberName)
+              case _ => None
             }
-            withMember(objectName, memberName)
           case _ => None
         }
     }

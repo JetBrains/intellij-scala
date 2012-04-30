@@ -5,11 +5,10 @@ package formatting
 * @author ilyas
 */
 
+import _root_.java.util.{List, ArrayList}
 import settings.ScalaCodeStyleSettings
-import java.util.ArrayList
 import psi.ScalaPsiUtil
 import psi.api.statements._
-import com.intellij.openapi.util.Key
 import com.intellij.formatting._
 import com.intellij.psi.tree._
 import com.intellij.lang.ASTNode
@@ -33,6 +32,13 @@ import com.intellij.formatting.Alignment.Anchor
 import extensions.&&
 import collection.mutable.{ArrayBuffer, ArrayBuilder}
 import com.intellij.psi.{PsiErrorElement, PsiComment, PsiWhiteSpace, PsiElement}
+import com.intellij.openapi.util.{TextRange, Key}
+import scala.collection.JavaConversions._
+import formatting.getDummyBlocks.StringLineScalaBlock
+import psi.api.base.ScLiteral
+import com.intellij.formatting.Indent.Type
+import org.jetbrains.plugins.scala.editor.enterHandler.MultilineStringEnterHandler
+
 
 object getDummyBlocks {
   val fieldGroupAlignmentKey: Key[Alignment] = Key.create("field.group.alignment.key")
@@ -80,6 +86,11 @@ object getDummyBlocks {
         subBlocks.addAll(getMethodCallOrRefExprSubBlocks(node, block))
         return subBlocks
       }
+      case _: ScLiteral if node.getFirstChildNode != null &&
+              node.getFirstChildNode.getElementType == ScalaTokenTypes.tMULTILINE_STRING &&
+              scalaSettings.MULTILINE_STRING_SUPORT != ScalaCodeStyleSettings.MULTILINE_STRING_NONE =>
+        subBlocks.addAll(getMultilineStringBlocks(node, block))
+        return subBlocks
       case _
         if node.getElementType == ScalaDocElementTypes.DOC_TAG =>
         val docTag = node.getPsi.asInstanceOf[ScDocTag]
@@ -501,6 +512,56 @@ object getDummyBlocks {
     subBlocks
   }
 
+  private def getMultilineStringBlocks(node: ASTNode, block: ScalaBlock): ArrayList[Block] = {
+    val settings = block.getSettings
+    val subBlocks = new ArrayList[Block]
+
+    val alignment = null
+    val validAlignment = Alignment.createAlignment(true)
+    val wrap: Wrap = Wrap.createWrap(WrapType.NONE, true)
+    val scalaSettings = settings.getCustomSettings(classOf[ScalaCodeStyleSettings])
+    val marginChar = MultilineStringEnterHandler.getMarginChar(node.getPsi)
+    val marginIndent = scalaSettings.MULTI_LINE_STRING_MARGIN_INDENT
+
+    val indent = Indent.getNoneIndent
+    val simpleIndent = Indent.getAbsoluteNoneIndent
+    val prefixIndent = Indent.getSpaceIndent(marginIndent, true)
+
+    val lines = node.getText.split("\n")
+    var acc = 0
+
+
+
+    lines foreach { line =>
+      val trimmedLine = line.trim()
+      val linePrefixLength = line.prefixLength(_ == ' ')
+
+      if (trimmedLine.startsWith(marginChar)) {
+        subBlocks.add(new StringLineScalaBlock(new TextRange(node.getStartOffset + acc + linePrefixLength,
+          node.getStartOffset + acc + linePrefixLength + 1), node, block, validAlignment, prefixIndent, null, settings))
+        if (line.length > linePrefixLength + 2 && line.charAt(linePrefixLength + 1) == ' ' ||
+                line.length > linePrefixLength + 1 && line.charAt(linePrefixLength + 1) !=  ' ') {
+          val suffixOffset = if (line.charAt(linePrefixLength + 1) == ' ') 2 else 1
+
+          subBlocks.add(new StringLineScalaBlock(new TextRange(node.getStartOffset + acc + linePrefixLength + suffixOffset,
+            node.getStartOffset + acc + line.length), node, block, null, indent, wrap, settings))
+        }
+      } else if (trimmedLine.length > 0) {
+        val (startOffset, endOffset, myIndent) = if (trimmedLine.startsWith("\"\"\"") && acc != 0)
+          (node.getStartOffset + acc + linePrefixLength, node.getStartOffset + acc + line.length, Indent.getSpaceIndent(0, true))
+        else if (trimmedLine.startsWith("\"\"\"") && acc == 0) (node.getStartOffset, node.getStartOffset + line.length, Indent.getNoneIndent)
+        else (node.getStartOffset + acc, node.getStartOffset + acc + line.length, simpleIndent)
+
+        subBlocks.add(new StringLineScalaBlock(new TextRange(startOffset, endOffset), node, block, alignment,
+          myIndent, null, settings))
+      }
+
+      acc += line.length + 1
+    }
+
+    subBlocks
+  }
+
   private def getInfixBlocks(node: ASTNode, block: ScalaBlock, parentAlignment: Alignment = null): ArrayList[Block] = {
     val settings = block.getSettings
     val scalaSettings = settings.getCustomSettings(classOf[ScalaCodeStyleSettings])
@@ -605,4 +666,26 @@ object getDummyBlocks {
     ScalaElementTypes.INFIX_PATTERN,
     ScalaElementTypes.INFIX_TYPE)
 
+
+  private class StringLineScalaBlock(myTextRange: TextRange, mainNode: ASTNode, myParentBlock: ScalaBlock,
+                                     myAlignment: Alignment, myIndent: Indent, myWrap: Wrap, mySettings: CodeStyleSettings)
+          extends ScalaBlock(myParentBlock, mainNode, null, myAlignment, myIndent, myWrap, mySettings) {
+    override def getTextRange = myTextRange
+
+    override def isLeaf = true
+
+    override def isLeaf(node: ASTNode): Boolean = true
+
+    override def getChildAttributes(newChildIndex: Int): ChildAttributes =
+      new ChildAttributes(Indent.getNoneIndent, null)
+
+    override def getSubBlocks(): List[Block] = {
+      if (mySubBlocks == null) {
+        mySubBlocks = new ArrayList[Block]()
+      }
+      mySubBlocks
+    }
+
+    override def getSpacing(child1: Block, child2: Block) = Spacing.getReadOnlySpacing
+  }
 }

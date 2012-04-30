@@ -24,7 +24,7 @@ class TypeParameterShadowInspection extends AbstractInspection("TypeParameterSha
       parent match {
         case t: ScTypeParametersOwner if t != owner =>
           for (param <- t.typeParameters) {
-            if (refPat.name == param.name) return Some(t)
+            if (refPat.name == param.name && refPat.name != "_") return Some(t)
           }
         case _ =>
       }

@@ -49,7 +49,7 @@ object IntroduceVariableTestUtil {
     val commonParentOne = PsiTreeUtil.findCommonParent(file.findElementAt(startOffset), file.findElementAt(endOffset - 1))
     val containerOne = ScalaPsiUtil.getParentOfType(commonParentOne, occurrences.length == 1, classOf[ScalaFile], classOf[ScBlock],
       classOf[ScTemplateBody])
-    var validator = new ScalaVariableValidator(new ScalaIntroduceVariableHandler, project, expr, occurrences, container, containerOne)
+    var validator = new ScalaVariableValidator(new ScalaIntroduceVariableHandler, project, expr, occurrences.isEmpty, container, containerOne)
     validator
   }
 }

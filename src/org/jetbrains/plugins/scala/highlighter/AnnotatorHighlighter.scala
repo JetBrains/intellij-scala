@@ -25,6 +25,10 @@ import lang.psi.impl.ScalaPsiManager.ClassCategory
 import lang.psi.types.{ScFunctionType, ScType}
 import lang.psi.types.result.TypingContext
 import lang.psi.api.toplevel.imports.ScImportExpr
+import lang.refactoring.util.ScalaNamesUtil
+import com.intellij.psi.codeStyle.CodeStyleSettingsManager
+import lang.formatting.settings.ScalaCodeStyleSettings
+import settings.ScalaProjectSettings
 
 /**
  * User: Alexander Podkhalyuzin
@@ -51,15 +55,28 @@ object AnnotatorHighlighter {
 
   private def getParentByStub(x: PsiElement): PsiElement = {
     x match {
-      case el: ScalaStubBasedElementImpl[_] => getParentStub(el)
+      case el: ScalaStubBasedElementImpl[_] => /*_*/getParentStub(el)/*_*/
       case _ => x.getContext
     }
   }
 
-
   def highlightReferenceElement(refElement: ScReferenceElement, holder: AnnotationHolder) {
 
     def annotateCollectionByType(resolvedType: ScType) {
+      if (ScalaNamesUtil.isOperatorName(
+        resolvedType.presentableText.substring(0, resolvedType.presentableText.prefixLength(_ != '.')))) return
+
+      val scalaProjectSettings: ScalaProjectSettings = ScalaProjectSettings.getInstance(refElement.getProject)
+
+      scalaProjectSettings.getCollectionTypeHighlightingLevel match {
+        case ScalaProjectSettings.COLLECTION_TYPE_HIGHLIGHTING_NONE => return
+        case ScalaProjectSettings.COLLECTION_TYPE_HIGHLIGHTING_NOT_QUALIFIED =>
+          refElement.qualifier match {
+            case None =>
+            case _ => return
+          }
+        case ScalaProjectSettings.COLLECTION_TYPE_HIGHLIGHTING_ALL =>
+      }
 
       def conformsByNames(tp: ScType, qn: List[String]): Boolean = {
         qn.exists(textName => {

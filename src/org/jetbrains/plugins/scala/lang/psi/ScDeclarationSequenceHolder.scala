@@ -44,21 +44,30 @@ trait ScDeclarationSequenceHolder extends ScalaPsiElement {
     true
   }
 
-  private def processElement(e : PsiElement, processor: PsiScopeProcessor, state : ResolveState) : Boolean = e match {
-    case c: ScClass if c.isCase && c.fakeCompanionModule != None =>
-      processor.execute(c, state)
-      processor.execute(c.fakeCompanionModule.get, state)
-    case named: ScNamedElement => processor.execute(named, state)
-    case holder: ScDeclaredElementsHolder => {
-      val elements: Seq[PsiNamedElement] = holder.declaredElements
-      var i = 0
-      while (i < elements.length) {
-        ProgressManager.checkCanceled()
-        if (!processor.execute(elements(i), state)) return false
-        i = i + 1
+  private def processElement(e : PsiElement, processor: PsiScopeProcessor, state : ResolveState) : Boolean = {
+    e match {
+      case c: ScClass =>
+        processor.execute(c, state)
+        if (c.isCase && c.fakeCompanionModule != None) {
+          processor.execute(c.fakeCompanionModule.get, state)
+        }
+        c.getSyntheticImplicitMethod match {
+          case Some(impl) => if (!processElement(impl, processor, state)) return false
+          case _ =>
+        }
+        true
+      case named: ScNamedElement => processor.execute(named, state)
+      case holder: ScDeclaredElementsHolder => {
+        val elements: Seq[PsiNamedElement] = holder.declaredElements
+        var i = 0
+        while (i < elements.length) {
+          ProgressManager.checkCanceled()
+          if (!processor.execute(elements(i), state)) return false
+          i = i + 1
+        }
+        true
       }
-      true
+      case _ => true
     }
-    case _ => true
   }
 }

@@ -15,7 +15,6 @@
 
 package org.jetbrains.plugins.scala.lang.formatter;
 
-import org.jetbrains.plugins.scala.Console;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.command.CommandProcessor;
 import com.intellij.openapi.project.Project;
@@ -25,9 +24,9 @@ import com.intellij.psi.codeStyle.CodeStyleManager;
 import com.intellij.util.IncorrectOperationException;
 import junit.framework.Test;
 import org.jetbrains.annotations.NonNls;
+import org.jetbrains.plugins.scala.Console;
 import org.jetbrains.plugins.scala.testcases.BaseScalaFileSetTestCase;
 import org.jetbrains.plugins.scala.util.TestUtils;
-import org.jetbrains.plugins.scala.ScalaFileType;
 
 import java.io.File;
 import java.io.IOException;
@@ -39,7 +38,6 @@ import java.io.IOException;
 
 public class FormatterTest extends BaseScalaFileSetTestCase {
   @NonNls
-
   private static final String DATA_PATH = "./test/org/jetbrains/plugins/scala/lang/formatter/data/";
 
   public FormatterTest() throws IOException {
@@ -48,6 +46,10 @@ public class FormatterTest extends BaseScalaFileSetTestCase {
       System.getProperty("path") :
       (new File(DATA_PATH)).getCanonicalPath()
     );
+  }
+
+  public FormatterTest(String path) {
+    super(path);
   }
 
   protected void performFormatting(final Project project, final PsiFile file) throws IncorrectOperationException {

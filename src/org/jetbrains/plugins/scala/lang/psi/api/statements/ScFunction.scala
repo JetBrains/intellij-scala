@@ -63,12 +63,14 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
         with ScParameterOwner with ScDocCommentOwner with ScTypedDefinition
         with ScDeclaredElementsHolder with ScAnnotationsHolder with ScMethodLike {
   private var synth = false
-  def setSynthetic() {
-    synth = true
+  private var synthNavElement: Option[PsiElement] = None
+  def setSynthetic(navElement: PsiElement) {
+    synthNavElement = Some(navElement)
   }
-  def isSyntheticCopy: Boolean = synth && name == "copy"
-  def isSyntheticApply: Boolean = synth && name == "apply"
-  def isSynthetic: Boolean = synth
+  def isSyntheticCopy: Boolean = synthNavElement.nonEmpty && name == "copy"
+  def isSyntheticApply: Boolean = synthNavElement.nonEmpty && name == "apply"
+  def isSynthetic: Boolean = synthNavElement.nonEmpty
+  def getSyntheticNavigationElement: Option[PsiElement] = synthNavElement
 
   def hasUnitResultType = {
     def hasUnitRT(t: ScType): Boolean = t match {

@@ -194,6 +194,23 @@ class DependencyTest extends SimpleTestCase {
     }""", ("foo", "ReferencePattern", "O.foo"))
   }
 
+  def testNonStaticMembers() {
+    assertDependenciesAre("""
+    object O {
+      class A {
+        def foo() {}
+        var bar = null
+        val moo = null
+      }
+      class B extends A {
+        foo()
+        bar
+        moo
+      }
+    }
+    """, ("A", "PrimaryConstructor", "O.A"))
+  }
+
   def testInheritedMemberImport() {
     assertDependenciesAre("""
     object O {

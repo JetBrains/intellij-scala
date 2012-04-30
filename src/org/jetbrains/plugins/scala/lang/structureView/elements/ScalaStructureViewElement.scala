@@ -18,8 +18,8 @@ import com.intellij.psi.PsiElement;
 
 abstract class ScalaStructureViewElement(protected val myElement: PsiElement, val inherited: Boolean) extends StructureViewTreeElement {
 
-  def getValue(): Object = {
-    return if (myElement.isValid()) {
+  def getValue: Object = {
+    if (myElement.isValid) {
       /*
         code for right positioning for caret in case such:
         val x, y = {
@@ -47,12 +47,12 @@ abstract class ScalaStructureViewElement(protected val myElement: PsiElement, va
     myElement.asInstanceOf[Navigatable].navigate(b);
   }
 
-  def canNavigate(): Boolean = {
-    return myElement.asInstanceOf[Navigatable].canNavigate();
+  def canNavigate: Boolean = {
+    myElement.asInstanceOf[Navigatable].canNavigate
   }
 
-  def canNavigateToSource(): Boolean = {
-    return myElement.asInstanceOf[Navigatable].canNavigateToSource();
+  def canNavigateToSource: Boolean = {
+    myElement.asInstanceOf[Navigatable].canNavigateToSource
   }
 
   override def equals(o: Any): Boolean = {

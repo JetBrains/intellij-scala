@@ -16,10 +16,10 @@ import com.intellij.openapi.editor.colors.TextAttributesKey
 */
 
 class ScalaFunctionItemPresentation(private val element: ScFunction, private val isInherited: Boolean) extends ScalaItemPresentation(element) {
-  def getPresentableText(): String = {
-    return ScalaElementPresentation.getMethodPresentableText(myElement.asInstanceOf[ScFunction])
+  def getPresentableText: String = {
+    ScalaElementPresentation.getMethodPresentableText(myElement.asInstanceOf[ScFunction])
   }
   override def getTextAttributesKey(): TextAttributesKey = {
-    return if(isInherited) CodeInsightColors.NOT_USED_ELEMENT_ATTRIBUTES else null
+    if(isInherited) CodeInsightColors.NOT_USED_ELEMENT_ATTRIBUTES else null
   }
 }
