@@ -58,7 +58,7 @@ class RemoveApplyIntention extends PsiElementBaseIntentionAction {
       }
     }
 
-    def showHint(editor: Editor, hint: String) {
+    def showErrorHint(hint: String) {
       if (ApplicationManager.getApplication.isUnitTestMode) {
         throw new RuntimeException(hint)
       } else {
@@ -123,7 +123,7 @@ class RemoveApplyIntention extends PsiElementBaseIntentionAction {
           }
 
           if (flag) {
-            showHint(editor, InspectionBundle.message("remove.apply.overloaded",
+            showErrorHint(InspectionBundle.message("remove.apply.overloaded",
               resolved.asInstanceOf[PsiNamedElement].name))
             return
           }
@@ -138,7 +138,7 @@ class RemoveApplyIntention extends PsiElementBaseIntentionAction {
               case fun: ScFunction =>
                 val clauses = fun.effectiveParameterClauses
                 if (clauses.length > 1 && clauses.last.isImplicit && clauses.length == cmc + 1) {
-                  showHint(editor, InspectionBundle.message("remove.apply.implicit.parameter",
+                  showErrorHint(InspectionBundle.message("remove.apply.implicit.parameter",
                     resolve.asInstanceOf[PsiNamedElement].name))
                   return
                 }
@@ -160,14 +160,14 @@ class RemoveApplyIntention extends PsiElementBaseIntentionAction {
                       case con: ScPrimaryConstructor =>
                         val clauses = con.effectiveParameterClauses
                         if (clauses.length > 1 && clauses.last.isImplicit && clauses.length == argsCount + 1) {
-                          showHint(editor, InspectionBundle.message("remove.apply.constructor.implicit.parameter",
+                          showErrorHint(InspectionBundle.message("remove.apply.constructor.implicit.parameter",
                               parents.constructor.get.getText))
                           return
                         }
                       case fun: ScFunction =>
                         val clauses = fun.effectiveParameterClauses
                         if (clauses.length > 1 && clauses.last.isImplicit && clauses.length == argsCount + 1) {
-                          showHint(editor, InspectionBundle.message("remove.apply.constructor.implicit.parameter",
+                          showErrorHint(InspectionBundle.message("remove.apply.constructor.implicit.parameter",
                                                           parents.constructor.get.getText))
                           return
                         }

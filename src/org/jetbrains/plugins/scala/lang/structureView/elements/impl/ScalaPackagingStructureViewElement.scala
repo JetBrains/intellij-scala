@@ -21,11 +21,11 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging._
  */
 
 class ScalaPackagingStructureViewElement(private val element: ScPackaging) extends ScalaStructureViewElement(element, false) {
-  def getPresentation(): ItemPresentation = {
-    return new ScalaPackagingItemPresentation(element);
+  def getPresentation: ItemPresentation = {
+    new ScalaPackagingItemPresentation(element);
   }
 
-  def getChildren(): Array[TreeElement] = {
+  def getChildren: Array[TreeElement] = {
     val children = new ArrayBuffer[ScalaStructureViewElement]
     for (td <- element.immediateTypeDefinitions) {
       children += new ScalaTypeDefinitionStructureViewElement(td)
@@ -34,6 +34,6 @@ class ScalaPackagingStructureViewElement(private val element: ScPackaging) exten
       children += new ScalaPackagingStructureViewElement(p)
     }
 
-    return children.toArray
+    children.toArray
   }
 }

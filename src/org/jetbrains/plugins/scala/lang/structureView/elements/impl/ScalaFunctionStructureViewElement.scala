@@ -16,12 +16,9 @@ import psi.api.statements.ScFunction
 
 class ScalaFunctionStructureViewElement(private val func: ScFunction, val isInherited: Boolean) extends ScalaStructureViewElement(func, isInherited) {
 
-  def getPresentation(): ItemPresentation = {
-    return new ScalaFunctionItemPresentation(func, isInherited);
+  def getPresentation: ItemPresentation = {
+    new ScalaFunctionItemPresentation(func, isInherited);
   }
 
-  def getChildren(): Array[TreeElement] = Array()
-
-
-
+  def getChildren: Array[TreeElement] = Array()
 }

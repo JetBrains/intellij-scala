@@ -69,7 +69,7 @@ trait ScClass extends ScTypeDefinition with ScParameterOwner {
             objOption.foreach { (obj: ScObject) =>
               obj.setSyntheticObject()
               obj.members.foreach {
-                case s: ScFunctionDefinition => s.setSynthetic() // So we find the `apply` method in ScalaPsiUti.syntheticParamForParam
+                case s: ScFunctionDefinition => s.setSynthetic(this) // So we find the `apply` method in ScalaPsiUti.syntheticParamForParam
                 case _ =>
               }
             }
@@ -149,6 +149,8 @@ trait ScClass extends ScTypeDefinition with ScParameterOwner {
                 paramStringRes + " = throw new Error()"
     (applyText, unapplyText)
   }
+
+  def getSyntheticImplicitMethod: Option[ScFunction]
 
   def getClassToken: PsiElement = findFirstChildByType(ScalaTokenTypes.kCLASS)
 

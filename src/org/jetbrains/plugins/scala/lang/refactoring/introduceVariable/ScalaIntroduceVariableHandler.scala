@@ -109,7 +109,7 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Confli
       val container: PsiElement = Option(commonParent).flatMap(_.scopes.toStream.headOption).orNull
       val commonParentOne = PsiTreeUtil.findCommonParent(file.findElementAt(startOffset), file.findElementAt(endOffset - 1))
       val containerOne = Option(commonParentOne).flatMap(_.scopes.toStream.headOption).orNull
-      val validator = new ScalaVariableValidator(this, project, expr, occurrences, container, containerOne)
+      val validator = new ScalaVariableValidator(this, project, expr, occurrences.isEmpty, container, containerOne)
       val dialog = getDialog(project, editor, expr, types.toArray, occurrences, false, validator)
       if (!dialog.isOK) return
 

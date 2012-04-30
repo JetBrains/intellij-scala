@@ -4,8 +4,13 @@ package resolve
 
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.lang.psi.types._
-import psi.api.toplevel.imports.usages.ImportUsed
-import extensions.toPsiNamedElementExt
+import com.intellij.psi.util.PsiTreeUtil
+import psi.ScalaPsiUtil
+import psi.impl.toplevel.synthetic.ScSyntheticClass
+import psi.api.toplevel.typedef.ScObject
+import psi.api.base.patterns.ScBindingPattern
+import psi.api.toplevel.imports.usages.{ImportExprUsed, ImportSelectorUsed, ImportWildcardSelectorUsed, ImportUsed}
+import extensions.{toPsiClassExt, toPsiNamedElementExt}
 
 object ScalaResolveResult {
   def empty = new ScalaResolveResult(null, ScSubstitutor.empty, Set[ImportUsed]())
@@ -86,4 +91,84 @@ class ScalaResolveResult(val element: PsiNamedElement,
   }
 
   override def hashCode: Int = element.hashCode + innerResolveResult.hashCode() * 31
+
+
+  private var precedence = -1
+  def getPrecedence(place: PsiElement, placePackageName: => String): Int = {
+    def getPrecedenceInner: Int = {
+      def getPackagePrecedence(qualifier: String): Int = {
+        if (qualifier == null) return 6
+        val index: Int = qualifier.lastIndexOf('.')
+        if (index == -1) return 3
+        val q = qualifier.substring(0, index)
+        if (q == "java.lang") return 1
+        else if (q == "scala") return 2
+        else if (q == placePackageName) return 6
+        else return 3
+      }
+      def getClazzPrecedence(clazz: PsiClass): Int = {
+        val qualifier = clazz.qualifiedName
+        if (qualifier == null) return 6
+        val index: Int = qualifier.lastIndexOf('.')
+        if (index == -1) return 6
+        val q = qualifier.substring(0, index)
+        if (q == "java.lang") return 1
+        else if (q == "scala") return 2
+        else if (PsiTreeUtil.isContextAncestor(clazz.getContainingFile, place, true)) return 6
+        else return 3
+      }
+      if (importsUsed.size == 0) {
+        ScalaPsiUtil.nameContext(getActualElement) match {
+          case synthetic: ScSyntheticClass => return 2 //like scala.Int
+          case obj: ScObject if obj.isPackageObject => {
+            val qualifier = obj.qualifiedName
+            return getPackagePrecedence(qualifier)
+          }
+          case pack: PsiPackage => {
+            val qualifier = pack.getQualifiedName
+            return getPackagePrecedence(qualifier)
+          }
+          case clazz: PsiClass => {
+            return getClazzPrecedence(clazz)
+          }
+          case _: ScBindingPattern | _: PsiMember => {
+            val clazzStub = ScalaPsiUtil.getContextOfType(getActualElement, false, classOf[PsiClass])
+            val clazz: PsiClass = clazzStub match {
+              case clazz: PsiClass => clazz
+              case _ => null
+            }
+            //val clazz = PsiTreeUtil.getParentOfType(result.getActualElement, classOf[PsiClass])
+            if (clazz == null) return 6
+            else {
+              clazz.qualifiedName match {
+                case "scala.Predef" => return 2
+                case "scala.LowPriorityImplicits" => return 2
+                case "scala" => return 2
+                case _ => return 6
+              }
+            }
+          }
+          case _ =>
+        }
+        return 6
+      }
+      val importsUsedSeq = importsUsed.toSeq
+      val importUsed: ImportUsed = importsUsedSeq.apply(importsUsedSeq.length - 1)
+      // TODO this conflates imported functions and imported implicit views. ScalaResolveResult should really store
+      //      these separately.
+      importUsed match {
+        case _: ImportWildcardSelectorUsed => 4
+        case _: ImportSelectorUsed => 5
+        case ImportExprUsed(expr) => {
+          if (expr.singleWildcard) 4
+          else 5
+        }
+      }
+    }
+    if (precedence == -1) {
+      precedence = getPrecedenceInner
+    }
+    precedence
+  }
+
 }

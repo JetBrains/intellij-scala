@@ -86,6 +86,7 @@ class ScalaTestAstTransformer {
                   } else notFound
                 case _ => notFound
               }
+            case _ => throw new RuntimeException("Match is not exhaustive!")
           }
           Some(loadClass(finderClassName).newInstance.asInstanceOf[Finder])
         }

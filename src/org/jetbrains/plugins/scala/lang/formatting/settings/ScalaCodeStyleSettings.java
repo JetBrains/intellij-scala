@@ -89,6 +89,18 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
   //xml formatting
   public boolean KEEP_XML_FORMATTING = false;
 
+  //multiline strings support
+  public int MULTILINE_STRING_SUPORT = MULTILINE_STRING_ALL;
+  public char MARGIN_CHAR = '|';
+  public boolean MULTI_LINE_QUOTES_ON_NEW_LINE = true;
+  public boolean KEEP_MULTI_LINE_QUOTES = true;
+  public int MULTI_LINE_STRING_MARGIN_INDENT = 2;
+
+  public static final int MULTILINE_STRING_NONE = 0;
+  public static final int MULTILINE_STRING_QUOTES_AND_INDENT = 1;
+  public static final int MULTILINE_STRING_ALL = 2;
+
+
   public ScalaCodeStyleSettings(CodeStyleSettings container) {
     super("ScalaCodeStyleSettings", container);
   }

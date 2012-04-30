@@ -261,7 +261,7 @@ class ScClassImpl extends ScTypeDefinitionImpl with ScClass with ScTypeParameter
           if (addCopy) {
             try {
               val method = ScalaPsiElementFactory.createMethodWithContext(copyMethodText, this, this)
-              method.setSynthetic()
+              method.setSynthetic(this)
               buf += method
             } catch {
               case e: Exception =>
@@ -277,19 +277,56 @@ class ScClassImpl extends ScTypeDefinitionImpl with ScClass with ScTypeParameter
   private def copyMethodText: String = {
     val x = constructor.getOrElse(return "")
     val paramString = (if (x.parameterList.clauses.length == 1 &&
-            x.parameterList.clauses.apply(0).isImplicit) "()" else "") + x.parameterList.clauses.map{ c =>
-        val start = if (c.isImplicit) "(implicit " else "("
-        c.parameters.map{ p =>
-          val paramType = p.typeElement match {
-            case Some(te) => te.getText
-            case None => "Any"
-          }
-          p.name + " : " + paramType + " = this." + p.name
-        }.mkString(start, ", ", ")")
+      x.parameterList.clauses.apply(0).isImplicit) "()" else "") + x.parameterList.clauses.map{ c =>
+      val start = if (c.isImplicit) "(implicit " else "("
+      c.parameters.map{ p =>
+        val paramType = p.typeElement match {
+          case Some(te) => te.getText
+          case None => "Any"
+        }
+        p.name + " : " + paramType + " = this." + p.name
+      }.mkString(start, ", ", ")")
     }.mkString("")
 
     val returnType = name + typeParameters.map(_.name).mkString("[", ",", "]")
     "def copy" + typeParamString + paramString + " : " + returnType + " = throw new Error(\"\")"
+  }
+
+  private def implicitMethodText: String = {
+    val constr = constructor.getOrElse(return "")
+    val returnType = name + typeParameters.map(_.name).mkString("[", ",", "]")
+    getModifierList.accessModifier.map(_.getText).getOrElse("") + "implicit def " + name +
+      typeParametersClause.map(_.getText).getOrElse("") + constr.parameterList.getText + " : " + returnType +
+      " = throw new Error(\"\")"
+  }
+
+  @volatile
+  private var syntheticImplicitMethod: Option[ScFunction] = null
+  @volatile
+  private var syntheticImplicitMethodModificationCount: Long = 0
+
+  def getSyntheticImplicitMethod: Option[ScFunction] = {
+    val count = getManager.getModificationTracker.getOutOfCodeBlockModificationCount
+    if (count == syntheticImplicitMethodModificationCount && syntheticImplicitMethod != null) {
+      return syntheticImplicitMethod
+    }
+    val res: Option[ScFunction] =
+      if (hasModifierProperty("implicit")) {
+        constructor match {
+          case Some(x: ScPrimaryConstructor) =>
+            try {
+              val method = ScalaPsiElementFactory.createMethodWithContext(implicitMethodText, this.getContext, this)
+              method.setSynthetic(this)
+              Some(method)
+            } catch {
+              case e: Exception => None
+            }
+          case None => None
+        }
+      } else None
+    syntheticImplicitMethod = res
+    syntheticImplicitMethodModificationCount = count
+    res
   }
 
   override def getTypeParameterList: PsiTypeParameterList = typeParametersClause.getOrElse(null)

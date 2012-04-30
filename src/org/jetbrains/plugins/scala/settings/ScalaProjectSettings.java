@@ -48,6 +48,14 @@ public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProj
 
   private boolean SCALA_CLASSES_PRIORITY = scalaSettings.SCALA_CLASSES_PRIORITY;
 
+
+  //colection type highlighting settings
+  private int COLLECTION_TYPE_HIGHLIGHTING_LEVEL = 1;
+
+  public static final int COLLECTION_TYPE_HIGHLIGHTING_ALL = 2;
+  public static final int COLLECTION_TYPE_HIGHLIGHTING_NOT_QUALIFIED = 1;
+  public static final int COLLECTION_TYPE_HIGHLIGHTING_NONE = 0;
+
   public static ScalaProjectSettings getInstance(@NotNull Project project) {
     return ServiceManager.getService(project, ScalaProjectSettings.class);
   }
@@ -206,4 +214,11 @@ public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProj
     SCALA_CLASSES_PRIORITY = value;
   }
 
+  public int getCollectionTypeHighlightingLevel() {
+    return COLLECTION_TYPE_HIGHLIGHTING_LEVEL;
+  }
+
+  public void setCollectionTypeHighlightingLevel(int level) {
+    this.COLLECTION_TYPE_HIGHLIGHTING_LEVEL = level;
+  }
 }

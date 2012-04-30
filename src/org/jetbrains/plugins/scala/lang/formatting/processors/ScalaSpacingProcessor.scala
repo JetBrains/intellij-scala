@@ -236,6 +236,26 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
     }
 
 
+    def isMultiLineStringCase(psiElem: PsiElement): Boolean = {
+      psiElem match {
+        case ml: ScLiteral if ml.isMultiLineString =>
+          right.getTextRange.contains(new TextRange(rightNode.getTextRange.getStartOffset, rightNode.getTextRange.getStartOffset + 3))
+        case _: ScInfixExpr | _: ScReferenceExpression | _: ScMethodCall => isMultiLineStringCase(psiElem.getFirstChild)
+        case _ => false
+      }
+    }
+
+    //multiline strings
+    if (scalaSettings.MULTILINE_STRING_SUPORT != ScalaCodeStyleSettings.MULTILINE_STRING_NONE && isMultiLineStringCase(rightPsi)) {
+      (scalaSettings.MULTI_LINE_QUOTES_ON_NEW_LINE, scalaSettings.KEEP_MULTI_LINE_QUOTES) match {
+        case (true, true) =>
+          return if (rightPsi.getPrevSibling != null && rightPsi.getPrevSibling.getText.contains("\n")) ON_NEW_LINE else WITH_SPACING
+        case (true, false) => return ON_NEW_LINE
+        case (false, false) => return WITH_SPACING_NO_KEEP
+        case (false, true) => return Spacing.createDependentLFSpacing(1, 1, rightPsi.getParent.getTextRange, true, 1)
+      }
+    }
+
     if (rightElementType == tRPARENTHESIS &&
             (rightPsi.getParent.isInstanceOf[ScParenthesisedExpr] ||
                     rightPsi.getParent.isInstanceOf[ScParameterizedTypeElement] ||

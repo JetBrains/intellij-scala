@@ -35,6 +35,7 @@ public class ScalaProjectSettingsPanel {
   private JCheckBox importMembersUsingUnderscoreCheckBox;
   private JCheckBox myDisableLanguageInjection;
   private JCheckBox useScalaClassesPriorityCheckBox;
+  private JComboBox collectionHighlightingChooser;
   private Project myProject;
 
   public ScalaProjectSettingsPanel(Project project) {
@@ -44,7 +45,7 @@ public class ScalaProjectSettingsPanel {
   }
 
   protected EditorHighlighter createHighlighter(EditorColorsScheme scheme) {
-    return new ScalaEditorHighlighter(null, null, scheme);
+    return new ScalaEditorHighlighter(myProject, null, scheme);
   }
 
   protected int getRightMargin() {
@@ -86,6 +87,7 @@ public class ScalaProjectSettingsPanel {
     ScalaProjectSettings.getInstance(myProject).setIgnorePerformance(myResolveToAllClassesCheckBox.isSelected());
     ScalaProjectSettings.getInstance(myProject).setDisableLangInjection(myDisableLanguageInjection.isSelected());
     ScalaProjectSettings.getInstance(myProject).setScalaPriority(useScalaClassesPriorityCheckBox.isSelected());
+    ScalaProjectSettings.getInstance(myProject).setCollectionTypeHighlightingLevel(collectionHighlightingChooser.getSelectedIndex());
   }
 
   @SuppressWarnings({"ConstantConditions", "RedundantIfStatement"})
@@ -130,6 +132,9 @@ public class ScalaProjectSettingsPanel {
 
     if (ScalaProjectSettings.getInstance(myProject).isScalaPriority() != useScalaClassesPriorityCheckBox.isSelected())
       return true;
+
+    if (ScalaProjectSettings.getInstance(myProject).getCollectionTypeHighlightingLevel() !=
+        collectionHighlightingChooser.getSelectedIndex()) return true;
 
     return false;
   }
@@ -181,6 +186,7 @@ public class ScalaProjectSettingsPanel {
         ScalaProjectSettings.getInstance(myProject).isDisableLangInjection());
     setValue(useScalaClassesPriorityCheckBox,
         ScalaProjectSettings.getInstance(myProject).isScalaPriority());
+    collectionHighlightingChooser.setSelectedIndex(ScalaProjectSettings.getInstance(myProject).getCollectionTypeHighlightingLevel());
   }
 
   private static void setValue(JSpinner spinner, int value) {

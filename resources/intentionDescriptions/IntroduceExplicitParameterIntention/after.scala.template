@@ -1,0 +1,3 @@
+some.map(i => i > 5)
+some.foreach(x => println(x))
+name.exists(c => c.isUpper)

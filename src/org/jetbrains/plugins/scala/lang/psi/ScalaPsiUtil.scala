@@ -52,11 +52,27 @@ import java.lang.Exception
 import extensions._
 import collection.Seq
 import collection.mutable.{ListBuffer, HashSet, ArrayBuffer}
+import com.intellij.psi.impl.compiled.ClsFileImpl
 
 /**
  * User: Alexander Podkhalyuzin
  */
 object ScalaPsiUtil {
+  def getDependentItem(element: PsiElement,
+                       dep_item: Object = PsiModificationTracker.OUT_OF_CODE_BLOCK_MODIFICATION_COUNT): Option[Object] = {
+    element.getContainingFile match {
+      case file: ScalaFile if file.isCompiled =>
+        var dir = file.getParent
+        while (dir != null) {
+          if (dir.getName == "scala-library.jar") return None
+          dir = dir.getParent
+        }
+        Some(ProjectRootManager.getInstance(element.getProject))
+      case cls: ClsFileImpl => Some(ProjectRootManager.getInstance(element.getProject))
+      case _ => Some(dep_item)
+    }
+  }
+
   def withEtaExpansion(expr: ScExpression): Boolean = {
     expr.getContext match {
       case call: ScMethodCall => false
