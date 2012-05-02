@@ -71,7 +71,8 @@ class ScalaFoldingBuilder extends FoldingBuilder {
       if (node.getTreeParent != null &&
               (node.getTreeParent.getPsi.isInstanceOf[ScFunction] ||
                       node.getTreeParent.getPsi.isInstanceOf[ScArgumentExprList] ||
-                      node.getTreeParent.getPsi.isInstanceOf[ScPatternDefinition])) {
+                      node.getTreeParent.getPsi.isInstanceOf[ScPatternDefinition] ||
+                      node.getTreeParent.getPsi.isInstanceOf[ScVariableDefinition])) {
         psi match {
           case _: ScBlockExpr => descriptors += new FoldingDescriptor(node, node.getTextRange)
           case _ =>
@@ -157,7 +158,8 @@ class ScalaFoldingBuilder extends FoldingBuilder {
     if (node.getTreeParent != null && (ScalaElementTypes.FUNCTION_DEFINITION == node.getTreeParent.getElementType
             || ScalaElementTypes.ARG_EXPRS == node.getTreeParent.getElementType
             || ScalaElementTypes.INFIX_EXPR == node.getTreeParent.getElementType
-            || ScalaElementTypes.PATTERN_DEFINITION == node.getTreeParent.getElementType)) {
+            || ScalaElementTypes.PATTERN_DEFINITION == node.getTreeParent.getElementType
+            || ScalaElementTypes.VARIABLE_DEFINITION == node.getTreeParent.getElementType)) {
       node.getPsi match {
         case _: ScBlockExpr => return "{...}"
         case _ => return null
@@ -191,6 +193,9 @@ class ScalaFoldingBuilder extends FoldingBuilder {
             ScalaCodeFoldingSettings.getInstance().isCollapseImports) true
     else if (node.getTreeParent != null &&
             ScalaElementTypes.PATTERN_DEFINITION == node.getTreeParent.getElementType &&
+            ScalaCodeFoldingSettings.getInstance().isCollapseMultilineBlocks) true
+    else if (node.getTreeParent != null &&
+            ScalaElementTypes.VARIABLE_DEFINITION == node.getTreeParent.getElementType &&
             ScalaCodeFoldingSettings.getInstance().isCollapseMultilineBlocks) true
     else {
       node.getElementType match {
