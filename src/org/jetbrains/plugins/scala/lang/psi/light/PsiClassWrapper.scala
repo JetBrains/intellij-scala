@@ -28,7 +28,7 @@ import com.intellij.openapi.util.{TextRange, Pair}
  */
 class PsiClassWrapper(val definition: ScTemplateDefinition,
                       private var qualName: String,
-                      private var name: String) extends LightElement(definition.getManager, definition.getLanguage) with PsiClass {
+                      private var name: String) extends LightElement(definition.getManager, definition.getLanguage) with PsiClass with SyntheticElement {
   def getQualifiedName: String = qualName
 
   def isInterface: Boolean = false
