@@ -15,7 +15,6 @@ import com.intellij.codeInsight.AttachSourcesProvider
 import com.intellij.ide.highlighter.{JavaFileType, JavaClassFileType}
 import java.util.{TreeSet, Comparator, ArrayList, List}
 import com.intellij.openapi.extensions.{ExtensionPointName, Extensions}
-import org.jetbrains.idea.maven.utils.MavenAttachSourcesProvider
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 
 /**

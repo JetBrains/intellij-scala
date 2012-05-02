@@ -7,7 +7,6 @@
         <option name="basePackage" value="org.jetbrains.plugins.scala" />
         <option name="compilerLibraryLevel" value="Project" />
         <option name="compilerLibraryName" value="main-scala-compiler" />
-        <option name="fsc" value="true" />
         <option name="maximumHeapSize" value="1024" />
         <option name="vmOptions" value="-Xms768m -Xss1m -server" />
       </configuration>
@@ -27,6 +26,24 @@
     <orderEntry type="module" module-name="Runners" />
     <orderEntry type="library" name="main-scala-library" level="project" />
     <orderEntry type="library" name="scalatest-finders" level="project" />
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="jar://$APPLICATION_HOME_DIR$/plugins/maven/lib/maven-server-api.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="jar://$APPLICATION_HOME_DIR$/plugins/maven/lib/maven.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
   </component>
 </module>
 

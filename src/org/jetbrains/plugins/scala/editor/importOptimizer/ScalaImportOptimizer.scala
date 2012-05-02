@@ -15,8 +15,12 @@ import collection.Set
 import lang.psi.api.{ScalaRecursiveElementVisitor, ScalaFile}
 import lang.psi.api.toplevel.imports.{ScImportExpr, ScImportStmt}
 import lang.psi.impl.ScalaPsiElementFactory
-import lang.psi.{ScalaPsiUtil, ScalaPsiElement}
 import lang.psi.api.expr.{ScMethodCall, ScForStatement, ScExpression}
+import lang.psi.{ScImportsHolder, ScalaPsiUtil, ScalaPsiElement}
+import lang.psi.api.toplevel.packaging.ScPackaging
+import scala.Some
+import scala.collection.JavaConversions._
+import lang.formatting.settings.ScalaCodeStyleSettings
 
 /**
  * User: Alexander Podkhalyuzin
@@ -148,8 +152,35 @@ class ScalaImportOptimizer extends ImportOptimizer {
             }
           })
           documentManager.commitDocument(documentManager.getDocument(scalaFile))
-          //todo: add removing blank lines (last)
+
+          // Sort all import sections in the file lexagraphically
+          if (ScalaCodeStyleSettings.getInstance(scalaFile.getProject).SORT_IMPORTS) {
+            val fileHolder = Seq(scalaFile.getContainingFile.asInstanceOf[ScImportsHolder])
+            (PsiTreeUtil.collectElementsOfType(scalaFile, classOf[ScImportsHolder]) match {
+              case null => fileHolder
+              case array => fileHolder ++ array.toSeq
+            }) foreach { importHolder =>
+              // Get the import statements in the imports holder
+              val importsList = importHolder.getImportStatements
+              // Sort and make copies of them
+              val importsSorted = importsList sortBy { imp =>
+                imp.getText
+              } map { _.copy() }
+              // If the list isn't empty, add the copies in order and delete the originals
+              if (!importsList.isEmpty) {
+                val first = importsList(0);
+                importsSorted foreach { imp =>
+                  importHolder.addImportBefore(imp, first);
+                }
+                importsList foreach { imp =>
+                  importHolder.deleteImportStmt(imp.asInstanceOf[ScImportStmt])
+                }
+              }
+            }
+            documentManager.commitDocument(documentManager.getDocument(scalaFile))
+          }
           //todo: add other optimizing
+          //todo: add removing blank lines (last)
         }
       }
     } else {
