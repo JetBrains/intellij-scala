@@ -295,8 +295,20 @@ class ScClassImpl extends ScTypeDefinitionImpl with ScClass with ScTypeParameter
   private def implicitMethodText: String = {
     val constr = constructor.getOrElse(return "")
     val returnType = name + typeParameters.map(_.name).mkString("[", ",", "]")
+    val typeParametersText = typeParametersClause.map(tp => {
+      tp.typeParameters.map(tp => {
+        val baseText = tp.getText
+        if (tp.isContravariant) {
+          val i = baseText.indexOf('-')
+          baseText.substring(i + 1)
+        } else if (tp.isCovariant) {
+          val i = baseText.indexOf('+')
+          baseText.substring(i + 1)
+        } else baseText
+      }).mkString("[", ", ", "]")
+    }).getOrElse("")
     getModifierList.accessModifier.map(_.getText).getOrElse("") + "implicit def " + name +
-      typeParametersClause.map(_.getText).getOrElse("") + constr.parameterList.getText + " : " + returnType +
+      typeParametersText + constr.parameterList.getText + " : " + returnType +
       " = throw new Error(\"\")"
   }
 
