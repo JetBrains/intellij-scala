@@ -24,11 +24,11 @@ class ScalaDirectClassInheritorsSearcher extends QueryExecutor[PsiClass, DirectC
   def execute(queryParameters: DirectClassInheritorsSearch.SearchParameters, consumer: Processor[PsiClass]): Boolean = {
     val clazz = queryParameters.getClassToProcess
     val scope: GlobalSearchScope = queryParameters.getScope match {case x: GlobalSearchScope => x case _ => return true}
-    ApplicationManager.getApplication().runReadAction(new Computable[Boolean] {
+    ApplicationManager.getApplication.runReadAction(new Computable[Boolean] {
         def compute: Boolean = {
           val candidates: Seq[ScTemplateDefinition] = ScalaStubsUtil.getClassInheritors(clazz, scope)
           for (candidate <- candidates if candidate.showAsInheritor) {
-            ProgressManager.checkCanceled
+            ProgressManager.checkCanceled()
             if (candidate.isInheritor(clazz, false)) {
               if (!consumer.process(candidate)) {
                 return false

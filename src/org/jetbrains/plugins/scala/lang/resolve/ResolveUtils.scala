@@ -171,6 +171,13 @@ object ResolveUtils {
                         case Some(t) => return t == enclosing
                         case _ => return PsiTreeUtil.isContextAncestor(enclosing, place, false)
                       }
+                    case Some(ref: ScReferenceElement) => {
+                      val enclosing = PsiTreeUtil.getContextOfType(scMember, true, classOf[ScTemplateDefinition])
+                      if (enclosing == null) return false
+                      val resolve = ref.resolve()
+                      if (enclosing.extendsBlock.selfTypeElement == Some(resolve)) return true
+                      else return false
+                    }
                     case _ => return false
                   }
                 case _ =>
@@ -299,6 +306,12 @@ object ResolveUtils {
                   ref.qualifier match {
                     case None =>
                     case Some(t: ScThisReference) =>
+                    case Some(ref: ScReferenceElement) => {
+                      val enclosing = PsiTreeUtil.getContextOfType(scMember, true, classOf[ScTemplateDefinition])
+                      if (enclosing == null) return false
+                      val resolve = ref.resolve()
+                      if (enclosing.extendsBlock.selfTypeElement != Some(resolve)) return false
+                    }
                     case _ => return false
                   }
                 case _ =>
