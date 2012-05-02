@@ -24,6 +24,14 @@ public class MoveClassTest extends RefactoringTestCase {
     doTest("contextChange2", new String[]{"pack1.Class1"}, "pack2");
   }
   // DONE
+  public void testContextChangeWithObject() throws Exception{
+    doTest("contextChangeWithObject", new String[]{"pack1.Class1$"}, "pack2");
+  }
+  // DONE
+  public void testContextChangeWithCaseClass() throws Exception{
+    doTest("contextChangeWithCaseClass", new String[]{"pack1.Class1"}, "pack2");
+  }
+  // DONE
   public void testMoveMultiple() throws Exception{
     doTest("moveMultiple1", new String[]{"pack1.Class1", "pack1.Class2"}, "pack2");
   }
