@@ -1,11 +1,9 @@
 package org.jetbrains.plugins.scala.lang.parser.parsing.builder
 
-import com.intellij.lang.java.parser.JavaParserUtil
 import com.intellij.lang.PsiBuilder
 import collection.mutable.Stack
 import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.ScalaDocElementTypes
 import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 import com.intellij.lang.impl.PsiBuilderAdapter
@@ -30,9 +28,10 @@ class ScalaPsiBuilderImpl(builder: PsiBuilder)
     var res: Int = 0
     var i: Int = 1
     while (i <= getCurrentOffset) {
-      var previousToken: IElementType = rawLookup(-i)
+      val previousToken: IElementType = rawLookup(-i)
       if (previousToken != ScalaTokenTypes.tWHITE_SPACE_IN_LINE &&
-        !(previousToken == ScalaTokenTypes.tBLOCK_COMMENT || previousToken == ScalaDocElementTypes.SCALA_DOC_COMMENT)) {
+        !(previousToken == ScalaTokenTypes.tBLOCK_COMMENT || previousToken == ScalaDocElementTypes.SCALA_DOC_COMMENT ||
+          previousToken == ScalaTokenTypes.tLINE_COMMENT)) {
         return res
       }
       val previousTokenStart: Int = rawTokenTypeStart(-i)
@@ -46,19 +45,19 @@ class ScalaPsiBuilderImpl(builder: PsiBuilder)
       }
       i = i + 1
     }
-    return res
+    res
   }
 
-  def disableNewlines: Unit = {
+  def disableNewlines {
     newlinesEnabled.push(false)
   }
 
-  def enableNewlines: Unit = {
+  def enableNewlines {
     newlinesEnabled.push(true)
   }
 
-  def restoreNewlinesState: Unit = {
+  def restoreNewlinesState {
     assert(newlinesEnabled.size >= 1)
-    newlinesEnabled.pop
+    newlinesEnabled.pop()
   }
 }
