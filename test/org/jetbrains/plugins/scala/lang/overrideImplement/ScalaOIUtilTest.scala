@@ -46,6 +46,20 @@ class ScalaOIUtilTest extends SimpleTestCase {
     assertUnimplemented("trait T { def f }")
   }
 
+  def testConvertedName() {
+    assertUnimplemented(
+      """
+        |1
+        |abstract class PP {
+        |  def !! : Int
+        |}
+        |class T extends PP {
+        |  def $bang$bang: Int = 0
+        |}
+      """.replace("\r", "").stripMargin
+    )
+  }
+
   def testMembers() {
     assertUnimplemented("trait T { def f }; new T {}", "f: Unit")
     assertUnimplemented("trait T { var f }; new T {}", "f: Any")

@@ -75,7 +75,7 @@ abstract class ScFunctionImpl extends ScalaStubBasedElementImpl[ScFunction] with
 
   def superMethods: Seq[PsiMethod] = {
     val clazz = containingClass
-    if (clazz != null) TypeDefinitionMembers.getSignatures(clazz).forName(name)._1.
+    if (clazz != null) TypeDefinitionMembers.getSignatures(clazz).forName(ScalaPsiUtil.convertMemberName(name))._1.
           get(new PhysicalSignature(this, ScSubstitutor.empty)).getOrElse(return Seq.empty).supers.
       filter(_.info.isInstanceOf[PhysicalSignature]).map {_.info.asInstanceOf[PhysicalSignature].method}
     else Seq.empty
@@ -101,7 +101,7 @@ abstract class ScFunctionImpl extends ScalaStubBasedElementImpl[ScFunction] with
     val clazz = containingClass
     val s = new PhysicalSignature(this, ScSubstitutor.empty)
     if (clazz == null) return Seq(s)
-    val t = TypeDefinitionMembers.getSignatures(clazz).forName(name)._1.get(s) match {
+    val t = TypeDefinitionMembers.getSignatures(clazz).forName(ScalaPsiUtil.convertMemberName(name))._1.get(s) match {
       case Some(x) => x.supers.map {_.info}
       case None => Seq[Signature]()
     }
