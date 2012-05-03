@@ -44,6 +44,7 @@ object TypeDefinitionMembers {
 
   def isAbstract(s: PhysicalSignature) = s.method match {
     case _: ScFunctionDeclaration => true
+    case _: ScFunctionDefinition => false
     case m if m.hasModifierProperty(PsiModifier.ABSTRACT) => true
     case _ => false
   }
