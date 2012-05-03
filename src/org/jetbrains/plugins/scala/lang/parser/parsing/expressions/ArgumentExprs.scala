@@ -4,9 +4,7 @@ package parser
 package parsing
 package expressions
 
-import com.intellij.lang.PsiBuilder
 import lexer.ScalaTokenTypes
-import nl.LineTerminator
 import builder.ScalaPsiBuilder
 
 /**
@@ -24,18 +22,18 @@ object ArgumentExprs {
     val argMarker = builder.mark
     builder.getTokenType match {
       case ScalaTokenTypes.tLPARENTHESIS => {
-        builder.advanceLexer //Ate (
+        builder.advanceLexer() //Ate (
         builder.disableNewlines
         Expr parse builder
         while (builder.getTokenType == ScalaTokenTypes.tCOMMA) {
-          builder.advanceLexer
+          builder.advanceLexer()
           if (!Expr.parse(builder)) {
             builder error ErrMsg("wrong.expression")
           }
         }
         builder.getTokenType match {
           case ScalaTokenTypes.tRPARENTHESIS => {
-            builder.advanceLexer //Ate )
+            builder.advanceLexer() //Ate )
           }
           case _ => {
             builder error ScalaBundle.message("rparenthesis.expected")
@@ -43,20 +41,20 @@ object ArgumentExprs {
         }
         builder.restoreNewlinesState
         argMarker.done(ScalaElementTypes.ARG_EXPRS)
-        return true
+        true
       }
       case ScalaTokenTypes.tLBRACE => {
         if (builder.countNewlineBeforeCurrentToken > 1) {
-          argMarker.rollbackTo
+          argMarker.rollbackTo()
           return false
         }
         BlockExpr parse builder
         argMarker.done(ScalaElementTypes.ARG_EXPRS)
-        return true
+        true
       }
       case _ => {
-        argMarker.drop
-        return false
+        argMarker.drop()
+        false
       }
     }
   }

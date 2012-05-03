@@ -1,0 +1,52 @@
+List(1,2,3).foreach { _.toString }
+
+// foo
+{ println("done") }
+-------
+ScalaFile
+  MethodCall
+    ReferenceExpression
+      MethodCall
+        ReferenceExpression
+          PsiElement(identifier)('List')
+        ArgumentList
+          PsiElement(()('(')
+          Literal
+            PsiElement(integer)('1')
+          PsiElement(,)(',')
+          Literal
+            PsiElement(integer)('2')
+          PsiElement(,)(',')
+          Literal
+            PsiElement(integer)('3')
+          PsiElement())(')')
+      PsiElement(.)('.')
+      PsiElement(identifier)('foreach')
+    PsiWhiteSpace(' ')
+    ArgumentList
+      BlockExpression
+        PsiElement({)('{')
+        PsiWhiteSpace(' ')
+        ReferenceExpression
+          UnderscoreSection
+            PsiElement(_)('_')
+          PsiElement(.)('.')
+          PsiElement(identifier)('toString')
+        PsiWhiteSpace(' ')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  PsiComment(comment)('// foo')
+  PsiWhiteSpace('\n')
+  BlockExpression
+    PsiElement({)('{')
+    PsiWhiteSpace(' ')
+    MethodCall
+      ReferenceExpression
+        PsiElement(identifier)('println')
+      ArgumentList
+        PsiElement(()('(')
+        Literal
+          PsiElement(string content)('"done"')
+        PsiElement())(')')
+    PsiWhiteSpace(' ')
+    PsiElement(})('}')
