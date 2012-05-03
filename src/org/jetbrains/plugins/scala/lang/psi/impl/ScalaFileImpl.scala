@@ -218,6 +218,16 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
 
     val splits = ScalaFileImpl.toVector(base) :: ScalaFileImpl.splitsIn(ScalaFileImpl.pathIn(this))
 
+    val prefix: Option[Array[PsiElement]] = {
+      val elements = children.takeWhile(!_.isInstanceOf[ScPackaging]).toArray
+      val hasCommentsOnly = elements.forall {
+        case _: PsiComment => true
+        case _: PsiWhiteSpace => true
+        case _ => false
+      }
+      if (elements.length > 0 && hasCommentsOnly) Some(elements) else None
+    }
+
     ScalaFileImpl.stripPackagesIn(this)
 
     val vector = ScalaFileImpl.toVector(name)
@@ -225,6 +235,10 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
     if (vector.nonEmpty) {
       val path = splits.foldLeft(List(vector))(ScalaFileImpl.splitAt)
       ScalaFileImpl.addPathTo(this, path)
+    }
+
+    prefix.foreach { it =>
+      getNode.addChildren(it.head.getNode, it.last.getNode.getTreeNext, getNode.getFirstChildNode)
     }
 
     depthFirst.foreach(it => CodeEditUtil.disablePostponedFormatting(it.getNode))

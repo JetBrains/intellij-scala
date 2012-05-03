@@ -109,6 +109,14 @@ class ScalaFileImplTest extends SimpleTestCase {
       "package foo\npackage bar\npackage moo\npackage goo\n\nclass C");
   }
 
+  def testSetPackageNameWithFileComments() {
+    assertPackageNameSetAs("// comment\npackage foo\n\nclass C", ("", "bar"), "// comment\npackage bar\n\nclass C");
+    assertPackageNameSetAs("// comment\n\npackage foo\n\nclass C", ("", "bar"), "// comment\n\npackage bar\n\nclass C");
+    assertPackageNameSetAs("// comment 1\n// comment 2\npackage foo\n\nclass C", ("", "bar"), "// comment 1\n// comment 2\npackage bar\n\nclass C");
+    assertPackageNameSetAs("/* block */\npackage foo\n\nclass C", ("", "bar"), "/* block */\npackage bar\n\nclass C");
+    assertPackageNameSetAs("/** doc */\npackage foo\n\nclass C", ("", "bar"), "/** doc */\npackage bar\n\nclass C");
+  }
+
   def testSetPackageNameIdentity() {
     val file = parseText("package foo\npackage bar\nclass C").asInstanceOf[ScalaFileImpl]
     val oldClass = file.depthFirst.findByType(classOf[ScClass]).get
