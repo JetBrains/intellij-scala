@@ -9,12 +9,10 @@ import scaladoc.psi.api.ScDocComment
 import settings.ScalaCodeStyleSettings
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.lang.ASTNode
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypesEx
 import com.intellij.psi.xml._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates._
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging._
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
@@ -38,6 +36,8 @@ import refactoring.util.ScalaNamesUtil
 import scaladoc.lexer.{ScalaDocElementType, ScalaDocTokenType}
 import extensions.implementation.PsiElementExt
 import extensions.{toPsiNamedElementExt, &&}
+import parser.ScalaElementTypes
+import psi.api.toplevel.typedef._
 
 object ScalaSpacingProcessor extends ScalaTokenTypes {
   private val LOG = Logger.getInstance("#org.jetbrains.plugins.scala.lang.formatting.processors.ScalaSpacingProcessor")
@@ -495,7 +495,13 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
     if (leftNode.getElementType == ScalaTokenTypes.tLBRACE) {
       rightNode.getElementType match {
         case ScalaElementTypes.FUNCTION_EXPR => {
-          if (!scalaSettings.PLACE_CLOSURE_PARAMETERS_ON_NEW_LINE) return WITHOUT_SPACING
+          if (!scalaSettings.PLACE_CLOSURE_PARAMETERS_ON_NEW_LINE) {
+            if (scalaSettings.SPACE_BEFORE_CLOSURE_PARAMETERS) {
+              return WITH_SPACING
+            } else {
+              return WITHOUT_SPACING
+            }
+          }
         }
         case _ =>
       }

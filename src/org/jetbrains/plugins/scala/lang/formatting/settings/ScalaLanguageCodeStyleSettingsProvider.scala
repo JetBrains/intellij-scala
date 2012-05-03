@@ -149,6 +149,8 @@ class ScalaLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSettingsPr
         CodeStyleSettingsCustomizable.SPACES_OTHER)
       showCustomOption("USE_SCALADOC2_FORMATTING", "Use formatting for ScalaDoc2 options",
         CodeStyleSettingsCustomizable.SPACES_OTHER)
+      showCustomOption("SPACE_BEFORE_CLOSURE_PARAMETERS", "Space before closure parameters",
+        CodeStyleSettingsCustomizable.SPACES_OTHER)
       showCustomOption("SPACE_BEFORE_INFIX_METHOD_CALL_PARENTHESES", "Space before infix method call parentheses",
         CodeStyleSettingsCustomizable.SPACES_BEFORE_PARENTHESES)
       showCustomOption("INSERT_WHITESPACES_IN_SIMPLE_ONE_LINE_METHOD", "Insert whitespaces in simple one line methods",
