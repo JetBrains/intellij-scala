@@ -21,6 +21,7 @@ import lang.psi.api.toplevel.packaging.ScPackaging
 import scala.Some
 import scala.collection.JavaConversions._
 import lang.formatting.settings.ScalaCodeStyleSettings
+import settings.ScalaProjectSettings
 
 /**
  * User: Alexander Podkhalyuzin
@@ -154,7 +155,7 @@ class ScalaImportOptimizer extends ImportOptimizer {
           documentManager.commitDocument(documentManager.getDocument(scalaFile))
 
           // Sort all import sections in the file lexagraphically
-          if (ScalaCodeStyleSettings.getInstance(scalaFile.getProject).SORT_IMPORTS) {
+          if (ScalaProjectSettings.getInstance(file.getProject).isSortImports) {
             val fileHolder = Seq(scalaFile.getContainingFile.asInstanceOf[ScImportsHolder])
             (PsiTreeUtil.collectElementsOfType(scalaFile, classOf[ScImportsHolder]) match {
               case null => fileHolder

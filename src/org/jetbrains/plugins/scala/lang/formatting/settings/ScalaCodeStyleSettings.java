@@ -25,7 +25,7 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
   @Deprecated
   public boolean IMPORTS_MEMBERS_USING_UNDERSCORE = true;
   @Deprecated
-  public boolean SORT_IMPORTS = true;
+  public boolean SORT_IMPORTS = false;
 
   @Deprecated
   public boolean SEARCH_ALL_SYMBOLS = false;
