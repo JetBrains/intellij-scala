@@ -17,7 +17,6 @@ import javax.swing.*;
  */
 public class ScalaProjectSettingsPanel {
   private JPanel myPanel;
-  private JTabbedPane tabbedPane;
   private JSpinner classCountSpinner;
   private JCheckBox addUnambiguousImportsOnCheckBox;
   private JCheckBox addImportStatementInCheckBox;
@@ -44,24 +43,9 @@ public class ScalaProjectSettingsPanel {
     setSettings();
   }
 
-  protected EditorHighlighter createHighlighter(EditorColorsScheme scheme) {
-    return new ScalaEditorHighlighter(myProject, null, scheme);
-  }
-
-  protected int getRightMargin() {
-    return 0;
-  }
-
-  protected void prepareForReformat(PsiFile psiFile) {
-  }
-
   @NotNull
   protected FileType getFileType() {
     return ScalaFileType.SCALA_FILE_TYPE;
-  }
-
-  protected String getPreviewText() {
-    return "";
   }
 
   public void apply() {

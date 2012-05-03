@@ -22,6 +22,7 @@ import psi.api.ScalaFile
 import java.io.File
 import com.intellij.openapi.vfs.LocalFileSystem
 import util.ScalaUtils
+import settings.ScalaProjectSettings
 
 /**
  * User: Alexander Podkhalyuzin
@@ -32,7 +33,7 @@ abstract class OptimizeImportsTestBase extends ScalaPsiTestCase {
 
   override def rootPath: String = super.rootPath + "optimize/"
 
-  protected def doTest = {
+  protected def doTest() {
     import _root_.junit.framework.Assert._
 
     val filePath = rootPath + getTestName(false) + ".scala"
@@ -46,7 +47,11 @@ abstract class OptimizeImportsTestBase extends ScalaPsiTestCase {
     var res: String = null
     var lastPsi = TreeUtil.findLastLeaf(scalaFile.getNode).getPsi
 
+
     try {
+      if (getTestName(true).startsWith("sorted")) {
+        ScalaProjectSettings.getInstance(myProject).setSortImports(true)
+      }
       ScalaUtils.runWriteActionDoNotRequestConfirmation(new ScalaImportOptimizer().processFile(scalaFile), myProject, "Test")
       res = scalaFile.getText.substring(0, lastPsi.getTextOffset).trim//getImportStatements.map(_.getText()).mkString("\n")
     }
@@ -66,6 +71,7 @@ abstract class OptimizeImportsTestBase extends ScalaPsiTestCase {
           }
         }
       }, myProject, "Test")
+      ScalaProjectSettings.getInstance(myProject).setSortImports(false)
     }
 
     println("------------------------ " + scalaFile.getName + " ------------------------")
