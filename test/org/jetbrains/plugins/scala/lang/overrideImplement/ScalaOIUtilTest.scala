@@ -60,6 +60,22 @@ class ScalaOIUtilTest extends SimpleTestCase {
     )
   }
 
+  def testOverAbstract() {
+    assertUnimplemented(
+      """
+        |1
+        |trait A {
+        |  def foo: Int
+        |}
+        |trait B {
+        |  def foo: Int = 1
+        |}
+        |class T extends B with A {
+        |}
+      """.replace("\r", "").stripMargin
+    )
+  }
+
   def testMembers() {
     assertUnimplemented("trait T { def f }; new T {}", "f: Unit")
     assertUnimplemented("trait T { var f }; new T {}", "f: Any")
