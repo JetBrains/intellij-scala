@@ -30,7 +30,7 @@ class Signature(val name: String, val typesEval: List[Stream[ScType]], val param
       !isField(this) ^ isField(other)
     }
     
-    name == other.name &&
+    ScalaPsiUtil.convertMemberName(name) == ScalaPsiUtil.convertMemberName(other.name) &&
             ((typeParams.length == other.typeParams.length && paramTypesEquiv(other)) || 
               (paramLength == other.paramLength && javaErasedEquiv(other))) && fieldCheck(other)
     
@@ -105,7 +105,7 @@ class Signature(val name: String, val typesEval: List[Stream[ScType]], val param
   }
 
   override def hashCode: Int = {
-    name.hashCode * 31
+    ScalaPsiUtil.convertMemberName(name).hashCode * 31
   }
 
   def isJava: Boolean = false
