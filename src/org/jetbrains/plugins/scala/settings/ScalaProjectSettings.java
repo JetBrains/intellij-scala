@@ -30,6 +30,7 @@ public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProj
   private int CLASS_COUNT_TO_USE_IMPORT_ON_DEMAND = scalaSettings.CLASS_COUNT_TO_USE_IMPORT_ON_DEMAND;
   private boolean ADD_IMPORT_MOST_CLOSE_TO_REFERENCE = scalaSettings.ADD_IMPORT_MOST_CLOSE_TO_REFERENCE;
   private boolean ADD_FULL_QUALIFIED_IMPORTS = scalaSettings.ADD_FULL_QUALIFIED_IMPORTS;
+  private boolean SORT_IMPORTS = scalaSettings.SORT_IMPORTS;
   private boolean IMPORTS_MEMBERS_USING_UNDERSCORE = scalaSettings.IMPORTS_MEMBERS_USING_UNDERSCORE;
 
   private boolean SEARCH_ALL_SYMBOLS = scalaSettings.SEARCH_ALL_SYMBOLS;
@@ -107,6 +108,14 @@ public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProj
 
   public void setAddFullQualifiedImports(boolean value) {
     ADD_FULL_QUALIFIED_IMPORTS = value;
+  }
+
+  public boolean isSortImports() {
+    return SORT_IMPORTS;
+  }
+
+  public void setSortImports(boolean value) {
+    SORT_IMPORTS = value;
   }
 
   public boolean isImportMembersUsingUnderScore() {
