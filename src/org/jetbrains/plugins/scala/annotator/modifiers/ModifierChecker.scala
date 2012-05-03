@@ -204,9 +204,10 @@ private[annotator] object ModifierChecker {
                         val clauses = constr.parameterList.clauses
                         if (clauses.length == 0) errorResult()
                         else {
-                          if (clauses(0).parameters.length != 1) errorResult()
-                          if (clauses(0).parameters(0).isRepeatedParameter) errorResult()
-                          if (clauses.length > 2 || (clauses.length == 2 && !clauses(1).isImplicit)) errorResult()
+                          val parameters = clauses(0).parameters
+                          if (parameters.length != 1) errorResult()
+                          else if (parameters(0).isRepeatedParameter) errorResult()
+                          else if (clauses.length > 2 || (clauses.length == 2 && !clauses(1).isImplicit)) errorResult()
                         }
                       case _ => errorResult()
                     }
