@@ -67,6 +67,7 @@ class ScDocTagValueImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
   override def handleElementRename(newElementName: String): PsiElement = {
     if (!ScalaNamesUtil.isIdentifier(newElementName)) return this
     val doc = FileDocumentManager.getInstance().getDocument(getContainingFile.getVirtualFile)
+    PsiDocumentManager.getInstance(getProject).doPostponedOperationsAndUnblockDocument(doc)
     val range: TextRange = getFirstChild.getTextRange
     doc.replaceString(range.getStartOffset, range.getEndOffset, newElementName)
     PsiDocumentManager.getInstance(getProject).commitAllDocuments()
