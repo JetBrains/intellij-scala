@@ -1,0 +1,3 @@
+#if ( $RETURN_TYPE == "Unit" ) {$CALL_SUPER}
+#else $CALL_SUPER
+#end
