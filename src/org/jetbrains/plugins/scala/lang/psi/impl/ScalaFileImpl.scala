@@ -512,7 +512,8 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
     }
     if (SbtFile.isSbtFile(this)) {
       SbtFile.findSbtProjectModule(getProject) match {
-        case Some(module) => module.getModuleRuntimeScope(false)
+        case Some(module) =>
+          module.getModuleWithLibrariesScope
         case None => default
       }
     } else default

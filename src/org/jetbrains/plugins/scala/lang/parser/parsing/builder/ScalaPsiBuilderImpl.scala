@@ -40,7 +40,7 @@ class ScalaPsiBuilderImpl(builder: PsiBuilder)
             if (getOriginalText.charAt(j) == '\n') res += 1
             j = j + 1
           }
-        case ScalaTokenTypes.tLINE_COMMENT => res -= 1 //newline should be included to line comment
+        case ScalaTokenTypes.tLINE_COMMENT =>
         case ScalaTokenTypes.tBLOCK_COMMENT | ScalaDocElementTypes.SCALA_DOC_COMMENT =>
         case _ => return res
       }
