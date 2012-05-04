@@ -481,7 +481,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
           val spaces =
             if (rightNode.getTreeParent.getTreeParent != null &&
                     rightNode.getTreeParent.getTreeParent.getPsi.isInstanceOf[ScFunction] &&
-                    !block.getText.contains('\n') && scalaSettings.INSERT_WHITESPACES_IN_SIMPLE_ONE_LINE_METHOD ||
+                    !block.getText.contains('\n') && (scalaSettings.INSERT_WHITESPACES_IN_SIMPLE_ONE_LINE_METHOD && leftString != "{") ||
                     (leftPsi.isInstanceOf[ScCaseClauses] || leftPsi.isInstanceOf[ScFunctionExpr] ||
                             (leftPsi.isInstanceOf[PsiComment])) &&
                             scalaSettings.KEEP_ONE_LINE_LAMBDAS_IN_ARG_LIST) 1
