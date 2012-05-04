@@ -479,8 +479,8 @@ object ScalaPsiElementFactory {
   }
 
   def createOverrideImplementMethod(sign: PhysicalSignature, manager: PsiManager, isOverride: Boolean,
-                                   needsInferType: Boolean): ScFunction = {
-    val text = "class a {\n  " + getOverrideImplementSign(sign, "null", isOverride, needsInferType) + "\n}"
+                                   needsInferType: Boolean, body: String): ScFunction = {
+    val text = "class a {\n  " + getOverrideImplementSign(sign, body, isOverride, needsInferType) + "\n}"
     val dummyFile = PsiFileFactory.getInstance(manager.getProject).
             createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension,
       ScalaFileType.SCALA_FILE_TYPE, text).asInstanceOf[ScalaFile]
@@ -539,9 +539,8 @@ object ScalaPsiElementFactory {
     }
   }
 
-  private def getOverrideImplementSign(sign: PhysicalSignature, defaultBody: String, isOverride: Boolean,
+  private def getOverrideImplementSign(sign: PhysicalSignature, body: String, isOverride: Boolean,
                                        needsInferType: Boolean): String = {
-    var body = defaultBody
     var res = ""
     val method = sign.method
     // do not substitute aliases
@@ -550,7 +549,6 @@ object ScalaPsiElementFactory {
       case method: ScFunction => {
         val retType = method.returnType.toOption.map(t => substitutor.subst(t))
 
-        body = getStandardValue(retType.getOrElse(Any))
         res = res + method.getFirstChild.getText
         if (res != "") res = res + "\n"
         if (!method.getModifierList.hasModifierProperty("override") && isOverride) res = res + "override "
@@ -605,10 +603,8 @@ object ScalaPsiElementFactory {
         }
 
         val retAndBody = (needsInferType, retType) match {
-          case (_, Some(tp)) if tp.equiv(Unit) =>
-            " {}"
-          case (_, None) if !method.hasAssign =>
-            " {}"
+          case (_, Some(tp)) if tp.equiv(Unit) => body
+          case (_, None) if !method.hasAssign => body
           case (true, Some(retType)) =>
             var text = ScType.canonicalText(retType)
             if (text == "_root_.java.lang.Object") text = "AnyRef"
@@ -620,7 +616,6 @@ object ScalaPsiElementFactory {
         res += retAndBody
       }
       case _ => {
-        body = getStandardValue(substitutor subst ScType.create(method.getReturnType, method.getProject))
         var hasOverride = false
         if (method.getModifierList.getNode != null)
         for (modifier <- method.getModifierList.getNode.getChildren(null); m = modifier.getText) {
@@ -673,8 +668,7 @@ object ScalaPsiElementFactory {
         res = res + (if (omitParamList) "" else ")")
         val retType = substitutor.subst(ScType.create(method.getReturnType, method.getProject))
         val retAndBody = (needsInferType, retType) match {
-          case (_, _) if retType.equiv(Unit) =>
-            " {}"
+          case (_, _) if retType.equiv(Unit) => body
           case (true, _) =>
             var text = ScType.canonicalText(retType)
             if (text == "Any") text = "AnyRef"
@@ -748,9 +742,9 @@ object ScalaPsiElementFactory {
     res.substring(0, res.length - 1)
   }
 
-  private def getStandardValue(typez: ScType): String = {
+  def getStandardValue(typez: ScType): String = {
     typez match {
-      case ValType("Unit") => "{}"
+      case ValType("Unit") => "()"
       case ValType("Boolean") => "false"
       case ValType("Char" | "Int" | "Byte") => "0"
       case ValType("Long") => "0L"

@@ -25,6 +25,11 @@ import lang.psi.types.result.{Failure, Success, TypingContext}
 import javax.swing.{JComponent, JCheckBox}
 import collection.immutable.HashSet
 import extensions._
+import org.jetbrains.plugins.scala.actions.ScalaFileTemplateUtil
+import java.util.Properties
+import com.intellij.ide.fileTemplates.{FileTemplate, FileTemplateManager}
+import lang.psi.api.expr.ScBlockExpr
+import com.intellij.openapi.util.TextRange
 
 /**
  * User: Alexander Podkhalyuzin
@@ -119,7 +124,45 @@ object ScalaOIUtil {
             case member: ScMethodMember => {
               val method: PsiMethod = member.getElement
               val sign = member.sign.updateSubst(addUpdateThisType)
-              val m = ScalaPsiElementFactory.createOverrideImplementMethod(sign, method.getManager, !isImplement, needsInferType)
+              val isAbstract = method match {
+                case _: ScFunctionDeclaration => true
+                case _: ScFunctionDefinition => false
+                case _ => method.hasModifierProperty(PsiModifier.ABSTRACT)
+              }
+
+              val templateName = if (isAbstract) ScalaFileTemplateUtil.SCALA_IMPLEMENTED_METHOD_TEMPLATE else
+                ScalaFileTemplateUtil.SCALA_OVERRIDDEN_METHOD_TEMPLATE
+
+              val template = FileTemplateManager.getInstance().getCodeTemplate(templateName)
+
+              val properties = new Properties()
+
+              val returnType = method match {
+                case fun: ScFunction => sign.substitutor.subst(fun.returnType.getOrAny)
+                case method: PsiMethod =>
+                  sign.substitutor.subst(ScType.create(Option(method.getReturnType).getOrElse(PsiType.VOID),
+                    method.getProject, method.getResolveScope
+                  ))
+              }
+              import org.jetbrains.plugins.scala.lang.psi.types.Unit
+              val isUnitCall = returnType.equiv(Unit)
+              properties.setProperty(FileTemplate.ATTRIBUTE_RETURN_TYPE, ScType.presentableText(returnType))
+              properties.setProperty(FileTemplate.ATTRIBUTE_DEFAULT_RETURN_VALUE,
+                ScalaPsiElementFactory.getStandardValue(returnType))
+              properties.setProperty(FileTemplate.ATTRIBUTE_CALL_SUPER, "super." + method.name + (method match {
+                case fun: ScFunction =>
+                  fun.paramClauses.clauses.map(_.parameters.map(_.name).mkString("(", ", ", ")")).mkString
+                case method: PsiMethod =>
+                  if (method.isAccessor) ""
+                  else method.getParameterList.getParameters.map(_.name).mkString("(", ", ", ")")
+              }))
+
+              ScalaFileTemplateUtil.setClassAndMethodNameProperties(properties, method.containingClass, method)
+
+              val body = template.getText(properties)
+
+              val m = ScalaPsiElementFactory.createOverrideImplementMethod(sign, method.getManager,
+                !isImplement, needsInferType, body)
               adjustTypesAndSetCaret(clazz.addMember(m, anchor), editor)
             }
             case member: ScAliasMember => {
@@ -316,7 +359,7 @@ object ScalaOIUtil {
       case sign: PhysicalSignature => {
         val method: PsiMethod = sign.method
         val sign1 = sign.updateSubst(addUpdateThisType)
-        ScalaPsiElementFactory.createOverrideImplementMethod(sign1, method.getManager, !isImplement, needsInferType)
+        ScalaPsiElementFactory.createOverrideImplementMethod(sign1, method.getManager, !isImplement, needsInferType, "null")
       }
       case (name: PsiNamedElement, subst: ScSubstitutor) => {
         val element: PsiElement = ScalaPsiUtil.nameContext(name)
@@ -370,13 +413,21 @@ object ScalaOIUtil {
       }
       case _ => return
     }
-    val range = body.getTextRange
-    val offset = range.getStartOffset
-    if (body.getText == "{}") {
-      editor.getCaretModel.moveToOffset(offset + 1)
-    } else {
-      editor.getCaretModel.moveToOffset(offset)
-      editor.getSelectionModel.setSelection(range.getStartOffset, range.getEndOffset)
+
+    body match {
+      case e: ScBlockExpr =>
+        val statements = e.statements
+        if (statements.length == 0) {
+          editor.getCaretModel.moveToOffset(body.getTextRange.getStartOffset + 1)
+        } else {
+          val range = new TextRange(statements(0).getTextRange.getStartOffset, statements(statements.length - 1).getTextRange.getEndOffset)
+          editor.getCaretModel.moveToOffset(range.getStartOffset)
+          editor.getSelectionModel.setSelection(range.getStartOffset, range.getEndOffset)
+        }
+      case _ =>
+        val range = body.getTextRange
+        editor.getCaretModel.moveToOffset(range.getStartOffset)
+        editor.getSelectionModel.setSelection(range.getStartOffset, range.getEndOffset)
     }
   }
 }
