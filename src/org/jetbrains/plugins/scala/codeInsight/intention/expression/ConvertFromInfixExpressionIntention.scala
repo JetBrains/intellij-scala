@@ -16,12 +16,12 @@ import com.intellij.openapi.util.TextRange
  * @author Ksenia.Sautina
  * @since 4/9/12
  */
-object ConvertFromInfixMethodCallIntention {
-  val familyName = "Convert from infix method call"
+object ConvertFromInfixExpressionIntention {
+  val familyName = "Convert from infix expression"
 }
 
-class ConvertFromInfixMethodCallIntention extends PsiElementBaseIntentionAction {
-  def getFamilyName = ConvertFromInfixMethodCallIntention.familyName
+class ConvertFromInfixExpressionIntention extends PsiElementBaseIntentionAction {
+  def getFamilyName = ConvertFromInfixExpressionIntention.familyName
 
   override def getText: String = getFamilyName
 
