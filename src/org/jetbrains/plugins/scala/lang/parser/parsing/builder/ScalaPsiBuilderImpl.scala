@@ -29,19 +29,20 @@ class ScalaPsiBuilderImpl(builder: PsiBuilder)
     var i: Int = 1
     while (i <= getCurrentOffset) {
       val previousToken: IElementType = rawLookup(-i)
-      if (previousToken != ScalaTokenTypes.tWHITE_SPACE_IN_LINE &&
-        !(previousToken == ScalaTokenTypes.tBLOCK_COMMENT || previousToken == ScalaDocElementTypes.SCALA_DOC_COMMENT ||
-          previousToken == ScalaTokenTypes.tLINE_COMMENT)) {
-        return res
-      }
-      val previousTokenStart: Int = rawTokenTypeStart(-i)
-      val previousTokenEnd: Int = rawTokenTypeStart(-i + 1)
-      assert(previousTokenStart >= 0)
-      assert(previousTokenEnd < getOriginalText.length)
-      var j: Int = previousTokenStart
-      while (j < previousTokenEnd) {
-        if (getOriginalText.charAt(j) == '\n') res += 1
-        j = j + 1
+      previousToken match {
+        case ScalaTokenTypes.tWHITE_SPACE_IN_LINE =>
+          val previousTokenStart: Int = rawTokenTypeStart(-i)
+          val previousTokenEnd: Int = rawTokenTypeStart(-i + 1)
+          assert(previousTokenStart >= 0)
+          assert(previousTokenEnd < getOriginalText.length)
+          var j: Int = previousTokenStart
+          while (j < previousTokenEnd) {
+            if (getOriginalText.charAt(j) == '\n') res += 1
+            j = j + 1
+          }
+        case ScalaTokenTypes.tLINE_COMMENT => res -= 1 //newline should be included to line comment
+        case ScalaTokenTypes.tBLOCK_COMMENT | ScalaDocElementTypes.SCALA_DOC_COMMENT =>
+        case _ => return res
       }
       i = i + 1
     }
