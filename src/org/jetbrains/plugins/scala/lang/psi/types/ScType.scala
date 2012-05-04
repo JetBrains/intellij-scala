@@ -232,6 +232,7 @@ object ScType extends ScTypePresentation with ScTypePsiTypeBridge {
   }
 
   def projectionOption(tp: ScType): Option[ScType] = tp match {
+    case ScParameterizedType(des, _) => projectionOption(des)
     case proj@ScProjectionType(p, elem, subst) => proj.actualElement match {
       case c: PsiClass => Some(p)
       case t: ScTypeAliasDefinition =>
