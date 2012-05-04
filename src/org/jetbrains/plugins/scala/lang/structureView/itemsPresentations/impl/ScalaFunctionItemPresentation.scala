@@ -19,7 +19,7 @@ class ScalaFunctionItemPresentation(private val element: ScFunction, private val
   def getPresentableText: String = {
     ScalaElementPresentation.getMethodPresentableText(myElement.asInstanceOf[ScFunction])
   }
-  override def getTextAttributesKey(): TextAttributesKey = {
-    if(isInherited) CodeInsightColors.NOT_USED_ELEMENT_ATTRIBUTES else null
+  override def getTextAttributesKey: TextAttributesKey = {
+    if (isInherited) CodeInsightColors.NOT_USED_ELEMENT_ATTRIBUTES else null
   }
 }

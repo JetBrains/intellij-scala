@@ -20,7 +20,5 @@ class ScalaVariableStructureViewElement(private val element: PsiElement, val isI
     new ScalaVariableItemPresentation(element, isInherited);
   }
 
-  def getChildren: Array[TreeElement] = {
-    new Array[TreeElement](0)
-  }
+  def getChildren: Array[TreeElement] = Array.empty
 }
