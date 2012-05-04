@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala
 package lang
 package structureView
 
-import com.intellij.ide.structureView.impl.java.InheritedMembersFilter
 import com.intellij.ide.util.treeView.smartTree._
 import com.intellij.psi.PsiElement
 import org.jetbrains.annotations.NotNull
@@ -16,17 +15,24 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockExpr
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import psi.api.ScalaFile
 import com.intellij.ide.structureView.{StructureViewModel, StructureViewTreeElement, TextEditorBasedStructureViewModel}
+import java.util.{Arrays, Collection}
 
 /**
-* @author Alexander.Podkhalyuz
-* Date: 04.05.2008
-*/
-
+ * @author Alexander Podkhalyuzin
+ * @since 04.05.2008
+ */
 class ScalaStructureViewModel(private val myRootElement: ScalaFile)
   extends TextEditorBasedStructureViewModel(myRootElement) with StructureViewModel.ElementInfoProvider {
-  def isAlwaysLeaf(element: StructureViewTreeElement): Boolean = false
+  def isAlwaysLeaf(element: StructureViewTreeElement): Boolean = !isAlwaysShowsPlus(element)
 
-  def isAlwaysShowsPlus(element: StructureViewTreeElement): Boolean = true
+  def isAlwaysShowsPlus(element: StructureViewTreeElement): Boolean = {
+    element match {
+      case _: ScalaTypeDefinitionStructureViewElement => true
+      case _: ScalaFileStructureViewElement => true
+      case _: ScalaPackagingStructureViewElement => true
+      case _ => false
+    }
+  }
 
   @NotNull
   def getRoot: StructureViewTreeElement = {
@@ -40,10 +46,7 @@ class ScalaStructureViewModel(private val myRootElement: ScalaFile)
     res
   }
 
-  @NotNull
-  override def getFilters: Array[Filter] = {
-    Array[Filter](new ScalaInheritedMembersFilter)
-  }
+  override def getNodeProviders: Collection[NodeProvider[_ <: TreeElement]] = ScalaStructureViewModel.NODE_PROVIDERS
 
   override def isSuitable(element: PsiElement) = element match {
     case t: ScTypeDefinition => t.getParent match {
@@ -75,14 +78,6 @@ class ScalaStructureViewModel(private val myRootElement: ScalaFile)
   }
 }
 
-class ScalaInheritedMembersFilter extends InheritedMembersFilter {
-  override def isVisible(treeNode: TreeElement): Boolean = {
-    treeNode match {
-      case x: ScalaFunctionStructureViewElement => !x.isInherited
-      case x: ScalaValueStructureViewElement => !x.isInherited
-      case x: ScalaVariableStructureViewElement => !x.isInherited
-      case x: ScalaTypeAliasStructureViewElement => !x.isInherited
-      case _ => super.isVisible(treeNode)
-    }
-  }
+object ScalaStructureViewModel {
+  private val NODE_PROVIDERS: Collection[NodeProvider[_ <: TreeElement]] = Arrays.asList(new ScalaInheritedMembersNodeProvider)
 }

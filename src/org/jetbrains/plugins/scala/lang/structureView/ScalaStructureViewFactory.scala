@@ -5,7 +5,6 @@ package structureView
 import com.intellij.lang.PsiStructureViewFactory
 import com.intellij.psi.PsiFile
 import com.intellij.ide.structureView.StructureViewBuilder
-import psi._
 import psi.api.ScalaFile
 
 /**
