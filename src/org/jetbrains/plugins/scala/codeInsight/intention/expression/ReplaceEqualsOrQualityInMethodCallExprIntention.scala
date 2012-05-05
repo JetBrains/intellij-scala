@@ -17,7 +17,7 @@ import com.intellij.psi.{PsiDocumentManager, PsiElement}
  */
 
 object ReplaceEqualsOrQualityInMethodCallExprIntention {
-  def familyName = "familyname2"
+  def familyName = "Replace equals or quality in method call expression"
 }
 
 class ReplaceEqualsOrQualityInMethodCallExprIntention extends PsiElementBaseIntentionAction {

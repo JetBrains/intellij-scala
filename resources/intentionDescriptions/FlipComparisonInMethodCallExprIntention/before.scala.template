@@ -1,5 +1,5 @@
-if (a.==(b)) return
-if (a.!=(b)) return
-if (a.>=(b)) return
-if (a.<=(b)) return
-if (a.equals(b)) return
+if (a.<spot>==</spot>(b)) return
+if (a.<spot>!=</spot>(b)) return
+if (a.<spot>>=</spot>(b)) return
+if (a.<spot><=</spot>(b)) return
+if (a.<spot>equals</spot>(b)) return
