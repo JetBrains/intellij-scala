@@ -1,3 +1,4 @@
-some.map(_ > 5)
-some.foreach(println _)
-name.exists(_.isUpper)
+val f: ((Int, Int, Int) => Int) = _ + _ + _ + 5
+
+val name: String = "string"
+val nameHasUpperCase = name.exists(_.isUpper)

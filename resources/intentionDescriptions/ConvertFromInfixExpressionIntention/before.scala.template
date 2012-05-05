@@ -1,5 +1,4 @@
-x <caret>foo 2
-
-x goo<caret>(1, (1 + 2) * 3)
-
-1 :<caret>: 2 :: Nil
+class A {
+  def foo(a: Int) {}
+  this <spot>foo</spot> a
+}
