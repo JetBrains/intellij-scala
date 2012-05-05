@@ -23,6 +23,7 @@ import impl.{TemplateManagerImpl, TemplateState}
 import scala.{None, Option}
 import collection.mutable.{ArrayBuffer, HashSet, HashMap}
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
+import com.intellij.openapi.extensions.Extensions
 
 /**
  * @author Ksenia.Sautina
@@ -57,8 +58,13 @@ class IntroduceExplicitParameterIntention extends PsiElementBaseIntentionAction 
     val underscoreToParam: HashMap[ScUnderscoreSection, ScParameter] = new HashMap[ScUnderscoreSection, ScParameter]
     val offsets: HashMap[String, Int] = new HashMap[String, Int]
     val usedNames: HashSet[String] = new HashSet[String]
+    val macros: HashSet[String] = new HashSet[String]
     var needComma = false
     var needBraces = false
+
+    for (m <- Extensions.getExtensions(Macro.EP_NAME)) {
+      macros.add(m.getName)
+    }
 
     for (u <- underscores) {
       if (needComma) buf.append(",")
@@ -85,8 +91,17 @@ class IntroduceExplicitParameterIntention extends PsiElementBaseIntentionAction 
           }
         })
 
-      usedNames.add(names(0))
-      buf.append(names(0))
+      var un = names(0)
+      if (macros.contains(un)) {
+        if (names.size > 1) {
+          un = names(1)
+        } else {
+          un = "value"
+        }
+      }
+
+      usedNames.add(un)
+      buf.append(un)
 
       if (u.getParent.isInstanceOf[ScTypedStmt]) {
         needBraces = true
@@ -94,7 +109,7 @@ class IntroduceExplicitParameterIntention extends PsiElementBaseIntentionAction 
         buf.append(": ").append(typedStmt.getType(TypingContext.empty).get.canonicalText)
       }
 
-      val newParam = ScalaPsiElementFactory.createParameterFromText(names(0), element.getManager)
+      val newParam = ScalaPsiElementFactory.createParameterFromText(un, element.getManager)
       underscoreToParam.put(u, newParam)
     }
 
