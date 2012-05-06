@@ -606,4 +606,26 @@ class B(i: Int)(s: String) {
 
     doTextTest(before, after)
   }
+
+  def testSpaceInsideClosureBraces() {
+    getScalaSettings.SPACE_INSIDE_CLOSURE_BRACES = true
+    getScalaSettings.SPACE_BEFORE_INFIX_METHOD_CALL_PARENTHESES = true
+    getScalaSettings.KEEP_ONE_LINE_LAMBDAS_IN_ARG_LIST = true
+
+    val before =
+"""
+Array.fill(34){scala.util.Random.nextInt(12)  }
+
+foos map{ t=>getCounts(t).toSeq sortBy {-_._2 }   map {_._1 }}
+""".replace("\r", "")
+
+    val after =
+"""
+Array.fill(34) { scala.util.Random.nextInt(12) }
+
+foos map { t => getCounts(t).toSeq sortBy { -_._2 } map { _._1 } }
+""".replace("\r", "")
+
+    doTextTest(before, after)
+  }
 }
