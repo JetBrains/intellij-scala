@@ -478,14 +478,17 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
       rightNode.getTreeParent.getPsi match {
         case block@(_: ScEarlyDefinitions | _: ScTemplateBody | _: ScPackaging | _: ScBlockExpr | _: ScMatchStmt |
                 _: ScTryBlock | _: ScCatchBlock) => {
-          val spaces =
-            if (rightNode.getTreeParent.getTreeParent != null &&
-                    rightNode.getTreeParent.getTreeParent.getPsi.isInstanceOf[ScFunction] &&
-                    !block.getText.contains('\n') && (scalaSettings.INSERT_WHITESPACES_IN_SIMPLE_ONE_LINE_METHOD && leftString != "{") ||
-                    (leftPsi.isInstanceOf[ScCaseClauses] || leftPsi.isInstanceOf[ScFunctionExpr] ||
-                            (leftPsi.isInstanceOf[PsiComment])) &&
-                            scalaSettings.KEEP_ONE_LINE_LAMBDAS_IN_ARG_LIST) 1
-            else 0
+
+          val oneLineNonEmpty = leftString != "{" && !block.getText.contains('\n')
+          val spaceInsideOneLineMethod = scalaSettings.INSERT_WHITESPACES_IN_SIMPLE_ONE_LINE_METHOD &&
+            rightNode.getTreeParent.getTreeParent != null && rightNode.getTreeParent.getTreeParent.getPsi.isInstanceOf[ScFunction]
+          val spaceInsideClosure = scalaSettings.SPACE_INSIDE_CLOSURE_BRACES && scalaSettings.KEEP_ONE_LINE_LAMBDAS_IN_ARG_LIST &&
+            (leftPsi.isInstanceOf[ScFunctionExpr] || block.isInstanceOf[ScBlockExpr] || leftPsi.isInstanceOf[ScCaseClauses])
+
+          val needsSpace = (oneLineNonEmpty && (spaceInsideOneLineMethod || spaceInsideClosure)) ||
+            leftPsi.isInstanceOf[PsiComment] && scalaSettings.KEEP_ONE_LINE_LAMBDAS_IN_ARG_LIST
+          val spaces = if (needsSpace) 1 else 0
+
           return Spacing.createDependentLFSpacing(spaces, spaces, block.getTextRange, keepLineBreaks, keepBlankLinesBeforeRBrace)
         }
         case _ => return Spacing.createSpacing(0, 0, 0, keepLineBreaks, keepBlankLinesBeforeRBrace)
@@ -493,17 +496,15 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
     }
 
     if (leftNode.getElementType == ScalaTokenTypes.tLBRACE) {
-      rightNode.getElementType match {
-        case ScalaElementTypes.FUNCTION_EXPR => {
-          if (!scalaSettings.PLACE_CLOSURE_PARAMETERS_ON_NEW_LINE) {
-            if (scalaSettings.SPACE_BEFORE_CLOSURE_PARAMETERS) {
-              return WITH_SPACING
-            } else {
-              return WITHOUT_SPACING
-            }
-          }
+      if (!scalaSettings.PLACE_CLOSURE_PARAMETERS_ON_NEW_LINE) {
+        val b = leftNode.getTreeParent.getPsi
+        val spacing = if (scalaSettings.SPACE_INSIDE_CLOSURE_BRACES) WITH_SPACING else WITHOUT_SPACING
+        rightNode.getElementType match {
+          case ScalaElementTypes.FUNCTION_EXPR => return spacing
+          case ScalaElementTypes.CASE_CLAUSES =>
+            if (b.getParent.isInstanceOf[ScArgumentExprList] || b.getParent.isInstanceOf[ScInfixExpr]) return spacing
+          case _ =>
         }
-        case _ =>
       }
       leftNode.getTreeParent.getPsi match {
         case b: ScTemplateBody if rightPsi.isInstanceOf[ScSelfTypeElement] => {
@@ -529,10 +530,15 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
           }
           return Spacing.createSpacing(0, 0, settings.BLANK_LINES_BEFORE_METHOD_BODY + 1, keepLineBreaks, keepBlankLinesInDeclarations)
         }
-        case b: ScBlockExpr if scalaSettings.KEEP_ONE_LINE_LAMBDAS_IN_ARG_LIST && 
+        case b: ScBlockExpr if scalaSettings.KEEP_ONE_LINE_LAMBDAS_IN_ARG_LIST &&
                 !b.getText.contains('\n') && (rightPsi.isInstanceOf[ScCaseClauses] && b.getParent != null &&
                 b.getParent.isInstanceOf[ScArgumentExprList] || rightPsi.isInstanceOf[ScFunctionExpr]) =>
           return Spacing.createDependentLFSpacing(1, 1, b.getTextRange, keepLineBreaks, keepBlankLinesBeforeRBrace)
+
+        case b: ScBlockExpr if scalaSettings.SPACE_INSIDE_CLOSURE_BRACES && !b.getText.contains('\n') &&
+                scalaSettings.KEEP_ONE_LINE_LAMBDAS_IN_ARG_LIST &&
+                (b.getParent.isInstanceOf[ScArgumentExprList] || b.getParent.isInstanceOf[ScInfixExpr]) => return WITH_SPACING
+
         case block@(_: ScPackaging | _: ScBlockExpr | _: ScMatchStmt |
                 _: ScTryBlock | _: ScCatchBlock) => {
           if (settings.KEEP_SIMPLE_BLOCKS_IN_ONE_LINE) {
@@ -681,7 +687,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
         left = left.getLastChildNode
       }
       val tp = PsiTreeUtil.getParentOfType(left.getPsi, classOf[ScTypeParam])
-      if (tp ne null) {          
+      if (tp ne null) {
           return if (tp.nameId.getNode eq left) WITHOUT_SPACING else WITH_SPACING
       }
       return if (left.getElementType == ScalaTokenTypes.tIDENTIFIER &&
