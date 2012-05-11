@@ -11,10 +11,10 @@ import org.jetbrains.plugins.scala.extensions._
  * Pavel.Fatin, 18.05.2010
  */
 trait VariableDefinitionAnnotator {
-  def annotateVariableDefinition(declaration: ScVariableDefinition, holder: AnnotationHolder, highlightErrors: Boolean) {
-    if (highlightErrors && declaration.pList.allPatternsSimple) {
-      for (element <- declaration.children.findByType(classOf[ScSimpleTypeElement]))
-        checkConformance(declaration.expr, element, holder)
+  def annotateVariableDefinition(definition: ScVariableDefinition, holder: AnnotationHolder, highlightErrors: Boolean) {
+    if (highlightErrors && definition.pList.allPatternsSimple) {
+      for (expr <- definition.expr; element <- definition.children.findByType(classOf[ScSimpleTypeElement]))
+        checkConformance(expr, element, holder)
     }
   }
 }

@@ -11,10 +11,10 @@ import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import parser.ScalaElementTypes
 import stubs.ScVariableStub
-import psi.types.result.TypingContext
 import com.intellij.psi.PsiElementVisitor
 import api.ScalaElementVisitor
 import api.expr.ScExpression
+import psi.types.result.{Failure, TypingContext}
 
 /**
  * @author Alexander Podkhalyuzin
@@ -28,15 +28,12 @@ class ScVariableDefinitionImpl extends ScalaStubBasedElementImpl[ScVariable] wit
     }
   }
 
-  def expr: ScExpression = {
+  def expr: Option[ScExpression] = {
     val stub = getStub
     if (stub != null) {
-      stub.asInstanceOf[ScVariableStub].getBodyExpr match {
-        case Some(expr) => return expr
-        case _ =>
-      }
+      stub.asInstanceOf[ScVariableStub].getBodyExpr
     }
-    findChildByClassScala(classOf[ScExpression])
+    Option(findChildByClassScala(classOf[ScExpression]))
   }
 
   def this(node: ASTNode) = {this (); setNode(node)}
@@ -52,7 +49,8 @@ class ScVariableDefinitionImpl extends ScalaStubBasedElementImpl[ScVariable] wit
 
   def getType(ctx: TypingContext) = typeElement match {
     case Some(te) => te.getType(ctx)
-    case None => expr.getType(TypingContext.empty)
+    case None => expr.map(_.getType(TypingContext.empty))
+            .getOrElse(Failure("Cannot infer type without an expression", Some(this)))
   }
 
   def typeElement: Option[ScTypeElement] = {

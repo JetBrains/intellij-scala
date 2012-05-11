@@ -77,12 +77,8 @@ class ScalaInlineHandler extends InlineHandler {
     val expr = ScalaRefactoringUtil.unparExpr(element match {
       case rp: ScBindingPattern => {
         PsiTreeUtil.getParentOfType(rp, classOf[ScDeclaredElementsHolder]) match {
-          case v: ScPatternDefinition if v.isLocal && v.declaredElements == Seq(element) => {
-            v.expr
-          }
-          case v: ScVariableDefinition if v.isLocal && v.declaredElements == Seq(element) => {
-            v.expr
-          }
+          case v @ ScPatternDefinition.expr(e) if v.isLocal && v.declaredElements == Seq(element) => e
+          case v @ ScVariableDefinition.expr(e) if v.isLocal && v.declaredElements == Seq(element) => e
           case _ => return null
         }
       }

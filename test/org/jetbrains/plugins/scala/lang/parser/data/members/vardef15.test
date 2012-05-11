@@ -1,5 +1,5 @@
 class A {
-  var a,b,c : Type = 
+  var a,b,c : Type =
 }
 -----
 ScalaFile
@@ -23,21 +23,21 @@ ScalaFile
       ScTemplateBody
         PsiElement({)('{')
         PsiWhiteSpace('\n  ')
-        ScVariableDeclaration
+        ScVariableDefinition
           AnnotationsList
             <empty list>
           Modifiers
             <empty list>
           PsiElement(var)('var')
           PsiWhiteSpace(' ')
-          ListOfIdentifiers
-            Field identifier
+          ListOfPatterns
+            ReferencePattern
               PsiElement(identifier)('a')
             PsiElement(,)(',')
-            Field identifier
+            ReferencePattern
               PsiElement(identifier)('b')
             PsiElement(,)(',')
-            Field identifier
+            ReferencePattern
               PsiElement(identifier)('c')
           PsiWhiteSpace(' ')
           PsiElement(:)(':')
@@ -47,7 +47,7 @@ ScalaFile
               PsiElement(identifier)('Type')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
-          PsiErrorElement:Expected expression
+          PsiErrorElement:expression expected
             <empty list>
-        PsiWhiteSpace(' \n')
+        PsiWhiteSpace('\n')
         PsiElement(})('}')

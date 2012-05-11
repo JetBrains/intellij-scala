@@ -62,9 +62,9 @@ object PatDef {
       ParserUtils.eatElement(builder, ScalaTokenTypes.tASSIGN)
 
       if (!Expr.parse(builder)) {
-        someMarker.rollbackTo
-        return false
+        builder error "expression expected"
       }
+
       someMarker.drop
       return true
     }

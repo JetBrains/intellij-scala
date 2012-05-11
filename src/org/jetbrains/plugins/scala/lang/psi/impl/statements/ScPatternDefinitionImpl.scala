@@ -4,23 +4,21 @@ package psi
 package impl
 package statements
 
-import com.intellij.util.ArrayFactory
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import com.intellij.lang.ASTNode
-import stubs.{ScValueStub}
+import stubs.ScValueStub
 
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import types.ScTypeElement
-import org.jetbrains.plugins.scala.lang.psi.types.Any
-import psi.types.result.TypingContext
 import api.expr.ScExpression
 import com.intellij.psi.PsiElementVisitor
 import api.ScalaElementVisitor
+import psi.types.result.{Failure, TypingContext}
 
-/** 
+/**
 * @author Alexander Podkhalyuzin
 */
 
@@ -60,16 +58,16 @@ class ScPatternDefinitionImpl extends ScalaStubBasedElementImpl[ScValue] with Sc
   def getType(ctx: TypingContext) = {
     typeElement match {
       case Some(te) => te.getType(ctx)
-      case None => expr.getType(ctx)
+      case None => expr.map(_.getType(ctx)).getOrElse(Failure("Cannot infer type without an expression", Some(this)))
     }
   }
 
-  def expr: ScExpression = {
+  def expr: Option[ScExpression] = {
     val stub = getStub
     if (stub != null) {
-      return stub.asInstanceOf[ScValueStub].getBodyExpr.getOrElse(findChildByClassScala(classOf[ScExpression]))
+      return stub.asInstanceOf[ScValueStub].getBodyExpr.orElse(Option(findChildByClassScala(classOf[ScExpression])))
     }
-    findChildByClassScala(classOf[ScExpression])
+    Option(findChildByClassScala(classOf[ScExpression]))
   }
 
   def typeElement: Option[ScTypeElement] = {

@@ -50,7 +50,7 @@ class ToggleTypeAnnotation extends PsiElementBaseIntentionAction {
     }
 
     for {value <- element.parentsInFile.findByType(classOf[ScPatternDefinition])
-         if (value.expr.toOption.map(!_.isAncestorOf(element)).getOrElse(true))
+         if (value.expr.map(!_.isAncestorOf(element)).getOrElse(true))
          if (value.pList.allPatternsSimple)
          bindings = value.bindings
          if (bindings.size == 1)
@@ -65,7 +65,7 @@ class ToggleTypeAnnotation extends PsiElementBaseIntentionAction {
     }
 
     for {variable <- element.parentsInFile.findByType(classOf[ScVariableDefinition])
-         if (variable.expr.toOption.map(!_.isAncestorOf(element)).getOrElse(true))
+         if (variable.expr.map(!_.isAncestorOf(element)).getOrElse(true))
          if (variable.pList.allPatternsSimple)
          bindings = variable.bindings
          if (bindings.size == 1)

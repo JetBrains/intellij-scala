@@ -805,7 +805,7 @@ object ScalaDocumentationProvider {
         value match {
           case d: ScPatternDefinition => {
             buffer.append(" = ")
-            buffer.append(getOneLine(d.expr.getText))
+            d.expr.foreach(it => buffer.append(getOneLine(it.getText)))
           }
           case _ =>
         }
@@ -823,7 +823,7 @@ object ScalaDocumentationProvider {
         variable match {
           case d: ScVariableDefinition => {
             buffer.append(" = ")
-            buffer.append(getOneLine(d.expr.getText))
+            d.expr.foreach(it => buffer.append(getOneLine(it.getText)))
           }
           case _ =>
         }

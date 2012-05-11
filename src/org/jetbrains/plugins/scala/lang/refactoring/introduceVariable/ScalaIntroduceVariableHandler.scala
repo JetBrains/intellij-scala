@@ -294,8 +294,8 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Confli
             parExpr = {
               prev match {
                 case fun: ScFunctionDefinition => fun.body.getOrElse(null)
-                case vl: ScPatternDefinition => vl.expr
-                case vr: ScVariableDefinition => vr.expr
+                case vl @ ScPatternDefinition.expr(expr) => expr
+                case vr @ ScVariableDefinition.expr(expr) => expr
                 case ifSt: ScIfStmt if elseBranch => ifSt.elseBranch.getOrElse(null)
                 case ifSt: ScIfStmt => ifSt.thenBranch.getOrElse(null)
                 case whSt: ScWhileStmt => whSt.body.getOrElse(null)

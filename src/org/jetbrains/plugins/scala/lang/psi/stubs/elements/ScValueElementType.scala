@@ -23,7 +23,7 @@ extends ScStubElementType[ScValueStub, ScValue](debugName) {
       case Some(te) => te.getText
       case None => ""
     }
-    val bodyText = if (!isDecl) psi.asInstanceOf[ScPatternDefinition].expr.getText else ""
+    val bodyText = if (!isDecl) psi.asInstanceOf[ScPatternDefinition].expr.map(_.getText).getOrElse("") else ""
     val containerText = if (isDecl) psi.asInstanceOf[ScValueDeclaration].getIdList.getText
       else psi.asInstanceOf[ScPatternDefinition].pList.getText
     val isImplicit = psi.hasModifierProperty("implicit")

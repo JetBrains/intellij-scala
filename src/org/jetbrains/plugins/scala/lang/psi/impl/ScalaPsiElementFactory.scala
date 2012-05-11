@@ -223,11 +223,12 @@ object ScalaPsiElementFactory {
       ScalaFileType.SCALA_FILE_TYPE, text).asInstanceOf[ScalaFile]
     val classDef = dummyFile.typeDefinitions(0)
     val p = classDef.members(0).asInstanceOf[ScPatternDefinition]
-    p.expr match {
-      case x: ScParenthesisedExpr => x.expr match {
-        case Some(y) => y
-        case _ => x
-      }
+    p.expr.getOrElse(throw new IllegalArgumentException("Expression not found")) match {
+      case x: ScParenthesisedExpr =>
+        x.expr match {
+          case Some(y) => y
+          case _ => x
+        }
       case x => x
     }
   }
@@ -443,7 +444,7 @@ object ScalaPsiElementFactory {
       ScalaFileType.SCALA_FILE_TYPE, text).asInstanceOf[ScalaFile]
     val classDef = dummyFile.typeDefinitions(0)
     val p = classDef.members(0).asInstanceOf[ScPatternDefinition]
-    p.expr
+    p.expr.getOrElse(throw new IllegalArgumentException("Expression not found"))
   }
 
   def createBodyFromMember(element: PsiElement, manager: PsiManager): ScTemplateBody = {

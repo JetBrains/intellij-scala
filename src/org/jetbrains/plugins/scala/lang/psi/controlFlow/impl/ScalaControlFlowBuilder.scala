@@ -118,7 +118,7 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
    **************************************/
 
   override def visitPatternDefinition(pattern: ScPatternDefinition) {
-    pattern.expr.accept(this)
+    pattern.expr.foreach(_.accept(this))
     for (b <- pattern.bindings) {
       val instr = new DefineValueInstruction(inc, b, false)
       checkPendingEdges(instr)
@@ -127,8 +127,7 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
   }
 
   override def visitVariableDefinition(variable: ScVariableDefinition) {
-    val rv = variable.expr
-    if (rv != null) rv.accept(this)
+    variable.expr.foreach(_.accept(this))
     for (b <- variable.bindings) {
       val instr = new DefineValueInstruction(inc, b, true)
       checkPendingEdges(instr)
