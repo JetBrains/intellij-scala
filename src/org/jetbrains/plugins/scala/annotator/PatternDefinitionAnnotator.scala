@@ -12,10 +12,10 @@ import org.jetbrains.plugins.scala.extensions._
  */
 
 trait PatternDefinitionAnnotator {
-  def annotatePatternDefinition(declaration: ScPatternDefinition, holder: AnnotationHolder, highlightErrors: Boolean) {
-    if (highlightErrors && declaration.pList.allPatternsSimple) {
-      for (element <- declaration.children.findByType(classOf[ScSimpleTypeElement]))
-        checkConformance(declaration.expr, element, holder)
+  def annotatePatternDefinition(definition: ScPatternDefinition, holder: AnnotationHolder, highlightErrors: Boolean) {
+    if (highlightErrors && definition.pList.allPatternsSimple) {
+      for (expr <- definition.expr; element <- definition.children.findByType(classOf[ScSimpleTypeElement]))
+        checkConformance(expr, element, holder)
     }
   }
 }

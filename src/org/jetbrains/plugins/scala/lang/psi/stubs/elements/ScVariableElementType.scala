@@ -27,10 +27,7 @@ extends ScStubElementType[ScVariableStub, ScVariable](debugName) {
     }
     val bodyText = if (!isDecl) {
       val expr = psi.asInstanceOf[ScVariableDefinition].expr
-      if (expr == null) {
-        throw new IncorrectOperationException("Expr is null for variable: " + psi.getText)
-      }
-      expr.getText
+      expr.map(_.getText).getOrElse(throw new IncorrectOperationException("Expr is null for variable: " + psi.getText))
     } else ""
     val containerText = if (isDecl) psi.asInstanceOf[ScVariableDeclaration].getIdList.getText
       else psi.asInstanceOf[ScVariableDefinition].pList.getText

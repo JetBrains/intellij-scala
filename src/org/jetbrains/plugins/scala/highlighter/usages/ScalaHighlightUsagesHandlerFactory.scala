@@ -34,18 +34,16 @@ class ScalaHighlightUsagesHandlerFactory extends  HighlightUsagesHandlerFactory 
         }
       }
       case ScalaTokenTypes.kVAL => {
-        val patternNullable = PsiTreeUtil.getParentOfType(element, classOf[ScPatternDefinition])
-        Option(patternNullable) match {
-          case Some(pattern) if pattern.pList.allPatternsSimple && pattern.pList.patterns.length == 1 =>
-            return new ScalaHighlightExprResultHandler(pattern.expr, editor, file, element)
+        PsiTreeUtil.getParentOfType(element, classOf[ScPatternDefinition]) match {
+          case pattern @ ScPatternDefinition.expr(expr) if pattern.pList.allPatternsSimple && pattern.pList.patterns.length == 1 =>
+            return new ScalaHighlightExprResultHandler(expr, editor, file, element)
           case _ =>
         }
       }
       case ScalaTokenTypes.kVAR => {
-        val patternNullable = PsiTreeUtil.getParentOfType(element, classOf[ScVariableDefinition])
-        Option(patternNullable) match {
-          case Some(pattern) if pattern.pList.allPatternsSimple && pattern.pList.patterns.length == 1 =>
-            return new ScalaHighlightExprResultHandler(pattern.expr, editor, file, element)
+        PsiTreeUtil.getParentOfType(element, classOf[ScVariableDefinition]) match {
+          case pattern @ ScPatternDefinition.expr(expr) if pattern.pList.allPatternsSimple && pattern.pList.patterns.length == 1 =>
+            return new ScalaHighlightExprResultHandler(expr, editor, file, element)
           case _ =>
         }
       }

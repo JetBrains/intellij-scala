@@ -405,8 +405,8 @@ object ScalaOIUtil {
     //Setting selection
     val body: PsiElement = member match {
       case meth: ScTypeAliasDefinition => meth.aliasedTypeElement
-      case meth: ScPatternDefinition => meth.expr
-      case meth: ScVariableDefinition => meth.expr
+      case meth @ ScPatternDefinition.expr(expr) => expr
+      case meth @ ScVariableDefinition.expr(expr) => expr
       case method: ScFunctionDefinition => method.body match {
         case Some(x) => x
         case None => return

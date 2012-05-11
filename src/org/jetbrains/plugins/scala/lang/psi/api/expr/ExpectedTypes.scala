@@ -204,13 +204,13 @@ private[expr] object ExpectedTypes {
         res.map(typeToPair).toArray
       }
       //SLS[4.1]
-      case v: ScPatternDefinition if v.expr == expr.getSameElementInContext => {
+      case v @ ScPatternDefinition.expr(expr) if expr == expr.getSameElementInContext => {
         v.typeElement match {
           case Some(te) => Array((v.getType(TypingContext.empty).getOrAny, Some(te)))
           case _ => Array.empty
         }
       }
-      case v: ScVariableDefinition if v.expr == expr.getSameElementInContext => {
+      case v @ ScVariableDefinition.expr(expr) if expr == expr.getSameElementInContext => {
         v.typeElement match {
           case Some(te) => Array((v.getType(TypingContext.empty).getOrAny, Some(te)))
           case _ => Array.empty

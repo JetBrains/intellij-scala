@@ -73,9 +73,8 @@ private[annotator] object ModifierChecker {
                     new RemoveModifierQuickFix(owner, "lazy"))
                 }
                 case declaration: ScValueDeclaration =>
-                  if (!declaration.children.exists(_.getText == "="))
-                    proccessError(ScalaBundle.message("lazy.values.may.not.be.abstract"), modifierPsi, holder,
-                      new RemoveModifierQuickFix(owner, "lazy"))
+                  proccessError(ScalaBundle.message("lazy.values.may.not.be.abstract"), modifierPsi, holder,
+                    new RemoveModifierQuickFix(owner, "lazy"))
                 case _ => {
                   proccessError(ScalaBundle.message("lazy.modifier.is.not.allowed.here"), modifierPsi, holder,
                     new RemoveModifierQuickFix(owner, "lazy"))

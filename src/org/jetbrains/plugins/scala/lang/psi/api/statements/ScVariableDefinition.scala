@@ -16,8 +16,20 @@ import base.patterns.ScBindingPattern
 
 trait ScVariableDefinition extends ScVariable {
   def pList: ScPatternList
+
   def bindings: Seq[ScBindingPattern]
+
   def declaredElements = bindings
-  def expr: ScExpression
-  override def accept(visitor: ScalaElementVisitor) = visitor.visitVariableDefinition(this)
+
+  def expr: Option[ScExpression]
+
+  override def accept(visitor: ScalaElementVisitor) {
+    visitor.visitVariableDefinition(this)
+  }
+}
+
+object ScVariableDefinition {
+  object expr {
+    def unapply(definition: ScVariableDefinition) = definition.expr
+  }
 }
