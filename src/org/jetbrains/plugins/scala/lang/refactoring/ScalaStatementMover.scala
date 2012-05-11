@@ -11,8 +11,8 @@ import lang.psi.ScalaPsiElement
 import lang.psi.api.base.patterns.ScCaseClause
 import com.intellij.psi.{PsiComment, PsiWhiteSpace, PsiElement, PsiFile}
 import org.jetbrains.plugins.scala.extensions._
-import lang.psi.api.expr.ScExpression
 import lang.psi.api.toplevel.imports.ScImportStmt
+import lang.psi.api.expr.{ScForStatement, ScIfStmt, ScExpression}
 
 /**
  * Pavel Fatin
@@ -32,24 +32,28 @@ class ScalaStatementMover extends LineMover {
       case _ => false
     }
 
-    def aim[T <: ScalaPsiElement](cl: Class[T]): Option[(LineRange, LineRange)] = {
+    def aim[T <: ScalaPsiElement](cl: Class[T]): Option[(PsiElement, PsiElement)] = {
       findElementAt(cl, editor, file, info.toMove.startLine).flatMap { source =>
         val siblings = if(down) source.nextSiblings else source.prevSiblings
         siblings.filter(!_.isInstanceOf[PsiComment] )
                 .takeWhile(it => it.isInstanceOf[PsiWhiteSpace] || canBeTarget(it))
                 .find(canBeTarget)
-                .map(target => (rangeOf(source, editor), rangeOf(target, editor)))
+                .map(target => (source, target))
       }
     }
 
-    val destination = aim(classOf[ScCaseClause]).orElse(aim(classOf[ScMember])).orElse(aim(classOf[ScImportStmt]))
+    val pair = aim(classOf[ScCaseClause])
+            .orElse(aim(classOf[ScMember]))
+            .orElse(aim(classOf[ScImportStmt]))
+            .orElse(aim(classOf[ScIfStmt]))
+            .orElse(aim(classOf[ScForStatement]))
 
-    destination.foreach { it =>
-      info.toMove = it._1
-      info.toMove2 = it._2
+    pair.foreach { it =>
+      info.toMove = rangeOf(it._1, editor)
+      info.toMove2 = rangeOf(it._2, editor)
     }
 
-    destination.isDefined
+    pair.isDefined
   }
 
   private def rangeOf(e: PsiElement, editor: Editor) = {
