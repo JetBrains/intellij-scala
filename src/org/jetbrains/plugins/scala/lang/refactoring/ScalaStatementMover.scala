@@ -12,7 +12,7 @@ import lang.psi.api.base.patterns.ScCaseClause
 import com.intellij.psi.{PsiComment, PsiWhiteSpace, PsiElement, PsiFile}
 import org.jetbrains.plugins.scala.extensions._
 import lang.psi.api.toplevel.imports.ScImportStmt
-import lang.psi.api.expr.{ScForStatement, ScIfStmt, ScExpression}
+import lang.psi.api.expr._
 
 /**
  * Pavel Fatin
@@ -32,7 +32,7 @@ class ScalaStatementMover extends LineMover {
       case _ => false
     }
 
-    def aim[T <: ScalaPsiElement](cl: Class[T]): Option[(PsiElement, PsiElement)] = {
+    def aim[T <: ScalaPsiElement](cl: Class[T]): Option[(T, PsiElement)] = {
       findElementAt(cl, editor, file, info.toMove.startLine).flatMap { source =>
         val siblings = if(down) source.nextSiblings else source.prevSiblings
         siblings.filter(!_.isInstanceOf[PsiComment] )
@@ -47,6 +47,7 @@ class ScalaStatementMover extends LineMover {
             .orElse(aim(classOf[ScImportStmt]))
             .orElse(aim(classOf[ScIfStmt]))
             .orElse(aim(classOf[ScForStatement]))
+            .orElse(aim(classOf[ScMethodCall]).filter(p => isControlStructureLikeCall(p._1)))
 
     pair.foreach { it =>
       info.toMove = rangeOf(it._1, editor)
@@ -54,6 +55,12 @@ class ScalaStatementMover extends LineMover {
     }
 
     pair.isDefined
+  }
+
+  private def isControlStructureLikeCall(call: ScMethodCall): Boolean = {
+    call.argumentExpressions.lastOption.exists { it =>
+      it.isInstanceOf[ScBlockExpr] && it.getText.contains('\n')
+    }
   }
 
   private def rangeOf(e: PsiElement, editor: Editor) = {
@@ -69,8 +76,8 @@ class ScalaStatementMover extends LineMover {
     val right = edges._2.flatMap(PsiTreeUtil.getParentOfType(_, cl, false).toOption)
 
     left.zip(right)
-            .filter(p => p._1 == p._2)
-            .map(_._1)
+            .filter(p => p._1 == p._2 || p._1.parentsInFile.contains(p._2))
+            .map(_._2)
             .filter(it => editor.offsetToLogicalPosition(it.getTextOffset).line == line)
             .headOption
   }
