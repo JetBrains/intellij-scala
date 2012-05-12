@@ -7,8 +7,10 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import com.intellij.psi.util.PsiTreeUtil
 import collection.Seq
-import lang.psi.api.expr.{ScExpression, ScAssignStmt, ScArgumentExprList}
 import lang.psi.types.nonvalue.Parameter
+import lang.psi.api.base.ScLiteral
+import lang.psi.api.expr.xml.ScXmlExpr
+import lang.psi.api.expr._
 
 /**
  * @author Ksenia.Sautina
@@ -55,6 +57,22 @@ object IntentionUtils {
             }
         }
       case None => None
+    }
+  }
+
+  def analyzeMethodCallArgs(methodCallArgs: ScArgumentExprList, argsBuilder: scala.StringBuilder) {
+    if (methodCallArgs.exprs.length == 1) {
+      methodCallArgs.exprs.head match {
+        case _: ScLiteral => argsBuilder.replace(argsBuilder.length - 1, argsBuilder.length, "").replace(0, 1, "")
+        case _: ScTuple => argsBuilder.replace(argsBuilder.length - 1, argsBuilder.length, "").replace(0, 1, "")
+        case _: ScReferenceExpression => argsBuilder.replace(argsBuilder.length - 1, argsBuilder.length, "").replace(0, 1, "")
+        case _: ScGenericCall => argsBuilder.replace(argsBuilder.length - 1, argsBuilder.length, "").replace(0, 1, "")
+        case _: ScXmlExpr => argsBuilder.replace(argsBuilder.length - 1, argsBuilder.length, "").replace(0, 1, "")
+        case _: ScMethodCall => argsBuilder.replace(argsBuilder.length - 1, argsBuilder.length, "").replace(0, 1, "")
+        case infix: ScInfixExpr if (infix.getBaseExpr.isInstanceOf[ScUnderscoreSection]) =>
+          argsBuilder.insert(0, "(").append(")")
+        case _ => argsBuilder
+      }
     }
   }
 

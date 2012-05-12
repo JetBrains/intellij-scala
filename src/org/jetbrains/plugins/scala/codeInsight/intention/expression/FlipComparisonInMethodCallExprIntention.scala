@@ -12,6 +12,7 @@ import com.intellij.openapi.editor.Editor
 import lang.psi.api.base.ScLiteral
 import lang.psi.api.expr.xml.ScXmlExpr
 import lang.psi.api.expr._
+import org.jetbrains.plugins.scala.util.IntentionUtils
 
 /**
  * @author Ksenia.Sautina
@@ -70,19 +71,8 @@ class FlipComparisonInMethodCallExprIntention extends PsiElementBaseIntentionAct
     }
 
     argsBuilder.append(methodCallExpr.args.getText)
-    if (methodCallExpr.args.exprs.length == 1) {
-      methodCallExpr.args.exprs.head match {
-        case _: ScLiteral => argsBuilder.replace(argsBuilder.length - 1, argsBuilder.length, "").replace(0, 1, "")
-        case _: ScTuple => argsBuilder.replace(argsBuilder.length - 1, argsBuilder.length, "").replace(0, 1, "")
-        case _: ScReferenceExpression => argsBuilder.replace(argsBuilder.length - 1, argsBuilder.length, "").replace(0, 1, "")
-        case _: ScGenericCall => argsBuilder.replace(argsBuilder.length - 1, argsBuilder.length, "").replace(0, 1, "")
-        case _: ScXmlExpr => argsBuilder.replace(argsBuilder.length - 1, argsBuilder.length, "").replace(0, 1, "")
-        case _: ScMethodCall => argsBuilder.replace(argsBuilder.length - 1, argsBuilder.length, "").replace(0, 1, "")
-        case infix: ScInfixExpr if (infix.getBaseExpr.isInstanceOf[ScUnderscoreSection]) =>
-          argsBuilder.insert(0, "(").append(")")
-        case _ =>  argsBuilder
-      }
-    }
+
+    IntentionUtils.analyzeMethodCallArgs(methodCallExpr.args, argsBuilder)
 
     val qual = methodCallExpr.asInstanceOf[ScMethodCall].getInvokedExpr.asInstanceOf[ScReferenceExpression].qualifier.get
     qualBuilder.append(qual.getText)
