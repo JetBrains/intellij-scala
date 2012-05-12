@@ -12,6 +12,7 @@ import lang.psi.api.expr._
 import lang.psi.api.base.ScLiteral
 import lang.psi.api.expr.xml.ScXmlExpr
 import com.intellij.openapi.util.TextRange
+import org.jetbrains.plugins.scala.util.IntentionUtils
 
 /**
  * @author Ksenia.Sautina
@@ -64,19 +65,7 @@ class ConvertToInfixExpressionIntention extends PsiElementBaseIntentionAction {
 
     argsBuilder.append(methodCallArgs.getText)
 
-    if (methodCallArgs.exprs.length == 1) {
-      methodCallArgs.exprs.head match {
-        case _: ScLiteral => argsBuilder.replace(argsBuilder.length - 1, argsBuilder.length, "").replace(0, 1, "")
-        case _: ScTuple => argsBuilder.replace(argsBuilder.length - 1, argsBuilder.length, "").replace(0, 1, "")
-        case _: ScReferenceExpression => argsBuilder.replace(argsBuilder.length - 1, argsBuilder.length, "").replace(0, 1, "")
-        case _: ScGenericCall => argsBuilder.replace(argsBuilder.length - 1, argsBuilder.length, "").replace(0, 1, "")
-        case _: ScXmlExpr => argsBuilder.replace(argsBuilder.length - 1, argsBuilder.length, "").replace(0, 1, "")
-        case _: ScMethodCall => argsBuilder.replace(argsBuilder.length - 1, argsBuilder.length, "").replace(0, 1, "")
-        case infix: ScInfixExpr if (infix.getBaseExpr.isInstanceOf[ScUnderscoreSection]) =>
-          argsBuilder.insert(0, "(").append(")")
-        case _ =>  argsBuilder
-      }
-    }
+    IntentionUtils.analyzeMethodCallArgs(methodCallArgs, argsBuilder)
 
     var forA = qual.getText
     if (forA.startsWith("(") && forA.endsWith(")")) {
