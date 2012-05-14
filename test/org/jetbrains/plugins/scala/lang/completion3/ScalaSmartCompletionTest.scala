@@ -269,7 +269,7 @@ class ScalaSmartCompletionTest extends ScalaCompletionTestBase {
     val resultText =
       """
       |val x: Int => String = new Function1[Int, String] {
-      |  def apply(v1: Int): String = <selection>null</selection>
+      |  def apply(v1: Int): String = <selection>???</selection>
       |}
       """.stripMargin.replaceAll("\r", "").trim()
 
