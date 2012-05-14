@@ -27,6 +27,7 @@ public class MultiLineStringCodeStylePanel extends CodeStyleAbstractPanel {
   private JCheckBox openingQuotesOnNewCheckBox;
   private JCheckBox keepOpeningQuotesCheckBox;
   private JSpinner marginIndentSpinner;
+  private JCheckBox processMarginCheckBox;
 
   protected MultiLineStringCodeStylePanel(CodeStyleSettings settings) {
     super(settings);
@@ -46,6 +47,17 @@ public class MultiLineStringCodeStylePanel extends CodeStyleAbstractPanel {
       }
     });
     marginCharTextField.addFocusListener(new NonEmptyFieldValidator(marginCharTextField));
+
+    supportLevelChooser.addActionListener(new ActionListener() {
+      public void actionPerformed(ActionEvent e) {
+        if (supportLevelChooser.getSelectedIndex() != ScalaCodeStyleSettings.MULTILINE_STRING_ALL) {
+          processMarginCheckBox.setSelected(false);
+          processMarginCheckBox.setEnabled(false);
+        } else {
+          processMarginCheckBox.setEnabled(true);
+        }
+      }
+    });
   }
 
   @Override
@@ -87,6 +99,7 @@ public class MultiLineStringCodeStylePanel extends CodeStyleAbstractPanel {
     scalaSettings.MULTI_LINE_QUOTES_ON_NEW_LINE = openingQuotesOnNewCheckBox.isSelected();
     scalaSettings.KEEP_MULTI_LINE_QUOTES = keepOpeningQuotesCheckBox.isSelected();
     scalaSettings.MULTI_LINE_STRING_MARGIN_INDENT = (Integer) marginIndentSpinner.getValue();
+    scalaSettings.PROCESS_MARGIN_ON_COPY_PASTE = processMarginCheckBox.isSelected();
   }
 
   @Override
@@ -98,6 +111,7 @@ public class MultiLineStringCodeStylePanel extends CodeStyleAbstractPanel {
     if (scalaSettings.MULTI_LINE_QUOTES_ON_NEW_LINE != openingQuotesOnNewCheckBox.isSelected()) return true;
     if (scalaSettings.KEEP_MULTI_LINE_QUOTES != keepOpeningQuotesCheckBox.isSelected()) return true;
     if (scalaSettings.MULTI_LINE_STRING_MARGIN_INDENT != (Integer) marginIndentSpinner.getValue()) return true;
+    if (scalaSettings.PROCESS_MARGIN_ON_COPY_PASTE != processMarginCheckBox.isSelected()) return true;
 
     return false;
   }
@@ -119,6 +133,7 @@ public class MultiLineStringCodeStylePanel extends CodeStyleAbstractPanel {
     openingQuotesOnNewCheckBox.setSelected(scalaSettings.MULTI_LINE_QUOTES_ON_NEW_LINE);
     keepOpeningQuotesCheckBox.setSelected(scalaSettings.KEEP_MULTI_LINE_QUOTES);
     marginIndentSpinner.setValue(scalaSettings.MULTI_LINE_STRING_MARGIN_INDENT);
+    processMarginCheckBox.setSelected(scalaSettings.PROCESS_MARGIN_ON_COPY_PASTE);
   }
 
   private static boolean isInvalidInput(@NotNull String text, String selectedText, KeyEvent e) {

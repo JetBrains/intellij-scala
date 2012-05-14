@@ -95,6 +95,7 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
   public boolean MULTI_LINE_QUOTES_ON_NEW_LINE = true;
   public boolean KEEP_MULTI_LINE_QUOTES = true;
   public int MULTI_LINE_STRING_MARGIN_INDENT = 2;
+  public boolean PROCESS_MARGIN_ON_COPY_PASTE = true;
 
   public static final int MULTILINE_STRING_NONE = 0;
   public static final int MULTILINE_STRING_QUOTES_AND_INDENT = 1;
