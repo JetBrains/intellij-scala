@@ -49,7 +49,9 @@ object IntentionUtils {
                     case (argExpr: ScAssignStmt, Some(param)) if argExpr.getLExpression.getText == param.name =>
                     case (argExpr, Some(param)) =>
                       val newArgExpr = ScalaPsiElementFactory.createExpressionFromText(param.name + " = " + argExpr.getText, element.getManager)
-                      argExpr.replace(newArgExpr)
+                      inWriteAction {
+                        argExpr.replace(newArgExpr)
+                      }
                     case _ =>
                   }
                 }
