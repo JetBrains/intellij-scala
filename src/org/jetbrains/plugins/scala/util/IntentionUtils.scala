@@ -1,8 +1,6 @@
 package org.jetbrains.plugins.scala
 package util
 
-import com.intellij.openapi.project.Project
-import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import com.intellij.psi.util.PsiTreeUtil
@@ -11,6 +9,7 @@ import lang.psi.types.nonvalue.Parameter
 import lang.psi.api.base.ScLiteral
 import lang.psi.api.expr.xml.ScXmlExpr
 import lang.psi.api.expr._
+import com.intellij.psi.{PsiManager, PsiElement}
 
 /**
  * @author Ksenia.Sautina
@@ -19,7 +18,7 @@ import lang.psi.api.expr._
 
 object IntentionUtils {
 
-  def check(project: Project, element: PsiElement): Option[() => Unit] = {
+  def check(element: PsiElement): Option[() => Unit] = {
     val containingArgList: Option[ScArgumentExprList] = element.parents.collectFirst {
       case al: ScArgumentExprList if !al.isBraceArgs => al
     }
@@ -37,8 +36,13 @@ object IntentionUtils {
               case (_, Some(param)) if param.isRepeated => true
               case _ => false
             }
+            val hasName = argsAndMatchingParams.exists {
+              case (_, Some(param)) if (!param.name.isEmpty) => true
+              case _ => false
+            }
             argsAndMatchingParams.headOption match {
               case _ if isRepeated => None
+              case _ if !hasName => None
               case Some((assign: ScAssignStmt, Some(param))) if assign.getLExpression.getText == param.name =>
                 None
               case None | Some((_, None)) =>
@@ -78,4 +82,29 @@ object IntentionUtils {
     }
   }
 
+  def negateAndValidateExpression(infixExpr: ScInfixExpr, manager: PsiManager, buf: scala.StringBuilder) = {
+    val parent =
+      if (infixExpr.getParent != null && infixExpr.getParent.isInstanceOf[ScParenthesisedExpr]) infixExpr.getParent.getParent
+      else infixExpr.getParent
+
+    if (parent != null && parent.isInstanceOf[ScPrefixExpr] &&
+            parent.asInstanceOf[ScPrefixExpr].operation.getText == "!") {
+
+      val newExpr = ScalaPsiElementFactory.createExpressionFromText(buf.toString(), manager)
+
+      val size = newExpr.asInstanceOf[ScInfixExpr].operation.nameId.getTextRange.getStartOffset -
+              newExpr.getTextRange.getStartOffset - 2
+
+      (parent.asInstanceOf[ScPrefixExpr], newExpr, size)
+    } else {
+      buf.insert(0, "!(").append(")")
+      val newExpr = ScalaPsiElementFactory.createExpressionFromText(buf.toString(), manager)
+
+      val children = newExpr.asInstanceOf[ScPrefixExpr].getLastChild.asInstanceOf[ScParenthesisedExpr].getChildren
+      val size = children(0).asInstanceOf[ScInfixExpr].operation.
+              nameId.getTextRange.getStartOffset - newExpr.getTextRange.getStartOffset
+
+      (infixExpr, newExpr, size)
+    }
+  }
 }

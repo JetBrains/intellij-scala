@@ -8,6 +8,7 @@ import com.intellij.codeInspection.{LocalInspectionTool, ProblemHighlightType, P
 import lang.psi.api.base.ScLiteral
 import lang.psi.api.expr.ScMethodCall
 import lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.util.IntentionUtils
 
 /**
  * @author Ksenia.Sautina
@@ -20,8 +21,9 @@ class NameBooleanParametersInspection extends LocalInspectionTool {
       override def visitMethodCallExpression(mc: ScMethodCall) {
         if (mc == null || mc.args == null || mc.args.exprs.isEmpty) return
         for (expr <- mc.args.exprs) {
-          if (expr.getNode.getFirstChildNode.getElementType == ScalaTokenTypes.kTRUE ||
-                  expr.getNode.getFirstChildNode.getElementType == ScalaTokenTypes.kFALSE) {
+          if (expr.isInstanceOf[ScLiteral] && IntentionUtils.check(expr.asInstanceOf[ScLiteral]).isDefined &&
+                  (expr.getNode.getFirstChildNode.getElementType == ScalaTokenTypes.kTRUE ||
+                  expr.getNode.getFirstChildNode.getElementType == ScalaTokenTypes.kFALSE)) {
             holder.registerProblem(holder.getManager.createProblemDescriptor(expr,
               InspectionBundle.message("name.boolean"),
               new NameBooleanParametersQuickFix(mc, expr.asInstanceOf[ScLiteral]),

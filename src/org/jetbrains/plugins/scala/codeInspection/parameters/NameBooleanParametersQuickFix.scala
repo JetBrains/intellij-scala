@@ -20,7 +20,7 @@ class NameBooleanParametersQuickFix(expr: ScMethodCall, element: ScLiteral) exte
   def applyFix(project: Project, descriptor: ProblemDescriptor) {
     if (!element.isValid) return
 
-    IntentionUtils.check(project, element) match {
+    IntentionUtils.check(element) match {
       case Some(x) => x()
       case None =>
     }
