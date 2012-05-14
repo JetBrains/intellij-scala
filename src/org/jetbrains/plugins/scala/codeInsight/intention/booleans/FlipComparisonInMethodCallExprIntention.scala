@@ -1,5 +1,5 @@
 package org.jetbrains.plugins.scala
-package codeInsight.intention.expression
+package codeInsight.intention.booleans
 
 import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction
 import com.intellij.openapi.project.Project
@@ -13,6 +13,7 @@ import lang.psi.api.base.ScLiteral
 import lang.psi.api.expr.xml.ScXmlExpr
 import lang.psi.api.expr._
 import org.jetbrains.plugins.scala.util.IntentionUtils
+import collection.mutable.HashSet
 
 /**
  * @author Ksenia.Sautina
@@ -20,7 +21,7 @@ import org.jetbrains.plugins.scala.util.IntentionUtils
  */
 
 object FlipComparisonInMethodCallExprIntention {
-  def familyName = "Swap the operands of a comparison expression."
+  def familyName = "Swap the operands of a comparison in method call expression."
 }
 
 class FlipComparisonInMethodCallExprIntention extends PsiElementBaseIntentionAction {
@@ -42,13 +43,22 @@ class FlipComparisonInMethodCallExprIntention extends PsiElementBaseIntentionAct
     val range: TextRange = methodCallExpr.getInvokedExpr.asInstanceOf[ScReferenceExpression].nameId.getTextRange
     val offset = editor.getCaretModel.getOffset
     if (!(range.getStartOffset <= offset && offset <= range.getEndOffset)) return false
+
+    val notChanged = HashSet[String]("==", "!=", "equals", "eq", "ne")
+    if (notChanged.contains(oper)) {
+      setText("Flip '" + oper + "'" )
+    }   else  {
+      val replaceOper = Map(">" -> "<", "<" -> ">", ">=" -> "<=", "<=" -> ">=")
+      setText("Flip '" + oper + "' to '" + replaceOper(oper) + "'")
+    }
+
     if (((methodCallExpr.getInvokedExpr).asInstanceOf[ScReferenceExpression]).isQualified) return true
 
     false
   }
 
   override def invoke(project: Project, editor: Editor, element: PsiElement) {
-    val methodCallExpr : ScMethodCall = PsiTreeUtil.getParentOfType(element, classOf[ScMethodCall], false)
+    val methodCallExpr: ScMethodCall = PsiTreeUtil.getParentOfType(element, classOf[ScMethodCall], false)
     if (methodCallExpr == null || !methodCallExpr.isValid) return
 
     val start = methodCallExpr.getTextRange.getStartOffset
@@ -57,18 +67,8 @@ class FlipComparisonInMethodCallExprIntention extends PsiElementBaseIntentionAct
     val expr = new StringBuilder
     val qualBuilder = new StringBuilder
     val argsBuilder = new StringBuilder
-
-    val oper = ((methodCallExpr.getInvokedExpr).asInstanceOf[ScReferenceExpression]).nameId.getText match {
-      case "equals" => "equals"
-      case "==" => "=="
-      case "!=" => "!="
-      case "eq" => "eq"
-      case "ne" => "ne"
-      case ">" => "<"
-      case "<" => ">"
-      case ">=" => "<="
-      case "<=" => ">="
-    }
+    val replaceOper = Map("equals" -> "equals","==" -> "==", "!=" -> "!=", "eq" -> "eq", "ne" -> "ne",
+      ">" -> "<", "<" -> ">", ">=" -> "<=", "<=" -> ">=")
 
     argsBuilder.append(methodCallExpr.args.getText)
 
@@ -86,9 +86,11 @@ class FlipComparisonInMethodCallExprIntention extends PsiElementBaseIntentionAct
       newQual = argsBuilder.toString().drop(1).dropRight(1)
     }
 
-    val newQualExpr : ScExpression = ScalaPsiElementFactory.createExpressionFromText(newQual, element.getManager)
+    val newQualExpr: ScExpression = ScalaPsiElementFactory.createExpressionFromText(newQual, element.getManager)
 
-    expr.append(methodCallExpr.args.getText).append(".").append(oper).append(newArgs)
+    expr.append(methodCallExpr.args.getText).append(".").
+            append(replaceOper(((methodCallExpr.getInvokedExpr).asInstanceOf[ScReferenceExpression]).nameId.getText)).
+            append(newArgs)
 
     val newMethodCallExpr = ScalaPsiElementFactory.createExpressionFromText(expr.toString(), element.getManager)
 

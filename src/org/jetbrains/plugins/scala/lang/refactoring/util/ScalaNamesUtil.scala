@@ -22,7 +22,7 @@ object ScalaNamesUtil {
     lexer.getTokenType == null
   }
 
-  private def isOpCharacter(c : Char) : Boolean = {
+  def isOpCharacter(c : Char) : Boolean = {
     c match {
       case '~' | '!' | '@' | '#' | '%' | '^' | '*' | '+' | '-' | '<' | '>' | '?' | ':' | '=' | '&' | '|' | '/' | '\\' =>
         true

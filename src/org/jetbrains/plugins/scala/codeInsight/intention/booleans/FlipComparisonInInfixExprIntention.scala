@@ -1,5 +1,5 @@
 package org.jetbrains.plugins.scala
-package codeInsight.intention.expression
+package codeInsight.intention.booleans
 
 import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction
 import com.intellij.openapi.project.Project
@@ -10,6 +10,7 @@ import lang.psi.api.expr._
 import lang.psi.impl.ScalaPsiElementFactory
 import extensions._
 import com.intellij.psi.{PsiDocumentManager, PsiElement}
+import collection.mutable.HashSet
 
 /**
  * @author Ksenia.Sautina
@@ -17,53 +18,50 @@ import com.intellij.psi.{PsiDocumentManager, PsiElement}
  */
 
 object FlipComparisonInInfixExprIntention {
-  def familyName = "Swap the operands of a comparison expression."
+  def familyName = "Swap the operands of a comparison in infix expression."
 }
 
 class FlipComparisonInInfixExprIntention extends PsiElementBaseIntentionAction {
   def getFamilyName = FlipComparisonInInfixExprIntention.familyName
-
-  override def getText: String = getFamilyName
 
   def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean = {
     val infixExpr: ScInfixExpr = PsiTreeUtil.getParentOfType(element, classOf[ScInfixExpr], false)
     if (infixExpr == null) return false
 
     val oper = infixExpr.operation.nameId.getText
-    
+
     if (oper != "equals" && oper != "==" && oper != "!=" && oper != "eq" && oper != "ne" &&
-        oper != ">" && oper != "<" && oper != ">=" && oper != "<=")
+            oper != ">" && oper != "<" && oper != ">=" && oper != "<=" &&
+            oper != "&&" && oper != "||")
       return false
 
     val range: TextRange = infixExpr.operation.nameId.getTextRange
     val offset = editor.getCaretModel.getOffset
     if (!(range.getStartOffset <= offset && offset <= range.getEndOffset)) return false
+
+    val notChanged = HashSet[String]("==", "!=", "equals", "eq", "ne", "&&", "||")
+    if (notChanged.contains(oper)) {
+      setText("Flip '" + oper + "'" )
+    }   else  {
+      val replaceOper = Map(">" -> "<", "<" -> ">", ">=" -> "<=", "<=" -> ">=")
+      setText("Flip '" + oper + "' to '" + replaceOper(oper) + "'")
+    }
+
     true
   }
 
   override def invoke(project: Project, editor: Editor, element: PsiElement) {
-    val infixExpr : ScInfixExpr = PsiTreeUtil.getParentOfType(element, classOf[ScInfixExpr], false)
+    val infixExpr: ScInfixExpr = PsiTreeUtil.getParentOfType(element, classOf[ScInfixExpr], false)
     if (infixExpr == null || !infixExpr.isValid) return
 
     val start = infixExpr.getTextRange.getStartOffset
     val diff = editor.getCaretModel.getOffset - infixExpr.operation.nameId.getTextRange.getStartOffset
-
     val expr = new StringBuilder
+    val replaceOper = Map("equals" -> "equals","==" -> "==", "!=" -> "!=", "eq" -> "eq", "ne" -> "ne",
+                          ">" -> "<", "<" -> ">", ">=" -> "<=", "<=" -> ">=", "&&" -> "&&", "||" -> "||")
 
-    val oper = infixExpr.operation.nameId.getText match {
-      case "equals" => "equals"
-      case "==" => "=="
-      case "!=" => "!="
-      case "eq" => "eq"
-      case "ne" => "ne"
-      case ">" => "<"
-      case "<" => ">"
-      case ">=" => "<="
-      case "<=" => ">="
-    }
-
-    expr.append(infixExpr.getArgExpr.getText).append(" ").append(oper).
-         append(" ").append(infixExpr.getBaseExpr.getText)
+    expr.append(infixExpr.getArgExpr.getText).append(" ").
+            append(replaceOper(infixExpr.operation.nameId.getText)).append(" ").append(infixExpr.getBaseExpr.getText)
 
     val newInfixExpr = ScalaPsiElementFactory.createExpressionFromText(expr.toString(), element.getManager)
 

@@ -1,15 +1,15 @@
 package org.jetbrains.plugins.scala
-package codeInsight.intentions.expression
+package codeInsight.intentions.booleans
 
 import codeInsight.intentions.ScalaIntentionTestBase
-import codeInsight.intention.expression.FlipComparisonInMethodCallExprIntention
+import codeInsight.intention.booleans.FlipComparisonInMethodCallExprIntention
 
 /**
  * @author Ksenia.Sautina
  * @since 4/20/12
  */
 
-class FlipComparisonInMethodCallExprIntentionTest extends ScalaIntentionTestBase{
+class FlipComparisonInMethodCallExprIntentionTest extends ScalaIntentionTestBase {
   def familyName = FlipComparisonInMethodCallExprIntention.familyName
 
   def testFlip() {
