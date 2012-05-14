@@ -1,8 +1,8 @@
 package org.jetbrains.plugins.scala
-package codeInsight.intentions.expression
+package codeInsight.intentions.booleans
 
 import codeInsight.intentions.ScalaIntentionTestBase
-import codeInsight.intention.expression.ReplaceEqualsOrQualityInInfixExprIntention
+import codeInsight.intention.booleans.ReplaceEqualsOrQualityInInfixExprIntention
 
 /**
  * @author Ksenia.Sautina

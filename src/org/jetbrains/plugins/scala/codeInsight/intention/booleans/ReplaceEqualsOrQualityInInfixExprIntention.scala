@@ -1,5 +1,5 @@
 package org.jetbrains.plugins.scala
-package codeInsight.intention.expression
+package codeInsight.intention.booleans
 
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.openapi.util.TextRange
@@ -22,28 +22,21 @@ object ReplaceEqualsOrQualityInInfixExprIntention {
 
 class ReplaceEqualsOrQualityInInfixExprIntention extends PsiElementBaseIntentionAction {
   def getFamilyName = ReplaceEqualsOrQualityInInfixExprIntention.familyName
-  override def getText: String = "Replace \'" + oper + "\' with \'" + target + "\'"
-
-  var target: String = ""
-  var oper: String = ""
 
   def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean = {
     val infixExpr: ScInfixExpr = PsiTreeUtil.getParentOfType(element, classOf[ScInfixExpr], false)
     if (infixExpr == null) return false
 
-    oper = infixExpr.operation.nameId.getText
-    if (oper == "equals") {
-      target = " == "
-    } else if (oper == "==") {
-      target = " equals "
-    } else {
-      return false
-    }
+    val oper = infixExpr.operation.nameId.getText
 
+    if (oper != "equals" && oper != "==") return false
 
     val range: TextRange = infixExpr.operation.nameId.getTextRange
     val offset = editor.getCaretModel.getOffset
     if (!(range.getStartOffset <= offset && offset <= range.getEndOffset)) return false
+
+    val replaceOper = Map("equals" -> "==", "==" -> "equals")
+    setText("Replace '" + oper + "' with '" + replaceOper(oper) + "'")
 
     true
   }
@@ -55,7 +48,9 @@ class ReplaceEqualsOrQualityInInfixExprIntention extends PsiElementBaseIntention
     val start = infixExpr.getTextRange.getStartOffset
 
     val expr = new StringBuilder
-    expr.append(infixExpr.getBaseExpr.getText).append(target).append(infixExpr.getArgExpr.getText)
+    val replaceOper = Map("equals" -> "==", "==" -> "equals")
+    expr.append(infixExpr.getBaseExpr.getText).append(" ").append(replaceOper(infixExpr.operation.nameId.getText)).
+            append(" ").append(infixExpr.getArgExpr.getText)
 
     val newInfixExpr = ScalaPsiElementFactory.createExpressionFromText(expr.toString(), element.getManager)
 
