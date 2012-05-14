@@ -26,10 +26,13 @@ import javax.swing.{JComponent, JCheckBox}
 import collection.immutable.HashSet
 import extensions._
 import org.jetbrains.plugins.scala.actions.ScalaFileTemplateUtil
-import java.util.Properties
 import com.intellij.ide.fileTemplates.{FileTemplate, FileTemplateManager}
 import lang.psi.api.expr.ScBlockExpr
 import com.intellij.openapi.util.TextRange
+import com.intellij.openapi.module.{ModuleUtil, Module}
+import config.{ScalaVersionUtil, ScalaFacet}
+import com.intellij.openapi.application.ApplicationManager
+import java.util.{Collections, List, Properties}
 
 /**
  * User: Alexander Podkhalyuzin
@@ -74,7 +77,8 @@ object ScalaOIUtil {
     classMembersBuf.toArray
   }
 
-  def invokeOverrideImplement(project: Project, editor: Editor, file: PsiFile, isImplement: Boolean) {
+  def invokeOverrideImplement(project: Project, editor: Editor, file: PsiFile, isImplement: Boolean,
+                              methodName: String = null, inferType: Boolean = false) {
     val elem = file.findElementAt(editor.getCaretModel.getOffset - 1)
     def getParentClass(elem: PsiElement): PsiElement = {
       elem match {
@@ -96,20 +100,30 @@ object ScalaOIUtil {
       Array[JComponent](dontInferReturnTypeCheckBox)) {
       def needsInferType = dontInferReturnTypeCheckBox.isSelected
     }
-    val chooser = new ScalaMemberChooser
-    chooser.setTitle(if (isImplement) ScalaBundle.message("select.method.implement")
-                     else ScalaBundle.message("select.method.override"))
-    chooser.show()
+    var selectedMembers: List[ClassMember] = null
+    var needsInferType: Boolean = inferType
+    if (!ApplicationManager.getApplication.isUnitTestMode) {
+      val chooser = new ScalaMemberChooser
+      chooser.setTitle(if (isImplement) ScalaBundle.message("select.method.implement")
+      else ScalaBundle.message("select.method.override"))
+      chooser.show()
 
-    val selectedMembers = chooser.getSelectedElements
-    if (selectedMembers == null || selectedMembers.size == 0) return
-    val needsInferType = chooser.needsInferType
+      selectedMembers = chooser.getSelectedElements
+      if (selectedMembers == null || selectedMembers.size == 0) return
+      needsInferType = chooser.needsInferType
+    } else {
+      selectedMembers = Collections.singletonList(classMembers.find {
+        case named: ScalaNamedMembers => named.name == methodName
+        case _ => false
+      }.get)
+    }
     ScalaApplicationSettings.getInstance.SPECIFY_RETURN_TYPE_EXPLICITLY = needsInferType
     runAction(selectedMembers, isImplement, clazz, editor, needsInferType)
   }
 
   def runAction(selectedMembers: java.util.List[ClassMember],
                isImplement: Boolean, clazz: ScTemplateDefinition, editor: Editor, needsInferType: Boolean) {
+    val file = clazz.getContainingFile
     ScalaUtils.runWriteAction(new Runnable {
       def run() {
         def addUpdateThisType(subst: ScSubstitutor) = clazz.getType(TypingContext.empty) match {
@@ -144,11 +158,9 @@ object ScalaOIUtil {
                     method.getProject, method.getResolveScope
                   ))
               }
-              import org.jetbrains.plugins.scala.lang.psi.types.Unit
-              val isUnitCall = returnType.equiv(Unit)
+              val standardValue = ScalaPsiElementFactory.getStandardValue(returnType)
               properties.setProperty(FileTemplate.ATTRIBUTE_RETURN_TYPE, ScType.presentableText(returnType))
-              properties.setProperty(FileTemplate.ATTRIBUTE_DEFAULT_RETURN_VALUE,
-                ScalaPsiElementFactory.getStandardValue(returnType))
+              properties.setProperty(FileTemplate.ATTRIBUTE_DEFAULT_RETURN_VALUE, standardValue)
               properties.setProperty(FileTemplate.ATTRIBUTE_CALL_SUPER, "super." + method.name + (method match {
                 case fun: ScFunction =>
                   fun.paramClauses.clauses.map(_.parameters.map(_.name).mkString("(", ", ", ")")).mkString
@@ -156,6 +168,10 @@ object ScalaOIUtil {
                   if (method.isAccessor) ""
                   else method.getParameterList.getParameters.map(_.name).mkString("(", ", ", ")")
               }))
+              import ScalaVersionUtil._
+              properties.setProperty("Q_MARK",
+                if (isGeneric(file, false, SCALA_2_7, SCALA_2_8, SCALA_2_9)) standardValue
+                else "???")
 
               ScalaFileTemplateUtil.setClassAndMethodNameProperties(properties, method.containingClass, method)
 
@@ -332,52 +348,6 @@ object ScalaOIUtil {
     }
 
     buf2.toSeq
-  }
-
-  // TODO: this is only called from tests, too much code here that is being tested that *isn't* real.
-  def getMethod(clazz: ScTypeDefinition, methodName: String, isImplement: Boolean, needsInferType: Boolean = true): ScMember = {
-    val seq: Seq[ScalaObject] = if (isImplement) getMembersToImplement(clazz) else getMembersToOverride(clazz)
-    def getObjectByName: ScalaObject = {
-      for (obj <- seq) {
-        obj match {
-          case sign: PhysicalSignature if sign.method.name == methodName => return sign
-          case obj@(name: PsiNamedElement, subst: ScSubstitutor) if name.name == methodName => return obj
-          case _ =>
-        }
-      }
-      null
-    }
-    val obj = getObjectByName
-    if (obj == null) return null
-
-    def addUpdateThisType(subst: ScSubstitutor) = clazz.getType(TypingContext.empty) match {
-      case Success(tpe, _) => subst.addUpdateThisType(tpe)
-      case Failure(_, _) => subst
-    }
-
-    obj match {
-      case sign: PhysicalSignature => {
-        val method: PsiMethod = sign.method
-        val sign1 = sign.updateSubst(addUpdateThisType)
-        ScalaPsiElementFactory.createOverrideImplementMethod(sign1, method.getManager, !isImplement, needsInferType, "null")
-      }
-      case (name: PsiNamedElement, subst: ScSubstitutor) => {
-        val element: PsiElement = ScalaPsiUtil.nameContext(name)
-        element match {
-          case alias: ScTypeAlias => {
-            val subst1 = addUpdateThisType(subst)
-            ScalaPsiElementFactory.createOverrideImplementType(alias, subst1, alias.getManager, !isImplement)
-          }
-          case _: ScValue | _: ScVariable => {
-            val typed: ScTypedDefinition = name match {case x: ScTypedDefinition => x case _ => return null}
-            val subst1 = addUpdateThisType(subst)
-            ScalaPsiElementFactory.createOverrideImplementVariable(typed, subst1, typed.getManager, !isImplement,
-              element match {case _: ScValue => true case _ => false}, true)
-          }
-          case _ => null
-        }
-      }
-    }
   }
 
   def getAnchor(offset: Int, clazz: ScTemplateDefinition) : Option[ScMember] = {
