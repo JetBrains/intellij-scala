@@ -22,13 +22,13 @@ import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil._
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScReferenceElement, ScStableCodeReferenceElement}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticClasses
-import org.jetbrains.plugins.scala.config.ScalaFacet
 import com.intellij.openapi.module.{ModuleUtil, Module}
 import org.jetbrains.plugins.scala.lang.completion.ScalaAfterNewCompletionUtil._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScReferenceExpression, ScNewTemplateDefinition}
 import collection.mutable.HashMap
 import org.jetbrains.plugins.scala.extensions.{toPsiNamedElementExt, toPsiClassExt}
 import org.jetbrains.plugins.scala.lang.psi.light.PsiClassWrapper
+import org.jetbrains.plugins.scala.config.{ScalaVersionUtil, ScalaFacet}
 
 class ScalaClassNameCompletionContributor extends CompletionContributor {
   import ScalaClassNameCompletionContributor._
@@ -122,22 +122,9 @@ object ScalaClassNameCompletionContributor {
     }
 
     val project = insertedElement.getProject
-    val module: Module = ModuleUtil.findModuleForPsiElement(parameters.getOriginalFile)
-    val checkSynthetic = if (module == null) true else ScalaFacet.findIn(module).map(facet => {
-      val version = facet.version
-      if (version.length() < 3) true //let's think about 2.9
-      else {
-        val substring = version.substring(0, 3)
-        try {
-          substring.toDouble < 2.9 - Double.MinPositiveValue
-        }
-        catch {
-          case n: NumberFormatException => true //let's think about 2.9
-        }
-      }
-    }).getOrElse(true)
 
-
+    import org.jetbrains.plugins.scala.config.ScalaVersionUtil._
+    val checkSynthetic = ScalaVersionUtil.isGeneric(parameters.getOriginalFile, true, SCALA_2_7, SCALA_2_8)
     for (clazz <- SyntheticClasses.get(project).all.valuesIterator) {
       if (checkSynthetic || !ScType.baseTypesQualMap.contains(clazz.qualifiedName)) {
         addClass(clazz)

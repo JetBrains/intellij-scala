@@ -17,13 +17,26 @@ import lang.psi.types.result.TypingContext
 * Date: 11.07.2008
 */
 
-class ScAliasMember(member: ScTypeAlias, val substitutor: ScSubstitutor) extends PsiElementClassMember[ScTypeAlias](member, member.name)
+private[overrideImplement] trait ScalaNamedMembers {
+  def name: String
+}
+
+class ScAliasMember(member: ScTypeAlias, val substitutor: ScSubstitutor)
+  extends PsiElementClassMember[ScTypeAlias](member, member.name) with ScalaNamedMembers {
+  def name: String = member.name
+}
 
 class ScMethodMember(val sign: PhysicalSignature) extends PsiElementClassMember[PsiMethod](sign.method,
-  ScalaPsiUtil.getMethodPresentableText(sign.method))
+  ScalaPsiUtil.getMethodPresentableText(sign.method)) with ScalaNamedMembers {
+  def name: String = sign.name
+}
 
 class ScValueMember(member: ScValue, val element: ScTypedDefinition, val substitutor: ScSubstitutor) extends PsiElementClassMember[ScValue](member,
-  element.name + ": " + ScType.presentableText(substitutor.subst(element.getType(TypingContext.empty).getOrAny)))
+  element.name + ": " + ScType.presentableText(substitutor.subst(element.getType(TypingContext.empty).getOrAny))) with ScalaNamedMembers {
+  def name: String = element.name
+}
 
 class ScVariableMember(member: ScVariable, val element: ScTypedDefinition, val substitutor: ScSubstitutor) extends PsiElementClassMember[ScVariable](member,
-  element.name + ": " + ScType.presentableText(substitutor.subst(element.getType(TypingContext.empty).getOrAny)))
+  element.name + ": " + ScType.presentableText(substitutor.subst(element.getType(TypingContext.empty).getOrAny))) with ScalaNamedMembers {
+  def name: String = element.name
+}
