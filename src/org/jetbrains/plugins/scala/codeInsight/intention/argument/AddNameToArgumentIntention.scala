@@ -11,8 +11,12 @@ import org.jetbrains.plugins.scala.util.IntentionUtils
  * Jason Zaugg
  */
 
+object AddNameToArgumentIntention {
+  def familyName = "Use named arguments"
+}
+
 class AddNameToArgumentIntention extends PsiElementBaseIntentionAction {
-  def getFamilyName = "Use named arguments"
+  def getFamilyName = AddNameToArgumentIntention.familyName
 
   override def getText = "Use named arguments for current and subsequent arguments"
 

@@ -269,7 +269,6 @@
       <className>org.jetbrains.plugins.scala.codeInsight.intention.literal.InsertGapIntoStringIntention</className>
     </intentionAction>
 
-
     <intentionAction>
       <category>Scala/String</category>
       <className>org.jetbrains.plugins.scala.codeInsight.intention.literal.AddStripMarginToMLStringIntention</className>
@@ -551,7 +550,7 @@
     <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.semicolon.ScalaUnnecessarySemicolonInspection"
                      displayName="Scala unnecessary semicolon inspection" groupName="Scala: General"
                      shortName="ScalaUnnecessarySemicolon" level="WARNING"
-                     enabledByDefault="false" language="Scala"/>
+                     enabledByDefault="true" language="Scala"/>
     <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.xml.XmlUnmatchedTagInspection"
                      displayName="Unmatched Tag" groupName="Scala: General" shortName="UnmatchedTag" level="ERROR"
                      enabledByDefault="true" language="Scala"/>
@@ -562,7 +561,7 @@
     <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.parameters.NameBooleanParametersInspection"
                      displayName="Name boolean parameters"
                      groupName="Scala: General" shortName="NameBooleanParameters"
-                     level="WARNING" enabledByDefault="false" language="Scala"/>
+                     level="WARNING" enabledByDefault="true" language="Scala"/>
     <!--<localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.allErrorsInspection.AnnotatorBasedErrorInspection"
                      displayName="All Errors Tool" groupName="Scala: General"
                      shortName="ScalaAllErrors" level="WARNING"
