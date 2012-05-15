@@ -8,7 +8,6 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.openapi.util.TextRange
 import lang.psi.impl.ScalaPsiElementFactory
 import extensions._
-import org.codehaus.groovy.ast.expr.PrefixExpression
 import lang.psi.api.base.{ScLiteral, ScReferenceElement}
 import lang.psi.api.expr._
 import lang.refactoring.util.ScalaNamesUtil
