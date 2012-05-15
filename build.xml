@@ -221,6 +221,7 @@
     <copy todir="${temp.jar.dir}/Scala/lib">
       <fileset dir="${scala.aux.lib}">
         <include name="**/scalatest-finders*.jar"/>
+        <include name="**/evo-inflector*.jar"/>
       </fileset>
     </copy>
 
