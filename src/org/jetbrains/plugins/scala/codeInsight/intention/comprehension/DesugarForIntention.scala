@@ -10,6 +10,7 @@ import com.intellij.psi.PsiElement
 import lang.psi.api.expr.ScForStatement
 import extensions._
 import lang.psi.impl.ScalaPsiElementFactory
+import com.intellij.psi.codeStyle.{CodeStyleSettingsManager, CodeStyleManager}
 
 class DesugarForIntention extends PsiElementBaseIntentionAction {
   def getFamilyName = "Convert to desugared expression"
@@ -28,8 +29,10 @@ class DesugarForIntention extends PsiElementBaseIntentionAction {
     statement.getDesugarisedExprText(forDisplay = true) match {
       case Some(expText) =>
         val desugared = ScalaPsiElementFactory.createExpressionWithContextFromText(expText, statement.getContext, statement)
-        statement.replace(desugared.copy())
-      case None =>
+        val result = statement.replace(desugared.copy())
+        val manager: CodeStyleManager = CodeStyleManager.getInstance(project)
+        manager.reformat(result)
+     case None =>
     }
   }
 }
