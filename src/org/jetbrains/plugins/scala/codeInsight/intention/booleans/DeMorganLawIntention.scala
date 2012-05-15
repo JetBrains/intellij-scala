@@ -7,13 +7,13 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.openapi.util.TextRange
 import lang.psi.impl.ScalaPsiElementFactory
-import extensions._
-import lang.psi.api.base.{ScLiteral, ScReferenceElement}
+import lang.psi.api.base.ScLiteral
 import lang.psi.api.expr._
 import lang.refactoring.util.ScalaNamesUtil
 import lang.lexer.ScalaTokenTypes
-import com.intellij.psi.{PsiManager, PsiDocumentManager, PsiElement}
+import com.intellij.psi.{PsiDocumentManager, PsiElement}
 import org.jetbrains.plugins.scala.util.IntentionUtils
+import extensions._
 
 /**
  * @author Ksenia.Sautina
@@ -53,7 +53,15 @@ class DeMorganLawIntention extends PsiElementBaseIntentionAction {
     def negate(expression: ScExpression): String = {
       expression match {
         case e: ScPrefixExpr =>
-          if (e.operation.getText == "!") e.getBaseExpr.getText
+          if (e.operation.getText == "!") {
+            val exprWithoutParentheses =
+              if (e.getBaseExpr.isInstanceOf[ScParenthesisedExpr]) e.getBaseExpr.getText.drop(1).dropRight(1)
+              else e.getBaseExpr.getText
+            val newExpr = ScalaPsiElementFactory.createExpressionFromText(exprWithoutParentheses, expression.getManager)
+            inWriteAction {
+              e.replaceExpression(newExpr, true).getText
+            }
+          }
           else "!(" + e.getText + ")"
         case e: ScLiteral =>
           if (e.getNode.getFirstChildNode.getElementType == ScalaTokenTypes.kTRUE) "false"
@@ -73,7 +81,8 @@ class DeMorganLawIntention extends PsiElementBaseIntentionAction {
 
     val buf = new StringBuilder
     buf.append(negate(infixExpr.getBaseExpr)).append(" ").
-            append(replaceOper(infixExpr.operation.nameId.getText)).append(" ").append(negate(infixExpr.getArgExpr))
+            append(replaceOper(infixExpr.operation.nameId.getText)).append(" ").
+            append(negate(infixExpr.getArgExpr))
 
     val res = IntentionUtils.negateAndValidateExpression(infixExpr, element.getManager, buf)
 
