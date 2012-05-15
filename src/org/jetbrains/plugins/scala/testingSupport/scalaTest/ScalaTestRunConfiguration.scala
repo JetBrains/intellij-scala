@@ -392,7 +392,7 @@ class ScalaTestRunConfiguration(val project: Project, val configurationFactory: 
     JDOMExternalizer.write(element, "searchForTest", searchTest.toString)
     JDOMExternalizer.write(element, "testName", testName)
     JDOMExternalizer.write(element, "testKind", testKind.toString)
-    JDOMExternalizer.write(element, "showProgressMessages", testKind.toString)
+    JDOMExternalizer.write(element, "showProgressMessages", showProgressMessages.toString)
     PathMacroManager.getInstance(getProject).collapsePathsRecursively(element)
   }
 
