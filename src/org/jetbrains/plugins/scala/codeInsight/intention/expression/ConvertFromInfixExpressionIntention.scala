@@ -57,7 +57,7 @@ class ConvertFromInfixExpressionIntention extends PsiElementBaseIntentionAction 
        methodCallExpr.getTextRange.getStartOffset
 
     inWriteAction {
-      infixExpr.replaceExpression(methodCallExpr, true)
+      infixExpr.replace(methodCallExpr)
       editor.getCaretModel.moveToOffset(start + diff + size)
       PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument)
     }
