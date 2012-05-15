@@ -665,9 +665,9 @@
     <action id="Scala.GoToImplicit" class="org.jetbrains.plugins.scala.actions.GoToImplicitConversionAction"
             text="&amp;Implicit Conversion" description="Go To Implicit Conversion">
       <keyboard-shortcut keymap="$default" first-keystroke="control shift Q"/>
-      <keyboard-shortcut keymap="Mac OS X" first-keystroke="ctrl shift Q"/>
+      <keyboard-shortcut keymap="Mac OS X" first-keystroke="ctrl Q"/>
       <keyboard-shortcut keymap="Mac OS X" first-keystroke="meta shift Q" remove="true"/>
-      <keyboard-shortcut keymap="Mac OS X 10.5+" first-keystroke="ctrl shift Q"/>
+      <keyboard-shortcut keymap="Mac OS X 10.5+" first-keystroke="ctrl Q"/>
       <keyboard-shortcut keymap="Mac OS X 10.5+" first-keystroke="meta shift Q" remove="true"/>
       <add-to-group group-id="GoToCodeGroup" anchor="last"/>
     </action>
