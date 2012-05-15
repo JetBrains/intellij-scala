@@ -48,7 +48,37 @@ import extensions.{toPsiNamedElementExt, toPsiClassExt}
 import api.expr.xml.{ScXmlStartTag, ScXmlEndTag}
 import settings._
 
-object ScalaPsiElementFactory {
+object ScalaPsiElementFactory extends JVMElementFactory {
+
+  def createClass(name: String): PsiClass = throw new IncorrectOperationException
+
+  def createInterface(name: String): PsiClass = throw new IncorrectOperationException
+
+  def createEnum(name: String): PsiClass = throw new IncorrectOperationException
+
+  def createField(name: String, `type`: PsiType): PsiField = throw new IncorrectOperationException
+
+  def createMethod(name: String, returnType: PsiType): PsiMethod = throw new IncorrectOperationException
+
+  def createConstructor(): PsiMethod = throw new IncorrectOperationException
+
+  def createClassInitializer(): PsiClassInitializer = throw new IncorrectOperationException
+
+  def createParameter(name: String, `type`: PsiType): PsiParameter = throw new IncorrectOperationException
+
+  def createParameterList(names: Array[String], types: Array[PsiType]): PsiParameterList = throw new IncorrectOperationException
+
+  def createMethodFromText(text: String, context: PsiElement): PsiMethod = throw new IncorrectOperationException
+
+  def createAnnotationFromText(annotationText: String, context: PsiElement): PsiAnnotation = throw new IncorrectOperationException
+
+  def createExpressionFromText(text: String, context: PsiElement): PsiElement = {
+    try {
+      createExpressionWithContextFromText(text, context, context)
+    } catch {
+      case e: Throwable => throw new IncorrectOperationException
+    }
+  }
 
   private val DUMMY = "dummy."
 

@@ -39,6 +39,7 @@
     <statementUpDownMover implementation="org.jetbrains.plugins.scala.lang.refactoring.ScalaStatementMover"/>
     <debugger.codeFragmentFactory implementation="org.jetbrains.plugins.scala.debugger.evaluation.ScalaCodeFragmentFactory"/>
     <debugger.positionManagerFactory implementation="org.jetbrains.plugins.scala.debugger.ScalaPositionManagerFactory"/>
+    <generation.topLevelFactory language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.psi.impl.ScalaFactoryProvider"/>
     <treeCopyHandler implementation="org.jetbrains.plugins.scala.lang.refactoring.util.ScalaChangeUtilSupport"/>
     <iconProvider implementation="org.jetbrains.plugins.scala.components.ScalaIconProvider"/>
     <colorSettingsPage implementation="org.jetbrains.plugins.scala.highlighter.ScalaColorsAndFontsPage"/>
