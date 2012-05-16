@@ -82,17 +82,19 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
         case fun: ScFunction =>
           (fun.effectiveParameterClauses.map(_.parameters.mapWithIndex {
             case (p, index) =>
+              val paramType: ScType = subst.subst(p.getType(TypingContext.empty).getOrAny)
               new Parameter(p.name,
-                subst.subst(p.getType(TypingContext.empty).getOrAny), p.isDefaultParam,
-                p.isRepeatedParameter, p.isCallByNameParameter, index)
+                paramType, paramType, p.isDefaultParam,
+                p.isRepeatedParameter, p.isCallByNameParameter, index, Some(p))
           }),
             fun.parameterList.clauses.lastOption.map(_.isImplicit).getOrElse(false))
         case f: ScPrimaryConstructor =>
           (f.effectiveParameterClauses.map(_.parameters.mapWithIndex {
             case (p, index) =>
+              val paramType: ScType = subst.subst(p.getType(TypingContext.empty).getOrAny)
               new Parameter(p.name,
-                subst.subst(p.getType(TypingContext.empty).getOrAny), p.isDefaultParam,
-                p.isRepeatedParameter, p.isCallByNameParameter, index)
+                paramType, paramType, p.isDefaultParam,
+                p.isRepeatedParameter, p.isCallByNameParameter, index, Some(p))
           }),
             f.parameterList.clauses.lastOption.map(_.isImplicit).getOrElse(false))
         case m: PsiMethod =>

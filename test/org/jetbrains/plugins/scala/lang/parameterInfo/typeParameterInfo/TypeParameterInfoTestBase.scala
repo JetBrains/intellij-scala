@@ -55,13 +55,13 @@ abstract class TypeParameterInfoTestBase extends ScalaPsiTestCase {
         def getDefaultParameterColor: Color = HintUtil.INFORMATION_COLOR
         def setupUIComponentPresentation(text: String, highlightStartOffset: Int, highlightEndOffset: Int,
                                         isDisabled: Boolean, strikeout: Boolean, isDisabledBeforeHighlight: Boolean,
-                                        background: Color): Unit = {
+                                        background: Color) {
           items.append(text)
         }
         def isUIComponentEnabled: Boolean = false
         def getCurrentParameterIndex: Int = 0
         def getParameterOwner: PsiElement = element
-        def setUIComponentEnabled(enabled: Boolean): Unit = {}
+        def setUIComponentEnabled(enabled: Boolean) {}
       }
       handler.updateUI(item, uiContext)
     }
