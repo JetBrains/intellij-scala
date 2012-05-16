@@ -128,10 +128,11 @@ class ScClassImpl extends ScTypeDefinitionImpl with ScClass with ScTypeParameter
         case (t, node) => node.info.namedElement match {
           case Some(fun: ScFunction) if !fun.isConstructor && fun.containingClass.isInstanceOf[ScTrait] &&
             fun.isInstanceOf[ScFunctionDefinition] =>
-            res += fun.getFunctionWrapper(false, false, Some(getClazz(fun.containingClass.asInstanceOf[ScTrait])))
+            res += fun.getFunctionWrapper(isStatic = false, isInterface = false,
+              cClass = Some(getClazz(fun.containingClass.asInstanceOf[ScTrait])))
             names += fun.getName
           case Some(fun: ScFunction) if !fun.isConstructor => 
-            res += fun.getFunctionWrapper(false, fun.isInstanceOf[ScFunctionDeclaration])
+            res += fun.getFunctionWrapper(isStatic = false, isInterface = fun.isInstanceOf[ScFunctionDeclaration])
             names += fun.getName
           case Some(method: PsiMethod) if !method.isConstructor => 
             res += method
@@ -150,9 +151,9 @@ class ScClassImpl extends ScTypeDefinitionImpl with ScClass with ScTypeParameter
                 })
               case _ => (false, None)
             }
-            res += t.getTypedDefinitionWrapper(false, isInterface, SIMPLE_ROLE, cClass)
+            res += t.getTypedDefinitionWrapper(isStatic = false, isInterface = isInterface, role = SIMPLE_ROLE, cClass = cClass)
             if (t.isVar) {
-              res += t.getTypedDefinitionWrapper(false, isInterface, EQ, cClass)
+              res += t.getTypedDefinitionWrapper(isStatic = false, isInterface = isInterface, role = EQ, cClass = cClass)
             }
             names += t.getName
             t.nameContext match {
@@ -160,17 +161,17 @@ class ScClassImpl extends ScTypeDefinitionImpl with ScClass with ScTypeParameter
                 val beanProperty = s.hasAnnotation("scala.reflect.BeanProperty") != None
                 val booleanBeanProperty = s.hasAnnotation("scala.reflect.BooleanBeanProperty") != None
                 if (beanProperty) {
-                  res += t.getTypedDefinitionWrapper(false, isInterface, GETTER, cClass)
+                  res += t.getTypedDefinitionWrapper(isStatic = false, isInterface = isInterface, role = GETTER, cClass = cClass)
                   names += "get" + t.getName.capitalize
                   if (t.isVar) {
-                    res += t.getTypedDefinitionWrapper(false, isInterface, SETTER, cClass)
+                    res += t.getTypedDefinitionWrapper(isStatic = false, isInterface = isInterface, role = SETTER, cClass = cClass)
                     names += "set" + t.getName.capitalize
                   }
                 } else if (booleanBeanProperty) {
-                  res += t.getTypedDefinitionWrapper(false, isInterface, IS_GETTER, cClass)
+                  res += t.getTypedDefinitionWrapper(isStatic = false, isInterface = isInterface, role = IS_GETTER, cClass = cClass)
                   names += "is" + t.getName.capitalize
                   if (t.isVar) {
-                    res += t.getTypedDefinitionWrapper(false, isInterface, SETTER, cClass)
+                    res += t.getTypedDefinitionWrapper(isStatic = false, isInterface = isInterface, role = SETTER, cClass = cClass)
                     names += "set" + t.getName.capitalize
                   }
                 }
@@ -194,30 +195,31 @@ class ScClassImpl extends ScTypeDefinitionImpl with ScClass with ScTypeParameter
           signature.foreach {
             case (t, node) =>
               node.info.namedElement match {
-                case Some(fun: ScFunction) if !fun.isConstructor => add(fun.getFunctionWrapper(true, false))
+                case Some(fun: ScFunction) if !fun.isConstructor =>
+                  add(fun.getFunctionWrapper(isStatic = true, isInterface = false, cClass = Some(this)))
                 case Some(method: PsiMethod) if !method.isConstructor => {
                   if (method.containingClass != null && method.containingClass.getQualifiedName != "java.lang.Object") {
                     add(StaticPsiMethodWrapper.getWrapper(method, this))
                   }
                 }
                 case Some(t: ScTypedDefinition) if t.isVal || t.isVar =>
-                  add(t.getTypedDefinitionWrapper(true, false, SIMPLE_ROLE))
+                  add(t.getTypedDefinitionWrapper(isStatic = true, isInterface = false, role = SIMPLE_ROLE))
                   if (t.isVar) {
-                    add(t.getTypedDefinitionWrapper(false, isInterface, EQ))
+                    add(t.getTypedDefinitionWrapper(isStatic = false, isInterface = isInterface, role = EQ))
                   }
                   t.nameContext match {
                     case s: ScAnnotationsHolder =>
                       val beanProperty = s.hasAnnotation("scala.reflect.BeanProperty") != None
                       val booleanBeanProperty = s.hasAnnotation("scala.reflect.BooleanBeanProperty") != None
                       if (beanProperty) {
-                        add(t.getTypedDefinitionWrapper(true, false, GETTER))
+                        add(t.getTypedDefinitionWrapper(isStatic = true, isInterface = false, role = GETTER))
                         if (t.isVar) {
-                          add(t.getTypedDefinitionWrapper(true, false, SETTER))
+                          add(t.getTypedDefinitionWrapper(isStatic = true, isInterface = false, role = SETTER))
                         }
                       } else if (booleanBeanProperty) {
-                        add(t.getTypedDefinitionWrapper(true, false, IS_GETTER))
+                        add(t.getTypedDefinitionWrapper(isStatic = true, isInterface = false, role = IS_GETTER))
                         if (t.isVar) {
-                          add(t.getTypedDefinitionWrapper(true, false, SETTER))
+                          add(t.getTypedDefinitionWrapper(isStatic = true, isInterface = false, role = SETTER))
                         }
                       }
                     case _ =>
