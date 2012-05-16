@@ -10,6 +10,8 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUsed
 import com.intellij.psi.{PsiNamedElement, PsiElement}
 import org.jetbrains.plugins.scala.extensions.toSeqExt
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTrait
 
 /**
  * Pavel Fatin, Alexander Podkhalyuzin.
@@ -173,8 +175,14 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
       } else tail
     }
 
-    def functionParams(params: Seq[ScType]): Seq[Parameter] = params.mapWithIndex {
-      case (tp, i) => new Parameter("v" + (i + 1), tp, false, false, false, i)
+    def functionParams(params: Seq[ScType]): Seq[Parameter] = {
+      val functionName = "scala.Function" + params.length
+      val functionClass = Option(ScalaPsiManager.instance(getProject).getCachedClass(functionName, getResolveScope,
+        ScalaPsiManager.ClassCategory.TYPE))
+      val applyFunction = functionClass.flatMap(_.asInstanceOf[ScTrait].functions.find(_.name == "apply"))
+      params.mapWithIndex {
+        case (tp, i) => new Parameter("v" + (i + 1), tp, tp, false, false, false, i, applyFunction.map(_.parameters.apply(i)))
+      }
     }
 
     def checkApplication(tpe: ScType, args: Seq[ScExpression]): Option[ScType] = tpe match {

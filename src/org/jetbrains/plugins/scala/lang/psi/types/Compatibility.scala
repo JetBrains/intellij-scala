@@ -255,11 +255,14 @@ object Compatibility {
 
   def toParameter(p: ScParameter, substitutor: ScSubstitutor) = {
     val t = substitutor.subst(p.getType(TypingContext.empty).getOrNothing)
-    new Parameter(p.name, t, p.isDefaultParam, p.isRepeatedParameter, p.isCallByNameParameter, p.index)
+    new Parameter(p.name, t, t, p.isDefaultParam, p.isRepeatedParameter, p.isCallByNameParameter, p.index, Some(p))
   }
   def toParameter(p: PsiParameter) = {
     val t = ScType.create(p.getType, p.getProject, paramTopLevel = true)
-    new Parameter(if (p.isInstanceOf[ClsParameterImpl]) "" else p.name, t, false, p.isVarArgs, false, -1)
+    new Parameter(if (p.isInstanceOf[ClsParameterImpl]) "" else p.name, t, t, false, p.isVarArgs, false, -1, p match {
+      case param: ScParameter => Some(param)
+      case _ => None
+    })
   }
 
   // TODO refactor a lot of duplication out of this method 
@@ -346,14 +349,17 @@ object Compatibility {
         if (shortage > 0) { 
           val part = obligatory.takeRight(shortage).map { p =>
             val t = p.getType(TypingContext.empty).getOrAny
-            new Parameter(p.name, t, p.isDefaultParam, p.isRepeatedParameter, p.isCallByNameParameter, p.index)
+            new Parameter(p.name, t, t, p.isDefaultParam, p.isRepeatedParameter, p.isCallByNameParameter, p.index, Some(p))
           }
           return ConformanceExtResult(part.map(new MissedValueParameter(_)))
         }
 
-        val res = checkConformanceExt(true, parameters.map{param: ScParameter => new Parameter(param.name, {
-          substitutor.subst(param.getType(TypingContext.empty).getOrNothing)
-        }, param.isDefaultParam, param.isRepeatedParameter, param.isRepeatedParameter, param.index)}, exprs, checkWithImplicits, isShapesResolve)
+        val res = checkConformanceExt(true, parameters.map{param: ScParameter => {
+          val paramType: ScType = substitutor.subst(param.getType(TypingContext.empty).getOrNothing)
+          new Parameter(param.name,
+            paramType, paramType,
+            param.isDefaultParam, param.isRepeatedParameter, param.isRepeatedParameter, param.index, Some(param))
+        }}, exprs, checkWithImplicits, isShapesResolve)
         res
       }
       case method: PsiMethod => {

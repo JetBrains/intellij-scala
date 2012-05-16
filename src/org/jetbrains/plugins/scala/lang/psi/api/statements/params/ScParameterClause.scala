@@ -35,7 +35,8 @@ trait ScParameterClause extends ScalaPsiElement {
     parameters.zipWithIndex.map {
       case (param, index) =>
         new Parameter(param.name, param.getType(TypingContext.empty).getOrNothing,
-          param.isDefaultParam, param.isRepeatedParameter, param.isCallByNameParameter, index)
+          param.getType(TypingContext.empty).getOrNothing, param.isDefaultParam, param.isRepeatedParameter,
+          param.isCallByNameParameter, index, Some(param))
     }
   }
 
