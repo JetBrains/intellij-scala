@@ -61,6 +61,7 @@ class ScalaStatementMover extends LineMover {
             .orElse(aim(classOf[ScMember], it => it.isInstanceOf[ScMember] || it.isInstanceOf[ScImportStmt]))
             .orElse(aim(classOf[ScIfStmt], _ => false))
             .orElse(aim(classOf[ScForStatement], _ => false))
+            .orElse(aim(classOf[ScMatchStmt], _ => false))
             .orElse(aim(classOf[ScMethodCall], isControlStructureLikeCall).filter(p => isControlStructureLikeCall(p._1)))
 
     pair.foreach { it =>
