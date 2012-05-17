@@ -148,44 +148,6 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
   }
 
   protected def convertBindToType(bind: Option[ScalaResolveResult]): TypeResult[ScType] = {
-    /**
-     * This method created for the following example:
-     * {{{
-     *   new HashMap + (1 -> 2)
-     * }}}
-     * Method + has lower bound, which is second generic parameter of HashMap.
-     * In this case new HashMap should create HashMap[Int, Nothing], then we can invoke + method.
-     * However we can't use information from not inferred generic. So if such method use bounds on
-     * not inferred generics, such bounds should be removed.
-     */
-    def removeBadBounds(tp: ScType): ScType = {
-      tp match {
-        case tp@ScTypePolymorphicType(internal, typeParameters) =>
-          def hasBadLinks(tp: ScType, ownerPtp: PsiTypeParameter): Option[ScType] = {
-            var res: Option[ScType] = Some(tp)
-            tp.recursiveUpdate {tp => 
-              tp match {
-                case t: ScTypeParameterType =>
-                  if (typeParameters.find {
-                    case TypeParameter(_, _, _, ptp) if ptp == t.param && ptp.getOwner != ownerPtp.getOwner => true
-                    case _ => false
-                  } != None) res = None
-                case _ =>
-              }
-              (false, tp)
-            }
-            res
-          }
-          
-          ScTypePolymorphicType(internal, typeParameters.map {
-            case t@TypeParameter(name, lowerType, upperType, ptp) =>
-              TypeParameter(name, hasBadLinks(lowerType, ptp).getOrElse(Nothing),
-                hasBadLinks(upperType, ptp).getOrElse(Any), ptp)
-          })
-        case _ => tp
-      }
-    }
-
     val fromType: Option[ScType] = bind.map(_.fromType).getOrElse(None)
     val inner: ScType = bind match {
       case Some(ScalaResolveResult(fun: ScFun, s)) => {
@@ -346,7 +308,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
               case Success(ScTypePolymorphicType(_, typeParams), _) =>
                 inner match {
                   case ScTypePolymorphicType(internal, typeParams2) =>
-                    return Success(removeBadBounds(ScTypePolymorphicType(internal, typeParams ++ typeParams2)), Some(this))
+                    return Success(ScalaPsiUtil.removeBadBounds(ScTypePolymorphicType(internal, typeParams ++ typeParams2)), Some(this))
                   case _ =>
                     return Success(ScTypePolymorphicType(inner, typeParams), Some(this))
                 }
@@ -359,7 +321,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
           case Success(ScTypePolymorphicType(_, typeParams), _) =>
             inner match {
               case ScTypePolymorphicType(internal, typeParams2) =>
-                return Success(removeBadBounds(ScTypePolymorphicType(internal, typeParams ++ typeParams2)), Some(this))
+                return Success(ScalaPsiUtil.removeBadBounds(ScTypePolymorphicType(internal, typeParams ++ typeParams2)), Some(this))
               case _ =>
                 return Success(ScTypePolymorphicType(inner, typeParams), Some(this))
             }

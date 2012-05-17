@@ -26,7 +26,7 @@ import api.statements._
 import com.intellij.psi._
 import codeStyle.CodeStyleSettingsManager
 import com.intellij.psi.search.GlobalSearchScope
-import nonvalue.{Parameter, TypeParameter, ScTypePolymorphicType}
+import nonvalue.{ScMethodType, Parameter, TypeParameter, ScTypePolymorphicType}
 import patterns.{ScBindingPattern, ScReferencePattern, ScCaseClause}
 import stubs.ScModifiersStub
 import types.Compatibility.Expression
@@ -50,9 +50,9 @@ import reflect.NameTransformer
 import caches.CachesUtil
 import java.lang.Exception
 import extensions._
-import collection.Seq
 import collection.mutable.{ListBuffer, HashSet, ArrayBuffer}
 import com.intellij.psi.impl.compiled.ClsFileImpl
+import collection.{Set, Seq}
 
 /**
  * User: Alexander Podkhalyuzin
@@ -320,8 +320,18 @@ object ScalaPsiUtil {
     }.getOrElse(Seq.empty)
     val processor = new MethodResolveProcessor(expr, methodName, args :: Nil, typeArgs, typeParams,
       isShapeResolve = isShape, enableTupling = true)
-    processor.processType(exprTp.inferValueType, getEffectiveInvokedExpr, ResolveState.initial)
-    var candidates = processor.candidatesS
+    var candidates: Set[ScalaResolveResult] = Set.empty
+    exprTp match {
+      case ScTypePolymorphicType(internal, tp) if !tp.isEmpty &&
+        !internal.isInstanceOf[ScMethodType] && !internal.isInstanceOf[ScUndefinedType] =>
+        processor.processType(internal, getEffectiveInvokedExpr, ResolveState.initial())
+        candidates = processor.candidatesS
+      case _ =>
+    }
+    if (candidates.isEmpty) {
+      processor.processType(exprTp.inferValueType, getEffectiveInvokedExpr, ResolveState.initial)
+      candidates = processor.candidatesS
+    }
 
     if (!noImplicits && candidates.forall(!_.isApplicable)) {
       //should think about implicit conversions
@@ -347,16 +357,65 @@ object ScalaPsiUtil {
     def checkCandidates(withImplicits: Boolean): Option[(ScType, collection.Set[ImportUsed], Option[PsiNamedElement], Option[PsiElement])] = {
       val candidates: Array[ScalaResolveResult] = processTypeForUpdateOrApplyCandidates(call, tp, isShape, noImplicits = !withImplicits)
       PartialFunction.condOpt(candidates) {
-        case Array(r@ScalaResolveResult(fun: PsiMethod, s: ScSubstitutor)) => fun match {
-          case fun: ScFun => (s.subst(fun.polymorphicType), r.importsUsed, r.implicitFunction, Some(fun))
-          case fun: ScFunction => (s.subst(fun.polymorphicType), r.importsUsed, r.implicitFunction, Some(fun))
-          case meth: PsiMethod => (ResolveUtils.javaPolymorphicType(meth, s, getResolveScope), r.importsUsed,
-                  r.implicitFunction, Some(fun))
+        case Array(r@ScalaResolveResult(fun: PsiMethod, s: ScSubstitutor)) =>
+          val res = fun match {
+            case fun: ScFun => (s.subst(fun.polymorphicType), r.importsUsed, r.implicitFunction, Some(fun))
+            case fun: ScFunction => (s.subst(fun.polymorphicType), r.importsUsed, r.implicitFunction, Some(fun))
+            case meth: PsiMethod => (ResolveUtils.javaPolymorphicType(meth, s, getResolveScope), r.importsUsed,
+              r.implicitFunction, Some(fun))
+          }
+        call.getInvokedExpr.getNonValueType(TypingContext.empty) match {
+          case Success(ScTypePolymorphicType(_, typeParams), _) =>
+            res.copy(_1 = res._1 match {
+              case ScTypePolymorphicType(internal, typeParams2) =>
+                ScalaPsiUtil.removeBadBounds(ScTypePolymorphicType(internal, typeParams ++ typeParams2))
+              case _ =>
+                ScTypePolymorphicType(res._1, typeParams)
+            })
+          case _ => res
         }
       }
     }
 
     checkCandidates(withImplicits = false).orElse(checkCandidates(withImplicits = true))
+  }
+
+  /**
+   * This method created for the following example:
+   * {{{
+   *   new HashMap + (1 -> 2)
+   * }}}
+   * Method + has lower bound, which is second generic parameter of HashMap.
+   * In this case new HashMap should create HashMap[Int, Nothing], then we can invoke + method.
+   * However we can't use information from not inferred generic. So if such method use bounds on
+   * not inferred generics, such bounds should be removed.
+   */
+  def removeBadBounds(tp: ScType): ScType = {
+    tp match {
+      case tp@ScTypePolymorphicType(internal, typeParameters) =>
+        def hasBadLinks(tp: ScType, ownerPtp: PsiTypeParameter): Option[ScType] = {
+          var res: Option[ScType] = Some(tp)
+          tp.recursiveUpdate {tp =>
+            tp match {
+              case t: ScTypeParameterType =>
+                if (typeParameters.find {
+                  case TypeParameter(_, _, _, ptp) if ptp == t.param && ptp.getOwner != ownerPtp.getOwner => true
+                  case _ => false
+                } != None) res = None
+              case _ =>
+            }
+            (false, tp)
+          }
+          res
+        }
+
+        ScTypePolymorphicType(internal, typeParameters.map {
+          case t@TypeParameter(name, lowerType, upperType, ptp) =>
+            TypeParameter(name, hasBadLinks(lowerType, ptp).getOrElse(Nothing),
+              hasBadLinks(upperType, ptp).getOrElse(Any), ptp)
+        })
+      case _ => tp
+    }
   }
 
   def isAnonymousExpression(expr: ScExpression): (Int, ScExpression) = {
