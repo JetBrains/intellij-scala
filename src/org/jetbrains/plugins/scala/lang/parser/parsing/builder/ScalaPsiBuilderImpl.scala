@@ -17,10 +17,17 @@ class ScalaPsiBuilderImpl(builder: PsiBuilder)
   private final val newlinesEnabled: Stack[Boolean] = new Stack[Boolean]
 
   def newlineBeforeCurrentToken: Boolean = {
-    countNewlineBeforeCurrentToken > 0
+    countNewlineBeforeCurrentToken(countLineComments = false) > 0
   }
 
-  def countNewlineBeforeCurrentToken: Int = {
+  def twoNewlinesBeforeCurrentToken: Boolean = {
+    countNewlineBeforeCurrentToken(countLineComments = true) > 1
+  }
+
+  /**
+   * @param countLineComments means not to include line breaks which belongs to line comments
+   */
+  private def countNewlineBeforeCurrentToken(countLineComments: Boolean): Int = {
     if (!newlinesEnabled.isEmpty && !newlinesEnabled.top) return 0
     if (eof) return 0
     if (!ParserUtils.elementCanStartStatement(getTokenType, this)) return 0
@@ -40,13 +47,13 @@ class ScalaPsiBuilderImpl(builder: PsiBuilder)
             if (getOriginalText.charAt(j) == '\n') res += 1
             j = j + 1
           }
-        case ScalaTokenTypes.tLINE_COMMENT =>
+        case ScalaTokenTypes.tLINE_COMMENT => if (countLineComments) res -= 1
         case ScalaTokenTypes.tBLOCK_COMMENT | ScalaDocElementTypes.SCALA_DOC_COMMENT =>
         case _ => return res
       }
       i = i + 1
     }
-    res
+    res.max(0)
   }
 
   def disableNewlines {

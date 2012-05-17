@@ -7,9 +7,9 @@ import com.intellij.lang.PsiBuilder
  */
 
 trait ScalaPsiBuilder extends PsiBuilder {
-  def countNewlineBeforeCurrentToken: Int
+  def twoNewlinesBeforeCurrentToken: Boolean
   def newlineBeforeCurrentToken: Boolean
-  def disableNewlines: Unit
-  def enableNewlines: Unit
-  def restoreNewlinesState: Unit
+  def disableNewlines
+  def enableNewlines
+  def restoreNewlinesState
 }

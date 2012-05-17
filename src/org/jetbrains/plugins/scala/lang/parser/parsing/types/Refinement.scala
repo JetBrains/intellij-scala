@@ -24,7 +24,7 @@ import util.ParserUtils
 object Refinement {
   def parse(builder: ScalaPsiBuilder): Boolean = {
     val refineMarker = builder.mark
-    if (builder.countNewlineBeforeCurrentToken > 1) {
+    if (builder.twoNewlinesBeforeCurrentToken) {
       refineMarker.drop
       return false
     }

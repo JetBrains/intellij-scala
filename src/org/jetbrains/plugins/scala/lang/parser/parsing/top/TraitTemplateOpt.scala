@@ -27,7 +27,7 @@ object TraitTemplateOpt {
     builder.getTokenType match {
       case ScalaTokenTypes.kEXTENDS | ScalaTokenTypes.tUPPER_BOUND => builder.advanceLexer //Ate extends
       case ScalaTokenTypes.tLBRACE => {
-        if (builder.countNewlineBeforeCurrentToken > 1) {
+        if (builder.twoNewlinesBeforeCurrentToken) {
           extendsMarker.done(ScalaElementTypes.EXTENDS_BLOCK)
           return
         }
@@ -50,7 +50,7 @@ object TraitTemplateOpt {
           //parse template body
           builder.getTokenType match {
             case ScalaTokenTypes.tLBRACE => {
-              if (builder.countNewlineBeforeCurrentToken > 1) {
+              if (builder.twoNewlinesBeforeCurrentToken) {
                 extendsMarker.done(ScalaElementTypes.EXTENDS_BLOCK)
                 return
               }
@@ -86,7 +86,7 @@ object TraitTemplateOpt {
         //parse template body
         builder.getTokenType match {
           case ScalaTokenTypes.tLBRACE => {
-            if (builder.countNewlineBeforeCurrentToken > 1) {
+            if (builder.twoNewlinesBeforeCurrentToken) {
               extendsMarker.done(ScalaElementTypes.EXTENDS_BLOCK)
               return
             }

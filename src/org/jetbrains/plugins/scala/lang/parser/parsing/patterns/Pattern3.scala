@@ -61,7 +61,7 @@ object Pattern3 {
       val idMarker = builder.mark
       builder.advanceLexer //Ate id
       idMarker.done(ScalaElementTypes.REFERENCE)
-      if (builder.countNewlineBeforeCurrentToken > 1) {
+      if (builder.twoNewlinesBeforeCurrentToken) {
         builder.error(ScalaBundle.message("simple.pattern.expected"))
       }
       backupMarker.drop

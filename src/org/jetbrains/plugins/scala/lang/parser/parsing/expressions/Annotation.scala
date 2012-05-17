@@ -38,7 +38,7 @@ object Annotation {
     } else {
       annotMarker.done(ScalaElementTypes.ANNOTATION)
     }
-    if (countLinesAfterAnnotation && builder.countNewlineBeforeCurrentToken >= 2) {
+    if (countLinesAfterAnnotation && builder.twoNewlinesBeforeCurrentToken) {
       rollbackMarker.rollbackTo()
       return false
     } else rollbackMarker.drop()

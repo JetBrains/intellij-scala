@@ -77,7 +77,7 @@ object FunDef {
             }
           }
           case ScalaTokenTypes.tLBRACE => {
-            if (builder.countNewlineBeforeCurrentToken > 1) {
+            if (builder.twoNewlinesBeforeCurrentToken) {
               faultMarker.rollbackTo()
               return false
             }
@@ -104,7 +104,7 @@ object FunDef {
             true
           }
           case _ => {
-            if (builder.countNewlineBeforeCurrentToken > 1) {
+            if (builder.twoNewlinesBeforeCurrentToken) {
               builder error ScalaBundle.message("constr.block.expected")
               faultMarker.drop()
               return true

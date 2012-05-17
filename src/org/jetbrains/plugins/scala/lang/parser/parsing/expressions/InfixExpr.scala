@@ -67,7 +67,7 @@ object InfixExpr {
       val opMarker = builder.mark
       builder.advanceLexer //Ate id
       opMarker.done(ScalaElementTypes.REFERENCE_EXPRESSION)
-      if (builder.countNewlineBeforeCurrentToken > 1) {
+      if (builder.twoNewlinesBeforeCurrentToken) {
         setMarker.rollbackTo
         count = 0
         backupMarker.drop

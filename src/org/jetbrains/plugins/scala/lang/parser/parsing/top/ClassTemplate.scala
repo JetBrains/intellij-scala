@@ -4,9 +4,7 @@ package parser
 package parsing
 package top
 
-import com.intellij.lang.PsiBuilder
 import lexer.ScalaTokenTypes
-import nl.LineTerminator
 import template.{TemplateBody, ClassParents}
 import builder.ScalaPsiBuilder
 
@@ -22,7 +20,7 @@ import builder.ScalaPsiBuilder
  */
 
 object ClassTemplate {
-  def parse(builder: ScalaPsiBuilder): Boolean = parse(builder, false)
+  def parse(builder: ScalaPsiBuilder): Boolean = parse(builder, nonEmpty = false)
   def parse(builder: ScalaPsiBuilder, nonEmpty: Boolean): Boolean = {
     val extendsMarker = builder.mark
     var empty = true
@@ -36,17 +34,17 @@ object ClassTemplate {
           //parse template body
           builder.getTokenType match {
             case ScalaTokenTypes.tLBRACE => {
-              if (builder.countNewlineBeforeCurrentToken > 1) {
+              if (builder.twoNewlinesBeforeCurrentToken) {
                 extendsMarker.done(ScalaElementTypes.EXTENDS_BLOCK)
                 return !nonEmpty || !empty
               }
               TemplateBody parse builder
               extendsMarker.done(ScalaElementTypes.EXTENDS_BLOCK)
-              return !nonEmpty || !empty
+              !nonEmpty || !empty
             }
             case _ => {
               extendsMarker.done(ScalaElementTypes.EXTENDS_BLOCK)
-              return !nonEmpty || !empty
+              !nonEmpty || !empty
             }
           }
         }
@@ -54,7 +52,7 @@ object ClassTemplate {
           //parse template body
           TemplateBody parse builder
           extendsMarker.done(ScalaElementTypes.EXTENDS_BLOCK)
-          return !nonEmpty || !empty
+          !nonEmpty || !empty
         }
       }
       //if we find nl => it could be TemplateBody only, but we can't find nl after extends keyword
@@ -62,23 +60,23 @@ object ClassTemplate {
       case _ => {
         if (ClassParents parse builder) empty = false
         else if (nonEmpty) {
-          extendsMarker.drop
+          extendsMarker.drop()
           return false
         }
         //parse template body
         builder.getTokenType match {
           case ScalaTokenTypes.tLBRACE => {
-            if (builder.countNewlineBeforeCurrentToken > 1) {
+            if (builder.twoNewlinesBeforeCurrentToken) {
               extendsMarker.done(ScalaElementTypes.EXTENDS_BLOCK)
               return !nonEmpty || !empty
             }
             TemplateBody parse builder
             extendsMarker.done(ScalaElementTypes.EXTENDS_BLOCK)
-            return !nonEmpty || !empty
+            !nonEmpty || !empty
           }
           case _ => {
             extendsMarker.done(ScalaElementTypes.EXTENDS_BLOCK)
-            return !nonEmpty || !empty
+            !nonEmpty || !empty
           }
         }
       }

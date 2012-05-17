@@ -19,7 +19,7 @@ import builder.ScalaPsiBuilder
 object ParamClause {
   def parse(builder: ScalaPsiBuilder): Boolean = {
     val paramMarker = builder.mark
-    if (builder.countNewlineBeforeCurrentToken > 1) {
+    if (builder.twoNewlinesBeforeCurrentToken) {
       paramMarker.drop()
       return false
     }
