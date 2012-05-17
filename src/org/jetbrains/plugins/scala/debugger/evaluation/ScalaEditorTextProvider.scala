@@ -25,9 +25,14 @@ class ScalaEditorTextProvider extends EditorTextProvider {
   def findExpression(element: PsiElement, allowMethodCalls: Boolean): Pair[PsiElement, TextRange] = {
     val expression: PsiElement = findExpressionInner(element, allowMethodCalls)
     if (expression == null) return null
-    val expressionCopy = ScalaPsiElementFactory.createExpressionWithContextFromText(expression.getText,
-      expression.getContext, expression)
-    new Pair[PsiElement, TextRange](expressionCopy, expression.getTextRange)
+    try {
+      val expressionCopy = ScalaPsiElementFactory.createExpressionWithContextFromText(expression.getText,
+        expression.getContext, expression)
+      new Pair[PsiElement, TextRange](expressionCopy, expression.getTextRange)
+    }
+    catch {
+      case t: Throwable => null
+    }
   }
 
   private def findExpressionInner(element: PsiElement, allowMethodCalls: Boolean): PsiElement = {
