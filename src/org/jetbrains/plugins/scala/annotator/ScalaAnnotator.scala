@@ -685,80 +685,87 @@ with DumbAware {
   }
 
   private def checkExpressionType(expr: ScExpression, holder: AnnotationHolder, typeAware: Boolean) {
-    val ExpressionTypeResult(exprType, importUsed, implicitFunction) =
-      expr.getTypeAfterImplicitConversion(expectedOption = expr.smartExpectedType())
-    ImportTracker.getInstance(expr.getProject).
-            registerUsedImports(expr.getContainingFile.asInstanceOf[ScalaFile], importUsed)
+    def checkExpressionTypeInner(fromUnderscore: Boolean) {
+      val ExpressionTypeResult(exprType, importUsed, implicitFunction) =
+        expr.getTypeAfterImplicitConversion(expectedOption = expr.smartExpectedType(fromUnderscore),
+          fromUnderscore = fromUnderscore)
+      ImportTracker.getInstance(expr.getProject).
+              registerUsedImports(expr.getContainingFile.asInstanceOf[ScalaFile], importUsed)
 
-    expr match {
-      case m: ScMatchStmt =>
-      case bl: ScBlock if bl.lastStatement != None =>
-      case i: ScIfStmt if i.elseBranch != None =>
-      case fun: ScFunctionExpr =>
-      case tr: ScTryStmt =>
-      case _ => {
-        expr.getParent match {
-          case args: ScArgumentExprList => return
-          case inf: ScInfixExpr if inf.getArgExpr == expr => return
-          case tuple: ScTuple if tuple.getContext.isInstanceOf[ScInfixExpr] &&
-                  tuple.getContext.asInstanceOf[ScInfixExpr].getArgExpr == tuple => return
-          case e: ScParenthesisedExpr if e.getContext.isInstanceOf[ScInfixExpr] &&
-                  e.getContext.asInstanceOf[ScInfixExpr].getArgExpr == e => return
-          case t: ScTypedStmt if t.isSequenceArg => return
-          case parent@(_: ScTuple | _: ScParenthesisedExpr) =>
-            parent.getParent match {
-              case inf: ScInfixExpr if inf.getArgExpr == parent => return
-              case _ =>
-            }
-          case param: ScParameter =>
-            // TODO detect if the expected type is abstract (SCL-3508), if not check conformance
-            return
-          case ass: ScAssignStmt if ass.isNamedParameter => return //that's checked in application annotator
-          case _ =>
-        }
-
-        expr.expectedTypeEx(false) match {
-          case Some((tp: ScType, _)) if tp equiv Unit => //do nothing
-          case Some((tp: ScType, typeElement)) => {
-            import org.jetbrains.plugins.scala.lang.psi.types._
-            val expectedType = Success(tp, None)
-            if (ScalaProjectSettings.getInstance(expr.getProject).isShowImplisitConversions) {
-              implicitFunction match {
-                case Some(fun) => {
-                  //todo:
-                  /*val typeFrom = expr.getType(TypingContext.empty).getOrElse(Any)
-                  val typeTo = exprType.getOrElse(Any)
-                  val exprText = expr.getText
-                  val range = expr.getTextRange
-                  showImplicitUsageAnnotation(exprText, typeFrom, typeTo, fun, range, holder,
-                    EffectType.LINE_UNDERSCORE, Color.LIGHT_GRAY)*/
-                }
-                case None => //do nothing
+      expr match {
+        case m: ScMatchStmt =>
+        case bl: ScBlock if bl.lastStatement != None =>
+        case i: ScIfStmt if i.elseBranch != None =>
+        case fun: ScFunctionExpr =>
+        case tr: ScTryStmt =>
+        case _ => {
+          expr.getParent match {
+            case args: ScArgumentExprList => return
+            case inf: ScInfixExpr if inf.getArgExpr == expr => return
+            case tuple: ScTuple if tuple.getContext.isInstanceOf[ScInfixExpr] &&
+                    tuple.getContext.asInstanceOf[ScInfixExpr].getArgExpr == tuple => return
+            case e: ScParenthesisedExpr if e.getContext.isInstanceOf[ScInfixExpr] &&
+                    e.getContext.asInstanceOf[ScInfixExpr].getArgExpr == e => return
+            case t: ScTypedStmt if t.isSequenceArg => return
+            case parent@(_: ScTuple | _: ScParenthesisedExpr) =>
+              parent.getParent match {
+                case inf: ScInfixExpr if inf.getArgExpr == parent => return
+                case _ =>
               }
-            }
-            val conformance = ScalaAnnotator.smartCheckConformance(expectedType, exprType)
-            if (!conformance) {
-              if (typeAware) {
-                val error = ScalaBundle.message("expr.type.does.not.conform.expected.type",
-                  ScType.presentableText(exprType.getOrNothing), ScType.presentableText(expectedType.get))
-                val markedPsi = (expr, expr.getParent) match {
-                  case (b: ScBlockExpr, _) => b.getRBrace.map(_.getPsi).getOrElse(expr)
-                  case (_, b: ScBlockExpr) => b.getRBrace.map(_.getPsi).getOrElse(expr)
-                  case _ => expr
-                }
-                val annotation: Annotation = holder.createErrorAnnotation(markedPsi, error)
-                annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
-                typeElement match {
-                  case Some(te) => annotation.registerFix(new ChangeTypeFix(te, exprType.getOrNothing))
-                  case None =>
-                }
-              }
-            }
+            case param: ScParameter =>
+              // TODO detect if the expected type is abstract (SCL-3508), if not check conformance
+              return
+            case ass: ScAssignStmt if ass.isNamedParameter => return //that's checked in application annotator
+            case _ =>
           }
-          case _ => //do nothing
+
+          expr.expectedTypeEx(fromUnderscore) match {
+            case Some((tp: ScType, _)) if tp equiv Unit => //do nothing
+            case Some((tp: ScType, typeElement)) => {
+              import org.jetbrains.plugins.scala.lang.psi.types._
+              val expectedType = Success(tp, None)
+              if (ScalaProjectSettings.getInstance(expr.getProject).isShowImplisitConversions) {
+                implicitFunction match {
+                  case Some(fun) => {
+                    //todo:
+                    /*val typeFrom = expr.getType(TypingContext.empty).getOrElse(Any)
+                    val typeTo = exprType.getOrElse(Any)
+                    val exprText = expr.getText
+                    val range = expr.getTextRange
+                    showImplicitUsageAnnotation(exprText, typeFrom, typeTo, fun, range, holder,
+                      EffectType.LINE_UNDERSCORE, Color.LIGHT_GRAY)*/
+                  }
+                  case None => //do nothing
+                }
+              }
+              val conformance = ScalaAnnotator.smartCheckConformance(expectedType, exprType)
+              if (!conformance) {
+                if (typeAware) {
+                  val error = ScalaBundle.message("expr.type.does.not.conform.expected.type",
+                    ScType.presentableText(exprType.getOrNothing), ScType.presentableText(expectedType.get))
+                  val markedPsi = (expr, expr.getParent) match {
+                    case (b: ScBlockExpr, _) => b.getRBrace.map(_.getPsi).getOrElse(expr)
+                    case (_, b: ScBlockExpr) => b.getRBrace.map(_.getPsi).getOrElse(expr)
+                    case _ => expr
+                  }
+                  val annotation: Annotation = holder.createErrorAnnotation(markedPsi, error)
+                  annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
+                  typeElement match {
+                    case Some(te) => annotation.registerFix(new ChangeTypeFix(te, exprType.getOrNothing))
+                    case None =>
+                  }
+                }
+              }
+            }
+            case _ => //do nothing
+          }
         }
       }
     }
+    if (ScUnderScoreSectionUtil.isUnderscoreFunction(expr)) {
+      checkExpressionTypeInner(fromUnderscore = true)
+    }
+    checkExpressionTypeInner(fromUnderscore = false)
   }
 
   private def checkExpressionImplicitParameters(expr: ScExpression, holder: AnnotationHolder) {
