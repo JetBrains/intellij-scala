@@ -13,54 +13,67 @@ import com.intellij.psi.{PsiComment, PsiWhiteSpace, PsiElement, PsiFile}
 import org.jetbrains.plugins.scala.extensions._
 import lang.psi.api.toplevel.imports.ScImportStmt
 import lang.psi.api.expr._
+import extensions._
 
 /**
  * Pavel Fatin
  */
 
 class ScalaStatementMover extends LineMover {
+  private type ElementClass = Class[_ <: PsiElement]
+
   override def checkAvailable(editor: Editor, file: PsiFile, info: MoveInfo, down: Boolean): Boolean = {
     if(!super.checkAvailable(editor, file, info, down)) return false
     if(editor.getSelectionModel.hasSelection) return false
+
     if(!file.isInstanceOf[ScalaFile]) return false
 
-    val canBeTarget: PsiElement => Boolean = {
-      case _: ScExpression => true
-      case _: ScMember => true
-      case _: ScCaseClause => true
-      case _: ScImportStmt => true
-      case _ => false
-    }
-
-    def aim[T <: ScalaPsiElement](cl: Class[T]): Option[(T, PsiElement)] = {
-      findElementAt(cl, editor, file, info.toMove.startLine).flatMap { source =>
-        val siblings = if(down) source.nextSiblings else source.prevSiblings
-        siblings.filter(!_.isInstanceOf[PsiComment] )
-                .takeWhile(it => it.isInstanceOf[PsiWhiteSpace] || canBeTarget(it))
-                .find(canBeTarget)
-                .map(target => (source, target))
+    def aim(sourceClass: ElementClass, predicate: PsiElement => Boolean, canUseLineAsTarget: Boolean = true): Option[(PsiElement, LineRange)] = {
+      findSourceOf(sourceClass).map { source =>
+        val targetRange = findTargetRangeFor(source, predicate).getOrElse {
+          if (canUseLineAsTarget) nextLineRangeFor(source) else null
+        }
+        (source, targetRange)
       }
     }
 
-    val pair = aim(classOf[ScCaseClause])
-            .orElse(aim(classOf[ScMember]))
-            .orElse(aim(classOf[ScImportStmt]))
-            .orElse(aim(classOf[ScIfStmt]))
-            .orElse(aim(classOf[ScForStatement]))
-            .orElse(aim(classOf[ScMethodCall]).filter(p => isControlStructureLikeCall(p._1)))
+    def findSourceOf(aClass: ElementClass) = findElementAt(aClass, editor, file, info.toMove.startLine)
+
+    def findTargetRangeFor(source: PsiElement, predicate: PsiElement => Boolean): Option[LineRange] = {
+      val siblings = if(down) source.nextSiblings else source.prevSiblings
+      siblings.filter(!_.isInstanceOf[PsiComment] )
+              .takeWhile(it => it.isInstanceOf[PsiWhiteSpace] || it.isInstanceOf[PsiComment] || it.isInstanceOf[ScImportStmt] || predicate(it))
+              .find(predicate)
+              .map(rangeOf(_, editor))
+    }
+
+    def nextLineRangeFor(source: PsiElement): LineRange = {
+      val range = rangeOf(source, editor)
+      if (down) {
+        val maxLine = editor.offsetToLogicalPosition(editor.getDocument.getTextLength).line
+        if (range.endLine < maxLine) new LineRange(range.endLine, range.endLine + 1) else null
+      } else {
+        new LineRange(range.startLine - 1, range.startLine)
+      }
+    }
+
+    val pair = aim(classOf[ScCaseClause], _.isInstanceOf[ScCaseClause], canUseLineAsTarget = false)
+            .orElse(aim(classOf[ScMember], it => it.isInstanceOf[ScMember] || it.isInstanceOf[ScImportStmt]))
+            .orElse(aim(classOf[ScIfStmt], _ => false))
+            .orElse(aim(classOf[ScForStatement], _ => false))
+            .orElse(aim(classOf[ScMethodCall], isControlStructureLikeCall).filter(p => isControlStructureLikeCall(p._1)))
 
     pair.foreach { it =>
       info.toMove = rangeOf(it._1, editor)
-      info.toMove2 = rangeOf(it._2, editor)
+      info.toMove2 = it._2
     }
 
     pair.isDefined
   }
 
-  private def isControlStructureLikeCall(call: ScMethodCall): Boolean = {
-    call.argumentExpressions.lastOption.exists { it =>
-      it.isInstanceOf[ScBlockExpr] && it.getText.contains('\n')
-    }
+  private def isControlStructureLikeCall(element: PsiElement): Boolean = element match {
+    case call: ScMethodCall => call.argumentExpressions.lastOption.exists(_.isInstanceOf[ScBlockExpr])
+    case _ => false
   }
 
   private def rangeOf(e: PsiElement, editor: Editor) = {
@@ -69,7 +82,7 @@ class ScalaStatementMover extends LineMover {
     new LineRange(begin, end)
   }
 
-  private def findElementAt[T <: ScalaPsiElement](cl: Class[T], editor: Editor, file: PsiFile, line: Int): Option[T] = {
+  private def findElementAt(cl: ElementClass, editor: Editor, file: PsiFile, line: Int): Option[PsiElement] = {
     val edges = edgeLeafsOf(line, editor, file)
 
     val left = edges._1.flatMap(PsiTreeUtil.getParentOfType(_, cl, false).toOption)

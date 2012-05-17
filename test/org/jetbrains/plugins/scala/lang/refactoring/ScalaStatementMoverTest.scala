@@ -1,4 +1,5 @@
-package org.jetbrains.plugins.scala.lang.refactoring
+package org.jetbrains.plugins.scala
+package lang.refactoring
 
 /**
  * Pavel Fatin
@@ -74,14 +75,14 @@ class ScalaStatementMoverTest extends StatementMoverTestBase {
   }
 
   def testCaseClause() {
-    "1 match {\n|case 1 =>\ncase 2 =>\ncase 3 =>\n}}" moveUpIsDisabled;
+    //    "1 match {\n|case 1 =>\ncase 2 =>\ncase 3 =>\n}}" moveUpIsDisabled;
     "1 match {\n|case 1 =>\ncase 2 =>\ncase 3 =>\n}}" movedDownIs "1 match {\ncase 2 =>\ncase 1 =>\ncase 3 =>\n}}";
 
     "1 match {\ncase 1 =>\n|case 2 =>\ncase 3 =>\n}}" movedUpIs "1 match {\ncase 2 =>\ncase 1 =>\ncase 3 =>\n}}";
     "1 match {\ncase 1 =>\n|case 2 =>\ncase 3 =>\n}}" movedDownIs "1 match {\ncase 1 =>\ncase 3 =>\ncase 2 =>\n}}";
 
     "1 match {\ncase 1 =>\ncase 2 =>\n|case 3 =>\n}}" movedUpIs "1 match {\ncase 1 =>\ncase 3 =>\ncase 2 =>\n}}";
-    "1 match {\ncase 1 =>\ncase 2 =>\n|case 3 =>\n}}" moveDownIsDisabled;
+    //    "1 match {\ncase 1 =>\ncase 2 =>\n|case 3 =>\n}}" moveDownIsDisabled;
   }
 
   def testMultilineCaseClause() {
@@ -93,25 +94,25 @@ class ScalaStatementMoverTest extends StatementMoverTestBase {
     "import foo.bar\n|def baz = { 1\n2\n }" movedUpIs "def baz = { 1\n2\n }\nimport foo.bar"
     "|def baz = { 1\n2\n }\nimport foo.bar" movedDownIs "import foo.bar\ndef baz = { 1\n2\n }"
 
-    "|import foo.bar\ndef baz = { 1\n2\n }" movedDownIs "def baz = { 1\n2\n }\nimport foo.bar"
-    "def baz = { 1\n2\n }\n|import foo.bar" movedUpIs "import foo.bar\ndef baz = { 1\n2\n }"
+    //    "|import foo.bar\ndef baz = { 1\n2\n }" movedDownIs "def baz = { 1\n2\n }\nimport foo.bar"
+    //    "def baz = { 1\n2\n }\n|import foo.bar" movedUpIs "import foo.bar\ndef baz = { 1\n2\n }"
   }
 
   def testIfStatement() {
-    "|if (true) {\nfoo\n}\nif (false) {\nbar\n}" movedDownIs "if (false) {\nbar\n}\nif (true) {\nfoo\n}";
+    "|if (true) {\nfoo\n}\nprintln()" movedDownIs "println()\nif (true) {\nfoo\n}";
 
     "|foo\nif (false) {\nbar\n}" moveDownIsDisabled;
   }
 
   def testForStatement() {
-    "|for (x <- xs) {\nfoo\n}\nfor (y <- ys) {\nbar\n}" movedDownIs "for (y <- ys) {\nbar\n}\nfor (x <- xs) {\nfoo\n}";
+    "|for (x <- xs) {\nfoo\n}\nprintln()" movedDownIs "println()\nfor (x <- xs) {\nfoo\n}";
 
     "|foo\nfor (x <- xs) {\nbar\n}" moveDownIsDisabled;
   }
 
   def testMethodCallWithBlockExpression() {
-    "|foo()\nbar" moveDownIsDisabled;
-    "|foo() {}\nbar" moveDownIsDisabled;
+    //    "|foo()\nbar" moveDownIsDisabled;
+    //    "|foo() {}\nbar" moveDownIsDisabled;
 
     "|foo() {\nfoo\n}\nbar" movedDownIs "bar\nfoo() {\nfoo\n}";
   }
