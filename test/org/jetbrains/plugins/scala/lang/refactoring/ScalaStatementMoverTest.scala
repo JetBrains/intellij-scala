@@ -110,6 +110,10 @@ class ScalaStatementMoverTest extends StatementMoverTestBase {
     "|foo\nfor (x <- xs) {\nbar\n}" moveDownIsDisabled;
   }
 
+  def testMatchStatement() {
+    "|1 match {\n  case 1 => null\n}\nprintln()" movedDownIs "println()\n1 match {\n  case 1 => null\n}";
+  }
+
   def testMethodCallWithBlockExpression() {
     //    "|foo()\nbar" moveDownIsDisabled;
     //    "|foo() {}\nbar" moveDownIsDisabled;
