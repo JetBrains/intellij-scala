@@ -37,7 +37,8 @@ class MethodResolveProcessor(override val ref: PsiElement,
                              var isShapeResolve: Boolean = false,
                              val constructorResolve: Boolean = false,
                              val enableTupling: Boolean = false,
-                             var noImplicitsForArgs: Boolean = false) extends ResolveProcessor(kinds, ref, refName) {
+                             var noImplicitsForArgs: Boolean = false,
+                             val selfConstructorResolve: Boolean = false) extends ResolveProcessor(kinds, ref, refName) {
   private def isUpdate: Boolean = {
     if (ref == null) return false
     ref.getContext match {
@@ -135,7 +136,7 @@ object MethodResolveProcessor {
     val s = realResolveResult.substitutor
 
     val elementForUndefining = element match {
-      case m: PsiMethod if m.isConstructor => realResolveResult.getActualElement
+      case m: PsiMethod if m.isConstructor && !selfConstructorResolve => realResolveResult.getActualElement
       case _ => element //do not
     }
 
@@ -260,6 +261,7 @@ object MethodResolveProcessor {
   // TODO clean this up
   def undefinedSubstitutor(element: PsiNamedElement, s: ScSubstitutor, proc: MethodResolveProcessor): ScSubstitutor = {
     import proc.typeArgElements
+    if (proc.selfConstructorResolve) return ScSubstitutor.empty
 
     //todo: it's always None, if you have constructor => actual element is class of type alias
     val constructorTypeParameters = element match {
