@@ -16,13 +16,14 @@ import api.base.patterns.ScBindingPattern
 import api.statements._
 import api.toplevel.{ScModifierListOwner, ScTypedDefinition}
 import api.toplevel.typedef._
-import lang.resolve.processor.ImplicitProcessor
 import params.{ScClassParameter, ScParameter, ScTypeParam}
 import api.toplevel.templates.{ScExtendsBlock, ScTemplateBody}
 import lang.resolve.{ResolveUtils, StdKinds, ScalaResolveResult}
 import psi.impl.ScalaPsiManager
 import api.expr.{ScMethodCall, ScExpression}
 import result.TypingContext
+import lang.resolve.processor.{BaseProcessor, ImplicitProcessor}
+import extensions.toObjectExt
 
 /**
  * @author ilyas
@@ -333,7 +334,11 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
     protected def getPlace: PsiElement = ScImplicitlyConvertible.this
 
     def execute(element: PsiElement, state: ResolveState): Boolean = {
-      val subst: ScSubstitutor = getSubst(state)
+      def fromType: Option[ScType] = state.get(BaseProcessor.FROM_TYPE_KEY).toOption
+      lazy val subst: ScSubstitutor = fromType match {
+        case Some(tp) => getSubst(state).addUpdateThisType(tp)
+        case _ => getSubst(state)
+      }
 
       element match {
         case named: PsiNamedElement if kindMatches(element) => named match {
