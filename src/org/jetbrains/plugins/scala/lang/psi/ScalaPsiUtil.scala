@@ -957,7 +957,8 @@ object ScalaPsiUtil {
     val empty = Seq.empty 
     val typed = x match {case x: ScTypedDefinition => x case _ => return empty}
     val clazz: ScTemplateDefinition = nameContext(typed) match {
-      case e @ (_: ScValue | _: ScVariable | _:ScObject) if e.getParent.isInstanceOf[ScTemplateBody] =>
+      case e @ (_: ScValue | _: ScVariable | _:ScObject) if e.getParent.isInstanceOf[ScTemplateBody] ||
+        e.getParent.isInstanceOf[ScEarlyDefinitions] =>
         e.asInstanceOf[ScMember].containingClass
       case e: ScClassParameter if e.isEffectiveVal => e.containingClass
       case _ => return empty
