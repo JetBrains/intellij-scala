@@ -2,11 +2,15 @@ package org.jetbrains.plugins.scala.lang.resolve;
 
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiReference;
+import com.intellij.psi.util.PsiTreeUtil;
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor;
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScSelfInvocation;
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction;
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition;
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter;
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction;
 import org.jetbrains.plugins.scala.util.TestUtils;
+import scala.Option;
 
 /**
  * @author ven
@@ -14,6 +18,14 @@ import org.jetbrains.plugins.scala.util.TestUtils;
 public class ResolveCallTest extends ScalaResolveTestCase {
   public String folderPath() {
     return super.folderPath() + "/resolve/call/";
+  }
+
+  public void testSelfConstructorCall() throws Exception {
+    PsiElement elementAt = getFile().findElementAt(getEditor().getCaretModel().getOffset());
+    ScSelfInvocation selfInvocation = PsiTreeUtil.getTopmostParentOfType(elementAt, ScSelfInvocation.class);
+    Option<PsiElement> bind = selfInvocation.bind();
+    assertTrue(bind.isDefined());
+    assertTrue(bind.get() instanceof ScPrimaryConstructor);
   }
 
   public void testisInstanceOf() throws Exception {

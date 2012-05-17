@@ -48,8 +48,9 @@ class ScSelfInvocationImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with
     if (args == None) return Seq.empty
     val arguments = args.get
     val proc = new MethodResolveProcessor(this, "this", List(arguments.exprs.map(new Expression(_))), Seq.empty,
-      Seq.empty /*todo: ? */, StdKinds.methodsOnly, constructorResolve = true, isShapeResolve = shapeResolve, enableTupling = true)
-    for (constr <- constructors) {
+      Seq.empty /*todo: ? */, StdKinds.methodsOnly, constructorResolve = true, isShapeResolve = shapeResolve,
+      enableTupling = true, selfConstructorResolve = true)
+    for (constr <- constructors if constr != method) {
       proc.execute(constr, ResolveState.initial)
     }
     proc.candidates.toSeq.map(_.element)
