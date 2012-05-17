@@ -47,7 +47,7 @@ class NameBooleanParametersInspection extends LocalInspectionTool {
           case Some(al) =>
             val index = al.exprs.indexWhere(argExpr => PsiTreeUtil.isAncestor(argExpr, element, false))
             index match {
-              case -1 => None
+              case -1 => false
               case i =>
                 val argExprsToNamify = al.exprs.drop(index)
                 val argsAndMatchingParams: Seq[(ScExpression, Option[Parameter])] = argExprsToNamify.map {
@@ -64,8 +64,8 @@ class NameBooleanParametersInspection extends LocalInspectionTool {
                   case _ => return false
                 }
             }
+          case None => false
         }
-        false
       }
     }
   }
