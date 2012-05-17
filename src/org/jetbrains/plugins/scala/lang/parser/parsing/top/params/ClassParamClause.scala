@@ -21,7 +21,7 @@ import builder.ScalaPsiBuilder
 object ClassParamClause {
   def parse(builder: ScalaPsiBuilder): Boolean = {
     val classParamMarker = builder.mark
-    if (builder.countNewlineBeforeCurrentToken > 1) {
+    if (builder.twoNewlinesBeforeCurrentToken) {
       classParamMarker.rollbackTo
       return false
     }

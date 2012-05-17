@@ -237,7 +237,7 @@ object Expr1 {
             builder error ErrMsg("enumerators.expected")
           }
         }
-        if (builder.countNewlineBeforeCurrentToken > 1) {
+        if (builder.twoNewlinesBeforeCurrentToken) {
           builder.error(ErrMsg("wrong.expression"))
           exprMarker.done(ScalaElementTypes.FOR_STMT)
           return true

@@ -44,7 +44,7 @@ object ArgumentExprs {
         true
       }
       case ScalaTokenTypes.tLBRACE => {
-        if (builder.countNewlineBeforeCurrentToken > 1) {
+        if (builder.twoNewlinesBeforeCurrentToken) {
           argMarker.rollbackTo()
           return false
         }

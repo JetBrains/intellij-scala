@@ -33,7 +33,7 @@ object ClassTemplateOpt {
         return
       }
       case _ => {
-        if (builder.countNewlineBeforeCurrentToken != 1) {
+        if (builder.twoNewlinesBeforeCurrentToken) {
           extendsMarker.done(ScalaElementTypes.EXTENDS_BLOCK)
           return
         }
@@ -67,7 +67,7 @@ object ClassTemplateOpt {
               return
             }
             case _ => {
-              if (builder.countNewlineBeforeCurrentToken != 1) {
+              if (builder.twoNewlinesBeforeCurrentToken) {
                 extendsMarker.done(ScalaElementTypes.EXTENDS_BLOCK)
                 return
               }
@@ -114,7 +114,7 @@ object ClassTemplateOpt {
             return
           }
           case _ =>
-            if (builder.countNewlineBeforeCurrentToken != 1) {
+            if (builder.twoNewlinesBeforeCurrentToken) {
               extendsMarker.done(ScalaElementTypes.EXTENDS_BLOCK)
               return
             }

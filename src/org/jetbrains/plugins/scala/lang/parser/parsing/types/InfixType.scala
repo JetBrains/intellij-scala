@@ -64,7 +64,7 @@ object InfixType {
         val newMarker = builder.mark
         markerList = newMarker :: markerList
       }
-      if (builder.countNewlineBeforeCurrentToken > 1) {
+      if (builder.twoNewlinesBeforeCurrentToken) {
         builder.error(ScalaBundle.message("compound.type.expected"))
       }
       if (!CompoundType.parse(builder)) {
