@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.extensions.toPsiMemberExt
-import org.jetbrains.plugins.scala.lang.psi.light.ScFunctionWrapper
+import org.jetbrains.plugins.scala.lang.psi.light.{PsiClassWrapper, ScFunctionWrapper}
 
 /**
  * @author Alefas
@@ -59,6 +59,10 @@ class ScalaApplicationConfigurationProducer extends JavaRuntimeConfigurationProd
     var element = _element
     while (element != null) {
       element match {
+        case clazz: PsiClassWrapper =>
+          if (PsiMethodUtil.findMainInClass(clazz) != null) {
+            return clazz
+          }
         case o: ScObject =>
           val aClass = o.fakeCompanionClassOrCompanionClass
           if (PsiMethodUtil.findMainInClass(aClass) != null) {
