@@ -99,13 +99,13 @@ class ScalaCompletionContributor extends CompletionContributor {
                     context match {
                       case memb: PsiMember => {
                         if (parameters.getInvocationCount > 1 ||
-                          ResolveUtils.isAccessible(memb, parameters.getPosition)) addElement(el)
+                          ResolveUtils.isAccessible(memb, parameters.getPosition, true)) addElement(el)
                       }
                       case _ => addElement(el)
                     }
                   }
                   case memb: PsiMember => {
-                    if (parameters.getInvocationCount > 1 || ResolveUtils.isAccessible(memb, parameters.getPosition))
+                    if (parameters.getInvocationCount > 1 || ResolveUtils.isAccessible(memb, parameters.getPosition, true))
                       addElement(el)
                   }
                   case _ => addElement(el)
