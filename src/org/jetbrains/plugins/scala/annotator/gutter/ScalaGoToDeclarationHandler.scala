@@ -80,6 +80,7 @@ class ScalaGoToDeclarationHandler extends GotoDeclarationHandler {
                */
               val all = Seq(x.getActualElement, x.element) ++ x.innerResolveResult.map(_.getElement)
               x.element match {
+                case f: ScFunction if f.isSynthetic => Seq(x.getActualElement).flatMap(goToTargets)
                 case c: PsiMethod if c.isConstructor =>
                   val clazz = c.containingClass
                   if (clazz == x.getActualElement) Seq(x.element).flatMap(goToTargets)

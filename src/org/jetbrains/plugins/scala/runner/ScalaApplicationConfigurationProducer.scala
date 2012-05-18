@@ -85,7 +85,7 @@ class ScalaApplicationConfigurationProducer extends JavaRuntimeConfigurationProd
   private def createConfiguration(aClass: PsiClass, context: ConfigurationContext,
                                   location: Location[_ <: PsiElement]): RunnerAndConfigurationSettings = {
     val project: Project = aClass.getProject
-    var settings: RunnerAndConfigurationSettings = cloneTemplateConfiguration(project, context)
+    val settings: RunnerAndConfigurationSettings = cloneTemplateConfiguration(project, context)
     val configuration: ApplicationConfiguration = settings.getConfiguration.asInstanceOf[ApplicationConfiguration]
     configuration.MAIN_CLASS_NAME = JavaExecutionUtil.getRuntimeQualifiedName(aClass)
     configuration.setName(configuration.getGeneratedName)
