@@ -114,6 +114,10 @@ class ScalaStatementMoverTest extends StatementMoverTestBase {
     "|1 match {\n  case 1 => null\n}\nprintln()" movedDownIs "println()\n1 match {\n  case 1 => null\n}";
   }
 
+  def testTryStatement() {
+    "|try {\n  foo\n} catch {\n  case _ =>\n}\nprintln()" movedDownIs "println()\ntry {\n  foo\n} catch {\n  case _ =>\n}";
+  }
+
   def testMethodCallWithBlockExpression() {
     //    "|foo()\nbar" moveDownIsDisabled;
     //    "|foo() {}\nbar" moveDownIsDisabled;
