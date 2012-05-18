@@ -169,8 +169,10 @@ object Compatibility {
               problems ::= new ExpansionForNonRepeatedParameter(expr)
             
             val tp = ScParameterizedType(ScType.designator(seqClass), Seq(paramType))
+
+            val expectedType = ScParameterizedType(ScType.designator(seqClass), Seq(param.expectedType))
             
-            for (exprType <- expr.getTypeAfterImplicitConversion(checkWithImplicits, isShapesResolve, Some(tp)).tr) yield {
+            for (exprType <- expr.getTypeAfterImplicitConversion(checkWithImplicits, isShapesResolve, Some(expectedType)).tr) yield {
               val conforms = Conformance.conforms(tp, exprType, true)
               if (!conforms) {
                 return ConformanceExtResult(Seq(new TypeMismatch(expr, tp)), undefSubst, defaultParameterUsed, matched)
@@ -197,7 +199,8 @@ object Compatibility {
             assign.getRExpression match {
               case Some(expr: ScExpression) => {
                 val paramType = param.paramType
-                for (exprType <- expr.getTypeAfterImplicitConversion(checkWithImplicits, isShapesResolve, Some(paramType)).tr) {
+                val expectedType = param.expectedType
+                for (exprType <- expr.getTypeAfterImplicitConversion(checkWithImplicits, isShapesResolve, Some(expectedType)).tr) {
                   val conforms = Conformance.conforms(paramType, exprType, true)
                   if (!conforms) {
                     problems ::= TypeMismatch(expr, paramType)
@@ -228,8 +231,9 @@ object Compatibility {
       if (!parameters.last.isRepeated)
         return ConformanceExtResult(Seq(new ApplicabilityProblem("13")), undefSubst, defaultParameterUsed, matched)
       val paramType: ScType = parameters.last.paramType
+      val expectedType: ScType = parameters.last.expectedType
       while (k < exprs.length) {
-        for (exprType <- exprs(k).getTypeAfterImplicitConversion(checkWithImplicits, isShapesResolve, Some(paramType))._1) {
+        for (exprType <- exprs(k).getTypeAfterImplicitConversion(checkWithImplicits, isShapesResolve, Some(expectedType))._1) {
           val conforms = Conformance.conforms(paramType, exprType, true)
           if (!conforms) {
             return ConformanceExtResult(Seq(new ApplicabilityProblem("14")), undefSubst, defaultParameterUsed, matched)
