@@ -110,7 +110,8 @@ object ResolveUtils {
     }
   }
 
-  def isAccessible(memb: PsiMember, place: PsiElement): Boolean = {
+  def isAccessible(memb: PsiMember, _place: PsiElement, forCompletion: Boolean = false): Boolean = {
+    var place = _place
     memb match {
       case b: ScBindingPattern =>
         b.nameContext match {
@@ -136,6 +137,13 @@ object ResolveUtils {
         }
       }
       case _ =>
+    }
+    if (forCompletion && place != null) {
+      val originalFile: PsiFile = place.getContainingFile.getOriginalFile
+      if (originalFile == member.getContainingFile) {
+        val newPlace = originalFile.findElementAt(place.getTextRange.getStartOffset)
+        place = newPlace
+      }
     }
 
     member match {

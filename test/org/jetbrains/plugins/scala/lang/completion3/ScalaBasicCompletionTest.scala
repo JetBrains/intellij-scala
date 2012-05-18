@@ -25,6 +25,34 @@ class ScalaBasicCompletionTest extends ScalaCompletionTestBase {
     checkResultByText(resultText)
   }
 
+  def testPrivateFromCompanionModule() {
+    val fileText =
+      """
+        |class A {
+        |  A.<caret>
+        |}
+        |object A {
+        |  private val xxxxx = 1
+        |}
+      """.stripMargin('|').replaceAll("\r", "").trim()
+    configureFromFileTextAdapter("dummy.scala", fileText)
+    val (activeLookup, _) = complete(1, CompletionType.BASIC)
+
+    val resultText =
+      """
+        |class A {
+        |  A.xxxxx<caret>
+        |}
+        |object A {
+        |  private val xxxxx = 1
+        |}
+      """.stripMargin('|').replaceAll("\r", "").trim()
+
+    completeLookupItem(activeLookup.find(le => le.getLookupString == "xxxxx").get)
+    checkResultByText(resultText)
+  }
+
+
   def testNewInnerClass() {
     val fileText =
       """

@@ -47,7 +47,7 @@ class ScalaSmartCompletionContributor extends CompletionContributor {
     def isAccessible(el: ScalaLookupItem): Boolean = {
       ScalaPsiUtil.nameContext(el.element) match {
         case memb: ScMember =>
-          ResolveUtils.isAccessible(memb, place)
+          ResolveUtils.isAccessible(memb, place, true)
         case _ => true
       }
     }
@@ -180,7 +180,7 @@ class ScalaSmartCompletionContributor extends CompletionContributor {
             tp match {
               case ScProjectionType(proj, _: ScTypeAlias | _: ScClass | _: ScTrait, subst) =>
                 ScType.extractClass(proj) match {
-                  case Some(o: ScObject) if ResolveUtils.isAccessible(o, place) && ScalaPsiUtil.hasStablePath(o) => checkObject(o)
+                  case Some(o: ScObject) if ResolveUtils.isAccessible(o, place, true) && ScalaPsiUtil.hasStablePath(o) => checkObject(o)
                   case _ =>
                 }
               case _ =>
@@ -197,18 +197,18 @@ class ScalaSmartCompletionContributor extends CompletionContributor {
               case Some(clazz: ScTypeDefinition) =>
                 checkTypeProjection(tp)
                 ScalaPsiUtil.getCompanionModule(clazz) match {
-                  case Some(o: ScObject) if ResolveUtils.isAccessible(o, place) && ScalaPsiUtil.hasStablePath(o) => checkObject(o)
+                  case Some(o: ScObject) if ResolveUtils.isAccessible(o, place, true) && ScalaPsiUtil.hasStablePath(o) => checkObject(o)
                   case _ => //do nothing
                 }
-              case Some(p: PsiClass) if ResolveUtils.isAccessible(p, place) =>
+              case Some(p: PsiClass) if ResolveUtils.isAccessible(p, place, true) =>
                 p.getAllMethods.foreach(method => {
-                  if (method.hasModifierProperty("static") && ResolveUtils.isAccessible(method, place)) {
+                  if (method.hasModifierProperty("static") && ResolveUtils.isAccessible(method, place, true)) {
                     applyVariant(LookupElementManager.getLookupElement(new ScalaResolveResult(method), isClassName = true,
                       isOverloadedForClassName = false, shouldImport = true, isInStableCodeReference = false).apply(0))
                   }
                 })
                 p.getFields.foreach(field => {
-                  if (field.hasModifierProperty("static") && ResolveUtils.isAccessible(field, place)) {
+                  if (field.hasModifierProperty("static") && ResolveUtils.isAccessible(field, place, true)) {
                     applyVariant(LookupElementManager.getLookupElement(new ScalaResolveResult(field), isClassName = true,
                       isOverloadedForClassName = false, shouldImport = true, isInStableCodeReference = false).apply(0))
                   }

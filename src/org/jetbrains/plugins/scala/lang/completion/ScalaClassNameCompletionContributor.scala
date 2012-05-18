@@ -99,7 +99,7 @@ object ScalaClassNameCompletionContributor {
           JavaCompletionUtil.isInExcludedPackage(psiClass, true)
         }
       }).booleanValue
-      val isAccessible = invocationCount >= 2 || ResolveUtils.isAccessible(psiClass, insertedElement)
+      val isAccessible = invocationCount >= 2 || ResolveUtils.isAccessible(psiClass, insertedElement, true)
       if (isExcluded) return
       if (!isAccessible) return
       if (lookingForAnnotations && !psiClass.isAnnotationType) return
