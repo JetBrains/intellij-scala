@@ -28,6 +28,14 @@ public class ResolveCallTest extends ScalaResolveTestCase {
     assertTrue(bind.get() instanceof ScPrimaryConstructor);
   }
 
+  public void testEmptySelfConstructorCall() throws Exception {
+    PsiElement elementAt = getFile().findElementAt(getEditor().getCaretModel().getOffset());
+    ScSelfInvocation selfInvocation = PsiTreeUtil.getTopmostParentOfType(elementAt, ScSelfInvocation.class);
+    Option<PsiElement> bind = selfInvocation.bind();
+    assertTrue(bind.isDefined());
+    assertTrue(bind.get() instanceof ScPrimaryConstructor);
+  }
+
   public void testisInstanceOf() throws Exception {
     PsiReference ref = findReferenceAtCaret();
     PsiElement resolved = ref.resolve();

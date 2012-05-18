@@ -29,7 +29,7 @@ import api.ScalaElementVisitor
 class ScSelfInvocationImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScSelfInvocation {
   override def toString: String = "SelfInvocation"
 
-  def bind: Option[PsiElement] = bindInternal(false)
+  def bind: Option[PsiElement] = bindInternal(shapeResolve = false)
 
   private def bindInternal(shapeResolve: Boolean): Option[PsiElement] = {
     val seq = bindMultiInternal(shapeResolve)
@@ -45,9 +45,11 @@ class ScSelfInvocationImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with
     val method = PsiTreeUtil.getParentOfType(this, classOf[ScFunction])
     if (method == null) return Seq.empty
     val constructors: Array[PsiMethod] = clazz.getConstructors.filter(_ != method)
-    if (args == None) return Seq.empty
-    val arguments = args.get
-    val proc = new MethodResolveProcessor(this, "this", List(arguments.exprs.map(new Expression(_))), Seq.empty,
+    val expressions: Seq[Expression] = args match {
+      case Some(arguments) => arguments.exprs.map(new Expression(_))
+      case None => Seq.empty
+    }
+    val proc = new MethodResolveProcessor(this, "this", List(expressions), Seq.empty,
       Seq.empty /*todo: ? */, StdKinds.methodsOnly, constructorResolve = true, isShapeResolve = shapeResolve,
       enableTupling = true, selfConstructorResolve = true)
     for (constr <- constructors if constr != method) {
@@ -74,16 +76,16 @@ class ScSelfInvocationImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with
   }
 
   def shapeType(i: Int): TypeResult[ScType] = {
-    val option = bindInternal(true)
+    val option = bindInternal(shapeResolve = true)
     workWithBindInternal(option, i)
   }
 
   def shapeMultiType(i: Int): Seq[TypeResult[ScType]] = {
-    bindMultiInternal(true).map(pe => workWithBindInternal(Some(pe), i))
+    bindMultiInternal(shapeResolve = true).map(pe => workWithBindInternal(Some(pe), i))
   }
 
   def multiType(i: Int): Seq[TypeResult[ScType]] = {
-    bindMultiInternal(false).map(pe => workWithBindInternal(Some(pe), i))
+    bindMultiInternal(shapeResolve = false).map(pe => workWithBindInternal(Some(pe), i))
   }
 
   override def accept(visitor: ScalaElementVisitor) {

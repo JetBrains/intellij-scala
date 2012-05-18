@@ -32,7 +32,8 @@ object SelfInvocation {
       }
     }
     if (!ArgumentExprs.parse(builder)) {
-      builder error ScalaBundle.message("arg.expr.expected")
+      selfMarker.done(ScalaElementTypes.SELF_INVOCATION)
+      return true
     }
     while (!builder.newlineBeforeCurrentToken && ArgumentExprs.parse(builder)) {}
     selfMarker.done(ScalaElementTypes.SELF_INVOCATION)
