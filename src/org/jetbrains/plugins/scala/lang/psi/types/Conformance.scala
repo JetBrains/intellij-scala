@@ -24,6 +24,7 @@ import com.intellij.util.containers.ConcurrentWeakHashMap
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
 import scala.Some
 import com.intellij.psi._
+import collection.mutable.ArrayBuffer
 
 object Conformance {
   /**
@@ -1117,25 +1118,61 @@ object Conformance {
         } else if (des1.isInstanceOf[ScUndefinedType]) {
           val owner1 = des1.asInstanceOf[ScUndefinedType]
           val parameterType = owner1.tpt
-          val anotherType = ScParameterizedType(des2, parameterType.args)
-          undefinedSubst = undefinedSubst.addLower((owner1.tpt.name, owner1.tpt.getId), anotherType)
+          var anotherType: ScType = ScParameterizedType(des2, parameterType.args)
+          var args2replace = args2
           if (args1.length != args2.length) {
-            result = (false, undefinedSubst)
-            return
+            ScType.extractClassType(r) match {
+              case Some((clazz, subst)) =>
+                val t: (Boolean, ScType) = parentWithArgNumber(clazz, subst, args1.length)
+                if (!t._1) {
+                  result = (false, undefinedSubst)
+                  return
+                }
+                t._2 match {
+                  case ScParameterizedType(des2, args2) =>
+                    args2replace = args2
+                    anotherType = ScParameterizedType(des2, parameterType.args)
+                  case _ =>
+                    result = (false, undefinedSubst)
+                    return
+                }
+              case _ =>
+                result = (false, undefinedSubst)
+                return
+            }
           }
-          result = checkParameterizedType(owner1.tpt.args.map(_.param).iterator, args1, args2,
+          undefinedSubst = undefinedSubst.addLower((owner1.tpt.name, owner1.tpt.getId), anotherType)
+          result = checkParameterizedType(owner1.tpt.args.map(_.param).iterator, args1, args2replace,
             undefinedSubst, visited, checkWeak)
           return
         } else if (des2.isInstanceOf[ScUndefinedType]) {
           val owner2 = des2.asInstanceOf[ScUndefinedType]
           val parameterType = owner2.tpt
-          val anotherType = ScParameterizedType(des1, parameterType.args)
-          undefinedSubst = undefinedSubst.addUpper((owner2.tpt.name, owner2.tpt.getId), anotherType)
+          var anotherType: ScType = ScParameterizedType(des1, parameterType.args)
+          var args1replace = args1
           if (args1.length != args2.length) {
-            result = (false, undefinedSubst)
-            return
+            ScType.extractClassType(l) match {
+              case Some((clazz, subst)) =>
+                val t: (Boolean, ScType) = parentWithArgNumber(clazz, subst, args2.length)
+                if (!t._1) {
+                  result = (false, undefinedSubst)
+                  return
+                }
+                t._2 match {
+                  case ScParameterizedType(des1, args1) =>
+                    args1replace = args1
+                    anotherType = ScParameterizedType(des1, parameterType.args)
+                  case _ =>
+                    result = (false, undefinedSubst)
+                    return
+                }
+              case _ =>
+                result = (false, undefinedSubst)
+                return
+            }
           }
-          result = checkParameterizedType(owner2.tpt.args.map(_.param).iterator, args1, args2,
+          undefinedSubst = undefinedSubst.addUpper((owner2.tpt.name, owner2.tpt.getId), anotherType)
+          result = checkParameterizedType(owner2.tpt.args.map(_.param).iterator, args1replace, args2,
             undefinedSubst, visited, checkWeak)
           return
         } else if (des1.equiv(des2)) {
@@ -1715,9 +1752,14 @@ object Conformance {
   private def smartIsInheritor(leftClass: PsiClass, substitutor: ScSubstitutor, rightClass: PsiClass) : (Boolean, ScType) = {
     if (ScEquivalenceUtil.areClassesEquivalent(leftClass, rightClass)) return (false, null)
     if (!ScalaPsiUtil.cachedDeepIsInheritor(leftClass, rightClass)) return (false, null)
-    smartIsInheritor(leftClass, substitutor, rightClass, new collection.mutable.HashSet[PsiClass])
+    smartIsInheritor(leftClass, substitutor, ScEquivalenceUtil.areClassesEquivalent(_, rightClass), new collection.mutable.HashSet[PsiClass])
   }
-  private def smartIsInheritor(leftClass: PsiClass, substitutor: ScSubstitutor, rightClass: PsiClass,
+
+  private def parentWithArgNumber(leftClass: PsiClass, substitutor: ScSubstitutor, argsNumber: Int): (Boolean, ScType) = {
+    smartIsInheritor(leftClass, substitutor, c => c.getTypeParameters.length == argsNumber, new collection.mutable.HashSet[PsiClass]())
+  }
+
+  private def smartIsInheritor(leftClass: PsiClass, substitutor: ScSubstitutor, condition: PsiClass => Boolean,
                                visited: collection.mutable.HashSet[PsiClass]): (Boolean, ScType) = {
     ProgressManager.checkCanceled()
     val bases: Seq[Any] = leftClass match {
@@ -1725,6 +1767,7 @@ object Conformance {
       case _ => leftClass.getSuperTypes
     }
     val iterator = bases.iterator
+    val later: ArrayBuffer[(PsiClass, ScSubstitutor)] = new ArrayBuffer[(PsiClass, ScSubstitutor)]()
     var res: ScType = null
     while (iterator.hasNext) {
       val tp: ScType = iterator.next() match {
@@ -1733,20 +1776,24 @@ object Conformance {
       }
       ScType.extractClassType(tp) match {
         case Some((clazz: PsiClass, _)) if visited.contains(clazz) =>
-        case Some((clazz: PsiClass, subst)) if ScEquivalenceUtil.areClassesEquivalent(clazz, rightClass) => {
+        case Some((clazz: PsiClass, subst)) if condition(clazz) => {
           visited += clazz
           if (res == null) res = tp
           else if (tp.conforms(res)) res = tp
         }
-        case Some((clazz: PsiClass, subst)) => {
-          visited += clazz
-          val recursive = smartIsInheritor(clazz, subst, rightClass, visited)
-          if (recursive._1) {
-            if (res == null) res = recursive._2
-            else if (recursive._2.conforms(res)) res = recursive._2
-          }
-        }
+        case Some((clazz: PsiClass, subst)) =>
+          later += ((clazz, subst))
         case _ =>
+      }
+    }
+    val laterIterator = later.iterator
+    while (laterIterator.hasNext) {
+      val (clazz, subst) = laterIterator.next()
+      visited += clazz
+      val recursive = smartIsInheritor(clazz, subst, condition, visited)
+      if (recursive._1) {
+        if (res == null) res = recursive._2
+        else if (recursive._2.conforms(res)) res = recursive._2
       }
     }
     if (res == null) (false, null)
