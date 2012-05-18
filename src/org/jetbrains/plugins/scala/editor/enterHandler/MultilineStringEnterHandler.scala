@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala
 package editor.enterHandler
 
 import com.intellij.codeInsight.editorActions.enter.EnterHandlerDelegateAdapter
-import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.codeInsight.editorActions.enter.EnterHandlerDelegate.Result
 import lang.psi.api.ScalaFile
@@ -14,9 +13,8 @@ import lang.psi.api.base.{ScReferenceElement, ScLiteral}
 import com.intellij.psi.{PsiElement, PsiDocumentManager, PsiFile}
 import com.intellij.psi.codeStyle.{CodeStyleSettingsManager, CodeStyleManager}
 import lang.psi.api.expr._
-import com.sun.tools.javac.util.ListBuffer
-import java.util.Arrays
-import collection.mutable.{ArrayBuffer, ArrayBuilder}
+import collection.mutable.ArrayBuffer
+import com.intellij.openapi.editor.Editor
 
 /**
  * User: Dmitry Naydanov
@@ -63,16 +61,57 @@ class MultilineStringEnterHandler extends EnterHandlerDelegateAdapter {
       var caretShiftHor = 0
       var caretShiftVert = 0
 
-      val prevLineNumber = document.getLineNumber(offset - 1) - 1
+      lazy val prevLineNumber = document.getLineNumber(offset - 1) - 1
       assert(prevLineNumber >= 0)
-      val prevLine = getLineByNumber(prevLineNumber)
-      val currentLine = getLineByNumber(prevLineNumber + 1)
+      lazy val prevLine = getLineByNumber(prevLineNumber)
+      lazy val currentLine = getLineByNumber(prevLineNumber + 1)
+      lazy val nextLine = if (document.getLineCount > prevLineNumber + 2) getLineByNumber(prevLineNumber + 2) else ""
 
-      if (element.getText.indexOf("\n") == element.getText.lastIndexOf("\n")) {
+      def prevLinePrefixAfterDelimeter(offsetInLine: Int): Int =
+        if (prevLine.length > offsetInLine) prevLine.substring(offsetInLine).prefixLength(_ == ' ') else 0
+
+      val wasSingleLine = element.getText.indexOf("\n") == element.getText.lastIndexOf("\n")
+      val lines = element.getText.split("\n")
+
+      if (wasSingleLine || lines.length == 3 &&
+      (lines(0).endsWith("(")&&lines(2).trim.startsWith(")") || lines(0).endsWith("{")&&lines(2).startsWith("}"))) {
         val trimmedStartLine = getLineByNumber(document.getLineNumber(offset) - 1).trim()
         val needInsertNLBefore =
           (!trimmedStartLine.startsWith(multilineQuotes) || trimmedStartLine.contains("\"\"\" + \"\"\"")) &&
-                  scalaSettings.MULTI_LINE_QUOTES_ON_NEW_LINE
+            scalaSettings.MULTI_LINE_QUOTES_ON_NEW_LINE
+        def fullPrefixLength(line: String): Int =
+          line.prefixLength(_ == ' ') + multilineQuotesLength + (if (needInsertNLBefore) 1 else 0)
+        def getPrefix(line: String) = line.substring(0, line.prefixLength(_ == ' '))
+        def insertStripMargin(extraSpace: Boolean) {
+          if (MultilineStringEnterHandler.needAddStripMargin(element, marginChar)) {
+            document.insertString(element.getTextRange.getEndOffset + (if (extraSpace) 1 else 0),
+              if (marginChar == "|") ".stripMargin" else ".stripMargin(\'" + marginChar + "\')")
+          }
+        }
+
+        if (!wasSingleLine) {
+          caretShiftHor = scalaSettings.MULTILINE_STRING_SUPORT match {
+            case ScalaCodeStyleSettings.MULTILINE_STRING_ALL =>
+              insertStripMargin(false)
+              val currentPrefix = fullPrefixLength(currentLine)
+              currentPrefix + prevLinePrefixAfterDelimeter(currentPrefix)
+            case ScalaCodeStyleSettings.MULTILINE_STRING_QUOTES_AND_INDENT =>
+              currentLine.length + (if (!needInsertNLBefore) 0 else 2)
+          }
+
+          val insertToNextLine = scalaSettings.MULTILINE_STRING_SUPORT match {
+            case ScalaCodeStyleSettings.MULTILINE_STRING_ALL => marginChar
+            case _ => ""
+          }
+
+          if (needInsertNLBefore && scalaSettings.MULTILINE_STRING_SUPORT == ScalaCodeStyleSettings.MULTILINE_STRING_ALL)
+            caretShiftVert = -1
+
+          document.insertString(document.getLineStartOffset(prevLineNumber + 2) + (getLineByNumber(prevLineNumber + 2)).prefixLength(_ == ' '),
+            (if (scalaSettings.MULTILINE_STRING_SUPORT == ScalaCodeStyleSettings.MULTILINE_STRING_QUOTES_AND_INDENT)
+              getSpaces(caretShiftHor - nextLine.prefixLength(_ == ' ') ) else getPrefix(currentLine)) + insertToNextLine)
+        }
+
         if (needInsertNLBefore) insertNewLine(elementOffset)
 
         if (element.getText.substring(offset - elementOffset) == multilineQuotes) {
@@ -84,10 +123,7 @@ class MultilineStringEnterHandler extends EnterHandlerDelegateAdapter {
           }
 
           if (scalaSettings.MULTILINE_STRING_SUPORT == ScalaCodeStyleSettings.MULTILINE_STRING_ALL) {
-            if (MultilineStringEnterHandler.needAddStripMargin(element, marginChar)) {
-              document.insertString(element.getTextRange.getEndOffset + (if (needInsertNLBefore) 1 else 0),
-                if (marginChar == "|") ".stripMargin" else ".stripMargin(\'" + marginChar + "\')")
-            }
+            insertStripMargin(needInsertNLBefore)
 
             if (!needInsertNLBefore) {
               caretShiftVert = 0
@@ -103,15 +139,12 @@ class MultilineStringEnterHandler extends EnterHandlerDelegateAdapter {
               settings.getIndentOptions(ScalaFileType.SCALA_FILE_TYPE).INDENT_SIZE
             else 0
           selectBySettings {
-            document.insertString(offset, StringUtil.repeat(" ", multilineQuotesLength +
-                    needInsertIndentInt))
+            document.insertString(offset, StringUtil.repeat(" ", multilineQuotesLength + needInsertIndentInt))
           } {
             document.insertString(offset, StringUtil.repeat(" ", needInsertIndentInt) + marginChar)
           }
         }
       } else {
-        def prevLinePrefixAfterDelimeter(offsetInLine: Int): Int =
-          prevLine.substring(offsetInLine).prefixLength(_ == ' ')
 
         lazy val isCurrentLineEmpty = currentLine.trim.length == 0
         lazy val currentLineOffset = document.getLineStartOffset(prevLineNumber + 1)
@@ -152,6 +185,10 @@ class MultilineStringEnterHandler extends EnterHandlerDelegateAdapter {
             if (isPrevLineFirst) multilineQuotesLength else prevLinePrefixAfterDelimeter(wsPrefix + 1)
 
           if (!currentLine.trim.startsWith(marginChar)) {
+            if (prevLine.endsWith("{") && nextLine.trim.startsWith("}") || prevLine.endsWith("(") && nextLine.trim.startsWith(")")) {
+              document.insertString(document.getLineStartOffset(prevLineNumber + 2) + nextLine.prefixLength(_ == ' '), marginChar + getSpaces(wsAfterMargin))
+            }
+
             document.insertString(offset, (if (caretShiftHor != 1) marginChar else "") + getSpaces(wsAfterMargin))
             caretShiftHor = wsAfterMargin + 1
           }
@@ -173,7 +210,6 @@ class MultilineStringEnterHandler extends EnterHandlerDelegateAdapter {
 
       CodeStyleManager.getInstance(file.getProject).adjustLineIndent(file,
         Option(getReformatRange(anotherElement.getParent)).getOrElse(anotherElement.getTextRange))
-//      CodeStyleManager.getInstance(file.getProject).reformat(anotherElement)
 
       if (caretShiftHor != 0 || caretShiftVert != 0) {
         editor.getCaretModel.moveCaretRelatively(caretShiftHor, caretShiftVert, false, false, false)

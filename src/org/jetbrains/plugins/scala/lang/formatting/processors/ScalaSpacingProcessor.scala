@@ -38,6 +38,7 @@ import extensions.implementation.PsiElementExt
 import extensions.{toPsiNamedElementExt, &&}
 import parser.ScalaElementTypes
 import psi.api.toplevel.typedef._
+import org.jetbrains.plugins.scala.editor.enterHandler.MultilineStringEnterHandler
 
 object ScalaSpacingProcessor extends ScalaTokenTypes {
   private val LOG = Logger.getInstance("#org.jetbrains.plugins.scala.lang.formatting.processors.ScalaSpacingProcessor")
@@ -254,6 +255,16 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
         case (false, false) => return WITH_SPACING_NO_KEEP
         case (false, true) => return Spacing.createDependentLFSpacing(1, 1, rightPsi.getParent.getTextRange, true, 1)
       }
+    }
+
+    leftPsi match {
+      case l: ScLiteral if l.isMultiLineString && rightNode == leftNode =>
+        val marginChar = MultilineStringEnterHandler.getMarginChar(leftPsi)
+
+        if (leftString == marginChar && rightString != "\"\"\"" && rightString != marginChar) {
+          return Spacing.getReadOnlySpacing
+        }
+      case _ =>
     }
 
     if (rightElementType == tRPARENTHESIS &&
