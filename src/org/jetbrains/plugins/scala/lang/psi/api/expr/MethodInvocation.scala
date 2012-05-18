@@ -119,10 +119,10 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
 
   protected override def innerType(ctx: TypingContext): TypeResult[ScType] = {
     try {
-      tryToGetInnerType(ctx, true)
+      tryToGetInnerType(ctx, useExpectedType = true)
     } catch {
       case _: SafeCheckException =>
-        tryToGetInnerType(ctx, false)
+        tryToGetInnerType(ctx, useExpectedType = false)
     }
   }
 
@@ -136,11 +136,11 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
 
     val withExpectedType = useExpectedType && expectedType() != None //optimization to avoid except
 
-    if (useExpectedType) nonValueType = updateAccordingToExpectedType(nonValueType, true)
+    if (useExpectedType) nonValueType = updateAccordingToExpectedType(nonValueType, check = true)
 
     def checkConformance(retType: ScType, psiExprs: Seq[ScExpression], parameters: Seq[Parameter]) = {
       tuplizyCase(psiExprs) { t =>
-        val result = Compatibility.checkConformanceExt(true, parameters, t,
+        val result = Compatibility.checkConformanceExt(checkNames = true, parameters = parameters, exprs = t,
           checkWithImplicits = true, isShapesResolve = false)
         (retType, result.problems, result.matchedArgs)
       }

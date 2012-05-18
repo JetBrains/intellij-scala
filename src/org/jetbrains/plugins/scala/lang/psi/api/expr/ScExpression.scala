@@ -111,8 +111,8 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible with Ps
 
       def tryUpdateRes(checkExpectedType: Boolean) {
         if (checkExpectedType) {
-          InferUtil.updateAccordingToExpectedType(Success(res, Some(this)), true,
-            expectedType(fromUnderscore), this, checkExpectedType) match {
+          InferUtil.updateAccordingToExpectedType(Success(res, Some(this)), fromImplicitParameters = true,
+            expectedType = expectedType(fromUnderscore), expr = this, check = checkExpectedType) match {
             case Success(newRes, _) => res = newRes
             case _ =>
           }
@@ -142,11 +142,11 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible with Ps
       if (!isMethodInvocation()) { //it is not updated according to expected type, let's do it
         val oldRes = res
         try {
-          tryUpdateRes(true)
+          tryUpdateRes(checkExpectedType = true)
         } catch {
           case _: SafeCheckException =>
             res = oldRes
-            tryUpdateRes(false)
+            tryUpdateRes(checkExpectedType = false)
         }
       }
 
@@ -291,12 +291,12 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible with Ps
   def getShape(ignoreAssign: Boolean = false): (ScType, String) = {
     this match {
       case assign: ScAssignStmt if !ignoreAssign && assign.assignName != None =>
-        (assign.getRExpression.map(_.getShape(true)._1).getOrElse(Nothing), assign.assignName.get)
+        (assign.getRExpression.map(_.getShape(ignoreAssign = true)._1).getOrElse(Nothing), assign.assignName.get)
       case expr: ScExpression => {
         ScalaPsiUtil.isAnonymousExpression(expr) match {
           case (-1, _) => (Nothing, "")
           case (i, expr: ScFunctionExpr) =>
-            (new ScFunctionType(expr.result.map(_.getShape(true)._1).getOrElse(Nothing), Seq.fill(i)(Any))(getProject, getResolveScope), "")
+            (new ScFunctionType(expr.result.map(_.getShape(ignoreAssign = true)._1).getOrElse(Nothing), Seq.fill(i)(Any))(getProject, getResolveScope), "")
           case (i, _) => (new ScFunctionType(Nothing, Seq.fill(i)(Any))(getProject, getResolveScope), "")
         }
       }
@@ -381,7 +381,7 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible with Ps
     val oldParent = getParent
     if (oldParent == null) throw new PsiInvalidElementAccessException(this)
     if (removeParenthesis && oldParent.isInstanceOf[ScParenthesisedExpr]) {
-      return oldParent.asInstanceOf[ScExpression].replaceExpression(expr, true)
+      return oldParent.asInstanceOf[ScExpression].replaceExpression(expr, removeParenthesis = true)
     }
     val newExpr: ScExpression = if (ScalaPsiUtil.needParentheses(this, expr)) {
       ScalaPsiElementFactory.createExpressionFromText("(" + expr.getText + ")", getManager)
