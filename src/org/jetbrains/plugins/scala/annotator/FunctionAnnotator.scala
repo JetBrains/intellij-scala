@@ -8,9 +8,9 @@ import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.psi.types.{Unit => UnitType, Any => AnyType}
 import quickfix.ReportHighlightingErrorQuickFix
 import org.jetbrains.plugins.scala.annotator.AnnotatorUtils._
-import lang.psi.api.expr.{ScBlockExpr, ScCatchBlock, ScExpression, ScReturnStmt}
 import lang.psi.types.result.{TypingContext, Success, TypeResult}
 import lang.psi.api.statements.{RecursionType, ScFunctionDefinition}
+import lang.psi.api.expr._
 
 /**
  * Pavel.Fatin, 18.05.2010
@@ -28,8 +28,14 @@ trait FunctionAnnotator {
     def hasTailrecAnnotation = function.annotations.exists(_.typeElement.getType(TypingContext.empty)
             .map(_.canonicalText).filter(_ == "_root_.scala.annotation.tailrec").isDefined)
 
-    if (hasTailrecAnnotation && function.recursionType != RecursionType.TailRecursion) {
-      holder.createErrorAnnotation(function.nameId, "Method with @tailrec annotation is not tail recursice")
+    if (hasTailrecAnnotation) {
+      function.recursiveReferences.filter(!_.isTailCall).foreach { ref =>
+        val target = ref.element.getParent match {
+          case call: ScMethodCall => call
+          case _ => ref.element
+        }
+        holder.createErrorAnnotation(target, "Recursive call not in tail position (in @tailrec annotated method)")
+      }
     }
 
     checkImplicitParametersAndBounds(function, function.clauses, holder)

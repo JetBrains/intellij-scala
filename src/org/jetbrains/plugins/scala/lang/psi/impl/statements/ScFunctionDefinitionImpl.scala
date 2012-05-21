@@ -36,9 +36,13 @@ class ScFunctionDefinitionImpl extends ScFunctionImpl with ScFunctionDefinition 
   def recursiveReferences: Seq[RecursiveReference] = {
     val resultExpressions = getReturnUsages
 
-    def resultExpressionFor(ref: ScReferenceElement): PsiElement = ref.getParent match {
-      case call: ScMethodCall => call
-      case _ => ref
+    def resultExpressionFor(ref: ScReferenceElement): PsiElement = ref match {
+      case Parent(ret: ScReturnStmt) => ret
+      case Parent(call: ScMethodCall) => call match {
+        case Parent(ret: ScReturnStmt) => ret
+        case it => it
+      }
+      case it => it
     }
 
     for (ref <- depthFirst.filterByType(classOf[ScReferenceElement]).toList if ref.isReferenceTo(this);
