@@ -20,6 +20,8 @@ import psi.controlFlow.Instruction
 import psi.controlFlow.impl.ScalaControlFlowBuilder
 import api.{ScalaElementVisitor, ScalaRecursiveElementVisitor}
 import api.statements.params.ScParameter
+import api.base.ScReferenceElement
+import extensions._
 
 /**
  * @author Alexander Podkhalyuzin
@@ -30,6 +32,31 @@ class ScFunctionDefinitionImpl extends ScFunctionImpl with ScFunctionDefinition 
   def this(node: ASTNode) = {this (); setNode(node)}
 
   def this(stub: ScFunctionStub) = {this (); setStub(stub); setNode(null)}
+
+  def recursiveReferences: Seq[RecursiveReference] = {
+    val resultExpressions = getReturnUsages
+
+    def resultExpressionFor(ref: ScReferenceElement): PsiElement = ref.getParent match {
+      case call: ScMethodCall => call
+      case _ => ref
+    }
+
+    for (ref <- depthFirst.filterByType(classOf[ScReferenceElement]).toList if ref.isReferenceTo(this);
+         target <- ref.advancedResolve if target.isApplicable)
+    yield RecursiveReference(ref, resultExpressions.contains(resultExpressionFor(ref)))
+  }
+
+  def recursionType: RecursionType = {
+    val references = recursiveReferences
+    if (references.isEmpty) {
+      RecursionType.NoRecursion
+    } else {
+      if (references.forall(_.isTailCall))
+        RecursionType.TailRecursion
+      else
+        RecursionType.OrdinaryRecursion
+    }
+  }
 
   override def processDeclarations(processor: PsiScopeProcessor,
                                    state: ResolveState,

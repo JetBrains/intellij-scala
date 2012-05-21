@@ -10,6 +10,9 @@ import com.intellij.openapi.util.IconLoader
  */
 
 object GutterIcons {
+  val RECURSION_ICON = IconLoader.getIcon("/org/jetbrains/plugins/scala/gator/recursion.png")
+  val TAIL_RECURSION_ICON = IconLoader.getIcon("/org/jetbrains/plugins/scala/gator/tail-recursion.png")
+
   val OVERRIDING_METHOD_ICON = IconLoader.getIcon("/gutter/overridingMethod.png")
   val IMPLEMENTING_METHOD_ICON = IconLoader.getIcon("/gutter/implementingMethod.png")
 
