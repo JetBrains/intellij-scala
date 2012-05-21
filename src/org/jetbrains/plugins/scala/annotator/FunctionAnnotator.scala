@@ -5,13 +5,12 @@ import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import com.intellij.lang.annotation.AnnotationHolder
 import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.types.{Unit => UnitType, Any => AnyType}
-import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult}
-import lang.psi.api.base.ScReferenceElement
 import quickfix.ReportHighlightingErrorQuickFix
 import org.jetbrains.plugins.scala.annotator.AnnotatorUtils._
 import lang.psi.api.expr.{ScBlockExpr, ScCatchBlock, ScExpression, ScReturnStmt}
+import lang.psi.types.result.{TypingContext, Success, TypeResult}
+import lang.psi.api.statements.{RecursionType, ScFunctionDefinition}
 
 /**
  * Pavel.Fatin, 18.05.2010
@@ -20,15 +19,17 @@ import lang.psi.api.expr.{ScBlockExpr, ScCatchBlock, ScExpression, ScReturnStmt}
 trait FunctionAnnotator {
   def annotateFunction(function: ScFunctionDefinition, holder: AnnotationHolder, highlightErrors: Boolean) {
     if (!function.hasExplicitType && !function.returnTypeIsDefined) {
-      function.depthFirst.foreach {
-        case ref: ScReferenceElement if ref.isReferenceTo(function) => {
-          for (target <- ref.advancedResolve; if target.isApplicable) {
-            val message = ScalaBundle.message("function.recursive.need.result.type", function.name)
-            holder.createErrorAnnotation(ref, message)
-          }
-        }
-        case _ =>
+      function.recursiveReferences.foreach { ref =>
+          val message = ScalaBundle.message("function.recursive.need.result.type", function.name)
+          holder.createErrorAnnotation(ref.element, message)
       }
+    }
+
+    def hasTailrecAnnotation = function.annotations.exists(_.typeElement.getType(TypingContext.empty)
+            .map(_.canonicalText).filter(_ == "_root_.scala.annotation.tailrec").isDefined)
+
+    if (hasTailrecAnnotation && function.recursionType != RecursionType.TailRecursion) {
+      holder.createErrorAnnotation(function.nameId, "Method with @tailrec annotation is not tail recursice")
     }
 
     checkImplicitParametersAndBounds(function, function.clauses, holder)
