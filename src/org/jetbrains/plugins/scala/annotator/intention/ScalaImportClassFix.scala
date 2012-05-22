@@ -260,7 +260,7 @@ object ScalaImportClassFix {
 
   def getClasses(ref: ScReferenceElement, myProject: Project): Array[PsiClass] = {
     if (!ref.isValid) return Array.empty
-    val kinds = ref.getKinds(false)
+    val kinds = ref.getKinds(incomplete = false)
     val cache = ScalaPsiManager.instance(myProject)
     val classes = cache.getClassesByName(ref.refName, ref.getResolveScope)
     val buffer = new ArrayBuffer[PsiClass]
