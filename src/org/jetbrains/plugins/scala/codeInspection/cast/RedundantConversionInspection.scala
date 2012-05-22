@@ -28,7 +28,7 @@ class RedundantConversionInspection extends AbstractInspection("Redundant conver
     target match {
       case f: ScSyntheticFunction if f.name.startsWith("to") =>
         for (leftType <- left.getType(TypingContext.empty);
-             conversionType = f.retType if leftType.conforms(conversionType))
+             conversionType = f.retType if leftType.equiv(conversionType))
           registerProblem(element, left, conversionType.presentableText, offset, holder)
       case f: PsiMethod if f.getName == "toString" &&
               f.getParameterList.getParametersCount == 0 &&
