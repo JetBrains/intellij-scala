@@ -23,7 +23,6 @@ import modifiers.ModifierChecker
 import com.intellij.psi._
 import quickfix.{ChangeTypeFix, ReportHighlightingErrorQuickFix}
 import template._
-import scala.Some
 import com.intellij.openapi.project.DumbAware
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression.ExpressionTypeResult
 import com.intellij.openapi.editor.markup.{EffectType, TextAttributes}
@@ -121,6 +120,11 @@ with DumbAware {
       override def visitReferenceExpression(ref: ScReferenceExpression) {
         referencePart(ref)
         visitExpression(ref)
+      }
+
+      override def visitGenericCallExpression(call: ScGenericCall) {
+        checkGenericCallExpression(call, holder)
+        super.visitGenericCallExpression(call)
       }
 
       override def visitTypeElement(te: ScTypeElement) {
@@ -441,6 +445,26 @@ with DumbAware {
       holder.registerValueUsed(value)
       // For use of unapply method, see SCL-3463
       resolveResult.parentElement.foreach(parent => holder.registerValueUsed(ReadValueUsed(parent)))
+    }
+  }
+
+  private def checkGenericCallExpression(call: ScGenericCall, holder: AnnotationHolder) {
+    call.referencedExpr.children.toList match {
+      case List(left: ScExpression, ElementText("."), ElementText("asInstanceOf")) =>
+        for (actualType <- left.getType(TypingContext.empty).toOption;
+             typeArgument <- call.arguments.headOption;
+             castType <- typeArgument.getType(TypingContext.empty)
+             if !castType.conforms(actualType) && !actualType.conforms(castType)) {
+
+          val range = new TextRange(left.getTextLength, call.getTextLength)
+                  .shiftRight(call.getTextRange.getStartOffset)
+
+          val message = "Inconvertible types; cannot cast from  '%s' to '%s'"
+                  .format(actualType.presentableText, castType.presentableText)
+
+          holder.createErrorAnnotation(range, message)
+        }
+      case _ =>
     }
   }
 
