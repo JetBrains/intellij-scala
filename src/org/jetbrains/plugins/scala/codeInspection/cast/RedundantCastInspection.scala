@@ -21,7 +21,7 @@ class RedundantCastInspection extends AbstractInspection("Redundant cast") {
         case List(left: ScExpression, ElementText("."), ElementText("asInstanceOf")) =>
           for (actualType <- left.getType(TypingContext.empty).toOption;
                typeArgument <- call.arguments.headOption;
-               castType <- typeArgument.getType(TypingContext.empty) if actualType.conforms(castType)) {
+               castType <- typeArgument.getType(TypingContext.empty) if actualType.equiv(castType)) {
 
             val descriptor = {
               val range = new TextRange(left.getTextLength, call.getTextLength)
