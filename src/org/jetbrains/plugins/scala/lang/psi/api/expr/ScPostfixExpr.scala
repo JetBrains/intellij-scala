@@ -21,3 +21,7 @@ trait ScPostfixExpr extends ScExpression with MethodInvocation with ScSugarCallE
 
   def getBaseExpr: ScExpression = operand
 }
+
+object ScPostfixExpr {
+  def unapply(e: ScPostfixExpr) = Some(e.operand, e.operation)
+}
