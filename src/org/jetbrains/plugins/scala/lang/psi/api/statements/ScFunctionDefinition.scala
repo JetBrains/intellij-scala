@@ -30,6 +30,8 @@ trait ScFunctionDefinition extends ScFunction with ScControlFlowOwner {
 
   def getReturnUsages: Array[PsiElement]
 
+  def canBeTailRecursive: Boolean
+
   def recursiveReferences: Seq[RecursiveReference]
 
   def recursionType: RecursionType

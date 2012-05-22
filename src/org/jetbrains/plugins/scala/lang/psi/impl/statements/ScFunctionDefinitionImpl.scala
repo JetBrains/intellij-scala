@@ -22,6 +22,7 @@ import api.{ScalaElementVisitor, ScalaRecursiveElementVisitor}
 import api.statements.params.ScParameter
 import api.base.ScReferenceElement
 import extensions._
+import api.toplevel.templates.ScTemplateBody
 
 /**
  * @author Alexander Podkhalyuzin
@@ -32,6 +33,13 @@ class ScFunctionDefinitionImpl extends ScFunctionImpl with ScFunctionDefinition 
   def this(node: ASTNode) = {this (); setNode(node)}
 
   def this(stub: ScFunctionStub) = {this (); setStub(stub); setNode(null)}
+
+  def canBeTailRecursive = getParent match {
+    case _: ScTemplateBody =>
+      val modifiers = getModifierList
+      modifiers.has(ScalaTokenTypes.kPRIVATE) || modifiers.has(ScalaTokenTypes.kFINAL)
+    case _ => true
+  }
 
   def recursiveReferences: Seq[RecursiveReference] = {
     val resultExpressions = getReturnUsages
