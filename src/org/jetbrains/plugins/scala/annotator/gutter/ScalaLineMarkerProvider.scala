@@ -90,16 +90,6 @@ class ScalaLineMarkerProvider(daemonSettings: DaemonCodeAnalyzerSettings, colors
       def containsNamedElement(holder: ScDeclaredElementsHolder) = holder.declaredElements.exists(_.asInstanceOf[ScNamedElement].nameId == element)
 
       (parent, parent.getParent) match {
-        case (method: ScFunctionDefinition, _) if method.nameId == element =>
-          method.recursionType match {
-            case RecursionType.OrdinaryRecursion =>
-              return new LineMarkerInfo[PsiElement](method.nameId, offset, RECURSION_ICON, Pass.UPDATE_ALL,
-                (e: PsiElement) => "Method '%s' is recursive".format(e.getText), null, GutterIconRenderer.Alignment.RIGHT)
-            case RecursionType.TailRecursion =>
-              return new LineMarkerInfo[PsiElement](method.nameId, offset, TAIL_RECURSION_ICON, Pass.UPDATE_ALL,
-                (e: PsiElement) => "Method '%s' is tail recursive".format(e.getText), null, GutterIconRenderer.Alignment.RIGHT)
-            case RecursionType.NoRecursion => // no markers
-          }
         case (method: ScFunction, _: ScTemplateBody) if method.nameId == element =>
           val signatures: Seq[Signature] = (HashSet[Signature](method.superSignatures: _*)).toSeq
           val icon = if (GutterUtil.isOverrides(method, signatures)) OVERRIDING_METHOD_ICON else IMPLEMENTING_METHOD_ICON
@@ -141,6 +131,20 @@ class ScalaLineMarkerProvider(daemonSettings: DaemonCodeAnalyzerSettings, colors
           val typez = ScalaMarkerType.OVERRIDING_MEMBER
           if (signature.length > 0) {
             return marker(ta.getTypeToken, icon, typez)
+          }
+        case _ =>
+      }
+
+      parent match {
+        case method: ScFunctionDefinition if method.nameId == element =>
+          method.recursionType match {
+            case RecursionType.OrdinaryRecursion =>
+              return new LineMarkerInfo[PsiElement](method.nameId, offset, RECURSION_ICON, Pass.UPDATE_ALL,
+                (e: PsiElement) => "Method '%s' is recursive".format(e.getText), null, GutterIconRenderer.Alignment.RIGHT)
+            case RecursionType.TailRecursion =>
+              return new LineMarkerInfo[PsiElement](method.nameId, offset, TAIL_RECURSION_ICON, Pass.UPDATE_ALL,
+                (e: PsiElement) => "Method '%s' is tail recursive".format(e.getText), null, GutterIconRenderer.Alignment.RIGHT)
+            case RecursionType.NoRecursion => // no markers
           }
         case _ =>
       }
