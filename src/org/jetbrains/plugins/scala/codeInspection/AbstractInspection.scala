@@ -7,7 +7,7 @@ import org.jetbrains.plugins.scala.extensions.VisitorWrapper
 /**
  * Pavel Fatin
  */
-abstract class  AbstractInspection(id: String, name: String) extends LocalInspectionTool {
+abstract class AbstractInspection(id: String, name: String) extends LocalInspectionTool {
   def this(name: String) {
     this(getClass.getSimpleName.stripSuffix("Inspection"), name)
   }
