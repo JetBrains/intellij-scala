@@ -578,6 +578,10 @@
                      displayName="Redundant cast inspection" groupName="Scala: General"
                      shortName="RedundantCast" level="WARNING"
                      enabledByDefault="true" language="Scala"/>
+    <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.cast.RedundantConversionInspection"
+                     displayName="Redundant conversion inspection" groupName="Scala: General"
+                     shortName="RedundantConversion" level="WARNING"
+                     enabledByDefault="true" language="Scala"/>
     <!--<localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.allErrorsInspection.AnnotatorBasedErrorInspection"
                      displayName="All Errors Tool" groupName="Scala: General"
                      shortName="ScalaAllErrors" level="WARNING"
