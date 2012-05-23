@@ -587,6 +587,10 @@
                      displayName="Redundant conversion inspection" groupName="Scala: General"
                      shortName="RedundantConversion" level="WARNING"
                      enabledByDefault="true" language="Scala"/>
+    <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.recursion.NoTailRecursionAnnotationInspection"
+                     displayName="No tail recursion annotation" groupName="Scala: General"
+                     shortName="NoTailRecursionAnnotation" level="WARNING"
+                     enabledByDefault="false" language="Scala"/>
     <!--<localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.allErrorsInspection.AnnotatorBasedErrorInspection"
                      displayName="All Errors Tool" groupName="Scala: General"
                      shortName="ScalaAllErrors" level="WARNING"

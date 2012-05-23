@@ -32,6 +32,8 @@ trait ScFunctionDefinition extends ScFunction with ScControlFlowOwner {
 
   def canBeTailRecursive: Boolean
 
+  def hasTailRecursionAnnotation: Boolean
+
   def recursiveReferences: Seq[RecursiveReference]
 
   def recursionType: RecursionType

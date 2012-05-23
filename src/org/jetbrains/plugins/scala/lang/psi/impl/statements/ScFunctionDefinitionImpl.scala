@@ -41,6 +41,10 @@ class ScFunctionDefinitionImpl extends ScFunctionImpl with ScFunctionDefinition 
     case _ => true
   }
 
+  def hasTailRecursionAnnotation: Boolean =
+    annotations.exists(_.typeElement.getType(TypingContext.empty)
+            .map(_.canonicalText).filter(_ == "_root_.scala.annotation.tailrec").isDefined)
+
   def recursiveReferences: Seq[RecursiveReference] = {
     val resultExpressions = getReturnUsages
 
