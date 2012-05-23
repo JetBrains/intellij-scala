@@ -78,7 +78,7 @@ trait ScAnnotationsHolder extends ScalaPsiElement with PsiAnnotationOwner {
     for (topReference <- unresolvedReferences.headOption;
          manager = JavaPsiFacade.getInstance(getProject);
          annotationClass = manager.findClass(qualifiedName, topReference.getResolveScope)) {
-      val holder = ScalaImportClassFix.getImportHolder(topReference, getProject)
+      val holder = ScalaImportClassFix.getImportHolder(this, getProject)
       holder.addImportForClass(annotationClass, topReference)
     }
 
