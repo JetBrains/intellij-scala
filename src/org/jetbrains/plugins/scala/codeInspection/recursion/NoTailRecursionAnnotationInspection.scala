@@ -23,5 +23,4 @@ class NoTailRecursionAnnotationInspection extends AbstractInspection("No tail re
       holder.addAnnotation("scala.annotation.tailrec")
     }
   }
-
 }
