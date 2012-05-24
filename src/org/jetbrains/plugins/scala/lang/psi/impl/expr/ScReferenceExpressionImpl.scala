@@ -29,6 +29,7 @@ import api.toplevel.typedef._
 import completion.lookups.LookupElementManager
 import extensions.{toPsiMemberExt, toPsiNamedElementExt, toPsiClassExt}
 import settings.ScalaProjectSettings
+import api.base.ScReferenceElement
 
 /**
  * @author AlexanderPodkhalyuzin
@@ -65,7 +66,13 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
           throw new IncorrectOperationException("class does not match expected name")
         val qualName = c.qualifiedName
         if (qualName != null) {
-          return smartBindToElement(qualName) {
+          return safeBindToElement(qualName, {
+            case (qual, true) =>
+              ScalaPsiElementFactory.createExpressionWithContextFromText(qual, getContext, this).
+                asInstanceOf[ScReferenceExpression]
+            case (qual, false) =>
+              ScalaPsiElementFactory.createExpressionFromText(qual, getManager).asInstanceOf[ScReferenceExpression]
+          }) {
             ScalaImportClassFix.getImportHolder(ref = this, project = getProject).addImportForClass(c, ref = this)
             this
           }
@@ -82,7 +89,13 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
             val cClass = containingClass.getOrElse(memb.containingClass)
             if (cClass != null && cClass.qualifiedName != null) {
               val qualName: String = cClass.qualifiedName + "." + elem.name
-              return smartBindToElement(qualName) {
+              return safeBindToElement(qualName, {
+                case (qual, true) =>
+                  ScalaPsiElementFactory.createExpressionWithContextFromText(qual, getContext, this).
+                    asInstanceOf[ScReferenceExpression]
+                case (qual, false) =>
+                  ScalaPsiElementFactory.createExpressionFromText(qual, getManager).asInstanceOf[ScReferenceExpression]
+              }) {
                 ScalaImportClassFix.getImportHolder(this, getProject).
                   addImportForPsiNamedElement(elem, this, Some(cClass))
                 this
@@ -92,53 +105,6 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
         }
         this
       case _ => throw new IncorrectOperationException("Cannot bind to anything but class: " + element)
-    }
-  }
-
-  private def smartBindToElement(qualName: String)(simpleImport: => PsiElement): PsiElement = {
-    val parts: Array[String] = qualName.split('.')
-    val anotherRef: ScReferenceExpression =
-      ScalaPsiElementFactory.createExpressionWithContextFromText(parts.last, getContext, this).
-        asInstanceOf[ScReferenceExpression]
-    val resolve: Array[ResolveResult] = anotherRef.multiResolve(false)
-    if (resolve.isEmpty) {
-      simpleImport
-    } else {
-      if (qualName.contains(".")) {
-        var index =
-          if (ScalaProjectSettings.getInstance(getProject).isImportShortestPathForAmbiguousReferences) parts.length - 1
-          else 0
-        while (index >= 0) {
-          val packagePart = parts.take(index + 1).mkString(".")
-          val toReplace = parts.drop(index).mkString(".")
-          val ref = ScalaPsiElementFactory.createExpressionWithContextFromText(toReplace, getContext, this).asInstanceOf[ScReferenceExpression]
-          var qual = ref
-          while (qual.qualifier != None) qual = qual.qualifier.get.asInstanceOf[ScReferenceExpression]
-          val resolve: Array[ResolveResult] = qual.multiResolve(false)
-          def isOk: Boolean = {
-            if (resolve.length == 0) true
-            else if (resolve.length > 1) false
-            else {
-              val result: ResolveResult = resolve(0)
-              result match {
-                case ScalaResolveResult(pack: PsiPackage, _) => pack.getQualifiedName == packagePart
-                case ScalaResolveResult(c: PsiClass, _) => c.qualifiedName == packagePart
-                case _ => false
-              }
-            }
-          }
-          if (isOk) {
-            ScalaImportClassFix.getImportHolder(this, getProject).addImportForPath(packagePart, this)
-            val ref =
-              ScalaPsiElementFactory.createExpressionFromText(toReplace, getManager)
-            return this.replace(ref)
-          }
-          index -= 1
-        }
-      }
-      val ref: ScReferenceExpression =
-        ScalaPsiElementFactory.createExpressionFromText("_root_." + qualName, getManager).asInstanceOf[ScReferenceExpression]
-      this.replace(ref)
     }
   }
 

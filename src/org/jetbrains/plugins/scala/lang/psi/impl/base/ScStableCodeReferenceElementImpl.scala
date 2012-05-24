@@ -135,7 +135,10 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
         }
         val qname = c.qualifiedName
         if (qname != null) {
-          return smartBindToElement(qname) {
+          return safeBindToElement(qname, {
+            case (qual, true) => ScalaPsiElementFactory.createReferenceFromText(qual, getContext, this)
+            case (qual, false) => ScalaPsiElementFactory.createReferenceFromText(qual, getManager)
+          }) {
             ScalaImportClassFix.getImportHolder(ref = this, project = getProject).
               addImportForClass(c, ref = this)
             this
@@ -145,53 +148,6 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
       }
       case t: ScTypeAlias => this //todo: do something
       case _ => throw new IncorrectOperationException("Cannot bind to anything but class")
-    }
-  }
-
-  private def smartBindToElement(qualName: String)(simpleImport: => PsiElement): PsiElement = {
-    val parts: Array[String] = qualName.split('.')
-    val anotherRef: ScStableCodeReferenceElement =
-      ScalaPsiElementFactory.createReferenceFromText(parts.last, getContext, this)
-    val resolve: Array[ResolveResult] = anotherRef.multiResolve(false)
-    if (resolve.isEmpty) {
-      simpleImport
-    } else {
-      if (qualName.contains(".")) {
-        var index =
-          if (ScalaProjectSettings.getInstance(getProject).isImportShortestPathForAmbiguousReferences) parts.length - 1
-          else 0
-        while (index >= 0) {
-          val packagePart = parts.take(index + 1).mkString(".")
-          val toReplace = parts.drop(index).mkString(".")
-          val ref: ScStableCodeReferenceElement =
-            ScalaPsiElementFactory.createReferenceFromText(toReplace, getContext, this)
-          var qual = ref
-          while (qual.qualifier != None) qual = qual.qualifier.get.asInstanceOf[ScStableCodeReferenceElement]
-          val resolve: Array[ResolveResult] = qual.multiResolve(false)
-          def isOk: Boolean = {
-            if (resolve.length == 0) true
-            else if (resolve.length > 1) false
-            else {
-              val result: ResolveResult = resolve(0)
-              result match {
-                case ScalaResolveResult(pack: PsiPackage, _) => pack.getQualifiedName == packagePart
-                case ScalaResolveResult(c: PsiClass, _) => c.qualifiedName == packagePart
-                case _ => false
-              }
-            }
-          }
-          if (isOk) {
-            ScalaImportClassFix.getImportHolder(this, getProject).addImportForPath(packagePart, this)
-            val ref =
-              ScalaPsiElementFactory.createReferenceFromText(toReplace, getManager)
-            return this.replace(ref)
-          }
-          index -= 1
-        }
-      }
-      val ref: ScReferenceExpression =
-        ScalaPsiElementFactory.createExpressionFromText("_root_." + qualName, getManager).asInstanceOf[ScReferenceExpression]
-      this.replace(ref)
     }
   }
 
