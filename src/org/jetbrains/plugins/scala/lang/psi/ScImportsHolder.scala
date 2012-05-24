@@ -212,6 +212,7 @@ trait ScImportsHolder extends ScalaPsiElement {
     var hasRenamedImport = false
 
     //collecting selectors to add into new import statement
+    var firstPossibleGoodPlace: Option[ScImportExpr] = None
     for (imp <- importStatementsInHeader) {
       for (expr: ScImportExpr <- imp.importExprs) {
         val qualifier = expr.qualifier
@@ -224,7 +225,12 @@ trait ScImportsHolder extends ScalaPsiElement {
           if (qn == classPackageQualifier) {
             hasRenamedImport ||= expr.selectors.exists(s => s.reference.refName != s.importedName)
             selectors ++= expr.getNames
-            expr.deleteExpr()
+            firstPossibleGoodPlace match {
+              case Some(_) =>
+                expr.deleteExpr()
+              case _ =>
+                firstPossibleGoodPlace = Some(expr)
+            }
           }
         }
       }
@@ -271,10 +277,10 @@ trait ScImportsHolder extends ScalaPsiElement {
       candidate match {
         case ScalaResolveResult(pack: PsiPackage, _) => {
           if (names.contains(pack.name)) {
-            var index = packs.findIndexOf(_.name == pack.name)
+            var index = packs.indexWhere(_.name == pack.name)
             while(index != -1) {
               packs.remove(index)
-              index = packs.findIndexOf(_.name == pack.name)
+              index = packs.indexWhere(_.name == pack.name)
             }
           } else {
             names += pack.name
@@ -362,6 +368,12 @@ trait ScImportsHolder extends ScalaPsiElement {
       if (subPackages.length > 0) {
         checkImports(this)
       }
+    }
+    firstPossibleGoodPlace match {
+      case Some(expr) if ref == null || expr.getTextOffset < ref.getTextOffset =>
+        expr.replace(importSt.importExprs(0))
+        return
+      case _ =>
     }
 
     //looking for td import statement to find place which we will use for new import statement

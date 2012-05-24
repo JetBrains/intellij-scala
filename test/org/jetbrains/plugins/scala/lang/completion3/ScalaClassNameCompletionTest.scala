@@ -103,4 +103,39 @@ class ScalaClassNameCompletionTest extends ScalaCompletionTestBase {
     }.get, '\t')
     checkResultByText(resultText)
   }
+
+  def testSmartJoining() {
+    val fileText =
+      """
+        |import collection.mutable.{Builder, Queue}
+        |import scala.collection.immutable.HashMap
+        |import collection.mutable.ArrayBuffer
+        |
+        |object Sandbox extends App {
+        |  val m: ListM<caret>
+        |}
+      """.stripMargin.replaceAll("\r", "").trim()
+    configureFromFileTextAdapter("dummy.scala", fileText)
+    val (activeLookup, _) = complete(1, CompletionType.CLASS_NAME)
+
+    val resultText =
+      """
+        |import collection.mutable.{ListMap, Builder, Queue, ArrayBuffer}
+        |import scala.collection.immutable.HashMap
+        |
+        |object Sandbox extends App {
+        |  val m: ListMap
+        |}
+      """.stripMargin.replaceAll("\r", "").trim()
+
+    completeLookupItem(activeLookup.find {
+      case le: ScalaLookupItem =>
+        le.element match {
+          case c: ScClass if c.qualifiedName == "scala.collection.mutable.ListMap" => true
+          case _ => false
+        }
+      case _ => false
+    }.get, '\t')
+    checkResultByText(resultText)
+  }
 }
