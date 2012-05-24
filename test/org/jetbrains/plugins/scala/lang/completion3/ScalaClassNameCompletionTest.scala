@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.lang.completion3
 import com.intellij.codeInsight.completion.CompletionType
 import org.junit.Assert
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject}
 
 /**
  * User: Alefas
@@ -34,7 +34,7 @@ class ScalaClassNameCompletionTest extends ScalaCompletionTestBase {
     checkResultByText(resultText)
   }
 
-  def testClassSameName() {
+  def testExpressionSameName() {
     val fileText =
       """
         |import collection.immutable.HashSet
@@ -62,6 +62,41 @@ class ScalaClassNameCompletionTest extends ScalaCompletionTestBase {
       case le: ScalaLookupItem =>
         le.element match {
           case c: ScObject if c.qualifiedName == "scala.collection.mutable.HashSet" => true
+          case _ => false
+        }
+      case _ => false
+    }.get, '\t')
+    checkResultByText(resultText)
+  }
+
+  def testClassSameName() {
+    val fileText =
+      """
+        |import collection.immutable.HashSet
+        |
+        |object Sandbox extends App {
+        |  val x: HashSet[Int] = new HashSet[Int]
+        |  val y: HashSet<caret>
+        |}
+      """.stripMargin.replaceAll("\r", "").trim()
+    configureFromFileTextAdapter("dummy.scala", fileText)
+    val (activeLookup, _) = complete(1, CompletionType.CLASS_NAME)
+
+    val resultText =
+      """
+        |import collection.immutable.HashSet
+        |import collection.mutable
+        |
+        |object Sandbox extends App {
+        |  val x: HashSet[Int] = new HashSet[Int]
+        |  val y: mutable.HashSet<caret>
+        |}
+      """.stripMargin.replaceAll("\r", "").trim()
+
+    completeLookupItem(activeLookup.find {
+      case le: ScalaLookupItem =>
+        le.element match {
+          case c: ScClass if c.qualifiedName == "scala.collection.mutable.HashSet" => true
           case _ => false
         }
       case _ => false
