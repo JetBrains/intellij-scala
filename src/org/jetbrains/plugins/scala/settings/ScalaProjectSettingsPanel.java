@@ -18,7 +18,6 @@ import javax.swing.*;
 public class ScalaProjectSettingsPanel {
   private JPanel myPanel;
   private JSpinner classCountSpinner;
-  private JCheckBox addUnambiguousImportsOnCheckBox;
   private JCheckBox addImportStatementInCheckBox;
   private JCheckBox searchAllSymbolsIncludeCheckBox;
   private JCheckBox enableConversionOnCopyCheckBox;
