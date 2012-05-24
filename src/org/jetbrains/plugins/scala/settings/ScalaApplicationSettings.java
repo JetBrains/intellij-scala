@@ -4,6 +4,7 @@ package org.jetbrains.plugins.scala.settings;
  * @author ilyas
  */
 
+import com.intellij.codeInsight.CodeInsightSettings;
 import com.intellij.openapi.components.PersistentStateComponent;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.components.State;
@@ -27,6 +28,9 @@ public class ScalaApplicationSettings implements PersistentStateComponent<ScalaA
   public Boolean INTRODUCE_LOCAL_CREATE_VARIABLE = null;
   public Boolean SPECIFY_RETURN_TYPE_EXPLICITLY = null;
   public Boolean INTRODUCE_PARAMETER_CREATE_DEFAULT = null;
+  public boolean ADD_UNAMBIGUOUS_IMPORTS_ON_THE_FLY = false;
+  public boolean SHOW_IMPORT_POPUP = true;
+  public int ADD_IMPORTS_ON_PASTE = CodeInsightSettings.ASK;
 
   public ScalaApplicationSettings getState() {
     return this;

@@ -51,7 +51,6 @@ public class ScalaProjectSettingsPanel {
   public void apply() {
     if (!isModified()) return;
 
-    ScalaProjectSettings.getInstance(myProject).setAddUnambigiousImportsOnTheFly(addUnambiguousImportsOnCheckBox.isSelected());
     ScalaProjectSettings.getInstance(myProject).setAddImportMostCloseToReference(addImportStatementInCheckBox.isSelected());
     ScalaProjectSettings.getInstance(myProject).setAddFullQualifiedImports(addFullQualifiedImportsCheckBox.isSelected());
     ScalaProjectSettings.getInstance(myProject).setSortImports(sortImportsCheckBox.isSelected());
@@ -88,8 +87,6 @@ public class ScalaProjectSettingsPanel {
 
     if (ScalaProjectSettings.getInstance(myProject).getClassCountToUseImportOnDemand() !=
         (Integer) classCountSpinner.getValue()) return true;
-    if (ScalaProjectSettings.getInstance(myProject).isAddUnambigiousImportsOnTheFly() !=
-        addUnambiguousImportsOnCheckBox.isSelected()) return true;
     if (ScalaProjectSettings.getInstance(myProject).isAddImportMostCloseToReference() !=
         addImportStatementInCheckBox.isSelected()) return true;
     if (ScalaProjectSettings.getInstance(myProject).isAddFullQualifiedImports() !=
@@ -132,8 +129,6 @@ public class ScalaProjectSettingsPanel {
   }
 
   private void setSettings() {
-    setValue(addUnambiguousImportsOnCheckBox,
-        ScalaProjectSettings.getInstance(myProject).isAddUnambigiousImportsOnTheFly());
     setValue(addImportStatementInCheckBox,
         ScalaProjectSettings.getInstance(myProject).isAddImportMostCloseToReference());
     setValue(addFullQualifiedImportsCheckBox,

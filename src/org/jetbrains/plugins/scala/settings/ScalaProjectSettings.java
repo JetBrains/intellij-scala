@@ -26,7 +26,6 @@ public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProj
   private ScalaCodeStyleSettings scalaSettings =
       CodeStyleSettingsManager.getInstance().getCurrentSettings().getCustomSettings(ScalaCodeStyleSettings.class);
 
-  private boolean ADD_UNAMBIGIOUS_IMPORTS_ON_THE_FLY = scalaSettings.ADD_UNAMBIGIOUS_IMPORTS_ON_THE_FLY;
   private int CLASS_COUNT_TO_USE_IMPORT_ON_DEMAND = scalaSettings.CLASS_COUNT_TO_USE_IMPORT_ON_DEMAND;
   private boolean ADD_IMPORT_MOST_CLOSE_TO_REFERENCE = scalaSettings.ADD_IMPORT_MOST_CLOSE_TO_REFERENCE;
   private boolean ADD_FULL_QUALIFIED_IMPORTS = scalaSettings.ADD_FULL_QUALIFIED_IMPORTS;
@@ -76,14 +75,6 @@ public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProj
   @NotNull
   public String getPresentableName() {
     return "Scala Project Settings";
-  }
-
-  public boolean isAddUnambigiousImportsOnTheFly() {
-    return ADD_UNAMBIGIOUS_IMPORTS_ON_THE_FLY;
-  }
-
-  public void setAddUnambigiousImportsOnTheFly(boolean value) {
-    ADD_UNAMBIGIOUS_IMPORTS_ON_THE_FLY = value;
   }
 
   public int getClassCountToUseImportOnDemand() {
