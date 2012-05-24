@@ -77,7 +77,7 @@ class ScalaImportClassFix(private var classes: Array[PsiClass], ref: ScReference
         classes = ScalaImportClassFix.getClasses(ref, project)
         classes.length match {
           case 0 => false
-          case 1 if ScalaProjectSettings.getInstance(project).isAddUnambigiousImportsOnTheFly  &&
+          case 1 if ScalaApplicationSettings.getInstance().ADD_UNAMBIGUOUS_IMPORTS_ON_THE_FLY &&
                   !caretNear(editor) => {
             CommandProcessor.getInstance().runUndoTransparentAction(new Runnable {
               def run() {
