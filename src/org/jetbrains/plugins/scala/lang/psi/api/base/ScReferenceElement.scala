@@ -15,6 +15,8 @@ import toplevel.typedef._
 import psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
 import extensions.{toPsiMemberExt, toPsiNamedElementExt, toPsiClassExt}
+import settings.ScalaProjectSettings
+import annotator.intention.ScalaImportClassFix
 
 /**
  * @author Alexander Podkhalyuzin
@@ -147,5 +149,49 @@ trait ScReferenceElement extends ScalaPsiElement with ResolvableReferenceElement
 
   override def accept(visitor: ScalaElementVisitor) {
     visitor.visitReference(this)
+  }
+
+  protected def safeBindToElement[T <: ScReferenceElement](qualName: String, referenceCreator: (String, Boolean) => T)
+                                                        (simpleImport: => PsiElement): PsiElement = {
+    val parts: Array[String] = qualName.split('.')
+    val anotherRef: T = referenceCreator(parts.last, true)
+    val resolve: Array[ResolveResult] = anotherRef.multiResolve(false)
+    if (resolve.isEmpty) {
+      simpleImport
+    } else {
+      if (qualName.contains(".")) {
+        var index =
+          if (ScalaProjectSettings.getInstance(getProject).isImportShortestPathForAmbiguousReferences) parts.length - 1
+          else 0
+        while (index >= 0) {
+          val packagePart = parts.take(index + 1).mkString(".")
+          val toReplace = parts.drop(index).mkString(".")
+          val ref: T = referenceCreator(toReplace, true)
+          var qual = ref
+          while (qual.qualifier != None) qual = qual.qualifier.get.asInstanceOf[T]
+          val resolve: Array[ResolveResult] = qual.multiResolve(false)
+          def isOk: Boolean = {
+            if (resolve.length == 0) true
+            else if (resolve.length > 1) false
+            else {
+              val result: ResolveResult = resolve(0)
+              result match {
+                case ScalaResolveResult(pack: PsiPackage, _) => pack.getQualifiedName == packagePart
+                case ScalaResolveResult(c: PsiClass, _) => c.qualifiedName == packagePart
+                case _ => false
+              }
+            }
+          }
+          if (isOk) {
+            ScalaImportClassFix.getImportHolder(this, getProject).addImportForPath(packagePart, this)
+            val ref = referenceCreator(toReplace, false)
+            return this.replace(ref)
+          }
+          index -= 1
+        }
+      }
+      val ref: T = referenceCreator("_root_." + qualName, false)
+      this.replace(ref)
+    }
   }
 }
