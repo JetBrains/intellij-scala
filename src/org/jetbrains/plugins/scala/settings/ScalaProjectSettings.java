@@ -26,6 +26,7 @@ public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProj
   private ScalaCodeStyleSettings scalaSettings =
       CodeStyleSettingsManager.getInstance().getCurrentSettings().getCustomSettings(ScalaCodeStyleSettings.class);
 
+  private boolean IMPORT_SHORTEST_PATH_FOR_AMBIGUOUS_REFERENCES = true;
   private int CLASS_COUNT_TO_USE_IMPORT_ON_DEMAND = scalaSettings.CLASS_COUNT_TO_USE_IMPORT_ON_DEMAND;
   private boolean ADD_IMPORT_MOST_CLOSE_TO_REFERENCE = scalaSettings.ADD_IMPORT_MOST_CLOSE_TO_REFERENCE;
   private boolean ADD_FULL_QUALIFIED_IMPORTS = scalaSettings.ADD_FULL_QUALIFIED_IMPORTS;
@@ -211,5 +212,13 @@ public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProj
 
   public void setCollectionTypeHighlightingLevel(int level) {
     this.COLLECTION_TYPE_HIGHLIGHTING_LEVEL = level;
+  }
+
+  public boolean isImportShortestPathForAmbiguousReferences() {
+    return IMPORT_SHORTEST_PATH_FOR_AMBIGUOUS_REFERENCES;
+  }
+
+  public void setImportShortestPathForAmbiguousReferences(boolean importShortestPathForAmbiguousReferences) {
+    this.IMPORT_SHORTEST_PATH_FOR_AMBIGUOUS_REFERENCES = importShortestPathForAmbiguousReferences;
   }
 }

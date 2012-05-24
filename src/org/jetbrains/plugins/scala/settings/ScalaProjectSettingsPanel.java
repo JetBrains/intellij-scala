@@ -34,6 +34,7 @@ public class ScalaProjectSettingsPanel {
   private JCheckBox myDisableLanguageInjection;
   private JCheckBox useScalaClassesPriorityCheckBox;
   private JComboBox collectionHighlightingChooser;
+  private JCheckBox importTheShortestPathCheckBox;
   private Project myProject;
 
   public ScalaProjectSettingsPanel(Project project) {
@@ -70,6 +71,7 @@ public class ScalaProjectSettingsPanel {
     ScalaProjectSettings.getInstance(myProject).setDisableLangInjection(myDisableLanguageInjection.isSelected());
     ScalaProjectSettings.getInstance(myProject).setScalaPriority(useScalaClassesPriorityCheckBox.isSelected());
     ScalaProjectSettings.getInstance(myProject).setCollectionTypeHighlightingLevel(collectionHighlightingChooser.getSelectedIndex());
+    ScalaProjectSettings.getInstance(myProject).setImportShortestPathForAmbiguousReferences(importTheShortestPathCheckBox.isSelected());
   }
 
   @SuppressWarnings({"ConstantConditions", "RedundantIfStatement"})
@@ -103,6 +105,8 @@ public class ScalaProjectSettingsPanel {
         donTShowDialogCheckBox.isSelected()) return true;
     if (ScalaProjectSettings.getInstance(myProject).isTreatDocCommentAsBlockComment() !=
         treatDocCommentAsBlockComment.isSelected()) return true;
+    if (ScalaProjectSettings.getInstance(myProject).isImportShortestPathForAmbiguousReferences() !=
+        importTheShortestPathCheckBox.isSelected()) return true;
 
     if (ScalaProjectSettings.getInstance(myProject).isIgnorePerformance() != myResolveToAllClassesCheckBox.isSelected())
       return true;
@@ -164,6 +168,8 @@ public class ScalaProjectSettingsPanel {
         ScalaProjectSettings.getInstance(myProject).isDisableLangInjection());
     setValue(useScalaClassesPriorityCheckBox,
         ScalaProjectSettings.getInstance(myProject).isScalaPriority());
+    setValue(importTheShortestPathCheckBox,
+        ScalaProjectSettings.getInstance(myProject).isImportShortestPathForAmbiguousReferences());
     collectionHighlightingChooser.setSelectedIndex(ScalaProjectSettings.getInstance(myProject).getCollectionTypeHighlightingLevel());
   }
 
