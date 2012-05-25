@@ -51,10 +51,10 @@ class ScalaFoldingBuilder extends FoldingBuilder {
           descriptors += (new FoldingDescriptor(node,
             new TextRange(node.getTextRange.getStartOffset + IMPORT_KEYWORD.length + 1, getImportEnd(node))))
         }
-        case ScalaElementTypes.MATCH_STMT =>
+        case ScalaElementTypes.MATCH_STMT if isMultilineBodyInMatchStmt(node)=>
           descriptors += (new FoldingDescriptor(node,
-            new TextRange(node.getTextRange.getStartOffset + node.getPsi.asInstanceOf[ScMatchStmt].expr.get.getTextLength +
-                    MATCH_KEYWORD.length + 2, node.getTextRange.getEndOffset)))
+            new TextRange(node.getTextRange.getStartOffset + startOffsetForMatchStmt(node),
+              node.getTextRange.getEndOffset)))
         case _ =>
       }
       psi match {
@@ -97,7 +97,7 @@ class ScalaFoldingBuilder extends FoldingBuilder {
     } else if (node.getElementType == ScalaElementTypes.TYPE_PROJECTION) {
       node.getPsi match {
         case TypeLambda(typeName, typeParamClause, aliasedType) =>
-          val group = FoldingGroup.newGroup("typelambda");
+          val group = FoldingGroup.newGroup("typelambda")
           val range1 = new TextRange(node.getTextRange.getStartOffset, typeParamClause.getTextRange.getStartOffset)
           val d1 = new FoldingDescriptor(node, range1, group) {
             override def getPlaceholderText = typeName
@@ -241,6 +241,38 @@ class ScalaFoldingBuilder extends FoldingBuilder {
 
   private def isMultiline(node: ASTNode): Boolean = {
     node.getText.indexOf("\n") != -1
+  }
+
+  private def isMultilineBodyInMatchStmt(node: ASTNode): Boolean = {
+    val children = node.getPsi.asInstanceOf[ScMatchStmt].children
+    var index = 0
+    for (ch <- children) {
+      if (ch.isInstanceOf[PsiElement] && ch.getNode.getElementType == ScalaTokenTypes.kMATCH) {
+        val result = node.getText.substring(index + MATCH_KEYWORD.length)
+        return result.indexOf("\n") != -1
+      } else {
+        index += ch.getTextLength
+      }
+    }
+    false
+  }
+
+  private def startOffsetForMatchStmt(node: ASTNode): Int = {
+    val children = node.getPsi.asInstanceOf[ScMatchStmt].children
+    var offset = 0
+    var passedMatch = false
+    for (ch <- children) {
+      if (ch.isInstanceOf[PsiElement] && ch.getNode.getElementType == ScalaTokenTypes.kMATCH) {
+        offset += MATCH_KEYWORD.length
+        passedMatch = true
+      } else if (passedMatch) {
+        if (ch.isInstanceOf[PsiElement] && ch.getNode.getElementType == TokenType.WHITE_SPACE) offset += ch.getTextLength
+        return offset
+      } else {
+        offset += ch.getTextLength
+      }
+    }
+    0
   }
 
   private def isMultilineImport(node: ASTNode): Boolean = {
