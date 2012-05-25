@@ -138,4 +138,41 @@ class ScalaClassNameCompletionTest extends ScalaCompletionTestBase {
     }.get, '\t')
     checkResultByText(resultText)
   }
+
+  def testImportsMess() {
+    val fileText =
+      """
+        |import collection.immutable.{BitSet, HashSet, ListMap, SortedMap}
+        |import collection.mutable._
+        |
+        |class Test2 {
+        |  val x: HashMap[String, String] = HashMap.empty
+        |  val z: ListSet<caret> = null
+        |}
+      """.stripMargin.replaceAll("\r", "").trim()
+    configureFromFileTextAdapter("dummy.scala", fileText)
+    val (activeLookup, _) = complete(1, CompletionType.CLASS_NAME)
+
+    val resultText =
+      """
+        |import collection.immutable._
+        |import collection.mutable._
+        |import collection.mutable.HashMap
+        |
+        |class Test2 {
+        |  val x: HashMap[String, String] = HashMap.empty
+        |  val z: ListSet<caret> = null
+        |}
+      """.stripMargin.replaceAll("\r", "").trim()
+
+    completeLookupItem(activeLookup.find {
+      case le: ScalaLookupItem =>
+        le.element match {
+          case c: ScClass if c.qualifiedName == "scala.collection.immutable.ListSet" => true
+          case _ => false
+        }
+      case _ => false
+    }.get, '\t')
+    checkResultByText(resultText)
+  }
 }
