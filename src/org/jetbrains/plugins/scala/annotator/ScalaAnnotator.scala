@@ -123,7 +123,7 @@ with DumbAware {
       }
 
       override def visitGenericCallExpression(call: ScGenericCall) {
-        checkGenericCallExpression(call, holder)
+        if (typeAware) checkGenericCallExpression(call, holder)
         super.visitGenericCallExpression(call)
       }
 
