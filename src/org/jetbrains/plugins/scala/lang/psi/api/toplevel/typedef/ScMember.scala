@@ -61,10 +61,15 @@ trait ScMember extends ScalaPsiElement with ScModifierListOwner with PsiMember {
       stub.getParentStubOfType(classOf[ScTemplateDefinition])
     } else {
       child match {
+        // TODO is all of this mess still necessary?! 
         case c: ScClass if c.isCase => {
-          //this is special case for synthetic apply and unapply methods
-          ScalaPsiUtil.getCompanionModule(c) match {
-            case Some(td) => return td
+          this match {
+            case fun: ScFunction if fun.isSyntheticApply || fun.isSyntheticUnapply =>
+              //this is special case for synthetic apply and unapply methods
+              ScalaPsiUtil.getCompanionModule(c) match {
+                case Some(td) => return td
+                case _ =>
+              }
             case _ =>
           }
         }
