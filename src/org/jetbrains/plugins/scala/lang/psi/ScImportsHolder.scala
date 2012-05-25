@@ -289,11 +289,16 @@ trait ScImportsHolder extends ScalaPsiElement {
     val usedNames = new HashSet[String]()
 
     this.accept(new ScalaRecursiveElementVisitor {
-      override def visitReference(ref: ScReferenceElement) {
-        ref.qualifier match {
-          case None if !ref.getContext.isInstanceOf[ScImportSelector] => usedNames += ref.refName
+      override def visitReference(reference: ScReferenceElement) {
+        if (reference == ref) {
+          super.visitReference(reference)
+          return
+        }
+        reference.qualifier match {
+          case None if !reference.getContext.isInstanceOf[ScImportSelector] => usedNames += reference.refName
           case _ =>
         }
+        super.visitReference(reference)
       }
     })
 
@@ -447,7 +452,10 @@ trait ScImportsHolder extends ScalaPsiElement {
           for (name <- usedNames) checkName(name)
         } else {
           //check only newly imported name
-          checkName(path.split('.').last)
+          val name = path.split('.').last
+          if (usedNames.contains(name)) {
+            checkName(name)
+          }
         }
       }
 

@@ -17,6 +17,7 @@ import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
 import extensions.{toPsiMemberExt, toPsiNamedElementExt, toPsiClassExt}
 import settings.ScalaProjectSettings
 import annotator.intention.ScalaImportClassFix
+import collection.mutable.HashSet
 
 /**
  * @author Alexander Podkhalyuzin
@@ -156,7 +157,32 @@ trait ScReferenceElement extends ScalaPsiElement with ResolvableReferenceElement
     val parts: Array[String] = qualName.split('.')
     val anotherRef: T = referenceCreator(parts.last, true)
     val resolve: Array[ResolveResult] = anotherRef.multiResolve(false)
-    if (resolve.isEmpty) {
+    def checkForPredefinedTypes(): Boolean = {
+      if (resolve.isEmpty) return true
+      val usedNames = new HashSet[String]()
+      val res = resolve.forall {
+        case r: ScalaResolveResult if r.importsUsed.isEmpty => usedNames += r.name; true
+        case _ => false
+      }
+      if (!res) return false
+      var reject = false
+      getContainingFile.accept(new ScalaRecursiveElementVisitor {
+        override def visitReference(ref: ScReferenceElement) {
+          if (reject) return
+          if (usedNames.contains(ref.refName)) {
+            ref.bind() match {
+              case Some(r: ScalaResolveResult) if ref != ScReferenceElement.this && r.importsUsed.isEmpty =>
+                reject = true
+                return
+              case _ =>
+            }
+          }
+          super.visitReference(ref)
+        }
+      })
+      !reject
+    }
+    if (checkForPredefinedTypes()) {
       simpleImport
     } else {
       if (qualName.contains(".")) {
