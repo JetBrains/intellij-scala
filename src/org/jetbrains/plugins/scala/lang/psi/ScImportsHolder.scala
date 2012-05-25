@@ -2,28 +2,25 @@ package org.jetbrains.plugins.scala
 package lang
 package psi
 
+import api.base.ScReferenceElement
 import api.statements.ScTypeAliasDefinition
+import api.toplevel.imports.{ScImportSelector, ScImportSelectors, ScImportExpr, ScImportStmt}
 import api.toplevel.templates.ScTemplateBody
+import api.{ScalaRecursiveElementVisitor, ScalaFile}
 import com.intellij.psi.impl.source.codeStyle.CodeEditUtil
 import impl.{ScPackageImpl, ScalaPsiElementFactory}
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import api.base.ScReferenceElement
 import api.toplevel.imports.usages.{ImportSelectorUsed, ImportExprUsed, ImportWildcardSelectorUsed, ImportUsed}
-import collection.mutable.{HashSet, ArrayBuffer}
 import com.intellij.codeInsight.hint.HintManager
 import lexer.ScalaTokenTypes
-import api.toplevel.imports.{ScImportExpr, ScImportStmt}
 import api.toplevel.packaging.ScPackaging
 import api.toplevel.typedef.ScTypeDefinition
 import com.intellij.psi._
 import psi.impl.toplevel.synthetic.ScSyntheticPackage
-import collection.mutable.Set
 import refactoring.util.ScalaNamesUtil
 import scope._
 import com.intellij.openapi.progress.ProgressManager
 import lang.resolve.processor.{CompletionProcessor, ResolveProcessor}
-import lang.resolve.{ScalaResolveResult, StdKinds}
 import com.intellij.psi.util.PsiTreeUtil
 import java.lang.ThreadLocal
 import com.intellij.openapi.util.{Trinity, RecursionManager}
@@ -31,6 +28,9 @@ import types.result.TypingContext
 import types.ScDesignatorType
 import extensions.{toPsiMemberExt, toPsiNamedElementExt, toPsiClassExt}
 import settings._
+import lang.resolve.{ScalaResolveResult, StdKinds}
+import annotation.tailrec
+import collection.mutable.{HashMap, HashSet, ArrayBuffer, Set}
 
 trait ScImportsHolder extends ScalaPsiElement {
 
@@ -202,18 +202,19 @@ trait ScImportsHolder extends ScalaPsiElement {
     }
   }
 
-  def addImportForPath(path: String, ref: PsiElement = null) {
+  def addImportForPath(path: String, ref: PsiElement = null, explicitly: Boolean = false) {
     val selectors = new ArrayBuffer[String]
+    val renamedSelectors = new ArrayBuffer[String]()
 
     val qualifiedName = path
     val index = qualifiedName.lastIndexOf('.')
     if (index == -1) return  //cannot import anything
     var classPackageQualifier = qualifiedName.substring(0, index)
-    var hasRenamedImport = false
 
     //collecting selectors to add into new import statement
     var firstPossibleGoodPlace: Option[ScImportExpr] = None
-    for (imp <- importStatementsInHeader) {
+    val toDelete: ArrayBuffer[ScImportExpr] = new ArrayBuffer[ScImportExpr]()
+    for (imp <- importStatementsInHeader if !explicitly) {
       for (expr: ScImportExpr <- imp.importExprs) {
         val qualifier = expr.qualifier
         if (qualifier != null) { //in case "import scala" it can be null
@@ -223,11 +224,21 @@ trait ScImportsHolder extends ScalaPsiElement {
             case _ => ""
           }
           if (qn == classPackageQualifier) {
-            hasRenamedImport ||= expr.selectors.exists(s => s.reference.refName != s.importedName)
-            selectors ++= expr.getNames
+            expr.getLastChild match {
+              case s: ScImportSelectors =>
+                for (selector <- s.selectors) {
+                  if (selector.importedName != selector.reference.refName) {
+                    renamedSelectors += selector.getText
+                  } else {
+                    selectors += selector.getText
+                  }
+                }
+                if (s.hasWildcard) selectors += "_"
+              case _ => selectors ++= expr.getNames
+            }
             firstPossibleGoodPlace match {
               case Some(_) =>
-                expr.deleteExpr()
+                toDelete += expr
               case _ =>
                 firstPossibleGoodPlace = Some(expr)
             }
@@ -246,31 +257,58 @@ trait ScImportsHolder extends ScalaPsiElement {
     var isPlaceHolderImport = false
     val simpleName = path.substring(path.lastIndexOf('.') + 1)
     simpleName +=: selectors
-    
-    if (!hasRenamedImport && (selectors.exists(_ == "_") ||
-      selectors.length >= ScalaProjectSettings.getInstance(getProject).getClassCountToUseImportOnDemand)) {
+
+    val wildcardImport: Boolean = selectors.exists(_ == "_") ||
+      selectors.length >= ScalaProjectSettings.getInstance(getProject).getClassCountToUseImportOnDemand
+    if (wildcardImport) {
       selectors.clear()
       selectors += "_"
       isPlaceHolderImport = true
     }
 
-    var importString = selectors.distinct match {
-      case Seq(s) => s
-      case ss => ss.mkString("{", ", ", "}")
-    }
-
-    val place = getLastChild
-    val completionProcessor = new CompletionProcessor(StdKinds.packageRef, place)
-    def treeWalkUp(place: PsiElement, lastParent: PsiElement) {
+    @tailrec
+    def treeWalkUp(completionProcessor: CompletionProcessor, place: PsiElement, lastParent: PsiElement) {
       place match {
         case null =>
         case p => {
           if (!p.processDeclarations(completionProcessor, ResolveState.initial, lastParent, place)) return
-          treeWalkUp(place.getContext, place)
+          treeWalkUp(completionProcessor, place.getContext, place)
         }
       }
     }
-    treeWalkUp(this, place)
+
+    val place = getLastChild
+    var everythingProcessor  = new CompletionProcessor(StdKinds.stableImportSelector, place)
+    treeWalkUp(everythingProcessor, this, place)
+    val candidatesBefore: HashMap[String, collection.immutable.HashSet[PsiNamedElement]] = new HashMap
+    for (candidate <- everythingProcessor.candidates) {
+      val set: collection.immutable.HashSet[PsiNamedElement] =
+        candidatesBefore.getOrElse(candidate.name, collection.immutable.HashSet.empty[PsiNamedElement])
+      candidatesBefore.update(candidate.name, set + candidate.getElement)
+    }
+    val usedNames = new HashSet[String]()
+
+    this.accept(new ScalaRecursiveElementVisitor {
+      override def visitReference(ref: ScReferenceElement) {
+        ref.qualifier match {
+          case None if !ref.getContext.isInstanceOf[ScImportSelector] => usedNames += ref.refName
+          case _ =>
+        }
+      }
+    })
+
+    for (expr <- toDelete) {
+      expr.deleteExpr()
+    }
+
+
+    var importString = (renamedSelectors ++ selectors).distinct match {
+      case Seq(s) => s
+      case ss => ss.mkString("{", ", ", "}")
+    }
+
+    val completionProcessor = new CompletionProcessor(StdKinds.packageRef, place)
+    treeWalkUp(completionProcessor, this, place)
     val names: HashSet[String] = new HashSet
     val packs: ArrayBuffer[PsiPackage] = new ArrayBuffer
     for (candidate <- completionProcessor.candidatesS) {
@@ -369,9 +407,57 @@ trait ScImportsHolder extends ScalaPsiElement {
         checkImports(this)
       }
     }
+
+    def tail() {
+      if (!explicitly) {
+        everythingProcessor = new CompletionProcessor(StdKinds.stableImportSelector, getLastChild)
+        treeWalkUp(everythingProcessor, this, getLastChild)
+        val candidatesAfter: HashMap[String, collection.immutable.HashSet[PsiNamedElement]] = new HashMap
+        for (candidate <- everythingProcessor.candidates) {
+          val set: collection.immutable.HashSet[PsiNamedElement] =
+            candidatesAfter.getOrElse(candidate.name, collection.immutable.HashSet.empty[PsiNamedElement])
+          candidatesAfter.update(candidate.name, set + candidate.getElement)
+        }
+
+        def checkName(s: String) {
+          if (candidatesBefore.get(s) != candidatesAfter.get(s)) {
+            val pathes = new HashSet[String]()
+            //let's try to fix it by adding all before imports explicitly
+            candidatesBefore.get(s).getOrElse(collection.immutable.HashSet.empty[PsiNamedElement]).foreach {
+              case c: PsiClass => pathes += c.qualifiedName
+              case c: PsiNamedElement =>
+                ScalaPsiUtil.nameContext(c) match {
+                  case memb: PsiMember =>
+                    val containingClass = memb.containingClass
+                    if (containingClass != null && containingClass.qualifiedName != null) {
+                      val qual = Seq(containingClass.qualifiedName, c.name).filter(_ != "").mkString(".")
+                      pathes += qual
+                    }
+                  case _ =>
+                }
+            }
+            for (path <- pathes) {
+              addImportForPath(path, ref, explicitly = true)
+            }
+          }
+        }
+
+        if (wildcardImport) {
+          //check all names
+          for (name <- usedNames) checkName(name)
+        } else {
+          //check only newly imported name
+          checkName(path.split('.').last)
+        }
+      }
+
+      HintManager.getInstance.hideAllHints()
+    }
+
     firstPossibleGoodPlace match {
       case Some(expr) if ref == null || expr.getTextOffset < ref.getTextOffset =>
         expr.replace(importSt.importExprs(0))
+        tail()
         return
       case _ =>
     }
@@ -455,7 +541,8 @@ trait ScImportsHolder extends ScalaPsiElement {
         }
       }
     }
-    HintManager.getInstance.hideAllHints()
+
+    tail()
   }
 
 
