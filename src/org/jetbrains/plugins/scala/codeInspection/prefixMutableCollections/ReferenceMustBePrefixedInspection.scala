@@ -25,7 +25,7 @@ class ReferenceMustBePrefixedInspection extends AbstractInspection("ReferenceMus
           r.getActualElement match {
             case clazz: PsiClass =>
               val qualName = clazz.qualifiedName
-              if (qualName.contains(".")) {
+              if (qualName != null && qualName.contains(".")) {
                 val importsWithPrefix = ScalaProjectSettings.getInstance(clazz.getProject).getImportsWithPrefix
                 if (importsWithPrefix.find {
                   case s if s.endsWith("_") => s.substring(0, s.lastIndexOf('.')) == qualName.substring(0, qualName.lastIndexOf('.'))
