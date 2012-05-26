@@ -4,6 +4,7 @@ import com.intellij.codeInsight.completion.CompletionType
 import org.junit.Assert
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject}
+import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
 /**
  * User: Alefas
@@ -105,38 +106,46 @@ class ScalaClassNameCompletionTest extends ScalaCompletionTestBase {
   }
 
   def testSmartJoining() {
-    val fileText =
-      """
-        |import collection.mutable.{Builder, Queue}
-        |import scala.collection.immutable.HashMap
-        |import collection.mutable.ArrayBuffer
-        |
-        |object Sandbox extends App {
-        |  val m: ListM<caret>
-        |}
-      """.stripMargin.replaceAll("\r", "").trim()
-    configureFromFileTextAdapter("dummy.scala", fileText)
-    val (activeLookup, _) = complete(1, CompletionType.CLASS_NAME)
+    val settings = ScalaProjectSettings.getInstance(getProjectAdapter)
+    val oldValue = settings.getImportsWithPrefix
+    settings.setImportsWithPrefix(Array.empty)
+    try {
+      val fileText =
+        """
+          |import collection.mutable.{Builder, Queue}
+          |import scala.collection.immutable.HashMap
+          |import collection.mutable.ArrayBuffer
+          |
+          |object Sandbox extends App {
+          |  val m: ListM<caret>
+          |}
+        """.stripMargin.replaceAll("\r", "").trim()
+      configureFromFileTextAdapter("dummy.scala", fileText)
+      val (activeLookup, _) = complete(1, CompletionType.CLASS_NAME)
 
-    val resultText =
-      """
-        |import collection.mutable.{ListMap, Builder, Queue, ArrayBuffer}
-        |import scala.collection.immutable.HashMap
-        |
-        |object Sandbox extends App {
-        |  val m: ListMap
-        |}
-      """.stripMargin.replaceAll("\r", "").trim()
+      val resultText =
+        """
+          |import collection.mutable.{ListMap, Builder, Queue, ArrayBuffer}
+          |import scala.collection.immutable.HashMap
+          |
+          |object Sandbox extends App {
+          |  val m: ListMap
+          |}
+        """.stripMargin.replaceAll("\r", "").trim()
 
-    completeLookupItem(activeLookup.find {
-      case le: ScalaLookupItem =>
-        le.element match {
-          case c: ScClass if c.qualifiedName == "scala.collection.mutable.ListMap" => true
-          case _ => false
-        }
-      case _ => false
-    }.get, '\t')
-    checkResultByText(resultText)
+      completeLookupItem(activeLookup.find {
+        case le: ScalaLookupItem =>
+          le.element match {
+            case c: ScClass if c.qualifiedName == "scala.collection.mutable.ListMap" => true
+            case _ => false
+          }
+        case _ => false
+      }.get, '\t')
+      checkResultByText(resultText)
+    }
+    catch {
+      case t => settings.setImportsWithPrefix(oldValue)
+    }
   }
 
   def testImportsMess() {

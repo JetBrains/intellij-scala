@@ -241,7 +241,7 @@ class ScalaBasicCompletionTest extends ScalaCompletionTestBase {
   def testAfterNew() {
     val fileText =
       """
-      |import collection.mutable.ListBuffer
+      |import collection.mutable
       |class A {
       |  val f = new <caret>
       |}
@@ -251,9 +251,9 @@ class ScalaBasicCompletionTest extends ScalaCompletionTestBase {
 
     val resultText =
       """
-      |import collection.mutable.ListBuffer
+      |import collection.mutable
       |class A {
-      |  val f = new ListBuffer[<caret>]
+      |  val f = new mutable.ListBuffer[<caret>]
       |}
       """.stripMargin.replaceAll("\r", "").trim()
 
@@ -273,10 +273,10 @@ class ScalaBasicCompletionTest extends ScalaCompletionTestBase {
 
     val resultText =
       """
-      |import collection.mutable.ListBuffer
+      |import collection.mutable
       |
       |class A {
-      |  val f = new ListBuffer[<caret>]
+      |  val f = new mutable.ListBuffer[<caret>]
       |}
       """.stripMargin.replaceAll("\r", "").trim()
 
@@ -471,9 +471,9 @@ class ScalaBasicCompletionTest extends ScalaCompletionTestBase {
   def testYield() {
     val fileText =
       """
-      |object Test extends App {
-      |  Thread.<caret>
-      |}
+        |object Test extends App {
+        |  Thread.<caret>
+        |}
       """.stripMargin.replaceAll("\r", "").trim()
     configureFromFileTextAdapter("dummy.scala", fileText)
     val (activeLookup, _) = complete(1, CompletionType.BASIC)

@@ -47,9 +47,10 @@ class ScalaSmartCompletionTest extends ScalaCompletionTestBase {
 
     val resultText =
       """
+      |import collection.mutable
       |import collection.mutable.ListBuffer
       |class A {
-      |  val f: ListBuffer[String] = new ListBuffer[String]<caret>
+      |  val f: ListBuffer[String] = new mutable.ListBuffer[String]
       |}
       """.stripMargin.replaceAll("\r", "").trim()
 
