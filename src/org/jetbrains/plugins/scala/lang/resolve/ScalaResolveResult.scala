@@ -37,7 +37,8 @@ class ScalaResolveResult(val element: PsiNamedElement,
                          val isAssignment: Boolean = false,
                          val notCheckedResolveResult: Boolean = false, 
                          val isAccessible: Boolean = true,
-                         val resultUndef: Option[ScUndefinedSubstitutor] = None) extends ResolveResult {
+                         val resultUndef: Option[ScUndefinedSubstitutor] = None,
+                         val prefixCompletion: Boolean = false) extends ResolveResult {
 
   def getElement = element
   

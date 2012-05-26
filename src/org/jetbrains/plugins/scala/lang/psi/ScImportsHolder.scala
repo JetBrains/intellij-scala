@@ -278,7 +278,7 @@ trait ScImportsHolder extends ScalaPsiElement {
     }
 
     val place = getLastChild
-    var everythingProcessor  = new CompletionProcessor(StdKinds.stableImportSelector, place)
+    var everythingProcessor  = new CompletionProcessor(StdKinds.stableImportSelector, place, includePrefixImports = false)
     treeWalkUp(everythingProcessor, this, place)
     val candidatesBefore: HashMap[String, collection.immutable.HashSet[PsiNamedElement]] = new HashMap
     for (candidate <- everythingProcessor.candidates) {
@@ -312,7 +312,7 @@ trait ScImportsHolder extends ScalaPsiElement {
       case ss => ss.mkString("{", ", ", "}")
     }
 
-    val completionProcessor = new CompletionProcessor(StdKinds.packageRef, place)
+    val completionProcessor = new CompletionProcessor(StdKinds.packageRef, place, includePrefixImports = false)
     treeWalkUp(completionProcessor, this, place)
     val names: HashSet[String] = new HashSet
     val packs: ArrayBuffer[PsiPackage] = new ArrayBuffer
@@ -415,7 +415,7 @@ trait ScImportsHolder extends ScalaPsiElement {
 
     def tail() {
       if (!explicitly) {
-        everythingProcessor = new CompletionProcessor(StdKinds.stableImportSelector, getLastChild)
+        everythingProcessor = new CompletionProcessor(StdKinds.stableImportSelector, getLastChild, includePrefixImports = false)
         treeWalkUp(everythingProcessor, this, getLastChild)
         val candidatesAfter: HashMap[String, collection.immutable.HashSet[PsiNamedElement]] = new HashMap
         for (candidate <- everythingProcessor.candidates) {

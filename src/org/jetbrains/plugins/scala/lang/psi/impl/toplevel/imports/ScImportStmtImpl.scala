@@ -8,7 +8,6 @@ package imports
 import com.intellij.openapi.util.Key
 import com.intellij.lang.ASTNode
 
-import lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports._
 import com.intellij.psi._
 import _root_.scala.collection.mutable.HashSet
@@ -24,6 +23,9 @@ import api.base.ScStableCodeReferenceElement
 import types.result.Failure
 import types.{ScSubstitutor, ScDesignatorType}
 import org.jetbrains.plugins.scala.extensions._
+import settings.ScalaProjectSettings
+import lang.resolve.{StdKinds, ScalaResolveResult}
+import completion.ScalaCompletionUtil
 
 /**
  * @author Alexander Podkhalyuzin
@@ -78,7 +80,7 @@ class ScImportStmtImpl extends ScalaStubBasedElementImpl[ScImportStmt] with ScIm
         }
         val refType = exprQual.bind() match {
           case Some(ScalaResolveResult(p: PsiPackage, _)) => Failure("no failure", Some(this))
-          case _ => ScSimpleTypeElementImpl.calculateReferenceType(exprQual, false)
+          case _ => ScSimpleTypeElementImpl.calculateReferenceType(exprQual, shapesOnly = false)
         }
         val resolve: Array[ResolveResult] = ref.multiResolve(false)
         val resolveIterator = resolve.iterator
@@ -86,6 +88,31 @@ class ScImportStmtImpl extends ScalaStubBasedElementImpl[ScImportStmt] with ScIm
           val (elem, importsUsed, s) = resolveIterator.next() match {
             case s: ScalaResolveResult => (s.getElement, s.importsUsed, s.substitutor)
             case r: ResolveResult => (r.getElement, Set[ImportUsed](), ScSubstitutor.empty)
+          }
+          if (elem.isInstanceOf[PsiPackage] && processor.isInstanceOf[CompletionProcessor] &&
+            processor.asInstanceOf[CompletionProcessor].includePrefixImports) {
+            val prefixImports = ScalaProjectSettings.getInstance(getProject).getImportsWithPrefix.filter(s =>
+              s.substring(0, s.lastIndexOf(".")) == elem.asInstanceOf[PsiPackage].getQualifiedName
+            )
+            val names = new HashSet[String]()
+            for (prefixImport <- prefixImports) {
+              names += prefixImport.substring(prefixImport.lastIndexOf('.') + 1)
+            }
+            val wildcard = names.contains("_")
+            def isOK(name: String): Boolean = {
+              if (wildcard) true
+              else names.contains(name)
+            }
+            val newImportsUsed = Set(importsUsed.toSeq: _*) + ImportExprUsed(importExpr)
+            val newState = state.put(ScalaCompletionUtil.PREFIX_COMPLETION_KEY, true).put(ImportUsed.key, newImportsUsed)
+            elem.processDeclarations(new BaseProcessor(StdKinds.stableImportSelector) {
+              def execute(element: PsiElement, state: ResolveState): Boolean = {
+                element match {
+                  case elem: PsiNamedElement if isOK(elem.name) => processor.execute(element, state)
+                  case _ => true
+                }
+              }
+            }, newState, this, place)
           }
           val subst = state.get(ScSubstitutor.key).toOption.getOrElse(ScSubstitutor.empty).followed(s)
           ProgressManager.checkCanceled()

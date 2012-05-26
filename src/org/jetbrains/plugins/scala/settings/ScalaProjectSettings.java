@@ -48,9 +48,10 @@ public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProj
 
   private boolean SCALA_CLASSES_PRIORITY = scalaSettings.SCALA_CLASSES_PRIORITY;
 
+  private String[] IMPORTS_WITH_PREFIX = {"java.util._", "scala.collection.mutable._"};
 
   //colection type highlighting settings
-  private int COLLECTION_TYPE_HIGHLIGHTING_LEVEL = 1;
+  private int COLLECTION_TYPE_HIGHLIGHTING_LEVEL = 0;
 
   public static final int COLLECTION_TYPE_HIGHLIGHTING_ALL = 2;
   public static final int COLLECTION_TYPE_HIGHLIGHTING_NOT_QUALIFIED = 1;
@@ -220,5 +221,13 @@ public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProj
 
   public void setImportShortestPathForAmbiguousReferences(boolean importShortestPathForAmbiguousReferences) {
     this.IMPORT_SHORTEST_PATH_FOR_AMBIGUOUS_REFERENCES = importShortestPathForAmbiguousReferences;
+  }
+
+  public String[] getImportsWithPrefix() {
+    return IMPORTS_WITH_PREFIX;
+  }
+
+  public void setImportsWithPrefix(String[] importsWithPrefix) {
+    this.IMPORTS_WITH_PREFIX = importsWithPrefix;
   }
 }
