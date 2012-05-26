@@ -10,6 +10,7 @@ import com.intellij.codeInspection.{ProblemDescriptor, ProblemsHolder}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScStableCodeReferenceElement, ScReferenceElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportSelector
 
 /**
  * @author Alefas
@@ -18,7 +19,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 
 class ReferenceMustBePrefixedInspection extends AbstractInspection("ReferenceMustBePrefixed", "Reference must be prefixed") {
   def actionFor(holder: ProblemsHolder) = {
-    case ref: ScReferenceElement if ref.qualifier == None =>
+    case ref: ScReferenceElement if ref.qualifier == None && !ref.getParent.isInstanceOf[ScImportSelector] =>
       ref.bind() match {
         case Some(r: ScalaResolveResult) =>
           r.getActualElement match {

@@ -87,11 +87,12 @@ class ScalaResolveResult(val element: PsiNamedElement,
   override def equals(other: Any): Boolean = other match {
     case rr: ScalaResolveResult =>
       if (element ne rr.element) return false
+      if (nameShadow != rr.nameShadow) return false
       innerResolveResult == rr.innerResolveResult
     case _ => false
   }
 
-  override def hashCode: Int = element.hashCode + innerResolveResult.hashCode() * 31
+  override def hashCode: Int = element.hashCode + innerResolveResult.hashCode() * 31 + nameShadow.hashCode() * 31 * 31
 
 
   private var precedence = -1
