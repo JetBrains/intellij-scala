@@ -17,6 +17,7 @@ import com.intellij.util.Processor
 import collection.mutable.{HashMap, HashSet}
 import com.intellij.psi.{PsiNamedElement, PsiElement, PsiDocCommentOwner, PsiClass}
 import org.jetbrains.plugins.scala.extensions.{toPsiModifierListOwnerExt, toPsiMemberExt, toPsiNamedElementExt, toPsiClassExt}
+import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
 /**
  * @author Alefas
@@ -129,6 +130,16 @@ object ScalaAfterNewCompletionUtil {
       psiClass.isInstanceOf[ScTrait] || psiClass.hasModifierPropertyScala("abstract"))
       lookupElement.setAutoCompletionPolicy(if (ApplicationManager.getApplication.isUnitTestMode) AutoCompletionPolicy.ALWAYS_AUTOCOMPLETE
       else AutoCompletionPolicy.NEVER_AUTOCOMPLETE)
+    val qualName = psiClass.qualifiedName
+    if (qualName.contains(".")) {
+      val importsWithPrefix = ScalaProjectSettings.getInstance(psiClass.getProject).getImportsWithPrefix
+      if (importsWithPrefix.find {
+        case s if s.endsWith("_") => s.substring(0, s.lastIndexOf('.')) == qualName.substring(0, qualName.lastIndexOf('.'))
+        case s => s == qualName
+      } != None) {
+        lookupElement.prefixCompletion = true
+      }
+    }
     lookupElement.setInsertHandler(new ScalaConstructorInsertHandler)
     tp match {
       case ScParameterizedType(_, tps) => lookupElement.typeParameters = tps
