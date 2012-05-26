@@ -537,6 +537,10 @@
                      displayName="Use of postfix method call" groupName="Scala: General"
                      shortName="PostfixMethodCall" level="WARNING"
                      enabledByDefault="true" language="Scala"/>
+    <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.prefixMutableCollections.ReferenceMustBePrefixedInspection"
+                     displayName="Reference must be prefixed" groupName="Scala: General"
+                     shortName="ReferenceMustBePrefixed" level="WARNING"
+                     enabledByDefault="true" language="Scala"/>
     <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.literal.FloatLiteralEndingWithDecimalPointInspection"
                      displayName="Floating point literal ending with '.'" groupName="Scala: General"
                      shortName="FloatLiteralEndingWithDecimalPoint" level="WARNING"

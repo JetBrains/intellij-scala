@@ -135,8 +135,6 @@ class ScalaImportClassFix(private var classes: Array[PsiClass], ref: ScReference
 
   def startInWriteAction(): Boolean = true
 
-
-
   class ScalaAddImportAction(editor: Editor, classes: Array[PsiClass], ref: ScReferenceElement) extends QuestionAction {
     def addImportOrReference(clazz: PsiClass) {
       ApplicationManager.getApplication.invokeLater(new Runnable() {
@@ -146,7 +144,7 @@ class ScalaImportClassFix(private var classes: Array[PsiClass], ref: ScReference
             def run() {
               PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument)
               if (!ref.isInstanceOf[ScDocResolvableCodeReference]) {
-                ScalaImportClassFix.getImportHolder(ref, project).addImportForClass(clazz, ref)
+                ref.bindToElement(clazz)
               } else {
                 ref.replace(ScalaPsiElementFactory.createDocLinkValue(clazz.qualifiedName, ref.getManager))
               }

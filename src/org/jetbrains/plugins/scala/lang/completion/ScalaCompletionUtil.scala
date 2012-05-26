@@ -30,6 +30,7 @@ import refactoring.namesSuggester.NameSuggester
 import types.ScType
 import collection.mutable.{ArrayBuffer, HashMap}
 import formatting.settings.ScalaCodeStyleSettings
+import com.intellij.openapi.util.Key
 
 /**
 * User: Alexander Podkhalyuzin
@@ -37,6 +38,8 @@ import formatting.settings.ScalaCodeStyleSettings
 */
 
 object ScalaCompletionUtil {
+  val PREFIX_COMPLETION_KEY: Key[Boolean] = Key.create("prefix.completion.key")
+
   def completeThis(ref: ScReferenceExpression): Boolean = {
     ref.qualifier match {
       case Some(_) => false

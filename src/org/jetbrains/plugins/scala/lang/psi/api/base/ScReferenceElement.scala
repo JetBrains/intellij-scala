@@ -182,12 +182,20 @@ trait ScReferenceElement extends ScalaPsiElement with ResolvableReferenceElement
       })
       !reject
     }
-    if (checkForPredefinedTypes()) {
+    val importsWithPrefix = ScalaProjectSettings.getInstance(getProject).getImportsWithPrefix
+    val prefixImport = importsWithPrefix.find (s => {
+      if (s.endsWith("._") && qualName.contains(".")) {
+        s.substring(0, s.lastIndexOf('.')) == qualName.substring(0, qualName.lastIndexOf('.'))
+      } else {
+        s == qualName
+      }
+    }) != None
+    if (!prefixImport && checkForPredefinedTypes()) {
       simpleImport
     } else {
       if (qualName.contains(".")) {
         var index =
-          if (ScalaProjectSettings.getInstance(getProject).isImportShortestPathForAmbiguousReferences) parts.length - 1
+          if (ScalaProjectSettings.getInstance(getProject).isImportShortestPathForAmbiguousReferences) parts.length - 2
           else 0
         while (index >= 0) {
           val packagePart = parts.take(index + 1).mkString(".")
@@ -197,6 +205,7 @@ trait ScReferenceElement extends ScalaPsiElement with ResolvableReferenceElement
           while (qual.qualifier != None) qual = qual.qualifier.get.asInstanceOf[T]
           val resolve: Array[ResolveResult] = qual.multiResolve(false)
           def isOk: Boolean = {
+            if (packagePart == "java.util") return true //todo: fix possible clashes?
             if (resolve.length == 0) true
             else if (resolve.length > 1) false
             else {

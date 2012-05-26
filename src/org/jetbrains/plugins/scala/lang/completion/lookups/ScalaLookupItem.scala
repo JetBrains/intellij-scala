@@ -10,7 +10,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAliasDefinition, ScFunction, ScFun}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import com.intellij.psi._
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScReferenceElement, ScFieldId}
 import util.PsiTreeUtil
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportSelectors, ScImportStmt}
 import com.intellij.codeInsight.AutoPopupController
@@ -25,6 +24,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTemplateDefi
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
 import org.jetbrains.plugins.scala.extensions.{toPsiMemberExt, toPsiClassExt, toPsiNamedElementExt}
 import org.jetbrains.plugins.scala.settings._
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScStableCodeReferenceElement, ScReferenceElement, ScFieldId}
 
 /**
  * @author Alefas
@@ -105,6 +105,10 @@ class ScalaLookupItem(val element: PsiNamedElement, _name: String, containingCla
   private var _etaExpanded: Boolean = false
   def etaExpanded_=(t: Boolean) {_etaExpanded = t}
   def etaExpanded: Boolean = _etaExpanded
+
+  private var _prefixCompletion: Boolean = false
+  def prefixCompletion_=(t: Boolean) {_prefixCompletion = t}
+  def prefixCompletion: Boolean = _prefixCompletion
 
   def isNamedParameterOrAssignment = isNamedParameter || isAssignment
 
@@ -248,7 +252,7 @@ class ScalaLookupItem(val element: PsiNamedElement, _name: String, containingCla
 
   override def handleInsert(context: InsertionContext) {
     if (getInsertHandler != null) super.handleInsert(context)
-    else if (isClassName) {
+    else if (isClassName || prefixCompletion) {
       PsiDocumentManager.getInstance(context.getProject).commitDocument(context.getDocument)
       val startOffset = context.getStartOffset
       var ref: ScReferenceElement = PsiTreeUtil.findElementOfClassAtOffset(context.getFile, startOffset, classOf[ScReferenceElement], false)
@@ -267,7 +271,26 @@ class ScalaLookupItem(val element: PsiNamedElement, _name: String, containingCla
             }))
             ref = ref.getParent.asInstanceOf[ScReferenceElement]
           val addDot = if (cl.isInstanceOf[ScObject] && isInStableCodeReference) "." else ""
-          val newRef = ref.createReplacingElementWithClassName(useFullyQualifiedName, cl)
+          val newRef = ref match {
+            case ref: ScReferenceExpression if prefixCompletion =>
+              val parts = cl.qualifiedName.split('.')
+              if (parts.length > 1) {
+                val newRefText = parts.takeRight(2).mkString(".")
+                ScalaPsiElementFactory.createExpressionFromText(newRefText, ref.getManager).asInstanceOf[ScReferenceExpression]
+              } else {
+                ref.createReplacingElementWithClassName(useFullyQualifiedName, cl)
+              }
+            case ref: ScStableCodeReferenceElement if prefixCompletion =>
+              val parts = cl.qualifiedName.split('.')
+              if (parts.length > 1) {
+                val newRefText = parts.takeRight(2).mkString(".")
+                ScalaPsiElementFactory.createReferenceFromText(newRefText, ref.getManager)
+              } else {
+                ref.createReplacingElementWithClassName(useFullyQualifiedName, cl)
+              }
+            case _ =>
+              ref.createReplacingElementWithClassName(useFullyQualifiedName, cl)
+          }
           ref.getNode.getTreeParent.replaceChild(ref.getNode, newRef.getNode)
           newRef.bindToElement(cl)
           if (addDot == ".") {
