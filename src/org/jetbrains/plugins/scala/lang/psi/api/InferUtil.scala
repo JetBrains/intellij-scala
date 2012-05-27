@@ -198,9 +198,13 @@ object InferUtil {
     }
 
     // interim fix for SCL-3905.
-    def applyImplicitViewToResult(mt: ScMethodType): ScType = {
+    def applyImplicitViewToResult(mt: ScMethodType, expectedType: Option[ScType]): ScType = {
       expectedType.flatMap(ScType.extractFunctionType) match {
         case Some(ScFunctionType(expectedRet, expectedParams)) if expectedParams.length == mt.params.length =>
+          mt.returnType match {
+            case methodType: ScMethodType => return mt.copy(returnType = applyImplicitViewToResult(methodType, Some(expectedRet)))()
+            case _ =>
+          }
           val dummyExpr = ScalaPsiElementFactory.createExpressionWithContextFromText("null", expr.getContext, expr)
           dummyExpr.asInstanceOf[ScLiteral].setTypeWithoutImplicits(Some(mt.returnType))
           val updatedResultType = dummyExpr.getTypeAfterImplicitConversion(expectedOption = Some(expectedRet))
@@ -215,8 +219,8 @@ object InferUtil {
     }
 
     nonValueType.map {
-      case tpt @ ScTypePolymorphicType(mt: ScMethodType, typeParams) => tpt.copy(internalType = applyImplicitViewToResult(mt))
-      case mt: ScMethodType => applyImplicitViewToResult(mt)
+      case tpt @ ScTypePolymorphicType(mt: ScMethodType, typeParams) => tpt.copy(internalType = applyImplicitViewToResult(mt, expectedType))
+      case mt: ScMethodType => applyImplicitViewToResult(mt, expectedType)
       case tp => tp
     }
   }
