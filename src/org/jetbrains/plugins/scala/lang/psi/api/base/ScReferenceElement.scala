@@ -18,6 +18,7 @@ import extensions.{toPsiMemberExt, toPsiNamedElementExt, toPsiClassExt}
 import settings.ScalaProjectSettings
 import annotator.intention.ScalaImportClassFix
 import collection.mutable.HashSet
+import toplevel.imports.ScImportSelector
 
 /**
  * @author Alexander Podkhalyuzin
@@ -210,10 +211,33 @@ trait ScReferenceElement extends ScalaPsiElement with ResolvableReferenceElement
             else if (resolve.length > 1) false
             else {
               val result: ResolveResult = resolve(0)
+              def smartCheck: Boolean = {
+                val holder = ScalaImportClassFix.getImportHolder(this, getProject)
+                var res = true
+                holder.accept(new ScalaRecursiveElementVisitor {
+                  //Override also visitReferenceExpression! and visitTypeProjection!
+                  override def visitReference(ref: ScReferenceElement) {
+                    ref.qualifier match {
+                      case Some(qual) =>
+                      case _ =>
+                        if (!ref.getParent.isInstanceOf[ScImportSelector]) {
+                          if (ref.refName == parts(index)) res = false
+                        }
+                    }
+                  }
+                })
+                res
+              }
               result match {
-                case ScalaResolveResult(pack: PsiPackage, _) => pack.getQualifiedName == packagePart
-                case ScalaResolveResult(c: PsiClass, _) => c.qualifiedName == packagePart
-                case _ => false
+                case r@ScalaResolveResult(pack: PsiPackage, _) =>
+                  if (pack.getQualifiedName == packagePart) true
+                  else if (r.importsUsed.isEmpty) smartCheck
+                  else false
+                case r@ScalaResolveResult(c: PsiClass, _) =>
+                  if (c.qualifiedName == packagePart) true
+                  else if (r.importsUsed.isEmpty) smartCheck
+                  else false
+                case _ => smartCheck
               }
             }
           }

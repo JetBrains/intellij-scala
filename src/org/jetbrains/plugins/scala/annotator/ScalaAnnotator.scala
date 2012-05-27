@@ -57,7 +57,6 @@ with TypedStatementAnnotator with PatternDefinitionAnnotator
 with ConstructorPatternAnnotator with ControlFlowInspections
 with ConstructorAnnotator with OverridingAnnotator
 with DumbAware {
-
   override def annotate(element: PsiElement, holder: AnnotationHolder) {
     val compiled = element.getContainingFile match {
       case file: ScalaFile => file.isCompiled

@@ -131,7 +131,7 @@ object ScalaAfterNewCompletionUtil {
       lookupElement.setAutoCompletionPolicy(if (ApplicationManager.getApplication.isUnitTestMode) AutoCompletionPolicy.ALWAYS_AUTOCOMPLETE
       else AutoCompletionPolicy.NEVER_AUTOCOMPLETE)
     val qualName = psiClass.qualifiedName
-    if (qualName.contains(".")) {
+    if (qualName != null && qualName.contains(".")) {
       val importsWithPrefix = ScalaProjectSettings.getInstance(psiClass.getProject).getImportsWithPrefix
       if (importsWithPrefix.find {
         case s if s.endsWith("_") => s.substring(0, s.lastIndexOf('.')) == qualName.substring(0, qualName.lastIndexOf('.'))
