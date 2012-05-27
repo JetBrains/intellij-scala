@@ -177,4 +177,23 @@ class ScLiteralImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScLite
       case _ => super.accept(visitor)
     }
   }
+
+  @volatile
+  private var typeWithoutImplicits: Option[ScType] = None
+
+  /**
+   * This method works only for null literal (to avoid possibly dangerous usage)
+   * @param tp type, which should be returned by method getTypeWithouImplicits
+   */
+  def setTypeWithoutImplicits(tp: Option[ScType]) {
+    if (getFirstChild.getNode.getElementType != ScalaTokenTypes.kNULL) assert(assertion = false,
+      message = "Only null literals accepted, type: " + getFirstChild.getNode.getElementType)
+    typeWithoutImplicits = tp
+  }
+
+  override def getTypeWithoutImplicits(ctx: TypingContext, ignoreBaseTypes: Boolean, fromUnderscore: Boolean): TypeResult[ScType] = {
+    val tp = typeWithoutImplicits
+    if (tp != None) return Success(tp.get, None)
+    super.getTypeWithoutImplicits(ctx, ignoreBaseTypes, fromUnderscore)
+  }
 }

@@ -19,13 +19,11 @@ import base.types.{ScSequenceArg, ScTypeElement}
 import lang.resolve.{StdKinds, ScalaResolveResult}
 import lang.resolve.processor.MethodResolveProcessor
 import types.Compatibility.Expression
-import com.intellij.openapi.progress.ProgressManager
-import toplevel.imports.usages.ImportUsed
 import caches.CachesUtil
 import implicits.ScImplicitlyConvertible
 import psi.impl.ScalaPsiManager
-import toplevel.typedef.{ScTemplateDefinition, ScObject}
-import extensions.toSeqExt
+import toplevel.typedef.ScObject
+import annotation.tailrec
 
 /**
  * @author ilyas
@@ -42,7 +40,7 @@ private[expr] object ExpectedTypes {
     smartExpectedTypeEx(expr, fromUnderscore).map(_._1)
 
   def smartExpectedTypeEx(expr: ScExpression, fromUnderscore: Boolean = true): Option[(ScType, Option[ScTypeElement])] = {
-    val types = expectedExprTypes(expr, true, fromUnderscore)
+    val types = expectedExprTypes(expr, withResolvedFunction = true, fromUnderscore = fromUnderscore)
     types.length match {
       case 1 => Some(types(0))
       case _ => None
@@ -68,15 +66,15 @@ private[expr] object ExpectedTypes {
       case p: ScParenthesisedExpr => p.expectedTypesEx(fromUnderscore)
       //see SLS[6.11]
       case b: ScBlockExpr => b.lastExpr match {
-        case Some(e) if e == expr.getSameElementInContext => b.expectedTypesEx(true)
+        case Some(e) if e == expr.getSameElementInContext => b.expectedTypesEx(fromUnderscore = true)
         case _ => Array.empty
       }
       //see SLS[6.16]
       case cond: ScIfStmt if cond.condition.getOrElse(null: ScExpression) == expr.getSameElementInContext => Array((types.Boolean, None))
-      case cond: ScIfStmt if cond.elseBranch != None => cond.expectedTypesEx(true)
+      case cond: ScIfStmt if cond.elseBranch != None => cond.expectedTypesEx(fromUnderscore = true)
       //see SLA[6.22]
       case tb: ScTryBlock => tb.lastExpr match {
-        case Some(e) if e == expr => tb.getContext.asInstanceOf[ScTryStmt].expectedTypesEx(true)
+        case Some(e) if e == expr => tb.getContext.asInstanceOf[ScTryStmt].expectedTypesEx(fromUnderscore = true)
         case _ => Array.empty
       }
       case wh: ScWhileStmt if wh.condition.getOrElse(null: ScExpression) == expr.getSameElementInContext => Array((types.Boolean, None))
@@ -92,11 +90,11 @@ private[expr] object ExpectedTypes {
         Array((throwableType, None))
       //see SLS[8.4]
       case c: ScCaseClause => c.getContext.getContext match {
-        case m: ScMatchStmt => m.expectedTypesEx(true)
+        case m: ScMatchStmt => m.expectedTypesEx(fromUnderscore = true)
         case b: ScBlockExpr if b.isAnonymousFunction && b.getContext.isInstanceOf[ScCatchBlock] =>
-          b.getContext.getContext.asInstanceOf[ScTryStmt].expectedTypesEx(true)
+          b.getContext.getContext.asInstanceOf[ScTryStmt].expectedTypesEx(fromUnderscore = true)
         case b: ScBlockExpr if b.isAnonymousFunction => {
-          b.expectedTypesEx(true).flatMap(tp => ScType.extractFunctionType(tp._1) match {
+          b.expectedTypesEx(fromUnderscore = true).flatMap(tp => ScType.extractFunctionType(tp._1) match {
             case Some(ScFunctionType(retType, _)) => Array[(ScType, Option[ScTypeElement])]((retType, None))
             case _ => ScType.extractPartialFunctionType(tp._1) match {
               case Some((des, param, ret)) => Array[(ScType, Option[ScTypeElement])]((ret, None))
@@ -107,12 +105,12 @@ private[expr] object ExpectedTypes {
         case _ => Array.empty
       }
       //see SLS[6.23]
-      case f: ScFunctionExpr => f.expectedTypesEx(true).flatMap(tp => ScType.extractFunctionType(tp._1) match {
+      case f: ScFunctionExpr => f.expectedTypesEx(fromUnderscore = true).flatMap(tp => ScType.extractFunctionType(tp._1) match {
         case Some(ScFunctionType(retType, _)) => Array[(ScType, Option[ScTypeElement])]((retType, None))
         case _ => Array[(ScType, Option[ScTypeElement])]()
       })
       case t: ScTypedStmt if t.getLastChild.isInstanceOf[ScSequenceArg] => {
-        t.expectedTypesEx(true)
+        t.expectedTypesEx(fromUnderscore = true)
       }
       //SLS[6.13]
       case t: ScTypedStmt => {
@@ -162,7 +160,7 @@ private[expr] object ExpectedTypes {
         val res = new ArrayBuffer[ScType]
         val exprs: Seq[ScExpression] = tuple.exprs
         val actExpr = expr.getDeepSameElementInContext
-        val i = if (actExpr == null) 0 else exprs.findIndexOf(_ == actExpr)
+        val i = if (actExpr == null) 0 else exprs.indexWhere(_ == actExpr)
         val callExpression = tuple.getContext.asInstanceOf[ScInfixExpr].operation
         if (callExpression != null) {
           val tps = callExpression match {
@@ -180,7 +178,7 @@ private[expr] object ExpectedTypes {
         val exprs = tuple.exprs
         val actExpr = expr.getDeepSameElementInContext
         val index = exprs.indexOf(actExpr)
-        for (tp: ScType <- tuple.expectedTypes(true)) {
+        for (tp: ScType <- tuple.expectedTypes(fromUnderscore = true)) {
           ScType.extractTupleType(tp) match {
             case Some(ScTupleType(comps)) if comps.length == tuple.exprs.length => {
               buffer += comps(index)
@@ -250,7 +248,7 @@ private[expr] object ExpectedTypes {
         val res = new ArrayBuffer[ScType]
         val exprs: Seq[ScExpression] = args.exprs
         val actExpr = expr.getDeepSameElementInContext
-        val i = if (actExpr == null) 0 else exprs.findIndexOf(_ == actExpr)
+        val i = if (actExpr == null) 0 else exprs.indexWhere(_ == actExpr)
         val callExpression = args.callExpression
         if (callExpression != null) {
           var tps: Array[TypeResult[ScType]] = callExpression match {
@@ -292,7 +290,7 @@ private[expr] object ExpectedTypes {
               || b.getContext.getContext.getContext.isInstanceOf[ScCatchBlock]
               || b.getContext.isInstanceOf[ScCaseClause] 
               || b.getContext.isInstanceOf[ScFunctionExpr] => b.lastExpr match {
-        case Some(e) if expr.getSameElementInContext == e => b.expectedTypesEx(true)
+        case Some(e) if expr.getSameElementInContext == e => b.expectedTypesEx(fromUnderscore = true)
         case _ => Array.empty
       }
       case _ => Array.empty
