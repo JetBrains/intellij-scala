@@ -241,7 +241,7 @@ class ScalaBasicCompletionTest extends ScalaCompletionTestBase {
   def testAfterNew() {
     val fileText =
       """
-      |import collection.mutable
+      |import collection.mutable.ListBuffer
       |class A {
       |  val f = new <caret>
       |}
@@ -251,9 +251,9 @@ class ScalaBasicCompletionTest extends ScalaCompletionTestBase {
 
     val resultText =
       """
-      |import collection.mutable
+      |import collection.mutable.ListBuffer
       |class A {
-      |  val f = new mutable.ListBuffer[<caret>]
+      |  val f = new ListBuffer[<caret>]
       |}
       """.stripMargin.replaceAll("\r", "").trim()
 
@@ -273,10 +273,10 @@ class ScalaBasicCompletionTest extends ScalaCompletionTestBase {
 
     val resultText =
       """
-      |import collection.mutable
+      |import collection.mutable.ListBuffer
       |
       |class A {
-      |  val f = new mutable.ListBuffer[<caret>]
+      |  val f = new ListBuffer[<caret>]
       |}
       """.stripMargin.replaceAll("\r", "").trim()
 
