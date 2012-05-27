@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.api
 
 import base.patterns.ScBindingPattern
+import base.ScLiteral
 import expr.ScExpression
 import collection.mutable.ArrayBuffer
 import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.Expression
@@ -200,8 +201,8 @@ object InferUtil {
     def applyImplicitViewToResult(mt: ScMethodType): ScType = {
       expectedType.flatMap(ScType.extractFunctionType) match {
         case Some(ScFunctionType(expectedRet, expectedParams)) if expectedParams.length == mt.params.length =>
-          val dummyExpr = ScalaPsiElementFactory.createExpressionFromText("null: " + mt.returnType.canonicalText, expr.getManager)
-          dummyExpr.setContext(expr.getContext, expr)
+          val dummyExpr = ScalaPsiElementFactory.createExpressionWithContextFromText("null", expr.getContext, expr)
+          dummyExpr.asInstanceOf[ScLiteral].setTypeWithoutImplicits(Some(mt.returnType))
           val updatedResultType = dummyExpr.getTypeAfterImplicitConversion(expectedOption = Some(expectedRet))
 
           // TODO these values should be propagated back to the ExpressionTypeResult

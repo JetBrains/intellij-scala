@@ -6,6 +6,7 @@ package base
 
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import com.intellij.psi.{PsiLiteral, PsiLanguageInjectionHost}
+import psi.types.ScType
 
 /**
 * @author Alexander Podkhalyuzin
@@ -13,6 +14,11 @@ import com.intellij.psi.{PsiLiteral, PsiLanguageInjectionHost}
 */
 
 trait ScLiteral extends ScExpression with PsiLiteral with PsiLanguageInjectionHost {
+  /**
+   * This method works only for null literal (to avoid possibly dangerous usage)
+   * @param tp type, which should be returned by method getTypeWithouImplicits
+   */
+  def setTypeWithoutImplicits(tp: Option[ScType])
   def isString: Boolean
   def isMultiLineString: Boolean
 }
