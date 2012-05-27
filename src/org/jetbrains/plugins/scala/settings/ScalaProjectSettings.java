@@ -6,6 +6,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.psi.codeStyle.CodeStyleSettingsManager;
 import com.intellij.util.xmlb.XmlSerializerUtil;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings;
 
 import java.io.File;
@@ -48,7 +49,12 @@ public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProj
 
   private boolean SCALA_CLASSES_PRIORITY = scalaSettings.SCALA_CLASSES_PRIORITY;
 
-  private String[] IMPORTS_WITH_PREFIX = {"java.util._", "scala.collection.mutable._"};
+  private String[] IMPORTS_WITH_PREFIX = {
+      "java.util._",
+      "scala.collection.mutable._",
+      "exclude:scala.collection.mutable.ArrayBuffer",
+      "exclude:scala.collection.mutable.ListBuffer"
+  };
 
   //colection type highlighting settings
   private int COLLECTION_TYPE_HIGHLIGHTING_LEVEL = 0;
@@ -229,5 +235,31 @@ public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProj
 
   public void setImportsWithPrefix(String[] importsWithPrefix) {
     this.IMPORTS_WITH_PREFIX = importsWithPrefix;
+  }
+
+  public static String EXCLUDE_PREFIX = "exclude:";
+
+  public boolean hasImportWithPrefix(@Nullable String qualName) {
+    if (qualName != null && qualName.contains(".")) {
+      String[] importsWithPrefix = getImportsWithPrefix();
+      boolean res = false;
+      for (String importWithPrefix : importsWithPrefix) {
+        if (importWithPrefix.startsWith(EXCLUDE_PREFIX)) {
+          String s = importWithPrefix.substring(EXCLUDE_PREFIX.length());
+          if (s.endsWith("._")) {
+            if (s.substring(0, s.lastIndexOf('.')).equals(qualName.substring(0, qualName.lastIndexOf('.')))) {
+              return false;
+            }
+          } else if (s.equals(qualName)) return false;
+        } else {
+          if (importWithPrefix.endsWith("._")) {
+            if (importWithPrefix.substring(0, importWithPrefix.lastIndexOf('.')).equals(qualName.substring(0, qualName.lastIndexOf('.')))) {
+              res = true;
+            }
+          } else if (importWithPrefix.equals(qualName)) res = true;
+        }
+      }
+      return res;
+    } else return false;
   }
 }

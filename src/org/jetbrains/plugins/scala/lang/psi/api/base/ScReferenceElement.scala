@@ -183,14 +183,7 @@ trait ScReferenceElement extends ScalaPsiElement with ResolvableReferenceElement
       })
       !reject
     }
-    val importsWithPrefix = ScalaProjectSettings.getInstance(getProject).getImportsWithPrefix
-    val prefixImport = importsWithPrefix.find (s => {
-      if (s.endsWith("._") && qualName.contains(".")) {
-        s.substring(0, s.lastIndexOf('.')) == qualName.substring(0, qualName.lastIndexOf('.'))
-      } else {
-        s == qualName
-      }
-    }) != None
+    val prefixImport = ScalaProjectSettings.getInstance(getProject).hasImportWithPrefix(qualName)
     if (!prefixImport && checkForPredefinedTypes()) {
       simpleImport
     } else {

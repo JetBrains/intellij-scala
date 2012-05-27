@@ -92,15 +92,24 @@ class ScImportStmtImpl extends ScalaStubBasedElementImpl[ScImportStmt] with ScIm
           if (elem.isInstanceOf[PsiPackage] && processor.isInstanceOf[CompletionProcessor] &&
             processor.asInstanceOf[CompletionProcessor].includePrefixImports) {
             val prefixImports = ScalaProjectSettings.getInstance(getProject).getImportsWithPrefix.filter(s =>
-              s.substring(0, s.lastIndexOf(".")) == elem.asInstanceOf[PsiPackage].getQualifiedName
+              !s.startsWith(ScalaProjectSettings.EXCLUDE_PREFIX) &&
+                s.substring(0, s.lastIndexOf(".")) == elem.asInstanceOf[PsiPackage].getQualifiedName
+            )
+            val excludeImports = ScalaProjectSettings.getInstance(getProject).getImportsWithPrefix.filter(s =>
+              s.startsWith(ScalaProjectSettings.EXCLUDE_PREFIX) &&
+                s.substring(ScalaProjectSettings.EXCLUDE_PREFIX.length, s.lastIndexOf(".")) == elem.asInstanceOf[PsiPackage].getQualifiedName
             )
             val names = new HashSet[String]()
             for (prefixImport <- prefixImports) {
               names += prefixImport.substring(prefixImport.lastIndexOf('.') + 1)
             }
+            val excludeNames = new HashSet[String]()
+            for (prefixImport <- excludeImports) {
+              excludeNames += prefixImport.substring(prefixImport.lastIndexOf('.') + 1)
+            }
             val wildcard = names.contains("_")
             def isOK(name: String): Boolean = {
-              if (wildcard) true
+              if (wildcard) !excludeNames.contains(name)
               else names.contains(name)
             }
             val newImportsUsed = Set(importsUsed.toSeq: _*) + ImportExprUsed(importExpr)

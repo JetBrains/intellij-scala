@@ -58,6 +58,13 @@ public class ScalaProjectSettingsPanel {
             InputValidator validator = new InputValidator() {
 
               public boolean checkInput(String inputString) {
+                return checkInput(inputString, true);
+              }
+
+              private boolean checkInput(String inputString, boolean checkExcludes) {
+                if (checkExcludes && inputString.startsWith(ScalaProjectSettings.EXCLUDE_PREFIX)) {
+                  return checkInput(inputString.substring(ScalaProjectSettings.EXCLUDE_PREFIX.length()), false);
+                }
                 return inputString.contains(".") && ScalaProjectSettingsUtil.isValidPackage(inputString);
               }
 

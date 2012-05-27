@@ -131,14 +131,8 @@ object ScalaAfterNewCompletionUtil {
       lookupElement.setAutoCompletionPolicy(if (ApplicationManager.getApplication.isUnitTestMode) AutoCompletionPolicy.ALWAYS_AUTOCOMPLETE
       else AutoCompletionPolicy.NEVER_AUTOCOMPLETE)
     val qualName = psiClass.qualifiedName
-    if (qualName != null && qualName.contains(".")) {
-      val importsWithPrefix = ScalaProjectSettings.getInstance(psiClass.getProject).getImportsWithPrefix
-      if (importsWithPrefix.find {
-        case s if s.endsWith("_") => s.substring(0, s.lastIndexOf('.')) == qualName.substring(0, qualName.lastIndexOf('.'))
-        case s => s == qualName
-      } != None) {
-        lookupElement.prefixCompletion = true
-      }
+    if (ScalaProjectSettings.getInstance(psiClass.getProject).hasImportWithPrefix(qualName)) {
+      lookupElement.prefixCompletion = true
     }
     lookupElement.setInsertHandler(new ScalaConstructorInsertHandler)
     tp match {
