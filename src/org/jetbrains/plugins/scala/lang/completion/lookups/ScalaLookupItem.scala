@@ -25,6 +25,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext
 import org.jetbrains.plugins.scala.extensions.{toPsiMemberExt, toPsiClassExt, toPsiNamedElementExt}
 import org.jetbrains.plugins.scala.settings._
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScStableCodeReferenceElement, ScReferenceElement, ScFieldId}
+import com.intellij.util.IconUtil
 
 /**
  * @author Alefas
@@ -232,6 +233,7 @@ class ScalaLookupItem(val element: PsiNamedElement, _name: String, containingCla
     }
     if (presentation.isReal)
       presentation.setIcon(element.getIcon(0))
+    else presentation.setIcon(IconUtil.getEmptyIcon(false))
     var itemText: String =
       if (isRenamed == None) if (isClassName && shouldImport) {
         if (containingClass != null) containingClass.name + "." + name

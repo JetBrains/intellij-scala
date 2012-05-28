@@ -420,7 +420,25 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible with Ps
       None, PsiModificationTracker.MODIFICATION_COUNT)
   }
 
-  def getImplicitConversions(fromUnder: Boolean = false): (Seq[PsiNamedElement], Option[PsiNamedElement]) = {
+  @volatile
+  private var additionalExpression: Option[(ScExpression, ScType)] = None
+
+  def setAdditionalExpression(additionalExpression: Option[(ScExpression, ScType)]) {
+    this.additionalExpression = additionalExpression
+  }
+
+  /**
+   * This method should be used to get implicit conversions and used imports, while eta expanded method return was
+   * implicitly converted
+   * @return mirror for this expression, in case if it exists
+   */
+  def getAdditionalExpression: Option[(ScExpression, ScType)] = {
+    getType(TypingContext.empty)
+    additionalExpression
+  }
+
+  def getImplicitConversions(fromUnder: Boolean = false,
+                             expectedOption: => Option[ScType] = smartExpectedType()): (Seq[PsiNamedElement], Option[PsiNamedElement]) = {
     val implicits: Seq[PsiNamedElement] = implicitMap(fromUnder = fromUnder,
       args = expectedTypes(fromUnder).toSeq).map(_._2)
     val implicitFunction: Option[PsiNamedElement] = getParent match {
@@ -441,7 +459,7 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible with Ps
         case call: ScMethodCall => call.getImplicitFunction
         case _ => None
       }
-      case _ => getTypeAfterImplicitConversion(expectedOption = smartExpectedType(),
+      case _ => getTypeAfterImplicitConversion(expectedOption = expectedOption,
         fromUnderscore = fromUnder).implicitFunction
     }
     (implicits, implicitFunction)

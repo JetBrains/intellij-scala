@@ -209,9 +209,7 @@ object InferUtil {
           dummyExpr.asInstanceOf[ScLiteral].setTypeWithoutImplicits(Some(mt.returnType))
           val updatedResultType = dummyExpr.getTypeAfterImplicitConversion(expectedOption = Some(expectedRet))
 
-          // TODO these values should be propagated back to the ExpressionTypeResult
-          // updatedResultType.implicitFunction
-          // updatedResultType.importsUsed
+          expr.setAdditionalExpression(Some(dummyExpr, expectedRet))
 
           new ScMethodType(updatedResultType.tr.getOrElse(mt.returnType), mt.params, mt.isImplicit)(mt.project, mt.scope)
         case x => mt
