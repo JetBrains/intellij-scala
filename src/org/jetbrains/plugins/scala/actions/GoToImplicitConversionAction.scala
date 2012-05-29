@@ -31,15 +31,24 @@ class GoToImplicitConversionAction extends AnAction("Go to implicit conversion a
     if (!file.isInstanceOf[ScalaFile]) return
 
     def forExpr(expr: ScExpression): Boolean = {
-      val fromUnder = 
+      val implicitConversions = { //todo: too complex logic, should be simplified, and moved into one place
+        lazy val additionalExpression = expr.getAdditionalExpression
         if (ScUnderScoreSectionUtil.isUnderscoreFunction(expr)) {
-          val conv1 = expr.getImplicitConversions(false)
-          val conv2 = expr.getImplicitConversions(true)
-          val cond = conv1._2 != None ^ conv2._2 != None
-          if (cond) conv2._2 != None
-          else false
-        } else false
-      val implicitConversions = expr.getImplicitConversions(fromUnder)
+          val conv1 = expr.getImplicitConversions(fromUnder = false)
+          val conv2 = expr.getImplicitConversions(fromUnder = true)
+          if (conv2._2 != None) conv2
+          else if (conv1._2 != None) conv1
+          else if (additionalExpression != None) {
+            val conv3 = additionalExpression.get._1.getImplicitConversions(fromUnder = false, expectedOption = Some(additionalExpression.get._2))
+            if (conv3._2 != None) conv3
+            else conv1
+          } else conv1
+        } else if (additionalExpression != None) {
+          val conv3 = additionalExpression.get._1.getImplicitConversions(fromUnder = false, expectedOption = Some(additionalExpression.get._2))
+          if (conv3._2 != None) conv3
+          else expr.getImplicitConversions(fromUnder = false)
+        } else expr.getImplicitConversions(fromUnder = false)
+      }
       val functions = implicitConversions._1
       if (functions.length == 0) return true
       val conversionFun = implicitConversions._2.getOrElse(null)
@@ -94,9 +103,11 @@ class GoToImplicitConversionAction extends AnAction("Go to implicit conversion a
         var parent = element
         while (parent != null) {
           parent match {
-            case expr: ScExpression if guard || expr.getImplicitConversions(false)._2 != None ||
+            case expr: ScExpression if guard || expr.getImplicitConversions(fromUnder = false)._2 != None ||
               (ScUnderScoreSectionUtil.isUnderscoreFunction(expr) &&
-                expr.getImplicitConversions(true)._2 != None) => res += expr
+                expr.getImplicitConversions(fromUnder = true)._2 != None) || (expr.getAdditionalExpression != None &&
+                expr.getAdditionalExpression.get._1.getImplicitConversions(fromUnder = false,
+                  expectedOption = Some(expr.getAdditionalExpression.get._2))._2 != None)=> res += expr
             case _ =>
           }
           parent = parent.getParent
@@ -104,9 +115,9 @@ class GoToImplicitConversionAction extends AnAction("Go to implicit conversion a
         res.toArray
       }
       val expressions = {
-        val falseGuard = getExpressions(false)
+        val falseGuard = getExpressions(guard = false)
         if (falseGuard.length != 0) falseGuard
-        else getExpressions(true)
+        else getExpressions(guard = true)
       }
       def chooseExpression(expr: ScExpression) {
         editor.getSelectionModel.setSelection(expr.getTextRange.getStartOffset,

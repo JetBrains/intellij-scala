@@ -50,7 +50,7 @@ class ScalaCopyPastePostProcessor extends CopyPastePostProcessor[Associations] {
                               caretColumn: Int, indented: Ref[Boolean], value: Associations) {
     if (DumbService.getInstance(project).isDumb) return
 
-    if (CodeInsightSettings.getInstance().ADD_IMPORTS_ON_PASTE == CodeInsightSettings.NO) return
+    if (ScalaApplicationSettings.getInstance().ADD_IMPORTS_ON_PASTE == CodeInsightSettings.NO) return
 
     val file = PsiDocumentManager.getInstance(project).getPsiFile(editor.getDocument)
 
@@ -68,7 +68,7 @@ class ScalaCopyPastePostProcessor extends CopyPastePostProcessor[Associations] {
 
     if (bindingsToRestore.isEmpty) return
 
-    val bs = if (CodeInsightSettings.getInstance().ADD_IMPORTS_ON_PASTE == CodeInsightSettings.ASK) {
+    val bs = if (ScalaApplicationSettings.getInstance().ADD_IMPORTS_ON_PASTE == CodeInsightSettings.ASK) {
       val dialog = new RestoreReferencesDialog(project, bindingsToRestore.map(_.path.toOption.getOrElse("")).sorted.toArray)
       dialog.show()
       val selectedPahts = dialog.getSelectedElements

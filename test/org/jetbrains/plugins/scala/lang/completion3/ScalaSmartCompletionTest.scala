@@ -37,9 +37,9 @@ class ScalaSmartCompletionTest extends ScalaCompletionTestBase {
   def testAfterNew() {
     val fileText =
       """
-      |import collection.mutable.ListBuffer
+      |import collection.mutable.HashSet
       |class A {
-      |  val f: ListBuffer[String] = new <caret>
+      |  val f: HashSet[String] = new <caret>
       |}
       """.stripMargin.replaceAll("\r", "").trim()
     configureFromFileTextAdapter("dummy.scala", fileText)
@@ -47,13 +47,14 @@ class ScalaSmartCompletionTest extends ScalaCompletionTestBase {
 
     val resultText =
       """
-      |import collection.mutable.ListBuffer
+      |import collection.mutable
+      |import collection.mutable.HashSet
       |class A {
-      |  val f: ListBuffer[String] = new ListBuffer[String]<caret>
+      |  val f: HashSet[String] = new mutable.HashSet[String]()
       |}
       """.stripMargin.replaceAll("\r", "").trim()
 
-    completeLookupItem(activeLookup.find(le => le.getLookupString == "ListBuffer").get, '[')
+    completeLookupItem(activeLookup.find(le => le.getLookupString == "HashSet").get, '[')
     checkResultByText(resultText)
   }
   

@@ -5,6 +5,7 @@ package api
 package base
 
 import com.intellij.psi.ResolveResult
+import resolve.ScalaResolveResult
 
 trait ScStableCodeReferenceElement extends ScReferenceElement with ScPathElement {
   def qualifier: Option[ScStableCodeReferenceElement] =
@@ -25,4 +26,6 @@ trait ScStableCodeReferenceElement extends ScReferenceElement with ScPathElement
   def resolveAllConstructors: Array[ResolveResult]
   def shapeResolve: Array[ResolveResult]
   def shapeResolveConstr: Array[ResolveResult]
+
+  def getResolveResultVariants: Array[ScalaResolveResult]
 }

@@ -17,8 +17,7 @@ import com.intellij.util.{Processor, ArrayUtil}
  */
 class ScalaShortNamesCache(project: Project) extends PsiShortNamesCache {
   def getClassesByName(name: String, scope: GlobalSearchScope): Array[PsiClass] = {
-    val nameWithDollar = name + "$"
-    val classes = ScalaShortNamesCacheManager.getInstance(project).getClassesByName(nameWithDollar, scope)
+    val classes = ScalaShortNamesCacheManager.getInstance(project).getClassesByName(name, scope)
     val res = new ArrayBuffer[PsiClass]
     for (clazz <- classes) {
       clazz match {

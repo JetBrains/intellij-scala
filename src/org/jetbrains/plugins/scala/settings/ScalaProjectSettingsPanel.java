@@ -1,15 +1,22 @@
 package org.jetbrains.plugins.scala.settings;
 
-import com.intellij.openapi.editor.colors.EditorColorsScheme;
-import com.intellij.openapi.editor.highlighter.EditorHighlighter;
+import com.intellij.openapi.application.ApplicationBundle;
 import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.project.Project;
-import com.intellij.psi.PsiFile;
+import com.intellij.openapi.ui.InputValidator;
+import com.intellij.openapi.ui.Messages;
+import com.intellij.openapi.wm.IdeFocusManager;
+import com.intellij.ui.AnActionButton;
+import com.intellij.ui.AnActionButtonRunnable;
+import com.intellij.ui.ListScrollingUtil;
+import com.intellij.ui.ToolbarDecorator;
+import com.intellij.ui.components.JBList;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.ScalaFileType;
-import org.jetbrains.plugins.scala.highlighter.ScalaEditorHighlighter;
 
 import javax.swing.*;
+import java.awt.*;
+import java.util.Arrays;
 
 /**
  * User: Alexander Podkhalyuzin
@@ -18,7 +25,6 @@ import javax.swing.*;
 public class ScalaProjectSettingsPanel {
   private JPanel myPanel;
   private JSpinner classCountSpinner;
-  private JCheckBox addUnambiguousImportsOnCheckBox;
   private JCheckBox addImportStatementInCheckBox;
   private JCheckBox searchAllSymbolsIncludeCheckBox;
   private JCheckBox enableConversionOnCopyCheckBox;
@@ -35,12 +41,70 @@ public class ScalaProjectSettingsPanel {
   private JCheckBox myDisableLanguageInjection;
   private JCheckBox useScalaClassesPriorityCheckBox;
   private JComboBox collectionHighlightingChooser;
+  private JCheckBox importTheShortestPathCheckBox;
+  private JPanel myImportsWithPrefixPanel;
+  private JBList referencesWithPrefixList;
+  private DefaultListModel myReferencesWithPrefixModel;
   private Project myProject;
 
   public ScalaProjectSettingsPanel(Project project) {
     myProject = project;
     classCountSpinner.setModel(new SpinnerNumberModel(1, 1, null, 1));
+    referencesWithPrefixList = new JBList();
+    JPanel panel = ToolbarDecorator.createDecorator(referencesWithPrefixList)
+        .setAddAction(new AnActionButtonRunnable() {
+          @Override
+          public void run(AnActionButton button) {
+            InputValidator validator = new InputValidator() {
+
+              public boolean checkInput(String inputString) {
+                return checkInput(inputString, true);
+              }
+
+              private boolean checkInput(String inputString, boolean checkExcludes) {
+                if (checkExcludes && inputString.startsWith(ScalaProjectSettings.EXCLUDE_PREFIX)) {
+                  return checkInput(inputString.substring(ScalaProjectSettings.EXCLUDE_PREFIX.length()), false);
+                }
+                return inputString.contains(".") && ScalaProjectSettingsUtil.isValidPackage(inputString);
+              }
+
+              public boolean canClose(String inputString) {
+                return checkInput(inputString);
+              }
+            };
+            String packageName = Messages.showInputDialog(myPanel,
+                "Add pattern to use appropriate classes only with prefix",
+                "Use References With Prefix:",
+                Messages.getWarningIcon(), "", validator);
+            addPrefixPackage(packageName);
+          }
+        }).disableUpDownActions().createPanel();
+    myImportsWithPrefixPanel.add(panel, BorderLayout.CENTER);
+
+    referencesWithPrefixList.getEmptyText().setText(ApplicationBundle.message("exclude.from.imports.no.exclusions"));
     setSettings();
+  }
+
+  private void addPrefixPackage(String packageName) {
+    if (packageName == null) {
+      return;
+    }
+    int index = -Arrays.binarySearch(myReferencesWithPrefixModel.toArray(), packageName) - 1;
+    if (index < 0) return;
+
+    myReferencesWithPrefixModel.add(index, packageName);
+    referencesWithPrefixList.setSelectedValue(packageName, true);
+    ListScrollingUtil.ensureIndexIsVisible(referencesWithPrefixList, index, 0);
+    IdeFocusManager.getGlobalInstance().requestFocus(referencesWithPrefixList, false);
+  }
+
+  public String[] getPrefixPackages() {
+    String[] prefixPackages = new String[myReferencesWithPrefixModel.size()];
+    for (int i = 0; i < myReferencesWithPrefixModel.size(); i++) {
+      prefixPackages[i] = (String)myReferencesWithPrefixModel.elementAt(i);
+    }
+    Arrays.sort(prefixPackages);
+    return prefixPackages;
   }
 
   @NotNull
@@ -51,7 +115,6 @@ public class ScalaProjectSettingsPanel {
   public void apply() {
     if (!isModified()) return;
 
-    ScalaProjectSettings.getInstance(myProject).setAddUnambigiousImportsOnTheFly(addUnambiguousImportsOnCheckBox.isSelected());
     ScalaProjectSettings.getInstance(myProject).setAddImportMostCloseToReference(addImportStatementInCheckBox.isSelected());
     ScalaProjectSettings.getInstance(myProject).setAddFullQualifiedImports(addFullQualifiedImportsCheckBox.isSelected());
     ScalaProjectSettings.getInstance(myProject).setSortImports(sortImportsCheckBox.isSelected());
@@ -72,6 +135,8 @@ public class ScalaProjectSettingsPanel {
     ScalaProjectSettings.getInstance(myProject).setDisableLangInjection(myDisableLanguageInjection.isSelected());
     ScalaProjectSettings.getInstance(myProject).setScalaPriority(useScalaClassesPriorityCheckBox.isSelected());
     ScalaProjectSettings.getInstance(myProject).setCollectionTypeHighlightingLevel(collectionHighlightingChooser.getSelectedIndex());
+    ScalaProjectSettings.getInstance(myProject).setImportShortestPathForAmbiguousReferences(importTheShortestPathCheckBox.isSelected());
+    ScalaProjectSettings.getInstance(myProject).setImportsWithPrefix(getPrefixPackages());
   }
 
   @SuppressWarnings({"ConstantConditions", "RedundantIfStatement"})
@@ -88,8 +153,6 @@ public class ScalaProjectSettingsPanel {
 
     if (ScalaProjectSettings.getInstance(myProject).getClassCountToUseImportOnDemand() !=
         (Integer) classCountSpinner.getValue()) return true;
-    if (ScalaProjectSettings.getInstance(myProject).isAddUnambigiousImportsOnTheFly() !=
-        addUnambiguousImportsOnCheckBox.isSelected()) return true;
     if (ScalaProjectSettings.getInstance(myProject).isAddImportMostCloseToReference() !=
         addImportStatementInCheckBox.isSelected()) return true;
     if (ScalaProjectSettings.getInstance(myProject).isAddFullQualifiedImports() !=
@@ -107,6 +170,8 @@ public class ScalaProjectSettingsPanel {
         donTShowDialogCheckBox.isSelected()) return true;
     if (ScalaProjectSettings.getInstance(myProject).isTreatDocCommentAsBlockComment() !=
         treatDocCommentAsBlockComment.isSelected()) return true;
+    if (ScalaProjectSettings.getInstance(myProject).isImportShortestPathForAmbiguousReferences() !=
+        importTheShortestPathCheckBox.isSelected()) return true;
 
     if (ScalaProjectSettings.getInstance(myProject).isIgnorePerformance() != myResolveToAllClassesCheckBox.isSelected())
       return true;
@@ -120,6 +185,9 @@ public class ScalaProjectSettingsPanel {
     if (ScalaProjectSettings.getInstance(myProject).getCollectionTypeHighlightingLevel() !=
         collectionHighlightingChooser.getSelectedIndex()) return true;
 
+    if (!Arrays.deepEquals(ScalaProjectSettings.getInstance(myProject).getImportsWithPrefix(),
+        getPrefixPackages())) return true;
+
     return false;
   }
 
@@ -132,8 +200,6 @@ public class ScalaProjectSettingsPanel {
   }
 
   private void setSettings() {
-    setValue(addUnambiguousImportsOnCheckBox,
-        ScalaProjectSettings.getInstance(myProject).isAddUnambigiousImportsOnTheFly());
     setValue(addImportStatementInCheckBox,
         ScalaProjectSettings.getInstance(myProject).isAddImportMostCloseToReference());
     setValue(addFullQualifiedImportsCheckBox,
@@ -170,7 +236,14 @@ public class ScalaProjectSettingsPanel {
         ScalaProjectSettings.getInstance(myProject).isDisableLangInjection());
     setValue(useScalaClassesPriorityCheckBox,
         ScalaProjectSettings.getInstance(myProject).isScalaPriority());
+    setValue(importTheShortestPathCheckBox,
+        ScalaProjectSettings.getInstance(myProject).isImportShortestPathForAmbiguousReferences());
     collectionHighlightingChooser.setSelectedIndex(ScalaProjectSettings.getInstance(myProject).getCollectionTypeHighlightingLevel());
+    myReferencesWithPrefixModel = new DefaultListModel();
+    for (String aPackage : ScalaProjectSettings.getInstance(myProject).getImportsWithPrefix()) {
+      myReferencesWithPrefixModel.add(myReferencesWithPrefixModel.size(), aPackage);
+    }
+    referencesWithPrefixList.setModel(myReferencesWithPrefixModel);
   }
 
   private static void setValue(JSpinner spinner, int value) {

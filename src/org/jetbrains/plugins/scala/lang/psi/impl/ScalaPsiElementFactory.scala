@@ -218,6 +218,12 @@ object ScalaPsiElementFactory extends JVMElementFactory {
     dummyFile.getFirstChild.asInstanceOf[ScMatchStmt]
   }
 
+  def createAnAnnotation(name: String, manager: PsiManager): ScAnnotation = {
+    val code = "@%s\ndef foo".format(name)
+    val element = parseElement(code, manager)
+    element.getFirstChild.getFirstChild.asInstanceOf[ScAnnotation]
+  }
+
   def createScalaFile(manager: PsiManager): ScalaFile = ScalaPsiElementFactory.parseFile("", manager)
   
   def parseFile(text: String, manager: PsiManager): ScalaFile = {

@@ -6,9 +6,10 @@ package statements
 
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import com.intellij.psi._
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import com.intellij.util.containers.ConcurrentHashMap
 import light.{PsiClassWrapper, StaticTraitScFunctionWrapper}
+import expr.ScExpression
+import api.base.ScReferenceElement
 
 /**
 * @author Alexander Podkhalyuzin
@@ -29,6 +30,14 @@ trait ScFunctionDefinition extends ScFunction with ScControlFlowOwner {
 
   def getReturnUsages: Array[PsiElement]
 
+  def canBeTailRecursive: Boolean
+
+  def hasTailRecursionAnnotation: Boolean
+
+  def recursiveReferences: Seq[RecursiveReference]
+
+  def recursionType: RecursionType
+
   def isSecondaryConstructor: Boolean
 
   private var staticTraitFunctionWrapper: ConcurrentHashMap[(PsiClassWrapper), (StaticTraitScFunctionWrapper, Long)] =
@@ -44,4 +53,14 @@ trait ScFunctionDefinition extends ScFunction with ScControlFlowOwner {
     staticTraitFunctionWrapper.put(cClass, (res, curModCount))
     res
   }
+}
+
+case class RecursiveReference(element: ScReferenceElement, isTailCall: Boolean)
+
+trait RecursionType
+
+object RecursionType {
+  case object NoRecursion extends RecursionType
+  case object OrdinaryRecursion extends RecursionType
+  case object TailRecursion extends RecursionType
 }

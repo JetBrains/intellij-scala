@@ -37,7 +37,8 @@ class ScalaResolveResult(val element: PsiNamedElement,
                          val isAssignment: Boolean = false,
                          val notCheckedResolveResult: Boolean = false, 
                          val isAccessible: Boolean = true,
-                         val resultUndef: Option[ScUndefinedSubstitutor] = None) extends ResolveResult {
+                         val resultUndef: Option[ScUndefinedSubstitutor] = None,
+                         val prefixCompletion: Boolean = false) extends ResolveResult {
 
   def getElement = element
   
@@ -86,11 +87,12 @@ class ScalaResolveResult(val element: PsiNamedElement,
   override def equals(other: Any): Boolean = other match {
     case rr: ScalaResolveResult =>
       if (element ne rr.element) return false
+      if (nameShadow != rr.nameShadow) return false
       innerResolveResult == rr.innerResolveResult
     case _ => false
   }
 
-  override def hashCode: Int = element.hashCode + innerResolveResult.hashCode() * 31
+  override def hashCode: Int = element.hashCode + innerResolveResult.hashCode() * 31 + nameShadow.hashCode() * 31 * 31
 
 
   private var precedence = -1

@@ -16,7 +16,6 @@ import com.intellij.lang.ASTNode
 import com.intellij.psi._
 import com.intellij.psi.PsiElement
 import com.intellij.util.IncorrectOperationException
-import api.expr.{ScSuperReference, ScThisReference}
 import api.base.patterns.{ScInfixPattern, ScConstructorPattern}
 import api.base.types.{ScParameterizedTypeElement, ScInfixTypeElement, ScSimpleTypeElement}
 import impl.source.tree.LeafPsiElement
@@ -24,6 +23,9 @@ import processor.CompletionProcessor
 import api.ScalaElementVisitor
 import extensions.{toPsiNamedElementExt, toPsiClassExt}
 import api.statements.{ScMacroDefinition, ScTypeAlias}
+import api.expr.{ScReferenceExpression, ScSuperReference, ScThisReference}
+import settings.ScalaProjectSettings
+import annotator.intention.ScalaImportClassFix
 
 /**
  * @author AlexanderPodkhalyuzin
@@ -46,6 +48,14 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
         val qualifier = res.fromType.getOrElse(Nothing)
         LookupElementManager.getLookupElement(res, isInImport = isInImport, qualifierType = qualifier, isInStableCodeReference = true)
       case r => Seq(r.getElement)
+    }
+  }
+
+  def getResolveResultVariants: Array[ScalaResolveResult] = {
+    val isInImport: Boolean = ScalaPsiUtil.getParentOfType(this, classOf[ScImportStmt]) != null
+    doResolve(this, new CompletionProcessor(getKinds(true), this)).flatMap {
+      case res: ScalaResolveResult => Seq(res)
+      case r => Seq.empty
     }
   }
 
@@ -132,9 +142,16 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
           return ref
         }
         val qname = c.qualifiedName
-        if (qname != null) org.jetbrains.plugins.scala.annotator.intention.
-                ScalaImportClassFix.getImportHolder(ref = this, project = getProject).
-                addImportForClass(c, ref = this) //todo: correct handling
+        if (qname != null) {
+          return safeBindToElement(qname, {
+            case (qual, true) => ScalaPsiElementFactory.createReferenceFromText(qual, getContext, this)
+            case (qual, false) => ScalaPsiElementFactory.createReferenceFromText(qual, getManager)
+          }) {
+            ScalaImportClassFix.getImportHolder(ref = this, project = getProject).
+              addImportForClass(c, ref = this)
+            this
+          }
+        }
         this
       }
       case t: ScTypeAlias => this //todo: do something

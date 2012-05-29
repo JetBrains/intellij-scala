@@ -20,6 +20,9 @@ import psi.controlFlow.Instruction
 import psi.controlFlow.impl.ScalaControlFlowBuilder
 import api.{ScalaElementVisitor, ScalaRecursiveElementVisitor}
 import api.statements.params.ScParameter
+import api.base.ScReferenceElement
+import extensions._
+import api.toplevel.templates.ScTemplateBody
 
 /**
  * @author Alexander Podkhalyuzin
@@ -30,6 +33,46 @@ class ScFunctionDefinitionImpl extends ScFunctionImpl with ScFunctionDefinition 
   def this(node: ASTNode) = {this (); setNode(node)}
 
   def this(stub: ScFunctionStub) = {this (); setStub(stub); setNode(null)}
+
+  def canBeTailRecursive = getParent match {
+    case _: ScTemplateBody =>
+      val modifiers = getModifierList
+      modifiers.has(ScalaTokenTypes.kPRIVATE) || modifiers.has(ScalaTokenTypes.kFINAL)
+    case _ => true
+  }
+
+  def hasTailRecursionAnnotation: Boolean =
+    annotations.exists(_.typeElement.getType(TypingContext.empty)
+            .map(_.canonicalText).filter(_ == "_root_.scala.annotation.tailrec").isDefined)
+
+  def recursiveReferences: Seq[RecursiveReference] = {
+    val resultExpressions = getReturnUsages
+
+    def resultExpressionFor(ref: ScReferenceElement): PsiElement = ref match {
+      case Parent(ret: ScReturnStmt) => ret
+      case Parent(call: ScMethodCall) => call match {
+        case Parent(ret: ScReturnStmt) => ret
+        case it => it
+      }
+      case it => it
+    }
+
+    for (ref <- depthFirst.filterByType(classOf[ScReferenceElement]).toList if ref.isReferenceTo(this);
+         target <- ref.advancedResolve if target.isApplicable)
+    yield RecursiveReference(ref, resultExpressions.contains(resultExpressionFor(ref)))
+  }
+
+  def recursionType: RecursionType = {
+    val references = recursiveReferences
+    if (references.isEmpty) {
+      RecursionType.NoRecursion
+    } else {
+      if (references.forall(_.isTailCall))
+        RecursionType.TailRecursion
+      else
+        RecursionType.OrdinaryRecursion
+    }
+  }
 
   override def processDeclarations(processor: PsiScopeProcessor,
                                    state: ResolveState,

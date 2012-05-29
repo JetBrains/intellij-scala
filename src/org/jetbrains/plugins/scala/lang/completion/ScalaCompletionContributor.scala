@@ -31,8 +31,8 @@ import psi.api.statements.params.ScClassParameter
 import psi.api.base.{ScStableCodeReferenceElement, ScReferenceElement}
 import com.intellij.patterns.PlatformPatterns._
 import org.jetbrains.plugins.scala.lang.completion.ScalaAfterNewCompletionUtil._
-import extensions.toPsiNamedElementExt
 import psi.api.toplevel.typedef.ScTemplateDefinition
+import extensions.{toPsiClassExt, toPsiNamedElementExt}
 
 /**
  * @author Alexander Podkhalyuzin
@@ -76,6 +76,9 @@ class ScalaCompletionContributor extends CompletionContributor {
                   case clazz: PsiClass =>
                     import collection.mutable.{HashMap => MHashMap}
                     val renamedMap = new MHashMap[String, (String, PsiNamedElement)]
+                    if (clazz.qualifiedName == "scala.collection.mutable.HashMap") {
+                      "stop here"
+                    }
                     el.isRenamed.foreach(name => renamedMap += ((clazz.name, (name, clazz))))
                     val isExcluded: Boolean = ApplicationManager.getApplication.runReadAction(new Computable[Boolean] {
                       def compute: Boolean = {
@@ -99,13 +102,14 @@ class ScalaCompletionContributor extends CompletionContributor {
                     context match {
                       case memb: PsiMember => {
                         if (parameters.getInvocationCount > 1 ||
-                          ResolveUtils.isAccessible(memb, parameters.getPosition, true)) addElement(el)
+                          ResolveUtils.isAccessible(memb, parameters.getPosition, forCompletion = true)) addElement(el)
                       }
                       case _ => addElement(el)
                     }
                   }
                   case memb: PsiMember => {
-                    if (parameters.getInvocationCount > 1 || ResolveUtils.isAccessible(memb, parameters.getPosition, true))
+                    if (parameters.getInvocationCount > 1 || ResolveUtils.isAccessible(memb, parameters.getPosition,
+                      forCompletion = true))
                       addElement(el)
                   }
                   case _ => addElement(el)
@@ -124,10 +128,12 @@ class ScalaCompletionContributor extends CompletionContributor {
           }
           ref match {
             case refImpl: ScStableCodeReferenceElementImpl =>
-              val processor = new CompletionProcessor(refImpl.getKinds(false, true), refImpl, postProcess = postProcessMethod _)
+              val processor = new CompletionProcessor(refImpl.getKinds(incomplete = false, completion = true),
+                refImpl, postProcess = postProcessMethod _)
               refImpl.doResolve(refImpl, processor)
             case refImpl: ScReferenceExpressionImpl =>
-              val processor = new CompletionProcessor(refImpl.getKinds(false, true), refImpl, collectImplicits = true, postProcess = postProcessMethod _)
+              val processor = new CompletionProcessor(refImpl.getKinds(incomplete = false, completion = true),
+                refImpl, collectImplicits = true, postProcess = postProcessMethod _)
               refImpl.doResolve(refImpl, processor)
               if (ScalaCompletionUtil.completeThis(refImpl)) {
                 var parent: PsiElement = refImpl
@@ -147,14 +153,16 @@ class ScalaCompletionContributor extends CompletionContributor {
                 }
               }
             case refImpl: ScTypeProjectionImpl =>
-              val processor = new CompletionProcessor(refImpl.getKinds(false, true), refImpl, postProcess = postProcessMethod _)
+              val processor = new CompletionProcessor(refImpl.getKinds(incomplete = false, completion = true),
+                refImpl, postProcess = postProcessMethod _)
               refImpl.doResolve(processor)
             case _ =>
               for (variant <- ref.getVariants()) {
                 applyVariant(variant)
               }
           }
-          if (!elementAdded && !classNameCompletion && ScalaCompletionUtil.shouldRunClassNameCompletion(parameters, result.getPrefixMatcher, false)) {
+          if (!elementAdded && !classNameCompletion && ScalaCompletionUtil.shouldRunClassNameCompletion(parameters,
+            result.getPrefixMatcher, checkInvocationCount = false)) {
             ScalaClassNameCompletionContributor.completeClassName(parameters, context, result)
           }
         }

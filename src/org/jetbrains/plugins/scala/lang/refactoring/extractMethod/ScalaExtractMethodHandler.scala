@@ -246,7 +246,7 @@ class ScalaExtractMethodHandler extends RefactoringActionHandler {
 
     val method = ScalaExtractMethodUtils.createMethodFromSettings(settings)
     val element = settings.elements.apply(0)
-    val processor = new CompletionProcessor(StdKinds.refExprLastRef, element)
+    val processor = new CompletionProcessor(StdKinds.refExprLastRef, element, includePrefixImports = false)
     PsiTreeUtil.treeWalkUp(processor, element, null, ResolveState.initial)
     val allNames = new HashSet[String]()
     allNames ++= processor.candidatesS.map(rr => rr.element.name)

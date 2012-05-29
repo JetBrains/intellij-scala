@@ -28,6 +28,8 @@ import annotator.intention.ScalaImportClassFix
 import api.toplevel.typedef._
 import completion.lookups.LookupElementManager
 import extensions.{toPsiMemberExt, toPsiNamedElementExt, toPsiClassExt}
+import settings.ScalaProjectSettings
+import api.base.ScReferenceElement
 
 /**
  * @author AlexanderPodkhalyuzin
@@ -58,15 +60,22 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
       case _: ScTrait => this
       case c: ScClass if !c.isCase => this
       case c: PsiClass => {
-        if (!ResolveUtils.kindMatches(element, getKinds(false)))
+        if (!ResolveUtils.kindMatches(element, getKinds(incomplete = false)))
           throw new IncorrectOperationException("class does not match expected kind")
         if (refName != c.name)
           throw new IncorrectOperationException("class does not match expected name")
         val qualName = c.qualifiedName
         if (qualName != null) {
-          org.jetbrains.plugins.scala.annotator.intention.
-                  ScalaImportClassFix.getImportHolder(ref = this, project = getProject).
-                  addImportForClass(c, ref = this)
+          return safeBindToElement(qualName, {
+            case (qual, true) =>
+              ScalaPsiElementFactory.createExpressionWithContextFromText(qual, getContext, this).
+                asInstanceOf[ScReferenceExpression]
+            case (qual, false) =>
+              ScalaPsiElementFactory.createExpressionFromText(qual, getManager).asInstanceOf[ScReferenceExpression]
+          }) {
+            ScalaImportClassFix.getImportHolder(ref = this, project = getProject).addImportForClass(c, ref = this)
+            this
+          }
         }
         this
       }
@@ -79,8 +88,18 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
           case memb: PsiMember =>
             val cClass = containingClass.getOrElse(memb.containingClass)
             if (cClass != null && cClass.qualifiedName != null) {
-              ScalaImportClassFix.getImportHolder(this, getProject).
-                addImportForPsiNamedElement(elem, this, Some(cClass))
+              val qualName: String = cClass.qualifiedName + "." + elem.name
+              return safeBindToElement(qualName, {
+                case (qual, true) =>
+                  ScalaPsiElementFactory.createExpressionWithContextFromText(qual, getContext, this).
+                    asInstanceOf[ScReferenceExpression]
+                case (qual, false) =>
+                  ScalaPsiElementFactory.createExpressionFromText(qual, getManager).asInstanceOf[ScReferenceExpression]
+              }) {
+                ScalaImportClassFix.getImportHolder(this, getProject).
+                  addImportForPsiNamedElement(elem, this, Some(cClass))
+                this
+              }
             }
           case _ =>
         }
@@ -89,7 +108,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
     }
   }
 
-  def getVariants: Array[Object] = getVariants(true, false)
+  def getVariants: Array[Object] = getVariants(implicits = true, filterNotNamedVariants = false)
 
   /**
    * Important! Do not change types of Object values, this can cause errors due to bad architecture.
@@ -97,7 +116,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
   override def getVariants(implicits: Boolean, filterNotNamedVariants: Boolean): Array[Object] = {
     val isInImport: Boolean = ScalaPsiUtil.getParentOfType(this, classOf[ScImportStmt]) != null
 
-    doResolve(this, new CompletionProcessor(getKinds(true), this, implicits)).filter(r => {
+    doResolve(this, new CompletionProcessor(getKinds(incomplete = true), this, implicits)).filter(r => {
       if (filterNotNamedVariants) {
         r match {
           case res: ScalaResolveResult => res.isNamedParameter
@@ -113,7 +132,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
     }
   }
 
-  def getSameNameVariants: Array[ResolveResult] = doResolve(this, new CompletionProcessor(getKinds(true), this, true, Some(refName)))
+  def getSameNameVariants: Array[ResolveResult] = doResolve(this, new CompletionProcessor(getKinds(incomplete = true), this, true, Some(refName)))
 
   def getKinds(incomplete: Boolean, completion: Boolean = false) = {
     getContext match {

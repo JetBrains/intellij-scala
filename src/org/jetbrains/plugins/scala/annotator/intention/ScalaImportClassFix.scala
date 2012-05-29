@@ -77,7 +77,7 @@ class ScalaImportClassFix(private var classes: Array[PsiClass], ref: ScReference
         classes = ScalaImportClassFix.getClasses(ref, project)
         classes.length match {
           case 0 => false
-          case 1 if ScalaProjectSettings.getInstance(project).isAddUnambigiousImportsOnTheFly  &&
+          case 1 if ScalaApplicationSettings.getInstance().ADD_UNAMBIGUOUS_IMPORTS_ON_THE_FLY &&
                   !caretNear(editor) => {
             CommandProcessor.getInstance().runUndoTransparentAction(new Runnable {
               def run() {
@@ -135,8 +135,6 @@ class ScalaImportClassFix(private var classes: Array[PsiClass], ref: ScReference
 
   def startInWriteAction(): Boolean = true
 
-
-
   class ScalaAddImportAction(editor: Editor, classes: Array[PsiClass], ref: ScReferenceElement) extends QuestionAction {
     def addImportOrReference(clazz: PsiClass) {
       ApplicationManager.getApplication.invokeLater(new Runnable() {
@@ -146,7 +144,7 @@ class ScalaImportClassFix(private var classes: Array[PsiClass], ref: ScReference
             def run() {
               PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument)
               if (!ref.isInstanceOf[ScDocResolvableCodeReference]) {
-                ScalaImportClassFix.getImportHolder(ref, project).addImportForClass(clazz, ref)
+                ref.bindToElement(clazz)
               } else {
                 ref.replace(ScalaPsiElementFactory.createDocLinkValue(clazz.qualifiedName, ref.getManager))
               }
@@ -260,7 +258,7 @@ object ScalaImportClassFix {
 
   def getClasses(ref: ScReferenceElement, myProject: Project): Array[PsiClass] = {
     if (!ref.isValid) return Array.empty
-    val kinds = ref.getKinds(false)
+    val kinds = ref.getKinds(incomplete = false)
     val cache = ScalaPsiManager.instance(myProject)
     val classes = cache.getClassesByName(ref.refName, ref.getResolveScope)
     val buffer = new ArrayBuffer[PsiClass]
