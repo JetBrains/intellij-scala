@@ -4,14 +4,12 @@ package parser
 package parsing
 package expressions
 
-import com.intellij.lang.PsiBuilder
 import lexer.ScalaTokenTypes
-import nl.LineTerminator
 import builder.ScalaPsiBuilder
 
 /**
  * @author Alexander Podkhalyuzin
- *  Date: 06.03.2008
+ *         Date: 06.03.2008
  */
 
 /*
@@ -22,15 +20,13 @@ object Annotation {
   def parse(builder: ScalaPsiBuilder, countLinesAfterAnnotation: Boolean = true): Boolean = {
     val rollbackMarker = builder.mark()
     val annotMarker = builder.mark
-    builder.getTokenText match {
-      case "@" => {
+    builder.getTokenType match {
+      case ScalaTokenTypes.tAT => 
         builder.advanceLexer() //Ate @
-      }
-      case _ => {
+      case _ =>
         annotMarker.drop()
         rollbackMarker.drop()
         return false
-      }
     }
     if (!AnnotationExpr.parse(builder)) {
       builder error ScalaBundle.message("wrong.annotation.expression")
