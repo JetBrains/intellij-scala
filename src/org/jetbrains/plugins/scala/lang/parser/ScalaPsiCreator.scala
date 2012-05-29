@@ -2,13 +2,10 @@ package org.jetbrains.plugins.scala
 package lang
 package parser
 
-import scaladoc.parser.ScalaDocElementTypes
-import scaladoc.psi.impl.ScDocCommentImpl
-import scaladoc.psi.{ScalaDocPsiCreator}
+import scaladoc.psi.ScalaDocPsiCreator
 import scaladoc.lexer.ScalaDocElementType
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.lang.parser._
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.imports._
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.packaging._
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef._
@@ -21,14 +18,13 @@ import org.jetbrains.plugins.scala.lang.psi.impl.base._
 import org.jetbrains.plugins.scala.lang.psi.impl.statements.params._
 import org.jetbrains.plugins.scala.lang.psi.impl.base.types._
 import org.jetbrains.plugins.scala.lang.psi.impl.base.patterns._
-import com.intellij.psi.util.{PsiUtilCore, PsiUtilBase, PsiUtil}
+import com.intellij.psi.util.PsiUtilCore
 import com.intellij.extapi.psi.ASTWrapperPsiElement
 
 object ScalaPsiCreator {
-  def createElement(node: ASTNode): PsiElement =
-
-    node.getElementType() match {
-
+  def createElement(node: ASTNode): PsiElement =     
+    node.getElementType match {
+     case s: SelfPsiCreator => s.createElement(node)
 
      case _: ScalaDocElementType => ScalaDocPsiCreator.createElement(node)
     /*****************************************************/
@@ -244,5 +240,9 @@ object ScalaPsiCreator {
     case ScalaElementTypes.XML_COMMENT => new ScXmlCommentImpl(node)
     case ScalaElementTypes.XML_ELEMENT => new ScXmlElementImpl(node)
     case _ => new ASTWrapperPsiElement(node)
+  }
+  
+  trait SelfPsiCreator {
+    def createElement(node: ASTNode): PsiElement
   }
 }
