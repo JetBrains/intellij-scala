@@ -6,6 +6,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.psi.codeStyle.CodeStyleSettingsManager;
 import com.intellij.util.xmlb.XmlSerializerUtil;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings;
 
 import java.io.File;
@@ -26,7 +27,7 @@ public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProj
   private ScalaCodeStyleSettings scalaSettings =
       CodeStyleSettingsManager.getInstance().getCurrentSettings().getCustomSettings(ScalaCodeStyleSettings.class);
 
-  private boolean ADD_UNAMBIGIOUS_IMPORTS_ON_THE_FLY = scalaSettings.ADD_UNAMBIGIOUS_IMPORTS_ON_THE_FLY;
+  private boolean IMPORT_SHORTEST_PATH_FOR_AMBIGUOUS_REFERENCES = true;
   private int CLASS_COUNT_TO_USE_IMPORT_ON_DEMAND = scalaSettings.CLASS_COUNT_TO_USE_IMPORT_ON_DEMAND;
   private boolean ADD_IMPORT_MOST_CLOSE_TO_REFERENCE = scalaSettings.ADD_IMPORT_MOST_CLOSE_TO_REFERENCE;
   private boolean ADD_FULL_QUALIFIED_IMPORTS = scalaSettings.ADD_FULL_QUALIFIED_IMPORTS;
@@ -48,9 +49,15 @@ public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProj
 
   private boolean SCALA_CLASSES_PRIORITY = scalaSettings.SCALA_CLASSES_PRIORITY;
 
+  private String[] IMPORTS_WITH_PREFIX = {
+      "java.util._",
+      "scala.collection.mutable._",
+      "exclude:scala.collection.mutable.ArrayBuffer",
+      "exclude:scala.collection.mutable.ListBuffer"
+  };
 
   //colection type highlighting settings
-  private int COLLECTION_TYPE_HIGHLIGHTING_LEVEL = 1;
+  private int COLLECTION_TYPE_HIGHLIGHTING_LEVEL = 0;
 
   public static final int COLLECTION_TYPE_HIGHLIGHTING_ALL = 2;
   public static final int COLLECTION_TYPE_HIGHLIGHTING_NOT_QUALIFIED = 1;
@@ -76,14 +83,6 @@ public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProj
   @NotNull
   public String getPresentableName() {
     return "Scala Project Settings";
-  }
-
-  public boolean isAddUnambigiousImportsOnTheFly() {
-    return ADD_UNAMBIGIOUS_IMPORTS_ON_THE_FLY;
-  }
-
-  public void setAddUnambigiousImportsOnTheFly(boolean value) {
-    ADD_UNAMBIGIOUS_IMPORTS_ON_THE_FLY = value;
   }
 
   public int getClassCountToUseImportOnDemand() {
@@ -220,5 +219,47 @@ public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProj
 
   public void setCollectionTypeHighlightingLevel(int level) {
     this.COLLECTION_TYPE_HIGHLIGHTING_LEVEL = level;
+  }
+
+  public boolean isImportShortestPathForAmbiguousReferences() {
+    return IMPORT_SHORTEST_PATH_FOR_AMBIGUOUS_REFERENCES;
+  }
+
+  public void setImportShortestPathForAmbiguousReferences(boolean importShortestPathForAmbiguousReferences) {
+    this.IMPORT_SHORTEST_PATH_FOR_AMBIGUOUS_REFERENCES = importShortestPathForAmbiguousReferences;
+  }
+
+  public String[] getImportsWithPrefix() {
+    return IMPORTS_WITH_PREFIX;
+  }
+
+  public void setImportsWithPrefix(String[] importsWithPrefix) {
+    this.IMPORTS_WITH_PREFIX = importsWithPrefix;
+  }
+
+  public static String EXCLUDE_PREFIX = "exclude:";
+
+  public boolean hasImportWithPrefix(@Nullable String qualName) {
+    if (qualName != null && qualName.contains(".")) {
+      String[] importsWithPrefix = getImportsWithPrefix();
+      boolean res = false;
+      for (String importWithPrefix : importsWithPrefix) {
+        if (importWithPrefix.startsWith(EXCLUDE_PREFIX)) {
+          String s = importWithPrefix.substring(EXCLUDE_PREFIX.length());
+          if (s.endsWith("._")) {
+            if (s.substring(0, s.lastIndexOf('.')).equals(qualName.substring(0, qualName.lastIndexOf('.')))) {
+              return false;
+            }
+          } else if (s.equals(qualName)) return false;
+        } else {
+          if (importWithPrefix.endsWith("._")) {
+            if (importWithPrefix.substring(0, importWithPrefix.lastIndexOf('.')).equals(qualName.substring(0, qualName.lastIndexOf('.')))) {
+              res = true;
+            }
+          } else if (importWithPrefix.equals(qualName)) res = true;
+        }
+      }
+      return res;
+    } else return false;
   }
 }

@@ -185,6 +185,7 @@
     <inspection_tool class="MissedExecutable" enabled="false" level="WARNING" enabled_by_default="false" />
     <inspection_tool class="MultipleBindingAnnotations" enabled="false" level="WARNING" enabled_by_default="false" />
     <inspection_tool class="MultipleInjectedConstructorsForClass" enabled="false" level="WARNING" enabled_by_default="false" />
+    <inspection_tool class="NoTailRecursionAnnotation" enabled="true" level="WARNING" enabled_by_default="true" />
     <inspection_tool class="NonJaxWsWebServices" enabled="false" level="WARNING" enabled_by_default="false" />
     <inspection_tool class="OneWayWebMethod" enabled="false" level="WARNING" enabled_by_default="false" />
     <inspection_tool class="Package Name" enabled="false" level="WARNING" enabled_by_default="false" />

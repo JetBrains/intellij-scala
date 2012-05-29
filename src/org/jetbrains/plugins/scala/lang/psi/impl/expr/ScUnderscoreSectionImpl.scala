@@ -15,6 +15,7 @@ import api.statements.params.ScClassParameter
 import nonvalue.{ScTypePolymorphicType, ScMethodType}
 import api.ScalaElementVisitor
 import com.intellij.psi.{PsiElementVisitor, PsiElement}
+import resolve.ScalaResolveResult
 
 /**
  * @author Alexander Podkhalyuzin, ilyas
@@ -29,18 +30,40 @@ class ScUnderscoreSectionImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
         def fun(): TypeResult[ScType] = {
           ref.getNonValueType(TypingContext.empty).map {
             case ScTypePolymorphicType(internalType, typeParameters) =>
-              ScTypePolymorphicType(ScMethodType(internalType, Nil, false)(getProject, getResolveScope), typeParameters)
-            case tp: ScType => ScMethodType(tp, Nil, false)(getProject, getResolveScope)
+              ScTypePolymorphicType(ScMethodType(internalType, Nil, isImplicit = false)(getProject, getResolveScope), typeParameters)
+            case tp: ScType => ScMethodType(tp, Nil, isImplicit = false)(getProject, getResolveScope)
           }
         }
-        ref.resolve() match {
-          case f: ScFunction if f.paramClauses.clauses.length == 0 => fun()
-          case c: ScClassParameter if c.isVal | c.isVar => fun()
-          case b: ScBindingPattern =>
+        ref.bind() match {
+          case Some(ScalaResolveResult(f: ScFunction, _)) if f.paramClauses.clauses.length == 0 => fun()
+          case Some(ScalaResolveResult(c: ScClassParameter, _)) if c.isVal | c.isVar => fun()
+          case Some(ScalaResolveResult(b: ScBindingPattern, _)) =>
             b.nameContext match {
               case _: ScValue | _: ScVariable if b.isClassMember => fun()
               case _ => ref.getNonValueType(TypingContext.empty)
             }
+            //the following code not works, because parameters shouldn't be computed with expected type,
+            // we already know, which type they has
+          /*case Some(ScalaResolveResult(f: ScFunction, subst)) =>
+            val needType = expectedType().isEmpty
+            val clauses = f.effectiveParameterClauses.filterNot(_.isImplicit).zipWithIndex
+            val (forParams, forExprs) = clauses.map {
+              case (clause, clauseIndex) =>
+                val (forParams, forExprs) = clause.parameters.zipWithIndex.map {
+                  case (parameter, index) =>
+                    val name = "parameter" + index + "inClause" + clauseIndex
+                    if (needType) {
+                      val typeText = subst.subst(parameter.getType(TypingContext.empty).getOrAny).presentableText
+                      (name + " : " + typeText, name)
+                    }  else {
+                      (name, name)
+                    }
+                }.unzip
+                (forParams.mkString("(", ", ", ")"), forExprs.mkString("(", ", ", ")"))
+            }.unzip
+            val newExpr = ScalaPsiElementFactory.createExpressionWithContextFromText(forParams.mkString("", " => ", " => ") +
+              ref.getText + forExprs.mkString, getContext, this)
+            newExpr.getType(TypingContext.empty)*/
           case _ => ref.getNonValueType(TypingContext.empty)
         }
       case Some(expr) => expr.getNonValueType(TypingContext.empty)
@@ -73,7 +96,7 @@ class ScUnderscoreSectionImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
             if (i < 0) return Failure("Not found under", None)
             var result: Option[ScType] = null //strange logic to handle problems with detecting type
             var forEqualsParamLength: Boolean = false //this is for working completion
-            for (tp <- expr.expectedTypes(false) if result != None) {
+            for (tp <- expr.expectedTypes(fromUnderscore = false) if result != None) {
 
               def processFunctionType(tp: ScFunctionType) {
                 import tp.params
@@ -96,7 +119,7 @@ class ScUnderscoreSectionImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
               }
             }
             if (result == null || result == None) {
-              expectedType(false) match {
+              expectedType(fromUnderscore = false) match {
                 case Some(tp: ScType) => result = Some(tp)
                 case _ => result = None
               }

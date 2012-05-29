@@ -15,8 +15,6 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
     return CodeStyleSettingsManager.getSettings(project).getCustomSettings(ScalaCodeStyleSettings.class);
   }
   @Deprecated
-  public boolean ADD_UNAMBIGIOUS_IMPORTS_ON_THE_FLY = false;
-  @Deprecated
   public int CLASS_COUNT_TO_USE_IMPORT_ON_DEMAND = 5;
   @Deprecated
   public boolean ADD_IMPORT_MOST_CLOSE_TO_REFERENCE = false;

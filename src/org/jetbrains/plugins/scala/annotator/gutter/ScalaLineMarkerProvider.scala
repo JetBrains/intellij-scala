@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala
 package annotator
 package gutter
 
-
 import _root_.scala.collection.mutable.HashSet
 import _root_.scala.collection.mutable.ArrayBuffer
 import com.intellij.codeHighlighting.Pass
@@ -12,24 +11,24 @@ import com.intellij.psi._
 import com.intellij.psi.search.searches.ClassInheritorsSearch
 import java.util.{Collection, List}
 import lang.lexer.ScalaTokenTypes
-import lang.psi.api.statements._
 import lang.psi.api.toplevel.templates.ScTemplateBody
-import lang.psi.api.toplevel.{ScNamedElement}
+import lang.psi.api.toplevel.ScNamedElement
 import lang.psi.impl.search.ScalaOverridengMemberSearch
 import com.intellij.util.NullableFunction
-import lang.psi.{ScalaPsiUtil}
-import com.intellij.openapi.editor.colors.{EditorColorsScheme, EditorColorsManager, CodeInsightColors}
+import lang.psi.ScalaPsiUtil
+import com.intellij.openapi.editor.colors.{EditorColorsManager, CodeInsightColors}
 import com.intellij.openapi.editor.markup.{SeparatorPlacement, GutterIconRenderer}
 import com.intellij.codeInsight.daemon.{DaemonCodeAnalyzerSettings, LineMarkerInfo, LineMarkerProvider}
-import lang.psi.api.toplevel.typedef.{ScObject, ScMember, ScTypeDefinition, ScTrait}
+import lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition, ScTrait}
 import javax.swing.Icon
 import GutterIcons._
-import lang.psi.api.base.patterns.ScBindingPattern
-import lang.psi.api.base.{ScPrimaryConstructor, ScReferenceElement}
+import lang.psi.api.base.ScReferenceElement
 import collection.Seq
-import params.ScParameter
-import lang.psi.types.{Signature}
+import lang.psi.types.Signature
 import extensions.toPsiModifierListOwnerExt
+import lang.psi.api.statements._
+import params.ScParameter
+import extensions._
 
 
 /**
@@ -132,6 +131,20 @@ class ScalaLineMarkerProvider(daemonSettings: DaemonCodeAnalyzerSettings, colors
           val typez = ScalaMarkerType.OVERRIDING_MEMBER
           if (signature.length > 0) {
             return marker(ta.getTypeToken, icon, typez)
+          }
+        case _ =>
+      }
+
+      parent match {
+        case method: ScFunctionDefinition if method.nameId == element =>
+          method.recursionType match {
+            case RecursionType.OrdinaryRecursion =>
+              return new LineMarkerInfo[PsiElement](method.nameId, offset, RECURSION_ICON, Pass.UPDATE_ALL,
+                (e: PsiElement) => "Method '%s' is recursive".format(e.getText), null, GutterIconRenderer.Alignment.LEFT)
+            case RecursionType.TailRecursion =>
+              return new LineMarkerInfo[PsiElement](method.nameId, offset, TAIL_RECURSION_ICON, Pass.UPDATE_ALL,
+                (e: PsiElement) => "Method '%s' is tail recursive".format(e.getText), null, GutterIconRenderer.Alignment.LEFT)
+            case RecursionType.NoRecursion => // no markers
           }
         case _ =>
       }

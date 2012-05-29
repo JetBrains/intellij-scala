@@ -471,9 +471,9 @@ class ScalaBasicCompletionTest extends ScalaCompletionTestBase {
   def testYield() {
     val fileText =
       """
-      |object Test extends App {
-      |  Thread.<caret>
-      |}
+        |object Test extends App {
+        |  Thread.<caret>
+        |}
       """.stripMargin.replaceAll("\r", "").trim()
     configureFromFileTextAdapter("dummy.scala", fileText)
     val (activeLookup, _) = complete(1, CompletionType.BASIC)

@@ -72,6 +72,7 @@ object LookupElementManager {
       lookupItem.shouldImport = shouldImport
       lookupItem.isInStableCodeReference = isInStableCodeReference
       lookupItem.substitutor = substitutor
+      lookupItem.prefixCompletion = resolveResult.prefixCompletion
       lookupItem
     }
 

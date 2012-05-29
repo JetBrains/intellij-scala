@@ -45,6 +45,9 @@ package object extensions {
 
   implicit def toRichIterator[A](it: Iterator[A]) = new IteratorExt[A](it)
 
+  implicit def toIdeaFunction[A, B](f: Function[A, B]) = new com.intellij.util.Function[A, B] {
+    def fun(param: A) = f(param)
+  }
 
   def inWriteAction[T](body: => T): T = {
     ApplicationManager.getApplication.runWriteAction(new Computable[T] {

@@ -370,10 +370,10 @@ class ScalaOverrideImplementTest extends ScalaLightPlatformCodeInsightTestCaseAd
       """.replace("\r", "").stripMargin.trim
     val expectedText =
       """
-        |import java.util.Collection
+        |import java.util
         |
         |class ExtendsList extends java.util.List {
-        |  def removeAll(c: Collection[_]): Boolean = <selection>???</selection>
+        |  def removeAll(c: util.Collection[_]): Boolean = <selection>???</selection>
         |}
       """.replace("\r", "").stripMargin.trim
     val methodName: String = "removeAll"

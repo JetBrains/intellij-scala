@@ -54,6 +54,7 @@
     <projectService serviceInterface="org.jetbrains.plugins.scala.settings.ScalaProjectSettings"
                     serviceImplementation="org.jetbrains.plugins.scala.settings.ScalaProjectSettings"/>
     <errorHandler implementation="com.intellij.diagnostic.ITNReporter"/>
+    <autoImportOptionsProvider instance="org.jetbrains.plugins.scala.editor.autoimport.ScalaAutoImportOptionsProvider"/>
     <fileTypeFactory implementation="org.jetbrains.plugins.scala.ScalaFileTypeFactory"/>
     <syntaxHighlighter key="Scala" implementationClass="org.jetbrains.plugins.scala.highlighter.ScalaSyntaxHighlighter"/>
     <lang.syntaxHighlighterFactory key="Scala" implementationClass="org.jetbrains.plugins.scala.highlighter.ScalaSyntaxHighlighterFactory"/>
@@ -297,6 +298,11 @@
     </intentionAction>
 
     <intentionAction>
+      <category>Scala/Recursion</category>
+      <className>org.jetbrains.plugins.scala.codeInsight.intention.recursion.AddTailRecursionAnnotationIntention</className>
+    </intentionAction>
+
+    <intentionAction>
       <category>Scala/Pattern Matching</category>
       <className>org.jetbrains.plugins.scala.codeInsight.intention.matcher.CreateCaseClausesIntention</className>
     </intentionAction>
@@ -531,6 +537,10 @@
                      displayName="Use of postfix method call" groupName="Scala: General"
                      shortName="PostfixMethodCall" level="WARNING"
                      enabledByDefault="true" language="Scala"/>
+    <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.prefixMutableCollections.ReferenceMustBePrefixedInspection"
+                     displayName="Reference must be prefixed" groupName="Scala: General"
+                     shortName="ReferenceMustBePrefixed" level="WARNING"
+                     enabledByDefault="true" language="Scala"/>
     <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.literal.FloatLiteralEndingWithDecimalPointInspection"
                      displayName="Floating point literal ending with '.'" groupName="Scala: General"
                      shortName="FloatLiteralEndingWithDecimalPoint" level="WARNING"
@@ -574,6 +584,18 @@
                      displayName="Name boolean parameters"
                      groupName="Scala: General" shortName="NameBooleanParameters"
                      level="WARNING" enabledByDefault="true" language="Scala"/>
+    <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.cast.RedundantCastInspection"
+                     displayName="Redundant cast inspection" groupName="Scala: General"
+                     shortName="RedundantCast" level="WARNING"
+                     enabledByDefault="true" language="Scala"/>
+    <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.cast.RedundantConversionInspection"
+                     displayName="Redundant conversion inspection" groupName="Scala: General"
+                     shortName="RedundantConversion" level="WARNING"
+                     enabledByDefault="true" language="Scala"/>
+    <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.recursion.NoTailRecursionAnnotationInspection"
+                     displayName="No tail recursion annotation" groupName="Scala: General"
+                     shortName="NoTailRecursionAnnotation" level="WARNING"
+                     enabledByDefault="false" language="Scala"/>
     <!--<localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.allErrorsInspection.AnnotatorBasedErrorInspection"
                      displayName="All Errors Tool" groupName="Scala: General"
                      shortName="ScalaAllErrors" level="WARNING"

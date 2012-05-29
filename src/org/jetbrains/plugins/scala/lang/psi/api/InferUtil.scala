@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.api
 
 import base.patterns.ScBindingPattern
+import base.ScLiteral
 import expr.ScExpression
 import collection.mutable.ArrayBuffer
 import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.Expression
@@ -197,16 +198,18 @@ object InferUtil {
     }
 
     // interim fix for SCL-3905.
-    def applyImplicitViewToResult(mt: ScMethodType): ScType = {
+    def applyImplicitViewToResult(mt: ScMethodType, expectedType: Option[ScType]): ScType = {
       expectedType.flatMap(ScType.extractFunctionType) match {
         case Some(ScFunctionType(expectedRet, expectedParams)) if expectedParams.length == mt.params.length =>
-          val dummyExpr = ScalaPsiElementFactory.createExpressionFromText("null: " + mt.returnType.canonicalText, expr.getManager)
-          dummyExpr.setContext(expr.getContext, expr)
+          mt.returnType match {
+            case methodType: ScMethodType => return mt.copy(returnType = applyImplicitViewToResult(methodType, Some(expectedRet)))()
+            case _ =>
+          }
+          val dummyExpr = ScalaPsiElementFactory.createExpressionWithContextFromText("null", expr.getContext, expr)
+          dummyExpr.asInstanceOf[ScLiteral].setTypeWithoutImplicits(Some(mt.returnType))
           val updatedResultType = dummyExpr.getTypeAfterImplicitConversion(expectedOption = Some(expectedRet))
 
-          // TODO these values should be propagated back to the ExpressionTypeResult
-          // updatedResultType.implicitFunction
-          // updatedResultType.importsUsed
+          expr.setAdditionalExpression(Some(dummyExpr, expectedRet))
 
           new ScMethodType(updatedResultType.tr.getOrElse(mt.returnType), mt.params, mt.isImplicit)(mt.project, mt.scope)
         case x => mt
@@ -214,8 +217,8 @@ object InferUtil {
     }
 
     nonValueType.map {
-      case tpt @ ScTypePolymorphicType(mt: ScMethodType, typeParams) => tpt.copy(internalType = applyImplicitViewToResult(mt))
-      case mt: ScMethodType => applyImplicitViewToResult(mt)
+      case tpt @ ScTypePolymorphicType(mt: ScMethodType, typeParams) => tpt.copy(internalType = applyImplicitViewToResult(mt, expectedType))
+      case mt: ScMethodType => applyImplicitViewToResult(mt, expectedType)
       case tp => tp
     }
   }

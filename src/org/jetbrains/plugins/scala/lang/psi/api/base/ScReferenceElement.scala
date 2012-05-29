@@ -15,6 +15,10 @@ import toplevel.typedef._
 import psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
 import extensions.{toPsiMemberExt, toPsiNamedElementExt, toPsiClassExt}
+import settings.ScalaProjectSettings
+import annotator.intention.ScalaImportClassFix
+import collection.mutable.HashSet
+import toplevel.imports.ScImportSelector
 
 /**
  * @author Alexander Podkhalyuzin
@@ -147,5 +151,99 @@ trait ScReferenceElement extends ScalaPsiElement with ResolvableReferenceElement
 
   override def accept(visitor: ScalaElementVisitor) {
     visitor.visitReference(this)
+  }
+
+  protected def safeBindToElement[T <: ScReferenceElement](qualName: String, referenceCreator: (String, Boolean) => T)
+                                                        (simpleImport: => PsiElement): PsiElement = {
+    val parts: Array[String] = qualName.split('.')
+    val anotherRef: T = referenceCreator(parts.last, true)
+    val resolve: Array[ResolveResult] = anotherRef.multiResolve(false)
+    def checkForPredefinedTypes(): Boolean = {
+      if (resolve.isEmpty) return true
+      val usedNames = new HashSet[String]()
+      val res = resolve.forall {
+        case r: ScalaResolveResult if r.importsUsed.isEmpty => usedNames += r.name; true
+        case _ => false
+      }
+      if (!res) return false
+      var reject = false
+      getContainingFile.accept(new ScalaRecursiveElementVisitor {
+        override def visitReference(ref: ScReferenceElement) {
+          if (reject) return
+          if (usedNames.contains(ref.refName)) {
+            ref.bind() match {
+              case Some(r: ScalaResolveResult) if ref != ScReferenceElement.this && r.importsUsed.isEmpty =>
+                reject = true
+                return
+              case _ =>
+            }
+          }
+          super.visitReference(ref)
+        }
+      })
+      !reject
+    }
+    val prefixImport = ScalaProjectSettings.getInstance(getProject).hasImportWithPrefix(qualName)
+    if (!prefixImport && checkForPredefinedTypes()) {
+      simpleImport
+    } else {
+      if (qualName.contains(".")) {
+        var index =
+          if (ScalaProjectSettings.getInstance(getProject).isImportShortestPathForAmbiguousReferences) parts.length - 2
+          else 0
+        while (index >= 0) {
+          val packagePart = parts.take(index + 1).mkString(".")
+          val toReplace = parts.drop(index).mkString(".")
+          val ref: T = referenceCreator(toReplace, true)
+          var qual = ref
+          while (qual.qualifier != None) qual = qual.qualifier.get.asInstanceOf[T]
+          val resolve: Array[ResolveResult] = qual.multiResolve(false)
+          def isOk: Boolean = {
+            if (packagePart == "java.util") return true //todo: fix possible clashes?
+            if (resolve.length == 0) true
+            else if (resolve.length > 1) false
+            else {
+              val result: ResolveResult = resolve(0)
+              def smartCheck: Boolean = {
+                val holder = ScalaImportClassFix.getImportHolder(this, getProject)
+                var res = true
+                holder.accept(new ScalaRecursiveElementVisitor {
+                  //Override also visitReferenceExpression! and visitTypeProjection!
+                  override def visitReference(ref: ScReferenceElement) {
+                    ref.qualifier match {
+                      case Some(qual) =>
+                      case _ =>
+                        if (!ref.getParent.isInstanceOf[ScImportSelector]) {
+                          if (ref.refName == parts(index)) res = false
+                        }
+                    }
+                  }
+                })
+                res
+              }
+              result match {
+                case r@ScalaResolveResult(pack: PsiPackage, _) =>
+                  if (pack.getQualifiedName == packagePart) true
+                  else if (r.importsUsed.isEmpty) smartCheck
+                  else false
+                case r@ScalaResolveResult(c: PsiClass, _) =>
+                  if (c.qualifiedName == packagePart) true
+                  else if (r.importsUsed.isEmpty) smartCheck
+                  else false
+                case _ => smartCheck
+              }
+            }
+          }
+          if (isOk) {
+            ScalaImportClassFix.getImportHolder(this, getProject).addImportForPath(packagePart, this)
+            val ref = referenceCreator(toReplace, false)
+            return this.replace(ref)
+          }
+          index -= 1
+        }
+      }
+      val ref: T = referenceCreator("_root_." + qualName, false)
+      this.replace(ref)
+    }
   }
 }

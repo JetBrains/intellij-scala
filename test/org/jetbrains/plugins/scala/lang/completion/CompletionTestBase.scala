@@ -4,16 +4,11 @@ package lang.completion
 import org.jetbrains.plugins.scala.base.ScalaPsiTestCase
 import com.intellij.openapi.vfs.LocalFileSystem
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
-import com.intellij.psi.util.PsiTreeUtil
 import java.io.File
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import com.intellij.util.Consumer
-import com.intellij.psi.{PsiElement, PsiManager}
-import collection.mutable.ArrayBuffer
+import com.intellij.psi.PsiManager
 import com.intellij.openapi.fileEditor.{FileEditorManager, OpenFileDescriptor}
-import com.intellij.codeInsight.completion.{CodeCompletionHandlerBase, CompletionType, CompletionParameters, CompletionService}
+import com.intellij.codeInsight.completion.{CodeCompletionHandlerBase, CompletionType}
 import com.intellij.codeInsight.lookup.{LookupManager, LookupElement}
 import com.intellij.codeInsight.lookup.impl.LookupImpl
 

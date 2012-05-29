@@ -17,7 +17,8 @@ import com.intellij.codeInsight.AutoPopupController
 import com.intellij.openapi.util.Condition
 import com.intellij.psi.{PsiFile, PsiDocumentManager, PsiClass}
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
-import org.jetbrains.plugins.scala.extensions.toPsiModifierListOwnerExt
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.extensions.{toPsiClassExt, toPsiModifierListOwnerExt}
 
 /**
  * @author Alexander Podkhalyuzin
@@ -119,7 +120,14 @@ class ScalaConstructorInsertHandler extends InsertHandler[LookupElement] {
                   case _ => null
                 }
                 if (ref != null && !isRenamed) {
-                  ref.bindToElement(clazz)
+                  if (item.prefixCompletion) {
+                    val newRefText = clazz.qualifiedName.split('.').takeRight(2).mkString(".")
+                    val newRef = ScalaPsiElementFactory.createReferenceFromText(newRefText, clazz.getManager)
+                    ref.replace(newRef)
+                    newRef.bindToElement(clazz)
+                  } else {
+                    ref.bindToElement(clazz)
+                  }
                 }
               }
             case _ =>
