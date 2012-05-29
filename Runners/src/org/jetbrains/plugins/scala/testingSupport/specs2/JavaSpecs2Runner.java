@@ -1,14 +1,10 @@
 package org.jetbrains.plugins.scala.testingSupport.specs2;
 
-import org.jetbrains.plugins.scala.testingSupport.specs.JavaSpecsNotifier;
-import org.jetbrains.plugins.scala.testingSupport.specs.JavaSpecsRunner;
+import org.jetbrains.plugins.scala.testingSupport.TestRunnerUtil;
 import org.specs2.runner.NotifierRunner;
-import scala.Option;
-import scala.reflect.Manifest;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.sql.Array;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,31 +13,85 @@ import java.util.List;
  */
 public class JavaSpecs2Runner {
 
-  private static final String DELIMITER = "--";
+  private static final String reporterQualName = "org.jetbrains.plugins.scala.testingSupport.specs2.JavaSpecs2Notifier";
 
-  public static void main(String[] args) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+  public static void main(String[] args) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException, ClassNotFoundException, InstantiationException {
     NotifierRunner runner = new NotifierRunner(new JavaSpecs2Notifier());
     List<String> classNames = new ArrayList<String>();
-    List<String> specsTestArgs = new ArrayList<String>();
+    ArrayList<String> argsArray = new ArrayList<String>();
+    ArrayList<String> specialArgs = new ArrayList<String>();
+    ArrayList<String> classes = new ArrayList<String>();
     boolean reachedDelim = false;
-    for (String arg : args) {
-      if (arg.equals(DELIMITER)) {
-        reachedDelim = true;
-        specsTestArgs.add(arg);
-      } else if (reachedDelim) {
-        specsTestArgs.add(arg);
+    boolean failedUsed = false;
+    boolean failedStarted = false;
+    ArrayList<String> failedTests = new ArrayList<String>();
+    String testName = "";
+    boolean showProgressMessages = true;
+    int i = 0;
+    int classIndex = 0;
+
+    while (i < args.length) {
+      if (args[i].equals("-s")) {
+        argsArray.add(args[i]);
+        ++i;
+        argsArray.add("empty");
+        classIndex = i;
+        while (i < args.length && !args[i].startsWith("-")) {
+          classes.add(args[i]);
+          ++i;
+        }
+      } else if (args[i].equals("-testName")) {
+        ++i;
+        testName = args[i];
+        specialArgs.add("-Dspecs2.ex="+ "\"" + testName + "\"");
+        ++i;
+      } else if (args[i].equals("-showProgressMessages")) {
+        ++i;
+        showProgressMessages = Boolean.parseBoolean(args[i]);
+        ++i;
+      } else if (args[i].equals("-failedTests")) {
+        failedUsed = true;
+        ++i;
+        while (i < args.length && !args[i].startsWith("-")) {
+          failedTests.add(args[i]);
+          ++i;
+        }
       } else {
-        classNames.add(arg);
+        argsArray.add(args[i]);
+        specialArgs.add(args[i]);
+        ++i;
       }
     }
-    for (String className : classNames) {
-      List<String> runnerArgs = new ArrayList<String>();
-      runnerArgs.add(className);
-      runnerArgs.addAll(specsTestArgs);
-      Object runnerArgsArray = runnerArgs.toArray(new String[runnerArgs.size()]);
-      Method method = runner.getClass().getMethod("main", String[].class);
-      method.invoke(runner, runnerArgsArray);
+
+    if (failedUsed) {
+      i = 0;
+      while (i + 1 < failedTests.size()) {
+        TestRunnerUtil.configureReporter(reporterQualName, showProgressMessages);
+        runSingleTest(failedTests.get(i), failedTests.get(i + 1), runner, specialArgs);
+        i += 2;
+      }
+    } else if (testName.equals("")) {
+      for (String clazz : classes) {
+        TestRunnerUtil.configureReporter(reporterQualName, showProgressMessages);
+        runSingleTest(clazz, "", runner, specialArgs);
+      }
+    } else {
+      for (String clazz : classes) {
+        TestRunnerUtil.configureReporter(reporterQualName, showProgressMessages);
+        runSingleTest(clazz, testName, runner, specialArgs);
+      }
     }
     System.exit(0);
+  }
+
+  private static void runSingleTest(String className, String testName, NotifierRunner runner, ArrayList<String> argsArray)
+      throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+    List<String> runnerArgs = new ArrayList<String>();
+    runnerArgs.add(className);
+    if (testName != "") runnerArgs.add(testName);
+    runnerArgs.addAll(argsArray);
+    Object runnerArgsArray = runnerArgs.toArray(new String[runnerArgs.size()]);
+    Method method = runner.getClass().getMethod("main", String[].class);
+    method.invoke(runner, runnerArgsArray);
   }
 }

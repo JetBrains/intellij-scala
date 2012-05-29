@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.testingSupport.scalaTest
+package org.jetbrains.plugins.scala.testingSupport.test
 
 import javax.swing.JComponent
 import com.intellij.openapi.actionSystem.ActionManager
@@ -10,17 +10,17 @@ import com.intellij.openapi.project.Project
 import com.intellij.execution.testframework.AbstractTestProxy
 import java.util.{ArrayList, List}
 import com.intellij.execution.configurations.{RuntimeConfiguration, RunProfileState}
-import org.jetbrains.plugins.scala.testingSupport.scalaTest.ScalaTestRunConfiguration.{ScalaPropertiesExtension, ScalaTestCommandLinePatcher}
-import org.jetbrains.plugins.scala.testingSupport.locationProvider.PsiLocationWithName
 import com.intellij.execution.testframework.sm.runner.SMTestProxy
 import com.intellij.execution.testframework.sm.runner.states.TestStateInfo.Magnitude
+import org.jetbrains.plugins.scala.testingSupport.locationProvider.PsiLocationWithName
+import org.jetbrains.plugins.scala.testingSupport.test.AbstractTestRunConfiguration.{TestCommandLinePatcher, PropertiesExtension}
 
 /**
  * User: Alexander Podkhalyuzin
  * Date: 09.12.11
  */
 
-class ScalaTestRerunFailedTestsAction(parent: JComponent)
+class AbstractTestRerunFailedTestsAction(parent: JComponent)
   extends AbstractRerunFailedTestsActionAdapter {
   copyFrom(ActionManager.getInstance.getAction("RerunFailedTests"))
   registerCustomShortcutSet(getShortcutSet, parent)
@@ -39,9 +39,9 @@ class ScalaTestRerunFailedTestsAction(parent: JComponent)
 
       def getState(executor: Executor, env: ExecutionEnvironment): RunProfileState = {
         val extensionConfiguration =
-          getModel.getProperties.asInstanceOf[ScalaPropertiesExtension].getRunConfigurationBase
+          getModel.getProperties.asInstanceOf[PropertiesExtension].getRunConfigurationBase
         val state = configuration.getState(executor, env)
-        val patcher = state.asInstanceOf[ScalaTestCommandLinePatcher]
+        val patcher = state.asInstanceOf[TestCommandLinePatcher]
         val failedTests = getFailedTests(configuration.getProject)
         val buffer = new ArrayBuffer[(String, String)]
         val classNames = patcher.getClasses.map(s => {
@@ -51,19 +51,19 @@ class ScalaTestRerunFailedTestsAction(parent: JComponent)
         } -> s).toMap
         import scala.collection.JavaConversions._
         for (failed <- failedTests) { //todo: fix after adding location API
-          def tail() {
-            var parent = failed.getParent
-            while (parent != null) {
-              classNames.get(parent.getName) match {
-                case None =>
-                  parent = parent.getParent
-                  if (parent == null) buffer += ((classNames.values.iterator.next(), getTestName(failed)))
-                case Some(s) =>
-                  buffer += ((s, getTestName(failed)))
-                  parent = null
-              }
+        def tail() {
+          var parent = failed.getParent
+          while (parent != null) {
+            classNames.get(parent.getName) match {
+              case None =>
+                parent = parent.getParent
+                if (parent == null) buffer += ((classNames.values.iterator.next(), getTestName(failed)))
+              case Some(s) =>
+                buffer += ((s, getTestName(failed)))
+                parent = null
             }
           }
+        }
           if (extensionConfiguration != this && extensionConfiguration.isInstanceOf[MyRunProfileAdapter] &&
             extensionConfiguration.asInstanceOf[MyRunProfileAdapter].previoslyFailed != null) {
             var added = false
@@ -85,7 +85,7 @@ class ScalaTestRerunFailedTestsAction(parent: JComponent)
       }
     }
   }
-  
+
   private def isFailed(test: AbstractTestProxy): Boolean = {
     if (!test.isLeaf) return false
     test match {

@@ -1,9 +1,15 @@
 package org.jetbrains.plugins.scala.testingSupport;
 
+import org.scalatest.*;
 import org.specs2.execute.Details;
 import org.specs2.execute.FailureDetails;
-import org.specs2.execute.FailureException;
+import scala.None$;
+import scala.Option;
+import scala.collection.immutable.Map;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.regex.Matcher;
@@ -86,6 +92,20 @@ public class TestRunnerUtil {
       }
       s += "'";
       return s;
+    }
+  }
+
+  public static void configureReporter(String reporterQualName, boolean showProgressMessages) {
+    try {
+      Class<?> aClass = Class.forName(reporterQualName);
+      Field field = aClass.getField("myShowProgressMessages");
+      field.set(null, showProgressMessages);
+    } catch (IllegalAccessException e) {
+      throw new RuntimeException(e);
+    } catch (NoSuchFieldException e) {
+      throw new RuntimeException(e);
+    } catch (ClassNotFoundException e) {
+      throw new RuntimeException(e);
     }
   }
 }

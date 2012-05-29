@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala
-package testingSupport
-package specs2
+package testingSupport.test
 
 import javax.swing.Icon
 import com.intellij.ide.fileTemplates.FileTemplateDescriptor
@@ -8,12 +7,18 @@ import lang.psi.api.toplevel.typedef.ScTypeDefinition
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.testIntegration.JavaTestFramework
 import icons.Icons
-import com.intellij.psi.{PsiElement, PsiMethod, PsiClass, JavaPsiFacade}
+import com.intellij.psi.{PsiElement, PsiMethod, PsiClass}
 import lang.psi.ScalaPsiUtil
 import com.intellij.lang.Language
 import lang.psi.impl.ScalaPsiManager
+import com.intellij.psi.search.GlobalSearchScope
 
-class Specs2TestFramework extends JavaTestFramework {
+/**
+ * @author Ksenia.Sautina
+ * @since 5/18/12
+ */
+
+abstract class AbstractTestFramework extends JavaTestFramework {
   def isTestMethod(element: PsiElement): Boolean = false
 
   def getTestMethodFileTemplateDescriptor: FileTemplateDescriptor = null
@@ -22,13 +27,9 @@ class Specs2TestFramework extends JavaTestFramework {
 
   def getSetUpMethodFileTemplateDescriptor: FileTemplateDescriptor = null
 
-  def getDefaultSuperClass: String = "org.specs2.mutable.Specification"
-
   def getLibraryPath: String = ""
 
   def getIcon: Icon = Icons.SCALA_TEST
-
-  def getName: String = "Specs2"
 
   def findOrCreateSetUpMethod(clazz: PsiClass): PsiMethod = null
 
@@ -39,14 +40,14 @@ class Specs2TestFramework extends JavaTestFramework {
   def isTestClass(clazz: PsiClass, canBePotential: Boolean): Boolean = {
     val parent: ScTypeDefinition = PsiTreeUtil.getParentOfType(clazz, classOf[ScTypeDefinition], false)
     if (parent == null) return false
-    val facade = JavaPsiFacade.getInstance(clazz.getProject)
-    val suiteClazz: PsiClass = ScalaPsiManager.instance(parent.getProject).
-      getCachedClass(getMarkerClassFQName, clazz.getResolveScope, ScalaPsiManager.ClassCategory.TYPE)
+    val project = clazz.getProject
+    val suiteClazz: PsiClass = ScalaPsiManager.instance(project).getCachedClass(getMarkerClassFQName,
+      GlobalSearchScope.allScope(project), ScalaPsiManager.ClassCategory.TYPE)
+//    val suiteClazz: PsiClass = ScalaPsiManager.instance(parent.getProject).
+//            getCachedClass(getMarkerClassFQName, clazz.getResolveScope, ScalaPsiManager.ClassCategory.TYPE)
     if (suiteClazz == null) return false
     ScalaPsiUtil.cachedDeepIsInheritor(parent, suiteClazz)
   }
-
-  def getMarkerClassFQName: String = "org.specs2.specification.SpecificationStructure"
 
   override def getLanguage: Language = ScalaFileType.SCALA_LANGUAGE
 }

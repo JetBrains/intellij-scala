@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.testingSupport.scalaTest;
+package org.jetbrains.plugins.scala.testingSupport.test;
 
 import com.intellij.execution.ExecutionBundle;
 import com.intellij.execution.configuration.BrowseModuleValueActionListener;
@@ -17,16 +17,18 @@ import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.ui.RawCommandLineEditor;
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil;
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager;
+import org.jetbrains.plugins.scala.testingSupport.test.scalatest.ScalaTestRunConfiguration;
+import org.jetbrains.plugins.scala.testingSupport.test.specs2.Specs2RunConfiguration;
 
 import javax.swing.*;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 
 /**
- * User: Alexander Podkhalyuzin
- * Date: 22.02.2009
+ * @author Ksenia.Sautina
+ * @since 5/15/12
  */
-public class ScalaTestRunConfigurationForm {
+public class TestRunConfigurationForm{
   private JPanel myPanel;
   private TextFieldWithBrowseButton testClassTextField;
   private RawCommandLineEditor VMParamsTextField;
@@ -38,7 +40,7 @@ public class ScalaTestRunConfigurationForm {
   private TextFieldWithBrowseButton workingDirectoryField;
   private JPanel searchForTestsPanel;
   private ConfigurationModuleSelector myModuleSelector;
-
+  private Boolean isScalaTest;
 
   private JComboBox searchForTestsComboBox;
   public static enum SearchForTest {
@@ -59,6 +61,7 @@ public class ScalaTestRunConfigurationForm {
   private JTextField testNameTextField;
   private JLabel testNameLabel;
   private JCheckBox myShowProgressMessagesCheckBox;
+  private JCheckBox useOlderScalaTestVersion;
 
   public static enum TestKind {
     ALL_IN_PACKAGE, CLASS, TEST_NAME;
@@ -72,7 +75,7 @@ public class ScalaTestRunConfigurationForm {
         default: return "";
       }
     }
-    
+
     public static TestKind fromString(String s) {
       if (s.equals("All in package")) return ALL_IN_PACKAGE;
       else if (s.equals("Class")) return CLASS;
@@ -80,9 +83,9 @@ public class ScalaTestRunConfigurationForm {
       else return null;
     }
   }
-  
 
-  public ScalaTestRunConfigurationForm(final Project project, final ScalaTestRunConfiguration configuration) {
+
+  public TestRunConfigurationForm(final Project project, final AbstractTestRunConfiguration configuration) {
     myModuleSelector = new ConfigurationModuleSelector(project, moduleComboBox);
     myModuleSelector.reset(configuration);
     moduleComboBox.setEnabled(true);
@@ -98,14 +101,16 @@ public class ScalaTestRunConfigurationForm {
     for (SearchForTest searchForTest : SearchForTest.values()) {
       searchForTestsComboBox.addItem(searchForTest);
     }
-    
+
     searchForTestsComboBox.setSelectedItem(configuration.getSearchTest());
-    
+
     searchForTestsComboBox.addItemListener(new ItemListener() {
       public void itemStateChanged(ItemEvent e) {
         setupModuleComboBox();
       }
     });
+
+    myShowProgressMessagesCheckBox.setSelected(configuration.getShowProgressMessages());
 
     for (TestKind testKind : TestKind.values()) {
       kindComboBox.addItem(testKind);
@@ -122,7 +127,7 @@ public class ScalaTestRunConfigurationForm {
         setTestNameEnabled();
         break;
     }
-    
+
     kindComboBox.addItemListener(new ItemListener() {
       public void itemStateChanged(ItemEvent e) {
         moduleComboBox.setEnabled(true);
@@ -140,11 +145,25 @@ public class ScalaTestRunConfigurationForm {
         }
       }
     });
-  }
+
+    if (configuration instanceof ScalaTestRunConfiguration) {
+      isScalaTest = true;
+
+      useOlderScalaTestVersion.setVisible(true);
+      useOlderScalaTestVersion.setSelected(configuration.getUseOlderScalaTestVersion());
+    } else if (configuration instanceof Specs2RunConfiguration) {
+      isScalaTest = false;
+
+      useOlderScalaTestVersion.setVisible(false);
+    } else {
+      throw new RuntimeException("Unknown run configuration: " + configuration);
+    }
+
+ }
 
   private void setupModuleComboBox() {
     switch ((SearchForTest) searchForTestsComboBox.getSelectedItem()) {
-      case IN_WHOLE_PROJECT: 
+      case IN_WHOLE_PROJECT:
         moduleComboBox.setEnabled(false);
         break;
       case IN_SINGLE_MODULE:
@@ -161,7 +180,7 @@ public class ScalaTestRunConfigurationForm {
     testPackageTextField.setVisible(visible);
     searchForTestsPanel.setVisible(visible);
   }
-  
+
   private void setClassVisible(boolean visible) {
     testClassLabel.setVisible(visible);
     testClassTextField.setVisible(visible);
@@ -173,7 +192,7 @@ public class ScalaTestRunConfigurationForm {
     testClassLabel.setVisible(visible);
     testClassTextField.setVisible(visible);
   }
-  
+
   private void disableAll() {
     setPackageVisible(false);
     setClassVisible(false);
@@ -191,14 +210,14 @@ public class ScalaTestRunConfigurationForm {
     setClassVisible(true);
     kindComboBox.setSelectedItem(TestKind.CLASS);
   }
-  
+
   private void setTestNameEnabled() {
     disableAll();
     setTestNameVisible(true);
     kindComboBox.setSelectedItem(TestKind.TEST_NAME);
   }
 
-  public void apply(ScalaTestRunConfiguration configuration) {
+  public void apply(AbstractTestRunConfiguration configuration) {
     setTestClassPath(configuration.getTestClassPath());
     setJavaOptions(configuration.getJavaOptions());
     setTestArgs(configuration.getTestArgs());
@@ -268,11 +287,11 @@ public class ScalaTestRunConfigurationForm {
   public void setWorkingDirectory(String s) {
     workingDirectoryField.setText(s);
   }
-  
+
   public String getTestName() {
     return testNameTextField.getText();
   }
-  
+
   public void setTestName(String s) {
     testNameTextField.setText(s);
   }
@@ -285,39 +304,51 @@ public class ScalaTestRunConfigurationForm {
     myShowProgressMessagesCheckBox.setSelected(b);
   }
 
+  public boolean getUseOlderScalaTestVersion() {
+    return useOlderScalaTestVersion.isSelected();
+  }
+
+  public void setUseOlderScalaTestVersion(boolean b) {
+    useOlderScalaTestVersion.setSelected(b);
+  }
+
   public JPanel getPanel() {
     return myPanel;
   }
 
   private void addClassChooser(final String title,
-                              final TextFieldWithBrowseButton textField,
-                              final Project project) {
-     ClassBrowser browser = new ClassBrowser(project, title) {
-       protected ClassFilter.ClassFilterWithScope getFilter() throws ClassBrowser.NoFilterException {
-         return new ClassFilter.ClassFilterWithScope() {
-           private String SUITE_PATH = "org.scalatest.Suite";
-           
-           public GlobalSearchScope getScope() {
-             Module module = getModule();
-             if (module != null) return GlobalSearchScope.moduleWithDependenciesAndLibrariesScope(module);
-             return GlobalSearchScope.allScope(project);
-           }
+                               final TextFieldWithBrowseButton textField,
+                               final Project project) {
+    ClassBrowser browser = new ClassBrowser(project, title) {
+      protected ClassFilter.ClassFilterWithScope getFilter() throws ClassBrowser.NoFilterException {
+        return new ClassFilter.ClassFilterWithScope() {
+          private String SUITE_PATH = "org.scalatest.Suite";
 
-           public boolean isAccepted(PsiClass aClass) {
-             if (!getScope().accept(aClass.getContainingFile().getVirtualFile())) return false;
-             PsiClass[] classes = ScalaPsiManager.instance(project).getCachedClasses(getScope(), SUITE_PATH);
-             for (PsiClass psiClass : classes) {
-               if (ScalaPsiUtil.cachedDeepIsInheritor(aClass, psiClass)) return true;
-             }
-             return false;
-           }
-         };
-       }
+          public GlobalSearchScope getScope() {
+            Module module = getModule();
+            if (module != null) return GlobalSearchScope.moduleWithDependenciesAndLibrariesScope(module);
+            return GlobalSearchScope.allScope(project);
+          }
 
-       protected PsiClass findClass(String className) {
-         return ScalaPsiManager.instance(project).getCachedClass(GlobalSearchScope.allScope(project), className);
-       }
-     };
+          public boolean isAccepted(PsiClass aClass) {
+//            if (isScalaTest) {
+              if (!getScope().accept(aClass.getContainingFile().getVirtualFile())) return false;
+              PsiClass[] classes = ScalaPsiManager.instance(project).getCachedClasses(getScope(), SUITE_PATH);
+              for (PsiClass psiClass : classes) {
+                if (ScalaPsiUtil.cachedDeepIsInheritor(aClass, psiClass)) return true;
+              }
+              return false;
+//            } else {
+//              return true;
+//            }
+          }
+        };
+      }
+
+      protected PsiClass findClass(String className) {
+        return ScalaPsiManager.instance(project).getCachedClass(GlobalSearchScope.allScope(project), className);
+      }
+    };
 
     browser.setField(textField);
   }
