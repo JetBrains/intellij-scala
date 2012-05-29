@@ -1,53 +1,100 @@
-package org.jetbrains.plugins.scala.testingSupport.scalaTest
+package org.jetbrains.plugins.scala
+package testingSupport.test.scalatest
 
-import com.intellij.execution.actions.ConfigurationContext
-import com.intellij.execution.impl.RunnerAndConfigurationSettingsImpl
-import com.intellij.psi.search.GlobalSearchScope
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
-import org.jetbrains.plugins.scala.testingSupport.RuntimeConfigurationProducerAdapter
-import org.jetbrains.plugins.scala.ScalaBundle
 import com.intellij.execution._
 import com.intellij.psi.util.PsiTreeUtil
 import configurations.RunConfiguration
 import com.intellij.psi._
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import com.intellij.openapi.util.text.StringUtil
-import org.jetbrains.plugins.scala.testingSupport.scalaTest.ScalaTestRunConfigurationForm.TestKind
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScInfixExpr, MethodInvocation, ScReferenceExpression}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScFunction}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.MethodInvocation
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScClass, ScTypeDefinition}
-import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaRecursiveElementVisitor
-import org.jetbrains.plugins.scala.extensions.{toPsiModifierListOwnerExt, toPsiClassExt}
+import org.jetbrains.plugins.scala.extensions.toPsiClassExt
+import testingSupport.RuntimeConfigurationProducerAdapter
+import lang.psi.impl.ScalaPsiManager
+import lang.psi.ScalaPsiUtil
+import lang.psi.api.expr.ScReferenceExpression
+import lang.psi.api.base.patterns.ScBindingPattern
+import lang.psi.api.statements.ScFunction
+import lang.psi.types.result.TypingContext
+import lang.psi.types.result.Success
+import lang.psi.types.ScType
+import lang.psi.api.base.ScLiteral
+import lang.psi.api.expr.ScExpression
+import lang.psi.api.expr.ScInfixExpr
+import lang.psi.api.toplevel.templates.ScTemplateBody
+import lang.psi.api.ScalaRecursiveElementVisitor
+import testingSupport.test.TestRunConfigurationForm.TestKind
+import com.intellij.execution.actions.ConfigurationContext
+import testingSupport.test.{TestConfigurationUtil, AbstractTestConfigurationProducer}
 
 /**
  * User: Alexander Podkhalyuzin
  * Date: 08.05.2009
  */
+
 class ScalaTestConfigurationProducer extends {
   val confType = new ScalaTestConfigurationType
   val confFactory = confType.confFactory
-} with RuntimeConfigurationProducerAdapter(confType) {
-  private var myPsiElement: PsiElement = null
-  def getSourceElement: PsiElement = myPsiElement
+} with RuntimeConfigurationProducerAdapter(confType) with AbstractTestConfigurationProducer {
 
-  protected def createConfigurationByElement(location: Location[_ <: PsiElement],
-                                             context: ConfigurationContext): RunnerAndConfigurationSettingsImpl = {
-    if (context.getModule == null) return null
-    val scope: GlobalSearchScope = GlobalSearchScope.moduleWithDependenciesAndLibrariesScope(context.getModule, true)
-    if (ScalaPsiManager.instance(context.getProject).getCachedClass(scope, "org.scalatest.Suite") == null) return null
-    myPsiElement = location.getPsiElement
-    createConfigurationByLocation(location).asInstanceOf[RunnerAndConfigurationSettingsImpl]
+  override def suitePath = "org.scalatest.Suite"
+
+  override def findExistingByElement(location: Location[_ <: PsiElement],
+                                     existingConfigurations: Array[RunnerAndConfigurationSettings],
+                                     context: ConfigurationContext): RunnerAndConfigurationSettings = {
+    super.findExistingByElement(location, existingConfigurations, context)
   }
 
-  protected override def findExistingByElement(location: Location[_ <: PsiElement],
-                                               existingConfigurations: Array[RunnerAndConfigurationSettings],
-                                               context: ConfigurationContext): RunnerAndConfigurationSettings = {
-    existingConfigurations.find(c => isConfigurationByLocation(c.getConfiguration, location)).getOrElse(null)
+  override def createConfigurationByLocation(location: Location[_ <: PsiElement]): RunnerAndConfigurationSettings = {
+    val element = location.getPsiElement
+    if (element == null) return null
+
+    if (element.isInstanceOf[PsiPackage] || element.isInstanceOf[PsiDirectory]) {
+      return TestConfigurationUtil.packageSettings(element, location, confFactory, "test.in.scope.scalatest.presentable.text")
+    }
+
+    val (testClassPath, testClassName) = getLocationClassAndTest(location)
+    if (testClassPath == null) return null
+    val settings = RunManager.getInstance(location.getProject).
+      createRunConfiguration(StringUtil.getShortName(testClassPath) +
+      (if (testClassName != null) "." + testClassName else ""), confFactory)
+    val runConfiguration = settings.getConfiguration.asInstanceOf[ScalaTestRunConfiguration]
+    runConfiguration.setTestClassPath(testClassPath)
+    if (testClassName != null) runConfiguration.setTestName(testClassName)
+    val kind = if (testClassName == null) TestKind.CLASS else TestKind.TEST_NAME
+    runConfiguration.setTestKind(kind)
+    try {
+      val module = ScalaPsiUtil.getModule(element)
+      if (module != null) {
+        runConfiguration.setModule(module)
+      }
+    }
+    catch {
+      case e =>
+    }
+    JavaRunConfigurationExtensionManager.getInstance.extendCreatedConfiguration(runConfiguration, location)
+    settings
+  }
+
+  override def isConfigurationByLocation(configuration: RunConfiguration, location: Location[_ <: PsiElement]): Boolean = {
+    val element = location.getPsiElement
+    if (element == null) return false
+    if (element.isInstanceOf[PsiPackage] || element.isInstanceOf[PsiDirectory]) {
+      if (!configuration.isInstanceOf[ScalaTestRunConfiguration]) return false
+      return TestConfigurationUtil.isPackageConfiguration(element, configuration)
+    }
+    val (testClassPath, testClassName) = getLocationClassAndTest(location)
+    if (testClassPath == null) return false
+    configuration match {
+      case configuration: ScalaTestRunConfiguration if configuration.getTestKind() == TestKind.CLASS &&
+        testClassName == null =>
+        testClassPath == configuration.getTestClassPath
+      case configuration: ScalaTestRunConfiguration if configuration.getTestKind() == TestKind.TEST_NAME =>
+        testClassPath == configuration.getTestClassPath && testClassName != null &&
+          testClassName == configuration.getTestName()
+      case _ => false
+    }
   }
 
   private def isInheritor(clazz: ScTypeDefinition, fqn: String): Boolean = {
@@ -56,7 +103,7 @@ class ScalaTestConfigurationProducer extends {
     ScalaPsiUtil.cachedDeepIsInheritor(clazz, suiteClazz)
   }
 
-  private def getLocationClassAndTest(location: Location[_ <: PsiElement]): (String, String) = {
+  def getLocationClassAndTest(location: Location[_ <: PsiElement]): (String, String) = {
     val element = location.getPsiElement
     var clazz: ScTypeDefinition = PsiTreeUtil.getParentOfType(element, classOf[ScTypeDefinition], false)
     if (clazz == null) return (null, null)
@@ -66,7 +113,7 @@ class ScalaTestConfigurationProducer extends {
     }
     if (!clazz.isInstanceOf[ScClass]) return (null, null)
     if (clazz.hasModifierPropertyScala("abstract")) return (null, null)
-    if (!isInheritor(clazz, "org.scalatest.Suite")) return (null, null)
+    if (!isInheritor(clazz, suitePath)) return (null, null)
     val testClassPath = clazz.qualifiedName
 
     sealed trait ReturnResult
@@ -567,37 +614,37 @@ class ScalaTestConfigurationProducer extends {
 
     val oldResult = (testClassPath,
       checkFunSuite("org.scalatest.FunSuite") ++
-      checkFunSuite("org.scalatest.fixture.FunSuite") ++
-      checkFunSuite("org.scalatest.fixture.FixtureFunSuite") ++
-      checkFunSuite("org.scalatest.fixture.MultipleFixtureFunSuite") ++
-      checkFeatureSpec("org.scalatest.FeatureSpec") ++
-      checkFeatureSpec("org.scalatest.fixture.FeatureSpec") ++
-      checkFeatureSpec("org.scalatest.fixture.FixtureFeatureSpec") ++
-      checkFeatureSpec("org.scalatest.fixture.MultipleFixtureFeatureSpec") ++
-      checkFreeSpec("org.scalatest.FreeSpec") ++
-      checkFreeSpec("org.scalatest.fixture.FreeSpec") ++
-      checkFreeSpec("org.scalatest.fixture.FixtureFreeSpec") ++
-      checkFreeSpec("org.scalatest.fixture.MultipleFixtureFreeSpec") ++
-      checkJUnit3Suite("org.scalatest.junit.JUnit3Suite") ++
-      checkJUnitSuite("org.scalatest.junit.JUnitSuite") ++
-      checkPropSpec("org.scalatest.PropSpec") ++
-      checkPropSpec("org.scalatest.fixture.PropSpec") ++
-      checkPropSpec("org.scalatest.fixture.FixturePropSpec") ++
-      checkPropSpec("org.scalatest.fixture.MultipleFixturePropSpec") ++
-      checkSpec("org.scalatest.Spec") ++
-      checkSpec("org.scalatest.fixture.Spec") ++
-      checkSpec("org.scalatest.fixture.FixtureSpec") ++
-      checkSpec("org.scalatest.fixture.MultipleFixtureSpec") ++
-      checkTestNGSuite("org.scalatest.testng.TestNGSuite") ++
-      checkFlatSpec("org.scalatest.FlatSpec") ++
-      checkFlatSpec("org.scalatest.fixture.FlatSpec") ++
-      checkFlatSpec("org.scalatest.fixture.FixtureFlatSpec") ++
-      checkFlatSpec("org.scalatest.fixture.MultipleFixtureFlatSpec") ++
-      checkWordSpec("org.scalatest.WordSpec") ++
-      checkWordSpec("org.scalatest.fixture.WordSpec") ++
-      checkWordSpec("org.scalatest.fixture.FixtureWordSpec") ++
-      checkWordSpec("org.scalatest.fixture.MultipleFixtureWordSpec")
-      getOrElse null)
+        checkFunSuite("org.scalatest.fixture.FunSuite") ++
+        checkFunSuite("org.scalatest.fixture.FixtureFunSuite") ++
+        checkFunSuite("org.scalatest.fixture.MultipleFixtureFunSuite") ++
+        checkFeatureSpec("org.scalatest.FeatureSpec") ++
+        checkFeatureSpec("org.scalatest.fixture.FeatureSpec") ++
+        checkFeatureSpec("org.scalatest.fixture.FixtureFeatureSpec") ++
+        checkFeatureSpec("org.scalatest.fixture.MultipleFixtureFeatureSpec") ++
+        checkFreeSpec("org.scalatest.FreeSpec") ++
+        checkFreeSpec("org.scalatest.fixture.FreeSpec") ++
+        checkFreeSpec("org.scalatest.fixture.FixtureFreeSpec") ++
+        checkFreeSpec("org.scalatest.fixture.MultipleFixtureFreeSpec") ++
+        checkJUnit3Suite("org.scalatest.junit.JUnit3Suite") ++
+        checkJUnitSuite("org.scalatest.junit.JUnitSuite") ++
+        checkPropSpec("org.scalatest.PropSpec") ++
+        checkPropSpec("org.scalatest.fixture.PropSpec") ++
+        checkPropSpec("org.scalatest.fixture.FixturePropSpec") ++
+        checkPropSpec("org.scalatest.fixture.MultipleFixturePropSpec") ++
+        checkSpec("org.scalatest.Spec") ++
+        checkSpec("org.scalatest.fixture.Spec") ++
+        checkSpec("org.scalatest.fixture.FixtureSpec") ++
+        checkSpec("org.scalatest.fixture.MultipleFixtureSpec") ++
+        checkTestNGSuite("org.scalatest.testng.TestNGSuite") ++
+        checkFlatSpec("org.scalatest.FlatSpec") ++
+        checkFlatSpec("org.scalatest.fixture.FlatSpec") ++
+        checkFlatSpec("org.scalatest.fixture.FixtureFlatSpec") ++
+        checkFlatSpec("org.scalatest.fixture.MultipleFixtureFlatSpec") ++
+        checkWordSpec("org.scalatest.WordSpec") ++
+        checkWordSpec("org.scalatest.fixture.WordSpec") ++
+        checkWordSpec("org.scalatest.fixture.FixtureWordSpec") ++
+        checkWordSpec("org.scalatest.fixture.MultipleFixtureWordSpec")
+        getOrElse null)
 
     val astTransformer = new ScalaTestAstTransformer()
     val selectionOpt = astTransformer.testSelection(location)
@@ -610,76 +657,4 @@ class ScalaTestConfigurationProducer extends {
         oldResult
     }
   }
-
-  private def createConfigurationByLocation(location: Location[_ <: PsiElement]): RunnerAndConfigurationSettings = {
-    val element = location.getPsiElement
-    if (element == null) return null
-    if (element.isInstanceOf[PsiPackage] || element.isInstanceOf[PsiDirectory]) {
-      val pack: PsiPackage = element match {
-        case dir: PsiDirectory => JavaDirectoryService.getInstance.getPackage(dir)
-        case pack: PsiPackage => pack
-      }
-      if (pack == null) return null
-      val displayName = ScalaBundle.message("test.in.scope.scalatest.presentable.text", pack.getQualifiedName)
-      val settings = RunManager.getInstance(location.getProject).createRunConfiguration(displayName, confFactory)
-      val configuration = settings.getConfiguration.asInstanceOf[ScalaTestRunConfiguration]
-      configuration.setTestPackagePath(pack.getQualifiedName)
-      configuration.setTestKind(ScalaTestRunConfigurationForm.TestKind.ALL_IN_PACKAGE)
-      configuration.setGeneratedName(displayName)
-      JavaRunConfigurationExtensionManager.getInstance.extendCreatedConfiguration(configuration, location)
-      return settings
-    }
-    val (testClassPath, testClassName) = getLocationClassAndTest(location)
-    if (testClassPath == null) return null
-    val settings = RunManager.getInstance(location.getProject).
-      createRunConfiguration(StringUtil.getShortName(testClassPath) +
-      (if (testClassName != null) "." + testClassName else ""), confFactory)
-    val runConfiguration = settings.getConfiguration.asInstanceOf[ScalaTestRunConfiguration]
-    runConfiguration.setTestClassPath(testClassPath)
-    if (testClassName != null) runConfiguration.setTestName(testClassName)
-    val kind = if (testClassName == null) TestKind.CLASS else TestKind.TEST_NAME
-    runConfiguration.setTestKind(kind)
-    try {
-      val module = ScalaPsiUtil.getModule(element)
-      if (module != null) {
-        runConfiguration.setModule(module)
-      }
-    }
-    catch {
-      case e =>
-    }
-    JavaRunConfigurationExtensionManager.getInstance.extendCreatedConfiguration(runConfiguration, location)
-    settings
-  }
-
-  private def isConfigurationByLocation(configuration: RunConfiguration, location: Location[_ <: PsiElement]): Boolean = {
-    val element = location.getPsiElement
-    if (element == null) return false
-    if (element.isInstanceOf[PsiPackage] || element.isInstanceOf[PsiDirectory]) {
-      val pack: PsiPackage = element match {
-        case dir: PsiDirectory => JavaDirectoryService.getInstance.getPackage(dir)
-        case pack: PsiPackage => pack
-      }
-      if (pack == null) return false
-      configuration match {
-        case configuration: ScalaTestRunConfiguration => {
-          return configuration.getTestKind() == ScalaTestRunConfigurationForm.TestKind.ALL_IN_PACKAGE &&
-            configuration.getTestPackagePath == pack.getQualifiedName
-        }
-        case _ => return false
-      }
-    }
-    val (testClassPath, testClassName) = getLocationClassAndTest(location)
-    if (testClassPath == null) return false
-    configuration match {
-      case configuration: ScalaTestRunConfiguration if configuration.getTestKind() == TestKind.CLASS &&
-        testClassName == null =>
-        testClassPath == configuration.getTestClassPath
-      case configuration: ScalaTestRunConfiguration if configuration.getTestKind() == TestKind.TEST_NAME =>
-        testClassPath == configuration.getTestClassPath && testClassName != null &&
-          testClassName == configuration.getTestName()
-      case _ => false
-    }
-  }
-
 }

@@ -1,5 +1,5 @@
 package org.jetbrains.plugins.scala
-package testingSupport.scalaTest
+package testingSupport.test.scalatest
 
 import collection.mutable.ListBuffer
 import com.intellij.psi.PsiElement

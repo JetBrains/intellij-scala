@@ -15,6 +15,7 @@ import static org.jetbrains.plugins.scala.testingSupport.TestRunnerUtil.formatCu
  * @author Alexander Podkhalyuzin
  */
 public class JavaSpecs2Notifier implements Notifier {
+  public static boolean myShowProgressMessages = true;
   private HashMap<String, Long> map = new HashMap<String, Long>();
 
   public void specStart(String title, String location) {
@@ -26,7 +27,13 @@ public class JavaSpecs2Notifier implements Notifier {
   }
 
   public void contextStart(String text, String location) {
-      System.out.println("##teamcity[testSuiteStarted name='" + escapeString(text) + "' "+ TestRunnerUtil.parseLocation(location).toHint() + "]");
+    System.out.println("##teamcity[testSuiteStarted name='" + escapeString(text) + "' " + TestRunnerUtil.parseLocation(location).toHint() + "]");
+    if (myShowProgressMessages) {
+      String escapedMessage = escapeString(text.replaceFirst("\\s+$", ""));
+      if (!escapedMessage.isEmpty()) {
+        System.out.println("\n##teamcity[message text='" + escapedMessage + "|n' status='INFO'" + "]");
+      }
+    }
   }
 
   public void contextEnd(String text, String location) {
@@ -43,14 +50,14 @@ public class JavaSpecs2Notifier implements Notifier {
 
   public void exampleSuccess(String text, long duration) {
     System.out.println("\n##teamcity[testFinished name='" + escapeString(text) + "' duration='"+ duration +"']");
+    if (myShowProgressMessages) {
+      String escapedMessage = escapeString(text.replaceFirst("\\s+$", ""));
+      if (!escapedMessage.isEmpty()) {
+        System.out.println("\n##teamcity[message text='" + escapedMessage + "|n' status='INFO'" + "]");
+      }
+    }
   }
 
-  // Old API before 23/4/2011. TODO remove
-  public void exampleFailure(String name, String message, String location, Throwable f, long duration) {
-    exampleFailure(name, message, location, f, null, duration);
-  }
-
-  // New API after 23/4/2011
   public void exampleFailure(String name, String message, String location, Throwable f, Details details, long duration) {
     String actualExpectedAttrs = TestRunnerUtil.actualExpectedAttrsSpecs2(message, details);
     exampleFailureOrError(name, message, f, false, actualExpectedAttrs);

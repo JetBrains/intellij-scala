@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.testingSupport.scalaTest;
 
+import org.jetbrains.plugins.scala.testingSupport.TestRunnerUtil;
 import org.scalatest.Filter$;
 import org.scalatest.Reporter;
 import org.scalatest.Stopper;
@@ -14,12 +15,15 @@ import scala.collection.immutable.Map;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.net.URL;
 import java.util.ArrayList;
 
 /**
  * @author Alexander Podkhalyuzin
  */
 public class ScalaTestRunner {
+  private static final String reporterQualName = "org.jetbrains.plugins.scala.testingSupport.scalaTest.ScalaTestReporter";
+
   public static void main(String[] args) throws ClassNotFoundException, InstantiationException, IllegalAccessException, NoSuchMethodException, InvocationTargetException {
     ArrayList<String> argsArray = new ArrayList<String>();
     ArrayList<String> classes = new ArrayList<String>();
@@ -32,6 +36,9 @@ public class ScalaTestRunner {
     boolean failedUsed = false;
     String testName = "";
     boolean showProgressMessages = true;
+    //TODO: remove. (For support ScalaTest version under 1.8)
+    boolean useOlderScalaTestVersion = false;
+    boolean isOlderScalaTestVersion = isUseOlderScalaTestVersion();
     int i = 0;
     int classIndex = 0;
     while (i < args.length) {
@@ -59,12 +66,21 @@ public class ScalaTestRunner {
           failedTests.add(args[i]);
           ++i;
         }
-      } else if (args[i].equals("-r") && withLocation) {
+        //TODO: remove. (For support ScalaTest version under 1.8)
+      } else if (args[i].equals("-useOlderScalaTestVersion")) {
+        ++i;
+        useOlderScalaTestVersion = Boolean.parseBoolean(args[i]);
+        ++i;
+      } else if (args[i].equals("-r") && withLocation && (useOlderScalaTestVersion || isOlderScalaTestVersion)) {
+        argsArray.add(args[i]);
+        if (i + 1 < args.length) argsArray.add(args[i + 1] + "WithLocation");
+        i += 2;
+      } else if (args[i].equals("-C") && withLocation && !useOlderScalaTestVersion && !isOlderScalaTestVersion) {
         argsArray.add(args[i]);
         if (i + 1 < args.length) argsArray.add(args[i + 1] + "WithLocation");
         i += 2;
       } else {
-        argsArray.add(args[i]);
+          argsArray.add(args[i]);
         ++i;
       }
     }
@@ -72,19 +88,19 @@ public class ScalaTestRunner {
     if (failedUsed) {
       i = 0;
       while (i + 1 < failedTests.size()) {
-        configureReporter(showProgressMessages);
+        TestRunnerUtil.configureReporter(reporterQualName, showProgressMessages);
         runSingleTest(failedTests.get(i + 1), failedTests.get(i), withLocation);
         i += 2;
       }
     } else if (testName.equals("")) {
       for (String clazz : classes) {
         arga[classIndex] = clazz;
-        configureReporter(showProgressMessages);
+        TestRunnerUtil.configureReporter(reporterQualName, showProgressMessages);
         Runner.run(arga);
       }
     } else {
       for (String clazz : classes) {
-        configureReporter(showProgressMessages);
+        TestRunnerUtil.configureReporter(reporterQualName, showProgressMessages);
         runSingleTest(testName, clazz, withLocation);
       }
     }
@@ -111,17 +127,29 @@ public class ScalaTestRunner {
         scala.collection.immutable.Map$.MODULE$.empty(), None$.MODULE$, new Tracker());
   }
 
-  private static void configureReporter(boolean showProgressMessages) {
-    try {
-      Class<?> aClass = Class.forName("org.jetbrains.plugins.scala.testingSupport.scalaTest.ScalaTestReporter");
-      Field field = aClass.getField("myShowProgressMessages");
-      field.set(null, showProgressMessages);
-    } catch (IllegalAccessException e) {
-      throw new RuntimeException(e);
-    } catch (NoSuchFieldException e) {
-      throw new RuntimeException(e);
-    } catch (ClassNotFoundException e) {
-      throw new RuntimeException(e);
+  //TODO: remove. (For support ScalaTest version under 1.8)
+  private static boolean isUseOlderScalaTestVersion() throws ClassNotFoundException {
+    Class<?> suiteClass = Class.forName("org.scalatest.Suite");
+    URL location = suiteClass.getResource('/' + suiteClass.getName().replace('.', '/') + ".class");
+    String path = location.getPath();
+    if (path.contains("/scalatest") && path.contains(".jar")) {
+      int begin = path.indexOf("/scalatest");
+      int end = path.indexOf(".jar");
+      String jarName = path.substring(begin, end);
+      if (jarName.contains("1.")) {
+        String version = jarName.substring(jarName.indexOf("1."));
+        if (version != null && !version.isEmpty()) {
+          String[] nums = version.split("\\.");
+          if (nums.length >= 2) {
+            if (Integer.parseInt(nums[1]) < 8) {
+              return true;
+            }
+          }
+        }
+      }
+      return false;
+    } else {
+      return false;
     }
   }
 }
