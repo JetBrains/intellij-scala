@@ -54,7 +54,7 @@ class ReplaceEqualsOrEqualityInMethodCallExprIntention extends PsiElementBaseInt
     val replaceOper = Map("equals" -> "==", "==" -> "equals")
     val oper = methodCallExpr.getInvokedExpr.asInstanceOf[ScReferenceExpression].nameId.getText
 
-    expr.append(methodCallExpr.asInstanceOf[ScMethodCall].getInvokedExpr.asInstanceOf[ScReferenceExpression].
+    expr.append(methodCallExpr.getInvokedExpr.asInstanceOf[ScReferenceExpression].
             qualifier.get.getText).append(".").append(replaceOper(oper)).append(methodCallExpr.args.getText)
 
     val newMethodCallExpr = ScalaPsiElementFactory.createExpressionFromText(expr.toString(), element.getManager)
