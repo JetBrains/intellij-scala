@@ -416,12 +416,12 @@
 
     <intentionAction>
       <category>Scala/Boolean</category>
-      <className>org.jetbrains.plugins.scala.codeInsight.intention.booleans.ReplaceEqualsOrQualityInInfixExprIntention</className>
+      <className>org.jetbrains.plugins.scala.codeInsight.intention.booleans.ReplaceEqualsOrEqualityInInfixExprIntention</className>
     </intentionAction>
 
     <intentionAction>
       <category>Scala/Boolean</category>
-      <className>org.jetbrains.plugins.scala.codeInsight.intention.booleans.ReplaceEqualsOrQualityInMethodCallExprIntention</className>
+      <className>org.jetbrains.plugins.scala.codeInsight.intention.booleans.ReplaceEqualsOrEqualityInMethodCallExprIntention</className>
     </intentionAction>
 
     <intentionAction>
@@ -432,6 +432,11 @@
     <intentionAction>
       <category>Scala/Boolean</category>
       <className>org.jetbrains.plugins.scala.codeInsight.intention.booleans.NegateComparisonIntention</className>
+    </intentionAction>
+
+    <intentionAction>
+      <category>Scala/Control flow</category>
+      <className>org.jetbrains.plugins.scala.codeInsight.intention.controlflow.MergeIfToAndIntention</className>
     </intentionAction>
 
     <lang.elementManipulator forClass="org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral"

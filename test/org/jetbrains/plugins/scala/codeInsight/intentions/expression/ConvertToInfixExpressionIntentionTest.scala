@@ -21,7 +21,7 @@ class ConvertToInfixExpressionIntentionTest extends ScalaIntentionTestBase {
 
   def testConvertToInfixExpression1() {
     val text = "1.<caret>to(5, 7)"
-    val resultText = "1 <caret>to (5, 7)"
+    val resultText = "1 <caret>to(5, 7)"
 
     doTest(text, resultText)
   }
@@ -56,7 +56,7 @@ class ConvertToInfixExpressionIntentionTest extends ScalaIntentionTestBase {
 
   def testConvertToInfixExpression6() {
     val text = "x.goo<caret>(1, (1 + 2) * 3)"
-    val resultText = "x goo<caret> (1, (1 + 2) * 3)"
+    val resultText = "x goo<caret>(1, (1 + 2) * 3)"
 
     doTest(text, resultText)
   }

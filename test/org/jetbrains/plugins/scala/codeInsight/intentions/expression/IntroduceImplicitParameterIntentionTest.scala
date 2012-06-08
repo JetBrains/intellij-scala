@@ -112,18 +112,18 @@ class IntroduceImplicitParameterIntentionTest  extends ScalaIntentionTestBase{
 
   def testIntroduceImplicitParameter11() {
     val text = """
-    | val x: Int => Int = i<caret> => {
-    |   i + {
-    |     1
-    |   }
-    | }
+    |val x: Int => Int = i<caret> => {
+    |  i + {
+    |    1
+    |  }
+    |}
     """.stripMargin.replace("\r", "").trim
     val resultText = """
-    | val x: Int => Int = <caret>{
-    |   _ + {
-    |     1
-    |   }
-    | }
+    |val x: Int => Int = <caret>{
+    |  _ + {
+    |    1
+    |  }
+    |}
     """.stripMargin.replace("\r", "").trim
 
     doTest(text, resultText)

@@ -2,15 +2,15 @@ package org.jetbrains.plugins.scala
 package codeInsight.intentions.booleans
 
 import codeInsight.intentions.ScalaIntentionTestBase
-import codeInsight.intention.booleans.ReplaceEqualsOrQualityInMethodCallExprIntention
+import codeInsight.intention.booleans.ReplaceEqualsOrEqualityInMethodCallExprIntention
 
 /**
  * @author Ksenia.Sautina
  * @since 4/20/12
  */
 
-class ReplaceEqualsOrQualityInMethodCallExprIntentionTest extends ScalaIntentionTestBase {
-  val familyName = ReplaceEqualsOrQualityInMethodCallExprIntention.familyName
+class ReplaceEqualsOrEqualityInMethodCallExprIntentionTest extends ScalaIntentionTestBase {
+  val familyName = ReplaceEqualsOrEqualityInMethodCallExprIntention.familyName
 
   def testReplaceQuality() {
     val text = "if (a.<caret>==(b)) return"

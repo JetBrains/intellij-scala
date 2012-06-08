@@ -1,0 +1,10 @@
+class X {
+  def f(a: Boolean, b: Boolean): Boolean {
+    <spot>if</spot> (!a) {
+      if (b) {
+        return true
+      }
+    }
+    return false
+  }
+}

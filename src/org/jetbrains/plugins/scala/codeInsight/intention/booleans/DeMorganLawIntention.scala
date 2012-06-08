@@ -50,39 +50,15 @@ class DeMorganLawIntention extends PsiElementBaseIntentionAction {
     val infixExpr: ScInfixExpr = PsiTreeUtil.getParentOfType(element, classOf[ScInfixExpr], false)
     if (infixExpr == null || !infixExpr.isValid) return
 
-    def negate(expression: ScExpression): String = {
-      expression match {
-        case e: ScPrefixExpr =>
-          if (e.operation.getText == "!") {
-            val exprWithoutParentheses =
-              if (e.getBaseExpr.isInstanceOf[ScParenthesisedExpr]) e.getBaseExpr.getText.drop(1).dropRight(1)
-              else e.getBaseExpr.getText
-            val newExpr = ScalaPsiElementFactory.createExpressionFromText(exprWithoutParentheses, expression.getManager)
-            inWriteAction {
-              e.replaceExpression(newExpr, true).getText
-            }
-          }
-          else "!(" + e.getText + ")"
-        case e: ScLiteral =>
-          if (e.getNode.getFirstChildNode.getElementType == ScalaTokenTypes.kTRUE) "false"
-          else if (e.getNode.getFirstChildNode.getElementType == ScalaTokenTypes.kFALSE) "true"
-          else "!" + e.getText
-        case _ =>
-          val exprText = expression.getText
-          if (ScalaNamesUtil.isOpCharacter(exprText(0))) "!(" + exprText + ")"
-          else "!" + expression.getText
-      }
-    }
-
     val replaceOper = Map("&&" -> "||", "||" -> "&&")
 
     val start = infixExpr.getTextRange.getStartOffset
     val diff = editor.getCaretModel.getOffset - infixExpr.operation.nameId.getTextRange.getStartOffset
 
     val buf = new StringBuilder
-    buf.append(negate(infixExpr.getBaseExpr)).append(" ").
+    buf.append(IntentionUtils.negate(infixExpr.getBaseExpr)).append(" ").
             append(replaceOper(infixExpr.operation.nameId.getText)).append(" ").
-            append(negate(infixExpr.getArgExpr))
+            append(IntentionUtils.negate(infixExpr.getArgExpr))
 
     val res = IntentionUtils.negateAndValidateExpression(infixExpr, element.getManager, buf)
 
