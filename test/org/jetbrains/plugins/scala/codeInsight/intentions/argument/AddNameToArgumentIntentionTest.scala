@@ -16,12 +16,14 @@ class AddNameToArgumentIntentionTest extends ScalaIntentionTestBase {
     val text = """
                  |  class NameParameters {
                  |    def doSomething(flag: Boolean) {}
+                 |
                  |    doSomething(t<caret>rue)
                  |  }
                """.stripMargin.replace("\r", "").trim
     val resultText = """
                        |  class NameParameters {
                        |    def doSomething(flag: Boolean) {}
+                       |
                        |    doSomething(flag = t<caret>rue)
                        |  }
                      """.stripMargin.replace("\r", "").trim
@@ -33,12 +35,14 @@ class AddNameToArgumentIntentionTest extends ScalaIntentionTestBase {
     val text = """
                  |  class NameParameters {
                  |    def doSomething(flag: Boolean, a: Int) {}
+                 |
                  |    doSomething(t<caret>rue, 8)
                  |  }
                """.stripMargin.replace("\r", "").trim
     val resultText = """
                        |  class NameParameters {
                        |    def doSomething(flag: Boolean, a: Int) {}
+                       |
                        |    doSomething(flag = t<caret>rue, a = 8)
                        |  }
                      """.stripMargin.replace("\r", "").trim
@@ -50,12 +54,14 @@ class AddNameToArgumentIntentionTest extends ScalaIntentionTestBase {
     val text = """
                  |  class NameParameters {
                  |    def doSomething(flag: Boolean, a: Int, b: Int) {}
+                 |
                  |    doSomething(true, 8, <caret>9)
                  |  }
                """.stripMargin.replace("\r", "").trim
     val resultText = """
                        |  class NameParameters {
                        |    def doSomething(flag: Boolean, a: Int, b: Int) {}
+                       |
                        |    doSomething(true, 8, <caret>b = 9)
                        |  }
                      """.stripMargin.replace("\r", "").trim
