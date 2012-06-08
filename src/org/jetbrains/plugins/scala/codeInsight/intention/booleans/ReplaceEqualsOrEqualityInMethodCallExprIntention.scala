@@ -16,12 +16,12 @@ import com.intellij.psi.{PsiDocumentManager, PsiElement}
  * @since 4/23/12
  */
 
-object ReplaceEqualsOrQualityInMethodCallExprIntention {
-  def familyName = "Replace equals or quality in method call expression"
+object ReplaceEqualsOrEqualityInMethodCallExprIntention {
+  def familyName = "Replace equals or equality in method call expression"
 }
 
-class ReplaceEqualsOrQualityInMethodCallExprIntention extends PsiElementBaseIntentionAction {
-  def getFamilyName = ReplaceEqualsOrQualityInMethodCallExprIntention.familyName
+class ReplaceEqualsOrEqualityInMethodCallExprIntention extends PsiElementBaseIntentionAction {
+  def getFamilyName = ReplaceEqualsOrEqualityInMethodCallExprIntention.familyName
 
   def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean = {
     val methodCallExpr: ScMethodCall = PsiTreeUtil.getParentOfType(element, classOf[ScMethodCall], false)

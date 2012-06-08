@@ -10,6 +10,8 @@ import lang.psi.api.base.ScLiteral
 import lang.psi.api.expr.xml.ScXmlExpr
 import lang.psi.api.expr._
 import com.intellij.psi.{PsiManager, PsiElement}
+import lang.lexer.ScalaTokenTypes
+import lang.refactoring.util.ScalaNamesUtil
 
 /**
  * @author Ksenia.Sautina
@@ -105,6 +107,30 @@ object IntentionUtils {
               nameId.getTextRange.getStartOffset - newExpr.getTextRange.getStartOffset
 
       (infixExpr, newExpr, size)
+    }
+  }
+
+  def negate(expression: ScExpression): String = {
+    expression match {
+      case e: ScPrefixExpr =>
+        if (e.operation.getText == "!") {
+          val exprWithoutParentheses =
+            if (e.getBaseExpr.isInstanceOf[ScParenthesisedExpr]) e.getBaseExpr.getText.drop(1).dropRight(1)
+            else e.getBaseExpr.getText
+          val newExpr = ScalaPsiElementFactory.createExpressionFromText(exprWithoutParentheses, expression.getManager)
+          inWriteAction {
+            e.replaceExpression(newExpr, true).getText
+          }
+        }
+        else "!(" + e.getText + ")"
+      case e: ScLiteral =>
+        if (e.getNode.getFirstChildNode.getElementType == ScalaTokenTypes.kTRUE) "false"
+        else if (e.getNode.getFirstChildNode.getElementType == ScalaTokenTypes.kFALSE) "true"
+        else "!" + e.getText
+      case _ =>
+        val exprText = expression.getText
+        if (ScalaNamesUtil.isOpCharacter(exprText(0))) "!(" + exprText + ")"
+        else "!" + expression.getText
     }
   }
 }

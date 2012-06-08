@@ -16,12 +16,12 @@ import com.intellij.psi.{PsiDocumentManager, PsiElement}
  * @since 4/23/12
  */
 
-object ReplaceEqualsOrQualityInInfixExprIntention {
-  def familyName = "Replace equals or quality in infix expression"
+object ReplaceEqualsOrEqualityInInfixExprIntention {
+  def familyName = "Replace equals or equality in infix expression"
 }
 
-class ReplaceEqualsOrQualityInInfixExprIntention extends PsiElementBaseIntentionAction {
-  def getFamilyName = ReplaceEqualsOrQualityInInfixExprIntention.familyName
+class ReplaceEqualsOrEqualityInInfixExprIntention extends PsiElementBaseIntentionAction {
+  def getFamilyName = ReplaceEqualsOrEqualityInInfixExprIntention.familyName
 
   def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean = {
     val infixExpr: ScInfixExpr = PsiTreeUtil.getParentOfType(element, classOf[ScInfixExpr], false)

@@ -51,9 +51,9 @@ class ConvertToInfixExpressionIntention extends PsiElementBaseIntentionAction {
     val argsBuilder = new StringBuilder
     val invokedExprBuilder = new StringBuilder
 
-    val qual = methodCallExpr.asInstanceOf[ScMethodCall].getInvokedExpr.asInstanceOf[ScReferenceExpression].qualifier.get
+    val qual = methodCallExpr.getInvokedExpr.asInstanceOf[ScReferenceExpression].qualifier.get
     val oper = ((methodCallExpr.getInvokedExpr).asInstanceOf[ScReferenceExpression]).nameId
-    var invokedExprText = methodCallExpr.getInvokedExpr.getText
+    val invokedExprText = methodCallExpr.getInvokedExpr.getText
     val methodCallArgs = methodCallExpr.args
 
     if (invokedExprText.last == ':') {
