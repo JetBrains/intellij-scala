@@ -1,0 +1,15 @@
+class X {
+  def f(a: Int): Int = {
+    if (a == 0) {
+      0
+    }
+    else {
+      if (a == 1) {
+        2
+      }
+      else {
+        18
+      }
+    }
+  }
+}
