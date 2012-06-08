@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala
 package codeInsight.intentions.expression
 
 import codeInsight.intentions.ScalaIntentionTestBase
-import codeInsight.intention.expression.{IntroduceImplicitParameterIntention}
+import codeInsight.intention.expression.IntroduceImplicitParameterIntention
 
 /**
  * @author Ksenia.Sautina
