@@ -21,9 +21,10 @@ import com.intellij.openapi.editor.colors.{EditorColors, EditorColorsManager}
 import com.intellij.codeInsight.template._
 import impl.{TemplateManagerImpl, TemplateState}
 import scala.{None, Option}
-import collection.mutable.{ArrayBuffer, HashSet, HashMap}
+import collection.mutable.ArrayBuffer
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import com.intellij.openapi.extensions.Extensions
+import collection.mutable
 
 /**
  * @author Ksenia.Sautina
@@ -55,10 +56,11 @@ class IntroduceExplicitParameterIntention extends PsiElementBaseIntentionAction 
     val parentEndOffset = expr.getTextRange.getEndOffset
 
     val underscores = ScUnderScoreSectionUtil.underscores(expr)
-    val underscoreToParam: HashMap[ScUnderscoreSection, ScParameter] = new HashMap[ScUnderscoreSection, ScParameter]
-    val offsets: HashMap[String, Int] = new HashMap[String, Int]
-    val usedNames: HashSet[String] = new HashSet[String]
-    val macros: HashSet[String] = new HashSet[String]
+    val underscoreToParam: mutable.HashMap[ScUnderscoreSection, ScParameter] =
+      new mutable.HashMap[ScUnderscoreSection, ScParameter]
+    val offsets: mutable.HashMap[String, Int] = new mutable.HashMap[String, Int]
+    val usedNames: mutable.HashSet[String] = new mutable.HashSet[String]
+    val macros: mutable.HashSet[String] = new mutable.HashSet[String]
     var needComma = false
     var needBraces = false
 
@@ -139,8 +141,8 @@ class IntroduceExplicitParameterIntention extends PsiElementBaseIntentionAction 
 
       val builder: TemplateBuilderImpl = TemplateBuilderFactory.getInstance().
               createTemplateBuilder(parent).asInstanceOf[TemplateBuilderImpl]
-      val params = new HashMap[Int, String]()
-      val depends = new HashMap[Int, String]()
+      val params = new mutable.HashMap[Int, String]()
+      val depends = new mutable.HashMap[Int, String]()
 
       var index: Int = 1
       parent match {
@@ -165,7 +167,7 @@ class IntroduceExplicitParameterIntention extends PsiElementBaseIntentionAction 
       editor.getCaretModel.moveToOffset(parent.getTextRange.getStartOffset)
       val template = builder.buildInlineTemplate()
       val myHighlighters = new ArrayBuffer[RangeHighlighter]
-      val rangesToHighlight: HashMap[TextRange, TextAttributes] = new HashMap[TextRange, TextAttributes]
+      val rangesToHighlight: mutable.HashMap[TextRange, TextAttributes] = new mutable.HashMap[TextRange, TextAttributes]
 
       TemplateManager.getInstance(project).startTemplate(editor, template, new TemplateEditingAdapter {
         override def waitingForInput(template: Template) {
@@ -186,7 +188,7 @@ class IntroduceExplicitParameterIntention extends PsiElementBaseIntentionAction 
           clearHighlighters()
         }
 
-        private def addHighlights(ranges: HashMap[TextRange, TextAttributes], editor: Editor,
+        private def addHighlights(ranges: mutable.HashMap[TextRange, TextAttributes], editor: Editor,
                                   highlighters: ArrayBuffer[RangeHighlighter], highlightManager: HighlightManager) {
           for ((range, attributes) <- ranges) {
             import scala.collection.JavaConversions._

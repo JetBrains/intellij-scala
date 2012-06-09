@@ -8,7 +8,6 @@ import com.intellij.psi.util.PsiTreeUtil
 import lang.psi.impl.ScalaPsiElementFactory
 import extensions._
 import com.intellij.psi.{PsiDocumentManager, PsiElement}
-import lang.psi.api.base.ScLiteral
 import lang.psi.api.expr._
 import com.intellij.openapi.util.TextRange
 

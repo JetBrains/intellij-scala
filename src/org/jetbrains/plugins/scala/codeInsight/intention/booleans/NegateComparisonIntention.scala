@@ -6,8 +6,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.editor.Editor
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.openapi.util.TextRange
-import lang.psi.impl.ScalaPsiElementFactory
-import lang.psi.api.expr.{ScParenthesisedExpr, ScPrefixExpr, ScReferenceExpression, ScInfixExpr}
+import lang.psi.api.expr.ScInfixExpr
 import extensions._
 import com.intellij.psi.{PsiDocumentManager, PsiElement}
 import org.jetbrains.plugins.scala.util.IntentionUtils
