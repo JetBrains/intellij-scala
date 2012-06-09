@@ -14,18 +14,18 @@ class AddNameToArgumentIntentionTest extends ScalaIntentionTestBase {
 
   def test() {
     val text = """
-                 |  class NameParameters {
-                 |    def doSomething(flag: Boolean) {}
+                 |class NameParameters {
+                 |  def doSomething(flag: Boolean) {}
                  |
-                 |    doSomething(t<caret>rue)
-                 |  }
+                 |  doSomething(t<caret>rue)
+                 |}
                """.stripMargin.replace("\r", "").trim
     val resultText = """
-                       |  class NameParameters {
-                       |    def doSomething(flag: Boolean) {}
+                       |class NameParameters {
+                       |  def doSomething(flag: Boolean) {}
                        |
-                       |    doSomething(flag = t<caret>rue)
-                       |  }
+                       |  doSomething(flag = t<caret>rue)
+                       |}
                      """.stripMargin.replace("\r", "").trim
 
     doTest(text, resultText)
@@ -33,18 +33,18 @@ class AddNameToArgumentIntentionTest extends ScalaIntentionTestBase {
 
   def test2() {
     val text = """
-                 |  class NameParameters {
-                 |    def doSomething(flag: Boolean, a: Int) {}
+                 |class NameParameters {
+                 |  def doSomething(flag: Boolean, a: Int) {}
                  |
-                 |    doSomething(t<caret>rue, 8)
-                 |  }
+                 |  doSomething(t<caret>rue, 8)
+                 |}
                """.stripMargin.replace("\r", "").trim
     val resultText = """
-                       |  class NameParameters {
-                       |    def doSomething(flag: Boolean, a: Int) {}
+                       |class NameParameters {
+                       |  def doSomething(flag: Boolean, a: Int) {}
                        |
-                       |    doSomething(flag = t<caret>rue, a = 8)
-                       |  }
+                       |  doSomething(flag = t<caret>rue, a = 8)
+                       |}
                      """.stripMargin.replace("\r", "").trim
 
     doTest(text, resultText)
@@ -52,18 +52,18 @@ class AddNameToArgumentIntentionTest extends ScalaIntentionTestBase {
 
   def test3() {
     val text = """
-                 |  class NameParameters {
-                 |    def doSomething(flag: Boolean, a: Int, b: Int) {}
+                 |class NameParameters {
+                 |  def doSomething(flag: Boolean, a: Int, b: Int) {}
                  |
-                 |    doSomething(true, 8, <caret>9)
-                 |  }
+                 |  doSomething(true, 8, <caret>9)
+                 |}
                """.stripMargin.replace("\r", "").trim
     val resultText = """
-                       |  class NameParameters {
-                       |    def doSomething(flag: Boolean, a: Int, b: Int) {}
+                       |class NameParameters {
+                       |  def doSomething(flag: Boolean, a: Int, b: Int) {}
                        |
-                       |    doSomething(true, 8, <caret>b = 9)
-                       |  }
+                       |  doSomething(true, 8, <caret>b = 9)
+                       |}
                      """.stripMargin.replace("\r", "").trim
 
     doTest(text, resultText)
