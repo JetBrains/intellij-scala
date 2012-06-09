@@ -9,8 +9,6 @@ import extensions._
 import com.intellij.psi.{PsiDocumentManager, PsiElement}
 import com.intellij.psi.util.PsiTreeUtil
 import lang.psi.api.expr._
-import lang.psi.api.base.ScLiteral
-import lang.psi.api.expr.xml.ScXmlExpr
 import com.intellij.openapi.util.TextRange
 import org.jetbrains.plugins.scala.util.IntentionUtils
 

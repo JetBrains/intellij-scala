@@ -9,11 +9,9 @@ import lang.psi.impl.ScalaPsiElementFactory
 import extensions._
 import com.intellij.psi.{PsiDocumentManager, PsiElement}
 import com.intellij.openapi.editor.Editor
-import lang.psi.api.base.ScLiteral
-import lang.psi.api.expr.xml.ScXmlExpr
 import lang.psi.api.expr._
 import org.jetbrains.plugins.scala.util.IntentionUtils
-import collection.mutable.HashSet
+import collection.mutable
 
 /**
  * @author Ksenia.Sautina
@@ -21,7 +19,7 @@ import collection.mutable.HashSet
  */
 
 object FlipComparisonInMethodCallExprIntention {
-  def familyName = "Swap the operands of a comparison in method call expression."
+  def familyName = "Flip comparison in method call expression."
 }
 
 class FlipComparisonInMethodCallExprIntention extends PsiElementBaseIntentionAction {
@@ -44,7 +42,7 @@ class FlipComparisonInMethodCallExprIntention extends PsiElementBaseIntentionAct
     val offset = editor.getCaretModel.getOffset
     if (!(range.getStartOffset <= offset && offset <= range.getEndOffset)) return false
 
-    val notChanged = HashSet[String]("==", "!=", "equals", "eq", "ne")
+    val notChanged = mutable.HashSet[String]("==", "!=", "equals", "eq", "ne")
     if (notChanged.contains(oper)) {
       setText("Flip '" + oper + "'" )
     }   else  {
@@ -74,7 +72,7 @@ class FlipComparisonInMethodCallExprIntention extends PsiElementBaseIntentionAct
 
     IntentionUtils.analyzeMethodCallArgs(methodCallExpr.args, argsBuilder)
 
-    val qual = methodCallExpr.asInstanceOf[ScMethodCall].getInvokedExpr.asInstanceOf[ScReferenceExpression].qualifier.get
+    val qual = methodCallExpr.getInvokedExpr.asInstanceOf[ScReferenceExpression].qualifier.get
     qualBuilder.append(qual.getText)
     var newArgs = qual.getText
     if (!(newArgs.startsWith("(") && newArgs.endsWith(")"))) {

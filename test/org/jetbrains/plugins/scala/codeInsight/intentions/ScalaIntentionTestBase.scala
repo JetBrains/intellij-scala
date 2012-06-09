@@ -27,8 +27,8 @@ abstract class ScalaIntentionTestBase extends ScalaLightCodeInsightFixtureTestAd
       case None => Assert.fail("Intention is not found")
     }
     inWriteAction {
-    CodeStyleManager.getInstance(getProject).reformat(myFixture.getFile).getText
-    myFixture.checkResult(resultText)
+      CodeStyleManager.getInstance(getProject).reformat(myFixture.getFile)
+      myFixture.checkResult(resultText)
     }
   }
 

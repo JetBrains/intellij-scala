@@ -9,7 +9,6 @@ import extensions._
 import com.intellij.psi.{PsiDocumentManager, PsiElement}
 import com.intellij.openapi.util.TextRange
 import lang.psi.api.expr._
-import collection.mutable.HashMap
 import com.intellij.codeInsight.hint.HintManager
 import lang.psi.impl.ScalaPsiElementFactory
 import lang.psi.api.statements.params.ScParameter
@@ -17,6 +16,7 @@ import lang.psi.api.ScalaRecursiveElementVisitor
 import com.intellij.openapi.application.ApplicationManager
 import codeInspection.InspectionBundle
 import lang.refactoring.util.ScalaRefactoringUtil
+import collection.mutable
 
 /**
  * @author Ksenia.Sautina
@@ -53,7 +53,7 @@ class IntroduceImplicitParameterIntention extends PsiElementBaseIntentionAction 
     val startOffset = expr.getTextRange.getStartOffset
     val diff = expr.result.get.getTextRange.getStartOffset
     var previousOffset = -1
-    var occurances: HashMap[String, Int] = new HashMap[String, Int]
+    var occurances: mutable.HashMap[String, Int] = new mutable.HashMap[String, Int]
     occurances = seekParams(expr)
 
     if (occurances.size == 0 || occurances.size != expr.parameters.size) {
@@ -91,8 +91,8 @@ class IntroduceImplicitParameterIntention extends PsiElementBaseIntentionAction 
       PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument)
     }
 
-    def seekParams(fun: ScExpression): HashMap[String, Int] = {
-      val map: HashMap[String, Int] = new HashMap[String, Int]()
+    def seekParams(fun: ScExpression): mutable.HashMap[String, Int] = {
+      val map: mutable.HashMap[String, Int] = new mutable.HashMap[String, Int]()
       var clearMap = false
       val visitor = new ScalaRecursiveElementVisitor {
         override def visitReferenceExpression(expr: ScReferenceExpression) {

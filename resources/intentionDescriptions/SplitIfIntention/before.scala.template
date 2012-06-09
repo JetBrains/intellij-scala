@@ -1,0 +1,5 @@
+class X {
+  def f(a: Boolean, b: Boolean) {
+    if (a <spot>&&</spot> b) return
+  }
+}

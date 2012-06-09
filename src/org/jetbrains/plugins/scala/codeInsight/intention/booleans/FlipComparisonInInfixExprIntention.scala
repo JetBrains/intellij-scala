@@ -10,7 +10,7 @@ import lang.psi.api.expr._
 import lang.psi.impl.ScalaPsiElementFactory
 import extensions._
 import com.intellij.psi.{PsiDocumentManager, PsiElement}
-import collection.mutable.HashSet
+import collection.mutable
 
 /**
  * @author Ksenia.Sautina
@@ -18,7 +18,7 @@ import collection.mutable.HashSet
  */
 
 object FlipComparisonInInfixExprIntention {
-  def familyName = "Swap the operands of a comparison in infix expression."
+  def familyName = "Flip comparison in infix expression."
 }
 
 class FlipComparisonInInfixExprIntention extends PsiElementBaseIntentionAction {
@@ -39,7 +39,7 @@ class FlipComparisonInInfixExprIntention extends PsiElementBaseIntentionAction {
     val offset = editor.getCaretModel.getOffset
     if (!(range.getStartOffset <= offset && offset <= range.getEndOffset)) return false
 
-    val notChanged = HashSet[String]("==", "!=", "equals", "eq", "ne", "&&", "||")
+    val notChanged = mutable.HashSet[String]("==", "!=", "equals", "eq", "ne", "&&", "||")
     if (notChanged.contains(oper)) {
       setText("Flip '" + oper + "'" )
     }   else  {
