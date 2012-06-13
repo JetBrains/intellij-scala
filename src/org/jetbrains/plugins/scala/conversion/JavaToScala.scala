@@ -118,7 +118,7 @@ object JavaToScala {
         for  (decl <- d.getDeclaredElements) {
           res.append(convertPsiToText(decl)).append("\n")
         }
-        res.delete(res.length - 1, res.length)
+        if (d.getDeclaredElements.length > 0) res.delete(res.length - 1, res.length)
       }
       case e: PsiExpressionListStatement => {
         for (expr <- e.getExpressionList.getExpressions) {
