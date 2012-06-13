@@ -220,8 +220,9 @@ class ScObjectImpl extends ScTypeDefinitionImpl with ScObject with ScTemplateDef
         case (t, node) => node.info.namedElement match {
           case Some(fun: ScFunction) if !fun.isConstructor && fun.containingClass.isInstanceOf[ScTrait] &&
             fun.isInstanceOf[ScFunctionDefinition] =>
-            res += fun.getFunctionWrapper(false, false, Some(getClazz(fun.containingClass.asInstanceOf[ScTrait])))
-          case Some(fun: ScFunction) if !fun.isConstructor => res += fun.getFunctionWrapper(false, fun.isInstanceOf[ScFunctionDeclaration])
+            res += fun.getFunctionWrapper(isStatic = false, isInterface = false, cClass = Some(getClazz(fun.containingClass.asInstanceOf[ScTrait])))
+          case Some(fun: ScFunction) if !fun.isConstructor =>
+            res += fun.getFunctionWrapper(isStatic = false, isInterface = fun.isInstanceOf[ScFunctionDeclaration])
           case Some(method: PsiMethod) if !method.isConstructor => res += method
           case Some(t: ScTypedDefinition) if t.isVal || t.isVar =>
             val (isInterface, cClass) = t.nameContext match {
@@ -236,23 +237,23 @@ class ScObjectImpl extends ScTypeDefinitionImpl with ScObject with ScTemplateDef
                 })
               case _ => (false, None)
             }
-            res += t.getTypedDefinitionWrapper(false, isInterface, SIMPLE_ROLE, cClass)
+            res += t.getTypedDefinitionWrapper(isStatic = false, isInterface = isInterface, role = SIMPLE_ROLE, cClass = cClass)
             if (t.isVar) {
-              res += t.getTypedDefinitionWrapper(false, isInterface, EQ, cClass)
+              res += t.getTypedDefinitionWrapper(isStatic = false, isInterface = isInterface, role = EQ, cClass = cClass)
             }
             t.nameContext match {
               case s: ScAnnotationsHolder =>
                 val beanProperty = s.hasAnnotation("scala.reflect.BeanProperty") != None
                 val booleanBeanProperty = s.hasAnnotation("scala.reflect.BooleanBeanProperty") != None
                 if (beanProperty) {
-                  res += t.getTypedDefinitionWrapper(false, isInterface, GETTER, cClass)
+                  res += t.getTypedDefinitionWrapper(isStatic = false, isInterface = isInterface, role = GETTER, cClass = cClass)
                   if (t.isVar) {
-                    res += t.getTypedDefinitionWrapper(false, isInterface, SETTER, cClass)
+                    res += t.getTypedDefinitionWrapper(isStatic = false, isInterface = isInterface, role = SETTER, cClass = cClass)
                   }
                 } else if (booleanBeanProperty) {
-                  res += t.getTypedDefinitionWrapper(false, isInterface, IS_GETTER, cClass)
+                  res += t.getTypedDefinitionWrapper(isStatic = false, isInterface = isInterface, role = IS_GETTER, cClass = cClass)
                   if (t.isVar) {
-                    res += t.getTypedDefinitionWrapper(false, isInterface, SETTER, cClass)
+                    res += t.getTypedDefinitionWrapper(isStatic = false, isInterface = isInterface, role = SETTER, cClass = cClass)
                   }
                 }
               case _ =>

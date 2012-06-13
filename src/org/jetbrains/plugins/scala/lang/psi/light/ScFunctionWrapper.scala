@@ -6,7 +6,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import com.intellij.psi.{PsiClass, PsiElement, PsiMethod, JavaPsiFacade}
 import collection.mutable.ArrayBuffer
 import org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, StdType, ScType, ScCompoundType}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTypeDefinition, ScObject}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTemplateDefinition, ScTypeDefinition, ScObject}
 
 /**
  * @author Alefas
@@ -18,21 +18,23 @@ class ScFunctionWrapper(val function: ScFunction, isStatic: Boolean, isInterface
   val containingClass = {
     if (cClass != None) cClass.get
     else {
-      val res = function.containingClass
+      var res: PsiClass = function.containingClass
       if (isStatic) {
         res match {
-          case o: ScObject => o.fakeCompanionClassOrCompanionClass
-          case _ => res
+          case o: ScObject => res = o.fakeCompanionClassOrCompanionClass
+          case _ =>
         }
-      } else res
+      }
+      assert(res != null, "Method: " + function.getText + "\nhas null containing class. isStatic: " + isStatic +
+        "\nContaining file text: " + function.getContainingFile.getText)
+      res
     }
   }
   val methodText = ScFunctionWrapper.methodText(function, isStatic, isInterface, cClass)
   val method: PsiMethod = {
     try {
       elementFactory.createMethodFromText(methodText, containingClass)
-    }
-    catch {
+    } catch {
       case e => elementFactory.createMethodFromText("public void FAILED_TO_DECOMPILE_METHOD() {}", containingClass)
     }
   }
