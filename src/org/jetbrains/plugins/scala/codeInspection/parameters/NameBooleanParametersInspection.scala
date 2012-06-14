@@ -56,9 +56,10 @@ class NameBooleanParametersInspection extends LocalInspectionTool {
                 argsAndMatchingParams.exists {
                   case (expr, Some(param)) => {
                     val paramInCode = param.paramInCode.getOrElse(null)
-                    if (paramInCode != null &&
-                            paramInCode.getRealParameterType(TypingContext.empty).get.canonicalText == "Boolean")
-                      return true
+                    if (paramInCode == null) return false
+                    val realParameterType = paramInCode.getRealParameterType(TypingContext.empty).getOrElse(null)
+                    if (realParameterType == null) return false
+                    else if (realParameterType.canonicalText == "Boolean") return true
                     else return false
                   }
                   case _ => return false
