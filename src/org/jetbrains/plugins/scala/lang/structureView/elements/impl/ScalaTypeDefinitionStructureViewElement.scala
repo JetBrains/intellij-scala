@@ -36,7 +36,7 @@ class ScalaTypeDefinitionStructureViewElement(val element: ScTypeDefinition) ext
 
   def getChildren: Array[TreeElement] = {
     val children = new ArrayBuffer[TreeElement]
-    val clazz: ScTypeDefinition = element.asInstanceOf[ScTypeDefinition]
+    val clazz: ScTypeDefinition = element
     val members = clazz.members
     for (member <- members) {
       member match {
