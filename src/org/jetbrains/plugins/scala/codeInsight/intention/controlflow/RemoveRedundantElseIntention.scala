@@ -4,7 +4,7 @@ import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.editor.Editor
 import com.intellij.psi.{PsiDocumentManager, PsiElement}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScReturnStmt, ScExpression, ScBlockExpr, ScIfStmt}
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
@@ -43,9 +43,11 @@ class RemoveRedundantElseIntention extends PsiElementBaseIntentionAction {
         val lastExpr = tb.lastExpr.getOrElse(null)
         if (lastExpr == null) return false
         if (lastExpr.isInstanceOf[ScReturnStmt]) return true
+        if (lastExpr.isInstanceOf[ScThrowStmt]) return true
         false
       case e: ScExpression =>
         if (e.isInstanceOf[ScReturnStmt]) return true
+        if (e.isInstanceOf[ScThrowStmt]) return true
         false
       case _ => false
     }
@@ -55,29 +57,25 @@ class RemoveRedundantElseIntention extends PsiElementBaseIntentionAction {
     val ifStmt: ScIfStmt = PsiTreeUtil.getParentOfType(element, classOf[ScIfStmt], false)
     if (ifStmt == null || !ifStmt.isValid) return
 
-    val start = ifStmt.getTextRange.getStartOffset
-    val elseBranch = ifStmt.elseBranch.get
-    val expr = new StringBuilder
+    val thenBranch = ifStmt.thenBranch.getOrElse(null)
+    if (thenBranch == null) return
+    val elseKeyWord = thenBranch.getNextSiblingNotWhitespaceComment
 
-    expr.append("if (").append(ifStmt.condition.get.getText).append(") ").append(ifStmt.thenBranch.get.getText)
+    val elseBranch = ifStmt.elseBranch.getOrElse(null)
+    if (elseBranch == null) return
+    val expr = new StringBuilder
 
     elseBranch match {
       case eb: ScBlockExpr => expr.append(eb.getText.trim.drop(1).dropRight(1))
       case _ => expr.append("\n").append(elseBranch.getText.trim)
     }
-
     val newExpr: ScBlockImpl = ScalaPsiElementFactory.createBlockExpressionWithoutBracesFromText(expr.toString(), element.getManager)
 
     inWriteAction {
-      CodeStyleManager.getInstance(project).reformat(newExpr)
-      val diff = newExpr.exprs(0).asInstanceOf[ScIfStmt].thenBranch.get.getTextRange.getEndOffset -
-        newExpr.exprs(0).asInstanceOf[ScIfStmt].getTextRange.getStartOffset
-
-      ifStmt.replaceExpression(newExpr, removeParenthesis = true)
-      editor.getCaretModel.moveToOffset(start + diff)
+      elseKeyWord.delete()
+      elseBranch.delete()
+      ifStmt.getParent.addAfter(newExpr, ifStmt)
       PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument)
     }
-    //todo[ksenia]: this seems wrong
-    //It's better to just delete else branch instead of replacing full if expression (with causing if expression reformatting)
   }
 }
