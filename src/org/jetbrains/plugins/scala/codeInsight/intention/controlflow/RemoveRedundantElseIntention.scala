@@ -40,7 +40,7 @@ class RemoveRedundantElseIntention extends PsiElementBaseIntentionAction {
 
     thenBranch match {
       case tb: ScBlockExpr =>
-        val lastExpr = tb.exprs(tb.exprs.size - 1)
+        val lastExpr = tb.exprs(tb.exprs.size - 1) //TODO[ksenia]: try tb.lastExpr
         if (lastExpr.getText.trim.startsWith("return")) return true
         false
       case e: ScExpression =>
@@ -72,9 +72,11 @@ class RemoveRedundantElseIntention extends PsiElementBaseIntentionAction {
       val diff = newExpr.exprs(0).asInstanceOf[ScIfStmt].thenBranch.get.getTextRange.getEndOffset -
         newExpr.exprs(0).asInstanceOf[ScIfStmt].getTextRange.getStartOffset
 
-      ifStmt.replaceExpression(newExpr, true)
+      ifStmt.replaceExpression(newExpr, removeParenthesis = true)
       editor.getCaretModel.moveToOffset(start + diff)
       PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument)
     }
+    //todo[ksenia]: this seems wrong
+    //It's better to just delete else branch instead of replacing full if expression (with causing if expression reformatting)
   }
 }
