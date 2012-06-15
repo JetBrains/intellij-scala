@@ -726,7 +726,7 @@ object ScalaPsiUtil {
     val abstractSubst = ScTypePolymorphicType(retType, typeParams).abstractTypeSubstitutor
     val paramsWithUndefTypes = params.map(p => p.copy(paramType = s.subst(p.paramType),
       expectedType = abstractSubst.subst(p.paramType)))
-    val c = Compatibility.checkConformanceExt(checkNames = true, parameters = paramsWithUndefTypes, exprs = exprs, checkWithImplicits = true, isShapesResolve = false)
+    val c = Compatibility.checkConformanceExt(true, paramsWithUndefTypes, exprs, true, false)
     val tpe = if (c.problems.isEmpty) {
       var un: ScUndefinedSubstitutor = c.undefSubst
       val subst = c.undefSubst
@@ -1196,8 +1196,11 @@ object ScalaPsiUtil {
     val arrayOfElements: Array[PsiElement] = scope match {
       case stub: StubBasedPsiElement[_] if stub.getStub != null =>
         stub.getStub.getChildrenByType(TokenSets.TYPE_DEFINITIONS_SET, JavaArrayFactoryUtil.PsiElementFactory)
-      case file: PsiFileImpl if file.getStub != null =>
-        file.getStub.getChildrenByType(TokenSets.TYPE_DEFINITIONS_SET, JavaArrayFactoryUtil.PsiElementFactory)
+      case file: PsiFileImpl =>
+        val stub = file.getStub
+        if (stub != null) {
+          file.getStub.getChildrenByType(TokenSets.TYPE_DEFINITIONS_SET, JavaArrayFactoryUtil.PsiElementFactory)
+        } else scope.getChildren
       case _ => scope.getChildren
     }
     td match {
