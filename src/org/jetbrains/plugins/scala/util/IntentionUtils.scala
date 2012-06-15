@@ -42,9 +42,16 @@ object IntentionUtils {
               case (_, Some(param)) if (!param.name.isEmpty) => true
               case _ => false
             }
+            val hasUnderscore = argsAndMatchingParams.exists {
+              case (_, Some(param)) if (param.isInstanceOf[ScUnderscoreSection]) => true
+              case (underscore: ScUnderscoreSection, Some(param)) => true
+              case param: ScUnderscoreSection => true
+              case _ => false
+            }
             argsAndMatchingParams.headOption match {
               case _ if isRepeated => None
               case _ if !hasName => None
+              case _ if hasUnderscore => None
               case Some((assign: ScAssignStmt, Some(param))) if assign.getLExpression.getText == param.name =>
                 None
               case None | Some((_, None)) =>
