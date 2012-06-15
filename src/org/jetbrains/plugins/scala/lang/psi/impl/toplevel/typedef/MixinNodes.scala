@@ -8,19 +8,16 @@ package impl
 package toplevel
 package typedef
 
-import collection.mutable.{LinkedHashSet, HashMap, HashSet, Set, ListBuffer, ArrayBuffer}
+import collection.mutable.{ListBuffer, ArrayBuffer}
 import psi.types._
 import synthetic.ScSyntheticClass
 import caches.CachesUtil
 import api.toplevel.typedef.{ScTrait, ScObject, ScTypeDefinition, ScTemplateDefinition}
 import com.intellij.psi.{PsiClassType, PsiElement, PsiClass}
 import com.intellij.openapi.progress.ProgressManager
-import com.intellij.psi.util.PsiModificationTracker
 import com.intellij.openapi.project.Project
 import extensions.{toPsiNamedElementExt, toPsiClassExt}
-import com.intellij.psi.impl.compiled.ClsClassImpl
-import api.ScalaFile
-import com.intellij.psi.util.PsiModificationTracker._
+import collection.mutable
 
 abstract class MixinNodes {
   type T
@@ -37,9 +34,9 @@ abstract class MixinNodes {
     var primarySuper: Option[Node] = None
   }
 
-  class Map extends HashMap[String, ArrayBuffer[(T, Node)]] {
-    private[Map] val implicitNames: HashSet[String] = new HashSet[String]
-    private val privatesMap: HashMap[String, ArrayBuffer[(T, Node)]] = HashMap.empty
+  class Map extends mutable.HashMap[String, ArrayBuffer[(T, Node)]] {
+    private[Map] val implicitNames: mutable.HashSet[String] = new mutable.HashSet[String]
+    private val privatesMap: mutable.HashMap[String, ArrayBuffer[(T, Node)]] = mutable.HashMap.empty
     def addToMap(key: T, node: Node) {
       val name = ScalaPsiUtil.convertMemberName(elemName(key))
       (if (!isPrivate(key)) this else privatesMap).
@@ -56,9 +53,9 @@ abstract class MixinNodes {
       supersList = list
     }
 
-    private val calculatedNames: HashSet[String] = new HashSet
-    private val calculated: HashMap[String, AllNodes] = new HashMap
-    private val calculatedSupers: HashMap[String, AllNodes] = new HashMap
+    private val calculatedNames: mutable.HashSet[String] = new mutable.HashSet
+    private val calculated: mutable.HashMap[String, AllNodes] = new mutable.HashMap
+    private val calculatedSupers: mutable.HashMap[String, AllNodes] = new mutable.HashMap
 
     def forName(name: String): (AllNodes, AllNodes) = {
       val convertedName = ScalaPsiUtil.convertMemberName(name)
@@ -98,15 +95,15 @@ abstract class MixinNodes {
       forImplicitsCache
     }
     
-    def allNames(): Set[String] = {
-      val names = new HashSet[String]
+    def allNames(): mutable.Set[String] = {
+      val names = new mutable.HashSet[String]
       names ++= keySet
       names ++= privatesMap.keySet
       for (sup <- supersList) {names ++= sup.keySet}
       names
     }
     
-    def forAll(): (HashMap[String, AllNodes], HashMap[String, AllNodes]) = {
+    def forAll(): (mutable.HashMap[String, AllNodes], mutable.HashMap[String, AllNodes]) = {
       for (name <- allNames()) forName(name)
       synchronized {
         (calculated, calculatedSupers)
@@ -114,7 +111,7 @@ abstract class MixinNodes {
     }
     
     private def toNodesSeq(seq: List[(T, Node)]): NodesSeq = {
-      val map = new HashMap[Int, List[(T, Node)]]
+      val map = new mutable.HashMap[Int, List[(T, Node)]]
       for (elem <- seq) {
         val key = computeHashCode(elem._1)
         val prev = map.getOrElse(key, List.empty)
@@ -129,10 +126,10 @@ abstract class MixinNodes {
       res
     }
 
-    private class MultiMap extends HashMap[T, Set[Node]] with collection.mutable.MultiMap[T, Node] {
+    private class MultiMap extends mutable.HashMap[T, mutable.Set[Node]] with collection.mutable.MultiMap[T, Node] {
       override def elemHashCode(t : T) = computeHashCode(t)
       override def elemEquals(t1 : T, t2 : T) = equiv(t1, t2)
-      override def makeSet = new LinkedHashSet[Node]
+      override def makeSet = new mutable.LinkedHashSet[Node]
     }
 
     private object MultiMap {def empty = new MultiMap}
@@ -218,7 +215,7 @@ abstract class MixinNodes {
     def isEmpty: Boolean = publics.isEmpty && privates.map.values.forall(_.isEmpty)
   }
   
-  class NodesSeq(private[MixinNodes] val map: HashMap[Int, List[(T, Node)]]) {
+  class NodesSeq(private[MixinNodes] val map: mutable.HashMap[Int, List[(T, Node)]]) {
     def get(s: T): Option[Node] = {
       val list = map.getOrElse(computeHashCode(s), Nil)
       val iterator = list.iterator
@@ -245,7 +242,7 @@ abstract class MixinNodes {
     }
   }
 
-  class NodesMap extends HashMap[T, Node] {
+  class NodesMap extends mutable.HashMap[T, Node] {
     override def elemHashCode(t: T) = computeHashCode(t)
     override def elemEquals(t1 : T, t2 : T) = equiv(t1, t2)
 
@@ -415,7 +412,6 @@ abstract class MixinNodes {
 }
 
 object MixinNodes {
-  import scala.collection.immutable.{HashSet => IHashSet}
   def linearization(clazz: PsiClass): Seq[ScType] = {
     clazz match {
       case obj: ScObject if obj.isPackageObject && obj.qualifiedName == "scala" => {
@@ -433,7 +429,7 @@ object MixinNodes {
   def linearization(compound: ScCompoundType): Seq[ScType] = {
     val comps = compound.components
 
-    generalLinearization(None, compound, false, comps)
+    generalLinearization(None, compound, addTp = false, supers = comps)
   }
 
   private def linearizationInner(clazz: PsiClass): Seq[ScType] = {
@@ -456,12 +452,12 @@ object MixinNodes {
       }
     }
     
-    generalLinearization(Some(clazz.getProject), tp, true, supers)
+    generalLinearization(Some(clazz.getProject), tp, addTp = true, supers = supers)
   }
   
   private def generalLinearization(project: Option[Project], tp: ScType, addTp: Boolean, supers: Seq[ScType]): Seq[ScType] = {
     val buffer = new ListBuffer[ScType]
-    val set: HashSet[String] = new HashSet //to add here qualified names of classes
+    val set: mutable.HashSet[String] = new mutable.HashSet //to add here qualified names of classes
     def classString(clazz: PsiClass): String = {
       clazz match {
         case obj: ScObject => "Object: " + obj.qualifiedName
