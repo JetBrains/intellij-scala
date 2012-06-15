@@ -130,15 +130,44 @@ object TypeDefinitionMembers {
           case _var: ScVariable if isBridge(place, _var) =>
             for (dcl <- _var.declaredElements) {
               addSignature(new Signature(dcl.name, Stream.empty, 0, subst, Some(dcl)))
+              dcl.nameContext match {
+                case s: ScAnnotationsHolder =>
+                  val beanProperty = s.hasAnnotation("scala.reflect.BeanProperty") != None
+                  val booleanBeanProperty = s.hasAnnotation("scala.reflect.BooleanBeanProperty") != None
+                  if (beanProperty) {
+                    addSignature(new Signature("get" + dcl.name.capitalize, Stream.empty, 0, subst, Some(dcl)))
+                  } else if (booleanBeanProperty) {
+                    addSignature(new Signature("is" + dcl.name.capitalize, Stream.empty, 0, subst, Some(dcl)))
+                  }
+                case _ =>
+              }
             }
           case _val: ScValue if isBridge(place, _val) =>
             for (dcl <- _val.declaredElements) {
               addSignature(new Signature(dcl.name, Stream.empty, 0, subst, Some(dcl)))
+              dcl.nameContext match {
+                case s: ScAnnotationsHolder =>
+                  val beanProperty = s.hasAnnotation("scala.reflect.BeanProperty") != None
+                  val booleanBeanProperty = s.hasAnnotation("scala.reflect.BooleanBeanProperty") != None
+                  if (beanProperty) {
+                    addSignature(new Signature("get" + dcl.name.capitalize, Stream.empty, 0, subst, Some(dcl)))
+                  } else if (booleanBeanProperty) {
+                    addSignature(new Signature("is" + dcl.name.capitalize, Stream.empty, 0, subst, Some(dcl)))
+                  }
+                case _ =>
+              }
             }
           case constr: ScPrimaryConstructor => {
             val parameters = constr.parameters
             for (param <- parameters if isBridge(place, param)) {
                addSignature(new Signature(param.name, Stream.empty, 0, subst, Some(param)))
+              val beanProperty = param.hasAnnotation("scala.reflect.BeanProperty") != None
+              val booleanBeanProperty = param.hasAnnotation("scala.reflect.BooleanBeanProperty") != None
+              if (beanProperty) {
+                addSignature(new Signature("get" + param.name.capitalize, Stream.empty, 0, subst, Some(param)))
+              } else if (booleanBeanProperty) {
+                addSignature(new Signature("is" + param.name.capitalize, Stream.empty, 0, subst, Some(param)))
+              }
             }
           }
           case f: ScFunction if isBridge(place, f) && !f.isConstructor && f.parameters.length == 0 =>
@@ -326,10 +355,36 @@ object TypeDefinitionMembers {
               lazy val t = dcl.getType(TypingContext.empty).getOrAny
               addSignature(new Signature(dcl.name, Stream.empty, 0, subst, Some(dcl)))
               addSignature(new Signature(dcl.name + "_=", ScalaPsiUtil.getSingletonStream(t), 1, subst, Some(dcl)))
+              dcl.nameContext match {
+                case s: ScAnnotationsHolder =>
+                  val beanProperty = s.hasAnnotation("scala.reflect.BeanProperty") != None
+                  val booleanBeanProperty = s.hasAnnotation("scala.reflect.BooleanBeanProperty") != None
+                  if (beanProperty) {
+                    addSignature(new Signature("get" + dcl.name.capitalize, Stream.empty, 0, subst, Some(dcl)))
+                  } else if (booleanBeanProperty) {
+                    addSignature(new Signature("is" + dcl.name.capitalize, Stream.empty, 0, subst, Some(dcl)))
+                  }
+                  if (beanProperty || booleanBeanProperty) {
+                    addSignature(new Signature("set" + dcl.name.capitalize, ScalaPsiUtil.getSingletonStream(t), 1,
+                      subst, Some(dcl)))
+                  }
+                case _ =>
+              }
             }
           case _val: ScValue if isBridge(place, _val) =>
             for (dcl <- _val.declaredElements) {
               addSignature(new Signature(dcl.name, Stream.empty, 0, subst, Some(dcl)))
+              dcl.nameContext match {
+                case s: ScAnnotationsHolder =>
+                  val beanProperty = s.hasAnnotation("scala.reflect.BeanProperty") != None
+                  val booleanBeanProperty = s.hasAnnotation("scala.reflect.BooleanBeanProperty") != None
+                  if (beanProperty) {
+                    addSignature(new Signature("get" + dcl.name.capitalize, Stream.empty, 0, subst, Some(dcl)))
+                  } else if (booleanBeanProperty) {
+                    addSignature(new Signature("is" + dcl.name.capitalize, Stream.empty, 0, subst, Some(dcl)))
+                  }
+                case _ =>
+              }
             }
           case constr: ScPrimaryConstructor => {
             val parameters = constr.parameters
@@ -338,6 +393,21 @@ object TypeDefinitionMembers {
               addSignature(new Signature(param.name, Stream.empty, 0, subst, Some(param)))
               if (!param.isStable) addSignature(new Signature(param.name + "_=", ScalaPsiUtil.getSingletonStream(t), 1, subst,
                 Some(param)))
+              val beanProperty = param.hasAnnotation("scala.reflect.BeanProperty") != None
+              val booleanBeanProperty = param.hasAnnotation("scala.reflect.BooleanBeanProperty") != None
+              if (beanProperty) {
+                addSignature(new Signature("get" + param.name.capitalize, Stream.empty, 0, subst, Some(param)))
+                if (!param.isStable) {
+                  addSignature(new Signature("set" + param.name.capitalize, ScalaPsiUtil.getSingletonStream(t), 1,
+                    subst, Some(param)))
+                }
+              } else if (booleanBeanProperty) {
+                addSignature(new Signature("is" + param.name.capitalize, Stream.empty, 0, subst, Some(param)))
+                if (!param.isStable) {
+                  addSignature(new Signature("set" + param.name.capitalize, ScalaPsiUtil.getSingletonStream(t), 1,
+                    subst, Some(param)))
+                }
+              }
             }
           }
           case f: ScFunction if isBridge(place, f) && !f.isConstructor =>
@@ -576,7 +646,6 @@ object TypeDefinitionMembers {
     val processValsForScala = isScalaProcessor && processVals
     val processOnlyStable = shouldProcessOnlyStable(processor)
 
-    import collection.mutable.HashMap
     def process[T <: MixinNodes](signatures: T#Map): Boolean = {
       if (processValsForScala || processMethods) {
         def runForValInfo(n: T#Node): Boolean = {
@@ -586,7 +655,7 @@ object TypeDefinitionMembers {
           }
           elem match {
             case p: ScClassParameter if processValsForScala && !p.isVar && !p.isVal &&
-              (checkName(p.name) || checkNameGetSetIs(p.name)) && isScalaProcessor => {
+              (checkName(p.name) || checkNameGetSetIs(p.name)) && isScalaProcessor =>
               val clazz = PsiTreeUtil.getContextOfType(p, true, classOf[ScTemplateDefinition])
               if (clazz != null && clazz.isInstanceOf[ScClass] && !p.isEffectiveVal) {
                 //this is member only for class scope
@@ -600,27 +669,26 @@ object TypeDefinitionMembers {
                       state.put(ScSubstitutor.key, n.supers.apply(0).substitutor followed subst))) return false
                 }
               } else if (!tail) return false
-            }
             case _ => if (!tail) return false
           }
           def tail: Boolean = {
             if (processValsForScala && checkName(elem.name) &&
               !processor.execute(elem, state.put(ScSubstitutor.key, n.substitutor followed subst))) return false
 
-            //this is for Java: to find methods, which are vals in Scala
-
-            elem match {
-              case t: ScTypedDefinition => {
-                val context = ScalaPsiUtil.nameContext(t)
-                context match {
-                  case annotated: ScAnnotationsHolder =>
-                    // Expose the get/set/is methods generated by scala.reflect.(Boolean)BeanProperty
-                    if (!BeanProperty.processBeanPropertyDeclarations(annotated, context, processor, t, state))
-                      return false
-                  case _ =>
-                }
+            if (checkNameGetSetIs(elem.name)) {
+              elem match {
+                case t: ScTypedDefinition =>
+                  def process(method: PsiMethod): Boolean = {
+                    if (processValsForScala &&
+                      !processor.execute(method,
+                        state.put(ScSubstitutor.key, n.substitutor followed subst))) return false
+                    true
+                  }
+                  if ((decodedName == "" || decodedName.startsWith("set")) && !process(t.getSetBeanMethod)) return false
+                  if ((decodedName == "" || decodedName.startsWith("get")) && !process(t.getGetBeanMethod)) return false
+                  if ((decodedName == "" || decodedName.startsWith("is")) && !process(t.getIsBeanMethod)) return false
+                case _ =>
               }
-              case _ =>
             }
             true
           }
@@ -651,22 +719,6 @@ object TypeDefinitionMembers {
             true
           }
           if (!checkList(decodedName)) return false
-
-          if (processValsForScala) {
-            def checkPrefix(s: String): Boolean = {
-              if (decodedName.startsWith(s)) {
-                val n = decodedName.substring(s.length())
-                if (n.length() > 0 && n(0).isUpper) {
-                  val lowerName = n(0).toLower + n.substring(1)
-                  checkList(lowerName)
-                  if (lowerName != n)
-                    checkList(n)
-                }
-              }
-              true
-            }
-            if (!checkPrefix("is") || !checkPrefix("get") || !checkPrefix("set")) return false
-          }
         } else if (processor.isInstanceOf[ImplicitProcessor]) {
           val implicits = signatures.forImplicits()
           val iterator = implicits.iterator

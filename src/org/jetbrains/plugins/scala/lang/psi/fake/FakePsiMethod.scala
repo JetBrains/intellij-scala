@@ -19,6 +19,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import java.util.List
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScValue, ScVariable}
+import javax.swing.Icon
 
 /**
  * User: Alexander Podkhalyuzin
@@ -110,6 +111,14 @@ class FakePsiMethod(
   def getThrowsList: PsiReferenceList = new FakePsiReferenceList(manager, language, PsiReferenceList.Role.THROWS_LIST)
 
   def isVarArgs: Boolean = false
+
+  override def getIcon(flags: Int): Icon = navElement match {
+    case t: ScTypedDefinition =>
+      val context = t.nameContext
+      if (context != null) context.getIcon(flags)
+      else super.getIcon(flags)
+    case _ => super.getIcon(flags)
+  }
 
   def getReturnTypeElement: PsiTypeElement = null
 

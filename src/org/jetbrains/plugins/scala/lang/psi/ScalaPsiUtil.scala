@@ -1025,7 +1025,7 @@ object ScalaPsiUtil {
     if (clazz == null) return empty
     val s = namedElementSig(x)
     val sigs = TypeDefinitionMembers.getSignatures(clazz).forName(x.name)._1
-    val t = (sigs.get(s): @unchecked) match {
+    var res: Seq[Signature] = (sigs.get(s): @unchecked) match {
       //partial match
       case Some(x) => x.supers.map {_.info}
       case None =>
@@ -1033,7 +1033,20 @@ object ScalaPsiUtil {
           x.getText, clazz.getText
         ))
     }
-    t
+
+
+    val beanMethods = typed.getBeanMethods
+    beanMethods.foreach {method =>
+      val sigs = TypeDefinitionMembers.getSignatures(clazz).forName(method.name)._1
+      (sigs.get(new PhysicalSignature(method, ScSubstitutor.empty)): @unchecked) match {
+        //partial match
+        case Some(x) => res ++= (x.supers.map {_.info})
+        case None =>
+      }
+    }
+
+    res
+
   }
 
   def superTypeMembers(element: PsiNamedElement): Seq[PsiNamedElement] = {

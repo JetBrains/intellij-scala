@@ -31,29 +31,92 @@ trait ScTypedDefinition extends ScNamedElement with TypingContextOwner {
   @volatile
   private var modCount: Long = 0L
 
+  @volatile
+  private var isBeanMethodsCache: PsiMethod = null
+  @volatile
+  private var isModCount: Long = 0L
+
+  @volatile
+  private var getBeanMethodsCache: PsiMethod = null
+  @volatile
+  private var getModCount: Long = 0L
+
+  @volatile
+  private var setBeanMethodsCache: PsiMethod = null
+  @volatile
+  private var setModCount: Long = 0L
+
+  def getGetBeanMethod: PsiMethod = {
+    def inner(): PsiMethod = {
+      val hasModifierProperty: String => Boolean = nameContext match {
+        case v: ScModifierListOwner => v.hasModifierProperty _
+        case _ => _ => false
+      }
+      new FakePsiMethod(this, "get" + StringUtil.capitalize(this.name), Array.empty,
+        this.getType(TypingContext.empty).getOrAny, hasModifierProperty)
+    }
+
+    val curModCount = getManager.getModificationTracker.getOutOfCodeBlockModificationCount
+    if (getBeanMethodsCache != null && getModCount == curModCount) return getBeanMethodsCache
+    val res = inner()
+    getModCount = curModCount
+    getBeanMethodsCache = res
+    res
+  }
+
+  def getSetBeanMethod: PsiMethod = {
+    def inner(): PsiMethod = {
+      val hasModifierProperty: String => Boolean = nameContext match {
+        case v: ScModifierListOwner => v.hasModifierProperty _
+        case _ => _ => false
+      }
+      val tType = getType(TypingContext.empty).getOrAny
+      implicit def arr2arr(a: Array[ScType]): Array[Parameter] = a.toSeq.mapWithIndex {
+        case (tpe, index) => new Parameter("", tpe, false, false, false, index)
+      }.toArray
+      new FakePsiMethod(this, "set" + name.capitalize, Array[ScType](tType), types.Unit, hasModifierProperty)
+    }
+
+    val curModCount = getManager.getModificationTracker.getOutOfCodeBlockModificationCount
+    if (setBeanMethodsCache != null && setModCount == curModCount) return setBeanMethodsCache
+    val res = inner()
+    setModCount = curModCount
+    setBeanMethodsCache = res
+    res
+  }
+
+  def getIsBeanMethod: PsiMethod = {
+    def inner(): PsiMethod = {
+      val hasModifierProperty: String => Boolean = nameContext match {
+        case v: ScModifierListOwner => v.hasModifierProperty _
+        case _ => _ => false
+      }
+      new FakePsiMethod(this, "is" + StringUtil.capitalize(this.name), Array.empty,
+        this.getType(TypingContext.empty).getOrAny, hasModifierProperty)
+    }
+
+    val curModCount = getManager.getModificationTracker.getOutOfCodeBlockModificationCount
+    if (isBeanMethodsCache != null && isModCount == curModCount) return isBeanMethodsCache
+    val res = inner()
+    isModCount = curModCount
+    isBeanMethodsCache = res
+    res
+  }
+
   def getBeanMethods: Seq[PsiMethod] = {
-    implicit def arr2arr(a: Array[ScType]): Array[Parameter] = a.toSeq.mapWithIndex {
-      case (tpe, index) => new Parameter("", tpe, false, false, false, index)
-    }.toArray
     def getBeanMethodsInner(t: ScTypedDefinition): Seq[PsiMethod] = {
       def valueSeq(v: ScAnnotationsHolder with ScModifierListOwner): Seq[PsiMethod] = {
         val beanProperty = v.hasAnnotation("scala.reflect.BeanProperty").isDefined
         val booleanBeanProperty = v.hasAnnotation("scala.reflect.BooleanBeanProperty").isDefined
         if (beanProperty || booleanBeanProperty) {
-          val prefix = if (beanProperty) "get" else "is"
-          Seq(new FakePsiMethod(t, prefix + StringUtil.capitalize(t.name), Array.empty,
-            t.getType(TypingContext.empty).getOrAny, v.hasModifierProperty _))
+          Seq(if (beanProperty) getGetBeanMethod else getIsBeanMethod)
         } else Seq.empty
       }
       def variableSeq(v: ScAnnotationsHolder with ScModifierListOwner): Seq[PsiMethod] = {
         val beanProperty = v.hasAnnotation("scala.reflect.BeanProperty").isDefined
         val booleanBeanProperty = v.hasAnnotation("scala.reflect.BooleanBeanProperty").isDefined
         if (beanProperty || booleanBeanProperty) {
-          val prefix = if (beanProperty) "get" else "is"
-          val tType = t.getType(TypingContext.empty).getOrAny
-          val capName = StringUtil.capitalize(t.name)
-          Seq(new FakePsiMethod(t, prefix + capName, Array.empty, tType, v.hasModifierProperty _),
-          new FakePsiMethod(t, "set" + capName, Array[ScType](tType), types.Unit, v.hasModifierProperty _))
+          Seq(if (beanProperty) getGetBeanMethod else getIsBeanMethod, getSetBeanMethod)
         } else Seq.empty
       }
       ScalaPsiUtil.nameContext(this) match {

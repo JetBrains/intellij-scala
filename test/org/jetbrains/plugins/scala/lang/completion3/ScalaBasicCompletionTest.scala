@@ -76,6 +76,27 @@ class ScalaBasicCompletionTest extends ScalaCompletionTestBase {
     checkResultByText(resultText)
   }
 
+  def testBeanProperty() {
+    val fileText =
+      """
+        |import scala.reflect.BeanProperty
+        |abstract class Foo {
+        |  def setGoo(foo : String) {}
+        |}
+        |
+        |class Bar() extends Foo {
+        |  @BeanProperty var goo = "foo"
+        |}
+        |new Bar().<caret>
+      """.stripMargin('|').replaceAll("\r", "").trim()
+    configureFromFileTextAdapter("dummy.scala", fileText)
+    val (activeLookup, _) = complete(1, CompletionType.BASIC)
+
+    assert(activeLookup.collect {
+      case le if le.getLookupString == "getGoo" => le
+    }.length == 1)
+  }
+
   def testSCL3546() {
     val fileText =
       """
