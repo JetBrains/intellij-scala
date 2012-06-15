@@ -30,7 +30,6 @@ class RemoveRedundantElseIntentionTest extends ScalaIntentionTestBase {
                        |      return
                        |    }<caret>
                        |    val j = 0
-                       |
                        |  }
                        |}
                      """.stripMargin.replace("\r", "").trim
@@ -58,7 +57,6 @@ class RemoveRedundantElseIntentionTest extends ScalaIntentionTestBase {
                        |      return true
                        |    }<caret>
                        |    val j = 0
-                       |
                        |    return false
                        |  }
                        |}
@@ -91,7 +89,6 @@ class RemoveRedundantElseIntentionTest extends ScalaIntentionTestBase {
                        |    }<caret>
                        |    System.out.println("else")
                        |    val j = 0
-                       |
                        |    return false
                        |  }
                        |}
@@ -119,7 +116,6 @@ class RemoveRedundantElseIntentionTest extends ScalaIntentionTestBase {
                        |    if (i == 0) return true<caret>
                        |    System.out.println("else")
                        |    val j = 0
-                       |
                        |    return false
                        |  }
                        |}
@@ -143,7 +139,34 @@ class RemoveRedundantElseIntentionTest extends ScalaIntentionTestBase {
     val resultText = """
                        |class X {
                        |  def f(i: Int): Boolean = {
-                       |    if (i == 0) return true<caret>
+                       |    if (i == 0)
+                       |      return true<caret>
+                       |    System.out.println("else")
+                       |    return false
+                       |  }
+                       |}
+                     """.stripMargin.replace("\r", "").trim
+
+    doTest(text, resultText)
+  }
+
+  def testRemoveElse6() {
+    val text = """
+                 |class X {
+                 |  def f(i: Int): Boolean = {
+                 |    if (i == 0)
+                 |      throw new Exception
+                 |    e<caret>lse
+                 |      System.out.println("else")
+                 |    return false
+                 |  }
+                 |}
+               """.stripMargin.replace("\r", "").trim
+    val resultText = """
+                       |class X {
+                       |  def f(i: Int): Boolean = {
+                       |    if (i == 0)
+                       |      throw new Exception<caret>
                        |    System.out.println("else")
                        |    return false
                        |  }
