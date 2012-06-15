@@ -23,16 +23,16 @@ class OverridingAnnotatorTest extends SimpleTestCase {
   def testPrivateVal() {
     assertMatches(messages(
       """
-object ppp {
-class Base {
-  private val something = 5
-}
-
-class Derived extends Base {
-  private val something = 8
-}
-}
-      """)) {
+        |object ppp {
+        |class Base {
+        |  private val something = 5
+        |}
+        |
+        |class Derived extends Base {
+        |  private val something = 8
+        |}
+        |}
+      """.stripMargin)) {
       case Nil =>
     }
   }
@@ -40,12 +40,12 @@ class Derived extends Base {
   def testClassParameter() {
     assertMatches(messages(
       """
-object ppp {
-class A(x: Int)
-class B(val x: Int) extends A(x)
-case class C(x: Int) extends A(x)
-}
-      """)) {
+        |object ppp {
+        |class A(x: Int)
+        |class B(val x: Int) extends A(x)
+        |case class C(x: Int) extends A(x)
+        |}
+      """.stripMargin)) {
       case Nil =>
     }
   }
@@ -53,16 +53,16 @@ case class C(x: Int) extends A(x)
   def testVal() {
     assertMatches(messages(
       """
-object ppp {
-class Base {
-  val something = 5
-}
-
-class Derived extends Base {
-  val something = 8
-}
-}
-      """)) {
+        |object ppp {
+        |class Base {
+        |  val something = 5
+        |}
+        |
+        |class Derived extends Base {
+        |  val something = 8
+        |}
+        |}
+      """.stripMargin)) {
       case List(Error(something, "Value 'something' needs override modifier")) =>
     }
   }

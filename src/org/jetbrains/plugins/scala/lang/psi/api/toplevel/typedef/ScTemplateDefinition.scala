@@ -144,6 +144,7 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
       (n.info.namedElement match {
         case Some(v) => ScalaPsiUtil.nameContext(v) match {
           case _: ScVariable => v.name == n.info.name
+          case _: ScValue => v.name == n.info.name
           case _ => true
         }
         case None => false

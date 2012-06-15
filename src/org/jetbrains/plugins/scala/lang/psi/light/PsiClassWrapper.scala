@@ -70,30 +70,37 @@ class PsiClassWrapper(val definition: ScTemplateDefinition,
           signature.foreach {
             case (t, node) =>
               node.info.namedElement match {
-                case Some(fun: ScFunction) if !fun.isConstructor => res += fun.getFunctionWrapper(true, false, Some(definition))
+                case Some(fun: ScFunction) if !fun.isConstructor => res += fun.getFunctionWrapper(isStatic = true, isInterface = false, cClass = Some(definition))
                 case Some(method: PsiMethod) if !method.isConstructor => {
                   if (method.containingClass != null && method.containingClass.qualifiedName != "java.lang.Object") {
                     res += StaticPsiMethodWrapper.getWrapper(method, this)
                   }
                 }
                 case Some(t: ScTypedDefinition) if t.isVal || t.isVar =>
-                  res += t.getTypedDefinitionWrapper(true, false, SIMPLE_ROLE, Some(definition))
-                  if (t.isVar) {
-                    res += t.getTypedDefinitionWrapper(false, isInterface, EQ)
+                  val nodeName = node.info.name
+                  if (t.name == nodeName) {
+                    res += t.getTypedDefinitionWrapper(isStatic = true, isInterface = false, role = SIMPLE_ROLE, cClass = Some(definition))
+                    if (t.isVar) {
+                      res += t.getTypedDefinitionWrapper(isStatic = false, isInterface = isInterface, role = EQ)
+                    }
                   }
                   t.nameContext match {
                     case s: ScAnnotationsHolder =>
                       val beanProperty = s.hasAnnotation("scala.reflect.BeanProperty") != None
                       val booleanBeanProperty = s.hasAnnotation("scala.reflect.BooleanBeanProperty") != None
                       if (beanProperty) {
-                        res += t.getTypedDefinitionWrapper(true, false, GETTER, Some(definition))
-                        if (t.isVar) {
-                          res += t.getTypedDefinitionWrapper(true, false, SETTER, Some(definition))
+                        if (nodeName == "get" + t.name.capitalize) {
+                          res += t.getTypedDefinitionWrapper(isStatic = true, isInterface = false, role = GETTER, cClass = Some(definition))
+                        }
+                        if (t.isVar && nodeName == "set" + t.name.capitalize) {
+                          res += t.getTypedDefinitionWrapper(isStatic = true, isInterface = false, role = SETTER, cClass = Some(definition))
                         }
                       } else if (booleanBeanProperty) {
-                        res += t.getTypedDefinitionWrapper(true, false, IS_GETTER, Some(definition))
-                        if (t.isVar) {
-                          res += t.getTypedDefinitionWrapper(true, false, SETTER, Some(definition))
+                        if (nodeName == "is" + t.name.capitalize) {
+                          res += t.getTypedDefinitionWrapper(isStatic = true, isInterface = false, role = IS_GETTER, cClass = Some(definition))
+                        }
+                        if (t.isVar && nodeName == "set" + t.name.capitalize) {
+                          res += t.getTypedDefinitionWrapper(isStatic = true, isInterface = false, role = SETTER, cClass = Some(definition))
                         }
                       }
                     case _ =>
