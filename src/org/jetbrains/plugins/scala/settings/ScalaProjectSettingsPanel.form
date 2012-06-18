@@ -119,7 +119,7 @@
                 <properties/>
                 <border type="etched" title="Classes to use only with prefix"/>
                 <clientProperties>
-                  <BorderFactoryClass class="java.lang.String" value="com.intellij.ui.IdeBorderFactory$BoldSmallWithIndent"/>
+                  <BorderFactoryClass class="java.lang.String" value="com.intellij.ui.IdeBorderFactory$PlainSmallWithIndent"/>
                 </clientProperties>
                 <children>
                   <grid id="34b18" binding="myImportsWithPrefixPanel" layout-manager="BorderLayout" hgap="0" vgap="0">
