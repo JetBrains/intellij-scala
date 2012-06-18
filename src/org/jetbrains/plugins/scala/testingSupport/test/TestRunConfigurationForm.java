@@ -17,6 +17,7 @@ import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.ui.RawCommandLineEditor;
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil;
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager;
+import org.jetbrains.plugins.scala.testingSupport.test.scalatest.ScalaTestConfigurationProducer;
 import org.jetbrains.plugins.scala.testingSupport.test.scalatest.ScalaTestRunConfiguration;
 import org.jetbrains.plugins.scala.testingSupport.test.specs2.Specs2RunConfiguration;
 
@@ -61,7 +62,6 @@ public class TestRunConfigurationForm{
   private JTextField testNameTextField;
   private JLabel testNameLabel;
   private JCheckBox myShowProgressMessagesCheckBox;
-  private JCheckBox useOlderScalaTestVersion;
 
   public static enum TestKind {
     ALL_IN_PACKAGE, CLASS, TEST_NAME;
@@ -149,12 +149,9 @@ public class TestRunConfigurationForm{
     if (configuration instanceof ScalaTestRunConfiguration) {
       isScalaTest = true;
 
-      useOlderScalaTestVersion.setVisible(true);
-      useOlderScalaTestVersion.setSelected(configuration.getUseOlderScalaTestVersion());
     } else if (configuration instanceof Specs2RunConfiguration) {
       isScalaTest = false;
 
-      useOlderScalaTestVersion.setVisible(false);
     } else {
       throw new RuntimeException("Unknown run configuration: " + configuration);
     }
@@ -304,14 +301,6 @@ public class TestRunConfigurationForm{
     myShowProgressMessagesCheckBox.setSelected(b);
   }
 
-  public boolean getUseOlderScalaTestVersion() {
-    return useOlderScalaTestVersion.isSelected();
-  }
-
-  public void setUseOlderScalaTestVersion(boolean b) {
-    useOlderScalaTestVersion.setSelected(b);
-  }
-
   public JPanel getPanel() {
     return myPanel;
   }
@@ -322,8 +311,6 @@ public class TestRunConfigurationForm{
     ClassBrowser browser = new ClassBrowser(project, title) {
       protected ClassFilter.ClassFilterWithScope getFilter() throws ClassBrowser.NoFilterException {
         return new ClassFilter.ClassFilterWithScope() {
-          private String SUITE_PATH = "org.scalatest.Suite";
-
           public GlobalSearchScope getScope() {
             Module module = getModule();
             if (module != null) return GlobalSearchScope.moduleWithDependenciesAndLibrariesScope(module);
@@ -331,16 +318,13 @@ public class TestRunConfigurationForm{
           }
 
           public boolean isAccepted(PsiClass aClass) {
-//            if (isScalaTest) {
-              if (!getScope().accept(aClass.getContainingFile().getVirtualFile())) return false;
-              PsiClass[] classes = ScalaPsiManager.instance(project).getCachedClasses(getScope(), SUITE_PATH);
-              for (PsiClass psiClass : classes) {
-                if (ScalaPsiUtil.cachedDeepIsInheritor(aClass, psiClass)) return true;
-              }
-              return false;
-//            } else {
-//              return true;
-//            }
+            String suitePath = isScalaTest ? "org.scalatest.Suite" : "org.specs2.specification.SpecificationStructure";
+            if (!getScope().accept(aClass.getContainingFile().getVirtualFile())) return false;
+            PsiClass[] classes = ScalaPsiManager.instance(project).getCachedClasses(getScope(), suitePath);
+            for (PsiClass psiClass : classes) {
+              if (ScalaPsiUtil.cachedDeepIsInheritor(aClass, psiClass)) return true;
+            }
+            return false;
           }
         };
       }
