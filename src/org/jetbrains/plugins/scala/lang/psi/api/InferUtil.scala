@@ -176,7 +176,7 @@ object InferUtil {
             case _ => internal
           }
           val update: ScTypePolymorphicType = ScalaPsiUtil.localTypeInference(m,
-            Seq(Parameter("", expected, expected, false, false, false)),
+            Seq(Parameter("", expected, expected, isDefault = false, isRepeated = false, isByName = false)),
             Seq(new Expression(ScalaPsiUtil.undefineSubstitutor(typeParams).subst(innerInternal.inferValueType))),
             typeParams, shouldUndefineParameters = false, safeCheck = check, filterTypeParams = false)
           nonValueType = Success(update, Some(expr)) //here should work in different way:
@@ -187,7 +187,7 @@ object InferUtil {
       case Success(ScTypePolymorphicType(internal, typeParams), _) if expectedType != None && fromImplicitParameters => {
         def updateRes(expected: ScType) {
           nonValueType = Success(ScalaPsiUtil.localTypeInference(internal,
-            Seq(Parameter("", expected, expected, false, false, false)),
+            Seq(Parameter("", expected, expected, isDefault = false, isRepeated = false, isByName = false)),
               Seq(new Expression(ScalaPsiUtil.undefineSubstitutor(typeParams).subst(internal.inferValueType))),
             typeParams, shouldUndefineParameters = false, safeCheck = check,
             filterTypeParams = false), Some(expr)) //here should work in different way:
@@ -200,7 +200,8 @@ object InferUtil {
     // interim fix for SCL-3905.
     def applyImplicitViewToResult(mt: ScMethodType, expectedType: Option[ScType]): ScType = {
       expectedType.flatMap(ScType.extractFunctionType) match {
-        case Some(ScFunctionType(expectedRet, expectedParams)) if expectedParams.length == mt.params.length =>
+        case Some(expectedType@ScFunctionType(expectedRet, expectedParams)) if expectedParams.length == mt.params.length
+          && !mt.returnType.conforms(expectedType) =>
           mt.returnType match {
             case methodType: ScMethodType => return mt.copy(returnType = applyImplicitViewToResult(methodType, Some(expectedRet)))()
             case _ =>
