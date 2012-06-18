@@ -12,11 +12,19 @@ import scala.Option;
 import scala.Some$;
 import scala.collection.immutable.Map;
 
+import java.io.*;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URL;
+import java.net.URLDecoder;
 import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.jar.Attributes;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
 
 /**
  * @author Alexander Podkhalyuzin
@@ -36,9 +44,8 @@ public class ScalaTestRunner {
     boolean failedUsed = false;
     String testName = "";
     boolean showProgressMessages = true;
-    //TODO: remove. (For support ScalaTest version under 1.8)
-    boolean useOlderScalaTestVersion = false;
-    boolean isOlderScalaTestVersion = isUseOlderScalaTestVersion();
+    boolean useVersionFromOptions = false;
+    boolean isOlderScalaVersionFromOptions = false;
     int i = 0;
     int classIndex = 0;
     while (i < args.length) {
@@ -66,21 +73,20 @@ public class ScalaTestRunner {
           failedTests.add(args[i]);
           ++i;
         }
-        //TODO: remove. (For support ScalaTest version under 1.8)
-      } else if (args[i].equals("-useOlderScalaTestVersion")) {
+      } else if (args[i].startsWith("-setScalaTestVersion=")) {
+        useVersionFromOptions = true;
+        isOlderScalaVersionFromOptions = isOlderScalaVersionFromOptions(args[i]);
         ++i;
-        useOlderScalaTestVersion = Boolean.parseBoolean(args[i]);
-        ++i;
-      } else if (args[i].equals("-r") && withLocation && (useOlderScalaTestVersion || isOlderScalaTestVersion)) {
-        argsArray.add(args[i]);
-        if (i + 1 < args.length) argsArray.add(args[i + 1] + "WithLocation");
-        i += 2;
-      } else if (args[i].equals("-C") && withLocation && !useOlderScalaTestVersion && !isOlderScalaTestVersion) {
-        argsArray.add(args[i]);
-        if (i + 1 < args.length) argsArray.add(args[i + 1] + "WithLocation");
+      } else if (args[i].equals("-C")) {
+        if (useVersionFromOptions) {
+          argsArray.add(isOlderScalaVersionFromOptions ? "-r" : args[i]);
+        } else {
+          argsArray.add(isOlderScalaTestVersion() ? "-r" : args[i]);
+        }
+        if (i + 1 < args.length) argsArray.add(args[i + 1] + (withLocation ? "WithLocation" : ""));
         i += 2;
       } else {
-          argsArray.add(args[i]);
+        argsArray.add(args[i]);
         ++i;
       }
     }
@@ -127,29 +133,46 @@ public class ScalaTestRunner {
         scala.collection.immutable.Map$.MODULE$.empty(), None$.MODULE$, new Tracker());
   }
 
-  //TODO: remove. (For support ScalaTest version under 1.8)
-  private static boolean isUseOlderScalaTestVersion() throws ClassNotFoundException {
-    Class<?> suiteClass = Class.forName("org.scalatest.Suite");
-    URL location = suiteClass.getResource('/' + suiteClass.getName().replace('.', '/') + ".class");
-    String path = location.getPath();
-    if (path.contains("/scalatest") && path.contains(".jar")) {
-      int begin = path.indexOf("/scalatest");
-      int end = path.indexOf(".jar");
-      String jarName = path.substring(begin, end);
-      if (jarName.contains("1.")) {
-        String version = jarName.substring(jarName.indexOf("1."));
-        if (version != null && !version.isEmpty()) {
-          String[] nums = version.split("\\.");
-          if (nums.length >= 2) {
-            if (Integer.parseInt(nums[1]) < 8) {
-              return true;
-            }
+  private static boolean isOlderScalaTestVersion() {
+    try {
+      Class<?> suiteClass = Class.forName("org.scalatest.Suite");
+      URL location = suiteClass.getResource('/' + suiteClass.getName().replace('.', '/') + ".class");
+      String path = location.getPath();
+      String jarPath = path.substring(5, path.indexOf("!"));
+      JarFile jar = new JarFile(URLDecoder.decode(jarPath, "UTF-8"));
+      String version = jar.getManifest().getMainAttributes().getValue("Bundle-Version");
+      return parseVersion(version);
+    } catch (IOException e) {
+      return true;
+    } catch (ClassNotFoundException e) {
+      return true;
+    }
+  }
+
+  private static boolean isOlderScalaVersionFromOptions(String arg) {
+    if (arg.indexOf("=") + 1 < arg.length()) {
+      String version = arg.substring(arg.indexOf("=") + 1);
+      return parseVersion(version);
+    } else {
+      return true;
+    }
+  }
+
+  private static boolean parseVersion(String version) {
+    try {
+      if (version != null && !version.isEmpty()) {
+        String[] nums = version.split("\\.");
+        if (nums.length >= 2) {
+          if (Integer.parseInt(nums[0]) == 1 && Integer.parseInt(nums[1]) >= 8) {
+            return false;
+          } else if (Integer.parseInt(nums[0]) == 2 && Integer.parseInt(nums[1]) >= 0) {
+            return false;
           }
         }
       }
-      return false;
-    } else {
-      return false;
+    } catch (NumberFormatException e) {
+      return true;
     }
+    return true;
   }
 }
