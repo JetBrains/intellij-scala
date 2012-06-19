@@ -217,6 +217,7 @@
       <fileset dir="${scala.lib}">
         <include name="**/scala-library.jar"/>
         <include name="**/scala-reflect.jar"/>
+        <include name="**/scala-actors.jar"/>
       </fileset>
     </copy>
 
