@@ -296,9 +296,6 @@ public class ScalacBackendCompiler extends ExternalCompiler {
     commandLine.add("-cp");
     final StringBuilder classPathBuilder = new StringBuilder();
 
-    String rtJarPath = PathUtil.getJarPathForClass(ClassRunner.class);
-    classPathBuilder.append(rtJarPath).append(File.pathSeparator);
-
     if (myFsc) {
       Option<CompilerLibraryData> lib = Libraries.findBy(settings.COMPILER_LIBRARY_NAME, settings.COMPILER_LIBRARY_LEVEL, myProject);
       classPathBuilder.append(lib.get().classpath());
@@ -310,6 +307,9 @@ public class ScalacBackendCompiler extends ExternalCompiler {
         break;
       }
     }
+
+    String rtJarPath = PathUtil.getJarPathForClass(ClassRunner.class);
+    classPathBuilder.append(rtJarPath).append(File.pathSeparator);
 
     commandLine.add(classPathBuilder.toString());
 
