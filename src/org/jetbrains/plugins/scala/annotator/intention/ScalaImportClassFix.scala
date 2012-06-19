@@ -1,7 +1,4 @@
-package org.jetbrains.plugins
-package scala
-package annotator
-package intention
+package org.jetbrains.plugins.scala.annotator.intention
 
 
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging.ScPackaging
@@ -13,20 +10,18 @@ import com.intellij.openapi.editor.{LogicalPosition, Editor}
 import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.command.CommandProcessor
 import com.intellij.psi._
-import lang.psi.api.toplevel.templates.ScTemplateBody
-import lang.psi.api.toplevel.typedef.{ScTypeDefinition, ScObject, ScClass}
-import lang.psi.impl.toplevel.typedef.ScTypeDefinitionImpl
-import lang.resolve.ResolveUtils
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTypeDefinition, ScObject, ScClass}
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.ScTypeDefinitionImpl
+import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils
 import java.awt.Point
 import com.intellij.psi.util.PsiTreeUtil
-import scala.util.ScalaUtils
+import org.jetbrains.plugins.scala.util.ScalaUtils
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.codeInspection.HintAction
 import com.intellij.openapi.project.Project
-import com.intellij.psi.codeStyle.CodeStyleSettingsManager
-import lang.formatting.settings.ScalaCodeStyleSettings
-import lang.psi.api.base.ScReferenceElement
-import lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import com.intellij.codeInsight.completion.JavaCompletionUtil
 import com.intellij.openapi.ui.popup.util.BaseListPopupStep
 import com.intellij.codeInsight.daemon.QuickFixBundle
@@ -34,13 +29,14 @@ import com.intellij.util.ObjectUtils
 import javax.swing.{Icon, JList}
 import com.intellij.codeInsight.daemon.impl.actions.AddImportAction
 import com.intellij.openapi.ui.popup.{JBPopupFactory, PopupStep}
-import lang.psi.api.expr.{ScInfixExpr, ScPrefixExpr, ScPostfixExpr, ScMethodCall}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScInfixExpr, ScPrefixExpr, ScPostfixExpr, ScMethodCall}
 import collection.mutable.ArrayBuffer
-import lang.psi.{ScalaPsiUtil, ScImportsHolder}
-import lang.scaladoc.psi.api.ScDocResolvableCodeReference
-import extensions.toPsiClassExt
-import lang.psi.impl.{ScalaPsiManager, ScalaPsiElementFactory}
-import settings._
+import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiUtil, ScImportsHolder}
+import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocResolvableCodeReference
+import org.jetbrains.plugins.scala.extensions.toPsiClassExt
+import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiManager, ScalaPsiElementFactory}
+import org.jetbrains.plugins.scala.settings._
+import org.jetbrains.plugins.scala.ScalaBundle
 
 /**
  * User: Alexander Podkhalyuzin
@@ -98,12 +94,12 @@ class ScalaImportClassFix(private var classes: Array[PsiClass], ref: ScReference
   private def caretNear(editor: Editor): Boolean = ref.getTextRange.grown(1).contains(editor.getCaretModel.getOffset)
 
   private def range(editor: Editor) = {
-    val visibleRectangle = editor.getScrollingModel.getVisibleArea;
-    val startPosition = editor.xyToLogicalPosition(new Point(visibleRectangle.x, visibleRectangle.y));
-    val myStartOffset = editor.logicalPositionToOffset(startPosition);
-    val endPosition = editor.xyToLogicalPosition(new Point(visibleRectangle.x + visibleRectangle.width, visibleRectangle.y + visibleRectangle.height));
-    val myEndOffset = editor.logicalPositionToOffset(new LogicalPosition(endPosition.line + 1, 0));
-    new TextRange(myStartOffset, myEndOffset);
+    val visibleRectangle = editor.getScrollingModel.getVisibleArea
+    val startPosition = editor.xyToLogicalPosition(new Point(visibleRectangle.x, visibleRectangle.y))
+    val myStartOffset = editor.logicalPositionToOffset(startPosition)
+    val endPosition = editor.xyToLogicalPosition(new Point(visibleRectangle.x + visibleRectangle.width, visibleRectangle.y + visibleRectangle.height))
+    val myEndOffset = editor.logicalPositionToOffset(new LogicalPosition(endPosition.line + 1, 0))
+    new TextRange(myStartOffset, myEndOffset)
   }
 
   private def startOffset(editor: Editor) = range(editor).getStartOffset
@@ -139,7 +135,7 @@ class ScalaImportClassFix(private var classes: Array[PsiClass], ref: ScReference
     def addImportOrReference(clazz: PsiClass) {
       ApplicationManager.getApplication.invokeLater(new Runnable() {
         def run() {
-          if (!ref.isValid || !CodeInsightUtilBase.prepareFileForWrite(ref.getContainingFile)) return;
+          if (!ref.isValid || !CodeInsightUtilBase.prepareFileForWrite(ref.getContainingFile)) return
           ScalaUtils.runWriteAction(new Runnable {
             def run() {
               PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument)

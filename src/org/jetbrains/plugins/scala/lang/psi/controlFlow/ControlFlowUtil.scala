@@ -19,7 +19,7 @@ object ControlFlowUtil {
 
     def inner(next: Iterable[Instruction], currentSet: HashSet[Instruction]): Unit = {
       if (next.isEmpty) {
-        buffer + currentSet
+        buffer += currentSet
         mainSeq --= currentSet
       } else {
         val currentSucc = new ArrayBuffer[Instruction]

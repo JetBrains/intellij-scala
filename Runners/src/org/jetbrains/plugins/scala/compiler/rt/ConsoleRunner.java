@@ -1,16 +1,24 @@
 package org.jetbrains.plugins.scala.compiler.rt;
 
 import scala.Some;
+import scala.Unit;
+import scala.collection.mutable.ListBuffer;
+import scala.collection.mutable.ListBuffer$;
+import scala.runtime.AbstractFunction1;
+import scala.runtime.BoxedUnit;
+import scala.tools.nsc.GenericRunnerSettings;
 import scala.tools.nsc.InterpreterLoop;
 
 import java.io.*;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 
 /**
  * User: Alexander Podkhalyuzin
  * Date: 10.02.2009
  */
 public class ConsoleRunner {
-  public static void main(String[] args) throws IOException {
+  public static void main(String[] args) throws IOException, InvocationTargetException, IllegalAccessException {
     String[] newArgs;
     if (args.length == 1 && args[0].startsWith("@")) {
       String arg = args[0];
@@ -30,7 +38,30 @@ public class ConsoleRunner {
     } else {
       newArgs = args;
     }
-    (new InterpreterLoop(new Some(new BufferedReader(new InputStreamReader(System.in))),
-        new PrintWriter(System.out))).main(newArgs);
+    InterpreterLoop interpreterLoop = new InterpreterLoop(new Some(new BufferedReader(new InputStreamReader(System.in))),
+        new PrintWriter(System.out));
+    Method[] methods = interpreterLoop.getClass().getMethods();
+    for (Method method : methods) {
+      if (method.getName().equals("name") && method.getParameterTypes().length == 1 &&
+          method.getParameterTypes()[0].isArray()) {
+        method.invoke(interpreterLoop, newArgs);
+        return;
+      }
+    }
+    GenericRunnerSettings settings = new GenericRunnerSettings(new AbstractFunction1<String, BoxedUnit>() {
+      /** Apply the body of this function to the argument.
+       *  @return the result of function application.
+       */
+      @Override
+      public BoxedUnit apply(String v1) {
+        return BoxedUnit.UNIT;
+      }
+    });
+    ListBuffer<String> buffer = ListBuffer$.MODULE$.<String>empty();
+    for (String newArg : newArgs) {
+      buffer.$plus$eq(newArg);
+    }
+    settings.processArguments(buffer.toList(), true);
+    interpreterLoop.main(settings);
   }
 }

@@ -229,7 +229,7 @@ class ScArgumentExprListImpl(node: ASTNode) extends ScalaPsiElementImpl(node) wi
                 val add: ArrayBuffer[(String, ScType)] = new ArrayBuffer
                 val clause = clauses(i)
                 for (param: ScParameter <- clause.parameters) {
-                  add += Tuple(param.name, subst.subst(param.getType(TypingContext.empty).getOrAny))
+                  add += ((param.name, subst.subst(param.getType(TypingContext.empty).getOrAny)))
                 }
                 res += add.toArray
               }
@@ -241,7 +241,7 @@ class ScArgumentExprListImpl(node: ASTNode) extends ScalaPsiElementImpl(node) wi
                   val add: ArrayBuffer[(String, ScType)] = new ArrayBuffer
                   val clause = clauses(i)
                   for (param: ScParameter <- clause.parameters) {
-                    add += Tuple(param.name, subst.subst(param.getType(TypingContext.empty).getOrAny))
+                    add += ((param.name, subst.subst(param.getType(TypingContext.empty).getOrAny)))
                   }
                   res += add.toArray
                 }
@@ -253,8 +253,8 @@ class ScArgumentExprListImpl(node: ASTNode) extends ScalaPsiElementImpl(node) wi
             for (constr: PsiMethod <- clazz.getConstructors) {
               val add: ArrayBuffer[(String, ScType)] = new ArrayBuffer
               for (param: PsiParameter <- constr.getParameterList.getParameters) {
-                add += Tuple("", subst.subst(ScType.create(param.getType, getProject, getResolveScope,
-                  paramTopLevel = true)))
+                add += (("", subst.subst(ScType.create(param.getType, getProject, getResolveScope,
+                  paramTopLevel = true))))
               }
               res += add.toArray
             }

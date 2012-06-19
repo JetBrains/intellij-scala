@@ -11,6 +11,8 @@ import org.jetbrains.plugins.scala.extensions.toPsiNamedElementExt
  */
 
 object AbstractInstantiation extends AnnotatorPart[ScTemplateDefinition] {
+  def THIS = this
+
   def kind = classOf[ScTemplateDefinition]
 
   def annotate(definition: ScTemplateDefinition, holder: AnnotationHolder, typeAware: Boolean) {

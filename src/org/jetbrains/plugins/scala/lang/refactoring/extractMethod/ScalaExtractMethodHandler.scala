@@ -237,10 +237,6 @@ class ScalaExtractMethodHandler extends RefactoringActionHandler {
     }
   }
 
-  private def stop() {
-    "stop"
-  }
-
   private def performRefactoring(settings: ScalaExtractMethodSettings, editor: Editor) {
 
 
@@ -276,7 +272,6 @@ class ScalaExtractMethodHandler extends RefactoringActionHandler {
     if (method == null) return
     val runnable = new Runnable {
       def run() {
-        stop()
         PsiDocumentManager.getInstance(editor.getProject).commitDocument(editor.getDocument)
 
         settings.nextSibling match {

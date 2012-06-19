@@ -254,7 +254,7 @@ class ScalaPatternParameterInfoHandler extends ParameterInfoHandlerWithTabAction
                           }
                         }
                       }
-                      res += Tuple(new PhysicalSignature(fun, subst), 0)
+                      res += ((new PhysicalSignature(fun, subst), 0))
                     case _ =>
                   }
                 }

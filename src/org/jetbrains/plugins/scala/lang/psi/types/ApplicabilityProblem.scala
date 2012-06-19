@@ -10,7 +10,11 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScTypeParam, 
  */
 
 //TODO must be abstract with no description when completed 
-sealed case class ApplicabilityProblem(description: String = "unknown")
+sealed class ApplicabilityProblem(val description: String = "unknown")
+
+object ApplicabilityProblem {
+  def unapply(a: ApplicabilityProblem): Option[String] = Some(a.description)
+}
 
 // definition syntax problems
 case class MultipleDefinitions extends ApplicabilityProblem

@@ -11,7 +11,7 @@ class PsiElementMock(val name: String, children: PsiElementMock*) extends Abstra
   private var parent: PsiElement = _
   private var prevSibling: PsiElement = _
   private var nextSibling: PsiElement = _
-  private var firstChild: PsiElement = children.firstOption.getOrElse(null)
+  private var firstChild: PsiElement = children.headOption.getOrElse(null)
   private var lastChild: PsiElement = children.lastOption.getOrElse(null)
   
   

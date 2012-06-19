@@ -1,2 +1,2 @@
-/*start*/"aB".groupBy(_.isUpperCase)/*end*/
+/*start*/"aB".groupBy(_.isUpper)/*end*/
 //Map[Boolean, String]

@@ -20,7 +20,7 @@ import psi.ScalaPsiUtil
 class ScalaWithParenthesisSurrounder extends ScalaExpressionSurrounder {
   override def isApplicable(elements: Array[PsiElement]): Boolean = {
     if (elements.length > 1) return false
-    for (val element <- elements)
+    for (element <- elements)
       if (!isApplicable(element)) return false
     return true
   }

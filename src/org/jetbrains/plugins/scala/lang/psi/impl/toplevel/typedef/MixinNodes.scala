@@ -472,7 +472,7 @@ object MixinNodes {
           set += classString(clazz)
         }
         case Some(clazz) if clazz.getTypeParameters.length != 0 => {
-          val i = buffer.findIndexOf(newTp => {
+          val i = buffer.indexWhere(newTp => {
             ScType.extractClass(newTp, Some(clazz.getProject)) match {
               case Some(newClazz) if newClazz == clazz => true
               case _ => false

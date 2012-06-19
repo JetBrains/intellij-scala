@@ -124,7 +124,7 @@ object ReachingDefintionsCollector {
             if !isInFragment(named) && isInScope(named) &&
                     !inputDefs.map(_.element).contains(named) =>
             val isReferenceParameter = isInClosure(ref) && ScalaPsiUtil.isLValue(ref)
-            inputDefs + VariableInfo(named, isReferenceParameter)
+            inputDefs += VariableInfo(named, isReferenceParameter)
           case _ =>
             super.visitReference(ref)
         }
@@ -143,10 +143,10 @@ object ReachingDefintionsCollector {
       val definitionToRead = readRef.resolve()
       reaching match {
         case DefineValueInstruction(_, named, _)
-          if !buffer.contains(named) && (named eq definitionToRead) => buffer + named
+          if !buffer.contains(named) && (named eq definitionToRead) => buffer += named
         case ReadWriteVariableInstruction(_, ref, true) => ref.resolve() match {
           case named: PsiNamedElement
-            if !buffer.contains(named) && (named eq definitionToRead) => buffer + named
+            if !buffer.contains(named) && (named eq definitionToRead) => buffer += named
           case _ =>
         }
         case _ =>

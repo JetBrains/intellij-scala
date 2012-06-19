@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala
 package lang
 package autoImport
 
-import annotator.intention.ScalaImportClassFix
+import org.jetbrains.plugins.scala.annotator.intention.ScalaImportClassFix
 import com.intellij.openapi.command.undo.UndoManager
 import com.intellij.openapi.fileEditor.impl.text.TextEditorProvider
 import com.intellij.openapi.fileEditor.{OpenFileDescriptor, FileEditorManager}
@@ -10,8 +10,8 @@ import com.intellij.openapi.fileEditor.{OpenFileDescriptor, FileEditorManager}
 import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.psi.PsiManager
 import java.io.File
-import psi.api.base.ScReferenceElement
-import psi.api.ScalaFile
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import com.intellij.psi.util.PsiTreeUtil
 import base.ScalaPsiTestCase
 import lexer.ScalaTokenTypes

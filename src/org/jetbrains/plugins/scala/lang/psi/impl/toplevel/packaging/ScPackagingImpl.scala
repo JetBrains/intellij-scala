@@ -114,7 +114,7 @@ class ScPackagingImpl extends ScalaStubBasedElementImpl[ScPackageContainer] with
     } else packageName
     val top = if (_prefix.length > 0) _prefix + "." + topRefName else topRefName
     val p = ScPackageImpl(JavaPsiFacade.getInstance(getProject).findPackage(top))
-    if (p == null) Seq.empty else Seq.singleton(p)
+    if (p == null) Seq.empty else Seq(p)
   }
 
   override def processDeclarations(processor: PsiScopeProcessor,

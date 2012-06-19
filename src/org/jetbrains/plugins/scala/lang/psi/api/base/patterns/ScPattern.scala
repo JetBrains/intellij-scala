@@ -231,7 +231,7 @@ trait ScPattern extends ScalaPsiElement {
     case argList : ScPatternArgumentList => {
       argList.getContext match {
         case constr : ScConstructorPattern => {
-          resolveReferenceToExtractor(constr.ref, constr.args.patterns.findIndexOf(_ == this), constr.expectedType,
+          resolveReferenceToExtractor(constr.ref, constr.args.patterns.indexWhere(_ == this), constr.expectedType,
             argList.patterns.length)
         }
         case _ => None
@@ -253,7 +253,7 @@ trait ScPattern extends ScalaPsiElement {
             if (infix.leftPattern != tuple) {
               //so it's right pattern
               val i = tuple.patternList match {
-                case Some(patterns: ScPatterns) => patterns.patterns.findIndexOf(_ == this)
+                case Some(patterns: ScPatterns) => patterns.patterns.indexWhere(_ == this)
                 case _ => return None
               }
               return resolveReferenceToExtractor(infix.refernece, i + 1, infix.expectedType, tuple.patternList.get.patterns.length + 1)

@@ -86,7 +86,7 @@ abstract class ResolveTestBase extends ScalaResolveTestCase {
   def parseParameters(s: String): Parameters = {
     if (s.isEmpty) Map() else Map(s.split("""\s*,\s*""").map(_.trim).map {
       it: String =>
-        val parts = it.split("""\s*:\s*""");
+        val parts = it.split("""\s*:\s*""")
         (parts(0), parts(1))
     }: _*)
   }
