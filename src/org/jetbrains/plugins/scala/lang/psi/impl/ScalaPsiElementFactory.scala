@@ -360,7 +360,7 @@ object ScalaPsiElementFactory extends JVMElementFactory {
     val dummyFile = PsiFileFactory.getInstance(manager.getProject).
             createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension,
       ScalaFileType.SCALA_FILE_TYPE, text).asInstanceOf[ScalaFile]
-    dummyFile.getImportStatements.firstOption match {
+    dummyFile.getImportStatements.headOption match {
       case Some(x) => x
       case None => {
         //cannot be
@@ -413,7 +413,7 @@ object ScalaPsiElementFactory extends JVMElementFactory {
     (parents: @unchecked) match {
       case Some(p) => {
         val elements = p.typeElements
-        (elements.first.asInstanceOf[ScSimpleTypeElement].reference: @unchecked) match {case Some(r) => r}
+        (elements.head.asInstanceOf[ScSimpleTypeElement].reference: @unchecked) match {case Some(r) => r}
       }
       case _ => throw new com.intellij.util.IncorrectOperationException()
     }
@@ -559,7 +559,7 @@ object ScalaPsiElementFactory extends JVMElementFactory {
     val dummyFile = PsiFileFactory.getInstance(manager.getProject).
             createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension,
       ScalaFileType.SCALA_FILE_TYPE, text).asInstanceOf[ScalaFile]
-    val imp: ScStableCodeReferenceElement = (dummyFile.getImportStatements.firstOption match {
+    val imp: ScStableCodeReferenceElement = (dummyFile.getImportStatements.headOption match {
       case Some(x) => x
       case None =>
         //cannot be

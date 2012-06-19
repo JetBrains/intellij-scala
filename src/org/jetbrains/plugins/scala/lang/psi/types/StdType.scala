@@ -12,7 +12,7 @@ import extensions.toPsiClassExt
 import api.toplevel.typedef.ScObject
 
 
-abstract case class StdType(name: String, tSuper: Option[StdType]) extends ValueType {
+abstract class StdType(val name: String, val tSuper: Option[StdType]) extends ValueType {
   def visitType(visitor: ScalaTypeVisitor) {
     visitor.visitStdType(this)
   }
@@ -66,6 +66,8 @@ object StdType {
     "scala.Nothing" -> Nothing,
     "scala.Singleton" -> Singleton
   )
+
+  def unapply(tp: StdType): Option[(String, Option[StdType])] = Some(tp.name, tp.tSuper)
 }
 
 trait ValueType extends ScType {
@@ -88,7 +90,7 @@ case object AnyVal extends StdType("AnyVal", Some(Any)) {
   override def getValType: Option[StdType] = Some(this)
 }
 
-abstract case class ValType(override val name: String) extends StdType(name, Some(AnyVal)) {
+abstract class ValType(override val name: String) extends StdType(name, Some(AnyVal)) {
   def apply(element: PsiElement): ScType = {
     apply(element.getManager, element.getResolveScope)
   }
@@ -101,6 +103,10 @@ abstract case class ValType(override val name: String) extends StdType(name, Som
   }
 
   override def getValType: Option[StdType] = Some(this)
+}
+
+object ValType {
+  def unapply(tp: ValType): Option[String] = Some(tp.name)
 }
 
 object Unit extends ValType("Unit")

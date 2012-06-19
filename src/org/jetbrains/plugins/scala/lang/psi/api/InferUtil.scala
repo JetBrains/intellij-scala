@@ -203,7 +203,8 @@ object InferUtil {
         case Some(expectedType@ScFunctionType(expectedRet, expectedParams)) if expectedParams.length == mt.params.length
           && !mt.returnType.conforms(expectedType) =>
           mt.returnType match {
-            case methodType: ScMethodType => return mt.copy(returnType = applyImplicitViewToResult(methodType, Some(expectedRet)))()
+            case methodType: ScMethodType => return mt.copy(
+              returnType = applyImplicitViewToResult(methodType, Some(expectedRet)))(mt.project, mt.scope)
             case _ =>
           }
           val dummyExpr = ScalaPsiElementFactory.createExpressionWithContextFromText("null", expr.getContext, expr)

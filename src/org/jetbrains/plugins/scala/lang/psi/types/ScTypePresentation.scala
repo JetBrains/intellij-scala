@@ -263,7 +263,7 @@ trait ScTypePresentation {
           }
           buffer.append("}")
         }
-        case _ => null //todo
+        case _ => //todo
       }
     }
     inner(t, false)

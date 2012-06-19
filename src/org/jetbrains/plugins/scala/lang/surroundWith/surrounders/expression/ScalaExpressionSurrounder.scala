@@ -56,7 +56,7 @@ abstract class ScalaExpressionSurrounder extends Surrounder {
   }
 
   override def isApplicable(elements : Array[PsiElement]) : Boolean = {
-    for (val element <- elements)
+    for (element <- elements)
       if (!isApplicable(element)) return false
     true
   }

@@ -172,7 +172,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                 } else {
                   exprs(k) match {
                     case assign@NamedAssignStmt(name) => {
-                      val ind = parameters.findIndexOf(_._1.name == name)
+                      val ind = parameters.indexWhere(_._1.name == name)
                       if (ind == -1 || used(ind) == true) {
                         doNoNamed(assign)
                       } else {
@@ -203,7 +203,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                 } else {
                   exprs(k) match {
                     case NamedAssignStmt(name) => {
-                      val ind = parameters.findIndexOf(_._1.name == name)
+                      val ind = parameters.indexWhere(_._1.name == name)
                       if (ind == -1 || used(ind) == true) {
                         appendFirst()
                       } else {
@@ -264,7 +264,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                   val length = clause.parameters.length
                   val parameters: Seq[ScParameter] = if (i != -1) clause.parameters else clause.parameters.take(length - 1)
                   applyToParameters(parameters.map(param =>
-                    Tuple(new Parameter(param), paramText(param, subst))), subst, true, clause.isImplicit)
+                    ((new Parameter(param), paramText(param, subst)))), subst, true, clause.isImplicit)
                 }
               }
               case method: FakePsiMethod => {
@@ -343,7 +343,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
             else {
               val clause: ScParameterClause = clauses(i)
               applyToParameters(clause.parameters.map(param =>
-                Tuple(new Parameter(param), paramText(param, subst))), subst, true, clause.isImplicit)
+                ((new Parameter(param), paramText(param, subst)))), subst, true, clause.isImplicit)
             }
           }
           case _ =>
@@ -400,7 +400,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                   val typeArgs: Seq[ScTypeElement] = gen.arguments
                   val map = new collection.mutable.HashMap[(String, String), ScType]
                   for (i <- 0 to Math.min(tp.length, typeArgs.length) - 1) {
-                    map += Tuple(tp(i), typeArgs(i).calcType)
+                    map += ((tp(i), typeArgs(i).calcType))
                   }
                   new ScSubstitutor(Map(map.toSeq: _*), Map.empty, None)
                 }
@@ -500,7 +500,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                               val typeArgs: Seq[ScTypeElement] = gen.typeArgList.typeArgs
                               val map = new collection.mutable.HashMap[(String, String), ScType]
                               for (i <- 0 to Math.min(tp.length, typeArgs.length) - 1) {
-                                map += Tuple(tp(i), typeArgs(i).calcType)
+                                map += ((tp(i), typeArgs(i).calcType))
                               }
                               val substitutor = new ScSubstitutor(Map(map.toSeq: _*), Map.empty, None)
                               res += ((constr, substitutor.followed(subst), i))
@@ -521,9 +521,9 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                     }
                     case clazz: PsiClass if clazz.isAnnotationType => {
                       val resulting: (Seq[(String, ScType, PsiAnnotationMemberValue)], Int) =
-                        Tuple(clazz.getMethods.toSeq.filter(_.isInstanceOf[PsiAnnotationMethod]).map(meth => Tuple(meth.name,
+                        ((clazz.getMethods.toSeq.filter(_.isInstanceOf[PsiAnnotationMethod]).map(meth => ((meth.name,
                           ScType.create(meth.getReturnType, meth.getProject, meth.getResolveScope),
-                          meth.asInstanceOf[PsiAnnotationMethod].getDefaultValue)), i)
+                          meth.asInstanceOf[PsiAnnotationMethod].getDefaultValue))), i))
                       res += resulting
                     }
                     case clazz: PsiClass if !clazz.isInstanceOf[ScTypeDefinition] => {
@@ -534,7 +534,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                             val typeArgs: Seq[ScTypeElement] = gen.typeArgList.typeArgs
                             val map = new collection.mutable.HashMap[(String, String), ScType]
                             for (i <- 0 to Math.min(tp.length, typeArgs.length) - 1) {
-                              map += Tuple(tp(i), typeArgs(i).calcType)
+                              map += ((tp(i), typeArgs(i).calcType))
                             }
                             val substitutor = new ScSubstitutor(Map(map.toSeq: _*), Map.empty, None)
                             res += ((new PhysicalSignature(constructor, substitutor.followed(subst)), i))

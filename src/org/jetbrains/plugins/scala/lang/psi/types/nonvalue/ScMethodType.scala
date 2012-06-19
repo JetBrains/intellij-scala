@@ -251,5 +251,5 @@ case class ScTypePolymorphicType(internalType: ScType, typeParameters: Seq[TypeP
     }
   }
 
-  def visitType(visitor: ScalaTypeVisitor) = null
+  def visitType(visitor: ScalaTypeVisitor) {}
 }

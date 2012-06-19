@@ -128,7 +128,7 @@ object getDummyBlocks {
       Alignment.createAlignment
     else null
     var alternateAlignment: Alignment = null
-    for (val child <- children if isCorrectBlock(child)) {
+    for (child <- children if isCorrectBlock(child)) {
       val indent = ScalaIndentProcessor.getChildIndent(block, child)
       val childAlignment: Alignment = {
         node.getPsi match {
@@ -269,7 +269,7 @@ object getDummyBlocks {
     val subBlocks = new ArrayList[Block]
     var prevChild: ASTNode = null
     val scalaSettings = block.getSettings.getCustomSettings(classOf[ScalaCodeStyleSettings])
-    for (val child <- children if isCorrectBlock(child)) {
+    for (child <- children if isCorrectBlock(child)) {
       def getPrevGroupNode(node: ASTNode): ASTNode = {
         val nodePsi = node.getPsi
         var prev = nodePsi.getPrevSibling
@@ -336,7 +336,7 @@ object getDummyBlocks {
     val subBlocks = new ArrayList[Block]
     var prevChild: ASTNode = null
     val scalaSettings = block.getSettings.getCustomSettings(classOf[ScalaCodeStyleSettings])
-    for (val child <- children if isCorrectBlock(child)) {
+    for (child <- children if isCorrectBlock(child)) {
       def getPrevGroupNode(node: ASTNode): ASTNode = {
         val nodePsi = node.getPsi
         var prev = nodePsi.getPrevSibling
@@ -439,7 +439,7 @@ object getDummyBlocks {
     val alignment = if (mustAlignment(node, settings))
       Alignment.createAlignment(true)
     else null
-    for (val child <- children) {
+    for (child <- children) {
       if (isCorrectBlock(child)) {
         val indent = ScalaIndentProcessor.getChildIndent(block, child)
         val childWrap = arrangeSuggestedWrapForChild(block, child, scalaSettings, block.suggestedWrap)
@@ -572,7 +572,7 @@ object getDummyBlocks {
     else if (mustAlignment(node, settings))
       Alignment.createAlignment
     else null
-    for (val child <- children) {
+    for (child <- children) {
       def checkSamePriority: Boolean = {
         import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils.priority
         val childPriority = child.getPsi match {
@@ -611,7 +611,7 @@ object getDummyBlocks {
     else if (mustAlignment(node, settings))
       Alignment.createAlignment
     else null
-    for (val child <- children) {
+    for (child <- children) {
       child.getPsi match {
         case methodCall: ScMethodCall => {
           subBlocks.addAll(getMethodCallOrRefExprSubBlocks(child, block, alignment))

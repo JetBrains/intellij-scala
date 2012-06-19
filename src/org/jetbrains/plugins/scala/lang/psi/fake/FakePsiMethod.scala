@@ -202,7 +202,7 @@ class FakePsiParameterList(manager: PsiManager, language: Language, params: Arra
 
   def getParametersCount: Int = params.length
 
-  def getParameterIndex(parameter: PsiParameter): Int = getParameters.findIndexOf(_ == parameter)
+  def getParameterIndex(parameter: PsiParameter): Int = getParameters.indexWhere(_ == parameter)
 
   override def getText: String = getParameters.map(_.getText).mkString("(", ", ", ")")
 

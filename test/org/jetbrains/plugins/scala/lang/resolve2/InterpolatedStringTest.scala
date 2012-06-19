@@ -11,10 +11,6 @@ import org.jetbrains.plugins.scala.util.TestUtils
 class InterpolatedStringTest extends ResolveTestBase {
   override def folderPath: String = super.folderPath + "interpolatedString/"
 
-  override def setUp() {
-    super.setUp(TestUtils.ScalaSdkVersion._2_10)
-  }
-
   def testPrefixResolve() {
     doTest()
   }

@@ -16,12 +16,16 @@ import java.lang.String
  *
  * @author ilyas
  */
-abstract sealed case class ImportUsed(e: PsiElement) {
+abstract sealed class ImportUsed(val e: PsiElement) {
   override def toString: String = e.getText
 }
 
 object ImportUsed {
   val key: Key[_root_.scala.collection.Set[ImportUsed]] = Key.create("scala.used.imports.key")
+
+  def unapply(importUsed: ImportUsed): Option[PsiElement] = {
+    Some(importUsed.e)
+  }
 }
 
 

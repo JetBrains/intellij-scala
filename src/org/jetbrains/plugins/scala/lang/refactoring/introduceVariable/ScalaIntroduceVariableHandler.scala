@@ -147,7 +147,7 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Confli
       Array[TextRange](new TextRange(startOffset, endOffset))
     } else occurrences_
     //val cursorOffset = editor.getCaretModel.getOffset
-    val mainOcc = occurrences.findIndexOf((occ: TextRange) =>
+    val mainOcc = occurrences.indexWhere((occ: TextRange) =>
             occ.getStartOffset == startOffset)
     val document = editor.getDocument
     var i = occurrences.length - 1

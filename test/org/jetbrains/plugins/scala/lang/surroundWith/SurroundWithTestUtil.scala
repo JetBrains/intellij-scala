@@ -18,7 +18,7 @@ object SurroundWithTestUtil {
   def prepareFile(text: String): (String, Integer, Integer, Integer) = {
     var workingText = text
     val start = text.indexOf(startMarker)
-    val t = endMarkers.findIndexOf(text.indexOf(_) != -1)
+    val t = endMarkers.indexWhere(text.indexOf(_) != -1)
     val s: String = endMarkers(t)
     val end = text.indexOf(s) - startMarker.length
     workingText = removeMarker(workingText, startMarker)

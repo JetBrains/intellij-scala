@@ -21,9 +21,13 @@ sealed class InstructionImpl(override val num: Int,
 
   def succ() = mySucc
 
-  def addPred(p: Instruction) = myPred + p
+  def addPred(p: Instruction) {
+    myPred += p
+  }
 
-  def addSucc(s: Instruction) = mySucc + s
+  def addSucc(s: Instruction) {
+    mySucc += s
+  }
 
 
   override def toString = {
@@ -35,7 +39,7 @@ sealed class InstructionImpl(override val num: Int,
       builder.append(mySucc(i).num)
     }
     builder.append(") ").append(getPresentation)
-    builder.toString
+    builder.toString()
   }
 
   protected def getPresentation = "element: " + (element match {

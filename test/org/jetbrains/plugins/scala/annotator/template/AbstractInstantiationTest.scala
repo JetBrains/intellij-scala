@@ -2,13 +2,14 @@ package org.jetbrains.plugins.scala.annotator.template
 
 import org.jetbrains.plugins.scala.annotator.AnnotatorTestBase
 import org.jetbrains.plugins.scala.annotator.Error
+import org.jetbrains.plugins.scala.annotator.template.AbstractInstantiation
 
 
 /**
  * Pavel Fatin
  */
 
-class AbstractInstantiationTest extends AnnotatorTestBase(AbstractInstantiation) {
+class AbstractInstantiationTest extends AnnotatorTestBase(AbstractInstantiation.THIS) {
   private val Message = "(\\w+\\s\\w+) is abstract; cannot be instantiated".r
 
   def testOrdinaryClass() {

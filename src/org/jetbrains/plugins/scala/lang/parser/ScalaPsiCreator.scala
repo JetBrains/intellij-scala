@@ -134,7 +134,7 @@ object ScalaPsiCreator {
 
 
   //to prevent stack overflow in type checker let's introduce helper method
-  private def inner(node: ASTNode): PsiElement = node.getElementType() match {
+  private def inner(node: ASTNode): PsiElement = node.getElementType match {
 
 
 
@@ -164,6 +164,11 @@ object ScalaPsiCreator {
     case ScalaElementTypes.WILDCARD_TYPE => new ScWildcardTypeElementImpl(node)
     case ScalaElementTypes.TYPE_PROJECTION => new ScTypeProjectionImpl(node)
     case ScalaElementTypes.TYPE_GENERIC_CALL => new ScParameterizedTypeElementImpl(node)
+    case _ => inner1(node)
+  }
+
+  //to prevent stack overflow in type checker let's introduce helper method
+  private def inner1(node: ASTNode): PsiElement = node.getElementType match {
 
     /******************* EXPRESSIONS*********************/
 
@@ -206,7 +211,11 @@ object ScalaPsiCreator {
     case ScalaElementTypes.TYPED_EXPR_STMT => new ScTypedStmtImpl(node)
     case ScalaElementTypes.MATCH_STMT => new ScMatchStmtImpl(node)
     case ScalaElementTypes.NEW_TEMPLATE => new ScNewTemplateDefinitionImpl(node)
+    case _ => inner2(node)
+  }
 
+  //to prevent stack overflow in type checker let's introduce helper method
+  private def inner2(node: ASTNode): PsiElement = node.getElementType match {
     /******************* PATTERNS *********************/
     case ScalaElementTypes.TUPLE_PATTERN => new ScTuplePatternImpl(node)
     case ScalaElementTypes.CONSTRUCTOR_PATTERN => new ScConstructorPatternImpl(node)

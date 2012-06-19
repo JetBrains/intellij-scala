@@ -206,12 +206,12 @@ object ScalaOIUtil {
     }, clazz.getProject, if (isImplement) "Implement method" else "Override method")
   }
 
-  def getMembersToImplement(clazz: ScTemplateDefinition, withOwn: Boolean = false): Seq[ScalaObject] = {
-    val buf = new ArrayBuffer[ScalaObject]
+  def getMembersToImplement(clazz: ScTemplateDefinition, withOwn: Boolean = false): Seq[Object] = {
+    val buf = new ArrayBuffer[Object]
     buf ++= clazz.allSignatures
     buf ++= clazz.allTypeAliases
     buf ++= clazz.allVals
-    val buf2 = new ArrayBuffer[ScalaObject]
+    val buf2 = new ArrayBuffer[Object]
     for (element <- buf) {
       element match {
         case sign: PhysicalSignature => {
@@ -268,12 +268,12 @@ object ScalaOIUtil {
     }
   }
 
-  def getMembersToOverride(clazz: ScTemplateDefinition): Seq[ScalaObject] = {
-    val buf = new ArrayBuffer[ScalaObject]
+  def getMembersToOverride(clazz: ScTemplateDefinition): Seq[Object] = {
+    val buf = new ArrayBuffer[Object]
     buf ++= clazz.allMethods
     buf ++= clazz.allTypeAliases
     buf ++= clazz.allVals
-    val buf2 = new ArrayBuffer[ScalaObject]
+    val buf2 = new ArrayBuffer[Object]
     for (element <- buf) {
       element match {
         case sign: PhysicalSignature => {

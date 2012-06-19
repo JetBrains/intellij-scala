@@ -3,6 +3,7 @@
     <CLASSES>
       <root url="jar://$PROJECT_DIR$/SDK/scala/scala-library.jar!/" />
       <root url="jar://$PROJECT_DIR$/SDK/scala/scala-compiler.jar!/" />
+      <root url="jar://$PROJECT_DIR$/SDK/scala/scala-reflect.jar!/" />
     </CLASSES>
     <JAVADOC />
     <SOURCES />

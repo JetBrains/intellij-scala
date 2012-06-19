@@ -7,8 +7,14 @@ import org.jetbrains.plugins.scala.extensions.toPsiNamedElementExt
  * @author Alexander Podkhalyuzin
  */
 
-abstract sealed case class ValueUsed(e: PsiNamedElement) {
+abstract sealed class ValueUsed(val e: PsiNamedElement) {
   override def toString: String = e.name
+}
+
+object ValueUsed {
+  def unapply(v: ValueUsed): Option[PsiNamedElement] = {
+    Some(v.e)
+  }
 }
 
 case class ReadValueUsed(override val e: PsiNamedElement) extends ValueUsed(e) {
