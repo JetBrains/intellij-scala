@@ -336,7 +336,7 @@ object ResolveUtils {
                   if (placeTd != null && !placeTd.isInstanceOf[ScTypeDefinition]) {
                     placeTd = getPlaceTd(placeTd)
                   } else if (placeTd !=  null) {
-                    if (isInheritorOrSelfOrSame(placeTd, td)) return true
+                    if (td != null && isInheritorOrSelfOrSame(placeTd, td)) return true
                   }
                   while (placeTd != null) {
                     if (td == placeTd) return true
@@ -347,7 +347,7 @@ object ResolveUtils {
                   return false
                 }
                 while (placeTd != null) {
-                  if (isInheritorOrSelfOrSame(placeTd, td)) return true
+                  if (td != null && isInheritorOrSelfOrSame(placeTd, td)) return true
                   val companion: ScTemplateDefinition = ScalaPsiUtil.
                           getCompanionModule(placeTd).getOrElse(null: ScTemplateDefinition)
                   if (withCompanion && companion != null && ScalaPsiUtil.cachedDeepIsInheritor(companion, td)) return true
@@ -389,7 +389,7 @@ object ResolveUtils {
             if (placeTd != null && !placeTd.isInstanceOf[ScTypeDefinition]) {
               placeTd = getPlaceTd(placeTd)
             } else if (placeTd !=  null) {
-              if (isInheritorOrSelfOrSame(placeTd, clazz)) return true
+              if (clazz != null && isInheritorOrSelfOrSame(placeTd, clazz)) return true
             }
             while (placeTd != null) {
               if (clazz == placeTd) return true
@@ -400,7 +400,7 @@ object ResolveUtils {
             return false
           }
           while (placeTd != null) {
-            if (isInheritorOrSelfOrSame(placeTd, clazz)) return true
+            if (clazz != null && isInheritorOrSelfOrSame(placeTd, clazz)) return true
             val companion: ScTemplateDefinition = ScalaPsiUtil.getCompanionModule(placeTd).getOrElse(null: ScTemplateDefinition)
             if (companion != null && ScalaPsiUtil.cachedDeepIsInheritor(companion, clazz)) return true
             placeTd = getPlaceTd(placeTd)
