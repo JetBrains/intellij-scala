@@ -142,8 +142,8 @@ class ScalaExplicitlyImportedWeigher extends ProximityWeigher {
         }
       case member: PsiMember if member.hasModifierProperty("static") =>
         val clazz = member.containingClass
-        val qualNoPoint = clazz.qualifiedName
-        if (qualNoPoint != null) {
+        if (clazz != null && clazz.qualifiedName != null) {
+          val qualNoPoint = clazz.qualifiedName
           val memberName = member match {
             case named: ScNamedElement => named.name
             case _ => member.getName
