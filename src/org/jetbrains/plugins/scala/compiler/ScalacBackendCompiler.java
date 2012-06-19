@@ -374,7 +374,7 @@ public class ScalacBackendCompiler extends ExternalCompiler {
       String compilerVersion = Libraries.findBy(settings.COMPILER_LIBRARY_NAME,
           settings.COMPILER_LIBRARY_LEVEL, myProject).get().version().get();
 
-      if (compilerVersion.startsWith("2.9")) {
+      if (!compilerVersion.startsWith("2.8")) {
         printer.println("-max-idle");
         printer.println(settings.IDLE_TIMEOUT);
       }
