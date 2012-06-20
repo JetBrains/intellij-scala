@@ -23,7 +23,7 @@ import lang.psi.api.expr._
 
 class ScalaWithForYieldSurrounder extends ScalaExpressionSurrounder {
   override def getTemplateAsString(elements: Array[PsiElement]): String = {
-    return "for (a <- as) yield {" + super.getTemplateAsString(elements) + "}"
+    "for (a <- as) yield {" + super.getTemplateAsString(elements) + "}"
   }
 
   override def getTemplateDescription = "for / yield"
@@ -39,7 +39,7 @@ class ScalaWithForYieldSurrounder extends ScalaExpressionSurrounder {
 
     val forStmt = element.asInstanceOf[ScForStatement]
 
-    val enums = (forStmt.asInstanceOf[ScForStatement].enumerators: @unchecked) match {
+    val enums = (forStmt.enumerators: @unchecked) match {
       case Some(x) => x.getNode
     }
 

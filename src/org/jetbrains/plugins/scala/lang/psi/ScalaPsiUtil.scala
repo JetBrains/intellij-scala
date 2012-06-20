@@ -1232,7 +1232,7 @@ object ScalaPsiUtil {
             case _ => null: ScTypeDefinition
           }).find((child: ScTypeDefinition) =>
           (child.isInstanceOf[ScClass] || child.isInstanceOf[ScTrait])
-                  && child.asInstanceOf[ScTypeDefinition].name == name)
+                  && child.name == name)
       }
       case _ => None
     }

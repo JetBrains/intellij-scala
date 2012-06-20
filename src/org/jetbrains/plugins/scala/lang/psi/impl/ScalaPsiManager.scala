@@ -257,7 +257,7 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
           }
           return null
         }
-        val clazz: PsiClass = element.asInstanceOf[PsiClass]
+        val clazz: PsiClass = element
         strings add clazz.getName
         clazz match {
           case t: ScTemplateDefinition =>
@@ -293,7 +293,7 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
           }
           return null
         }
-        val clazz: PsiClass = element.asInstanceOf[PsiClass]
+        val clazz: PsiClass = element
         strings += clazz.name
       }
       strings

@@ -64,7 +64,7 @@ case class ScExistentialType(quantified : ScType,
   }
 
   override def removeAbstracts = ScExistentialType(quantified.removeAbstracts, 
-    wildcards.map(_.removeAbstracts.asInstanceOf[ScExistentialArgument]))
+    wildcards.map(_.removeAbstracts))
 
   override def recursiveUpdate(update: ScType => (Boolean, ScType), visited: HashSet[ScType]): ScType = {
     if (visited.contains(this)) {

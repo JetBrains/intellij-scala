@@ -34,7 +34,7 @@ class ScalaWithForSurrounder extends ScalaExpressionSurrounder {
     }
     val forStmt = element.asInstanceOf[ScForStatement]
 
-    val enums = (forStmt.asInstanceOf[ScForStatement].enumerators: @unchecked) match {
+    val enums = (forStmt.enumerators: @unchecked) match {
       case Some(x) => x.getNode
     }
 

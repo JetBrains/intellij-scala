@@ -26,7 +26,7 @@ object IntroduceVariableTestUtil {
   def getValidator(project: Project, editor: Editor, file: ScalaFile, startOffset: Int, endOffset: Int): ScalaVariableValidator = {
     val (expr: ScExpression, typez: ScType) = ScalaRefactoringUtil.getExpression(project, editor, file, startOffset, endOffset).get
 
-    val fileEncloser = if (file.asInstanceOf[ScalaFile].isScriptFile()) file
+    val fileEncloser = if (file.isScriptFile()) file
     else {
       var res: PsiElement = file.findElementAt(startOffset)
       while (res.getParent != null && !res.getParent.isInstanceOf[ScTemplateBody]) res = res.getParent
