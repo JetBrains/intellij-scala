@@ -872,6 +872,38 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
                         case _ =>
                           throw EvaluateExceptionUtil.createEvaluateException("cannot find implicit parameters to pass")
                       }
+                    case ScalaResolveResult(clazz: ScTrait, substitutor)
+                      if clazz.qualifiedName == "scala.reflect.ClassTag" =>
+                      val argType = substitutor.subst(clazz.getType(TypingContext.empty).get)
+                      argType match {
+                        case ScParameterizedType(tp, Seq(arg)) =>
+                          import org.jetbrains.plugins.scala.lang.psi.types._
+                          def text(arg: ScType): String = arg match {
+                            case Short => "_root_.scala.reflect.ClassTag.Short"
+                            case Byte => "_root_.scala.reflect.ClassTag.Byte"
+                            case Char => "_root_.scala.reflect.ClassTag.Char"
+                            case Int => "_root_.scala.reflect.ClassTag.Int"
+                            case Long => "_root_.scala.reflect.ClassTag.Long"
+                            case Float => "_root_.scala.reflect.ClassTag.Float"
+                            case Double => "_root_.scala.reflect.ClassTag.Double"
+                            case Boolean => "_root_.scala.reflect.ClassTag.Boolean"
+                            case Unit => "_root_.scala.reflect.ClassTag.Unit"
+                            case Any => "_root_.scala.reflect.ClassTag.Any"
+                            case AnyVal => "_root_.scala.reflect.ClassTag.AnyVal"
+                            case Nothing => "_root_.scala.reflect.ClassTag.Nothing"
+                            case Null => "_root_.scala.reflect.ClassTag.Null"
+                            case Singleton => "_root_.scala.reflect.ClassTag.Object"
+                            //todo:
+                            case _ => "_root_.scala.reflect.ClassTag.apply(classOf[_root_.java.lang." +
+                                "Object])"
+                          }
+                          val e = ScalaPsiElementFactory.createExpressionWithContextFromText(text(arg),
+                            expr.getContext, expr)
+                          e.accept(this)
+                          myResult
+                        case _ =>
+                          throw EvaluateExceptionUtil.createEvaluateException("cannot find implicit parameters to pass")
+                      }
                     case ScalaResolveResult(param, _) =>
                       val context = ScalaPsiUtil.nameContext(param)
                       val clazz = context.getContext match {

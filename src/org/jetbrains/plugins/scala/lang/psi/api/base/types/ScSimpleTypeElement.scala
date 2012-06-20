@@ -26,7 +26,7 @@ trait ScSimpleTypeElement extends ScTypeElement {
   protected var implicitParameters: Option[Seq[ScalaResolveResult]] = None
 
   /**
-   * Warning! There is a hack in scala compiler for ClassManifest.
+   * Warning! There is a hack in scala compiler for ClassManifest and ClassTag.
    * In case of implicit parameter with type ClassManifest[T]
    * this method will return ClassManifest with substitutor of type T.
    * @return implicit parameters used for this expression

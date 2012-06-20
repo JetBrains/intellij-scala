@@ -14,6 +14,8 @@ class TypeInferenceLocalTypeInferenceTest extends TypeInferenceTestBase {
 
   def testCompoundType() {doTest()}
 
+  def testEmptyArray() {doTest()}
+
   def testForIndexedSeq() {doTest()}
 
   def testFromImplicitParam() {doTest()}
