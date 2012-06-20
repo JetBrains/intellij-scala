@@ -9,6 +9,7 @@ import com.intellij.psi.search.{UsageSearchContext, PsiSearchHelper, TextOccuren
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.light.PsiClassWrapper
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTrait, ScObject}
+import com.intellij.openapi.project.IndexNotReadyException
 
 /**
  * User: Alefas
@@ -40,7 +41,12 @@ class ObjectTraitReferenceSearcher extends QueryExecutor[PsiReference, Reference
               }
             }
             val helper: PsiSearchHelper = PsiSearchHelper.SERVICE.getInstance(o.getProject)
-            helper.processElementsWithWord(processor, scope, name, UsageSearchContext.IN_CODE, true)
+            try {
+              helper.processElementsWithWord(processor, scope, name, UsageSearchContext.IN_CODE, true)
+            }
+            catch {
+              case ignore: IndexNotReadyException =>
+            }
           }
           case wrapper: PsiClassWrapper if wrapper.definition.isInstanceOf[ScObject] => {
             val name: String = wrapper.getName
@@ -72,7 +78,12 @@ class ObjectTraitReferenceSearcher extends QueryExecutor[PsiReference, Reference
               }
             }
             val helper: PsiSearchHelper = PsiSearchHelper.SERVICE.getInstance(wrapper.getProject)
-            helper.processElementsWithWord(processor, scope, name, UsageSearchContext.IN_CODE, true)
+            try {
+              helper.processElementsWithWord(processor, scope, name, UsageSearchContext.IN_CODE, true)
+            }
+            catch {
+              case ignore: IndexNotReadyException =>
+            }
           }
           case _ =>
         }
