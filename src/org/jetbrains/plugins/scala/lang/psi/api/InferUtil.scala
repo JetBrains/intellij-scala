@@ -89,10 +89,9 @@ object InferUtil {
               val result = paramType match {
                 case p@ScParameterizedType(des, Seq(arg)) =>
                   ScType.extractClass(des) match {
-                    case Some(clazz) if clazz.qualifiedName == "scala.reflect.ClassManifest" =>
-                      //do not throw, it's safe
-                      new ScalaResolveResult(clazz, p.substitutor)
-                    case Some(clazz) if clazz.qualifiedName == "scala.reflect.Manifest" =>
+                    case Some(clazz) if clazz.qualifiedName == "scala.reflect.ClassManifest"  ||
+                      clazz.qualifiedName == "scala.reflect.Manifest" ||
+                      clazz.qualifiedName == "scala.reflect.ClassTag" =>
                       //do not throw, it's safe
                       new ScalaResolveResult(clazz, p.substitutor)
                     case _ => null
@@ -131,10 +130,9 @@ object InferUtil {
             paramType match {
               case p@ScParameterizedType(des, Seq(arg)) =>
                 ScType.extractClass(des) match {
-                  case Some(clazz) if clazz.qualifiedName == "scala.reflect.ClassManifest" =>
-                    //do not throw, it's safe
-                    resolveResults += new ScalaResolveResult(clazz, p.substitutor)
-                  case Some(clazz) if clazz.qualifiedName == "scala.reflect.Manifest" =>
+                  case Some(clazz) if clazz.qualifiedName == "scala.reflect.ClassManifest"  ||
+                    clazz.qualifiedName == "scala.reflect.Manifest" ||
+                    clazz.qualifiedName == "scala.reflect.ClassTag" =>
                     //do not throw, it's safe
                     resolveResults += new ScalaResolveResult(clazz, p.substitutor)
                   case _ => resolveResults += null
