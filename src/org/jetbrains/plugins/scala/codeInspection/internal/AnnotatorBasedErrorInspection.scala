@@ -28,7 +28,9 @@ class AnnotatorBasedErrorInspection extends LocalInspectionTool {
   override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor = {
     new PsiElementVisitor {
       override def visitElement(element: PsiElement) {
-        val annotator = new ScalaAnnotator
+        val annotator = new ScalaAnnotator {
+          override def isAdvancedHighlightingEnabled(element: PsiElement): Boolean = true
+        }
         val FakeAnnotation = new com.intellij.lang.annotation.Annotation(
           0, 0, HighlightSeverity.INFO, "message", "tooltip")
         val annotationHolder = new AnnotationHolder {
