@@ -144,7 +144,7 @@ abstract class ResolveTestBase extends ScalaResolveTestCase {
       }
 
       val expectedName = if (options.contains(Name)) options(Name) else referenceName
-      assertEquals(Name, expectedName, target.asInstanceOf[PsiNamedElement].name)
+      assertEquals(Name, expectedName, target.name)
 
       if (options.contains(Line)) {
         assertEquals(Line, options(Line).toInt, lineOf(target))

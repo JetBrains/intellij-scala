@@ -97,7 +97,7 @@ class ScaladocCommandLineState(env: ExecutionEnvironment, project: Project)
       } else {
         if (file.getExtension == "scala" && file.isValid && scope.contains(file)) {
           PsiManager.getInstance(project).findFile(file) match {
-            case f: ScalaFile if !f.asInstanceOf[ScalaFile].isScriptFile() => acc += file
+            case f: ScalaFile if !f.isScriptFile() => acc += file
             case _ => // do nothing
           }
         }

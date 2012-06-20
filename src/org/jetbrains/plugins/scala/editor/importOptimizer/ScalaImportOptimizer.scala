@@ -169,12 +169,12 @@ class ScalaImportOptimizer extends ImportOptimizer {
               } map { _.copy() }
               // If the list isn't empty, add the copies in order and delete the originals
               if (!importsList.isEmpty) {
-                val first = importsList(0);
+                val first = importsList(0)
                 importsSorted foreach { imp =>
-                  importHolder.addImportBefore(imp, first);
+                  importHolder.addImportBefore(imp, first)
                 }
                 importsList foreach { imp =>
-                  importHolder.deleteImportStmt(imp.asInstanceOf[ScImportStmt])
+                  importHolder.deleteImportStmt(imp)
                 }
               }
             }

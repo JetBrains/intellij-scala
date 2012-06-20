@@ -33,7 +33,7 @@ class ScalaCodeFragment(project: Project, text: String) extends {
   private var provider = new SingleRootFileViewProvider(
     PsiManager.getInstance(project), vFile, true)
 } with ScalaFileImpl(provider) with JavaCodeFragment {
-  getViewProvider.asInstanceOf[SingleRootFileViewProvider].forceCachedPsi(this)
+  getViewProvider.forceCachedPsi(this)
 
   override def getViewProvider = provider
 

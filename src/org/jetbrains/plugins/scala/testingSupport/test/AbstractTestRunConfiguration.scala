@@ -397,7 +397,7 @@ abstract class AbstractTestRunConfiguration(val project: Project,
 
         // console view
         val consoleView: BaseTestsOutputConsoleView = SMTestRunnerConnectionUtil.createAndAttachConsole("Scala",
-          processHandler, consoleProperties, runnerSettings.asInstanceOf[RunnerSettings[_ <: JDOMExternalizable]],
+          processHandler, consoleProperties, runnerSettings,
           getConfigurationSettings)
 
         val res = new DefaultExecutionResult(consoleView, processHandler,
