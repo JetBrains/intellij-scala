@@ -51,17 +51,17 @@ class AnnotatorBasedErrorInspection extends LocalInspectionTool {
           def createWarningAnnotation(elt: PsiElement, message: String): Annotation = FakeAnnotation
 
           def createErrorAnnotation(range: TextRange, message: String): Annotation = {
-            holder.registerProblem(element, "Error detected", ProblemHighlightType.ERROR)
+            holder.registerProblem(element, s"Error detected: $message", ProblemHighlightType.ERROR)
             FakeAnnotation
           }
 
           def createErrorAnnotation(node: ASTNode, message: String): Annotation = {
-            holder.registerProblem(element, "Error detected", ProblemHighlightType.ERROR)
+            holder.registerProblem(element, s"Error detected: $message", ProblemHighlightType.ERROR)
             FakeAnnotation
           }
 
           def createErrorAnnotation(elt: PsiElement, message: String): Annotation = {
-            holder.registerProblem(element, "Error detected", ProblemHighlightType.ERROR)
+            holder.registerProblem(element, s"Error detected: $message", ProblemHighlightType.ERROR)
             FakeAnnotation
           }
 
