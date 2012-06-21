@@ -62,6 +62,16 @@ import com.intellij.openapi.diagnostic
  * User: Alexander Podkhalyuzin
  */
 object ScalaPsiUtil {
+  def isBooleanBeanProperty(s: ScAnnotationsHolder): Boolean = {
+    s.hasAnnotation("scala.reflect.BooleanBeanProperty") != None ||
+      s.hasAnnotation("scala.beans.BooleanBeanProperty") != None
+  }
+
+  def isBeanProperty(s: ScAnnotationsHolder): Boolean = {
+    s.hasAnnotation("scala.reflect.BeanProperty") != None ||
+      s.hasAnnotation("scala.beans.BeanProperty") != None
+  }
+
   def getDependentItem(element: PsiElement,
                        dep_item: Object = PsiModificationTracker.OUT_OF_CODE_BLOCK_MODIFICATION_COUNT): Option[Object] = {
     element.getContainingFile match {

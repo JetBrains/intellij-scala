@@ -51,14 +51,14 @@ class ScalaFindUsagesHandler(element: PsiElement) extends {
         val name = named.name
         result.add(name)
         ScalaPsiUtil.nameContext(named) match {
-          case v: ScValue if v.hasAnnotation("scala.reflect.BeanProperty").isDefined =>
+          case v: ScValue if ScalaPsiUtil.isBeanProperty(v) =>
             result.add("get" + StringUtil.capitalize(name))
-          case v: ScVariable if v.hasAnnotation("scala.reflect.BeanProperty").isDefined =>
+          case v: ScVariable if ScalaPsiUtil.isBeanProperty(v) =>
             result.add("get" + StringUtil.capitalize(name))
             result.add("set" + StringUtil.capitalize(name))
-          case v: ScValue if v.hasAnnotation("scala.reflect.BooleanBeanProperty").isDefined =>
+          case v: ScValue if ScalaPsiUtil.isBooleanBeanProperty(v) =>
             result.add("is" + StringUtil.capitalize(name))
-          case v: ScVariable if v.hasAnnotation("scala.reflect.BooleanBeanProperty").isDefined =>
+          case v: ScVariable if ScalaPsiUtil.isBooleanBeanProperty(v) =>
             result.add("is" + StringUtil.capitalize(name))
             result.add("set" + StringUtil.capitalize(name))
           case _ =>
@@ -79,10 +79,10 @@ class ScalaFindUsagesHandler(element: PsiElement) extends {
       case t: ScTypedDefinition =>
         t.getBeanMethods.toArray ++ {
           val a: Array[DefinitionRole] = t.nameContext match {
-            case v: ScValue if v.hasAnnotation("scala.reflect.BeanProperty").isDefined => Array(GETTER)
-            case v: ScVariable if v.hasAnnotation("scala.reflect.BeanProperty").isDefined => Array(GETTER, SETTER)
-            case v: ScValue if v.hasAnnotation("scala.reflect.BooleanBeanProperty").isDefined => Array(IS_GETTER)
-            case v: ScVariable if v.hasAnnotation("scala.reflect.BooleanBeanProperty").isDefined => Array(IS_GETTER, SETTER)
+            case v: ScValue if ScalaPsiUtil.isBeanProperty(v) => Array(GETTER)
+            case v: ScVariable if ScalaPsiUtil.isBeanProperty(v) => Array(GETTER, SETTER)
+            case v: ScValue if ScalaPsiUtil.isBooleanBeanProperty(v) => Array(IS_GETTER)
+            case v: ScVariable if ScalaPsiUtil.isBooleanBeanProperty(v) => Array(IS_GETTER, SETTER)
             case _ => Array.empty
           }
           a.map(role => t.getTypedDefinitionWrapper(isStatic = false, isInterface = false, role = role, cClass = None))
