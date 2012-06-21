@@ -104,7 +104,7 @@ class ScForStatementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
           processor.processType(tp, this)
           if (!filterFound) filterText = "filter"
           exprText.append(gen.pattern.getText).
-                  append(" <- ((").append(gen.rvalue.getText).append(s").$filterText { case ").
+                  append(" <- ((").append(gen.rvalue.getText).append(")." + filterFound + " { case ").
                   append(gen.pattern.bindings.map(b => b.name).mkString("(", ", ", ")")).append(" => ")
                   if (forDisplay) {
                     exprText.append(guard.expr.map(_.getText).getOrElse("true"))
