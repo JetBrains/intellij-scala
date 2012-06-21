@@ -17,6 +17,8 @@ import types._
 import api.ScalaElementVisitor
 import caches.CachesUtil
 import com.intellij.psi.util.PsiModificationTracker
+import lang.resolve.processor.CompletionProcessor
+import lang.resolve.StdKinds
 
 /**
 * @author Alexander Podkhalyuzin
@@ -86,8 +88,23 @@ class ScForStatementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
         case guard: ScGuard => {
           exprText.append("for {")
           gen.pattern.desugarizedPatternIndex = exprText.length
+          var filterText = "withFilter"
+          var filterFound = false
+          val tp = gen.rvalue.getType(TypingContext.empty).getOrAny
+          val processor =
+            new CompletionProcessor(StdKinds.methodRef, this, collectImplicits = true, forName = Some("withFilter")) {
+              override def execute(_element: PsiElement, state: ResolveState): Boolean = {
+                super.execute(_element, state)
+                if (!levelSet.isEmpty) {
+                  filterFound = true
+                  false
+                } else true
+              }
+            }
+          processor.processType(tp, this)
+          if (!filterFound) filterText = "filter"
           exprText.append(gen.pattern.getText).
-                  append(" <- ((").append(gen.rvalue.getText).append(").withFilter { case ").
+                  append(" <- ((").append(gen.rvalue.getText).append(s").$filterText { case ").
                   append(gen.pattern.bindings.map(b => b.name).mkString("(", ", ", ")")).append(" => ")
                   if (forDisplay) {
                     exprText.append(guard.expr.map(_.getText).getOrElse("true"))
