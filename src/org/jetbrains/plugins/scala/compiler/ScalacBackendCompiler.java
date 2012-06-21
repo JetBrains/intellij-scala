@@ -169,7 +169,7 @@ public class ScalacBackendCompiler extends ExternalCompiler {
       if (noJdkArray.length == 1) {
         Messages.showErrorDialog(myProject, ScalaBundle.message("cannot.compile.scala.files.no.sdk", noJdkArray[0].getName()), ScalaBundle.message("cannot.compile"));
       } else {
-        StringBuffer modulesList = new StringBuffer();
+        StringBuilder modulesList = new StringBuilder();
         for (int i = 0; i < noJdkArray.length; i++) {
           if (i > 0) modulesList.append(", ");
           modulesList.append(noJdkArray[i].getName());

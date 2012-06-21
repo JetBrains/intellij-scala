@@ -29,7 +29,7 @@ class ScalaDirectClassInheritorsSearcher extends QueryExecutor[PsiClass, DirectC
           val candidates: Seq[ScTemplateDefinition] = ScalaStubsUtil.getClassInheritors(clazz, scope)
           for (candidate <- candidates if candidate.showAsInheritor) {
             ProgressManager.checkCanceled()
-            if (candidate.isInheritor(clazz, false)) {
+            if (candidate.isInheritor(clazz, deep = false)) {
               if (!consumer.process(candidate)) {
                 return false
               }

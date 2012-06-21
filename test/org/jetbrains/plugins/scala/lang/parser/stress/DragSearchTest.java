@@ -115,7 +115,7 @@ public class DragSearchTest extends BaseScalaFileSetTestCase {
 
   private static String stickRanges(Pair<TextRange, Integer>[] infos, String fileText) {
     Arrays.sort(infos, new DragStorage.RangeComparator());
-    StringBuffer buffer = new StringBuffer();
+    StringBuilder buffer = new StringBuilder();
     for (Pair<TextRange, Integer> info : infos) {
       TextRange range = info.getFirst();
       int start = range.getStartOffset();

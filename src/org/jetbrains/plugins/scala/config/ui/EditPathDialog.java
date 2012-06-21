@@ -16,7 +16,7 @@ class EditPathDialog extends DialogWrapper {
 
   EditPathDialog(Project project, FileChooserDescriptor descriptor) {
     super(project);
-    setTitle("Edit path");
+    setTitle("Edit Path");
     myField.addBrowseFolderListener("Plugin jar", null, project, descriptor);
     myField.setMinimumSize(new Dimension(250, myField.getMinimumSize().height));
     init();
