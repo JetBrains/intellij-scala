@@ -53,6 +53,10 @@ import extensions._
 import collection.mutable.{ListBuffer, HashSet, ArrayBuffer}
 import com.intellij.psi.impl.compiled.ClsFileImpl
 import collection.{Set, Seq}
+import org.apache.log4j.{Level, Logger}
+import com.intellij.lang.impl.PsiBuilderImpl
+import com.intellij.idea.IdeaLogger
+import com.intellij.openapi.diagnostic
 
 /**
  * User: Alexander Podkhalyuzin
@@ -1612,6 +1616,8 @@ object ScalaPsiUtil {
     if (params.isEmpty) None
     else {
       val fullClauseText: String = "(implicit " + clauseText + ")"
+      val logger = diagnostic.Logger.getInstance(classOf[PsiBuilderImpl])
+      logger.setLevel(Level.OFF)
       try {
         val paramClause: ScParameterClause = {
           if (classParam) ScalaPsiElementFactory.createImplicitClassParamClauseFromTextWithContext(fullClauseText, paramOwner.getManager, paramClauses)
@@ -1624,8 +1630,8 @@ object ScalaPsiUtil {
             ()
         }
         Some(paramClause)
-      } catch {
-        case t: Throwable => None
+      } finally {
+        logger.setLevel(null)
       }
     }
   }
