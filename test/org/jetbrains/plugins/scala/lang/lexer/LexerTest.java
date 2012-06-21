@@ -44,7 +44,7 @@ public class LexerTest extends BaseScalaFileSetTestCase {
     Lexer lexer = new ScalaLexer();
     lexer.start(fileText);
 
-    StringBuffer buffer = new StringBuffer();
+    StringBuilder buffer = new StringBuilder();
 
     IElementType type;
     while ((type = lexer.getTokenType()) != null) {

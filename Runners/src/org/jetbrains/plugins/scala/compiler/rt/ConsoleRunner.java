@@ -26,7 +26,7 @@ public class ConsoleRunner {
       if (!file.exists())
         throw new java.io.FileNotFoundException(String.format("argument file %s could not be found", file.getName()));
       FileReader fileReader = new FileReader(file);
-      StringBuffer buffer = new StringBuffer();
+      StringBuilder buffer = new StringBuilder();
       while (true) {
         int i = fileReader.read();
         if (i == -1) break;
