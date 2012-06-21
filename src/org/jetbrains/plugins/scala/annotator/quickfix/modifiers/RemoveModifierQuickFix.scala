@@ -24,10 +24,10 @@ class RemoveModifierQuickFix(method: ScModifierListOwner, modifier: String) exte
 
   def isAvailable(project: Project, editor: Editor, file: PsiFile): Boolean = method.isValid && method.getManager.isInProject(file)
 
-  def invoke(project: Project, editor: Editor, file: PsiFile): Unit = {
-    method.setModifierProperty(modifier, false)
+  def invoke(project: Project, editor: Editor, file: PsiFile) {
+    method.setModifierProperty(modifier, value = false)
     //Should be handled by autoformatting
-    CodeStyleManager.getInstance(method.getProject()).reformatText(method.getContainingFile,
+    CodeStyleManager.getInstance(method.getProject).reformatText(method.getContainingFile,
       method.getModifierList.getTextRange.getStartOffset,
       method.getModifierList.getTextRange.getEndOffset)
   }
