@@ -161,8 +161,8 @@ class ScClassImpl extends ScTypeDefinitionImpl with ScClass with ScTypeParameter
             names += t.getName
             t.nameContext match {
               case s: ScAnnotationsHolder =>
-                val beanProperty = s.hasAnnotation("scala.reflect.BeanProperty") != None
-                val booleanBeanProperty = s.hasAnnotation("scala.reflect.BooleanBeanProperty") != None
+                val beanProperty = ScalaPsiUtil.isBeanProperty(s)
+                val booleanBeanProperty = ScalaPsiUtil.isBooleanBeanProperty(s)
                 if (beanProperty) {
                   if (nodeName == "get" + t.name.capitalize) {
                     res += t.getTypedDefinitionWrapper(isStatic = false, isInterface = isInterface, role = GETTER, cClass = cClass)
@@ -219,8 +219,8 @@ class ScClassImpl extends ScTypeDefinitionImpl with ScClass with ScTypeParameter
                   }
                   t.nameContext match {
                     case s: ScAnnotationsHolder =>
-                      val beanProperty = s.hasAnnotation("scala.reflect.BeanProperty") != None
-                      val booleanBeanProperty = s.hasAnnotation("scala.reflect.BooleanBeanProperty") != None
+                      val beanProperty = ScalaPsiUtil.isBeanProperty(s)
+                      val booleanBeanProperty = ScalaPsiUtil.isBooleanBeanProperty(s)
                       if (beanProperty) {
                         if (nodeName == "get" + t.name.capitalize) {
                           add(t.getTypedDefinitionWrapper(isStatic = true, isInterface = false, role = GETTER))

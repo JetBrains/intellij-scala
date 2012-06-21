@@ -21,6 +21,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTrait, ScObject, ScTemplateDefinition}
 import org.jetbrains.plugins.scala.extensions.{toPsiClassExt, toPsiMemberExt}
 import com.intellij.openapi.util.{TextRange, Pair}
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 
 /**
  * @author Alefas
@@ -86,8 +87,8 @@ class PsiClassWrapper(val definition: ScTemplateDefinition,
                   }
                   t.nameContext match {
                     case s: ScAnnotationsHolder =>
-                      val beanProperty = s.hasAnnotation("scala.reflect.BeanProperty") != None
-                      val booleanBeanProperty = s.hasAnnotation("scala.reflect.BooleanBeanProperty") != None
+                      val beanProperty = ScalaPsiUtil.isBeanProperty(s)
+                      val booleanBeanProperty = ScalaPsiUtil.isBooleanBeanProperty(s)
                       if (beanProperty) {
                         if (nodeName == "get" + t.name.capitalize) {
                           res += t.getTypedDefinitionWrapper(isStatic = true, isInterface = false, role = GETTER, cClass = Some(definition))
@@ -116,8 +117,8 @@ class PsiClassWrapper(val definition: ScTemplateDefinition,
         members foreach {
           case fun: ScFunctionDefinition => res += fun.getStaticTraitFunctionWrapper(this)
           case definition: ScPatternDefinition => //only getters and setters should be added
-            val beanProperty = definition.hasAnnotation("scala.reflect.BeanProperty") != None
-            val booleanBeanProperty = definition.hasAnnotation("scala.reflect.BooleanBeanProperty") != None
+            val beanProperty = ScalaPsiUtil.isBeanProperty(definition)
+            val booleanBeanProperty = ScalaPsiUtil.isBooleanBeanProperty(definition)
             if (beanProperty || booleanBeanProperty) {
               for (t <- definition.declaredElements) {
                 if (beanProperty) {
@@ -134,8 +135,8 @@ class PsiClassWrapper(val definition: ScTemplateDefinition,
               }
             }
           case definition: ScVariableDefinition => //only getters and setters should be added
-            val beanProperty = definition.hasAnnotation("scala.reflect.BeanProperty") != None
-            val booleanBeanProperty = definition.hasAnnotation("scala.reflect.BooleanBeanProperty") != None
+            val beanProperty = ScalaPsiUtil.isBeanProperty(definition)
+            val booleanBeanProperty = ScalaPsiUtil.isBooleanBeanProperty(definition)
             if (beanProperty || booleanBeanProperty) {
               for (t <- definition.declaredElements) {
                 if (beanProperty) {
