@@ -9,6 +9,8 @@ class TypeInferenceStatementsTest extends TypeInferenceTestBase {
 
   def testAssignWithFunction() {doTest()}
 
+  def testForFilter() {doTest()}
+
   def testForStatementWithGuard() {doTest()}
 
   def testForStatementWithGuard2() {doTest()}
