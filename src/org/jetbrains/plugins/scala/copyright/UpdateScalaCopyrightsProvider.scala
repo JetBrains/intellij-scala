@@ -24,7 +24,7 @@ class UpdateScalaCopyrightsProvider extends UpdateCopyrightsProvider {
         if (file.isScriptFile()) return file.getFirstChild
         val packs = file.packagings
         if (packs.length == 0) return null
-        return packs(0)
+        packs(0)
       }
 
       override def getImportsList: Array[PsiElement] = {
