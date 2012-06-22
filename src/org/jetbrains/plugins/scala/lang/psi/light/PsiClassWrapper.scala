@@ -255,7 +255,8 @@ class PsiClassWrapper(val definition: ScTemplateDefinition,
   def isInheritor(baseClass: PsiClass, checkDeep: Boolean): Boolean = {
     definition match {
       case o: ScObject =>
-        baseClass.getQualifiedName == "java.lang.Object" || baseClass.getQualifiedName == "scala.ScalaObject"
+        baseClass.getQualifiedName == "java.lang.Object" ||
+          (baseClass.getQualifiedName == "scala.ScalaObject" && !baseClass.isDeprecated)
       case _ => false
     }
   }
@@ -263,7 +264,8 @@ class PsiClassWrapper(val definition: ScTemplateDefinition,
   def isInheritorDeep(baseClass: PsiClass, classToByPass: PsiClass): Boolean = {
     definition match {
       case o: ScObject =>
-        baseClass.getQualifiedName == "java.lang.Object" || baseClass.getQualifiedName == "scala.ScalaObject"
+        baseClass.getQualifiedName == "java.lang.Object" ||
+          (baseClass.getQualifiedName == "scala.ScalaObject" && !baseClass.isDeprecated)
       case _ => false
     }
   }

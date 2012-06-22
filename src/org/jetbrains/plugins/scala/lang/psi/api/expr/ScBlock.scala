@@ -87,7 +87,7 @@ trait ScBlock extends ScExpression with ScDeclarationSequenceHolder with ScImpor
             }
             case _ => t
           }
-          case ScProjectionType(p, elem, subst) => new ScProjectionType(existize(p), elem, subst)
+          case ScProjectionType(p, elem, subst, s) => new ScProjectionType(existize(p), elem, subst, s)
           case ScCompoundType(comps, decls, types, s) =>
             new ScCompoundType(collection.immutable.Seq(comps.map({existize _}).toSeq: _*), decls, types, s)
           case JavaArrayType(arg) => JavaArrayType(existize(arg))

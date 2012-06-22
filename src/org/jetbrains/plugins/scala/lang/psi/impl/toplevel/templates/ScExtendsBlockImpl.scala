@@ -22,7 +22,7 @@ import collection.Seq
 import api.base.types._
 import caches.CachesUtil
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
-import com.intellij.psi.util.PsiModificationTracker
+import com.intellij.psi.util.{PsiTreeUtil, PsiModificationTracker}
 import extensions.toPsiClassExt
 
 /**
@@ -79,6 +79,9 @@ class ScExtendsBlockImpl extends ScalaStubBasedElementImpl[ScExtendsBlock] with 
   }
 
   private def superTypesInner: List[ScType] = {
+    if (PsiTreeUtil.getParentOfType(this, classOf[PsiClass]).getName == "Reversed" && getContainingFile.getName.startsWith("IndexedSeqView")) {
+      "stop"
+    }
     val buffer = new ListBuffer[ScType]
     def addType(t: ScType) {
       t match {
@@ -96,12 +99,15 @@ class ScExtendsBlockImpl extends ScalaStubBasedElementImpl[ScExtendsBlock] with 
     }
     if (!isScalaObject) {
       val obj = scalaObject
-      if (obj != null) buffer += obj
+      if (obj != null && !obj.element.asInstanceOf[PsiClass].isDeprecated) buffer += obj
     }
     buffer.toList
   }
   
   private def supersInner: Seq[PsiClass] = {
+    if (PsiTreeUtil.getParentOfType(this, classOf[PsiClass]).getName == "Reversed" && getContainingFile.getName.startsWith("IndexedSeqView")) {
+      "stop"
+    }
     val buffer = new ListBuffer[PsiClass]
     def addClass(t: PsiClass) {
       buffer += t
@@ -116,7 +122,7 @@ class ScExtendsBlockImpl extends ScalaStubBasedElementImpl[ScExtendsBlock] with 
     }
     if (!isScalaObject) {
       val obj = scalaObjectClass
-      if (obj != null) buffer += obj
+      if (obj != null && !obj.isDeprecated) buffer += obj
     }
     buffer.toSeq
   }
@@ -132,9 +138,9 @@ class ScExtendsBlockImpl extends ScalaStubBasedElementImpl[ScExtendsBlock] with 
     if (sp != null) ScType.designator(sp) else null
   }
 
-  private def scalaObject: ScType = {
+  private def scalaObject: ScDesignatorType = {
     val so = scalaObjectClass
-    if (so != null) ScType.designator(so) else null
+    if (so != null) ScDesignatorType(so) else null
   }
 
   def isAnonymousClass: Boolean = {

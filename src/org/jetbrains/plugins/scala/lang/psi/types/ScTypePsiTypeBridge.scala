@@ -52,7 +52,7 @@ trait ScTypePsiTypeBridge {
               if (containingClass == null) {
                 ScDesignatorType(clazz)
               } else {
-                ScProjectionType(constructTypeForClass(containingClass), clazz, ScSubstitutor.empty)
+                ScProjectionType(constructTypeForClass(containingClass), clazz, ScSubstitutor.empty, false)
               }
             }
             val des = constructTypeForClass(clazz)
@@ -147,7 +147,7 @@ trait ScTypePsiTypeBridge {
                     {case (s, (targ, tp)) => s.put(tp, toPsi(targ, project, scope, true))}
           JavaPsiFacade.getInstance(project).getElementFactory.createType(c, subst)
         }
-      case ScParameterizedType(proj@ScProjectionType(pr, element, subst), args) => proj.actualElement match {
+      case ScParameterizedType(proj@ScProjectionType(pr, element, subst, _), args) => proj.actualElement match {
         case c: PsiClass => if (c.qualifiedName == "scala.Array" && args.length == 1)
           new PsiArrayType(toPsi(args(0), project, scope))
         else {
@@ -165,7 +165,7 @@ trait ScTypePsiTypeBridge {
       }
       case JavaArrayType(arg) => new PsiArrayType(toPsi(arg, project, scope))
 
-      case proj@ScProjectionType(pr, element, subst) => proj.actualElement match {
+      case proj@ScProjectionType(pr, element, subst, _) => proj.actualElement match {
         case clazz: PsiClass => {
           clazz match {
             case syn: ScSyntheticClass => toPsi(syn.t, project, scope)

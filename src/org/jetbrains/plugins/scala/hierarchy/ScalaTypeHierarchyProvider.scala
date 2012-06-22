@@ -6,10 +6,34 @@ import com.intellij.codeInsight.{TargetElementUtilBase, TargetElementUtil}
 import com.intellij.openapi.actionSystem.{DataContext, PlatformDataKeys, LangDataKeys}
 import com.intellij.psi.{PsiElement, PsiDocumentManager}
 import com.intellij.ide.hierarchy.`type`.JavaTypeHierarchyProvider
-import lang.psi.api.toplevel.typedef.ScTypeDefinition
+import lang.psi.api.toplevel.typedef.{ScTrait, ScTypeDefinition}
+import com.intellij.ide.hierarchy.HierarchyBrowser
+import collection.mutable
+import collection.immutable.HashSet
+
 /**
  * User: Alexander Podkhalyuzin
  * Date: 09.06.2009
  */
+class ScalaTypeHierarchyProvider extends JavaTypeHierarchyProvider {
+  override def createHierarchyBrowser(target: PsiElement): HierarchyBrowser = {
+    target match {
+      case clazz: ScTypeDefinition =>
+        collectSupers(clazz, new HashSet[ScTypeDefinition])
+      case _ =>
+    }
+    super.createHierarchyBrowser(target)
+  }
 
-class ScalaTypeHierarchyProvider extends JavaTypeHierarchyProvider
+  def collectSupers(clazz: ScTypeDefinition, visited: HashSet[ScTypeDefinition]) {
+    clazz.supers.foreach {
+      case clazz: ScTypeDefinition =>
+        if (visited.contains(clazz)) {
+          println("clazz.getText = " + clazz.getText)
+        } else {
+          collectSupers(clazz, visited + clazz)
+        }
+      case _ =>
+    }
+  }
+}

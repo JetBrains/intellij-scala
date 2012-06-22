@@ -192,7 +192,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
             }
             if (stableTypeRequired) {
               r.fromType match {
-                case Some(fT) => ScProjectionType(fT, refPatt, ScSubstitutor.empty)
+                case Some(fT) => ScProjectionType(fT, refPatt, ScSubstitutor.empty, false)
                 case None => ScType.designator(refPatt)
               }
             } else {
@@ -229,7 +229,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
       case Some(ScalaResolveResult(obj: ScObject, s)) => {
         def tail = {
           fromType match {
-            case Some(tp) => ScProjectionType(tp, obj, s)
+            case Some(tp) => ScProjectionType(tp, obj, s, false)
             case _ => ScType.designator(obj)
           }
         }
