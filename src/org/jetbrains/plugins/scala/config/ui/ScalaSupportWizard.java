@@ -135,7 +135,7 @@ public class ScalaSupportWizard {
 
     labelState.setIcon(Icons.ERROR);
     
-    ScalaDistribution distribution = new ScalaDistribution(home);
+    ScalaDistribution distribution = ScalaDistribution.from(home);
 
     if(!distribution.valid()) {
       labelState.setText("(not valid Scala home)");
@@ -170,9 +170,9 @@ public class ScalaSupportWizard {
     
     String version = distribution.version();
 
-    boolean versionOkay = version.startsWith("2.8") || version.startsWith("2.9");
+    boolean versionOkay = version.startsWith("2.8") || version.startsWith("2.9") || version.startsWith("2.10");
     if(!versionOkay) {
-      labelState.setText("(version " + version + ", 2.8.x or 2.9.x required)");
+      labelState.setText("(version " + version + ", 2.8-2.10 required)");
       labelState.setIcon(Icons.WARNING);
       return;
     }

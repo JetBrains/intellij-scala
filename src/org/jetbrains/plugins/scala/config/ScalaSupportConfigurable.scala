@@ -21,7 +21,7 @@ class ScalaSupportConfigurable(editor: ScalaSupportWizard) extends FrameworkSupp
   override def addSupport(module: Module, rootModel: ModifiableRootModel, library: Library) = {
     editor.getChoice match {
       case Choice.AddNew => {
-        val distribution = new ScalaDistribution(new File(editor.getHome))
+        val distribution = ScalaDistribution.from(new File(editor.getHome))
 
         distribution.createStandardLibrary(editor.getStandardLibraryId, rootModel)
 
