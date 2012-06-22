@@ -169,7 +169,7 @@ case class ScParameterizedType(designator : ScType, typeArgs : Seq[ScType]) exte
   override def equivInner(r: ScType, uSubst: ScUndefinedSubstitutor, falseUndef: Boolean): (Boolean, ScUndefinedSubstitutor) = {
     var undefinedSubst = uSubst
     (this, r) match {
-      case (ScParameterizedType(proj@ScProjectionType(projected, _, _), args), _) if proj.actualElement.isInstanceOf[ScTypeAliasDefinition] => {
+      case (ScParameterizedType(proj@ScProjectionType(projected, _, _, _), args), _) if proj.actualElement.isInstanceOf[ScTypeAliasDefinition] => {
         val a = proj.actualElement.asInstanceOf[ScTypeAliasDefinition]
         val subst = proj.actualSubst
         val lBound = subst.subst(a.lowerBound match {

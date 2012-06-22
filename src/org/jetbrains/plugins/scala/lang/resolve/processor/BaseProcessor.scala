@@ -196,13 +196,13 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value]) extends PsiSc
           }
         }
       }
-      case proj@ScProjectionType(projectd, _, _) if proj.actualElement.isInstanceOf[ScTypeAlias] => {
+      case proj@ScProjectionType(projectd, _, _, _) if proj.actualElement.isInstanceOf[ScTypeAlias] => {
         val ta = proj.actualElement.asInstanceOf[ScTypeAlias]
         val subst = proj.actualSubst
         val upper = ta.upperBound.getOrElse(return true)
         processType(subst.subst(upper), place, state.put(ScSubstitutor.key, ScSubstitutor.empty))
       }
-      case proj@ScProjectionType(des, elem, subst) => {
+      case proj@ScProjectionType(des, elem, subst, _) => {
         val s: ScSubstitutor = if (updateWithProjectionSubst)
           new ScSubstitutor(Map.empty, Map.empty, Some(proj)) followed proj.actualSubst
         else proj.actualSubst

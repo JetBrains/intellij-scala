@@ -402,7 +402,7 @@ object ScSimpleTypeElementImpl {
             calculateReferenceType(qual, shapesOnly) match {
               case failure: Failure => failure
               case Success(tp, _) => {
-                Success(ScProjectionType(tp, resolvedElement, subst), Some(ref))
+                Success(ScProjectionType(tp, resolvedElement, subst, false), Some(ref))
               }
             }
           }
@@ -413,7 +413,7 @@ object ScSimpleTypeElementImpl {
           case Some(thisRef: ScThisReference) => {
             thisRef.refTemplate match {
               case Some(template) => {
-                Success(ScProjectionType(ScThisType(template), resolvedElement, subst), Some(ref))
+                Success(ScProjectionType(ScThisType(template), resolvedElement, subst, false), Some(ref))
               }
               case _ => Failure("Cannot find template for this reference", Some(thisRef))
             }
@@ -423,11 +423,11 @@ object ScSimpleTypeElementImpl {
               case Some(x) => x
               case None => return Failure("Cannot find enclosing container", Some(superRef))
             }
-            Success(ScProjectionType(ScThisType(template), resolvedElement, subst), Some(ref))
+            Success(new ScProjectionType(ScThisType(template), resolvedElement, subst, true), Some(ref))
           }
           case None => {
             if (fromType == None) return Success(ScType.designator(resolvedElement), Some(ref))
-            Success(ScProjectionType(fromType.get, resolvedElement, subst), Some(ref))
+            Success(ScProjectionType(fromType.get, resolvedElement, subst, false), Some(ref))
           }
         }
       }

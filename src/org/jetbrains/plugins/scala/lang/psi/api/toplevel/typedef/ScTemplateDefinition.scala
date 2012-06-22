@@ -334,7 +334,8 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
     if (baseClass == null || DumbService.getInstance(baseClass.getProject).isDumb) return false //to prevent failing during indexes
 
     // This doesn't appear in the superTypes at the moment, so special case required.
-    if (baseQualifiedName == "java.lang.Object" || baseQualifiedName == "scala.ScalaObject") return true
+    if (baseQualifiedName == "java.lang.Object") return true
+    if (baseQualifiedName == "scala.ScalaObject" && !baseClass.isDeprecated) return true
 
     isInheritorInner(baseClass, this, deep)
   }

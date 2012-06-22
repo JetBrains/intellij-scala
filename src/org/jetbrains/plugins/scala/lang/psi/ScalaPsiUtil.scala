@@ -487,7 +487,7 @@ object ScalaPsiUtil {
           }
           params.foreach(collectParts(_, place))
         }
-        case proj@ScProjectionType(projected, _, _) => {
+        case proj@ScProjectionType(projected, _, _, _) => {
           collectParts(projected, place)
           ScType.extractClass(tp, projectOpt) match {
             case Some(pair) => parts += tp
@@ -553,10 +553,10 @@ object ScalaPsiUtil {
                 getCompanionModule(clazz) match {
                   case Some(obj: ScObject) =>
                     tp match {
-                      case ScProjectionType(proj, _, subst) =>
-                        res += update.getOrElse(ScSubstitutor.empty).subst(ScProjectionType(proj, obj, subst))
-                      case ScParameterizedType(ScProjectionType(proj, _, subst), _) =>
-                        res += update.getOrElse(ScSubstitutor.empty).subst(ScProjectionType(proj, obj, subst))
+                      case ScProjectionType(proj, _, subst, s) =>
+                        res += update.getOrElse(ScSubstitutor.empty).subst(ScProjectionType(proj, obj, subst, s))
+                      case ScParameterizedType(ScProjectionType(proj, _, subst, s), _) =>
+                        res += update.getOrElse(ScSubstitutor.empty).subst(ScProjectionType(proj, obj, subst, s))
                       case _ =>
                         res += ScDesignatorType(obj)
                     }

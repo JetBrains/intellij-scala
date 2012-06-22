@@ -300,7 +300,7 @@ abstract class MixinNodes {
       case _ =>
         val clazz = tp match {
           case ScDesignatorType(clazz: PsiClass) => clazz
-          case ScProjectionType(_, clazz: PsiClass, _) => clazz
+          case ScProjectionType(_, clazz: PsiClass, _, _) => clazz
           case _ => null
         }
         if (clazz == null) (Seq.empty, ScSubstitutor.empty, ScSubstitutor.empty)

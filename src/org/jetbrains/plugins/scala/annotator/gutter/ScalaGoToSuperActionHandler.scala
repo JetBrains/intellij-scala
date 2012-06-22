@@ -67,7 +67,7 @@ private object ScalaGoToSuperActionHandler {
     while (element != null && !test(element)) element = element.getParent
 
     def templateSupers(template: ScTemplateDefinition): Array[PsiElement] = {
-      def ignored = Set("java.lang.Object", "scala.ScalaObject", "scala.Any", "scala.AnyRef")
+      def ignored = Set("java.lang.Object", "scala.ScalaObject", "scala.Any", "scala.AnyRef", "scala.AnyVal")
       val supers = template.supers.filterNot((x: PsiClass) => ignored.contains(x.qualifiedName))
       HashSet[PsiClass](supers: _*).toArray
     }

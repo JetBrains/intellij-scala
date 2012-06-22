@@ -160,7 +160,7 @@ object ScType extends ScTypePresentation with ScTypePsiTypeBridge {
       val result = ta.aliasedType(TypingContext.empty)
       if (result.isEmpty) return None
       extractClassType(result.get)
-    case proj@ScProjectionType(p, elem, subst) => proj.actualElement match {
+    case proj@ScProjectionType(p, elem, subst, _) => proj.actualElement match {
       case c: PsiClass => Some((c, proj.actualSubst))
       case t: ScTypeAliasDefinition =>
         val result = t.aliasedType(TypingContext.empty)
@@ -196,7 +196,7 @@ object ScType extends ScTypePresentation with ScTypePsiTypeBridge {
   def extractDesignated(t: ScType): Option[Pair[PsiNamedElement, ScSubstitutor]] = t match {
     case ScDesignatorType(e) => Some(e, ScSubstitutor.empty)
     case ScThisType(c) => Some(c, ScSubstitutor.empty)
-    case proj@ScProjectionType(p, e, s) => Some((proj.actualElement, proj.actualSubst))
+    case proj@ScProjectionType(p, e, s, _) => Some((proj.actualElement, proj.actualSubst))
     case p@ScParameterizedType(t1, _) => {
       extractClassType(t1) match {
         case Some((e, s)) => Some((e, s.followed(p.substitutor)))
@@ -213,7 +213,7 @@ object ScType extends ScTypePresentation with ScTypePsiTypeBridge {
         case t: ScTypedDefinition => t.isStable
         case _ => false
       }
-    case ScProjectionType(_, elem, _) =>
+    case ScProjectionType(_, elem, _, _) =>
       elem match {
         case t: ScTypedDefinition => t.isStable
         case _ => false
@@ -224,8 +224,8 @@ object ScType extends ScTypePresentation with ScTypePsiTypeBridge {
   // TODO: Review this against SLS 3.2.1
   def isStable(t: ScType): Boolean = t match {
     case ScThisType(_) => true
-    case ScProjectionType(projected, element: ScObject, _) => isStable(projected)
-    case ScProjectionType(projected, element: ScTypedDefinition, _) => isStable(projected) && element.isStable
+    case ScProjectionType(projected, element: ScObject, _, _) => isStable(projected)
+    case ScProjectionType(projected, element: ScTypedDefinition, _, _) => isStable(projected) && element.isStable
     case ScDesignatorType(o: ScObject) => true
     case ScDesignatorType(r: ScTypedDefinition) if r.isStable => true
     case _ => false
@@ -233,7 +233,7 @@ object ScType extends ScTypePresentation with ScTypePsiTypeBridge {
 
   def projectionOption(tp: ScType): Option[ScType] = tp match {
     case ScParameterizedType(des, _) => projectionOption(des)
-    case proj@ScProjectionType(p, elem, subst) => proj.actualElement match {
+    case proj@ScProjectionType(p, elem, subst, _) => proj.actualElement match {
       case c: PsiClass => Some(p)
       case t: ScTypeAliasDefinition =>
         projectionOption(proj.actualSubst.subst(t.aliasedType(TypingContext.empty).getOrElse(return None)))
@@ -255,7 +255,7 @@ object ScType extends ScTypePresentation with ScTypePsiTypeBridge {
   //      with this as we currently only rely on this method to determine covariant types: the parameter
   //      types of FunctionN, or the elements of TupleN
   def expandAliases(tp: ScType): TypeResult[ScType] = tp match {
-    case proj@ScProjectionType(p, elem, subst) => proj.actualElement match {
+    case proj@ScProjectionType(p, elem, subst, _) => proj.actualElement match {
       case t: ScTypeAliasDefinition if t.typeParameters.isEmpty =>
         t.aliasedType(TypingContext.empty).flatMap(t => expandAliases(proj.actualSubst.subst(t)))
       case t: ScTypeAliasDeclaration if t.typeParameters.isEmpty  =>
@@ -330,7 +330,7 @@ object ScType extends ScTypePresentation with ScTypePsiTypeBridge {
         element.getParent match {
           case td: ScTemplateBody =>
             val clazz = PsiTreeUtil.getParentOfType(element, classOf[ScTemplateDefinition], true)
-            new ScProjectionType(ScThisType(clazz), element, ScSubstitutor.empty)
+            new ScProjectionType(ScThisType(clazz), element, ScSubstitutor.empty, false)
           case _ =>
             new ScDesignatorType(element)
         }

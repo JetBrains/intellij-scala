@@ -323,7 +323,7 @@ class ScClassImpl extends ScTypeDefinitionImpl with ScClass with ScTypeParameter
         } else baseText
       }).mkString("[", ", ", "]")
     }).getOrElse("")
-    getModifierList.accessModifier.map(_.getText).getOrElse("") + "implicit def " + name +
+    getModifierList.accessModifier.map(am => am.getText + " ").getOrElse("") + "implicit def " + name +
       typeParametersText + constr.parameterList.getText + " : " + returnType +
       " = throw new Error(\"\")"
   }
