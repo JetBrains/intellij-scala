@@ -11,33 +11,49 @@ import com.intellij.openapi.project.{DumbService, Project}
 import com.intellij.openapi.util.Ref
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.annotator.intention.ScalaImportClassFix
-import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import com.intellij.codeInsight.CodeInsightSettings
 import org.jetbrains.plugins.scala.lang.dependency.Dependency
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.settings._
 import com.intellij.openapi.ui.DialogWrapper
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
+import scala.util.control.Breaks._
+import com.intellij.openapi.diagnostic.Logger
 
 /**
  * Pavel Fatin
  */
 
 class ScalaCopyPastePostProcessor extends CopyPastePostProcessor[Associations] {
+  private val Log = Logger.getInstance(getClass)
+  private val Timeout = 1000L
+
   def collectTransferableData(file: PsiFile, editor: Editor,
                               startOffsets: Array[Int], endOffsets: Array[Int]): Associations = {
     if (DumbService.getInstance(file.getProject).isDumb) return null
 
     if(!file.isInstanceOf[ScalaFile]) return null
 
-    val associations = for((startOffset, endOffset) <- startOffsets.zip(endOffsets);
-                           element <- CollectHighlightsUtil.getElementsInRange(file, startOffset, endOffset);
-                           reference <- element.asOptionOf[ScReferenceElement];
-                           dependency <- Dependency.dependencyFor(reference) if dependency.isExternal;
-                           range = dependency.source.getTextRange.shiftRight(-startOffset))
-    yield Association(dependency.kind, range, dependency.path)
+    val timeBound = System.currentTimeMillis + Timeout
 
-    new Associations(associations)
+    var associations: List[Association] = Nil
+
+    breakable {
+      for((startOffset, endOffset) <- startOffsets.zip(endOffsets);
+          element <- CollectHighlightsUtil.getElementsInRange(file, startOffset, endOffset);
+          reference <- element.asOptionOf[ScReferenceElement];
+          dependency <- Dependency.dependencyFor(reference) if dependency.isExternal;
+          range = dependency.source.getTextRange.shiftRight(-startOffset)) {
+        if (System.currentTimeMillis > timeBound) {
+          Log.warn("Time-out while collecting dependencies in %s:\n%s".format(
+            file.getName, file.getText.substring(startOffset, endOffset)))
+          break()
+        }
+        associations ::= Association(dependency.kind, range, dependency.path)
+      }
+    }
+
+    new Associations(associations.reverse)
   }
 
   def extractTransferableData(content: Transferable) = {
