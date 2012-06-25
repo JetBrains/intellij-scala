@@ -595,4 +595,19 @@ class ScalaBasicCompletionTest extends ScalaCompletionTestBase {
     completeLookupItem(activeLookup.find(le => le.getLookupString == "aaa").get, '\t')
     checkResultByText(resultText)
   }
+
+  def testNoBeanCompletion() {
+    val fileText =
+      """
+      |class Foo {
+      |  val bar = 10
+      |}
+      |
+      |new Foo().<caret>
+      """.stripMargin.replaceAll("\r", "").trim()
+    configureFromFileTextAdapter("dummy.scala", fileText)
+    val (activeLookup, _) = complete(1, CompletionType.BASIC)
+
+    assert(activeLookup.find(le => le.getLookupString == "getBar") == None)
+  }
 }

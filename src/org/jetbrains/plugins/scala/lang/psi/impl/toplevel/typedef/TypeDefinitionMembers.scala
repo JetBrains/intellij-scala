@@ -685,9 +685,16 @@ object TypeDefinitionMembers {
                         state.put(ScSubstitutor.key, n.substitutor followed subst))) return false
                     true
                   }
-                  if ((decodedName == "" || decodedName.startsWith("set")) && !process(t.getSetBeanMethod)) return false
-                  if ((decodedName == "" || decodedName.startsWith("get")) && !process(t.getGetBeanMethod)) return false
-                  if ((decodedName == "" || decodedName.startsWith("is")) && !process(t.getIsBeanMethod)) return false
+                  if (decodedName.startsWith("set") && !process(t.getSetBeanMethod)) return false
+                  if (decodedName.startsWith("get") && !process(t.getGetBeanMethod)) return false
+                  if (decodedName.startsWith("is") && !process(t.getIsBeanMethod)) return false
+                  if (decodedName.isEmpty) {
+                    //completion processor    a
+                    val beanMethodsIterator = t.getBeanMethods.iterator
+                    while (beanMethodsIterator.hasNext) {
+                      if (!process(beanMethodsIterator.next())) return false
+                    }
+                  }
                 case _ =>
               }
             }
