@@ -809,7 +809,7 @@ with DumbAware {
   private def checkUnboundUnderscore(under: ScUnderscoreSection, holder: AnnotationHolder) {
     if (under.getText == "_") {
       ScalaPsiUtil.getParentOfType(under, classOf[ScVariableDefinition]) match {
-        case varDef @ ScVariableDefinition.expr(expr) if varDef.expr == under =>
+        case varDef @ ScVariableDefinition.expr(expr) if varDef.expr == Some(under) =>
           if (varDef.containingClass == null) {
             val error = ScalaBundle.message("local.variables.must.be.initialized")
             val annotation: Annotation = holder.createErrorAnnotation(under, error)
