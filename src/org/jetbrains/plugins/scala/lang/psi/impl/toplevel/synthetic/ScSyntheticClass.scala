@@ -7,20 +7,15 @@ package synthetic
 
 import _root_.javax.swing.Icon
 import api.statements.params.ScTypeParam
-import api.toplevel.{ScNamedElement, ScTypeParametersOwner}
-import com.intellij.openapi.project.DumbAwareRunnable
 import com.intellij.openapi.startup.StartupManager
 import com.intellij.psi.search.GlobalSearchScope
 import api.statements.ScFun
-import api.statements.ScFunction
 import types._
 import nonvalue.Parameter
 import resolve._
-
 import com.intellij.psi._
 import com.intellij.psi.impl.light.LightElement
-
-import collection.mutable.{ListBuffer, Map, HashMap, Set, HashSet, MultiMap, ArrayBuffer}
+import collection.mutable.ArrayBuffer
 import com.intellij.navigation.ItemPresentation
 import com.intellij.openapi.editor.colors.TextAttributesKey
 import java.lang.String
@@ -28,9 +23,9 @@ import com.intellij.openapi.progress.ProcessCanceledException
 import processor.{BaseProcessor, ResolveProcessor, ResolverEnv}
 import result.Success
 import org.jetbrains.plugins.scala.util.ScalaUtils
-import api.toplevel.typedef.{ScObject, ScTemplateDefinition}
+import api.toplevel.typedef.ScObject
 import api.ScalaFile
-import collection.Seq
+import collection.{mutable, Seq}
 import com.intellij.util.{ReflectionCache, IncorrectOperationException}
 import extensions.{toSeqExt, toPsiClassExt}
 
@@ -40,7 +35,9 @@ extends LightElement(manager, ScalaFileType.SCALA_LANGUAGE) with PsiNameIdentifi
   override def getText = ""
   def setName(newName: String) : PsiElement = throw new IncorrectOperationException("nonphysical element")
   override def copy = throw new IncorrectOperationException("nonphysical element")
-  override def accept(v: PsiElementVisitor) = throw new IncorrectOperationException("should not call")
+  override def accept(v: PsiElementVisitor) {
+    throw new IncorrectOperationException("should not call")
+  }
   override def getContainingFile = SyntheticClasses.get(manager.getProject).file
 
   def nameId: PsiElement = null
@@ -100,9 +97,9 @@ extends SyntheticNamedElement(manager, className) with PsiClass with PsiClassFak
   def syntheticMethods(scope: GlobalSearchScope) = methods.values.flatMap(s => s).toList ++
           specialMethods.values.flatMap(s => s.map(_(scope))).toList
 
-  protected object methods extends HashMap[String, Set[ScSyntheticFunction]] with MultiMap[String, ScSyntheticFunction]
-  protected object specialMethods extends HashMap[String, Set[GlobalSearchScope => ScSyntheticFunction]] with
-          MultiMap[String, GlobalSearchScope => ScSyntheticFunction]
+  protected object methods extends mutable.HashMap[String, mutable.Set[ScSyntheticFunction]] with mutable.MultiMap[String, ScSyntheticFunction]
+  protected object specialMethods extends mutable.HashMap[String, mutable.Set[GlobalSearchScope => ScSyntheticFunction]] with
+          mutable.MultiMap[String, GlobalSearchScope => ScSyntheticFunction]
 
   def addMethod(method: ScSyntheticFunction) = methods.addBinding(method.name, method)
   def addMethod(method: GlobalSearchScope => ScSyntheticFunction, methodName: String) = specialMethods.addBinding(methodName, method)
@@ -210,7 +207,7 @@ class SyntheticClasses(project: Project) extends PsiElementFinder with ProjectCo
   def isClassesRegistered: Boolean = classesInitialized
 
   def registerClasses() {
-    all = new HashMap[String, ScSyntheticClass]
+    all = new mutable.HashMap[String, ScSyntheticClass]
     file = PsiFileFactory.getInstance(project).createFileFromText(
       "dummy." + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension, ScalaFileType.SCALA_FILE_TYPE, "")
 
@@ -276,7 +273,7 @@ class SyntheticClasses(project: Project) extends PsiElementFinder with ProjectCo
         ic.addMethod(new ScSyntheticFunction(manager, op, ret, Seq(Seq(Long))))
       }
     }
-    scriptSyntheticValues = new HashSet[ScSyntheticValue]
+    scriptSyntheticValues = new mutable.HashSet[ScSyntheticValue]
     //todo: remove all scope => method value
     //todo: handle process cancelled exception
     try {
@@ -291,10 +288,10 @@ class SyntheticClasses(project: Project) extends PsiElementFinder with ProjectCo
     stringPlusMethod = new ScSyntheticFunction(manager, "+", _, Seq(Seq(Any)))
 
     //register synthetic objects
-    syntheticObjects = new HashSet[ScObject]
+    syntheticObjects = new mutable.HashSet[ScObject]
     def registerObject(fileText: String) {
       val dummyFile = PsiFileFactory.getInstance(manager.getProject).
-              createFileFromText("dummy." + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(),
+              createFileFromText("dummy." + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension,
         ScalaFileType.SCALA_FILE_TYPE, fileText).asInstanceOf[ScalaFile]
       val obj = dummyFile.typeDefinitions(0).asInstanceOf[ScObject]
       syntheticObjects += obj
@@ -430,11 +427,11 @@ object Unit
   }
 
   var stringPlusMethod: ScType => ScSyntheticFunction = null
-  var scriptSyntheticValues: Set[ScSyntheticValue] = new HashSet[ScSyntheticValue]
-  var all: Map[String, ScSyntheticClass] = new HashMap[String, ScSyntheticClass]
-  var numeric: Set[ScSyntheticClass] = new HashSet[ScSyntheticClass]
-  var integer : Set[ScSyntheticClass] = new HashSet[ScSyntheticClass]
-  var syntheticObjects: Set[ScObject] = new HashSet[ScObject]
+  var scriptSyntheticValues: mutable.Set[ScSyntheticValue] = new mutable.HashSet[ScSyntheticValue]
+  var all: mutable.Map[String, ScSyntheticClass] = new mutable.HashMap[String, ScSyntheticClass]
+  var numeric: mutable.Set[ScSyntheticClass] = new mutable.HashSet[ScSyntheticClass]
+  var integer : mutable.Set[ScSyntheticClass] = new mutable.HashSet[ScSyntheticClass]
+  var syntheticObjects: mutable.Set[ScObject] = new mutable.HashSet[ScObject]
 
   def op_type (ic1 : ScSyntheticClass, ic2 : ScSyntheticClass) = (ic1.t, ic2.t) match {
     case (_, Double) | (Double, _) => Double

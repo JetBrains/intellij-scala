@@ -15,15 +15,20 @@ import parser.ScalaElementTypes
 import api.toplevel.templates._
 import psi.types._
 import _root_.scala.collection.mutable.ArrayBuffer
+import result.Success
 import result.{TypingContext, Success}
 import stubs.ScExtendsBlockStub
-import api.toplevel.typedef.{ScMember, ScTypeDefinition}
+import api.toplevel.typedef._
 import collection.Seq
 import api.base.types._
 import caches.CachesUtil
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
-import com.intellij.psi.util.{PsiTreeUtil, PsiModificationTracker}
+import com.intellij.psi.util.PsiModificationTracker
 import extensions.toPsiClassExt
+import synthetic.ScSyntheticClass
+import psi.types.ScDesignatorType
+import scala.Some
+import psi.types.ScCompoundType
 
 /**
  * @author AlexanderPodkhalyuzin
@@ -98,6 +103,27 @@ class ScExtendsBlockImpl extends ScalaStubBasedElementImpl[ScExtendsBlock] with 
       val obj = scalaObject
       if (obj != null && !obj.element.asInstanceOf[PsiClass].isDeprecated) buffer += obj
     }
+    if (!getContext.isInstanceOf[ScTrait]) {
+      val findResult = buffer.find {
+        case AnyVal | AnyRef | Any => true
+        case t =>
+          ScType.extractClass(t, Some(getProject)) match {
+            case Some(o: ScObject) => true
+            case Some(t: ScTrait) => false
+            case Some(c: ScClass) => true
+            case Some(c: PsiClass) if !c.isInterface => true
+            case _ => false
+          }
+      }
+      findResult match {
+        case Some(AnyVal) => //do nothing
+        case res@(Some(AnyRef) | Some(Any)) =>
+          buffer -= res.get
+          buffer += javaObject
+        case Some(_) => //do nothing
+        case _ => buffer += javaObject
+      }
+    }
     buffer.toList
   }
   
@@ -118,6 +144,24 @@ class ScExtendsBlockImpl extends ScalaStubBasedElementImpl[ScExtendsBlock] with 
       val obj = scalaObjectClass
       if (obj != null && !obj.isDeprecated) buffer += obj
     }
+    if (!getContext.isInstanceOf[ScTrait]) {
+      buffer.find {
+        case s: ScSyntheticClass => true
+        case o: ScObject => true
+        case t: ScTrait => false
+        case c: ScClass => true
+        case c: PsiClass if !c.isInterface => true
+        case _ => false
+      } match {
+        case Some(s: ScSyntheticClass) if Some(s) == AnyVal.asClass(getProject) => //do nothing
+        case Some(s: ScSyntheticClass) if Some(s) == AnyRef.asClass(getProject) ||
+          Some(s) == Any.asClass(getProject) =>
+          buffer -= s
+          buffer += javaObjectClass
+        case Some(clazz: PsiClass) => //do nothing
+        case _ => buffer += javaObjectClass
+      }
+    }
     buffer.toSeq
   }
   
@@ -127,6 +171,9 @@ class ScExtendsBlockImpl extends ScalaStubBasedElementImpl[ScExtendsBlock] with 
   private def scalaObjectClass: PsiClass =
     ScalaPsiManager.instance(getProject).getCachedClass(getResolveScope, "scala.ScalaObject")
 
+  private def javaObjectClass: PsiClass =
+    ScalaPsiManager.instance(getProject).getCachedClass(getResolveScope, "java.lang.Object")
+
   private def scalaProduct: ScType = {
     val sp = scalaProductClass
     if (sp != null) ScType.designator(sp) else null
@@ -134,6 +181,11 @@ class ScExtendsBlockImpl extends ScalaStubBasedElementImpl[ScExtendsBlock] with 
 
   private def scalaObject: ScDesignatorType = {
     val so = scalaObjectClass
+    if (so != null) ScDesignatorType(so) else null
+  }
+
+  private def javaObject: ScDesignatorType = {
+    val so = javaObjectClass
     if (so != null) ScDesignatorType(so) else null
   }
 

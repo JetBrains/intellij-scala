@@ -1,2 +1,2 @@
 /*start*/new {}/*end*/
-//AnyRef
+//Object

@@ -1,9 +1,11 @@
 package org.jetbrains.plugins.scala.lang.completion3;
 
+import com.intellij.ide.plugins.PluginManager;
 import com.intellij.ide.startup.impl.StartupManagerImpl;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.Result;
 import com.intellij.openapi.application.WriteAction;
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
@@ -20,6 +22,7 @@ import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
 import com.intellij.testFramework.LightPlatformCodeInsightTestCase;
 import com.intellij.util.Processor;
+import org.apache.log4j.Level;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticClasses;
 import org.jetbrains.plugins.scala.util.TestUtils;
