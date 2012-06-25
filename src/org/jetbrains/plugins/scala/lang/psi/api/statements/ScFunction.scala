@@ -70,6 +70,7 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
   def isSyntheticCopy: Boolean = synthNavElement.nonEmpty && name == "copy"
   def isSyntheticApply: Boolean = synthNavElement.nonEmpty && name == "apply"
   def isSyntheticUnapply: Boolean = synthNavElement.nonEmpty && name == "unapply"
+  def isSyntheticUnapplySeq: Boolean = synthNavElement.nonEmpty && name == "unapplySeq"
   def isSynthetic: Boolean = synthNavElement.nonEmpty
   def getSyntheticNavigationElement: Option[PsiElement] = synthNavElement
 

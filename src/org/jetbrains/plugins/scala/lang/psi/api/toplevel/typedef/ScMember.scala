@@ -64,7 +64,8 @@ trait ScMember extends ScalaPsiElement with ScModifierListOwner with PsiMember {
         // TODO is all of this mess still necessary?! 
         case c: ScClass if c.isCase => {
           this match {
-            case fun: ScFunction if fun.isSyntheticApply || fun.isSyntheticUnapply =>
+            case fun: ScFunction if fun.isSyntheticApply || fun.isSyntheticUnapply ||
+              fun.isSyntheticUnapplySeq =>
               //this is special case for synthetic apply and unapply methods
               ScalaPsiUtil.getCompanionModule(c) match {
                 case Some(td) => return td
