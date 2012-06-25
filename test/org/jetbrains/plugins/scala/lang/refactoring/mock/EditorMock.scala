@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala.lang.refactoring.mock
 
 import com.intellij.openapi.editor.{Document, CaretModel, SelectionModel, LogicalPosition}
 import com.intellij.openapi.editor.impl.DocumentImpl
-import java.awt.Insets
 
 /**
  * Pavel Fatin
@@ -14,7 +13,7 @@ class EditorMock(text: String, offset: Int) extends EditorStub {
   override def offsetToLogicalPosition(offset: Int) = {
     val s = text.take(offset)
     new LogicalPosition(s.count(_ == '\n'),
-      s.view.reverse.takeWhile(_ != '\n').size)
+      s.reverse.takeWhile(_ != '\n').size) // Workaround for SI-5971 (should be "s.view.reverse.")
   }
 
   override def logicalPositionToOffset(pos: LogicalPosition) =
