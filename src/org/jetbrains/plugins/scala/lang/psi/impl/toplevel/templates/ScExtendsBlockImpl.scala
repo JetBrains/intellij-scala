@@ -119,9 +119,12 @@ class ScExtendsBlockImpl extends ScalaStubBasedElementImpl[ScExtendsBlock] with 
         case Some(AnyVal) => //do nothing
         case res@(Some(AnyRef) | Some(Any)) =>
           buffer -= res.get
-          buffer += javaObject
+          if (javaObject != null)
+            buffer += javaObject
         case Some(_) => //do nothing
-        case _ => buffer += javaObject
+        case _ =>
+          if (javaObject != null)
+            buffer += javaObject
       }
     }
     buffer.toList
@@ -157,9 +160,12 @@ class ScExtendsBlockImpl extends ScalaStubBasedElementImpl[ScExtendsBlock] with 
         case Some(s: ScSyntheticClass) if Some(s) == AnyRef.asClass(getProject) ||
           Some(s) == Any.asClass(getProject) =>
           buffer -= s
-          buffer += javaObjectClass
+          if (javaObjectClass != null)
+            buffer += javaObjectClass
         case Some(clazz: PsiClass) => //do nothing
-        case _ => buffer += javaObjectClass
+        case _ =>
+          if (javaObjectClass != null)
+            buffer += javaObjectClass
       }
     }
     buffer.toSeq
