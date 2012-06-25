@@ -21,7 +21,7 @@ class ReferenceMustBePrefixedInspection extends AbstractInspection("ReferenceMus
   def actionFor(holder: ProblemsHolder) = {
     case ref: ScReferenceElement if ref.qualifier == None && !ref.getParent.isInstanceOf[ScImportSelector] =>
       ref.bind() match {
-        case Some(r: ScalaResolveResult) =>
+        case Some(r: ScalaResolveResult) if r.nameShadow.isEmpty =>
           r.getActualElement match {
             case clazz: PsiClass =>
               val qualName = clazz.qualifiedName
