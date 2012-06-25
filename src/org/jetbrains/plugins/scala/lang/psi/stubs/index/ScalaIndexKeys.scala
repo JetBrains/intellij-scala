@@ -13,6 +13,7 @@ import com.intellij.psi.stubs.StubIndexKey
 import api.expr.ScAnnotation
 import api.toplevel.ScNamedElement
 import api.toplevel.typedef.{ScMember, ScTypeDefinition}
+import api.statements.params.ScClassParameter
 
 /**
  * @author ilyas
@@ -34,6 +35,7 @@ object ScalaIndexKeys {
   val ANNOTATED_MEMBER_KEY: StubIndexKey[String, ScAnnotation] = StubIndexKey.createIndexKey("sc.annotatde.member.name")
   val VALUE_NAME_KEY: StubIndexKey[String, ScValue] = StubIndexKey.createIndexKey("sc.value.name")
   val VARIABLE_NAME_KEY: StubIndexKey[String, ScVariable] = StubIndexKey.createIndexKey("sc.variable.name")
+  val CLASS_PARAMETER_NAME_KEY: StubIndexKey[String, ScClassParameter] = StubIndexKey.createIndexKey("sc.class.parameter.name")
   val TYPE_ALIAS_NAME_KEY: StubIndexKey[String, ScTypeAlias] = StubIndexKey.createIndexKey("sc.type.alias.name")
   val SUPER_CLASS_NAME_KEY: StubIndexKey[String, ScExtendsBlock] = StubIndexKey.createIndexKey("sc.super.class.name")
   val IMPLICITS_KEY: StubIndexKey[String, ScMember] = StubIndexKey.createIndexKey("sc.implicit.function.name")

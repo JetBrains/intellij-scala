@@ -111,6 +111,11 @@ class ScalaShortNamesCacheManager(project: Project) extends ProjectComponent {
     while (varIterator.hasNext) {
       res += varIterator.next()
     }
+    val classParamNames = StubIndex.getInstance.getAllKeys(ScalaIndexKeys.CLASS_PARAMETER_NAME_KEY, project)
+    val classParamIterator = classParamNames.iterator()
+    while (classParamIterator.hasNext) {
+      res += classParamIterator.next()
+    }
     res.toSeq
   }
 
