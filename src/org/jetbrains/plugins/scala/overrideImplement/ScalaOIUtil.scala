@@ -223,7 +223,8 @@ object ScalaOIUtil {
             case x if !withOwn && x.containingClass == clazz =>
             case x if x.containingClass != null && x.containingClass.isInterface &&
               !x.containingClass.isInstanceOf[ScTrait] => buf2 += sign
-            case x if x.hasModifierPropertyScala("abstract") => buf2 += sign
+            case x if x.hasModifierPropertyScala("abstract") && !x.isInstanceOf[ScFunctionDefinition] &&
+              !x.isInstanceOf[ScPatternDefinition] && !x.isInstanceOf[ScVariableDefinition] => buf2 += sign
             case x: ScFunctionDeclaration if x.hasAnnotation("scala.native") == None =>
               buf2 += sign
             case _ =>
@@ -283,8 +284,9 @@ object ScalaOIUtil {
             case x if x.name == "$tag" || x.name == "$init$"=>
             case x: ScFunction if x.isSyntheticCopy =>
             case x if x.containingClass == clazz =>
-            case x: PsiModifierListOwner if x.hasModifierPropertyScala("abstract")
-                || x.hasModifierPropertyScala("final") /*|| x.hasModifierProperty("sealed")*/ =>
+            case x: PsiModifierListOwner if (x.hasModifierPropertyScala("abstract") &&
+              !x.isInstanceOf[ScFunctionDefinition])
+                || x.hasModifierPropertyScala("final") =>
             case x if x.isConstructor =>
             case method => {
               var flag = false
