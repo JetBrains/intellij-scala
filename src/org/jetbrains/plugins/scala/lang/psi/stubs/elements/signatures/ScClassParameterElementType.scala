@@ -11,6 +11,7 @@ import com.intellij.psi.PsiElement
 import com.intellij.psi.stubs.{StubElement, IndexSink, StubOutputStream, StubInputStream}
 import com.intellij.util.io.StringRef
 import impl.{ScParameterStubImpl}
+import index.ScalaIndexKeys
 
 /**
  * User: Alexander Podkhalyuzin
@@ -21,5 +22,14 @@ class ScClassParameterElementType extends ScParamElementType[ScClassParameter]("
 
   def createPsi(stub: ScParameterStub): ScClassParameter = {
     new ScClassParameterImpl(stub)
+  }
+
+  override def indexStub(stub: ScParameterStub, sink: IndexSink) {
+    super.indexStub(stub, sink)
+
+    val name = stub.getName
+      if (name != null) {
+        sink.occurrence(ScalaIndexKeys.CLASS_PARAMETER_NAME_KEY, name)
+      }
   }
 }

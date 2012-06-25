@@ -9,6 +9,7 @@ import api.statements.ScValue
 import com.intellij.openapi.project.Project
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.stubs.{StringStubIndexExtension, StubIndexKey}
+import api.statements.params.ScClassParameter
 
 /**
  * User: Alexander Podkhalyuzin
@@ -24,4 +25,15 @@ class ScValueNameIndex extends StringStubIndexExtension[ScValue] {
 
 object ScValueNameIndex {
   val KEY = ScalaIndexKeys.VALUE_NAME_KEY
+}
+
+class ScClassParameterNameIndex extends StringStubIndexExtension[ScClassParameter] {
+  override def get(key: String, project: Project, scope: GlobalSearchScope): java.util.Collection[ScClassParameter] =
+    super.get(key, project, new ScSourceFilterScope(scope, project))
+
+  def getKey: StubIndexKey[String, ScClassParameter] = ScClassParameterNameIndex.KEY
+}
+
+object ScClassParameterNameIndex {
+  val KEY = ScalaIndexKeys.CLASS_PARAMETER_NAME_KEY
 }

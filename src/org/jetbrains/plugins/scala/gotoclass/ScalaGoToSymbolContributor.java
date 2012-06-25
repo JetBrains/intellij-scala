@@ -27,6 +27,7 @@ public class ScalaGoToSymbolContributor implements ChooseByNameContributor {
     final Collection<String> items = StubIndex.getInstance().getAllKeys(ScalaIndexKeys.METHOD_NAME_KEY(), project);
     items.addAll(StubIndex.getInstance().getAllKeys(ScalaIndexKeys.VALUE_NAME_KEY(), project));
     items.addAll(StubIndex.getInstance().getAllKeys(ScalaIndexKeys.VARIABLE_NAME_KEY(), project));
+    items.addAll(StubIndex.getInstance().getAllKeys(ScalaIndexKeys.CLASS_PARAMETER_NAME_KEY(), project));
     items.addAll(StubIndex.getInstance().getAllKeys(ScalaIndexKeys.TYPE_ALIAS_NAME_KEY(), project));
     return items.toArray(new String[items.size()]);
   }
@@ -38,6 +39,7 @@ public class ScalaGoToSymbolContributor implements ChooseByNameContributor {
     final Collection<? extends NavigationItem> types = StubIndex.getInstance().get(ScalaIndexKeys.TYPE_ALIAS_NAME_KEY(), name, project, new ScalaSourceFilterScope(scope, project));
     final Collection<? extends NavigationItem> values = StubIndex.getInstance().get(ScalaIndexKeys.VALUE_NAME_KEY(), name, project, new ScalaSourceFilterScope(scope, project));
     final Collection<? extends NavigationItem> vars = StubIndex.getInstance().get(ScalaIndexKeys.VARIABLE_NAME_KEY(), name, project, new ScalaSourceFilterScope(scope, project));
+    final Collection<? extends NavigationItem> params = StubIndex.getInstance().get(ScalaIndexKeys.CLASS_PARAMETER_NAME_KEY(), name, project, new ScalaSourceFilterScope(scope, project));
 
     final ArrayList<NavigationItem> items = new ArrayList<NavigationItem>();
 
@@ -80,6 +82,8 @@ public class ScalaGoToSymbolContributor implements ChooseByNameContributor {
         }
       }
     }
+
+    items.addAll(params);
 
     return items.toArray(new NavigationItem[items.size()]);
   }
