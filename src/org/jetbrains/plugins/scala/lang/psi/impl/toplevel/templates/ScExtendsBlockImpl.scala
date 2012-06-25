@@ -79,9 +79,6 @@ class ScExtendsBlockImpl extends ScalaStubBasedElementImpl[ScExtendsBlock] with 
   }
 
   private def superTypesInner: List[ScType] = {
-    if (PsiTreeUtil.getParentOfType(this, classOf[PsiClass]).getName == "Reversed" && getContainingFile.getName.startsWith("IndexedSeqView")) {
-      "stop"
-    }
     val buffer = new ListBuffer[ScType]
     def addType(t: ScType) {
       t match {
@@ -105,9 +102,6 @@ class ScExtendsBlockImpl extends ScalaStubBasedElementImpl[ScExtendsBlock] with 
   }
   
   private def supersInner: Seq[PsiClass] = {
-    if (PsiTreeUtil.getParentOfType(this, classOf[PsiClass]).getName == "Reversed" && getContainingFile.getName.startsWith("IndexedSeqView")) {
-      "stop"
-    }
     val buffer = new ListBuffer[PsiClass]
     def addClass(t: PsiClass) {
       buffer += t
