@@ -34,6 +34,7 @@ class ScalaUnnecessarySemicolonInspection extends LocalInspectionTool {
             var elem2 = newFile.findElementAt(offset - 1)
             while (elem1 != null && elem1.getTextRange.getEndOffset <= offset && elem2 != null) {
               if (elem1.getText != elem2.getText) return
+              if (elem1.getNode.getElementType != elem2.getNode.getElementType) return
               elem1 = elem1.getParent
               elem2 = elem2.getParent
             }
@@ -42,6 +43,7 @@ class ScalaUnnecessarySemicolonInspection extends LocalInspectionTool {
             elem2 = newFile.findElementAt(whitespaceOffset - 1)
             while (elem1 != null && elem1.getTextRange.getStartOffset >= whitespaceOffset && elem2 != null) {
               if (elem1.getText != elem2.getText) return
+              if (elem1.getNode.getElementType != elem2.getNode.getElementType) return
               elem1 = elem1.getParent
               elem2 = elem2.getParent
             }
