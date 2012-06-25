@@ -553,8 +553,9 @@ object TypeDefinitionMembers {
     if (processor.isInstanceOf[ImplicitProcessor] && !clazz.isInstanceOf[ScTemplateDefinition]) return true
 
     if (!privateProcessDeclarations(processor, state, lastParent, place, getSignatures(clazz),
-      getParameterlessSignatures(clazz), getTypes(clazz), false,
-      clazz.isInstanceOf[ScObject], signaturesForJava, syntheticMethods)) return false
+      getParameterlessSignatures(clazz), getTypes(clazz), isSupers = false,
+      isObject = clazz.isInstanceOf[ScObject], signaturesForJava = signaturesForJava,
+      syntheticMethods = syntheticMethods)) return false
 
     if (!(AnyRef.asClass(clazz.getProject).getOrElse(return true).processDeclarations(processor, state, lastParent, place) &&
             Any.asClass(clazz.getProject).getOrElse(return true).processDeclarations(processor, state, lastParent, place))) return false
@@ -582,7 +583,7 @@ object TypeDefinitionMembers {
                                lastParent: PsiElement,
                                place: PsiElement): Boolean = {
     if (!privateProcessDeclarations(processor, state, lastParent, place, getSignatures(td),
-      getParameterlessSignatures(td), getTypes(td), true, td.isInstanceOf[ScObject])) return false
+      getParameterlessSignatures(td), getTypes(td), isSupers = true, isObject = td.isInstanceOf[ScObject])) return false
 
     if (!(AnyRef.asClass(td.getProject).getOrElse(return true).
       processDeclarations(processor, state, lastParent, place) &&
@@ -597,7 +598,7 @@ object TypeDefinitionMembers {
                           lastParent: PsiElement,
                           place: PsiElement): Boolean = {
     if (!privateProcessDeclarations(processor, state, lastParent, place, SignatureNodes.build(comp),
-      ParameterlessNodes.build(comp), TypeNodes.build(comp), false, false)) return false
+      ParameterlessNodes.build(comp), TypeNodes.build(comp), isSupers = false, isObject = false)) return false
 
     val project =
       if (lastParent != null) lastParent.getProject
