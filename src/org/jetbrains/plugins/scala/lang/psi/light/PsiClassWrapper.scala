@@ -7,10 +7,8 @@ import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.search.SearchScope
 import impl.light.LightElement
-import impl.PsiClassImplUtil
+import impl.{PsiSuperMethodImplUtil, PsiClassImplUtil}
 import javax.swing._
-import java.util.Collection
-import java.util.List
 import com.intellij.openapi.util.text.StringUtil
 import collection.mutable.ArrayBuffer
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
@@ -22,6 +20,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTra
 import org.jetbrains.plugins.scala.extensions.{toPsiClassExt, toPsiMemberExt}
 import com.intellij.openapi.util.{TextRange, Pair}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import java.util
 
 /**
  * @author Alefas
@@ -224,11 +223,11 @@ class PsiClassWrapper(val definition: ScTemplateDefinition,
     PsiClassImplUtil.findMethodsByName(this, name, checkBases)
   }
 
-  def findMethodsAndTheirSubstitutorsByName(name: String, checkBases: Boolean): List[Pair[PsiMethod, PsiSubstitutor]] = {
+  def findMethodsAndTheirSubstitutorsByName(name: String, checkBases: Boolean): util.List[Pair[PsiMethod, PsiSubstitutor]] = {
     PsiClassImplUtil.findMethodsAndTheirSubstitutorsByName(this, name, checkBases)
   }
 
-  def getAllMethodsAndTheirSubstitutors: List[Pair[PsiMethod, PsiSubstitutor]] = {
+  def getAllMethodsAndTheirSubstitutors: util.List[Pair[PsiMethod, PsiSubstitutor]] = {
     PsiClassImplUtil.getAllWithSubstitutorsByMap(this, classOf[PsiMethod])
   }
 
@@ -274,8 +273,8 @@ class PsiClassWrapper(val definition: ScTemplateDefinition,
     definition.getContainingClass
   }
 
-  def getVisibleSignatures: Collection[HierarchicalMethodSignature] = {
-    definition.getVisibleSignatures
+  def getVisibleSignatures: util.Collection[HierarchicalMethodSignature] = {
+    PsiSuperMethodImplUtil.getVisibleSignatures(this)
   }
 
   def setName(name: String): PsiElement = {
