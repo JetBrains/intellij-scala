@@ -629,6 +629,10 @@
                      displayName="No tail recursion annotation" groupName="Scala: General"
                      shortName="NoTailRecursionAnnotation" level="WARNING"
                      enabledByDefault="false" language="Scala"/>
+    <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.catchAll.DangerousCatchAllInspection"
+                     displayName="Missing type annotation"
+                     groupName="Scala: General" shortName="DangerousCatchAll"
+                     level="WARNING" enabledByDefault="true" language="Scala"/>
     <!--<localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.allErrorsInspection.AnnotatorBasedErrorInspection"
                      displayName="All Errors Tool" groupName="Scala: General"
                      shortName="ScalaAllErrors" level="WARNING"
