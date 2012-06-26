@@ -350,7 +350,8 @@ object ResolveUtils {
                   if (td != null && isInheritorOrSelfOrSame(placeTd, td)) return true
                   val companion: ScTemplateDefinition = ScalaPsiUtil.
                           getCompanionModule(placeTd).getOrElse(null: ScTemplateDefinition)
-                  if (withCompanion && companion != null && ScalaPsiUtil.cachedDeepIsInheritor(companion, td)) return true
+                  if (withCompanion && companion != null && td != null &&
+                    ScalaPsiUtil.cachedDeepIsInheritor(companion, td)) return true
                   placeTd = getPlaceTd(placeTd)
                 }
                 false
@@ -402,7 +403,8 @@ object ResolveUtils {
           while (placeTd != null) {
             if (clazz != null && isInheritorOrSelfOrSame(placeTd, clazz)) return true
             val companion: ScTemplateDefinition = ScalaPsiUtil.getCompanionModule(placeTd).getOrElse(null: ScTemplateDefinition)
-            if (companion != null && ScalaPsiUtil.cachedDeepIsInheritor(companion, clazz)) return true
+            if (companion != null && clazz != null &&
+              ScalaPsiUtil.cachedDeepIsInheritor(companion, clazz)) return true
             placeTd = getPlaceTd(placeTd)
           }
           false
