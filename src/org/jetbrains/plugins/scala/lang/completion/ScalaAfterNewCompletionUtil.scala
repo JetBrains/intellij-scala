@@ -14,10 +14,10 @@ import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils
 import com.intellij.codeInsight.completion.{CompletionResultSet, InsertHandler}
 import com.intellij.psi.search.searches.ClassInheritorsSearch
 import com.intellij.util.Processor
-import collection.mutable.{HashMap, HashSet}
 import com.intellij.psi.{PsiNamedElement, PsiElement, PsiDocCommentOwner, PsiClass}
 import org.jetbrains.plugins.scala.extensions.{toPsiModifierListOwnerExt, toPsiMemberExt, toPsiNamedElementExt, toPsiClassExt}
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
+import collection.mutable
 
 /**
  * @author Alefas
@@ -28,7 +28,7 @@ object ScalaAfterNewCompletionUtil {
     classOf[ScSimpleTypeElement], classOf[ScConstructor], classOf[ScClassParents], classOf[ScExtendsBlock], classOf[ScNewTemplateDefinition])
 
   def getLookupElementFromClass(expectedTypes: Array[ScType], clazz: PsiClass,
-                                renamesMap: HashMap[String, (String, PsiNamedElement)]): LookupElement = {
+                                renamesMap: mutable.HashMap[String, (String, PsiNamedElement)]): LookupElement = {
     val undefines: Seq[ScUndefinedType] = clazz.getTypeParameters.map(ptp =>
       new ScUndefinedType(new ScTypeParameterType(ptp, ScSubstitutor.empty))
     )
@@ -85,7 +85,7 @@ object ScalaAfterNewCompletionUtil {
         case _ =>
       }
       var tailText: String = ""
-      var itemText: String = psiClass.name + (tp match {
+      val itemText: String = psiClass.name + (tp match {
         case ScParameterizedType(_, tps) =>
           tps.map(tp => ScType.presentableText(subst.subst(tp))).mkString("[", ", ", "]")
         case _ => ""
@@ -111,7 +111,7 @@ object ScalaAfterNewCompletionUtil {
   private def getLookupElementFromTypeAndClass(tp: ScType, psiClass: PsiClass, subst: ScSubstitutor,
                                        renderer: (ScType, PsiClass, ScSubstitutor) => LookupElementRenderer[LookupElement],
                                        insertHandler: InsertHandler[LookupElement],
-                                       renamesMap: HashMap[String, (String, PsiNamedElement)]): ScalaLookupItem = {
+                                       renamesMap: mutable.HashMap[String, (String, PsiNamedElement)]): ScalaLookupItem = {
     val name: String = psiClass.name
     val isRenamed = renamesMap.filter {
       case (aName, (renamed, aClazz)) => aName == name && aClazz == psiClass
@@ -144,10 +144,10 @@ object ScalaAfterNewCompletionUtil {
     lookupElement
   }
 
-  def convertTypeToLookupElement(tp: ScType, place: PsiElement, addedClasses: HashSet[String],
+  def convertTypeToLookupElement(tp: ScType, place: PsiElement, addedClasses: mutable.HashSet[String],
                                  renderer: (ScType, PsiClass, ScSubstitutor) => LookupElementRenderer[LookupElement],
                                  insertHandler: InsertHandler[LookupElement],
-                                 renamesMap: HashMap[String, (String, PsiNamedElement)]): ScalaLookupItem = {
+                                 renamesMap: mutable.HashMap[String, (String, PsiNamedElement)]): ScalaLookupItem = {
     ScType.extractClassType(tp, Some(place.getProject)) match {
       case Some((clazz: PsiClass, subst: ScSubstitutor)) =>
         //filter base types (it's important for scala 2.9)
@@ -159,7 +159,7 @@ object ScalaAfterNewCompletionUtil {
         //todo: filter inner classes smarter (how? don't forget deep inner classes)
         if (clazz.containingClass != null && (!clazz.containingClass.isInstanceOf[ScObject] ||
           clazz.hasModifierPropertyScala("static"))) return null
-        if (!ResolveUtils.isAccessible(clazz, place, true)) return null
+        if (!ResolveUtils.isAccessible(clazz, place, forCompletion = true)) return null
         if (addedClasses.contains(clazz.qualifiedName)) return null
         addedClasses += clazz.qualifiedName
         getLookupElementFromTypeAndClass(tp, clazz, subst, renderer, insertHandler, renamesMap)
@@ -167,10 +167,10 @@ object ScalaAfterNewCompletionUtil {
     }
   }
 
-  def collectInheritorsForType(typez: ScType, place: PsiElement, addedClasses: HashSet[String],
+  def collectInheritorsForType(typez: ScType, place: PsiElement, addedClasses: mutable.HashSet[String],
                                result: CompletionResultSet,
                                renderer: (ScType, PsiClass, ScSubstitutor) => LookupElementRenderer[LookupElement],
-                               insertHandler: InsertHandler[LookupElement], renamesMap: HashMap[String, (String, PsiNamedElement)]) {
+                               insertHandler: InsertHandler[LookupElement], renamesMap: mutable.HashMap[String, (String, PsiNamedElement)]) {
     ScType.extractClassType(typez, Some(place.getProject)) match {
       case Some((clazz, subst)) =>
         ClassInheritorsSearch.search(clazz, true).forEach(new Processor[PsiClass] {
@@ -180,13 +180,13 @@ object ScalaAfterNewCompletionUtil {
               new ScUndefinedType(new ScTypeParameterType(ptp, ScSubstitutor.empty))
             )
             val predefinedType =
-              if (clazz.getTypeParameters.length == 1) {
+              if (clazz.getTypeParameters.length >= 1) {
                 ScParameterizedType(ScDesignatorType(clazz), undefines)
               }
               else
                 ScDesignatorType(clazz)
             val noUndefType =
-              if (clazz.getTypeParameters.length == 1) {
+              if (clazz.getTypeParameters.length >= 1) {
                 ScParameterizedType(ScDesignatorType(clazz), clazz.getTypeParameters.map(ptp =>
                   new ScTypeParameterType(ptp, ScSubstitutor.empty)
                 ))
