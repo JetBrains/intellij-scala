@@ -18,6 +18,7 @@ object Convert1 {
 Seq(any2ArrowAssoc,
     any2Ensuring,
     any2stringadd,
+    any2stringfmt,
     convert,
     convert),
 Some(convert)

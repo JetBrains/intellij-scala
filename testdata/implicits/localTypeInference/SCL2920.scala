@@ -15,6 +15,7 @@ def b2: B = /*start*/foo(new A)/*end*/
 Seq(a2b,
     any2ArrowAssoc,
     any2Ensuring,
-    any2stringadd),
+    any2stringadd,
+    any2stringfmt),
 Some(a2b)
  */

@@ -10,6 +10,7 @@ object tedfdst {
 Seq(any2ArrowAssoc,
     any2Ensuring,
     any2stringadd,
+    any2stringfmt,
     augmentString,
     s2i,
     wrapString),
