@@ -35,7 +35,7 @@ import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.scala.extensions._
 import config.ScalaFacet
 import com.intellij.openapi.util.{TextRange, Key}
-import caches.CachesUtil
+import caches.{ScalaShortNamesCacheManager, CachesUtil}
 import lang.resolve.ResolveUtils
 import lang.resolve.processor.{ImplicitProcessor, ResolveProcessor, ResolverEnv}
 import com.intellij.psi.impl.ResolveScopeManager
@@ -404,19 +404,23 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
 
     import toplevel.synthetic.SyntheticClasses
 
+    val scalaPack = ScPackageImpl.findPackage(getProject, "scala")
+    val namesSet = ScalaShortNamesCacheManager.getInstance(getProject).getClassNames(scalaPack, scope)
+    def alreadyContains(className: String) = namesSet.contains(className)
+
     val classes = SyntheticClasses.get(getProject)
     val synthIterator = classes.getAll.iterator
     while (synthIterator.hasNext) {
       val synth = synthIterator.next()
       ProgressManager.checkCanceled()
-      if (!processor.execute(synth, state)) return false
+      if (!alreadyContains(synth.getName) && !processor.execute(synth, state)) return false
     }
 
     val synthObjectsIterator = classes.syntheticObjects.iterator
     while (synthObjectsIterator.hasNext) {
       val synth = synthObjectsIterator.next()
       ProgressManager.checkCanceled()
-      if (!processor.execute(synth, state)) return false
+      if (!alreadyContains(synth.name) && !processor.execute(synth, state)) return false
     }
 
     if (isScriptFile) {
