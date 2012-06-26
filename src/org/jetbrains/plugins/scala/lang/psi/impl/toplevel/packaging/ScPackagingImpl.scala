@@ -126,7 +126,7 @@ class ScPackagingImpl extends ScalaStubBasedElementImpl[ScPackageContainer] with
     val pName = (if (prefix.length == 0) "" else prefix + ".") + getPackageName
     ProgressManager.checkCanceled()
     val p = ScPackageImpl(JavaPsiFacade.getInstance(getProject).findPackage(pName))
-    if (!(p == null || p.processDeclarations(processor, state, lastParent, place))) {
+    if (p != null && !p.processDeclarations(processor, state, lastParent, place)) {
       return false
     }
 

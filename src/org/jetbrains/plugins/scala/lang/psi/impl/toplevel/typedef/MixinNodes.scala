@@ -18,6 +18,8 @@ import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.project.Project
 import extensions.{toPsiNamedElementExt, toPsiClassExt}
 import collection.mutable
+import psi.types.Conformance.AliasType
+import api.statements.ScTypeAliasDefinition
 
 abstract class MixinNodes {
   type T
@@ -357,10 +359,6 @@ abstract class MixinNodes {
           }
     }
 
-    if (superTypes.length > 0 && superTypes(0).toString.startsWith("SeqView")) {
-      "stop"
-    }
-
     val iter = superTypes.iterator
     while (iter.hasNext) {
       val superType = iter.next()
@@ -377,6 +375,14 @@ abstract class MixinNodes {
             }
             superTypesBuff += newMap
           }
+        case _ =>
+      }
+      (Conformance.isAliasType(superType) match {
+        case Some(AliasType(td: ScTypeAliasDefinition, lower, _)) => lower.getOrElse(superType)
+        case _ => superType
+      }) match {
+        case c: ScCompoundType =>
+          processRefinement(c, map, place)
         case _ =>
       }
     }
@@ -426,10 +432,10 @@ object MixinNodes {
   }
 
 
-  def linearization(compound: ScCompoundType): Seq[ScType] = {
+  def linearization(compound: ScCompoundType, addTp: Boolean = false): Seq[ScType] = {
     val comps = compound.components
 
-    generalLinearization(None, compound, addTp = false, supers = comps)
+    generalLinearization(None, compound, addTp = addTp, supers = comps)
   }
 
   private def linearizationInner(clazz: PsiClass): Seq[ScType] = {
@@ -484,6 +490,13 @@ object MixinNodes {
           }
         }
         case _ =>
+          (Conformance.isAliasType(tp) match {
+            case Some(AliasType(td: ScTypeAliasDefinition, lower, _)) => lower.getOrElse(tp)
+            case _ => tp
+          }) match {
+            case c: ScCompoundType => c +=: buffer
+            case _ =>
+          }
       }
     }
 
@@ -500,6 +513,20 @@ object MixinNodes {
           }
         }
         case _ =>
+          (Conformance.isAliasType(tp) match {
+            case Some(AliasType(td: ScTypeAliasDefinition, lower, _)) => lower.getOrElse(tp)
+            case _ => tp
+          }) match {
+            case c: ScCompoundType =>
+              val lin = linearization(c, addTp = true)
+              val newIterator = lin.reverseIterator
+              while (newIterator.hasNext) {
+                val tp = newIterator.next()
+                add(tp)
+              }
+
+            case _ =>
+          }
       }
     }
     if (addTp) add(tp)
