@@ -9,9 +9,8 @@ class OuterTest {
 
   def f: Int = 4
 
-  def g: InnerSuper = new InnerSuper {
-    is : TestTree =>
+  trait I extends InnerSuper {
+    is: TestTree =>
     this.<ref>iii + this.fooo
   }
-
 }
