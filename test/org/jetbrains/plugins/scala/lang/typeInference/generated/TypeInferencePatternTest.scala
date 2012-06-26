@@ -25,11 +25,15 @@ class TypeInferencePatternTest extends TypeInferenceTestBase {
 
   def testParamExtractor() {doTest()}
 
+  def testPatternGLB() {doTest()}
+
   def testPatternOption() {doTest()}
 
   def testPatternUnapply() {doTest()}
 
   def testRangeMapping() {doTest()}
+
+  def testSCL3749() {doTest()}
 
   def testUnapplySeqLocalTypeInference() {doTest()}
 }
