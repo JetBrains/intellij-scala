@@ -405,7 +405,9 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
     import toplevel.synthetic.SyntheticClasses
 
     val scalaPack = ScPackageImpl.findPackage(getProject, "scala")
-    val namesSet = ScalaShortNamesCacheManager.getInstance(getProject).getClassNames(scalaPack, scope)
+    val namesSet =
+      if (scalaPack != null) ScalaShortNamesCacheManager.getInstance(getProject).getClassNames(scalaPack, scope)
+      else Set.empty[String]
     def alreadyContains(className: String) = namesSet.contains(className)
 
     val classes = SyntheticClasses.get(getProject)
