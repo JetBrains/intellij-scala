@@ -427,6 +427,31 @@ class ScalaSmartCompletionTest extends ScalaCompletionTestBase {
     if (activeLookup != null) completeLookupItem(activeLookup.find(le => le.getLookupString == "empty").get, '\t')
     checkResultByText(resultText)
   }
+
+  def testTwoGenerics() {
+    val fileText =
+      """
+        |class A[T, K](s: Int)
+        |
+        |class B[T, K](s: Int) extends A[T, K](s)
+        |
+        |val map: A[Int,Int] = new <caret>
+      """.stripMargin.replaceAll("\r", "").trim()
+    configureFromFileTextAdapter("dummy.scala", fileText)
+    val (activeLookup, _) = complete(1, CompletionType.SMART)
+
+    val resultText =
+      """
+      |class A[T, K](s: Int)
+      |
+      |class B[T, K](s: Int) extends A[T, K](s)
+      |
+      |val map: A[Int,Int] = new B[Int, Int](<caret>)
+      """.stripMargin.replaceAll("\r", "").trim()
+
+    if (activeLookup != null) completeLookupItem(activeLookup.find(le => le.getLookupString == "B").get, '\t')
+    checkResultByText(resultText)
+  }
   
   def testChainedSecondCompletion() {
     val fileText =
