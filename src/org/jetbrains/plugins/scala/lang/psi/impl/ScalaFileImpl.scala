@@ -44,6 +44,8 @@ import util.{PsiUtilCore, PsiModificationTracker, PsiTreeUtil}
 import com.intellij.openapi.diagnostic.Logger
 import java.lang.String
 import api.toplevel.typedef.{ScClass, ScTrait, ScObject}
+import collection.mutable
+import java.util
 
 class ScalaFileImpl(viewProvider: FileViewProvider)
         extends PsiFileBase(viewProvider, ScalaFileType.SCALA_FILE_TYPE.getLanguage)
@@ -195,7 +197,7 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
     }
   }
 
-  def isScriptFile: Boolean = isScriptFile(true)
+  def isScriptFile: Boolean = isScriptFile(withCashing = true)
 
   def isScriptFile(withCashing: Boolean): Boolean = {
     if (!withCashing) return isScriptFileImpl
@@ -464,10 +466,8 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
     myControlFlow
   }
 
-  import java.util.Set
-  import java.util.HashSet
-  def getClassNames: Set[String] = {
-    val res = new HashSet[String]
+  def getClassNames: util.Set[String] = {
+    val res = new util.HashSet[String]
     typeDefinitions.foreach {
       case clazz: ScClass => res.add(clazz.getName)
       case o: ScObject =>
@@ -552,10 +552,8 @@ object ImplicitlyImported {
   val packages = Array("scala", "java.lang")
   val objects = Array("scala.Predef", "scala" /* package object*/)
 
-
-  import collection.mutable.WeakHashMap
-  private val importedObjects: WeakHashMap[Project, Seq[PsiClass]] = new WeakHashMap[Project, Seq[PsiClass]]
-  private val modCount: WeakHashMap[Project, Long] = new WeakHashMap[Project, Long]
+  private val importedObjects: mutable.WeakHashMap[Project, Seq[PsiClass]] = new mutable.WeakHashMap[Project, Seq[PsiClass]]
+  private val modCount: mutable.WeakHashMap[Project, Long] = new mutable.WeakHashMap[Project, Long]
 
   def implicitlyImportedObject(manager: PsiManager, scope: GlobalSearchScope,
                                 fqn: String): Option[PsiClass] = {
@@ -572,7 +570,7 @@ object ImplicitlyImported {
 
   private def implicitlyImportedObjects(manager: PsiManager, scope: GlobalSearchScope): Seq[PsiClass] = {
     var res: Seq[PsiClass] = importedObjects.get(manager.getProject).getOrElse(null)
-    val count = manager.getModificationTracker.getJavaStructureModificationCount
+    val count = manager.getModificationTracker.getOutOfCodeBlockModificationCount
     val count1: Option[Long] = modCount.get(manager.getProject)
     if (res != null && count1 != null && count == count1.get) {
       val filter = new ScalaSourceFilterScope(scope, manager.getProject)
