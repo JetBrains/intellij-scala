@@ -25,6 +25,7 @@ import com.intellij.openapi.util.TextRange
 import api.toplevel.ScTypedDefinition
 import light.{EmptyPrivateConstructor, PsiClassWrapper}
 import api.statements._
+import params.ScClassParameter
 import types.ScType
 import extensions.toPsiMemberExt
 
@@ -224,13 +225,14 @@ class ScObjectImpl extends ScTypeDefinitionImpl with ScObject with ScTemplateDef
           case Some(fun: ScFunction) if !fun.isConstructor =>
             res += fun.getFunctionWrapper(isStatic = false, isInterface = fun.isInstanceOf[ScFunctionDeclaration])
           case Some(method: PsiMethod) if !method.isConstructor => res += method
-          case Some(t: ScTypedDefinition) if t.isVal || t.isVar =>
+          case Some(t: ScTypedDefinition) if t.isVal || t.isVar ||
+            (t.isInstanceOf[ScClassParameter] && t.asInstanceOf[ScClassParameter].isCaseClassVal) =>
             val (isInterface, cClass) = t.nameContext match {
               case m: ScMember =>
-                val b = m.isInstanceOf[ScPatternDefinition] || m.isInstanceOf[ScVariableDefinition]
-                (b, m.containingClass match {
+                val isConcrete = m.isInstanceOf[ScPatternDefinition] || m.isInstanceOf[ScVariableDefinition] || m.isInstanceOf[ScClassParameter]
+                (!isConcrete, m.containingClass match {
                   case t: ScTrait =>
-                    if (b) {
+                    if (isConcrete) {
                       Some(getClazz(t))
                     } else None
                 case _ => None

@@ -141,10 +141,11 @@ class ScClassImpl extends ScTypeDefinitionImpl with ScClass with ScTypeParameter
             (t.isInstanceOf[ScClassParameter] && t.asInstanceOf[ScClassParameter].isCaseClassVal) =>
             val (isInterface, cClass) = t.nameContext match {
               case m: ScMember =>
-                val b = m.isInstanceOf[ScPatternDefinition] || m.isInstanceOf[ScVariableDefinition]
-                (b, m.containingClass match {
+                val isConcrete = m.isInstanceOf[ScPatternDefinition] || m.isInstanceOf[ScVariableDefinition] ||
+                   m.isInstanceOf[ScClassParameter]
+                (!isConcrete, m.containingClass match {
                   case t: ScTrait =>
-                    if (b) {
+                    if (isConcrete) {
                       Some(getClazz(t))
                     } else None
                   case _ => None

@@ -86,7 +86,7 @@ class ScTraitImpl extends ScTypeDefinitionImpl with ScTrait with ScTypeParameter
             if (nodeName == t.name) {
               res += t.getTypedDefinitionWrapper(isStatic = false, isInterface = true, role = SIMPLE_ROLE)
               if (t.isVar) {
-                res += t.getTypedDefinitionWrapper(isStatic = false, isInterface = isInterface, role = EQ)
+                res += t.getTypedDefinitionWrapper(isStatic = false, isInterface = true, role = EQ)
               }
             }
             t.nameContext match {
