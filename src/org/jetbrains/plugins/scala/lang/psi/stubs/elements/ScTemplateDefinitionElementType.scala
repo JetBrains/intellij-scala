@@ -13,6 +13,7 @@ import api.toplevel.typedef.{ScTemplateDefinition, ScObject, ScTypeDefinition}
 import api.expr.ScAnnotation
 import com.intellij.psi.impl.java.stubs.index.JavaStubIndexKeys
 import extensions.toPsiMemberExt
+import com.intellij.psi.util.PsiTreeUtil
 
 /**
  * @author ilyas, alefas
@@ -45,7 +46,8 @@ extends ScStubElementType[ScTemplateDefinitionStub, ScTemplateDefinition](debugN
     val additionalJavaNames = psi.additionalJavaNames
 
     new ScTemplateDefinitionStubImpl[ParentPsi](parent, this, psi.name, psi.qualifiedName, psi.getQualifiedName,
-      fileName, signs, isPO, isSFC, isDepr, isImplicitObject, javaName, additionalJavaNames, psi.containingClass == null)
+      fileName, signs, isPO, isSFC, isDepr, isImplicitObject, javaName, additionalJavaNames,
+      psi.containingClass == null && PsiTreeUtil.getParentOfType(psi, classOf[ScTemplateDefinition]) != null)
   }
 
   def serialize(stub: ScTemplateDefinitionStub, dataStream: StubOutputStream) {
@@ -103,7 +105,7 @@ extends ScStubElementType[ScTemplateDefinitionStub, ScTemplateDefinition](debugN
       sink.occurrence(ScalaIndexKeys.ALL_CLASS_NAMES, name)
     }
     val javaFqn = stub.javaQualName
-    if (javaFqn != null) {
+    if (javaFqn != null && !stub.isLocal) {
       sink.occurrence[PsiClass, java.lang.Integer](JavaStubIndexKeys.CLASS_FQN, javaFqn.hashCode)
       val i = javaFqn.lastIndexOf(".")
       val pack =
@@ -112,7 +114,7 @@ extends ScStubElementType[ScTemplateDefinitionStub, ScTemplateDefinition](debugN
       sink.occurrence(ScalaIndexKeys.JAVA_CLASS_NAME_IN_PACKAGE_KEY, pack)
     }
     val fqn = stub.qualName
-    if (fqn != null) {
+    if (fqn != null && !stub.isLocal) {
       sink.occurrence[PsiClass, java.lang.Integer](ScalaIndexKeys.FQN_KEY, fqn.hashCode)
       val i = fqn.lastIndexOf(".")
       val pack =

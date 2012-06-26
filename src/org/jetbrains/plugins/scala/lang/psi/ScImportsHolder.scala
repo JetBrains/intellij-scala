@@ -8,6 +8,7 @@ import api.toplevel.imports.{ScImportSelector, ScImportSelectors, ScImportExpr, 
 import api.toplevel.templates.ScTemplateBody
 import api.{ScalaRecursiveElementVisitor, ScalaFile}
 import com.intellij.psi.impl.source.codeStyle.CodeEditUtil
+import impl.toplevel.imports.ScImportStmtImpl
 import impl.{ScPackageImpl, ScalaPsiElementFactory}
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import api.toplevel.imports.usages.{ImportSelectorUsed, ImportExprUsed, ImportWildcardSelectorUsed, ImportUsed}
@@ -24,6 +25,7 @@ import lang.resolve.processor.{CompletionProcessor, ResolveProcessor}
 import com.intellij.psi.util.PsiTreeUtil
 import java.lang.ThreadLocal
 import com.intellij.openapi.util.{Trinity, RecursionManager}
+import stubs.ScImportStmtStub
 import types.result.TypingContext
 import types.ScDesignatorType
 import extensions.{toPsiMemberExt, toPsiNamedElementExt, toPsiClassExt}
