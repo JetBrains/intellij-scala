@@ -13,6 +13,7 @@ import com.intellij.psi.scope.PsiScopeProcessor
 import api.toplevel.templates.ScTemplateBody
 import api.toplevel.typedef._
 import impl.expr.ScBlockExprImpl
+import impl.ScalaPsiManager.ClassCategory
 import impl.toplevel.typedef.TypeDefinitionMembers
 import impl.{ScalaPsiManager, ScalaPsiElementFactory}
 import implicits.ScImplicitlyConvertible
@@ -521,6 +522,14 @@ object ScalaPsiUtil {
       def collectObjects(tp: ScType, update: Option[ScSubstitutor] = None) {
         tp match {
           case Any => return
+          case tp: StdType if Seq("Int", "Float", "Double", "Boolean", "Byte", "Short", "Long", "Char").contains(tp.name) =>
+            val obj = ScalaPsiManager.instance(place.getProject).
+              getCachedClass("scala." + tp.name, place.getResolveScope, ClassCategory.OBJECT)
+            obj match {
+              case o: ScObject => res += ScDesignatorType(o)
+              case _ =>
+            }
+            return
           case ScDesignatorType(ta: ScTypeAliasDefinition) =>
             collectObjects(ta.aliasedType.getOrAny, update)
             return
