@@ -22,7 +22,6 @@ import psi.api.expr._
 import psi.api.base.{ScMethodLike, ScPrimaryConstructor}
 import psi.api.toplevel.{ScTypeParametersOwner, ScTypedDefinition}
 import extensions._
-import psi.types.Compatibility.ConformanceExtResult._
 import psi.types.Compatibility.{ConformanceExtResult, Expression}
 
 //todo: remove all argumentClauses, we need just one of them
@@ -153,7 +152,8 @@ object MethodResolveProcessor {
       expectedFunctionType match {
         case Some(ScFunctionType(retType, params)) => {
           val args = params.map(new Expression(_))
-          Compatibility.compatible(fun, substitutor, List(args), false, ref.getResolveScope, isShapeResolve)
+          Compatibility.compatible(fun, substitutor, List(args), checkWithImplicits = false,
+            scope = ref.getResolveScope, isShapesResolve = isShapeResolve)
         }
         case _ => {
           fun match {
@@ -366,12 +366,12 @@ object MethodResolveProcessor {
         r.copy(problems = pr.problems, defaultParameterUsed = pr.defaultParameterUsed, resultUndef = Some(pr.undefSubst))
       })
     }
-    var mapped = mapper(false)
+    var mapped = mapper(applicationImplicits = false)
     var filtered = mapped.filter(_.isApplicableInternal)
 
     if (filtered.isEmpty && !noImplicitsForArgs) {
       //check with implicits
-      mapped = mapper(true)
+      mapped = mapper(applicationImplicits = true)
       filtered = mapped.filter(_.isApplicableInternal)
     }
 

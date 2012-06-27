@@ -114,8 +114,8 @@ class ScAssignStmtImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScA
         ref.bind() match {
           case Some(r: ScalaResolveResult) =>
             ScalaPsiUtil.nameContext(r.element) match {
-              case v: ScVariable => Some(r)
-              case c: ScClassParameter if c.isVar => Some(r)
+              case v: ScVariable => None
+              case c: ScClassParameter if c.isVar => None
               case fun: ScFunction if fun.paramClauses.clauses.length == 0 =>
                 val processor = new MethodResolveProcessor(ref, fun.name + "_=",
                   getRExpression.map(expr => List(Seq(new Expression(expr)))).getOrElse(Nil), Nil, ref.getPrevTypeInfoParams,

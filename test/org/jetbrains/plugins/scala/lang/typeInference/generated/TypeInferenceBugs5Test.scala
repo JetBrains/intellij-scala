@@ -11,6 +11,8 @@ class TypeInferenceBugs5Test extends TypeInferenceTestBase {
   
   def testImplicitTest() {doTest()}
 
+  def testParenthesisedUnderscore() {doTest()}
+
   def testSCL2929() {doTest()}
 
   def testSCL2381A() {doTest()}
@@ -92,6 +94,8 @@ class TypeInferenceBugs5Test extends TypeInferenceTestBase {
   def testSCL3482() {doTest()}
 
   def testSCL3496() {doTest()}
+
+  def testSCL3512() {doTest()}
 
   def testSCL3517A() {doTest()}
 

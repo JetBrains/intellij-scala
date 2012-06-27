@@ -50,13 +50,12 @@ class AssignmentAnnotatorTest extends SimpleTestCase {
   }
   
   def testClassParameter {
-    assertMatches(messages("class C(p: A) { p = A }")) {
+    assertMatches(messages("case class C(var p: A) { p = A }")) {
       case Nil =>
     }
-    // TODO right expression "B" must have expected type 
-//    assertMatches(messages("class C(p: A) { p = B }")) {
-//      case Error("B", TypeMismatch()) :: Nil =>
-//    }
+    assertMatches(messages("class C(p: A) { p = B }")) {
+      case Error("p = B", ReassignmentToVal()) :: Nil =>
+    }
   }
   
   def testClassVariableParameter {
