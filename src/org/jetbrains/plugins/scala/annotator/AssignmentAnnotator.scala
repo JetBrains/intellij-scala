@@ -10,6 +10,7 @@ import lang.psi.api.statements.params.ScClassParameter
 import lang.psi.api.expr._
 import codeInspection.varCouldBeValInspection.ValToVarQuickFix
 import lang.psi.ScalaPsiUtil
+import com.intellij.psi.PsiField
 
 /**
  * Pavel.Fatin, 31.05.2010
@@ -43,6 +44,9 @@ trait AssignmentAnnotator {
                 if (!advancedHighlighting) return
                 checkVariable()
               case c: ScClassParameter if c.isVar =>
+                if (!advancedHighlighting) return
+                checkVariable()
+              case f: PsiField if !f.hasModifierProperty("final") =>
                 if (!advancedHighlighting) return
                 checkVariable()
               case fun: ScFunction if fun.paramClauses.clauses.length == 0 =>

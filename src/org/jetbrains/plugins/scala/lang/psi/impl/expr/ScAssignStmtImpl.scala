@@ -9,7 +9,7 @@ import com.intellij.lang.ASTNode
 import api.expr._
 import types.Unit
 import types.result.{Success, TypingContext}
-import com.intellij.psi.{ResolveState, PsiElementVisitor}
+import com.intellij.psi.{PsiField, ResolveState, PsiElementVisitor}
 import api.ScalaElementVisitor
 import resolve.{StdKinds, ScalaResolveResult}
 import api.statements.{ScFunction, ScVariable}
@@ -116,6 +116,7 @@ class ScAssignStmtImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScA
             ScalaPsiUtil.nameContext(r.element) match {
               case v: ScVariable => None
               case c: ScClassParameter if c.isVar => None
+              case f: PsiField => None
               case fun: ScFunction if fun.paramClauses.clauses.length == 0 =>
                 val processor = new MethodResolveProcessor(ref, fun.name + "_=",
                   getRExpression.map(expr => List(Seq(new Expression(expr)))).getOrElse(Nil), Nil, ref.getPrevTypeInfoParams,

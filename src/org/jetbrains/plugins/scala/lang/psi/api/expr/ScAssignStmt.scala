@@ -4,7 +4,7 @@ package psi
 package api
 package expr
 
-import com.intellij.psi.{PsiElement, PsiElementVisitor}
+import com.intellij.psi.{PsiField, PsiElement, PsiElementVisitor}
 import resolve.{ResolvableReferenceElement, ScalaResolveResult}
 import statements.ScVariable
 import statements.params.ScClassParameter
@@ -70,6 +70,7 @@ trait ScAssignStmt extends ScExpression {
           case ref: ScReferenceExpression => ref.resolve() match {
             case v: ScVariable => v
             case p: ScClassParameter if p.isVar => p
+            case f: PsiField => f
             case _ => null
           }
           case _ => null
