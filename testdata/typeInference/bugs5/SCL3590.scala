@@ -5,4 +5,4 @@ object Test {
 
   val x: Seq[C[_]] = /*start*/Seq(new C[A], new C[B])/*end*/
 }
-//Seq[Test.C[_ >: Test.B with Test.A <: ScalaObject]]
+//Seq[Test.C[_ >: Test.B with Test.A <: Object]]
