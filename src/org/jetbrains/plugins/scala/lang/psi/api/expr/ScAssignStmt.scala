@@ -4,7 +4,8 @@ package psi
 package api
 package expr
 
-import com.intellij.psi.PsiElementVisitor
+import com.intellij.psi.{PsiElement, PsiElementVisitor}
+import resolve.{ResolvableReferenceElement, ScalaResolveResult}
 
 
 /**
@@ -38,6 +39,26 @@ trait ScAssignStmt extends ScExpression {
           case _ => false
         }
       case _ => false
+    }
+  }
+
+  def mirrorMethodCall: Option[ScMethodCall]
+
+  def resolveAssignment: Option[ScalaResolveResult]
+
+  def shapeResolveAssignment: Option[ScalaResolveResult]
+
+  def assignNavigationElement: PsiElement = {
+    getLExpression match {
+      case methodCall: ScMethodCall =>
+        methodCall.applyOrUpdateElement match {
+          case Some(arrayOrUpdateElement) => arrayOrUpdateElement
+          case None => null
+        }
+      case _ => resolveAssignment match {
+        case Some(ScalaResolveResult(elem, _)) => elem
+        case _ => null
+      }
     }
   }
 }

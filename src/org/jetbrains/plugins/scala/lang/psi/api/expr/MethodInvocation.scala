@@ -5,7 +5,7 @@ import org.jetbrains.plugins.scala.lang.psi.types._
 import nonvalue.{TypeParameter, Parameter, ScMethodType, ScTypePolymorphicType}
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil
-import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.{ConformanceExtResult, Expression}
+import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.Expression
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUsed
 import com.intellij.psi.{PsiNamedElement, PsiElement}
@@ -114,7 +114,8 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
    */
   def updateAccordingToExpectedType(nonValueType: TypeResult[ScType],
                                     check: Boolean = false): TypeResult[ScType] = {
-    InferUtil.updateAccordingToExpectedType(nonValueType, false, expectedType(), this, check)
+    InferUtil.updateAccordingToExpectedType(nonValueType, fromImplicitParameters = false, expectedType = expectedType(),
+      expr = this, check = check)
   }
 
   protected override def innerType(ctx: TypingContext): TypeResult[ScType] = {
@@ -203,7 +204,7 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
       this match {
         case methodCall: ScMethodCall => //todo: remove reference to method call
           var (processedType, importsUsed, implicitFunction, applyOrUpdateElement) =
-            ScalaPsiUtil.processTypeForUpdateOrApply(invokedType, methodCall, false).getOrElse {
+            ScalaPsiUtil.processTypeForUpdateOrApply(invokedType, methodCall, isShape = false).getOrElse {
               (Nothing, this.importsUsed, this.implicitFunction, this.applyOrUpdateElement)
             }
           if (useExpectedType) {

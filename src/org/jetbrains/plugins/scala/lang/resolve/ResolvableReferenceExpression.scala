@@ -3,14 +3,13 @@ package lang
 package resolve
 
 import _root_.com.intellij.openapi.progress.ProgressManager
-import _root_.com.intellij.psi.impl.PsiManagerEx
 import processor._
 import psi.implicits.ScImplicitlyConvertible
 import psi.api.toplevel.imports.usages.ImportUsed
 import psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import psi.types.Compatibility.Expression
-import psi.api.base.types.{ScTypeElement, ScParameterizedTypeElement}
+import psi.api.base.types.ScTypeElement
 import psi.api.base.{ScPrimaryConstructor, ScConstructor}
 import com.intellij.psi._
 import impl.source.resolve.ResolveCache
@@ -26,25 +25,29 @@ import psi.types.result.{Success, TypingContext}
 import psi.types.nonvalue.{ScMethodType, ScTypePolymorphicType}
 import psi.types._
 import extensions.toPsiNamedElementExt
-import psi.api.toplevel.typedef.{ScTemplateDefinition, ScTypeDefinition}
+import psi.api.toplevel.typedef.ScTemplateDefinition
+import annotation.tailrec
+import annotation.tailrec
 
 trait ResolvableReferenceExpression extends ScReferenceExpression {
   private object Resolver extends ReferenceExpressionResolver(false)
   private object ShapesResolver extends ReferenceExpressionResolver(true)
 
-  def multiResolve(incomplete: Boolean) = {
+  def multiResolve(incomplete: Boolean): Array[ResolveResult] = {
+    if (resolveFunction != null) return resolveFunction()
     ResolveCache.getInstance(getProject).resolveWithCaching(this, Resolver, true, incomplete)
   }
 
   def shapeResolve: Array[ResolveResult] = {
     ProgressManager.checkCanceled()
+    if (shapeResolveFunction != null) return shapeResolveFunction()
     CachesUtil.getWithRecursionPreventing(this, CachesUtil.REF_EXPRESSION_SHAPE_RESOLVE_KEY,
       new CachesUtil.MyProvider(this, (expr: ResolvableReferenceExpression) => shapeResolveInner)
       (PsiModificationTracker.MODIFICATION_COUNT), Array.empty[ResolveResult])
   }
 
   private def shapeResolveInner: Array[ResolveResult] = {
-    ShapesResolver.resolve(this, false)
+    ShapesResolver.resolve(this, incomplete = false)
   }
 
   def isAssignmentOperator = {
@@ -72,7 +75,7 @@ trait ResolvableReferenceExpression extends ScReferenceExpression {
       case Some(q) => processTypes(q, processor)
     }
     val res = processor.rrcandidates
-    if (accessibilityCheck && res.length == 0) return doResolve(ref, processor, false)
+    if (accessibilityCheck && res.length == 0) return doResolve(ref, processor, accessibilityCheck = false)
     res
   }
 
@@ -89,6 +92,7 @@ trait ResolvableReferenceExpression extends ScReferenceExpression {
   }
 
   private def resolveUnqualifiedExpression(ref: ResolvableReferenceExpression, processor: BaseProcessor) {
+    @tailrec
     def treeWalkUp(place: PsiElement, lastParent: PsiElement) {
       if (place == null) return
       if (!place.processDeclarations(processor,

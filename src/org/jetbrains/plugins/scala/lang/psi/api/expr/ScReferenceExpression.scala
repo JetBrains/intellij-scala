@@ -11,6 +11,8 @@ import psi.types.result.TypeResult
 import psi.types.ScType
 import psi.impl.ScalaPsiElementFactory
 import extensions.toPsiNamedElementExt
+import psi.types.nonvalue.TypeParameter
+import lang.resolve.ScalaResolveResult
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -21,6 +23,15 @@ trait ScReferenceExpression extends ScalaPsiElement with ScExpression with ScRef
   def isQualified = qualifier.isDefined
 
   def qualifier: Option[ScExpression] = getFirstChild match {case e: ScExpression => Some(e) case _ => None}
+
+  protected var resolveFunction: () => Array[ResolveResult] = null
+
+  protected var shapeResolveFunction: () => Array[ResolveResult] = null
+
+  def setupResolveFunctions(resolveFunction: () => Array[ResolveResult], shapeResolveFunction: () => Array[ResolveResult]) {
+    this.resolveFunction = resolveFunction
+    this.shapeResolveFunction = shapeResolveFunction
+  }
 
   /**
    * Includes qualifier for Infix, Postfix and Prefix expression
@@ -63,6 +74,8 @@ trait ScReferenceExpression extends ScalaPsiElement with ScExpression with ScRef
   }
 
   def bindToElement(element: PsiElement, containingClass: Option[PsiClass]): PsiElement
+
+  def getPrevTypeInfoParams: Seq[TypeParameter]
 }
 
 object ScReferenceExpression {

@@ -9,8 +9,13 @@ import com.intellij.lang.ASTNode
 import api.expr._
 import types.Unit
 import types.result.{Success, TypingContext}
-import com.intellij.psi.PsiElementVisitor
+import com.intellij.psi.{ResolveState, PsiElementVisitor}
 import api.ScalaElementVisitor
+import resolve.{StdKinds, ScalaResolveResult}
+import api.statements.{ScFunction, ScVariable}
+import resolve.processor.MethodResolveProcessor
+import psi.types.Compatibility.Expression
+import api.statements.params.ScClassParameter
 
 /**
  * @author Alexander Podkhalyuzin
@@ -22,14 +27,116 @@ class ScAssignStmtImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScA
   protected override def innerType(ctx: TypingContext) = {
     getLExpression match {
       case call: ScMethodCall => call.getType(ctx)
-      case _ => Success(Unit, Some(this))
+      case _ =>
+        resolveAssignment match {
+          case Some(resolveResult) =>
+            mirrorMethodCall match {
+              case Some(call) => call.getType(TypingContext.empty)
+              case None => Success(Unit, Some(this))
+            }
+          case _ => Success(Unit, Some(this))
+        }
     }
   }
 
-  override def accept(visitor: PsiElementVisitor): Unit = {
+  override def accept(visitor: PsiElementVisitor) {
     visitor match {
       case visitor: ScalaElementVisitor => super.accept(visitor)
       case _ => super.accept(visitor)
+    }
+  }
+
+  @volatile
+  private var assignment: Option[ScalaResolveResult] = null
+
+  @volatile
+  private var assignmentModCount: Long = 0L
+
+  def resolveAssignment: Option[ScalaResolveResult] = {
+    val count = getManager.getModificationTracker.getModificationCount
+    var res = assignment
+    if (res != null && count == assignmentModCount) return assignment
+    res = resolveAssignmentInner(shapeResolve = false)
+    assignmentModCount = count
+    assignment = res
+    res
+  }
+
+  @volatile
+  private var shapeAssignment: Option[ScalaResolveResult] = null
+
+  @volatile
+  private var shapeAssignmentModCount: Long = 0L
+
+  def shapeResolveAssignment: Option[ScalaResolveResult] = {
+    val count = getManager.getModificationTracker.getModificationCount
+    var res = shapeAssignment
+    if (res != null && count == shapeAssignmentModCount) return shapeAssignment
+    res = resolveAssignmentInner(shapeResolve = true)
+    shapeAssignmentModCount = count
+    shapeAssignment = res
+    res
+  }
+
+  @volatile
+  private var methodCall: Option[ScMethodCall] = null
+
+  @volatile
+  private var methodCallModCount: Long = 0L
+
+  def mirrorMethodCall: Option[ScMethodCall] = {
+    def impl(): Option[ScMethodCall] = {
+      getLExpression match {
+        case ref: ScReferenceExpression =>
+          val text = s"${ref.refName}_=(${getRExpression.map(_.getText).getOrElse("")})"
+          val mirrorExpr = ScalaPsiElementFactory.createExpressionWithContextFromText(text, getContext, this)
+          val call = mirrorExpr.asInstanceOf[ScMethodCall]
+          call.getInvokedExpr.asInstanceOf[ScReferenceExpression].setupResolveFunctions(
+            () => resolveAssignment.toArray, () => shapeResolveAssignment.toArray
+          )
+          Some(call)
+        case _ => None
+      }
+    }
+
+    val count = getManager.getModificationTracker.getModificationCount
+    var res = methodCall
+    if (res != null && count == methodCallModCount) return methodCall
+    res = impl()
+    methodCallModCount = count
+    methodCall = res
+    res
+  }
+
+  private def resolveAssignmentInner(shapeResolve: Boolean): Option[ScalaResolveResult] = {
+    getLExpression match {
+      case ref: ScReferenceExpression =>
+        ref.bind() match {
+          case Some(r: ScalaResolveResult) =>
+            ScalaPsiUtil.nameContext(r.element) match {
+              case v: ScVariable => Some(r)
+              case c: ScClassParameter if c.isVar => Some(r)
+              case fun: ScFunction if fun.paramClauses.clauses.length == 0 =>
+                val processor = new MethodResolveProcessor(ref, fun.name + "_=",
+                  getRExpression.map(expr => List(Seq(new Expression(expr)))).getOrElse(Nil), Nil, ref.getPrevTypeInfoParams,
+                  isShapeResolve = shapeResolve, kinds = StdKinds.methodsOnly)
+                r.fromType match {
+                  case Some(tp) => processor.processType(tp, ref)
+                  case None =>
+                    fun.getContext match {
+                      case d: ScDeclarationSequenceHolder =>
+                        d.processDeclarations(processor, ResolveState.initial(), fun, ref)
+                      case _ =>
+                    }
+                }
+                val candidates = processor.candidatesS
+                if (candidates.size == 1) Some(candidates.toArray.apply(0))
+                else None
+              case _ => None
+            }
+          case _ => None
+        }
+      case _ => None
     }
   }
 }

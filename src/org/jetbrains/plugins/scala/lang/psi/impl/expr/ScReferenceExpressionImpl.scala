@@ -146,7 +146,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
   } // See SCL-3092
 
   def multiType: Array[TypeResult[ScType]] = {
-    multiResolve(false).filter(_.isInstanceOf[ScalaResolveResult]).
+    multiResolve(incomplete = false).filter(_.isInstanceOf[ScalaResolveResult]).
       map(r => convertBindToType(Some(r.asInstanceOf[ScalaResolveResult])))
   }
 
@@ -348,5 +348,24 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
         }
     }
     Success(inner, Some(this))
+  }
+
+  def getPrevTypeInfoParams: Seq[TypeParameter] = {
+    qualifier match {
+      case Some(s: ScSuperReference) => Seq.empty
+      case Some(qual) =>
+        qual.getNonValueType(TypingContext.empty).map {
+          case t: ScTypePolymorphicType => t.typeParameters
+          case _ => Seq.empty
+        }.getOrElse(Seq.empty)
+      case _ => getContext match {
+        case sugar: ScSugarCallExpr if sugar.operation == this =>
+          sugar.getBaseExpr.getNonValueType(TypingContext.empty).map {
+            case t: ScTypePolymorphicType => t.typeParameters
+            case _ => Seq.empty
+          }.getOrElse(Seq.empty)
+        case _ => Seq.empty
+      }
+    }
   }
 }
