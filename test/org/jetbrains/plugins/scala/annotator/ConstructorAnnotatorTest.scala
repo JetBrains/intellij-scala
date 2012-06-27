@@ -88,12 +88,6 @@ class ConstructorAnnotatorTest extends SimpleTestCase {
     }
   }
   
-  def testUnresolvedParameter() {
-    assertMatches(messages("new A(b = null)")) {
-      case Nil =>
-    }
-  }
-  
   def testTypeMismatch() {
     assertMatches(messages("new A(false)")) {
       case Error("false", "Type mismatch, expected: Int, actual: Boolean") :: Nil =>
