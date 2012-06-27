@@ -91,12 +91,9 @@ object Compatibility {
     var undefSubst = new ScUndefinedSubstitutor
 
     val clashedAssignments = clashedAssignmentsIn(exprs)
-    val unresolved = for(Expression(assignment@NamedAssignStmt(name)) <- exprs
-                         if !parameters.exists(_.name == name)) yield assignment
         
-    if(!unresolved.isEmpty || !clashedAssignments.isEmpty) {
-      val problems = unresolved.map(new UnresolvedParameter(_)) ++
-              clashedAssignments.map(new ParameterSpecifiedMultipleTimes(_))
+    if(!clashedAssignments.isEmpty) {
+      val problems = clashedAssignments.map(new ParameterSpecifiedMultipleTimes(_))
       return ConformanceExtResult(problems)
     }
     
@@ -188,8 +185,7 @@ object Compatibility {
           val ind = parameters.indexWhere(_.name == name)
           if (ind == -1 || used(ind) == true) {
             problems :::= doNoNamed(Expression(assign)).reverse
-          }
-          else {
+          } else {
             if (!checkNames)
               return ConformanceExtResult(Seq(new ApplicabilityProblem("9")), undefSubst, defaultParameterUsed, matched)
             namedMode = true
@@ -291,12 +287,9 @@ object Compatibility {
         val parameters: Seq[ScParameter] = fun.effectiveParameterClauses.headOption.toList.flatMap(_.parameters)
         
         val clashedAssignments = clashedAssignmentsIn(exprs)
-        val unresolved = for(Expression(assignment@NamedAssignStmt(name)) <- exprs
-                             if !parameters.exists(_.name == name)) yield assignment
         
-        if(!unresolved.isEmpty || !clashedAssignments.isEmpty) {
-          val problems = unresolved.map(new UnresolvedParameter(_)) ++
-                  clashedAssignments.map(new ParameterSpecifiedMultipleTimes(_))
+        if(!clashedAssignments.isEmpty) {
+          val problems = clashedAssignments.map(new ParameterSpecifiedMultipleTimes(_))
           return ConformanceExtResult(problems)
         }
         
@@ -326,12 +319,9 @@ object Compatibility {
         val parameters: Seq[ScParameter] = constructor.effectiveFirstParameterSection
 
         val clashedAssignments = clashedAssignmentsIn(exprs)
-        val unresolved = for(Expression(assignment @ NamedAssignStmt(name)) <- exprs
-                             if !parameters.exists(_.name == name)) yield assignment
 
-        if(!unresolved.isEmpty || !clashedAssignments.isEmpty) {
-          val problems = unresolved.map(new UnresolvedParameter(_)) ++
-                  clashedAssignments.map(new ParameterSpecifiedMultipleTimes(_))
+        if(!clashedAssignments.isEmpty) {
+          val problems = clashedAssignments.map(new ParameterSpecifiedMultipleTimes(_))
           return ConformanceExtResult(problems)
         }
 

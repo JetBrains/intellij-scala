@@ -6,6 +6,8 @@ package expr
 
 import com.intellij.psi.{PsiElement, PsiElementVisitor}
 import resolve.{ResolvableReferenceElement, ScalaResolveResult}
+import statements.ScVariable
+import statements.params.ScClassParameter
 
 
 /**
@@ -44,10 +46,17 @@ trait ScAssignStmt extends ScExpression {
 
   def mirrorMethodCall: Option[ScMethodCall]
 
+  /**
+   * Has sense only in case if left token resolves to parameterless function
+   * @return parameterless function setter, or None otherwise
+   */
   def resolveAssignment: Option[ScalaResolveResult]
 
   def shapeResolveAssignment: Option[ScalaResolveResult]
 
+  /**
+   * @return element to which equals sign should navigate
+   */
   def assignNavigationElement: PsiElement = {
     getLExpression match {
       case methodCall: ScMethodCall =>
@@ -55,9 +64,16 @@ trait ScAssignStmt extends ScExpression {
           case Some(arrayOrUpdateElement) => arrayOrUpdateElement
           case None => null
         }
-      case _ => resolveAssignment match {
+      case left => resolveAssignment match {
         case Some(ScalaResolveResult(elem, _)) => elem
-        case _ => null
+        case _ => left match {
+          case ref: ScReferenceExpression => ref.resolve() match {
+            case v: ScVariable => v
+            case p: ScClassParameter if p.isVar => p
+            case _ => null
+          }
+          case _ => null
+        }
       }
     }
   }
