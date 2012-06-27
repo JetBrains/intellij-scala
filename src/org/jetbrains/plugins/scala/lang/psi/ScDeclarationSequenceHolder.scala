@@ -18,9 +18,11 @@ trait ScDeclarationSequenceHolder extends ScalaPsiElement {
       state : ResolveState,
       lastParent: PsiElement,
       place: PsiElement): Boolean = {
-
     if (lastParent != null) {
-      var run = lastParent
+      var run = lastParent match {
+        case element: ScalaPsiElement => element.getDeepSameElementInContext
+        case _ => lastParent
+      }
       while (run != null) {
         ProgressManager.checkCanceled()
         place match {
