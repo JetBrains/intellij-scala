@@ -133,13 +133,12 @@ private[expr] object ExpectedTypes {
                   case v: ScVariable =>
                     Array((subst.subst(named.asInstanceOf[ScTypedDefinition].
                       getType(TypingContext.empty).getOrAny), v.typeElement))
-                  case f: ScFunction =>
-                    val res = new ArrayBuffer[ScType]
-                    val tps =
-                      if (!withResolvedFunction) ref.shapeMultiType
-                      else ref.multiType
-                    tps.foreach(processArgsExpected(res, expr, 0, _, Array(expr)))
-                    res.map(typeToPair).toArray
+                  case f: ScFunction if f.paramClauses.clauses.length == 0 =>
+                    a.mirrorMethodCall match {
+                      case Some(call) =>
+                        call.args.exprs(0).expectedTypesEx(fromUnderscore = fromUnderscore)
+                      case None => Array.empty
+                    }
                   case p: ScParameter => {
                     //for named parameters
                     Array((subst.subst(p.getType(TypingContext.empty).getOrAny), p.typeElement))

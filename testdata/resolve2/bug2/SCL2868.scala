@@ -10,8 +10,8 @@ object test {
   }
 
   {
-    import Imp._
-    /*resolved: true, name: a_= */a = A
+    import Imp.a
+    /* resolved: true */a = A
   }
 
   {

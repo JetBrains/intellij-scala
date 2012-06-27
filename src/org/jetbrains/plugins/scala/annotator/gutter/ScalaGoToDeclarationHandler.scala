@@ -35,18 +35,8 @@ class ScalaGoToDeclarationHandler extends GotoDeclarationHandler {
     if (sourceElement.getNode.getElementType == ScalaTokenTypes.tASSIGN) {
       return sourceElement.getParent match {
         case assign: ScAssignStmt =>
-          assign.getLExpression match {
-            case ref: ResolvableReferenceElement => ref.bind() match {
-              case Some(x) if x.isSetterFunction => Array(x.element)
-              case _ => null
-            }
-            case methodCall: ScMethodCall =>
-              methodCall.applyOrUpdateElement match {
-                case Some(x) => return Array(x)
-                case None => null
-              }
-            case _ => null
-          }
+          val elem = assign.assignNavigationElement
+          Option(elem).toArray
         case _ => null
       }
     }
