@@ -74,25 +74,20 @@ class NamedTest extends ApplicabilityTestBase {
   
   def testUnresolvedParameter {
     assertProblems("()", "(a = A)") {
-      case UnresolvedParameter(Assignment("a = A")) :: Nil =>
+      case ExcessArgument(Assignment("a = A")) :: Nil =>
     }
     assertProblems("()", "(a = A, b = B)") {
-      case UnresolvedParameter(Assignment("a = A")) :: 
-              UnresolvedParameter(Assignment("b = B")) :: Nil =>
-    }
-    assertProblems("(a: A)", "(b = A)") {
-      case UnresolvedParameter(Assignment("b = A")) :: Nil =>
+      case ExcessArgument(Assignment("a = A")) ::
+        ExcessArgument(Assignment("b = B")) :: Nil =>
     }
     assertProblems("(a: A)", "(a = A, b = B)") {
-      case UnresolvedParameter(Assignment("b = B")) :: Nil =>
+      case ExcessArgument(Assignment("b = B")) :: Nil =>
     }
   }
   
   def testNamedUnresolvedDuplicates {
     assertProblems("(a: A)", "(b = A, b = null)") {
-      case UnresolvedParameter(Assignment("b = A")) :: 
-              UnresolvedParameter(Assignment("b = null")) ::
-              ParameterSpecifiedMultipleTimes(Assignment("b = A")) ::
+      case ParameterSpecifiedMultipleTimes(Assignment("b = A")) ::
               ParameterSpecifiedMultipleTimes(Assignment("b = null")) :: Nil =>
     }
   }
