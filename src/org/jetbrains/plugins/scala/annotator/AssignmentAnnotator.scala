@@ -10,7 +10,8 @@ import lang.psi.api.statements.params.ScClassParameter
 import lang.psi.api.expr._
 import codeInspection.varCouldBeValInspection.ValToVarQuickFix
 import lang.psi.ScalaPsiUtil
-import com.intellij.psi.PsiField
+import com.intellij.psi.{PsiClass, PsiMethod, PsiField}
+import extensions.toPsiMemberExt
 
 /**
  * Pavel.Fatin, 31.05.2010
@@ -22,7 +23,7 @@ trait AssignmentAnnotator {
     val right = assignment.getRExpression
 
     assignment.getLExpression match {
-      case call: ScMethodCall => return
+      case call: ScMethodCall =>
       case ref: ScReferenceExpression =>
         ref.bind() match {
           case Some(r) if !r.isNamedParameter =>
@@ -70,17 +71,18 @@ trait AssignmentAnnotator {
                       case WrongTypeParameterInferred => //todo: ?
                       case _ => holder.createErrorAnnotation(assignment, "Wrong right assignment side")
                     }
-                  case _ =>
-                    holder.createErrorAnnotation(assignment, "Reassignment to val")
-                    return
+                  case _ => holder.createErrorAnnotation(assignment, "Reassignment to val")
+                }
+              case f: ScFunction => holder.createErrorAnnotation(assignment, "Reassignment to val")
+              case method: PsiMethod if method.getParameterList.getParametersCount == 0 =>
+                method.containingClass match {
+                  case c: PsiClass if c.isAnnotationType => //do nothing
+                  case _ => holder.createErrorAnnotation(assignment, "Reassignment to val")
                 }
               case v: ScValue =>
                 val annotation = holder.createErrorAnnotation(assignment, "Reassignment to val")
                 annotation.registerFix(new ValToVarQuickFix(ScalaPsiUtil.nameContext(r.element).asInstanceOf[ScValue]))
-                return
-              case _ =>
-                holder.createErrorAnnotation(assignment, "Reassignment to val")
-                return
+              case _ => holder.createErrorAnnotation(assignment, "Reassignment to val")
             }
           case _ =>
         }
