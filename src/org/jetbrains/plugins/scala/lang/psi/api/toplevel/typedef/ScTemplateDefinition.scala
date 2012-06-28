@@ -13,9 +13,9 @@ import parser.ScalaElementTypes
 import statements.{ScFunction, ScValue, ScTypeAlias, ScVariable}
 import templates.ScExtendsBlock
 import com.intellij.openapi.progress.ProgressManager
-import types.result.{TypingContext, TypeResult}
 import lang.resolve.processor.BaseProcessor
 import types._
+import result.{Success, TypingContext, TypeResult}
 import com.intellij.psi._
 import base.types.ScSelfTypeElement
 import impl.{PsiSuperMethodImplUtil, PsiClassImplUtil}
@@ -177,9 +177,9 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
   }
 
   def processDeclarationsForTemplateBody(processor: PsiScopeProcessor,
-                                  oldState: ResolveState,
-                                  lastParent: PsiElement,
-                                  place: PsiElement) : Boolean = {
+                                         oldState: ResolveState,
+                                         lastParent: PsiElement,
+                                         place: PsiElement) : Boolean = {
     if (DumbServiceImpl.getInstance(getProject).isDumb) return true
     var state = oldState
     //exception cases
@@ -227,24 +227,21 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
               extendsBlock match {
                 case e: ScExtendsBlock if e != null => {
                   if (PsiTreeUtil.isContextAncestor(e, place, true) || !PsiTreeUtil.isContextAncestor(this, place, true)) {
-                    if (!TypeDefinitionMembers.processDeclarations(this, processor, state, lastParent, place)) return false
-                  }
-                  selfTypeElement match {
-                    case Some(ste) if (!PsiTreeUtil.isContextAncestor(ste, place, true)) &&
-                      PsiTreeUtil.isContextAncestor(e.templateBody.getOrElse(null), place, true) => ste.typeElement match {
-                      case Some(t) => (processor, place) match {
-                        case (b : BaseProcessor, s: ScalaPsiElement) =>
-                          val subst = state.get(ScSubstitutor.key) match {
-                            case null => new ScSubstitutor(ScThisType(this))
-                            case subst: ScSubstitutor => subst.followed(new ScSubstitutor(ScThisType(this)))
+                    this match {
+                      case t: ScTrait if selfTypeElement != None &&
+                        !PsiTreeUtil.isContextAncestor(selfTypeElement.get, place, true) &&
+                        PsiTreeUtil.isContextAncestor(e.templateBody.getOrElse(null), place, true) &&
+                        processor.isInstanceOf[BaseProcessor] =>
+                          selfTypeElement match {
+                            case Some(_) => processor.asInstanceOf[BaseProcessor].processType(ScThisType(t), place, state)
+                            case _ =>
+                              if (!TypeDefinitionMembers.processDeclarations(this, processor, state, lastParent, place)) {
+                                return false
+                              }
                           }
-                          if (!b.processType(t.getType(TypingContext.empty).getOrAny, s,
-                            state.put(ScSubstitutor.key, subst))) return false
-                        case _ =>
-                      }
-                      case None =>
+                      case _ =>
+                        if (!TypeDefinitionMembers.processDeclarations(this, processor, state, lastParent, place)) return false
                     }
-                    case _ =>
                   }
                 }
                 case _ => true
