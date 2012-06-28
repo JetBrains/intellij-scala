@@ -1,15 +1,8 @@
 package org.jetbrains.plugins.scala.lang.resolve.processor
 
-import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticClass
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.{ImportExprUsed, ImportSelectorUsed, ImportWildcardSelectorUsed, ImportUsed}
-import com.intellij.psi.{PsiElement, PsiMember, PsiPackage, PsiClass}
+import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResult}
-import collection.mutable.HashSet
-import org.jetbrains.plugins.scala.extensions.toPsiClassExt
+import collection.mutable
 
 /**
  * User: Alexander Podkhalyuzin
@@ -22,8 +15,8 @@ trait PrecedenceHelper[T] {
   protected def getPlace: PsiElement
   protected lazy val placePackageName: String = ResolveUtils.getPlacePackage(getPlace)
   protected val levelSet: java.util.HashSet[ScalaResolveResult] = new java.util.HashSet
-  protected val qualifiedNamesSet: HashSet[T] = new HashSet[T]
-  protected val levelQualifiedNamesSet: HashSet[T] = new HashSet[T]
+  protected val qualifiedNamesSet: mutable.HashSet[T] = new mutable.HashSet[T]
+  protected val levelQualifiedNamesSet: mutable.HashSet[T] = new mutable.HashSet[T]
 
   protected def getQualifiedName(result: ScalaResolveResult): T
 

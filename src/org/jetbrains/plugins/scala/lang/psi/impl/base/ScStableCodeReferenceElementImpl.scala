@@ -23,8 +23,7 @@ import processor.CompletionProcessor
 import api.ScalaElementVisitor
 import extensions.{toPsiNamedElementExt, toPsiClassExt}
 import api.statements.{ScMacroDefinition, ScTypeAlias}
-import api.expr.{ScReferenceExpression, ScSuperReference, ScThisReference}
-import settings.ScalaProjectSettings
+import api.expr.{ScSuperReference, ScThisReference}
 import annotator.intention.ScalaImportClassFix
 
 /**
@@ -42,7 +41,7 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
 
   def getVariants: Array[Object] = {
     val isInImport: Boolean = ScalaPsiUtil.getParentOfType(this, classOf[ScImportStmt]) != null
-    doResolve(this, new CompletionProcessor(getKinds(true), this)).flatMap {
+    doResolve(this, new CompletionProcessor(getKinds(incomplete = true), this)).flatMap {
       case res: ScalaResolveResult =>
         import org.jetbrains.plugins.scala.lang.psi.types.Nothing
         val qualifier = res.fromType.getOrElse(Nothing)
@@ -52,8 +51,7 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
   }
 
   def getResolveResultVariants: Array[ScalaResolveResult] = {
-    val isInImport: Boolean = ScalaPsiUtil.getParentOfType(this, classOf[ScImportStmt]) != null
-    doResolve(this, new CompletionProcessor(getKinds(true), this)).flatMap {
+    doResolve(this, new CompletionProcessor(getKinds(incomplete = true), this)).flatMap {
       case res: ScalaResolveResult => Seq(res)
       case r => Seq.empty
     }
@@ -125,7 +123,7 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
     if (isReferenceTo(element)) this
     else element match {
       case c: PsiClass => {
-        val suitableKinds = getKinds(false)
+        val suitableKinds = getKinds(incomplete = false)
         if (!ResolveUtils.kindMatches(element, suitableKinds))
           throw new IncorrectOperationException("class does not match expected kind, problem place: " + {
             if (getContext != null)
@@ -159,7 +157,7 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
     }
   }
 
-  def getSameNameVariants: Array[ResolveResult] = doResolve(this, new CompletionProcessor(getKinds(true), this, false, Some(refName)))
+  def getSameNameVariants: Array[ResolveResult] = doResolve(this, new CompletionProcessor(getKinds(incomplete = true), this, false, Some(refName)))
 
   override def delete() {
     getContext match {

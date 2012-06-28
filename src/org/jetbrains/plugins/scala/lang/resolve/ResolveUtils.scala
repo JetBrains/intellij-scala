@@ -438,7 +438,7 @@ object ResolveUtils {
   }
 
   def getPlacePackage(place: PsiElement): String = {
-    val pack: ScPackaging = ScalaPsiUtil.getParentOfType(place, classOf[ScPackaging]) match {
+    val pack: ScPackaging = ScalaPsiUtil.getContextOfType(place, true, classOf[ScPackaging]) match {
       case pack: ScPackaging => pack
       case _ => null
     }

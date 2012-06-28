@@ -51,14 +51,6 @@ class ScPackagingImpl extends ScalaStubBasedElementImpl[ScPackageContainer] with
 
   def getPackageName = ownNamePart
 
-  private def innerRefName: String = {
-    def _innerRefName(ref: ScStableCodeReferenceElement): String = ref.qualifier match {
-      case Some(q) => _innerRefName(q)
-      case None => ref.refName
-    }
-    reference match {case Some(r) => _innerRefName(r) case None => ""}
-  }
-
   def isExplicit = findChildByType(ScalaTokenTypes.tLBRACE) != null
 
   def ownNamePart: String = {
