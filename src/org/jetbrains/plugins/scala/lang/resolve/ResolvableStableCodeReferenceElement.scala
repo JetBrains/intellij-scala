@@ -25,6 +25,8 @@ import psi.impl.ScalaPsiManager
 import scaladoc.psi.api.ScDocResolvableCodeReference
 import extensions.{toPsiNamedElementExt, toPsiClassExt}
 import psi.api.base.types.{ScTypeElement, ScSimpleTypeElement}
+import psi.impl.toplevel.imports.ScImportStmtImpl
+import psi.stubs.ScImportStmtStub
 
 trait ResolvableStableCodeReferenceElement extends ScStableCodeReferenceElement {
   private object Resolver extends StableCodeReferenceElementResolver(this, false, false, false)
@@ -69,6 +71,15 @@ trait ResolvableStableCodeReferenceElement extends ScStableCodeReferenceElement 
 
   def doResolve(ref: ScStableCodeReferenceElement, processor: BaseProcessor,
                 accessibilityCheck: Boolean = true): Array[ResolveResult] = {
+    if (ref.getText == "types") {
+      PsiTreeUtil.getContextOfType(ref, classOf[ScImportStmt]) match {
+        case imp: ScImportStmtImpl =>
+          if (imp.getStub != null && imp.getStub.asInstanceOf[ScImportStmtStub].getImportText == "import types.Compatibility.Expression") {
+            "stop"
+          }
+        case _ =>
+      }
+    }
     if (!accessibilityCheck) processor.doNotCheckAccessibility()
     var x = false
     //performance improvement
@@ -100,7 +111,7 @@ trait ResolvableStableCodeReferenceElement extends ScStableCodeReferenceElement 
 
     val candidates = processor.candidatesS
     val filtered = candidates.filter(candidatesFilter)
-    if (accessibilityCheck && filtered.size == 0) return doResolve(ref, processor, false)
+    if (accessibilityCheck && filtered.size == 0) return doResolve(ref, processor, accessibilityCheck = false)
     filtered.toArray
   }
 
@@ -130,7 +141,7 @@ trait ResolvableStableCodeReferenceElement extends ScStableCodeReferenceElement 
         treeWalkUp(ref, null)
       }
       case Some(q: ScDocResolvableCodeReference) =>
-        q.multiResolve(true).foreach(processQualifierResolveResult(_, processor, ref))
+        q.multiResolve(incomplete = true).foreach(processQualifierResolveResult(_, processor, ref))
       case Some(q: ScStableCodeReferenceElement) => {
         q.bind() match {
           case Some(res) => processQualifierResolveResult(res, processor, ref)
@@ -166,7 +177,7 @@ trait ResolvableStableCodeReferenceElement extends ScStableCodeReferenceElement 
     ProgressManager.checkCanceled()
     CachesUtil.getWithRecursionPreventing(this, CachesUtil.NO_CONSTRUCTOR_RESOLVE_KEY,
       new CachesUtil.MyProvider(this, (expr: ResolvableStableCodeReferenceElement) =>
-        NoConstructorResolver.resolve(this, false))
+        NoConstructorResolver.resolve(this, incomplete = false))
       (PsiModificationTracker.MODIFICATION_COUNT), Array.empty[ResolveResult])
   }
 
@@ -174,7 +185,7 @@ trait ResolvableStableCodeReferenceElement extends ScStableCodeReferenceElement 
     ProgressManager.checkCanceled()
     CachesUtil.getWithRecursionPreventing(this, CachesUtil.REF_ELEMENT_RESOLVE_CONSTR_KEY,
       new CachesUtil.MyProvider(this, (expr: ResolvableStableCodeReferenceElement) =>
-        ResolverAllConstructors.resolve(this, false))
+        ResolverAllConstructors.resolve(this, incomplete = false))
       (PsiModificationTracker.MODIFICATION_COUNT), Array.empty[ResolveResult])
   }
 
@@ -182,7 +193,7 @@ trait ResolvableStableCodeReferenceElement extends ScStableCodeReferenceElement 
     ProgressManager.checkCanceled()
     CachesUtil.getWithRecursionPreventing(this, CachesUtil.REF_ELEMENT_SHAPE_RESOLVE_KEY,
       new CachesUtil.MyProvider(this, (expr: ResolvableStableCodeReferenceElement) =>
-        ShapesResolver.resolve(this, false))
+        ShapesResolver.resolve(this, incomplete = false))
       (PsiModificationTracker.MODIFICATION_COUNT), Array.empty[ResolveResult])
   }
 
@@ -190,7 +201,7 @@ trait ResolvableStableCodeReferenceElement extends ScStableCodeReferenceElement 
     ProgressManager.checkCanceled()
     CachesUtil.getWithRecursionPreventing(this, CachesUtil.REF_ELEMENT_SHAPE_RESOLVE_CONSTR_KEY,
       new CachesUtil.MyProvider(this, (expr: ResolvableStableCodeReferenceElement) =>
-        ShapesResolverAllConstructors.resolve(this, false))
+        ShapesResolverAllConstructors.resolve(this, incomplete = false))
       (PsiModificationTracker.MODIFICATION_COUNT), Array.empty[ResolveResult])
   }
 }
