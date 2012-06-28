@@ -288,17 +288,19 @@ abstract class MixinNodes {
 
   def build(clazz: PsiClass): Map = build(ScType.designator(clazz))
 
-  def build(tp: ScType): Map = {
+  def build(tp: ScType, compoundThisType: Option[ScType] = None): Map = {
     var isPredef = false
     var place: Option[PsiElement] = None
     val map = new Map
     val superTypesBuff = new ListBuffer[Map]
     val (superTypes, subst, thisTypeSubst): (Seq[ScType], ScSubstitutor, ScSubstitutor) = tp match {
-      case cp: ScCompoundType => {
+      case cp: ScCompoundType =>
         processRefinement(cp, map, place)
-        (MixinNodes.linearization(cp), ScSubstitutor.empty,
-          new ScSubstitutor(Predef.Map.empty, Predef.Map.empty, Some(tp)))
-      }
+        val thisTypeSubst = compoundThisType match {
+          case Some(_) => new ScSubstitutor(Map.empty, Map.empty, compoundThisType)
+          case _ => new ScSubstitutor(Predef.Map.empty, Predef.Map.empty, Some(tp))
+        }
+        (MixinNodes.linearization(cp), ScSubstitutor.empty, thisTypeSubst)
       case _ =>
         val clazz = tp match {
           case ScDesignatorType(clazz: PsiClass) => clazz
@@ -313,12 +315,12 @@ abstract class MixinNodes {
               place = Some(template.extendsBlock)
               processScala(template, ScSubstitutor.empty, map, place)
               val lin = MixinNodes.linearization(template)
-              var zSubst = new ScSubstitutor(Predef.Map.empty, Predef.Map.empty, Some(ScThisType(template)))
+              var zSubst = new ScSubstitutor(Map.empty, Map.empty, Some(ScThisType(template)))
               var placer = template.getContext
               while (placer != null) {
                 placer match {
                   case t: ScTemplateDefinition => zSubst = zSubst.followed(
-                    new ScSubstitutor(Predef.Map.empty, Predef.Map.empty, Some(ScThisType(t)))
+                    new ScSubstitutor(Map.empty, Map.empty, Some(ScThisType(t)))
                   )
                   case _ =>
                 }
@@ -329,12 +331,12 @@ abstract class MixinNodes {
             case template: ScTemplateDefinition => {
               place = Some(template.getLastChild)
               processScala(template, ScSubstitutor.empty, map, place)
-              var zSubst = new ScSubstitutor(Predef.Map.empty, Predef.Map.empty, Some(ScThisType(template)))
+              var zSubst = new ScSubstitutor(Map.empty, Map.empty, Some(ScThisType(template)))
               var placer = template.getContext
               while (placer != null) {
                 placer match {
                   case t: ScTemplateDefinition => zSubst = zSubst.followed(
-                    new ScSubstitutor(Predef.Map.empty, Predef.Map.empty, Some(ScThisType(t)))
+                    new ScSubstitutor(Map.empty, Map.empty, Some(ScThisType(t)))
                   )
                   case _ =>
                 }

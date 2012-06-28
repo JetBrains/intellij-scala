@@ -15,7 +15,6 @@ class ImportElementTest extends ResolveTestBase {
   def testObject() {doTest()}
   def testPackage() {doTest()}
   def testTrait() {doTest()}
-  def testFunctionDefinition() {doTest()}
   def testFunctionParameter() {doTest()}
   def testInherited() {doTest()}
   def testValue() {doTest()}

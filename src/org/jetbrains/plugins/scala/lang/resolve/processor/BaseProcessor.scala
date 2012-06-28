@@ -7,7 +7,7 @@ import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.util.Key
 import com.intellij.psi.scope._
 import com.intellij.psi._
-import _root_.scala.collection.Set
+import collection.{mutable, Set}
 import impl.compiled.ClsClassImpl
 import impl.light.LightMethod
 import org.jetbrains.plugins.scala.lang.psi.api._
@@ -31,10 +31,12 @@ object BaseProcessor {
   val boundClassKey: Key[PsiClass] = Key.create("bound.class.key")
 
   val FROM_TYPE_KEY: Key[ScType] = Key.create("from.type.key")
+
+  val COMPOUND_TYPE_THIS_TYPE_KEY: Key[Option[ScType]] = Key.create("compound.type.this.type.key")
 }
 
 abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value]) extends PsiScopeProcessor {
-  protected val candidatesSet: HashSet[ScalaResolveResult] = new HashSet[ScalaResolveResult]
+  protected val candidatesSet: mutable.HashSet[ScalaResolveResult] = new mutable.HashSet[ScalaResolveResult]
 
   def changedLevel = true
 
@@ -119,12 +121,12 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value]) extends PsiSc
   def processType(t: ScType, place: PsiElement): Boolean = processType(t, place, ResolveState.initial)
 
   def processType(t: ScType, place: PsiElement, state: ResolveState): Boolean =
-    processType(t, place, state, false)
+    processType(t, place, state, noBounds = false)
 
 
 
   def processType(t: ScType, place: PsiElement, state: ResolveState, noBounds: Boolean): Boolean =
-    processType(t, place, state, noBounds, true)
+    processType(t, place, state, noBounds, updateWithProjectionSubst = true)
 
   def processType(t: ScType, place: PsiElement, state: ResolveState,
                   noBounds: Boolean, updateWithProjectionSubst: Boolean): Boolean = {
@@ -139,13 +141,12 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value]) extends PsiSc
     }
 
     t match {
-      case ScThisType(clazz) => {
+      case ScThisType(clazz) =>
         val clazzType: ScType = clazz.getTypeWithProjections(TypingContext.empty).getOrElse(return true)
         processType(if (noBounds) clazzType else clazz.selfType match {
-          case Some(selfType) => Bounds.glb(clazzType, selfType)
+          case Some(selfType) => Bounds.glb(selfType, clazzType)
           case _ => clazzType
-        }, place, state)
-      }
+        }, place, state.put(BaseProcessor.COMPOUND_TYPE_THIS_TYPE_KEY, Some(t)))
       case d@ScDesignatorType(e: PsiClass) if d.isStatic && !e.isInstanceOf[ScTemplateDefinition] => {
         //not scala from scala
         var break = true
@@ -182,7 +183,8 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value]) extends PsiSc
           case _ => true
         }
       case ScDesignatorType(e) => processElement(e, ScSubstitutor.empty, place, state)
-      case ScTypeParameterType(_, Nil, _, upper, _) => processType(upper.v, place, state, false, false)
+      case ScTypeParameterType(_, Nil, _, upper, _) =>
+        processType(upper.v, place, state, noBounds = false, updateWithProjectionSubst = false)
       case j: JavaArrayType =>
         processType(j.getParameterizedType(place.getProject, place.getResolveScope).
                 getOrElse(return true), place, state)
@@ -283,7 +285,8 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value]) extends PsiSc
       case des: ScTypedDefinition =>
         des.getType(TypingContext.empty) match {
           case Success(tp, _) =>
-            processType(newSubst subst tp, place, state.put(ScSubstitutor.key, ScSubstitutor.empty), false, false)
+            processType(newSubst subst tp, place, state.put(ScSubstitutor.key, ScSubstitutor.empty),
+              noBounds = false, updateWithProjectionSubst = false)
           case _ => true
         }
       case pack: ScPackage =>

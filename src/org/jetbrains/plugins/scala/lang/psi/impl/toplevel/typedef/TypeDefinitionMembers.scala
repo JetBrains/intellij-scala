@@ -597,8 +597,10 @@ object TypeDefinitionMembers {
                           state: ResolveState,
                           lastParent: PsiElement,
                           place: PsiElement): Boolean = {
-    if (!privateProcessDeclarations(processor, state, lastParent, place, SignatureNodes.build(comp),
-      ParameterlessNodes.build(comp), TypeNodes.build(comp), isSupers = false, isObject = false)) return false
+    val compoundTypeThisType = Option(state.get(BaseProcessor.COMPOUND_TYPE_THIS_TYPE_KEY)).getOrElse(None)
+    if (!privateProcessDeclarations(processor, state, lastParent, place,
+      SignatureNodes.build(comp, compoundTypeThisType), ParameterlessNodes.build(comp, compoundTypeThisType),
+      TypeNodes.build(comp, compoundTypeThisType), isSupers = false, isObject = false)) return false
 
     val project =
       if (lastParent != null) lastParent.getProject

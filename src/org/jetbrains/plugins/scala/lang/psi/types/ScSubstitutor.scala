@@ -353,7 +353,7 @@ class ScUndefinedSubstitutor(val upperMap: Map[(String, String), Seq[ScType]], v
     }
   }
 
-  def getSubstitutor: Option[ScSubstitutor] = getSubstitutor(false)
+  def getSubstitutor: Option[ScSubstitutor] = getSubstitutor(notNonable = false)
 
   val names: Set[Name] = {
     upperMap.keySet ++ lowerMap.keySet
@@ -465,7 +465,7 @@ class ScUndefinedSubstitutor(val upperMap: Map[(String, String), Seq[ScType]], v
                   rType = subst.subst(seq(0))
                   rMap += ((name, rType))
                 } else if (seq.length > 1) {
-                  rType = Bounds.glb(seq.map(subst.subst(_)), false)
+                  rType = Bounds.glb(seq.map(subst.subst(_)), checkWeak = false)
                   rMap += ((name, rType))
                 }
                 tvMap.get(name) match {
