@@ -11,6 +11,7 @@ import psi.api.toplevel.typedef.ScObject
 import psi.api.base.patterns.ScBindingPattern
 import psi.api.toplevel.imports.usages.{ImportExprUsed, ImportSelectorUsed, ImportWildcardSelectorUsed, ImportUsed}
 import extensions.{toPsiClassExt, toPsiNamedElementExt}
+import psi.api.statements.params.ScClassParameter
 
 object ScalaResolveResult {
   def empty = new ScalaResolveResult(null, ScSubstitutor.empty, Set[ImportUsed]())
@@ -96,63 +97,74 @@ class ScalaResolveResult(val element: PsiNamedElement,
 
 
   private var precedence = -1
+
+  /**
+   * 1 - java.lang
+   * 2 - scala, scala.Predef
+   * 3 - package local
+   * 4 - wildcard import
+   * 5 - import
+   * 6 - val/var class parameter
+   * 7 - other members and local values
+   */
   def getPrecedence(place: PsiElement, placePackageName: => String): Int = {
     def getPrecedenceInner: Int = {
       def getPackagePrecedence(qualifier: String): Int = {
-        if (qualifier == null) return 6
+        if (qualifier == null) return 7
         val index: Int = qualifier.lastIndexOf('.')
         if (index == -1) return 3
         val q = qualifier.substring(0, index)
         if (q == "java.lang") return 1
         else if (q == "scala") return 2
-        else if (q == placePackageName) return 6
+        else if (q == placePackageName) return 7
         else return 3
       }
       def getClazzPrecedence(clazz: PsiClass): Int = {
         val qualifier = clazz.qualifiedName
-        if (qualifier == null) return 6
+        if (qualifier == null) return 7
         val index: Int = qualifier.lastIndexOf('.')
-        if (index == -1) return 6
+        if (index == -1) return 7
         val q = qualifier.substring(0, index)
         if (q == "java.lang") return 1
         else if (q == "scala") return 2
-        else if (PsiTreeUtil.isContextAncestor(clazz.getContainingFile, place, true)) return 6
+        else if (PsiTreeUtil.isContextAncestor(clazz.getContainingFile, place, true)) return 7
         else return 3
       }
       if (importsUsed.size == 0) {
         ScalaPsiUtil.nameContext(getActualElement) match {
           case synthetic: ScSyntheticClass => return 2 //like scala.Int
-          case obj: ScObject if obj.isPackageObject => {
+          case obj: ScObject if obj.isPackageObject =>
             val qualifier = obj.qualifiedName
             return getPackagePrecedence(qualifier)
-          }
-          case pack: PsiPackage => {
+          case pack: PsiPackage =>
             val qualifier = pack.getQualifiedName
             return getPackagePrecedence(qualifier)
-          }
-          case clazz: PsiClass => {
+          case clazz: PsiClass =>
             return getClazzPrecedence(clazz)
-          }
-          case _: ScBindingPattern | _: PsiMember => {
+          case memb@(_: ScBindingPattern | _: PsiMember) => {
             val clazzStub = ScalaPsiUtil.getContextOfType(getActualElement, false, classOf[PsiClass])
             val clazz: PsiClass = clazzStub match {
               case clazz: PsiClass => clazz
               case _ => null
             }
             //val clazz = PsiTreeUtil.getParentOfType(result.getActualElement, classOf[PsiClass])
-            if (clazz == null) return 6
+            if (clazz == null) return 7
             else {
               clazz.qualifiedName match {
                 case "scala.Predef" => return 2
                 case "scala.LowPriorityImplicits" => return 2
                 case "scala" => return 2
-                case _ => return 6
+                case _ =>
+                  memb match {
+                    case param: ScClassParameter if param.isEffectiveVal => return 6
+                    case _ => return 7
+                  }
               }
             }
           }
           case _ =>
         }
-        return 6
+        return 7
       }
       val importsUsedSeq = importsUsed.toSeq
       val importUsed: ImportUsed = importsUsedSeq.apply(importsUsedSeq.length - 1)
@@ -161,10 +173,9 @@ class ScalaResolveResult(val element: PsiNamedElement,
       importUsed match {
         case _: ImportWildcardSelectorUsed => 4
         case _: ImportSelectorUsed => 5
-        case ImportExprUsed(expr) => {
+        case ImportExprUsed(expr) =>
           if (expr.singleWildcard) 4
           else 5
-        }
       }
     }
     if (precedence == -1) {
