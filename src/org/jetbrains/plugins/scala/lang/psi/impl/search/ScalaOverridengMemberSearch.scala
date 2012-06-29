@@ -9,15 +9,13 @@ import api.statements.{ScFunction, ScTypeAlias}
 import api.toplevel.templates.ScTemplateBody
 import api.toplevel.typedef.{ScTypeDefinition, ScTemplateDefinition}
 import com.intellij.psi._
-import com.intellij.psi.search.searches.{OverridingMethodsSearch, ClassInheritorsSearch, ExtensibleQueryFactory}
-import com.intellij.psi.search.SearchScope
+import com.intellij.psi.search.searches.ClassInheritorsSearch
+import search.{GlobalSearchScope, SearchScope}
 import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.util.{QueryFactory, EmptyQuery, Query}
-import java.util.Arrays
 import toplevel.typedef.TypeDefinitionMembers
-import api.toplevel.ScTypedDefinition
 import types._
 import extensions.{toPsiMemberExt, toPsiNamedElementExt}
+import psi.stubs.util.ScalaStubsUtil
 
 /**
  * User: Alexander Podkhalyuzin
@@ -25,7 +23,9 @@ import extensions.{toPsiMemberExt, toPsiNamedElementExt}
  */
 
 object ScalaOverridengMemberSearch {
-  def search(member: PsiNamedElement, scope: SearchScope, deep: Boolean): Array[PsiNamedElement] = {
+  def search(member: PsiNamedElement, scopeOption: Option[SearchScope] = None, deep: Boolean = true,
+             withSelfType: Boolean = false): Array[PsiNamedElement] = {
+    val scope = scopeOption.getOrElse(member.getUseScope)
     member match {
       case _: ScFunction =>  if (!member.getParent.isInstanceOf[ScTemplateBody]) return Array[PsiNamedElement]()
       case _: ScTypeAlias => if (!member.getParent.isInstanceOf[ScTemplateBody]) return Array[PsiNamedElement]()
@@ -68,7 +68,10 @@ object ScalaOverridengMemberSearch {
           val continue = inheritorsOfType(td.name)
           if (!continue) return false
         case _: PsiNamedElement =>
-          val signsIterator = TypeDefinitionMembers.getSignatures(inheritor).forName(member.name)._1.iterator
+          val signatures =
+            if (withSelfType) TypeDefinitionMembers.getSelfTypeSignatures(inheritor)
+            else TypeDefinitionMembers.getSignatures(inheritor)
+          val signsIterator = signatures.forName(member.name)._1.iterator
           while (signsIterator.hasNext) {
             val (t: Signature, node: TypeDefinitionMembers.SignatureNodes.Node) = signsIterator.next()
             if (t.namedElement != None && PsiTreeUtil.getParentOfType(t.namedElement.get,
@@ -93,11 +96,14 @@ object ScalaOverridengMemberSearch {
       break = !process(clazz)
     }
 
+    if (withSelfType) {
+      val inheritors = ScalaStubsUtil.getSelfTypeInheritors(parentClass, parentClass.getResolveScope)
+      break = false
+      for (clazz <- inheritors if !break) {
+        break = !process(clazz)
+      }
+    }
+
     buffer.toArray
   }
-
-  def search(member: PsiNamedElement, checkDeep: Boolean): Array[PsiNamedElement] =
-    search(member, member.getUseScope, checkDeep)
-
-  def search(member: PsiNamedElement): Array[PsiNamedElement] = search(member, true)
 }

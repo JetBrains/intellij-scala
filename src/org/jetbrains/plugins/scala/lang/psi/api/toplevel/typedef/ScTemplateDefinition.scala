@@ -139,6 +139,22 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
     case (_, n) => (n.info, n.substitutor)
   })
 
+  def allTypeAliasesIncludingSelfType = {
+    selfType match {
+      case Some(selfType) =>
+        val clazzType = getTypeWithProjections(TypingContext.empty).getOrAny
+        Bounds.glb(selfType, clazzType) match {
+          case c: ScCompoundType =>
+            TypeDefinitionMembers.getTypes(c, Some(clazzType), this).forAll()._1.values.
+              flatMap(_.map { case (_, n) => n.info })
+          case _ =>
+            allTypeAliases
+        }
+      case _ =>
+        allTypeAliases
+    }
+  }
+
   def allVals = TypeDefinitionMembers.getSignatures(this).forAll()._1.values.flatMap(n => n.filter{
     case (_, n) => !n.info.isInstanceOf[PhysicalSignature] &&
       (n.info.namedElement match {
@@ -150,13 +166,71 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
         case None => false
       })}).map { case (_, n) => (n.info.namedElement.get, n.substitutor) }
 
+  def allValsIncludingSelfType = {
+    selfType match {
+      case Some(selfType) =>
+        val clazzType = getTypeWithProjections(TypingContext.empty).getOrAny
+        Bounds.glb(selfType, clazzType) match {
+          case c: ScCompoundType =>
+            TypeDefinitionMembers.getSignatures(c, Some(clazzType), this).forAll()._1.values.flatMap(n => n.filter{
+              case (_, n) => !n.info.isInstanceOf[PhysicalSignature] &&
+                (n.info.namedElement match {
+                  case Some(v) => ScalaPsiUtil.nameContext(v) match {
+                    case _: ScVariable => v.name == n.info.name
+                    case _: ScValue => v.name == n.info.name
+                    case _ => true
+                  }
+                  case None => false
+                })}).map { case (_, n) => (n.info.namedElement.get, n.substitutor) }
+          case _ =>
+            allVals
+        }
+      case _ =>
+        allVals
+    }
+  }
+
   def allMethods: Iterable[PhysicalSignature] =
     TypeDefinitionMembers.getSignatures(this).forAll()._1.values.flatMap(_.filter {
       case (_, n) => n.info.isInstanceOf[PhysicalSignature]}).
       map { case (_, n) => n.info.asInstanceOf[PhysicalSignature] } ++
       syntheticMembers.map(new PhysicalSignature(_, ScSubstitutor.empty))
 
+  def allMethodsIncludingSelfType: Iterable[PhysicalSignature] = {
+    selfType match {
+      case Some(selfType) =>
+        val clazzType = getTypeWithProjections(TypingContext.empty).getOrAny
+        Bounds.glb(selfType, clazzType) match {
+          case c: ScCompoundType =>
+            TypeDefinitionMembers.getSignatures(c, Some(clazzType), this).forAll()._1.values.flatMap(_.filter {
+              case (_, n) => n.info.isInstanceOf[PhysicalSignature]}).
+              map { case (_, n) => n.info.asInstanceOf[PhysicalSignature] } ++
+              syntheticMembers.map(new PhysicalSignature(_, ScSubstitutor.empty))
+          case _ =>
+            allMethods
+        }
+      case _ =>
+        allMethods
+    }
+  }
+
   def allSignatures = TypeDefinitionMembers.getSignatures(this).forAll()._1.values.flatMap(_.map { case (_, n) => n.info })
+
+  def allSignaturesIncludingSelfType = {
+    selfType match {
+      case Some(selfType) =>
+        val clazzType = getTypeWithProjections(TypingContext.empty).getOrAny
+        Bounds.glb(selfType, clazzType) match {
+          case c: ScCompoundType =>
+            TypeDefinitionMembers.getSignatures(c, Some(clazzType), this).forAll()._1.values.
+              flatMap(_.map { case (_, n) => n.info })
+          case _ =>
+            allSignatures
+        }
+      case _ =>
+       allSignatures
+    }
+  }
 
   def isScriptFileClass = getContainingFile match {case file: ScalaFile => file.isScriptFile() case _ => false}
 

@@ -304,6 +304,8 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
 
   def superSignatures: Seq[Signature]
 
+  def superSignaturesIncludingSelfType: Seq[Signature]
+
   def hasParamName(name: String, clausePosition: Int = -1): Boolean = getParamByName(name, clausePosition) != None
 
   /**

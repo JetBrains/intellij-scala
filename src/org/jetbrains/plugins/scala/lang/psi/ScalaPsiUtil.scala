@@ -1035,7 +1035,7 @@ object ScalaPsiUtil {
   def namedElementSig(x: PsiNamedElement): Signature =
     new Signature(x.name, Stream.empty, 0, ScSubstitutor.empty, Some(x))
 
-  def superValsSignatures(x: PsiNamedElement): Seq[Signature] = {
+  def superValsSignatures(x: PsiNamedElement, withSelfType: Boolean = false): Seq[Signature] = {
     val empty = Seq.empty 
     val typed = x match {case x: ScTypedDefinition => x case _ => return empty}
     val clazz: ScTemplateDefinition = nameContext(typed) match {
@@ -1047,7 +1047,10 @@ object ScalaPsiUtil {
     }
     if (clazz == null) return empty
     val s = namedElementSig(x)
-    val sigs = TypeDefinitionMembers.getSignatures(clazz).forName(x.name)._1
+    val signatures =
+      if (withSelfType) TypeDefinitionMembers.getSelfTypeSignatures(clazz)
+      else TypeDefinitionMembers.getSignatures(clazz)
+    val sigs = signatures.forName(x.name)._1
     var res: Seq[Signature] = (sigs.get(s): @unchecked) match {
       //partial match
       case Some(x) => x.supers.map {_.info}
@@ -1072,14 +1075,15 @@ object ScalaPsiUtil {
 
   }
 
-  def superTypeMembers(element: PsiNamedElement): Seq[PsiNamedElement] = {
+  def superTypeMembers(element: PsiNamedElement, withSelfType: Boolean = false): Seq[PsiNamedElement] = {
     val empty = Seq.empty
     val clazz: ScTemplateDefinition = nameContext(element) match {
       case e @ (_: ScTypeAlias | _: ScTrait | _: ScClass) if e.getParent.isInstanceOf[ScTemplateBody] => e.asInstanceOf[ScMember].containingClass
       case _ => return empty
     }
     if (clazz == null) return empty
-    val sigs = TypeDefinitionMembers.getTypes(clazz).forName(element.name)._1
+    val types = if (withSelfType) TypeDefinitionMembers.getSelfTypeTypes(clazz) else TypeDefinitionMembers.getTypes(clazz)
+    val sigs = types.forName(element.name)._1
     val t = (sigs.get(element): @unchecked) match {
       //partial match
       case Some(x) => x.supers.map {_.info}

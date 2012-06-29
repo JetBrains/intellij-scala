@@ -13,6 +13,8 @@ import java.lang.String
 import psi.types.result.{TypeResult, Success, TypingContext}
 import psi.types._
 import api.toplevel.typedef.{ScTemplateDefinition, ScTypeDefinition}
+import collection.mutable.ArrayBuffer
+import api.base.ScStableCodeReferenceElement
 
 /**
  * @author Alexander Podkhalyuzin
@@ -51,5 +53,27 @@ class ScSelfTypeElementImpl extends ScalaStubBasedElementImpl[ScSelfTypeElement]
       }
     }
     findChild(classOf[ScTypeElement])
+  }
+
+  def getClassNames: Array[String] = {
+    val stub = getStub
+    if (stub != null) {
+      return stub.asInstanceOf[ScSelfTypeElementStub].getClassNames
+    }
+    val names = new ArrayBuffer[String]()
+    def fillNames(typeElement: ScTypeElement) {
+      typeElement match {
+        case s: ScSimpleTypeElement => s.reference match {
+          case Some(ref) => names += ref.refName
+          case _ =>
+        }
+        case p: ScParameterizedTypeElement => fillNames(p.typeElement)
+        case c: ScCompoundTypeElement =>
+          c.components.foreach(fillNames)
+        case _ => //do nothing
+      }
+    }
+    typeElement.foreach(fillNames)
+    names.toArray
   }
 }

@@ -393,7 +393,7 @@ with DumbAware {
           } else {
             block.getContext match {
               case t: ScTryStmt =>
-                t.expectedTypeEx(false) match {
+                t.expectedTypeEx(fromUnderscore = false) match {
                   case Some((tp: ScType, _)) if tp equiv Unit => //do nothing
                   case Some((tp: ScType, typeElement)) => {
                     import org.jetbrains.plugins.scala.lang.psi.types._
@@ -422,8 +422,8 @@ with DumbAware {
             }
           }
         }
-        checkMember("isDefinedAt", true)
-        checkMember("apply", false)
+        checkMember("isDefinedAt", checkReturnTypeIsBoolean = true)
+        checkMember("apply", checkReturnTypeIsBoolean = false)
       case _ =>
     }
   }
@@ -444,26 +444,6 @@ with DumbAware {
       holder.registerValueUsed(value)
       // For use of unapply method, see SCL-3463
       resolveResult.parentElement.foreach(parent => holder.registerValueUsed(ReadValueUsed(parent)))
-    }
-  }
-
-  private def checkGenericCallExpression(call: ScGenericCall, holder: AnnotationHolder) {
-    call.referencedExpr.children.toList match {
-      case List(left: ScExpression, ElementText("."), ElementText("asInstanceOf")) =>
-        for (actualType <- left.getType(TypingContext.empty).toOption;
-             typeArgument <- call.arguments.headOption;
-             castType <- typeArgument.getType(TypingContext.empty)
-             if !castType.conforms(actualType) && !actualType.conforms(castType)) {
-
-          val range = new TextRange(left.getTextLength, call.getTextLength)
-                  .shiftRight(call.getTextRange.getStartOffset)
-
-          val message = "Inconvertible types; cannot cast from  '%s' to '%s'"
-                  .format(actualType.presentableText, castType.presentableText)
-
-          holder.createErrorAnnotation(range, message)
-        }
-      case _ =>
     }
   }
 
@@ -500,12 +480,12 @@ with DumbAware {
                 e.getParent.asInstanceOf[ScPrefixExpr].operation == e => //todo: this is hide !(Not Boolean)
         case e: ScReferenceExpression if e.getParent.isInstanceOf[ScInfixExpr] &&
                 e.getParent.asInstanceOf[ScInfixExpr].operation == e => //todo: this is hide A op B
-        case e: ScReferenceExpression => processError(false, getFix)
+        case e: ScReferenceExpression => processError(countError = false, fixes = getFix)
         case e: ScStableCodeReferenceElement if e.getParent.isInstanceOf[ScInfixPattern] &&
                 e.getParent.asInstanceOf[ScInfixPattern].refernece == e => //todo: this is hide A op B in patterns
         case _ => refElement.getParent match {
           case s: ScImportSelector if resolve.length > 0 =>
-          case _ => processError(true, getFix)
+          case _ => processError(countError = true, fixes = getFix)
         }
       }
     }
@@ -517,7 +497,7 @@ with DumbAware {
       scalaResult = result.asInstanceOf[ScalaResolveResult]
     } {
       registerUsedImports(refElement, scalaResult)
-      registerUsedElement(refElement, scalaResult, true)
+      registerUsedElement(refElement, scalaResult, checkWrite = true)
     }
 
     checkAccessForReference(resolve, refElement, holder)
@@ -632,7 +612,7 @@ with DumbAware {
     for (result <- resolve if result.isInstanceOf[ScalaResolveResult];
          scalaResult = result.asInstanceOf[ScalaResolveResult]) {
       registerUsedImports(refElement, scalaResult)
-      registerUsedElement(refElement, scalaResult, true)
+      registerUsedElement(refElement, scalaResult, checkWrite = true)
     }
     checkAccessForReference(resolve, refElement, holder)
     if (refElement.isInstanceOf[ScExpression] &&
@@ -798,7 +778,7 @@ with DumbAware {
           if (resolveResult != null) {
             ImportTracker.getInstance(expr.getProject).registerUsedImports(
               expr.getContainingFile.asInstanceOf[ScalaFile], resolveResult.importsUsed)
-            registerUsedElement(expr, resolveResult, false)
+            registerUsedElement(expr, resolveResult, checkWrite = false)
           }
         }
       }

@@ -14,6 +14,7 @@ import api.expr.ScAnnotation
 import api.toplevel.ScNamedElement
 import api.toplevel.typedef.{ScMember, ScTypeDefinition}
 import api.statements.params.ScClassParameter
+import api.base.types.ScSelfTypeElement
 
 /**
  * @author ilyas
@@ -38,5 +39,6 @@ object ScalaIndexKeys {
   val CLASS_PARAMETER_NAME_KEY: StubIndexKey[String, ScClassParameter] = StubIndexKey.createIndexKey("sc.class.parameter.name")
   val TYPE_ALIAS_NAME_KEY: StubIndexKey[String, ScTypeAlias] = StubIndexKey.createIndexKey("sc.type.alias.name")
   val SUPER_CLASS_NAME_KEY: StubIndexKey[String, ScExtendsBlock] = StubIndexKey.createIndexKey("sc.super.class.name")
+  val SELF_TYPE_CLASS_NAME_KEY: StubIndexKey[String, ScSelfTypeElement] = StubIndexKey.createIndexKey("sc.self.type.class.name.key")
   val IMPLICITS_KEY: StubIndexKey[String, ScMember] = StubIndexKey.createIndexKey("sc.implicit.function.name")
 }
