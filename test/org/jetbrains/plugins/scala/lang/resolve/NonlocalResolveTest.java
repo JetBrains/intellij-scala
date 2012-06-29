@@ -134,8 +134,8 @@ public class NonlocalResolveTest extends ScalaResolveTestCase{
   public void testselfTypeShadow() throws Exception {
     PsiReference ref = findReferenceAtCaret();
     final PsiElement t = ref.resolve();
-    assertTrue(t instanceof ScTrait);
-    assertEquals(((ScTrait) t).qualifiedName(), "Symbols.Symbol");
+    assertTrue(t instanceof ScClass);
+    assertEquals(((ScClass) t).qualifiedName(), "scala.Symbol");
   }
 
   public void testsubstAliasBound() throws Exception {
