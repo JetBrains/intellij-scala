@@ -200,6 +200,6 @@ object ScalaWrapManager {
       }
       case _ =>
     }
-    return null
+    null
   }
 }

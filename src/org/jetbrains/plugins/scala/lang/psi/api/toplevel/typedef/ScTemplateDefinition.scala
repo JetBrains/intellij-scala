@@ -228,10 +228,10 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
                 case e: ScExtendsBlock if e != null => {
                   if (PsiTreeUtil.isContextAncestor(e, place, true) || !PsiTreeUtil.isContextAncestor(this, place, true)) {
                     this match {
-                      case t: ScTrait if selfTypeElement != None &&
+                      case t: ScTypeDefinition if selfTypeElement != None &&
                         !PsiTreeUtil.isContextAncestor(selfTypeElement.get, place, true) &&
                         PsiTreeUtil.isContextAncestor(e.templateBody.getOrElse(null), place, true) &&
-                        processor.isInstanceOf[BaseProcessor] =>
+                        processor.isInstanceOf[BaseProcessor] && !t.isInstanceOf[ScObject] =>
                           selfTypeElement match {
                             case Some(_) => processor.asInstanceOf[BaseProcessor].processType(ScThisType(t), place, state)
                             case _ =>
