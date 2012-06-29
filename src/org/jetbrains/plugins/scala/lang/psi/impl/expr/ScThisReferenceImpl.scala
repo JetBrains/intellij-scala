@@ -25,28 +25,7 @@ class ScThisReferenceImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with 
   override def toString: String = "ThisReference"
 
   protected override def innerType(ctx: TypingContext): TypeResult[ScType] = refTemplate match {
-    case Some(td) => {
-      lazy val selfTypeOfClass: ScType = td.getTypeWithProjections(TypingContext.empty, true).map(tp => {
-        td.selfType match {
-          case Some(selfType) => Bounds.glb(tp, selfType)
-          case _ => tp
-        }
-      }).getOrElse(return Failure("No clazz type found", Some(this)))
-
-      // SLS 6.5:  If the expression’s expected type is a stable type,
-      // or C .this occurs as the prefix of a selection, its type is C.this.type,
-      // otherwise it is the self type of class C .
-      getContext match {
-        case r: ScReferenceExpression if r.qualifier.exists(_ == this) =>
-          Success(ScThisType(td), Some(this))
-        case _ => expectedType() match {
-          case Some(t) if t.isStable =>
-            Success(ScThisType(td), Some(this))
-          case _ => 
-            Success(selfTypeOfClass, Some(this))
-        }
-      }
-    }
+    case Some(td) => ScThisReferenceImpl.getThisTypeForTypeDefinition(td, this)
     case _ => Failure("Cannot infer type", Some(this))
   }
 
@@ -69,6 +48,31 @@ class ScThisReferenceImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with 
     visitor match {
       case visitor: ScalaElementVisitor => visitor.visitThisReference(this)
       case _ => super.accept(visitor)
+    }
+  }
+}
+
+object ScThisReferenceImpl {
+  def getThisTypeForTypeDefinition(td: ScTemplateDefinition, expr: ScExpression): TypeResult[ScType] = {
+    lazy val selfTypeOfClass: ScType = td.getTypeWithProjections(TypingContext.empty, thisProjections = true).map(tp => {
+      td.selfType match {
+        case Some(selfType) => Bounds.glb(tp, selfType)
+        case _ => tp
+      }
+    }).getOrElse(return Failure("No clazz type found", Some(expr)))
+
+    // SLS 6.5:  If the expression’s expected type is a stable type,
+    // or C .this occurs as the prefix of a selection, its type is C.this.type,
+    // otherwise it is the self type of class C .
+    expr.getContext match {
+      case r: ScReferenceExpression if r.qualifier.exists(_ == expr) =>
+        Success(ScThisType(td), Some(expr))
+      case _ => expr.expectedType() match {
+        case Some(t) if t.isStable =>
+          Success(ScThisType(td), Some(expr))
+        case _ =>
+          Success(selfTypeOfClass, Some(expr))
+      }
     }
   }
 }
