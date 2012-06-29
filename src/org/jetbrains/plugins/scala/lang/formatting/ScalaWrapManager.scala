@@ -182,8 +182,8 @@ object ScalaWrapManager {
         val first: PsiElement = e.earlyDefinitions match {
           case Some(z) => z
           case _ => e.templateParents match {
-            case Some(tp) => tp.typeElements(0)
-            case None => null
+            case Some(tp) if tp.typeElements.length > 0 => tp.typeElements(0)
+            case _ => null
           }
         }
         if (first == null) return null
