@@ -1,0 +1,5 @@
+class X {
+  def f(a: Boolean): Boolean = {
+    <spot>return a</spot>
+  }
+}
