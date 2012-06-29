@@ -34,7 +34,6 @@ import psi.types.ScCompoundType
  * @author AlexanderPodkhalyuzin
  * Date: 20.02.2008
  */
-
 class ScExtendsBlockImpl extends ScalaStubBasedElementImpl[ScExtendsBlock] with ScExtendsBlock {
   def this(node: ASTNode) = {this (); setNode(node)}
 

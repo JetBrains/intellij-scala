@@ -518,6 +518,56 @@ object TypeDefinitionMembers {
     ))
   }
 
+  def getParameterlessSignatures(tp: ScCompoundType, compoundTypeThisType: Option[ScType], place: PsiElement): PMap = {
+    ScalaPsiManager.instance(place.getProject).getParameterlessSignatures(tp, compoundTypeThisType)
+  }
+
+  def getTypes(tp: ScCompoundType, compoundTypeThisType: Option[ScType], place: PsiElement): TMap = {
+    ScalaPsiManager.instance(place.getProject).getTypes(tp, compoundTypeThisType)
+  }
+
+  def getSignatures(tp: ScCompoundType, compoundTypeThisType: Option[ScType], place: PsiElement): SMap = {
+    ScalaPsiManager.instance(place.getProject).getSignatures(tp, compoundTypeThisType)
+  }
+
+  def getSelfTypeSignatures(clazz: PsiClass): SMap = {
+    clazz match {
+      case td: ScTypeDefinition =>
+        td.selfType match {
+          case Some(selfType) =>
+            val clazzType = td.getTypeWithProjections(TypingContext.empty).getOrAny
+            Bounds.glb(selfType, clazzType) match {
+              case c: ScCompoundType =>
+                getSignatures(c, Some(clazzType), clazz)
+              case _ =>
+                getSignatures(clazz)
+            }
+          case _ =>
+            getSignatures(clazz)
+        }
+      case _ => getSignatures(clazz)
+    }
+  }
+
+  def getSelfTypeTypes(clazz: PsiClass): TMap = {
+    clazz match {
+      case td: ScTypeDefinition =>
+        td.selfType match {
+          case Some(selfType) =>
+            val clazzType = td.getTypeWithProjections(TypingContext.empty).getOrAny
+            Bounds.glb(selfType, clazzType) match {
+              case c: ScCompoundType =>
+                getTypes(c, Some(clazzType), clazz)
+              case _ =>
+                getTypes(clazz)
+            }
+          case _ =>
+            getTypes(clazz)
+        }
+      case _ => getTypes(clazz)
+    }
+  }
+
   //todo: this method requires refactoring
   def processDeclarations(clazz: PsiClass,
                           processor: PsiScopeProcessor,
@@ -599,8 +649,8 @@ object TypeDefinitionMembers {
                           place: PsiElement): Boolean = {
     val compoundTypeThisType = Option(state.get(BaseProcessor.COMPOUND_TYPE_THIS_TYPE_KEY)).getOrElse(None)
     if (!privateProcessDeclarations(processor, state, lastParent, place,
-      SignatureNodes.build(comp, compoundTypeThisType), ParameterlessNodes.build(comp, compoundTypeThisType),
-      TypeNodes.build(comp, compoundTypeThisType), isSupers = false, isObject = false)) return false
+      getSignatures(comp, compoundTypeThisType, place), getParameterlessSignatures(comp, compoundTypeThisType, place),
+      getTypes(comp, compoundTypeThisType, place), isSupers = false, isObject = false)) return false
 
     val project =
       if (lastParent != null) lastParent.getProject

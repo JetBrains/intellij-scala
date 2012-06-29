@@ -19,4 +19,6 @@ import psi.types.result.Success
 
 trait ScSelfTypeElement extends ScNamedElement with ScTypedDefinition {
   def typeElement: Option[ScTypeElement]
+
+  def getClassNames: Array[String]
 }

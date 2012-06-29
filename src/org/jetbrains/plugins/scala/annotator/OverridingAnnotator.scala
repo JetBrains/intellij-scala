@@ -42,7 +42,7 @@ trait OverridingAnnotator {
         val element = ScalaPsiUtil.nameContext(signature.namedElement.get)
         isConcreteElement(element)
       } else false
-    checkOverrideMembers(method, method, method.superSignatures, isConcrete, "Method", holder)
+    checkOverrideMembers(method, method, method.superSignaturesIncludingSelfType, isConcrete, "Method", holder)
   }
 
   def checkOverrideVals(v: ScValue, holder: AnnotationHolder) {
@@ -53,7 +53,7 @@ trait OverridingAnnotator {
       } else false
 
     v.declaredElements.foreach(td => {
-      checkOverrideMembers(td, v, ScalaPsiUtil.superValsSignatures(td), isConcrete, "Value", holder)
+      checkOverrideMembers(td, v, ScalaPsiUtil.superValsSignatures(td, withSelfType = true), isConcrete, "Value", holder)
     })
   }
 
@@ -65,7 +65,7 @@ trait OverridingAnnotator {
       } else false
 
     v.declaredElements.foreach(td => {
-      checkOverrideMembers(td, v, ScalaPsiUtil.superValsSignatures(td), isConcrete, "Variable", holder)
+      checkOverrideMembers(td, v, ScalaPsiUtil.superValsSignatures(td, withSelfType = true), isConcrete, "Variable", holder)
     })
   }
 
@@ -76,7 +76,7 @@ trait OverridingAnnotator {
         isConcreteElement(element)
       } else false
 
-    checkOverrideMembers(v, v, ScalaPsiUtil.superValsSignatures(v), isConcrete, "Parameter", holder)
+    checkOverrideMembers(v, v, ScalaPsiUtil.superValsSignatures(v, withSelfType = true), isConcrete, "Parameter", holder)
   }
 
   def checkOverrideTypes(tp: ScNamedElement with ScModifierListOwner, holder: AnnotationHolder) {
@@ -85,7 +85,7 @@ trait OverridingAnnotator {
       case a: ScTypeAlias =>
       case _ => return
     }
-    checkOverrideMembers(tp, tp, ScalaPsiUtil.superTypeMembers(tp), isConcreteElement, "Type", holder)
+    checkOverrideMembers(tp, tp, ScalaPsiUtil.superTypeMembers(tp, withSelfType = true), isConcreteElement, "Type", holder)
   }
   private def checkOverrideMembers[T <: ScNamedElement, Res](member: T,
                                                              owner: ScModifierListOwner,

@@ -9,6 +9,7 @@ import com.intellij.psi.stubs.StringStubIndexExtension
 import com.intellij.openapi.project.Project
 import com.intellij.psi.search.GlobalSearchScope
 import api.toplevel.templates.ScExtendsBlock
+import api.base.types.ScSelfTypeElement
 
 /**
  * User: Alexander Podkhalyuzin
@@ -24,4 +25,15 @@ class ScDirectInheritorsIndex extends StringStubIndexExtension[ScExtendsBlock] {
 
 object ScDirectInheritorsIndex {
   val KEY = ScalaIndexKeys.SUPER_CLASS_NAME_KEY
+}
+
+class ScSelfTypeInheritorsIndex extends StringStubIndexExtension[ScSelfTypeElement] {
+  override def get(int: String, project: Project, scope: GlobalSearchScope): java.util.Collection[ScSelfTypeElement] =
+    super.get(int, project, new ScSourceFilterScope(scope, project))
+
+  def getKey = ScSelfTypeInheritorsIndex.KEY
+}
+
+object ScSelfTypeInheritorsIndex {
+  val KEY = ScalaIndexKeys.SELF_TYPE_CLASS_NAME_KEY
 }

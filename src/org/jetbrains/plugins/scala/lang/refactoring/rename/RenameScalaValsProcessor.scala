@@ -70,7 +70,7 @@ class RenameScalaValsProcessor extends RenameJavaMemberProcessor {
 
     addBeanMethods(element, newName)
     
-    for (elem <- ScalaOverridengMemberSearch.search(namedElement, true)) {
+    for (elem <- ScalaOverridengMemberSearch.search(namedElement, deep = true)) {
       val overriderName = elem.name
       val baseName = namedElement.name
       val newOverriderName = RefactoringUtil.suggestNewOverriderName(overriderName, baseName, newName)

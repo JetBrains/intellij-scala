@@ -29,7 +29,7 @@ class MethodImplementationsSearch extends QueryExecutor[PsiElement, PsiElement] 
   def getOverridingMethods(method: ScNamedElement): Array[PsiNamedElement] = {
     val result = new ArrayBuffer[PsiNamedElement]
     inReadAction {
-      for (psiMethod <- ScalaOverridengMemberSearch.search(method, true)) {
+      for (psiMethod <- ScalaOverridengMemberSearch.search(method, deep = true)) {
         result += psiMethod
       }
     }

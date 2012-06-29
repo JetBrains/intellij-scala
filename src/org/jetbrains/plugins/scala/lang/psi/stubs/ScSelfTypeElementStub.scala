@@ -14,4 +14,6 @@ import api.base.types.{ScTypeElement, ScSelfTypeElement}
 
 trait ScSelfTypeElementStub extends NamedStub[ScSelfTypeElement]{
   def getTypeElementText: String
+
+  def getClassNames: Array[String]
 }

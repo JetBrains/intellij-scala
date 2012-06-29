@@ -278,6 +278,68 @@ class ScalaOverrideImplementTest extends ScalaLightPlatformCodeInsightTestCaseAd
     runTest(methodName, fileText, expectedText, isImplement, needsInferType)
   }
 
+  def testImplementFromSelfType() {
+    val fileText =
+      """
+        |package test
+        |
+        |trait A {
+        |  def foo: Int
+        |}
+        |trait B {
+        |  self: A =>
+        |  <caret>
+        |}
+      """.replace("\r", "").stripMargin.trim
+    val expectedText =
+      """
+        |package test
+        |
+        |trait A {
+        |  def foo: Int
+        |}
+        |trait B {
+        |  self: A =>
+        |  def foo: Int = <selection>???</selection>
+        |}
+      """.replace("\r", "").stripMargin.trim
+    val methodName: String = "foo"
+    val isImplement = true
+    val needsInferType = true
+    runTest(methodName, fileText, expectedText, isImplement, needsInferType)
+  }
+
+  def testOverrideFromSelfType() {
+    val fileText =
+      """
+        |package test
+        |
+        |trait A {
+        |  def foo: Int = 1
+        |}
+        |trait B {
+        |  self: A =>
+        |  <caret>
+        |}
+      """.replace("\r", "").stripMargin.trim
+    val expectedText =
+      """
+        |package test
+        |
+        |trait A {
+        |  def foo: Int = 1
+        |}
+        |trait B {
+        |  self: A =>
+        |  override def foo: Int = <selection>???</selection>
+        |}
+      """.replace("\r", "").stripMargin.trim
+    val methodName: String = "foo"
+    val isImplement = false
+    val needsInferType = true
+    runTest(methodName, fileText, expectedText, isImplement, needsInferType)
+  }
+
   def testTypeAlias() {
     val fileText =
       """

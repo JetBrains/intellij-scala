@@ -7,6 +7,8 @@ import api.statements.params.ScTypeParam
 import com.intellij.openapi.components.ProjectComponent
 import toplevel.synthetic.{SyntheticPackageCreator, ScSyntheticPackage}
 import light.PsiClassWrapper
+import toplevel.typedef.MixinNodes
+import toplevel.typedef.TypeDefinitionMembers._
 import types._
 import com.intellij.openapi.util.Key
 import com.intellij.ProjectTopics
@@ -31,6 +33,7 @@ import collection.mutable.HashSet
 import com.intellij.psi.search.{PsiShortNamesCache, GlobalSearchScope}
 import java.util.{Collections, Map}
 import com.intellij.openapi.roots.{ModuleRootEvent, ModuleRootListener}
+import ParameterlessNodes.{Map => PMap}, TypeNodes.{Map => TMap}, SignatureNodes.{Map => SMap}
 
 class ScalaPsiManager(project: Project) extends ProjectComponent {
   private val implicitObjectMap: ConcurrentMap[String, SoftReference[java.util.Map[GlobalSearchScope, Seq[ScObject]]]] =
@@ -59,6 +62,45 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
 
   private val scalaPackageClassNamesMap: ConcurrentMap[(GlobalSearchScope, String), HashSet[String]] =
     new ConcurrentHashMap[(GlobalSearchScope, String), HashSet[String]]
+
+  private val compoundTypesParameterslessNodes: ConcurrentMap[(ScCompoundType, Option[ScType]), SoftReference[PMap]] =
+    new ConcurrentHashMap
+
+  private val compoundTypesTypeNodes: ConcurrentMap[(ScCompoundType, Option[ScType]), SoftReference[TMap]] =
+    new ConcurrentHashMap
+
+  private val compoundTypesSignatureNodes: ConcurrentMap[(ScCompoundType, Option[ScType]), SoftReference[SMap]] =
+    new ConcurrentHashMap
+
+  def getParameterlessSignatures(tp: ScCompoundType, compoundTypeThisType: Option[ScType]): PMap = {
+    val ref = compoundTypesParameterslessNodes.get(tp, compoundTypeThisType)
+    var result: PMap = if (ref == null) null else ref.get()
+    if (result == null) {
+      result = ParameterlessNodes.build(tp, compoundTypeThisType)
+      compoundTypesParameterslessNodes.put((tp, compoundTypeThisType), new SoftReference(result))
+    }
+    result
+  }
+
+  def getTypes(tp: ScCompoundType, compoundTypeThisType: Option[ScType]): TMap = {
+    val ref = compoundTypesTypeNodes.get(tp, compoundTypeThisType)
+    var result: TMap = if (ref == null) null else ref.get()
+    if (result == null) {
+      result = TypeNodes.build(tp, compoundTypeThisType)
+      compoundTypesTypeNodes.put((tp, compoundTypeThisType), new SoftReference(result))
+    }
+    result
+  }
+
+  def getSignatures(tp: ScCompoundType, compoundTypeThisType: Option[ScType]): SMap = {
+    val ref = compoundTypesSignatureNodes.get(tp, compoundTypeThisType)
+    var result: SMap = if (ref == null) null else ref.get()
+    if (result == null) {
+      result = SignatureNodes.build(tp, compoundTypeThisType)
+      compoundTypesSignatureNodes.put((tp, compoundTypeThisType), new SoftReference(result))
+    }
+    result
+  }
   
   def cachedDeepIsInheritor(clazz: PsiClass, base: PsiClass): Boolean = {
     val ref = inheritorsMap.get(clazz)
@@ -328,6 +370,9 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
         scalaPackageClassesMap.clear()
         javaPackageClassNamesMap.clear()
         scalaPackageClassNamesMap.clear()
+        compoundTypesParameterslessNodes.clear()
+        compoundTypesSignatureNodes.clear()
+        compoundTypesTypeNodes.clear()
         Conformance.cache.clear()
       }
     })
@@ -346,6 +391,9 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
         scalaPackageClassesMap.clear()
         javaPackageClassNamesMap.clear()
         scalaPackageClassNamesMap.clear()
+        compoundTypesParameterslessNodes.clear()
+        compoundTypesSignatureNodes.clear()
+        compoundTypesTypeNodes.clear()
         Conformance.cache.clear()
       }
     })

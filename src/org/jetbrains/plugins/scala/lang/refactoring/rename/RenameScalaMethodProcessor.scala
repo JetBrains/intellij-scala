@@ -43,7 +43,7 @@ class RenameScalaMethodProcessor extends RenameJavaMethodProcessor {
       case Some(function2) => buff += function2
       case _ =>
     }
-    for (elem <- ScalaOverridengMemberSearch.search(function, true)) {
+    for (elem <- ScalaOverridengMemberSearch.search(function, deep = true)) {
       val overriderName = elem.name
       val baseName = function.name
       //val newOverriderName = RefactoringUtil.suggestNewOverriderName(overriderName, baseName, newName)

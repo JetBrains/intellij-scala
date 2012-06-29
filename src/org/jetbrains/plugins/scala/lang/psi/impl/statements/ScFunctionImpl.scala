@@ -108,6 +108,19 @@ abstract class ScFunctionImpl extends ScalaStubBasedElementImpl[ScFunction] with
     t
   }
 
+  def superSignaturesIncludingSelfType: Seq[Signature] = {
+    //todo: fastPhysicalSignatureGet?
+    val clazz = containingClass
+    val s = new PhysicalSignature(this, ScSubstitutor.empty)
+    if (clazz == null) return Seq(s)
+    val t = TypeDefinitionMembers.getSelfTypeSignatures(clazz).forName(ScalaPsiUtil.convertMemberName(name))._1.get(s) match {
+      case Some(x) => x.supers.map {_.info}
+      case None => Seq[Signature]()
+    }
+    t
+  }
+
+
   override def getNameIdentifier: PsiIdentifier = new JavaIdentifier(nameId)
 
   def findDeepestSuperMethod: PsiMethod = {

@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala
 package annotator
 package gutter
 
-import _root_.scala.collection.mutable.HashSet
 import _root_.scala.collection.mutable.ArrayBuffer
 import com.intellij.codeHighlighting.Pass
 import com.intellij.openapi.application.ApplicationManager
@@ -23,7 +22,7 @@ import lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition, ScTrait}
 import javax.swing.Icon
 import GutterIcons._
 import lang.psi.api.base.ScReferenceElement
-import collection.Seq
+import collection.{mutable, Seq}
 import lang.psi.types.Signature
 import extensions.toPsiModifierListOwnerExt
 import lang.psi.api.statements._
@@ -91,7 +90,7 @@ class ScalaLineMarkerProvider(daemonSettings: DaemonCodeAnalyzerSettings, colors
 
       (parent, parent.getParent) match {
         case (method: ScFunction, _: ScTemplateBody) if method.nameId == element =>
-          val signatures: Seq[Signature] = (HashSet[Signature](method.superSignatures: _*)).toSeq
+          val signatures: Seq[Signature] = (mutable.HashSet[Signature](method.superSignaturesIncludingSelfType: _*)).toSeq
           val icon = if (GutterUtil.isOverrides(method, signatures)) OVERRIDING_METHOD_ICON else IMPLEMENTING_METHOD_ICON
           val typez = ScalaMarkerType.OVERRIDING_MEMBER
           if (signatures.length > 0) {
@@ -101,7 +100,7 @@ class ScalaLineMarkerProvider(daemonSettings: DaemonCodeAnalyzerSettings, colors
           if containsNamedElement(x.asInstanceOf[ScDeclaredElementsHolder]) =>
           val signatures = new ArrayBuffer[Signature]
           val bindings = x match {case v: ScDeclaredElementsHolder => v.declaredElements case _ => return null}
-          for (z <- bindings) signatures ++= ScalaPsiUtil.superValsSignatures(z)
+          for (z <- bindings) signatures ++= ScalaPsiUtil.superValsSignatures(z, withSelfType = true)
           val icon = if (GutterUtil.isOverrides(x, signatures)) OVERRIDING_METHOD_ICON else IMPLEMENTING_METHOD_ICON
           val typez = ScalaMarkerType.OVERRIDING_MEMBER
           if (signatures.length > 0) {
@@ -112,21 +111,21 @@ class ScalaLineMarkerProvider(daemonSettings: DaemonCodeAnalyzerSettings, colors
             return marker(token, icon, typez)
           }
         case (x: ScObject, _: ScTemplateBody) if x.nameId == element =>
-          val signatures = ScalaPsiUtil.superValsSignatures(x)
+          val signatures = ScalaPsiUtil.superValsSignatures(x, withSelfType = true)
           val icon = if (GutterUtil.isOverrides(x, signatures)) OVERRIDING_METHOD_ICON else IMPLEMENTING_METHOD_ICON
           val typez = ScalaMarkerType.OVERRIDING_MEMBER
           if (signatures.length > 0) {
             return marker(x.getObjectToken, icon, typez)
           }
         case (td : ScTypeDefinition, _: ScTemplateBody) if !td.isObject =>
-          val signature = ScalaPsiUtil.superTypeMembers(td)
+          val signature = ScalaPsiUtil.superTypeMembers(td, withSelfType = true)
           val icon = IMPLEMENTING_METHOD_ICON
           val typez = ScalaMarkerType.OVERRIDING_MEMBER
           if (signature.length > 0) {
             return marker(td.getObjectClassOrTraitToken, icon, typez)
           }
         case (ta : ScTypeAlias, _: ScTemplateBody) =>
-          val signature = ScalaPsiUtil.superTypeMembers(ta)
+          val signature = ScalaPsiUtil.superTypeMembers(ta, withSelfType = true)
           val icon = IMPLEMENTING_METHOD_ICON
           val typez = ScalaMarkerType.OVERRIDING_MEMBER
           if (signature.length > 0) {
@@ -209,7 +208,7 @@ private object GutterUtil {
         case _ => Array[PsiNamedElement]()
       }
       val overrides = new ArrayBuffer[PsiNamedElement]
-      for (member <- members) overrides ++= ScalaOverridengMemberSearch.search(member, false)
+      for (member <- members) overrides ++= ScalaOverridengMemberSearch.search(member, deep = false, withSelfType = true)
       if (overrides.length > 0) {
         val icon = if (!GutterUtil.isAbstract(member)) OVERRIDEN_METHOD_MARKER_RENDERER else IMPLEMENTED_INTERFACE_MARKER_RENDERER
         val typez = ScalaMarkerType.OVERRIDDEN_MEMBER

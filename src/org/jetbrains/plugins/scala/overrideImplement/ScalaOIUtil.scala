@@ -14,12 +14,14 @@ import lang.psi.api.toplevel.typedef.{ScTrait, ScTypeDefinition, ScMember, ScTem
 import lang.psi.api.toplevel.ScTypedDefinition
 import lang.psi.api.statements._
 import lang.psi.impl.ScalaPsiElementFactory
-import lang.psi.types.{ScType, PhysicalSignature, ScSubstitutor}
+import lang.psi.types._
 import lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.util.ScalaUtils
 import com.intellij.ide.util.MemberChooser
 import _root_.scala.collection.mutable.ArrayBuffer
 import com.intellij.openapi.project.Project
+import result.Failure
+import result.Success
 import settings.ScalaApplicationSettings
 import lang.psi.types.result.{Failure, Success, TypingContext}
 import javax.swing.{JComponent, JCheckBox}
@@ -33,6 +35,12 @@ import com.intellij.openapi.module.{ModuleUtil, Module}
 import config.{ScalaVersionUtil, ScalaFacet}
 import com.intellij.openapi.application.ApplicationManager
 import java.util.{Collections, List, Properties}
+import lang.resolve.processor.BaseProcessor
+import lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
+import scala.Some
+import scala.Boolean
+import scala.Any
+import scala.Int
 
 /**
  * User: Alexander Podkhalyuzin
@@ -89,15 +97,17 @@ object ScalaOIUtil {
     val parent = getParentClass(elem)
     if (parent == null) return
     val clazz = parent.asInstanceOf[ScTemplateDefinition]
-    val candidates = if (isImplement) getMembersToImplement(clazz) else getMembersToOverride(clazz)
+    val candidates =
+      if (isImplement) getMembersToImplement(clazz, withSelfType = true)
+      else getMembersToOverride(clazz, withSelfType = true)
     if (candidates.isEmpty) return
     val classMembers = toMembers(candidates)
+    val componentBuffer = new ArrayBuffer[JComponent]
     val dontInferReturnTypeCheckBox: JCheckBox = new NonFocusableCheckBox(
       ScalaBundle.message("specify.return.type.explicitly"))
     if (ScalaApplicationSettings.getInstance.SPECIFY_RETURN_TYPE_EXPLICITLY != null)
       dontInferReturnTypeCheckBox.setSelected(ScalaApplicationSettings.getInstance.SPECIFY_RETURN_TYPE_EXPLICITLY.booleanValue)
-    class ScalaMemberChooser extends MemberChooser[ClassMember](classMembers, false, true, project,
-      Array[JComponent](dontInferReturnTypeCheckBox)) {
+    class ScalaMemberChooser extends MemberChooser[ClassMember](classMembers, false, true, project, componentBuffer.toArray) {
       def needsInferType = dontInferReturnTypeCheckBox.isSelected
     }
     var selectedMembers: List[ClassMember] = null
@@ -131,6 +141,8 @@ object ScalaOIUtil {
           case Failure(_, _) => subst
         }
 
+        val clazzMethods = clazz.allMethods.map(_.method).toSet
+
         for (member <- selectedMembers.toArray(new Array[ClassMember](selectedMembers.size)).reverse) {
           val offset = editor.getCaretModel.getOffset
           val anchor = getAnchor(offset, clazz)
@@ -144,8 +156,13 @@ object ScalaOIUtil {
                 case _ => method.hasModifierProperty(PsiModifier.ABSTRACT)
               }
 
-              val templateName = if (isAbstract) ScalaFileTemplateUtil.SCALA_IMPLEMENTED_METHOD_TEMPLATE else
-                ScalaFileTemplateUtil.SCALA_OVERRIDDEN_METHOD_TEMPLATE
+              val templateName =
+                if (isAbstract) ScalaFileTemplateUtil.SCALA_IMPLEMENTED_METHOD_TEMPLATE
+                else {
+                  if (clazzMethods.contains(method))
+                    ScalaFileTemplateUtil.SCALA_OVERRIDDEN_METHOD_TEMPLATE
+                  else ScalaFileTemplateUtil.SCALA_IMPLEMENTED_METHOD_TEMPLATE
+                }
 
               val template = FileTemplateManager.getInstance().getCodeTemplate(templateName)
 
@@ -181,12 +198,11 @@ object ScalaOIUtil {
                 !isImplement, needsInferType, body)
               adjustTypesAndSetCaret(clazz.addMember(m, anchor), editor)
             }
-            case member: ScAliasMember => {
+            case member: ScAliasMember =>
               val alias = member.getElement
               val substitutor = addUpdateThisType(member.substitutor)
               val m = ScalaPsiElementFactory.createOverrideImplementType(alias, substitutor, alias.getManager, !isImplement)
               adjustTypesAndSetCaret(clazz.addMember(m, anchor), editor)
-            }
             case _: ScValueMember | _: ScVariableMember => {
               val isVal = member match {case _: ScValueMember => true case _: ScVariableMember => false}
               val value = member match {case x: ScValueMember => x.element case x: ScVariableMember => x.element}
@@ -206,11 +222,17 @@ object ScalaOIUtil {
     }, clazz.getProject, if (isImplement) "Implement method" else "Override method")
   }
 
-  def getMembersToImplement(clazz: ScTemplateDefinition, withOwn: Boolean = false): Seq[Object] = {
+  def getMembersToImplement(clazz: ScTemplateDefinition, withOwn: Boolean = false, withSelfType: Boolean = false): Seq[Object] = {
     val buf = new ArrayBuffer[Object]
-    buf ++= clazz.allSignatures
-    buf ++= clazz.allTypeAliases
-    buf ++= clazz.allVals
+    if (withSelfType) {
+      buf ++= clazz.allSignaturesIncludingSelfType
+      buf ++= clazz.allTypeAliasesIncludingSelfType
+      buf ++= clazz.allValsIncludingSelfType
+    } else {
+      buf ++= clazz.allSignatures
+      buf ++= clazz.allTypeAliases
+      buf ++= clazz.allVals
+    }
     val buf2 = new ArrayBuffer[Object]
     for (element <- buf) {
       element match {
@@ -269,11 +291,17 @@ object ScalaOIUtil {
     }
   }
 
-  def getMembersToOverride(clazz: ScTemplateDefinition): Seq[Object] = {
+  def getMembersToOverride(clazz: ScTemplateDefinition, withSelfType: Boolean): Seq[Object] = {
     val buf = new ArrayBuffer[Object]
-    buf ++= clazz.allMethods
-    buf ++= clazz.allTypeAliases
-    buf ++= clazz.allVals
+    if (withSelfType) {
+      buf ++= clazz.allMethodsIncludingSelfType
+      buf ++= clazz.allTypeAliasesIncludingSelfType
+      buf ++= clazz.allValsIncludingSelfType
+    } else {
+      buf ++= clazz.allMethods
+      buf ++= clazz.allTypeAliases
+      buf ++= clazz.allVals
+    }
     val buf2 = new ArrayBuffer[Object]
     for (element <- buf) {
       element match {
