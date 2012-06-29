@@ -28,14 +28,12 @@ import annotator.intention.ScalaImportClassFix
 import api.toplevel.typedef._
 import completion.lookups.LookupElementManager
 import extensions.{toPsiMemberExt, toPsiNamedElementExt, toPsiClassExt}
-import settings.ScalaProjectSettings
-import api.base.ScReferenceElement
+import api.base.types.ScSelfTypeElement
 
 /**
  * @author AlexanderPodkhalyuzin
  * Date: 06.03.2008
  */
-
 class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ResolvableReferenceExpression {
   override def accept(visitor: PsiElementVisitor) {
     visitor match {
@@ -169,12 +167,16 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
   protected def convertBindToType(bind: Option[ScalaResolveResult]): TypeResult[ScType] = {
     val fromType: Option[ScType] = bind.map(_.fromType).getOrElse(None)
     val inner: ScType = bind match {
-      case Some(ScalaResolveResult(fun: ScFun, s)) => {
+      case Some(ScalaResolveResult(fun: ScFun, s)) =>
         s.subst(fun.polymorphicType)
-      }
-
       //prevent infinite recursion for recursive pattern reference
-      case Some(r@ScalaResolveResult(refPatt: ScReferencePattern, s)) => {
+      case Some(ScalaResolveResult(self: ScSelfTypeElement, _)) =>
+        val clazz = PsiTreeUtil.getContextOfType(self, true, classOf[ScTemplateDefinition])
+        ScThisReferenceImpl.getThisTypeForTypeDefinition(clazz, this) match {
+          case success: Success[ScType] => success.get
+          case failure => return failure
+        }
+      case Some(r@ScalaResolveResult(refPatt: ScReferencePattern, s)) =>
         ScalaPsiUtil.nameContext(refPatt) match {
           case pd: ScPatternDefinition if (PsiTreeUtil.isContextAncestor(pd, this, true)) => pd.declaredType match {
             case Some(t) => t
@@ -186,13 +188,15 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
           }
           case _ => {
             val stableTypeRequired = {
-              val expectedTypeIsStable = expectedType().exists {_.isStable}
+              val expectedTypeIsStable = expectedType().exists {
+                _.isStable
+              }
               // TODO there are 4 cases in SLS 6.4, this is #2
               expectedTypeIsStable
             }
             if (stableTypeRequired) {
               r.fromType match {
-                case Some(fT) => ScProjectionType(fT, refPatt, ScSubstitutor.empty, false)
+                case Some(fT) => ScProjectionType(fT, refPatt, ScSubstitutor.empty, superReference = false)
                 case None => ScType.designator(refPatt)
               }
             } else {
@@ -204,7 +208,6 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
             }
           }
         }
-      }
       case Some(ScalaResolveResult(value: ScSyntheticValue, _)) => value.tp
       case Some(ScalaResolveResult(fun: ScFunction, s)) if fun.isProbablyRecursive =>
         val optionResult: Option[ScType] = {
@@ -215,7 +218,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
         }
         s.subst(fun.polymorphicType(optionResult))
       case Some(ScalaResolveResult(fun: ScFunction, s)) => s.subst(fun.polymorphicType)
-      case Some(ScalaResolveResult(param: ScParameter, s)) if param.isRepeatedParameter => {
+      case Some(ScalaResolveResult(param: ScParameter, s)) if param.isRepeatedParameter =>
         val seqClass = ScalaPsiManager.instance(getProject).getCachedClass("scala.collection.Seq", getResolveScope, ScalaPsiManager.ClassCategory.TYPE)
         val result = param.getType(TypingContext.empty)
         val computeType = s.subst(result match {
@@ -225,11 +228,10 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
         if (seqClass != null) {
           ScParameterizedType(ScType.designator(seqClass), Seq(computeType))
         } else computeType
-      }
       case Some(ScalaResolveResult(obj: ScObject, s)) => {
         def tail = {
           fromType match {
-            case Some(tp) => ScProjectionType(tp, obj, s, false)
+            case Some(tp) => ScProjectionType(tp, obj, s, superReference = false)
             case _ => ScType.designator(obj)
           }
         }

@@ -9,7 +9,7 @@ import psi.api.toplevel.imports.usages.ImportUsed
 import psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import psi.types.Compatibility.Expression
-import psi.api.base.types.ScTypeElement
+import psi.api.base.types.{ScSelfTypeElement, ScTypeElement}
 import psi.api.base.{ScPrimaryConstructor, ScConstructor}
 import com.intellij.psi._
 import impl.source.resolve.ResolveCache
@@ -327,9 +327,10 @@ trait ResolvableReferenceExpression extends ScReferenceExpression {
 
     val fromType = e match {
       case ref: ScReferenceExpression => ref.bind() match {
+        case Some(ScalaResolveResult(self: ScSelfTypeElement, _)) => aType
         case Some(r@ScalaResolveResult(b: ScTypedDefinition, subst)) if b.isStable =>
           r.fromType match {
-            case Some(fT) => ScProjectionType(fT, b, ScSubstitutor.empty, false)
+            case Some(fT) => ScProjectionType(fT, b, ScSubstitutor.empty, superReference = false)
             case None => ScType.designator(b)
           }
         case _ => aType
