@@ -26,6 +26,8 @@ import base.types.ScTypeElement
 import com.intellij.psi.util.PsiModificationTracker
 import caches.CachesUtil
 import psi.ScalaPsiUtil.SafeCheckException
+import extensions.ElementText
+
 /**
  * @author ilyas, Alexander Podkhalyuzin
  */
@@ -497,6 +499,11 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible with Ps
             case _ => res += i
           }
         }
+        case infix @ ScInfixExpr(left @ ScExpression.Type(types.Boolean), ElementText(op), right @ ScExpression.Type(types.Boolean))
+          if (op == "&&" || op == "||") =>
+          calculateReturns0(left)
+          calculateReturns0(right)
+
         //TODO "!contains" is a quick fix, function needs unit testing to validate its behavior
         case _ => if (!res.contains(el)) res += el
       }
@@ -513,5 +520,5 @@ object ScExpression {
 
   object Type {
     def unapply(exp: ScExpression): Option[ScType] = exp.getType(TypingContext.empty).toOption
-  }
+  } 
 }
