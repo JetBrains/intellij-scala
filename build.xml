@@ -127,11 +127,6 @@
         <exclude name="intentionDescriptions/*"/>
       </fileset>
     </copy>
-    <copy todir="${main.dest}/src/org/jetbrains/plugins/scala/spellchecker">
-      <fileset dir="${base.dir}/src/org/jetbrains/plugins/scala/spellchecker">
-        <include name="*.dic"/>
-      </fileset>
-    </copy>
 
     <!-- Compile runners -->
 
@@ -189,6 +184,12 @@
 
     <copy file="${base.dir}/src/org/jetbrains/plugins/scala/editor/EditorBundle.properties"
           tofile="${main.dest}/org/jetbrains/plugins/scala/editor/EditorBundle.properties"/>
+
+    <copy todir="${main.dest}/src/org/jetbrains/plugins/scala/spellchecker">
+      <fileset dir="${base.dir}/src/org/jetbrains/plugins/scala/spellchecker">
+        <include name="*.dic"/>
+      </fileset>
+    </copy>
 
     <!-- Write plugin version, Since and Until attributes -->
     <replace file="${main.dest}/META-INF/plugin.xml" token="VERSION" value="${plugin.version}"/>
