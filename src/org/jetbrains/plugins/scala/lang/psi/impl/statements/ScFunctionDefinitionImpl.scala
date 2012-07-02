@@ -18,11 +18,12 @@ import api.base.types.ScTypeElement
 import collection.mutable.ArrayBuffer
 import psi.controlFlow.Instruction
 import psi.controlFlow.impl.ScalaControlFlowBuilder
-import api.{ScalaElementVisitor, ScalaRecursiveElementVisitor}
+import api.ScalaElementVisitor
 import api.statements.params.ScParameter
 import api.base.ScReferenceElement
 import extensions._
 import api.toplevel.templates.ScTemplateBody
+import api.toplevel.typedef.{ScTypeDefinition, ScObject}
 
 /**
  * @author Alexander Podkhalyuzin
@@ -35,9 +36,13 @@ class ScFunctionDefinitionImpl extends ScFunctionImpl with ScFunctionDefinition 
   def this(stub: ScFunctionStub) = {this (); setStub(stub); setNode(null)}
 
   def canBeTailRecursive = getParent match {
-    case _: ScTemplateBody =>
-      val modifiers = getModifierList
-      modifiers.has(ScalaTokenTypes.kPRIVATE) || modifiers.has(ScalaTokenTypes.kFINAL)
+    case (_: ScTemplateBody) && Parent(Parent(owner: ScTypeDefinition)) =>
+      val ownerModifiers = owner.getModifierList
+      val methodModifiers = getModifierList
+      owner.isInstanceOf[ScObject] ||
+              ownerModifiers.has(ScalaTokenTypes.kFINAL) ||
+              methodModifiers.has(ScalaTokenTypes.kPRIVATE) ||
+              methodModifiers.has(ScalaTokenTypes.kFINAL)
     case _ => true
   }
 
