@@ -127,6 +127,11 @@
         <exclude name="intentionDescriptions/*"/>
       </fileset>
     </copy>
+    <copy todir="${main.dest}/src/org/jetbrains/plugins/scala/spellchecker">
+      <fileset dir="${base.dir}/src/org/jetbrains/plugins/scala/spellchecker">
+        <include name="*.dic"/>
+      </fileset>
+    </copy>
 
     <!-- Compile runners -->
 
