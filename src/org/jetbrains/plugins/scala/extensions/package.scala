@@ -6,6 +6,7 @@ import extensions.implementation._
 import com.intellij.psi.impl.source.PostprocessReformattingAspect
 import com.intellij.openapi.project.Project
 import com.intellij.psi._
+import scala.util.matching.Regex
 
 /**
   * Pavel Fatin
@@ -48,6 +49,8 @@ package object extensions {
   implicit def toIdeaFunction[A, B](f: Function[A, B]) = new com.intellij.util.Function[A, B] {
     def fun(param: A) = f(param)
   }
+
+  implicit def regexToRichRegex(r: Regex) = new RegexExt(r)
 
   def inWriteAction[T](body: => T): T = {
     ApplicationManager.getApplication.runWriteAction(new Computable[T] {
