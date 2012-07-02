@@ -64,6 +64,7 @@ public class ScalaColorsAndFontsPage implements ColorSettingsPage {
         new AttributesDescriptor(DefaultHighlighter.SCALA_DOC_WIKI_SYNTAX_ID, DefaultHighlighter.SCALA_DOC_WIKI_SYNTAX),
         new AttributesDescriptor(DefaultHighlighter.SCALA_DOC_HTML_ESCAPE_ID, DefaultHighlighter.SCALA_DOC_HTML_ESCAPE),
         new AttributesDescriptor(DefaultHighlighter.SCALA_DOC_TAG_PARAM_VALUE_ID, DefaultHighlighter.SCALA_DOC_TAG_PARAM_VALUE),
+        new AttributesDescriptor(DefaultHighlighter.SCALA_IMPLICITS_ID, DefaultHighlighter.IMPLICIT_CONVERSIONS),
         new AttributesDescriptor(DefaultHighlighter.CLASS_ID, DefaultHighlighter.CLASS),
         new AttributesDescriptor(DefaultHighlighter.ABSTRACT_CLASS_ID, DefaultHighlighter.ABSTRACT_CLASS),
         new AttributesDescriptor(DefaultHighlighter.OBJECT_ID, DefaultHighlighter.OBJECT),
@@ -116,6 +117,7 @@ public class ScalaColorsAndFontsPage implements ColorSettingsPage {
         "<keyword>class</keyword> <class>ScalaClass</class><par>(</par><param>x</param><colon>:</colon> <predef>Int</predef><par>)</par>" +
         " <keyword>extends</keyword>" +
         " <class>ScalaObject</class> <brace>{</brace>\n" +
+        "  1 <implicit>to</implicit> 5" +
         "  <keyword>val</keyword> <val>field</val> <assign>=</assign> <string>\"Some<validescape>\\n</validescape>Strin<invalidescape>\\g</invalidescape>\"</string>\n" +
         "  <keyword>def</keyword> <methoddecl>foo</methoddecl><par>(</par><param>x</param><colon>:</colon> <predef>Float</predef><comma>," +
         "</comma> <param>y</param><colon>:</colon> <predef>Float</predef><par>)</par> <assign>=</assign> <brace>{</brace>\n" +
@@ -200,6 +202,7 @@ public class ScalaColorsAndFontsPage implements ColorSettingsPage {
     map.put("paramtagval", DefaultHighlighter.SCALA_DOC_TAG_PARAM_VALUE);
     map.put("xmltext", DefaultHighlighter.XML_TEXT);
     map.put("xmltag", DefaultHighlighter.XML_TAG);
+    map.put("implicit", DefaultHighlighter.IMPLICIT_CONVERSIONS);
     return map;
   }
 }

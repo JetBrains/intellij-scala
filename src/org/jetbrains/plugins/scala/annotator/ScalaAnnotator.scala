@@ -40,7 +40,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaFile}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import highlighter.AnnotatorHighlighter
+import highlighter.{DefaultHighlighter, AnnotatorHighlighter}
 import types.{ScParameterizedTypeElement, ScTypeProjection, ScTypeElement}
 import com.intellij.openapi.util.{TextRange, Key}
 import collection.mutable.{ArrayBuffer, HashSet}
@@ -73,8 +73,7 @@ with DumbAware {
           ByNameParameter.annotate(expr, holder, typeAware)
         }
 
-        if (isAdvancedHighlightingEnabled(element) &&
-                ScalaProjectSettings.getInstance(element.getProject).isShowImplisitConversions) {
+        if (isAdvancedHighlightingEnabled(element)) {
           expr.getTypeExt(TypingContext.empty) match {
             case ExpressionTypeResult(Success(t, _), _, Some(implicitFunction)) =>
               highlightImplicitView(expr, implicitFunction, t, expr, holder)
@@ -503,8 +502,7 @@ with DumbAware {
     checkAccessForReference(resolve, refElement, holder)
     checkForwardReference(resolve, refElement, holder)
 
-    if (ScalaProjectSettings.getInstance(refElement.getProject).isShowImplisitConversions &&
-            resolve.length == 1) {
+    if (resolve.length == 1) {
       val resolveResult = resolve(0).asInstanceOf[ScalaResolveResult]
       refElement match {
         case e: ScReferenceExpression if e.getParent.isInstanceOf[ScPrefixExpr] &&
@@ -587,8 +585,7 @@ with DumbAware {
                                     elementToHighlight: PsiElement, holder: AnnotationHolder) {
     val range = elementToHighlight.getTextRange
     val annotation: Annotation = holder.createInfoAnnotation(range, null)
-    val attributes = new TextAttributes(null, null, Color.LIGHT_GRAY, EffectType.LINE_UNDERSCORE, Font.PLAIN)
-    annotation.setEnforcedTextAttributes(attributes)
+    annotation.setTextAttributes(DefaultHighlighter.IMPLICIT_CONVERSIONS)
     annotation.setAfterEndOfLine(false)
   }
 
@@ -616,7 +613,6 @@ with DumbAware {
     }
     checkAccessForReference(resolve, refElement, holder)
     if (refElement.isInstanceOf[ScExpression] &&
-            ScalaProjectSettings.getInstance(refElement.getProject).isShowImplisitConversions &&
             resolve.length == 1) {
       val resolveResult = resolve(0).asInstanceOf[ScalaResolveResult]
       resolveResult.implicitFunction match {
@@ -727,19 +723,17 @@ with DumbAware {
             case Some((tp: ScType, typeElement)) => {
               import org.jetbrains.plugins.scala.lang.psi.types._
               val expectedType = Success(tp, None)
-              if (ScalaProjectSettings.getInstance(expr.getProject).isShowImplisitConversions) {
-                implicitFunction match {
-                  case Some(fun) => {
-                    //todo:
-                    /*val typeFrom = expr.getType(TypingContext.empty).getOrElse(Any)
-                    val typeTo = exprType.getOrElse(Any)
-                    val exprText = expr.getText
-                    val range = expr.getTextRange
-                    showImplicitUsageAnnotation(exprText, typeFrom, typeTo, fun, range, holder,
-                      EffectType.LINE_UNDERSCORE, Color.LIGHT_GRAY)*/
-                  }
-                  case None => //do nothing
+              implicitFunction match {
+                case Some(fun) => {
+                  //todo:
+                  /*val typeFrom = expr.getType(TypingContext.empty).getOrElse(Any)
+                  val typeTo = exprType.getOrElse(Any)
+                  val exprText = expr.getText
+                  val range = expr.getTextRange
+                  showImplicitUsageAnnotation(exprText, typeFrom, typeTo, fun, range, holder,
+                    EffectType.LINE_UNDERSCORE, Color.LIGHT_GRAY)*/
                 }
+                case None => //do nothing
               }
               val conformance = ScalaAnnotator.smartCheckConformance(expectedType, exprType)
               if (!conformance) {
