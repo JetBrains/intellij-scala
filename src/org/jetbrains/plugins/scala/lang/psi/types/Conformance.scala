@@ -675,7 +675,7 @@ object Conformance {
       r.visitType(rightVisitor)
       if (result != null) return
 
-      rightVisitor = new ParameterizedAliasVisitor with AliasDesignatorVisitor {}
+      rightVisitor = new ParameterizedAliasVisitor with AliasDesignatorVisitor with CompoundTypeVisitor {}
       r.visitType(rightVisitor)
       if (result != null) return
 
@@ -724,7 +724,7 @@ object Conformance {
         }
       }
 
-      rightVisitor = new CompoundTypeVisitor with ExistentialVisitor with ProjectionVisitor {}
+      rightVisitor = new ExistentialVisitor with ProjectionVisitor {}
       r.visitType(rightVisitor)
       if (result != null) return
     }
