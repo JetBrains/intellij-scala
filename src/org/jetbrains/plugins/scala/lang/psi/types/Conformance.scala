@@ -1429,7 +1429,7 @@ object Conformance {
         case _ =>
       }
 
-      rightVisitor = new ExistentialArgumentVisitor {}
+      rightVisitor = new ExistentialArgumentVisitor with CompoundTypeVisitor {}
       r.visitType(rightVisitor)
       if (result != null) return
 
