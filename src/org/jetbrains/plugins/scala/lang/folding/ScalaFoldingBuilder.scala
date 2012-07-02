@@ -46,7 +46,8 @@ class ScalaFoldingBuilder extends FoldingBuilder {
     if (isMultiline(node) || isMultilineImport(node)) {
       node.getElementType match {
         case ScalaTokenTypes.tBLOCK_COMMENT | ScalaTokenTypes.tSH_COMMENT | ScalaElementTypes.TEMPLATE_BODY |
-             ScalaDocElementTypes.SCALA_DOC_COMMENT => descriptors += (new FoldingDescriptor(node, node.getTextRange))
+             ScalaDocElementTypes.SCALA_DOC_COMMENT |
+             ScalaElementTypes.FUNCTION_DEFINITION => descriptors += (new FoldingDescriptor(node, node.getTextRange))
         case ScalaElementTypes.IMPORT_STMT if isGoodImport(node) => {
           descriptors += (new FoldingDescriptor(node,
             new TextRange(node.getTextRange.getStartOffset + IMPORT_KEYWORD.length + 1, getImportEnd(node))))
@@ -144,6 +145,7 @@ class ScalaFoldingBuilder extends FoldingBuilder {
         case ScalaElementTypes.PACKAGING => return "{...}"
         case ScalaElementTypes.IMPORT_STMT => return "..."
         case ScalaElementTypes.MATCH_STMT => return "{...}"
+        case ScalaElementTypes.FUNCTION_DEFINITION => return "{...}"
         case ScalaTokenTypes.tSH_COMMENT if node.getText.charAt(0) == ':' => return "::#!...::!#"
         case ScalaTokenTypes.tSH_COMMENT => return "#!...!#"
         case _ =>
@@ -211,6 +213,8 @@ class ScalaFoldingBuilder extends FoldingBuilder {
           if ScalaCodeFoldingSettings.getInstance().isCollapseScalaDocComments => true
         case ScalaElementTypes.TEMPLATE_BODY
           if ScalaCodeFoldingSettings.getInstance().isCollapseTemplateBodies => true
+        case ScalaElementTypes.FUNCTION_DEFINITION
+          if ScalaCodeFoldingSettings.getInstance().isCollapseMethodCallBodies => true
         case ScalaElementTypes.PACKAGING
           if ScalaCodeFoldingSettings.getInstance().isCollapsePackagings => true
         case ScalaElementTypes.IMPORT_STMT
