@@ -185,8 +185,8 @@
     <copy file="${base.dir}/src/org/jetbrains/plugins/scala/editor/EditorBundle.properties"
           tofile="${main.dest}/org/jetbrains/plugins/scala/editor/EditorBundle.properties"/>
 
-    <copy todir="${main.dest}/src/org/jetbrains/plugins/scala/spellchecker">
-      <fileset dir="${base.dir}/org/jetbrains/plugins/scala/spellchecker">
+    <copy todir="${main.dest}/org/jetbrains/plugins/scala/spellchecker">
+      <fileset dir="${base.dir}/srcorg/jetbrains/plugins/scala/spellchecker">
         <include name="*.dic"/>
       </fileset>
     </copy>
