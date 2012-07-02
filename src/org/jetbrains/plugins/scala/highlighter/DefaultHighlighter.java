@@ -94,6 +94,8 @@ public class DefaultHighlighter {
   @NonNls
   static final String SCALA_DOC_TAG_PARAM_VALUE_ID = "ScalaDoc @param value";
   @NonNls
+  static final String SCALA_IMPLICITS_ID = "Implicit conversion";
+  @NonNls
   static final String ABSTRACT_CLASS_ID = "Scala Abstract class";
   @NonNls
   static final String TRAIT_ID = "Scala Trait";
@@ -164,6 +166,8 @@ public class DefaultHighlighter {
   public static TextAttributesKey SCALA_DOC_HTML_ESCAPE = createKey(SCALA_DOC_HTML_ESCAPE_ID, SyntaxHighlighterColors.DOC_COMMENT_MARKUP);
   public static TextAttributesKey SCALA_DOC_MARKUP = createKey(SCALA_DOC_MARKUP_ID, SyntaxHighlighterColors.DOC_COMMENT_MARKUP);
   public static TextAttributesKey SCALA_DOC_TAG_PARAM_VALUE = createKey(SCALA_DOC_TAG_PARAM_VALUE_ID, SyntaxHighlighterColors.DOC_COMMENT_TAG);
+  public static TextAttributesKey IMPLICIT_CONVERSIONS = TextAttributesKey.createTextAttributesKey(SCALA_IMPLICITS_ID,
+      new TextAttributes(null, null, Color.LIGHT_GRAY, EffectType.LINE_UNDERSCORE, Font.PLAIN));
   public static TextAttributesKey ABSTRACT_CLASS = createKey(ABSTRACT_CLASS_ID, HighlightInfoType.ABSTRACT_CLASS_NAME.getAttributesKey());
   public static TextAttributesKey TRAIT = createKey(TRAIT_ID, HighlightInfoType.INTERFACE_NAME.getAttributesKey());
   public static TextAttributesKey LOCAL_VALUES = createKey(LOCAL_VALUES_ID, HighlightInfoType.LOCAL_VARIABLE.getAttributesKey());

@@ -195,7 +195,7 @@ class ScalaLookupItem(val element: PsiNamedElement, _name: String, containingCla
         if (name == "this" || name.endsWith(".this")) {
           clazz match {
             case t: ScTemplateDefinition =>
-              t.getTypeWithProjections(TypingContext.empty, true) match {
+              t.getTypeWithProjections(TypingContext.empty, thisProjections = true) match {
                 case Success(tp, _) =>
                   presentation.setTypeText(tp.presentableText)
                 case _ =>
@@ -244,8 +244,9 @@ class ScalaLookupItem(val element: PsiNamedElement, _name: String, containingCla
     presentation.setItemText(itemText)
     presentation.setStrikeout(isDeprecated)
     presentation.setItemTextBold(bold)
-    if (ScalaProjectSettings.getInstance(element.getProject).isShowImplisitConversions)
+    if (ScalaProjectSettings.getInstance(element.getProject).isShowImplisitConversions) {
       presentation.setItemTextUnderlined(isUnderlined)
+    }
   }
 
   private def simpleInsert(context: InsertionContext) {

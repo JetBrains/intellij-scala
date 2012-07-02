@@ -118,9 +118,6 @@
                 </constraints>
                 <properties/>
                 <border type="etched" title="Classes to use only with prefix"/>
-                <clientProperties>
-                  <BorderFactoryClass class="java.lang.String" value="com.intellij.ui.IdeBorderFactory$PlainSmallWithIndent"/>
-                </clientProperties>
                 <children>
                   <grid id="34b18" binding="myImportsWithPrefixPanel" layout-manager="BorderLayout" hgap="0" vgap="0">
                     <constraints>
@@ -194,7 +191,7 @@
                 </constraints>
                 <properties>
                   <selected value="true"/>
-                  <text value="Highlight methods added via implicit conversion "/>
+                  <text value="Highlight methods added via implicit conversion  in  code completion dialog"/>
                 </properties>
               </component>
               <component id="c3afd" class="javax.swing.JLabel">
