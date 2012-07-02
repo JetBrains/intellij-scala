@@ -484,6 +484,8 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible with Ps
             case _ => res += block
           }
         }
+        case pe: ScParenthesisedExpr =>
+          pe.expr.foreach(calculateReturns0)
         case m: ScMatchStmt => {
           m.getBranches.foreach(calculateReturns0)
         }
@@ -520,5 +522,5 @@ object ScExpression {
 
   object Type {
     def unapply(exp: ScExpression): Option[ScType] = exp.getType(TypingContext.empty).toOption
-  } 
+  }
 }
