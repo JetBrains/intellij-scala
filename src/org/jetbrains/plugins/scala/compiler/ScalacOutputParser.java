@@ -160,9 +160,7 @@ class ScalacOutputParser extends OutputParser {
           myMsgColumnMarker = line.indexOf(ourColumnMarker) + 1;
           stopProcessing = true;
         } else if (myMessage != null) {
-          if (myMsgType != WARNING) {
-            myMessage += "\n" + text;
-          }
+          myMessage += "\n" + text;
         } else {
           mustProcessMsg = false;
         }
