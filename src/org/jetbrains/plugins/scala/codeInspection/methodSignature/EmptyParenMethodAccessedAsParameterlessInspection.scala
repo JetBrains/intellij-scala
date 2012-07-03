@@ -54,7 +54,7 @@ class EmptyParenMethodAccessedAsParameterlessInspection extends AbstractMethodSi
           // might have been eta-expanded to () => A, so don't worn.
           // this avoids false positives. To be more accurate, we would need an 'etaExpanded'
           // flag in ScalaResolveResult.
-          case None =>
+          case _ =>
             holder.registerProblem(e.nameId, getDisplayName, new AddCallParentheses(e))
         }
       case _ =>
