@@ -131,11 +131,17 @@ public class FacetConfigurationEditor extends FacetEditorTab {
     myValidatorsManager.registerValidator(new FacetEditorValidator() {
       @Override
       public ValidationResult check() {
-        return myFSCRadioButton.isSelected()
+        ValidationResult libraryResult = myFSCRadioButton.isSelected()
             ? ValidationResult.OK
             : checkCompilerLibrary((LibraryDescriptor) myCompilerLibrary.getSelectedItem());
+
+        ValidationResult continuationsResult = myEnableContinuations.isSelected()
+            ? checkContinuationsPlugin(getPluginsModel().getItems())
+            : ValidationResult.OK;
+
+        return conjunctionOf(libraryResult, continuationsResult);
       }
-    }, myCompilerLibrary, myFSCRadioButton);
+    }, myCompilerLibrary, myFSCRadioButton, myEnableContinuations, tablePlugins);
 
     myAddPluginAction.update();
     myRemovePluginAction.update();
@@ -178,8 +184,20 @@ public class FacetConfigurationEditor extends FacetEditorTab {
         
     if(compilerLibraryProblem.isDefined()) 
       return new ValidationResult(libraryName + ": " + compilerLibraryProblem.get());
-      
+
     return ValidationResult.OK;
+  }
+
+  private static ValidationResult checkContinuationsPlugin(List<CompilerPlugin> plugins) {
+    for (CompilerPlugin plugin : plugins) {
+      if ("continuations".equals(plugin.name()))
+        return ValidationResult.OK;
+    }
+    return new ValidationResult("No continuations compiler plugin jar added");
+  }
+
+  private static ValidationResult conjunctionOf(ValidationResult a, ValidationResult b) {
+    return a.isOk() ? b : a;
   }
 
   @Override
