@@ -18,6 +18,7 @@ import types._
 import result.{Success, TypingContext, TypeResult}
 import com.intellij.psi._
 import base.types.ScSelfTypeElement
+import impl.PsiClassImplUtil.MemberType
 import impl.{PsiSuperMethodImplUtil, PsiClassImplUtil}
 import search.GlobalSearchScope
 import com.intellij.openapi.project.{DumbServiceImpl, DumbService}
@@ -106,7 +107,7 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
   }
 
   override def getAllMethodsAndTheirSubstitutors: JList[IPair[PsiMethod, PsiSubstitutor]] = {
-    PsiClassImplUtil.getAllWithSubstitutorsByMap(this, classOf[PsiMethod])
+    PsiClassImplUtil.getAllWithSubstitutorsByMap(this, MemberType.METHOD)
   }
 
   override def getVisibleSignatures: JCollection[HierarchicalMethodSignature] = {

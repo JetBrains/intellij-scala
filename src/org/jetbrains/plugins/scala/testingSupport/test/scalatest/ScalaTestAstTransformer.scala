@@ -15,11 +15,13 @@ import lang.psi.api.expr._
 import org.scalatest.finders.{Finder, AstNode, ToStringTarget, Selection}
 import lang.psi.api.base.ScLiteral
 import com.intellij.openapi.module.Module
-import com.intellij.openapi.roots.{OrderRootType, ModuleRootManager}
+import com.intellij.openapi.roots.{OrderEntry, OrderEnumerator, OrderRootType, ModuleRootManager}
 import java.io.File
 import java.net.{URLClassLoader, URL}
 import lang.psi.impl.toplevel.typedef.MixinNodes
 import lang.psi.types.ScType
+import collection.mutable
+import com.intellij.util.Processor
 
 /**
  * @author cheeseng
@@ -39,10 +41,16 @@ class ScalaTestAstTransformer {
     }
 
     def loadClass(className: String) = {
-      val orderEntries = ModuleRootManager.getInstance(module).getOrderEntries
+      val orderEntries = mutable.HashSet.empty[OrderEntry]
+      OrderEnumerator.orderEntries(module).runtimeOnly().forEach(new Processor[OrderEntry] {
+        def process(t: OrderEntry): Boolean = {
+          orderEntries += t
+          true
+        }
+      })
       val loaderUrls = orderEntries.map {
         orderEntry =>
-          val rawUrls = orderEntry.getFiles(OrderRootType.CLASSES_AND_OUTPUT).map(_.getPresentableUrl)
+          val rawUrls = orderEntry.getFiles(OrderRootType.CLASSES).map(_.getPresentableUrl)
           rawUrls.map {
             rawUrl =>
               val cpFile = new File(rawUrl)

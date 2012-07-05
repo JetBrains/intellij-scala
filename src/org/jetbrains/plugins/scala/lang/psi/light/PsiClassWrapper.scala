@@ -7,6 +7,7 @@ import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.search.SearchScope
 import impl.light.LightElement
+import impl.PsiClassImplUtil.MemberType
 import impl.{PsiSuperMethodImplUtil, PsiClassImplUtil}
 import javax.swing._
 import com.intellij.openapi.util.text.StringUtil
@@ -228,7 +229,7 @@ class PsiClassWrapper(val definition: ScTemplateDefinition,
   }
 
   def getAllMethodsAndTheirSubstitutors: util.List[Pair[PsiMethod, PsiSubstitutor]] = {
-    PsiClassImplUtil.getAllWithSubstitutorsByMap(this, classOf[PsiMethod])
+    PsiClassImplUtil.getAllWithSubstitutorsByMap(this, MemberType.METHOD)
   }
 
   def findInnerClassByName(name: String, checkBases: Boolean): PsiClass = {

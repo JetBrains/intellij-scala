@@ -36,7 +36,6 @@ final class ScalaCallerMethodsTreeStructure(project: Project, method: PsiMethod,
     val searchScope: SearchScope = getSearchScope(scopeType, containing)
     val originalClass: PsiClass = method.containingClass
     assert(originalClass != null)
-    val originalType: PsiClassType = JavaPsiFacade.getElementFactory(myProject).createType(originalClass)
     val methodsToFind = new HashSet[PsiMethod]
     methodsToFind += method
     methodsToFind ++= {

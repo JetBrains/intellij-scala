@@ -47,6 +47,9 @@ import scaladoc.psi.api.{ScDocInnerCodeElement, ScDocResolvableCodeReference, Sc
 import extensions.{toPsiNamedElementExt, toPsiClassExt}
 import api.expr.xml.{ScXmlStartTag, ScXmlEndTag}
 import settings._
+import com.intellij.psi.search.GlobalSearchScope
+import java.util
+import com.intellij.pom.java.LanguageLevel
 
 object ScalaPsiElementFactory extends JVMElementFactory {
 
@@ -71,6 +74,38 @@ object ScalaPsiElementFactory extends JVMElementFactory {
   def createMethodFromText(text: String, context: PsiElement): PsiMethod = throw new IncorrectOperationException
 
   def createAnnotationFromText(annotationText: String, context: PsiElement): PsiAnnotation = throw new IncorrectOperationException
+
+  def createReferenceElementByType(`type`: PsiClassType): PsiElement = ???
+
+  def createTypeParameterList(): PsiTypeParameterList = ???
+
+  def createTypeParameter(name: String, superTypes: Array[PsiClassType]): PsiTypeParameter = ???
+
+  def createType(aClass: PsiClass): PsiClassType = ???
+
+  def createAnnotationType(name: String): PsiClass = ???
+
+  def createConstructor(name: String): PsiMethod = ???
+
+  def createType(resolve: PsiClass, substitutor: PsiSubstitutor): PsiClassType = ???
+
+  def createType(resolve: PsiClass, substitutor: PsiSubstitutor, languageLevel: LanguageLevel): PsiClassType = ???
+
+  def createType(resolve: PsiClass, substitutor: PsiSubstitutor, languageLevel: LanguageLevel, annotations: Array[PsiAnnotation]): PsiClassType = ???
+
+  def createType(aClass: PsiClass, parameters: PsiType): PsiClassType = ???
+
+  def createRawSubstitutor(owner: PsiTypeParameterListOwner): PsiSubstitutor = ???
+
+  def createSubstitutor(map: util.Map[PsiTypeParameter, PsiType]): PsiSubstitutor = ???
+
+  def createPrimitiveType(text: String): PsiPrimitiveType = ???
+
+  def createTypeByFQClassName(qName: String): PsiClassType = ???
+
+  def createTypeByFQClassName(qName: String, resolveScope: GlobalSearchScope): PsiClassType = ???
+
+  def createType(aClass: PsiClass, parameters: PsiType*): PsiClassType = ???
 
   def createExpressionFromText(text: String, context: PsiElement): PsiElement = {
     try {

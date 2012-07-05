@@ -99,5 +99,9 @@ class ScalaShortNamesCache(project: Project) extends PsiShortNamesCache {
     //todo:
   }
 
+  def getFieldsByNameIfNotMoreThan(name: String, scope: GlobalSearchScope, maxCount: Int): Array[PsiField] = {
+    Array.empty //todo:
+  }
+
   private var LOG: Logger = Logger.getInstance("#org.jetbrains.plugins.scala.caches.ScalaShortNamesCache")
 }

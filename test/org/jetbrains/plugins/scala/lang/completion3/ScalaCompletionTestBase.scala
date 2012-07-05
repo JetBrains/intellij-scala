@@ -15,12 +15,12 @@ import com.intellij.testFramework.{LightPlatformTestCase, LightPlatformCodeInsig
 abstract class ScalaCompletionTestBase extends ScalaLightPlatformCodeInsightTestCaseAdapter {
   protected override def setUp() {
     super.setUp()
-    (StatisticsManager.getInstance.asInstanceOf[StatisticsManagerImpl]).clearStatistics()
+    (StatisticsManager.getInstance.asInstanceOf[StatisticsManagerImpl]).enableStatistics(getTestRootDisposable)
   }
 
   protected def complete(time: Int = 1, completionType: CompletionType = CompletionType.BASIC) = {
     new CodeCompletionHandlerBase(completionType, false, false, true).
-      invokeCompletion(getProjectAdapter, getEditorAdapter, time, false)
+      invokeCompletion(getProjectAdapter, getEditorAdapter, time, false, false)
     val lookup: LookupImpl = LookupManager.getActiveLookup(getEditorAdapter).asInstanceOf[LookupImpl]
     (if (lookup == null) null else lookup.getItems.toArray(LookupElement.EMPTY_ARRAY),
     if (lookup == null) null else lookup.itemPattern(lookup.getItems.get(0)))
