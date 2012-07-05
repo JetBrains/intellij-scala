@@ -241,7 +241,7 @@ object ScalaPsiUtil {
         case _ => Seq.empty
       }
       val mp =
-        if (noApplicability) e.implicitMap(args = args)
+        if (noApplicability) e.implicitMap(args = args)._1
         else if (!secondPart) e.implicitMapFirstPart()
         else e.implicitMapSecondPart(args = args)
       implicitMap = mp.flatMap({
@@ -350,7 +350,7 @@ object ScalaPsiUtil {
 
     if (!noImplicits && candidates.forall(!_.isApplicable)) {
       //should think about implicit conversions
-      for ((t, implicitFunction, importsUsed) <- expr.implicitMap()) {
+      for ((t, implicitFunction, importsUsed) <- expr.implicitMap()._1) {
         ProgressManager.checkCanceled()
         var state = ResolveState.initial.put(ImportUsed.key, importsUsed).
           put(CachesUtil.IMPLICIT_FUNCTION, implicitFunction)

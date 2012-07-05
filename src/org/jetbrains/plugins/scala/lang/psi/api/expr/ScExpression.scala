@@ -439,10 +439,15 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible with Ps
     additionalExpression
   }
 
+  /**
+   * This method returns following values:
+   * @return implicit conversions, actual value, conversions from the first part, conversions from the second part
+   */
   def getImplicitConversions(fromUnder: Boolean = false,
-                             expectedOption: => Option[ScType] = smartExpectedType()): (Seq[PsiNamedElement], Option[PsiNamedElement]) = {
-    val implicits: Seq[PsiNamedElement] = implicitMap(fromUnder = fromUnder,
-      args = expectedTypes(fromUnder).toSeq).map(_._2)
+                             expectedOption: => Option[ScType] = smartExpectedType()):
+    (Seq[PsiNamedElement], Option[PsiNamedElement], Seq[PsiNamedElement], Seq[PsiNamedElement]) = {
+    val (map, firstPart, secondPart) = implicitMap(fromUnder = fromUnder, args = expectedTypes(fromUnder).toSeq)
+    val implicits: Seq[PsiNamedElement] = map.map(_._2)
     val implicitFunction: Option[PsiNamedElement] = getParent match {
       case ref: ScReferenceExpression => {
         val resolve = ref.multiResolve(false)
@@ -464,7 +469,7 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible with Ps
       case _ => getTypeAfterImplicitConversion(expectedOption = expectedOption,
         fromUnderscore = fromUnder).implicitFunction
     }
-    (implicits, implicitFunction)
+    (implicits, implicitFunction, firstPart, secondPart)
   }
 
   final def calculateReturns: Seq[PsiElement] = {

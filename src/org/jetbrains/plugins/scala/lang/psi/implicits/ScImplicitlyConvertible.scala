@@ -38,14 +38,16 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
    * Get all implicit types for given expression
    */
   def getImplicitTypes : List[ScType] = {
-      implicitMap().map(_._1).toList
+    val map = implicitMap()._1
+     map.map(_._1).toList
   }
 
   /**
    * returns class which contains function for implicit conversion to type t.
    */
   def getClazzForType(t: ScType): Option[PsiClass] = {
-    implicitMap().find(tp => t.equiv(tp._1)) match {
+    val map = implicitMap()._1
+    map.find(tp => t.equiv(tp._1)) match {
       case Some((_, fun, _)) => {
         fun.getParent match {
           case tb: ScTemplateBody => Some(PsiTreeUtil.getParentOfType(tb, classOf[PsiClass]))
@@ -60,7 +62,8 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
    *  Get all imports used to obtain implicit conversions for given type
    */
   def getImportsForImplicit(t: ScType): Set[ImportUsed] = {
-    implicitMap().find(tp => t.equiv(tp._1)).map(s => s._3) match {
+    val map = implicitMap()._1
+    map.find(tp => t.equiv(tp._1)).map(s => s._3) match {
       case Some(s) => s
       case None => Set()
     }
@@ -69,23 +72,28 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
   def implicitMap(exp: Option[ScType] = None,
                   fromUnder: Boolean = false,
                   args: Seq[ScType] = Seq.empty,
-                  exprType: Option[ScType] = None): Seq[(ScType, PsiNamedElement, Set[ImportUsed])] = {
+                  exprType: Option[ScType] = None):
+  (Seq[(ScType, PsiNamedElement, Set[ImportUsed])], Seq[PsiNamedElement], Seq[PsiNamedElement]) = {
     import collection.mutable.HashSet
     val buffer = new ArrayBuffer[(ScType, PsiNamedElement, Set[ImportUsed])]
     val seen = new HashSet[PsiNamedElement]
+    val firstPart = new ArrayBuffer[PsiNamedElement]
+    val secondPart = new ArrayBuffer[PsiNamedElement]
     for (elem <- implicitMapFirstPart(exp, fromUnder, exprType)) {
       if (!seen.contains(elem._2)) {
         seen += elem._2
         buffer += elem
+        firstPart += elem._2
       }
     }
     for (elem <- implicitMapSecondPart(exp, fromUnder, args = args)) {
       if (!seen.contains(elem._2)) {
         seen += elem._2
         buffer += elem
+        secondPart += elem._2
       }
     }
-    buffer.toSeq
+    (buffer.toSeq, firstPart.toSeq, secondPart.toSeq)
   }
 
   def implicitMapFirstPart(exp: Option[ScType] = None,
