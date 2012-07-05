@@ -18,7 +18,6 @@ import com.intellij.util.containers.ConcurrentHashMap
 import util.{PsiTreeUtil, CachedValuesManager, CachedValueProvider, CachedValue}
 import lang.psi.api.statements.ScFunction
 import scala.util.control.ControlThrowable
-import caches.CachesUtil.ProbablyRecursionException
 
 /**
  * User: Alexander Podkhalyuzin
@@ -90,7 +89,7 @@ object CachesUtil {
   val PACKAGE_OBJECT_KEY: Key[(ScTypeDefinition, java.lang.Long)] = Key.create("package.object.key")
 
   def getWithRecursionPreventing[Dom <: PsiElement, Result](e: Dom, key: Key[CachedValue[Result]],
-                                                        provider: MyProviderTrait[Dom, Result],
+                                                        provider: => MyProviderTrait[Dom, Result],
                                                         defaultValue: => Result): Result = {
     var computed: CachedValue[Result] = e.getUserData(key)
     if (computed == null) {
