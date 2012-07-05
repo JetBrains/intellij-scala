@@ -327,8 +327,8 @@ abstract class AbstractTestRunConfiguration(val project: Project,
         val wDir = getWorkingDirectory
         params.setWorkingDirectory(expandPath(wDir))
 
-        params.getVMParametersList.addParametersString("-Xnoagent -Djava.compiler=NONE -Xdebug " +
-          "-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5010")
+//        params.getVMParametersList.addParametersString("-Xnoagent -Djava.compiler=NONE -Xdebug " +
+//          "-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5010")
 
         val rtJarPath = PathUtil.getJarPathForClass(classOf[ClassRunner])
         params.getClassPath.add(rtJarPath)
