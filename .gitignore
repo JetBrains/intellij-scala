@@ -4,3 +4,4 @@
 .idea/scala_compiler.xml
 .idea/scopes/*.xml
 SDK/NikaSDK
+SDK/LedaSDK
