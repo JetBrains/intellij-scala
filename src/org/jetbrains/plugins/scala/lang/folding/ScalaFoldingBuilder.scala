@@ -46,8 +46,7 @@ class ScalaFoldingBuilder extends FoldingBuilder {
     if (isMultiline(node) || isMultilineImport(node)) {
       node.getElementType match {
         case ScalaTokenTypes.tBLOCK_COMMENT | ScalaTokenTypes.tSH_COMMENT | ScalaElementTypes.TEMPLATE_BODY |
-             ScalaDocElementTypes.SCALA_DOC_COMMENT |
-             ScalaElementTypes.FUNCTION_DEFINITION => descriptors += (new FoldingDescriptor(node, node.getTextRange))
+             ScalaDocElementTypes.SCALA_DOC_COMMENT => descriptors += (new FoldingDescriptor(node, node.getTextRange))
         case ScalaElementTypes.IMPORT_STMT if isGoodImport(node) => {
           descriptors += (new FoldingDescriptor(node,
             new TextRange(node.getTextRange.getStartOffset + IMPORT_KEYWORD.length + 1, getImportEnd(node))))
@@ -69,15 +68,17 @@ class ScalaFoldingBuilder extends FoldingBuilder {
           descriptors += (new FoldingDescriptor(node, node.getTextRange))
         case _ =>
       }
-      if (node.getTreeParent != null &&
-              (node.getTreeParent.getPsi.isInstanceOf[ScFunction] ||
-                      node.getTreeParent.getPsi.isInstanceOf[ScArgumentExprList] ||
-                      node.getTreeParent.getPsi.isInstanceOf[ScPatternDefinition] ||
-                      node.getTreeParent.getPsi.isInstanceOf[ScVariableDefinition])) {
+      if (node.getTreeParent != null && (node.getTreeParent.getPsi.isInstanceOf[ScArgumentExprList] ||
+        node.getTreeParent.getPsi.isInstanceOf[ScPatternDefinition] ||
+        node.getTreeParent.getPsi.isInstanceOf[ScVariableDefinition])) {
         psi match {
           case _: ScBlockExpr => descriptors += new FoldingDescriptor(node, node.getTextRange)
           case _ =>
         }
+      }
+      if (node.getTreeParent != null && node.getTreeParent.getPsi.isInstanceOf[ScFunctionDefinition]) {
+        val (isMultilineBody, textRange) = isMultilineFuncBody(node.getTreeParent.getPsi.asInstanceOf[ScFunctionDefinition])
+        if (isMultilineBody) descriptors += new FoldingDescriptor(node, textRange)
       }
       if (node.getTreeParent != null) {
         node.getTreeParent.getPsi match {
@@ -145,7 +146,6 @@ class ScalaFoldingBuilder extends FoldingBuilder {
         case ScalaElementTypes.PACKAGING => return "{...}"
         case ScalaElementTypes.IMPORT_STMT => return "..."
         case ScalaElementTypes.MATCH_STMT => return "{...}"
-        case ScalaElementTypes.FUNCTION_DEFINITION => return "{...}"
         case ScalaTokenTypes.tSH_COMMENT if node.getText.charAt(0) == ':' => return "::#!...::!#"
         case ScalaTokenTypes.tSH_COMMENT => return "#!...!#"
         case _ =>
@@ -158,10 +158,10 @@ class ScalaFoldingBuilder extends FoldingBuilder {
       }
     }
     if (node.getTreeParent != null && (ScalaElementTypes.FUNCTION_DEFINITION == node.getTreeParent.getElementType
-            || ScalaElementTypes.ARG_EXPRS == node.getTreeParent.getElementType
-            || ScalaElementTypes.INFIX_EXPR == node.getTreeParent.getElementType
-            || ScalaElementTypes.PATTERN_DEFINITION == node.getTreeParent.getElementType
-            || ScalaElementTypes.VARIABLE_DEFINITION == node.getTreeParent.getElementType)) {
+      || ScalaElementTypes.ARG_EXPRS == node.getTreeParent.getElementType
+      || ScalaElementTypes.INFIX_EXPR == node.getTreeParent.getElementType
+      || ScalaElementTypes.PATTERN_DEFINITION == node.getTreeParent.getElementType
+      || ScalaElementTypes.VARIABLE_DEFINITION == node.getTreeParent.getElementType)) {
       node.getPsi match {
         case _: ScBlockExpr => return "{...}"
         case _ => return null
@@ -213,8 +213,6 @@ class ScalaFoldingBuilder extends FoldingBuilder {
           if ScalaCodeFoldingSettings.getInstance().isCollapseScalaDocComments => true
         case ScalaElementTypes.TEMPLATE_BODY
           if ScalaCodeFoldingSettings.getInstance().isCollapseTemplateBodies => true
-        case ScalaElementTypes.FUNCTION_DEFINITION
-          if ScalaCodeFoldingSettings.getInstance().isCollapseMethodCallBodies => true
         case ScalaElementTypes.PACKAGING
           if ScalaCodeFoldingSettings.getInstance().isCollapsePackagings => true
         case ScalaElementTypes.IMPORT_STMT
@@ -226,9 +224,9 @@ class ScalaFoldingBuilder extends FoldingBuilder {
         case _ if node.getPsi.isInstanceOf[ScBlockExpr] &&
                 node.getTreeParent.getElementType == ScalaElementTypes.ARG_EXPRS &&
                 ScalaCodeFoldingSettings.getInstance().isCollapseMethodCallBodies => true
-        case _ if node.getPsi.isInstanceOf[ScBlockExpr] &&
-                node.getTreeParent.getElementType == ScalaElementTypes.FUNCTION_DEFINITION &&
-                ScalaCodeFoldingSettings.getInstance().isCollapseMethodCall => true
+        case _ if node.getTreeParent.getElementType == ScalaElementTypes.FUNCTION_DEFINITION &&
+                ScalaCodeFoldingSettings.getInstance().isCollapseMethodCallBodies &&
+                isMultilineFuncBody(node.getTreeParent.getPsi.asInstanceOf[ScFunctionDefinition])._1 => true
         case _ if node.getPsi.isInstanceOf[ScTypeProjection] &&
                 ScalaCodeFoldingSettings.getInstance().isCollapseTypeLambdas => true
         case _ if node.getPsi.isInstanceOf[ScTypeElement] &&
@@ -288,6 +286,22 @@ class ScalaFoldingBuilder extends FoldingBuilder {
       next = next.getTreeNext
     }
     flag
+  }
+
+  private def isMultilineFuncBody(func: ScFunctionDefinition): (Boolean, TextRange) = {
+    val body = func.body.getOrElse(null)
+    if (body == null) return (false, null)
+    body match {
+      case _: ScBlockExpr => return (true, body.getTextRange)
+      case _ =>
+        val assignment = func.assignment.getOrElse(null)
+        val start =
+          if (assignment != null) assignment.getTextRange.getEndOffset
+          else body.getTextRange.getStartOffset
+        val end = body.getTextRange.getEndOffset
+        return (true, new TextRange(start, end))
+    }
+    (false, null)
   }
 
   private def isGoodImport(node: ASTNode): Boolean = {

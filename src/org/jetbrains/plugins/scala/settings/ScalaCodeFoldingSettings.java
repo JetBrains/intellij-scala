@@ -96,14 +96,6 @@ public class ScalaCodeFoldingSettings implements PersistentStateComponent<ScalaC
     FOLD_BLOCK_COMMENTS = value;
   }
 
-  public boolean isCollapseMethodCall() {
-    return JavaCodeFoldingSettings.getInstance().isCollapseMethods();
-  }
-
-  public void setCollapseMethodCall(boolean value) {
-    JavaCodeFoldingSettings.getInstance().setCollapseMethods(value);
-  }
-
   public boolean isCollapseMethodCallBodies() {
     return FOLD_ARGUMENT_BLOCK;
   }
