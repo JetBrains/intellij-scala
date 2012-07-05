@@ -23,8 +23,8 @@ class AddTailRecursionAnnotationIntention extends PsiElementBaseIntentionAction 
     case _ => false
   }
 
-  override def invoke(project: Project, editor: Editor, file: PsiFile) {
-    val f = file.findElementAt(editor.getCaretModel.getOffset).getParent.asInstanceOf[ScFunctionDefinition]
+  override def invoke(project: Project, editor: Editor, element: PsiElement) {
+    val f = element.getParent.asInstanceOf[ScFunctionDefinition]
     f.addAnnotation("scala.annotation.tailrec")
   }
 }

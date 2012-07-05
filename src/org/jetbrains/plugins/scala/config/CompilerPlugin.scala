@@ -5,7 +5,7 @@ import java.io.File
 import java.util.List
 import collection.JavaConversions._
 import com.intellij.openapi.module.Module
-import com.intellij.openapi.vfs.VfsUtil
+import com.intellij.openapi.vfs.{VfsUtilCore, VfsUtil}
 import com.intellij.openapi.util.io.FileUtil
 
 /**
@@ -19,7 +19,7 @@ object CompilerPlugin {
   def toPaths(plugins: List[CompilerPlugin]): Array[String] = plugins.map(_.path).toArray
   
   def pathTo(file: File, module: Module) = {
-    val base = VfsUtil.virtualToIoFile(module.getProject.getBaseDir)
+    val base = VfsUtilCore.virtualToIoFile(module.getProject.getBaseDir)
     val path = Option(FileUtil.getRelativePath(base, file)).getOrElse(file.getPath)
     if(path.contains("..")) file.getPath else path
   }
@@ -28,7 +28,7 @@ object CompilerPlugin {
 class CompilerPlugin(val path: String, module: Module) {
   private val NamePattern = """<name>\s*(.*?)\s*</name>""".r
   
-  private val Base = VfsUtil.virtualToIoFile(module.getProject.getBaseDir)
+  private val Base = VfsUtilCore.virtualToIoFile(module.getProject.getBaseDir)
 
   val file = optional(new File(path)).getOrElse(new File(Base, path))
   

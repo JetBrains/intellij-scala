@@ -136,7 +136,7 @@ extends SyntheticNamedElement(manager, className) with PsiClass with PsiClassFak
     t.tSuper match {
       case None => PsiClassType.EMPTY_ARRAY
       case Some(ts) => Array[PsiClassType] (JavaPsiFacade.getInstance(project).getElementFactory.
-              createType(ts.asClass(project).getOrElse(return PsiClassType.EMPTY_ARRAY)))
+              createType(ts.asClass(project).getOrElse(return PsiClassType.EMPTY_ARRAY), PsiSubstitutor.EMPTY))
     }
   }
 }

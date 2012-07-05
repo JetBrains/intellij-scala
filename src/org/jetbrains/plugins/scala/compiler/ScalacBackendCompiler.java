@@ -28,6 +28,7 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.encoding.EncodingManager;
 import com.intellij.util.ArrayUtil;
 import com.intellij.util.PathUtil;
+import com.intellij.util.Processor;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.ScalaBundle;
@@ -404,24 +405,27 @@ public class ScalacBackendCompiler extends ExternalCompiler {
     final Set<VirtualFile> sourceDependencies = new HashSet<VirtualFile>();
     final boolean isTestChunk = isTestChunk(chunk);
 
-    for (Module module : modules) {
+    for (final Module module : modules) {
       if (ScalaUtils.isSuitableModule(module)) {
         ModuleRootManager moduleRootManager = ModuleRootManager.getInstance(module);
-        OrderEntry[] entries = moduleRootManager.getOrderEntries();
-        Set<VirtualFile> cpVFiles = new HashSet<VirtualFile>();
-        for (OrderEntry orderEntry : entries) {
-          cpVFiles.addAll(Arrays.asList(orderEntry.getFiles(OrderRootType.COMPILATION_CLASSES)));
-          // Add Java dependencies on other modules
-          if (orderEntry instanceof ModuleOrderEntry && !(modules.contains(((ModuleOrderEntry) orderEntry).getModule()))) {
-            sourceDependencies.addAll(Arrays.asList(orderEntry.getFiles(OrderRootType.SOURCES)));
+        final Set<VirtualFile> cpVFiles = new HashSet<VirtualFile>();
+        OrderEnumerator.orderEntries(module).compileOnly().forEach(new Processor<OrderEntry>() {
+          @Override
+          public boolean process(OrderEntry orderEntry) {
+            cpVFiles.addAll(Arrays.asList(orderEntry.getFiles(OrderRootType.CLASSES)));
+            // Add Java dependencies on other modules
+            if (orderEntry instanceof ModuleOrderEntry && !(modules.contains(((ModuleOrderEntry) orderEntry).getModule()))) {
+              sourceDependencies.addAll(Arrays.asList(orderEntry.getFiles(OrderRootType.SOURCES)));
+            }
+            if (isTestChunk &&
+                (orderEntry instanceof ModuleSourceOrderEntry) &&
+                orderEntry.getOwnerModule() == module) {
+              //add Java sources for test compilation
+              sourceDependencies.addAll(Arrays.asList(orderEntry.getFiles(OrderRootType.SOURCES)));
+            }
+            return true;
           }
-          if (isTestChunk &&
-              (orderEntry instanceof ModuleSourceOrderEntry) &&
-              orderEntry.getOwnerModule() == module) {
-            //add Java sources for test compilation
-            sourceDependencies.addAll(Arrays.asList(orderEntry.getFiles(OrderRootType.SOURCES)));
-          }
-        }
+        });
         for (VirtualFile file : cpVFiles) {
           String path = file.getPath();
           int jarSeparatorIndex = path.indexOf(JarFileSystem.JAR_SEPARATOR);

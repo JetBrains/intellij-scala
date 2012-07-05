@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.config
 
 import java.util.jar.JarFile
 import java.util.Properties
-import com.intellij.openapi.vfs.{VfsUtil, VirtualFile}
+import com.intellij.openapi.vfs.{VfsUtilCore, VfsUtil, VirtualFile}
 import com.intellij.openapi.util.io.FileUtil
 import io.Source
 import java.io.{StringBufferInputStream, File}
@@ -75,7 +75,7 @@ object FileAPI {
   }
   
   class RichVirtualFile(delegate: VirtualFile) {
-    def toFile = VfsUtil.virtualToIoFile(delegate)
+    def toFile = VfsUtilCore.virtualToIoFile(delegate)
     def namedLike(name: String) = delegate.getName.startsWith(FileUtil.getNameWithoutExtension(name))
   }
 }

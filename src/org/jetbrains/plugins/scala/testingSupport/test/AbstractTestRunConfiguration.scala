@@ -404,7 +404,7 @@ abstract class AbstractTestRunConfiguration(val project: Project,
           createActions(consoleView, processHandler, executor): _*)
 
         val rerunFailedTestsAction = new AbstractTestRerunFailedTestsAction(consoleView.getComponent)
-        rerunFailedTestsAction.init(consoleView.getProperties, getRunnerSettings, getConfigurationSettings)
+        rerunFailedTestsAction.init(consoleView.getProperties, getEnvironment)
         rerunFailedTestsAction.setModelProvider(new Getter[TestFrameworkRunningModel] {
           def get: TestFrameworkRunningModel = {
             consoleView.asInstanceOf[SMTRunnerConsoleView].getResultsViewer
