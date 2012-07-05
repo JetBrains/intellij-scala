@@ -62,7 +62,8 @@ class ScalaSmartStepIntoHandler extends JvmSmartStepIntoHandler {
 
     class MethodsVisitor extends ScalaRecursiveElementVisitor {
       override def visitExpression(expr: ScExpression) {
-        expr.getImplicitConversions() match {
+        val tuple = (expr.getImplicitConversions()._1, expr.getImplicitConversions()._2)
+        tuple match {
           case (_, Some(f: PsiMethod)) => methods += f
           case (_, Some(t: ScTypedStmt)) => ScType.extractFunctionType(t.getType(TypingContext.empty).getOrAny) match {
             case Some(f) =>

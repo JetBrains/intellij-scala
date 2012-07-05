@@ -5,13 +5,24 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import com.intellij.psi.util.PsiTreeUtil
 import collection.Seq
-import lang.psi.types.nonvalue.Parameter
 import lang.psi.api.base.ScLiteral
 import lang.psi.api.expr.xml.ScXmlExpr
 import lang.psi.api.expr._
-import com.intellij.psi.{PsiManager, PsiElement}
+import com.intellij.psi._
 import lang.lexer.ScalaTokenTypes
 import lang.refactoring.util.ScalaNamesUtil
+import lang.psi.api.statements.ScFunction
+import com.intellij.openapi.project.Project
+import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.command.CommandProcessor
+import scala.Some
+import lang.psi.types.nonvalue.Parameter
+import java.awt.{Point, Rectangle}
+import collection.mutable.ArrayBuffer
+import org.jetbrains.plugins.scala.actions.{GoToImplicitConversionAction, MakeExplicitAction}
+import com.intellij.openapi.ui.popup.util.BaseListPopupStep
+import com.intellij.openapi.ui.popup.{JBPopupFactory, PopupStep}
+import com.intellij.ui.awt.RelativePoint
 
 /**
  * @author Ksenia.Sautina
@@ -140,4 +151,83 @@ object IntentionUtils {
         else "!" + expression.getText
     }
   }
+
+  def replaceWithExplicit(expr: ScExpression, f: ScFunction, project: Project, editor: Editor,
+                          secondPart: Seq[PsiNamedElement]) {
+    if (expr == null || f == null || secondPart == null) return
+    CommandProcessor.getInstance().executeCommand(project, new Runnable {
+      def run() {
+        val buf = new StringBuilder
+        val clazz = f.getFunctionWrapper(false, false).getContainingClass
+        if (clazz != null && secondPart.contains(f)) buf.append(clazz.name).append(".")
+
+        buf.append(f.name).append("(").append(expr.getText).append(")")
+        val newExpr = ScalaPsiElementFactory.createExpressionFromText(buf.toString(), expr.getManager)
+
+        inWriteAction {
+          val replaced = expr.replace(newExpr)
+          val ref = replaced.asInstanceOf[ScMethodCall].deepestInvokedExpr.asInstanceOf[ScReferenceExpression]
+          val qualRef = ref.qualifier.getOrElse(null)
+          if (clazz!= null && qualRef != null && secondPart.contains(f)) qualRef.asInstanceOf[ScReferenceExpression].bindToElement(clazz)
+          PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument)
+        }
+      }
+    }, null, null)
+  }
+
+  def replaceWithExplicitStatically(expr: ScExpression, f: ScFunction, project: Project, editor: Editor,
+                          secondPart: Seq[PsiNamedElement]) {
+    if (expr == null || f == null || secondPart == null) return
+    CommandProcessor.getInstance().executeCommand(project, new Runnable {
+      def run() {
+        val buf = new StringBuilder
+        val clazz = f.getFunctionWrapper(false, false).getContainingClass
+        if (clazz != null && secondPart.contains(f)) buf.append(clazz.qualifiedName).append(".")
+
+        val bufExpr = new StringBuilder
+        bufExpr.append(f.name).append("(").append(expr.getText).append(")")
+        buf.append(bufExpr.toString())
+        val newExpr = ScalaPsiElementFactory.createExpressionFromText(bufExpr.toString(), expr.getManager)
+        val fullRef = ScalaPsiElementFactory.createReferenceFromText(buf.toString(), expr.getManager).resolve()
+
+        inWriteAction {
+          val replaced = expr.replace(newExpr)
+          val ref = replaced.asInstanceOf[ScMethodCall].deepestInvokedExpr.asInstanceOf[ScReferenceExpression]
+          if (clazz != null && fullRef != null && secondPart.contains(f)) ref.bindToElement(fullRef, Some(clazz))
+          PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument)
+        }
+      }
+    }, null, null)
+  }
+
+  def showMakeExplicitPopup(project: Project, expr: ScExpression,
+                            function: ScFunction, editor: Editor, secondPart: scala.Seq[PsiNamedElement],
+                            getCurrentItemBounds: () => Rectangle) {
+    val values = new ArrayBuffer[String]
+    values += MakeExplicitAction.MAKE_EXPLICIT
+    if (secondPart.contains(function)) values += MakeExplicitAction.MAKE_EXPLICIT_STATICALLY
+    val base = new BaseListPopupStep[String](null, values.toArray) {
+      override def getTextFor(value: String): String = value
+
+      override def onChosen(selectedValue: String, finalChoice: Boolean): PopupStep[_] = {
+        if (selectedValue == null) return PopupStep.FINAL_CHOICE
+        if (finalChoice) {
+          PsiDocumentManager.getInstance(project).commitAllDocuments()
+          GoToImplicitConversionAction.getPopup.dispose()
+          if (selectedValue == MakeExplicitAction.MAKE_EXPLICIT)
+            IntentionUtils.replaceWithExplicit(expr, function, project, editor, secondPart)
+          if (selectedValue == MakeExplicitAction.MAKE_EXPLICIT_STATICALLY)
+            IntentionUtils.replaceWithExplicitStatically(expr, function, project, editor, secondPart)
+          return PopupStep.FINAL_CHOICE
+        }
+        super.onChosen(selectedValue, finalChoice)
+      }
+    }
+
+    val popup = JBPopupFactory.getInstance.createListPopup(base)
+    val bounds: Rectangle = getCurrentItemBounds()
+
+    popup.show(new RelativePoint(GoToImplicitConversionAction.getList, new Point(bounds.x + bounds.width - 20, bounds.y)))
+  }
+
 }
