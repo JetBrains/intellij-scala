@@ -39,3 +39,8 @@ trait ScMethodCall extends ScExpression with MethodInvocation {
 
   def argsElement: PsiElement = args
 }
+
+object ScMethodCall {
+  def unapply(call: ScMethodCall) =
+    Some(call.getInvokedExpr, call.argumentExpressions)
+}
