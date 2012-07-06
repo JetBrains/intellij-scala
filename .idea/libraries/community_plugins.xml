@@ -1,0 +1,19 @@
+<component name="libraryTable">
+  <library name="community-plugins">
+    <CLASSES>
+      <root url="file://$PROJECT_DIR$/SDK/NikaSDK/plugins/copyright/lib" />
+      <root url="file://$PROJECT_DIR$/SDK/NikaSDK/plugins/copyright/lib" />
+      <root url="file://$PROJECT_DIR$/SDK/NikaSDK/plugins/IntelliLang/lib" />
+      <root url="file://$PROJECT_DIR$/SDK/NikaSDK/plugins/maven/lib" />
+      <root url="file://$PROJECT_DIR$/SDK/NikaSDK/plugins/java-i18n/lib" />
+      <root url="file://$PROJECT_DIR$/SDK/NikaSDK/plugins/properties/lib" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+    <jarDirectory url="file://$PROJECT_DIR$/SDK/NikaSDK/plugins/copyright/lib" recursive="false" />
+    <jarDirectory url="file://$PROJECT_DIR$/SDK/NikaSDK/plugins/IntelliLang/lib" recursive="false" />
+    <jarDirectory url="file://$PROJECT_DIR$/SDK/NikaSDK/plugins/java-i18n/lib" recursive="false" />
+    <jarDirectory url="file://$PROJECT_DIR$/SDK/NikaSDK/plugins/maven/lib" recursive="false" />
+    <jarDirectory url="file://$PROJECT_DIR$/SDK/NikaSDK/plugins/properties/lib" recursive="false" />
+  </library>
+</component>

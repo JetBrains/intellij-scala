@@ -1,0 +1,15 @@
+<component name="libraryTable">
+  <library name="idea-full">
+    <CLASSES>
+      <root url="file://$PROJECT_DIR$/SDK/NikaSDK/lib" />
+      <root url="file://$PROJECT_DIR$/SDK/NikaSDK/lib" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="file://$PROJECT_DIR$/SDK/NikaSDK/lib" />
+      <root url="file://$PROJECT_DIR$/SDK/NikaSDK/lib" />
+    </SOURCES>
+    <jarDirectory url="file://$PROJECT_DIR$/SDK/NikaSDK/lib" recursive="false" />
+    <jarDirectory url="file://$PROJECT_DIR$/SDK/NikaSDK/lib" recursive="false" type="SOURCES" />
+  </library>
+</component>
