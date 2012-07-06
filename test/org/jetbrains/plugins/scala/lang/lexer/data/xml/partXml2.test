@@ -1,0 +1,44 @@
+class A {
+    val partXml = a <b
+    val a = 1
+    val b = 2
+}
+-----
+class {class}
+white space in line { }
+identifier {A}
+white space in line { }
+{ {{}
+white space in line {
+    }
+val {val}
+white space in line { }
+identifier {partXml}
+white space in line { }
+= {=}
+white space in line { }
+identifier {a}
+white space in line { }
+XML_START_TAG_START {<}
+XML_NAME {b}
+white space in line {
+    }
+XML_NAME {val}
+WHITE_SPACE { }
+XML_NAME {a}
+WHITE_SPACE { }
+XML_EQ {=}
+WHITE_SPACE { }
+integer {1}
+white space in line {
+    }
+val {val}
+white space in line { }
+identifier {b}
+white space in line { }
+= {=}
+white space in line { }
+integer {2}
+white space in line {
+}
+} {}}

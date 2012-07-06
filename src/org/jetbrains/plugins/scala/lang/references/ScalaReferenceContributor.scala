@@ -14,15 +14,9 @@ import com.intellij.openapi.util.{Condition, TextRange}
 import org.jetbrains.annotations.NotNull
 import collection.JavaConversions
 import com.intellij.psi._
-import impl.PsiElementBase._
 import impl.source.resolve.reference.impl.providers.{FileReference, FileReferenceSet}
 import com.intellij.openapi.diagnostic.Logger
 import extensions.toPsiNamedElementExt
-import parser.ScalaElementTypes
-import com.intellij.extapi.psi.ASTDelegatePsiElement._
-import psi.impl.ScalaPsiManager
-import psi.impl.expr.ScReferenceExpressionImpl
-import lang.resolve.ScalaResolveResult
 
 class ScalaReferenceContributor extends PsiReferenceContributor {
 
@@ -127,51 +121,6 @@ class FilePathReferenceProvider extends PsiReferenceProvider {
   }
 
   @NotNull def getReferencesByElement(@NotNull element: PsiElement, @NotNull context: ProcessingContext): Array[PsiReference] = {
-
-    if (element.getNode.getElementType == ScalaElementTypes.INTERPOLATED_STRING_LITERAL && element.getFirstChild != null) {
-      val ref: PsiReference = new ScReferenceExpressionImpl(element.getNode) {
-        override def advancedResolve: Option[ScalaResolveResult] = {
-          if (resolve() != null) Some(new ScalaResolveResult(resolve().asInstanceOf[PsiNamedElement])) else None
-        }
-
-        override def nameId: PsiElement = getFirstChild
-
-        override def getElement = this
-
-        override def getRangeInElement: TextRange = new TextRange(0, element.getFirstChild.getTextLength)
-
-        override def resolve(): PsiElement = {
-          val clazz = ScalaPsiManager.instance(element.getProject).getCachedClass(element.getResolveScope, "scala.StringContext")
-          if (clazz == null) {
-            return null
-          }
-
-          clazz.findMethodsByName(element.getFirstChild.getText, false).headOption match {
-            case Some(e) => e
-            case _ => null
-          }
-        }
-
-        override def getCanonicalText: String = element.getFirstChild.getText
-
-        override def handleElementRename(newElementName: String): PsiElement = {
-          throw new UnsupportedOperationException()
-        }
-
-        override def bindToElement(element: PsiElement): PsiElement = {
-          throw new UnsupportedOperationException()
-        }
-
-        override def isReferenceTo(element: PsiElement): Boolean = resolve() == element && element != null
-
-        override def getVariants: Array[AnyRef] = if (resolve() != null) Array(resolve()) else Array[AnyRef]()
-
-        override def isSoft: Boolean = false
-      }
-
-      return Array(ref)
-    }
-
     var text: String = null
     if (element.isInstanceOf[ScLiteral]) {
       val value = (element.asInstanceOf[ScLiteral]).getValue

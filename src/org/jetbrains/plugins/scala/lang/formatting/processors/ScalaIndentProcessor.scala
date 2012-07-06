@@ -62,7 +62,7 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
       }
       case el: ScXmlElement => {
         child.getPsi match {
-          case _: ScXmlStartTag | _: ScXmlEndTag => Indent.getNoneIndent
+          case _: ScXmlStartTag | _: ScXmlEndTag | _: ScXmlEmptyTag => Indent.getNoneIndent
           case _ => Indent.getNormalIndent
         }
       }

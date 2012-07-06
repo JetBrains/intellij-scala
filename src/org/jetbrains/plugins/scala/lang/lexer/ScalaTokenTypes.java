@@ -162,6 +162,8 @@ public interface ScalaTokenTypes {
   final IElementType tXMLTAGPART = new ScalaElementType("tag part");
   final IElementType tBEGINSCALAEXPR = new ScalaElementType("begin of scala expression");
   final IElementType tENDSCALAEXPR = new ScalaElementType("end of scala expression");
+  final IElementType tXML_COMMENT_START = new ScalaElementType("Xml Comment Start");
+  final IElementType tXML_COMMENT_END = new ScalaElementType("Xml Comment End");
 
 
   final IElementType tDOT = new ScalaElementType(".");
@@ -252,7 +254,7 @@ public interface ScalaTokenTypes {
   );
 
   TokenSet IDENTIFIER_TOKEN_SET = TokenSet.create(tIDENTIFIER);
-  TokenSet STRING_LITERAL_TOKEN_SET = TokenSet.create(tSTRING, tWRONG_STRING, tMULTILINE_STRING);
+  TokenSet STRING_LITERAL_TOKEN_SET = TokenSet.create(tSTRING, tWRONG_STRING, tMULTILINE_STRING, tINTERPOLATED_MULTILINE_STRING, tINTERPOLATED_STRING);
 
   TokenSet XML_ELEMENTS = TokenSet.create(XML_PI(), XML_ATTRIBUTE(), XML_CD_SECT(),
       XML_COMMENT(), XML_ELEMENT(), XML_EMPTY_TAG(), XML_END_TAG(), XML_EXPR(), XML_PATTERN(),

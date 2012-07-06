@@ -57,7 +57,7 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
   public int CLOSURE_BRACE_FORCE = 0;
   public int CASE_CLAUSE_BRACE_FORCE = 0;
   public boolean PLACE_CLOSURE_PARAMETERS_ON_NEW_LINE = true;
-  public boolean SPACE_BEFORE_CLOSURE_PARAMETERS = true;
+  public boolean SPACE_INSIDE_CLOSURE_BRACES = true;
   public boolean PLACE_SELF_TYPE_ON_NEW_LINE = true;
   public boolean ALIGN_IF_ELSE = false;
   //indents

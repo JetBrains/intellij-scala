@@ -4,8 +4,13 @@ package parser
 package parsing
 package expressions
 
-import lexer.ScalaTokenTypes
+import lexer.{ScalaElementType, ScalaTokenTypes}
 import builder.ScalaPsiBuilder
+import parser.ScalaPsiCreator.SelfPsiCreator
+import com.intellij.lang.ASTNode
+import com.intellij.psi.PsiElement
+import com.intellij.psi.tree.IElementType
+import psi.impl.expr.{ScInterpolatedStringPrefixReference, ScReferenceExpressionImpl}
 
 /**
 * @author Alexander Podkhalyuzin
@@ -49,14 +54,19 @@ object Literal {
         }
       }
       case ScalaTokenTypes.tINTERPOLATED_STRING_ID =>
+        val prefixMarker = builder.mark()
+        builder.advanceLexer()
+        prefixMarker.done(new ScalaElementType("Interpolated String Prefix Reference") with SelfPsiCreator {
+          def createElement(node: ASTNode): PsiElement = new ScInterpolatedStringPrefixReference(node)
+        })
         while (!builder.eof() && builder.getTokenType != ScalaTokenTypes.tINTERPOLATED_STRING_END){
           if (builder.getTokenType == ScalaTokenTypes.tINTERPOLATED_STRING_INJECTION) {
-            builder.advanceLexer();
+            builder.advanceLexer()
             if (!BlockExpr.parse(builder)) {
               if (builder.getTokenType == ScalaTokenTypes.tIDENTIFIER) {
                 val idMarker = builder.mark()
                 builder.advanceLexer()
-                idMarker.done(ScalaElementTypes.REFERENCE)
+                idMarker.done(ScalaElementTypes.REFERENCE_EXPRESSION)
               } else {
                 if (!builder.getTokenText.startsWith("$")) builder.error("Bad interpolated string injection")
               }

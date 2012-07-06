@@ -60,13 +60,16 @@ public class ScalaSyntaxHighlighter extends SyntaxHighlighterBase {
 
   // XML tags
   static final TokenSet tXML_TAGS = TokenSet.create(
-      tOPENXMLTAG, tCLOSEXMLTAG, tXMLTAGPART, tBADCLOSEXMLTAG
+      tOPENXMLTAG, tCLOSEXMLTAG, tXMLTAGPART, tBADCLOSEXMLTAG, XML_CDATA_END, XML_CDATA_START, XML_PI_START, XML_PI_END
   );
 
   static final TokenSet tXML_TEXT = TokenSet.create(
       XML_DATA_CHARACTERS, XML_ATTRIBUTE_VALUE_TOKEN, XML_ATTRIBUTE_VALUE_START_DELIMITER,
       XML_ATTRIBUTE_VALUE_END_DELIMITER
   );
+  
+  static final TokenSet tXML_COMMENTS = TokenSet.create(XML_COMMENT_START, XML_COMMENT_END, XML_COMMENT_CHARACTERS, 
+      tXML_COMMENT_START, tXML_COMMENT_END);
 
   //Html escape sequences
   static final TokenSet tSCALADOC_HTML_ESCAPE = TokenSet.create(
@@ -259,6 +262,7 @@ public class ScalaSyntaxHighlighter extends SyntaxHighlighterBase {
     SyntaxHighlighterBase.fillMap(ATTRIBUTES, tXML_TEXT, DefaultHighlighter.XML_TEXT);
     SyntaxHighlighterBase.fillMap(ATTRIBUTES, tDOC_TAG_PARAM, DefaultHighlighter.SCALA_DOC_TAG_PARAM_VALUE);
     SyntaxHighlighterBase.fillMap(ATTRIBUTES, tINTERPOLATED_STRINGS, DefaultHighlighter.INTERPOLATED_STRING_INJECTION);
+    SyntaxHighlighterBase.fillMap(ATTRIBUTES, tXML_COMMENTS, DefaultHighlighter.BLOCK_COMMENT);
   }
 
 
@@ -328,6 +332,10 @@ public class ScalaSyntaxHighlighter extends SyntaxHighlighterBase {
         return tCLOSEXMLTAG;
       } else if (tSCALADOC_HTML_TAGS.contains(type)) {
         return tXMLTAGPART;
+      } else if (type == XML_COMMENT_START) {
+        return tXML_COMMENT_START;
+      } else if (type == XML_COMMENT_END) {
+        return tXML_COMMENT_END;
       }
 
       return type;

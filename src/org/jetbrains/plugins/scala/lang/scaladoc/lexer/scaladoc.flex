@@ -174,7 +174,7 @@ scalaIdentifierWithPath = (({plainid} | "`" {stringLiteralExtra} "`")["."]?)+
   return DOC_INNER_CLOSE_CODE_TAG;
 }
 
-<COMMENT_DATA, COMMENT_DATA_START, TAG_DOC_SPACE> ("[["|"\u005b\u005b") / "http:" {
+<COMMENT_DATA, COMMENT_DATA_START, TAG_DOC_SPACE> ("[["|"\u005b\u005b") / ("http:" | "https:") {
   yybegin(COMMENT_DATA);
   return DOC_HTTP_LINK_TAG;
 }

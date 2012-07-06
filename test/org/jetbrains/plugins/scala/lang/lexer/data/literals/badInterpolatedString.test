@@ -34,8 +34,8 @@ white space in line { }
 interpolated string id {s}
 interpolated string {"blaah }
 wrong string content {$}
-white space in line { }
-wrong string content {"}
+interpolated string { }
+interpolated string end {"}
 white space in line {
 
   }

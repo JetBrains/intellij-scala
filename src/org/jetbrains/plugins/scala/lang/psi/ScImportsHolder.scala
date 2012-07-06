@@ -519,7 +519,7 @@ trait ScImportsHolder extends ScalaPsiElement {
         def updateFirst() {
           val first = getFirstChild
           if (first != null) {
-            addBefore(importSt, first)
+            insertFirstImport(importSt, first)
           }
           else addImport(importSt)
         }
@@ -555,6 +555,7 @@ trait ScImportsHolder extends ScalaPsiElement {
     tail()
   }
 
+  protected def insertFirstImport(importSt: ScImportStmt, first: PsiElement): PsiElement = addBefore(importSt, first)
 
   def addImport(element: PsiElement): PsiElement = {
     CodeEditUtil.addChildren(getNode, element.getNode, element.getNode, null).getPsi

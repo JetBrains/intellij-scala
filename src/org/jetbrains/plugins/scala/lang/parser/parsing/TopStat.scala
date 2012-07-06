@@ -6,7 +6,7 @@ package parsing
 import builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.parsing.base.Import
-import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
+import parser.util.{ParserPatcher, ParserUtils}
 import com.intellij.lang.PsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.TmplDef
 import top.template.TemplateStat
@@ -24,6 +24,8 @@ import top.template.TemplateStat
 
 object TopStat {
   def parse(builder: ScalaPsiBuilder, state: Int): Int = {
+    val patcher = ParserPatcher.getSuitablePatcher(builder)
+    
     builder.getTokenType match {
       case ScalaTokenTypes.kIMPORT => {
         Import parse builder
@@ -41,6 +43,7 @@ object TopStat {
           }
         }
       }
+      case _ if patcher.parse(builder) => parse(builder, state)
       case _ => {
         state match {
           case ParserState.EMPTY_STATE => if (!TmplDef.parse(builder)) {
