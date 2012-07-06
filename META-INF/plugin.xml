@@ -89,6 +89,8 @@
     <completion.contributor language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.completion.ScalaGlobalMembersCompletionContributor"
                             order="before scalaClassNameCompletionContributor"/>
     <completion.confidence language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.completion.ScalaCompletionConfidence"/>
+    <statistician key="completion" order="first"
+                  implementationClass="org.jetbrains.plugins.scala.lang.completion.statistician.ScalaCompletionStatistician"/>
     <lookup.actionProvider implementation="org.jetbrains.plugins.scala.lang.completion.ScalaImportStaticLookupActionProvider"/>
     <weigher key="completion" implementationClass="org.jetbrains.plugins.scala.lang.completion.weighter.ScalaContainingClassWiegher"
              id="scalaContainingClassWeigher" order="before scalaParameterCompletionWeigher"/>
