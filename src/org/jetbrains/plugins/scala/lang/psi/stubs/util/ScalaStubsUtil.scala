@@ -82,6 +82,7 @@ object ScalaStubsUtil {
                         ScType.extractClass(tp, Some(inheritedClazz.getProject)) match {
                           case Some(otherClazz) =>
                             if (otherClazz == inheritedClazz) return true
+                          case _ =>
                         }
                     }
                     false
