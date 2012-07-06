@@ -1,0 +1,21 @@
+<component name="ArtifactManager">
+  <artifact name="ScalaPlugins">
+    <output-path>$PROJECT_DIR$/classes/artifacts/Scala</output-path>
+    <root id="root">
+      <element id="directory" name="lib">
+        <element id="library" level="project" name="evo-inflector-0.6" />
+        <element id="library" level="project" name="main-scala-library" />
+        <element id="library" level="project" name="scalatest-finders" />
+        <element id="archive" name="scala-plugin-runners.jar">
+          <element id="module-output" name="Runners" />
+        </element>
+        <element id="archive" name="scala-plugin.jar">
+          <element id="module-output" name="ScalaCommunity" />
+          <element id="directory" name="META-INF">
+            <element id="dir-copy" path="$PROJECT_DIR$/META-INF" />
+          </element>
+        </element>
+      </element>
+    </root>
+  </artifact>
+</component>
