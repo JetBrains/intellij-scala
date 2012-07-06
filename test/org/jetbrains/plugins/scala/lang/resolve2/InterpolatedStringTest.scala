@@ -15,10 +15,10 @@ class InterpolatedStringTest extends ResolveTestBase {
     doTest()
   }
 
-  /*def testIdCannotResolve() { //TODO we'll do something when it will be implemented in the compiler
+  def testResolveImplicit() {
     doTest()
-  }*/
-
+  }
+  
   def testResolveInsideString() {
     doTest()
   }

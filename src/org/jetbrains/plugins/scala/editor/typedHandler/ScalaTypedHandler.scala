@@ -19,6 +19,9 @@ import com.intellij.psi.xml.XmlTokenType
 import com.intellij.lexer.XmlLexer
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.api.expr.xml._
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScInterpolatedStringLiteral
+import dk.brics.automaton.BasicOperations
 
 
 /**
@@ -52,11 +55,17 @@ class ScalaTypedHandler extends TypedHandlerDelegate {
       myTask = indentCase(file)
     } else if (isInPlace(element, classOf[ScXmlExpr], classOf[ScXmlPattern])) {
       chooseXmlTask(true)
+    } else if (file.findElementAt(offset - 2) 
+        match {case i: PsiElement if !ScalaNamesUtil.isOperatorName(i.getText) => c == '>' || c == '/' case _ => false}) {
+      chooseXmlTask(false)
     } else if (element.getPrevSibling != null && element.getPrevSibling.getNode.getElementType == ScalaElementTypes.CASE_CLAUSES) {
       val ltIndex = element.getPrevSibling.getText.indexOf("<")
       if (ltIndex > "case ".length - 1 && element.getPrevSibling.getText.substring(0, ltIndex).trim() == "case") {
         chooseXmlTask(false)
       }
+    } else if (c == '{' && (element.getParent match {
+            case l: ScInterpolatedStringLiteral => !l.isMultiLineString; case _ => false} )) {
+      myTask = completeInterpolatedStringBraces 
     }
 
     if (myTask == null) return Result.CONTINUE
@@ -144,8 +153,38 @@ class ScalaTypedHandler extends TypedHandlerDelegate {
   }
 
   private def completeXmlTag(insert: ScXmlStartTag => String)(document: Document, project: Project, element: PsiElement, offset: Int) {
-    if (element != null && element.getParent != null && element.getParent.isInstanceOf[ScXmlStartTag]) {
-      insertAndCommit(offset, insert(element.getParent.asInstanceOf[ScXmlStartTag]), document, project)
+    if (element == null) return
+    
+    def doInsert(tag: ScXmlStartTag) {
+      insertAndCommit(offset, insert(tag), document, project)
+    }
+    
+    def check(tag: ScXmlStartTag) {
+      if (Option(tag.getClosingTag).map(_.getTagName != tag.getTagName).getOrElse(true)) 
+        doInsert(tag)
+    }
+    
+    element.getParent match {
+      case tag: ScXmlStartTag  =>
+        if (tag.getParent != null && tag.getParent.getParent != null) {
+          tag.getParent.getParent.getFirstChild match {
+            case st: ScXmlStartTag if st.getTagName == tag.getTagName => doInsert(tag)
+            case _ => check(tag)
+          } 
+        } else {
+          check(tag)
+        }
+      case _ => 
+    }
+  }
+  
+  private def completeInterpolatedStringBraces(document: Document, project: Project, element: PsiElement, offset: Int) {
+    if (element == null) return
+    import ScalaTokenTypes._
+    
+    if (element.getNode.getElementType == tLBRACE && 
+      Option(element.getParent.getPrevSibling).map(_.getNode.getElementType == tINTERPOLATED_STRING_INJECTION).getOrElse(false)) {
+      insertAndCommit(offset, "}", document, project)
     }
   }
 

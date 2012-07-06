@@ -1,5 +1,5 @@
 object A {
-  val foo = <test attr ="{42}" ><bugoga/>{239 + {<newxml/>}}</test>
+  val foo = <test attr ="{42}" ><bugaga/>{239 + {<newxml/>}}</test>
 }
 -----
 object {object}
@@ -22,14 +22,12 @@ XML_NAME {attr}
 WHITE_SPACE { }
 XML_EQ {=}
 XML_ATTRIBUTE_VALUE_START_DELIMITER {"}
-ScalaXmlInjectionStart {{}
-integer {42}
-ScalaXmlInjection End {}}
+XML_ATTRIBUTE_VALUE_TOKEN {{42}}
 XML_ATTRIBUTE_VALUE_END_DELIMITER {"}
 WHITE_SPACE { }
 XML_TAG_END {>}
 XML_START_TAG_START {<}
-XML_NAME {bugoga}
+XML_NAME {bugaga}
 XML_EMPTY_ELEMENT_END {/>}
 ScalaXmlInjectionStart {{}
 integer {239}

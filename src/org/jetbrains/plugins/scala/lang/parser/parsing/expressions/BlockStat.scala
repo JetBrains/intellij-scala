@@ -12,6 +12,7 @@ import top.TmplDef
 import com.intellij.lang.PsiBuilder.Marker
 import statements.{EmptyDcl, Dcl, Def}
 import builder.ScalaPsiBuilder
+import parser.util.ParserPatcher
 
 /**
 * @author Alexander Podkhalyuzin
@@ -28,13 +29,16 @@ import builder.ScalaPsiBuilder
 object BlockStat {
   def parse(builder: ScalaPsiBuilder): Boolean = {
     val tokenType = builder.getTokenType
+    
+    val patcher = ParserPatcher.getSuitablePatcher(builder)
+    
     tokenType match {
       case ScalaTokenTypes.kIMPORT => {
         Import parse builder
         return true
       }
       case ScalaTokenTypes.tSEMICOLON => {
-        builder.advanceLexer
+        builder.advanceLexer()
         return true
       }
       case ScalaTokenTypes.kDEF | ScalaTokenTypes.kVAL | ScalaTokenTypes.kTYPE => {
@@ -52,6 +56,7 @@ object BlockStat {
       case ScalaTokenTypes.kCLASS | ScalaTokenTypes.kTRAIT | ScalaTokenTypes.kOBJECT => {
         return TmplDef.parse(builder)
       }
+      case _ if patcher.parse(builder) => parse(builder)
       case _ => {
         if (!Expr1.parse(builder)) {
           if (!Def.parse(builder, false, true)) {
@@ -72,6 +77,6 @@ object BlockStat {
         }
       }
     }
-    return true
+    true
   }
 }

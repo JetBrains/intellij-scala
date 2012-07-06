@@ -37,7 +37,8 @@ ScalaFile
           PsiElement(=)('=')
           PsiWhiteSpace(' ')
           Literal
-            PsiElement(interpolated string id)('f')
+            ReferenceExpression
+              PsiElement(interpolated string id)('f')
             PsiElement(interpolated string)('"')
             PsiElement(interpolated string injection)('$')
             BlockExpression

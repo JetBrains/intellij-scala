@@ -4,6 +4,7 @@ import nonvalue.{TypeParameter, Parameter}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAssignStmt, ScExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScTypeParam, ScParameter, ScParameterClause}
+import com.intellij.psi.PsiElement
 
 /**
  * Pavel.Fatin, 02.06.2010
@@ -28,6 +29,7 @@ case class ParameterSpecifiedMultipleTimes(assignment: ScAssignStmt) extends App
 case class UnresolvedParameter(assignment: ScAssignStmt) extends ApplicabilityProblem
 //TODO , parameter
 case class ExpansionForNonRepeatedParameter(argument: ScExpression) extends ApplicabilityProblem
+case class ElementApplicabilityProblem(element: PsiElement, actual: ScType, found: ScType) extends ApplicabilityProblem("42") //todo 
 
 // applicability problem
 case class DoesNotTakeParameters() extends ApplicabilityProblem

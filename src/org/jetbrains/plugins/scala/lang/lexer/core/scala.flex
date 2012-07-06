@@ -7,6 +7,7 @@ import java.lang.reflect.Field;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypesEx;
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes;
+import org.jetbrains.plugins.scala.lang.scaladoc.parser.ScalaDocElementTypes;
 
 %%
 
@@ -38,6 +39,12 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes;
     public boolean isInsideInterpolatedStringInjection() {
       return structuralBracers > 0;
     }
+    
+    public boolean isInterpolatedStringState() {
+        return insideInterpolatedStringBracers || insideInterpolatedMultilineStringBracers ||
+            haveIdInString || haveIdInMultilineString || yystate() == INSIDE_INTERPOLATED_STRING || 
+            yystate() == INSIDE_MULTI_LINE_INTERPOLATED_STRING;
+    }
 
     private IElementType process(IElementType type){
       if (type == tIDENTIFIER && (haveIdInString || haveIdInMultilineString)) {
@@ -49,6 +56,10 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes;
           haveIdInMultilineString = false;
           yybegin(INSIDE_MULTI_LINE_INTERPOLATED_STRING);
         }
+      }
+      
+      if (yystate() == YYINITIAL && type != tWHITE_SPACE_IN_LINE && type != tLBRACE && type != tLPARENTHESIS) {
+        yybegin(COMMON_STATE);
       }
 
       return type;
@@ -128,7 +139,7 @@ STRING_LITERAL={STRING_BEGIN} \"
 MULTI_LINE_STRING = \"\"\" ( (\"(\")?)? [^\"] )* \"\"\" (\")* // Multi-line string
 
 ////////String Interpolation////////
-INTERPOLATED_STRING_ID = ("s"|"f"|"id")
+INTERPOLATED_STRING_ID = {varid}
 
 INTERPOLATED_STRING_BEGIN = \"([^\\\"\r\n\$]|{ESCAPE_SEQUENCE})*
 INTERPOLATED_STRING_PART = ([^\\\"\r\n\$]|{ESCAPE_SEQUENCE})*
@@ -195,7 +206,7 @@ XML_BEGIN = "<" ("_" | [:jletter:]) | "<!--" | "<?" ("_" | [:jletter:]) | "<![CD
 
 {INTERPOLATED_STRING_ID} / ({INTERPOLATED_STRING_BEGIN} | {INTERPOLATED_MULTI_LINE_STRING_BEGIN}) {
   yybegin(WAIT_FOR_INTERPOLATED_STRING);
-  return process(tINTERPOLATED_STRING_ID);
+  return haveIdInString || haveIdInMultilineString ? process(tIDENTIFIER) : process(tINTERPOLATED_STRING_ID) ;
 }
 
 <WAIT_FOR_INTERPOLATED_STRING> {
@@ -241,9 +252,13 @@ XML_BEGIN = "<" ("_" | [:jletter:]) | "<!--" | "<?" ("_" | [:jletter:]) | "<![CD
     insideInterpolatedStringBracers = true;
     return process(tINTERPOLATED_STRING_INJECTION);
   }
+  
+  [\r\n] {
+    yybegin(COMMON_STATE);
+    return process(tWRONG_STRING);
+  }
 
   [^] {
-    yybegin(COMMON_STATE);
     return process(tWRONG_STRING);
   }
 }
@@ -280,11 +295,19 @@ XML_BEGIN = "<" ("_" | [:jletter:]) | "<!--" | "<?" ("_" | [:jletter:]) | "<![CD
       return process(tINTERPOLATED_STRING_INJECTION);
   }
 
-  [^] {   yybegin(COMMON_STATE);
-    yypushback(yytext().length());
+  [^] {  
+    return process(tWRONG_STRING);
   }
 }
 
+
+"/**" ("*"? [^\/])* "*/" { //for comments in interpolated strings
+    return process(ScalaDocElementTypes.SCALA_DOC_COMMENT);
+}
+
+"/*" ("*"? [^\/])* "*/" { //for comments in interpolated strings
+    return process(tBLOCK_COMMENT);
+}
 
 {STRING_LITERAL}                        {   return process(tSTRING);  }
 

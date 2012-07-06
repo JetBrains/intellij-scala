@@ -30,7 +30,7 @@ import java.util.Queue;
 /**
  * @author ilyas
  */
-public class ScalaPlainLexer extends Lexer {
+public class ScalaPlainLexer extends Lexer {     //todo delete if we don't need it 
 
   public static final int SCALA_CORE_MASK = 0x38;
   public static final int SPLIT_MASK = 0x7;

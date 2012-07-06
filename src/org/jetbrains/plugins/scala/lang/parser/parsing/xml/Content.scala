@@ -7,6 +7,7 @@ package xml
 import com.intellij.lang.PsiBuilder
 import com.intellij.psi.xml.XmlTokenType
 import builder.ScalaPsiBuilder
+import parser.util.ParserPatcher
 
 /**
 * @author Alexander Podkhalyuzin
@@ -33,11 +34,14 @@ object Content {
       }
       case _ =>
     }
+    
+    val patcher = ParserPatcher.getSuitablePatcher(builder)
+    
     def subparse() {
       var isReturn = false
       if (!XmlContent.parse(builder) &&
               !Reference.parse(builder) &&
-              !ScalaExpr.parse(builder)) isReturn = true
+              !ScalaExpr.parse(builder) && !patcher.parse(builder)) isReturn = true
       builder.getTokenType match {
         case XmlTokenType.XML_DATA_CHARACTERS => {
           builder.advanceLexer()

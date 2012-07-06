@@ -191,6 +191,34 @@ class ScalaRenameTest extends ScalaRenameTestBase {
 
     myFixture.checkResult(resultText)
   }
+  
+  def testRenameInterpolatedStringPrefix() {
+    val fileText =
+      """
+        | object A {
+        |   class B { def aa<caret>a(a: Any*) = a.length }
+        |   
+        |   implicit def ctxToB(ctx: StringContext) = new B
+        |   
+        |   val a = aaa"blah blah"
+        | }
+      """.replace("\r", "").stripMargin
+    
+    val resultText =
+      """
+        | object A {
+        |   class B { def bb<caret>b(a: Any*) = a.length }
+        |   
+        |   implicit def ctxToB(ctx: StringContext) = new B
+        |   
+        |   val a = bbb"blah blah"
+        | }
+      """.replace("\r", "").stripMargin
+    
+    myFixture.configureByText("dummy.scala", fileText)
+    myFixture.renameElementAtCaret("bbb")
+    myFixture.checkResult(resultText)
+  }
 
   //todo:
   /*def testObjectToCaseClass() {

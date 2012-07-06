@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala
 package lang.psi.api.base
 
-import lang.resolve.ResolvableReferenceElement
+import lang.psi.api.expr.ScExpression
 
 /**
  * User: Dmitry Naydanov
@@ -15,4 +15,8 @@ trait ScInterpolatedStringLiteral extends ScLiteral {
   }
 
   def getType: InterpolatedStringType.StringType
+  
+  def getInjections: Array[ScExpression]
+
+  def getStringContextExpression: Option[ScExpression]
 }

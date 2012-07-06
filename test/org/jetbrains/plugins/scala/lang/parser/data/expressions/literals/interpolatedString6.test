@@ -61,7 +61,8 @@ ScalaFile
           PsiElement(=)('=')
           PsiWhiteSpace(' ')
           Literal
-            PsiElement(interpolated string id)('s')
+            ReferenceExpression
+              PsiElement(interpolated string id)('s')
             PsiElement(interpolatedmultiline string)('"""\n    ')
             PsiElement(interpolated string injection)('$')
             BlockExpression
@@ -101,10 +102,11 @@ ScalaFile
                       PsiElement(=)('=')
                       PsiWhiteSpace(' ')
                       Literal
-                        PsiElement(interpolated string id)('s')
+                        ReferenceExpression
+                          PsiElement(interpolated string id)('s')
                         PsiElement(interpolated string)('"')
                         PsiElement(interpolated string injection)('$')
-                        CodeReferenceElement
+                        ReferenceExpression
                           PsiElement(identifier)('i')
                         PsiElement(interpolated string end)('"')
                     PsiWhiteSpace('\n      ')

@@ -203,16 +203,16 @@ class XmlClosingTagAutoCompletionTest extends ScalaLightCodeInsightFixtureTestAd
   }
 
   def testSwallowGtAfterEmptyTagEndInXmlPattern() {
-    val text =
-      ("""
-      | val xml = <aaa attr="<aaa//>" />
-      |
-      | xml match {
-      |   case <aaa/>""" + CARET_MARKER +
-      """|  => 1
-      | }
-      """).stripMargin.replace("\r", "")
+    val header = 
+      """
+        |val xml = <aaa attr="<aaa//>" />
+        |xml match { 
+        |   case <aaa/""".stripMargin.replace("\r", "") 
+    
+    val text = header + CARET_MARKER + ">  => 1  }"
+    
+    val stub = header + ">" + CARET_MARKER + "  => 1  }"
 
-    checkGeneratedTextGt(text, text)
+    checkGeneratedTextGt(text, stub)
   }
 }

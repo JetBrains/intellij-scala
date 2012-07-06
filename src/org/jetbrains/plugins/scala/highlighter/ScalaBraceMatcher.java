@@ -19,6 +19,7 @@ import com.intellij.lang.BracePair;
 import com.intellij.lang.PairedBraceMatcher;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.tree.IElementType;
+import com.intellij.psi.xml.XmlTokenType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes;
@@ -46,7 +47,8 @@ public class ScalaBraceMatcher implements PairedBraceMatcher {
       new BracePair(ScalaDocElementTypes.DOC_MONOSPACE_TAG, ScalaDocElementTypes.DOC_COMMON_CLOSE_WIKI_TAG, true),
       new BracePair(ScalaDocElementTypes.DOC_SUBSCRIPT_TAG, ScalaDocElementTypes.DOC_COMMON_CLOSE_WIKI_TAG, true),
       new BracePair(ScalaDocElementTypes.DOC_SUPERSCRIPT_TAG, ScalaDocElementTypes.DOC_COMMON_CLOSE_WIKI_TAG, true),
-      new BracePair(ScalaTokenTypes.tOPENXMLTAG, ScalaTokenTypes.tCLOSEXMLTAG, true)
+      new BracePair(ScalaTokenTypes.tOPENXMLTAG, ScalaTokenTypes.tCLOSEXMLTAG, true), 
+      new BracePair(ScalaTokenTypes.tXML_COMMENT_START, ScalaTokenTypes.tXML_COMMENT_END, true)
   };
 
   public BracePair[] getPairs() {
