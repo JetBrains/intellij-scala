@@ -606,4 +606,93 @@ class B(i: Int)(s: String) {
 
     doTextTest(before, after)
   }
+
+  def testSpaceInsideClosureBraces() {
+    getScalaSettings.SPACE_INSIDE_CLOSURE_BRACES = true
+    getScalaSettings.SPACE_BEFORE_INFIX_METHOD_CALL_PARENTHESES = true
+    getScalaSettings.KEEP_ONE_LINE_LAMBDAS_IN_ARG_LIST = true
+    getScalaSettings.PLACE_CLOSURE_PARAMETERS_ON_NEW_LINE = false
+    getSettings.KEEP_SIMPLE_BLOCKS_IN_ONE_LINE = true
+    val before =
+      """
+Array.fill(34){scala.util.Random.nextInt(12)  }
+
+foos map{ t=>getCounts(t).toSeq sortBy {-_._2 }   map {_._1 }}
+
+bars foreach {case  (x, y) =>
+  list.add(x + y)
+}
+
+bars  foreach {
+  case (x,y)   => list.add(x+y)
+}
+
+bars foreach{ case (x,y) =>   list.add(x + y) }
+
+      """.replace("\r", "")
+
+    val after =
+      """
+Array.fill(34) { scala.util.Random.nextInt(12) }
+
+foos map { t => getCounts(t).toSeq sortBy { -_._2 } map { _._1 } }
+
+bars foreach { case (x, y) =>
+  list.add(x + y)
+}
+
+bars foreach {
+  case (x, y) => list.add(x + y)
+}
+
+bars foreach { case (x, y) => list.add(x + y) }
+
+      """.replace("\r", "")
+
+    doTextTest(before, after)
+  }
+
+  def testNoSpaceInsideClosure() {
+    getScalaSettings.SPACE_INSIDE_CLOSURE_BRACES = false
+    getScalaSettings.SPACE_BEFORE_INFIX_METHOD_CALL_PARENTHESES = true
+    getScalaSettings.KEEP_ONE_LINE_LAMBDAS_IN_ARG_LIST = true
+    getScalaSettings.PLACE_CLOSURE_PARAMETERS_ON_NEW_LINE = false
+    getSettings.KEEP_SIMPLE_BLOCKS_IN_ONE_LINE = true
+    val before =
+      """
+Array.fill(34){scala.util.Random.nextInt(12)  }
+
+foos map{ t=>getCounts(t).toSeq sortBy {-_._2 }   map {_._1 }}
+
+bars foreach {case  (x, y) =>
+  list.add(x + y)
+}
+
+bars  foreach {
+  case (x,y)   => list.add(x+y)
+}
+
+bars foreach{ case (x,y) =>   list.add(x + y) }
+
+      """.replace("\r", "")
+
+    val after =
+      """
+Array.fill(34) {scala.util.Random.nextInt(12)}
+
+foos map {t => getCounts(t).toSeq sortBy {-_._2} map {_._1}}
+
+bars foreach {case (x, y) =>
+  list.add(x + y)
+}
+
+bars foreach {
+  case (x, y) => list.add(x + y)
+}
+
+bars foreach {case (x, y) => list.add(x + y)}
+      """.replace("\r", "")
+
+    doTextTest(before, after)
+  }
 }

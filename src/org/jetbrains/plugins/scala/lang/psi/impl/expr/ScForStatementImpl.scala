@@ -204,43 +204,41 @@ class ScForStatementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
   }
 
   private def getDesugarisedExprImpl: Option[ScExpression] = {
-    synchronized[Option[ScExpression]] {
-      val res = getDesugarisedExprText(forDisplay = false) match {
-        case Some(text) =>
-          if (text == "") None
-          else {
-            try {
-              Some(ScalaPsiElementFactory.createExpressionWithContextFromText(text, this.getContext, this))
-            }
-            catch {
-              case e: Throwable => None
-            }
+    val res = getDesugarisedExprText(forDisplay = false) match {
+      case Some(text) =>
+        if (text == "") None
+        else {
+          try {
+            Some(ScalaPsiElementFactory.createExpressionWithContextFromText(text, this.getContext, this))
           }
-        case _ => None
-      }
+          catch {
+            case e: Throwable => None
+          }
+        }
+      case _ => None
+    }
 
-      res match {
-        case Some(expr: ScExpression) =>
-          enumerators.map(e => e.generators.map(g => g.pattern)).foreach(patts =>
-            patts.foreach(patt => {
-              if (patt != null && patt.desugarizedPatternIndex != -1) {
-                var element = expr.findElementAt(patt.desugarizedPatternIndex)
-                while (element != null && (element.getTextLength < patt.getTextLength ||
-                        (!element.isInstanceOf[ScPattern] && element.getTextLength == patt.getTextLength)))
-                  element = element.getParent
-                if (element != null && element.getText == patt.getText) {
-                  element match {
-                    case p: ScPattern => patt.analog = p
-                    case _ =>
-                  }
+    res match {
+      case Some(expr: ScExpression) =>
+        enumerators.map(e => e.generators.map(g => g.pattern)).foreach(patts =>
+          patts.foreach(patt => {
+            if (patt != null && patt.desugarizedPatternIndex != -1) {
+              var element = expr.findElementAt(patt.desugarizedPatternIndex)
+              while (element != null && (element.getTextLength < patt.getTextLength ||
+                (!element.isInstanceOf[ScPattern] && element.getTextLength == patt.getTextLength)))
+                element = element.getParent
+              if (element != null && element.getText == patt.getText) {
+                element match {
+                  case p: ScPattern => patt.analog = p
+                  case _ =>
                 }
               }
-            })
-          )
-        case _ =>
-      }
-      res
+            }
+          })
+        )
+      case _ =>
     }
+    res
   }
 
   override protected def innerType(ctx: TypingContext): TypeResult[ScType] = {

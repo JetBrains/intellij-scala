@@ -27,10 +27,11 @@ ScalaFile
       PsiElement({)('{')
       PsiWhiteSpace('\n  ')
       Literal
-        PsiElement(interpolated string id)('s')
+        ReferenceExpression
+          PsiElement(interpolated string id)('s')
         PsiElement(interpolatedmultiline string)('"""blah blah ')
         PsiElement(interpolated string injection)('$')
-        CodeReferenceElement
+        ReferenceExpression
           PsiElement(identifier)('a')
         PsiElement(interpolatedmultiline string)(' blah ')
         PsiElement(interpolated string injection)('$')

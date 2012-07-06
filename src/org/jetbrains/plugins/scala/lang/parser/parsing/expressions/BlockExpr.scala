@@ -7,7 +7,7 @@ package expressions
 import lexer.ScalaTokenTypes
 import patterns.CaseClauses
 import builder.ScalaPsiBuilder
-import util.ParserUtils
+import parser.util.{ParserPatcher, ParserUtils}
 
 /**
 * @author Alexander Podkhalyuzin
@@ -20,6 +20,7 @@ import util.ParserUtils
  */
 object BlockExpr {
   def parse(builder: ScalaPsiBuilder): Boolean = {
+    if (ParserPatcher.getSuitablePatcher(builder).parse(builder)) return true
     val blockExprMarker = builder.mark
     builder.getTokenType match {
       case ScalaTokenTypes.tLBRACE => {

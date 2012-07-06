@@ -1052,4 +1052,8 @@ object ScalaPsiElementFactory extends JVMElementFactory {
     createScalaFile("val a = <" + tagName + attributes + "></" + tagName + ">", manager).
             getFirstChild.getLastChild.getFirstChild.getFirstChild.asInstanceOf[ScXmlStartTag]
   }
+
+  def createInterpolatedStringPrefix(prefix: String, manager: PsiManager): PsiElement = {
+    createScalaFile(prefix + "\"blah\"", manager).getFirstChild.getFirstChild
+  }
 }

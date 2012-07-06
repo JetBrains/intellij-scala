@@ -191,11 +191,9 @@ white space in line { }
 white space in line { }
 interpolated string id {f}
 interpolatedmultiline string {"""blah blah }
-identifier {$}
-white space in line { }
-identifier {blah}
-string content {""}
-wrong string content {"}
+wrong string content {$}
+interpolatedmultiline string { blah}
+interpolated string end {"""}
 white space in line {
 }
 } {}}

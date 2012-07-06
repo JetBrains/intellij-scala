@@ -9,6 +9,7 @@ import lexer.ScalaTokenTypes
 import params.ParamClauses
 import types.Type
 import builder.ScalaPsiBuilder
+import parser.util.ParserPatcher
 
 /**
 * @author Alexander Podkhalyuzin
@@ -66,7 +67,7 @@ object FunDef {
           }
           case ScalaTokenTypes.tASSIGN => {
             builder.advanceLexer() //Ate =
-            if (Expr.parse(builder)) {
+            if (Expr.parse(builder) || ParserPatcher.getSuitablePatcher(builder).parse(builder)) {
               faultMarker.drop()
               true
             }

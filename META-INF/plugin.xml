@@ -34,6 +34,10 @@
   <extensions xmlns="org.jetbrains.idea.maven">
    <importer implementation="org.jetbrains.plugins.scala.config.ScalaMavenImporter"/>
   </extensions>
+  
+  <extensionPoints>
+    <extensionPoint name="scalaParserPatcher" interface="org.jetbrains.plugins.scala.lang.parser.util.ParserPatcher"/>
+  </extensionPoints>
 
   <extensions defaultExtensionNs="com.intellij">
     <statementUpDownMover implementation="org.jetbrains.plugins.scala.lang.refactoring.ScalaStatementMover"/>

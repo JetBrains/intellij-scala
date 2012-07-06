@@ -231,7 +231,7 @@ object Compatibility {
         for (exprType <- exprs(k).getTypeAfterImplicitConversion(checkWithImplicits, isShapesResolve, Some(expectedType))._1) {
           val conforms = Conformance.conforms(paramType, exprType, checkWeak = true)
           if (!conforms) {
-            return ConformanceExtResult(Seq(new ApplicabilityProblem("14")), undefSubst, defaultParameterUsed, matched)
+            return ConformanceExtResult(Seq(new ElementApplicabilityProblem(exprs(k).expr, exprType, paramType)), undefSubst, defaultParameterUsed, matched)
           } else {
             matched ::= ((parameters.last, exprs(k).expr))
             undefSubst += Conformance.undefinedSubst(paramType, exprType, checkWeak = true)

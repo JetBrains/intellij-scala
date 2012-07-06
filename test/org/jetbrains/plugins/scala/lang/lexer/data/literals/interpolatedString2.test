@@ -1,0 +1,66 @@
+object A {
+    val a = str"blah"
+    val b = s"$a"
+    val c = xml"${val e = s"$a"; e}"
+}
+-----
+object {object}
+white space in line { }
+identifier {A}
+white space in line { }
+{ {{}
+white space in line {
+    }
+val {val}
+white space in line { }
+identifier {a}
+white space in line { }
+= {=}
+white space in line { }
+interpolated string id {str}
+interpolated string {"blah}
+interpolated string end {"}
+white space in line {
+    }
+val {val}
+white space in line { }
+identifier {b}
+white space in line { }
+= {=}
+white space in line { }
+interpolated string id {s}
+interpolated string {"}
+interpolated string injection {$}
+identifier {a}
+interpolated string end {"}
+white space in line {
+    }
+val {val}
+white space in line { }
+identifier {c}
+white space in line { }
+= {=}
+white space in line { }
+interpolated string id {xml}
+interpolated string {"}
+interpolated string injection {$}
+{ {{}
+val {val}
+white space in line { }
+identifier {e}
+white space in line { }
+= {=}
+white space in line { }
+interpolated string id {s}
+interpolated string {"}
+interpolated string injection {$}
+identifier {a}
+interpolated string end {"}
+; {;}
+white space in line { }
+identifier {e}
+} {}}
+interpolated string end {"}
+white space in line {
+}
+} {}}

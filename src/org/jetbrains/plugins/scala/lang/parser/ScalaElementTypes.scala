@@ -273,7 +273,7 @@ object ScalaElementTypes {
   val XML_COMMENT = new ScalaElementType("Xml comment")
   val XML_ELEMENT = new ScalaElementType("Xml element")
 
-  class ScCodeBlockElementType private[ScalaElementTypes]() extends IErrorCounterReparseableElementType("block of expressions",
+  class ScCodeBlockElementType() extends IErrorCounterReparseableElementType("block of expressions",
     ScalaFileType.SCALA_LANGUAGE) with ICompositeElementType {
 
     override def createNode(text: CharSequence): ASTNode = {

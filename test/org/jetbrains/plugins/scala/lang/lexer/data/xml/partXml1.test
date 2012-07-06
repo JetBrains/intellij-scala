@@ -1,0 +1,50 @@
+object A {
+    val partXml = a <b attr="blah"
+    val d = 1
+    val e = 2
+}
+-----
+object {object}
+white space in line { }
+identifier {A}
+white space in line { }
+{ {{}
+white space in line {
+    }
+val {val}
+white space in line { }
+identifier {partXml}
+white space in line { }
+= {=}
+white space in line { }
+identifier {a}
+white space in line { }
+XML_START_TAG_START {<}
+XML_NAME {b}
+WHITE_SPACE { }
+XML_NAME {attr}
+XML_EQ {=}
+XML_ATTRIBUTE_VALUE_START_DELIMITER {"}
+XML_ATTRIBUTE_VALUE_TOKEN {blah}
+XML_ATTRIBUTE_VALUE_END_DELIMITER {"}
+white space in line {
+    }
+XML_NAME {val}
+WHITE_SPACE { }
+XML_NAME {d}
+WHITE_SPACE { }
+XML_EQ {=}
+WHITE_SPACE { }
+XML_DATA_CHARACTERS {1}
+white space in line {
+    }
+val {val}
+white space in line { }
+identifier {e}
+white space in line { }
+= {=}
+white space in line { }
+integer {2}
+white space in line {
+}
+} {}}

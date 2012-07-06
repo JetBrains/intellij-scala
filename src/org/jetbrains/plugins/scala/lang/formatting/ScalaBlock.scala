@@ -23,12 +23,12 @@ import com.intellij.psi.{TokenType, PsiComment, PsiErrorElement, PsiWhiteSpace}
 import psi.api.base.ScLiteral
 
 class ScalaBlock (val myParentBlock: ScalaBlock,
-        private val myNode: ASTNode,
+        protected val myNode: ASTNode,
         val myLastNode: ASTNode,
-        private var myAlignment: Alignment,
-        private var myIndent: Indent,
-        private var myWrap: Wrap,
-        private val mySettings: CodeStyleSettings)
+        protected var myAlignment: Alignment,
+        protected var myIndent: Indent,
+        protected var myWrap: Wrap,
+        protected val mySettings: CodeStyleSettings)
 extends Object with ScalaTokenTypes with Block {
 
   protected var mySubBlocks: List[Block] = null

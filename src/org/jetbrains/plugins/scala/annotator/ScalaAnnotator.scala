@@ -29,7 +29,7 @@ import com.intellij.openapi.editor.markup.{EffectType, TextAttributes}
 import java.awt.{Font, Color}
 import components.HighlightingAdvisor
 import org.jetbrains.plugins.scala.extensions._
-import collection.{Seq, Set}
+import collection.{mutable, Seq, Set}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.{ReadValueUsed, WriteValueUsed, ValueUsed, ImportUsed}
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -45,6 +45,9 @@ import types.{ScParameterizedTypeElement, ScTypeProjection, ScTypeElement}
 import com.intellij.openapi.util.{TextRange, Key}
 import collection.mutable.{ArrayBuffer, HashSet}
 import settings._
+import com.intellij.lang.ASTNode
+import com.intellij.codeInsight.daemon.impl.AnnotationHolderImpl
+import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScInterpolatedStringPrefixReference
 
 /**
  * User: Alexander Podkhalyuzin
@@ -133,7 +136,7 @@ with DumbAware {
 
       override def visitLiteral(l: ScLiteral) {
         if (l.isInstanceOf[ScInterpolatedStringLiteral] && l.getFirstChild != null) {
-          highlightWrongInterpolatedStringPrefix(l.asInstanceOf[ScInterpolatedStringLiteral], holder)
+          highlightWrongInterpolatedString(l.asInstanceOf[ScInterpolatedStringLiteral], holder)
         }
         super.visitLiteral(l)
       }
@@ -655,14 +658,49 @@ with DumbAware {
     }
   }
 
-  private def highlightWrongInterpolatedStringPrefix(l: ScInterpolatedStringLiteral, holder: AnnotationHolder) {
+  private def highlightWrongInterpolatedString(l: ScInterpolatedStringLiteral, holder: AnnotationHolder) {
     val ref = l.findReferenceAt(0)
-    assert (ref != null)
+    val prefix = l.getFirstChild
+    val injections = l.getInjections
+    
+    ref match {
+      case _: ScInterpolatedStringPrefixReference =>
+      case _ => return
+    }
 
-    if (ref.resolve() == null) {
-      val annotation = holder.createErrorAnnotation(l.getFirstChild.getTextRange,
-        ScalaBundle.message("cannot.resolve.in.StringContext", l.getFirstChild.getText))
+    def annotateBadPrefix(key: String) {
+      val annotation = holder.createErrorAnnotation(prefix.getTextRange,
+        ScalaBundle.message(key, prefix.getText))
       annotation.setHighlightType(ProblemHighlightType.LIKE_UNKNOWN_SYMBOL)
+    }
+    
+    ref.resolve() match {
+      case r: ScFunctionDefinition =>
+        val elementsMap = mutable.HashMap[Int, PsiElement]()
+        val params = new mutable.StringBuilder("(")
+
+        injections.foreach { i =>
+          elementsMap += params.length -> i
+          params.append(i.getText).append(",")
+        }
+        if (injections.length > 0) params.setCharAt(params.length - 1, ')') else params.append(')')
+        val expr = l.getStringContextExpression.get
+        val shift = "StringContext(str).".length + r.getName.length  + expr.getTextRange.getStartOffset
+
+        val fakeAnnotator = new AnnotationHolderImpl(Option(holder.getCurrentAnnotationSession)
+                .getOrElse(new AnnotationSession(l.getContainingFile))) {
+          override def createErrorAnnotation(elt: PsiElement, message: String): Annotation =
+            createErrorAnnotation(elt.getTextRange, message)
+
+          override def createErrorAnnotation(range: TextRange, message: String): Annotation = {
+            holder.createErrorAnnotation(elementsMap.get(range.getStartOffset - shift).getOrElse(prefix), message)
+          }
+        }
+
+        annotateReference(expr.asInstanceOf[ScMethodCall].getEffectiveInvokedExpr.
+          asInstanceOf[ScReferenceElement], fakeAnnotator)
+      case _: PsiElement => annotateBadPrefix("=(")
+      case _ => annotateBadPrefix("cannot.resolve.in.StringContext")
     }
   }
 

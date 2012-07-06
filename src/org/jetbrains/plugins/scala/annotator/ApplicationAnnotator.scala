@@ -15,13 +15,8 @@ import com.intellij.psi.{PsiElement, PsiParameter, PsiNamedElement, PsiMethod}
 import lang.psi.api.statements.{ScValue, ScFunction}
 import codeInspection.varCouldBeValInspection.ValToVarQuickFix
 import extensions._
-import highlighter.DefaultHighlighter
-import com.intellij.openapi.editor.colors.TextAttributesKey
-import lang.parser.ScalaElementTypes
 import lang.psi.api.expr._
-import lang.psi.api.base.types.ScSimpleTypeElement
-import lang.psi.impl.ScalaPsiManager
-import lang.psi.impl.ScalaPsiManager.ClassCategory
+import lang.psi.impl.expr.ScInterpolatedStringPrefixReference
 
 /**
  * Pavel.Fatin, 31.05.2010
@@ -106,12 +101,16 @@ trait ApplicationAnnotator {
                       //TODO investigate case when assignment is null. It's possible when new Expression(ScType)
                     }
                   case WrongTypeParameterInferred => //todo: ?
-                  case _ => holder.createErrorAnnotation(call.argsElement, "Not applicable to " + signatureOf(f))
+                  case ElementApplicabilityProblem(element, actual, expected) => 
+                    holder.createErrorAnnotation(element, ScalaBundle.message("return.expression.does.not.conform", 
+                      actual.presentableText, expected.presentableText)) 
+                  case a => 
+                    holder.createErrorAnnotation(call.argsElement, "Not applicable to " + signatureOf(f))
                 }
               }
               case _ => {
                 r.problems.foreach {
-                  case MissedParametersClause(clause) =>
+                  case MissedParametersClause(clause) if !reference.isInstanceOf[ScInterpolatedStringPrefixReference] =>
                     holder.createErrorAnnotation(reference, "Missing arguments for method " + nameOf(f))
                   case _ =>
                 }

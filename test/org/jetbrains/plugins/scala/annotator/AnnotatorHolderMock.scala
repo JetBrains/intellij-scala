@@ -45,7 +45,10 @@ class AnnotatorHolderMock extends AnnotationHolder {
     FakeAnnotation
   }
 
-  def createErrorAnnotation(range: TextRange, message: String) = null
+  def createErrorAnnotation(range: TextRange, message: String) = {
+    myAnnotations ::= ErrorWithRange(range, message)
+    FakeAnnotation
+  }
 
   def createErrorAnnotation(node: ASTNode, message: String) = null
 
