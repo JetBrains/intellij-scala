@@ -407,34 +407,7 @@ public class ScalacBackendCompiler extends ExternalCompiler {
 
     for (final Module module : modules) {
       if (ScalaUtils.isSuitableModule(module)) {
-        ModuleRootManager moduleRootManager = ModuleRootManager.getInstance(module);
-        final Set<VirtualFile> cpVFiles = new HashSet<VirtualFile>();
-        OrderEnumerator.orderEntries(module).compileOnly().forEach(new Processor<OrderEntry>() {
-          @Override
-          public boolean process(OrderEntry orderEntry) {
-            cpVFiles.addAll(Arrays.asList(orderEntry.getFiles(OrderRootType.CLASSES)));
-            // Add Java dependencies on other modules
-            if (orderEntry instanceof ModuleOrderEntry && !(modules.contains(((ModuleOrderEntry) orderEntry).getModule()))) {
-              sourceDependencies.addAll(Arrays.asList(orderEntry.getFiles(OrderRootType.SOURCES)));
-            }
-            if (isTestChunk &&
-                (orderEntry instanceof ModuleSourceOrderEntry) &&
-                orderEntry.getOwnerModule() == module) {
-              //add Java sources for test compilation
-              sourceDependencies.addAll(Arrays.asList(orderEntry.getFiles(OrderRootType.SOURCES)));
-            }
-            return true;
-          }
-        });
-        for (VirtualFile file : cpVFiles) {
-          String path = file.getPath();
-          int jarSeparatorIndex = path.indexOf(JarFileSystem.JAR_SEPARATOR);
-          if (jarSeparatorIndex > 0) {
-            path = path.substring(0, jarSeparatorIndex);
-          }
-          printer.print(path);
-          printer.print(File.pathSeparator);
-        }
+        printer.print(OrderEnumerator.orderEntries(module).classes().getPathsList().getPathsString());
       }
     }
     printer.println();
