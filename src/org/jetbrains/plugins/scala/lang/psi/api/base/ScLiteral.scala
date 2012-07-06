@@ -22,3 +22,7 @@ trait ScLiteral extends ScExpression with PsiLiteral with PsiLanguageInjectionHo
   def isString: Boolean
   def isMultiLineString: Boolean
 }
+
+object ScLiteral {
+  def unapply(literal: ScLiteral) = Some(literal.getValue)
+}
