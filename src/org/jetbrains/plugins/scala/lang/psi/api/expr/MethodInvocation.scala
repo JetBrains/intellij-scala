@@ -240,3 +240,8 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
   private var implicitFunction: Option[PsiNamedElement] = None
   private var applyOrUpdate: Option[PsiElement] = None
 }
+
+object MethodInvocation {
+  def unapply(invocation: MethodInvocation) =
+    Some(invocation.getInvokedExpr, invocation.argumentExpressions)
+}
