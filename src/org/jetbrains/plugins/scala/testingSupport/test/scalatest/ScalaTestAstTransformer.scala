@@ -42,7 +42,7 @@ class ScalaTestAstTransformer {
 
     def loadClass(className: String) = {
       val orderEntries = mutable.HashSet.empty[OrderEntry]
-      OrderEnumerator.orderEntries(module).runtimeOnly().forEach(new Processor[OrderEntry] {
+      OrderEnumerator.orderEntries(module).recursively().runtimeOnly().forEach(new Processor[OrderEntry] {
         def process(t: OrderEntry): Boolean = {
           orderEntries += t
           true
