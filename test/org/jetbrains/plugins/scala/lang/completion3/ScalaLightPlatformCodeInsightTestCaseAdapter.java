@@ -18,6 +18,8 @@ import com.intellij.openapi.startup.StartupManager;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.openapi.vfs.impl.VirtualFilePointerManagerImpl;
+import com.intellij.openapi.vfs.pointers.VirtualFilePointerManager;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
 import com.intellij.testFramework.LightPlatformCodeInsightTestCase;
@@ -119,10 +121,8 @@ public abstract class ScalaLightPlatformCodeInsightTestCaseAdapter extends Light
       final ModifiableRootModel finalRootModel = rootModel;
       ApplicationManager.getApplication().runWriteAction(new Runnable() {
         public void run() {
-          if (finalLibModel != null)
-            finalLibModel.commit();
-          if (finalRootModel != null)
-            finalRootModel.commit();
+          if (finalLibModel != null) finalLibModel.commit();
+          if (finalRootModel != null) finalRootModel.commit();
           final StartupManagerImpl startupManager = (StartupManagerImpl) StartupManager.getInstance(ourProject);
           startupManager.startCacheUpdate();
         }
@@ -139,6 +139,7 @@ public abstract class ScalaLightPlatformCodeInsightTestCaseAdapter extends Light
 
     libModel.addRoot(VfsUtil.getUrlForLibraryRoot(libRoot), OrderRootType.CLASSES);
     libModel.addRoot(VfsUtil.getUrlForLibraryRoot(srcRoot), OrderRootType.SOURCES);
+    ((VirtualFilePointerManagerImpl) VirtualFilePointerManager.getInstance()).storePointers();
   }
 
   protected VirtualFile getVFileAdapter() {
