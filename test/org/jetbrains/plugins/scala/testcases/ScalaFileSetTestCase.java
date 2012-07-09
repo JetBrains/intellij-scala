@@ -28,9 +28,9 @@ import org.jetbrains.plugins.scala.ScalaFileType;
 import org.jetbrains.plugins.scala.ScalaLoader;
 
 public abstract class ScalaFileSetTestCase extends FileSetTestCase {
-  protected Project myProject;
-  protected Module module;
-  protected CommonCodeStyleSettings mySettings;
+  protected Project getProject() {
+      return fixture.getModule().getProject();
+  }
   private IdeaProjectTestFixture fixture;
   @NonNls
   protected final static String TEMP_FILE = "temp.scala";
@@ -41,14 +41,13 @@ public abstract class ScalaFileSetTestCase extends FileSetTestCase {
   }
 
   protected CommonCodeStyleSettings getSettings() {
-    return CodeStyleSettingsManager.getSettings(myProject).getCommonSettings(ScalaFileType.SCALA_LANGUAGE);
+    return CodeStyleSettingsManager.getSettings(getProject()).getCommonSettings(ScalaFileType.SCALA_LANGUAGE);
   }
 
   protected void setSettings() {
-    mySettings = getSettings();
-    mySettings.getIndentOptions().INDENT_SIZE = 2;
-    mySettings.getIndentOptions().CONTINUATION_INDENT_SIZE = 2;
-    mySettings.getIndentOptions().TAB_SIZE = 2;
+      getSettings().getIndentOptions().INDENT_SIZE = 2;
+      getSettings().getIndentOptions().CONTINUATION_INDENT_SIZE = 2;
+      getSettings().getIndentOptions().TAB_SIZE = 2;
   }
 
   protected void setUp() {
@@ -62,8 +61,6 @@ public abstract class ScalaFileSetTestCase extends FileSetTestCase {
       e.printStackTrace();
     }
 
-    module = fixture.getModule();
-    myProject = module.getProject();
     ScalaLoader.loadScala();
     setSettings();
 

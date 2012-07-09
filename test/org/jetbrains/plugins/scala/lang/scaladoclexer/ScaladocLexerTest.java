@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocLexer;
 
 public class ScaladocLexerTest extends LexerTestBase {
   @NonNls
-  private static final String DATA_PATH = "scala-plugin/test/org/jetbrains/plugins/scala/lang/lexer/scaladocdata/scaladoc";
+  private static final String DATA_PATH = "test/org/jetbrains/plugins/scala/lang/lexer/scaladocdata/scaladoc";
 
   public ScaladocLexerTest() {
     super(DATA_PATH, new ScalaDocLexer());

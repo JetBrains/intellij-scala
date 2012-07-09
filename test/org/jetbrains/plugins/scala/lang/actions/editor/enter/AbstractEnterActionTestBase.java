@@ -52,12 +52,11 @@ abstract public class AbstractEnterActionTestBase extends ActionTestBase {
 
   @Override
   protected void setSettings() {
-    super.setSettings();
-    mySettings = getSettings();
-    mySettings.getIndentOptions().INDENT_SIZE = 2;
-    mySettings.getIndentOptions().CONTINUATION_INDENT_SIZE = 2;
-    mySettings.getIndentOptions().TAB_SIZE = 2;
-    mySettings.INDENT_CASE_FROM_SWITCH = true;
+      super.setSettings();
+      getSettings().getIndentOptions().INDENT_SIZE = 2;
+      getSettings().getIndentOptions().CONTINUATION_INDENT_SIZE = 2;
+      getSettings().getIndentOptions().TAB_SIZE = 2;
+      getSettings().INDENT_CASE_FROM_SWITCH = true;
   }
 
   protected EditorActionHandler getMyHandler() {
@@ -70,16 +69,16 @@ abstract public class AbstractEnterActionTestBase extends ActionTestBase {
     String fileText = file.getText();
     int offset = fileText.indexOf(CARET_MARKER);
     fileText = removeMarker(fileText);
-    myFile = TestUtils.createPseudoPhysicalScalaFile(myProject, fileText);
-    fileEditorManager = FileEditorManager.getInstance(myProject);
-    myEditor = fileEditorManager.openTextEditor(new OpenFileDescriptor(myProject, myFile.getVirtualFile(), 0), false);
+    myFile = TestUtils.createPseudoPhysicalScalaFile(getProject(), fileText);
+    fileEditorManager = FileEditorManager.getInstance(getProject());
+    myEditor = fileEditorManager.openTextEditor(new OpenFileDescriptor(getProject(), myFile.getVirtualFile(), 0), false);
     myEditor.getCaretModel().moveToOffset(offset);
 
     final myDataContext dataContext = getDataContext(myFile);
     final EditorActionHandler handler = getMyHandler();
 
     try {
-      performAction(myProject, new Runnable() {
+      performAction(getProject(), new Runnable() {
         public void run() {
           handler.execute(myEditor, dataContext);
         }
@@ -99,7 +98,7 @@ abstract public class AbstractEnterActionTestBase extends ActionTestBase {
   public String transform(String testName, String[] data) throws Exception {
     setSettings();
     String fileText = data[0];
-    final PsiFile psiFile = TestUtils.createPseudoPhysicalScalaFile(myProject, fileText);
+    final PsiFile psiFile = TestUtils.createPseudoPhysicalScalaFile(getProject(), fileText);
     String result = processFile(psiFile);
     Console.println("------------------------ " + testName + " ------------------------");
     Console.println(result);
