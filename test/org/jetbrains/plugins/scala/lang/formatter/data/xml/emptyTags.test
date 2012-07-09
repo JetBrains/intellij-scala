@@ -4,8 +4,8 @@ val x = <aaa><bbb1/><bbb2/>
 </aaa>
 ------
 val x = <aaa>
-    <bbb1/>
-    <bbb2/>
+  <bbb1/>
+  <bbb2/>
 
-    <bbb3/>
+  <bbb3/>
 </aaa>
