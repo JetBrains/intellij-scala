@@ -34,8 +34,16 @@ class IntroduceExplicitParameterIntentionTest extends ScalaIntentionTestBase{
   }
 
   def testIntroduceExplicitParameter4() {
-    val text = "val nameHasUpperCase = name.exists(<caret>_.isUpper)"
-    val resultText = "val nameHasUpperCase = name.exists(value => value.isUpper)"
+    val text =
+      """
+        |val name: String = "gfgfgfgfg"
+        |val nameHasUpperCase = name.exists(<caret>_.isUpper)
+      """.stripMargin.replace("\r", "").trim
+    val resultText =
+      """
+        |val name: String = "gfgfgfgfg"
+        |val nameHasUpperCase = name.exists(value => value.isUpper)
+      """.stripMargin.replace("\r", "").trim
 
     doTest(text, resultText)
   }
@@ -46,4 +54,12 @@ class IntroduceExplicitParameterIntentionTest extends ScalaIntentionTestBase{
 
     doTest(text, resultText)
   }
+
+  def testIntroduceExplicitParameter6() {
+    val text = "val nameHasUpperCase = name.exists(<caret>_ == 'c')"
+    val resultText = "val nameHasUpperCase = name.exists(value => value == 'c')"
+
+    doTest(text, resultText)
+  }
+
 }
