@@ -9,7 +9,7 @@ import com.intellij.util.io.StringRef
 import impl.ScTemplateDefinitionStubImpl
 import com.intellij.psi.stubs.{StubElement, IndexSink, StubOutputStream, StubInputStream}
 import index.ScalaIndexKeys
-import api.toplevel.typedef.{ScTemplateDefinition, ScObject, ScTypeDefinition}
+import api.toplevel.typedef.{ScClass, ScTemplateDefinition, ScObject, ScTypeDefinition}
 import api.expr.ScAnnotation
 import com.intellij.psi.impl.java.stubs.index.JavaStubIndexKeys
 import extensions.toPsiMemberExt
@@ -41,12 +41,13 @@ extends ScStubElementType[ScTemplateDefinitionStub, ScTemplateDefinition](debugN
       })
 
     val isImplicitObject = psi.isInstanceOf[ScObject] && psi.hasModifierProperty("implicit")
+    val isImplicitClass = psi.isInstanceOf[ScClass] && psi.hasModifierProperty("implicit")
 
     val javaName = psi.javaName
     val additionalJavaNames = psi.additionalJavaNames
 
     new ScTemplateDefinitionStubImpl[ParentPsi](parent, this, psi.name, psi.qualifiedName, psi.getQualifiedName,
-      fileName, signs, isPO, isSFC, isDepr, isImplicitObject, javaName, additionalJavaNames,
+      fileName, signs, isPO, isSFC, isDepr, isImplicitObject, isImplicitClass, javaName, additionalJavaNames,
       psi.containingClass == null && PsiTreeUtil.getParentOfType(psi, classOf[ScTemplateDefinition]) != null)
   }
 
@@ -62,6 +63,7 @@ extends ScStubElementType[ScTemplateDefinitionStub, ScTemplateDefinition](debugN
     for (name <- methodNames) dataStream.writeName(name)
     dataStream.writeBoolean(stub.isDeprecated)
     dataStream.writeBoolean(stub.isImplicitObject)
+    dataStream.writeBoolean(stub.isImplicitClass)
     dataStream.writeName(stub.javaName)
     val additionalNames = stub.additionalJavaNames
     dataStream.writeInt(additionalNames.length)
@@ -82,13 +84,14 @@ extends ScStubElementType[ScTemplateDefinitionStub, ScTemplateDefinition](debugN
     val parent = parentStub.asInstanceOf[StubElement[PsiElement]]
     val isDepr = dataStream.readBoolean
     val isImplcitObject = dataStream.readBoolean
+    val isImplcitClass = dataStream.readBoolean
     val javaName = dataStream.readName()
     val lengthA = dataStream.readInt()
     val additionalNames = new Array[StringRef](lengthA)
     for (i <- 0 until lengthA) additionalNames(i) = dataStream.readName()
     val isLocal = dataStream.readBoolean()
     new ScTemplateDefinitionStubImpl(parent, this, name, qualName, javaQualName, fileName, methodNames, isPO, isSFC, isDepr,
-      isImplcitObject, javaName, additionalNames, isLocal)
+      isImplcitObject, isImplcitClass, javaName, additionalNames, isLocal)
   }
 
   def indexStub(stub: ScTemplateDefinitionStub, sink: IndexSink) {
@@ -123,6 +126,9 @@ extends ScStubElementType[ScTemplateDefinitionStub, ScTemplateDefinition](debugN
       sink.occurrence(ScalaIndexKeys.CLASS_NAME_IN_PACKAGE_KEY, pack)
       if (stub.isImplicitObject) {
         sink.occurrence(ScalaIndexKeys.IMPLICIT_OBJECT_KEY, pack)
+      }
+      if (stub.isImplicitClass) {
+        sink.occurrence(ScalaIndexKeys.IMPLICITS_KEY, "implicit")
       }
     }
     if (stub.isPackageObject) {
