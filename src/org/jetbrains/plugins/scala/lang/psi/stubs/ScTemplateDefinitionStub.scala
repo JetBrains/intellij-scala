@@ -28,6 +28,8 @@ trait ScTemplateDefinitionStub extends PsiClassStub[ScTemplateDefinition] with S
 
   def isImplicitObject: Boolean
 
+  def isImplicitClass: Boolean
+
   /**
    * Only method names without values and variables.
    * @return method names

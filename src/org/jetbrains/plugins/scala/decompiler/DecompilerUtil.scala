@@ -22,13 +22,13 @@ import com.intellij.reference.SoftReference
  */
 object DecompilerUtil {
   protected val LOG: Logger = Logger.getInstance("#org.jetbrains.plugins.scala.decompiler.DecompilerUtil")
-  val DECOMPILER_VERSION = 203
+  val DECOMPILER_VERSION = 204
   private val SCALA_DECOMPILER_FILE_ATTRIBUTE = new FileAttribute("_is_scala_compiled_", DECOMPILER_VERSION, true)
   private val SCALA_DECOMPILER_KEY = new Key[SoftReference[DecompilationResult]]("Is Scala File Key")
   
   case class DecompilationResult(isScala: Boolean, sourceName: String, sourceText: String, timeStamp: Long)
   object DecompilationResult {
-    def empty: DecompilationResult = DecompilationResult(false, "", "", 0L)
+    def empty: DecompilationResult = DecompilationResult(isScala = false, sourceName = "", sourceText = "", timeStamp = 0L)
   }
 
   private def openedNotDisposedProjects: Array[Project] = {

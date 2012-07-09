@@ -24,9 +24,10 @@ import org.jetbrains.plugins.scala.lang.resolve.processor.CompletionProcessor
 import org.jetbrains.plugins.scala.lang.resolve.{StdKinds, ScalaResolveResult, ResolveUtils}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScVariable, ScValue}
 import org.jetbrains.plugins.scala.caches.ScalaShortNamesCacheManager
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTypeDefinition, ScObject}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTypeDefinition, ScObject}
 import org.jetbrains.plugins.scala.extensions.{toPsiMemberExt, toPsiNamedElementExt, toPsiClassExt}
 import com.intellij.psi.search.searches.ClassInheritorsSearch
+import collection.mutable
 
 /**
  * @author Alexander Podkhalyuzin
@@ -95,7 +96,7 @@ class ScalaGlobalMembersCompletionContributor extends CompletionContributor {
     val scope: GlobalSearchScope = ref.getResolveScope
     val file = ref.getContainingFile
 
-    val elemsSet = new HashSet[PsiNamedElement]
+    val elemsSet = new mutable.HashSet[PsiNamedElement]
     def addElemToSet(elem: PsiNamedElement) {
       elemsSet += elem
     }
@@ -142,12 +143,18 @@ class ScalaGlobalMembersCompletionContributor extends CompletionContributor {
           }
         case f: ScFunction if isStatic(f) =>
           proc.execute(element, ResolveState.initial())
+        case c: ScClass if isStatic(c) =>
+          c.getSyntheticImplicitMethod match {
+            case Some(f: ScFunction) =>
+              proc.execute(f, ResolveState.initial())
+            case _ =>
+          }
         case _ =>
       }
     }
     val candidates = proc.candidates.map(ref.forMap(_, originalType))
 
-    ref.getVariants(false, false).foreach {
+    ref.getVariants(implicits = false, filterNotNamedVariants = false).foreach {
       case ScalaLookupItem(elem: PsiNamedElement) => addElemToSet(elem)
       case elem: PsiNamedElement => addElemToSet(elem)
     }
@@ -191,7 +198,7 @@ class ScalaGlobalMembersCompletionContributor extends CompletionContributor {
       }
     }
 
-    val elemsSet = new HashSet[PsiNamedElement]
+    val elemsSet = new mutable.HashSet[PsiNamedElement]
     def addElemToSet(elem: PsiNamedElement) {
       elemsSet += elem
     }

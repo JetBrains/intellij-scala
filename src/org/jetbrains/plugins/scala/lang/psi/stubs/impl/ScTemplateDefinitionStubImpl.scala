@@ -31,6 +31,7 @@ extends StubBaseWrapper[ScTemplateDefinition](parent, elemType) with ScTemplateD
   private var _isPackageObject: Boolean = _
   private var _isDeprecated: Boolean = _
   private var _isImplicitObject: Boolean = _
+  private var _isImplicitClass: Boolean = _
   private var local: Boolean = false
 
   def  this(parent: StubElement[ParentPsi],
@@ -44,6 +45,7 @@ extends StubBaseWrapper[ScTemplateDefinition](parent, elemType) with ScTemplateD
           isScriptFileClass: Boolean,
           isDeprecated: Boolean,
           isImplicitObject: Boolean,
+          isImplicitClass: Boolean,
           javaName: String,
           additionalJavaNames: Array[String],
           isLocal: Boolean) {
@@ -59,6 +61,7 @@ extends StubBaseWrapper[ScTemplateDefinition](parent, elemType) with ScTemplateD
     _isScriptFileClass = isScriptFileClass
     _isDeprecated = isDeprecated
     _isImplicitObject = isImplicitObject
+    _isImplicitClass = isImplicitClass
     local = isLocal
   }
 
@@ -73,6 +76,7 @@ extends StubBaseWrapper[ScTemplateDefinition](parent, elemType) with ScTemplateD
           isScriptFileClass: Boolean,
           isDeprecated: Boolean,
           isImplicitObject: Boolean,
+          isImplicitClass: Boolean,
           javaName: StringRef,
           additionalJavaNames: Array[StringRef],
           isLocal: Boolean) {
@@ -88,6 +92,7 @@ extends StubBaseWrapper[ScTemplateDefinition](parent, elemType) with ScTemplateD
     _isScriptFileClass = isScriptFileClass
     _isDeprecated = isDeprecated
     _isImplicitObject = isImplicitObject
+    _isImplicitClass = isImplicitClass
     local = isLocal
   }
 
@@ -111,6 +116,8 @@ extends StubBaseWrapper[ScTemplateDefinition](parent, elemType) with ScTemplateD
   def isDeprecated: Boolean = _isDeprecated
 
   def isImplicitObject: Boolean = _isImplicitObject
+
+  def isImplicitClass: Boolean = _isImplicitClass
 
   //todo PsiClassStub methods
   def getLanguageLevel: LanguageLevel = LanguageLevel.JDK_1_5
