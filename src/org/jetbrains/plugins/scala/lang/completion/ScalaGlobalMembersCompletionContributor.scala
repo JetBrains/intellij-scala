@@ -32,9 +32,10 @@ import com.intellij.psi.search.searches.ClassInheritorsSearch
  * @author Alexander Podkhalyuzin
  */
 class ScalaGlobalMembersCompletionContributor extends CompletionContributor {
-  extend(CompletionType.CLASS_NAME, psiElement, new CompletionProvider[CompletionParameters]() {
+  extend(CompletionType.BASIC, psiElement, new CompletionProvider[CompletionParameters]() {
     def addCompletions(parameters: CompletionParameters, context: ProcessingContext,
                        result: CompletionResultSet) {
+      if (parameters.getInvocationCount < 2) return
       val position: PsiElement = parameters.getPosition
       if (!position.getContainingFile.isInstanceOf[ScalaFile]) return
       val parent: PsiElement = position.getParent
@@ -235,7 +236,7 @@ class ScalaGlobalMembersCompletionContributor extends CompletionContributor {
     val methodNamesIterator = namesCache.getAllMethodNames.iterator ++ namesCache.getAllJavaMethodNames.iterator
 
     def isAccessible(member: PsiMember, containingClass: PsiClass): Boolean = {
-      invocationCount >= 2 || (ResolveUtils.isAccessible(member, ref, true) && ResolveUtils.isAccessible(containingClass, ref, true))
+      invocationCount >= 3 || (ResolveUtils.isAccessible(member, ref, true) && ResolveUtils.isAccessible(containingClass, ref, true))
     }
 
     while (methodNamesIterator.hasNext) {

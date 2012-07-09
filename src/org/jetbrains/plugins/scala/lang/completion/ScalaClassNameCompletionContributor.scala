@@ -32,15 +32,6 @@ import org.jetbrains.plugins.scala.config.{ScalaVersionUtil, ScalaFacet}
 
 class ScalaClassNameCompletionContributor extends CompletionContributor {
   import ScalaClassNameCompletionContributor._
-
-  extend(CompletionType.CLASS_NAME, psiElement, new CompletionProvider[CompletionParameters] {
-    def addCompletions(parameters: CompletionParameters, context: ProcessingContext,
-                       result: CompletionResultSet) {
-      if (completeClassName(parameters, context, result)) return
-      result.stopHere()
-    }
-  })
-
   extend(CompletionType.BASIC, PlatformPatterns.psiElement(ScalaTokenTypes.tIDENTIFIER).
     withParent(classOf[ScReferenceElement]), new CompletionProvider[CompletionParameters] {
     def addCompletions(parameters: CompletionParameters, context: ProcessingContext, result: CompletionResultSet) {
