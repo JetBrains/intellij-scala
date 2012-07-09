@@ -41,7 +41,7 @@ public class SurroundWithTest extends BaseScalaFileSetTestCase{
                           Surrounder surrounder, int startSelection, int endSelection) {
     FileEditorManager fileEditorManager = FileEditorManager.getInstance(project);
     try {
-      Editor editor = fileEditorManager.openTextEditor(new OpenFileDescriptor(myProject, file.getVirtualFile(), 0), false);
+      Editor editor = fileEditorManager.openTextEditor(new OpenFileDescriptor(getProject(), file.getVirtualFile(), 0), false);
       editor.getSelectionModel().setSelection(startSelection, endSelection);
       SurroundWithHandler.invoke(project, editor, file, surrounder);
     } catch (Exception e) {
@@ -57,14 +57,14 @@ public class SurroundWithTest extends BaseScalaFileSetTestCase{
     final int startSelection = res._2();
     final int endSelection = res._3();
     final int surroundType = res._4();
-    final PsiFile psiFile = TestUtils.createPseudoPhysicalScalaFile(myProject, fileText);
+    final PsiFile psiFile = TestUtils.createPseudoPhysicalScalaFile(getProject(), fileText);
 
     final Surrounder[] surrounder = ScalaToolsFactory.getInstance().createSurroundDescriptors().getSurroundDescriptors()[0].getSurrounders();
-    CommandProcessor.getInstance().executeCommand(myProject, new Runnable() {
+    CommandProcessor.getInstance().executeCommand(getProject(), new Runnable() {
       public void run() {
         ApplicationManager.getApplication().runWriteAction(new Runnable() {
           public void run() {
-            doSurround(myProject, psiFile, surrounder[surroundType], startSelection, endSelection);
+            doSurround(getProject(), psiFile, surrounder[surroundType], startSelection, endSelection);
           }
         });
       }
