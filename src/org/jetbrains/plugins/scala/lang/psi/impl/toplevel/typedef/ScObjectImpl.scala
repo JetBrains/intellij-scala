@@ -9,7 +9,6 @@ import java.lang.String
 import com.intellij.psi._
 import com.intellij.psi.scope.PsiScopeProcessor
 import impl.light.LightField
-import impl.{PsiSuperMethodImplUtil, PsiClassImplUtil}
 import psi.stubs.ScTemplateDefinitionStub
 import com.intellij.lang.ASTNode
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
@@ -29,13 +28,11 @@ import params.ScClassParameter
 import types.ScType
 import extensions.toPsiMemberExt
 import collection.mutable
-import typedef.MixinNodes
 
 /**
  * @author Alexander Podkhalyuzin
  * Date: 20.02.2008
  */
-
 class ScObjectImpl extends ScTypeDefinitionImpl with ScObject with ScTemplateDefinition {
   override def additionalJavaNames: Array[String] = {
     fakeCompanionClass match {

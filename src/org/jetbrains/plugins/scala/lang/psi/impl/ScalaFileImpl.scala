@@ -561,6 +561,11 @@ object ImplicitlyImported {
   private val importedObjects: mutable.WeakHashMap[Project, Seq[PsiClass]] = new mutable.WeakHashMap[Project, Seq[PsiClass]]
   private val modCount: mutable.WeakHashMap[Project, Long] = new mutable.WeakHashMap[Project, Long]
 
+  def clearMaps(project: Project) {
+    importedObjects.remove(project)
+    modCount.remove(project)
+  }
+
   def implicitlyImportedObject(manager: PsiManager, scope: GlobalSearchScope,
                                 fqn: String): Option[PsiClass] = {
     implicitlyImportedObjects(manager, scope).filter(_.qualifiedName == fqn).headOption
