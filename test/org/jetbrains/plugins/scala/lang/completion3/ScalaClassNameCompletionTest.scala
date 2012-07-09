@@ -184,4 +184,42 @@ class ScalaClassNameCompletionTest extends ScalaCompletionTestBase {
     }.get, '\t')
     checkResultByText(resultText)
   }
+
+  def testImplicitClass() {
+    val fileText =
+      """
+        |package a
+        |object A {
+        |  implicit class B(i: Int) {
+        |    def foo = 1
+        |  }
+        |}
+        |
+        |object B {
+        |  1.<caret>
+        |}
+      """.stripMargin.replaceAll("\r", "").trim()
+    configureFromFileTextAdapter("dummy.scala", fileText)
+    val (activeLookup, _) = complete(2, CompletionType.BASIC)
+
+    val resultText =
+      """
+        |package a
+        |
+        |import a.A.B
+        |
+        |object A {
+        |  implicit class B(i: Int) {
+        |    def foo = 1
+        |  }
+        |}
+        |
+        |object B {
+        |  1.foo<caret>
+        |}
+      """.stripMargin.replaceAll("\r", "").trim()
+
+    completeLookupItem(activeLookup.find(_.getLookupString == "foo").get, '\t')
+    checkResultByText(resultText)
+  }
 }
