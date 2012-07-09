@@ -20,7 +20,7 @@ import api.ScalaElementVisitor
 import caches.CachesUtil
 import util.PsiModificationTracker
 import lang.resolve.ResolveUtils
-import com.intellij.openapi.project.DumbServiceImpl
+import com.intellij.openapi.project.{Project, DumbServiceImpl}
 import com.intellij.openapi.util.TextRange
 import api.toplevel.ScTypedDefinition
 import light.{EmptyPrivateConstructor, PsiClassWrapper}
@@ -28,6 +28,8 @@ import api.statements._
 import params.ScClassParameter
 import types.ScType
 import extensions.toPsiMemberExt
+import collection.mutable
+import typedef.MixinNodes
 
 /**
  * @author Alexander Podkhalyuzin
@@ -304,30 +306,21 @@ class ScObjectImpl extends ScTypeDefinitionImpl with ScObject with ScTemplateDef
     getSupers.filter(_.isInterface)
   }
 
-  @volatile
-  private var hardParameterlessSignatures: TypeDefinitionMembers.ParameterlessNodes.Map = null
+  private val hardParameterlessSignatures: mutable.WeakHashMap[Project, TypeDefinitionMembers.ParameterlessNodes.Map] =
+    new mutable.WeakHashMap[Project, TypeDefinitionMembers.ParameterlessNodes.Map]
   def getHardParameterlessSignatures: TypeDefinitionMembers.ParameterlessNodes.Map = {
-    if (hardParameterlessSignatures == null) {
-      hardParameterlessSignatures = TypeDefinitionMembers.ParameterlessNodes.build(this)
-    }
-    hardParameterlessSignatures
+    hardParameterlessSignatures.getOrElseUpdate(getProject, TypeDefinitionMembers.ParameterlessNodes.build(this))
   }
 
-  @volatile
-  private var hardTypes: TypeDefinitionMembers.TypeNodes.Map = null
+  private val hardTypes: mutable.WeakHashMap[Project, TypeDefinitionMembers.TypeNodes.Map] =
+    new mutable.WeakHashMap[Project, TypeDefinitionMembers.TypeNodes.Map]
   def getHardTypes: TypeDefinitionMembers.TypeNodes.Map = {
-    if (hardTypes == null) {
-      hardTypes = TypeDefinitionMembers.TypeNodes.build(this)
-    }
-    hardTypes
+    hardTypes.getOrElseUpdate(getProject, TypeDefinitionMembers.TypeNodes.build(this))
   }
 
-  @volatile
-  private var hardSignatures: TypeDefinitionMembers.SignatureNodes.Map = null
+  private val hardSignatures: mutable.WeakHashMap[Project, TypeDefinitionMembers.SignatureNodes.Map] =
+    new mutable.WeakHashMap[Project, TypeDefinitionMembers.SignatureNodes.Map]
   def getHardSignatures: TypeDefinitionMembers.SignatureNodes.Map = {
-    if (hardSignatures == null) {
-      hardSignatures = TypeDefinitionMembers.SignatureNodes.build(this)
-    }
-    hardSignatures
+    hardSignatures.getOrElseUpdate(getProject, TypeDefinitionMembers.SignatureNodes.build(this))
   }
 }
