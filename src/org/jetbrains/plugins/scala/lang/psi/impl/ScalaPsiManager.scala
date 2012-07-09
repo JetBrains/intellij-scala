@@ -350,8 +350,6 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
 
   def projectOpened() {}
   def projectClosed() {
-    ImplicitlyImported.clearMaps(project)
-
   }
   def getComponentName = "ScalaPsiManager"
   def disposeComponent() {}

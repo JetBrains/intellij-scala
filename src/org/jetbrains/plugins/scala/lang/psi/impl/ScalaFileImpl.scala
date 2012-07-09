@@ -558,51 +558,18 @@ object ImplicitlyImported {
   val packages = Array("scala", "java.lang")
   val objects = Array("scala.Predef", "scala" /* package object*/)
 
-  private val importedObjects: mutable.WeakHashMap[Project, Seq[PsiClass]] = new mutable.WeakHashMap[Project, Seq[PsiClass]]
-  private val modCount: mutable.WeakHashMap[Project, Long] = new mutable.WeakHashMap[Project, Long]
-
-  def clearMaps(project: Project) {
-    importedObjects.remove(project)
-    modCount.remove(project)
-  }
-
   def implicitlyImportedObject(manager: PsiManager, scope: GlobalSearchScope,
                                 fqn: String): Option[PsiClass] = {
-    implicitlyImportedObjects(manager, scope).filter(_.qualifiedName == fqn).headOption
+    ScalaPsiManager.instance(manager.getProject).getCachedClasses(GlobalSearchScope.allScope(manager.getProject), fqn).headOption
   }
 
   def allImplicitlyImportedObjects(manager: PsiManager, scope: GlobalSearchScope): Seq[PsiClass] = {
-    val buf: ArrayBuffer[PsiClass] = new ArrayBuffer[PsiClass]()
-    for (obj <- objects) {
-      implicitlyImportedObject(manager, scope, obj).foreach(buf += _)
-    }
-    buf.toSeq
-  }
-
-  private def implicitlyImportedObjects(manager: PsiManager, scope: GlobalSearchScope): Seq[PsiClass] = {
-    var res: Seq[PsiClass] = importedObjects.get(manager.getProject).getOrElse(null)
-    val count = manager.getModificationTracker.getOutOfCodeBlockModificationCount
-    val count1: Option[Long] = modCount.get(manager.getProject)
-    if (res != null && count1 != null && count == count1.get) {
-      val filter = new ScalaSourceFilterScope(scope, manager.getProject)
-      return res.filter(c => filter.contains(c.getContainingFile.getVirtualFile))
-    }
-    res = implicitlyImportedObjectsImpl(manager)
-    importedObjects(manager.getProject) = res
-    modCount(manager.getProject) = count
-    val filter = new ScalaSourceFilterScope(scope, manager.getProject)
-    res.filter(c => filter.contains(c.getContainingFile.getVirtualFile))
-  }
-
-  private def implicitlyImportedObjectsImpl(manager: PsiManager): Seq[PsiClass] = {
     val res = new ArrayBuffer[PsiClass]
     for (obj <- objects) {
-      res ++= ScalaPsiManager.instance(manager.getProject).
-              getCachedClasses(GlobalSearchScope.allScope(manager.getProject), obj)
+      res ++= ScalaPsiManager.instance(manager.getProject).getCachedClasses(GlobalSearchScope.allScope(manager.getProject), obj)
     }
     res.toSeq
   }
-
 }
 
 object ScalaFileImpl {
