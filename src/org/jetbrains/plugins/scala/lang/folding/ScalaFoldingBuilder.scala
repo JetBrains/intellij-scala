@@ -40,8 +40,6 @@ class ScalaFoldingBuilder extends FoldingBuilder {
                                 descriptors: ArrayBuffer[FoldingDescriptor],
                                 processedComments: HashSet[PsiElement],
                                 processedRegions: HashSet[PsiElement]) {
-
-
     val psi = node.getPsi
     if (isMultiline(node) || isMultilineImport(node)) {
       node.getElementType match {
@@ -55,6 +53,14 @@ class ScalaFoldingBuilder extends FoldingBuilder {
           descriptors += (new FoldingDescriptor(node,
             new TextRange(node.getTextRange.getStartOffset + startOffsetForMatchStmt(node),
               node.getTextRange.getEndOffset)))
+        case ScalaElementTypes.FUNCTION_DEFINITION =>
+          psi match {
+            case f: ScFunctionDefinition => {
+              val (isMultilineBody, textRange, _) = isMultilineFuncBody(f)
+              if (isMultilineBody) descriptors += (new FoldingDescriptor(node, textRange))
+            }
+            case _ =>
+          }
         case _ =>
       }
       psi match {
@@ -75,10 +81,6 @@ class ScalaFoldingBuilder extends FoldingBuilder {
           case _: ScBlockExpr => descriptors += new FoldingDescriptor(node, node.getTextRange)
           case _ =>
         }
-      }
-      if (node.getTreeParent != null && node.getTreeParent.getPsi.isInstanceOf[ScFunctionDefinition]) {
-        val (isMultilineBody, textRange) = isMultilineFuncBody(node.getTreeParent.getPsi.asInstanceOf[ScFunctionDefinition])
-        if (isMultilineBody) descriptors += new FoldingDescriptor(node, textRange)
       }
       if (node.getTreeParent != null) {
         node.getTreeParent.getPsi match {
@@ -133,7 +135,7 @@ class ScalaFoldingBuilder extends FoldingBuilder {
     val descriptors = new ArrayBuffer[FoldingDescriptor]
     val processedComments = new HashSet[PsiElement]
     val processedRegions = new HashSet[PsiElement]
-    appendDescriptors(astNode, document, descriptors, processedComments, processedRegions);
+    appendDescriptors(astNode, document, descriptors, processedComments, processedRegions)
     descriptors.toArray
   }
 
@@ -148,6 +150,9 @@ class ScalaFoldingBuilder extends FoldingBuilder {
         case ScalaElementTypes.MATCH_STMT => return "{...}"
         case ScalaTokenTypes.tSH_COMMENT if node.getText.charAt(0) == ':' => return "::#!...::!#"
         case ScalaTokenTypes.tSH_COMMENT => return "#!...!#"
+        case ScalaElementTypes.FUNCTION_DEFINITION =>
+          val (isMultilineBody, _, sign) = isMultilineFuncBody(node.getPsi.asInstanceOf[ScFunctionDefinition])
+          if (isMultilineBody) return sign
         case _ =>
       }
       if (node.getPsi != null) {
@@ -157,8 +162,7 @@ class ScalaFoldingBuilder extends FoldingBuilder {
           return "(...)"
       }
     }
-    if (node.getTreeParent != null && (ScalaElementTypes.FUNCTION_DEFINITION == node.getTreeParent.getElementType
-      || ScalaElementTypes.ARG_EXPRS == node.getTreeParent.getElementType
+    if (node.getTreeParent != null && (ScalaElementTypes.ARG_EXPRS == node.getTreeParent.getElementType
       || ScalaElementTypes.INFIX_EXPR == node.getTreeParent.getElementType
       || ScalaElementTypes.PATTERN_DEFINITION == node.getTreeParent.getElementType
       || ScalaElementTypes.VARIABLE_DEFINITION == node.getTreeParent.getElementType)) {
@@ -288,20 +292,17 @@ class ScalaFoldingBuilder extends FoldingBuilder {
     flag
   }
 
-  private def isMultilineFuncBody(func: ScFunctionDefinition): (Boolean, TextRange) = {
+  private def isMultilineFuncBody(func: ScFunctionDefinition): (Boolean, TextRange, String) = {
     val body = func.body.getOrElse(null)
-    if (body == null) return (false, null)
+    if (body == null) return (false, null, "")
     body match {
-      case _: ScBlockExpr => return (true, body.getTextRange)
+      case _: ScBlockExpr => return (true, body.getTextRange, "{...}")
       case _ =>
-        val assignment = func.assignment.getOrElse(null)
-        val start =
-          if (assignment != null) assignment.getTextRange.getEndOffset
-          else body.getTextRange.getStartOffset
-        val end = body.getTextRange.getEndOffset
-        return (true, new TextRange(start, end))
+        val isMultilineBody = body.getText.indexOf("\n") != -1
+        val textRange = if (isMultilineBody)body.getTextRange else null
+        return (isMultilineBody, textRange, "...")
     }
-    (false, null)
+    (false, null, "")
   }
 
   private def isGoodImport(node: ASTNode): Boolean = {
