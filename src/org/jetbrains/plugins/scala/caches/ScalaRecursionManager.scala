@@ -1,10 +1,10 @@
 package org.jetbrains.plugins.scala.caches
 
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
-import com.intellij.psi.{PsiNamedElement, PsiElement}
-import com.intellij.openapi.util.{RecursionManager, Key}
+import com.intellij.psi.PsiElement
+import com.intellij.openapi.util.RecursionManager
 import java.lang.ThreadLocal
-import collection.mutable.{ArrayBuffer, HashMap, Map}
+import collection.mutable.{ArrayBuffer, Map}
+import collection.mutable
 
 /**
  * @author Alexander Podkhalyuzin
@@ -19,29 +19,31 @@ object ScalaRecursionManager {
   val recursionMap: ThreadLocal[Map[(PsiElement, String), ArrayBuffer[Object]]] =
     new ThreadLocal[Map[(PsiElement, String), ArrayBuffer[Object]]] {
       override def initialValue(): Map[(PsiElement, String), ArrayBuffer[Object]] =
-        new HashMap[(PsiElement, String), ArrayBuffer[Object]]
+        new mutable.HashMap[(PsiElement, String), ArrayBuffer[Object]]
     }
 
   private def getSearches[Dom <: PsiElement](element: Dom, key: String): ArrayBuffer[Object] = {
     recursionMap.get().get((element, key)) match {
       case Some(buffer: ArrayBuffer[Object]) => buffer
-      case _ =>
-        val emptyBuffer = ArrayBuffer.empty[Object]
-        recursionMap.get().put((element, key), emptyBuffer)
-        emptyBuffer
+      case _ => ArrayBuffer.empty[Object]
     }
   }
 
   private def addLast[Dom <: PsiElement](element: Dom, key: String, obj: Object) {
     recursionMap.get().get((element, key)) match {
       case Some(buffer) => buffer += obj
-      case _ => throw new RuntimeException("Match is not exhaustive")
+      case _ =>
+        val buffer = ArrayBuffer.empty[Object]
+        buffer += obj
+        recursionMap.get().put((element, key), buffer)
     }
   }
 
   private def removeLast[Dom <: PsiElement](element: Dom, key: String) {
     recursionMap.get().get((element, key)) match {
-      case Some(buffer) => buffer.remove(buffer.length - 1)
+      case Some(buffer) =>
+        buffer.remove(buffer.length - 1)
+        if (buffer.isEmpty) recursionMap.get().remove((element, key))
       case _ => throw new RuntimeException("Match is not exhaustive")
     }
   }
@@ -54,7 +56,7 @@ object ScalaRecursionManager {
    * @param compute computations body
    * @param key to store information about recursion stack
    */
-  def doComputations[Dom <: PsiElement, Result](element: Dom, checkAdd: (Object, ArrayBuffer[Object]) => Boolean,
+  def doComputations[Dom <: PsiElement, Result](element: Dom, checkAdd: (Object, Seq[Object]) => Boolean,
                                                 addElement: Object,
                                                 compute: => Result, key: String): Option[Result] = {
     val searches: ArrayBuffer[Object] = getSearches(element, key)
@@ -73,7 +75,7 @@ object ScalaRecursionManager {
   }
 
   def doComputationsForTwoElements[Dom <: PsiElement, Result](element1: Dom, element2: Dom,
-                                                              checkAdd: (Object, ArrayBuffer[Object]) => Boolean,
+                                                              checkAdd: (Object, Seq[Object]) => Boolean,
                                                               addElement1: Object, addElement2: Object,
                                                               compute: => Result, key: String): Option[Result] = {
     val searches1: ArrayBuffer[Object] = getSearches(element1, key)
