@@ -486,6 +486,12 @@
       <className>org.jetbrains.plugins.scala.codeInsight.intention.expression.InlineImplicitConversionIntention</className>
     </intentionAction>
 
+    <intentionAction>
+      <category>Scala/Format</category>
+      <className>org.jetbrains.plugins.scala.codeInsight.intention.format.ConvertFormatCallToInterpolatedString</className>
+    </intentionAction>
+
+
     <lang.elementManipulator forClass="org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral"
                              implementationClass="org.jetbrains.plugins.scala.injection.ScalaStringLiteralManipulator"/>
 

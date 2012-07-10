@@ -1,0 +1,1 @@
+<spot>"name: %s, height: %2d".format(name, it.height)</spot>
