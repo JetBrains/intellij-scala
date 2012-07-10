@@ -58,7 +58,7 @@ abstract public class AbstractIntroduceVariableTestBase extends ActionTestBase {
 
 
   private String processFile(final PsiFile file) throws IncorrectOperationException, InvalidDataException, IOException {
-    final SyntheticClasses syntheticClasses = myProject.getComponent(SyntheticClasses.class);
+    final SyntheticClasses syntheticClasses = getProject().getComponent(SyntheticClasses.class);
     if (!syntheticClasses.isClassesRegistered()) {
       syntheticClasses.registerClasses();
     }
@@ -75,11 +75,11 @@ abstract public class AbstractIntroduceVariableTestBase extends ActionTestBase {
     }
     int endOffset = fileText.indexOf(TestUtils.END_MARKER);
     fileText = TestUtils.removeEndMarker(fileText);
-    myFile = TestUtils.createPseudoPhysicalScalaFile(myProject, fileText);
-    fileEditorManager = FileEditorManager.getInstance(myProject);
+    myFile = TestUtils.createPseudoPhysicalScalaFile(getProject(), fileText);
+    fileEditorManager = FileEditorManager.getInstance(getProject());
     VirtualFile virtualFile = myFile.getVirtualFile();
     assert virtualFile != null;
-    myEditor = fileEditorManager.openTextEditor(new OpenFileDescriptor(myProject, virtualFile, 0), false);
+    myEditor = fileEditorManager.openTextEditor(new OpenFileDescriptor(getProject(), virtualFile, 0), false);
     assert myEditor != null;
 
     try {
@@ -91,8 +91,8 @@ abstract public class AbstractIntroduceVariableTestBase extends ActionTestBase {
       Assert.assertTrue(myFile instanceof ScalaFile);
       ScExpression selectedExpr = null;
       ScType varType = null;
-      if (ScalaRefactoringUtil.getExpression(myProject, myEditor, myFile, startOffset, endOffset) instanceof Some) {
-        Some temp = (Some) ScalaRefactoringUtil.getExpression(myProject, myEditor, myFile, startOffset, endOffset);
+      if (ScalaRefactoringUtil.getExpression(getProject(), myEditor, myFile, startOffset, endOffset) instanceof Some) {
+        Some temp = (Some) ScalaRefactoringUtil.getExpression(getProject(), myEditor, myFile, startOffset, endOffset);
         selectedExpr = (ScExpression) IntroduceVariableTestUtil.extract1((Tuple2<ScExpression, ScType>) temp.get());
         varType = (ScType) IntroduceVariableTestUtil.extract2((Tuple2<ScExpression, ScType>) temp.get());
       }
@@ -120,7 +120,7 @@ abstract public class AbstractIntroduceVariableTestBase extends ActionTestBase {
   public String transform(String testName, String[] data) throws Exception {
     setSettings();
     String fileText = data[0];
-    final PsiFile psiFile = TestUtils.createPseudoPhysicalScalaFile(myProject, fileText);
+    final PsiFile psiFile = TestUtils.createPseudoPhysicalScalaFile(getProject(), fileText);
     String result = processFile(psiFile);
     Console.println("------------------------ " + testName + " ------------------------");
     Console.println(result);

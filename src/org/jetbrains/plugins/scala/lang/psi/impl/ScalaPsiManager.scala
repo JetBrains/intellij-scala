@@ -349,7 +349,8 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
   }
 
   def projectOpened() {}
-  def projectClosed() {}
+  def projectClosed() {
+  }
   def getComponentName = "ScalaPsiManager"
   def disposeComponent() {}
   def initComponent() {
