@@ -38,6 +38,8 @@ class ScalaDocUnknownTagInspection extends LocalInspectionTool {
       }
     }
   }
+
+  override def getDisplayName: String = "Unknown scaladoc tag"
 }
 
 

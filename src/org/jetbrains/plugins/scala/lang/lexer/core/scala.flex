@@ -294,6 +294,10 @@ XML_BEGIN = "<" ("_" | [:jletter:]) | "<!--" | "<?" ("_" | [:jletter:]) | "<![CD
       insideInterpolatedMultilineStringBracers = true;
       return process(tINTERPOLATED_STRING_INJECTION);
   }
+  
+  \" / [^\"] {
+    return process(tINTERPOLATED_MULTILINE_STRING);
+  }
 
   [^] {  
     return process(tWRONG_STRING);

@@ -2,6 +2,7 @@ object A {
     val a = str"blah"
     val b = s"$a"
     val c = xml"${val e = s"$a"; e}"
+    val d = s"""$a"$b" """
 }
 -----
 object {object}
@@ -61,6 +62,23 @@ white space in line { }
 identifier {e}
 } {}}
 interpolated string end {"}
+white space in line {
+    }
+val {val}
+white space in line { }
+identifier {d}
+white space in line { }
+= {=}
+white space in line { }
+interpolated string id {s}
+interpolatedmultiline string {"""}
+interpolated string injection {$}
+identifier {a}
+interpolatedmultiline string {"}
+interpolated string injection {$}
+identifier {b}
+interpolatedmultiline string {" }
+interpolated string end {"""}
 white space in line {
 }
 } {}}
