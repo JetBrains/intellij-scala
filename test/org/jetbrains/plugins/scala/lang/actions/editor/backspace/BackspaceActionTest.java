@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.actions.editor.backspace;
 
+import com.intellij.testFramework.LightPlatformTestCase;
 import org.jetbrains.plugins.scala.Console;
 import org.jetbrains.plugins.scala.lang.actions.ActionTestBase;
 import org.jetbrains.plugins.scala.util.TestUtils;
@@ -51,16 +52,16 @@ public class BackspaceActionTest extends ActionTestBase {
     String fileText = file.getText();
     int offset = fileText.indexOf(CARET_MARKER);
     fileText = removeMarker(fileText);
-    myFile = TestUtils.createPseudoPhysicalScalaFile(myProject, fileText);
-    fileEditorManager = FileEditorManager.getInstance(myProject);
-    myEditor = fileEditorManager.openTextEditor(new OpenFileDescriptor(myProject, myFile.getVirtualFile(), 0), false);
+    myFile = TestUtils.createPseudoPhysicalScalaFile(getProject(), fileText);
+    fileEditorManager = FileEditorManager.getInstance(LightPlatformTestCase.getProject());
+    myEditor = fileEditorManager.openTextEditor(new OpenFileDescriptor(getProject(), myFile.getVirtualFile(), 0), false);
     myEditor.getCaretModel().moveToOffset(offset);
 
     final myDataContext dataContext = getDataContext(myFile);
     final EditorActionHandler handler = getMyHandler();
 
     try {
-      performAction(myProject, new Runnable() {
+      performAction(getProject(), new Runnable() {
         public void run() {
           handler.execute(myEditor, dataContext);
         }
@@ -79,7 +80,7 @@ public class BackspaceActionTest extends ActionTestBase {
   public String transform(String testName, String[] data) throws Exception {
     setSettings();
     String fileText = data[0];
-    final PsiFile psiFile = TestUtils.createPseudoPhysicalScalaFile(myProject, fileText);
+    final PsiFile psiFile = TestUtils.createPseudoPhysicalScalaFile(getProject(), fileText);
     String result = processFile(psiFile);
     Console.println("------------------------ " + testName + " ------------------------");
     Console.println(result);

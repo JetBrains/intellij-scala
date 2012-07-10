@@ -69,7 +69,7 @@ public class DragSearchTest extends BaseScalaFileSetTestCase {
 
 
   public String transform(String testName, String fileText) throws Exception {
-    JavaPsiFacade facade = JavaPsiFacade.getInstance(myProject);
+    JavaPsiFacade facade = JavaPsiFacade.getInstance(getProject());
     PsiElementFactory psiElementFactory = facade.getElementFactory();
     Assert.assertNotNull(psiElementFactory);
     Assert.assertNotNull(TEMP_FILE);
@@ -77,13 +77,13 @@ public class DragSearchTest extends BaseScalaFileSetTestCase {
 
     Language language = ScalaFileType.SCALA_LANGUAGE;
     PsiBuilder psiBuilder = PsiBuilderFactory.getInstance().createBuilder(new ScalaParserDefinition(), new ScalaLexer(), fileText);
-    DragBuilderWrapper dragBuilder = new DragBuilderWrapper(myProject, psiBuilder);
+    DragBuilderWrapper dragBuilder = new DragBuilderWrapper(getProject(), psiBuilder);
     new ScalaParser().parse(ScalaElementTypes.FILE(), dragBuilder);
 
     Pair<TextRange, Integer>[] dragInfo = dragBuilder.getDragInfo();
     exploreForDrags(dragInfo, testName, fileText);
 
-    PsiFile psiFile = PsiFileFactory.getInstance(myProject).createFileFromText(TEMP_FILE, fileText);
+    PsiFile psiFile = PsiFileFactory.getInstance(getProject()).createFileFromText(TEMP_FILE, fileText);
     return DebugUtil.psiToString(psiFile, false);
   }
 

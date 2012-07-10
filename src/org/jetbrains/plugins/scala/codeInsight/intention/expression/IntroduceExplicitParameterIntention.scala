@@ -25,6 +25,7 @@ import collection.mutable.ArrayBuffer
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import com.intellij.openapi.extensions.Extensions
 import collection.mutable
+import com.intellij.openapi.application.ApplicationManager
 
 /**
  * @author Ksenia.Sautina
@@ -52,10 +53,16 @@ class IntroduceExplicitParameterIntention extends PsiElementBaseIntentionAction 
     if (expr == null || !expr.isValid) return
 
     val buf = new StringBuilder
-    val parentStartOffset = expr.getTextRange.getStartOffset
-    val parentEndOffset = expr.getTextRange.getEndOffset
-
     val underscores = ScUnderScoreSectionUtil.underscores(expr)
+    val parentStartOffset =
+      if (ApplicationManager.getApplication.isUnitTestMode) underscores(0).getTextRange.getStartOffset
+      else expr.getTextRange.getStartOffset
+    val parentEndOffset =
+      if (ApplicationManager.getApplication.isUnitTestMode) {
+        if (underscores.size > 0) underscores(underscores.size - 1).getTextRange.getEndOffset
+        else underscores(0).getTextRange.getEndOffset
+      } else expr.getTextRange.getEndOffset
+
     val underscoreToParam: mutable.HashMap[ScUnderscoreSection, ScParameter] =
       new mutable.HashMap[ScUnderscoreSection, ScParameter]
     val offsets: mutable.HashMap[String, Int] = new mutable.HashMap[String, Int]

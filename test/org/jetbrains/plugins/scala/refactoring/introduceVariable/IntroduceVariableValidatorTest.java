@@ -57,16 +57,16 @@ public class IntroduceVariableValidatorTest extends ActionTestBase {
     }
     int endOffset = fileText.indexOf(TestUtils.END_MARKER);
     fileText = TestUtils.removeEndMarker(fileText);
-    myFile = TestUtils.createPseudoPhysicalScalaFile(myProject, fileText);
-    fileEditorManager = FileEditorManager.getInstance(myProject);
-    myEditor = fileEditorManager.openTextEditor(new OpenFileDescriptor(myProject, myFile.getVirtualFile(), 0), false);
+    myFile = TestUtils.createPseudoPhysicalScalaFile(getProject(), fileText);
+    fileEditorManager = FileEditorManager.getInstance(getProject());
+    myEditor = fileEditorManager.openTextEditor(new OpenFileDescriptor(getProject(), myFile.getVirtualFile(), 0), false);
 
     try {
 
       String varName = "value";
       final ScType varType = null;
 
-      ScalaVariableValidator validator = IntroduceVariableTestUtil.getValidator(myProject, myEditor,
+      ScalaVariableValidator validator = IntroduceVariableTestUtil.getValidator(getProject(), myEditor,
           (ScalaFile) myFile, startOffset, endOffset);
       String[] res = validator.isOKImpl(varName, replaceAllOccurences);
       for (String s: res) result += s + "\n";
@@ -81,7 +81,7 @@ public class IntroduceVariableValidatorTest extends ActionTestBase {
   public String transform(String testName, String[] data) throws Exception {
     setSettings();
     String fileText = data[0];
-    final PsiFile psiFile = TestUtils.createPseudoPhysicalScalaFile(myProject, fileText);
+    final PsiFile psiFile = TestUtils.createPseudoPhysicalScalaFile(getProject(), fileText);
     String result = processFile(psiFile);
     Console.println("------------------------ " + testName + " ------------------------");
     Console.println(result);

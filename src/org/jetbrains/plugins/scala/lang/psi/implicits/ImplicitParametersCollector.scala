@@ -203,7 +203,7 @@ class ImplicitParametersCollector(place: PsiElement, tp: ScType) {
 
         import org.jetbrains.plugins.scala.caches.ScalaRecursionManager._
 
-        doComputations(c.element, (tp: Object, searches: ArrayBuffer[Object]) => searches.find{
+        doComputations(c.element, (tp: Object, searches: Seq[Object]) => searches.find{
           case t: ScType if tp.isInstanceOf[ScType] => t.equiv(tp.asInstanceOf[ScType])
           case _ => false
         } == None,
