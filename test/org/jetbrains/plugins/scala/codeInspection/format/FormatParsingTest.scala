@@ -11,7 +11,7 @@ import extensions.ElementText
  * Pavel Fatin
  */
 
-class FormatTest extends SimpleTestCase {
+class FormatParsingTest extends SimpleTestCase {
   def testEmpty() {
     assertMatches(parse("")) {
       case Nil =>
