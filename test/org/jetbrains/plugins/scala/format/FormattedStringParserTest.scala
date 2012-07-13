@@ -24,9 +24,21 @@ class FormattedStringParserTest extends SimpleTestCase {
     }
   }
 
+  def testEscapeChar() {
+    assertMatches(parse("\\n")) {
+      case Text("\n") :: Nil =>
+    }
+  }
+
   def testFormatSpecifierWithArgument() {
     assertMatches(parse("%d", 1)) {
       case Injection(ElementText("1"), Some(Specifier(Span(_, 1, 3), "%d"))) :: Nil =>
+    }
+  }
+
+  def testFormatSpecifierWithArgumentAfterEscapeChar() {
+    assertMatches(parse("\\n%d", 1)) {
+      case Text("\n") :: Injection(ElementText("1"), Some(Specifier(Span(_, 3, 5), "%d"))) :: Nil =>
     }
   }
 

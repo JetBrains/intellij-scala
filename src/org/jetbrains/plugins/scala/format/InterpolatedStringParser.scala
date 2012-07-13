@@ -5,6 +5,7 @@ import com.intellij.psi.PsiElement
 import lang.psi.api.base.ScInterpolatedStringLiteral
 import lang.psi.api.expr.{ScBlockExpr, ScExpression}
 import lang.lexer.ScalaTokenTypes
+import com.intellij.openapi.util.text.StringUtil
 
 /**
  * Pavel Fatin
@@ -29,19 +30,21 @@ object InterpolatedStringParser extends StringParser {
             case it => it
           }
           val specifier = if (!formatted) None else next match {
-            case Some(e) if e.getNode.getElementType == ScalaTokenTypes.tINTERPOLATED_STRING =>
-              FormatSpecifierPattern.findFirstIn(e.getText).map(format => Specifier(Span(e, 0, format.length), format))
+            case Some(e) if isTextElement(e) =>
+              FormatSpecifierPattern.findFirstIn(textIn(e)).map(format => Specifier(Span(e, 0, format.length), format))
             case _ => None
           }
           Injection(actualExpression, specifier)
 
-        case (e, _) if e.getNode.getElementType == ScalaTokenTypes.tINTERPOLATED_STRING =>
+        case (e, _) if isTextElement(e) =>
           val text = {
-            val s = e.getText
+            val s = textIn(e)
             if (!formatted) s else
               FormatSpecifierPattern.findFirstIn(s).map(format => s.substring(format.length)).getOrElse(s)
           }
           Text(text)
+        case (e, _) if e.getNode.getElementType == ScalaTokenTypes.tINTERPOLATED_STRING_ESCAPE =>
+          Text(e.getText.drop(1))
       }
 
       val cleanParts = parts match {
@@ -54,6 +57,21 @@ object InterpolatedStringParser extends StringParser {
     cleanParts filter {
       case Text("") => false
       case _ => true
+    }
+  }
+
+  private def isTextElement(e: PsiElement) = {
+    val elementType = e.getNode.getElementType
+    elementType == ScalaTokenTypes.tINTERPOLATED_STRING ||
+            elementType == ScalaTokenTypes.tINTERPOLATED_MULTILINE_STRING
+  }
+
+  private def textIn(e: PsiElement) = {
+    val elementType = e.getNode.getElementType
+    val text = e.getText
+    elementType match  {
+      case ScalaTokenTypes.tINTERPOLATED_STRING => StringUtil.unescapeStringCharacters(text)
+      case ScalaTokenTypes.tINTERPOLATED_MULTILINE_STRING => text
     }
   }
 }

@@ -1,7 +1,5 @@
-FormattedStringParser: handle tuple arguments in infix expressions
+multiline strings formatting
 empty block
-multiline strings
-escape chars
 group joint text parts on conversion
 format literal statically
 format call inspection with a quickfix

@@ -4,9 +4,10 @@ package format
 import lang.psi.api.expr._
 import com.intellij.psi.{PsiClass, PsiMethod, PsiElement}
 import lang.psi.api.base.ScLiteral
-import extensions.{ContainingClass, PsiReferenceEx, &&}
 import lang.psi.api.statements.ScFunction
 import lang.psi.api.toplevel.typedef.{ScClass, ScTrait}
+import com.intellij.openapi.util.text.StringUtil
+import extensions._
 
 /**
  * Pavel Fatin
@@ -51,7 +52,7 @@ object FormattedStringParser extends StringParser {
     // String.format("%d", 1)
     case MethodInvocation(PsiReferenceEx.resolve((f: PsiMethod) &&
             ContainingClass(owner: PsiClass)), Seq(literal: ScLiteral, args@_*))
-      if literal.isString && isStringFormatMethod(owner.getQualifiedName, f.getName) =>
+      if literal.isString && isStringFormatMethod(owner.qualifiedName, f.getName) =>
       (literal, args)
   }
 
@@ -66,8 +67,8 @@ object FormattedStringParser extends StringParser {
 
   def parseFormatCall(literal: ScLiteral, arguments: Seq[ScExpression]): Seq[StringPart] = {
     val remainingArguments = arguments.toIterator
-    val formatString = literal.getValue.asInstanceOf[String]
     val shift = if (literal.isMultiLineString) 3 else 1
+    val formatString = literal.getText.drop(shift).dropRight(shift)
 
     var refferredArguments: List[ScExpression] = Nil
 
@@ -97,7 +98,9 @@ object FormattedStringParser extends StringParser {
       }
     }
 
-    val texts = FormatSpecifierPattern.split(formatString).map(Text)
+    val texts = FormatSpecifierPattern.split(formatString).map { s =>
+      if (literal.isMultiLineString) Text(s) else Text(StringUtil.unescapeStringCharacters(s))
+    }
 
     val prefix = intersperse(texts.toList, bindings.toList).filter {
       case Text("") => false

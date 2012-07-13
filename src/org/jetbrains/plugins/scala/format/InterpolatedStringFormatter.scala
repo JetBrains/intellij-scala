@@ -1,6 +1,8 @@
 package org.jetbrains.plugins.scala
 package format
 
+import com.intellij.openapi.util.text.StringUtil
+
 /**
  * Pavel Fatin
  */
@@ -20,7 +22,7 @@ object InterpolatedStringFormatter extends StringFormatter {
 
   def formatContent(parts: Seq[StringPart]): String = {
     val strings = parts.collect {
-      case Text(s) => s
+      case Text(s) => StringUtil.escapeStringCharacters(StringUtil.escapeSlashes(s.replaceAll("\\$", "\\$\\$")))
       case it: Injection =>
         val text = it.value
         if (it.isLiteral && !it.isFormattingRequired) text else {
