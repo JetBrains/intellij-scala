@@ -43,7 +43,8 @@ object TopStat {
           }
         }
       }
-      case _ if patcher.parse(builder) => parse(builder, state)
+      case _ if patcher.parse(builder) => 
+        if (!builder.eof()) parse(builder, state) else ParserState.SCRIPT_STATE
       case _ => {
         state match {
           case ParserState.EMPTY_STATE => if (!TmplDef.parse(builder)) {
