@@ -15,7 +15,7 @@ trait ScInterpolatedStringLiteral extends ScLiteral {
   }
 
   def getType: InterpolatedStringType.StringType
-  
+
   def getInjections: Array[ScExpression]
 
   def getStringContextExpression: Option[ScExpression]
