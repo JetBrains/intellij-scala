@@ -18,7 +18,7 @@ class ConvertFormatCallToInterpolatedString extends PsiElementBaseIntentionActio
     Format.extractFormatCall(invocation).isDefined
   }
 
-  def invoke(p1: Project, p2: Editor, p3: PsiElement) {
+  override def invoke(p1: Project, p2: Editor, p3: PsiElement) {
     val invocation = PsiTreeUtil.getParentOfType(p3, classOf[MethodInvocation], false)
     val result = {
       val presentation = {
