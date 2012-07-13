@@ -7,6 +7,7 @@ package xml
 import com.intellij.lang.PsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import builder.ScalaPsiBuilder
+import parser.util.ParserPatcher
 
 /**
 * @author Alexander Podkhalyuzin
@@ -20,7 +21,8 @@ import builder.ScalaPsiBuilder
 
 object Element {
   def parse(builder: ScalaPsiBuilder): Boolean = {
-    if (EmptyElemTag.parse(builder)) return true
+    if (EmptyElemTag.parse(builder) || ParserPatcher.getSuitablePatcher(builder).parse(builder)) return true
+
     val elemMarker = builder.mark()
     if (!STag.parse(builder)) {
       elemMarker.drop()
