@@ -4,6 +4,7 @@ package format
 import lang.psi.types
 import types.{ScType, ScDesignatorType}
 import extensions._
+import com.intellij.openapi.util.text.StringUtil
 
 /**
  * Pavel Fatin
@@ -12,7 +13,7 @@ import extensions._
 object FormattedStringFormatter extends StringFormatter {
   def format(parts: Seq[StringPart]) = {
     val bindings = parts.collect {
-      case Text(s) => (s, None)
+      case Text(s) => (StringUtil.escapeStringCharacters(StringUtil.escapeSlashes(s)), None)
       case injection @ Injection(expression, specifier) =>
         if (injection.isLiteral && specifier.isEmpty) (injection.value, None) else {
           val format = specifier.map(_.format)

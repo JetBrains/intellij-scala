@@ -20,6 +20,14 @@ class FormattedStringFormatterTest extends SimpleTestCase {
     assertEquals(call("foo", ""), format(Text("foo")))
   }
 
+  def testEscapeChar() {
+    assertEquals(call("\\n", ""), format(Text("\n")))
+  }
+
+  def testSlash() {
+    assertEquals(call("\\\\", ""), format(Text("\\")))
+  }
+
   def testPlainExpression() {
     assertEquals(call("%s", "foo"), format(Injection(exp("foo"), None)))
   }

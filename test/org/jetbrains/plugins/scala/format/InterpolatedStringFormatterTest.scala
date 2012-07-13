@@ -20,6 +20,18 @@ class InterpolatedStringFormatterTest extends SimpleTestCase {
     assertEquals("foo", format(Text("foo")))
   }
 
+  def testEscapeChar() {
+    assertEquals("\\n", format(Text("\n")))
+  }
+
+  def testSlash() {
+    assertEquals("\\\\", format(Text("\\")))
+  }
+
+  def testDollar() {
+    assertEquals("$$", format(Text("$")))
+  }
+
   def testPlainExpression() {
     assertEquals("$foo", format(Injection(exp("foo"), None)))
   }

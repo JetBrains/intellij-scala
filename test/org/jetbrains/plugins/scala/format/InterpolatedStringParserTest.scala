@@ -22,6 +22,24 @@ class InterpolatedStringParserTest extends SimpleTestCase {
     }
   }
 
+  def testEscapeChar() {
+    assertMatches(parse("\\n")) {
+      case Text("\n") :: Nil =>
+    }
+  }
+
+  def testEscapeCharInMultilineString() {
+    assertMatches(parse("\n", multiline = true)) {
+      case Text("\n") :: Nil =>
+    }
+  }
+
+  def testDollarEscapeChar() {
+    assertMatches(parse("$$")) {
+      case Text("$") :: Nil =>
+    }
+  }
+
   def testExpression() {
     assertMatches(parse("$foo")) {
       case Injection(ElementText("foo"), None) :: Nil =>
@@ -81,15 +99,22 @@ class InterpolatedStringParserTest extends SimpleTestCase {
     }
   }
 
-  private def parse(content: String, formatted: Boolean = true): List[StringPart] = {
-    val element = literal(content, formatted)
+  def testMultiline() {
+    assertMatches(parse("$foo%d", multiline = true)) {
+      case Injection(ElementText("foo"), Some(Specifier(Span(_, 0, 2), "%d"))) :: Nil =>
+    }
+  }
+
+  private def parse(content: String, formatted: Boolean = true, multiline: Boolean = false): List[StringPart] = {
+    val element = literal(content, formatted, multiline)
     InterpolatedStringParser.parse(element).get.toList
   }
 
-  private def literal(s: String, formatted: Boolean): ScInterpolatedStringLiteral = {
+  private def literal(s: String, formatted: Boolean, multiline: Boolean): ScInterpolatedStringLiteral = {
     val text = {
       val prefix = if (formatted) "f" else "s"
-      prefix + '"' + s + '"'
+      val quote = if (multiline) "\"\"\"" else "\""
+      prefix + quote + s + quote
     }
     parseText(text).getFirstChild.asInstanceOf[ScInterpolatedStringLiteral]
   }
