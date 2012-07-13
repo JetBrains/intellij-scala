@@ -26,11 +26,15 @@ object FormattedStringParser extends StringParser {
       if literal.isString && isFormatMethod(owner.qualifiedName, f.name) =>
       (literal, args)
 
-    // "%d" format 1
+    // "%d" format 1, "%d" format (1)
     case ScInfixExpr(literal: ScLiteral, PsiReferenceEx.resolve((f: ScFunction) &&
             ContainingClass(owner: ScTrait)), arg)
       if literal.isString && isFormatMethod(owner.qualifiedName, f.name) =>
-      (literal, Seq(arg))
+      val args = arg match {
+        case tuple: ScTuple => tuple.exprs
+        case it => Seq(it)
+      }
+      (literal, args)
 
     // 1.formatted("%d")
     case ScMethodCall(ScReferenceExpression.qualifier(arg: ScExpression) &&
