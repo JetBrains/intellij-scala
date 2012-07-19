@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+<idea-plugin version="2">
+
+    <extensions defaultExtensionNs="com.intellij">
+        <lang.foldingBuilder language="Scala"
+                             implementationClass="org.jetbrains.plugins.scala.scalai18n.codeInspection.i18n.folding.ScalaPropertyFoldingBuilder"/>
+        <referenceProviderType key="Scala Properties File Key Provider"
+                               implementationClass="org.jetbrains.plugins.scala.scalai18n.lang.properties.ScalaPropertiesReferenceProvider"/>
+        <psi.referenceContributor implementation="org.jetbrains.plugins.scala.scalai18n.lang.properties.ScalaPropertiesReferenceContributor"/>
+        <gotoDeclarationHandler implementation="org.jetbrains.plugins.scala.scalai18n.codeInspection.i18n.folding.ScalaI18nMessageGotoDeclarationHandler" order="FIRST"/>
+    </extensions>
+</idea-plugin>

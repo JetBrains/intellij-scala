@@ -25,6 +25,7 @@
   <depends optional="true" config-file="scala-maven-integration.xml">org.jetbrains.idea.maven</depends>
   <depends optional="true" config-file="intellilang-scala-support.xml">org.intellij.intelliLang</depends>
   <depends optional="true" config-file="copyright.xml">com.intellij.copyright</depends>
+  <depends optional="true" config-file="scala-i18n.xml">com.intellij.properties</depends>
   <resource-bundle xmlns="">org.jetbrains.plugins.scala.ScalaBundle</resource-bundle>
 
   <!--<xi:include href="/META-INF/scala-plugin-common.xml" xpointer="xpointer(/idea-plugin/*)">

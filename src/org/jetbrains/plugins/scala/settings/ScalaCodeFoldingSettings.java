@@ -160,4 +160,12 @@ public class ScalaCodeFoldingSettings implements PersistentStateComponent<ScalaC
     FOLD_MULTILINE_BLOCKS = value;
   }
 
+  public boolean isCollapseI18nMessages() {
+    return JavaCodeFoldingSettings.getInstance().isCollapseI18nMessages();
+  }
+
+  public void setCollapseI18nMessages(boolean value) {
+    JavaCodeFoldingSettings.getInstance().setCollapseI18nMessages(value);
+  }
+
 }
