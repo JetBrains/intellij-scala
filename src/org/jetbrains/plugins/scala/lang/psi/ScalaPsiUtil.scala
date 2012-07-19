@@ -45,7 +45,7 @@ import com.intellij.psi.impl.light.LightModifierList
 import collection.immutable.Stream
 import com.intellij.psi.impl.source.PsiFileImpl
 import com.intellij.psi.stubs.StubElement
-import com.intellij.openapi.module.{ModuleUtil, Module}
+import com.intellij.openapi.module.{ModuleUtilCore, ModuleUtil, Module}
 import config.ScalaFacet
 import reflect.NameTransformer
 import caches.CachesUtil
@@ -126,7 +126,7 @@ object ScalaPsiUtil {
   }
 
   def hasScalaFacet(element: PsiElement): Boolean = {
-    val module: Module = ModuleUtil.findModuleForPsiElement(element)
+    val module: Module = ModuleUtilCore.findModuleForPsiElement(element)
     if (module == null) false
     else ScalaFacet.findIn(module) != None
   }

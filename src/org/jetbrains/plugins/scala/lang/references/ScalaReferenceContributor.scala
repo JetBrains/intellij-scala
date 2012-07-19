@@ -6,7 +6,7 @@ import com.intellij.patterns.PlatformPatterns
 import psi.api.base.ScLiteral
 import com.intellij.openapi.roots.ModuleRootManager
 import com.intellij.util.containers.ContainerUtil
-import com.intellij.openapi.module.{ModuleUtil, Module}
+import com.intellij.openapi.module.{ModuleUtilCore, ModuleUtil, Module}
 import com.intellij.util.ProcessingContext
 import java.util.{ArrayList, Collections}
 import com.intellij.openapi.vfs.VirtualFile
@@ -90,7 +90,7 @@ class FilePathReferenceProvider extends PsiReferenceProvider {
       }
 
       @NotNull override def computeDefaultContexts: java.util.Collection[PsiFileSystemItem] = {
-        val module: Module = ModuleUtil.findModuleForPsiElement(getElement)
+        val module: Module = ModuleUtilCore.findModuleForPsiElement(getElement)
         getRoots(module, true)
       }
 

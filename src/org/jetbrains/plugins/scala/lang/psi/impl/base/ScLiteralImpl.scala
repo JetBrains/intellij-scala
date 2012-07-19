@@ -16,11 +16,10 @@ import com.intellij.psi.impl.source.tree.java.PsiLiteralExpressionImpl
 import java.lang.{StringBuilder, String}
 import api.base.ScLiteral
 import com.intellij.psi._
-import impl.InjectedLanguageFacade
 import org.jetbrains.annotations.NotNull
 import org.jetbrains.plugins.scala.extensions._
-import com.intellij.openapi.extensions.Extensions
 import api.ScalaElementVisitor
+import com.intellij.lang.injection.InjectedLanguageManager
 
 /**
 * @author Alexander Podkhalyuzin
@@ -134,7 +133,7 @@ class ScLiteralImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScLite
     }
   }
 
-  def getInjectedPsi = if (getValue.isInstanceOf[String]) InjectedLanguageFacade.getInstance().getInjectedPsiFiles(this) else null
+  def getInjectedPsi = if (getValue.isInstanceOf[String]) InjectedLanguageManager.getInstance(getProject).getInjectedPsiFiles(this) else null
 
   def processInjectedPsi(visitor: PsiLanguageInjectionHost.InjectedPsiVisitor) {
     InjectedLanguageUtil.enumerate(this, visitor)

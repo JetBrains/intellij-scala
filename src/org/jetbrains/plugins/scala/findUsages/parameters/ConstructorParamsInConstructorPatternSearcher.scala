@@ -13,7 +13,6 @@ import lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.extensions.inReadAction
 import lang.psi.api.toplevel.typedef.ScClass
 import lang.psi.api.statements.params.{ScClassParameter, ScParameter}
-import org.eclipse.jdt.internal.core.search.matching.ConstructorPattern
 import lang.psi.api.base.patterns.ScConstructorPattern
 import com.intellij.find.findUsages.{FindUsagesOptions, CustomUsageSearcher}
 import com.intellij.usageView.UsageInfo

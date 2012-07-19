@@ -3,7 +3,7 @@ package editor.documentationProvider
 
 import com.intellij.codeInsight.javadoc.JavaDocUtil
 import com.intellij.lang.java.JavaDocumentationProvider
-import com.intellij.openapi.module.ModuleUtil
+import com.intellij.openapi.module.{ModuleUtilCore, ModuleUtil}
 import com.intellij.psi._
 import javadoc.{PsiDocTag, PsiDocComment}
 import lang.psi.api.expr.ScAnnotation
@@ -733,7 +733,7 @@ object ScalaDocumentationProvider {
 
   def generateClassInfo(clazz: ScTypeDefinition, subst: ScSubstitutor): String = {
     val buffer = new StringBuilder
-    val module = ModuleUtil.findModuleForPsiElement(clazz)
+    val module = ModuleUtilCore.findModuleForPsiElement(clazz)
     if (module != null) {
       buffer.append('[').append(module.getName).append("] ")
     }
