@@ -10,7 +10,7 @@ import java.lang.String
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
-import com.intellij.openapi.module.{ModuleUtil, Module}
+import com.intellij.openapi.module.{ModuleUtilCore, ModuleUtil, Module}
 import config.ScalaFacet
 import settings._
 
@@ -44,7 +44,7 @@ class ScalaPackageNameInspection extends LocalInspectionTool {
                     "problems with resolve to classes from this file", ProblemHighlightType.GENERIC_ERROR_OR_WARNING,
             isOnTheFly, buffer: _*)
 
-        val module: Module = ModuleUtil.findModuleForPsiElement(file)
+        val module: Module = ModuleUtilCore.findModuleForPsiElement(file)
         val prefix = if (module != null &&
           ScalaProjectSettings.getInstance(file.getProject).isIgnorePerformance) {
           ScalaFacet.findIn(module).flatMap(f => f.basePackage).getOrElse("")

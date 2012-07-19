@@ -4,7 +4,7 @@ package script
 import com.intellij.execution.configurations.{RunConfiguration, ConfigurationType, ConfigurationFactory}
 import com.intellij.execution.{RunManager, Location, RunnerAndConfigurationSettings, LocatableConfigurationType}
 import com.intellij.facet.FacetManager
-import com.intellij.openapi.module.ModuleUtil
+import com.intellij.openapi.module.{ModuleUtilCore, ModuleUtil}
 import com.intellij.psi.{PsiElement, PsiFile}
 import config.ScalaFacet
 import console.ScalaConsoleRunConfigurationFactory
@@ -39,7 +39,7 @@ class ScalaScriptConfigurationType extends LocatableConfigurationType {
       case scalaFile: ScalaFile if scalaFile.isScriptFile() => {
         val settings = RunManager.getInstance(location.getProject).createRunConfiguration(scalaFile.name, confFactory)
         val conf: ScalaScriptRunConfiguration = settings.getConfiguration.asInstanceOf[ScalaScriptRunConfiguration]
-        val module = ModuleUtil.findModuleForFile(scalaFile.getVirtualFile, scalaFile.getProject)
+        val module = ModuleUtilCore.findModuleForFile(scalaFile.getVirtualFile, scalaFile.getProject)
         if (module == null || !ScalaFacet.isPresentIn(module)) return null
         conf.setModule(module)
         conf.setScriptPath(scalaFile.getVirtualFile.getPath)

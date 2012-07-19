@@ -9,7 +9,7 @@ import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.util.JDOMExternalizer
 import com.intellij.execution.runners.ExecutionEnvironment
 import com.intellij.execution.{ExecutionException, Executor}
-import com.intellij.openapi.module.{ModuleUtil, Module}
+import com.intellij.openapi.module.{ModuleUtilCore, ModuleUtil, Module}
 import com.intellij.openapi.options.SettingsEditor
 import lang.psi.api.ScalaFile
 import com.intellij.vcsUtil.VcsUtil
@@ -136,7 +136,7 @@ class ScalaScriptRunConfiguration(val project: Project, val configurationFactory
     var module: Module = null
     try {
       val file: VirtualFile = VcsUtil.getVirtualFile(scriptPath)
-      module = ModuleUtil.findModuleForFile(file, getProject)
+      module = ModuleUtilCore.findModuleForFile(file, getProject)
     }
     catch {
       case e =>
