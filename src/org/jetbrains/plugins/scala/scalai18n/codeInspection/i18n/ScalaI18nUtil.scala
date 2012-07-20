@@ -341,11 +341,11 @@ object ScalaI18nUtil {
     val annotationAttributeValues: mutable.HashMap[String, AnyRef] = new mutable.HashMap[String, AnyRef]
     annotationAttributeValues.put(AnnotationUtil.PROPERTY_KEY_RESOURCE_BUNDLE_PARAMETER, null)
     if (mustBePropertyKey(project, expression, annotationAttributeValues)) {
-      val resourceBundleName: AnyRef = annotationAttributeValues.get(AnnotationUtil.PROPERTY_KEY_RESOURCE_BUNDLE_PARAMETER)
-      if (!(resourceBundleName.isInstanceOf[ScExpression])) {
+      val resourceBundleName: AnyRef = annotationAttributeValues.get(AnnotationUtil.PROPERTY_KEY_RESOURCE_BUNDLE_PARAMETER).getOrElse(null)
+      if (resourceBundleName== null || !(resourceBundleName.isInstanceOf[PsiReferenceExpression])) {
         return false
       }
-      val expr: ScExpression = resourceBundleName.asInstanceOf[ScExpression]
+      val expr: PsiReferenceExpression = resourceBundleName.asInstanceOf[PsiReferenceExpression]
       val value: AnyRef = JavaPsiFacade.getInstance(expr.getProject).getConstantEvaluationHelper.computeConstantExpression(expr)
       if (value == null) {
         return false
