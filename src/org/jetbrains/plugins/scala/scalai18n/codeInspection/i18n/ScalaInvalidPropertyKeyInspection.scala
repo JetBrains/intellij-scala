@@ -8,7 +8,7 @@ import com.intellij.codeInspection._
 import com.intellij.lang.properties.PropertiesReferenceManager
 import com.intellij.lang.properties.psi.PropertiesFile
 import com.intellij.openapi.module.Module
-import com.intellij.openapi.module.ModuleUtil
+import com.intellij.openapi.module.ModuleUtilCore
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ProjectFileIndex
 import com.intellij.openapi.roots.ProjectRootManager
@@ -106,7 +106,7 @@ class ScalaInvalidPropertyKeyInspection extends LocalInspectionTool {
         val nvp: ScNameValuePair = expression.getParent.asInstanceOf[ScNameValuePair]
         if (Comparing.equal(nvp.getName, AnnotationUtil.PROPERTY_KEY_RESOURCE_BUNDLE_PARAMETER)) {
           val manager: PropertiesReferenceManager = PropertiesReferenceManager.getInstance(expression.getProject)
-          val module: Module = ModuleUtil.findModuleForPsiElement(expression)
+          val module: Module = ModuleUtilCore.findModuleForPsiElement(expression)
           if (module != null) {
             val propFiles: List[PropertiesFile] = manager.findPropertiesFiles(module, key)
             if (propFiles.isEmpty) {
