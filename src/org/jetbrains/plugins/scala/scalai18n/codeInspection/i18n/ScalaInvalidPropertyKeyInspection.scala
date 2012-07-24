@@ -23,6 +23,7 @@ import java.util.List
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaRecursiveElementVisitor
+import collection.mutable
 
 /**
  * @author Ksenia.Sautina
@@ -119,7 +120,39 @@ class ScalaInvalidPropertyKeyInspection extends LocalInspectionTool {
       }
       else if (expression.getParent.isInstanceOf[ScArgumentExprList] &&
         expression.getParent.getParent.isInstanceOf[ScMethodCall]) {
-        //todo: add support for "property.has.more.parameters.than.passed" problem
+        val annotationParams = new mutable.HashMap[String, AnyRef]
+        annotationParams.put(AnnotationUtil.PROPERTY_KEY_RESOURCE_BUNDLE_PARAMETER, null)
+        if (!ScalaI18nUtil.mustBePropertyKey(myManager.getProject, expression, annotationParams)) return
+        val paramsCount: java.lang.Integer  = ScalaI18nUtil.getPropertyValueParamsMaxCount(expression)
+        if (paramsCount == -1) return
+        val expressions: ScArgumentExprList = expression.getParent.asInstanceOf[ScArgumentExprList]
+        val methodCall: ScMethodCall = expressions.getParent.asInstanceOf[ScMethodCall]
+        val invokedExpr = methodCall.getInvokedExpr
+        if (invokedExpr.isInstanceOf[ScReferenceExpression]) {
+          val methodResolved = invokedExpr.asInstanceOf[ScReferenceExpression].resolve()
+          if (methodResolved.isInstanceOf[PsiMethod]) {
+            val method = methodResolved.asInstanceOf[PsiMethod]
+            val args: Array[ScExpression] = expressions.exprsArray
+            var i: Int = 0
+            var flag = true
+            while (i < args.length && flag) {
+              if (args(i) eq expression) {
+                val param: java.lang.Integer = args.length - i - 1
+                val parameters =  method.getParameterList.getParameters
+                if (i + paramsCount >= args.length && method != null &&
+                  method.getParameterList.getParametersCount == i + 2 &&
+                  parameters(i + 1).isVarArgs) {
+                  myProblems.add(myManager.createProblemDescriptor(methodCall,
+                  CodeInsightBundle.message("property.has.more.parameters.than.passed", key, paramsCount, param),
+                    onTheFly, new Array[LocalQuickFix](0), ProblemHighlightType.GENERIC_ERROR))
+                }
+                flag = false
+              }
+              i += 1
+              i
+            }
+          }
+        }
       }
     }
 
