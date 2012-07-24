@@ -21,6 +21,7 @@ import com.intellij.openapi.util.text.StringUtil
 import java.text.MessageFormat
 import org.jetbrains.annotations.NotNull
 import com.intellij.openapi.editor.Editor
+import org.jetbrains.plugins.scala.lang.psi.util.ScalaConstantExpressionEvaluator
 
 /**
  * @author Ksenia.Sautina
@@ -326,6 +327,24 @@ object ScalaI18nUtil {
       val count: Int = getPropertyValueParamsMaxCount(args(0).asInstanceOf[ScLiteral])
       if (args.length == 1 + count) {
         var text: String = getI18nMessage(project, args(0).asInstanceOf[ScLiteral])
+        var i: Int = 1
+        var flag = true
+        while (i < count + 1 && flag) {
+          val evaluator = new ScalaConstantExpressionEvaluator
+          var value: AnyRef = evaluator.computeConstantExpression(args(i), false)
+          if (value == null) {
+            if (args(i).isInstanceOf[ScReferenceExpression]) {
+              value = "{" + args(i).getText + "}"
+            }
+            else {
+              text = null
+              flag = false
+            }
+          }
+          text = text.replace("{" + (i - 1) + "}", value.toString)
+          i += 1
+          i
+        }
         if (text != null) {
           if (!(text == methodCallExpression.getText)) {
             text = text.replace("''", "'")
