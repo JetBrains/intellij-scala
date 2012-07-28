@@ -19,6 +19,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScTypeElement, ScParameterizedTypeElement, ScSimpleTypeElement}
 import org.jetbrains.plugins.scala.extensions.toPsiNamedElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
+import com.intellij.openapi.editor.colors.EditorFontType
 
 /**
  * User: Alefas
@@ -109,7 +110,11 @@ class ShowImplicitParametersAction extends AnAction("Show implicit parameters ac
               model.addElement(defaultElement)
           }
           val list: JList = new JList(model)
-          list.setCellRenderer(new ScImplicitParametersListCellRenderer)
+          val renderer = new ScImplicitParametersListCellRenderer
+          val font = editor.getColorsScheme.getFont(EditorFontType.PLAIN)
+          renderer.setFont(font)
+          list.setFont(font)
+          list.setCellRenderer(renderer)
 
           val builder = JBPopupFactory.getInstance.createListPopupBuilder(list)
           builder.setTitle("Actual implicit parameters:").
