@@ -18,11 +18,13 @@ import com.intellij.openapi.keymap.KeymapUtil
 import com.intellij.codeInsight.CodeInsightBundle
 import java.awt.event.{MouseAdapter, MouseEvent}
 import javax.swing.border.Border
-import java.awt.{Point, Rectangle, Color}
+import java.awt.{Font, Point, Rectangle, Color}
 import javax.swing.event.{ListSelectionEvent, ListSelectionListener}
 import com.intellij.util.Alarm
 import scala.Some
 import org.jetbrains.plugins.scala.util.IntentionUtils
+import com.intellij.openapi.editor.colors.impl.EditorColorsSchemeImpl
+import com.intellij.openapi.editor.colors.EditorFontType
 
 /**
  * User: Alexander Podkhalyuzin
@@ -100,8 +102,11 @@ class GoToImplicitConversionAction extends AnAction("Go to implicit conversion a
         if (element == conversionFun) actualIndex = model.indexOf(elem)
       }
       val list: JList = new JList(model)
-      list.setCellRenderer(new ScImplicitFunctionListCellRenderer(conversionFun))
-
+      val renderer = new ScImplicitFunctionListCellRenderer(conversionFun)
+      val font = editor.getColorsScheme.getFont(EditorFontType.PLAIN)
+      renderer.setFont(font)
+      list.setFont(font)
+      list.setCellRenderer(renderer)
       list.getSelectionModel.addListSelectionListener(new ListSelectionListener {
         def valueChanged(e: ListSelectionEvent) {
           hintAlarm.cancelAllRequests
