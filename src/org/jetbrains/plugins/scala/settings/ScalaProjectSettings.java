@@ -90,7 +90,9 @@ public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProj
       "java.util.Vector",
       "java.util.WeakHashMap",
       "exclude:scala.collection.mutable.ArrayBuffer",
-      "exclude:scala.collection.mutable.ListBuffer"
+      "exclude:scala.collection.mutable.ListBuffer",
+      "org.scalatest.fixture._",
+      "org.scalatest.path._"
   };
 
   //colection type highlighting settings
