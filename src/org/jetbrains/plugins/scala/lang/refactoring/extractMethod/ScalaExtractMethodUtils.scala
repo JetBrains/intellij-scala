@@ -195,6 +195,7 @@ object ScalaExtractMethodUtils {
           }
           case _ =>
         }
+        super.visitReference(ref)
       }
     }
     visitor.visitElement(method)
