@@ -25,6 +25,7 @@ import scala.util.Sorting
 import psi.types.nonvalue.Parameter
 import psi.types._
 import org.jetbrains.plugins.scala.extensions.toPsiNamedElementExt
+import com.intellij.openapi.project.Project
 
 /**
  * User: Alexander Podkhalyuzin
