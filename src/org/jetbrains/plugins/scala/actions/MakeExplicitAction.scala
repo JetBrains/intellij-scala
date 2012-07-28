@@ -44,7 +44,6 @@ class MakeExplicitAction  extends AnAction("Replace implicit conversion action")
     val itemBounds: Rectangle = GoToImplicitConversionAction.getList.getCellBounds(index, index)
     if (itemBounds == null) {
       throw new RuntimeException("No bounds for index = " + index + ".")
-      return null
     }
     itemBounds
   }
