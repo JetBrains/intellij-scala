@@ -3,19 +3,16 @@ package org.jetbrains.plugins.scala.lang.completion
 import com.intellij.util.ProcessingContext
 import com.intellij.codeInsight.completion._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTrait, ScObject, ScClass, ScTypeDefinition}
-import org.jetbrains.plugins.scala.extensions.toPsiNamedElementExt
-import collection.mutable.HashSet
-import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging.ScPackaging
 import com.intellij.codeInsight.lookup.LookupElementBuilder
+import collection.mutable
 
 
 /**
  * @author Alefas
  * @since 31.03.12
  */
-
 class ScalaMemberNameCompletionContributor extends CompletionContributor {
   //suggest class name
   extend(CompletionType.BASIC, ScalaSmartCompletionContributor.superParentsPattern(classOf[ScTypeDefinition]),
@@ -23,8 +20,8 @@ class ScalaMemberNameCompletionContributor extends CompletionContributor {
       def addCompletions(parameters: CompletionParameters, context: ProcessingContext, result: CompletionResultSet) {
         val position = parameters.getPosition
         val fileName = parameters.getOriginalFile.getVirtualFile.getNameWithoutExtension
-        val classesNames: HashSet[String] = HashSet.empty
-        val objectNames: HashSet[String] = HashSet.empty
+        val classesNames: mutable.HashSet[String] = mutable.HashSet.empty
+        val objectNames: mutable.HashSet[String] = mutable.HashSet.empty
         val parent = position.getParent.getParent
         if (parent == null) return
         parent.getChildren.foreach {
@@ -33,7 +30,6 @@ class ScalaMemberNameCompletionContributor extends CompletionContributor {
           case o: ScObject => objectNames += o.name
           case _ =>
         }
-        val td = position.getParent.asInstanceOf[ScTypeDefinition]
         val shouldCompleteFileName = parent match {
           case f: ScalaFile => true
           case p: ScPackaging => true
