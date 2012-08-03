@@ -23,6 +23,10 @@ class ScFunctionDefinitionImplTest extends SimpleTestCase {
     assertRecursionTypeIs("def f(n: Int): Int = f(n + 1)", TailRecursion)
   }
 
+  def testTailRecursionWithCurring() {
+    assertRecursionTypeIs("def f(n: Int)(x:Int)(y:Int): Int = f(n + 1)(x)(y)", TailRecursion)
+  }
+
   def testReturn() {
     assertRecursionTypeIs("def f(n: Int): Int = return f(n + 1)", TailRecursion)
   }
