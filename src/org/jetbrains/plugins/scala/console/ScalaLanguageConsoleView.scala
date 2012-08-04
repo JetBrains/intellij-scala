@@ -26,12 +26,21 @@ class ScalaLanguageConsoleView(project: Project) extends {
     val action = new ScalaExecuteConsoleEnterAction(scalaConsole, processHandler, model)
     EmptyAction.setupAction(action, "Console.Execute", this)
     action.registerCustomShortcutSet(action.getShortcutSet, this)
+
+    ScalaConsoleInfo.addConsole(scalaConsole)
+    ScalaConsoleInfo.addModel(model)
+    ScalaConsoleInfo.addProcessHandler(processHandler)
   }
 
   override def getData(dataId: String): AnyRef = {
     if (PlatformDataKeys.ACTIONS_SORTER.is(dataId)) {
       ScalaLanguageConsoleView.CONSOLE_ACTIONS_COMPARATOR
     } else super.getData(dataId)
+  }
+
+  override def dispose() {
+    super.dispose()
+    ScalaConsoleInfo.dispose()
   }
 }
 
@@ -58,7 +67,7 @@ class ScalaExecuteConsoleEnterAction(console: ScalaLanguageConsole, processHandl
         if (line != "") {
           val outputStream: OutputStream = processHandler.getProcessInput
           try {
-            var bytes: Array[Byte] = (line + "\n").getBytes
+            val bytes: Array[Byte] = (line + "\n").getBytes
             outputStream.write(bytes)
             outputStream.flush()
           }
