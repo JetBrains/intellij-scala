@@ -3,8 +3,6 @@ package console
 
 
 import com.intellij.execution.configurations.{RunConfiguration, ConfigurationType, ConfigurationFactory}
-import com.intellij.facet.FacetManager
-import com.intellij.openapi.module.ModuleManager
 import com.intellij.openapi.project.Project
 import config.ScalaFacet
 
@@ -15,8 +13,7 @@ import config.ScalaFacet
 
 class ScalaConsoleRunConfigurationFactory(val typez: ConfigurationType) extends ConfigurationFactory(typez) {
   def createTemplateConfiguration(project: Project): RunConfiguration = {
-    val configuration = new ScalaConsoleRunConfiguration(project, this, "")
-    return configuration
+    new ScalaConsoleRunConfiguration(project, this, "")
   }
 
   override def createConfiguration(name: String, template: RunConfiguration): RunConfiguration = {
