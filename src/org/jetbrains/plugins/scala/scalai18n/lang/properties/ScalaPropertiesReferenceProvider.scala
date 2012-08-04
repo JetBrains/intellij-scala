@@ -8,7 +8,6 @@ import com.intellij.util.ProcessingContext
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import collection.mutable
 import org.jetbrains.plugins.scala.scalai18n.codeInspection.i18n.ScalaI18nUtil
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.annotations.NotNull
 
 /**
@@ -32,9 +31,9 @@ class ScalaPropertiesReferenceProvider(myDefaultSoft: Boolean) extends PsiRefere
       annotationParams.put(AnnotationUtil.PROPERTY_KEY_RESOURCE_BUNDLE_PARAMETER, null)
       if (ScalaI18nUtil.mustBePropertyKey(element.getProject, literalExpression, annotationParams)) {
         soft = false
-        val resourceBundleName: AnyRef = annotationParams.get(AnnotationUtil.PROPERTY_KEY_RESOURCE_BUNDLE_PARAMETER)
-        if (resourceBundleName.isInstanceOf[ScExpression]) {
-          val expr: ScExpression = resourceBundleName.asInstanceOf[ScExpression]
+        val resourceBundleName = annotationParams.get(AnnotationUtil.PROPERTY_KEY_RESOURCE_BUNDLE_PARAMETER).getOrElse(null)
+        if (resourceBundleName != null && resourceBundleName.isInstanceOf[PsiExpression]) {
+          val expr: PsiExpression = resourceBundleName.asInstanceOf[PsiExpression]
           val bundleValue: AnyRef = JavaPsiFacade.getInstance(expr.getProject).getConstantEvaluationHelper.computeConstantExpression(expr)
           bundleName = if (bundleValue == null) null else bundleValue.toString
         }
