@@ -15,7 +15,6 @@ import types.{ScType, Unit}
 import types.result.{TypingContext, Success, TypeResult}
 import com.intellij.openapi.progress.ProgressManager
 import api.base.types.ScTypeElement
-import collection.mutable.ArrayBuffer
 import psi.controlFlow.Instruction
 import psi.controlFlow.impl.ScalaControlFlowBuilder
 import api.ScalaElementVisitor
@@ -47,36 +46,36 @@ class ScFunctionDefinitionImpl extends ScFunctionImpl with ScFunctionDefinition 
   }
 
   def hasTailRecursionAnnotation: Boolean =
-    annotations.exists(_.typeElement.getType(TypingContext.empty)
-            .map(_.canonicalText).filter(_ == "_root_.scala.annotation.tailrec").isDefined)
+    annotations.exists(
+      _.typeElement.getType(TypingContext.empty).map(_.canonicalText).exists(_ == "_root_.scala.annotation.tailrec"))
 
   def recursiveReferences: Seq[RecursiveReference] = {
     val resultExpressions = getReturnUsages
 
-    def resultExpressionFor(ref: ScReferenceElement): PsiElement = ref match {
-      case Parent(ret: ScReturnStmt) => ret
-      case Parent(call: ScMethodCall) => call match {
+    def resultExpressionFor(ref: ScReferenceElement): PsiElement = {
+      @scala.annotation.tailrec
+      def resultExpressionForMethodCall(ref: PsiElement): PsiElement = ref match {
+        case Parent(call: ScMethodCall) => resultExpressionForMethodCall(call)
         case Parent(ret: ScReturnStmt) => ret
-        case it => it
+        case _ => ref
       }
-      case it => it
+
+      ref match {
+        case Parent(ret: ScReturnStmt) => ret
+        case Parent(call: ScMethodCall) => resultExpressionForMethodCall(call)
+        case _ => ref
+      }
     }
 
-    for (ref <- depthFirst.filterByType(classOf[ScReferenceElement]).toList if ref.isReferenceTo(this);
+    for (ref <- depthFirst.filterByType(classOf[ScReferenceElement]).toSeq if ref.isReferenceTo(this);
          target <- ref.advancedResolve if target.isApplicable)
     yield RecursiveReference(ref, resultExpressions.contains(resultExpressionFor(ref)))
   }
 
-  def recursionType: RecursionType = {
-    val references = recursiveReferences
-    if (references.isEmpty) {
-      RecursionType.NoRecursion
-    } else {
-      if (references.forall(_.isTailCall))
-        RecursionType.TailRecursion
-      else
-        RecursionType.OrdinaryRecursion
-    }
+  def recursionType: RecursionType = recursiveReferences match {
+    case Seq() => RecursionType.NoRecursion
+    case seq if seq.forall(_.isTailCall) => RecursionType.TailRecursion
+    case _ => RecursionType.OrdinaryRecursion
   }
 
   override def processDeclarations(processor: PsiScopeProcessor,
@@ -122,18 +121,12 @@ class ScFunctionDefinitionImpl extends ScFunctionImpl with ScFunctionDefinition 
 
   def body: Option[ScExpression] = {
     val stub = getStub
-    if (stub != null) {
-      return stub.asInstanceOf[ScFunctionStub].getBodyExpression
-    }
-    findChild(classOf[ScExpression])
+    if (stub != null) stub.asInstanceOf[ScFunctionStub].getBodyExpression else findChild(classOf[ScExpression])
   }
 
   override def hasAssign: Boolean = {
     val stub = getStub
-    if (stub != null) {
-      return stub.asInstanceOf[ScFunctionStub].hasAssign
-    }
-    assignment.isDefined
+    if (stub != null) stub.asInstanceOf[ScFunctionStub].hasAssign else assignment.isDefined
   }
 
   def assignment = Option(findChildByType(ScalaTokenTypes.tASSIGN))
@@ -149,20 +142,9 @@ class ScFunctionDefinitionImpl extends ScFunctionImpl with ScFunctionDefinition 
     assignment.foreach(_.delete())
   }
 
-  def getReturnUsages: Array[PsiElement] = {
-    val res = new ArrayBuffer[PsiElement]
-    body.foreach {
-      _.depthFirst(!_.isInstanceOf[ScFunction]).foreach {
-        case r: ScReturnStmt => res += r
-        case _ =>
-      }
-    }
-    body match {
-      case Some(expr) => res ++= expr.calculateReturns
-      case _ =>
-    }
-    res.filter(p => p.getContainingFile == getContainingFile).distinct.toArray
-  }
+  def getReturnUsages: Array[PsiElement] = body map (exp => {
+    (exp.depthFirst(_.isInstanceOf[ScReturnStmt]) ++ exp.calculateReturns).filter(_.getContainingFile == getContainingFile).toArray.distinct
+  }) getOrElse (Array.empty[PsiElement])
 
   private var myControlFlow: Seq[Instruction] = null
 
