@@ -21,6 +21,7 @@ class ScalaLanguageConsole(project: Project, title: String)
   private val textBuffer = new StringBuilder
   private var scalaFile = ScalaPsiElementFactory.createScalaFileFromText("1", project)
   myFile.asInstanceOf[ScalaFile].setContext(scalaFile, scalaFile.getLastChild)
+  def getHistory = textBuffer.toString()
 
   private[console] def textSent(text: String) {
     textBuffer.append(text)
