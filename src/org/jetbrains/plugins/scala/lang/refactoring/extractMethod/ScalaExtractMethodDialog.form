@@ -52,7 +52,7 @@
                   <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties>
-                  <text value="Public"/>
+                  <text value="&amp;Public"/>
                 </properties>
               </component>
               <component id="638d0" class="javax.swing.JRadioButton" binding="protectedRadioButton" default-binding="true">
@@ -60,7 +60,7 @@
                   <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties>
-                  <text value="Protected"/>
+                  <text value="Pro&amp;tected"/>
                 </properties>
               </component>
               <component id="939d4" class="javax.swing.JRadioButton" binding="privateRadioButton" default-binding="true">
@@ -68,7 +68,7 @@
                   <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties>
-                  <text value="Private"/>
+                  <text value="Pri&amp;vate"/>
                 </properties>
               </component>
               <component id="2a5ad" class="javax.swing.JTextField" binding="protectedTextField">
