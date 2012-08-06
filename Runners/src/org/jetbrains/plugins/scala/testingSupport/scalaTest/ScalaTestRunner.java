@@ -230,8 +230,8 @@ public class ScalaTestRunner {
       public boolean apply() {
         return false;
       }
-    }, Filter$.MODULE$.apply(),
-        scala.collection.immutable.Map$.MODULE$.empty(), None$.MODULE$, new Tracker());
+    }, Filter$.MODULE$.getClass().getMethod("apply").invoke(Filter$.MODULE$),
+        scala.collection.immutable.Map$.MODULE$.empty(), None$.MODULE$, Tracker.class.getConstructor().newInstance());
     }
     catch(Exception e) {
       e.printStackTrace();
