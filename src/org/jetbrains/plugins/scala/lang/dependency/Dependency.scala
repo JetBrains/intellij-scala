@@ -24,13 +24,11 @@ case class Dependency(kind: DependencyKind, source: PsiElement, target: PsiEleme
   // It's better to re-bind references rather than to add imports
   // directly and re-resolve references afterwards.
   // However, current implementation of "bindToElement" can handle only Class references
-  def restore() {
-    source match {
-      case reference: ScReferenceElement if reference.resolve() == null =>
-//        reference.bindToElement(target)
-        val holder = ScalaImportClassFix.getImportHolder(source, source.getProject)
-        holder.addImportForPath(path.asString, source)
-      case _ =>
+  def restoreFor(source: ScReferenceElement) {
+    if (source.resolve() != target) {
+//        source.bindToElement(target)
+      val holder = ScalaImportClassFix.getImportHolder(source, source.getProject)
+      holder.addImportForPath(path.asString, source)
     }
   }
 }
