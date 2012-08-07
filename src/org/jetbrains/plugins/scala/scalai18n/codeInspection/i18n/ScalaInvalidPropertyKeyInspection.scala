@@ -59,7 +59,7 @@ class ScalaInvalidPropertyKeyInspection extends LocalInspectionTool {
   }
 
   private object UnresolvedPropertyVisitor {
-    def appendPropertyKeyNotFoundProblem(@NotNull bundleName: String, @NotNull key: String,
+    def appendPropertyKeyNotFoundProblem(bundleName: String, @NotNull key: String,
                                          @NotNull expression: ScLiteral, @NotNull manager: InspectionManager,
                                          @NotNull problems: List[ProblemDescriptor], onTheFly: Boolean) {
       val description: String = CodeInsightBundle.message("inspection.unresolved.property.key.reference.message", key)
@@ -95,7 +95,7 @@ class ScalaInvalidPropertyKeyInspection extends LocalInspectionTool {
   class UnresolvedPropertyVisitor(myManager: InspectionManager, onTheFly: Boolean) extends ScalaRecursiveElementVisitor {
     override def visitLiteral(expression: ScLiteral) {
       val value: AnyRef = expression.getValue
-      if (!(value.isInstanceOf[String])) return
+      if (value == null || !(value.isInstanceOf[String])) return
       val key: String = value.asInstanceOf[String]
       if (UnresolvedPropertyVisitor.isComputablePropertyExpression(expression)) return
       val resourceBundleName: Ref[String] = new Ref[String]
