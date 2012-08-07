@@ -15,18 +15,15 @@ object ScalaContextUtil {
   private val DEPENDENCY_KEY: Key[Dependency] = Key.create("DEPENDENCY")
 
   def decode(scope: PsiElement) {
-    val dependencies = scope.depthFirst
-            .filterByType(classOf[ScReferenceElement])
-            .map(_.getCopyableUserData(DEPENDENCY_KEY))
-            .filterByType(classOf[Dependency])
-      
-    dependencies.foreach(_.restore())
-    
-    dependencies.map(_.source).foreach(_.putCopyableUserData(DEPENDENCY_KEY, null))
+    for(reference <- scope.depthFirst.filterByType(classOf[ScReferenceElement]);
+        dependency <- reference.getCopyableUserData(DEPENDENCY_KEY).asOptionOf[Dependency]) {
+      dependency.restoreFor(reference)
+      dependency.source.putCopyableUserData(DEPENDENCY_KEY, null)
+    }
   }
 
   def encode(scope: PsiElement) {
-    Dependency.dependenciesIn(scope).filter(_.isExternal).foreach { dependency =>
+    for (dependency <- Dependency.dependenciesIn(scope) if dependency.isExternal) {
       dependency.source.putCopyableUserData(DEPENDENCY_KEY, dependency)
     }
   }
