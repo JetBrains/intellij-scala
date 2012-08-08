@@ -198,7 +198,7 @@ class ScalaTestAstTransformer {
 
   private class StMethodDefinition(pClassName: String, val element: PsiElement, pName: String, pParamTypes: String*)
     extends org.scalatest.finders.MethodDefinition(pClassName, null, Array.empty, pName, pParamTypes.toList: _*) with TreeSupport {
-    override def getParent() = getParent(className(), element)
+    override def parent(): AstNode = getParent(className(), element)
 
     override lazy val children = getChildren(pClassName, element)
 
@@ -209,7 +209,7 @@ class ScalaTestAstTransformer {
 
   private class StMethodInvocation(pClassName: String, pTarget: AstNode, val invocation: MethodInvocation, pName: String, pArgs: AstNode*)
     extends org.scalatest.finders.MethodInvocation(pClassName, pTarget, null, Array.empty, pName, pArgs.toList: _*) with TreeSupport {
-    override def getParent() = getParent(pClassName, invocation)
+    override def  parent(): AstNode = getParent(pClassName, invocation)
 
     override lazy val children = getChildren(pClassName, invocation)
 
@@ -220,7 +220,7 @@ class ScalaTestAstTransformer {
 
   private class StStringLiteral(pClassName: String, val element: PsiElement, pValue: String)
     extends org.scalatest.finders.StringLiteral(pClassName, null, pValue) with TreeSupport {
-    override def getParent() = getParent(pClassName, element)
+    override def  parent(): AstNode = getParent(pClassName, element)
 
     override def equals(other: Any) = if (other != null && other.isInstanceOf[StStringLiteral]) element eq other.asInstanceOf[StStringLiteral].element else false
 
@@ -229,7 +229,7 @@ class ScalaTestAstTransformer {
 
   private class StToStringTarget(pClassName: String, val element: PsiElement, target: AnyRef)
     extends org.scalatest.finders.ToStringTarget(pClassName, null, Array.empty, target) with TreeSupport {
-    override def getParent() = getParent(pClassName, element)
+    override def  parent(): AstNode = getParent(pClassName, element)
 
     override lazy val children = getChildren(pClassName, element)
 
@@ -352,7 +352,7 @@ class ScalaTestAstTransformer {
               case _ =>
                 println("######Other!!")
             }*/
-            val selectionOpt = finder.find(selectedAst)
+            val selection = finder.find(selectedAst)
             /*selectionOpt match {
               case Some(selection) =>
                 println("***Test Found, display name: " + selection.displayName() + ", test name(s):")
@@ -360,7 +360,10 @@ class ScalaTestAstTransformer {
               case None =>
                 println("***Test Not Found!!")
             }*/
-            selectionOpt
+            if (selection != null)
+              Some(selection)
+            else
+              None
           case None => None
         }
       case None => None
