@@ -40,6 +40,7 @@ class ScalaResolveResult(val element: PsiNamedElement,
                          val isAccessible: Boolean = true,
                          val resultUndef: Option[ScUndefinedSubstitutor] = None,
                          val prefixCompletion: Boolean = false) extends ResolveResult {
+  if (element == null) throw new NullPointerException("element is null")
 
   def getElement = element
   
