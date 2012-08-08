@@ -647,15 +647,16 @@ class ScalaTestConfigurationProducer extends {
         checkWordSpec("org.scalatest.fixture.MultipleFixtureWordSpec")
         getOrElse null)
 
-    val astTransformer = new ScalaTestAstTransformer()
-    val selectionOpt = astTransformer.testSelection(location)
-
-    selectionOpt match {
-      case Some(selection) =>
-        if (selection.testNames.length > 0) (testClassPath, selection.testNames()(0))
-        else oldResult
-      case None =>
+    //todo ScalaTestAstTransformer.java
+//    val astTransformer = new ScalaTestAstTransformer()
+//    val selectionOpt = astTransformer.testSelection(location)
+//
+//    selectionOpt match {
+//      case Some(selection) =>
+//        if (selection.testNames.length > 0) (testClassPath, selection.testNames()(0))
+//        else oldResult
+//      case None =>
         oldResult
-    }
+//    }
   }
 }
