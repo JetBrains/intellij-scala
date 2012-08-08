@@ -637,7 +637,7 @@
                          shortName="ScalaUnnecessarySemicolon" level="WARNING"
                          enabledByDefault="true" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.xml.XmlUnmatchedTagInspection"
-                         displayName="Unmatched Tag" groupName="Scala: General" shortName="UnmatchedTag" level="ERROR"
+                         displayName="Unmatched Tag" groupName="Scala: General" shortName="ScalaUnmatchedTag" level="ERROR"
                          enabledByDefault="true" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.imports.SingleImportInspection"
                          displayName="Unnecessary braces in import inspection"
@@ -649,11 +649,11 @@
                          level="WARNING" enabledByDefault="true" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.cast.RedundantCastInspection"
                          displayName="Redundant cast inspection" groupName="Scala: General"
-                         shortName="RedundantCast" level="WARNING"
+                         shortName="ScalaRedundantCast" level="WARNING"
                          enabledByDefault="true" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.cast.RedundantConversionInspection"
                          displayName="Redundant conversion inspection" groupName="Scala: General"
-                         shortName="RedundantConversion" level="WARNING"
+                         shortName="ScalaRedundantConversion" level="WARNING"
                          enabledByDefault="true" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.recursion.NoTailRecursionAnnotationInspection"
                          displayName="No tail recursion annotation" groupName="Scala: General"
@@ -665,7 +665,7 @@
                          level="WARNING" enabledByDefault="true" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.format.MalformedFormatStringInspection"
                          displayName="Malformed format string" groupName="Scala: General"
-                         shortName="MalformedFormatString" level="WARNING"
+                         shortName="ScalaMalformedFormatString" level="WARNING"
                          enabledByDefault="true" language="Scala"/>
 
         <!--<localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.allErrorsInspection.AnnotatorBasedErrorInspection"
