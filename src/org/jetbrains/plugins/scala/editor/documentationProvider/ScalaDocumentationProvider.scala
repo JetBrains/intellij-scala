@@ -84,7 +84,9 @@ class ScalaDocumentationProvider extends CodeDocumentationProvider {
 
   def generateDoc(element: PsiElement, originalElement: PsiElement): String = {
     if (!element.getContainingFile.isInstanceOf[ScalaFile]) return null
-    val e = getDocedElement(element).getNavigationElement
+    val docedElement = getDocedElement(element)
+    if (docedElement == null) return null
+    val e = docedElement.getNavigationElement
     e match {
       case clazz: ScTypeDefinition => {
         val buffer: StringBuilder = new StringBuilder("")
