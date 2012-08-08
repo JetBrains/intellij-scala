@@ -86,6 +86,7 @@ trait AssignmentAnnotator {
             }
           case _ =>
         }
+      case _ =>
     }
   }
 }
