@@ -353,7 +353,7 @@ class ScalaTestAstTransformer {
                 println("***Test Not Found!!")
             }*/
             if (selection != null)
-              selection
+              Some(selection)
             else
               None
           case None => None
