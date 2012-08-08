@@ -23,13 +23,20 @@ class MakeExplicitAction  extends AnAction("Replace implicit conversion action")
   def actionPerformed(e: AnActionEvent) {
     val context = e.getDataContext
     val project = PlatformDataKeys.PROJECT.getData(context)
-    val selectedItem = PlatformDataKeys.SELECTED_ITEM.getData(context)
-    val function = selectedItem.asInstanceOf[Parameters].getNewExpression.asInstanceOf[ScFunction]
-    val expression = selectedItem.asInstanceOf[Parameters].getOldExpression
-    val editor = selectedItem.asInstanceOf[Parameters].getEditor
-    val secondPart = selectedItem.asInstanceOf[Parameters].getSecondPart
+    val selectedItem = PlatformDataKeys.SELECTED_ITEM.getData(context) match {
+      case s: Parameters => s
+      case _ => null
+    }
+    if (selectedItem == null || selectedItem.getNewExpression == null) return
+    val function = selectedItem.getNewExpression match {
+      case f: ScFunction => f
+      case _ => null
+    }
+    val expression = selectedItem.getOldExpression
+    val editor = selectedItem.getEditor
+    val secondPart = selectedItem.getSecondPart
 
-    if (project == null || editor == null) return
+    if (project == null || editor == null || secondPart == null) return
     val file = PsiUtilBase.getPsiFileInEditor(editor, project)
     if (!file.isInstanceOf[ScalaFile]) return
 
