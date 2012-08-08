@@ -8,6 +8,7 @@ import com.intellij.psi.{PsiNameValuePair, PsiElement}
 import lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import toplevel.ScNamedElement
+import base.ScLiteral
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -25,4 +26,6 @@ trait ScNameValuePair extends ScalaPsiElement with ScNamedElement with PsiNameVa
     if (node == null) return null
     node.getPsi
   }
+
+  def getLiteral: Option[ScLiteral]
 }
