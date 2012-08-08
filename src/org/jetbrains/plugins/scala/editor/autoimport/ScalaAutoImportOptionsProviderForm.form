@@ -7,9 +7,6 @@
     </constraints>
     <properties/>
     <border type="etched" title="Scala"/>
-    <clientProperties>
-              <BorderFactoryClass class="java.lang.String" value="com.intellij.ui.IdeBorderFactory$BoldSmallWithIndent"/>
-            </clientProperties>
     <children>
       <component id="ad8aa" class="javax.swing.JLabel">
         <constraints>
