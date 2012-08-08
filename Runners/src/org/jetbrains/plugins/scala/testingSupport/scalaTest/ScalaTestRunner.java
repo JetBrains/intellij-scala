@@ -18,10 +18,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLDecoder;
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 import java.util.jar.Attributes;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
@@ -33,14 +30,119 @@ public class ScalaTestRunner {
   private static final String reporterQualName = "org.jetbrains.plugins.scala.testingSupport.scalaTest.ScalaTestReporter";
 
   public static void main(String[] args) throws ClassNotFoundException, InstantiationException, IllegalAccessException, NoSuchMethodException, InvocationTargetException {
+    try {
+      if (isScalaTest2())
+        runScalaTest2(args);
+      else
+        runScalaTest1(args);
+
+    } catch (Throwable ignore) {
+      ignore.printStackTrace();
+    }
+
+    System.exit(0);
+  }
+
+  private static boolean isScalaTest2() {
+    try {
+      ScalaTestRunner.class.getClassLoader().loadClass("org.scalatest.events.Location");
+      return true;
+    }
+    catch(ClassNotFoundException e) {
+      return false;
+    }
+  }
+
+  private static void runScalaTest2(String[] args) {
+    ArrayList<String> argsArray = new ArrayList<String>();
+    HashSet<String> classes = new HashSet<String>();
+    HashMap<String, Set<String>> failedTestMap = new HashMap<String, Set<String>>();
+    boolean failedUsed = false;
+    String testName = "";
+    boolean showProgressMessages = true;
+    boolean useVersionFromOptions = false;
+    boolean isOlderScalaVersionFromOptions = false;
+    int i = 0;
+    while (i < args.length) {
+      if (args[i].equals("-s")) {
+        ++i;
+        while (i < args.length && !args[i].startsWith("-")) {
+          classes.add(args[i]);
+          ++i;
+        }
+      } else if (args[i].equals("-testName")) {
+        ++i;
+        testName = args[i];
+        ++i;
+      } else if (args[i].equals("-showProgressMessages")) {
+        ++i;
+        showProgressMessages = Boolean.parseBoolean(args[i]);
+        ++i;
+      } else if (args[i].equals("-failedTests")) {
+        failedUsed = true;
+        ++i;
+        while (i < args.length && !args[i].startsWith("-")) {
+          String failedClassName = args[i];
+          String failedTestName = args[i + 1];
+          Set<String> testSet = failedTestMap.get(failedClassName);
+          if (testSet == null)
+            testSet = new HashSet<String>();
+          testSet.add(failedTestName);
+          failedTestMap.put(failedClassName, testSet);
+          i += 2;
+        }
+      } else if (args[i].startsWith("-setScalaTestVersion=")) {
+        useVersionFromOptions = true;
+        isOlderScalaVersionFromOptions = isOlderScalaVersionFromOptions(args[i]);
+        ++i;
+      } else if (args[i].equals("-C")) {
+        if (useVersionFromOptions) {
+          argsArray.add(isOlderScalaVersionFromOptions ? "-r" : args[i]);
+        } else {
+          argsArray.add(isOlderScalaTestVersion() ? "-r" : args[i]);
+        }
+        if (i + 1 < args.length) argsArray.add(args[i + 1] + "WithLocation");
+        i += 2;
+      } else {
+        argsArray.add(args[i]);
+        ++i;
+      }
+    }
+
+    TestRunnerUtil.configureReporter(reporterQualName, showProgressMessages);
+    if (failedUsed) {
+      // TODO: How to support -s -i -t here, to support rerunning nested suite's test.
+      for (java.util.Map.Entry<String, Set<String>> entry : failedTestMap.entrySet()) {
+        argsArray.add("-s");
+        argsArray.add(entry.getKey());
+        for (String failedTestName : entry.getValue()) {
+          argsArray.add("-t");
+          argsArray.add(failedTestName);
+        }
+      }
+
+    } else if (testName.equals("")) {
+      for (String clazz : classes) {
+        argsArray.add("-s");
+        argsArray.add(clazz);
+      }
+
+    } else {
+      for (String clazz : classes) {
+        // Should encounter problem if the suite class does not have the specified test name.
+        argsArray.add("-s");
+        argsArray.add(clazz);
+        argsArray.add("-t");
+        argsArray.add(testName);
+      }
+    }
+    Runner.run(argsArray.toArray(new String[argsArray.size()]));
+  }
+
+  private static void runScalaTest1(String[] args) throws ClassNotFoundException, IllegalAccessException, InstantiationException, NoSuchMethodException, InvocationTargetException {
     ArrayList<String> argsArray = new ArrayList<String>();
     ArrayList<String> classes = new ArrayList<String>();
     ArrayList<String> failedTests = new ArrayList<String>();
-    boolean withLocation = false;
-    try {
-      Class<?> clazz = ScalaTestRunner.class.getClassLoader().loadClass("org.scalatest.events.Location");
-      if (clazz != null) withLocation = true;
-    } catch (Throwable ignore) {}
     boolean failedUsed = false;
     String testName = "";
     boolean showProgressMessages = true;
@@ -83,7 +185,7 @@ public class ScalaTestRunner {
         } else {
           argsArray.add(isOlderScalaTestVersion() ? "-r" : args[i]);
         }
-        if (i + 1 < args.length) argsArray.add(args[i + 1] + (withLocation ? "WithLocation" : ""));
+        if (i + 1 < args.length) argsArray.add(args[i + 1]);
         i += 2;
       } else {
         argsArray.add(args[i]);
@@ -95,7 +197,7 @@ public class ScalaTestRunner {
       i = 0;
       while (i + 1 < failedTests.size()) {
         TestRunnerUtil.configureReporter(reporterQualName, showProgressMessages);
-        runSingleTest(failedTests.get(i + 1), failedTests.get(i), withLocation);
+        runSingleTest(failedTests.get(i + 1), failedTests.get(i));
         i += 2;
       }
     } else if (testName.equals("")) {
@@ -107,18 +209,17 @@ public class ScalaTestRunner {
     } else {
       for (String clazz : classes) {
         TestRunnerUtil.configureReporter(reporterQualName, showProgressMessages);
-        runSingleTest(testName, clazz, withLocation);
+        runSingleTest(testName, clazz);
       }
     }
-    System.exit(0);
   }
 
-  private static void runSingleTest(String testName, String clazz, boolean withLocation) throws IllegalAccessException,
+  private static void runSingleTest(String testName, String clazz) throws IllegalAccessException,
       InstantiationException, ClassNotFoundException, NoSuchMethodException, InvocationTargetException {
+    try {
     Class<?> aClass = ScalaTestRunner.class.getClassLoader().loadClass(clazz);
     Suite suite = (Suite) aClass.newInstance();
     String reporterQualName = "org.jetbrains.plugins.scala.testingSupport.scalaTest.ScalaTestReporter";
-    if (withLocation) reporterQualName += "WithLocation";
     Class<?> reporterClass = ScalaTestRunner.class.getClassLoader().
         loadClass(reporterQualName);
     Reporter reporter = (Reporter) reporterClass.newInstance();
@@ -131,6 +232,11 @@ public class ScalaTestRunner {
       }
     }, Filter$.MODULE$.apply(),
         scala.collection.immutable.Map$.MODULE$.empty(), None$.MODULE$, new Tracker());
+    }
+    catch(Exception e) {
+      e.printStackTrace();
+      throw new RuntimeException(e);
+    }
   }
 
   private static boolean isOlderScalaTestVersion() {
