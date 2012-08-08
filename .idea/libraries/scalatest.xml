@@ -1,7 +1,7 @@
 <component name="libraryTable">
   <library name="scalatest">
     <CLASSES>
-      <root url="jar://$PROJECT_DIR$/SDK/lib/scalatest-2.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/SDK/lib/scalatest_2.9.0-2.0.M3.jar!/" />
     </CLASSES>
     <JAVADOC />
     <SOURCES />
