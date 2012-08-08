@@ -33,6 +33,7 @@ extends StubBaseWrapper[ScTemplateDefinition](parent, elemType) with ScTemplateD
   private var _isImplicitObject: Boolean = _
   private var _isImplicitClass: Boolean = _
   private var local: Boolean = false
+  private var visibleInJava: Boolean = false
 
   def  this(parent: StubElement[ParentPsi],
           elemType: IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement],
@@ -48,7 +49,8 @@ extends StubBaseWrapper[ScTemplateDefinition](parent, elemType) with ScTemplateD
           isImplicitClass: Boolean,
           javaName: String,
           additionalJavaNames: Array[String],
-          isLocal: Boolean) {
+          isLocal: Boolean,
+          visibleInJava: Boolean) {
     this (parent, elemType.asInstanceOf[IStubElementType[StubElement[PsiElement], PsiElement]])
     mySourceFileName = sourceFileName
     myName = name
@@ -63,6 +65,7 @@ extends StubBaseWrapper[ScTemplateDefinition](parent, elemType) with ScTemplateD
     _isImplicitObject = isImplicitObject
     _isImplicitClass = isImplicitClass
     local = isLocal
+    this.visibleInJava = visibleInJava
   }
 
   def this(parent: StubElement[ParentPsi],
@@ -79,7 +82,8 @@ extends StubBaseWrapper[ScTemplateDefinition](parent, elemType) with ScTemplateD
           isImplicitClass: Boolean,
           javaName: StringRef,
           additionalJavaNames: Array[StringRef],
-          isLocal: Boolean) {
+          isLocal: Boolean,
+          visibleInJava: Boolean) {
     this (parent, elemType.asInstanceOf[IStubElementType[StubElement[PsiElement], PsiElement]])
     mySourceFileName = StringRef.toString(sourceFileName)
     myName = StringRef.toString(name)
@@ -94,8 +98,10 @@ extends StubBaseWrapper[ScTemplateDefinition](parent, elemType) with ScTemplateD
     _isImplicitObject = isImplicitObject
     _isImplicitClass = isImplicitClass
     local = isLocal
+    this.visibleInJava = visibleInJava
   }
 
+  def isVisibleInJava: Boolean = visibleInJava
 
   def isLocal: Boolean = local
 

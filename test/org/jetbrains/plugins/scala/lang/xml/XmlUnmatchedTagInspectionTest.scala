@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala
 package lang.xml
 
 import lang.completion3.ScalaLightCodeInsightFixtureTestAdapter
-import codeInspection.xml.XmlUnmatchedTagInspection
+import codeInspection.xml.ScalaXmlUnmatchedTagInspection
 import com.intellij.codeInsight.CodeInsightTestCase
 import com.intellij.codeInspection.LocalInspectionTool
 
@@ -18,7 +18,7 @@ class XmlUnmatchedTagInspectionTest extends ScalaLightCodeInsightFixtureTestAdap
 
 
   private def check(text: String, annotation: String) {
-    checkTextHasError(text, annotation, classOf[XmlUnmatchedTagInspection])
+    checkTextHasError(text, annotation, classOf[ScalaXmlUnmatchedTagInspection])
   }
 
 

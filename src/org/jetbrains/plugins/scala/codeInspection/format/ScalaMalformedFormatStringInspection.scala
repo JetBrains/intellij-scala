@@ -44,7 +44,7 @@ import format.Injection
  * Pavel Fatin
  */
 
-class MalformedFormatStringInspection extends AbstractInspection {
+class ScalaMalformedFormatStringInspection extends AbstractInspection {
   def actionFor(holder: ProblemsHolder) = {
     case element =>
       val representation = FormattedStringParser.parse(element)

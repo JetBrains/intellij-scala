@@ -16,7 +16,7 @@ import com.intellij.psi.{PsiElement, PsiMethod}
  * Pavel Fatin
  */
 
-class RedundantConversionInspection extends AbstractInspection("Redundant conversion") {
+class ScalaRedundantConversionInspection extends AbstractInspection("Redundant conversion") {
   def actionFor(holder: ProblemsHolder) = {
     case element @ ScReferenceExpression.qualifier(qualifier) && PsiReferenceEx.resolve(target) =>
       process(element, qualifier, target, qualifier.getTextLength, holder)
