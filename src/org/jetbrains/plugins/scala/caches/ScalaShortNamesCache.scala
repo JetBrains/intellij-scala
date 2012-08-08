@@ -11,17 +11,30 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTrait, ScCla
 import stubs.StubIndex
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys
 import com.intellij.util.{Processor, ArrayUtil}
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 
 /**
  * @author ilyas
  */
 class ScalaShortNamesCache(project: Project) extends PsiShortNamesCache {
   def getClassesByName(name: String, scope: GlobalSearchScope): Array[PsiClass] = {
+    def isOkForJava(elem: ScalaPsiElement): Boolean = {
+      var res = true
+      var element = elem.getParent
+      while (element != null && res) {
+        element match {
+          case o: ScObject if o.isPackageObject => res = false
+          case _ =>
+        }
+        element = element.getParent
+      }
+      res
+    }
     val classes = ScalaShortNamesCacheManager.getInstance(project).getClassesByName(name, scope)
     val res = new ArrayBuffer[PsiClass]
     for (clazz <- classes) {
       clazz match {
-        case o: ScObject =>
+        case o: ScObject if isOkForJava(o) =>
           o.fakeCompanionClass match {
             case Some(clazz) => res += clazz
             case _ =>
@@ -34,7 +47,7 @@ class ScalaShortNamesCache(project: Project) extends PsiShortNamesCache {
       val classes = ScalaShortNamesCacheManager.getInstance(project).getClassesByName(nameWithoutDollar, scope)
       for (clazz <- classes) {
         clazz match {
-          case c: ScClass =>
+          case c: ScClass if isOkForJava(c) =>
             c.fakeCompanionModule match {
               case Some(o) => res += o
               case _ =>
@@ -47,7 +60,7 @@ class ScalaShortNamesCache(project: Project) extends PsiShortNamesCache {
       val classes = ScalaShortNamesCacheManager.getInstance(project).getClassesByName(nameWithoutDollar, scope)
       for (clazz <- classes) {
         clazz match {
-          case c: ScTrait =>
+          case c: ScTrait if isOkForJava(c) =>
             res += c.fakeCompanionClass
           case _ =>
         }

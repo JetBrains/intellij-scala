@@ -17,12 +17,8 @@ import lang.parser.ScalaElementTypes
  * Date: 4/7/12
  */
 
-class XmlUnmatchedTagInspection extends LocalInspectionTool{
+class ScalaXmlUnmatchedTagInspection extends LocalInspectionTool{
   override def isEnabledByDefault: Boolean = true
-
-  override def getDisplayName: String = "Unmatched Tag"
-
-  override def getShortName: String = "UnmatchedTag"
 
   override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor = {
     new ScalaElementVisitor {

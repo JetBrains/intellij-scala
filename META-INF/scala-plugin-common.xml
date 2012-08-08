@@ -636,8 +636,8 @@
                          displayName="Scala unnecessary semicolon inspection" groupName="Scala: General"
                          shortName="ScalaUnnecessarySemicolon" level="WARNING"
                          enabledByDefault="true" language="Scala"/>
-        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.xml.XmlUnmatchedTagInspection"
-                         displayName="Unmatched Tag" groupName="Scala: General" shortName="ScalaUnmatchedTag" level="ERROR"
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.xml.ScalaXmlUnmatchedTagInspection"
+                         displayName="Unmatched Tag" groupName="Scala: General" shortName="ScalaXmlUnmatchedTag" level="ERROR"
                          enabledByDefault="true" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.imports.SingleImportInspection"
                          displayName="Unnecessary braces in import inspection"
@@ -647,11 +647,11 @@
                          displayName="Name boolean parameters"
                          groupName="Scala: General" shortName="NameBooleanParameters"
                          level="WARNING" enabledByDefault="true" language="Scala"/>
-        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.cast.RedundantCastInspection"
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.cast.ScalaRedundantCastInspection"
                          displayName="Redundant cast inspection" groupName="Scala: General"
                          shortName="ScalaRedundantCast" level="WARNING"
                          enabledByDefault="true" language="Scala"/>
-        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.cast.RedundantConversionInspection"
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.cast.ScalaRedundantConversionInspection"
                          displayName="Redundant conversion inspection" groupName="Scala: General"
                          shortName="ScalaRedundantConversion" level="WARNING"
                          enabledByDefault="true" language="Scala"/>
@@ -663,7 +663,7 @@
                          displayName="Missing type annotation"
                          groupName="Scala: General" shortName="DangerousCatchAll"
                          level="WARNING" enabledByDefault="true" language="Scala"/>
-        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.format.MalformedFormatStringInspection"
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.format.ScalaMalformedFormatStringInspection"
                          displayName="Malformed format string" groupName="Scala: General"
                          shortName="ScalaMalformedFormatString" level="WARNING"
                          enabledByDefault="true" language="Scala"/>

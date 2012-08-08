@@ -3,7 +3,7 @@ package lang.xml
 
 import lang.completion3.ScalaLightCodeInsightFixtureTestAdapter
 import com.intellij.codeInspection.LocalInspectionTool
-import codeInspection.xml.XmlUnmatchedTagInspection
+import codeInspection.xml.ScalaXmlUnmatchedTagInspection
 import collection.mutable.ListBuffer
 import com.intellij.codeInsight.intention.IntentionAction
 import com.intellij.openapi.command.CommandProcessor
@@ -20,7 +20,7 @@ class XmlUnmatchedTagQuickFixesTest extends ScalaLightCodeInsightFixtureTestAdap
   val deleteUnmatchedTagHint = ScalaBundle.message("xml.delete.unmatched.tag")
 
   private def check(text: String, assumedStub: String, hint: String) {
-    testQuickFix(text.replace("\r", ""), assumedStub.replace("\r", ""), hint, classOf[XmlUnmatchedTagInspection])
+    testQuickFix(text.replace("\r", ""), assumedStub.replace("\r", ""), hint, classOf[ScalaXmlUnmatchedTagInspection])
   }
 
   def testSimple() {

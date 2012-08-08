@@ -14,7 +14,7 @@ import com.intellij.codeInspection.{ProblemDescriptor, ProblemHighlightType, Pro
  * Pavel Fatin
  */
 
-class RedundantCastInspection extends AbstractInspection("Redundant cast") {
+class ScalaRedundantCastInspection extends AbstractInspection("Redundant cast") {
   def actionFor(holder: ProblemsHolder) = {
     case call: ScGenericCall =>
       call.referencedExpr.children.toList match {

@@ -24,6 +24,8 @@ trait ScTemplateDefinitionStub extends PsiClassStub[ScTemplateDefinition] with S
 
   def isPackageObject: Boolean
 
+  def isVisibleInJava: Boolean
+
   def isScriptFileClass: Boolean
 
   def isImplicitObject: Boolean
