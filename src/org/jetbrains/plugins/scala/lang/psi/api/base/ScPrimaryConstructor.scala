@@ -47,7 +47,7 @@ trait ScPrimaryConstructor extends ScMember with ScMethodLike {
 
   def effectiveParameterClauses: Seq[ScParameterClause] = {
     CachesUtil.get(this, CachesUtil.EFFECTIVE_PARAMETER_CLAUSE,
-      new CachesUtil.MyProvider(this, (p: ScPrimaryConstructor) => effectiveParametersInner)
+      new CachesUtil.MyProvider(this, (p: ScPrimaryConstructor) => p.effectiveParametersInner)
       (PsiModificationTracker.MODIFICATION_COUNT))
   }
 
