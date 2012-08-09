@@ -61,7 +61,7 @@ abstract class ScFunctionImpl extends ScalaStubBasedElementImpl[ScFunction] with
     }
     CachesUtil.get(
       this, CachesUtil.PSI_RETURN_TYPE_KEY,
-      new CachesUtil.MyProvider(this, {ic: ScFunctionImpl => getReturnTypeImpl})
+      new CachesUtil.MyProvider(this, {ic: ScFunctionImpl => ic.getReturnTypeImpl})
         (PsiModificationTracker.MODIFICATION_COUNT)
       )
   }

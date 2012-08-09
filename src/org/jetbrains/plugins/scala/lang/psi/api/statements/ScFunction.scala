@@ -277,7 +277,7 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
 
   def effectiveParameterClauses: Seq[ScParameterClause] = {
     CachesUtil.get(this, CachesUtil.FUNCTION_EFFECTIVE_PARAMETER_CLAUSE_KEY,
-      new CachesUtil.MyProvider(this, (f: ScFunction) => paramClauses.clauses ++ syntheticParamClause)
+      new CachesUtil.MyProvider(this, (f: ScFunction) => f.paramClauses.clauses ++ f.syntheticParamClause)
       (PsiModificationTracker.MODIFICATION_COUNT))
   }
 

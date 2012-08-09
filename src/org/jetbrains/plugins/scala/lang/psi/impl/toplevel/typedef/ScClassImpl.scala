@@ -260,12 +260,15 @@ class ScClassImpl extends ScTypeDefinitionImpl with ScClass with ScTypeParameter
 
   override def syntheticMembers: scala.Seq[PsiMethod] = {
     CachesUtil.get(this, CachesUtil.SYNTHETIC_MEMBERS_KEY,
-      new CachesUtil.MyProvider[ScClassImpl, Seq[PsiMethod]](this, _ => {
-        val res = new ArrayBuffer[PsiMethod]
-        res ++= super.syntheticMembers
-        res ++= syntheticMembersImpl
-        res.toSeq
-      })(PsiModificationTracker.OUT_OF_CODE_BLOCK_MODIFICATION_COUNT))
+      new CachesUtil.MyProvider[ScClassImpl, Seq[PsiMethod]](this, clazz => clazz.innerSyntheticMembers)
+        (PsiModificationTracker.OUT_OF_CODE_BLOCK_MODIFICATION_COUNT))
+  }
+
+  private def innerSyntheticMembers: Seq[PsiMethod] = {
+    val res = new ArrayBuffer[PsiMethod]
+    res ++= super.syntheticMembers
+    res ++= syntheticMembersImpl
+    res.toSeq
   }
 
   private def syntheticMembersImpl: Seq[PsiMethod] = {

@@ -38,7 +38,7 @@ trait ScTypeAliasDefinition extends ScTypeAlias {
 
   def aliasedType: TypeResult[ScType] = CachesUtil.get(
       this, CachesUtil.ALIASED_KEY,
-      new CachesUtil.MyProvider(this, {ta: ScTypeAliasDefinition => aliasedType(TypingContext.empty)})
+      new CachesUtil.MyProvider(this, {ta: ScTypeAliasDefinition => ta.aliasedType(TypingContext.empty)})
         (PsiModificationTracker.MODIFICATION_COUNT)
     )
 
