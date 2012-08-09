@@ -16,5 +16,16 @@
 <!DOCTYPE idea-plugin PUBLIC "Plugin/DTD" "http://plugins.intellij.net/plugin.dtd">
 <idea-plugin url="http://www.jetbrains.net/confluence/display/SCA/Scala+Plugin+for+IntelliJ+IDEA" version="2"
     xmlns:xi="http://www.w3.org/2001/XInclude">
+    <id>org.intellij.scala</id>
+    <name>Scala</name>
+    <description>Plugin for Scala language support</description>
+    <version>VERSION</version>
+    <vendor url="http://www.jetbrains.com">JetBrains Inc.</vendor> <!-- todo: logo="/org/jetbrains/plugins/scala/images/scala-small-logo.png" -->
+    <idea-version since-build="117.37" until-build="117.9999"/>
+    <depends optional="true" config-file="scala-maven-integration.xml">org.jetbrains.idea.maven</depends>
+    <depends optional="true" config-file="intellilang-scala-support.xml">org.intellij.intelliLang</depends>
+    <depends optional="true" config-file="copyright.xml">com.intellij.copyright</depends>
+    <depends optional="true" config-file="scala-i18n.xml">com.intellij.properties</depends>
+
     <xi:include href="/META-INF/scala-plugin-common.xml" xpointer="xpointer(/idea-plugin/*)"/>
 </idea-plugin>

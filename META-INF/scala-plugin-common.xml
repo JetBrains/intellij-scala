@@ -1,14 +1,4 @@
 <idea-plugin version="2">
-    <id>org.intellij.scala</id>
-    <name>Scala</name>
-    <description>Plugin for Scala language support</description>
-    <version>VERSION</version>
-    <vendor url="http://www.jetbrains.com">JetBrains Inc.</vendor> <!-- todo: logo="/org/jetbrains/plugins/scala/images/scala-small-logo.png" -->
-    <idea-version since-build="117.37" until-build="117.9999"/>
-    <depends optional="true" config-file="scala-maven-integration.xml">org.jetbrains.idea.maven</depends>
-    <depends optional="true" config-file="intellilang-scala-support.xml">org.intellij.intelliLang</depends>
-    <depends optional="true" config-file="copyright.xml">com.intellij.copyright</depends>
-    <depends optional="true" config-file="scala-i18n.xml">com.intellij.properties</depends>
     <resource-bundle xmlns="">org.jetbrains.plugins.scala.ScalaBundle</resource-bundle>
 
     <extensions xmlns="org.jetbrains.idea.maven">

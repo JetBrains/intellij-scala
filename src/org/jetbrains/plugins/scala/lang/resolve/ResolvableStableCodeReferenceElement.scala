@@ -177,7 +177,7 @@ trait ResolvableStableCodeReferenceElement extends ScStableCodeReferenceElement 
     ProgressManager.checkCanceled()
     CachesUtil.getWithRecursionPreventing(this, CachesUtil.NO_CONSTRUCTOR_RESOLVE_KEY,
       new CachesUtil.MyProvider(this, (expr: ResolvableStableCodeReferenceElement) =>
-        NoConstructorResolver.resolve(this, incomplete = false))
+        NoConstructorResolver.resolve(expr, incomplete = false))
       (PsiModificationTracker.MODIFICATION_COUNT), Array.empty[ResolveResult])
   }
 
@@ -185,7 +185,7 @@ trait ResolvableStableCodeReferenceElement extends ScStableCodeReferenceElement 
     ProgressManager.checkCanceled()
     CachesUtil.getWithRecursionPreventing(this, CachesUtil.REF_ELEMENT_RESOLVE_CONSTR_KEY,
       new CachesUtil.MyProvider(this, (expr: ResolvableStableCodeReferenceElement) =>
-        ResolverAllConstructors.resolve(this, incomplete = false))
+        ResolverAllConstructors.resolve(expr, incomplete = false))
       (PsiModificationTracker.MODIFICATION_COUNT), Array.empty[ResolveResult])
   }
 
@@ -193,7 +193,7 @@ trait ResolvableStableCodeReferenceElement extends ScStableCodeReferenceElement 
     ProgressManager.checkCanceled()
     CachesUtil.getWithRecursionPreventing(this, CachesUtil.REF_ELEMENT_SHAPE_RESOLVE_KEY,
       new CachesUtil.MyProvider(this, (expr: ResolvableStableCodeReferenceElement) =>
-        ShapesResolver.resolve(this, incomplete = false))
+        ShapesResolver.resolve(expr, incomplete = false))
       (PsiModificationTracker.MODIFICATION_COUNT), Array.empty[ResolveResult])
   }
 
@@ -201,7 +201,7 @@ trait ResolvableStableCodeReferenceElement extends ScStableCodeReferenceElement 
     ProgressManager.checkCanceled()
     CachesUtil.getWithRecursionPreventing(this, CachesUtil.REF_ELEMENT_SHAPE_RESOLVE_CONSTR_KEY,
       new CachesUtil.MyProvider(this, (expr: ResolvableStableCodeReferenceElement) =>
-        ShapesResolverAllConstructors.resolve(this, incomplete = false))
+        ShapesResolverAllConstructors.resolve(expr, incomplete = false))
       (PsiModificationTracker.MODIFICATION_COUNT), Array.empty[ResolveResult])
   }
 }
