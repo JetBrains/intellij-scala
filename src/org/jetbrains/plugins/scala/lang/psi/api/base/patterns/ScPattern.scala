@@ -213,7 +213,7 @@ trait ScPattern extends ScalaPsiElement {
 
   def expectedType: Option[ScType] = {
     CachesUtil.get(this, CachesUtil.PATTERN_EXPECTED_TYPE,
-      new CachesUtil.MyProvider(this, (p: ScPattern) => innerExpectedType)
+      new CachesUtil.MyProvider(this, (p: ScPattern) => p.innerExpectedType)
       (PsiModificationTracker.MODIFICATION_COUNT))
   }
 

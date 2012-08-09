@@ -202,7 +202,7 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
   def isScriptFile(withCashing: Boolean): Boolean = {
     if (!withCashing) return isScriptFileImpl
     CachesUtil.get(this, CachesUtil.IS_SCRIPT_FILE_KEY,
-      new CachesUtil.MyProvider(this, (file: ScalaFile) => isScriptFileImpl)(this))
+      new CachesUtil.MyProvider(this, (file: ScalaFile) => file.isScriptFileImpl)(this))
   }
 
   def setPackageName(name: String) {

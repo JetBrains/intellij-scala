@@ -199,7 +199,7 @@ class ScForStatementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
 
   def getDesugarisedExpr: Option[ScExpression] = {
     CachesUtil.get(this, CachesUtil.DESUGARIZED_EXPR_KEY,
-      new CachesUtil.MyProvider[ScForStatementImpl, Option[ScExpression]](this, _ => getDesugarisedExprImpl)
+      new CachesUtil.MyProvider[ScForStatementImpl, Option[ScExpression]](this, f => f.getDesugarisedExprImpl)
     (PsiModificationTracker.MODIFICATION_COUNT))
   }
 

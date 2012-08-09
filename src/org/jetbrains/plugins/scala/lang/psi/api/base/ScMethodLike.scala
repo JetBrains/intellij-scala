@@ -31,7 +31,7 @@ trait ScMethodLike extends ScMember with PsiMethod {
   def getConstructorTypeParameters: Option[ScTypeParamClause] = {
     CachesUtil.get(this, CachesUtil.CONSTRUCTOR_TYPE_PARAMETERS_KEY,
       new CachesUtil.MyProvider[ScMethodLike, Option[ScTypeParamClause]](
-        this, (value: ScMethodLike) => getConstructorTypeParametersImpl
+        this, (value: ScMethodLike) => value.getConstructorTypeParametersImpl
       )(PsiModificationTracker.MODIFICATION_COUNT)
     )
   }

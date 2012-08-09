@@ -122,8 +122,8 @@ class ScObjectImpl extends ScTypeDefinitionImpl with ScObject with ScTemplateDef
 
   def objectSyntheticMembers: Seq[PsiMethod] = {
     import CachesUtil._
-    get(this, OBJECT_SYNTHETIC_MEMBERS_KEY, new MyProvider[ScObjectImpl, Seq[PsiMethod]](this, _ => {
-      objectSyntheticMembersImpl
+    get(this, OBJECT_SYNTHETIC_MEMBERS_KEY, new MyProvider[ScObjectImpl, Seq[PsiMethod]](this, obj => {
+      obj.objectSyntheticMembersImpl
     })(PsiModificationTracker.OUT_OF_CODE_BLOCK_MODIFICATION_COUNT))
   }
 

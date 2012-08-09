@@ -185,8 +185,8 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
     import org.jetbrains.plugins.scala.caches.CachesUtil._
     get(this, IMPLICIT_SIMPLE_MAP_KEY,
       new MyProvider[ScImplicitlyConvertible, ArrayBuffer[(ScalaResolveResult, ScType,
-                                                          ScType, ScSubstitutor, ScUndefinedSubstitutor)]](this, _ => {
-        buildSimpleImplicitMapInner(fromUnder /* false */)
+                                                          ScType, ScSubstitutor, ScUndefinedSubstitutor)]](this, impl => {
+        impl.buildSimpleImplicitMapInner(fromUnder /* false */)
       })(PsiModificationTracker.MODIFICATION_COUNT))
   }
 

@@ -70,7 +70,7 @@ class ScExtendsBlockImpl extends ScalaStubBasedElementImpl[ScExtendsBlock] with 
 
   def superTypes: List[ScType] = {
     CachesUtil.get(this, CachesUtil.EXTENDS_BLOCK_SUPER_TYPES_KEY,
-      new CachesUtil.MyProvider(this, (expr: ScExtendsBlock) => superTypesInner)
+      new CachesUtil.MyProvider(this, (expr: ScExtendsBlockImpl) => expr.superTypesInner)
       (PsiModificationTracker.MODIFICATION_COUNT))
   }
 
@@ -207,7 +207,7 @@ class ScExtendsBlockImpl extends ScalaStubBasedElementImpl[ScExtendsBlock] with 
 
   def supers: Seq[PsiClass] = {
     CachesUtil.get(this, CachesUtil.EXTENDS_BLOCK_SUPERS_KEY,
-      new CachesUtil.MyProvider(this, (expr: ScExtendsBlock) => supersInner)
+      new CachesUtil.MyProvider(this, (expr: ScExtendsBlockImpl) => expr.supersInner)
       (PsiModificationTracker.MODIFICATION_COUNT))
   }
 

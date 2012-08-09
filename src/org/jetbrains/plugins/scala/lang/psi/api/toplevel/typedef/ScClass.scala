@@ -46,8 +46,8 @@ trait ScClass extends ScTypeDefinition with ScParameterOwner {
       case _ if !isCase => None
       case _ =>
         CachesUtil.get(this, CachesUtil.FAKE_CLASS_COMPANION,
-          new CachesUtil.MyProvider[ScClass, Option[ScObject]](this, clazz => {
-              val texts = getSyntheticMethodsText
+          new CachesUtil.MyProvider[ScClass, Option[ScObject]](this, (clazz: ScClass) => {
+            val texts = clazz.getSyntheticMethodsText
 
             // TODO SCL-3081
             //        val extendsText = {
@@ -59,17 +59,17 @@ trait ScClass extends ScTypeDefinition with ScParameterOwner {
             //          }
             //
             //        }
-            val accessModifier = getModifierList.accessModifier.map(_.getText + " ").getOrElse("")
-            val objText = accessModifier + "object " + name + "{\n  " + texts._1 + "\n  " + texts._2 + "\n" + "}"
-            val next = ScalaPsiUtil.getNextStubOrPsiElement(this)
+            val accessModifier = clazz.getModifierList.accessModifier.map(_.getText + " ").getOrElse("")
+            val objText = accessModifier + "object " + clazz.name + "{\n  " + texts._1 + "\n  " + texts._2 + "\n" + "}"
+            val next = ScalaPsiUtil.getNextStubOrPsiElement(clazz)
             val obj: ScObject =
-              ScalaPsiElementFactory.createObjectWithContext(objText, getParent, if (next != null) next else this)
+              ScalaPsiElementFactory.createObjectWithContext(objText, clazz.getParent, if (next != null) next else clazz)
             import extensions._
             val objOption: Option[ScObject] = obj.toOption
             objOption.foreach { (obj: ScObject) =>
               obj.setSyntheticObject()
               obj.members.foreach {
-                case s: ScFunctionDefinition => s.setSynthetic(this) // So we find the `apply` method in ScalaPsiUti.syntheticParamForParam
+                case s: ScFunctionDefinition => s.setSynthetic(clazz) // So we find the `apply` method in ScalaPsiUti.syntheticParamForParam
                 case _ =>
               }
             }
