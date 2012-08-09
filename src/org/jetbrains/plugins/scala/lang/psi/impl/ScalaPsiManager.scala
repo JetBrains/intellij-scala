@@ -124,6 +124,8 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
       ScalaShortNamesCacheManager.getInstance(project).getImplicitObjectsByPackage(fqn, scope)
     }
 
+    if (DumbServiceImpl.getInstance(project).isDumb) return Seq.empty
+
     val reference = implicitObjectMap.get(fqn)
     val map = if (reference == null || reference.get() == null) {
       val map = new ConcurrentHashMap[GlobalSearchScope, Seq[ScObject]]()
