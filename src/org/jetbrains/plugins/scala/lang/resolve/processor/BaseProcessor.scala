@@ -21,7 +21,7 @@ import ResolveTargets._
 import _root_.scala.collection.mutable.HashSet
 import psi.impl.toplevel.synthetic.{ScSyntheticFunction, SyntheticClasses}
 import toplevel.ScTypedDefinition
-import toplevel.typedef.ScTemplateDefinition
+import toplevel.typedef.{ScObject, ScTemplateDefinition}
 import org.jetbrains.plugins.scala.extensions._
 import psi.impl.ScalaPsiManager
 
@@ -177,6 +177,7 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value]) extends PsiSc
         }
         break
       }
+      case ScDesignatorType(o: ScObject) => processElement(o, ScSubstitutor.empty, place, state)
       case ScDesignatorType(e: ScTypedDefinition) if place.isInstanceOf[ScTypeProjection] =>
         e.getType(TypingContext.empty) match {
           case Success(tp, _) => processType(tp, place, state, noBounds)
