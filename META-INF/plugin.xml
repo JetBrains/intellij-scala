@@ -20,7 +20,7 @@
     <name>Scala</name>
     <description>Plugin for Scala language support</description>
     <version>VERSION</version>
-    <vendor url="http://www.jetbrains.com">JetBrains Inc.</vendor> <!-- todo: logo="/org/jetbrains/plugins/scala/images/scala-small-logo.png" -->
+    <vendor url="http://www.jetbrains.com" logo="/org/jetbrains/plugins/scala/images/scala-small-logo.png">JetBrains Inc.</vendor>
     <idea-version since-build="117.37" until-build="117.9999"/>
     <depends optional="true" config-file="scala-maven-integration.xml">org.jetbrains.idea.maven</depends>
     <depends optional="true" config-file="intellilang-scala-support.xml">org.intellij.intelliLang</depends>
