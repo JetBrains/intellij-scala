@@ -42,7 +42,7 @@ trait ResolvableReferenceExpression extends ScReferenceExpression {
     ProgressManager.checkCanceled()
     if (shapeResolveFunction != null) return shapeResolveFunction()
     CachesUtil.getWithRecursionPreventing(this, CachesUtil.REF_EXPRESSION_SHAPE_RESOLVE_KEY,
-      new CachesUtil.MyProvider(this, (expr: ResolvableReferenceExpression) => shapeResolveInner)
+      new CachesUtil.MyProvider(this, (expr: ResolvableReferenceExpression) => expr.shapeResolveInner)
       (PsiModificationTracker.MODIFICATION_COUNT), Array.empty[ResolveResult])
   }
 
