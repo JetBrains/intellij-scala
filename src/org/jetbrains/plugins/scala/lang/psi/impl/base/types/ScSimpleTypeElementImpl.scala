@@ -58,8 +58,8 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
 
   override def getNonValueType(ctx: TypingContext): TypeResult[ScType] = {
     CachesUtil.getWithRecursionPreventing(this, CachesUtil.NON_VALUE_TYPE_ELEMENT_TYPE_KEY,
-        new CachesUtil.MyProvider[ScTypeElement, TypeResult[ScType]](
-        this, elem => innerNonValueType(ctx, inferValueType = false)
+        new CachesUtil.MyProvider[ScSimpleTypeElementImpl, TypeResult[ScType]](
+        this, elem => elem.innerNonValueType(ctx, inferValueType = false)
       )(PsiModificationTracker.MODIFICATION_COUNT), Failure("Recursive non value type of type element", Some(this)))
   }
 
