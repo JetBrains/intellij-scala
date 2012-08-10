@@ -159,6 +159,8 @@ class ScalaLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSettingsPr
         CodeStyleSettingsCustomizable.SPACES_BEFORE_PARENTHESES)
       showCustomOption("PRESERVE_SPACE_AFTER_METHOD_DECLARATION_NAME", "Preserve space before method parentheses",
         CodeStyleSettingsCustomizable.SPACES_BEFORE_PARENTHESES)
+      showCustomOption("SPACE_BEFORE_BRACE_METHOD_CALL", "Space before method call brace",
+        CodeStyleSettingsCustomizable.SPACES_BEFORE_PARENTHESES)
     }
 
   }
