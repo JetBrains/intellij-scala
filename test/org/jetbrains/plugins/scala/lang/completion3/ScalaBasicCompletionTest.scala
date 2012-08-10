@@ -623,4 +623,25 @@ class ScalaBasicCompletionTest extends ScalaCompletionTestBase {
 
     assert(activeLookup.filter(le => le.getLookupString == "Int").length == 2)
   }
+
+  def testBraceCompletionChar() {
+    val fileText =
+      """
+        |class aaa {
+        |  Seq(1, 2, 3).ma<caret>
+        |}
+      """.stripMargin.replaceAll("\r", "").trim()
+    configureFromFileTextAdapter("dummy.scala", fileText)
+    val (activeLookup, _) = complete(1, CompletionType.BASIC)
+
+    val resultText =
+      """
+        |class aaa {
+        |  Seq(1, 2, 3).map {<caret>}
+        |}
+      """.stripMargin.replaceAll("\r", "").trim()
+
+    completeLookupItem(activeLookup.find(le => le.getLookupString == "map").get, '{')
+    checkResultByText(resultText)
+  }
 }
