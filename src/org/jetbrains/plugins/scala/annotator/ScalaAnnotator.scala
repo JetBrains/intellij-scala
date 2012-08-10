@@ -25,8 +25,6 @@ import quickfix.{ChangeTypeFix, ReportHighlightingErrorQuickFix}
 import template._
 import com.intellij.openapi.project.DumbAware
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression.ExpressionTypeResult
-import com.intellij.openapi.editor.markup.{EffectType, TextAttributes}
-import java.awt.{Font, Color}
 import components.HighlightingAdvisor
 import org.jetbrains.plugins.scala.extensions._
 import collection.{mutable, Seq, Set}
@@ -44,10 +42,9 @@ import highlighter.{DefaultHighlighter, AnnotatorHighlighter}
 import types.{ScParameterizedTypeElement, ScTypeProjection, ScTypeElement}
 import com.intellij.openapi.util.{TextRange, Key}
 import collection.mutable.{ArrayBuffer, HashSet}
-import settings._
-import com.intellij.lang.ASTNode
 import com.intellij.codeInsight.daemon.impl.AnnotationHolderImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScInterpolatedStringPrefixReference
+import codeInspection.caseClassParamInspection.{RemoveValFromGeneratorIntentionAction, RemoveValFromEnumeratorIntentionAction}
 
 /**
  * User: Alexander Podkhalyuzin
@@ -121,6 +118,28 @@ with DumbAware {
       override def visitReferenceExpression(ref: ScReferenceExpression) {
         referencePart(ref)
         visitExpression(ref)
+      }
+
+      override def visitEnumerator(enum: ScEnumerator) {
+        enum.valKeyword match {
+          case Some(valKeyword) =>
+            val annotation = holder.createWarningAnnotation(valKeyword, ScalaBundle.message("enumerator.val.keyword.deprecated"))
+            annotation.setHighlightType(ProblemHighlightType.LIKE_DEPRECATED)
+            annotation.registerFix(new RemoveValFromEnumeratorIntentionAction(enum))
+          case _ =>
+        }
+        super.visitEnumerator(enum)
+      }
+
+      override def visitGenerator(gen: ScGenerator) {
+        gen.valKeyword match {
+          case Some(valKeyword) =>
+            val annotation = holder.createWarningAnnotation(valKeyword, ScalaBundle.message("generator.val.keyword.removed"))
+            annotation.setHighlightType(ProblemHighlightType.LIKE_UNKNOWN_SYMBOL)
+            annotation.registerFix(new RemoveValFromGeneratorIntentionAction(gen))
+          case _ =>
+        }
+        super.visitGenerator(gen)
       }
 
       override def visitGenericCallExpression(call: ScGenericCall) {
