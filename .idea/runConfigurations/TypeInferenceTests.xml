@@ -46,6 +46,7 @@
     <RunnerSettings RunnerId="Run" />
     <ConfigurationWrapper RunnerId="Run" />
     <method>
+      <option name="Make" enabled="true" />
       <option name="BuildArtifacts" enabled="true">
         <artifact name="ScalaPlugins" />
       </option>

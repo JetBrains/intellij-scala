@@ -15,6 +15,7 @@ import com.intellij.openapi.util.Condition
 import com.intellij.psi.{PsiFile, PsiNamedElement, PsiMethod}
 import lookups.ScalaLookupItem
 import psi.api.base.ScStableCodeReferenceElement
+import psi.ScalaPsiUtil
 
 /**
  * User: Alexander Podkhalyuzin
@@ -56,7 +57,7 @@ class ScalaInsertHandler extends InsertHandler[LookupElement] {
     val document = editor.getDocument
     val completionChar: Char = context.getCompletionChar
     def disableParenthesesCompletionChar() {
-      if (completionChar == '(') {
+      if (completionChar == '(' || completionChar == '{') {
         context.setAddCompletionChar(false)
       }
     }
@@ -169,7 +170,7 @@ class ScalaInsertHandler extends InsertHandler[LookupElement] {
               if (count > 1) {
                 disableParenthesesCompletionChar()
                 if (!item.etaExpanded) {
-                  document.insertString(endOffset, " ()")
+                  document.insertString(endOffset, if (context.getCompletionChar == '{') " {}" else " ()")
                   endOffset += 3
                   editor.getCaretModel.moveToOffset(endOffset - 1)
                 } else {
@@ -178,9 +179,15 @@ class ScalaInsertHandler extends InsertHandler[LookupElement] {
                   editor.getCaretModel.moveToOffset(endOffset)
                 }
               } else {
-                document.insertString(endOffset, " ")
-                endOffset += 1
-                editor.getCaretModel.moveToOffset(endOffset)
+                if (context.getCompletionChar == '{') {
+                  document.insertString(endOffset, " {}")
+                  endOffset += 3
+                  editor.getCaretModel.moveToOffset(endOffset - 1)
+                } else {
+                  document.insertString(endOffset, " ")
+                  endOffset += 1
+                  editor.getCaretModel.moveToOffset(endOffset)
+                }
               }
             // for reference invocations
             case _ =>
@@ -192,8 +199,13 @@ class ScalaInsertHandler extends InsertHandler[LookupElement] {
               } else if (endOffset == document.getTextLength || document.getCharsSequence.charAt(endOffset) != '(') {
                 disableParenthesesCompletionChar()
                 if (!item.etaExpanded) {
-                  document.insertString(endOffset, "()")
-                  endOffset += 2
+                  val str =
+                    if (context.getCompletionChar == '{') {
+                      if (ScalaPsiUtil.getSettings(context.getProject).SPACE_BEFORE_BRACE_METHOD_CALL) " {}"
+                      else "{}"
+                    } else "()"
+                  document.insertString(endOffset, str)
+                  endOffset += str.length
                   editor.getCaretModel.moveToOffset(endOffset - 1)
                 } else {
                   document.insertString(endOffset, " _")
