@@ -22,107 +22,275 @@ import lang.psi.impl.toplevel.typedef.MixinNodes
 import lang.psi.types.ScType
 import collection.mutable
 import com.intellij.util.Processor
+import org.codehaus.groovy.ast.expr.StaticMethodCallExpression
 
 /**
  * @author cheeseng
  * @since 16.01.2012
  */
 class ScalaTestAstTransformer {
-  def getFinder(clazz: ScClass, module: Module): Option[Finder] = {
-    val clazzWithStyleOpt = MixinNodes.linearization(clazz).flatMap {
-      tp => ScType.extractClass(tp, Some(clazz.getProject))
-    }.find {
-      psiClass =>
-        psiClass match {
-          case scClass: ScClass => scClass.hasAnnotation("org.scalatest.Style") != None
-          case scTrait: ScTrait => scTrait.hasAnnotation("org.scalatest.Style") != None
-          case _ => false
-        }
-    }
 
-    def loadClass(className: String) = {
-      val orderEntries = mutable.HashSet.empty[OrderEntry]
-      OrderEnumerator.orderEntries(module).recursively().runtimeOnly().forEach(new Processor[OrderEntry] {
-        def process(t: OrderEntry): Boolean = {
-          orderEntries += t
-          true
+  def loadClass(className: String, module: Module) = {
+    val orderEntries = mutable.HashSet.empty[OrderEntry]
+    OrderEnumerator.orderEntries(module).recursively().runtimeOnly().forEach(new Processor[OrderEntry] {
+      def process(t: OrderEntry): Boolean = {
+        orderEntries += t
+        true
+      }
+    })
+    val loaderUrls = orderEntries.map {
+      orderEntry =>
+        val rawUrls = orderEntry.getFiles(OrderRootType.CLASSES).map(_.getPresentableUrl)
+        rawUrls.map {
+          rawUrl =>
+            val cpFile = new File(rawUrl)
+            if (cpFile.exists && cpFile.isDirectory && !rawUrl.toString.endsWith(File.separator))
+              new URL("file://" + rawUrl + "/")
+            else
+              new URL("file://" + rawUrl)
         }
-      })
-      val loaderUrls = orderEntries.map {
-        orderEntry =>
-          val rawUrls = orderEntry.getFiles(OrderRootType.CLASSES).map(_.getPresentableUrl)
-          rawUrls.map {
-            rawUrl =>
-              val cpFile = new File(rawUrl)
-              if (cpFile.exists && cpFile.isDirectory && !rawUrl.toString.endsWith(File.separator))
-                new URL("file://" + rawUrl + "/")
-              else
-                new URL("file://" + rawUrl)
-          }
-      }.flatten
-      val loader = new URLClassLoader(loaderUrls.toArray, getClass.getClassLoader)
-      loader.loadClass(className)
-    }
+    }.flatten
+    val loader = new URLClassLoader(loaderUrls.toArray, getClass.getClassLoader)
+    loader.loadClass(className)
+  }
 
-    clazzWithStyleOpt match {
-      case Some(clazzWithStyle) => // Either ScClass or ScTrait, the following should be safe cast
-        val typeDef = clazzWithStyle.asInstanceOf[ScTypeDefinition]
-        try {
-          val finderClassName: String = typeDef.hasAnnotation("org.scalatest.Style") match {
-            case Some(styleAnnotation) =>
-              val notFound = "NOT FOUND STYLE TEXT"
-              styleAnnotation.constructor.args match {
-                case Some(args) =>
-                  val exprs = args.exprs
-                  if (exprs.length > 0) {
-                    exprs(0) match {
-                      case l: ScLiteral if l.isString =>
-                        val value = l.getValue
-                        if (value.isInstanceOf[String]) value.asInstanceOf[String]
-                        else notFound
-                      case a: ScAssignStmt if a.getLExpression.isInstanceOf[ScReferenceExpression] &&
-                        a.getLExpression.asInstanceOf[ScReferenceExpression].refName == "value" =>
-                        a.getRExpression match {
-                          case l: ScLiteral if l.isString =>
-                            val value = l.getValue
-                            if (value.isInstanceOf[String]) value.asInstanceOf[String]
-                            else notFound
-                          case _ => notFound
-                        }
-                      case _ => notFound
-                    }
-                  } else notFound
-                case _ => notFound
-              }
-            case _ => throw new RuntimeException("Match is not exhaustive!")
+  def getFinderClassNames(clazz: ScClass, module: Module): Array[String] = {
+
+    def getFinderByFindersAnnotation: Array[String] = {
+      val clazzWithFindersOpt = MixinNodes.linearization(clazz).flatMap {
+        tp => ScType.extractClass(tp, Some(clazz.getProject))
+      }.find {
+        psiClass =>
+          psiClass match {
+            case scClass: ScClass => scClass.hasAnnotation("org.scalatest.Finders") != None
+            case scTrait: ScTrait => scTrait.hasAnnotation("org.scalatest.Finders") != None
+            case _ => false
           }
-          Some(loadClass(finderClassName).newInstance.asInstanceOf[Finder])
-        }
-        catch {
-          case _: Exception =>
-            val suiteClassName = typeDef.qualifiedName
-            val suiteClass = loadClass(suiteClassName)
-            val styleOpt = suiteClass.getAnnotations.find(annt => annt.annotationType.getName == "org.scalatest.Style")
-            styleOpt match {
-              case Some(style) =>
-                val valueMethod = style.annotationType.getMethod("value")
-                val finderClassName = valueMethod.invoke(style).asInstanceOf[String]
-                if (finderClassName != null) {
-                  val finderClass = loadClass(finderClassName)
-                  val instance = finderClass.newInstance
-                  instance match {
-                    case finder: Finder => Some(finder)
-                    case _ => None
-                  }
+      }
+
+      clazzWithFindersOpt match {
+        case Some(clazzWithFinders) => // Either ScClass or ScTrait, the following should be safe cast
+          val typeDef = clazzWithFinders.asInstanceOf[ScTypeDefinition]
+          try {
+            typeDef.hasAnnotation("org.scalatest.Finders") match {
+              case Some(styleAnnotation) =>
+                styleAnnotation.constructor.args match {
+                  case Some(args) =>
+                    val exprs = args.exprs
+                    if (exprs.length > 0) {
+                      exprs(0) match {
+                        /*case l: ScLiteral if l.isString =>
+                          val value = l.getValue
+                          if (value.isInstanceOf[String]) value.asInstanceOf[String]
+                          else notFound
+                        case a: ScAssignStmt if a.getLExpression.isInstanceOf[ScReferenceExpression] &&
+                                a.getLExpression.asInstanceOf[ScReferenceExpression].refName == "value" =>
+                          a.getRExpression match {
+                            case l: ScLiteral if l.isString =>
+                              val value = l.getValue
+                              if (value.isInstanceOf[String]) value.asInstanceOf[String]
+                              else notFound
+                            case _ => notFound
+                          }*/
+                        case m: ScMethodCall =>
+                          m.args.exprs.map { expr =>
+                            expr match {
+                              case l: ScLiteral if l.isString =>
+                                val value = l.getValue
+                                if (value.isInstanceOf[String]) value.asInstanceOf[String]
+                                else ""
+                              case other => ""
+                            }
+                          }.filter(_ != "").toArray
+                        case a: ScAssignStmt if a.getLExpression.isInstanceOf[ScReferenceExpression] &&
+                                a.getLExpression.asInstanceOf[ScReferenceExpression].refName == "value" =>
+                          a.getRExpression match {
+                            case m: ScMethodCall =>
+                              m.args.exprs.map { expr =>
+                                expr match {
+                                  case l: ScLiteral if l.isString =>
+                                    val value = l.getValue
+                                    if (value.isInstanceOf[String]) value.asInstanceOf[String]
+                                    else ""
+                                  case other => ""
+                                }
+                              }.filter(_ != "").toArray
+                            case _ => throw new RuntimeException("Match is not exhaustive!")
+                          }
+                        case other =>
+                          throw new RuntimeException("Match is not exhaustive!")
+                      }
+                    } else throw new RuntimeException("Match is not exhaustive!")
+                  case _ => throw new RuntimeException("Match is not exhaustive!")
                 }
-                else
-                  None
-              case None => None
+              case _ => throw new RuntimeException("Match is not exhaustive!")
             }
-        }
-      case None =>
-        None
+          }
+          catch {
+            case _: Exception =>
+              try {
+                val suiteClassName = typeDef.qualifiedName
+                val suiteClass = loadClass(suiteClassName, module)
+                val styleOpt = suiteClass.getAnnotations.find(annt => annt.annotationType.getName == "org.scalatest.Finders")
+                styleOpt match {
+                  case Some(style) =>
+                    val valueMethod = style.annotationType.getMethod("value")
+                    valueMethod.invoke(style).asInstanceOf[Array[String]]
+                  case None => Array.empty
+                }
+              }
+              catch {
+                case _ => Array.empty
+              }
+          }
+        case None => Array.empty
+      }
     }
+
+    def getFinderByStyleAnnotation: Array[String] = {
+      val clazzWithStyleOpt = MixinNodes.linearization(clazz).flatMap {
+        tp => ScType.extractClass(tp, Some(clazz.getProject))
+      }.find {
+        psiClass =>
+          psiClass match {
+            case scClass: ScClass => scClass.hasAnnotation("org.scalatest.Style") != None
+            case scTrait: ScTrait => scTrait.hasAnnotation("org.scalatest.Style") != None
+            case _ => false
+          }
+      }
+
+      clazzWithStyleOpt match {
+        case Some(clazzWithStyle) => // Either ScClass or ScTrait, the following should be safe cast
+          val typeDef = clazzWithStyle.asInstanceOf[ScTypeDefinition]
+          try {
+            val finderClassName: String = typeDef.hasAnnotation("org.scalatest.Style") match {
+              case Some(styleAnnotation) =>
+                styleAnnotation.constructor.args match {
+                  case Some(args) =>
+                    val exprs = args.exprs
+                    if (exprs.length > 0) {
+                      exprs(0) match {
+                        case l: ScLiteral if l.isString =>
+                          val value = l.getValue
+                          if (value.isInstanceOf[String]) value.asInstanceOf[String]
+                          else throw new RuntimeException("Unable to get from AST, throw error to try reflection.")
+                        case a: ScAssignStmt if a.getLExpression.isInstanceOf[ScReferenceExpression] &&
+                                a.getLExpression.asInstanceOf[ScReferenceExpression].refName == "value" =>
+                          a.getRExpression match {
+                            case l: ScLiteral if l.isString =>
+                              val value = l.getValue
+                              if (value.isInstanceOf[String]) value.asInstanceOf[String]
+                              else throw new RuntimeException("Unable to get from AST, throw error to try reflection.")
+                            case _ => throw new RuntimeException("Unable to get from AST, throw error to try reflection.")
+                          }
+                        case _ => throw new RuntimeException("Unable to get from AST, throw error to try reflection.")
+                      }
+                    } else throw new RuntimeException("Unable to get from AST, throw error to try reflection.")
+                  case _ => throw new RuntimeException("Unable to get from AST, throw error to try reflection.")
+                }
+              case _ => throw new RuntimeException("Match is not exhaustive!")
+            }
+            Array(finderClassName)
+          }
+          catch {
+            case _: Exception =>
+              val suiteClassName = typeDef.qualifiedName
+              val suiteClass = loadClass(suiteClassName, module)
+              val styleOpt = suiteClass.getAnnotations.find(annt => annt.annotationType.getName == "org.scalatest.Style")
+              styleOpt match {
+                case Some(style) =>
+                  val valueMethod = style.annotationType.getMethod("value")
+                  val finderClassName = valueMethod.invoke(style).asInstanceOf[String]
+                  if (finderClassName != null)
+                    Array(finderClassName)
+                  else
+                    Array.empty
+                case None => Array.empty
+              }
+          }
+        case None => Array.empty
+      }
+    }
+
+    /*def getFinderByStyleAnnotation: Option[Finder] = {
+      val clazzWithStyleOpt = MixinNodes.linearization(clazz).flatMap {
+        tp => ScType.extractClass(tp, Some(clazz.getProject))
+      }.find {
+        psiClass =>
+          psiClass match {
+            case scClass: ScClass => scClass.hasAnnotation("org.scalatest.Style") != None
+            case scTrait: ScTrait => scTrait.hasAnnotation("org.scalatest.Style") != None
+            case _ => false
+          }
+      }
+
+      clazzWithStyleOpt match {
+        case Some(clazzWithStyle) => // Either ScClass or ScTrait, the following should be safe cast
+          val typeDef = clazzWithStyle.asInstanceOf[ScTypeDefinition]
+          try {
+            val finderClassName: String = typeDef.hasAnnotation("org.scalatest.Style") match {
+              case Some(styleAnnotation) =>
+                val notFound = "NOT FOUND STYLE TEXT"
+                styleAnnotation.constructor.args match {
+                  case Some(args) =>
+                    val exprs = args.exprs
+                    if (exprs.length > 0) {
+                      exprs(0) match {
+                        case l: ScLiteral if l.isString =>
+                          val value = l.getValue
+                          println("#####value: " + value)
+                          if (value.isInstanceOf[String]) value.asInstanceOf[String]
+                          else notFound
+                        case a: ScAssignStmt if a.getLExpression.isInstanceOf[ScReferenceExpression] &&
+                          a.getLExpression.asInstanceOf[ScReferenceExpression].refName == "value" =>
+                          a.getRExpression match {
+                            case l: ScLiteral if l.isString =>
+                              val value = l.getValue
+                              if (value.isInstanceOf[String]) value.asInstanceOf[String]
+                              else notFound
+                            case _ => notFound
+                          }
+                        case _ => notFound
+                      }
+                    } else notFound
+                  case _ => notFound
+                }
+              case _ => throw new RuntimeException("Match is not exhaustive!")
+            }
+            Some(loadClass(finderClassName).newInstance.asInstanceOf[Finder])
+          }
+          catch {
+            case _: Exception =>
+              val suiteClassName = typeDef.qualifiedName
+              val suiteClass = loadClass(suiteClassName)
+              val styleOpt = suiteClass.getAnnotations.find(annt => annt.annotationType.getName == "org.scalatest.Style")
+              styleOpt match {
+                case Some(style) =>
+                  val valueMethod = style.annotationType.getMethod("value")
+                  val finderClassName = valueMethod.invoke(style).asInstanceOf[String]
+                  if (finderClassName != null) {
+                    val finderClass = loadClass(finderClassName)
+                    val instance = finderClass.newInstance
+                    instance match {
+                      case finder: Finder => Some(finder)
+                      case _ => None
+                    }
+                  }
+                  else
+                    None
+                case None => None
+              }
+          }
+        case None =>
+          None
+      }
+    }*/
+
+    val finders = getFinderByFindersAnnotation
+    if (finders.length > 0)
+      finders
+    else
+      getFinderByStyleAnnotation
   }
 
   trait TreeSupport {
@@ -339,9 +507,12 @@ class ScalaTestAstTransformer {
     val element = location.getPsiElement
     val clazz = PsiTreeUtil.getParentOfType(element, classOf[ScClass], false)
     if (clazz == null) return None
-    val finderOpt = getFinder(clazz, location.getModule)
-    finderOpt match {
-      case Some(finder) =>
+    val module = location.getModule
+    val finderClassNames = getFinderClassNames(clazz, module)
+    var result: Option[Selection] = None // Use var to store up find result for better performance.
+    finderClassNames.find { finderClassName =>
+      try {
+        val finder = loadClass(finderClassName, module).newInstance.asInstanceOf[Finder] // Just cast directly, if it is not what we are looking for, then try the next finder class.
         val selectedAstOpt = getSelectedAstNode(clazz.qualifiedName, element)
         selectedAstOpt match {
           case Some(selectedAst) =>
@@ -360,13 +531,19 @@ class ScalaTestAstTransformer {
               case None =>
                 println("***Test Not Found!!")
             }*/
-            if (selection != null)
-              Some(selection)
+            if (selection != null) {
+              result = Some(selection)
+              true
+            }
             else
-              None
-          case None => None
+              false
+          case None => false
         }
-      case None => None
+      }
+      catch {
+        case _ => false
+      }
     }
+    result
   }
 }
