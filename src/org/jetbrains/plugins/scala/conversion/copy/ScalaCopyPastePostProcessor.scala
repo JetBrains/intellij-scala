@@ -26,7 +26,7 @@ import com.intellij.openapi.diagnostic.Logger
 
 class ScalaCopyPastePostProcessor extends CopyPastePostProcessor[Associations] {
   private val Log = Logger.getInstance(getClass)
-  private val Timeout = 1000L
+  private val Timeout = 3000L
 
   def collectTransferableData(file: PsiFile, editor: Editor,
                               startOffsets: Array[Int], endOffsets: Array[Int]): Associations = {
@@ -74,41 +74,52 @@ class ScalaCopyPastePostProcessor extends CopyPastePostProcessor[Associations] {
 
     PsiDocumentManager.getInstance(project).commitAllDocuments()
 
-    val bindings = for(association <- value.associations;
-                       element <- elementFor(association, file, bounds)
-                       if (!association.kind.isSatisfiedIn(element)))
+    val offset = bounds.getStartOffset
+
+    doRestoreAssociations(value, file, offset, project) { bindingsToRestore =>
+      if (ScalaApplicationSettings.getInstance().ADD_IMPORTS_ON_PASTE == CodeInsightSettings.ASK) {
+        val dialog = new RestoreReferencesDialog(project, bindingsToRestore.map(_.path.toOption.getOrElse("")).sorted.toArray)
+        dialog.show()
+        val selectedPahts = dialog.getSelectedElements
+        if (dialog.getExitCode == DialogWrapper.OK_EXIT_CODE)
+          bindingsToRestore.filter(it => selectedPahts.contains(it.path))
+        else
+          Seq.empty
+      } else {
+        bindingsToRestore
+      }
+    }
+  }
+
+  def restoreAssociations(value: Associations, file: PsiFile, offset: Int, project: Project) {
+    doRestoreAssociations(value, file, offset, project)(identity)
+  }
+
+  private def doRestoreAssociations(value: Associations, file: PsiFile, offset: Int, project: Project)
+                         (filter: Seq[Binding] => Seq[Binding]) {
+    val bindings = for (association <- value.associations;
+                        element <- elementFor(association, file, offset)
+                        if (!association.kind.isSatisfiedIn(element)))
     yield Binding(element, association.path.asString(ScalaProjectSettings.getInstance(project).
               isImportMembersUsingUnderScore))
 
-    val bindingsToRestore = bindings.distinctBy(_.path)
+    val bindingsToRestore = filter(bindings.distinctBy(_.path))
 
     if (bindingsToRestore.isEmpty) return
 
-    val bs = if (ScalaApplicationSettings.getInstance().ADD_IMPORTS_ON_PASTE == CodeInsightSettings.ASK) {
-      val dialog = new RestoreReferencesDialog(project, bindingsToRestore.map(_.path.toOption.getOrElse("")).sorted.toArray)
-      dialog.show()
-      val selectedPahts = dialog.getSelectedElements
-      if (dialog.getExitCode == DialogWrapper.OK_EXIT_CODE)
-        bindingsToRestore.filter(it => selectedPahts.contains(it.path))
-      else
-        Seq.empty
-    } else {
-      bindingsToRestore
-    }
-
     inWriteAction {
-      for(Binding(ref, path) <- bs;
-          holder = ScalaImportClassFix.getImportHolder(ref, file.getProject))
+      for (Binding(ref, path) <- bindingsToRestore;
+           holder = ScalaImportClassFix.getImportHolder(ref, file.getProject))
         holder.addImportForPath(path, ref)
     }
   }
 
-  private def elementFor(dependency: Association, file: PsiFile, bounds: RangeMarker): Option[PsiElement] = {
-    val range = dependency.range.shiftRight(bounds.getStartOffset)
+  private def elementFor(dependency: Association, file: PsiFile, offset: Int): Option[PsiElement] = {
+    val range = dependency.range.shiftRight(offset)
 
     for(ref <- Option(file.findElementAt(range.getStartOffset));
         parent <- ref.parent if parent.getTextRange == range) yield parent
   }
 
-  case class Binding(element: PsiElement, path: String)
+  private case class Binding(element: PsiElement, path: String)
 }
