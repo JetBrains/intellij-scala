@@ -158,15 +158,4 @@ class ScPackagingImpl extends ScalaStubBasedElementImpl[ScPackageContainer] with
       text.substring(startOffset, endOffset)
     }
   }
-
-  def strip() {
-    if (isExplicit) {
-      deleteChildRange(getFirstChild, findChildByType(ScalaTokenTypes.tLBRACE))
-      lastChild.foreach(_.delete())
-    } else {
-      deleteChildren(children.take(3).toList)
-    }
-    deleteChildren(children.takeWhile(_.isInstanceOf[PsiWhiteSpace]).toList)
-    unwrapChildren()
-  }
 }
