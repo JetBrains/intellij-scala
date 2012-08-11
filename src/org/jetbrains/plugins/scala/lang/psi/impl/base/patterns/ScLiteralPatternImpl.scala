@@ -10,6 +10,7 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
 import com.intellij.lang.ASTNode
 import com.intellij.psi._
 import api.ScalaElementVisitor
+import psi.types.result.TypingContext
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -17,7 +18,7 @@ import api.ScalaElementVisitor
 */
 
 class ScLiteralPatternImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScLiteralPattern {
-  override def accept(visitor: PsiElementVisitor): Unit = {
+  override def accept(visitor: PsiElementVisitor) {
     visitor match {
       case visitor: ScalaElementVisitor => super.accept(visitor)
       case _ => super.accept(visitor)
@@ -25,4 +26,8 @@ class ScLiteralPatternImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with
   }
 
   override def toString: String = "LiteralPattern"
+
+  override def getType(ctx: TypingContext) = {
+    getLiteral.getType(TypingContext.empty)
+  }
 }
