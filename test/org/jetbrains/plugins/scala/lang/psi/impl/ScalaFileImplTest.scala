@@ -13,26 +13,26 @@ import api.toplevel.typedef.ScClass
  */
 
 class ScalaFileImplTest extends SimpleTestCase {
-  def testStripPackages() {
-    assertPackagesStrippedAs("", "")
-    assertPackagesStrippedAs("package a", "")
-    assertPackagesStrippedAs("package a\npackage b", "")
-
-    assertPackagesStrippedAs("package a\nclass C", "class C")
-    assertPackagesStrippedAs("package a\npackage b\nclass C", "class C")
-
-    assertPackagesStrippedAs("package a {\nclass A\npackage b {\nclass B\n}\n}", "class A\nclass B\n")
-    assertPackagesStrippedAs("package a {\npackage b {\nclass A\n}\npackage c {\nclass B\n}\n}", "class A\nclass B\n")
-  }
-
-  def testStripPackagesIdentity() {
-    val file = parseText("package foo\nclass C")
-    val oldClass = file.depthFirst.findByType(classOf[ScClass]).get
-    ScalaFileImpl.stripPackagesIn(file)
-    val newClass = file.getFirstChild
-    Assert.assertSame(oldClass, newClass)
-    Assert.assertSame(file, newClass.getContainingFile)
-  }
+//  def testStripPackages() {
+//    assertPackagesStrippedAs("", "")
+//    assertPackagesStrippedAs("package a", "")
+//    assertPackagesStrippedAs("package a\npackage b", "")
+//
+//    assertPackagesStrippedAs("package a\nclass C", "class C")
+//    assertPackagesStrippedAs("package a\npackage b\nclass C", "class C")
+//
+//    assertPackagesStrippedAs("package a {\nclass A\npackage b {\nclass B\n}\n}", "class A\nclass B\n")
+//    assertPackagesStrippedAs("package a {\npackage b {\nclass A\n}\npackage c {\nclass B\n}\n}", "class A\nclass B\n")
+//  }
+//
+//  def testStripPackagesIdentity() {
+//    val file = parseText("package foo\nclass C")
+//    val oldClass = file.depthFirst.findByType(classOf[ScClass]).get
+//    ScalaFileImpl.stripPackagesIn(file)
+//    val newClass = file.getFirstChild
+//    Assert.assertSame(oldClass, newClass)
+//    Assert.assertSame(file, newClass.getContainingFile)
+//  }
 
   def testPathIn() {
     assertPathIs("", List())
@@ -45,28 +45,28 @@ class ScalaFileImplTest extends SimpleTestCase {
     assertPathIs("/* foo */\npackage a\n/* bar */\npackage b", List(List("a"), List("b")))
   }
 
-  def testSetPath() {
-    assertPathAddedAs("", List(List("a")), "package a");
-    assertPathAddedAs("", List(List("a", "b")), "package a.b");
-    assertPathAddedAs("", List(List("a"), List("b")), "package a\npackage b");
-    assertPathAddedAs("", List(List("a", "b"), List("c", "d")), "package a.b\npackage c.d");
+//  def testSetPath() {
+//    assertPathAddedAs("", List(List("a")), "package a");
+//    assertPathAddedAs("", List(List("a", "b")), "package a.b");
+//    assertPathAddedAs("", List(List("a"), List("b")), "package a\npackage b");
+//    assertPathAddedAs("", List(List("a", "b"), List("c", "d")), "package a.b\npackage c.d");
+//
+//    assertPathAddedAs("class C", List(List("a")), "package a\n\nclass C");
+//    assertPathAddedAs("class C", List(List("a"), List("b")), "package a\npackage b\n\nclass C");
+//
+////    assertPathAddedAs("class C\n\n", List(List("a")), "package a\n\nclass C\n\n");
+//
+////    assertPathAddedAs(" ", List(List("a")), "package a\n\n ");
+//  }
 
-    assertPathAddedAs("class C", List(List("a")), "package a\n\nclass C");
-    assertPathAddedAs("class C", List(List("a"), List("b")), "package a\npackage b\n\nclass C");
-
-//    assertPathAddedAs("class C\n\n", List(List("a")), "package a\n\nclass C\n\n");
-
-//    assertPathAddedAs(" ", List(List("a")), "package a\n\n ");
-  }
-
-  def testSetPathIdentity() {
-    val file = parseText("class C")
-    val oldClass = file.getFirstChild
-    ScalaFileImpl.addPathTo(file, List(List("foo")))
-    val newClass = file.depthFirst.findByType(classOf[ScClass]).get
-    Assert.assertSame(oldClass, newClass)
-    Assert.assertSame(file, newClass.getContainingFile)
-  }
+//  def testSetPathIdentity() {
+//    val file = parseText("class C")
+//    val oldClass = file.getFirstChild
+//    ScalaFileImpl.addPathTo(file, List(List("foo")))
+//    val newClass = file.depthFirst.findByType(classOf[ScClass]).get
+//    Assert.assertSame(oldClass, newClass)
+//    Assert.assertSame(file, newClass.getContainingFile)
+//  }
 
   def testSplitsIn() {
     assertSplitsAre(List(), List())
@@ -126,21 +126,21 @@ class ScalaFileImplTest extends SimpleTestCase {
     Assert.assertSame(file, newClass.getContainingFile)
   }
   
-  private def assertPackagesStrippedAs(before: String, after: String) {
-    val file = parseText(before)
-    ScalaFileImpl.stripPackagesIn(file)
-    Assert.assertEquals(describe(parseText(after)), describe(file))
-  }
+//  private def assertPackagesStrippedAs(before: String, after: String) {
+//    val file = parseText(before)
+//    ScalaFileImpl.stripPackagesIn(file)
+//    Assert.assertEquals(describe(parseText(after)), describe(file))
+//  }
 
   private def assertPathIs(code: String, path: List[List[String]]) {
     Assert.assertEquals(path, ScalaFileImpl.pathIn(parseText(code)))
   }
 
-  private def assertPathAddedAs(before: String, path: List[List[String]], after: String) {
-    val file = parseText(before)
-    ScalaFileImpl.addPathTo(file, path)
-    Assert.assertEquals(describe(parseText(after)), describe(file))
-  }
+//  private def assertPathAddedAs(before: String, path: List[List[String]], after: String) {
+//    val file = parseText(before)
+//    ScalaFileImpl.addPathTo(file, path)
+//    Assert.assertEquals(describe(parseText(after)), describe(file))
+//  }
 
   private def assertSplitAs(before: List[List[String]], vector: List[String], after: List[List[String]]) {
     Assert.assertEquals(after, ScalaFileImpl.splitAt(before, vector))
