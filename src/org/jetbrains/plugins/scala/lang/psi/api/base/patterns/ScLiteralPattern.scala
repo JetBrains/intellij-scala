@@ -5,13 +5,11 @@ package api
 package base
 package patterns
 
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
-
-/** 
+/**
 * @author Alexander Podkhalyuzin
 * Date: 28.02.2008
 */
 
 trait ScLiteralPattern extends ScPattern {
-
+  def getLiteral: ScLiteral = findChildByClassScala(classOf[ScLiteral])
 }
