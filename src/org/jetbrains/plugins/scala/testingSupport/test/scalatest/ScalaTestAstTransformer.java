@@ -144,8 +144,8 @@ public class ScalaTestAstTransformer {
                         ScAnnotationExpr annotationExpr = styleAnnotation.annotationExpr();
                         List<ScNameValuePair> valuepairs = JavaConversions.seqAsJavaList(annotationExpr.getAttributes());
                         if (args == null && !valuepairs.isEmpty()) {
-                            finderClassName = valuepairs.get(0).getLiteralValue() == null ?
-                                    notFound : valuepairs.get(0).getLiteralValue();
+                            finderClassName = valuepairs.get(0).getValue().getText() == null ?
+                                    notFound : valuepairs.get(0).getValue().getText();
                         } else if (args != null) {
                             List<ScExpression> exprs = JavaConversions.seqAsJavaList(args.exprs());
                             if (exprs.size() > 0) {
