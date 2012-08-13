@@ -16,6 +16,7 @@ import org.jetbrains.plugins.scala.conversion.copy.ScalaCopyPastePostProcessor;
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile;
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaRecursiveElementVisitor;
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement;
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -68,7 +69,7 @@ public class MoveScalaClassHandler implements MoveClassHandler {
       }
       else if (((ScalaFile)file).typeDefinitionsArray().length > 1) {
 //        correctSelfReferences(aClass, newPackage);
-        final PsiClass created = ScalaDirectoryService.createClassFromTemplate(moveDestination, aClass.getName(), "Scala Class", false);
+        final PsiClass created = ScalaDirectoryService.createClassFromTemplate(moveDestination, ((ScNamedElement) aClass).name(), "Scala Class", false);
 //        if (aClass.getDocComment() == null) {
           final PsiDocComment createdDocComment = created.getDocComment();
           if (createdDocComment != null) {
@@ -136,7 +137,9 @@ public class MoveScalaClassHandler implements MoveClassHandler {
   public String getName(PsiClass clazz) {
     final PsiFile file = clazz.getContainingFile();
     if (!(file instanceof ScalaFile)) return null;
-    return ((ScalaFile)file).typeDefinitionsArray().length > 1 ? clazz.getName() + "." + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension() : file.getName();
+    return ((ScalaFile)file).typeDefinitionsArray().length > 1
+        ? ((ScNamedElement) clazz).name() + "." + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension()
+        : file.getName();
   }
 
   @Override
