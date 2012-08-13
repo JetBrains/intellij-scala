@@ -51,8 +51,11 @@ class ScalaTestConfigurationProducer extends {
     if (element == null) return null
 
     if (element.isInstanceOf[PsiPackage] || element.isInstanceOf[PsiDirectory]) {
-      return TestConfigurationUtil.packageSettings(element, location, confFactory,
-                                                   ScalaBundle.message("test.in.scope.scalatest.presentable.text"))
+      val name = element match {
+        case p: PsiPackage => p.getName
+        case d: PsiDirectory => d.getName
+      }
+      return TestConfigurationUtil.packageSettings(element, location, confFactory, ScalaBundle.message("test.in.scope.scalatest.presentable.text", name))
     }
 
     val (testClassPath, testClassName) = getLocationClassAndTest(location)
@@ -647,16 +650,10 @@ class ScalaTestConfigurationProducer extends {
         checkWordSpec("org.scalatest.fixture.MultipleFixtureWordSpec")
         getOrElse null)
 
-    //todo ScalaTestAstTransformer.java
-//    val astTransformer = new ScalaTestAstTransformer()
-//    val selectionOpt = astTransformer.testSelection(location)
-//
-//    selectionOpt match {
-//      case Some(selection) =>
-//        if (selection.testNames.length > 0) (testClassPath, selection.testNames()(0))
-//        else oldResult
-//      case None =>
-        oldResult
-//    }
+    val astTransformer = new ScalaTestAstTransformer()
+    val selection = astTransformer.testSelection(location)
+
+    if (selection != null && selection.testNames().length > 0) (testClassPath, selection.testNames()(0))
+    else oldResult
   }
 }
