@@ -37,8 +37,11 @@ class Specs2ConfigurationProducer extends {
     if (element == null) return null
 
     if (element.isInstanceOf[PsiPackage] || element.isInstanceOf[PsiDirectory]) {
-      return TestConfigurationUtil.packageSettings(element, location, confFactory,
-        ScalaBundle.message("test.in.scope.specs2.presentable.text"))
+      val name = element match {
+        case p: PsiPackage => p.getName
+        case d: PsiDirectory => d.getName
+      }
+      return TestConfigurationUtil.packageSettings(element, location, confFactory, ScalaBundle.message("test.in.scope.specs2.presentable.text", name))
     }
 
     val parent: ScTypeDefinition = PsiTreeUtil.getParentOfType(element, classOf[ScTypeDefinition], false)

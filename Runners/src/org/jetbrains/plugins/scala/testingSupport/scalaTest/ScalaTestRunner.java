@@ -128,12 +128,16 @@ public class ScalaTestRunner {
       }
 
     } else {
+      String[] testNames = testName.split(";");
       for (String clazz : classes) {
-        // Should encounter problem if the suite class does not have the specified test name.
-        argsArray.add("-s");
-        argsArray.add(clazz);
-        argsArray.add("-t");
-        argsArray.add(testName);
+          for (String tn : Arrays.asList(testNames)) {
+          // Should encounter problem if the suite class does not have the specified test name.
+          argsArray.add("-s");
+          argsArray.add(clazz);
+
+          argsArray.add("-t");
+          argsArray.add(tn);
+        }
       }
     }
     Runner.run(argsArray.toArray(new String[argsArray.size()]));
@@ -207,9 +211,12 @@ public class ScalaTestRunner {
         Runner.run(arga);
       }
     } else {
+      String[] testNames = testName.split(";");
       for (String clazz : classes) {
-        TestRunnerUtil.configureReporter(reporterQualName, showProgressMessages);
-        runSingleTest(testName, clazz);
+        for (String tn : Arrays.asList(testNames)) {
+          TestRunnerUtil.configureReporter(reporterQualName, showProgressMessages);
+          runSingleTest(tn, clazz);
+        }
       }
     }
   }
