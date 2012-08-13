@@ -17,6 +17,8 @@ import org.jetbrains.plugins.scala.conversion.copy.ScalaCopyPastePostProcessor;
 import org.jetbrains.plugins.scala.editor.importOptimizer.ScalaImportOptimizer;
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile;
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement;
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass;
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTrait;
 
 import java.util.Collection;
 
@@ -65,14 +67,16 @@ public class MoveScalaClassHandler implements MoveClassHandler {
         aClass.delete();
       }
       else if (((ScalaFile)file).typeDefinitionsArray().length > 1) {
-        final PsiClass created = ScalaDirectoryService.createClassFromTemplate(moveDestination, ((ScNamedElement) aClass).name(), "Scala Class", false);
-//        if (aClass.getDocComment() == null) {
+        String template = aClass instanceof ScClass
+            ? "Scala Class"
+            : aClass instanceof ScTrait ? "Scala Trait" : "Scala Object";
+        final PsiClass created = ScalaDirectoryService.createClassFromTemplate(moveDestination, ((ScNamedElement) aClass).name(), template, false);
+        if (aClass.getDocComment() == null) {
           final PsiDocComment createdDocComment = created.getDocComment();
           if (createdDocComment != null) {
-//            aClass.addAfter(createdDocComment, null);
-            createdDocComment.delete();
+            aClass.addAfter(createdDocComment, null);
           }
-//        }
+        }
         newClass = (PsiClass)created.replace(aClass);
         aClass.delete();
       }
