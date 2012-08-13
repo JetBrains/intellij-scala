@@ -233,28 +233,31 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
 
     val vector = ScalaFileImpl.toVector(name)
 
-    if (vector.nonEmpty) {
-      val path = {
-        val splits = ScalaFileImpl.toVector(base) :: ScalaFileImpl.splitsIn(ScalaFileImpl.pathIn(this))
-        splits.foldLeft(List(vector))(ScalaFileImpl.splitAt)
-      }
+    preservingAssociationData {
+      val documentManager = PsiDocumentManager.getInstance(getProject)
+      val document = documentManager.getDocument(this)
 
       val prefixText = children.findByType(classOf[ScPackaging])
               .map(it => getText.substring(0, it.getTextRange.getStartOffset))
+              .filter(!_.isEmpty)
 
-      val packagingsText = path.map(_.mkString("package ", ".", "")).mkString("", "\n", "\n\n")
+      try {
+        stripPackagings(document)
+        if (vector.nonEmpty) {
+          val packagingsText = {
+            val path = {
+              val splits = ScalaFileImpl.toVector(base) :: ScalaFileImpl.splitsIn(ScalaFileImpl.pathIn(this))
+              splits.foldLeft(List(vector))(ScalaFileImpl.splitAt)
+            }
+            path.map(_.mkString("package ", ".", "")).mkString("", "\n", "\n\n")
+          }
 
-      preservingAssociationData {
-        val documentManager = PsiDocumentManager.getInstance(getProject)
-        val document = documentManager.getDocument(this)
-        try {
-          stripPackagings(document)
           prefixText.foreach(s => document.deleteString(0, s.length))
           document.insertString(0, packagingsText)
           prefixText.foreach(s => document.insertString(0, s))
-        } finally {
-          documentManager.commitDocument(document)
         }
+      } finally {
+        documentManager.commitDocument(document)
       }
     }
   }

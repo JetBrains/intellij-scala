@@ -95,7 +95,7 @@ class ScalaFileImplTest extends SimpleTestCase {
     assertSplitAs(List(List("a"), List("b", "c")), List("a", "b"), List(List("a"), List("b"), List("c")))
   }
 
-  def testSetPackageName() {
+/*  def testSetPackageName() {
     assertPackageNameSetAs("class C", ("", ""), "class C");
     assertPackageNameSetAs("package foo\n\nclass C", ("", ""), "class C");
     assertPackageNameSetAs("package foo\n\nclass C", ("", "foo.bar"), "package foo.bar\n\nclass C");
@@ -124,7 +124,7 @@ class ScalaFileImplTest extends SimpleTestCase {
     val newClass = file.depthFirst.findByType(classOf[ScClass]).get
     Assert.assertSame(oldClass, newClass)
     Assert.assertSame(file, newClass.getContainingFile)
-  }
+  }*/
   
 //  private def assertPackagesStrippedAs(before: String, after: String) {
 //    val file = parseText(before)
