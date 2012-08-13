@@ -103,6 +103,8 @@ class ScalaCopyPastePostProcessor extends CopyPastePostProcessor[Associations] {
     yield Binding(element, association.path.asString(ScalaProjectSettings.getInstance(project).
               isImportMembersUsingUnderScore))
 
+    if (bindings.isEmpty) return
+
     val bindingsToRestore = filter(bindings.distinctBy(_.path))
 
     if (bindingsToRestore.isEmpty) return
