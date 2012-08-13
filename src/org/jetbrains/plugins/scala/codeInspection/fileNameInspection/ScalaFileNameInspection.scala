@@ -29,11 +29,17 @@ class ScalaFileNameInspection extends LocalInspectionTool {
     if (file.getName == ScalaLanguageConsoleView.SCALA_CONSOLE) return Array.empty
 
     val virtualFile = file.getVirtualFile
+
     if (virtualFile == null) return Array.empty
+
     val name = virtualFile.getNameWithoutExtension
     val scalaFile = file.asInstanceOf[ScalaFile]
+    val definitions = scalaFile.typeDefinitions
+
+    if (definitions.length > 1) return Array.empty
+
     var hasProblems = true
-    for (clazz <- scalaFile.typeDefinitions) {
+    for (clazz <- definitions) {
       clazz match {
         case o: ScObject if file.name == "package.scala" && o.isPackageObject => hasProblems = false
         case _ if clazz.name == name => hasProblems = false
@@ -43,7 +49,7 @@ class ScalaFileNameInspection extends LocalInspectionTool {
 
     val res = new ArrayBuffer[ProblemDescriptor]
     if (hasProblems) {
-      for (clazz <- scalaFile.typeDefinitions;
+      for (clazz <- definitions;
            scalaClass: ScTypeDefinition = clazz) {
         res += manager.createProblemDescriptor(scalaClass.nameId, "Class doesn't correspond to file name",
           Array[LocalQuickFix](new ScalaRenameClassQuickFix(scalaClass, name),
