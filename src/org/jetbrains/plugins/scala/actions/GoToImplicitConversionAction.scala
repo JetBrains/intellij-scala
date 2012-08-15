@@ -115,9 +115,6 @@ class GoToImplicitConversionAction extends AnAction("Go to implicit conversion a
           updateHint(item, project)
         }
       })
-      if (actualIndex >= 0 && actualIndex < list.getModel.getSize) {
-        list.getSelectionModel.setSelectionInterval(actualIndex, actualIndex)
-      }
       GoToImplicitConversionAction.setList(list)
 
       val builder = JBPopupFactory.getInstance.createListPopupBuilder(list)
@@ -138,6 +135,11 @@ class GoToImplicitConversionAction extends AnAction("Go to implicit conversion a
         }
       }).createPopup
       popup.showInBestPositionFor(editor)
+
+      if (actualIndex >= 0 && actualIndex < list.getModel.getSize) {
+        list.getSelectionModel.setSelectionInterval(actualIndex, actualIndex)
+        list.ensureIndexIsVisible(actualIndex)
+      }
 
       GoToImplicitConversionAction.setPopup(popup)
 
