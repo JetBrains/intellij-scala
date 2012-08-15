@@ -519,7 +519,7 @@ public class ScalaTestAstTransformer {
         Finder finder = getFinder(clazz, location.getModule());
         if (finder != null) {
             AstNode selectedAst = getSelectedAstNode(clazz.qualifiedName(), element);
-            AstNode selectedAstOpt = selectedAst.parent();
+            AstNode selectedAstOpt = selectedAst == null ? selectedAst : selectedAst.parent();
             if (selectedAstOpt != null) {
                 //TODO add logging here
                 /*selectedAst match {
