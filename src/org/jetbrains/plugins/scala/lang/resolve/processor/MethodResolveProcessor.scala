@@ -142,6 +142,12 @@ object MethodResolveProcessor {
     val substitutor: ScSubstitutor =
       undefinedSubstitutor(elementForUndefining, s, proc).followed(ScalaPsiUtil.undefineSubstitutor(prevTypeInfo))
 
+    val typeParameters: Seq[TypeParameter] = prevTypeInfo ++ (element match {
+      case fun: ScFunction => fun.typeParameters.map(tp => TypeParameter(tp.name, tp.lowerBound.getOrNothing, tp.upperBound.getOrAny, tp))
+      case fun: PsiMethod => fun.getTypeParameters.map(ptp => TypeParameter(ptp.getName, Nothing, Any, ptp)).toSeq //todo: add lower and upper bounds
+      case _ => Seq.empty
+    })
+
     def checkFunction(fun: PsiNamedElement): ConformanceExtResult = {
       fun match {
         case fun: ScFunction if fun.paramClauses.clauses.length == 0 => return ConformanceExtResult(Seq.empty)
@@ -251,9 +257,43 @@ object MethodResolveProcessor {
       case _ => ConformanceExtResult(Seq.empty)
     }
     if (result.problems.length == 0) {
-      result.undefSubst.getSubstitutor match {
+      var uSubst = result.undefSubst
+      uSubst.getSubstitutor(notNonable = false) match {
         case None => result.copy(problems = Seq(WrongTypeParameterInferred))
-        case _ => result
+        case Some(unSubst) =>
+          def hasRecursiveTypeParameters(typez: ScType): Boolean = {
+
+            var hasRecursiveTypeParameters = false
+            typez.recursiveUpdate {
+              case tpt: ScTypeParameterType =>
+                typeParameters.find(tp => (tp.name, ScalaPsiUtil.getPsiElementId(tp.ptp)) == (tpt.name, tpt.getId)) match {
+                  case None => (true, tpt)
+                  case _ =>
+                    hasRecursiveTypeParameters = true
+                    (true, tpt)
+                }
+              case tp: ScType => (hasRecursiveTypeParameters, tp)
+            }
+            hasRecursiveTypeParameters
+          }
+          for (TypeParameter(name, lowerType, upperType, tParam) <- typeParameters) {
+            if (lowerType != Nothing) {
+              val substedLower = unSubst.subst(lowerType)
+              if (!hasRecursiveTypeParameters(substedLower)) {
+                uSubst = uSubst.addLower((tParam.name, ScalaPsiUtil.getPsiElementId(tParam)), substedLower)
+              }
+            }
+            if (upperType != Any) {
+              val substedUpper = unSubst.subst(upperType)
+              if (!hasRecursiveTypeParameters(substedUpper)) {
+                uSubst = uSubst.addUpper((tParam.name, ScalaPsiUtil.getPsiElementId(tParam)), substedUpper)
+              }
+            }
+          }
+          uSubst.getSubstitutor(notNonable = false) match {
+            case Some(_) => result
+            case _ => result.copy(problems = Seq(WrongTypeParameterInferred))
+          }
       }
     } else result
   }
