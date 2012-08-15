@@ -141,7 +141,10 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
         }
         val qname = c.qualifiedName
         if (qname != null) {
-          return safeBindToElement(qname, {
+          // Simply delete the whole import statement instead of re-binding
+          // (to bypass eager import statements insertion within safeBindToElement)
+          // TODO rewrite path in import statements instead of the statements deletion
+          if (getParent.isInstanceOf[ScImportExpr]) getParent.getParent.delete() else return safeBindToElement(qname, {
             case (qual, true) => ScalaPsiElementFactory.createReferenceFromText(qual, getContext, this)
             case (qual, false) => ScalaPsiElementFactory.createReferenceFromText(qual, getManager)
           }) {
