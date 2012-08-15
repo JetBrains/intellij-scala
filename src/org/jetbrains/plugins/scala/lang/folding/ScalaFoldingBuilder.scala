@@ -295,11 +295,12 @@ class ScalaFoldingBuilder extends FoldingBuilder {
   private def isMultilineFuncBody(func: ScFunctionDefinition): (Boolean, TextRange, String) = {
     val body = func.body.getOrElse(null)
     if (body == null) return (false, null, "")
+    val range = body.getTextRange
     body match {
-      case _: ScBlockExpr => return (true, body.getTextRange, "{...}")
+      case _: ScBlockExpr => return (true, range, "{...}")
       case _ =>
-        val isMultilineBody = body.getText.indexOf("\n") != -1
-        val textRange = if (isMultilineBody)body.getTextRange else null
+        val isMultilineBody = (body.getText.indexOf("\n") != -1) && (range.getStartOffset + 1 < range.getEndOffset)
+        val textRange = if (isMultilineBody) range else null
         return (isMultilineBody, textRange, "...")
     }
     (false, null, "")
