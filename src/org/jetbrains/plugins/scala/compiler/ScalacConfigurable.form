@@ -240,7 +240,7 @@
               <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
-              <text value="&amp;Scalac(*.scala + *.java), Javac(*.java)"/>
+              <text value="&amp;Scalac(*.scala + *.java), then Javac(*.java)"/>
               <toolTipText value="Can compile circular dependencies, rely on Scalac Java parser and typer"/>
             </properties>
           </component>
@@ -249,8 +249,8 @@
               <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
-              <text value="&amp;Javac(*.java), Scalac(*.scala)"/>
-              <toolTipText value="Can't compile circular dependencies, consume Java as compiled classes"/>
+              <text value="&amp;Javac(*.java), then Scalac(*.scala)"/>
+              <toolTipText value="Can't compile circular dependencies, consume Java as compiled classes (don't rely on Scalac's Java parser and typer)"/>
             </properties>
           </component>
         </children>

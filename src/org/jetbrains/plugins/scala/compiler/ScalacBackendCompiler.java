@@ -400,65 +400,35 @@ public class ScalacBackendCompiler extends ExternalCompiler {
     //write classpath
     printer.println("-cp");
 
-    final Module[] chunkModules = chunk.getModules();
-    final List<Module> modules = Arrays.asList(chunkModules);
-    final Set<VirtualFile> sourceDependencies = new HashSet<VirtualFile>();
-    final boolean isTestChunk = isTestChunk(chunk);
+    printer.print(chunk.getCompilationBootClasspath());
+    printer.print(File.pathSeparator);
+    printer.println(chunk.getCompilationClasspath());
 
-    for (final Module module : modules) {
-      if (ScalaUtils.isSuitableModule(module)) {
-        printer.print(OrderEnumerator.orderEntries(module).classes().getPathsList().getPathsString());
+    List<VirtualFile> filesToCompile = new LinkedList<VirtualFile>();
+    if (settings.SCALAC_BEFORE) {
+      // Add both Scala and Java files
+      filesToCompile.addAll(chunk.getFilesToCompile());
+    } else {
+      // Add Scala files only
+      for (VirtualFile file : chunk.getFilesToCompile()) {
+        if (file.getFileType() == ScalaFileType.SCALA_FILE_TYPE) {
+          filesToCompile.add(file);
+        }
       }
     }
-    printer.println();
 
-    final HashSet<VirtualFile> filesToCompile = new HashSet<VirtualFile>();
-    filesToCompile.addAll(chunk.getFilesToCompile());
-
-    //Print files to compile, both Java and Scala
     for (VirtualFile file : filesToCompile) {
       printer.println(file.getPath());
     }
-    if (settings.SCALAC_BEFORE) {
-      // No need to pass .java files to scalac unless we are running it before javac.
-      // This avoids needlessly hitting bugs in the scalac java parser/typer, e.g. SCL-3146
-      for (VirtualFile sourceDependency : sourceDependencies) {
-        addJavaSourceFiles(printer, sourceDependency, filesToCompile);
-      }
-    }
+
     printer.close();
+
     if (LOG.isDebugEnabled()) {
       try {
         LOG.debug(FileUtil.loadTextAndClose(new FileReader(fileWithParameters)));
       } catch (IOException e) {
         // ignore
       }
-    }
-  }
-
-  private static boolean isTestChunk(ModuleChunk chunk) {
-    boolean isTestChunk = false;
-    final Module[] modules = chunk.getModules();
-    if (modules.length > 0) {
-      ProjectRootManager rm = ProjectRootManager.getInstance(modules[0].getProject());
-      for (VirtualFile file : chunk.getSourceRoots()) {
-        if (file != null && rm.getFileIndex().isInTestSourceContent(file)) {
-          isTestChunk = true;
-          break;
-        }
-      }
-    }
-    return isTestChunk;
-  }
-
-  private void addJavaSourceFiles(PrintStream stream, VirtualFile src, HashSet<VirtualFile> filesToCompile) {
-    if (src.getPath().contains("!/")) return;
-    if (src.isDirectory()) {
-      for (VirtualFile file : src.getChildren()) {
-        addJavaSourceFiles(stream, file, filesToCompile);
-      }
-    } else if (src.getFileType() == StdFileTypes.JAVA && !filesToCompile.contains(src)) {
-      stream.println(src.getPath());
     }
   }
 
