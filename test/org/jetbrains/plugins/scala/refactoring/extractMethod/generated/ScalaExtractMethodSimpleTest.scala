@@ -11,6 +11,8 @@ class ScalaExtractMethodSimpleTest extends ScalaExtractMethodTestBase {
 
   def testSCL1868 = doTest
 
+  def testSCL4576() = doTest
+
   def testSimple = doTest
 
   def testSimpleOutput = doTest

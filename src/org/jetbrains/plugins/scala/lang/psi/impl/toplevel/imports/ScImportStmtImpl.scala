@@ -213,8 +213,7 @@ class ScImportStmtImpl extends ScalaStubBasedElementImpl[ScImportStmt] with ScIm
                     }
                     (elem, processor) match {
                       case (cl: PsiClass, processor: BaseProcessor) if !cl.isInstanceOf[ScTemplateDefinition] => {
-                        if (!processor.processType(new ScDesignatorType(cl, true), place.asInstanceOf[ScalaPsiElement],
-                          newState)) return false
+                        if (!processor.processType(new ScDesignatorType(cl, true), place, newState)) return false
                       }
                       case _ => {
                         if (!elem.processDeclarations(p1,
