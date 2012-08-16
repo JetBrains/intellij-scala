@@ -28,7 +28,6 @@ class AnnotatorBasedErrorInspection extends LocalInspectionTool {
   override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor = {
     new PsiElementVisitor {
       override def visitElement(element: PsiElement) {
-        if (element.getContainingFile == null || element.getContainingFile.getName != "AbstractTestRunConfiguration.scala") return
         val annotator = new ScalaAnnotator {
           override def isAdvancedHighlightingEnabled(element: PsiElement): Boolean = true
         }
