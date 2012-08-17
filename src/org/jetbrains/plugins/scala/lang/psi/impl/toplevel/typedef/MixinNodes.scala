@@ -368,7 +368,12 @@ abstract class MixinNodes {
         case Some((superClass, s)) =>
           // Do not include scala.ScalaObject to Predef's base types to prevent SOE
           if (!(superClass.qualifiedName == "scala.ScalaObject" && isPredef)) {
-            val newSubst = combine(s, subst, superClass).followed(thisTypeSubst)
+            val dependentSubst = superType match {
+              case ScProjectionType(proj, eem, subst, _) => new ScSubstitutor(proj).followed(subst)
+              case ScParameterizedType(ScProjectionType(proj, _, subst, _), _) => new ScSubstitutor(proj).followed(subst)
+              case _ => ScSubstitutor.empty
+            }
+            val newSubst = combine(s, subst, superClass).followed(thisTypeSubst).followed(dependentSubst)
             val newMap = new Map
             superClass match {
               case template: ScTemplateDefinition => processScala(template, newSubst, newMap, place)
