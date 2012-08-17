@@ -48,7 +48,7 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
   def getClazzForType(t: ScType): Option[PsiClass] = {
     val map = implicitMap()._1
     map.find(tp => t.equiv(tp._1)) match {
-      case Some((_, fun, _)) => {
+      case Some((_, fun, _, _)) => {
         fun.getParent match {
           case tb: ScTemplateBody => Some(PsiTreeUtil.getParentOfType(tb, classOf[PsiClass]))
           case _ => None
@@ -69,13 +69,14 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
     }
   }
 
+  //todo: [!] replace return value with ScalaResolveResult
   def implicitMap(exp: Option[ScType] = None,
                   fromUnder: Boolean = false,
                   args: Seq[ScType] = Seq.empty,
                   exprType: Option[ScType] = None):
-  (Seq[(ScType, PsiNamedElement, Set[ImportUsed])], Seq[PsiNamedElement], Seq[PsiNamedElement]) = {
+  (Seq[(ScType, PsiNamedElement, Set[ImportUsed], ScSubstitutor)], Seq[PsiNamedElement], Seq[PsiNamedElement]) = {
     import collection.mutable.HashSet
-    val buffer = new ArrayBuffer[(ScType, PsiNamedElement, Set[ImportUsed])]
+    val buffer = new ArrayBuffer[(ScType, PsiNamedElement, Set[ImportUsed], ScSubstitutor)]
     val seen = new HashSet[PsiNamedElement]
     val firstPart = new ArrayBuffer[PsiNamedElement]
     val secondPart = new ArrayBuffer[PsiNamedElement]
@@ -98,7 +99,7 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
 
   def implicitMapFirstPart(exp: Option[ScType] = None,
                   fromUnder: Boolean = false,
-                  exprType: Option[ScType] = None): Seq[(ScType, PsiNamedElement, Set[ImportUsed])] = {
+                  exprType: Option[ScType] = None): Seq[(ScType, PsiNamedElement, Set[ImportUsed], ScSubstitutor)] = {
     type Data = (Option[ScType], Boolean, Option[ScType])
     val data = (exp, fromUnder, exprType)
 
@@ -110,7 +111,7 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
   def implicitMapSecondPart(exp: Option[ScType] = None,
                             fromUnder: Boolean = false,
                             args: Seq[ScType] = Seq.empty,
-                            exprType: Option[ScType] = None): Seq[(ScType, PsiNamedElement, Set[ImportUsed])] = {
+                            exprType: Option[ScType] = None): Seq[(ScType, PsiNamedElement, Set[ImportUsed], ScSubstitutor)] = {
     type Data = (Option[ScType], Boolean, Seq[ScType], Option[ScType])
     val data = (exp, fromUnder, args, exprType)
 
@@ -123,7 +124,7 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
                                fromUnder: Boolean = false,
                                part: (Boolean, Boolean),
                                args: Seq[ScType] = Seq.empty,
-                               exprType: Option[ScType] = None): Seq[(ScType, PsiNamedElement, Set[ImportUsed])] = {
+                               exprType: Option[ScType] = None): Seq[(ScType, PsiNamedElement, Set[ImportUsed], ScSubstitutor)] = {
     val typez: ScType = exprType.getOrElse(
       getTypeWithoutImplicits(TypingContext.empty, fromUnderscore = fromUnder).getOrElse(return Seq.empty)
     )
@@ -148,7 +149,7 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
       }
     }
 
-    val result = new ArrayBuffer[(ScType, PsiNamedElement, Set[ImportUsed])]
+    val result = new ArrayBuffer[(ScType, PsiNamedElement, Set[ImportUsed], ScSubstitutor)]
 
     buffer.foreach{case tuple => {
       val (r, tp, retTp, newSubst, uSubst) = tuple
@@ -162,17 +163,17 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
                   val additionalUSubst = Conformance.undefinedSubst(expected, newSubst.subst(retTp))
                   (uSubst + additionalUSubst).getSubstitutor match {
                     case Some(innerSubst) =>
-                      result += ((innerSubst.subst(retTp), r.element, r.importsUsed))
+                      result += ((innerSubst.subst(retTp), r.element, r.importsUsed, r.substitutor))
                     case None =>
-                      result += ((substitutor.subst(retTp), r.element, r.importsUsed))
+                      result += ((substitutor.subst(retTp), r.element, r.importsUsed, r.substitutor))
                   }
                 case None =>
-                  result += ((substitutor.subst(retTp), r.element, r.importsUsed))
+                  result += ((substitutor.subst(retTp), r.element, r.importsUsed, r.substitutor))
               }
             case _ => (false, r, tp, retTp)
           }
         case _ =>
-          result += ((retTp, r.element, r.importsUsed))
+          result += ((retTp, r.element, r.importsUsed, r.substitutor))
       }
     }}
 
@@ -224,7 +225,8 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
     result
   }
 
-  def forMap(r: ScalaResolveResult, typez: ScType): (Boolean, ScalaResolveResult, ScType, ScType, ScSubstitutor, ScUndefinedSubstitutor) = {
+  def forMap(r: ScalaResolveResult, typez: ScType): (Boolean, ScalaResolveResult, ScType, ScType, ScSubstitutor,
+                                                     ScUndefinedSubstitutor) = { //todo: extract case class
     if (!PsiTreeUtil.isContextAncestor(ScalaPsiUtil.nameContext(r.element), this, false)) { //to prevent infinite recursion
       ProgressManager.checkCanceled()
       lazy val funType: ScParameterizedType = {

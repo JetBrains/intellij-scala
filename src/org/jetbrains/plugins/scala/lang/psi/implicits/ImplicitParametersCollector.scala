@@ -88,22 +88,22 @@ class ImplicitParametersCollector(place: PsiElement, tp: ScType) {
 
     override def candidatesS: scala.collection.Set[ScalaResolveResult] = {
       val clazz = ScType.extractClass(tp)
-      def forFilter(c: ScalaResolveResult): Option[ScalaResolveResult] = {
-        def compute(): Option[ScalaResolveResult] = {
+      def forFilter(c: ScalaResolveResult): Option[(ScalaResolveResult, ScSubstitutor)] = {
+        def compute(): Option[(ScalaResolveResult, ScSubstitutor)] = {
           val subst = c.substitutor
           c.element match {
             case o: ScObject if !PsiTreeUtil.isContextAncestor(o, place, false) =>
               o.getType(TypingContext.empty) match {
                 case Success(objType: ScType, _) =>
                   if (!subst.subst(objType).conforms(tp)) None
-                  else Some(c)
+                  else Some(c, subst)
                 case _ => None
               }
             case param: ScParameter if !PsiTreeUtil.isContextAncestor(param, place, false) =>
               param.getType(TypingContext.empty) match {
                 case Success(paramType: ScType, _) =>
                   if (!subst.subst(paramType).conforms(tp)) None
-                  else Some(c)
+                  else Some(c, subst)
                 case _ => None
               }
             case patt: ScBindingPattern
@@ -111,7 +111,7 @@ class ImplicitParametersCollector(place: PsiElement, tp: ScType) {
               patt.getType(TypingContext.empty) match {
                 case Success(pattType: ScType, _) =>
                   if (!subst.subst(pattType).conforms(tp)) None
-                  else Some(c)
+                  else Some(c, subst)
                 case _ => None
               }
             }
@@ -135,7 +135,7 @@ class ImplicitParametersCollector(place: PsiElement, tp: ScType) {
                 fun.getType(TypingContext.empty) match {
                   case Success(funType: ScType, _) => {
 
-                    def checkType(ret: ScType): Option[ScalaResolveResult] = {
+                    def checkType(ret: ScType): Option[(ScalaResolveResult, ScSubstitutor)] = {
                       var uSubst = Conformance.undefinedSubst(tp, ret)
                       uSubst.getSubstitutor match {
                         case Some(substitutor) =>
@@ -173,7 +173,7 @@ class ImplicitParametersCollector(place: PsiElement, tp: ScType) {
 
                           uSubst.getSubstitutor match {
                             case Some(substitutor) =>
-                              Some(c.copy(subst.followed(substitutor)))
+                              Some(c.copy(subst.followed(substitutor)), subst)
 
                             case None => None
                           }
@@ -214,9 +214,9 @@ class ImplicitParametersCollector(place: PsiElement, tp: ScType) {
       }
 
       val applicable = super.candidatesS.map(forFilter).flatten
-      new MostSpecificUtil(place, 1).mostSpecificForResolveResult(applicable) match {
+      new MostSpecificUtil(place, 1).mostSpecificForImplicitParameters(applicable) match {
         case Some(r) => HashSet(r)
-        case _ => applicable
+        case _ => applicable.map(_._1)
       }
     }
   }

@@ -363,7 +363,7 @@ trait ResolvableReferenceExpression extends ScReferenceExpression {
   private def collectImplicits(e: ScExpression, processor: BaseProcessor, noImplicitsForArgs: Boolean) {
     processor match {
       case _: CompletionProcessor => {
-        for ((t, fun, importsUsed) <- e.implicitMap()._1) { //todo: args?
+        for ((t, fun, importsUsed, _) <- e.implicitMap()._1) { //todo: args?
           ProgressManager.checkCanceled()
           var state = ResolveState.initial.put(ImportUsed.key, importsUsed)
           state = state.put(CachesUtil.IMPLICIT_FUNCTION, fun).put(CachesUtil.IMPLICIT_TYPE, t)
@@ -382,7 +382,7 @@ trait ResolvableReferenceExpression extends ScReferenceExpression {
       case rp: ResolveProcessor => rp.name // See SCL-2934.
       case _ => refName
     }
-    val (t: ScType, fun: PsiNamedElement, importsUsed: collection.Set[ImportUsed]) =
+    val (t: ScType, fun: PsiNamedElement, importsUsed: collection.Set[ImportUsed], _) =
       ScalaPsiUtil.findImplicitConversion(e, name, processor.kinds, this, processor, noImplicitsForArgs) match {
         case Some(a) => a
         case None => return
