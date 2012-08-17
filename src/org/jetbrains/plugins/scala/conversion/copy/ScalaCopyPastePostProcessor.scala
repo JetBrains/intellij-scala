@@ -99,7 +99,7 @@ class ScalaCopyPastePostProcessor extends CopyPastePostProcessor[Associations] {
                          (filter: Seq[Binding] => Seq[Binding]) {
     val bindings = for (association <- value.associations;
                         element <- elementFor(association, file, offset)
-                        if (!association.kind.isSatisfiedIn(element)))
+                        if (!association.isSatisfiedIn(element)))
     yield Binding(element, association.path.asString(ScalaProjectSettings.getInstance(project).
               isImportMembersUsingUnderScore))
 
