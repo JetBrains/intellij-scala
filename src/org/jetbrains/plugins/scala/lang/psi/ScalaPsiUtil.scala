@@ -228,11 +228,11 @@ object ScalaPsiUtil {
 
   def findImplicitConversion(e: ScExpression, refName: String, kinds: collection.Set[ResolveTargets.Value],
                              ref: PsiElement, processor: BaseProcessor, noImplicitsForArgs: Boolean):
-    Option[(ScType, PsiNamedElement, collection.Set[ImportUsed])] = {
+    Option[(ScType, PsiNamedElement, collection.Set[ImportUsed], ScSubstitutor)] = {
     //TODO! remove this after find a way to improve implicits according to compiler.
     val isHardCoded = refName == "+" &&
       e.getTypeWithoutImplicits(TypingContext.empty).map(_.isInstanceOf[ValType]).getOrElse(false)
-    var implicitMap: Seq[(ScType, PsiNamedElement, scala.collection.Set[ImportUsed])] = Seq.empty
+    var implicitMap: Seq[(ScType, PsiNamedElement, scala.collection.Set[ImportUsed], ScSubstitutor)] = Seq.empty
     def checkImplicits(secondPart: Boolean, noApplicability: Boolean) {
       lazy val args = processor match {
         case m: MethodResolveProcessor => m.argumentClauses.flatMap(_.map(
@@ -245,7 +245,7 @@ object ScalaPsiUtil {
         else if (!secondPart) e.implicitMapFirstPart()
         else e.implicitMapSecondPart(args = args)
       implicitMap = mp.flatMap({
-        case triple@(t: ScType, fun: PsiNamedElement, importsUsed: collection.Set[ImportUsed]) => {
+        case triple@(t: ScType, fun: PsiNamedElement, importsUsed: collection.Set[ImportUsed], resultSubst) => {
           ProgressManager.checkCanceled()
           if (!isHardCoded || !t.isInstanceOf[ValType]) {
             val newProc = new ResolveProcessor(kinds, ref, refName)
@@ -270,7 +270,7 @@ object ScalaPsiUtil {
                     rr.resultUndef match {
                       case Some(undef) =>
                         undef.getSubstitutor match {
-                          case Some(subst) => Seq((subst.subst(t), fun, importsUsed))
+                          case Some(subst) => Seq((subst.subst(t), fun, importsUsed, resultSubst))
                           case _ => Seq(triple)
                         }
                       case _ => Seq(triple)
@@ -350,7 +350,7 @@ object ScalaPsiUtil {
 
     if (!noImplicits && candidates.forall(!_.isApplicable)) {
       //should think about implicit conversions
-      for ((t, implicitFunction, importsUsed) <- expr.implicitMap()._1) {
+      for ((t, implicitFunction, importsUsed, _) <- expr.implicitMap()._1) {
         ProgressManager.checkCanceled()
         var state = ResolveState.initial.put(ImportUsed.key, importsUsed).
           put(CachesUtil.IMPLICIT_FUNCTION, implicitFunction)

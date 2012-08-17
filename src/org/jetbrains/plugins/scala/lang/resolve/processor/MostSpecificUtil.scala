@@ -26,12 +26,20 @@ import org.jetbrains.plugins.scala.extensions.toPsiMemberExt
 case class MostSpecificUtil(elem: PsiElement, length: Int) {
   def mostSpecificForResolveResult(applicable: Set[ScalaResolveResult]): Option[ScalaResolveResult] = {
     mostSpecificGeneric(applicable.map(r => r.innerResolveResult match {
-      case Some(rr) => new InnerScalaResolveResult(rr.element, rr.implicitConversionClass, r)
-      case None => new InnerScalaResolveResult(r.element, r.implicitConversionClass, r)
+      case Some(rr) => new InnerScalaResolveResult(rr.element, rr.implicitConversionClass, r, r.substitutor)
+      case None => new InnerScalaResolveResult(r.element, r.implicitConversionClass, r, r.substitutor)
     })).map(_.repr)
   }
 
-  def mostSpecificForImplicit(applicable: Set[(ScType, PsiNamedElement, Set[ImportUsed])]): Option[(ScType, PsiNamedElement, Set[ImportUsed])] = {
+  def mostSpecificForImplicitParameters(applicable: Set[(ScalaResolveResult, ScSubstitutor)]): Option[ScalaResolveResult] = {
+    mostSpecificGeneric(applicable.map{case (r, subst) => r.innerResolveResult match {
+      case Some(rr) => new InnerScalaResolveResult(rr.element, rr.implicitConversionClass, r, subst)
+      case None => new InnerScalaResolveResult(r.element, r.implicitConversionClass, r, subst)
+    }}).map(_.repr)
+  }
+
+  def mostSpecificForImplicit(applicable: Set[(ScType, PsiNamedElement, Set[ImportUsed], ScSubstitutor)]):
+    Option[(ScType, PsiNamedElement, Set[ImportUsed], ScSubstitutor)] = {
     mostSpecificGeneric(applicable.map(r => {
       var callByName = false
       r._2 match {
@@ -42,16 +50,13 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
           }
         case _ =>
       }
-      new InnerScalaResolveResult(r._2, None, r, callByName)
+      new InnerScalaResolveResult(r._2, None, r, r._4, callByName)
     })).map(_.repr)
   }
 
-  def mostSpecificForPsiMethod(applicable: Set[PsiMethod]): Option[PsiMethod] = {
-    mostSpecificGeneric(applicable.map(r => new InnerScalaResolveResult(r, None, r))).map(_.repr)
-  }
-
   private class InnerScalaResolveResult[T](val element: PsiNamedElement, val implicitConversionClass: Option[PsiClass],
-                                           val repr: T, val callByNameImplicit: Boolean = false)
+                                           val repr: T, val substitutor: ScSubstitutor,
+                                           val callByNameImplicit: Boolean = false)
 
   private def isAsSpecificAs[T](r1: InnerScalaResolveResult[T], r2: InnerScalaResolveResult[T]): Boolean = {
     def lastRepeated(params: Seq[Parameter]): Boolean = {
@@ -61,76 +66,86 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
     }
     (r1.element, r2.element) match {
       case (m1@(_: PsiMethod | _: ScFun), m2@(_: PsiMethod | _: ScFun)) => {
-        val (t1, t2) = (getType(m1), getType(m2))
-        def calcParams(tp: ScType, existential: Boolean): Seq[Parameter] = {
-          tp match {
-            case ScMethodType(_, params, _) => params
+        val (t1, t2) = (r1.substitutor.subst(getType(m1)), r2.substitutor.subst(getType(m2)))
+        val (t11, t22) = (getType(m1), getType(m2))
+        def foo(t1: ScType, t2: ScType): Boolean = {
+          def calcParams(tp: ScType, existential: Boolean): Seq[Parameter] = {
+            tp match {
+              case ScMethodType(_, params, _) => params
+              case ScTypePolymorphicType(ScMethodType(_, params, _), typeParams) => {
+                if (!existential) {
+                  val s: ScSubstitutor = typeParams.foldLeft(ScSubstitutor.empty) {
+                    (subst: ScSubstitutor, tp: TypeParameter) =>
+                      subst.bindT((tp.name, ScalaPsiUtil.getPsiElementId(tp.ptp)),
+                        new ScUndefinedType(ScalaPsiManager.typeVariable(tp.ptp)))
+                  }
+                  params.map(p => p.copy(paramType = s.subst(p.paramType)))
+                } else {
+                  val s: ScSubstitutor = typeParams.foldLeft(ScSubstitutor.empty) {
+                    (subst: ScSubstitutor, tp: TypeParameter) =>
+                      subst.bindT((tp.name, ScalaPsiUtil.getPsiElementId(tp.ptp)),
+                        new ScTypeVariable(tp.name))
+                  }
+                  val arguments = typeParams.toList.map(tp =>
+                    new ScExistentialArgument(tp.name, List.empty /* todo? */ , s.subst(tp.lowerType), s.subst(tp.upperType)))
+                  params.map(p => p.copy(paramType = ScExistentialType(s.subst(p.paramType), arguments)))
+                }
+              }
+              case _ => Seq.empty
+            }
+          }
+          var params1 = calcParams(t1, true)
+          val params2 = calcParams(t2, false)
+          if (((t1.isInstanceOf[ScTypePolymorphicType] && t2.isInstanceOf[ScTypePolymorphicType]) ||
+            (!(m1.isInstanceOf[ScFunction] || m1.isInstanceOf[ScFun]) || !(m2.isInstanceOf[ScFunction] || m2.isInstanceOf[ScFun]))) &&
+            (lastRepeated(params1) ^ lastRepeated(params2))) return lastRepeated(params2) //todo: this is hack!!! see SCL-3846, SCL-4048
+          if (lastRepeated(params1) && !lastRepeated(params2)) params1 = params1.map {
+            case p: Parameter if p.isRepeated =>
+              val seq = ScalaPsiManager.instance(r1.element.getProject).getCachedClass(r1.element.getResolveScope,
+                "scala.collection.Seq")
+              if (seq != null) {
+                val newParamType = p.paramType match {
+                  case ScExistentialType(q, wilds) =>
+                    ScExistentialType(ScParameterizedType(ScDesignatorType(seq), Seq(q)), wilds)
+                  case paramType => ScParameterizedType(ScDesignatorType(seq), Seq(paramType))
+                }
+                Parameter(p.name, newParamType, p.expectedType,
+                  p.isDefault, false, p.isByName)
+              }
+              else p
+            case p => p
+          }
+          val i: Int = if (params1.length > 0) 0.max(length - params1.length) else 0
+          val default: Expression = new Expression(if (params1.length > 0) params1.last.paramType else Nothing)
+          val exprs: Seq[Expression] = params1.map(p => new Expression(p.paramType)) ++ Seq.fill(i)(default)
+          val conformance = Compatibility.checkConformance(false, params2, exprs, false)
+          var u = conformance._2
+          if (!conformance._1) return false
+          t2 match {
             case ScTypePolymorphicType(ScMethodType(_, params, _), typeParams) => {
-              if (!existential) {
-                val s: ScSubstitutor = typeParams.foldLeft(ScSubstitutor.empty) {
-                  (subst: ScSubstitutor, tp: TypeParameter) =>
-                    subst.bindT((tp.name, ScalaPsiUtil.getPsiElementId(tp.ptp)),
-                      new ScUndefinedType(ScalaPsiManager.typeVariable(tp.ptp)))
-                }
-                params.map(p => p.copy(paramType = s.subst(p.paramType)))
-              } else {
-                val s: ScSubstitutor = typeParams.foldLeft(ScSubstitutor.empty) {
-                  (subst: ScSubstitutor, tp: TypeParameter) =>
-                    subst.bindT((tp.name, ScalaPsiUtil.getPsiElementId(tp.ptp)),
-                      new ScTypeVariable(tp.name))
-                }
-                val arguments = typeParams.toList.map(tp =>
-                  new ScExistentialArgument(tp.name, List.empty /* todo? */, s.subst(tp.lowerType), s.subst(tp.upperType)))
-                params.map(p => p.copy(paramType = ScExistentialType(s.subst(p.paramType), arguments)))
+              u.getSubstitutor match {
+                case Some(uSubst) =>
+                  typeParams.foreach(tp => {
+                    u = u.addLower((tp.name, ScalaPsiUtil.getPsiElementId(tp.ptp)), uSubst.subst(tp.lowerType))
+                    u = u.addUpper((tp.name, ScalaPsiUtil.getPsiElementId(tp.ptp)), uSubst.subst(tp.upperType))
+                  })
+                case None => return false
               }
             }
-            case _ => Seq.empty
+            case _ =>
+          }
+          u.getSubstitutor match {
+            case None => false
+            case _ => true
           }
         }
-        var params1 = calcParams(t1, true)
-        val params2 = calcParams(t2, false)
-        if (((t1.isInstanceOf[ScTypePolymorphicType] && t2.isInstanceOf[ScTypePolymorphicType]) || 
-              (!(m1.isInstanceOf[ScFunction] || m1.isInstanceOf[ScFun]) || !(m2.isInstanceOf[ScFunction] || m2.isInstanceOf[ScFun]))) &&
-          (lastRepeated(params1) ^ lastRepeated(params2))) return lastRepeated(params2) //todo: this is hack!!! see SCL-3846, SCL-4048
-        if (lastRepeated(params1) && !lastRepeated(params2)) params1 = params1.map {
-          case p: Parameter if p.isRepeated =>
-            val seq = ScalaPsiManager.instance(r1.element.getProject).getCachedClass(r1.element.getResolveScope, 
-              "scala.collection.Seq")
-            if (seq != null) {
-              val newParamType = p.paramType match {
-                case ScExistentialType(q, wilds) =>
-                  ScExistentialType(ScParameterizedType(ScDesignatorType(seq), Seq(q)), wilds)
-                case paramType => ScParameterizedType(ScDesignatorType(seq), Seq(paramType))
-              }
-              Parameter(p.name, newParamType, p.expectedType,
-                p.isDefault, false, p.isByName)
-            }
-            else p
-          case p => p
+
+        val res1 = foo(t1, t2)
+        val res2 = foo(t11, t22)
+        if (res1 != res2) {
+          "stop"
         }
-        val i: Int = if (params1.length > 0) 0.max(length - params1.length) else 0
-        val default: Expression = new Expression(if (params1.length > 0) params1.last.paramType else Nothing)
-        val exprs: Seq[Expression] = params1.map(p => new Expression(p.paramType)) ++ Seq.fill(i)(default)
-        val conformance = Compatibility.checkConformance(false, params2, exprs, false)
-        var u = conformance._2
-        if (!conformance._1) return false
-        t2 match {
-          case ScTypePolymorphicType(ScMethodType(_, params, _), typeParams) => {
-            u.getSubstitutor match {
-              case Some(uSubst) =>
-                typeParams.foreach(tp => {
-                  u = u.addLower((tp.name, ScalaPsiUtil.getPsiElementId(tp.ptp)), uSubst.subst(tp.lowerType))
-                  u = u.addUpper((tp.name, ScalaPsiUtil.getPsiElementId(tp.ptp)), uSubst.subst(tp.upperType))
-                })
-              case None => return false
-            }
-          }
-          case _ =>
-        }
-         u.getSubstitutor match {
-          case None => false
-          case _ => true
-        }
+        res1
       }
       case (_, m2: PsiMethod) => true
       case (e1, e2) => Compatibility.compatibleWithViewApplicability(getType(e1), getType(e2))
