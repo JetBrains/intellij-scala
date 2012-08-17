@@ -560,13 +560,13 @@ object ImplicitlyImported {
 
   def implicitlyImportedObject(manager: PsiManager, scope: GlobalSearchScope,
                                 fqn: String): Option[PsiClass] = {
-    ScalaPsiManager.instance(manager.getProject).getCachedClasses(GlobalSearchScope.allScope(manager.getProject), fqn).headOption
+    ScalaPsiManager.instance(manager.getProject).getCachedClasses(scope, fqn).headOption
   }
 
   def allImplicitlyImportedObjects(manager: PsiManager, scope: GlobalSearchScope): Seq[PsiClass] = {
     val res = new ArrayBuffer[PsiClass]
     for (obj <- objects) {
-      res ++= ScalaPsiManager.instance(manager.getProject).getCachedClasses(GlobalSearchScope.allScope(manager.getProject), obj)
+      res ++= ScalaPsiManager.instance(manager.getProject).getCachedClasses(scope, obj)
     }
     res.toSeq
   }
