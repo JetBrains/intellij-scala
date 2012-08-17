@@ -33,9 +33,9 @@ object CachesUtil {
   val NON_VALUE_TYPE_KEY: MappedKey[(Boolean, Boolean), TypeResult[ScType]] = Key.create("non.value.type.key")
   val EXPECTED_TYPES_KEY: MappedKey[Boolean, Array[(ScType, Option[ScTypeElement])]] = Key.create("expected.types.key")
   val SMART_EXPECTED_TYPE: MappedKey[Boolean, Option[ScType]] = Key.create("smart.expected.type")
-  val IMPLICIT_MAP1_KEY: MappedKey[(Option[ScType], Boolean, Option[ScType]), Seq[(ScType, PsiNamedElement, collection.Set[ImportUsed])]] =
+  val IMPLICIT_MAP1_KEY: MappedKey[(Option[ScType], Boolean, Option[ScType]), Seq[(ScType, PsiNamedElement, collection.Set[ImportUsed], ScSubstitutor)]] =
     Key.create("implicit.map1.key")
-  val IMPLICIT_MAP2_KEY: MappedKey[(Option[ScType], Boolean, Seq[ScType], Option[ScType]), Seq[(ScType, PsiNamedElement, collection.Set[ImportUsed])]] =
+  val IMPLICIT_MAP2_KEY: MappedKey[(Option[ScType], Boolean, Seq[ScType], Option[ScType]), Seq[(ScType, PsiNamedElement, collection.Set[ImportUsed], ScSubstitutor)]] =
     Key.create("implicit.map2.key")
 
   //keys for cachedValue

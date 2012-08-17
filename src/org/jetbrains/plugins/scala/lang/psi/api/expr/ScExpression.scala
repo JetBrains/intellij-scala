@@ -72,7 +72,7 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible with Ps
 
       //this functionality for checking if this expression can be implicitly changed and then
       //it will conform to expected type
-      var f: Seq[(ScType, PsiNamedElement, Set[ImportUsed])] =
+      var f: Seq[(ScType, PsiNamedElement, Set[ImportUsed], ScSubstitutor)] =
         implicitMapFirstPart(Some(expected), fromUnderscore).filter(_._1.conforms(expected))
       if (f.length == 0) {
         f = implicitMapSecondPart(Some(expected), fromUnderscore).filter(_._1.conforms(expected))

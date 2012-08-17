@@ -371,7 +371,7 @@ private[expr] object ExpectedTypes {
         if (cand.length == 0 && call != None && !tp.isEmpty) {
           val expr = call.get.getEffectiveInvokedExpr
           //should think about implicit conversions
-          for ((t, implicitFunction, importsUsed) <- expr.implicitMap(exprType = Some(tp.get))._1) {
+          for ((t, implicitFunction, importsUsed, _) <- expr.implicitMap(exprType = Some(tp.get))._1) {
             var state = ResolveState.initial.put(CachesUtil.IMPLICIT_FUNCTION, implicitFunction)
             expr.getClazzForType(t) match {
               case Some(cl: PsiClass) => state = state.put(ScImplicitlyConvertible.IMPLICIT_RESOLUTION_KEY, cl)
@@ -406,7 +406,7 @@ private[expr] object ExpectedTypes {
         if (cand.length == 0 && call != None && !tp.isEmpty) {
           val expr = call.get.getEffectiveInvokedExpr
           //should think about implicit conversions
-          for ((t, implicitFunction, importsUsed) <- expr.implicitMap(exprType = Some(tp.get))._1) {
+          for ((t, implicitFunction, importsUsed, _) <- expr.implicitMap(exprType = Some(tp.get))._1) {
             var state = ResolveState.initial.put(CachesUtil.IMPLICIT_FUNCTION, implicitFunction)
             expr.getClazzForType(t) match {
               case Some(cl: PsiClass) => state = state.put(ScImplicitlyConvertible.IMPLICIT_RESOLUTION_KEY, cl)
