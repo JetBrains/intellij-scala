@@ -124,6 +124,18 @@ case class ScProjectionType(projected: ScType, element: PsiNamedElement, subst: 
           case synth: ScSyntheticClass => Equivalence.equivInner(synth.t, t, uSubst, falseUndef)
           case _ => (false, uSubst)
         }
+      case param@ScParameterizedType(proj2@ScProjectionType(p1, element1, subst1, _), typeArgs) =>
+        proj2.actualElement match {
+          case ta: ScTypeAliasDefinition =>
+            val genericSubst = ScalaPsiUtil.
+              typesCallSubstitutor(ta.typeParameters.map(tp => (tp.name, ScalaPsiUtil.getPsiElementId(tp))), typeArgs)
+            val subst = proj2.actualSubst.followed(genericSubst)
+            Equivalence.equivInner(this, subst.subst(ta.aliasedType match {
+              case Success(tp, _) => tp
+              case _ => return (false, uSubst)
+            }), uSubst, falseUndef)
+          case _ => (false, uSubst)
+        }
       case proj2@ScProjectionType(p1, element1, subst1, _) => {
         proj2.actualElement match {
           case a: ScTypeAliasDefinition =>
