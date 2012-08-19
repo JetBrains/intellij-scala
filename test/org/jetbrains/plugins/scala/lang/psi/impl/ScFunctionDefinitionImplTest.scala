@@ -27,6 +27,10 @@ class ScFunctionDefinitionImplTest extends SimpleTestCase {
     assertRecursionTypeIs("def f(n: Int)(x:Int)(y:Int): Int = f(n + 1)(x)(y)", TailRecursion)
   }
 
+  def testTailRecursionWithTypeParam() {
+    assertRecursionTypeIs("def f[A](n: Int): Int = f[A](n + 1)", TailRecursion)
+  }
+
   def testReturn() {
     assertRecursionTypeIs("def f(n: Int): Int = return f(n + 1)", TailRecursion)
   }
@@ -43,8 +47,31 @@ class ScFunctionDefinitionImplTest extends SimpleTestCase {
     assertRecursionTypeIs("def f(n: Int): Boolean = n > 0 ** f(n)", OrdinaryRecursion)
   }
 
-  private def assertRecursionTypeIs(@Language("Scala") code: String, expectation: RecursionType) {
-    val function = code.parse[ScFunctionDefinition]
-    assertEquals(expectation, function.recursionType)
+  def testGetReturnUsages() {
+    assertUsages(
+      """
+        def f[A](n: Int)(body: => A): Option[A] = {
+          try
+            return Some(body)
+          catch {
+            case e: Exception if n == 0 => return None
+          }
+          f[A](n - 1)(body)
+        }
+      """,
+      "return Some(body)",
+      "return None",
+      "f[A](n - 1)(body)")
   }
+
+
+  private def assertUsages(@Language("Scala") code: String, expected: String*) {
+    assertEquals(expected, parse(code).getReturnUsages.map(_.getText).toSeq)
+  }
+
+  private def assertRecursionTypeIs(@Language("Scala") code: String, expectation: RecursionType) {
+    assertEquals(expectation, parse(code).recursionType)
+  }
+
+  private def parse(@Language("Scala") code: String): ScFunctionDefinition = code.parse[ScFunctionDefinition]
 }
