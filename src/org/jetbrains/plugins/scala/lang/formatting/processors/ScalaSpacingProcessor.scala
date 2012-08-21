@@ -126,14 +126,20 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
     (leftNode.getElementType, rightNode.getElementType,
       leftNode.getTreeParent.getElementType, rightNode.getTreeParent.getElementType) match {
       case (_, ScalaDocTokenType.DOC_COMMENT_LEADING_ASTERISKS, _, _) => return NO_SPACING_WITH_NEWLINE
-      case (_, ScalaDocTokenType.DOC_COMMENT_END, _, _) if scalaSettings.USE_SCALADOC2_FORMATTING =>
-        if (leftString.apply(leftString.length() - 1) != ' ') return WITH_SPACING
-        else return WITHOUT_SPACING
-      case (_, ScalaDocTokenType.DOC_COMMENT_END, _, _) => return NO_SPACING_WITH_NEWLINE
-      case (ScalaDocTokenType.DOC_COMMENT_START, _, _, _) if scalaSettings.USE_SCALADOC2_FORMATTING =>
-        if (getText(rightNode, fileText).apply(0) != ' ') return WITH_SPACING
-        else return WITHOUT_SPACING
-      case (ScalaDocTokenType.DOC_COMMENT_START, _, _, _) => return NO_SPACING_WITH_NEWLINE
+      case (_, ScalaDocTokenType.DOC_COMMENT_END, _, _) =>
+        val comment = rightNode.getTreeParent.getPsi.asInstanceOf[ScDocComment]
+        return if (comment.version == 1) {
+          NO_SPACING_WITH_NEWLINE
+        } else {
+          if (leftString(leftString.length() - 1) != ' ') WITH_SPACING else WITHOUT_SPACING
+        }
+      case (ScalaDocTokenType.DOC_COMMENT_START, _, _, _) =>
+        val comment = leftNode.getTreeParent.getPsi.asInstanceOf[ScDocComment]
+        return if (comment.version == 1) {
+          NO_SPACING_WITH_NEWLINE
+        } else {
+          if (getText(rightNode, fileText)(0) != ' ') WITH_SPACING else WITHOUT_SPACING
+        }
       case (ScalaDocTokenType.DOC_COMMENT_LEADING_ASTERISKS, _, _, _) =>
         if (getText(rightNode, fileText).apply(0) != ' ') return WITH_SPACING
         else return WITHOUT_SPACING
