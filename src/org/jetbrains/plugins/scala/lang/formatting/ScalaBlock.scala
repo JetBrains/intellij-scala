@@ -96,7 +96,7 @@ extends Object with ScalaTokenTypes with Block {
       case _: ScCaseClause => new ChildAttributes(Indent.getNormalIndent, null)
       case _: ScExpression | _: ScPattern | _: ScParameters =>
         new ChildAttributes(Indent.getContinuationWithoutFirstIndent, this.getAlignment)
-      case _: ScDocComment if scalaSettings.USE_SCALADOC2_FORMATTING =>
+      case comment: ScDocComment if comment.version > 1 =>
         new ChildAttributes(Indent.getSpaceIndent(2), null)
       case _: ScDocComment =>
         new ChildAttributes(Indent.getSpaceIndent(1), null)

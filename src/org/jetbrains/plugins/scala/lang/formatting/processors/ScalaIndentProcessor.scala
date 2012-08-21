@@ -22,6 +22,7 @@ import com.intellij.psi.codeStyle.CommonCodeStyleSettings
 import com.intellij.psi.PsiComment
 import psi.api.toplevel.ScEarlyDefinitions
 import scaladoc.psi.api.ScDocComment
+import extensions._
 
 
 object ScalaIndentProcessor extends ScalaTokenTypes {
@@ -31,8 +32,10 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
     val node = parent.getNode
     if (child.getElementType == ScalaDocTokenType.DOC_COMMENT_LEADING_ASTERISKS ||
                 child.getElementType == ScalaDocTokenType.DOC_COMMENT_END) {
-      if (scalaSettings.USE_SCALADOC2_FORMATTING) return Indent.getSpaceIndent(2)
-      else return Indent.getSpaceIndent(1)
+      val comment = child.getPsi.parentsInFile.findByType(classOf[ScDocComment]).getOrElse {
+        throw new RuntimeException("Unable to find parent doc comment")
+      }
+      return Indent.getSpaceIndent(if (comment.version == 1) 1 else 2)
     }
     if ((node.getElementType == ScalaTokenTypes.kIF || node.getElementType == ScalaTokenTypes.kELSE) &&
          parent.myLastNode != null) {
