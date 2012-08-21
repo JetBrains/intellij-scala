@@ -24,30 +24,27 @@ import java.io.File;
     }
 )
 public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProjectSettings>, ExportableComponent {
-  private ScalaCodeStyleSettings scalaSettings =
-      CodeStyleSettingsManager.getInstance().getCurrentSettings().getCustomSettings(ScalaCodeStyleSettings.class);
-
   private boolean IMPORT_SHORTEST_PATH_FOR_AMBIGUOUS_REFERENCES = true;
-  private int CLASS_COUNT_TO_USE_IMPORT_ON_DEMAND = scalaSettings.CLASS_COUNT_TO_USE_IMPORT_ON_DEMAND;
-  private boolean ADD_IMPORT_MOST_CLOSE_TO_REFERENCE = scalaSettings.ADD_IMPORT_MOST_CLOSE_TO_REFERENCE;
-  private boolean ADD_FULL_QUALIFIED_IMPORTS = scalaSettings.ADD_FULL_QUALIFIED_IMPORTS;
-  private boolean SORT_IMPORTS = scalaSettings.SORT_IMPORTS;
-  private boolean IMPORTS_MEMBERS_USING_UNDERSCORE = scalaSettings.IMPORTS_MEMBERS_USING_UNDERSCORE;
+  private int CLASS_COUNT_TO_USE_IMPORT_ON_DEMAND = 5;
+  private boolean ADD_IMPORT_MOST_CLOSE_TO_REFERENCE = false;
+  private boolean ADD_FULL_QUALIFIED_IMPORTS = false;
+  private boolean SORT_IMPORTS = false;
+  private boolean IMPORTS_MEMBERS_USING_UNDERSCORE = true;
 
-  private boolean SEARCH_ALL_SYMBOLS = scalaSettings.SEARCH_ALL_SYMBOLS;
-  private boolean ENABLE_JAVA_TO_SCALA_CONVERSION = scalaSettings.ENABLE_JAVA_TO_SCALA_CONVERSION;
-  private boolean DONT_SHOW_CONVERSION_DIALOG = scalaSettings.DONT_SHOW_CONVERSION_DIALOG;
+  private boolean SEARCH_ALL_SYMBOLS = false;
+  private boolean ENABLE_JAVA_TO_SCALA_CONVERSION = true;
+  private boolean DONT_SHOW_CONVERSION_DIALOG = false;
 
-  private boolean SHOW_IMPLICIT_CONVERSIONS = scalaSettings.SHOW_IMPLICIT_CONVERSIONS;
-  private boolean SHOW_ARGUMENTS_TO_BY_NAME_PARAMETERS = scalaSettings.SHOW_ARGUMENTS_TO_BY_NAME_PARAMETERS;
-  private boolean INCLUDE_BLOCK_EXPRESSIONS = scalaSettings.INCLUDE_BLOCK_EXPRESSIONS;
-  private boolean INCLUDE_LITERALS = scalaSettings.INCLUDE_LITERALS;
+  private boolean SHOW_IMPLICIT_CONVERSIONS = true;
+  private boolean SHOW_ARGUMENTS_TO_BY_NAME_PARAMETERS = false;
+  private boolean INCLUDE_BLOCK_EXPRESSIONS = false;
+  private boolean INCLUDE_LITERALS = false;
 
-  private boolean IGNORE_PERFORMANCE_TO_FIND_ALL_CLASS_NAMES = scalaSettings.IGNORE_PERFORMANCE_TO_FIND_ALL_CLASS_NAMES;
-  private boolean TREAT_DOC_COMMENT_AS_BLOCK_COMMENT = scalaSettings.TREAT_DOC_COMMENT_AS_BLOCK_COMMENT;
-  private boolean DISABLE_LANGUAGE_INJECTION = scalaSettings.DISABLE_LANGUAGE_INJECTION;
+  private boolean IGNORE_PERFORMANCE_TO_FIND_ALL_CLASS_NAMES = false;
+  private boolean TREAT_DOC_COMMENT_AS_BLOCK_COMMENT = false;
+  private boolean DISABLE_LANGUAGE_INJECTION = false;
 
-  private boolean SCALA_CLASSES_PRIORITY = scalaSettings.SCALA_CLASSES_PRIORITY;
+  private boolean SCALA_CLASSES_PRIORITY = true;
 
   private String[] IMPORTS_WITH_PREFIX = {
       "scala.collection.mutable._",
