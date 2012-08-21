@@ -25,10 +25,14 @@ final class FakePsiCodeBlock(body: ScExpression) extends LightElement(body.getMa
   override def getTextRange: TextRange = body.getTextRange
 
   override def getTextOffset: Int = body.getTextOffset
+
+  override def toString = s"FakePsiCodeBlock(${body.toString}})"
 }
 
 final class FakePsiStatement(elem: PsiElement) extends LightElement(elem.getManager, elem.getLanguage) with PsiStatement {
   override def getTextRange: TextRange = elem.getTextRange
 
   override def getTextOffset: Int = elem.getTextOffset
+
+  override def toString = s"FakePsiStatement(${elem.toString})"
 }
