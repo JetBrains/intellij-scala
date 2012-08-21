@@ -39,6 +39,7 @@ import extensions.{toPsiNamedElementExt, &&}
 import parser.ScalaElementTypes
 import psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.editor.enterHandler.MultilineStringEnterHandler
+import extensions._
 
 object ScalaSpacingProcessor extends ScalaTokenTypes {
   private val LOG = Logger.getInstance("#org.jetbrains.plugins.scala.lang.formatting.processors.ScalaSpacingProcessor")
@@ -122,20 +123,23 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
             (rightPsi.isInstanceOf[PsiComment] || rightPsi.isInstanceOf[PsiDocComment])) {
       return ON_NEW_LINE
     }
+
     //ScalaDocs
+    def docCommentOf(node: ASTNode) = node.getPsi.parentsInFile.findByType(classOf[ScDocComment]).getOrElse {
+      throw new RuntimeException("Unable to find parent doc comment")
+    }
+
     (leftNode.getElementType, rightNode.getElementType,
       leftNode.getTreeParent.getElementType, rightNode.getTreeParent.getElementType) match {
       case (_, ScalaDocTokenType.DOC_COMMENT_LEADING_ASTERISKS, _, _) => return NO_SPACING_WITH_NEWLINE
       case (_, ScalaDocTokenType.DOC_COMMENT_END, _, _) =>
-        val comment = rightNode.getTreeParent.getPsi.asInstanceOf[ScDocComment]
-        return if (comment.version == 1) {
+        return if (docCommentOf(rightNode).version == 1) {
           NO_SPACING_WITH_NEWLINE
         } else {
           if (leftString(leftString.length() - 1) != ' ') WITH_SPACING else WITHOUT_SPACING
         }
       case (ScalaDocTokenType.DOC_COMMENT_START, _, _, _) =>
-        val comment = leftNode.getTreeParent.getPsi.asInstanceOf[ScDocComment]
-        return if (comment.version == 1) {
+        return if (docCommentOf(leftNode).version == 1) {
           NO_SPACING_WITH_NEWLINE
         } else {
           if (getText(rightNode, fileText)(0) != ' ') WITH_SPACING else WITHOUT_SPACING
