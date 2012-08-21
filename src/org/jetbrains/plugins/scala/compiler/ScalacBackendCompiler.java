@@ -23,12 +23,10 @@ import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.util.Comparing;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.vfs.CharsetToolkit;
-import com.intellij.openapi.vfs.JarFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.encoding.EncodingManager;
 import com.intellij.util.ArrayUtil;
 import com.intellij.util.PathUtil;
-import com.intellij.util.Processor;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.ScalaBundle;
@@ -408,6 +406,24 @@ public class ScalacBackendCompiler extends ExternalCompiler {
     if (settings.SCALAC_BEFORE) {
       // Add both Scala and Java files
       filesToCompile.addAll(chunk.getFilesToCompile());
+
+      // TODO Remove this step when IDEA's src/test compilation order will be fixed
+      // Add Java source files as dependencies for the tests.
+      // The action should not be required, because at this stage Java sources shoud already be compiled
+      // (so Scalac can use them as .class files).
+      // However the IDEA's internal compilation system invokes Scala compiler for test compilation
+      // before compilation of Java module sources.
+      if (isTestChunk(chunk)) {
+        ProjectRootManager rootManager = ProjectRootManager.getInstance(myProject);
+        for (Module module : chunk.getModules()) {
+          for (VirtualFile root : OrderEnumerator.orderEntries(module).getSourceRoots()) {
+            if (rootManager.getFileIndex().isInSourceContent(root) &&
+                !rootManager.getFileIndex().isInTestSourceContent(root)) {
+              printJavaSourceFiles(printer, root);
+            }
+          }
+        }
+      }
     } else {
       // Add Scala files only
       for (VirtualFile file : chunk.getFilesToCompile()) {
@@ -429,6 +445,30 @@ public class ScalacBackendCompiler extends ExternalCompiler {
       } catch (IOException e) {
         // ignore
       }
+    }
+  }
+
+  private static boolean isTestChunk(ModuleChunk chunk) {
+    final Module[] modules = chunk.getModules();
+    if (modules.length > 0) {
+      ProjectRootManager rm = ProjectRootManager.getInstance(modules[0].getProject());
+      for (VirtualFile file : chunk.getSourceRoots()) {
+        if (file != null && rm.getFileIndex().isInTestSourceContent(file)) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  private static void printJavaSourceFiles(PrintStream stream, VirtualFile src) {
+    if (src.getPath().contains("!/")) return;
+    if (src.isDirectory()) {
+      for (VirtualFile file : src.getChildren()) {
+        printJavaSourceFiles(stream, file);
+      }
+    } else if (src.getFileType() == StdFileTypes.JAVA) {
+      stream.println(src.getPath());
     }
   }
 
