@@ -10,10 +10,12 @@ import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocComment
 import org.jetbrains.plugins.scala.extensions.toPsiNamedElementExt
 import com.intellij.openapi.editor.Editor
 import org.jetbrains.plugins.scala.lang.psi.light.PsiClassWrapper
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTrait, ScObject, ScDocCommentOwner, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import com.intellij.psi.{PsiReference, PsiElement}
 import org.jetbrains.plugins.scala.lang.resolve.ResolvableReferenceElement
 import collection.JavaConverters.{asJavaCollectionConverter, iterableAsScalaIterableConverter}
+import scala.Some
+import annotation.tailrec
 
 /**
  * User: Alexander Podkhalyuzin
@@ -41,8 +43,16 @@ class RenameScalaClassProcessor extends RenameJavaClassProcessor {
           case Some(td) => allRenames.put(td, newName)
           case _ =>
         }
+        @tailrec
+        def isTop(element: PsiElement): Boolean = {
+          element match {
+            case null => true
+            case td: ScTemplateDefinition => false
+            case _ => isTop(element.getContext)
+          }
+        }
         val file = td.getContainingFile
-        if (file != null && file.name == td.name + ".scala") {
+        if (file != null && isTop(element.getContext) && file.name == td.name + ".scala") {
           allRenames.put(file, newName + ".scala")
         }
       }
