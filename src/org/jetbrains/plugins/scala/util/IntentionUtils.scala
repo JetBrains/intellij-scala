@@ -102,18 +102,21 @@ object IntentionUtils {
     }
   }
 
-  def negateAndValidateExpression(infixExpr: ScInfixExpr, manager: PsiManager, buf: scala.StringBuilder) = {
+  def negateAndValidateExpression(expr: ScExpression, manager: PsiManager, buf: scala.StringBuilder) = {
     val parent =
-      if (infixExpr.getParent != null && infixExpr.getParent.isInstanceOf[ScParenthesisedExpr]) infixExpr.getParent.getParent
-      else infixExpr.getParent
+      if (expr.getParent != null && expr.getParent.isInstanceOf[ScParenthesisedExpr]) expr.getParent.getParent
+      else expr.getParent
 
     if (parent != null && parent.isInstanceOf[ScPrefixExpr] &&
             parent.asInstanceOf[ScPrefixExpr].operation.getText == "!") {
 
       val newExpr = ScalaPsiElementFactory.createExpressionFromText(buf.toString(), manager)
 
-      val size = newExpr.asInstanceOf[ScInfixExpr].operation.nameId.getTextRange.getStartOffset -
+      val size = newExpr match {
+        case infix: ScInfixExpr =>infix.operation.nameId.getTextRange.getStartOffset -
               newExpr.getTextRange.getStartOffset - 2
+        case _ => 0
+      }
 
       (parent.asInstanceOf[ScPrefixExpr], newExpr, size)
     } else {
@@ -121,10 +124,12 @@ object IntentionUtils {
       val newExpr = ScalaPsiElementFactory.createExpressionFromText(buf.toString(), manager)
 
       val children = newExpr.asInstanceOf[ScPrefixExpr].getLastChild.asInstanceOf[ScParenthesisedExpr].getChildren
-      val size = children(0).asInstanceOf[ScInfixExpr].operation.
+      val size = children(0) match {
+        case infix: ScInfixExpr => infix.operation.
               nameId.getTextRange.getStartOffset - newExpr.getTextRange.getStartOffset
-
-      (infixExpr, newExpr, size)
+        case _ => 0
+      }
+      (expr, newExpr, size)
     }
   }
 
@@ -147,7 +152,7 @@ object IntentionUtils {
         else "!" + e.getText
       case _ =>
         val exprText = expression.getText
-        if (ScalaNamesUtil.isOpCharacter(exprText(0))) "!(" + exprText + ")"
+        if (ScalaNamesUtil.isOpCharacter(exprText(0)) || expression.isInstanceOf[ScInfixExpr]) "!(" + exprText + ")"
         else "!" + expression.getText
     }
   }
