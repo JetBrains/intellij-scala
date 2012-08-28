@@ -1,8 +1,6 @@
 package org.jetbrains.plugins.scala.testingSupport.scalaTest;
 
-import org.jetbrains.plugins.scala.testingSupport.TestRunnerUtil;
 import org.scalatest.Reporter;
-import org.scalatest.exceptions.StackDepthException;
 import org.scalatest.events.*;
 import org.scalatest.events.Location;
 import scala.Option;
@@ -48,14 +46,6 @@ public class ScalaTestReporterWithLocation implements Reporter {
       return "";
   }
 
-  private void sendInfoProvided(InfoProvided infoProvided) {
-    String message = infoProvided.message();
-    String escapedMessage = escapeString(message + "\n");
-    if (!escapedMessage.isEmpty()) {
-      System.out.println("\n##teamcity[message text='" + escapedMessage + "' status='WARNING'" + "]");
-    }
-  }
-
   public void apply(Event event) {
     if (event instanceof RunStarting) {
       RunStarting r = (RunStarting) event;
@@ -78,13 +68,6 @@ public class ScalaTestReporterWithLocation implements Reporter {
       String testText = testSucceeded.testText();
       System.out.println("\n##teamcity[testFinished name='" + escapeString(testText) +
           "' duration='"+ duration +"']");
-
-      scala.collection.Iterator<RecordableEvent> iter = testSucceeded.recordedEvents().iterator();
-      while (iter.hasNext()) {
-        RecordableEvent recordableEvent = iter.next();
-        if (recordableEvent instanceof InfoProvided)
-          sendInfoProvided((InfoProvided) recordableEvent);
-      }
     } else if (event instanceof TestFailed) {
       boolean error = true;
       TestFailed testFailed = (TestFailed) event;
@@ -120,13 +103,6 @@ public class ScalaTestReporterWithLocation implements Reporter {
       System.out.println(res);
       System.out.println("\n##teamcity[testFinished name='" + escapeString(testText) +
           "' duration='" + duration +"' captureStandardOutput='true' " + locationHint + "]");
-
-      scala.collection.Iterator<RecordableEvent> iter = testFailed.recordedEvents().iterator();
-      while (iter.hasNext()) {
-        RecordableEvent recordableEvent = iter.next();
-        if (recordableEvent instanceof InfoProvided)
-          sendInfoProvided((InfoProvided) recordableEvent);
-      }
     } else if (event instanceof TestIgnored) {
       String testText = ((TestIgnored) event).testText();
       System.out.println("\n##teamcity[testIgnored name='" + escapeString(testText) + "' message='" +
@@ -136,25 +112,11 @@ public class ScalaTestReporterWithLocation implements Reporter {
       String testText = testPending.testText();
       System.out.println("\n##teamcity[testFinished name='" + escapeString(testText) +
           "' duration='" + 0 +"']");
-
-      scala.collection.Iterator<RecordableEvent> iter = testPending.recordedEvents().iterator();
-      while (iter.hasNext()) {
-        RecordableEvent recordableEvent = iter.next();
-        if (recordableEvent instanceof InfoProvided)
-          sendInfoProvided((InfoProvided) recordableEvent);
-      }
     } else if (event instanceof TestCanceled) {
       TestCanceled testCanceled = (TestCanceled) event;
       String testText = testCanceled.testText();
       System.out.println("\n##teamcity[testFinished name='" + escapeString(testText) +
           "' duration='" + 0 +"']");
-
-      scala.collection.Iterator<RecordableEvent> iter = testCanceled.recordedEvents().iterator();
-      while (iter.hasNext()) {
-        RecordableEvent recordableEvent = iter.next();
-        if (recordableEvent instanceof InfoProvided)
-          sendInfoProvided((InfoProvided) recordableEvent);
-      }
     }else if (event instanceof SuiteStarting) {
       SuiteStarting suiteStarting = (SuiteStarting) event;
       String suiteName = suiteStarting.suiteName();
@@ -178,7 +140,11 @@ public class ScalaTestReporterWithLocation implements Reporter {
             throwableString + "]");
       }
     } else if (event instanceof InfoProvided) {
-      sendInfoProvided((InfoProvided) event);
+      String message = ((InfoProvided) event).message();
+      String escapedMessage = escapeString(message + "\n");
+      if (!escapedMessage.isEmpty()) {
+          System.out.println("\n##teamcity[message text='" + escapedMessage + "' status='WARNING'" + "]");
+      }
     } else if (event instanceof RunStopped) {
 
     } else if (event instanceof RunAborted) {
