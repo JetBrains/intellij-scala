@@ -15,7 +15,9 @@ object ScEquivalenceUtil {
     val containingClazz1: PsiClass = clazz1.containingClass
     val containingClass2: PsiClass = clazz2.containingClass
     if (containingClazz1 != null) {
-      if (containingClass2 != null) return areClassesEquivalent(containingClazz1, containingClass2)
+      if (containingClass2 != null) {
+        if (!areClassesEquivalent(containingClazz1, containingClass2)) return false
+      }
       else return false
     } else if (containingClass2 != null) return false
     if (clazz1.qualifiedName != clazz2.qualifiedName) return false
