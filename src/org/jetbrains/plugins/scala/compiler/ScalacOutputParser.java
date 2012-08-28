@@ -260,7 +260,7 @@ class ScalacOutputParser extends OutputParser {
         myMsgType = PLAIN;
       }
     } else {
-      callback.message(CompilerMessageCategory.INFORMATION, "", text, -1, -1);
+      callback.message(CompilerMessageCategory.INFORMATION, text, text, -1, -1);
       myMsgType = PLAIN;
     }
   }
