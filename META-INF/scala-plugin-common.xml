@@ -665,6 +665,10 @@
                          displayName="Not implemented code" groupName="Scala: General"
                          shortName="NotImplementedCode" level="WARNING"
                          enabledByDefault="true" language="Scala"/>
+      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.redundantBlock.RedundantBlockInspection"
+                         displayName="Redundant block" groupName="Scala: General"
+                         shortName="RedundantBlock" level="WARNING"
+                         enabledByDefault="true" language="Scala"/>
 
         <!--<localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.allErrorsInspection.AnnotatorBasedErrorInspection"
        displayName="All Errors Tool" groupName="Scala: General"
