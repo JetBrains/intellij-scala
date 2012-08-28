@@ -66,21 +66,21 @@ class InvertIfConditionIntentionTest  extends ScalaIntentionTestBase {
                   |class X {
                   |  def f(a: Boolean, b: Boolean) {
                   |    i<caret>f (a == b) {
-                  |      b = false
+                  |      val c = false
                   |    }
-                  |    System.out.println()
+                  |    println()
                   |  }
                   |}
                 """.stripMargin.replace("\r", "").trim
     val resultText = """
                        |class X {
                        |  def f(a: Boolean, b: Boolean) {
-                       |    i<caret>f (!(a != b)) {
+                       |    i<caret>f (a != b) {
                        |
                        |    } else {
-                       |      b = false
+                       |      val c = false
                        |    }
-                       |    System.out.println()
+                       |    println()
                        |  }
                        |}
                      """.stripMargin.replace("\r", "").trim
