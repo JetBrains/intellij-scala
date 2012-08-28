@@ -657,6 +657,10 @@
                          displayName="Malformed format string" groupName="Scala: General"
                          shortName="ScalaMalformedFormatString" level="WARNING"
                          enabledByDefault="true" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.format.LegacyStringFormattingInspection"
+                         displayName="Legacy string formatting" groupName="Scala: General"
+                         shortName="LegacyStringFormatting" level="WARNING"
+                         enabledByDefault="false" language="Scala"/>
       <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.notImplementedCode.NotImplementedCodeInspection"
                          displayName="Not implemented code" groupName="Scala: General"
                          shortName="NotImplementedCode" level="WARNING"

@@ -16,7 +16,7 @@ object PrintStringParser extends StringParser {
     extractPrintCall(element).map(p => FormattedStringParser.parseFormatCall(p._1, p._2))
   }
 
-  private def extractPrintCall(element: PsiElement): Option[(ScLiteral, Seq[ScExpression])] = Some(element) collect {
+  def extractPrintCall(element: PsiElement): Option[(ScLiteral, Seq[ScExpression])] = Some(element) collect {
     // printf("%d", 1)
     case MethodInvocation(PsiReferenceEx.resolve((f: ScFunction) &&
             ContainingClass(owner: ScObject)), Seq(literal: ScLiteral, args @  _*))
