@@ -7,13 +7,13 @@ import config.ScalaFacet
 import collection.JavaConversions._
 import com.intellij.openapi.options.{SettingsEditorGroup, SettingsEditor}
 import com.intellij.diagnostic.logging.LogConfigurationPanel
-import reflect.BeanProperty
+import scala.beans.BeanProperty
 import com.intellij.openapi.module.Module
 
 import com.intellij.openapi.components.PathMacroManager
 import lang.psi.impl.ScalaPsiManager
 import lang.psi.api.toplevel.typedef.ScObject
-import com.intellij.psi.PsiPackage
+import com.intellij.psi.{PsiMethod, PsiPackage, JavaPsiFacade, PsiClass}
 import com.intellij.openapi.util.JDOMExternalizer
 
 import testingSupport.test.TestRunConfigurationForm.{SearchForTest, TestKind}
@@ -23,7 +23,6 @@ import com.intellij.execution.testframework.sm.runner.SMTRunnerConsoleProperties
 import com.intellij.execution.testframework.sm.SMTestRunnerConnectionUtil
 import com.intellij.execution.testframework.ui.BaseTestsOutputConsoleView
 import com.intellij.openapi.project.Project
-import com.intellij.psi.{JavaPsiFacade, PsiClass}
 import com.intellij.util.PathUtil
 import com.intellij.execution.configurations._
 import java.lang.String
@@ -41,6 +40,7 @@ import lang.psi.api.ScPackage
 import collection.mutable.{HashSet, ArrayBuffer}
 import testingSupport.test.AbstractTestRunConfiguration.PropertiesExtension
 import org.jetbrains.plugins.scala.compiler.rt.ClassRunner
+import collection.mutable
 
 /**
  * @author Ksenia.Sautina
@@ -243,10 +243,17 @@ abstract class AbstractTestRunConfiguration(val project: Project,
         }
         val clazz = getClazz(getTestClassPath, false)
         if (clazz == null) {
-          throw new RuntimeConfigurationException("Class %s is not found in module %s".format(getTestClassPath,
+          throw new RuntimeConfigurationException("No Suite Class is found for Class %s in module %s".format(getTestClassPath,
             getModule.getName))
         }
-
+        if (clazz.getModifierList.hasModifierProperty("abstract")) {
+          throw new RuntimeConfigurationException("Class %s in module %s is abstract".format(getTestClassPath,
+            getModule.getName))
+        }
+        if (lackNoArgConstructor(clazz.getConstructors)) {
+          throw new RuntimeConfigurationException("Class %s in module %s lacks a no-arg constructor".format(getTestClassPath,
+            getModule.getName))
+        }
         if (!ScalaPsiUtil.cachedDeepIsInheritor(clazz, suiteClass)) {
           throw new RuntimeConfigurationException("Class %s is not inheritor of Suite trait".format(getTestClassPath))
         }
@@ -265,6 +272,15 @@ abstract class AbstractTestRunConfiguration(val project: Project,
     JavaRunConfigurationExtensionManager.getInstance.appendEditors(this, group)
     group.addEditor(ExecutionBundle.message("logs.tab.title"), new LogConfigurationPanel)
     group
+  }
+
+  def lackNoArgConstructor(constructors: mutable.Seq[PsiMethod]): Boolean = {
+    for (constructor <- constructors) {
+      if (constructor.isConstructor && constructor.getParameterList.getParametersCount == 0) {
+        return false
+      }
+    }
+    true
   }
 
   override def getState(executor: Executor, env: ExecutionEnvironment): RunProfileState = {
@@ -307,7 +323,9 @@ abstract class AbstractTestRunConfiguration(val project: Project,
         buffer.toSeq
       }
       for (cl <- getClasses(pack)) {
-        if (ScalaPsiUtil.cachedDeepIsInheritor(cl, suiteClass)) classes += cl
+        val isAbstract = cl.getModifierList.hasModifierProperty("abstract")
+        val lackNoArg =  lackNoArgConstructor(cl.getConstructors)
+        if (!isAbstract && !lackNoArg && ScalaPsiUtil.cachedDeepIsInheritor(cl, suiteClass)) classes += cl
       }
     }
 
