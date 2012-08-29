@@ -10,7 +10,7 @@ import lang.psi.api.statements.ScFunctionDefinition
 import lang.psi.api.toplevel.templates.ScTemplateBody
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.execution.Location
-import lang.psi.api.toplevel.typedef.{ScTrait, ScClass, ScTypeDefinition, ScMember}
+import lang.psi.api.toplevel.typedef._
 import lang.psi.api.expr._
 import org.scalatest.finders.{Finder, AstNode, ToStringTarget, Selection}
 import lang.psi.api.base.ScLiteral
@@ -23,6 +23,8 @@ import lang.psi.types.ScType
 import collection.mutable
 import com.intellij.util.Processor
 import org.codehaus.groovy.ast.expr.StaticMethodCallExpression
+import scala.Some
+import lang.psi.impl.toplevel.templates.ScExtendsBlockImpl
 
 /**
  * @author cheeseng
@@ -344,6 +346,8 @@ class ScalaTestAstTransformer {
                       nestedChildren ++= getTopInvocation(refExprParentInvocation).getLastChild.getLastChild.getChildren
                     case _ => // Do nothing for other types of node.
                   }
+                case extendsBlock: ScExtendsBlockImpl if extendsBlock.templateBody.isDefined =>
+                  nestedChildren ++= extendsBlock.templateBody.get.getChildren
                 case _ => // Do nothing for other types of node.
               }
             }
@@ -355,8 +359,43 @@ class ScalaTestAstTransformer {
     }
   }
 
+  private class StClassDefinition(pClassName: String, val element: ScClass, pName: String, pParamTypes: String*)
+    extends org.scalatest.finders.ClassDefinition(pClassName, null, Array.empty, pName, pParamTypes.toList: _*) with TreeSupport {
+    override def parent(): AstNode = getParent(className(), element)
+
+    override lazy val children = getChildren(pClassName, element)
+
+    override def equals(other: Any) = if (other != null && other.isInstanceOf[StClassDefinition]) element eq other.asInstanceOf[StClassDefinition].element else false
+
+    override def hashCode = element.hashCode
+  }
+
+  private class StModuleDefinition(pClassName: String, val element: ScObject, pName: String)
+    extends org.scalatest.finders.ModuleDefinition(pClassName, null, Array.empty, pName) with TreeSupport {
+    override def parent(): AstNode = getParent(className(), element)
+
+    override lazy val children = getChildren(pClassName, element)
+
+    override def equals(other: Any) = if (other != null && other.isInstanceOf[StModuleDefinition]) element eq other.asInstanceOf[StModuleDefinition].element else false
+
+    override def hashCode = element.hashCode
+  }
+
+  private class StTraitDefinition(pClassName: String, val element: ScTrait, pName: String)
+    extends org.scalatest.finders.TraitDefinition(pClassName, null, Array.empty, pName) with TreeSupport {
+    override def parent(): AstNode = getParent(className(), element)
+
+    override lazy val children = getChildren(pClassName, element)
+
+    override def equals(other: Any) = if (other != null && other.isInstanceOf[StTraitDefinition]) element eq other.asInstanceOf[StTraitDefinition].element else false
+
+    override def hashCode = element.hashCode
+  }
+
   private class StConstructorBlock(pClassName: String, val element: PsiElement)
-    extends org.scalatest.finders.ConstructorBlock(pClassName, Array.empty) with TreeSupport {
+    extends org.scalatest.finders.ConstructorBlock(pClassName, null, Array.empty) with TreeSupport {
+    override def parent(): AstNode = getParent(className(), element)
+
     override lazy val children = getChildren(pClassName, element)
 
     override def equals(other: Any) = if (other != null && other.isInstanceOf[StConstructorBlock]) element eq other.asInstanceOf[StConstructorBlock].element else false
@@ -475,12 +514,18 @@ class ScalaTestAstTransformer {
       }
     }
 
+    def getDefinitionName(name: String): String =
+      if (name.startsWith("`") && name.endsWith("`"))
+        name.substring(1, name.length - 1)
+      else
+        name
+
     def getScalaTestMethodDefinition(methodDef: ScFunctionDefinition): Option[StMethodDefinition] = {
       val containingClass = methodDef.containingClass
       if (containingClass != null) {
         // For inner method, this will be null
         val className = containingClass.qualifiedName
-        val name = methodDef.name
+        val name = getDefinitionName(methodDef.name)
         val paramTypes = methodDef.parameters.map {
           param => param.getType.getCanonicalText
         }
@@ -491,6 +536,20 @@ class ScalaTestAstTransformer {
         None // May be to build the nested AST nodes too.
     }
 
+    def getScalaTestClassDefinition(scClass: ScClass): StClassDefinition = {
+      val containingClass = scClass.containingClass
+      val className =
+        if (containingClass == null)
+          scClass.qualifiedName
+        else
+          containingClass.qualifiedName
+      val name = getDefinitionName(scClass.name)
+      val paramTypes = scClass.parameters.map {
+        param => param.getType.getCanonicalText
+      }
+      new StClassDefinition(className, scClass, name, paramTypes.toList: _*)
+    }
+
     element match {
       case invocation: MethodInvocation =>
         getScalaTestMethodInvocation(invocation, invocation)
@@ -498,6 +557,12 @@ class ScalaTestAstTransformer {
         getScalaTestMethodDefinition(methodDef)
       case constructor: ScTemplateBody =>
         new Some(new StConstructorBlock(className, constructor))
+      case scObject: ScObject =>
+        new Some(new StModuleDefinition(className, scObject, getDefinitionName(scObject.name)))
+      case scClass: ScClass =>
+        new Some(getScalaTestClassDefinition(scClass))
+      case scTrait: ScTrait =>
+        new Some(new StTraitDefinition(className, scTrait, getDefinitionName(scTrait.name)))
       case _ =>
         None
     }

@@ -1,7 +1,7 @@
 <component name="libraryTable">
   <library name="scalatest-finders">
     <CLASSES>
-      <root url="jar://$PROJECT_DIR$/SDK/lib/scalatest-finders-0.9.3.jar!/" />
+      <root url="jar://$PROJECT_DIR$/SDK/lib/scalatest-finders-0.9.4.jar!/" />
     </CLASSES>
     <JAVADOC />
     <SOURCES />
