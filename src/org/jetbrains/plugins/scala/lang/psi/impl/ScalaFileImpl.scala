@@ -207,13 +207,24 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
   }
 
   def setPackageName(name: String) {
-    val basePackage = for {
-      m <- Option(ScalaPsiUtil.getModule(this))
-      facet <- ScalaFacet.findIn(m)
-      p <- facet.basePackage
-    } yield p
+    val basePackageName = Option(ScalaPsiUtil.getModule(this))
+            .flatMap(ScalaFacet.findIn)
+            .flatMap(_.basePackage)
+            .mkString
 
-    setPackageName(basePackage.mkString, name)
+    this match {
+      // Handle package object
+      case TypeDefinitions(obj: ScObject) if obj.isPackageObject =>
+        val (packageName, objectName) = name match {
+          case ScalaFileImpl.QualifiedPackagePattern(qualifier, simpleName) => (qualifier, simpleName)
+          case s => ("", name)
+        }
+
+        setPackageName(basePackageName, packageName)
+        typeDefinitions.headOption.foreach(_.name = objectName)
+
+      case _ => setPackageName(basePackageName, name)
+    }
   }
 
   def setPackageName(base: String, name: String) {
@@ -596,6 +607,7 @@ object ImplicitlyImported {
 
 object ScalaFileImpl {
   private val LOG: Logger = Logger.getInstance("#org.jetbrains.plugins.scala.lang.psi.impl.ScalaFileImpl")
+  private val QualifiedPackagePattern = "(.+)\\.(.+?)".r
   val SCRIPT_KEY = new Key[java.lang.Boolean]("Is Script Key")
   val CONTEXT_KEY = new Key[PsiElement]("context.key")
   val CHILD_KEY = new Key[PsiElement]("child.key")
