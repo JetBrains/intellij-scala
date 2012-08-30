@@ -1,5 +1,5 @@
 def test() = {
   val message = "hello"
-  throw new RuntimeException(mes/*caret*/)
+  throw new RuntimeException(mess/*caret*/)
 }
 //message
