@@ -22,6 +22,7 @@ import scala.Some
 import scala.collection.JavaConversions._
 import lang.formatting.settings.ScalaCodeStyleSettings
 import settings.ScalaProjectSettings
+import lang.psi.api.toplevel.typedef.ScObject
 
 /**
  * User: Alexander Podkhalyuzin
@@ -71,6 +72,14 @@ class ScalaImportOptimizer extends ImportOptimizer {
           val _unusedImports = getUnusedImports
           val unusedImports = new HashSet[ImportUsed]
           for (importUsed <- _unusedImports) {
+            def isLanguageFeatureImport(expr: ScImportExpr): Boolean = {
+              if (expr == null) return false
+              expr.qualifier.resolve() match {
+                case o: ScObject =>
+                  o.qualifiedName.startsWith("scala.language") || o.qualifiedName.startsWith("scala.languageFeature")
+                case _ => false
+              }
+            }
             importUsed match {
               case ImportExprUsed(expr) => {
                 val toDelete = expr.reference match {
@@ -82,14 +91,17 @@ class ScalaImportOptimizer extends ImportOptimizer {
                   }
                 }
                 if (toDelete) {
-                  unusedImports += importUsed
+                  if (!isLanguageFeatureImport(expr))
+                    unusedImports += importUsed
                 }
               }
               case ImportWildcardSelectorUsed(expr) => {
-                unusedImports += importUsed
+                if (!isLanguageFeatureImport(expr))
+                  unusedImports += importUsed
               }
               case ImportSelectorUsed(sel) => {
-                if (sel.reference.getText == sel.importedName && sel.reference.multiResolve(false).length > 0) {
+                if (sel.reference.getText == sel.importedName && sel.reference.multiResolve(false).length > 0 &&
+                  !isLanguageFeatureImport(PsiTreeUtil.getParentOfType(sel, classOf[ScImportExpr]))) {
                   unusedImports += importUsed
                 }
               }
