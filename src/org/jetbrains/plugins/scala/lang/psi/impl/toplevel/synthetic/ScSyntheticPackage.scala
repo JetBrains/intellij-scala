@@ -18,8 +18,8 @@ import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.util.IncorrectOperationException
 import collection.mutable.HashSet
 import lang.resolve.processor.BaseProcessor
-import api.toplevel.typedef.ScClass
-import extensions.toPsiNamedElementExt
+import api.toplevel.typedef.{ScObject, ScClass}
+import extensions.{toPsiClassExt, toPsiNamedElementExt}
 
 /**
  * @author ilyas
@@ -83,7 +83,28 @@ object ScSyntheticPackage {
       ScalaIndexKeys.PACKAGE_FQN_KEY.asInstanceOf[StubIndexKey[Any, ScPackageContainer]],
       fqn.hashCode(), project, GlobalSearchScope.allScope(project)).toArray(Array[ScPackageContainer]()).toSeq : _*)
 
-    if (packages.isEmpty) null else {
+    if (packages.isEmpty) {
+      collection.immutable.Seq(StubIndex.getInstance().get(
+        ScalaIndexKeys.PACKAGE_OBJECT_KEY.asInstanceOf[StubIndexKey[Any, PsiClass]],
+        fqn.hashCode(), project, GlobalSearchScope.allScope(project)).toArray(Array[PsiClass]()).toSeq: _*).
+        find(pc => {
+        pc.qualifiedName == fqn
+      }) match {
+        case Some(obj) =>
+          val pname = if (i < 0) "" else fqn.substring(0, i)
+          new ScSyntheticPackage(name, PsiManager.getInstance(project)) {
+            def containsClassNamed(name: String): Boolean = false
+            def getQualifiedName = fqn
+            def getClasses: Array[PsiClass] = Array.empty
+            def getClasses(scope: GlobalSearchScope): Array[PsiClass] = Array.empty
+            def getParentPackage = ScPackageImpl.findPackage(project, pname)
+            def getSubPackages: Array[PsiPackage] = Array.empty
+            def getSubPackages(scope: GlobalSearchScope) = Array.empty
+            def getContainer: PsiQualifiedNamedElement = null
+          }
+        case None => null
+      }
+    } else {
       val pkgs = packages.filter(pc => {
           pc.fqn.startsWith(fqn) && fqn.startsWith(pc.prefix)
       })
@@ -127,7 +148,7 @@ object ScSyntheticPackage {
 
               val fqn1 = p.fqn
               val tail = if (fqn1.length > fqn.length) fqn1.substring(fqn.length + 1) else ""
-              if (tail.length == 0)
+              if (tail.length == 0) {
                 p.packagings.foreach {
                   pack => {
                     val own = pack.ownNamePart
@@ -135,7 +156,12 @@ object ScSyntheticPackage {
                     addPackage(if (i > 0) own.substring(0, i) else own)
                   }
                 }
-              else {
+                p.typeDefs.foreach {
+                  case o: ScObject if o.isPackageObject && o.getName != "`package`" =>
+                    addPackage(o.name)
+                  case _ =>
+                }
+              } else {
                 val i = tail.indexOf(".")
                 val next = if (i > 0) tail.substring(0, i) else tail
                 addPackage(next)
