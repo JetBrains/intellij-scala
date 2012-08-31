@@ -21,6 +21,7 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.debugger.evaluation.ScalaCodeFragment
+import org.jetbrains.plugins.scala.console.ScalaLanguageConsoleView
 
 /**
  * Pavel Fatin
@@ -59,6 +60,7 @@ abstract class CreateEntityQuickFix(ref: ScReferenceExpression,
   def invoke(project: Project, editor: Editor, file: PsiFile) {
     PsiDocumentManager.getInstance(project).commitAllDocuments()
     if (!ref.isValid) return
+    val isScalaConsole = (file.getName == ScalaLanguageConsoleView.SCALA_CONSOLE)
 
     IdeDocumentHistory.getInstance(project).includeCurrentPlaceAsChangePlace()
 
@@ -104,11 +106,13 @@ abstract class CreateEntityQuickFix(ref: ScReferenceExpression,
 
       val template = builder.buildTemplate()
 
-      val targetFile = entity.getContainingFile
-      val newEditor = positionCursor(project, targetFile, entity.getLastChild)
-      val range = entity.getTextRange
-      newEditor.getDocument.deleteString(range.getStartOffset, range.getEndOffset)
-      TemplateManager.getInstance(project).startTemplate(newEditor, template)
+      if (!isScalaConsole) {
+        val targetFile = entity.getContainingFile
+        val newEditor = positionCursor(project, targetFile, entity.getLastChild)
+        val range = entity.getTextRange
+        newEditor.getDocument.deleteString(range.getStartOffset, range.getEndOffset)
+        TemplateManager.getInstance(project).startTemplate(newEditor, template)
+      }
     }
   }
 
