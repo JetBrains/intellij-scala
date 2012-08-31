@@ -3,20 +3,12 @@ package lang
 package completion
 package filters.toplevel
 
-import com.intellij.lang.ASTNode
-import psi._
-import psi.api.ScalaFile;
-import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiErrorElement;
-import com.intellij.psi.filters.ElementFilter;
-import org.jetbrains.annotations.NonNls;
+import psi.api.ScalaFile
+import com.intellij.psi.filters.ElementFilter
+import org.jetbrains.annotations.NonNls
 import com.intellij.psi._
-import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil._
-import org.jetbrains.plugins.scala.lang.lexer._
 import org.jetbrains.plugins.scala.lang.parser._
 
 /**
@@ -27,12 +19,18 @@ import org.jetbrains.plugins.scala.lang.parser._
 class PackageFilter extends ElementFilter {
   def isAcceptable(element: Object, context: PsiElement): Boolean = {
     if (context.isInstanceOf[PsiComment]) return false
-    var leaf = getLeafByOffset(context.getTextRange().getStartOffset(), context);
-    if (leaf != null && leaf.getContainingFile.asInstanceOf[ScalaFile].isScriptFile()) leaf = leaf.getParent
+    var leaf = getLeafByOffset(context.getTextRange.getStartOffset, context)
     if (leaf != null) {
-      val parent = leaf.getParent();
+      leaf.getContainingFile match {
+        case scalaScriptFile: ScalaFile if scalaScriptFile.isScriptFile() => leaf = leaf.getParent
+        case _ => 
+      }
+    }
+    
+    if (leaf != null) {
+      val parent = leaf.getParent
       if (parent.isInstanceOf[ScalaFile] || parent.isInstanceOf[ScPackaging]) {
-        if (leaf.getNextSibling != null && leaf.getNextSibling().getNextSibling().isInstanceOf[ScPackaging] &&
+        if (leaf.getNextSibling != null && leaf.getNextSibling.getNextSibling.isInstanceOf[ScPackaging] &&
                 leaf.getNextSibling.getNextSibling.getText.indexOf('{') == -1) return false
         else {
           var node = leaf.getPrevSibling
@@ -50,15 +48,12 @@ class PackageFilter extends ElementFilter {
         }
       }
     }
-    return false;
+    
+    false
   }
 
-  def isClassAcceptable(hintClass: java.lang.Class[_]): Boolean = {
-    return true;
-  }
+  def isClassAcceptable(hintClass: java.lang.Class[_]) = true
 
   @NonNls
-  override def toString(): String = {
-    return "'package' keyword filter";
-  }
+  override def toString = "'package' keyword filter"
 }

@@ -27,6 +27,7 @@ Literal ::= ['-']integerLiteral
             | true
             | false
             | null
+            | javaId"StringLiteral" 
 */
 object Literal {
   def parse(builder: ScalaPsiBuilder): Boolean = {
@@ -56,9 +57,7 @@ object Literal {
       case ScalaTokenTypes.tINTERPOLATED_STRING_ID =>
         val prefixMarker = builder.mark()
         builder.advanceLexer()
-        prefixMarker.done(new ScalaElementType("Interpolated String Prefix Reference") with SelfPsiCreator {
-          def createElement(node: ASTNode): PsiElement = new ScInterpolatedStringPrefixReference(node)
-        })
+        prefixMarker done ScalaElementTypes.INTERPOLATED_STRING_PREFIX_REFERENCE
         while (!builder.eof() && builder.getTokenType != ScalaTokenTypes.tINTERPOLATED_STRING_END){
           if (builder.getTokenType == ScalaTokenTypes.tINTERPOLATED_STRING_INJECTION) {
             builder.advanceLexer()

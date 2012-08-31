@@ -142,6 +142,7 @@ object ScalaPsiCreator {
   /********************* LITERALS *********************/
     case ScalaElementTypes.LITERAL => new ScLiteralImpl(node)
     case ScalaElementTypes.INTERPOLATED_STRING_LITERAL => new ScInterpolatedStringLiteralImpl(node)
+    case ScalaElementTypes.INTERPOLATED_STRING_PREFIX_REFERENCE => new ScInterpolatedStringPrefixReference(node)
 
     /********************** TYPES ************************/
 

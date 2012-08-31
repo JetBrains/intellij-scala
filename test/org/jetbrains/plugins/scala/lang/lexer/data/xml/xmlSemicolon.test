@@ -1,0 +1,34 @@
+foo(<type>pom</type>: _*)
+foo(<type>pom</type> : _*)
+-----
+identifier {foo}
+( {(}
+XML_START_TAG_START {<}
+XML_NAME {type}
+XML_TAG_END {>}
+XML_DATA_CHARACTERS {pom}
+XML_END_TAG_START {</}
+XML_NAME {type}
+XML_TAG_END {>}
+: {:}
+white space in line { }
+_ {_}
+identifier {*}
+) {)}
+white space in line {
+}
+identifier {foo}
+( {(}
+XML_START_TAG_START {<}
+XML_NAME {type}
+XML_TAG_END {>}
+XML_DATA_CHARACTERS {pom}
+XML_END_TAG_START {</}
+XML_NAME {type}
+XML_TAG_END {>}
+white space in line { }
+: {:}
+white space in line { }
+_ {_}
+identifier {*}
+) {)}
