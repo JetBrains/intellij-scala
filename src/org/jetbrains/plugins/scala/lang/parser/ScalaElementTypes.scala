@@ -173,6 +173,7 @@ object ScalaElementTypes {
   //  String literals
   val STRING_LITERAL = new ScalaElementType("String Literal")
   val INTERPOLATED_STRING_LITERAL = new ScalaElementType("Interpolated String Literal")
+  val INTERPOLATED_STRING_PREFIX_REFERENCE = new ScalaElementType("Interpolated String Prefix Reference")
   // Boolean literals
   val BOOLEAN_LITERAL = new ScalaElementType("Boolean Literal")
 
