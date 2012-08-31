@@ -157,7 +157,8 @@ class ScalaResolveResult(val element: PsiNamedElement,
                 case "scala" => return 2
                 case _ =>
                   memb match {
-                    case param: ScClassParameter if param.isEffectiveVal => return 6
+                    case param: ScClassParameter if param.isEffectiveVal &&
+                      !PsiTreeUtil.isContextAncestor(clazz, place, true) => return 6
                     case _ => return 7
                   }
               }
