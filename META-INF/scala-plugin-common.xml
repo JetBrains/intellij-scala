@@ -671,6 +671,10 @@
                          displayName="Redundant block" groupName="Scala: General"
                          shortName="RedundantBlock" level="WARNING"
                          enabledByDefault="true" language="Scala"/>
+      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.arraySize.ArraySizeCallInspection"
+                         displayName="Call to Array.size" groupName="Scala: General"
+                         shortName="ArraySizeCall" level="WARNING"
+                         enabledByDefault="true" language="Scala"/>
 
         <!--<localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.allErrorsInspection.AnnotatorBasedErrorInspection"
        displayName="All Errors Tool" groupName="Scala: General"
