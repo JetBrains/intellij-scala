@@ -84,4 +84,15 @@ class RenameScalaClassProcessor extends RenameJavaClassProcessor {
       case _ =>
     }
   }
+
+  override def getElementToSearchInStringsAndComments(element: PsiElement): PsiElement = {
+    element match {
+      case o: ScObject => o.fakeCompanionClassOrCompanionClass
+      case wrapper: PsiClassWrapper => wrapper.definition match {
+        case o: ScObject => wrapper
+        case definition => definition
+      }
+      case _ => element
+    }
+  }
 }
