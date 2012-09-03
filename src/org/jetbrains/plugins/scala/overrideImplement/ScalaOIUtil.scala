@@ -102,9 +102,9 @@ object ScalaOIUtil {
       else getMembersToOverride(clazz, withSelfType = true)
     if (candidates.isEmpty) return
     val classMembers = toMembers(candidates)
-    val componentBuffer = new ArrayBuffer[JComponent]
     val dontInferReturnTypeCheckBox: JCheckBox = new NonFocusableCheckBox(
       ScalaBundle.message("specify.return.type.explicitly"))
+    val componentBuffer = ArrayBuffer[JComponent](dontInferReturnTypeCheckBox)
     if (ScalaApplicationSettings.getInstance.SPECIFY_RETURN_TYPE_EXPLICITLY != null)
       dontInferReturnTypeCheckBox.setSelected(ScalaApplicationSettings.getInstance.SPECIFY_RETURN_TYPE_EXPLICITLY.booleanValue)
     class ScalaMemberChooser extends MemberChooser[ClassMember](classMembers, false, true, project, componentBuffer.toArray) {
