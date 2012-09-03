@@ -64,4 +64,6 @@ class AnnotatorHolderMock extends AnnotationHolder {
   def createWeakWarningAnnotation(p1: ASTNode, p2: String): Annotation = null
 
   def createWeakWarningAnnotation(p1: PsiElement, p2: String): Annotation = null
+
+  def isBatchMode: Boolean = false
 } 
