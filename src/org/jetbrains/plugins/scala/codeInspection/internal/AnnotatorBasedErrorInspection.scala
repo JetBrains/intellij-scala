@@ -34,6 +34,8 @@ class AnnotatorBasedErrorInspection extends LocalInspectionTool {
         val FakeAnnotation = new com.intellij.lang.annotation.Annotation(
           0, 0, HighlightSeverity.INFO, "message", "tooltip")
         val annotationHolder = new AnnotationHolder {
+          def isBatchMode: Boolean = false
+
           def createInfoAnnotation(range: TextRange, message: String): Annotation = FakeAnnotation
 
           def createInfoAnnotation(node: ASTNode, message: String): Annotation = FakeAnnotation
