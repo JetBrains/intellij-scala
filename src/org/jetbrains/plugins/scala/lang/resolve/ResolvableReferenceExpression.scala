@@ -10,7 +10,7 @@ import psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import psi.types.Compatibility.Expression
 import psi.api.base.types.{ScSelfTypeElement, ScTypeElement}
-import psi.api.base.{ScPrimaryConstructor, ScConstructor}
+import psi.api.base.{ScReferenceElement, ScPrimaryConstructor, ScConstructor}
 import com.intellij.psi._
 import impl.source.resolve.ResolveCache
 import psi.ScalaPsiUtil
@@ -35,13 +35,14 @@ trait ResolvableReferenceExpression extends ScReferenceExpression {
 
   def multiResolve(incomplete: Boolean): Array[ResolveResult] = {
     if (resolveFunction != null) return resolveFunction()
-    ResolveCache.getInstance(getProject).resolveWithCaching(this, Resolver, true, incomplete)
+    CachesUtil.getMappedWithRecursionPreventingWithRollback[ResolvableReferenceExpression, Boolean, Array[ResolveResult]](
+      this, incomplete, CachesUtil.RESOLVE_KEY, Resolver.resolve, Array.empty, PsiModificationTracker.MODIFICATION_COUNT)
   }
 
   def shapeResolve: Array[ResolveResult] = {
     ProgressManager.checkCanceled()
     if (shapeResolveFunction != null) return shapeResolveFunction()
-    CachesUtil.getWithRecursionPreventing(this, CachesUtil.REF_EXPRESSION_SHAPE_RESOLVE_KEY,
+    CachesUtil.getWithRecursionPreventingWithRollback(this, CachesUtil.REF_EXPRESSION_SHAPE_RESOLVE_KEY,
       new CachesUtil.MyProvider(this, (expr: ResolvableReferenceExpression) => expr.shapeResolveInner)
       (PsiModificationTracker.MODIFICATION_COUNT), Array.empty[ResolveResult])
   }
