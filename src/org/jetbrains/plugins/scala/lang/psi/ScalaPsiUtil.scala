@@ -63,14 +63,30 @@ import com.intellij.openapi.diagnostic
  * User: Alexander Podkhalyuzin
  */
 object ScalaPsiUtil {
-  def isBooleanBeanProperty(s: ScAnnotationsHolder): Boolean = {
-    s.hasAnnotation("scala.reflect.BooleanBeanProperty") != None ||
-      s.hasAnnotation("scala.beans.BooleanBeanProperty") != None
+  def isBooleanBeanProperty(s: ScAnnotationsHolder, noResolve: Boolean = false): Boolean = {
+    if (noResolve) {
+      s.annotations.find {
+        case annot => Set("scala.reflect.BooleanBeanProperty", "reflect.BooleanBeanProperty",
+          "BooleanBeanProperty", "scala.beans.BooleanBeanProperty", "beans.BooleanBeanProperty").
+          contains(annot.typeElement.getText.replace(" ", ""))
+      }.isDefined
+    } else {
+      s.hasAnnotation("scala.reflect.BooleanBeanProperty") != None ||
+        s.hasAnnotation("scala.beans.BooleanBeanProperty") != None
+    }
   }
 
-  def isBeanProperty(s: ScAnnotationsHolder): Boolean = {
-    s.hasAnnotation("scala.reflect.BeanProperty") != None ||
-      s.hasAnnotation("scala.beans.BeanProperty") != None
+  def isBeanProperty(s: ScAnnotationsHolder, noResolve: Boolean = false): Boolean = {
+    if (noResolve) {
+      s.annotations.find {
+        case annot => Set("scala.reflect.BeanProperty", "reflect.BeanProperty",
+          "BeanProperty", "scala.beans.BeanProperty", "beans.BeanProperty").
+          contains(annot.typeElement.getText.replace(" ", ""))
+      }.isDefined
+    } else {
+      s.hasAnnotation("scala.reflect.BeanProperty") != None ||
+        s.hasAnnotation("scala.beans.BeanProperty") != None
+    }
   }
 
   def getDependentItem(element: PsiElement,
