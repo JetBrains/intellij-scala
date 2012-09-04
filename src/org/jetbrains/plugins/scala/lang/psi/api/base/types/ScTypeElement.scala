@@ -19,7 +19,7 @@ import statements.params.ScTypeParam
 
 trait ScTypeElement extends ScalaPsiElement with TypingContextOwner {
   def getType(ctx: TypingContext): TypeResult[ScType] = {
-    CachesUtil.getWithRecursionPreventing(this, CachesUtil.TYPE_ELEMENT_TYPE_KEY,
+    CachesUtil.getWithRecursionPreventingWithRollback(this, CachesUtil.TYPE_ELEMENT_TYPE_KEY,
       new CachesUtil.MyProvider[ScTypeElement, TypeResult[ScType]](
         this, elem => elem.innerType(ctx)
       )(PsiModificationTracker.MODIFICATION_COUNT), Failure("Recursive type of type element", Some(this)))

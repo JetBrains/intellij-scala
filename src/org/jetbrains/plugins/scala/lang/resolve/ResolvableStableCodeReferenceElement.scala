@@ -175,7 +175,7 @@ trait ResolvableStableCodeReferenceElement extends ScStableCodeReferenceElement 
 
   def resolveNoConstructor: Array[ResolveResult] = {
     ProgressManager.checkCanceled()
-    CachesUtil.getWithRecursionPreventing(this, CachesUtil.NO_CONSTRUCTOR_RESOLVE_KEY,
+    CachesUtil.getWithRecursionPreventingWithRollback(this, CachesUtil.NO_CONSTRUCTOR_RESOLVE_KEY,
       new CachesUtil.MyProvider(this, (expr: ResolvableStableCodeReferenceElement) =>
         NoConstructorResolver.resolve(expr, incomplete = false))
       (PsiModificationTracker.MODIFICATION_COUNT), Array.empty[ResolveResult])
@@ -183,7 +183,7 @@ trait ResolvableStableCodeReferenceElement extends ScStableCodeReferenceElement 
 
   def resolveAllConstructors: Array[ResolveResult] = {
     ProgressManager.checkCanceled()
-    CachesUtil.getWithRecursionPreventing(this, CachesUtil.REF_ELEMENT_RESOLVE_CONSTR_KEY,
+    CachesUtil.getWithRecursionPreventingWithRollback(this, CachesUtil.REF_ELEMENT_RESOLVE_CONSTR_KEY,
       new CachesUtil.MyProvider(this, (expr: ResolvableStableCodeReferenceElement) =>
         ResolverAllConstructors.resolve(expr, incomplete = false))
       (PsiModificationTracker.MODIFICATION_COUNT), Array.empty[ResolveResult])
@@ -191,7 +191,7 @@ trait ResolvableStableCodeReferenceElement extends ScStableCodeReferenceElement 
 
   def shapeResolve: Array[ResolveResult] = {
     ProgressManager.checkCanceled()
-    CachesUtil.getWithRecursionPreventing(this, CachesUtil.REF_ELEMENT_SHAPE_RESOLVE_KEY,
+    CachesUtil.getWithRecursionPreventingWithRollback(this, CachesUtil.REF_ELEMENT_SHAPE_RESOLVE_KEY,
       new CachesUtil.MyProvider(this, (expr: ResolvableStableCodeReferenceElement) =>
         ShapesResolver.resolve(expr, incomplete = false))
       (PsiModificationTracker.MODIFICATION_COUNT), Array.empty[ResolveResult])
@@ -199,7 +199,7 @@ trait ResolvableStableCodeReferenceElement extends ScStableCodeReferenceElement 
 
   def shapeResolveConstr: Array[ResolveResult] = {
     ProgressManager.checkCanceled()
-    CachesUtil.getWithRecursionPreventing(this, CachesUtil.REF_ELEMENT_SHAPE_RESOLVE_CONSTR_KEY,
+    CachesUtil.getWithRecursionPreventingWithRollback(this, CachesUtil.REF_ELEMENT_SHAPE_RESOLVE_CONSTR_KEY,
       new CachesUtil.MyProvider(this, (expr: ResolvableStableCodeReferenceElement) =>
         ShapesResolverAllConstructors.resolve(expr, incomplete = false))
       (PsiModificationTracker.MODIFICATION_COUNT), Array.empty[ResolveResult])
