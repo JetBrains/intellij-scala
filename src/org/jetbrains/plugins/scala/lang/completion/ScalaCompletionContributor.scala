@@ -162,7 +162,7 @@ class ScalaCompletionContributor extends CompletionContributor {
               }
           }
           if (!elementAdded && !classNameCompletion && ScalaCompletionUtil.shouldRunClassNameCompletion(parameters,
-            result.getPrefixMatcher, checkInvocationCount = false)) {
+            result.getPrefixMatcher, checkInvocationCount = false, lookingForAnnotations = lookingForAnnotations)) {
             ScalaClassNameCompletionContributor.completeClassName(parameters, context, result)
           }
         }

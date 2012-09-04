@@ -54,10 +54,8 @@ object ScalaCompletionUtil {
   }
 
   def shouldRunClassNameCompletion(parameters: CompletionParameters, prefixMatcher: PrefixMatcher,
-                                   checkInvocationCount: Boolean = true): Boolean = {
+                                   checkInvocationCount: Boolean = true, lookingForAnnotations: Boolean = false): Boolean = {
     val element = parameters.getPosition
-    val settings = CodeStyleSettingsManager.getSettings(element.getProject).
-      getCustomSettings(classOf[ScalaCodeStyleSettings])
     if (checkInvocationCount && parameters.getInvocationCount < 2) return false
     if (element.getNode.getElementType == ScalaTokenTypes.tIDENTIFIER) {
       element.getParent match {
@@ -65,9 +63,10 @@ object ScalaCompletionUtil {
         case _ =>
       }
     }
+    if (checkInvocationCount && parameters.getInvocationCount >= 2) return true
     val prefix = prefixMatcher.getPrefix
     val capitalized = prefix.length() > 0 && prefix.substring(0, 1).capitalize == prefix.substring(0, 1)
-    capitalized || parameters.isRelaxedMatching
+    capitalized || parameters.isRelaxedMatching || lookingForAnnotations
   }
 
   def generateAnonymousFunctionText(braceArgs: Boolean, params: scala.Seq[ScType], canonical: Boolean,
