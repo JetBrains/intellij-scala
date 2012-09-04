@@ -40,6 +40,7 @@ abstract class ScalaRenameTestBase extends ScalaLightPlatformCodeInsightTestCase
       InjectedLanguageUtil.getEditorForInjectedLanguageNoCommit(getEditorAdapter, scalaFile),
       TargetElementUtilBase.REFERENCED_ELEMENT_ACCEPTED | TargetElementUtilBase.ELEMENT_NAME_ACCEPTED)
     assert(element != null, "Reference is not specified.")
+    val searchInComments = element.getText.contains("Comments")
 
     var res: String = null
     val lastPsi = scalaFile.findElementAt(scalaFile.getText.length - 1)
@@ -49,7 +50,7 @@ abstract class ScalaRenameTestBase extends ScalaLightPlatformCodeInsightTestCase
       def run() {
         val subst = RenamePsiElementProcessor.forElement(element).substituteElementToRename(element, getEditorAdapter)
         if (subst == null) return
-        new RenameProcessor(getProjectAdapter, subst, "NameAfterRename", false, false).run()
+        new RenameProcessor(getProjectAdapter, subst, "NameAfterRename", searchInComments, false).run()
       }
     }, getProjectAdapter, "Test")
     res = scalaFile.getText.substring(0, lastPsi.getTextOffset).trim

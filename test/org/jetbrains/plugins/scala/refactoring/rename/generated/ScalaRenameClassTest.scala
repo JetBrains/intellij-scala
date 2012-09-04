@@ -22,4 +22,6 @@ class ScalaRenameClassTest extends ScalaRenameTestBase {
   def testRenameConstructor() = doTest()
 
   def testcircle() = doTest()
+
+  def testSearchComments() = doTest()
 }
