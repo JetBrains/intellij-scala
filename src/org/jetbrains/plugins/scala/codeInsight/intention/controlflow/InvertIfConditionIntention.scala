@@ -52,13 +52,22 @@ class InvertIfConditionIntention extends PsiElementBaseIntentionAction {
     val expr = new StringBuilder
     val newCond = ifStmt.condition.get match {
       case infixExpr: ScInfixExpr =>
-        val replaceOper = Map("==" -> "!=", "!=" -> "==", ">" -> "<=", "<" -> ">=", ">=" -> "<", "<=" -> ">")
+        val oper = infixExpr.operation.nameId.getText
+        val first = if (oper == "||" || oper == "&&") {
+          IntentionUtils.negate(infixExpr.getBaseExpr)
+        } else {
+          infixExpr.getBaseExpr.getText
+        }
+        val second = if (oper == "||" || oper == "&&") {
+          IntentionUtils.negate(infixExpr.getArgExpr)
+        } else {
+          infixExpr.getArgExpr.getText
+        }
+        val replaceOper = Map("==" -> "!=", "!=" -> "==", ">" -> "<=", "<" -> ">=", ">=" -> "<", "<=" -> ">",
+          "&&" -> "||", "||" -> "&&")
         val buf = new StringBuilder
-        buf.append(infixExpr.getBaseExpr.getText).append(" ").
-          append(replaceOper(infixExpr.operation.nameId.getText)).append(" ").
-          append(infixExpr.getArgExpr.getText)
-        val res = IntentionUtils.negateAndValidateExpression(infixExpr, element.getManager, buf)
-        res._2.getText
+        buf.append(first).append(" ").append(replaceOper(oper)).append(" ").append(second)
+        buf.toString()
       case _ => IntentionUtils.negate(ifStmt.condition.get)
     }
 

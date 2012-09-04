@@ -89,6 +89,8 @@
         <internalFileTemplate name="Scala Trait"/>
         <internalFileTemplate name="Scala Object"/>
         <internalFileTemplate name="Scala Script"/>
+        <internalFileTemplate name="Package Object"/>
+        <defaultTemplatePropertiesProvider implementation="org.jetbrains.plugins.scala.actions.ScalaDefaultTemplatePropertiesProvider"/>
         <indexPatternBuilder implementation="org.jetbrains.plugins.scala.editor.todo.ScalaIndexPatternBuilder"/>
         <readWriteAccessDetector implementation="org.jetbrains.plugins.scala.highlighter.readWriteAccess.ScalaReadWriteAccessDetector"/>
         <directClassInheritorsSearch implementation="org.jetbrains.plugins.scala.lang.psi.impl.search.ScalaDirectClassInheritorsSearcher"/>
@@ -657,6 +659,22 @@
                          displayName="Malformed format string" groupName="Scala: General"
                          shortName="ScalaMalformedFormatString" level="WARNING"
                          enabledByDefault="true" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.format.LegacyStringFormattingInspection"
+                         displayName="Legacy string formatting" groupName="Scala: General"
+                         shortName="LegacyStringFormatting" level="WARNING"
+                         enabledByDefault="false" language="Scala"/>
+      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.notImplementedCode.NotImplementedCodeInspection"
+                         displayName="Not implemented code" groupName="Scala: General"
+                         shortName="NotImplementedCode" level="WARNING"
+                         enabledByDefault="true" language="Scala"/>
+      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.redundantBlock.RedundantBlockInspection"
+                         displayName="Redundant block" groupName="Scala: General"
+                         shortName="RedundantBlock" level="WARNING"
+                         enabledByDefault="true" language="Scala"/>
+      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.arraySize.ArraySizeCallInspection"
+                         displayName="Call to Array.size" groupName="Scala: General"
+                         shortName="ArraySizeCall" level="WARNING"
+                         enabledByDefault="true" language="Scala"/>
 
         <!--<localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.allErrorsInspection.AnnotatorBasedErrorInspection"
        displayName="All Errors Tool" groupName="Scala: General"
@@ -736,6 +754,10 @@
         <action id="Scala.NewClass" class="org.jetbrains.plugins.scala.actions.NewScalaTypeDefinitionAction"
                 text="Scala Class" description="Create new Scala class">
             <add-to-group group-id="NewGroup" anchor="after" relative-to-action="NewGroup1"/>
+        </action>
+        <action id="Scala.NewPackageObject" class="org.jetbrains.plugins.scala.actions.NewPackageObjectAction"
+                text="Package Object" description="Create new Scala package object">
+            <add-to-group group-id="NewGroup" anchor="after" relative-to-action="Scala.NewClass"/>
         </action>
         <action id="Scala.NewScript" class="org.jetbrains.plugins.scala.actions.NewScalaScriptAction">
             <add-to-group group-id="NewGroup" anchor="before" relative-to-action="NewFromTemplate"/>
