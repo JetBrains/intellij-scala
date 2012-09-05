@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala
 package codeInspection.arraySize
 
 import lang.psi.impl.ScalaPsiElementFactory
+import lang.psi.types.{ScDesignatorType, ScParameterizedType}
 import com.intellij.codeInspection.{ProblemHighlightType, ProblemDescriptor, ProblemsHolder}
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
@@ -14,7 +15,8 @@ import extensions._
 
 class ArraySizeCallInspection extends AbstractInspection {
   def actionFor(holder: ProblemsHolder) = {
-    case reference @ ReferenceTarget(Member("size", "scala.collection.SeqLike")) =>
+    case reference @ ReferenceTarget(Member("size", "scala.collection.SeqLike")) &&
+            Qualifier(ExpressionType(ScParameterizedType(ScDesignatorType(ClassQualifiedName("scala.Array")), _))) =>
       reference.depthFirst.toList.reverse.find(_.getText == "size").foreach { id =>
         holder.registerProblem(id, "Call to Array.size",
           ProblemHighlightType.GENERIC_ERROR_OR_WARNING, new QuickFix(id))
