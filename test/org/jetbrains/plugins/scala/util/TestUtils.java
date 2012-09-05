@@ -140,6 +140,10 @@ public class TestUtils {
     return getTestDataPath() + "/" + version.getPath() + "/scala.jar";
   }
 
+  public static String getMockScalaReflectLib(ScalaSdkVersion version) {
+    return getTestDataPath() + "/" + version.getPath() + "/scala-reflect.jar";
+  }
+
   public static String getMockScalaSrc(ScalaSdkVersion version) {
     return getTestDataPath() + "/" + version.getPath() + "/scala-src.jar";
   }
