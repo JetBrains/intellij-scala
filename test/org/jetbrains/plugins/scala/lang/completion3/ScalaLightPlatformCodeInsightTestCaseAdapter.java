@@ -130,6 +130,10 @@ public abstract class ScalaLightPlatformCodeInsightTestCaseAdapter extends Light
     }
   }
 
+  protected boolean isIncludeReflectLibrary() {
+      return false;
+  }
+
   private void addLibraryRoots(TestUtils.ScalaSdkVersion version, Library.ModifiableModel libModel) {
     final File libRoot = new File(TestUtils.getMockScalaLib(version));
     assert (libRoot.exists());
@@ -138,6 +142,10 @@ public abstract class ScalaLightPlatformCodeInsightTestCaseAdapter extends Light
     assert (srcRoot.exists());
 
     libModel.addRoot(VfsUtil.getUrlForLibraryRoot(libRoot), OrderRootType.CLASSES);
+    if (isIncludeReflectLibrary()) {
+        File reflectRoot = new File(TestUtils.getMockScalaReflectLib(version));
+        libModel.addRoot(VfsUtil.getUrlForLibraryRoot(reflectRoot), OrderRootType.CLASSES);
+    }
     libModel.addRoot(VfsUtil.getUrlForLibraryRoot(srcRoot), OrderRootType.SOURCES);
     ((VirtualFilePointerManagerImpl) VirtualFilePointerManager.getInstance()).storePointers();
   }
