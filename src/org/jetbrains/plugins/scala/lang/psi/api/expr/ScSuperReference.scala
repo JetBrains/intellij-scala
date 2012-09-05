@@ -16,6 +16,11 @@ import toplevel.typedef.ScTemplateDefinition
 */
 
 trait ScSuperReference extends ScExpression with ScPathElement {
+  /**
+   * @return is reference in decompiled file from Self type class
+   */
+  def isHardCoded: Boolean
+
   //type of M for super[M]
   def staticSuper : Option[ScType]
 
