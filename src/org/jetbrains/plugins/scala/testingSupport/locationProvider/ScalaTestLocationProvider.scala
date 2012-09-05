@@ -10,6 +10,8 @@ import com.intellij.openapi.editor.Document
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.extensions.toPsiNamedElementExt
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
+import org.jetbrains.plugins.scala.lang.psi.types.PhysicalSignature
 
 /**
  * User: Alexander Podkhalyuzin
@@ -17,6 +19,7 @@ import org.jetbrains.plugins.scala.extensions.toPsiNamedElementExt
  *
  * For Specs, Specs2 and ScalaTest
  */
+
 class ScalaTestLocationProvider extends TestLocationProvider {
   private val SpecsHintPattern = """(\S+)\?filelocation=(.+):(.+)""".r
 
@@ -51,9 +54,19 @@ class ScalaTestLocationProvider extends TestLocationProvider {
           case ScalaTestTopOfMethodPattern(className, methodName, testName) =>
             val clazz: PsiClass = ScalaPsiManager.instance(project).getCachedClass(className,
               GlobalSearchScope.allScope(project), ScalaPsiManager.ClassCategory.TYPE)
-            if(clazz != null) {
-              val methods = clazz.findMethodsByName(methodName, false)
-              methods.foreach { method => res.add(new PsiLocationWithName(project, method, testName)) }
+            clazz match {
+              case td: ScTypeDefinition =>
+                td.signaturesByName(methodName).foreach {
+                  case signature: PhysicalSignature =>
+                    res.add(new PsiLocationWithName(project, signature.method, testName))
+                }
+              case _ =>
+                if (clazz != null) {
+                  val methods = clazz.findMethodsByName(methodName, false)
+                  methods.foreach {
+                    method => res.add(new PsiLocationWithName(project, method, testName))
+                  }
+                }
             }
           case ScalaTestLineInFinePattern(className, fileName, lineNumber, testName) =>
             val clazzes: Array[PsiClass] =
