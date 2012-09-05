@@ -76,7 +76,7 @@ class ScalaCompletionContributor extends CompletionContributor {
                   case clazz: PsiClass =>
                     import collection.mutable.{HashMap => MHashMap}
                     val renamedMap = new MHashMap[String, (String, PsiNamedElement)]
-                    if (clazz.qualifiedName == "scala.collection.mutable.HashMap") {
+                    if (clazz.qualifiedName == "scala.annotation.tailrec") {
                       "stop here"
                     }
                     el.isRenamed.foreach(name => renamedMap += ((clazz.name, (name, clazz))))
@@ -162,7 +162,7 @@ class ScalaCompletionContributor extends CompletionContributor {
               }
           }
           if (!elementAdded && !classNameCompletion && ScalaCompletionUtil.shouldRunClassNameCompletion(parameters,
-            result.getPrefixMatcher, checkInvocationCount = false)) {
+            result.getPrefixMatcher, checkInvocationCount = false, lookingForAnnotations = lookingForAnnotations)) {
             ScalaClassNameCompletionContributor.completeClassName(parameters, context, result)
           }
         }

@@ -411,13 +411,13 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible with Ps
   def expectedTypes(fromUnderscore: Boolean = true): Array[ScType] = expectedTypesEx(fromUnderscore).map(_._1)
   
   def expectedTypesEx(fromUnderscore: Boolean = true): Array[(ScType, Option[ScTypeElement])] = {
-    CachesUtil.getMappedWithRecursionPreventing(this, fromUnderscore, CachesUtil.EXPECTED_TYPES_KEY,
+    CachesUtil.getMappedWithRecursionPreventingWithRollback(this, fromUnderscore, CachesUtil.EXPECTED_TYPES_KEY,
       (expr: ScExpression, data: Boolean) => ExpectedTypes.expectedExprTypes(expr, fromUnderscore = data),
       Array.empty[(ScType, Option[ScTypeElement])], PsiModificationTracker.MODIFICATION_COUNT)
   }
 
   def smartExpectedType(fromUnderscore: Boolean = true): Option[ScType] = {
-    CachesUtil.getMappedWithRecursionPreventing(this, fromUnderscore, CachesUtil.SMART_EXPECTED_TYPE,
+    CachesUtil.getMappedWithRecursionPreventingWithRollback(this, fromUnderscore, CachesUtil.SMART_EXPECTED_TYPE,
       (expr: ScExpression, data: Boolean) => ExpectedTypes.smartExpectedType(expr, fromUnderscore = data),
       None, PsiModificationTracker.MODIFICATION_COUNT)
   }
