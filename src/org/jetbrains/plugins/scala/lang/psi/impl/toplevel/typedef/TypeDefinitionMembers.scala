@@ -132,8 +132,8 @@ object TypeDefinitionMembers {
               addSignature(new Signature(dcl.name, Stream.empty, 0, subst, Some(dcl)))
               dcl.nameContext match {
                 case s: ScAnnotationsHolder =>
-                  val beanProperty = ScalaPsiUtil.isBeanProperty(s)
-                  val booleanBeanProperty = ScalaPsiUtil.isBooleanBeanProperty(s)
+                  val beanProperty = ScalaPsiUtil.isBeanProperty(s, noResolve = true)
+                  val booleanBeanProperty = ScalaPsiUtil.isBooleanBeanProperty(s, noResolve = true)
                   if (beanProperty) {
                     addSignature(new Signature("get" + dcl.name.capitalize, Stream.empty, 0, subst, Some(dcl)))
                   } else if (booleanBeanProperty) {
@@ -147,8 +147,8 @@ object TypeDefinitionMembers {
               addSignature(new Signature(dcl.name, Stream.empty, 0, subst, Some(dcl)))
               dcl.nameContext match {
                 case s: ScAnnotationsHolder =>
-                  val beanProperty = ScalaPsiUtil.isBeanProperty(s)
-                  val booleanBeanProperty = ScalaPsiUtil.isBooleanBeanProperty(s)
+                  val beanProperty = ScalaPsiUtil.isBeanProperty(s, noResolve = true)
+                  val booleanBeanProperty = ScalaPsiUtil.isBooleanBeanProperty(s, noResolve = true)
                   if (beanProperty) {
                     addSignature(new Signature("get" + dcl.name.capitalize, Stream.empty, 0, subst, Some(dcl)))
                   } else if (booleanBeanProperty) {
@@ -161,8 +161,8 @@ object TypeDefinitionMembers {
             val parameters = constr.parameters
             for (param <- parameters if isBridge(place, param)) {
                addSignature(new Signature(param.name, Stream.empty, 0, subst, Some(param)))
-              val beanProperty = ScalaPsiUtil.isBeanProperty(param)
-              val booleanBeanProperty = ScalaPsiUtil.isBooleanBeanProperty(param)
+              val beanProperty = ScalaPsiUtil.isBeanProperty(param, noResolve = true)
+              val booleanBeanProperty = ScalaPsiUtil.isBooleanBeanProperty(param, noResolve = true)
               if (beanProperty) {
                 addSignature(new Signature("get" + param.name.capitalize, Stream.empty, 0, subst, Some(param)))
               } else if (booleanBeanProperty) {
@@ -357,8 +357,8 @@ object TypeDefinitionMembers {
               addSignature(new Signature(dcl.name + "_=", ScalaPsiUtil.getSingletonStream(t), 1, subst, Some(dcl)))
               dcl.nameContext match {
                 case s: ScAnnotationsHolder =>
-                  val beanProperty = ScalaPsiUtil.isBeanProperty(s)
-                  val booleanBeanProperty = ScalaPsiUtil.isBooleanBeanProperty(s)
+                  val beanProperty = ScalaPsiUtil.isBeanProperty(s, noResolve = true)
+                  val booleanBeanProperty = ScalaPsiUtil.isBooleanBeanProperty(s, noResolve = true)
                   if (beanProperty) {
                     addSignature(new Signature("get" + dcl.name.capitalize, Stream.empty, 0, subst, Some(dcl)))
                   } else if (booleanBeanProperty) {
@@ -376,8 +376,8 @@ object TypeDefinitionMembers {
               addSignature(new Signature(dcl.name, Stream.empty, 0, subst, Some(dcl)))
               dcl.nameContext match {
                 case s: ScAnnotationsHolder =>
-                  val beanProperty = ScalaPsiUtil.isBeanProperty(s)
-                  val booleanBeanProperty = ScalaPsiUtil.isBooleanBeanProperty(s)
+                  val beanProperty = ScalaPsiUtil.isBeanProperty(s, noResolve = true)
+                  val booleanBeanProperty = ScalaPsiUtil.isBooleanBeanProperty(s, noResolve = true)
                   if (beanProperty) {
                     addSignature(new Signature("get" + dcl.name.capitalize, Stream.empty, 0, subst, Some(dcl)))
                   } else if (booleanBeanProperty) {
@@ -393,8 +393,8 @@ object TypeDefinitionMembers {
               addSignature(new Signature(param.name, Stream.empty, 0, subst, Some(param)))
               if (!param.isStable) addSignature(new Signature(param.name + "_=", ScalaPsiUtil.getSingletonStream(t), 1, subst,
                 Some(param)))
-              val beanProperty = ScalaPsiUtil.isBeanProperty(param)
-              val booleanBeanProperty = ScalaPsiUtil.isBooleanBeanProperty(param)
+              val beanProperty = ScalaPsiUtil.isBeanProperty(param, noResolve = true)
+              val booleanBeanProperty = ScalaPsiUtil.isBooleanBeanProperty(param, noResolve = true)
               if (beanProperty) {
                 addSignature(new Signature("get" + param.name.capitalize, Stream.empty, 0, subst, Some(param)))
                 if (!param.isStable) {
