@@ -8,6 +8,8 @@ import scala.Some;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.Date;
 
 import static org.jetbrains.plugins.scala.testingSupport.TestRunnerUtil.*;
@@ -54,9 +56,11 @@ public class ScalaTestReporterWithLocation implements Reporter {
     } else if (event instanceof TestStarting) {
       TestStarting testStarting = ((TestStarting) event);
       String testText = testStarting.testText();
+      String decodedTestText = decodeString(testText);
       String testName = testStarting.testName();
-      String locationHint = getLocationHint(testStarting.suiteClassName(), testStarting.location(), testName);
-      System.out.println("\n##teamcity[testStarted name='" + escapeString(testText) + "'" + locationHint +
+      String decodedTestName = decodeString(testName);
+      String locationHint = getLocationHint(testStarting.suiteClassName(), testStarting.location(), decodedTestName);
+      System.out.println("\n##teamcity[testStarted name='" + escapeString(decodedTestText) + "'" + locationHint +
           " captureStandardOutput='true']");
     } else if (event instanceof TestSucceeded) {
       TestSucceeded testSucceeded = (TestSucceeded) event;
@@ -66,7 +70,8 @@ public class ScalaTestReporterWithLocation implements Reporter {
         duration = ((java.lang.Long) durationOption.get()).longValue();
       }
       String testText = testSucceeded.testText();
-      System.out.println("\n##teamcity[testFinished name='" + escapeString(testText) +
+      String decodedTestText = decodeString(testText);
+      System.out.println("\n##teamcity[testFinished name='" + escapeString(decodedTestText) +
           "' duration='"+ duration +"']");
     } else if (event instanceof TestFailed) {
       boolean error = true;
@@ -94,14 +99,15 @@ public class ScalaTestReporterWithLocation implements Reporter {
         duration = ((java.lang.Long) durationOption.get()).longValue();
       }
       String testText = testFailed.testText();
+      String decodedTestText = decodeString(testText);
       String message = testFailed.message();
       long timeStamp = event.timeStamp();
-      String res = "\n##teamcity[testFailed name='" + escapeString(testText) + "' message='" + escapeString(message) +
+      String res = "\n##teamcity[testFailed name='" + escapeString(decodedTestText) + "' message='" + escapeString(message) +
           "' details='" + escapeString(detail) + "' ";
       if (error) res += "error = '" + error + "'";
       res += "timestamp='" + escapeString(formatTimestamp(new Date(timeStamp))) + "']";
       System.out.println(res);
-      System.out.println("\n##teamcity[testFinished name='" + escapeString(testText) +
+      System.out.println("\n##teamcity[testFinished name='" + escapeString(decodedTestText) +
           "' duration='" + duration +"' captureStandardOutput='true' " + locationHint + "]");
     } else if (event instanceof TestIgnored) {
       String testText = ((TestIgnored) event).testText();
@@ -110,12 +116,14 @@ public class ScalaTestReporterWithLocation implements Reporter {
     } else if (event instanceof TestPending) {
       TestPending testPending = (TestPending) event;
       String testText = testPending.testText();
-      System.out.println("\n##teamcity[testFinished name='" + escapeString(testText) +
+      String decodedTestText = decodeString(testText);
+      System.out.println("\n##teamcity[testFinished name='" + escapeString(decodedTestText) +
           "' duration='" + 0 +"']");
     } else if (event instanceof TestCanceled) {
       TestCanceled testCanceled = (TestCanceled) event;
       String testText = testCanceled.testText();
-      System.out.println("\n##teamcity[testFinished name='" + escapeString(testText) +
+      String decodedTestText = decodeString(testText);
+      System.out.println("\n##teamcity[testFinished name='" + escapeString(decodedTestText) +
           "' duration='" + 0 +"']");
     }else if (event instanceof SuiteStarting) {
       SuiteStarting suiteStarting = (SuiteStarting) event;
@@ -173,5 +181,27 @@ public class ScalaTestReporterWithLocation implements Reporter {
       String message = ((ScopeClosed) event).message();
       System.out.println("\n##teamcity[testSuiteFinished name='" + escapeString(message) + "']");
     }
+  }
+
+  private String decodeString(String input) {
+    String output = "";
+    try {
+      Class<?> nameTransformer = Class.forName("scala.reflect.NameTransformer");
+      Method method = nameTransformer.getMethod("decode", String.class);
+      output = (String) method.invoke(nameTransformer, input);
+    } catch (IllegalAccessException e) {
+      throw new RuntimeException(e);
+    } catch (InvocationTargetException e) {
+      throw new RuntimeException(e);
+    } catch (NoSuchMethodException e) {
+      throw new RuntimeException(e);
+    } catch (ClassNotFoundException e) {
+      throw new RuntimeException(e);
+    } finally {
+      if (output.equals("")) {
+        output = input;
+      }
+    }
+    return output;
   }
 }
