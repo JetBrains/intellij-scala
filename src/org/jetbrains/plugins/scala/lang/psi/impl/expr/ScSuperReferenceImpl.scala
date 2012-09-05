@@ -4,12 +4,12 @@ package psi
 package impl
 package expr
 
-import _root_.org.jetbrains.plugins.scala.lang.psi.types.{ScDesignatorType, ScType, Nothing}
+import _root_.org.jetbrains.plugins.scala.lang.psi.types.ScType
 import _root_.org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import _root_.scala.collection.mutable.ArrayBuffer
 import api.expr._
 import api.toplevel.templates.ScExtendsBlock
-import api.toplevel.typedef.{ScTypeDefinition, ScTemplateDefinition}
+import api.toplevel.typedef.{ScObject, ScTypeDefinition, ScTemplateDefinition}
 import lexer.ScalaTokenTypes
 import psi.ScalaPsiElementImpl
 import com.intellij.util.IncorrectOperationException
@@ -17,9 +17,11 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.openapi.util.TextRange
 import com.intellij.lang.ASTNode
 import types.result.{TypingContext, Failure}
-import api.ScalaElementVisitor
-import com.intellij.psi.{PsiElementVisitor, PsiElement, PsiReference, PsiClass}
+import api.{ScalaFile, ScalaElementVisitor}
+import com.intellij.psi._
 import extensions.{toPsiNamedElementExt, toPsiClassExt}
+import types.result.Failure
+import scala.Some
 
 /**
 * @author Alexander Podkhalyuzin
@@ -29,8 +31,30 @@ import extensions.{toPsiNamedElementExt, toPsiClassExt}
 class ScSuperReferenceImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScSuperReference {
   override def toString = "SuperReference"
 
+  def isHardCoded: Boolean = {
+    val id = findChildByType(ScalaTokenTypes.tIDENTIFIER)
+    if (id == null) false else {
+      ScalaPsiUtil.fileContext(id) match {
+        case file: ScalaFile if file.isCompiled =>
+          val next = id.getNode.getTreeNext
+          if (next == null) false
+          else next.getPsi match {
+            case comment: PsiComment =>
+              val commentText = comment.getText
+              val path = commentText.substring(2, commentText.length - 2)
+              val classes = ScalaPsiManager.instance(getProject).getCachedClasses(getResolveScope, path)
+              if (classes.length == 1) {
+                drvTemplate.map(!_.isInheritor(classes(0), deep = true)).getOrElse(false)
+              } else classes.find(!_.isInstanceOf[ScObject]).map(!_.isInheritor(classes(0), true)).getOrElse(false)
+            case _ => false
+          }
+        case _ => false
+      }
+    }
+  }
+
   def drvTemplate: Option[ScTemplateDefinition] = reference match {
-    case Some(q) => q.bind match {
+    case Some(q) => q.bind() match {
       case Some(ScalaResolveResult(td : ScTypeDefinition, _)) => Some(td)
       case _ => None
     }
@@ -47,7 +71,7 @@ class ScSuperReferenceImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with
     }
   }
 
-  def staticSuper = {
+  def staticSuper: Option[ScType] = {
     val id = findChildByType(ScalaTokenTypes.tIDENTIFIER)
     if (id == null) None else findSuper(id)
   }
@@ -80,9 +104,31 @@ class ScSuperReferenceImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with
         case _ => false
       }
 
-      def resolve = findSuper(id) match {
-        case Some(t) => ScType.extractClass(t) match {case Some(c) => c case None => null}
-        case _ => null
+      def resolve = {
+        def resolveNoHack: PsiClass = {
+          findSuper(id) match {
+            case Some(t) => ScType.extractClass(t) match {
+              case Some(c) => c
+              case None    => null
+            }
+            case _       => null
+          }
+        }
+        ScalaPsiUtil.fileContext(id) match {
+          case file: ScalaFile if file.isCompiled =>
+            val next = id.getNode.getTreeNext
+            if (next == null) resolveNoHack
+            else next.getPsi match {
+              case comment: PsiComment =>
+                val commentText = comment.getText
+                val path = commentText.substring(2, commentText.length - 2)
+                val classes = ScalaPsiManager.instance(getProject).getCachedClasses(getResolveScope, path)
+                if (classes.length == 1) classes(0)
+                else classes.find(!_.isInstanceOf[ScObject]).getOrElse(resolveNoHack)
+              case _ => resolveNoHack
+            }
+          case _ => resolveNoHack
+        }
       }
 
       def getVariants: Array[Object] = superTypes match {
