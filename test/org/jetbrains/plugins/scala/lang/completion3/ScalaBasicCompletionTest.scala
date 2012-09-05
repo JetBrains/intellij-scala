@@ -644,4 +644,29 @@ class ScalaBasicCompletionTest extends ScalaCompletionTestBase {
     completeLookupItem(activeLookup.find(le => le.getLookupString == "map").get, '{')
     checkResultByText(resultText)
   }
+
+  def testTailrecBasicCompletion() {
+    val fileText =
+      """
+        |class aaa {
+        |  @tail<caret>
+        |  def goo() {}
+        |}
+      """.stripMargin.replaceAll("\r", "").trim()
+    configureFromFileTextAdapter("dummy.scala", fileText)
+    val (activeLookup, _) = complete(1, CompletionType.BASIC)
+
+    val resultText =
+      """
+        |import annotation.tailrec
+        |
+        |class aaa {
+        |  @tailrec<caret>
+        |  def goo() {}
+        |}
+      """.stripMargin.replaceAll("\r", "").trim()
+
+    completeLookupItem(activeLookup.find(le => le.getLookupString == "tailrec").get, '\t')
+    checkResultByText(resultText)
+  }
 }

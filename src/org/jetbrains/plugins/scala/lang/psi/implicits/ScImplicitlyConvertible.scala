@@ -103,7 +103,7 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
     type Data = (Option[ScType], Boolean, Option[ScType])
     val data = (exp, fromUnder, exprType)
 
-    CachesUtil.getMappedWithRecursionPreventing(this, data, CachesUtil.IMPLICIT_MAP1_KEY,
+    CachesUtil.getMappedWithRecursionPreventingWithRollback(this, data, CachesUtil.IMPLICIT_MAP1_KEY,
       (expr: ScExpression, data: Data) => buildImplicitMap(data._1, data._2, (true, false), Seq.empty, data._3), Seq.empty,
       PsiModificationTracker.MODIFICATION_COUNT)
   }
@@ -115,7 +115,7 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
     type Data = (Option[ScType], Boolean, Seq[ScType], Option[ScType])
     val data = (exp, fromUnder, args, exprType)
 
-    CachesUtil.getMappedWithRecursionPreventing(this, data, CachesUtil.IMPLICIT_MAP2_KEY,
+    CachesUtil.getMappedWithRecursionPreventingWithRollback(this, data, CachesUtil.IMPLICIT_MAP2_KEY,
       (expr: ScExpression, data: Data) => buildImplicitMap(data._1, data._2, (false, true), data._3, data._4), Seq.empty,
       PsiModificationTracker.MODIFICATION_COUNT)
   }
