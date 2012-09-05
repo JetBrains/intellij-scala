@@ -427,13 +427,22 @@ object ResolveUtils {
     }
   }
 
-  def processSuperReference(superRef: ScSuperReference, processor : BaseProcessor, place : ScalaPsiElement) = superRef.staticSuper match {
-    case Some(t) => processor.processType(t, place)
-    case None => superRef.drvTemplate match {
-      case Some(c) => {
-        TypeDefinitionMembers.processSuperDeclarations(c, processor, ResolveState.initial.put(ScSubstitutor.key, ScSubstitutor.empty), null, place)
+  def processSuperReference(superRef: ScSuperReference, processor : BaseProcessor, place : ScalaPsiElement) {
+    if (superRef.isHardCoded) {
+      superRef.drvTemplate match {
+        case Some(c) => processor.processType(ScThisType(c), place)
+        case None =>
       }
-      case None =>
+    } else {
+      superRef.staticSuper match {
+        case Some(t) => processor.processType(t, place)
+        case None => superRef.drvTemplate match {
+          case Some(c) => {
+            TypeDefinitionMembers.processSuperDeclarations(c, processor, ResolveState.initial.put(ScSubstitutor.key, ScSubstitutor.empty), null, place)
+          }
+          case None =>
+        }
+      }
     }
   }
 
