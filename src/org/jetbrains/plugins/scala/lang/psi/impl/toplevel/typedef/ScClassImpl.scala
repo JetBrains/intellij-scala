@@ -27,7 +27,7 @@ import collection.mutable.{HashSet, ArrayBuffer}
 import light.StaticPsiMethodWrapper
 import api.statements._
 import extensions.toPsiMemberExt
-import params.ScClassParameter
+import params.{ScParameter, ScParameterClause, ScClassParameter}
 
 /**
  * @author Alexander.Podkhalyuzin
@@ -328,8 +328,13 @@ class ScClassImpl extends ScTypeDefinitionImpl with ScClass with ScTypeParameter
         } else baseText
       }).mkString("[", ", ", "]")
     }).getOrElse("")
+    val parametersText = constr.parameterList.clauses.map {
+      case clause: ScParameterClause => clause.parameters.map {
+        case parameter: ScParameter => s"${parameter.name} : ${parameter.typeElement.map(_.getText).getOrElse("Nothing")}"
+      }.mkString(if (clause.isImplicit) "(implicit " else "(", ", ", ")")
+    }.mkString
     getModifierList.accessModifier.map(am => am.getText + " ").getOrElse("") + "implicit def " + name +
-      typeParametersText + constr.parameterList.getText + " : " + returnType +
+      typeParametersText + parametersText + " : " + returnType +
       " = throw new Error(\"\")"
   }
 

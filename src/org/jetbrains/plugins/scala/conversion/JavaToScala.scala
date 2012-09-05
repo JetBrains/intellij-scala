@@ -639,8 +639,8 @@ object JavaToScala {
       }
       case annot: PsiAnnotation => {
         PsiTreeUtil.getParentOfType(annot, classOf[PsiAnnotation]) match {
-          case parent: PsiAnnotation => res.append("new ");
-          case _ => res.append("@");
+          case parent: PsiAnnotation => res.append("new ")
+          case _ => res.append("@")
         }
         res.append(escapeKeyword(annot.getNameReferenceElement.getText))
         val attributes = annot.getParameterList.getAttributes

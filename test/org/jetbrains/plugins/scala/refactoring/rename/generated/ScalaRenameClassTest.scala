@@ -13,6 +13,8 @@ class ScalaRenameClassTest extends ScalaRenameTestBase {
 
   def testConstructor2() = doTest()
 
+  def testInnerCompanionTraitRename() {doTest()}
+
   def testObjectApply() = doTest()
 
   def testObjectObjectToCaseClass() = doTest()
@@ -20,4 +22,6 @@ class ScalaRenameClassTest extends ScalaRenameTestBase {
   def testRenameConstructor() = doTest()
 
   def testcircle() = doTest()
+
+  def testSearchComments() = doTest()
 }
