@@ -97,6 +97,20 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
   public static final int MULTILINE_STRING_QUOTES_AND_INDENT = 1;
   public static final int MULTILINE_STRING_ALL = 2;
 
+  //type annotations
+  public int LOCAL_PROPERTY_TYPE_ANNOTATION = TypeAnnotationRequirement.Optional.ordinal();
+  public int PUBLIC_PROPERTY_TYPE_ANNOTATION = TypeAnnotationRequirement.Preferred.ordinal();
+  public int PROTECTED_PROPERTY_TYPE_ANNOTATION = TypeAnnotationRequirement.Preferred.ordinal();
+  public int PRIVATE_PROPERTY_TYPE_ANNOTATION = TypeAnnotationRequirement.Optional.ordinal();
+  public int OVERRIDING_PROPERTY_TYPE_ANNOTATION = TypeAnnotationPolicy.Regular.ordinal();
+  public int SIMPLE_PROPERTY_TYPE_ANNOTATION = TypeAnnotationPolicy.Optional.ordinal();
+
+  public int LOCAL_METHOD_TYPE_ANNOTATION = TypeAnnotationRequirement.Optional.ordinal();
+  public int PUBLIC_METHOD_TYPE_ANNOTATION = TypeAnnotationRequirement.Preferred.ordinal();
+  public int PROTECTED_METHOD_TYPE_ANNOTATION = TypeAnnotationRequirement.Preferred.ordinal();
+  public int PRIVATE_METHOD_TYPE_ANNOTATION = TypeAnnotationRequirement.Optional.ordinal();
+  public int OVERRIDING_METHOD_TYPE_ANNOTATION = TypeAnnotationPolicy.Regular.ordinal();
+  public int SIMPLE_METHOD_TYPE_ANNOTATION = TypeAnnotationPolicy.Optional.ordinal();
 
   public ScalaCodeStyleSettings(CodeStyleSettings container) {
     super("ScalaCodeStyleSettings", container);
