@@ -71,15 +71,6 @@ trait ResolvableStableCodeReferenceElement extends ScStableCodeReferenceElement 
 
   def doResolve(ref: ScStableCodeReferenceElement, processor: BaseProcessor,
                 accessibilityCheck: Boolean = true): Array[ResolveResult] = {
-    if (ref.getText == "types") {
-      PsiTreeUtil.getContextOfType(ref, classOf[ScImportStmt]) match {
-        case imp: ScImportStmtImpl =>
-          if (imp.getStub != null && imp.getStub.asInstanceOf[ScImportStmtStub].getImportText == "import types.Compatibility.Expression") {
-            "stop"
-          }
-        case _ =>
-      }
-    }
     if (!accessibilityCheck) processor.doNotCheckAccessibility()
     var x = false
     //performance improvement
