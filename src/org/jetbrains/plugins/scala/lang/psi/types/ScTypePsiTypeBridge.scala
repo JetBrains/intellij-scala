@@ -103,7 +103,8 @@ trait ScTypePsiTypeBridge {
         new ScSkolemizedType("_", Nil,
           if (wild.isSuper) create(capture.getLowerBound, project, scope) else Nothing,
           if (wild.isExtends) create(capture.getUpperBound, project, scope) else Any)
-      case null => Any //new ScExistentialArgument("_", Nil, Nothing, Any) // raw type argument from java
+      case null => Any
+      case d: PsiDisjunctionType => Any
       case _ => throw new IllegalArgumentException("psi type " + psiType + " should not be converted to scala type")
     }
   }
@@ -123,14 +124,8 @@ trait ScTypePsiTypeBridge {
       case Double => if (noPrimitives) javaObj else PsiType.DOUBLE
       case Byte => if (noPrimitives) javaObj else PsiType.BYTE
       case Short => if (noPrimitives) javaObj else PsiType.SHORT
-      case Null =>
-        /*val nullClazz = JavaPsiFacade.getInstance(project).findClass("scala.runtime.Null$", scope)
-        new PsiImmediateClassType(nullClazz, PsiSubstitutor.EMPTY)*/
-        javaObj
-      case Nothing =>
-        /*val nullClazz = JavaPsiFacade.getInstance(project).findClass("scala.runtime.Nothing$", scope)
-        new PsiImmediateClassType(nullClazz, PsiSubstitutor.EMPTY)*/
-        javaObj
+      case Null => javaObj
+      case Nothing => javaObj
       case fun: ScFunctionType => fun.resolveFunctionTrait(project) match {
         case Some(tp) => toPsi(tp, project, scope) case _ => javaObj
       }
