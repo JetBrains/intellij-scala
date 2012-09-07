@@ -46,6 +46,9 @@ import java.lang.String
 import api.toplevel.typedef.{ScClass, ScTrait, ScObject}
 import collection.mutable
 import java.util
+import com.intellij.openapi.editor.Document
+import refactoring.move.MoveScalaClassHandler
+import extensions._
 
 class ScalaFileImpl(viewProvider: FileViewProvider)
         extends PsiFileBase(viewProvider, ScalaFileType.SCALA_FILE_TYPE.getLanguage)
@@ -500,21 +503,8 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
     res
   }
 
-  def getPackagingRange: TextRange = {
-    def getRange: TextRange = {
-      new TextRange(0, getText.indexOf('\n') match {
-        case x if x < 0 => getText.length
-        case y => y
-      })
-    }
-    getPackagings.toList match {
-      case Nil => getRange
-      case h :: t => h.reference match {
-        case Some(ref) => ref.getTextRange
-        case _ => getRange
-      }
-    }
-  }
+  def packagingRanges: Seq[TextRange] =
+    depthFirst.filterByType(classOf[ScPackaging]).flatMap(_.reference).map(_.getTextRange).toList
 
   // Special case for SBT 0.10 "build.sbt" files: they should be typed as though they are in the "project" module,
   // even though they are located in the other modules.

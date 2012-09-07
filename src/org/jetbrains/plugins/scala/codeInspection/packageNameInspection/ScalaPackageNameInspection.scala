@@ -36,13 +36,14 @@ class ScalaPackageNameInspection extends LocalInspectionTool {
         if (pack == null) return null
 
         val packName = file.packageName
-        val range: TextRange = file.getPackagingRange
+        val ranges: Seq[TextRange] = file.packagingRanges
 
-        def problemDescriptor(buffer: Seq[LocalQuickFix]): ProblemDescriptor =
+        def problemDescriptors(buffer: Seq[LocalQuickFix]): Seq[ProblemDescriptor] = ranges.map { range =>
           manager.createProblemDescriptor(file, range,
             "Package names doesn't correspond to directories structure, this may cause " +
                     "problems with resolve to classes from this file", ProblemHighlightType.GENERIC_ERROR_OR_WARNING,
             isOnTheFly, buffer: _*)
+        }
 
         val expectedPackageName = file.typeDefinitions.head match {
           case obj: ScObject if obj.hasPackageKeyword =>
@@ -53,14 +54,14 @@ class ScalaPackageNameInspection extends LocalInspectionTool {
 
         if (packName == null) {
           val fixes = Seq(new EnablePerformanceProblemsQuickFix(file.getProject))
-          Array(problemDescriptor(fixes))
+          problemDescriptors(fixes).toArray
         } else if (packName != expectedPackageName) {
           val fixes = Seq(
             new ScalaRenamePackageQuickFix(file, expectedPackageName),
             new ScalaMoveToPackageQuickFix(file, packName),
             new EnablePerformanceProblemsQuickFix(file.getProject))
           
-          Array(problemDescriptor(fixes))
+          problemDescriptors(fixes).toArray
         } else null
       }
       case _ => null

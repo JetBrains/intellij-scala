@@ -30,7 +30,7 @@ trait ScalaFile extends ScalaPsiElement with ScToplevelElement with PsiClassOwne
   @Nullable
   def packageName: String
 
-  def getPackagingRange: TextRange
+  def packagingRanges: Seq[TextRange]
 
   def isCompiled: Boolean
 
