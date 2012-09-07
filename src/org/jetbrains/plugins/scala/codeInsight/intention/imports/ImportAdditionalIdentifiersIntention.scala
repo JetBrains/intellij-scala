@@ -41,26 +41,30 @@ class ImportAdditionalIdentifiersIntention extends PsiElementBaseIntentionAction
         return check(project, editor, prev)
       case _ =>
     }
-    element.getParent match {
-      case id: ScStableCodeReferenceElement if id.nameId == element =>
-        id.getParent match {
-          case imp: ScImportExpr if imp.selectorSet.isEmpty =>
-            val doIt = () => {
-              val newExpr = ScalaPsiElementFactory.createImportExprFromText(imp.qualifier.getText + ".{" + id.nameId.getText + "}", element.getManager)
-              val replaced = inWriteAction {
-                val replaced = imp.replace(newExpr)
-                PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument)
-                replaced
+    if (element != null) {
+      element.getParent match {
+        case id: ScStableCodeReferenceElement if id.nameId == element =>
+          id.getParent match {
+            case imp: ScImportExpr if imp.selectorSet.isEmpty =>
+              val doIt = () => {
+                val newExpr = ScalaPsiElementFactory.createImportExprFromText(imp.qualifier.getText + ".{" + id.nameId.getText + "}", element.getManager)
+                val replaced = inWriteAction {
+                  val replaced = imp.replace(newExpr)
+                  PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument)
+                  replaced
+                }
+                inWriteAction {
+                  editor.getDocument.insertString(replaced.getTextRange.getEndOffset - 1, ", ")
+                  editor.getCaretModel.moveToOffset(replaced.getTextRange.getEndOffset + 1)
+                }
               }
-              inWriteAction {
-                editor.getDocument.insertString(replaced.getTextRange.getEndOffset - 1, ", ")
-                editor.getCaretModel.moveToOffset(replaced.getTextRange.getEndOffset + 1)
-              }
-            }
-            Some(doIt)
-          case _ => None
-        }
-      case _ => None
+              Some(doIt)
+            case _ => None
+          }
+        case _ => None
+      }
+    } else {
+      None
     }
   }
 }
