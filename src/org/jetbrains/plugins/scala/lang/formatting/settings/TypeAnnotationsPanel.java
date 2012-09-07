@@ -1,17 +1,25 @@
 package org.jetbrains.plugins.scala.lang.formatting.settings;
 
 import com.intellij.application.options.CodeStyleAbstractPanel;
+import com.intellij.ide.DataManager;
 import com.intellij.openapi.editor.colors.EditorColorsScheme;
 import com.intellij.openapi.editor.highlighter.EditorHighlighter;
 import com.intellij.openapi.fileTypes.FileType;
+import com.intellij.openapi.options.newEditor.OptionsEditor;
+import com.intellij.profile.codeInspection.ui.ErrorsConfigurable;
 import com.intellij.psi.codeStyle.CodeStyleSettings;
 import com.intellij.ui.EnumComboBoxModel;
+import com.intellij.ui.HyperlinkLabel;
+import com.intellij.ui.components.labels.LinkLabel;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.scala.ScalaFileType;
 import org.jetbrains.plugins.scala.highlighter.ScalaEditorHighlighter;
 
 import javax.swing.*;
+import javax.swing.event.HyperlinkEvent;
+import javax.swing.event.HyperlinkListener;
+import java.awt.*;
 
 /**
  * Pavel Fatin
@@ -30,6 +38,7 @@ public class TypeAnnotationsPanel extends CodeStyleAbstractPanel {
   private JComboBox myLocalMethodComboBox;
   private JComboBox mySimplePropertyComboBox;
   private JComboBox mySimpleMethodComboBox;
+  private JPanel myLinkContainer;
 
   protected TypeAnnotationsPanel(@NotNull CodeStyleSettings settings) {
     super(settings);
@@ -47,6 +56,27 @@ public class TypeAnnotationsPanel extends CodeStyleAbstractPanel {
     myPrivateMethodComboBox.setModel(new EnumComboBoxModel<TypeAnnotationRequirement>(TypeAnnotationRequirement.class));
     myOverridingMethodComboBox.setModel(new EnumComboBoxModel<TypeAnnotationPolicy>(TypeAnnotationPolicy.class));
     mySimpleMethodComboBox.setModel(new EnumComboBoxModel<TypeAnnotationPolicy>(TypeAnnotationPolicy.class));
+
+    HyperlinkLabel link = new HyperlinkLabel("Configure type annotation inspection");
+    link.addHyperlinkListener(new HyperlinkListener() {
+      public void hyperlinkUpdate(final HyperlinkEvent e) {
+        if (e.getEventType() == HyperlinkEvent.EventType.ACTIVATED) {
+          final OptionsEditor optionsEditor = OptionsEditor.KEY.getData(DataManager.getInstance().getDataContext());
+          if (optionsEditor != null) {
+            final ErrorsConfigurable errorsConfigurable = optionsEditor.findConfigurable(ErrorsConfigurable.class);
+            if (errorsConfigurable != null) {
+              optionsEditor.clearSearchAndSelect(errorsConfigurable).doWhenDone(new Runnable() {
+                public void run() {
+                  errorsConfigurable.selectInspectionTool("TypeAnnotation");
+                }
+              });
+            }
+          }
+        }
+      }
+    });
+    myLinkContainer.setLayout(new BorderLayout());
+    myLinkContainer.add(link);
 
     resetImpl(settings);
   }
