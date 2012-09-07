@@ -13,5 +13,6 @@ class ScalaTabbedCodeStylePanel(currentSettings: CodeStyleSettings, settings: Co
   protected override def initTabs(settings: CodeStyleSettings) {
     super.initTabs(settings)
     addTab(new MultiLineStringCodeStylePanel(settings))
+    addTab(new TypeAnnotationsPanel(settings))
   }
 }
