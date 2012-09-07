@@ -9,7 +9,10 @@ import com.intellij.psi.{PsiClass, PsiElement, PsiMethod, JavaPsiFacade}
  */
 class EmptyPrivateConstructor(o: PsiClass) extends {
   val elementFactory = JavaPsiFacade.getInstance(o.getProject).getElementFactory
-  val constructorText = "private " + o.getName + "() {}"
+  val constructorText = "private " + Option(o.getName).map {
+    case e if JavaPsiFacade.getInstance(o.getProject).getNameHelper.isIdentifier(o.getName) => o.getName
+    case _ => "METHOD_NAME_IS_NOT_AN_IDENTIFIER"
+  } + "() {}"
   val method: PsiMethod = elementFactory.createMethodFromText(constructorText, o)
 } with LightMethod(o.getManager, method, o) {
   override def getParent: PsiElement = o
