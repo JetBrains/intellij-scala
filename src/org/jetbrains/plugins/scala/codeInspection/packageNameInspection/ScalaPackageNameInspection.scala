@@ -44,18 +44,12 @@ class ScalaPackageNameInspection extends LocalInspectionTool {
                     "problems with resolve to classes from this file", ProblemHighlightType.GENERIC_ERROR_OR_WARNING,
             isOnTheFly, buffer: _*)
 
-        val module: Module = ModuleUtil.findModuleForPsiElement(file)
-        val prefix = if (module != null &&
-          ScalaProjectSettings.getInstance(file.getProject).isIgnorePerformance) {
-          ScalaFacet.findIn(module).flatMap(f => f.basePackage).getOrElse("")
-        } else ""
-        val expectedFilePackageName = file.typeDefinitions.head match {
+        val expectedPackageName = file.typeDefinitions.head match {
           case obj: ScObject if obj.hasPackageKeyword =>
             Option(pack.getParentPackage).map(_.getQualifiedName).getOrElse("")
           case _ =>
             pack.getQualifiedName
         }
-        val expectedPackageName = (if (prefix != "") prefix + "." else "") + expectedFilePackageName
 
         if (packName == null) {
           val fixes = Seq(new EnablePerformanceProblemsQuickFix(file.getProject))
