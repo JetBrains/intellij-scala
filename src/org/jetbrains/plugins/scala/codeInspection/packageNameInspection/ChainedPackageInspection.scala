@@ -28,10 +28,12 @@ class ChainedPackageInspection extends LocalInspectionTool {
         sf.packagings.toList match {
           case p0 :: ps if p0.getPackageName != base && p0.getPackageName.startsWith(base) =>
             val fixes = Array[LocalQuickFix](new UseChainedPackageQuickFix(sf, base))
-            val range: TextRange = sf.getPackagingRange
-            val problem = manager.createProblemDescriptor(file, range, "Package declaration could use chained package clauses",
+            val ranges: Seq[TextRange] = sf.packagingRanges.take(1)
+            val problems = ranges.map { range =>
+              manager.createProblemDescriptor(file, range, "Package declaration could use chained package clauses",
               ProblemHighlightType.WEAK_WARNING, false, fixes: _*)
-            Array(problem)
+            }
+            problems.toArray
           case _ => Array()
         }
       case _ => Array()
