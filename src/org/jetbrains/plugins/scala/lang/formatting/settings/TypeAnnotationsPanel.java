@@ -65,10 +65,11 @@ public class TypeAnnotationsPanel extends CodeStyleAbstractPanel {
           if (optionsEditor != null) {
             final ErrorsConfigurable errorsConfigurable = optionsEditor.findConfigurable(ErrorsConfigurable.class);
             if (errorsConfigurable != null) {
-              optionsEditor.clearSearchAndSelect(errorsConfigurable).doWhenDone(new Runnable() {
-                public void run() {
-                  errorsConfigurable.selectInspectionTool("TypeAnnotation");
-                }
+              optionsEditor.clearFilter();
+              optionsEditor.select(errorsConfigurable).doWhenDone(new Runnable() {
+                  public void run() {
+                      errorsConfigurable.selectInspectionTool("TypeAnnotation");
+                  }
               });
             }
           }
