@@ -13,7 +13,7 @@ import com.intellij.openapi.module.Module
 import com.intellij.openapi.components.PathMacroManager
 import lang.psi.impl.ScalaPsiManager
 import lang.psi.api.toplevel.typedef.ScObject
-import com.intellij.psi.{PsiMethod, PsiPackage, JavaPsiFacade, PsiClass}
+import com.intellij.psi.{PsiPackage, JavaPsiFacade, PsiClass}
 import com.intellij.openapi.util.JDOMExternalizer
 
 import testingSupport.test.TestRunConfigurationForm.{SearchForTest, TestKind}
@@ -40,7 +40,6 @@ import lang.psi.api.ScPackage
 import collection.mutable.{HashSet, ArrayBuffer}
 import testingSupport.test.AbstractTestRunConfiguration.PropertiesExtension
 import org.jetbrains.plugins.scala.compiler.rt.ClassRunner
-import collection.mutable
 
 /**
  * @author Ksenia.Sautina
@@ -242,16 +241,8 @@ abstract class AbstractTestRunConfiguration(val project: Project,
           throw new RuntimeConfigurationException("Test Class is not specified")
         }
         val clazz = getClazz(getTestClassPath, false)
-        if (clazz == null) {
+        if (clazz == null || TestConfigurationUtil.isInvalidSuite(clazz)) {
           throw new RuntimeConfigurationException("No Suite Class is found for Class %s in module %s".format(getTestClassPath,
-            getModule.getName))
-        }
-        if (clazz.getModifierList.hasModifierProperty("abstract")) {
-          throw new RuntimeConfigurationException("Class %s in module %s is abstract".format(getTestClassPath,
-            getModule.getName))
-        }
-        if (lackNoArgConstructor(clazz.getConstructors)) {
-          throw new RuntimeConfigurationException("Class %s in module %s lacks a no-arg constructor".format(getTestClassPath,
             getModule.getName))
         }
         if (!ScalaPsiUtil.cachedDeepIsInheritor(clazz, suiteClass)) {
@@ -272,15 +263,6 @@ abstract class AbstractTestRunConfiguration(val project: Project,
     JavaRunConfigurationExtensionManager.getInstance.appendEditors(this, group)
     group.addEditor(ExecutionBundle.message("logs.tab.title"), new LogConfigurationPanel)
     group
-  }
-
-  def lackNoArgConstructor(constructors: mutable.Seq[PsiMethod]): Boolean = {
-    for (constructor <- constructors) {
-      if (constructor.isConstructor && constructor.getParameterList.getParametersCount == 0) {
-        return false
-      }
-    }
-    true
   }
 
   override def getState(executor: Executor, env: ExecutionEnvironment): RunProfileState = {
@@ -323,9 +305,7 @@ abstract class AbstractTestRunConfiguration(val project: Project,
         buffer.toSeq
       }
       for (cl <- getClasses(pack)) {
-        val isAbstract = cl.getModifierList.hasModifierProperty("abstract")
-        val lackNoArg =  lackNoArgConstructor(cl.getConstructors)
-        if (!isAbstract && !lackNoArg && ScalaPsiUtil.cachedDeepIsInheritor(cl, suiteClass)) classes += cl
+        if (!TestConfigurationUtil.isInvalidSuite(cl) && ScalaPsiUtil.cachedDeepIsInheritor(cl, suiteClass)) classes += cl
       }
     }
 
