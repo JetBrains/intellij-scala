@@ -116,14 +116,7 @@ class ScalaTestConfigurationProducer extends {
       clazz = PsiTreeUtil.getParentOfType(clazz, classOf[ScTypeDefinition], true)
     }
     if (!clazz.isInstanceOf[ScClass]) return (null, null)
-    if (clazz.hasModifierPropertyScala("abstract")) return (null, null)
-    var lackNoArg = true
-    for (constructor <- clazz.getConstructors) {
-      if (constructor.isConstructor && constructor.getParameterList.getParametersCount == 0) {
-        lackNoArg = false
-      }
-    }
-    if (lackNoArg) return (null, null)
+    if (TestConfigurationUtil.isInvalidSuite(clazz)) return (null, null)
     if (!isInheritor(clazz, suitePath)) return (null, null)
     val testClassPath = clazz.qualifiedName
 
