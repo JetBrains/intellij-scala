@@ -675,6 +675,10 @@
                          displayName="Call to Array.size" groupName="Scala: General"
                          shortName="ArraySizeCall" level="WARNING"
                          enabledByDefault="false" language="Scala"/>
+      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.typeAnnotation.TypeAnnotationInspection"
+                         displayName="Type annotation required" groupName="Scala: General"
+                         shortName="TypeAnnotation" level="WARNING"
+                         enabledByDefault="true" language="Scala"/>
 
         <!--<localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.allErrorsInspection.AnnotatorBasedErrorInspection"
        displayName="All Errors Tool" groupName="Scala: General"
