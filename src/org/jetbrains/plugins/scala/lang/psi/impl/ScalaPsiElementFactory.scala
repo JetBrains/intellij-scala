@@ -855,8 +855,8 @@ object ScalaPsiElementFactory extends JVMElementFactory {
     val psi = node.getPsi
     if (psi.isInstanceOf[ScExpression]) {
       val expr = psi.asInstanceOf[ScMethodCall]
-      val res = expr.argumentExpressions.apply(0)
-      res.setContext(context, child)
+      val res = if (expr.argumentExpressions.size > 0) expr.argumentExpressions.apply(0) else null
+      if (res != null) res.setContext(context, child)
       res
     } else null
   }
