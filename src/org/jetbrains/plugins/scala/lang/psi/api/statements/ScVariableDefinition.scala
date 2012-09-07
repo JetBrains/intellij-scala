@@ -23,6 +23,10 @@ trait ScVariableDefinition extends ScVariable {
 
   def expr: Option[ScExpression]
 
+  def hasExplicitType: Boolean = typeElement.isDefined
+
+  def isSimple: Boolean = pList.allPatternsSimple && bindings.size == 1
+
   override def accept(visitor: ScalaElementVisitor) {
     visitor.visitVariableDefinition(this)
   }
