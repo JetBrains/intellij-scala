@@ -46,33 +46,4 @@ object TestConfigurationUtil {
       case _ => false
     }
   }
-
-  def lackNoArgConstructor(clazz: PsiClass): Boolean = {
-    clazz match {
-      case c: ScClass =>
-        val constructors = c.secondaryConstructors.filter(_.isConstructor).toList ::: c.constructor.toList
-        for (con <- constructors) {
-          if (con.isConstructor && con.parameterList.getParametersCount == 0) {
-            if (con.isInstanceOf[ScModifierListOwner]) {
-              if (con.asInstanceOf[ScModifierListOwner].hasModifierProperty("public")) return false
-            }
-          }
-        }
-
-      case _ =>
-        for (constructor <- clazz.getConstructors) {
-          if (constructor.isConstructor && constructor.getParameterList.getParametersCount == 0) {
-            if (constructor.isInstanceOf[ScModifierListOwner]) {
-              if (constructor.asInstanceOf[ScModifierListOwner].hasModifierProperty("public")) return false
-            }
-          }
-        }
-    }
-    true
-  }
-
-  def isInvalidSuite(clazz: PsiClass): Boolean = {
-    clazz.getModifierList.hasModifierProperty("abstract") || lackNoArgConstructor(clazz)
-  }
-
 }

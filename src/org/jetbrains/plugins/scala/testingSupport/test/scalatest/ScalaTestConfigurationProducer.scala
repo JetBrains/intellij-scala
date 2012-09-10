@@ -26,7 +26,7 @@ import lang.psi.api.toplevel.templates.ScTemplateBody
 import lang.psi.api.ScalaRecursiveElementVisitor
 import testingSupport.test.TestRunConfigurationForm.TestKind
 import com.intellij.execution.actions.ConfigurationContext
-import testingSupport.test.{TestConfigurationUtil, AbstractTestConfigurationProducer}
+import testingSupport.test.{AbstractTestRunConfiguration, TestConfigurationUtil, AbstractTestConfigurationProducer}
 
 /**
  * User: Alexander Podkhalyuzin
@@ -116,7 +116,7 @@ class ScalaTestConfigurationProducer extends {
       clazz = PsiTreeUtil.getParentOfType(clazz, classOf[ScTypeDefinition], true)
     }
     if (!clazz.isInstanceOf[ScClass]) return (null, null)
-    if (TestConfigurationUtil.isInvalidSuite(clazz)) return (null, null)
+    if (AbstractTestRunConfiguration.isInvalidSuite(clazz)) return (null, null)
     if (!isInheritor(clazz, suitePath)) return (null, null)
     val testClassPath = clazz.qualifiedName
 
