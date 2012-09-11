@@ -73,21 +73,24 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
   }
 
   def getSpacing(left: ScalaBlock, right: ScalaBlock): Spacing = {
-    val settings = left.getCommonSettings
-    val scalaSettings: ScalaCodeStyleSettings =
-      left.getSettings.getCustomSettings(classOf[ScalaCodeStyleSettings])
+    val settings = right.getCommonSettings
+    val keepBlankLinesInCode = settings.KEEP_BLANK_LINES_IN_CODE
     val keepLineBreaks = settings.KEEP_LINE_BREAKS
+    val keepBlankLinesInDeclarations = settings.KEEP_BLANK_LINES_IN_DECLARATIONS
+    val keepBlankLinesBeforeRBrace = settings.KEEP_BLANK_LINES_BEFORE_RBRACE
     def getSpacing(x: Int, y: Int, z: Int) = {
       if (keepLineBreaks) Spacing.createSpacing(y, y, z, true, x)
       else Spacing.createSpacing(y, y, z, false, 0)
     }
+    if (left == null) {
+      return getSpacing(keepBlankLinesInCode, 0, 0) //todo:
+    }
+    val scalaSettings: ScalaCodeStyleSettings =
+      left.getSettings.getCustomSettings(classOf[ScalaCodeStyleSettings])
     def getDependentLFSpacing(x: Int, y: Int, range: TextRange) = {
       if (keepLineBreaks) Spacing.createDependentLFSpacing(y, y, range, true, x)
       else Spacing.createDependentLFSpacing(y, y, range, false, 0)
     }
-    val keepBlankLinesInCode = settings.KEEP_BLANK_LINES_IN_CODE
-    val keepBlankLinesInDeclarations = settings.KEEP_BLANK_LINES_IN_DECLARATIONS
-    val keepBlankLinesBeforeRBrace = settings.KEEP_BLANK_LINES_BEFORE_RBRACE
     val WITHOUT_SPACING = getSpacing(keepBlankLinesInCode, 0, 0)
     val WITHOUT_SPACING_NO_KEEP = Spacing.createSpacing(0, 0, 0, false, 0)
     val WITHOUT_SPACING_DEPENDENT = (range: TextRange) => getDependentLFSpacing(keepBlankLinesInCode, 0, range)
