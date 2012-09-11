@@ -18,7 +18,7 @@ import org.jetbrains.plugins.scala.extensions
  */
 class ScalaLanguageConsoleView(project: Project) extends {
   val scalaConsole = new ScalaLanguageConsole(project, ScalaLanguageConsoleView.SCALA_CONSOLE)
-} with LanguageConsoleViewImpl(project, scalaConsole) {
+} with LanguageConsoleViewImpl(scalaConsole) {
   override def attachToProcess(processHandler: ProcessHandler) {
     super.attachToProcess(processHandler)
     val model = new ConsoleHistoryModel
