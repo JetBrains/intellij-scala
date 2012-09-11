@@ -74,6 +74,7 @@ class ScalaImportOptimizer extends ImportOptimizer {
           for (importUsed <- _unusedImports) {
             def isLanguageFeatureImport(expr: ScImportExpr): Boolean = {
               if (expr == null) return false
+              if (expr.qualifier == null) return false
               expr.qualifier.resolve() match {
                 case o: ScObject =>
                   o.qualifiedName.startsWith("scala.language") || o.qualifiedName.startsWith("scala.languageFeature")
