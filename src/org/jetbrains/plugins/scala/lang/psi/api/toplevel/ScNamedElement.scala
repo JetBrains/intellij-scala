@@ -18,6 +18,7 @@ import base.patterns.ScCaseClause
 import icons.Icons
 import psi.impl.ScalaPsiElementFactory
 import reflect.NameTransformer
+import statements.params.{ScClassParameter, ScParameterClause}
 
 trait ScNamedElement extends ScalaPsiElement with PsiNameIdentifierOwner with NavigatablePsiElement {
   def name: String = {
@@ -54,9 +55,15 @@ trait ScNamedElement extends ScalaPsiElement with PsiNameIdentifierOwner with Na
   }
 
   override def getPresentation: ItemPresentation = {
-    val clazz: ScTemplateDefinition = if (getParent.isInstanceOf[ScTemplateBody])
-      PsiTreeUtil.getParentOfType(this, classOf[ScTemplateDefinition], true)
-    else null
+    val clazz: ScTemplateDefinition =
+      getParent match {
+        case _: ScTemplateBody | _: ScEarlyDefinitions =>
+          PsiTreeUtil.getParentOfType(this, classOf[ScTemplateDefinition], true)
+        case _ if this.isInstanceOf[ScClassParameter]  =>
+          PsiTreeUtil.getParentOfType(this, classOf[ScTemplateDefinition], true)
+        case _ => null
+      }
+
     var parent: PsiElement = this
     while (parent != null && !(parent.isInstanceOf[ScMember])) parent = parent.getParent
     new ItemPresentation {
