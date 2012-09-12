@@ -12,6 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTy
 import com.intellij.lang.injection.InjectedLanguageManager
 import extensions.toPsiNamedElementExt
 import console.ScalaLanguageConsoleView
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 
 /**
  * User: Alexander Podkhalyuzin
@@ -43,7 +44,7 @@ class ScalaFileNameInspection extends LocalInspectionTool {
     for (clazz <- definitions) {
       clazz match {
         case o: ScObject if file.name == "package.scala" && o.isPackageObject => hasProblems = false
-        case _ if clazz.name == name => hasProblems = false
+        case _ if ScalaPsiUtil.memberNamesEquals(clazz.name, name) => hasProblems = false
         case _ =>
       }
     }
