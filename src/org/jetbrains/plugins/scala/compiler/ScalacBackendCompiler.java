@@ -1,7 +1,9 @@
 package org.jetbrains.plugins.scala.compiler;
 
+import com.intellij.compiler.CompilerConfiguration;
 import com.intellij.compiler.CompilerConfigurationImpl;
 import com.intellij.compiler.OutputParser;
+import com.intellij.compiler.ProcessorConfigProfile;
 import com.intellij.compiler.impl.CompilerUtil;
 import com.intellij.compiler.impl.javaCompiler.ExternalCompiler;
 import com.intellij.compiler.impl.javaCompiler.ModuleChunk;
@@ -22,6 +24,7 @@ import com.intellij.openapi.roots.*;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.util.Comparing;
 import com.intellij.openapi.util.io.FileUtil;
+import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.openapi.vfs.CharsetToolkit;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.encoding.EncodingManager;
@@ -183,6 +186,29 @@ public class ScalacBackendCompiler extends ExternalCompiler {
         ProjectRootManager.getInstance(myProject).getProjectSdk() ==  null) {
       Messages.showErrorDialog(myProject, "Please, set up project SDK (required for project FSC instantiation)", ScalaBundle.message("cannot.compile"));
       return false;
+    }
+
+    // There's a bug in IDEA resulting in the incorrect compiler
+    // invocation order when annotation processing is enabled
+    // (Javac is invoked before Scalac no matter what).
+    ScalacSettings settings = ScalacSettings.getInstance(myProject);
+    if (settings.SCALAC_BEFORE) {
+      final CompilerConfigurationImpl config = (CompilerConfigurationImpl) CompilerConfiguration.getInstance(myProject);
+      LinkedList<String> names = new LinkedList<String>();
+      for (Module module : allModules) {
+        if (config.getAnnotationProcessingConfiguration(module).isEnabled()) {
+          names.add(module.getName());
+        }
+      }
+      if (!names.isEmpty()) {
+        Messages.showErrorDialog(myProject,
+            "Scala compiler cannot be invoked before the Java annotation processing, " +
+                String.format("yet the annotation processing is enabled in the following modules: %s. ", StringUtil.join(names, ", ")) +
+                "Please either disable the annotation processing (Project Settings / Compiler / Annotation Processors) " +
+                "or change the compiler invokation order (Project Settings / Compiler / Scala Compiler).",
+            ScalaBundle.message("cannot.compile"));
+        return false;
+      }
     }
 
     return true;
