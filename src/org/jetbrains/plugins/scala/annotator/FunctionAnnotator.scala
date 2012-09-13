@@ -18,7 +18,7 @@ import quickfix.{ReportHighlightingErrorQuickFix, RemoveElementQuickFix}
  */
 
 trait FunctionAnnotator {
-  def annotateFunction(function: ScFunctionDefinition, holder: AnnotationHolder, highlightErrors: Boolean) {
+  def annotateFunction(function: ScFunctionDefinition, holder: AnnotationHolder, typeAware: Boolean) {
     if (!function.hasExplicitType && !function.returnTypeIsDefined) {
       function.recursiveReferences.foreach { ref =>
           val message = ScalaBundle.message("function.recursive.need.result.type", function.name)
@@ -38,21 +38,24 @@ trait FunctionAnnotator {
         annotation.registerFix(new RemoveElementQuickFix(it, "Remove @tailrec annotation"))
       }
 
-      val recursiveReferences = function.recursiveReferences
+      if (typeAware) {
+        val recursiveReferences = function.recursiveReferences
 
-      if (recursiveReferences.isEmpty) {
-        val annotation = holder.createErrorAnnotation(function.nameId,
-          "Method annotated with @tailrec contains no recursive calls")
-        annotation.registerFix(new RemoveElementQuickFix(it, "Remove @tailrec annotation"))
-      } else {
-        recursiveReferences.filter(!_.isTailCall).foreach { ref =>
-          val target = ref.element.getParent match {
-            case call: ScMethodCall => call
-            case _ => ref.element
-          }
-          val annotation = holder.createErrorAnnotation(target,
-            "Recursive call not in tail position (in @tailrec annotated method)")
+        if (recursiveReferences.isEmpty) {
+          val annotation = holder.createErrorAnnotation(function.nameId,
+            "Method annotated with @tailrec contains no recursive calls")
           annotation.registerFix(new RemoveElementQuickFix(it, "Remove @tailrec annotation"))
+        } else {
+          recursiveReferences.filter(!_.isTailCall).foreach {
+            ref =>
+              val target = ref.element.getParent match {
+                case call: ScMethodCall => call
+                case _                  => ref.element
+              }
+              val annotation = holder.createErrorAnnotation(target,
+                "Recursive call not in tail position (in @tailrec annotated method)")
+              annotation.registerFix(new RemoveElementQuickFix(it, "Remove @tailrec annotation"))
+          }
         }
       }
     }
@@ -93,7 +96,7 @@ trait FunctionAnnotator {
       }
 
       def typeMismatch() {
-        if (highlightErrors) {
+        if (typeAware) {
           val key = if (explicitReturn) "return.type.does.not.conform" else "return.expression.does.not.conform"
           val message = ScalaBundle.message(key, usageType.presentableText, functionType.presentableText)
           val returnExpression = if (explicitReturn) usage.asInstanceOf[ScReturnStmt].expr else None
