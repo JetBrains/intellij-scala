@@ -205,7 +205,7 @@ public class ScalacBackendCompiler extends ExternalCompiler {
             "Scala compiler cannot be invoked before the Java annotation processing, " +
                 String.format("yet the annotation processing is enabled in the following modules: %s. ", StringUtil.join(names, ", ")) +
                 "Please either disable the annotation processing (Project Settings / Compiler / Annotation Processors) " +
-                "or change the compiler invokation order (Project Settings / Compiler / Scala Compiler).",
+                "or change the compiler invocation order (Project Settings / Compiler / Scala Compiler).",
             ScalaBundle.message("cannot.compile"));
         return false;
       }
