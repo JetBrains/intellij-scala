@@ -13,6 +13,7 @@ import org.jetbrains.idea.maven.model.{MavenArtifactInfo, MavenId}
 import org.jetbrains.idea.maven.server.{NativeMavenProjectHolder, MavenEmbedderWrapper}
 import org.jetbrains.plugins.scala.extensions._
 import com.intellij.openapi.project.Project
+import com.intellij.compiler.{CompilerConfiguration, CompilerConfigurationImpl}
 
 /**
  * Pavel.Fatin, 03.08.2010
@@ -61,7 +62,21 @@ class ScalaMavenImporter extends FacetImporter[ScalaFacet, ScalaFacetConfigurati
       facet.javaParameters = configuration.vmOptions.toArray
       facet.compilerParameters = configuration.compilerOptions.toArray
       facet.pluginPaths = configuration.plugins.map(id => mavenProject.localPathTo(id).getPath).toArray
+
+      // TODO Remove this call when an external Scala compiler will be implemented
+      disableAnnotationProcessingFor(module)
     }
+  }
+
+  // There's a bug in IDEA resulting in the incorrect compiler
+  // invocation order when annotation processing is enabled
+  // (Javac is invoked before Scalac no matter what).
+  def disableAnnotationProcessingFor(module: Module) {
+    val config = CompilerConfiguration.getInstance(module.getProject).asInstanceOf[CompilerConfigurationImpl]
+
+    config.getModuleProcessorProfiles
+            .filter(_.getModuleNames.contains(module.getName))
+            .foreach(_.setEnabled(false))
   }
   
   def createCompilerLibrary(name: String, configuration: ScalaConfiguration,
