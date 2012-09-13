@@ -27,7 +27,7 @@ trait ScMethodCall extends ScExpression with MethodInvocation {
     visitor.visitMethodCallExpression(this)
   }
 
-  def isUpdateCall: Boolean = getContext.isInstanceOf[ScAssignStmt] &&
+  override def isUpdateCall: Boolean = getContext.isInstanceOf[ScAssignStmt] &&
                       getContext.asInstanceOf[ScAssignStmt].getLExpression == this
 
   def updateExpression(): Option[ScExpression] = {

@@ -319,20 +319,19 @@ object ScalaPsiUtil {
     }
   }
 
-  def processTypeForUpdateOrApplyCandidates(call: ScMethodCall, tp: ScType, isShape: Boolean,
+  def processTypeForUpdateOrApplyCandidates(call: MethodInvocation, tp: ScType, isShape: Boolean,
                                             noImplicits: Boolean): Array[ScalaResolveResult] = {
-    import call._
     val isUpdate = call.isUpdateCall
     val methodName = if (isUpdate) "update" else "apply"
-    val args: Seq[ScExpression] = call.args.exprs ++ (
-            if (isUpdate) getContext.asInstanceOf[ScAssignStmt].getRExpression match {
+    val args: Seq[ScExpression] = call.argumentExpressions ++ (
+            if (isUpdate) call.getContext.asInstanceOf[ScAssignStmt].getRExpression match {
               case Some(x) => Seq[ScExpression](x)
               case None =>
                 Seq[ScExpression](ScalaPsiElementFactory.createExpressionFromText("{val x: Nothing = null; x}",
-                  getManager)) //we can't to not add something => add Nothing expression
+                  call.getManager)) //we can't to not add something => add Nothing expression
             }
             else Seq.empty)
-    val (expr, exprTp, typeArgs: Seq[ScTypeElement]) = getEffectiveInvokedExpr match {
+    val (expr, exprTp, typeArgs: Seq[ScTypeElement]) = call.getEffectiveInvokedExpr match {
       case gen: ScGenericCall =>
         // The type arguments are for the apply/update method, separate them from the referenced expression. (SCL-3489)
         val referencedType = gen.referencedExpr.getNonValueType(TypingContext.empty).getOrNothing
@@ -355,12 +354,12 @@ object ScalaPsiUtil {
     exprTp match {
       case ScTypePolymorphicType(internal, tp) if !tp.isEmpty &&
         !internal.isInstanceOf[ScMethodType] && !internal.isInstanceOf[ScUndefinedType] =>
-        processor.processType(internal, getEffectiveInvokedExpr, ResolveState.initial())
+        processor.processType(internal, call.getEffectiveInvokedExpr, ResolveState.initial())
         candidates = processor.candidatesS
       case _ =>
     }
     if (candidates.isEmpty) {
-      processor.processType(exprTp.inferValueType, getEffectiveInvokedExpr, ResolveState.initial)
+      processor.processType(exprTp.inferValueType, call.getEffectiveInvokedExpr, ResolveState.initial)
       candidates = processor.candidatesS
     }
 
@@ -381,9 +380,8 @@ object ScalaPsiUtil {
     candidates.toArray
   }
 
-  def processTypeForUpdateOrApply(tp: ScType, call: ScMethodCall,
+  def processTypeForUpdateOrApply(tp: ScType, call: MethodInvocation,
                                   isShape: Boolean): Option[(ScType, collection.Set[ImportUsed], Option[PsiNamedElement], Option[PsiElement])] = {
-    import call._
 
     def checkCandidates(withImplicits: Boolean): Option[(ScType, collection.Set[ImportUsed], Option[PsiNamedElement], Option[PsiElement])] = {
       val candidates: Array[ScalaResolveResult] = processTypeForUpdateOrApplyCandidates(call, tp, isShape, noImplicits = !withImplicits)
@@ -392,7 +390,7 @@ object ScalaPsiUtil {
           val res = fun match {
             case fun: ScFun => (s.subst(fun.polymorphicType), r.importsUsed, r.implicitFunction, Some(fun))
             case fun: ScFunction => (s.subst(fun.polymorphicType), r.importsUsed, r.implicitFunction, Some(fun))
-            case meth: PsiMethod => (ResolveUtils.javaPolymorphicType(meth, s, getResolveScope), r.importsUsed,
+            case meth: PsiMethod => (ResolveUtils.javaPolymorphicType(meth, s, call.getResolveScope), r.importsUsed,
               r.implicitFunction, Some(fun))
           }
         call.getInvokedExpr.getNonValueType(TypingContext.empty) match {
