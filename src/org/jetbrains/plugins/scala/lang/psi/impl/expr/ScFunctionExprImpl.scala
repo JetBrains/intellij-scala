@@ -41,7 +41,8 @@ class ScFunctionExprImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
                                    lastParent: PsiElement,
                                    place: PsiElement): Boolean = {
     result match {
-      case Some(x) if x == lastParent => {
+      case Some(x) if x == lastParent || (lastParent.isInstanceOf[ScalaPsiElement] &&
+        x == lastParent.asInstanceOf[ScalaPsiElement].getDeepSameElementInContext)=> {
         for (p <- parameters) {
           if (!processor.execute(p, state)) return false
         }
