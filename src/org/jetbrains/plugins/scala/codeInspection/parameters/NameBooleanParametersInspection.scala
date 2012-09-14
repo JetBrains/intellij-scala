@@ -7,14 +7,17 @@ import com.intellij.codeInspection.{LocalInspectionTool, ProblemHighlightType, P
 import lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.util.IntentionUtils
 import lang.psi.types.result.TypingContext
-import com.intellij.psi.PsiElementVisitor
+import com.intellij.psi.{PsiInvalidElementAccessException, PsiElementVisitor, PsiElement}
 import org.jetbrains.plugins.scala.extensions._
 import com.intellij.psi.util.PsiTreeUtil
 import collection.Seq
 import lang.psi.types.nonvalue.Parameter
 import lang.psi.api.base.ScLiteral
 import lang.psi.api.expr._
-import com.intellij.psi.PsiElement
+import com.intellij.openapi.diagnostic.Logger
+import com.intellij.diagnostic.LogMessageEx
+import com.intellij.util.ExceptionUtil
+import com.intellij.diagnostic.errordialog.Attachment
 
 /**
  * @author Ksenia.Sautina
@@ -22,6 +25,8 @@ import com.intellij.psi.PsiElement
  */
 
 class NameBooleanParametersInspection extends LocalInspectionTool {
+  import NameBooleanParametersInspection.LOG
+
   override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor = {
     new ScalaElementVisitor {
       override def visitMethodCallExpression(mc: ScMethodCall) {
@@ -57,10 +62,18 @@ class NameBooleanParametersInspection extends LocalInspectionTool {
                   case (expr, Some(param)) => {
                     val paramInCode = param.paramInCode.getOrElse(null)
                     if (paramInCode == null) return false
-                    val realParameterType = paramInCode.getRealParameterType(TypingContext.empty).getOrElse(null)
-                    if (realParameterType == null) return false
-                    else if (realParameterType.canonicalText == "Boolean") return true
-                    else return false
+                    try {
+                      val realParameterType = paramInCode.getRealParameterType(TypingContext.empty).getOrElse(null)
+                      if (realParameterType == null) return false
+                      else if (realParameterType.canonicalText == "Boolean") return true
+                      else return false
+                    }
+                    catch {
+                      case e: PsiInvalidElementAccessException =>
+                        LOG.error(LogMessageEx.createEvent(e.getMessage, ExceptionUtil.getThrowableText(e),
+                          new Attachment(holder.getFile.getVirtualFile)))
+                        return false
+                    }
                   }
                   case _ => return false
                 }
@@ -71,4 +84,8 @@ class NameBooleanParametersInspection extends LocalInspectionTool {
     }
   }
 
+}
+
+object NameBooleanParametersInspection {
+  private val LOG = Logger.getInstance(getClass)
 }

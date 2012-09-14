@@ -4,7 +4,6 @@ package psi
 package api
 package expr
 
-import base.ScReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import com.intellij.psi.PsiElement
 import types.ScType
@@ -86,7 +85,7 @@ trait ScArgumentExprList extends ScArguments {
       if (child.isInstanceOf[ScExpression]) return false
       child = child.getPrevSibling
     }
-    return child != null && child.getNode.getElementType == ScalaTokenTypes.tCOMMA
+    child != null && child.getNode.getElementType == ScalaTokenTypes.tCOMMA
   }
 
   def addExpr(expr: ScExpression): ScArgumentExprList
