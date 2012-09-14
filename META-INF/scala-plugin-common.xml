@@ -608,6 +608,10 @@
                          displayName="Redundant Return" groupName="Scala: General"
                          shortName="RemoveRedundantReturn" level="WARNING"
                          enabledByDefault="true" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.relativeImports.RelativeImportInspection"
+                         displayName="Relative Import" groupName="Scala: General"
+                         shortName="RelativeImport" level="WARNING"
+                         enabledByDefault="false" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.shadow.VariablePatternShadowInspection"
                          displayName="Suspicious shadowing by a Variable Pattern" groupName="Scala: General"
                          shortName="VariablePatternShadow" level="WARNING"
