@@ -1,9 +1,0 @@
-<component name="libraryTable">
-  <library name="specs-1.6.7-scala-2.8.1">
-    <CLASSES>
-      <root url="jar://$PROJECT_DIR$/SDK/lib/specs_2.8.1-1.6.7.jar!/" />
-    </CLASSES>
-    <JAVADOC />
-    <SOURCES />
-  </library>
-</component>

@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.testingSupport.specs2;
 
 import org.jetbrains.plugins.scala.testingSupport.TestRunnerUtil;
 import org.specs2.runner.NotifierRunner;
+import testingSupport.specs2.MyNotifierRunner;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -17,25 +18,20 @@ public class JavaSpecs2Runner {
 
   public static void main(String[] args) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException, ClassNotFoundException, InstantiationException {
     NotifierRunner runner = new NotifierRunner(new JavaSpecs2Notifier());
-    List<String> classNames = new ArrayList<String>();
     ArrayList<String> argsArray = new ArrayList<String>();
     ArrayList<String> specialArgs = new ArrayList<String>();
     ArrayList<String> classes = new ArrayList<String>();
-    boolean reachedDelim = false;
     boolean failedUsed = false;
-    boolean failedStarted = false;
     ArrayList<String> failedTests = new ArrayList<String>();
     String testName = "";
     boolean showProgressMessages = true;
     int i = 0;
-    int classIndex = 0;
 
     while (i < args.length) {
       if (args[i].equals("-s")) {
         argsArray.add(args[i]);
         ++i;
         argsArray.add("empty");
-        classIndex = i;
         while (i < args.length && !args[i].startsWith("-")) {
           classes.add(args[i]);
           ++i;
@@ -91,7 +87,43 @@ public class JavaSpecs2Runner {
     if (testName != "") runnerArgs.add(testName);
     runnerArgs.addAll(argsArray);
     Object runnerArgsArray = runnerArgs.toArray(new String[runnerArgs.size()]);
-    Method method = runner.getClass().getMethod("main", String[].class);
-    method.invoke(runner, runnerArgsArray);
+    boolean hasNoStartMethod = false;
+    boolean startNotFound = false;
+
+    try {
+      Method method = runner.getClass().getMethod("start", String[].class);
+      method.invoke(runner, runnerArgsArray);
+    } catch (NoSuchMethodException e) {
+      hasNoStartMethod = true;
+    } catch (InvocationTargetException e) {
+      hasNoStartMethod = true;
+    } catch (IllegalAccessException e) {
+      hasNoStartMethod = true;
+    }
+
+    if (hasNoStartMethod) {
+      try {
+        MyNotifierRunner myNotifierRunner = new MyNotifierRunner(new JavaSpecs2Notifier());
+        Method method = myNotifierRunner.getClass().getMethod("start", String[].class);
+        method.invoke(myNotifierRunner, runnerArgsArray);
+      } catch (NoClassDefFoundError e) {
+        System.out.println("\n'Start' method is not found in MyNotifierRunner " + e.getMessage() + "\n");
+        startNotFound = true;
+      } catch (NoSuchMethodException e) {
+        System.out.println("\n'Start' method is not found in MyNotifierRunner " + e.getMessage() + "\n");
+        startNotFound = true;
+      } catch (InvocationTargetException e) {
+        System.out.println("\n'Start' method is not found in MyNotifierRunner " + e.getMessage() + "\n");
+        startNotFound = true;
+      } catch (IllegalAccessException e) {
+        System.out.println("\n'Start' method is not found in MyNotifierRunner " + e.getMessage() + "\n");
+        startNotFound = true;
+      }
+    }
+
+    if (startNotFound) {
+      Method method = runner.getClass().getMethod("main", String[].class);
+      method.invoke(runner, runnerArgsArray);
+    }
   }
 }
