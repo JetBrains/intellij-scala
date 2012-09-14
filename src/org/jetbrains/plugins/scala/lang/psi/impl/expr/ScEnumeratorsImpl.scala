@@ -11,6 +11,7 @@ import com.intellij.psi._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import com.intellij.psi.scope._
+import lang.resolve.processor.BaseProcessor
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -39,11 +40,28 @@ class ScEnumeratorsImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
                                   state: ResolveState,
                                   lastParent: PsiElement,
                                   place: PsiElement): Boolean = {
-    val ns = namings.reverse
-    val begin = if (ns.contains(lastParent)) ns.drop(ns.indexOf(lastParent) + 1) else ns
-    val patts = begin.map((ns: Patterned) => ns.pattern).filter(_ != null)    
-    val binds = patts.flatMap((p: ScPattern) => p.bindings)
-    for (b <- binds) if (!processor.execute(b, state)) return false
+    val reverseChildren = getChildren.reverse
+    val children =
+      if (reverseChildren.contains(lastParent)) reverseChildren.drop(reverseChildren.indexOf(lastParent) + (
+         lastParent match {
+           case g: ScGenerator => 1
+           case _ => 0
+         }
+        ))
+      else reverseChildren
+    for (c <- children) {
+      c match {
+        case c: ScGenerator =>
+          for (b <- c.pattern.bindings) if (!processor.execute(b, state)) return false
+          processor match {
+            case b: BaseProcessor => b.changedLevel
+            case _ =>
+          }
+        case c: ScEnumerator =>
+          for (b <- c.pattern.bindings) if (!processor.execute(b, state)) return false
+        case _ =>
+      }
+    }
     true
   }
 

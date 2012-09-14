@@ -335,6 +335,13 @@ class ScopeAnnotatorTest extends SimpleTestCase {
     assertFine("val f = new Foo; def f[A] = new Bar")
 //    assertClashes("val f = new Foo; def f[A] = new Foo", "f")
   }
+
+  def testForStatement() {
+    assertFine("for (a <- Some(1); a <- Some(a)) {}")
+    assertFine("for {a <- Some(1); a <- Some(a)} {}")
+    assertFine("for {a <- Some(1); b <- Some(a); a = b} {}")
+    assertClashes("for {a <- Some(1); a <- Some(a); b = a; a = b} {}", "a")
+  }
   
   def testRepeatedParameter() {
     assertFine("def f(p: Any*) {}; def f(p: Any) {}")
