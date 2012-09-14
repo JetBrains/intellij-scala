@@ -8,6 +8,7 @@
         <element id="library" level="project" name="scalatest-finders" />
         <element id="archive" name="scala-plugin-runners.jar">
           <element id="module-output" name="Runners" />
+          <element id="module-output" name="ScalaRunner" />
         </element>
         <element id="archive" name="scala-plugin.jar">
           <element id="module-output" name="ScalaCommunity" />
