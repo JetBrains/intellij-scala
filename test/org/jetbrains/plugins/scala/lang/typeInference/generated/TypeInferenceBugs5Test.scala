@@ -8,6 +8,8 @@ class TypeInferenceBugs5Test extends TypeInferenceTestBase {
   def testAssignmentNotImported() {doTest()}
 
   def testDefaultParamInference() {doTest()}
+
+  def testForStmtBug() {doTest()}
   
   def testImplicitTest() {doTest()}
 
