@@ -39,6 +39,10 @@ class ScFunctionDefinitionImplTest extends SimpleTestCase {
     assertRecursionTypeIs("def f(n: Int): Boolean = n > 0 || f(n)", TailRecursion)
   }
 
+  def testIf() {
+    assertRecursionTypeIs("def f(n: Int) {if (true) {f(n + 1)}}", TailRecursion)
+  }
+
   def testOtherInfixOperator() {
     assertRecursionTypeIs("def f(n: Int): Boolean = n > 0 ** f(n)", OrdinaryRecursion)
   }
