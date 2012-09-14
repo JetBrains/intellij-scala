@@ -26,6 +26,22 @@ trait ScAccessModifier extends ScalaPsiElement {
   def isThis: Boolean
   def isUnqualifiedPrivateOrThis: Boolean = isPrivate && (getReference == null || isThis)
 
+  def modifierFormattedText: String = {
+    val builder = new StringBuilder
+    if (isPrivate) builder.append("private")
+    else if (isProtected) builder.append("protected")
+    else return ""
+    if (isThis) {
+      builder.append("[this]")
+      return builder.toString()
+    }
+    idText match {
+      case Some(id) => builder.append(s"[$id]")
+      case _ =>
+    }
+    builder.toString()
+  }
+
   object Access extends Enumeration {
     val PRIVATE, PROTECTED, THIS_PRIVATE, THIS_PROTECTED = Value
   }
