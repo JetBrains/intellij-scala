@@ -13,7 +13,7 @@ import settings.ScalaProjectSettings
 import collection.mutable.ArrayBuffer
 import lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.extensions
-import lang.psi.api.toplevel.typedef.ScTypeDefinition
+import lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
 
 /**
  * @author Alefas
@@ -38,7 +38,7 @@ class RelativeImportInspection extends AbstractInspection("RelativeImport", "Rel
         elem match {
           case ScalaResolveResult(p: PsiPackage, _) if p.getQualifiedName.contains(".") =>
             applyProblem(p.getQualifiedName)
-          case ScalaResolveResult(c: ScTypeDefinition, _) if c.isTopLevel && c.qualifiedName.contains(".") =>
+          case ScalaResolveResult(c: ScObject, _) if c.isTopLevel && c.qualifiedName.contains(".") =>
             applyProblem(c.qualifiedName)
           case _ =>
         }
