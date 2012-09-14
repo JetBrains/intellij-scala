@@ -29,7 +29,7 @@ class RelativeImportInspection extends AbstractInspection("RelativeImport", "Rel
       for (elem <- resolve) {
         def applyProblem(qualifiedName: String) {
           val fixes = new ArrayBuffer[LocalQuickFix]()
-          if (ScalaProjectSettings.getInstance(q.getProject).isAddFullQualifiedImports) {
+          if (!ScalaProjectSettings.getInstance(q.getProject).isAddFullQualifiedImports) {
             fixes += new EnableFullQualifiedImports(q.getProject)
           }
           fixes += new MakeFullQualifiedImportFix(q, qualifiedName)
