@@ -59,7 +59,7 @@ trait ScClass extends ScTypeDefinition with ScParameterOwner {
             //          }
             //
             //        }
-            val accessModifier = clazz.getModifierList.accessModifier.map(_.getText + " ").getOrElse("")
+            val accessModifier = clazz.getModifierList.accessModifier.map(_.modifierFormattedText + " ").getOrElse("")
             val objText = accessModifier + "object " + clazz.name + "{\n  " + texts._1 + "\n  " + texts._2 + "\n" + "}"
             val next = ScalaPsiUtil.getNextStubOrPsiElement(clazz)
             val obj: ScObject =
