@@ -318,7 +318,7 @@ class ScClassImpl extends ScTypeDefinitionImpl with ScClass with ScTypeParameter
       mkString("[", ",", "]")).getOrElse("")
     val typeParametersText = typeParametersClause.map(tp => {
       tp.typeParameters.map(tp => {
-        val baseText = tp.getText
+        val baseText = tp.typeParameterText
         if (tp.isContravariant) {
           val i = baseText.indexOf('-')
           baseText.substring(i + 1)
