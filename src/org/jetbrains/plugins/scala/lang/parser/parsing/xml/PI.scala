@@ -32,6 +32,7 @@ object PI {
       case XmlTokenType.XML_NAME => builder.advanceLexer()
       case _ => builder error ErrMsg("xml.name.expected")
     }
+    while (Attribute parse builder) {}
     builder.getTokenType match {
       case XmlTokenType.XML_TAG_CHARACTERS => builder.advanceLexer()
       case _ =>
