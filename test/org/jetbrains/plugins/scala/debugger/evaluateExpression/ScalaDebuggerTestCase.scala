@@ -88,14 +88,14 @@ abstract class ScalaDebuggerTestCase extends ScalaCompilerTestCase {
     })
     callback
     resume()
-    assert(getDebugProcess.getExecutionResult.getProcessHandler.waitFor(10000), "too long debugger process")
+//    assert(getDebugProcess.getExecutionResult.getProcessHandler.waitFor(10000), "too long debugger process")
   }
 
-  private def getDebugProcess: DebugProcessImpl = {
+  protected def getDebugProcess: DebugProcessImpl = {
     getDebugSession.getProcess
   }
 
-  private def getDebugSession: DebuggerSession = {
+  protected def getDebugSession: DebuggerSession = {
     DebuggerPanelsManager.getInstance(getProject).getSessionTab.getSession
   }
 
@@ -137,7 +137,7 @@ abstract class ScalaDebuggerTestCase extends ScalaCompilerTestCase {
     context
   }
 
-  private def managed[T >: Null](callback: => T): T = {
+  protected def managed[T >: Null](callback: => T): T = {
     var result: T = null
     def ctx = DebuggerContextUtil.createDebuggerContext(getDebugSession, getDebugProcess.getSuspendManager.getPausedContext)
     val semaphore = new Semaphore()
@@ -153,12 +153,12 @@ abstract class ScalaDebuggerTestCase extends ScalaCompilerTestCase {
     result
   }
 
-  private def evaluationContext(): EvaluationContextImpl = {
+  protected def evaluationContext(): EvaluationContextImpl = {
     val suspendContext = getDebugProcess.getSuspendManager.getPausedContext
     new EvaluationContextImpl(suspendContext, suspendContext.getFrameProxy, suspendContext.getFrameProxy.thisObject())
   }
 
-  private def evalResult(codeText: String): String = {
+  protected def evalResult(codeText: String): String = {
     val semaphore = new Semaphore()
     semaphore.down()
     val result = managed[String] {

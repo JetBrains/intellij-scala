@@ -21,6 +21,10 @@ import org.jetbrains.annotations.NotNull;
 public class ScalaDebuggerSettings extends XDebuggerSettings<ScalaDebuggerSettings> {
 
   public Boolean DEBUG_DISABLE_SPECIFIC_SCALA_METHODS = true;
+  public Boolean FRIENDLY_COLLECTION_DISPLAY_ENABLED = true;
+  public Boolean DO_NOT_DISPLAY_STREAMS = true;
+  public Integer COLLECTION_START_INDEX = 0;
+  public Integer COLLECTION_END_INDEX = 49;
 
   public ScalaDebuggerSettings() {
     super("scala_debugger");
