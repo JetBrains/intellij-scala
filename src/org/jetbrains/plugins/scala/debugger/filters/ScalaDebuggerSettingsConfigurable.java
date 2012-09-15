@@ -16,6 +16,12 @@ import java.awt.event.ActionListener;
 public class ScalaDebuggerSettingsConfigurable implements Configurable {
   private JCheckBox myIgnoreScalaMethods;
   private JPanel myPanel;
+  private JLabel startIndexLabel;
+  private JSpinner myStartIndexSpinner;
+  private JSpinner myEndIndexSpinner;
+  private JLabel endIndexLabel;
+  private JCheckBox friendlyDisplayOfScalaCheckBox;
+  private JCheckBox doNotExpandStreamsCheckBox;
   private boolean isModified = false;
   private final ScalaDebuggerSettings mySettings;
 
@@ -23,10 +29,14 @@ public class ScalaDebuggerSettingsConfigurable implements Configurable {
     mySettings = settings;
     final Boolean flag = settings.DEBUG_DISABLE_SPECIFIC_SCALA_METHODS;
     myIgnoreScalaMethods.setSelected(flag == null || flag.booleanValue());
-
-    myIgnoreScalaMethods.addActionListener(new ActionListener() {
-      public void actionPerformed(final ActionEvent e) {
-        isModified = mySettings.DEBUG_DISABLE_SPECIFIC_SCALA_METHODS.booleanValue() != myIgnoreScalaMethods.isSelected();
+    friendlyDisplayOfScalaCheckBox.setSelected(settings.FRIENDLY_COLLECTION_DISPLAY_ENABLED);
+    friendlyDisplayOfScalaCheckBox.addActionListener(new ActionListener() {
+      @Override
+      public void actionPerformed(ActionEvent e) {
+        final boolean collectionsSettingsEnabled = friendlyDisplayOfScalaCheckBox.isSelected();
+        myStartIndexSpinner.setEnabled(collectionsSettingsEnabled);
+        myEndIndexSpinner.setEnabled(collectionsSettingsEnabled);
+        doNotExpandStreamsCheckBox.setEnabled(collectionsSettingsEnabled);
       }
     });
   }
@@ -45,18 +55,29 @@ public class ScalaDebuggerSettingsConfigurable implements Configurable {
   }
 
   public JComponent createComponent() {
+    myStartIndexSpinner.setModel(new SpinnerNumberModel(1, 1, null, 1));
+    myEndIndexSpinner.setModel(new SpinnerNumberModel(1, 1, null, 1));
+
+    myStartIndexSpinner.setValue(mySettings.COLLECTION_START_INDEX);
+    myEndIndexSpinner.setValue(mySettings.COLLECTION_END_INDEX);
+    
     return myPanel;
   }
 
   public boolean isModified() {
-    return isModified;
+    return mySettings.COLLECTION_START_INDEX != myStartIndexSpinner.getValue() || 
+        mySettings.COLLECTION_END_INDEX != myEndIndexSpinner.getValue() || 
+        mySettings.FRIENDLY_COLLECTION_DISPLAY_ENABLED != friendlyDisplayOfScalaCheckBox.isEnabled() || 
+        mySettings.DEBUG_DISABLE_SPECIFIC_SCALA_METHODS != myIgnoreScalaMethods.isEnabled() || 
+        mySettings.DO_NOT_DISPLAY_STREAMS != doNotExpandStreamsCheckBox.isEnabled();
   }
 
   public void apply() throws ConfigurationException {
-    if (isModified) {
-      mySettings.DEBUG_DISABLE_SPECIFIC_SCALA_METHODS = myIgnoreScalaMethods.isSelected();
-    }
-    isModified = false;
+    mySettings.FRIENDLY_COLLECTION_DISPLAY_ENABLED = friendlyDisplayOfScalaCheckBox.isEnabled();
+    mySettings.DEBUG_DISABLE_SPECIFIC_SCALA_METHODS = myIgnoreScalaMethods.isEnabled();
+    mySettings.COLLECTION_START_INDEX = (Integer)myStartIndexSpinner.getValue();
+    mySettings.COLLECTION_END_INDEX = (Integer)myEndIndexSpinner.getValue();
+    mySettings.DO_NOT_DISPLAY_STREAMS = doNotExpandStreamsCheckBox.isEnabled();
   }
 
   public void reset() {

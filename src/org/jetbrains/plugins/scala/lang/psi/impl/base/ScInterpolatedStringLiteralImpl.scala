@@ -61,4 +61,9 @@ class ScInterpolatedStringLiteralImpl(node: ASTNode) extends ScLiteralImpl(node)
     case ScalaTokenTypes.tINTERPOLATED_STRING_END => true
     case _ => false
   }
+
+  override def getValue: AnyRef = findChildByClassScala(classOf[ScLiteralImpl]) match {
+    case literal: ScLiteralImpl => literal.getValue
+    case _ => "" 
+  }
 }

@@ -29,8 +29,13 @@ class ModifiersFilter extends ElementFilter {
   def isAcceptable(element: Object, context: PsiElement): Boolean = {
     if (context.isInstanceOf[PsiComment]) return false
     if (element.isInstanceOf[PsiIdentifier]) return false
-    var leaf = getLeafByOffset(context.getTextRange.getStartOffset, context);
-    if (leaf != null && leaf.getContainingFile.asInstanceOf[ScalaFile].isScriptFile()) leaf = leaf.getParent
+    var leaf = getLeafByOffset(context.getTextRange.getStartOffset, context)
+    if (leaf != null) {
+      leaf.getContainingFile match {
+        case scalaFile: ScalaFile if scalaFile.isScriptFile() => leaf = leaf.getParent
+        case _ =>
+      }
+    }
     if (leaf != null) {
       val parent = leaf.getParent
       parent match {
@@ -45,12 +50,8 @@ class ModifiersFilter extends ElementFilter {
     false
   }
 
-  def isClassAcceptable(hintClass: java.lang.Class[_]): Boolean = {
-    return true
-  }
+  def isClassAcceptable(hintClass: java.lang.Class[_]) = true
 
   @NonNls
-  override def toString(): String = {
-    return "modifiers keyword filter";
-  }
+  override def toString = "modifiers keyword filter"
 }
