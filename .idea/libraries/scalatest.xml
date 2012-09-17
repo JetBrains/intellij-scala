@@ -4,6 +4,8 @@
       <root url="jar://$PROJECT_DIR$/SDK/lib/scalatest-2.0.jar!/" />
     </CLASSES>
     <JAVADOC />
-    <SOURCES />
+    <SOURCES>
+      <root url="jar://$PROJECT_DIR$/SDK/sources/scalatest_2.10.0-M3-1.8-SNAPSHOT-sources.jar!/" />
+    </SOURCES>
   </library>
 </component>
