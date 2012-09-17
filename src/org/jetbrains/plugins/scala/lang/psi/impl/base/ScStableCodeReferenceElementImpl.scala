@@ -113,7 +113,7 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
       case _ if isInMacroDef => methodsOnly
       case _ => stableQualRef
     }
-    if (completion) result + ResolveTargets.PACKAGE else result
+    if (completion) result + ResolveTargets.PACKAGE + ResolveTargets.OBJECT + ResolveTargets.VAL else result
   }
 
   def nameId: PsiElement = findChildByType(ScalaTokenTypes.tIDENTIFIER)
