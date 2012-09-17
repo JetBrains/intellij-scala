@@ -100,7 +100,7 @@ trait OverridingAnnotator {
         annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
         annotation.registerFix(new RemoveModifierQuickFix(owner, "override"))
       }
-    } else {
+    } else if (isConcreteElement(ScalaPsiUtil.nameContext(member))) {
       var isConcretes = false
       for (signature <- superSignatures if !isConcretes && isConcrete(signature)) isConcretes = true
       if (isConcretes && !owner.hasModifierProperty("override")) {
