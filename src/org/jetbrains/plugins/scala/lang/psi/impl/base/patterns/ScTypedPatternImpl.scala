@@ -48,7 +48,17 @@ class ScTypedPatternImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
     typePattern match {
       case Some(tp) =>
         if (tp.typeElement == null) return Failure("No type element for type pattern", Some(this))
-        tp.typeElement.getType(ctx)
+        val typeElementType = tp.typeElement.getType(ctx)
+        expectedType match {
+          case Some(expectedType) =>
+            typeElementType.map {
+              case typeElementType =>
+                if (expectedType.conforms(typeElementType)) expectedType
+                else typeElementType //todo:
+            }
+          case _ =>
+            typeElementType
+        }
       case None => Failure("No type pattern", Some(this))
     }
   }
