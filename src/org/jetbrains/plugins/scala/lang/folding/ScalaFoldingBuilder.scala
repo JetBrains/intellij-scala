@@ -74,16 +74,19 @@ class ScalaFoldingBuilder extends FoldingBuilder {
           descriptors += (new FoldingDescriptor(node, node.getTextRange))
         case _ =>
       }
-      if (node.getTreeParent != null && (node.getTreeParent.getPsi.isInstanceOf[ScArgumentExprList] ||
-        node.getTreeParent.getPsi.isInstanceOf[ScPatternDefinition] ||
-        node.getTreeParent.getPsi.isInstanceOf[ScVariableDefinition])) {
+      val treeParent: ASTNode = node.getTreeParent
+      if (treeParent != null && (treeParent.getPsi.isInstanceOf[ScArgumentExprList] ||
+        treeParent.getPsi.isInstanceOf[ScPatternDefinition] ||
+        treeParent.getPsi.isInstanceOf[ScVariableDefinition] ||
+        treeParent.getPsi.isInstanceOf[ScForStatement] ||
+        treeParent.getPsi.isInstanceOf[ScIfStmt])) {
         psi match {
           case _: ScBlockExpr => descriptors += new FoldingDescriptor(node, node.getTextRange)
           case _ =>
         }
       }
-      if (node.getTreeParent != null) {
-        node.getTreeParent.getPsi match {
+      if (treeParent != null) {
+        treeParent.getPsi match {
           case inf: ScInfixExpr if inf.rOp == node.getPsi =>
             psi match {
               case _: ScBlockExpr => descriptors += new FoldingDescriptor(node, node.getTextRange)
@@ -92,7 +95,7 @@ class ScalaFoldingBuilder extends FoldingBuilder {
           case _ =>
         }
       }
-      if (node.getTreeParent != null && node.getTreeParent.getPsi.isInstanceOf[ScCaseClause]) {
+      if (treeParent != null && treeParent.getPsi.isInstanceOf[ScCaseClause]) {
         psi match {
           case _: ScBlock => descriptors += new FoldingDescriptor(node, node.getTextRange)
           case _ =>
@@ -142,6 +145,7 @@ class ScalaFoldingBuilder extends FoldingBuilder {
   def getPlaceholderText(node: ASTNode): String = {
     if (isMultiline(node) || isMultilineImport(node)) {
       node.getElementType match {
+        case ScalaElementTypes.BLOCK_EXPR => return "{...}"
         case ScalaTokenTypes.tBLOCK_COMMENT => return "/.../"
         case ScalaDocElementTypes.SCALA_DOC_COMMENT => return "/**...*/"
         case ScalaElementTypes.TEMPLATE_BODY => return "{...}"
@@ -224,6 +228,8 @@ class ScalaFoldingBuilder extends FoldingBuilder {
         case ScalaTokenTypes.tSH_COMMENT if
         ScalaCodeFoldingSettings.getInstance().isCollapseShellComments => true
         case ScalaElementTypes.MATCH_STMT
+          if ScalaCodeFoldingSettings.getInstance().isCollapseMultilineBlocks => true
+        case ScalaElementTypes.BLOCK_EXPR
           if ScalaCodeFoldingSettings.getInstance().isCollapseMultilineBlocks => true
         case _ if node.getPsi.isInstanceOf[ScBlockExpr] &&
                 node.getTreeParent.getElementType == ScalaElementTypes.ARG_EXPRS &&
