@@ -23,10 +23,12 @@ import com.intellij.psi.PsiElementVisitor
 class ScWildcardTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScTypeBoundsOwnerImpl with ScWildcardTypeElement {
   override def toString: String = "WildcardType"
 
-  protected def innerType(ctx: TypingContext) = for (
-    lb <- lowerBound;
-    ub <- upperBound
-  ) yield new ScExistentialArgument("_", Nil, lb, ub)
+  protected def innerType(ctx: TypingContext) = {
+    for {
+      lb <- lowerBound
+      ub <- upperBound
+    } yield new ScExistentialArgument("_", Nil, lb, ub)
+  }
 
   override def accept(visitor: ScalaElementVisitor) {
     visitor.visitWildcardTypeElement(this)
