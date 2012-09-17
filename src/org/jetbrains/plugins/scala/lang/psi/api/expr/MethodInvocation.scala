@@ -118,6 +118,11 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
       expr = this, check = check)
   }
 
+  /**
+   * @return Is this method invocation in 'update' syntax sugar position.
+   */
+  def isUpdateCall: Boolean = false
+
   protected override def innerType(ctx: TypingContext): TypeResult[ScType] = {
     try {
       tryToGetInnerType(ctx, useExpectedType = true)
@@ -179,8 +184,8 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
     def functionParams(params: Seq[ScType]): Seq[Parameter] = {
       val functionName = "scala.Function" + params.length
       val functionClass = Option(ScalaPsiManager.instance(getProject).getCachedClass(functionName, getResolveScope,
-        ScalaPsiManager.ClassCategory.TYPE))
-      val applyFunction = functionClass.flatMap(_.asInstanceOf[ScTrait].functions.find(_.name == "apply"))
+        ScalaPsiManager.ClassCategory.TYPE)).flatMap {case t: ScTrait => Option(t) case _ => None}
+      val applyFunction = functionClass.flatMap(_.functions.find(_.name == "apply"))
       params.mapWithIndex {
         case (tp, i) => new Parameter("v" + (i + 1), tp, tp, false, false, false, i, applyFunction.map(_.parameters.apply(i)))
       }
@@ -201,25 +206,21 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
     val invokedType: ScType = nonValueType.getOrElse(return nonValueType)
 
     var res: ScType = checkApplication(invokedType, argumentExpressions).getOrElse {
-      this match {
-        case methodCall: ScMethodCall => //todo: remove reference to method call
-          var (processedType, importsUsed, implicitFunction, applyOrUpdateElement) =
-            ScalaPsiUtil.processTypeForUpdateOrApply(invokedType, methodCall, isShape = false).getOrElse {
-              (Nothing, this.importsUsed, this.implicitFunction, this.applyOrUpdateElement)
-            }
-          if (useExpectedType) {
-            updateAccordingToExpectedType(Success(processedType, None)).foreach(x => processedType = x)
-          }
-          this.applyOrUpdate = applyOrUpdateElement
-          this.importsUsed = importsUsed
-          this.implicitFunction = implicitFunction
-          checkApplication(processedType, argumentExpressionsIncludeUpdateCall).getOrElse {
-            this.applyOrUpdate = None
-            applicabilityProblemsVar = Seq(new DoesNotTakeParameters)
-            matchedParametersVar = Seq()
-            processedType
-          }
-        case _ => invokedType
+      var (processedType, importsUsed, implicitFunction, applyOrUpdateElement) =
+        ScalaPsiUtil.processTypeForUpdateOrApply(invokedType, this, isShape = false).getOrElse {
+          (Nothing, this.importsUsed, this.implicitFunction, this.applyOrUpdateElement)
+        }
+      if (useExpectedType) {
+        updateAccordingToExpectedType(Success(processedType, None)).foreach(x => processedType = x)
+      }
+      this.applyOrUpdate = applyOrUpdateElement
+      this.importsUsed = importsUsed
+      this.implicitFunction = implicitFunction
+      checkApplication(processedType, argumentExpressionsIncludeUpdateCall).getOrElse {
+        this.applyOrUpdate = None
+        applicabilityProblemsVar = Seq(new DoesNotTakeParameters)
+        matchedParametersVar = Seq()
+        processedType
       }
     }
 

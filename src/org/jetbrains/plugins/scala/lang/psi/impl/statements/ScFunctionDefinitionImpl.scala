@@ -68,9 +68,23 @@ class ScFunctionDefinitionImpl extends ScFunctionImpl with ScFunctionDefinition 
       }
     }
 
-    for (ref <- depthFirst.filterByType(classOf[ScReferenceElement]).toList if ref.isReferenceTo(this);
-         target <- ref.advancedResolve if target.isApplicable)
-    yield RecursiveReference(ref, resultExpressions.contains(resultExpressionFor(ref)))
+    def expandIf(elem: PsiElement): Seq[PsiElement] = {
+      elem match {
+        case i: ScIfStmt if i.elseBranch.isEmpty =>
+          i.thenBranch match {
+            case Some(then) =>
+              then.calculateReturns.flatMap(expandIf) :+ elem
+            case _ => Seq(elem)
+          }
+        case _ => Seq(elem)
+      }
+    }
+    val expressions = resultExpressions.flatMap(expandIf)
+    for {
+      ref <- depthFirst.filterByType(classOf[ScReferenceElement]).toSeq if ref.isReferenceTo(this)
+    } yield {
+      RecursiveReference(ref, expressions.contains(resultExpressionFor(ref)))
+    }
   }
 
   def recursionType: RecursionType = {
@@ -149,20 +163,11 @@ class ScFunctionDefinitionImpl extends ScFunctionImpl with ScFunctionDefinition 
     assignment.foreach(_.delete())
   }
 
-  def getReturnUsages: Array[PsiElement] = {
-    val res = new ArrayBuffer[PsiElement]
-    body.foreach {
-      _.depthFirst(!_.isInstanceOf[ScFunction]).foreach {
-        case r: ScReturnStmt => res += r
-        case _ =>
-      }
-    }
-    body match {
-      case Some(expr) => res ++= expr.calculateReturns
-      case _ =>
-    }
-    res.filter(p => p.getContainingFile == getContainingFile).distinct.toArray
-  }
+  def getReturnUsages: Array[PsiElement] = body map (exp => {
+    (exp.depthFirst(!_.isInstanceOf[ScFunction]).filter(_.isInstanceOf[ScReturnStmt]) ++ exp.calculateReturns).
+      filter(_.getContainingFile == getContainingFile).toArray.distinct
+  }) getOrElse (Array.empty[PsiElement])
+
 
   private var myControlFlow: Seq[Instruction] = null
 

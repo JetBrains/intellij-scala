@@ -25,6 +25,14 @@ import psi.stubs.ScMemberOrLocal
 trait ScMember extends ScalaPsiElement with ScModifierListOwner with PsiMember {
   def getContainingClass: PsiClass = containingClass
 
+  def isPrivate: Boolean = hasModifierPropertyScala("private")
+
+  def isProtected: Boolean = hasModifierPropertyScala("protected")
+
+  def isPublic: Boolean = !isPrivate && !isProtected
+
+  def isInstance: Boolean = !isLocal
+
   /**
     * getContainingClassStrict(bar) == null in
     *

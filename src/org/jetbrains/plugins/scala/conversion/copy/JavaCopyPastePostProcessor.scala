@@ -73,7 +73,7 @@ class JavaCopyPastePostProcessor extends CopyPastePostProcessor[TextBlockTransfe
 
       new ConvertedCode(newText, associations.toArray)
     } catch {
-      case e =>
+      case e: Exception =>
         val selections = (startOffsets, endOffsets).zipped.map((a, b) => file.getText.substring(a, b))
         val attachments = selections.zipWithIndex.map(p => new Attachment("Selection-%d.java".format(p._2 + 1), p._1))
         Log.error(LogMessageEx.createEvent(e.getMessage, ExceptionUtil.getThrowableText(e), attachments: _*))

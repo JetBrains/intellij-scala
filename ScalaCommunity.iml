@@ -3,6 +3,7 @@
   <component name="FacetManager">
     <facet type="scala" name="Scala">
       <configuration>
+        <option name="basePackage" value="org.jetbrains.plugins.scala" />
         <option name="compilerLibraryLevel" value="Project" />
         <option name="compilerLibraryName" value="main-scala-compiler" />
         <option name="fsc" value="true" />

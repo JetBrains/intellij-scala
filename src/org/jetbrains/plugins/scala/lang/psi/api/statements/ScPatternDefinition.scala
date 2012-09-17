@@ -20,6 +20,8 @@ trait ScPatternDefinition extends ScValue {
 
   def expr: Option[ScExpression]
 
+  def isSimple: Boolean = pList.allPatternsSimple && bindings.size == 1
+
   override def accept(visitor: ScalaElementVisitor) {
     visitor.visitPatternDefinition(this)
   }

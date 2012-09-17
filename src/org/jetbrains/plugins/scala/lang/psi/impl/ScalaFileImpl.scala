@@ -44,8 +44,10 @@ import util.{PsiUtilCore, PsiModificationTracker, PsiTreeUtil}
 import com.intellij.openapi.diagnostic.Logger
 import java.lang.String
 import api.toplevel.typedef.{ScClass, ScTrait, ScObject}
-import collection.mutable
 import java.util
+import com.intellij.openapi.editor.Document
+import refactoring.move.MoveScalaClassHandler
+import extensions._
 
 class ScalaFileImpl(viewProvider: FileViewProvider)
         extends PsiFileBase(viewProvider, ScalaFileType.SCALA_FILE_TYPE.getLanguage)
@@ -229,34 +231,55 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
   def setPackageName(base: String, name: String) {
     if (packageName == null) return
 
-    val splits = ScalaFileImpl.toVector(base) :: ScalaFileImpl.splitsIn(ScalaFileImpl.pathIn(this))
-
-    val prefix: Option[Array[PsiElement]] = {
-      val elements = children.takeWhile(!_.isInstanceOf[ScPackaging]).toArray
-      val hasCommentsOnly = elements.forall {
-        case _: PsiComment => true
-        case _: PsiWhiteSpace => true
-        case _ => false
-      }
-      if (elements.length > 0 && hasCommentsOnly) Some(elements) else None
-    }
-
-    ScalaFileImpl.stripPackagesIn(this)
-
     val vector = ScalaFileImpl.toVector(name)
 
-    if (vector.nonEmpty) {
-      val path = splits.foldLeft(List(vector))(ScalaFileImpl.splitAt)
-      ScalaFileImpl.addPathTo(this, path)
+    preservingAssociationData {
+      val documentManager = PsiDocumentManager.getInstance(getProject)
+      val document = documentManager.getDocument(this)
+
+      val prefixText = children.findByType(classOf[ScPackaging])
+              .map(it => getText.substring(0, it.getTextRange.getStartOffset))
+              .filter(!_.isEmpty)
+
+      try {
+        stripPackagings(document)
+        if (vector.nonEmpty) {
+          val packagingsText = {
+            val path = {
+              val splits = ScalaFileImpl.toVector(base) :: ScalaFileImpl.splitsIn(ScalaFileImpl.pathIn(this))
+              splits.foldLeft(List(vector))(ScalaFileImpl.splitAt)
+            }
+            path.map(_.mkString("package ", ".", "")).mkString("", "\n", "\n\n")
+          }
+
+          prefixText.foreach(s => document.deleteString(0, s.length))
+          document.insertString(0, packagingsText)
+          prefixText.foreach(s => document.insertString(0, s))
+        }
+      } finally {
+        documentManager.commitDocument(document)
+      }
     }
+  }
 
-    prefix.foreach { it =>
-      getNode.addChildren(it.head.getNode, it.last.getNode.getTreeNext, getNode.getFirstChildNode)
+  private def preservingAssociationData(block: => Unit) {
+    val data = getClasses.map(_.getCopyableUserData(MoveScalaClassHandler.ASSOCIATIONS_KEY).toOption)
+
+    block
+
+    for ((aClass, Some(data)) <- getClasses.zip(data)) {
+      aClass.putCopyableUserData(MoveScalaClassHandler.ASSOCIATIONS_KEY, data)
     }
+  }
 
-    depthFirst.foreach(it => CodeEditUtil.disablePostponedFormatting(it.getNode))
-
-    CodeEditUtil.markToReformat(getNode, true)
+  private def stripPackagings(document: Document) {
+    depthFirst.findByType(classOf[ScPackaging]).foreach { p =>
+      val startOffset = p.getTextOffset
+      val endOffset = startOffset + p.getTextLength
+      document.replaceString(startOffset, endOffset, p.getBodyText.trim)
+      PsiDocumentManager.getInstance(getProject).commitDocument(document)
+      stripPackagings(document)
+    }
   }
 
   override def getStub: ScFileStub = super[PsiFileBase].getStub match {
@@ -500,21 +523,8 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
     res
   }
 
-  def getPackagingRange: TextRange = {
-    def getRange: TextRange = {
-      new TextRange(0, getText.indexOf('\n') match {
-        case x if x < 0 => getText.length
-        case y => y
-      })
-    }
-    getPackagings.toList match {
-      case Nil => getRange
-      case h :: t => h.reference match {
-        case Some(ref) => ref.getTextRange
-        case _ => getRange
-      }
-    }
-  }
+  def packagingRanges: Seq[TextRange] =
+    depthFirst.filterByType(classOf[ScPackaging]).flatMap(_.reference).map(_.getTextRange).toList
 
   // Special case for SBT 0.10 "build.sbt" files: they should be typed as though they are in the "project" module,
   // even though they are located in the other modules.
@@ -611,29 +621,6 @@ object ScalaFileImpl {
       case it => it
     }
   }
-  
-  def addPathTo(file: ScalaFile, path: List[List[String]]) {
-    val innermost = path.lastOption
-    path.reverse.foreach { packaging =>
-      addOuterPackagingTo(file, packaging.mkString("."), Some(packaging) == innermost)
-    }  
-  }
 
-  private def addOuterPackagingTo(file: ScalaFile, name: String, separate: Boolean) {
-    val packaging = ScalaPsiElementFactory.createPackaging(name, file.getManager)
-
-    if (file.children.isEmpty) {
-      file.add(packaging)
-    } else {
-      val delimiter = if (separate) "\n\n" else "\n"
-      file.addBefore(ScalaPsiElementFactory.parseElement(delimiter, file.getManager), file.getFirstChild)
-      file.wrapChildrenIn(packaging)
-    }
-  }
-  
-  def stripPackagesIn(file: ScalaFile) {
-    file.depthFirst.filterByType(classOf[ScPackaging]).toList.reverse.foreach(_.strip())
-  }
-  
   def toVector(name: String): List[String] = if (name.isEmpty) Nil else name.split('.').toList
 }

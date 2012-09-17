@@ -125,41 +125,4 @@ trait PsiElementExt {
     case sf: ScalaFile => Some(sf)
     case _ => None
   }
-
-  def wrapChildrenIn(container: PsiElement) {
-    if (repr.getFirstChild == null) return
-    setChildrenGenerated(repr.getNode)
-    moveOriginalChildren(repr, container)
-    moveOriginalChildren(container.getParent, repr)
-  }
-
-  def unwrapChildren() {
-    val node = repr.getNode
-    val parent = node.getTreeParent
-    if (node.getFirstChildNode != null) {
-      setChildrenGenerated(node)
-      parent.addChildren(node.getFirstChildNode, null, node)
-    }
-    parent.removeChild(node)
-  }
-
-  private def moveOriginalChildren(source: PsiElement, destination: PsiElement) {
-    if (source.getFirstChild == null) return
-
-    val sourceNode = source.getNode
-    val destinationNode = destination.getNode
-
-    destinationNode.addChildren(sourceNode.getFirstChildNode, null, null)
-  }
-
-  private def setChildrenGenerated(node: ASTNode) {
-    node.getChildren(null).foreach { it =>
-      CodeEditUtil.setNodeGenerated(it, true)
-      setChildrenGenerated(it)
-    }
-  }
-
-  def deleteChildren(children: Seq[PsiElement]) {
-    if (children.nonEmpty) repr.deleteChildRange(children.head, children.last)
-  }
 }

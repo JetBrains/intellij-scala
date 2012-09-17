@@ -113,7 +113,7 @@ class ScopeAnnotatorTest extends SimpleTestCase {
     assertClashes("(null, null) match { case (p, p) => }", "p")
     assertClashes("(null, null) match { case (a @ _, a @ _) => }", "a")
     assertClashes("(null, null) match { case a @ (a @ _, _) => }", "a")
-    assertClashes("for(v <- Nil; v <- Nil) {}", "v")
+    assertFine("for(v <- Nil; v <- Nil) {}")
     assertClashes("for(x <- Nil; v = null; v = null) {}", "v")
     assertClashes("for(v <- Nil; v = null) {}", "v")
     assertClashes("{ (v: Any, v: Any) => }", "v")
@@ -334,6 +334,13 @@ class ScopeAnnotatorTest extends SimpleTestCase {
 //
     assertFine("val f = new Foo; def f[A] = new Bar")
 //    assertClashes("val f = new Foo; def f[A] = new Foo", "f")
+  }
+
+  def testForStatement() {
+    assertFine("for (a <- Some(1); a <- Some(a)) {}")
+    assertFine("for {a <- Some(1); a <- Some(a)} {}")
+    assertFine("for {a <- Some(1); b <- Some(a); a = b} {}")
+    assertClashes("for {a <- Some(1); a <- Some(a); b = a; a = b} {}", "a")
   }
   
   def testRepeatedParameter() {

@@ -31,7 +31,7 @@ class ScVariableDefinitionImpl extends ScalaStubBasedElementImpl[ScVariable] wit
   def expr: Option[ScExpression] = {
     val stub = getStub
     if (stub != null) {
-      stub.asInstanceOf[ScVariableStub].getBodyExpr
+      return stub.asInstanceOf[ScVariableStub].getBodyExpr
     }
     Option(findChildByClassScala(classOf[ScExpression]))
   }

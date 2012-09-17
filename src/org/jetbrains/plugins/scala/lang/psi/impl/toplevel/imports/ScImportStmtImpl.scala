@@ -183,6 +183,12 @@ class ScImportStmtImpl extends ScalaStubBasedElementImpl[ScImportStmt] with ScIm
                         processor.handleEvent(event, associated)
                       }
 
+                      override def getClassKind: Boolean = bp.getClassKind
+
+                      override def setClassKind(b: Boolean) {
+                        bp.setClassKind(b)
+                      }
+
                       override def execute(element: PsiElement, state: ResolveState): Boolean = {
                         // Register shadowing import selector
                         val elementIsShadowed = shadowed.find(p => element == p._2)

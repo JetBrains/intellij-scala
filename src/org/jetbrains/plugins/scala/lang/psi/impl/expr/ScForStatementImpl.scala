@@ -244,9 +244,13 @@ class ScForStatementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
   override protected def innerType(ctx: TypingContext): TypeResult[ScType] = {
     val failure = Failure("Cannot create expression", Some(this))
     getDesugarisedExpr match {
-      case Some(newExpr) => {
-          newExpr.getNonValueType(ctx)
-      }
+      case Some(newExpr) =>
+        newExpr.depthFirst.foreach {
+          case f: ScForStatement =>
+            f.getType(TypingContext.empty) //to reduce stack let's try to getType first for inner for expressions
+          case _ =>
+        }
+        newExpr.getNonValueType(ctx)
       case None => failure
     }
   }

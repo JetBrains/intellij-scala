@@ -83,6 +83,14 @@ class ScTypeParamImpl extends ScalaStubBasedElementImpl[ScTypeParam] with ScType
     }
   }
 
+  def typeParameterText: String = {
+    val stub = getStub
+    if (stub != null) {
+      return stub.asInstanceOf[ScTypeParamStub].typeParameterText
+    }
+    getText
+  }
+
   def owner  = getContext.getContext.asInstanceOf[ScTypeParametersOwner]
 
   override def getUseScope  = new LocalSearchScope(owner)
