@@ -15,13 +15,14 @@ import collection.mutable.ArrayBuilder
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import lang.psi.api.statements.params.{ScTypeParam, ScParameter, ScTypeParamClause}
 import collection.Set
-import resolve.{ScalaResolveResult, StdKinds, ResolveTargets}
+import resolve.{ScalaResolveResult, ResolveTargets}
 import refactoring.util.ScalaNamesUtil
-import com.intellij.psi.{PsiDocumentManager, ResolveResult, PsiReference, PsiElement}
+import com.intellij.psi.{PsiDocumentManager, ResolveResult, PsiElement}
 import lang.psi.api.statements.{ScTypeAlias, ScFunction}
 import lang.psi.api.toplevel.typedef.{ScTrait, ScClass}
 import lang.psi.{ScalaPsiUtil, ScalaPsiElement, ScalaPsiElementImpl}
 import extensions.toPsiNamedElementExt
+import lang.completion.lookups.ScalaLookupItem
 
 /**
  * User: Dmitry Naydanov
@@ -81,7 +82,10 @@ class ScDocTagValueImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
     if (parameters == null) {
       return Array[AnyRef]()
     }
-    parameters.foreach(result += _.name)
+    parameters.foreach {
+      param =>
+        result += new ScalaLookupItem(param, param.name, None)
+    }
     result.result()
   }
 
