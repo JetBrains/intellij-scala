@@ -12,7 +12,7 @@ import com.intellij.openapi.module.Module
 
 import com.intellij.openapi.components.PathMacroManager
 import lang.psi.impl.ScalaPsiManager
-import lang.psi.api.toplevel.typedef.ScObject
+import lang.psi.api.toplevel.typedef.{ScClass, ScObject}
 import com.intellij.psi.{PsiPackage, JavaPsiFacade, PsiClass}
 import com.intellij.openapi.util.JDOMExternalizer
 
@@ -40,6 +40,7 @@ import lang.psi.api.ScPackage
 import collection.mutable.{HashSet, ArrayBuffer}
 import testingSupport.test.AbstractTestRunConfiguration.PropertiesExtension
 import org.jetbrains.plugins.scala.compiler.rt.ClassRunner
+import lang.psi.api.toplevel.ScModifierListOwner
 
 /**
  * @author Ksenia.Sautina
@@ -241,7 +242,7 @@ abstract class AbstractTestRunConfiguration(val project: Project,
           throw new RuntimeConfigurationException("Test Class is not specified")
         }
         val clazz = getClazz(getTestClassPath, false)
-        if (clazz == null || TestConfigurationUtil.isInvalidSuite(clazz)) {
+        if (clazz == null || AbstractTestRunConfiguration.isInvalidSuite(clazz)) {
           throw new RuntimeConfigurationException("No Suite Class is found for Class %s in module %s".format(getTestClassPath,
             getModule.getName))
         }
@@ -305,7 +306,8 @@ abstract class AbstractTestRunConfiguration(val project: Project,
         buffer.toSeq
       }
       for (cl <- getClasses(pack)) {
-        if (!TestConfigurationUtil.isInvalidSuite(cl) && ScalaPsiUtil.cachedDeepIsInheritor(cl, suiteClass)) classes += cl
+        if (!AbstractTestRunConfiguration.isInvalidSuite(cl) && ScalaPsiUtil.cachedDeepIsInheritor(cl, suiteClass))
+          classes += cl
       }
     }
 
@@ -472,4 +474,31 @@ object AbstractTestRunConfiguration {
     def getRunConfigurationBase: RunConfigurationBase
   }
 
+  protected[test] def isInvalidSuite(clazz: PsiClass): Boolean = {
+    clazz.getModifierList.hasModifierProperty("abstract") || lackNoArgConstructor(clazz)
+  }
+
+  private def lackNoArgConstructor(clazz: PsiClass): Boolean = {
+    clazz match {
+      case c: ScClass =>
+        val constructors = c.secondaryConstructors.filter(_.isConstructor).toList ::: c.constructor.toList
+        for (con <- constructors) {
+          if (con.isConstructor && con.parameterList.getParametersCount == 0) {
+            if (con.isInstanceOf[ScModifierListOwner]) {
+              if (con.asInstanceOf[ScModifierListOwner].hasModifierProperty("public")) return false
+            }
+          }
+        }
+
+      case _ =>
+        for (constructor <- clazz.getConstructors) {
+          if (constructor.isConstructor && constructor.getParameterList.getParametersCount == 0) {
+            if (constructor.isInstanceOf[ScModifierListOwner]) {
+              if (constructor.asInstanceOf[ScModifierListOwner].hasModifierProperty("public")) return false
+            }
+          }
+        }
+    }
+    true
+  }
 }
