@@ -8,13 +8,15 @@ import org.jetbrains.plugins.scala.ScalaFileType
 import com.intellij.psi._
 import impl.PsiManagerEx
 import java.lang.String
-import scope.{NameHint, ElementClassHint, PsiScopeProcessor}
+import scope.PsiScopeProcessor
 import toplevel.synthetic.SyntheticClasses
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.caches.{ScalaShortNamesCacheManager, CachesUtil}
 import org.jetbrains.plugins.scala.extensions.toPsiNamedElementExt
 import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils
-import org.jetbrains.plugins.scala.lang.resolve.processor.{ResolveProcessor, ImplicitProcessor}
+import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, ResolveProcessor, ImplicitProcessor}
+import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
+import org.jetbrains.plugins.scala.lang.psi.types.ScType
 
 /**
  * User: Alexander Podkhalyuzin
@@ -67,15 +69,23 @@ class ScPackageImpl(val pack: PsiPackage) extends PsiPackageImpl(pack.getManager
       }
       if (getQualifiedName == "scala") {
         ImplicitlyImported.implicitlyImportedObject(place.getManager, scope, "scala") match {
-          case Some(obj) =>
-            if (!obj.processDeclarations(processor, state, lastParent, place)) return false
+          case Some(obj: ScObject) =>
+            var newState = state
+            obj.getType(TypingContext.empty).foreach {
+              case tp: ScType => newState = state.put(BaseProcessor.FROM_TYPE_KEY, tp)
+            }
+            if (!obj.processDeclarations(processor, newState, lastParent, place)) return false
           case _ =>
         }
       } else {
         findPackageObject(scope) match {
-          case Some(obj) =>
-            if (!obj.processDeclarations(processor, state, lastParent, place)) return false
-          case None =>
+          case Some(obj: ScObject) =>
+            var newState = state
+            obj.getType(TypingContext.empty).foreach {
+              case tp: ScType => newState = state.put(BaseProcessor.FROM_TYPE_KEY, tp)
+            }
+            if (!obj.processDeclarations(processor, newState, lastParent, place)) return false
+          case _ =>
         }
       }
     }
