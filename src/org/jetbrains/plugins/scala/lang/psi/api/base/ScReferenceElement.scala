@@ -73,9 +73,8 @@ trait ScReferenceElement extends ScalaPsiElement with ResolvableReferenceElement
     element match {
       case td: ScTypeDefinition => {
         resolved match {
-          case method: PsiMethod if method.isConstructor => {
+          case method: PsiMethod if method.isConstructor =>
             if (ScEquivalenceUtil.smartEquivalence(td, method.containingClass)) return true
-          }
           case method: ScFunction if td.name == refName && Set("apply", "unapply", "unapplySeq").contains(method.name) => {
             var break = false
             val methods = td.allMethods
