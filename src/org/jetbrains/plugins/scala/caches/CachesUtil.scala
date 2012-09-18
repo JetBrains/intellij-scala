@@ -18,6 +18,7 @@ import com.intellij.util.containers.ConcurrentHashMap
 import util.{PsiTreeUtil, CachedValuesManager, CachedValueProvider, CachedValue}
 import lang.psi.api.statements.ScFunction
 import scala.util.control.ControlThrowable
+import lang.psi.impl.ScPackageImpl
 
 /**
  * User: Alexander Podkhalyuzin
@@ -101,6 +102,9 @@ object CachesUtil {
         def compute(): CachedValueProvider.Result[Result] = {
           val guard = getRecursionGuard(key.toString)
           if (guard.currentStack().contains(e)) {
+            if (ScPackageImpl.isPackageObjectProcessing) {
+              throw new ScPackageImpl.DoNotProcessPackageObjectException
+            }
             val fun = PsiTreeUtil.getContextOfType(e, true, classOf[ScFunction])
             if (fun == null || fun.isProbablyRecursive) {
               provider.getDependencyItem match {
@@ -213,6 +217,9 @@ object CachesUtil {
       result = {
         val guard = getRecursionGuard(key.toString)
         if (guard.currentStack().contains((e, data))) {
+          if (ScPackageImpl.isPackageObjectProcessing) {
+            throw new ScPackageImpl.DoNotProcessPackageObjectException
+          }
           defaultValue
         } else {
           guard.doPreventingRecursion((e, data), false, new Computable[Result] {
@@ -249,6 +256,9 @@ object CachesUtil {
       result = {
         val guard = getRecursionGuard(key.toString)
         if (guard.currentStack().contains((e, data))) {
+          if (ScPackageImpl.isPackageObjectProcessing) {
+            throw new ScPackageImpl.DoNotProcessPackageObjectException
+          }
           val fun = PsiTreeUtil.getContextOfType(e, true, classOf[ScFunction])
           if (fun == null || fun.isProbablyRecursive) defaultValue
           else {
