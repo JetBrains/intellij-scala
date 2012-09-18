@@ -93,8 +93,7 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
       case _ => false
     }
 
-    getContext match {
-      case _ if completion => stableImportSelector
+    val result = getContext match {
       case _: ScStableCodeReferenceElement => stableQualRef
       case e: ScImportExpr => if (e.selectorSet != None
               //import Class._ is not allowed
@@ -114,6 +113,7 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
       case _ if isInMacroDef => methodsOnly
       case _ => stableQualRef
     }
+    if (completion) result + ResolveTargets.PACKAGE else result
   }
 
   def nameId: PsiElement = findChildByType(ScalaTokenTypes.tIDENTIFIER)
