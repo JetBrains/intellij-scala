@@ -15,4 +15,4 @@ object SCL3470 {
   val r6: Seq[A] = foo(new B, new C) // fail: Seq[ScalaObject] doesn't conform to Seq[A]
   /*start*/(r1, r2, r3, r4, r5, r6)/*end*/
 }
-//(scala.Seq[SCL3470.A], scala.Seq[SCL3470.A], scala.Seq[SCL3470.A], scala.Seq[SCL3470.A], scala.Seq[SCL3470.A], scala.Seq[SCL3470.A])
+//(Seq[SCL3470.A], Seq[SCL3470.A], Seq[SCL3470.A], Seq[SCL3470.A], Seq[SCL3470.A], Seq[SCL3470.A])

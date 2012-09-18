@@ -16,7 +16,7 @@ import refactoring.util.{ScalaNamesUtil, ScTypeUtil}
 
 trait ScTypePresentation {
   def presentableText(t: ScType) = typeText(t, _.name, {
-      case obj: ScObject if obj.qualifiedName == "scala.Predef" => ""
+      case obj: ScObject if Set("scala.Predef", "scala").contains(obj.qualifiedName) => ""
       case pack: PsiPackage => ""
       case e => e.name + "."
     }
