@@ -80,9 +80,6 @@ class ScalaCompletionContributor extends CompletionContributor {
                   case clazz: PsiClass =>
                     import collection.mutable.{HashMap => MHashMap}
                     val renamedMap = new MHashMap[String, (String, PsiNamedElement)]
-                    if (clazz.qualifiedName == "scala.annotation.tailrec") {
-                      "stop here"
-                    }
                     el.isRenamed.foreach(name => renamedMap += ((clazz.name, (name, clazz))))
                     val isExcluded: Boolean = ApplicationManager.getApplication.runReadAction(new Computable[Boolean] {
                       def compute: Boolean = {

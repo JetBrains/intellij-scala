@@ -23,6 +23,8 @@ import psi.impl.ScalaPsiManager
 import scaladoc.psi.api.ScDocResolvableCodeReference
 import extensions.{toPsiNamedElementExt, toPsiClassExt}
 import psi.api.base.types.ScTypeElement
+import psi.stubs.ScImportStmtStub
+import psi.impl.toplevel.imports.ScImportStmtImpl
 
 trait ResolvableStableCodeReferenceElement extends ScStableCodeReferenceElement {
   private object Resolver extends StableCodeReferenceElementResolver(this, false, false, false)
