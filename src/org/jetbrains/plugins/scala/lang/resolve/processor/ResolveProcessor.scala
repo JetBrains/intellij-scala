@@ -15,7 +15,7 @@ import psi.api.expr.{ScSuperReference, ScThisReference}
 import psi.api.statements.ScTypeAlias
 import psi.api.toplevel.templates.ScTemplateBody
 import reflect.NameTransformer
-import psi.api.toplevel.typedef.{ScClass, ScTrait, ScMember, ScObject}
+import psi.api.toplevel.typedef.{ScClass, ScTrait, ScObject}
 import extensions.{toPsiNamedElementExt, toPsiClassExt}
 import com.intellij.psi.search.GlobalSearchScope
 
@@ -150,35 +150,6 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
     while (iterator.hasNext) {
       res += iterator.next()
     }
-    /*
-    This code works in following way:
-    if we found to Types (from types namespace), which import is the same,
-    then type from package object have bigger priority.
-    The same for Values (terms namespace).
-    Actually such behaviour is undefined (spec 9.3), but this code is closer to compiler behaviour.
-     */
-    if (res.size > 1) {
-      val problems = res.filter(r => ScalaPsiUtil.nameContext(r.getActualElement) match {
-        case memb: ScMember =>
-          memb.getContext.isInstanceOf[ScTemplateBody] && memb.containingClass.isInstanceOf[ScObject] &&
-            memb.containingClass.asInstanceOf[ScObject].isPackageObject
-        case _ => false
-      }).map(r => {
-        val elem = r.getActualElement
-        val context = ScalaPsiUtil.nameContext(elem)
-        val pref = context.asInstanceOf[ScMember].containingClass.qualifiedName
-        elem match {
-          case _: ScClass | _: ScTrait | _: ScTypeAlias => "Type:" + pref + "." + elem.name
-          case _ => "Value:" + pref + "." + elem.name
-        }
-      })
-
-      res = res.filter(r => r.getActualElement match {
-        case o: ScObject => !problems.contains("Value:" + o.qualifiedName)
-        case c: PsiClass => !problems.contains("Type:" + c.qualifiedName)
-        case _ => true
-      })
-    } else res
 
     /*
     This is also hack for self type elements to filter duplicates.
