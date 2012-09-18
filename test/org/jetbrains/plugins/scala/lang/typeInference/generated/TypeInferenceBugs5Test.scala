@@ -255,5 +255,7 @@ class TypeInferenceBugs5Test extends TypeInferenceTestBase {
 
   def testSCL4685() {doTest()}
 
+  def testSCL4695() {doTest()}
+
   def testSOE() {doTest()}
 }
