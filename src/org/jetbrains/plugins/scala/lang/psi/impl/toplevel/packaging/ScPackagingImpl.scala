@@ -21,6 +21,9 @@ import tree.TokenSet
 import collection.mutable.ArrayBuffer
 import com.intellij.openapi.project.DumbService
 import caches.ScalaShortNamesCacheManager
+import types.result.TypingContext
+import types.ScType
+import lang.resolve.processor.BaseProcessor
 
 /**
  * @author Alexander Podkhalyuzin, Pavel Fatin
@@ -124,7 +127,11 @@ class ScPackagingImpl extends ScalaStubBasedElementImpl[ScPackageContainer] with
 
     findPackageObject(place.getResolveScope) match {
       case Some(po) =>
-        if (!po.processDeclarations(processor, state, lastParent, place)) return false
+        var newState = state
+        po.getType(TypingContext.empty).foreach {
+          case tp: ScType => newState = state.put(BaseProcessor.FROM_TYPE_KEY, tp)
+        }
+        if (!po.processDeclarations(processor, newState, lastParent, place)) return false
       case _ =>
     }
 
