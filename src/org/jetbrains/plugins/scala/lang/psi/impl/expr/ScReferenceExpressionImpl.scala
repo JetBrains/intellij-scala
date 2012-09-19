@@ -10,7 +10,7 @@ import params.ScParameter
 import resolve._
 import processor.{MethodResolveProcessor, CompletionProcessor}
 import types._
-import nonvalue.{TypeParameter, ScTypePolymorphicType}
+import nonvalue.{ScMethodType, TypeParameter, ScTypePolymorphicType}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
 import com.intellij.lang.ASTNode
@@ -217,7 +217,16 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
           }
         }
         s.subst(fun.polymorphicType(optionResult))
-      case Some(ScalaResolveResult(fun: ScFunction, s)) => s.subst(fun.polymorphicType)
+      case Some(result @ ScalaResolveResult(fun: ScFunction, s)) =>
+        val functionType = s.subst(fun.polymorphicType)
+        if (result.isDynamic) {
+          functionType match {
+            case methodType: ScMethodType => methodType.returnType
+            case it => it
+          }
+        } else {
+          functionType
+        }
       case Some(ScalaResolveResult(param: ScParameter, s)) if param.isRepeatedParameter =>
         val seqClass = ScalaPsiManager.instance(getProject).getCachedClass("scala.collection.Seq", getResolveScope, ScalaPsiManager.ClassCategory.TYPE)
         val result = param.getType(TypingContext.empty)
