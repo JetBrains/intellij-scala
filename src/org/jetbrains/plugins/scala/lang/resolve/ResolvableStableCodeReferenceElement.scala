@@ -9,24 +9,20 @@ import psi.api.toplevel.ScTypedDefinition
 import psi.api.toplevel.templates.{ScTemplateBody, ScExtendsBlock}
 import psi.api.toplevel.typedef.{ScObject, ScTrait, ScTypeDefinition, ScClass}
 import psi.api.toplevel.packaging.ScPackaging
-import psi.ScalaPsiUtil
+import psi.{ScImportsHolder, ScalaPsiUtil}
 import psi.types._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports._
 import com.intellij.psi._
-import com.intellij.psi.impl._
 import com.intellij.psi.PsiElement
 import result.TypingContext
 import com.intellij.openapi.progress.ProgressManager
-import source.resolve.ResolveCache
 import util.{PsiModificationTracker, PsiTreeUtil}
 import caches.CachesUtil
 import psi.api.{ScPackage, ScalaFile}
 import psi.impl.ScalaPsiManager
 import scaladoc.psi.api.ScDocResolvableCodeReference
 import extensions.{toPsiNamedElementExt, toPsiClassExt}
-import psi.api.base.types.{ScTypeElement, ScSimpleTypeElement}
-import psi.impl.toplevel.imports.ScImportStmtImpl
-import psi.stubs.ScImportStmtStub
+import psi.api.base.types.ScTypeElement
 
 trait ResolvableStableCodeReferenceElement extends ScStableCodeReferenceElement {
   private object Resolver extends StableCodeReferenceElementResolver(this, false, false, false)
@@ -36,8 +32,9 @@ trait ResolvableStableCodeReferenceElement extends ScStableCodeReferenceElement 
   private object ShapesResolverAllConstructors extends StableCodeReferenceElementResolver(this, true, true, false)
 
   def multiResolve(incomplete: Boolean): Array[ResolveResult] = {
-    val res: Array[ResolveResult] = ResolveCache.getInstance(getProject).resolveWithCaching(this, Resolver, true, incomplete)
-    res
+//    ResolveCache.getInstance(getProject).resolveWithCaching(this, Resolver, true, incomplete)
+    CachesUtil.getMappedWithRecursionPreventingWithRollback[ResolvableStableCodeReferenceElement, Boolean, Array[ResolveResult]](
+      this, incomplete, CachesUtil.RESOLVE_KEY, Resolver.resolve, Array.empty, PsiModificationTracker.MODIFICATION_COUNT)
   }
 
   protected def processQualifierResolveResult(res: ResolveResult, processor: BaseProcessor, ref: ScStableCodeReferenceElement) {
@@ -71,6 +68,21 @@ trait ResolvableStableCodeReferenceElement extends ScStableCodeReferenceElement 
 
   def doResolve(ref: ScStableCodeReferenceElement, processor: BaseProcessor,
                 accessibilityCheck: Boolean = true): Array[ResolveResult] = {
+    val importStmt = PsiTreeUtil.getContextOfType(ref, true, classOf[ScImportStmt])
+    if (importStmt != null) {
+      val importHolder = PsiTreeUtil.getContextOfType(importStmt, true, classOf[ScImportsHolder])
+      if (importHolder != null) {
+        importHolder.getImportStatements.takeWhile(_ != importStmt).foreach {
+          case stmt: ScImportStmt =>
+            stmt.importExprs.foreach {
+              case expr: ScImportExpr => expr.reference match {
+                case Some(ref) => ref.resolve()
+                case None => expr.qualifier.resolve()
+              }
+            }
+        }
+      }
+    }
     if (!accessibilityCheck) processor.doNotCheckAccessibility()
     var x = false
     //performance improvement

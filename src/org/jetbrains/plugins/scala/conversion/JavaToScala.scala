@@ -267,14 +267,14 @@ object JavaToScala {
         p.getOperationTokenType match {
           case JavaTokenType.PLUSPLUS => {
             if (!canBeSimpified(p)) {
-              res.append("({i += 1; i - 1})".replace("i", convertPsiToText(p.getOperand)))
+              res.append("({i += 1; i})".replace("i", convertPsiToText(p.getOperand)))
             } else {
               res.append(convertPsiToText(p.getOperand)).append(" += 1")
             }
           }
           case JavaTokenType.MINUSMINUS => {
             if (!canBeSimpified(p)) {
-              res.append("({i -= 1; i + 1})".replace("i", convertPsiToText(p.getOperand)))
+              res.append("({i -= 1; i})".replace("i", convertPsiToText(p.getOperand)))
             } else {
               res.append(convertPsiToText(p.getOperand)).append(" -= 1")
             }
@@ -288,14 +288,14 @@ object JavaToScala {
         p.getOperationTokenType match {
           case JavaTokenType.PLUSPLUS => {
             if (!canBeSimpified(p)) {
-              res.append("({i += 1; i})".replace("i", convertPsiToText(p.getOperand)))
+              res.append("({i += 1; i - 1})".replace("i", convertPsiToText(p.getOperand)))
             } else {
               res.append(convertPsiToText(p.getOperand)).append(" += 1")
             }
           }
           case JavaTokenType.MINUSMINUS => {
             if (!canBeSimpified(p)) {
-              res.append("({i -= 1; i})".replace("i", convertPsiToText(p.getOperand)))
+              res.append("({i -= 1; i + 1})".replace("i", convertPsiToText(p.getOperand)))
             } else {
               res.append(convertPsiToText(p.getOperand)).append(" -= 1")
             }

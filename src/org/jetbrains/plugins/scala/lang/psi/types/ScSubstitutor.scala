@@ -403,7 +403,9 @@ class ScUndefinedSubstitutor(val upperMap: Map[(String, String), Seq[ScType]], v
                 }
                 true
               }
-              for (p <- seq) {
+              val seqIterator = seq.iterator
+              while (seqIterator.hasNext) {
+                val p = seqIterator.next()
                 if (!checkRecursive(p)) {
                   tvMap += ((name, Nothing))
                   return None
@@ -451,7 +453,9 @@ class ScUndefinedSubstitutor(val upperMap: Map[(String, String), Seq[ScType]], v
                 }
                 true
               }
-              for (p <- seq) {
+              val seqIterator = seq.iterator
+              while (seqIterator.hasNext) {
+                val p = seqIterator.next()
                 if (!checkRecursive(p)) {
                   tvMap += ((name, Nothing))
                   return None
@@ -470,7 +474,9 @@ class ScUndefinedSubstitutor(val upperMap: Map[(String, String), Seq[ScType]], v
                 tvMap.get(name) match {
                   case Some(lower) =>
                     if (!notNonable) {
-                      for (upper <- seq) {
+                      val seqIterator = seq.iterator
+                      while (seqIterator.hasNext) {
+                        val upper = seqIterator.next()
                         if (!lower.conforms(subst.subst(upper))) {
                           return None
                         }

@@ -22,6 +22,7 @@
   <property name="scala.lib" value="${base.dir}/SDK/scala"/>
 
   <property name="runners.dir" value="${base.dir}/Runners"/>
+  <property name="scalarunner.dir" value="${base.dir}/ScalaRunner"/>
 
   <property name="compiled.dest" value="${base.dir}/classes/"/>
   <property name="production.dest" location="${compiled.dest}/production/"/>
@@ -33,6 +34,7 @@
   <property name="jdk.lib" value="${java.home}/lib"/>
   <property name="tools.jar" value="${java.home}/lib/tools.jar"/>
   <property name="scala.aux.lib" value="${base.dir}/SDK/lib"/>
+  <property name="scala.runners.lib" value="${base.dir}/SDK/runners-lib"/>
 
   <property name="test.dist" value="${basedir}/test_dist"/>
 
@@ -89,6 +91,16 @@
     <pathelement location="${scalap.jar}"/>
   </path>
 
+  <path id="runners.path">
+    <fileset dir="${scala.runners.lib}">
+       <include name="**/*.jar"/>
+    </fileset>
+    <fileset dir="${scala.lib}">
+        <include name="**/*.jar"/>
+        <exclude name="**/scala-actors*.jar"/>
+    </fileset>
+  </path>
+
   <target name="clear.all" description="Clears results">
     <mkdir dir="${compiled.dest}"/>
     <delete includeemptydirs="true">
@@ -133,15 +145,7 @@
     <!--logging="debug"-->
     <!--scalacdebugging="yes"-->
 
-    <javac srcdir="${base.dir}"
-            destdir="${runners.dest}"
-            target="1.5"
-            debug="true">
-      <classpath refid="base.path"/>
-      <include name="Runners/src/**/*.java"/>
-    </javac>
-
-    <!--Scalac 2.8 taskdef-->
+    <!--Scalac taskdef-->
     <taskdef resource="scala/tools/ant/antlib.xml">
       <classpath>
         <pathelement location="${scala.lib}/scala-compiler.jar"/>
@@ -150,10 +154,30 @@
       </classpath>
     </taskdef>
 
+    <scalac srcdir="${scalarunner.dir}"
+            destdir="${runners.dest}"
+            force="changed"
+            jvmargs="-Xmx1024M -Xms768M -Xss1024k -server">
+        <classpath>
+            <path refid="runners.path"/>
+        </classpath>
+        <include name="src/**/*.scala"/>
+    </scalac>
+
+    <javac srcdir="${base.dir}"
+           destdir="${runners.dest}"
+           target="1.5"
+           debug="true">
+      <classpath>
+        <path refid="runners.path"/>
+        <path location="${runners.dest}"/>
+      </classpath>
+      <include name="Runners/src/**/*.java"/>
+    </javac>
+
     <scalac srcdir="${base.dir}"
             destdir="${main.dest}"
             force="changed"
-            fork="true"
             jvmargs="-Xmx1024M -Xms768M -Xss1024k -server">
       <classpath>
         <path  refid="base.path"/>

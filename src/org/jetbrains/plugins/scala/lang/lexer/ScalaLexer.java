@@ -191,7 +191,7 @@ public class ScalaLexer extends Lexer {
         if (myLayeredTagStack.peek().isEmpty() && checkNotNextXmlBegin(myCurrentLexer)) {
           myLayeredTagStack.pop();
           locateTextRange();
-          startScalaPlainLexer(start + 2);
+          startScalaPlainLexer(start + 3);
           myTokenType = XML_COMMENT_END;
           return;
         }
@@ -202,7 +202,7 @@ public class ScalaLexer extends Lexer {
         if (myLayeredTagStack.peek().isEmpty() && checkNotNextXmlBegin(myCurrentLexer)) {
           myLayeredTagStack.pop();
           locateTextRange();
-          startScalaPlainLexer(start + 2);
+          startScalaPlainLexer(start + 3);
           myTokenType = XML_CDATA_END;
           return;
         }
