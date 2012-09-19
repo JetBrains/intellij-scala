@@ -10,6 +10,9 @@ import config.Libraries
 import com.intellij.openapi.components.ProjectComponent
 import com.intellij.openapi.projectRoots.JavaSdkType
 import java.net.InetAddress
+import com.intellij.compiler.impl.CompilerUtil
+import java.util
+import collection.JavaConverters._
 
 /**
  * Pavel Fatin
@@ -41,8 +44,8 @@ class CompileServerLauncher(project: Project) extends ProjectComponent {
     val settings = ScalacSettings.getInstance(project)
 
     val xmx = if (settings.MAXIMUM_HEAP_SIZE.isEmpty) Nil else List("-Xmx%sm".format(settings.MAXIMUM_HEAP_SIZE))
-    val vmParameters = xmx ::: settings.VM_PARAMETERS.split(" ").toList
-    
+    val vmParameters = localeOptions.toList ::: xmx ::: settings.VM_PARAMETERS.split(" ").toList
+
     val environment = toEnvironment(project)
     val reportsPort: Boolean = environment.compilerVersion.startsWith("2.9")
 
@@ -55,6 +58,12 @@ class CompileServerLauncher(project: Project) extends ProjectComponent {
     instance = Some(ServerInstance(environment, process, port))
 
     watcher.watch(process)
+  }
+
+  private def localeOptions: Seq[String] = {
+    val list = new util.LinkedList[String]()
+    CompilerUtil.addLocaleOptions(list, false)
+    list.asScala
   }
 
   def stop() {
