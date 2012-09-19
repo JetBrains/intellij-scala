@@ -72,10 +72,14 @@ class ScalaFoldingBuilder extends FoldingBuilder {
           descriptors += (new FoldingDescriptor(node, node.getTextRange))
         case p: ScArgumentExprList =>
           descriptors += (new FoldingDescriptor(node, node.getTextRange))
+        case _: ScBlockExpr
+          if (ScalaCodeFoldingSettings.getInstance().isFoldingForAllBlocks) =>
+          descriptors += new FoldingDescriptor(node, node.getTextRange)
         case _ =>
       }
       val treeParent: ASTNode = node.getTreeParent
-      if (treeParent != null && (treeParent.getPsi.isInstanceOf[ScArgumentExprList] ||
+      if (!ScalaCodeFoldingSettings.getInstance().isFoldingForAllBlocks &&
+        treeParent != null && (treeParent.getPsi.isInstanceOf[ScArgumentExprList] ||
         treeParent.getPsi.isInstanceOf[ScPatternDefinition] ||
         treeParent.getPsi.isInstanceOf[ScVariableDefinition] ||
         treeParent.getPsi.isInstanceOf[ScForStatement] ||

@@ -33,6 +33,7 @@ public class ScalaCodeFoldingSettings implements PersistentStateComponent<ScalaC
   private boolean FOLD_MULTILINE_STRING = false;
   private boolean FOLD_CUSTOM_REGION = false;
   private boolean FOLD_MULTILINE_BLOCKS = false;
+  private boolean ADD_FOLDING_FOR_ALL_BLOCKS = false;
 
   public static ScalaCodeFoldingSettings getInstance() {
     return ServiceManager.getService(ScalaCodeFoldingSettings.class);
@@ -158,6 +159,14 @@ public class ScalaCodeFoldingSettings implements PersistentStateComponent<ScalaC
 
   public void setCollapseMultilineBlocks(boolean value) {
     FOLD_MULTILINE_BLOCKS = value;
+  }
+
+  public boolean isFoldingForAllBlocks() {
+    return ADD_FOLDING_FOR_ALL_BLOCKS;
+  }
+
+  public void setFoldingForAllBlocks(boolean value) {
+    ADD_FOLDING_FOR_ALL_BLOCKS = value;
   }
 
   public boolean isCollapseI18nMessages() {
