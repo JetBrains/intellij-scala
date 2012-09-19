@@ -15,6 +15,8 @@ public class ScalaCodeFoldingOptionsProvider extends BeanConfigurable<ScalaCodeF
 
   public ScalaCodeFoldingOptionsProvider() {
     super(ScalaCodeFoldingSettings.getInstance());
+    checkBox("FoldingForAllBlocks", EditorBundle.message("checkbox.add.folding.for.all.blocks"));
+
     checkBox("CollapseShellComments", EditorBundle.message("checkbox.collapse.shell.comments"));
     checkBox("CollapseBlockComments", EditorBundle.message("checkbox.collapse.block.comments"));
     checkBox("CollapseMethodCallBodies", EditorBundle.message("checkbox.collapse.method.call.bodies"));
