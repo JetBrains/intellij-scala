@@ -153,7 +153,7 @@ trait ApplicationAnnotator {
     call.getEffectiveInvokedExpr match {
       case ref: ScReferenceElement =>
         ref.bind() match {
-          case Some(r) if r.notCheckedResolveResult => //it's unhandled case
+          case Some(r) if r.notCheckedResolveResult || r.isDynamic => //it's unhandled case
           case _ => return //it's definetely handled case
         }
       case _ => //unhandled case (only ref expressions was checked)
