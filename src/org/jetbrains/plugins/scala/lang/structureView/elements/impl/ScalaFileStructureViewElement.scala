@@ -7,24 +7,28 @@ package impl
 import com.intellij.ide.util.treeView.smartTree.TreeElement
 import psi.api.ScalaFile
 import com.intellij.navigation.ItemPresentation
-import psi.api.statements.{ScFunction, ScValue, ScTypeAlias, ScVariable};
+import psi.api.statements.{ScFunction, ScValue, ScTypeAlias, ScVariable}
 import org.jetbrains.plugins.scala.lang.structureView.itemsPresentations.impl._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import _root_.scala.collection.mutable._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging._
+import console.ScalaLanguageConsole
+import psi.impl.ScalaPsiElementFactory
+import collection.mutable
 
 /**
 * @author Alexander Podkhalyuzin
 * Date: 04.05.2008
 */
-class ScalaFileStructureViewElement(file: ScalaFile) extends ScalaStructureViewElement(file, false) {
+class ScalaFileStructureViewElement(file: ScalaFile, private val console: ScalaLanguageConsole = null)
+  extends ScalaStructureViewElement(file, false) {
   def getPresentation: ItemPresentation = {
-    new ScalaFileItemPresentation(file);
+    new ScalaFileItemPresentation(findRightFile())
   }
 
   def getChildren: Array[TreeElement] = {
     val children = new ArrayBuffer[ScalaStructureViewElement]
-    for (child <- file.getChildren) {
+    for (child <- findRightFile().getChildren) {
       child match {
         case td: ScTypeDefinition => {
           children += new ScalaTypeDefinitionStructureViewElement(td)
@@ -60,5 +64,17 @@ class ScalaFileStructureViewElement(file: ScalaFile) extends ScalaStructureViewE
       }
     }
     children.toArray
+  }
+
+  private def findRightFile(): ScalaFile =  {
+    if (console != null) {
+      val buffer = new mutable.StringBuilder
+      buffer.append(console.getHistory)
+      buffer.append(file.getText)
+      val newFile = ScalaPsiElementFactory.createScalaFile(buffer.toString(), file.getManager)
+      newFile
+    } else {
+      file
+    }
   }
 }

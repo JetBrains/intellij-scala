@@ -4,7 +4,6 @@ package structureView
 package itemsPresentations
 package impl
 
-import psi._
 import psi.api.ScalaFile
 
 /**
@@ -13,7 +12,7 @@ import psi.api.ScalaFile
 */
 
 class ScalaFileItemPresentation(private val element: ScalaFile) extends ScalaItemPresentation(element) {
-  def getPresentableText(): String = {      
-    return ScalaElementPresentation.getFilePresentableText(myElement.asInstanceOf[ScalaFile])
+  def getPresentableText: String = {
+    ScalaElementPresentation.getFilePresentableText(myElement.asInstanceOf[ScalaFile])
   }
 }
