@@ -6,4 +6,4 @@ object Main {
       /*start*/stuff/*end*/
   }
 }
-//scala.Seq[String]
+//Seq[String]

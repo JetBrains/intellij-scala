@@ -28,6 +28,7 @@ import params.ScClassParameter
 import types.ScType
 import extensions.toPsiMemberExt
 import collection.mutable
+import lang.resolve.processor.BaseProcessor
 
 /**
  * @author Alexander Podkhalyuzin
@@ -106,10 +107,11 @@ class ScObjectImpl extends ScTypeDefinitionImpl with ScObject with ScTemplateDef
     if (DumbServiceImpl.getInstance(getProject).isDumb) return true
     if (!super[ScTemplateDefinition].processDeclarationsForTemplateBody(processor, state, lastParent, place)) return false
     if (isPackageObject && name != "`package`") {
+      val newState = state.put(BaseProcessor.FROM_TYPE_KEY, null)
       val qual = qualifiedName
       val facade = JavaPsiFacade.getInstance(getProject)
       val pack = facade.findPackage(qual) //do not wrap into ScPackage to avoid SOE
-      if (pack != null && !ResolveUtils.packageProcessDeclarations(pack, processor, state, lastParent, place))
+      if (pack != null && !ResolveUtils.packageProcessDeclarations(pack, processor, newState, lastParent, place))
         return false
     }
     true

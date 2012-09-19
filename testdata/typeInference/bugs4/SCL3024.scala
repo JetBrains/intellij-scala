@@ -7,4 +7,4 @@ object FunctionTypes {
         val f = a foo {v => List(1)}
         /*start*/f/*end*/
 }
-//(String) => scala.List[Int]
+//(String) => List[Int]

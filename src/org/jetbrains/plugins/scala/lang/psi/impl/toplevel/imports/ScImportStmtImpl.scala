@@ -16,16 +16,18 @@ import psi.stubs.ScImportStmtStub
 import usages._
 import com.intellij.openapi.progress.ProgressManager
 import lang.resolve.processor._
-import api.toplevel.typedef.ScTemplateDefinition
+import api.toplevel.typedef.{ScObject, ScTypeDefinition, ScTemplateDefinition}
 import collection.immutable.Set
 import base.types.ScSimpleTypeElementImpl
 import api.base.ScStableCodeReferenceElement
-import types.result.Failure
+import types.result.{TypingContext, Failure}
 import types.{ScSubstitutor, ScDesignatorType}
 import org.jetbrains.plugins.scala.extensions._
 import settings.ScalaProjectSettings
 import lang.resolve.{StdKinds, ScalaResolveResult}
 import completion.ScalaCompletionUtil
+import caches.ScalaShortNamesCacheManager
+import util.PsiTreeUtil
 
 /**
  * @author Alexander Podkhalyuzin
@@ -78,11 +80,26 @@ class ScImportStmtImpl extends ScalaStubBasedElementImpl[ScImportStmt] with ScIm
           case None if importExpr.singleWildcard => ref
           case None => ref.qualifier.getOrElse(return true)
         }
+        val resolve: Array[ResolveResult] = ref.multiResolve(false)
         val refType = exprQual.bind() match {
-          case Some(ScalaResolveResult(p: PsiPackage, _)) => Failure("no failure", Some(this))
+          case Some(ScalaResolveResult(p: PsiPackage, _)) =>
+            resolve.find {
+              case ScalaResolveResult(elem, _) =>
+                PsiTreeUtil.getContextOfType(elem, true, classOf[ScTypeDefinition]) match {
+                  case obj: ScObject if obj.isPackageObject => true
+                  case _ => false
+                }
+              case _ => false
+            } match {
+              case Some(_) =>
+                val po = ScalaShortNamesCacheManager.getInstance(getProject).getPackageObjectByName(p.getQualifiedName, getResolveScope)
+                if (po != null) {
+                  po.getType(TypingContext.empty)
+                } else Failure("no failure", Some(this))
+              case _ => Failure("no failure", Some(this))
+            }
           case _ => ScSimpleTypeElementImpl.calculateReferenceType(exprQual, shapesOnly = false)
         }
-        val resolve: Array[ResolveResult] = ref.multiResolve(false)
         val resolveIterator = resolve.iterator
         while (resolveIterator.hasNext) {
           val (elem, importsUsed, s) = resolveIterator.next() match {

@@ -15,30 +15,17 @@
 
 package org.jetbrains.plugins.scala;
 
-import com.intellij.codeHighlighting.Pass;
-import com.intellij.codeHighlighting.TextEditorHighlightingPassRegistrar;
-import com.intellij.codeInsight.editorActions.SelectWordUtil;
-import com.intellij.codeInsight.editorActions.TypedHandler;
 import com.intellij.debugger.DebuggerManager;
-import com.intellij.debugger.PositionManager;
-import com.intellij.debugger.engine.DebugProcess;
+import com.intellij.debugger.settings.NodeRendererSettings;
 import com.intellij.openapi.compiler.CompilerManager;
 import com.intellij.openapi.components.ApplicationComponent;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.project.ProjectManager;
 import com.intellij.openapi.project.ProjectManagerAdapter;
-import com.intellij.psi.impl.source.tree.ChangeUtil;
-import com.intellij.util.Function;
 import com.intellij.util.containers.HashSet;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.plugins.scala.codeInspection.unusedInspections.ScalaUnusedImportsPassFactory;
-import org.jetbrains.plugins.scala.codeInspection.unusedInspections.ScalaUnusedSymbolPassFactory;
 import org.jetbrains.plugins.scala.debugger.ScalaJVMNameMapper;
-import org.jetbrains.plugins.scala.debugger.ScalaPositionManager;
-import org.jetbrains.plugins.scala.editor.selectioner.ScalaLiteralSelectioner;
-import org.jetbrains.plugins.scala.editor.selectioner.ScalaWordSelectioner;
-import org.jetbrains.plugins.scala.lang.editor.ScalaQuoteHandler;
-import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaChangeUtilSupport;
+import org.jetbrains.plugins.scala.debugger.ui.ListLikeCollectionNodeRenderer;
 
 import java.util.Set;
 
@@ -72,7 +59,7 @@ public class ScalaLoader implements ApplicationComponent {
         compilerManager.addCompilableFileType(ScalaFileType.SCALA_FILE_TYPE);
 
         DebuggerManager.getInstance(project).addClassNameMapper(new ScalaJVMNameMapper());
-
+        NodeRendererSettings.getInstance().addPluginRenderer(new ListLikeCollectionNodeRenderer());
       }
     });
 
