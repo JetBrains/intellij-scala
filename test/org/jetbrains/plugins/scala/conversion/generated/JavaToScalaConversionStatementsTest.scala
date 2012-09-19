@@ -19,6 +19,8 @@ class JavaToScalaConversionStatementsTest extends JavaToScalaConversionTestBase 
 
   def testIfStatement = doTest
 
+  def testIncrement = doTest
+
   def testOnlyIf = doTest
 
   def testPolyadic = doTest
