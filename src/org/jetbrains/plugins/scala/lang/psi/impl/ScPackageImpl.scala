@@ -8,13 +8,16 @@ import org.jetbrains.plugins.scala.ScalaFileType
 import com.intellij.psi._
 import impl.PsiManagerEx
 import java.lang.String
-import scope.{NameHint, ElementClassHint, PsiScopeProcessor}
+import scope.PsiScopeProcessor
 import toplevel.synthetic.SyntheticClasses
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.caches.{ScalaShortNamesCacheManager, CachesUtil}
 import org.jetbrains.plugins.scala.extensions.toPsiNamedElementExt
 import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils
-import org.jetbrains.plugins.scala.lang.resolve.processor.{ResolveProcessor, ImplicitProcessor}
+import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, ResolveProcessor, ImplicitProcessor}
+import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
+import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import scala.util.control.ControlThrowable
 
 /**
  * User: Alexander Podkhalyuzin
@@ -67,46 +70,33 @@ class ScPackageImpl(val pack: PsiPackage) extends PsiPackageImpl(pack.getManager
       }
       if (getQualifiedName == "scala") {
         ImplicitlyImported.implicitlyImportedObject(place.getManager, scope, "scala") match {
-          case Some(obj) =>
-            if (!obj.processDeclarations(processor, state, lastParent, place)) return false
+          case Some(obj: ScObject) =>
+            var newState = state
+            obj.getType(TypingContext.empty).foreach {
+              case tp: ScType => newState = state.put(BaseProcessor.FROM_TYPE_KEY, tp)
+            }
+            if (!obj.processDeclarations(processor, newState, lastParent, place)) return false
           case _ =>
         }
       } else {
         findPackageObject(scope) match {
-          case Some(obj) =>
-            if (!obj.processDeclarations(processor, state, lastParent, place)) return false
-          case None =>
+          case Some(obj: ScObject) =>
+            var newState = state
+            obj.getType(TypingContext.empty).foreach {
+              case tp: ScType => newState = state.put(BaseProcessor.FROM_TYPE_KEY, tp)
+            }
+            import ScPackageImpl._
+            startPackageObjectProcessing()
+            try {
+            if (!obj.processDeclarations(processor, newState, lastParent, place)) return false
+            } catch {
+              case ignore: DoNotProcessPackageObjectException => //do nothing, just let's move on
+            } finally {
+              stopPackageObjectProcessing()
+            }
+          case _ =>
         }
       }
-    }
-    true
-  }
-
-  private def findSubPackageByName(name: String): PsiPackage = {
-    val qName: String = getQualifiedName
-    val subpackageQName: String = if (qName.length > 0) qName + "." + name else name
-    val aPackage: PsiPackage = JavaPsiFacade.getInstance(getProject).findPackage(subpackageQName)
-    if (aPackage == null) return null
-    aPackage
-  }
-
-  private def findClassesByName(name: String, scope: GlobalSearchScope): Array[PsiClass] = {
-    val qName: String = getQualifiedName
-    val classQName: String = if (qName.length > 0) qName + "." + name else name
-    ScalaPsiManager.instance(getProject).getCachedClasses(scope, classQName)
-  }
-
-  private def processClassesByName(processor: PsiScopeProcessor, state: ResolveState, place: PsiElement,
-                                   scope: GlobalSearchScope, className: String): Boolean = {
-    val classes: Array[PsiClass] = findClassesByName(className, scope)
-    !processClasses(processor, state, classes)
-  }
-
-  private def processClasses(processor: PsiScopeProcessor, state: ResolveState, classes: Array[PsiClass]): Boolean = {
-    val iter = classes.iterator
-    while (iter.hasNext) {
-      val aClass = iter.next()
-      if (!processor.execute(aClass, state)) return false
     }
     true
   }
@@ -153,5 +143,23 @@ object ScPackageImpl {
 
   def findPackage(project: Project, pName: String) = {
     ScPackageImpl(JavaPsiFacade.getInstance(project).findPackage(pName))
+  }
+
+  class DoNotProcessPackageObjectException extends ControlThrowable
+
+  def isPackageObjectProcessing: Boolean = {
+    processing.get() > 0
+  }
+
+  def startPackageObjectProcessing() {
+    processing.set(processing.get() + 1)
+  }
+
+  def stopPackageObjectProcessing() {
+    processing.set(processing.get() - 1)
+  }
+
+  private val processing: ThreadLocal[Long] = new ThreadLocal[Long] {
+    override def initialValue(): Long = 0
   }
 }

@@ -1,11 +1,8 @@
 package org.jetbrains.plugins.scala.annotator
 
 import org.jetbrains.plugins.scala.base.SimpleTestCase
-import org.intellij.lang.annotations.Language
-import org.jetbrains.plugins.scala.extensions._
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaRecursiveElementVisitor
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScEarlyDefinitions
@@ -64,6 +61,23 @@ class OverridingAnnotatorTest extends SimpleTestCase {
         |}
       """.stripMargin)) {
       case List(Error(something, "Value 'something' needs override modifier")) =>
+    }
+  }
+
+  def testNotConcreteMember() {
+    assertMatches(messages(
+      """
+        |object ppp {
+        |class Base {
+        |  def foo() = 1
+        |}
+        |
+        |abstract class Derived extends Base {
+        |  def foo(): Int
+        |}
+        |}
+      """.stripMargin)) {
+      case Nil =>
     }
   }
 

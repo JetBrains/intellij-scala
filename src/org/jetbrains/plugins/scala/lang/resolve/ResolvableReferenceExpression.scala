@@ -28,6 +28,8 @@ import extensions.toPsiNamedElementExt
 import psi.api.toplevel.typedef.ScTemplateDefinition
 import annotation.tailrec
 import annotation.tailrec
+import psi.impl.{ScalaPsiElementFactory, ScalaPsiManager}
+import extensions._
 
 trait ResolvableReferenceExpression extends ScReferenceExpression {
   private object Resolver extends ReferenceExpressionResolver(false)
@@ -70,16 +72,20 @@ trait ResolvableReferenceExpression extends ScReferenceExpression {
   def doResolve(ref: ResolvableReferenceExpression, processor: BaseProcessor,
                 accessibilityCheck: Boolean = true): Array[ResolveResult] = {
     if (!accessibilityCheck) processor.doNotCheckAccessibility()
-    ref.qualifier match {
-      case None => resolveUnqalified(ref, processor)
-      case Some(superQ : ScSuperReference) => ResolveUtils.processSuperReference(superQ, processor, this)
-      case Some(q) => processTypes(q, processor)
+    val actualProcessor = ref.qualifier match {
+      case None =>
+        resolveUnqalified(ref, processor)
+        processor
+      case Some(superQ : ScSuperReference) =>
+        ResolveUtils.processSuperReference(superQ, processor, this)
+        processor
+      case Some(q) =>
+        processTypes(q, processor)
     }
-    val res = processor.rrcandidates
+    val res = actualProcessor.rrcandidates
     if (accessibilityCheck && res.length == 0) return doResolve(ref, processor, accessibilityCheck = false)
     res
   }
-
   private def resolveUnqalified(ref: ResolvableReferenceExpression, processor: BaseProcessor) {
     ref.getContext match {
       case inf: ScInfixExpr if ref == inf.operation => {
@@ -302,7 +308,7 @@ trait ResolvableReferenceExpression extends ScReferenceExpression {
     }
   }
 
-  private def processTypes(e: ScExpression, processor: BaseProcessor) {
+  private def processTypes(e: ScExpression, processor: BaseProcessor): BaseProcessor = {
     ProgressManager.checkCanceled()
     //first of all, try nonValueType.internalType
     val nonValueType = e.getNonValueType(TypingContext.empty)
@@ -310,17 +316,19 @@ trait ResolvableReferenceExpression extends ScReferenceExpression {
       case Success(ScTypePolymorphicType(internal, tp), _) if !tp.isEmpty &&
         !internal.isInstanceOf[ScMethodType] && !internal.isInstanceOf[ScUndefinedType] /* optimization */ =>
         processType(internal, e, processor)
-        if (!processor.candidates.isEmpty) return
+        if (!processor.candidates.isEmpty) return processor
       case _ =>
     }
     //if it's ordinar case
     val result = e.getType(TypingContext.empty)
     if (result.isDefined) {
       processType(result.get, e, processor)
+    } else {
+      processor
     }
   }
 
-  private def processType(aType: ScType, e: ScExpression, processor: BaseProcessor) {
+  private def processType(aType: ScType, e: ScExpression, processor: BaseProcessor): BaseProcessor = {
     val shape = processor match {
       case m: MethodResolveProcessor => m.isShapeResolve
       case _ => false
@@ -343,8 +351,8 @@ trait ResolvableReferenceExpression extends ScReferenceExpression {
     val candidates = processor.candidatesS
 
     aType match {
-      case d: ScDesignatorType if d.isStatic => return
-      case ScDesignatorType(p: PsiPackage) => return
+      case d: ScDesignatorType if d.isStatic => return processor
+      case ScDesignatorType(p: PsiPackage) => return processor
       case _ =>
     }
 
@@ -358,6 +366,40 @@ trait ResolvableReferenceExpression extends ScReferenceExpression {
       }
       val noImplicitsForArgs = candidates.size > 0
       collectImplicits(e, processor, noImplicitsForArgs)
+
+      if (processor.candidates.length == 0)
+        return processDynamic(fromType, e, processor)
+    }
+
+    processor
+  }
+
+  private def processDynamic(aType: ScType, e: ScExpression, baseProcessor: BaseProcessor): BaseProcessor = {
+    val dynamicType = {
+      val cachedClass = ScalaPsiManager.instance(getProject).getCachedClass(getResolveScope, "scala.Dynamic")
+      ScDesignatorType(cachedClass)
+    }
+
+    if (aType.conforms(dynamicType)) {
+      baseProcessor match {
+        case mrp: MethodResolveProcessor =>
+          val callOption = e.contexts.toStream.lift(1).flatMap(_.asOptionOf[MethodInvocation])
+          val argumentExpressions = callOption.map(_.argumentExpressions)
+          val emptyStringExpression = ScalaPsiElementFactory.createExpressionFromText("\"\"", e.getManager)
+          val name = if (callOption.isDefined) "applyDynamic" else "selectDynamic"
+
+          val newProcessor = new MethodResolveProcessor(e, name , List(List(emptyStringExpression),
+            argumentExpressions.getOrElse(Seq.empty)), mrp.typeArgElements, mrp.prevTypeInfo, mrp.kinds, mrp.expectedOption,
+            mrp.isUnderscore, mrp.isShapeResolve, mrp.constructorResolve, mrp.noImplicitsForArgs,
+            mrp.enableTupling, mrp.selfConstructorResolve, isDynamic = true)
+
+          newProcessor.processType(aType, e, ResolveState.initial.put(BaseProcessor.FROM_TYPE_KEY, aType))
+
+          newProcessor
+        case _ => baseProcessor
+      }
+    } else {
+      baseProcessor
     }
   }
 

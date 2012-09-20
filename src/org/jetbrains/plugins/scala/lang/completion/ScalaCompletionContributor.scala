@@ -32,7 +32,8 @@ import psi.api.base.{ScStableCodeReferenceElement, ScReferenceElement}
 import com.intellij.patterns.PlatformPatterns._
 import org.jetbrains.plugins.scala.lang.completion.ScalaAfterNewCompletionUtil._
 import psi.api.toplevel.typedef.ScTemplateDefinition
-import extensions.{toPsiClassExt, toPsiNamedElementExt}
+import extensions.toPsiNamedElementExt
+import scaladoc.lexer.ScalaDocTokenType
 
 /**
  * @author Alexander Podkhalyuzin
@@ -40,8 +41,11 @@ import extensions.{toPsiClassExt, toPsiNamedElementExt}
  */
 
 class ScalaCompletionContributor extends CompletionContributor {
-  extend(CompletionType.BASIC, PlatformPatterns.psiElement(ScalaTokenTypes.tIDENTIFIER), new CompletionProvider[CompletionParameters] {
+  extend(CompletionType.BASIC, PlatformPatterns.psiElement(), new CompletionProvider[CompletionParameters] {
     def addCompletions(parameters: CompletionParameters, context: ProcessingContext, result: CompletionResultSet) {
+      val elementType = parameters.getPosition.getNode.getElementType
+      if (elementType != ScalaTokenTypes.tIDENTIFIER &&
+          elementType != ScalaDocTokenType.DOC_TAG_VALUE_TOKEN) return
       result.restartCompletionWhenNothingMatches()
       val expectedTypesAfterNew: Array[ScType] =
       if (afterNewPattern.accepts(parameters.getPosition, context)) {
@@ -76,9 +80,6 @@ class ScalaCompletionContributor extends CompletionContributor {
                   case clazz: PsiClass =>
                     import collection.mutable.{HashMap => MHashMap}
                     val renamedMap = new MHashMap[String, (String, PsiNamedElement)]
-                    if (clazz.qualifiedName == "scala.annotation.tailrec") {
-                      "stop here"
-                    }
                     el.isRenamed.foreach(name => renamedMap += ((clazz.name, (name, clazz))))
                     val isExcluded: Boolean = ApplicationManager.getApplication.runReadAction(new Computable[Boolean] {
                       def compute: Boolean = {
@@ -168,6 +169,7 @@ class ScalaCompletionContributor extends CompletionContributor {
         }
         case _ =>
       }
+      if (elementType == ScalaDocTokenType.DOC_TAG_VALUE_TOKEN) result.stopHere()
     }
   })
 

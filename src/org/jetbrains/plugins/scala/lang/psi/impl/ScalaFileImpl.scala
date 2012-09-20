@@ -18,7 +18,6 @@ import psi.api.toplevel.packaging._
 import com.intellij.openapi.roots._
 import com.intellij.psi._
 import com.intellij.psi.impl.migration.PsiMigrationManager
-import com.intellij.psi.impl.source.codeStyle.CodeEditUtil
 import org.jetbrains.annotations.Nullable
 import api.toplevel.ScToplevelElement
 import com.intellij.openapi.progress.ProgressManager
@@ -30,24 +29,23 @@ import scope.PsiScopeProcessor
 import decompiler.{DecompilerUtil, CompiledFileAdjuster}
 import collection.mutable.ArrayBuffer
 import com.intellij.psi.search.GlobalSearchScope
-import finder.ScalaSourceFilterScope
-import com.intellij.openapi.project.Project
-import org.jetbrains.plugins.scala.extensions._
 import config.ScalaFacet
 import com.intellij.openapi.util.{TextRange, Key}
 import caches.{ScalaShortNamesCacheManager, CachesUtil}
 import lang.resolve.ResolveUtils
-import lang.resolve.processor.{ImplicitProcessor, ResolveProcessor, ResolverEnv}
+import lang.resolve.processor.{BaseProcessor, ImplicitProcessor, ResolveProcessor, ResolverEnv}
 import com.intellij.psi.impl.ResolveScopeManager
 import com.intellij.util.indexing.FileBasedIndex
 import util.{PsiUtilCore, PsiModificationTracker, PsiTreeUtil}
 import com.intellij.openapi.diagnostic.Logger
 import java.lang.String
-import api.toplevel.typedef.{ScClass, ScTrait, ScObject}
+import api.toplevel.typedef.{ScTypeDefinition, ScClass, ScTrait, ScObject}
 import java.util
 import com.intellij.openapi.editor.Document
 import refactoring.move.MoveScalaClassHandler
 import extensions._
+import types.result.TypingContext
+import types.ScType
 
 class ScalaFileImpl(viewProvider: FileViewProvider)
         extends PsiFileBase(viewProvider, ScalaFileType.SCALA_FILE_TYPE.getLanguage)
@@ -432,8 +430,15 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
       val clazz = implObjIter.next()
       ProgressManager.checkCanceled()
 
-      if (clazz != null && !isScalaPredefinedClass &&
-        !clazz.processDeclarations(processor, state, null, place)) return false
+      clazz match {
+        case td: ScTypeDefinition if !isScalaPredefinedClass =>
+          var newState = state
+          td.getType(TypingContext.empty).foreach {
+            case tp: ScType => newState = state.put(BaseProcessor.FROM_TYPE_KEY, tp)
+          }
+          if (!clazz.processDeclarations(processor, newState, null, place)) return false
+        case _ =>
+      }
     }
 
     import toplevel.synthetic.SyntheticClasses

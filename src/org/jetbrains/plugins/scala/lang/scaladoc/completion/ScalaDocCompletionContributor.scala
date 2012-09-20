@@ -10,8 +10,7 @@ import com.intellij.codeInsight.completion._
 import parser.parsing.MyScaladocParsing
 import java.lang.String
 import com.intellij.codeInsight.lookup.LookupElement
-import lang.psi.api.base.ScStableCodeReferenceElement
-import psi.api.{ScDocComment, ScDocResolvableCodeReference, ScDocReferenceElement}
+import psi.api.ScDocComment
 import lang.psi.api.statements.{ScTypeAlias, ScFunction}
 import lang.psi.api.toplevel.typedef.{ScTrait, ScClass}
 
@@ -44,6 +43,7 @@ class ScalaDocCompletionContributor extends CompletionContributor {
           })
         }
       }
+      result.stopHere()
     }
   })
 }

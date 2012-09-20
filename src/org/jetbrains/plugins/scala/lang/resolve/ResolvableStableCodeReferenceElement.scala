@@ -13,20 +13,18 @@ import psi.ScalaPsiUtil
 import psi.types._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports._
 import com.intellij.psi._
-import com.intellij.psi.impl._
 import com.intellij.psi.PsiElement
 import result.TypingContext
 import com.intellij.openapi.progress.ProgressManager
-import source.resolve.ResolveCache
 import util.{PsiModificationTracker, PsiTreeUtil}
 import caches.CachesUtil
 import psi.api.{ScPackage, ScalaFile}
 import psi.impl.ScalaPsiManager
 import scaladoc.psi.api.ScDocResolvableCodeReference
 import extensions.{toPsiNamedElementExt, toPsiClassExt}
-import psi.api.base.types.{ScTypeElement, ScSimpleTypeElement}
-import psi.impl.toplevel.imports.ScImportStmtImpl
+import psi.api.base.types.ScTypeElement
 import psi.stubs.ScImportStmtStub
+import psi.impl.toplevel.imports.ScImportStmtImpl
 
 trait ResolvableStableCodeReferenceElement extends ScStableCodeReferenceElement {
   private object Resolver extends StableCodeReferenceElementResolver(this, false, false, false)
@@ -36,8 +34,9 @@ trait ResolvableStableCodeReferenceElement extends ScStableCodeReferenceElement 
   private object ShapesResolverAllConstructors extends StableCodeReferenceElementResolver(this, true, true, false)
 
   def multiResolve(incomplete: Boolean): Array[ResolveResult] = {
-    val res: Array[ResolveResult] = ResolveCache.getInstance(getProject).resolveWithCaching(this, Resolver, true, incomplete)
-    res
+//    ResolveCache.getInstance(getProject).resolveWithCaching(this, Resolver, true, incomplete)
+    CachesUtil.getMappedWithRecursionPreventingWithRollback[ResolvableStableCodeReferenceElement, Boolean, Array[ResolveResult]](
+      this, incomplete, CachesUtil.RESOLVE_KEY, Resolver.resolve, Array.empty, PsiModificationTracker.MODIFICATION_COUNT)
   }
 
   protected def processQualifierResolveResult(res: ResolveResult, processor: BaseProcessor, ref: ScStableCodeReferenceElement) {

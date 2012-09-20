@@ -14,4 +14,4 @@ def orderedMergeSort[T <: Ordered[T]](xs: List[T]): List[T] = {
     /*start*/merge(orderedMergeSort(ys), orderedMergeSort(zs))/*end*/
   }
 }
-//scala.List[T]
+//List[T]

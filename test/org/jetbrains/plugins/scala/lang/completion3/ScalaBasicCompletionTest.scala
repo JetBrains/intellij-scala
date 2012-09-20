@@ -624,6 +624,21 @@ class ScalaBasicCompletionTest extends ScalaCompletionTestBase {
     assert(activeLookup.filter(le => le.getLookupString == "Int").length == 2)
   }
 
+  def testBasicTypeCompletionNoMethods() {
+    val fileText =
+      """
+        |class Foo {
+        |  def foo(): Int = 1
+        |
+        |  val bar: <caret>
+        |}
+      """.stripMargin.replaceAll("\r", "").trim()
+    configureFromFileTextAdapter("dummy.scala", fileText)
+    val (activeLookup, _) = complete(1, CompletionType.BASIC)
+
+    assert(activeLookup.filter(le => le.getLookupString == "foo").length == 0)
+  }
+
   def testBraceCompletionChar() {
     val fileText =
       """

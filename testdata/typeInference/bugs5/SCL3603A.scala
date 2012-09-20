@@ -13,4 +13,4 @@ def yourMethod[F](to: HasMap[F]) = {
 def main(args: Array[String]) {
   /*start*/yourMethod(ListBuffer(1, 2, 3))/*end*/
 }
-//scala.TraversableOnce[String]
+//TraversableOnce[String]

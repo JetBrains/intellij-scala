@@ -83,7 +83,21 @@ trait ScType {
    * There shouldn't be any abstract type in this expected type.
    * todo rewrite with recursiveUpdate method
    */
-  def removeAbstracts = this
+  def removeAbstracts: ScType = this
+
+  def removeVarianceAbstracts(variance: Int): ScType = {
+    recursiveVarianceUpdate((tp: ScType, i: Int) => {
+      tp match {
+        case ScAbstractType(_, lower, upper) =>
+          i match {
+            case -1 => (true, lower)
+            case 1 => (true, upper)
+            case 0 => (true, ScExistentialArgument("_", Nil, lower, upper))
+          }
+        case _ => (true, tp)
+      }
+    }, variance)
+  }
 
   def equivInner(r: ScType, uSubst: ScUndefinedSubstitutor, falseUndef: Boolean): (Boolean, ScUndefinedSubstitutor) = {
     (false, uSubst)

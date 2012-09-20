@@ -12,6 +12,7 @@ import psi.api.base.patterns.ScBindingPattern
 import psi.api.toplevel.imports.usages.{ImportExprUsed, ImportSelectorUsed, ImportWildcardSelectorUsed, ImportUsed}
 import extensions.{toPsiClassExt, toPsiNamedElementExt}
 import psi.api.statements.params.ScClassParameter
+import psi.api.toplevel.ScNamedElement
 
 object ScalaResolveResult {
   def empty = new ScalaResolveResult(null, ScSubstitutor.empty, Set[ImportUsed]())
@@ -39,7 +40,8 @@ class ScalaResolveResult(val element: PsiNamedElement,
                          val notCheckedResolveResult: Boolean = false, 
                          val isAccessible: Boolean = true,
                          val resultUndef: Option[ScUndefinedSubstitutor] = None,
-                         val prefixCompletion: Boolean = false) extends ResolveResult {
+                         val prefixCompletion: Boolean = false,
+                         val isDynamic: Boolean = false) extends ResolveResult {
   if (element == null) throw new NullPointerException("element is null")
 
   def getElement = element
@@ -78,11 +80,11 @@ class ScalaResolveResult(val element: PsiNamedElement,
            isSetterFunction: Boolean = isSetterFunction,
            isAssignment: Boolean = isAssignment,
            notCheckedResolveResult: Boolean = notCheckedResolveResult, 
-           isAccessible: Boolean = isAccessible, resultUndef: Option[ScUndefinedSubstitutor] = None): ScalaResolveResult =
+           isAccessible: Boolean = isAccessible, resultUndef: Option[ScUndefinedSubstitutor] = None, isDynamic: Boolean = isDynamic): ScalaResolveResult =
     new ScalaResolveResult(element, subst, importsUsed, nameShadow, implicitConversionClass, problems, boundClass,
       implicitFunction, implicitType, defaultParameterUsed, innerResolveResult, parentElement,
       isNamedParameter, fromType, tuplingUsed, isSetterFunction, isAssignment, notCheckedResolveResult,
-      isAccessible, resultUndef)
+      isAccessible, resultUndef, isDynamic = isDynamic)
 
   //In valid program we should not have two resolve results with the same element but different substitutor,
   // so factor by element
@@ -96,8 +98,15 @@ class ScalaResolveResult(val element: PsiNamedElement,
 
   override def hashCode: Int = element.hashCode + innerResolveResult.hashCode() * 31 + nameShadow.hashCode() * 31 * 31
 
+  override def toString =  {
+    val name = element match {
+      case named: ScNamedElement => named.name
+      case it => it.toString
+    }
+    s"""$name [${problems.mkString(", ")}]"""
+  }
 
-  private var precedence = -1
+private var precedence = -1
 
   /**
    * 1 - java.lang

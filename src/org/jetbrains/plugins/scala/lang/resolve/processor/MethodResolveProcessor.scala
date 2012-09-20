@@ -37,7 +37,8 @@ class MethodResolveProcessor(override val ref: PsiElement,
                              val constructorResolve: Boolean = false,
                              val enableTupling: Boolean = false,
                              var noImplicitsForArgs: Boolean = false,
-                             val selfConstructorResolve: Boolean = false) extends ResolveProcessor(kinds, ref, refName) {
+                             val selfConstructorResolve: Boolean = false,
+                             val isDynamic: Boolean = false) extends ResolveProcessor(kinds, ref, refName) {
   private def isUpdate: Boolean = {
     if (ref == null) return false
     ref.getContext match {
@@ -95,8 +96,15 @@ class MethodResolveProcessor(override val ref: PsiElement,
 
 
   override def candidatesS: Set[ScalaResolveResult] = {
-    val input: Set[ScalaResolveResult] = super.candidatesS
-    if (!isShapeResolve && enableTupling && argumentClauses.length > 0) {
+    if (isDynamic) {
+      collectCandidates(super.candidatesS.map(_.copy(isDynamic = true))).filter(_.isApplicable)
+    } else {
+      collectCandidates(super.candidatesS)
+    }
+  }
+
+  private def collectCandidates(input: Set[ScalaResolveResult]): Set[ScalaResolveResult] = {
+      if (!isShapeResolve && enableTupling && argumentClauses.length > 0) {
       isShapeResolve = true
       val cand1 = MethodResolveProcessor.candidates(this, input)
       if (cand1.size == 0 || cand1.forall(_.tuplingUsed)) {
@@ -120,8 +128,8 @@ class MethodResolveProcessor(override val ref: PsiElement,
       }
     } else
       MethodResolveProcessor.candidates(this, input)
+    }
   }
-}
 
 object MethodResolveProcessor {
   private def problemsFor(c: ScalaResolveResult, checkWithImplicits: Boolean,
