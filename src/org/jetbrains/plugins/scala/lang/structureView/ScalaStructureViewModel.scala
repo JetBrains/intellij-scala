@@ -16,12 +16,13 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBod
 import psi.api.ScalaFile
 import com.intellij.ide.structureView.{StructureViewModel, StructureViewTreeElement, TextEditorBasedStructureViewModel}
 import java.util.{Arrays, Collection}
+import console.ScalaLanguageConsole
 
 /**
  * @author Alexander Podkhalyuzin
  * @since 04.05.2008
  */
-class ScalaStructureViewModel(private val myRootElement: ScalaFile)
+class ScalaStructureViewModel(private val myRootElement: ScalaFile, private val console: ScalaLanguageConsole = null)
   extends TextEditorBasedStructureViewModel(myRootElement) with StructureViewModel.ElementInfoProvider {
   def isAlwaysLeaf(element: StructureViewTreeElement): Boolean = !isAlwaysShowsPlus(element)
 
@@ -36,7 +37,7 @@ class ScalaStructureViewModel(private val myRootElement: ScalaFile)
 
   @NotNull
   def getRoot: StructureViewTreeElement = {
-    new ScalaFileStructureViewElement(myRootElement);
+    new ScalaFileStructureViewElement(myRootElement, console)
   }
 
   @NotNull
