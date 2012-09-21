@@ -10,4 +10,4 @@ object UnapplySeq {
     }
   }
 }
-//String, String, MetaData, NamespaceBinding, scala.Seq[Node]
+//String, String, MetaData, NamespaceBinding, Seq[Node]
