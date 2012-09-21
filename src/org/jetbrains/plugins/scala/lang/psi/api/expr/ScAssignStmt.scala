@@ -4,8 +4,8 @@ package psi
 package api
 package expr
 
-import com.intellij.psi.{PsiField, PsiElement, PsiElementVisitor}
-import resolve.{ResolvableReferenceElement, ScalaResolveResult}
+import com.intellij.psi.{PsiField, PsiElement}
+import resolve.ScalaResolveResult
 import statements.ScVariable
 import statements.params.ScClassParameter
 
@@ -37,7 +37,7 @@ trait ScAssignStmt extends ScExpression {
     getLExpression match {
       case expr: ScReferenceExpression =>
         expr.bind() match {
-          case Some(r) if r.isNamedParameter => true
+          case Some(r) => r.isNamedParameter
           case _ => false
         }
       case _ => false

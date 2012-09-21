@@ -28,14 +28,12 @@ import psi.api.toplevel.imports. {ScImportSelectors, ScImportStmt}
 import psi.ScalaPsiUtil
 import xml.ScXmlPattern
 import com.intellij.psi.javadoc.PsiDocComment
-import scaladoc.parser.ScalaDocElementTypes
 import psi.api.toplevel.ScEarlyDefinitions
 import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.diagnostic.Logger
 import refactoring.util.ScalaNamesUtil
-import scaladoc.lexer.{ScalaDocElementType, ScalaDocTokenType}
-import extensions.implementation.PsiElementExt
-import extensions.{toPsiNamedElementExt, &&}
+import scaladoc.lexer.ScalaDocTokenType
+import extensions.toPsiNamedElementExt
 import parser.ScalaElementTypes
 import psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.editor.enterHandler.MultilineStringEnterHandler
@@ -43,11 +41,11 @@ import extensions._
 
 object ScalaSpacingProcessor extends ScalaTokenTypes {
   private val LOG = Logger.getInstance("#org.jetbrains.plugins.scala.lang.formatting.processors.ScalaSpacingProcessor")
-  val NO_SPACING_WITH_NEWLINE = Spacing.createSpacing(0, 0, 0, true, 1);
-  val NO_SPACING = Spacing.createSpacing(0, 0, 0, false, 0);
-  val COMMON_SPACING = Spacing.createSpacing(1, 1, 0, true, 100);
-  val IMPORT_BETWEEN_SPACING = Spacing.createSpacing(0, 0, 1, true, 100);
-  val IMPORT_OTHER_SPACING = Spacing.createSpacing(0, 0, 2, true, 100);
+  val NO_SPACING_WITH_NEWLINE = Spacing.createSpacing(0, 0, 0, true, 1)
+  val NO_SPACING = Spacing.createSpacing(0, 0, 0, false, 0)
+  val COMMON_SPACING = Spacing.createSpacing(1, 1, 0, true, 100)
+  val IMPORT_BETWEEN_SPACING = Spacing.createSpacing(0, 0, 1, true, 100)
+  val IMPORT_OTHER_SPACING = Spacing.createSpacing(0, 0, 2, true, 100)
 
   val BLOCK_ELEMENT_TYPES = {
     import ScalaElementTypes._

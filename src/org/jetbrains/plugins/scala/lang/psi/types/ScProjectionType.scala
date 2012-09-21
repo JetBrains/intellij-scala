@@ -14,6 +14,8 @@ import resolve.ResolveTargets
 import com.intellij.psi.{PsiClass, ResolveState, PsiNamedElement}
 import extensions.toPsiClassExt
 import collection.immutable.HashSet
+import caches.CachesUtil
+import com.intellij.psi.util.PsiModificationTracker
 
 /**
  * @author ilyas
@@ -52,62 +54,56 @@ case class ScProjectionType(projected: ScType, element: PsiNamedElement, subst: 
   }
 
   private def actual: (PsiNamedElement, ScSubstitutor) = {
+    def actualInner(element: PsiNamedElement, projected: ScType): Option[(PsiNamedElement, ScSubstitutor)] = {
+      val emptySubst = new ScSubstitutor(Map.empty, Map.empty, Some(projected))
+      element match {
+        case a: ScTypeAlias => {
+          val name = a.name
+          import ResolveTargets._
+          val proc = new ResolveProcessor(ValueSet(CLASS), a, name)
+          proc.processType(projected, a, ResolveState.initial, noBounds = true)
+          val candidates = proc.candidates
+          if (candidates.length == 1 && candidates(0).element.isInstanceOf[PsiNamedElement]) {
+            Some(candidates(0).element, emptySubst followed candidates(0).substitutor)
+          } else None
+        }
+        case d: ScTypedDefinition if d.isStable => {
+          val name = d.name
+          import ResolveTargets._
+          val proc = new ResolveProcessor(ValueSet(VAL, OBJECT), d, name)
+          proc.processType(projected, d, ResolveState.initial, noBounds = true)
+          val candidates = proc.candidates
+          if (candidates.length == 1 && candidates(0).element.isInstanceOf[PsiNamedElement]) {
+            Some(candidates(0).element, emptySubst followed candidates(0).substitutor)
+          } else None
+        }
+        case d: ScTypeDefinition => {
+          val name = d.name
+          import ResolveTargets._
+          val proc = new ResolveProcessor(ValueSet(CLASS), d, name) //ScObject in ScTypedDefinition case.
+          proc.processType(projected, d, ResolveState.initial, noBounds = true)
+          val candidates = proc.candidates
+          if (candidates.length == 1 && candidates(0).element.isInstanceOf[PsiNamedElement]) {
+            Some(candidates(0).element, emptySubst followed candidates(0).substitutor)
+          } else None
+        }
+        case _ => None
+      }
+    }
+
     if (superReference) return (element, subst)
-    var res = actualInnerTuple
-    if (res != null) return res
-    res = actualInner
-    actualInnerTuple = res
-    res
+
+    val (actualElement, actualSubst) =
+      CachesUtil.getMappedWithRecursionPreventingWithRollback[PsiNamedElement, ScType, Option[(PsiNamedElement, ScSubstitutor)]](
+        element, projected, CachesUtil.PROJECTION_TYPE_ACTUAL_INNER, actualInner, None,
+        PsiModificationTracker.MODIFICATION_COUNT).getOrElse(
+          (element, subst)
+        )
+    (actualElement, new ScSubstitutor(Map.empty, Map.empty, Some(projected)) followed actualSubst)
   }
 
   def actualElement: PsiNamedElement = actual._1
   def actualSubst: ScSubstitutor = actual._2
-
-  @volatile
-  private var actualInnerTuple: (PsiNamedElement, ScSubstitutor) = null
-
-  private def actualInner: (PsiNamedElement, ScSubstitutor) = {
-    val emptySubst = new ScSubstitutor(Map.empty, Map.empty, Some(projected))
-    element match {
-      case a: ScTypeAlias => {
-        val name = a.name
-        import ResolveTargets._
-        val proc = new ResolveProcessor(ValueSet(CLASS), a, name)
-        proc.processType(projected, a, ResolveState.initial, true)
-        val candidates = proc.candidates
-        if (candidates.length == 1 && candidates(0).element.isInstanceOf[PsiNamedElement]) {
-          (candidates(0).element, emptySubst followed candidates(0).substitutor)
-        } else {
-          (element, emptySubst followed subst)
-        }
-      }
-      case d: ScTypedDefinition if d.isStable => {
-        val name = d.name
-        import ResolveTargets._
-        val proc = new ResolveProcessor(ValueSet(VAL, OBJECT), d, name)
-        proc.processType(projected, d, ResolveState.initial, true)
-        val candidates = proc.candidates
-        if (candidates.length == 1 && candidates(0).element.isInstanceOf[PsiNamedElement]) {
-          (candidates(0).element, emptySubst followed candidates(0).substitutor)
-        } else {
-          (element, emptySubst followed subst)
-        }
-      }
-      case d: ScTypeDefinition => {
-        val name = d.name
-        import ResolveTargets._
-        val proc = new ResolveProcessor(ValueSet(CLASS), d, name) //ScObject in ScTypedDefinition case.
-        proc.processType(projected, d, ResolveState.initial, true)
-        val candidates = proc.candidates
-        if (candidates.length == 1 && candidates(0).element.isInstanceOf[PsiNamedElement]) {
-          (candidates(0).element, emptySubst followed candidates(0).substitutor)
-        } else {
-          (element, emptySubst followed subst)
-        }
-      }
-      case _ => (element, emptySubst followed subst)
-    }
-  }
 
   override def equivInner(r: ScType, uSubst: ScUndefinedSubstitutor,
                           falseUndef: Boolean): (Boolean, ScUndefinedSubstitutor) = {
