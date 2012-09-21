@@ -46,6 +46,7 @@ import refactoring.move.MoveScalaClassHandler
 import extensions._
 import types.result.TypingContext
 import types.ScType
+import collection.mutable
 
 class ScalaFileImpl(viewProvider: FileViewProvider)
         extends PsiFileBase(viewProvider, ScalaFileType.SCALA_FILE_TYPE.getLanguage)
@@ -425,19 +426,23 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
 
     if (!SbtFile.processDeclarations(this, processor, state, lastParent, place)) return false
 
+    val attachedQualifiers = new mutable.HashSet[String]()
     val implObjIter = ImplicitlyImported.allImplicitlyImportedObjects(getManager, scope).iterator
     while (implObjIter.hasNext) {
       val clazz = implObjIter.next()
-      ProgressManager.checkCanceled()
+      if (!attachedQualifiers.contains(clazz.qualifiedName)) {
+        attachedQualifiers += clazz.qualifiedName
+        ProgressManager.checkCanceled()
 
-      clazz match {
-        case td: ScTypeDefinition if !isScalaPredefinedClass =>
-          var newState = state
-          td.getType(TypingContext.empty).foreach {
-            case tp: ScType => newState = state.put(BaseProcessor.FROM_TYPE_KEY, tp)
-          }
-          if (!clazz.processDeclarations(processor, newState, null, place)) return false
-        case _ =>
+        clazz match {
+          case td: ScTypeDefinition if !isScalaPredefinedClass =>
+            var newState = state
+            td.getType(TypingContext.empty).foreach {
+              case tp: ScType => newState = state.put(BaseProcessor.FROM_TYPE_KEY, tp)
+            }
+            if (!clazz.processDeclarations(processor, newState, null, place)) return false
+          case _ =>
+        }
       }
     }
 
