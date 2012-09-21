@@ -200,7 +200,7 @@ class ScalaClassNameCompletionTest extends ScalaCompletionTestBase {
         |}
       """.stripMargin.replaceAll("\r", "").trim()
     configureFromFileTextAdapter("dummy.scala", fileText)
-    val (activeLookup, _) = complete(2, CompletionType.BASIC)
+    val (activeLookup, _) = complete(1, CompletionType.CLASS_NAME)
 
     val resultText =
       """
