@@ -3,7 +3,7 @@ package editor.documentationProvider
 
 import com.intellij.codeInsight.javadoc.JavaDocUtil
 import com.intellij.lang.java.JavaDocumentationProvider
-import com.intellij.openapi.module.{ModuleUtilCore, ModuleUtil}
+import com.intellij.openapi.module.ModuleUtilCore
 import com.intellij.psi._
 import javadoc.{PsiDocTag, PsiDocComment}
 import lang.psi.api.expr.ScAnnotation
@@ -25,7 +25,6 @@ import lang.psi.{PresentationUtil, ScalaPsiUtil}
 import lang.psi.api.base.{ScReferenceElement, ScConstructor, ScAccessModifier, ScPrimaryConstructor}
 import lang.resolve.ScalaResolveResult
 import lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.extensions
 import lang.scaladoc.lexer.ScalaDocTokenType
 import lang.scaladoc.parser.parsing.MyScaladocParsing
 import lang.scaladoc.psi.api.{ScDocTag, ScDocComment}
@@ -35,6 +34,8 @@ import java.lang.String
 import collection.mutable.HashMap
 import lang.completion.lookups.ScalaLookupItem
 import org.jetbrains.plugins.scala.extensions.{toPsiMemberExt, toPsiNamedElementExt, toPsiClassExt}
+import com.intellij.openapi.util.Pair
+import annotation.tailrec
 
 /**
  * User: Alexander Podkhalyuzin
@@ -376,6 +377,19 @@ class ScalaDocumentationProvider extends CodeDocumentationProvider {
     }
 
     buffer.toString()
+  }
+
+  def parseContext(startPoint: PsiElement): Pair[PsiElement, PsiComment] = {
+    @tailrec
+    def findDocCommentOwner(elem: PsiElement): Option[ScDocCommentOwner] = {
+      elem match {
+        case null => None
+        case d: ScDocCommentOwner => Some(d)
+        case _ => findDocCommentOwner(elem.getParent)
+      }
+    }
+    findDocCommentOwner(startPoint).map(d => Pair.create(d.asInstanceOf[PsiElement],
+      d.getDocComment.asInstanceOf[PsiComment])).getOrElse(null)
   }
 }
 
