@@ -3,14 +3,17 @@ package org.jetbrains.plugins.scala.compiler;
 import com.intellij.compiler.OutputParser;
 import com.intellij.compiler.impl.javaCompiler.FileObject;
 import com.intellij.openapi.compiler.CompilerMessageCategory;
+import com.intellij.openapi.vfs.CharsetToolkit;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.openapi.diagnostic.Logger;
+import com.intellij.openapi.vfs.encoding.EncodingManager;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import static org.jetbrains.plugins.scala.compiler.ScalacOutputParser.MESSAGE_TYPE.*;
 
 import java.io.File;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Set;
 import java.util.HashSet;
@@ -208,6 +211,20 @@ class ScalacOutputParser extends OutputParser {
     if (matcher.matches()) {
       path = matcher.group(1);
     }
+
+    if (path.contains("?")) {
+      Charset sourceEncoding = EncodingManager.getInstance().getDefaultCharset();
+      Charset jvmEncoding = CharsetToolkit.getDefaultSystemCharset();
+      if (sourceEncoding != null && jvmEncoding != null && !sourceEncoding.equals(jvmEncoding)) {
+        String message = String.format("Generated class file name contains incorrectly decoded symbols:\n%s\n" +
+            "IDEA (and thus compiler) JVM encoding (%s) may be not compatibe with the encoding of source files (%s).\n" +
+            "Please, check idea*.vmoptions file (add \"-Dfile.encoding=UTF-8\" line).",
+            path, jvmEncoding, sourceEncoding);
+        callback.message(CompilerMessageCategory.ERROR, message, "", -1, -1);
+        return;
+      }
+    }
+
     synchronized (WRITTEN_LIST_LOCK) {
       myWrittenList.add(path);
     }
