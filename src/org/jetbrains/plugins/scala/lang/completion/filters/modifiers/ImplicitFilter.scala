@@ -19,8 +19,8 @@ import psi.api.statements.params.ScParameter
 class ImplicitFilter extends ElementFilter {
   def isAcceptable(element: Object, context: PsiElement): Boolean = {
     if (context.isInstanceOf[PsiComment]) return false
-    var leaf = getLeafByOffset(context.getTextRange().getStartOffset(), context);
-    if (leaf != null && leaf.getContainingFile.asInstanceOf[ScalaFile].isScriptFile()) leaf = leaf.getParent
+    val (leaf, _) = processPsiLeafForFilter(getLeafByOffset(context.getTextRange.getStartOffset, context))
+    
     if (leaf != null) {
       val parent = leaf.getParent
       parent match {
@@ -32,13 +32,11 @@ class ImplicitFilter extends ElementFilter {
         case _ =>
       }
     }
-    return false
+    false
   }
 
   def isClassAcceptable(hintClass: java.lang.Class[_]): Boolean = true
 
   @NonNls
-  override def toString(): String = {
-    return "'implicit' keyword filter";
-  }
+  override def toString = "'implicit' keyword filter"
 }

@@ -26,14 +26,11 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 class RequiresFilter extends ElementFilter {
   def isAcceptable(element: Object, context: PsiElement): Boolean = {
     if (context.isInstanceOf[PsiComment]) return false
-    var leaf = getLeafByOffset(context.getTextRange().getStartOffset(), context)
-    val file = leaf.getContainingFile.asInstanceOf[ScalaFile]
-    if (leaf != null && file.isScriptFile()) {
-      leaf = leaf.getParent
-    }
+    val (leaf, isScriptFile) = processPsiLeafForFilter(getLeafByOffset(context.getTextRange.getStartOffset, context))
+
     if (leaf != null) {
       var prev = leaf.getPrevSibling
-      if (prev == null && file.isScriptFile()) prev = leaf.getParent.getPrevSibling
+      if (prev == null && isScriptFile) prev = leaf.getParent.getPrevSibling
       prev match {
         case _: PsiErrorElement =>
         case _ => return false
@@ -50,15 +47,11 @@ class RequiresFilter extends ElementFilter {
         case _ => return false
       }
     }
-    return false
+    false
   }
 
-  def isClassAcceptable(hintClass: java.lang.Class[_]): Boolean = {
-    return true;
-  }
+  def isClassAcceptable(hintClass: java.lang.Class[_]): Boolean = true
 
   @NonNls
-  override def toString(): String = {
-    return "'requires' keyword filter"
-  }
+  override def toString = "'requires' keyword filter"
 }
