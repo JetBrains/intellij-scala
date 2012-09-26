@@ -24,7 +24,7 @@ import scaladoc.psi.api.ScDocComment
 class CatchFilter extends ElementFilter {
   def isAcceptable(element: Object, context: PsiElement): Boolean = {
     if (context.isInstanceOf[PsiComment]) return false
-    val leaf = getLeafByOffset(context.getTextRange.getStartOffset, context);
+    val (leaf, _) = processPsiLeafForFilter(getLeafByOffset(context.getTextRange.getStartOffset, context))
     if (leaf != null) {
       var i = getPrevNotWhitespaceAndComment(context.getTextRange.getStartOffset - 1, context)
       var leaf1 = getLeafByOffset(i, context)
@@ -35,17 +35,14 @@ class CatchFilter extends ElementFilter {
       if (Array("catch").contains(getLeafByOffset(i, context).getText)) return false
       return true
     }
-    return false;
+    
+    false
   }
 
-  def isClassAcceptable(hintClass: java.lang.Class[_]): Boolean = {
-    return true;
-  }
+  def isClassAcceptable(hintClass: java.lang.Class[_]): Boolean = true
 
   @NonNls
-  override def toString(): String = {
-    return "statements keyword filter"
-  }
+  override def toString = "statements keyword filter"
 
   def getPrevNotWhitespaceAndComment(index: Int, context: PsiElement): Int = {
     var i = index
@@ -55,7 +52,8 @@ class CatchFilter extends ElementFilter {
     val leaf = getLeafByOffset(i, context)
     if (leaf.isInstanceOf[PsiComment] || leaf.isInstanceOf[ScDocComment])
       return getPrevNotWhitespaceAndComment(leaf.getTextRange.getStartOffset - 1, context)
-    return i
+    
+    i
   }
 
   def getNextNotWhitespaceAndComment(index: Int, context: PsiElement): Int = {
@@ -66,6 +64,7 @@ class CatchFilter extends ElementFilter {
     val leaf = getLeafByOffset(i, context)
     if (leaf.isInstanceOf[PsiComment] || leaf.isInstanceOf[ScDocComment])
       return getNextNotWhitespaceAndComment(leaf.getTextRange.getEndOffset, context)
-    return i
+    
+    i
   }
 }

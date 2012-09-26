@@ -19,14 +19,12 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 class ExtendsFilter extends ElementFilter {
   def isAcceptable(element: Object, context: PsiElement): Boolean = {
     if (context.isInstanceOf[PsiComment]) return false
-    var leaf = getLeafByOffset(context.getTextRange.getStartOffset, context);
-    val file = leaf.getContainingFile.asInstanceOf[ScalaFile]
-    if (leaf != null && file.isScriptFile()) {
-      leaf = leaf.getParent
-    }
+    val (leaf, isScriptFile) = processPsiLeafForFilter(getLeafByOffset(context.getTextRange.getStartOffset, context))
+    
     if (leaf != null) {
       var prev = getPrevSiblingNotWhitespace(leaf)
-      if (prev == null && file.isScriptFile()) prev = getPrevSiblingNotWhitespace(leaf.getParent)
+      
+      if (prev == null && isScriptFile) prev = getPrevSiblingNotWhitespace(leaf.getParent)
       prev match {
         case _: PsiErrorElement =>
         case _ => return false
@@ -48,17 +46,13 @@ class ExtendsFilter extends ElementFilter {
         case _ => return false
       }
     }
-    return false
+    false
   }
 
-  def isClassAcceptable(hintClass: java.lang.Class[_]): Boolean = {
-    return true;
-  }
+  def isClassAcceptable(hintClass: java.lang.Class[_]): Boolean = true
 
   @NonNls
-  override def toString: String = {
-    return "'extends' keyword filter"
-  }
+  override def toString = "'extends' keyword filter"
 
   private def getPrevSiblingNotWhitespace(element: PsiElement): PsiElement = {
     var prev = element.getPrevSibling

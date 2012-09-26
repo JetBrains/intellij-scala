@@ -23,8 +23,8 @@ import org.jetbrains.plugins.scala.lang.parser._
 class CaseFilter extends ElementFilter {
   def isAcceptable(element: Object, context: PsiElement): Boolean = {
     if (context.isInstanceOf[PsiComment]) return false
-    var leaf = getLeafByOffset(context.getTextRange.getStartOffset, context)
-    if (leaf != null && leaf.getContainingFile.asInstanceOf[ScalaFile].isScriptFile()) leaf = leaf.getParent
+    val (leaf, _) = processPsiLeafForFilter(getLeafByOffset(context.getTextRange.getStartOffset, context))
+    
     if (leaf != null && leaf.getParent != null) {
       val parent = leaf.getParent
       parent match {
@@ -104,12 +104,8 @@ class CaseFilter extends ElementFilter {
     false
   }
 
-  def isClassAcceptable(hintClass: java.lang.Class[_]): Boolean = {
-    true
-  }
+  def isClassAcceptable(hintClass: java.lang.Class[_]): Boolean = true
 
   @NonNls
-  override def toString: String = {
-    "'case' keyword filter"
-  }
+  override def toString = "'case' keyword filter"
 }

@@ -29,13 +29,8 @@ class ModifiersFilter extends ElementFilter {
   def isAcceptable(element: Object, context: PsiElement): Boolean = {
     if (context.isInstanceOf[PsiComment]) return false
     if (element.isInstanceOf[PsiIdentifier]) return false
-    var leaf = getLeafByOffset(context.getTextRange.getStartOffset, context)
-    if (leaf != null) {
-      leaf.getContainingFile match {
-        case scalaFile: ScalaFile if scalaFile.isScriptFile() => leaf = leaf.getParent
-        case _ =>
-      }
-    }
+    val (leaf, _) = processPsiLeafForFilter(getLeafByOffset(context.getTextRange.getStartOffset, context))
+
     if (leaf != null) {
       val parent = leaf.getParent
       parent match {
