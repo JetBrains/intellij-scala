@@ -75,6 +75,11 @@ class ScalaMavenImporter extends FacetImporter[ScalaFacet, ScalaFacetConfigurati
     model.addRoot(compilerJarPath.toLibraryRootURL, OrderRootType.CLASSES)
     model.addRoot(standardLibraryJarPath.toLibraryRootURL, OrderRootType.CLASSES)
 
+    if (configuration.usesReflect) {
+      val reflectJarPath = mavenProject.localPathTo(configuration.reflectId)
+      model.addRoot(reflectJarPath.toLibraryRootURL, OrderRootType.CLASSES)
+    }
+
     library
   }
 
@@ -83,18 +88,19 @@ class ScalaMavenImporter extends FacetImporter[ScalaFacet, ScalaFacetConfigurati
     validConfigurationIn(mavenProject).foreach { configuration =>
       val repositories = mavenProject.getRemoteRepositories
 
-      val compilerId = configuration.compilerId
-      embedder.resolve(new MavenArtifactInfo(compilerId, "pom", null), repositories)
-      embedder.resolve(new MavenArtifactInfo(compilerId, "jar", null), repositories)
-
-      val libraryId = configuration.libraryId
-      embedder.resolve(new MavenArtifactInfo(libraryId, "pom", null), repositories)
-      embedder.resolve(new MavenArtifactInfo(libraryId, "jar", null), repositories)
-
-      configuration.plugins.foreach { pluginId =>
-        embedder.resolve(new MavenArtifactInfo(pluginId, "pom", null), repositories)
-        embedder.resolve(new MavenArtifactInfo(pluginId, "jar", null), repositories)
+      def resolve(id: MavenId) {
+        embedder.resolve(new MavenArtifactInfo(id, "pom", null), repositories)
+        embedder.resolve(new MavenArtifactInfo(id, "jar", null), repositories)
       }
+
+      resolve(configuration.compilerId)
+      resolve(configuration.libraryId)
+
+      if (configuration.usesReflect) {
+        resolve(configuration.reflectId)
+      }
+
+      configuration.plugins.foreach(resolve)
     }
   }
 
@@ -109,6 +115,8 @@ private class ScalaConfiguration(project: MavenProject) {
 
   def libraryId = new MavenId("org.scala-lang", "scala-library", compilerVersion.mkString)
 
+  def reflectId = new MavenId("org.scala-lang", "scala-reflect", compilerVersion.mkString)
+
   private def compilerPlugin =
     project.findPlugin("org.scala-tools", "maven-scala-plugin").toOption.filter(!_.isDefault).orElse(
       project.findPlugin("net.alchim31.maven", "scala-maven-plugin").toOption.filter(!_.isDefault))
@@ -119,6 +127,8 @@ private class ScalaConfiguration(project: MavenProject) {
 
   def compilerVersion: Option[String] =
     element("scalaVersion").map(_.getTextTrim).orElse(standardLibrary.map(_.getVersion))
+
+  def usesReflect: Boolean = compilerVersion.map(it => Version(it) >= Version("2.10")).getOrElse(false)
 
   def vmOptions: Seq[String] = elements("jvmArgs", "jvmArg").map(_.getTextTrim)
 
