@@ -20,9 +20,7 @@ class ScalaLanguageConsoleView(project: Project) extends {
     val model = new ConsoleHistoryModel
     new ConsoleHistoryController("scala", null, scalaConsole, model).install()
 
-    ScalaConsoleInfo.addConsole(scalaConsole)
-    ScalaConsoleInfo.addModel(model)
-    ScalaConsoleInfo.addProcessHandler(processHandler)
+    ScalaConsoleInfo.addConsole(scalaConsole, model, processHandler)
   }
 
   override def getData(dataId: String): AnyRef = {
@@ -33,7 +31,7 @@ class ScalaLanguageConsoleView(project: Project) extends {
 
   override def dispose() {
     super.dispose()
-    ScalaConsoleInfo.dispose()
+    ScalaConsoleInfo.disposeConsole(scalaConsole)
   }
 }
 

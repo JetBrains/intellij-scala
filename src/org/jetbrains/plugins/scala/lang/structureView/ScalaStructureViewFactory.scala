@@ -17,7 +17,7 @@ class ScalaStructureViewFactory extends PsiStructureViewFactory {
   def getStructureViewBuilder(psiFile: PsiFile): StructureViewBuilder = psiFile match {
     case sf: ScalaFile => {
       if (sf.getName == ScalaLanguageConsoleView.SCALA_CONSOLE) {
-        val console = ScalaConsoleInfo.getConsole
+        val console = ScalaConsoleInfo.getConsole(sf.getProject)
         new ScalaStructureViewBuilder(sf, console)
       } else {
         new ScalaStructureViewBuilder(sf)

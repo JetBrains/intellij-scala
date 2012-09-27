@@ -27,9 +27,13 @@ class SendSelectionToConsoleAction extends AnAction {
     try {
       val context = e.getDataContext
       val file = LangDataKeys.PSI_FILE.getData(context)
+      if (file == null) {
+        disable()
+        return
+      }
       val editor = PlatformDataKeys.EDITOR.getData(context)
       val hasSelection = editor.getSelectionModel.hasSelection
-      val console = ScalaConsoleInfo.getConsole
+      val console = ScalaConsoleInfo.getConsole(file.getProject)
 
       if (!hasSelection || console == null) {
         disable()
@@ -42,7 +46,7 @@ class SendSelectionToConsoleAction extends AnAction {
         return
       }
 
-      val processHandler = ScalaConsoleInfo.getProcessHandler
+      val processHandler = ScalaConsoleInfo.getProcessHandler(file.getProject)
       if (processHandler == null || processHandler.isProcessTerminated) {
         disable()
         return
@@ -65,14 +69,14 @@ class SendSelectionToConsoleAction extends AnAction {
 
     if (editor == null || project == null) return
     val selectedText = editor.getSelectionModel.getSelectedText
-    val console = ScalaConsoleInfo.getConsole
+    val console = ScalaConsoleInfo.getConsole(project)
     if (console != null) sendSelection(console, selectedText)
   }
 
   def sendSelection(console: ScalaLanguageConsole, text: String) {
     val consoleEditor = console.getConsoleEditor
-    val model = ScalaConsoleInfo.getModel
-    val processHandler = ScalaConsoleInfo.getProcessHandler
+    val model = ScalaConsoleInfo.getModel(console.getProject)
+    val processHandler = ScalaConsoleInfo.getProcessHandler(console.getProject)
 
     if (consoleEditor != null) {
       val document = console.getEditorDocument
