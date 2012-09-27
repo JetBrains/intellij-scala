@@ -12,16 +12,28 @@ import com.intellij.openapi.editor.ex.EditorEx
  */
 class ScalaConsoleExecuteAction extends AnAction {
   override def update(e: AnActionEvent) {
-    val console = ScalaConsoleInfo.getConsole
-    if (console == null)  e.getPresentation.setEnabled(false)
+    val project = e.getData(PlatformDataKeys.PROJECT)
+    if (project == null) {
+      e.getPresentation.setEnabled(false)
+      return
+    }
+    val console = ScalaConsoleInfo.getConsole(project)
+    if (console == null)  {
+      e.getPresentation.setEnabled(false)
+      return
+    }
     val editor: EditorEx = console.getConsoleEditor
-    e.getPresentation.setEnabled(!editor.isRendererMode && !ScalaConsoleInfo.getProcessHandler.isProcessTerminated)
+    e.getPresentation.setEnabled(!editor.isRendererMode && !ScalaConsoleInfo.getProcessHandler(project).isProcessTerminated)
   }
 
   def actionPerformed(e: AnActionEvent) {
-    val console = ScalaConsoleInfo.getConsole
-    val processHandler = ScalaConsoleInfo.getProcessHandler
-    val model = ScalaConsoleInfo.getModel
+    val project = e.getData(PlatformDataKeys.PROJECT)
+    if (project == null) {
+      return
+    }
+    val console = ScalaConsoleInfo.getConsole(project)
+    val processHandler = ScalaConsoleInfo.getProcessHandler(project)
+    val model = ScalaConsoleInfo.getModel(project)
     val editor = PlatformDataKeys.EDITOR.getData(e.getDataContext)
     if (editor != null && console != null && processHandler != null && model != null) {
       val document = console.getEditorDocument

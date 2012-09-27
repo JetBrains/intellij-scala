@@ -1,7 +1,8 @@
 package org.jetbrains.plugins.scala.console
 
-import collection.mutable.ArrayBuffer
 import com.intellij.execution.process.{ConsoleHistoryModel, ProcessHandler}
+import com.intellij.util.containers.WeakHashMap
+import com.intellij.openapi.project.Project
 
 /**
  * @author Ksenia.Sautina
@@ -9,34 +10,58 @@ import com.intellij.execution.process.{ConsoleHistoryModel, ProcessHandler}
  */
 
 object ScalaConsoleInfo {
-  private var console: ScalaLanguageConsole = null
-  private var processHandler: ProcessHandler = null
-  private var model: ConsoleHistoryModel = null
-  private val allConsoles = new ArrayBuffer[ScalaLanguageConsole]()
+  private val allConsoles =
+    new WeakHashMap[Project, List[(ScalaLanguageConsole, ConsoleHistoryModel, ProcessHandler)]]()
 
-  def getConsole: ScalaLanguageConsole = console
-  def getModel = model
-  def getProcessHandler = processHandler
-
-  def addConsole(console: ScalaLanguageConsole) {
-    this.console = console
-    allConsoles.+=(console)
+  def getConsole(project: Project): ScalaLanguageConsole = {
+    synchronized {
+      allConsoles.get(project) match {
+        case null => null
+        case list => list.headOption.map(_._1).getOrElse(null)
+      }
+    }
   }
 
-  def addProcessHandler(processHandler: ProcessHandler) {
-    this.processHandler = processHandler
+  def getModel(project: Project): ConsoleHistoryModel = {
+    synchronized {
+      allConsoles.get(project) match {
+        case null => null
+        case list => list.headOption.map(_._2).getOrElse(null)
+      }
+    }
   }
 
-  def addModel(model: ConsoleHistoryModel) {
-    this.model = model
+  def getProcessHandler(project: Project): ProcessHandler = {
+    synchronized {
+      allConsoles.get(project) match {
+        case null => null
+        case list => list.headOption.map(_._3).getOrElse(null)
+      }
+    }
   }
 
-  def deleteConsole(console: ScalaLanguageConsole) {
-    allConsoles.-=(console)
+  def addConsole(console: ScalaLanguageConsole, model: ConsoleHistoryModel, processHandler: ProcessHandler) {
+    val project = console.getProject
+    synchronized {
+      allConsoles.get(project) match {
+        case null =>
+          allConsoles.put(project, (console, model, processHandler) :: Nil)
+        case list: List[(ScalaLanguageConsole, ConsoleHistoryModel, ProcessHandler)] =>
+          allConsoles.put(project, (console, model, processHandler) :: list)
+      }
+    }
   }
 
-  def dispose() {
-    console = null
-    allConsoles.clear()
+  def disposeConsole(console: ScalaLanguageConsole) {
+    val project = console.getProject
+    synchronized {
+      allConsoles.get(project) match {
+        case null =>
+        case list: List[(ScalaLanguageConsole, ConsoleHistoryModel, ProcessHandler)] =>
+          allConsoles.put(project, list.filter {
+            case (sConsole, _, _) => sConsole != console
+          })
+      }
+    }
   }
 }
