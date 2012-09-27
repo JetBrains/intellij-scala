@@ -9,7 +9,7 @@ import psi.api.toplevel.ScTypedDefinition
 import psi.api.toplevel.templates.{ScTemplateBody, ScExtendsBlock}
 import psi.api.toplevel.typedef.{ScObject, ScTrait, ScTypeDefinition, ScClass}
 import psi.api.toplevel.packaging.ScPackaging
-import psi.ScalaPsiUtil
+import psi.{ScImportsHolder, ScalaPsiUtil}
 import psi.types._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports._
 import com.intellij.psi._
@@ -70,13 +70,19 @@ trait ResolvableStableCodeReferenceElement extends ScStableCodeReferenceElement 
 
   def doResolve(ref: ScStableCodeReferenceElement, processor: BaseProcessor,
                 accessibilityCheck: Boolean = true): Array[ResolveResult] = {
-    if (ref.getText == "types") {
-      PsiTreeUtil.getContextOfType(ref, classOf[ScImportStmt]) match {
-        case imp: ScImportStmtImpl =>
-          if (imp.getStub != null && imp.getStub.asInstanceOf[ScImportStmtStub].getImportText == "import types.Compatibility.Expression") {
-            "stop"
-          }
-        case _ =>
+    val importStmt = PsiTreeUtil.getContextOfType(ref, true, classOf[ScImportStmt])
+    if (importStmt != null) {
+      val importHolder = PsiTreeUtil.getContextOfType(importStmt, true, classOf[ScImportsHolder])
+      if (importHolder != null) {
+        importHolder.getImportStatements.takeWhile(_ != importStmt).foreach {
+          case stmt: ScImportStmt =>
+            stmt.importExprs.foreach {
+              case expr: ScImportExpr => expr.reference match {
+                case Some(ref) => ref.resolve()
+                case None => expr.qualifier.resolve()
+              }
+            }
+        }
       }
     }
     if (!accessibilityCheck) processor.doNotCheckAccessibility()
