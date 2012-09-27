@@ -17,7 +17,7 @@ import result.{TypingContext, TypeResult}
 import api.base.patterns.ScBindingPattern
 import api.base.ScFieldId
 import api.toplevel.{ScTypeParametersOwner, ScNamedElement}
-import com.intellij.openapi.util.RecursionManager
+import com.intellij.openapi.util.{Computable, RecursionManager}
 import psi.impl.ScalaPsiManager
 import extensions.{toPsiNamedElementExt, toPsiClassExt}
 import com.intellij.util.containers.ConcurrentWeakHashMap
@@ -1692,10 +1692,13 @@ object Conformance {
       if (unSubst.isEmpty) return tuple
       return tuple.copy(_2 = unSubst + tuple._2)
     }
+    if (guard.currentStack().contains(key)) {
+      return (false, new ScUndefinedSubstitutor())
+    }
 
     val uSubst = new ScUndefinedSubstitutor()
 
-    def compute(): (Boolean, ScUndefinedSubstitutor) = {
+    def comp(): (Boolean, ScUndefinedSubstitutor) = {
       val leftVisitor = new LeftConformanceVisitor(l, r, visited, uSubst, checkWeak)
       l.visitType(leftVisitor)
       if (leftVisitor.getResult != null) return leftVisitor.getResult
@@ -1743,7 +1746,10 @@ object Conformance {
         }
       }
     }
-    val res = compute()
+    val res = guard.doPreventingRecursion(key, false, new Computable[(Boolean, ScUndefinedSubstitutor)] {
+      def compute(): (Boolean, ScUndefinedSubstitutor) = comp()
+    })
+    if (res == null) return (false, new ScUndefinedSubstitutor())
     cache.put(key, res)
     if (unSubst.isEmpty) return res
     res.copy(_2 = unSubst + res._2)
