@@ -48,5 +48,6 @@ class Bug3Test extends ResolveTestBase {
   def testSCL4529() {doTest()}
   def testSCL4684() {doTest()}
   def testShadowedImport() {doTest()}
+  def testSOE() {doTest()}
   def testAccessiblePattern() {doTest()}
 }

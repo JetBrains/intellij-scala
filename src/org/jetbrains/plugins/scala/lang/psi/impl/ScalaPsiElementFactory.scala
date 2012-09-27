@@ -210,6 +210,15 @@ object ScalaPsiElementFactory extends JVMElementFactory {
     matchStmt.caseClauses.head.pattern.get
   }
 
+  def createTypeParameterFromText(name: String, manager: PsiManager): ScTypeParam = {
+    val text = s"def foo[$name]() {}"
+    val dummyFile = PsiFileFactory.getInstance(manager.getProject).
+            createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension,
+      ScalaFileType.SCALA_FILE_TYPE, text).asInstanceOf[ScalaFile]
+    val fun = dummyFile.getFirstChild.asInstanceOf[ScFunction]
+    fun.typeParameters(0)
+  }
+
   def createMatch(scrutinee: String, caseClauses: Seq[String], manager: PsiManager): ScMatchStmt = {
     val text = "%s match { %s }".format(scrutinee, caseClauses.mkString("\n"))
     val dummyFile = PsiFileFactory.getInstance(manager.getProject).

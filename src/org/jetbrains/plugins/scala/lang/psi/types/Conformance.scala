@@ -11,20 +11,21 @@ import params._
 import api.toplevel.typedef.ScTypeDefinition
 import _root_.scala.collection.immutable.HashSet
 
-import collection.Seq
+import collection.{immutable, mutable, Seq}
 import lang.resolve.processor.CompoundTypeCheckProcessor
 import result.{TypingContext, TypeResult}
 import api.base.patterns.ScBindingPattern
 import api.base.ScFieldId
 import api.toplevel.{ScTypeParametersOwner, ScNamedElement}
 import com.intellij.openapi.util.{Computable, RecursionManager}
-import psi.impl.ScalaPsiManager
+import psi.impl.{ScalaPsiElementFactory, ScalaPsiManager}
 import extensions.{toPsiNamedElementExt, toPsiClassExt}
 import com.intellij.util.containers.ConcurrentWeakHashMap
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
 import scala.Some
 import com.intellij.psi._
 import collection.mutable.ArrayBuffer
+import api.base.types.ScExistentialClause
 
 object Conformance {
   /**
@@ -1282,8 +1283,63 @@ object Conformance {
       r.visitType(rightVisitor)
       if (result != null) return
 
-      val q = e.quantified
-      result = conformsInner(q, r, HashSet.empty, undefinedSubst)
+      val tptsMap = new mutable.HashMap[String, ScTypeParameterType]()
+      def updateType(t: ScType): ScType = {
+        t.recursiveUpdate {
+          case tp@ScDesignatorType(ta: ScTypeAlias) if ta.getContext.isInstanceOf[ScExistentialClause] =>
+            if (e.boundNames.contains(ta.name)) {
+              val tpt = tptsMap.getOrElseUpdate(ta.name,
+                ScTypeParameterType(ta.name,
+                  ta.typeParameters.map(new ScTypeParameterType(_, ScSubstitutor.empty)).toList,
+                  new Suspension[ScType](() => ta.lowerBound.getOrNothing),
+                  new Suspension[ScType](() => ta.upperBound.getOrAny),
+                  ScalaPsiElementFactory.createTypeParameterFromText(
+                    ta.name, ta.getManager
+                  ))
+              )
+              (true, tpt)
+            } else (false, tp)
+          case tp: ScType => (false, tp)
+        }
+      }
+      val q = updateType(e.quantified)
+      val subst = tptsMap.foldLeft(ScSubstitutor.empty) {
+        case (subst: ScSubstitutor, (_, tpt)) => subst.bindT((tpt.name, ScalaPsiUtil.getPsiElementId(tpt.param)),
+          ScUndefinedType(tpt))
+      }
+      val res = conformsInner(subst.subst(q), r, HashSet.empty, undefinedSubst)
+      if (!res._1) {
+        result = (false, undefinedSubst)
+      } else {
+        val unSubst: ScUndefinedSubstitutor = res._2
+        unSubst.getSubstitutor(notNonable = false) match {
+          case Some(uSubst) =>
+            for (tpt <- tptsMap.values if result == null) {
+              val substedTpt = uSubst.subst(tpt)
+              if (substedTpt != tpt && !conformsInner(substedTpt, uSubst.subst(updateType(tpt.lower.v)), immutable.Set.empty,
+                new ScUndefinedSubstitutor())._1) {
+                result = (false, undefinedSubst)
+              } else if (substedTpt != tpt && !conformsInner(uSubst.subst(updateType(tpt.upper.v)), substedTpt, immutable.Set.empty,
+                new ScUndefinedSubstitutor())._1) {
+                result = (false, undefinedSubst)
+              }
+            }
+            if (result == null) {
+              result = (true, new ScUndefinedSubstitutor(unSubst.upperMap.filter {
+                case (id: (String, String), types: Seq[ScType]) =>
+                  tptsMap.values.find {
+                    case tpt: ScTypeParameterType => id == (tpt.name, ScalaPsiUtil.getPsiElementId(tpt.param))
+                  }.isEmpty
+              }, unSubst.lowerMap.filter {
+                case (id: (String, String), types: Seq[ScType]) =>
+                  tptsMap.values.find {
+                    case tpt: ScTypeParameterType => id == (tpt.name, ScalaPsiUtil.getPsiElementId(tpt.param))
+                  }.isEmpty
+              }))
+            }
+          case None => result = (false, undefinedSubst)
+        }
+      }
     }
 
     override def visitThisType(t: ScThisType) {
