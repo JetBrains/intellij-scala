@@ -71,6 +71,7 @@ trait ResolvableStableCodeReferenceElement extends ScStableCodeReferenceElement 
   def doResolve(ref: ScStableCodeReferenceElement, processor: BaseProcessor,
                 accessibilityCheck: Boolean = true): Array[ResolveResult] = {
     val importStmt = PsiTreeUtil.getContextOfType(ref, true, classOf[ScImportStmt])
+
     if (importStmt != null) {
       val importHolder = PsiTreeUtil.getContextOfType(importStmt, true, classOf[ScImportsHolder])
       if (importHolder != null) {

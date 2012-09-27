@@ -119,7 +119,19 @@ class ScObjectImpl extends ScTypeDefinitionImpl with ScObject with ScTemplateDef
 
   override def processDeclarations(processor: PsiScopeProcessor, state: ResolveState, lastParent: PsiElement,
                                    place: PsiElement): Boolean = {
-    super[ScTemplateDefinition].processDeclarations(processor, state, lastParent, place)
+    if (isPackageObject) {
+      import ScPackageImpl._
+      startPackageObjectProcessing()
+      try {
+        super[ScTemplateDefinition].processDeclarations(processor, state, lastParent, place)
+      } catch {
+        case ignore: DoNotProcessPackageObjectException => true //do nothing, just let's move on
+      } finally {
+        stopPackageObjectProcessing()
+      }
+    } else {
+      super[ScTemplateDefinition].processDeclarations(processor, state, lastParent, place)
+    }
   }
 
   def objectSyntheticMembers: Seq[PsiMethod] = {

@@ -85,15 +85,7 @@ class ScPackageImpl(val pack: PsiPackage) extends PsiPackageImpl(pack.getManager
             obj.getType(TypingContext.empty).foreach {
               case tp: ScType => newState = state.put(BaseProcessor.FROM_TYPE_KEY, tp)
             }
-            import ScPackageImpl._
-            startPackageObjectProcessing()
-            try {
             if (!obj.processDeclarations(processor, newState, lastParent, place)) return false
-            } catch {
-              case ignore: DoNotProcessPackageObjectException => //do nothing, just let's move on
-            } finally {
-              stopPackageObjectProcessing()
-            }
           case _ =>
         }
       }
