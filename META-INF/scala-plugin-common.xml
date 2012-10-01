@@ -787,9 +787,6 @@
         <action id="Scala.EnableErrors" class="org.jetbrains.plugins.scala.actions.ToggleTypeAwareHighlightingAction">
             <keyboard-shortcut first-keystroke="alt control shift E" keymap="$default"/>
         </action>
-        <action id="ScalaConsole.Execute" class="org.jetbrains.plugins.scala.console.ScalaConsoleExecuteAction">
-            <keyboard-shortcut first-keystroke="control ENTER" keymap="$default"/>
-        </action>
         <action id="Scala.GoToImplicit" class="org.jetbrains.plugins.scala.actions.GoToImplicitConversionAction"
                 text="&amp;Implicit Conversion" description="Go To Implicit Conversion">
             <keyboard-shortcut keymap="$default" first-keystroke="control shift Q"/>
