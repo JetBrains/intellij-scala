@@ -534,7 +534,12 @@ object getDummyBlocks {
 
     lines foreach { line =>
       val trimmedLine = line.trim()
-      val linePrefixLength = line.prefixLength(_ == ' ')
+      val linePrefixLength = if (settings useTabCharacter ScalaFileType.SCALA_FILE_TYPE) {
+        val tabsCount = line.prefixLength(_ == '\t')
+        tabsCount/* *settings.getTabSize(ScalaFileType.SCALA_FILE_TYPE)*/ + line.substring(tabsCount).prefixLength(_ == ' ')
+      } else {
+        line.prefixLength(_ == ' ')
+      }
 
       if (trimmedLine.startsWith(marginChar)) {
         subBlocks.add(new StringLineScalaBlock(new TextRange(node.getStartOffset + acc + linePrefixLength,
