@@ -14,7 +14,7 @@ import com.intellij.openapi.components.PathMacroManager
 import lang.psi.impl.ScalaPsiManager
 import lang.psi.api.toplevel.typedef.{ScClass, ScObject}
 import com.intellij.psi.{PsiPackage, JavaPsiFacade, PsiClass}
-import com.intellij.openapi.util.JDOMExternalizer
+import com.intellij.openapi.util.{JDOMExternalizable, Computable, JDOMExternalizer, Getter}
 
 import testingSupport.test.TestRunConfigurationForm.{SearchForTest, TestKind}
 import com.intellij.execution._
@@ -33,7 +33,6 @@ import com.intellij.openapi.projectRoots.Sdk
 import testingSupport.ScalaTestingConfiguration
 import testframework.sm.runner.ui.SMTRunnerConsoleView
 import testframework.TestFrameworkRunningModel
-import com.intellij.openapi.util.{Getter, JDOMExternalizable}
 import lang.psi.impl.ScPackageImpl
 import extensions.toPsiClassExt
 import lang.psi.api.ScPackage
@@ -41,6 +40,7 @@ import collection.mutable.{HashSet, ArrayBuffer}
 import testingSupport.test.AbstractTestRunConfiguration.PropertiesExtension
 import org.jetbrains.plugins.scala.compiler.rt.ClassRunner
 import lang.psi.api.toplevel.ScModifierListOwner
+import com.intellij.openapi.application.ApplicationManager
 
 /**
  * @author Ksenia.Sautina
@@ -196,20 +196,25 @@ abstract class AbstractTestRunConfiguration(val project: Project,
   def getValidModules: java.util.List[Module] = ScalaFacet.findModulesIn(getProject).toList
 
   override def getModules: Array[Module] = {
-    searchTest match {
-      case SearchForTest.ACCROSS_MODULE_DEPENDENCIES if getModule != null =>
-        val buffer = new ArrayBuffer[Module]()
-        buffer += getModule
-        for (module <- ModuleManager.getInstance(getProject).getModules) {
-          if (ModuleManager.getInstance(getProject).isModuleDependent(module, getModule)) {
-            buffer += module
-          }
+    ApplicationManager.getApplication.runReadAction(new Computable[Array[Module]] {
+      @SuppressWarnings(Array("ConstantConditions"))
+      def compute: Array[Module] = {
+        searchTest match {
+          case SearchForTest.ACCROSS_MODULE_DEPENDENCIES if getModule != null =>
+            val buffer = new ArrayBuffer[Module]()
+            buffer += getModule
+            for (module <- ModuleManager.getInstance(getProject).getModules) {
+              if (ModuleManager.getInstance(getProject).isModuleDependent(module, getModule)) {
+                buffer += module
+              }
+            }
+            buffer.toArray
+          case SearchForTest.IN_SINGLE_MODULE if getModule != null => Array(getModule)
+          case SearchForTest.IN_WHOLE_PROJECT => ModuleManager.getInstance(getProject).getModules
+          case _ => Array.empty
         }
-        buffer.toArray
-      case SearchForTest.IN_SINGLE_MODULE if getModule != null => Array(getModule)
-      case SearchForTest.IN_WHOLE_PROJECT => ModuleManager.getInstance(getProject).getModules
-      case _ => Array.empty
-    }
+      }
+    })
   }
 
   override def checkConfiguration() {
