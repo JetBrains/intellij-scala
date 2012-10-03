@@ -20,8 +20,6 @@ import org.jetbrains.plugins.scala.util.ScalaUtils
 import com.intellij.ide.util.MemberChooser
 import _root_.scala.collection.mutable.ArrayBuffer
 import com.intellij.openapi.project.Project
-import result.Failure
-import result.Success
 import settings.ScalaApplicationSettings
 import lang.psi.types.result.{Failure, Success, TypingContext}
 import javax.swing.{JComponent, JCheckBox}
@@ -31,12 +29,9 @@ import org.jetbrains.plugins.scala.actions.ScalaFileTemplateUtil
 import com.intellij.ide.fileTemplates.{FileTemplate, FileTemplateManager}
 import lang.psi.api.expr.ScBlockExpr
 import com.intellij.openapi.util.TextRange
-import com.intellij.openapi.module.{ModuleUtil, Module}
-import config.{ScalaVersionUtil, ScalaFacet}
+import config.ScalaVersionUtil
 import com.intellij.openapi.application.ApplicationManager
 import java.util.{Collections, List, Properties}
-import lang.resolve.processor.BaseProcessor
-import lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
 import scala.Some
 import scala.Boolean
 import scala.Any
@@ -104,6 +99,7 @@ object ScalaOIUtil {
     val classMembers = toMembers(candidates)
     val dontInferReturnTypeCheckBox: JCheckBox = new NonFocusableCheckBox(
       ScalaBundle.message("specify.return.type.explicitly"))
+    dontInferReturnTypeCheckBox.setSelected(true) //default should be true
     val componentBuffer = ArrayBuffer[JComponent](dontInferReturnTypeCheckBox)
     if (ScalaApplicationSettings.getInstance.SPECIFY_RETURN_TYPE_EXPLICITLY != null)
       dontInferReturnTypeCheckBox.setSelected(ScalaApplicationSettings.getInstance.SPECIFY_RETURN_TYPE_EXPLICITLY.booleanValue)
