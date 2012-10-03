@@ -307,7 +307,9 @@ class ScalaFoldingBuilder extends FoldingBuilder {
     if (body == null) return (false, null, "")
     val range = body.getTextRange
     body match {
-      case _: ScBlockExpr => return (true, range, "{...}")
+      case _: ScBlockExpr =>
+        val isCorrectRange = (range.getStartOffset + 1 < range.getEndOffset)
+        return (isCorrectRange, range, "{...}")
       case _ =>
         val isMultilineBody = (body.getText.indexOf("\n") != -1) && (range.getStartOffset + 1 < range.getEndOffset)
         val textRange = if (isMultilineBody) range else null
