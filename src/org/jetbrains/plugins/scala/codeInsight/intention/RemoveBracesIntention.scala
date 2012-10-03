@@ -12,9 +12,9 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.impl.source.codeStyle.CodeEditUtil
 import lang.psi.api.expr._
 import lang.psi.api.base.patterns.ScCaseClause
-import com.intellij.psi.PsiElement._
 import com.intellij.psi.tree.TokenSet
 import lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.util.IntentionAvailabilityChecker
 
 /**
  * Jason Zaugg
@@ -25,9 +25,8 @@ class RemoveBracesIntention extends PsiElementBaseIntentionAction {
 
   override def getText = getFamilyName
 
-  def isAvailable(project: Project, editor: Editor, element: PsiElement) = {
-    check(project, editor, element).isDefined
-  }
+  def isAvailable(project: Project, editor: Editor, element: PsiElement) = 
+    check(project, editor, element).isDefined && IntentionAvailabilityChecker.check(this, element)
 
   override def invoke(project: Project, editor: Editor, element: PsiElement) {
     if (element == null || !element.isValid) return

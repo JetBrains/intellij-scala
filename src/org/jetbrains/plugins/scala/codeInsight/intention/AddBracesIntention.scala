@@ -11,6 +11,7 @@ import lang.psi.api.statements.{ScFunctionDefinition, ScPatternDefinition}
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.impl.source.codeStyle.CodeEditUtil
 import lang.psi.api.expr._
+import org.jetbrains.plugins.scala.util.IntentionAvailabilityChecker
 
 /**
  * Jason Zaugg
@@ -21,9 +22,8 @@ class AddBracesIntention extends PsiElementBaseIntentionAction {
 
   override def getText = "Add braces around single line expression"
 
-  def isAvailable(project: Project, editor: Editor, element: PsiElement) = {
-    check(project, editor, element).isDefined
-  }
+  def isAvailable(project: Project, editor: Editor, element: PsiElement) = 
+    check(project, editor, element).isDefined && IntentionAvailabilityChecker.check(this, element)
 
   override def invoke(project: Project, editor: Editor, element: PsiElement) {
     if (element == null || !element.isValid) return

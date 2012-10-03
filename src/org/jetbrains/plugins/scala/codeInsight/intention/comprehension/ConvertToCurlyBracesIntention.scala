@@ -3,11 +3,13 @@ package org.jetbrains.plugins.scala.codeInsight.intention.comprehension
 import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.editor.Editor
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaFileImpl, ScalaPsiElementFactory}
 import org.jetbrains.plugins.scala.extensions._
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScForStatement
+import org.jetbrains.plugins.scala.ScalaFileType
+import org.jetbrains.plugins.scala.util.IntentionAvailabilityChecker
 
 /**
  * Pavel Fatin
@@ -21,7 +23,8 @@ class ConvertToCurlyBracesIntention extends PsiElementBaseIntentionAction {
   def isAvailable(project: Project, editor: Editor, element: PsiElement) = {
     element match {
       case e @ Parent(_: ScForStatement) =>
-        List(ScalaTokenTypes.tLPARENTHESIS, ScalaTokenTypes.tRPARENTHESIS).contains(e.getNode.getElementType)
+        List(ScalaTokenTypes.tLPARENTHESIS, ScalaTokenTypes.tRPARENTHESIS).contains(e.getNode.getElementType) &&
+          IntentionAvailabilityChecker.check(this, element)
       case _ => false
     }
   }
