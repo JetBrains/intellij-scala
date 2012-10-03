@@ -22,7 +22,7 @@ class ToggleTypeAnnotation extends PsiElementBaseIntentionAction {
   def getFamilyName = ScalaBundle.message("intention.type.annotation.toggle.family")
 
   def isAvailable(project: Project, editor: Editor, element: PsiElement) = {
-    if (element == null || IntentionAvailabilityChecker.check(this, element)) {
+    if (element == null || !IntentionAvailabilityChecker.check(this, element)) {
       false
     } else {
       def message(key: String) {
