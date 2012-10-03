@@ -7,6 +7,8 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockExpr, ScArgumentExprList}
 import com.intellij.psi.{PsiWhiteSpace, PsiElement}
+import org.jetbrains.plugins.scala.ScalaFileType
+import org.jetbrains.plugins.scala.util.IntentionAvailabilityChecker
 
 /**
  * Pavel Fatin
@@ -20,7 +22,7 @@ class BlockExpressionToArgumentIntention extends PsiElementBaseIntentionAction {
   def isAvailable(project: Project, editor: Editor, element: PsiElement) = {
     element match {
       case Both(Parent(block: ScBlockExpr), Parent(Parent(list: ScArgumentExprList)))
-        if list.exprs.size == 1 && block.caseClauses.isEmpty => true
+        if list.exprs.size == 1 && block.caseClauses.isEmpty => IntentionAvailabilityChecker.check(this, element)
       case _ => false
     }
   }

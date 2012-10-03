@@ -7,6 +7,7 @@
 
     <extensionPoints>
         <extensionPoint name="scalaParserPatcher" interface="org.jetbrains.plugins.scala.lang.parser.util.ParserPatcher"/>
+        <extensionPoint name="scalaIntentionAvailabilityChecker" interface="org.jetbrains.plugins.scala.util.IntentionAvailabilityChecker"/>
     </extensionPoints>
 
     <extensions defaultExtensionNs="com.intellij">

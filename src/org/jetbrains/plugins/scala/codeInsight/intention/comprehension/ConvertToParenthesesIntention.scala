@@ -8,6 +8,8 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScForStatement
 import com.intellij.psi.{TokenType, PsiElement}
+import org.jetbrains.plugins.scala.ScalaFileType
+import org.jetbrains.plugins.scala.util.IntentionAvailabilityChecker
 
 /**
  * Pavel Fatin
@@ -21,7 +23,8 @@ class ConvertToParenthesesIntention extends PsiElementBaseIntentionAction {
   def isAvailable(project: Project, editor: Editor, element: PsiElement) = {
     element match {
       case e @ Parent(_: ScForStatement) =>
-        List(ScalaTokenTypes.tLBRACE, ScalaTokenTypes.tRBRACE).contains(e.getNode.getElementType)
+        List(ScalaTokenTypes.tLBRACE, ScalaTokenTypes.tRBRACE).contains(e.getNode.getElementType) && 
+          IntentionAvailabilityChecker.check(this, element)
       case _ => false
     }
   }
