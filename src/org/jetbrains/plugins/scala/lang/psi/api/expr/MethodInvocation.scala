@@ -12,6 +12,7 @@ import com.intellij.psi.{PsiNamedElement, PsiElement}
 import org.jetbrains.plugins.scala.extensions.toSeqExt
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTrait
+import com.intellij.openapi.util.Key
 
 /**
  * Pavel Fatin, Alexander Podkhalyuzin.
@@ -50,24 +51,25 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
    * @return seq of application problems
    */
   def applicationProblems: Seq[ApplicabilityProblem] = {
-    getType(TypingContext.empty) //update applicabilityProblemsVar if needed
-    applicabilityProblemsVar
+    getUpdatableUserData(MethodInvocation.APPLICABILITY_PROBLEMS_VAR_KEY)(Seq.empty)
   }
 
   /**
    * @return map of expressions and parameters
    */
   def matchedParameters: Map[ScExpression, Parameter] = {
-    getType(TypingContext.empty) //update matchedArgumentsVar if needed
-    matchedParametersVar.map(a => a.swap).filter(a => a._1 != null).toMap //todo: catch when expression is null
+    matchedParametersInner.map(a => a.swap).filter(a => a._1 != null).toMap //todo: catch when expression is null
   }
 
   /**
    * @return map of expressions and parameters
    */
   def matchedParametersMap: Map[Parameter, Seq[ScExpression]] = {
-    getType(TypingContext.empty)
-    matchedParametersVar.groupBy(_._1).map(t => t.copy(_2 = t._2.map(_._2)))
+    matchedParametersInner.groupBy(_._1).map(t => t.copy(_2 = t._2.map(_._2)))
+  }
+
+  private def matchedParametersInner: Seq[(Parameter, ScExpression)] = {
+    getUpdatableUserData(MethodInvocation.MATCHED_PARAMETERS_VAR_KEY)(Seq.empty)
   }
 
   /**
@@ -75,8 +77,7 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
    * @return imports used for implicit conversion
    */
   def getImportsUsed: collection.Set[ImportUsed] = {
-    getType(TypingContext.empty) //update importsUsed field
-    importsUsed
+    getUpdatableUserData(MethodInvocation.IMPORTS_USED_KEY)(collection.Set.empty[ImportUsed])
   }
 
   /**
@@ -84,21 +85,16 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
    * @return actual conversion element
    */
   def getImplicitFunction: Option[PsiNamedElement] = {
-    getType(TypingContext.empty)
-    implicitFunction
+    getUpdatableUserData(MethodInvocation.IMPLICIT_FUNCTION_KEY)(None)
   }
 
   /**
    * true if this call is syntactic sugar for apply or update method.
    */
-  def isApplyOrUpdateCall: Boolean = {
-    getType(TypingContext.empty)
-    applyOrUpdate.isDefined
-  }
+  def isApplyOrUpdateCall: Boolean = applyOrUpdateElement.isDefined
 
   def applyOrUpdateElement: Option[PsiElement] = {
-    getType(TypingContext.empty)
-    applyOrUpdate
+    getUpdatableUserData(MethodInvocation.APPLY_OR_UPDATE_KEY)(None)
   }
 
   /**
@@ -164,8 +160,8 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
       val exprs = psiExprs.map(Expression(_))
       val c = fun(exprs)
       def tail: ScType = {
-        applicabilityProblemsVar = c._2
-        matchedParametersVar = c._3
+        setApplicabilityProblemsVar(c._2)
+        setMatchedParametersVar(c._3)
         c._1
       }
       if (!c._2.isEmpty) {
@@ -173,8 +169,8 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
           val cd = fun(e)
           if (!cd._2.isEmpty) tail
           else {
-            applicabilityProblemsVar = cd._2
-            matchedParametersVar = cd._3
+            setApplicabilityProblemsVar(cd._2)
+            setMatchedParametersVar(cd._3)
             cd._1
           }
         }.getOrElse(tail)
@@ -208,18 +204,18 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
     var res: ScType = checkApplication(invokedType, argumentExpressions).getOrElse {
       var (processedType, importsUsed, implicitFunction, applyOrUpdateElement) =
         ScalaPsiUtil.processTypeForUpdateOrApply(invokedType, this, isShape = false).getOrElse {
-          (Nothing, this.importsUsed, this.implicitFunction, this.applyOrUpdateElement)
+          (Nothing, Set.empty[ImportUsed], None, this.applyOrUpdateElement)
         }
       if (useExpectedType) {
         updateAccordingToExpectedType(Success(processedType, None)).foreach(x => processedType = x)
       }
-      this.applyOrUpdate = applyOrUpdateElement
-      this.importsUsed = importsUsed
-      this.implicitFunction = implicitFunction
+      setApplyOrUpdate(applyOrUpdateElement)
+      setImportsUsed(importsUsed)
+      setImplicitFunction(implicitFunction)
       checkApplication(processedType, argumentExpressionsIncludeUpdateCall).getOrElse {
-        this.applyOrUpdate = None
-        applicabilityProblemsVar = Seq(new DoesNotTakeParameters)
-        matchedParametersVar = Seq()
+        setApplyOrUpdate(None)
+        setApplicabilityProblemsVar(Seq(new DoesNotTakeParameters))
+        setMatchedParametersVar(Seq())
         processedType
       }
     }
@@ -235,14 +231,53 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
     Success(res, Some(this))
   }
 
-  private var applicabilityProblemsVar: Seq[ApplicabilityProblem] = Seq.empty
-  private var matchedParametersVar: Seq[(Parameter, ScExpression)] = Seq.empty
-  private var importsUsed: collection.Set[ImportUsed] = collection.Set.empty
-  private var implicitFunction: Option[PsiNamedElement] = None
-  private var applyOrUpdate: Option[PsiElement] = None
+  def setApplicabilityProblemsVar(seq: Seq[ApplicabilityProblem]) {
+    val modCount: Long = getManager.getModificationTracker.getModificationCount
+    putUserData(MethodInvocation.APPLICABILITY_PROBLEMS_VAR_KEY, (modCount, seq))
+  }
+
+  def setMatchedParametersVar(seq: Seq[(Parameter, ScExpression)]) {
+    val modCount: Long = getManager.getModificationTracker.getModificationCount
+    putUserData(MethodInvocation.MATCHED_PARAMETERS_VAR_KEY, (modCount, seq))
+  }
+
+  def setImportsUsed(set: collection.Set[ImportUsed]) {
+    val modCount: Long = getManager.getModificationTracker.getModificationCount
+    putUserData(MethodInvocation.IMPORTS_USED_KEY, (modCount, set))
+  }
+
+  def setImplicitFunction(opt: Option[PsiNamedElement]) {
+    val modCount: Long = getManager.getModificationTracker.getModificationCount
+    putUserData(MethodInvocation.IMPLICIT_FUNCTION_KEY, (modCount, opt))
+  }
+
+  def setApplyOrUpdate(opt: Option[PsiElement]) {
+    val modCount: Long = getManager.getModificationTracker.getModificationCount
+    putUserData(MethodInvocation.APPLY_OR_UPDATE_KEY, (modCount, opt))
+  }
+
+  private def getUpdatableUserData[Res](key: Key[(Long, Res)])(default: =>Res): Res = {
+    val modCount = getManager.getModificationTracker.getModificationCount
+    def getData = Option(getUserData(key)).getOrElse(-1L, default)
+    getData match {
+      case (`modCount`, res) => res
+      case _ =>
+        getType(TypingContext.empty) //update if needed
+        getData match {
+          case (`modCount`, res) => res
+          case _ => default //todo: should we throw an exception in this case?
+        }
+    }
+  }
 }
 
 object MethodInvocation {
   def unapply(invocation: MethodInvocation) =
     Some(invocation.getInvokedExpr, invocation.argumentExpressions)
+
+  private val APPLICABILITY_PROBLEMS_VAR_KEY: Key[(Long, Seq[ApplicabilityProblem])] = Key.create("applicability.problems.var.key")
+  private val MATCHED_PARAMETERS_VAR_KEY: Key[(Long, Seq[(Parameter, ScExpression)])] = Key.create("matched.parameter.var.key")
+  private val IMPORTS_USED_KEY: Key[(Long, collection.Set[ImportUsed])] = Key.create("imports.used.method.invocation.key")
+  private val IMPLICIT_FUNCTION_KEY: Key[(Long, Option[PsiNamedElement])] = Key.create("implicit.function.method.invocation.key")
+  private val APPLY_OR_UPDATE_KEY: Key[(Long, Option[PsiElement])] = Key.create("apply.or.update.key")
 }
