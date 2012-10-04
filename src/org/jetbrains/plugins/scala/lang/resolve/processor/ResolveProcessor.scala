@@ -112,7 +112,9 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
         case o: ScObject if o.isPackageObject && JavaPsiFacade.getInstance(element.getProject).
                 findPackage(o.qualifiedName) != null =>
         case pack: PsiPackage =>
-          addResult(new ScalaResolveResult(ScPackageImpl(pack), getSubst(state), getImports(state), nameShadow, isAccessible = accessible))
+          val resolveResult: ScalaResolveResult =
+            new ScalaResolveResult(ScPackageImpl(pack), getSubst(state), getImports(state), nameShadow, isAccessible = accessible)
+          addResult(resolveResult)
         case clazz: PsiClass if !isThisOrSuperResolve || PsiTreeUtil.isContextAncestor(clazz, ref, true) =>
           addResult(new ScalaResolveResult(named, getSubst(state),
             getImports(state), nameShadow, boundClass = getBoundClass(state), fromType = getFromType(state), isAccessible = accessible))

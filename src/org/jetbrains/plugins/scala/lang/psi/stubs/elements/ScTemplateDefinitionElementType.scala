@@ -59,10 +59,11 @@ extends ScStubElementType[ScTemplateDefinitionStub, ScTemplateDefinition](debugN
       res
     }
 
+    val isLocal: Boolean = psi.containingClass == null && PsiTreeUtil.getParentOfType(psi, classOf[ScTemplateDefinition]) != null
+
     new ScTemplateDefinitionStubImpl[ParentPsi](parent, this, psi.name, psi.qualifiedName, psi.getQualifiedName,
       fileName, signs, isPO, isSFC, isDepr, isImplicitObject, isImplicitClass, javaName, additionalJavaNames,
-      psi.containingClass == null && PsiTreeUtil.getParentOfType(psi, classOf[ScTemplateDefinition]) != null,
-      isOkForJava(psi))
+      isLocal, isOkForJava(psi))
   }
 
   def serialize(stub: ScTemplateDefinitionStub, dataStream: StubOutputStream) {

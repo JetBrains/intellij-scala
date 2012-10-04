@@ -5,12 +5,10 @@ package stubs
 package impl
 
 import com.intellij.pom.java.LanguageLevel
-import com.intellij.psi.impl.java.stubs.PsiClassStub
-import com.intellij.psi.{PsiElement, PsiClass}
+import com.intellij.psi.PsiElement
 import com.intellij.util.io.StringRef
-import com.intellij.psi.stubs.{StubElement, IStubElementType, StubBase}
-import api.toplevel.typedef.{ScTemplateDefinition, ScTypeDefinition}
-import com.intellij.psi.tree.IElementType
+import com.intellij.psi.stubs.{StubElement, IStubElementType}
+import api.toplevel.typedef.ScTemplateDefinition
 
 /**
  * @author ilyas
@@ -35,23 +33,23 @@ extends StubBaseWrapper[ScTemplateDefinition](parent, elemType) with ScTemplateD
   private var local: Boolean = false
   private var visibleInJava: Boolean = false
 
-  def  this(parent: StubElement[ParentPsi],
-          elemType: IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement],
-          name: String,
-          qualName: String,
-          javaQualName: String,
-          sourceFileName: String,
-          methodNames: Array[String],
-          isPackageObject: Boolean,
-          isScriptFileClass: Boolean,
-          isDeprecated: Boolean,
-          isImplicitObject: Boolean,
-          isImplicitClass: Boolean,
-          javaName: String,
-          additionalJavaNames: Array[String],
-          isLocal: Boolean,
-          visibleInJava: Boolean) {
-    this (parent, elemType.asInstanceOf[IStubElementType[StubElement[PsiElement], PsiElement]])
+  def this(parent: StubElement[ParentPsi],
+           elemType: IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement],
+           name: String,
+           qualName: String,
+           javaQualName: String,
+           sourceFileName: String,
+           methodNames: Array[String],
+           isPackageObject: Boolean,
+           isScriptFileClass: Boolean,
+           isDeprecated: Boolean,
+           isImplicitObject: Boolean,
+           isImplicitClass: Boolean,
+           javaName: String,
+           additionalJavaNames: Array[String],
+           isLocal: Boolean,
+           visibleInJava: Boolean) {
+    this(parent, elemType.asInstanceOf[IStubElementType[StubElement[PsiElement], PsiElement]])
     mySourceFileName = sourceFileName
     myName = name
     myQualName = qualName
@@ -69,22 +67,22 @@ extends StubBaseWrapper[ScTemplateDefinition](parent, elemType) with ScTemplateD
   }
 
   def this(parent: StubElement[ParentPsi],
-          elemType: IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement],
-          name: StringRef,
-          qualName: StringRef,
-          javaQualName: StringRef,
-          sourceFileName: StringRef,
-          methodNames: Array[StringRef],
-          isPackageObject: Boolean,
-          isScriptFileClass: Boolean,
-          isDeprecated: Boolean,
-          isImplicitObject: Boolean,
-          isImplicitClass: Boolean,
-          javaName: StringRef,
-          additionalJavaNames: Array[StringRef],
-          isLocal: Boolean,
-          visibleInJava: Boolean) {
-    this (parent, elemType.asInstanceOf[IStubElementType[StubElement[PsiElement], PsiElement]])
+           elemType: IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement],
+           name: StringRef,
+           qualName: StringRef,
+           javaQualName: StringRef,
+           sourceFileName: StringRef,
+           methodNames: Array[StringRef],
+           isPackageObject: Boolean,
+           isScriptFileClass: Boolean,
+           isDeprecated: Boolean,
+           isImplicitObject: Boolean,
+           isImplicitClass: Boolean,
+           javaName: StringRef,
+           additionalJavaNames: Array[StringRef],
+           isLocal: Boolean,
+           visibleInJava: Boolean) {
+    this(parent, elemType.asInstanceOf[IStubElementType[StubElement[PsiElement], PsiElement]])
     mySourceFileName = StringRef.toString(sourceFileName)
     myName = StringRef.toString(name)
     myQualName = StringRef.toString(qualName)

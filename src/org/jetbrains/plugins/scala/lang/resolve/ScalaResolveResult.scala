@@ -106,39 +106,42 @@ class ScalaResolveResult(val element: PsiNamedElement,
     s"""$name [${problems.mkString(", ")}]"""
   }
 
-private var precedence = -1
+  private var precedence = -1
 
   /**
    * 1 - java.lang
    * 2 - scala, scala.Predef
-   * 3 - package local
-   * 4 - wildcard import
-   * 5 - import
-   * 6 - val/var class parameter
-   * 7 - other members and local values
-   */
+   * 3 - package local for package
+   * 4 - wildcard import for package
+   * 5 - import for package
+   * 6 - package local
+   * 7 - wildcard import
+   * 8 - import
+   * 9 - val/var class parameter
+   * 10 - other members and local values
+  */
   def getPrecedence(place: PsiElement, placePackageName: => String): Int = {
     def getPrecedenceInner: Int = {
       def getPackagePrecedence(qualifier: String): Int = {
-        if (qualifier == null) return 7
+        if (qualifier == null) return 10
         val index: Int = qualifier.lastIndexOf('.')
         if (index == -1) return 3
         val q = qualifier.substring(0, index)
         if (q == "java.lang") return 1
         else if (q == "scala") return 2
-        else if (q == placePackageName) return 7
+        else if (q == placePackageName) return 10
         else return 3
       }
       def getClazzPrecedence(clazz: PsiClass): Int = {
         val qualifier = clazz.qualifiedName
-        if (qualifier == null) return 7
+        if (qualifier == null) return 10
         val index: Int = qualifier.lastIndexOf('.')
-        if (index == -1) return 7
+        if (index == -1) return 10
         val q = qualifier.substring(0, index)
         if (q == "java.lang") return 1
         else if (q == "scala") return 2
-        else if (PsiTreeUtil.isContextAncestor(clazz.getContainingFile, place, true)) return 7
-        else return 3
+        else if (PsiTreeUtil.isContextAncestor(clazz.getContainingFile, place, true)) return 10
+        else return 6
       }
       if (importsUsed.size == 0) {
         ScalaPsiUtil.nameContext(getActualElement) match {
@@ -158,7 +161,7 @@ private var precedence = -1
               case _ => null
             }
             //val clazz = PsiTreeUtil.getParentOfType(result.getActualElement, classOf[PsiClass])
-            if (clazz == null) return 7
+            if (clazz == null) return 10
             else {
               clazz.qualifiedName match {
                 case "scala.Predef" => return 2
@@ -167,26 +170,47 @@ private var precedence = -1
                 case _ =>
                   memb match {
                     case param: ScClassParameter if param.isEffectiveVal &&
-                      !PsiTreeUtil.isContextAncestor(clazz, place, true) => return 6
-                    case _ => return 7
+                      !PsiTreeUtil.isContextAncestor(clazz, place, true) => return 9
+                    case _ => return 10
                   }
               }
             }
           }
           case _ =>
         }
-        return 7
+        return 10
       }
       val importsUsedSeq = importsUsed.toSeq
       val importUsed: ImportUsed = importsUsedSeq.apply(importsUsedSeq.length - 1)
       // TODO this conflates imported functions and imported implicit views. ScalaResolveResult should really store
       //      these separately.
       importUsed match {
-        case _: ImportWildcardSelectorUsed => 4
-        case _: ImportSelectorUsed => 5
+        case _: ImportWildcardSelectorUsed =>
+          getActualElement match {
+            case p: PsiPackage => 4
+            case o: ScObject if o.isPackageObject => 4
+            case _ => 7
+          }
+        case _: ImportSelectorUsed =>
+          getActualElement match {
+            case p: PsiPackage => 5
+            case o: ScObject if o.isPackageObject => 5
+            case _ => 8
+          }
         case ImportExprUsed(expr) =>
-          if (expr.singleWildcard) 4
-          else 5
+          if (expr.singleWildcard) {
+            getActualElement match {
+              case p: PsiPackage => 4
+              case o: ScObject if o.isPackageObject => 4
+              case _ => 7
+            }
+          } else {
+            getActualElement match {
+              case p: PsiPackage => 5
+              case o: ScObject if o.isPackageObject => 5
+              case _ => 8
+            }
+          }
       }
     }
     if (precedence == -1) {
