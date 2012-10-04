@@ -9,7 +9,7 @@ package typedef
  * @author ilyas
  */
 
-import com.intellij.openapi.util.{Pair, Iconable}
+import com.intellij.openapi.util.Iconable
 import api.ScalaFile
 import _root_.scala.collection.mutable.ArrayBuffer
 import com.intellij.psi._
@@ -22,16 +22,16 @@ import com.intellij.psi.javadoc.PsiDocComment
 import com.intellij.psi.impl._
 import com.intellij.util.VisibilityIcons
 import javax.swing.Icon
-import psi.stubs.ScTemplateDefinitionStub
+import psi.stubs.{ScMemberOrLocal, ScTemplateDefinitionStub}
+import source.PsiFileImpl
+import stubs.StubElement
 import synthetic.JavaIdentifier
 import types._
-import fake.FakePsiMethod
-import api.base.{ScPrimaryConstructor, ScModifierList}
-import api.toplevel.{ScToplevelElement, ScTypedDefinition}
+import api.base.ScModifierList
+import api.toplevel.ScToplevelElement
 import result.{TypeResult, Failure, Success, TypingContext}
 import util.{PsiUtil, PsiTreeUtil}
 import collection.Seq
-import api.statements.ScAnnotationsHolder
 import api.expr.ScBlock
 import api.toplevel.templates.{ScTemplateParents, ScExtendsBlock, ScTemplateBody}
 import reflect.NameTransformer
@@ -126,6 +126,18 @@ abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTemplate
       }
     }
     this
+  }
+
+  override def isLocal: Boolean = {
+    val stub: StubElement[_ <: PsiElement] = this match {
+      case file: PsiFileImpl => file.getStub
+      case st: ScalaStubBasedElementImpl[_] => st.getStub
+      case _ => null
+    }
+    if (stub.isInstanceOf[ScMemberOrLocal]) {
+      return stub.asInstanceOf[ScMemberOrLocal].isLocal
+    }
+    containingClass == null && PsiTreeUtil.getParentOfType(this, classOf[ScTemplateDefinition]) != null
   }
 
   def nameId = findChildByType(ScalaTokenTypes.tIDENTIFIER)
