@@ -642,7 +642,8 @@ object JavaToScala {
           case parent: PsiAnnotation => res.append("new ")
           case _ => res.append("@")
         }
-        res.append(escapeKeyword(annot.getNameReferenceElement.getText))
+        val nameReferenceElement: PsiJavaCodeReferenceElement = annot.getNameReferenceElement
+        if (nameReferenceElement != null) res.append(escapeKeyword(nameReferenceElement.getText))
         val attributes = annot.getParameterList.getAttributes
         if (attributes.nonEmpty) {
           res.append("(")
