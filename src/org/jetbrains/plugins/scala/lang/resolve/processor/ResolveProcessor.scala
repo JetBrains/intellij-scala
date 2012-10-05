@@ -49,10 +49,15 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
   def resetPrecedence() {
     precedence = 0
   }
+
+  import PrecedenceHelper.PrecedenceTypes._
+  def checkImports(): Boolean = precedence <= IMPORT
   
-  def checkImports(): Boolean = precedence < 6
-  
-  def checkWildcardImports(): Boolean = precedence < 5
+  def checkWildcardImports(): Boolean = precedence <= WILDCARD_IMPORT
+
+  def checkPredefinedClassesAndPackages(): Boolean = precedence <= SCALA
+
+  def checkPackageLocals(): Boolean = precedence <= PACKAGE_LOCAL
 
   protected def getQualifiedName(result: ScalaResolveResult): String = {
     result.getActualElement match {
