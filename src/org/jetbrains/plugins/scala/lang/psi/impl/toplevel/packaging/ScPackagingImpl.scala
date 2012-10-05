@@ -23,7 +23,7 @@ import com.intellij.openapi.project.DumbService
 import caches.ScalaShortNamesCacheManager
 import types.result.TypingContext
 import types.ScType
-import lang.resolve.processor.BaseProcessor
+import lang.resolve.processor.{ResolveProcessor, BaseProcessor}
 
 /**
  * @author Alexander Podkhalyuzin, Pavel Fatin
@@ -118,21 +118,28 @@ class ScPackagingImpl extends ScalaStubBasedElementImpl[ScPackageContainer] with
                                   place: PsiElement): Boolean = {
     if (DumbService.getInstance(getProject).isDumb) return true
 
-    val pName = (if (prefix.length == 0) "" else prefix + ".") + getPackageName
-    ProgressManager.checkCanceled()
-    val p = ScPackageImpl(JavaPsiFacade.getInstance(getProject).findPackage(pName))
-    if (p != null && !p.processDeclarations(processor, state, lastParent, place)) {
-      return false
+    val checkPackageLocals = processor match {
+      case r: ResolveProcessor => r.checkPackageLocals()
+      case _ => true
     }
 
-    findPackageObject(place.getResolveScope) match {
-      case Some(po) =>
-        var newState = state
-        po.getType(TypingContext.empty).foreach {
-          case tp: ScType => newState = state.put(BaseProcessor.FROM_TYPE_KEY, tp)
-        }
-        if (!po.processDeclarations(processor, newState, lastParent, place)) return false
-      case _ =>
+    if (checkPackageLocals) {
+      val pName = (if (prefix.length == 0) "" else prefix + ".") + getPackageName
+      ProgressManager.checkCanceled()
+      val p = ScPackageImpl(JavaPsiFacade.getInstance(getProject).findPackage(pName))
+      if (p != null && !p.processDeclarations(processor, state, lastParent, place)) {
+        return false
+      }
+
+      findPackageObject(place.getResolveScope) match {
+        case Some(po) =>
+          var newState = state
+          po.getType(TypingContext.empty).foreach {
+            case tp: ScType => newState = state.put(BaseProcessor.FROM_TYPE_KEY, tp)
+          }
+          if (!po.processDeclarations(processor, newState, lastParent, place)) return false
+        case _        =>
+      }
     }
 
     if (lastParent != null && lastParent.getContext == this) {

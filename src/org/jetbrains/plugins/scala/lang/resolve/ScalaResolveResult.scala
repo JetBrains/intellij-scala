@@ -109,43 +109,35 @@ class ScalaResolveResult(val element: PsiNamedElement,
   private var precedence = -1
 
   /**
-   * 1 - java.lang
-   * 2 - scala, scala.Predef
-   * 3 - package local for package
-   * 4 - wildcard import for package
-   * 5 - import for package
-   * 6 - package local
-   * 7 - wildcard import
-   * 8 - import
-   * 9 - val/var class parameter
-   * 10 - other members and local values
-  */
+   * See [[org.jetbrains.plugins.scala.lang.resolve.processor.PrecedenceHelper.PrecedenceTypes]]
+   */
   def getPrecedence(place: PsiElement, placePackageName: => String): Int = {
+    import org.jetbrains.plugins.scala.lang.resolve.processor.PrecedenceHelper.PrecedenceTypes._
     def getPrecedenceInner: Int = {
       def getPackagePrecedence(qualifier: String): Int = {
-        if (qualifier == null) return 10
+        if (qualifier == null) return OTHER_MEMBERS
         val index: Int = qualifier.lastIndexOf('.')
-        if (index == -1) return 3
+        if (index == -1) return PACKAGE_LOCAL_PACKAGE
         val q = qualifier.substring(0, index)
-        if (q == "java.lang") return 1
-        else if (q == "scala") return 2
-        else if (q == placePackageName) return 10
-        else return 3
+        if (q == "java.lang") return JAVA_LANG
+        else if (q == "scala") return SCALA
+        else if (q == placePackageName) return OTHER_MEMBERS
+        else return PACKAGE_LOCAL_PACKAGE
       }
       def getClazzPrecedence(clazz: PsiClass): Int = {
         val qualifier = clazz.qualifiedName
-        if (qualifier == null) return 10
+        if (qualifier == null) return OTHER_MEMBERS
         val index: Int = qualifier.lastIndexOf('.')
-        if (index == -1) return 10
+        if (index == -1) return OTHER_MEMBERS
         val q = qualifier.substring(0, index)
-        if (q == "java.lang") return 1
-        else if (q == "scala") return 2
-        else if (PsiTreeUtil.isContextAncestor(clazz.getContainingFile, place, true)) return 10
-        else return 6
+        if (q == "java.lang") return JAVA_LANG
+        else if (q == "scala") return SCALA
+        else if (PsiTreeUtil.isContextAncestor(clazz.getContainingFile, place, true)) return OTHER_MEMBERS
+        else return PACKAGE_LOCAL
       }
       if (importsUsed.size == 0) {
         ScalaPsiUtil.nameContext(getActualElement) match {
-          case synthetic: ScSyntheticClass => return 2 //like scala.Int
+          case synthetic: ScSyntheticClass => return SCALA //like scala.Int
           case obj: ScObject if obj.isPackageObject =>
             val qualifier = obj.qualifiedName
             return getPackagePrecedence(qualifier)
@@ -161,24 +153,24 @@ class ScalaResolveResult(val element: PsiNamedElement,
               case _ => null
             }
             //val clazz = PsiTreeUtil.getParentOfType(result.getActualElement, classOf[PsiClass])
-            if (clazz == null) return 10
+            if (clazz == null) return OTHER_MEMBERS
             else {
               clazz.qualifiedName match {
-                case "scala.Predef" => return 2
-                case "scala.LowPriorityImplicits" => return 2
-                case "scala" => return 2
+                case "scala.Predef" => return SCALA
+                case "scala.LowPriorityImplicits" => return SCALA
+                case "scala" => return SCALA
                 case _ =>
                   memb match {
                     case param: ScClassParameter if param.isEffectiveVal &&
-                      !PsiTreeUtil.isContextAncestor(clazz, place, true) => return 9
-                    case _ => return 10
+                      !PsiTreeUtil.isContextAncestor(clazz, place, true) => return VAL_VAR_CLASS_PARAMETER
+                    case _ => return OTHER_MEMBERS
                   }
               }
             }
           }
           case _ =>
         }
-        return 10
+        return OTHER_MEMBERS
       }
       val importsUsedSeq = importsUsed.toSeq
       val importUsed: ImportUsed = importsUsedSeq.apply(importsUsedSeq.length - 1)
@@ -187,28 +179,28 @@ class ScalaResolveResult(val element: PsiNamedElement,
       importUsed match {
         case _: ImportWildcardSelectorUsed =>
           getActualElement match {
-            case p: PsiPackage => 4
-            case o: ScObject if o.isPackageObject => 4
-            case _ => 7
+            case p: PsiPackage => WILDCARD_IMPORT_PACKAGE
+            case o: ScObject if o.isPackageObject => WILDCARD_IMPORT_PACKAGE
+            case _ => WILDCARD_IMPORT
           }
         case _: ImportSelectorUsed =>
           getActualElement match {
-            case p: PsiPackage => 5
-            case o: ScObject if o.isPackageObject => 5
-            case _ => 8
+            case p: PsiPackage => IMPORT_PACKAGE
+            case o: ScObject if o.isPackageObject => IMPORT_PACKAGE
+            case _ => IMPORT
           }
         case ImportExprUsed(expr) =>
           if (expr.singleWildcard) {
             getActualElement match {
-              case p: PsiPackage => 4
-              case o: ScObject if o.isPackageObject => 4
-              case _ => 7
+              case p: PsiPackage => WILDCARD_IMPORT_PACKAGE
+              case o: ScObject if o.isPackageObject => WILDCARD_IMPORT_PACKAGE
+              case _ => WILDCARD_IMPORT
             }
           } else {
             getActualElement match {
-              case p: PsiPackage => 5
-              case o: ScObject if o.isPackageObject => 5
-              case _ => 8
+              case p: PsiPackage => IMPORT_PACKAGE
+              case o: ScObject if o.isPackageObject => IMPORT_PACKAGE
+              case _ => IMPORT
             }
           }
       }
