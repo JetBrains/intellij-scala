@@ -16,7 +16,6 @@ import com.intellij.psi.impl.source.tree.java.PsiLiteralExpressionImpl
 import java.lang.{StringBuilder, String}
 import api.base.ScLiteral
 import com.intellij.psi._
-import org.jetbrains.annotations.NotNull
 import org.jetbrains.plugins.scala.extensions._
 import api.ScalaElementVisitor
 import com.intellij.lang.injection.InjectedLanguageManager
@@ -49,10 +48,9 @@ class ScLiteralImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScLite
           ScalaPsiManager.ClassCategory.TYPE)
         if (sym != null) ScType.designator(sym) else Nothing
       }
-      case ScalaTokenTypes.tSTRING | ScalaTokenTypes.tWRONG_STRING | ScalaTokenTypes.tMULTILINE_STRING => {
+      case ScalaTokenTypes.tSTRING | ScalaTokenTypes.tWRONG_STRING | ScalaTokenTypes.tMULTILINE_STRING =>
         val str = ScalaPsiManager.instance(getProject).getCachedClass(getResolveScope, "java.lang.String")
         if (str != null) ScType.designator(str) else Nothing
-      }
       case ScalaTokenTypes.kTRUE | ScalaTokenTypes.kFALSE => Boolean
       case _ => return Failure("Wrong Psi to get Literal type", Some(this))
     }
@@ -101,7 +99,7 @@ class ScLiteralImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScLite
           try {
             java.lang.Long.valueOf(text.substring(0, text.length - 1))
           } catch {
-            case e => null
+            case e: Exception => null
           }
         else {
           try {
@@ -113,7 +111,7 @@ class ScLiteralImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScLite
               Integer.valueOf(text)
             }
           } catch {
-            case e => null
+            case e: Exception => null
           }
         }
       case ScalaTokenTypes.tFLOAT =>
@@ -121,13 +119,13 @@ class ScLiteralImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScLite
           try {
             java.lang.Float.valueOf(text.substring(0, text.length - 1))
           } catch {
-            case e => null
+            case e: Exception => null
           }
         else
           try {
             java.lang.Double.valueOf(text)
           } catch {
-            case e => null
+            case e: Exception => null
           }
       case _ => null
     }
@@ -163,7 +161,7 @@ class ScLiteralImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScLite
     case _ => false
   }
 
-  @NotNull override def getReferences: Array[PsiReference] = {
+  override def getReferences: Array[PsiReference] = {
     PsiReferenceService.getService.getContributedReferences(this)
   }
 

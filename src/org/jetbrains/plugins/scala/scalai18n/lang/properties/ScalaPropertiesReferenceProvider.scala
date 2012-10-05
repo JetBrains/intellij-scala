@@ -8,7 +8,6 @@ import com.intellij.util.ProcessingContext
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import collection.mutable
 import org.jetbrains.plugins.scala.scalai18n.codeInspection.i18n.ScalaI18nUtil
-import org.jetbrains.annotations.NotNull
 
 /**
  * @author Ksenia.Sautina
@@ -16,11 +15,11 @@ import org.jetbrains.annotations.NotNull
  */
 
 class ScalaPropertiesReferenceProvider(myDefaultSoft: Boolean) extends PsiReferenceProvider {
-  override def acceptsTarget(@NotNull target: PsiElement): Boolean = {
+  override def acceptsTarget(target: PsiElement): Boolean = {
     target.isInstanceOf[IProperty]
   }
 
-  @NotNull def getReferencesByElement(@NotNull element: PsiElement, @NotNull context: ProcessingContext): Array[PsiReference] = {
+  def getReferencesByElement(element: PsiElement, context: ProcessingContext): Array[PsiReference] = {
     var value: AnyRef = null
     var bundleName: String = null
     var soft: Boolean = myDefaultSoft

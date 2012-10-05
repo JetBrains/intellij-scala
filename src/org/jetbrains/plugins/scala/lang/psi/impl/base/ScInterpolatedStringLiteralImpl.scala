@@ -12,7 +12,6 @@ import lang.psi.impl.ScalaPsiElementFactory
 import caches.CachesUtil
 import com.intellij.psi.util.PsiModificationTracker
 import lang.lexer.ScalaTokenTypes
-import lang.parser.ScalaElementTypes
 
 
 /**
@@ -28,11 +27,19 @@ class ScInterpolatedStringLiteralImpl(node: ASTNode) extends ScLiteralImpl(node)
     case _ => null
   }
 
-  protected override def innerType(ctx: TypingContext): TypeResult[ScType] =
-    Option(getFirstChild.findReferenceAt(0)).map(_.resolve()).getOrElse(null) match {
-      case f: ScFunctionDefinition => f.returnType
+  protected override def innerType(ctx: TypingContext): TypeResult[ScType] = {
+    reference.map(_.resolve()) match {
+      case Some(f: ScFunctionDefinition) => f.returnType
       case _ => Failure(s"Cannot find method ${getFirstChild.getText} of String Context", Some(this))
     }
+  }
+
+  def reference: Option[ScReferenceExpression] = {
+    getFirstChild match {
+      case ref: ScReferenceExpression => Some(ref)
+      case _ => None
+    }
+  }
 
   def getInjections: Array[ScExpression] = {
     getNode.getChildren(null).flatMap { _.getPsi match {
