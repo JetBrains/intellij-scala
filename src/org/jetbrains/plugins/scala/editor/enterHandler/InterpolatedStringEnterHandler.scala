@@ -11,6 +11,7 @@ import com.intellij.lang.ASTNode
 import com.intellij.openapi.util.Ref
 import com.intellij.lexer.StringLiteralLexer
 import com.intellij.psi.{StringEscapesTokenTypes, PsiFile}
+import lang.parser.ScalaElementTypes
 
 /**
  * User: Dmitry Naydanov
@@ -31,16 +32,16 @@ class InterpolatedStringEnterHandler extends EnterHandlerDelegateAdapter {
     }
 
 
-    Option(element).foreach(a =>
+    Option(element) foreach (a =>
       if (Set(tINTERPOLATED_STRING, tINTERPOLATED_STRING_ESCAPE, tINTERPOLATED_STRING_END).contains(a.getNode.getElementType)) {
         a.getParent.getFirstChild.getNode match {
-          case b: ASTNode if b.getElementType == tINTERPOLATED_STRING_ID =>
+          case b: ASTNode if b.getElementType == tINTERPOLATED_STRING_ID || 
+            b.getElementType == ScalaElementTypes.INTERPOLATED_STRING_PREFIX_REFERENCE =>
+            
             if (a.getNode.getElementType == tINTERPOLATED_STRING_ESCAPE) {
-              if (caretOffset.get - a.getTextOffset == 1) {
-                modifyOffset(1)
-              }
+              if (caretOffset.get - a.getTextOffset == 1) modifyOffset(1)
             } else {
-              val lexer: StringLiteralLexer = new StringLiteralLexer(StringLiteralLexer.NO_QUOTE_CHAR, a.getNode.getElementType)
+              val lexer = new StringLiteralLexer(StringLiteralLexer.NO_QUOTE_CHAR, a.getNode.getElementType)
               lexer.start(a.getText, 0, a.getTextLength)
 
               do {
