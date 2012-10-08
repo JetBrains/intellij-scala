@@ -45,7 +45,7 @@ import com.intellij.psi.impl.light.LightModifierList
 import collection.immutable.Stream
 import com.intellij.psi.impl.source.PsiFileImpl
 import com.intellij.psi.stubs.StubElement
-import com.intellij.openapi.module.{ModuleUtilCore, ModuleUtil, Module}
+import com.intellij.openapi.module.{ModuleUtilCore, Module}
 import config.ScalaFacet
 import reflect.NameTransformer
 import caches.CachesUtil
@@ -54,9 +54,8 @@ import extensions._
 import collection.mutable.{ListBuffer, HashSet, ArrayBuffer}
 import com.intellij.psi.impl.compiled.ClsFileImpl
 import collection.{Set, Seq}
-import org.apache.log4j.{Level, Logger}
+import org.apache.log4j.Level
 import com.intellij.lang.impl.PsiBuilderImpl
-import com.intellij.idea.IdeaLogger
 import com.intellij.openapi.diagnostic
 
 /**
@@ -93,6 +92,9 @@ object ScalaPsiUtil {
                        dep_item: Object = PsiModificationTracker.OUT_OF_CODE_BLOCK_MODIFICATION_COUNT): Option[Object] = {
     element.getContainingFile match {
       case file: ScalaFile if file.isCompiled =>
+        if (!ProjectRootManager.getInstance(element.getProject).getFileIndex.isInContent(file.getVirtualFile)) {
+          return Some(dep_item)
+        }
         var dir = file.getParent
         while (dir != null) {
           if (dir.getName == "scala-library.jar") return None
