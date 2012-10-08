@@ -8,7 +8,6 @@ import api.toplevel.imports.{ScImportSelector, ScImportSelectors, ScImportExpr, 
 import api.toplevel.templates.ScTemplateBody
 import api.{ScalaRecursiveElementVisitor, ScalaFile}
 import com.intellij.psi.impl.source.codeStyle.CodeEditUtil
-import impl.toplevel.imports.ScImportStmtImpl
 import impl.{ScPackageImpl, ScalaPsiElementFactory}
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import api.toplevel.imports.usages.{ImportSelectorUsed, ImportExprUsed, ImportWildcardSelectorUsed, ImportUsed}
@@ -25,7 +24,6 @@ import lang.resolve.processor.{CompletionProcessor, ResolveProcessor}
 import com.intellij.psi.util.PsiTreeUtil
 import java.lang.ThreadLocal
 import com.intellij.openapi.util.{Trinity, RecursionManager}
-import stubs.ScImportStmtStub
 import types.result.TypingContext
 import types.ScDesignatorType
 import extensions.{toPsiMemberExt, toPsiNamedElementExt, toPsiClassExt}
@@ -33,10 +31,21 @@ import settings._
 import lang.resolve.{ScalaResolveResult, StdKinds}
 import annotation.tailrec
 import collection.mutable.{HashMap, HashSet, ArrayBuffer, Set}
+import com.intellij.psi.stubs.StubElement
 
 trait ScImportsHolder extends ScalaPsiElement {
 
-  def getImportStatements: Seq[ScImportStmt] = collection.immutable.Seq(findChildrenByClassScala(classOf[ScImportStmt]).toSeq: _*)
+  def getImportStatements: Seq[ScImportStmt] = {
+    this match {
+      case s: ScalaStubBasedElementImpl[_] =>
+        val stub: StubElement[_] = s.getStub
+        if (stub != null) {
+          return stub.getChildrenByType(ScalaElementTypes.IMPORT_STMT, JavaArrayFactoryUtil.ScImportStmtFactory).toSeq
+        }
+      case _ =>
+    }
+    collection.immutable.Seq(findChildrenByClassScala(classOf[ScImportStmt]).toSeq: _*)
+  }
   
   @volatile
   private var modCount: Long = 0L
