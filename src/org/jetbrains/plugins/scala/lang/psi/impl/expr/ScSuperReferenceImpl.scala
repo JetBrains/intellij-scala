@@ -16,7 +16,7 @@ import com.intellij.util.IncorrectOperationException
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.openapi.util.TextRange
 import com.intellij.lang.ASTNode
-import types.result.{TypingContext, Failure}
+import types.result.TypingContext
 import api.{ScalaFile, ScalaElementVisitor}
 import com.intellij.psi._
 import extensions.{toPsiNamedElementExt, toPsiClassExt}
@@ -44,8 +44,15 @@ class ScSuperReferenceImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with
               val path = commentText.substring(2, commentText.length - 2)
               val classes = ScalaPsiManager.instance(getProject).getCachedClasses(getResolveScope, path)
               if (classes.length == 1) {
-                drvTemplate.map(!_.isInheritor(classes(0), deep = true)).getOrElse(false)
-              } else classes.find(!_.isInstanceOf[ScObject]).map(!_.isInheritor(classes(0), true)).getOrElse(false)
+                drvTemplate.map(!_.isInheritor(classes(0), deep = false)).getOrElse(false)
+              } else {
+                val clazz: Option[PsiClass] = classes.find(!_.isInstanceOf[ScObject])
+                clazz match {
+                  case Some(clazz) =>
+                    drvTemplate.map(!_.isInheritor(clazz, deep = false)).getOrElse(false)
+                  case _ => false
+                }
+              }
             case _ => false
           }
         case _ => false
