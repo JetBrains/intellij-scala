@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.testingSupport.test;
 
-import com.intellij.execution.actions.AbstractRerunFailedTestsAction;
 import com.intellij.execution.configurations.RunConfigurationBase;
+import com.intellij.execution.testframework.actions.AbstractRerunFailedTestsAction;
 import scala.Tuple2;
 import scala.collection.Seq;
 

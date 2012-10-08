@@ -101,6 +101,7 @@ object ScSyntheticPackage {
             def getSubPackages: Array[PsiPackage] = Array.empty
             def getSubPackages(scope: GlobalSearchScope) = Array.empty
             def getContainer: PsiQualifiedNamedElement = null
+            def findClassByShortName(name: String, scope: GlobalSearchScope): Array[PsiClass] = Array.empty
           }
         case None => null
       }
@@ -112,6 +113,10 @@ object ScSyntheticPackage {
       if (pkgs.isEmpty) null else {
         val pname = if (i < 0) "" else fqn.substring(0, i)
         new ScSyntheticPackage(name, PsiManager.getInstance(project)) {
+          def findClassByShortName(name: String, scope: GlobalSearchScope): Array[PsiClass] = {
+            getClasses.filter(_.name == name)
+          }
+
           def containsClassNamed(name: String): Boolean = {
             getClasses.find(_.name == name) != None
           }
