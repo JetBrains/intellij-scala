@@ -10,7 +10,7 @@ import com.intellij.psi._
 import api.toplevel.ScTypedDefinition
 import result.TypingContext
 import api.toplevel.typedef.ScTypeDefinition
-import collection.immutable.{HashMap, Map}
+import collection.immutable.{HashSet, HashMap, Map}
 
 /**
 * @author ven
@@ -290,7 +290,8 @@ class ScSubstitutor(val tvMap: Map[(String, String), ScType],
   }
 }
 
-class ScUndefinedSubstitutor(val upperMap: Map[(String, String), Seq[ScType]], val lowerMap: Map[(String, String), Seq[ScType]]) {
+class ScUndefinedSubstitutor(val upperMap: Map[(String, String), HashSet[ScType]],
+                             val lowerMap: Map[(String, String), HashSet[ScType]]) {
   type Name = (String, String)
 
   def this() = this(HashMap.empty, HashMap.empty)
@@ -329,8 +330,8 @@ class ScUndefinedSubstitutor(val upperMap: Map[(String, String), Seq[ScType]], v
       }
     }, -1)
     lowerMap.get(name) match {
-      case Some(seq: Seq[ScType]) => new ScUndefinedSubstitutor(upperMap, lowerMap.updated(name, Seq(lower) ++ seq))
-      case None => new ScUndefinedSubstitutor(upperMap, lowerMap + ((name, Seq(lower))))
+      case Some(set: HashSet[ScType]) => new ScUndefinedSubstitutor(upperMap, lowerMap.updated(name, set + lower))
+      case None => new ScUndefinedSubstitutor(upperMap, lowerMap + ((name, HashSet(lower))))
     }
   }
 
@@ -347,8 +348,8 @@ class ScUndefinedSubstitutor(val upperMap: Map[(String, String), Seq[ScType]], v
       }
     }, 1)
     upperMap.get(name) match {
-      case Some(seq: Seq[ScType]) => new ScUndefinedSubstitutor(upperMap.updated(name, Seq(upper) ++ seq), lowerMap)
-      case None => new ScUndefinedSubstitutor(upperMap + ((name, Seq(upper))), lowerMap)
+      case Some(set: HashSet[ScType]) => new ScUndefinedSubstitutor(upperMap.updated(name, set + upper), lowerMap)
+      case None => new ScUndefinedSubstitutor(upperMap + ((name, HashSet(upper))), lowerMap)
     }
   }
 
@@ -375,7 +376,7 @@ class ScUndefinedSubstitutor(val upperMap: Map[(String, String), Seq[ScType]], v
         case Some(tp) => Some(tp)
         case _ =>
           lowerMap.get(name) match {
-            case Some(seq) =>
+            case Some(set) =>
               var res = false
               def checkRecursive(tp: ScType): Boolean = {
                 tp.recursiveUpdate {
@@ -403,7 +404,7 @@ class ScUndefinedSubstitutor(val upperMap: Map[(String, String), Seq[ScType]], v
                 }
                 true
               }
-              val seqIterator = seq.iterator
+              val seqIterator = set.iterator
               while (seqIterator.hasNext) {
                 val p = seqIterator.next()
                 if (!checkRecursive(p)) {
@@ -411,13 +412,12 @@ class ScUndefinedSubstitutor(val upperMap: Map[(String, String), Seq[ScType]], v
                   return None
                 }
               }
-              if (seq.nonEmpty) {
+              if (set.nonEmpty) {
                 val subst = if (res) new ScSubstitutor(IHashMap.empty ++ tvMap, Map.empty, None) else ScSubstitutor.empty
-                var lower = subst.subst(seq(0))
-                var i = 1
-                while (i < seq.length) {
-                  lower = Bounds.lub(lower, seq(i))
-                  i += 1
+                var lower: ScType = Nothing
+                val setIterator = set.iterator
+                while (setIterator.hasNext) {
+                  lower = Bounds.lub(lower, subst.subst(setIterator.next()))
                 }
                 lMap += ((name, lower))
                 tvMap += ((name, lower))
@@ -425,7 +425,7 @@ class ScUndefinedSubstitutor(val upperMap: Map[(String, String), Seq[ScType]], v
             case None =>
           }
           upperMap.get(name) match {
-            case Some(seq) =>
+            case Some(set) =>
               var res = false
               def checkRecursive(tp: ScType): Boolean = {
                 tp.recursiveUpdate {
@@ -453,7 +453,7 @@ class ScUndefinedSubstitutor(val upperMap: Map[(String, String), Seq[ScType]], v
                 }
                 true
               }
-              val seqIterator = seq.iterator
+              val seqIterator = set.iterator
               while (seqIterator.hasNext) {
                 val p = seqIterator.next()
                 if (!checkRecursive(p)) {
@@ -461,20 +461,26 @@ class ScUndefinedSubstitutor(val upperMap: Map[(String, String), Seq[ScType]], v
                   return None
                 }
               }
-              if (seq.nonEmpty) {
+              if (set.nonEmpty) {
                 var rType: ScType = Nothing
                 val subst = if (res) new ScSubstitutor(IHashMap.empty ++ tvMap, Map.empty, None) else ScSubstitutor.empty
-                if (seq.length == 1) {
-                  rType = subst.subst(seq(0))
+                val size: Int = set.size
+                if (size == 1) {
+                  rType = subst.subst(set.iterator.next())
                   rMap += ((name, rType))
-                } else if (seq.length > 1) {
-                  rType = Bounds.glb(seq.map(subst.subst(_)), checkWeak = false)
+                } else if (size > 1) {
+                  var upper: ScType = Any
+                  val setIterator = set.iterator
+                  while (setIterator.hasNext) {
+                    upper = Bounds.glb(upper, subst.subst(setIterator.next()), checkWeak = false)
+                  }
+                  rType = upper
                   rMap += ((name, rType))
                 }
                 tvMap.get(name) match {
                   case Some(lower) =>
                     if (!notNonable) {
-                      val seqIterator = seq.iterator
+                      val seqIterator = set.iterator
                       while (seqIterator.hasNext) {
                         val upper = seqIterator.next()
                         if (!lower.conforms(subst.subst(upper))) {

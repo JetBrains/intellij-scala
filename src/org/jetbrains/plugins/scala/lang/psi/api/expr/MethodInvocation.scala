@@ -57,9 +57,17 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
   /**
    * @return map of expressions and parameters
    */
-  def matchedParameters: Map[ScExpression, Parameter] = {
-    matchedParametersInner.map(a => a.swap).filter(a => a._1 != null).toMap //todo: catch when expression is null
+  def matchedParameters: Seq[(ScExpression, Parameter)] = {
+    var res = matchedParametersCache
+    if (res == null) {
+      res = matchedParametersInner.map(a => a.swap).filter(a => a._1 != null) //todo: catch when expression is null
+      matchedParametersCache = res
+    }
+    res
   }
+
+  @volatile
+  private var matchedParametersCache: Seq[(ScExpression, Parameter)] = null
 
   /**
    * @return map of expressions and parameters
@@ -238,6 +246,7 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
 
   def setMatchedParametersVar(seq: Seq[(Parameter, ScExpression)]) {
     val modCount: Long = getManager.getModificationTracker.getModificationCount
+    matchedParametersCache = null
     putUserData(MethodInvocation.MATCHED_PARAMETERS_VAR_KEY, (modCount, seq))
   }
 

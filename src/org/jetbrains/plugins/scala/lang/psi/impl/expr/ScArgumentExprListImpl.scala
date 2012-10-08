@@ -10,7 +10,7 @@ import com.intellij.lang.ASTNode
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import lang.resolve.ScalaResolveResult
 import collection.mutable.ArrayBuffer
-import api.toplevel.typedef.{ScClass}
+import api.toplevel.typedef.ScClass
 import types.result.TypingContext
 import types._
 import api.statements.params.{ScTypeParam, ScParameter}
@@ -124,7 +124,7 @@ class ScArgumentExprListImpl(node: ASTNode) extends ScalaPsiElementImpl(node) wi
     }
   }
 
-  def matchedParameters: Option[Map[ScExpression, Parameter]] = {
+  def matchedParameters: Option[Seq[(ScExpression, Parameter)]] = {
     getContext match {
       case call: ScMethodCall => {
         Some(call.matchedParameters)
