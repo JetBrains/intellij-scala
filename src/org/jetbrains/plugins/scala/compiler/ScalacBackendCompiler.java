@@ -6,7 +6,6 @@ import com.intellij.compiler.OutputParser;
 import com.intellij.compiler.impl.CompilerUtil;
 import com.intellij.compiler.impl.javaCompiler.ExternalCompiler;
 import com.intellij.compiler.impl.javaCompiler.ModuleChunk;
-import com.intellij.compiler.impl.javaCompiler.javac.JavacSettings;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.compiler.CompileContext;
 import com.intellij.openapi.compiler.CompileScope;
@@ -19,7 +18,10 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.projectRoots.JavaSdkType;
 import com.intellij.openapi.projectRoots.Sdk;
 import com.intellij.openapi.projectRoots.impl.MockJdkWrapper;
-import com.intellij.openapi.roots.*;
+import com.intellij.openapi.roots.ModuleRootManager;
+import com.intellij.openapi.roots.OrderEnumerator;
+import com.intellij.openapi.roots.ProjectFileIndex;
+import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.util.Comparing;
 import com.intellij.openapi.util.io.FileUtil;
@@ -35,7 +37,9 @@ import org.jetbrains.plugins.scala.ScalaBundle;
 import org.jetbrains.plugins.scala.ScalaFileType;
 import org.jetbrains.plugins.scala.compiler.rt.ClassRunner;
 import org.jetbrains.plugins.scala.components.CompileServerLauncher;
-import org.jetbrains.plugins.scala.config.*;
+import org.jetbrains.plugins.scala.config.CompilerLibraryData;
+import org.jetbrains.plugins.scala.config.Libraries;
+import org.jetbrains.plugins.scala.config.ScalaFacet;
 import org.jetbrains.plugins.scala.util.ScalaUtils;
 import scala.Option;
 import scala.io.Source;
@@ -522,7 +526,7 @@ public class ScalacBackendCompiler extends ExternalCompiler {
 
   private Sdk getJdkForStartupCommand(final ModuleChunk chunk) {
     final Sdk jdk = chunk.getJdk();
-    if (ApplicationManager.getApplication().isUnitTestMode() && JavacSettings.getInstance(myProject).isTestsUseExternalCompiler()) {
+    if (ApplicationManager.getApplication().isUnitTestMode()) {
       final String jdkHomePath = CompilerConfigurationImpl.getTestsExternalCompilerHome();
       if (jdkHomePath == null) {
         throw new IllegalArgumentException("[TEST-MODE] Cannot determine home directory for JDK to use javac from");

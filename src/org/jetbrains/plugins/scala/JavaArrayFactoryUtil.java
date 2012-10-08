@@ -19,6 +19,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParamCla
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScEarlyDefinitions;
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportExpr;
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportSelector;
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt;
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging.ScPackaging;
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScExtendsBlock;
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody;
@@ -112,6 +113,13 @@ public class JavaArrayFactoryUtil {
     @Override
     public ScImportExpr[] create(int count) {
       return new ScImportExpr[count];
+    }
+  };
+
+  public static ArrayFactory<ScImportStmt> ScImportStmtFactory = new ArrayFactory<ScImportStmt>() {
+    @Override
+    public ScImportStmt[] create(int count) {
+      return new ScImportStmt[count];
     }
   };
 
