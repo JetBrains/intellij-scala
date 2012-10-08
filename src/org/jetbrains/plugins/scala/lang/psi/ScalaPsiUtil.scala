@@ -1540,7 +1540,7 @@ object ScalaPsiUtil {
                         .flatMap(_.resolve().asOptionOf[ScPrimaryConstructor]) // TODO secondary constructors
                         .flatMap(_.parameters.lift(args.exprs.indexOf(exp)))   // TODO secondary parameter lists
                         .map(p => new Parameter(p))
-              case _ => args.matchedParameters.getOrElse(Map.empty).get(exp)
+              case _ => args.matchedParameters.getOrElse(Seq.empty).find(_._1 == exp).map(_._2)
             }
           case _ => None
         }
@@ -1597,7 +1597,7 @@ object ScalaPsiUtil {
     expr.getContext match {
       case x: ScArgumentExprList => x.getContext match {
         case mc: ScMethodCall =>
-          mc.matchedParameters.get(expr) match {
+          mc.matchedParameters.find(_._1 == expr).map(_._2) match {
             case Some(param) if param.isByName => true
             case _ => false
           }

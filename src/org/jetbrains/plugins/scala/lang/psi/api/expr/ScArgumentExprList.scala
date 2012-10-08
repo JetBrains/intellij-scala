@@ -63,14 +63,14 @@ trait ScArgumentExprList extends ScArguments {
    * Mapping from argument expressions to corresponding parameters, as found during
    * applicability checking.
    */
-  def matchedParameters: Option[Map[ScExpression, Parameter]]
+  def matchedParameters: Option[Seq[(ScExpression, Parameter)]]
 
   def parameterOf(argExpr: ScExpression): Option[Parameter] = matchedParameters.flatMap {
-    (params) =>
+    case params =>
       argExpr match {
         case a: ScAssignStmt =>
-          params.get(argExpr).orElse(parameterOf(a.getRExpression.getOrElse(return None)))
-        case _ => params.get(argExpr)
+          params.find(_._1 == argExpr).map(_._2).orElse(parameterOf(a.getRExpression.getOrElse(return None)))
+        case _ => params.find(_._1 == argExpr).map(_._2)
       }
   }
 

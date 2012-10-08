@@ -164,8 +164,8 @@ object NameSuggester {
       }
       case _ => expr.getContext match {
         case x: ScAssignStmt => x.assignName.foreach(add(_))
-        case x: ScArgumentExprList => x.matchedParameters.getOrElse(Map.empty).get(expr) match {
-          case Some(parameter) => add(parameter.name)
+        case x: ScArgumentExprList => x.matchedParameters.getOrElse(Seq.empty).find(_._1 == expr) match {
+          case Some((_, parameter)) => add(parameter.name)
           case _ =>
         }
         case _ =>
