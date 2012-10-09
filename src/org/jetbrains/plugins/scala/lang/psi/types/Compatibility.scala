@@ -184,7 +184,11 @@ object Compatibility {
         case Expression(assign@NamedAssignStmt(name)) => {
           val ind = parameters.indexWhere(_.name == name)
           if (ind == -1 || used(ind) == true) {
-            problems :::= doNoNamed(Expression(assign)).reverse
+            def extractExpression(assign: ScAssignStmt): ScExpression = {
+              if (ScUnderScoreSectionUtil.isUnderscoreFunction(assign)) assign
+              else assign.getRExpression.getOrElse(assign)
+            }
+            problems :::= doNoNamed(Expression(extractExpression(assign))).reverse
           } else {
             if (!checkNames)
               return ConformanceExtResult(Seq(new ApplicabilityProblem("9")), undefSubst, defaultParameterUsed, matched)
