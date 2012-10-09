@@ -286,13 +286,13 @@ object MethodResolveProcessor {
           }
           for (TypeParameter(name, lowerType, upperType, tParam) <- typeParameters) {
             if (lowerType != Nothing) {
-              val substedLower = unSubst.subst(lowerType)
+              val substedLower = s.subst(unSubst.subst(lowerType))
               if (!hasRecursiveTypeParameters(substedLower)) {
                 uSubst = uSubst.addLower((tParam.name, ScalaPsiUtil.getPsiElementId(tParam)), substedLower)
               }
             }
             if (upperType != Any) {
-              val substedUpper = unSubst.subst(upperType)
+              val substedUpper = s.subst(unSubst.subst(upperType))
               if (!hasRecursiveTypeParameters(substedUpper)) {
                 uSubst = uSubst.addUpper((tParam.name, ScalaPsiUtil.getPsiElementId(tParam)), substedUpper)
               }
