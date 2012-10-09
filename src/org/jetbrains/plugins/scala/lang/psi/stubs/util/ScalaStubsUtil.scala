@@ -8,22 +8,23 @@ package util
 import index.{ScSelfTypeInheritorsIndex, ScDirectInheritorsIndex}
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.stubs.StubIndex
-import com.intellij.psi.{PsiElement, PsiClass}
+import com.intellij.psi.{PsiMethod, PsiElement, PsiClass}
 import elements.ScTemplateDefinitionElementType
 import psi.impl.toplevel.templates.ScExtendsBlockImpl
 import com.intellij.util.indexing.FileBasedIndex
 import com.intellij.openapi.diagnostic.Logger
-import api.toplevel.typedef.ScTemplateDefinition
+import api.toplevel.typedef.{ScObject, ScTemplateDefinition}
 import collection.mutable.ArrayBuffer
 import api.expr.ScAnnotation
 import com.intellij.psi.util.{PsiTreeUtil, PsiUtilCore}
 import extensions.toPsiNamedElementExt
-import api.base.types.ScSelfTypeElement
 import psi.impl.base.types.ScSelfTypeElementImpl
 import psi.types.result.{Success, TypingContext}
 import psi.types.{ScCompoundType, ScType}
 import com.intellij.psi.search.searches.ClassInheritorsSearch
 import com.intellij.util.Processor
+import api.statements.{ScVariable, ScValue}
+import api.toplevel.packaging.ScPackageContainer
 
 /**
  * User: Alexander Podkhalyuzin
@@ -113,7 +114,7 @@ object ScalaStubsUtil {
       case x: ScExtendsBlockImpl => true
       case _ => {
         val faultyContainer = PsiUtilCore.getVirtualFile(element)
-        LOG.error("Wrong Psi in Psi list: " + faultyContainer)
+        LOG.error(s"Non ScExtendsBlock in ScExtendsBlock list: $faultyContainer. found: $element")
         if (faultyContainer != null && faultyContainer.isValid) {
           FileBasedIndex.getInstance.requestReindex(faultyContainer)
         }
@@ -127,7 +128,7 @@ object ScalaStubsUtil {
       case x: ScSelfTypeElementImpl => true
       case _ => {
         val faultyContainer = PsiUtilCore.getVirtualFile(element)
-        LOG.error("Wrong Psi in Psi list: " + faultyContainer)
+        LOG.error(s"Non ScSelfTypeElement in ScSelfTypeElement list: $faultyContainer. found: $element")
         if (faultyContainer != null && faultyContainer.isValid) {
           FileBasedIndex.getInstance.requestReindex(faultyContainer)
         }
@@ -141,12 +142,93 @@ object ScalaStubsUtil {
       case x: ScAnnotation => true
       case _ => {
         val faultyContainer = PsiUtilCore.getVirtualFile(element)
-        LOG.error("Wrong Psi in Psi list: " + faultyContainer)
+        LOG.error(s"Non ScAnnotation in ScAnnotation list: $faultyContainer. found: $element")
         if (faultyContainer != null && faultyContainer.isValid) {
           FileBasedIndex.getInstance.requestReindex(faultyContainer)
         }
         false
       }
+    }
+  }
+
+  def checkPsiForClass(element: PsiElement): Boolean = {
+    element match {
+      case x: PsiClass => true
+      case _ => {
+        val faultyContainer = PsiUtilCore.getVirtualFile(element)
+        LOG.error(s"Non PsiClass in PsiClass list: $faultyContainer. found: $element")
+        if (faultyContainer != null && faultyContainer.isValid) {
+          FileBasedIndex.getInstance.requestReindex(faultyContainer)
+        }
+        false
+      }
+    }
+  }
+
+  def checkPsiForValue(element: PsiElement): Boolean = {
+    element match {
+      case x: ScValue => true
+      case _ => {
+        val faultyContainer = PsiUtilCore.getVirtualFile(element)
+        LOG.error(s"Non ScValue in ScValue list: $faultyContainer. found: $element")
+        if (faultyContainer != null && faultyContainer.isValid) {
+          FileBasedIndex.getInstance.requestReindex(faultyContainer)
+        }
+        false
+      }
+    }
+  }
+
+  def checkPsiForVariable(element: PsiElement): Boolean = {
+    element match {
+      case x: ScVariable => true
+      case _ => {
+        val faultyContainer = PsiUtilCore.getVirtualFile(element)
+        LOG.error(s"Non ScVariable in ScVariable list: $faultyContainer. found: $element")
+        if (faultyContainer != null && faultyContainer.isValid) {
+          FileBasedIndex.getInstance.requestReindex(faultyContainer)
+        }
+        false
+      }
+    }
+  }
+
+  def checkPsiForPsiMethod(element: PsiElement): Boolean = {
+    element match {
+      case x: PsiMethod => true
+      case _ =>
+        val faultyContainer = PsiUtilCore.getVirtualFile(element)
+        LOG.error(s"Non PsiMethod in PsiMethod list: $faultyContainer. found: $element")
+        if (faultyContainer != null && faultyContainer.isValid) {
+          FileBasedIndex.getInstance.requestReindex(faultyContainer)
+        }
+        false
+    }
+  }
+
+  def checkPsiForObject(element: PsiElement): Boolean = {
+    element match {
+      case x: ScObject => true
+      case _ =>
+        val faultyContainer = PsiUtilCore.getVirtualFile(element)
+        LOG.error(s"Non ScObject in ScObject list: $faultyContainer. found: $element")
+        if (faultyContainer != null && faultyContainer.isValid) {
+          FileBasedIndex.getInstance.requestReindex(faultyContainer)
+        }
+        false
+    }
+  }
+  
+  def checkPsiForPackageContainer(element: PsiElement): Boolean = {
+    element match {
+      case x: ScPackageContainer => true
+      case _ =>
+        val faultyContainer = PsiUtilCore.getVirtualFile(element)
+        LOG.error(s"Non ScPackageContainer in ScPackageContainer list: $faultyContainer. found: $element")
+        if (faultyContainer != null && faultyContainer.isValid) {
+          FileBasedIndex.getInstance.requestReindex(faultyContainer)
+        }
+        false
     }
   }
 

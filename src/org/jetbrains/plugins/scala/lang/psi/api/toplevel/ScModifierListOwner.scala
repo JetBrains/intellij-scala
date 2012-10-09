@@ -7,14 +7,11 @@ package toplevel
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import parser.ScalaElementTypes
-import psi.stubs.ScModifiersStub
-import stubs.{StubElement, NamedStub}
+import stubs.StubElement
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.vfs.VirtualFile
 import util.PsiUtilCore
-import com.intellij.util.{IncorrectOperationException, ArrayFactory}
 import com.intellij.util.indexing.FileBasedIndex
-import psi.impl.ScalaPsiElementFactory
 
 /**
 * @author ilyas
@@ -31,7 +28,7 @@ trait ScModifierListOwner extends ScalaPsiElement with PsiModifierListOwner {
           val array = stub.getChildrenByType(ScalaElementTypes.MODIFIERS, JavaArrayFactoryUtil.ScModifierListFactory)
           if (array.length == 0) {
             val faultyContainer: VirtualFile = PsiUtilCore.getVirtualFile(this)
-            LOG.error("Wrong Psi in Psi list: " + faultyContainer)
+            LOG.error("Stub hasn't ScModifierList child: " + faultyContainer)
             if (faultyContainer != null && faultyContainer.isValid) {
               FileBasedIndex.getInstance.requestReindex(faultyContainer)
             }
