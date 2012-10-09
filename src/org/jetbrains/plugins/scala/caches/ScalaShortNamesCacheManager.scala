@@ -21,6 +21,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScVariab
 import org.jetbrains.plugins.scala.lang.psi.light.LightScalaMethod
 import java.util
 import collection.mutable
+import org.jetbrains.plugins.scala.lang.psi.stubs.util.ScalaStubsUtil
 
 /**
  * User: Alefas
@@ -39,14 +40,7 @@ class ScalaShortNamesCacheManager(project: Project) extends ProjectComponent {
     val iterator = classes.iterator()
     while (iterator.hasNext) {
       val element = iterator.next()
-      if (!(element.isInstanceOf[PsiClass])) {
-        val faultyContainer: VirtualFile = PsiUtilCore.getVirtualFile(element)
-        LOG.error("Wrong Psi in Psi list: " + faultyContainer)
-        if (faultyContainer != null && faultyContainer.isValid) {
-          FileBasedIndex.getInstance.requestReindex(faultyContainer)
-        }
-        return null
-      }
+      if (!ScalaStubsUtil.checkPsiForClass(element)) return null
       val clazz: PsiClass = element.asInstanceOf[PsiClass]
       if (name == clazz.getQualifiedName) {
         if (clazz.getContainingFile.isInstanceOf[ScalaFile]) {
@@ -72,7 +66,7 @@ class ScalaShortNamesCacheManager(project: Project) extends ProjectComponent {
       val element: PsiElement = iterator.next()
       if (!(element.isInstanceOf[PsiClass])) {
         val faultyContainer: VirtualFile = PsiUtilCore.getVirtualFile(element)
-        LOG.error("Wrong Psi in Psi list: " + faultyContainer)
+        LOG.error(s"Non class in class list: $faultyContainer. found: $element")
         if (faultyContainer != null && faultyContainer.isValid) {
           FileBasedIndex.getInstance.requestReindex(faultyContainer)
         }
@@ -129,14 +123,7 @@ class ScalaShortNamesCacheManager(project: Project) extends ProjectComponent {
     val valuesIterator = values.iterator()
     while (valuesIterator.hasNext) {
       val element: PsiElement = valuesIterator.next()
-      if (!(element.isInstanceOf[ScValue])) {
-        val faultyContainer: VirtualFile = PsiUtilCore.getVirtualFile(element)
-        LOG.error("Wrong Psi in Psi list: " + faultyContainer)
-        if (faultyContainer != null && faultyContainer.isValid) {
-          FileBasedIndex.getInstance.requestReindex(faultyContainer)
-        }
-        return Seq.empty
-      }
+      if (!ScalaStubsUtil.checkPsiForValue(element)) return Seq.empty
       member = element.asInstanceOf[PsiMember]
       if (element.asInstanceOf[ScValue].declaredNames.contains(name)) {
         list += member
@@ -149,14 +136,7 @@ class ScalaShortNamesCacheManager(project: Project) extends ProjectComponent {
     val variablesIterator = variables.iterator()
     while (variablesIterator.hasNext) {
       val element = variablesIterator.next()
-      if (!(element.isInstanceOf[ScVariable])) {
-        val faultyContainer: VirtualFile = PsiUtilCore.getVirtualFile(element)
-        LOG.error("Wrong Psi in Psi list: " + faultyContainer)
-        if (faultyContainer != null && faultyContainer.isValid) {
-          FileBasedIndex.getInstance.requestReindex(faultyContainer)
-        }
-        return Seq.empty
-      }
+      if (!ScalaStubsUtil.checkPsiForVariable(element)) return Seq.empty
       member = element.asInstanceOf[PsiMember]
       if (element.asInstanceOf[ScVariable].declaredNames.contains(name)) {
         list += member
@@ -184,14 +164,7 @@ class ScalaShortNamesCacheManager(project: Project) extends ProjectComponent {
       val methodsIterator = methods.iterator()
       while (methodsIterator.hasNext) {
         val element = methodsIterator.next()
-        if (!(element.isInstanceOf[PsiMethod])) {
-          val faultyContainer: VirtualFile = PsiUtilCore.getVirtualFile(element)
-          LOG.error("Wrong Psi in Psi list: " + faultyContainer)
-          if (faultyContainer != null && faultyContainer.isValid) {
-            FileBasedIndex.getInstance.requestReindex(faultyContainer)
-          }
-          return Seq.empty
-        }
+        if (!ScalaStubsUtil.checkPsiForPsiMethod(element)) return Seq.empty
         method = element.asInstanceOf[PsiMethod]
         if (name == method.name) {
           list += method
@@ -239,14 +212,7 @@ class ScalaShortNamesCacheManager(project: Project) extends ProjectComponent {
     val classesIterator = classes.iterator()
     while (classesIterator.hasNext) {
       val element = classesIterator.next()
-      if (!(element.isInstanceOf[PsiClass])) {
-        val faultyContainer: VirtualFile = PsiUtilCore.getVirtualFile(element)
-        LOG.error("Wrong Psi in Psi list: " + faultyContainer)
-        if (faultyContainer != null && faultyContainer.isValid) {
-          FileBasedIndex.getInstance.requestReindex(faultyContainer)
-        }
-        return null
-      }
+      if (!ScalaStubsUtil.checkPsiForClass(element)) return null
       val psiClass: PsiClass = element.asInstanceOf[PsiClass]
       var qualifiedName: String = psiClass.qualifiedName
       if (qualifiedName != null) {
@@ -276,14 +242,7 @@ class ScalaShortNamesCacheManager(project: Project) extends ProjectComponent {
     val classesIterator = classes.iterator()
     while (classesIterator.hasNext) {
       val element = classesIterator.next()
-      if (!(element.isInstanceOf[ScObject])) {
-        val faultyContainer: VirtualFile = PsiUtilCore.getVirtualFile(element)
-        LOG.error("Wrong Psi in Psi list: " + faultyContainer)
-        if (faultyContainer != null && faultyContainer.isValid) {
-          FileBasedIndex.getInstance.requestReindex(faultyContainer)
-        }
-        return Seq.empty
-      }
+      if (!ScalaStubsUtil.checkPsiForObject(element)) return Seq.empty
       res += (element.asInstanceOf[ScObject])
     }
     res.toSeq

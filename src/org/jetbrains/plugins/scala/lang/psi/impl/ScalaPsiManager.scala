@@ -7,7 +7,6 @@ import api.statements.params.ScTypeParam
 import com.intellij.openapi.components.ProjectComponent
 import toplevel.synthetic.{SyntheticPackageCreator, ScSyntheticPackage}
 import light.PsiClassWrapper
-import toplevel.typedef.MixinNodes
 import toplevel.typedef.TypeDefinitionMembers._
 import types._
 import com.intellij.openapi.util.Key
@@ -25,15 +24,13 @@ import com.intellij.openapi.project.{DumbServiceImpl, Project}
 import stubs.StubIndex
 import psi.stubs.index.ScalaIndexKeys
 import finder.ScalaSourceFilterScope
-import com.intellij.openapi.vfs.VirtualFile
-import util.PsiUtilCore
-import com.intellij.util.indexing.FileBasedIndex
 import com.intellij.openapi.diagnostic.Logger
 import collection.mutable.HashSet
 import com.intellij.psi.search.{PsiShortNamesCache, GlobalSearchScope}
 import java.util.{Collections, Map}
 import com.intellij.openapi.roots.{ModuleRootEvent, ModuleRootListener}
 import ParameterlessNodes.{Map => PMap}, TypeNodes.{Map => TMap}, SignatureNodes.{Map => SMap}
+import psi.stubs.util.ScalaStubsUtil
 
 class ScalaPsiManager(project: Project) extends ProjectComponent {
   private val implicitObjectMap: ConcurrentMap[String, SoftReference[java.util.Map[GlobalSearchScope, Seq[ScObject]]]] =
@@ -293,14 +290,7 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
       val classesIterator = classes.iterator()
       while (classesIterator.hasNext) {
         val element = classesIterator.next()
-        if (!(element.isInstanceOf[PsiClass])) {
-          val faultyContainer: VirtualFile = PsiUtilCore.getVirtualFile(element)
-          ScalaPsiManager.LOG.error("Wrong Psi in Psi list: " + faultyContainer)
-          if (faultyContainer != null && faultyContainer.isValid) {
-            FileBasedIndex.getInstance.requestReindex(faultyContainer)
-          }
-          return null
-        }
+        if (!ScalaStubsUtil.checkPsiForClass(element)) return null
         val clazz: PsiClass = element
         strings add clazz.getName
         clazz match {
@@ -329,14 +319,7 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
       val classesIterator = classes.iterator()
       while (classesIterator.hasNext) {
         val element = classesIterator.next()
-        if (!(element.isInstanceOf[PsiClass])) {
-          val faultyContainer: VirtualFile = PsiUtilCore.getVirtualFile(element)
-          ScalaPsiManager.LOG.error("Wrong Psi in Psi list: " + faultyContainer)
-          if (faultyContainer != null && faultyContainer.isValid) {
-            FileBasedIndex.getInstance.requestReindex(faultyContainer)
-          }
-          return null
-        }
+        if (!ScalaStubsUtil.checkPsiForClass(element)) return null
         val clazz: PsiClass = element
         strings += clazz.name
       }
