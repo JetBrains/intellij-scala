@@ -8,7 +8,7 @@ import lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
 import lang.psi.api.expr.ScExpression.ExpressionTypeResult
 import lang.psi.api.base.types.ScTypeElement
 import com.intellij.openapi.util.{Computable, RecursionManager, RecursionGuard, Key}
-import lang.psi.api.expr.ScExpression
+import lang.psi.api.expr.{MethodInvocation, ScExpression}
 import lang.psi.api.toplevel.imports.usages.ImportUsed
 import collection.mutable.ArrayBuffer
 import lang.resolve.ScalaResolveResult
@@ -40,6 +40,8 @@ object CachesUtil {
     Key.create("implicit.map2.key")
   val RESOLVE_KEY: MappedKey[Boolean, Array[ResolveResult]] =
     Key.create("resolve.key")
+  val EXPRESSION_APPLY_SHAPE_RESOLVE_KEY: MappedKey[(ScType, Seq[ScExpression], Option[MethodInvocation], TypeResult[ScType]), Array[ScalaResolveResult]] =
+    Key.create("expression.apply.shape.resolve.key")
 
   //keys for cachedValue
   val REF_ELEMENT_SHAPE_RESOLVE_CONSTR_KEY: Key[CachedValue[Array[ResolveResult]]] =
