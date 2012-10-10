@@ -18,7 +18,6 @@ import psi.impl.toplevel.typedef.TypeDefinitionMembers
 import result.{Success, TypingContext}
 import toplevel.imports.usages.ImportUsed
 import ResolveTargets._
-import _root_.scala.collection.mutable.HashSet
 import psi.impl.toplevel.synthetic.{ScSyntheticFunction, SyntheticClasses}
 import toplevel.ScTypedDefinition
 import toplevel.typedef.{ScObject, ScTemplateDefinition}
@@ -227,7 +226,7 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value]) extends PsiSc
         val scope = place.getResolveScope
         val obj: PsiClass = ScalaPsiManager.instance(place.getProject).getCachedClass(scope, "java.lang.Object")
         if (obj != null) {
-          val namesSet = Set("hashCode", "toString", "equals")
+          val namesSet = Set("hashCode", "toString", "equals", "getClass")
           val methods = obj.getMethods.iterator
           while (methods.hasNext) {
             val method = methods.next()
