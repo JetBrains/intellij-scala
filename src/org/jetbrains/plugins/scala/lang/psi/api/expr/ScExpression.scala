@@ -4,29 +4,36 @@ package psi
 package api
 package expr
 
-import impl.ScalaPsiElementFactory
-import types.result.{Success, Failure, TypingContext, TypeResult}
+import psi.impl.ScalaPsiElementFactory
+import types.result.{TypingContext, TypeResult}
 import toplevel.imports.usages.ImportUsed
-import resolve.ScalaResolveResult
+import lang.resolve.{StdKinds, ScalaResolveResult}
 import implicits.ScImplicitlyConvertible
 import collection.mutable.ArrayBuffer
 import types._
-import nonvalue._
 import collection.{Set, Seq}
-import resolve.processor.MostSpecificUtil
+import lang.resolve.processor.MethodResolveProcessor
 import com.intellij.openapi.progress.ProgressManager
+import nonvalue.Parameter
+import nonvalue.ScMethodType
+import nonvalue.ScTypePolymorphicType
 import psi.ScalaPsiUtil
 import base.ScLiteral
 import lexer.ScalaTokenTypes
-import types.Conformance.AliasType
+import result.Failure
+import result.Success
 import statements.ScTypeAliasDefinition
-import com.intellij.psi.{PsiAnnotationMemberValue, PsiNamedElement, PsiElement, PsiInvalidElementAccessException}
+import com.intellij.psi._
 import java.lang.Integer
 import base.types.ScTypeElement
 import com.intellij.psi.util.PsiModificationTracker
 import caches.CachesUtil
 import psi.ScalaPsiUtil.SafeCheckException
 import extensions.ElementText
+import scala.Some
+import types.ScFunctionType
+import lang.resolve.processor.MostSpecificUtil
+import types.Conformance.AliasType
 
 /**
  * @author ilyas, Alexander Podkhalyuzin
@@ -517,6 +524,38 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible with Ps
     }
     calculateReturns0(this)
     res
+  }
+
+  def applyShapeResolveForExpectedType(tp: ScType, exprs: Seq[ScExpression], call: Option[MethodInvocation],
+                                       tr: TypeResult[ScType]): Array[ScalaResolveResult] = {
+    def inner(expr: ScExpression, tp: ScType, exprs: Seq[ScExpression], call: Option[MethodInvocation],
+              tr: TypeResult[ScType]): Array[ScalaResolveResult] = {
+      val applyProc =
+        new MethodResolveProcessor(expr, "apply", List(exprs), Seq.empty, Seq.empty /* todo: ? */,
+          StdKinds.methodsOnly, isShapeResolve = true)
+      applyProc.processType(tp, expr)
+      var cand = applyProc.candidates
+      if (cand.length == 0 && call != None && !tr.isEmpty) {
+        val expr = call.get.getEffectiveInvokedExpr
+        //should think about implicit conversions
+        for ((t, implicitFunction, importsUsed, _) <- expr.implicitMap(exprType = Some(tr.get))._1) {
+          var state = ResolveState.initial.put(CachesUtil.IMPLICIT_FUNCTION, implicitFunction)
+          expr.getClazzForType(t) match {
+            case Some(cl: PsiClass) => state = state.put(ScImplicitlyConvertible.IMPLICIT_RESOLUTION_KEY, cl)
+            case _ =>
+          }
+          applyProc.processType(t, expr, state)
+        }
+        cand = applyProc.candidates
+      }
+      cand
+    }
+    type Data = (ScType, Seq[ScExpression], Option[MethodInvocation], TypeResult[ScType])
+    CachesUtil.getMappedWithRecursionPreventingWithRollback[ScExpression, Data,
+      Array[ScalaResolveResult]](this, (tp, exprs, call, tr),
+      CachesUtil.EXPRESSION_APPLY_SHAPE_RESOLVE_KEY,
+      (expr: ScExpression, tuple: Data) => inner(expr, tuple._1, tuple._2, tuple._3, tuple._4),
+      Array.empty[ScalaResolveResult], PsiModificationTracker.MODIFICATION_COUNT)
   }
 }
 

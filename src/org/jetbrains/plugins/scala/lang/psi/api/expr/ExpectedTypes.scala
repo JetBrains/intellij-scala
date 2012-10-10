@@ -16,14 +16,9 @@ import nonvalue.{Parameter, ScTypePolymorphicType, ScMethodType}
 import toplevel.ScTypedDefinition
 import result.{TypeResult, Success, TypingContext}
 import base.types.{ScSequenceArg, ScTypeElement}
-import lang.resolve.{StdKinds, ScalaResolveResult}
-import lang.resolve.processor.MethodResolveProcessor
-import types.Compatibility.Expression
-import caches.CachesUtil
-import implicits.ScImplicitlyConvertible
+import lang.resolve.ScalaResolveResult
 import psi.impl.ScalaPsiManager
 import toplevel.typedef.ScObject
-import annotation.tailrec
 
 /**
  * @author ilyas
@@ -362,25 +357,7 @@ private[expr] object ExpectedTypes {
         } else applyForParams(newParams)
       }
       case Success(t@ScTypePolymorphicType(anotherType, typeParams), _) if !forApply => {
-        import Expression._
-        val applyProc =
-          new MethodResolveProcessor(expr, "apply", List(exprs), Seq.empty, Seq.empty /* todo: ? */,
-            StdKinds.methodsOnly, isShapeResolve = true)
-        applyProc.processType(anotherType, expr)
-        var cand = applyProc.candidates
-        if (cand.length == 0 && call != None && !tp.isEmpty) {
-          val expr = call.get.getEffectiveInvokedExpr
-          //should think about implicit conversions
-          for ((t, implicitFunction, importsUsed, _) <- expr.implicitMap(exprType = Some(tp.get))._1) {
-            var state = ResolveState.initial.put(CachesUtil.IMPLICIT_FUNCTION, implicitFunction)
-            expr.getClazzForType(t) match {
-              case Some(cl: PsiClass) => state = state.put(ScImplicitlyConvertible.IMPLICIT_RESOLUTION_KEY, cl)
-              case _ =>
-            }
-            applyProc.processType(t, expr, state)
-          }
-          cand = applyProc.candidates
-        }
+        val cand = call.getOrElse(expr).applyShapeResolveForExpectedType(anotherType, exprs, call, tp)
         if (cand.length == 1) {
           cand(0) match {
             case ScalaResolveResult(fun: ScFunction, s) => {
@@ -397,25 +374,7 @@ private[expr] object ExpectedTypes {
         }
       }
       case Success(anotherType, _) if !forApply => {
-        import Expression._
-        val applyProc =
-          new MethodResolveProcessor(expr, "apply", List(exprs), Seq.empty, Seq.empty /* todo: ? */,
-            StdKinds.methodsOnly, isShapeResolve = true)
-        applyProc.processType(anotherType, expr)
-        var cand = applyProc.candidates
-        if (cand.length == 0 && call != None && !tp.isEmpty) {
-          val expr = call.get.getEffectiveInvokedExpr
-          //should think about implicit conversions
-          for ((t, implicitFunction, importsUsed, _) <- expr.implicitMap(exprType = Some(tp.get))._1) {
-            var state = ResolveState.initial.put(CachesUtil.IMPLICIT_FUNCTION, implicitFunction)
-            expr.getClazzForType(t) match {
-              case Some(cl: PsiClass) => state = state.put(ScImplicitlyConvertible.IMPLICIT_RESOLUTION_KEY, cl)
-              case _ =>
-            }
-            applyProc.processType(t, expr, state)
-          }
-          cand = applyProc.candidates
-        }
+        val cand = call.getOrElse(expr).applyShapeResolveForExpectedType(anotherType, exprs, call, tp)
         if (cand.length == 1) {
           cand(0) match {
             case ScalaResolveResult(fun: ScFunction, subst) =>
