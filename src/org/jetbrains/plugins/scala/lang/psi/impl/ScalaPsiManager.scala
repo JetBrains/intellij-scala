@@ -31,6 +31,7 @@ import java.util.{Collections, Map}
 import com.intellij.openapi.roots.{ModuleRootEvent, ModuleRootListener}
 import ParameterlessNodes.{Map => PMap}, TypeNodes.{Map => TMap}, SignatureNodes.{Map => SMap}
 import psi.stubs.util.ScalaStubsUtil
+import java.util
 
 class ScalaPsiManager(project: Project) extends ProjectComponent {
   private val implicitObjectMap: ConcurrentMap[String, SoftReference[java.util.Map[GlobalSearchScope, Seq[ScObject]]]] =
@@ -98,7 +99,7 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
     }
     result
   }
-  
+
   def cachedDeepIsInheritor(clazz: PsiClass, base: PsiClass): Boolean = {
     val ref = inheritorsMap.get(clazz)
     var map: ConcurrentMap[PsiClass, java.lang.Boolean] = null
@@ -137,7 +138,7 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
     }
     result
   }
-  
+
 
 
   def getCachedClass(scope: GlobalSearchScope, fqn: String): PsiClass = {
@@ -194,7 +195,7 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
   import ScalaPsiManager.ClassCategory._
   def getCachedClass(fqn: String, scope: GlobalSearchScope, classCategory: ClassCategory): PsiClass = {
     val allClasses = getCachedClasses(scope, fqn)
-    val classes = 
+    val classes =
       classCategory match {
         case ALL => allClasses
         case OBJECT => allClasses.filter(_.isInstanceOf[ScObject])
@@ -283,15 +284,16 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
     val qualifier: String = psiPackage.getQualifiedName
     def calc: JSet[String] = {
       if (DumbServiceImpl.getInstance(project).isDumb) return Collections.emptySet()
-      val classes = StubIndex.getInstance.get(ScalaIndexKeys.JAVA_CLASS_NAME_IN_PACKAGE_KEY, qualifier, project,
-        new ScalaSourceFilterScope(scope, project))
+      val classes: util.Collection[_ <: PsiElement] =
+        StubIndex.getInstance.get(ScalaIndexKeys.JAVA_CLASS_NAME_IN_PACKAGE_KEY, qualifier, project,
+          new ScalaSourceFilterScope(scope, project))
       import java.util.HashSet
       val strings: HashSet[String] = new HashSet[String]
       val classesIterator = classes.iterator()
       while (classesIterator.hasNext) {
         val element = classesIterator.next()
         if (!ScalaStubsUtil.checkPsiForClass(element)) return null
-        val clazz: PsiClass = element
+        val clazz: PsiClass = element.asInstanceOf[PsiClass]
         strings add clazz.getName
         clazz match {
           case t: ScTemplateDefinition =>
@@ -313,14 +315,15 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
     val qualifier: String = psiPackage.getQualifiedName
     def calc: HashSet[String] = {
       if (DumbServiceImpl.getInstance(project).isDumb) return HashSet.empty
-      val classes = StubIndex.getInstance.get(ScalaIndexKeys.CLASS_NAME_IN_PACKAGE_KEY, qualifier, project,
-        new ScalaSourceFilterScope(scope, project))
+      val classes: util.Collection[_ <: PsiElement] =
+        StubIndex.getInstance.get(ScalaIndexKeys.CLASS_NAME_IN_PACKAGE_KEY, qualifier, project,
+          new ScalaSourceFilterScope(scope, project))
       var strings: HashSet[String] = new HashSet[String]
       val classesIterator = classes.iterator()
       while (classesIterator.hasNext) {
         val element = classesIterator.next()
         if (!ScalaStubsUtil.checkPsiForClass(element)) return null
-        val clazz: PsiClass = element
+        val clazz: PsiClass = element.asInstanceOf[PsiClass]
         strings += clazz.name
       }
       strings
