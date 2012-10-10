@@ -11,7 +11,5 @@ class A {
   val z: Any = 1
   z./* resolved: false */getClass
 
-  import actors.threadpool.TimeUnit
-
-  TimeUnit.HOURS./* */getClass
+  collection.JavaConversions./* */getClass
 }
