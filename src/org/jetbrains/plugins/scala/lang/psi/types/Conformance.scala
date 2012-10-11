@@ -1648,7 +1648,7 @@ object Conformance {
               result = (false, undefinedSubst)
               return
             }
-            t = Equivalence.equivInner(params1(i).paramType, params2(i).paramType, undefinedSubst, false)
+            t = Equivalence.equivInner(params1(i).paramType, params2(i).paramType, undefinedSubst, falseUndef = false)
             if (!t._1) {
               result = (false, undefinedSubst)
               return
@@ -1667,7 +1667,9 @@ object Conformance {
       r.visitType(rightVisitor)
       if (result != null) return
 
-      result = conformsInner(a.upper, r, visited, undefinedSubst, checkWeak)
+      val subst: ScSubstitutor = ScSubstitutor.empty.bindT((a.tpt.name, a.tpt.getId), r)
+
+      result = conformsInner(subst.subst(a.upper), r, visited, undefinedSubst, checkWeak)
     }
 
     override def visitTypePolymorphicType(t1: ScTypePolymorphicType) {
