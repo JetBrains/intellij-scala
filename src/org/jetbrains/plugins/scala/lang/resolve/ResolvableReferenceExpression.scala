@@ -10,9 +10,8 @@ import psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import psi.types.Compatibility.Expression
 import psi.api.base.types.{ScSelfTypeElement, ScTypeElement}
-import psi.api.base.{ScReferenceElement, ScPrimaryConstructor, ScConstructor}
+import psi.api.base.{ScPrimaryConstructor, ScConstructor}
 import com.intellij.psi._
-import impl.source.resolve.ResolveCache
 import psi.ScalaPsiUtil
 import collection.mutable.ArrayBuffer
 import psi.fake.FakePsiMethod
@@ -26,7 +25,6 @@ import psi.types.nonvalue.{ScMethodType, ScTypePolymorphicType}
 import psi.types._
 import extensions.toPsiNamedElementExt
 import psi.api.toplevel.typedef.ScTemplateDefinition
-import annotation.tailrec
 import annotation.tailrec
 import psi.impl.{ScalaPsiElementFactory, ScalaPsiManager}
 import extensions._
@@ -346,7 +344,11 @@ trait ResolvableReferenceExpression extends ScReferenceExpression {
       }
       case _ => aType
     }
-    processor.processType(aType, e, ResolveState.initial.put(BaseProcessor.FROM_TYPE_KEY, fromType))
+    val state: ResolveState = fromType match {
+      case ScDesignatorType(p: PsiPackage) => ResolveState.initial()
+      case _ => ResolveState.initial.put(BaseProcessor.FROM_TYPE_KEY, fromType)
+    }
+    processor.processType(aType, e, state)
 
     val candidates = processor.candidatesS
 
