@@ -6,8 +6,8 @@ import com.intellij.psi.search.GlobalSearchScope
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScTypeParam}
 import result.TypingContext
-import com.intellij.psi.{PsiNamedElement, PsiTypeParameter}
-import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiManager, ScalaPsiElementFactory}
+import com.intellij.psi.PsiTypeParameter
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import collection.immutable.{HashSet, HashMap}
 
 /**
@@ -171,9 +171,28 @@ case class ScTypePolymorphicType(internalType: ScType, typeParameters: Seq[TypeP
       else Seq.empty
     })),  Map.empty, None)
 
-  def abstractTypeSubstitutor: ScSubstitutor =
-    new ScSubstitutor(new HashMap[(String, String), ScType] ++ (typeParameters.map(tp => ((tp.name, ScalaPsiUtil.getPsiElementId(tp.ptp)),
-            new ScAbstractType(new ScTypeParameterType(tp.ptp, ScSubstitutor.empty), tp.lowerType, tp.upperType)))), Map.empty, None)
+  def abstractTypeSubstitutor: ScSubstitutor = {
+    def hasRecursiveTypeParameters(typez: ScType): Boolean = {
+      var hasRecursiveTypeParameters = false
+      typez.recursiveUpdate {
+        case tpt: ScTypeParameterType =>
+          typeParameters.find(tp => (tp.name, ScalaPsiUtil.getPsiElementId(tp.ptp)) == (tpt.name, tpt.getId)) match {
+            case None => (true, tpt)
+            case _ =>
+              hasRecursiveTypeParameters = true
+              (true, tpt)
+          }
+        case tp: ScType => (hasRecursiveTypeParameters, tp)
+      }
+      hasRecursiveTypeParameters
+    }
+    new ScSubstitutor(new HashMap[(String, String), ScType] ++ (typeParameters.map(tp => {
+      val lowerType: ScType = if (hasRecursiveTypeParameters(tp.lowerType)) Nothing else tp.lowerType
+      val upperType: ScType = if (hasRecursiveTypeParameters(tp.upperType)) Any else tp.upperType
+      ((tp.name, ScalaPsiUtil.getPsiElementId(tp.ptp)),
+            new ScAbstractType(new ScTypeParameterType(tp.ptp, ScSubstitutor.empty), lowerType, upperType))
+    })), Map.empty, None)
+  }
 
   def typeParameterTypeSubstitutor: ScSubstitutor =
     new ScSubstitutor(new HashMap[(String, String), ScType] ++ (typeParameters.map(tp => ((tp.name, ScalaPsiUtil.getPsiElementId(tp.ptp)),
