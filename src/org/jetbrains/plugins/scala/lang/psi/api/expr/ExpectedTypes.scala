@@ -118,7 +118,8 @@ private[expr] object ExpectedTypes {
       case a: ScAssignStmt if a.getRExpression.getOrElse(null: ScExpression) == expr.getSameElementInContext => {
         a.getLExpression match {
           case ref: ScReferenceExpression if !a.getContext.isInstanceOf[ScArgumentExprList] ||
-                  expr.isInstanceOf[ScUnderscoreSection] /* See SCL-3512, TODO SCL-3525 */ => {
+                  ref.qualifier.isDefined ||
+                  expr.isInstanceOf[ScUnderscoreSection] /* See SCL-3512, SCL-3525, SCL-4809 */ => {
             ref.bind() match {
               case Some(ScalaResolveResult(named: PsiNamedElement, subst: ScSubstitutor)) => {
                 ScalaPsiUtil.nameContext(named) match {
