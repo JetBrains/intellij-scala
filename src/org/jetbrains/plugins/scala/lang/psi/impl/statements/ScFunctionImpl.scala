@@ -7,12 +7,12 @@ package statements
 
 import api.expr.{ScAnnotations, ScBlock}
 import api.toplevel.templates.ScTemplateBody
-import api.toplevel.{ScTypeParametersOwner}
+import api.toplevel.ScTypeParametersOwner
 import caches.CachesUtil
 import com.intellij.psi.search.{LocalSearchScope, SearchScope}
 import parser.ScalaElementTypes
 import stubs.ScFunctionStub
-import toplevel.typedef.{TypeDefinitionMembers}
+import toplevel.typedef.TypeDefinitionMembers
 import java.util._
 import com.intellij.psi._
 import com.intellij.psi.util._
@@ -27,7 +27,7 @@ import api.statements.params._
 import result.{TypeResult, Success, TypingContext}
 import com.intellij.openapi.project.DumbServiceImpl
 import toplevel.synthetic.{SyntheticClasses, JavaIdentifier}
-import fake.{FakePsiTypeParameterList}
+import fake.FakePsiTypeParameterList
 import collection.mutable.ArrayBuffer
 import api.toplevel.typedef.{ScTypeDefinition, ScMember}
 import com.intellij.openapi.progress.ProgressManager
@@ -288,6 +288,29 @@ abstract class ScFunctionImpl extends ScalaStubBasedElementImpl[ScFunction] with
       val filter = buf.filter(isSimilarMemberForNavigation(_, true))
       if (filter.length == 0) buf(0)
       else filter(0)
+    }
+  }
+
+  def getTypeNoImplicits(ctx: TypingContext): TypeResult[ScType] = {
+    returnType match {
+      case Success(tp: ScType, _) =>
+        var res: TypeResult[ScType] = Success(tp, None)
+        var i = paramClauses.clauses.length - 1
+        while (i >= 0) {
+          val cl = paramClauses.clauses.apply(i)
+          if (!cl.isImplicit) {
+            val paramTypes = cl.parameters.map(_.getType(ctx))
+            res match {
+              case Success(t: ScType, _) => {
+                res = collectFailures(paramTypes, Nothing)(new ScFunctionType(t, _)(getProject, getResolveScope))
+              }
+              case _ =>
+            }
+          }
+          i = i - 1
+        }
+        res
+      case failure => failure
     }
   }
 }

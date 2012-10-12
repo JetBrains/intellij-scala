@@ -18,7 +18,6 @@ import psi.stubs.ScFunctionStub
 import types._
 import nonvalue._
 import result.{Failure, Success, TypingContext, TypeResult}
-import expr.ScBlock
 import psi.impl.ScalaPsiElementFactory
 import lexer.ScalaTokenTypes
 import base.ScMethodLike
@@ -389,6 +388,8 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
     functionWrapper.put((isStatic, isInterface, cClass), (res, curModCount))
     res
   }
+
+  def getTypeNoImplicits(ctx: TypingContext): TypeResult[ScType]
 }
 
 object ScFunction {
