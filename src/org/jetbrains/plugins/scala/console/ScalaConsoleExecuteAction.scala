@@ -5,6 +5,7 @@ import com.intellij.openapi.actionSystem.{PlatformDataKeys, AnActionEvent, AnAct
 import com.intellij.openapi.util.TextRange
 import java.io.{IOException, OutputStream}
 import com.intellij.openapi.editor.ex.EditorEx
+import com.intellij.openapi.diagnostic.Logger
 
 /**
  * @author Ksenia.Sautina
@@ -12,29 +13,30 @@ import com.intellij.openapi.editor.ex.EditorEx
  */
 class ScalaConsoleExecuteAction extends AnAction {
   override def update(e: AnActionEvent) {
-    val project = e.getData(PlatformDataKeys.PROJECT)
-    if (project == null) {
+    val editor = e.getData(PlatformDataKeys.EDITOR)
+    if (!editor.isInstanceOf[EditorEx]) {
       e.getPresentation.setEnabled(false)
       return
     }
-    val console = ScalaConsoleInfo.getConsole(project)
+    val console = ScalaConsoleInfo.getConsole(editor)
     if (console == null)  {
       e.getPresentation.setEnabled(false)
       return
     }
-    val editor: EditorEx = console.getConsoleEditor
-    e.getPresentation.setEnabled(!editor.isRendererMode && !ScalaConsoleInfo.getProcessHandler(project).isProcessTerminated)
+    val isEnabled: Boolean = !editor.asInstanceOf[EditorEx].isRendererMode &&
+      !ScalaConsoleInfo.getProcessHandler(editor).isProcessTerminated
+
+    e.getPresentation.setEnabled(isEnabled)
   }
 
   def actionPerformed(e: AnActionEvent) {
-    val project = e.getData(PlatformDataKeys.PROJECT)
-    if (project == null) {
+    val editor = e.getData(PlatformDataKeys.EDITOR)
+    if (editor == null) {
       return
     }
-    val console = ScalaConsoleInfo.getConsole(project)
-    val processHandler = ScalaConsoleInfo.getProcessHandler(project)
-    val model = ScalaConsoleInfo.getModel(project)
-    val editor = PlatformDataKeys.EDITOR.getData(e.getDataContext)
+    val console = ScalaConsoleInfo.getConsole(editor)
+    val processHandler = ScalaConsoleInfo.getProcessHandler(editor)
+    val model = ScalaConsoleInfo.getModel(editor)
     if (editor != null && console != null && processHandler != null && model != null) {
       val document = console.getEditorDocument
       val text = document.getText
@@ -64,6 +66,13 @@ class ScalaConsoleExecuteAction extends AnAction {
         }
         console.textSent(line + "\n")
       })
+    } else {
+      ScalaConsoleExecuteAction.LOG.info(new Throwable(s"Enter action in console failed: $editor, " +
+        s"$console"))
     }
   }
+}
+
+object ScalaConsoleExecuteAction {
+  private val LOG = Logger.getInstance(this.getClass)
 }
