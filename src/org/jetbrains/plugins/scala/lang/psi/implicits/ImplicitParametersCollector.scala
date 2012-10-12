@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.implicits
 
 import org.jetbrains.plugins.scala.lang.psi.types._
+import nonvalue.{Parameter, ScMethodType}
 import org.jetbrains.plugins.scala.lang.resolve._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import processor.{ImplicitProcessor, MostSpecificUtil}
@@ -8,13 +9,14 @@ import result.{Success, TypingContext}
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
-import params.{ScClassParameter, ScParameter, ScTypeParam}
+import params.{ScClassParameter, ScParameter}
 import util.PsiTreeUtil
 import collection.immutable.HashSet
-import collection.mutable.ArrayBuffer
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScMember}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
+import org.jetbrains.plugins.scala.extensions.toPsiClassExt
+import org.jetbrains.plugins.scala.lang.psi.api.InferUtil
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.SafeCheckException
 
 /**
  * @param place        The call site
@@ -120,11 +122,11 @@ class ImplicitParametersCollector(place: PsiElement, tp: ScType) {
               var doNotCheck = false
               if (!oneImplicit && fun.paramClauses.clauses.length > 0) {
                 clazz match {
-                  case Some(clazz) =>
+                  case Some(cl) =>
                     val clause = fun.paramClauses.clauses(0)
                     val funNum = clause.parameters.length
                     val qName = "scala.Function" + funNum
-                    val classQualifiedName = clazz.getQualifiedName
+                    val classQualifiedName = cl.qualifiedName
                     if (classQualifiedName != qName && classQualifiedName != "java.lang.Object" &&
                         classQualifiedName != "scala.ScalaObject") doNotCheck = true
                   case _ =>
@@ -132,15 +134,13 @@ class ImplicitParametersCollector(place: PsiElement, tp: ScType) {
               }
 
               if (!doNotCheck) {
-                fun.getType(TypingContext.empty) match {
+                fun.getTypeNoImplicits(TypingContext.empty) match {
                   case Success(funType: ScType, _) => {
-
                     def checkType(ret: ScType): Option[(ScalaResolveResult, ScSubstitutor)] = {
                       var uSubst = Conformance.undefinedSubst(tp, ret)
                       uSubst.getSubstitutor match {
                         case Some(substitutor) =>
                           def hasRecursiveTypeParameters(typez: ScType): Boolean = {
-
                             var hasRecursiveTypeParameters = false
                             typez.recursiveUpdate {
                               case tpt: ScTypeParameterType =>
@@ -154,6 +154,7 @@ class ImplicitParametersCollector(place: PsiElement, tp: ScType) {
                             }
                             hasRecursiveTypeParameters
                           }
+
                           for (tParam <- fun.typeParameters) {
                             val lowerType: ScType = tParam.lowerBound.getOrNothing
                             if (lowerType != Nothing) {
@@ -172,9 +173,25 @@ class ImplicitParametersCollector(place: PsiElement, tp: ScType) {
                           }
 
                           uSubst.getSubstitutor match {
-                            case Some(substitutor) =>
-                              Some(c.copy(subst.followed(substitutor)), subst)
-
+                            case Some(uSubstitutor) =>
+                              fun.paramClauses.clauses.lastOption match {
+                                case Some(clause) if clause.isImplicit =>
+                                  //let's find implicit parameters here
+                                  try {
+                                    InferUtil.updateTypeWithImplicitParameters(
+                                      ScMethodType(Any, clause.parameters.map(param => {
+                                        val p = new Parameter(param)
+                                        p.copy(paramType = subst.followed(uSubstitutor).subst(p.paramType))
+                                      }), isImplicit = true)(place.getProject, place.getResolveScope), place, check = true
+                                    )
+                                    Some(c.copy(subst.followed(uSubstitutor)), subst)
+                                  }
+                                  catch {
+                                    case s: SafeCheckException =>
+                                      Some(c.copy(subst.followed(uSubstitutor), problems = Seq(WrongTypeParameterInferred)), subst)
+                                  }
+                                case _ => Some(c.copy(subst.followed(uSubstitutor)), subst)
+                              }
                             case None => None
                           }
 
@@ -183,10 +200,11 @@ class ImplicitParametersCollector(place: PsiElement, tp: ScType) {
                       }
                     }
 
-                    if (subst.subst(funType) conforms tp) checkType(subst.subst(funType))
+                    val substedFunType: ScType = subst.subst(funType)
+                    if (substedFunType conforms tp) checkType(substedFunType)
                     else {
-                      subst.subst(funType) match {
-                        case ScFunctionType(ret, params) if params.length == 0 || oneImplicit =>
+                      substedFunType match {
+                        case ScFunctionType(ret, params) if params.length == 0 =>
                           if (!ret.conforms(tp)) None
                           else checkType(ret)
                         case _ => None
@@ -203,6 +221,8 @@ class ImplicitParametersCollector(place: PsiElement, tp: ScType) {
 
         import org.jetbrains.plugins.scala.caches.ScalaRecursionManager._
 
+
+        //todo: find recursion on the types in more complex algorithm
         doComputations(c.element, (tp: Object, searches: Seq[Object]) => searches.find{
           case t: ScType if tp.isInstanceOf[ScType] => t.equiv(tp.asInstanceOf[ScType])
           case _ => false
@@ -214,7 +234,18 @@ class ImplicitParametersCollector(place: PsiElement, tp: ScType) {
       }
 
       val applicable = super.candidatesS.map(forFilter).flatten
-      new MostSpecificUtil(place, 1).mostSpecificForImplicitParameters(applicable) match {
+      //todo: remove it when you will be sure, that filtering according to implicit parameters works ok
+      val filtered = applicable.filter {
+        case (res: ScalaResolveResult, subst: ScSubstitutor) =>
+          res.problems match {
+            case Seq(WrongTypeParameterInferred) => false
+            case _ => true
+          }
+      }
+      val actuals =
+        if (filtered.isEmpty) applicable
+        else filtered
+      new MostSpecificUtil(place, 1).mostSpecificForImplicitParameters(actuals) match {
         case Some(r) => HashSet(r)
         case _ => applicable.map(_._1)
       }

@@ -102,7 +102,7 @@ object InferUtil {
             }
             //check if it's ClassManifest parameter:
             checkManifest(r => {
-              if (r == null && check) throw  new SafeCheckException
+              if (r == null && check) throw new SafeCheckException
               else resolveResults += r
             })
           }
@@ -135,9 +135,13 @@ object InferUtil {
                     clazz.qualifiedName == "scala.reflect.ClassTag" =>
                     //do not throw, it's safe
                     resolveResults += new ScalaResolveResult(clazz, p.substitutor)
-                  case _ => resolveResults += null
+                  case _ =>
+                    if (check) throw new SafeCheckException
+                    resolveResults += null
                 }
-              case _ => resolveResults += null
+              case _ =>
+                if (check) throw new SafeCheckException
+                resolveResults += null
             }
           }
         }
