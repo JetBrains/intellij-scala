@@ -99,6 +99,13 @@ trait ScType {
     }, variance)
   }
 
+  def removeUndefines(): ScType = {
+    recursiveUpdate {
+      case u: ScUndefinedType => (true, Any)
+      case tp: ScType => (false, tp)
+    }
+  }
+
   def equivInner(r: ScType, uSubst: ScUndefinedSubstitutor, falseUndef: Boolean): (Boolean, ScUndefinedSubstitutor) = {
     (false, uSubst)
   }

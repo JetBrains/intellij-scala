@@ -17,6 +17,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlo
 import org.jetbrains.plugins.scala.extensions.toPsiClassExt
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.SafeCheckException
+import annotation.tailrec
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScExistentialClause
+import org.jetbrains.plugins.scala.lang.psi.types.Conformance.AliasType
 
 /**
  * @param place        The call site
@@ -25,7 +28,7 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.SafeCheckException
  * User: Alexander Podkhalyuzin
  * Date: 23.11.2009
  */
-class ImplicitParametersCollector(place: PsiElement, tp: ScType) {
+class ImplicitParametersCollector(place: PsiElement, tp: ScType, searchImplicitsRecursively: Boolean = true) {
   def collect: Seq[ScalaResolveResult] = {
     var processor = new ImplicitParametersProcessor(false)
     def treeWalkUp(placeForTreeWalkUp: PsiElement, lastParent: PsiElement) {
@@ -178,12 +181,17 @@ class ImplicitParametersCollector(place: PsiElement, tp: ScType) {
                                 case Some(clause) if clause.isImplicit =>
                                   //let's find implicit parameters here
                                   try {
-                                    InferUtil.updateTypeWithImplicitParameters(
-                                      ScMethodType(Any, clause.parameters.map(param => {
-                                        val p = new Parameter(param)
-                                        p.copy(paramType = subst.followed(uSubstitutor).subst(p.paramType))
-                                      }), isImplicit = true)(place.getProject, place.getResolveScope), place, check = true
-                                    )
+                                    //todo: this is hacky solution to not go deeper than 2
+                                    //It's important for performance reasons and to avoid SOE
+                                    if (searchImplicitsRecursively) {
+                                      InferUtil.updateTypeWithImplicitParameters(
+                                        ScMethodType(Any, clause.parameters.map(param => {
+                                          val p = new Parameter(param)
+                                          p.copy(paramType = subst.followed(uSubstitutor).subst(p.paramType))
+                                        }), isImplicit = true)(place.getProject, place.getResolveScope), place, check = true,
+                                        searchImplicitsRecursively = false
+                                      )
+                                    }
                                     Some(c.copy(subst.followed(uSubstitutor)), subst)
                                   }
                                   catch {
@@ -221,13 +229,15 @@ class ImplicitParametersCollector(place: PsiElement, tp: ScType) {
 
         import org.jetbrains.plugins.scala.caches.ScalaRecursionManager._
 
-
         //todo: find recursion on the types in more complex algorithm
-        doComputations(c.element, (tp: Object, searches: Seq[Object]) => searches.find{
-          case t: ScType if tp.isInstanceOf[ScType] => t.equiv(tp.asInstanceOf[ScType])
-          case _ => false
-        } == None,
-          tp, compute(), IMPLICIT_PARAM_TYPES_KEY) match {
+        doComputations(c.element, (tp: Object, searches: Seq[Object]) => {
+            searches.find{
+              case t: ScType if tp.isInstanceOf[ScType] =>
+                if (Equivalence.equivInner(t, tp.asInstanceOf[ScType], new ScUndefinedSubstitutor(), falseUndef = false)._1) true
+                else dominates(t, tp.asInstanceOf[ScType])
+              case _ => false
+            } == None
+          }, coreType(tp), compute(), IMPLICIT_PARAM_TYPES_KEY) match {
           case Some(res) => res
           case None => None
         }
@@ -249,6 +259,59 @@ class ImplicitParametersCollector(place: PsiElement, tp: ScType) {
         case Some(r) => HashSet(r)
         case _ => applicable.map(_._1)
       }
+    }
+  }
+
+  @tailrec
+  private def coreType(tp: ScType): ScType = {
+    tp match {
+      case ScCompoundType(comps, _, _, subst) => ScCompoundType(comps, Seq.empty, Seq.empty, subst).removeVarianceAbstracts(1).removeUndefines()
+      case ScExistentialType(quant, wilds) => ScExistentialType(quant.recursiveUpdate((tp: ScType) => {
+          tp match {
+            case ScTypeVariable(name) => wilds.find(_.name == name).map(w => (true, w.upperBound)).getOrElse((false, tp))
+            case ScDesignatorType(element) => element match {
+              case a: ScTypeAlias if a.getContext.isInstanceOf[ScExistentialClause] =>
+                wilds.find(_.name == a.name).map(w => (true, w.upperBound)).getOrElse((false, tp))
+              case _ => (false, tp)
+            }
+            case _ => (false, tp)
+          }
+        }), wilds).removeVarianceAbstracts(1).removeUndefines()
+      case _ =>
+        Conformance.isAliasType(tp) match {
+          case Some(AliasType(_, lower, upper)) => coreType(upper.getOrAny)
+          case _ => tp.removeVarianceAbstracts(1).removeUndefines()
+        }
+    }
+  }
+
+  private def dominates(t: ScType, u: ScType): Boolean = {
+//    println(t, u, "T complexity: ", complexity(t), "U complexity: ", complexity(u), "t set: ", topLevelTypeConstructors(t),
+//      "u set", topLevelTypeConstructors(u), "intersection: ", topLevelTypeConstructors(t).intersect(topLevelTypeConstructors(u)))
+    complexity(t) > complexity(u) && topLevelTypeConstructors(t).intersect(topLevelTypeConstructors(u)).nonEmpty
+  }
+
+  private def topLevelTypeConstructors(tp: ScType): Set[ScType] = {
+    tp match {
+      case ScProjectionType(_, element, _, _) => Set(ScDesignatorType(element))
+      case ScParameterizedType(designator, _) => Set(designator)
+      case ScDesignatorType(v: ScValue) =>
+        val valueType: ScType = v.getType(TypingContext.empty).getOrAny
+        topLevelTypeConstructors(valueType)
+      case ScCompoundType(comps, _, _, _) => comps.flatMap(topLevelTypeConstructors(_)).toSet
+      case tp => Set(tp)
+    }
+  }
+
+  private def complexity(tp: ScType): Int = {
+    tp match {
+      case ScProjectionType(proj, _, _, _) => 1 + complexity(proj)
+      case ScParameterizedType(des, args) => 1 + args.foldLeft(0)(_ + complexity(_))
+      case ScDesignatorType(v: ScValue) =>
+        val valueType: ScType = v.getType(TypingContext.empty).getOrAny
+        1 + complexity(valueType)
+      case ScCompoundType(comps, _, _, _) => comps.foldLeft(0)(_ + complexity(_))
+      case _ => 1
     }
   }
 }

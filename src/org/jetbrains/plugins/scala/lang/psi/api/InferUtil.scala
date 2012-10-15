@@ -32,7 +32,8 @@ object InferUtil {
    * @return updated type and sequence of implicit parameters
    */
   def updateTypeWithImplicitParameters(res: ScType, element: PsiElement,
-                                       check: Boolean): (ScType, Option[Seq[ScalaResolveResult]]) = {
+                                       check: Boolean,
+                                       searchImplicitsRecursively: Boolean = true): (ScType, Option[Seq[ScalaResolveResult]]) = {
     var resInner = res
     var implicitParameters: Option[Seq[ScalaResolveResult]] = None
     res match {
@@ -58,7 +59,7 @@ object InferUtil {
         while (iterator.hasNext) {
           val param = iterator.next()
           val paramType = abstractSubstitutor.subst(param.paramType) //we should do all of this with information known before
-          val collector = new ImplicitParametersCollector(element, paramType)
+          val collector = new ImplicitParametersCollector(element, paramType, searchImplicitsRecursively)
           val results = collector.collect
           if (results.length == 1) {
             resolveResults += results(0)
@@ -121,7 +122,7 @@ object InferUtil {
         while (iterator.hasNext) {
           val param = iterator.next()
           val paramType = param.paramType //we should do all of this with information known before
-          val collector = new ImplicitParametersCollector(element, paramType)
+          val collector = new ImplicitParametersCollector(element, paramType, searchImplicitsRecursively)
           val results = collector.collect
           if (results.length == 1) {
             resolveResults += results(0)
