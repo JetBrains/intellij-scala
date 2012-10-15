@@ -610,7 +610,8 @@ object JavaToScala {
           res.append("protected ")
         } else if (m.hasModifierProperty("private")) {
           res.append("private ")
-        } else if (!m.hasModifierProperty("public") && m.getParent.getParent.isInstanceOf[PsiClass]) {
+        } else if (!m.hasModifierProperty("public") && m.getParent != null && m.getParent.getParent != null &&
+          m.getParent.getParent.isInstanceOf[PsiClass]) {
           val packageName: String = m.getContainingFile.asInstanceOf[PsiClassOwner].getPackageName
           if (packageName != "") res.append("private").append("[").append(packageName.substring(packageName.lastIndexOf(".") + 1)).append("] ")
         }
