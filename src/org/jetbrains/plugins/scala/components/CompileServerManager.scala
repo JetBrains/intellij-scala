@@ -130,7 +130,7 @@ class CompileServerManager(project: Project) extends ProjectComponent {
     }
   }
 
-  private object Reset extends AnAction("R&eset", "Reset compile server", IconLoader.getIcon("/vcs/refresh.png")) {
+  private object Reset extends AnAction("R&eset", "Reset compile server", IconLoader.getIcon("/actions/sync.png")) {
     override def update(e: AnActionEvent) {
       e.getPresentation.setEnabled(launcher.running)
     }
