@@ -684,4 +684,45 @@ class ScalaBasicCompletionTest extends ScalaCompletionTestBase {
     completeLookupItem(activeLookup.find(le => le.getLookupString == "tailrec").get, '\t')
     checkResultByText(resultText)
   }
+
+  def testSCL4791() {
+    val fileText =
+      """
+        |object PrivateInvisible {
+        |  trait Requirement
+        |
+        |  trait Test {
+        |    needs: Requirement =>
+        |
+        |    private def fault: Int = 7
+        |    def work() {
+        |      // Typing "fa", word "fault" is not present in the completion list
+        |      val z = fa<caret>
+        |    }
+        |  }
+        |}
+      """.stripMargin.replaceAll("\r", "").trim()
+    configureFromFileTextAdapter("dummy.scala", fileText)
+    val (activeLookup, _) = complete(1, CompletionType.BASIC)
+
+    val resultText =
+      """
+        |object PrivateInvisible {
+        |  trait Requirement
+        |
+        |  trait Test {
+        |    needs: Requirement =>
+        |
+        |    private def fault: Int = 7
+        |    def work() {
+        |      // Typing "fa", word "fault" is not present in the completion list
+        |      val z = fault<caret>
+        |    }
+        |  }
+        |}
+      """.stripMargin.replaceAll("\r", "").trim()
+
+    completeLookupItem(activeLookup.find(le => le.getLookupString == "fault").get, '\t')
+    checkResultByText(resultText)
+  }
 }
