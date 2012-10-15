@@ -101,7 +101,10 @@ abstract class MixinNodes {
       val names = new mutable.HashSet[String]
       names ++= keySet
       names ++= privatesMap.keySet
-      for (sup <- supersList) {names ++= sup.keySet}
+      for (sup <- supersList) {
+        names ++= sup.keySet
+        names ++= sup.privatesMap.keySet
+      }
       names
     }
     
