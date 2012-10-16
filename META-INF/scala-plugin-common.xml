@@ -626,7 +626,7 @@
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.valInTraitInspection.AbstractValueInTraitInspection"
                          displayName="Abstract Value in Trait" groupName="Scala: General"
                          shortName="AbstractValueInTrait" level="WARNING"
-                         enabledByDefault="true" language="Scala"/>
+                         enabledByDefault="false" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.sbt.SbtFileStructureInspection"
                          displayName="SBT Light Configuration File Structure" groupName="Scala: General"
                          shortName="SbtFileStructure" level="WARNING"
