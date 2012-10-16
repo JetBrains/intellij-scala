@@ -6,6 +6,8 @@ package types
 import api.statements._
 import result.{TypingContext, Failure}
 import collection.mutable.{ListBuffer, HashMap}
+import com.intellij.psi.PsiClass
+import extensions.toPsiClassExt
 
 /**
  * Substitutor should be meaningful only for decls and typeDecls. Components shouldn't be applied by substitutor.
@@ -188,7 +190,17 @@ case class ScCompoundType(components: Seq[ScType], decls: Seq[ScDeclaredElements
           (true, undefinedSubst)
         }
       }
-      case _ => (false, undefinedSubst)
+      case _ =>
+        if (decls.length == 0 && typeDecls.length == 0) {
+          val filtered = components.filter {
+            case Any | AnyRef => false
+            case ScDesignatorType(obj: PsiClass) if obj.qualifiedName == "java.lang.Object" => false
+            case _ => true
+          }
+          if (filtered.length == 1) Equivalence.equivInner(filtered(0), r, undefinedSubst, falseUndef)
+          else (false, undefinedSubst)
+        } else (false, undefinedSubst)
+
     }
   }
 }

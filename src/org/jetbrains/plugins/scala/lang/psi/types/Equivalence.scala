@@ -46,6 +46,7 @@ object Equivalence {
       case (_, ScDesignatorType(_: ScTypeAliasDefinition)) => r.equivInner(l, subst, falseUndef)
       case (_: ScParameterizedType, _: JavaArrayType) => r.equivInner(l, subst, falseUndef)
       case (_, proj: ScProjectionType) => r.equivInner(l, subst, falseUndef)
+      case (_, proj: ScCompoundType) => r.equivInner(l, subst, falseUndef)
       case _ => l.equivInner(r, subst, falseUndef)
     }
   }
