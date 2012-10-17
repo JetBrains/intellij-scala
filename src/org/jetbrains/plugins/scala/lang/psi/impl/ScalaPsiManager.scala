@@ -12,7 +12,7 @@ import types._
 import com.intellij.openapi.util.Key
 import com.intellij.ProjectTopics
 import com.intellij.reference.SoftReference
-import collection.Seq
+import collection.{mutable, Seq}
 import com.intellij.psi._
 import com.intellij.util.containers.WeakValueHashMap
 import impl.{JavaPsiFacadeImpl, PsiManagerEx}
@@ -186,10 +186,15 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
   }
 
   def getClassesByName(name: String, scope: GlobalSearchScope): Seq[PsiClass] = {
-    val scalaClasses = ScalaShortNamesCacheManager.getInstance(project).getClassesByName(name, scope)
-    scalaClasses ++ PsiShortNamesCache.getInstance(project).getClassesByName(name, scope).filterNot(p =>
+    val scalaClasses: Seq[_ <: PsiElement] = ScalaShortNamesCacheManager.getInstance(project).getClassesByName(name, scope)
+    val buffer: mutable.Buffer[PsiClass] = PsiShortNamesCache.getInstance(project).getClassesByName(name, scope).filterNot(p =>
       p.isInstanceOf[ScTemplateDefinition] || p.isInstanceOf[PsiClassWrapper]
-    )
+    ).toBuffer
+    for (clazz <- scalaClasses) {
+      ScalaStubsUtil.checkPsiForClass(clazz)
+      buffer += clazz.asInstanceOf[PsiClass]
+    }
+    buffer.toSeq
   }
 
   import ScalaPsiManager.ClassCategory._
