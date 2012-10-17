@@ -33,7 +33,9 @@ class ScalaShortNamesCache(project: Project) extends PsiShortNamesCache {
     }
     val classes: Seq[_ <: PsiElement] = ScalaShortNamesCacheManager.getInstance(project).getClassesByName(name, scope)
     val res = new ArrayBuffer[PsiClass]
-    for (clazz <- classes) {
+    val classesIterator = classes.iterator
+    while (classesIterator.hasNext) {
+      val clazz = classesIterator.next()
       ScalaStubsUtil.checkPsiForClass(clazz)
       clazz match {
         case o: ScObject if isOkForJava(o) =>
@@ -47,7 +49,9 @@ class ScalaShortNamesCache(project: Project) extends PsiShortNamesCache {
     if (name.endsWith("$")) {
       val nameWithoutDollar = name.substring(0, name.length() - 1)
       val classes: Seq[_ <: PsiElement] = ScalaShortNamesCacheManager.getInstance(project).getClassesByName(nameWithoutDollar, scope)
-      for (clazz <- classes) {
+      val classesIterator = classes.iterator
+      while (classesIterator.hasNext) {
+        val clazz = classesIterator.next()
         ScalaStubsUtil.checkPsiForClass(clazz)
         clazz match {
           case c: ScClass if isOkForJava(c) =>
@@ -61,7 +65,9 @@ class ScalaShortNamesCache(project: Project) extends PsiShortNamesCache {
     } else if (name.endsWith("$class")) {
       val nameWithoutDollar = name.substring(0, name.length() - 6)
       val classes: Seq[_ <: PsiElement] = ScalaShortNamesCacheManager.getInstance(project).getClassesByName(nameWithoutDollar, scope)
-      for (clazz <- classes) {
+      val classesIterator = classes.iterator
+      while (classesIterator.hasNext) {
+        val clazz = classesIterator.next()
         ScalaStubsUtil.checkPsiForClass(clazz)
         clazz match {
           case c: ScTrait if isOkForJava(c) =>

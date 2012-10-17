@@ -59,6 +59,8 @@ class FakePsiMethod(
     hasModifier(name)
   }
 
+  def isExtensionMethod: Boolean = false
+
   def getTypeParameterList: PsiTypeParameterList = null
 
   def getTypeParameters: Array[PsiTypeParameter] = PsiTypeParameter.EMPTY_ARRAY
