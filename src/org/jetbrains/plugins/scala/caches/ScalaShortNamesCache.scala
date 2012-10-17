@@ -12,6 +12,7 @@ import stubs.StubIndex
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys
 import com.intellij.util.{Processor, ArrayUtil}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
+import org.jetbrains.plugins.scala.lang.psi.stubs.util.ScalaStubsUtil
 
 /**
  * @author ilyas
@@ -30,9 +31,10 @@ class ScalaShortNamesCache(project: Project) extends PsiShortNamesCache {
       }
       res
     }
-    val classes = ScalaShortNamesCacheManager.getInstance(project).getClassesByName(name, scope)
+    val classes: Seq[_ <: PsiElement] = ScalaShortNamesCacheManager.getInstance(project).getClassesByName(name, scope)
     val res = new ArrayBuffer[PsiClass]
     for (clazz <- classes) {
+      ScalaStubsUtil.checkPsiForClass(clazz)
       clazz match {
         case o: ScObject if isOkForJava(o) =>
           o.fakeCompanionClass match {
@@ -44,8 +46,9 @@ class ScalaShortNamesCache(project: Project) extends PsiShortNamesCache {
     }
     if (name.endsWith("$")) {
       val nameWithoutDollar = name.substring(0, name.length() - 1)
-      val classes = ScalaShortNamesCacheManager.getInstance(project).getClassesByName(nameWithoutDollar, scope)
+      val classes: Seq[_ <: PsiElement] = ScalaShortNamesCacheManager.getInstance(project).getClassesByName(nameWithoutDollar, scope)
       for (clazz <- classes) {
+        ScalaStubsUtil.checkPsiForClass(clazz)
         clazz match {
           case c: ScClass if isOkForJava(c) =>
             c.fakeCompanionModule match {
@@ -57,8 +60,9 @@ class ScalaShortNamesCache(project: Project) extends PsiShortNamesCache {
       }
     } else if (name.endsWith("$class")) {
       val nameWithoutDollar = name.substring(0, name.length() - 6)
-      val classes = ScalaShortNamesCacheManager.getInstance(project).getClassesByName(nameWithoutDollar, scope)
+      val classes: Seq[_ <: PsiElement] = ScalaShortNamesCacheManager.getInstance(project).getClassesByName(nameWithoutDollar, scope)
       for (clazz <- classes) {
+        ScalaStubsUtil.checkPsiForClass(clazz)
         clazz match {
           case c: ScTrait if isOkForJava(c) =>
             res += c.fakeCompanionClass
