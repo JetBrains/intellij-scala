@@ -11,7 +11,6 @@ import impl.ScalaPsiElementFactory
 import caches.CachesUtil
 import com.intellij.psi.util.PsiModificationTracker
 import statements.params.{ScParameters, ScParameterClause, ScTypeParamClause}
-import extensions.toPsiMemberExt
 
 /**
  * A member that can be converted to a ScMethodType, ie a method or a constructor.
@@ -66,4 +65,6 @@ trait ScMethodLike extends ScMember with PsiMethod {
       case _ => None
     }
   }
+
+  def isExtensionMethod: Boolean = false
 }

@@ -190,7 +190,9 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
     val buffer: mutable.Buffer[PsiClass] = PsiShortNamesCache.getInstance(project).getClassesByName(name, scope).filterNot(p =>
       p.isInstanceOf[ScTemplateDefinition] || p.isInstanceOf[PsiClassWrapper]
     ).toBuffer
-    for (clazz <- scalaClasses) {
+    val classesIterator = scalaClasses.iterator
+    while (classesIterator.hasNext) {
+      val clazz = classesIterator.next()
       ScalaStubsUtil.checkPsiForClass(clazz)
       buffer += clazz.asInstanceOf[PsiClass]
     }
