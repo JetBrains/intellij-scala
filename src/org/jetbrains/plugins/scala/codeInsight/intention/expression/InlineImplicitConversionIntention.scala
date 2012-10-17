@@ -4,15 +4,11 @@ package codeInsight.intention.expression
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.editor.Editor
 import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction
-import com.intellij.psi.{PsiDocumentManager, NavigatablePsiElement, PsiElement}
-import lang.psi.api.expr.{ScMethodCall, ScExpression}
+import com.intellij.psi.PsiElement
+import lang.psi.api.expr.ScExpression
 import com.intellij.psi.util.PsiTreeUtil
 import lang.psi.api.statements.ScFunction
-import lang.psi.impl.ScalaPsiElementFactory
 import extensions._
-import scala.Some
-import lang.psi.impl.toplevel.typedef.ScObjectImpl
-import lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.util.IntentionUtils
 
 /**
@@ -33,7 +29,7 @@ class InlineImplicitConversionIntention extends PsiElementBaseIntentionAction {
     val expr : ScExpression = PsiTreeUtil.getParentOfType(element, classOf[ScExpression], false)
     if (expr == null) return false
 
-    val implicitConversions = expr.getImplicitConversions(true)
+    val implicitConversions = expr.getImplicitConversions(fromUnder = true)
     val conversionFun = implicitConversions._2.getOrElse(null)
     if (conversionFun == null) return false
 

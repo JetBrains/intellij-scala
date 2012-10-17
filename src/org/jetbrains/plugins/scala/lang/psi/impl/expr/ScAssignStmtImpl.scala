@@ -90,11 +90,14 @@ class ScAssignStmtImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScA
         case ref: ScReferenceExpression =>
           val text = s"${ref.refName}_=(${getRExpression.map(_.getText).getOrElse("")})"
           val mirrorExpr = ScalaPsiElementFactory.createExpressionWithContextFromText(text, getContext, this)
-          val call = mirrorExpr.asInstanceOf[ScMethodCall]
-          call.getInvokedExpr.asInstanceOf[ScReferenceExpression].setupResolveFunctions(
-            () => resolveAssignment.toArray, () => shapeResolveAssignment.toArray
-          )
-          Some(call)
+          mirrorExpr match {
+            case call: ScMethodCall =>
+              call.getInvokedExpr.asInstanceOf[ScReferenceExpression].setupResolveFunctions(
+                () => resolveAssignment.toArray, () => shapeResolveAssignment.toArray
+              )
+              Some(call)
+            case _ => None
+          }
         case _ => None
       }
     }
