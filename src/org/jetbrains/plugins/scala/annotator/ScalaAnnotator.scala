@@ -332,7 +332,7 @@ with DumbAware {
     if (element.isInstanceOf[ScTemplateDefinition]) {
       val templateDefinition = element.asInstanceOf[ScTemplateDefinition]
       val tdParts = Seq(AbstractInstantiation, FinalClassInheritance, IllegalInheritance, ObjectCreationImpossible,
-        MultipleInheritance, NeedsToBeAbstract, NeedsToBeTrait, SealedClassInheritance, UndefinedMember)
+        MultipleInheritance, NeedsToBeAbstract, NeedsToBeMixin, NeedsToBeTrait, SealedClassInheritance, UndefinedMember)
       tdParts.foreach(_.annotate(templateDefinition, holder, typeAware))
       templateDefinition match {
         case cls: ScClass =>
