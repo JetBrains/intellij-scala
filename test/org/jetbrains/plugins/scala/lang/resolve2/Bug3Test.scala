@@ -52,4 +52,5 @@ class Bug3Test extends ResolveTestBase {
   def testShadowedImport() {doTest()}
   def testSOE() {doTest()}
   def testAccessiblePattern() {doTest()}
+  def testConstructorNamedParameters() {doTest()}
 }
