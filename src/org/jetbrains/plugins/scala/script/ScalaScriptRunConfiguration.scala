@@ -9,7 +9,7 @@ import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.util.JDOMExternalizer
 import com.intellij.execution.runners.ExecutionEnvironment
 import com.intellij.execution.{ExecutionException, Executor}
-import com.intellij.openapi.module.{ModuleUtilCore, ModuleUtil, Module}
+import com.intellij.openapi.module.{ModuleUtilCore, Module}
 import com.intellij.openapi.options.SettingsEditor
 import lang.psi.api.ScalaFile
 import com.intellij.vcsUtil.VcsUtil
@@ -80,7 +80,7 @@ class ScalaScriptRunConfiguration(val project: Project, val configurationFactory
       }
     }
     catch {
-      case e => fileNotFoundError()
+      case e: Exception => fileNotFoundError()
     }
 
     val module = getModule
@@ -139,7 +139,7 @@ class ScalaScriptRunConfiguration(val project: Project, val configurationFactory
       module = ModuleUtilCore.findModuleForFile(file, getProject)
     }
     catch {
-      case e =>
+      case e: Exception =>
     }
     if (module == null) module = getConfigurationModule.getModule
     module
@@ -190,7 +190,7 @@ class ScalaScriptRunConfiguration(val project: Project, val configurationFactory
             new Result(start, end, hyperlink)
           }
           catch {
-            case _ => return null
+            case _: Exception => return null
           }
         } else null
       }

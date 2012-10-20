@@ -6,7 +6,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import com.intellij.psi.{PsiClass, PsiElement, PsiMethod, JavaPsiFacade}
 import collection.mutable.ArrayBuffer
 import org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, StdType, ScType, ScCompoundType}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTemplateDefinition, ScTypeDefinition, ScObject}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTypeDefinition, ScObject}
 
 /**
  * @author Alefas
@@ -35,7 +35,7 @@ class ScFunctionWrapper(val function: ScFunction, isStatic: Boolean, isInterface
     try {
       elementFactory.createMethodFromText(methodText, containingClass)
     } catch {
-      case e => elementFactory.createMethodFromText("public void FAILED_TO_DECOMPILE_METHOD() {}", containingClass)
+      case e: Exception => elementFactory.createMethodFromText("public void FAILED_TO_DECOMPILE_METHOD() {}", containingClass)
     }
   }
 } with LightMethod(function.getManager, method, containingClass) with LightScalaMethod {

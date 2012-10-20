@@ -71,7 +71,7 @@ object SuggestNamesUtil {
           }
         }
         catch {
-          case e => {
+          case e: Exception => {
             e.printStackTrace
             return Array[String]("x")
           }

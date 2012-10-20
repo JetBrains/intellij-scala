@@ -19,7 +19,7 @@ class StaticPsiTypedDefinitionWrapper(val typedDefinition: ScTypedDefinition,
     try {
       elementFactory.createMethodFromText(methodText, containingClass)
     } catch {
-      case e => elementFactory.createMethodFromText("public void FAILED_TO_DECOMPILE_METHOD() {}", containingClass)
+      case e: Exception => elementFactory.createMethodFromText("public void FAILED_TO_DECOMPILE_METHOD() {}", containingClass)
     }
   }
 } with LightMethod(typedDefinition.getManager, method, containingClass) with LightScalaMethod {
