@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.lang.completion3
 
 import com.intellij.codeInsight.completion.CompletionType
 import org.junit.Assert
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 
 /**
  * @author Alefas
@@ -778,6 +779,25 @@ class ScalaBasicCompletionTest extends ScalaCompletionTestBase {
       """.stripMargin.replaceAll("\r", "").trim()
 
     completeLookupItem(activeLookup.find(le => le.getLookupString == "classOf").get, '\t')
+
+    checkResultByText(resultText)
+  }
+
+  def testBracketsExistsForType() {
+    val fileText =
+      """
+        |val x: Opti<caret>[]
+      """.stripMargin.replaceAll("\r", "").trim()
+    configureFromFileTextAdapter("dummy.scala", fileText)
+    val (activeLookup, _) = complete(1, CompletionType.BASIC)
+
+    val resultText =
+      """
+        |val x: Option[<caret>]
+      """.stripMargin.replaceAll("\r", "").trim()
+
+    completeLookupItem(activeLookup.find(le => le.getLookupString == "Option" &&
+      le.getPsiElement.isInstanceOf[ScClass]).get, '[')
 
     checkResultByText(resultText)
   }

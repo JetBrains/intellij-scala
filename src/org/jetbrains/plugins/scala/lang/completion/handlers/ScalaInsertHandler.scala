@@ -12,7 +12,7 @@ import extensions._
 import psi.api.expr._
 import psi.api.toplevel.typedef.ScObject
 import com.intellij.openapi.util.Condition
-import com.intellij.psi.{PsiFile, PsiNamedElement, PsiMethod}
+import com.intellij.psi.{PsiClass, PsiFile, PsiNamedElement, PsiMethod}
 import lookups.ScalaLookupItem
 import psi.api.base.ScStableCodeReferenceElement
 import psi.ScalaPsiUtil
@@ -167,6 +167,9 @@ class ScalaInsertHandler extends InsertHandler[LookupElement] {
           })
         }
         return
+      case clazz: PsiClass if context.getCompletionChar == '[' =>
+        context.setAddCompletionChar(false)
+        insertIfNeeded(placeInto = true, openChar = '[', closeChar = ']', withSpace = false, withSomeNum = false)
       case named: PsiNamedElement if item.isNamedParameter => { //some is impossible here
         val shouldAddEqualsSign = element.getParent match {
           case ref: ScReferenceExpression =>
