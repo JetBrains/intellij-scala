@@ -898,6 +898,9 @@ object ScalaPsiElementFactory extends JVMElementFactory {
     holder.rawAddChildren(node.asInstanceOf[TreeElement])
     val psi = node.getPsi
     if (psi.isInstanceOf[ScExpression]) {
+      if (!psi.isInstanceOf[ScMethodCall]) {
+        throw new RuntimeException(s"Psi is not method call for text: $text")
+      }
       val expr = psi.asInstanceOf[ScMethodCall]
       val res = if (expr.argumentExpressions.size > 0) expr.argumentExpressions.apply(0) else null
       if (res != null) res.setContext(context, child)
