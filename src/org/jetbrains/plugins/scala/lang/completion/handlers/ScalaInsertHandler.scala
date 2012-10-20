@@ -214,7 +214,8 @@ class ScalaInsertHandler extends InsertHandler[LookupElement] {
               endOffset += 2
               editor.getCaretModel.moveToOffset(endOffset)
             } else {
-              insertIfNeeded(placeInto = false, openChar = '(', closeChar = ')', withSpace = false, withSomeNum = false)
+              insertIfNeeded(placeInto = context.getCompletionChar == '(', openChar = '(', closeChar = ')',
+                withSpace = false, withSomeNum = false)
             }
           } else if (count > 0) {
             import extensions._

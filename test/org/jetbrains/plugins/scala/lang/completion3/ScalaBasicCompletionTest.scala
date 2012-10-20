@@ -819,4 +819,22 @@ class ScalaBasicCompletionTest extends ScalaCompletionTestBase {
 
     checkResultByText(resultText)
   }
+
+  def testParenthesesCompletionChar() {
+    val fileText =
+      """
+        |System.c<caret>
+      """.stripMargin.replaceAll("\r", "").trim()
+    configureFromFileTextAdapter("dummy.scala", fileText)
+    val (activeLookup, _) = complete(1, CompletionType.BASIC)
+
+    val resultText =
+      """
+        |System.currentTimeMillis(<caret>)
+      """.stripMargin.replaceAll("\r", "").trim()
+
+    completeLookupItem(activeLookup.find(le => le.getLookupString == "currentTimeMillis").get, '(')
+
+    checkResultByText(resultText)
+  }
 }
