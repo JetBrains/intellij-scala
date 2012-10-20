@@ -5,4 +5,4 @@ class A {
 
   def bar = foo.get/*caret*/  //resolved, should not
 }
-//
+//getClass
