@@ -35,6 +35,7 @@ class MergeIfToOrIntention extends PsiElementBaseIntentionAction {
     if (thenBranch == null || elseBranch == null) return false
 
     if (!elseBranch.isInstanceOf[ScIfStmt]) return false
+    if (ifStmt.condition.getOrElse(null) == null) return false
 
     if (!(thenBranch.getTextRange.getEndOffset <= offset && offset <= elseBranch.getTextRange.getStartOffset) &&
     !(ifStmt.getTextRange.getStartOffset <= offset && offset <= ifStmt.condition.get.getTextRange.getStartOffset))
