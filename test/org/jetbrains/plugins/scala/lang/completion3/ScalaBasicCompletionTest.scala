@@ -725,4 +725,60 @@ class ScalaBasicCompletionTest extends ScalaCompletionTestBase {
     completeLookupItem(activeLookup.find(le => le.getLookupString == "fault").get, '\t')
     checkResultByText(resultText)
   }
+
+  def testSCL4837() {
+    val fileText =
+      """
+        |System.current<caret>TimeMillis()
+      """.stripMargin.replaceAll("\r", "").trim()
+    configureFromFileTextAdapter("dummy.scala", fileText)
+    val (activeLookup, _) = complete(1, CompletionType.BASIC)
+
+    val resultText =
+      """
+        |System.currentTimeMillis()<caret>
+      """.stripMargin.replaceAll("\r", "").trim()
+
+    completeLookupItem(activeLookup.find(le => le.getLookupString == "currentTimeMillis").get, '\t')
+
+    checkResultByText(resultText)
+  }
+
+  def testParethsExists() {
+    val fileText =
+      """
+        |def foo(x: Int) = 1
+        |fo<caret>()
+      """.stripMargin.replaceAll("\r", "").trim()
+    configureFromFileTextAdapter("dummy.scala", fileText)
+    val (activeLookup, _) = complete(1, CompletionType.BASIC)
+
+    val resultText =
+      """
+        |def foo(x: Int) = 1
+        |foo(<caret>)
+      """.stripMargin.replaceAll("\r", "").trim()
+
+    completeLookupItem(activeLookup.find(le => le.getLookupString == "foo").get, '\t')
+
+    checkResultByText(resultText)
+  }
+
+  def testBracketsExists() {
+    val fileText =
+      """
+        |clas<caret>[]
+      """.stripMargin.replaceAll("\r", "").trim()
+    configureFromFileTextAdapter("dummy.scala", fileText)
+    val (activeLookup, _) = complete(1, CompletionType.BASIC)
+
+    val resultText =
+      """
+        |classOf[<caret>]
+      """.stripMargin.replaceAll("\r", "").trim()
+
+    completeLookupItem(activeLookup.find(le => le.getLookupString == "classOf").get, '\t')
+
+    checkResultByText(resultText)
+  }
 }
