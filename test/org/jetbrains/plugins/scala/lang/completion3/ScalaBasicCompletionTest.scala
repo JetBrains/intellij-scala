@@ -801,4 +801,22 @@ class ScalaBasicCompletionTest extends ScalaCompletionTestBase {
 
     checkResultByText(resultText)
   }
+
+  def testBracketsWithoutParentheses() {
+    val fileText =
+      """
+        |Array.app<caret>
+      """.stripMargin.replaceAll("\r", "").trim()
+    configureFromFileTextAdapter("dummy.scala", fileText)
+    val (activeLookup, _) = complete(1, CompletionType.BASIC)
+
+    val resultText =
+      """
+        |Array.apply[<caret>]
+      """.stripMargin.replaceAll("\r", "").trim()
+
+    completeLookupItem(activeLookup.find(le => le.getLookupString == "apply").get, '[')
+
+    checkResultByText(resultText)
+  }
 }

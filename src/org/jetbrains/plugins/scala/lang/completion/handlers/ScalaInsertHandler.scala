@@ -118,10 +118,12 @@ class ScalaInsertHandler extends InsertHandler[LookupElement] {
     def insertIfNeeded(placeInto: Boolean, openChar: Char, closeChar: Char, withSpace: Boolean, withSomeNum: Boolean) {
       def shiftEndOffset(shift: Int, withSomeNum: Boolean = withSomeNum) {
         endOffset += shift
-        editor.getCaretModel.moveToOffset(endOffset)
+        editor.getCaretModel.moveToOffset(endOffset + (if (withSomeNum) someNum else 0))
       }
       val documentText: String = document.getText
-      val nextChar: Char = documentText.charAt(endOffset)
+      val nextChar: Char =
+        if (endOffset < document.getTextLength) documentText.charAt(endOffset)
+        else 0.toChar
       if (!withSpace && nextChar != openChar) {
         document.insertString(endOffset, s"${openChar}$closeChar")
         if (placeInto) {
@@ -198,71 +200,77 @@ class ScalaInsertHandler extends InsertHandler[LookupElement] {
         context.setAddCompletionChar(false)
         insertIfNeeded(placeInto = true, openChar = '[', closeChar = ']', withSpace = false, withSomeNum = true)
       case _: PsiMethod | _: ScFun => {
-        val (count, _, isAccessor) = getItemParametersAndAccessorStatus(item)
-        if (count == 0 && !isAccessor) {
-          disableParenthesesCompletionChar()
-          if (item.etaExpanded) {
-            document.insertString(endOffset, " _")
-            endOffset += 2
-            editor.getCaretModel.moveToOffset(endOffset)
-          } else {
-            insertIfNeeded(placeInto = false, openChar = '(', closeChar = ')', withSpace = false, withSomeNum = false)
-          }
-        } else if (count > 0) {
-          import extensions._
-          element.getParent match {
-            //case for infix expressions
-            case Both(ref: ScReferenceExpression, Parent(inf: ScInfixExpr)) if inf.operation == ref =>
-              if (count > 1) {
-                disableParenthesesCompletionChar()
-                if (!item.etaExpanded) {
-                  val openChar = if (context.getCompletionChar == '{') '{' else '('
-                  val closeChar = if (context.getCompletionChar == '{') '}' else ')'
-                  insertIfNeeded(placeInto = true, openChar = openChar, closeChar = closeChar, withSpace = true, withSomeNum = false)
-                } else {
-                  document.insertString(endOffset, " _")
-                  endOffset += 2
-                  editor.getCaretModel.moveToOffset(endOffset)
-                }
-              } else {
-                if (context.getCompletionChar == '{') {
-                  insertIfNeeded(placeInto = true, openChar = '{', closeChar = '}', withSpace = true, withSomeNum = false)
-                } else {
-                  document.insertString(endOffset, " ")
-                  endOffset += 1
-                  editor.getCaretModel.moveToOffset(endOffset)
-                }
-              }
-            // for reference invocations
-            case _ =>
-              if (completionChar == ' ') {
-                context.setAddCompletionChar(false)
-                document.insertString(endOffset, " _")
-                endOffset += 2
-                editor.getCaretModel.moveToOffset(endOffset + someNum)
-              } else if (endOffset == document.getTextLength || document.getCharsSequence.charAt(endOffset) != '(') {
-                disableParenthesesCompletionChar()
-                if (!item.etaExpanded) {
-                  if (context.getCompletionChar == '{') {
-                    if (ScalaPsiUtil.getSettings(context.getProject).SPACE_BEFORE_BRACE_METHOD_CALL) {
-                      insertIfNeeded(placeInto = true, openChar = '{', closeChar = '}', withSpace = true, withSomeNum = false)
-                    } else {
-                      insertIfNeeded(placeInto = true, openChar = '{', closeChar = '}', withSpace = false, withSomeNum = false)
-                    }
+        if (context.getCompletionChar != '[') {
+          val (count, _, isAccessor) = getItemParametersAndAccessorStatus(item)
+          if (count == 0 && !isAccessor) {
+            disableParenthesesCompletionChar()
+            if (item.etaExpanded) {
+              document.insertString(endOffset, " _")
+              endOffset += 2
+              editor.getCaretModel.moveToOffset(endOffset)
+            } else {
+              insertIfNeeded(placeInto = false, openChar = '(', closeChar = ')', withSpace = false, withSomeNum = false)
+            }
+          } else if (count > 0) {
+            import extensions._
+            element.getParent match {
+              //case for infix expressions
+              case Both(ref: ScReferenceExpression, Parent(inf: ScInfixExpr)) if inf.operation == ref =>
+                if (count > 1) {
+                  disableParenthesesCompletionChar()
+                  if (!item.etaExpanded) {
+                    val openChar = if (context.getCompletionChar == '{') '{' else '('
+                    val closeChar = if (context.getCompletionChar == '{') '}' else ')'
+                    insertIfNeeded(placeInto = true, openChar = openChar, closeChar = closeChar, withSpace = true, withSomeNum = false)
                   } else {
-                    insertIfNeeded(placeInto = true, openChar = '(', closeChar = ')', withSpace = false, withSomeNum = false)
+                    document.insertString(endOffset, " _")
+                    endOffset += 2
+                    editor.getCaretModel.moveToOffset(endOffset)
                   }
                 } else {
+                  if (context.getCompletionChar == '{') {
+                    insertIfNeeded(placeInto = true, openChar = '{', closeChar = '}', withSpace = true, withSomeNum = false)
+                  } else {
+                    document.insertString(endOffset, " ")
+                    endOffset += 1
+                    editor.getCaretModel.moveToOffset(endOffset)
+                  }
+                }
+              // for reference invocations
+              case _ =>
+                if (completionChar == ' ') {
+                  context.setAddCompletionChar(false)
                   document.insertString(endOffset, " _")
                   endOffset += 2
-                  editor.getCaretModel.moveToOffset(endOffset)
-                }
-                AutoPopupController.getInstance(element.getProject).autoPopupParameterInfo(editor, element)
-              } else if (completionChar != ',') {
-                editor.getCaretModel.moveToOffset(endOffset + 1 + someNum)
-              } else moveCaretIfNeeded()
-          }
-        } else moveCaretIfNeeded()
+                  editor.getCaretModel.moveToOffset(endOffset + someNum)
+                } else if (endOffset == document.getTextLength || document.getCharsSequence.charAt(endOffset) != '(') {
+                  disableParenthesesCompletionChar()
+                  if (!item.etaExpanded) {
+                    if (context.getCompletionChar == '{') {
+                      if (ScalaPsiUtil.getSettings(context.getProject).SPACE_BEFORE_BRACE_METHOD_CALL) {
+                        insertIfNeeded(placeInto = true, openChar = '{', closeChar = '}', withSpace = true, withSomeNum = false)
+                      } else {
+                        insertIfNeeded(placeInto = true, openChar = '{', closeChar = '}', withSpace = false, withSomeNum = false)
+                      }
+                    } else {
+                      insertIfNeeded(placeInto = true, openChar = '(', closeChar = ')', withSpace = false, withSomeNum = false)
+                    }
+                  } else {
+                    document.insertString(endOffset, " _")
+                    endOffset += 2
+                    editor.getCaretModel.moveToOffset(endOffset)
+                  }
+                  AutoPopupController.getInstance(element.getProject).autoPopupParameterInfo(editor, element)
+                } else if (completionChar != ',') {
+                  editor.getCaretModel.moveToOffset(endOffset + 1 + someNum)
+                } else moveCaretIfNeeded()
+            }
+          } else moveCaretIfNeeded()
+        } else {
+          context.setAddCompletionChar(false)
+          insertIfNeeded(placeInto = true, openChar = '[', closeChar = ']', withSpace = false, withSomeNum = false)
+          //do not add () or {} in this case, use will choose what he want later
+        }
       }
       case _ => moveCaretIfNeeded()
     }
