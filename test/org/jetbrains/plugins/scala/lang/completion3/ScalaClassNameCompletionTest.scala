@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala.lang.completion3
 
 import com.intellij.codeInsight.completion.CompletionType
-import org.junit.Assert
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject}
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
@@ -144,7 +143,7 @@ class ScalaClassNameCompletionTest extends ScalaCompletionTestBase {
       checkResultByText(resultText)
     }
     catch {
-      case t => settings.setImportsWithPrefix(oldValue)
+      case t: Exception => settings.setImportsWithPrefix(oldValue)
     }
   }
 

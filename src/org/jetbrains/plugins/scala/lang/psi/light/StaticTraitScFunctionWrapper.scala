@@ -16,7 +16,7 @@ class StaticTraitScFunctionWrapper(val function: ScFunction, containingClass: Ps
     try {
       elementFactory.createMethodFromText(methodText, containingClass)
     } catch {
-      case e => elementFactory.createMethodFromText("public void FAILED_TO_DECOMPILE_METHOD() {}", containingClass)
+      case e: Exception => elementFactory.createMethodFromText("public void FAILED_TO_DECOMPILE_METHOD() {}", containingClass)
     }
   }
 } with LightMethod(function.getManager, method, containingClass) with LightScalaMethod {

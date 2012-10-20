@@ -6,7 +6,7 @@ import com.intellij.patterns.PlatformPatterns
 import psi.api.base.ScLiteral
 import com.intellij.openapi.roots.ModuleRootManager
 import com.intellij.util.containers.ContainerUtil
-import com.intellij.openapi.module.{ModuleUtilCore, ModuleUtil, Module}
+import com.intellij.openapi.module.{ModuleUtilCore, Module}
 import com.intellij.util.ProcessingContext
 import java.util.{ArrayList, Collections}
 import com.intellij.openapi.vfs.VirtualFile
@@ -58,7 +58,7 @@ class FilePathReferenceProvider extends PsiReferenceProvider {
               val createMethod = Class.forName("com.intellij.psi.impl.source.resolve.reference.impl.providers.PackagePrefixFileSystemItem").getMethod("create", classOf[PsiDirectory])
               createMethod.invoke(directory)
             } catch {
-              case t  => LOG.warn(t)
+              case t: Exception  => LOG.warn(t)
             }
           }
           else {

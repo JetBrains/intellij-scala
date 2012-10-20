@@ -37,7 +37,7 @@ object FileAPI {
           }
       }
     } catch {
-      case _ => None
+      case _: Exception => None
     } finally {
       if(file != null) file.close()
     }
@@ -50,7 +50,7 @@ object FileAPI {
       file.close()
       return result
     } catch {
-      case _ => return false
+      case _: Exception => return false
     }
   }
   

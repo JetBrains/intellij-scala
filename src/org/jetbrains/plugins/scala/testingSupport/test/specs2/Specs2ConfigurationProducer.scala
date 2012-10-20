@@ -83,7 +83,7 @@ class Specs2ConfigurationProducer extends {
       }
     }
     catch {
-      case e =>
+      case e: Exception =>
     }
     JavaRunConfigurationExtensionManager.getInstance.extendCreatedConfiguration(runConfiguration, location)
     settings
