@@ -3,7 +3,7 @@ package lang
 package completion
 package handlers
 
-import com.intellij.codeInsight.AutoPopupController
+import com.intellij.codeInsight.{CodeInsightSettings, AutoPopupController}
 import com.intellij.codeInsight.completion._
 import psi.impl.toplevel.synthetic.ScSyntheticFunction
 import psi.api.statements.{ScFunction, ScFun}
@@ -125,11 +125,16 @@ class ScalaInsertHandler extends InsertHandler[LookupElement] {
         if (endOffset < document.getTextLength) documentText.charAt(endOffset)
         else 0.toChar
       if (!withSpace && nextChar != openChar) {
-        document.insertString(endOffset, s"${openChar}$closeChar")
-        if (placeInto) {
-          shiftEndOffset(1)
+        if (CodeInsightSettings.getInstance().AUTOINSERT_PAIR_BRACKET) {
+          document.insertString(endOffset, s"${openChar}$closeChar")
+          if (placeInto) {
+            shiftEndOffset(1)
+          } else {
+            shiftEndOffset(2)
+          }
         } else {
-          shiftEndOffset(2)
+          document.insertString(endOffset, s"$openChar")
+          shiftEndOffset(1)
         }
       } else if (!withSpace && nextChar == openChar) {
         if (placeInto) {
