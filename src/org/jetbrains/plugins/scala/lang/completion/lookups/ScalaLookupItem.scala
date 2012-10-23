@@ -35,81 +35,25 @@ class ScalaLookupItem(val element: PsiNamedElement, _name: String, containingCla
   val name: String = if (ScalaNamesUtil.isKeyword(_name) && _name != "this") "`" + _name + "`" else _name
 } with LookupItem[PsiNamedElement](element, name) {
 
-  private var _isClassName: Boolean = false
-  def isClassName_=(t: Boolean) {_isClassName = t}
-  def isClassName: Boolean = _isClassName
-
-  private var _isRenamed: Option[String] = None
-  def isRenamed_=(t: Option[String]) {_isRenamed = t}
-  def isRenamed: Option[String] = _isRenamed
-
-  private var _isAssignment: Boolean = false
-  def isAssignment_=(t: Boolean) {_isAssignment = t}
-  def isAssignment: Boolean = _isAssignment
-
-  private var _substitutor: ScSubstitutor = ScSubstitutor.empty
-  def substitutor_=(t: ScSubstitutor) {_substitutor = t}
-  def substitutor: ScSubstitutor = _substitutor
-
-  private var _shouldImport: Boolean = false
-  def shouldImport_=(t: Boolean) {_shouldImport = t}
-  def shouldImport: Boolean = _shouldImport
-
-  private var _isOverloadedForClassName: Boolean = false
-  def isOverloadedForClassName_=(t: Boolean) {_isOverloadedForClassName = t}
-  def isOverloadedForClassName: Boolean = _isOverloadedForClassName
-
-  private var _isNamedParameter: Boolean = false
-  def isNamedParameter_=(t: Boolean) {_isNamedParameter = t}
-  def isNamedParameter: Boolean = _isNamedParameter
-
-  private var _isDeprecated: Boolean = false
-  def isDeprecated_=(t: Boolean) {_isDeprecated = t}
-  def isDeprecated: Boolean = _isDeprecated
-
-  private var _isUnderlined: Boolean = false
-  def isUnderlined_=(t: Boolean) {_isUnderlined = t}
-  def isUnderlined: Boolean = _isUnderlined
-
-  private var _isInImport: Boolean = false
-  def isInImport_=(t: Boolean) {_isInImport = t}
-  def isInImport: Boolean = _isInImport
-
-  private var _isInStableCodeReference: Boolean = false
-  def isInStableCodeReference_=(t: Boolean) {_isInStableCodeReference = t}
-  def isInStableCodeReference: Boolean = _isInStableCodeReference
-
-  private var _usedImportStaticQuickfixKey: Boolean = false
-  def usedImportStaticQuickfix_=(t: Boolean) {_usedImportStaticQuickfixKey = t}
-  def usedImportStaticQuickfix: Boolean = _usedImportStaticQuickfixKey
-
-  private var _elementToImport: PsiNamedElement = null
-  def elementToImport_=(t: PsiNamedElement) {_elementToImport = t}
-  def elementToImport: PsiNamedElement = _elementToImport
-  
-  private var _someSmartCompletion: Boolean = false
-  def someSmartCompletion_=(t: Boolean) {_someSmartCompletion = t}
-  def someSmartCompletion: Boolean = _someSmartCompletion
-  
-  private var _typeParametersProblem: Boolean = false
-  def typeParametersProblem_=(t: Boolean) {_typeParametersProblem = t}
-  def typeParametersProblem: Boolean = _typeParametersProblem
-
-  private var _typeParameters: Seq[ScType] = Seq.empty
-  def typeParameters_=(t: Seq[ScType]) {_typeParameters = t}
-  def typeParameters: Seq[ScType] = _typeParameters
-
-  private var _bold: Boolean = false
-  def bold_=(t: Boolean) {_bold = t}
-  def bold: Boolean = _bold
-
-  private var _etaExpanded: Boolean = false
-  def etaExpanded_=(t: Boolean) {_etaExpanded = t}
-  def etaExpanded: Boolean = _etaExpanded
-
-  private var _prefixCompletion: Boolean = false
-  def prefixCompletion_=(t: Boolean) {_prefixCompletion = t}
-  def prefixCompletion: Boolean = _prefixCompletion
+  var isClassName: Boolean = false
+  var isRenamed: Option[String] = None
+  var isAssignment: Boolean = false
+  var substitutor: ScSubstitutor = ScSubstitutor.empty
+  var shouldImport: Boolean = false
+  var isOverloadedForClassName: Boolean = false
+  var isNamedParameter: Boolean = false
+  var isDeprecated: Boolean = false
+  var isUnderlined: Boolean = false
+  var isInImport: Boolean = false
+  var isInStableCodeReference: Boolean = false
+  var usedImportStaticQuickfix: Boolean = false
+  var elementToImport: PsiNamedElement = null
+  var someSmartCompletion: Boolean = false
+  var typeParametersProblem: Boolean = false
+  var typeParameters: Seq[ScType] = Seq.empty
+  var bold: Boolean = false
+  var etaExpanded: Boolean = false
+  var prefixCompletion: Boolean = false
 
   def isNamedParameterOrAssignment = isNamedParameter || isAssignment
 
