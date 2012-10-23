@@ -837,4 +837,22 @@ class ScalaBasicCompletionTest extends ScalaCompletionTestBase {
 
     checkResultByText(resultText)
   }
+
+  def testNoEtaExpansion() {
+    val fileText =
+      """
+        |List(1, 2, 3) takeRight<caret>
+      """.stripMargin.replaceAll("\r", "").trim()
+    configureFromFileTextAdapter("dummy.scala", fileText)
+    val (activeLookup, _) = complete(1, CompletionType.BASIC)
+
+    val resultText =
+      """
+        |List(1, 2, 3) takeRight <caret>
+      """.stripMargin.replaceAll("\r", "").trim()
+
+    completeLookupItem(activeLookup.find(le => le.getLookupString == "takeRight").get, ' ')
+
+    checkResultByText(resultText)
+  }
 }
