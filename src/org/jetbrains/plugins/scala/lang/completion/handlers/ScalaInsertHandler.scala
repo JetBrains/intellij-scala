@@ -246,8 +246,8 @@ class ScalaInsertHandler extends InsertHandler[LookupElement] {
               case _ =>
                 if (completionChar == ' ') {
                   context.setAddCompletionChar(false)
-                  document.insertString(endOffset, " _")
-                  endOffset += 2
+                  document.insertString(endOffset, " ")
+                  endOffset += 1
                   editor.getCaretModel.moveToOffset(endOffset + someNum)
                 } else if (endOffset == document.getTextLength || document.getCharsSequence.charAt(endOffset) != '(') {
                   disableParenthesesCompletionChar()
