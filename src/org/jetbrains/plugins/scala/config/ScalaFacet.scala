@@ -5,6 +5,7 @@ import com.intellij.facet._
 import com.intellij.openapi.module.{ModuleManager, Module}
 import com.intellij.openapi.project.Project
 import java.io.File
+import org.jetbrains.plugins.scala.lang.languageLevel.ScalaLanguageLevel
 
 /**
  * Pavel.Fatin, 26.07.2010
@@ -91,5 +92,9 @@ class ScalaFacet(module: Module, name: String,
   def basePackage: Option[String] = {
     val data = getConfiguration.getState
     Option(data.basePackage).filter(!_.isEmpty)
+  }
+
+  def languageLevel: ScalaLanguageLevel.Value = {
+    ScalaLanguageLevel.withName(getConfiguration.getState.languageLevel)
   }
 }

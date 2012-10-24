@@ -12,6 +12,8 @@ import com.intellij.ui.components.labels.LinkLabel;
 import com.intellij.ui.components.labels.LinkListener;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.plugins.scala.config.*;
+import org.jetbrains.plugins.scala.lang.languageLevel.ScalaLanguageLevel;
+import scala.Enumeration;
 import scala.Option;
 
 import javax.swing.*;
@@ -55,6 +57,7 @@ public class FacetConfigurationEditor extends FacetEditorTab {
   private JLabel myMaximumHeapSizeLabel;
   private JLabel myVmParametersLabel;
   private LinkLabel myFscSettings;
+  private JComboBox languageLevelComboBox;
 
   private MyAction myAddPluginAction = new AddPluginAction();
   private MyAction myRemovePluginAction = new RemovePluginAction();
@@ -142,6 +145,13 @@ public class FacetConfigurationEditor extends FacetEditorTab {
         return conjunctionOf(libraryResult, continuationsResult);
       }
     }, myCompilerLibrary, myFSCRadioButton, myEnableContinuations, tablePlugins);
+
+
+    Enumeration.Value[] values = ScalaLanguageLevel.valuesArray();
+    for (Enumeration.Value value : values) {
+      languageLevelComboBox.addItem(value.toString());
+    }
+    languageLevelComboBox.setSelectedItem(data.getLanguageLevel());
 
     myAddPluginAction.update();
     myRemovePluginAction.update();
@@ -258,6 +268,8 @@ public class FacetConfigurationEditor extends FacetEditorTab {
     data.setCompilerOptions(myCompilerOptions.getText().trim());
 
     data.setPluginPaths(CompilerPlugin.toPaths(myPlugins));
+
+    data.setLanguageLevel((String) languageLevelComboBox.getSelectedItem());
     
     updateCheckboxesState();
   }
@@ -280,6 +292,7 @@ public class FacetConfigurationEditor extends FacetEditorTab {
     
     myDebuggingInfoLevel.setSelectedItem(myData.getDebuggingInfoLevel());
     myCompilerOptions.setText(myData.getCompilerOptions());
+    languageLevelComboBox.setSelectedItem(myData.getLanguageLevel());
 
     myPlugins = new ArrayList(CompilerPlugin.fromPaths(myData.getPluginPaths(), myEditorContext.getModule()));
     getPluginsModel().setItems(myPlugins);
@@ -349,6 +362,10 @@ public class FacetConfigurationEditor extends FacetEditorTab {
   } 
 
   public void disposeUIResources() {
+  }
+
+  private void createUIComponents() {
+    // TODO: place custom component creation code here
   }
 
   private class AddPluginAction extends MyAction {

@@ -1686,4 +1686,13 @@ object ScalaPsiUtil {
     case ref1 @ ScReferenceExpression.qualifier(`elem`) => ParserUtils.isAssignmentOperator(ref1.refName)
     case _ => false
   }
+
+  import org.jetbrains.plugins.scala.lang.languageLevel.ScalaLanguageLevel._
+  def getLanguageLevel(element: PsiElement): ScalaLanguageLevel = {
+    val file: PsiFile = element.getContainingFile
+    if (file == null) return DEFAULT_LANGUAGE_LEVEL
+    val module: Module = ProjectFileIndex.SERVICE.getInstance(element.getProject).getModuleForFile(file.getVirtualFile)
+    if (module == null) return DEFAULT_LANGUAGE_LEVEL
+    ScalaFacet.findIn(module).map(_.languageLevel).getOrElse(DEFAULT_LANGUAGE_LEVEL)
+  }
 }
