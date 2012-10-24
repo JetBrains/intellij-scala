@@ -14,7 +14,7 @@ import com.intellij.openapi.diagnostic.Logger
 class ScalaConsoleExecuteAction extends AnAction {
   override def update(e: AnActionEvent) {
     val editor = e.getData(PlatformDataKeys.EDITOR)
-    if (!editor.isInstanceOf[EditorEx]) {
+    if (editor == null || !editor.isInstanceOf[EditorEx]) {
       e.getPresentation.setEnabled(false)
       return
     }
