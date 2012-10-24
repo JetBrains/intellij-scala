@@ -1,8 +1,9 @@
 package org.jetbrains.plugins.scala.config
 
-import reflect.BeanProperty
+import scala.beans.BeanProperty
 import org.jetbrains.annotations.Nullable
 import scala.util.matching.Regex
+import org.jetbrains.plugins.scala.lang.languageLevel.ScalaLanguageLevel._
 
 /**
  * Pavel.Fatin, 26.07.2010
@@ -55,6 +56,9 @@ class ConfigurationData() {
   @BeanProperty
   var basePackage: String = ""
 
+  @BeanProperty
+  var languageLevel: String = DEFAULT_LANGUAGE_LEVEL.toString
+
   def javaParameters: Array[String] = parse(vmOptions) ++ Array("-Xmx%dm".format(maximumHeapSize))
   
   def compilerParameters: Array[String] = {
@@ -91,7 +95,7 @@ class ConfigurationData() {
   
   def extract(pattern: Regex, parameters: Seq[String]) = {
     val levels = parameters.collect {
-      case parameter @ pattern(value) => (parameter, value)    
+      case parameter@pattern(value) => (parameter, value)
     }
     val (objects, values) = levels.unzip
     (values.headOption, parameters diff objects)
@@ -99,7 +103,7 @@ class ConfigurationData() {
   
   private class Property(val name: String, getter: => Boolean, setter: Boolean => Unit) {
     def value = getter
-    def value_=(b: Boolean) = setter(b)
+    def value_=(b: Boolean) {setter(b)}
   }
   
   private object Warnings extends Property("-nowarn", !warnings, b => warnings = !b)
@@ -113,7 +117,7 @@ class ConfigurationData() {
     Warnings, DeprecationWarnings, UncheckedWarnings, OptimiseBytecode, ExplainTypeErrors, Continuations) 
   
   private def data = Array(fsc, compilerLibraryName, compilerLibraryLevel, maximumHeapSize, vmOptions,
-    debuggingInfoLevel, compilerOptions, basePackage) ++ Properties.map(_.value) ++ pluginPaths
+    debuggingInfoLevel, compilerOptions, basePackage, languageLevel) ++ Properties.map(_.value) ++ pluginPaths
   
   override def equals(obj: Any): Boolean = data.sameElements(obj.asInstanceOf[ConfigurationData].data)
 }
