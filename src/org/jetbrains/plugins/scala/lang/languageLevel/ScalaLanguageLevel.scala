@@ -1,6 +1,11 @@
 package org.jetbrains.plugins.scala
 package lang.languageLevel
 
+import com.intellij.psi.{PsiFile, PsiElement}
+import com.intellij.openapi.module.Module
+import com.intellij.openapi.roots.ProjectFileIndex
+import config.ScalaFacet
+
 /**
  * @author Alefas
  * @since 24.10.12
@@ -44,5 +49,13 @@ object ScalaLanguageLevel extends Enumeration {
         case _ => false
       }
     }
+  }
+
+  def getLanguageLevel(element: PsiElement): ScalaLanguageLevel = {
+    val file: PsiFile = element.getContainingFile
+    if (file == null) return DEFAULT_LANGUAGE_LEVEL
+    val module: Module = ProjectFileIndex.SERVICE.getInstance(element.getProject).getModuleForFile(file.getVirtualFile)
+    if (module == null) return DEFAULT_LANGUAGE_LEVEL
+    ScalaFacet.findIn(module).map(_.languageLevel).getOrElse(DEFAULT_LANGUAGE_LEVEL)
   }
 }
