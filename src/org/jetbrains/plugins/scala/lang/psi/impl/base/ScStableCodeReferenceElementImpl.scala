@@ -153,19 +153,19 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
             val selector: ScImportSelector = PsiTreeUtil.getParentOfType(this, classOf[ScImportSelector])
             if (selector != null) {
               val importExpr = PsiTreeUtil.getParentOfType(this, classOf[ScImportExpr])
-              val selectors: Array[ScImportSelector] = selector.getParent.asInstanceOf[ScImportSelectors].selectors
-              if (selectors.forall {
-                case sel => sel == selector || !sel.isAliasedImport
-              } && selectors.length == 2) {
-                val selectorText: String = selectors.find(_ != selector).get.getText
-                val prefix: String = importExpr.reference.get.getText
-                val newExpr: ScImportExpr = ScalaPsiElementFactory.createImportExprFromText(prefix + "." + selectorText, getManager)
-                importExpr.replace(newExpr)
-                return newExpr.reference.get //todo: what we should return exactly?
-              } else {
+//              val selectors: Array[ScImportSelector] = selector.getParent.asInstanceOf[ScImportSelectors].selectors
+//              if (selectors.forall {
+//                case sel => sel == selector || !sel.isAliasedImport
+//              } && selectors.length == 2) {
+//                val selectorText: String = selectors.find(_ != selector).get.getText
+//                val prefix: String = importExpr.reference.get.getText
+//                val newExpr: ScImportExpr = ScalaPsiElementFactory.createImportExprFromText(prefix + "." + selectorText, getManager)
+//                importExpr.replace(newExpr)
+//                return newExpr.reference.get //todo: what we should return exactly?
+//              } else {
                 selector.deleteSelector() //we can't do anything here, so just simply delete it
                 return importExpr.reference.get //todo: what we should return exactly?
-              }
+//              }
             } else if (getParent.isInstanceOf[ScImportExpr] && !getParent.asInstanceOf[ScImportExpr].singleWildcard &&
                        !getParent.asInstanceOf[ScImportExpr].selectorSet.isDefined) {
               val holder = PsiTreeUtil.getParentOfType(this, classOf[ScImportsHolder])

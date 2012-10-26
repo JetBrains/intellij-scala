@@ -24,7 +24,7 @@ import java.util.Collection;
 
 public class MoveScalaClassHandler implements MoveClassHandler {
   private static final ScalaCopyPastePostProcessor PROCESSOR = new ScalaCopyPastePostProcessor();
-  private static final Logger LOG = Logger.getInstance("#org.jetbrains.plugins.scala.lang.refactoring.move.MoveJavaClassHandler");
+  private static final Logger LOG = Logger.getInstance("#org.jetbrains.plugins.scala.lang.refactoring.move.MoveScalaClassHandler");
 
   public static final Key<Associations> ASSOCIATIONS_KEY = Key.create("ASSOCIATIONS");
 
@@ -33,9 +33,12 @@ public class MoveScalaClassHandler implements MoveClassHandler {
     if (aClass.getContainingFile() instanceof ScalaFile) {
       Associations associations = aClass.getCopyableUserData(ASSOCIATIONS_KEY);
       if (associations != null) {
-        PROCESSOR.restoreAssociations(associations, aClass.getContainingFile(),
-            aClass.getTextRange().getStartOffset(), aClass.getProject());
-        aClass.putCopyableUserData(ASSOCIATIONS_KEY, null);
+        try {
+          PROCESSOR.restoreAssociations(associations, aClass.getContainingFile(),
+              aClass.getTextRange().getStartOffset(), aClass.getProject());
+        } finally {
+          aClass.putCopyableUserData(ASSOCIATIONS_KEY, null);
+        }
       }
       new ScalaImportOptimizer().processFile(aClass.getContainingFile()).run();
     }
