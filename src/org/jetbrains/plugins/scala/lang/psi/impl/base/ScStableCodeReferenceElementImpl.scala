@@ -26,6 +26,7 @@ import api.statements.{ScMacroDefinition, ScTypeAlias}
 import api.expr.{ScSuperReference, ScThisReference}
 import annotator.intention.ScalaImportClassFix
 import util.PsiTreeUtil
+import settings.ScalaProjectSettings
 
 /**
  * @author AlexanderPodkhalyuzin
@@ -141,14 +142,15 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
             nameId.getNode.getTreeParent.replaceChild(nameId.getNode, ref.nameId.getNode)
             return ref
           }
-          if (qualifier.isDefined) {
+          val qname = c.qualifiedName
+          val isPredefined = ScalaProjectSettings.getInstance(getProject).hasImportWithPrefix(qname)
+          if (qualifier.isDefined && !isPredefined) {
             val ref = ScalaPsiElementFactory.createReferenceFromText(c.name, getContext, this)
             if (ref.isReferenceTo(element)) {
               val ref = ScalaPsiElementFactory.createReferenceFromText(c.name, getManager)
               return this.replace(ref)
             }
           }
-          val qname = c.qualifiedName
           if (qname != null) {
             val selector: ScImportSelector = PsiTreeUtil.getParentOfType(this, classOf[ScImportSelector])
             if (selector != null) {
