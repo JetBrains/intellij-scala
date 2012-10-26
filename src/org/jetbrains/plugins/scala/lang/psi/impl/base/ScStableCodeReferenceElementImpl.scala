@@ -168,6 +168,8 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
               }
             } else if (getParent.isInstanceOf[ScImportExpr] && !getParent.asInstanceOf[ScImportExpr].singleWildcard &&
                        !getParent.asInstanceOf[ScImportExpr].selectorSet.isDefined) {
+              val holder = PsiTreeUtil.getParentOfType(this, classOf[ScImportsHolder])
+              holder.addImportForClass(c)
               getParent.asInstanceOf[ScImportExpr].deleteExpr()
               //todo: so what to return? probable PIEAE after such code invocation
             } else {
