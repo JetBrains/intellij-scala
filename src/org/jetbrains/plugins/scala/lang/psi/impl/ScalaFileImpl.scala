@@ -43,11 +43,12 @@ import java.lang.String
 import api.toplevel.typedef.{ScTypeDefinition, ScClass, ScTrait, ScObject}
 import java.util
 import com.intellij.openapi.editor.Document
-import refactoring.move.MoveScalaClassHandler
 import extensions._
 import types.result.TypingContext
 import types.ScType
 import collection.mutable
+import com.intellij.psi.impl.source.codeStyle.CodeEditUtil
+import com.intellij.psi.impl.source.PostprocessReformattingAspect
 
 class ScalaFileImpl(viewProvider: FileViewProvider)
         extends PsiFileBase(viewProvider, ScalaFileType.SCALA_FILE_TYPE.getLanguage)
@@ -233,7 +234,7 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
 
     val vector = ScalaFileImpl.toVector(name)
 
-    preservingAssociationData {
+    preservingClasses {
       val documentManager = PsiDocumentManager.getInstance(getProject)
       val document = documentManager.getDocument(this)
 
@@ -262,13 +263,20 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
     }
   }
 
-  private def preservingAssociationData(block: => Unit) {
-    val data = getClasses.map(_.getCopyableUserData(MoveScalaClassHandler.ASSOCIATIONS_KEY).toOption)
+  private def preservingClasses(block: => Unit) {
+    val data = getClasses
 
     block
 
-    for ((aClass, Some(data)) <- getClasses.zip(data)) {
-      aClass.putCopyableUserData(MoveScalaClassHandler.ASSOCIATIONS_KEY, data)
+    for ((aClass, oldClass) <- getClasses.zip(data)) {
+      CodeEditUtil.setNodeGenerated(oldClass.getNode, true)
+      PostprocessReformattingAspect.getInstance(getProject).disablePostprocessFormattingInside {
+        new Runnable {
+          def run() {
+            aClass.getNode.getTreeParent.replaceChild(aClass.getNode, oldClass.getNode)
+          }
+        }
+      }
     }
   }
 

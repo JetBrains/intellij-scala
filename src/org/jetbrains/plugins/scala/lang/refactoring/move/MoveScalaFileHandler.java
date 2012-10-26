@@ -23,6 +23,8 @@ package org.jetbrains.plugins.scala.lang.refactoring.move;
 import com.intellij.codeInsight.ChangeContextUtil;
 import com.intellij.codeInsight.daemon.impl.CollectHighlightsUtil;
 import com.intellij.openapi.diagnostic.Logger;
+import com.intellij.openapi.util.Key;
+import com.intellij.openapi.util.TextRange;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.psi.*;
 import com.intellij.refactoring.move.moveClassesOrPackages.MoveClassesOrPackagesUtil;
@@ -30,6 +32,9 @@ import com.intellij.refactoring.move.moveFilesOrDirectories.MoveFileHandler;
 import com.intellij.refactoring.util.MoveRenameUsageInfo;
 import com.intellij.usageView.UsageInfo;
 import com.intellij.util.IncorrectOperationException;
+import org.jetbrains.plugins.scala.conversion.copy.Associations;
+import org.jetbrains.plugins.scala.conversion.copy.ScalaCopyPastePostProcessor;
+import org.jetbrains.plugins.scala.editor.importOptimizer.ScalaImportOptimizer;
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile;
 
 import java.util.ArrayList;
@@ -38,7 +43,10 @@ import java.util.List;
 import java.util.Map;
 
 public class MoveScalaFileHandler extends MoveFileHandler {
+  private static final ScalaCopyPastePostProcessor PROCESSOR = new ScalaCopyPastePostProcessor();
   private static final Logger LOG = Logger.getInstance("#org.jetbrains.plugins.scala.lang.refactoring.move.MoveScalaFileHandler");
+
+  public static final Key<Associations> ASSOCIATIONS_KEY = Key.create("ASSOCIATIONS");
 
   @Override
   public boolean canProcessElement(PsiFile element) {
@@ -48,20 +56,24 @@ public class MoveScalaFileHandler extends MoveFileHandler {
 
   @Override
   public void prepareMovedFile(PsiFile file, PsiDirectory moveDestination, Map<PsiElement, PsiElement> oldToNewMap) {
-    final PsiJavaFile javaFile = (PsiJavaFile)file;
-    ChangeContextUtil.encodeContextInfo(javaFile, true);
-    for (PsiClass psiClass : javaFile.getClasses()) {
-      oldToNewMap.put(psiClass, MoveClassesOrPackagesUtil.doMoveClass(psiClass, moveDestination));
+    if (file instanceof ScalaFile) {
+      ChangeContextUtil.encodeContextInfo(file, true);
+      TextRange range = file.getTextRange();
+      Associations associations = PROCESSOR.collectTransferableData(file, null,
+          new int[]{range.getStartOffset()}, new int[]{range.getEndOffset()});
+      file.putCopyableUserData(ASSOCIATIONS_KEY, associations);
     }
   }
 
   public List<UsageInfo> findUsages(PsiFile psiFile, PsiDirectory newParent, boolean searchInComments, boolean searchInNonJavaFiles) {
     final List<UsageInfo> result = new ArrayList<UsageInfo>();
-    final PsiPackage newParentPackage = JavaDirectoryService.getInstance().getPackage(newParent);
-    final String qualifiedName = newParentPackage == null ? "" : newParentPackage.getQualifiedName();
-    for (PsiClass aClass : ((PsiJavaFile)psiFile).getClasses()) {
-      Collections.addAll(result, MoveClassesOrPackagesUtil.findUsages(aClass, searchInComments, searchInNonJavaFiles,
-          StringUtil.getQualifiedName(qualifiedName, aClass.getName())));
+    if (psiFile instanceof ScalaFile) {
+      final PsiPackage newParentPackage = JavaDirectoryService.getInstance().getPackage(newParent);
+      final String qualifiedName = newParentPackage == null ? "" : newParentPackage.getQualifiedName();
+      for (PsiClass aClass : ((ScalaFile)psiFile).getClasses()) {
+        Collections.addAll(result, MoveClassesOrPackagesUtil.findUsages(aClass, searchInComments, searchInNonJavaFiles,
+            StringUtil.getQualifiedName(qualifiedName, aClass.getName())));
+      }
     }
     return result.isEmpty() ? null : result;
   }
@@ -88,26 +100,18 @@ public class MoveScalaFileHandler extends MoveFileHandler {
 
   @Override
   public void updateMovedFile(PsiFile file) throws IncorrectOperationException {
-    ChangeContextUtil.decodeContextInfo(file, null, null);
-    final PsiDirectory containingDirectory = file.getContainingDirectory();
-    if (containingDirectory != null) {
-      final PsiPackage aPackage = JavaDirectoryService.getInstance().getPackage(containingDirectory);
-      if (aPackage != null) {
-        final String qualifiedName = aPackage.getQualifiedName();
-        final PsiPackageStatement packageStatement = qualifiedName.length() > 0
-                                                     ? JavaPsiFacade.getElementFactory(file.getProject()).createPackageStatement(qualifiedName)
-                                                     : null;
-        if (file instanceof PsiJavaFile) {
-          final PsiPackageStatement filePackageStatement = ((PsiJavaFile)file).getPackageStatement();
-          if (filePackageStatement != null) {
-            if (packageStatement != null) {
-              filePackageStatement.getPackageReference().replace(packageStatement.getPackageReference());
-            } else {
-              filePackageStatement.delete();
-            }
-          }
+    if (file instanceof ScalaFile) {
+      ChangeContextUtil.decodeContextInfo(file, null, null);
+      Associations associations = file.getCopyableUserData(ASSOCIATIONS_KEY);
+      if (associations != null) {
+        try {
+          PROCESSOR.restoreAssociations(associations, file,
+              file.getTextRange().getStartOffset(), file.getProject());
+        } finally {
+          file.putCopyableUserData(ASSOCIATIONS_KEY, null);
         }
       }
+      new ScalaImportOptimizer().processFile(file).run();
     }
   }
 }
