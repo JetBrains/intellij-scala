@@ -16,10 +16,7 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.refactoring.safeDelete._
 import com.intellij.refactoring.safeDelete.usageInfo._
 import com.intellij.usageView.UsageInfo
-import com.intellij.util.ArrayUtil
-import com.intellij.util.Function
-import com.intellij.util.IncorrectOperationException
-import com.intellij.util.Processor
+import com.intellij.util._
 import org.jetbrains.annotations.NonNls
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
@@ -264,7 +261,7 @@ object SafeDeleteProcessorUtil {
   def isMultipleInterfacesImplementation(method: PsiMethod, originalMethod: PsiMethod, allElementsToDelete: Array[PsiElement]): Boolean = {
     val methods: Array[PsiMethod] = method.findSuperMethods
     for (superMethod <- methods) {
-      if (ArrayUtil.find(allElementsToDelete, superMethod) < 0 && !MethodSignatureUtil.isSuperMethod(originalMethod, superMethod)) {
+      if (ArrayUtilRt.find(allElementsToDelete, superMethod) < 0 && !MethodSignatureUtil.isSuperMethod(originalMethod, superMethod)) {
         return true
       }
     }
