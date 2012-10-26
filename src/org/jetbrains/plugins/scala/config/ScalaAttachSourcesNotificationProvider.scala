@@ -16,6 +16,7 @@ import com.intellij.ide.highlighter.{JavaFileType, JavaClassFileType}
 import java.util.{TreeSet, Comparator, ArrayList, List}
 import com.intellij.openapi.extensions.{ExtensionPointName, Extensions}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import com.intellij.openapi.fileEditor.FileEditor
 
 /**
  * @author Alexander Podkhalyuzin
@@ -28,7 +29,7 @@ class ScalaAttachSourcesNotificationProvider(myProject: Project, notifications: 
   private val EXTENSION_POINT_NAME: ExtensionPointName[AttachSourcesProvider] =
     new ExtensionPointName[AttachSourcesProvider]("com.intellij.attachSourcesProvider")
 
-  override def createNotificationPanel(file: VirtualFile): EditorNotificationPanel = {
+  override def createNotificationPanel(file: VirtualFile, fileEditor: FileEditor): EditorNotificationPanel = {
     if (file.getFileType ne JavaClassFileType.INSTANCE) return null
     val libraries: List[LibraryOrderEntry] = findOrderEntriesContainingFile(file)
     if (libraries == null) return null
