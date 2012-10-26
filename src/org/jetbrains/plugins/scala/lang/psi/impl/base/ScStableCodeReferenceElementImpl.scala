@@ -25,6 +25,7 @@ import extensions.{toPsiNamedElementExt, toPsiClassExt}
 import api.statements.{ScMacroDefinition, ScTypeAlias}
 import api.expr.{ScSuperReference, ScThisReference}
 import annotator.intention.ScalaImportClassFix
+import util.PsiTreeUtil
 
 /**
  * @author AlexanderPodkhalyuzin
@@ -121,42 +122,62 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
   //  @throws(IncorrectOperationException)
   def bindToElement(element: PsiElement): PsiElement = {
     if (isReferenceTo(element)) this
-    else element match {
-      case c: PsiClass => {
-        val suitableKinds = getKinds(incomplete = false)
-        if (!ResolveUtils.kindMatches(element, suitableKinds))
-          throw new IncorrectOperationException("class does not match expected kind, problem place: " + {
-            if (getContext != null)
-              if (getContext.getContext != null)
-                if (getContext.getContext.getContext != null)
-                  getContext.getContext.getContext.getText
-                else getContext.getContext.getText
-              else getContext.getText
-            else getText
-          })
-        if (nameId.getText != c.name) {
-          val ref = ScalaPsiElementFactory.createReferenceFromText(c.name, getManager)
-          nameId.getNode.getTreeParent.replaceChild(nameId.getNode, ref.nameId.getNode)
-          return ref
-        }
-        val qname = c.qualifiedName
-        if (qname != null) {
-          // Simply delete the whole import statement instead of re-binding
-          // (to bypass eager import statements insertion within safeBindToElement)
-          // TODO rewrite path in import statements instead of the statements deletion
-          if (getParent.isInstanceOf[ScImportExpr]) getParent.getParent.delete() else return safeBindToElement(qname, {
-            case (qual, true) => ScalaPsiElementFactory.createReferenceFromText(qual, getContext, this)
-            case (qual, false) => ScalaPsiElementFactory.createReferenceFromText(qual, getManager)
-          }) {
-            ScalaImportClassFix.getImportHolder(ref = this, project = getProject).
-              addImportForClass(c, ref = this)
-            this
+    else {
+      element match {
+        case c: PsiClass => {
+          val suitableKinds = getKinds(incomplete = false)
+          if (!ResolveUtils.kindMatches(element, suitableKinds))
+            throw new IncorrectOperationException("class does not match expected kind, problem place: " + {
+              if (getContext != null)
+                if (getContext.getContext != null)
+                  if (getContext.getContext.getContext != null)
+                    getContext.getContext.getContext.getText
+                  else getContext.getContext.getText
+                else getContext.getText
+              else getText
+            })
+          if (nameId.getText != c.name) {
+            val ref = ScalaPsiElementFactory.createReferenceFromText(c.name, getManager)
+            nameId.getNode.getTreeParent.replaceChild(nameId.getNode, ref.nameId.getNode)
+            return ref
           }
+          val qname = c.qualifiedName
+          if (qname != null) {
+            val selector: ScImportSelector = PsiTreeUtil.getParentOfType(this, classOf[ScImportSelector])
+            if (selector != null) {
+              val importExpr = PsiTreeUtil.getParentOfType(this, classOf[ScImportExpr])
+              val selectors: Array[ScImportSelector] = selector.getParent.asInstanceOf[ScImportSelectors].selectors
+              if (selectors.forall {
+                case sel => sel == selector || !sel.isAliasedImport
+              } && selectors.length == 2) {
+                val selectorText: String = selectors.find(_ != selector).get.getText
+                val prefix: String = importExpr.reference.get.getText
+                val newExpr: ScImportExpr = ScalaPsiElementFactory.createImportExprFromText(prefix + "." + selectorText, getManager)
+                importExpr.replace(newExpr)
+                return newExpr.reference.get //todo: what we should return exactly?
+              } else {
+                selector.deleteSelector() //we can't do anything here, so just simply delete it
+                return importExpr.reference.get //todo: what we should return exactly?
+              }
+            } else if (getParent.isInstanceOf[ScImportExpr]) {
+              getParent.asInstanceOf[ScImportExpr].deleteExpr()
+              //todo: so what to return? probable PIEAE after such code invocation
+            } else {
+              return safeBindToElement(qname, {
+                case (qual, true) => ScalaPsiElementFactory.createReferenceFromText(qual, getContext, this)
+                case (qual, false) => ScalaPsiElementFactory.createReferenceFromText(qual, getManager)
+              }) {
+                ScalaImportClassFix.getImportHolder(ref = this, project = getProject).
+                  addImportForClass(c, ref = this)
+                this
+              }
+            }
+          }
+          this
         }
-        this
+        case t: ScTypeAlias => this //todo: do something
+        case _ => throw new IncorrectOperationException("Cannot bind to anything but class")
       }
-      case t: ScTypeAlias => this //todo: do something
-      case _ => throw new IncorrectOperationException("Cannot bind to anything but class")
     }
   }
 
