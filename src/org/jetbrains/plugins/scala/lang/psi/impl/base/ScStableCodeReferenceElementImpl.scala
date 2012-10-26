@@ -166,7 +166,8 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
                 selector.deleteSelector() //we can't do anything here, so just simply delete it
                 return importExpr.reference.get //todo: what we should return exactly?
               }
-            } else if (getParent.isInstanceOf[ScImportExpr]) {
+            } else if (getParent.isInstanceOf[ScImportExpr] && !getParent.asInstanceOf[ScImportExpr].singleWildcard &&
+                       !getParent.asInstanceOf[ScImportExpr].selectorSet.isDefined) {
               getParent.asInstanceOf[ScImportExpr].deleteExpr()
               //todo: so what to return? probable PIEAE after such code invocation
             } else {
