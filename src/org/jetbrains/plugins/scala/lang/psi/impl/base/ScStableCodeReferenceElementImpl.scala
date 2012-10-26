@@ -141,6 +141,13 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
             nameId.getNode.getTreeParent.replaceChild(nameId.getNode, ref.nameId.getNode)
             return ref
           }
+          if (qualifier.isDefined) {
+            val ref = ScalaPsiElementFactory.createReferenceFromText(c.name, getContext, this)
+            if (ref.isReferenceTo(element)) {
+              val ref = ScalaPsiElementFactory.createReferenceFromText(c.name, getManager)
+              return this.replace(ref)
+            }
+          }
           val qname = c.qualifiedName
           if (qname != null) {
             val selector: ScImportSelector = PsiTreeUtil.getParentOfType(this, classOf[ScImportSelector])
@@ -169,6 +176,11 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
               }) {
                 ScalaImportClassFix.getImportHolder(ref = this, project = getProject).
                   addImportForClass(c, ref = this)
+                if (qualifier != None) {
+                  //let's make our reference unqualified
+                  val ref: ScStableCodeReferenceElement = ScalaPsiElementFactory.createReferenceFromText(c.name, getManager)
+                  this.replace(ref).asInstanceOf[ScReferenceElement]
+                }
                 this
               }
             }
