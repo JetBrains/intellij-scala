@@ -18,7 +18,7 @@ trait ScImportSelector extends ScalaPsiElement {
 
   def reference : ScStableCodeReferenceElement
 
-  def deleteSelector(): Unit
+  def deleteSelector()
 
   def isAliasedImport: Boolean
 }
