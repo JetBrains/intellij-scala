@@ -264,11 +264,11 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
   }
 
   private def preservingClasses(block: => Unit) {
-    val data = getClasses
+    val data = typeDefinitions
 
     block
 
-    for ((aClass, oldClass) <- getClasses.zip(data)) {
+    for ((aClass, oldClass) <- typeDefinitions.zip(data)) {
       CodeEditUtil.setNodeGenerated(oldClass.getNode, true)
       PostprocessReformattingAspect.getInstance(getProject).disablePostprocessFormattingInside {
         new Runnable {
