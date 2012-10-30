@@ -1,0 +1,3 @@
+package dest
+
+class A
