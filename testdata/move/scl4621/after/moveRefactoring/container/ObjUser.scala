@@ -1,5 +1,6 @@
 package moveRefactoring.container
 
+import moveRefactoring.bar.O
 import O.m1
 
 object ObjUser {
