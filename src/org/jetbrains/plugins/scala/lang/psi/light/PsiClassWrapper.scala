@@ -30,6 +30,16 @@ import java.util
 class PsiClassWrapper(val definition: ScTemplateDefinition,
                       private var qualName: String,
                       private var name: String) extends LightElement(definition.getManager, definition.getLanguage) with PsiClass with SyntheticElement {
+  override def hashCode(): Int = definition.hashCode()
+
+  override def equals(obj: Any): Boolean = {
+    obj match {
+      case wrapper: PsiClassWrapper =>
+        definition.equals(wrapper.definition) && qualName == wrapper.qualName && name == wrapper.name
+      case _ => false
+    }
+  }
+
   def getQualifiedName: String = qualName
 
   def isInterface: Boolean = false
