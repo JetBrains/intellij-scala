@@ -29,6 +29,10 @@ class ScalaMoveClassTest extends CodeInsightTestCase {
     doTest("scl2625", Array("somepackage.Dummy", "somepackage.MoreBusiness", "somepackage.Business", "somepackage.AnotherEnum"), "dest")
   }
 
+  def testSCL4623() {
+    doTest("scl4623", Array("moveRefactoring.foo.B"), "moveRefactoring.bar")
+  }
+
   def doTest(testName: String, classNames: Array[String], newPackageName: String) {
     val root: String = TestUtils.getTestDataPath + "/move/" + testName
     val rootBefore: String = root + "/before"
