@@ -256,8 +256,7 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value]) extends PsiSc
           }
         }
 
-        if (kinds.contains(CLASS))
-        {
+        if (kinds.contains(CLASS)) {
           for (t <- types) {
             if (!execute(t, newState)) return false
           }

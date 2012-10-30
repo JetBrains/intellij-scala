@@ -20,6 +20,7 @@ import extensions.{toPsiNamedElementExt, toPsiClassExt}
 import collection.mutable
 import psi.types.Conformance.AliasType
 import api.statements.ScTypeAliasDefinition
+import com.intellij.psi.search.GlobalSearchScope
 
 abstract class MixinNodes {
   type T
@@ -381,6 +382,14 @@ abstract class MixinNodes {
             superClass match {
               case template: ScTemplateDefinition => processScala(template, newSubst, newMap, place)
               case syn: ScSyntheticClass =>
+                //it's required to do like this to have possibility mix Synthetic types
+                val clazz = ScalaPsiManager.instance(syn.getProject).getCachedClass(syn.getQualifiedName,
+                  GlobalSearchScope.allScope(syn.getProject), ScalaPsiManager.ClassCategory.TYPE
+                )
+                clazz match {
+                  case template: ScTemplateDefinition => processScala(template, newSubst, newMap, place)
+                  case _ => //do nothing
+                }
               case _ => processJava(superClass, newSubst, newMap, place)
             }
             superTypesBuff += newMap
