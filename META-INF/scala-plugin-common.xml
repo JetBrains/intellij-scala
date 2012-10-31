@@ -8,7 +8,7 @@
     <extensionPoints>
         <extensionPoint name="scalaParserPatcher" interface="org.jetbrains.plugins.scala.lang.parser.util.ParserPatcher"/>
         <extensionPoint name="scalaIntentionAvailabilityChecker" interface="org.jetbrains.plugins.scala.util.IntentionAvailabilityChecker"/>
-        <extensionPoint name="versionVerifier" interface="org.jetbrains.plugins.scala.config.PluginVersionVerifier"/>
+        <extensionPoint name="scalaPluginVersionVerifier" interface="org.jetbrains.plugins.scala.config.ScalaPluginVersionVerifier"/>
     </extensionPoints>
 
     <extensions defaultExtensionNs="com.intellij">
@@ -731,7 +731,7 @@
             <implementation-class>org.jetbrains.plugins.scala.ScalaLoader</implementation-class>
         </component>
         <component>
-            <implementation-class>org.jetbrains.plugins.scala.config.PluginVersionVerifierApplicationComponent</implementation-class>
+            <implementation-class>org.jetbrains.plugins.scala.config.ScalaPluginVersionVerifierApplicationComponent</implementation-class>
         </component>
     </application-components>
 
