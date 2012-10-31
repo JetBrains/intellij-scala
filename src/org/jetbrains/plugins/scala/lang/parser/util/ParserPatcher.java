@@ -18,7 +18,7 @@ public abstract class ParserPatcher {
   public boolean canPatch(PsiBuilder builder) {
     return false;
   }
-  public boolean parse(PsiBuilder builder){
+  public boolean parse(PsiBuilder builder) {
     return false;
   }
   
