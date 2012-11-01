@@ -3,11 +3,13 @@ package config
 
 import com.intellij.openapi.components.ApplicationComponent
 import com.intellij.openapi.extensions.ExtensionPointName
-import com.intellij.ide.plugins.PluginManager
+import com.intellij.ide.plugins.{PluginManagerConfigurable, PluginManager}
 import com.intellij.ide.plugins.cl.PluginClassLoader
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.ui.Messages
 import com.intellij.openapi.diagnostic.Logger
+import com.intellij.openapi.project.Project
+import com.intellij.openapi.application.ex.ApplicationManagerEx
 
 /**
  * @author Alefas
@@ -57,7 +59,8 @@ class ScalaPluginVersionVerifierApplicationComponent extends ApplicationComponen
       }
     }
 
-    parseVersion(ScalaPluginVersionVerifier.getPluginVersion) match {
+    val versionString = ScalaPluginVersionVerifier.getPluginVersion
+    parseVersion(versionString) match {
       case Some(version) =>
         val extensions = ScalaPluginVersionVerifier.EP_NAME.getExtensions
 
@@ -68,12 +71,18 @@ class ScalaPluginVersionVerifierApplicationComponent extends ApplicationComponen
             extension.getClass.getClassLoader match {
               case pluginLoader: PluginClassLoader =>
                 val plugin = PluginManager.getPlugin(pluginLoader.getPluginId)
-                val message = s"Plugin ${plugin.getName} is incompatible with Scala plugin of version $version"
+                val message =
+                  s"Plugin ${plugin.getName} of version ${plugin.getVersion} is " +
+                  s"incompatible with Scala plugin of version $versionString. Do you want to disable ${plugin.getName} plugin?"
                 if (ApplicationManager.getApplication.isUnitTestMode) {
                   ScalaPluginVersionVerifierApplicationComponent.LOG.error(message)
                 } else {
-                  PluginManager.disablePlugin(plugin.getPluginId.getIdString)
-                  Messages.showErrorDialog(message, "Incompatible plugin")
+                  Messages.showOkCancelDialog(null: Project, message, "Incompatible plugin", Messages.getErrorIcon) match {
+                    case 0 =>
+                      PluginManager.disablePlugin(plugin.getPluginId.getIdString)
+                      PluginManagerConfigurable.showRestartIDEADialog()
+                    case 1 => //do nothing it seems all is ok for the user
+                  }
                 }
             }
           }
