@@ -50,7 +50,7 @@ class ScalaPluginVersionVerifierApplicationComponent extends ApplicationComponen
       }
     }
     def parseVersion(version: String): Option[Version] = {
-      val VersionRegex = "([0-9])*[.]([0-9])*[.]([0-9])*".r
+      val VersionRegex = "([0-9]*)[.]([0-9]*)[.]([0-9]*)".r
       version match {
         case VersionRegex(major: String, minor: String, build: String) => Some(Version(major.toInt, minor.toInt, build.toInt))
         case _ => None
