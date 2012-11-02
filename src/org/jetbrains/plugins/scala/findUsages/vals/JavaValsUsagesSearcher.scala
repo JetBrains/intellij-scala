@@ -25,6 +25,7 @@ class JavaValsUsagesSearcher extends QueryExecutor[PsiReference, ReferencesSearc
     val element = queryParameters.getElementToSearch
     ApplicationManager.getApplication.runReadAction(new Computable[Boolean] {
       def compute: Boolean = {
+        if (!element.isValid) return true
         element match {
           case vals: ScTypedDefinition if ScalaPsiUtil.nameContext(vals).isInstanceOf[ScValue] ||
                   ScalaPsiUtil.nameContext(vals).isInstanceOf[ScVariable] =>

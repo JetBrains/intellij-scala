@@ -19,6 +19,7 @@ class JavaFunctionUsagesSearcher extends QueryExecutor[PsiReference, ReferencesS
     val element = queryParameters.getElementToSearch
     ApplicationManager.getApplication.runReadAction(new Computable[Boolean] {
       def compute: Boolean = {
+        if (!element.isValid) return true
         element match {
           case p: PsiMethod => {
             val name: String = p.getName
