@@ -24,7 +24,7 @@ class NamingParamsSearcher extends QueryExecutor[PsiReference, ReferencesSearch.
     inReadAction {
       if (element.isValid) {
         element match {
-          case parameter: ScParameter => {
+          case parameter : ScParameter => {
             val name = parameter.name
             val collectedReferences = new HashSet[PsiReference]
             val processor = new TextOccurenceProcessor {
@@ -62,7 +62,7 @@ class NamingParamsSearcher extends QueryExecutor[PsiReference, ReferencesSearch.
           case _                      =>
         }
         true
-      }
+      } else true
     }
   }
 }
