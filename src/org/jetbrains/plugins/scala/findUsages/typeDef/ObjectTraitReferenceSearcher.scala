@@ -22,6 +22,7 @@ class ObjectTraitReferenceSearcher extends QueryExecutor[PsiReference, Reference
     val element = queryParameters.getElementToSearch
     ApplicationManager.getApplication.runReadAction(new Computable[Boolean] {
       def compute: Boolean = {
+        if (!element.isValid) return true
         element match {
           case o: ScObject => {
             val name: String = o.name

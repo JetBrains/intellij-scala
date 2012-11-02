@@ -31,46 +31,48 @@ import com.intellij.usages.{UsageInfoToUsageConverter, Usage}
 class ConstructorParamsInConstructorPatternSearcher extends CustomUsageSearcher {
   def processElementUsages(element: PsiElement, processor0: Processor[Usage], options: FindUsagesOptions) {
     inReadAction {
-      val scope = element.getResolveScope
-      element match {
-        case parameter: ScClassParameter => {
-          ScalaPsiUtil.getParentOfType(parameter, classOf[ScClass]) match {
-            case cls: ScClass if cls.isCase && cls.constructor.isDefined && cls.constructor.get.parameters.contains(parameter) =>
-              val index = cls.constructor.get.parameters.indexOf(parameter)
-              object processor extends Processor[PsiReference] {
-                def process(t: PsiReference): Boolean = {
-                  t.getElement.getParent match {
-                    case consPattern: ScConstructorPattern =>
-                      consPattern.args.patterns.lift(index) match {
-                        case Some(x) =>
-                          x.bindings match {
-                            case Seq(only) =>
-                              ReferencesSearch.search(only, scope, false).forEach(new Processor[PsiReference] {
-                                def process(t: PsiReference): Boolean = {
-                                  val descriptor = new UsageInfoToUsageConverter.TargetElementsDescriptor(Array(), Array(only))
-                                  val usage = UsageInfoToUsageConverter.convert(descriptor, new UsageInfo(t))
-                                  processor0.process(usage)
-                                }
-                              })
-                            case _ =>
-                              true
-                            // too complex
-                          }
-                        case None =>
-                          true
-                      }
-                    case _ =>
-                      true
+      if (element.isValid) {
+        val scope = element.getResolveScope
+        element match {
+          case parameter: ScClassParameter => {
+            ScalaPsiUtil.getParentOfType(parameter, classOf[ScClass]) match {
+              case cls: ScClass if cls.isCase && cls.constructor.isDefined && cls.constructor.get.parameters.contains(parameter) =>
+                val index = cls.constructor.get.parameters.indexOf(parameter)
+                object processor extends Processor[PsiReference] {
+                  def process(t: PsiReference): Boolean = {
+                    t.getElement.getParent match {
+                      case consPattern: ScConstructorPattern =>
+                        consPattern.args.patterns.lift(index) match {
+                          case Some(x) =>
+                            x.bindings match {
+                              case Seq(only) =>
+                                ReferencesSearch.search(only, scope, false).forEach(new Processor[PsiReference] {
+                                  def process(t: PsiReference): Boolean = {
+                                    val descriptor = new UsageInfoToUsageConverter.TargetElementsDescriptor(Array(), Array(only))
+                                    val usage = UsageInfoToUsageConverter.convert(descriptor, new UsageInfo(t))
+                                    processor0.process(usage)
+                                  }
+                                })
+                              case _         =>
+                                true
+                              // too complex
+                            }
+                          case None    =>
+                            true
+                        }
+                      case _                                 =>
+                        true
+                    }
                   }
                 }
-              }
-              ReferencesSearch.search(cls, scope, false).forEach(processor)
-            case _ =>
+                ReferencesSearch.search(cls, scope, false).forEach(processor)
+              case _                                                                                                             =>
+            }
           }
+          case _                           =>
         }
-        case _ =>
+        true
       }
-      true
     }
   }
 }
