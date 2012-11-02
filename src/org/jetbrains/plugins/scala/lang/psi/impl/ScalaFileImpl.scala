@@ -347,6 +347,9 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
 
   override def getClasses: Array[PsiClass] = {
     if (!isScriptFile) {
+      if (ScalaFileImpl.isDuringMoveRefactoring) {
+        return typeDefinitions.toArray
+      }
       val arrayBuffer = new ArrayBuffer[PsiClass]()
       for (definition <- typeDefinitions) {
         arrayBuffer += definition
@@ -649,4 +652,19 @@ object ScalaFileImpl {
   }
 
   def toVector(name: String): List[String] = if (name.isEmpty) Nil else name.split('.').toList
+
+  private[this] var duringMoveRefactoring: Boolean = false
+
+  private def isDuringMoveRefactoring: Boolean = duringMoveRefactoring
+
+  def performMoveRefactoring(body: => Unit) {
+    synchronized {
+      try {
+        duringMoveRefactoring = true
+        body
+      } finally {
+        duringMoveRefactoring = false
+      }
+    }
+  }
 }

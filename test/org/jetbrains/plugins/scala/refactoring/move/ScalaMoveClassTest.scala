@@ -11,10 +11,11 @@ import com.intellij.psi.impl.source.PostprocessReformattingAspect
 import com.intellij.psi._
 import com.intellij.psi.search.GlobalSearchScope
 import collection.mutable.ArrayBuffer
-import lang.psi.impl.ScalaPsiManager
+import lang.psi.impl.{ScalaFileImpl, ScalaPsiManager}
 import com.intellij.refactoring.move.moveClassesOrPackages.{SingleSourceRootMoveDestination, MoveClassesOrPackagesProcessor}
 import com.intellij.refactoring.PackageWrapper
 import com.intellij.openapi.fileEditor.FileDocumentManager
+import lang.psi.api.toplevel.typedef.ScObject
 
 /**
  * @author Alefas
@@ -45,6 +46,10 @@ class ScalaMoveClassTest extends CodeInsightTestCase {
     doTest("scl4619", Array("foo.B"), "bar")
   }
 
+  def testSCL4894() {
+    doTest("scl4894", Array("moveRefactoring.foo.B", "moveRefactoring.foo.BB"), "moveRefactoring.bar")
+  }
+
   def doTest(testName: String, classNames: Array[String], newPackageName: String) {
     val root: String = TestUtils.getTestDataPath + "/move/" + testName
     val rootBefore: String = root + "/before"
@@ -60,13 +65,18 @@ class ScalaMoveClassTest extends CodeInsightTestCase {
   private def performAction(classNames: Array[String], newPackageName: String) {
     val classes = new ArrayBuffer[PsiClass]()
     for (name <- classNames) {
-      classes ++= ScalaPsiManager.instance(getProject).getCachedClasses(GlobalSearchScope.allScope(getProject), name)
+      classes ++= ScalaPsiManager.instance(getProject).getCachedClasses(GlobalSearchScope.allScope(getProject), name).filter {
+        case o: ScObject if o.isSyntheticObject => false
+        case _ => true
+      }
     }
     val aPackage: PsiPackage = JavaPsiFacade.getInstance(getProject).findPackage(newPackageName)
     val dirs: Array[PsiDirectory] = aPackage.getDirectories
     assert(dirs.length == 1)
-    new MoveClassesOrPackagesProcessor(getProject, classes.toArray,
-      new SingleSourceRootMoveDestination(PackageWrapper.create(JavaDirectoryService.getInstance.getPackage(dirs(0))), dirs(0)), true, true, null).run()
+    ScalaFileImpl.performMoveRefactoring {
+      new MoveClassesOrPackagesProcessor(getProject, classes.toArray,
+        new SingleSourceRootMoveDestination(PackageWrapper.create(JavaDirectoryService.getInstance.getPackage(dirs(0))), dirs(0)), true, true, null).run()
+    }
     PsiDocumentManager.getInstance(getProject).commitAllDocuments()
     FileDocumentManager.getInstance.saveAllDocuments()
   }
