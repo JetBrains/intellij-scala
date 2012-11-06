@@ -28,7 +28,9 @@ import lang.psi.api.toplevel.typedef.ScObject
  */
 
 class ScalaImportOptimizer extends ImportOptimizer {
-  def processFile(file: PsiFile): Runnable = {
+  def processFile(file: PsiFile): Runnable = processFile(file, deleteOnlyWrongImorts = false)
+
+  def processFile(file: PsiFile, deleteOnlyWrongImorts: Boolean): Runnable = {
     if (file.isInstanceOf[ScalaFile]) {
       val scalaFile: ScalaFile = file.asInstanceOf[ScalaFile]
       def getUnusedImports: HashSet[ImportUsed] = {
@@ -82,8 +84,12 @@ class ScalaImportOptimizer extends ImportOptimizer {
             importUsed match {
               case ImportExprUsed(expr) => {
                 val toDelete = expr.reference match {
-                  case Some(ref: ScReferenceElement) => true
-                  case _ => !PsiTreeUtil.hasErrorElements(expr)
+                  case Some(ref: ScReferenceElement) =>
+                    if (deleteOnlyWrongImorts) ref.multiResolve(true).isEmpty
+                    else true
+                  case _ =>
+                    if (deleteOnlyWrongImorts) false
+                    else !PsiTreeUtil.hasErrorElements(expr)
                 }
                 if (toDelete) {
                   if (!isLanguageFeatureImport(expr))
@@ -91,11 +97,14 @@ class ScalaImportOptimizer extends ImportOptimizer {
                 }
               }
               case ImportWildcardSelectorUsed(expr) => {
-                if (!isLanguageFeatureImport(expr))
+                if (expr.reference.isDefined && expr.reference.get.multiResolve(false).isEmpty) unusedImports += importUsed
+                else if (!deleteOnlyWrongImorts && !isLanguageFeatureImport(expr)) {
                   unusedImports += importUsed
+                }
               }
               case ImportSelectorUsed(sel) => {
-                if (sel.reference.getText == sel.importedName &&
+                if (sel.reference.multiResolve(false).isEmpty) unusedImports += importUsed
+                else if (!deleteOnlyWrongImorts && sel.reference.getText == sel.importedName &&
                   !isLanguageFeatureImport(PsiTreeUtil.getParentOfType(sel, classOf[ScImportExpr]))) {
                   unusedImports += importUsed
                 }

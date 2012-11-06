@@ -40,7 +40,7 @@ public class MoveScalaClassHandler implements MoveClassHandler {
           aClass.putCopyableUserData(ASSOCIATIONS_KEY, null);
         }
       }
-      new ScalaImportOptimizer().processFile(aClass.getContainingFile()).run();
+      new ScalaImportOptimizer().processFile(aClass.getContainingFile(), true).run();
     }
   }
 
