@@ -29,6 +29,7 @@ class ScalaMoveClassesOrPackagesHandler extends JavaMoveClassesOrPackagesHandler
           refactoringIsNotSupported()
           return
         }
+      case _ =>
     }
     ScalaFileImpl.performMoveRefactoring {
       super.doMove(project, elements, targetContainer, callback)
