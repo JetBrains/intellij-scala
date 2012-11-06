@@ -17,10 +17,8 @@ import lang.psi.api.toplevel.imports.{ScImportExpr, ScImportStmt}
 import lang.psi.impl.ScalaPsiElementFactory
 import lang.psi.api.expr.{ScMethodCall, ScForStatement, ScExpression}
 import lang.psi.{ScImportsHolder, ScalaPsiUtil, ScalaPsiElement}
-import lang.psi.api.toplevel.packaging.ScPackaging
 import scala.Some
 import scala.collection.JavaConversions._
-import lang.formatting.settings.ScalaCodeStyleSettings
 import settings.ScalaProjectSettings
 import lang.psi.api.toplevel.typedef.ScObject
 
@@ -84,12 +82,8 @@ class ScalaImportOptimizer extends ImportOptimizer {
             importUsed match {
               case ImportExprUsed(expr) => {
                 val toDelete = expr.reference match {
-                  case Some(ref: ScReferenceElement) => {
-                    ref.multiResolve(false).length > 0
-                  }
-                  case _ => {
-                    !PsiTreeUtil.hasErrorElements(expr)
-                  }
+                  case Some(ref: ScReferenceElement) => true
+                  case _ => !PsiTreeUtil.hasErrorElements(expr)
                 }
                 if (toDelete) {
                   if (!isLanguageFeatureImport(expr))
@@ -101,7 +95,7 @@ class ScalaImportOptimizer extends ImportOptimizer {
                   unusedImports += importUsed
               }
               case ImportSelectorUsed(sel) => {
-                if (sel.reference.getText == sel.importedName && sel.reference.multiResolve(false).length > 0 &&
+                if (sel.reference.getText == sel.importedName &&
                   !isLanguageFeatureImport(PsiTreeUtil.getParentOfType(sel, classOf[ScImportExpr]))) {
                   unusedImports += importUsed
                 }
