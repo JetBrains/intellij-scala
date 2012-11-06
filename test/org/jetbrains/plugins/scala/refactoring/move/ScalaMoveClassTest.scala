@@ -58,6 +58,10 @@ class ScalaMoveClassTest extends CodeInsightTestCase {
     doTest("scl4875", Array("com.A"), "org")
   }
 
+  def testSCL4878() {
+    doTest("scl4878", Array("org.B"), "com")
+  }
+
   def testSCL4894() {
     doTest("scl4894", Array("moveRefactoring.foo.B", "moveRefactoring.foo.BB"), "moveRefactoring.bar")
   }
