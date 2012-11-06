@@ -1,0 +1,3 @@
+package object com {
+
+}

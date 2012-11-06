@@ -216,7 +216,7 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
 
     this match {
       // Handle package object
-      case TypeDefinitions(obj: ScObject) if obj.isPackageObject =>
+      case TypeDefinitions(obj: ScObject) if obj.isPackageObject && obj.name != "`package`" =>
         val (packageName, objectName) = name match {
           case ScalaFileImpl.QualifiedPackagePattern(qualifier, simpleName) => (qualifier, simpleName)
           case s => ("", name)

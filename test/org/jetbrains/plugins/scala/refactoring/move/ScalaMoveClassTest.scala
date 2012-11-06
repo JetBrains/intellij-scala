@@ -22,6 +22,14 @@ import lang.psi.api.toplevel.typedef.ScObject
  * @since 30.10.12
  */
 class ScalaMoveClassTest extends CodeInsightTestCase {
+  def testPackageObject() {
+    doTest("packageObject", Array("com.`package`"), "org")
+  }
+
+  def testPackageObject2() {
+    doTest("packageObject2", Array("com"), "org")
+  }
+
   def testSimple() {
     doTest("simple", Array("com.A"), "org")
   }

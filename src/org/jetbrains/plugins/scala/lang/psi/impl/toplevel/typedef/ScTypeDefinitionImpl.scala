@@ -218,6 +218,7 @@ abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTemplate
                             encodeName: Boolean = false): String = {
     // Returns prefix with convenient separator sep
     def _packageName(e: PsiElement, sep: String, k: (String) => String): String = e.getContext match {
+      case o: ScObject if o.isPackageObject && o.name == "`package`" => _packageName(o, sep, k)
       case _: ScClass | _: ScTrait if trunced => k("")
       case t: ScTypeDefinition => _packageName(t, sep, (s) => {
         val name = t.name

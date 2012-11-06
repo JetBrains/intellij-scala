@@ -134,8 +134,9 @@ class ScImportExprImpl extends ScalaStubBasedElementImpl[ScImportExpr] with ScIm
             remove(prev.getNode)
           } else {
             if (prev.getPrevSibling != null && prev.getPrevSibling.getText == ",") {
+              val prevSibling = prev.getPrevSibling
               remove(prev.getNode)
-              remove(prev.getPrevSibling.getNode)
+              remove(prevSibling.getNode)
             }
           }
         }
