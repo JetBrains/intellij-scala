@@ -9,15 +9,17 @@ class OptimizeImportsSimpleTest extends OptimizeImportsTestBase {
 
   def testSortedInPackage = doTest
 
+  def testTwoExpressions = doTest
+
   def testDeleteBraces = doTest
+
+  def testDontSaveNotResolved = doTest
 
   def testLanguageFeatures = doTest
 
   def testNewLines = doTest
 
   def testOneImport = doTest
-
-  def testSaveNotResolved = doTest
 
   def testSomeTrait = doTest
 

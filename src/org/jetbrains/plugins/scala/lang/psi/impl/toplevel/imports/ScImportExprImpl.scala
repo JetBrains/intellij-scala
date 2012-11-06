@@ -93,17 +93,27 @@ class ScImportExprImpl extends ScalaStubBasedElementImpl[ScImportExpr] with ScIm
         case x: ScImportsHolder => x.deleteImportStmt(parent)
         case _ =>
       }
-    }
-    else {
+    } else {
       val node = parent.getNode
       val remove = node.removeChild _
       val next = getNextSibling
       if (next != null) {
+        def removeWhitespaceAfterComma(comma: ASTNode) {
+          if (comma.getTreeNext != null && !comma.getTreeNext.getText.contains("\n") &&
+            comma.getTreeNext.getText.trim.isEmpty) {
+            remove(comma.getTreeNext)
+          }
+        }
         if (next.getText == ",") {
-          remove(next.getNode)
+          val comma = next.getNode
+          removeWhitespaceAfterComma(comma)
+          remove(comma)
         } else {
           if (next.getNextSibling != null && next.getNextSibling.getText == ",") {
-            remove(next.getNextSibling.getNode)
+            val comma = next.getNextSibling
+            removeWhitespaceAfterComma(comma.getNode)
+            remove(next.getNode)
+            remove(comma.getNode)
           } else {
             val prev = getPrevSibling
             if (prev != null) {
@@ -124,6 +134,7 @@ class ScImportExprImpl extends ScalaStubBasedElementImpl[ScImportExpr] with ScIm
             remove(prev.getNode)
           } else {
             if (prev.getPrevSibling != null && prev.getPrevSibling.getText == ",") {
+              remove(prev.getNode)
               remove(prev.getPrevSibling.getNode)
             }
           }

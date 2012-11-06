@@ -2,7 +2,6 @@ package com.jetbrains
 package test
 
 import java.util.Date
-import java.lang.reflect.Method
 import java.sql.Connection
 
 abstract class SortedInPackage {
@@ -11,7 +10,6 @@ abstract class SortedInPackage {
 
   val d: Date
   val s: Connection
-  val m: Method
   val c: Clob
   val b: Blob
 }
@@ -19,7 +17,6 @@ abstract class SortedInPackage {
 package com.jetbrains
 package test
 
-import java.lang.reflect.Method
 import java.sql.Connection
 import java.util.Date
 
@@ -30,7 +27,6 @@ abstract class SortedInPackage {
 
   val d: Date
   val s: Connection
-  val m: Method
   val c: Clob
   val b: Blob
 }
