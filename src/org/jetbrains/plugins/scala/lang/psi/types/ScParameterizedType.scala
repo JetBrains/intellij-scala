@@ -289,8 +289,13 @@ case class ScTypeParameterType(name: String, args: List[ScTypeParameterType],
          })}, ptp)
   }
 
+  @volatile
+  private var id: String = null
   def getId: String = {
-    ScalaPsiUtil.getPsiElementId(param)
+    if (id == null) {
+      id = ScalaPsiUtil.getPsiElementId(param)
+    }
+    id
   }
 
   def isCovariant = {

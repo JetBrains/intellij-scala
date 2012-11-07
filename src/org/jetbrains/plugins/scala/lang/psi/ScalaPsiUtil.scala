@@ -702,9 +702,7 @@ object ScalaPsiUtil {
     if (elem == null) return "NullElement"
     try {
       elem match {
-        case tp: ScTypeParam => {
-          " in:" + tp.getContainingFileName + ":" + tp.getOffsetInFile
-        }
+        case tp: ScTypeParam => tp.getPsiElementId
         case p: PsiTypeParameter => " in: Java" //Two parameters from Java can't be used with same name in same place
         case _ => {
           val containingFile: PsiFile = elem.getContainingFile
