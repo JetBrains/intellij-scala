@@ -1279,7 +1279,7 @@ object ScalaPsiUtil {
     }
   }
 
-  def hasStablePath(o: ScObject): Boolean = {
+  def hasStablePath(o: ScTypeDefinition): Boolean = {
     o.getContext match {
       case f: ScalaFile => return true
       case p: ScPackaging => return true
