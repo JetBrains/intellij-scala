@@ -71,6 +71,8 @@ class ScNewTemplateDefinitionImpl private () extends ScalaStubBasedElementImpl[S
   override def setName(name: String): PsiElement = throw new IncorrectOperationException("cannot set name")
   override def name: String = "<anonymous>"
 
+  override def getName: String = name
+
   override def getSupers: Array[PsiClass] = {
     val direct = extendsBlock.supers.filter(_ match {
       case clazz: PsiClass => clazz.qualifiedName != "scala.ScalaObject"
