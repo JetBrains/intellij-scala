@@ -172,6 +172,9 @@ object Conformance {
     trait AbstractVisitor extends ScalaTypeVisitor {
       override def visitAbstractType(a: ScAbstractType) {
         result = conformsInner(l, a.lower, visited, undefinedSubst, checkWeak)
+        if (result._1) {
+          result = conformsInner(a.upper, l, visited, result._2, checkWeak)
+        }
       }
     }
     
@@ -1668,6 +1671,9 @@ object Conformance {
       if (result != null) return
 
       result = conformsInner(a.upper, r, visited, undefinedSubst, checkWeak)
+      if (result._1) {
+        result = conformsInner(r, a.lower, visited, result._2, checkWeak)
+      }
     }
 
     override def visitTypePolymorphicType(t1: ScTypePolymorphicType) {
