@@ -11,7 +11,7 @@ import result.{TypingContext, Success}
 import api.toplevel.ScTypedDefinition
 import resolve.processor.ResolveProcessor
 import resolve.ResolveTargets
-import com.intellij.psi.{PsiClass, ResolveState, PsiNamedElement}
+import com.intellij.psi.{PsiElement, PsiClass, ResolveState, PsiNamedElement}
 import extensions.toPsiClassExt
 import collection.immutable.HashSet
 import caches.CachesUtil
@@ -56,12 +56,25 @@ case class ScProjectionType(projected: ScType, element: PsiNamedElement, subst: 
   private def actual: (PsiNamedElement, ScSubstitutor) = {
     def actualInner(element: PsiNamedElement, projected: ScType): Option[(PsiNamedElement, ScSubstitutor)] = {
       val emptySubst = new ScSubstitutor(Map.empty, Map.empty, Some(projected))
+      val resolvePlace = {
+        def fromClazz(clazz: ScTypeDefinition): PsiElement = {
+          clazz.extendsBlock.templateBody.map(_.getLastChild).
+            getOrElse(clazz.extendsBlock)
+        }
+        ScType.extractClass(projected, Some(element.getProject)) match {
+          case Some(clazz: ScTypeDefinition) => fromClazz(clazz)
+          case _ => projected match {
+            case ScThisType(clazz: ScTypeDefinition) => fromClazz(clazz)
+            case _ => element
+          }
+        }
+      }
       element match {
         case a: ScTypeAlias => {
           val name = a.name
           import ResolveTargets._
-          val proc = new ResolveProcessor(ValueSet(CLASS), a, name)
-          proc.processType(projected, a, ResolveState.initial, noBounds = true)
+          val proc = new ResolveProcessor(ValueSet(CLASS), resolvePlace, name)
+          proc.processType(projected, resolvePlace, ResolveState.initial, noBounds = true)
           val candidates = proc.candidates
           if (candidates.length == 1 && candidates(0).element.isInstanceOf[PsiNamedElement]) {
             Some(candidates(0).element, emptySubst followed candidates(0).substitutor)
@@ -70,8 +83,8 @@ case class ScProjectionType(projected: ScType, element: PsiNamedElement, subst: 
         case d: ScTypedDefinition if d.isStable => {
           val name = d.name
           import ResolveTargets._
-          val proc = new ResolveProcessor(ValueSet(VAL, OBJECT), d, name)
-          proc.processType(projected, d, ResolveState.initial, noBounds = true)
+          val proc = new ResolveProcessor(ValueSet(VAL, OBJECT), resolvePlace, name)
+          proc.processType(projected, resolvePlace, ResolveState.initial, noBounds = true)
           val candidates = proc.candidates
           if (candidates.length == 1 && candidates(0).element.isInstanceOf[PsiNamedElement]) {
             Some(candidates(0).element, emptySubst followed candidates(0).substitutor)
@@ -80,8 +93,8 @@ case class ScProjectionType(projected: ScType, element: PsiNamedElement, subst: 
         case d: ScTypeDefinition => {
           val name = d.name
           import ResolveTargets._
-          val proc = new ResolveProcessor(ValueSet(CLASS), d, name) //ScObject in ScTypedDefinition case.
-          proc.processType(projected, d, ResolveState.initial, noBounds = true)
+          val proc = new ResolveProcessor(ValueSet(CLASS), resolvePlace, name) //ScObject in ScTypedDefinition case.
+          proc.processType(projected, resolvePlace, ResolveState.initial, noBounds = true)
           val candidates = proc.candidates
           if (candidates.length == 1 && candidates(0).element.isInstanceOf[PsiNamedElement]) {
             Some(candidates(0).element, emptySubst followed candidates(0).substitutor)
