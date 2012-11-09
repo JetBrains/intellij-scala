@@ -53,6 +53,10 @@ import com.intellij.pom.java.LanguageLevel
 
 object ScalaPsiElementFactory extends JVMElementFactory {
 
+  def createConstructor(name: String, context: PsiElement): PsiMethod = ???
+
+  def createParameter(name: String, `type`: PsiType, context: PsiElement): PsiParameter = ???
+
   def createClass(name: String): PsiClass = throw new IncorrectOperationException
 
   def createInterface(name: String): PsiClass = throw new IncorrectOperationException
