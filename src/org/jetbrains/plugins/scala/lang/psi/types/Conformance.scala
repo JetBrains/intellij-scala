@@ -132,7 +132,7 @@ object Conformance {
               else undefinedSubst = y._2
             }
             case _ => {
-              val t = Equivalence.equivInner(argsPair._1, argsPair._2, undefinedSubst, false)
+              val t = Equivalence.equivInner(argsPair._1, argsPair._2, undefinedSubst, falseUndef = false)
               if (!t._1) return (false, undefinedSubst)
               undefinedSubst = t._2
             }
@@ -173,7 +173,8 @@ object Conformance {
       override def visitAbstractType(a: ScAbstractType) {
         result = conformsInner(l, a.lower, visited, undefinedSubst, checkWeak)
         if (result._1) {
-          result = conformsInner(a.upper, l, visited, result._2, checkWeak)
+          val t = conformsInner(a.upper, l, visited, result._2, checkWeak)
+          if (t._1) result = t //this is optionally
         }
       }
     }
@@ -813,7 +814,7 @@ object Conformance {
               else undefinedSubst = y._2
             }
             case _ => {
-              val t = Equivalence.equivInner(argsPair._1, argsPair._2, undefinedSubst, false)
+              val t = Equivalence.equivInner(argsPair._1, argsPair._2, undefinedSubst, falseUndef = false)
               if (!t._1) {
                 result = (false, undefinedSubst)
                 return
@@ -886,7 +887,7 @@ object Conformance {
                 else undefinedSubst = y._2
               }
               case _ => {
-                val t = Equivalence.equivInner(argsPair._1, argsPair._2, undefinedSubst, false)
+                val t = Equivalence.equivInner(argsPair._1, argsPair._2, undefinedSubst, falseUndef = false)
                 if (!t._1) {
                   result = (false, undefinedSubst)
                   return
@@ -1672,7 +1673,8 @@ object Conformance {
 
       result = conformsInner(a.upper, r, visited, undefinedSubst, checkWeak)
       if (result._1) {
-        result = conformsInner(r, a.lower, visited, result._2, checkWeak)
+        val t = conformsInner(r, a.lower, visited, result._2, checkWeak)
+        if (t._1) result = t
       }
     }
 
