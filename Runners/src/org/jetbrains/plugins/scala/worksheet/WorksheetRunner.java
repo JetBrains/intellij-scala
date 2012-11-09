@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.compiler.rt;
+package org.jetbrains.plugins.scala.worksheet;
 
 import scala.Some;
 import scala.collection.mutable.ListBuffer;
@@ -6,6 +6,7 @@ import scala.collection.mutable.ListBuffer$;
 import scala.runtime.AbstractFunction1;
 import scala.runtime.BoxedUnit;
 import scala.tools.nsc.GenericRunnerSettings;
+import scala.tools.nsc.InterpreterLoop;
 import scala.tools.nsc.interpreter.ILoop;
 
 import java.io.*;
@@ -13,10 +14,11 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 /**
- * User: Alexander Podkhalyuzin
- * Date: 10.02.2009
+ * @author Ksenia.Sautina
+ * @since 10/15/12
  */
-public class ConsoleRunner {
+public class WorksheetRunner {
+
   public static void main(String[] args) throws IOException, InvocationTargetException, IllegalAccessException {
     String[] newArgs;
     if (args.length == 1 && args[0].startsWith("@")) {
@@ -37,12 +39,12 @@ public class ConsoleRunner {
     } else {
       newArgs = args;
     }
-    ILoop interpreterLoop = new ILoop(new Some(new BufferedReader(new InputStreamReader(System.in))),
-        new PrintWriter(System.out));
+    WorksheetInterpreter interpreterLoop = new WorksheetInterpreter(new BufferedReader(new InputStreamReader(System.in)),
+      new PrintWriter(System.out));
     Method[] methods = interpreterLoop.getClass().getMethods();
     for (Method method : methods) {
       if (method.getName().equals("name") && method.getParameterTypes().length == 1 &&
-          method.getParameterTypes()[0].isArray()) {
+        method.getParameterTypes()[0].isArray()) {
         method.invoke(interpreterLoop, newArgs);
         return;
       }
@@ -61,6 +63,6 @@ public class ConsoleRunner {
       buffer.$plus$eq(newArg);
     }
     settings.processArguments(buffer.toList(), true);
-    interpreterLoop.main(settings);
+    interpreterLoop.process(settings);
   }
 }

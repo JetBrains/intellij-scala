@@ -37,6 +37,7 @@ public class ScalaFileType extends LanguageFileType {
   public static final ScalaFileType SCALA_FILE_TYPE = new ScalaFileType();
   public static final Language SCALA_LANGUAGE = SCALA_FILE_TYPE.getLanguage();
   @NonNls public static final String DEFAULT_EXTENSION = "scala";
+  @NonNls public static final String WORKSHEET_EXTENSION = "sc";
   @NonNls public static final String SBT_FILE_EXTENSION = "sbt";
 
   private ScalaFileType() {
@@ -58,6 +59,12 @@ public class ScalaFileType extends LanguageFileType {
   @NonNls
   public String getDefaultExtension() {
     return DEFAULT_EXTENSION;
+  }
+
+  @NotNull
+  @NonNls
+  public String getWorksheetExtension() {
+    return WORKSHEET_EXTENSION;
   }
 
   public Icon getIcon() {

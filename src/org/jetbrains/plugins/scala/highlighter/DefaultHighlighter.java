@@ -133,6 +133,8 @@ public class DefaultHighlighter {
   static final String XML_TEXT_ID = "Scala XML Text";
   @NonNls
   static final String XML_TAG_ID = "Scala XML Tag";
+  @NonNls
+  static final String WORKSHEET_ID = "Scala Worksheet comment";
 
   public static TextAttributesKey LINE_COMMENT = createKey(LINE_COMMENT_ID, SyntaxHighlighterColors.LINE_COMMENT);
   public static TextAttributesKey BLOCK_COMMENT = createKey(BLOCK_COMMENT_ID, SyntaxHighlighterColors.JAVA_BLOCK_COMMENT);
@@ -190,6 +192,7 @@ public class DefaultHighlighter {
   public static TextAttributesKey DOC_COMMENT = createKey(DOC_COMMENT_ID, SyntaxHighlighterColors.DOC_COMMENT);
   public static TextAttributesKey XML_TEXT = createKey(XML_TEXT_ID, SyntaxHighlighterColors.STRING);
   public static TextAttributesKey XML_TAG = createKey(XML_TAG_ID, SyntaxHighlighterColors.DOC_COMMENT_TAG);
+  public static TextAttributesKey WORKSHEET = TextAttributesKey.createTextAttributesKey(WORKSHEET_ID, new TextAttributes(new Color(69, 69, 69), null, null, null, Font.BOLD));
 
   private static TextAttributesKey createKey(String externalName, TextAttributesKey prototype) {
     return TextAttributesKey.createTextAttributesKey(externalName, prototype.getDefaultAttributes());

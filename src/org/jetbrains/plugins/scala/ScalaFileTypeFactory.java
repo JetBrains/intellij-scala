@@ -24,6 +24,7 @@ import org.jetbrains.annotations.NotNull;
  */
 public class ScalaFileTypeFactory extends FileTypeFactory {
   public void createFileTypes(final @NotNull FileTypeConsumer consumer) {
-    consumer.consume(ScalaFileType.SCALA_FILE_TYPE, ScalaFileType.DEFAULT_EXTENSION);
+    consumer.consume(ScalaFileType.SCALA_FILE_TYPE,
+      ScalaFileType.DEFAULT_EXTENSION + FileTypeConsumer.EXTENSION_DELIMITER + ScalaFileType.WORKSHEET_EXTENSION);
   }
 }

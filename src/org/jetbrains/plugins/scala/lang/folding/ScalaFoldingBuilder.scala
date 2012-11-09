@@ -25,6 +25,7 @@ import com.intellij.psi._
 import parser.ScalaElementTypes
 import settings.ScalaCodeFoldingSettings
 import scala.Boolean
+import worksheet.WorksheetFoldingBuilder
 
 /*
 *
@@ -44,7 +45,7 @@ class ScalaFoldingBuilder extends FoldingBuilder {
     if (isMultiline(node) || isMultilineImport(node)) {
       node.getElementType match {
         case ScalaTokenTypes.tBLOCK_COMMENT | ScalaTokenTypes.tSH_COMMENT | ScalaElementTypes.TEMPLATE_BODY |
-             ScalaDocElementTypes.SCALA_DOC_COMMENT => descriptors += (new FoldingDescriptor(node, node.getTextRange))
+             ScalaDocElementTypes.SCALA_DOC_COMMENT => if (!isWorksheetResults(node)) descriptors += (new FoldingDescriptor(node, node.getTextRange))
         case ScalaElementTypes.IMPORT_STMT if isGoodImport(node) => {
           descriptors += (new FoldingDescriptor(node,
             new TextRange(node.getTextRange.getStartOffset + IMPORT_KEYWORD.length + 1, getImportEnd(node))))
@@ -120,7 +121,7 @@ class ScalaFoldingBuilder extends FoldingBuilder {
           descriptors ++= Seq(d1, d2)
         case _ =>
       }
-    } else if (node.getElementType == ScalaTokenTypes.tLINE_COMMENT) {
+    } else if (node.getElementType == ScalaTokenTypes.tLINE_COMMENT && !isWorksheetResults(node)) {
       val stack = new Stack[PsiElement]
       if (!isCustomRegionStart(node.getText) && !isCustomRegionEnd(node.getText)) {
         addCommentFolds(node.getPsi.asInstanceOf[PsiComment], processedComments, descriptors)
@@ -147,7 +148,7 @@ class ScalaFoldingBuilder extends FoldingBuilder {
   }
 
   def getPlaceholderText(node: ASTNode): String = {
-    if (isMultiline(node) || isMultilineImport(node)) {
+    if (isMultiline(node) || isMultilineImport(node) && !isWorksheetResults(node)) {
       node.getElementType match {
         case ScalaElementTypes.BLOCK_EXPR => return "{...}"
         case ScalaTokenTypes.tBLOCK_COMMENT => return "/.../"
@@ -181,15 +182,17 @@ class ScalaFoldingBuilder extends FoldingBuilder {
     }
     node.getElementType match {
       case ScalaTokenTypes.tLINE_COMMENT =>
-        if (!isCustomRegionStart(node.getText))
-          return "/.../"
-        else {
-          if (isTagRegionStart(node.getText)) {
-            val customText: String = node.getText.replaceFirst(".*desc\\s*=\\s*\"(.*)\".*", "$1").trim
-            return if (customText.isEmpty) "..." else customText
-          } else if (isSimpleRegionStart(node.getText)) {
-            val customText: String = node.getText.replaceFirst("..?\\s*region(.*)", "$1").trim
-            return if (customText.isEmpty) "..." else customText
+        if (!isWorksheetResults(node)) {
+          if (!isCustomRegionStart(node.getText))
+            return "/.../"
+          else {
+            if (isTagRegionStart(node.getText)) {
+              val customText: String = node.getText.replaceFirst(".*desc\\s*=\\s*\"(.*)\".*", "$1").trim
+              return if (customText.isEmpty) "..." else customText
+            } else if (isSimpleRegionStart(node.getText)) {
+              val customText: String = node.getText.replaceFirst("..?\\s*region(.*)", "$1").trim
+              return if (customText.isEmpty) "..." else customText
+            }
           }
         }
       case _ => return null
@@ -214,15 +217,15 @@ class ScalaFoldingBuilder extends FoldingBuilder {
     else {
       node.getElementType match {
         case ScalaTokenTypes.tBLOCK_COMMENT
-          if ScalaCodeFoldingSettings.getInstance().isCollapseBlockComments => true
+          if (ScalaCodeFoldingSettings.getInstance().isCollapseBlockComments && !isWorksheetResults(node)) => true
         case ScalaTokenTypes.tLINE_COMMENT
           if (!isCustomRegionStart(node.getText) &&
-                  ScalaCodeFoldingSettings.getInstance().isCollapseLineComments) => true
+                  ScalaCodeFoldingSettings.getInstance().isCollapseLineComments &&  !isWorksheetResults(node)) => true
         case ScalaTokenTypes.tLINE_COMMENT
           if (isCustomRegionStart(node.getText) &&
                   ScalaCodeFoldingSettings.getInstance().isCollapseCustomRegions) => true
         case ScalaDocElementTypes.SCALA_DOC_COMMENT
-          if ScalaCodeFoldingSettings.getInstance().isCollapseScalaDocComments => true
+          if (ScalaCodeFoldingSettings.getInstance().isCollapseScalaDocComments && !isWorksheetResults(node)) => true
         case ScalaElementTypes.TEMPLATE_BODY
           if ScalaCodeFoldingSettings.getInstance().isCollapseTemplateBodies => true
         case ScalaElementTypes.PACKAGING
@@ -230,7 +233,7 @@ class ScalaFoldingBuilder extends FoldingBuilder {
         case ScalaElementTypes.IMPORT_STMT
           if ScalaCodeFoldingSettings.getInstance().isCollapseImports => true
         case ScalaTokenTypes.tSH_COMMENT if
-        ScalaCodeFoldingSettings.getInstance().isCollapseShellComments => true
+        (ScalaCodeFoldingSettings.getInstance().isCollapseShellComments && !isWorksheetResults(node)) => true
         case ScalaElementTypes.MATCH_STMT
           if ScalaCodeFoldingSettings.getInstance().isCollapseMultilineBlocks => true
         case ScalaElementTypes.BLOCK_EXPR
@@ -349,7 +352,7 @@ class ScalaFoldingBuilder extends FoldingBuilder {
       val node: ASTNode = current.getNode
       if (node != null) {
         val elementType: IElementType = node.getElementType
-        if (elementType == ScalaTokenTypes.tLINE_COMMENT) {
+        if (elementType == ScalaTokenTypes.tLINE_COMMENT  && !isWorksheetResults(node)) {
           end = current
           processedComments.add(current)
         }
@@ -380,7 +383,7 @@ class ScalaFoldingBuilder extends FoldingBuilder {
       val node: ASTNode = current.getNode
       if (node != null) {
         val elementType: IElementType = node.getElementType
-        if (elementType == ScalaTokenTypes.tLINE_COMMENT && isCustomRegionEnd(node.getText)) {
+        if (elementType == ScalaTokenTypes.tLINE_COMMENT && isCustomRegionEnd(node.getText)  && !isWorksheetResults(node)) {
           if ((isTagRegion && isTagRegionEnd(node.getText)) || (!isTagRegion && isSimpleRegionEnd(node.getText))) {
             if (!processedRegions.contains(current) && stack.isEmpty) {
               end = current
@@ -390,7 +393,7 @@ class ScalaFoldingBuilder extends FoldingBuilder {
           }
           if (!stack.isEmpty) stack.pop()
         }
-        if (elementType == ScalaTokenTypes.tLINE_COMMENT && isCustomRegionStart(node.getText)) {
+        if (elementType == ScalaTokenTypes.tLINE_COMMENT && isCustomRegionStart(node.getText)  && !isWorksheetResults(node)) {
             stack.push(node.getPsi)
         }
       }
@@ -426,6 +429,12 @@ class ScalaFoldingBuilder extends FoldingBuilder {
   private def isSimpleRegionEnd(elementText: String): Boolean = {
     elementText.contains("endregion")
   }
+
+  private def isWorksheetResults(node: ASTNode): Boolean = {
+    node.getPsi.isInstanceOf[PsiComment] && (node.getText.startsWith(WorksheetFoldingBuilder.FIRST_LINE_PREFIX) ||
+      node.getText.startsWith(WorksheetFoldingBuilder.LINE_PREFIX))
+  }
+
 }
 
 private[folding] object ScalaFoldingUtil {
