@@ -81,13 +81,11 @@ class OutputParser extends MessageProducer {
   private String myUrl;
   private boolean myIsFirstLine = true;
 
-  private MessageHandler myHandler;
-
   OutputParser(MessageHandler messageHandler, String compilerName) {
     super(messageHandler, compilerName);
   }
 
-  public List<String> getGeneratedFiles() {
+  public List<String> getGeneratedPaths() {
     return myWrittenList;
   }
 
@@ -100,22 +98,22 @@ class OutputParser extends MessageProducer {
   public boolean processMessageLine(String line) {
     if(myIsFirstLine && ExceptionMarkerPattern.matcher(line).find()) {
       fullCrash = true;
-      myErrorText.append(line);
+      myErrorText.append(line).append("\n");
       return true;
     }
 
     myIsFirstLine = false;
 
-    String text = line.trim();
-    if (fullCrash && text.length() > 0) {
-      myErrorText.append(text);
+    if (fullCrash) {
+      myErrorText.append(line).append("\n");
       return true;
     }
 
+    String text = line.trim();
     if (text.endsWith("\r\n")) text = text.substring(0, text.length() - 2);
     if (text.startsWith(ourScalaInternalErrorMsg)) {
       fullCrash = true;
-      myErrorText.append(text);
+      myErrorText.append(text).append("\n");
       return true;
     }
 
