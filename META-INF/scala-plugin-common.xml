@@ -40,6 +40,7 @@
         <lang.parserDefinition language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.parser.ScalaParserDefinition"/>
         <lang.commenter language="Scala" implementationClass="org.jetbrains.plugins.scala.highlighter.ScalaCommenter"/>
         <lang.foldingBuilder language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.folding.ScalaFoldingBuilder"/>
+        <lang.foldingBuilder language="Scala" implementationClass="org.jetbrains.plugins.scala.worksheet.WorksheetFoldingBuilder"/>
         <lang.formatter language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.formatting.ScalaFormattingModelBuilder"/>
         <postFormatProcessor implementation="org.jetbrains.plugins.scala.lang.formatting.processors.ScalaBracePostFormatProcessor"/>
         <lang.refactoringSupport language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.refactoring.ScalaRefactoringSupportProvider"/>
@@ -95,6 +96,7 @@
         <internalFileTemplate name="Scala Object"/>
         <internalFileTemplate name="Scala Script"/>
         <internalFileTemplate name="Package Object"/>
+        <internalFileTemplate name="Scala Worksheet"/>
         <defaultTemplatePropertiesProvider implementation="org.jetbrains.plugins.scala.actions.ScalaDefaultTemplatePropertiesProvider"/>
         <indexPatternBuilder implementation="org.jetbrains.plugins.scala.editor.todo.ScalaIndexPatternBuilder"/>
         <readWriteAccessDetector implementation="org.jetbrains.plugins.scala.highlighter.readWriteAccess.ScalaReadWriteAccessDetector"/>
@@ -199,6 +201,7 @@
 
         <configurationType implementation="org.jetbrains.plugins.scala.script.ScalaScriptConfigurationType"/>
         <configurationType implementation="org.jetbrains.plugins.scala.console.ScalaConsoleConfigurationType"/>
+        <configurationType implementation="org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetConfigurationType"/>
 
         <configurationType implementation="org.jetbrains.plugins.scala.testingSupport.test.specs2.Specs2ConfigurationType"/>
         <configurationType implementation="org.jetbrains.plugins.scala.testingSupport.test.scalatest.ScalaTestConfigurationType"/>
@@ -209,7 +212,7 @@
         <configurationProducer implementation="org.jetbrains.plugins.scala.runner.ScalaApplicationConfigurationProducer"/>
 
         <stubElementTypeHolder class="org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes"/>
-        <!--Stub indeces -->
+        <!--Stub indices -->
         <stubIndex implementation="org.jetbrains.plugins.scala.lang.psi.stubs.index.ScAllClassNamesIndex"/>
         <stubIndex implementation="org.jetbrains.plugins.scala.lang.psi.stubs.index.ScShortClassNameIndex"/>
         <stubIndex implementation="org.jetbrains.plugins.scala.lang.psi.stubs.index.ScFullClassNameIndex"/>
@@ -768,6 +771,9 @@
         <component>
           <implementation-class>org.jetbrains.plugins.scala.components.SettingsUpdater</implementation-class>
         </component>
+        <component>
+            <implementation-class>org.jetbrains.plugins.scala.components.WorksheetProjectComponent</implementation-class>
+        </component>
     </project-components>
 
     <actions>
@@ -781,6 +787,10 @@
         </action>
         <action id="Scala.NewScript" class="org.jetbrains.plugins.scala.actions.NewScalaScriptAction">
             <add-to-group group-id="NewGroup" anchor="before" relative-to-action="NewFromTemplate"/>
+        </action>
+        <action id="Scala.NewScalaWorksheet" class="org.jetbrains.plugins.scala.worksheet.actions.NewScalaWorksheetAction"
+                text="Scala Worksheet" description="Create new Scala Worksheet">
+            <add-to-group group-id="NewGroup" anchor="before" relative-to-action="Scala.NewScript"/>
         </action>
         <action id="Scala.RunConsole" class="org.jetbrains.plugins.scala.console.RunConsoleAction"
                 text="Run Scala Console" description="Run Scala console">
@@ -838,6 +848,10 @@
                 text="Implicit &amp;Parameters" description="Show Implicit Parameters">
             <keyboard-shortcut first-keystroke="control shift P" keymap="$default"/>
             <add-to-group group-id="CodeEditorViewGroup" anchor="last"/>
+        </action>
+        <action id="Scala.RunWorksheet" class="org.jetbrains.plugins.scala.worksheet.actions.RunWorksheetAction"
+                text="Run Scala worksheet" description="Run Scala worksheet">
+            <add-to-group group-id="RunContextPopupGroup" anchor="last"/>
         </action>
     </actions>
 

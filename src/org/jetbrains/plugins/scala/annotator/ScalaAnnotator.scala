@@ -45,6 +45,7 @@ import collection.mutable.{ArrayBuffer, HashSet}
 import com.intellij.codeInsight.daemon.impl.AnnotationHolderImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScInterpolatedStringPrefixReference
 import codeInspection.caseClassParamInspection.{RemoveValFromGeneratorIntentionAction, RemoveValFromEnumeratorIntentionAction}
+import worksheet.WorksheetFoldingBuilder
 
 /**
  * User: Alexander Podkhalyuzin
@@ -61,6 +62,18 @@ with DumbAware {
     val compiled = element.getContainingFile match {
       case file: ScalaFile => file.isCompiled
       case _ => false
+    }
+
+    element.getContainingFile match {
+      case scalaFile: ScalaFile =>
+        if (scalaFile.getVirtualFile.getExtension == ScalaFileType.WORKSHEET_EXTENSION
+        && element.isInstanceOf[PsiComment] && (element.getText.startsWith(WorksheetFoldingBuilder.FIRST_LINE_PREFIX) ||
+        element.getText.startsWith(WorksheetFoldingBuilder.LINE_PREFIX))) {
+        val annotation: Annotation = holder.createInfoAnnotation(element.getTextRange, null)
+        annotation.setTextAttributes(DefaultHighlighter.WORKSHEET)
+        annotation.setAfterEndOfLine(false)
+      }
+      case _ =>
     }
 
     val typeAware = isAdvancedHighlightingEnabled(element)
