@@ -1,5 +1,5 @@
 <component name="ArtifactManager">
-  <artifact name="ScalaPlugins">
+  <artifact build-on-make="true" name="ScalaPlugins">
     <output-path>$PROJECT_DIR$/classes/artifacts/Scala</output-path>
     <root id="root">
       <element id="directory" name="lib">
@@ -15,6 +15,9 @@
           <element id="directory" name="META-INF">
             <element id="dir-copy" path="$PROJECT_DIR$/META-INF" />
           </element>
+        </element>
+        <element id="archive" name="scala-jps-plugin.jar">
+          <element id="module-output" name="scala-jps-plugin" />
         </element>
       </element>
     </root>

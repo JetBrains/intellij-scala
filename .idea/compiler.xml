@@ -18,6 +18,8 @@
       <entry name="?*.tld" />
       <entry name="?*.ft" />
       <entry name="?*.template" />
+      <entry name="?*Service" />
+      <entry name="?*Extension" />
     </wildcardResourcePatterns>
     <annotationProcessing>
       <profile default="true" name="Default" enabled="false">
