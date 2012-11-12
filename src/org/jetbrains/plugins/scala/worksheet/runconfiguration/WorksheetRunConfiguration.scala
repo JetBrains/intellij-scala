@@ -197,9 +197,6 @@ class WorksheetRunConfiguration(val project: Project, val configurationFactory: 
                 val outputStream: OutputStream = processHandler.getProcessInput
                 try {
                   val text = child.getText.trim.replaceAll("\n", "")
-                  println("way 1 = " + text+"_end")
-                  //                if (text.indexOf("\n") != -1) offsets.add(child.getTextRange.getEndOffset - (text.length - text.indexOf("\n")))
-                  //                else
                   offsets.add(child.getTextRange.getEndOffset)
                   val bytes: Array[Byte] = (text + "\n").getBytes
                   outputStream.write(bytes)
@@ -220,9 +217,7 @@ class WorksheetRunConfiguration(val project: Project, val configurationFactory: 
                         val outputStream: OutputStream = processHandler.getProcessInput
                         try {
                           val text = child.getText.trim.replaceAll("\n", "")
-                          println("way 2 = " + text+"_end")
-                          if (text.indexOf("\n") != -1) offsets.add(child.getTextRange.getEndOffset - (text.length - text.indexOf("\n")))
-                          else offsets.add(child.getTextRange.getEndOffset)
+                          offsets.add(child.getTextRange.getEndOffset)
                           val bytes: Array[Byte] = (text + "\n").getBytes
                           outputStream.write(bytes)
                           outputStream.flush()
