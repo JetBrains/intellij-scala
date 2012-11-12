@@ -1,39 +1,25 @@
 package org.jetbrains.plugins.scala.components;
 
-import com.intellij.execution.process.ProcessHandler;
 import com.intellij.icons.AllIcons;
-import com.intellij.lang.ASTNode;
-import com.intellij.openapi.actionSystem.*;
+import com.intellij.openapi.actionSystem.ActionPlaces;
+import com.intellij.openapi.actionSystem.ActionToolbar;
+import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.impl.ActionButton;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.AbstractProjectComponent;
-import com.intellij.openapi.editor.Document;
-import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.fileEditor.FileEditor;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.fileEditor.FileEditorManagerAdapter;
 import com.intellij.openapi.fileEditor.FileEditorManagerListener;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.TextRange;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.psi.PsiComment;
-import com.intellij.psi.PsiDocumentManager;
-import com.intellij.psi.PsiFile;
-import com.intellij.psi.PsiManager;
-import com.intellij.psi.impl.PsiManagerEx;
-import com.intellij.uiDesigner.lw.LwHSpacer;
 import org.jetbrains.plugins.scala.ScalaBundle;
 import org.jetbrains.plugins.scala.ScalaFileType;
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes;
-import org.jetbrains.plugins.scala.worksheet.WorksheetFoldingBuilder$;
+import org.jetbrains.plugins.scala.worksheet.actions.CleanWorksheetAction;
 import org.jetbrains.plugins.scala.worksheet.actions.RunWorksheetAction;
-import org.jetbrains.plugins.scala.worksheet.actions.WorksheetInfo$;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * @author Ksenia.Sautina
@@ -63,64 +49,24 @@ public class WorksheetProjectComponent extends AbstractProjectComponent {
         for (FileEditor editor : editors) {
           //todo action
           JPanel panel = new JPanel();
-          panel.setLayout(new BorderLayout());
+          panel.setLayout(new FlowLayout(FlowLayout.LEFT));
 
           RunWorksheetAction executeAction = new RunWorksheetAction();
-          ActionButton executeButton = new ActionButton(executeAction, executeAction.getTemplatePresentation(), executeAction.getTemplatePresentation().getText(), ActionToolbar.DEFAULT_MINIMUM_BUTTON_SIZE);
-          executeButton.getAction().getTemplatePresentation().setIcon(AllIcons.Actions.Execute);
+          ActionButton executeButton = new ActionButton(executeAction, executeAction.getTemplatePresentation(),
+            ActionPlaces.EDITOR_TOOLBAR, ActionToolbar.DEFAULT_MINIMUM_BUTTON_SIZE);
           executeButton.setToolTipText(ScalaBundle.message("worksheet.execute.button"));
-//          panel.add(executeButton);
+          executeButton.getAction().getTemplatePresentation().setIcon(AllIcons.Actions.Execute);
+          panel.add(executeButton);
 
-          AnAction cleanAction = new AnAction() {
-            @Override
-            public void actionPerformed(AnActionEvent e) {
-              DataContext dataContext = e.getDataContext();
-              Editor editor = PlatformDataKeys.EDITOR.getData(dataContext);
-              Project project = PlatformDataKeys.PROJECT.getData(dataContext);
-              assert project != null;
-              PsiFile psiFile = ((PsiManagerEx)PsiManager.getInstance(project)).getFileManager().getCachedPsiFile(file);
-              assert psiFile != null;
-              assert editor != null;
-              cleanWorksheet(psiFile.getNode(), editor, project);
-            }
-          };
-
+          AnAction cleanAction = new CleanWorksheetAction(file);
           ActionButton cleanButton = new ActionButton(cleanAction, cleanAction.getTemplatePresentation(),
-            cleanAction.getTemplatePresentation().getText(), ActionToolbar.DEFAULT_MINIMUM_BUTTON_SIZE);
-          cleanButton.getAction().getTemplatePresentation().setIcon(AllIcons.Actions.GC);
+            ActionPlaces.EDITOR_TOOLBAR, ActionToolbar.DEFAULT_MINIMUM_BUTTON_SIZE);
           cleanButton.setToolTipText(ScalaBundle.message("worksheet.clear.button"));
-//          panel.add(cleanButton);
+          cleanButton.getAction().getTemplatePresentation().setIcon(AllIcons.Actions.GC);
+          panel.add(cleanButton);
 
           myFileEditorManager.addTopComponent(editor, panel);
         }
-      }
-    });
-  }
-
-  private void cleanWorksheet(final ASTNode node, final Editor editor, final Project project) {
-    ApplicationManager.getApplication().invokeLater(new Runnable() {
-      @Override
-      public void run() {
-        ApplicationManager.getApplication().runWriteAction(new Runnable() {
-          @Override
-          public void run() {
-            Document document = editor.getDocument();
-            if ((node.getPsi() instanceof PsiComment) &&
-              (node.getText().startsWith(WorksheetFoldingBuilder$.MODULE$.FIRST_LINE_PREFIX()) ||
-                node.getText().startsWith(WorksheetFoldingBuilder$.MODULE$.LINE_PREFIX()))) {
-              int line = document.getLineNumber(node.getPsi().getTextRange().getStartOffset());
-              int startOffset = document.getLineStartOffset(line);
-              String beginningOfTheLine = document.getText(new TextRange(startOffset, node.getPsi().getTextRange().getStartOffset()));
-              if (beginningOfTheLine.trim().equals("")) document.deleteString(startOffset, node.getPsi().getTextRange().getEndOffset() + 1);
-              else document.deleteString(node.getPsi().getTextRange().getStartOffset(), node.getPsi().getTextRange().getEndOffset());
-              PsiDocumentManager.getInstance(project).commitDocument(document);
-            }
-            List<ASTNode> list = new ArrayList<ASTNode>(Arrays.asList(node.getChildren(null)));
-            for (ASTNode child : list) {
-              cleanWorksheet(child, editor, project);
-            }
-          }
-        });
       }
     });
   }

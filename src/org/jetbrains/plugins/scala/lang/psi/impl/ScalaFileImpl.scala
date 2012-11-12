@@ -208,6 +208,11 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
       new CachesUtil.MyProvider(this, (file: ScalaFileImpl) => file.isScriptFileImpl)(this))
   }
 
+  def isWorksheetFile(): Boolean = {
+    this.getVirtualFile.getExtension == ScalaFileType.WORKSHEET_EXTENSION
+  }
+
+
   def setPackageName(name: String) {
     val basePackageName = Option(ScalaPsiUtil.getModule(this))
             .flatMap(ScalaFacet.findIn)

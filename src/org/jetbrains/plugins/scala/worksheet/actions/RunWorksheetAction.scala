@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala
 package worksheet.actions
 
 import com.intellij.openapi.actionSystem.{PlatformDataKeys, LangDataKeys, AnActionEvent, AnAction}
-import org.jetbrains.plugins.scala.icons.Icons
 import lang.psi.api.ScalaFile
 import com.intellij.execution._
 import com.intellij.execution.configurations.ConfigurationTypeUtil
@@ -11,6 +10,7 @@ import com.intellij.execution.runners.ExecutionEnvironment
 import com.intellij.openapi.ui.Messages
 import com.intellij.util.ActionRunner
 import worksheet.runconfiguration.{WorksheetRunConfigurationFactory, WorksheetRunConfiguration, WorksheetConfigurationType}
+import com.intellij.icons.AllIcons
 
 /**
  * @author Ksenia.Sautina
@@ -71,7 +71,8 @@ class RunWorksheetAction extends AnAction {
 
   override def update(e: AnActionEvent) {
     val presentation = e.getPresentation
-    presentation.setIcon(Icons.SCALA_SMALL_LOGO)
+    presentation.setIcon(AllIcons.Actions.Execute)
+
     def enable() {
       presentation.setEnabled(true)
       presentation.setVisible(true)
