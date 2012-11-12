@@ -196,7 +196,7 @@ class WorksheetRunConfiguration(val project: Project, val configurationFactory: 
               if (child.getText.trim != "" && child.getText.trim != "\n" && (!child.isInstanceOf[PsiComment] && !child.isInstanceOf[ScDocComment])) {
                 val outputStream: OutputStream = processHandler.getProcessInput
                 try {
-                  val text = child.getText.trim.replaceAll("\n", "")
+                  val text = child.getText.trim//.replaceAll("\n", "")
                   offsets.add(child.getTextRange.getEndOffset)
                   val bytes: Array[Byte] = (text + "\n").getBytes
                   outputStream.write(bytes)
@@ -213,10 +213,10 @@ class WorksheetRunConfiguration(val project: Project, val configurationFactory: 
                 child.getChildren.foreach(child => {
                   if (child.isInstanceOf[ScTemplateBody]) {
                     child.getChildren.foreach(child => {
-                      if (child.getText.trim != ""  && child.getText.trim != "\n") {
+                      if (child.getText.trim != ""  && child.getText.trim != "\n" && (!child.isInstanceOf[PsiComment] && !child.isInstanceOf[ScDocComment])) {
                         val outputStream: OutputStream = processHandler.getProcessInput
                         try {
-                          val text = child.getText.trim.replaceAll("\n", "")
+                          val text = child.getText.trim//.replaceAll("\n", "")
                           offsets.add(child.getTextRange.getEndOffset)
                           val bytes: Array[Byte] = (text + "\n").getBytes
                           outputStream.write(bytes)
