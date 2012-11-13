@@ -7,10 +7,10 @@ import org.jetbrains.jps.model.ex.JpsElementBase;
 /**
  * @author Pavel Fatin
  */
-public class CompilerSettingsImpl extends JpsElementBase<CompilerSettingsImpl> implements CompilerSettings {
+public class ProjectSettingsImpl extends JpsElementBase<ProjectSettingsImpl> implements ProjectSettings {
   private State myState;
 
-  public CompilerSettingsImpl(State state) {
+  public ProjectSettingsImpl(State state) {
     myState = state;
   }
 
@@ -20,12 +20,12 @@ public class CompilerSettingsImpl extends JpsElementBase<CompilerSettingsImpl> i
 
   @NotNull
   @Override
-  public CompilerSettingsImpl createCopy() {
-    return new CompilerSettingsImpl(XmlSerializerUtil.createCopy(myState));
+  public ProjectSettingsImpl createCopy() {
+    return new ProjectSettingsImpl(XmlSerializerUtil.createCopy(myState));
   }
 
   @Override
-  public void applyChanges(@NotNull CompilerSettingsImpl compilerSettings) {
+  public void applyChanges(@NotNull ProjectSettingsImpl compilerSettings) {
     // do nothing
   }
 
