@@ -9,7 +9,9 @@ import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.util.ArrayUtil;
 import com.intellij.util.PathUtil;
 import com.intellij.util.SystemProperties;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.jps.ModuleChunk;
+import org.jetbrains.jps.builders.ChunkBuildOutputConsumer;
 import org.jetbrains.jps.builders.DirtyFilesHolder;
 import org.jetbrains.jps.builders.FileProcessor;
 import org.jetbrains.jps.builders.java.JavaSourceRootDescriptor;
@@ -32,6 +34,7 @@ import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.Future;
 
+import static com.intellij.openapi.util.io.FileUtil.*;
 import static org.jetbrains.jps.incremental.scala.Utilities.toCanonicalPaths;
 import static org.jetbrains.jps.incremental.scala.Utilities.writeStringTo;
 
@@ -49,23 +52,21 @@ public class ScalaBuilder extends ModuleLevelBuilder {
     super(BuilderCategory.TRANSLATOR);
   }
 
-  @Override
-  public String getName() {
-    return BUILDER_NAME;
-  }
-
-  @Override
-  public String getDescription() {
-    return BUILDER_DESCRIPTION;
-  }
-
   private static boolean isScalaFile(String path) {
     return path.endsWith(SCALA_EXTENSION);
   }
 
+  @NotNull
   @Override
-  public ExitCode build(CompileContext context, ModuleChunk chunk,
-                        DirtyFilesHolder<JavaSourceRootDescriptor, ModuleBuildTarget> dirtyFilesHolder) throws ProjectBuildException, IOException {
+  public String getPresentableName() {
+    return BUILDER_DESCRIPTION;
+  }
+
+  @Override
+  public ExitCode build(CompileContext context,
+                        ModuleChunk chunk,
+                        DirtyFilesHolder<JavaSourceRootDescriptor, ModuleBuildTarget> dirtyFilesHolder,
+                        ChunkBuildOutputConsumer outputConsumer) throws ProjectBuildException, IOException {
     ExitCode exitCode;
     try {
       exitCode = doBuild(context, chunk, dirtyFilesHolder);
@@ -79,13 +80,15 @@ public class ScalaBuilder extends ModuleLevelBuilder {
 
   private ExitCode doBuild(final CompileContext context, ModuleChunk chunk,
                            DirtyFilesHolder<JavaSourceRootDescriptor, ModuleBuildTarget> dirtyFilesHolder) throws IOException {
-    List<String> sources = toCanonicalPaths(collectFilesToCompiler(dirtyFilesHolder));
+    List<File> filesToCompile = collectFilesToCompiler(dirtyFilesHolder);
 
-    if (sources.isEmpty()) {
+    if (filesToCompile.isEmpty()) {
       return ExitCode.NOTHING_DONE;
     }
 
-    File tempFile = createFileWithArguments(context, chunk, sources);
+    File tempFile = FileUtil.createTempFile("ideaScalaToCompile", ".txt", true);
+
+    writeStringTo(tempFile, formatCompilerArguments(context, chunk, toCanonicalPaths(filesToCompile)));
 
     List<String> vmClasspath = getVMClasspathIn(context, chunk);
 
@@ -99,7 +102,7 @@ public class ScalaBuilder extends ModuleLevelBuilder {
 
     exec(ArrayUtil.toStringArray(commands), context);
 
-    FileUtil.asyncDelete(tempFile);
+    asyncDelete(tempFile);
 
     return ExitCode.OK;
   }
@@ -132,7 +135,7 @@ public class ScalaBuilder extends ModuleLevelBuilder {
     handler.waitFor();
   }
 
-  private static File createFileWithArguments(CompileContext context, ModuleChunk chunk, Collection<String> sources) throws IOException {
+  private static String formatCompilerArguments(CompileContext context, ModuleChunk chunk, Collection<String> sources) throws IOException {
     ModuleBuildTarget target = chunk.representativeTarget();
 
     File outputDir = target.getOutputDir();
@@ -140,26 +143,23 @@ public class ScalaBuilder extends ModuleLevelBuilder {
     if (outputDir == null)
       throw new ConfigurationException("Output directory not specified for module " + target.getModuleName());
 
-    File tempFile = FileUtil.createTempFile("ideaScalaToCompile", ".txt", true);
-
     Collection<File> chunkClasspath = context.getProjectPaths()
         .getCompilationClasspathFiles(chunk, chunk.containsTests(), false, false);
 
-    String outputPath = FileUtil.toCanonicalPath(outputDir.getPath());
+    String outputPath = toCanonicalPath(outputDir.getPath());
     String classpath = StringUtil.join(toCanonicalPaths(chunkClasspath), File.pathSeparator);
-    List<String> arguments = createCompilerArguments(outputPath, classpath, sources);
 
-    writeStringTo(tempFile, StringUtil.join(arguments, "\n"));
+    List<String> arguments = createZincArguments(outputPath, classpath, sources);
 
-    return tempFile;
+    return StringUtil.join(arguments, "\n");
   }
 
-  private static List<String> createCompilerArguments(String outputPath,
-                                                      String classpath,
-                                                      Collection<String> sources) {
+  private static List<String> createZincArguments(String outputPath,
+                                                  String classpath,
+                                                  Collection<String> sources) {
     List<String> args = new ArrayList<String>();
 
-    args.add("-verbose");
+    args.add("-debug");
     args.add("-d");
     args.add(outputPath);
     args.add("-cp");
@@ -191,9 +191,17 @@ public class ScalaBuilder extends ModuleLevelBuilder {
 
     result.addAll(toCanonicalPaths(compilerLibraryFiles));
 
-    result.add(FileUtil.toCanonicalPath(PathUtil.getJarPathForClass(RUNNER_CLASS)));
+    result.add(FileUtil.toCanonicalPath(getThisJarFile().getPath()));
 
     return result;
+  }
+
+  private static File getZincHomeDirectory() {
+    return new File(getThisJarFile().getParent(), "zinc");
+  }
+
+  private static File getThisJarFile() {
+    return new File(PathUtil.getJarPathForClass(RUNNER_CLASS));
   }
 
   private static JpsLibrary getCompilerLibraryIn(JpsModule module, JpsModel model) {
