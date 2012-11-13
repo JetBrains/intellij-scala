@@ -1,5 +1,5 @@
 <component name="ArtifactManager">
-  <artifact name="ScalaPlugins">
+  <artifact build-on-make="true" name="ScalaPlugins">
     <output-path>$PROJECT_DIR$/classes/artifacts/Scala</output-path>
     <root id="root">
       <element id="directory" name="lib">
@@ -16,6 +16,19 @@
             <element id="dir-copy" path="$PROJECT_DIR$/META-INF" />
           </element>
         </element>
+        <element id="archive" name="scala-jps-plugin.jar">
+          <element id="module-output" name="scala-jps-plugin" />
+        </element>
+      </element>
+      <element id="directory" name="zinc">
+        <element id="file-copy" path="$PROJECT_DIR$/SDK/zinc/compiler-interface-sources.jar" />
+        <element id="file-copy" path="$PROJECT_DIR$/SDK/zinc/incremental-compiler.jar" />
+        <element id="file-copy" path="$PROJECT_DIR$/SDK/zinc/jline.jar" />
+        <element id="file-copy" path="$PROJECT_DIR$/SDK/zinc/nailgun.jar" />
+        <element id="file-copy" path="$PROJECT_DIR$/SDK/zinc/sbt-interface.jar" />
+        <element id="file-copy" path="$PROJECT_DIR$/SDK/zinc/scala-compiler.jar" />
+        <element id="file-copy" path="$PROJECT_DIR$/SDK/zinc/scala-library.jar" />
+        <element id="file-copy" path="$PROJECT_DIR$/SDK/zinc/zinc.jar" />
       </element>
     </root>
   </artifact>
