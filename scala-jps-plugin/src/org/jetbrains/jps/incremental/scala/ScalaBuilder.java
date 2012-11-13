@@ -5,7 +5,6 @@ import com.intellij.execution.process.ProcessAdapter;
 import com.intellij.execution.process.ProcessEvent;
 import com.intellij.openapi.util.Key;
 import com.intellij.openapi.util.io.FileUtil;
-import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.util.ArrayUtil;
 import com.intellij.util.PathUtil;
 import com.intellij.util.SystemProperties;
@@ -35,8 +34,8 @@ import java.util.*;
 import java.util.concurrent.Future;
 
 import static com.intellij.openapi.util.io.FileUtil.*;
-import static org.jetbrains.jps.incremental.scala.Utilities.toCanonicalPaths;
-import static org.jetbrains.jps.incremental.scala.Utilities.writeStringTo;
+import static com.intellij.openapi.util.text.StringUtil.*;
+import static org.jetbrains.jps.incremental.scala.Utilities.*;
 
 /**
  * @author Pavel Fatin
@@ -86,9 +85,15 @@ public class ScalaBuilder extends ModuleLevelBuilder {
       return ExitCode.NOTHING_DONE;
     }
 
+    // Create a temp file for compiler arguments
     File tempFile = FileUtil.createTempFile("ideaScalaToCompile", ".txt", true);
 
-    writeStringTo(tempFile, formatCompilerArguments(context, chunk, toCanonicalPaths(filesToCompile)));
+    // Format compiler arguments
+    CompilerSettings settings = getCompilerSettings(context, chunk);
+    List<String> arguments = createCompilerArguments(settings, filesToCompile);
+
+    // Save the compiler arguments to the temp file
+    writeStringTo(tempFile, join(arguments, "\n"));
 
     List<String> vmClasspath = getVMClasspathIn(context, chunk);
 
@@ -97,7 +102,7 @@ public class ScalaBuilder extends ModuleLevelBuilder {
         RUNNER_CLASS.getName(),
         Collections.<String>emptyList(), vmClasspath,
         Arrays.asList("-Xmx384m", "-Dfile.encoding=" + System.getProperty("file.encoding")),
-        Arrays.<String>asList("scala.tools.nsc.Main", tempFile.getPath())
+        Arrays.<String>asList("com.typesafe.zinc.Main", tempFile.getPath())
     );
 
     exec(ArrayUtil.toStringArray(commands), context);
@@ -107,7 +112,7 @@ public class ScalaBuilder extends ModuleLevelBuilder {
     return ExitCode.OK;
   }
 
-  private void exec(String[] commands, MessageHandler messageHandler) throws IOException {
+  private void exec(String[] commands, final MessageHandler messageHandler) throws IOException {
     Process process = Runtime.getRuntime().exec(commands);
 
     BaseOSProcessHandler handler = new BaseOSProcessHandler(process, null, null) {
@@ -122,12 +127,13 @@ public class ScalaBuilder extends ModuleLevelBuilder {
     handler.addProcessListener(new ProcessAdapter() {
       @Override
       public void onTextAvailable(ProcessEvent event, Key outputType) {
-        parser.processMessageLine(event.getText());
+        messageHandler.processMessage(new CompilerMessage(BUILDER_NAME, BuildMessage.Kind.WARNING, event.getText()));
+//        parser.processMessageLine(event.getText());
       }
 
       @Override
       public void processTerminated(ProcessEvent event) {
-        parser.finishProcessing();
+//        parser.finishProcessing();
       }
     });
 
@@ -135,38 +141,69 @@ public class ScalaBuilder extends ModuleLevelBuilder {
     handler.waitFor();
   }
 
-  private static String formatCompilerArguments(CompileContext context, ModuleChunk chunk, Collection<String> sources) throws IOException {
-    ModuleBuildTarget target = chunk.representativeTarget();
-
-    File outputDir = target.getOutputDir();
-
-    if (outputDir == null)
-      throw new ConfigurationException("Output directory not specified for module " + target.getModuleName());
-
-    Collection<File> chunkClasspath = context.getProjectPaths()
-        .getCompilationClasspathFiles(chunk, chunk.containsTests(), false, false);
-
-    String outputPath = toCanonicalPath(outputDir.getPath());
-    String classpath = StringUtil.join(toCanonicalPaths(chunkClasspath), File.pathSeparator);
-
-    List<String> arguments = createZincArguments(outputPath, classpath, sources);
-
-    return StringUtil.join(arguments, "\n");
-  }
-
-  private static List<String> createZincArguments(String outputPath,
-                                                  String classpath,
-                                                  Collection<String> sources) {
+  private static List<String> createCompilerArguments(CompilerSettings settings,
+                                                      Collection<File> sources) {
     List<String> args = new ArrayList<String>();
 
     args.add("-debug");
+
+    args.add("-scala-path");
+    args.add(join(toCanonicalPaths(settings.getCompilerClasspath()), File.pathSeparator));
+
+    args.add("-sbt-interface");
+    args.add(toCanonicalPath(settings.getSbtInterfaceFile()));
+
+    args.add("-compiler-interface");
+    args.add(toCanonicalPath(settings.getCompilerInterfaceFile()));
+
     args.add("-d");
-    args.add(outputPath);
+    args.add(toCanonicalPath(settings.getOutputDirectory()));
+
     args.add("-cp");
-    args.add(classpath);
-    args.addAll(sources);
+    args.add(join(toCanonicalPaths(settings.getClasspath()), File.pathSeparator));
+
+    args.addAll(toCanonicalPaths(sources));
 
     return args;
+  }
+
+  private static CompilerSettings getCompilerSettings(CompileContext context, ModuleChunk chunk) {
+    JpsModule module = chunk.representativeTarget().getModule();
+    JpsModel model = context.getProjectDescriptor().getModel();
+
+    // Find a Scala compiler library that is configured in a Scala facet
+    JpsLibrary compilerLibrary = getCompilerLibraryIn(module, model);
+
+    // Collect all files in the compiler library
+    Collection<File> compilerLibraryFiles = compilerLibrary.getFiles(JpsOrderRootType.COMPILED);
+    if (compilerLibraryFiles.isEmpty()) throw new ConfigurationException(
+        "Compiler library is empty: " + compilerLibrary.getName());
+
+    Collection<File> zincFiles = getZincFiles();
+
+    // Find a path to "sbt-interface.jar"
+    File sbtInterfaceFile = findByName(zincFiles, "sbt-interface.jar");
+    if (sbtInterfaceFile == null) throw new ConfigurationException(
+        "No sbt-interface.jar found");
+
+    // Find a path to "compiler-interface-sources.jar"
+    File compilerInterfaceFile = findByName(zincFiles, "compiler-interface-sources.jar");
+    if (compilerInterfaceFile == null) throw new ConfigurationException(
+        "No compiler-interface-sources.jar found");
+
+    ModuleBuildTarget target = chunk.representativeTarget();
+
+    // Get an output directory
+    File outputDirectory = target.getOutputDir();
+    if (outputDirectory == null) throw new ConfigurationException(
+        "Output directory not specified for module " + target.getModuleName());
+
+    // Get compilation classpath files
+    Collection<File> chunkClasspath = context.getProjectPaths()
+        .getCompilationClasspathFiles(chunk, chunk.containsTests(), false, false);
+
+    return new CompilerSettings(compilerLibraryFiles, sbtInterfaceFile, compilerInterfaceFile,
+        outputDirectory, chunkClasspath);
   }
 
   private static String getJavaExecutableIn(ModuleChunk chunk) {
@@ -174,30 +211,32 @@ public class ScalaBuilder extends ModuleLevelBuilder {
     return sdk == null ? SystemProperties.getJavaHome() + "/bin/java" : JpsJavaSdkType.getJavaExecutable(sdk);
   }
 
+  // Collect JVM classpath jars
   private static List<String> getVMClasspathIn(CompileContext context, ModuleChunk chunk) {
     List<String> result = new ArrayList<String>();
 
-//    Collection<File> platformCompilationClasspath = context.getProjectPaths().getPlatformCompilationClasspath(chunk, true);
-//    result.addAll(toCanonicalPaths(platformCompilationClasspath));
+    // Add Zinc jars to the classpath
+    result.addAll(toCanonicalPaths(getZincFiles()));
 
-    JpsModule module = chunk.representativeTarget().getModule();
-    JpsModel model = context.getProjectDescriptor().getModel();
-    JpsLibrary compilerLibrary = getCompilerLibraryIn(module, model);
-
-    List<File> compilerLibraryFiles = compilerLibrary.getFiles(JpsOrderRootType.COMPILED);
-
-    if (compilerLibraryFiles.isEmpty())
-      throw new ConfigurationException("Compiler library is empty: " + compilerLibrary.getName());
-
-    result.addAll(toCanonicalPaths(compilerLibraryFiles));
-
+    // Add this jar (which contatins a runner class) to the classpath
     result.add(FileUtil.toCanonicalPath(getThisJarFile().getPath()));
 
     return result;
   }
 
+  // Find Zinc jars
+  private static Collection<File> getZincFiles() {
+    File zincHomeDirectory = getZincHomeDirectory();
+
+    File[] zincJars = zincHomeDirectory.listFiles();
+    if (zincJars == null || zincJars.length == 0) throw new ConfigurationException(
+        "No Zinc jars in the directory: " + zincHomeDirectory);
+
+    return Arrays.asList(zincJars);
+  }
+
   private static File getZincHomeDirectory() {
-    return new File(getThisJarFile().getParent(), "zinc");
+    return new File(getThisJarFile().getParentFile().getParentFile(), "zinc");
   }
 
   private static File getThisJarFile() {

@@ -59,4 +59,18 @@ public class Utilities {
       writer.close();
     }
   }
+
+  @Nullable
+  public static File findByName(Collection<File> file, String name) {
+    for (File it : file) {
+      if (it.getName().equals(name)) {
+        return it;
+      }
+    }
+    return null;
+  }
+
+  public static String toCanonicalPath(File file) {
+    return FileUtil.toCanonicalPath(file.getPath());
+  }
 }
