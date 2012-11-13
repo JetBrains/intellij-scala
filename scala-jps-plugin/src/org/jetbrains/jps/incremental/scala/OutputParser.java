@@ -166,10 +166,10 @@ class OutputParser extends MessageProducer {
       if (text.endsWith(ourInfoMarkerEnd)) {
         String info = text.substring(ourInfoMarkerStart.length(), text.length() - ourInfoMarkerEnd.length());
         if (info.startsWith(ourParsingMarker)) { //parsing
-          progress(info);
+          String substring = info.substring(info.indexOf(ourParsingMarker) + ourParsingMarker.length());
+          progress("Parsed file " + substring);
           // Set file processed
-//          callback.fileProcessed(info.substring(info.indexOf(ourParsingMarker) + ourParsingMarker.length()));
-          // TODO
+//          callback.fileProcessed(substring);
         }
         //add phases and their times to output
         else if (getPhaseName(info) != null) {
@@ -178,7 +178,7 @@ class OutputParser extends MessageProducer {
           if (info.startsWith("loaded class file ")) { // Loaded file
             final int end = info.indexOf(".class") + ".class".length();
             final int begin = info.substring(0, end - 1).lastIndexOf("/") + 1;
-            progress("Loaded file " + info.substring(begin, end));
+            progress("Loaded class file " + info.substring(begin, end));
           } else if (info.startsWith("loaded directory path ")) {
             final int end = info.indexOf(".jar") + ".jar".length();
             final int begin = info.substring(0, end - 1).lastIndexOf("/") + 1;
