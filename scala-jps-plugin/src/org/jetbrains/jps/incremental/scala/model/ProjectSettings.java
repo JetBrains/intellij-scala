@@ -5,6 +5,6 @@ import org.jetbrains.jps.model.JpsElement;
 /**
  * @author Pavel Fatin
  */
-public interface CompilerSettings extends JpsElement {
+public interface ProjectSettings extends JpsElement {
   boolean isScalaFirst();
 }
