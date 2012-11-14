@@ -96,7 +96,7 @@ class OutputParser extends MessageProducer {
   }
 
   public boolean processMessageLine(String line) {
-    if(myIsFirstLine && ExceptionMarkerPattern.matcher(line).find()) {
+    if (myIsFirstLine && ExceptionMarkerPattern.matcher(line).find()) {
       fullCrash = true;
       myErrorText.append(line).append("\n");
       return true;
@@ -231,9 +231,9 @@ class OutputParser extends MessageProducer {
 
   private boolean stopMsgProcessing(String text) {
     return text.startsWith(ourInfoMarkerStart) ||
-            text.indexOf(ourErrorMarker) > 0 ||
-            text.indexOf(ourWarningMarker) > 0 ||
-            stopProcessing;
+        text.indexOf(ourErrorMarker) > 0 ||
+        text.indexOf(ourWarningMarker) > 0 ||
+        stopProcessing;
   }
 
   /*

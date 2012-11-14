@@ -3,9 +3,9 @@ package org.jetbrains.jps.incremental.scala;
 import com.intellij.util.xmlb.XmlSerializer;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.jps.incremental.scala.model.ProjectSettingsImpl;
 import org.jetbrains.jps.incremental.scala.model.FacetSettings;
 import org.jetbrains.jps.incremental.scala.model.FacetSettingsImpl;
+import org.jetbrains.jps.incremental.scala.model.ProjectSettingsImpl;
 import org.jetbrains.jps.model.JpsElement;
 import org.jetbrains.jps.model.JpsProject;
 import org.jetbrains.jps.model.module.JpsModule;
@@ -19,7 +19,7 @@ import java.util.List;
 /**
  * @author Pavel Fatin
  */
-public class ScalaModelSerializerExtension extends JpsModelSerializerExtension {
+public class ScalaSerializerService extends JpsModelSerializerExtension {
   @NotNull
   @Override
   public List<? extends JpsProjectExtensionSerializer> getProjectExtensionSerializers() {
@@ -43,7 +43,7 @@ public class ScalaModelSerializerExtension extends JpsModelSerializerExtension {
     public void loadExtension(@NotNull JpsProject jpsProject, @NotNull Element componentTag) {
       ProjectSettingsImpl.State state = XmlSerializer.deserialize(componentTag, ProjectSettingsImpl.State.class);
       ProjectSettingsImpl settings = new ProjectSettingsImpl(state == null ? new ProjectSettingsImpl.State() : state);
-      SettingsManager.setCompilerSettings(jpsProject, settings);
+      SettingsManager.setProjectSettings(jpsProject, settings);
     }
 
     @Override
