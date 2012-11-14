@@ -16,17 +16,21 @@ import org.jetbrains.jps.builders.java.JavaSourceRootDescriptor;
 import org.jetbrains.jps.incremental.*;
 import org.jetbrains.jps.incremental.messages.BuildMessage;
 import org.jetbrains.jps.incremental.messages.CompilerMessage;
+import org.jetbrains.jps.incremental.scala.data.CompilationData;
+import org.jetbrains.jps.incremental.scala.data.JavaData;
+import org.jetbrains.jps.incremental.scala.data.ZincData;
 import org.jetbrains.jps.service.SharedThreadPool;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import java.util.concurrent.Future;
 
-import static com.intellij.openapi.util.io.FileUtil.*;
-import static com.intellij.openapi.util.text.StringUtil.*;
+import static com.intellij.openapi.util.io.FileUtil.asyncDelete;
+import static com.intellij.openapi.util.text.StringUtil.join;
 import static org.jetbrains.jps.incremental.scala.Utilities.*;
-import static org.jetbrains.jps.incremental.scala.Utilities.toCanonicalPath;
 
 /**
  * @author Pavel Fatin
@@ -82,29 +86,38 @@ public class ScalaBuilder extends ModuleLevelBuilder {
     // Find a path to bundled Zinc jars (<plugin dir>/../zinc)
     File zincHome = new File(thisJar.getParentFile().getParentFile(), "zinc");
 
-    ZincSettings zincSettings = ZincSettings.create(zincHome);
-    JavaSettings javaSettings = JavaSettings.create(chunk);
-    CompilationSettings compilationSettings = CompilationSettings.create(context, chunk);
+    // Compute all configuration data
+    ZincData zincData = ZincData.create(zincHome);
+    JavaData javaData = JavaData.create(chunk);
+    CompilationData compilationData = CompilationData.create(context, chunk);
 
-    List<String> compilerArguments = new ArrayList<String>();
+    List<String> zincArguments = new ArrayList<String>();
 
-    // Add all compiler arguments
-    compilerArguments.addAll(createCompilerArguments(javaSettings, zincSettings, compilationSettings));
+    // Add Zinc arguments
+    zincArguments.addAll(createZincArguments(zincData, javaData, compilationData));
 
-    // Add all sources
-    compilerArguments.addAll(toCanonicalPaths(filesToCompile));
+    // Add sources
+    zincArguments.addAll(toCanonicalPaths(filesToCompile));
 
-    // Create a temp file for the compiler arguments
-    File tempFile = FileUtil.createTempFile("ideaScalaToCompile", ".txt", true);
+    // Create a temp file for the Zinc arguments
+    File tempFile = FileUtil.createTempFile("ideaZincArguments", ".txt", true);
 
     // Save the compiler arguments to the temp file
-    writeStringTo(tempFile, join(compilerArguments, "\n"));
+    writeStringTo(tempFile, join(zincArguments, "\n"));
+
+    List<File> vmClasspath = new ArrayList<File>();
+
+    // Add this jar (which contatins a runner class) to the classpath
+    vmClasspath.add(thisJar);
+
+    // Add Zinc jars to the classpath
+    vmClasspath.addAll(zincData.getClasspath());
 
     // Create a command line
-    List<String> commandLine = createCommandLine(javaSettings, zincSettings, thisJar, tempFile);
+    List<String> commandLine = createCommandLine(javaData, vmClasspath, "com.typesafe.zinc.Main", tempFile);
 
     // Run the command
-    exec(ArrayUtil.toStringArray(commandLine), context);
+    exec(commandLine, context);
 
     // Delete the temp file
     asyncDelete(tempFile);
@@ -112,65 +125,55 @@ public class ScalaBuilder extends ModuleLevelBuilder {
     return ExitCode.OK;
   }
 
-  private static List<String> createCommandLine(JavaSettings javaSettings, ZincSettings zincSettings, File thisJar, File argumentsFile) {
-    List<File> javaClasspath = new ArrayList<File>();
-
-    // Add this jar (which contatins a runner class) to the classpath
-    javaClasspath.add(thisJar);
-
-    // Add Zinc jars to the classpath
-    javaClasspath.addAll(zincSettings.getClasspath());
-
+  private static List<String> createCommandLine(JavaData javaData, Collection<File> classpath, String mainClass, File inputFile) {
     List<String> commands = new ArrayList<String>();
 
-    commands.add(toCanonicalPath(javaSettings.getExecutable()));
+    commands.add(toCanonicalPath(javaData.getExecutable()));
 
     commands.add("-Xmx384m");
 
     commands.add("-cp");
-    commands.add(join(javaClasspath, File.pathSeparator));
+    commands.add(join(classpath, File.pathSeparator));
 
     commands.add("-Dfile.encoding=" + System.getProperty("file.encoding"));
 
     commands.add(RUNNER_CLASS.getName());
 
-    commands.add("com.typesafe.zinc.Main");
+    commands.add(mainClass);
 
-    commands.add(toCanonicalPath(argumentsFile));
+    commands.add(toCanonicalPath(inputFile));
 
     return commands;
   }
 
-  public static List<String> createCompilerArguments(JavaSettings javaSettings,
-                                                     ZincSettings zincSettings,
-                                                     CompilationSettings compilationSettings) {
+  private static List<String> createZincArguments(ZincData zincData, JavaData javaData, CompilationData compilationData) {
     List<String> args = new ArrayList<String>();
 
     args.add("-debug");
 
-    args.add("-scala-path");
-    args.add(join(toCanonicalPaths(compilationSettings.getScalaCompilerClasspath()), File.pathSeparator));
-
     args.add("-sbt-interface");
-    args.add(toCanonicalPath(zincSettings.getSbtInterface()));
+    args.add(toCanonicalPath(zincData.getSbtInterface()));
 
     args.add("-compiler-interface");
-    args.add(toCanonicalPath(zincSettings.getCompilerSources()));
+    args.add(toCanonicalPath(zincData.getCompilerSources()));
 
     args.add("-java-home");
-    args.add(toCanonicalPath(javaSettings.getHome()));
+    args.add(toCanonicalPath(javaData.getHome()));
+
+    args.add("-scala-path");
+    args.add(join(toCanonicalPaths(compilationData.getScalaCompilerClasspath()), File.pathSeparator));
 
     args.add("-d");
-    args.add(toCanonicalPath(compilationSettings.getOutputDirectory()));
+    args.add(toCanonicalPath(compilationData.getOutputDirectory()));
 
     args.add("-cp");
-    args.add(join(toCanonicalPaths(compilationSettings.getCompilationClasspath()), File.pathSeparator));
+    args.add(join(toCanonicalPaths(compilationData.getCompilationClasspath()), File.pathSeparator));
 
     return args;
   }
 
-  private void exec(String[] commands, final MessageHandler messageHandler) throws IOException {
-    Process process = Runtime.getRuntime().exec(commands);
+  private void exec(List<String> commands, final MessageHandler messageHandler) throws IOException {
+    Process process = Runtime.getRuntime().exec(ArrayUtil.toStringArray(commands));
 
     BaseOSProcessHandler handler = new BaseOSProcessHandler(process, null, null) {
       @Override
