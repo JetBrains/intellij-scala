@@ -21,12 +21,12 @@ import config.{CompilerLibraryData, Libraries, ScalaFacet}
 import compiler.ScalacSettings
 import com.intellij.execution.process.{ProcessHandler, ProcessEvent, ProcessAdapter}
 import ui.ConsoleViewContentType
-import worksheet.actions.{WorksheetInfo}
+import worksheet.actions.WorksheetInfo
 import com.intellij.ide.util.EditorHelper
 import com.intellij.psi._
 import lang.psi.api.ScalaFile
 import extensions._
-import com.intellij.openapi.editor.{ReadOnlyModificationException, ScrollType, Document, Editor}
+import com.intellij.openapi.editor.{Document, Editor}
 import com.intellij.psi.impl.PsiManagerEx
 import java.util
 import worksheet.WorksheetFoldingBuilder
@@ -37,8 +37,6 @@ import lang.psi.api.toplevel.typedef.{ScClass, ScObject}
 import lang.scaladoc.psi.api.ScDocComment
 import lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody}
 import collection.mutable
-import com.intellij.codeInsight.actions.ReformatCodeAction
-import com.intellij.codeInsight.editorActions.smartEnter.JavaSmartEnterProcessor.TooManyAttemptsException
 import com.intellij.execution.impl.ConsoleViewImpl
 
 /**
@@ -144,7 +142,6 @@ class WorksheetRunConfiguration(val project: Project, val configurationFactory: 
         shifts = shifts + buffer.toString().length
         PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument)
       }
-      editor.getScrollingModel.scrollTo(editor.offsetToLogicalPosition(0), ScrollType.CENTER_DOWN)
     }
 
     def evaluateWorksheet(psiFile: ScalaFile, processHandler: ProcessHandler, editor: Editor) {
@@ -166,7 +163,6 @@ class WorksheetRunConfiguration(val project: Project, val configurationFactory: 
       offsetIndex = -1
       offsets.clear()
       shifts = 0
-      offsetIndex = -1
       isFirstLine = true
 
       val document = editor.getDocument
@@ -234,16 +230,7 @@ class WorksheetRunConfiguration(val project: Project, val configurationFactory: 
             })
           }
 
-          val outputStream: OutputStream = processHandler.getProcessInput
-          try {
-            val text = ":quit"
-            val bytes: Array[Byte] = (text + "\n").getBytes
-            outputStream.write(bytes)
-            outputStream.flush()
-          }
-          catch {
-            case e: IOException => //ignore
-          }
+          endProcess(processHandler)
         }
       }
     }
@@ -282,7 +269,7 @@ class WorksheetRunConfiguration(val project: Project, val configurationFactory: 
 
         params.getClassPath.addAllFiles(files)
 
-        val rtJarPath = PathUtil.getJarPathForClass(classOf[_root_.org.jetbrains.plugins.scala.compiler.rt.ConsoleRunner])
+        val rtJarPath = PathUtil.getJarPathForClass(classOf[_root_.org.jetbrains.plugins.scala.worksheet.WorksheetRunner])
         params.getClassPath.add(rtJarPath)
         params.setWorkingDirectory(workingDirectory)
         params.setMainClass(MAIN_CLASS)
@@ -341,6 +328,19 @@ class WorksheetRunConfiguration(val project: Project, val configurationFactory: 
     }
 
     state
+  }
+
+  def endProcess(processHandler: ProcessHandler) {
+    val outputStream: OutputStream = processHandler.getProcessInput
+    try {
+      val text = ":quit"
+      val bytes: Array[Byte] = (text + "\n").getBytes
+      outputStream.write(bytes)
+      outputStream.flush()
+    }
+    catch {
+      case e: IOException => //ignore
+    }
   }
 
   override def checkConfiguration() {

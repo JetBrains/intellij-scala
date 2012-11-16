@@ -24,7 +24,7 @@ class RunWorksheetAction extends AnAction {
     val project = PlatformDataKeys.PROJECT.getData(dataContext)
     file match {
       case file: ScalaFile => {
-        if (file.getVirtualFile.getExtension != ScalaFileType.WORKSHEET_EXTENSION) return
+        if (!file.isWorksheetFile) return
         val runManagerEx = RunManagerEx.getInstanceEx(file.getProject)
         val configurationType = ConfigurationTypeUtil.findConfigurationType(classOf[WorksheetConfigurationType])
         val settings = runManagerEx.getConfigurationSettings(configurationType)

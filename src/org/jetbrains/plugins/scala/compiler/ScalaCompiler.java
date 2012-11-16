@@ -63,7 +63,7 @@ public class ScalaCompiler implements TranslatingCompiler {
 
     if (myFsc != facet.get().fsc()) return false;
 
-    return compilableByFileType && !isScalaScript(file);
+    return compilableByFileType && !isScalaScript(file) && !isWorksheet(file);
   }
 
   private boolean isCompilableByExtension(VirtualFile file) {
@@ -81,6 +81,15 @@ public class ScalaCompiler implements TranslatingCompiler {
       public Boolean compute() {
         PsiFile psi = PsiManager.getInstance(myProject).findFile(file);
         return psi instanceof ScalaFile && ((ScalaFile) psi).isScriptFile(true);
+      }
+    });
+  }
+
+  private boolean isWorksheet(final VirtualFile file) {
+    return ApplicationManager.getApplication().runReadAction(new Computable<Boolean>() {
+      public Boolean compute() {
+        PsiFile psi = PsiManager.getInstance(myProject).findFile(file);
+        return psi instanceof ScalaFile && ((ScalaFile) psi).isWorksheetFile();
       }
     });
   }

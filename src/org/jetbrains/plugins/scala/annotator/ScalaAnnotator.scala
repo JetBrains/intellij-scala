@@ -66,8 +66,8 @@ with DumbAware {
 
     element.getContainingFile match {
       case scalaFile: ScalaFile =>
-        if (scalaFile.getVirtualFile.getExtension == ScalaFileType.WORKSHEET_EXTENSION
-        && element.isInstanceOf[PsiComment] && (element.getText.startsWith(WorksheetFoldingBuilder.FIRST_LINE_PREFIX) ||
+        if (scalaFile.isWorksheetFile && element.isInstanceOf[PsiComment] &&
+          (element.getText.startsWith(WorksheetFoldingBuilder.FIRST_LINE_PREFIX) ||
         element.getText.startsWith(WorksheetFoldingBuilder.LINE_PREFIX))) {
         val annotation: Annotation = holder.createInfoAnnotation(element.getTextRange, null)
         annotation.setTextAttributes(DefaultHighlighter.WORKSHEET)
