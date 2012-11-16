@@ -203,13 +203,14 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
   def isScriptFile: Boolean = isScriptFile(withCashing = true)
 
   def isScriptFile(withCashing: Boolean): Boolean = {
+    if (isWorksheetFile) return false
     if (!withCashing) return isScriptFileImpl
     CachesUtil.get(this, CachesUtil.IS_SCRIPT_FILE_KEY,
       new CachesUtil.MyProvider(this, (file: ScalaFileImpl) => file.isScriptFileImpl)(this))
   }
 
-  def isWorksheetFile(): Boolean = {
-    this.getVirtualFile.getExtension == ScalaFileType.WORKSHEET_EXTENSION
+  def isWorksheetFile: Boolean = {
+    this.getVirtualFile != null && this.getVirtualFile.getExtension == ScalaFileType.WORKSHEET_EXTENSION
   }
 
 
