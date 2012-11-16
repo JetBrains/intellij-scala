@@ -20,15 +20,13 @@
           <element id="module-output" name="scala-jps-plugin" />
         </element>
       </element>
-      <element id="directory" name="zinc">
-        <element id="file-copy" path="$PROJECT_DIR$/SDK/zinc/compiler-interface-sources.jar" />
-        <element id="file-copy" path="$PROJECT_DIR$/SDK/zinc/incremental-compiler.jar" />
-        <element id="file-copy" path="$PROJECT_DIR$/SDK/zinc/jline.jar" />
-        <element id="file-copy" path="$PROJECT_DIR$/SDK/zinc/nailgun.jar" />
-        <element id="file-copy" path="$PROJECT_DIR$/SDK/zinc/sbt-interface.jar" />
-        <element id="file-copy" path="$PROJECT_DIR$/SDK/zinc/scala-compiler.jar" />
-        <element id="file-copy" path="$PROJECT_DIR$/SDK/zinc/scala-library.jar" />
-        <element id="file-copy" path="$PROJECT_DIR$/SDK/zinc/zinc.jar" />
+      <element id="directory" name="sbt">
+        <element id="file-copy" path="$PROJECT_DIR$/SDK/sbt/compiler-interface-sources.jar" />
+        <element id="file-copy" path="$PROJECT_DIR$/SDK/sbt/incremental-compiler.jar" />
+        <element id="file-copy" path="$PROJECT_DIR$/SDK/sbt/jline.jar" />
+        <element id="file-copy" path="$PROJECT_DIR$/SDK/sbt/sbt-interface.jar" />
+        <element id="file-copy" path="$PROJECT_DIR$/SDK/sbt/scala-compiler.jar" />
+        <element id="file-copy" path="$PROJECT_DIR$/SDK/sbt/scala-library.jar" />
       </element>
     </root>
   </artifact>

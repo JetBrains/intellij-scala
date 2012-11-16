@@ -1,5 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <module type="JAVA_MODULE" version="4">
+  <component name="FacetManager">
+    <facet type="scala" name="Scala">
+      <configuration>
+        <option name="compilerLibraryLevel" value="Project" />
+        <option name="compilerLibraryName" value="scala-compiler-2.9" />
+      </configuration>
+    </facet>
+  </component>
   <component name="NewModuleRootManager" inherit-compiler-output="true">
     <exclude-output />
     <content url="file://$MODULE_DIR$">
@@ -8,6 +16,9 @@
     <orderEntry type="jdk" jdkName="1.6" jdkType="JavaSDK" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" scope="PROVIDED" name="idea-full" level="project" />
+    <orderEntry type="library" scope="PROVIDED" name="sbt" level="project" />
+    <orderEntry type="library" scope="PROVIDED" name="scala-library-2.9" level="project" />
+    <orderEntry type="library" scope="PROVIDED" name="scala-compiler-2.9" level="project" />
   </component>
 </module>
 
