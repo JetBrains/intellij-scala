@@ -1,0 +1,14 @@
+<component name="libraryTable">
+  <library name="sbt">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/SDK/sbt/incremental-compiler.jar!/" />
+      <root url="jar://$PROJECT_DIR$/SDK/sbt/jline.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="file://D:/dropbox/xsbt/interface/src/main/java" />
+      <root url="file://D:/dropbox/xsbt/compile" />
+      <root url="file://D:/dropbox/xsbt/util" />
+    </SOURCES>
+  </library>
+</component>

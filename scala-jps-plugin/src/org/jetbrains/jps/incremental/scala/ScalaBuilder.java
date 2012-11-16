@@ -1,53 +1,42 @@
 package org.jetbrains.jps.incremental.scala;
 
-import com.intellij.execution.process.BaseOSProcessHandler;
-import com.intellij.execution.process.ProcessAdapter;
-import com.intellij.execution.process.ProcessEvent;
-import com.intellij.openapi.util.Key;
 import com.intellij.openapi.util.io.FileUtil;
-import com.intellij.util.ArrayUtil;
+import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.util.PathUtil;
+import com.intellij.util.Processor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.jps.ModuleChunk;
+import org.jetbrains.jps.builders.BuildTarget;
 import org.jetbrains.jps.builders.ChunkBuildOutputConsumer;
 import org.jetbrains.jps.builders.DirtyFilesHolder;
-import org.jetbrains.jps.builders.FileProcessor;
 import org.jetbrains.jps.builders.java.JavaSourceRootDescriptor;
 import org.jetbrains.jps.incremental.*;
 import org.jetbrains.jps.incremental.messages.BuildMessage;
 import org.jetbrains.jps.incremental.messages.CompilerMessage;
+import org.jetbrains.jps.incremental.messages.ProgressMessage;
 import org.jetbrains.jps.incremental.scala.data.CompilationData;
 import org.jetbrains.jps.incremental.scala.data.JavaData;
-import org.jetbrains.jps.incremental.scala.data.ZincData;
-import org.jetbrains.jps.service.SharedThreadPool;
+import org.jetbrains.jps.incremental.scala.data.SbtData;
+import org.jetbrains.jps.model.module.JpsModule;
+import org.jetbrains.jps.model.module.JpsModuleSourceRoot;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.concurrent.Future;
-
-import static com.intellij.openapi.util.io.FileUtil.asyncDelete;
-import static com.intellij.openapi.util.text.StringUtil.join;
-import static org.jetbrains.jps.incremental.scala.Utilities.*;
+import java.util.*;
 
 /**
  * @author Pavel Fatin
  */
 public class ScalaBuilder extends ModuleLevelBuilder {
-  public static final String BUILDER_NAME = "scala";
-  public static final String BUILDER_DESCRIPTION = "Scala builder";
+  private static final String BUILDER_NAME = "scala";
+  private static final String BUILDER_DESCRIPTION = "Scala builder";
   private static Class RUNNER_CLASS = ClassRunner.class;
 
-  public static final String SCALA_EXTENSION = "scala";
+  private static final String SCALA_EXTENSION = "scala";
+  private static final String JAVA_EXTENSION = "java";
 
   protected ScalaBuilder() {
     super(BuilderCategory.TRANSLATOR);
-  }
-
-  private static boolean isScalaFile(String path) {
-    return path.endsWith(SCALA_EXTENSION);
   }
 
   @NotNull
@@ -63,7 +52,7 @@ public class ScalaBuilder extends ModuleLevelBuilder {
                         ChunkBuildOutputConsumer outputConsumer) throws ProjectBuildException, IOException {
     ExitCode exitCode;
     try {
-      exitCode = doBuild(context, chunk, dirtyFilesHolder);
+      exitCode = doBuild(context, chunk, dirtyFilesHolder, outputConsumer);
     } catch (ConfigurationException e) {
       CompilerMessage message = new CompilerMessage(BUILDER_NAME, BuildMessage.Kind.ERROR, e.getMessage());
       context.processMessage(message);
@@ -73,146 +62,69 @@ public class ScalaBuilder extends ModuleLevelBuilder {
   }
 
   private ExitCode doBuild(final CompileContext context, ModuleChunk chunk,
-                           DirtyFilesHolder<JavaSourceRootDescriptor, ModuleBuildTarget> dirtyFilesHolder) throws IOException {
-    List<File> filesToCompile = collectFilesToCompiler(dirtyFilesHolder);
+                           DirtyFilesHolder<JavaSourceRootDescriptor, ModuleBuildTarget> dirtyFilesHolder,
+                           ChunkBuildOutputConsumer outputConsumer) throws IOException {
+    // Collect all Scala and Java files in chunk modules
+    context.processMessage(new ProgressMessage("Searching for compilable files"));
+    Map<File, BuildTarget> filesToCompile = collectCompilableFiles(chunk);
 
     if (filesToCompile.isEmpty()) {
       return ExitCode.NOTHING_DONE;
     }
 
+    context.processMessage(new ProgressMessage("Reading compilation settings"));
+
     // Find a path to this jar
     File thisJar = new File(PathUtil.getJarPathForClass(RUNNER_CLASS));
 
-    // Find a path to bundled Zinc jars (<plugin dir>/../zinc)
-    File zincHome = new File(thisJar.getParentFile().getParentFile(), "zinc");
+    // Find a path to bundled SBT jars (<plugin dir>/../sbt)
+    File sbtHome = new File(thisJar.getParentFile().getParentFile(), "sbt");
 
     // Compute all configuration data
-    ZincData zincData = ZincData.create(zincHome);
+    SbtData sbtData = SbtData.create(sbtHome);
     JavaData javaData = JavaData.create(chunk);
     CompilationData compilationData = CompilationData.create(context, chunk);
 
-    List<String> zincArguments = new ArrayList<String>();
+    FileHandler fileHandler = new ConsumerFileHander(outputConsumer, filesToCompile);
 
-    // Add Zinc arguments
-    zincArguments.addAll(createZincArguments(zincData, javaData, compilationData));
+    Compiler compiler = new Compiler(BUILDER_NAME, context, fileHandler);
 
-    // Add sources
-    zincArguments.addAll(toCanonicalPaths(filesToCompile));
+    Set<File> sources = filesToCompile.keySet();
 
-    // Create a temp file for the Zinc arguments
-    File tempFile = FileUtil.createTempFile("ideaZincArguments", ".txt", true);
+    compiler.compile(sources.toArray(new File[sources.size()]), sbtData, javaData, compilationData);
 
-    // Save the compiler arguments to the temp file
-    writeStringTo(tempFile, join(zincArguments, "\n"));
-
-    List<File> vmClasspath = new ArrayList<File>();
-
-    // Add this jar (which contatins a runner class) to the classpath
-    vmClasspath.add(thisJar);
-
-    // Add Zinc jars to the classpath
-    vmClasspath.addAll(zincData.getClasspath());
-
-    // Create a command line
-    List<String> commandLine = createCommandLine(javaData, vmClasspath, "com.typesafe.zinc.Main", tempFile);
-
-    // Run the command
-    exec(commandLine, context);
-
-    // Delete the temp file
-    asyncDelete(tempFile);
+    context.processMessage(new ProgressMessage("Compilation completed", 1.0F));
 
     return ExitCode.OK;
   }
 
-  private static List<String> createCommandLine(JavaData javaData, Collection<File> classpath, String mainClass, File inputFile) {
-    List<String> commands = new ArrayList<String>();
+  private static Map<File, BuildTarget> collectCompilableFiles(ModuleChunk chunk) {
+    final Map<File, BuildTarget> result = new HashMap<File, BuildTarget>();
 
-    commands.add(toCanonicalPath(javaData.getExecutable()));
+    for (final ModuleBuildTarget target : chunk.getTargets()) {
+      JpsModule module = target.getModule();
 
-    commands.add("-Xmx384m");
+      for (JpsModuleSourceRoot root : module.getSourceRoots()) {
+        FileUtil.processFilesRecursively(root.getFile(), new Processor<File>() {
+          public boolean process(File file) {
+            String path = file.getPath();
+            if (isScalaFile(path) || isJavaFile(path)) {
+              result.put(file, target);
+            }
+            return true;
+          }
+        });
+      }
+    }
 
-    commands.add("-cp");
-    commands.add(join(classpath, File.pathSeparator));
-
-    commands.add("-Dfile.encoding=" + System.getProperty("file.encoding"));
-
-    commands.add(RUNNER_CLASS.getName());
-
-    commands.add(mainClass);
-
-    commands.add(toCanonicalPath(inputFile));
-
-    return commands;
+    return result;
   }
 
-  private static List<String> createZincArguments(ZincData zincData, JavaData javaData, CompilationData compilationData) {
-    List<String> args = new ArrayList<String>();
-
-    args.add("-debug");
-
-    args.add("-sbt-interface");
-    args.add(toCanonicalPath(zincData.getSbtInterface()));
-
-    args.add("-compiler-interface");
-    args.add(toCanonicalPath(zincData.getCompilerSources()));
-
-    args.add("-java-home");
-    args.add(toCanonicalPath(javaData.getHome()));
-
-    args.add("-scala-path");
-    args.add(join(toCanonicalPaths(compilationData.getScalaCompilerClasspath()), File.pathSeparator));
-
-    args.add("-d");
-    args.add(toCanonicalPath(compilationData.getOutputDirectory()));
-
-    args.add("-cp");
-    args.add(join(toCanonicalPaths(compilationData.getCompilationClasspath()), File.pathSeparator));
-
-    return args;
+  private static boolean isScalaFile(String path) {
+    return path.endsWith(SCALA_EXTENSION);
   }
 
-  private void exec(List<String> commands, final MessageHandler messageHandler) throws IOException {
-    Process process = Runtime.getRuntime().exec(ArrayUtil.toStringArray(commands));
-
-    BaseOSProcessHandler handler = new BaseOSProcessHandler(process, null, null) {
-      @Override
-      protected Future<?> executeOnPooledThread(Runnable task) {
-        return SharedThreadPool.getInstance().executeOnPooledThread(task);
-      }
-    };
-
-    final OutputParser parser = new OutputParser(messageHandler, BUILDER_NAME);
-
-    handler.addProcessListener(new ProcessAdapter() {
-      @Override
-      public void onTextAvailable(ProcessEvent event, Key outputType) {
-        messageHandler.processMessage(new CompilerMessage(BUILDER_NAME, BuildMessage.Kind.WARNING, event.getText()));
-//        parser.processMessageLine(event.getText());
-      }
-
-      @Override
-      public void processTerminated(ProcessEvent event) {
-//        parser.finishProcessing();
-      }
-    });
-
-    handler.startNotify();
-    handler.waitFor();
-  }
-
-  private List<File> collectFilesToCompiler(DirtyFilesHolder<JavaSourceRootDescriptor, ModuleBuildTarget> dirtyFilesHolder) throws IOException {
-    final List<File> filesToCompile = new ArrayList<File>();
-
-    dirtyFilesHolder.processDirtyFiles(new FileProcessor<JavaSourceRootDescriptor, ModuleBuildTarget>() {
-      public boolean apply(ModuleBuildTarget target, File file, JavaSourceRootDescriptor sourceRoot) throws IOException {
-        if (isScalaFile(file.getPath())) {
-          filesToCompile.add(file);
-        }
-        return true;
-      }
-    });
-
-    return filesToCompile;
+  private static boolean isJavaFile(String path) {
+    return path.endsWith(JAVA_EXTENSION);
   }
 }

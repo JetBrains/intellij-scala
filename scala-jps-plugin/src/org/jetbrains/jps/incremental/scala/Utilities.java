@@ -2,7 +2,9 @@ package org.jetbrains.jps.incremental.scala;
 
 import com.intellij.openapi.util.Pair;
 import com.intellij.openapi.util.io.FileUtil;
+import com.intellij.openapi.util.text.StringUtil;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.jps.ModuleChunk;
 import org.jetbrains.jps.model.module.JpsModule;
 
 import java.io.*;
@@ -31,6 +33,10 @@ public class Utilities {
       result.add(module.getName());
     }
     return result;
+  }
+
+  public static String moduleNames(ModuleChunk chunk) {
+    return StringUtil.join(toNames(chunk.getModules()), ", ");
   }
 
   public static List<String> toCanonicalPaths(Collection<File> files) {
