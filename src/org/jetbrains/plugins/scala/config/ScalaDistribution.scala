@@ -9,6 +9,8 @@ import com.intellij.openapi.roots.{ModifiableRootModel, JavadocOrderRootType, Or
  */
 
 object ScalaDistribution {
+  val VersionProperty = "version.number"
+
   def findHome: Option[String] = {
     Option(System.getenv("SCALA_HOME")) orElse {
       Option(System.getenv("PATH")).flatMap {
@@ -20,7 +22,6 @@ object ScalaDistribution {
       optional(new File("""C:\Program Files\scala\""")).map(_.getPath)
     }
   }
-
   def from(home: File): ScalaDistribution = {
     val scala210 = (home / "lib" / "scala-reflect.jar").exists
     if (scala210) new Scala210Distribution(home) else new Scala28Distribution(home)
@@ -28,8 +29,8 @@ object ScalaDistribution {
 }
 
 abstract class ScalaDistribution(val home: File) {
-  protected case class Pack(classes: String, sources: String, properties: String = "")
 
+  protected case class Pack(classes: String, sources: String, properties: String = "")
   protected def compilerClasses: Seq[File]
   protected def classes: Seq[File]
   protected def sources: Seq[File]
@@ -37,15 +38,14 @@ abstract class ScalaDistribution(val home: File) {
   protected def compilerFile: Option[File]
   protected def libraryFile: Option[File]
   protected def compilerProperties: String
+
   protected def libraryProperties: String
 
-  private val VersionProperty = "version.number"
-
   private def compilerVersionOption: Option[String] =
-    compilerFile.flatMap(readProperty(_, compilerProperties, VersionProperty))
+    compilerFile.flatMap(readProperty(_, compilerProperties, ScalaDistribution.VersionProperty))
 
   private def libraryVersionOption: Option[String] =
-    libraryFile.flatMap(readProperty(_, libraryProperties, VersionProperty))
+    libraryFile.flatMap(readProperty(_, libraryProperties, ScalaDistribution.VersionProperty))
 
   def hasDocs = docs.exists
 

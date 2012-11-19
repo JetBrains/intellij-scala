@@ -1080,6 +1080,9 @@ object ScalaPsiElementFactory extends JVMElementFactory {
             get.getNode.getChildren(null)(1).getChildren(null)(2).getPsi
   }
 
+  def createDocTag(text: String, manager: PsiManager): PsiElement = 
+    createScalaFile(s"/**$text*/ class a", manager).typeDefinitions(0).docComment.get.getNode.getChildren(null)(1).getPsi
+  
   def createDocTagName(name: String, manager: PsiManager): PsiElement = {
     createScalaFile("/**@" + name + " qwerty */", manager).typeDefinitions(0).docComment.
             get.getNode.getChildren(null)(1).getChildren(null)(0).getPsi

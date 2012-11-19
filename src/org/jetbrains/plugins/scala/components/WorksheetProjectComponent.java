@@ -41,7 +41,7 @@ public class WorksheetProjectComponent extends AbstractProjectComponent {
   }
 
   public void updateNotifications(final VirtualFile file) {
-    if (!file.getExtension().equals(ScalaFileType.WORKSHEET_EXTENSION)) return;
+    if (!ScalaFileType.WORKSHEET_EXTENSION.equals(file.getExtension())) return;
     ApplicationManager.getApplication().runReadAction(new Runnable() {
       public void run() {
         if (myProject.isDisposed()) return;

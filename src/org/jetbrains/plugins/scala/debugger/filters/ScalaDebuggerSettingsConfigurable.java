@@ -22,6 +22,7 @@ public class ScalaDebuggerSettingsConfigurable implements Configurable {
   private JLabel endIndexLabel;
   private JCheckBox friendlyDisplayOfScalaCheckBox;
   private JCheckBox doNotExpandStreamsCheckBox;
+  private JCheckBox friendlyDisplayOfObjectRefCheckBox;
   private boolean isModified = false;
   private final ScalaDebuggerSettings mySettings;
 
@@ -30,6 +31,7 @@ public class ScalaDebuggerSettingsConfigurable implements Configurable {
     final Boolean flag = settings.DEBUG_DISABLE_SPECIFIC_SCALA_METHODS;
     myIgnoreScalaMethods.setSelected(flag == null || flag.booleanValue());
     friendlyDisplayOfScalaCheckBox.setSelected(settings.FRIENDLY_COLLECTION_DISPLAY_ENABLED);
+    friendlyDisplayOfObjectRefCheckBox.setSelected(settings.FRIENDLY_OBJECT_REF_DISPLAY_ENABLED);
     friendlyDisplayOfScalaCheckBox.addActionListener(new ActionListener() {
       @Override
       public void actionPerformed(ActionEvent e) {
@@ -67,13 +69,15 @@ public class ScalaDebuggerSettingsConfigurable implements Configurable {
   public boolean isModified() {
     return mySettings.COLLECTION_START_INDEX != myStartIndexSpinner.getValue() || 
         mySettings.COLLECTION_END_INDEX != myEndIndexSpinner.getValue() || 
-        mySettings.FRIENDLY_COLLECTION_DISPLAY_ENABLED != friendlyDisplayOfScalaCheckBox.isEnabled() || 
+        mySettings.FRIENDLY_COLLECTION_DISPLAY_ENABLED != friendlyDisplayOfScalaCheckBox.isEnabled() ||
+        mySettings.FRIENDLY_OBJECT_REF_DISPLAY_ENABLED != friendlyDisplayOfObjectRefCheckBox.isEnabled() ||
         mySettings.DEBUG_DISABLE_SPECIFIC_SCALA_METHODS != myIgnoreScalaMethods.isEnabled() || 
         mySettings.DO_NOT_DISPLAY_STREAMS != doNotExpandStreamsCheckBox.isEnabled();
   }
 
   public void apply() throws ConfigurationException {
     mySettings.FRIENDLY_COLLECTION_DISPLAY_ENABLED = friendlyDisplayOfScalaCheckBox.isEnabled();
+    mySettings.FRIENDLY_OBJECT_REF_DISPLAY_ENABLED = friendlyDisplayOfObjectRefCheckBox.isEnabled();
     mySettings.DEBUG_DISABLE_SPECIFIC_SCALA_METHODS = myIgnoreScalaMethods.isEnabled();
     mySettings.COLLECTION_START_INDEX = (Integer)myStartIndexSpinner.getValue();
     mySettings.COLLECTION_END_INDEX = (Integer)myEndIndexSpinner.getValue();

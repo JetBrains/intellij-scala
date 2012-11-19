@@ -35,11 +35,8 @@ class ScalaConsoleRunConfiguration(val project: Project, val configurationFactor
   val MAIN_CLASS = "org.jetbrains.plugins.scala.compiler.rt.ConsoleRunner"
   private var javaOptions = "-Djline.terminal=NONE"
   private var consoleArgs = ""
-  private var workingDirectory = {
-    val base = getProject.getBaseDir
-    if (base != null) base.getPath
-    else ""
-  }
+  private var workingDirectory = Option(getProject.getBaseDir) map (_.getPath) getOrElse ""
+  
 
   def getJavaOptions = javaOptions
 
