@@ -17,7 +17,7 @@ import java.util.Properties
 /**
  * @author Pavel Fatin
  */
-class Compiler(compilerName: String, messageHandler: MessageHandler, fileHandler: FileHandler) {
+class Compiler(compilerName: String, messageHandler: MessageHandler, fileHandler: FileHandler, progress: CompileProgress) {
   private val logger = new MessageHandlerLogger(compilerName, messageHandler)
   private val callback = new Analyzer(compilerName, messageHandler, fileHandler)
 
@@ -52,16 +52,6 @@ class Compiler(compilerName: String, messageHandler: MessageHandler, fileHandler
 
     val reporter = new LoggerReporter(Int.MaxValue, logger)
 
-    val progress = new CompileProgress {
-      def startUnit(phase: String, unitPath: String) {
-        messageHandler.processMessage(new ProgressMessage("Phase " + phase + " on " + unitPath))
-      }
-
-      def advance(current: Int, total: Int) = {
-        messageHandler.processMessage(new ProgressMessage("", current.toFloat / total.toFloat))
-        true
-      }
-    }
     compiler.compile1(sources, compilationClasspath, compileSetup, Some(progress), analysisStore, Function.const(None), Locate.definesClass,
       scalac, javac, reporter, false, CompilerCache.fresh, Some(callback))(logger)
   }
