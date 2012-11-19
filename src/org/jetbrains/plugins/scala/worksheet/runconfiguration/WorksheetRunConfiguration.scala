@@ -38,6 +38,7 @@ import lang.scaladoc.psi.api.ScDocComment
 import lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody}
 import collection.mutable
 import com.intellij.execution.impl.ConsoleViewImpl
+import java.awt.event.{KeyEvent, KeyListener}
 
 /**
  * @author Ksenia.Sautina
@@ -320,6 +321,15 @@ class WorksheetRunConfiguration(val project: Project, val configurationFactory: 
         }
 
         processHandler.addProcessListener(myProcessListener)
+
+        editor.getContentComponent.addKeyListener(new KeyListener(){
+          override def keyReleased(e: KeyEvent) {}
+          override def keyTyped(e: KeyEvent) {}
+          override def keyPressed(e: KeyEvent){
+            endProcess(processHandler)
+            processHandler.removeProcessListener(myProcessListener)
+          }
+        })
 
         val res = new DefaultExecutionResult(worksheetView, processHandler,
           createActions(worksheetView, processHandler, executor): _*)
