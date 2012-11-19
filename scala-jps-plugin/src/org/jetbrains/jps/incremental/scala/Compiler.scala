@@ -22,21 +22,19 @@ class Compiler(compilerName: String, messageHandler: MessageHandler, fileHandler
   private val logger = new MessageHandlerLogger(compilerName, messageHandler)
   private val callback = new Analyzer(compilerName, messageHandler, fileHandler)
 
-  def compile(sources: Array[File], sbtData: SbtData, javaData: JavaData, compilationData: CompilationData) {
+  def compile(sources: Array[File], sbtData: SbtData, javaData: JavaData, compilationData: CompilationData, cacheFile: File) {
     val compilerClasspath = compilationData.getScalaCompilerClasspath.asScala.toSeq
 
     val scalaInstance = Compiler.createScalaInstance(compilerClasspath)
 
     val compilationClasspath = compilationData.getCompilationClasspath.asScala.toSeq
 
-    val cacheFile = new File(compilationData.getOutputDirectory, "cache.dat")
-
     val compileOptions = new CompileOptions(Nil, Nil)
     val compileSetup = new CompileSetup(compilationData.getOutputDirectory, compileOptions, scalaInstance.version, CompileOrder.ScalaThenJava)
     val analysisStore = Compiler.createAnalysisStore(cacheFile)
 
     val scalac = {
-      val compiledIntefaceJar = Compiler.getOrCompileInterfaceJar(new File("d:/zinc/interface"),
+      val compiledIntefaceJar = Compiler.getOrCompileInterfaceJar(sbtData.getCompilerInterfacesHome,
         sbtData.getCompilerInterfaceSources, sbtData.getSbtInterface, scalaInstance, logger, messageHandler)
 
       IC.newScalaCompiler(scalaInstance, compiledIntefaceJar, ClasspathOptions.boot, logger)
@@ -82,17 +80,16 @@ object Compiler {
     AnalysisStore.sync(AnalysisStore.cached(store))
   }
 
-  private def getOrCompileInterfaceJar(interfacesHome: File, sourceJar: File, interfaceJar: File, scalaInstance: ScalaInstance,
+  private def getOrCompileInterfaceJar(home: File, sourceJar: File, interfaceJar: File, scalaInstance: ScalaInstance,
                                        log: Logger, messageHandler: MessageHandler): File = {
     val scalaVersion = scalaInstance.actualVersion
     val interfaceId = CompilerInterfaceId + "-" + scalaVersion + "-" + JavaClassVersion
-    val dir = interfacesHome / interfaceId
-    val targetJar = dir / (CompilerInterfaceId + ".jar")
+    val targetJar = new File(home, interfaceId + ".jar")
 
     if (!targetJar.exists) {
       messageHandler.processMessage(new ProgressMessage("Compiling Scalac " + scalaVersion + " interface"))
-      dir.mkdirs()
-      IC.compileInterfaceJar(CompilerInterfaceId, sourceJar, targetJar, interfaceJar, scalaInstance, log)
+      home.mkdirs()
+      IC.compileInterfaceJar(interfaceId, sourceJar, targetJar, interfaceJar, scalaInstance, log)
     }
 
     targetJar
