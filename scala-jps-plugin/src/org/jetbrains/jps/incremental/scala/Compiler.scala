@@ -4,7 +4,6 @@ import data.{CompilationData, JavaData, SbtData}
 import org.jetbrains.jps.incremental.MessageHandler
 import java.io.File
 import sbt._
-import collection.JavaConverters._
 import inc.{AnalysisFormats, FileBasedStore, AnalysisStore, Locate}
 import java.net.URLClassLoader
 import sbt.Path._
@@ -23,14 +22,18 @@ class Compiler(compilerName: String, messageHandler: MessageHandler, fileHandler
   private val callback = new Analyzer(compilerName, messageHandler, fileHandler)
 
   def compile(sources: Array[File], sbtData: SbtData, javaData: JavaData, compilationData: CompilationData, cacheFile: File) {
-    val compilerClasspath = compilationData.getScalaCompilerClasspath.asScala.toSeq
+    val scalaInstance = {
+      val compilerClasspath = compilationData.getScalaCompilerClasspath
+      Compiler.createScalaInstance(compilerClasspath)
+    }
 
-    val scalaInstance = Compiler.createScalaInstance(compilerClasspath)
+    val compilationClasspath = compilationData.getCompilationClasspath
 
-    val compilationClasspath = compilationData.getCompilationClasspath.asScala.toSeq
+    val compileSetup = {
+      val compileOptions = new CompileOptions(Nil, Nil)
+      new CompileSetup(compilationData.getOutputDirectory, compileOptions, scalaInstance.version, CompileOrder.ScalaThenJava)
+    }
 
-    val compileOptions = new CompileOptions(Nil, Nil)
-    val compileSetup = new CompileSetup(compilationData.getOutputDirectory, compileOptions, scalaInstance.version, CompileOrder.ScalaThenJava)
     val analysisStore = Compiler.createAnalysisStore(cacheFile)
 
     val scalac = {
@@ -43,8 +46,6 @@ class Compiler(compilerName: String, messageHandler: MessageHandler, fileHandler
     val javac = AggressiveCompile.directOrFork(scalaInstance, ClasspathOptions.javac(compiler = false), Some(javaData.getHome))
 
     val compiler = new AggressiveCompile(cacheFile)
-
-    //    val reporter = new LoggerReporter(Int.MaxValue, logger)
 
     messageHandler.processMessage(new ProgressMessage("Compiling..."))
 
@@ -96,14 +97,14 @@ object Compiler {
   }
 
   private def readProperty(classLoader: ClassLoader, resource: String, name: String): Option[String] = {
-    val stream = classLoader.getResourceAsStream(resource)
-
-    try {
-      val properties = new Properties()
-      properties.load(stream)
-      Option(properties.getProperty(name))
-    } finally {
-      stream.close()
+    Option(classLoader.getResourceAsStream(resource)).flatMap { stream =>
+      try {
+        val properties = new Properties()
+        properties.load(stream)
+        Option(properties.getProperty(name))
+      } finally {
+        stream.close()
+      }
     }
   }
 }
