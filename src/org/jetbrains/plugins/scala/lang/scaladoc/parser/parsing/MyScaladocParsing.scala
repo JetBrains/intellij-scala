@@ -8,8 +8,7 @@ import com.intellij.lang.PsiBuilder
 import ScalaDocElementTypes._
 import lexer.docsyntax.ScaladocSyntaxElementType
 import lexer.ScalaDocTokenType._
-import com.intellij.psi.tree.{TokenSet, IElementType}
-import com.intellij.lang.PsiBuilder.Marker
+import com.intellij.psi.tree.IElementType
 import collection.immutable.HashMap
 import lang.parser.parsing.types.StableId
 import lang.parser.parsing.builder.ScalaPsiBuilderImpl
@@ -311,11 +310,19 @@ object MyScaladocParsing {
   val EXAMPLE_TAG = "@example"
   val DEPRECATED_TAG = "@deprecated"
   val MIGRATION_TAG = "@migration"
+  
+  val GROUP_TAG = "@group"
+  val GROUP_NAME_TAG = "@groupname"
+  val GROUP_DESC_TAG = "@groupdesc"
+  val GROUP_PRIO_TAG = "@groupprio"
+  val CONSTRUCTOR_TAG ="@constructor"
+  
 
   val escapeSequencesForWiki = HashMap[String, String]("`" -> "&#96;", "^" -> "&#94;", "__" -> "&#95;&#95;",
     "'''" -> "&#39;&#39;&#39;", "''" -> "&#39;&#39;", ",," -> "&#44;&#44;", "[[" -> "&#91;&#91;", "=" -> "&#61;")
 
   val allTags = Set(PARAM_TAG, TYPE_PARAM_TAG, THROWS_TAG, SEE_TAG, AUTHOR_TAG, NOTE_TAG, RETURN_TAG, SINCE_TAG,
-    DEFINE_TAG, VERSION_TAG, TODO_TAG, USECASE_TAG, EXAMPLE_TAG, DEPRECATED_TAG, MIGRATION_TAG)
+    DEFINE_TAG, VERSION_TAG, TODO_TAG, USECASE_TAG, EXAMPLE_TAG, DEPRECATED_TAG, MIGRATION_TAG, GROUP_TAG, 
+    GROUP_NAME_TAG, GROUP_DESC_TAG, GROUP_PRIO_TAG, CONSTRUCTOR_TAG)
   val tagsWithParameters = Set(PARAM_TAG, TYPE_PARAM_TAG, THROWS_TAG)
 }

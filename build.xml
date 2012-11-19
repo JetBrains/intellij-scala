@@ -139,6 +139,11 @@
         <exclude name="intentionDescriptions/*"/>
       </fileset>
     </copy>
+    <copy todir="${main.dest}">
+      <fileset dir="${base.dir}/src">
+        <include name="**/scalaDownloadable.xml"/>
+      </fileset>
+    </copy>
 
     <!-- Compile runners -->
 

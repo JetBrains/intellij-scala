@@ -29,21 +29,17 @@ object Attribute {
       }
     }*/
     builder.getTokenType match {
-      case XmlTokenType.XML_NAME => {
-        builder.advanceLexer()
-      }
-      case _ => {
+      case XmlTokenType.XML_NAME => builder.advanceLexer()
+      case _ => 
         attributeMarker.rollbackTo()
         return false
-      }
     }
     builder.getTokenType match {
       case XmlTokenType.XML_EQ => builder.advanceLexer()
-      case _ => {
+      case _ => 
         builder error ErrMsg("xml.eq.expected")
         attributeMarker.done(ScalaElementTypes.XML_ATTRIBUTE)
         return true
-      }
     }
     if (!AttrValue.parse(builder)) builder error ErrMsg("xml.attribute.value.expected")
     attributeMarker.done(ScalaElementTypes.XML_ATTRIBUTE)

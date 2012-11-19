@@ -8,12 +8,48 @@ import com.intellij.openapi.roots.libraries.Library.ModifiableModel
 import com.intellij.openapi.roots._
 import com.intellij.openapi.roots.libraries.{Library, LibraryTable}
 import org.jetbrains.plugins.scala.extensions._
+import collection.mutable
+import config.FileAPI._
 
 /**
  * Pavel.Fatin, 04.08.2010
  */
 
 object Libraries {
+  /**
+   * Returns only libraries that might be compiler and/or standard library
+   * 
+   * @param allLibraries libraries to filter
+   * @return (Suitable compiler libraries, Suitable standard libraries) 
+   */
+  def filterScalaLikeLibraries(allLibraries: Array[Library]): (Array[Library], Array[Library]) = {
+    val compilerLibraries = mutable.ArrayBuilder.make[Library]()
+    val standardLibraries = mutable.ArrayBuilder.make[Library]()
+    
+    allLibraries foreach { library => 
+      new CompilerLibraryData(library).problem match {
+        case None => compilerLibraries += library
+        case _ => 
+      } 
+      
+      new StandardLibraryData(library).problem match {
+        case None => standardLibraries += library
+        case _ => 
+      }
+    }
+    
+    (compilerLibraries.result(), standardLibraries.result())
+  }
+  
+  def extractLibraryVersion(library: Library, jarName: String, properties: String): String = {
+    library getFiles OrderRootType.CLASSES find (_.getName == jarName) map {
+      case jarFile =>
+        val path = jarFile.getCanonicalPath
+        readProperty(new java.io.File(path stripSuffix "!/" stripSuffix "!"), properties,
+          ScalaDistribution.VersionProperty).map(_.replaceFirst("\\.final", "")).mkString("[","","]")  
+    } getOrElse "[?]" 
+  }
+  
   def findBy(name: String, level: LibraryLevel, project: Project): Option[CompilerLibraryData] = {
     findBy(LibraryId(name, level), project).map(new CompilerLibraryData(_))
   }
