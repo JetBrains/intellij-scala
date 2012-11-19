@@ -84,13 +84,15 @@ public class ScalaBuilder extends ModuleLevelBuilder {
     JavaData javaData = JavaData.create(chunk);
     CompilationData compilationData = CompilationData.create(context, chunk);
 
+    // Create event handlers
     FileHandler fileHandler = new ConsumerFileHander(outputConsumer, filesToCompile);
+    ProgressHandler progressHandler = new ProgressHandler(context);
 
     // Get a file for build cache
     BuildDataPaths paths = context.getProjectDescriptor().dataManager.getDataPaths();
     File cacheFile = new File(paths.getTargetDataRoot(chunk.representativeTarget()), "cache.dat");
 
-    Compiler compiler = new Compiler(BUILDER_NAME, context, fileHandler);
+    Compiler compiler = new Compiler(BUILDER_NAME, context, fileHandler, progressHandler);
 
     Set<File> sources = filesToCompile.keySet();
 
