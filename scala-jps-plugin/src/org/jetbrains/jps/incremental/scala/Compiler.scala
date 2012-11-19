@@ -7,8 +7,8 @@ import sbt._
 import inc.{AnalysisFormats, FileBasedStore, AnalysisStore, Locate}
 import java.net.URLClassLoader
 import sbt.Path._
-import compiler.{CompilerCache, AggressiveCompile, IC}
-import xsbti.compile.CompileOrder
+import compiler.{CompileOutput, CompilerCache, AggressiveCompile, IC}
+import xsbti.compile.{CompileProgress, CompileOrder}
 import org.jetbrains.jps.incremental.messages.ProgressMessage
 import xsbti.Logger
 import scala.Some
@@ -31,7 +31,8 @@ class Compiler(compilerName: String, messageHandler: MessageHandler, fileHandler
 
     val compileSetup = {
       val compileOptions = new CompileOptions(Nil, Nil)
-      new CompileSetup(compilationData.getOutputDirectory, compileOptions, scalaInstance.version, CompileOrder.ScalaThenJava)
+      val output = CompileOutput(compilationData.getOutputDirectory)
+      new CompileSetup(output, compileOptions, scalaInstance.version, CompileOrder.ScalaThenJava)
     }
 
     val analysisStore = Compiler.createAnalysisStore(cacheFile)
@@ -49,8 +50,20 @@ class Compiler(compilerName: String, messageHandler: MessageHandler, fileHandler
 
     messageHandler.processMessage(new ProgressMessage("Compiling..."))
 
-    compiler.compile1(sources, compilationClasspath, compileSetup, analysisStore, Function.const(None), Locate.definesClass,
-      scalac, javac, 100, false, CompilerCache.fresh, callback)(logger)
+    val reporter = new LoggerReporter(Int.MaxValue, logger)
+
+    val progress = new CompileProgress {
+      def startUnit(phase: String, unitPath: String) {
+        messageHandler.processMessage(new ProgressMessage("Phase " + phase + " on " + unitPath))
+      }
+
+      def advance(current: Int, total: Int) = {
+        messageHandler.processMessage(new ProgressMessage("", current.toFloat / total.toFloat))
+        true
+      }
+    }
+    compiler.compile1(sources, compilationClasspath, compileSetup, Some(progress), analysisStore, Function.const(None), Locate.definesClass,
+      scalac, javac, reporter, false, CompilerCache.fresh, Some(callback))(logger)
   }
 }
 

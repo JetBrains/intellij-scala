@@ -30,7 +30,6 @@ import java.util.*;
 public class ScalaBuilder extends ModuleLevelBuilder {
   private static final String BUILDER_NAME = "scala";
   private static final String BUILDER_DESCRIPTION = "Scala builder";
-  private static Class RUNNER_CLASS = ClassRunner.class;
 
   private static final String SCALA_EXTENSION = "scala";
   private static final String JAVA_EXTENSION = "java";
@@ -75,7 +74,7 @@ public class ScalaBuilder extends ModuleLevelBuilder {
     context.processMessage(new ProgressMessage("Reading compilation settings"));
 
     // Find a path to this jar
-    File thisJar = new File(PathUtil.getJarPathForClass(RUNNER_CLASS));
+    File thisJar = new File(PathUtil.getJarPathForClass(getClass()));
 
     // Find a path to bundled SBT jars (<plugin dir>/../sbt)
     File sbtHome = new File(thisJar.getParentFile().getParentFile(), "sbt");
