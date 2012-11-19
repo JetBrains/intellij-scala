@@ -20,19 +20,19 @@ import java.util.Collection;
  * @author Pavel Fatin
  */
 public class CompilationData {
-  private Collection<File> myScalaCompilerClasspath;
+  private File[] myScalaCompilerClasspath;
   private File myOutputDirectory;
-  private Collection<File> myCompilationClasspath;
+  private File[] myCompilationClasspath;
 
-  private CompilationData(Collection<File> scalaCompilerClasspath,
+  private CompilationData(File[] scalaCompilerClasspath,
                           File outputDirectory,
-                          Collection<File> compilationClasspath) {
+                          File[] compilationClasspath) {
     myScalaCompilerClasspath = scalaCompilerClasspath;
     myOutputDirectory = outputDirectory;
     myCompilationClasspath = compilationClasspath;
   }
 
-  public Collection<File> getScalaCompilerClasspath() {
+  public File[] getScalaCompilerClasspath() {
     return myScalaCompilerClasspath;
   }
 
@@ -40,7 +40,7 @@ public class CompilationData {
     return myOutputDirectory;
   }
 
-  public Collection<File> getCompilationClasspath() {
+  public File[] getCompilationClasspath() {
     return myCompilationClasspath;
   }
 
@@ -69,7 +69,8 @@ public class CompilationData {
     Collection<File> chunkClasspath = context.getProjectPaths()
         .getCompilationClasspathFiles(chunk, chunk.containsTests(), false, false);
 
-    return new CompilationData(compilerClasspath, outputDirectory, chunkClasspath);
+    return new CompilationData(compilerClasspath.toArray(new File[compilerClasspath.size()]),
+        outputDirectory, chunkClasspath.toArray(new File[chunkClasspath.size()]));
   }
 
   private static JpsLibrary getCompilerLibraryIn(JpsModule module, JpsModel model) {
