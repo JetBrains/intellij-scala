@@ -1,5 +1,6 @@
 package org.jetbrains.jps.incremental.scala.data;
 
+import org.jetbrains.jps.incremental.Utils;
 import org.jetbrains.jps.incremental.scala.ConfigurationException;
 
 import java.io.File;
@@ -14,10 +15,12 @@ import static org.jetbrains.jps.incremental.scala.Utilities.findByName;
 public class SbtData {
   private File mySbtInterface;
   private File myCompilerInterfaceSources;
+  private File myCompilerInterfacesHome;
 
-  private SbtData(File sbtInterface, File compilerInterfaceSources) {
+  private SbtData(File sbtInterface, File compilerInterfaceSources, File compilerInterfacesHome) {
     mySbtInterface = sbtInterface;
     myCompilerInterfaceSources = compilerInterfaceSources;
+    myCompilerInterfacesHome = compilerInterfacesHome;
   }
 
   public File getSbtInterface() {
@@ -26,6 +29,10 @@ public class SbtData {
 
   public File getCompilerInterfaceSources() {
     return myCompilerInterfaceSources;
+  }
+
+  public File getCompilerInterfacesHome() {
+    return myCompilerInterfacesHome;
   }
 
   public static SbtData create(File home) {
@@ -51,6 +58,9 @@ public class SbtData {
       throw new ConfigurationException("No compiler-interface-sources.jar found");
     }
 
-    return new SbtData(sbtInterface, compilerSources);
+    // Get a directory for Scala compiler interfaces
+    File interfacesHome = new File(Utils.getSystemRoot(), "scala-compiler-interfaces");
+
+    return new SbtData(sbtInterface, compilerSources, interfacesHome);
   }
 }
