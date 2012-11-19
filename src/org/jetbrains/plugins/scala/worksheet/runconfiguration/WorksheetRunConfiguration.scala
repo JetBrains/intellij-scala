@@ -50,6 +50,8 @@ class WorksheetRunConfiguration(val project: Project, val configurationFactory: 
   val CLASSPATH = "-Denv.classpath=\"%CLASSPATH%\""
   val EMACS = "-Denv.emacs=\"%EMACS%\""
   val MAIN_CLASS = "org.jetbrains.plugins.scala.worksheet.WorksheetRunner"
+  val MAX_RESULTS_COUNT = 100
+  val END_MESSAGE = "Output exceeds cutoff limit."
 
   val ContinueString = "     | "
   val PromptString   = "scala> "
@@ -90,17 +92,14 @@ class WorksheetRunConfiguration(val project: Project, val configurationFactory: 
     var isFirstLine = true
 
     def printResults(s: String, contentType: ConsoleViewContentType, editor: Editor) {
-      if (ConsoleViewContentType.NORMAL_OUTPUT == contentType && editor != null &&
-        s.trim != "" && !s.startsWith(ContinueString)) {
-        invokeLater {
-          inWriteAction {
-            if (s.startsWith(PromptString)) {
-              offsetIndex = offsetIndex + 1
-              isFirstLine = true
-            } else {
-              addWorksheetEvaluationResults(s, editor)
-              isFirstLine = false
-            }
+      invokeLater {
+        inWriteAction {
+          if (s.startsWith(PromptString)) {
+            offsetIndex = offsetIndex + 1
+            isFirstLine = true
+          } else {
+            addWorksheetEvaluationResults(s, editor)
+            isFirstLine = false
           }
         }
       }
@@ -314,9 +313,25 @@ class WorksheetRunConfiguration(val project: Project, val configurationFactory: 
 
         evaluateWorksheet(psiFile.asInstanceOf[ScalaFile], processHandler, editor)
 
+        var count = 0
         val myProcessListener: ProcessAdapter = new ProcessAdapter {
           override def onTextAvailable(event: ProcessEvent, outputType: Key[_]) {
-            printResults(event.getText, ConsoleViewContentType.getConsoleViewType(outputType), editor)
+            val text = event.getText
+            if (ConsoleViewContentType.NORMAL_OUTPUT == ConsoleViewContentType.getConsoleViewType(outputType) && editor != null &&
+              text.trim != "" && !text.startsWith(ContinueString)) {
+              if (text.startsWith(PromptString)) {
+                count = 1
+              } else {
+                count = count + 1
+              }
+              if (count > MAX_RESULTS_COUNT) {
+                printResults(END_MESSAGE, ConsoleViewContentType.NORMAL_OUTPUT, editor)
+                endProcess(processHandler)
+                processHandler.removeProcessListener(this)
+              } else {
+                printResults(text, ConsoleViewContentType.getConsoleViewType(outputType), editor)
+              }
+            }
           }
         }
 
