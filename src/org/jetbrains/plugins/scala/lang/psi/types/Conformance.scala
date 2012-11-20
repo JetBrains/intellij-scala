@@ -697,13 +697,13 @@ object Conformance {
         val ta = proj.actualElement.asInstanceOf[ScTypeAlias]
         val subst = proj.actualSubst
         if (!ta.isExistentialTypeAlias) {
-          val lower = ta.lowerBound.toOption match {
-            case Some(low) => low
+          val upper = ta.upperBound.toOption match {
+            case Some(up) => up
             case _ =>
               result = (false, undefinedSubst)
               return
           }
-          result = conformsInner(subst.subst(lower), r, visited, undefinedSubst)
+          result = conformsInner(subst.subst(upper), r, visited, undefinedSubst)
           return
         } else {
           val lower = ta.lowerBound.toOption match {
@@ -1424,13 +1424,13 @@ object Conformance {
       if (des.element.isInstanceOf[ScTypeAlias]) {
         val a = des.element.asInstanceOf[ScTypeAlias]
         if (!a.isExistentialTypeAlias) {
-          val lower: ScType = a.lowerBound.toOption match {
-            case Some(low) => low
+          val upper: ScType = a.upperBound.toOption match {
+            case Some(up) => up
             case _ =>
               result = (false, undefinedSubst)
               return
           }
-          result = conformsInner(lower, r, visited, undefinedSubst)
+          result = conformsInner(upper, r, visited, undefinedSubst)
         }
         else {
           val upper: ScType = a.upperBound.toOption match {

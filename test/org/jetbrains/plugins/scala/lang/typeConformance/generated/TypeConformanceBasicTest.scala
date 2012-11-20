@@ -8,6 +8,10 @@ class TypeConformanceBasicTest extends TypeConformanceTestBase {
   //todo:
   /*def testAbstractType() {doTest()}*/
 
+  def testAliasBounds() {doTest()}
+
+  def testAliasBounds2() {doTest()}
+
   def testAnyRef() {doTest()}
 
   def testAnyVal1() {doTest()}
