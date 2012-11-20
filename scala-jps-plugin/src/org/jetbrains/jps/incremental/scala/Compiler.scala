@@ -38,7 +38,7 @@ class Compiler(compilerName: String, messageHandler: MessageHandler, fileHandler
     val compilationClasspath = compilationData.getCompilationClasspath
 
     val compileSetup = {
-      val options = new CompileOptions(Nil, Nil)
+      val options = new CompileOptions(compilationData.getScalaCompilerOptions, Nil)
       val output = CompileOutput(compilationData.getOutputDirectory)
       val order = if (compilationData.isScalaFirst) CompileOrder.ScalaThenJava else CompileOrder.JavaThenScala
       new CompileSetup(output, options, scalaInstance.version, order)

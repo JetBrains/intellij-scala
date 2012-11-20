@@ -24,15 +24,18 @@ import java.util.Collection;
  */
 public class CompilationData {
   private File[] myScalaCompilerClasspath;
+  private String[] myScalaCompilerOptions;
   private File myOutputDirectory;
   private File[] myCompilationClasspath;
   private boolean myScalaFirst;
 
   private CompilationData(File[] scalaCompilerClasspath,
+                          String[] scalaCompilerOptions,
                           File outputDirectory,
                           File[] compilationClasspath,
                           boolean scalaFirst) {
     myScalaCompilerClasspath = scalaCompilerClasspath;
+    myScalaCompilerOptions = scalaCompilerOptions;
     myOutputDirectory = outputDirectory;
     myCompilationClasspath = compilationClasspath;
     myScalaFirst = scalaFirst;
@@ -40,6 +43,10 @@ public class CompilationData {
 
   public File[] getScalaCompilerClasspath() {
     return myScalaCompilerClasspath;
+  }
+
+  public String[] getScalaCompilerOptions() {
+    return myScalaCompilerOptions;
   }
 
   public File getOutputDirectory() {
@@ -79,10 +86,13 @@ public class CompilationData {
     Collection<File> chunkClasspath = context.getProjectPaths()
         .getCompilationClasspathFiles(chunk, chunk.containsTests(), false, false);
 
+    FacetSettings facet = SettingsManager.getFacetSettings(module);
+    String[] compilerOptions = facet.getCompilerOptions();
+
     ProjectSettings projectSettings = SettingsManager.getProjectSettings(model.getProject());
     boolean scalaFirst = projectSettings.isScalaFirst();
 
-    return new CompilationData(compilerClasspath.toArray(new File[compilerClasspath.size()]),
+    return new CompilationData(compilerClasspath.toArray(new File[compilerClasspath.size()]), compilerOptions,
         outputDirectory, chunkClasspath.toArray(new File[chunkClasspath.size()]), scalaFirst);
   }
 
