@@ -38,9 +38,10 @@ class Compiler(compilerName: String, messageHandler: MessageHandler, fileHandler
     val compilationClasspath = compilationData.getCompilationClasspath
 
     val compileSetup = {
-      val compileOptions = new CompileOptions(Nil, Nil)
+      val options = new CompileOptions(Nil, Nil)
       val output = CompileOutput(compilationData.getOutputDirectory)
-      new CompileSetup(output, compileOptions, scalaInstance.version, CompileOrder.ScalaThenJava)
+      val order = if (compilationData.isScalaFirst) CompileOrder.ScalaThenJava else CompileOrder.JavaThenScala
+      new CompileSetup(output, options, scalaInstance.version, order)
     }
 
     val analysisStore = Compiler.createAnalysisStore(cacheFile)

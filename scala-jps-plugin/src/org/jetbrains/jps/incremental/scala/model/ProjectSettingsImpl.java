@@ -8,6 +8,8 @@ import org.jetbrains.jps.model.ex.JpsElementBase;
  * @author Pavel Fatin
  */
 public class ProjectSettingsImpl extends JpsElementBase<ProjectSettingsImpl> implements ProjectSettings {
+  public static final ProjectSettings DEFAULT = new ProjectSettingsImpl(new State());
+
   private State myState;
 
   public ProjectSettingsImpl(State state) {
