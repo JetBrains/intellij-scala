@@ -13,7 +13,6 @@ import org.jetbrains.jps.incremental.messages.ProgressMessage
 import xsbti._
 import java.util.Properties
 import xsbti.Logger
-import scala.Some
 
 /**
  * @author Pavel Fatin
@@ -47,7 +46,9 @@ class Compiler(compilerName: String, messageHandler: MessageHandler, fileHandler
     val analysisStore = Compiler.createAnalysisStore(cacheFile)
 
     val scalac = {
-      val compiledIntefaceJar = Compiler.getOrCompileInterfaceJar(sbtData.getCompilerInterfacesHome,
+      val sbtVersion = Compiler.readSbtVersion(getClass.getClassLoader).getOrElse("unknown")
+
+      val compiledIntefaceJar = Compiler.getOrCompileInterfaceJar(sbtVersion, sbtData.getCompilerInterfacesHome,
         sbtData.getCompilerInterfaceSources, sbtData.getSbtInterface, scalaInstance, logger, messageHandler)
 
       IC.newScalaCompiler(scalaInstance, compiledIntefaceJar, ClasspathOptions.boot, logger)
@@ -93,11 +94,11 @@ private object Compiler {
     AnalysisStore.sync(AnalysisStore.cached(store))
   }
 
-  private def getOrCompileInterfaceJar(home: File, sourceJar: File, interfaceJar: File, scalaInstance: ScalaInstance,
-                                       log: Logger, messageHandler: MessageHandler): File = {
+  private def getOrCompileInterfaceJar(sbtVersion: String, home: File, sourceJar: File, interfaceJar: File,
+                                       scalaInstance: ScalaInstance, log: Logger, messageHandler: MessageHandler): File = {
     val scalaVersion = scalaInstance.actualVersion
     val interfaceId = CompilerInterfaceId + "-" + scalaVersion + "-" + JavaClassVersion
-    val targetJar = new File(home, interfaceId + ".jar")
+    val targetJar = new File(new File(home, sbtVersion), interfaceId + ".jar")
 
     if (!targetJar.exists) {
       messageHandler.processMessage(new ProgressMessage("Compiling Scalac " + scalaVersion + " interface"))
@@ -106,6 +107,18 @@ private object Compiler {
     }
 
     targetJar
+  }
+
+  private def readSbtVersion(classLoader: ClassLoader): Option[String] = {
+    readProperty(classLoader, "xsbt.version.properties", "version").map { version =>
+      if (version.endsWith("-SNAPSHOT")) {
+        readProperty(getClass.getClassLoader, "xsbt.version.properties", "timestamp")
+                .map(timestamp => version + "-" + timestamp)
+                .getOrElse(version)
+      } else {
+        version
+      }
+    }
   }
 
   private def readProperty(classLoader: ClassLoader, resource: String, name: String): Option[String] = {
