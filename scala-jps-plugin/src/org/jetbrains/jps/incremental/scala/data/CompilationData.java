@@ -5,9 +5,12 @@ import org.jetbrains.jps.incremental.CompileContext;
 import org.jetbrains.jps.incremental.ModuleBuildTarget;
 import org.jetbrains.jps.incremental.scala.ConfigurationException;
 import org.jetbrains.jps.incremental.scala.SettingsManager;
+import org.jetbrains.jps.incremental.scala.model.CompilerLibraryHolder;
 import org.jetbrains.jps.incremental.scala.model.FacetSettings;
 import org.jetbrains.jps.incremental.scala.model.LibraryLevel;
+import org.jetbrains.jps.incremental.scala.model.ProjectSettings;
 import org.jetbrains.jps.model.JpsModel;
+import org.jetbrains.jps.model.JpsProject;
 import org.jetbrains.jps.model.library.JpsLibrary;
 import org.jetbrains.jps.model.library.JpsLibraryCollection;
 import org.jetbrains.jps.model.library.JpsOrderRootType;
@@ -74,24 +77,33 @@ public class CompilationData {
   }
 
   private static JpsLibrary getCompilerLibraryIn(JpsModule module, JpsModel model) {
-    FacetSettings settings = SettingsManager.getFacetSettings(module);
+    FacetSettings facet = SettingsManager.getFacetSettings(module);
 
-    if (settings == null) {
-      throw new ConfigurationException("No Scala facet in module: " + module.getName());
+    if (facet == null) {
+      throw new ConfigurationException("No Scala facet in module " + module.getName());
     }
 
-    LibraryLevel compilerLibraryLevel = settings.getCompilerLibraryLevel();
+    JpsProject project = model.getProject();
+    ProjectSettings projectSettings = SettingsManager.getProjectSettings(project);
+
+    CompilerLibraryHolder libraryHolder = facet.isFscEnabled() ? projectSettings : facet;
+
+    if (libraryHolder == null) {
+      throw new ConfigurationException("No FSC compiler library set in project " + project.getName());
+    }
+
+    LibraryLevel compilerLibraryLevel = libraryHolder.getCompilerLibraryLevel();
 
     if (compilerLibraryLevel == null) {
-      throw new ConfigurationException("No compiler library level set in module: " + module.getName());
+      throw new ConfigurationException("No compiler library level set in module " + module.getName());
     }
 
     JpsLibraryCollection libraryCollection = getLibraryCollection(compilerLibraryLevel, model, module);
 
-    String compilerLibraryName = settings.getCompilerLibraryName();
+    String compilerLibraryName = libraryHolder.getCompilerLibraryName();
 
     if (compilerLibraryName == null) {
-      throw new ConfigurationException("No compiler library name set in module: " + module.getName());
+      throw new ConfigurationException("No compiler library name set in module " + module.getName());
     }
 
     JpsLibrary library = libraryCollection.findLibrary(compilerLibraryName);
