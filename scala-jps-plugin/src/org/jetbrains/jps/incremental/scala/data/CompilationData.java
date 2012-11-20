@@ -26,13 +26,16 @@ public class CompilationData {
   private File[] myScalaCompilerClasspath;
   private File myOutputDirectory;
   private File[] myCompilationClasspath;
+  private boolean myScalaFirst;
 
   private CompilationData(File[] scalaCompilerClasspath,
                           File outputDirectory,
-                          File[] compilationClasspath) {
+                          File[] compilationClasspath,
+                          boolean scalaFirst) {
     myScalaCompilerClasspath = scalaCompilerClasspath;
     myOutputDirectory = outputDirectory;
     myCompilationClasspath = compilationClasspath;
+    myScalaFirst = scalaFirst;
   }
 
   public File[] getScalaCompilerClasspath() {
@@ -45,6 +48,10 @@ public class CompilationData {
 
   public File[] getCompilationClasspath() {
     return myCompilationClasspath;
+  }
+
+  public boolean isScalaFirst() {
+    return myScalaFirst;
   }
 
   public static CompilationData create(CompileContext context, ModuleChunk chunk) {
@@ -72,8 +79,11 @@ public class CompilationData {
     Collection<File> chunkClasspath = context.getProjectPaths()
         .getCompilationClasspathFiles(chunk, chunk.containsTests(), false, false);
 
+    ProjectSettings projectSettings = SettingsManager.getProjectSettings(model.getProject());
+    boolean scalaFirst = projectSettings.isScalaFirst();
+
     return new CompilationData(compilerClasspath.toArray(new File[compilerClasspath.size()]),
-        outputDirectory, chunkClasspath.toArray(new File[chunkClasspath.size()]));
+        outputDirectory, chunkClasspath.toArray(new File[chunkClasspath.size()]), scalaFirst);
   }
 
   private static JpsLibrary getCompilerLibraryIn(JpsModule module, JpsModel model) {
@@ -86,16 +96,18 @@ public class CompilationData {
     JpsProject project = model.getProject();
     ProjectSettings projectSettings = SettingsManager.getProjectSettings(project);
 
-    CompilerLibraryHolder libraryHolder = facet.isFscEnabled() ? projectSettings : facet;
+    boolean fsc = facet.isFscEnabled();
 
-    if (libraryHolder == null) {
-      throw new ConfigurationException("No FSC compiler library set in project " + project.getName());
-    }
+    // Use either a facet compiler library or a project FSC compiler library
+    CompilerLibraryHolder libraryHolder = fsc ? projectSettings : facet;
 
     LibraryLevel compilerLibraryLevel = libraryHolder.getCompilerLibraryLevel();
 
     if (compilerLibraryLevel == null) {
-      throw new ConfigurationException("No compiler library level set in module " + module.getName());
+      String message = fsc
+          ? "No FSC compiler library level set in project " + project.getName()
+          : "No compiler library level set in module " + module.getName();
+      throw new ConfigurationException(message);
     }
 
     JpsLibraryCollection libraryCollection = getLibraryCollection(compilerLibraryLevel, model, module);
@@ -103,14 +115,21 @@ public class CompilationData {
     String compilerLibraryName = libraryHolder.getCompilerLibraryName();
 
     if (compilerLibraryName == null) {
-      throw new ConfigurationException("No compiler library name set in module " + module.getName());
+      String message = fsc
+          ? "No FSC compiler library name set in project " + project.getName()
+          : "No compiler library name set in module " + module.getName();
+      throw new ConfigurationException(message);
     }
 
     JpsLibrary library = libraryCollection.findLibrary(compilerLibraryName);
 
     if (library == null) {
-      throw new ConfigurationException(String.format("Сompiler library for module %s not found: %s / %s ",
-          module.getName(), compilerLibraryLevel, compilerLibraryName));
+      String message = fsc
+          ? String.format("FSC compiler library in project %s not found: %s / %s ",
+          project.getName(), compilerLibraryLevel, compilerLibraryName)
+          : String.format("Сompiler library for module %s not found: %s / %s ",
+          module.getName(), compilerLibraryLevel, compilerLibraryName);
+      throw new ConfigurationException(message);
     }
 
     return library;
