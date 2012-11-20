@@ -18,11 +18,11 @@ class MessageHandlerLogger(compilerName: String, messageHandler: MessageHandler)
   }
 
   def info(msg: F0[String]) {
-    messageHandler.processMessage(new CompilerMessage(compilerName, Kind.INFO, msg()))
+//    messageHandler.processMessage(new CompilerMessage(compilerName, Kind.INFO, msg()))
   }
 
   def debug(msg: F0[String]) {
-    messageHandler.processMessage(new CompilerMessage(compilerName, Kind.INFO, msg()))
+//    messageHandler.processMessage(new CompilerMessage(compilerName, Kind.INFO, msg()))
   }
 
   def trace(exception: F0[Throwable]) {

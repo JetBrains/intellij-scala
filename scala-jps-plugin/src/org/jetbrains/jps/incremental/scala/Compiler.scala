@@ -10,9 +10,10 @@ import sbt.Path._
 import compiler.{CompileOutput, CompilerCache, AggressiveCompile, IC}
 import xsbti.compile.{CompileProgress, CompileOrder}
 import org.jetbrains.jps.incremental.messages.ProgressMessage
+import xsbti._
+import java.util.Properties
 import xsbti.Logger
 import scala.Some
-import java.util.Properties
 
 /**
  * @author Pavel Fatin
@@ -22,6 +23,14 @@ class Compiler(compilerName: String, messageHandler: MessageHandler, fileHandler
   private val callback = new Analyzer(compilerName, messageHandler, fileHandler)
 
   def compile(sources: Array[File], sbtData: SbtData, javaData: JavaData, compilationData: CompilationData, cacheFile: File) {
+    try {
+      doCompile(sources, sbtData, javaData, compilationData, cacheFile)
+    } catch {
+      case _: CompileFailed => // the problem should be already reported
+    }
+  }
+
+  private def doCompile(sources: Array[File], sbtData: SbtData, javaData: JavaData, compilationData: CompilationData, cacheFile: File) {
     val scalaInstance = {
       val compilerClasspath = compilationData.getScalaCompilerClasspath
       Compiler.createScalaInstance(compilerClasspath)
@@ -50,14 +59,14 @@ class Compiler(compilerName: String, messageHandler: MessageHandler, fileHandler
 
     messageHandler.processMessage(new ProgressMessage("Compiling..."))
 
-    val reporter = new LoggerReporter(Int.MaxValue, logger)
+    val reporter = new ProblemReporter(compilerName, messageHandler)
 
     compiler.compile1(sources, compilationClasspath, compileSetup, Some(progress), analysisStore, Function.const(None), Locate.definesClass,
       scalac, javac, reporter, false, CompilerCache.fresh, Some(callback))(logger)
   }
 }
 
-object Compiler {
+private object Compiler {
   private val CompilerInterfaceId = "compiler-interface"
   private val JavaClassVersion = System.getProperty("java.class.version")
 
