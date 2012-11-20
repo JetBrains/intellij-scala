@@ -11,4 +11,6 @@ public interface FacetSettings extends JpsElement, CompilerLibraryHolder {
   String getCompilerLibraryName();
 
   boolean isFscEnabled();
+
+  String[] getCompilerOptions();
 }
