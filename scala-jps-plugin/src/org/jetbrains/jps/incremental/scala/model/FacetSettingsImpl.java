@@ -22,6 +22,10 @@ public class FacetSettingsImpl extends JpsElementBase<FacetSettingsImpl> impleme
     return myState.compilerLibraryName;
   }
 
+  public boolean isFscEnabled() {
+    return myState.fsc;
+  }
+
   @NotNull
   @Override
   public FacetSettingsImpl createCopy() {
@@ -37,5 +41,7 @@ public class FacetSettingsImpl extends JpsElementBase<FacetSettingsImpl> impleme
     public LibraryLevel compilerLibraryLevel;
 
     public String compilerLibraryName;
+
+    public boolean fsc;
   }
 }
