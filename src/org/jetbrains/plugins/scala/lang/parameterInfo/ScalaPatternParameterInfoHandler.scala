@@ -188,16 +188,9 @@ class ScalaPatternParameterInfoHandler extends ParameterInfoHandlerWithTabAction
           }
         case fun: ScFunction =>
           // Look for a corresponding apply method beside the unapply method.
-          def corresponds(applyMethod: PsiMethod): Boolean = {
-            val tupleType = fun.returnType.toOption.flatMap(ScType.extractTupleType)
-            tupleType.exists { tt =>
-              applyMethod.getParameterList.getParametersCount == tt.components.length
-              // TODO also check types correspond
-            }
-          }
-          val applyParam: Option[PsiParameter] = ScalaPsiUtil.getApplyMethods(fun.containingClass).filter(t => corresponds(t.method)) match {
-            case Seq(sig) =>
-              sig.method.getParameterList.getParameters.lift(o)
+          // TODO also check types correspond, allowing for overloading
+          val applyParam: Option[PsiParameter] = ScalaPsiUtil.getApplyMethods(fun.containingClass) match {
+            case Seq(sig) => sig.method.getParameterList.getParameters.lift(o)
             case _ => None
           }
           applyParam match {
