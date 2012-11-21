@@ -139,8 +139,6 @@
         <exclude name="intentionDescriptions/*"/>
       </fileset>
     </copy>
-    <copy file="${base.dir}/src/org/jetbrains/plugins/scala/config/scalaProjectTemplate/scalaDownloader/scalaDownloadable.xml"
-          tofile="${main.dest}/org/jetbrains/plugins/scala/config/scalaProjectTemplate/scalaDownloader/scalaDownloadable.xml"/>
 
     <!-- Compile runners -->
 
@@ -210,6 +208,9 @@
 
     <copy file="${base.dir}/src/org/jetbrains/plugins/scala/editor/EditorBundle.properties"
           tofile="${main.dest}/org/jetbrains/plugins/scala/editor/EditorBundle.properties"/>
+
+    <copy file="${base.dir}/src/org/jetbrains/plugins/scala/config/scalaProjectTemplate/scalaDownloader/scalaDownloadable.xml"
+          tofile="${main.dest}/org/jetbrains/plugins/scala/config/scalaProjectTemplate/scalaDownloader/scalaDownloadable.xml"/>
 
     <copy todir="${main.dest}/org/jetbrains/plugins/scala/spellchecker">
       <fileset dir="${base.dir}/src/org/jetbrains/plugins/scala/spellchecker">
