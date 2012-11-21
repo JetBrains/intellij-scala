@@ -21,11 +21,13 @@
 package org.jetbrains.plugins.scala.lang.refactoring.move;
 
 import com.intellij.codeInsight.ChangeContextUtil;
-import com.intellij.codeInsight.daemon.impl.CollectHighlightsUtil;
 import com.intellij.openapi.diagnostic.Logger;
+import com.intellij.openapi.roots.ProjectFileIndex;
+import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.openapi.util.Key;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.openapi.util.text.StringUtil;
+import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.*;
 import com.intellij.refactoring.move.moveClassesOrPackages.MoveClassesOrPackagesUtil;
 import com.intellij.refactoring.move.moveFilesOrDirectories.MoveFileHandler;
@@ -50,8 +52,12 @@ public class MoveScalaFileHandler extends MoveFileHandler {
 
   @Override
   public boolean canProcessElement(PsiFile element) {
-    return element instanceof ScalaFile &&
-           !CollectHighlightsUtil.isOutsideSourceRoot(element);
+    if (!(element instanceof ScalaFile)) return false;
+
+    final VirtualFile file = element.getVirtualFile();
+    if (file == null) return false;
+    final ProjectFileIndex projectFileIndex = ProjectRootManager.getInstance(element.getProject()).getFileIndex();
+    return !projectFileIndex.isInSource(file) && !projectFileIndex.isInLibraryClasses(file);
   }
 
   @Override

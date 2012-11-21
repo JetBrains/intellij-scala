@@ -10,7 +10,7 @@ import com.intellij.openapi.roots.ui.configuration.ModulesProvider
 import ui.{ScalaAdvancedModuleSettings, ScalaModuleSettingsUi}
 import com.intellij.openapi.util.Condition
 import com.intellij.openapi.projectRoots.{JavaSdk, SdkTypeId}
-import javax.swing.JComponent
+import javax.swing.{Icon, JComponent}
 import com.intellij.openapi.roots.libraries.LibraryTablesRegistrar
 import components.{TypeAwareHighlightingApplicationState, HighlightingAdvisor}
 import com.intellij.openapi.project.Project
@@ -107,4 +107,6 @@ class ScalaModuleBuilder extends JavaModuleBuilder {
 
   override def createWizardSteps(wizardContext: WizardContext, 
                                  modulesProvider: ModulesProvider): Array[ModuleWizardStep] = Array[ModuleWizardStep]()
+
+  override def getNodeIcon: Icon = org.jetbrains.plugins.scala.icons.Icons.SCALA_SMALL_LOGO
 }
