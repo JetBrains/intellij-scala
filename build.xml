@@ -139,11 +139,8 @@
         <exclude name="intentionDescriptions/*"/>
       </fileset>
     </copy>
-    <copy todir="${main.dest}">
-      <fileset dir="${base.dir}/src">
-        <include name="**/scalaDownloadable.xml"/>
-      </fileset>
-    </copy>
+    <copy file="${base.dir}/src/org/jetbrains/plugins/scala/config/scalaProjectTemplate/scalaDownloader/scalaDownloadable.xml"
+          tofile="${main.dest}/org/jetbrains/plugins/scala/config/scalaProjectTemplate/scalaDownloader/scalaDownloadable.xml"/>
 
     <!-- Compile runners -->
 
