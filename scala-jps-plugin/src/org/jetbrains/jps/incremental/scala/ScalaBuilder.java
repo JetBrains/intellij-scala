@@ -16,7 +16,6 @@ import org.jetbrains.jps.incremental.messages.CompilerMessage;
 import org.jetbrains.jps.incremental.messages.ProgressMessage;
 import org.jetbrains.jps.incremental.scala.data.CompilationData;
 import org.jetbrains.jps.incremental.scala.data.JavaData;
-import org.jetbrains.jps.incremental.scala.data.SbtData;
 import org.jetbrains.jps.model.module.JpsModule;
 import org.jetbrains.jps.model.module.JpsModuleSourceRoot;
 
@@ -92,11 +91,11 @@ public class ScalaBuilder extends ModuleLevelBuilder {
     BuildDataPaths paths = context.getProjectDescriptor().dataManager.getDataPaths();
     File cacheFile = new File(paths.getTargetDataRoot(chunk.representativeTarget()), "cache.dat");
 
-    Compiler compiler = new Compiler(BUILDER_NAME, context, fileHandler, progressHandler);
+    CompilerRunner compilerRunner = new CompilerRunner(BUILDER_NAME, context, fileHandler, progressHandler);
 
     Set<File> sources = filesToCompile.keySet();
 
-    compiler.compile(sources.toArray(new File[sources.size()]), sbtData, javaData, compilationData, cacheFile);
+    compilerRunner.compile(sources.toArray(new File[sources.size()]), sbtData, javaData, compilationData, cacheFile);
 
     context.processMessage(new ProgressMessage("Compilation completed", 1.0F));
 

@@ -17,36 +17,51 @@ import org.jetbrains.jps.model.library.JpsOrderRootType;
 import org.jetbrains.jps.model.module.JpsModule;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Collection;
 
 /**
  * @author Pavel Fatin
  */
 public class CompilationData {
-  private File[] myScalaCompilerClasspath;
-  private String[] myScalaCompilerOptions;
+  private File myCompilerJar;
+  private File myLibraryJar;
+  private File[] myExtraJars;
+  private String[] myCompilerOptions;
   private File myOutputDirectory;
   private File[] myCompilationClasspath;
   private boolean myScalaFirst;
 
-  private CompilationData(File[] scalaCompilerClasspath,
-                          String[] scalaCompilerOptions,
+  private CompilationData(File compilerJar,
+                          File libraryJar,
+                          File[] extraJars,
+                          String[] compilerOptions,
                           File outputDirectory,
                           File[] compilationClasspath,
                           boolean scalaFirst) {
-    myScalaCompilerClasspath = scalaCompilerClasspath;
-    myScalaCompilerOptions = scalaCompilerOptions;
+    myCompilerJar = compilerJar;
+    myLibraryJar = libraryJar;
+    myExtraJars = extraJars;
+    myCompilerOptions = compilerOptions;
     myOutputDirectory = outputDirectory;
     myCompilationClasspath = compilationClasspath;
     myScalaFirst = scalaFirst;
   }
 
-  public File[] getScalaCompilerClasspath() {
-    return myScalaCompilerClasspath;
+  public File getCompilerJar() {
+    return myCompilerJar;
   }
 
-  public String[] getScalaCompilerOptions() {
-    return myScalaCompilerOptions;
+  public File getLibraryJar() {
+    return myLibraryJar;
+  }
+
+  public File[] getExtraJars() {
+    return myExtraJars;
+  }
+
+  public String[] getCompilerOptions() {
+    return myCompilerOptions;
   }
 
   public File getOutputDirectory() {
@@ -74,7 +89,29 @@ public class CompilationData {
       throw new ConfigurationException("Scala compiler library is empty: " + compilerLibrary.getName());
     }
 
+    File compilerJar = null;
+    File libraryJar = null;
+    Collection<File> extraJars = new ArrayList<File>();
+    for (File file : compilerClasspath) {
+      String name = file.getName();
+      if ("scala-library.jar".equals(name)) {
+        libraryJar = file;
+      } else if ("scala-compiler.jar".equals(name)) {
+        compilerJar = file;
+      } else {
+        extraJars.add(file);
+      }
+    }
+
     ModuleBuildTarget target = chunk.representativeTarget();
+
+    if (compilerJar == null) {
+      throw new ConfigurationException("No scala-compiler.jar in Scala compiler library in " + target.getModuleName());
+    }
+
+    if (libraryJar == null) {
+      throw new ConfigurationException("No scala-compiler.jar in Scala compiler library in " + target.getModuleName());
+    }
 
     // Get an output directory
     File outputDirectory = target.getOutputDir();
@@ -92,8 +129,8 @@ public class CompilationData {
     ProjectSettings projectSettings = SettingsManager.getProjectSettings(model.getProject());
     boolean scalaFirst = projectSettings.isScalaFirst();
 
-    return new CompilationData(compilerClasspath.toArray(new File[compilerClasspath.size()]), compilerOptions,
-        outputDirectory, chunkClasspath.toArray(new File[chunkClasspath.size()]), scalaFirst);
+    return new CompilationData(compilerJar, libraryJar, extraJars.toArray(new File[extraJars.size()]),
+        compilerOptions, outputDirectory, chunkClasspath.toArray(new File[chunkClasspath.size()]), scalaFirst);
   }
 
   private static JpsLibrary getCompilerLibraryIn(JpsModule module, JpsModel model) {
