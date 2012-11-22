@@ -13,31 +13,30 @@ case class SbtData(interfaceJar: File,
 
 object SbtData {
   def from(classLoader: ClassLoader, pluginRoot: File, systemRoot: File, javaClassVersion: String): Either[String, SbtData] = {
-      val sbtHomeDirectory = new File(pluginRoot.getParentFile, "sbt")
+    val sbtHomeDirectory = new File(pluginRoot.getParentFile, "sbt")
 
-      Option(sbtHomeDirectory).filter(_.exists)
-              .toRight("SBT home directory does not exist: " + sbtHomeDirectory)
-              .flatMap { sbtHome =>
+    Either.cond(sbtHomeDirectory.exists, sbtHomeDirectory,
+      "SBT home directory does not exist: " + sbtHomeDirectory).flatMap { sbtHome =>
 
-        Option(sbtHome.listFiles)
-                .toRight("Invalid SBT home directory: " + sbtHome.getPath)
-                .flatMap { files =>
+      Option(sbtHome.listFiles)
+              .toRight("Invalid SBT home directory: " + sbtHome.getPath)
+              .flatMap { files =>
 
-          files.find(_.getName == "sbt-interface.jar")
-                  .toRight("No 'sbt-interface.jar' in SBT home directory")
-                  .flatMap { interfaceJar =>
+        files.find(_.getName == "sbt-interface.jar")
+                .toRight("No 'sbt-interface.jar' in SBT home directory")
+                .flatMap { interfaceJar =>
 
-            files.find(_.getName == "compiler-interface-sources.jar")
-                    .toRight("No 'compiler-interface-sources.jar' in SBT home directory")
-                    .flatMap { sourceJar =>
+          files.find(_.getName == "compiler-interface-sources.jar")
+                  .toRight("No 'compiler-interface-sources.jar' in SBT home directory")
+                  .flatMap { sourceJar =>
 
-              readSbtVersionFrom(classLoader)
-                      .toRight("Unable to read SBT version from JVM classpath")
-                      .map { sbtVersion =>
+            readSbtVersionFrom(classLoader)
+                    .toRight("Unable to read SBT version from JVM classpath")
+                    .map { sbtVersion =>
 
-                val interfacesHome = new File(new File(systemRoot, "scala-compiler-interfaces"), sbtVersion)
+              val interfacesHome = new File(new File(systemRoot, "scala-compiler-interfaces"), sbtVersion)
 
-                new SbtData(interfaceJar, sourceJar, interfacesHome, javaClassVersion)
+              new SbtData(interfaceJar, sourceJar, interfacesHome, javaClassVersion)
             }
           }
         }

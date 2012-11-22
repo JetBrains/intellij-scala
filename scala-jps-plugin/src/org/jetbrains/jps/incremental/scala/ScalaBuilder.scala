@@ -39,23 +39,20 @@ class ScalaBuilder extends ModuleLevelBuilder(BuilderCategory.TRANSLATOR) {
 
     context.processMessage(new ProgressMessage("Reading compilation settings..."))
 
-    val result =
-      ScalaBuilder.compilerFactory.flatMap { compilerFactory =>
-        CompilerData.from(context, chunk).flatMap { compilerData =>
-          CompilationData.from(sources, context, chunk).map { compilationData =>
-            val fileHandler = new ConsumerFileHander(outputConsumer, filesToCompile.asJava)
-            val progressHandler = new ProgressHandler(context)
+    ScalaBuilder.compilerFactory.flatMap { compilerFactory =>
+      CompilerData.from(context, chunk).flatMap { compilerData =>
+        CompilationData.from(sources, context, chunk).map { compilationData =>
+          val fileHandler = new ConsumerFileHander(outputConsumer, filesToCompile.asJava)
+          val progressHandler = new ProgressHandler(context)
 
-            context.processMessage(new ProgressMessage("Instantiating compiler..."))
-            val compiler = compilerFactory.createCompiler(compilerData, ScalaBuilder.createAnalysisStore, context)
+          context.processMessage(new ProgressMessage("Instantiating compiler..."))
+          val compiler = compilerFactory.createCompiler(compilerData, ScalaBuilder.createAnalysisStore, context)
 
-            context.processMessage(new ProgressMessage("Compiling..."))
-            compiler.compile(compilationData, context, fileHandler, progressHandler)
-          }
+          context.processMessage(new ProgressMessage("Compiling..."))
+          compiler.compile(compilationData, context, fileHandler, progressHandler)
         }
       }
-
-    result match {
+    } match {
       case Left(error) =>
         context.processMessage(new CompilerMessage("scala", BuildMessage.Kind.ERROR, error))
         ExitCode.ABORT
