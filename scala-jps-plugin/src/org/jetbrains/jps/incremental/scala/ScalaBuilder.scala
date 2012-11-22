@@ -17,6 +17,7 @@ import org.jetbrains.jps.incremental.scala.data.SbtData
 import collection.JavaConverters._
 import org.jetbrains.jps.incremental.ModuleLevelBuilder.ExitCode
 import sbt.inc.{AnalysisFormats, FileBasedStore, AnalysisStore}
+import org.jetbrains.jps.model.java.JavaSourceRootType
 
 /**
  * @author Pavel Fatin
@@ -27,6 +28,11 @@ class ScalaBuilder extends ModuleLevelBuilder(BuilderCategory.TRANSLATOR) {
   def build(context: CompileContext, chunk: ModuleChunk,
             dirtyFilesHolder: DirtyFilesHolder[JavaSourceRootDescriptor, ModuleBuildTarget],
             outputConsumer: ChunkBuildOutputConsumer): ModuleLevelBuilder.ExitCode = {
+
+    // Check whether a Scala facet is present in the chunk modules
+    if (chunk.getModules.asScala.forall(module => SettingsManager.getFacetSettings(module) == null)) {
+      return ExitCode.NOTHING_DONE
+    }
 
     context.processMessage(new ProgressMessage("Searching for compilable files..."))
     val filesToCompile = ScalaBuilder.collectCompilableFiles(chunk)
@@ -88,7 +94,8 @@ object ScalaBuilder {
     var result = Map[File, BuildTarget[_ <: BuildRootDescriptor]]()
 
     for (target <- chunk.getTargets.asScala;
-         root <- target.getModule.getSourceRoots.asScala) {
+         rootType = if (target.isTests) JavaSourceRootType.TEST_SOURCE else JavaSourceRootType.SOURCE;
+         root <- target.getModule.getSourceRoots(rootType).asScala) {
 
       FileUtil.processFilesRecursively(root.getFile, new Processor[File] {
         def process(file: File) = {
