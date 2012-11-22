@@ -16,7 +16,6 @@ class NewScalaWorksheetAction extends CreateFromTemplateAction(FileTemplateManag
 with DumbAware {
   override def update(e: AnActionEvent) {
     super.update(e)
-    //todo logo
-//    e.getPresentation.setIcon(Icons.SCRIPT_FILE_LOGO)
+    e.getPresentation.setIcon(Icons.WORKSHEET_LOGO)
   }
 }

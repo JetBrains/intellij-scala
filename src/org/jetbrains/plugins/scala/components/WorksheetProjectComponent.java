@@ -47,7 +47,6 @@ public class WorksheetProjectComponent extends AbstractProjectComponent {
         if (myProject.isDisposed()) return;
         FileEditor[] editors = myFileEditorManager.getAllEditors(file);
         for (FileEditor editor : editors) {
-          //todo action
           JPanel panel = new JPanel();
           panel.setLayout(new FlowLayout(FlowLayout.LEFT));
 
@@ -58,12 +57,12 @@ public class WorksheetProjectComponent extends AbstractProjectComponent {
           executeButton.getAction().getTemplatePresentation().setIcon(AllIcons.Actions.Execute);
           panel.add(executeButton);
 
-          AnAction cleanAction = new CleanWorksheetAction(file);
-          ActionButton cleanButton = new ActionButton(cleanAction, cleanAction.getTemplatePresentation(),
-            ActionPlaces.EDITOR_TOOLBAR, ActionToolbar.DEFAULT_MINIMUM_BUTTON_SIZE);
-          cleanButton.setToolTipText(ScalaBundle.message("worksheet.clear.button"));
-          cleanButton.getAction().getTemplatePresentation().setIcon(AllIcons.Actions.GC);
-          panel.add(cleanButton);
+//          AnAction cleanAction = new CleanWorksheetAction(file);
+//          ActionButton cleanButton = new ActionButton(cleanAction, cleanAction.getTemplatePresentation(),
+//            ActionPlaces.EDITOR_TOOLBAR, ActionToolbar.DEFAULT_MINIMUM_BUTTON_SIZE);
+//          cleanButton.setToolTipText(ScalaBundle.message("worksheet.clear.button"));
+//          cleanButton.getAction().getTemplatePresentation().setIcon(AllIcons.Actions.GC);
+//          panel.add(cleanButton);
 
           myFileEditorManager.addTopComponent(editor, panel);
         }
