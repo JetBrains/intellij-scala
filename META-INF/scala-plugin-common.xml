@@ -13,6 +13,8 @@
 
     <extensions defaultExtensionNs="com.intellij">
         <!--<compileServer.plugin classpath="scala-jps-plugin.jar"/>-->
+        <projectTemplatesFactory implementation="org.jetbrains.plugins.scala.config.scalaProjectTemplate.ScalaProjectTemplatesFactory"/>
+        <moduleBuilder builderClass="org.jetbrains.plugins.scala.config.scalaProjectTemplate.ScalaModuleBuilder"/>
         <refactoring.moveHandler implementation="org.jetbrains.plugins.scala.lang.refactoring.move.ScalaMoveClassesOrPackagesHandler" order="first"/>
         <statementUpDownMover implementation="org.jetbrains.plugins.scala.lang.refactoring.ScalaStatementMover"/>
         <debugger.codeFragmentFactory implementation="org.jetbrains.plugins.scala.debugger.evaluation.ScalaCodeFragmentFactory"/>
@@ -103,6 +105,7 @@
         <readWriteAccessDetector implementation="org.jetbrains.plugins.scala.highlighter.readWriteAccess.ScalaReadWriteAccessDetector"/>
         <directClassInheritorsSearch implementation="org.jetbrains.plugins.scala.lang.psi.impl.search.ScalaDirectClassInheritorsSearcher"/>
         <codeInsight.lineMarkerProvider language="Scala" implementationClass="org.jetbrains.plugins.scala.annotator.gutter.ScalaLineMarkerProvider"/>
+        <!--<codeInsight.lineMarkerProvider language="Scala" implementationClass="org.jetbrains.plugins.scala.util.macroDebug.GoToExpandedMacroCallProviderExt"/>-->
         <codeInsight.gotoSuper language="Scala" implementationClass="org.jetbrains.plugins.scala.annotator.gutter.ScalaGoToSuperActionHandler"/>
         <gotoDeclarationHandler implementation="org.jetbrains.plugins.scala.annotator.gutter.ScalaGoToDeclarationHandler"/>
         <debuggerClassFilterProvider implementation="org.jetbrains.plugins.scala.debugger.filters.ScalaDebuggerClassFilterProvider"/>
@@ -337,6 +340,11 @@
             <category>Scala</category>
             <className>org.jetbrains.plugins.scala.codeInsight.intention.types.ConvertImplicitBoundsToImplicitParameter</className>
         </intentionAction>
+        
+        <!--<intentionAction>-->
+            <!--<category>Scala</category>-->
+            <!--<className>org.jetbrains.plugins.scala.util.macroDebug.OpenSynFileIntention</className>-->
+        <!--</intentionAction>-->
 
         <intentionAction>
             <category>Scala</category>
@@ -739,6 +747,9 @@
         <component>
             <implementation-class>org.jetbrains.plugins.scala.config.ScalaPluginVersionVerifierApplicationComponent</implementation-class>
         </component>
+        <component>
+            <implementation-class>org.jetbrains.plugins.scala.components.TypeAwareHighlightingApplicationState</implementation-class>
+        </component>
     </application-components>
 
     <project-components>
@@ -844,6 +855,10 @@
         <action id="Scala.GenerateScaladoc" class="org.jetbrains.plugins.scala.lang.scaladoc.generate.ScaladocAction"
                 text="Generate Scaladoc" description="Generate Scaladoc">
             <add-to-group group-id="ToolsMenu" anchor="last"/>
+        </action>
+        <action id="Scala.CreateScalaDocStub" class="org.jetbrains.plugins.scala.editor.documentationProvider.CreateScalaDocStubAction">
+            <keyboard-shortcut first-keystroke="ctrl alt Q" keymap="$default"/>
+            <keyboard-shortcut first-keystroke="meta alt Q" keymap="Mac OS X"/>
         </action>
         <action id="Scala.ShowImplicitParameters" class="org.jetbrains.plugins.scala.actions.ShowImplicitParametersAction"
                 text="Implicit &amp;Parameters" description="Show Implicit Parameters">

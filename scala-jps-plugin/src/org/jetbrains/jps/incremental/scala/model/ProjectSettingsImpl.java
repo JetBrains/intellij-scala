@@ -8,6 +8,8 @@ import org.jetbrains.jps.model.ex.JpsElementBase;
  * @author Pavel Fatin
  */
 public class ProjectSettingsImpl extends JpsElementBase<ProjectSettingsImpl> implements ProjectSettings {
+  public static final ProjectSettings DEFAULT = new ProjectSettingsImpl(new State());
+
   private State myState;
 
   public ProjectSettingsImpl(State state) {
@@ -16,6 +18,14 @@ public class ProjectSettingsImpl extends JpsElementBase<ProjectSettingsImpl> imp
 
   public boolean isScalaFirst() {
     return myState.SCALAC_BEFORE;
+  }
+
+  public LibraryLevel getCompilerLibraryLevel() {
+    return myState.COMPILER_LIBRARY_LEVEL;
+  }
+
+  public String getCompilerLibraryName() {
+    return myState.COMPILER_LIBRARY_NAME;
   }
 
   @NotNull
@@ -31,5 +41,9 @@ public class ProjectSettingsImpl extends JpsElementBase<ProjectSettingsImpl> imp
 
   public static class State {
     public boolean SCALAC_BEFORE = true;
+
+    public LibraryLevel COMPILER_LIBRARY_LEVEL;
+
+    public String COMPILER_LIBRARY_NAME;
   }
 }

@@ -17,8 +17,8 @@ import lang.psi.api.ScalaElementVisitor
 import com.intellij.psi.{PsiElementVisitor, PsiDocCommentOwner, PsiElement}
 import lexer.ScalaDocTokenType
 import api.{ScDocTag, ScDocComment}
-import collection.mutable.ArrayBuilder
 import extensions.toPsiNamedElementExt
+import collection.mutable
 
 /**
  * User: Alexander Podkhalyuzin
@@ -53,7 +53,7 @@ class ScDocCommentImpl(text: CharSequence) extends LazyParseablePsiElement(Scala
   
   def findTagsByName(filter: String => Boolean): Array[PsiDocTag] = {
     var currentChild = getFirstChild
-    val answer = ArrayBuilder.make[PsiDocTag]()
+    val answer = mutable.ArrayBuilder.make[PsiDocTag]()
 
     while (currentChild != null && currentChild.getNode.getElementType != ScalaDocTokenType.DOC_COMMENT_END) {
       currentChild match {

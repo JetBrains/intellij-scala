@@ -1,7 +1,6 @@
 package org.jetbrains.jps.incremental.scala;
 
 import com.intellij.openapi.util.io.FileUtil;
-import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.util.PathUtil;
 import com.intellij.util.Processor;
 import org.jetbrains.annotations.NotNull;
@@ -10,6 +9,7 @@ import org.jetbrains.jps.builders.BuildTarget;
 import org.jetbrains.jps.builders.ChunkBuildOutputConsumer;
 import org.jetbrains.jps.builders.DirtyFilesHolder;
 import org.jetbrains.jps.builders.java.JavaSourceRootDescriptor;
+import org.jetbrains.jps.builders.storage.BuildDataPaths;
 import org.jetbrains.jps.incremental.*;
 import org.jetbrains.jps.incremental.messages.BuildMessage;
 import org.jetbrains.jps.incremental.messages.CompilerMessage;
@@ -30,7 +30,6 @@ import java.util.*;
 public class ScalaBuilder extends ModuleLevelBuilder {
   private static final String BUILDER_NAME = "scala";
   private static final String BUILDER_DESCRIPTION = "Scala builder";
-  private static Class RUNNER_CLASS = ClassRunner.class;
 
   private static final String SCALA_EXTENSION = "scala";
   private static final String JAVA_EXTENSION = "java";
@@ -75,7 +74,7 @@ public class ScalaBuilder extends ModuleLevelBuilder {
     context.processMessage(new ProgressMessage("Reading compilation settings"));
 
     // Find a path to this jar
-    File thisJar = new File(PathUtil.getJarPathForClass(RUNNER_CLASS));
+    File thisJar = new File(PathUtil.getJarPathForClass(getClass()));
 
     // Find a path to bundled SBT jars (<plugin dir>/../sbt)
     File sbtHome = new File(thisJar.getParentFile().getParentFile(), "sbt");
@@ -85,13 +84,19 @@ public class ScalaBuilder extends ModuleLevelBuilder {
     JavaData javaData = JavaData.create(chunk);
     CompilationData compilationData = CompilationData.create(context, chunk);
 
+    // Create event handlers
     FileHandler fileHandler = new ConsumerFileHander(outputConsumer, filesToCompile);
+    ProgressHandler progressHandler = new ProgressHandler(context);
 
-    Compiler compiler = new Compiler(BUILDER_NAME, context, fileHandler);
+    // Get a file for build cache
+    BuildDataPaths paths = context.getProjectDescriptor().dataManager.getDataPaths();
+    File cacheFile = new File(paths.getTargetDataRoot(chunk.representativeTarget()), "cache.dat");
+
+    Compiler compiler = new Compiler(BUILDER_NAME, context, fileHandler, progressHandler);
 
     Set<File> sources = filesToCompile.keySet();
 
-    compiler.compile(sources.toArray(new File[sources.size()]), sbtData, javaData, compilationData);
+    compiler.compile(sources.toArray(new File[sources.size()]), sbtData, javaData, compilationData, cacheFile);
 
     context.processMessage(new ProgressMessage("Compilation completed", 1.0F));
 
