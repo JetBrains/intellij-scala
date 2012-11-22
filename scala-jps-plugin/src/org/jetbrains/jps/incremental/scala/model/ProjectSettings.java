@@ -6,7 +6,7 @@ import org.jetbrains.jps.model.JpsElement;
  * @author Pavel Fatin
  */
 public interface ProjectSettings extends JpsElement, CompilerLibraryHolder {
-  boolean isScalaFirst();
+  Order getCompilationOrder();
 
   LibraryLevel getCompilerLibraryLevel();
 

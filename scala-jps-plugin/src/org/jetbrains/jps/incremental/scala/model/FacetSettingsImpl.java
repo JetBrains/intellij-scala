@@ -3,7 +3,6 @@ package org.jetbrains.jps.incremental.scala.model;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.util.xmlb.XmlSerializerUtil;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.jps.incremental.scala.ConfigurationException;
 import org.jetbrains.jps.model.ex.JpsElementBase;
 
 import java.util.ArrayList;
@@ -74,9 +73,6 @@ public class FacetSettingsImpl extends JpsElementBase<FacetSettingsImpl> impleme
         break;
       case Notc:
         list.add("-g:notc");
-        break;
-      default:
-        throw new ConfigurationException("Unknown debugging info level: " + myState.debuggingInfoLevel);
     }
 
     for (String pluginPath : myState.pluginPaths) {

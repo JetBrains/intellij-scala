@@ -1,10 +1,12 @@
 package org.jetbrains.jps.incremental.scala
 
+import data.CompilationData
+import model.Order
 import sbt.compiler._
 import java.io.File
 import sbt.{CompileSetup, CompileOptions}
 import xsbti.compile.{CompileProgress, CompileOrder}
-import org.jetbrains.jps.incremental.messages.{CompilerMessage, ProgressMessage}
+import org.jetbrains.jps.incremental.messages.CompilerMessage
 import sbt.inc.{AnalysisStore, Locate}
 import scala.Some
 import org.jetbrains.jps.incremental.MessageHandler
@@ -15,22 +17,29 @@ import xsbti.api.SourceAPI
 /**
  * @author Pavel Fatin
  */
-class CompilerImpl(scalac: AnalyzingCompiler, javac: JavaCompiler, storeProvider: File => AnalysisStore) extends Compiler {
+class CompilerImpl(scalac: AnalyzingCompiler,
+                   javac: JavaCompiler,
+                   storeProvider: File => AnalysisStore) extends Compiler {
 
-  def compile(sources: Seq[File], classpath: Seq[File], options: Seq[String], output: File, scalaFirst: Boolean, cacheFile: File,
-              messageHandler: MessageHandler, fileHandler: FileHandler, progress: CompileProgress) {
+  def compile(compilationData: CompilationData,
+              messageHandler: MessageHandler,
+              fileHandler: FileHandler,
+              progress: CompileProgress) {
 
-    val compileSetup =
-      new CompileSetup(CompileOutput(output),
-        new CompileOptions(options, Nil),
-        scalac.scalaInstance.version,
-        if (scalaFirst) CompileOrder.ScalaThenJava else CompileOrder.JavaThenScala)
+    val compileSetup = {
+      val output = CompileOutput(compilationData.output)
+      val options = new CompileOptions(compilationData.options, Nil)
+      val compilerVersion = scalac.scalaInstance.version
+      val order = compilationData.order match {
+        case Order.JavaThenScala => CompileOrder.ScalaThenJava
+        case Order.ScalaThenJava => CompileOrder.JavaThenScala
+      }
+      new CompileSetup(output, options, compilerVersion, order)
+    }
 
-    val compile = new AggressiveCompile(cacheFile)
+    val compile = new AggressiveCompile(compilationData.cacheFile)
 
-    messageHandler.processMessage(new ProgressMessage("Compiling..."))
-
-    val analysisStore = storeProvider(cacheFile)
+    val analysisStore = storeProvider(compilationData.cacheFile)
 
     val callback = new Callback("scala", messageHandler, fileHandler)
 
@@ -38,12 +47,15 @@ class CompilerImpl(scalac: AnalyzingCompiler, javac: JavaCompiler, storeProvider
 
     val logger = new MessageHandlerLogger("scala", messageHandler)
 
-    compile.compile1(sources, classpath, compileSetup, Some(progress), analysisStore, Function.const(None), Locate.definesClass,
-      scalac, javac, reporter, false, CompilerCache.fresh, Some(callback))(logger)
+    compile.compile1(compilationData.sources, compilationData.classpath, compileSetup, Some(progress), analysisStore,
+      Function.const(None), Locate.definesClass, scalac, javac, reporter, false, CompilerCache.fresh, Some(callback))(logger)
   }
 }
 
-private class Callback(compilerName: String, messageHandler: MessageHandler, fileHandler: FileHandler) extends AnalysisCallback {
+private class Callback(compilerName: String,
+                       messageHandler: MessageHandler,
+                       fileHandler: FileHandler) extends AnalysisCallback {
+
   def beginSource(source: File) {}
 
   def sourceDependency(dependsOn: File, source: File) {}

@@ -16,8 +16,8 @@ public class ProjectSettingsImpl extends JpsElementBase<ProjectSettingsImpl> imp
     myState = state;
   }
 
-  public boolean isScalaFirst() {
-    return myState.SCALAC_BEFORE;
+  public Order getCompilationOrder() {
+    return myState.SCALAC_BEFORE ? Order.ScalaThenJava : Order.JavaThenScala;
   }
 
   public LibraryLevel getCompilerLibraryLevel() {
