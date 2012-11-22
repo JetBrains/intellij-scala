@@ -116,6 +116,7 @@ class HighlightingAdvisor(project: Project) extends ProjectComponent with Persis
   def toggle() {
     if(applicable) {
       enabled = !enabled
+      TypeAwareHighlightingApplicationState.getInstance setSuggest enabled
     }
   }
 

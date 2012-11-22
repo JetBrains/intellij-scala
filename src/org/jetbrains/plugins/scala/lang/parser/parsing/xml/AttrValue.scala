@@ -30,10 +30,10 @@ object AttrValue {
     builder.getTokenType match {
       case XmlTokenType.XML_ATTRIBUTE_VALUE_START_DELIMITER => {
         builder.advanceLexer()
-        while (VALID_ATTRIBUTE_TOKENS.contains(builder.getTokenType)) {
-          builder.advanceLexer()
+        var patched = false
+        while (VALID_ATTRIBUTE_TOKENS.contains(builder.getTokenType) || {patched = patcher parse builder; patched}) {
+          if (!patched) builder.advanceLexer() else patched = false
         }
-        while (patcher.parse(builder)){}
         builder.getTokenType match {
           case XmlTokenType.XML_ATTRIBUTE_VALUE_END_DELIMITER => builder.advanceLexer()
           case _ => builder error ErrMsg("xml.attribute.end.expected")
