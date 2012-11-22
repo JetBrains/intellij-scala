@@ -43,9 +43,8 @@ object CompilerData {
 
             val javaHomeDirectory = new File(jdk.getHomePath)
 
-            Option(javaHomeDirectory).filter(it => it.exists() && it.isDirectory)
-                    .toRight("JDK home directory does not exists: " + javaHomeDirectory)
-                    .map { javaHome =>
+            Either.cond(javaHomeDirectory.exists, javaHomeDirectory,
+              "JDK home directory does not exists: " + javaHomeDirectory).map { javaHome =>
 
               val extraJars = files.filterNot(file => file == libraryJar || file == compilerJar)
 
