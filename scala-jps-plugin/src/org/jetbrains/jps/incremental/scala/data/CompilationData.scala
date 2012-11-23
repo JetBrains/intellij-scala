@@ -7,6 +7,7 @@ import org.jetbrains.jps.ModuleChunk
 import org.jetbrains.jps.incremental.scala.SettingsManager
 import collection.JavaConverters._
 import org.jetbrains.jps.incremental.scala.model.Order
+import org.jetbrains.jps.builders.java.JavaModuleBuildTargetType
 
 /**
  * @author Pavel Fatin
@@ -16,7 +17,8 @@ case class CompilationData(sources: Seq[File],
                            output: File,
                            options: Seq[String],
                            order: Order,
-                           cacheFile: File)
+                           cacheFile: File,
+                           outputToCacheMap: Map[File, File])
 
 object CompilationData {
   def from(sources: Seq[File], context: CompileContext, chunk: ModuleChunk): Either[String, CompilationData] = {
@@ -42,13 +44,30 @@ object CompilationData {
           projectSettings.getCompilationOrder
         }
 
-        val cacheFile = {
-          val paths = context.getProjectDescriptor.dataManager.getDataPaths
-          new File(paths.getTargetDataRoot(chunk.representativeTarget), "cache.dat")
+        val outputToCacheMap = createOutputToCacheMap(context)
+
+        val cacheFile = outputToCacheMap.get(output).getOrElse {
+          throw new RuntimeException("Unknown build target output directory: " + output)
         }
 
-        CompilationData(sources, classpath, output, options, order, cacheFile)
+        val relevantOutputToCacheMap = (outputToCacheMap - output).filter(p => classpath.contains(p._1))
+
+        CompilationData(sources, classpath, output, options, order, cacheFile, relevantOutputToCacheMap)
       }
     }
+  }
+
+  private def createOutputToCacheMap(context: CompileContext): Map[File, File] = {
+    val buildTargetIndex = context.getProjectDescriptor.getBuildTargetIndex
+    val paths = context.getProjectDescriptor.dataManager.getDataPaths
+
+    val pairs = for (targetType <- JavaModuleBuildTargetType.ALL_TYPES.asScala;
+                     target <- buildTargetIndex.getAllTargets(targetType).asScala) yield {
+      val targetDirectory = target.getOutputDir
+      val cache = new File(paths.getTargetDataRoot(target), "cache.dat")
+      (targetDirectory, cache)
+    }
+
+    pairs.toMap
   }
 }

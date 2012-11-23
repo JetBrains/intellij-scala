@@ -7,7 +7,7 @@ import java.io.File
 import sbt.{CompileSetup, CompileOptions}
 import xsbti.compile.{CompileProgress, CompileOrder}
 import org.jetbrains.jps.incremental.messages.CompilerMessage
-import sbt.inc.{AnalysisStore, Locate}
+import sbt.inc.{Analysis, AnalysisStore, Locate}
 import scala.Some
 import org.jetbrains.jps.incremental.MessageHandler
 import xsbti.{Severity, Position, AnalysisCallback}
@@ -47,8 +47,26 @@ class CompilerImpl(scalac: AnalyzingCompiler,
 
     val logger = new MessageHandlerLogger("scala", messageHandler)
 
-    compile.compile1(compilationData.sources, compilationData.classpath, compileSetup, Some(progress), analysisStore,
-      Function.const(None), Locate.definesClass, scalac, javac, reporter, false, CompilerCache.fresh, Some(callback))(logger)
+    val outputToAnalysisMap = compilationData.outputToCacheMap.map { case (output, cache) =>
+      val analysis = storeProvider(cache).get().map(_._1).getOrElse(Analysis.Empty)
+      (output, analysis)
+    }
+
+    compile.compile1(
+      compilationData.sources,
+      compilationData.classpath,
+      compileSetup,
+      Some(progress),
+      analysisStore,
+      outputToAnalysisMap.get,
+      Locate.definesClass,
+      scalac,
+      javac,
+      reporter,
+      false,
+      CompilerCache.fresh,
+      Some(callback)
+    )(logger)
   }
 }
 
