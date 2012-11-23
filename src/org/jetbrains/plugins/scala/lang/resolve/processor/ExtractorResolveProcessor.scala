@@ -6,15 +6,14 @@ package processor
 import psi.api.base.ScReferenceElement
 import psi.api.statements._
 import com.intellij.psi._
-import params.ScParameter
 import psi.types._
 
 import result.TypingContext
 import scala._
 import collection.mutable.HashSet
 import collection.Set
-import psi.api.base.patterns.ScBindingPattern
 import psi.api.toplevel.typedef.ScObject
+import psi.api.toplevel.ScTypedDefinition
 
 class ExtractorResolveProcessor(ref: ScReferenceElement,
                                 refName: String,
@@ -27,36 +26,34 @@ class ExtractorResolveProcessor(ref: ScReferenceElement,
     if (nameAndKindMatch(named, state)) {
       val accessible = isAccessible(named, ref)
       if (accessibility && !accessible) return true
+
+      def resultsForTypedDef(obj: ScTypedDefinition) {
+        def resultsFor(unapplyName: String) = {
+          val typeResult = obj.getType(TypingContext.empty)
+          val processor = new CollectMethodsProcessor(ref, unapplyName)
+          typeResult.foreach(t => processor.processType(t, ref))
+          val sigs = processor.candidatesS.flatMap {
+            case ScalaResolveResult(meth: PsiMethod, subst) => Some((meth, subst, Some(obj)))
+            case _ => None
+          }.toSeq
+          addResults(sigs.map {
+            case (m, subst, parent) =>
+              new ScalaResolveResult(m, getSubst(state).followed(subst), getImports(state),
+                fromType = getFromType(state), parentElement = parent, isAccessible = accessible)
+          })
+        }
+        resultsFor("unapply")
+        if (candidatesSet.isEmpty) // unapply has higher priority then unapplySeq
+          resultsFor("unapplySeq")
+      }
+
       named match {
-        case o: ScObject if o.isPackageObject => return true
-        case obj: ScObject =>
-          var seq = obj.signaturesByName("unapply").map {sign =>
-            val m = sign.method
-            val subst = sign.substitutor
-            new ScalaResolveResult(m, getSubst(state).followed(subst), getImports(state),
-              fromType = getFromType(state), parentElement = Some(obj), isAccessible = accessible)
-          }
-          addResults(seq)
-          //unapply has bigger priority then unapplySeq
-          if (candidatesSet.isEmpty)
-          seq = obj.signaturesByName("unapplySeq").map {sign =>
-            val m = sign.method
-            val subst = sign.substitutor
-            new ScalaResolveResult(m, getSubst(state).followed(subst), getImports(state),
-              fromType = getFromType(state), parentElement = Some(obj), isAccessible = accessible)
-          }
-          addResults(seq)
-          return true
-        case bind: ScBindingPattern =>
-          addResult(new ScalaResolveResult(bind, getSubst(state), getImports(state), fromType = getFromType(state),
-            isAccessible = accessible))
-        case param: ScParameter =>
-          addResult(new ScalaResolveResult(param, getSubst(state), getImports(state), fromType = getFromType(state),
-            isAccessible = accessible))
-        case _ => return true
+        case o: ScObject if o.isPackageObject =>
+        case td: ScTypedDefinition => resultsForTypedDef(td)
+        case _ =>
       }
     }
-    return true
+    true
   }
 
   override def candidatesS: Set[ScalaResolveResult] = {
