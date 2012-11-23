@@ -13,7 +13,7 @@ import com.intellij.lang.parameterInfo._
 import com.intellij.psi.util.PsiTreeUtil
 import psi.api.base.ScStableCodeReferenceElement
 import psi.api.statements.ScFunction
-import psi.api.toplevel.typedef.{ScObject, ScClass}
+import psi.api.toplevel.typedef.{ScTypeDefinition, ScObject, ScClass}
 import psi.ScalaPsiUtil
 import psi.types._
 import com.intellij.util.ArrayUtil
@@ -186,7 +186,19 @@ class ScalaPatternParameterInfoHandler extends ParameterInfoHandlerWithTabAction
             }
             case None => paramTypeText
           }
-        case _ => paramTypeText
+        case fun: ScFunction =>
+          // Look for a corresponding apply method beside the unapply method.
+          // TODO also check types correspond, allowing for overloading
+          val applyParam: Option[PsiParameter] = ScalaPsiUtil.getApplyMethods(fun.containingClass) match {
+            case Seq(sig) => sig.method.getParameterList.getParameters.lift(o)
+            case _ => None
+          }
+          applyParam match {
+            case Some(param) => param.getName + ": " + paramTypeText
+            case None => paramTypeText
+          }
+        case _ =>
+          paramTypeText
       }
     } else paramTypeText
   }
