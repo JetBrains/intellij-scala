@@ -433,7 +433,7 @@ abstract class AbstractTestRunConfiguration(val project: Project,
     JDOMExternalizer.write(element, "workingDirectory", workingDirectory)
     JDOMExternalizer.write(element, "searchForTest", searchTest.toString)
     JDOMExternalizer.write(element, "testName", testName)
-    JDOMExternalizer.write(element, "testKind", testKind.toString)
+    JDOMExternalizer.write(element, "testKind", if (testKind != null) testKind.toString else TestKind.CLASS.toString)
     JDOMExternalizer.write(element, "showProgressMessages", showProgressMessages.toString)
     PathMacroManager.getInstance(getProject).collapsePathsRecursively(element)
   }
