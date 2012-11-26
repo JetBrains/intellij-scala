@@ -37,9 +37,10 @@ import com.intellij.execution.impl.ConsoleViewImpl
 import java.awt.event.{KeyEvent, KeyListener}
 import javax.swing._
 import java.awt.{Adjustable, Dimension, BorderLayout}
-import com.intellij.openapi.fileEditor._
 import com.intellij.ui.components.JBScrollBar
 import scala.Some
+import com.intellij.openapi.editor.impl.EditorImpl
+import com.intellij.openapi.fileEditor.{FileEditorManagerAdapter, FileEditorManagerListener, FileEditorManager}
 
 /**
  * @author Ksenia.Sautina
@@ -56,6 +57,7 @@ class WorksheetRunConfiguration(val project: Project, val configurationFactory: 
 
   val ContinueString = "     | "
   val PromptString   = "scala> "
+  var wvDocument: Document = null
 
   private var javaOptions = "-Djline.terminal=NONE"
   private var workingDirectory = {
@@ -111,6 +113,9 @@ class WorksheetRunConfiguration(val project: Project, val configurationFactory: 
       myScrollPane.setVerticalScrollBar(myVerticalScrollBar)
       myScrollPane.setHorizontalScrollBar(myHorizontalScrollBar)
 
+      val model = editor.asInstanceOf[EditorImpl].getScrollPane.getVerticalScrollBar.getModel
+      myScrollPane.getVerticalScrollBar.setModel(model)
+
       myPanel.add(myScrollPane, BorderLayout.CENTER)
       myPanel.setPreferredSize(prefDim)
       myPanel.setAutoscrolls(true)
@@ -133,21 +138,6 @@ class WorksheetRunConfiguration(val project: Project, val configurationFactory: 
       }
     }
 
-    def cleanEditor(node: ASTNode, document: Document) {
-      if (node.getPsi.isInstanceOf[PsiComment] && node.getText.startsWith(WorksheetFoldingBuilder.SPACE_MARKER)) {
-        val line = document.getLineNumber(node.getPsi.getTextRange.getStartOffset)
-        val lineStartOffset = document.getLineStartOffset(line)
-        val lineEndOffset = document.getLineEndOffset(line)
-        val lineText = document.getText(new TextRange(lineStartOffset, lineEndOffset))
-        val add = if (lineText.substring(WorksheetFoldingBuilder.SPACE_MARKER.length).trim == "") 1 else 0
-        document.deleteString(node.getPsi.getTextRange.getStartOffset, node.getPsi.getTextRange.getEndOffset + add)
-        PsiDocumentManager.getInstance(project).commitDocument(document)
-      }
-      for (child <- node.getChildren(null)) {
-        cleanEditor(child, document)
-      }
-    }
-
     def addWorksheetEvaluationResults(s: String, editor: Editor, worksheetViewer: Editor) {
       val document = editor.getDocument
       val worksheetViewerDocument = worksheetViewer.getDocument
@@ -166,36 +156,58 @@ class WorksheetRunConfiguration(val project: Project, val configurationFactory: 
 
         if (isFirstLine) {
           buffer.append(WorksheetFoldingBuilder.FIRST_LINE_PREFIX).append(" ").append(s)
-        }
-        else {
+        } else {
           buffer.append(WorksheetFoldingBuilder.LINE_PREFIX).append(" ").append(s)
-          document.insertString(document.getLineEndOffset(currentLine) + 1, WorksheetFoldingBuilder.SPACE_MARKER + "\n")
+          document.insertString(document.getLineEndOffset(currentLine) + 1, "\n")
           addedLinesCount = addedLinesCount + 1
         }
 
         worksheetViewerDocument.insertString(worksheetViewerDocument.getTextLength, buffer.toString())
         PsiDocumentManager.getInstance(project).commitDocument(worksheetViewerDocument)
+
+        wvDocument = worksheetViewerDocument
         PsiDocumentManager.getInstance(project).commitDocument(document)
       }
     }
 
-    def evaluateWorksheet(psiFile: ScalaFile, processHandler: ProcessHandler, editor: Editor, worksheetViewer: Editor) {
-      def cleanWorksheet(node: ASTNode, editor: Editor, worksheetViewerDocument: Document) {
-        currentIndex = -1
-        isFirstLine = true
-        lineNumbers.clear()
-        addedLinesCount = 0
+    def cleanWorksheet(node: ASTNode, document: Document) {
+      currentIndex = -1
+      isFirstLine = true
+      lineNumbers.clear()
+      addedLinesCount = 0
 
-        worksheetViewerDocument.setText("")
-        PsiDocumentManager.getInstance(project).commitDocument(worksheetViewerDocument)
-        cleanEditor(node, editor.getDocument)
+      try {
+        if (wvDocument != null && wvDocument.getLineCount > 0) {
+          for (i <- wvDocument.getLineCount - 1 to 0 by -1) {
+            val wStartOffset = wvDocument.getLineStartOffset(i)
+            val wEndOffset = wvDocument.getLineEndOffset(i)
+
+            val wCurrentLine = wvDocument.getText(new TextRange(wStartOffset, wEndOffset))
+            if (wCurrentLine.trim != "" && wCurrentLine.trim != "\n") {
+              val eStartOffset = document.getLineStartOffset(i)
+              val eEndOffset = document.getLineEndOffset(i)
+              val eCurrentLine = document.getText(new TextRange(eStartOffset, eEndOffset))
+
+              if (eCurrentLine.trim == "" || eCurrentLine.trim == "\n") {
+                document.deleteString(eStartOffset, eEndOffset + 1)
+                PsiDocumentManager.getInstance(project).commitDocument(document)
+              }
+            }
+          }
+        }
+      } finally {
+        if (wvDocument != null) {
+          wvDocument.setText("")
+          PsiDocumentManager.getInstance(project).commitDocument(wvDocument)
+        }
       }
+    }
 
+    def evaluateWorksheet(psiFile: ScalaFile, processHandler: ProcessHandler, editor: Editor) {
       invokeLater {
         inWriteAction {
-          cleanWorksheet(psiFile.getNode, editor, worksheetViewer.getDocument)
-
           val document = editor.getDocument
+          cleanWorksheet(psiFile.getNode, document)
           val file = PsiDocumentManager.getInstance(project).getPsiFile(document)
           var isObject = false
           var myObject: ScObject = null
@@ -336,17 +348,15 @@ class WorksheetRunConfiguration(val project: Project, val configurationFactory: 
           override def fileClosed(source: FileEditorManager, file: VirtualFile) {
             invokeLater {
               inWriteAction {
-                cleanEditor(psiFile.getNode, editor.getDocument)
+                cleanWorksheet(psiFile.getNode, editor.getDocument)
               }
             }
           }
         })
 
-        val worksheetViewer: Editor = createWorksheetViewer(editor)
-
+        val worksheetViewer = createWorksheetViewer(editor)
         val worksheetConsoleView = new ConsoleViewImpl(project, false)
-
-        evaluateWorksheet(psiFile.asInstanceOf[ScalaFile], processHandler, editor, worksheetViewer)
+        evaluateWorksheet(psiFile.asInstanceOf[ScalaFile], processHandler, editor)
 
         var results_count = 0
         val myProcessListener: ProcessAdapter = new ProcessAdapter {

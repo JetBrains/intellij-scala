@@ -28,8 +28,6 @@ class WorksheetFoldingBuilder extends FoldingBuilder {
         return ">"
       } else if (text.startsWith(WorksheetFoldingBuilder.LINE_PREFIX)) {
         return "|"
-      } else if (text.startsWith(WorksheetFoldingBuilder.SPACE_MARKER)) {
-        return ""
       }
     }
     "/../"
@@ -59,14 +57,6 @@ class WorksheetFoldingBuilder extends FoldingBuilder {
           node.getPsi.asInstanceOf[PsiComment].getTextRange.getStartOffset + length), null, Collections.emptySet[AnyRef], true))
     }
 
-    if (node.getElementType == ScalaTokenTypes.tBLOCK_COMMENT &&
-        node.getText.startsWith(WorksheetFoldingBuilder.SPACE_MARKER)) {
-      val length = WorksheetFoldingBuilder.SPACE_MARKER.length
-      descriptors += (new FoldingDescriptor(node,
-        new TextRange(node.getPsi.asInstanceOf[PsiComment].getTextRange.getStartOffset,
-          node.getPsi.asInstanceOf[PsiComment].getTextRange.getStartOffset + length), null, Collections.emptySet[AnyRef], true))
-    }
-
     for (child <- node.getChildren(null)) {
       appendDescriptors(child, document, descriptors, processedComments)
     }
@@ -76,5 +66,4 @@ class WorksheetFoldingBuilder extends FoldingBuilder {
 object WorksheetFoldingBuilder {
   val FIRST_LINE_PREFIX = ">"
   val LINE_PREFIX = "|"
-  val SPACE_MARKER = "/*marker*/"
 }
