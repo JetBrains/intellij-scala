@@ -43,7 +43,6 @@ public class ScalaProjectSettingsPanel {
   private JComboBox collectionHighlightingChooser;
   private JCheckBox importTheShortestPathCheckBox;
   private JPanel myImportsWithPrefixPanel;
-  private JSpinner leftIndentSpinner;
   private JSpinner shiftSpinner;
   private JBList referencesWithPrefixList;
   private DefaultListModel myReferencesWithPrefixModel;
@@ -52,7 +51,6 @@ public class ScalaProjectSettingsPanel {
   public ScalaProjectSettingsPanel(Project project) {
     myProject = project;
     classCountSpinner.setModel(new SpinnerNumberModel(1, 1, null, 1));
-    leftIndentSpinner.setModel(new SpinnerNumberModel(50, 40, null, 10));
     shiftSpinner.setModel(new SpinnerNumberModel(80, 40, null, 10));
     referencesWithPrefixList = new JBList();
     JPanel panel = ToolbarDecorator.createDecorator(referencesWithPrefixList)
@@ -123,7 +121,6 @@ public class ScalaProjectSettingsPanel {
     ScalaProjectSettings.getInstance(myProject).setAddFullQualifiedImports(addFullQualifiedImportsCheckBox.isSelected());
     ScalaProjectSettings.getInstance(myProject).setSortImports(sortImportsCheckBox.isSelected());
     ScalaProjectSettings.getInstance(myProject).setClassCountToUseImportOnDemand((Integer) classCountSpinner.getValue());
-    ScalaProjectSettings.getInstance(myProject).setLeftIndent((Integer) leftIndentSpinner.getValue());
     ScalaProjectSettings.getInstance(myProject).setShift((Integer) shiftSpinner.getValue());
     ScalaProjectSettings.getInstance(myProject).setImportMembersUsingUnderScore(importMembersUsingUnderscoreCheckBox.isSelected());
 
@@ -159,8 +156,6 @@ public class ScalaProjectSettingsPanel {
 
     if (ScalaProjectSettings.getInstance(myProject).getClassCountToUseImportOnDemand() !=
         (Integer) classCountSpinner.getValue()) return true;
-    if (ScalaProjectSettings.getInstance(myProject).getLeftIndent() !=
-        (Integer) leftIndentSpinner.getValue()) return true;
     if (ScalaProjectSettings.getInstance(myProject).getShift() !=
         (Integer) shiftSpinner.getValue()) return true;
     if (ScalaProjectSettings.getInstance(myProject).isAddImportMostCloseToReference() !=
@@ -218,8 +213,6 @@ public class ScalaProjectSettingsPanel {
         ScalaProjectSettings.getInstance(myProject).isSortImports());
     setValue(classCountSpinner,
         ScalaProjectSettings.getInstance(myProject).getClassCountToUseImportOnDemand());
-    setValue(leftIndentSpinner,
-        ScalaProjectSettings.getInstance(myProject).getLeftIndent());
     setValue(shiftSpinner,
         ScalaProjectSettings.getInstance(myProject).getShift());
     setValue(importMembersUsingUnderscoreCheckBox,

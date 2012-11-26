@@ -41,6 +41,7 @@ import com.intellij.ui.components.JBScrollBar
 import scala.Some
 import com.intellij.openapi.editor.impl.EditorImpl
 import com.intellij.openapi.fileEditor.{FileEditorManagerAdapter, FileEditorManagerListener, FileEditorManager}
+import settings.ScalaProjectSettings
 
 /**
  * @author Ksenia.Sautina
@@ -139,6 +140,7 @@ class WorksheetRunConfiguration(val project: Project, val configurationFactory: 
     }
 
     def addWorksheetEvaluationResults(s: String, editor: Editor, worksheetViewer: Editor) {
+      val SHIFT = ScalaProjectSettings.getInstance(project).getShift
       val document = editor.getDocument
       val worksheetViewerDocument = worksheetViewer.getDocument
       val buffer = new mutable.StringBuilder()
@@ -162,6 +164,16 @@ class WorksheetRunConfiguration(val project: Project, val configurationFactory: 
           addedLinesCount = addedLinesCount + 1
         }
 
+        if (s.length > SHIFT) {
+          var index =  SHIFT + WorksheetFoldingBuilder.FIRST_LINE_PREFIX.length + 1
+          while (index < buffer.length) {
+            buffer.insert(index, "\n" + WorksheetFoldingBuilder.LINE_PREFIX + " ")
+            index = index + SHIFT + WorksheetFoldingBuilder.LINE_PREFIX.length
+            document.insertString(document.getLineEndOffset(currentLine) + 1, "\n")
+            addedLinesCount = addedLinesCount + 1
+          }
+        }
+
         worksheetViewerDocument.insertString(worksheetViewerDocument.getTextLength, buffer.toString())
         PsiDocumentManager.getInstance(project).commitDocument(worksheetViewerDocument)
 
@@ -183,12 +195,12 @@ class WorksheetRunConfiguration(val project: Project, val configurationFactory: 
             val wEndOffset = wvDocument.getLineEndOffset(i)
 
             val wCurrentLine = wvDocument.getText(new TextRange(wStartOffset, wEndOffset))
-            if (wCurrentLine.trim != "" && wCurrentLine.trim != "\n") {
+            if (wCurrentLine.trim != "" && wCurrentLine.trim != "\n" && i < document.getLineCount) {
               val eStartOffset = document.getLineStartOffset(i)
               val eEndOffset = document.getLineEndOffset(i)
               val eCurrentLine = document.getText(new TextRange(eStartOffset, eEndOffset))
 
-              if (eCurrentLine.trim == "" || eCurrentLine.trim == "\n") {
+              if ((eCurrentLine.trim == "" || eCurrentLine.trim == "\n") && eEndOffset + 1 < document.getTextLength) {
                 document.deleteString(eStartOffset, eEndOffset + 1)
                 PsiDocumentManager.getInstance(project).commitDocument(document)
               }

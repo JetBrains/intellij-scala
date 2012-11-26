@@ -24,7 +24,6 @@ import java.io.File;
 public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProjectSettings>, ExportableComponent {
   private boolean IMPORT_SHORTEST_PATH_FOR_AMBIGUOUS_REFERENCES = true;
   private int CLASS_COUNT_TO_USE_IMPORT_ON_DEMAND = 5;
-  private int LEFT_INDENT = 50;
   private int SHIFT = 80;
   private boolean ADD_IMPORT_MOST_CLOSE_TO_REFERENCE = false;
   private boolean ADD_FULL_QUALIFIED_IMPORTS = false;
@@ -127,14 +126,6 @@ public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProj
 
   public void setClassCountToUseImportOnDemand(int value) {
     CLASS_COUNT_TO_USE_IMPORT_ON_DEMAND = value;
-  }
-
-  public int getLeftIndent() {
-    return LEFT_INDENT;
-  }
-
-  public void setLeftIndent(int value) {
-    LEFT_INDENT = value;
   }
 
   public int getShift() {
