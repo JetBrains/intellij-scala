@@ -30,7 +30,7 @@ object CompilationData {
             .flatMap { facet =>
 
       Option(target.getOutputDir)
-              .toRight("Output directory not specified for module " + target.getModuleName)
+              .toRight("Output directory not specified for module " + module.getName)
               .map { output =>
 
         val classpath = context.getProjectPaths
