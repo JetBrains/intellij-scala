@@ -5,7 +5,7 @@ import com.intellij.openapi.util.io.FileUtil
 import com.intellij.util.PathUtil
 import com.intellij.util.Processor
 import org.jetbrains.jps.ModuleChunk
-import org.jetbrains.jps.builders.{BuildRootDescriptor, BuildTarget, ChunkBuildOutputConsumer, DirtyFilesHolder}
+import org.jetbrains.jps.builders.{BuildRootDescriptor, BuildTarget, DirtyFilesHolder}
 import org.jetbrains.jps.builders.java.JavaSourceRootDescriptor
 import org.jetbrains.jps.incremental._
 import org.jetbrains.jps.incremental.messages.BuildMessage
@@ -15,7 +15,7 @@ import org.jetbrains.jps.incremental.scala.data.CompilationData
 import org.jetbrains.jps.incremental.scala.data.CompilerData
 import org.jetbrains.jps.incremental.scala.data.SbtData
 import collection.JavaConverters._
-import org.jetbrains.jps.incremental.ModuleLevelBuilder.ExitCode
+import org.jetbrains.jps.incremental.ModuleLevelBuilder.{OutputConsumer, ExitCode}
 import sbt.inc.{AnalysisFormats, FileBasedStore, AnalysisStore}
 import org.jetbrains.jps.model.java.JavaSourceRootType
 
@@ -27,7 +27,7 @@ class ScalaBuilder extends ModuleLevelBuilder(BuilderCategory.TRANSLATOR) {
 
   def build(context: CompileContext, chunk: ModuleChunk,
             dirtyFilesHolder: DirtyFilesHolder[JavaSourceRootDescriptor, ModuleBuildTarget],
-            outputConsumer: ChunkBuildOutputConsumer): ModuleLevelBuilder.ExitCode = {
+            outputConsumer: OutputConsumer): ModuleLevelBuilder.ExitCode = {
 
     // Check whether a Scala facet is present in the chunk modules
     if (chunk.getModules.asScala.forall(module => SettingsManager.getFacetSettings(module) == null)) {

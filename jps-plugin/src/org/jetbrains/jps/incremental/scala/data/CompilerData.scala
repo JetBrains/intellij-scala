@@ -30,11 +30,11 @@ object CompilerData {
       val files = compilerLibrary.getFiles(JpsOrderRootType.COMPILED).asScala
 
       files.find(_.getName == "scala-library.jar")
-              .toRight("No 'scala-library.jar' in Scala compiler library in " + target.getModuleName)
+              .toRight("No 'scala-library.jar' in Scala compiler library in " + module.getName)
               .flatMap { libraryJar =>
 
         files.find(_.getName == "scala-compiler.jar")
-                .toRight("No 'scala-compiler.jar' in Scala compiler library in " + target.getModuleName)
+                .toRight("No 'scala-compiler.jar' in Scala compiler library in " + module.getName)
                 .flatMap { compilerJar =>
 
           Option(module.getSdk(JpsJavaSdkType.INSTANCE))
