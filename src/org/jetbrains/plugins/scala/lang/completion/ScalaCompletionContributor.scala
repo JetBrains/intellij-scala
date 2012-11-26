@@ -60,7 +60,10 @@ class ScalaCompletionContributor extends CompletionContributor {
       val classNameCompletion = shouldRunClassNameCompletion(parameters, result.getPrefixMatcher)
       val insertedElement: PsiElement = parameters.getPosition
       if (!insertedElement.getContainingFile.isInstanceOf[ScalaFile]) return
-      val lookingForAnnotations: Boolean = psiElement.afterLeaf("@").accepts(insertedElement)
+      val lookingForAnnotations: Boolean =
+        Option(insertedElement.getContainingFile findElementAt (insertedElement.getTextOffset - 1)) map {
+          _.getNode.getElementType == ScalaTokenTypes.tAT
+        } getOrElse false
 
       var elementAdded = false
       def addElement(el: LookupElement) {
