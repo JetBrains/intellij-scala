@@ -6,8 +6,6 @@ import java.net.URLClassLoader
 import sbt.{ClasspathOptions, ScalaInstance, Path}
 import sbt.compiler.{AggressiveCompile, IC}
 import xsbti.Logger
-import org.jetbrains.jps.incremental.MessageHandler
-import org.jetbrains.jps.incremental.messages.ProgressMessage
 import CompilerFactoryImpl._
 import sbt.inc.AnalysisStore
 
@@ -15,17 +13,15 @@ import sbt.inc.AnalysisStore
  * @author Pavel Fatin
  */
 class CompilerFactoryImpl(sbtData: SbtData) extends CompilerFactory {
-  def createCompiler(compilerData: CompilerData,
-                     storeProvider: File => AnalysisStore,
-                     messageHandler: MessageHandler): Compiler = {
+  def createCompiler(compilerData: CompilerData, client: Client, fileToStore: File => AnalysisStore): Compiler = {
 
     val scalaInstance = createScalaInstance(compilerData.libraryJar, compilerData.compilerJar, compilerData.extraJars)
 
     val scalac = {
-      val logger = new MessageHandlerLogger("scala", messageHandler)
+      val logger = new ClientLogger(client)
 
       val compiledIntefaceJar = getOrCompileInterfaceJar(sbtData.interfacesHome, sbtData.sourceJar,
-        sbtData.interfaceJar, scalaInstance, sbtData.javaClassVersion, logger, messageHandler)
+        sbtData.interfaceJar, scalaInstance, sbtData.javaClassVersion, logger, client)
 
       IC.newScalaCompiler(scalaInstance, compiledIntefaceJar, ClasspathOptions.boot, logger)
     }
@@ -33,7 +29,7 @@ class CompilerFactoryImpl(sbtData: SbtData) extends CompilerFactory {
     val javac = AggressiveCompile.directOrFork(scalaInstance,
       ClasspathOptions.javac(compiler = false), Some(compilerData.javaHome))
 
-    new CompilerImpl(scalac, javac, storeProvider)
+    new CompilerImpl(scalac, javac, fileToStore)
   }
 }
 
@@ -50,13 +46,13 @@ object CompilerFactoryImpl {
   }
 
   private def getOrCompileInterfaceJar(home: File, sourceJar: File, interfaceJar: File, scalaInstance: ScalaInstance,
-                               javaClassVersion: String, log: Logger, messageHandler: MessageHandler): File = {
+                                       javaClassVersion: String, log: Logger, client: Client): File = {
     val scalaVersion = scalaInstance.actualVersion
     val interfaceId = "compiler-interface-" + scalaVersion + "-" + javaClassVersion
     val targetJar = new File(home, interfaceId + ".jar")
 
     if (!targetJar.exists) {
-      messageHandler.processMessage(new ProgressMessage("Compiling Scalac " + scalaVersion + " interface"))
+      client.progress("Compiling Scalac " + scalaVersion + " interface")
       home.mkdirs()
       IC.compileInterfaceJar(interfaceId, sourceJar, targetJar, interfaceJar, scalaInstance, log)
     }

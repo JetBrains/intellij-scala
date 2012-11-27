@@ -5,10 +5,6 @@
       <root url="jar://$PROJECT_DIR$/SDK/sbt/jline.jar!/" />
     </CLASSES>
     <JAVADOC />
-    <SOURCES>
-      <root url="file://D:/dropbox/xsbt/interface/src/main/java" />
-      <root url="file://D:/dropbox/xsbt/compile" />
-      <root url="file://D:/dropbox/xsbt/util" />
-    </SOURCES>
+    <SOURCES />
   </library>
 </component>
