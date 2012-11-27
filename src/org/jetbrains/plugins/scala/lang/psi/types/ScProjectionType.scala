@@ -16,6 +16,7 @@ import extensions.toPsiClassExt
 import collection.immutable.HashSet
 import caches.CachesUtil
 import com.intellij.psi.util.PsiModificationTracker
+import impl.toplevel.templates.ScTemplateBodyImpl
 
 /**
  * @author ilyas
@@ -58,7 +59,7 @@ case class ScProjectionType(projected: ScType, element: PsiNamedElement, subst: 
       val emptySubst = new ScSubstitutor(Map.empty, Map.empty, Some(projected))
       val resolvePlace = {
         def fromClazz(clazz: ScTypeDefinition): PsiElement = {
-          clazz.extendsBlock.templateBody.map(_.getLastChild).
+          clazz.extendsBlock.templateBody.map(_.asInstanceOf[ScTemplateBodyImpl].getLastChildStub).
             getOrElse(clazz.extendsBlock)
         }
         ScType.extractClass(projected, Some(element.getProject)) match {
