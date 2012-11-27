@@ -480,9 +480,10 @@ object ScalaPsiUtil {
         }
         case p@ScParameterizedType(des, args) => {
           ScType.extractClass(p, projectOpt) match {
-            case Some(pair) => parts += tp
+            case Some(pair) => parts += des
             case _ =>
           }
+          collectParts(des, place)
           args.foreach(collectParts(_, place))
         }
         case j: JavaArrayType => {
