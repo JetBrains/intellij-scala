@@ -1,3 +1,3 @@
 type S = String
-val check:S = ""
-//true
+val x: S = ""
+//True
