@@ -373,16 +373,17 @@ object Conformance {
     }
 
     trait AliasDesignatorVisitor extends ScalaTypeVisitor {
+      def stopDesignatorAliasOnFailure: Boolean = false
+
       override def visitDesignatorType(des: ScDesignatorType) {
         des.element match {
           case a: ScTypeAlias =>
             val upper: ScType = a.upperBound.toOption match {
               case Some(up) => up
-              case _ =>
-                result = (false, undefinedSubst)
-                return
+              case _ => return
             }
-            result = conformsInner(l, upper, visited, undefinedSubst)
+            val res = conformsInner(l, upper, visited, undefinedSubst)
+            if (stopDesignatorAliasOnFailure || res._1) result = res
           case _ =>
         }
       }
@@ -411,18 +412,19 @@ object Conformance {
     }
 
     trait ProjectionVisitor extends ScalaTypeVisitor {
+      def stopProjectionAliasOnFailure: Boolean = false
+
       override def visitProjectionType(proj2: ScProjectionType) {
         if (proj2.actualElement.isInstanceOf[ScTypeAlias]) {
           val ta = proj2.actualElement.asInstanceOf[ScTypeAlias]
           val subst = proj2.actualSubst
           val upper: ScType = ta.upperBound.toOption match {
             case Some(up) => up
-            case _ =>
-              result = (false, undefinedSubst)
-              return
+            case _ => return
           }
           val uBound = subst.subst(upper)
-          result = conformsInner(l, uBound, visited, undefinedSubst)
+          val res = conformsInner(l, uBound, visited, undefinedSubst)
+          if (stopProjectionAliasOnFailure || res._1) result = res
         } else if (l.isInstanceOf[ScProjectionType] &&
           ScEquivalenceUtil.smartEquivalence(l.asInstanceOf[ScProjectionType].actualElement, proj2.actualElement)) {
           val proj1 = l.asInstanceOf[ScProjectionType]
@@ -523,6 +525,13 @@ object Conformance {
           return
         }
         else if (!r.isInstanceOf[ScExistentialArgument] && !r.isInstanceOf[ScExistentialType]) {
+          rightVisitor = new AliasDesignatorVisitor with ProjectionVisitor {
+            override def stopProjectionAliasOnFailure: Boolean = true
+
+            override def stopDesignatorAliasOnFailure: Boolean = true
+          }
+          r.visitType(rightVisitor)
+          if (result != null) return
           result = (true, undefinedSubst)
           return
         }
@@ -680,7 +689,7 @@ object Conformance {
       r.visitType(rightVisitor)
       if (result != null) return
 
-      rightVisitor = new ParameterizedAliasVisitor with AliasDesignatorVisitor with CompoundTypeVisitor {}
+      rightVisitor = new ParameterizedAliasVisitor with AliasDesignatorVisitor with CompoundTypeVisitor with ProjectionVisitor {}
       r.visitType(rightVisitor)
       if (result != null) return
 
@@ -729,7 +738,7 @@ object Conformance {
         }
       }
 
-      rightVisitor = new ExistentialVisitor with ProjectionVisitor {}
+      rightVisitor = new ExistentialVisitor {}
       r.visitType(rightVisitor)
       if (result != null) return
     }
@@ -1421,6 +1430,10 @@ object Conformance {
       r.visitType(rightVisitor)
       if (result != null) return
 
+      rightVisitor = new AliasDesignatorVisitor with ProjectionVisitor {}
+      r.visitType(rightVisitor)
+      if (result != null) return
+
       if (des.element.isInstanceOf[ScTypeAlias]) {
         val a = des.element.asInstanceOf[ScTypeAlias]
         if (!a.isExistentialTypeAlias) {
@@ -1456,8 +1469,7 @@ object Conformance {
         return
       }
 
-      rightVisitor = new AliasDesignatorVisitor with CompoundTypeVisitor with ExistentialVisitor 
-        with ProjectionVisitor {}
+      rightVisitor = new CompoundTypeVisitor with ExistentialVisitor {}
       r.visitType(rightVisitor)
       if (result != null) return
     }
