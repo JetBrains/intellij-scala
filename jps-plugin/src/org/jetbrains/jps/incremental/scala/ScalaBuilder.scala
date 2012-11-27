@@ -1,5 +1,6 @@
 package org.jetbrains.jps.incremental.scala
 
+import _root_.java.util.Collections
 import java.io.File
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.util.PathUtil
@@ -8,7 +9,7 @@ import org.jetbrains.jps.ModuleChunk
 import org.jetbrains.jps.builders.{BuildRootDescriptor, BuildTarget, DirtyFilesHolder}
 import org.jetbrains.jps.builders.java.JavaSourceRootDescriptor
 import org.jetbrains.jps.incremental._
-import org.jetbrains.jps.incremental.messages.BuildMessage
+import messages.BuildMessage.Kind
 import org.jetbrains.jps.incremental.messages.CompilerMessage
 import org.jetbrains.jps.incremental.messages.ProgressMessage
 import org.jetbrains.jps.incremental.scala.data.CompilationData
@@ -43,27 +44,26 @@ class ScalaBuilder extends ModuleLevelBuilder(BuilderCategory.TRANSLATOR) {
 
     val sources = filesToCompile.keySet.toSeq
 
-    context.processMessage(new ProgressMessage("Reading compilation settings..."))
+    val client = new IdeClient("scala", context, outputConsumer, filesToCompile.get)
+
+    client.progress("Reading compilation settings...")
 
     ScalaBuilder.compilerFactory.flatMap { compilerFactory =>
       CompilerData.from(context, chunk).flatMap { compilerData =>
         CompilationData.from(sources, context, chunk).map { compilationData =>
-          val fileHandler = new ConsumerFileHander(outputConsumer, filesToCompile.asJava)
-          val progressHandler = new ProgressHandler(context)
+          client.progress("Instantiating compiler...")
+          val compiler = compilerFactory.createCompiler(compilerData, client, ScalaBuilder.createAnalysisStore)
 
-          context.processMessage(new ProgressMessage("Instantiating compiler..."))
-          val compiler = compilerFactory.createCompiler(compilerData, ScalaBuilder.createAnalysisStore, context)
-
-          context.processMessage(new ProgressMessage("Compiling..."))
-          compiler.compile(compilationData, context, fileHandler, progressHandler)
+          client.progress("Compiling...")
+          compiler.compile(compilationData, client)
         }
       }
     } match {
       case Left(error) =>
-        context.processMessage(new CompilerMessage("scala", BuildMessage.Kind.ERROR, error))
+        client.error(error)
         ExitCode.ABORT
       case Right(_) =>
-        context.processMessage(new ProgressMessage("Compilation completed", 1.0F))
+        client.progress("Compilation completed", Some(1.0F))
         ExitCode.OK
     }
   }
@@ -117,4 +117,34 @@ object ScalaBuilder {
     val store = FileBasedStore(cacheFile)(AnalysisFormats.analysisFormat, AnalysisFormats.setupFormat)
     AnalysisStore.sync(AnalysisStore.cached(store))
   }
+}
+
+private class IdeClient(compilerName: String,
+                        context: CompileContext,
+                        consumer: OutputConsumer,
+                        sourceToTarget: File => Option[BuildTarget[_ <: BuildRootDescriptor]]) extends Client {
+
+  def message(kind: Kind, text: String, source: Option[File], line: Option[Long], column: Option[Long]) {
+    val sourcePath = source.map(file => FileUtil.toCanonicalPath(file.getPath))
+
+    context.processMessage(new CompilerMessage(compilerName, kind, text, sourcePath.orNull,
+      -1L, -1L, -1L, line.getOrElse(-1L), column.getOrElse(-1L)))
+  }
+
+  def trace(exception: Throwable) {
+    context.processMessage(new CompilerMessage(compilerName, exception))
+  }
+
+  def progress(text: String, done: Option[Float]) {
+    context.processMessage(new ProgressMessage(text, done.getOrElse(-1.0F)))
+  }
+
+  def generated(source: File, module: File) {
+    val target = sourceToTarget(source).getOrElse {
+      throw new RuntimeException("Unknown source file: " + source)
+    }
+    consumer.registerOutputFile(target, module, Collections.emptyList())
+  }
+
+  def isCanceled = context.getCancelStatus.isCanceled
 }

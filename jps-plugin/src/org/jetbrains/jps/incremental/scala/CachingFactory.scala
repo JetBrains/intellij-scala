@@ -3,7 +3,6 @@ package org.jetbrains.jps.incremental.scala
 import data.CompilerData
 import java.io.File
 import sbt.inc.AnalysisStore
-import org.jetbrains.jps.incremental.MessageHandler
 
 /**
  * @author Pavel Fatin
@@ -13,14 +12,11 @@ class CachingFactory(delegate: CompilerFactory, compilersLimit: Int, analysisLim
 
   private val analysisCache = new Cache[File, AnalysisStore](analysisLimit)
 
-  def createCompiler(compilerData: CompilerData,
-                     storeProvider: (File) => AnalysisStore,
-                     messageHandler: MessageHandler): Compiler = {
-
-    def cachingStoreProvider(file: File) = analysisCache.getOrUpdate(file)(storeProvider(file))
+  def createCompiler(compilerData: CompilerData, client: Client, fileToStore: File => AnalysisStore): Compiler = {
+    val cachingFileToStore = (file: File) => analysisCache.getOrUpdate(file)(fileToStore(file))
 
     compilerCache.getOrUpdate(compilerData) {
-      delegate.createCompiler(compilerData, cachingStoreProvider, messageHandler)
+      delegate.createCompiler(compilerData, client, cachingFileToStore)
     }
   }
 }
