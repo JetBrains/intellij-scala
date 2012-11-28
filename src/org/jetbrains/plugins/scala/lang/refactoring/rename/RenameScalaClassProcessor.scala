@@ -32,7 +32,9 @@ class RenameScalaClassProcessor extends RenameJavaClassProcessor {
     }
   }
 
-  override def findReferences(element: PsiElement) = ScalaRenameUtil.filterAliasedReferences(super.findReferences(element))
+  override def findReferences(element: PsiElement) = {
+    ScalaRenameUtil.replaceImportClassReferences(ScalaRenameUtil.filterAliasedReferences(super.findReferences(element)))
+  }
 
   override def prepareRenaming(element: PsiElement, newName: String, allRenames: util.Map[PsiElement, String]) {
     element match {
