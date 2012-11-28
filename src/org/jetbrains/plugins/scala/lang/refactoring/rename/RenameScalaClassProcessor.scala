@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala.lang.refactoring.rename
 
 import com.intellij.refactoring.rename.RenameJavaClassProcessor
-import java.util.Map
 import java.lang.String
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
@@ -11,11 +10,10 @@ import org.jetbrains.plugins.scala.extensions.toPsiNamedElementExt
 import com.intellij.openapi.editor.Editor
 import org.jetbrains.plugins.scala.lang.psi.light.PsiClassWrapper
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
-import com.intellij.psi.{PsiReference, PsiElement}
-import org.jetbrains.plugins.scala.lang.resolve.ResolvableReferenceElement
-import collection.JavaConverters.{asJavaCollectionConverter, iterableAsScalaIterableConverter}
+import com.intellij.psi.PsiElement
 import scala.Some
 import annotation.tailrec
+import java.util
 
 /**
  * User: Alexander Podkhalyuzin
@@ -36,11 +34,11 @@ class RenameScalaClassProcessor extends RenameJavaClassProcessor {
 
   override def findReferences(element: PsiElement) = ScalaRenameUtil.filterAliasedReferences(super.findReferences(element))
 
-  override def prepareRenaming(element: PsiElement, newName: String, allRenames: Map[PsiElement, String]) {
+  override def prepareRenaming(element: PsiElement, newName: String, allRenames: util.Map[PsiElement, String]) {
     element match {
       case td: ScTypeDefinition => {
         ScalaPsiUtil.getCompanionModule(td) match {
-          case Some(td) => allRenames.put(td, newName)
+          case Some(companion) => allRenames.put(companion, newName)
           case _ =>
         }
         @tailrec
