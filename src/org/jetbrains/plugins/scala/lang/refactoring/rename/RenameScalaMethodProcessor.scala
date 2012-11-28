@@ -86,15 +86,17 @@ class RenameScalaMethodProcessor extends RenameJavaMethodProcessor {
     }
 
     val signs = function.superSignatures
-    if (signs.length == 0) return function
-    val dialog = new WarningDialog(function.getProject, ScalaBundle.message("method.has.supers", function.name))
-    dialog.show()
-
-    if (dialog.getExitCode == DialogWrapper.OK_EXIT_CODE) return function
-    //todo: add choosing superMember
-
-    null
+    if (signs.length == 0 || signs.last.namedElement.isEmpty) return function
+    val result = Messages.showDialog(element.getProject, ScalaBundle.message("method.has.supers", function.name), "Warning",
+      Array(CommonBundle.getYesButtonText, CommonBundle.getNoButtonText, CommonBundle.getCancelButtonText), 0, Messages.getQuestionIcon
+    )
+    result match {
+      case 0 => signs.last.namedElement.get
+      case 1 => function
+      case 2 => null
+    }
   }
+
   private class WarningDialog(project: Project, text: String) extends DialogWrapper(project, true) {
     setTitle(IdeBundle.message("title.warning"))
     setButtonsAlignment(SwingConstants.CENTER)
