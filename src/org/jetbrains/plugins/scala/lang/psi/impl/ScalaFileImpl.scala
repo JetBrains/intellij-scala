@@ -323,7 +323,7 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
 
   @Nullable
   def packageName: String = {
-    if (isScriptFile) return null
+    if (isScriptFile || isWorksheetFile) return null
     var res: String = ""
     var x: ScToplevelElement = this
     while (true) {
@@ -352,7 +352,7 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
   }
 
   override def getClasses: Array[PsiClass] = {
-    if (!isScriptFile) {
+    if (!isScriptFile && !isWorksheetFile) {
       if (ScalaFileImpl.isDuringMoveRefactoring) {
         return typeDefinitions.toArray
       }

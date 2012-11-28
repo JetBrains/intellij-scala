@@ -25,9 +25,9 @@ class WorksheetFoldingBuilder extends FoldingBuilder {
     if (element.isInstanceOf[PsiComment]) {
       val text = element.asInstanceOf[PsiComment].getText
       if (text.startsWith(WorksheetFoldingBuilder.FIRST_LINE_PREFIX)) {
-        return ">"
+        return WorksheetFoldingBuilder.FIRST_LINE_PREFIX
       } else if (text.startsWith(WorksheetFoldingBuilder.LINE_PREFIX)) {
-        return "|"
+        return WorksheetFoldingBuilder.LINE_PREFIX
       }
     }
     "/../"
@@ -65,5 +65,5 @@ class WorksheetFoldingBuilder extends FoldingBuilder {
 
 object WorksheetFoldingBuilder {
   val FIRST_LINE_PREFIX = ">"
-  val LINE_PREFIX = "|"
+  val LINE_PREFIX = " "
 }
