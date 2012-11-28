@@ -55,8 +55,11 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
   def bindToElement(element: PsiElement, containingClass: Option[PsiClass]): PsiElement = {
     if (isReferenceTo(element)) return this
     element match {
-      case _: ScTrait => this
-      case c: ScClass if !c.isCase => this
+      case _: ScTrait | _: ScClass =>
+        ScalaPsiUtil.getCompanionModule(element.asInstanceOf[ScTypeDefinition]) match {
+          case Some(obj: ScObject) => bindToElement(obj, containingClass)
+          case _ => this
+        }
       case c: PsiClass => {
         if (!ResolveUtils.kindMatches(element, getKinds(incomplete = false)))
           throw new IncorrectOperationException("class does not match expected kind")
