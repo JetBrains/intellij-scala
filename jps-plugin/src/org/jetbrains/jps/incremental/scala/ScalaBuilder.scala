@@ -1,6 +1,8 @@
 package org.jetbrains.jps.incremental.scala
 
 import _root_.java.util.Collections
+import _root_.org.jetbrains.jps.incremental.CompiledClass
+import _root_.org.jetbrains.jps.javac.BinaryContent
 import java.io.File
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.util.PathUtil
@@ -142,11 +144,16 @@ private class IdeClient(compilerName: String,
     context.processMessage(new ProgressMessage(formattedText, done.getOrElse(-1.0F)))
   }
 
-  def generated(source: File, module: File) {
+  def generated(source: File, module: File, name: String) {
     val target = sourceToTarget(source).getOrElse {
       throw new RuntimeException("Unknown source file: " + source)
     }
-    consumer.registerOutputFile(target, module, Collections.emptyList())
+    val compiledClass = {
+      // TODO expect future JSP API to load the generated file content lazily (on demand)
+      val content = new BinaryContent(FileUtil.loadFileBytes(module))
+      new CompiledClass(module, source, name, content)
+    }
+    consumer.registerCompiledClass(target, compiledClass)
   }
 
   def isCanceled = context.getCancelStatus.isCanceled
