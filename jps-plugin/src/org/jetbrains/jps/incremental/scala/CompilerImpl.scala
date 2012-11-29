@@ -40,7 +40,7 @@ class CompilerImpl(javac: JavaCompiler, scalac: Option[AnalyzingCompiler], fileT
     val logger = new ClientLogger(client)
 
     val outputToAnalysisMap = compilationData.outputToCacheMap.map { case (output, cache) =>
-      val analysis = fileToStore(cache).get().map(_._1).getOrElse(Analysis.Empty)
+      val analysis = if (cache.exists) fileToStore(cache).get().map(_._1) else None
       (output, analysis)
     }
 
@@ -51,7 +51,7 @@ class CompilerImpl(javac: JavaCompiler, scalac: Option[AnalyzingCompiler], fileT
         compileSetup,
         Some(progress),
         analysisStore,
-        outputToAnalysisMap.get,
+        outputToAnalysisMap,
         Locate.definesClass,
         scalac,
         javac,
