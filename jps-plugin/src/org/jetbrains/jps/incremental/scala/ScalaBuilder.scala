@@ -39,7 +39,10 @@ class ScalaBuilder extends ModuleLevelBuilder(BuilderCategory.TRANSLATOR) {
 
     val sources = filesToCompile.keySet.toSeq
 
-    val client = new IdeClient("scala", context, outputConsumer, filesToCompile.get)
+    val client = {
+      val modules = chunk.getModules().asScala.map(_.getName).toSeq
+      new IdeClient("scala", context, modules, outputConsumer, filesToCompile.get)
+    }
 
     client.progress("Reading compilation settings...")
 
@@ -49,7 +52,7 @@ class ScalaBuilder extends ModuleLevelBuilder(BuilderCategory.TRANSLATOR) {
           client.progress("Instantiating compiler...")
           val compiler = compilerFactory.createCompiler(compilerData, client, ScalaBuilder.createAnalysisStore)
 
-          client.progress("Compiling...")
+          client.progress("Searching for changed files...")
           compiler.compile(compilationData, client)
         }
       }
@@ -116,6 +119,7 @@ object ScalaBuilder {
 
 private class IdeClient(compilerName: String,
                         context: CompileContext,
+                        modules: Seq[String],
                         consumer: OutputConsumer,
                         sourceToTarget: File => Option[BuildTarget[_ <: BuildRootDescriptor]]) extends Client {
 
@@ -131,7 +135,11 @@ private class IdeClient(compilerName: String,
   }
 
   def progress(text: String, done: Option[Float]) {
-    context.processMessage(new ProgressMessage(text, done.getOrElse(-1.0F)))
+    val formattedText = if (text.isEmpty) "" else {
+      val decapitalizedText = text.charAt(0).toLower.toString + text.substring(1)
+      "%s: %s [%s]".format(compilerName, decapitalizedText, modules.mkString(", "))
+    }
+    context.processMessage(new ProgressMessage(formattedText, done.getOrElse(-1.0F)))
   }
 
   def generated(source: File, module: File) {
