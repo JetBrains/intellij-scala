@@ -155,7 +155,7 @@ private class ClientCallback(client: Client) extends AnalysisCallback {
 
   def generatedClass(source: File, module: File, name: String) {
     client.progress("Generated " + module.getName)
-    client.generated(source, module)
+    client.generated(source, module, name)
   }
 
   def endSource(sourcePath: File) {}

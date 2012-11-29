@@ -25,7 +25,7 @@ trait Client {
 
   def progress(text: String, done: Option[Float] = None)
 
-  def generated(source: File, module: File)
+  def generated(source: File, module: File, name: String)
 
   def isCanceled: Boolean
 }
