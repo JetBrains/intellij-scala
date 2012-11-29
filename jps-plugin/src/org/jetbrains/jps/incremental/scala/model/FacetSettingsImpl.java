@@ -34,7 +34,7 @@ public class FacetSettingsImpl extends JpsElementBase<FacetSettingsImpl> impleme
   public String[] getCompilerOptions() {
     List<String> list = new ArrayList<String>();
 
-    if (myState.warnings) {
+    if (!myState.warnings) {
       list.add("-nowarn");
     }
 
