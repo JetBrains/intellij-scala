@@ -96,7 +96,7 @@ class WorksheetRunConfiguration(val project: Project, val configurationFactory: 
     var addedLinesCount = 0
     var isFirstLine = true
 
-    def createWorksheetViewer(editor: Editor): Editor = {
+    def createWorksheetViewer(editor: Editor, virtualFile: VirtualFile): Editor = {
       val prop = if (editor.getComponent.getComponentCount > 0 && editor.getComponent.getComponent(0).isInstanceOf[JBSplitter])
         editor.getComponent.getComponent(0).asInstanceOf[JBSplitter].getProportion else 0.5f
       val dimension = editor.getComponent.getSize()
@@ -114,6 +114,8 @@ class WorksheetRunConfiguration(val project: Project, val configurationFactory: 
       editorComponent.setPreferredSize(prefDim)
       val pane = new JBSplitter(false, prop)
       val leftPane: JBScrollPane = new JBScrollPane(editorComponent)
+      val gutter = editor.asInstanceOf[EditorImpl].getGutterComponentEx
+      leftPane.setRowHeaderView(gutter)
       val leftScrollBarModel = leftPane.getVerticalScrollBar.getModel
 
       worksheetViewer.asInstanceOf[EditorImpl].getScrollPane.getVerticalScrollBar.setModel(leftScrollBarModel)
@@ -121,11 +123,10 @@ class WorksheetRunConfiguration(val project: Project, val configurationFactory: 
       pane.setFirstComponent(leftPane)
       pane.setSecondComponent(worksheetViewer.getComponent)
 
-      val gutter = editor.asInstanceOf[EditorImpl].getGutterComponentEx
       editor.getComponent.removeAll()
       pane.setPreferredSize(dimension)
       editor.getComponent.add(pane, BorderLayout.CENTER)
-      editor.getComponent.add(gutter, BorderLayout.WEST)
+
       worksheetViewer
     }
 
@@ -377,7 +378,7 @@ class WorksheetRunConfiguration(val project: Project, val configurationFactory: 
           }
         })
 
-        val worksheetViewer = createWorksheetViewer(editor)
+        val worksheetViewer = createWorksheetViewer(editor, virtualFile)
         val worksheetConsoleView = new ConsoleViewImpl(project, false)
         evaluateWorksheet(psiFile.asInstanceOf[ScalaFile], processHandler, editor)
 
