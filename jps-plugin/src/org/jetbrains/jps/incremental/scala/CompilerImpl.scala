@@ -10,6 +10,7 @@ import sbt.inc.{Analysis, AnalysisStore, Locate}
 import xsbti._
 import org.jetbrains.jps.incremental.messages.BuildMessage.Kind
 import xsbti.api.SourceAPI
+import com.intellij.openapi.util.text.StringUtil
 
 /**
  * @author Pavel Fatin
@@ -40,7 +41,7 @@ class CompilerImpl(javac: JavaCompiler, scalac: Option[AnalyzingCompiler], fileT
     val logger = new ClientLogger(client)
 
     val outputToAnalysisMap = compilationData.outputToCacheMap.map { case (output, cache) =>
-      val analysis = if (cache.exists) fileToStore(cache).get().map(_._1) else None
+      val analysis = fileToStore(cache).get().map(_._1).getOrElse(Analysis.Empty)
       (output, analysis)
     }
 
@@ -51,7 +52,7 @@ class CompilerImpl(javac: JavaCompiler, scalac: Option[AnalyzingCompiler], fileT
         compileSetup,
         Some(progress),
         analysisStore,
-        outputToAnalysisMap,
+        outputToAnalysisMap.get,
         Locate.definesClass,
         scalac,
         javac,
@@ -133,7 +134,12 @@ private class ClientReporter(client: Client) extends Reporter {
     val line = toOption(pos.line).map(_.toLong)
     val column = toOption(pos.pointer).map(_.toLong + 1L)
 
-    client.message(kind, msg, source, line, column)
+    val messageWithLineAndPointer = {
+      val indent = column.map(it => StringUtil.repeatSymbol(' ', it.toInt - 1))
+      msg + "\n" + pos.lineContent + indent.map("\n" + _ + "^").getOrElse("")
+    }
+
+    client.message(kind, messageWithLineAndPointer, source, line, column)
   }
 
   def toOption[T](value: Maybe[T]): Option[T] = if (value.isDefined) Some(value.get) else None
