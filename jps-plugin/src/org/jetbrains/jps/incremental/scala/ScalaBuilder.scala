@@ -30,11 +30,6 @@ class ScalaBuilder extends ModuleLevelBuilder(BuilderCategory.TRANSLATOR) {
             dirtyFilesHolder: DirtyFilesHolder[JavaSourceRootDescriptor, ModuleBuildTarget],
             outputConsumer: OutputConsumer): ModuleLevelBuilder.ExitCode = {
 
-    // Check whether a Scala facet is present in the chunk modules
-    if (chunk.getModules.asScala.forall(module => SettingsManager.getFacetSettings(module) == null)) {
-      return ExitCode.NOTHING_DONE
-    }
-
     context.processMessage(new ProgressMessage("Searching for compilable files..."))
     val filesToCompile = ScalaBuilder.collectCompilableFiles(chunk)
 
