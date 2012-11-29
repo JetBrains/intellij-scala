@@ -25,35 +25,31 @@ object CompilationData {
     val target = chunk.representativeTarget
     val module = target.getModule
 
-    Option(SettingsManager.getFacetSettings(module))
-            .toRight("No Scala facet in module " + module.getName)
-            .flatMap { facet =>
+    Option(target.getOutputDir)
+            .toRight("Output directory not specified for module " + module.getName)
+            .map { output =>
 
-      Option(target.getOutputDir)
-              .toRight("Output directory not specified for module " + module.getName)
-              .map { output =>
+      val classpath = context.getProjectPaths
+              .getCompilationClasspathFiles(chunk, chunk.containsTests, false, false).asScala.toSeq
 
-        val classpath = context.getProjectPaths
-                .getCompilationClasspathFiles(chunk, chunk.containsTests, false, false).asScala.toSeq
+      val options = Option(SettingsManager.getFacetSettings(module))
+              .map(_.getCompilerOptions.toSeq).getOrElse(Seq.empty)
 
-        val options = facet.getCompilerOptions.toSeq
-
-        val order = {
-          val project = context.getProjectDescriptor.getModel.getProject
-          val projectSettings = SettingsManager.getProjectSettings(project)
-          projectSettings.getCompilationOrder
-        }
-
-        val outputToCacheMap = createOutputToCacheMap(context)
-
-        val cacheFile = outputToCacheMap.get(output).getOrElse {
-          throw new RuntimeException("Unknown build target output directory: " + output)
-        }
-
-        val relevantOutputToCacheMap = (outputToCacheMap - output).filter(p => classpath.contains(p._1))
-
-        CompilationData(sources, classpath, output, options, order, cacheFile, relevantOutputToCacheMap)
+      val order = {
+        val project = context.getProjectDescriptor.getModel.getProject
+        val projectSettings = SettingsManager.getProjectSettings(project)
+        projectSettings.getCompilationOrder
       }
+
+      val outputToCacheMap = createOutputToCacheMap(context)
+
+      val cacheFile = outputToCacheMap.get(output).getOrElse {
+        throw new RuntimeException("Unknown build target output directory: " + output)
+      }
+
+      val relevantOutputToCacheMap = (outputToCacheMap - output).filter(p => classpath.contains(p._1))
+
+      CompilationData(sources, classpath, output, options, order, cacheFile, relevantOutputToCacheMap)
     }
   }
 

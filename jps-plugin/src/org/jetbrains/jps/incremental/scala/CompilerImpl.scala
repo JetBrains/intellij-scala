@@ -14,12 +14,12 @@ import xsbti.api.SourceAPI
 /**
  * @author Pavel Fatin
  */
-class CompilerImpl(scalac: AnalyzingCompiler, javac: JavaCompiler, fileToStore: File => AnalysisStore) extends Compiler {
+class CompilerImpl(javac: JavaCompiler, scalac: Option[AnalyzingCompiler], fileToStore: File => AnalysisStore) extends Compiler {
   def compile(compilationData: CompilationData, client: Client) {
     val compileSetup = {
       val output = CompileOutput(compilationData.output)
-      val options = new CompileOptions(compilationData.options, Nil)
-      val compilerVersion = scalac.scalaInstance.version
+      val options = new CompileOptions(compilationData.options, Seq("-g:lines,vars,source"))
+      val compilerVersion = scalac.map(_.scalaInstance.version).getOrElse("none")
       val order = compilationData.order match {
         case Order.JavaThenScala => CompileOrder.JavaThenScala
         case Order.ScalaThenJava => CompileOrder.Mixed

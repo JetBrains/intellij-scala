@@ -15,10 +15,7 @@ import collection.JavaConverters._
 /**
  * @author Pavel Fatin
  */
-case class CompilerData(libraryJar: File,
-                        compilerJar: File,
-                        extraJars: Seq[File],
-                        javaHome: File)
+case class CompilerData(javaHome: File, compilerJars: Option[CompilerJars])
 
 object CompilerData {
   def from(context: CompileContext, chunk: ModuleChunk): Either[String, CompilerData] = {
@@ -26,7 +23,27 @@ object CompilerData {
     val target = chunk.representativeTarget
     val module = target.getModule
 
+    Option(module.getSdk(JpsJavaSdkType.INSTANCE))
+            .toRight("No JDK in module " + module.getName)
+            .flatMap { jdk =>
+
+      val javaHomeDirectory = new File(jdk.getHomePath)
+
+      Either.cond(javaHomeDirectory.exists, javaHomeDirectory,
+        "JDK home directory does not exists: " + javaHomeDirectory).flatMap { javaHome =>
+
+        val compilerJars =
+          if (SettingsManager.getFacetSettings(module) == null) Right(None)
+          else compilerJarsIn(module, model)
+
+        compilerJars.map(CompilerData(javaHome, _))
+      }
+    }
+  }
+
+  private def compilerJarsIn(module: JpsModule, model: JpsModel): Either[String, Some[CompilerJars]] = {
     compilerLibraryIn(module, model).flatMap { compilerLibrary =>
+
       val files = compilerLibrary.getFiles(JpsOrderRootType.COMPILED).asScala
 
       files.find(_.getName == "scala-library.jar")
@@ -35,22 +52,11 @@ object CompilerData {
 
         files.find(_.getName == "scala-compiler.jar")
                 .toRight("No 'scala-compiler.jar' in Scala compiler library in " + module.getName)
-                .flatMap { compilerJar =>
+                .map { compilerJar =>
 
-          Option(module.getSdk(JpsJavaSdkType.INSTANCE))
-                  .toRight("No JDK in module " + module.getName)
-                  .flatMap { jdk =>
+          val extraJars = files.filterNot(file => file == libraryJar || file == compilerJar)
 
-            val javaHomeDirectory = new File(jdk.getHomePath)
-
-            Either.cond(javaHomeDirectory.exists, javaHomeDirectory,
-              "JDK home directory does not exists: " + javaHomeDirectory).map { javaHome =>
-
-              val extraJars = files.filterNot(file => file == libraryJar || file == compilerJar)
-
-              new CompilerData(libraryJar, compilerJar, extraJars, javaHome)
-            }
-          }
+          Some(CompilerJars(libraryJar, compilerJar, extraJars))
         }
       }
     }
