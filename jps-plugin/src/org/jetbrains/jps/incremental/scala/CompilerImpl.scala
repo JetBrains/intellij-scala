@@ -92,7 +92,8 @@ private class ClientLogger(client: Client) extends Logger {
 
 private class ClientProgress(client: Client) extends CompileProgress {
   def startUnit(phase: String, unitPath: String) {
-    client.progress("Phase " + phase + " on " + unitPath)
+    val unitName = new File(unitPath).getName
+    client.progress("Phase " + phase + " on " + unitName)
   }
 
   def advance(current: Int, total: Int) = {
@@ -153,7 +154,7 @@ private class ClientCallback(client: Client) extends AnalysisCallback {
   def binaryDependency(binary: File, name: String, source: File) {}
 
   def generatedClass(source: File, module: File, name: String) {
-    client.progress("Generated " + module.getPath)
+    client.progress("Generated " + module.getName)
     client.generated(source, module)
   }
 
