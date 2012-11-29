@@ -5,7 +5,7 @@ import java.io.File
 import java.net.URLClassLoader
 import sbt.{ClasspathOptions, ScalaInstance, Path}
 import sbt.compiler.{AggressiveCompile, IC}
-import xsbti.Logger
+import xsbti.{F0, Logger}
 import CompilerFactoryImpl._
 import sbt.inc.AnalysisStore
 
@@ -17,12 +17,10 @@ class CompilerFactoryImpl(sbtData: SbtData) extends CompilerFactory {
     val scalaInstance = compilerData.compilerJars.map(createScalaInstance)
 
     val scalac = scalaInstance.map { scala =>
-      val logger = new ClientLogger(client)
-
       val compiledIntefaceJar = getOrCompileInterfaceJar(sbtData.interfacesHome, sbtData.sourceJar,
-        sbtData.interfaceJar, scala, sbtData.javaClassVersion, logger, client)
+        sbtData.interfaceJar, scala, sbtData.javaClassVersion, client)
 
-      IC.newScalaCompiler(scala, compiledIntefaceJar, ClasspathOptions.boot, logger)
+      IC.newScalaCompiler(scala, compiledIntefaceJar, ClasspathOptions.boot, NullLogger)
     }
 
     val javac = {
@@ -49,8 +47,13 @@ object CompilerFactoryImpl {
     new ScalaInstance(version.getOrElse("unknown"), classLoader, jars.library, jars.compiler, jars.extra, version)
   }
 
-  private def getOrCompileInterfaceJar(home: File, sourceJar: File, interfaceJar: File, scalaInstance: ScalaInstance,
-                                       javaClassVersion: String, log: Logger, client: Client): File = {
+  private def getOrCompileInterfaceJar(home: File,
+                                       sourceJar: File,
+                                       interfaceJar: File,
+                                       scalaInstance: ScalaInstance,
+                                       javaClassVersion: String,
+                                       client: Client): File = {
+
     val scalaVersion = scalaInstance.actualVersion
     val interfaceId = "compiler-interface-" + scalaVersion + "-" + javaClassVersion
     val targetJar = new File(home, interfaceId + ".jar")
@@ -58,9 +61,21 @@ object CompilerFactoryImpl {
     if (!targetJar.exists) {
       client.progress("Compiling Scalac " + scalaVersion + " interface")
       home.mkdirs()
-      IC.compileInterfaceJar(interfaceId, sourceJar, targetJar, interfaceJar, scalaInstance, log)
+      IC.compileInterfaceJar(interfaceId, sourceJar, targetJar, interfaceJar, scalaInstance, NullLogger)
     }
 
     targetJar
   }
+}
+
+private object NullLogger extends Logger {
+  def error(p1: F0[String]) {}
+
+  def warn(p1: F0[String]) {}
+
+  def info(p1: F0[String]) {}
+
+  def debug(p1: F0[String]) {}
+
+  def trace(p1: F0[Throwable]) {}
 }

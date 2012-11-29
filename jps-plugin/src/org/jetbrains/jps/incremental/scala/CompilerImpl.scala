@@ -66,6 +66,29 @@ class CompilerImpl(javac: JavaCompiler, scalac: Option[AnalyzingCompiler], fileT
   }
 }
 
+private class ClientLogger(client: Client) extends Logger {
+  def error(msg: F0[String]) {
+    client.error(msg())
+  }
+
+  def warn(msg: F0[String]) {
+    client.warning(msg())
+  }
+
+  def info(msg: F0[String]) {
+    //    client.info(msg())
+    client.progress(msg())
+  }
+
+  def debug(msg: F0[String]) {
+    //    client.info(msg())
+  }
+
+  def trace(exception: F0[Throwable]) {
+    client.trace(exception())
+  }
+}
+
 private class ClientProgress(client: Client) extends CompileProgress {
   def startUnit(phase: String, unitPath: String) {
     client.progress("Phase " + phase + " on " + unitPath)
