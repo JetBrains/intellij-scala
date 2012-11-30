@@ -22,8 +22,6 @@
         <element id="file-copy" path="$PROJECT_DIR$/SDK/sbt/incremental-compiler.jar" />
         <element id="file-copy" path="$PROJECT_DIR$/SDK/sbt/jline.jar" />
         <element id="file-copy" path="$PROJECT_DIR$/SDK/sbt/sbt-interface.jar" />
-        <element id="file-copy" path="$PROJECT_DIR$/SDK/sbt/scala-compiler.jar" />
-        <element id="file-copy" path="$PROJECT_DIR$/SDK/sbt/scala-library.jar" />
         <element id="archive" name="scala-jps-plugin.jar">
           <element id="module-output" name="scala-jps-plugin" />
         </element>
