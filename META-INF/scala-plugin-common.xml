@@ -14,7 +14,7 @@
     <extensions defaultExtensionNs="com.intellij">
         <!--<compileServer.plugin classpath="scala-library.jar;../jps/scala-jps-plugin.jar;../jps/incremental-compiler.jar;../jps/jline.jar"/>-->
         <projectTemplatesFactory implementation="org.jetbrains.plugins.scala.config.scalaProjectTemplate.ScalaProjectTemplatesFactory"/>
-        <moduleBuilder builderClass="org.jetbrains.plugins.scala.config.scalaProjectTemplate.ScalaModuleBuilder"/>
+        <!--<moduleBuilder builderClass="org.jetbrains.plugins.scala.config.scalaProjectTemplate.ScalaModuleBuilder"/>-->
         <refactoring.moveHandler implementation="org.jetbrains.plugins.scala.lang.refactoring.move.ScalaMoveClassesOrPackagesHandler" order="first"/>
         <statementUpDownMover implementation="org.jetbrains.plugins.scala.lang.refactoring.ScalaStatementMover"/>
         <debugger.codeFragmentFactory implementation="org.jetbrains.plugins.scala.debugger.evaluation.ScalaCodeFragmentFactory"/>
