@@ -134,7 +134,6 @@ public interface ScalaTokenTypes {
   final IElementType kPACKAGE = new ScalaElementType("package");
   final IElementType kPRIVATE = new ScalaElementType("private");
   final IElementType kPROTECTED = new ScalaElementType("protected");
-  final IElementType kREQUIRES = new ScalaElementType("requires");
   final IElementType kRETURN = new ScalaElementType("return");
   final IElementType kSEALED = new ScalaElementType("sealed");
   final IElementType kSUPER = new ScalaElementType("super");

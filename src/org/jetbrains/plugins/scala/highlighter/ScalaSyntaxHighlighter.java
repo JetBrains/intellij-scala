@@ -182,7 +182,6 @@ public class ScalaSyntaxHighlighter extends SyntaxHighlighterBase {
           ScalaTokenTypes.kPACKAGE,
           ScalaTokenTypes.kPRIVATE,
           ScalaTokenTypes.kPROTECTED,
-          ScalaTokenTypes.kREQUIRES,
           ScalaTokenTypes.kRETURN,
           ScalaTokenTypes.kSEALED,
           ScalaTokenTypes.kSUPER,

@@ -58,11 +58,6 @@ object ClassDef {
     modifierMareker.done(ScalaElementTypes.MODIFIERS)
     ClassParamClauses parse builder
     constructorMarker.done(ScalaElementTypes.PRIMARY_CONSTRUCTOR)
-    //parse requires block
-    builder.getTokenType match {
-      case ScalaTokenTypes.kREQUIRES => Requires parse builder
-      case _ => {/*it could be without requires block*/}
-    }
     //parse extends block
     ClassTemplateOpt parse builder
     return true
