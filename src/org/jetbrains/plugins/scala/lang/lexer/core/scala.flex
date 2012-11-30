@@ -397,7 +397,6 @@ XML_BEGIN = "<" ("_" | [:jletter:]) | "<!--" | "<?" ("_" | [:jletter:]) | "<![CD
 "package"                               {   return process(kPACKAGE); }
 "private"                               {   return process(kPRIVATE); }
 "protected"                             {   return process(kPROTECTED); }
-"requires"                              {   return process(kREQUIRES); }
 "return"                                {   return process(kRETURN); }
 "sealed"                                {   return process(kSEALED); }
 "super"                                 {   return process(kSUPER); }
