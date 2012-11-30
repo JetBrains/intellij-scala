@@ -178,7 +178,7 @@ class ScImportStmtImpl extends ScalaStubBasedElementImpl[ScImportStmt] with ScIm
                     if (selector.isAliasedImport && selector.importedName != selector.reference.refName) {
                       newState = state.put(ResolverEnv.nameKey, selector.importedName)
                     }
-                    newState = state.put(ImportUsed.key, Set(importsUsed.toSeq: _*) + ImportSelectorUsed(selector)).
+                    newState = newState.put(ImportUsed.key, Set(importsUsed.toSeq: _*) + ImportSelectorUsed(selector)).
                             put(ScSubstitutor.key, subst)
                     refType.foreach {tp =>
                       newState = newState.put(BaseProcessor.FROM_TYPE_KEY, tp)
