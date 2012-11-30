@@ -1,14 +1,14 @@
 package org.jetbrains.jps.incremental.scala
 
-import _root_.java.util.Collections
-import _root_.org.jetbrains.jps.incremental.CompiledClass
-import _root_.org.jetbrains.jps.javac.BinaryContent
+import java.util.Collections
+import org.jetbrains.jps.incremental.CompiledClass
+import org.jetbrains.jps.javac.BinaryContent
 import java.io.File
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.util.PathUtil
 import com.intellij.util.Processor
 import org.jetbrains.jps.ModuleChunk
-import org.jetbrains.jps.builders.{BuildRootDescriptor, BuildTarget, DirtyFilesHolder}
+import org.jetbrains.jps.builders.{FileProcessor, BuildRootDescriptor, BuildTarget, DirtyFilesHolder}
 import org.jetbrains.jps.builders.java.JavaSourceRootDescriptor
 import org.jetbrains.jps.incremental._
 import messages.BuildMessage.Kind
@@ -31,6 +31,10 @@ class ScalaBuilder extends ModuleLevelBuilder(BuilderCategory.TRANSLATOR) {
   def build(context: CompileContext, chunk: ModuleChunk,
             dirtyFilesHolder: DirtyFilesHolder[JavaSourceRootDescriptor, ModuleBuildTarget],
             outputConsumer: OutputConsumer): ModuleLevelBuilder.ExitCode = {
+
+    if (!ScalaBuilder.hasDirtyFiles(dirtyFilesHolder)) {
+      return ExitCode.NOTHING_DONE
+    }
 
     context.processMessage(new ProgressMessage("Searching for compilable files..."))
     val filesToCompile = ScalaBuilder.collectCompilableFiles(chunk)
@@ -90,6 +94,19 @@ object ScalaBuilder {
       cachedCompilerFactory = Some(factory)
       factory
     }
+  }
+
+  private def hasDirtyFiles(dirtyFilesHolder: DirtyFilesHolder[JavaSourceRootDescriptor, ModuleBuildTarget]): Boolean = {
+    var result = false
+
+    dirtyFilesHolder.processDirtyFiles(new FileProcessor[JavaSourceRootDescriptor, ModuleBuildTarget] {
+      def apply(target: ModuleBuildTarget, file: File, root: JavaSourceRootDescriptor) = {
+        result = true
+        false
+      }
+    })
+
+    result
   }
 
   private def collectCompilableFiles(chunk: ModuleChunk): Map[File, BuildTarget[_ <: BuildRootDescriptor]] = {
