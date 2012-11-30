@@ -15,7 +15,7 @@ import collection.JavaConverters._
 /**
  * @author Pavel Fatin
  */
-case class CompilerData(javaHome: File, compilerJars: Option[CompilerJars])
+case class CompilerData(compilerJars: Option[CompilerJars], javaHome: Option[File])
 
 object CompilerData {
   def from(context: CompileContext, chunk: ModuleChunk): Either[String, CompilerData] = {
@@ -23,25 +23,31 @@ object CompilerData {
     val target = chunk.representativeTarget
     val module = target.getModule
 
-    Option(module.getSdk(JpsJavaSdkType.INSTANCE))
-            .toRight("No JDK in module " + module.getName)
-            .flatMap { jdk =>
+    val compilerJars =
+      if (SettingsManager.getFacetSettings(module) == null) Right(None)
+      else compilerJarsIn(module, model).map(Some(_))
 
-      val javaHomeDirectory = new File(jdk.getHomePath)
+    compilerJars.flatMap { jars =>
 
-      Either.cond(javaHomeDirectory.exists, javaHomeDirectory,
-        "JDK home directory does not exists: " + javaHomeDirectory).flatMap { javaHome =>
+      Option(module.getSdk(JpsJavaSdkType.INSTANCE))
+              .toRight("No JDK in module " + module.getName)
+              .flatMap { jdk =>
 
-        val compilerJars =
-          if (SettingsManager.getFacetSettings(module) == null) Right(None)
-          else compilerJarsIn(module, model)
+        val projectJdk = Option(model.getProject.getSdkReferencesTable.getSdkReference(JpsJavaSdkType.INSTANCE))
+                .flatMap(references => Option(references.resolve))
+                .map(_.getProperties)
 
-        compilerJars.map(CompilerData(javaHome, _))
+        val javaHome = if (projectJdk.exists(_ == jdk)) Right(None) else {
+          val directory = new File(jdk.getHomePath)
+          Either.cond(directory.exists, Some(directory), "JDK home directory does not exists: " + directory)
+        }
+
+        javaHome.map(CompilerData(jars, _))
       }
     }
   }
 
-  private def compilerJarsIn(module: JpsModule, model: JpsModel): Either[String, Some[CompilerJars]] = {
+  private def compilerJarsIn(module: JpsModule, model: JpsModel): Either[String, CompilerJars] = {
     compilerLibraryIn(module, model).flatMap { compilerLibrary =>
 
       val files = compilerLibrary.getFiles(JpsOrderRootType.COMPILED).asScala
@@ -56,7 +62,7 @@ object CompilerData {
 
           val extraJars = files.filterNot(file => file == libraryJar || file == compilerJar)
 
-          Some(CompilerJars(libraryJar, compilerJar, extraJars))
+          CompilerJars(libraryJar, compilerJar, extraJars)
         }
       }
     }
