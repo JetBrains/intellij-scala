@@ -9,20 +9,29 @@ import org.jetbrains.plugins.scala.compiler.ScalacBackendCompiler
 import com.intellij.compiler.CompilerWorkspaceConfiguration
 import com.intellij.openapi.module.ModuleManager
 import com.intellij.openapi.compiler.{CompilerMessageCategory, CompileContext, CompileTask, CompilerManager}
+import com.intellij.openapi.application.ApplicationManager
 
 /**
  * Pavel Fatin
  */
 
 class SettingsUpdater(project: Project) extends ProjectComponent {
+  private val ideaInternal = ApplicationManager.getApplication.isInternal
+
   CompilerManager.getInstance(project).addBeforeTask(new CompileTask {
+    var firstCompilation = true
+
     def execute(context: CompileContext): Boolean = {
-      val unsupported = isScalaProject && compilerConfiguration.USE_COMPILE_SERVER
-      if (unsupported) {
-        val message = "External Scala compiler is not supported yet. Please turn off \"Project Setings / Compiler / Use external build\"."
-        context.addMessage(CompilerMessageCategory.ERROR, message, null, -1, -1)
+      val jpsScalaCompiler = isScalaProject && compilerConfiguration.USE_COMPILE_SERVER
+
+      if (firstCompilation && !ideaInternal && jpsScalaCompiler) {
+        val message = "External Scala compiler is in experimental state, please use with care."
+        context.addMessage(CompilerMessageCategory.WARNING, message, null, -1, -1)
       }
-      !unsupported
+
+      firstCompilation = false
+
+      true
     }
   })
 
@@ -41,7 +50,7 @@ class SettingsUpdater(project: Project) extends ProjectComponent {
   def projectOpened() {
     registry.registerListener(ScalaFacet.Id, FacetListener)
 
-    if (isScalaProject) {
+    if (!ideaInternal && isScalaProject) {
       disableExternalCompiler()
     }
   }
@@ -54,10 +63,9 @@ class SettingsUpdater(project: Project) extends ProjectComponent {
     compilerConfiguration.USE_COMPILE_SERVER = false
   }
 
-
   private object FacetListener extends ProjectWideFacetAdapter[ScalaFacet]() {
     override def facetAdded(facet: ScalaFacet) {
-      disableExternalCompiler()
+      if (!ideaInternal) disableExternalCompiler()
     }
   }
 }
