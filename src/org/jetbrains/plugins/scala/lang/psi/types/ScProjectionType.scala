@@ -12,7 +12,7 @@ import api.toplevel.ScTypedDefinition
 import resolve.processor.ResolveProcessor
 import resolve.ResolveTargets
 import com.intellij.psi.{PsiElement, PsiClass, ResolveState, PsiNamedElement}
-import extensions.toPsiClassExt
+import extensions.{toObjectExt, toPsiClassExt}
 import collection.immutable.HashSet
 import caches.CachesUtil
 import com.intellij.psi.util.PsiModificationTracker
@@ -59,7 +59,7 @@ case class ScProjectionType(projected: ScType, element: PsiNamedElement, subst: 
       val emptySubst = new ScSubstitutor(Map.empty, Map.empty, Some(projected))
       val resolvePlace = {
         def fromClazz(clazz: ScTypeDefinition): PsiElement = {
-          clazz.extendsBlock.templateBody.map(_.asInstanceOf[ScTemplateBodyImpl].getLastChildStub).
+          clazz.extendsBlock.templateBody.flatMap(_.asInstanceOf[ScTemplateBodyImpl].getLastChildStub.toOption).
             getOrElse(clazz.extendsBlock)
         }
         ScType.extractClass(projected, Some(element.getProject)) match {
