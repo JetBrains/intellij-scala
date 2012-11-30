@@ -54,8 +54,10 @@ class ScalaBuilder extends ModuleLevelBuilder(BuilderCategory.TRANSLATOR) {
           client.progress("Instantiating compiler...")
           val compiler = compilerFactory.createCompiler(compilerData, client, ScalaBuilder.createAnalysisStore)
 
-          client.progress("Searching for changed files...")
-          compiler.compile(compilationData, client)
+          if (!client.isCanceled) {
+            client.progress("Searching for changed files...")
+            compiler.compile(compilationData, client)
+          }
         }
       }
     } match {
