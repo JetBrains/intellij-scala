@@ -1,5 +1,9 @@
 package org.jetbrains.plugins.scala.debugger.evaluateExpression
 
+import org.junit.runner.RunWith
+import org.junit.experimental.categories.Categories
+import org.junit.experimental.categories.Categories.IncludeCategory
+
 /**
  * User: Alefas
  * Date: 17.10.11
