@@ -10,10 +10,11 @@ class ImportTest extends ResolveTestBase {
     super.folderPath + "import/"
   }
 
-  def testBrokenChain = doTest
-  def testLocal1 = doTest
-  def testLocal2 = doTest
-  def testSelection = doTest
-  def testSingle = doTest
-  def testHardImport = doTest()
+  def testBrokenChain() {doTest()}
+  def testLocal1() {doTest()}
+  def testLocal2() {doTest()}
+  def testRenamed() {doTest()}
+  def testSelection() {doTest()}
+  def testSingle() {doTest()}
+  def testHardImport() {doTest()}
 }
