@@ -10,7 +10,7 @@ import com.intellij.openapi.actionSystem.{DataContext, IdeActions}
  * Date: 2/6/12
  */
 
-class ScalaDocEnterActionTestBase extends ScalaLightPlatformCodeInsightTestCaseAdapter {
+abstract class ScalaDocEnterActionTestBase extends ScalaLightPlatformCodeInsightTestCaseAdapter {
   protected def checkGeneratedTextFromString(header: String,  footer: String,  assumedStub: String) {
     checkGeneratedTextFromString(header, footer, assumedStub, a => a)
   }
