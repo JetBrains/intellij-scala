@@ -26,7 +26,7 @@ import java.io.IOException;
 public class IntroduceVariableValidatorTest extends ActionTestBase {
 
   @NonNls
-  private static final String DATA_PATH = "test/org/jetbrains/plugins/scala/refactoring/introduceVariable/validator/data";
+  private static final String DATA_PATH = "/introduceVariable/validator/data";
 
   protected static final String ALL_MARKER = "<all>";
 
@@ -39,7 +39,7 @@ public class IntroduceVariableValidatorTest extends ActionTestBase {
   public IntroduceVariableValidatorTest() {
     super(System.getProperty("path") != null ?
         System.getProperty("path") :
-        DATA_PATH
+        TestUtils.getTestDataPath() + DATA_PATH
     );
   }
 

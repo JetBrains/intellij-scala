@@ -3,16 +3,17 @@ package org.jetbrains.plugins.scala.lang.actions.editor.enter;
 import com.intellij.psi.codeStyle.CommonCodeStyleSettings;
 import junit.framework.Test;
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings;
+import org.jetbrains.plugins.scala.util.TestUtils;
 
 /**
  * User: Dmitry Naydanov
  * Date: 10/1/12
  */
 public class MultiLineStringMarginWithTabsTest extends AbstractEnterActionTestBase {
-  private static final String DATA_PATH = "./test/org/jetbrains/plugins/scala/lang/actions/editor/enter/multiLineStringData/withTabs/indentAndMargin";
+  private static final String DATA_PATH = "/actions/editor/enter/multiLineStringData/withTabs/indentAndMargin";
   
   public MultiLineStringMarginWithTabsTest() {
-    super(DATA_PATH);
+    super(TestUtils.getTestDataPath() + DATA_PATH);
   }
 
   @Override

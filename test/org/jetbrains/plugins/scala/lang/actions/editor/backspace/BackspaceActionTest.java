@@ -27,7 +27,7 @@ import junit.framework.Test;
 public class BackspaceActionTest extends ActionTestBase {
 
   @NonNls
-  private static final String DATA_PATH = "./test/org/jetbrains/plugins/scala/lang/actions/editor/backspace/data/";
+  private static final String DATA_PATH = "/actions/editor/backspace/data";
 
   protected Editor myEditor;
   protected FileEditorManager fileEditorManager;
@@ -37,7 +37,7 @@ public class BackspaceActionTest extends ActionTestBase {
   public BackspaceActionTest() {
     super(System.getProperty("path") != null ?
             System.getProperty("path") :
-            DATA_PATH
+            TestUtils.getTestDataPath() + DATA_PATH
     );
   }
 

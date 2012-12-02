@@ -24,6 +24,7 @@ import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes;
 import org.jetbrains.plugins.scala.lang.parser.ScalaParser;
 import org.jetbrains.plugins.scala.lang.parser.ScalaParserDefinition;
 import org.jetbrains.plugins.scala.testcases.BaseScalaFileSetTestCase;
+import org.jetbrains.plugins.scala.util.TestUtils;
 
 import java.io.File;
 import java.util.Arrays;
@@ -36,14 +37,14 @@ public class DragSearchTest extends BaseScalaFileSetTestCase {
   protected static final int MAX_ROLLBACKS = 30;
 
   @NonNls
-  private static final String DATA_PATH = "test/org/jetbrains/plugins/scala/lang/parser/stress/data/";
+  private static final String DATA_PATH = "/parser/stress/data/";
   protected static final String TEST_FILE_PATTERN = "(.*)\\.test";
 
 
   public DragSearchTest() {
     super(System.getProperty("path") != null ?
             System.getProperty("path") :
-            DATA_PATH
+        TestUtils.getTestDataPath() + DATA_PATH
     );
   }
 

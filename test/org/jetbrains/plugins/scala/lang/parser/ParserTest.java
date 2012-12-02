@@ -25,12 +25,12 @@ import org.jetbrains.plugins.scala.util.TestUtils;
 
 public class ParserTest extends BaseScalaFileSetTestCase {
   @NonNls
-  private static final String DATA_PATH = "test/org/jetbrains/plugins/scala/lang/parser/data";
+  private static final String DATA_PATH = "/parser/data";
 
   public ParserTest() {
     super(System.getProperty("path") != null ?         
             System.getProperty("path") :
-            DATA_PATH                          
+            TestUtils.getTestDataPath() + DATA_PATH
     );
   }
 

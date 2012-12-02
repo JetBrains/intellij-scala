@@ -21,6 +21,7 @@ import com.intellij.psi.tree.IElementType;
 import junit.framework.Test;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.plugins.scala.testcases.BaseScalaFileSetTestCase;
+import org.jetbrains.plugins.scala.util.TestUtils;
 
 /**
  * @author ilyas
@@ -28,12 +29,12 @@ import org.jetbrains.plugins.scala.testcases.BaseScalaFileSetTestCase;
 public class LexerTest extends BaseScalaFileSetTestCase {
 
   @NonNls
-  private static final String DATA_PATH = "test/org/jetbrains/plugins/scala/lang/lexer/data";
+  private static final String DATA_PATH = "/lexer/data";
 
   public LexerTest() {
     super(System.getProperty("path") != null ?
         System.getProperty("path") :
-        DATA_PATH
+        TestUtils.getTestDataPath() + DATA_PATH
     );
   }
 

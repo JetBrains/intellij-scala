@@ -38,13 +38,13 @@ import java.io.IOException;
 
 public class FormatterTest extends BaseScalaFileSetTestCase {
   @NonNls
-  private static final String DATA_PATH = "test/org/jetbrains/plugins/scala/lang/formatter/data/";
+  private static final String DATA_PATH = "/formatter/data/";
 
   public FormatterTest() throws IOException {
     super(
       System.getProperty("path") != null ?
       System.getProperty("path") :
-      (new File(DATA_PATH)).getCanonicalPath()
+      (new File(TestUtils.getTestDataPath() + DATA_PATH)).getCanonicalPath()
     );
   }
 

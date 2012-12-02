@@ -5,14 +5,15 @@ import junit.framework.Test;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.plugins.scala.lang.lexer.LexerTestBase;
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocLexer;
+import org.jetbrains.plugins.scala.util.TestUtils;
 
 
 public class ScaladocLexerTest extends LexerTestBase {
   @NonNls
-  private static final String DATA_PATH = "test/org/jetbrains/plugins/scala/lang/lexer/scaladocdata/scaladoc";
+  private static final String DATA_PATH = "/lexer/scaladocdata/scaladoc";
 
   public ScaladocLexerTest() {
-    super(DATA_PATH, new ScalaDocLexer());
+    super(TestUtils.getTestDataPath() + DATA_PATH, new ScalaDocLexer());
   }
 
   public static Test suite() {

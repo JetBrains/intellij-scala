@@ -26,7 +26,7 @@ import scala.Tuple4;
  */
 @SuppressWarnings({"ConstantConditions"})
 public class SurroundWithTest extends BaseScalaFileSetTestCase{
-  private static final String DATA_PATH = "test/org/jetbrains/plugins/scala/lang/surroundWith/data/";
+  private static final String DATA_PATH = "/surroundWith/data/";
 
 
   public SurroundWithTest(String path) {
@@ -34,7 +34,7 @@ public class SurroundWithTest extends BaseScalaFileSetTestCase{
   }
 
   public static Test suite() {
-    return new SurroundWithTest(DATA_PATH);
+    return new SurroundWithTest(TestUtils.getTestDataPath() + DATA_PATH);
   }
 
   private void doSurround(final Project project, final PsiFile file,
