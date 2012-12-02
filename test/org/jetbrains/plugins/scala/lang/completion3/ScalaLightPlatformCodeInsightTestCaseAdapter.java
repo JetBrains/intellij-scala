@@ -37,6 +37,7 @@ import java.io.IOException;
  */
 public abstract class ScalaLightPlatformCodeInsightTestCaseAdapter extends LightPlatformCodeInsightTestCase {
   private String JDK_HOME = TestUtils.getMockJdk();
+  private ContentEntry contentEntry;
 
   protected String rootPath() {
     return null;
@@ -87,7 +88,7 @@ public abstract class ScalaLightPlatformCodeInsightTestCaseAdapter extends Light
 
       refreshDirectory(testDataRoot);
 
-      final ContentEntry contentEntry = rootModel.addContentEntry(testDataRoot);
+      contentEntry = rootModel.addContentEntry(testDataRoot);
       contentEntry.addSourceFolder(testDataRoot, false);
       
     }
@@ -181,6 +182,17 @@ public abstract class ScalaLightPlatformCodeInsightTestCaseAdapter extends Light
 
   @Override
   protected void tearDown() throws Exception {
+    if (contentEntry != null) {
+      ModuleRootManager rootManager = ModuleRootManager.getInstance(getModule());
+      final ModifiableRootModel rootModel = rootManager.getModifiableModel();
+      rootModel.removeContentEntry(contentEntry);
+      contentEntry = null;
+      ApplicationManager.getApplication().runWriteAction(new Runnable() {
+        public void run() {
+          rootModel.commit();
+        }
+      });
+    }
     super.tearDown();
     if (rootPath() != null) {
       new WriteAction<Object>() {
