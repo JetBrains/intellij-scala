@@ -4,6 +4,7 @@ import com.intellij.psi.codeStyle.CommonCodeStyleSettings;
 import junit.framework.Test;
 import org.jetbrains.plugins.scala.lang.formatter.FormatterTest;
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings;
+import org.jetbrains.plugins.scala.util.TestUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -13,14 +14,14 @@ import java.io.IOException;
  * Date: 4/16/12
  */
 public class MultiLineStringFormatterTest extends FormatterTest {
-  private final static String DATA_PATH = "./test/org/jetbrains/plugins/scala/lang/formatter/multiLineStringData/";
+  private final static String DATA_PATH = "/formatter/multiLineStringData/";
 
   public static Test suite() throws IOException {
     return new MultiLineStringFormatterTest();
   }
 
   public MultiLineStringFormatterTest() throws IOException {
-    super((new File(DATA_PATH)).getCanonicalPath());
+    super((new File(TestUtils.getTestDataPath() + DATA_PATH)).getCanonicalPath());
   }
 
   @Override

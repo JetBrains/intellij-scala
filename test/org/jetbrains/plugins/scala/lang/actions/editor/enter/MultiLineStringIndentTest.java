@@ -3,16 +3,17 @@ package org.jetbrains.plugins.scala.lang.actions.editor.enter;
 import com.intellij.psi.codeStyle.CommonCodeStyleSettings;
 import junit.framework.Test;
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings;
+import org.jetbrains.plugins.scala.util.TestUtils;
 
 /**
  * User: Dmitry Naydanov
  * Date: 4/16/12
  */
 public class MultiLineStringIndentTest extends AbstractEnterActionTestBase {
-  private static final String DATA_PATH = "./test/org/jetbrains/plugins/scala/lang/actions/editor/enter/multiLineStringData/indentOnly";
+  private static final String DATA_PATH = "/actions/editor/enter/multiLineStringData/indentOnly";
 
   public MultiLineStringIndentTest() {
-    super(DATA_PATH);
+    super(TestUtils.getTestDataPath() + DATA_PATH);
   }
 
   @Override
