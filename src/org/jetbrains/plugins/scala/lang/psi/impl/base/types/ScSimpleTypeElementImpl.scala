@@ -29,7 +29,7 @@ import psi.ScalaPsiUtil.SafeCheckException
 import api.{InferUtil, ScalaElementVisitor}
 import extensions.{toPsiMemberExt, toSeqExt, toPsiNamedElementExt}
 import com.intellij.openapi.progress.ProgressManager
-import api.toplevel.typedef.ScTemplateDefinition
+import api.toplevel.typedef.{ScObject, ScTemplateDefinition}
 
 /**
  * @author Alexander Podkhalyuzin
@@ -397,7 +397,13 @@ object ScSimpleTypeElementImpl {
       case Some(qual) => {
         qual.resolve() match {
           case pack: PsiPackage => {
-            Success(ScType.designator(resolvedElement), Some(ref))
+            val obj = PsiTreeUtil.getContextOfType(resolvedElement, classOf[ScObject])
+            if (obj != null && obj.isPackageObject) {
+              Success(ScProjectionType(ScDesignatorType(obj), resolvedElement, ScSubstitutor.empty,
+                superReference = false), Some(ref))
+            } else {
+              Success(ScType.designator(resolvedElement), Some(ref))
+            }
           }
           case _ => {
             calculateReferenceType(qual, shapesOnly) match {

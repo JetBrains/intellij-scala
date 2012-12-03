@@ -27,6 +27,7 @@ import com.intellij.openapi.util.text.StringUtil
 abstract class TypeInferenceTestBase extends ScalaLightPlatformCodeInsightTestCaseAdapter {
   private val startExprMarker = "/*start*/"
   private val endExprMarker = "/*end*/"
+  private val fewVariantsMarker = "Few variants:"
 
   protected def folderPath: String = TestUtils.getTestDataPath + "/typeInference/"
 
@@ -51,8 +52,7 @@ abstract class TypeInferenceTestBase extends ScalaLightPlatformCodeInsightTestCa
     assert(expr != null, "Not specified expression in range to infer type.")
     val typez = expr.getType(TypingContext.empty)
     typez match {
-      case Success(ttypez, _) => {
-
+      case Success(ttypez, _) =>
         val res = ScType.presentableText(ttypez)
         println("------------------------ " + scalaFile.getName + " ------------------------")
         println("%s (expected types: [%s])".format(res, expr.expectedTypes().toList.map(ScType.presentableText).mkString(",")))
@@ -61,11 +61,21 @@ abstract class TypeInferenceTestBase extends ScalaLightPlatformCodeInsightTestCa
         val output = lastPsi.getNode.getElementType match {
           case ScalaTokenTypes.tLINE_COMMENT => text.substring(2).trim
           case ScalaTokenTypes.tBLOCK_COMMENT | ScalaTokenTypes.tDOC_COMMENT =>
-            text.substring(2, text.length - 2).trim
+            val resText = text.substring(2, text.length - 2).trim
+            if (resText.startsWith(fewVariantsMarker)) {
+              resText.substring(fewVariantsMarker.length).trim.split('\n')
+            } else resText
           case _ => assertTrue("Test result must be in last comment statement.", false)
         }
         val Pattern = """expected: (.*)""".r
         output match {
+          case outputs: Array[String] =>
+            for (output <- outputs) {
+              if (output == res) {
+                return
+              }
+            }
+            assertEquals(outputs(0), res)
           case "expected: <none>" =>
             expr.expectedType() match {
               case Some(et) => fail("found unexpected expected type: %s".format(ScType.presentableText(et)))
@@ -77,7 +87,6 @@ abstract class TypeInferenceTestBase extends ScalaLightPlatformCodeInsightTestCa
             assertEquals(expectedExpectedTypeText, actualExpectedTypeText)
           case _ => assertEquals(output, res)
         }
-      }
       case Failure(msg, elem) => assert(false, msg + " :: " + (elem match {case Some(x) => x.getText case None => "empty element"}))
     }
   }
