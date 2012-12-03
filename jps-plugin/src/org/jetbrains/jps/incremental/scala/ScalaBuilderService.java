@@ -8,6 +8,7 @@ import org.jetbrains.jps.builders.java.JavaSourceRootDescriptor;
 import org.jetbrains.jps.incremental.*;
 import org.jetbrains.jps.model.JpsProject;
 import org.jetbrains.jps.model.java.JpsJavaExtensionService;
+import org.jetbrains.jps.model.module.JpsModule;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -39,9 +40,11 @@ public class ScalaBuilderService extends BuilderService {
       JpsProject project = context.getProjectDescriptor().getProject();
 
       // Disable default Java compiler for a project with Scala facets
-      JpsJavaExtensionService.getInstance()
-          .getOrCreateCompilerConfiguration(project)
-          .setJavaCompilerId("scala");
+      if (isScalaProject(project)) {
+        JpsJavaExtensionService.getInstance()
+            .getOrCreateCompilerConfiguration(project)
+            .setJavaCompilerId("scala");
+      }
     }
 
     @Override
@@ -57,5 +60,14 @@ public class ScalaBuilderService extends BuilderService {
     public String getPresentableName() {
       return "Scala Stub Builder";
     }
+  }
+
+  private static boolean isScalaProject(JpsProject project) {
+    for (JpsModule module : project.getModules()) {
+      if (SettingsManager.getFacetSettings(module) != null) {
+        return true;
+      }
+    }
+    return false;
   }
 }
