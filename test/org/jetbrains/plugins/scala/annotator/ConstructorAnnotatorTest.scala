@@ -120,12 +120,17 @@ class ConstructorAnnotatorTest extends SimpleTestCase {
     val file: ScalaFile = (Header + code).parse
     
     val seq = file.depthFirst.findByType(classOf[ScClass])
-    Compatibility.mockSeqClass(seq.get)
+    Compatibility.seqClass = seq
 
-    file.depthFirst.filterByType(classOf[ScConstructor]).foreach {
-      annotator.annotateConstructor(_, mock)
+    try {
+      file.depthFirst.filterByType(classOf[ScConstructor]).foreach {
+        annotator.annotateConstructor(_, mock)
+      }
+
+      mock.annotations
     }
-    
-    mock.annotations
+    finally {
+      Compatibility.seqClass = None
+    }
   }
 }
