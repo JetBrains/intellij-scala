@@ -1,16 +1,13 @@
 package org.jetbrains.plugins.scala.components;
 
 import com.intellij.icons.AllIcons;
-import com.intellij.openapi.actionSystem.ActionPlaces;
-import com.intellij.openapi.actionSystem.ActionToolbar;
-import com.intellij.openapi.actionSystem.AnAction;
+import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.actionSystem.impl.ActionButton;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.AbstractProjectComponent;
-import com.intellij.openapi.fileEditor.FileEditor;
-import com.intellij.openapi.fileEditor.FileEditorManager;
-import com.intellij.openapi.fileEditor.FileEditorManagerAdapter;
-import com.intellij.openapi.fileEditor.FileEditorManagerListener;
+import com.intellij.openapi.fileEditor.*;
+import com.intellij.openapi.keymap.KeymapManager;
+import com.intellij.openapi.keymap.KeymapUtil;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.plugins.scala.ScalaBundle;
@@ -51,18 +48,25 @@ public class WorksheetProjectComponent extends AbstractProjectComponent {
           panel.setLayout(new FlowLayout(FlowLayout.LEFT));
 
           RunWorksheetAction executeAction = new RunWorksheetAction();
-          ActionButton executeButton = new ActionButton(executeAction, executeAction.getTemplatePresentation(),
+          Presentation executePresentation = executeAction.getTemplatePresentation();
+          Shortcut[] shortcuts = KeymapManager.getInstance().getActiveKeymap().getShortcuts("Scala.RunWorksheet");
+          if (shortcuts.length > 0) {
+            String shortcutText = " (" + KeymapUtil.getShortcutText(shortcuts[0]) + ")";
+            executePresentation.setText(ScalaBundle.message("worksheet.execute.button") + shortcutText);
+          }
+          ActionButton executeButton = new ActionButton(executeAction, executePresentation,
             ActionPlaces.EDITOR_TOOLBAR, ActionToolbar.DEFAULT_MINIMUM_BUTTON_SIZE);
-          executeButton.setToolTipText(ScalaBundle.message("worksheet.execute.button"));
           executeButton.getAction().getTemplatePresentation().setIcon(AllIcons.Actions.Execute);
           panel.add(executeButton);
 
-//          AnAction cleanAction = new CleanWorksheetAction(file);
-//          ActionButton cleanButton = new ActionButton(cleanAction, cleanAction.getTemplatePresentation(),
-//            ActionPlaces.EDITOR_TOOLBAR, ActionToolbar.DEFAULT_MINIMUM_BUTTON_SIZE);
-//          cleanButton.setToolTipText(ScalaBundle.message("worksheet.clear.button"));
-//          cleanButton.getAction().getTemplatePresentation().setIcon(AllIcons.Actions.GC);
-//          panel.add(cleanButton);
+          CleanWorksheetAction cleanAction = new CleanWorksheetAction();
+          Presentation cleanPresentation = cleanAction.getTemplatePresentation();
+          cleanPresentation.setText(ScalaBundle.message("worksheet.clear.button"));
+          ActionButton cleanButton = new ActionButton(cleanAction, cleanPresentation,
+          ActionPlaces.EDITOR_TOOLBAR, ActionToolbar.DEFAULT_MINIMUM_BUTTON_SIZE);
+          cleanButton.setToolTipText(ScalaBundle.message("worksheet.clear.button"));
+          cleanButton.getAction().getTemplatePresentation().setIcon(AllIcons.Actions.GC);
+          panel.add(cleanButton);
 
           myFileEditorManager.addTopComponent(editor, panel);
         }
