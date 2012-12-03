@@ -1,11 +1,18 @@
 package org.jetbrains.jps.incremental.scala
 
-import java.io.File
+import data.{CompilationData, CompilerData, SbtData}
 import org.jetbrains.jps.incremental.messages.BuildMessage.Kind
+import java.io.File
 
 /**
  * @author Pavel Fatin
  */
+trait Server {
+  def compile(arguments: ServerArguments, client: Client)
+}
+
+case class ServerArguments(sbtData: SbtData, compilerData: CompilerData, compilationData: CompilationData)
+
 trait Client {
   def message(kind: Kind, text: String, source: Option[File] = None, line: Option[Long] = None, column: Option[Long] = None)
 

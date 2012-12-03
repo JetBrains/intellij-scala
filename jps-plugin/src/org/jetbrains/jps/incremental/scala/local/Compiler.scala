@@ -1,4 +1,5 @@
 package org.jetbrains.jps.incremental.scala
+package local
 
 import data.CompilationData
 

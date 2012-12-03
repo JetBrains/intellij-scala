@@ -1,7 +1,6 @@
 package org.jetbrains.jps.incremental.scala
 
-import java.util.Collections
-import org.jetbrains.jps.incremental.CompiledClass
+import local.LocalServer
 import org.jetbrains.jps.javac.BinaryContent
 import java.io.File
 import com.intellij.openapi.util.io.FileUtil
@@ -19,7 +18,6 @@ import org.jetbrains.jps.incremental.scala.data.CompilerData
 import org.jetbrains.jps.incremental.scala.data.SbtData
 import collection.JavaConverters._
 import org.jetbrains.jps.incremental.ModuleLevelBuilder.{OutputConsumer, ExitCode}
-import sbt.inc.{AnalysisFormats, FileBasedStore, AnalysisStore}
 import org.jetbrains.jps.model.java.JavaSourceRootType
 
 /**
@@ -53,16 +51,12 @@ class ScalaBuilder extends ModuleLevelBuilder(BuilderCategory.TRANSLATOR) {
 
     client.progress("Reading compilation settings...")
 
-    ScalaBuilder.compilerFactory.flatMap { compilerFactory =>
+    ScalaBuilder.sbtData.flatMap { sbtData =>
       CompilerData.from(context, chunk).flatMap { compilerData =>
         CompilationData.from(sources, context, chunk).map { compilationData =>
-          client.progress("Instantiating compiler...")
-          val compiler = compilerFactory.createCompiler(compilerData, client, ScalaBuilder.createAnalysisStore)
-
-          if (!client.isCanceled) {
-            client.progress("Searching for changed files...")
-            compiler.compile(compilationData, client)
-          }
+          val server = new LocalServer()
+          val arguments = ServerArguments(sbtData, compilerData, compilationData)
+          server.compile(arguments, client)
         }
       }
     } match {
@@ -77,24 +71,13 @@ class ScalaBuilder extends ModuleLevelBuilder(BuilderCategory.TRANSLATOR) {
 }
 
 object ScalaBuilder {
-  // Globally cached instance of CompilerFactory
-  private var cachedCompilerFactory: Option[CompilerFactory] = None
+  private lazy val sbtData = {
+    val classLoader = getClass.getClassLoader
+    val pluginRoot = (new File(PathUtil.getJarPathForClass(getClass))).getParentFile
+    val systemRoot = Utils.getSystemRoot
+    val javaClassVersion = System.getProperty("java.class.version")
 
-  def compilerFactory: Either[String, CompilerFactory] = cachedCompilerFactory.map(Right(_)).getOrElse {
-    val sbtData = {
-      val classLoader = getClass.getClassLoader
-      val pluginRoot = (new File(PathUtil.getJarPathForClass(getClass))).getParentFile
-      val systemRoot = Utils.getSystemRoot
-      val javaClassVersion = System.getProperty("java.class.version")
-
-      SbtData.from(classLoader, pluginRoot, systemRoot, javaClassVersion)
-    }
-
-    sbtData.map { data =>
-      val factory = new CachingFactory(new CompilerFactoryImpl(data), 5, 5)
-      cachedCompilerFactory = Some(factory)
-      factory
-    }
+    SbtData.from(classLoader, pluginRoot, systemRoot, javaClassVersion)
   }
 
   private def hasDirtyFiles(dirtyFilesHolder: DirtyFilesHolder[JavaSourceRootDescriptor, ModuleBuildTarget]): Boolean = {
@@ -129,13 +112,6 @@ object ScalaBuilder {
     }
 
     result
-  }
-
-  private def createAnalysisStore(cacheFile: File): AnalysisStore = {
-    import sbinary.DefaultProtocol.{immutableMapFormat, immutableSetFormat, StringFormat, tuple2Format}
-    import sbt.inc.AnalysisFormats._
-    val store = FileBasedStore(cacheFile)(AnalysisFormats.analysisFormat, AnalysisFormats.setupFormat)
-    AnalysisStore.sync(AnalysisStore.cached(store))
   }
 }
 
