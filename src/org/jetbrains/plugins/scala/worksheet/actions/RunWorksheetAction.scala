@@ -84,7 +84,10 @@ class RunWorksheetAction extends AnAction {
     try {
       val file = LangDataKeys.PSI_FILE.getData(e.getDataContext)
       file match {
-        case _: ScalaFile => enable()
+        case sf: ScalaFile => {
+          if (sf.isWorksheetFile) enable()
+          else disable()
+        }
         case _ => disable()
       }
     }
