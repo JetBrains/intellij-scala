@@ -5,4 +5,8 @@ object Test {
 
   val x: Seq[C[_]] = /*start*/Seq(new C[A], new C[B])/*end*/
 }
-//Seq[Test.C[_ >: Test.B with Test.A <: Object]]
+/*
+Few variants:
+Seq[Test.C[_ >: Test.B with Test.A <: Object]]
+Seq[Test.C[_ >: Test.A with Test.B <: Object]]
+ */

@@ -6,4 +6,8 @@ trait ObjectGraphMatchers {
 
   /*start*/foo(Zoo[A](new A {}), Zoo[B](new B {}))/*end*/
 }
-//ObjectGraphMatchers.this.type#B with ObjectGraphMatchers.this.type#A
+/*
+Few variants:
+ObjectGraphMatchers.this.type#B with ObjectGraphMatchers.this.type#A
+ObjectGraphMatchers.this.type#A with ObjectGraphMatchers.this.type#B
+ */
