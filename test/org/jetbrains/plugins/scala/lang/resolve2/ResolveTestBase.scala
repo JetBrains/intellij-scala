@@ -10,6 +10,7 @@ import java.lang.String
 import com.intellij.psi.{PsiNamedElement, PsiReference, PsiElement}
 import org.jetbrains.plugins.scala.extensions.toPsiNamedElementExt
 import org.jetbrains.plugins.scala.util.TestUtils.ScalaSdkVersion
+import com.intellij.psi.impl.source.resolve.reference.impl.PsiMultiReference
 
 /**
  * Pavel.Fatin, 02.02.2010
@@ -96,7 +97,23 @@ abstract class ResolveTestBase extends ScalaResolveTestCase {
   }
 
   def doTest(file: String) {
-    references.zip(options).foreach(it => doEachTest(it._1.asInstanceOf[ScReferenceElement], it._2))
+    references.zip(options).foreach(it => {
+      it._1 match {
+        case ref: ScReferenceElement =>
+          doEachTest(it._1.asInstanceOf[ScReferenceElement], it._2)
+        case ref: PsiMultiReference =>
+          val hostReferences = ref.getReferences
+          if (hostReferences.length == 2) {
+            hostReferences.find(_.isInstanceOf[ScReferenceElement]) match {
+              case Some(r: ScReferenceElement) =>
+                doEachTest(r, it._2)
+              case _ => assert(assertion = false, message = "Multihost references are not supported")
+            }
+          } else {
+            assert(assertion = false, message = "Multihost references are not supported")
+          }
+      }
+    })
   }
 
   def doEachTest(reference: ScReferenceElement, options: Parameters) {
