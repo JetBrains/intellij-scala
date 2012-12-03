@@ -18,12 +18,15 @@ import collection.Seq
 import api.base.ScPrimaryConstructor
 import psi.impl.ScalaPsiManager
 import extensions.toPsiNamedElementExt
+import com.intellij.openapi.application.ApplicationManager
+import org.jetbrains.annotations.TestOnly
 
 /**
  * @author ven
  */
 object Compatibility {
-  private var seqClass: Option[PsiClass] = None  
+  @TestOnly
+  var seqClass: Option[PsiClass] = None
   
   def compatibleWithViewApplicability(l : ScType, r : ScType): Boolean = r conforms l
 
@@ -52,16 +55,16 @@ object Compatibility {
   }
 
   def seqClassFor(expr: ScTypedStmt): PsiClass = {
-    seqClass.getOrElse {
-      ScalaPsiManager.instance(expr.getProject).getCachedClass("scala.collection.Seq", expr.getResolveScope, ScalaPsiManager.ClassCategory.TYPE)
+    seqClass match {
+      case Some(clazz) =>
+        if (ApplicationManager.getApplication.isUnitTestMode) clazz
+        else throw new RuntimeException("Illegal state for seqClass variable")
+      case _ =>
+        ScalaPsiManager.instance(expr.getProject).getCachedClass("scala.collection.Seq",
+          expr.getResolveScope, ScalaPsiManager.ClassCategory.TYPE)
     }
   }
 
-  // provides means for dependency injection in tests
-  def mockSeqClass(aClass: PsiClass) {
-    seqClass = Some(aClass)
-  }
-  
   def checkConformance(checkNames: Boolean,
                        parameters: Seq[Parameter],
                        exprs: Seq[Expression],

@@ -123,16 +123,20 @@ class ApplicationAnnotatorTest extends SimpleTestCase {
     val file = (Header + code).parse
     
     val seq = file.depthFirst.findByType(classOf[ScClass])
-    Compatibility.mockSeqClass(seq.get)
-    
-    file.depthFirst.filterByType(classOf[ScReferenceElement]).foreach {
-      annotator.annotateReference(_, mock)  
-    }
+    Compatibility.seqClass = seq
+    try {
+      file.depthFirst.filterByType(classOf[ScReferenceElement]).foreach {
+        annotator.annotateReference(_, mock)
+      }
 
-    file.depthFirst.filterByType(classOf[ScMethodCall]).foreach {
-      annotator.annotateMethodCall(_, mock)
+      file.depthFirst.filterByType(classOf[ScMethodCall]).foreach {
+        annotator.annotateMethodCall(_, mock)
+      }
+
+      mock.annotations
     }
-    
-    mock.annotations
+    finally {
+      Compatibility.seqClass = None
+    }
   }
 }
