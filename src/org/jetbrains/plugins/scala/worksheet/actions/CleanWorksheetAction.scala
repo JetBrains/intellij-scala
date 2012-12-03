@@ -5,56 +5,36 @@ import com.intellij.openapi.actionSystem._
 import lang.psi.api.ScalaFile
 import com.intellij.openapi.editor.{Document, Editor}
 import com.intellij.openapi.project.Project
-import com.intellij.psi.{PsiDocumentManager, PsiComment, PsiManager, PsiFile}
+import com.intellij.psi.{PsiDocumentManager, PsiManager, PsiFile}
 import com.intellij.psi.impl.PsiManagerEx
-import worksheet.WorksheetFoldingBuilder
 import com.intellij.openapi.util.TextRange
 import com.intellij.icons.AllIcons
 import com.intellij.lang.ASTNode
 import extensions._
 import com.intellij.openapi.vfs.VirtualFile
+import worksheet.runconfiguration.WorksheetRunConfiguration
 
 /**
  * @author Ksenia.Sautina
  * @since 11/12/12
  */
-class CleanWorksheetAction(file: VirtualFile) extends AnAction {
-//  def CleanWorksheetAction() {}
+class CleanWorksheetAction() extends AnAction {
 
   def actionPerformed(e: AnActionEvent) {
     val dataContext: DataContext = e.getDataContext
     val editor: Editor = PlatformDataKeys.EDITOR.getData(dataContext)
     val project: Project = PlatformDataKeys.PROJECT.getData(dataContext)
-    assert(project != null)
+    val file: VirtualFile = PlatformDataKeys.VIRTUAL_FILE.getData(dataContext)
+    if (project == null || editor == null || file == null) return
     val psiFile: PsiFile = (PsiManager.getInstance(project).asInstanceOf[PsiManagerEx]).getFileManager.getCachedPsiFile(file)
-    assert(psiFile != null)
-    assert(editor != null)
+    if (psiFile == null) return
 
-    def cleanWorksheet(node: ASTNode, editor: Editor, project: Project) {
-      val document = editor.getDocument
-      invokeLater {
-        inWriteAction {
-          recStep(node, document)
-        }
+    invokeLater {
+      inWriteAction {
+        cleanWorksheet(psiFile.getNode, editor.getDocument, WorksheetRunConfiguration.wvDocument, project)
+        editor.getContentComponent.removeAll()
       }
     }
-
-    def recStep(node: ASTNode, document: Document) {
-      if (node.getPsi.isInstanceOf[PsiComment] &&
-        (node.getText.startsWith(WorksheetFoldingBuilder.FIRST_LINE_PREFIX) || node.getText.startsWith(WorksheetFoldingBuilder.LINE_PREFIX))) {
-        val line = document.getLineNumber(node.getPsi.getTextRange.getStartOffset)
-        val startOffset = document.getLineStartOffset(line)
-        val beginningOfTheLine = document.getText(new TextRange(startOffset, node.getPsi.getTextRange.getStartOffset))
-        if (beginningOfTheLine.trim == "") document.deleteString(startOffset, node.getPsi.getTextRange.getEndOffset + 1)
-        else document.deleteString(node.getPsi.getTextRange.getStartOffset, node.getPsi.getTextRange.getEndOffset)
-        PsiDocumentManager.getInstance(project).commitDocument(document)
-      }
-      for (child <- node.getChildren(null)) {
-        recStep(child, document)
-      }
-    }
-
-    cleanWorksheet(psiFile.getNode, editor, project)
   }
 
   override def update(e: AnActionEvent) {
@@ -69,15 +49,55 @@ class CleanWorksheetAction(file: VirtualFile) extends AnAction {
       presentation.setEnabled(false)
       presentation.setVisible(false)
     }
+    enable()
     try {
       val file = LangDataKeys.PSI_FILE.getData(e.getDataContext)
+      val editor: Editor = PlatformDataKeys.EDITOR.getData(e.getDataContext)
+
+      if (file == null || editor == null)
+        disable()
+
       file match {
-        case _: ScalaFile => enable()
+        case sf: ScalaFile => {
+          if (sf.isWorksheetFile) {
+            enable()
+          } else {
+            disable()
+          }
+        }
         case _ => disable()
       }
     }
     catch {
       case e: Exception => disable()
+    }
+  }
+
+  def cleanWorksheet(node: ASTNode, leftDocument: Document, rightDocument: Document, project: Project) {
+    try {
+      if (rightDocument != null && rightDocument.getLineCount > 0) {
+        for (i <- rightDocument.getLineCount - 1 to 0 by -1) {
+          val wStartOffset = rightDocument.getLineStartOffset(i)
+          val wEndOffset = rightDocument.getLineEndOffset(i)
+
+          val wCurrentLine = rightDocument.getText(new TextRange(wStartOffset, wEndOffset))
+          if (wCurrentLine.trim != "" && wCurrentLine.trim != "\n" && i < leftDocument.getLineCount) {
+            val eStartOffset = leftDocument.getLineStartOffset(i)
+            val eEndOffset = leftDocument.getLineEndOffset(i)
+            val eCurrentLine = leftDocument.getText(new TextRange(eStartOffset, eEndOffset))
+
+            if ((eCurrentLine.trim == "" || eCurrentLine.trim == "\n") && eEndOffset + 1 < leftDocument.getTextLength) {
+              leftDocument.deleteString(eStartOffset, eEndOffset + 1)
+              PsiDocumentManager.getInstance(project).commitDocument(leftDocument)
+            }
+          }
+        }
+      }
+    } finally {
+      if (rightDocument != null && !project.isDisposed) {
+        rightDocument.setText("")
+        PsiDocumentManager.getInstance(project).commitDocument(rightDocument)
+      }
     }
   }
 }

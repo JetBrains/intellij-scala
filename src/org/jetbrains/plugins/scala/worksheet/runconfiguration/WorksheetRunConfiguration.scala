@@ -44,6 +44,7 @@ import lang.psi.api.expr.{ScMethodCall, ScInfixExpr}
 import com.intellij.ui.JBSplitter
 import com.intellij.ui.components.JBScrollPane
 import lang.psi.api.toplevel.imports.ScImportStmt
+import lang.psi.api.statements.ScPatternDefinition
 
 /**
  * @author Ksenia.Sautina
@@ -60,7 +61,6 @@ class WorksheetRunConfiguration(val project: Project, val configurationFactory: 
 
   val ContinueString = "     | "
   val PromptString   = "scala> "
-  var wvDocument: Document = null
   var worksheetViewer: Editor = null
 
   private var javaOptions = "-Djline.terminal=NONE"
@@ -117,6 +117,7 @@ class WorksheetRunConfiguration(val project: Project, val configurationFactory: 
       val leftPane: JBScrollPane = new JBScrollPane(editorComponent)
       val gutter = editor.asInstanceOf[EditorImpl].getGutterComponentEx
       leftPane.setRowHeaderView(gutter)
+      leftPane.setAutoscrolls(true)
       val leftScrollBarModel = leftPane.getVerticalScrollBar.getModel
 
       worksheetViewer.asInstanceOf[EditorImpl].getScrollPane.getVerticalScrollBar.setModel(leftScrollBarModel)
@@ -188,7 +189,7 @@ class WorksheetRunConfiguration(val project: Project, val configurationFactory: 
         worksheetViewerDocument.insertString(worksheetViewerDocument.getTextLength, buffer.toString())
         PsiDocumentManager.getInstance(project).commitDocument(worksheetViewerDocument)
 
-        wvDocument = worksheetViewerDocument
+        WorksheetRunConfiguration.wvDocument = worksheetViewerDocument
         PsiDocumentManager.getInstance(project).commitDocument(document)
       }
     }
@@ -199,6 +200,7 @@ class WorksheetRunConfiguration(val project: Project, val configurationFactory: 
       lineNumbers.clear()
       addedLinesCount = 0
 
+      val wvDocument = WorksheetRunConfiguration.wvDocument
       try {
         if (wvDocument != null && wvDocument.getLineCount > 0) {
           for (i <- wvDocument.getLineCount - 1 to 0 by -1) {
@@ -256,7 +258,8 @@ class WorksheetRunConfiguration(val project: Project, val configurationFactory: 
               if (child.getText.trim != "" && child.getText.trim != "\n" && (!child.isInstanceOf[PsiComment] && !child.isInstanceOf[ScDocComment])) {
                 val outputStream: OutputStream = processHandler.getProcessInput
                 try {
-                  val text = if (child.isInstanceOf[ScInfixExpr] || child.isInstanceOf[ScMethodCall])
+                  val text = if (child.isInstanceOf[ScInfixExpr] || child.isInstanceOf[ScMethodCall] ||
+                    child.isInstanceOf[ScPatternDefinition])
                     child.getText.trim.replaceAll("\n", " ") else child.getText.trim
                   lineNumbers.add(document.getLineNumber(child.getTextRange.getEndOffset))
                   val bytes: Array[Byte] = (text + "\n").getBytes
@@ -289,7 +292,8 @@ class WorksheetRunConfiguration(val project: Project, val configurationFactory: 
                       if (child.getText.trim != "" && child.getText.trim != "\n" && (!child.isInstanceOf[PsiComment] && !child.isInstanceOf[ScDocComment])) {
                         val outputStream: OutputStream = processHandler.getProcessInput
                         try {
-                          val text = if (child.isInstanceOf[ScInfixExpr] || child.isInstanceOf[ScMethodCall])
+                          val text = if (child.isInstanceOf[ScInfixExpr] || child.isInstanceOf[ScMethodCall] ||
+                            child.isInstanceOf[ScPatternDefinition])
                             child.getText.trim.replaceAll("\n", " ") else child.getText.trim
                           lineNumbers.add(document.getLineNumber(child.getTextRange.getEndOffset))
                           val bytes: Array[Byte] = (text + "\n").getBytes
@@ -559,4 +563,9 @@ class WorksheetRunConfiguration(val project: Project, val configurationFactory: 
     }
     res.toString()
   }
+}
+
+object WorksheetRunConfiguration {
+  var wvDocument: Document = null
+  def getDocumentRight = wvDocument
 }

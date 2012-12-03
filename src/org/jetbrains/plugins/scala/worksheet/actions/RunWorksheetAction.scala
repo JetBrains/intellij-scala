@@ -11,6 +11,7 @@ import com.intellij.openapi.ui.Messages
 import com.intellij.util.ActionRunner
 import worksheet.runconfiguration.{WorksheetRunConfigurationFactory, WorksheetRunConfiguration, WorksheetConfigurationType}
 import com.intellij.icons.AllIcons
+import com.intellij.openapi.keymap.{KeymapUtil, KeymapManager}
 
 /**
  * @author Ksenia.Sautina
@@ -22,6 +23,7 @@ class RunWorksheetAction extends AnAction {
     val dataContext = e.getDataContext
     val file = LangDataKeys.PSI_FILE.getData(dataContext)
     val project = PlatformDataKeys.PROJECT.getData(dataContext)
+    if (file == null || project == null) return
     file match {
       case file: ScalaFile => {
         if (!file.isWorksheetFile) return
@@ -72,6 +74,11 @@ class RunWorksheetAction extends AnAction {
   override def update(e: AnActionEvent) {
     val presentation = e.getPresentation
     presentation.setIcon(AllIcons.Actions.Execute)
+    val shortcuts = KeymapManager.getInstance.getActiveKeymap.getShortcuts("Scala.RunWorksheet")
+    if (shortcuts.length > 0) {
+      val shortcutText = " (" + KeymapUtil.getShortcutText(shortcuts(0)) + ")"
+      presentation.setText(ScalaBundle.message("worksheet.execute.button") + shortcutText)
+    }
 
     def enable() {
       presentation.setEnabled(true)
