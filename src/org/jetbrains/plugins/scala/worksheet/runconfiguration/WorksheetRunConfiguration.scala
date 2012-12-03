@@ -43,6 +43,7 @@ import scala.Some
 import lang.psi.api.expr.{ScMethodCall, ScInfixExpr}
 import com.intellij.ui.JBSplitter
 import com.intellij.ui.components.JBScrollPane
+import lang.psi.api.toplevel.imports.ScImportStmt
 
 /**
  * @author Ksenia.Sautina
@@ -234,6 +235,7 @@ class WorksheetRunConfiguration(val project: Project, val configurationFactory: 
           var isObject = false
           var myObject: ScObject = null
           var classAndObjectCount = 0
+          val imports = new util.ArrayList[ScImportStmt]()
 
           for (ch <- file.getChildren) {
             if (ch.isInstanceOf[ScObject]) {
@@ -242,8 +244,10 @@ class WorksheetRunConfiguration(val project: Project, val configurationFactory: 
               classAndObjectCount = classAndObjectCount + 1
             } else if (ch.isInstanceOf[ScClass]) {
               classAndObjectCount = classAndObjectCount + 1
-            } else if (ch.getText.trim != "") {
+            } else if (ch.getText.trim != "" && !ch.isInstanceOf[ScImportStmt]) {
               classAndObjectCount = classAndObjectCount + 1
+            } else if (ch.getText.trim != "" && ch.isInstanceOf[ScImportStmt]) {
+              imports.add(ch.asInstanceOf[ScImportStmt])
             }
           }
 
@@ -265,6 +269,18 @@ class WorksheetRunConfiguration(val project: Project, val configurationFactory: 
               }
             })
           } else if (isObject && classAndObjectCount == 1) {
+            for (im <- imports) {
+              val outputStream: OutputStream = processHandler.getProcessInput
+              try {
+                lineNumbers.add(document.getLineNumber(im.getTextRange.getEndOffset))
+                val bytes: Array[Byte] = (im.getText.trim + "\n").getBytes
+                outputStream.write(bytes)
+                outputStream.flush()
+              }
+              catch {
+                case e: IOException => //ignore
+              }
+            }
             myObject.getChildren.foreach(child => {
               if (child.isInstanceOf[ScExtendsBlock]) {
                 child.getChildren.foreach(child => {

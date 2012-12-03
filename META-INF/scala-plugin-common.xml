@@ -867,6 +867,7 @@
         </action>
         <action id="Scala.RunWorksheet" class="org.jetbrains.plugins.scala.worksheet.actions.RunWorksheetAction"
                 text="Run Scala Worksheet" description="Run Scala Worksheet">
+            <keyboard-shortcut first-keystroke="control alt W" keymap="$default"/>
             <add-to-group group-id="RunContextPopupGroup" anchor="last"/>
         </action>
         <action id="Scala.CleanWorksheet" class="org.jetbrains.plugins.scala.worksheet.actions.CleanWorksheetAction"
