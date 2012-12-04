@@ -1,6 +1,6 @@
-case class Actor
-import actors._
+case class HashSet
+import collection.mutable._
 
-println(/* */ Actor.getClass)
-println(classOf[/* file: this, type: org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass */ Actor])
+println(/* */ HashSet.getClass)
+println(classOf[/* file: this, type: org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass */ HashSet])
 

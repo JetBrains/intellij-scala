@@ -1,4 +1,4 @@
-import actors.Futures
+import collection.JavaConversions
 
-println(/* path: scala.actors.Futures, type: org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject  */ Futures.getClass)
-println(classOf[/* resolved: false  */ Futures])
+println(/* path: scala.collection.JavaConversions, type: org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject  */ JavaConversions.getClass)
+println(classOf[/* resolved: false  */ JavaConversions])

@@ -1,8 +1,8 @@
-import actors.Actor
+import collection.mutable.HashMap
 
 {
   {
-    println( /* */ Actor.getClass)
-    println(classOf[ /* */ Actor])
+    println( /* */ HashMap.getClass)
+    println(classOf[ /* */ HashMap])
   }
 }

@@ -25,4 +25,4 @@ object SomeObject {
   }
 }
 }
-//Array[universe.MethodMirror]
+//Array[runtime.universe.MethodMirror]

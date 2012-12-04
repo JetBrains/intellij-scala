@@ -1,5 +1,5 @@
-import actors.Actor
-object Actor
+import collection.mutable.HashSet
+object HashSet
 
-println(/* file: this, type: org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject */ Actor.getClass)
-println(classOf[/* path: scala.actors.Actor, type: org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTrait */ Actor])
+println(/* file: this, type: org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject */ HashSet.getClass)
+println(classOf[/* path: scala.collection.mutable.HashSet */ HashSet])

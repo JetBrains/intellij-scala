@@ -1,8 +1,8 @@
-import collection.immutable.{LinearSeq => Actor}
-import actors.Actor
+import collection.immutable.{LinearSeq => Buffer}
+import collection.mutable.Buffer
 
 println(/* resolved: false */ LinearSeq.getClass)
 println(classOf[/* resolved: false */ LinearSeq])
 
-println(/* resolved: false */ Actor.getClass)
-println(classOf[/* resolved: false */ Actor])
+println(/* resolved: false */ Buffer.getClass)
+println(classOf[/* resolved: false */ Buffer])

@@ -1,4 +1,4 @@
-import actors./* */ReactorTask
+import scala.reflect.macros.internal./* */macroImpl
 
-println(/* resolved: false */ ReactorTask.getClass)
-println(classOf[/* accessible: false */ ReactorTask])
+println(/* resolved: false */ macroImpl.getClass)
+println(classOf[/* accessible: false */ macroImpl])

@@ -1,8 +1,8 @@
-import actors.{Reaction => Actor}
-import actors.Actor
+import collection.mutable.{Buffer => IndexedSeq}
+import collection.mutable.IndexedSeq
 
-println(/* resolved: false */ Reaction.getClass)
-println(classOf[/* resolved: false */ Reaction])
+println(/* resolved: false */ Buffer.getClass)
+println(classOf[/* resolved: false */ Buffer])
 
-println(/* path: scala.actors.Actor, type: org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject */ Actor.getClass)
-println(classOf[/* name: Reaction, path: scala.actors.Reaction, type: org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass */ Actor])
+println(/* path: scala.collection.mutable.IndexedSeq, type: org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject */ IndexedSeq.getClass)
+println(classOf[/* name: Reaction, path: scala.collection.mutable.IndexedSeq, type: org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass */ IndexedSeq])

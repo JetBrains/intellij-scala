@@ -1,8 +1,8 @@
-import actors.{Futures => Actor}
-import actors.Actor
+import collection.mutable.{HashSet => HashMap}
+import collection.mutable.HashMap
 
-println(/* resolved: false */ Futures.getClass)
-println(classOf[/* resolved: false */ Futures])
+println(/* resolved: false */ HashSet.getClass)
+println(classOf[/* resolved: false */ HashSet])
 
-println(/* name: Futures, path: scala.actors.Futures, type: org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject */ Actor.getClass)
-println(classOf[/* path: scala.actors.Actor, type: org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTrait */ Actor])
+println(/* name: Futures, path: scala.collection.mutable.HashMap, type: org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject */ HashMap.getClass)
+println(classOf[/* path: scala.collection.mutable.HashMap */ HashMap])

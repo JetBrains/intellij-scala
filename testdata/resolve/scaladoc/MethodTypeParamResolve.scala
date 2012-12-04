@@ -1,4 +1,4 @@
-import actors.Actor
+import collection.mutable.HashMap
 
 class a {
 
@@ -9,7 +9,7 @@ class a {
    * @tparam <testref>Q Q
    * @tparam <testref>E E
    */
-  def f[T, U, Q <: Actor, E >: U]() {
+  def f[T, U, Q <: HashMap, E >: U]() {
 
   }
 }

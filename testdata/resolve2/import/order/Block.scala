@@ -1,9 +1,9 @@
 {
-  println(/* resolved: false */ Actor.getClass)
-  println(classOf[/* resolved: false */ Actor])
+  println(/* resolved: false */ HashMap.getClass)
+  println(classOf[/* resolved: false */ HashMap])
 
-  import actors.Actor
+  import collection.mutable.HashMap
 
-  println(/* */ Actor.getClass)
-  println(classOf[/* */ Actor])
+  println(/* */ HashMap.getClass)
+  println(classOf[/* */ HashMap])
 }
