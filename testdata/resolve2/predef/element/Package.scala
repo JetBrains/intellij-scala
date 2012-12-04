@@ -1,5 +1,5 @@
-println(/* */scala.actors./* path: scala.actors.Actor */Actor.getClass)
-println(/* */actors./* path: scala.actors.Actor */Actor.getClass)
+println(/* */collection.mutable./* path: scala.collection.mutable.HashSet */HashSet.getClass)
+println(/* */scala.collection.mutable./* path: scala.collection.mutable.HashSet */HashSet.getClass)
 
-println(classOf[scala.actors./* path: scala.actors.Actor */Actor])
-println(classOf[actors./* path: scala.actors.Actor */Actor])
+println(classOf[collection.mutable./* scala.collection.mutable.HashSet */HashSet])
+println(classOf[scala.collection.mutable./* path: scala.collection.mutable.HashSet */HashSet])

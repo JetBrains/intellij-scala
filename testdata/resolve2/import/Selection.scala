@@ -1,10 +1,10 @@
-import actors.{Actor, Future}
+import collection.mutable.{Buffer, AbstractMap}
 
-println(/* path: scala.actors.Actor */ Actor.getClass)
-println(classOf[/* path: scala.actors.Actor */ Actor])
+println(/* path: scala.collection.mutable.Buffer */ Buffer.getClass)
+println(classOf[/* path: scala.collection.mutable.Buffer */ Buffer])
 
-println(/* resolved: false */ Future.getClass)
-println(classOf[/* path: scala.actors.Future */ Future])
+println(/* resolved: false */ AbstractMap.getClass)
+println(classOf[/* path: scala.collection.mutable.AbstractMap, accessible: false*/ AbstractMap])
 
 println(/* resolved: false */ AbstractActor.getClass)
 println(classOf[/* resolved: false */ AbstractActor])

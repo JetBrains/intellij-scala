@@ -1,7 +1,7 @@
-import actors.{Actor => _, _}
+import collection.mutable.{Buffer => _, _}
 
-println(/* resolved: false */ Actor.getClass)
-println(classOf[/* resolved: false */ Actor])
+println(/* resolved: false */ Buffer.getClass)
+println(classOf[/* resolved: false */ Buffer])
 
-println(/* path: scala.actors.Futures  */ Futures.getClass)
-println(classOf[/* path: scala.actors.ReplyReactor  */ ReplyReactor])
+println(/* path: scala.collection.mutable.IndexedSeq  */ IndexedSeq.getClass)
+println(classOf[/* path: scala.collection.mutable.IndexedSeq  */ IndexedSeq])

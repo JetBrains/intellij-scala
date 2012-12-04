@@ -1,6 +1,6 @@
-case class Actor
-import actors.Actor
+case class Buffer
+import scala.collection.mutable.Buffer
 
-println(/* */ Actor.getClass)
-println(classOf[/* file: this, type: org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass */ Actor])
+println(/* */ Buffer.getClass)
+println(classOf[/* file: this, type: org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass */ Buffer])
 

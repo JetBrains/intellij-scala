@@ -1,4 +1,4 @@
-import actors.Actor.{continue => f}
+import collection.mutable.ArrayBuffer.{newBuilder => f}
 
 println(/* file: this */ f)
 

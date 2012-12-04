@@ -1,4 +1,4 @@
-import actors.ReplyReactor
+import collection.AbstractMap
 
-println(/* resolved: false  */ ReplyReactor.getClass)
-println(classOf[/* path: scala.actors.ReplyReactor, type: org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTrait  */ ReplyReactor])
+println(/* resolved: false  */ AbstractMap.getClass)
+println(classOf[/* path: scala.collection.AbstractMap, accessible: false*/ AbstractMap])

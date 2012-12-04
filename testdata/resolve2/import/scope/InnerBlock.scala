@@ -1,7 +1,7 @@
 {
-  import actors.Actor
+  import collection.mutable.HashMap
 }
 
-println(/* resolved: false */ Actor.getClass)
-println(classOf[/* resolved: false  */ Actor])
+println(/* resolved: false */ HashMap.getClass)
+println(classOf[/* resolved: false  */ HashMap])
 

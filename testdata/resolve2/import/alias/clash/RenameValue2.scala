@@ -1,8 +1,8 @@
-import actors.Actor
-import actors.{Futures => Actor}
+import collection.mutable.Buffer
+import collection.mutable.{ArrayBuffer => Buffer}
 
-println(/* resolved: false */ Futures.getClass)
-println(classOf[/* resolved: false */ Futures])
+println(/* resolved: false */ ArrayBuffer.getClass)
+println(classOf[/* resolved: false */ ArrayBuffer])
 
-println(/* path: scala.actors.Actor, type: org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject */ Actor.getClass)
-println(classOf[/* path: scala.actors.Actor, type: org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTrait */ Actor])
+println(/* path: scala.collection.mutable.Buffer, type: org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject */ Buffer.getClass)
+println(classOf[/* path: scala.collection.mutable.Buffer */ Buffer])

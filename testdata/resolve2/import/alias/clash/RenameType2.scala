@@ -1,8 +1,8 @@
-import actors.Actor
-import actors.{Reaction => Actor}
+import collection.mutable.HashSet
+import collection.mutable.{Buffer => HashSet}
 
-println(/* resolved: false */ Reaction.getClass)
-println(classOf[/* resolved: false */ Reaction])
+println(/* resolved: false */ Buffer.getClass)
+println(classOf[/* resolved: false */ Buffer])
 
-println(/* path: scala.actors.Actor, type: org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject */ Actor.getClass)
-println(classOf[/* path: scala.actors.Actor, type: org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTrait */ Actor])
+println(/* path: scala.collection.mutable.HashSet, type: org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject */ HashSet.getClass)
+println(classOf[/* path: scala.collection.mutable.HashSet */ HashSet])

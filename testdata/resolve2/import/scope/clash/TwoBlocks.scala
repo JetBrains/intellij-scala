@@ -1,9 +1,9 @@
 {
-  import scala.swing.{Adjustable => Actor}
+  import collection.mutable.{HashSet => HashMap}
 }
 {
-  import actors.Actor
+  import collection.mutable.HashMap
 
-  println( /* path: scala.actors.Actor */ Actor.getClass)
-  println(classOf[ /* path: scala.actors.Actor  */ Actor])
+  println( /* path: scala.collection.mutable.HashMap */ HashMap.getClass)
+  println(classOf[ /* path: scala.collection.mutable.HashMap  */ HashMap])
 }

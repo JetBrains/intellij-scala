@@ -1,7 +1,7 @@
-import actors.{Actor => A}
+import collection.mutable.{Buffer => A}
 
-println(/* resolved: false */ Actor.getClass)
-classOf[/* resolved: false */ Actor]
+println(/* resolved: false */ Buffer.getClass)
+classOf[/* resolved: false */ Buffer]
 
-println(/* name: Actor, path: scala.actors.Actor */ A.getClass)
-classOf[/* name: Actor, path: scala.actors.Actor */ A]
+println(/* name: Buffer, path: scala.collection.mutable.Buffer */ A.getClass)
+classOf[/* name: Buffer, path: scala.collection.mutable.Buffer */ A]
