@@ -1,6 +1,7 @@
 package org.jetbrains.jps.incremental.scala;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.jps.ModuleChunk;
 import org.jetbrains.jps.builders.BuildOutputConsumer;
 import org.jetbrains.jps.builders.BuildTargetType;
 import org.jetbrains.jps.builders.DirtyFilesHolder;
@@ -21,13 +22,27 @@ public class ScalaBuilderService extends BuilderService {
   @NotNull
   @Override
   public List<? extends ModuleLevelBuilder> createModuleLevelBuilders() {
-    return Collections.singletonList(new ScalaBuilder());
+    return Collections.singletonList(new ScalaBuilderDecorator());
   }
 
   @NotNull
   @Override
   public List<? extends TargetBuilder<?, ?>> createBuilders() {
     return Collections.singletonList(new StubTargetBuilder());
+  }
+
+  private static class ScalaBuilderDecorator extends ScalaBuilder {
+    @Override
+    public ExitCode build(CompileContext context,
+                          ModuleChunk chunk,
+                          DirtyFilesHolder<JavaSourceRootDescriptor, ModuleBuildTarget> dirtyFilesHolder,
+                          OutputConsumer outputConsumer) {
+      JpsProject project = context.getProjectDescriptor().getProject();
+
+      return isScalaProject(project)
+          ? super.build(context, chunk, dirtyFilesHolder, outputConsumer)
+          : ExitCode.NOTHING_DONE;
+    }
   }
 
   private static class StubTargetBuilder extends TargetBuilder<JavaSourceRootDescriptor, ModuleBuildTarget> {
