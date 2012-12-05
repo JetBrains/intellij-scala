@@ -315,6 +315,12 @@
       </fileset>
     </copy>
 
+    <copy todir="${temp.jar.dir}/Scala/lib">
+      <fileset dir="${sbt.lib}">
+        <include name="**/nailgun.jar"/>
+      </fileset>
+    </copy>
+
     <jar destfile="${temp.jar.dir}/Scala/jps/${jps.jar}">
       <fileset dir="${jps.dest}"/>
     </jar>
@@ -322,6 +328,7 @@
     <copy todir="${temp.jar.dir}/Scala/jps">
       <fileset dir="${sbt.lib}">
         <include name="**/*.jar"/>
+        <exclude name="**/nailgun.jar"/>
       </fileset>
     </copy>
 
