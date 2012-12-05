@@ -1,6 +1,5 @@
 package org.jetbrains.jps.incremental.scala
 
-import local.LocalServer
 import org.jetbrains.jps.javac.BinaryContent
 import java.io.File
 import com.intellij.openapi.util.io.FileUtil
@@ -19,6 +18,8 @@ import org.jetbrains.jps.incremental.scala.data.SbtData
 import collection.JavaConverters._
 import org.jetbrains.jps.incremental.ModuleLevelBuilder.{OutputConsumer, ExitCode}
 import org.jetbrains.jps.model.java.JavaSourceRootType
+import local.LocalServer
+import remote.RemoteServer
 
 /**
  * @author Pavel Fatin
@@ -54,18 +55,18 @@ class ScalaBuilder extends ModuleLevelBuilder(BuilderCategory.TRANSLATOR) {
     ScalaBuilder.sbtData.flatMap { sbtData =>
       CompilerData.from(context, chunk).flatMap { compilerData =>
         CompilationData.from(sources, context, chunk).map { compilationData =>
+//          val server = new RemoteServer("localhost", 2113)
           val server = new LocalServer()
-          val arguments = ServerArguments(sbtData, compilerData, compilationData)
-          server.compile(arguments, client)
+          server.compile(sbtData, compilerData, compilationData, client)
         }
       }
     } match {
       case Left(error) =>
         client.error(error)
         ExitCode.ABORT
-      case Right(_) =>
+      case Right(code) =>
         client.progress("Compilation completed", Some(1.0F))
-        ExitCode.OK
+        code
     }
   }
 }
