@@ -1,24 +1,27 @@
 package org.jetbrains.jps.incremental.scala
 package local
 
-import data.SbtData
+import data._
 import java.io.File
 import sbt.inc.{AnalysisFormats, FileBasedStore, AnalysisStore}
+import org.jetbrains.jps.incremental.ModuleLevelBuilder.ExitCode
 
 /**
  * @author Pavel Fatin
  */
 class LocalServer extends Server {
-  def compile(arguments: ServerArguments, client: Client) {
-    val compilerFactory = LocalServer.compilerFactory(arguments.sbtData)
+  def compile(sbtData: SbtData, compilerData: CompilerData, compilationData: CompilationData, client: Client): ExitCode = {
+    val compilerFactory = LocalServer.compilerFactory(sbtData)
 
     client.progress("Instantiating compiler...")
-    val compiler = compilerFactory.createCompiler(arguments.compilerData, client, LocalServer.createAnalysisStore)
+    val compiler = compilerFactory.createCompiler(compilerData, client, LocalServer.createAnalysisStore)
 
     if (!client.isCanceled) {
       client.progress("Searching for changed files...")
-      compiler.compile(arguments.compilationData, client)
+      compiler.compile(compilationData, client)
     }
+
+    ExitCode.OK
   }
 }
 
