@@ -61,7 +61,7 @@ private[expr] object ExpectedTypes {
       case p: ScParenthesisedExpr => p.expectedTypesEx(fromUnderscore)
       //see SLS[6.11]
       case b: ScBlockExpr => b.lastExpr match {
-        case Some(e) if e == expr.getSameElementInContext => b.expectedTypesEx(fromUnderscore = true)
+        case Some(e) if b.needCheckExpectedType && e == expr.getSameElementInContext => b.expectedTypesEx(fromUnderscore = true)
         case _ => Array.empty
       }
       //see SLS[6.16]

@@ -153,4 +153,6 @@ trait ScBlock extends ScExpression with ScDeclarationSequenceHolder with ScImpor
       place: PsiElement): Boolean =
     super[ScDeclarationSequenceHolder].processDeclarations(processor, state, lastParent, place) &&
     super[ScImportsHolder].processDeclarations(processor, state, lastParent, place)
+  
+  def needCheckExpectedType = true
 }
