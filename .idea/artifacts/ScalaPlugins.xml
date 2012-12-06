@@ -16,7 +16,7 @@
             <element id="dir-copy" path="$PROJECT_DIR$/META-INF" />
           </element>
         </element>
-        <element id="file-copy" path="$PROJECT_DIR$/SDK/sbt/nailgun.jar" />
+        <element id="library" level="project" name="nailgun" />
       </element>
       <element id="directory" name="jps">
         <element id="file-copy" path="$PROJECT_DIR$/SDK/sbt/compiler-interface-sources.jar" />

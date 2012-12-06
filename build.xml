@@ -38,6 +38,7 @@
   <property name="scala.aux.lib" value="${base.dir}/SDK/lib"/>
   <property name="scala.runners.lib" value="${base.dir}/SDK/runners-lib"/>
   <property name="sbt.lib" value="${base.dir}/SDK/sbt"/>
+  <property name="nailgun.lib" value="${base.dir}/SDK/nailgun"/>
 
   <property name="test.dist" value="${basedir}/test_dist"/>
 
@@ -316,7 +317,7 @@
     </copy>
 
     <copy todir="${temp.jar.dir}/Scala/lib">
-      <fileset dir="${sbt.lib}">
+      <fileset dir="${nailgun.lib}">
         <include name="**/nailgun.jar"/>
       </fileset>
     </copy>
@@ -328,7 +329,6 @@
     <copy todir="${temp.jar.dir}/Scala/jps">
       <fileset dir="${sbt.lib}">
         <include name="**/*.jar"/>
-        <exclude name="**/nailgun.jar"/>
       </fileset>
     </copy>
 
