@@ -13,10 +13,8 @@ case class SbtData(interfaceJar: File,
 
 object SbtData {
   def from(classLoader: ClassLoader, pluginRoot: File, systemRoot: File, javaClassVersion: String): Either[String, SbtData] = {
-    val sbtHomeDirectory = new File(pluginRoot.getParentFile, "jps")
-
-    Either.cond(sbtHomeDirectory.exists, sbtHomeDirectory,
-      "SBT home directory does not exist: " + sbtHomeDirectory).flatMap { sbtHome =>
+    Either.cond(pluginRoot.exists, pluginRoot,
+      "SBT home directory does not exist: " + pluginRoot).flatMap { sbtHome =>
 
       Option(sbtHome.listFiles)
               .toRight("Invalid SBT home directory: " + sbtHome.getPath)
