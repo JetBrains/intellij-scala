@@ -20,12 +20,10 @@
       </element>
       <element id="directory" name="jps">
         <element id="file-copy" path="$PROJECT_DIR$/SDK/sbt/compiler-interface-sources.jar" />
-        <element id="file-copy" path="$PROJECT_DIR$/SDK/sbt/incremental-compiler.jar" />
-        <element id="file-copy" path="$PROJECT_DIR$/SDK/sbt/jline.jar" />
-        <element id="file-copy" path="$PROJECT_DIR$/SDK/sbt/sbt-interface.jar" />
         <element id="archive" name="scala-jps-plugin.jar">
           <element id="module-output" name="scala-jps-plugin" />
         </element>
+        <element id="library" level="project" name="sbt" />
       </element>
     </root>
   </artifact>
