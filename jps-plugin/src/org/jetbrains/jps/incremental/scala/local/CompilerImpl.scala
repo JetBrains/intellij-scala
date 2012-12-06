@@ -20,7 +20,7 @@ class CompilerImpl(javac: JavaCompiler, scalac: Option[AnalyzingCompiler], fileT
   def compile(compilationData: CompilationData, client: Client) {
     val compileSetup = {
       val output = CompileOutput(compilationData.output)
-      val options = new CompileOptions(compilationData.options, Seq("-g:lines,vars,source"))
+      val options = new CompileOptions(compilationData.scalaOptions, compilationData.javaOptions)
       val compilerVersion = scalac.map(_.scalaInstance.version).getOrElse("none")
       val order = compilationData.order match {
         case Order.JavaThenScala => CompileOrder.JavaThenScala

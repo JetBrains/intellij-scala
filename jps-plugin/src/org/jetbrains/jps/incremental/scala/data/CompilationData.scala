@@ -15,7 +15,8 @@ import org.jetbrains.jps.builders.java.JavaModuleBuildTargetType
 case class CompilationData(sources: Seq[File],
                            classpath: Seq[File],
                            output: File,
-                           options: Seq[String],
+                           scalaOptions: Seq[String],
+                           javaOptions: Seq[String],
                            order: Order,
                            cacheFile: File,
                            outputToCacheMap: Map[File, File])
@@ -32,7 +33,7 @@ object CompilationData {
       val classpath = context.getProjectPaths
               .getCompilationClasspathFiles(chunk, chunk.containsTests, false, false).asScala.toSeq
 
-      val options = Option(SettingsManager.getFacetSettings(module))
+      val scalaOptions = Option(SettingsManager.getFacetSettings(module))
               .map(_.getCompilerOptions.toSeq).getOrElse(Seq.empty)
 
       val order = {
@@ -49,7 +50,14 @@ object CompilationData {
 
       val relevantOutputToCacheMap = (outputToCacheMap - output).filter(p => classpath.contains(p._1))
 
-      CompilationData(sources, classpath, output, options, order, cacheFile, relevantOutputToCacheMap)
+      val commonOptions = {
+        val encoding = context.getProjectDescriptor.getEncodingConfiguration.getPreferredModuleChunkEncoding(chunk)
+        Option(encoding).map(Seq("-encoding", _)).getOrElse(Seq.empty)
+      }
+
+      val javaOptions = Seq("-g:lines,vars,source")
+
+      CompilationData(sources, classpath, output, commonOptions ++ scalaOptions, commonOptions ++ javaOptions, order, cacheFile, relevantOutputToCacheMap)
     }
   }
 
