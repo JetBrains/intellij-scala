@@ -195,9 +195,11 @@ object Compatibility {
           } else {
             if (!checkNames)
               return ConformanceExtResult(Seq(new ApplicabilityProblem("9")), undefSubst, defaultParameterUsed, matched)
-            namedMode = true
             used(ind) = true
             val param: Parameter = parameters(ind)
+            if (ind != k) {
+              namedMode = true
+            }
             assign.getRExpression match {
               case Some(expr: ScExpression) => {
                 val paramType = param.paramType
