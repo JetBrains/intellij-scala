@@ -815,7 +815,7 @@ object ScalaPsiUtil {
           } else {
             typeParams.foreach {case tp =>
               val name = (tp.name, ScalaPsiUtil.getPsiElementId(tp.ptp))
-              if (un.lowerMap.contains(name) || un.upperMap.contains(name)) {
+              if (un.names.contains(name)) {
                 def hasRecursiveTypeParameters(typez: ScType): Boolean = {
                   var hasRecursiveTypeParameters = false
                   typez.recursiveUpdate {
@@ -834,13 +834,13 @@ object ScalaPsiUtil {
                 if (tp.lowerType != Nothing) {
                   val substedLowerType = unSubst.subst(tp.lowerType)
                   if (!hasRecursiveTypeParameters(substedLowerType)) {
-                    un = un.addLower(name, substedLowerType)
+                    un = un.addLower(name, substedLowerType, additional = true)
                   }
                 }
                 if (tp.upperType != Any) {
                   val substedUpperType = unSubst.subst(tp.upperType)
                   if (!hasRecursiveTypeParameters(substedUpperType)) {
-                    un = un.addUpper(name, substedUpperType)
+                    un = un.addUpper(name, substedUpperType, additional = true)
                   }
                 }
               }
@@ -849,12 +849,12 @@ object ScalaPsiUtil {
               case Some(unSubst) =>
                 ScTypePolymorphicType(unSubst.subst(retType), typeParams.filter {case tp =>
                   val name = (tp.name, ScalaPsiUtil.getPsiElementId(tp.ptp))
-                  !un.lowerMap.contains(name) && !un.upperMap.contains(name)
+                  !un.names.contains(name)
                 }.map(tp => TypeParameter(tp.name, unSubst.subst(tp.lowerType), unSubst.subst(tp.upperType), tp.ptp)))
               case _ =>
                 ScTypePolymorphicType(unSubst.subst(retType), typeParams.filter {case tp =>
                   val name = (tp.name, ScalaPsiUtil.getPsiElementId(tp.ptp))
-                  !un.lowerMap.contains(name) && !un.upperMap.contains(name)
+                  !un.names.contains(name)
                 }.map(tp => TypeParameter(tp.name, unSubst.subst(tp.lowerType), unSubst.subst(tp.upperType), tp.ptp)))
             }
           }

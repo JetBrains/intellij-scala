@@ -1338,17 +1338,15 @@ object Conformance {
               }
             }
             if (result == null) {
-              result = (true, new ScUndefinedSubstitutor(unSubst.upperMap.filter {
+              val filterFunction: (((String, String), HashSet[ScType])) => Boolean = {
                 case (id: (String, String), types: HashSet[ScType]) =>
                   tptsMap.values.find {
-                    case tpt: ScTypeParameterType => id == (tpt.name, ScalaPsiUtil.getPsiElementId(tpt.param))
+                    case tpt: ScTypeParameterType => id ==(tpt.name, ScalaPsiUtil.getPsiElementId(tpt.param))
                   }.isEmpty
-              }, unSubst.lowerMap.filter {
-                case (id: (String, String), types: HashSet[ScType]) =>
-                  tptsMap.values.find {
-                    case tpt: ScTypeParameterType => id == (tpt.name, ScalaPsiUtil.getPsiElementId(tpt.param))
-                  }.isEmpty
-              }))
+              }
+              result = (true, new ScUndefinedSubstitutor(
+                unSubst.upperMap.filter(filterFunction), unSubst.lowerMap.filter(filterFunction),
+                unSubst.upperAdditionalMap.filter(filterFunction), unSubst.lowerAdditionalMap.filter(filterFunction)))
             }
           case None => result = (false, undefinedSubst)
         }

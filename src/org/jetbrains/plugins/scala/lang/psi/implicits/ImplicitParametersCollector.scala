@@ -163,14 +163,14 @@ class ImplicitParametersCollector(place: PsiElement, tp: ScType, searchImplicits
                             if (lowerType != Nothing) {
                               val substedLower = substitutor.subst(subst.subst(lowerType))
                               if (!hasRecursiveTypeParameters(substedLower)) {
-                                uSubst = uSubst.addLower((tParam.name, ScalaPsiUtil.getPsiElementId(tParam)), substedLower)
+                                uSubst = uSubst.addLower((tParam.name, ScalaPsiUtil.getPsiElementId(tParam)), substedLower, additional = true)
                               }
                             }
                             val upperType: ScType = tParam.upperBound.getOrAny
                             if (upperType != Any) {
                               val substedUpper = substitutor.subst(subst.subst(upperType))
                               if (!hasRecursiveTypeParameters(substedUpper)) {
-                                uSubst = uSubst.addUpper((tParam.name, ScalaPsiUtil.getPsiElementId(tParam)), substedUpper)
+                                uSubst = uSubst.addUpper((tParam.name, ScalaPsiUtil.getPsiElementId(tParam)), substedUpper, additional = true)
                               }
                             }
                           }
