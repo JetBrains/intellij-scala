@@ -3,7 +3,7 @@
     <CLASSES>
       <root url="jar://$PROJECT_DIR$/SDK/sbt/incremental-compiler.jar!/" />
       <root url="jar://$PROJECT_DIR$/SDK/sbt/jline.jar!/" />
-      <root url="jar://$PROJECT_DIR$/SDK/sbt/nailgun.jar!/" />
+      <root url="jar://$PROJECT_DIR$/SDK/sbt/sbt-interface.jar!/" />
     </CLASSES>
     <JAVADOC />
     <SOURCES />
