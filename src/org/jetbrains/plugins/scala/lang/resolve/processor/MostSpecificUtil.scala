@@ -92,8 +92,8 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
             case _ => Seq.empty
           }
         }
-        var params1 = calcParams(t1, true)
-        val params2 = calcParams(t2, false)
+        var params1 = calcParams(t1, existential = true)
+        val params2 = calcParams(t2, existential = false)
         if (((t1.isInstanceOf[ScTypePolymorphicType] && t2.isInstanceOf[ScTypePolymorphicType]) ||
           (!(m1.isInstanceOf[ScFunction] || m1.isInstanceOf[ScFun]) || !(m2.isInstanceOf[ScFunction] || m2.isInstanceOf[ScFun]))) &&
           (lastRepeated(params1) ^ lastRepeated(params2))) return lastRepeated(params2) //todo: this is hack!!! see SCL-3846, SCL-4048
@@ -124,8 +124,8 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
             u.getSubstitutor match {
               case Some(uSubst) =>
                 typeParams.foreach(tp => {
-                  u = u.addLower((tp.name, ScalaPsiUtil.getPsiElementId(tp.ptp)), uSubst.subst(tp.lowerType))
-                  u = u.addUpper((tp.name, ScalaPsiUtil.getPsiElementId(tp.ptp)), uSubst.subst(tp.upperType))
+                  u = u.addLower((tp.name, ScalaPsiUtil.getPsiElementId(tp.ptp)), uSubst.subst(tp.lowerType), additional = true)
+                  u = u.addUpper((tp.name, ScalaPsiUtil.getPsiElementId(tp.ptp)), uSubst.subst(tp.upperType), additional = true)
                 })
               case None => return false
             }

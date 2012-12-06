@@ -304,14 +304,14 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
                   if (lowerType != Nothing) {
                     val substedLower = unSubst.subst(subst.subst(lowerType))
                     if (!hasRecursiveTypeParameters(substedLower)) {
-                      uSubst = uSubst.addLower((tParam.name, ScalaPsiUtil.getPsiElementId(tParam)), substedLower)
+                      uSubst = uSubst.addLower((tParam.name, ScalaPsiUtil.getPsiElementId(tParam)), substedLower, additional = true)
                     }
                   }
                   val upperType: ScType = tParam.upperBound.getOrAny
                   if (upperType != Any) {
                     val substedUpper = unSubst.subst(subst.subst(upperType))
                     if (!hasRecursiveTypeParameters(substedUpper)) {
-                      uSubst = uSubst.addUpper((tParam.name, ScalaPsiUtil.getPsiElementId(tParam)), substedUpper)
+                      uSubst = uSubst.addUpper((tParam.name, ScalaPsiUtil.getPsiElementId(tParam)), substedUpper, additional = true)
                     }
                   }
                 }
