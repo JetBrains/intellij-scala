@@ -56,8 +56,7 @@ class ScalaBuilder extends ModuleLevelBuilder(BuilderCategory.TRANSLATOR) {
       CompilerData.from(context, chunk).flatMap { compilerData =>
         CompilationData.from(sources, context, chunk).map { compilationData =>
 //          val server = new RemoteServer("localhost", 2113)
-          val server = new LocalServer()
-          server.compile(sbtData, compilerData, compilationData, client)
+          ScalaBuilder.server.compile(sbtData, compilerData, compilationData, client)
         }
       }
     } match {
@@ -72,6 +71,8 @@ class ScalaBuilder extends ModuleLevelBuilder(BuilderCategory.TRANSLATOR) {
 }
 
 object ScalaBuilder {
+  private val server = new LocalServer()
+
   private lazy val sbtData = {
     val classLoader = getClass.getClassLoader
     val pluginRoot = (new File(PathUtil.getJarPathForClass(getClass))).getParentFile
