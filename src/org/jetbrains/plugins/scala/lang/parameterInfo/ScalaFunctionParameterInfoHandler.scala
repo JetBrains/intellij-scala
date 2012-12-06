@@ -175,10 +175,12 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                       if (ind == -1 || used(ind) == true) {
                         doNoNamed(assign)
                       } else {
-                        namedMode = true
+                        if (k != ind) namedMode = true
                         used(ind) = true
                         val param: (Parameter, String) = parameters(ind)
-                        buffer.append(namedPrefix).append(param._2).append(namedPostfix)
+                        if (namedMode) buffer.append(namedPrefix)
+                        buffer.append(param._2)
+                        if (namedMode) buffer.append(namedPostfix)
                         assign.getRExpression match {
                           case Some(expr: ScExpression) => {
                             for (exprType <- expr.getType(TypingContext.empty)) {
@@ -206,9 +208,11 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                       if (ind == -1 || used(ind) == true) {
                         appendFirst()
                       } else {
-                        namedMode = true
+                        if (k != ind) namedMode = true
                         used(ind) = true
-                        buffer.append(namedPrefix).append(parameters(ind)._2).append(namedPostfix)
+                        if (namedMode) buffer.append(namedPrefix)
+                        buffer.append(parameters(ind)._2)
+                        if (namedMode) buffer.append(namedPostfix)
                       }
                     }
                     case _ => appendFirst()

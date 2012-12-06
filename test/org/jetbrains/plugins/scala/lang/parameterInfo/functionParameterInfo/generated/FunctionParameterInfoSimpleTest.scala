@@ -21,6 +21,8 @@ class FunctionParameterInfoSimpleTest extends FunctionParameterInfoTestBase {
 
   def testNohingExprType = doTest
 
+  def testPositionalAfterNamed = doTest
+
   def testScalaLibrary = doTest
 
   def testSimple = doTest
