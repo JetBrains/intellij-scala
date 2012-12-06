@@ -8,18 +8,18 @@ import org.jetbrains.jps.incremental.messages.BuildMessage.Kind
  * @author Pavel Fatin
  */
 sealed abstract class Event {
-  def asString: String = {
+  def toBytes: Array[Byte] = {
     val buffer = new ByteArrayOutputStream()
     val stream = new ObjectOutputStream(buffer)
     stream.writeObject(this)
     stream.close()
-    new String(buffer.toByteArray)
+    buffer.toByteArray
   }
 }
 
 object Event {
-  def from(string: String): Event = {
-    val buffer = new ByteArrayInputStream(string.getBytes)
+  def from(bytes: Array[Byte]): Event = {
+    val buffer = new ByteArrayInputStream(bytes)
     val stream = new ObjectInputStream(buffer)
     val event = stream.readObject().asInstanceOf[Event]
     stream.close()

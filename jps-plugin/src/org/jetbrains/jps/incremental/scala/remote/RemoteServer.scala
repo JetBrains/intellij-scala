@@ -63,7 +63,7 @@ private object RemoteServer {
         case Chunk(NGConstants.CHUNKTYPE_EXIT, code) =>
           return
         case Chunk(NGConstants.CHUNKTYPE_STDOUT, data) =>
-          processor.process(Event.from(data))
+          processor.process(Event.from(data.getBytes))
         case Chunk(NGConstants.CHUNKTYPE_STDERR, data) =>
           client.message(Kind.ERROR, data)
         case Chunk(kind, data) =>
