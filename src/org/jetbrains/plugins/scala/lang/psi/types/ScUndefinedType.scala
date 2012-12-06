@@ -8,7 +8,7 @@ import collection.immutable.HashSet
 
 /**
  * Use this type if you want to resolve generics.
- * In conformance using ScUndefinedSubstitutor you can accumulate imformation
+ * In conformance using ScUndefinedSubstitutor you can accumulate information
  * about possible generic type.
  */
 case class ScUndefinedType(tpt: ScTypeParameterType) extends NonValueType {
