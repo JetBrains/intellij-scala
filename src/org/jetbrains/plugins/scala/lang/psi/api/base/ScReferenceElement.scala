@@ -41,7 +41,15 @@ trait ScReferenceElement extends ScalaPsiElement with ResolvableReferenceElement
   def getRangeInElement: TextRange =
     new TextRange(nameId.getTextRange.getStartOffset - getTextRange.getStartOffset, getTextLength)
 
-  def getCanonicalText: String = null
+  def getCanonicalText: String = {
+    resolve() match {
+      case clazz: ScObject if clazz.isStatic => clazz.qualifiedName
+      case c: ScTypeDefinition => if (c.containingClass == null) c.qualifiedName else c.name
+      case c: PsiClass => c.qualifiedName
+      case n: PsiNamedElement => n.name
+      case _ => refName
+    }
+  }
 
   def isSoft: Boolean = false
 
