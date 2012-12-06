@@ -27,7 +27,8 @@ case class Arguments(sbtData: SbtData, compilerData: CompilerData, compilationDa
       filesToPaths(compilationData.sources),
       filesToPaths(compilationData.classpath),
       fileToPath(compilationData.output),
-      sequenceToString(compilationData.options),
+      sequenceToString(compilationData.scalaOptions),
+      sequenceToString(compilationData.javaOptions),
       compilationData.order.toString,
       fileToPath(compilationData.cacheFile),
       filesToPaths(outputs),
@@ -50,7 +51,8 @@ object Arguments {
     PathsToFiles(sources),
     PathsToFiles(classpath),
     PathToFile(output),
-    StringToSequence(options),
+    StringToSequence(scalaOptions),
+    StringToSequence(javaOptions),
     order,
     PathToFile(cacheFile),
     PathsToFiles(outputs),
@@ -71,7 +73,7 @@ object Arguments {
 
       val outputToCacheMap = outputs.zip(caches).toMap
 
-      val compilationData = CompilationData(sources, classpath, output, options, Order.valueOf(order), cacheFile, outputToCacheMap)
+      val compilationData = CompilationData(sources, classpath, output, scalaOptions, javaOptions, Order.valueOf(order), cacheFile, outputToCacheMap)
 
       Arguments(sbtData, compilerData, compilationData)
   }
