@@ -42,6 +42,8 @@ class ScalaBuilder extends ModuleLevelBuilder(BuilderCategory.TRANSLATOR) {
       return ExitCode.NOTHING_DONE
     }
 
+    ScalaBuilder.deleteDirtyFormClasses(dirtyFilesHolder)
+
     val sources = filesToCompile.keySet.toSeq
 
     val client = {
@@ -114,6 +116,36 @@ object ScalaBuilder {
     }
 
     result
+  }
+
+  // TODO expect future JPS implementations to either instrument form classes incrementally
+  // TODO or delete dirty form clases automatically
+  // The current workaround assumes that:
+  //  * bound .class file name corresponds to .form file name;
+  //  * bound .class file location corresponds to .fourm file location.
+  private def deleteDirtyFormClasses(dirtyFilesHolder: DirtyFilesHolder[JavaSourceRootDescriptor, ModuleBuildTarget]) {
+    dirtyFilesHolder.processDirtyFiles(new FileProcessor[JavaSourceRootDescriptor, ModuleBuildTarget] {
+      def apply(target: ModuleBuildTarget, file: File, root: JavaSourceRootDescriptor) = {
+        Option(target.getOutputDir).foreach { outputDirectory =>
+          val filePath = file.getCanonicalPath
+
+          if (filePath.endsWith(".form")) {
+            val boundClassFile = {
+              val relativeBoundClassPath = {
+                val relativeFormPath = filePath.substring(root.getRootFile.getCanonicalPath.length)
+                relativeFormPath.substring(0, relativeFormPath.length - 5) + ".class"
+              }
+              new File(outputDirectory.getCanonicalPath + File.separator + relativeBoundClassPath)
+            }
+            if (boundClassFile.exists) {
+              boundClassFile.delete()
+            }
+          }
+        }
+
+        true
+      }
+    })
   }
 }
 
