@@ -109,6 +109,9 @@
     <fileset dir="${sbt.lib}">
       <include name="**/*.jar"/>
     </fileset>
+    <fileset dir="${nailgun.lib}">
+      <include name="**/*.jar"/>
+    </fileset>
     <fileset dir="${scala.lib}">
       <include name="**/*.jar"/>
       <exclude name="**/scala-actors*.jar"/>
