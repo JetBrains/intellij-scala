@@ -138,6 +138,8 @@ object ScFunctionWrapper {
       builder.toString()
     }.mkString("(", ", ", ")"))
 
+    builder.append(LightUtil.getThrowsSection(function))
+
     if (!isInterface) {
       builder.append(" {}")
     } else {

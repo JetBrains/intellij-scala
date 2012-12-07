@@ -27,10 +27,12 @@ import api.statements.params._
 import result.{TypeResult, Success, TypingContext}
 import com.intellij.openapi.project.DumbServiceImpl
 import toplevel.synthetic.{SyntheticClasses, JavaIdentifier}
-import fake.FakePsiTypeParameterList
+import fake.{FakePsiReferenceList, FakePsiTypeParameterList}
 import collection.mutable.ArrayBuffer
 import api.toplevel.typedef.{ScTypeDefinition, ScMember}
 import com.intellij.openapi.progress.ProgressManager
+import com.intellij.psi.PsiReferenceList.Role
+import extensions.toPsiClassExt
 
 /**
  * @author ilyas
@@ -169,7 +171,33 @@ abstract class ScFunctionImpl extends ScalaStubBasedElementImpl[ScFunction] with
 
   def getBody: PsiCodeBlock = null
 
-  def getThrowsList = findChildByClass(classOf[ScAnnotations])
+  def getThrowsList = new FakePsiReferenceList(getManager, getLanguage, Role.THROWS_LIST) {
+    override def getReferenceElements: Array[PsiJavaCodeReferenceElement] = {
+      getReferencedTypes.map {
+        tp => PsiElementFactory.SERVICE.getInstance(getProject).createReferenceElementByType(tp)
+      }
+    }
+
+    override def getReferencedTypes: Array[PsiClassType] = {
+      hasAnnotation("scala.throws") match {
+        case Some(annotation) =>
+          annotation.constructor.args.map(_.exprs).getOrElse(Seq.empty).flatMap { expr =>
+            expr.getType(TypingContext.empty) match {
+              case Success(ScParameterizedType(des, Seq(arg)), _) => ScType.extractClass(des) match {
+                case Some(clazz) if clazz.qualifiedName == "java.lang.Class" =>
+                  ScType.toPsi(arg, getProject, getResolveScope) match {
+                    case c: PsiClassType => Seq(c)
+                    case _ => Seq.empty
+                  }
+                case _ => Seq.empty
+              }
+              case _ => Seq.empty
+            }
+          }.toArray
+        case _ => PsiClassType.EMPTY_ARRAY
+      }
+    }
+  }
 
   def getTypeParameterList = new FakePsiTypeParameterList(getManager, getLanguage, typeParameters.toArray, this)
   

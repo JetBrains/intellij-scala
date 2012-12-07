@@ -57,6 +57,8 @@ object StaticTraitScFunctionWrapper {
       builder.toString()
     }).mkString("(", ", ", ")"))
 
+    builder.append(LightUtil.getThrowsSection(function))
+
     builder.append(" {}")
 
     builder.toString()

@@ -5,6 +5,8 @@ import com.intellij.psi.{PsiElement, PsiMethod, JavaPsiFacade}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
+import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScAnnotationsHolder
 
 /**
  * @author Alefas
@@ -74,6 +76,12 @@ object StaticPsiTypedDefinitionWrapper {
       }
       builder.append(" ").append(b.getName).append(")")
     }
+
+    val holder = PsiTreeUtil.getContextOfType(b, classOf[ScAnnotationsHolder])
+    if (holder != null) {
+      builder.append(LightUtil.getThrowsSection(holder))
+    }
+
     builder.append(" {}")
 
     builder.toString()
