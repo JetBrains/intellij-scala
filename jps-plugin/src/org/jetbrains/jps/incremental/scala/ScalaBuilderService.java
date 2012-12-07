@@ -45,6 +45,7 @@ public class ScalaBuilderService extends BuilderService {
     }
   }
 
+  // TODO expect future JPS API to provide a more elegant way to substitute default Java compiler
   private static class StubTargetBuilder extends TargetBuilder<JavaSourceRootDescriptor, ModuleBuildTarget> {
     public StubTargetBuilder() {
       super(Collections.<BuildTargetType<ModuleBuildTarget>>emptyList());
