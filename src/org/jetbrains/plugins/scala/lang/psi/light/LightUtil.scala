@@ -1,0 +1,47 @@
+package org.jetbrains.plugins.scala
+package lang.psi.light
+
+import lang.psi.api.statements.ScAnnotationsHolder
+import lang.psi.types.result.{Success, TypingContext}
+import lang.psi.types.{ScType, ScParameterizedType}
+import com.intellij.psi.{PsiClass, PsiClassType}
+import extensions.toPsiClassExt
+
+/**
+ * @author Alefas
+ * @since 07.12.12
+ */
+object LightUtil {
+  /**
+   * for Java only
+   * @param holder annotation holder
+   * @return Java throws section string or empty string
+   */
+  def getThrowsSection(holder: ScAnnotationsHolder): String = {
+    holder.hasAnnotation("scala.throws") match {
+      case Some(annotation) =>
+        val classes = annotation.constructor.args.map(_.exprs).getOrElse(Seq.empty).flatMap { expr =>
+          expr.getType(TypingContext.empty) match {
+            case Success(ScParameterizedType(des, Seq(arg)), _) => ScType.extractClass(des) match {
+              case Some(clazz) if clazz.qualifiedName == "java.lang.Class" =>
+                ScType.toPsi(arg, holder.getProject, holder.getResolveScope) match {
+                  case c: PsiClassType =>
+                    c.resolve() match {
+                      case clazz: PsiClass => Seq(clazz.getQualifiedName)
+                      case _ => Seq.empty
+                    }
+                  case _ => Seq.empty
+                }
+              case _ => Seq.empty
+            }
+            case _ => Seq.empty
+          }
+        }
+        if (classes.length == 0) ""
+        else {
+          classes.mkString(" throws ", ", ", " ")
+        }
+      case _ => ""
+    }
+  }
+}

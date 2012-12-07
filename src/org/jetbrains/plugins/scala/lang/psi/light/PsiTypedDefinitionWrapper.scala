@@ -6,6 +6,8 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScTypedDefinition, ScModifierListOwner}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScMember}
+import util.PsiTreeUtil
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScAnnotationsHolder
 
 /**
  * User: Alefas
@@ -107,6 +109,12 @@ object PsiTypedDefinitionWrapper {
       }
       builder.append(" ").append(b.getName).append(")")
     }
+
+    val holder = PsiTreeUtil.getContextOfType(b, classOf[ScAnnotationsHolder])
+    if (holder != null) {
+      builder.append(LightUtil.getThrowsSection(holder))
+    }
+
     if (!isInterface)
       builder.append(" {}")
     else
