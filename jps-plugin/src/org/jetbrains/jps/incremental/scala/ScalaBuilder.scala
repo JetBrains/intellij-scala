@@ -147,7 +147,7 @@ private class IdeClient(compilerName: String,
       throw new RuntimeException("Unknown source file: " + source)
     }
     val compiledClass = {
-      // TODO expect future JSP API to load the generated file content lazily (on demand)
+      // TODO expect future JPS API to load the generated file content lazily (on demand)
       val content = new BinaryContent(FileUtil.loadFileBytes(module))
       new CompiledClass(module, source, name, content)
     }
