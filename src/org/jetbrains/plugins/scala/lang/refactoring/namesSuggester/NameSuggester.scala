@@ -175,43 +175,41 @@ object NameSuggester {
 
   private def generateCamelNames(name: String)(implicit names: ArrayBuffer[String], validator: NameValidator) {
     if (name == "") return
-    val s1 = deleteNonLetterFromString(name)
-    val s = if (Array("get", "set", "is").map(s1.startsWith(_)).contains(elem = true))
-      s1.charAt(0) match {
-        case 'g' | 's' => s1.substring(3,s1.length)
-        case _ => s1.substring(2,s1.length)
+    val s = if (Array("get", "set", "is").map(name.startsWith(_)).contains(elem = true))
+      name.charAt(0) match {
+        case 'g' | 's' => name.substring(3, name.length)
+        case _ => name.substring(2, name.length)
       }
-    else s1
+    else name
     for (i <- 0 to s.length - 1) {
       if (i == 0) {
         val candidate = s.substring(0, 1).toLowerCase + s.substring(1)
-        add(candidate)
+        add(deleteNonLetterFromStringFromTheEnd(candidate))
       }
       else if (s(i) >= 'A' && s(i) <= 'Z') {
         val candidate = s.substring(i, i + 1).toLowerCase + s.substring(i + 1)
-        add(candidate)
+        add(deleteNonLetterFromStringFromTheEnd(candidate))
       }
     }
   }
 
   private def getCamelNames(name: String): Seq[String] = {
     if (name == "") return Seq.empty
-    val s1 = deleteNonLetterFromString(name)
     val names = new ArrayBuffer[String]
-    val s = if (Array("get", "set", "is").map(s1.startsWith(_)).contains(elem = true))
-      s1.charAt(0) match {
-        case 'g' | 's' => s1.substring(3,s1.length)
-        case _ => s1.substring(2,s1.length)
+    val s = if (Array("get", "set", "is").map(name.startsWith(_)).contains(elem = true))
+      name.charAt(0) match {
+        case 'g' | 's' => name.substring(3, name.length)
+        case _ => name.substring(2, name.length)
       }
-    else s1
+    else name
     for (i <- 0 to s.length - 1) {
       if (i == 0) {
         val candidate = s.substring(0, 1).toLowerCase + s.substring(1)
-        names += candidate
+        names += deleteNonLetterFromStringFromTheEnd(candidate)
       }
       else if (s(i) >= 'A' && s(i) <= 'Z') {
         val candidate = s.substring(i, i + 1).toLowerCase + s.substring(i + 1)
-        names += candidate
+        names += deleteNonLetterFromStringFromTheEnd(candidate)
       }
     }
     names.toSeq
@@ -221,5 +219,9 @@ object NameSuggester {
     val pattern: Pattern = Pattern.compile("[^a-zA-Z]")
     val matcher: Matcher = pattern.matcher(s)
     matcher.replaceAll("")
+  }
+
+  private def deleteNonLetterFromStringFromTheEnd(s: String): String = {
+    s.reverse.dropWhile(!_.isLetter).reverse
   }
 }
