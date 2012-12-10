@@ -325,11 +325,11 @@
       </fileset>
     </copy>
 
-    <jar destfile="${temp.jar.dir}/Scala/jps/${jps.jar}">
+    <jar destfile="${temp.jar.dir}/Scala/lib/jps/${jps.jar}">
       <fileset dir="${jps.dest}"/>
     </jar>
 
-    <copy todir="${temp.jar.dir}/Scala/jps">
+    <copy todir="${temp.jar.dir}/Scala/lib/jps">
       <fileset dir="${sbt.lib}">
         <include name="**/*.jar"/>
       </fileset>
