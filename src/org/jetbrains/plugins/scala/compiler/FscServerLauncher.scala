@@ -17,7 +17,7 @@ import collection.JavaConverters._
  * Pavel Fatin
  */
 
-class CompileServerLauncher(project: Project) extends ProjectComponent {
+class FscServerLauncher(project: Project) extends ProjectComponent {
   private val PortPattern = "\\d+$".r
 
   private var instance: Option[ServerInstance] = None

@@ -388,7 +388,7 @@ public class ScalacBackendCompiler extends ExternalCompiler {
 
     if (myFsc) {
       if (settings.INTERNAL_SERVER) {
-        int port = myProject.getComponent(CompileServerLauncher.class).port();
+        int port = myProject.getComponent(FscServerLauncher.class).port();
         if (port != -1) {
           printer.println("-server");
           printer.println(String.format("%s:%s", InetAddress.getLocalHost().getHostAddress(), port));

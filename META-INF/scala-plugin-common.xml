@@ -775,10 +775,10 @@
             <implementation-class>org.jetbrains.plugins.scala.components.HighlightingAdvisor</implementation-class>
         </component>
         <component>
-            <implementation-class>org.jetbrains.plugins.scala.compiler.CompileServerLauncher</implementation-class>
+            <implementation-class>org.jetbrains.plugins.scala.compiler.FscServerLauncher</implementation-class>
         </component>
         <component>
-            <implementation-class>org.jetbrains.plugins.scala.compiler.CompileServerManager</implementation-class>
+            <implementation-class>org.jetbrains.plugins.scala.compiler.FscServerManager</implementation-class>
         </component>
         <component>
           <implementation-class>org.jetbrains.plugins.scala.compiler.SettingsUpdater</implementation-class>
