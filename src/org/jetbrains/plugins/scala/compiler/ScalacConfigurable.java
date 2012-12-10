@@ -38,6 +38,11 @@ public class ScalacConfigurable implements Configurable {
   private JPanel myServerPanel;
   private JPanel myClientPanel;
   private JTextField myIdleTimeout;
+  private JCheckBox myRunCompilationServer;
+  private JTextField myCompilationServerPort;
+  private RawCommandLineEditor myCompilationServerJvmParameters;
+  private JPanel myCompilationServerPanel;
+  private JTextField myCompilationServerMaximumHeapSize;
   private ScalacSettings mySettings;
   private Project myProject;
   private final LibraryRenderer myLibraryRenderer;
@@ -50,13 +55,18 @@ public class ScalacConfigurable implements Configurable {
 
     myRunInternalServerRadioButton.addChangeListener(new ChangeListener() {
       public void stateChanged(ChangeEvent e) {
-        updateSections();
+        updateFscServerSettingsPanel();
+      }
+    });
+
+    myRunCompilationServer.addChangeListener(new ChangeListener() {
+      public void stateChanged(ChangeEvent e) {
+        updateCompilationServerSettingsPanel();
       }
     });
 
     updateLibrariesList();
   }
-
 
   private void updateLibrariesList() {
     LibraryId id = getCompilerLibraryId();
@@ -79,10 +89,14 @@ public class ScalacConfigurable implements Configurable {
     return result;
   }
 
-  private void updateSections() {
+  private void updateFscServerSettingsPanel() {
     boolean b = myRunInternalServerRadioButton.isSelected();
     setDescendantsEnabledIn(myServerPanel, b);
     setDescendantsEnabledIn(myClientPanel, !b);
+  }
+
+  private void updateCompilationServerSettingsPanel() {
+    setDescendantsEnabledIn(myCompilationServerPanel, myRunCompilationServer.isSelected());
   }
 
   private static void setDescendantsEnabledIn(JComponent root, boolean b) {
@@ -155,6 +169,7 @@ public class ScalacConfigurable implements Configurable {
     if (mySettings.SCALAC_BEFORE != scalacBeforeRadioButton.isSelected()) return true;
     if (!mySettings.COMPILER_LIBRARY_NAME.equals(getCompilerLibraryName())) return true;
     if (mySettings.COMPILER_LIBRARY_LEVEL != getCompilerLibraryLevel()) return true;
+
     if (!mySettings.MAXIMUM_HEAP_SIZE.equals(myMaximumHeapSize.getText())) return true;
     if (!mySettings.VM_PARAMETERS.equals(myVmParameters.getText())) return true;
     if (!mySettings.IDLE_TIMEOUT.equals(myIdleTimeout.getText())) return true;
@@ -164,16 +179,22 @@ public class ScalacConfigurable implements Configurable {
     if (!mySettings.REMOTE_PORT.equals(myRemotePort.getText())) return true;
     if (!mySettings.SHARED_DIRECTORY.equals(mySharedDirectory.getText())) return true;
 
+    if (mySettings.RUN_COMPILATION_SERVER != myRunCompilationServer.isSelected()) return true;
+    if (!mySettings.COMPILATION_SERVER_PORT.equals(myCompilationServerPort.getText())) return true;
+    if (!mySettings.COMPILATION_SERVER_MAXIMUM_HEAP_SIZE.equals(myCompilationServerMaximumHeapSize.getText())) return true;
+    if (!mySettings.COMPILATION_SERVER_JVM_PARAMETERS.equals(myCompilationServerJvmParameters.getText())) return true;
+
     return false;
   }
 
   public void apply() throws ConfigurationException {
+    mySettings.COMPILER_LIBRARY_NAME = getCompilerLibraryName();
+    mySettings.COMPILER_LIBRARY_LEVEL = getCompilerLibraryLevel();
+
     mySettings.MAXIMUM_HEAP_SIZE = myMaximumHeapSize.getText();
     mySettings.VM_PARAMETERS = myVmParameters.getText();
     mySettings.IDLE_TIMEOUT = myIdleTimeout.getText();
     mySettings.FSC_OPTIONS = myFscOptions.getText();
-    mySettings.COMPILER_LIBRARY_NAME = getCompilerLibraryName();
-    mySettings.COMPILER_LIBRARY_LEVEL = getCompilerLibraryLevel();
     mySettings.INTERNAL_SERVER = myRunInternalServerRadioButton.isSelected();
     mySettings.REMOTE_HOST = myRemoteHost.getText();
     mySettings.REMOTE_PORT = myRemotePort.getText();
@@ -193,6 +214,11 @@ public class ScalacConfigurable implements Configurable {
     }
 
     mySettings.SCALAC_BEFORE = scalacBeforeRadioButton.isSelected();
+
+    mySettings.RUN_COMPILATION_SERVER = myRunCompilationServer.isSelected();
+    mySettings.COMPILATION_SERVER_PORT = myCompilationServerPort.getText();
+    mySettings.COMPILATION_SERVER_MAXIMUM_HEAP_SIZE= myCompilationServerMaximumHeapSize.getText();
+    mySettings.COMPILATION_SERVER_JVM_PARAMETERS = myCompilationServerJvmParameters.getText();
   }
 
   public void reset() {
@@ -209,7 +235,13 @@ public class ScalacConfigurable implements Configurable {
     myRemotePort.setText(mySettings.REMOTE_PORT);
     mySharedDirectory.setText(mySettings.SHARED_DIRECTORY);
 
-    updateSections();
+    myRunCompilationServer.setSelected(mySettings.RUN_COMPILATION_SERVER);
+    myCompilationServerPort.setText(mySettings.COMPILATION_SERVER_PORT);
+    myCompilationServerMaximumHeapSize.setText(mySettings.COMPILATION_SERVER_MAXIMUM_HEAP_SIZE);
+    myCompilationServerJvmParameters.setText(mySettings.COMPILATION_SERVER_JVM_PARAMETERS);
+
+    updateFscServerSettingsPanel();
+    updateCompilationServerSettingsPanel();
   }
 
   public void disposeUIResources() {

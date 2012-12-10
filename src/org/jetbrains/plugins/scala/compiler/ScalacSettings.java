@@ -19,8 +19,10 @@ import org.jetbrains.plugins.scala.config.LibraryLevel;
 )
 public class ScalacSettings implements PersistentStateComponent<ScalacSettings> {
   public boolean SCALAC_BEFORE = true;
+
   public String COMPILER_LIBRARY_NAME = "";
   public LibraryLevel COMPILER_LIBRARY_LEVEL = null;
+
   public boolean INTERNAL_SERVER = true;
   public String MAXIMUM_HEAP_SIZE = "1024";
   public String IDLE_TIMEOUT = "0";
@@ -29,6 +31,11 @@ public class ScalacSettings implements PersistentStateComponent<ScalacSettings> 
   public String REMOTE_HOST = "";
   public String REMOTE_PORT = "";
   public String SHARED_DIRECTORY = "";
+
+  public boolean RUN_COMPILATION_SERVER = true;
+  public String COMPILATION_SERVER_PORT = "3200";
+  public String COMPILATION_SERVER_MAXIMUM_HEAP_SIZE = "1408";
+  public String COMPILATION_SERVER_JVM_PARAMETERS = "-server -Xss1m -XX:MaxPermSize=256m";
 
   public ScalacSettings getState() {
     return this;
