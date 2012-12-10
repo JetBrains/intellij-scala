@@ -198,9 +198,9 @@ public class ScalacConfigurable implements Configurable {
     mySettings.SHARED_DIRECTORY = mySharedDirectory.getText();
 
     if (!myRunInternalServerRadioButton.isSelected()) {
-      myProject.getComponent(CompileServerLauncher.class).stop();
+      myProject.getComponent(FscServerLauncher.class).stop();
     }
-    myProject.getComponent(CompileServerManager.class).configureWidget();
+    myProject.getComponent(FscServerManager.class).configureWidget();
 
     CompilerProjectComponent component = myProject.getComponent(CompilerProjectComponent.class);
 

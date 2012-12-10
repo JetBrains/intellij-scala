@@ -23,7 +23,7 @@ import com.intellij.openapi.actionSystem.{AnActionEvent, AnAction, DefaultAction
  * Pavel Fatin
  */
 
-class CompileServerManager(project: Project) extends ProjectComponent {
+class FscServerManager(project: Project) extends ProjectComponent {
   private val IconRunning = Icons.FSC
 
   private val IconStopped = IconLoader.getDisabledIcon(IconRunning)
@@ -75,7 +75,7 @@ class CompileServerManager(project: Project) extends ProjectComponent {
 
   private var installed = false
 
-  private def launcher = project.getComponent(classOf[CompileServerLauncher])
+  private def launcher = project.getComponent(classOf[FscServerLauncher])
 
   private def bar = WindowManager.getInstance.getStatusBar(project)
 
