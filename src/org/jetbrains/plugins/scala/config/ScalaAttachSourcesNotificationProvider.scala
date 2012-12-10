@@ -13,10 +13,11 @@ import com.intellij.openapi.project.{Project, ProjectBundle}
 import com.intellij.ui.{EditorNotifications, GuiUtils, EditorNotificationPanel}
 import com.intellij.codeInsight.AttachSourcesProvider
 import com.intellij.ide.highlighter.{JavaFileType, JavaClassFileType}
-import java.util.{TreeSet, Comparator, ArrayList, List}
+import java.util._
 import com.intellij.openapi.extensions.{ExtensionPointName, Extensions}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import com.intellij.openapi.fileEditor.FileEditor
+import java.util
 
 /**
  * @author Alexander Podkhalyuzin
@@ -31,7 +32,7 @@ class ScalaAttachSourcesNotificationProvider(myProject: Project, notifications: 
 
   override def createNotificationPanel(file: VirtualFile, fileEditor: FileEditor): EditorNotificationPanel = {
     if (file.getFileType ne JavaClassFileType.INSTANCE) return null
-    val libraries: List[LibraryOrderEntry] = findOrderEntriesContainingFile(file)
+    val libraries: util.List[LibraryOrderEntry] = findOrderEntriesContainingFile(file)
     if (libraries == null) return null
     val psiFile: PsiFile = PsiManager.getInstance(myProject).findFile(file)
     val isScala = psiFile.isInstanceOf[ScalaFile]
@@ -55,24 +56,31 @@ class ScalaAttachSourcesNotificationProvider(myProject: Project, notifications: 
 
 
 
-    val actions: TreeSet[AttachSourcesProvider.AttachSourcesAction] =
-      new TreeSet[AttachSourcesProvider.AttachSourcesAction](new Comparator[AttachSourcesProvider.AttachSourcesAction] {
-        def compare(o1: AttachSourcesProvider.AttachSourcesAction,
-                    o2: AttachSourcesProvider.AttachSourcesAction): Int = {
-          if (o1 eq defaultAction) return 1
-          if (o2 eq defaultAction) return -1
-          o1.getName.compareToIgnoreCase(o2.getName)
+    val actions: util.List[AttachSourcesProvider.AttachSourcesAction] = new util.ArrayList[AttachSourcesProvider.AttachSourcesAction]
+    var hasNonLightAction: Boolean = false
+    for (each <- Extensions.getExtensions(EXTENSION_POINT_NAME)) {
+      import scala.collection.JavaConversions._
+      for (action <- each.getActions(libraries, psiFile)) {
+        if (hasNonLightAction) {
+          if (!action.isInstanceOf[AttachSourcesProvider.LightAttachSourcesAction]) {
+            actions.add(action)
+          }
+        } else {
+          if (!(action.isInstanceOf[AttachSourcesProvider.LightAttachSourcesAction])) {
+            actions.clear()
+            hasNonLightAction = true
+          }
+          actions.add(action)
         }
-      })
-
-
+      }
+    }
+    Collections.sort(actions, new Comparator[AttachSourcesProvider.AttachSourcesAction] {
+      def compare(o1: AttachSourcesProvider.AttachSourcesAction, o2: AttachSourcesProvider.AttachSourcesAction): Int = {
+        o1.getName.compareToIgnoreCase(o2.getName)
+      }
+    })
 
     actions.add(defaultAction)
-
-
-    for (each <- Extensions.getExtensions(EXTENSION_POINT_NAME)) {
-      actions.addAll(each.getActions(libraries, psiFile))
-    }
 
     val iterator = actions.iterator()
     while (iterator.hasNext) {
@@ -102,9 +110,9 @@ class ScalaAttachSourcesNotificationProvider(myProject: Project, notifications: 
     panel
   }
 
-  private def findOrderEntriesContainingFile(file: VirtualFile): List[LibraryOrderEntry] = {
-    val libs: List[LibraryOrderEntry] = new ArrayList[LibraryOrderEntry]
-    val entries: List[OrderEntry] = ProjectRootManager.getInstance(myProject).getFileIndex.getOrderEntriesForFile(file)
+  private def findOrderEntriesContainingFile(file: VirtualFile): util.List[LibraryOrderEntry] = {
+    val libs: util.List[LibraryOrderEntry] = new util.ArrayList[LibraryOrderEntry]
+    val entries: util.List[OrderEntry] = ProjectRootManager.getInstance(myProject).getFileIndex.getOrderEntriesForFile(file)
     import scala.collection.JavaConversions._
     for (entry <- entries) {
       if (entry.isInstanceOf[LibraryOrderEntry]) {
