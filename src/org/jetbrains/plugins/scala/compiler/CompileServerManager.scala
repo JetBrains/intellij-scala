@@ -1,5 +1,5 @@
 package org.jetbrains.plugins.scala
-package components
+package compiler
 
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.components.ProjectComponent
@@ -13,7 +13,6 @@ import com.intellij.openapi.util.IconLoader
 import com.intellij.util.Consumer
 import com.intellij.notification.{NotificationType, NotificationDisplayType, Notifications, Notification}
 import icons.Icons
-import compiler.ScalacSettings
 import java.awt.Point
 import com.intellij.openapi.ui.popup.JBPopupFactory
 import com.intellij.ui.awt.RelativePoint

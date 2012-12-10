@@ -1,5 +1,5 @@
 package org.jetbrains.plugins.scala
-package components
+package compiler
 
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.components.ProjectComponent

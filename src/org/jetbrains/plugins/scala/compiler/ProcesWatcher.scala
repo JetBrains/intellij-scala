@@ -1,5 +1,5 @@
 package org.jetbrains.plugins.scala
-package components
+package compiler
 
 import actors.Actor._
 

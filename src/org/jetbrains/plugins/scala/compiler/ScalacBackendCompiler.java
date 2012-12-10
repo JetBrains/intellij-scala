@@ -36,7 +36,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.ScalaBundle;
 import org.jetbrains.plugins.scala.ScalaFileType;
 import org.jetbrains.plugins.scala.compiler.rt.ClassRunner;
-import org.jetbrains.plugins.scala.components.CompileServerLauncher;
 import org.jetbrains.plugins.scala.config.CompilerLibraryData;
 import org.jetbrains.plugins.scala.config.Libraries;
 import org.jetbrains.plugins.scala.config.ScalaFacet;

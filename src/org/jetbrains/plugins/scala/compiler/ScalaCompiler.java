@@ -24,7 +24,6 @@ import com.intellij.util.Chunk;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.ScalaBundle;
 import org.jetbrains.plugins.scala.ScalaFileType;
-import org.jetbrains.plugins.scala.components.CompileServerLauncher;
 import org.jetbrains.plugins.scala.config.ScalaFacet;
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile;
 import scala.Option;

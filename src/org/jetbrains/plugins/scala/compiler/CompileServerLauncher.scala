@@ -1,11 +1,10 @@
 package org.jetbrains.plugins.scala
-package components
+package compiler
 
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ProjectRootManager
 import java.io.File
 import io.Source
-import compiler.ScalacSettings
 import config.{Version, Libraries}
 import com.intellij.openapi.components.ProjectComponent
 import com.intellij.openapi.projectRoots.JavaSdkType
