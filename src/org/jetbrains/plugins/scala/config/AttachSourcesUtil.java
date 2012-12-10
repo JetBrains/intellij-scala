@@ -11,6 +11,11 @@ import com.intellij.openapi.project.ProjectBundle;
 import com.intellij.openapi.roots.LibraryOrderEntry;
 import com.intellij.openapi.roots.OrderRootType;
 import com.intellij.openapi.roots.libraries.Library;
+import com.intellij.openapi.roots.libraries.ui.FileTypeBasedRootFilter;
+import com.intellij.openapi.roots.libraries.ui.OrderRoot;
+import com.intellij.openapi.roots.libraries.ui.RootDetector;
+import com.intellij.openapi.roots.libraries.ui.impl.LibraryRootsDetectorImpl;
+import com.intellij.openapi.roots.libraries.ui.impl.RootDetectionUtil;
 import com.intellij.openapi.roots.ui.configuration.PathUIUtils;
 import com.intellij.openapi.ui.popup.JBPopupFactory;
 import com.intellij.openapi.ui.popup.ListSeparator;
@@ -22,12 +27,13 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.containers.HashMap;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.plugins.scala.ScalaFileType;
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile;
 
 import javax.swing.*;
-import java.util.ArrayList;
-import java.util.Collection;
+import java.awt.*;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author Alexander Podkhalyuzin
@@ -112,7 +118,7 @@ public class AttachSourcesUtil {
       final Library firstLibrary = libraries.get(0).getLibrary();
       VirtualFile[] roots = firstLibrary != null ? firstLibrary.getFiles(OrderRootType.CLASSES) : VirtualFile.EMPTY_ARRAY;
       VirtualFile[] candidates = FileChooser.chooseFiles(myProject, descriptor, roots.length == 0 ? null : roots[0]);
-      final VirtualFile[] files = PathUIUtils.scanAndSelectDetectedJavaSourceRoots(myParentComponent, candidates);
+      final VirtualFile[] files = scanAndSelectDetectedJavaSourceRoots(myParentComponent, candidates);
       if (files.length == 0) {
         return new ActionCallback.Rejected();
       }
@@ -173,5 +179,27 @@ public class AttachSourcesUtil {
         model.commit();
       }
     });
+  }
+
+  /**
+   * This method takes a candidates for the project root, then scans the candidates and
+   * if multiple candidates or non root source directories are found whithin some
+   * directories, it shows a dialog that allows selecting or deselecting them.
+   * @param parent a parent parent or project
+   * @param rootCandidates a candidates for roots
+   * @return a array of source folders or empty array if non was selected or dialog was canceled.
+   */
+  public static VirtualFile[] scanAndSelectDetectedJavaSourceRoots(Component parentComponent, final VirtualFile[] rootCandidates) {
+    final List<RootDetector> rootDetectors = new ArrayList<RootDetector>();
+    rootDetectors.add(PathUIUtils.JAVA_SOURCE_ROOT_DETECTOR);
+    rootDetectors.add(new FileTypeBasedRootFilter(OrderRootType.SOURCES, false, ScalaFileType.SCALA_FILE_TYPE, "source"));
+    final List<OrderRoot> orderRoots = RootDetectionUtil.detectRoots(Arrays.asList(rootCandidates), parentComponent, null,
+        new LibraryRootsDetectorImpl(rootDetectors),
+        new OrderRootType[0]);
+    final List<VirtualFile> result = new ArrayList<VirtualFile>();
+    for (OrderRoot root : orderRoots) {
+      result.add(root.getFile());
+    }
+    return VfsUtil.toVirtualFileArray(result);
   }
 }
