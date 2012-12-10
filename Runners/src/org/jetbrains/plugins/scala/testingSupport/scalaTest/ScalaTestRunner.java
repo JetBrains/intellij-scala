@@ -53,7 +53,7 @@ public class ScalaTestRunner {
     }
   }
 
-  private static void runScalaTest2(String[] args) {
+  private static void runScalaTest2(String[] args) throws IOException {
     ArrayList<String> argsArray = new ArrayList<String>();
     HashSet<String> classes = new HashSet<String>();
     HashMap<String, Set<String>> failedTestMap = new HashMap<String, Set<String>>();
@@ -63,27 +63,28 @@ public class ScalaTestRunner {
     boolean useVersionFromOptions = false;
     boolean isOlderScalaVersionFromOptions = false;
     int i = 0;
-    while (i < args.length) {
-      if (args[i].equals("-s")) {
+    String[] newArgs  = getNewArgs(args);
+    while (i < newArgs.length) {
+      if (newArgs[i].equals("-s")) {
         ++i;
-        while (i < args.length && !args[i].startsWith("-")) {
-          classes.add(args[i]);
+        while (i < newArgs.length && !newArgs[i].startsWith("-")) {
+          classes.add(newArgs[i]);
           ++i;
         }
-      } else if (args[i].equals("-testName")) {
+      } else if (newArgs[i].equals("-testName")) {
         ++i;
-        testName = args[i];
+        testName = newArgs[i];
         ++i;
-      } else if (args[i].equals("-showProgressMessages")) {
+      } else if (newArgs[i].equals("-showProgressMessages")) {
         ++i;
-        showProgressMessages = Boolean.parseBoolean(args[i]);
+        showProgressMessages = Boolean.parseBoolean(newArgs[i]);
         ++i;
-      } else if (args[i].equals("-failedTests")) {
+      } else if (newArgs[i].equals("-failedTests")) {
         failedUsed = true;
         ++i;
-        while (i < args.length && !args[i].startsWith("-")) {
-          String failedClassName = args[i];
-          String failedTestName = args[i + 1];
+        while (i < newArgs.length && !newArgs[i].startsWith("-")) {
+          String failedClassName = newArgs[i];
+          String failedTestName = newArgs[i + 1];
           Set<String> testSet = failedTestMap.get(failedClassName);
           if (testSet == null)
             testSet = new HashSet<String>();
@@ -91,20 +92,20 @@ public class ScalaTestRunner {
           failedTestMap.put(failedClassName, testSet);
           i += 2;
         }
-      } else if (args[i].startsWith("-setScalaTestVersion=")) {
+      } else if (newArgs[i].startsWith("-setScalaTestVersion=")) {
         useVersionFromOptions = true;
-        isOlderScalaVersionFromOptions = isOlderScalaVersionFromOptions(args[i]);
+        isOlderScalaVersionFromOptions = isOlderScalaVersionFromOptions(newArgs[i]);
         ++i;
-      } else if (args[i].equals("-C")) {
+      } else if (newArgs[i].equals("-C")) {
         if (useVersionFromOptions) {
-          argsArray.add(isOlderScalaVersionFromOptions ? "-r" : args[i]);
+          argsArray.add(isOlderScalaVersionFromOptions ? "-r" : newArgs[i]);
         } else {
-          argsArray.add(isOlderScalaTestVersion() ? "-r" : args[i]);
+          argsArray.add(isOlderScalaTestVersion() ? "-r" : newArgs[i]);
         }
-        if (i + 1 < args.length) argsArray.add(args[i + 1] + "WithLocation");
+        if (i + 1 < newArgs.length) argsArray.add(newArgs[i + 1] + "WithLocation");
         i += 2;
       } else {
-        argsArray.add(args[i]);
+        argsArray.add(newArgs[i]);
         ++i;
       }
     }
@@ -143,7 +144,7 @@ public class ScalaTestRunner {
     Runner.run(argsArray.toArray(new String[argsArray.size()]));
   }
 
-  private static void runScalaTest1(String[] args) throws ClassNotFoundException, IllegalAccessException, InstantiationException, NoSuchMethodException, InvocationTargetException {
+  private static void runScalaTest1(String[] args) throws ClassNotFoundException, IllegalAccessException, InstantiationException, NoSuchMethodException, InvocationTargetException, IOException {
     ArrayList<String> argsArray = new ArrayList<String>();
     ArrayList<String> classes = new ArrayList<String>();
     ArrayList<String> failedTests = new ArrayList<String>();
@@ -154,45 +155,46 @@ public class ScalaTestRunner {
     boolean isOlderScalaVersionFromOptions = false;
     int i = 0;
     int classIndex = 0;
-    while (i < args.length) {
-      if (args[i].equals("-s")) {
-        argsArray.add(args[i]);
+    String[] newArgs = getNewArgs(args);
+    while (i < newArgs.length) {
+      if (newArgs[i].equals("-s")) {
+        argsArray.add(newArgs[i]);
         ++i;
         argsArray.add("empty");
         classIndex = i;
-        while (i < args.length && !args[i].startsWith("-")) {
-          classes.add(args[i]);
+        while (i < newArgs.length && !newArgs[i].startsWith("-")) {
+          classes.add(newArgs[i]);
           ++i;
         }
-      } else if (args[i].equals("-testName")) {
+      } else if (newArgs[i].equals("-testName")) {
         ++i;
-        testName = args[i];
+        testName = newArgs[i];
         ++i;
-      } else if (args[i].equals("-showProgressMessages")) {
+      } else if (newArgs[i].equals("-showProgressMessages")) {
         ++i;
-        showProgressMessages = Boolean.parseBoolean(args[i]);
+        showProgressMessages = Boolean.parseBoolean(newArgs[i]);
         ++i;
-      } else if (args[i].equals("-failedTests")) {
+      } else if (newArgs[i].equals("-failedTests")) {
         failedUsed = true;
         ++i;
-        while (i < args.length && !args[i].startsWith("-")) {
-          failedTests.add(args[i]);
+        while (i < newArgs.length && !newArgs[i].startsWith("-")) {
+          failedTests.add(newArgs[i]);
           ++i;
         }
-      } else if (args[i].startsWith("-setScalaTestVersion=")) {
+      } else if (newArgs[i].startsWith("-setScalaTestVersion=")) {
         useVersionFromOptions = true;
-        isOlderScalaVersionFromOptions = isOlderScalaVersionFromOptions(args[i]);
+        isOlderScalaVersionFromOptions = isOlderScalaVersionFromOptions(newArgs[i]);
         ++i;
-      } else if (args[i].equals("-C")) {
+      } else if (newArgs[i].equals("-C")) {
         if (useVersionFromOptions) {
-          argsArray.add(isOlderScalaVersionFromOptions ? "-r" : args[i]);
+          argsArray.add(isOlderScalaVersionFromOptions ? "-r" : newArgs[i]);
         } else {
-          argsArray.add(isOlderScalaTestVersion() ? "-r" : args[i]);
+          argsArray.add(isOlderScalaTestVersion() ? "-r" : newArgs[i]);
         }
-        if (i + 1 < args.length) argsArray.add(args[i + 1]);
+        if (i + 1 < newArgs.length) argsArray.add(newArgs[i + 1]);
         i += 2;
       } else {
-        argsArray.add(args[i]);
+        argsArray.add(newArgs[i]);
         ++i;
       }
     }
@@ -219,6 +221,29 @@ public class ScalaTestRunner {
         }
       }
     }
+  }
+
+  private static String[] getNewArgs(String[] args) throws IOException {
+    String[] newArgs;
+    if (args.length == 1 && args[0].startsWith("@")) {
+      String arg = args[0];
+      File file = new File(arg.substring(1));
+      if (!file.exists())
+        throw new FileNotFoundException(String.format("argument file %s could not be found", file.getName()));
+      FileReader fileReader = new FileReader(file);
+      StringBuilder buffer = new StringBuilder();
+      while (true) {
+        int ind = fileReader.read();
+        if (ind == -1) break;
+        char c = (char) ind;
+        if (c == '\r') continue;
+        buffer.append(c);
+      }
+      newArgs = buffer.toString().split("[\n]");
+    } else {
+      newArgs = args;
+    }
+    return newArgs;
   }
 
   private static void runSingleTest(String testName, String clazz) throws IllegalAccessException,

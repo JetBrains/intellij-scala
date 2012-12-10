@@ -29,7 +29,7 @@ import java.lang.String
 import lang.psi.ScalaPsiUtil
 import com.intellij.openapi.extensions.Extensions
 import com.intellij.openapi.module.ModuleManager
-import com.intellij.openapi.projectRoots.Sdk
+import com.intellij.openapi.projectRoots.{JdkUtil, Sdk}
 import testingSupport.ScalaTestingConfiguration
 import testframework.sm.runner.ui.SMTRunnerConsoleView
 import testframework.TestFrameworkRunningModel
@@ -41,6 +41,7 @@ import testingSupport.test.AbstractTestRunConfiguration.PropertiesExtension
 import org.jetbrains.plugins.scala.compiler.rt.ClassRunner
 import lang.psi.api.toplevel.ScModifierListOwner
 import com.intellij.openapi.application.ApplicationManager
+import java.io.{IOException, FileOutputStream, PrintStream, File}
 
 /**
  * @author Ksenia.Sautina
@@ -357,29 +358,72 @@ abstract class AbstractTestRunConfiguration(val project: Project,
 
         params.setMainClass(mainClass)
 
-        if (getFailedTests == null) {
-          params.getProgramParametersList.add("-s")
-          for (cl <- getClasses) params.getProgramParametersList.add(cl)
-          if (testKind == TestKind.TEST_NAME && testName != "") {
-            params.getProgramParametersList.add("-testName")
-            params.getProgramParametersList.add(testName)
-            params.getVMParametersList.addParametersString("-Dspecs2.ex=\"" + testName + "\"")
+        if (JdkUtil.useDynamicClasspath(getProject)) {
+          try {
+            val fileWithParams: File = File.createTempFile("abstracttest", ".tmp")
+            val outputStream = new FileOutputStream(fileWithParams)
+            val printer: PrintStream = new PrintStream(outputStream)
+            if (getFailedTests == null) {
+              printer.println("-classpath")
+              printer.println("-s")
+              for (cl <- getClasses) {
+                printer.println(cl)
+              }
+              if (testKind == TestKind.TEST_NAME && testName != "") {
+                printer.println("-testName")
+                printer.println(testName)
+                params.getVMParametersList.addParametersString("-Dspecs2.ex=\"" + testName + "\"")
+              }
+            } else {
+              printer.println("-failedTests")
+              for (failed <- getFailedTests) {
+                printer.println(failed._1)
+                printer.println(failed._2)
+                params.getVMParametersList.addParametersString("-Dspecs2.ex=\"" + failed._2 + "\"")
+              }
+            }
+
+            val parms: Array[String] = ParametersList.parse(getTestArgs)
+            for (parm <- parms) {
+              printer.println(parm)
+            }
+            printer.println("-showProgressMessages")
+            printer.println(showProgressMessages.toString)
+            printer.println("-C")
+            printer.println(reporterClass)
+
+            printer.close()
+            params.getProgramParametersList.add("@" + fileWithParams.getPath)
+          }
+          catch {
+            case ignore: IOException => {
+            }
           }
         } else {
-          params.getProgramParametersList.add("-failedTests")
-          for (failed <- getFailedTests) {
-            params.getProgramParametersList.add(failed._1)
-            params.getProgramParametersList.add(failed._2)
-            params.getVMParametersList.addParametersString("-Dspecs2.ex=\"" + failed._2 + "\"")
+          if (getFailedTests == null) {
+            params.getProgramParametersList.add("-s")
+            for (cl <- getClasses) params.getProgramParametersList.add(cl)
+            if (testKind == TestKind.TEST_NAME && testName != "") {
+              params.getProgramParametersList.add("-testName")
+              params.getProgramParametersList.add(testName)
+              params.getVMParametersList.addParametersString("-Dspecs2.ex=\"" + testName + "\"")
+            }
+          } else {
+            params.getProgramParametersList.add("-failedTests")
+            for (failed <- getFailedTests) {
+              params.getProgramParametersList.add(failed._1)
+              params.getProgramParametersList.add(failed._2)
+              params.getVMParametersList.addParametersString("-Dspecs2.ex=\"" + failed._2 + "\"")
+            }
           }
+
+          params.getProgramParametersList.addParametersString(getTestArgs)
+          params.getProgramParametersList.add("-showProgressMessages")
+          params.getProgramParametersList.add(showProgressMessages.toString)
+
+          params.getProgramParametersList.add("-C")
+          params.getProgramParametersList.add(reporterClass)
         }
-
-        params.getProgramParametersList.addParametersString(getTestArgs)
-        params.getProgramParametersList.add("-showProgressMessages")
-        params.getProgramParametersList.add(showProgressMessages.toString)
-
-        params.getProgramParametersList.add("-C")
-        params.getProgramParametersList.add(reporterClass)
 
         for (ext <- Extensions.getExtensions(RunConfigurationExtension.EP_NAME)) {
           ext.updateJavaParameters(currentConfiguration, params, getRunnerSettings)
