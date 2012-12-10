@@ -6,7 +6,7 @@ import com.intellij.psi.{PsiFile, PsiElement}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockExpr, ScParenthesisedExpr, ScTuple, ScArgumentExprList}
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
 
 /**
  * @author Alexander Podkhalyuzin
@@ -24,6 +24,10 @@ class ScalaCompletionConfidence extends CompletionConfidence {
               case args: ScArgumentExprList => ThreeState.NO
               case _ => ThreeState.YES
             }
+          case guard: ScGuard =>
+            if (guard.getChildren.length == 1 && guard.getParent.isInstanceOf[ScEnumerators]) {
+              ThreeState.NO
+            } else ThreeState.YES
           case _ => ThreeState.YES
         }
       }
