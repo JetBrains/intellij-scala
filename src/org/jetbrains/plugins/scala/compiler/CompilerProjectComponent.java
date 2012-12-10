@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.components;
+package org.jetbrains.plugins.scala.compiler;
 
 import com.intellij.openapi.components.ProjectComponent;
 import com.intellij.openapi.project.Project;
@@ -6,8 +6,6 @@ import com.intellij.openapi.compiler.CompilerManager;
 import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.fileTypes.StdFileTypes;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.plugins.scala.compiler.ScalacSettings;
-import org.jetbrains.plugins.scala.compiler.ScalaCompiler;
 import org.jetbrains.plugins.scala.ScalaFileType;
 
 import java.util.HashSet;
