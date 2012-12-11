@@ -15,7 +15,5 @@ class TypeInferenceScalazTest extends TypeInferenceTestBase {
 
   protected override def isIncludeScalazLibrary: Boolean = true
 
-  protected override def getDefaultScalaSDKVersion: ScalaSdkVersion = TestUtils.ScalaSdkVersion._2_9
-
   def testSCL4912() {doTest()}
 }

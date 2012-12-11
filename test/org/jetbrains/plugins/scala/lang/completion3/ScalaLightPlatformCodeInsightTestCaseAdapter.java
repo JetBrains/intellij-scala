@@ -1,11 +1,9 @@
 package org.jetbrains.plugins.scala.lang.completion3;
 
-import com.intellij.ide.plugins.PluginManager;
 import com.intellij.ide.startup.impl.StartupManagerImpl;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.Result;
 import com.intellij.openapi.application.WriteAction;
-import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
@@ -24,13 +22,13 @@ import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
 import com.intellij.testFramework.LightPlatformCodeInsightTestCase;
 import com.intellij.util.Processor;
-import org.apache.log4j.Level;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticClasses;
 import org.jetbrains.plugins.scala.util.TestUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 
 /**
  * @author Alexander Podkhalyuzin
@@ -99,8 +97,31 @@ public abstract class ScalaLightPlatformCodeInsightTestCaseAdapter extends Light
 
     // Add Scala Library
     OrderEnumerator libs = rootManager.orderEntries().librariesOnly();
-    Library.ModifiableModel libModel = null;
-    final String scalaLibraryName = "scala_lib";
+    final ArrayList<Library.ModifiableModel> libModels = new ArrayList<Library.ModifiableModel>();
+    rootModel = addLibrary(libVersion, rootModel, rootManager, libs, libModels, "scala_lib", TestUtils.getMockScalaLib(libVersion), TestUtils.getMockScalaSrc(libVersion));
+    if (isIncludeReflectLibrary()) {
+      rootModel = addLibrary(libVersion, rootModel, rootManager, libs, libModels, "scala_reflect", TestUtils.getMockScalaReflectLib(libVersion), null);
+    }
+    if (isIncludeScalazLibrary()) {
+      rootModel = addLibrary(libVersion, rootModel, rootManager, libs, libModels, "scalaz", TestUtils.getMockScalazLib(libVersion), null);
+    }
+
+    if (!libModels.isEmpty() || rootModel != null) {
+      final ModifiableRootModel finalRootModel = rootModel;
+      ApplicationManager.getApplication().runWriteAction(new Runnable() {
+        public void run() {
+          for (Library.ModifiableModel libModel : libModels) {
+            libModel.commit();
+          }
+          if (finalRootModel != null) finalRootModel.commit();
+          final StartupManagerImpl startupManager = (StartupManagerImpl) StartupManager.getInstance(ourProject);
+          startupManager.startCacheUpdate();
+        }
+      });
+    }
+  }
+
+  private ModifiableRootModel addLibrary(TestUtils.ScalaSdkVersion libVersion, ModifiableRootModel rootModel, ModuleRootManager rootManager, OrderEnumerator libs, ArrayList<Library.ModifiableModel> libModels, final String scalaLibraryName, String mockLib, String mockLibSrc) {
     class CustomProcessor implements Processor<Library> {
       public boolean result = true;
 
@@ -118,21 +139,11 @@ public abstract class ScalaLightPlatformCodeInsightTestCaseAdapter extends Light
       }
       final LibraryTable libraryTable = rootModel.getModuleLibraryTable();
       final Library scalaLib = libraryTable.createLibrary(scalaLibraryName);
-      libModel = scalaLib.getModifiableModel();
-      addLibraryRoots(libVersion, libModel);
+      final Library.ModifiableModel libModel = scalaLib.getModifiableModel();
+      libModels.add(libModel);
+      addLibraryRoots(libVersion, libModel, mockLib, mockLibSrc);
     }
-    if (libModel != null || rootModel != null) {
-      final Library.ModifiableModel finalLibModel = libModel;
-      final ModifiableRootModel finalRootModel = rootModel;
-      ApplicationManager.getApplication().runWriteAction(new Runnable() {
-        public void run() {
-          if (finalLibModel != null) finalLibModel.commit();
-          if (finalRootModel != null) finalRootModel.commit();
-          final StartupManagerImpl startupManager = (StartupManagerImpl) StartupManager.getInstance(ourProject);
-          startupManager.startCacheUpdate();
-        }
-      });
-    }
+    return rootModel;
   }
 
   protected boolean isIncludeReflectLibrary() {
@@ -143,23 +154,25 @@ public abstract class ScalaLightPlatformCodeInsightTestCaseAdapter extends Light
     return false;
   }
 
-  private void addLibraryRoots(TestUtils.ScalaSdkVersion version, Library.ModifiableModel libModel) {
-    final File libRoot = new File(TestUtils.getMockScalaLib(version));
+  private void addLibraryRoots(TestUtils.ScalaSdkVersion version, Library.ModifiableModel libModel, String mockLib, String mockLibSrc) {
+    final File libRoot = new File(mockLib);
     assert (libRoot.exists());
 
-    final File srcRoot = new File(TestUtils.getMockScalaSrc(version));
-    assert (srcRoot.exists());
 
     libModel.addRoot(VfsUtil.getUrlForLibraryRoot(libRoot), OrderRootType.CLASSES);
-    if (isIncludeReflectLibrary()) {
+    if (mockLibSrc != null) {
+      final File srcRoot = new File(mockLibSrc);
+      assert (srcRoot.exists());
+      libModel.addRoot(VfsUtil.getUrlForLibraryRoot(srcRoot), OrderRootType.SOURCES);
+    }
+    /*if (isIncludeReflectLibrary()) {
       File reflectRoot = new File(TestUtils.getMockScalaReflectLib(version));
       libModel.addRoot(VfsUtil.getUrlForLibraryRoot(reflectRoot), OrderRootType.CLASSES);
     }
     if (isIncludeScalazLibrary()) {
       File reflectRoot = new File(TestUtils.getMockScalazLib(version));
       libModel.addRoot(VfsUtil.getUrlForLibraryRoot(reflectRoot), OrderRootType.CLASSES);
-    }
-    libModel.addRoot(VfsUtil.getUrlForLibraryRoot(srcRoot), OrderRootType.SOURCES);
+    }*/
     ((VirtualFilePointerManagerImpl) VirtualFilePointerManager.getInstance()).storePointers();
   }
 
