@@ -38,7 +38,7 @@ case class Arguments(sbtData: SbtData, compilerData: CompilerData, compilationDa
 }
 
 object Arguments {
-  private val Delimiter = File.pathSeparator
+  private val Delimiter = "\n"
 
   def from(strings: Seq[String]): Arguments = strings match {
     case Seq(
