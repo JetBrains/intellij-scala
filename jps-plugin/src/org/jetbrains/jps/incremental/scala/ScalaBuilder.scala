@@ -58,8 +58,16 @@ class ScalaBuilder extends ModuleLevelBuilder(BuilderCategory.TRANSLATOR) {
     ScalaBuilder.sbtData.flatMap { sbtData =>
       CompilerData.from(context, chunk).flatMap { compilerData =>
         CompilationData.from(sources, context, chunk).map { compilationData =>
-//          val server = new RemoteServer("localhost", 2113)
-          ScalaBuilder.server.compile(sbtData, compilerData, compilationData, client)
+          val settings = SettingsManager.getProjectSettings(context.getProjectDescriptor.getProject)
+
+          val server = if (settings.isCompilationServerEnabled) {
+            ScalaBuilder.cleanLocalServerCache()
+            new RemoteServer("localhost", settings.getCompilationServerPort)
+          } else {
+            ScalaBuilder.localServer
+          }
+
+          server.compile(sbtData, compilerData, compilationData, client)
         }
       }
     } match {
@@ -74,7 +82,18 @@ class ScalaBuilder extends ModuleLevelBuilder(BuilderCategory.TRANSLATOR) {
 }
 
 object ScalaBuilder {
-  private val server = new LocalServer()
+  // Cached local localServer
+  private var cachedServer: Option[Server] = None
+
+  private def localServer = {
+    val server = cachedServer.getOrElse(new LocalServer())
+    cachedServer = Some(server)
+    server
+  }
+
+  private def cleanLocalServerCache() {
+    cachedServer = None
+  }
 
   private lazy val sbtData = {
     val classLoader = getClass.getClassLoader

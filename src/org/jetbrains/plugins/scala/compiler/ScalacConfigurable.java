@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.compiler;
 
+import com.intellij.compiler.CompilerWorkspaceConfiguration;
 import com.intellij.openapi.options.Configurable;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.project.Project;
@@ -176,7 +177,7 @@ public class ScalacConfigurable implements Configurable {
     if (!mySettings.REMOTE_PORT.equals(myRemotePort.getText())) return true;
     if (!mySettings.SHARED_DIRECTORY.equals(mySharedDirectory.getText())) return true;
 
-    if (mySettings.RUN_COMPILATION_SERVER != myRunCompilationServer.isSelected()) return true;
+    if (mySettings.COMPILATION_SERVER_ENABLED != myRunCompilationServer.isSelected()) return true;
     if (!mySettings.COMPILATION_SERVER_PORT.equals(myCompilationServerPort.getText())) return true;
     if (!mySettings.COMPILATION_SERVER_MAXIMUM_HEAP_SIZE.equals(myCompilationServerMaximumHeapSize.getText())) return true;
     if (!mySettings.COMPILATION_SERVER_JVM_PARAMETERS.equals(myCompilationServerJvmParameters.getText())) return true;
@@ -197,7 +198,9 @@ public class ScalacConfigurable implements Configurable {
     mySettings.REMOTE_PORT = myRemotePort.getText();
     mySettings.SHARED_DIRECTORY = mySharedDirectory.getText();
 
-    if (!myRunInternalServerRadioButton.isSelected()) {
+    boolean externalCompiler = CompilerWorkspaceConfiguration.getInstance(myProject).USE_COMPILE_SERVER;
+
+    if (externalCompiler || !myRunInternalServerRadioButton.isSelected()) {
       myProject.getComponent(FscServerLauncher.class).stop();
     }
     myProject.getComponent(FscServerManager.class).configureWidget();
@@ -212,10 +215,15 @@ public class ScalacConfigurable implements Configurable {
 
     mySettings.SCALAC_BEFORE = scalacBeforeRadioButton.isSelected();
 
-    mySettings.RUN_COMPILATION_SERVER = myRunCompilationServer.isSelected();
+    mySettings.COMPILATION_SERVER_ENABLED = myRunCompilationServer.isSelected();
     mySettings.COMPILATION_SERVER_PORT = myCompilationServerPort.getText();
     mySettings.COMPILATION_SERVER_MAXIMUM_HEAP_SIZE= myCompilationServerMaximumHeapSize.getText();
     mySettings.COMPILATION_SERVER_JVM_PARAMETERS = myCompilationServerJvmParameters.getText();
+
+    if (!externalCompiler || !myRunCompilationServer.isSelected()) {
+      myProject.getComponent(CompilationServerLauncher.class).stop();
+    }
+    myProject.getComponent(CompilationServerManager.class).configureWidget();
   }
 
   public void reset() {
@@ -232,7 +240,7 @@ public class ScalacConfigurable implements Configurable {
     myRemotePort.setText(mySettings.REMOTE_PORT);
     mySharedDirectory.setText(mySettings.SHARED_DIRECTORY);
 
-    myRunCompilationServer.setSelected(mySettings.RUN_COMPILATION_SERVER);
+    myRunCompilationServer.setSelected(mySettings.COMPILATION_SERVER_ENABLED);
     myCompilationServerPort.setText(mySettings.COMPILATION_SERVER_PORT);
     myCompilationServerMaximumHeapSize.setText(mySettings.COMPILATION_SERVER_MAXIMUM_HEAP_SIZE);
     myCompilationServerJvmParameters.setText(mySettings.COMPILATION_SERVER_JVM_PARAMETERS);

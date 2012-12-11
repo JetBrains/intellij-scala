@@ -29,6 +29,13 @@ class SettingsUpdater(project: Project) extends ProjectComponent {
         context.addMessage(CompilerMessageCategory.WARNING, message, null, -1, -1)
       }
 
+      val settings = ScalacSettings.getInstance(context.getProject)
+
+      if (settings.COMPILATION_SERVER_ENABLED) {
+        val server = project.getComponent(classOf[CompilationServerLauncher])
+        server.init()
+      }
+
       firstCompilation = false
 
       true
