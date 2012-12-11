@@ -65,9 +65,13 @@ public abstract class ScalaLightPlatformCodeInsightTestCaseAdapter extends Light
     return JavaSdk.getInstance().createJdk("java sdk", JDK_HOME, false);
   }
 
+  protected TestUtils.ScalaSdkVersion getDefaultScalaSDKVersion() {
+    return TestUtils.DEFAULT_SCALA_SDK_VERSION;
+  }
+
   @Override
   protected void setUp() throws Exception {
-    setUp(TestUtils.DEFAULT_SCALA_SDK_VERSION);
+    setUp(getDefaultScalaSDKVersion());
   }
 
   protected void setUp(TestUtils.ScalaSdkVersion libVersion) throws Exception {
@@ -135,6 +139,10 @@ public abstract class ScalaLightPlatformCodeInsightTestCaseAdapter extends Light
       return false;
   }
 
+  protected boolean isIncludeScalazLibrary() {
+    return false;
+  }
+
   private void addLibraryRoots(TestUtils.ScalaSdkVersion version, Library.ModifiableModel libModel) {
     final File libRoot = new File(TestUtils.getMockScalaLib(version));
     assert (libRoot.exists());
@@ -144,8 +152,12 @@ public abstract class ScalaLightPlatformCodeInsightTestCaseAdapter extends Light
 
     libModel.addRoot(VfsUtil.getUrlForLibraryRoot(libRoot), OrderRootType.CLASSES);
     if (isIncludeReflectLibrary()) {
-        File reflectRoot = new File(TestUtils.getMockScalaReflectLib(version));
-        libModel.addRoot(VfsUtil.getUrlForLibraryRoot(reflectRoot), OrderRootType.CLASSES);
+      File reflectRoot = new File(TestUtils.getMockScalaReflectLib(version));
+      libModel.addRoot(VfsUtil.getUrlForLibraryRoot(reflectRoot), OrderRootType.CLASSES);
+    }
+    if (isIncludeScalazLibrary()) {
+      File reflectRoot = new File(TestUtils.getMockScalazLib(version));
+      libModel.addRoot(VfsUtil.getUrlForLibraryRoot(reflectRoot), OrderRootType.CLASSES);
     }
     libModel.addRoot(VfsUtil.getUrlForLibraryRoot(srcRoot), OrderRootType.SOURCES);
     ((VirtualFilePointerManagerImpl) VirtualFilePointerManager.getInstance()).storePointers();
