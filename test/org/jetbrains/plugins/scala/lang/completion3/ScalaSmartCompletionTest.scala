@@ -34,6 +34,80 @@ class ScalaSmartCompletionTest extends ScalaCompletionTestBase {
     checkResultByText(resultText)
   }
 
+  def testTimeUnit1() {
+    val fileText =
+      """
+        |class TimeUnit
+        |object TimeUnit {
+        |  val HOURS = new TimeUnit
+        |  val DAYS = new TimeUnit
+        |}
+        |
+        |def foo() = {
+        |  bar(TimeUnit.<caret>HOURS)
+        |}
+        |
+        |def bar(unit: TimeUnit) {}
+      """.stripMargin.replaceAll("\r", "").trim()
+    configureFromFileTextAdapter("dummy.scala", fileText)
+    val (activeLookup, _) = complete(1, CompletionType.SMART)
+
+    val resultText =
+      """
+        |class TimeUnit
+        |object TimeUnit {
+        |  val HOURS = new TimeUnit
+        |  val DAYS = new TimeUnit
+        |}
+        |
+        |def foo() = {
+        |  bar(TimeUnit.DAYS<caret>)
+        |}
+        |
+        |def bar(unit: TimeUnit) {}
+      """.stripMargin.replaceAll("\r", "").trim()
+
+    completeLookupItem(activeLookup.find(le => le.getLookupString.contains("DAYS")).get)
+    checkResultByText(resultText)
+  }
+
+  def testTimeUnit2() {
+    val fileText =
+      """
+        |class TimeUnit
+        |object TimeUnit {
+        |  val HOURS = new TimeUnit
+        |  val DAYS = new TimeUnit
+        |}
+        |
+        |def foo() = {
+        |  bar(Time<caret>Unit.HOURS)
+        |}
+        |
+        |def bar(unit: TimeUnit) {}
+      """.stripMargin.replaceAll("\r", "").trim()
+    configureFromFileTextAdapter("dummy.scala", fileText)
+    val (activeLookup, _) = complete(1, CompletionType.SMART)
+
+    val resultText =
+      """
+        |class TimeUnit
+        |object TimeUnit {
+        |  val HOURS = new TimeUnit
+        |  val DAYS = new TimeUnit
+        |}
+        |
+        |def foo() = {
+        |  bar(TimeUnit.DAYS<caret>)
+        |}
+        |
+        |def bar(unit: TimeUnit) {}
+      """.stripMargin.replaceAll("\r", "").trim()
+
+    completeLookupItem(activeLookup.find(le => le.getLookupString.contains("DAYS")).get)
+    checkResultByText(resultText)
+  }
+
   def testAfterNew() {
     val fileText =
       """

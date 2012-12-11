@@ -1,4 +1,5 @@
-package org.jetbrains.plugins.scala.lang.completion.lookups
+package org.jetbrains.plugins.scala
+package lang.completion.lookups
 
 import com.intellij.codeInsight.completion.InsertionContext
 import org.jetbrains.plugins.scala.lang.completion.handlers.ScalaInsertHandler
