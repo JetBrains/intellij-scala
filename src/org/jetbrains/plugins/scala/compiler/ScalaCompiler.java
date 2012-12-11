@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.compiler;
 
 import com.intellij.compiler.CompilerException;
+import com.intellij.compiler.CompilerWorkspaceConfiguration;
 import com.intellij.compiler.impl.javaCompiler.BackendCompiler;
 import com.intellij.compiler.impl.javaCompiler.BackendCompilerWrapper;
 import com.intellij.compiler.make.CacheCorruptedException;
@@ -94,9 +95,11 @@ public class ScalaCompiler implements TranslatingCompiler {
   }
 
   public void compile(CompileContext context, Chunk<Module> moduleChunk, VirtualFile[] files, OutputSink sink) {
-    ScalacSettings settings = ScalacSettings.getInstance(context.getProject());
+    Project project = context.getProject();
 
-    if (myFsc && settings.INTERNAL_SERVER) {
+    ScalacSettings settings = ScalacSettings.getInstance(project);
+
+    if (!CompilerWorkspaceConfiguration.getInstance(project).USE_COMPILE_SERVER && myFsc && settings.INTERNAL_SERVER) {
       FscServerLauncher server = myProject.getComponent(FscServerLauncher.class);
       server.init();
     }

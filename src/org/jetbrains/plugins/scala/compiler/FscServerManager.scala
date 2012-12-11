@@ -18,6 +18,7 @@ import com.intellij.openapi.ui.popup.JBPopupFactory
 import com.intellij.ui.awt.RelativePoint
 import com.intellij.ide.DataManager
 import com.intellij.openapi.actionSystem.{AnActionEvent, AnAction, DefaultActionGroup}
+import com.intellij.compiler.CompilerWorkspaceConfiguration
 
 /**
  * Pavel Fatin
@@ -69,7 +70,9 @@ class FscServerManager(project: Project) extends ProjectComponent {
   }
 
   private def applicable = running ||
-          ScalacSettings.getInstance(project).INTERNAL_SERVER && ScalaFacet.findIn(project).exists(_.fsc)
+          !CompilerWorkspaceConfiguration.getInstance(project).USE_COMPILE_SERVER &&
+                  ScalacSettings.getInstance(project).INTERNAL_SERVER &&
+                  ScalaFacet.findIn(project).exists(_.fsc)
 
   private def running = launcher.running
 

@@ -11,4 +11,8 @@ public interface ProjectSettings extends JpsElement, CompilerLibraryHolder {
   LibraryLevel getCompilerLibraryLevel();
 
   String getCompilerLibraryName();
+
+  boolean isCompilationServerEnabled();
+
+  int getCompilationServerPort();
 }
