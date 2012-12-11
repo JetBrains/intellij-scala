@@ -9,7 +9,7 @@ import local.LocalServer
 object Main {
   private val Server = new LocalServer()
 
-  private val EventListener = (event: Event) => print(new String(event.toBytes))
+  private val EventListener = (event: Event) => System.out.write(event.toBytes)
 
   def main(args: Array[String]) {
     val client = new EventGeneratingClient(EventListener)
