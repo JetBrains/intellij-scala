@@ -32,7 +32,7 @@ object LookupElementManager {
       case _ => None
     }
     def getLookupElementInternal(isAssignment: Boolean, name: String): ScalaLookupItem = {
-      var lookupItem: ScalaLookupItem = new ScalaLookupItem(element, name, containingClass)
+      val lookupItem: ScalaLookupItem = new ScalaLookupItem(element, name, containingClass)
       lookupItem.isClassName = isClassName
       var isBold = false
       var isDeprecated = false

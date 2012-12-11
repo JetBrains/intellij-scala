@@ -17,6 +17,8 @@ import lookups.ScalaLookupItem
 import psi.api.base.ScStableCodeReferenceElement
 import psi.ScalaPsiUtil
 import annotation.tailrec
+import psi.impl.ScalaPsiElementFactory
+import lexer.ScalaTokenTypes
 
 /**
  * User: Alexander Podkhalyuzin
@@ -70,7 +72,18 @@ class ScalaInsertHandler extends InsertHandler[LookupElement] {
     val some = item.someSmartCompletion
     val someNum = if (some) 1 else 0
     val file = context.getFile
-    val element = file.findElementAt(startOffset)
+    val element =
+      if (completionChar == '\t') {
+        file.findElementAt(startOffset) match {
+          case elem if elem.getNode.getElementType == ScalaTokenTypes.tIDENTIFIER && elem.getParent.isInstanceOf[ScReferenceExpression]
+            && elem.getParent.getParent.isInstanceOf[ScReferenceExpression] && item.getAllLookupStrings.size() > 1 =>
+            val ref = elem.getParent.asInstanceOf[ScReferenceExpression]
+            val newRefText = ref.getText
+            val newRef = ScalaPsiElementFactory.createExpressionFromText(newRefText, ref.getManager)
+            ref.getParent.replace(newRef).getFirstChild
+          case elem => elem
+        }
+      } else file.findElementAt(startOffset)
     if (some) {
       var elem = element
       var parent = elem.getParent
