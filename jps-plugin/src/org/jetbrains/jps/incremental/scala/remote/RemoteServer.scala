@@ -49,11 +49,17 @@ private object RemoteServer {
 
   private val CurrentDirectory = System.getProperty("user.dir")
 
+  private val Encoding = "UTF-8"
+
   private def createChunks(command: String, args: Seq[String]): Seq[Chunk] = {
-    args.map(Chunk(NGConstants.CHUNKTYPE_ARGUMENT, _)) :+
-            Chunk(NGConstants.CHUNKTYPE_WORKINGDIRECTORY, CurrentDirectory) :+
-            Chunk(NGConstants.CHUNKTYPE_COMMAND, command)
+    args.map(s => Chunk(NGConstants.CHUNKTYPE_ARGUMENT, toBytes(s))) :+
+            Chunk(NGConstants.CHUNKTYPE_WORKINGDIRECTORY, toBytes(CurrentDirectory)) :+
+            Chunk(NGConstants.CHUNKTYPE_COMMAND, toBytes(command))
   }
+
+  private def toBytes(s: String) = s.getBytes(Encoding)
+
+  private def fromBytes(bytes: Array[Byte]) = new String(bytes, Encoding)
 
   private def handle(input: DataInputStream, client: Client) {
     val processor = new ClientEventProcessor(client)
@@ -63,9 +69,9 @@ private object RemoteServer {
         case Chunk(NGConstants.CHUNKTYPE_EXIT, code) =>
           return
         case Chunk(NGConstants.CHUNKTYPE_STDOUT, data) =>
-          processor.process(Event.from(data.getBytes))
+          processor.process(Event.from(data))
         case Chunk(NGConstants.CHUNKTYPE_STDERR, data) =>
-          client.message(Kind.ERROR, data)
+          client.message(Kind.ERROR, fromBytes(data))
         case Chunk(kind, data) =>
           client.message(Kind.ERROR, "Unexpected server output: " + data)
       }
@@ -73,11 +79,11 @@ private object RemoteServer {
   }
 }
 
-private case class Chunk(kind: Chunk.Kind, data: String) {
+private case class Chunk(kind: Chunk.Kind, data: Array[Byte]) {
   def writeTo(output: DataOutputStream) {
     output.writeInt(data.length)
     output.writeByte(kind.toByte)
-    output.writeBytes(data)
+    output.write(data)
   }
 }
 
@@ -90,7 +96,7 @@ private object Chunk {
     val data = {
       val buffer = new Array[Byte](size)
       input.readFully(buffer)
-      new String(buffer)
+      buffer
     }
     Chunk(kind, data)
   }
