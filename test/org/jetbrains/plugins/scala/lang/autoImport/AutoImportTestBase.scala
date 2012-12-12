@@ -7,7 +7,7 @@ import com.intellij.openapi.command.undo.UndoManager
 import com.intellij.openapi.fileEditor.impl.text.TextEditorProvider
 import com.intellij.openapi.fileEditor.{OpenFileDescriptor, FileEditorManager}
 
-import com.intellij.openapi.vfs.LocalFileSystem
+import com.intellij.openapi.vfs.{CharsetToolkit, LocalFileSystem}
 import com.intellij.psi.PsiManager
 import java.io.File
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
@@ -16,25 +16,30 @@ import com.intellij.psi.util.PsiTreeUtil
 import base.ScalaPsiTestCase
 import lexer.ScalaTokenTypes
 import util.ScalaUtils
+import completion3.ScalaLightPlatformCodeInsightTestCaseAdapter
+import com.intellij.openapi.util.io.FileUtil
+import com.intellij.openapi.util.text.StringUtil
 
 /**
  * User: Alexander Podkhalyuzin
  * Date: 15.03.2009
  */
 
-abstract class AutoImportTestBase extends ScalaPsiTestCase {
+abstract class AutoImportTestBase extends ScalaLightPlatformCodeInsightTestCaseAdapter {
   private val refMarker =  "/*ref*/"
 
-  override protected def rootPath = super.rootPath + "autoImport/"
+  protected def folderPath = baseRootPath() + "autoImport/"
 
+  protected override def rootPath(): String = folderPath
 
-  protected def doTest {
+  protected def doTest() {
     import _root_.junit.framework.Assert._
-    val filePath = rootPath + getTestName(false) + ".scala"
+    val filePath = folderPath + getTestName(false) + ".scala"
     val file = LocalFileSystem.getInstance.findFileByPath(filePath.replace(File.separatorChar, '/'))
     assert(file != null, "file " + filePath + " not found")
-    val scalaFile: ScalaFile = PsiManager.getInstance(myProject).findFile(file).asInstanceOf[ScalaFile]
-    val fileText = scalaFile.getText
+    val fileText = StringUtil.convertLineSeparators(FileUtil.loadFile(new File(file.getCanonicalPath), CharsetToolkit.UTF8))
+    configureFromFileTextAdapter(getTestName(false) + ".scala", fileText)
+    val scalaFile = getFileAdapter.asInstanceOf[ScalaFile]
     val offset = fileText.indexOf(refMarker)
     val refOffset = offset + refMarker.length
     assert(offset != -1, "Not specified ref marker in test case. Use /*ref*/ in scala file for this.")
@@ -44,55 +49,28 @@ abstract class AutoImportTestBase extends ScalaPsiTestCase {
 
     ref.resolve() match {
       case null =>
-      case _ => assert(false, "Reference must be unresolved.")
+      case _ => assert(assertion = false, message = "Reference must be unresolved.")
     }
 
-    //val cache = new ScalaShortNamesCache(myProject)
-    //cache.runStartupActivity
-
-    val classes = ScalaImportClassFix.getClasses(ref, myProject)
+    val classes = ScalaImportClassFix.getClasses(ref, getProjectAdapter)
     assert(classes.length > 0, "Haven't classes to import")
-    val fileEditorManager = FileEditorManager.getInstance(myProject)
-    val editor = fileEditorManager.openTextEditor(new OpenFileDescriptor(myProject, file, offset), false)
-
     var res: String = null
-
-
     val lastPsi = scalaFile.findElementAt(scalaFile.getText.length - 1)
-
-   
     try {
       ScalaUtils.runWriteAction(new Runnable {
         def run() {
           org.jetbrains.plugins.scala.annotator.intention.ScalaImportClassFix.
-                  getImportHolder(ref, myProject).addImportForClass(classes(0))
+                  getImportHolder(ref, getProjectAdapter).addImportForClass(classes(0))
         }
-      }, myProject, "Test")
+      }, getProjectAdapter, "Test")
       res = scalaFile.getText.substring(0, lastPsi.getTextOffset).trim//getImportStatements.map(_.getText()).mkString("\n")
       assert(ref.resolve != null, "reference is unresolved after import action")
     }
     catch {
       case e: Exception =>
         println(e)
-        assert(false, e.getMessage + "\n" + e.getStackTrace)
+        assert(assertion = false, message = e.getMessage + "\n" + e.getStackTrace)
     }
-    finally {
-      ScalaUtils.runWriteAction(new Runnable {
-        def run() {
-          val undoManager = UndoManager.getInstance(myProject)
-          val fileEditor = TextEditorProvider.getInstance.getTextEditor(editor)
-          if (undoManager.isUndoAvailable(fileEditor)) {
-            undoManager.undo(fileEditor)
-          }
-        }
-      }, myProject, "Test")
-    }
-
-
-
-
-    println("------------------------ " + scalaFile.getName + " ------------------------")
-    println(res)
 
     val text = lastPsi.getText
     val output = lastPsi.getNode.getElementType match {
