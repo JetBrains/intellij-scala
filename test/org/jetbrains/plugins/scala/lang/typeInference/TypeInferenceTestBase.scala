@@ -54,8 +54,8 @@ abstract class TypeInferenceTestBase extends ScalaLightPlatformCodeInsightTestCa
     typez match {
       case Success(ttypez, _) =>
         val res = ScType.presentableText(ttypez)
-        println("------------------------ " + scalaFile.getName + " ------------------------")
-        println("%s (expected types: [%s])".format(res, expr.expectedTypes().toList.map(ScType.presentableText).mkString(",")))
+//        println("------------------------ " + scalaFile.getName + " ------------------------")
+//        println("%s (expected types: [%s])".format(res, expr.expectedTypes().toList.map(ScType.presentableText).mkString(",")))
         val lastPsi = scalaFile.findElementAt(scalaFile.getText.length - 1)
         val text = lastPsi.getText
         val output = lastPsi.getNode.getElementType match {
