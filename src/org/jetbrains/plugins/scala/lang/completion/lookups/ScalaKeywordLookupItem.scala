@@ -1,11 +1,9 @@
 package org.jetbrains.plugins.scala.lang.completion.lookups
 
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import com.intellij.util.ui.EmptyIcon
 import org.jetbrains.plugins.scala.lang.completion.ScalaKeyword
 import com.intellij.codeInsight.completion.InsertionContext
-import com.intellij.codeInsight.lookup.{LookupElement, LookupElementPresentation, LookupItem}
+import com.intellij.codeInsight.lookup.{LookupElementPresentation, LookupItem}
 import org.jetbrains.plugins.scala.ScalaFileType
 import com.intellij.psi.{PsiDocumentManager, PsiElement}
 import com.intellij.psi.codeStyle.{CodeStyleManager, CodeStyleSettingsManager}
@@ -60,7 +58,7 @@ class ScalaKeywordLookupItem(val keyword: String, position: PsiElement) extends 
               case FOR => settings.SPACE_BEFORE_FOR_PARENTHESES
               case WHILE => settings.SPACE_BEFORE_WHILE_PARENTHESES
             }
-            if (add) addSpace(true)
+            if (add) addSpace(addCompletionChar = true)
           case '{' if braces.contains(keyword) =>
             val add = keyword match {
               case CATCH => settings.SPACE_BEFORE_CATCH_LBRACE
@@ -74,7 +72,12 @@ class ScalaKeywordLookupItem(val keyword: String, position: PsiElement) extends 
               case DO => settings.SPACE_BEFORE_DO_LBRACE
               case YIELD => settings.SPACE_BEFORE_FOR_LBRACE
             }
-            if (add) addSpace(true)
+            if (add) addSpace(addCompletionChar = true)
+          case '[' =>
+            keyword match {
+              case PRIVATE | PROTECTED => //do nothing
+              case _ => addSpace(addCompletionChar = false)
+            }
           case _ => addSpace()
         }
         if (keyword == CASE) {
