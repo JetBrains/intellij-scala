@@ -31,10 +31,6 @@ class ScalaBuilder extends ModuleLevelBuilder(BuilderCategory.TRANSLATOR) {
             dirtyFilesHolder: DirtyFilesHolder[JavaSourceRootDescriptor, ModuleBuildTarget],
             outputConsumer: OutputConsumer): ModuleLevelBuilder.ExitCode = {
 
-    if (!ScalaBuilder.hasDirtyFiles(dirtyFilesHolder) && !dirtyFilesHolder.hasRemovedFiles) {
-      return ExitCode.NOTHING_DONE
-    }
-
     context.processMessage(new ProgressMessage("Searching for compilable files..."))
     val filesToCompile = ScalaBuilder.collectCompilableFiles(chunk)
 
