@@ -57,14 +57,20 @@ class CompilationServerManager(project: Project) extends ProjectComponent {
          installed = true
        }
        case (false, true) => {
-         bar.removeWidget(Widget.ID)
-         installed = false
+         removeWidget()
        }
        case (false, false) => // do nothing
      }
    }
 
-   private def updateWidget() {
+  def removeWidget() {
+    if (installed) {
+      bar.removeWidget(Widget.ID)
+      installed = false
+    }
+  }
+
+  private def updateWidget() {
      bar.updateWidget(Widget.ID)
    }
 

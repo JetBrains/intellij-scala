@@ -58,10 +58,16 @@ class FscServerManager(project: Project) extends ProjectComponent {
         installed = true
       }
       case (false, true) => {
-        bar.removeWidget(Widget.ID)
-        installed = false
+        removeWidget()
       }
       case (false, false) => // do nothing
+    }
+  }
+
+  def removeWidget() {
+    if (installed) {
+      bar.removeWidget(Widget.ID)
+      installed = false
     }
   }
 
