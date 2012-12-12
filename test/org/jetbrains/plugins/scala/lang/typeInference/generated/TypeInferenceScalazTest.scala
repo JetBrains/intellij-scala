@@ -15,6 +15,8 @@ class TypeInferenceScalazTest extends TypeInferenceTestBase {
 
   protected override def isIncludeScalazLibrary: Boolean = true
 
+  def testSCL4033() {doTest()}
+
   def testSCL4352() {doTest()}
 
   def testSCL4912() {doTest()}
