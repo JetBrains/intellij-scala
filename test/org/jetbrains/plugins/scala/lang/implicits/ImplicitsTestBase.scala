@@ -6,40 +6,39 @@ package implicits
  * @author Alexander Podkhalyuzin
  */
 
-import _root_.org.jetbrains.plugins.scala.lang.psi.types.ScType
-import base.ScalaPsiTestCase
-import com.intellij.openapi.vfs.{LocalFileSystem, VirtualFile}
+import com.intellij.openapi.vfs.{CharsetToolkit, LocalFileSystem}
 import com.intellij.psi.util.PsiTreeUtil
 import java.io.File
 import java.lang.String
 import lexer.ScalaTokenTypes
-import parser.ScalaElementTypes
 import psi.api.expr.ScExpression
 import psi.api.ScalaFile
-import psi.types.result.{TypingContext, Failure, Success}
-import org.jetbrains.plugins.scala.base.ScalaPsiTestCase
-import com.intellij.psi.{PsiNamedElement, PsiComment, PsiManager}
+import com.intellij.psi.{PsiNamedElement, PsiManager}
 import extensions.toPsiNamedElementExt
+import com.intellij.openapi.util.text.StringUtil
+import com.intellij.openapi.util.io.FileUtil
+import base.ScalaLightPlatformCodeInsightTestCaseAdapter
 
 /**
  * User: Alexander Podkhalyuzin
  * Date: 10.03.2009
  */
 
-abstract class ImplicitsTestBase extends ScalaPsiTestCase {
+abstract class ImplicitsTestBase extends ScalaLightPlatformCodeInsightTestCaseAdapter {
   private val startExprMarker = "/*start*/"
   private val endExprMarker = "/*end*/"
 
-  override def rootPath: String = super.rootPath + "implicits/"
+  def folderPath: String = baseRootPath() + "implicits/"
 
-  protected def doTest = {
+  protected def doTest() {
     import _root_.junit.framework.Assert._
 
-    val filePath = rootPath + getTestName(false) + ".scala"
-    val file = LocalFileSystem.getInstance.refreshAndFindFileByPath(filePath.replace(File.separatorChar, '/'))
+    val filePath = folderPath + getTestName(false) + ".scala"
+    val file = LocalFileSystem.getInstance.findFileByPath(filePath.replace(File.separatorChar, '/'))
     assert(file != null, "file " + filePath + " not found")
-    val scalaFile: ScalaFile = PsiManager.getInstance(myProject).findFile(file).asInstanceOf[ScalaFile]
-    val fileText = scalaFile.getText
+    val fileText = StringUtil.convertLineSeparators(FileUtil.loadFile(new File(file.getCanonicalPath), CharsetToolkit.UTF8))
+    configureFromFileTextAdapter(getTestName(false) + ".scala", fileText)
+    val scalaFile = getFileAdapter.asInstanceOf[ScalaFile]
     val offset = fileText.indexOf(startExprMarker)
     val startOffset = offset + startExprMarker.length
 
@@ -50,16 +49,14 @@ abstract class ImplicitsTestBase extends ScalaPsiTestCase {
     val addOne = if(PsiTreeUtil.getParentOfType(scalaFile.findElementAt(startOffset),classOf[ScExpression]) != null) 0 else 1 //for xml tests
     val expr: ScExpression = PsiTreeUtil.findElementOfClassAtRange(scalaFile, startOffset + addOne, endOffset, classOf[ScExpression])
     assert(expr != null, "Not specified expression in range to infer type.")
-    val implicitConversions = expr.getImplicitConversions(false)
+    val implicitConversions = expr.getImplicitConversions(fromUnder = false)
     val res = implicitConversions._1.map(_.name).sorted.mkString("Seq(", ",\n    ", ")") + ",\n" + (
             implicitConversions._2 match {
               case None => "None"
               case Some(elem: PsiNamedElement) => "Some(" + elem.name + ")"
-              case _ => assert(false, "elem is not PsiNamedElement")
+              case _ => assert(assertion = false, message = "elem is not PsiNamedElement")
             }
             )
-    println("------------------------ " + scalaFile.name + " ------------------------")
-    println(res)
     val lastPsi = scalaFile.findElementAt(scalaFile.getText.length - 1)
     val text = lastPsi.getText
     val output = lastPsi.getNode.getElementType match {

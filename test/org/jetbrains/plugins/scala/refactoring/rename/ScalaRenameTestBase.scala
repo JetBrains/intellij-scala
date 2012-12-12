@@ -6,7 +6,6 @@ import java.io.File
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
 import com.intellij.psi.{PsiMethod, PsiElement}
-import lang.completion3.ScalaLightPlatformCodeInsightTestCaseAdapter
 import util.{TestUtils, ScalaUtils}
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.vfs.CharsetToolkit
@@ -14,6 +13,7 @@ import com.intellij.openapi.util.text.StringUtil
 import com.intellij.refactoring.rename.{RenamePsiElementProcessor, RenameProcessor}
 import com.intellij.codeInsight.TargetElementUtilBase
 import com.intellij.psi.impl.source.tree.injected.InjectedLanguageUtil
+import base.ScalaLightPlatformCodeInsightTestCaseAdapter
 
 /**
  * User: Alexander Podkhalyuzin
@@ -55,9 +55,6 @@ abstract class ScalaRenameTestBase extends ScalaLightPlatformCodeInsightTestCase
     }, getProjectAdapter, "Test")
     res = scalaFile.getText.substring(0, lastPsi.getTextOffset).trim
 
-
-    println("------------------------ " + scalaFile.getName + " ------------------------")
-    println(res)
 
     val text = lastPsi.getText
     val output = lastPsi.getNode.getElementType match {

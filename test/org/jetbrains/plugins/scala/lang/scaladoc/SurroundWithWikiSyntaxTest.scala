@@ -1,10 +1,10 @@
 package org.jetbrains.plugins.scala
 package lang.scaladoc
 
-import lang.completion3.ScalaLightCodeInsightFixtureTestAdapter
 import lang.surroundWith.surrounders.scaladoc._
 import util.ScalaToolsFactory
 import com.intellij.testFramework.fixtures.CodeInsightTestFixture
+import base.ScalaLightCodeInsightFixtureTestAdapter
 
 /**
  * User: Dmitry Naydanov

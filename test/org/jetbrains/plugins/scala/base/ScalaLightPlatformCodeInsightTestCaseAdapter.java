@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.lang.completion3;
+package org.jetbrains.plugins.scala.base;
 
 import com.intellij.ide.startup.impl.StartupManagerImpl;
 import com.intellij.openapi.application.ApplicationManager;

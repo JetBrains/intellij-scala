@@ -17,10 +17,6 @@ class ImportsUsagesTest extends ScalaResolveTestCase {
   override def folderPath: String = super.folderPath() + "resolve/imports/simple/"
 
   def printResults(imports: Object) {
-    println("[" + getTestName(false) + "]")
-    println("------------------------------------------------")
-    println(imports)
-    println()
   }
 
   def testStaticJava() {

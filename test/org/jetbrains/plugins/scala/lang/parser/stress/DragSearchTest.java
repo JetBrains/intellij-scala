@@ -97,8 +97,6 @@ public class DragSearchTest extends BaseScalaFileSetTestCase {
     });
 
     if (penals.size() > 0) {
-      Console.println("[" + testName + "] Max rollbacks: " + ourMaximum);
-      Console.println(" Look for example @: " + stickRanges(penals.toArray(new Pair[penals.size()]), fileText));
       Assert.assertTrue("Too much rollbacks: " + ourMaximum, ourMaximum < MAX_ROLLBACKS);
     }
 

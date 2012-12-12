@@ -4,8 +4,8 @@ package annotator
 import lang.psi.api.ScalaFile
 import lang.psi.api.base.ScReferenceElement
 import highlighter.AnnotatorHighlighter
-import lang.completion3.ScalaLightPlatformCodeInsightTestCaseAdapter
 import settings.ScalaProjectSettings
+import base.ScalaLightPlatformCodeInsightTestCaseAdapter
 
 /**
  * User: Dmitry Naydanov

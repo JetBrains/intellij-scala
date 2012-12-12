@@ -37,10 +37,6 @@ abstract public class LexerTestBase extends BaseScalaFileSetTestCase {
       }
     }
 
-    Console.println("------------------------ " + testName + " ------------------------");
-    Console.println(buffer.toString());
-    Console.println("");
-
     return buffer.toString();
   }
 }

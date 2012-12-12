@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.refactoring.introduceParameter
 
 import com.intellij.openapi.fileEditor.impl.text.TextEditorProvider
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import com.intellij.openapi.vfs.LocalFileSystem
+import com.intellij.openapi.vfs.{CharsetToolkit, LocalFileSystem}
 import java.io.File
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import com.intellij.openapi.fileEditor.{OpenFileDescriptor, FileEditorManager}
@@ -18,29 +18,31 @@ import com.intellij.ide.util.SuperMethodWarningUtil
 import com.intellij.psi.{PsiMethod, PsiDocumentManager, PsiManager}
 import com.intellij.openapi.util.TextRange
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil
-import org.jetbrains.plugins.scala.base.ScalaPsiTestCase
+import org.jetbrains.plugins.scala.base.{ScalaLightPlatformCodeInsightTestCaseAdapter, ScalaPsiTestCase}
+import com.intellij.openapi.util.text.StringUtil
+import com.intellij.openapi.util.io.FileUtil
 
 /**
  * @author Alexander Podkhalyuzin
  */
 
-abstract class IntroduceParameterTestBase extends ScalaPsiTestCase {
-  override protected def rootPath = super.rootPath + "introduceParameter/"
+abstract class IntroduceParameterTestBase extends ScalaLightPlatformCodeInsightTestCaseAdapter {
+  protected def folderPath = baseRootPath() + "introduceParameter/"
   private val startMarker = "/*start*/"
   private val endMarker = "/*end*/"
   private val allMarker = "//all = "
   private val nameMarker = "//name = "
   private val defaultMarker = "//default = "
 
-  protected def doTest {
+  protected def doTest() {
     import _root_.junit.framework.Assert._
-    val filePath = rootPath + getTestName(false) + ".scala"
-    val file = LocalFileSystem.getInstance.refreshAndFindFileByPath(filePath.replace(File.separatorChar, '/'))
+    val project = getProjectAdapter
+    val filePath = folderPath + getTestName(false) + ".scala"
+    val file = LocalFileSystem.getInstance.findFileByPath(filePath.replace(File.separatorChar, '/'))
     assert(file != null, "file " + filePath + " not found")
-    val project = getProject
-    val scalaFile: ScalaFile = PsiManager.getInstance(project).
-      findFile(file).asInstanceOf[ScalaFile]
-    val fileText = scalaFile.getText
+    val fileText = StringUtil.convertLineSeparators(FileUtil.loadFile(new File(file.getCanonicalPath), CharsetToolkit.UTF8))
+    configureFromFileTextAdapter(getTestName(false) + ".scala", fileText)
+    val scalaFile = getFileAdapter.asInstanceOf[ScalaFile]
     val startOffset = fileText.indexOf(startMarker) + startMarker.length
     assert(startOffset != -1 + startMarker.length,
       "Not specified start marker in test case. Use /*start*/ in scala file for this.")
@@ -108,25 +110,8 @@ abstract class IntroduceParameterTestBase extends ScalaPsiTestCase {
       res = scalaFile.getText.substring(0, lastPsi.getTextOffset).trim
     }
     catch {
-      case e: Exception => assert(false, e.getMessage + "\n" + e.getStackTrace)
+      case e: Exception => assert(assertion = false, message = e.getMessage + "\n" + e.getStackTrace)
     }
-    finally {
-      ScalaUtils.runWriteAction(new Runnable {
-        def run() {
-          val undoManager = UndoManager.getInstance(project)
-          val fileEditor = TextEditorProvider.getInstance.getTextEditor(editor)
-          if (undoManager.isUndoAvailable(fileEditor)) {
-            undoManager.undo(fileEditor)
-          }
-          if (undoManager.isUndoAvailable(fileEditor)) {
-            undoManager.undo(fileEditor)
-          }
-        }
-      }, project, "Test")
-    }
-
-    println("------------------------ " + scalaFile.getName + " ------------------------")
-    println(res)
 
     val text = lastPsi.getText
     val output = lastPsi.getNode.getElementType match {

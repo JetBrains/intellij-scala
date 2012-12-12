@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.lang.completion.keyword
 
-import org.jetbrains.plugins.scala.base.ScalaPsiTestCase
-import com.intellij.openapi.vfs.LocalFileSystem
+import org.jetbrains.plugins.scala.base.{ScalaLightPlatformCodeInsightTestCaseAdapter, ScalaPsiTestCase}
+import com.intellij.openapi.vfs.{CharsetToolkit, LocalFileSystem}
 import java.io.File
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import com.intellij.psi.PsiManager
@@ -11,40 +11,40 @@ import com.intellij.codeInsight.lookup.impl.LookupImpl
 import com.intellij.codeInsight.lookup.{LookupElement, LookupManager}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
+import com.intellij.openapi.util.text.StringUtil
+import com.intellij.openapi.util.io.FileUtil
 
 /**
  * @author Alexander Podkhalyuzin
  */
 
-abstract class KeywordCompletionTestBase extends ScalaPsiTestCase {
+abstract class KeywordCompletionTestBase extends ScalaLightPlatformCodeInsightTestCaseAdapter {
   private val caretMarker = "/*caret*/"
 
-  override def rootPath: String = super.rootPath + "keywordCompletion/"
+  def folderPath: String = baseRootPath() + "keywordCompletion/"
 
   protected def doTest() {
     import org.junit.Assert._
 
-    val testName = getTestName(false)
-    val filePath = rootPath + testName + ".scala"
-    val file = LocalFileSystem.getInstance.refreshAndFindFileByPath(filePath.replace(File.separatorChar, '/'))
+    val filePath = folderPath + getTestName(false) + ".scala"
+    val file = LocalFileSystem.getInstance.findFileByPath(filePath.replace(File.separatorChar, '/'))
     assert(file != null, "file " + filePath + " not found")
-    val scalaFile: ScalaFile = PsiManager.getInstance(myProject).findFile(file).asInstanceOf[ScalaFile]
-    val fileText = scalaFile.getText
+    val fileText = StringUtil.convertLineSeparators(FileUtil.loadFile(new File(file.getCanonicalPath), CharsetToolkit.UTF8))
+    configureFromFileTextAdapter(getTestName(false) + ".scala", fileText)
+    val scalaFile = getFileAdapter.asInstanceOf[ScalaFile]
     val offset = fileText.indexOf(caretMarker)
     assert(offset != -1, "Not specified end marker in test case. Use /*caret*/ in scala file for this.")
-    val fileEditorManager = FileEditorManager.getInstance(myProject)
-    val editor = fileEditorManager.openTextEditor(new OpenFileDescriptor(myProject, file, offset), false)
+    val fileEditorManager = FileEditorManager.getInstance(getProjectAdapter)
+    val editor = fileEditorManager.openTextEditor(new OpenFileDescriptor(getProjectAdapter, file, offset), false)
     val myType = CompletionType.BASIC
-    new CodeCompletionHandlerBase(myType, false, false, true).invokeCompletion(myProject, editor)
-    var lookup: LookupImpl = LookupManager.getActiveLookup(editor).asInstanceOf[LookupImpl]
+    new CodeCompletionHandlerBase(myType, false, false, true).invokeCompletion(getProjectAdapter, editor)
+    val lookup: LookupImpl = LookupManager.getActiveLookup(editor).asInstanceOf[LookupImpl]
     val items: Array[String] =
       if (lookup == null) Array.empty
       else lookup.getItems.toArray(LookupElement.EMPTY_ARRAY).map(_.getLookupString)
 
     val res = items.sortWith(_ < _).filter(ScalaNamesUtil.isKeyword(_)).mkString("\n")
 
-    println("------------------------ " + scalaFile.getName + " ------------------------")
-    println(res)
     val lastPsi = scalaFile.findElementAt(scalaFile.getText.length - 1)
     val text = lastPsi.getText
     val output = lastPsi.getNode.getElementType match {

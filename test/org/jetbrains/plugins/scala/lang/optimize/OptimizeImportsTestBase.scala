@@ -5,77 +5,52 @@ package optimize
 
 import _root_.com.intellij.psi.impl.source.tree.TreeUtil
 import org.jetbrains.plugins.scala.editor.importOptimizer.ScalaImportOptimizer
-import base.ScalaPsiTestCase
-import com.intellij.openapi.command.undo.UndoManager
-import com.intellij.openapi.fileEditor.{OpenFileDescriptor, FileEditorManager}
+import base.ScalaLightPlatformCodeInsightTestCaseAdapter
 
-import com.intellij.openapi.fileEditor.impl.text.TextEditorProvider
-import com.intellij.refactoring.inline.GenericInlineHandler
-import refactoring.inline.ScalaInlineHandler
-import psi.api.base.patterns.ScBindingPattern
 import lexer.ScalaTokenTypes
-import psi.types.ScType
-import psi.api.expr.ScExpression
-import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.psi.PsiManager
 import psi.api.ScalaFile
 import java.io.File
-import com.intellij.openapi.vfs.LocalFileSystem
+import com.intellij.openapi.vfs.{CharsetToolkit, LocalFileSystem}
 import util.ScalaUtils
 import settings.ScalaProjectSettings
+import com.intellij.openapi.util.text.StringUtil
+import com.intellij.openapi.util.io.FileUtil
 
 /**
  * User: Alexander Podkhalyuzin
  * Date: 30.06.2009
  */
 
-abstract class OptimizeImportsTestBase extends ScalaPsiTestCase {
+abstract class OptimizeImportsTestBase extends ScalaLightPlatformCodeInsightTestCaseAdapter {
 
-  override def rootPath: String = super.rootPath + "optimize/"
+  def folderPath: String = baseRootPath() + "optimize/"
 
   protected def doTest() {
     import _root_.junit.framework.Assert._
 
-    val filePath = rootPath + getTestName(false) + ".scala"
-    val file = LocalFileSystem.getInstance.refreshAndFindFileByPath(filePath.replace(File.separatorChar, '/'))
+    val filePath = folderPath + getTestName(false) + ".scala"
+    val file = LocalFileSystem.getInstance.findFileByPath(filePath.replace(File.separatorChar, '/'))
     assert(file != null, "file " + filePath + " not found")
-    val scalaFile: ScalaFile = PsiManager.getInstance(myProject).findFile(file).asInstanceOf[ScalaFile]
-
-    val fileEditorManager = FileEditorManager.getInstance(myProject)
-    val editor = fileEditorManager.openTextEditor(new OpenFileDescriptor(myProject, file, 0), false)
+    val fileText = StringUtil.convertLineSeparators(FileUtil.loadFile(new File(file.getCanonicalPath), CharsetToolkit.UTF8))
+    configureFromFileTextAdapter(getTestName(false) + ".scala", fileText)
+    val scalaFile = getFileAdapter.asInstanceOf[ScalaFile]
 
     var res: String = null
     var lastPsi = TreeUtil.findLastLeaf(scalaFile.getNode).getPsi
 
-
     try {
       if (getTestName(true).startsWith("sorted")) {
-        ScalaProjectSettings.getInstance(myProject).setSortImports(true)
+        ScalaProjectSettings.getInstance(getProjectAdapter).setSortImports(true)
       }
-      ScalaUtils.runWriteActionDoNotRequestConfirmation(new ScalaImportOptimizer().processFile(scalaFile), myProject, "Test")
+      ScalaUtils.runWriteActionDoNotRequestConfirmation(new ScalaImportOptimizer().processFile(scalaFile), getProjectAdapter, "Test")
       res = scalaFile.getText.substring(0, lastPsi.getTextOffset).trim//getImportStatements.map(_.getText()).mkString("\n")
     }
     catch {
       case e: Exception => {
-        val z = e
-        assert(false, e.getMessage + "\n" + e.getStackTrace)
+        assert(assertion = false, message = e.getMessage + "\n" + e.getStackTrace)
       }
     }
-    finally {
-      ScalaUtils.runWriteAction(new Runnable {
-        def run {
-          val undoManager = UndoManager.getInstance(getProject)
-          val fileEditor = TextEditorProvider.getInstance.getTextEditor(editor)
-          if (undoManager.isUndoAvailable(fileEditor)) {
-            undoManager.undo(fileEditor)
-          }
-        }
-      }, myProject, "Test")
-      ScalaProjectSettings.getInstance(myProject).setSortImports(false)
-    }
 
-    println("------------------------ " + scalaFile.getName + " ------------------------")
-    println(res)
     lastPsi = scalaFile.findElementAt(scalaFile.getText.length - 1)
     val text = lastPsi.getText
     val output = lastPsi.getNode.getElementType match {

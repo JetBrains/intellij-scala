@@ -7,6 +7,7 @@ import com.intellij.codeInsight.completion.{CompletionType, CodeCompletionHandle
 import com.intellij.psi.statistics.StatisticsManager
 import com.intellij.psi.statistics.impl.StatisticsManagerImpl
 import com.intellij.testFramework.{LightPlatformTestCase, LightPlatformCodeInsightTestCase}
+import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAdapter
 
 /**
  * @author Alexander Podkhalyuzin

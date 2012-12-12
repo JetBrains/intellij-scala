@@ -5,11 +5,11 @@ package checkPrivateAccess
 
 import _root_.scala.collection.mutable.ArrayBuffer
 import _root_.scala.util.Sorting
-import base.ScalaPsiTestCase
+import base.{ScalaLightPlatformCodeInsightTestCaseAdapter, ScalaPsiTestCase}
 import com.intellij.codeInsight.hint.{HintUtil, ShowParameterInfoContext}
 import com.intellij.lang.parameterInfo.ParameterInfoUIContext
 import com.intellij.openapi.fileEditor.{OpenFileDescriptor, FileEditorManager}
-import com.intellij.openapi.vfs.{LocalFileSystem, VirtualFile}
+import com.intellij.openapi.vfs.{CharsetToolkit, LocalFileSystem, VirtualFile}
 import com.intellij.psi.util.PsiTreeUtil
 import java.awt.Color
 import java.io.File
@@ -21,37 +21,36 @@ import parameterInfo.ScalaFunctionParameterInfoHandler
 import psi.api.base.ScReferenceElement
 import resolve.ResolveUtils
 import com.intellij.psi.{PsiMember, PsiComment, PsiManager, PsiElement}
+import com.intellij.openapi.util.text.StringUtil
+import com.intellij.openapi.util.io.FileUtil
 
 /**
  * User: Alexander Podkhalyuzin
  * Date: 08.10.2009
  */
 
-abstract class CheckPrivateAccessTestBase extends ScalaPsiTestCase {
+abstract class CheckPrivateAccessTestBase extends ScalaLightPlatformCodeInsightTestCaseAdapter {
   val refMarker = "/*ref*/"
 
+  protected def folderPath = baseRootPath() + "checkers/checkPrivateAccess/"
 
-  override protected def rootPath = super.rootPath + "checkers/checkPrivateAccess/"
-
-  override protected def doTest {
+  protected def doTest() {
     import _root_.junit.framework.Assert._
-    val filePath = rootPath + getTestName(false) + ".scala"
+    val filePath = folderPath + getTestName(false) + ".scala"
     val file = LocalFileSystem.getInstance.findFileByPath(filePath.replace(File.separatorChar, '/'))
     assert(file != null, "file " + filePath + " not found")
-    val scalaFile: ScalaFile = PsiManager.getInstance(myProject).findFile(file).asInstanceOf[ScalaFile]
-    val fileText = scalaFile.getText
+    val fileText = StringUtil.convertLineSeparators(FileUtil.loadFile(new File(file.getCanonicalPath), CharsetToolkit.UTF8))
+    configureFromFileTextAdapter(getTestName(false) + ".scala", fileText)
+    val scalaFile = getFileAdapter.asInstanceOf[ScalaFile]
     val offset = fileText.indexOf(refMarker) + refMarker.length
     assert(offset != refMarker.length - 1, "Not specified caret marker in test case. Use " + refMarker + " in scala file for this.")
     val elem = scalaFile.findElementAt(offset).getParent
-    if (!elem.isInstanceOf[ScReferenceElement]) assert(true, "Ref marker should point on reference")
+    if (!elem.isInstanceOf[ScReferenceElement]) assert(assertion = true, message = "Ref marker should point on reference")
     val ref = elem.asInstanceOf[ScReferenceElement]
-    val resolve: PsiMember = PsiTreeUtil.getParentOfType(ref.resolve, classOf[PsiMember], false)
-
+    val resolve: PsiMember = PsiTreeUtil.getParentOfType(ref.resolve(), classOf[PsiMember], false)
 
     val res = "" + ResolveUtils.isAccessible(resolve, elem)
     
-    println("------------------------ " + scalaFile.getName + " ------------------------")
-    println(res)
     val lastPsi = scalaFile.findElementAt(scalaFile.getText.length - 1)
     val text = lastPsi.getText
     val output = lastPsi.getNode.getElementType match {

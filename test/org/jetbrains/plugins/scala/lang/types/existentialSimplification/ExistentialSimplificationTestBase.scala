@@ -1,34 +1,36 @@
-package org.jetbrains.plugins.scala.lang.types.existentialSimplification
+package org.jetbrains.plugins.scala
+package lang.types.existentialSimplification
 
-import org.jetbrains.plugins.scala.base.ScalaPsiTestCase
-import com.intellij.openapi.vfs.LocalFileSystem
+import com.intellij.openapi.vfs.{CharsetToolkit, LocalFileSystem}
 import java.io.File
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import com.intellij.psi.PsiManager
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypingContext}
 import org.jetbrains.plugins.scala.lang.psi.types.{ScExistentialType, ScType}
+import com.intellij.openapi.util.text.StringUtil
+import com.intellij.openapi.util.io.FileUtil
+import base.ScalaLightPlatformCodeInsightTestCaseAdapter
 
 /**
  * @author Alexander Podkhalyuzin
  */
-
-abstract class ExistentialSimplificationTestBase extends ScalaPsiTestCase {
+abstract class ExistentialSimplificationTestBase extends ScalaLightPlatformCodeInsightTestCaseAdapter {
   private val startExprMarker = "/*start*/"
   private val endExprMarker = "/*end*/"
 
-  override def rootPath: String = super.rootPath + "types/existentialSimplification/"
+  def folderPath: String = baseRootPath() + "types/existentialSimplification/"
 
-  protected def doTest {
+  protected def doTest() {
     import _root_.junit.framework.Assert._
 
-    val filePath = rootPath + getTestName(false) + ".scala"
-    val file = LocalFileSystem.getInstance.refreshAndFindFileByPath(filePath.replace(File.separatorChar, '/'))
+    val filePath = folderPath + getTestName(false) + ".scala"
+    val file = LocalFileSystem.getInstance.findFileByPath(filePath.replace(File.separatorChar, '/'))
     assert(file != null, "file " + filePath + " not found")
-    val scalaFile: ScalaFile = PsiManager.getInstance(myProject).findFile(file).asInstanceOf[ScalaFile]
-    val fileText = scalaFile.getText
+    val fileText = StringUtil.convertLineSeparators(FileUtil.loadFile(new File(file.getCanonicalPath), CharsetToolkit.UTF8))
+    configureFromFileTextAdapter(getTestName(false) + ".scala", fileText)
+    val scalaFile = getFileAdapter.asInstanceOf[ScalaFile]
     val offset = fileText.indexOf(startExprMarker)
     val startOffset = offset + startExprMarker.length
 
@@ -55,8 +57,11 @@ abstract class ExistentialSimplificationTestBase extends ScalaPsiTestCase {
         assertEquals(output, res)
       }
       case Success(_, _) =>
-        assert(false, "Expression has not existential type")
-      case Failure(msg, elem) => assert(false, msg + " :: " + (elem match {case Some(x) => x.getText case None => "empty element"}))
+        assert(assertion = false, message = "Expression has not existential type")
+      case Failure(msg, elem) => assert(assertion = false, message = msg + " :: " + (elem match {
+        case Some(x) => x.getText
+        case None => "empty element"
+      }))
     }
   }
 }
