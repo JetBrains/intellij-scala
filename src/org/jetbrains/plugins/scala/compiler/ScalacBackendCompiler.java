@@ -216,7 +216,7 @@ public class ScalacBackendCompiler extends ExternalCompiler {
     return true;
   }
 
-  public static boolean isScalaProject(Module[] allModules) {
+  private static boolean isScalaProject(Module[] allModules) {
     boolean isScalaProject = false;
     for (Module module : allModules) {
       if (ScalaFacet.isPresentIn(module)) {
