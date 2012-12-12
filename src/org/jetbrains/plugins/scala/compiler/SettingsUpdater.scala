@@ -31,7 +31,7 @@ class SettingsUpdater(project: Project) extends ProjectComponent {
 
       val settings = ScalacSettings.getInstance(context.getProject)
 
-      if (settings.COMPILATION_SERVER_ENABLED) {
+      if (jpsScalaCompiler && settings.COMPILATION_SERVER_ENABLED) {
         val server = project.getComponent(classOf[CompilationServerLauncher])
         server.init()
       }
