@@ -3,9 +3,9 @@ package lang
 package scaladoc
 package quickdoc
 
-import completion3.ScalaLightPlatformCodeInsightTestCaseAdapter
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocumentationProvider
+import base.ScalaLightPlatformCodeInsightTestCaseAdapter
 
 /**
  * User: Dmitry Naydanov

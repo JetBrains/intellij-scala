@@ -1,13 +1,13 @@
 package org.jetbrains.plugins.scala
 package codeInsight.intentions
 
-import lang.completion3.ScalaLightCodeInsightFixtureTestAdapter
 import com.intellij.codeInsight.intention.IntentionAction
 import org.junit.Assert
 import java.util
 import extensions._
 import scala.Some
 import com.intellij.psi.codeStyle.CodeStyleManager
+import base.ScalaLightCodeInsightFixtureTestAdapter
 
 /**
  * @author Ksenia.Sautina

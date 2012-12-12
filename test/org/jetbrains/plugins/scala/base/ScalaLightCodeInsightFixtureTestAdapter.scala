@@ -1,5 +1,5 @@
 package org.jetbrains.plugins.scala
-package lang.completion3
+package base
 
 import com.intellij.openapi.command.CommandProcessor
 import com.intellij.openapi.actionSystem.IdeActions

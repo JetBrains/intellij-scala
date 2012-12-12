@@ -12,6 +12,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.{PsiFile, PsiManager}
 import settings._
+import com.intellij.openapi.application.ApplicationManager
 
 /**
  * @author ilyas
@@ -23,7 +24,11 @@ class ScContentBasedClassFileProcessor extends ContentBasedClassFileProcessor {
   def isApplicable(project: Project, vFile: VirtualFile): Boolean = {
     val ft = vFile.getFileType
     if (ft == StdFileTypes.CLASS) {
-      PsiManager.getInstance(project).findFile(vFile) match {
+      val notDisposedProject =
+        if (ApplicationManager.getApplication.isUnitTestMode && project.isDisposed) {
+          DecompilerUtil.obtainProject
+        } else project
+      PsiManager.getInstance(notDisposedProject).findFile(vFile) match {
         case scalaFile : ScalaFile => true
         case _ => DecompilerUtil.isScalaFile(vFile)
       }
@@ -32,7 +37,7 @@ class ScContentBasedClassFileProcessor extends ContentBasedClassFileProcessor {
 
   def createHighlighter(project: Project, file: VirtualFile) = {
     val treatDocCommentAsBlockComment = ScalaProjectSettings.getInstance(project).
-            isTreatDocCommentAsBlockComment;
+            isTreatDocCommentAsBlockComment
     new ScalaSyntaxHighlighter(treatDocCommentAsBlockComment)
   }
 

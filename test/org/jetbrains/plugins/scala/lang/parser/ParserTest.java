@@ -40,10 +40,6 @@ public class ParserTest extends BaseScalaFileSetTestCase {
     PsiFile psiFile = TestUtils.createPseudoPhysicalScalaFile(getProject(), fileText);
 
     String psiTree = DebugUtil.psiToString(psiFile, false).replace(":" + psiFile.getName(), "");
-    Console.println("------------------------ " + testName + " ------------------------");
-    Console.println(psiTree);
-    Console.println("");
-
     return psiTree;
 
   }

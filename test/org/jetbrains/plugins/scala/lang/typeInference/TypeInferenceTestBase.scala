@@ -3,7 +3,7 @@ package lang
 package typeInference
 
 import _root_.org.jetbrains.plugins.scala.lang.psi.types.ScType
-import base.ScalaPsiTestCase
+import base.{ScalaLightPlatformCodeInsightTestCaseAdapter, ScalaPsiTestCase}
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiComment, PsiManager}
 import java.io.File
@@ -13,7 +13,6 @@ import parser.ScalaElementTypes
 import psi.api.expr.ScExpression
 import psi.api.ScalaFile
 import psi.types.result.{TypingContext, Failure, Success}
-import completion3.ScalaLightPlatformCodeInsightTestCaseAdapter
 import util.TestUtils
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.vfs.{CharsetToolkit, LocalFileSystem, VirtualFile}
@@ -54,8 +53,6 @@ abstract class TypeInferenceTestBase extends ScalaLightPlatformCodeInsightTestCa
     typez match {
       case Success(ttypez, _) =>
         val res = ScType.presentableText(ttypez)
-//        println("------------------------ " + scalaFile.getName + " ------------------------")
-//        println("%s (expected types: [%s])".format(res, expr.expectedTypes().toList.map(ScType.presentableText).mkString(",")))
         val lastPsi = scalaFile.findElementAt(scalaFile.getText.length - 1)
         val text = lastPsi.getText
         val output = lastPsi.getNode.getElementType match {

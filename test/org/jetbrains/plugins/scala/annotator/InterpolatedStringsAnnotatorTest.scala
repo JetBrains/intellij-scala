@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.annotator
 
-import org.jetbrains.plugins.scala.lang.completion3.ScalaLightCodeInsightFixtureTestAdapter
 import org.intellij.lang.annotations.Language
 import com.intellij.openapi.roots.{OrderRootType, ModuleRootManager}
 import java.io.File
@@ -8,6 +7,7 @@ import org.jetbrains.plugins.scala.util.TestUtils
 import com.intellij.openapi.vfs.VfsUtil
 import com.intellij.openapi.application.ApplicationManager
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 
 /**
  * User: Dmitry Naydanov

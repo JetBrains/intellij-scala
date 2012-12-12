@@ -13,10 +13,6 @@ class HideImportsTest extends ScalaResolveTestCase {
   override def folderPath: String = super.folderPath() + "resolve/imports/simple/"
 
   def printResults(imports: ScalaObject) {
-    println("[" + getTestName(false) + "]")
-    println("------------------------------------------------")
-    println(imports)
-    println()
   }
 
   def testHidePredefImplicit() {

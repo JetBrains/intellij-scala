@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala
 package lang.scaladoc
 
-import lang.completion3.ScalaLightCodeInsightFixtureTestAdapter
+import base.ScalaLightCodeInsightFixtureTestAdapter
 
 /**
  * User: Dmitry Naydanov

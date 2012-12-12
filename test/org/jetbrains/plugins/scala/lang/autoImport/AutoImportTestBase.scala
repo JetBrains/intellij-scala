@@ -13,10 +13,9 @@ import java.io.File
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import com.intellij.psi.util.PsiTreeUtil
-import base.ScalaPsiTestCase
+import base.{ScalaLightPlatformCodeInsightTestCaseAdapter, ScalaPsiTestCase}
 import lexer.ScalaTokenTypes
 import util.ScalaUtils
-import completion3.ScalaLightPlatformCodeInsightTestCaseAdapter
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.util.text.StringUtil
 

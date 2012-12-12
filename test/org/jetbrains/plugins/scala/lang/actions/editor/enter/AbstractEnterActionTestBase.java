@@ -100,9 +100,6 @@ abstract public class AbstractEnterActionTestBase extends ActionTestBase {
     String fileText = data[0];
     final PsiFile psiFile = TestUtils.createPseudoPhysicalScalaFile(getProject(), fileText);
     String result = processFile(psiFile);
-    Console.println("------------------------ " + testName + " ------------------------");
-    Console.println(result);
-    Console.println("");
     return result;
   }
 

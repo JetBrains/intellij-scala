@@ -47,7 +47,6 @@ object SuperMethodTestUtil {
       }
       case _ => resa = "Not implemented test"
     }
-    println(resa)
     resa
   }
 }

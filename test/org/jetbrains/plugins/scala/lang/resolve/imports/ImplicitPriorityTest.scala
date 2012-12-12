@@ -14,10 +14,6 @@ class ImplicitPriorityTest extends ScalaResolveTestCase {
   override def folderPath(): String = super.folderPath() + "resolve/implicitPriority/"
 
   def printResults(imports: ScalaObject) = {
-    println("[" + getTestName(false) + "]")
-    println("------------------------------------------------")
-    println(imports)
-    println()
   }
 
   def testlowPriorityImplicits() {

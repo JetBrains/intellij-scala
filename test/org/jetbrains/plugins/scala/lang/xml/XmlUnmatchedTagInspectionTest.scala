@@ -1,10 +1,10 @@
 package org.jetbrains.plugins.scala
 package lang.xml
 
-import lang.completion3.ScalaLightCodeInsightFixtureTestAdapter
 import codeInspection.xml.ScalaXmlUnmatchedTagInspection
 import com.intellij.codeInsight.CodeInsightTestCase
 import com.intellij.codeInspection.LocalInspectionTool
+import base.ScalaLightCodeInsightFixtureTestAdapter
 
 /**
  * User: Dmitry Naydanov

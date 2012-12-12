@@ -19,7 +19,7 @@ import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.openapi.vfs.CharsetToolkit;
 import com.intellij.psi.PsiReference;
-import org.jetbrains.plugins.scala.lang.completion3.ScalaLightPlatformCodeInsightTestCaseAdapter;
+import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAdapter;
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticClasses;
 import org.jetbrains.plugins.scala.util.TestUtils;
 
