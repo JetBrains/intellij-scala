@@ -30,6 +30,27 @@ class ScalaKeywordCompletionTest extends ScalaCompletionTestBase {
     checkResultByText(resultText)
   }
 
+  def testPrivateThis() {
+    val fileText =
+      """
+        |class A {
+        |  pr<caret>
+        |}
+      """.stripMargin('|').replaceAll("\r", "").trim()
+    configureFromFileTextAdapter("dummy.scala", fileText)
+    val (activeLookup, _) = complete(1, CompletionType.BASIC)
+
+    val resultText =
+      """
+        |class A {
+        |  private[<caret>]
+        |}
+      """.stripMargin('|').replaceAll("\r", "").trim()
+
+    completeLookupItem(activeLookup.find(le => le.getLookupString == "private").get, '[')
+    checkResultByText(resultText)
+  }
+
   def testFirstVal() {
     val fileText =
       """
