@@ -22,18 +22,30 @@ class SettingsUpdater(project: Project) extends ProjectComponent {
     var firstCompilation = true
 
     def execute(context: CompileContext): Boolean = {
-      val jpsScalaCompiler = isScalaProject && compilerConfiguration.USE_COMPILE_SERVER
+      val scalaProject = isScalaProject
 
-      if (firstCompilation && !ideaInternal && jpsScalaCompiler) {
+      val externalCompiler = compilerConfiguration.USE_COMPILE_SERVER
+
+      if (firstCompilation && !ideaInternal && (scalaProject && externalCompiler)) {
         val message = "External Scala compiler is in experimental state, please use with care."
         context.addMessage(CompilerMessageCategory.WARNING, message, null, -1, -1)
       }
 
-      val settings = ScalacSettings.getInstance(context.getProject)
+      if (scalaProject) {
+        if (compilerConfiguration.USE_COMPILE_SERVER) {
+          project.getComponent(classOf[FscServerLauncher]).stop()
+          project.getComponent(classOf[FscServerManager]).removeWidget()
 
-      if (jpsScalaCompiler && settings.COMPILATION_SERVER_ENABLED) {
-        val server = project.getComponent(classOf[CompilationServerLauncher])
-        server.init()
+          val projectSettings = ScalacSettings.getInstance(context.getProject)
+
+          if (projectSettings.COMPILATION_SERVER_ENABLED) {
+            project.getComponent(classOf[CompilationServerManager]).configureWidget()
+            project.getComponent(classOf[CompilationServerLauncher]).init()
+          }
+        } else {
+          project.getComponent(classOf[CompilationServerLauncher]).stop()
+          project.getComponent(classOf[CompilationServerManager]).removeWidget()
+        }
       }
 
       firstCompilation = false
