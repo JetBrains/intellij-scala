@@ -23,6 +23,7 @@ import org.jetbrains.plugins.scala.actions.{GoToImplicitConversionAction, MakeEx
 import com.intellij.openapi.ui.popup.util.BaseListPopupStep
 import com.intellij.openapi.ui.popup.{JBPopupFactory, PopupStep}
 import com.intellij.ui.awt.RelativePoint
+import lang.psi.types.Boolean
 
 /**
  * @author Ksenia.Sautina
@@ -31,7 +32,7 @@ import com.intellij.ui.awt.RelativePoint
 
 object IntentionUtils {
 
-  def check(element: PsiElement): Option[() => Unit] = {
+  def check(element: PsiElement, onlyBoolean: Boolean): Option[() => Unit] = {
     val containingArgList: Option[ScArgumentExprList] = element.parents.collectFirst {
       case al: ScArgumentExprList if !al.isBraceArgs => al
     }
@@ -72,9 +73,11 @@ object IntentionUtils {
                   argsAndMatchingParams.foreach {
                     case (argExpr: ScAssignStmt, Some(param)) if argExpr.getLExpression.getText == param.name =>
                     case (argExpr, Some(param)) =>
-                      val newArgExpr = ScalaPsiElementFactory.createExpressionFromText(param.name + " = " + argExpr.getText, element.getManager)
-                      inWriteAction {
-                        argExpr.replace(newArgExpr)
+                      if (!onlyBoolean || (onlyBoolean && param.paramType == Boolean)) {
+                        val newArgExpr = ScalaPsiElementFactory.createExpressionFromText(param.name + " = " + argExpr.getText, element.getManager)
+                        inWriteAction {
+                          argExpr.replace(newArgExpr)
+                        }
                       }
                     case _ =>
                   }
