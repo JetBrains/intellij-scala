@@ -29,7 +29,7 @@ class NameBooleanParametersInspection extends LocalInspectionTool {
         if (mc == null || mc.args == null || mc.args.exprs.isEmpty) return
         for (expr <- mc.args.exprs) {
           if (expr.isInstanceOf[ScLiteral] && isBooleanType(expr) &&
-                  IntentionUtils.check(expr.asInstanceOf[ScLiteral]).isDefined &&
+                  IntentionUtils.check(expr.asInstanceOf[ScLiteral], true).isDefined &&
                   (expr.getNode.getFirstChildNode.getElementType == ScalaTokenTypes.kTRUE ||
                           expr.getNode.getFirstChildNode.getElementType == ScalaTokenTypes.kFALSE)) {
             holder.registerProblem(holder.getManager.createProblemDescriptor(expr,
