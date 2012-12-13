@@ -9,10 +9,8 @@ import local.LocalServer
 object Main {
   private val Server = new LocalServer()
 
-  private val EventListener = (event: Event) => System.out.write(event.toBytes)
-
   def main(args: Array[String]) {
-    val client = new EventGeneratingClient(EventListener)
+    val client = new EventGeneratingClient(event => System.out.write(event.toBytes), System.out.checkError)
 
     try {
       val arguments = Arguments.from(args)

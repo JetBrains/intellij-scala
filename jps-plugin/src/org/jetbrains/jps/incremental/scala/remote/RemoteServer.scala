@@ -64,7 +64,7 @@ private object RemoteServer {
   private def handle(input: DataInputStream, client: Client) {
     val processor = new ClientEventProcessor(client)
 
-    while (true) {
+    while (!client.isCanceled) {
       Chunk.readFrom(input) match {
         case Chunk(NGConstants.CHUNKTYPE_EXIT, code) =>
           return
