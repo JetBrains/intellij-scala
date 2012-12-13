@@ -7,7 +7,7 @@ import org.jetbrains.jps.incremental.messages.BuildMessage.Kind
 /**
  * @author Pavel Fatin
  */
-class EventGeneratingClient(listener: Event => Unit) extends Client {
+class EventGeneratingClient(listener: Event => Unit, canceled: => Boolean) extends Client {
   def message(kind: Kind, text: String, source: Option[File], line: Option[Long], column: Option[Long]) {
     listener(MessageEvent(kind, text, source, line, column))
   }
@@ -24,5 +24,5 @@ class EventGeneratingClient(listener: Event => Unit) extends Client {
     listener(GeneratedEvent(source, module, name))
   }
 
-  def isCanceled = false
+  def isCanceled = canceled
 }
