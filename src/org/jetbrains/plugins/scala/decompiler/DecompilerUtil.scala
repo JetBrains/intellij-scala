@@ -178,7 +178,7 @@ object DecompilerUtil {
       DecompilationResult(true, sourceFileName, sourceText, file.getTimeStamp)
     } catch {
       case t: Throwable =>
-        LOG.info(t)
+        LOG.info(s"Error during decompiling ${file.getName}: ${t.getMessage}", t)
         DecompilationResult(false, "", "", file.getTimeStamp)
     }
   }
