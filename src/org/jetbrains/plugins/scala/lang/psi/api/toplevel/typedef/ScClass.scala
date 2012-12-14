@@ -9,7 +9,7 @@ import base.ScPrimaryConstructor
 import impl.ScalaPsiElementFactory
 import lexer.ScalaTokenTypes
 import com.intellij.psi.PsiElement
-import statements.params.ScParameters
+import statements.params.{ScParameterClause, ScParameters}
 import statements.{ScFunction, ScFunctionDefinition, ScParameterOwner}
 import caches.CachesUtil
 import com.intellij.psi.util.PsiModificationTracker
@@ -49,18 +49,21 @@ trait ScClass extends ScTypeDefinition with ScParameterOwner {
           new CachesUtil.MyProvider[ScClass, Option[ScObject]](this, (clazz: ScClass) => {
             val texts = clazz.getSyntheticMethodsText
 
-            // TODO SCL-3081
-            //        val extendsText = {
-            //          val clause: Option[ScParameterClause] = clauses.flatMap(_.clauses.take(1).headOption)
-            //          (clause, typeParameters) match {
-            //            case (Some(clause), Seq()) =>
-            //               " extends Function" + clause.paramTypes.length + "[" + clause.paramTypes.map(_.canonicalText).mkString(", ") + ", " + getQualifiedName + "]"
-            //            case _ => ""
-            //          }
-            //
-            //        }
+            val extendsText = {
+              try {
+                val typeElementText =
+                  constructor.get.effectiveParameterClauses.map {
+                    clause =>
+                      clause.parameters.map(_.typeElement.map(_.getText).getOrElse("Nothing")).mkString("(", ", ", ")")
+                  }.mkString("(", " => ", s" => $name)")
+                val typeElement = ScalaPsiElementFactory.createTypeElementFromText(typeElementText, getManager)
+                s" extends ${typeElement.getText}"
+              } catch {
+                case e: Exception => ""
+              }
+            }
             val accessModifier = clazz.getModifierList.accessModifier.map(_.modifierFormattedText + " ").getOrElse("")
-            val objText = accessModifier + "object " + clazz.name + "{\n  " + texts._1 + "\n  " + texts._2 + "\n" + "}"
+            val objText = accessModifier + "object " + clazz.name + extendsText + "{\n  " + texts._1 + "\n  " + texts._2 + "\n" + "}"
             val next = ScalaPsiUtil.getNextStubOrPsiElement(clazz)
             val obj: ScObject =
               ScalaPsiElementFactory.createObjectWithContext(objText, clazz.getParent, if (next != null) next else clazz)

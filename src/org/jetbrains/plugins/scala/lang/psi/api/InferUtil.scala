@@ -76,6 +76,11 @@ object InferUtil {
                   if (fun.parameters.length == 0 || fun.paramClauses.clauses.apply(0).isImplicit) {
                     subst.subst(fun.getType(TypingContext.empty).get) match {
                       case ScFunctionType(ret, _) => ret
+                      case p: ScParameterizedType =>
+                        p.getFunctionType match {
+                          case Some(ScFunctionType(ret, _)) => ret
+                          case _ => p
+                        }
                       case other => other
                     }
                   }

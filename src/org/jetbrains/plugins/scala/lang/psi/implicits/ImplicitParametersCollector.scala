@@ -211,8 +211,8 @@ class ImplicitParametersCollector(place: PsiElement, tp: ScType, searchImplicits
                     val substedFunType: ScType = subst.subst(funType)
                     if (substedFunType conforms tp) checkType(substedFunType)
                     else {
-                      substedFunType match {
-                        case ScFunctionType(ret, params) if params.length == 0 =>
+                      ScType.extractFunctionType(substedFunType) match {
+                        case Some(ScFunctionType(ret, params)) if params.length == 0 =>
                           if (!ret.conforms(tp)) None
                           else checkType(ret)
                         case _ => None
