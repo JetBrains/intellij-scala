@@ -8,6 +8,7 @@ import com.intellij.util.Processor
 import org.jetbrains.jps.ModuleChunk
 import org.jetbrains.jps.builders.{FileProcessor, BuildRootDescriptor, BuildTarget, DirtyFilesHolder}
 import org.jetbrains.jps.builders.java.JavaSourceRootDescriptor
+import org.jetbrains.jps.builders.impl.TargetOutputIndexImpl
 import org.jetbrains.jps.incremental._
 import messages.BuildMessage.Kind
 import org.jetbrains.jps.incremental.messages.CompilerMessage
@@ -30,6 +31,34 @@ class ScalaBuilder extends ModuleLevelBuilder(BuilderCategory.TRANSLATOR) {
   def build(context: CompileContext, chunk: ModuleChunk,
             dirtyFilesHolder: DirtyFilesHolder[JavaSourceRootDescriptor, ModuleBuildTarget],
             outputConsumer: OutputConsumer): ModuleLevelBuilder.ExitCode = {
+
+    val representativeTarget = chunk.representativeTarget()
+
+    val timestamps = new TargetTimestamps(context)
+
+    val targetTimestamp = timestamps.get(representativeTarget)
+
+    val hasDirtyDependencies = {
+      val dependencies = ScalaBuilder.moduleDependenciesIn(context, representativeTarget)
+
+      targetTimestamp.map { thisTimestamp =>
+        dependencies.exists { dependency =>
+          val thatTimestamp = timestamps.get(dependency)
+          thatTimestamp.map(_ > thisTimestamp).getOrElse(true)
+        }
+      } getOrElse {
+        dependencies.nonEmpty
+      }
+    }
+
+    if (!hasDirtyDependencies && !ScalaBuilder.hasDirtyFiles(dirtyFilesHolder) && !dirtyFilesHolder.hasRemovedFiles) {
+      if (targetTimestamp.isEmpty) {
+        timestamps.set(representativeTarget, context.getCompilationStartStamp)
+      }
+      return ExitCode.NOTHING_DONE
+    }
+
+    timestamps.set(representativeTarget, context.getCompilationStartStamp)
 
     context.processMessage(new ProgressMessage("Searching for compilable files..."))
     val filesToCompile = ScalaBuilder.collectCompilableFiles(chunk)
@@ -116,11 +145,8 @@ object ScalaBuilder {
   private def collectCompilableFiles(chunk: ModuleChunk): Map[File, BuildTarget[_ <: BuildRootDescriptor]] = {
     var result = Map[File, BuildTarget[_ <: BuildRootDescriptor]]()
 
-    for (target <- chunk.getTargets.asScala;
-         rootType = if (target.isTests) JavaSourceRootType.TEST_SOURCE else JavaSourceRootType.SOURCE;
-         root <- target.getModule.getSourceRoots(rootType).asScala) {
-
-      FileUtil.processFilesRecursively(root.getFile, new Processor[File] {
+    for (target <- chunk.getTargets.asScala; root <- sourceRootsIn(target)) {
+      FileUtil.processFilesRecursively(root, new Processor[File] {
         def process(file: File) = {
           val path = file.getPath
           if (path.endsWith(".scala") || path.endsWith(".java")) {
@@ -132,6 +158,26 @@ object ScalaBuilder {
     }
 
     result
+  }
+
+  private def sourceRootsIn(target:  ModuleBuildTarget): Seq[File] = {
+    val roots = {
+      val rootType = if (target.isTests) JavaSourceRootType.TEST_SOURCE else JavaSourceRootType.SOURCE;
+      target.getModule.getSourceRoots(rootType).asScala
+    }
+    roots.map(_.getFile).toSeq
+  }
+
+  private def moduleDependenciesIn(context: CompileContext, target: ModuleBuildTarget): Seq[ModuleBuildTarget] = {
+    val dependencies = {
+      val targetOutputIndex = {
+        val targets = context.getProjectDescriptor.getBuildTargetIndex.getAllTargets
+        new TargetOutputIndexImpl(targets, context)
+      }
+      target.computeDependencies(context.getProjectDescriptor.getBuildTargetIndex, targetOutputIndex).asScala
+    }
+
+    dependencies.filter(_.isInstanceOf[ModuleBuildTarget]).map(_.asInstanceOf[ModuleBuildTarget]).toSeq
   }
 }
 
