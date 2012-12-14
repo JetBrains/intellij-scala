@@ -174,7 +174,7 @@ object ScalaExtractMethodUtils {
                         case ref: ScReferenceElement if ref.refName == "apply" => tail()
                         case call: ScMethodCall => tail()
                         case _ => {
-                          ref.asInstanceOf[ScExpression].expectedType() match {
+                          ref.asInstanceOf[ScExpression].expectedType().flatMap(ScType.extractFunctionType) match {
                             case Some(ScFunctionType(_, params)) if params.length == 0 => tail()
                             case _ => {
                               //we need to replace by method call

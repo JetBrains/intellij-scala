@@ -211,8 +211,8 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
                 if (!fromUnderscore) {
                   updateRes(expected)
                 } else {
-                  expected match {
-                    case ScFunctionType(retType, _) => updateRes(retType)
+                  ScType.extractFunctionType(expected) match {
+                    case Some(ScFunctionType(retType, _)) => updateRes(retType)
                     case _ => //do not update res, we haven't expected type
                   }
                 }
@@ -432,7 +432,7 @@ object ScSimpleTypeElementImpl {
             }
             Success(new ScProjectionType(ScThisType(template), resolvedElement, subst, true), Some(ref))
           }
-          case None => {
+          case _ => {
             resolvedElement match {
               case self: ScSelfTypeElement =>
                 val td = PsiTreeUtil.getContextOfType(self, true, classOf[ScTemplateDefinition])
