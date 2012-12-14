@@ -155,6 +155,10 @@ private class ClientCallback(client: Client) extends AnalysisCallback {
   def binaryDependency(binary: File, name: String, source: File) {}
 
   def generatedClass(source: File, module: File, name: String) {
+    // TODO remove this assertion later
+    if (!module.exists) {
+      client.error("Generated class file does not exist: " + module)
+    }
     client.progress("Generated " + module.getName)
     client.generated(source, module, name)
   }
