@@ -96,6 +96,8 @@ class ScExtendsBlockImpl extends ScalaStubBasedElementImpl[ScExtendsBlock] with 
     if (isUnderCaseClass) {
       val prod = scalaProduct
       if (prod != null) buffer += prod
+      val ser = scalaSerializable
+      if (ser != null) buffer += ser
     }
     if (!isScalaObject) {
       val obj = scalaObject
@@ -138,6 +140,8 @@ class ScExtendsBlockImpl extends ScalaStubBasedElementImpl[ScExtendsBlock] with 
     if (isUnderCaseClass) {
       val prod = scalaProductClass
       if (prod != null) buffer += prod
+      val ser = scalaSerializableClass
+      if (ser != null) buffer += ser
     }
     if (!isScalaObject) {
       val obj = scalaObjectClass
@@ -168,6 +172,9 @@ class ScExtendsBlockImpl extends ScalaStubBasedElementImpl[ScExtendsBlock] with 
   private def scalaProductClass: PsiClass =
     ScalaPsiManager.instance(getProject).getCachedClass(getResolveScope, "scala.Product")
 
+  private def scalaSerializableClass: PsiClass =
+    ScalaPsiManager.instance(getProject).getCachedClass(getResolveScope, "scala.Serializable")
+
   private def scalaObjectClass: PsiClass =
     ScalaPsiManager.instance(getProject).getCachedClass(getResolveScope, "scala.ScalaObject")
 
@@ -176,6 +183,11 @@ class ScExtendsBlockImpl extends ScalaStubBasedElementImpl[ScExtendsBlock] with 
 
   private def scalaProduct: ScType = {
     val sp = scalaProductClass
+    if (sp != null) ScType.designator(sp) else null
+  }
+
+  private def scalaSerializable: ScType = {
+    val sp = scalaSerializableClass
     if (sp != null) ScType.designator(sp) else null
   }
 
@@ -239,7 +251,10 @@ class ScExtendsBlockImpl extends ScalaStubBasedElementImpl[ScExtendsBlock] with 
 
         res += "Object"
         res += "ScalaObject"
-        if (isUnderCaseClass) res += "Product"
+        if (isUnderCaseClass) {
+          res += "Product"
+          res += "Serializable"
+        }
         res.toSeq
       }
     }
