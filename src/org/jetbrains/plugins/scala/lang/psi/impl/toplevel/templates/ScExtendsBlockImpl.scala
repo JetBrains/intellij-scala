@@ -28,6 +28,8 @@ import synthetic.ScSyntheticClass
 import psi.types.ScDesignatorType
 import scala.Some
 import psi.types.ScCompoundType
+import com.intellij.psi.stubs.StubElement
+import annotation.tailrec
 
 /**
  * @author AlexanderPodkhalyuzin
@@ -41,16 +43,40 @@ class ScExtendsBlockImpl extends ScalaStubBasedElementImpl[ScExtendsBlock] with 
   override def toString: String = "ExtendsBlock"
 
   def templateBody: Option[ScTemplateBody] = {
-    val stub = getStub
-    if (stub != null) {
-      val templ = stub.findChildStubByType(ScalaElementTypes.TEMPLATE_BODY)
-      if (templ == null) None else Some(templ.getPsi)
-    } else {
-      getLastChild match {
-        case tb: ScTemplateBody => Some(tb)
+    // Co/Contravariance + Implicit conversions would be useful here
+
+    def firstChild(stub:StubElement[ScExtendsBlock]):Option[ScTemplateBody] = {
+      Some(stub.findChildStubByType(ScalaElementTypes.TEMPLATE_BODY)) match {
+        case Some(template) => Some(template.getPsi)
         case _ => None
       }
     }
+
+    def lastChild: Option[ScTemplateBody] = {
+      getLastChild match {
+        case childTemplateBody: ScTemplateBody => Some(childTemplateBody)
+        case _ => None
+      }
+    }
+
+    Some(getStub) match {
+      case Some(stub) => firstChild(stub)
+      case _ => lastChild
+    }
+
+    //    The above is below flattened, and could be better if there were
+    //    Co/Contravariance + Implicit conversions as there is a much
+    //    matching/partials going on in both.
+    //    Some(getStub) match {
+    //      case Some(stub) => Some(stub.findChildStubByType(ScalaElementTypes.TEMPLATE_BODY)) {
+    //        case template => template.getPsi
+    //        case _ => None
+    //      }
+    //      case _ => Some(getLastChild) match {
+    //        case childTemplateBody: ScTemplateBody => Some(childTemplateBody)
+    //        case _ => None
+    //      }
+    //    }
   }
 
   def empty = getNode.getFirstChildNode == null
@@ -225,6 +251,7 @@ class ScExtendsBlockImpl extends ScalaStubBasedElementImpl[ScExtendsBlock] with 
         val res = new ArrayBuffer[String]
         val pars = parents.typeElements
 
+        @tailrec
         def process(te: ScTypeElement) {
           te match {
             case s: ScSimpleTypeElement =>
