@@ -13,6 +13,7 @@ import org.jetbrains.plugins.scala.extensions.toSeqExt
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTrait
 import com.intellij.openapi.util.Key
+import org.jetbrains.plugins.scala.lang.languageLevel.ScalaLanguageLevel
 
 /**
  * Pavel Fatin, Alexander Podkhalyuzin.
@@ -170,7 +171,15 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
       def tail: ScType = {
         setApplicabilityProblemsVar(c._2)
         setMatchedParametersVar(c._3)
-        c._1
+        val dependentSubst = new ScSubstitutor(() => {
+          val level = ScalaLanguageLevel.getLanguageLevel(this)
+          if (level.isThoughScala2_10) {
+            c._3.map {
+              case (param: Parameter, expr: ScExpression) => (param, expr.getType(TypingContext.empty).getOrAny)
+            }.toMap
+          } else Map.empty
+        })
+        dependentSubst.subst(c._1)
       }
       if (!c._2.isEmpty) {
         ScalaPsiUtil.tuplizy(exprs, getResolveScope, getManager).map {e =>
@@ -179,7 +188,15 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
           else {
             setApplicabilityProblemsVar(cd._2)
             setMatchedParametersVar(cd._3)
-            cd._1
+            val dependentSubst = new ScSubstitutor(() => {
+              val level = ScalaLanguageLevel.getLanguageLevel(this)
+              if (level.isThoughScala2_10) {
+                cd._3.map {
+                  case (param: Parameter, expr: ScExpression) => (param, expr.getType(TypingContext.empty).getOrAny)
+                }.toMap
+              } else Map.empty
+            })
+            dependentSubst.subst(cd._1)
           }
         }.getOrElse(tail)
       } else tail
@@ -252,7 +269,7 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
     putUserData(MethodInvocation.APPLICABILITY_PROBLEMS_VAR_KEY, (modCount, seq))
   }
 
-  def setMatchedParametersVar(seq: Seq[(Parameter, ScExpression)]) {
+  private def setMatchedParametersVar(seq: Seq[(Parameter, ScExpression)]) {
     val modCount: Long = getManager.getModificationTracker.getModificationCount
     matchedParametersCache = null
     putUserData(MethodInvocation.MATCHED_PARAMETERS_VAR_KEY, (modCount, seq))

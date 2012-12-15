@@ -18,6 +18,7 @@ import toplevel.typedef.ScObject
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.extensions.toPsiClassExt
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.languageLevel.ScalaLanguageLevel
 
 /**
  * @author Alexander Podkhalyuzin
@@ -115,6 +116,16 @@ object InferUtil {
         }
         implicitParameters = Some(resolveResults.toSeq)
         resInner = ScalaPsiUtil.localTypeInference(retType, paramsForInfer, exprs, typeParams, safeCheck = check)
+        val dependentSubst = new ScSubstitutor(() => {
+          val level = ScalaLanguageLevel.getLanguageLevel(element)
+          if (level.isThoughScala2_10) {
+            paramsForInfer.zip(exprs).map {
+              case (param: Parameter, expr: Expression) => (param, expr.getTypeAfterImplicitConversion(checkImplicits = true,
+                isShape = false, Some(param.expectedType))._1.getOrAny)
+            }.toMap
+          } else Map.empty
+        })
+        resInner = dependentSubst.subst(resInner)
       }
       case mt@ScMethodType(retType, params, isImplicit) if !isImplicit =>
         // See SCL-3516
@@ -123,6 +134,8 @@ object InferUtil {
         resInner = mt.copy(returnType = updatedType)(mt.project, mt.scope)
       case ScMethodType(retType, params, isImplicit) if isImplicit => {
         val resolveResults = new ArrayBuffer[ScalaResolveResult]
+        val exprs = new ArrayBuffer[Expression]
+        val paramsForInfer = new ArrayBuffer[Parameter]()
         val iterator = params.iterator
         while (iterator.hasNext) {
           val param = iterator.next()
@@ -131,6 +144,33 @@ object InferUtil {
           val results = collector.collect
           if (results.length == 1) {
             resolveResults += results(0)
+            results(0) match {
+              case ScalaResolveResult(o: ScObject, subst) =>
+                exprs += new Expression(subst.subst(o.getType(TypingContext.empty).get))
+              case ScalaResolveResult(param: ScParameter, subst) =>
+                exprs += new Expression(subst.subst(param.getType(TypingContext.empty).get))
+              case ScalaResolveResult(patt: ScBindingPattern, subst) => {
+                exprs += new Expression(subst.subst(patt.getType(TypingContext.empty).get))
+              }
+              case ScalaResolveResult(fun: ScFunction, subst) => {
+                val funType = {
+                  if (fun.parameters.length == 0 || fun.paramClauses.clauses.apply(0).isImplicit) {
+                    subst.subst(fun.getType(TypingContext.empty).get) match {
+                      case ScFunctionType(ret, _) => ret
+                      case p: ScParameterizedType =>
+                        p.getFunctionType match {
+                          case Some(ScFunctionType(ret, _)) => ret
+                          case _ => p
+                        }
+                      case other => other
+                    }
+                  }
+                  else subst.subst(fun.getType(TypingContext.empty).get)
+                }
+                exprs += new Expression(funType)
+              }
+            }
+            paramsForInfer += param
           } else {
             //check if it's ClassManifest parameter:
             paramType match {
@@ -153,6 +193,16 @@ object InferUtil {
         }
         implicitParameters = Some(resolveResults.toSeq)
         resInner = retType
+        val dependentSubst = new ScSubstitutor(() => {
+          val level = ScalaLanguageLevel.getLanguageLevel(element)
+          if (level.isThoughScala2_10) {
+            paramsForInfer.zip(exprs).map {
+              case (param: Parameter, expr: Expression) => (param, expr.getTypeAfterImplicitConversion(checkImplicits = true,
+                isShape = false, Some(param.expectedType))._1.getOrAny)
+            }.toMap
+          } else Map.empty
+        })
+        resInner = dependentSubst.subst(resInner)
       }
       case _ =>
     }
@@ -160,7 +210,7 @@ object InferUtil {
   }
 
   /**
-   * Util method to update type accoding to expected type
+   * Util method to update type according to expected type
    * @param _nonValueType type, to update it should be PolymorphicType(MethodType)
    * @param fromImplicitParameters we shouldn't update if it's anonymous function
    *                               also we can update just for simple type without function
@@ -180,7 +230,7 @@ object InferUtil {
         def updateRes(expected: ScType) {
           if (expected.equiv(Unit)) return //do not update according to Unit type
           val innerInternal = internal match {
-            case ScMethodType(innerInternal, _, innerImpl) if innerImpl && !fromImplicitParameters => innerInternal
+            case ScMethodType(inter, _, innerImpl) if innerImpl && !fromImplicitParameters => inter
             case _ => internal
           }
           val update: ScTypePolymorphicType = ScalaPsiUtil.localTypeInference(m,
