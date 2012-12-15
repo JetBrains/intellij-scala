@@ -5,12 +5,13 @@ package types
 
 import com.intellij.openapi.util.Key
 import java.lang.String
-import nonvalue.{TypeParameter, ScTypePolymorphicType, ScMethodType}
+import nonvalue.{Parameter, TypeParameter, ScTypePolymorphicType, ScMethodType}
 import com.intellij.psi._
 import api.toplevel.ScTypedDefinition
 import result.TypingContext
 import api.toplevel.typedef.ScTypeDefinition
 import collection.immutable.{HashSet, HashMap, Map}
+import api.statements.params.ScParameter
 
 /**
 * @author ven
@@ -38,6 +39,20 @@ class ScSubstitutor(val tvMap: Map[(String, String), ScType],
                     follower: ScSubstitutor) = {
     this(tvMap, aliasesMap, updateThisType)
     this.follower = follower
+  }
+
+  private var myDependentMethodTypesFun: () => Map[Parameter, ScType] = () => Map.empty
+  private var myDependentMethodTypes: Map[Parameter, ScType] = null
+  private def getDependentMethodTypes: Map[Parameter, ScType] = {
+    if (myDependentMethodTypes == null) {
+      myDependentMethodTypes = myDependentMethodTypesFun()
+    }
+    myDependentMethodTypes
+  }
+
+  def this(dependentMethodTypes: () => Map[Parameter, ScType]) {
+    this()
+    myDependentMethodTypesFun= dependentMethodTypes
   }
 
   private var follower: ScSubstitutor = null
@@ -280,11 +295,21 @@ class ScSubstitutor(val tvMap: Map[(String, String), ScType],
         val trunc = aliasesMap -- ex.boundNames
         new ScExistentialType(new ScSubstitutor(tvMap, trunc, updateThisType, follower).substInternal(q), wildcards)
       }
-      case comp@ScCompoundType(comps, decls, typeDecls, substitutor) => {
+      case comp@ScCompoundType(comps, decls, typeDecls, substitutor) =>
         ScCompoundType(comps.map(substInternal(_)), decls, typeDecls, substitutor.followed(
           new ScSubstitutor(tvMap, aliasesMap, updateThisType)
         ))
-      }
+      case ScDesignatorType(param: ScParameter) if !getDependentMethodTypes.isEmpty =>
+        getDependentMethodTypes.find {
+          case (parameter: Parameter, tp: ScType) =>
+            parameter.paramInCode match {
+              case Some(p) if p == param => true
+              case _ => false
+            }
+        } match {
+          case Some((_, res)) => res
+          case _ => t
+        }
       case _ => t
     }
   }
