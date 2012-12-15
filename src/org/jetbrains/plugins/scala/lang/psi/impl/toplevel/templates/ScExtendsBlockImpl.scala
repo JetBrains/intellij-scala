@@ -43,10 +43,8 @@ class ScExtendsBlockImpl extends ScalaStubBasedElementImpl[ScExtendsBlock] with 
   override def toString: String = "ExtendsBlock"
 
   def templateBody: Option[ScTemplateBody] = {
-    // Co/Contravariance + Implicit conversions would be useful here
-
     def firstChild(stub:StubElement[ScExtendsBlock]):Option[ScTemplateBody] = {
-      Some(stub.findChildStubByType(ScalaElementTypes.TEMPLATE_BODY)) match {
+      Option(stub.findChildStubByType(ScalaElementTypes.TEMPLATE_BODY)) match {
         case Some(template) => Some(template.getPsi)
         case _ => None
       }
@@ -59,24 +57,10 @@ class ScExtendsBlockImpl extends ScalaStubBasedElementImpl[ScExtendsBlock] with 
       }
     }
 
-    Some(getStub) match {
+    Option(getStub) match {
       case Some(stub) => firstChild(stub)
       case _ => lastChild
     }
-
-    //    The above is below flattened, and could be better if there were
-    //    Co/Contravariance + Implicit conversions as there is a much
-    //    matching/partials going on in both.
-    //    Some(getStub) match {
-    //      case Some(stub) => Some(stub.findChildStubByType(ScalaElementTypes.TEMPLATE_BODY)) {
-    //        case template => template.getPsi
-    //        case _ => None
-    //      }
-    //      case _ => Some(getLastChild) match {
-    //        case childTemplateBody: ScTemplateBody => Some(childTemplateBody)
-    //        case _ => None
-    //      }
-    //    }
   }
 
   def empty = getNode.getFirstChildNode == null
