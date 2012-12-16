@@ -14,7 +14,6 @@ import com.intellij.psi.{PsiElement, PsiClass}
 import parser.ScalaElementTypes
 import api.toplevel.templates._
 import psi.types._
-import _root_.scala.collection.mutable.ArrayBuffer
 import result.{TypingContext, Success}
 import stubs.ScExtendsBlockStub
 import api.toplevel.typedef._
@@ -229,44 +228,46 @@ class ScExtendsBlockImpl extends ScalaStubBasedElementImpl[ScExtendsBlock] with 
   }
 
   def directSupersNames: Seq[String] = {
+    @tailrec
+    def process(te: ScTypeElement, acc:Vector[String]): Vector[String] = {
+      te match {
+        case simpleType: ScSimpleTypeElement =>
+          simpleType.reference match {
+            case Some(ref) => acc :+ ref.refName
+            case _ => acc
+          }
+        case infixType: ScInfixTypeElement =>
+          acc :+ infixType.ref.refName
+        case x: ScParameterizedTypeElement =>
+          x.typeElement match {
+            case scType: ScTypeElement => process(scType, acc)
+            case _ => acc
+          }
+        case x: ScParenthesisedTypeElement =>
+          x.typeElement match {
+            case Some(typeElement) => process(typeElement, acc)
+            case None => acc
+          }
+        case _ => acc
+      }
+    }
+
+    def default(res:Seq[String]): Seq[String] =
+      res ++ Seq[String]("Object", "ScalaObject")
+
+    def productSerializable(res:Seq[String])(underCaseClass:Boolean): Seq[String] =
+      if (underCaseClass)
+        res ++ Seq[String]("Product", "Serializable")
+      else res
+
+    def search = productSerializable _ compose default _
+
     templateParents match {
       case None => Seq.empty
       case Some(parents) => {
-        val res = new ArrayBuffer[String]
-        val pars = parents.typeElements
-
-        @tailrec
-        def process(te: ScTypeElement) {
-          te match {
-            case s: ScSimpleTypeElement =>
-              s.reference match {
-                case Some(ref) => res += ref.refName
-                case _ =>
-              }
-            case x: ScInfixTypeElement =>
-              res += x.ref.refName
-            case x: ScParameterizedTypeElement =>
-              x.typeElement match {
-                case s: ScTypeElement => process(s)
-                case _ =>
-              }
-            case x: ScParenthesisedTypeElement =>
-              x.typeElement match {
-                case Some(te) => process(te)
-                case None =>
-              }
-            case _ =>
-          }
-        }
-        pars.foreach(process)
-
-        res += "Object"
-        res += "ScalaObject"
-        if (isUnderCaseClass) {
-          res += "Product"
-          res += "Serializable"
-        }
-        res.toSeq
+        val parentElements:Seq[ScTypeElement] = parents.typeElements.toIndexedSeq
+        val results:Seq[String] = parentElements flatMap( process(_, Vector[String]()) )
+        search(results)(isUnderCaseClass).toBuffer
       }
     }
   }
