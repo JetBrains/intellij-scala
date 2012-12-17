@@ -36,11 +36,6 @@ public class ScalacConfigurable implements Configurable {
   private JPanel myServerPanel;
   private JPanel myClientPanel;
   private JTextField myIdleTimeout;
-  private JCheckBox myRunCompilationServer;
-  private JTextField myCompilationServerPort;
-  private RawCommandLineEditor myCompilationServerJvmParameters;
-  private JPanel myCompilationServerPanel;
-  private JTextField myCompilationServerMaximumHeapSize;
   private ScalacSettings mySettings;
   private Project myProject;
   private final LibraryRenderer myLibraryRenderer;
@@ -54,12 +49,6 @@ public class ScalacConfigurable implements Configurable {
     myRunInternalServerRadioButton.addChangeListener(new ChangeListener() {
       public void stateChanged(ChangeEvent e) {
         updateFscServerSettingsPanel();
-      }
-    });
-
-    myRunCompilationServer.addChangeListener(new ChangeListener() {
-      public void stateChanged(ChangeEvent e) {
-        updateCompilationServerSettingsPanel();
       }
     });
 
@@ -91,10 +80,6 @@ public class ScalacConfigurable implements Configurable {
     boolean b = myRunInternalServerRadioButton.isSelected();
     setDescendantsEnabledIn(myServerPanel, b);
     setDescendantsEnabledIn(myClientPanel, !b);
-  }
-
-  private void updateCompilationServerSettingsPanel() {
-    setDescendantsEnabledIn(myCompilationServerPanel, myRunCompilationServer.isSelected());
   }
 
   private static void setDescendantsEnabledIn(JComponent root, boolean b) {
@@ -177,11 +162,6 @@ public class ScalacConfigurable implements Configurable {
     if (!mySettings.REMOTE_PORT.equals(myRemotePort.getText())) return true;
     if (!mySettings.SHARED_DIRECTORY.equals(mySharedDirectory.getText())) return true;
 
-    if (mySettings.COMPILE_SERVER_ENABLED != myRunCompilationServer.isSelected()) return true;
-    if (!mySettings.COMPILE_SERVER_PORT.equals(myCompilationServerPort.getText())) return true;
-    if (!mySettings.COMPILE_SERVER_MAXIMUM_HEAP_SIZE.equals(myCompilationServerMaximumHeapSize.getText())) return true;
-    if (!mySettings.COMPILE_SERVER_JVM_PARAMETERS.equals(myCompilationServerJvmParameters.getText())) return true;
-
     return false;
   }
 
@@ -214,16 +194,6 @@ public class ScalacConfigurable implements Configurable {
     }
 
     mySettings.SCALAC_BEFORE = scalacBeforeRadioButton.isSelected();
-
-    mySettings.COMPILE_SERVER_ENABLED = myRunCompilationServer.isSelected();
-    mySettings.COMPILE_SERVER_PORT = myCompilationServerPort.getText();
-    mySettings.COMPILE_SERVER_MAXIMUM_HEAP_SIZE = myCompilationServerMaximumHeapSize.getText();
-    mySettings.COMPILE_SERVER_JVM_PARAMETERS = myCompilationServerJvmParameters.getText();
-
-    if (!externalCompiler || !myRunCompilationServer.isSelected()) {
-      myProject.getComponent(CompileServerLauncher.class).stop();
-    }
-    myProject.getComponent(CompileServerManager.class).configureWidget();
   }
 
   public void reset() {
@@ -240,13 +210,7 @@ public class ScalacConfigurable implements Configurable {
     myRemotePort.setText(mySettings.REMOTE_PORT);
     mySharedDirectory.setText(mySettings.SHARED_DIRECTORY);
 
-    myRunCompilationServer.setSelected(mySettings.COMPILE_SERVER_ENABLED);
-    myCompilationServerPort.setText(mySettings.COMPILE_SERVER_PORT);
-    myCompilationServerMaximumHeapSize.setText(mySettings.COMPILE_SERVER_MAXIMUM_HEAP_SIZE);
-    myCompilationServerJvmParameters.setText(mySettings.COMPILE_SERVER_JVM_PARAMETERS);
-
     updateFscServerSettingsPanel();
-    updateCompilationServerSettingsPanel();
   }
 
   public void disposeUIResources() {

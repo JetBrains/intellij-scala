@@ -1,20 +1,20 @@
 package org.jetbrains.plugins.scala
 package compiler
 
-import com.intellij.openapi.project.Project
-import com.intellij.openapi.roots.ProjectRootManager
-import com.intellij.openapi.components.ProjectComponent
+import com.intellij.openapi.components.ApplicationComponent
 import com.intellij.openapi.projectRoots.JavaSdkType
 import collection.JavaConverters._
 import com.intellij.util.PathUtil
 import java.io.File
 import com.intellij.openapi.application.ApplicationManager
 import extensions._
+import com.intellij.openapi.project.Project
+import com.intellij.openapi.roots.ProjectRootManager
 
 /**
  * @author Pavel Fatin
  */
-class CompileServerLauncher(project: Project) extends ProjectComponent {
+class CompileServerLauncher extends ApplicationComponent {
    private var instance: Option[Process] = None
 
    private val watcher = new ProcesWatcher()
@@ -30,12 +30,12 @@ class CompileServerLauncher(project: Project) extends ProjectComponent {
      watcher.stop()
    }
 
-   def init() {
-     if (!running) start()
+   def init(project: Project) {
+     if (!running) start(project)
    }
 
-   private def start() {
-     val settings = ScalacSettings.getInstance(project)
+   private def start(project: Project) {
+     val settings = ScalaApplicationSettings.getInstance
 
      val jvmParameters = {
 
@@ -97,3 +97,7 @@ class CompileServerLauncher(project: Project) extends ProjectComponent {
 
    def getComponentName = getClass.getSimpleName
  }
+
+object CompileServerLauncher {
+  def instance = ApplicationManager.getApplication.getComponent(classOf[CompileServerLauncher])
+}

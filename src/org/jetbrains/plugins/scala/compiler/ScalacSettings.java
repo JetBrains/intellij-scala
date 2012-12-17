@@ -32,11 +32,6 @@ public class ScalacSettings implements PersistentStateComponent<ScalacSettings> 
   public String REMOTE_PORT = "";
   public String SHARED_DIRECTORY = "";
 
-  public boolean COMPILE_SERVER_ENABLED = true;
-  public String COMPILE_SERVER_PORT = "3200";
-  public String COMPILE_SERVER_MAXIMUM_HEAP_SIZE = "1408";
-  public String COMPILE_SERVER_JVM_PARAMETERS = "-server -Xss1m -XX:MaxPermSize=256m";
-
   public ScalacSettings getState() {
     return this;
   }
