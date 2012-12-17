@@ -85,8 +85,7 @@ class ScalaBuilder extends ModuleLevelBuilder(BuilderCategory.TRANSLATOR) {
 
     val client = {
       val modules = chunk.getModules.asScala.map(_.getName).toSeq
-      val compilerName = if (sources.exists(_.getName.endsWith(".scala"))) "scala" else "java"
-      new IdeClient(compilerName, context, modules, outputConsumer, filesToCompile.get)
+      new IdeClient("scala", context, modules, outputConsumer, filesToCompile.get)
     }
 
     client.progress("Reading compilation settings...")
