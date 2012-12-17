@@ -51,22 +51,7 @@ class ScalaBuilder extends ModuleLevelBuilder(BuilderCategory.TRANSLATOR) {
       }
     }
 
-    val chunkClasspath = {
-      val files = {
-        val paths = context.getProjectPaths
-        paths.getCompilationClasspathFiles(chunk, chunk.containsTests, false, false)
-      }
-      files.asScala.map(_.getCanonicalPath).toSet
-    }
-
-    val classpaths = new TargetClasspaths(context)
-
-    val targetClasspath = classpaths.get(representativeTarget)
-
-    val hasChangedClasspath = targetClasspath.map(_ != chunkClasspath).getOrElse(true)
-
-    if (!hasChangedClasspath &&
-            !hasDirtyDependencies &&
+    if (!hasDirtyDependencies &&
             !ScalaBuilder.hasDirtyFiles(dirtyFilesHolder) &&
             !dirtyFilesHolder.hasRemovedFiles) {
 
@@ -74,22 +59,11 @@ class ScalaBuilder extends ModuleLevelBuilder(BuilderCategory.TRANSLATOR) {
         timestamps.set(representativeTarget, context.getCompilationStartStamp)
       }
 
-      if (targetClasspath.isEmpty) {
-        classpaths.set(representativeTarget, chunkClasspath)
-      }
-
       ExitCode.NOTHING_DONE
     } else {
       timestamps.set(representativeTarget, context.getCompilationStartStamp)
 
-      val exitCode = doBuild(context, chunk, dirtyFilesHolder, outputConsumer)
-
-      exitCode match {
-        case ExitCode.ABORT => // don't update classpath
-        case _ => classpaths.set(representativeTarget, chunkClasspath)
-      }
-
-      exitCode
+      doBuild(context, chunk, dirtyFilesHolder, outputConsumer)
     }
   }
 
