@@ -8,6 +8,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScArgumentExprList
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import java.lang.String
+import org.jetbrains.plugins.scala.util.IntentionAvailabilityChecker
 
 /**
  * Pavel Fatin
@@ -19,10 +20,10 @@ class ArgumentToBlockExpressionIntention extends PsiElementBaseIntentionAction {
   override def getText: String = getFamilyName
 
   def isAvailable(project: Project, editor: Editor, element: PsiElement) = {
-    element match {
+    IntentionAvailabilityChecker.check(this, element) && (element match {
       case Parent(list: ScArgumentExprList) if list.exprs.size == 1 => true
       case _ => false
-    }
+    })
   }
 
   override def invoke(project: Project, editor: Editor, element: PsiElement) {

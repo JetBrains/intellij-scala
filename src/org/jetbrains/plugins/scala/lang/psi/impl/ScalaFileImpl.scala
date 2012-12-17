@@ -4,10 +4,9 @@ package psi
 package impl
 
 
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import api.expr.ScExpression
 import api.statements.{ScFunction, ScValue, ScTypeAlias, ScVariable}
-import expr.ScReferenceExpressionImpl
-import lexer.ScalaTokenTypes
 import psi.stubs.ScFileStub
 import com.intellij.extapi.psi.PsiFileBase
 import org.jetbrains.plugins.scala.lang.psi.controlFlow.Instruction
@@ -17,42 +16,32 @@ import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import psi.api.toplevel.packaging._
 import com.intellij.openapi.roots._
 import com.intellij.psi._
-import com.intellij.psi.impl.migration.PsiMigrationManager
 import org.jetbrains.annotations.Nullable
 import api.toplevel.ScToplevelElement
-import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.vfs.VirtualFile
-import api.{ScControlFlowOwner, ScalaFile}
+import api.{FileDeclarationsHolder, ScControlFlowOwner, ScalaFile}
 import psi.controlFlow.impl.ScalaControlFlowBuilder
-import api.base.ScStableCodeReferenceElement
-import scope.PsiScopeProcessor
 import decompiler.{DecompilerUtil, CompiledFileAdjuster}
 import collection.mutable.ArrayBuffer
 import com.intellij.psi.search.GlobalSearchScope
 import config.ScalaFacet
 import com.intellij.openapi.util.{TextRange, Key}
-import caches.{ScalaShortNamesCacheManager, CachesUtil}
-import lang.resolve.ResolveUtils
-import lang.resolve.processor.{BaseProcessor, ImplicitProcessor, ResolveProcessor, ResolverEnv}
+import caches.CachesUtil
 import com.intellij.psi.impl.ResolveScopeManager
 import com.intellij.util.indexing.FileBasedIndex
-import toplevel.synthetic.SyntheticClasses
-import util.{PsiUtilCore, PsiModificationTracker, PsiTreeUtil}
+import util.{PsiUtilCore, PsiModificationTracker}
 import com.intellij.openapi.diagnostic.Logger
 import java.lang.String
-import api.toplevel.typedef.{ScTypeDefinition, ScClass, ScTrait, ScObject}
+import api.toplevel.typedef.{ScClass, ScTrait, ScObject}
 import java.util
 import com.intellij.openapi.editor.Document
 import extensions._
-import types.result.TypingContext
-import types.ScType
-import collection.mutable
 import com.intellij.psi.impl.source.codeStyle.CodeEditUtil
 import com.intellij.psi.impl.source.PostprocessReformattingAspect
 
 class ScalaFileImpl(viewProvider: FileViewProvider)
         extends PsiFileBase(viewProvider, ScalaFileType.SCALA_FILE_TYPE.getLanguage)
-                with ScalaFile with ScImportsHolder with ScDeclarationSequenceHolder
+                with ScalaFile with FileDeclarationsHolder 
                 with CompiledFileAdjuster with ScControlFlowOwner with FileResolveScopeProvider {
   override def getViewProvider = viewProvider
 
@@ -379,141 +368,7 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
 
   def icon = Icons.FILE_TYPE_LOGO
 
-  override def processDeclarations(processor: PsiScopeProcessor,
-                                   state: ResolveState,
-                                   lastParent: PsiElement,
-                                   place: PsiElement): Boolean = {
-    if (isScriptFile && !super[ScDeclarationSequenceHolder].processDeclarations(processor,
-      state, lastParent, place)) return false
-
-    if (!super[ScImportsHolder].processDeclarations(processor,
-      state, lastParent, place)) return false
-
-    if (context != null) {
-      return true
-    }
-
-    val scope = place.getResolveScope
-
-    place match {
-      case ref: ScStableCodeReferenceElement if ref.refName == "_root_" && ref.qualifier == None => {
-        val top = ScPackageImpl(JavaPsiFacade.getInstance(getProject).findPackage(""))
-        if (top != null && !processor.execute(top, state.put(ResolverEnv.nameKey, "_root_"))) return false
-        state.put(ResolverEnv.nameKey, null)
-      }
-      case ref: ScReferenceExpressionImpl if ref.refName == "_root_" && ref.qualifier == None => {
-        val top = ScPackageImpl(JavaPsiFacade.getInstance(getProject).findPackage(""))
-        if (top != null && !processor.execute(top, state.put(ResolverEnv.nameKey, "_root_"))) return false
-        state.put(ResolverEnv.nameKey, null)
-      }
-      case _ => {
-        val defaultPackage = ScPackageImpl(JavaPsiFacade.getInstance(getProject).findPackage(""))
-        if (place != null && PsiTreeUtil.getParentOfType(place, classOf[ScPackaging]) == null) {
-          if (defaultPackage != null &&
-            !ResolveUtils.packageProcessDeclarations(defaultPackage, processor, state, null, place)) return false
-        }
-        else if (defaultPackage != null && !processor.isInstanceOf[ImplicitProcessor]) { //we will add only packages
-          //only packages resolve, no classes from default package
-          val name = processor match {case rp: ResolveProcessor => rp.ScalaNameHint.getName(state) case _ => null}
-          val facade = JavaPsiFacade.getInstance(getProject).asInstanceOf[com.intellij.psi.impl.JavaPsiFacadeImpl]
-          if (name == null) {
-            val packages = defaultPackage.getSubPackages(scope)
-            val iterator = packages.iterator
-            while (iterator.hasNext) {
-              val pack = iterator.next()
-              if (!processor.execute(pack, state)) return false
-            }
-            val migration = PsiMigrationManager.getInstance(getProject).getCurrentMigration
-            if (migration != null) {
-              val list = migration.getMigrationPackages("")
-              val packages = list.toArray(new Array[PsiPackage](list.size)).map(ScPackageImpl(_))
-              val iterator = packages.iterator
-              while (iterator.hasNext) {
-                val pack = iterator.next()
-                if (!processor.execute(pack, state)) return false
-              }
-            }
-          } else {
-            val aPackage: PsiPackage = ScPackageImpl(facade.findPackage(name))
-            if (aPackage != null && !processor.execute(aPackage, state)) return false
-          }
-        }
-      }
-    }
-
-    if (!SbtFile.processDeclarations(this, processor, state, lastParent, place)) return false
-
-    if (isScriptFile) {
-      val syntheticValueIterator = SyntheticClasses.get(getProject).getScriptSyntheticValues.iterator
-      while (syntheticValueIterator.hasNext) {
-        val syntheticValue = syntheticValueIterator.next()
-        ProgressManager.checkCanceled()
-        if (!processor.execute(syntheticValue, state)) return false
-      }
-    }
-
-    val checkPredefinedClassesAndPackages = processor match {
-      case r: ResolveProcessor => r.checkPredefinedClassesAndPackages()
-      case _ => true
-    }
-
-    if (checkPredefinedClassesAndPackages) {
-      val attachedQualifiers = new mutable.HashSet[String]()
-      val implObjIter = ImplicitlyImported.allImplicitlyImportedObjects(getManager, scope).iterator
-      while (implObjIter.hasNext) {
-        val clazz = implObjIter.next()
-        if (!attachedQualifiers.contains(clazz.qualifiedName)) {
-          attachedQualifiers += clazz.qualifiedName
-          ProgressManager.checkCanceled()
-
-          clazz match {
-            case td: ScTypeDefinition if !isScalaPredefinedClass =>
-              var newState = state
-              td.getType(TypingContext.empty).foreach {
-                case tp: ScType => newState = state.put(BaseProcessor.FROM_TYPE_KEY, tp)
-              }
-              if (!clazz.processDeclarations(processor, newState, null, place)) return false
-            case _ =>
-          }
-        }
-      }
-
-
-      import toplevel.synthetic.SyntheticClasses
-      val scalaPack = ScPackageImpl.findPackage(getProject, "scala")
-      val namesSet =
-        if (scalaPack != null) ScalaShortNamesCacheManager.getInstance(getProject).getClassNames(scalaPack, scope)
-        else Set.empty[String]
-
-      def alreadyContains(className: String) = namesSet.contains(className)
-      val classes = SyntheticClasses.get(getProject)
-      val synthIterator = classes.getAll.iterator
-      while (synthIterator.hasNext) {
-        val synth = synthIterator.next()
-        ProgressManager.checkCanceled()
-        if (!alreadyContains(synth.getName) && !processor.execute(synth, state)) return false
-      }
-
-      val synthObjectsIterator = classes.syntheticObjects.iterator
-      while (synthObjectsIterator.hasNext) {
-        val synth = synthObjectsIterator.next()
-        ProgressManager.checkCanceled()
-        if (!alreadyContains(synth.name) && !processor.execute(synth, state)) return false
-      }
-
-      val implPIterator = ImplicitlyImported.packages.iterator
-      while (implPIterator.hasNext) {
-        val implP = implPIterator.next()
-        ProgressManager.checkCanceled()
-        val pack: PsiPackage = JavaPsiFacade.getInstance(getProject).findPackage(implP)
-        if (pack != null && !ResolveUtils.packageProcessDeclarations(pack, processor, state, null, place)) return false
-      }
-    }
-
-    true
-  }
-  
-  private def isScalaPredefinedClass = {
+  protected def isScalaPredefinedClass = {
     def inner(file: ScalaFile): java.lang.Boolean = {
       java.lang.Boolean.valueOf(file.typeDefinitions.length == 1 &&
         Set("scala", "scala.Predef").contains(file.typeDefinitions.apply(0).qualifiedName))

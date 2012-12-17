@@ -163,6 +163,19 @@ trait ResolvableReferenceExpression extends ScReferenceExpression {
           }
         }
         case ScalaResolveResult(fun: FakePsiMethod, subst: ScSubstitutor) => //todo: ?
+        case ScalaResolveResult(method: PsiMethod, subst) => 
+          assign.getContext match {
+            case args: ScArgumentExprList =>
+              args.getContext match {
+                case methodCall: ScMethodCall if methodCall.isNamedParametersEnabledEverywhere =>
+                  method.getParameterList.getParameters foreach {
+                    p => processor.execute(p, ResolveState.initial().put(ScSubstitutor.key, subst).
+                         put(CachesUtil.NAMED_PARAM_KEY, java.lang.Boolean.TRUE))
+                  }
+                case _ =>
+              }
+            case _ => 
+          }
         case _ =>
       }
       variant match {
