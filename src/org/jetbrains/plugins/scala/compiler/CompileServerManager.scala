@@ -76,14 +76,14 @@ class CompileServerManager(project: Project) extends ProjectComponent {
 
    private def applicable = running ||
            CompilerWorkspaceConfiguration.getInstance(project).USE_COMPILE_SERVER &&
-                   ScalacSettings.getInstance(project).COMPILE_SERVER_ENABLED &&
+                   ScalaApplicationSettings.getInstance.COMPILE_SERVER_ENABLED &&
                    ScalaFacet.isPresentIn(project)
 
    private def running = launcher.running
 
    private var installed = false
 
-   private def launcher = project.getComponent(classOf[CompileServerLauncher])
+   private def launcher = CompileServerLauncher.instance
 
    private def bar = WindowManager.getInstance.getStatusBar(project)
 
@@ -133,7 +133,7 @@ class CompileServerManager(project: Project) extends ProjectComponent {
      }
 
      def actionPerformed(e: AnActionEvent) {
-       launcher.init()
+       launcher.init(project)
      }
    }
 
@@ -185,3 +185,7 @@ class CompileServerManager(project: Project) extends ProjectComponent {
      }
    }
  }
+
+object CompileServerManager {
+  def instance(project: Project) = project.getComponent(classOf[CompileServerManager])
+}

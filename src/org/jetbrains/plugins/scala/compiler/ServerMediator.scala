@@ -23,15 +23,15 @@ class ServerMediator(project: Project) extends ProjectComponent {
           project.getComponent(classOf[FscServerLauncher]).stop()
           project.getComponent(classOf[FscServerManager]).removeWidget()
 
-          val projectSettings = ScalacSettings.getInstance(context.getProject)
+          val applicationSettings = ScalaApplicationSettings.getInstance()
 
-          if (projectSettings.COMPILE_SERVER_ENABLED) {
-            project.getComponent(classOf[CompileServerManager]).configureWidget()
-            project.getComponent(classOf[CompileServerLauncher]).init()
+          if (applicationSettings.COMPILE_SERVER_ENABLED) {
+            CompileServerManager.instance(project).configureWidget()
+            CompileServerLauncher.instance.init(project)
           }
         } else {
-          project.getComponent(classOf[CompileServerLauncher]).stop()
-          project.getComponent(classOf[CompileServerManager]).removeWidget()
+          CompileServerLauncher.instance.stop()
+          CompileServerManager.instance(project).removeWidget()
         }
       }
 
