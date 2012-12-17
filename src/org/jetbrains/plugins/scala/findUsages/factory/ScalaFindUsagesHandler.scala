@@ -15,10 +15,14 @@ import com.intellij.openapi.actionSystem.DataContext
 import java.util
 import com.intellij.util.Processor
 import com.intellij.usageView.UsageInfo
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
 import com.intellij.psi.search.searches.ClassInheritorsSearch
 import collection.mutable
-import org.jetbrains.plugins.scala.util.{ScalaUtil, ScalaUtils}
+import org.jetbrains.plugins.scala.util.ScalaUtil
+import com.intellij.openapi.ui.Messages
+import org.jetbrains.plugins.scala.ScalaBundle
+import scala.Array
+import com.intellij.CommonBundle
+import org.jetbrains.plugins.scala.lang.psi.impl.search.ScalaOverridengMemberSearch
 
 /**
  * User: Alexander Podkhalyuzin
@@ -26,7 +30,7 @@ import org.jetbrains.plugins.scala.util.{ScalaUtil, ScalaUtils}
  */
 
 class ScalaFindUsagesHandler(element: PsiElement) extends {
-    val replacedElement: PsiElement = {
+    private val _replacedElement: PsiElement = {
       element match {
         case wrapper: PsiClassWrapper => wrapper.definition
         case p: PsiTypedDefinitionWrapper => p.typedDefinition
@@ -36,11 +40,36 @@ class ScalaFindUsagesHandler(element: PsiElement) extends {
         case s: StaticPsiMethodWrapper => s.method
         case _ => element
       }
+
     }
-  } with FindUsagesHandler(replacedElement) {
+  } with FindUsagesHandler(_replacedElement) {
+  private var replacedElement = _replacedElement
+
+  override def getPrimaryElements: Array[PsiElement] = {
+    _replacedElement match {
+      case function: ScFunction =>
+        val signs = function.superSignatures
+        if (signs.length == 0 || signs.last.namedElement.isEmpty) Array(function)
+        else {
+          val result = Messages.showDialog(element.getProject, ScalaBundle.message("find.usages.method.has.supers", function.name), "Warning",
+            Array(CommonBundle.getYesButtonText, CommonBundle.getNoButtonText, CommonBundle.getCancelButtonText), 0, Messages.getQuestionIcon
+          )
+          result match {
+            case 0 =>
+              val elem = signs.last.namedElement.get
+              replacedElement = elem
+              Array(elem)
+            case 1 => Array(function)
+            case 2 => Array.empty
+          }
+        }
+      case _ => Array(_replacedElement)
+    }
+  }
+
   override def getStringsToSearch(element: PsiElement): util.Collection[String] = {
     val result: util.Set[String] = new util.HashSet[String]()
-    replacedElement match {
+    element match {
       case t: ScTrait =>
         result.add(t.name)
         result.add(t.getName)
@@ -171,6 +200,14 @@ class ScalaFindUsagesHandler(element: PsiElement) extends {
               if (!processor.process(new UsageInfo(c))) return false
             }
           }
+        }
+      case _ =>
+    }
+
+    element match {
+      case function: ScFunction =>
+        for (elem <- ScalaOverridengMemberSearch.search(function, deep = true)) {
+          if (!super.processElementUsages(elem, processor, options)) return false
         }
       case _ =>
     }
