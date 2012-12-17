@@ -247,13 +247,31 @@ private class IdeClient(compilerName: String,
     val target = sourceToTarget(source).getOrElse {
       throw new RuntimeException("Unknown source file: " + source)
     }
-    val compiledClass = {
-      // TODO expect future JPS API to load the generated file content lazily (on demand)
-      val content = new BinaryContent(FileUtil.loadFileBytes(module))
-      new CompiledClass(module, source, name, content)
-    }
+    val compiledClass = new LazyCompiledClass(module, source, name)
     consumer.registerCompiledClass(target, compiledClass)
   }
 
   def isCanceled = context.getCancelStatus.isCanceled
+}
+
+// TODO expect future JPS API to load the generated file content lazily (on demand)
+private class LazyCompiledClass(outputFile: File, sourceFile: File, className: String)
+        extends CompiledClass(outputFile, sourceFile, className, new BinaryContent(Array.empty)){
+
+  private var loadedContent: Option[BinaryContent] = None
+  private var contentIsSet = false
+
+  override def getContent = {
+    if (contentIsSet) super.getContent else loadedContent.getOrElse {
+      val content = new BinaryContent(FileUtil.loadFileBytes(outputFile))
+      loadedContent = Some(content)
+      content
+    }
+  }
+
+  override def setContent(content: BinaryContent) {
+    super.setContent(content)
+    loadedContent = None
+    contentIsSet = true
+  }
 }
