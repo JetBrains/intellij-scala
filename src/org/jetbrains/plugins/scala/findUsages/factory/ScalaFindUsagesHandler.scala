@@ -1,17 +1,24 @@
 package org.jetbrains.plugins.scala.findUsages.factory
 
-import com.intellij.find.findUsages.FindUsagesHandler
+import com.intellij.find.findUsages.{AbstractFindUsagesDialog, FindUsagesOptions, FindUsagesHandler}
 import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiMethod
-import com.intellij.psi.{PsiNamedElement, PsiElement}
+import com.intellij.psi.{PsiClass, PsiNamedElement, PsiElement}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import com.intellij.openapi.util.text.StringUtil
-import java.util.{Collection, HashSet, Set}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.extensions.toPsiNamedElementExt
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTrait, ScObject}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTypeDefinition, ScClass, ScTrait, ScObject}
 import org.jetbrains.plugins.scala.lang.psi.light.PsiTypedDefinitionWrapper.DefinitionRole._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScAnnotationsHolder, ScVariable, ScValue}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScFunction, ScVariable, ScValue}
 import org.jetbrains.plugins.scala.lang.psi.light._
+import com.intellij.openapi.actionSystem.DataContext
+import java.util
+import com.intellij.util.Processor
+import com.intellij.usageView.UsageInfo
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
+import com.intellij.psi.search.searches.ClassInheritorsSearch
+import collection.mutable
+import org.jetbrains.plugins.scala.util.{ScalaUtil, ScalaUtils}
 
 /**
  * User: Alexander Podkhalyuzin
@@ -31,8 +38,8 @@ class ScalaFindUsagesHandler(element: PsiElement) extends {
       }
     }
   } with FindUsagesHandler(replacedElement) {
-  override def getStringsToSearch(element: PsiElement): Collection[String] = {
-    val result: Set[String] = new HashSet[String]()
+  override def getStringsToSearch(element: PsiElement): util.Collection[String] = {
+    val result: util.Set[String] = new util.HashSet[String]()
     replacedElement match {
       case t: ScTrait =>
         result.add(t.name)
@@ -68,6 +75,13 @@ class ScalaFindUsagesHandler(element: PsiElement) extends {
     result
   }
 
+  override def getFindUsagesOptions(dataContext: DataContext): FindUsagesOptions = {
+    replacedElement match {
+      case t: ScTypeDefinition => new ScalaTypeDefinitionFindUsagesOptions(t, getProject, dataContext)
+      case _ => super.getFindUsagesOptions(dataContext)
+    }
+  }
+
   override def getSecondaryElements: Array[PsiElement] = {
     replacedElement match {
       case t: ScObject =>
@@ -89,5 +103,77 @@ class ScalaFindUsagesHandler(element: PsiElement) extends {
         }
       case _ => Array.empty
     }
+  }
+
+  override def getFindUsagesDialog(isSingleFile: Boolean, toShowInNewTab: Boolean, mustOpenInNewTab: Boolean): AbstractFindUsagesDialog = {
+    replacedElement match {
+      case t: ScTypeDefinition => new ScalaTypeDefinitionUsagesDialog(t, getProject, getFindUsagesOptions,
+        toShowInNewTab, mustOpenInNewTab, isSingleFile, this)
+      case _ => super.getFindUsagesDialog(isSingleFile, toShowInNewTab, mustOpenInNewTab)
+    }
+  }
+
+  override def processElementUsages(element: PsiElement, processor: Processor[UsageInfo], options: FindUsagesOptions): Boolean = {
+    if (!super.processElementUsages(element, processor, options)) return false
+    options match {
+      case s: ScalaTypeDefinitionFindUsagesOptions =>
+        val clazz = element.asInstanceOf[ScTypeDefinition]
+        if (s.isMembersUsages) {
+          clazz.members.foreach {
+            case fun: ScFunction =>
+              if (!super.processElementUsages(fun, processor, options)) return false
+            case v: ScValue =>
+              v.declaredElements.foreach { d =>
+                if (!super.processElementUsages(d, processor, options)) return false
+              }
+            case v: ScVariable =>
+              v.declaredElements.foreach { d =>
+                if (!super.processElementUsages(d, processor, options)) return false
+              }
+            case ta: ScTypeAlias =>
+              if (!super.processElementUsages(ta, processor, options)) return false
+            case c: ScTypeDefinition =>
+              if (!super.processElementUsages(c, processor, options)) return false
+          }
+          clazz match {
+            case c: ScClass =>
+              c.constructor match {
+                case Some(constr) => constr.effectiveParameterClauses.foreach {clause =>
+                  clause.parameters.foreach {param =>
+                    if (!super.processElementUsages(c, processor, options)) return false
+                  }
+                }
+                case _ =>
+              }
+            case _ =>
+          }
+        }
+        if (s.isSearchCompanionModule) {
+          ScalaPsiUtil.getBaseCompanionModule(clazz) match {
+            case Some(companion) =>
+              if (!super.processElementUsages(companion, processor, options)) return false
+            case _ =>
+          }
+        }
+        if (s.isImplementingTypeDefinitions) {
+          val res = new mutable.HashSet[PsiClass]()
+          ClassInheritorsSearch.search(clazz, true).forEach(new Processor[PsiClass] {
+            def process(t: PsiClass): Boolean = {
+              t match {
+                case p: PsiClassWrapper =>
+                case _ => res += t
+              }
+              true
+            }
+          })
+          res.foreach { c =>
+            ScalaUtil.readAction(getProject) {
+              if (!processor.process(new UsageInfo(c))) return false
+            }
+          }
+        }
+      case _ =>
+    }
+    true
   }
 }
