@@ -11,33 +11,30 @@ class TargetTimestamps(context: CompileContext) {
 
   def get(target: ModuleBuildTarget): Option[Long] = {
     Some(timestampFile(target)).filter(_.exists).flatMap { file =>
-      val in = new DataInputStream(new BufferedInputStream(new FileInputStream(file)))
-
-      try {
-        Some(in.readLong())
-      } catch {
-        case _: IOException => None
-      } finally {
-        in.close()
+      using(new DataInputStream(new BufferedInputStream(new FileInputStream(file)))) { in =>
+        try {
+          Some(in.readLong())
+        } catch {
+          case _: IOException => None
+        }
       }
     }
   }
 
   def set(target: ModuleBuildTarget, timestamp: Long) {
-    val out = {
-      val file = timestampFile(target)
-      new DataOutputStream(new BufferedOutputStream(new FileOutputStream(file)))
-    }
+    val file = timestampFile(target)
 
-    try {
+    using(new DataOutputStream(new BufferedOutputStream(new FileOutputStream(file)))) { out =>
       out.writeLong(timestamp)
-    } finally {
-      out.close()
     }
   }
 
   private def timestampFile(target: ModuleBuildTarget): File = {
     paths.getTargetDataRoot(target)
-    new File(paths.getTargetDataRoot(target), "timestamp.dat")
+    new File(paths.getTargetDataRoot(target), TargetTimestamps.Filename)
   }
+}
+
+private object TargetTimestamps {
+  private val Filename = "timestamp.dat"
 }
