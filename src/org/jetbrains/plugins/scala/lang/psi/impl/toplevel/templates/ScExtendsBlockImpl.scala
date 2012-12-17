@@ -85,7 +85,7 @@ class ScExtendsBlockImpl extends ScalaStubBasedElementImpl[ScExtendsBlock] with 
   def isScalaObject: Boolean = {
     getParentByStub match {
       case clazz: PsiClass =>
-        clazz.qualifiedName == "scala.ScalaObject"
+        "scala.ScalaObject".equals(clazz.qualifiedName)
       case _ => false
     }
   }
@@ -102,26 +102,32 @@ class ScExtendsBlockImpl extends ScalaStubBasedElementImpl[ScExtendsBlock] with 
       case Some(parents: ScTemplateParents) => parents.superTypes foreach {t => addType(t)}
       case _ =>
     }
+
     if (isUnderCaseClass) {
       val prod = scalaProduct
       if (prod != null) buffer += prod
       val ser = scalaSerializable
       if (ser != null) buffer += ser
     }
+
     if (!isScalaObject) {
       val obj = scalaObject
       if (obj != null && !obj.element.asInstanceOf[PsiClass].isDeprecated) buffer += obj
     }
+
+    def extract(scType:ScType): Boolean = {
+      ScType.extractClass(scType, Some(getProject)) match {
+        case Some(o: ScObject) => true
+        case Some(t: ScTrait) => false
+        case Some(c: ScClass) => true
+        case Some(c: PsiClass) if !c.isInterface => true
+        case _ => false
+      }
+    }
+
     val findResult = buffer.find {
       case AnyVal | AnyRef | Any => true
-      case t =>
-        ScType.extractClass(t, Some(getProject)) match {
-          case Some(o: ScObject) => true
-          case Some(t: ScTrait) => false
-          case Some(c: ScClass) => true
-          case Some(c: PsiClass) if !c.isInterface => true
-          case _ => false
-        }
+      case t => extract(t)
     }
     findResult match {
       case Some(AnyVal) => //do nothing
