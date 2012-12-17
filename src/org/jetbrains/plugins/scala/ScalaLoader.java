@@ -26,6 +26,7 @@ import com.intellij.util.containers.HashSet;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.debugger.ScalaJVMNameMapper;
 import org.jetbrains.plugins.scala.debugger.ui.ListLikeCollectionNodeRenderer;
+import org.jetbrains.plugins.scala.debugger.ui.ObjectRefElementRenderer;
 
 import java.util.Set;
 
@@ -60,6 +61,7 @@ public class ScalaLoader implements ApplicationComponent {
 
         DebuggerManager.getInstance(project).addClassNameMapper(new ScalaJVMNameMapper());
         NodeRendererSettings.getInstance().addPluginRenderer(new ListLikeCollectionNodeRenderer());
+        NodeRendererSettings.getInstance().addPluginRenderer(new ObjectRefElementRenderer());
       }
     });
 

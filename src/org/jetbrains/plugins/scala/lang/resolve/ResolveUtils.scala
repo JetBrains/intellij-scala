@@ -73,6 +73,7 @@ object ResolveUtils {
             case _: ScFun => kinds contains METHOD
             case _: ScSyntheticValue => kinds contains VAL
             case f: PsiField => (kinds contains VAR) || (f.hasModifierPropertyScala(PsiModifier.FINAL) && kinds.contains(VAL))
+            case _: PsiParameter => kinds contains VAL //to enable named Parameters resolve in Play 2.0 routing file for java methods
             case _ => false
           })
 

@@ -10,7 +10,7 @@ import com.intellij.psi.{PsiDocumentManager, PsiElement}
 import com.intellij.psi.util.PsiTreeUtil
 import lang.psi.api.expr._
 import com.intellij.openapi.util.TextRange
-import org.jetbrains.plugins.scala.util.IntentionUtils
+import org.jetbrains.plugins.scala.util.{IntentionAvailabilityChecker, IntentionUtils}
 
 /**
  * @author Ksenia.Sautina
@@ -27,6 +27,7 @@ class ConvertToInfixExpressionIntention extends PsiElementBaseIntentionAction {
   override def getText: String = getFamilyName
 
   def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean = {
+    if (!IntentionAvailabilityChecker.check(this, element)) return false
     val methodCallExpr : ScMethodCall = PsiTreeUtil.getParentOfType(element, classOf[ScMethodCall], false)
     if (methodCallExpr == null) return false
     if (!methodCallExpr.getInvokedExpr.isInstanceOf[ScReferenceExpression]) return false
