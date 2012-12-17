@@ -781,10 +781,10 @@
             <implementation-class>org.jetbrains.plugins.scala.compiler.FscServerManager</implementation-class>
         </component>
         <component>
-            <implementation-class>org.jetbrains.plugins.scala.compiler.CompilationServerLauncher</implementation-class>
+            <implementation-class>org.jetbrains.plugins.scala.compiler.CompileServerLauncher</implementation-class>
         </component>
         <component>
-            <implementation-class>org.jetbrains.plugins.scala.compiler.CompilationServerManager</implementation-class>
+            <implementation-class>org.jetbrains.plugins.scala.compiler.CompileServerManager</implementation-class>
         </component>
         <component>
           <implementation-class>org.jetbrains.plugins.scala.compiler.ServerMediator</implementation-class>

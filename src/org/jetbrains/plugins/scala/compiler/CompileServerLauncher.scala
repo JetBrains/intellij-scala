@@ -14,7 +14,7 @@ import extensions._
 /**
  * @author Pavel Fatin
  */
-class CompilationServerLauncher(project: Project) extends ProjectComponent {
+class CompileServerLauncher(project: Project) extends ProjectComponent {
    private var instance: Option[Process] = None
 
    private val watcher = new ProcesWatcher()
@@ -39,11 +39,11 @@ class CompilationServerLauncher(project: Project) extends ProjectComponent {
 
      val jvmParameters = {
 
-       val xmx = settings.COMPILATION_SERVER_MAXIMUM_HEAP_SIZE |> { size =>
+       val xmx = settings.COMPILE_SERVER_MAXIMUM_HEAP_SIZE |> { size =>
          if (size.isEmpty) Nil else List("-Xmx%sm".format(size))
        }
 
-       xmx ++ settings.COMPILATION_SERVER_JVM_PARAMETERS.split(" ").toSeq
+       xmx ++ settings.COMPILE_SERVER_JVM_PARAMETERS.split(" ").toSeq
      }
 
      val java = {
@@ -77,7 +77,7 @@ class CompilationServerLauncher(project: Project) extends ProjectComponent {
      }
 
      val commands = java +: "-cp" +: classpath +: jvmParameters :+
-             "com.martiansoftware.nailgun.NGServer" :+ settings.COMPILATION_SERVER_PORT
+             "com.martiansoftware.nailgun.NGServer" :+ settings.COMPILE_SERVER_PORT
 
      val process = new ProcessBuilder(commands.asJava).redirectErrorStream(true).start()
 
