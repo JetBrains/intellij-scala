@@ -25,13 +25,13 @@ class ServerMediator(project: Project) extends ProjectComponent {
 
           val projectSettings = ScalacSettings.getInstance(context.getProject)
 
-          if (projectSettings.COMPILATION_SERVER_ENABLED) {
-            project.getComponent(classOf[CompilationServerManager]).configureWidget()
-            project.getComponent(classOf[CompilationServerLauncher]).init()
+          if (projectSettings.COMPILE_SERVER_ENABLED) {
+            project.getComponent(classOf[CompileServerManager]).configureWidget()
+            project.getComponent(classOf[CompileServerLauncher]).init()
           }
         } else {
-          project.getComponent(classOf[CompilationServerLauncher]).stop()
-          project.getComponent(classOf[CompilationServerManager]).removeWidget()
+          project.getComponent(classOf[CompileServerLauncher]).stop()
+          project.getComponent(classOf[CompileServerManager]).removeWidget()
         }
       }
 

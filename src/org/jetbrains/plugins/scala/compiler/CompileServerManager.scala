@@ -23,7 +23,7 @@ import com.intellij.compiler.CompilerWorkspaceConfiguration
 /**
  * @author Pavel Fatin
  */
-class CompilationServerManager(project: Project) extends ProjectComponent {
+class CompileServerManager(project: Project) extends ProjectComponent {
    private val IconRunning = Icons.FSC
 
    private val IconStopped = IconLoader.getDisabledIcon(IconRunning)
@@ -76,14 +76,14 @@ class CompilationServerManager(project: Project) extends ProjectComponent {
 
    private def applicable = running ||
            CompilerWorkspaceConfiguration.getInstance(project).USE_COMPILE_SERVER &&
-                   ScalacSettings.getInstance(project).COMPILATION_SERVER_ENABLED &&
+                   ScalacSettings.getInstance(project).COMPILE_SERVER_ENABLED &&
                    ScalaFacet.isPresentIn(project)
 
    private def running = launcher.running
 
    private var installed = false
 
-   private def launcher = project.getComponent(classOf[CompilationServerLauncher])
+   private def launcher = project.getComponent(classOf[CompileServerLauncher])
 
    private def bar = WindowManager.getInstance.getStatusBar(project)
 
@@ -92,7 +92,7 @@ class CompilationServerManager(project: Project) extends ProjectComponent {
 
 
    private object Widget extends StatusBarWidget {
-     def ID = "Compilation Server"
+     def ID = "Compile server"
 
      def getPresentation(platformType : PlatformType) = Presentation
 
@@ -115,7 +115,7 @@ class CompilationServerManager(project: Project) extends ProjectComponent {
      }
    }
 
-   private def title = "Scala compilation server"
+   private def title = "Сompile server (Scala)"
 
    private def toggleList(e: MouseEvent) {
      val mnemonics = JBPopupFactory.ActionSelectionAid.MNEMONICS
@@ -127,7 +127,7 @@ class CompilationServerManager(project: Project) extends ProjectComponent {
      popup.show(new RelativePoint(e.getComponent, at))
    }
 
-   private object Start extends AnAction("&Run", "Start compilation server", IconLoader.getIcon("/actions/execute.png")) {
+   private object Start extends AnAction("&Run", "Start compile server", IconLoader.getIcon("/actions/execute.png")) {
      override def update(e: AnActionEvent) {
        e.getPresentation.setEnabled(!launcher.running)
      }
@@ -137,7 +137,7 @@ class CompilationServerManager(project: Project) extends ProjectComponent {
      }
    }
 
-   private object Stop extends AnAction("&Stop", "Shutdown compilation server", IconLoader.getIcon("/actions/suspend.png")) {
+   private object Stop extends AnAction("&Stop", "Shutdown compile server", IconLoader.getIcon("/actions/suspend.png")) {
      override def update(e: AnActionEvent) {
        e.getPresentation.setEnabled(launcher.running)
      }
