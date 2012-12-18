@@ -132,13 +132,15 @@ public class FacetConfigurationEditor extends FacetEditorTab {
         }
       }
     });
-    
+
+    final boolean externalCompiler = CompilerWorkspaceConfiguration.getInstance(myEditorContext.getProject()).USE_COMPILE_SERVER;
+
     myValidatorsManager.registerValidator(new FacetEditorValidator() {
       @Override
       public ValidationResult check() {
-        ValidationResult libraryResult = myFSCRadioButton.isSelected()
-            ? ValidationResult.OK
-            : checkCompilerLibrary((LibraryDescriptor) myCompilerLibrary.getSelectedItem());
+        ValidationResult libraryResult = externalCompiler || !myFSCRadioButton.isSelected()
+            ? checkCompilerLibrary((LibraryDescriptor) myCompilerLibrary.getSelectedItem())
+            : ValidationResult.OK;
 
         ValidationResult continuationsResult = myEnableContinuations.isSelected()
             ? checkContinuationsPlugin(getPluginsModel().getItems())
@@ -167,7 +169,6 @@ public class FacetConfigurationEditor extends FacetEditorTab {
       }
     }, null);
 
-    boolean externalCompiler = CompilerWorkspaceConfiguration.getInstance(myEditorContext.getProject()).USE_COMPILE_SERVER;
     myFscSwitchPanel.setVisible(!externalCompiler);
   }
 
