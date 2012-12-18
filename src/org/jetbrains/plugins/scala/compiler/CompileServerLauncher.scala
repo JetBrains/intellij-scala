@@ -2,14 +2,12 @@ package org.jetbrains.plugins.scala
 package compiler
 
 import com.intellij.openapi.components.ApplicationComponent
-import com.intellij.openapi.projectRoots.JavaSdkType
+import com.intellij.openapi.projectRoots.{Sdk, JavaSdkType}
 import collection.JavaConverters._
 import com.intellij.util.PathUtil
 import java.io.File
 import com.intellij.openapi.application.ApplicationManager
 import extensions._
-import com.intellij.openapi.project.Project
-import com.intellij.openapi.roots.ProjectRootManager
 
 /**
  * @author Pavel Fatin
@@ -30,11 +28,11 @@ class CompileServerLauncher extends ApplicationComponent {
      watcher.stop()
    }
 
-   def init(project: Project) {
-     if (!running) start(project)
+   def init(sdk: Sdk) {
+     if (!running) start(sdk)
    }
 
-   private def start(project: Project) {
+   private def start(sdk: Sdk) {
      val settings = ScalaApplicationSettings.getInstance
 
      val jvmParameters = {
@@ -47,9 +45,6 @@ class CompileServerLauncher extends ApplicationComponent {
      }
 
      val java = {
-       val sdk = Option(ProjectRootManager.getInstance(project).getProjectSdk)
-               .getOrElse(throw new RuntimeException("No project SDK specified"))
-
        val sdkType = sdk.getSdkType.asInstanceOf[JavaSdkType]
 
        sdkType.getVMExecutablePath(sdk)

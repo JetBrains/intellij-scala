@@ -5,7 +5,8 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.components.ProjectComponent
 import config.ScalaFacet
 import com.intellij.compiler.CompilerWorkspaceConfiguration
-import com.intellij.openapi.compiler.{CompileContext, CompileTask, CompilerManager}
+import com.intellij.openapi.compiler.{CompilerMessageCategory, CompileContext, CompileTask, CompilerManager}
+import com.intellij.openapi.roots.ProjectRootManager
 
 /**
  * Pavel Fatin
@@ -27,7 +28,18 @@ class ServerMediator(project: Project) extends ProjectComponent {
 
           if (applicationSettings.COMPILE_SERVER_ENABLED) {
             CompileServerManager.instance(project).configureWidget()
-            CompileServerLauncher.instance.init(project)
+
+            if (!CompileServerLauncher.instance.running) {
+              val sdk = ProjectRootManager.getInstance(project).getProjectSdk
+
+              if (sdk == null) {
+                context.addMessage(CompilerMessageCategory.ERROR, "No project SDK to run Scala compile server.\n" +
+                        "Please either disable Scala compile server or specify a project SDK.", null, -1, -1)
+                return false
+              }
+
+              CompileServerLauncher.instance.init(sdk)
+            }
           }
         } else {
           CompileServerLauncher.instance.stop()
