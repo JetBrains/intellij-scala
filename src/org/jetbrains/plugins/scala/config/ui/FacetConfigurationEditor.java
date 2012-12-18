@@ -60,6 +60,7 @@ public class FacetConfigurationEditor extends FacetEditorTab {
   private LinkLabel myFscSettings;
   private JComboBox languageLevelComboBox;
   private JPanel myFscSwitchPanel;
+  private JPanel myJvmParametersPanel;
 
   private MyAction myAddPluginAction = new AddPluginAction();
   private MyAction myRemovePluginAction = new RemovePluginAction();
@@ -170,6 +171,7 @@ public class FacetConfigurationEditor extends FacetEditorTab {
     }, null);
 
     myFscSwitchPanel.setVisible(!externalCompiler);
+    myJvmParametersPanel.setVisible(!externalCompiler);
   }
 
   private void updateCompilerSection() {
