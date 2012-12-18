@@ -93,7 +93,7 @@ class ScalaBuilder extends ModuleLevelBuilder(BuilderCategory.TRANSLATOR) {
     ScalaBuilder.sbtData.flatMap { sbtData =>
       CompilerData.from(context, chunk).flatMap { compilerData =>
         CompilationData.from(sources, context, chunk).map { compilationData =>
-          val settings = SettingsManager.getProjectSettings(context.getProjectDescriptor.getProject)
+          val settings = SettingsManager.getGlobalSettings(context.getProjectDescriptor.getModel.getGlobal)
 
           val server = if (settings.isCompilationServerEnabled) {
             ScalaBuilder.cleanLocalServerCache()

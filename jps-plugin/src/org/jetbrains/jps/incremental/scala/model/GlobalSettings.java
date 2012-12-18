@@ -5,6 +5,8 @@ import org.jetbrains.jps.model.JpsElement;
 /**
  * @author Pavel Fatin
  */
-public interface ProjectSettings extends JpsElement {
-  Order getCompilationOrder();
+public interface GlobalSettings extends JpsElement {
+  boolean isCompilationServerEnabled();
+
+  int getCompilationServerPort();
 }
