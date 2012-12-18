@@ -5,7 +5,7 @@ import com.intellij.openapi.components.ApplicationComponent
 import com.intellij.openapi.projectRoots.{Sdk, JavaSdkType}
 import collection.JavaConverters._
 import com.intellij.util.PathUtil
-import java.io.File
+import java.io.{FileNotFoundException, File}
 import com.intellij.openapi.application.ApplicationManager
 import extensions._
 
@@ -66,6 +66,10 @@ class CompileServerLauncher extends ApplicationComponent {
            new File(jpsRoot, "incremental-compiler.jar"),
            new File(jpsRoot, "jline.jar"),
            new File(jpsRoot, "scala-jps-plugin.jar"))
+       }
+
+       files.foreach { file =>
+         if (!file.exists) throw new FileNotFoundException(file.getCanonicalPath)
        }
 
        files.map(_.getCanonicalPath).mkString(File.pathSeparator)
