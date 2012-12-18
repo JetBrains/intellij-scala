@@ -20,6 +20,8 @@ import com.intellij.ide.DataManager
 import com.intellij.openapi.actionSystem.{Separator, AnActionEvent, AnAction, DefaultActionGroup}
 import com.intellij.compiler.CompilerWorkspaceConfiguration
 import com.intellij.openapi.options.ShowSettingsUtil
+import com.intellij.openapi.roots.ProjectRootManager
+import com.intellij.openapi.ui.Messages
 
 /**
  * @author Pavel Fatin
@@ -134,7 +136,15 @@ class CompileServerManager(project: Project) extends ProjectComponent {
      }
 
      def actionPerformed(e: AnActionEvent) {
-       launcher.init(project)
+       val sdk = ProjectRootManager.getInstance(project).getProjectSdk
+
+       if (sdk != null) {
+         launcher.init(sdk)
+       } else {
+         Messages.showErrorDialog("No project SDK to run Scala compile server.\n" +
+                 "Please either disable Scala compile server or specify a project SDK",
+           "No project SDK to run Scala compile server")
+       }
      }
    }
 
