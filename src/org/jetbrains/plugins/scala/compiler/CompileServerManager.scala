@@ -17,8 +17,9 @@ import java.awt.Point
 import com.intellij.openapi.ui.popup.JBPopupFactory
 import com.intellij.ui.awt.RelativePoint
 import com.intellij.ide.DataManager
-import com.intellij.openapi.actionSystem.{AnActionEvent, AnAction, DefaultActionGroup}
+import com.intellij.openapi.actionSystem.{Separator, AnActionEvent, AnAction, DefaultActionGroup}
 import com.intellij.compiler.CompilerWorkspaceConfiguration
+import com.intellij.openapi.options.ShowSettingsUtil
 
 /**
  * @author Pavel Fatin
@@ -119,7 +120,7 @@ class CompileServerManager(project: Project) extends ProjectComponent {
 
    private def toggleList(e: MouseEvent) {
      val mnemonics = JBPopupFactory.ActionSelectionAid.MNEMONICS
-     val group = new DefaultActionGroup(Start, Stop)
+     val group = new DefaultActionGroup(Start, Stop, Separator.getInstance, Configure)
      val context = DataManager.getInstance.getDataContext(e.getComponent)
      val popup = JBPopupFactory.getInstance.createActionGroupPopup(title, group, context, mnemonics, true)
      val dimension = popup.getContent.getPreferredSize
@@ -147,7 +148,13 @@ class CompileServerManager(project: Project) extends ProjectComponent {
      }
    }
 
-   private object FacetListener extends ProjectWideFacetAdapter[ScalaFacet]() {
+  private object Configure extends AnAction("&Configure", "Configure compile server", IconLoader.getIcon("/general/configure.png")) {
+    def actionPerformed(e: AnActionEvent) {
+      ShowSettingsUtil.getInstance().showSettingsDialog(null, "Scala")
+    }
+  }
+
+  private object FacetListener extends ProjectWideFacetAdapter[ScalaFacet]() {
      override def facetAdded(facet: ScalaFacet) {
        configureWidget()
      }
