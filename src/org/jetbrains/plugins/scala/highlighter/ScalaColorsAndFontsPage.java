@@ -89,7 +89,8 @@ public class ScalaColorsAndFontsPage implements ColorSettingsPage {
         new AttributesDescriptor(DefaultHighlighter.ANNOTATION_ATTRIBUTE_ID, DefaultHighlighter.ANNOTATION_ATTRIBUTE),
         new AttributesDescriptor(DefaultHighlighter.XML_TEXT_ID, DefaultHighlighter.XML_TEXT),
         new AttributesDescriptor(DefaultHighlighter.XML_TAG_ID, DefaultHighlighter.XML_TAG),
-        new AttributesDescriptor(DefaultHighlighter.WORKSHEET_ID, DefaultHighlighter.WORKSHEET)
+        new AttributesDescriptor(DefaultHighlighter.IMPLICIT_FIRST_PART_ID, DefaultHighlighter.IMPLICIT_FIRST_PART),
+        new AttributesDescriptor(DefaultHighlighter.IMPLICIT_SECOND_PART_ID, DefaultHighlighter.IMPLICIT_SECOND_PART)
     };
   }
 
@@ -204,7 +205,8 @@ public class ScalaColorsAndFontsPage implements ColorSettingsPage {
     map.put("xmltext", DefaultHighlighter.XML_TEXT);
     map.put("xmltag", DefaultHighlighter.XML_TAG);
     map.put("implicit", DefaultHighlighter.IMPLICIT_CONVERSIONS);
-    map.put("worksheet", DefaultHighlighter.WORKSHEET);
+    map.put("implicitFirstPart", DefaultHighlighter.IMPLICIT_FIRST_PART);
+    map.put("implicitSecondPart", DefaultHighlighter.IMPLICIT_SECOND_PART);
     return map;
   }
 }
