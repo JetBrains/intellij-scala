@@ -42,14 +42,14 @@ class ScExtendsBlockImpl extends ScalaStubBasedElementImpl[ScExtendsBlock] with 
   override def toString: String = "ExtendsBlock"
 
   def templateBody: Option[ScTemplateBody] = {
-    def firstChild(stub:StubElement[ScExtendsBlock]):Option[ScTemplateBody] = {
+    def childStubTemplate(stub:StubElement[ScExtendsBlock]):Option[ScTemplateBody] = {
       Option(stub.findChildStubByType(ScalaElementTypes.TEMPLATE_BODY)) match {
         case Some(template) => Some(template.getPsi)
         case _ => None
       }
     }
 
-    def lastChild: Option[ScTemplateBody] = {
+    def lastChildTemplateBody: Option[ScTemplateBody] = {
       getLastChild match {
         case childTemplateBody: ScTemplateBody => Some(childTemplateBody)
         case _ => None
@@ -57,8 +57,8 @@ class ScExtendsBlockImpl extends ScalaStubBasedElementImpl[ScExtendsBlock] with 
     }
 
     Option(getStub) match {
-      case Some(stub) => firstChild(stub)
-      case _ => lastChild
+      case Some(stub) => childStubTemplate(stub)
+      case _ => lastChildTemplateBody
     }
   }
 
@@ -85,7 +85,7 @@ class ScExtendsBlockImpl extends ScalaStubBasedElementImpl[ScExtendsBlock] with 
   def isScalaObject: Boolean = {
     getParentByStub match {
       case clazz: PsiClass =>
-        "scala.ScalaObject".equals(clazz.qualifiedName)
+        clazz.qualifiedName == "scala.ScalaObject"
       case _ => false
     }
   }
