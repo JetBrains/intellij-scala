@@ -7,6 +7,7 @@ import config.ScalaFacet
 import com.intellij.compiler.CompilerWorkspaceConfiguration
 import com.intellij.openapi.compiler.{CompilerMessageCategory, CompileContext, CompileTask, CompilerManager}
 import com.intellij.openapi.roots.ProjectRootManager
+import extensions._
 
 /**
  * Pavel Fatin
@@ -21,13 +22,17 @@ class ServerMediator(project: Project) extends ProjectComponent {
 
       if (scalaProject) {
         if (externalCompiler) {
-          project.getComponent(classOf[FscServerLauncher]).stop()
-          project.getComponent(classOf[FscServerManager]).removeWidget()
+          invokeAndWait {
+            project.getComponent(classOf[FscServerLauncher]).stop()
+            project.getComponent(classOf[FscServerManager]).removeWidget()
+          }
 
           val applicationSettings = ScalaApplicationSettings.getInstance()
 
           if (applicationSettings.COMPILE_SERVER_ENABLED) {
-            CompileServerManager.instance(project).configureWidget()
+            invokeAndWait {
+              CompileServerManager.instance(project).configureWidget()
+            }
 
             if (!CompileServerLauncher.instance.running) {
               val sdk = ProjectRootManager.getInstance(project).getProjectSdk
@@ -38,12 +43,16 @@ class ServerMediator(project: Project) extends ProjectComponent {
                 return false
               }
 
-              CompileServerLauncher.instance.init(sdk)
+              invokeAndWait {
+                CompileServerLauncher.instance.init(sdk)
+              }
             }
           }
         } else {
-          CompileServerLauncher.instance.stop()
-          CompileServerManager.instance(project).removeWidget()
+          invokeAndWait {
+            CompileServerLauncher.instance.stop()
+            CompileServerManager.instance(project).removeWidget()
+          }
         }
       }
 

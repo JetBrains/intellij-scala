@@ -7,6 +7,7 @@ import com.intellij.psi.impl.source.PostprocessReformattingAspect
 import com.intellij.openapi.project.Project
 import com.intellij.psi._
 import scala.util.matching.Regex
+import javax.swing.SwingUtilities
 
 /**
   * Pavel Fatin
@@ -72,6 +73,14 @@ package object extensions {
 
   def invokeLater[T](body: => T) {
     ApplicationManager.getApplication.invokeLater(new Runnable {
+      def run() {
+        body
+      }
+    })
+  }
+
+  def invokeAndWait[T](body: => Unit) {
+    SwingUtilities.invokeAndWait(new Runnable {
       def run() {
         body
       }
