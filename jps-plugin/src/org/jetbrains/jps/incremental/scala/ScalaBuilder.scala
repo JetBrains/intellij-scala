@@ -71,6 +71,12 @@ class ScalaBuilder extends ModuleLevelBuilder(BuilderCategory.TRANSLATOR) {
                       dirtyFilesHolder: DirtyFilesHolder[JavaSourceRootDescriptor, ModuleBuildTarget],
                       outputConsumer: OutputConsumer): ModuleLevelBuilder.ExitCode = {
 
+    val modules = chunk.getModules.asScala
+
+    if (modules.exists(ExcludedModuleProvider.isExcluded)) {
+      return ExitCode.NOTHING_DONE
+    }
+
     context.processMessage(new ProgressMessage("Searching for compilable files..."))
     val filesToCompile = ScalaBuilder.collectCompilableFiles(chunk)
 
@@ -83,10 +89,7 @@ class ScalaBuilder extends ModuleLevelBuilder(BuilderCategory.TRANSLATOR) {
 
     val sources = filesToCompile.keySet.toSeq
 
-    val client = {
-      val modules = chunk.getModules.asScala.map(_.getName).toSeq
-      new IdeClient("scala", context, modules, outputConsumer, filesToCompile.get)
-    }
+    val client = new IdeClient("scala", context, modules.map(_.getName).toSeq, outputConsumer, filesToCompile.get)
 
     client.progress("Reading compilation settings...")
 
@@ -156,17 +159,15 @@ object ScalaBuilder {
     var result = Map[File, BuildTarget[_ <: BuildRootDescriptor]]()
 
     for (target <- chunk.getTargets.asScala; root <- sourceRootsIn(target)) {
-      if (!ExcludedScalaSourceRootProvider.isExcludedInSomeProvider(target.getModule)) {
-        FileUtil.processFilesRecursively(root, new Processor[File] {
-          def process(file: File) = {
-            val path = file.getPath
-            if (path.endsWith(".scala") || path.endsWith(".java")) {
-              result += file -> target
-            }
-            true
+      FileUtil.processFilesRecursively(root, new Processor[File] {
+        def process(file: File) = {
+          val path = file.getPath
+          if (path.endsWith(".scala") || path.endsWith(".java")) {
+            result += file -> target
           }
-        })
-      }
+          true
+        }
+      })
     }
 
     result
