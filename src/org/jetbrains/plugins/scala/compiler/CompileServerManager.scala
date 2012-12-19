@@ -158,7 +158,7 @@ class CompileServerManager(project: Project) extends ProjectComponent {
      }
    }
 
-  private object Configure extends AnAction("&Configure", "Configure compile server", IconLoader.getIcon("/general/configure.png")) {
+  private object Configure extends AnAction("&Configure...", "Configure compile server", IconLoader.getIcon("/general/configure.png")) {
     def actionPerformed(e: AnActionEvent) {
       ShowSettingsUtil.getInstance().showSettingsDialog(null, "Scala")
     }
