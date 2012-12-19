@@ -51,13 +51,17 @@ trait ScClass extends ScTypeDefinition with ScParameterOwner {
 
             val extendsText = {
               try {
-                val typeElementText =
-                  constructor.get.effectiveParameterClauses.map {
-                    clause =>
-                      clause.parameters.map(_.typeElement.map(_.getText).getOrElse("Nothing")).mkString("(", ", ", ")")
-                  }.mkString("(", " => ", s" => $name)")
-                val typeElement = ScalaPsiElementFactory.createTypeElementFromText(typeElementText, getManager)
-                s" extends ${typeElement.getText}"
+                if (typeParameters.isEmpty) {
+                  val typeElementText =
+                    constructor.get.effectiveParameterClauses.map {
+                      clause =>
+                        clause.parameters.map(_.typeElement.map(_.getText).getOrElse("Nothing")).mkString("(", ", ", ")")
+                    }.mkString("(", " => ", s" => $name)")
+                  val typeElement = ScalaPsiElementFactory.createTypeElementFromText(typeElementText, getManager)
+                  s" extends ${typeElement.getText}"
+                } else {
+                  ""
+                }
               } catch {
                 case e: Exception => ""
               }
