@@ -18,7 +18,7 @@ sealed abstract class Event {
 }
 
 object Event {
-  def from(bytes: Array[Byte]): Event = {
+  def fromBytes(bytes: Array[Byte]): Event = {
     val buffer = new ByteArrayInputStream(bytes)
     val stream = new ObjectInputStream(buffer)
     val event = stream.readObject().asInstanceOf[Event]

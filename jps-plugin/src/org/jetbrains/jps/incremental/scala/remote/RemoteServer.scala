@@ -7,6 +7,7 @@ import java.net.{UnknownHostException, ConnectException, Socket}
 import com.martiansoftware.nailgun.NGConstants
 import org.jetbrains.jps.incremental.messages.BuildMessage.Kind
 import org.jetbrains.jps.incremental.ModuleLevelBuilder.ExitCode
+import com.intellij.util.Base64Converter
 import RemoteServer._
 
 /**
@@ -14,7 +15,10 @@ import RemoteServer._
  */
 class RemoteServer(address: String, port: Int) extends Server {
   def compile(sbtData: SbtData, compilerData: CompilerData, compilationData: CompilationData, client: Client): ExitCode = {
-    val arguments = Arguments(sbtData, compilerData, compilationData).asStrings
+    val arguments = {
+      val strings = Arguments(sbtData, compilerData, compilationData).asStrings
+      strings.map(s => Base64Converter.encode(s.getBytes("UTF-8")))
+    }
 
     try {
       send(MainClass, arguments, client)
@@ -49,17 +53,15 @@ private object RemoteServer {
 
   private val CurrentDirectory = System.getProperty("user.dir")
 
-  private val Encoding = "UTF-8"
-
   private def createChunks(command: String, args: Seq[String]): Seq[Chunk] = {
     args.map(s => Chunk(NGConstants.CHUNKTYPE_ARGUMENT, toBytes(s))) :+
             Chunk(NGConstants.CHUNKTYPE_WORKINGDIRECTORY, toBytes(CurrentDirectory)) :+
             Chunk(NGConstants.CHUNKTYPE_COMMAND, toBytes(command))
   }
 
-  private def toBytes(s: String) = s.getBytes(Encoding)
+  private def toBytes(s: String) = s.getBytes
 
-  private def fromBytes(bytes: Array[Byte]) = new String(bytes, Encoding)
+  private def fromBytes(bytes: Array[Byte]) = new String(bytes)
 
   private def handle(input: DataInputStream, client: Client) {
     val processor = new ClientEventProcessor(client)
@@ -69,7 +71,7 @@ private object RemoteServer {
         case Chunk(NGConstants.CHUNKTYPE_EXIT, code) =>
           return
         case Chunk(NGConstants.CHUNKTYPE_STDOUT, data) =>
-          processor.process(Event.from(data))
+          processor.process(Event.fromBytes(Base64Converter.decode(data)))
         case Chunk(NGConstants.CHUNKTYPE_STDERR, data) =>
           client.message(Kind.ERROR, fromBytes(data))
         case Chunk(kind, data) =>
