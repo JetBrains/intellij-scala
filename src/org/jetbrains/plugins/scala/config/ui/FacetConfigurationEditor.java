@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.config.ui;
 
+import com.intellij.compiler.CompilerWorkspaceConfiguration;
 import com.intellij.facet.ui.*;
 import com.intellij.openapi.fileChooser.FileChooser;
 import com.intellij.openapi.fileChooser.FileChooserDescriptor;
@@ -58,6 +59,8 @@ public class FacetConfigurationEditor extends FacetEditorTab {
   private JLabel myVmParametersLabel;
   private LinkLabel myFscSettings;
   private JComboBox languageLevelComboBox;
+  private JPanel myFscSwitchPanel;
+  private JPanel myJvmParametersPanel;
 
   private MyAction myAddPluginAction = new AddPluginAction();
   private MyAction myRemovePluginAction = new RemovePluginAction();
@@ -130,13 +133,15 @@ public class FacetConfigurationEditor extends FacetEditorTab {
         }
       }
     });
-    
+
+    final boolean externalCompiler = CompilerWorkspaceConfiguration.getInstance(myEditorContext.getProject()).USE_COMPILE_SERVER;
+
     myValidatorsManager.registerValidator(new FacetEditorValidator() {
       @Override
       public ValidationResult check() {
-        ValidationResult libraryResult = myFSCRadioButton.isSelected()
-            ? ValidationResult.OK
-            : checkCompilerLibrary((LibraryDescriptor) myCompilerLibrary.getSelectedItem());
+        ValidationResult libraryResult = externalCompiler || !myFSCRadioButton.isSelected()
+            ? checkCompilerLibrary((LibraryDescriptor) myCompilerLibrary.getSelectedItem())
+            : ValidationResult.OK;
 
         ValidationResult continuationsResult = myEnableContinuations.isSelected()
             ? checkContinuationsPlugin(getPluginsModel().getItems())
@@ -164,10 +169,14 @@ public class FacetConfigurationEditor extends FacetEditorTab {
         ShowSettingsUtil.getInstance().showSettingsDialog(myEditorContext.getProject(), "Scala Compiler");
       }
     }, null);
+
+    myFscSwitchPanel.setVisible(!externalCompiler);
+    myJvmParametersPanel.setVisible(!externalCompiler);
   }
 
   private void updateCompilerSection() {
-    boolean b = !myFSCRadioButton.isSelected();
+    boolean externalCompiler = CompilerWorkspaceConfiguration.getInstance(myEditorContext.getProject()).USE_COMPILE_SERVER;
+    boolean b = externalCompiler || !myFSCRadioButton.isSelected();
     myCompilerLibraryLabel.setEnabled(b);
     myCompilerLibrary.setEnabled(b);
     myMaximumHeapSizeLabel.setEnabled(b);

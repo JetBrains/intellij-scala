@@ -134,7 +134,9 @@ public class DefaultHighlighter {
   @NonNls
   static final String XML_TAG_ID = "Scala XML Tag";
   @NonNls
-  static final String WORKSHEET_ID = "Scala Worksheet comment";
+  static final String IMPLICIT_FIRST_PART_ID = "Implicit conversion first part";
+  @NonNls
+  static final String IMPLICIT_SECOND_PART_ID = "Implicit conversion second part";
 
   public static TextAttributesKey LINE_COMMENT = createKey(LINE_COMMENT_ID, SyntaxHighlighterColors.LINE_COMMENT);
   public static TextAttributesKey BLOCK_COMMENT = createKey(BLOCK_COMMENT_ID, SyntaxHighlighterColors.JAVA_BLOCK_COMMENT);
@@ -192,7 +194,8 @@ public class DefaultHighlighter {
   public static TextAttributesKey DOC_COMMENT = createKey(DOC_COMMENT_ID, SyntaxHighlighterColors.DOC_COMMENT);
   public static TextAttributesKey XML_TEXT = createKey(XML_TEXT_ID, SyntaxHighlighterColors.STRING);
   public static TextAttributesKey XML_TAG = createKey(XML_TAG_ID, SyntaxHighlighterColors.DOC_COMMENT_TAG);
-  public static TextAttributesKey WORKSHEET = TextAttributesKey.createTextAttributesKey(WORKSHEET_ID, new TextAttributes(new Color(69, 69, 69), null, null, null, Font.BOLD));
+  public static TextAttributesKey IMPLICIT_FIRST_PART = TextAttributesKey.createTextAttributesKey(IMPLICIT_FIRST_PART_ID, new TextAttributes(new Color(187, 223, 255), null, null, null, Font.PLAIN));
+  public static TextAttributesKey IMPLICIT_SECOND_PART = TextAttributesKey.createTextAttributesKey(IMPLICIT_SECOND_PART_ID, new TextAttributes(new Color(223, 240, 255), null, null, null, Font.PLAIN));
 
   private static TextAttributesKey createKey(String externalName, TextAttributesKey prototype) {
     return TextAttributesKey.createTextAttributesKey(externalName, prototype.getDefaultAttributes());

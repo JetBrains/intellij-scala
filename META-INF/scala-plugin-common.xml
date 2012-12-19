@@ -27,6 +27,7 @@
         <codeFoldingOptionsProvider instance="org.jetbrains.plugins.scala.editor.codeFolding.ScalaCodeFoldingOptionsProvider"/>
         <langCodeStyleSettingsProvider implementation="org.jetbrains.plugins.scala.lang.formatting.settings.ScalaLanguageCodeStyleSettingsProvider"/>
         <projectConfigurable instance="org.jetbrains.plugins.scala.settings.ScalaProjectSettingsConfigurable"/>
+        <applicationConfigurable instance="org.jetbrains.plugins.scala.compiler.ScalaApplicationSettingsForm"/>
         <applicationService serviceInterface="org.jetbrains.plugins.scala.settings.ScalaApplicationSettings"
                             serviceImplementation="org.jetbrains.plugins.scala.settings.ScalaApplicationSettings"/>
         <applicationService serviceInterface="org.jetbrains.plugins.scala.settings.ScalaCodeFoldingSettings"
@@ -241,6 +242,9 @@
 
         <projectService serviceInterface="org.jetbrains.plugins.scala.compiler.ScalacSettings"
                         serviceImplementation="org.jetbrains.plugins.scala.compiler.ScalacSettings"/>
+
+        <applicationService serviceInterface="org.jetbrains.plugins.scala.compiler.ScalaApplicationSettings"
+                        serviceImplementation="org.jetbrains.plugins.scala.compiler.ScalaApplicationSettings"/>
 
         <projectService serviceInterface="org.jetbrains.plugins.scala.lang.scaladoc.generate.ScaladocSettings"
                         serviceImplementation="org.jetbrains.plugins.scala.lang.scaladoc.generate.ScaladocSettings"/>
@@ -750,6 +754,9 @@
         <component>
             <implementation-class>org.jetbrains.plugins.scala.components.TypeAwareHighlightingApplicationState</implementation-class>
         </component>
+        <component>
+          <implementation-class>org.jetbrains.plugins.scala.compiler.CompileServerLauncher</implementation-class>
+        </component>
     </application-components>
 
     <project-components>
@@ -781,12 +788,9 @@
             <implementation-class>org.jetbrains.plugins.scala.compiler.FscServerManager</implementation-class>
         </component>
         <component>
-            <implementation-class>org.jetbrains.plugins.scala.compiler.CompilationServerLauncher</implementation-class>
+          <implementation-class>org.jetbrains.plugins.scala.compiler.CompileServerManager</implementation-class>
         </component>
-        <component>
-            <implementation-class>org.jetbrains.plugins.scala.compiler.CompilationServerManager</implementation-class>
-        </component>
-        <component>
+      <component>
           <implementation-class>org.jetbrains.plugins.scala.compiler.ServerMediator</implementation-class>
         </component>
         <component>

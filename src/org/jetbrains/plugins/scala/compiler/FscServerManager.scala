@@ -17,8 +17,9 @@ import java.awt.Point
 import com.intellij.openapi.ui.popup.JBPopupFactory
 import com.intellij.ui.awt.RelativePoint
 import com.intellij.ide.DataManager
-import com.intellij.openapi.actionSystem.{AnActionEvent, AnAction, DefaultActionGroup}
+import com.intellij.openapi.actionSystem.{Separator, AnActionEvent, AnAction, DefaultActionGroup}
 import com.intellij.compiler.CompilerWorkspaceConfiguration
+import com.intellij.openapi.options.ShowSettingsUtil
 
 /**
  * Pavel Fatin
@@ -120,7 +121,7 @@ class FscServerManager(project: Project) extends ProjectComponent {
 
   private def toggleList(e: MouseEvent) {
     val mnemonics = JBPopupFactory.ActionSelectionAid.MNEMONICS
-    val group = new DefaultActionGroup(Start, Reset, Stop)
+    val group = new DefaultActionGroup(Start, Reset, Stop, Separator.getInstance, Configure)
     val context = DataManager.getInstance.getDataContext(e.getComponent)
     val popup = JBPopupFactory.getInstance.createActionGroupPopup(title, group, context, mnemonics, true)
     val dimension = popup.getContent.getPreferredSize
@@ -128,7 +129,7 @@ class FscServerManager(project: Project) extends ProjectComponent {
     popup.show(new RelativePoint(e.getComponent, at))
   }
 
-  private object Start extends AnAction("&Run", "Start compile server", IconLoader.getIcon("/actions/execute.png")) {
+  private object Start extends AnAction("&Run", "Start project FSC", IconLoader.getIcon("/actions/execute.png")) {
     override def update(e: AnActionEvent) {
       e.getPresentation.setEnabled(!launcher.running)
     }
@@ -138,7 +139,7 @@ class FscServerManager(project: Project) extends ProjectComponent {
     }
   }
 
-  private object Reset extends AnAction("R&eset", "Reset compile server", IconLoader.getIcon("/actions/sync.png")) {
+  private object Reset extends AnAction("R&eset", "Reset project FSC", IconLoader.getIcon("/actions/sync.png")) {
     override def update(e: AnActionEvent) {
       e.getPresentation.setEnabled(launcher.running)
     }
@@ -152,13 +153,19 @@ class FscServerManager(project: Project) extends ProjectComponent {
     }
   }
 
-  private object Stop extends AnAction("&Stop", "Shutdown compile server", IconLoader.getIcon("/actions/suspend.png")) {
+  private object Stop extends AnAction("&Stop", "Shutdown project FSC", IconLoader.getIcon("/actions/suspend.png")) {
     override def update(e: AnActionEvent) {
       e.getPresentation.setEnabled(launcher.running)
     }
 
     def actionPerformed(e: AnActionEvent) {
       launcher.stop()
+    }
+  }
+
+  private object Configure extends AnAction("&Configure", "Configure project FSC", IconLoader.getIcon("/general/configure.png")) {
+    def actionPerformed(e: AnActionEvent) {
+      ShowSettingsUtil.getInstance().showSettingsDialog(project, "Scala Compiler")
     }
   }
 

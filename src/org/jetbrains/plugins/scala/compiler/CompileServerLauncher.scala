@@ -1,20 +1,18 @@
 package org.jetbrains.plugins.scala
 package compiler
 
-import com.intellij.openapi.project.Project
-import com.intellij.openapi.roots.ProjectRootManager
-import com.intellij.openapi.components.ProjectComponent
-import com.intellij.openapi.projectRoots.JavaSdkType
+import com.intellij.openapi.components.ApplicationComponent
+import com.intellij.openapi.projectRoots.{Sdk, JavaSdkType}
 import collection.JavaConverters._
 import com.intellij.util.PathUtil
-import java.io.File
+import java.io.{FileNotFoundException, File}
 import com.intellij.openapi.application.ApplicationManager
 import extensions._
 
 /**
  * @author Pavel Fatin
  */
-class CompilationServerLauncher(project: Project) extends ProjectComponent {
+class CompileServerLauncher extends ApplicationComponent {
    private var instance: Option[Process] = None
 
    private val watcher = new ProcesWatcher()
@@ -30,26 +28,23 @@ class CompilationServerLauncher(project: Project) extends ProjectComponent {
      watcher.stop()
    }
 
-   def init() {
-     if (!running) start()
+   def init(sdk: Sdk) {
+     if (!running) start(sdk)
    }
 
-   private def start() {
-     val settings = ScalacSettings.getInstance(project)
+   private def start(sdk: Sdk) {
+     val settings = ScalaApplicationSettings.getInstance
 
      val jvmParameters = {
 
-       val xmx = settings.COMPILATION_SERVER_MAXIMUM_HEAP_SIZE |> { size =>
+       val xmx = settings.COMPILE_SERVER_MAXIMUM_HEAP_SIZE |> { size =>
          if (size.isEmpty) Nil else List("-Xmx%sm".format(size))
        }
 
-       xmx ++ settings.COMPILATION_SERVER_JVM_PARAMETERS.split(" ").toSeq
+       xmx ++ settings.COMPILE_SERVER_JVM_PARAMETERS.split(" ").toSeq
      }
 
      val java = {
-       val sdk = Option(ProjectRootManager.getInstance(project).getProjectSdk)
-               .getOrElse(throw new RuntimeException("No project SDK specified"))
-
        val sdkType = sdk.getSdkType.asInstanceOf[JavaSdkType]
 
        sdkType.getVMExecutablePath(sdk)
@@ -73,11 +68,15 @@ class CompilationServerLauncher(project: Project) extends ProjectComponent {
            new File(jpsRoot, "scala-jps-plugin.jar"))
        }
 
+       files.foreach { file =>
+         if (!file.exists) throw new FileNotFoundException(file.getCanonicalPath)
+       }
+
        files.map(_.getCanonicalPath).mkString(File.pathSeparator)
      }
 
      val commands = java +: "-cp" +: classpath +: jvmParameters :+
-             "com.martiansoftware.nailgun.NGServer" :+ settings.COMPILATION_SERVER_PORT
+             "com.martiansoftware.nailgun.NGServer" :+ settings.COMPILE_SERVER_PORT
 
      val process = new ProcessBuilder(commands.asJava).redirectErrorStream(true).start()
 
@@ -97,3 +96,7 @@ class CompilationServerLauncher(project: Project) extends ProjectComponent {
 
    def getComponentName = getClass.getSimpleName
  }
+
+object CompileServerLauncher {
+  def instance = ApplicationManager.getApplication.getComponent(classOf[CompileServerLauncher])
+}
