@@ -146,7 +146,7 @@ class ScalaFindUsagesHandler(element: PsiElement) extends {
     if (!super.processElementUsages(element, processor, options)) return false
     options match {
       case s: ScalaTypeDefinitionFindUsagesOptions =>
-        val clazz = element.asInstanceOf[ScTypeDefinition]
+        val clazz = replacedElement.asInstanceOf[ScTypeDefinition]
         if (s.isMembersUsages) {
           clazz.members.foreach {
             case fun: ScFunction =>
