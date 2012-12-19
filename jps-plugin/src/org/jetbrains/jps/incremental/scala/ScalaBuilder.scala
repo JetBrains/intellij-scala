@@ -16,6 +16,7 @@ import org.jetbrains.jps.incremental.messages.ProgressMessage
 import org.jetbrains.jps.incremental.scala.data.CompilationData
 import org.jetbrains.jps.incremental.scala.data.CompilerData
 import org.jetbrains.jps.incremental.scala.data.SbtData
+import org.jetbrains.jps.indices.ModuleExcludeIndex
 import collection.JavaConverters._
 import org.jetbrains.jps.incremental.ModuleLevelBuilder.{OutputConsumer, ExitCode}
 import org.jetbrains.jps.model.java.JavaSourceRootType
@@ -76,7 +77,7 @@ class ScalaBuilder extends ModuleLevelBuilder(BuilderCategory.TRANSLATOR) {
     }
 
     context.processMessage(new ProgressMessage("Searching for compilable files..."))
-    val filesToCompile = ScalaBuilder.collectCompilableFiles(chunk)
+    val filesToCompile = ScalaBuilder.collectCompilableFiles(chunk, context.getProjectDescriptor.getModuleExcludeIndex)
 
     if (filesToCompile.isEmpty) {
       return ExitCode.NOTHING_DONE
@@ -156,15 +157,17 @@ object ScalaBuilder {
     result
   }
 
-  private def collectCompilableFiles(chunk: ModuleChunk): Map[File, BuildTarget[_ <: BuildRootDescriptor]] = {
+  private def collectCompilableFiles(chunk: ModuleChunk, index: ModuleExcludeIndex): Map[File, BuildTarget[_ <: BuildRootDescriptor]] = {
     var result = Map[File, BuildTarget[_ <: BuildRootDescriptor]]()
 
     for (target <- chunk.getTargets.asScala; root <- sourceRootsIn(target)) {
       FileUtil.processFilesRecursively(root, new Processor[File] {
         def process(file: File) = {
-          val path = file.getPath
-          if (path.endsWith(".scala") || path.endsWith(".java")) {
-            result += file -> target
+          if (!index.isExcluded(file)) {
+            val path = file.getPath
+            if (path.endsWith(".scala") || path.endsWith(".java")) {
+              result += file -> target
+            }
           }
           true
         }
