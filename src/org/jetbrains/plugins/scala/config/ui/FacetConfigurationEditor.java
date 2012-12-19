@@ -193,7 +193,7 @@ public class FacetConfigurationEditor extends FacetEditorTab {
 
   private static ValidationResult checkCompilerLibrary(LibraryDescriptor descriptor) {
     if(descriptor == null || descriptor.data().isEmpty()) 
-      return ValidationResult.OK;
+      return new ValidationResult("No compiler library selected");
 
     String libraryName = "Compiler library";
         
