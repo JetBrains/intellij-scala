@@ -19,11 +19,7 @@ class CompileServerLauncher extends ApplicationComponent {
 
    def initComponent() {}
 
-   def disposeComponent() {}
-
-   def projectOpened() {}
-
-   def projectClosed() {
+   def disposeComponent() {
      if (running) stop()
      watcher.stop()
    }
