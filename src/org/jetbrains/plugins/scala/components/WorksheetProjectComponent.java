@@ -13,6 +13,7 @@ import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.plugins.scala.ScalaBundle;
 import org.jetbrains.plugins.scala.ScalaFileType;
 import org.jetbrains.plugins.scala.worksheet.actions.CleanWorksheetAction;
+import org.jetbrains.plugins.scala.worksheet.actions.CopyWorksheetAction;
 import org.jetbrains.plugins.scala.worksheet.actions.RunWorksheetAction;
 
 import javax.swing.*;
@@ -67,6 +68,15 @@ public class WorksheetProjectComponent extends AbstractProjectComponent {
           cleanButton.setToolTipText(ScalaBundle.message("worksheet.clear.button"));
           cleanButton.getAction().getTemplatePresentation().setIcon(AllIcons.Actions.GC);
           panel.add(cleanButton);
+
+          CopyWorksheetAction copyAction = new CopyWorksheetAction();
+          Presentation copyPresentation = copyAction.getTemplatePresentation();
+          copyPresentation.setText(ScalaBundle.message("worksheet.copy.button"));
+          ActionButton copyButton = new ActionButton(copyAction, copyPresentation,
+            ActionPlaces.EDITOR_TOOLBAR, ActionToolbar.DEFAULT_MINIMUM_BUTTON_SIZE);
+          copyButton.setToolTipText(ScalaBundle.message("worksheet.copy.button"));
+          copyButton.getAction().getTemplatePresentation().setIcon(AllIcons.Actions.Copy);
+          panel.add(copyButton);
 
           myFileEditorManager.addTopComponent(editor, panel);
         }
