@@ -183,15 +183,17 @@ object ScalaBuilder {
     var result = Map[File, BuildTarget[_ <: BuildRootDescriptor]]()
 
     for (target <- chunk.getTargets.asScala; root <- sourceRootsIn(target)) {
-      FileUtil.processFilesRecursively(root, new Processor[File] {
-        def process(file: File) = {
-          val path = file.getPath
-          if (path.endsWith(".scala") || path.endsWith(".java")) {
-            result += file -> target
+      if (!ExcludedScalaSourceRootProvider.isExcludedInSomeProvider(target.getModule)) {
+        FileUtil.processFilesRecursively(root, new Processor[File] {
+          def process(file: File) = {
+            val path = file.getPath
+            if (path.endsWith(".scala") || path.endsWith(".java")) {
+              result += file -> target
+            }
+            true
           }
-          true
-        }
-      })
+        })
+      }
     }
 
     result
