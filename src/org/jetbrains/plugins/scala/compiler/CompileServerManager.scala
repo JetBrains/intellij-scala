@@ -199,6 +199,14 @@ class CompileServerManager(project: Project) extends ProjectComponent {
        }
 
        wasRunning = nowRunning
+
+       val errors = launcher.errors()
+
+       if (errors.nonEmpty) {
+         val notification = new Notification("scala", title, errors.mkString, NotificationType.ERROR)
+         Notifications.Bus.register("scala", NotificationDisplayType.BALLOON)
+         Notifications.Bus.notify(notification, project)
+       }
      }
    }
  }

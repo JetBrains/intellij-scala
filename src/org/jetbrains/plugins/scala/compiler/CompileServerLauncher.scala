@@ -90,6 +90,8 @@ class CompileServerLauncher extends ApplicationComponent {
 
    def running: Boolean = watcher.running
 
+   def errors(): Seq[String] = watcher.errors()
+
    def port: Option[Int] = instance.map(_.port)
 
    def getComponentName = getClass.getSimpleName
