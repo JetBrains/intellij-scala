@@ -73,14 +73,8 @@ object CompilerData {
             .toRight("No Scala facet in module " + module.getName)
 
     scalaFacet.flatMap { facet =>
-      val project = model.getProject
-      val fsc = facet.isFscEnabled
-      val settings = if (fsc) SettingsManager.getProjectSettings(project) else facet
-
-      val libraryLevel = Option(settings.getCompilerLibraryLevel).toRight {
-        if (fsc) "No FSC compiler library level set in project " + project.getName
-        else "No compiler library level set in module " + module.getName
-      }
+      val libraryLevel = Option(facet.getCompilerLibraryLevel)
+              .toRight("No compiler library level set in module " + module.getName)
 
       libraryLevel.flatMap { level =>
         val libraries = level match {
@@ -89,16 +83,12 @@ object CompilerData {
           case Module => module.getLibraryCollection
         }
 
-        val libraryName = Option(settings.getCompilerLibraryName).toRight {
-          if (fsc) "No FSC compiler library name set in project " + project.getName
-          else "No compiler library name set in module " + module.getName
-        }
+        val libraryName = Option(facet.getCompilerLibraryName)
+                .toRight("No compiler library name set in module " + module.getName)
 
         libraryName.flatMap { name =>
-          Option(libraries.findLibrary(name)).toRight {
-            if (fsc) String.format("FSC compiler library in project %s not found: %s / %s ", project.getName, libraryLevel, libraryName)
-            else String.format("Сompiler library for module %s not found: %s / %s ", module.getName, libraryLevel, libraryName)
-          }
+          Option(libraries.findLibrary(name)).toRight(String.format(
+            "Сompiler library for module %s not found: %s / %s ", module.getName, libraryLevel, libraryName))
         }
       }
     }

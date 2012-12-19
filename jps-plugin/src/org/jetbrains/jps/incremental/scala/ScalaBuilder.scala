@@ -51,22 +51,7 @@ class ScalaBuilder extends ModuleLevelBuilder(BuilderCategory.TRANSLATOR) {
       }
     }
 
-    val chunkClasspath = {
-      val files = {
-        val paths = context.getProjectPaths
-        paths.getCompilationClasspathFiles(chunk, chunk.containsTests, false, false)
-      }
-      files.asScala.map(_.getCanonicalPath).toSet
-    }
-
-    val classpaths = new TargetClasspaths(context)
-
-    val targetClasspath = classpaths.get(representativeTarget)
-
-    val hasChangedClasspath = targetClasspath.map(_ != chunkClasspath).getOrElse(true)
-
-    if (!hasChangedClasspath &&
-            !hasDirtyDependencies &&
+    if (!hasDirtyDependencies &&
             !ScalaBuilder.hasDirtyFiles(dirtyFilesHolder) &&
             !dirtyFilesHolder.hasRemovedFiles) {
 
@@ -74,22 +59,11 @@ class ScalaBuilder extends ModuleLevelBuilder(BuilderCategory.TRANSLATOR) {
         timestamps.set(representativeTarget, context.getCompilationStartStamp)
       }
 
-      if (targetClasspath.isEmpty) {
-        classpaths.set(representativeTarget, chunkClasspath)
-      }
-
       ExitCode.NOTHING_DONE
     } else {
       timestamps.set(representativeTarget, context.getCompilationStartStamp)
 
-      val exitCode = doBuild(context, chunk, dirtyFilesHolder, outputConsumer)
-
-      exitCode match {
-        case ExitCode.ABORT => // don't update classpath
-        case _ => classpaths.set(representativeTarget, chunkClasspath)
-      }
-
-      exitCode
+      doBuild(context, chunk, dirtyFilesHolder, outputConsumer)
     }
   }
 
@@ -111,8 +85,7 @@ class ScalaBuilder extends ModuleLevelBuilder(BuilderCategory.TRANSLATOR) {
 
     val client = {
       val modules = chunk.getModules.asScala.map(_.getName).toSeq
-      val compilerName = if (sources.exists(_.getName.endsWith(".scala"))) "scala" else "java"
-      new IdeClient(compilerName, context, modules, outputConsumer, filesToCompile.get)
+      new IdeClient("scala", context, modules, outputConsumer, filesToCompile.get)
     }
 
     client.progress("Reading compilation settings...")
@@ -120,7 +93,7 @@ class ScalaBuilder extends ModuleLevelBuilder(BuilderCategory.TRANSLATOR) {
     ScalaBuilder.sbtData.flatMap { sbtData =>
       CompilerData.from(context, chunk).flatMap { compilerData =>
         CompilationData.from(sources, context, chunk).map { compilationData =>
-          val settings = SettingsManager.getProjectSettings(context.getProjectDescriptor.getProject)
+          val settings = SettingsManager.getGlobalSettings(context.getProjectDescriptor.getModel.getGlobal)
 
           val server = if (settings.isCompilationServerEnabled) {
             ScalaBuilder.cleanLocalServerCache()
@@ -249,13 +222,31 @@ private class IdeClient(compilerName: String,
     val target = sourceToTarget(source).getOrElse {
       throw new RuntimeException("Unknown source file: " + source)
     }
-    val compiledClass = {
-      // TODO expect future JPS API to load the generated file content lazily (on demand)
-      val content = new BinaryContent(FileUtil.loadFileBytes(module))
-      new CompiledClass(module, source, name, content)
-    }
+    val compiledClass = new LazyCompiledClass(module, source, name)
     consumer.registerCompiledClass(target, compiledClass)
   }
 
   def isCanceled = context.getCancelStatus.isCanceled
+}
+
+// TODO expect future JPS API to load the generated file content lazily (on demand)
+private class LazyCompiledClass(outputFile: File, sourceFile: File, className: String)
+        extends CompiledClass(outputFile, sourceFile, className, new BinaryContent(Array.empty)){
+
+  private var loadedContent: Option[BinaryContent] = None
+  private var contentIsSet = false
+
+  override def getContent = {
+    if (contentIsSet) super.getContent else loadedContent.getOrElse {
+      val content = new BinaryContent(FileUtil.loadFileBytes(outputFile))
+      loadedContent = Some(content)
+      content
+    }
+  }
+
+  override def setContent(content: BinaryContent) {
+    super.setContent(content)
+    loadedContent = None
+    contentIsSet = true
+  }
 }

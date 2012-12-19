@@ -20,22 +20,6 @@ public class ProjectSettingsImpl extends JpsElementBase<ProjectSettingsImpl> imp
     return myState.SCALAC_BEFORE ? Order.ScalaThenJava : Order.JavaThenScala;
   }
 
-  public LibraryLevel getCompilerLibraryLevel() {
-    return myState.COMPILER_LIBRARY_LEVEL;
-  }
-
-  public String getCompilerLibraryName() {
-    return myState.COMPILER_LIBRARY_NAME;
-  }
-
-  public boolean isCompilationServerEnabled() {
-    return myState.COMPILATION_SERVER_ENABLED;
-  }
-
-  public int getCompilationServerPort() {
-    return myState.COMPILATION_SERVER_PORT;
-  }
-
   @NotNull
   @Override
   public ProjectSettingsImpl createCopy() {
@@ -49,13 +33,5 @@ public class ProjectSettingsImpl extends JpsElementBase<ProjectSettingsImpl> imp
 
   public static class State {
     public boolean SCALAC_BEFORE = true;
-
-    public LibraryLevel COMPILER_LIBRARY_LEVEL;
-
-    public String COMPILER_LIBRARY_NAME;
-
-    public boolean COMPILATION_SERVER_ENABLED = true;
-
-    public int COMPILATION_SERVER_PORT = 3200;
   }
 }

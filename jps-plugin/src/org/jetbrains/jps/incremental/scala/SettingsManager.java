@@ -2,9 +2,8 @@ package org.jetbrains.jps.incremental.scala;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.jps.incremental.scala.model.FacetSettings;
-import org.jetbrains.jps.incremental.scala.model.ProjectSettings;
-import org.jetbrains.jps.incremental.scala.model.ProjectSettingsImpl;
+import org.jetbrains.jps.incremental.scala.model.*;
+import org.jetbrains.jps.model.JpsGlobal;
 import org.jetbrains.jps.model.JpsProject;
 import org.jetbrains.jps.model.ex.JpsElementChildRoleBase;
 import org.jetbrains.jps.model.module.JpsModule;
@@ -13,8 +12,18 @@ import org.jetbrains.jps.model.module.JpsModule;
  * @author Pavel Fatin
  */
 public class SettingsManager {
-  public static final JpsElementChildRoleBase<ProjectSettings> PROJECT_SETTINGS_ROLE = JpsElementChildRoleBase.create("scala compiler settings");
+  public static final JpsElementChildRoleBase<GlobalSettings> GLOBAL_SETTINGS_ROLE = JpsElementChildRoleBase.create("scala global settings");
+  public static final JpsElementChildRoleBase<ProjectSettings> PROJECT_SETTINGS_ROLE = JpsElementChildRoleBase.create("scala project settings");
   public static final JpsElementChildRoleBase<FacetSettings> FACET_SETTINGS_ROLE = JpsElementChildRoleBase.create("scala facet settings");
+
+  public static GlobalSettings getGlobalSettings(JpsGlobal global) {
+    GlobalSettings settings = global.getContainer().getChild(GLOBAL_SETTINGS_ROLE);
+    return settings == null ? GlobalSettingsImpl.DEFAULT : settings;
+  }
+
+  public static void setGlobalSettings(JpsGlobal global, GlobalSettings settings) {
+    global.getContainer().setChild(GLOBAL_SETTINGS_ROLE, settings);
+  }
 
   public static ProjectSettings getProjectSettings(@NotNull JpsProject project) {
     ProjectSettings settings = project.getContainer().getChild(PROJECT_SETTINGS_ROLE);

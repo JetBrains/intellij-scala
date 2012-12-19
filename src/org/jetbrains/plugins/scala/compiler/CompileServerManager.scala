@@ -17,13 +17,16 @@ import java.awt.Point
 import com.intellij.openapi.ui.popup.JBPopupFactory
 import com.intellij.ui.awt.RelativePoint
 import com.intellij.ide.DataManager
-import com.intellij.openapi.actionSystem.{AnActionEvent, AnAction, DefaultActionGroup}
+import com.intellij.openapi.actionSystem.{Separator, AnActionEvent, AnAction, DefaultActionGroup}
 import com.intellij.compiler.CompilerWorkspaceConfiguration
+import com.intellij.openapi.options.ShowSettingsUtil
+import com.intellij.openapi.roots.ProjectRootManager
+import com.intellij.openapi.ui.Messages
 
 /**
  * @author Pavel Fatin
  */
-class CompilationServerManager(project: Project) extends ProjectComponent {
+class CompileServerManager(project: Project) extends ProjectComponent {
    private val IconRunning = Icons.FSC
 
    private val IconStopped = IconLoader.getDisabledIcon(IconRunning)
@@ -76,14 +79,14 @@ class CompilationServerManager(project: Project) extends ProjectComponent {
 
    private def applicable = running ||
            CompilerWorkspaceConfiguration.getInstance(project).USE_COMPILE_SERVER &&
-                   ScalacSettings.getInstance(project).COMPILATION_SERVER_ENABLED &&
+                   ScalaApplicationSettings.getInstance.COMPILE_SERVER_ENABLED &&
                    ScalaFacet.isPresentIn(project)
 
    private def running = launcher.running
 
    private var installed = false
 
-   private def launcher = project.getComponent(classOf[CompilationServerLauncher])
+   private def launcher = CompileServerLauncher.instance
 
    private def bar = WindowManager.getInstance.getStatusBar(project)
 
@@ -92,7 +95,7 @@ class CompilationServerManager(project: Project) extends ProjectComponent {
 
 
    private object Widget extends StatusBarWidget {
-     def ID = "Compilation Server"
+     def ID = "Compile server"
 
      def getPresentation(platformType : PlatformType) = Presentation
 
@@ -115,11 +118,11 @@ class CompilationServerManager(project: Project) extends ProjectComponent {
      }
    }
 
-   private def title = "Scala compilation server"
+   private def title = "Сompile server (Scala)"
 
    private def toggleList(e: MouseEvent) {
      val mnemonics = JBPopupFactory.ActionSelectionAid.MNEMONICS
-     val group = new DefaultActionGroup(Start, Stop)
+     val group = new DefaultActionGroup(Start, Stop, Separator.getInstance, Configure)
      val context = DataManager.getInstance.getDataContext(e.getComponent)
      val popup = JBPopupFactory.getInstance.createActionGroupPopup(title, group, context, mnemonics, true)
      val dimension = popup.getContent.getPreferredSize
@@ -127,17 +130,25 @@ class CompilationServerManager(project: Project) extends ProjectComponent {
      popup.show(new RelativePoint(e.getComponent, at))
    }
 
-   private object Start extends AnAction("&Run", "Start compilation server", IconLoader.getIcon("/actions/execute.png")) {
+   private object Start extends AnAction("&Run", "Start compile server", IconLoader.getIcon("/actions/execute.png")) {
      override def update(e: AnActionEvent) {
        e.getPresentation.setEnabled(!launcher.running)
      }
 
      def actionPerformed(e: AnActionEvent) {
-       launcher.init()
+       val sdk = ProjectRootManager.getInstance(project).getProjectSdk
+
+       if (sdk != null) {
+         launcher.init(sdk)
+       } else {
+         Messages.showErrorDialog("No project SDK to run Scala compile server.\n" +
+                 "Please either disable Scala compile server or specify a project SDK",
+           "No project SDK to run Scala compile server")
+       }
      }
    }
 
-   private object Stop extends AnAction("&Stop", "Shutdown compilation server", IconLoader.getIcon("/actions/suspend.png")) {
+   private object Stop extends AnAction("&Stop", "Shutdown compile server", IconLoader.getIcon("/actions/suspend.png")) {
      override def update(e: AnActionEvent) {
        e.getPresentation.setEnabled(launcher.running)
      }
@@ -147,7 +158,13 @@ class CompilationServerManager(project: Project) extends ProjectComponent {
      }
    }
 
-   private object FacetListener extends ProjectWideFacetAdapter[ScalaFacet]() {
+  private object Configure extends AnAction("&Configure", "Configure compile server", IconLoader.getIcon("/general/configure.png")) {
+    def actionPerformed(e: AnActionEvent) {
+      ShowSettingsUtil.getInstance().showSettingsDialog(null, "Scala")
+    }
+  }
+
+  private object FacetListener extends ProjectWideFacetAdapter[ScalaFacet]() {
      override def facetAdded(facet: ScalaFacet) {
        configureWidget()
      }
@@ -185,3 +202,7 @@ class CompilationServerManager(project: Project) extends ProjectComponent {
      }
    }
  }
+
+object CompileServerManager {
+  def instance(project: Project) = project.getComponent(classOf[CompileServerManager])
+}
