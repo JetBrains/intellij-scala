@@ -163,7 +163,7 @@ class FscServerManager(project: Project) extends ProjectComponent {
     }
   }
 
-  private object Configure extends AnAction("&Configure", "Configure project FSC", IconLoader.getIcon("/general/configure.png")) {
+  private object Configure extends AnAction("&Configure...", "Configure project FSC", IconLoader.getIcon("/general/configure.png")) {
     def actionPerformed(e: AnActionEvent) {
       ShowSettingsUtil.getInstance().showSettingsDialog(project, "Scala Compiler")
     }

@@ -13,7 +13,7 @@ import extensions._
  * @author Pavel Fatin
  */
 class CompileServerLauncher extends ApplicationComponent {
-   private var instance: Option[Process] = None
+   private var instance: Option[ServerInstance] = None
 
    private val watcher = new ProcesWatcher()
 
@@ -80,7 +80,7 @@ class CompileServerLauncher extends ApplicationComponent {
 
      val process = new ProcessBuilder(commands.asJava).redirectErrorStream(true).start()
 
-     instance = Some(process)
+     instance = Some(ServerInstance(process, settings.COMPILE_SERVER_PORT.toInt))
 
      watcher.watch(process)
    }
@@ -88,11 +88,13 @@ class CompileServerLauncher extends ApplicationComponent {
    // TODO stop server more gracefully
    def stop() {
      instance.foreach { it =>
-       it.destroy()
+       it.process.destroy()
      }
    }
 
    def running: Boolean = watcher.running
+
+   def port: Option[Int] = instance.map(_.port)
 
    def getComponentName = getClass.getSimpleName
  }
@@ -100,3 +102,5 @@ class CompileServerLauncher extends ApplicationComponent {
 object CompileServerLauncher {
   def instance = ApplicationManager.getApplication.getComponent(classOf[CompileServerLauncher])
 }
+
+private case class ServerInstance(process: Process, port: Int)
