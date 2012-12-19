@@ -90,6 +90,8 @@ class FscServerLauncher(project: Project) extends ProjectComponent {
 
   def running: Boolean = watcher.running
 
+  def errors(): Seq[String] = watcher.errors()
+
   def port: Int = instance.flatMap(_.port).getOrElse(-1)
 
   def compilerVersion: Option[String] = instance.map(_.environment.compilerVersion.text)
