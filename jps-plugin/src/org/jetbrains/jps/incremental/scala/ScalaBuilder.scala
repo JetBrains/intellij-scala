@@ -71,9 +71,7 @@ class ScalaBuilder extends ModuleLevelBuilder(BuilderCategory.TRANSLATOR) {
                       dirtyFilesHolder: DirtyFilesHolder[JavaSourceRootDescriptor, ModuleBuildTarget],
                       outputConsumer: OutputConsumer): ModuleLevelBuilder.ExitCode = {
 
-    val modules = chunk.getModules.asScala
-
-    if (modules.exists(ExcludedModuleProvider.isExcluded)) {
+    if (ChunkExclusionService.isExcluded(chunk)) {
       return ExitCode.NOTHING_DONE
     }
 
@@ -89,7 +87,10 @@ class ScalaBuilder extends ModuleLevelBuilder(BuilderCategory.TRANSLATOR) {
 
     val sources = filesToCompile.keySet.toSeq
 
-    val client = new IdeClient("scala", context, modules.map(_.getName).toSeq, outputConsumer, filesToCompile.get)
+    val client = {
+      val modules = chunk.getModules.asScala.map(_.getName).toSeq
+      new IdeClient("scala", context, modules, outputConsumer, filesToCompile.get)
+    }
 
     client.progress("Reading compilation settings...")
 
