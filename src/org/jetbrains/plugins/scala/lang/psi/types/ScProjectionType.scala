@@ -6,7 +6,7 @@ package types
 import impl.toplevel.synthetic.ScSyntheticClass
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
 import api.toplevel.typedef._
-import api.statements.{ScTypeAliasDefinition, ScTypeAlias}
+import api.statements.{ScValue, ScTypeAliasDefinition, ScTypeAlias}
 import result.{TypingContext, Success}
 import api.toplevel.ScTypedDefinition
 import resolve.processor.ResolveProcessor
@@ -17,6 +17,7 @@ import collection.immutable.HashSet
 import caches.CachesUtil
 import com.intellij.psi.util.PsiModificationTracker
 import impl.toplevel.templates.ScTemplateBodyImpl
+import api.base.patterns.ScBindingPattern
 
 /**
  * @author ilyas
@@ -121,6 +122,16 @@ case class ScProjectionType(projected: ScType, element: PsiNamedElement, subst: 
 
   override def equivInner(r: ScType, uSubst: ScUndefinedSubstitutor,
                           falseUndef: Boolean): (Boolean, ScUndefinedSubstitutor) = {
+    if (actualElement.isInstanceOf[ScBindingPattern] &&
+      actualElement.asInstanceOf[ScBindingPattern].nameContext.isInstanceOf[ScValue]) {
+      val a = actualElement.asInstanceOf[ScBindingPattern]
+      val subst = actualSubst
+      val tp = subst.subst(a.getType(TypingContext.empty).getOrAny)
+      if (ScType.isSingletonType(tp)) {
+        val resInner = Equivalence.equivInner(tp, r, uSubst, falseUndef)
+        if (resInner._1) return resInner
+      }
+    }
     r match {
       case _ if actualElement.isInstanceOf[ScTypeAliasDefinition] =>
         val a = actualElement.asInstanceOf[ScTypeAliasDefinition]
