@@ -27,7 +27,7 @@ import com.intellij.openapi.ui.Messages
  * @author Pavel Fatin
  */
 class CompileServerManager(project: Project) extends ProjectComponent {
-   private val IconRunning = Icons.FSC
+   private val IconRunning = Icons.COMPILE_SERVER
 
    private val IconStopped = IconLoader.getDisabledIcon(IconRunning)
 

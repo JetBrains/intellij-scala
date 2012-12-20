@@ -25,6 +25,8 @@ import javax.swing.*;
 public interface Icons {
   Icon FSC = IconLoader.getIcon("/org/jetbrains/plugins/scala/images/fsc.png");
 
+  Icon COMPILE_SERVER = IconLoader.getIcon("/org/jetbrains/plugins/scala/images/compileServer.png");
+
   Icon FILE_TYPE_LOGO = IconLoader.getIcon("/org/jetbrains/plugins/scala/images/scala16.png");
   //todo worksheet logo
   Icon WORKSHEET_LOGO = IconLoader.getIcon("/org/jetbrains/plugins/scala/images/scala16.png");
