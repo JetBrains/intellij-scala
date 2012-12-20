@@ -74,6 +74,8 @@ class TypeInferenceLocalTypeInferenceTest extends TypeInferenceTestBase {
 
   def testToArray() {doTest()}
 
+  def testTypedPatternInference() {doTest()}
+
   def testZipArrays() {doTest()}
 
   def testZipWithIndex() {doTest()}

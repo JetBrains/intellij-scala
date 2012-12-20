@@ -12,8 +12,10 @@ import lang.lexer._
 import com.intellij.psi._
 import scope.PsiScopeProcessor
 import api.ScalaElementVisitor
-import psi.types.ScType
+import psi.types.{ScExistentialArgument, ScParameterizedType, ScType}
 import psi.types.result.{TypeResult, Failure, Success, TypingContext}
+import api.toplevel.typedef.ScTypeDefinition
+import api.statements.params.ScTypeParam
 
 /**
 * @author Alexander Podkhalyuzin
@@ -48,16 +50,40 @@ class ScTypedPatternImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
     typePattern match {
       case Some(tp) =>
         if (tp.typeElement == null) return Failure("No type element for type pattern", Some(this))
-        val typeElementType = tp.typeElement.getType(ctx)
+        val typeElementType: TypeResult[ScType] =
+          tp.typeElement.getType(ctx).map {
+            case tp: ScType =>
+              ScType.extractClassType(tp, Some(getProject)) match {  //todo: type aliases?
+                case Some((clazz: ScTypeDefinition, subst)) =>
+                  val typeParams = clazz.typeParameters
+                  tp match {
+                    case ScParameterizedType(des, typeArgs) if typeArgs.length == typeParams.length =>
+                      ScParameterizedType(des, typeArgs.zip(typeParams).map {
+                        case (arg: ScExistentialArgument, param: ScTypeParam) =>
+                          val lowerBound =
+                            if (arg.lowerBound.equiv(psi.types.Nothing)) subst subst param.lowerBound.getOrNothing
+                            else arg.lowerBound //todo: lub?
+                          val upperBound =
+                            if (arg.upperBound.equiv(psi.types.Any)) subst subst param.upperBound.getOrAny
+                            else arg.upperBound //todo: glb?
+                          ScExistentialArgument(arg.name, arg.args, lowerBound, upperBound)
+                        case (tp: ScType, param: ScTypeParam) => tp
+                      })
+                    case _ => tp
+                  }
+                case _ => tp
+              }
+          }
         expectedType match {
           case Some(expectedType) =>
             typeElementType.map {
-              case typeElementType =>
-                if (expectedType.conforms(typeElementType)) expectedType
-                else typeElementType //todo:
+              case resType =>
+                if (expectedType.conforms(resType)) expectedType
+                else { //todo:
+                  resType
+                }
             }
-          case _ =>
-            typeElementType
+          case _ => typeElementType
         }
       case None => Failure("No type pattern", Some(this))
     }
