@@ -2,6 +2,7 @@ package org.jetbrains.jps.incremental.scala
 
 import org.jetbrains.jps.javac.BinaryContent
 import java.io.File
+import java.net.InetAddress
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.util.PathUtil
 import com.intellij.util.Processor
@@ -102,7 +103,7 @@ class ScalaBuilder extends ModuleLevelBuilder(BuilderCategory.TRANSLATOR) {
 
           val server = if (settings.isCompilationServerEnabled) {
             ScalaBuilder.cleanLocalServerCache()
-            new RemoteServer("localhost", settings.getCompilationServerPort)
+            new RemoteServer(InetAddress.getLocalHost, settings.getCompilationServerPort)
           } else {
             ScalaBuilder.localServer
           }

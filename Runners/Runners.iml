@@ -11,6 +11,7 @@
     <orderEntry type="module" module-name="ScalaRunner" />
     <orderEntry type="library" name="specs2" level="project" />
     <orderEntry type="library" name="scalatest" level="project" />
+    <orderEntry type="library" scope="PROVIDED" name="nailgun" level="project" />
   </component>
 </module>
 
