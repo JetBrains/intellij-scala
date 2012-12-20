@@ -52,12 +52,12 @@ object CompilerData {
 
       val files = compilerLibrary.getFiles(JpsOrderRootType.COMPILED).asScala
 
-      files.find(_.getName == "scala-library.jar")
-              .toRight("No 'scala-library.jar' in Scala compiler library in " + module.getName)
+      files.find(isJarFile("scala-library"))
+              .toRight("No jar file starting with 'scala-library' in Scala compiler library in " + module.getName)
               .flatMap { libraryJar =>
 
-        files.find(_.getName == "scala-compiler.jar")
-                .toRight("No 'scala-compiler.jar' in Scala compiler library in " + module.getName)
+        files.find(isJarFile("scala-compiler"))
+                .toRight("No jar file starting with 'scala-compiler' in Scala compiler library in " + module.getName)
                 .map { compilerJar =>
 
           val extraJars = files.filterNot(file => file == libraryJar || file == compilerJar)
@@ -66,6 +66,11 @@ object CompilerData {
         }
       }
     }
+  }
+
+  private def isJarFile(prefix: String)(file: File): Boolean = {
+    val name = file.getName
+    name != null && name.startsWith(prefix) && name.endsWith(".jar")
   }
 
   private def compilerLibraryIn(module: JpsModule, model: JpsModel): Either[String, JpsLibrary] = {
