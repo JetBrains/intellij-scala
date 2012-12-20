@@ -3,7 +3,7 @@ package data
 
 import java.io.File
 import org.jetbrains.jps.incremental.CompileContext
-import org.jetbrains.jps.ModuleChunk
+import org.jetbrains.jps.{ProjectPaths, ModuleChunk}
 import org.jetbrains.jps.incremental.scala.SettingsManager
 import collection.JavaConverters._
 import org.jetbrains.jps.incremental.scala.model.Order
@@ -33,8 +33,7 @@ object CompilationData {
             .toRight("Output directory not specified for module " + module.getName)
             .map { output =>
 
-      val classpath = context.getProjectPaths
-              .getCompilationClasspathFiles(chunk, chunk.containsTests, false, false).asScala.toSeq
+      val classpath = ProjectPaths.getCompilationClasspathFiles(chunk, chunk.containsTests, false, false).asScala.toSeq
 
       val scalaOptions = Option(SettingsManager.getFacetSettings(module))
               .map(_.getCompilerOptions.toSeq).getOrElse(Seq.empty)
