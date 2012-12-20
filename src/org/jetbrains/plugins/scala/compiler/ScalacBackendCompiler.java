@@ -385,6 +385,9 @@ public class ScalacBackendCompiler extends ExternalCompiler {
 //    PrintStream printer = System.out;
 
     ScalacSettings settings = ScalacSettings.getInstance(myProject);
+    CompilerLibraryData compilerLibraryData = Libraries.findBy(settings.COMPILER_LIBRARY_NAME,
+        settings.COMPILER_LIBRARY_LEVEL, myProject).get();
+
 
     if (myFsc) {
       if (settings.INTERNAL_SERVER) {
@@ -398,8 +401,7 @@ public class ScalacBackendCompiler extends ExternalCompiler {
         printer.println(String.format("%s:%s", settings.REMOTE_HOST, settings.REMOTE_PORT));
       }
 
-      String compilerVersion = Libraries.findBy(settings.COMPILER_LIBRARY_NAME,
-          settings.COMPILER_LIBRARY_LEVEL, myProject).get().version().get();
+      String compilerVersion = compilerLibraryData.version().get();
 
       if (!compilerVersion.startsWith("2.8")) {
         printer.println("-max-idle");
@@ -428,7 +430,9 @@ public class ScalacBackendCompiler extends ExternalCompiler {
 
     printer.print(chunk.getCompilationBootClasspath());
     printer.print(File.pathSeparator);
-    printer.println(chunk.getCompilationClasspath());
+    printer.print(chunk.getCompilationClasspath());
+    printer.print(File.pathSeparator);
+    printer.println(compilerLibraryData.classpath());
 
     List<VirtualFile> filesToCompile = new LinkedList<VirtualFile>();
     if (settings.SCALAC_BEFORE) {
