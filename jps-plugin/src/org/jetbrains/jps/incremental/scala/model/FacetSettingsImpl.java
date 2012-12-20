@@ -27,8 +27,8 @@ public class FacetSettingsImpl extends JpsElementBase<FacetSettingsImpl> impleme
     return myState.compilerLibraryName;
   }
 
-  public boolean isFscEnabled() {
-    return myState.fsc;
+  public Order getCompileOrder() {
+    return myState.compileOrder;
   }
 
   public String[] getCompilerOptions() {
@@ -104,7 +104,7 @@ public class FacetSettingsImpl extends JpsElementBase<FacetSettingsImpl> impleme
 
     public String compilerLibraryName;
 
-    public boolean fsc;
+    public Order compileOrder = Order.Mixed;
 
     public boolean warnings = true;
 

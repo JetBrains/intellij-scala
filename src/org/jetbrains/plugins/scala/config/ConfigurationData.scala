@@ -59,6 +59,9 @@ class ConfigurationData() {
   @BeanProperty
   var languageLevel: String = DEFAULT_LANGUAGE_LEVEL.toString
 
+  @BeanProperty
+  var compileOrder: CompileOrder = CompileOrder.Mixed
+
   def javaParameters: Array[String] = parse(vmOptions) ++ Array("-Xmx%dm".format(maximumHeapSize))
   
   def compilerParameters: Array[String] = {
@@ -116,7 +119,7 @@ class ConfigurationData() {
   private val Properties = Array(
     Warnings, DeprecationWarnings, UncheckedWarnings, OptimiseBytecode, ExplainTypeErrors, Continuations) 
   
-  private def data = Array(fsc, compilerLibraryName, compilerLibraryLevel, maximumHeapSize, vmOptions,
+  private def data = Array(fsc, compilerLibraryName, compilerLibraryLevel, compileOrder, maximumHeapSize, vmOptions,
     debuggingInfoLevel, compilerOptions, basePackage, languageLevel) ++ Properties.map(_.value) ++ pluginPaths
   
   override def equals(obj: Any): Boolean = data.sameElements(obj.asInstanceOf[ConfigurationData].data)

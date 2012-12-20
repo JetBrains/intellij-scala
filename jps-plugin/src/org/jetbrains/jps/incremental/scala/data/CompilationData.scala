@@ -35,15 +35,11 @@ object CompilationData {
 
       val classpath = ProjectPaths.getCompilationClasspathFiles(chunk, chunk.containsTests, false, false).asScala.toSeq
 
-      val scalaOptions = Option(SettingsManager.getFacetSettings(module))
-              .map(_.getCompilerOptions.toSeq).getOrElse(Seq.empty)
+      val facetSettings = Option(SettingsManager.getFacetSettings(module))
 
-      val project = context.getProjectDescriptor.getModel.getProject
+      val scalaOptions = facetSettings.map(_.getCompilerOptions.toSeq).getOrElse(Seq.empty)
 
-      val order = {
-        val projectSettings = SettingsManager.getProjectSettings(project)
-        projectSettings.getCompilationOrder
-      }
+      val order = facetSettings.map(_.getCompileOrder).getOrElse(Order.Mixed)
 
       val outputToCacheMap = createOutputToCacheMap(context)
 

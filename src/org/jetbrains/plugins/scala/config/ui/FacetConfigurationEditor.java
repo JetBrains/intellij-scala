@@ -61,6 +61,8 @@ public class FacetConfigurationEditor extends FacetEditorTab {
   private JComboBox languageLevelComboBox;
   private JPanel myFscSwitchPanel;
   private JPanel myJvmParametersPanel;
+  private JComboBox myCompileOrder;
+  private JPanel myCompileOrderPanel;
 
   private MyAction myAddPluginAction = new AddPluginAction();
   private MyAction myRemovePluginAction = new RemovePluginAction();
@@ -89,6 +91,8 @@ public class FacetConfigurationEditor extends FacetEditorTab {
     myDebuggingInfoLevel.setModel(new DefaultComboBoxModel(DebuggingInfoLevel.values()));
     myLibraryRenderer = new LibraryRenderer(myCompilerLibrary);
     myCompilerLibrary.setRenderer(myLibraryRenderer);
+    myCompileOrder.setModel(new DefaultComboBoxModel(CompileOrder.values()));
+    myCompileOrder.setRenderer(new CompileOrderRenderer());
 
     myEnableWarnings.addChangeListener(new ChangeListener() {
       public void stateChanged(ChangeEvent e) {
@@ -172,6 +176,7 @@ public class FacetConfigurationEditor extends FacetEditorTab {
 
     myFscSwitchPanel.setVisible(!externalCompiler);
     myJvmParametersPanel.setVisible(!externalCompiler);
+    myCompileOrderPanel.setVisible(externalCompiler);
   }
 
   private void updateCompilerSection() {
@@ -258,6 +263,8 @@ public class FacetConfigurationEditor extends FacetEditorTab {
     data.setCompilerLibraryName(getCompilerLibraryName());
     data.setCompilerLibraryLevel(getCompilerLibraryLevel());
 
+    data.setCompileOrder((CompileOrder) myCompileOrder.getSelectedItem());
+
     try {
       data.setMaximumHeapSize(Integer.parseInt(myMaximumHeapSize.getText().trim()));
     } catch(NumberFormatException e){
@@ -289,6 +296,9 @@ public class FacetConfigurationEditor extends FacetEditorTab {
     myRunSeparateCompilerRadioButton.setSelected(!myData.getFsc());
     updateLibrariesList();
     setCompilerLibraryById(new LibraryId(myData.getCompilerLibraryName(), myData.getCompilerLibraryLevel()));
+
+    myCompileOrder.setSelectedItem(myData.getCompileOrder());
+
     myMaximumHeapSize.setText(Integer.toString(myData.getMaximumHeapSize()));
     myVmParameters.setText(myData.getVmOptions());
     
