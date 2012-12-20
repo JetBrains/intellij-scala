@@ -9,6 +9,7 @@ import com.intellij.openapi.project.Project
 import api.statements._
 import api.toplevel.ScTypedDefinition
 import nonvalue.{ScMethodType, NonValueType}
+import params.ScClassParameter
 import result.{Success, TypeResult, TypingContext}
 import java.lang.Exception
 import collection.mutable.HashSet
@@ -16,6 +17,7 @@ import collection.immutable.HashMap
 import api.toplevel.templates.ScTemplateBody
 import util.PsiTreeUtil
 import api.toplevel.typedef.{ScTemplateDefinition, ScClass, ScObject}
+import api.base.patterns.ScBindingPattern
 
 /*
 Current types for pattern matching, this approach is bad for many reasons (one of them is bad performance).
