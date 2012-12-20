@@ -6,14 +6,11 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.jps.incremental.scala.model.FacetSettings;
 import org.jetbrains.jps.incremental.scala.model.FacetSettingsImpl;
 import org.jetbrains.jps.incremental.scala.model.GlobalSettingsImpl;
-import org.jetbrains.jps.incremental.scala.model.ProjectSettingsImpl;
 import org.jetbrains.jps.model.JpsElement;
 import org.jetbrains.jps.model.JpsGlobal;
-import org.jetbrains.jps.model.JpsProject;
 import org.jetbrains.jps.model.module.JpsModule;
 import org.jetbrains.jps.model.serialization.JpsGlobalExtensionSerializer;
 import org.jetbrains.jps.model.serialization.JpsModelSerializerExtension;
-import org.jetbrains.jps.model.serialization.JpsProjectExtensionSerializer;
 import org.jetbrains.jps.model.serialization.facet.JpsFacetConfigurationSerializer;
 
 import java.util.Collections;
@@ -27,12 +24,6 @@ public class ScalaSerializerService extends JpsModelSerializerExtension {
   @Override
   public List<? extends JpsGlobalExtensionSerializer> getGlobalExtensionSerializers() {
     return Collections.singletonList(new GlobalSettingsSerializer());
-  }
-
-  @NotNull
-  @Override
-  public List<? extends JpsProjectExtensionSerializer> getProjectExtensionSerializers() {
-    return Collections.singletonList(new ProjectSettingsSerializer());
   }
 
   @Override
@@ -54,27 +45,6 @@ public class ScalaSerializerService extends JpsModelSerializerExtension {
 
     @Override
     public void saveExtension(@NotNull JpsGlobal jpsGlobal, @NotNull Element componentTag) {
-      // do nothing
-    }
-  }
-
-  private static class ProjectSettingsSerializer extends JpsProjectExtensionSerializer {
-    private static final String COMPILER_SETTINGS_COMPONENT_NAME = "ScalacSettings";
-    private static final String COMPILER_SETTINGS_FILE = "scala_compiler.xml";
-
-    public ProjectSettingsSerializer() {
-      super(COMPILER_SETTINGS_FILE, COMPILER_SETTINGS_COMPONENT_NAME);
-    }
-
-    @Override
-    public void loadExtension(@NotNull JpsProject jpsProject, @NotNull Element componentTag) {
-      ProjectSettingsImpl.State state = XmlSerializer.deserialize(componentTag, ProjectSettingsImpl.State.class);
-      ProjectSettingsImpl settings = new ProjectSettingsImpl(state == null ? new ProjectSettingsImpl.State() : state);
-      SettingsManager.setProjectSettings(jpsProject, settings);
-    }
-
-    @Override
-    public void saveExtension(@NotNull JpsProject jpsProject, @NotNull Element componentTag) {
       // do nothing
     }
   }
