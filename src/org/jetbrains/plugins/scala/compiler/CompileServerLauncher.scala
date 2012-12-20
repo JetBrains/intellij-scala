@@ -57,6 +57,7 @@ class CompileServerLauncher extends ApplicationComponent {
            new File(ideaRoot, "trove4j.jar"),
            new File(ideaRoot, "util.jar"),
            new File(pluginRoot, "scala-library.jar"),
+           new File(pluginRoot, "scala-plugin-runners.jar"),
            new File(pluginRoot, "nailgun.jar"),
            new File(jpsRoot, "sbt-interface.jar"),
            new File(jpsRoot, "incremental-compiler.jar"),
@@ -72,7 +73,7 @@ class CompileServerLauncher extends ApplicationComponent {
      }
 
      val commands = java +: "-cp" +: classpath +: jvmParameters :+
-             "com.martiansoftware.nailgun.NGServer" :+ settings.COMPILE_SERVER_PORT
+             "org.jetbrains.plugins.scala.nailgun.NailgunRunner" :+ settings.COMPILE_SERVER_PORT
 
      val process = new ProcessBuilder(commands.asJava).redirectErrorStream(true).start()
 

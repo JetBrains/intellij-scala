@@ -3,7 +3,7 @@ package remote
 
 import java.io._
 import data.{CompilationData, CompilerData, SbtData}
-import java.net.{UnknownHostException, ConnectException, Socket}
+import java.net.{InetAddress, UnknownHostException, ConnectException, Socket}
 import com.martiansoftware.nailgun.NGConstants
 import org.jetbrains.jps.incremental.messages.BuildMessage.Kind
 import org.jetbrains.jps.incremental.ModuleLevelBuilder.ExitCode
@@ -13,7 +13,7 @@ import RemoteServer._
 /**
  * @author Pavel Fatin
  */
-class RemoteServer(address: String, port: Int) extends Server {
+class RemoteServer(address: InetAddress, port: Int) extends Server {
   def compile(sbtData: SbtData, compilerData: CompilerData, compilationData: CompilationData, client: Client): ExitCode = {
     val arguments = {
       val strings = Arguments(sbtData, compilerData, compilationData).asStrings
@@ -21,15 +21,15 @@ class RemoteServer(address: String, port: Int) extends Server {
     }
 
     try {
-      send(MainClass, arguments, client)
+      send(ServerAlias, arguments, client)
       ExitCode.OK
     } catch {
       case e: ConnectException =>
-        val message = "Cannot connect to Naigun server at %s:%s".format(address, port)
+        val message = "Cannot connect to Naigun server at %s:%s".format(address.toString, port)
         client.error(message)
         ExitCode.ABORT
       case e: UnknownHostException =>
-        val message = "Unknown IP address of Nailgun server host: " + address
+        val message = "Unknown IP address of Nailgun server host: " + address.toString
         client.error(message)
         ExitCode.ABORT
     }
@@ -49,7 +49,7 @@ class RemoteServer(address: String, port: Int) extends Server {
 }
 
 private object RemoteServer {
-  private val MainClass = "org.jetbrains.jps.incremental.scala.remote.Main"
+  private val ServerAlias = "compile-server"
 
   private val CurrentDirectory = System.getProperty("user.dir")
 
