@@ -10,5 +10,7 @@ public interface FacetSettings extends JpsElement {
 
   String getCompilerLibraryName();
 
+  Order getCompileOrder();
+
   String[] getCompilerOptions();
 }

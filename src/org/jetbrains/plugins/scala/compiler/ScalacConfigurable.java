@@ -37,6 +37,8 @@ public class ScalacConfigurable implements Configurable {
   private JPanel myClientPanel;
   private JTextField myIdleTimeout;
   private JPanel myFscSettingsPanel;
+  private JPanel myCompileOrderPanel;
+  private JLabel myNothingToShowLabel;
   private ScalacSettings mySettings;
   private Project myProject;
   private final LibraryRenderer myLibraryRenderer;
@@ -56,7 +58,11 @@ public class ScalacConfigurable implements Configurable {
     updateLibrariesList();
 
     boolean externalCompiler = CompilerWorkspaceConfiguration.getInstance(myProject).USE_COMPILE_SERVER;
+
     myFscSettingsPanel.setVisible(!externalCompiler);
+    myCompileOrderPanel.setVisible(!externalCompiler);
+
+    myNothingToShowLabel.setVisible(externalCompiler);
   }
 
   private void updateLibrariesList() {

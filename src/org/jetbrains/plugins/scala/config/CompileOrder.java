@@ -1,9 +1,9 @@
-package org.jetbrains.jps.incremental.scala.model;
+package org.jetbrains.plugins.scala.config;
 
 /**
  * @author Pavel Fatin
  */
-public enum Order {
+public enum CompileOrder {
   Mixed,
   JavaThenScala,
   ScalaThenJava
