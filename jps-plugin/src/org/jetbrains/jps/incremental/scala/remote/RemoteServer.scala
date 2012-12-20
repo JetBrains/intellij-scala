@@ -25,11 +25,11 @@ class RemoteServer(address: InetAddress, port: Int) extends Server {
       ExitCode.OK
     } catch {
       case e: ConnectException =>
-        val message = "Cannot connect to Naigun server at %s:%s".format(address.toString, port)
+        val message = "Cannot connect to compile server at %s:%s".format(address.toString, port)
         client.error(message)
         ExitCode.ABORT
       case e: UnknownHostException =>
-        val message = "Unknown IP address of Nailgun server host: " + address.toString
+        val message = "Unknown IP address of compile server host: " + address.toString
         client.error(message)
         ExitCode.ABORT
     }
