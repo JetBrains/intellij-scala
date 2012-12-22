@@ -113,7 +113,7 @@ class FscServerLauncher(project: Project) extends ProjectComponent {
                          vmParameters: Seq[String], options: Seq[String]): Process = {
     val classpath = environment.libraries.mkString(File.pathSeparator)
     val args = Array(environment.java) ++ vmParameters ++ List("-cp", classpath, className) ++ options
-    new ProcessBuilder(args: _*).redirectErrorStream(true).start();
+    new ProcessBuilder(args: _*).start()
   }
 
   private def readPort(process: Process): Option[Int] = {
