@@ -5,6 +5,7 @@ import data._
 import model.Order
 import java.io.File
 import Arguments._
+import com.intellij.openapi.util.io.FileUtil
 
 /**
  * @author Pavel Fatin
@@ -78,7 +79,7 @@ object Arguments {
       Arguments(sbtData, compilerData, compilationData)
   }
 
-  private def fileToPath(file: File): String = file.getCanonicalPath
+  private def fileToPath(file: File): String = FileUtil.toCanonicalPath(file.getPath)
 
   private def filesToPaths(files: Iterable[File]): String = sequenceToString(files.map(fileToPath))
 
