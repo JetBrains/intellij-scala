@@ -5,6 +5,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.components.ProjectComponent
 import config.ScalaFacet
 import com.intellij.compiler.CompilerWorkspaceConfiguration
+import com.intellij.notification.{NotificationType, Notification, Notifications}
 import com.intellij.openapi.compiler.{CompilerMessageCategory, CompileContext, CompileTask, CompilerManager}
 import com.intellij.openapi.roots.ProjectRootManager
 import extensions._
@@ -15,6 +16,8 @@ import extensions._
 
 class ServerMediator(project: Project) extends ProjectComponent {
   CompilerManager.getInstance(project).addBeforeTask(new CompileTask {
+    var firstCompilation = true
+
     def execute(context: CompileContext): Boolean = {
       val scalaProject = ScalaFacet.isPresentIn(project)
 
@@ -22,6 +25,14 @@ class ServerMediator(project: Project) extends ProjectComponent {
 
       if (scalaProject) {
         if (externalCompiler) {
+          if (firstCompilation) {
+            val title = "Using a new (SBT-based) Scala compiler."
+            val message = "In case of any compilation problems you may enable the previous (internal) compiler by clearing:\n" +
+                    "Project Settings / Compiler / Use external build"
+            Notifications.Bus.notify(new Notification("scala", title, message, NotificationType.INFORMATION))
+            firstCompilation = false
+          }
+
           invokeAndWait {
             project.getComponent(classOf[FscServerLauncher]).stop()
             project.getComponent(classOf[FscServerManager]).removeWidget()
