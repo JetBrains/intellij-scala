@@ -103,7 +103,7 @@ class ScalaBuilder extends ModuleLevelBuilder(BuilderCategory.TRANSLATOR) {
 
           val server = if (settings.isCompilationServerEnabled) {
             ScalaBuilder.cleanLocalServerCache()
-            new RemoteServer(InetAddress.getLocalHost, settings.getCompilationServerPort)
+            new RemoteServer(InetAddress.getByName(null), settings.getCompilationServerPort)
           } else {
             ScalaBuilder.localServer
           }
