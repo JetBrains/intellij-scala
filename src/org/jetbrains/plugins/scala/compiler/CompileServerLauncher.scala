@@ -75,7 +75,7 @@ class CompileServerLauncher extends ApplicationComponent {
      val commands = java +: "-cp" +: classpath +: jvmParameters :+
              "org.jetbrains.plugins.scala.nailgun.NailgunRunner" :+ settings.COMPILE_SERVER_PORT
 
-     val process = new ProcessBuilder(commands.asJava).redirectErrorStream(true).start()
+     val process = new ProcessBuilder(commands.asJava).start()
 
      instance = Some(ServerInstance(process, settings.COMPILE_SERVER_PORT.toInt))
 
