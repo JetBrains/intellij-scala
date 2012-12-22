@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala
 package compiler
 
-import com.intellij.openapi.project.Project
+import com.intellij.openapi.project.{DumbAware, Project}
 import com.intellij.openapi.components.ProjectComponent
 import com.intellij.openapi.wm.{StatusBar, StatusBarWidget, WindowManager}
 import com.intellij.openapi.wm.StatusBarWidget.PlatformType
@@ -129,7 +129,7 @@ class FscServerManager(project: Project) extends ProjectComponent {
     popup.show(new RelativePoint(e.getComponent, at))
   }
 
-  private object Start extends AnAction("&Run", "Start project FSC", IconLoader.getIcon("/actions/execute.png")) {
+  private object Start extends AnAction("&Run", "Start project FSC", IconLoader.getIcon("/actions/execute.png")) with DumbAware {
     override def update(e: AnActionEvent) {
       e.getPresentation.setEnabled(!launcher.running)
     }
@@ -139,7 +139,7 @@ class FscServerManager(project: Project) extends ProjectComponent {
     }
   }
 
-  private object Reset extends AnAction("R&eset", "Reset project FSC", IconLoader.getIcon("/actions/sync.png")) {
+  private object Reset extends AnAction("R&eset", "Reset project FSC", IconLoader.getIcon("/actions/sync.png")) with DumbAware {
     override def update(e: AnActionEvent) {
       e.getPresentation.setEnabled(launcher.running)
     }
@@ -153,7 +153,7 @@ class FscServerManager(project: Project) extends ProjectComponent {
     }
   }
 
-  private object Stop extends AnAction("&Stop", "Shutdown project FSC", IconLoader.getIcon("/actions/suspend.png")) {
+  private object Stop extends AnAction("&Stop", "Shutdown project FSC", IconLoader.getIcon("/actions/suspend.png")) with DumbAware {
     override def update(e: AnActionEvent) {
       e.getPresentation.setEnabled(launcher.running)
     }
@@ -163,7 +163,7 @@ class FscServerManager(project: Project) extends ProjectComponent {
     }
   }
 
-  private object Configure extends AnAction("&Configure...", "Configure project FSC", IconLoader.getIcon("/general/configure.png")) {
+  private object Configure extends AnAction("&Configure...", "Configure project FSC", IconLoader.getIcon("/general/configure.png")) with DumbAware {
     def actionPerformed(e: AnActionEvent) {
       ShowSettingsUtil.getInstance().showSettingsDialog(project, "Scala Compiler")
     }
