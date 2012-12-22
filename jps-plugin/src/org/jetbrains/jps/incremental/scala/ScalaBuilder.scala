@@ -206,7 +206,7 @@ private class IdeClient(compilerName: String,
                         sourceToTarget: File => Option[BuildTarget[_ <: BuildRootDescriptor]]) extends Client {
 
   def message(kind: Kind, text: String, source: Option[File], line: Option[Long], column: Option[Long]) {
-    val sourcePath = source.map(file => FileUtil.toCanonicalPath(file.getPath))
+    val sourcePath = source.map(file => file.getPath)
 
     context.processMessage(new CompilerMessage(compilerName, kind, text, sourcePath.orNull,
       -1L, -1L, -1L, line.getOrElse(-1L), column.getOrElse(-1L)))
