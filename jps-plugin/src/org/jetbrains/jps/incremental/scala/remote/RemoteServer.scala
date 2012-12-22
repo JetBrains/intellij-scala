@@ -71,7 +71,14 @@ private object RemoteServer {
         case Chunk(NGConstants.CHUNKTYPE_EXIT, code) =>
           return
         case Chunk(NGConstants.CHUNKTYPE_STDOUT, data) =>
-          processor.process(Event.fromBytes(Base64Converter.decode(data)))
+          try {
+            val event = Event.fromBytes(Base64Converter.decode(data))
+            processor.process(event)
+          } catch {
+            case e: Exception =>
+              client.message(Kind.ERROR, "Unable to read an event from: " + new String(data))
+              client.trace(e)
+          }
         case Chunk(NGConstants.CHUNKTYPE_STDERR, data) =>
           client.message(Kind.ERROR, fromBytes(data))
         case Chunk(kind, data) =>
