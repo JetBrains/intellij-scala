@@ -17,7 +17,7 @@ public class NailgunRunner {
   public static void main(String[] args) throws UnknownHostException, ClassNotFoundException {
     if (args.length != 1) throw new IllegalArgumentException("Usage: NailgunRunner [port]");
 
-    InetAddress address = InetAddress.getLocalHost();
+    InetAddress address = InetAddress.getByName(null);
     int port = Integer.parseInt(args[0]);
 
     NGServer server = createServer(address, port);
