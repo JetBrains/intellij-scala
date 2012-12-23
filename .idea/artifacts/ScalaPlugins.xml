@@ -16,13 +16,13 @@
             <element id="dir-copy" path="$PROJECT_DIR$/META-INF" />
           </element>
         </element>
-        <element id="library" level="project" name="nailgun" />
         <element id="directory" name="jps">
           <element id="file-copy" path="$PROJECT_DIR$/SDK/sbt/compiler-interface-sources.jar" />
           <element id="archive" name="scala-jps-plugin.jar">
             <element id="module-output" name="scala-jps-plugin" />
           </element>
           <element id="library" level="project" name="sbt" />
+          <element id="library" level="project" name="nailgun" />
         </element>
       </element>
     </root>
