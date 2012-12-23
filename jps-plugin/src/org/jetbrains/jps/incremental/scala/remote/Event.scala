@@ -23,7 +23,7 @@ object Event {
     val buffer = new ByteArrayInputStream(bytes)
     val stream = new ObjectInputStream(buffer)
     val event = stream.readObject().asInstanceOf[Event]
-    if (stream.read() != -1) {
+    if (stream.available > 0) {
       val excess = FileUtil.loadTextAndClose(stream)
       throw new IllegalArgumentException("Excess bytes after event deserialization: " + excess)
     }
