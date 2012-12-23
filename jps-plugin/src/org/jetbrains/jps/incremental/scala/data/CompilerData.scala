@@ -15,7 +15,7 @@ import collection.JavaConverters._
 /**
  * @author Pavel Fatin
  */
-case class CompilerData(compilerJars: Option[CompilerJars], javaHome: Option[File])
+case class CompilerData(javaHome: File, compilerJars: Option[CompilerJars])
 
 object CompilerData {
   def from(context: CompileContext, chunk: ModuleChunk): Either[String, CompilerData] = {
@@ -33,16 +33,12 @@ object CompilerData {
               .toRight("No JDK in module " + module.getName)
               .flatMap { jdk =>
 
-        val projectJdk = Option(model.getProject.getSdkReferencesTable.getSdkReference(JpsJavaSdkType.INSTANCE))
-                .flatMap(references => Option(references.resolve))
-                .map(_.getProperties)
-
-        val javaHome = if (projectJdk.exists(_ == jdk)) Right(None) else {
+        val javaHome = {
           val directory = new File(jdk.getHomePath)
-          Either.cond(directory.exists, Some(directory), "JDK home directory does not exists: " + directory)
+          Either.cond(directory.exists, directory, "JDK home directory does not exists: " + directory)
         }
 
-        javaHome.map(CompilerData(jars, _))
+        javaHome.map(CompilerData(_, jars))
       }
     }
   }

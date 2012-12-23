@@ -16,15 +16,13 @@ case class Arguments(sbtData: SbtData, compilerData: CompilerData, compilationDa
 
     val compilerJarPaths = compilerData.compilerJars.map(jars => filesToPaths(jars.library +: jars.compiler +: jars.extra))
 
-    val javaHomePath = compilerData.javaHome.map(fileToPath)
-
     Seq(
       fileToPath(sbtData.interfaceJar),
       fileToPath(sbtData.sourceJar),
       fileToPath(sbtData.interfacesHome),
       sbtData.javaClassVersion,
       optionToString(compilerJarPaths),
-      optionToString(javaHomePath),
+      fileToPath(compilerData.javaHome),
       filesToPaths(compilationData.sources),
       filesToPaths(compilationData.classpath),
       fileToPath(compilationData.output),
@@ -48,7 +46,7 @@ object Arguments {
     PathToFile(interfacesHome),
     javaClassVersion,
     StringToOption(compilerJarPaths),
-    StringToOption(javaHomePath),
+    PathToFile(javaHome),
     PathsToFiles(sources),
     PathsToFiles(classpath),
     PathToFile(output),
@@ -66,11 +64,7 @@ object Arguments {
           CompilerJars(libraryJar, compilerJar, extraJars)
       }
 
-      val javaHome = javaHomePath.map {
-        case PathToFile(file) => file
-      }
-
-      val compilerData = CompilerData(compilerJars, javaHome)
+      val compilerData = CompilerData(javaHome, compilerJars)
 
       val outputToCacheMap = outputs.zip(caches).toMap
 
