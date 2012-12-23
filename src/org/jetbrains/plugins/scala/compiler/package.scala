@@ -25,7 +25,8 @@ package object compiler {
 
     javaPath.right.flatMap { path =>
       val file = new File(path)
-      Either.cond(file.exists, file, "Java executable in JVM SDK does not exist: " + file.getPath)
+//      Either.cond(file.exists, file, "Java executable in JVM SDK does not exist: " + file.getPath)
+      Right(file)
     }
   }
 }
