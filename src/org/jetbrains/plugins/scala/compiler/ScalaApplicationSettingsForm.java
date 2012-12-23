@@ -65,6 +65,7 @@ public class ScalaApplicationSettingsForm implements Configurable {
 
   private void updateCompilationServerSettingsPanel() {
     setDescendantsEnabledIn(myCompilationServerPanel, myEnableCompileServer.isSelected());
+    myNote.setEnabled(true);
   }
 
   private static void setDescendantsEnabledIn(JComponent root, boolean b) {
