@@ -6,7 +6,9 @@ import org.jetbrains.jps.model.JpsElement;
  * @author Pavel Fatin
  */
 public interface GlobalSettings extends JpsElement {
-  boolean isCompilationServerEnabled();
+  boolean isCompileServerEnabled();
 
-  int getCompilationServerPort();
+  int getCompileServerPort();
+
+  String getCompileServerSdk();
 }
