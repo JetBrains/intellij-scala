@@ -10,6 +10,7 @@ import com.intellij.util.xmlb.XmlSerializerUtil;
 public class ScalaApplicationSettings implements PersistentStateComponent<ScalaApplicationSettings> {
   public boolean COMPILE_SERVER_ENABLED = true;
   public String COMPILE_SERVER_PORT = "3200";
+  public String COMPILE_SERVER_SDK;
   public String COMPILE_SERVER_MAXIMUM_HEAP_SIZE = "1408";
   public String COMPILE_SERVER_JVM_PARAMETERS = "-server -Xss1m -XX:MaxPermSize=256m";
 

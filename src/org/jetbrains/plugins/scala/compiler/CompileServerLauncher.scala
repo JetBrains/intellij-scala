@@ -2,13 +2,16 @@ package org.jetbrains.plugins.scala
 package compiler
 
 import com.intellij.openapi.components.ApplicationComponent
-import com.intellij.openapi.projectRoots.{Sdk, JavaSdkType}
+import com.intellij.openapi.projectRoots.{JavaSdk, ProjectJdkTable}
 import collection.JavaConverters._
 import com.intellij.util.PathUtil
 import java.io.File
 import com.intellij.openapi.application.ApplicationManager
 import extensions._
 import com.intellij.notification.{Notifications, NotificationType, Notification}
+import com.intellij.openapi.util.io.FileUtil
+import com.intellij.openapi.roots.ProjectRootManager
+import com.intellij.openapi.project.Project
 
 /**
  * @author Pavel Fatin
@@ -25,11 +28,42 @@ class CompileServerLauncher extends ApplicationComponent {
      watcher.stop()
    }
 
-   def init(sdk: Sdk) {
-     if (!running) start(sdk)
+   def tryToStart(project: Project): Boolean = {
+     val applicationSettings = ScalaApplicationSettings.getInstance
+
+     if (applicationSettings.COMPILE_SERVER_SDK == null) {
+       // Try to find a suitable JDK
+       val choice = Option(ProjectRootManager.getInstance(project).getProjectSdk).orElse {
+         val all = ProjectJdkTable.getInstance.getSdksOfType(JavaSdk.getInstance()).asScala
+         all.headOption
+       }
+
+       choice.foreach(sdk => applicationSettings.COMPILE_SERVER_SDK = sdk.getName)
+
+//       val message = "JVM SDK is automatically selected: " + name +
+//               "\n(can be changed in Application Settings / Scala)"
+//       Notifications.Bus.notify(new Notification("scala", "Scala compile server",
+//         message, NotificationType.INFORMATION))
+     }
+
+     javaExecutableIn(applicationSettings.COMPILE_SERVER_SDK) match {
+       case Left(error) =>
+         val title = "Cannot launch Scala compile server"
+         val message = error +
+                 "\nPlease either disable Scala compile server or configure a valid JVM SDK for it."
+         Notifications.Bus.notify(new Notification("scala", title, message, NotificationType.ERROR))
+         false
+       case Right(java) =>
+         init(java)
+         true
+     }
    }
 
-   private def start(sdk: Sdk) {
+   private def init(java: File) {
+     if (!running) start(FileUtil.toCanonicalPath(java.getPath))
+   }
+
+   private def start(java: String) {
      val settings = ScalaApplicationSettings.getInstance
 
      val jvmParameters = {
@@ -39,12 +73,6 @@ class CompileServerLauncher extends ApplicationComponent {
        }
 
        xmx ++ settings.COMPILE_SERVER_JVM_PARAMETERS.split(" ").toSeq
-     }
-
-     val java = {
-       val sdkType = sdk.getSdkType.asInstanceOf[JavaSdkType]
-
-       sdkType.getVMExecutablePath(sdk)
      }
 
      val files = {
