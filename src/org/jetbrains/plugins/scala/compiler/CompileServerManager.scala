@@ -136,15 +136,7 @@ class CompileServerManager(project: Project) extends ProjectComponent {
      }
 
      def actionPerformed(e: AnActionEvent) {
-       val sdk = ProjectRootManager.getInstance(project).getProjectSdk
-
-       if (sdk != null) {
-         launcher.init(sdk)
-       } else {
-         Messages.showErrorDialog("No project SDK to run Scala compile server.\n" +
-                 "Please either disable Scala compile server or specify a project SDK",
-           "No project SDK to run Scala compile server")
-       }
+       launcher.tryToStart(project)
      }
    }
 
