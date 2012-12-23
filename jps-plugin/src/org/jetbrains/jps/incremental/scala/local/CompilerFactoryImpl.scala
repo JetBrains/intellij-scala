@@ -29,13 +29,7 @@ class CompilerFactoryImpl(sbtData: SbtData) extends CompilerFactory {
 
       val classpathOptions = ClasspathOptions.javac(compiler = false)
 
-      val javaHome = {
-        val home = compilerData.javaHome
-        val vmHome = new File(System.getProperty("java.home"))
-        if (home.getCanonicalPath == vmHome.getCanonicalPath) None else Some(home)
-      }
-
-      AggressiveCompile.directOrFork(scala, classpathOptions, javaHome)
+      AggressiveCompile.directOrFork(scala, classpathOptions, compilerData.javaHome)
     }
 
     new CompilerImpl(javac, scalac, fileToStore)

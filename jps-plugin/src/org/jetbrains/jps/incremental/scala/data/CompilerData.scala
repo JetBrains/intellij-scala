@@ -15,7 +15,7 @@ import collection.JavaConverters._
 /**
  * @author Pavel Fatin
  */
-case class CompilerData(javaHome: File, compilerJars: Option[CompilerJars])
+case class CompilerData(compilerJars: Option[CompilerJars], javaHome: Option[File])
 
 object CompilerData {
   def from(context: CompileContext, chunk: ModuleChunk): Either[String, CompilerData] = {
@@ -31,14 +31,26 @@ object CompilerData {
 
       Option(module.getSdk(JpsJavaSdkType.INSTANCE))
               .toRight("No JDK in module " + module.getName)
-              .flatMap { jdk =>
+              .flatMap { moduleJdk =>
 
-        val javaHome = {
-          val directory = new File(jdk.getHomePath)
-          Either.cond(directory.exists, directory, "JDK home directory does not exists: " + directory)
+        val globalSettings = SettingsManager.getGlobalSettings(model.getGlobal)
+
+        val jvmSdk = if (globalSettings.isCompileServerEnabled) {
+          Option(globalSettings.getCompileServerSdk).flatMap { sdkName =>
+            val libraries = model.getGlobal.getLibraryCollection.getLibraries(JpsJavaSdkType.INSTANCE).asScala
+            libraries.find(_.getName == sdkName).map(_.getProperties)
+          }
+        } else {
+          Option(model.getProject.getSdkReferencesTable.getSdkReference(JpsJavaSdkType.INSTANCE))
+                  .flatMap(references => Option(references.resolve)).map(_.getProperties)
         }
 
-        javaHome.map(CompilerData(_, jars))
+        val javaHome = if (jvmSdk.exists(_ == moduleJdk)) Right(None) else {
+          val directory = new File(moduleJdk.getHomePath)
+          Either.cond(directory.exists, Some(directory), "JDK home directory does not exists: " + directory)
+        }
+
+        javaHome.map(CompilerData(jars, _))
       }
     }
   }

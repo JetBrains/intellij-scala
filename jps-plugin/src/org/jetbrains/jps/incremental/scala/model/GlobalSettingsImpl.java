@@ -16,12 +16,16 @@ public class GlobalSettingsImpl extends JpsElementBase<GlobalSettingsImpl> imple
     myState = state;
   }
 
-  public boolean isCompilationServerEnabled() {
+  public boolean isCompileServerEnabled() {
     return myState.COMPILE_SERVER_ENABLED;
   }
 
-  public int getCompilationServerPort() {
+  public int getCompileServerPort() {
     return myState.COMPILE_SERVER_PORT;
+  }
+
+  public String getCompileServerSdk() {
+    return myState.COMPILE_SERVER_SDK;
   }
 
   @NotNull
@@ -39,5 +43,7 @@ public class GlobalSettingsImpl extends JpsElementBase<GlobalSettingsImpl> imple
     public boolean COMPILE_SERVER_ENABLED = true;
 
     public int COMPILE_SERVER_PORT = 3200;
+
+    public String COMPILE_SERVER_SDK;
   }
 }
