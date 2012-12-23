@@ -86,7 +86,7 @@ class CompileServerLauncher extends ApplicationComponent {
          new File(ideaRoot, "util.jar"),
          new File(pluginRoot, "scala-library.jar"),
          new File(pluginRoot, "scala-plugin-runners.jar"),
-         new File(pluginRoot, "nailgun.jar"),
+         new File(jpsRoot, "nailgun.jar"),
          new File(jpsRoot, "sbt-interface.jar"),
          new File(jpsRoot, "incremental-compiler.jar"),
          new File(jpsRoot, "jline.jar"),

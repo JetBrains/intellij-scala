@@ -319,7 +319,7 @@
       </fileset>
     </copy>
 
-    <copy todir="${temp.jar.dir}/Scala/lib">
+    <copy todir="${temp.jar.dir}/Scala/lib/jps">
       <fileset dir="${nailgun.lib}">
         <include name="**/nailgun.jar"/>
       </fileset>
