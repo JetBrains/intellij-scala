@@ -5,11 +5,12 @@ import com.intellij.openapi.components.ApplicationComponent
 import com.intellij.openapi.extensions.ExtensionPointName
 import com.intellij.ide.plugins.{PluginManagerConfigurable, PluginManager}
 import com.intellij.ide.plugins.cl.PluginClassLoader
-import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.ui.Messages
+import com.intellij.openapi.application.{Application, ApplicationManager}
 import com.intellij.openapi.diagnostic.Logger
-import com.intellij.openapi.project.Project
-import com.intellij.openapi.application.ex.ApplicationManagerEx
+import javax.swing.SwingUtilities
+import com.intellij.notification._
+import javax.swing.event.HyperlinkEvent
+import scala.Some
 
 /**
  * @author Alefas
@@ -59,52 +60,75 @@ class ScalaPluginVersionVerifierApplicationComponent extends ApplicationComponen
       }
     }
 
-    val versionString = ScalaPluginVersionVerifier.getPluginVersion
-    parseVersion(versionString) match {
-      case Some(version) =>
-        val extensions = ScalaPluginVersionVerifier.EP_NAME.getExtensions
+    def checkVersion() {
+      val versionString = ScalaPluginVersionVerifier.getPluginVersion
+      parseVersion(versionString) match {
+        case Some(version) =>
+          val extensions = ScalaPluginVersionVerifier.EP_NAME.getExtensions
 
-        for (extension <- extensions) {
-          var failed = false
-          def wrongVersion() {
-            failed = true
-            extension.getClass.getClassLoader match {
-              case pluginLoader: PluginClassLoader =>
-                val plugin = PluginManager.getPlugin(pluginLoader.getPluginId)
-                val message =
-                  s"Plugin ${plugin.getName} of version ${plugin.getVersion} is " +
-                  s"incompatible with Scala plugin of version $versionString. Do you want to disable ${plugin.getName} plugin?"
-                if (ApplicationManager.getApplication.isUnitTestMode) {
-                  ScalaPluginVersionVerifierApplicationComponent.LOG.error(message)
-                } else {
-                  Messages.showOkCancelDialog(null: Project, message, "Incompatible plugin", Messages.getErrorIcon) match {
-                    case 0 =>
-                      PluginManager.disablePlugin(plugin.getPluginId.getIdString)
-                      PluginManagerConfigurable.showRestartIDEADialog()
-                    case 1 => //do nothing it seems all is ok for the user
+          for (extension <- extensions) {
+            var failed = false
+            def wrongVersion() {
+              failed = true
+              extension.getClass.getClassLoader match {
+                case pluginLoader: PluginClassLoader =>
+                  val plugin = PluginManager.getPlugin(pluginLoader.getPluginId)
+                  val message =
+                    s"Plugin ${plugin.getName} of version ${plugin.getVersion} is " +
+                      s"icompatible with Scala plugin of version $versionString. Do you want to disable ${plugin.getName} plugin?\n" +
+                      s"""<p/><a href="Yes">Yes, disable it</a>\n""" +
+                      s"""<p/><a href="No">No, leave it enabled</a>"""
+                  if (ApplicationManager.getApplication.isUnitTestMode) {
+                    ScalaPluginVersionVerifierApplicationComponent.LOG.error(message)
+                  } else {
+                    val Scala_Group = "Scala Plugin Incompatibility"
+                    val app: Application = ApplicationManager.getApplication
+                    if (!app.isDisposed) {
+                      app.getMessageBus.syncPublisher(Notifications.TOPIC).register(Scala_Group, NotificationDisplayType.STICKY_BALLOON)
+                    }
+                    Notifications.Bus.register(Scala_Group, NotificationDisplayType.STICKY_BALLOON)
+                    val notification = new Notification(Scala_Group, "Incompatible plugin detected", message, NotificationType.ERROR, new NotificationListener {
+                      def hyperlinkUpdate(notification: Notification, event: HyperlinkEvent) {
+                        notification.expire()
+                        val description = event.getDescription
+                        description match {
+                          case "Yes" =>
+                            PluginManager.disablePlugin(plugin.getPluginId.getIdString)
+                            PluginManagerConfigurable.showRestartIDEADialog()
+                          case "No"  => //do nothing it seems all is ok for the user
+                          case _     => //do nothing it seems all is ok for the user
+                        }
+                      }
+                    })
+
+                    Notifications.Bus.notify(notification)
                   }
+              }
+            }
+            parseVersion(extension.getSinceVersion) match {
+              case Some(sinceVersion) =>
+                if (sinceVersion != version && version < sinceVersion) {
+                  wrongVersion()
                 }
+              case _                  =>
+            }
+
+            parseVersion(extension.getUntilVersion) match {
+              case Some(untilVersion) =>
+                if (untilVersion != version && untilVersion < version) {
+                  wrongVersion()
+                }
+              case _                  =>
             }
           }
-          parseVersion(extension.getSinceVersion) match {
-            case Some(sinceVersion) =>
-              if (sinceVersion != version && version < sinceVersion) {
-                wrongVersion()
-              }
-            case _ =>
-          }
-
-          parseVersion(extension.getUntilVersion) match {
-            case Some(untilVersion) =>
-              if (untilVersion != version && untilVersion < version) {
-                wrongVersion()
-              }
-            case _ =>
-          }
-        }
-      case None =>
+        case None          =>
+      }
     }
-
+    SwingUtilities.invokeLater(new Runnable {
+      def run() {
+        checkVersion()
+      }
+    })
   }
 
   def disposeComponent() {}
