@@ -1,5 +1,6 @@
 package org.jetbrains.jps.incremental.scala
 
+import org.jetbrains.jps.javac.BinaryContent
 import java.io.File
 import java.net.InetAddress
 import com.intellij.openapi.util.io.FileUtil
