@@ -9,15 +9,14 @@ import com.intellij.openapi.project.Project
 import api.statements._
 import api.toplevel.ScTypedDefinition
 import nonvalue.{ScMethodType, NonValueType}
-import params.ScClassParameter
 import result.{Success, TypeResult, TypingContext}
 import java.lang.Exception
-import collection.mutable.HashSet
+import collection.mutable.ArrayBuffer
 import collection.immutable.HashMap
 import api.toplevel.templates.ScTemplateBody
 import util.PsiTreeUtil
 import api.toplevel.typedef.{ScTemplateDefinition, ScClass, ScObject}
-import api.base.patterns.ScBindingPattern
+import collection.mutable
 
 /*
 Current types for pattern matching, this approach is bad for many reasons (one of them is bad performance).
@@ -66,7 +65,7 @@ trait ScType {
    */
   final def conforms(t: ScType, checkWeak: Boolean = false): Boolean = Conformance.conforms(t, this, checkWeak)
 
-  final def weakConforms(t: ScType): Boolean = Conformance.conforms(t, this, true)
+  final def weakConforms(t: ScType): Boolean = Conformance.conforms(t, this, checkWeak = true)
 
   final def presentableText = ScType.presentableText(this)
 
@@ -80,6 +79,19 @@ trait ScType {
 
   def inferValueType: ValueType
 
+  def unpackedType: ScType = {
+    val wildcards = new ArrayBuffer[ScExistentialArgument]
+    val quantified = recursiveUpdate({
+      case s: ScSkolemizedType =>
+        wildcards += ScExistentialArgument(s.name, s.args, s.lower, s.upper)
+        (true, ScTypeVariable(s.name))
+      case t => (false, t)
+    })
+    if (wildcards.length > 0) {
+      ScExistentialType(quantified, wildcards.toList).simplify()
+    } else quantified
+  }
+
   /**
    * This method is important for parameters expected type.
    * There shouldn't be any abstract type in this expected type.
@@ -88,17 +100,18 @@ trait ScType {
   def removeAbstracts: ScType = this
 
   def removeVarianceAbstracts(variance: Int): ScType = {
+    var index = 0
     recursiveVarianceUpdate((tp: ScType, i: Int) => {
       tp match {
         case ScAbstractType(_, lower, upper) =>
           i match {
             case -1 => (true, lower)
             case 1 => (true, upper)
-            case 0 => (true, ScExistentialArgument("_", Nil, lower, upper))
+            case 0 => (true, ScSkolemizedType(s"_$$${index += 1; index}", Nil, lower, upper))
           }
         case _ => (true, tp)
       }
-    }, variance)
+    }, variance).unpackedType
   }
 
   def removeUndefines(): ScType = {
@@ -138,7 +151,7 @@ trait ScType {
   }
 
   def collectAbstracts: Seq[ScAbstractType] = {
-    val set: HashSet[ScAbstractType] = new HashSet[ScAbstractType]
+    val set: mutable.HashSet[ScAbstractType] = new mutable.HashSet[ScAbstractType]
 
     recursiveUpdate(tp => {
       tp match {
@@ -306,7 +319,7 @@ object ScType extends ScTypePresentation with ScTypePsiTypeBridge {
         ScParameterizedType(_, _)
       }
 
-    case tp => Success(tp, None)
+    case _ => Success(tp, None)
   }
 
   def extractTupleType(tp: ScType): Option[ScTupleType] = expandAliases(tp).getOrAny match {

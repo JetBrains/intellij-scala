@@ -71,7 +71,8 @@ class ScExistentialTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(no
                                   state: ResolveState,
                                   lastParent: PsiElement,
                                   place: PsiElement): Boolean = {
-    if (lastParent == quantified) {
+    if (lastParent == quantified || (lastParent.isInstanceOf[ScalaPsiElement] &&
+      lastParent.asInstanceOf[ScalaPsiElement].getDeepSameElementInContext == quantified)) {
       for (decl <- clause.declarations) {
         decl match {
           case alias: ScTypeAliasDeclaration => if (!processor.execute(alias, state)) return false

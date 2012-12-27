@@ -79,8 +79,9 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible with Ps
 
       //this functionality for checking if this expression can be implicitly changed and then
       //it will conform to expected type
+      val firstPart = implicitMapFirstPart(Some(expected), fromUnderscore)
       var f: Seq[(ScType, PsiNamedElement, Set[ImportUsed], ScSubstitutor)] =
-        implicitMapFirstPart(Some(expected), fromUnderscore).filter(_._1.conforms(expected))
+        firstPart.filter(_._1.conforms(expected))
       if (f.length == 0) {
         f = implicitMapSecondPart(Some(expected), fromUnderscore).filter(_._1.conforms(expected))
       }
@@ -197,7 +198,7 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible with Ps
         case _ =>
       }
 
-      val valType = res.inferValueType
+      val valType = res.inferValueType.unpackedType
 
       if (ignoreBaseTypes) return Success(valType, Some(this))
 

@@ -34,7 +34,56 @@ class ScParameterizedTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(
     }
   }
 
+  private var desugarizedTypeModCount: Long = 0L
+  private var desugarizedType: Option[ScTypeElement] = null
+
+  def desugarizedExistentialType: Option[ScTypeElement] = {
+    def inner(): Option[ScTypeElement] = {
+      typeArgList.typeArgs.find {
+        case e: ScWildcardTypeElementImpl => true
+        case _ => false
+      } match {
+        case Some(_) =>
+          val forSomeBuilder = new StringBuilder
+          var count = 1
+          forSomeBuilder.append(" forSome {")
+          val typeElements = typeArgList.typeArgs.map {
+            case w: ScWildcardTypeElement =>
+              forSomeBuilder.append("type _" + "$" + count +
+                w.lowerTypeElement.map(te => s" >: ${te.getText}").getOrElse("") +
+                w.upperTypeElement.map(te => s" <: ${te.getText}").getOrElse(""))
+              forSomeBuilder.append("; ")
+              val res = s"_$$$count"
+              count += 1
+              res
+            case t => t.getText
+          }
+          forSomeBuilder.delete(forSomeBuilder.length - 2, forSomeBuilder.length)
+          forSomeBuilder.append("}")
+          val newTypeText = s"(${typeElement.getText}${typeElements.mkString("[", ", ", "]")} ${forSomeBuilder.toString()})"
+          val newTypeElement = ScalaPsiElementFactory.createTypeElementFromText(newTypeText, getContext, this)
+          Some(newTypeElement)
+        case _ => None
+      }
+    }
+
+    synchronized {
+      val currModCount = getManager.getModificationTracker.getModificationCount
+      if (desugarizedType != null && desugarizedTypeModCount == currModCount) {
+        return desugarizedType
+      }
+      desugarizedType = inner()
+      desugarizedTypeModCount = currModCount
+      return desugarizedType
+    }
+  }
+
   protected def innerType(ctx: TypingContext): TypeResult[ScType] = {
+    desugarizedExistentialType match {
+      case Some(typeElement) =>
+        return typeElement.getType(TypingContext.empty)
+      case _ =>
+    }
     val tr = typeElement.getType(ctx)
     val res = tr.getOrElse(return tr)
 
