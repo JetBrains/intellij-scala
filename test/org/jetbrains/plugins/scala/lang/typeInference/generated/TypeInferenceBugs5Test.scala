@@ -11,6 +11,8 @@ class TypeInferenceBugs5Test extends TypeInferenceTestBase {
 
   def testExistentialConformance() {doTest()}
 
+  def testExistentialConformance2() {doTest()}
+
   def testForStmtBug() {doTest()}
   
   def testImplicitTest() {doTest()}
