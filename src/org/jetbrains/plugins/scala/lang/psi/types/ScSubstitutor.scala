@@ -371,7 +371,7 @@ class ScUndefinedSubstitutor(val upperMap: Map[(String, String), HashSet[ScType]
               i match {
                 case -1 => (true, absLower)
                 case 1 => (true, upper)
-                case 0 => (true, ScSkolemizedType(s"_$$${index += 1; index}", Nil, absLower, upper))
+                case 0 => (true, absLower/*ScSkolemizedType(s"_$$${index += 1; index}", Nil, absLower, upper)*/) //todo: why this is right?
               }
             case ScSkolemizedType(_, _, skoLower, upper) =>
               i match {
@@ -406,7 +406,7 @@ class ScUndefinedSubstitutor(val upperMap: Map[(String, String), HashSet[ScType]
                 i match {
                   case -1 => (true, lower)
                   case 1 => (true, absUpper)
-                  case 0 => (true, ScSkolemizedType(s"_$$${index += 1; index}", Nil, lower, absUpper))
+                  case 0 => (true, absUpper/*ScSkolemizedType(s"_$$${index += 1; index}", Nil, lower, absUpper)*/) //todo: why this is right?
                 }
               case ScSkolemizedType(_, _, lower, skoUpper) =>
                 i match {
