@@ -42,7 +42,7 @@ object ScalaElementPresentation {
     presentableText.append(if (!function.isConstructor) function.name else "this")
 
     function.typeParametersClause match {
-      case Some(clause) => presentableText.append(clause.getText)
+      case Some(clause) => presentableText.append(clause.getText.replace("<", "&lt;"))
       case _ => ()
     }
 
