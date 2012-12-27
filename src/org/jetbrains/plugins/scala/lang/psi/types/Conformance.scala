@@ -1266,18 +1266,20 @@ object Conformance {
               case _ => (false, t)
             }
           case tp@ScDesignatorType(ta: ScTypeAlias) if ta.getContext.isInstanceOf[ScExistentialClause] =>
-            if (e.boundNames.contains(ta.name)) {
-              val tpt = tptsMap.getOrElseUpdate(ta.name,
-                ScTypeParameterType(ta.name,
-                  ta.typeParameters.map(new ScTypeParameterType(_, ScSubstitutor.empty)).toList,
-                  new Suspension[ScType](() => ta.lowerBound.getOrNothing),
-                  new Suspension[ScType](() => ta.upperBound.getOrAny),
-                  ScalaPsiElementFactory.createTypeParameterFromText(
-                    ta.name, ta.getManager
-                  ))
-              )
-              (true, tpt)
-            } else (false, tp)
+            e.wildcards.find(_.name == ta.name) match {
+              case Some(wild) =>
+                val tpt = tptsMap.getOrElseUpdate(ta.name,
+                  ScTypeParameterType(wild.name,
+                    wild.args,
+                    wild.lowerBound,
+                    wild.upperBound,
+                    ScalaPsiElementFactory.createTypeParameterFromText(
+                      wild.name, PsiManager.getInstance(ta.getProject)
+                    ))
+                )
+                (true, tpt)
+              case _ => (false, tp)
+            }
           case ex: ScExistentialType => (true, ex) //todo: this seems just fast solution
           case tp: ScType => (false, tp)
         }
