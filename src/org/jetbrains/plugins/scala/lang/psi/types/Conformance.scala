@@ -1298,13 +1298,18 @@ object Conformance {
           case Some(uSubst) =>
             for (tpt <- tptsMap.values if result == null) {
               val substedTpt = uSubst.subst(tpt)
-              if (substedTpt != tpt && !conformsInner(substedTpt, uSubst.subst(updateType(tpt.lower.v)), immutable.Set.empty,
-                new ScUndefinedSubstitutor())._1) {
+              var t = conformsInner(substedTpt, uSubst.subst(updateType(tpt.lower.v)), immutable.Set.empty, undefinedSubst)
+              if (substedTpt != tpt && !t._1) {
                 result = (false, undefinedSubst)
-              } else if (substedTpt != tpt && !conformsInner(uSubst.subst(updateType(tpt.upper.v)), substedTpt, immutable.Set.empty,
-                new ScUndefinedSubstitutor())._1) {
-                result = (false, undefinedSubst)
+                return
               }
+              undefinedSubst = t._2
+              t = conformsInner(uSubst.subst(updateType(tpt.upper.v)), substedTpt, immutable.Set.empty, undefinedSubst)
+              if (substedTpt != tpt && !t._1) {
+                result = (false, undefinedSubst)
+                return
+              }
+              undefinedSubst = t._2
             }
             if (result == null) {
               val filterFunction: (((String, String), HashSet[ScType])) => Boolean = {
@@ -1313,9 +1318,11 @@ object Conformance {
                     case tpt: ScTypeParameterType => id ==(tpt.name, ScalaPsiUtil.getPsiElementId(tpt.param))
                   }.isEmpty
               }
-              result = (true, new ScUndefinedSubstitutor(
+              val newUndefSubst = new ScUndefinedSubstitutor(
                 unSubst.upperMap.filter(filterFunction), unSubst.lowerMap.filter(filterFunction),
-                unSubst.upperAdditionalMap.filter(filterFunction), unSubst.lowerAdditionalMap.filter(filterFunction)))
+                unSubst.upperAdditionalMap.filter(filterFunction), unSubst.lowerAdditionalMap.filter(filterFunction))
+              undefinedSubst += newUndefSubst
+              result = (true, undefinedSubst)
             }
           case None => result = (false, undefinedSubst)
         }
