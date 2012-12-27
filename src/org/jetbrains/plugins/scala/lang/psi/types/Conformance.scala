@@ -1278,6 +1278,7 @@ object Conformance {
               )
               (true, tpt)
             } else (false, tp)
+          case ex: ScExistentialType => (true, ex) //todo: this seems just fast solution
           case tp: ScType => (false, tp)
         }
       }
