@@ -13,6 +13,7 @@ import api.base.patterns.{ScReferencePattern, ScBindingPattern}
 import extensions.{toPsiNamedElementExt, toPsiClassExt}
 import params.{ScParameter, ScTypeParam}
 import refactoring.util.{ScalaNamesUtil, ScTypeUtil}
+import collection.mutable.ArrayBuffer
 
 trait ScTypePresentation {
   def presentableText(t: ScType) = typeText(t, _.name, {
@@ -33,7 +34,7 @@ trait ScTypePresentation {
         case _ => StringEscapeUtils.escapeHtml(e.name) + "."
       }
     }
-    typeText(t, nameFun(_, false), nameFun(_, true))
+    typeText(t, nameFun(_, withPoint = false), nameFun(_, withPoint = true))
   }
 
   //todo: resolve cases when java type have keywords as name (type -> `type`)
@@ -51,17 +52,17 @@ trait ScTypePresentation {
         case _ => e.name
       })) + (if (withPoint) "." else "")
     }
-    typeText(t, nameFun(_, false), nameFun(_, true))
+    typeText(t, nameFun(_, withPoint = false), nameFun(_, withPoint = true))
   }
 
   private def typeText(t: ScType, nameFun: PsiNamedElement => String, nameWithPointFun: PsiNamedElement => String): String = {
     val buffer = new StringBuilder
-    def appendSeq(ts: Seq[ScType], sep: String, stable: Boolean) {
+    def appendSeq(ts: Seq[ScType], sep: String, stable: Boolean, checkWildcard: Boolean = false) {
       var first = true
       for (t <- ts) {
         if (!first) buffer.append(sep)
         first = false
-        inner(t, stable)
+        inner(t, stable, checkWildcard)
       }
     }
 
@@ -69,16 +70,16 @@ trait ScTypePresentation {
       if (!stable) buffer.append(".type")
     }
 
-    def inner(t: ScType, stable: Boolean) {
+    def inner(t: ScType, stable: Boolean, checkWildcard: Boolean = false) {
       t match {
         case ScAbstractType(tpt, lower, upper) =>
           buffer.append(ScTypePresentation.ABSTRACT_TYPE_PREFIX).append(tpt.name.capitalize)
         case StdType(name, _) => buffer.append(name)
         case ScFunctionType(ret, params) => {
-          buffer.append("(");
-          appendSeq(params, ", ", false);
-          buffer.append(") => ");
-          inner(ret, false)
+          buffer.append("(")
+          appendSeq(params, ", ", stable = false)
+          buffer.append(") => ")
+          inner(ret, stable = false)
         }
         case ScThisType(clazz: ScTypeDefinition) =>
           buffer.append(clazz.name + ".").append("this")
@@ -86,7 +87,7 @@ trait ScTypePresentation {
         case ScThisType(clazz) =>
           buffer.append("this")
           appendTypeTail(stable)
-        case ScTupleType(comps) => buffer.append("("); appendSeq(comps, ", ", false); buffer.append(")")
+        case ScTupleType(comps) => buffer.append("("); appendSeq(comps, ", ", stable = false); buffer.append(")")
         case ScDesignatorType(e@(_: ScObject | _: ScReferencePattern | _: ScParameter)) =>
           buffer.append(nameFun(e))
           appendTypeTail(stable)
@@ -94,7 +95,6 @@ trait ScTypePresentation {
         case proj@ScProjectionType(p, el, su, _) => {
           //todo:
           val e = proj.actualElement
-          val s = proj.actualSubst
           val refName = e.name
           def appendPointType() {
             e match {
@@ -118,7 +118,7 @@ trait ScTypePresentation {
               appendPointType()
             }
             case p: ScProjectionType if p.actualElement.isInstanceOf[ScObject] =>
-              inner(p, true); buffer.append(".").append(refName)
+              inner(p, stable = true); buffer.append(".").append(refName)
             case ScDesignatorType(clazz: PsiClass) if clazz.getLanguage != ScalaFileType.SCALA_LANGUAGE &&
               e.isInstanceOf[PsiModifierListOwner] &&
               e.asInstanceOf[PsiModifierListOwner].getModifierList.hasModifierProperty("static") => {
@@ -126,45 +126,26 @@ trait ScTypePresentation {
             }
             case _: ScCompoundType | _: ScExistentialType =>
               buffer.append("(")
-              inner(p, false)
+              inner(p, stable = false)
               buffer.append(")")
               buffer.append("#").append(refName)
             case _ =>
-              inner(p, false); buffer.append("#").append(refName)
+              inner(p, stable = false); buffer.append("#").append(refName)
           }
         }
         case p: ScParameterizedType if p.getTupleType != None => inner(p.getTupleType.get, stable)
         case p: ScParameterizedType if p.getFunctionType != None => inner(p.getFunctionType.get, stable)
         case ScParameterizedType(des, typeArgs) => {
-          inner(des, false);
-          buffer.append("[");
-          appendSeq(typeArgs, ", ", false);
+          inner(des, stable = false)
+          buffer.append("[")
+          appendSeq(typeArgs, ", ", stable = false, checkWildcard = true)
           buffer.append("]")
         }
-        case j@JavaArrayType(arg) => buffer.append("Array["); inner(arg, false); buffer.append("]")
+        case j@JavaArrayType(arg) => buffer.append("Array["); inner(arg, stable = false); buffer.append("]")
         case ScSkolemizedType(name, _, _, _) => buffer.append(name)
         case ScTypeParameterType(name, _, _, _, _) => buffer.append(name)
         case ScUndefinedType(tpt: ScTypeParameterType) => buffer.append("NotInfered").append(tpt.name)
-        case ScExistentialArgument(name, args, lower, upper) => {
-          buffer.append(name)
-          if (args.length > 0) {
-            buffer.append("[");
-            appendSeq(args, ",", false)
-            buffer.append("]")
-          }
-          lower match {
-            case Nothing =>
-            case _ =>
-              buffer.append(" >: ")
-              inner(lower, false)
-          }
-          upper match {
-            case Any =>
-            case _ =>
-              buffer.append(" <: ")
-              inner(upper, false)
-          }
-        }
+        case ScTypeVariable(name) => buffer.append(name)
         case c@ScCompoundType(comps, decls, typeDecls, s) => {
           def typeText0(tp: ScType) = typeText(s.subst(tp), nameFun, nameWithPointFun)
           buffer.append(comps.map(typeText(_, nameFun, nameWithPointFun)).mkString(" with "))
@@ -242,22 +223,99 @@ trait ScTypePresentation {
             buffer.append("}")
           }
         }
+        case ScExistentialType(q, wilds) if checkWildcard && wilds.length == 1 =>
+          q match {
+            case ScTypeVariable(name) if name == wilds(0).name =>
+              val wildcard = wilds(0)
+              buffer.append("_")
+              if (wildcard.lowerBound != Nothing) {
+                buffer.append(" >: ")
+                inner(wildcard.lowerBound, stable = false)
+              }
+              if (wildcard.upperBound != Any) {
+                buffer.append(" <: ")
+                inner(wildcard.upperBound, stable = false)
+              }
+            case ScDesignatorType(a: ScTypeAlias) if a.isExistentialTypeAlias && a.name == wilds(0).name =>
+              val wildcard = wilds(0)
+              buffer.append("_")
+              if (wildcard.lowerBound != Nothing) {
+                buffer.append(" >: ")
+                inner(wildcard.lowerBound, stable = false)
+              }
+              if (wildcard.upperBound != Any) {
+                buffer.append(" <: ")
+                inner(wildcard.upperBound, stable = false)
+              }
+            case _ => inner(t, stable, checkWildcard = false)
+          }
+        case ex@ScExistentialType(ScParameterizedType(des, typeArgs), wilds) =>
+          val wildcardsMap = ex.wildcardsMap()
+          val replacingArgs = new ArrayBuffer[(ScType, ScExistentialArgument)]()
+          val left = wilds.filter {
+            case arg: ScExistentialArgument =>
+              val seq = wildcardsMap.getOrElse(arg, Seq.empty)
+              if (seq.length == 1 && typeArgs.find(_ eq seq(0)).isDefined) {
+                replacingArgs += ((seq(0), arg))
+                false
+              } else true
+          }
+          if (left.nonEmpty) buffer.append("(")
+          inner(des, stable = false)
+          buffer.append("[")
+          var first = true
+          for (t <- typeArgs) {
+            if (!first) buffer.append(", ")
+            first = false
+            replacingArgs.find(_._1 eq t) match {
+              case Some((_, wildcard)) =>
+                buffer.append("_")
+                if (wildcard.lowerBound != Nothing) {
+                  buffer.append(" >: ")
+                  inner(wildcard.lowerBound, stable = false)
+                }
+                if (wildcard.upperBound != Any) {
+                  buffer.append(" <: ")
+                  inner(wildcard.upperBound, stable = false)
+                }
+              case _ => inner(t, stable = false, checkWildcard)
+            }
+          }
+          buffer.append("]")
+          if (left.nonEmpty) {
+            buffer.append(") forSome {")
+            val iter = left.iterator
+            while (iter.hasNext) {
+              val next = iter.next()
+              buffer.append("type ").append(next.name)
+              if (next.lowerBound != Nothing) {
+                buffer.append(" >: ")
+                inner(next.lowerBound, stable = false)
+              }
+              if (next.upperBound != Any) {
+                buffer.append(" <: ")
+                inner(next.upperBound, stable = false)
+              }
+              if (iter.hasNext) buffer.append("; ")
+            }
+            buffer.append("}")
+          }
         case ScExistentialType(q, wilds) => {
           buffer.append("(")
-          inner(q, false)
+          inner(q, stable = false)
           buffer.append(")")
-          buffer.append(" forSome {");
+          buffer.append(" forSome {")
           val iter = wilds.iterator
           while (iter.hasNext) {
             val next = iter.next()
             buffer.append("type ").append(next.name)
             if (next.lowerBound != Nothing) {
               buffer.append(" >: ")
-              inner(next.lowerBound, false)
+              inner(next.lowerBound, stable = false)
             }
             if (next.upperBound != Any) {
               buffer.append(" <: ")
-              inner(next.upperBound, false)
+              inner(next.upperBound, stable = false)
             }
             if (iter.hasNext) buffer.append("; ")
           }
@@ -266,7 +324,7 @@ trait ScTypePresentation {
         case _ => //todo
       }
     }
-    inner(t, false)
+    inner(t, stable = false)
     buffer.toString()
   }
 

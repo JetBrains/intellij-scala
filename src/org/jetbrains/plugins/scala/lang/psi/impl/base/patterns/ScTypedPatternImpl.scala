@@ -12,10 +12,16 @@ import lang.lexer._
 import com.intellij.psi._
 import scope.PsiScopeProcessor
 import api.ScalaElementVisitor
-import psi.types.{ScExistentialArgument, ScParameterizedType, ScType}
+import psi.types._
 import psi.types.result.{TypeResult, Failure, Success, TypingContext}
 import api.toplevel.typedef.ScTypeDefinition
 import api.statements.params.ScTypeParam
+import result.Failure
+import result.Success
+import scala.Some
+import psi.types.ScExistentialType
+import psi.types.ScExistentialArgument
+import scala.Boolean
 
 /**
 * @author Alexander Podkhalyuzin
@@ -52,27 +58,29 @@ class ScTypedPatternImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
         if (tp.typeElement == null) return Failure("No type element for type pattern", Some(this))
         val typeElementType: TypeResult[ScType] =
           tp.typeElement.getType(ctx).map {
-            case tp: ScType =>
-              ScType.extractClassType(tp, Some(getProject)) match {  //todo: type aliases?
+            case tp: ScExistentialType =>
+              val skolem = tp.skolem
+              ScType.extractClassType(skolem, Some(getProject)) match {  //todo: type aliases?
                 case Some((clazz: ScTypeDefinition, subst)) =>
                   val typeParams = clazz.typeParameters
-                  tp match {
+                  skolem match {
                     case ScParameterizedType(des, typeArgs) if typeArgs.length == typeParams.length =>
                       ScParameterizedType(des, typeArgs.zip(typeParams).map {
-                        case (arg: ScExistentialArgument, param: ScTypeParam) =>
+                        case (arg: ScSkolemizedType, param: ScTypeParam) =>
                           val lowerBound =
-                            if (arg.lowerBound.equiv(psi.types.Nothing)) subst subst param.lowerBound.getOrNothing
-                            else arg.lowerBound //todo: lub?
+                            if (arg.lower.equiv(psi.types.Nothing)) subst subst param.lowerBound.getOrNothing
+                            else arg.lower //todo: lub?
                           val upperBound =
-                            if (arg.upperBound.equiv(psi.types.Any)) subst subst param.upperBound.getOrAny
-                            else arg.upperBound //todo: glb?
-                          ScExistentialArgument(arg.name, arg.args, lowerBound, upperBound)
+                            if (arg.upper.equiv(psi.types.Any)) subst subst param.upperBound.getOrAny
+                            else arg.upper //todo: glb?
+                          ScSkolemizedType(arg.name, arg.args, lowerBound, upperBound)
                         case (tp: ScType, param: ScTypeParam) => tp
-                      })
+                      }).unpackedType
                     case _ => tp
                   }
                 case _ => tp
               }
+            case tp: ScType => tp
           }
         expectedType match {
           case Some(expectedType) =>

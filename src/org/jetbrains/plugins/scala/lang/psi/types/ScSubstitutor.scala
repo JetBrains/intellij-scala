@@ -12,6 +12,7 @@ import result.TypingContext
 import api.toplevel.typedef.ScTypeDefinition
 import collection.immutable.{HashSet, HashMap, Map}
 import api.statements.params.ScParameter
+import collection.mutable.ArrayBuffer
 
 /**
 * @author ven
@@ -288,12 +289,11 @@ class ScSubstitutor(val tvMap: Map[(String, String), ScType],
           })
         }
       }
-      case ScExistentialArgument(name, args, lower, upper) =>
-        new ScExistentialArgument(name, args, substInternal(lower), substInternal(upper))
       case ex@ScExistentialType(q, wildcards) => {
         //remove bound names
         val trunc = aliasesMap -- ex.boundNames
-        new ScExistentialType(new ScSubstitutor(tvMap, trunc, updateThisType, follower).substInternal(q), wildcards)
+        new ScExistentialType(new ScSubstitutor(tvMap, trunc, updateThisType, follower).substInternal(q),
+          wildcards.map(_.subst(this)))
       }
       case comp@ScCompoundType(comps, decls, typeDecls, substitutor) =>
         ScCompoundType(comps.map(substInternal(_)), decls, typeDecls, substitutor.followed(
@@ -335,23 +335,23 @@ class ScUndefinedSubstitutor(val upperMap: Map[(String, String), HashSet[ScType]
     var res: ScUndefinedSubstitutor = this
     for ((name, seq) <- subst.upperMap) {
       for (upper <- seq) {
-        res = res.addUpper(name, upper)
+        res = res.addUpper(name, upper, variance = 0)
       }
     }
     for ((name, seq) <- subst.lowerMap) {
       for (lower <- seq) {
-        res = res.addLower(name, lower)
+        res = res.addLower(name, lower, variance = 0)
       }
     }
 
     for ((name, seq) <- subst.upperAdditionalMap) {
       for (upper <- seq) {
-        res = res.addUpper(name, upper, additional = true)
+        res = res.addUpper(name, upper, additional = true, variance = 0)
       }
     }
     for ((name, seq) <- subst.lowerAdditionalMap) {
       for (lower <- seq) {
-        res = res.addLower(name, lower, additional = true)
+        res = res.addLower(name, lower, additional = true, variance = 0)
       }
     }
 
@@ -360,18 +360,29 @@ class ScUndefinedSubstitutor(val upperMap: Map[(String, String), HashSet[ScType]
 
   def +(subst: ScUndefinedSubstitutor): ScUndefinedSubstitutor = addSubst(subst)
 
-  def addLower(name: Name, _lower: ScType, additional: Boolean = false): ScUndefinedSubstitutor = {
-    val lower = _lower.recursiveVarianceUpdate((tp: ScType, i: Int) => {
-      tp match {
-        case ScAbstractType(_, lower, upper) =>
-          i match {
-            case -1 => (true, lower)
-            case 1 => (true, upper)
-            case 0 => (true, ScExistentialArgument("_", Nil, lower, upper))
+  def addLower(name: Name, _lower: ScType, additional: Boolean = false, variance: Int = -1): ScUndefinedSubstitutor = {
+    var index = 0
+    val lower = _lower match {
+      case ScAbstractType(_, absLower, upper) => absLower //upper will be added separately
+      case _ =>
+        _lower.recursiveVarianceUpdate((tp: ScType, i: Int) => {
+          tp match {
+            case ScAbstractType(_, absLower, upper) =>
+              i match {
+                case -1 => (true, absLower)
+                case 1 => (true, upper)
+                case 0 => (true, ScSkolemizedType(s"_$$${index += 1; index}", Nil, absLower, upper))
+              }
+            case ScSkolemizedType(_, _, skoLower, upper) =>
+              i match {
+                case -1 => (true, skoLower)
+                case 1 => (true, upper)
+                case 0 => (true, ScSkolemizedType(s"_$$${index += 1; index}", Nil, skoLower, upper))
+              }
+            case _ => (false, tp)
           }
-        case _ => (true, tp)
-      }
-    }, -1)
+        }, variance)
+    }
     val lMap = if (additional) lowerAdditionalMap else lowerMap
     lMap.get(name) match {
       case Some(set: HashSet[ScType]) =>
@@ -383,18 +394,30 @@ class ScUndefinedSubstitutor(val upperMap: Map[(String, String), HashSet[ScType]
     }
   }
 
-  def addUpper(name: Name, _upper: ScType, additional: Boolean = false): ScUndefinedSubstitutor = {
-    val upper = _upper.recursiveVarianceUpdate((tp: ScType, i: Int) => {
-      tp match {
-        case ScAbstractType(_, lower, upper) =>
-          i match {
-            case -1 => (true, lower)
-            case 1 => (true, upper)
-            case 0 => (true, ScExistentialArgument("_", Nil, lower, upper))
-          }
-        case _ => (true, tp)
+  def addUpper(name: Name, _upper: ScType, additional: Boolean = false, variance: Int = 1): ScUndefinedSubstitutor = {
+    var index = 0
+    val upper =
+      _upper match {
+        case ScAbstractType(_, lower, absUpper) if variance == 0 => absUpper // lower will be added separately
+        case _ =>
+          _upper.recursiveVarianceUpdate((tp: ScType, i: Int) => {
+            tp match {
+              case ScAbstractType(_, lower, absUpper) =>
+                i match {
+                  case -1 => (true, lower)
+                  case 1 => (true, absUpper)
+                  case 0 => (true, ScSkolemizedType(s"_$$${index += 1; index}", Nil, lower, absUpper))
+                }
+              case ScSkolemizedType(_, _, lower, skoUpper) =>
+                i match {
+                  case -1 => (true, lower)
+                  case 1 => (true, skoUpper)
+                  case 0 => (true, ScSkolemizedType(s"_$$${index += 1; index}", Nil, lower, skoUpper))
+                }
+              case _ => (false, tp)
+            }
+          }, variance)
       }
-    }, 1)
     val uMap = if (additional) upperAdditionalMap else upperMap
     uMap.get(name) match {
       case Some(set: HashSet[ScType]) =>

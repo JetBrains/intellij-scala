@@ -29,8 +29,7 @@ class ScTypeProjectionImpl(node: ASTNode) extends ScalaPsiElementImpl (node) wit
   override def toString: String = "TypeProjection"
 
   protected def innerType(ctx: TypingContext) = {
-    def lift(t: ScType) = Success(t, Some(this))
-    bind match {
+    bind() match {
       case Some(ScalaResolveResult(elem, subst)) => {
         val te: TypeResult[ScType] = typeElement.getType(ctx)
         te match {
@@ -38,7 +37,7 @@ class ScTypeProjectionImpl(node: ASTNode) extends ScalaPsiElementImpl (node) wit
             Success(ScType.designator(elem), Some(this))
           }
           case _ =>
-            te map {ScProjectionType(_, elem, subst, false)}
+            te map {ScProjectionType(_, elem, subst, superReference = false)}
         }
       }
       case _ => Failure("Cannot Resolve reference", Some(this))
@@ -52,7 +51,7 @@ class ScTypeProjectionImpl(node: ASTNode) extends ScalaPsiElementImpl (node) wit
 
   def getVariants: Array[Object] = {
     val isInImport: Boolean = ScalaPsiUtil.getParentOfType(this, classOf[ScImportStmt]) != null
-    doResolve(new CompletionProcessor(getKinds(true), this)).flatMap {
+    doResolve(new CompletionProcessor(getKinds(incomplete = true), this)).flatMap {
       case res: ScalaResolveResult =>
         import org.jetbrains.plugins.scala.lang.psi.types.Nothing
         val qualifier = res.fromType.getOrElse(Nothing)
@@ -82,11 +81,11 @@ class ScTypeProjectionImpl(node: ASTNode) extends ScalaPsiElementImpl (node) wit
         case _ => r : ResolveResult
       }
     }
-    if (accessibilityCheck && res.length == 0) return doResolve(processor, false)
+    if (accessibilityCheck && res.length == 0) return doResolve(processor, accessibilityCheck = false)
     res
   }
 
-  def getSameNameVariants: Array[ResolveResult] = doResolve(new CompletionProcessor(getKinds(true), this, false, Some(refName)))
+  def getSameNameVariants: Array[ResolveResult] = doResolve(new CompletionProcessor(getKinds(incomplete = true), this, false, Some(refName)))
 
   override def accept(visitor: ScalaElementVisitor) {
     visitor.visitTypeProjection(this)

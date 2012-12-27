@@ -11,7 +11,7 @@ import com.intellij.lang.ASTNode
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 import base.ScTypeBoundsOwnerImpl
 import psi.types.result.TypingContext
-import psi.types.ScExistentialArgument
+import psi.types.{ScTypeVariable, ScExistentialType, ScExistentialArgument}
 import api.ScalaElementVisitor
 import com.intellij.psi.PsiElementVisitor
 
@@ -27,7 +27,7 @@ class ScWildcardTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
     for {
       lb <- lowerBound
       ub <- upperBound
-    } yield new ScExistentialArgument("_", Nil, lb, ub)
+    } yield new ScExistentialType(ScTypeVariable("_$1"), List(new ScExistentialArgument("_$1", Nil, lb, ub)))
   }
 
   override def accept(visitor: ScalaElementVisitor) {

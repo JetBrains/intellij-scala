@@ -27,7 +27,7 @@ abstract class TestAllResolveTestBase extends ScalaLightPlatformCodeInsightTestC
     configureFromFileTextAdapter(getTestName(false) + ".scala", fileText)
     val scalaFile = getFileAdapter.asInstanceOf[ScalaFile]
     scalaFile.accept(new ScalaRecursiveElementVisitor {
-      override def visitReference(ref: ScReferenceElement) = {
+      override def visitReference(ref: ScReferenceElement) {
         val resolve = ref.resolve()
         assertNotNull("Failed on reference: " + ref.getText + ". Reference Range: (" +
                 ref.getTextRange.getStartOffset + ", " + ref.getTextRange.getEndOffset + ")",

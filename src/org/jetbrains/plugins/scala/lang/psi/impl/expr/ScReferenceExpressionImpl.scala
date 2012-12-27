@@ -304,8 +304,8 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
                       else comps(0)
                     case _ => tp
                   }
-                  Some(ScParameterizedType(ScDesignatorType(clazz),
-                    Seq(ScExistentialArgument("_", Nil, Nothing, actualType))))
+                  Some(ScExistentialType(ScParameterizedType(ScDesignatorType(clazz),
+                    Seq(ScTypeVariable("_$1"))), List(ScExistentialArgument("_$1", Nil, Nothing, actualType))))
                 case _ => None
               }
             } else None

@@ -4,7 +4,6 @@ package psi
 package types
 
 import _root_.scala.collection.immutable.HashSet
-import api.toplevel.ScTypeParametersOwner
 import collection.mutable.ArrayBuffer
 import api.statements.ScTypeAlias
 import api.base.types.ScExistentialClause
@@ -12,6 +11,8 @@ import nonvalue._
 import api.toplevel.typedef.ScTypeDefinition
 import api.statements.params.ScTypeParam
 import java.lang.ThreadLocal
+import types.Conformance.AliasType
+import collection.mutable
 
 /**
 * @author ilyas
@@ -33,14 +34,15 @@ case class ScExistentialType(quantified : ScType,
   @volatile
   private var _substitutor: ScSubstitutor = null
 
-  def substitutor: ScSubstitutor = {
+  private def substitutor: ScSubstitutor = {
     var res = _substitutor
     if (res != null) return res
     res = substitutorInner
     _substitutor = res
     res
   }
-  def substitutorInner: ScSubstitutor = wildcards.foldLeft(ScSubstitutor.empty) {(s, p) => s bindT ((p.name, ""), p)}
+  def substitutorInner: ScSubstitutor = wildcards.foldLeft(ScSubstitutor.empty) {(s, p) => s bindT ((p.name, ""),
+    ScSkolemizedType(p.name, p.args, p.lowerBound, p.upperBound))}
 
   @volatile
   private var _skolem: ScType = null
@@ -54,13 +56,27 @@ case class ScExistentialType(quantified : ScType,
   }
 
   private def skolemInner: ScType = {
-    val unpacked = wildcards.map(_.unpack)
-    val skolemSubst = unpacked.foldLeft(ScSubstitutor.empty) {(s, p) => s bindT ((p.name, ""), p)}
-    unpacked.foreach((p: ScSkolemizedType) => {
-      p.upper = skolemSubst.subst(p.upper)
-      p.lower = skolemSubst.subst(p.lower)
-    })
-    skolemSubst.subst(quantified)
+    def unpack(ex: ScExistentialArgument, deep: Int = 2): ScSkolemizedType = {
+      if (deep == 0) {
+        ScSkolemizedType(ex.name, ex.args, types.Nothing, types.Any)
+      } else {
+        val unpacked = wildcards.map(unpack(_, deep - 1))
+        val skolemSubst = unpacked.foldLeft(ScSubstitutor.empty) {(s, p) => s bindT ((p.name, ""), p)}
+        ScSkolemizedType(ex.name, ex.args, skolemSubst.subst(ex.lowerBound), skolemSubst.subst(ex.upperBound))
+      }
+    }
+    val unpacked = wildcards.map(w => (w, unpack(w))).toMap
+    val skolemSubst = unpacked.values.foldLeft(ScSubstitutor.empty) {(s, p) => s bindT ((p.name, ""), p)}
+    skolemSubst.subst(quantified).recursiveUpdate {
+      case s: ScSkolemizedType => (true, s)
+      case tp =>
+        Conformance.isAliasType(tp) match {
+          case Some(AliasType(ta, lower, upper)) if ta.isExistentialTypeAlias && wildcards.find(_.name == ta.name).isDefined =>
+            val argument = wildcards.find(_.name == ta.name).get
+            (true, unpacked.getOrElse(argument, argument.unpack))
+          case _ => (false, tp)
+        }
+    }
   }
 
   override def removeAbstracts = ScExistentialType(quantified.removeAbstracts, 
@@ -79,7 +95,7 @@ case class ScExistentialType(quantified : ScType,
       case _ =>
         try {
           ScExistentialType(quantified.recursiveUpdate(update, newVisited),
-            wildcards.map(_.recursiveUpdate(update, newVisited).asInstanceOf[ScExistentialArgument]))
+            wildcards.map(_.recursiveUpdate(update, newVisited)))
         }
         catch {
           case cce: ClassCastException => throw new RecursiveUpdateException
@@ -93,7 +109,7 @@ case class ScExistentialType(quantified : ScType,
       case _ =>
         try {
           ScExistentialType(quantified.recursiveVarianceUpdate(update, variance),
-            wildcards.map(_.recursiveVarianceUpdate(update, variance).asInstanceOf[ScExistentialArgument]))
+            wildcards.map(_.recursiveVarianceUpdate(update, variance)))
         }
         catch {
           case cce: ClassCastException => throw new RecursiveUpdateException
@@ -110,12 +126,11 @@ case class ScExistentialType(quantified : ScType,
       case ex: ScExistentialType => {
         val simplified = ex.simplify()
         if (ex != simplified) return Equivalence.equivInner(this, simplified, undefinedSubst, falseUndef)
-        val unify = (ex.boundNames zip wildcards).foldLeft(ScSubstitutor.empty) {(s, p) => s bindT ((p._1, ""), p._2)}
         val list = wildcards.zip(ex.wildcards)
         val iterator = list.iterator
         while (iterator.hasNext) {
           val (w1, w2) = iterator.next()
-          val t = Equivalence.equivInner(unify.subst(w1), unify.subst(w2), undefinedSubst, falseUndef)
+          val t = w2.equivInner(w1, undefinedSubst, falseUndef)
           if (!t._1) return (false, undefinedSubst)
           undefinedSubst = t._2
         }
@@ -125,22 +140,8 @@ case class ScExistentialType(quantified : ScType,
     }
   }
 
-  /** Specification 3.2.10:
-    * 1. Multiple for-clauses in an existential type can be merged. E.g.,
-    * T forSome {Q} forSome {H} is equivalent to T forSome {Q;H}.
-    * 2. Unused quantifications can be dropped. E.g., T forSome {Q;H} where
-    * none of the types defined in H are referred to by T or Q, is equivalent to
-    * T forSome {Q}.
-    * 3. An empty quantification can be dropped. E.g., T forSome { } is equivalent
-    * to T.
-    * 4. An existential type T forSome {Q} where Q contains a clause
-    * type t[tps] >: L <: U is equivalent to the type T' forSome {Q} where
-    * T' results from T by replacing every covariant occurrence (4.5) of t in T by
-    * U and by replacing every contravariant occurrence of t in T by L.
-    */
-  def simplify(): ScType = {
-    //second rule
-    val usedWildcards: ArrayBuffer[ScExistentialArgument] = new ArrayBuffer[ScExistentialArgument]
+  def wildcardsMap(): mutable.HashMap[ScExistentialArgument, Seq[ScType]] = {
+    val res = mutable.HashMap.empty[ScExistentialArgument, Seq[ScType]]
     def checkRecursive(tp: ScType, rejected: HashSet[String]) {
       tp match {
         case JavaArrayType(arg) => checkRecursive(arg, rejected)
@@ -160,15 +161,14 @@ case class ScExistentialType(quantified : ScType,
           elem match {
             case ta: ScTypeAlias if ta.getContext.isInstanceOf[ScExistentialClause] =>
               wildcards.foreach(arg => if (arg.name == ta.name && !rejected.contains(arg.name)) {
-                usedWildcards += arg
+                res.update(arg, res.getOrElse(arg, Seq.empty[ScType]) ++ Seq(tp))
               })
             case _ =>
           }
         case ScTypeVariable(name) =>
           wildcards.foreach(arg => if (arg.name == name && !rejected.contains(arg.name)) {
-            usedWildcards += arg
+            res.update(arg, res.getOrElse(arg, Seq.empty[ScType]) ++ Seq(tp))
           })
-        case ex: ScExistentialArgument => if (!rejected.contains(ex.name)) usedWildcards += ex //is it important?
         case ex: ScExistentialType =>
           var newSet = if (ex ne this) rejected ++ ex.wildcards.map(_.name) else rejected
           checkRecursive(ex.quantified, newSet)
@@ -188,9 +188,9 @@ case class ScExistentialType(quantified : ScType,
           checkRecursive(designator, rejected)
           typeArgs.foreach(checkRecursive(_, rejected))
         case ScTypeParameterType(name, args, lower, upper, param) =>
-//          checkRecursive(lower.v, rejected)
-//          checkRecursive(upper.v, rejected)
-//          args.foreach(checkRecursive(_, rejected))
+        //          checkRecursive(lower.v, rejected)
+        //          checkRecursive(upper.v, rejected)
+        //          args.foreach(checkRecursive(_, rejected))
         case ScSkolemizedType(name, args, lower, upper) =>
           checkRecursive(lower, rejected)
           checkRecursive(upper, rejected)
@@ -208,8 +208,32 @@ case class ScExistentialType(quantified : ScType,
         case _ =>
       }
     }
-
     checkRecursive(this, HashSet.empty)
+    wildcards.foreach {
+      case ScExistentialArgument(_, args, lower, upper) =>
+        checkRecursive(lower, HashSet.empty)
+        checkRecursive(upper, HashSet.empty)
+    }
+    res
+  }
+
+  /** Specification 3.2.10:
+    * 1. Multiple for-clauses in an existential type can be merged. E.g.,
+    * T forSome {Q} forSome {H} is equivalent to T forSome {Q;H}.
+    * 2. Unused quantifications can be dropped. E.g., T forSome {Q;H} where
+    * none of the types defined in H are referred to by T or Q, is equivalent to
+    * T forSome {Q}.
+    * 3. An empty quantification can be dropped. E.g., T forSome { } is equivalent
+    * to T.
+    * 4. An existential type T forSome {Q} where Q contains a clause
+    * type t[tps] >: L <: U is equivalent to the type T' forSome {Q} where
+    * T' results from T by replacing every covariant occurrence (4.5) of t in T by
+    * U and by replacing every contravariant occurrence of t in T by L.
+    */
+  def simplify(): ScType = {
+    //second rule
+    val usedWildcards = wildcardsMap().keySet
+
     val used = wildcards.filter(arg => usedWildcards.contains(arg))
     if (used.length == 0) return quantified
     if (used.length != wildcards.length) return ScExistentialType(quantified, used).simplify()
@@ -342,18 +366,6 @@ case class ScExistentialType(quantified : ScType,
             updateRecursive(arg, rejected, -variance).asInstanceOf[ScTypeParameterType]),
             new Suspension[ScType](updateRecursive(lower.v, rejected, -variance)),
             new Suspension[ScType](updateRecursive(upper.v, rejected, variance)), param)*/
-        case ScExistentialArgument(name, args, lowerBound, upperBound) =>
-          if (!rejected.contains(name)) {
-            variance match {
-              case 1 if !hasWildcards(upperBound) =>
-                updated = true
-                upperBound
-              case -1 if !hasWildcards(lowerBound) =>
-                updated = true
-                lowerBound
-              case _ => tp
-            }
-          } else tp
         case ScSkolemizedType(name, args, lower, upper) =>
           ScSkolemizedType(name, args.map(arg =>
             updateRecursive(arg, rejected, -variance).asInstanceOf[ScTypeParameterType]),
@@ -397,56 +409,43 @@ case class ScExistentialType(quantified : ScType,
   }
 }
 
-case class ScExistentialArgument(name : String, args : List[ScTypeParameterType],
-                                 lowerBound : ScType, upperBound : ScType) extends ValueType {
-  def unpack = new ScSkolemizedType(name, args, lowerBound, upperBound)
-
-  override def removeAbstracts = ScExistentialArgument(name, args, lowerBound.removeAbstracts, upperBound.removeAbstracts)
-
-  override def recursiveUpdate(update: ScType => (Boolean, ScType), visited: HashSet[ScType]): ScType = {
-    if (visited.contains(this)) {
-      return update(this) match {
-        case (true, res) => res
-        case _ => this
-      }
-    }
-    val newVisited = visited + this
-    update(this) match {
-      case (true, res) => res
-      case _ =>
-        ScExistentialArgument(name, args, lowerBound.recursiveUpdate(update, newVisited), upperBound.recursiveUpdate(update, newVisited))
-    }
-  }
-
-  override def recursiveVarianceUpdate(update: (ScType, Int) => (Boolean, ScType), variance: Int): ScType = {
-    update(this, variance) match {
-      case (true, res) => res
-      case _ =>
-        ScExistentialArgument(name, args, lowerBound.recursiveVarianceUpdate(update, -variance),
-          upperBound.recursiveVarianceUpdate(update, variance))
-    }
-  }
-
-  override def equivInner(r: ScType, uSubst: ScUndefinedSubstitutor, falseUndef: Boolean): (Boolean, ScUndefinedSubstitutor) = {
-    var undefinedSubst = uSubst
-    r match {
-      case exist: ScExistentialArgument => {
-        val s = (exist.args zip args).foldLeft(ScSubstitutor.empty) {(s, p) => s bindT ((p._1.name, ""), p._2)}
-        val t = Equivalence.equivInner(lowerBound, s.subst(exist.lowerBound), undefinedSubst, falseUndef)
-        if (!t._1) return (false, undefinedSubst)
-        undefinedSubst = t._2
-        Equivalence.equivInner(upperBound, s.subst(exist.upperBound), undefinedSubst, falseUndef)
-      }
-      case _ => (false, undefinedSubst)
-    }
-  }
-
-  def visitType(visitor: ScalaTypeVisitor) {
-    visitor.visitExistentialArgument(this)
+object ScExistentialType {
+  def simpleExistential(name: String, args: List[ScTypeParameterType], lowerBound: ScType, upperBound: ScType): ScExistentialType = {
+    ScExistentialType(ScTypeVariable(name), List(ScExistentialArgument(name, args, lowerBound, upperBound)))
   }
 }
 
-case class ScSkolemizedType(name : String, args : List[ScTypeParameterType], var lower : ScType, var upper : ScType)
+case class ScExistentialArgument(name : String, args : List[ScTypeParameterType],
+                                 lowerBound : ScType, upperBound : ScType) {
+  def unpack = new ScSkolemizedType(name, args, lowerBound, upperBound)
+
+  def removeAbstracts: ScExistentialArgument = ScExistentialArgument(name, args, lowerBound.removeAbstracts, upperBound.removeAbstracts)
+
+  def recursiveUpdate(update: ScType => (Boolean, ScType), visited: HashSet[ScType]): ScExistentialArgument = {
+    ScExistentialArgument(name, args, lowerBound.recursiveUpdate(update, visited), upperBound.recursiveUpdate(update, visited))
+  }
+
+  def recursiveVarianceUpdate(update: (ScType, Int) => (Boolean, ScType), variance: Int): ScExistentialArgument = {
+    ScExistentialArgument(name, args, lowerBound.recursiveVarianceUpdate(update, -variance),
+      upperBound.recursiveVarianceUpdate(update, variance))
+  }
+
+  def equivInner(exist: ScExistentialArgument, uSubst: ScUndefinedSubstitutor, falseUndef: Boolean): (Boolean, ScUndefinedSubstitutor) = {
+    var undefinedSubst = uSubst
+    val s = (exist.args zip args).foldLeft(ScSubstitutor.empty) {(s, p) => s bindT ((p._1.name, ""), p._2)}
+    val t = Equivalence.equivInner(lowerBound, s.subst(exist.lowerBound), undefinedSubst, falseUndef)
+    if (!t._1) return (false, undefinedSubst)
+    undefinedSubst = t._2
+    Equivalence.equivInner(upperBound, s.subst(exist.upperBound), undefinedSubst, falseUndef)
+  }
+
+  def subst(substitutor: ScSubstitutor): ScExistentialArgument = {
+    ScExistentialArgument(name, args.map(t => substitutor.subst(t).asInstanceOf[ScTypeParameterType]),
+      substitutor subst lowerBound, substitutor subst upperBound)
+  }
+}
+
+case class ScSkolemizedType(name : String, args : List[ScTypeParameterType], lower : ScType, upper : ScType)
   extends ValueType {
   def visitType(visitor: ScalaTypeVisitor) {
     visitor.visitSkolemizedType(this)
@@ -483,7 +482,6 @@ case class ScSkolemizedType(name : String, args : List[ScTypeParameterType], var
     var u = uSubst
     r match {
       case ScSkolemizedType(rname, rargs, rlower, rupper) =>
-        if (name != rname) return (false, uSubst)
         if (args.length != rargs.length) return (false, uSubst)
         args.zip(rargs) foreach {
           case (tpt1, tpt2) =>
@@ -500,33 +498,5 @@ case class ScSkolemizedType(name : String, args : List[ScTypeParameterType], var
         (true, u)
       case _ => (false, uSubst)
     }
-  }
-  
-  private val inEquals = new ThreadLocal[Boolean] {
-    override def initialValue(): Boolean = false
-  }
-
-  override def equals(obj: Any): Boolean = {
-    if (inEquals.get) return true
-    obj match {
-      case ScSkolemizedType(name, args, lower, upper) =>
-        inEquals.set(true)
-        val res = name == this.name && args.equals(this.args) && lower.equals(this.lower) && upper.equals(this.upper)
-        inEquals.set(false)
-        res
-      case _ => false
-    }
-  }
-  
-  private val inHashCode = new ThreadLocal[Boolean] {
-    override def initialValue(): Boolean = false
-  }
-
-  override def hashCode(): Int = {
-    if (inHashCode.get()) return 0
-    inHashCode.set(true)
-    val res = name.hashCode() + args.hashCode() * 31 + lower.hashCode()* 31 * 31 + upper.hashCode() * 31 * 31 * 31
-    inHashCode.set(false)
-    res
   }
 }

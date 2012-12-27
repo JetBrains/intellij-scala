@@ -93,12 +93,9 @@ trait ScBlock extends ScExpression with ScDeclarationSequenceHolder with ScImpor
           case JavaArrayType(arg) => JavaArrayType(existize(arg))
           case ScParameterizedType(des, typeArgs) =>
             new ScParameterizedType(existize(des), collection.immutable.Seq(typeArgs.map({existize _}).toSeq: _*))
-          case ScExistentialArgument(name, args, lower, upper) =>
-            new ScExistentialArgument(name, args, existize(lower), existize(upper))
           case ex@ScExistentialType(q, wildcards) => {
             new ScExistentialType(existize(q), wildcards.map {
-              ex =>
-                new ScExistentialArgument(ex.name, ex.args, existize(ex.lowerBound), existize(ex.upperBound))
+              ex => new ScExistentialArgument(ex.name, ex.args, existize(ex.lowerBound), existize(ex.upperBound))
             })
           }
           case _ => t

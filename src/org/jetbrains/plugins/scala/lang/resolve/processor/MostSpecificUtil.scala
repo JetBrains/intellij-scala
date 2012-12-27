@@ -22,7 +22,6 @@ import org.jetbrains.plugins.scala.extensions.toPsiMemberExt
  * User: Alexander Podkhalyuzin
  * Date: 26.04.2010
  */
-
 case class MostSpecificUtil(elem: PsiElement, length: Int) {
   def mostSpecificForResolveResult(applicable: Set[ScalaResolveResult]): Option[ScalaResolveResult] = {
     mostSpecificGeneric(applicable.map(r => r.innerResolveResult match {
@@ -108,7 +107,7 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
                 case paramType => ScParameterizedType(ScDesignatorType(seq), Seq(paramType))
               }
               Parameter(p.name, newParamType, p.expectedType,
-                p.isDefault, false, p.isByName)
+                p.isDefault, isRepeated = false, isByName = p.isByName)
             }
             else p
           case p => p
@@ -116,7 +115,7 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
         val i: Int = if (params1.length > 0) 0.max(length - params1.length) else 0
         val default: Expression = new Expression(if (params1.length > 0) params1.last.paramType else Nothing)
         val exprs: Seq[Expression] = params1.map(p => new Expression(p.paramType)) ++ Seq.fill(i)(default)
-        val conformance = Compatibility.checkConformance(false, params2, exprs, false)
+        val conformance = Compatibility.checkConformance(checkNames = false, params2, exprs, checkWithImplicits = false)
         var u = conformance._2
         if (!conformance._1) return false
         t2 match {
@@ -155,19 +154,19 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
 
   def isDerived(c1: Option[PsiClass], c2: Option[PsiClass]): Boolean = {
     (c1, c2) match {
-      case (Some(c1), Some(c2)) => {
-        if (c1 == c2) return false
-        if (ScalaPsiUtil.cachedDeepIsInheritor(c1, c2)) return true
-        ScalaPsiUtil.getCompanionModule(c1) match {
-          case Some(c1) => if (ScalaPsiUtil.cachedDeepIsInheritor(c1, c2)) return true
+      case (Some(clazz1), Some(clazz2)) => {
+        if (clazz1 == clazz2) return false
+        if (ScalaPsiUtil.cachedDeepIsInheritor(clazz1, clazz2)) return true
+        ScalaPsiUtil.getCompanionModule(clazz1) match {
+          case Some(companion1) => if (ScalaPsiUtil.cachedDeepIsInheritor(companion1, clazz2)) return true
           case _ =>
         }
-        ScalaPsiUtil.getCompanionModule(c2) match {
-          case Some(c2) => if (ScalaPsiUtil.cachedDeepIsInheritor(c1, c2)) return true
+        ScalaPsiUtil.getCompanionModule(clazz2) match {
+          case Some(companion2) => if (ScalaPsiUtil.cachedDeepIsInheritor(clazz1, companion2)) return true
           case _ =>
         }
-        (ScalaPsiUtil.getCompanionModule(c1), ScalaPsiUtil.getCompanionModule(c2)) match {
-          case (Some(c1), Some(c2)) => if (ScalaPsiUtil.cachedDeepIsInheritor(c1, c2)) return true
+        (ScalaPsiUtil.getCompanionModule(clazz1), ScalaPsiUtil.getCompanionModule(clazz2)) match {
+          case (Some(companion1), Some(companion2)) => if (ScalaPsiUtil.cachedDeepIsInheritor(companion1, companion2)) return true
           case _ =>
         }
         false
