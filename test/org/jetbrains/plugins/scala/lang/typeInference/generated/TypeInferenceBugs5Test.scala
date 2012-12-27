@@ -9,6 +9,8 @@ class TypeInferenceBugs5Test extends TypeInferenceTestBase {
 
   def testDefaultParamInference() {doTest()}
 
+  def testExistentialConformance() {doTest()}
+
   def testForStmtBug() {doTest()}
   
   def testImplicitTest() {doTest()}
