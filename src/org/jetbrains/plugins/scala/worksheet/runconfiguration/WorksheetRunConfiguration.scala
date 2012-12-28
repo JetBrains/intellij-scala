@@ -381,15 +381,6 @@ class WorksheetRunConfiguration(val project: Project, val configurationFactory: 
         JavaRunConfigurationExtensionManager.getInstance.attachExtensionsToProcess(WorksheetRunConfiguration.this, processHandler, runnerSettings)
 
         val editor = EditorHelper.openInEditor(psiFile)
-        project.getMessageBus.connect(project).subscribe(FileEditorManagerListener.FILE_EDITOR_MANAGER, new FileEditorManagerAdapter {
-          override def fileClosed(source: FileEditorManager, file: VirtualFile) {
-            invokeLater {
-              inWriteAction {
-                cleanWorksheet(psiFile.getNode, editor.getDocument)
-              }
-            }
-          }
-        })
 
         val worksheetViewer = createWorksheetViewer(editor, virtualFile)
         val worksheetConsoleView = new ConsoleViewImpl(project, false)
