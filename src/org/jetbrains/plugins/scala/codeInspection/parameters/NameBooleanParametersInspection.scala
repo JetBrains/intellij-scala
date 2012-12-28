@@ -15,6 +15,11 @@ import lang.psi.types.nonvalue.Parameter
 import lang.psi.api.base.ScLiteral
 import lang.psi.api.expr._
 import com.intellij.openapi.diagnostic.Logger
+import javax.swing.{JCheckBox, JPanel, JComponent}
+import java.awt._
+import javax.swing.event.{ChangeListener, ChangeEvent}
+import scala.Some
+import lang.psi.api.statements.ScFunction
 
 /**
  * @author Ksenia.Sautina
@@ -27,6 +32,16 @@ class NameBooleanParametersInspection extends LocalInspectionTool {
     new ScalaElementVisitor {
       override def visitMethodCallExpression(mc: ScMethodCall) {
         if (mc == null || mc.args == null || mc.args.exprs.isEmpty) return
+        mc.getInvokedExpr match {
+          case ref: ScReferenceExpression => ref.resolve() match {
+            case fun: ScFunction =>
+              //todo
+              if (fun.name.startsWith("set") && mc.args.exprs.size == 1 && isBooleanType(mc.args.exprs(0)) &&
+                IGNORE_SETTERS) return
+            case _ =>
+          }
+          case _ =>
+        }
         for (expr <- mc.args.exprs) {
           if (expr.isInstanceOf[ScLiteral] && isBooleanType(expr) &&
                   IntentionUtils.check(expr.asInstanceOf[ScLiteral], true).isDefined &&
@@ -73,6 +88,20 @@ class NameBooleanParametersInspection extends LocalInspectionTool {
     }
   }
 
+  override def createOptionsPanel: JComponent = {
+    val ignoreSettersCheckbox = new JCheckBox(InspectionBundle.message("name.boolean.ignore.setters"))
+    ignoreSettersCheckbox.setSelected(IGNORE_SETTERS)
+    ignoreSettersCheckbox.getModel.addChangeListener(new ChangeListener {
+      def stateChanged(e: ChangeEvent) {
+        IGNORE_SETTERS = ignoreSettersCheckbox.isSelected
+      }
+    })
+    val panel: JPanel = new JPanel(new FlowLayout(FlowLayout.LEFT))
+    panel.add(ignoreSettersCheckbox)
+    panel
+  }
+
+  var IGNORE_SETTERS: Boolean = true
 }
 
 object NameBooleanParametersInspection {
