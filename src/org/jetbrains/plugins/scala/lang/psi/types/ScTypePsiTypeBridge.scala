@@ -17,6 +17,7 @@ import com.intellij.pom.java.LanguageLevel
 import com.intellij.psi.PsiClassType.ClassResolveResult
 import api.toplevel.typedef.{ScTypeDefinition, ScObject}
 import extensions.{toPsiMemberExt, toPsiClassExt}
+import collection.mutable.ArrayBuffer
 
 trait ScTypePsiTypeBridge {
   /**
@@ -122,7 +123,8 @@ trait ScTypePsiTypeBridge {
     }
   }
 
-  def toPsi(t: ScType, project: Project, scope: GlobalSearchScope, noPrimitives: Boolean = false): PsiType = {
+  def toPsi(t: ScType, project: Project, scope: GlobalSearchScope, noPrimitives: Boolean = false,
+            skolemToWildcard: Boolean = false): PsiType = {
     if (t.isInstanceOf[NonValueType]) return toPsi(t.inferValueType, project, scope)
     def javaObj = JavaPsiFacade.getInstance(project).getElementFactory.createTypeByFQClassName("java.lang.Object", scope)
     t match {
@@ -152,7 +154,7 @@ trait ScTypePsiTypeBridge {
           new PsiArrayType(toPsi(args(0), project, scope))
         else {
           val subst = args.zip(c.getTypeParameters).foldLeft(PsiSubstitutor.EMPTY)
-                    {case (s, (targ, tp)) => s.put(tp, toPsi(targ, project, scope, noPrimitives = true))}
+                    {case (s, (targ, tp)) => s.put(tp, toPsi(targ, project, scope, noPrimitives = true, skolemToWildcard = true))}
           JavaPsiFacade.getInstance(project).getElementFactory.createType(c, subst)
         }
       case ScParameterizedType(proj@ScProjectionType(pr, element, subst, _), args) => proj.actualElement match {
@@ -160,7 +162,7 @@ trait ScTypePsiTypeBridge {
           new PsiArrayType(toPsi(args(0), project, scope))
         else {
           val subst = args.zip(c.getTypeParameters).foldLeft(PsiSubstitutor.EMPTY)
-                    {case (s, (targ, tp)) => s.put(tp, toPsi(targ, project, scope))}
+                    {case (s, (targ, tp)) => s.put(tp, toPsi(targ, project, scope, skolemToWildcard = true))}
           JavaPsiFacade.getInstance(project).getElementFactory.createType(c, subst)
         }
         case a: ScTypeAliasDefinition =>
@@ -172,7 +174,6 @@ trait ScTypePsiTypeBridge {
         case _ => javaObj
       }
       case JavaArrayType(arg) => new PsiArrayType(toPsi(arg, project, scope))
-
       case proj@ScProjectionType(pr, element, subst, _) => proj.actualElement match {
         case clazz: PsiClass => {
           clazz match {
@@ -194,6 +195,20 @@ trait ScTypePsiTypeBridge {
       case ScThisType(clazz) => JavaPsiFacade.getInstance(project).getElementFactory.createType(clazz, PsiSubstitutor.EMPTY)
       case tpt: ScTypeParameterType =>
         EmptySubstitutor.getInstance().substitute(tpt.param)
+      case ex: ScExistentialType => toPsi(ex.skolem, project, scope, noPrimitives)
+      case argument: ScSkolemizedType =>
+        val upper = argument.upper
+        if (upper.equiv(Any)) {
+          val lower = argument.lower
+          if (lower.equiv(Nothing)) PsiWildcardType.createUnbounded(PsiManager.getInstance(project))
+          else {
+            PsiWildcardType.createSuper(PsiManager.getInstance(project), toPsi(lower, project, scope))
+          }
+        } else {
+          val psi = toPsi(upper, project, scope)
+          if (psi.isInstanceOf[PsiWildcardType]) javaObj
+          else PsiWildcardType.createExtends(PsiManager.getInstance(project), psi)
+        }
       case _ => javaObj
     }
   }

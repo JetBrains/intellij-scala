@@ -1767,7 +1767,11 @@ object Conformance {
     while (iterator.hasNext) {
       val tp: ScType = iterator.next() match {
         case tp: ScType => substitutor.subst(tp)
-        case pct: PsiClassType => substitutor.subst(ScType.create(pct, leftClass.getProject))
+        case pct: PsiClassType =>
+          substitutor.subst(ScType.create(pct, leftClass.getProject)) match {
+            case ex: ScExistentialType => ex.skolem //it's required for the raw types
+            case r => r
+          }
       }
       ScType.extractClassType(tp) match {
         case Some((clazz: PsiClass, _)) if visited.contains(clazz) =>
