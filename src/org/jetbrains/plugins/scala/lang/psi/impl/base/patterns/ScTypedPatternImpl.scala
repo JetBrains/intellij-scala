@@ -6,7 +6,7 @@ package base
 package patterns
 
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
+import psi.{types, ScalaPsiElementImpl}
 import com.intellij.lang.ASTNode
 import lang.lexer._
 import com.intellij.psi._
@@ -73,6 +73,24 @@ class ScTypedPatternImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
                           val upperBound =
                             if (arg.upper.equiv(psi.types.Any)) subst subst param.upperBound.getOrAny
                             else arg.upper //todo: glb?
+                          ScSkolemizedType(arg.name, arg.args, lowerBound, upperBound)
+                        case (tp: ScType, param: ScTypeParam) => tp
+                      }).unpackedType
+                    case _ => tp
+                  }
+                case Some((clazz: PsiClass, subst)) =>
+                  val typeParams: Array[PsiTypeParameter] = clazz.getTypeParameters
+                  skolem match {
+                    case ScParameterizedType(des, typeArgs) if typeArgs.length == typeParams.length =>
+                      ScParameterizedType(des, typeArgs.zip(typeParams).map {
+                        case (arg: ScSkolemizedType, param: PsiTypeParameter) =>
+                          val lowerBound = arg.lower
+                          val upperBound =
+                            if (arg.upper.equiv(psi.types.Any)) {
+                              val listTypes: Array[PsiClassType] = param.getExtendsListTypes
+                              if (listTypes.isEmpty) types.Any
+                              else subst.subst(Bounds.glb(listTypes.toSeq.map(ScType.create(_, getProject, param.getResolveScope)), checkWeak = true))
+                            } else arg.upper //todo: glb?
                           ScSkolemizedType(arg.name, arg.args, lowerBound, upperBound)
                         case (tp: ScType, param: ScTypeParam) => tp
                       }).unpackedType
