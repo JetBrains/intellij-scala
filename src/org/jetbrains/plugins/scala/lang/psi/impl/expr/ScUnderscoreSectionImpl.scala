@@ -42,28 +42,6 @@ class ScUnderscoreSectionImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
               case _: ScValue | _: ScVariable if b.isClassMember => fun()
               case _ => ref.getNonValueType(TypingContext.empty)
             }
-            //the following code not works, because parameters shouldn't be computed with expected type,
-            // we already know, which type they has
-          /*case Some(ScalaResolveResult(f: ScFunction, subst)) =>
-            val needType = expectedType().isEmpty
-            val clauses = f.effectiveParameterClauses.filterNot(_.isImplicit).zipWithIndex
-            val (forParams, forExprs) = clauses.map {
-              case (clause, clauseIndex) =>
-                val (forParams, forExprs) = clause.parameters.zipWithIndex.map {
-                  case (parameter, index) =>
-                    val name = "parameter" + index + "inClause" + clauseIndex
-                    if (needType) {
-                      val typeText = subst.subst(parameter.getType(TypingContext.empty).getOrAny).presentableText
-                      (name + " : " + typeText, name)
-                    }  else {
-                      (name, name)
-                    }
-                }.unzip
-                (forParams.mkString("(", ", ", ")"), forExprs.mkString("(", ", ", ")"))
-            }.unzip
-            val newExpr = ScalaPsiElementFactory.createExpressionWithContextFromText(forParams.mkString("", " => ", " => ") +
-              ref.getText + forExprs.mkString, getContext, this)
-            newExpr.getType(TypingContext.empty)*/
           case _ => ref.getNonValueType(TypingContext.empty)
         }
       case Some(expr) => expr.getNonValueType(TypingContext.empty)
