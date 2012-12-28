@@ -58,6 +58,8 @@ class TypeInferenceLocalTypeInferenceTest extends TypeInferenceTestBase {
 
   def testSCL3422() {doTest()}
 
+  def testRawTypes() {doTest()}
+
   def testSameNameGeneric() {doTest()}
 
   def testSecondClause() {doTest()}

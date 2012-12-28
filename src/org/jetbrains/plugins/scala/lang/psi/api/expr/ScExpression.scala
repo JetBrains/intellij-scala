@@ -346,7 +346,7 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible with Ps
       else {
         val params = unders.zipWithIndex.map {
           case (u, index) =>
-            val tpe = u.getNonValueType(TypingContext.empty, ignoreBaseType).getOrAny.inferValueType
+            val tpe = u.getNonValueType(TypingContext.empty, ignoreBaseType).getOrAny.inferValueType.unpackedType
             new Parameter("", tpe, false, false, false, index)
         }
         val methType =
