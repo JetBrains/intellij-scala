@@ -372,7 +372,7 @@ class WorksheetRunConfiguration(val project: Project, val configurationFactory: 
         val file = new File(getWorksheetField)
         val virtualFile = LocalFileSystem.getInstance.refreshAndFindFileByIoFile(file)
         if (virtualFile == null) {
-          throw new ExecutionException("Worksheet is not specified")
+          throw new ExecutionException("Worksheet is not specified. File is not found.")
         }
         val psiFile: PsiFile = PsiManager.getInstance(project).asInstanceOf[PsiManagerEx].getFileManager.getCachedPsiFile(virtualFile)
 
@@ -454,19 +454,19 @@ class WorksheetRunConfiguration(val project: Project, val configurationFactory: 
     val file = new File(getWorksheetField)
 
     if (file == null) {
-      throw new RuntimeConfigurationException("Worksheet is not specified")
+      throw new RuntimeConfigurationException("Worksheet is not specified: file does not exist.")
     }
 
     val virtualFile = LocalFileSystem.getInstance.refreshAndFindFileByIoFile(file)
 
     if (virtualFile == null) {
-      throw new RuntimeConfigurationException("Worksheet is not specified")
+      throw new RuntimeConfigurationException("Worksheet is not specified: file is not found.")
     }
 
     val psiFile: PsiFile = PsiManager.getInstance(project).asInstanceOf[PsiManagerEx].getFileManager.getCachedPsiFile(virtualFile)
 
     if (psiFile == null) {
-      throw new RuntimeConfigurationException("Worksheet is not specified")
+      throw new RuntimeConfigurationException("Worksheet is not specified: there is no cached file.")
     }
 
     if (getModule == null) {
