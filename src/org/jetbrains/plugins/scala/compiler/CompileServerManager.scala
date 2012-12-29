@@ -20,8 +20,7 @@ import com.intellij.ide.DataManager
 import com.intellij.openapi.actionSystem.{Separator, AnActionEvent, AnAction, DefaultActionGroup}
 import com.intellij.compiler.CompilerWorkspaceConfiguration
 import com.intellij.openapi.options.ShowSettingsUtil
-import com.intellij.openapi.roots.ProjectRootManager
-import com.intellij.openapi.ui.Messages
+import com.intellij.icons.AllIcons
 
 /**
  * @author Pavel Fatin
@@ -130,7 +129,7 @@ class CompileServerManager(project: Project) extends ProjectComponent {
      popup.show(new RelativePoint(e.getComponent, at))
    }
 
-   private object Start extends AnAction("&Run", "Start compile server", IconLoader.getIcon("/actions/execute.png")) with DumbAware {
+   private object Start extends AnAction("&Run", "Start compile server", AllIcons.Actions.Execute) with DumbAware {
      override def update(e: AnActionEvent) {
        e.getPresentation.setEnabled(!launcher.running)
      }
@@ -140,7 +139,7 @@ class CompileServerManager(project: Project) extends ProjectComponent {
      }
    }
 
-   private object Stop extends AnAction("&Stop", "Shutdown compile server", IconLoader.getIcon("/actions/suspend.png")) with DumbAware {
+   private object Stop extends AnAction("&Stop", "Shutdown compile server", AllIcons.Actions.Suspend) with DumbAware {
      override def update(e: AnActionEvent) {
        e.getPresentation.setEnabled(launcher.running)
      }
@@ -150,7 +149,7 @@ class CompileServerManager(project: Project) extends ProjectComponent {
      }
    }
 
-  private object Configure extends AnAction("&Configure...", "Configure compile server", IconLoader.getIcon("/general/configure.png")) with DumbAware {
+  private object Configure extends AnAction("&Configure...", "Configure compile server", AllIcons.General.Settings) with DumbAware {
     def actionPerformed(e: AnActionEvent) {
       ShowSettingsUtil.getInstance().showSettingsDialog(null, "Scala")
     }

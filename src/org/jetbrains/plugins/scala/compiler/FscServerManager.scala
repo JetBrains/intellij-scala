@@ -20,6 +20,7 @@ import com.intellij.ide.DataManager
 import com.intellij.openapi.actionSystem.{Separator, AnActionEvent, AnAction, DefaultActionGroup}
 import com.intellij.compiler.CompilerWorkspaceConfiguration
 import com.intellij.openapi.options.ShowSettingsUtil
+import com.intellij.icons.AllIcons
 
 /**
  * Pavel Fatin
@@ -129,7 +130,7 @@ class FscServerManager(project: Project) extends ProjectComponent {
     popup.show(new RelativePoint(e.getComponent, at))
   }
 
-  private object Start extends AnAction("&Run", "Start project FSC", IconLoader.getIcon("/actions/execute.png")) with DumbAware {
+  private object Start extends AnAction("&Run", "Start project FSC", AllIcons.Actions.Execute) with DumbAware {
     override def update(e: AnActionEvent) {
       e.getPresentation.setEnabled(!launcher.running)
     }
@@ -139,7 +140,7 @@ class FscServerManager(project: Project) extends ProjectComponent {
     }
   }
 
-  private object Reset extends AnAction("R&eset", "Reset project FSC", IconLoader.getIcon("/actions/sync.png")) with DumbAware {
+  private object Reset extends AnAction("R&eset", "Reset project FSC", AllIcons.Actions.SyncPanels) with DumbAware {
     override def update(e: AnActionEvent) {
       e.getPresentation.setEnabled(launcher.running)
     }
@@ -153,7 +154,7 @@ class FscServerManager(project: Project) extends ProjectComponent {
     }
   }
 
-  private object Stop extends AnAction("&Stop", "Shutdown project FSC", IconLoader.getIcon("/actions/suspend.png")) with DumbAware {
+  private object Stop extends AnAction("&Stop", "Shutdown project FSC", AllIcons.Actions.Suspend) with DumbAware {
     override def update(e: AnActionEvent) {
       e.getPresentation.setEnabled(launcher.running)
     }
@@ -163,7 +164,7 @@ class FscServerManager(project: Project) extends ProjectComponent {
     }
   }
 
-  private object Configure extends AnAction("&Configure...", "Configure project FSC", IconLoader.getIcon("/general/configure.png")) with DumbAware {
+  private object Configure extends AnAction("&Configure...", "Configure project FSC", AllIcons.General.Settings) with DumbAware {
     def actionPerformed(e: AnActionEvent) {
       ShowSettingsUtil.getInstance().showSettingsDialog(project, "Scala Compiler")
     }
