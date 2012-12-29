@@ -1,7 +1,7 @@
 package org.jetbrains.jps.incremental.scala
 package remote
 
-import java.io.File
+import java.io.{StringWriter, PrintWriter, File}
 import org.jetbrains.jps.incremental.messages.BuildMessage.Kind
 
 /**
@@ -13,7 +13,12 @@ class EventGeneratingClient(listener: Event => Unit, canceled: => Boolean) exten
   }
 
   def trace(exception: Throwable) {
-    listener(TraceEvent(exception))
+    val lines = {
+      val writer = new StringWriter()
+      exception.printStackTrace(new PrintWriter(writer))
+      writer.toString.split("\\n")
+    }
+    listener(TraceEvent(exception.getMessage, lines))
   }
 
   def progress(text: String, done: Option[Float]) {

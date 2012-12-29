@@ -1,6 +1,8 @@
 package org.jetbrains.jps.incremental.scala
 package remote
 
+import java.io.{PrintWriter, PrintStream}
+
 /**
  * @author Pavel Fatin
  */
@@ -16,8 +18,20 @@ class ClientEventProcessor(client: Client) {
       case GeneratedEvent(source, module, name) =>
         client.generated(source, module, name)
 
-      case TraceEvent(exception) =>
-        client.trace(exception)
+      case TraceEvent(message, lines) =>
+        client.trace(new ServerException(message, lines))
     }
+  }
+}
+
+class ServerException(message: String, lines: Array[String]) extends Exception {
+  override def getMessage = message
+
+  override def printStackTrace(s: PrintWriter) {
+    lines.foreach(s.println(_))
+  }
+
+  override def printStackTrace(s: PrintStream) {
+    lines.foreach(s.println(_))
   }
 }
