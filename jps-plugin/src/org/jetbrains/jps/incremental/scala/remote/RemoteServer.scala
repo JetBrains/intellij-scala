@@ -75,12 +75,17 @@ private object RemoteServer {
             val event = Event.fromBytes(Base64Converter.decode(data))
             processor.process(event)
           } catch {
+            // TODO don't serialize unknown exception classes
+            case e: ClassNotFoundException if e.getMessage == "scala.reflect.internal.MissingRequirementError" =>
+              client.error("No standard Scala library in classpath")
             case e: Exception =>
-              client.message(Kind.ERROR, "Unable to read an event from: " + new String(data))
+              client.message(Kind.ERROR, "Unable to read an event from: " + new String(data).take(50))
               client.trace(e)
           }
-        case Chunk(_, data) =>
-          client.message(Kind.WARNING, "Unexpected compile server output: " + fromBytes(data))
+        case Chunk(NGConstants.CHUNKTYPE_STDERR, data) =>
+          client.message(Kind.ERROR, fromBytes(data))
+        case Chunk(kind, data) =>
+          client.message(Kind.ERROR, "Unexpected server output: " + data)
       }
     }
   }

@@ -88,16 +88,23 @@ class ScalaBuilder extends ModuleLevelBuilder(BuilderCategory.TRANSLATOR) {
 
     val sources = filesToCompile.keySet.toSeq
 
-    val client = {
-      val modules = chunk.getModules.asScala.map(_.getName).toSeq
-      new IdeClient("scala", context, modules, outputConsumer, filesToCompile.get)
-    }
+    val modules = chunk.getModules.asScala
+
+    val client = new IdeClient("scala", context, modules.map(_.getName).toSeq, outputConsumer, filesToCompile.get)
 
     client.progress("Reading compilation settings...")
 
     ScalaBuilder.sbtData.flatMap { sbtData =>
       CompilerData.from(context, chunk).flatMap { compilerData =>
         CompilationData.from(sources, context, chunk).map { compilationData =>
+          val hasScalaFacet = modules.exists(SettingsManager.getFacetSettings(_) != null)
+          val hasScalaLibrary = compilationData.classpath.exists(_.getName.startsWith("scala-library"))
+
+          if (hasScalaFacet && !hasScalaLibrary) {
+            val names = modules.map(_.getName).mkString(", ")
+            client.warning("No 'scala-library*.jar' in module dependencies [%s]".format(names))
+          }
+
           val settings = SettingsManager.getGlobalSettings(context.getProjectDescriptor.getModel.getGlobal)
 
           val server = if (settings.isCompileServerEnabled) {
