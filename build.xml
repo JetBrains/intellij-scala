@@ -103,6 +103,9 @@
         <include name="**/*.jar"/>
         <exclude name="**/scala-actors*.jar"/>
     </fileset>
+    <fileset dir="${nailgun.lib}">
+      <include name="**/*.jar"/>
+    </fileset>
   </path>
 
   <path id="jps.path">
