@@ -1,4 +1,5 @@
-package org.jetbrains.plugins.scala.lang
+package org.jetbrains.plugins.scala
+package lang
 package resolve
 package processor
 
@@ -9,7 +10,7 @@ import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResult}
 import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.Expression
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{ScTypePolymorphicType, ScMethodType, TypeParameter, Parameter}
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import psi.{types, ScalaPsiUtil}
 import com.intellij.psi._
 import scala.collection.Set
 import psi.types._
@@ -113,7 +114,7 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
           case p => p
         }
         val i: Int = if (params1.length > 0) 0.max(length - params1.length) else 0
-        val default: Expression = new Expression(if (params1.length > 0) params1.last.paramType else Nothing)
+        val default: Expression = new Expression(if (params1.length > 0) params1.last.paramType else types.Nothing)
         val exprs: Seq[Expression] = params1.map(p => new Expression(p.paramType)) ++ Seq.fill(i)(default)
         val conformance = Compatibility.checkConformance(checkNames = false, params2, exprs, checkWithImplicits = false)
         var u = conformance._2
@@ -214,12 +215,12 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
     case m: PsiMethod => ResolveUtils.javaPolymorphicType(m, ScSubstitutor.empty, elem.getResolveScope)
     case refPatt: ScReferencePattern => refPatt.getParent /*id list*/ .getParent match {
       case pd: ScPatternDefinition if (PsiTreeUtil.isContextAncestor(pd, elem, true)) =>
-        pd.declaredType match {case Some(t) => t; case None => Nothing}
+        pd.declaredType match {case Some(t) => t; case None => types.Nothing}
       case vd: ScVariableDefinition if (PsiTreeUtil.isContextAncestor(vd, elem, true)) =>
-        vd.declaredType match {case Some(t) => t; case None => Nothing}
+        vd.declaredType match {case Some(t) => t; case None => types.Nothing}
       case _ => refPatt.getType(TypingContext.empty).getOrAny
     }
     case typed: ScTypedDefinition => typed.getType(TypingContext.empty).getOrAny
-    case _ => Nothing
+    case _ => types.Nothing
   }
 }

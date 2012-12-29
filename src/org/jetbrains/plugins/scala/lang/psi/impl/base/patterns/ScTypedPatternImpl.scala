@@ -103,11 +103,7 @@ class ScTypedPatternImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
         expectedType match {
           case Some(expectedType) =>
             typeElementType.map {
-              case resType =>
-                if (expectedType.conforms(resType)) expectedType
-                else { //todo:
-                  resType
-                }
+              case resType => Bounds.glb(expectedType, resType, checkWeak = false)
             }
           case _ => typeElementType
         }
