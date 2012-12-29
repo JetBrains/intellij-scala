@@ -76,16 +76,16 @@ object Bounds {
             new ScTupleType(collection.immutable.Seq(c1.toSeq.zip(c2.toSeq).map({
               case (t1, t2) => lub(t1, t2, 0, checkWeak)
             }).toSeq: _*))(t1.getProject, t1.getScope)
+          case (ex: ScExistentialType, _) => lub(ex.skolem, t2, 0, checkWeak).unpackedType
+          case (_, ex: ScExistentialType) => lub(t1, ex.skolem, 0, checkWeak).unpackedType
+          case (ScTypeParameterType(_, Nil, _, upper, _), _) => lub(upper.v, t2, 0, checkWeak)
+          case (_, ScTypeParameterType(_, Nil, _, upper, _)) => lub(t1, upper.v, 0, checkWeak)
           case (ScSkolemizedType(name, args, lower, upper), ScSkolemizedType(name2, args2, lower2, upper2)) =>
             ScSkolemizedType(name, args, glb(lower, lower2, checkWeak), lub(upper, upper2, 0, checkWeak))
           case (ScSkolemizedType(name, args, lower, upper), r) =>
             ScSkolemizedType(name, args, glb(lower, r, checkWeak), lub(upper, t2, 0, checkWeak))
           case (r, ScSkolemizedType(name, args, lower, upper)) =>
             ScSkolemizedType(name, args, glb(lower, r, checkWeak), lub(upper, t2, 0, checkWeak))
-          case (ScTypeParameterType(_, Nil, _, upper, _), _) => lub(upper.v, t2, 0, checkWeak)
-          case (_, ScTypeParameterType(_, Nil, _, upper, _)) => lub(t1, upper.v, 0, checkWeak)
-          case (ex: ScExistentialType, _) => lub(ex.skolem, t2, 0, checkWeak).unpackedType
-          case (_, ex: ScExistentialType) => lub(t1, ex.skolem, 0, checkWeak).unpackedType
           case (_: ValType, _: ValType) => types.AnyVal
           case (JavaArrayType(arg1), JavaArrayType(arg2)) => {
             val (v, ex) = calcForTypeParamWithoutVariance(arg1, arg2, depth, checkWeak)

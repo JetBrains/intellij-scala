@@ -1493,11 +1493,23 @@ object Conformance {
       checkEquiv()
       if (result != null) return
 
-      rightVisitor = new ExistentialSimplification {}
+      val t = conformsInner(s.lower, r, HashSet.empty, undefinedSubst)
+
+      if (t._1) {
+        result = t
+        return
+      }
+
+      rightVisitor = new OtherNonvalueTypesVisitor with NothingNullVisitor
+        with TypeParameterTypeVisitor with TupleVisitor with FunctionVisitor
+        with ThisVisitor with DesignatorVisitor {}
       r.visitType(rightVisitor)
       if (result != null) return
 
-      result = conformsInner(s.lower, r, HashSet.empty, undefinedSubst)
+      rightVisitor = new ParameterizedAliasVisitor with AliasDesignatorVisitor with CompoundTypeVisitor
+        with ExistentialVisitor with ProjectionVisitor {}
+      r.visitType(rightVisitor)
+      if (result != null) return
     }
 
     override def visitTypeVariable(t: ScTypeVariable) {
