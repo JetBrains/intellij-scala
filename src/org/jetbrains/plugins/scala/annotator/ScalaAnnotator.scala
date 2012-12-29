@@ -45,6 +45,7 @@ import collection.mutable.{ArrayBuffer, HashSet}
 import com.intellij.codeInsight.daemon.impl.AnnotationHolderImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScInterpolatedStringPrefixReference
 import codeInspection.caseClassParamInspection.{RemoveValFromGeneratorIntentionAction, RemoveValFromEnumeratorIntentionAction}
+import org.jetbrains.plugins.scala.lang.scaladoc.psi.impl.ScDocResolvableCodeReferenceImpl
 
 /**
  * User: Alexander Podkhalyuzin
@@ -665,7 +666,7 @@ with DumbAware {
   }
 
   private def checkAccessForReference(resolve: Array[ResolveResult], refElement: ScReferenceElement, holder: AnnotationHolder) {
-    if (resolve.length != 1 || refElement.isSoft) return
+    if (resolve.length != 1 || refElement.isSoft || refElement.isInstanceOf[ScDocResolvableCodeReferenceImpl]) return
     resolve(0) match {
       case r: ScalaResolveResult if !r.isAccessible =>
         val error = "Symbol %s is inaccessible from this place".format(r.element.name)
