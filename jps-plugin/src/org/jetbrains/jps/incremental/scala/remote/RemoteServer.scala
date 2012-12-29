@@ -79,10 +79,8 @@ private object RemoteServer {
               client.message(Kind.ERROR, "Unable to read an event from: " + new String(data))
               client.trace(e)
           }
-        case Chunk(NGConstants.CHUNKTYPE_STDERR, data) =>
-          client.message(Kind.ERROR, fromBytes(data))
-        case Chunk(kind, data) =>
-          client.message(Kind.ERROR, "Unexpected server output: " + data)
+        case Chunk(_, data) =>
+          client.message(Kind.WARNING, "Unexpected compile server output: " + fromBytes(data))
       }
     }
   }
