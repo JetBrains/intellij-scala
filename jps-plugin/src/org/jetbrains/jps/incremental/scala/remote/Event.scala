@@ -34,7 +34,7 @@ object Event {
 
 case class MessageEvent(kind: Kind, text: String, source: Option[File], line: Option[Long], column: Option[Long]) extends Event
 
-case class TraceEvent(exception: Throwable) extends Event
+case class TraceEvent(message: String, lines: Array[String]) extends Event
 
 case class ProgressEvent(text: String, done: Option[Float]) extends Event
 
