@@ -96,7 +96,11 @@ trait ScPattern extends ScalaPsiElement {
             case _ => return None
           })
           expected match {
-            case Some(tp) => {
+            case Some(_tp) => {
+              val tp = _tp match {
+                case ex: ScExistentialType => ex.skolem
+                case _ => _tp
+              }
               val t = Conformance.conforms(tp, funType)
               if (t) {
                 val undefSubst = Conformance.undefinedSubst(tp, funType)
@@ -121,15 +125,15 @@ trait ScPattern extends ScalaPsiElement {
                 if (args.length != 1) return None
                 args(0) match {
                   case ScTupleType(args) => {
-                    if (i < args.length) return Some(subst.subst(args(i)))
+                    if (i < args.length) return Some(subst.subst(args(i)).unpackedType)
                     else return None
                   }
                   case p@ScParameterizedType(des, args) if p.getTupleType != None => {
-                    if (i < args.length) return Some(subst.subst(args(i)))
+                    if (i < args.length) return Some(subst.subst(args(i)).unpackedType)
                     else return None
                   }
                   case tp => {
-                    if (i == 0) return Some(subst.subst(tp))
+                    if (i == 0) return Some(subst.subst(tp).unpackedType)
                     else return None
                   }
                 }
