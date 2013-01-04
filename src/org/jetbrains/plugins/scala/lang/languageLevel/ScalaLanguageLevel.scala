@@ -70,7 +70,7 @@ object ScalaLanguageLevel extends Enumeration {
 
   def getLanguageLevel(element: PsiElement): ScalaLanguageLevel = {
     val file: PsiFile = element.getContainingFile
-    if (file == null) return DEFAULT_LANGUAGE_LEVEL
+    if (file == null || file.getVirtualFile == null) return DEFAULT_LANGUAGE_LEVEL
     val module: Module = ProjectFileIndex.SERVICE.getInstance(element.getProject).getModuleForFile(file.getVirtualFile)
     if (module == null) return DEFAULT_LANGUAGE_LEVEL
     ScalaFacet.findIn(module).map(_.languageLevel).getOrElse(DEFAULT_LANGUAGE_LEVEL)
