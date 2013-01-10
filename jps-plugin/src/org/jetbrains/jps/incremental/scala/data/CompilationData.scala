@@ -2,7 +2,7 @@ package org.jetbrains.jps.incremental.scala
 package data
 
 import java.io.File
-import org.jetbrains.jps.incremental.CompileContext
+import org.jetbrains.jps.incremental.{ModuleBuildTarget, CompileContext}
 import org.jetbrains.jps.{ProjectPaths, ModuleChunk}
 import org.jetbrains.jps.incremental.scala.SettingsManager
 import collection.JavaConverters._
@@ -31,7 +31,7 @@ object CompilationData {
 
     Option(target.getOutputDir)
             .toRight("Output directory not specified for module " + module.getName)
-            .map { output =>
+            .flatMap { output =>
 
       val classpath = ProjectPaths.getCompilationClasspathFiles(chunk, chunk.containsTests, false, false).asScala.toSeq
 
@@ -41,22 +41,23 @@ object CompilationData {
 
       val order = facetSettings.map(_.getCompileOrder).getOrElse(Order.Mixed)
 
-      val outputToCacheMap = createOutputToCacheMap(context)
+      createOutputToCacheMap(context).map { outputToCacheMap =>
 
-      val cacheFile = outputToCacheMap.get(output).getOrElse {
-        throw new RuntimeException("Unknown build target output directory: " + output)
+        val cacheFile = outputToCacheMap.get(output).getOrElse {
+          throw new RuntimeException("Unknown build target output directory: " + output)
+        }
+
+        val relevantOutputToCacheMap = (outputToCacheMap - output).filter(p => classpath.contains(p._1))
+
+        val commonOptions = {
+          val encoding = context.getProjectDescriptor.getEncodingConfiguration.getPreferredModuleChunkEncoding(chunk)
+          Option(encoding).map(Seq("-encoding", _)).getOrElse(Seq.empty)
+        }
+
+        val javaOptions = javaOptionsFor(module)
+
+        CompilationData(sources, classpath, output, commonOptions ++ scalaOptions, commonOptions ++ javaOptions, order, cacheFile, relevantOutputToCacheMap)
       }
-
-      val relevantOutputToCacheMap = (outputToCacheMap - output).filter(p => classpath.contains(p._1))
-
-      val commonOptions = {
-        val encoding = context.getProjectDescriptor.getEncodingConfiguration.getPreferredModuleChunkEncoding(chunk)
-        Option(encoding).map(Seq("-encoding", _)).getOrElse(Seq.empty)
-      }
-
-      val javaOptions = javaOptionsFor(module)
-
-      CompilationData(sources, classpath, output, commonOptions ++ scalaOptions, commonOptions ++ javaOptions, order, cacheFile, relevantOutputToCacheMap)
     }
   }
 
@@ -105,17 +106,32 @@ object CompilationData {
     }
   }
 
-  private def createOutputToCacheMap(context: CompileContext): Map[File, File] = {
-    val buildTargetIndex = context.getProjectDescriptor.getBuildTargetIndex
-    val paths = context.getProjectDescriptor.dataManager.getDataPaths
-
-    val pairs = for (targetType <- JavaModuleBuildTargetType.ALL_TYPES.asScala;
-                     target <- buildTargetIndex.getAllTargets(targetType).asScala) yield {
-      val targetDirectory = target.getOutputDir
-      val cache = new File(paths.getTargetDataRoot(target), "cache.dat")
-      (targetDirectory, cache)
+  private def createOutputToCacheMap(context: CompileContext): Either[String, Map[File, File]] = {
+    val targetToOutput = {
+      val buildTargetIndex = context.getProjectDescriptor.getBuildTargetIndex
+      val targets = JavaModuleBuildTargetType.ALL_TYPES.asScala.flatMap(buildTargetIndex.getAllTargets(_).asScala)
+      targets.map(target => (target, target.getOutputDir))
     }
 
-    pairs.toMap
+    outputClashesIn(targetToOutput).toLeft {
+      val paths = context.getProjectDescriptor.dataManager.getDataPaths
+
+      for ((target, output) <- targetToOutput.toMap)
+      yield (output, new File(paths.getTargetDataRoot(target), "cache.dat"))
+    }
+  }
+
+  private def outputClashesIn(targetToOutput: Seq[(ModuleBuildTarget, File)]): Option[String] = {
+    val outputToTargetsMap = targetToOutput.groupBy(_._2).mapValues(_.map(_._1))
+
+    val errors = outputToTargetsMap.collect {
+      case (output, targets) if targets.length > 1 =>
+        val targetNames = targets.map(_.getPresentableName).mkString(", ")
+        "Output path %s is shared between: %s".format(output, targetNames)
+    }
+
+    if (errors.isEmpty) None else Some(errors.mkString("\n") +
+            "\nCurrently, SBT compiler prohibits output directory sharing." +
+            "\nEither disable the external build mode or use separated output paths.")
   }
 }
