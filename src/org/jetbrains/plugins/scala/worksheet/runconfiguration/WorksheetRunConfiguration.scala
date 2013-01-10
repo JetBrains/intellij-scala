@@ -125,7 +125,7 @@ class WorksheetRunConfiguration(val project: Project, val configurationFactory: 
       worksheetViewer
     }
 
-    def printResults(s: String, contentType: ConsoleViewContentType, editor: Editor, worksheetViewer: Editor) {
+    def printResults(s: String, editor: Editor, worksheetViewer: Editor) {
       invokeLater {
         inWriteAction {
           if (s.startsWith(PromptString)) {
@@ -222,6 +222,17 @@ class WorksheetRunConfiguration(val project: Project, val configurationFactory: 
     }
 
     def evaluateWorksheet(psiFile: ScalaFile, processHandler: ProcessHandler, editor: Editor) {
+      def deleteComments(text: String): String = {
+        val list = text.split("\n")
+        var result = new StringBuffer
+        for (l <- list) {
+          if (!l.startsWith("//")) {
+            result = result.append(l).append("\n")
+          }
+        }
+        result.toString
+      }
+
       invokeLater {
         inWriteAction {
           val document = editor.getDocument
@@ -251,11 +262,11 @@ class WorksheetRunConfiguration(val project: Project, val configurationFactory: 
               if (child.getText.trim != "" && child.getText.trim != "\n" && (!child.isInstanceOf[PsiComment] && !child.isInstanceOf[ScDocComment])) {
                 val outputStream: OutputStream = processHandler.getProcessInput
                 try {
-                  val text = if (child.isInstanceOf[ScInfixExpr] || child.isInstanceOf[ScMethodCall] ||
-                    child.isInstanceOf[ScPatternDefinition])
+                  val text = if (child.isInstanceOf[ScInfixExpr] || child.isInstanceOf[ScMethodCall])// ||
                     child.getText.trim.replaceAll("\n", " ") else child.getText.trim
                   lineNumbers.add(document.getLineNumber(child.getTextRange.getEndOffset))
-                  val bytes: Array[Byte] = (text + "\n").getBytes
+                  val result = deleteComments(text)
+                  val bytes: Array[Byte] = (result).getBytes
                   outputStream.write(bytes)
                   outputStream.flush()
                 }
@@ -285,11 +296,11 @@ class WorksheetRunConfiguration(val project: Project, val configurationFactory: 
                       if (child.getText.trim != "" && child.getText.trim != "\n" && (!child.isInstanceOf[PsiComment] && !child.isInstanceOf[ScDocComment])) {
                         val outputStream: OutputStream = processHandler.getProcessInput
                         try {
-                          val text = if (child.isInstanceOf[ScInfixExpr] || child.isInstanceOf[ScMethodCall] ||
-                            child.isInstanceOf[ScPatternDefinition])
+                          val text = if (child.isInstanceOf[ScInfixExpr] || child.isInstanceOf[ScMethodCall])// ||
                             child.getText.trim.replaceAll("\n", " ") else child.getText.trim
                           lineNumbers.add(document.getLineNumber(child.getTextRange.getEndOffset))
-                          val bytes: Array[Byte] = (text + "\n").getBytes
+                          val result = deleteComments(text)
+                          val bytes: Array[Byte] = (result).getBytes
                           outputStream.write(bytes)
                           outputStream.flush()
                         }
@@ -398,11 +409,11 @@ class WorksheetRunConfiguration(val project: Project, val configurationFactory: 
                 results_count = results_count + 1
               }
               if (results_count > MAX_RESULTS_COUNT) {
-                printResults(END_MESSAGE, ConsoleViewContentType.NORMAL_OUTPUT, editor, worksheetViewer)
+                printResults(END_MESSAGE, editor, worksheetViewer)
                 endProcess(processHandler)
                 processHandler.removeProcessListener(this)
               } else {
-                printResults(text, ConsoleViewContentType.getConsoleViewType(outputType), editor, worksheetViewer)
+                printResults(text, editor, worksheetViewer)
               }
             }
           }
