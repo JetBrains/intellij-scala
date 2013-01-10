@@ -7,6 +7,8 @@ import com.intellij.ide.fileTemplates.actions.{AttributesDefaults, CreateFromTem
 import com.intellij.ide.fileTemplates.FileTemplateManager
 import com.intellij.openapi.actionSystem._
 import com.intellij.psi.JavaDirectoryService
+import config.ScalaFacet
+import com.intellij.openapi.module.Module
 
 /**
  * Pavel Fatin
@@ -27,8 +29,11 @@ class NewPackageObjectAction
             .map(_.getQualifiedName)
             .exists(!_.isEmpty)
 
-    e.getPresentation.setEnabled(hasPackage)
-    e.getPresentation.setVisible(hasPackage)
+    val module: Module = e.getDataContext.getData(LangDataKeys.MODULE.getName).asInstanceOf[Module]
+    val isEnabled: Boolean = if (module == null) false else ScalaFacet.isPresentIn(module)
+
+    e.getPresentation.setEnabled(hasPackage && isEnabled)
+    e.getPresentation.setVisible(hasPackage && isEnabled)
   }
 
   override def getAttributesDefaults(dataContext: DataContext) = {
