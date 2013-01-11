@@ -8,7 +8,6 @@ import com.intellij.openapi.roots.libraries.Library.ModifiableModel
 import com.intellij.openapi.roots._
 import com.intellij.openapi.roots.libraries.{Library, LibraryTable}
 import org.jetbrains.plugins.scala.extensions._
-import collection.mutable
 import config.FileAPI._
 
 /**
@@ -19,27 +18,24 @@ object Libraries {
   /**
    * Returns only libraries that might be compiler and/or standard library
    * 
-   * @param allLibraries libraries to filter
+   * @param libraries libraries to filter
    * @return (Suitable compiler libraries, Suitable standard libraries) 
    */
-  def filterScalaLikeLibraries(allLibraries: Array[Library]): (Array[Library], Array[Library]) = {
-    val compilerLibraries = mutable.ArrayBuilder.make[Library]()
-    val standardLibraries = mutable.ArrayBuilder.make[Library]()
+  def filterScalaLikeLibraries(libraries: Array[Library]): (Array[Library], Array[Library]) = {
+    val allLibraries = libraries.toSet
     
-    allLibraries foreach { library => 
-      new CompilerLibraryData(library).problem match {
-        case None => compilerLibraries += library
-        case _ => 
-      } 
-      
-      new StandardLibraryData(library).problem match {
-        case None => standardLibraries += library
-        case _ => 
-      }
-    }
+    val compilerLibraries = allLibraries.filter(it => new CompilerLibraryData(it).problem.isEmpty)
     
-    (compilerLibraries.result(), standardLibraries.result())
+    val standardLibraries = {
+      val standardOrCompilerLibraries = allLibraries.filter(it => new StandardLibraryData(it).problem.isEmpty)
+      val rawStandardLibrairies = standardOrCompilerLibraries -- compilerLibraries
+      sort(rawStandardLibrairies.toSeq) ++ sort(compilerLibraries.toSeq)
+    } 
+    
+    (sort(compilerLibraries.toSeq).toArray, standardLibraries.toArray)
   }
+  
+  private def sort(libraries: Seq[Library]) = libraries.sortBy(_.getName.toLowerCase)
   
   def extractLibraryVersion(library: Library, jarName: String, properties: String): String = {
     library getFiles OrderRootType.CLASSES find (_.getName == jarName) map {
