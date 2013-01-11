@@ -122,8 +122,12 @@ class ScalaBuilder extends ModuleLevelBuilder(BuilderCategory.TRANSLATOR) {
         client.error(error)
         ExitCode.ABORT
       case Right(code) =>
-        client.progress("Compilation completed", Some(1.0F))
-        code
+        if (client.hasReportedErrors) {
+          ExitCode.ABORT
+        } else {
+          client.progress("Compilation completed", Some(1.0F))
+          code
+        }
     }
   }
 }
@@ -211,7 +215,13 @@ private class IdeClient(compilerName: String,
                         consumer: OutputConsumer,
                         sourceToTarget: File => Option[BuildTarget[_ <: BuildRootDescriptor]]) extends Client {
 
+  private var hasErrors = false
+
   def message(kind: Kind, text: String, source: Option[File], line: Option[Long], column: Option[Long]) {
+    if (kind == Kind.ERROR) {
+      hasErrors = true
+    }
+
     val sourcePath = source.map(file => file.getPath)
 
     context.processMessage(new CompilerMessage(compilerName, kind, text, sourcePath.orNull,
@@ -239,6 +249,8 @@ private class IdeClient(compilerName: String,
   }
 
   def isCanceled = context.getCancelStatus.isCanceled
+
+  def hasReportedErrors: Boolean = hasErrors
 }
 
 // TODO expect future JPS API to load the generated file content lazily (on demand)
