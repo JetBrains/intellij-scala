@@ -122,7 +122,7 @@ class ScalaBuilder extends ModuleLevelBuilder(BuilderCategory.TRANSLATOR) {
         client.error(error)
         ExitCode.ABORT
       case Right(code) =>
-        if (client.hasReportedErrors) {
+        if (client.hasReportedErrors || client.isCanceled) {
           ExitCode.ABORT
         } else {
           client.progress("Compilation completed", Some(1.0F))
