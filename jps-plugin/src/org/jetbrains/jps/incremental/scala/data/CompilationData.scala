@@ -131,7 +131,8 @@ object CompilationData {
     }
 
     if (errors.isEmpty) None else Some(errors.mkString("\n") +
-            "\nCurrently, SBT compiler prohibits output directory sharing." +
-            "\nEither disable the external build mode or use separated output paths.")
+            "\nCurrently external Scala compiler prohibits output path sharing." +
+            "\nEither disable the external build mode or configure separated output paths." +
+            "\nTIP: you can use Project Artifacts to combine compiled classes.")
   }
 }
