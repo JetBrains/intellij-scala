@@ -27,6 +27,7 @@ import org.jetbrains.plugins.scala.extensions.{toPsiMemberExt, toPsiClassExt, to
 import org.jetbrains.plugins.scala.settings._
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScStableCodeReferenceElement, ScReferenceElement, ScFieldId}
 import com.intellij.util.IconUtil
+import lang.psi.light.PsiClassWrapper
 
 /**
  * @author Alefas

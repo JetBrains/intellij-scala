@@ -35,14 +35,37 @@ class ScClsStubBuilderFactory extends ClsStubBuilderFactory[ScalaFile] {
     stub.asInstanceOf[PsiFileStub[ScalaFile]]
   }
 
-  def canBeProcessed(file: VirtualFile, bytes: Array[Byte]) = DecompilerUtil.isScalaFile(file, bytes)
+  def canBeProcessed(file: VirtualFile, bytes: Array[Byte]): Boolean = {
+    val name: String = file.getNameWithoutExtension
+    if (name.endsWith("$")) {
+      val parent: VirtualFile = file.getParent
+      val child: VirtualFile = parent.findChild(name.dropRight(1) + ".class")
+      if (child != null) {
+        val res = DecompilerUtil.isScalaFile(child)
+        if (res) return true //let's handle it separately to avoid giving it for Java.
+      }
+    }
+    DecompilerUtil.isScalaFile(file, bytes)
+  }
 
   def isInnerClass(file: VirtualFile): Boolean = {
     if (file.getExtension != "class") return false
-    isInner(file.getNameWithoutExtension, new ParentDirectory(file.getParent))
+    val name: String = file.getNameWithoutExtension
+    val parent: VirtualFile = file.getParent
+    if (name.endsWith("$")) {
+      val child: VirtualFile = parent.findChild(name.dropRight(1) + ".class")
+      if (child != null) {
+        val res = DecompilerUtil.isScalaFile(child)
+        if (res) return false //let's handle it separately to avoid giving it for Java.
+      }
+    }
+    isInner(name, new ParentDirectory(parent))
   }
 
   private def isInner(name: String, directory: Directory): Boolean = {
+    if (name.endsWith("$") && directory.contains(name.dropRight(1))) {
+      return false //let's handle it separately to avoid giving it for Java.
+    }
     isInner(NameTransformer.decode(name), 0, directory)
   }
 
