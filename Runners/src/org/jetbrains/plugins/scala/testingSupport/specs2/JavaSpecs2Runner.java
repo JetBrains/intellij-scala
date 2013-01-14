@@ -4,6 +4,10 @@ import org.jetbrains.plugins.scala.testingSupport.TestRunnerUtil;
 import org.specs2.runner.NotifierRunner;
 import testingSupport.specs2.MyNotifierRunner;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -16,7 +20,7 @@ public class JavaSpecs2Runner {
 
   private static final String reporterQualName = "org.jetbrains.plugins.scala.testingSupport.specs2.JavaSpecs2Notifier";
 
-  public static void main(String[] args) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException, ClassNotFoundException, InstantiationException {
+  public static void main(String[] args) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException, ClassNotFoundException, InstantiationException, IOException {
     NotifierRunner runner = new NotifierRunner(new JavaSpecs2Notifier());
     ArrayList<String> argsArray = new ArrayList<String>();
     ArrayList<String> specialArgs = new ArrayList<String>();
@@ -26,35 +30,35 @@ public class JavaSpecs2Runner {
     String testName = "";
     boolean showProgressMessages = true;
     int i = 0;
-
-    while (i < args.length) {
-      if (args[i].equals("-s")) {
-        argsArray.add(args[i]);
+    String[] newArgs  = getNewArgs(args);
+    while (i < newArgs.length) {
+      if (newArgs[i].equals("-s")) {
+        argsArray.add(newArgs[i]);
         ++i;
         argsArray.add("empty");
-        while (i < args.length && !args[i].startsWith("-")) {
-          classes.add(args[i]);
+        while (i < newArgs.length && !newArgs[i].startsWith("-")) {
+          classes.add(newArgs[i]);
           ++i;
         }
-      } else if (args[i].equals("-testName")) {
+      } else if (newArgs[i].equals("-testName")) {
         ++i;
-        testName = args[i];
+        testName = newArgs[i];
         specialArgs.add("-Dspecs2.ex="+ "\"" + testName + "\"");
         ++i;
-      } else if (args[i].equals("-showProgressMessages")) {
+      } else if (newArgs[i].equals("-showProgressMessages")) {
         ++i;
-        showProgressMessages = Boolean.parseBoolean(args[i]);
+        showProgressMessages = Boolean.parseBoolean(newArgs[i]);
         ++i;
-      } else if (args[i].equals("-failedTests")) {
+      } else if (newArgs[i].equals("-failedTests")) {
         failedUsed = true;
         ++i;
-        while (i < args.length && !args[i].startsWith("-")) {
-          failedTests.add(args[i]);
+        while (i < newArgs.length && !newArgs[i].startsWith("-")) {
+          failedTests.add(newArgs[i]);
           ++i;
         }
       } else {
-        argsArray.add(args[i]);
-        specialArgs.add(args[i]);
+        argsArray.add(newArgs[i]);
+        specialArgs.add(newArgs[i]);
         ++i;
       }
     }
@@ -125,5 +129,28 @@ public class JavaSpecs2Runner {
       Method method = runner.getClass().getMethod("main", String[].class);
       method.invoke(runner, runnerArgsArray);
     }
+  }
+
+  private static String[] getNewArgs(String[] args) throws IOException {
+    String[] newArgs;
+    if (args.length == 1 && args[0].startsWith("@")) {
+      String arg = args[0];
+      File file = new File(arg.substring(1));
+      if (!file.exists())
+        throw new FileNotFoundException(String.format("argument file %s could not be found", file.getName()));
+      FileReader fileReader = new FileReader(file);
+      StringBuilder buffer = new StringBuilder();
+      while (true) {
+        int ind = fileReader.read();
+        if (ind == -1) break;
+        char c = (char) ind;
+        if (c == '\r') continue;
+        buffer.append(c);
+      }
+      newArgs = buffer.toString().split("[\n]");
+    } else {
+      newArgs = args;
+    }
+    return newArgs;
   }
 }
