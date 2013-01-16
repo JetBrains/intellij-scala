@@ -98,12 +98,15 @@ public abstract class ScalaLightPlatformCodeInsightTestCaseAdapter extends Light
     // Add Scala Library
     OrderEnumerator libs = rootManager.orderEntries().librariesOnly();
     final ArrayList<Library.ModifiableModel> libModels = new ArrayList<Library.ModifiableModel>();
-    rootModel = addLibrary(libVersion, rootModel, rootManager, libs, libModels, "scala_lib", TestUtils.getMockScalaLib(libVersion), TestUtils.getMockScalaSrc(libVersion));
+    rootModel = addLibrary(libVersion, rootModel, rootManager, libs, libModels, "scala_lib",
+        TestUtils.getMockScalaLib(libVersion), TestUtils.getMockScalaSrc(libVersion));
     if (isIncludeReflectLibrary()) {
-      rootModel = addLibrary(libVersion, rootModel, rootManager, libs, libModels, "scala_reflect", TestUtils.getMockScalaReflectLib(libVersion), null);
+      rootModel = addLibrary(libVersion, rootModel, rootManager, libs, libModels, "scala_reflect",
+          TestUtils.getMockScalaReflectLib(libVersion), null);
     }
     if (isIncludeScalazLibrary()) {
-      rootModel = addLibrary(libVersion, rootModel, rootManager, libs, libModels, "scalaz", TestUtils.getMockScalazLib(libVersion), null);
+      rootModel = addLibrary(libVersion, rootModel, rootManager, libs, libModels, "scalaz",
+          TestUtils.getMockScalazLib(libVersion), null);
     }
 
     if (!libModels.isEmpty() || rootModel != null) {
@@ -121,7 +124,10 @@ public abstract class ScalaLightPlatformCodeInsightTestCaseAdapter extends Light
     }
   }
 
-  private ModifiableRootModel addLibrary(TestUtils.ScalaSdkVersion libVersion, ModifiableRootModel rootModel, ModuleRootManager rootManager, OrderEnumerator libs, ArrayList<Library.ModifiableModel> libModels, final String scalaLibraryName, String mockLib, String mockLibSrc) {
+  private ModifiableRootModel addLibrary(TestUtils.ScalaSdkVersion libVersion, ModifiableRootModel rootModel,
+                                         ModuleRootManager rootManager, OrderEnumerator libs,
+                                         ArrayList<Library.ModifiableModel> libModels,
+                                         final String scalaLibraryName, String mockLib, String mockLibSrc) {
     class CustomProcessor implements Processor<Library> {
       public boolean result = true;
 
@@ -165,14 +171,6 @@ public abstract class ScalaLightPlatformCodeInsightTestCaseAdapter extends Light
       assert (srcRoot.exists());
       libModel.addRoot(VfsUtil.getUrlForLibraryRoot(srcRoot), OrderRootType.SOURCES);
     }
-    /*if (isIncludeReflectLibrary()) {
-      File reflectRoot = new File(TestUtils.getMockScalaReflectLib(version));
-      libModel.addRoot(VfsUtil.getUrlForLibraryRoot(reflectRoot), OrderRootType.CLASSES);
-    }
-    if (isIncludeScalazLibrary()) {
-      File reflectRoot = new File(TestUtils.getMockScalazLib(version));
-      libModel.addRoot(VfsUtil.getUrlForLibraryRoot(reflectRoot), OrderRootType.CLASSES);
-    }*/
     ((VirtualFilePointerManagerImpl) VirtualFilePointerManager.getInstance()).storePointers();
   }
 
