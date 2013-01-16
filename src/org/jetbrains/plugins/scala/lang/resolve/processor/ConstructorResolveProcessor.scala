@@ -35,8 +35,8 @@ class ConstructorResolveProcessor(constr: PsiElement, refName: String, args: Lis
         case clazz: PsiClass if clazz.qualifiedName != null && !qualifiedNames.contains(clazz.qualifiedName) => {
           qualifiedNames.add(clazz.qualifiedName)
           val constructors: Array[PsiMethod] = 
-            if (accessibility) clazz.getConstructors.filter(isAccessible(_, ref))
-            else clazz.getConstructors
+            if (accessibility) clazz.constructors.filter(isAccessible(_, ref))
+            else clazz.constructors
           if (constructors.isEmpty) {
             //this is for Traits for example. They can be in constructor position.
             // But they haven't constructors.
@@ -63,8 +63,8 @@ class ConstructorResolveProcessor(constr: PsiElement, refName: String, args: Lis
           ScType.extractClassType(tp) match {
             case Some((clazz, s)) => {
               val constructors: Array[PsiMethod] = 
-                if (accessibility) clazz.getConstructors.filter(isAccessible(_, ref))
-                else clazz.getConstructors
+                if (accessibility) clazz.constructors.filter(isAccessible(_, ref))
+                else clazz.constructors
               if (constructors.isEmpty) addResult(r)
               else {
                 addResults(constructors.toSeq.map(constr => new ScalaResolveResult(constr, subst.followed(s), getImports(state),
