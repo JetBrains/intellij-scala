@@ -250,9 +250,9 @@ class ScClassImpl extends ScTypeDefinitionImpl with ScClass with ScTypeParameter
 
   override def getConstructors: Array[PsiMethod] = {
     val buffer = new ArrayBuffer[PsiMethod]
-    buffer ++= functions.filter(_.isConstructor)
+    buffer ++= functions.filter(_.isConstructor).map(_.getFunctionWrapper(isStatic = false, isInterface = false, Some(this)))
     constructor match {
-      case Some(x) => buffer += x
+      case Some(x) => buffer += x.getFunctionWrapper
       case _ =>
     }
     buffer.toArray

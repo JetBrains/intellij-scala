@@ -75,7 +75,7 @@ class ScArgumentExprListImpl(node: ASTNode) extends ScalaPsiElementImpl(node) wi
       }
       i = i + 1
     }
-    return -1
+    -1
   }
 
   def invocationCount: Int = {

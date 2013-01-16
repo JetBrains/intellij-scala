@@ -375,7 +375,7 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
     this
   }
 
-  private var functionWrapper: ConcurrentHashMap[(Boolean, Boolean, Option[PsiClass]), (ScFunctionWrapper, Long)] =
+  private val functionWrapper: ConcurrentHashMap[(Boolean, Boolean, Option[PsiClass]), (ScFunctionWrapper, Long)] =
     new ConcurrentHashMap()
 
   def getFunctionWrapper(isStatic: Boolean, isInterface: Boolean, cClass: Option[PsiClass] = None): ScFunctionWrapper = {
