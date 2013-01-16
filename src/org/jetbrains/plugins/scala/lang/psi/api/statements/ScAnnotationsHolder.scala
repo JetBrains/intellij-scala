@@ -5,7 +5,7 @@ package api
 package statements
 
 import expr.{ScAnnotations, ScAnnotation}
-import psi.types.{Conformance, ScDesignatorType, ScType, Any}
+import types._
 import java.lang.String
 import types.result.TypingContext
 import com.intellij.psi.impl.source.PsiFileImpl
@@ -20,6 +20,10 @@ import api.base.ScReferenceElement
 import psi.impl.ScalaPsiElementFactory
 import annotator.intention.ScalaImportClassFix
 import psi.types.Conformance.AliasType
+import types.ScDesignatorType
+import scala.Some
+import types.Conformance.AliasType
+import scala.Boolean
 
 /**
  * User: Alexander Podkhalyuzin
@@ -57,6 +61,7 @@ trait ScAnnotationsHolder extends ScalaPsiElement with PsiAnnotationOwner {
     def acceptType(tp: ScType): Boolean = {
       tp match {
         case ScDesignatorType(clazz: PsiClass) => clazz.qualifiedName == qualifiedName
+        case ScParameterizedType(ScDesignatorType(clazz: PsiClass), _) => clazz.qualifiedName == qualifiedName
         case _ =>
           Conformance.isAliasType(tp) match {
             case Some(AliasType(ta: ScTypeAliasDefinition, _, _)) => acceptType(ta.aliasedType(TypingContext.empty).getOrAny)
