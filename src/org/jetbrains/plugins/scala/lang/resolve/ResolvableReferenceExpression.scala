@@ -24,7 +24,7 @@ import psi.types.result.{Success, TypingContext}
 import psi.types.nonvalue.{ScMethodType, ScTypePolymorphicType}
 import psi.types._
 import extensions.toPsiNamedElementExt
-import psi.api.toplevel.typedef.ScTemplateDefinition
+import psi.api.toplevel.typedef.{ScClass, ScTemplateDefinition}
 import annotation.tailrec
 import psi.impl.{ScalaPsiElementFactory, ScalaPsiManager}
 import extensions._
@@ -245,8 +245,16 @@ trait ResolvableReferenceExpression extends ScReferenceExpression {
               constr.arguments.toList.map(_.exprs.map(Expression(_))), typeArgs, Seq.empty /* todo: ? */,
               constructorResolve = true, enableTupling = true)
             val state = ResolveState.initial.put(ScSubstitutor.key, subst)
-            for (constr <- clazz.getConstructors) {
-              processor.execute(constr, state)
+            clazz match {
+              case clazz: ScClass =>
+                for (constr <- clazz.secondaryConstructors) {
+                  processor.execute(constr, state)
+                }
+                clazz.constructor.foreach(processor.execute(_, state))
+              case _ =>
+                for (constr <- clazz.getConstructors) {
+                  processor.execute(constr, state)
+                }
             }
             for (candidate <- processor.candidatesS) {
               candidate match {

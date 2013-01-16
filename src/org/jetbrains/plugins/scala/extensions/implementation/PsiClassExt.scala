@@ -1,7 +1,8 @@
-package org.jetbrains.plugins.scala.extensions.implementation
+package org.jetbrains.plugins.scala
+package extensions.implementation
 
-import com.intellij.psi.PsiClass
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
+import com.intellij.psi.{PsiMethod, PsiClass}
+import lang.psi.api.toplevel.typedef.{ScClass, ScTemplateDefinition}
 
 /**
  * User: Alefas
@@ -15,6 +16,13 @@ class PsiClassExt(clazz: PsiClass) {
     clazz match {
       case t: ScTemplateDefinition => t.qualifiedName
       case _ => clazz.getQualifiedName
+    }
+  }
+
+  def constructors: Array[PsiMethod] = {
+    clazz match {
+      case c: ScClass => c.constructors
+      case _ => clazz.getConstructors
     }
   }
 }

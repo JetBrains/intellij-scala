@@ -44,7 +44,6 @@ class ScSelfInvocationImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with
     val clazz = psiClass.asInstanceOf[ScClass]
     val method = PsiTreeUtil.getParentOfType(this, classOf[ScFunction])
     if (method == null) return Seq.empty
-    val constructors: Array[PsiMethod] = clazz.getConstructors.filter(_ != method)
     val expressions: Seq[Expression] = args match {
       case Some(arguments) => arguments.exprs.map(new Expression(_))
       case None => Seq.empty
@@ -52,8 +51,12 @@ class ScSelfInvocationImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with
     val proc = new MethodResolveProcessor(this, "this", List(expressions), Seq.empty,
       Seq.empty /*todo: ? */, StdKinds.methodsOnly, constructorResolve = true, isShapeResolve = shapeResolve,
       enableTupling = true, selfConstructorResolve = true)
-    for (constr <- constructors if constr != method) {
+    for (constr <- clazz.secondaryConstructors.filter(_ != method) if constr != method) {
       proc.execute(constr, ResolveState.initial)
+    }
+    clazz.constructor match {
+      case Some(constr) => proc.execute(constr, ResolveState.initial())
+      case _ =>
     }
     proc.candidates.toSeq.map(_.element)
   }

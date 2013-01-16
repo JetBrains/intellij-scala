@@ -8,7 +8,7 @@ package typedef
 import base.ScPrimaryConstructor
 import impl.ScalaPsiElementFactory
 import lexer.ScalaTokenTypes
-import com.intellij.psi.PsiElement
+import com.intellij.psi.{PsiMethod, PsiElement}
 import statements.params.{ScParameterClause, ScParameters}
 import statements.{ScFunction, ScFunctionDefinition, ScParameterOwner}
 import caches.CachesUtil
@@ -24,6 +24,10 @@ trait ScClass extends ScTypeDefinition with ScParameterOwner {
 
   def secondaryConstructors: Seq[ScFunction] = {
     functions.filter(_.isConstructor)
+  }
+
+  def constructors: Array[PsiMethod] = {
+    (secondaryConstructors ++ constructor.toSeq).toArray
   }
 
   def clauses: Option[ScParameters] = constructor match {
