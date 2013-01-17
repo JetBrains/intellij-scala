@@ -22,6 +22,8 @@ import types.Conformance.AliasType
 import api.base.types.ScTypeElement
 import collection.mutable.ArrayBuffer
 import api.ScalaElementVisitor
+import collection.mutable
+import collection.immutable.HashSet
 
 /**
  * @author Alexander Podkhalyuzin
@@ -173,11 +175,16 @@ class ScParameterImpl extends ScalaStubBasedElementImpl[ScParameter] with ScPara
   def getTypeNoResolve: PsiType = PsiType.VOID
 
   def isDefaultParam: Boolean = {
-    if (baseDefaultParam) return true
-    getSuperParameter match {
-      case Some(param) => param.isDefaultParam
-      case _ => false
+    def check(param: ScParameter, visited: HashSet[ScParameter]): Boolean = {
+      if (param.baseDefaultParam) return true
+      if (visited.contains(param)) return false
+      getSuperParameter match {
+        case Some(superParam) =>
+          check(superParam, visited + param)
+        case _ => false
+      }
     }
+    check(this, HashSet.empty)
   }
 
   def baseDefaultParam: Boolean = {
