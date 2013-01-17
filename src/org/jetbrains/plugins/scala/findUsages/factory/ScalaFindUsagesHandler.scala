@@ -29,44 +29,8 @@ import org.jetbrains.plugins.scala.lang.psi.impl.search.ScalaOverridengMemberSea
  * Date: 17.08.2009
  */
 
-class ScalaFindUsagesHandler(element: PsiElement) extends {
-    private val _replacedElement: PsiElement = {
-      element match {
-        case wrapper: PsiClassWrapper => wrapper.definition
-        case p: PsiTypedDefinitionWrapper => p.typedDefinition
-        case p: StaticPsiTypedDefinitionWrapper => p.typedDefinition
-        case f: ScFunctionWrapper => f.function
-        case f: FakePsiMethod => f.navElement
-        case s: StaticPsiMethodWrapper => s.method
-        case _ => element
-      }
-
-    }
-  } with FindUsagesHandler(_replacedElement) {
-  private var replacedElement = _replacedElement
-
-  override def getPrimaryElements: Array[PsiElement] = {
-    _replacedElement match {
-      case function: ScFunction =>
-        val signs = function.superSignatures
-        if (signs.length == 0 || signs.last.namedElement.isEmpty) Array(function)
-        else {
-          val result = Messages.showDialog(element.getProject, ScalaBundle.message("find.usages.method.has.supers", function.name), "Warning",
-            Array(CommonBundle.getYesButtonText, CommonBundle.getNoButtonText, CommonBundle.getCancelButtonText), 0, Messages.getQuestionIcon
-          )
-          result match {
-            case 0 =>
-              val elem = signs.last.namedElement.get
-              replacedElement = elem
-              Array(elem)
-            case 1 => Array(function)
-            case 2 => Array.empty
-          }
-        }
-      case _ => Array(_replacedElement)
-    }
-  }
-
+class ScalaFindUsagesHandler(element: PsiElement) extends FindUsagesHandler(element) {
+  override def getPrimaryElements: Array[PsiElement] = Array(element)
   override def getStringsToSearch(element: PsiElement): util.Collection[String] = {
     val result: util.Set[String] = new util.HashSet[String]()
     element match {
@@ -105,14 +69,14 @@ class ScalaFindUsagesHandler(element: PsiElement) extends {
   }
 
   override def getFindUsagesOptions(dataContext: DataContext): FindUsagesOptions = {
-    replacedElement match {
+    element match {
       case t: ScTypeDefinition => new ScalaTypeDefinitionFindUsagesOptions(t, getProject, dataContext)
       case _ => super.getFindUsagesOptions(dataContext)
     }
   }
 
   override def getSecondaryElements: Array[PsiElement] = {
-    replacedElement match {
+    element match {
       case t: ScObject =>
         t.fakeCompanionClass match {
           case Some(clazz) => Array(clazz)
@@ -135,7 +99,7 @@ class ScalaFindUsagesHandler(element: PsiElement) extends {
   }
 
   override def getFindUsagesDialog(isSingleFile: Boolean, toShowInNewTab: Boolean, mustOpenInNewTab: Boolean): AbstractFindUsagesDialog = {
-    replacedElement match {
+    element match {
       case t: ScTypeDefinition => new ScalaTypeDefinitionUsagesDialog(t, getProject, getFindUsagesOptions,
         toShowInNewTab, mustOpenInNewTab, isSingleFile, this)
       case _ => super.getFindUsagesDialog(isSingleFile, toShowInNewTab, mustOpenInNewTab)
@@ -146,7 +110,7 @@ class ScalaFindUsagesHandler(element: PsiElement) extends {
     if (!super.processElementUsages(element, processor, options)) return false
     options match {
       case s: ScalaTypeDefinitionFindUsagesOptions =>
-        val clazz = replacedElement.asInstanceOf[ScTypeDefinition]
+        val clazz = element.asInstanceOf[ScTypeDefinition]
         if (s.isMembersUsages) {
           clazz.members.foreach {
             case fun: ScFunction =>
