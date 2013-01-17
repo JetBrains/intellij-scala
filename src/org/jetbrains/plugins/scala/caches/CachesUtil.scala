@@ -218,12 +218,14 @@ object CachesUtil {
     val map = computed.getValue
     var result = map.get(data)
     if (result == null) {
+      var isCache = true
       result = {
         val guard = getRecursionGuard(key.toString)
         if (guard.currentStack().contains((e, data))) {
           if (ScPackageImpl.isPackageObjectProcessing) {
             throw new ScPackageImpl.DoNotProcessPackageObjectException
           }
+          isCache = false
           defaultValue
         } else {
           guard.doPreventingRecursion((e, data), false, new Computable[Result] {
@@ -234,7 +236,9 @@ object CachesUtil {
           }
         }
       }
-      map.put(data, result)
+      if (isCache) {
+        map.put(data, result)
+      }
     }
     result
   }
