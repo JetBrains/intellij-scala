@@ -5,6 +5,7 @@ import com.intellij.psi.{PsiFile, PsiElement}
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.roots.ProjectFileIndex
 import config.ScalaFacet
+import annotation.tailrec
 
 /**
  * @author Alefas
@@ -69,7 +70,15 @@ object ScalaLanguageLevel extends Enumeration {
   }
 
   def getLanguageLevel(element: PsiElement): ScalaLanguageLevel = {
-    val file: PsiFile = element.getContainingFile
+    @tailrec
+    def getContainingFileByContext(element: PsiElement): PsiFile = {
+      element match {
+        case file: PsiFile => file
+        case null => null
+        case elem => getContainingFileByContext(elem.getContext)
+      }
+    }
+    val file: PsiFile = getContainingFileByContext(element)
     if (file == null || file.getVirtualFile == null) return DEFAULT_LANGUAGE_LEVEL
     val module: Module = ProjectFileIndex.SERVICE.getInstance(element.getProject).getModuleForFile(file.getVirtualFile)
     if (module == null) return DEFAULT_LANGUAGE_LEVEL
