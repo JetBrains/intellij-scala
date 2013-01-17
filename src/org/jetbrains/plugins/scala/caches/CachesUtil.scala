@@ -257,6 +257,7 @@ object CachesUtil {
     val map = computed.getValue
     var result = map.get(data)
     if (result == null) {
+      var isCache = true
       result = {
         val guard = getRecursionGuard(key.toString)
         if (guard.currentStack().contains((e, data))) {
@@ -264,8 +265,10 @@ object CachesUtil {
             throw new ScPackageImpl.DoNotProcessPackageObjectException
           }
           val fun = PsiTreeUtil.getContextOfType(e, true, classOf[ScFunction])
-          if (fun == null || fun.isProbablyRecursive) defaultValue
-          else {
+          if (fun == null || fun.isProbablyRecursive) {
+            isCache = false
+            defaultValue
+          } else {
             fun.setProbablyRecursive(true)
             throw new ProbablyRecursionException(e, data, key, Set(fun))
           }
@@ -296,7 +299,9 @@ object CachesUtil {
           }
         }
       }
-      map.put(data, result)
+      if (isCache) {
+        map.put(data, result)
+      }
     }
     result
   }
