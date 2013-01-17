@@ -1078,9 +1078,7 @@ object ScalaPsiUtil {
       //partial match
       case Some(x) => x.supers.map {_.info}
       case None =>
-        throw new RuntimeException("internal error: could not find val matching: \n%s\n\nin class: \n%s".format(
-          x.getText, clazz.getText
-        ))
+        throw new RuntimeException(s"internal error: could not find val matching: \n${x.getText}\n\nin class: \n${clazz.getText}")
     }
 
 
