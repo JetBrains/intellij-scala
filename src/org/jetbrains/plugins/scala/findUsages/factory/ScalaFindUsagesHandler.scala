@@ -109,7 +109,7 @@ class ScalaFindUsagesHandler(element: PsiElement) extends FindUsagesHandler(elem
   override def processElementUsages(element: PsiElement, processor: Processor[UsageInfo], options: FindUsagesOptions): Boolean = {
     if (!super.processElementUsages(element, processor, options)) return false
     options match {
-      case s: ScalaTypeDefinitionFindUsagesOptions =>
+      case s: ScalaTypeDefinitionFindUsagesOptions if element.isInstanceOf[ScTypeDefinition] =>
         val clazz = element.asInstanceOf[ScTypeDefinition]
         if (s.isMembersUsages) {
           clazz.members.foreach {
