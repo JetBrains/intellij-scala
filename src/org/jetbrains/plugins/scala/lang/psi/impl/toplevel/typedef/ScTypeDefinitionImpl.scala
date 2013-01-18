@@ -87,7 +87,7 @@ abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTemplate
     def args: Seq[ScTypeParameterType] = typeParameters.map(new ScTypeParameterType(_, ScSubstitutor.empty))
     def innerType = if (typeParameters.length == 0) ScType.designator(this)
                     else ScParameterizedType(ScType.designator(this), args)
-    val parentClazz = ScalaPsiUtil.getPlaceTd(this)
+    val parentClazz = containingClass
     if (parentClazz != null) {
       val tpe: ScType = if (!thisProjections) parentClazz.getTypeWithProjections(TypingContext.empty, thisProjections = false).
         getOrElse(return Failure("Cannot resolve parent class", Some(this)))
