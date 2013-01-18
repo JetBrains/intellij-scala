@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala
 package editor.importOptimizer
 
 
-import collection.mutable.HashSet
 import com.intellij.lang.ImportOptimizer
 import com.intellij.openapi.util.EmptyRunnable
 import com.intellij.psi.util.PsiTreeUtil
@@ -11,7 +10,7 @@ import lang.lexer.ScalaTokenTypes
 import lang.psi.api.base.ScReferenceElement
 import lang.psi.api.toplevel.imports.usages.{ImportUsed, ImportSelectorUsed, ImportWildcardSelectorUsed, ImportExprUsed}
 import lang.resolve.ScalaResolveResult
-import collection.Set
+import collection.{mutable, Set}
 import lang.psi.api.{ScalaRecursiveElementVisitor, ScalaFile}
 import lang.psi.api.toplevel.imports.{ScImportExpr, ScImportStmt}
 import lang.psi.impl.ScalaPsiElementFactory
@@ -28,13 +27,15 @@ import lang.psi.api.toplevel.typedef.ScObject
  */
 
 class ScalaImportOptimizer extends ImportOptimizer {
+  import ScalaImportOptimizer.isLanguageFeatureImport
+
   def processFile(file: PsiFile): Runnable = processFile(file, deleteOnlyWrongImorts = false)
 
   def processFile(file: PsiFile, deleteOnlyWrongImorts: Boolean): Runnable = {
     if (file.isInstanceOf[ScalaFile]) {
       val scalaFile: ScalaFile = file.asInstanceOf[ScalaFile]
-      def getUnusedImports: HashSet[ImportUsed] = {
-        val usedImports = new HashSet[ImportUsed]
+      def getUnusedImports: mutable.HashSet[ImportUsed] = {
+        val usedImports = new mutable.HashSet[ImportUsed]
         file.accept(new ScalaRecursiveElementVisitor {
           override def visitReference(ref: ScReferenceElement) {
             if (PsiTreeUtil.getParentOfType(ref, classOf[ScImportStmt]) == null) {
@@ -59,7 +60,7 @@ class ScalaImportOptimizer extends ImportOptimizer {
             super.visitElement(element)
           }
         })
-        val unusedImports = new HashSet[ImportUsed]
+        val unusedImports = new mutable.HashSet[ImportUsed]
         unusedImports ++= scalaFile.getAllImportUsed
         unusedImports --= usedImports
         unusedImports
@@ -70,17 +71,8 @@ class ScalaImportOptimizer extends ImportOptimizer {
           documentManager.commitDocument(documentManager.getDocument(scalaFile)) //before doing changes let's commit document
           //remove unnecessary imports
           val _unusedImports = getUnusedImports
-          val unusedImports = new HashSet[ImportUsed]
+          val unusedImports = new mutable.HashSet[ImportUsed]
           for (importUsed <- _unusedImports) {
-            def isLanguageFeatureImport(expr: ScImportExpr): Boolean = {
-              if (expr == null) return false
-              if (expr.qualifier == null) return false
-              expr.qualifier.resolve() match {
-                case o: ScObject =>
-                  o.qualifiedName.startsWith("scala.language") || o.qualifiedName.startsWith("scala.languageFeature")
-                case _ => false
-              }
-            }
             importUsed match {
               case ImportExprUsed(expr) => {
                 val toDelete = expr.reference match {
@@ -237,4 +229,14 @@ class ScalaImportOptimizer extends ImportOptimizer {
 
 object ScalaImportOptimizer {
   val NO_IMPORT_USED: Set[ImportUsed] = Set.empty
+
+  def isLanguageFeatureImport(expr: ScImportExpr): Boolean = {
+    if (expr == null) return false
+    if (expr.qualifier == null) return false
+    expr.qualifier.resolve() match {
+      case o: ScObject =>
+        o.qualifiedName.startsWith("scala.language") || o.qualifiedName.startsWith("scala.languageFeature")
+      case _ => false
+    }
+  }
 }
