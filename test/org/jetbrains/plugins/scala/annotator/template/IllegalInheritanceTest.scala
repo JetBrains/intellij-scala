@@ -26,6 +26,20 @@ class IllegalInheritanceTest extends AnnotatorTestBase(IllegalInheritance) {
         |}
       """.stripMargin
     ))
+    assertNothing(messages(
+      """
+        |object S {
+        |  trait A
+        |  trait B {
+        |    this : A =>
+        |  }
+        |  trait C
+        |  class D extends A with B {
+        |    this: C =>
+        |  }
+        |}
+      """.stripMargin
+    ))
   }
 
   def testIllegalInheritance() {
