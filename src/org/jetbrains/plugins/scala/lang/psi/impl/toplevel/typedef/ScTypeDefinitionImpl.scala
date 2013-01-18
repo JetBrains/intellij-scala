@@ -65,11 +65,21 @@ abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTemplate
   }
 
   def getType(ctx: TypingContext)  = {
-    if (typeParameters.length == 0)
-      Success(ScType.designator(this), Some(this))
-    else {
-      Success(ScParameterizedType(ScType.designator(this),
-        typeParameters.map(new ScTypeParameterType(_, ScSubstitutor.empty))), Some(this))
+    val parentClass: ScTemplateDefinition = containingClass
+    if (typeParameters.length == 0) {
+      if (parentClass != null) {
+        Success(ScProjectionType(ScThisType(parentClass), this, ScSubstitutor.empty, superReference = false), Some(this))
+      } else {
+        Success(ScType.designator(this), Some(this))
+      }
+    } else {
+      if (parentClass != null) {
+        Success(ScParameterizedType(ScProjectionType(ScThisType(parentClass), this, ScSubstitutor.empty, superReference = false),
+          typeParameters.map(new ScTypeParameterType(_, ScSubstitutor.empty))), Some(this))
+      } else {
+        Success(ScParameterizedType(ScType.designator(this),
+          typeParameters.map(new ScTypeParameterType(_, ScSubstitutor.empty))), Some(this))
+      }
     }
   }
 
@@ -79,10 +89,11 @@ abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTemplate
                     else ScParameterizedType(ScType.designator(this), args)
     val parentClazz = ScalaPsiUtil.getPlaceTd(this)
     if (parentClazz != null) {
-      val tpe: ScType = if (!thisProjections) parentClazz.getTypeWithProjections(TypingContext.empty, false).getOrElse(return Failure("Cannot resolve parent class", Some(this)))
+      val tpe: ScType = if (!thisProjections) parentClazz.getTypeWithProjections(TypingContext.empty, thisProjections = false).
+        getOrElse(return Failure("Cannot resolve parent class", Some(this)))
       else ScThisType(parentClazz)
 
-      val innerProjection: ScProjectionType = ScProjectionType(tpe, this, ScSubstitutor.empty, false)
+      val innerProjection: ScProjectionType = ScProjectionType(tpe, this, ScSubstitutor.empty, superReference = false)
       Success(if (typeParameters.length == 0) innerProjection
               else ScParameterizedType(innerProjection, args), Some(this))
     } else Success(innerType, Some(this))
@@ -199,7 +210,7 @@ abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTemplate
 
   override def getImplementsListTypes: Array[PsiClassType] = innerExtendsListTypes
 
-  def getTruncedQualifiedName: String = qualifiedName(".", true)
+  def getTruncedQualifiedName: String = qualifiedName(".", trunced = true)
 
   def getQualifiedNameForDebugger: String = qualifiedName("$", encodeName = true)
 
