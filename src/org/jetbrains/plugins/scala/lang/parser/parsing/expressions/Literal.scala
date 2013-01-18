@@ -66,6 +66,10 @@ object Literal {
                 val idMarker = builder.mark()
                 builder.advanceLexer()
                 idMarker.done(ScalaElementTypes.REFERENCE_EXPRESSION)
+              } else if (builder.getTokenType == ScalaTokenTypes.kTHIS) {
+                val literalMarker = builder.mark()
+                builder.advanceLexer()
+                literalMarker.done(ScalaElementTypes.THIS_REFERENCE)
               } else {
                 if (!builder.getTokenText.startsWith("$")) builder.error("Bad interpolated string injection")
               }

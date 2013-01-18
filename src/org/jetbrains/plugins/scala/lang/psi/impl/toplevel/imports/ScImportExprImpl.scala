@@ -31,7 +31,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports._
  */
 
 class ScImportExprImpl extends ScalaStubBasedElementImpl[ScImportExpr] with ScImportExpr {
-  override def accept(visitor: PsiElementVisitor): Unit = {
+  override def accept(visitor: PsiElementVisitor) {
     visitor match {
       case visitor: ScalaElementVisitor => super.accept(visitor)
       case _ => super.accept(visitor)
