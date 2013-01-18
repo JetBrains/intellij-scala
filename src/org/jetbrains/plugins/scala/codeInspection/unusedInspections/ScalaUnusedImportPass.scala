@@ -12,11 +12,12 @@ import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, PsiFile}
 import lang.psi.api.toplevel.imports.usages.{ImportWildcardSelectorUsed, ImportSelectorUsed, ImportExprUsed, ImportUsed}
-import lang.psi.api.toplevel.imports.{ScImportSelector, ScImportStmt}
+import lang.psi.api.toplevel.imports.{ScImportExpr, ScImportSelector, ScImportStmt}
 import lang.psi.api.ScalaFile
 import com.intellij.lang.annotation.{AnnotationSession, Annotation}
 import com.intellij.codeInsight.daemon.impl.analysis.{HighlightLevelUtil, HighlightInfoHolder}
 import java.util.{Collections, ArrayList}
+import java.util
 
 /**
  * User: Alexander Podkhalyuzin
@@ -25,6 +26,8 @@ import java.util.{Collections, ArrayList}
 
 class ScalaUnusedImportPass(file: PsiFile, editor: Editor)
   extends TextEditorHighlightingPass(file.getProject, editor.getDocument) {
+  import org.jetbrains.plugins.scala.editor.importOptimizer.ScalaImportOptimizer.isLanguageFeatureImport
+
   def doCollectInformation(progress: ProgressIndicator) {
   }
 
@@ -37,15 +40,15 @@ class ScalaUnusedImportPass(file: PsiFile, editor: Editor)
       val annotations = unusedImports.flatMap({
         imp: ImportUsed => {
           val psi: PsiElement = imp match {
-            case ImportExprUsed(expr) if !PsiTreeUtil.hasErrorElements(expr) => {
+            case ImportExprUsed(expr) if !PsiTreeUtil.hasErrorElements(expr) && !isLanguageFeatureImport(expr) => {
               val impSt = expr.getParent.asInstanceOf[ScImportStmt]
               if (impSt == null) null //todo: investigate this case, this cannot be null
               else if (impSt.importExprs.length == 1) impSt
               else expr
             }
-            case ImportSelectorUsed(sel) => sel
-            case ImportWildcardSelectorUsed(e) if e.selectors.length > 0 => e.wildcardElement.get
-            case ImportWildcardSelectorUsed(e) if !PsiTreeUtil.hasErrorElements(e) => e.getParent
+            case ImportSelectorUsed(sel) if !isLanguageFeatureImport(PsiTreeUtil.getParentOfType(sel, classOf[ScImportExpr])) => sel
+            case ImportWildcardSelectorUsed(e) if e.selectors.length > 0 && !isLanguageFeatureImport(e) => e.wildcardElement.get
+            case ImportWildcardSelectorUsed(e) if !PsiTreeUtil.hasErrorElements(e) && !isLanguageFeatureImport(e) => e.getParent
             case _ => null
           }
           psi match {
@@ -62,7 +65,7 @@ class ScalaUnusedImportPass(file: PsiFile, editor: Editor)
       }).toSeq
 
       val holder = new HighlightInfoHolder(file)
-      val list = new ArrayList[HighlightInfo](annotations.length)
+      val list = new util.ArrayList[HighlightInfo](annotations.length)
       for (annotation <- annotations) {
         list.add(HighlightInfo.fromAnnotation(annotation))
       }
