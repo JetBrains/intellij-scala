@@ -25,8 +25,6 @@ object IllegalInheritance extends AnnotatorPart[ScTemplateDefinition] {
       definition.refs.foreach {
         case (refElement, Some((SelfType(Some(aType)), subst)))  =>
           val anotherType = subst.subst(aType)
-          val a = anotherType
-          val o = ownType
           if (!ownType.conforms(anotherType))
             holder.createErrorAnnotation(refElement, Message(ownType.presentableText, aType.presentableText))
         case _ =>
