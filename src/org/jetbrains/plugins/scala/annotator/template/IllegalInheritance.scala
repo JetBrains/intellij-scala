@@ -6,6 +6,7 @@ import com.intellij.lang.annotation.AnnotationHolder
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.extensions._
+import lang.psi.api.base.types.ScSelfTypeElement
 
 /**
  * Pavel Fatin
@@ -19,7 +20,8 @@ object IllegalInheritance extends AnnotatorPart[ScTemplateDefinition] {
   def annotate(definition: ScTemplateDefinition, holder: AnnotationHolder, typeAware: Boolean) {
     if(!typeAware) return
 
-    definition.selfType.orElse(definition.getType(TypingContext.empty).toOption).foreach { ownType =>
+    definition.selfTypeElement.flatMap(_.getType(TypingContext.empty).toOption).
+      orElse(definition.getType(TypingContext.empty).toOption).foreach { ownType =>
       definition.refs.foreach {
         case (refElement, Some((SelfType(Some(aType)), subst)))  =>
           val anotherType = subst.subst(aType)
