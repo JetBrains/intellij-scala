@@ -17,6 +17,7 @@ import api.toplevel.templates.ScTemplateBody
 import util.PsiTreeUtil
 import api.toplevel.typedef.{ScTemplateDefinition, ScClass, ScObject}
 import collection.mutable
+import types.Conformance.AliasType
 
 /*
 Current types for pattern matching, this approach is bad for many reasons (one of them is bad performance).
@@ -313,12 +314,8 @@ object ScType extends ScTypePresentation with ScTypePsiTypeBridge {
     case t: ScTypeAliasDefinition if t.typeParameters.isEmpty =>
       t.aliasedType(TypingContext.empty)
     case pt: ScParameterizedType if Conformance.isAliasType(pt) != None =>
-      val expandedDesignator = expandAliases(pt.designator)
-      val expandedTypeArgsResult: TypeResult[Seq[ScType]] = TypeResult.sequence(pt.typeArgs.map(expandAliases))
-      TypeResult.ap2(expandedDesignator, expandedTypeArgsResult) {
-        ScParameterizedType(_, _)
-      }
-
+      val aliasType: AliasType = Conformance.isAliasType(pt).get
+      aliasType.upper.flatMap(expandAliases)
     case _ => Success(tp, None)
   }
 
