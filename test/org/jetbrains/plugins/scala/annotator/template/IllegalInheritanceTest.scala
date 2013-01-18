@@ -18,6 +18,14 @@ class IllegalInheritanceTest extends AnnotatorTestBase(IllegalInheritance) {
     assertNothing(messages("trait X; trait Y extends X; trait T { self: X => }; class C extends T { self: Y => }"))
     assertNothing(messages("trait U; trait X[A]; trait Y[A] { self: X[A] => }; class Z extends X[U]; " +
       "object A {new Z with Y[U]}"))
+    assertNothing(messages(
+      """
+        |object C {
+        |  trait A {self: X => };
+        |  trait X extends A
+        |}
+      """.stripMargin
+    ))
   }
 
   def testIllegalInheritance() {
