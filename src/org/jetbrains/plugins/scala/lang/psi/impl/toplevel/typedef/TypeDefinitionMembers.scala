@@ -607,8 +607,8 @@ object TypeDefinitionMembers {
       isObject = clazz.isInstanceOf[ScObject], signaturesForJava = signaturesForJava,
       syntheticMethods = syntheticMethods)) return false
 
-    if (!(AnyRef.asClass(clazz.getProject).getOrElse(return true).processDeclarations(processor, state, lastParent, place) &&
-            Any.asClass(clazz.getProject).getOrElse(return true).processDeclarations(processor, state, lastParent, place))) return false
+    if (!(types.AnyRef.asClass(clazz.getProject).getOrElse(return true).processDeclarations(processor, state, lastParent, place) &&
+            types.Any.asClass(clazz.getProject).getOrElse(return true).processDeclarations(processor, state, lastParent, place))) return false
 
     //fake enum methods
     val isJavaSourceEnum = !clazz.isInstanceOf[ClsClassImpl] && clazz.isEnum
@@ -635,9 +635,9 @@ object TypeDefinitionMembers {
     if (!privateProcessDeclarations(processor, state, lastParent, place, getSignatures(td),
       getParameterlessSignatures(td), getTypes(td), isSupers = true, isObject = td.isInstanceOf[ScObject])) return false
 
-    if (!(AnyRef.asClass(td.getProject).getOrElse(return true).
+    if (!(types.AnyRef.asClass(td.getProject).getOrElse(return true).
       processDeclarations(processor, state, lastParent, place) &&
-            Any.asClass(td.getProject).getOrElse(return true).
+            types.Any.asClass(td.getProject).getOrElse(return true).
               processDeclarations(processor, state, lastParent, place))) return false
     true
   }
@@ -656,8 +656,8 @@ object TypeDefinitionMembers {
       if (lastParent != null) lastParent.getProject
       else if (place != null) place.getProject
       else return true
-    if (!(AnyRef.asClass(project).getOrElse(return true).processDeclarations(processor, state, lastParent, place) &&
-            Any.asClass(project).getOrElse(return true).processDeclarations(processor, state, lastParent, place)))
+    if (!(types.AnyRef.asClass(project).getOrElse(return true).processDeclarations(processor, state, lastParent, place) &&
+            types.Any.asClass(project).getOrElse(return true).processDeclarations(processor, state, lastParent, place)))
       return false
 
     true

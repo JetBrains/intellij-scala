@@ -159,13 +159,7 @@ class ScalaResolveResult(val element: PsiNamedElement,
                 case "scala.Predef" => return SCALA
                 case "scala.LowPriorityImplicits" => return SCALA
                 case "scala" => return SCALA
-                case _ =>
-                  memb match {
-                    case param: ScClassParameter if param.isEffectiveVal &&
-                      !PsiTreeUtil.isContextAncestor(clazz, place, true) && !isNamedParameter =>
-                      return VAL_VAR_CLASS_PARAMETER
-                    case _ => return OTHER_MEMBERS
-                  }
+                case _ => OTHER_MEMBERS
               }
             }
           }

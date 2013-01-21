@@ -19,7 +19,7 @@ import com.intellij.psi._
 import api.ScalaElementVisitor
 import lang.resolve.processor.BaseProcessor
 import caches.CachesUtil
-import util.PsiModificationTracker
+import util.{PsiTreeUtil, PsiModificationTracker}
 import com.intellij.openapi.project.DumbServiceImpl
 import types.ScType
 import api.toplevel.{ScTypedDefinition, ScTypeParametersOwner}

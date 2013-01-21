@@ -5,7 +5,7 @@ package processor
 
 import psi.api.statements._
 import com.intellij.psi._
-import params.ScTypeParam
+import params.{ScClassParameter, ScTypeParam}
 import psi.types._
 import nonvalue.TypeParameter
 import psi.api.base.types.ScTypeElement
@@ -13,7 +13,7 @@ import result.TypingContext
 import collection.immutable.HashSet
 import scala.collection.Set
 import psi.implicits.ScImplicitlyConvertible
-import psi.api.toplevel.typedef.{ScClass, ScObject}
+import psi.api.toplevel.typedef.{ScTemplateDefinition, ScMember, ScClass, ScObject}
 import psi.impl.toplevel.synthetic.ScSyntheticFunction
 import psi.impl.ScPackageImpl
 import caches.CachesUtil
@@ -23,6 +23,7 @@ import psi.api.base.{ScMethodLike, ScPrimaryConstructor}
 import psi.api.toplevel.{ScTypeParametersOwner, ScTypedDefinition}
 import extensions._
 import psi.types.Compatibility.{ConformanceExtResult, Expression}
+import psi.api.base.patterns.ScBindingPattern
 
 //todo: remove all argumentClauses, we need just one of them
 class MethodResolveProcessor(override val ref: PsiElement,
@@ -374,8 +375,47 @@ object MethodResolveProcessor {
     }
   }
 
-  def candidates(proc: MethodResolveProcessor, input: Set[ScalaResolveResult]): Set[ScalaResolveResult] = {
+  def candidates(proc: MethodResolveProcessor, _input: Set[ScalaResolveResult]): Set[ScalaResolveResult] = {
     import proc._
+
+    //We want to leave only fields and properties from inherited classes, this is important, because
+    //field in base class is shadowed by private field from inherited class
+    val input: Set[ScalaResolveResult] = _input.filter {
+      case r: ScalaResolveResult =>
+        r.element match {
+          case f: ScFunction if f.hasParameterClause => true
+          case b: ScTypedDefinition =>
+            b.nameContext match {
+              case m: ScMember =>
+                val clazz1: ScTemplateDefinition = m.containingClass
+                if (clazz1 == null) true
+                else {
+                  _input.forall {
+                    case r2: ScalaResolveResult =>
+                      r2.element match {
+                        case f: ScFunction if f.hasParameterClause => true
+                        case b2: ScTypedDefinition =>
+                          b2.nameContext match {
+                            case m2: ScMember =>
+                              val clazz2: ScTemplateDefinition = m2.containingClass
+                              if (clazz2 == null) true
+                              else {
+                                if (clazz1 == clazz2) true
+                                else {
+                                  ScalaPsiUtil.cachedDeepIsInheritor(clazz1, clazz2)
+                                }
+                              }
+                            case _ => true
+                          }
+                        case _ => true
+                      }
+                  }
+                }
+              case _ => true
+            }
+          case _ => true
+        }
+    }
 
     def expand(r: ScalaResolveResult): Set[ScalaResolveResult] = {
       def applyMethodsFor(tp: ScType) = {
