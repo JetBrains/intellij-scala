@@ -24,6 +24,7 @@ import java.awt.*;
 public class ScalacConfigurable implements Configurable {
   private JPanel myPanel;
   private JRadioButton scalacBeforeRadioButton;
+  private JRadioButton javacBeforeRadioButton;
   private RawCommandLineEditor myVmParameters;
   private JTextField myMaximumHeapSize;
   private RawCommandLineEditor myFscOptions;
@@ -208,6 +209,7 @@ public class ScalacConfigurable implements Configurable {
 
   public void reset() {
     scalacBeforeRadioButton.setSelected(mySettings.SCALAC_BEFORE);
+    javacBeforeRadioButton.setSelected(!mySettings.SCALAC_BEFORE);
     updateLibrariesList();
     setCompilerLibraryById(new LibraryId(mySettings.COMPILER_LIBRARY_NAME, mySettings.COMPILER_LIBRARY_LEVEL));
     myMaximumHeapSize.setText(mySettings.MAXIMUM_HEAP_SIZE);
