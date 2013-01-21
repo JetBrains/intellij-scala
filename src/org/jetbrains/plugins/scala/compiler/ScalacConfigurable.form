@@ -270,7 +270,7 @@
                   <toolTipText value="Can compile circular dependencies, rely on Scalac Java parser and typer"/>
                 </properties>
               </component>
-              <component id="af445" class="javax.swing.JRadioButton" default-binding="true">
+              <component id="af445" class="javax.swing.JRadioButton" binding="javacBeforeRadioButton">
                 <constraints>
                   <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                 </constraints>
