@@ -1,5 +1,7 @@
 package org.jetbrains.jps.incremental
 
+import _root_.java.io._
+import _root_.java.net.URL
 import _root_.java.util.Properties
 
 /**
@@ -31,14 +33,22 @@ package object scala {
   }
 
   def readProperty(classLoader: ClassLoader, resource: String, name: String): Option[String] = {
-    Option(classLoader.getResourceAsStream(resource)).flatMap { stream =>
-      try {
-        val properties = new Properties()
-        properties.load(stream)
-        Option(properties.getProperty(name))
-      } finally {
-        stream.close()
-      }
+    Option(classLoader.getResourceAsStream(resource))
+            .flatMap(it => using(new BufferedInputStream(it))(readProperty(_, name)))
+  }
+
+  def readProperty(file: File, resource: String, name: String): Option[String] = {
+    try {
+      val url = new URL("jar:%s!/%s".format(file.toURI.toString, resource))
+      Option(url.openStream).flatMap(it => using(new BufferedInputStream(it))(readProperty(_, name)))
+    } catch {
+      case _: IOException => None
     }
+  }
+
+  private def readProperty(input: InputStream, name: String): Option[String] = {
+    val properties = new Properties()
+    properties.load(input)
+    Option(properties.getProperty(name))
   }
 }
