@@ -182,8 +182,8 @@ object CachesUtil {
 
     def compute() = {
       dependencyItem match {
-        case Some(dependencyItem) =>
-          new CachedValueProvider.Result(builder(e), dependencyItem)
+        case Some(depItem) =>
+          new CachedValueProvider.Result(builder(e), depItem)
         case _ => new CachedValueProvider.Result(builder(e))
       }
     }
@@ -286,14 +286,13 @@ object CachesUtil {
                 case ProbablyRecursionException(`e`, `data`, k, set) if k == key =>
                   try {
                     builder(e, data)
-                  }
-                  finally set.foreach(_.setProbablyRecursive(false))
-                case t@ProbablyRecursionException(ee, data, k, set) if k == key =>
+                  } finally set.foreach(_.setProbablyRecursive(false))
+                case t@ProbablyRecursionException(ee, innerData, k, set) if k == key =>
                   val fun = PsiTreeUtil.getContextOfType(e, true, classOf[ScFunction])
                   if (fun == null || fun.isProbablyRecursive) throw t
                   else {
                     fun.setProbablyRecursive(true)
-                    throw ProbablyRecursionException(ee, data, k, set + fun)
+                    throw ProbablyRecursionException(ee, innerData, k, set + fun)
                   }
               }
             }
