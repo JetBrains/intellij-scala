@@ -19,13 +19,10 @@ import com.intellij.openapi.project.Project
 class CompileServerLauncher extends ApplicationComponent {
    private var instance: Option[ServerInstance] = None
 
-   private val watcher = new ProcesWatcher()
-
    def initComponent() {}
 
    def disposeComponent() {
      if (running) stop()
-     watcher.stop()
    }
 
    def tryToStart(project: Project): Boolean = {
@@ -102,9 +99,11 @@ class CompileServerLauncher extends ApplicationComponent {
 
          val process = new ProcessBuilder(commands.asJava).start()
 
-         instance = Some(ServerInstance(process, settings.COMPILE_SERVER_PORT.toInt))
+         val watcher = new ProcessWatcher(process)
 
-         watcher.watch(process)
+         instance = Some(ServerInstance(watcher, settings.COMPILE_SERVER_PORT.toInt))
+
+         watcher.startNotify()
 
        case (_, absentFiles) =>
          val paths = absentFiles.map(_.getPath).mkString(", ")
@@ -117,13 +116,13 @@ class CompileServerLauncher extends ApplicationComponent {
    // TODO stop server more gracefully
    def stop() {
      instance.foreach { it =>
-       it.process.destroy()
+       it.destroyProcess()
      }
    }
 
-   def running: Boolean = watcher.running
+   def running: Boolean = instance.exists(_.running)
 
-   def errors(): Seq[String] = watcher.errors()
+   def errors(): Seq[String] = instance.map(_.errors()).getOrElse(Seq.empty)
 
    def port: Option[Int] = instance.map(_.port)
 
@@ -134,4 +133,12 @@ object CompileServerLauncher {
   def instance = ApplicationManager.getApplication.getComponent(classOf[CompileServerLauncher])
 }
 
-private case class ServerInstance(process: Process, port: Int)
+private case class ServerInstance(watcher: ProcessWatcher, port: Int) {
+  def running: Boolean = watcher.running
+
+  def errors(): Seq[String] = watcher.errors()
+
+  def destroyProcess() {
+    watcher.destroyProcess()
+  }
+}

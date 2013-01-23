@@ -101,7 +101,6 @@
     </fileset>
     <fileset dir="${scala.lib}">
         <include name="**/*.jar"/>
-        <exclude name="**/scala-actors*.jar"/>
     </fileset>
     <fileset dir="${nailgun.lib}">
       <include name="**/*.jar"/>
@@ -117,7 +116,6 @@
     </fileset>
     <fileset dir="${scala.lib}">
       <include name="**/*.jar"/>
-      <exclude name="**/scala-actors*.jar"/>
     </fileset>
     <fileset dir="${idea.lib}">
       <include name="**/*.jar"/>
@@ -305,7 +303,6 @@
       <fileset dir="${scala.lib}">
         <include name="**/scala-library.jar"/>
         <include name="**/scala-reflect.jar"/>
-        <include name="**/scala-actors.jar"/>
       </fileset>
     </copy>
 

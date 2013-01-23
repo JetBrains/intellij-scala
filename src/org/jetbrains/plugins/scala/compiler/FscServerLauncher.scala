@@ -22,8 +22,6 @@ class FscServerLauncher(project: Project) extends ProjectComponent {
 
   private var instance: Option[ServerInstance] = None
 
-  private val watcher = new ProcesWatcher()
-
   def initComponent() {}
 
   def disposeComponent() {}
@@ -32,7 +30,6 @@ class FscServerLauncher(project: Project) extends ProjectComponent {
 
   def projectClosed() {
     if (running) stop()
-    watcher.stop()
   }
 
   def init() {
@@ -54,9 +51,9 @@ class FscServerLauncher(project: Project) extends ProjectComponent {
     val process = runProcess(environment, "scala.tools.nsc.CompileServer", vmParameters, options)
     val port = if (reportsPort) readPort(process) else None
 
-    instance = Some(ServerInstance(environment, process, port))
-
-    watcher.watch(process)
+    val watcher = new ProcessWatcher(process)
+    instance = Some(ServerInstance(environment, watcher, port))
+    watcher.startNotify()
   }
 
   private def localeOptions: Seq[String] = {
@@ -68,7 +65,7 @@ class FscServerLauncher(project: Project) extends ProjectComponent {
   def stop() {
     instance.foreach { it =>
       sendCommandTo(it, "-shutdown")
-      it.process.destroy()
+      it.destroyProcess()
     }
   }
 
@@ -88,9 +85,9 @@ class FscServerLauncher(project: Project) extends ProjectComponent {
 //    process.waitFor(); // avoid SCL-3646 (Latest version of Plugin Hangs IDEA on project close or exit)
   }
 
-  def running: Boolean = watcher.running
+  def running: Boolean = instance.exists(_.running)
 
-  def errors(): Seq[String] = watcher.errors()
+  def errors(): Seq[String] = instance.map(_.errors()).getOrElse(Seq.empty)
 
   def port: Int = instance.flatMap(_.port).getOrElse(-1)
 
@@ -132,5 +129,13 @@ class FscServerLauncher(project: Project) extends ProjectComponent {
 
   private case class Environment(java: String, libraries: Seq[File], compilerVersion: Version)
 
-  private case class ServerInstance(environment: Environment, process: Process, port: Option[Int])
+  private case class ServerInstance(environment: Environment, watcher: ProcessWatcher, port: Option[Int])  {
+    def running: Boolean = watcher.running
+
+    def errors(): Seq[String] = watcher.errors()
+
+    def destroyProcess() {
+      watcher.destroyProcess()
+    }
+  }
 }
