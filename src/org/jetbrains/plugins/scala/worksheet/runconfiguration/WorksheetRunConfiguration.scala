@@ -22,7 +22,6 @@ import com.intellij.execution.process.{ProcessHandler, ProcessEvent, ProcessAdap
 import ui.ConsoleViewContentType
 import com.intellij.ide.util.EditorHelper
 import com.intellij.psi._
-import lang.psi.api.ScalaFile
 import extensions._
 import com.intellij.openapi.editor.{EditorFactory, Document, Editor}
 import com.intellij.psi.impl.PsiManagerEx
@@ -35,16 +34,16 @@ import lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody}
 import collection.mutable
 import com.intellij.execution.impl.ConsoleViewImpl
 import java.awt.event._
-import java.awt.{Dimension, BorderLayout}
+import java.awt.{Container, Dimension, BorderLayout}
 import com.intellij.openapi.editor.impl.EditorImpl
-import com.intellij.openapi.fileEditor.{FileEditorManagerAdapter, FileEditorManagerListener, FileEditorManager}
 import settings.ScalaProjectSettings
-import scala.Some
 import lang.psi.api.expr.{ScMethodCall, ScInfixExpr}
 import com.intellij.ui.JBSplitter
-import com.intellij.ui.components.JBScrollPane
 import lang.psi.api.toplevel.imports.ScImportStmt
-import lang.psi.api.statements.ScPatternDefinition
+import javax.swing.{JLayeredPane, JComponent}
+import lang.psi.api.ScalaFile
+import com.intellij.openapi.editor.ex.EditorGutterComponentEx
+import scala.Some
 
 /**
  * @author Ksenia.Sautina
@@ -57,7 +56,7 @@ class WorksheetRunConfiguration(val project: Project, val configurationFactory: 
   val EMACS = "-Denv.emacs=\"%EMACS%\""
   val MAIN_CLASS = "org.jetbrains.plugins.scala.worksheet.WorksheetRunner"
   val MAX_RESULTS_COUNT = 35
-  val END_MESSAGE = "Output exceeds cutoff limit."
+  val END_MESSAGE = "Output exceeds cutoff limit.\n"
 
   val ContinueString = "     | "
   val PromptString   = "scala> "
@@ -97,33 +96,47 @@ class WorksheetRunConfiguration(val project: Project, val configurationFactory: 
         editor.getComponent.getComponent(0).asInstanceOf[JBSplitter].getProportion else 0.5f
       val dimension = editor.getComponent.getSize()
       val prefDim = new Dimension((dimension.getWidth / 2).toInt, dimension.getHeight.toInt)
+      editor.getSettings.setFoldingOutlineShown(false)
 
-      val worksheetViewer = createBlankEditor(project)
-      val model = editor.asInstanceOf[EditorImpl].getScrollPane.getVerticalScrollBar.getModel
-      worksheetViewer.asInstanceOf[EditorImpl].getScrollPane.getVerticalScrollBar.setModel(model)
+      val worksheetViewer = if (WorksheetViewerInfo.getViewer(editor) == null)
+        createBlankEditor(project).asInstanceOf[EditorImpl]
+      else
+        WorksheetViewerInfo.getViewer(editor).asInstanceOf[EditorImpl]
       worksheetViewer.getComponent.setPreferredSize(prefDim)
 
-      val editorComponent = editor.getContentComponent
-      editorComponent.setPreferredSize(prefDim)
-      val pane = new JBSplitter(false, prop)
-      val leftPane: JBScrollPane = new JBScrollPane(editorComponent)
-      val gutter = editor.asInstanceOf[EditorImpl].getGutterComponentEx
-      leftPane.setRowHeaderView(gutter)
-      leftPane.setAutoscrolls(true)
-      val leftScrollBarModel = leftPane.getVerticalScrollBar.getModel
+      val gutter: EditorGutterComponentEx = worksheetViewer.getGutterComponentEx
+      if (gutter != null && gutter.getParent != null) gutter.getParent.remove(gutter)
 
-      worksheetViewer.asInstanceOf[EditorImpl].getScrollPane.getVerticalScrollBar.setModel(leftScrollBarModel)
-      worksheetViewer.asInstanceOf[EditorImpl].getGutterComponentEx.getParent.remove(worksheetViewer.asInstanceOf[EditorImpl].getGutterComponentEx)
-      pane.setFirstComponent(leftPane)
-      pane.setSecondComponent(worksheetViewer.getComponent)
+      worksheetViewer.getScrollPane.getVerticalScrollBar.setModel(editor.asInstanceOf[EditorImpl].getScrollPane.getVerticalScrollBar.getModel)
+      editor.getContentComponent.setPreferredSize(prefDim)
 
-      editor.getComponent.removeAll()
-      pane.setPreferredSize(dimension)
-      editor.getComponent.add(pane, BorderLayout.CENTER)
+      val editorComponent = editor.getComponent
+      val child: Container = editorComponent.getParent
+      val parent: Container = child.getParent
+
+      if  (parent.getComponents.size > 1 && parent.getComponent(1).isInstanceOf[JBSplitter]) {
+        val pane = parent.getComponent(1).asInstanceOf[JBSplitter]
+        pane.setSecondComponent(worksheetViewer.getComponent)
+      } else {
+        val pane = new JBSplitter(false, prop)
+
+        pane.setSecondComponent(worksheetViewer.getComponent)
+        if (parent.isInstanceOf[JLayeredPane]) {
+          parent.remove(child)
+          pane.setFirstComponent(child.getComponent(0).asInstanceOf[JComponent])
+          parent.add(pane, BorderLayout.CENTER)
+        }
+        else if (child.isInstanceOf[JLayeredPane]) {
+          child.remove(editorComponent)
+          pane.setFirstComponent(editorComponent)
+          child.add(pane, BorderLayout.CENTER)
+        }
+      }
 
       WorksheetViewerInfo.addViewer(worksheetViewer, editor)
       worksheetViewer
     }
+
 
     def printResults(s: String, editor: Editor, worksheetViewer: Editor) {
       invokeLater {
@@ -182,18 +195,17 @@ class WorksheetRunConfiguration(val project: Project, val configurationFactory: 
         worksheetViewerDocument.insertString(worksheetViewerDocument.getTextLength, buffer.toString())
         PsiDocumentManager.getInstance(project).commitDocument(worksheetViewerDocument)
 
-        WorksheetRunConfiguration.wvDocument = worksheetViewerDocument
         PsiDocumentManager.getInstance(project).commitDocument(document)
       }
     }
 
-    def cleanWorksheet(node: ASTNode, document: Document) {
+    def cleanWorksheet(node: ASTNode, document: Document, editor: Editor) {
       currentIndex = -1
       isFirstLine = true
       lineNumbers.clear()
       addedLinesCount = 0
 
-      val wvDocument = WorksheetRunConfiguration.wvDocument
+      val wvDocument = WorksheetViewerInfo.getViewer(editor).getDocument
       try {
         if (wvDocument != null && wvDocument.getLineCount > 0) {
           for (i <- wvDocument.getLineCount - 1 to 0 by -1) {
@@ -236,7 +248,7 @@ class WorksheetRunConfiguration(val project: Project, val configurationFactory: 
       invokeLater {
         inWriteAction {
           val document = editor.getDocument
-          cleanWorksheet(psiFile.getNode, document)
+          cleanWorksheet(psiFile.getNode, document, editor)
           val file = PsiDocumentManager.getInstance(project).getPsiFile(document)
           var isObject = false
           var myObject: ScObject = null
@@ -421,10 +433,23 @@ class WorksheetRunConfiguration(val project: Project, val configurationFactory: 
 
         processHandler.addProcessListener(myProcessListener)
 
-        editor.getContentComponent.addKeyListener(new KeyListener(){
-          override def keyReleased(e: KeyEvent) {}
-          override def keyTyped(e: KeyEvent) {}
-          override def keyPressed(e: KeyEvent){
+        editor.getContentComponent.addKeyListener(new KeyListener() {
+          override def keyReleased(e: KeyEvent) {
+            if (e.getKeyCode == KeyEvent.VK_ENTER) {
+              invokeLater {
+                inWriteAction {
+                  val worksheetViewerDocument = WorksheetViewerInfo.getViewer(editor).getDocument
+                  worksheetViewerDocument.insertString(worksheetViewerDocument.getTextLength, "\n")
+                  PsiDocumentManager.getInstance(project).commitDocument(worksheetViewerDocument)
+                }
+              }
+            }
+          }
+
+          override def keyTyped(e: KeyEvent) {
+          }
+
+          override def keyPressed(e: KeyEvent) {
             endProcess(processHandler)
             processHandler.removeProcessListener(myProcessListener)
           }
@@ -558,9 +583,4 @@ class WorksheetRunConfiguration(val project: Project, val configurationFactory: 
     }
     res.toString()
   }
-}
-
-object WorksheetRunConfiguration {
-  var wvDocument: Document = null
-  def getDocumentRight = wvDocument
 }

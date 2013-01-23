@@ -12,7 +12,9 @@ import com.intellij.icons.AllIcons
 import com.intellij.lang.ASTNode
 import extensions._
 import com.intellij.openapi.vfs.VirtualFile
-import worksheet.runconfiguration.WorksheetRunConfiguration
+import worksheet.runconfiguration.WorksheetViewerInfo
+import java.awt.BorderLayout
+import com.intellij.ui.JBSplitter
 
 /**
  * @author Ksenia.Sautina
@@ -28,11 +30,19 @@ class CleanWorksheetAction() extends AnAction {
     if (project == null || editor == null || file == null) return
     val psiFile: PsiFile = (PsiManager.getInstance(project).asInstanceOf[PsiManagerEx]).getFileManager.getCachedPsiFile(file)
     if (psiFile == null) return
+    val viewer: Editor = WorksheetViewerInfo.getViewer(editor)
+    if (viewer == null) return
+
+    val splitPane = viewer.getComponent.getParent.asInstanceOf[JBSplitter]
+    val parent = splitPane.getParent
+    parent.remove(splitPane)
+    parent.add(editor.getComponent, BorderLayout.CENTER)
+    editor.getSettings.setFoldingOutlineShown(true)
 
     invokeLater {
       inWriteAction {
-        cleanWorksheet(psiFile.getNode, editor.getDocument, WorksheetRunConfiguration.wvDocument, project)
-        editor.getContentComponent.removeAll()
+        val wvDocument = viewer.getDocument
+        cleanWorksheet(psiFile.getNode, editor.getDocument, wvDocument, project)
       }
     }
   }
