@@ -453,7 +453,7 @@ with DumbAware {
 
   private def registerUsedElement(element: PsiElement, resolveResult: ScalaResolveResult,
                                   checkWrite: Boolean) {
-    val named = resolveResult.getElement
+    val named = resolveResult.getActualElement
     val file = element.getContainingFile
     if (named.isValid && named.getContainingFile == file) {
       val value: ValueUsed = element match {
