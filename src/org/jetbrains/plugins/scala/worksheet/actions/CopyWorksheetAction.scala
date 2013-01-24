@@ -42,8 +42,8 @@ class CopyWorksheetAction extends AnAction {
     val lineCountsMax = Math.max(leftDocument.getLineCount, rightDocument.getLineCount)
     val buffer = new StringBuilder()
     for (i <- 0 to lineCountsMin - 1) {
-      val leftText = leftDocument.getText(new TextRange(leftDocument.getLineStartOffset(i), leftDocument.getLineEndOffset(i)))
-      val rightText = rightDocument.getText(new TextRange(rightDocument.getLineStartOffset(i), rightDocument.getLineEndOffset(i)))
+      val leftText = leftDocument.getText(new TextRange(leftDocument.getLineStartOffset(i), leftDocument.getLineEndOffset(i))).trim
+      val rightText = rightDocument.getText(new TextRange(rightDocument.getLineStartOffset(i), rightDocument.getLineEndOffset(i))).trim
       val spaceCount = shift - leftText.length
       buffer.append(leftText)
 
@@ -56,8 +56,9 @@ class CopyWorksheetAction extends AnAction {
       }
 
       val prefix = if (rightText.startsWith(">")) "//" else "//|"
-      if (rightText.trim != "") buffer.append(prefix)
-      buffer.append(rightText).append("\n")
+      if (rightText != "") buffer.append(prefix)
+      buffer.append(rightText)
+      if (i < lineCountsMin - 1) buffer.append("\n")
     }
 
     for (i <- lineCountsMin to lineCountsMax - 1) {
