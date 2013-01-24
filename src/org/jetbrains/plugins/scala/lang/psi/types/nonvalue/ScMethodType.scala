@@ -116,7 +116,7 @@ case class ScTypePolymorphicType(internalType: ScType, typeParameters: Seq[TypeP
   }
 
 
-  def polymorphicTypeSubstitutor: ScSubstitutor = polymorphicTypeSubstitutor(false)
+  def polymorphicTypeSubstitutor: ScSubstitutor = polymorphicTypeSubstitutor(inferValueType = false)
 
   def polymorphicTypeSubstitutor(inferValueType: Boolean): ScSubstitutor =
     new ScSubstitutor(new HashMap[(String, String), ScType] ++ (typeParameters.map(tp => {
@@ -199,7 +199,7 @@ case class ScTypePolymorphicType(internalType: ScType, typeParameters: Seq[TypeP
             new ScTypeParameterType(tp.ptp, ScSubstitutor.empty)))), Map.empty, None)
 
   def inferValueType: ValueType = {
-    polymorphicTypeSubstitutor(true).subst(internalType.inferValueType).asInstanceOf[ValueType]
+    polymorphicTypeSubstitutor(inferValueType = true).subst(internalType.inferValueType).asInstanceOf[ValueType]
   }
 
   override def removeAbstracts = ScTypePolymorphicType(internalType.removeAbstracts, typeParameters.map(tp => {

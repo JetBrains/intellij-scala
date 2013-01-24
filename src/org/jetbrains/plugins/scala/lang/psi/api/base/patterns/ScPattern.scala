@@ -7,6 +7,7 @@ package patterns
 
 import collection.mutable.ArrayBuffer
 import psi.types._
+import nonvalue.{TypeParameter, ScTypePolymorphicType}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import com.intellij.psi._
 import expr._
@@ -16,7 +17,7 @@ import psi.impl.base.ScStableCodeReferenceElementImpl
 import org.jetbrains.plugins.scala.lang.psi.api.expr.xml.ScXmlPattern
 import lang.resolve._
 import processor.ExpandedExtractorResolveProcessor
-import statements.params.ScParameter
+import statements.params.{ScTypeParam, ScParameter}
 import caches.CachesUtil
 import psi.impl.ScalaPsiManager
 import util.{PsiTreeUtil, PsiModificationTracker}
@@ -115,6 +116,15 @@ trait ScPattern extends ScalaPsiElement {
         }
         fun.returnType match {
           case Success(rt, _) =>
+            def updateRes(tp: ScType): ScType = {
+              val parameters: Seq[ScTypeParam] = fun.typeParameters
+              tp.recursiveVarianceUpdate {
+                case (tp: ScTypeParameterType, variance) if parameters.contains(tp.param) =>
+                  (true, if (variance == -1) substitutor.subst(tp.lower.v)
+                  else substitutor.subst(tp.upper.v))
+                case (tp, _) => (false, tp)
+              }
+            }
             if (subst.subst(rt).equiv(lang.psi.types.Boolean)) return None
             rt match {
               case ScParameterizedType(des, args) if (ScType.extractClass(des) match {
@@ -125,15 +135,15 @@ trait ScPattern extends ScalaPsiElement {
                 if (args.length != 1) return None
                 args(0) match {
                   case ScTupleType(args) => {
-                    if (i < args.length) return Some(subst.subst(args(i)).unpackedType)
+                    if (i < args.length) return Some(updateRes(subst.subst(args(i)).unpackedType))
                     else return None
                   }
                   case p@ScParameterizedType(des, args) if p.getTupleType != None => {
-                    if (i < args.length) return Some(subst.subst(args(i)).unpackedType)
+                    if (i < args.length) return Some(updateRes(subst.subst(args(i)).unpackedType))
                     else return None
                   }
                   case tp => {
-                    if (i == 0) return Some(subst.subst(tp).unpackedType)
+                    if (i == 0) return Some(updateRes(subst.subst(tp).unpackedType))
                     else return None
                   }
                 }
