@@ -481,6 +481,7 @@ class WorksheetRunConfiguration(val project: Project, val configurationFactory: 
     val factory: EditorFactory = EditorFactory.getInstance
     val document = factory.createDocument("")
     val editor: Editor = factory.createViewer(document, project)
+    editor.setBorder(null)
     editor
   }
 
