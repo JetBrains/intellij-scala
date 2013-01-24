@@ -20,4 +20,8 @@ object SCL5180 {
   class TwoAuth extends Auth
   class Auth
 }
-//Map[String, SCL5180.Worker[_ >: SCL5180.OneAuth with SCL5180.TwoAuth <: SCL5180.Auth, _ >: SCL5180.OneAuthService with SCL5180.TwoAuthService <: SCL5180.AuthService[_ >: SCL5180.OneAuth with SCL5180.TwoAuth]]]
+/*
+Few variants:
+Map[String, SCL5180.Worker[_ >: SCL5180.OneAuth with SCL5180.TwoAuth <: SCL5180.Auth, _ >: SCL5180.OneAuthService with SCL5180.TwoAuthService <: SCL5180.AuthService[_ >: SCL5180.OneAuth with SCL5180.TwoAuth]]]
+Map[String, SCL5180.Worker[_ >: SCL5180.TwoAuth with SCL5180.OneAuth <: SCL5180.Auth, _ >: SCL5180.TwoAuthService with SCL5180.OneAuthService <: SCL5180.AuthService[_ >: SCL5180.TwoAuth with SCL5180.OneAuth]]]
+ */
