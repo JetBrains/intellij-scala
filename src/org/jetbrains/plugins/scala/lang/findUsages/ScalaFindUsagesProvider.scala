@@ -16,6 +16,8 @@ import org.jetbrains.annotations.{Nullable, NotNull}
 import psi.impl.toplevel.PsiClassFake
 import psi.api.statements.params.ScTypeParam
 import extensions.{toPsiMemberExt, toPsiNamedElementExt, toPsiClassExt}
+import psi.api.base.ScFieldId
+import psi.ScalaPsiUtil
 
 class ScalaFindUsagesProvider extends FindUsagesProvider {
   @Nullable
@@ -55,6 +57,12 @@ class ScalaFindUsagesProvider extends FindUsagesProvider {
       case _: PsiField => "field"
       case _: PsiParameter => "parameter"
       case _: PsiVariable => "variable"
+      case f: ScFieldId =>
+        ScalaPsiUtil.nameContext(f) match {
+          case v: ScValue => "pattern"
+          case v: ScVariable => "variable"
+          case _ => "pattern"
+        }
       case _ => ""
     }
   }
