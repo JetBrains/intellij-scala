@@ -29,5 +29,9 @@ class EventGeneratingClient(listener: Event => Unit, canceled: => Boolean) exten
     listener(GeneratedEvent(source, module, name))
   }
 
+  def deleted(module: File) {
+    listener(DeletedEvent(module))
+  }
+
   def isCanceled = canceled
 }

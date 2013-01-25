@@ -11,7 +11,6 @@ import sbt.inc.{Analysis, AnalysisStore, Locate}
 import xsbti._
 import org.jetbrains.jps.incremental.messages.BuildMessage.Kind
 import xsbti.api.SourceAPI
-import com.intellij.openapi.util.text.StringUtil
 
 /**
  * @author Pavel Fatin
@@ -61,7 +60,8 @@ class CompilerImpl(javac: JavaCompiler, scalac: Option[AnalyzingCompiler], fileT
         reporter,
         false,
         CompilerCache.fresh,
-        Some(callback)
+        Some(callback),
+        Some(client.deleted)
       )(logger)
     } catch {
       case _: xsbti.CompileFailed => // the error should be already handled via the `reporter`

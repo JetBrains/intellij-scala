@@ -33,5 +33,7 @@ trait Client {
 
   def generated(source: File, module: File, name: String)
 
+  def deleted(module: File)
+
   def isCanceled: Boolean
 }

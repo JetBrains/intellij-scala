@@ -18,6 +18,9 @@ class ClientEventProcessor(client: Client) {
       case GeneratedEvent(source, module, name) =>
         client.generated(source, module, name)
 
+      case DeletedEvent(module) =>
+        client.deleted(module)
+
       case TraceEvent(message, lines) =>
         client.trace(new ServerException(message, lines))
     }
