@@ -49,7 +49,7 @@ object StaticTraitScFunctionWrapper {
     val qualName = containingClass.getQualifiedName
     builder.append(((qualName.substring(0, qualName.length() - 6) + " This") +: function.parameters.map { case param =>
       val builder = new StringBuilder
-      param.getType(TypingContext.empty) match {
+      param.getRealParameterType(TypingContext.empty) match {
         case Success(tp, _) => builder.append(JavaConversionUtil.typeText(tp, function.getProject, function.getResolveScope))
         case _ => builder.append("java.lang.Object")
       }

@@ -175,7 +175,7 @@ object ScFunctionWrapper {
 
     builder.append(function.effectiveParameterClauses.flatMap(_.parameters).map { case param =>
       val builder = new StringBuilder
-      param.getType(TypingContext.empty) match {
+      param.getRealParameterType(TypingContext.empty) match {
         case Success(tp, _) => builder.append(JavaConversionUtil.typeText(subst.subst(tp), function.getProject, function.getResolveScope))
         case _ => builder.append("java.lang.Object")
       }
