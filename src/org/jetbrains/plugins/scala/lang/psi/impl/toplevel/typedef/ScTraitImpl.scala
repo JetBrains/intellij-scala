@@ -69,7 +69,7 @@ class ScTraitImpl extends ScTypeDefinitionImpl with ScTrait with ScTypeParameter
   override def getAllMethods: Array[PsiMethod] = {
     val res = new ArrayBuffer[PsiMethod]()
     res ++= getConstructors
-    val signatures = TypeDefinitionMembers.getSignatures(this).forAll()._1.valuesIterator
+    val signatures = TypeDefinitionMembers.getSignatures(this).allFirstSeq().iterator
     while (signatures.hasNext) {
       val signature = signatures.next()
       signature.foreach {

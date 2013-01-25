@@ -379,6 +379,9 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
     new ConcurrentHashMap()
 
   def getFunctionWrapper(isStatic: Boolean, isInterface: Boolean, cClass: Option[PsiClass] = None): ScFunctionWrapper = {
+    if (getName.equals("getContext")) {
+      "stop"
+    }
     val curModCount = getManager.getModificationTracker.getOutOfCodeBlockModificationCount
     val r = functionWrapper.get(isStatic, isInterface, cClass)
     if (r != null && r._2 == curModCount) {

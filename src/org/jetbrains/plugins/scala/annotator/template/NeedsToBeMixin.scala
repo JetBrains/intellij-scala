@@ -20,7 +20,7 @@ object NeedsToBeMixin extends AnnotatorPart[ScTemplateDefinition] {
 
   def annotate(element: ScTemplateDefinition, holder: AnnotationHolder, typeAware: Boolean) {
     if (element.isInstanceOf[ScTrait]) return
-    val signaturesIterator = TypeDefinitionMembers.getSignatures(element).forAll()._1.values.
+    val signaturesIterator = TypeDefinitionMembers.getSignatures(element).allFirstSeq().
       flatMap(_.map(_._2)).iterator
 
     while (signaturesIterator.hasNext) {

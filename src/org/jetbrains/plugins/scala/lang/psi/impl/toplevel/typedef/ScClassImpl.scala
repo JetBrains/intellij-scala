@@ -28,6 +28,7 @@ import light.StaticPsiMethodWrapper
 import api.statements._
 import extensions.toPsiMemberExt
 import params.{ScParameter, ScParameterClause, ScClassParameter}
+import collection.mutable
 
 /**
  * @author Alexander.Podkhalyuzin
@@ -109,7 +110,7 @@ class ScClassImpl extends ScTypeDefinitionImpl with ScClass with ScTypeParameter
 
   override def getAllMethods: Array[PsiMethod] = {
     val res = new ArrayBuffer[PsiMethod]()
-    val names = new HashSet[String]
+    val names = new mutable.HashSet[String]
     res ++= getConstructors
     val linearization = MixinNodes.linearization(this).flatMap(tp => ScType.extractClass(tp, Some(getProject)))
     def getClazz(t: ScTrait): PsiClass = {
@@ -121,7 +122,7 @@ class ScClassImpl extends ScTypeDefinitionImpl with ScClass with ScTypeParameter
       }
       this
     }
-    val signatures = TypeDefinitionMembers.getSignatures(this).forAll()._1.valuesIterator
+    val signatures = TypeDefinitionMembers.getSignatures(this).allFirstSeq().iterator
     while (signatures.hasNext) {
       val signature = signatures.next()
       signature.foreach {
@@ -197,7 +198,7 @@ class ScClassImpl extends ScTypeDefinitionImpl with ScClass with ScTypeParameter
             res += method
           }
         }
-        val signatures = TypeDefinitionMembers.getSignatures(o).forAll()._1.valuesIterator
+        val signatures = TypeDefinitionMembers.getSignatures(o).allFirstSeq().iterator
         while (signatures.hasNext) {
           val signature = signatures.next()
           signature.foreach {
