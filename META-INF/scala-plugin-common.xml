@@ -697,6 +697,10 @@
                          displayName="Redundant block" groupName="Scala: General"
                          shortName="RedundantBlock" level="WARNING"
                          enabledByDefault="true" language="Scala"/>
+      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.forwardReferenceInspection.ForwardReferenceInspection"
+                         displayName="Suspicious forward reference" groupName="Scala: General"
+                         shortName="ForwardReference" level="WARNING"
+                         enabledByDefault="true" language="Scala"/>
       <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.arraySize.ArraySizeCallInspection"
                          displayName="Call to Array.size" groupName="Scala: General"
                          shortName="ArraySizeCall" level="WARNING"
