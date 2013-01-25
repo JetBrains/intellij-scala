@@ -12,11 +12,9 @@ import lang.resolve.ScalaResolveResult
 import lang.psi.ScalaPsiUtil
 
 /**
- * Pavel Fatin
+ * Alefas
  */
-
 class ForwardReferenceInspection extends AbstractInspection {
-
   def actionFor(holder: ProblemsHolder) = {
     case ref: ScReferenceExpression =>
       val member: ScMember = PsiTreeUtil.getParentOfType(ref, classOf[ScMember])
@@ -26,8 +24,10 @@ class ForwardReferenceInspection extends AbstractInspection {
             ref.bind() match {
               case Some(r: ScalaResolveResult) =>
                 ScalaPsiUtil.nameContext(r.getActualElement) match {
-                  case resolved if resolved.isInstanceOf[ScValue] || resolved.isInstanceOf[ScVariable] =>
-                    if (resolved.getParent == tb && resolved.getTextOffset > member.getTextOffset) {
+                  case resolved if resolved.isInstanceOf[ScValue] || resolved.isInstanceOf[ScVariable]=>
+                    if (resolved.getParent == tb && !member.hasModifierProperty("lazy") &&
+                      !resolved.asInstanceOf[ScMember].hasModifierProperty("lazy") &&
+                      resolved.getTextOffset > member.getTextOffset) {
                       holder.registerProblem(ref, ScalaBundle.message("suspicicious.forward.reference.template.body"))
                     }
                   case _ =>
