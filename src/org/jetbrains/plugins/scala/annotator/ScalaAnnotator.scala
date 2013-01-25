@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.lang.resolve._
 import com.intellij.codeInspection._
 import org.jetbrains.plugins.scala.annotator.intention._
 import params.{ScParameter, ScParameters, ScClassParameter}
-import patterns.{ScConstructorPattern, ScPattern, ScInfixPattern}
+import patterns.{ScBindingPattern, ScConstructorPattern, ScPattern, ScInfixPattern}
 import processor.MethodResolveProcessor
 import modifiers.ModifierChecker
 import com.intellij.psi._
@@ -509,9 +509,19 @@ with DumbAware {
           case _ => processError(countError = true, fixes = getFix)
         }
       }
-    }
-    else {
+    } else {
       AnnotatorHighlighter.highlightReferenceElement(refElement, holder)
+      resolve(0) match {
+        case r: ScalaResolveResult if r.isForwardReference =>
+          ScalaPsiUtil.nameContext(r.getActualElement) match {
+            case _: ScValue | _: ScVariable | _: ScObject =>
+              val error = ScalaBundle.message("forward.reference.detected")
+              val annotation = holder.createErrorAnnotation(refElement.nameId, error)
+              annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
+            case _ => //todo: check forward references for functions, classes
+          }
+        case _ =>
+      }
     }
     for {
       result <- resolve if result.isInstanceOf[ScalaResolveResult]

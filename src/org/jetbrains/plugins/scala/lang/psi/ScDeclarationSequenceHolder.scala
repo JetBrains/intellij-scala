@@ -7,11 +7,11 @@ import api.statements.ScDeclaredElementsHolder
 import api.toplevel.ScNamedElement
 import api.toplevel.typedef.{ScClass, ScObject}
 import com.intellij.psi._
-import psi.impl.ScalaFileImpl
 import scope._
-import com.intellij.psi.stubs.StubElement
 import com.intellij.openapi.progress.ProgressManager
 import collection.Seq
+import lang.resolve.processor.BaseProcessor
+import java.lang
 
 trait ScDeclarationSequenceHolder extends ScalaPsiElement {
   override def processDeclarations(processor: PsiScopeProcessor,
@@ -37,9 +37,10 @@ trait ScDeclarationSequenceHolder extends ScalaPsiElement {
 
       //forward references are allowed (e.g. 2 local methods see each other)
       run = lastParent.getNextSibling
+      val forwardState = state.put(BaseProcessor.FORWARD_REFERENCE_KEY, lang.Boolean.TRUE)
       while (run != null) {
         ProgressManager.checkCanceled()
-        if (!processElement(run, processor, state)) return false
+        if (!processElement(run, processor, forwardState)) return false
         run = run.getNextSibling
       }
     }

@@ -32,6 +32,8 @@ object BaseProcessor {
   val FROM_TYPE_KEY: Key[ScType] = Key.create("from.type.key")
 
   val COMPOUND_TYPE_THIS_TYPE_KEY: Key[Option[ScType]] = Key.create("compound.type.this.type.key")
+
+  val FORWARD_REFERENCE_KEY: Key[java.lang.Boolean] = Key.create("forward.reference.key")
 }
 
 abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value]) extends PsiScopeProcessor {
@@ -302,5 +304,11 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value]) extends PsiSc
 
   protected def getFromType(state: ResolveState): Option[ScType] = {
     state.get(BaseProcessor.FROM_TYPE_KEY).toOption
+  }
+
+  protected def isForwardReference(state: ResolveState): Boolean = {
+    val res: java.lang.Boolean = state.get(BaseProcessor.FORWARD_REFERENCE_KEY)
+    if (res != null) res
+    else false
   }
 }
