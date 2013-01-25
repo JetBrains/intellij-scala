@@ -39,3 +39,5 @@ case class TraceEvent(message: String, lines: Array[String]) extends Event
 case class ProgressEvent(text: String, done: Option[Float]) extends Event
 
 case class GeneratedEvent(source: File, module: File, name: String) extends Event
+
+case class DeletedEvent(module: File) extends Event

@@ -2,6 +2,7 @@ package org.jetbrains.jps.incremental.scala
 
 import java.io.File
 import java.net.InetAddress
+import java.util.Collections
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.util.PathUtil
 import com.intellij.util.Processor
@@ -11,8 +12,7 @@ import org.jetbrains.jps.builders.java.JavaSourceRootDescriptor
 import org.jetbrains.jps.builders.impl.TargetOutputIndexImpl
 import org.jetbrains.jps.incremental._
 import messages.BuildMessage.Kind
-import org.jetbrains.jps.incremental.messages.CompilerMessage
-import org.jetbrains.jps.incremental.messages.ProgressMessage
+import messages.{FileDeletedEvent, CompilerMessage, ProgressMessage}
 import org.jetbrains.jps.incremental.scala.data.CompilationData
 import org.jetbrains.jps.incremental.scala.data.CompilerData
 import org.jetbrains.jps.incremental.scala.data.SbtData
@@ -246,6 +246,11 @@ private class IdeClient(compilerName: String,
     }
     val compiledClass = new LazyCompiledClass(module, source, name)
     consumer.registerCompiledClass(target, compiledClass)
+  }
+
+  def deleted(module: File) {
+    val paths = Collections.singletonList(FileUtil.toCanonicalPath(module.getPath))
+    context.processMessage(new FileDeletedEvent(paths))
   }
 
   def isCanceled = context.getCancelStatus.isCanceled
