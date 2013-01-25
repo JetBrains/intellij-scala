@@ -227,7 +227,7 @@ class ScObjectImpl extends ScTypeDefinitionImpl with ScObject with ScTemplateDef
       }
       this
     }
-    val signatures = TypeDefinitionMembers.getSignatures(this).forAll()._1.valuesIterator
+    val signatures = TypeDefinitionMembers.getSignatures(this).allFirstSeq().iterator
     while (signatures.hasNext) {
       val signature = signatures.next()
       signature.foreach {

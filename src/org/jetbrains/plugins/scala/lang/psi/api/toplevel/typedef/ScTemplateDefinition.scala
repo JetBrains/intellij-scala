@@ -136,7 +136,7 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
   def superTypes: List[ScType] = extendsBlock.superTypes
   def supers: Seq[PsiClass] = extendsBlock.supers
 
-  def allTypeAliases = TypeDefinitionMembers.getTypes(this).forAll()._1.values.flatMap(n => n.map {
+  def allTypeAliases = TypeDefinitionMembers.getTypes(this).allFirstSeq().flatMap(n => n.map {
     case (_, n) => (n.info, n.substitutor)
   })
 
@@ -146,7 +146,7 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
         val clazzType = getTypeWithProjections(TypingContext.empty).getOrAny
         Bounds.glb(selfType, clazzType) match {
           case c: ScCompoundType =>
-            TypeDefinitionMembers.getTypes(c, Some(clazzType), this).forAll()._1.values.
+            TypeDefinitionMembers.getTypes(c, Some(clazzType), this).allFirstSeq().
               flatMap(_.map { case (_, n) => n.info })
           case _ =>
             allTypeAliases
@@ -156,7 +156,7 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
     }
   }
 
-  def allVals = TypeDefinitionMembers.getSignatures(this).forAll()._1.values.flatMap(n => n.filter{
+  def allVals = TypeDefinitionMembers.getSignatures(this).allFirstSeq().flatMap(n => n.filter{
     case (_, n) => !n.info.isInstanceOf[PhysicalSignature] &&
       (n.info.namedElement match {
         case Some(v) => ScalaPsiUtil.nameContext(v) match {
@@ -173,7 +173,7 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
         val clazzType = getTypeWithProjections(TypingContext.empty).getOrAny
         Bounds.glb(selfType, clazzType) match {
           case c: ScCompoundType =>
-            TypeDefinitionMembers.getSignatures(c, Some(clazzType), this).forAll()._1.values.flatMap(n => n.filter{
+            TypeDefinitionMembers.getSignatures(c, Some(clazzType), this).allFirstSeq().flatMap(n => n.filter{
               case (_, n) => !n.info.isInstanceOf[PhysicalSignature] &&
                 (n.info.namedElement match {
                   case Some(v) => ScalaPsiUtil.nameContext(v) match {
@@ -192,7 +192,7 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
   }
 
   def allMethods: Iterable[PhysicalSignature] =
-    TypeDefinitionMembers.getSignatures(this).forAll()._1.values.flatMap(_.filter {
+    TypeDefinitionMembers.getSignatures(this).allFirstSeq().flatMap(_.filter {
       case (_, n) => n.info.isInstanceOf[PhysicalSignature]}).
       map { case (_, n) => n.info.asInstanceOf[PhysicalSignature] } ++
       syntheticMembers.map(new PhysicalSignature(_, ScSubstitutor.empty))
@@ -203,7 +203,7 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
         val clazzType = getTypeWithProjections(TypingContext.empty).getOrAny
         Bounds.glb(selfType, clazzType) match {
           case c: ScCompoundType =>
-            TypeDefinitionMembers.getSignatures(c, Some(clazzType), this).forAll()._1.values.flatMap(_.filter {
+            TypeDefinitionMembers.getSignatures(c, Some(clazzType), this).allFirstSeq().flatMap(_.filter {
               case (_, n) => n.info.isInstanceOf[PhysicalSignature]}).
               map { case (_, n) => n.info.asInstanceOf[PhysicalSignature] } ++
               syntheticMembers.map(new PhysicalSignature(_, ScSubstitutor.empty))
@@ -215,7 +215,7 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
     }
   }
 
-  def allSignatures = TypeDefinitionMembers.getSignatures(this).forAll()._1.values.flatMap(_.map { case (_, n) => n.info })
+  def allSignatures = TypeDefinitionMembers.getSignatures(this).allFirstSeq().flatMap(_.map { case (_, n) => n.info })
 
   def allSignaturesIncludingSelfType = {
     selfType match {
@@ -223,7 +223,7 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
         val clazzType = getTypeWithProjections(TypingContext.empty).getOrAny
         Bounds.glb(selfType, clazzType) match {
           case c: ScCompoundType =>
-            TypeDefinitionMembers.getSignatures(c, Some(clazzType), this).forAll()._1.values.
+            TypeDefinitionMembers.getSignatures(c, Some(clazzType), this).allFirstSeq().
               flatMap(_.map { case (_, n) => n.info })
           case _ =>
             allSignatures

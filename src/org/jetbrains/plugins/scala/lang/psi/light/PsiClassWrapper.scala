@@ -75,7 +75,7 @@ class PsiClassWrapper(val definition: ScTemplateDefinition,
     definition match {
       case o: ScObject =>
         val res = new ArrayBuffer[PsiMethod]()
-        val signatures = TypeDefinitionMembers.getSignatures(o).forAll()._1.valuesIterator
+        val signatures = TypeDefinitionMembers.getSignatures(o).allFirstSeq().iterator
         while (signatures.hasNext) {
           val signature = signatures.next()
           signature.foreach {

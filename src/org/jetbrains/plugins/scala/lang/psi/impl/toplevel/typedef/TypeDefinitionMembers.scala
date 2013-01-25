@@ -799,8 +799,8 @@ object TypeDefinitionMembers {
             }
           }
         } else {
-          val map = if (!isSupers) signatures.forAll()._1 else signatures.forAll()._2
-          val valuesIterator = map.valuesIterator
+          val map = if (!isSupers) signatures.allFirstSeq() else signatures.allSecondSeq()
+          val valuesIterator = map.iterator
           while (valuesIterator.hasNext) {
             val iterator = valuesIterator.next().iterator
             while (iterator.hasNext) {
@@ -839,8 +839,8 @@ object TypeDefinitionMembers {
         }
 
         if (processMethods) {
-          val maps = signaturesForJava.forAll()._1
-          val valuesIterator = maps.valuesIterator
+          val maps = signaturesForJava.allFirstSeq()
+          val valuesIterator = maps.iterator
           while (valuesIterator.hasNext) {
             val iterator = valuesIterator.next().iterator
             runIterator(iterator) match {
@@ -872,8 +872,8 @@ object TypeDefinitionMembers {
           if (!processor.execute(n.info, state.put(ScSubstitutor.key, n.substitutor followed subst))) return false
         }
       } else {
-        val map = if (!isSupers) types.forAll()._1 else types.forAll()._2
-        val valuesIterator = map.valuesIterator
+        val map = if (!isSupers) types.allFirstSeq() else types.allSecondSeq()
+        val valuesIterator = map.iterator
         while (valuesIterator.hasNext) {
           val iterator = valuesIterator.next().iterator
           while (iterator.hasNext) {
@@ -897,8 +897,8 @@ object TypeDefinitionMembers {
             !processor.execute(n.info, state.put(ScSubstitutor.key, n.substitutor followed subst))) return false
         }
       } else {
-        val map = if (!isSupers) types.forAll()._1 else types.forAll()._2
-        val valuesIterator = map.valuesIterator
+        val map = if (!isSupers) types.allFirstSeq() else types.allSecondSeq()
+        val valuesIterator = map.iterator
         while (valuesIterator.hasNext) {
           val iterator = valuesIterator.next().iterator
           while (iterator.hasNext) {

@@ -109,11 +109,19 @@ abstract class MixinNodes {
       names
     }
     
-    def forAll(): (mutable.HashMap[String, AllNodes], mutable.HashMap[String, AllNodes]) = {
+    private def forAll(): (mutable.HashMap[String, AllNodes], mutable.HashMap[String, AllNodes]) = {
       for (name <- allNames()) forName(name)
       synchronized {
         (calculated, calculatedSupers)
       }
+    }
+
+    def allFirstSeq(): Seq[AllNodes] = {
+      forAll()._1.toSeq.map(_._2)
+    }
+
+    def allSecondSeq(): Seq[AllNodes] = {
+      forAll()._1.toSeq.map(_._2)
     }
     
     private def toNodesSeq(seq: List[(T, Node)]): NodesSeq = {
