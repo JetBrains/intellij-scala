@@ -45,7 +45,7 @@ class ScDocCommentImpl(text: CharSequence) extends LazyParseablePsiElement(Scala
   //todo: implement me
   def getTags: Array[PsiDocTag] = findTagsByName(_ => true)
 
-  def getDescriptionElements: Array[PsiElement] = null
+  def getDescriptionElements: Array[PsiElement] = PsiElement.EMPTY_ARRAY
 
   def findTagByName(name: String): PsiDocTag = if (findTagsByName(name).length > 0) findTagsByName(name)(0) else null
 
