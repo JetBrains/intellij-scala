@@ -12,8 +12,6 @@ import org.jetbrains.annotations.NonNls
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.actionSystem._
 import com.intellij.openapi.util.text.StringUtil
-import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
-import com.intellij.util.IncorrectOperationException
 import org.jetbrains.plugins.scala.{ScalaFileType, ScalaBundle}
 import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.ide.IdeView
@@ -22,6 +20,7 @@ import org.jetbrains.plugins.scala.config.ScalaFacet
 import com.intellij.ide.fileTemplates.{FileTemplateManager, FileTemplate, JavaTemplateUtil}
 import com.intellij.openapi.fileTypes.ex.FileTypeManagerEx
 import com.intellij.openapi.fileTypes.FileType
+import com.intellij.openapi.ui.InputValidatorEx
 
 /**
  * User: Alexander Podkhalyuzin
@@ -32,11 +31,9 @@ class NewScalaTypeDefinitionAction extends CreateTemplateInPackageAction[ScTypeD
   ScalaBundle.message("newclass.menu.action.text"), ScalaBundle.message("newclass.menu.action.description"), Icons.CLASS, true) with DumbAware {
   protected def buildDialog(project: Project, directory: PsiDirectory,
                             builder: CreateFileFromTemplateDialog.Builder) {
-    builder.addKind("Class", Icons.CLASS, "Scala Class");
-    builder.addKind("Object", Icons.OBJECT, "Scala Object");
-    builder.addKind("Trait", Icons.TRAIT, "Scala Trait");
-
-
+    builder.addKind("Class", Icons.CLASS, "Scala Class")
+    builder.addKind("Object", Icons.OBJECT, "Scala Object")
+    builder.addKind("Trait", Icons.TRAIT, "Scala Trait")
 
     for (template <- FileTemplateManager.getInstance.getAllTemplates) {
       if (isScalaTemplate(template) && checkPackageExists(directory)) {
@@ -45,6 +42,22 @@ class NewScalaTypeDefinitionAction extends CreateTemplateInPackageAction[ScTypeD
     }
 
     builder.setTitle("Create New Scala Class")
+    builder.setValidator(new InputValidatorEx {
+      def getErrorText(inputString: String): String = {
+        if (inputString.length > 0 && !JavaPsiFacade.getInstance(project).getNameHelper.isQualifiedName(inputString)) {
+          return "This is not a valid Scala qualified name"
+        }
+        null
+      }
+
+      def checkInput(inputString: String): Boolean = {
+        true
+      }
+
+      def canClose(inputString: String): Boolean = {
+        !StringUtil.isEmptyOrSpaces(inputString) && getErrorText(inputString) == null
+      }
+    })
   }
 
   private def isScalaTemplate(template: FileTemplate): Boolean = {
@@ -59,7 +72,7 @@ class NewScalaTypeDefinitionAction extends CreateTemplateInPackageAction[ScTypeD
   def getNavigationElement(createdElement: ScTypeDefinition): PsiElement = createdElement.extendsBlock
 
   def doCreate(directory: PsiDirectory, newName: String, templateName: String): ScTypeDefinition = {
-    val file: PsiFile = createClassFromTemplate(directory, newName, templateName);
+    val file: PsiFile = createClassFromTemplate(directory, newName, templateName)
     if (file.isInstanceOf[ScalaFile]) {
       val scalaFile = file.asInstanceOf[ScalaFile]
       val typeDefinitions = scalaFile.typeDefinitions
@@ -94,10 +107,10 @@ class NewScalaTypeDefinitionAction extends CreateTemplateInPackageAction[ScTypeD
 
   private def createClassFromTemplate(directory: PsiDirectory, className: String, templateName: String,
                                       parameters: String*): PsiFile = {
-    NewScalaTypeDefinitionAction.createFromTemplate(directory, className, className + SCALA_EXTENSIOIN, templateName, parameters: _*)
+    NewScalaTypeDefinitionAction.createFromTemplate(directory, className, className + SCALA_EXTENSION, templateName, parameters: _*)
   }
 
-  private val SCALA_EXTENSIOIN = ".scala";
+  private val SCALA_EXTENSION = ".scala"
 
   def checkPackageExists(directory: PsiDirectory) = {
     JavaDirectoryService.getInstance.getPackage(directory) != null
@@ -133,7 +146,7 @@ object NewScalaTypeDefinitionAction {
       }
     }
     val factory: PsiFileFactory = PsiFileFactory.getInstance(directory.getProject)
-    val file: PsiFile = factory.createFileFromText(fileName, text)
+    val file: PsiFile = factory.createFileFromText(fileName, ScalaFileType.SCALA_FILE_TYPE, text)
     directory.add(file).asInstanceOf[PsiFile]
   }
 }
