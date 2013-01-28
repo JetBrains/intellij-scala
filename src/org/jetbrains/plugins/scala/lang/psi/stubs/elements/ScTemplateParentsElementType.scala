@@ -44,7 +44,7 @@ abstract class ScTemplateParentsElementType[Func <: ScTemplateParents](debugName
 
   def deserializeImpl(dataStream: StubInputStream, parentStub: Any): ScTemplateParentsStub = {
     val length = dataStream.readByte
-    if (length > 0) {
+    if (length >= 0) {
       val res = new Array[StringRef](length)
       for (i <- 0 until length) {
         res(i) = dataStream.readName
