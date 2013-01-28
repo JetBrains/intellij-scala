@@ -57,6 +57,7 @@ import collection.{Set, Seq}
 import org.apache.log4j.Level
 import com.intellij.lang.impl.PsiBuilderImpl
 import com.intellij.openapi.diagnostic
+import types.Conformance.AliasType
 
 /**
  * User: Alexander Podkhalyuzin
@@ -470,6 +471,11 @@ object ScalaPsiUtil {
     val projectOpt = Option(place).map(_.getProject)
     val parts: ListBuffer[ScType] = new ListBuffer[ScType]
     def collectParts(tp: ScType, place: PsiElement) {
+      Conformance.isAliasType(tp) match {
+        case Some(AliasType(t: ScTypeAliasDefinition, lower, _)) =>
+          lower.foreach(collectParts(_, place))
+        case _ =>
+      }
       tp match {
         case ScCompoundType(comps, _, _, _) => {
           comps.foreach(collectParts(_, place))
