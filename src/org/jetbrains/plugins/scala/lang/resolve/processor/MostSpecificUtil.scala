@@ -123,9 +123,33 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
           case ScTypePolymorphicType(ScMethodType(_, params, _), typeParams) => {
             u.getSubstitutor match {
               case Some(uSubst) =>
+                def hasRecursiveTypeParameters(typez: ScType): Boolean = {
+                  var hasRecursiveTypeParameters = false
+                  typez.recursiveUpdate {
+                    case tpt: ScTypeParameterType =>
+                      typeParams.find(tp => (tp.name, ScalaPsiUtil.getPsiElementId(tp.ptp)) ==(tpt.name, tpt.getId)) match {
+                        case None => (true, tpt)
+                        case _ =>
+                          hasRecursiveTypeParameters = true
+                          (true, tpt)
+                      }
+                    case tp: ScType => (hasRecursiveTypeParameters, tp)
+                  }
+                  hasRecursiveTypeParameters
+                }
                 typeParams.foreach(tp => {
-                  u = u.addLower((tp.name, ScalaPsiUtil.getPsiElementId(tp.ptp)), uSubst.subst(tp.lowerType), additional = true)
-                  u = u.addUpper((tp.name, ScalaPsiUtil.getPsiElementId(tp.ptp)), uSubst.subst(tp.upperType), additional = true)
+                  if (tp.lowerType != types.Nothing) {
+                    val substedLower = uSubst.subst(tp.lowerType)
+                    if (!hasRecursiveTypeParameters(tp.lowerType)) {
+                      u = u.addLower((tp.name, ScalaPsiUtil.getPsiElementId(tp.ptp)), substedLower, additional = true)
+                    }
+                  }
+                  if (tp.upperType != types.Any) {
+                    val substedUpper = uSubst.subst(tp.upperType)
+                    if (!hasRecursiveTypeParameters(tp.upperType)) {
+                      u = u.addUpper((tp.name, ScalaPsiUtil.getPsiElementId(tp.ptp)), substedUpper, additional = true)
+                    }
+                  }
                 })
               case None => return false
             }
