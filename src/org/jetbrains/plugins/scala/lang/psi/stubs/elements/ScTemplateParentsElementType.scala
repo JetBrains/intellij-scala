@@ -10,6 +10,7 @@ import impl.ScTemplateParentsStubImpl
 import com.intellij.psi.stubs.{StubElement, IndexSink, StubOutputStream, StubInputStream}
 import com.intellij.psi.PsiElement
 import api.toplevel.templates.{ScClassParents, ScTemplateParents}
+import com.intellij.openapi.diagnostic.Logger
 
 /**
  * User: Alexander Podkhalyuzin
@@ -54,9 +55,14 @@ abstract class ScTemplateParentsElementType[Func <: ScTemplateParents](debugName
       }
       new ScTemplateParentsStubImpl(parentStub.asInstanceOf[StubElement[PsiElement]], this, constr, res)
     } else {
+      ScTemplateParentsElementType.LOG.error("Negative byte deserialized for array")
       new ScTemplateParentsStubImpl(parentStub.asInstanceOf[StubElement[PsiElement]], this, None, Array.empty[StringRef])
     }
   }
 
   def indexStub(stub: ScTemplateParentsStub, sink: IndexSink) {}
+}
+
+object ScTemplateParentsElementType {
+  private val LOG = Logger.getInstance("#org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScTemplateParentsElementType")
 }
