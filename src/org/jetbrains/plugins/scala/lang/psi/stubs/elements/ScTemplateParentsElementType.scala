@@ -43,15 +43,19 @@ abstract class ScTemplateParentsElementType[Func <: ScTemplateParents](debugName
 
   def deserializeImpl(dataStream: StubInputStream, parentStub: Any): ScTemplateParentsStub = {
     val length = dataStream.readByte
-    val res = new Array[StringRef](length)
-    for (i <- 0 until length) {
-      res(i) = dataStream.readName
+    if (length > 0) {
+      val res = new Array[StringRef](length)
+      for (i <- 0 until length) {
+        res(i) = dataStream.readName
+      }
+      val constr = dataStream.readBoolean() match {
+        case true => Some(dataStream.readName())
+        case false => None
+      }
+      new ScTemplateParentsStubImpl(parentStub.asInstanceOf[StubElement[PsiElement]], this, constr, res)
+    } else {
+      new ScTemplateParentsStubImpl(parentStub.asInstanceOf[StubElement[PsiElement]], this, None, Array.empty[StringRef])
     }
-    val constr = dataStream.readBoolean() match {
-      case true => Some(dataStream.readName())
-      case false => None
-    }
-    new ScTemplateParentsStubImpl(parentStub.asInstanceOf[StubElement[PsiElement]], this, constr, res)
   }
 
   def indexStub(stub: ScTemplateParentsStub, sink: IndexSink) {}
