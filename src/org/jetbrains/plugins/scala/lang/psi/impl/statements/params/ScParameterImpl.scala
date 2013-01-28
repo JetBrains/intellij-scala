@@ -142,7 +142,7 @@ class ScParameterImpl extends ScalaStubBasedElementImpl[ScParameter] with ScPara
     Success(computeType, Some(this))
   }
 
-  def getType : PsiType = ScType.toPsi(getType(TypingContext.empty).getOrNothing, getProject, getResolveScope)
+  def getType : PsiType = ScType.toPsi(getRealParameterType(TypingContext.empty).getOrNothing, getProject, getResolveScope)
 
   def expectedParamType: Option[ScType] = getContext match {
     case clause: ScParameterClause => clause.getContext.getContext match {
