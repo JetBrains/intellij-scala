@@ -347,13 +347,7 @@ abstract class AbstractTestRunConfiguration(val project: Project,
             }
             params.configureByProject(project, JavaParameters.JDK_AND_CLASSES_AND_TESTS, jdk)
           case _ =>
-            params.configureByModule(module, JavaParameters.JDK_AND_CLASSES_AND_TESTS)
-            for (module <- ModuleManager.getInstance(getProject).getModules) {
-              if (ModuleManager.getInstance(getProject).isModuleDependent(module, getModule)) {
-                params.configureByModule(module, JavaParameters.JDK_AND_CLASSES_AND_TESTS,
-                  JavaParameters.getModuleJdk(getModule))
-              }
-            }
+            params.configureByModule(module, JavaParameters.JDK_AND_CLASSES_AND_TESTS, JavaParameters.getModuleJdk(module))
         }
 
         params.setMainClass(mainClass)
