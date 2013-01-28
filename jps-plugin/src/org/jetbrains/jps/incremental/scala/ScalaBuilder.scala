@@ -2,7 +2,8 @@ package org.jetbrains.jps.incremental.scala
 
 import java.io.File
 import java.net.InetAddress
-import java.util.Collections
+import java.util
+import com.intellij.openapi.util.Key
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.util.PathUtil
 import com.intellij.util.Processor
@@ -18,6 +19,7 @@ import org.jetbrains.jps.incremental.scala.data.CompilerData
 import org.jetbrains.jps.incremental.scala.data.SbtData
 import org.jetbrains.jps.indices.ModuleExcludeIndex
 import collection.JavaConverters._
+import _root_.scala.util.control.Exception._
 import org.jetbrains.jps.incremental.ModuleLevelBuilder.{OutputConsumer, ExitCode}
 import org.jetbrains.jps.model.java.JavaSourceRootType
 import local.LocalServer
@@ -241,6 +243,7 @@ private class IdeClient(compilerName: String,
   }
 
   def generated(source: File, module: File, name: String) {
+    invalidateBoundForms(source)
     val target = sourceToTarget(source).getOrElse {
       throw new RuntimeException("Unknown source file: " + source)
     }
@@ -248,8 +251,31 @@ private class IdeClient(compilerName: String,
     consumer.registerCompiledClass(target, compiledClass)
   }
 
+  // TODO Expect JPS compiler in UI-designer to take generated class events into account
+  private val FormsToCompileKey = catching(classOf[ClassNotFoundException], classOf[NoSuchFieldException]).opt {
+    val field = Class.forName("org.jetbrains.jps.uiDesigner.compiler.FormsBuilder").getDeclaredField("FORMS_TO_COMPILE")
+    field.setAccessible(true)
+    field.get(null).asInstanceOf[Key[util.Map[File, util.Collection[File]]]]
+  }
+
+  private def invalidateBoundForms(source: File) {
+    FormsToCompileKey.foreach { key =>
+      val boundForms: Option[Iterable[File]] = {
+        val sourceToForm = context.getProjectDescriptor.dataManager.getSourceToFormMap
+        val sourcePath = FileUtil.toCanonicalPath(source.getPath)
+        Option(sourceToForm.getState(sourcePath)).map(_.asScala.map(new File(_)))
+      }
+
+      boundForms.foreach { forms =>
+        val formsToCompile = Option(key.get(context)).getOrElse(new util.HashMap[File, util.Collection[File]]())
+        formsToCompile.put(source, forms.toVector.asJava)
+        key.set(context, formsToCompile)
+      }
+    }
+  }
+
   def deleted(module: File) {
-    val paths = Collections.singletonList(FileUtil.toCanonicalPath(module.getPath))
+    val paths = util.Collections.singletonList(FileUtil.toCanonicalPath(module.getPath))
     context.processMessage(new FileDeletedEvent(paths))
   }
 
