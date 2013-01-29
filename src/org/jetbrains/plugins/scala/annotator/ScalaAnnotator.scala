@@ -46,6 +46,7 @@ import com.intellij.codeInsight.daemon.impl.AnnotationHolderImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScInterpolatedStringPrefixReference
 import codeInspection.caseClassParamInspection.{RemoveValFromGeneratorIntentionAction, RemoveValFromEnumeratorIntentionAction}
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.impl.ScDocResolvableCodeReferenceImpl
+import org.jetbrains.plugins.scala.lang.psi
 
 /**
  * User: Alexander Podkhalyuzin
@@ -355,7 +356,7 @@ with DumbAware {
   def isAdvancedHighlightingEnabled(element: PsiElement): Boolean = {
     if (!HighlightingAdvisor.getInstance(element.getProject).enabled) return false
     val containingFile = element.getContainingFile
-    def calculate(): HashSet[TextRange] = {
+    def calculate(): mutable.HashSet[TextRange] = {
       val text = containingFile.getText
       val indexes = new ArrayBuffer[Int]
       var lastIndex = 0
@@ -363,10 +364,10 @@ with DumbAware {
         lastIndex = text.indexOf("/*_*/", lastIndex) + 5
         indexes += lastIndex
       }
-      if (indexes.length == 0) return HashSet.empty
+      if (indexes.length == 0) return mutable.HashSet.empty
       if (indexes.length % 2 != 0) indexes += text.length
 
-      val res = new HashSet[TextRange]
+      val res = new mutable.HashSet[TextRange]
       for (i <- 0 until indexes.length by 2) {
         res += new TextRange(indexes(i), indexes(i + 1))
       }
@@ -406,7 +407,7 @@ with DumbAware {
             }
             candidates(0) match {
               case ScalaResolveResult(fun: ScFunction, subst) =>
-                if (fun.returnType.isEmpty || !Equivalence.equiv(subst.subst(fun.returnType.get), Boolean)) {
+                if (fun.returnType.isEmpty || !Equivalence.equiv(subst.subst(fun.returnType.get), psi.types.Boolean)) {
                   error()
                 }
               case _ => error()
@@ -415,7 +416,7 @@ with DumbAware {
             block.getContext match {
               case t: ScTryStmt =>
                 t.expectedTypeEx(fromUnderscore = false) match {
-                  case Some((tp: ScType, _)) if tp equiv Unit => //do nothing
+                  case Some((tp: ScType, _)) if tp equiv psi.types.Unit => //do nothing
                   case Some((tp: ScType, typeElement)) => {
                     import org.jetbrains.plugins.scala.lang.psi.types._
                     val returnType = candidates(0) match {
@@ -496,6 +497,16 @@ with DumbAware {
 
 
     if (resolve.length != 1) {
+      if (resolve.length == 0) { //Let's try to hide dynamic named parameter usage
+        refElement match {
+          case e: ScReferenceExpression =>
+            e.getContext match {
+              case a: ScAssignStmt if a.getLExpression == e && a.isDynamicNamedAssignment => return
+              case _ =>
+            }
+          case _ =>
+        }
+      }
       refElement match {
         case e: ScReferenceExpression if e.getParent.isInstanceOf[ScPrefixExpr] &&
                 e.getParent.asInstanceOf[ScPrefixExpr].operation == e => //todo: this is hide !(Not Boolean)
@@ -604,11 +615,9 @@ with DumbAware {
 
   private def highlightImplicitMethod(expr: ScExpression, resolveResult: ScalaResolveResult, refElement: ScReferenceElement,
                                       fun: PsiNamedElement, holder: AnnotationHolder) {
-    import org.jetbrains.plugins.scala.lang.psi.types.Any
-
     val typeTo = resolveResult.implicitType match {
       case Some(tp) => tp
-      case _ => Any
+      case _ => psi.types.Any
     }
     highlightImplicitView(expr, fun, typeTo, refElement.nameId, holder)
   }
@@ -766,6 +775,7 @@ with DumbAware {
         case tr: ScTryStmt =>
         case _ => {
           expr.getParent match {
+            case a: ScAssignStmt if a.getRExpression == Some(expr) && a.isDynamicNamedAssignment => return
             case args: ScArgumentExprList => return
             case inf: ScInfixExpr if inf.getArgExpr == expr => return
             case tuple: ScTuple if tuple.getContext.isInstanceOf[ScInfixExpr] &&
@@ -786,7 +796,7 @@ with DumbAware {
           }
 
           expr.expectedTypeEx(fromUnderscore) match {
-            case Some((tp: ScType, _)) if tp equiv Unit => //do nothing
+            case Some((tp: ScType, _)) if tp equiv psi.types.Unit => //do nothing
             case Some((tp: ScType, typeElement)) => {
               import org.jetbrains.plugins.scala.lang.psi.types._
               val expectedType = Success(tp, None)
@@ -877,7 +887,7 @@ with DumbAware {
         val annotation: Annotation = holder.createErrorAnnotation(ret.returnKeyword, error)
         annotation.setHighlightType(ProblemHighlightType.LIKE_UNKNOWN_SYMBOL)
       }
-      case _ if !fun.hasAssign || fun.returnType.exists(_ == Unit) => {
+      case _ if !fun.hasAssign || fun.returnType.exists(_ == psi.types.Unit) => {
         return
       }
       case _ => fun.returnTypeElement match {
@@ -885,12 +895,12 @@ with DumbAware {
           import org.jetbrains.plugins.scala.lang.psi.types._
           val funType = fun.returnType
           funType match {
-            case Success(tp: ScType, _) if tp equiv Unit => return //nothing to check
+            case Success(tp: ScType, _) if tp equiv psi.types.Unit => return //nothing to check
             case _ =>
           }
           val ExpressionTypeResult(_, importUsed, _) = ret.expr match {
             case Some(e: ScExpression) => e.getTypeAfterImplicitConversion()
-            case None => ExpressionTypeResult(Success(Unit, None), Set.empty, None)
+            case None => ExpressionTypeResult(Success(psi.types.Unit, None), Set.empty, None)
           }
           ImportTracker.getInstance(ret.getProject).registerUsedImports(ret.getContainingFile.asInstanceOf[ScalaFile], importUsed)
         }
@@ -922,9 +932,9 @@ with DumbAware {
 }
 
 object ScalaAnnotator {
-  val ignoreHighlightingKey: Key[(Long, HashSet[TextRange])] = Key.create("ignore.highlighting.key")
+  val ignoreHighlightingKey: Key[(Long, mutable.HashSet[TextRange])] = Key.create("ignore.highlighting.key")
 
-  val usedImportsKey: Key[HashSet[ImportUsed]] = Key.create("used.imports.key")
+  val usedImportsKey: Key[mutable.HashSet[ImportUsed]] = Key.create("used.imports.key")
 
   /**
    * This method will return checked conformance if it's possible to check it.

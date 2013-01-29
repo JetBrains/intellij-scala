@@ -12,6 +12,7 @@ import codeInspection.varCouldBeValInspection.ValToVarQuickFix
 import lang.psi.ScalaPsiUtil
 import com.intellij.psi.{PsiClass, PsiMethod, PsiField}
 import extensions.toPsiMemberExt
+import lang.resolve.ResolvableReferenceExpression
 
 /**
  * Pavel.Fatin, 31.05.2010
@@ -26,6 +27,7 @@ trait AssignmentAnnotator {
       case call: ScMethodCall =>
       case ref: ScReferenceExpression =>
         ref.bind() match {
+          case Some(r) if r.isDynamic && r.name == ResolvableReferenceExpression.UPDATE_DYNAMIC => //ignore
           case Some(r) if !r.isNamedParameter =>
             def checkVariable() {
               left.getType(TypingContext.empty).foreach { lType =>
