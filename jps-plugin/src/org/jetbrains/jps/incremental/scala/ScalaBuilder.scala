@@ -17,11 +17,9 @@ import messages.{FileDeletedEvent, CompilerMessage, ProgressMessage}
 import org.jetbrains.jps.incremental.scala.data.CompilationData
 import org.jetbrains.jps.incremental.scala.data.CompilerData
 import org.jetbrains.jps.incremental.scala.data.SbtData
-import org.jetbrains.jps.indices.ModuleExcludeIndex
 import collection.JavaConverters._
 import _root_.scala.util.control.Exception._
 import org.jetbrains.jps.incremental.ModuleLevelBuilder.{OutputConsumer, ExitCode}
-import org.jetbrains.jps.model.java.JavaSourceRootType
 import local.LocalServer
 import remote.RemoteServer
 
@@ -79,7 +77,7 @@ class ScalaBuilder extends ModuleLevelBuilder(BuilderCategory.TRANSLATOR) {
     }
 
     context.processMessage(new ProgressMessage("Searching for compilable files..."))
-    val filesToCompile = ScalaBuilder.collectCompilableFiles(chunk, context.getProjectDescriptor.getModuleExcludeIndex)
+    val filesToCompile = ScalaBuilder.collectCompilableFiles(context, chunk)
 
     if (filesToCompile.isEmpty) {
       return ExitCode.NOTHING_DONE
@@ -170,13 +168,19 @@ object ScalaBuilder {
     result
   }
 
-  private def collectCompilableFiles(chunk: ModuleChunk, index: ModuleExcludeIndex): Map[File, BuildTarget[_ <: BuildRootDescriptor]] = {
+  private def collectCompilableFiles(context: CompileContext,chunk: ModuleChunk): Map[File, BuildTarget[_ <: BuildRootDescriptor]] = {
     var result = Map[File, BuildTarget[_ <: BuildRootDescriptor]]()
 
-    for (target <- chunk.getTargets.asScala; root <- sourceRootsIn(target)) {
-      FileUtil.processFilesRecursively(root, new Processor[File] {
+    val project = context.getProjectDescriptor
+
+    val rootIndex = project.getBuildRootIndex
+    val excludeIndex = project.getModuleExcludeIndex
+
+    for (target <- chunk.getTargets.asScala;
+         root <- rootIndex.getTargetRoots(target, context).asScala) {
+      FileUtil.processFilesRecursively(root.getRootFile, new Processor[File] {
         def process(file: File) = {
-          if (!index.isExcluded(file)) {
+          if (!excludeIndex.isExcluded(file)) {
             val path = file.getPath
             if (path.endsWith(".scala") || path.endsWith(".java")) {
               result += file -> target
@@ -188,14 +192,6 @@ object ScalaBuilder {
     }
 
     result
-  }
-
-  private def sourceRootsIn(target:  ModuleBuildTarget): Seq[File] = {
-    val roots = {
-      val rootType = if (target.isTests) JavaSourceRootType.TEST_SOURCE else JavaSourceRootType.SOURCE;
-      target.getModule.getSourceRoots(rootType).asScala
-    }
-    roots.map(_.getFile).toSeq
   }
 
   private def moduleDependenciesIn(context: CompileContext, target: ModuleBuildTarget): Seq[ModuleBuildTarget] = {
