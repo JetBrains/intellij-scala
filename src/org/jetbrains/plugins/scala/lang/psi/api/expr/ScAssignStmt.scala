@@ -5,7 +5,7 @@ package api
 package expr
 
 import com.intellij.psi.{PsiField, PsiElement}
-import resolve.ScalaResolveResult
+import resolve.{ResolvableReferenceExpression, ScalaResolveResult}
 import statements.ScVariable
 import statements.params.ScClassParameter
 
@@ -77,6 +77,26 @@ trait ScAssignStmt extends ScExpression {
         }
       }
     }
+  }
+
+  def isDynamicNamedAssignment: Boolean = {
+    getContext match {
+      case context@(_: ScTuple | _: ScParenthesisedExpr | _: ScArgumentExprList) =>
+        context.getContext match {
+          case m: MethodInvocation if m.argumentExpressions.contains(this) =>
+            m.getEffectiveInvokedExpr match {
+              case r: ScReferenceExpression =>
+                r.bind() match {
+                  case Some(r) if r.isDynamic && r.name == ResolvableReferenceExpression.APPLY_DYNAMIC_NAMED => return true
+                  case _ =>
+                }
+              case _ =>
+            }
+          case _ =>
+        }
+      case _ =>
+    }
+    false
   }
 }
 

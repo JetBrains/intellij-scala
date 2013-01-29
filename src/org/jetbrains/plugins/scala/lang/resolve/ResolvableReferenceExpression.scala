@@ -73,26 +73,27 @@ trait ResolvableReferenceExpression extends ScReferenceExpression {
     val actualProcessor = ref.qualifier match {
       case None =>
         resolveUnqalified(ref, processor)
-        processor
       case Some(superQ : ScSuperReference) =>
         ResolveUtils.processSuperReference(superQ, processor, this)
         processor
       case Some(q) =>
-        processTypes(q, processor)
+        processTypes(ref, q, processor)
     }
     val res = actualProcessor.rrcandidates
     if (accessibilityCheck && res.length == 0) return doResolve(ref, processor, accessibilityCheck = false)
     res
   }
-  private def resolveUnqalified(ref: ResolvableReferenceExpression, processor: BaseProcessor) {
+  private def resolveUnqalified(ref: ResolvableReferenceExpression, processor: BaseProcessor): BaseProcessor = {
     ref.getContext match {
       case inf: ScInfixExpr if ref == inf.operation => {
         val thisOp = if (ref.rightAssoc) inf.rOp else inf.lOp
-        processTypes(thisOp, processor)
+        processTypes(ref, thisOp, processor)
       }
-      case postf: ScPostfixExpr if ref == postf.operation => processTypes(postf.operand, processor)
-      case pref: ScPrefixExpr if ref == pref.operation => processTypes(pref.operand, processor)
-      case _ => resolveUnqualifiedExpression(ref, processor)
+      case postf: ScPostfixExpr if ref == postf.operation => processTypes(ref, postf.operand, processor)
+      case pref: ScPrefixExpr if ref == pref.operation => processTypes(ref, pref.operand, processor)
+      case _ =>
+        resolveUnqualifiedExpression(ref, processor)
+        processor
     }
   }
 
@@ -150,6 +151,9 @@ trait ResolvableReferenceExpression extends ScReferenceExpression {
                              ref: ResolvableReferenceExpression, assign: PsiElement, processor: BaseProcessor) {
     for (variant <- callReference.multiResolve(false)) {
       def processResult(r: ScalaResolveResult) = r match {
+        case ScalaResolveResult(fun: ScFunction, subst) if r.isDynamic &&
+          fun.name == ResolvableReferenceExpression.APPLY_DYNAMIC_NAMED =>
+          //Just ignore it
         case ScalaResolveResult(fun: ScFunction, subst: ScSubstitutor) => {
           if (!processor.isInstanceOf[CompletionProcessor])
             fun.getParamByName(ref.refName, invocationCount - 1) match { //todo: why -1?
@@ -327,27 +331,28 @@ trait ResolvableReferenceExpression extends ScReferenceExpression {
     }
   }
 
-  private def processTypes(e: ScExpression, processor: BaseProcessor): BaseProcessor = {
+  private def processTypes(reference: ScReferenceExpression, e: ScExpression, processor: BaseProcessor): BaseProcessor = {
     ProgressManager.checkCanceled()
     //first of all, try nonValueType.internalType
     val nonValueType = e.getNonValueType(TypingContext.empty)
     nonValueType match {
       case Success(ScTypePolymorphicType(internal, tp), _) if !tp.isEmpty &&
         !internal.isInstanceOf[ScMethodType] && !internal.isInstanceOf[ScUndefinedType] /* optimization */ =>
-        processType(internal, e, processor)
+        processType(internal, reference, e, processor)
         if (!processor.candidates.isEmpty) return processor
       case _ =>
     }
     //if it's ordinar case
     val result = e.getType(TypingContext.empty)
     if (result.isDefined) {
-      processType(result.get, e, processor)
+      processType(result.get, reference, e, processor)
     } else {
       processor
     }
   }
 
-  private def processType(aType: ScType, e: ScExpression, processor: BaseProcessor): BaseProcessor = {
+  private def processType(aType: ScType, reference: ScReferenceExpression, e: ScExpression,
+                          processor: BaseProcessor): BaseProcessor = {
     val shape = processor match {
       case m: MethodResolveProcessor => m.isShapeResolve
       case _ => false
@@ -391,13 +396,14 @@ trait ResolvableReferenceExpression extends ScReferenceExpression {
       collectImplicits(e, processor, noImplicitsForArgs)
 
       if (processor.candidates.length == 0)
-        return processDynamic(fromType, e, processor)
+        return processDynamic(fromType, reference, e, processor)
     }
 
     processor
   }
 
-  private def processDynamic(aType: ScType, e: ScExpression, baseProcessor: BaseProcessor): BaseProcessor = {
+  private def processDynamic(aType: ScType, reference: ScReferenceExpression, e: ScExpression,
+                             baseProcessor: BaseProcessor): BaseProcessor = {
     val dynamicType = {
       val cachedClass = ScalaPsiManager.instance(getProject).getCachedClass(getResolveScope, "scala.Dynamic")
       ScDesignatorType(cachedClass)
@@ -406,13 +412,36 @@ trait ResolvableReferenceExpression extends ScReferenceExpression {
     if (aType.conforms(dynamicType)) {
       baseProcessor match {
         case mrp: MethodResolveProcessor =>
-          val callOption = e.contexts.toStream.lift(1).flatMap(_.asOptionOf[MethodInvocation])
+          val callOption = reference.getContext match {
+            case m: MethodInvocation => Some(m)
+            case _ => None
+          }
           val argumentExpressions = callOption.map(_.argumentExpressions)
           val emptyStringExpression = ScalaPsiElementFactory.createExpressionFromText("\"\"", e.getManager)
-          val name = if (callOption.isDefined) "applyDynamic" else "selectDynamic"
+          import ResolvableReferenceExpression._
+          val name = callOption match {
+            case Some(call) =>
+              call.argumentExpressions.find {
+                case a: ScAssignStmt =>
+                  a.getLExpression match {
+                    case r: ScReferenceExpression if r.qualifier.isEmpty => true
+                    case _ => false
+                  }
+                case _ => false
+              } match {
+                case Some(_) => APPLY_DYNAMIC_NAMED
+                case _ => APPLY_DYNAMIC
+              }
+            case _ =>
+              reference.getContext match {
+                case a: ScAssignStmt if a.getLExpression == reference => UPDATE_DYNAMIC
+                case _ => SELECT_DYNAMIC
+              }
+          }
+          val isNamed = name.endsWith(NAMED)
 
           val newProcessor = new MethodResolveProcessor(e, name , List(List(emptyStringExpression),
-            argumentExpressions.getOrElse(Seq.empty)), mrp.typeArgElements, mrp.prevTypeInfo, mrp.kinds, mrp.expectedOption,
+            argumentExpressions.toSeq.flatten), mrp.typeArgElements, mrp.prevTypeInfo, mrp.kinds, mrp.expectedOption,
             mrp.isUnderscore, mrp.isShapeResolve, mrp.constructorResolve, mrp.noImplicitsForArgs,
             mrp.enableTupling, mrp.selfConstructorResolve, isDynamic = true)
 
@@ -463,4 +492,12 @@ trait ResolvableReferenceExpression extends ScReferenceExpression {
     state = state.put(BaseProcessor.FROM_TYPE_KEY, t)
     processor.processType(t, e, state)
   }
+}
+
+object ResolvableReferenceExpression {
+  val APPLY_DYNAMIC_NAMED = "applyDynamicNamed"
+  val APPLY_DYNAMIC = "applyDynamic"
+  val SELECT_DYNAMIC = "selectDynamic"
+  val UPDATE_DYNAMIC = "updateDynamic"
+  val NAMED = "Named"
 }

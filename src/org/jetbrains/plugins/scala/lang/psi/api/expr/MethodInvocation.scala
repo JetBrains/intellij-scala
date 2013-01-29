@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.lang.psi.api.expr
 import org.jetbrains.plugins.scala.lang.psi.types.result.{TypingContext, Success, TypeResult}
 import org.jetbrains.plugins.scala.lang.psi.types._
 import nonvalue.{TypeParameter, Parameter, ScMethodType, ScTypePolymorphicType}
-import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
+import org.jetbrains.plugins.scala.lang.psi.{types, ScalaPsiElement, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil
 import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.Expression
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil._
@@ -14,6 +14,9 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTrait
 import com.intellij.openapi.util.Key
 import org.jetbrains.plugins.scala.lang.languageLevel.ScalaLanguageLevel
+import org.jetbrains.plugins.scala.lang.resolve.ResolvableReferenceExpression
+import scala.collection
+import scala.collection
 
 /**
  * Pavel Fatin, Alexander Podkhalyuzin.
@@ -149,7 +152,7 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
 
     if (useExpectedType) nonValueType = updateAccordingToExpectedType(nonValueType, check = true)
 
-    def checkConformance(retType: ScType, psiExprs: Seq[ScExpression], parameters: Seq[Parameter]) = {
+    def checkConformance(retType: ScType, psiExprs: Seq[Expression], parameters: Seq[Parameter]) = {
       tuplizyCase(psiExprs) { t =>
         val result = Compatibility.checkConformanceExt(checkNames = true, parameters = parameters, exprs = t,
           checkWithImplicits = true, isShapesResolve = false)
@@ -157,16 +160,15 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
       }
     }
 
-    def checkConformanceWithInference(retType: ScType, psiExprs: Seq[ScExpression],
+    def checkConformanceWithInference(retType: ScType, psiExprs: Seq[Expression],
                                       typeParams: Seq[TypeParameter], parameters: Seq[Parameter]) = {
       tuplizyCase(psiExprs) { t =>
         localTypeInferenceWithApplicabilityExt(retType, parameters, t, typeParams, safeCheck = withExpectedType)
       }
     }
 
-    def tuplizyCase(psiExprs: Seq[ScExpression])
+    def tuplizyCase(exprs: Seq[Expression])
                    (fun: (Seq[Expression]) => (ScType, scala.Seq[ApplicabilityProblem], Seq[(Parameter, ScExpression)])): ScType = {
-      val exprs = psiExprs.map(Expression(_))
       val c = fun(exprs)
       def tail: ScType = {
         setApplicabilityProblemsVar(c._2)
@@ -220,7 +222,7 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
       }
     }
 
-    def checkApplication(tpe: ScType, args: Seq[ScExpression]): Option[ScType] = mapToFunction(tpe) match {
+    def checkApplication(tpe: ScType, args: Seq[Expression]): Option[ScType] = mapToFunction(tpe) match {
       case ScFunctionType(retType: ScType, params: Seq[ScType]) =>
         Some(checkConformance(retType, args, functionParams(params)))
       case ScMethodType(retType, params, _) =>
@@ -234,10 +236,41 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
 
     val invokedType: ScType = nonValueType.getOrElse(return nonValueType)
 
-    var res: ScType = checkApplication(invokedType, argumentExpressions).getOrElse {
+    def args(includeUpdateCall: Boolean = false): Seq[Expression] = {
+      def default: Seq[ScExpression] =
+        if (includeUpdateCall) argumentExpressionsIncludeUpdateCall
+        else  argumentExpressions
+      getEffectiveInvokedExpr match {
+        case ref: ScReferenceExpression =>
+          ref.bind() match {
+            case Some(r) if r.isDynamic && r.name == ResolvableReferenceExpression.APPLY_DYNAMIC_NAMED =>
+              default.map {expr =>
+                val actualExpr = expr match {
+                  case a: ScAssignStmt =>
+                    a.getLExpression match {
+                      case ref: ScReferenceExpression if ref.qualifier.isEmpty => a.getRExpression.getOrElse(expr)
+                      case _ => expr
+                    }
+                  case _ => expr
+                }
+                new Expression(actualExpr) {
+                  override def getTypeAfterImplicitConversion(checkImplicits: Boolean, isShape: Boolean,
+                                                              expectedOption: Option[ScType]): (TypeResult[ScType], collection.Set[ImportUsed]) = {
+                    val (res, imports) = super.getTypeAfterImplicitConversion(checkImplicits, isShape, expectedOption)
+                    val str = ScalaPsiManager.instance(getProject).getCachedClass(getResolveScope, "java.lang.String")
+                    val stringType = if (str != null) ScType.designator(str) else types.Any
+                    (res.map(tp => new ScTupleType(Seq(stringType, tp))(getProject, getResolveScope)), imports)
+                  }
+                }}
+            case _ => default
+          }
+        case _ => default
+      }
+    }
+    var res: ScType = checkApplication(invokedType, args()).getOrElse {
       var (processedType, importsUsed, implicitFunction, applyOrUpdateElement) =
         ScalaPsiUtil.processTypeForUpdateOrApply(invokedType, this, isShape = false).getOrElse {
-          (Nothing, Set.empty[ImportUsed], None, this.applyOrUpdateElement)
+          (types.Nothing, Set.empty[ImportUsed], None, this.applyOrUpdateElement)
         }
       if (useExpectedType) {
         updateAccordingToExpectedType(Success(processedType, None)).foreach(x => processedType = x)
@@ -245,7 +278,7 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
       setApplyOrUpdate(applyOrUpdateElement)
       setImportsUsed(importsUsed)
       setImplicitFunction(implicitFunction)
-      checkApplication(processedType, argumentExpressionsIncludeUpdateCall).getOrElse {
+      checkApplication(processedType, args(includeUpdateCall = true)).getOrElse {
         setApplyOrUpdate(None)
         setApplicabilityProblemsVar(Seq(new DoesNotTakeParameters))
         setMatchedParametersVar(Seq())
