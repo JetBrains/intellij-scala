@@ -11,6 +11,7 @@ import org.jetbrains.jps.builders.java.JavaModuleBuildTargetType
 import org.jetbrains.jps.model.java.JpsJavaExtensionService
 import org.jetbrains.jps.model.java.LanguageLevel._
 import org.jetbrains.jps.model.module.JpsModule
+import java.util.Collections
 
 /**
  * @author Pavel Fatin
@@ -107,17 +108,25 @@ object CompilationData {
   }
 
   private def createOutputToCacheMap(context: CompileContext): Either[String, Map[File, File]] = {
-    val targetToOutput = {
-      val buildTargetIndex = context.getProjectDescriptor.getBuildTargetIndex
-      val targets = JavaModuleBuildTargetType.ALL_TYPES.asScala.flatMap(buildTargetIndex.getAllTargets(_).asScala)
-      targets.map(target => (target, target.getOutputDir))
-    }
+    val targetToOutput = targetsIn(context).map(target => (target, target.getOutputDir))
 
     outputClashesIn(targetToOutput).toLeft {
       val paths = context.getProjectDescriptor.dataManager.getDataPaths
 
       for ((target, output) <- targetToOutput.toMap)
       yield (output, new File(paths.getTargetDataRoot(target), "cache.dat"))
+    }
+  }
+
+  private def targetsIn(context: CompileContext): Seq[ModuleBuildTarget] = {
+    val targets = {
+      val buildTargetIndex = context.getProjectDescriptor.getBuildTargetIndex
+      JavaModuleBuildTargetType.ALL_TYPES.asScala.flatMap(buildTargetIndex.getAllTargets(_).asScala)
+    }
+
+    targets.filterNot { target =>
+      val chunk = new ModuleChunk(Collections.singleton(target))
+      ChunkExclusionService.isExcluded(chunk)
     }
   }
 
@@ -132,7 +141,7 @@ object CompilationData {
 
     if (errors.isEmpty) None else Some(errors.mkString("\n") +
             "\nCurrently external Scala compiler prohibits output path sharing." +
-            "\nEither disable the external build mode or configure separated output paths." +
+            "\nEither disable the external build mode or configure separate output paths." +
             "\nTIP: you can use Project Artifacts to combine compiled classes.")
   }
 }
