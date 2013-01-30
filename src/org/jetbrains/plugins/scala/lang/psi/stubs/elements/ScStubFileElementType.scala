@@ -29,7 +29,7 @@ class ScStubFileElementType(lang: Language) extends IStubFileElementWrapper[Scal
     val compiled = dataStream.readBoolean
     val packName = dataStream.readName
     val fileName = dataStream.readName
-    return new ScFileStubImpl(null, packName, fileName, compiled, script)
+    new ScFileStubImpl(null, packName, fileName, compiled, script)
   }
 
   override def serialize(stub: ScFileStub, dataStream: StubOutputStream): Unit = {
