@@ -39,7 +39,7 @@ class ScModifiersElementType[Func <: ScModifierList](debugName: String)
     val explicitModifiers = dataStream.readBoolean()
     val num = dataStream.readByte
     val modifiers = new Array[String](num)
-    for (i <- 1 to num) modifiers(i-1) = dataStream.readName.toString
+    for (i <- 0 until num) modifiers(i) = dataStream.readName.toString
     new ScModifiersStubImpl(parentStub.asInstanceOf[StubElement[PsiElement]], this, modifiers, explicitModifiers)
   }
 

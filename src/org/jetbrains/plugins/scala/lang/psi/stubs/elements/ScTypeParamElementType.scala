@@ -79,7 +79,7 @@ class ScTypeParamElementType[Func <: ScTypeParam]
   }
 
   def serialiseArray(dataStream: StubOutputStream, ref: Array[String]) {
-    dataStream.writeInt(ref.size)
+    dataStream.writeInt(ref.length)
     for (r <- ref) dataStream.writeName(r)
   }
 }
