@@ -519,7 +519,7 @@ object ResolveUtils {
                 case _ => place.getResolveScope
               }
               val classes: Array[PsiClass] = manager.getCachedClasses(scope, fqn)
-              for (clazz <- classes) {
+              for (clazz <- classes if clazz.containingClass == null) {
                 if (!processor.execute(clazz, state)) return false
               }
             }
@@ -548,7 +548,7 @@ object ResolveUtils {
               val iterator = manager.getClasses(pack, scope).iterator
               while (iterator.hasNext) {
                 val clazz = iterator.next()
-                if (!processor.execute(clazz, state)) return false
+                if (clazz.containingClass == null && !processor.execute(clazz, state)) return false
               }
             }
 
