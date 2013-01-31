@@ -16,7 +16,7 @@ import types.result.{Failure, TypeResult, TypingContext}
 import types._
 import api.ScalaElementVisitor
 import caches.CachesUtil
-import com.intellij.psi.util.PsiModificationTracker
+import com.intellij.psi.util.{PsiTreeUtil, PsiModificationTracker}
 import lang.resolve.processor.CompletionProcessor
 import lang.resolve.StdKinds
 
@@ -254,4 +254,17 @@ class ScForStatementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
       case None => failure
     }
   }
+
+  def getLeftParenthesis = {
+    val leftParenthesis = findChildByType(ScalaTokenTypes.tLPARENTHESIS)
+    val e = if (leftParenthesis != null) PsiTreeUtil.getNextSiblingOfType(leftParenthesis, classOf[PsiElement]) else null
+    if (e == null) None else Some(e)
+  }
+
+  def getRightParenthesis = {
+    val rightParenthesis = findChildByType(ScalaTokenTypes.tRPARENTHESIS)
+    val e = if (rightParenthesis != null) PsiTreeUtil.getNextSiblingOfType(rightParenthesis, classOf[PsiElement]) else null
+    if (e == null) None else Some(e)
+  }
+
 }

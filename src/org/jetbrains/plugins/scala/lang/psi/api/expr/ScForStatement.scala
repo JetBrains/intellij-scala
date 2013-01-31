@@ -5,6 +5,7 @@ package api
 package expr
 
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
+import com.intellij.psi.PsiElement
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -23,5 +24,7 @@ trait ScForStatement extends ScExpression {
   def enumerators: Option[ScEnumerators]
   def patterns: Seq[ScPattern]
   def body: Option[ScExpression] = findChild(classOf[ScExpression])
+  def getLeftParenthesis : Option[PsiElement]
+  def getRightParenthesis : Option[PsiElement]
   override def accept(visitor: ScalaElementVisitor) = visitor.visitForExpression(this)
 }

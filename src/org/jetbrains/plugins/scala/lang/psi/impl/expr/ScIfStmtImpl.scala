@@ -12,7 +12,7 @@ import api.expr._
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.lang.ASTNode
 import types.result.{TypingContext, Success, Failure}
-import com.intellij.psi.PsiElementVisitor
+import com.intellij.psi.{PsiElement, PsiElementVisitor}
 import api.ScalaElementVisitor
 
 /**
@@ -51,6 +51,18 @@ class ScIfStmtImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScIfStm
   def elseBranch = {
     val kElse = findChildByType(ScalaTokenTypes.kELSE)
     val e = if (kElse != null) PsiTreeUtil.getNextSiblingOfType(kElse, classOf[ScExpression]) else null
+    if (e == null) None else Some(e)
+  }
+
+  def getLeftParenthesis = {
+    val leftParenthesis = findChildByType(ScalaTokenTypes.tLPARENTHESIS)
+    val e = if (leftParenthesis != null) PsiTreeUtil.getNextSiblingOfType(leftParenthesis, classOf[PsiElement]) else null
+    if (e == null) None else Some(e)
+  }
+
+  def getRightParenthesis = {
+    val rightParenthesis = findChildByType(ScalaTokenTypes.tRPARENTHESIS)
+    val e = if (rightParenthesis != null) PsiTreeUtil.getNextSiblingOfType(rightParenthesis, classOf[PsiElement]) else null
     if (e == null) None else Some(e)
   }
 
