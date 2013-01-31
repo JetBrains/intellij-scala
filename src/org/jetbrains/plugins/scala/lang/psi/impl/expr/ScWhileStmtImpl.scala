@@ -11,7 +11,7 @@ import com.intellij.lang.ASTNode
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import types.result.{TypingContext, Success}
-import com.intellij.psi.PsiElementVisitor
+import com.intellij.psi.{PsiElement, PsiElementVisitor}
 import api.ScalaElementVisitor
 
 /**
@@ -39,6 +39,19 @@ class ScWhileStmtImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScWh
     val c = if (rpar != null) PsiTreeUtil.getNextSiblingOfType(rpar, classOf[ScExpression]) else null
     if (c == null) None else Some(c)
   }
+
+  def getLeftParenthesis = {
+    val leftParenthesis = findChildByType(ScalaTokenTypes.tLPARENTHESIS)
+    val e = if (leftParenthesis != null) PsiTreeUtil.getNextSiblingOfType(leftParenthesis, classOf[PsiElement]) else null
+    if (e == null) None else Some(e)
+  }
+
+  def getRightParenthesis = {
+    val rightParenthesis = findChildByType(ScalaTokenTypes.tRPARENTHESIS)
+    val e = if (rightParenthesis != null) PsiTreeUtil.getNextSiblingOfType(rightParenthesis, classOf[PsiElement]) else null
+    if (e == null) None else Some(e)
+  }
+
 
 
   protected override def innerType(ctx: TypingContext) = Success(types.Unit, Some(this))
