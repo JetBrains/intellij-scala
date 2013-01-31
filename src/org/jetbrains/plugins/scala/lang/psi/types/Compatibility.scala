@@ -185,7 +185,7 @@ object Compatibility {
           }
         }
         case Expression(assign@NamedAssignStmt(name)) => {
-          val ind = parameters.indexWhere(_.name == name)
+          val ind = parameters.indexWhere(p => ScalaPsiUtil.memberNamesEquals(p.name, name))
           if (ind == -1 || used(ind) == true) {
             def extractExpression(assign: ScAssignStmt): ScExpression = {
               if (ScUnderScoreSectionUtil.isUnderscoreFunction(assign)) assign
