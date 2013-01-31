@@ -168,7 +168,7 @@ abstract class AbstractTestRunConfiguration(val project: Project,
           case SearchForTest.ACCROSS_MODULE_DEPENDENCIES if getModule != null =>
             var scope: GlobalSearchScope = mScope(getModule)
             for (module <- ModuleManager.getInstance(getProject).getModules) {
-              if (ModuleManager.getInstance(getProject).isModuleDependent(module, getModule)) {
+              if (ModuleManager.getInstance(getProject).isModuleDependent(getModule, module)) {
                 scope = scope.union(mScope(module))
               }
             }
@@ -205,7 +205,7 @@ abstract class AbstractTestRunConfiguration(val project: Project,
             val buffer = new ArrayBuffer[Module]()
             buffer += getModule
             for (module <- ModuleManager.getInstance(getProject).getModules) {
-              if (ModuleManager.getInstance(getProject).isModuleDependent(module, getModule)) {
+              if (ModuleManager.getInstance(getProject).isModuleDependent(getModule, module)) {
                 buffer += module
               }
             }
