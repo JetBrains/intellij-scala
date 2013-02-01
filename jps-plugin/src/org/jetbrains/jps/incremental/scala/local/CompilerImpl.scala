@@ -11,6 +11,7 @@ import sbt.inc.{Analysis, AnalysisStore, Locate}
 import xsbti._
 import org.jetbrains.jps.incremental.messages.BuildMessage.Kind
 import xsbti.api.SourceAPI
+import com.intellij.openapi.diagnostic.{Logger => JpsLogger}
 
 /**
  * @author Pavel Fatin
@@ -69,6 +70,20 @@ class CompilerImpl(javac: JavaCompiler, scalac: Option[AnalyzingCompiler], fileT
   }
 }
 
+private object CompilerImpl {
+  private val Log = JpsLogger.getInstance(classOf[CompilerImpl])
+
+  private val MaxLineLength = 500
+
+  private def trim(line: String) =
+    if (line.length > MaxLineLength) line.substring(0, MaxLineLength) + "..." else line
+
+  def log(message: String) {
+    val lines = message.split('\n').map(CompilerImpl.trim)
+    CompilerImpl.Log.info("\n\n" + lines.mkString("\n") + "\n")
+  }
+}
+
 private class ClientLogger(client: Client) extends Logger {
   def error(msg: F0[String]) {
     client.error(msg())
@@ -79,12 +94,12 @@ private class ClientLogger(client: Client) extends Logger {
   }
 
   def info(msg: F0[String]) {
-    //    client.info(msg())
     client.progress(msg())
   }
 
   def debug(msg: F0[String]) {
-    //    client.info(msg())
+    // TODO remove SBT debug messages logging later
+    CompilerImpl.log(msg().trim)
   }
 
   def trace(exception: F0[Throwable]) {
