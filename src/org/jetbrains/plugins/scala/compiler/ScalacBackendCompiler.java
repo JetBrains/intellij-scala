@@ -300,6 +300,15 @@ public class ScalacBackendCompiler extends ExternalCompiler {
     String javaExecutablePath = sdkType.getVMExecutablePath(jdk);
     commandLine.add(javaExecutablePath);
 
+    // We should not launch Scalac on Java files only,
+    // yet the initial filtering in IDEA (which uses ScalaCompiler.isCompilableFile)
+    // is done on production and test sources combined (while Scalac can be launched twice).
+    // Because there's no way to interrupt a started compilation,
+    // we return a command line to launch a bare Java command as a "compilation" process.
+    if (!ScalaCompiler.containsScalaFiles(chunk.getFilesToCompile())) {
+      return;
+    }
+
     ScalacSettings settings = ScalacSettings.getInstance(myProject);
 
     //For debug

@@ -30,6 +30,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile;
 import scala.Option;
 
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * @author ven, ilyas, Pavel Fatin
@@ -94,7 +95,23 @@ public class ScalaCompiler implements TranslatingCompiler {
     });
   }
 
+  static boolean containsScalaFiles(Iterable<VirtualFile> files) {
+    for (VirtualFile file : files) {
+      final FileType fileType = FILE_TYPE_MANAGER.getFileTypeByFile(file);
+      if (ScalaFileType.SCALA_FILE_TYPE.equals(fileType)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   public void compile(CompileContext context, Chunk<Module> moduleChunk, VirtualFile[] files, OutputSink sink) {
+    final List<VirtualFile> filesToCompile = Arrays.asList(files);
+
+    if (!containsScalaFiles(filesToCompile)) {
+      return;
+    }
+
     Project project = context.getProject();
 
     ScalacSettings settings = ScalacSettings.getInstance(project);
@@ -106,7 +123,7 @@ public class ScalaCompiler implements TranslatingCompiler {
 
     final BackendCompiler backEndCompiler = getBackEndCompiler();
 
-    final BackendCompilerWrapper wrapper = new BackendCompilerWrapper(moduleChunk, myProject, Arrays.asList(files),
+    final BackendCompilerWrapper wrapper = new BackendCompilerWrapper(moduleChunk, myProject, filesToCompile,
         (CompileContextEx) context, backEndCompiler, sink);
     try {
       wrapper.compile();
