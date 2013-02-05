@@ -469,6 +469,8 @@ object Conformance {
         return
       }
 
+      if (x == types.Nothing && r == types.Null) return (false, undefinedSubst)
+
       rightVisitor = new NothingNullVisitor with TypeParameterTypeVisitor {}
       r.visitType(rightVisitor)
       if (result != null) return
@@ -1458,8 +1460,17 @@ object Conformance {
       checkEquiv()
       if (result != null) return
 
+      trait TypeParameterTypeNothingNullVisitor extends NothingNullVisitor {
+        override def visitStdType(x: StdType) {
+          if (x eq types.Nothing) result = (true, undefinedSubst)
+          else if (x eq types.Null) {
+            result = conformsInner(tpt1.lower.v, r, HashSet.empty, undefinedSubst)
+          }
+        }
+      }
+
       rightVisitor = new ExistentialSimplification with SkolemizeVisitor
-        with ParameterizedSkolemizeVisitor with OtherNonvalueTypesVisitor with NothingNullVisitor with DesignatorVisitor {}
+        with ParameterizedSkolemizeVisitor with OtherNonvalueTypesVisitor with TypeParameterTypeNothingNullVisitor with DesignatorVisitor {}
       r.visitType(rightVisitor)
       if (result != null) return
 
