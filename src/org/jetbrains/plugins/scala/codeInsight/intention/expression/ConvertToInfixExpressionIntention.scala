@@ -27,7 +27,7 @@ class ConvertToInfixExpressionIntention extends PsiElementBaseIntentionAction {
   override def getText: String = getFamilyName
 
   def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean = {
-    if (!IntentionAvailabilityChecker.check(this, element)) return false
+    if (!IntentionAvailabilityChecker.checkIntention(this, element)) return false
     val methodCallExpr : ScMethodCall = PsiTreeUtil.getParentOfType(element, classOf[ScMethodCall], false)
     if (methodCallExpr == null) return false
     if (!methodCallExpr.getInvokedExpr.isInstanceOf[ScReferenceExpression]) return false

@@ -7,7 +7,7 @@ package expressions
 import lexer.ScalaTokenTypes
 import patterns.CaseClauses
 import builder.ScalaPsiBuilder
-import util.ParserUtils
+import parser.util.{ParserPatcher, ParserUtils}
 import types.Path
 
 /**
@@ -63,6 +63,9 @@ object Expr1 {
             builder error ErrMsg("condition.expected")
           }
         }
+
+        ParserPatcher getSuitablePatcher builder parse builder
+        
         if (!Expr.parse(builder)) {
           builder error ErrMsg("wrong.expression")
         }

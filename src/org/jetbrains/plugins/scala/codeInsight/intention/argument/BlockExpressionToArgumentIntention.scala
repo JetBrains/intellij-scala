@@ -22,7 +22,7 @@ class BlockExpressionToArgumentIntention extends PsiElementBaseIntentionAction {
   def isAvailable(project: Project, editor: Editor, element: PsiElement) = {
     element match {
       case Both(Parent(block: ScBlockExpr), Parent(Parent(list: ScArgumentExprList)))
-        if list.exprs.size == 1 && block.caseClauses.isEmpty => IntentionAvailabilityChecker.check(this, element)
+        if list.exprs.size == 1 && block.caseClauses.isEmpty => IntentionAvailabilityChecker.checkIntention(this, element)
       case _ => false
     }
   }
