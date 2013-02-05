@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.util;
 
 import com.intellij.codeInsight.intention.impl.BaseIntentionAction;
+import com.intellij.codeInspection.InspectionProfileEntry;
 import com.intellij.openapi.extensions.ExtensionPointName;
 import com.intellij.psi.PsiElement;
 
@@ -17,6 +18,10 @@ abstract public class IntentionAvailabilityChecker {
     return true;
   }
   
+  public boolean isInspectionAvailable(InspectionProfileEntry inspection, PsiElement psiElement) {
+    return true;
+  }
+  
   public boolean canCheck(PsiElement psiElement) {
     return false;
   }
@@ -29,7 +34,11 @@ abstract public class IntentionAvailabilityChecker {
     return defaultChecker;
   }
   
-  public static boolean check(BaseIntentionAction intention,  PsiElement psiElement) {
+  public static boolean checkIntention(BaseIntentionAction intention, PsiElement psiElement) {
     return getChecker(psiElement).isIntentionAvailable(intention, psiElement);
+  }
+  
+  public static boolean checkInspection(InspectionProfileEntry inspection, PsiElement psiElement) {
+    return getChecker(psiElement).isInspectionAvailable(inspection, psiElement);
   }
 }
