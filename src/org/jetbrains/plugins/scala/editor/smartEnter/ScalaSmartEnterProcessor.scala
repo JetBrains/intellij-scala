@@ -5,7 +5,8 @@ import com.intellij.codeInsight.editorActions.smartEnter._
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.editor.{Document, RangeMarker, Editor}
 import com.intellij.psi._
-import fixers.{Fixer, IfConditionFixer, ForStatementFixer, WhileConditionFixer, BlockBraceFixer}
+import fixers.{Fixer, IfConditionFixer, ForStatementFixer, WhileConditionFixer, BlockBraceFixer, CatchDeclarationFixer, MethodCallFixer, MissingCatchBodyFixer,
+MissingIfBranchesFixer, MissingMethodBodyFixer, BodyFixer, MissingThrowExpressionFixer, ParameterListFixer, ParenthesizedFixer, MissingWhileBodyFixer, MissingForBodyFixer}
 import java.util
 import com.intellij.codeInsight.lookup.LookupManager
 import com.intellij.util.IncorrectOperationException
@@ -13,16 +14,17 @@ import com.intellij.codeInsight.CodeInsightUtil
 import com.intellij.openapi.util.Key
 import com.intellij.featureStatistics.FeatureUsageTracker
 import java.lang.String
+import java.lang.Long
 import com.intellij.util.text.CharArrayUtil
 import com.intellij.psi.codeStyle.{CodeStyleSettingsManager, CodeStyleSettings}
 import com.intellij.psi.util.PsiTreeUtil
-import lang.psi.api.expr.{ScBlock, ScForStatement}
+import lang.psi.api.expr.{ScExpression, ScBlock, ScForStatement}
 import com.intellij.openapi.editor.ex.EditorEx
 import com.intellij.openapi.editor.actionSystem.{EditorActionManager, EditorActionHandler}
 import com.intellij.openapi.actionSystem.IdeActions
 import lang.psi.api.toplevel.templates.ScTemplateBody
-import lang.psi.api.toplevel.imports.ScImportExpr
 import com.intellij.openapi.diagnostic.Logger
+import lang.psi.api.toplevel.imports.ScImportExpr
 
 /**
  * @author Ksenia.Sautina
@@ -32,21 +34,41 @@ import com.intellij.openapi.diagnostic.Logger
 object ScalaSmartEnterProcessor {
   private val LOG = Logger.getInstance(getClass)
   private final var ourFixers: Array[Fixer] = null
+  private final var ourEnterProcessors: Array[EnterProcessor] = null
 
   val fixers = new util.ArrayList[Fixer]
   fixers.add(new IfConditionFixer)
   fixers.add(new ForStatementFixer)
   fixers.add(new WhileConditionFixer)
   fixers.add(new BlockBraceFixer)
+//  fixers.add(new CatchDeclarationFixer)
+  fixers.add(new MethodCallFixer)
+//  fixers.add(new MissingCatchBodyFixer)
+//  fixers.add(new MissingIfBranchesFixer)
+//  fixers.add(new MissingWhileBodyFixer)
+//  fixers.add(new MissingForBodyFixer)
+  fixers.add(new MissingMethodBodyFixer)
+//  fixers.add(new BodyFixer)
+//  fixers.add(new MissingThrowExpressionFixer)
+  fixers.add(new ParameterListFixer)
+//  fixers.add(new ParenthesizedFixer)
 
   ourFixers = fixers.toArray(new Array[Fixer](fixers.size))
+
+  val processors = new util.ArrayList[EnterProcessor]
+  processors.add(new PlainEnterProcessor)
+  processors.add(new CommentBreakerEnterProcessor)
+  processors.add(new LeaveCodeBlockEnterProcessor)
+
+  ourEnterProcessors = processors.toArray(new Array[EnterProcessor](processors.size))
 }
 
 class ScalaSmartEnterProcessor extends SmartEnterProcessor {
   private var myFirstErrorOffset: Int = Integer.MAX_VALUE
   private var mySkipEnter: Boolean = false
   private final val MAX_ATTEMPTS: Int = 20
-  private final val SMART_ENTER_TIMESTAMP = Key.create("smartEnterOriginalTimestamp")
+
+  private final val SMART_ENTER_TIMESTAMP: Key[Long]  = Key.create("smartEnterOriginalTimestamp")
 
   class TooManyAttemptsException extends Exception {
   }
@@ -58,7 +80,7 @@ class ScalaSmartEnterProcessor extends SmartEnterProcessor {
     val textForRollback: String = document.getText
 
     try {
-//      editor.putUserData(SMART_ENTER_TIMESTAMP, editor.getDocument.getModificationStamp)
+      editor.putUserData(SMART_ENTER_TIMESTAMP, editor.getDocument.getModificationStamp.asInstanceOf[Long])
       myFirstErrorOffset = Integer.MAX_VALUE
       mySkipEnter = false
       process(project, editor, psiFile, 0)
@@ -69,12 +91,12 @@ class ScalaSmartEnterProcessor extends SmartEnterProcessor {
       }
     }
     finally {
-//      editor.putUserData(SMART_ENTER_TIMESTAMP, null)
+      editor.putUserData(SMART_ENTER_TIMESTAMP, null)
     }
     true
   }
 
-  private def process(project: Project, editor: Editor,file: PsiFile, attempt: Int) {
+  private def process(project: Project, editor: Editor, file: PsiFile, attempt: Int) {
     if (attempt > MAX_ATTEMPTS) throw new TooManyAttemptsException
 
     try {
@@ -151,16 +173,19 @@ class ScalaSmartEnterProcessor extends SmartEnterProcessor {
       return
     }
     atCaret = CodeInsightUtil.findElementInRange(psiFile, rangeMarker.getStartOffset, rangeMarker.getEndOffset, atCaret.getClass)
+    for (processor <- ScalaSmartEnterProcessor.ourEnterProcessors) {
+      if (atCaret != null && processor.doEnter(editor, atCaret, isModified(editor))) return
+    }
     if (!isModified(editor)) {
       plainEnter(editor)
     }
     else {
-//      if (myFirstErrorOffset == Integer.MAX_VALUE) {
-//        editor.getCaretModel.moveToOffset(rangeMarker.getEndOffset)
-//      }
-//      else {
-//        editor.getCaretModel.moveToOffset(myFirstErrorOffset)
-//      }
+      if (myFirstErrorOffset == Integer.MAX_VALUE) {
+        editor.getCaretModel.moveToOffset(rangeMarker.getEndOffset)
+      }
+      else {
+        editor.getCaretModel.moveToOffset(myFirstErrorOffset)
+      }
     }
   }
 
@@ -173,31 +198,29 @@ class ScalaSmartEnterProcessor extends SmartEnterProcessor {
     }
     val children: Array[PsiElement] = atCaret.getChildren
     for (child <- children) {
-      //todo filter extra elements
       collectAllElements(child, res, recourse)
     }
   }
 
   private def doNotStepInto(element: PsiElement): Boolean = {
-//    todo check types
     element.isInstanceOf[PsiClass] || element.isInstanceOf[PsiStatement] || element.isInstanceOf[PsiMethod]
   }
 
-  //todo types
   protected override def getStatementAtCaret(editor: Editor, psiFile: PsiFile): PsiElement = {
-    val atCaret: PsiElement = super.getStatementAtCaret(editor, psiFile)
+        val atCaret: PsiElement = super.getStatementAtCaret(editor, psiFile)
     if (atCaret.isInstanceOf[PsiWhiteSpace]) return null
-    var statementAtCaret: PsiElement = PsiTreeUtil.getParentOfType(atCaret, classOf[PsiStatement],classOf[PsiMember], classOf[PsiComment])
+    if (("}" == atCaret.getText) && !(atCaret.getParent.isInstanceOf[PsiArrayInitializerExpression])) return null
+    var statementAtCaret: PsiElement = PsiTreeUtil.getParentOfType(atCaret, classOf[PsiMember], classOf[ScExpression], classOf[PsiComment], classOf[ScImportExpr])
     if (statementAtCaret.isInstanceOf[PsiBlockStatement]) return null
     if (statementAtCaret != null && statementAtCaret.getParent.isInstanceOf[ScForStatement]) {
       if (!PsiTreeUtil.hasErrorElements(statementAtCaret)) {
         statementAtCaret = statementAtCaret.getParent
       }
     }
-    if (statementAtCaret.isInstanceOf[PsiStatement] || statementAtCaret.isInstanceOf[PsiMember]) statementAtCaret else null
+    if (statementAtCaret.isInstanceOf[ScExpression] || statementAtCaret.isInstanceOf[PsiComment] || statementAtCaret.isInstanceOf[ScImportExpr] || statementAtCaret.isInstanceOf[PsiMember]) statementAtCaret else null
   }
 
-  protected def moveCaretInsideBracesIfAny(editor: Editor, file: PsiFile) {
+    protected def moveCaretInsideBracesIfAny(editor: Editor, file: PsiFile) {
     var caretOffset: Int = editor.getCaretModel.getOffset
     val chars: CharSequence = editor.getDocument.getCharsSequence
     if (CharArrayUtil.regionMatches(chars, caretOffset, "{}")) {
@@ -212,7 +235,6 @@ class ScalaSmartEnterProcessor extends SmartEnterProcessor {
       val settings: CodeStyleSettings = CodeStyleSettingsManager.getSettings(file.getProject)
       val old: Boolean = settings.KEEP_SIMPLE_BLOCKS_IN_ONE_LINE
       settings.KEEP_SIMPLE_BLOCKS_IN_ONE_LINE = false
-      //todo type
       val elt: PsiElement = PsiTreeUtil.getParentOfType(file.findElementAt(caretOffset - 1), classOf[ScBlock])
       reformat(elt)
       settings.KEEP_SIMPLE_BLOCKS_IN_ONE_LINE = old
