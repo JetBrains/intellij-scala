@@ -397,7 +397,7 @@ class ScUndefinedSubstitutor(val upperMap: Map[(String, String), HashSet[ScType]
   def addUpper(name: Name, _upper: ScType, additional: Boolean = false, variance: Int = 1): ScUndefinedSubstitutor = {
     var index = 0
     val upper =
-      _upper match {
+      (_upper match {
         case ScAbstractType(_, lower, absUpper) if variance == 0 => absUpper // lower will be added separately
         case _ =>
           _upper.recursiveVarianceUpdate((tp: ScType, i: Int) => {
@@ -406,7 +406,7 @@ class ScUndefinedSubstitutor(val upperMap: Map[(String, String), HashSet[ScType]
                 i match {
                   case -1 => (true, lower)
                   case 1 => (true, absUpper)
-                  case 0 => (true, absUpper/*ScSkolemizedType(s"_$$${index += 1; index}", Nil, lower, absUpper)*/) //todo: why this is right?
+                  case 0 => (true, ScSkolemizedType(s"_$$${index += 1; index}", Nil, lower, absUpper)) //todo: why this is right?
                 }
               case ScSkolemizedType(_, _, lower, skoUpper) =>
                 i match {
@@ -417,7 +417,7 @@ class ScUndefinedSubstitutor(val upperMap: Map[(String, String), HashSet[ScType]
               case _ => (false, tp)
             }
           }, variance)
-      }
+      }).unpackedType
     val uMap = if (additional) upperAdditionalMap else upperMap
     uMap.get(name) match {
       case Some(set: HashSet[ScType]) =>

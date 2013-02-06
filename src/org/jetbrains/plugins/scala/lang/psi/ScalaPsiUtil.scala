@@ -522,6 +522,8 @@ object ScalaPsiUtil {
           collectParts(lower, place)
           collectParts(upper, place)
         }
+        case ScExistentialType(quant, _) =>
+          collectParts(quant, place)
         case _=> {
           ScType.extractClass(tp, projectOpt) match {
             case Some(pair) =>
@@ -746,9 +748,10 @@ object ScalaPsiUtil {
                          typeParams: Seq[TypeParameter],
                          shouldUndefineParameters: Boolean = true,
                          safeCheck: Boolean = false,
-                         filterTypeParams: Boolean = true): ScTypePolymorphicType = {
+                         filterTypeParams: Boolean = true,
+                         checkAnyway: Boolean = false): ScTypePolymorphicType = {
     localTypeInferenceWithApplicability(retType, params, exprs, typeParams, shouldUndefineParameters, safeCheck,
-      filterTypeParams)._1
+      filterTypeParams, checkAnyway)._1
   }
 
 
@@ -760,9 +763,10 @@ object ScalaPsiUtil {
                                           typeParams: Seq[TypeParameter],
                                           shouldUndefineParameters: Boolean = true,
                                           safeCheck: Boolean = false,
-                                          filterTypeParams: Boolean = true): (ScTypePolymorphicType, Seq[ApplicabilityProblem]) = {
+                                          filterTypeParams: Boolean = true,
+                                          checkAnyway: Boolean = false): (ScTypePolymorphicType, Seq[ApplicabilityProblem]) = {
     val (tp, problems, _) = localTypeInferenceWithApplicabilityExt(retType, params, exprs, typeParams,
-      shouldUndefineParameters, safeCheck, filterTypeParams)
+      shouldUndefineParameters, safeCheck, filterTypeParams, checkAnyway)
     (tp, problems)
   }
 
@@ -770,7 +774,8 @@ object ScalaPsiUtil {
                                              typeParams: Seq[TypeParameter],
                                              shouldUndefineParameters: Boolean = true,
                                              safeCheck: Boolean = false,
-                                             filterTypeParams: Boolean = true
+                                             filterTypeParams: Boolean = true,
+                                             checkAnyway: Boolean = false
     ): (ScTypePolymorphicType, Seq[ApplicabilityProblem], Seq[(Parameter, ScExpression)]) = {
     // See SCL-3052, SCL-3058
     // This corresponds to use of `isCompatible` in `Infer#methTypeArgs` in scalac, where `isCompatible` uses `weak_<:<`
@@ -822,7 +827,7 @@ object ScalaPsiUtil {
                   upper = unSubst.subst(upper)
               }
 
-              if (safeCheck && !undefiningSubstitutor.subst(lower).conforms(undefiningSubstitutor.subst(upper), true))
+              if (safeCheck && !undefiningSubstitutor.subst(lower).conforms(undefiningSubstitutor.subst(upper), checkWeak = true))
                 throw new SafeCheckException
               TypeParameter(tp.name, lower, upper, tp.ptp)
             }))
@@ -866,6 +871,7 @@ object ScalaPsiUtil {
                   !un.names.contains(name)
                 }.map(tp => TypeParameter(tp.name, unSubst.subst(tp.lowerType), unSubst.subst(tp.upperType), tp.ptp)))
               case _ =>
+                if (checkAnyway) throw new SafeCheckException
                 ScTypePolymorphicType(unSubst.subst(retType), typeParams.filter {case tp =>
                   val name = (tp.name, ScalaPsiUtil.getPsiElementId(tp.ptp))
                   !un.names.contains(name)
