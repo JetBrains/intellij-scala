@@ -33,6 +33,7 @@ class RemoveRedundantReturnInspection extends AbstractInspection("ScalaRedundant
 
 class RemoveReturnKeywordQuickFix(ret: ScReturnStmt, expr: ScExpression) extends LocalQuickFix {
   def applyFix(project: Project, descriptor: ProblemDescriptor) {
+    if (!ret.isValid || !expr.isValid) return
     ret.replace(expr.copy())
   }
 
