@@ -209,7 +209,9 @@ class ScForStatementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
         if (text == "") None
         else {
           try {
-            Some(ScalaPsiElementFactory.createExpressionWithContextFromText(text, this.getContext, this))
+            ScalaPsiUtil.disablePsiBuilderLogger {
+              Some(ScalaPsiElementFactory.createExpressionWithContextFromText(text, this.getContext, this))
+            }
           }
           catch {
             case e: Throwable => None

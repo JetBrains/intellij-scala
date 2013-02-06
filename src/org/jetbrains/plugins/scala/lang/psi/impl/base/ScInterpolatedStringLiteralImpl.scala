@@ -12,6 +12,7 @@ import lang.psi.impl.ScalaPsiElementFactory
 import caches.CachesUtil
 import com.intellij.psi.util.PsiModificationTracker
 import lang.lexer.ScalaTokenTypes
+import lang.psi.ScalaPsiUtil
 
 
 /**
@@ -54,8 +55,10 @@ class ScInterpolatedStringLiteralImpl(node: ASTNode) extends ScLiteralImpl(node)
   def getStringContextExpression: Option[ScExpression] = {
     def getExpandedExprBuilder(l: ScInterpolatedStringLiteral) = {
       val params = l.getInjections.map(_.getText).mkString("(", ",", ")")
-      Option(ScalaPsiElementFactory.createExpressionWithContextFromText(s"StringContext(str).${getFirstChild.getText}$params",
-        node.getPsi.getContext, node.getPsi))
+      ScalaPsiUtil.disablePsiBuilderLogger {
+        Option(ScalaPsiElementFactory.createExpressionWithContextFromText(s"StringContext(str).${getFirstChild.getText}$params",
+          node.getPsi.getContext, node.getPsi))
+      }
     }
 
     CachesUtil.get(this, CachesUtil.STRING_CONTEXT_EXPANDED_EXPR_KEY,

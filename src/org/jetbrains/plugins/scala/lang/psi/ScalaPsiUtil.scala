@@ -1638,6 +1638,16 @@ object ScalaPsiUtil {
     }
   }
 
+  def disablePsiBuilderLogger[T](body: => T): T = {
+    val logger = diagnostic.Logger.getInstance(classOf[PsiBuilderImpl])
+    logger.setLevel(Level.OFF)
+    try {
+      body
+    } finally {
+      logger.setLevel(null)
+    }
+  }
+
   /** Creates a synthetic parameter clause based on view and context bounds */
   def syntheticParamClause(paramOwner: ScTypeParametersOwner, paramClauses: ScParameters, classParam: Boolean): Option[ScParameterClause] = {
     if (paramOwner == null) return None
@@ -1674,9 +1684,7 @@ object ScalaPsiUtil {
     if (params.isEmpty) None
     else {
       val fullClauseText: String = "(implicit " + clauseText + ")"
-      val logger = diagnostic.Logger.getInstance(classOf[PsiBuilderImpl])
-      logger.setLevel(Level.OFF)
-      try {
+      disablePsiBuilderLogger {
         val paramClause: ScParameterClause = {
           if (classParam) ScalaPsiElementFactory.createImplicitClassParamClauseFromTextWithContext(fullClauseText, paramOwner.getManager, paramClauses)
           else ScalaPsiElementFactory.createImplicitClauseFromTextWithContext(fullClauseText, paramOwner.getManager, paramClauses)
@@ -1688,8 +1696,6 @@ object ScalaPsiUtil {
             ()
         }
         Some(paramClause)
-      } finally {
-        logger.setLevel(null)
       }
     }
   }
