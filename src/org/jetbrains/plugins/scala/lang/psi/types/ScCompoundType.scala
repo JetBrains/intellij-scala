@@ -8,6 +8,8 @@ import result.{TypingContext, Failure}
 import collection.mutable.{ListBuffer, HashMap}
 import com.intellij.psi.PsiClass
 import extensions.toPsiClassExt
+import lang.psi
+import collection.mutable
 
 /**
  * Substitutor should be meaningful only for decls and typeDecls. Components shouldn't be applied by substitutor.
@@ -19,8 +21,8 @@ case class ScCompoundType(components: Seq[ScType], decls: Seq[ScDeclaredElements
   }
 
   private[types] def this(components: Seq[ScType], decls: Seq[ScDeclaredElementsHolder],
-           typeDecls: Seq[ScTypeAlias], subst: ScSubstitutor, signatureMap: HashMap[Signature, ScType],
-            typesMap: HashMap[String, (ScType, ScType)], problems: List[Failure]) {
+           typeDecls: Seq[ScTypeAlias], subst: ScSubstitutor, signatureMap: mutable.HashMap[Signature, ScType],
+            typesMap: mutable.HashMap[String, (ScType, ScType)], problems: List[Failure]) {
     this(components, decls, typeDecls, subst)
     isInitialized = true
     signatureMapVal ++= signatureMap
@@ -31,14 +33,14 @@ case class ScCompoundType(components: Seq[ScType], decls: Seq[ScDeclaredElements
   type Bounds = Pair[ScType, ScType]
 
   //compound types are checked by checking the set of signatures in their refinements
-  val signatureMapVal: HashMap[Signature, ScType] = new HashMap[Signature, ScType] {
+  val signatureMapVal: mutable.HashMap[Signature, ScType] = new mutable.HashMap[Signature, ScType] {
     override def elemHashCode(s : Signature) = s.name.hashCode * 31 + {
       val length = s.paramLength
       if (length.sum == 0) List(0).hashCode()
       else length.hashCode()
     }
   }
-  private val typesVal = new HashMap[String, Bounds]
+  private val typesVal = new mutable.HashMap[String, Bounds]
   private val problemsVal: ListBuffer[Failure] = new ListBuffer
 
   def problems: ListBuffer[Failure] = {
@@ -77,7 +79,7 @@ case class ScCompoundType(components: Seq[ScType], decls: Seq[ScDeclaredElements
                 val varType = te.getType(TypingContext.empty(varDecl.declaredElements))
                 varType match {case f@Failure(_, _) => problemsVal += f; case _ =>}
                 signatureMapVal += ((new Signature(e.name, Stream.empty, 0, subst, Some(e)), varType.getOrAny))
-                signatureMapVal += ((new Signature(e.name + "_=", Stream(varType.getOrAny), 1, subst, Some(e)), Unit)) //setter
+                signatureMapVal += ((new Signature(e.name + "_=", Stream(varType.getOrAny), 1, subst, Some(e)), psi.types.Unit)) //setter
               }
               case None =>
             }
@@ -95,8 +97,8 @@ case class ScCompoundType(components: Seq[ScType], decls: Seq[ScDeclaredElements
     }
   }
 
-  def typesMatch(types1 : HashMap[String, Bounds], subst1: ScSubstitutor,
-                         types2 : HashMap[String, Bounds], subst2: ScSubstitutor): Boolean = {
+  def typesMatch(types1 : mutable.HashMap[String, Bounds], subst1: ScSubstitutor,
+                         types2 : mutable.HashMap[String, Bounds], subst2: ScSubstitutor): Boolean = {
     if (types1.size != types.size) false
     else {
       for ((name, bounds1) <- types1) {
@@ -193,8 +195,13 @@ case class ScCompoundType(components: Seq[ScType], decls: Seq[ScDeclaredElements
       case _ =>
         if (decls.length == 0 && typeDecls.length == 0) {
           val filtered = components.filter {
-            case Any | AnyRef => false
-            case ScDesignatorType(obj: PsiClass) if obj.qualifiedName == "java.lang.Object" => false
+            case psi.types.Any => false
+            case psi.types.AnyRef =>
+              if (!r.conforms(psi.types.AnyRef)) return (false, undefinedSubst)
+              false
+            case ScDesignatorType(obj: PsiClass) if obj.qualifiedName == "java.lang.Object" =>
+              if (!r.conforms(psi.types.AnyRef)) return (false, undefinedSubst)
+              false
             case _ => true
           }
           if (filtered.length == 1) Equivalence.equivInner(filtered(0), r, undefinedSubst, falseUndef)

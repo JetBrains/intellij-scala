@@ -110,7 +110,7 @@ trait ScType {
             case 1 => (true, upper)
             case 0 => (true, ScSkolemizedType(s"_$$${index += 1; index}", Nil, lower, upper))
           }
-        case _ => (true, tp)
+        case _ => (false, tp)
       }
     }, variance).unpackedType
   }
