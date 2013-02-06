@@ -17,11 +17,7 @@ class ConvertStringConcatenationToInterpolatedString extends AbstractFormatConve
   "Convert to interpolated string", StringConcatenationParser, InterpolatedStringFormatter, eager = true) {
 
   override def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean = {
-    val fileIndex: ProjectFileIndex = ProjectRootManager.getInstance(project).getFileIndex
-    val currentModule: Module = fileIndex.getModuleForFile(element.getContainingFile.getVirtualFile)
-    val languageLevel = ScalaFacet.findIn(currentModule).map(_.languageLevel).getOrElse(null)
-    if (languageLevel == null || languageLevel == ScalaLanguageLevel.SCALA2_9) return false
-
-    super.isAvailable(project: Project, editor: Editor, element: PsiElement)
+    if (!super.isAvailable(project: Project, editor: Editor, element: PsiElement)) return false
+    ScalaLanguageLevel.getLanguageLevel(element).isThoughScala2_10
   }
 }
