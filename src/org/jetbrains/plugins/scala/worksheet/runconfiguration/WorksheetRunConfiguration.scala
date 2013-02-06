@@ -393,11 +393,17 @@ class WorksheetRunConfiguration(val project: Project, val configurationFactory: 
 
       override def execute(executor: Executor, runner: ProgramRunner[_ <: JDOMExternalizable]): ExecutionResult = {
         val file = new File(getWorksheetField)
+        if (file == null) {
+          throw new RuntimeConfigurationException("Worksheet is not specified: file doesn't exist.")
+        }
         val virtualFile = LocalFileSystem.getInstance.refreshAndFindFileByIoFile(file)
         if (virtualFile == null) {
           throw new ExecutionException("Worksheet is not specified. File is not found.")
         }
         val psiFile: PsiFile = PsiManager.getInstance(project).asInstanceOf[PsiManagerEx].getFileManager.getCachedPsiFile(virtualFile)
+        if (psiFile == null) {
+          throw new RuntimeConfigurationException("Worksheet is not specified: there is no cached file.")
+        }
 
         val processHandler = startProcess
         val runnerSettings = getRunnerSettings
