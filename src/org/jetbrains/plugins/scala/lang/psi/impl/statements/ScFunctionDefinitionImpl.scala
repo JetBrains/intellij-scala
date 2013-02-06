@@ -172,7 +172,7 @@ class ScFunctionDefinitionImpl extends ScFunctionImpl with ScFunctionDefinition 
         val builder = new ScalaControlFlowBuilder(null, null)
         myControlFlow = builder.buildControlflow(e)
       }
-      case _ =>
+      case _ => myControlFlow = Seq.empty
     }
     myControlFlow
   }
