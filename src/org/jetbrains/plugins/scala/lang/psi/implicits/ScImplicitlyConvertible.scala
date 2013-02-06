@@ -9,7 +9,7 @@ import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.util.Key
 import com.intellij.psi.util.{PsiTreeUtil, CachedValue, PsiModificationTracker}
 import types._
-import _root_.scala.collection.Set
+import collection.{mutable, Set}
 import com.intellij.psi._
 import collection.mutable.ArrayBuffer
 import api.base.patterns.ScBindingPattern
@@ -77,7 +77,7 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
   (Seq[(ScType, PsiNamedElement, Set[ImportUsed], ScSubstitutor)], Seq[PsiNamedElement], Seq[PsiNamedElement]) = {
     import collection.mutable.HashSet
     val buffer = new ArrayBuffer[(ScType, PsiNamedElement, Set[ImportUsed], ScSubstitutor)]
-    val seen = new HashSet[PsiNamedElement]
+    val seen = new mutable.HashSet[PsiNamedElement]
     val firstPart = new ArrayBuffer[PsiNamedElement]
     val secondPart = new ArrayBuffer[PsiNamedElement]
     for (elem <- implicitMapFirstPart(exp, fromUnder, exprType)) {
@@ -212,7 +212,7 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
     treeWalkUp(this, null)
 
     val result = new ArrayBuffer[(ScalaResolveResult, ScType, ScType, ScSubstitutor, ScUndefinedSubstitutor)]
-    if (typez == Nothing) return result
+    if (typez == types.Nothing) return result
     if (typez.isInstanceOf[ScUndefinedType]) return result
 
     val sigsFound = processor.candidatesS.map(forMap(_, typez))
@@ -227,6 +227,7 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
 
   def forMap(r: ScalaResolveResult, typez: ScType): (Boolean, ScalaResolveResult, ScType, ScType, ScSubstitutor,
                                                      ScUndefinedSubstitutor) = { //todo: extract case class
+  val default = (false, r, null: ScType, null: ScType, null: ScSubstitutor, null: ScUndefinedSubstitutor)
     if (!PsiTreeUtil.isContextAncestor(ScalaPsiUtil.nameContext(r.element), this, false)) { //to prevent infinite recursion
       ProgressManager.checkCanceled()
       lazy val funType: ScParameterizedType = {
@@ -245,30 +246,30 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
            subst.subst(f.returnType.getOrNothing))
         }
         case f: ScFunction => {
-          Conformance.undefinedSubst(funType, subst.subst(f.returnType.get)).getSubstitutor match {
+          Conformance.undefinedSubst(funType, subst.subst(f.returnType.getOrElse(return default))).getSubstitutor match {
             case Some(innerSubst) => (innerSubst.subst(funType.typeArgs.apply(0)), innerSubst.subst(funType.typeArgs.apply(1)))
-            case _ => (Nothing, Nothing)
+            case _ => (types.Nothing, types.Nothing)
           }
         }
         case b: ScBindingPattern => {
-          Conformance.undefinedSubst(funType, subst.subst(b.getType(TypingContext.empty).get)).getSubstitutor match {
+          Conformance.undefinedSubst(funType, subst.subst(b.getType(TypingContext.empty).getOrElse(return default))).getSubstitutor match {
             case Some(innerSubst) => (innerSubst.subst(funType.typeArgs.apply(0)), innerSubst.subst(funType.typeArgs.apply(1)))
-            case _ => (Nothing, Nothing)
+            case _ => (types.Nothing, types.Nothing)
           }
         }
         case param: ScParameter => {
           // View Bounds and Context Bounds are processed as parameters.
-          Conformance.undefinedSubst(funType, subst.subst(param.getType(TypingContext.empty).get)).
+          Conformance.undefinedSubst(funType, subst.subst(param.getType(TypingContext.empty).getOrElse(return default))).
                   getSubstitutor match {
             case Some(innerSubst) => (innerSubst.subst(funType.typeArgs.apply(0)), innerSubst.subst(funType.typeArgs.apply(1)))
-            case _ => (Nothing, Nothing)
+            case _ => (types.Nothing, types.Nothing)
           }
         }
         case obj: ScObject => {
-          Conformance.undefinedSubst(funType, subst.subst(obj.getType(TypingContext.empty).get)).
+          Conformance.undefinedSubst(funType, subst.subst(obj.getType(TypingContext.empty).getOrElse(return default))).
                   getSubstitutor match {
             case Some(innerSubst) => (innerSubst.subst(funType.typeArgs.apply(0)), innerSubst.subst(funType.typeArgs.apply(1)))
-            case _ => (Nothing, Nothing)
+            case _ => (types.Nothing, types.Nothing)
           }
         }
       }
@@ -301,14 +302,14 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
                 }
                 for (tParam <- f.typeParameters) {
                   val lowerType: ScType = tParam.lowerBound.getOrNothing
-                  if (lowerType != Nothing) {
+                  if (lowerType != types.Nothing) {
                     val substedLower = unSubst.subst(subst.subst(lowerType))
                     if (!hasRecursiveTypeParameters(substedLower)) {
                       uSubst = uSubst.addLower((tParam.name, ScalaPsiUtil.getPsiElementId(tParam)), substedLower, additional = true)
                     }
                   }
                   val upperType: ScType = tParam.upperBound.getOrAny
-                  if (upperType != Any) {
+                  if (upperType != types.Any) {
                     val substedUpper = unSubst.subst(subst.subst(upperType))
                     if (!hasRecursiveTypeParameters(substedUpper)) {
                       uSubst = uSubst.addUpper((tParam.name, ScalaPsiUtil.getPsiElementId(tParam)), substedUpper, additional = true)
@@ -324,9 +325,7 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
             (true, r, tp, retTp, newSubst, null: ScUndefinedSubstitutor)
         }
       } //possible true
-    } else {
-      (false, r, null: ScType, null: ScType, null: ScSubstitutor, null: ScUndefinedSubstitutor)
-    }
+    } else default
   }
 
 
