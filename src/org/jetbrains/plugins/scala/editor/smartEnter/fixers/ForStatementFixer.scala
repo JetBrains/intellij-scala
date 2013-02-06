@@ -26,11 +26,6 @@ class ForStatementFixer extends Fixer {
         processor.registerUnresolvedError(textRange.getStartOffset + "for (".length)
         return
       }
-      val patterns = forStatement.patterns
-      if (patterns == null) {
-        processor.registerUnresolvedError(lParenth.getTextRange.getEndOffset)
-        return
-      }
     }
   }
 }
