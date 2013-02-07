@@ -290,9 +290,6 @@ with DumbAware {
       }
 
       override def visitTypeDefintion(typedef: ScTypeDefinition) {
-        if (typeAware && !compiled && typedef.getParent.isInstanceOf[ScTemplateBody]) {
-          checkOverrideTypes(typedef, holder)
-        }
         super.visitTypeDefintion(typedef)
       }
 
