@@ -18,6 +18,8 @@ class OptimizeImportsSimpleTest extends OptimizeImportsTestBase {
 
   def testDontSaveNotResolved = doTest
 
+  def testImportChainUsed = doTest
+
   def testLanguageFeatures = doTest
 
   def testNewLines = doTest

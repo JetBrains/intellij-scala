@@ -28,6 +28,7 @@ import lang.resolve.{StdKinds, ScalaResolveResult}
 import completion.ScalaCompletionUtil
 import caches.ScalaShortNamesCacheManager
 import util.PsiTreeUtil
+import annotation.tailrec
 
 /**
  * @author Alexander Podkhalyuzin
@@ -103,7 +104,17 @@ class ScImportStmtImpl extends ScalaStubBasedElementImpl[ScImportStmt] with ScIm
         val resolveIterator = resolve.iterator
         while (resolveIterator.hasNext) {
           val (elem, importsUsed, s) = resolveIterator.next() match {
-            case s: ScalaResolveResult => (s.getElement, s.importsUsed, s.substitutor)
+            case s: ScalaResolveResult =>
+              @tailrec
+              def getFirstReference(ref: ScStableCodeReferenceElement): ScStableCodeReferenceElement = {
+                ref.qualifier match {
+                  case Some(qual) => getFirstReference(qual)
+                  case _ => ref
+                }
+              }
+              (s.getElement,
+                getFirstReference(exprQual).bind().map(r => r.importsUsed ++ s.importsUsed).getOrElse(s.importsUsed),
+                s.substitutor)
             case r: ResolveResult => (r.getElement, Set[ImportUsed](), ScSubstitutor.empty)
           }
           if (elem.isInstanceOf[PsiPackage] && processor.isInstanceOf[CompletionProcessor] &&
