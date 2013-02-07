@@ -484,7 +484,7 @@ object MixinNodes {
         }).toSeq
       }
     }
-    
+
     generalLinearization(Some(clazz.getProject), tp, addTp = true, supers = supers)
   }
   
