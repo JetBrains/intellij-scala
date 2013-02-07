@@ -31,6 +31,16 @@ object Equivalence {
       return equivInner(l, r.getValType.get, subst, falseUndef)
     }
 
+    Conformance.isAliasType(r) match {
+      case Some(Conformance.AliasType(ta: ScTypeAliasDefinition, _, _)) => return r.equivInner(l, subst, falseUndef)
+      case _ =>
+    }
+
+    Conformance.isAliasType(l) match {
+      case Some(Conformance.AliasType(ta: ScTypeAliasDefinition, _, _)) => return l.equivInner(r, subst, falseUndef)
+      case _ =>
+    }
+
     (l, r) match {
       case (_, _: ScUndefinedType) => r.equivInner(l, subst, falseUndef)
       case (_: ScUndefinedType, _) => l.equivInner(r, subst, falseUndef)
@@ -39,11 +49,6 @@ object Equivalence {
       case (_: ScDesignatorType, _: ScThisType) => r.equivInner(l, subst, falseUndef)
       case (p: ScParameterizedType, _: ScFunctionType) => r.equivInner(l, subst, falseUndef)
       case (p: ScParameterizedType, _: ScTupleType) => r.equivInner(l, subst, falseUndef)
-      case (_, ScParameterizedType(proj: ScProjectionType, _))
-        if proj.actualElement.isInstanceOf[ScTypeAliasDefinition] => r.equivInner(l, subst, falseUndef)
-      case (_, ScParameterizedType(ScDesignatorType(_: ScTypeAliasDefinition), _)) =>
-        r.equivInner(l, subst, falseUndef)
-      case (_, ScDesignatorType(_: ScTypeAliasDefinition)) => r.equivInner(l, subst, falseUndef)
       case (_: ScParameterizedType, _: JavaArrayType) => r.equivInner(l, subst, falseUndef)
       case (_, proj: ScProjectionType) => r.equivInner(l, subst, falseUndef)
       case (_, proj: ScCompoundType) => r.equivInner(l, subst, falseUndef)
