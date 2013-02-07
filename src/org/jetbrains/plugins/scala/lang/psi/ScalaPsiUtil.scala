@@ -895,11 +895,11 @@ object ScalaPsiUtil {
       commonParent.getTextRange.getEndOffset == endOffset) {
       var parent = commonParent.getParent
       var prev = commonParent
-      if (parent == null) return Seq(prev)
+      if (parent == null || parent.getTextRange == null) return Seq(prev)
       while (parent.getTextRange.equalsToRange(prev.getTextRange.getStartOffset, prev.getTextRange.getEndOffset)) {
         prev = parent
         parent = parent.getParent
-        if (parent == null) return Seq(prev)
+        if (parent == null || parent.getTextRange == null) return Seq(prev)
       }
       return Seq(prev)
     }
