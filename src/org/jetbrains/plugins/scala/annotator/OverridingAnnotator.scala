@@ -81,11 +81,12 @@ trait OverridingAnnotator {
 
   def checkOverrideTypes(tp: ScNamedElement with ScModifierListOwner, holder: AnnotationHolder) {
     tp match {
-      case c: ScTypeDefinition =>
+      case c: ScTypeDefinition => return
       case a: ScTypeAlias =>
       case _ => return
     }
-    checkOverrideMembers(tp, tp, ScalaPsiUtil.superTypeMembers(tp, withSelfType = true), isConcreteElement, "Type", holder)
+    checkOverrideMembers(tp, tp, ScalaPsiUtil.superTypeMembers(tp, withSelfType = true).filter(_.isInstanceOf[ScTypeAlias]),
+      isConcreteElement, "Type", holder)
   }
   private def checkOverrideMembers[T <: ScNamedElement, Res](member: T,
                                                              owner: ScModifierListOwner,
