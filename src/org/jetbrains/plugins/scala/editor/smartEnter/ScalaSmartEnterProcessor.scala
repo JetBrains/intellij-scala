@@ -1,12 +1,17 @@
 package org.jetbrains.plugins.scala
 package editor.smartEnter
 
-import com.intellij.codeInsight.editorActions.smartEnter._
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.editor.{Document, RangeMarker, Editor}
 import com.intellij.psi._
-import fixers.{Fixer, IfConditionFixer, ForStatementFixer, WhileConditionFixer, BlockBraceFixer, CatchDeclarationFixer, MethodCallFixer, MissingCatchBodyFixer,
-MissingIfBranchesFixer, MissingMethodBodyFixer, BodyFixer, MissingThrowExpressionFixer, ParameterListFixer, ParenthesizedFixer, MissingWhileBodyFixer, MissingForBodyFixer}
+import fixers.BlockBraceFixer
+import fixers.Fixer
+import fixers.ForStatementFixer
+import fixers.IfConditionFixer
+import fixers.MethodCallFixer
+import fixers.MissingMethodBodyFixer
+import fixers.ParameterListFixer
+import fixers.WhileConditionFixer
 import java.util
 import com.intellij.codeInsight.lookup.LookupManager
 import com.intellij.util.IncorrectOperationException
@@ -25,6 +30,7 @@ import com.intellij.openapi.actionSystem.IdeActions
 import lang.psi.api.toplevel.templates.ScTemplateBody
 import com.intellij.openapi.diagnostic.Logger
 import lang.psi.api.toplevel.imports.ScImportExpr
+import com.intellij.codeInsight.editorActions.smartEnter._
 
 /**
  * @author Ksenia.Sautina
