@@ -501,7 +501,7 @@ public abstract class LayeredParser implements PsiParser {
 
       final FakeEndMarker endMarker = errorMessage == null ? new FakeEndMarker(startMarker, astElementType, tokenEndOffset)
           : new FakeEndWithErrorMarker(startMarker, astElementType, tokenEndOffset, errorMessage);
-      if (isDebugMode) startMarker.setEndMarker(endMarker);
+      startMarker.setEndMarker(endMarker);
       return endMarker;
     }
     
