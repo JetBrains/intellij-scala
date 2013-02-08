@@ -37,15 +37,15 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement;
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil;
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile;
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClauses;
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockExpr;
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression;
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScForStatement;
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScFunctionExpr;
+import org.jetbrains.plugins.scala.lang.psi.api.expr.*;
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScMacroDefinition;
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScExtendsBlock;
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject;
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTrait;
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition;
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager;
+import org.jetbrains.plugins.scala.lang.resolve.ResolvableReferenceElement;
+import org.jetbrains.plugins.scala.util.macroDebug.ScalaMacroDebuggingUtil;
 import scala.collection.Seq;
 
 import java.util.ArrayList;
@@ -108,6 +108,24 @@ public class ScalaPositionManager implements PositionManager {
 
     return (ScalaPsiElement) element;
   }
+  
+  private boolean isInsideMacro(SourcePosition position) {
+    PsiFile file = position.getFile();
+    PsiElement element = file.findElementAt(position.getOffset());
+    
+    while (element != null) {
+      if (element instanceof ScMethodCall) {
+        ScExpression invokedExpr = ((ScMethodCall) element).getEffectiveInvokedExpr();
+        if (invokedExpr instanceof ResolvableReferenceElement) {
+          if (((ResolvableReferenceElement) invokedExpr).resolve() instanceof ScMacroDefinition) return true;
+        }
+      }
+      
+      element = element.getParent();
+    }
+    
+    return false;
+  }
 
   private ScTypeDefinition findEnclosingTypeDefinition(SourcePosition position) {
     PsiFile file = position.getFile();
@@ -138,8 +156,17 @@ public class ScalaPositionManager implements PositionManager {
             return findReferenceTypeSourceImage(position);
           }
         });
+        Boolean insideMacro =
+            ScalaMacroDebuggingUtil.isEnabled() && ApplicationManager.getApplication().runReadAction(new Computable<Boolean>() {
+              public Boolean compute() {
+                return isInsideMacro(position);
+              }
+            });
+        
+        
         if (sourceImage instanceof ScTypeDefinition && !isLocalOrUnderDelayedInit((PsiClass) sourceImage)) {
-          qName.set(getSpecificName(((ScTypeDefinition) sourceImage).getQualifiedNameForDebugger(), ((ScTypeDefinition) sourceImage).getClass()));
+          final String specificName = getSpecificName(((ScTypeDefinition) sourceImage).getQualifiedNameForDebugger(), ((ScTypeDefinition) sourceImage).getClass());
+          qName.set(insideMacro? specificName + "*" : specificName);
         } else if (sourceImage instanceof ScFunctionExpr ||
             sourceImage instanceof ScForStatement ||
             sourceImage instanceof ScExtendsBlock ||
@@ -149,7 +176,7 @@ public class ScalaPositionManager implements PositionManager {
           ScTypeDefinition typeDefinition = findEnclosingTypeDefinition(position);
           if (typeDefinition != null) {
             final String fqn = typeDefinition.getQualifiedNameForDebugger();
-            qName.set(fqn + "$*");
+            qName.set(fqn + (insideMacro? "*" : "$*"));
           }
         }
         // Enclosing closure not found
@@ -234,7 +261,7 @@ public class ScalaPositionManager implements PositionManager {
 
     final Seq<PsiClass> classes = ScalaShortNamesCacheManager.getInstance(project).getClassesByFQName(qName, searchScope);
     PsiClass clazz = classes.length() == 1 ? classes.apply(0) : null;
-    if (clazz != null && clazz.isValid()) {
+    if (clazz != null && clazz.isValid() && !ScalaMacroDebuggingUtil.isEnabled()) {
       return clazz.getNavigationElement().getContainingFile();
     }
 
@@ -255,6 +282,13 @@ public class ScalaPositionManager implements PositionManager {
           VirtualFile vFile = vDir.findChild(fileName);
           if (vFile != null) {
             PsiFile psiFile = PsiManager.getInstance(project).findFile(vFile);
+            PsiFile debugFile = ScalaMacroDebuggingUtil.loadCode(psiFile, false);
+            
+            if (debugFile != null) {
+              result.set(debugFile);
+              return false;
+            }
+            
             if (psiFile instanceof ScalaFile) {
               result.set(psiFile);
               return false;

@@ -719,8 +719,8 @@ public abstract class LayeredParser implements PsiParser {
       FakeEndMarker endMarker = createEndMarker(doneMarker, astElementType, beforeTokenNum, errorMessage);
       insertMarkerBefore(endMarker, beforeMarker);
 
-      if (beforeTokenNum == beforeMarker.getMyTokenNum() || 
-          getValidTokenInfo(beforeMarker.getMyTokenNum()).getAllMarkers().get(0) != beforeMarker) {
+      final List<FakeMarker> allMarkers = getValidTokenInfo(beforeMarker.getMyTokenNum()).getAllMarkers();
+      if (beforeTokenNum == beforeMarker.getMyTokenNum() || (allMarkers != null && allMarkers.get(0) != beforeMarker)) {
         getValidTokenInfo(beforeTokenNum).addProductionMarker(endMarker);
         return;
       } 

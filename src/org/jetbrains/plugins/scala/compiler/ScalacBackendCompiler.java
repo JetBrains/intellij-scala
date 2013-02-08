@@ -40,6 +40,7 @@ import org.jetbrains.plugins.scala.config.CompilerLibraryData;
 import org.jetbrains.plugins.scala.config.Libraries;
 import org.jetbrains.plugins.scala.config.ScalaFacet;
 import org.jetbrains.plugins.scala.util.ScalaUtils;
+import org.jetbrains.plugins.scala.util.macroDebug.ScalaMacroDebuggingUtil;
 import scala.Option;
 import scala.io.Source;
 
@@ -421,6 +422,7 @@ public class ScalacBackendCompiler extends ExternalCompiler {
       printer.println(tokenizer.nextToken());
     }
     printer.println(VERBOSE_PROPERTY);
+    if (ScalaMacroDebuggingUtil.isEnabled()) printer.println("-Yrangepos");
 //    printer.println(DEBUG_PROPERTY);
     //printer.println(WARNINGS_PROPERTY);
 //    printer.println(DEBUG_INFO_LEVEL_PROPEERTY);

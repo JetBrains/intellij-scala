@@ -3,23 +3,25 @@ package org.jetbrains.plugins.scala.compiler;
 import com.intellij.compiler.OutputParser;
 import com.intellij.compiler.impl.javaCompiler.FileObject;
 import com.intellij.openapi.compiler.CompilerMessageCategory;
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.vfs.CharsetToolkit;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFileManager;
-import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.vfs.encoding.EncodingManager;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
-import static org.jetbrains.plugins.scala.compiler.ScalacOutputParser.MESSAGE_TYPE.*;
+import org.jetbrains.plugins.scala.util.macroDebug.ScalaMacroDebuggingUtil;
 
 import java.io.File;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
-import java.util.Set;
-import java.util.HashSet;
 import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import static org.jetbrains.plugins.scala.compiler.ScalacOutputParser.MESSAGE_TYPE.*;
 
 /**
  * @author ilyas
@@ -79,6 +81,9 @@ class ScalacOutputParser extends OutputParser {
   private ArrayList<String> myWrittenList = new ArrayList<String>();
   private final Object WRITTEN_LIST_LOCK = new Object();
   private static final Pattern SCALA_29_PATTERN = Pattern.compile("'.*' to (.+)");
+  
+  private String currentFileName = null;
+  private ArrayList<String> lastMacroCodeGotten = new ArrayList<String>();
 
   static enum MESSAGE_TYPE {
     ERROR, WARNING, PLAIN
@@ -112,6 +117,26 @@ class ScalacOutputParser extends OutputParser {
     myIsFirstLine = false;
 
     String text = line.trim();
+    
+    if (ScalaMacroDebuggingUtil.isEnabled() && text.startsWith(ScalaMacroDebuggingUtil.MACRO_SIGN_PREFIX())) {
+      currentFileName = text;
+      String codeLine = callback.getNextLine();
+      
+      while (codeLine != null && !"all".equals(codeLine)) {
+        if (codeLine.trim().length() > 0) {
+          lastMacroCodeGotten.add(codeLine);
+        }
+        
+        codeLine = callback.getNextLine();
+      }
+      
+      ScalaMacroDebuggingUtil.saveCode(currentFileName, lastMacroCodeGotten);
+      currentFileName = null;
+      lastMacroCodeGotten.clear();
+      return true;
+    }
+
+    
     if (fullCrash && text.length( ) > 0) {
       callback.message(CompilerMessageCategory.ERROR, text, "", 0, 0);
       return true;
