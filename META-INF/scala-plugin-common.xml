@@ -107,7 +107,7 @@
         <readWriteAccessDetector implementation="org.jetbrains.plugins.scala.highlighter.readWriteAccess.ScalaReadWriteAccessDetector"/>
         <directClassInheritorsSearch implementation="org.jetbrains.plugins.scala.lang.psi.impl.search.ScalaDirectClassInheritorsSearcher"/>
         <codeInsight.lineMarkerProvider language="Scala" implementationClass="org.jetbrains.plugins.scala.annotator.gutter.ScalaLineMarkerProvider"/>
-        <!--<codeInsight.lineMarkerProvider language="Scala" implementationClass="org.jetbrains.plugins.scala.util.macroDebug.GoToExpandedMacroCallProviderExt"/>-->
+        <codeInsight.lineMarkerProvider language="Scala" implementationClass="org.jetbrains.plugins.scala.util.macroDebug.GoToExpandedMacroCallProviderExt"/>
         <codeInsight.gotoSuper language="Scala" implementationClass="org.jetbrains.plugins.scala.annotator.gutter.ScalaGoToSuperActionHandler"/>
         <gotoDeclarationHandler implementation="org.jetbrains.plugins.scala.annotator.gutter.ScalaGoToDeclarationHandler"/>
         <debuggerClassFilterProvider implementation="org.jetbrains.plugins.scala.debugger.filters.ScalaDebuggerClassFilterProvider"/>
@@ -347,10 +347,10 @@
             <className>org.jetbrains.plugins.scala.codeInsight.intention.types.ConvertImplicitBoundsToImplicitParameter</className>
         </intentionAction>
         
-        <!--<intentionAction>-->
-            <!--<category>Scala</category>-->
-            <!--<className>org.jetbrains.plugins.scala.util.macroDebug.OpenSynFileIntention</className>-->
-        <!--</intentionAction>-->
+        <intentionAction>
+            <category>Scala</category>
+            <className>org.jetbrains.plugins.scala.util.macroDebug.OpenSynFileIntention</className>
+        </intentionAction>
 
         <intentionAction>
             <category>Scala</category>
