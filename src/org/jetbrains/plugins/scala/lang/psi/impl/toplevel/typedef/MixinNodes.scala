@@ -296,8 +296,6 @@ abstract class MixinNodes {
     }
   }
 
-  
-
   def build(clazz: PsiClass): Map = build(ScType.designator(clazz))
 
   def build(tp: ScType, compoundThisType: Option[ScType] = None): Map = {
