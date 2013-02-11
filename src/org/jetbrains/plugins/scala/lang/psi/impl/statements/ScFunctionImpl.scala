@@ -100,11 +100,11 @@ abstract class ScFunctionImpl extends ScalaStubBasedElementImpl[ScFunction] with
 
 
   def superSignatures: Seq[Signature] = {
-    //todo: fastPhysicalSignatureGet?
     val clazz = containingClass
     val s = new PhysicalSignature(this, ScSubstitutor.empty)
     if (clazz == null) return Seq(s)
-    val t = TypeDefinitionMembers.getSignatures(clazz).forName(ScalaPsiUtil.convertMemberName(name))._1.get(s) match {
+    val t = TypeDefinitionMembers.getSignatures(clazz).forName(ScalaPsiUtil.convertMemberName(name))._1.
+      fastPhysicalSignatureGet(s) match {
       case Some(x) => x.supers.map {_.info}
       case None => Seq[Signature]()
     }
@@ -112,11 +112,11 @@ abstract class ScFunctionImpl extends ScalaStubBasedElementImpl[ScFunction] with
   }
 
   def superSignaturesIncludingSelfType: Seq[Signature] = {
-    //todo: fastPhysicalSignatureGet?
     val clazz = containingClass
     val s = new PhysicalSignature(this, ScSubstitutor.empty)
     if (clazz == null) return Seq(s)
-    val t = TypeDefinitionMembers.getSelfTypeSignatures(clazz).forName(ScalaPsiUtil.convertMemberName(name))._1.get(s) match {
+    val t = TypeDefinitionMembers.getSelfTypeSignatures(clazz).forName(ScalaPsiUtil.convertMemberName(name))._1.
+      fastPhysicalSignatureGet(s) match {
       case Some(x) => x.supers.map {_.info}
       case None => Seq[Signature]()
     }
