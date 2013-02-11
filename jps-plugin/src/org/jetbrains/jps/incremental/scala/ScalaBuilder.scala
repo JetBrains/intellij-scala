@@ -22,6 +22,7 @@ import _root_.scala.util.control.Exception._
 import org.jetbrains.jps.incremental.ModuleLevelBuilder.{OutputConsumer, ExitCode}
 import local.LocalServer
 import remote.RemoteServer
+import com.intellij.openapi.diagnostic.{Logger => JpsLogger}
 
 /**
  * @author Pavel Fatin
@@ -133,6 +134,8 @@ class ScalaBuilder extends ModuleLevelBuilder(BuilderCategory.TRANSLATOR) {
 }
 
 object ScalaBuilder {
+  val Log = JpsLogger.getInstance(classOf[ScalaBuilder])
+
   // Cached local localServer
   private var cachedServer: Option[Server] = None
 
@@ -236,6 +239,10 @@ private class IdeClient(compilerName: String,
       "%s: %s [%s]".format(compilerName, decapitalizedText, modules.mkString(", "))
     }
     context.processMessage(new ProgressMessage(formattedText, done.getOrElse(-1.0F)))
+  }
+
+  def debug(text: String) {
+    ScalaBuilder.Log.info(text)
   }
 
   def generated(source: File, module: File, name: String) {

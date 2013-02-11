@@ -31,6 +31,8 @@ trait Client {
 
   def progress(text: String, done: Option[Float] = None)
 
+  def debug(text: String)
+
   def generated(source: File, module: File, name: String)
 
   def deleted(module: File)

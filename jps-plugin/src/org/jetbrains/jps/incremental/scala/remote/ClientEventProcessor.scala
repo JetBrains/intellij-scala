@@ -15,14 +15,17 @@ class ClientEventProcessor(client: Client) {
       case ProgressEvent(text, done) =>
         client.progress(text, done)
 
+      case DebugEvent(text) =>
+        client.debug(text)
+
+      case TraceEvent(message, lines) =>
+        client.trace(new ServerException(message, lines))
+
       case GeneratedEvent(source, module, name) =>
         client.generated(source, module, name)
 
       case DeletedEvent(module) =>
         client.deleted(module)
-
-      case TraceEvent(message, lines) =>
-        client.trace(new ServerException(message, lines))
     }
   }
 }

@@ -25,6 +25,10 @@ class EventGeneratingClient(listener: Event => Unit, canceled: => Boolean) exten
     listener(ProgressEvent(text, done))
   }
 
+  def debug(text: String) {
+    listener(DebugEvent(text))
+  }
+
   def generated(source: File, module: File, name: String) {
     listener(GeneratedEvent(source, module, name))
   }
