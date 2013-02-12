@@ -19,10 +19,10 @@
     </target>
 
     <target name="update.nightly">
-        <property name="update.descriptor" value="dist/sbt-plugin-nightly-leda.xml"/>
+        <property name="update.descriptor" value="dist/intellij-sbt-nightly-leda.xml"/>
         <echo message="Generating ${update.descriptor}"/>
         <echo file="${update.descriptor}"><![CDATA[<plugins>
-  <plugin id="com.intellij.scala.sbt" url="http://download.jetbrains.com/scala/sbt-plugin-bin-]]></echo>
+  <plugin id="com.intellij.scala.sbt" url="http://download.jetbrains.com/scala/intellij-sbt-bin-]]></echo>
         <echo append="true" file="${update.descriptor}" message="${build.number}"/>
         <echo append="true" file="${update.descriptor}"><![CDATA[.zip" version="]]></echo>
         <echo append="true" file="${update.descriptor}" message="${build.number}"/>
@@ -31,8 +31,8 @@
     </target>
 
     <target name="zip.artifact" depends="clear.dist, update.nightly">
-        <unzip src="out/artifacts/Production/sbt-plugin-bin.zip" dest="temp"/>
-        <zip destfile="dist/sbt-plugin-bin-${build.number}.zip" basedir="temp"/>
+        <unzip src="out/artifacts/Production/intellij-sbt-bin.zip" dest="temp"/>
+        <zip destfile="dist/intellij-sbt-bin-${build.number}.zip" basedir="temp"/>
     </target>
 
     <target name="patch.build.number">
