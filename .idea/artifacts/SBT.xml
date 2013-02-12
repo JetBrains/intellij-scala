@@ -1,0 +1,15 @@
+<component name="ArtifactManager">
+  <artifact build-on-make="true" name="SBT">
+    <output-path>$PROJECT_DIR$/out/artifacts/SBT</output-path>
+    <root id="root">
+      <element id="directory" name="lib">
+        <element id="archive" name="intellij-sbt.jar">
+          <element id="directory" name="META-INF">
+            <element id="dir-copy" path="$PROJECT_DIR$/META-INF" />
+          </element>
+          <element id="module-output" name="intellij-sbt" />
+        </element>
+      </element>
+    </root>
+  </artifact>
+</component>

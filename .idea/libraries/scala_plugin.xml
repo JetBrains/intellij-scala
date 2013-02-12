@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="scala-plugin">
+    <CLASSES>
+      <root url="jar://$SCALA_PLUGIN_LEDA$/out/artifacts/Scala/lib/scala-plugin.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="file://$SCALA_PLUGIN_LEDA$/ScalaCommunity/scala-plugin/src" />
+    </SOURCES>
+  </library>
+</component>
