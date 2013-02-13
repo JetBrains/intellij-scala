@@ -182,7 +182,7 @@ case class ScExistentialType(quantified : ScType,
           params.foreach(checkRecursive(_, rejected))
         case ScTupleType(components) =>
           components.foreach(checkRecursive(_, rejected))
-        case ScProjectionType(projected, element, subst, _) =>
+        case ScProjectionType(projected, element, _) =>
           checkRecursive(projected, rejected)
         case ScParameterizedType(designator, typeArgs) =>
           checkRecursive(designator, rejected)
@@ -284,7 +284,7 @@ case class ScExistentialType(quantified : ScType,
           }, c.types.map {
             case (s, (tp1, tp2)) => (s, (updateRecursive(tp1, newSet, variance), updateRecursive(tp2, newSet, -variance)))
           }, c.problems.toList)
-        case ScProjectionType(_, _, _, _) => tp
+        case ScProjectionType(_, _, _) => tp
         case JavaArrayType(_) => tp
         case ScParameterizedType(designator, typeArgs) =>
           val parameteresIterator = designator match {

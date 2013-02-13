@@ -103,8 +103,8 @@ class ScSubstitutor(val tvMap: Map[(String, String), ScType],
     t match {
       case f@ScFunctionType(ret, params) => new ScFunctionType(substInternal(ret), params.map(substInternal(_)))(f.getProject, f.getScope)
       case t1@ScTupleType(comps) => new ScTupleType(comps.map(substInternal))(t1.getProject, t1.getScope)
-      case p@ScProjectionType(proj, element, subst, s) =>
-        val res = new ScProjectionType(substInternal(proj), element, subst, s)
+      case p@ScProjectionType(proj, element, s) =>
+        val res = new ScProjectionType(substInternal(proj), element, s)
         if (!s) {
           val actualElement = p.actualElement
           if (actualElement.isInstanceOf[ScTypeDefinition] &&
@@ -142,8 +142,9 @@ class ScSubstitutor(val tvMap: Map[(String, String), ScType],
                     t.selfType match {
                       case Some(selfType) =>
                         ScType.extractDesignated(selfType) match {
-                          case Some((cl: PsiClass, subst)) =>
+                          case Some((cl: PsiClass, _)) =>
                             if (cl == clazz) tp
+                            else if (ScalaPsiUtil.cachedDeepIsInheritor(cl, clazz)) tp
                             else null
                           case _ =>
                             selfType match {
@@ -202,8 +203,8 @@ class ScSubstitutor(val tvMap: Map[(String, String), ScType],
               val up = update(tp)
               if (up != null) return up
               tp match {
-                case ScProjectionType(newType, _, _, _) => tp = newType
-                case ScParameterizedType(ScProjectionType(newType, _, _, _), _) => tp = newType
+                case ScProjectionType(newType, _, _) => tp = newType
+                case ScParameterizedType(ScProjectionType(newType, _, _), _) => tp = newType
                 case _ => tp = null
               }
             }

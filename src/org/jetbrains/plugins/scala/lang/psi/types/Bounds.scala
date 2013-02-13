@@ -198,7 +198,7 @@ object Bounds {
                                  (implicit stopAddingUpperBound: Boolean): ScType = {
     val baseClassDesignator = {
       baseClass.projectionOption match {
-        case Some(proj) => ScProjectionType(proj, baseClass.getClazz, ScSubstitutor.empty, superReference = false)
+        case Some(proj) => ScProjectionType(proj, baseClass.getClazz, superReference = false)
         case None => ScType.designator(baseClass.getClazz)
       }
     }

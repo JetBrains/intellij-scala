@@ -469,7 +469,10 @@ object Conformance {
         return
       }
 
-      if (x == types.Nothing && r == types.Null) return (false, undefinedSubst)
+      if (x == types.Nothing && r == types.Null) {
+        result = (false, undefinedSubst)
+        return
+      }
 
       rightVisitor = new NothingNullVisitor with TypeParameterTypeVisitor {}
       r.visitType(rightVisitor)

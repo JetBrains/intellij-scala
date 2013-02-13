@@ -68,13 +68,13 @@ abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTemplate
     val parentClass: ScTemplateDefinition = containingClass
     if (typeParameters.length == 0) {
       if (parentClass != null) {
-        Success(ScProjectionType(ScThisType(parentClass), this, ScSubstitutor.empty, superReference = false), Some(this))
+        Success(ScProjectionType(ScThisType(parentClass), this, superReference = false), Some(this))
       } else {
         Success(ScType.designator(this), Some(this))
       }
     } else {
       if (parentClass != null) {
-        Success(ScParameterizedType(ScProjectionType(ScThisType(parentClass), this, ScSubstitutor.empty, superReference = false),
+        Success(ScParameterizedType(ScProjectionType(ScThisType(parentClass), this, superReference = false),
           typeParameters.map(new ScTypeParameterType(_, ScSubstitutor.empty))), Some(this))
       } else {
         Success(ScParameterizedType(ScType.designator(this),
@@ -93,7 +93,7 @@ abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTemplate
         getOrElse(return Failure("Cannot resolve parent class", Some(this)))
       else ScThisType(parentClazz)
 
-      val innerProjection: ScProjectionType = ScProjectionType(tpe, this, ScSubstitutor.empty, superReference = false)
+      val innerProjection: ScProjectionType = ScProjectionType(tpe, this, superReference = false)
       Success(if (typeParameters.length == 0) innerProjection
               else ScParameterizedType(innerProjection, args), Some(this))
     } else Success(innerType, Some(this))

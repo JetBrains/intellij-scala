@@ -28,10 +28,10 @@ import api.base.patterns.ScBindingPattern
  * SomeType#member
  * member can be class or type alias
  */
-case class ScProjectionType(projected: ScType, element: PsiNamedElement, subst: ScSubstitutor,
+case class ScProjectionType(projected: ScType, element: PsiNamedElement,
                             superReference: Boolean /* todo: find a way to remove it*/) extends ValueType {
 
-  override def removeAbstracts = ScProjectionType(projected.removeAbstracts, element, subst, superReference)
+  override def removeAbstracts = ScProjectionType(projected.removeAbstracts, element, superReference)
 
   override def recursiveUpdate(update: ScType => (Boolean, ScType), visited: HashSet[ScType]): ScType = {
     if (visited.contains(this)) {
@@ -43,7 +43,7 @@ case class ScProjectionType(projected: ScType, element: PsiNamedElement, subst: 
     update(this) match {
       case (true, res) => res
       case _ =>
-        ScProjectionType(projected.recursiveUpdate(update, visited + this), element, subst, superReference)
+        ScProjectionType(projected.recursiveUpdate(update, visited + this), element, superReference)
     }
   }
 
@@ -51,7 +51,7 @@ case class ScProjectionType(projected: ScType, element: PsiNamedElement, subst: 
     update(this, variance) match {
       case (true, res) => res
       case _ =>
-        ScProjectionType(projected.recursiveVarianceUpdate(update, 0), element, subst, superReference)
+        ScProjectionType(projected.recursiveVarianceUpdate(update, 0), element, superReference)
     }
   }
 
@@ -106,13 +106,13 @@ case class ScProjectionType(projected: ScType, element: PsiNamedElement, subst: 
       }
     }
 
-    if (superReference) return (element, subst)
+    if (superReference) return (element, ScSubstitutor.empty) //todo: probably it's wrong to pass empty substitutor?
 
     val (actualElement, actualSubst) =
       CachesUtil.getMappedWithRecursionPreventingWithRollback[PsiNamedElement, ScType, Option[(PsiNamedElement, ScSubstitutor)]](
         element, projected, CachesUtil.PROJECTION_TYPE_ACTUAL_INNER, actualInner, None,
         PsiModificationTracker.MODIFICATION_COUNT).getOrElse(
-          (element, subst)
+          (element, ScSubstitutor.empty)
         )
     (actualElement, new ScSubstitutor(Map.empty, Map.empty, Some(projected)) followed actualSubst)
   }
@@ -145,7 +145,7 @@ case class ScProjectionType(projected: ScType, element: PsiNamedElement, subst: 
           case synth: ScSyntheticClass => Equivalence.equivInner(synth.t, t, uSubst, falseUndef)
           case _ => (false, uSubst)
         }
-      case param@ScParameterizedType(proj2@ScProjectionType(p1, element1, subst1, _), typeArgs) =>
+      case param@ScParameterizedType(proj2@ScProjectionType(p1, element1, _), typeArgs) =>
         proj2.actualElement match {
           case ta: ScTypeAliasDefinition =>
             val genericSubst = ScalaPsiUtil.
@@ -157,7 +157,7 @@ case class ScProjectionType(projected: ScType, element: PsiNamedElement, subst: 
             }), uSubst, falseUndef)
           case _ => (false, uSubst)
         }
-      case proj2@ScProjectionType(p1, element1, subst1, _) => {
+      case proj2@ScProjectionType(p1, element1, _) => {
         proj2.actualElement match {
           case a: ScTypeAliasDefinition =>
             val subst = proj2.actualSubst
@@ -201,7 +201,7 @@ case class ScProjectionType(projected: ScType, element: PsiNamedElement, subst: 
           case t: ScTypedDefinition if t.isStable =>
             t.getType(TypingContext.empty) match {
               case Success(singl, _) if ScType.isSingletonType(singl) =>
-                val newSubst = subst.followed(new ScSubstitutor(Map.empty, Map.empty, Some(projected)))
+                val newSubst = actualSubst.followed(new ScSubstitutor(Map.empty, Map.empty, Some(projected)))
                 Equivalence.equivInner(r, newSubst.subst(singl), uSubst, falseUndef)
               case _ => (false, uSubst)
             }
@@ -248,11 +248,11 @@ case class ScThisType(clazz: ScTemplateDefinition) extends ValueType {
           case _ =>
             (false, uSubst)
         }
-      case (_, ScProjectionType(_, o: ScObject, _, _)) => (false, uSubst)
-      case (_, p@ScProjectionType(tp, elem: ScTypedDefinition, subst, _)) if elem.isStable =>
+      case (_, ScProjectionType(_, o: ScObject, _)) => (false, uSubst)
+      case (_, p@ScProjectionType(tp, elem: ScTypedDefinition, _)) if elem.isStable =>
         elem.getType(TypingContext.empty) match {
           case Success(singl, _) if ScType.isSingletonType(singl) =>
-            val newSubst = subst.followed(new ScSubstitutor(Map.empty, Map.empty, Some(tp)))
+            val newSubst = p.actualSubst.followed(new ScSubstitutor(Map.empty, Map.empty, Some(tp)))
             Equivalence.equivInner(this, newSubst.subst(singl), uSubst, falseUndef)
           case _ => (false, uSubst)
         }

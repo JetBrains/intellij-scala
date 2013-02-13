@@ -266,7 +266,7 @@ class ImplicitParametersCollector(place: PsiElement, tp: ScType, searchImplicits
 
   private def topLevelTypeConstructors(tp: ScType): Set[ScType] = {
     tp match {
-      case ScProjectionType(_, element, _, _) => Set(ScDesignatorType(element))
+      case ScProjectionType(_, element, _) => Set(ScDesignatorType(element))
       case ScParameterizedType(designator, _) => Set(designator)
       case ScDesignatorType(v: ScValue) =>
         val valueType: ScType = v.getType(TypingContext.empty).getOrAny
@@ -278,7 +278,7 @@ class ImplicitParametersCollector(place: PsiElement, tp: ScType, searchImplicits
 
   private def complexity(tp: ScType): Int = {
     tp match {
-      case ScProjectionType(proj, _, _, _) => 1 + complexity(proj)
+      case ScProjectionType(proj, _, _) => 1 + complexity(proj)
       case ScParameterizedType(des, args) => 1 + args.foldLeft(0)(_ + complexity(_))
       case ScDesignatorType(v: ScValue) =>
         val valueType: ScType = v.getType(TypingContext.empty).getOrAny

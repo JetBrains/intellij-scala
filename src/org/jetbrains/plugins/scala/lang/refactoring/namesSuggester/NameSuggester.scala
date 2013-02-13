@@ -123,7 +123,7 @@ object NameSuggester {
           generateCamelNames(name)
         }
       }
-      case ScProjectionType(p, e, s, _) =>
+      case ScProjectionType(p, e, _) =>
         val name = e.name
         if (name != null && name.toUpperCase == name) {
           add(deleteNonLetterFromString(name).toLowerCase)
@@ -132,7 +132,7 @@ object NameSuggester {
         } else {
           generateCamelNames(name)
         }
-      case ScParameterizedType(ScProjectionType(p, e, s, _), Seq(arg)) if projectionMap.get(e.name) != None &&
+      case ScParameterizedType(ScProjectionType(p, e, _), Seq(arg)) if projectionMap.get(e.name) != None &&
         projectionMap.get(e.name) == ScType.extractClass(p, Some(validator.getProject())).map(_.qualifiedName) =>
         addPlurals(arg)
       case ScParameterizedType(des@ScDesignatorType(c: PsiClass), Seq(arg)) if plurals.contains(c.qualifiedName) =>

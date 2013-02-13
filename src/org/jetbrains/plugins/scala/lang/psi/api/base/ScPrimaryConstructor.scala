@@ -85,7 +85,7 @@ trait ScPrimaryConstructor extends ScMember with ScMethodLike {
       val parentClazz = ScalaPsiUtil.getPlaceTd(clazz)
       val designatorType: ScType =
         if (parentClazz != null)
-          ScProjectionType(ScThisType(parentClazz), clazz, ScSubstitutor.empty, false)
+          ScProjectionType(ScThisType(parentClazz), clazz, false)
         else ScDesignatorType(clazz)
       if (typeParameters.length == 0) designatorType
       else {
