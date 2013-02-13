@@ -7,7 +7,7 @@ import com.intellij.openapi.project.Project
 import java.util.concurrent.locks.LockSupport
 import com.intellij.openapi.progress.ProgressManager
 import javax.swing.JComponent
-import java.io.IOException
+import java.io.{File, IOException}
 import java.util.zip.ZipFile
 import com.intellij.util.io.ZipUtil
 import java.net.URL
@@ -24,7 +24,7 @@ class GenericScalaArchiveDownloader(localDescriptor: URL, downloadableName: Stri
   protected val haveToDeleteArchiveAfter = true
   protected val myGroupId: String = null
   
-  protected def postProcessDownload() { }
+  protected def postProcessDownload(extractedDownloadable: File) { }
   protected def filterFiles(file: DownloadableFileSetDescription): Boolean = true
 
   protected def showDialog(): Option[DownloadableFileSetDescription] = {
@@ -63,8 +63,9 @@ class GenericScalaArchiveDownloader(localDescriptor: URL, downloadableName: Stri
       executeSynchronouslyWithProgress(ZipUtil.extract(downloadedArchive, dirToExtract, null, true), s"Extracting $downloadableName...")
       if (haveToDeleteArchiveAfter) downloadedArchive.delete()
       if (dirToExtract.exists()) {
-        postProcessDownload()
-        new File(dirToExtract, downloadedZipEntries.nextElement().getName).getCanonicalPath
+        val extractedDownloadable = new File(dirToExtract, downloadedZipEntries.nextElement().getName)
+        postProcessDownload(extractedDownloadable)
+        extractedDownloadable.getCanonicalPath
       } else {
         null
       }
