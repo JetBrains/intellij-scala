@@ -315,7 +315,7 @@ abstract class MixinNodes {
       case _ =>
         val clazz = tp match {
           case ScDesignatorType(clazz: PsiClass) => clazz
-          case ScProjectionType(_, clazz: PsiClass, _, _) => clazz
+          case ScProjectionType(_, clazz: PsiClass, _) => clazz
           case _ => null
         }
         if (clazz == null) (Seq.empty, ScSubstitutor.empty, ScSubstitutor.empty)
@@ -380,8 +380,8 @@ abstract class MixinNodes {
           // Do not include scala.ScalaObject to Predef's base types to prevent SOE
           if (!(superClass.qualifiedName == "scala.ScalaObject" && isPredef)) {
             val dependentSubst = superType match {
-              case ScProjectionType(proj, eem, subst, _) => new ScSubstitutor(proj).followed(subst)
-              case ScParameterizedType(ScProjectionType(proj, _, subst, _), _) => new ScSubstitutor(proj).followed(subst)
+              case p@ScProjectionType(proj, eem, _) => new ScSubstitutor(proj).followed(p.actualSubst)
+              case ScParameterizedType(p@ScProjectionType(proj, _, _), _) => new ScSubstitutor(proj).followed(p.actualSubst)
               case _ => ScSubstitutor.empty
             }
             val newSubst = combine(s, subst, superClass).followed(thisTypeSubst).followed(dependentSubst)

@@ -92,7 +92,7 @@ trait ScTypePresentation {
           buffer.append(nameFun(e))
           appendTypeTail(stable)
         case ScDesignatorType(e) => buffer.append(nameFun(e))
-        case proj@ScProjectionType(p, el, su, _) => {
+        case proj@ScProjectionType(p, el, _) => {
           //todo:
           val e = proj.actualElement
           val refName = e.name

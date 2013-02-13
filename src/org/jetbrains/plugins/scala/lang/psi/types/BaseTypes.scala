@@ -55,21 +55,23 @@ object BaseTypes {
       }
       case ScExistentialType(q, wilds) => get(q, notAll).map{bt => ScExistentialType(bt, wilds).simplify()}
       case ScCompoundType(comps, _, _, _) => reduce(if (notAll) comps else comps.flatMap(comp => BaseTypes.get(comp) ++ Seq(comp)))
-      case proj@ScProjectionType(p, elem, s, _) => elem match {
-        case td : ScTypeDefinition => reduce(td.superTypes.flatMap{tp =>
-          if (!notAll) BaseTypes.get(s.subst(tp)) ++ Seq(s.subst(tp))
-          else Seq(s.subst(tp))
-        })
-        case c : PsiClass =>
-          reduce(c.getSuperTypes.flatMap {st =>
+      case proj@ScProjectionType(p, elem, _) =>
+        val s = proj.actualSubst
+        elem match {
+          case td : ScTypeDefinition => reduce(td.superTypes.flatMap{tp =>
+            if (!notAll) BaseTypes.get(s.subst(tp)) ++ Seq(s.subst(tp))
+            else Seq(s.subst(tp))
+          })
+          case c : PsiClass =>
+            reduce(c.getSuperTypes.flatMap {st =>
             {
               val proj = c.getProject
               if (!notAll) BaseTypes.get(s.subst(ScType.create(st, proj))) ++ Seq(s.subst(ScType.create(st, proj)))
               else Seq(s.subst(ScType.create(st, proj)))
             }
-          })
-        case _ => Seq.empty
-      }
+            })
+          case _ => Seq.empty
+        }
       case t: ScTupleType => t.resolveTupleTrait match {
         case Some(t: ScType) => get(t, notAll)
         case _ => Seq.empty

@@ -370,7 +370,7 @@ object ScSimpleTypeElementImpl {
   }
 
   def calculateReferenceType(ref: ScStableCodeReferenceElement, shapesOnly: Boolean): TypeResult[ScType] = {
-    val (resolvedElement, subst, fromType) = (if (!shapesOnly) {
+    val (resolvedElement, fromType) = (if (!shapesOnly) {
       if (ref.isConstructorReference) {
         ref.resolveNoConstructor match {
           case Array(r@ScalaResolveResult(to: ScTypeParametersOwner, subst: ScSubstitutor))
@@ -388,9 +388,9 @@ object ScSimpleTypeElementImpl {
         case _ => None
       }
     }) match {
-      case Some(r@ScalaResolveResult(n: PsiMethod, resolveSubstitutor)) if n.isConstructor =>
-        (n.containingClass, resolveSubstitutor, r.fromType)
-      case Some(r@ScalaResolveResult(n: PsiNamedElement, subst: ScSubstitutor)) => (n, subst, r.fromType)
+      case Some(r@ScalaResolveResult(n: PsiMethod, _)) if n.isConstructor =>
+        (n.containingClass, r.fromType)
+      case Some(r@ScalaResolveResult(n: PsiNamedElement, _)) => (n, r.fromType)
       case _ => return Failure("Cannot resolve reference", Some(ref))
     }
     ref.qualifier match {
@@ -399,7 +399,7 @@ object ScSimpleTypeElementImpl {
           case pack: PsiPackage => {
             val obj = PsiTreeUtil.getContextOfType(resolvedElement, classOf[ScObject])
             if (obj != null && obj.isPackageObject) {
-              Success(ScProjectionType(ScDesignatorType(obj), resolvedElement, ScSubstitutor.empty,
+              Success(ScProjectionType(ScDesignatorType(obj), resolvedElement,
                 superReference = false), Some(ref))
             } else {
               Success(ScType.designator(resolvedElement), Some(ref))
@@ -409,7 +409,7 @@ object ScSimpleTypeElementImpl {
             calculateReferenceType(qual, shapesOnly) match {
               case failure: Failure => failure
               case Success(tp, _) => {
-                Success(ScProjectionType(tp, resolvedElement, subst, superReference = false), Some(ref))
+                Success(ScProjectionType(tp, resolvedElement, superReference = false), Some(ref))
               }
             }
           }
@@ -420,7 +420,7 @@ object ScSimpleTypeElementImpl {
           case Some(thisRef: ScThisReference) => {
             thisRef.refTemplate match {
               case Some(template) => {
-                Success(ScProjectionType(ScThisType(template), resolvedElement, subst, superReference = false), Some(ref))
+                Success(ScProjectionType(ScThisType(template), resolvedElement, superReference = false), Some(ref))
               }
               case _ => Failure("Cannot find template for this reference", Some(thisRef))
             }
@@ -430,7 +430,7 @@ object ScSimpleTypeElementImpl {
               case Some(x) => x
               case None => return Failure("Cannot find enclosing container", Some(superRef))
             }
-            Success(new ScProjectionType(ScThisType(template), resolvedElement, subst, resolvedElement.isInstanceOf[PsiClass]), Some(ref))
+            Success(new ScProjectionType(ScThisType(template), resolvedElement, resolvedElement.isInstanceOf[PsiClass]), Some(ref))
           }
           case _ => {
             resolvedElement match {
@@ -439,7 +439,7 @@ object ScSimpleTypeElementImpl {
                 Success(ScThisType(td), Some(ref))
               case _ =>
                 if (fromType == None) return Success(ScType.designator(resolvedElement), Some(ref))
-                Success(ScProjectionType(fromType.get, resolvedElement, subst, superReference = false), Some(ref))
+                Success(ScProjectionType(fromType.get, resolvedElement, superReference = false), Some(ref))
             }
           }
         }

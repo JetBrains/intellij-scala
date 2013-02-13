@@ -37,7 +37,7 @@ class ScTypeProjectionImpl(node: ASTNode) extends ScalaPsiElementImpl (node) wit
             Success(ScType.designator(elem), Some(this))
           }
           case _ =>
-            te map {ScProjectionType(_, elem, subst, superReference = false)}
+            te map {ScProjectionType(_, elem, superReference = false)}
         }
       }
       case _ => Failure("Cannot Resolve reference", Some(this))
