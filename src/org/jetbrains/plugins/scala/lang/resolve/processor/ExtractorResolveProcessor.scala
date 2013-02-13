@@ -8,7 +8,7 @@ import psi.api.statements._
 import com.intellij.psi._
 import psi.types._
 
-import result.TypingContext
+import result.{Success, TypingContext}
 import scala._
 import collection.mutable.HashSet
 import collection.Set
@@ -29,7 +29,10 @@ class ExtractorResolveProcessor(ref: ScReferenceElement,
 
       def resultsForTypedDef(obj: ScTypedDefinition) {
         def resultsFor(unapplyName: String) = {
-          val typeResult = obj.getType(TypingContext.empty)
+          val typeResult = getFromType(state) match {
+            case Some(tp) => Success(ScProjectionType(tp, obj, superReference = false), Some(obj))
+            case _ => obj.getType(TypingContext.empty)
+          }
           val processor = new CollectMethodsProcessor(ref, unapplyName)
           typeResult.foreach(t => processor.processType(t, ref))
           val sigs = processor.candidatesS.flatMap {
