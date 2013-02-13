@@ -12,4 +12,4 @@ object SCL2820 {
     }
   }
 }
-//SCL2820.TypingObject.Col.String
+//TypingObject.Col.String

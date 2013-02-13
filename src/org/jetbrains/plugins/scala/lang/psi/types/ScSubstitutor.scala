@@ -119,8 +119,19 @@ class ScSubstitutor(val tvMap: Map[(String, String), ScType],
         }))
       }
       case ScThisType(clazz) =>
+        def hasRecursiveThisType(tp: ScType): Boolean = {
+          var res = false
+          tp.recursiveUpdate {
+            case t if res => (true, t)
+            case t@ScThisType(`clazz`) =>
+              res = true
+              (true, t)
+            case t => (false, t)
+          }
+          res
+        }
         updateThisType match {
-          case Some(oldTp) => {
+          case Some(oldTp) if !hasRecursiveThisType(oldTp) => {  //todo: hack to avoid infinite recursion during type substitution
             var tp = oldTp
             def update(typez: ScType): ScType = {
               ScType.extractDesignated(typez) match {
