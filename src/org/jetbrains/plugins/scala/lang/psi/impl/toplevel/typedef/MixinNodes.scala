@@ -10,6 +10,7 @@ package typedef
 
 import collection.mutable.{ListBuffer, ArrayBuffer}
 import psi.types._
+import result.TypingContext
 import synthetic.ScSyntheticClass
 import caches.CachesUtil
 import api.toplevel.typedef.{ScTrait, ScObject, ScTypeDefinition, ScTemplateDefinition}
@@ -452,7 +453,7 @@ object MixinNodes {
     }
 
     CachesUtil.getWithRecursionPreventingWithRollback(clazz, CachesUtil.LINEARIZATION_KEY,
-    new CachesUtil.MyOptionalProvider(clazz, (clazz: PsiClass) => linearizationInner(clazz)) //todo: bad reference to 'visited'
+    new CachesUtil.MyOptionalProvider(clazz, (clazz: PsiClass) => linearizationInner(clazz))
       (ScalaPsiUtil.getDependentItem(clazz)), Seq.empty)
   }
 
@@ -466,9 +467,14 @@ object MixinNodes {
   private def linearizationInner(clazz: PsiClass): Seq[ScType] = {
     ProgressManager.checkCanceled()
     val tp = {
-      if (clazz.getTypeParameters.length == 0) ScType.designator(clazz)
-      else ScParameterizedType(ScType.designator(clazz), clazz.
-              getTypeParameters.map(tp => ScalaPsiManager.instance(clazz.getProject).typeVariable(tp)))
+      def default =
+        if (clazz.getTypeParameters.length == 0) ScType.designator(clazz)
+        else ScParameterizedType(ScType.designator(clazz), clazz.
+          getTypeParameters.map(tp => ScalaPsiManager.instance(clazz.getProject).typeVariable(tp)))
+      clazz match {
+        case td: ScTypeDefinition => td.getType(TypingContext.empty).getOrElse(default)
+        case _ => default
+      }
     }
     val supers: Seq[ScType] = {
       clazz match {
