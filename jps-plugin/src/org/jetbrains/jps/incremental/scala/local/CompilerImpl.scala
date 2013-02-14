@@ -155,10 +155,6 @@ private class ClientReporter(client: Client) extends Reporter {
 
 private class ClientCompileListener(client: Client) extends CompileListener {
   def generated(source: File, module: File, name: String) {
-    // TODO remove this assertion later
-    if (!module.exists) {
-      client.error("Generated class file does not exist: " + module)
-    }
     client.progress("Generated " + module.getName)
     client.generated(source, module, name)
   }
