@@ -76,7 +76,7 @@ case class ScProjectionType(projected: ScType, element: PsiNamedElement,
           val name = a.name
           import ResolveTargets._
           val proc = new ResolveProcessor(ValueSet(CLASS), resolvePlace, name)
-          proc.processType(projected, resolvePlace, ResolveState.initial, noBounds = true)
+          proc.processType(projected, resolvePlace, ResolveState.initial)
           val candidates = proc.candidates
           if (candidates.length == 1 && candidates(0).element.isInstanceOf[PsiNamedElement]) {
             Some(candidates(0).element, emptySubst followed candidates(0).substitutor)
@@ -86,7 +86,7 @@ case class ScProjectionType(projected: ScType, element: PsiNamedElement,
           val name = d.name
           import ResolveTargets._
           val proc = new ResolveProcessor(ValueSet(VAL, OBJECT), resolvePlace, name)
-          proc.processType(projected, resolvePlace, ResolveState.initial, noBounds = true)
+          proc.processType(projected, resolvePlace, ResolveState.initial)
           val candidates = proc.candidates
           if (candidates.length == 1 && candidates(0).element.isInstanceOf[PsiNamedElement]) {
             Some(candidates(0).element, emptySubst followed candidates(0).substitutor)
@@ -96,7 +96,7 @@ case class ScProjectionType(projected: ScType, element: PsiNamedElement,
           val name = d.name
           import ResolveTargets._
           val proc = new ResolveProcessor(ValueSet(CLASS), resolvePlace, name) //ScObject in ScTypedDefinition case.
-          proc.processType(projected, resolvePlace, ResolveState.initial, noBounds = true)
+          proc.processType(projected, resolvePlace, ResolveState.initial)
           val candidates = proc.candidates
           if (candidates.length == 1 && candidates(0).element.isInstanceOf[PsiNamedElement]) {
             Some(candidates(0).element, emptySubst followed candidates(0).substitutor)

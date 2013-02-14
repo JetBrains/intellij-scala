@@ -125,15 +125,12 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value]) extends PsiSc
   def processType(t: ScType, place: PsiElement): Boolean = processType(t, place, ResolveState.initial)
 
   def processType(t: ScType, place: PsiElement, state: ResolveState): Boolean =
-    processType(t, place, state, noBounds = false)
+    processType(t, place, state, updateWithProjectionSubst = true)
 
 
-
-  def processType(t: ScType, place: PsiElement, state: ResolveState, noBounds: Boolean): Boolean =
-    processType(t, place, state, noBounds, updateWithProjectionSubst = true)
 
   def processType(t: ScType, place: PsiElement, state: ResolveState,
-                  noBounds: Boolean, updateWithProjectionSubst: Boolean): Boolean = {
+                  updateWithProjectionSubst: Boolean): Boolean = {
     ProgressManager.checkCanceled()
 
     t match {
@@ -146,7 +143,7 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value]) extends PsiSc
     t match {
       case ScThisType(clazz) =>
         val thisSubst = new ScSubstitutor(ScThisType(clazz))
-        if (noBounds || clazz.selfType.isEmpty) {
+        if (clazz.selfType.isEmpty) {
           processElement(clazz, thisSubst, place, state)
         } else {
           val selfType = clazz.selfType.get
@@ -193,12 +190,12 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value]) extends PsiSc
       case ScDesignatorType(o: ScObject) => processElement(o, ScSubstitutor.empty, place, state)
       case ScDesignatorType(e: ScTypedDefinition) if place.isInstanceOf[ScTypeProjection] =>
         e.getType(TypingContext.empty) match {
-          case Success(tp, _) => processType(tp, place, state, noBounds)
+          case Success(tp, _) => processType(tp, place, state)
           case _ => true
         }
       case ScDesignatorType(e) => processElement(e, ScSubstitutor.empty, place, state)
       case ScTypeParameterType(_, Nil, _, upper, _) =>
-        processType(upper.v, place, state, noBounds = false, updateWithProjectionSubst = false)
+        processType(upper.v, place, state, updateWithProjectionSubst = false)
       case j: JavaArrayType =>
         processType(j.getParameterizedType(place.getProject, place.getResolveScope).
                 getOrElse(return true), place, state)
@@ -273,7 +270,7 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value]) extends PsiSc
         if (!TypeDefinitionMembers.processDeclarations(comp, this, newState, null, place)) return false
         true
       case ex: ScExistentialType => processType(ex.skolem, place, state.put(ScSubstitutor.key, ScSubstitutor.empty))
-      case ScSkolemizedType(_, _, lower, upper) => processType(upper, place, state, noBounds, updateWithProjectionSubst)
+      case ScSkolemizedType(_, _, lower, upper) => processType(upper, place, state, updateWithProjectionSubst)
       case _ => true
     }
   }
@@ -302,7 +299,7 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value]) extends PsiSc
             des.getType(TypingContext.empty) match {
               case Success(tp, _) =>
                 processType(newSubst subst tp, place, state.put(ScSubstitutor.key, ScSubstitutor.empty),
-                  noBounds = false, updateWithProjectionSubst = false)
+                  updateWithProjectionSubst = false)
               case _ => true
             }
           case pack: ScPackage =>
