@@ -1,4 +1,5 @@
-val a = """foo{<caret>}"""
+val a =
+  """foo{<caret>}"""
 -----
 val a =
   """foo{
