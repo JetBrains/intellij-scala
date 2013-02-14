@@ -7,40 +7,19 @@ import org.jetbrains.plugins.scala.util.TestUtils
 import com.intellij.openapi.vfs.VfsUtil
 import com.intellij.openapi.application.ApplicationManager
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
+import org.jetbrains.plugins.scala.base.{ScalaLightPlatformCodeInsightTestCaseAdapter, ScalaLightCodeInsightFixtureTestAdapter}
 
 /**
  * User: Dmitry Naydanov
  * Date: 7/3/12
  */
 
-class InterpolatedStringsAnnotatorTest extends ScalaLightCodeInsightFixtureTestAdapter {
-
-  override def setUp() {
-    super.setUp()
-
-    val rootModel = ModuleRootManager.getInstance(myFixture.getModule).getModifiableModel
-    val libModel = rootModel.getModuleLibraryTable.createLibrary("scala_lib").getModifiableModel
-
-    val libRoot: File = new File(TestUtils.getMockScalaLib(TestUtils.DEFAULT_SCALA_SDK_VERSION))
-    val srcRoot: File = new File(TestUtils.getMockScalaSrc(TestUtils.DEFAULT_SCALA_SDK_VERSION))
-
-    libModel.addRoot(VfsUtil.getUrlForLibraryRoot(libRoot), OrderRootType.CLASSES)
-    libModel.addRoot(VfsUtil.getUrlForLibraryRoot(srcRoot), OrderRootType.SOURCES)
-    
-    ApplicationManager.getApplication.runWriteAction(new Runnable {
-      def run() {
-        libModel.commit()
-        rootModel.commit()
-      }
-    })
-  }
-  
+class InterpolatedStringsAnnotatorTest extends ScalaLightPlatformCodeInsightTestCaseAdapter {
   private def collectAnnotatorMessages(text: String) = {
-    myFixture.configureByText("dummy.scala", text)
+    configureFromFileTextAdapter("dummy.scala", text)
     val mock = new AnnotatorHolderMock
 
-    new ScalaAnnotator().annotate(myFixture.getFile.asInstanceOf[ScalaFile].getLastChild, mock)
+    new ScalaAnnotator().annotate(getFileAdapter.asInstanceOf[ScalaFile].getLastChild, mock)
     mock.annotations
   }
   
@@ -67,7 +46,7 @@ class InterpolatedStringsAnnotatorTest extends ScalaLightCodeInsightFixtureTestA
        
        val i1 = 1; val i2 = 2; val s1 = "string1"; val s2 = "string2"; val c1 = 'c'
        
-    """ 
+    """.replace("\r", "")
   
   def testCorrectInt() {
     emptyMessages(header + "a\"blah blah $i1 $i2 ${1 + 2 + 3} blah\"")
