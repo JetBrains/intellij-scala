@@ -70,7 +70,7 @@ class GoToExpandedMacroCallProviderExt extends LineMarkerProvider {
             }
           },
           new GutterIconNavigationHandler[PsiElement] {
-            def navigate(e: MouseEvent, elt: PsiElement) {
+            def navigate(mouseEvent: MouseEvent, elt: PsiElement) {
               if (off <= 0) return 
               var macroExpanded = ScalaMacroDebuggingUtil loadCode file findElementAt off
               while (macroExpanded != null && !macroExpanded.isInstanceOf[NavigatablePsiElement])
@@ -78,9 +78,9 @@ class GoToExpandedMacroCallProviderExt extends LineMarkerProvider {
 
               if (macroExpanded == null) return
               
-              PsiElementListNavigator.openTargets(e,
+              PsiElementListNavigator.openTargets(mouseEvent,
                 Array[NavigatablePsiElement](macroExpanded.asInstanceOf[NavigatablePsiElement]),
-                "GoTo Expanded", new GotoFileCellRenderer(5))
+                "GoTo Expanded", "GoTo Expanded" /* todo: please review */, new GotoFileCellRenderer(5))
             }
           }, GutterIconRenderer.Alignment.RIGHT, util.Arrays.asList[GotoRelatedItem]())
 

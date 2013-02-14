@@ -26,6 +26,7 @@ import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
+import com.intellij.testFramework.IdeaTestUtil;
 import com.intellij.testFramework.builders.JavaModuleFixtureBuilder;
 import com.intellij.testFramework.fixtures.JavaCodeInsightFixtureTestCase;
 import com.intellij.testFramework.fixtures.TempDirTestFixture;
@@ -67,7 +68,7 @@ public abstract class ScalaCompilerTestCase extends JavaCodeInsightFixtureTestCa
   @Override
   protected void tuneFixture(JavaModuleFixtureBuilder moduleBuilder) throws Exception {
     moduleBuilder.setMockJdkLevel(JavaModuleFixtureBuilder.MockJdkLevel.jdk15);
-    moduleBuilder.addJdk(JavaSdkImpl.getMockJdk14Path().getPath());
+    moduleBuilder.addJdk(IdeaTestUtil.getMockJdk14Path().getPath());
   }
 
   @Override
