@@ -10,7 +10,6 @@ import xsbti.compile.{CompileProgress, CompileOrder}
 import sbt.inc.{Analysis, AnalysisStore, Locate}
 import xsbti._
 import org.jetbrains.jps.incremental.messages.BuildMessage.Kind
-import xsbti.api.SourceAPI
 
 /**
  * @author Pavel Fatin
@@ -35,7 +34,7 @@ class CompilerImpl(javac: JavaCompiler, scalac: Option[AnalyzingCompiler], fileT
 
     val progress = new ClientProgress(client)
 
-    val callback = new ClientCallback(client)
+    val listener = new ClientCompileListener(client)
 
     val reporter = new ClientReporter(client)
 
@@ -58,10 +57,9 @@ class CompilerImpl(javac: JavaCompiler, scalac: Option[AnalyzingCompiler], fileT
         scalac,
         javac,
         reporter,
+        Some(listener),
         false,
-        CompilerCache.fresh,
-        Some(callback),
-        Some(client.deleted)
+        CompilerCache.fresh
       )(logger)
     } catch {
       case _: xsbti.CompileFailed => // the error should be already handled via the `reporter`
@@ -155,14 +153,8 @@ private class ClientReporter(client: Client) extends Reporter {
   def toOption[T](value: Maybe[T]): Option[T] = if (value.isDefined) Some(value.get) else None
 }
 
-private class ClientCallback(client: Client) extends AnalysisCallback {
-  def beginSource(source: File) {}
-
-  def sourceDependency(dependsOn: File, source: File) {}
-
-  def binaryDependency(binary: File, name: String, source: File) {}
-
-  def generatedClass(source: File, module: File, name: String) {
+private class ClientCompileListener(client: Client) extends CompileListener {
+  def generated(source: File, module: File, name: String) {
     // TODO remove this assertion later
     if (!module.exists) {
       client.error("Generated class file does not exist: " + module)
@@ -171,9 +163,7 @@ private class ClientCallback(client: Client) extends AnalysisCallback {
     client.generated(source, module, name)
   }
 
-  def endSource(sourcePath: File) {}
-
-  def api(sourceFile: File, source: SourceAPI) {}
-
-  def problem(what: String, pos: Position, msg: String, severity: Severity, reported: Boolean) {}
+  def deleted(module: File) {
+    client.deleted(module)
+  }
 }
