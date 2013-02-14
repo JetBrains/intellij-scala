@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala
 
 import com.intellij.testFramework.fixtures.LightCodeInsightFixtureTestCase
-import com.intellij.testFramework.LightProjectDescriptor
+import com.intellij.testFramework.{IdeaTestUtil, LightProjectDescriptor}
 import com.intellij.openapi.projectRoots.impl.JavaSdkImpl
 import lang.psi.impl.toplevel.synthetic.SyntheticClasses
 import util.TestUtils
@@ -31,7 +31,7 @@ abstract class LightScalaTestCase extends LightCodeInsightFixtureTestCase {
 object LightScalaTestCase {
   val SCALA_DESCRIPTOR = new LightProjectDescriptor {
     def getModuleType : ModuleType[T] forSome {type T <: ModuleBuilder} = StdModuleTypes.JAVA
-    def getSdk = JavaSdkImpl.getMockJdk14
+    def getSdk = IdeaTestUtil.getMockJdk14
     def configureModule(module: Module, model: ModifiableRootModel, contentEntry: ContentEntry) {
       val modifiableModel = model.getModuleLibraryTable.createLibrary("SCALA").getModifiableModel
       val scalaLib = TestUtils.getMockScalaLib + "!/"

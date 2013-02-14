@@ -175,7 +175,7 @@ object ScalaMarkerType {
       }
     }
   }, new GutterIconNavigationHandler[PsiElement] {
-    def navigate(e: MouseEvent, element: PsiElement) {
+    def navigate(mouseEvent: MouseEvent, element: PsiElement) {
       var elem = element
       element.getNode.getElementType match {
         case  ScalaTokenTypes.tIDENTIFIER | ScalaTokenTypes.kVAL | ScalaTokenTypes.kVAR => {
@@ -196,7 +196,8 @@ object ScalaMarkerType {
                   else ScalaBundle.message("navigation.title.overrider.member", members(0).name, "" + overrides.length)
       val renderer = new ScCellRenderer
       util.Arrays.sort(overrides.map(_.asInstanceOf[PsiElement]).toArray, renderer.getComparator)
-      PsiElementListNavigator.openTargets(e, overrides.map(_.asInstanceOf[NavigatablePsiElement]).toArray, title, renderer)
+      PsiElementListNavigator.openTargets(mouseEvent, overrides.map(_.asInstanceOf[NavigatablePsiElement]).toArray,
+        title, title /* todo: please review*/, renderer)
     }
   })
 
@@ -214,7 +215,7 @@ object ScalaMarkerType {
       }
     }
   }, new GutterIconNavigationHandler[PsiElement] {
-    def navigate(e: MouseEvent, element: PsiElement) {
+    def navigate(mouseEvent: MouseEvent, element: PsiElement) {
       var elem = element
       if (element.getNode.getElementType == ScalaTokenTypes.tIDENTIFIER) {
         elem = PsiTreeUtil.getParentOfType(element, classOf[ScNamedElement])
@@ -231,7 +232,8 @@ object ScalaMarkerType {
       }
       val renderer = new PsiClassListCellRenderer
       util.Arrays.sort(inheritors, renderer.getComparator)
-      PsiElementListNavigator.openTargets(e, inheritors.map(_.asInstanceOf[NavigatablePsiElement]), title, renderer)
+      PsiElementListNavigator.openTargets(mouseEvent, inheritors.map(_.asInstanceOf[NavigatablePsiElement]),
+        title, title /* todo: please review */, renderer)
     }
   })
 

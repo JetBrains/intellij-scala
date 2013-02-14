@@ -2,8 +2,7 @@ package org.jetbrains.plugins.scala
 package refactoring.move
 
 import org.jetbrains.plugins.scala.util.TestUtils
-import com.intellij.testFramework.{CodeInsightTestCase, PlatformTestUtil, PsiTestUtil}
-import com.intellij.openapi.projectRoots.impl.JavaSdkImpl
+import com.intellij.testFramework.{IdeaTestUtil, PlatformTestUtil, PsiTestUtil}
 import com.intellij.openapi.vfs.{LocalFileSystem, VirtualFile}
 import java.util
 import java.io.File
@@ -16,6 +15,7 @@ import com.intellij.refactoring.move.moveClassesOrPackages.{SingleSourceRootMove
 import com.intellij.refactoring.PackageWrapper
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import lang.psi.api.toplevel.typedef.ScObject
+import com.intellij.codeInsight.CodeInsightTestCase
 
 /**
  * @author Alefas
@@ -73,7 +73,7 @@ class ScalaMoveClassTest extends CodeInsightTestCase {
   def doTest(testName: String, classNames: Array[String], newPackageName: String) {
     val root: String = TestUtils.getTestDataPath + "/move/" + testName
     val rootBefore: String = root + "/before"
-    PsiTestUtil.removeAllRoots(myModule, JavaSdkImpl.getMockJdk17)
+    PsiTestUtil.removeAllRoots(myModule, IdeaTestUtil.getMockJdk17)
     val rootDir: VirtualFile = PsiTestUtil.createTestProjectStructure(getProject, myModule, rootBefore, new util.HashSet[File]())
     performAction(classNames, newPackageName)
     val rootAfter: String = root + "/after"

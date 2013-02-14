@@ -103,7 +103,7 @@ object ScalaOIUtil {
     val componentBuffer = ArrayBuffer[JComponent](dontInferReturnTypeCheckBox)
     if (ScalaApplicationSettings.getInstance.SPECIFY_RETURN_TYPE_EXPLICITLY != null)
       dontInferReturnTypeCheckBox.setSelected(ScalaApplicationSettings.getInstance.SPECIFY_RETURN_TYPE_EXPLICITLY.booleanValue)
-    class ScalaMemberChooser extends MemberChooser[ClassMember](classMembers, false, true, project, componentBuffer.toArray) {
+    class ScalaMemberChooser extends MemberChooser[ClassMember](classMembers, false, true, project, null, componentBuffer.toArray) {
       def needsInferType = dontInferReturnTypeCheckBox.isSelected
     }
     var selectedMembers: List[ClassMember] = null
