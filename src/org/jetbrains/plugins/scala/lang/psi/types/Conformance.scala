@@ -43,11 +43,39 @@ object Conformance {
   case class AliasType(ta: ScTypeAlias, lower: TypeResult[ScType], upper: TypeResult[ScType])
   def isAliasType(tp: ScType): Option[AliasType] = {
     tp match {
-      case ScDesignatorType(ta: ScTypeAlias) => Some(AliasType(ta, ta.lowerBound, ta.upperBound))
+      case ScDesignatorType(ta: ScTypeAlias) if ta.typeParameters.length == 0 =>
+        Some(AliasType(ta, ta.lowerBound, ta.upperBound))
+      case ScDesignatorType(ta: ScTypeAlias) => //higher kind case
+        val args: ArrayBuffer[ScExistentialArgument] = new ArrayBuffer[ScExistentialArgument]()
+        val genericSubst = ScalaPsiUtil.
+          typesCallSubstitutor(ta.typeParameters.map(tp => (tp.name, ScalaPsiUtil.getPsiElementId(tp))),
+          ta.typeParameters.map(tp => {
+            val name = tp.name + "$$"
+            args += new ScExistentialArgument(name, Nil, types.Nothing, types.Any)
+            ScTypeVariable(name)
+          }))
+        Some(AliasType(ta, ta.lowerBound.map(scType => ScExistentialType(genericSubst.subst(scType), args.toList)),
+          ta.upperBound.map(scType => ScExistentialType(genericSubst.subst(scType), args.toList))))
       case p: ScProjectionType if p.actualElement.isInstanceOf[ScTypeAlias] =>
-        val ta: ScTypeAlias = p.actualElement.asInstanceOf[ScTypeAlias]
-        val subst: ScSubstitutor = p.actualSubst
-        Some(AliasType(ta, ta.lowerBound.map(subst.subst(_)), ta.upperBound.map(subst.subst(_))))
+        p.actualElement match {
+          case ta: ScTypeAlias if ta.typeParameters.length == 0 =>
+            val subst: ScSubstitutor = p.actualSubst
+            Some(AliasType(ta, ta.lowerBound.map(subst.subst(_)), ta.upperBound.map(subst.subst(_))))
+          case ta: ScTypeAlias => //higher kind case
+            val args: ArrayBuffer[ScExistentialArgument] = new ArrayBuffer[ScExistentialArgument]()
+            val genericSubst = ScalaPsiUtil.
+              typesCallSubstitutor(ta.typeParameters.map(tp => (tp.name, ScalaPsiUtil.getPsiElementId(tp))),
+              ta.typeParameters.map(tp => {
+                val name = tp.name + "$$"
+                args += new ScExistentialArgument(name, Nil, types.Nothing, types.Any)
+                ScTypeVariable(name)
+              }))
+            val subst: ScSubstitutor = p.actualSubst
+            val s = subst.followed(genericSubst)
+            Some(AliasType(ta, ta.lowerBound.map(scType => ScExistentialType(s.subst(scType), args.toList)),
+              ta.upperBound.map(scType => ScExistentialType(s.subst(scType), args.toList))))
+          case _ => None
+        }
       case ScParameterizedType(ScDesignatorType(ta: ScTypeAlias), args) => {
         val genericSubst = ScalaPsiUtil.
           typesCallSubstitutor(ta.typeParameters.map(tp => (tp.name, ScalaPsiUtil.getPsiElementId(tp))), args)
@@ -247,8 +275,10 @@ object Conformance {
           ScType.extractDesignated(l) match {
             case Some((el, _)) => {
               val notNullClass = ScalaPsiManager.instance(el.getProject).getCachedClass("scala.NotNull", el.getResolveScope, ScalaPsiManager.ClassCategory.TYPE)
-              val notNullType = ScDesignatorType(notNullClass)
-              result = (!conforms(notNullType, l), undefinedSubst) //todo: think about undefinedSubst
+              if (notNullClass != null) {
+                val notNullType = ScDesignatorType(notNullClass)
+                result = (!conforms(notNullType, l), undefinedSubst) //todo: think about undefinedSubst
+              }
             }
             case _ => result = (true, undefinedSubst)
           }
