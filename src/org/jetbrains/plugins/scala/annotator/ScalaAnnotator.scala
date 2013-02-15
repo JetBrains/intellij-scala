@@ -47,6 +47,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScInterpolatedStringPrefix
 import codeInspection.caseClassParamInspection.{RemoveValFromGeneratorIntentionAction, RemoveValFromEnumeratorIntentionAction}
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.impl.ScDocResolvableCodeReferenceImpl
 import org.jetbrains.plugins.scala.lang.psi
+import com.intellij.openapi.roots.ProjectFileIndex
 
 /**
  * User: Alexander Podkhalyuzin
@@ -352,6 +353,13 @@ with DumbAware {
 
   def isAdvancedHighlightingEnabled(element: PsiElement): Boolean = {
     if (!HighlightingAdvisor.getInstance(element.getProject).enabled) return false
+    element.getContainingFile match {
+      case file: ScalaFile =>
+        if (file.isCompiled) return false
+        val vFile = file.getVirtualFile
+        if (vFile != null && ProjectFileIndex.SERVICE.getInstance(element.getProject).isInLibrarySource(vFile)) return false
+      case _ =>
+    }
     val containingFile = element.getContainingFile
     def calculate(): mutable.HashSet[TextRange] = {
       val text = containingFile.getText
