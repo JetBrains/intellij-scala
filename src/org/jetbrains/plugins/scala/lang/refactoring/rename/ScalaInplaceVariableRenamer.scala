@@ -47,7 +47,7 @@ object ScalaInplaceVariableRenamer {
             if (stringToSearch != null) {
               TextOccurrencesUtil.addUsagesInStringsAndComments(element, stringToSearch, usages, new TextOccurrencesUtil.UsageInfoFactory {
                 def createUsageInfo(usage: PsiElement, startOffset: Int, endOffset: Int): UsageInfo = new UsageInfo(usage)
-              });
+              })
               ReferencesSearch.search(element).forEach(new Processor[PsiReference] {
                 def process(t: PsiReference): Boolean = {
                   if (t.getElement.getText.contains("`")) {
