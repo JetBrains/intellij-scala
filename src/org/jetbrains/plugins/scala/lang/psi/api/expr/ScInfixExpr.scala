@@ -28,7 +28,7 @@ trait ScInfixExpr extends ScExpression with MethodInvocation with ScSugarCallExp
   def rOp: ScExpression = {
     val exprs: Array[ScExpression] = findChildrenByClassScala(classOf[ScExpression])
     assert(exprs.length > 2,
-      s"Infix expression contains less than 3 expressions: ${exprs.mkString("(", ", ", ")")}, exprssion: $getText")
+      s"Infix expression contains less than 3 expressions: ${exprs.mkString("(", ", ", ")")}, exprssion: $getText, full code: ${getContainingFile.getText}")
     exprs.apply(2)
   }
 
