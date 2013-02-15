@@ -282,7 +282,14 @@ abstract class MixinNodes {
         case p: PhysicalSignature =>
           val h = index(elemHashCode(key))
           var e = table(h).asInstanceOf[Entry]
-          if (e != null && e.next == null) return Some(e.value)
+          if (e != null && e.next == null) {
+            e.value.info match {
+              case p2: PhysicalSignature =>
+                if (p.method == p2.method) return Some(e.value)
+                else return None
+              case _ => return None
+            }
+          }
           while (e != null) {
             e.value.info match {
               case p2: PhysicalSignature =>
