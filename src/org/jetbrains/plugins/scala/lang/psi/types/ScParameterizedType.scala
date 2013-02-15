@@ -169,26 +169,24 @@ case class ScParameterizedType(designator : ScType, typeArgs : Seq[ScType]) exte
   override def equivInner(r: ScType, uSubst: ScUndefinedSubstitutor, falseUndef: Boolean): (Boolean, ScUndefinedSubstitutor) = {
     var undefinedSubst = uSubst
     (this, r) match {
-      case (ScParameterizedType(proj@ScProjectionType(projected, _, _), args), _) if proj.actualElement.isInstanceOf[ScTypeAliasDefinition] => {
-        val a = proj.actualElement.asInstanceOf[ScTypeAliasDefinition]
-        val subst = proj.actualSubst
-        val lBound = subst.subst(a.lowerBound match {
-          case Success(tp, _) => tp
-          case _ => return (false, undefinedSubst)
-        })
-        val genericSubst = ScalaPsiUtil.
-                typesCallSubstitutor(a.typeParameters.map(tp => (tp.name, ScalaPsiUtil.getPsiElementId(tp))), args)
-        Equivalence.equivInner(genericSubst.subst(lBound), r, undefinedSubst, falseUndef)
-      }
-      case (ScParameterizedType(ScDesignatorType(a: ScTypeAliasDefinition), args), _) => {
-        val lBound = a.lowerBound match {
-          case Success(tp, _) => tp
-          case _ => return (false, undefinedSubst)
+      case (ScParameterizedType(proj@ScProjectionType(projected, _, _), args), _) if proj.actualElement.isInstanceOf[ScTypeAliasDefinition] =>
+        Conformance.isAliasType(this) match {
+          case Some(Conformance.AliasType(ta: ScTypeAliasDefinition, lower, _)) =>
+            Equivalence.equivInner(lower match {
+              case Success(tp, _) => tp
+              case _ => return (false, uSubst)
+            }, r, uSubst, falseUndef)
+          case _ => (false, uSubst)
         }
-        val genericSubst = ScalaPsiUtil.
-                typesCallSubstitutor(a.typeParameters.map(tp => (tp.name, ScalaPsiUtil.getPsiElementId(tp))), args)
-        Equivalence.equivInner(genericSubst.subst(lBound), r, undefinedSubst, falseUndef)
-      }
+      case (ScParameterizedType(ScDesignatorType(a: ScTypeAliasDefinition), args), _) =>
+        Conformance.isAliasType(this) match {
+          case Some(Conformance.AliasType(ta: ScTypeAliasDefinition, lower, _)) =>
+            Equivalence.equivInner(lower match {
+              case Success(tp, _) => tp
+              case _ => return (false, uSubst)
+            }, r, uSubst, falseUndef)
+          case _ => (false, uSubst)
+        }
       case (ScParameterizedType(designator, typeArgs), ScParameterizedType(designator1, typeArgs1)) => {
         var t = Equivalence.equivInner(designator, designator1, undefinedSubst, falseUndef)
         if (!t._1) return (false, undefinedSubst)

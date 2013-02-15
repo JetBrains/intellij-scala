@@ -132,14 +132,15 @@ case class ScProjectionType(projected: ScType, element: PsiNamedElement,
         if (resInner._1) return resInner
       }
     }
-    r match {
-      case _ if actualElement.isInstanceOf[ScTypeAliasDefinition] =>
-        val a = actualElement.asInstanceOf[ScTypeAliasDefinition]
-        val subst = actualSubst
-        Equivalence.equivInner(subst.subst(a.aliasedType match {
+    Conformance.isAliasType(this) match {
+      case Some(Conformance.AliasType(ta: ScTypeAliasDefinition, lower, _)) =>
+        return Equivalence.equivInner(lower match {
           case Success(tp, _) => tp
           case _ => return (false, uSubst)
-        }), r, uSubst, falseUndef)
+        }, r, uSubst, falseUndef)
+      case _ =>
+    }
+    r match {
       case t: StdType =>
         element match {
           case synth: ScSyntheticClass => Equivalence.equivInner(synth.t, t, uSubst, falseUndef)
@@ -148,23 +149,27 @@ case class ScProjectionType(projected: ScType, element: PsiNamedElement,
       case param@ScParameterizedType(proj2@ScProjectionType(p1, element1, _), typeArgs) =>
         proj2.actualElement match {
           case ta: ScTypeAliasDefinition =>
-            val genericSubst = ScalaPsiUtil.
-              typesCallSubstitutor(ta.typeParameters.map(tp => (tp.name, ScalaPsiUtil.getPsiElementId(tp))), typeArgs)
-            val subst = proj2.actualSubst.followed(genericSubst)
-            Equivalence.equivInner(this, subst.subst(ta.aliasedType match {
-              case Success(tp, _) => tp
-              case _ => return (false, uSubst)
-            }), uSubst, falseUndef)
+            Conformance.isAliasType(r) match {
+              case Some(Conformance.AliasType(ta: ScTypeAliasDefinition, lower, _)) =>
+                Equivalence.equivInner(this, lower match {
+                  case Success(tp, _) => tp
+                  case _ => return (false, uSubst)
+                }, uSubst, falseUndef)
+              case _ => (false, uSubst)
+            }
           case _ => (false, uSubst)
         }
       case proj2@ScProjectionType(p1, element1, _) => {
         proj2.actualElement match {
           case a: ScTypeAliasDefinition =>
-            val subst = proj2.actualSubst
-            return Equivalence.equivInner(this, subst.subst(a.aliasedType match {
-              case Success(tp, _) => tp
-              case _ => return (false, uSubst)
-            }), uSubst, falseUndef)
+            Conformance.isAliasType(r) match {
+              case Some(Conformance.AliasType(ta: ScTypeAliasDefinition, lower, _)) =>
+                Equivalence.equivInner(this, lower match {
+                  case Success(tp, _) => tp
+                  case _ => return (false, uSubst)
+                }, uSubst, falseUndef)
+              case _ =>
+            }
           case _ =>
         }
         if (actualElement != proj2.actualElement) {
