@@ -83,8 +83,12 @@ private object RemoteServer {
               client.message(Kind.ERROR, "Unable to read an event from: " + chars)
               client.trace(e)
           }
+        // Main server class redirects all (unexpected) stdout data to stderr.
+        // In theory, there should be no such data at all, however, in practice,
+        // SBT "leaks" some messages into console (e.g. for "explain type errors" option).
+        // Report such output not as errors, but as warings (to continue make process).
         case Chunk(NGConstants.CHUNKTYPE_STDERR, data) =>
-          client.message(Kind.ERROR, fromBytes(data))
+          client.message(Kind.WARNING, fromBytes(data))
         case Chunk(kind, data) =>
           client.message(Kind.ERROR, "Unexpected server output: " + data)
       }
