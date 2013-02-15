@@ -164,6 +164,8 @@ class ScImportStmtImpl extends ScalaStubBasedElementImpl[ScImportStmt] with ScIm
               if (importExpr.singleWildcard) {
                 if (!checkWildcardImports) return true
                 (elem, processor) match {
+                  case (_, processor: BaseProcessor) if refType.isDefined =>
+                    if (!processor.processType(refType.get, place, newState)) return false
                   case (cl: PsiClass, processor: BaseProcessor) if !cl.isInstanceOf[ScTemplateDefinition] => {
                     if (!processor.processType(new ScDesignatorType(cl, true), place,
                       newState)) return false

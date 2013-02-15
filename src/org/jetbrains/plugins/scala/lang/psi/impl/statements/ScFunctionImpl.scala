@@ -201,7 +201,7 @@ abstract class ScFunctionImpl extends ScalaStubBasedElementImpl[ScFunction] with
   }
 
   def getTypeParameterList = new FakePsiTypeParameterList(getManager, getLanguage, typeParameters.toArray, this)
-  
+
   def hasTypeParameters = typeParameters.length > 0
 
   def getParameterList: ScParameters = paramClauses
