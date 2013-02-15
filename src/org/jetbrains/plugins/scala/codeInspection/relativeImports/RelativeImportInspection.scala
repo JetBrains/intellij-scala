@@ -24,6 +24,7 @@ class RelativeImportInspection extends AbstractInspection("RelativeImport", "Rel
 
   def actionFor(holder: ProblemsHolder): PartialFunction[PsiElement, Any] = {
     case expr: ScImportExpr =>
+      assert(expr.qualifier != null, s"Expression qualifier is null, expression text: ${expr.getText}, expr parent text: ${expr.getParent.getText}")
       val q = qual(expr.qualifier)
       val resolve = q.multiResolve(false)
       for (elem <- resolve) {
