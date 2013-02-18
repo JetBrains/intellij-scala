@@ -4,13 +4,14 @@ import com.intellij.codeInsight.completion.CompletionType
 import org.junit.Assert
 import com.intellij.openapi.vfs.VfsUtil
 import com.intellij.codeInsight.lookup.LookupElementPresentation
+import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightTestBase
 
 /**
  * User: Alexander Podkhalyuzin
  * Date: 28.10.11
  */
 
-class ScalaSmartCompletionTest extends ScalaCompletionTestBase {
+class ScalaSmartCompletionTest extends ScalaCodeInsightTestBase {
   def testAfterPlaceholder() {
     val fileText =
       """

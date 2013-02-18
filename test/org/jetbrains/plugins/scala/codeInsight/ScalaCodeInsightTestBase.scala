@@ -1,19 +1,19 @@
-package org.jetbrains.plugins.scala.lang.completion3
+package org.jetbrains.plugins.scala
+package codeInsight
 
-import com.intellij.testFramework.fixtures.LightPlatformCodeInsightFixtureTestCase
 import com.intellij.codeInsight.lookup.impl.LookupImpl
 import com.intellij.codeInsight.lookup.{LookupElement, LookupManager}
 import com.intellij.codeInsight.completion.{CompletionType, CodeCompletionHandlerBase}
 import com.intellij.psi.statistics.StatisticsManager
 import com.intellij.psi.statistics.impl.StatisticsManagerImpl
-import com.intellij.testFramework.{LightPlatformTestCase, LightPlatformCodeInsightTestCase}
 import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAdapter
+import com.intellij.openapi.actionSystem.IdeActions
 
 /**
  * @author Alexander Podkhalyuzin
  */
 
-abstract class ScalaCompletionTestBase extends ScalaLightPlatformCodeInsightTestCaseAdapter {
+abstract class ScalaCodeInsightTestBase extends ScalaLightPlatformCodeInsightTestCaseAdapter {
   protected override def setUp() {
     super.setUp()
     (StatisticsManager.getInstance.asInstanceOf[StatisticsManagerImpl]).enableStatistics(getTestRootDisposable)
@@ -31,5 +31,9 @@ abstract class ScalaCompletionTestBase extends ScalaLightPlatformCodeInsightTest
      val lookup: LookupImpl = LookupManager.getActiveLookup(getEditorAdapter).asInstanceOf[LookupImpl]
     if (item == null) lookup.finishLookup(completionChar)
     else lookup.finishLookup(completionChar, item)
+  }
+
+  protected def invokeSmartEnter() {
+    executeActionAdapter(IdeActions.ACTION_EDITOR_COMPLETE_STATEMENT)
   }
 }

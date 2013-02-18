@@ -6,13 +6,14 @@ import com.intellij.codeInsight.completion.CompletionType
 import com.intellij.codeInsight.lookup.LookupElement
 import com.intellij.psi.PsiClass
 import extensions.toPsiClassExt
+import codeInsight.ScalaCodeInsightTestBase
 
 /**
  * User: Dmitry Naydanov
  * Date: 12/9/11
  */
 
-class ScalaDocCompletionTest extends ScalaCompletionTestBase {
+class ScalaDocCompletionTest extends ScalaCodeInsightTestBase {
   protected def genericCompletionComparison(initialText: String, finalText: String, filter: LookupElement => Boolean) {
     val fileText = initialText.stripMargin('|').replaceAll("\r", "").trim()
     val resultText = finalText.stripMargin('|').replaceAll("\r", "").trim()

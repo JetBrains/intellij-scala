@@ -3,12 +3,13 @@ package org.jetbrains.plugins.scala.lang.completion3
 import com.intellij.codeInsight.completion.CompletionType
 import org.junit.Assert
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
+import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightTestBase
 
 /**
  * @author Alefas
  * @since 06.10.11
  */
-class ScalaBasicCompletionTest extends ScalaCompletionTestBase {
+class ScalaBasicCompletionTest extends ScalaCodeInsightTestBase {
   def testInImportSelector() {
     val fileText =
       """
