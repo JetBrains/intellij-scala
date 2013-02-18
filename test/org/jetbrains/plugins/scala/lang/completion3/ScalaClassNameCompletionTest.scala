@@ -4,13 +4,14 @@ import com.intellij.codeInsight.completion.CompletionType
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject}
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
+import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightTestBase
 
 /**
  * User: Alefas
  * Date: 27.03.12
  */
 
-class ScalaClassNameCompletionTest extends ScalaCompletionTestBase {
+class ScalaClassNameCompletionTest extends ScalaCodeInsightTestBase {
   def testClassNameRenamed() {
     val fileText =
       """

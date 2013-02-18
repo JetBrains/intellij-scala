@@ -1,12 +1,13 @@
 package org.jetbrains.plugins.scala.lang.completion3
 
 import com.intellij.codeInsight.completion.CompletionType
+import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightTestBase
 
 /**
  * @author Alexander Podkhalyuzin
  */
 
-class ScalaSomeSmartCompletionTest extends ScalaCompletionTestBase {
+class ScalaSomeSmartCompletionTest extends ScalaCodeInsightTestBase {
   def testSomeSmart1() {
     val fileText =
 """

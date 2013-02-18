@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.base;
 
 import com.intellij.ide.startup.impl.StartupManagerImpl;
+import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.Result;
 import com.intellij.openapi.application.WriteAction;
@@ -196,6 +197,14 @@ public abstract class ScalaLightPlatformCodeInsightTestCaseAdapter extends Light
 
   protected PsiManager getPsiManagerAdapter() {
     return getPsiManager();
+  }
+
+  protected DataContext getCurrentEditorDataContextAdapter() {
+    return getCurrentEditorDataContext();
+  }
+
+  protected void executeActionAdapter(String actionId) {
+    executeAction(actionId);
   }
 
   protected void configureFromFileTextAdapter(@NonNls final String fileName,

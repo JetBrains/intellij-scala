@@ -2,13 +2,14 @@ package org.jetbrains.plugins.scala.lang.completion3
 
 import com.intellij.codeInsight.completion.CompletionType
 import org.junit.Assert
+import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightTestBase
 
 /**
  * User: Alexander Podkhalyuzin
  * Date: 04.01.12
  */
 
-class ScalaKeywordCompletionTest extends ScalaCompletionTestBase {
+class ScalaKeywordCompletionTest extends ScalaCodeInsightTestBase {
   def testPrivateVal() {
     val fileText =
       """

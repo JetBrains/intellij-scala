@@ -4,12 +4,13 @@ import com.intellij.codeInsight.completion.CompletionType
 import org.junit.Assert
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 import org.jetbrains.plugins.scala.extensions.toPsiNamedElementExt
+import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightTestBase
 
 /**
  * @author Alexander Podkhalyuzin
  */
 
-class ScalaGlobalMemberCompletionTest extends ScalaCompletionTestBase {
+class ScalaGlobalMemberCompletionTest extends ScalaCodeInsightTestBase {
   protected override def rootPath(): String = baseRootPath() + "completion3/globalMember"
 
   def testGlobalMember1() {

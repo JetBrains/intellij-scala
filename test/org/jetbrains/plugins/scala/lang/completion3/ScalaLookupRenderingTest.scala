@@ -4,12 +4,13 @@ import com.intellij.codeInsight.completion.CompletionType
 import com.intellij.codeInsight.lookup.LookupElementPresentation
 import org.junit.Assert
 import com.intellij.openapi.vfs.VfsUtil
+import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightTestBase
 
 /**
  * @author Alefas
  * @since 23.03.12
  */
-class ScalaLookupRenderingTest extends ScalaCompletionTestBase {
+class ScalaLookupRenderingTest extends ScalaCodeInsightTestBase {
   def testJavaVarargs() {
     val javaFileText =
       """
