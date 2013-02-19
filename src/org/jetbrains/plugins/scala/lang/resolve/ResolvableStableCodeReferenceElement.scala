@@ -14,7 +14,7 @@ import psi.types._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports._
 import com.intellij.psi._
 import com.intellij.psi.PsiElement
-import result.TypingContext
+import result.{Success, TypingContext}
 import com.intellij.openapi.progress.ProgressManager
 import util.{PsiModificationTracker, PsiTreeUtil}
 import caches.CachesUtil
@@ -39,17 +39,27 @@ trait ResolvableStableCodeReferenceElement extends ScStableCodeReferenceElement 
 
   protected def processQualifierResolveResult(res: ResolveResult, processor: BaseProcessor, ref: ScStableCodeReferenceElement) {
     res match {
-      case ScalaResolveResult(td: ScTypeDefinition, substitutor) => {
+      case r@ScalaResolveResult(td: ScTypeDefinition, substitutor) => {
         td match {
-          case _: ScObject =>
-            td.processDeclarations(processor, ResolveState.initial.put(ScSubstitutor.key, substitutor),
-              null, ResolvableStableCodeReferenceElement.this)
-          case _: ScClass | _: ScTrait => td.processDeclarations(processor, ResolveState.initial.put(ScSubstitutor.key, substitutor),
-            null, ResolvableStableCodeReferenceElement.this)
+          case obj: ScObject =>
+            val fromType = r.fromType match {
+              case Some(fType) => Success(ScProjectionType(fType, obj, superReference = false), Some(this))
+              case _ => td.getType(TypingContext.empty).map(substitutor.subst(_))
+            }
+            var state = ResolveState.initial.put(ScSubstitutor.key, substitutor)
+            if (fromType.isDefined) {
+              state = state.put(BaseProcessor.FROM_TYPE_KEY, fromType.get)
+              processor.processType(fromType.get, ResolvableStableCodeReferenceElement.this, state)
+            } else {
+              td.processDeclarations(processor, state, null, ResolvableStableCodeReferenceElement.this)
+            }
+          case _: ScClass | _: ScTrait =>
+            td.processDeclarations(processor, ResolveState.initial.put(ScSubstitutor.key, substitutor), null, ResolvableStableCodeReferenceElement.this)
         }
       }
       case ScalaResolveResult(typed: ScTypedDefinition, s) =>
-        processor.processType(s.subst(typed.getType(TypingContext.empty).getOrAny), this)
+        val fromType = s.subst(typed.getType(TypingContext.empty).getOrElse(return))
+        processor.processType(fromType, this, ResolveState.initial().put(BaseProcessor.FROM_TYPE_KEY, fromType))
       case ScalaResolveResult(field: PsiField, s) =>
         processor.processType(s.subst(ScType.create(field.getType, getProject, getResolveScope)), this)
       case ScalaResolveResult(clazz: PsiClass, s) => {

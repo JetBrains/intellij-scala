@@ -18,6 +18,7 @@ class Bug3Test extends ResolveTestBase {
   def testPathDependent() {doTest()}
   def testPathDependent2() {doTest()}
   def testPathDependent3() {doTest()}
+  def testPathDependent4() {doTest()}
   def testValueFunction11() {doTest()}
   def testSCL2169() {doTest()}
   def testSCL2509() {doTest()}
