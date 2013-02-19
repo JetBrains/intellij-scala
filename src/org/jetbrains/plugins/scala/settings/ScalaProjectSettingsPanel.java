@@ -49,6 +49,7 @@ public class ScalaProjectSettingsPanel {
   private JPanel myImportsWithPrefixPanel;
   private JSpinner shiftSpinner;
   private JPanel injectionJPanel;
+  private JSpinner outputSpinner;
   private ScalaUiWithDependency.ComponentWithSettings injectionPrefixTable;
   private JBList referencesWithPrefixList;
   private DefaultListModel myReferencesWithPrefixModel;
@@ -58,6 +59,7 @@ public class ScalaProjectSettingsPanel {
     myProject = project;
     classCountSpinner.setModel(new SpinnerNumberModel(1, 1, null, 1));
     shiftSpinner.setModel(new SpinnerNumberModel(80, 40, null, 10));
+    outputSpinner.setModel(new SpinnerNumberModel(35, 1, null, 1));
     referencesWithPrefixList = new JBList();
     JPanel panel = ToolbarDecorator.createDecorator(referencesWithPrefixList)
         .setAddAction(new AnActionButtonRunnable() {
@@ -139,6 +141,7 @@ public class ScalaProjectSettingsPanel {
     scalaProjectSettings.setSortImports(sortImportsCheckBox.isSelected());
     scalaProjectSettings.setClassCountToUseImportOnDemand((Integer) classCountSpinner.getValue());
     scalaProjectSettings.setShift((Integer) shiftSpinner.getValue());
+    scalaProjectSettings.setOutputLimit((Integer) outputSpinner.getValue());
     scalaProjectSettings.setImportMembersUsingUnderScore(importMembersUsingUnderscoreCheckBox.isSelected());
 
     scalaProjectSettings.setSearchAllSymbols(searchAllSymbolsIncludeCheckBox.isSelected());
@@ -178,6 +181,8 @@ public class ScalaProjectSettingsPanel {
         (Integer) classCountSpinner.getValue()) return true;
     if (scalaProjectSettings.getShift() !=
         (Integer) shiftSpinner.getValue()) return true;
+    if (scalaProjectSettings.getOutputLimit() !=
+        (Integer) outputSpinner.getValue()) return true;
     if (scalaProjectSettings.isAddImportMostCloseToReference() !=
         addImportStatementInCheckBox.isSelected()) return true;
     if (scalaProjectSettings.isAddFullQualifiedImports() !=
@@ -233,6 +238,7 @@ public class ScalaProjectSettingsPanel {
     setValue(sortImportsCheckBox, scalaProjectSettings.isSortImports());
     setValue(classCountSpinner, scalaProjectSettings.getClassCountToUseImportOnDemand());
     setValue(shiftSpinner, scalaProjectSettings.getShift());
+    setValue(outputSpinner, scalaProjectSettings.getOutputLimit());
     setValue(importMembersUsingUnderscoreCheckBox, scalaProjectSettings.isImportMembersUsingUnderScore());
 
     setValue(searchAllSymbolsIncludeCheckBox, scalaProjectSettings.isSearchAllSymbols());
