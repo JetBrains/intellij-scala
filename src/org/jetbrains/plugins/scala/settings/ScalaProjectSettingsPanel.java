@@ -13,6 +13,8 @@ import com.intellij.ui.ToolbarDecorator;
 import com.intellij.ui.components.JBList;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.ScalaFileType;
+import org.jetbrains.plugins.scala.settings.uiControls.DependencyAwareInjectionSettings;
+import org.jetbrains.plugins.scala.settings.uiControls.ScalaUiWithDependency;
 
 import javax.swing.*;
 import java.awt.*;
@@ -23,6 +25,8 @@ import java.util.Arrays;
  * Date: 30.07.2008
  */
 public class ScalaProjectSettingsPanel {
+  public final static String INJECTION_SETTINGS_NAME = "DependencyAwareInjectionSettings";
+  
   private JPanel myPanel;
   private JSpinner classCountSpinner;
   private JCheckBox addImportStatementInCheckBox;
@@ -44,6 +48,8 @@ public class ScalaProjectSettingsPanel {
   private JCheckBox importTheShortestPathCheckBox;
   private JPanel myImportsWithPrefixPanel;
   private JSpinner shiftSpinner;
+  private JPanel injectionJPanel;
+  private ScalaUiWithDependency.ComponentWithSettings injectionPrefixTable;
   private JBList referencesWithPrefixList;
   private DefaultListModel myReferencesWithPrefixModel;
   private Project myProject;
@@ -82,6 +88,15 @@ public class ScalaProjectSettingsPanel {
           }
         }).disableUpDownActions().createPanel();
     myImportsWithPrefixPanel.add(panel, BorderLayout.CENTER);
+    
+    ScalaUiWithDependency[] deps = DependencyAwareInjectionSettings.EP_NAME.getExtensions();
+    for (ScalaUiWithDependency uiWithDependency : deps) {
+      if (INJECTION_SETTINGS_NAME.equals(uiWithDependency.getName())) {
+        injectionPrefixTable = uiWithDependency.createComponent(injectionJPanel);
+        break;
+      }
+    }
+    if (injectionPrefixTable == null) injectionPrefixTable = new ScalaUiWithDependency.NullComponentWithSettings();
 
     referencesWithPrefixList.getEmptyText().setText(ApplicationBundle.message("exclude.from.imports.no.exclusions"));
     setSettings();
@@ -117,81 +132,87 @@ public class ScalaProjectSettingsPanel {
   public void apply() {
     if (!isModified()) return;
 
-    ScalaProjectSettings.getInstance(myProject).setAddImportMostCloseToReference(addImportStatementInCheckBox.isSelected());
-    ScalaProjectSettings.getInstance(myProject).setAddFullQualifiedImports(addFullQualifiedImportsCheckBox.isSelected());
-    ScalaProjectSettings.getInstance(myProject).setSortImports(sortImportsCheckBox.isSelected());
-    ScalaProjectSettings.getInstance(myProject).setClassCountToUseImportOnDemand((Integer) classCountSpinner.getValue());
-    ScalaProjectSettings.getInstance(myProject).setShift((Integer) shiftSpinner.getValue());
-    ScalaProjectSettings.getInstance(myProject).setImportMembersUsingUnderScore(importMembersUsingUnderscoreCheckBox.isSelected());
+    final ScalaProjectSettings scalaProjectSettings = ScalaProjectSettings.getInstance(myProject);
+    
+    scalaProjectSettings.setAddImportMostCloseToReference(addImportStatementInCheckBox.isSelected());
+    scalaProjectSettings.setAddFullQualifiedImports(addFullQualifiedImportsCheckBox.isSelected());
+    scalaProjectSettings.setSortImports(sortImportsCheckBox.isSelected());
+    scalaProjectSettings.setClassCountToUseImportOnDemand((Integer) classCountSpinner.getValue());
+    scalaProjectSettings.setShift((Integer) shiftSpinner.getValue());
+    scalaProjectSettings.setImportMembersUsingUnderScore(importMembersUsingUnderscoreCheckBox.isSelected());
 
-    ScalaProjectSettings.getInstance(myProject).setSearchAllSymbols(searchAllSymbolsIncludeCheckBox.isSelected());
-    ScalaProjectSettings.getInstance(myProject).setEnableJavaToScalaConversion(enableConversionOnCopyCheckBox.isSelected());
-    ScalaProjectSettings.getInstance(myProject).setDontShowConversionDialog(donTShowDialogCheckBox.isSelected());
-    ScalaProjectSettings.getInstance(myProject).setTreatDocCommentAsBlockComment(treatDocCommentAsBlockComment.isSelected());
+    scalaProjectSettings.setSearchAllSymbols(searchAllSymbolsIncludeCheckBox.isSelected());
+    scalaProjectSettings.setEnableJavaToScalaConversion(enableConversionOnCopyCheckBox.isSelected());
+    scalaProjectSettings.setDontShowConversionDialog(donTShowDialogCheckBox.isSelected());
+    scalaProjectSettings.setTreatDocCommentAsBlockComment(treatDocCommentAsBlockComment.isSelected());
 
-    ScalaProjectSettings.getInstance(myProject).setShowImplisitConversions(showImplicitConversionsInCheckBox.isSelected());
-    ScalaProjectSettings.getInstance(myProject).setShowArgumentsToByNameParams(showArgumentsToByNameParametersCheckBox.isSelected());
-    ScalaProjectSettings.getInstance(myProject).setIncludeBlockExpressions(includeBlockExpressionsExpressionsCheckBox.isSelected());
-    ScalaProjectSettings.getInstance(myProject).setIncludeLiterals(includeLiteralsCheckBox.isSelected());
+    scalaProjectSettings.setShowImplisitConversions(showImplicitConversionsInCheckBox.isSelected());
+    scalaProjectSettings.setShowArgumentsToByNameParams(showArgumentsToByNameParametersCheckBox.isSelected());
+    scalaProjectSettings.setIncludeBlockExpressions(includeBlockExpressionsExpressionsCheckBox.isSelected());
+    scalaProjectSettings.setIncludeLiterals(includeLiteralsCheckBox.isSelected());
 
-    ScalaProjectSettings.getInstance(myProject).setIgnorePerformance(myResolveToAllClassesCheckBox.isSelected());
-    ScalaProjectSettings.getInstance(myProject).setDisableLangInjection(myDisableLanguageInjection.isSelected());
-    ScalaProjectSettings.getInstance(myProject).setScalaPriority(useScalaClassesPriorityCheckBox.isSelected());
-    ScalaProjectSettings.getInstance(myProject).setCollectionTypeHighlightingLevel(collectionHighlightingChooser.getSelectedIndex());
-    ScalaProjectSettings.getInstance(myProject).setImportShortestPathForAmbiguousReferences(importTheShortestPathCheckBox.isSelected());
-    ScalaProjectSettings.getInstance(myProject).setImportsWithPrefix(getPrefixPackages());
+    scalaProjectSettings.setIgnorePerformance(myResolveToAllClassesCheckBox.isSelected());
+    scalaProjectSettings.setDisableLangInjection(myDisableLanguageInjection.isSelected());
+    scalaProjectSettings.setScalaPriority(useScalaClassesPriorityCheckBox.isSelected());
+    scalaProjectSettings.setCollectionTypeHighlightingLevel(collectionHighlightingChooser.getSelectedIndex());
+    scalaProjectSettings.setImportShortestPathForAmbiguousReferences(importTheShortestPathCheckBox.isSelected());
+    scalaProjectSettings.setImportsWithPrefix(getPrefixPackages());
+    injectionPrefixTable.saveSettings(scalaProjectSettings);
   }
 
   @SuppressWarnings({"ConstantConditions", "RedundantIfStatement"})
   public boolean isModified() {
 
-    if (ScalaProjectSettings.getInstance(myProject).isShowImplisitConversions() !=
+    final ScalaProjectSettings scalaProjectSettings = ScalaProjectSettings.getInstance(myProject);
+    
+    if (scalaProjectSettings.isShowImplisitConversions() !=
         showImplicitConversionsInCheckBox.isSelected()) return true;
-    if (ScalaProjectSettings.getInstance(myProject).isShowArgumentsToByNameParams() !=
+    if (scalaProjectSettings.isShowArgumentsToByNameParams() !=
         showArgumentsToByNameParametersCheckBox.isSelected()) return true;
-    if (ScalaProjectSettings.getInstance(myProject).isIncludeBlockExpressions() !=
+    if (scalaProjectSettings.isIncludeBlockExpressions() !=
         includeBlockExpressionsExpressionsCheckBox.isSelected()) return true;
-    if (ScalaProjectSettings.getInstance(myProject).isIncludeLiterals() !=
+    if (scalaProjectSettings.isIncludeLiterals() !=
         includeLiteralsCheckBox.isSelected()) return true;
 
-    if (ScalaProjectSettings.getInstance(myProject).getClassCountToUseImportOnDemand() !=
+    if (scalaProjectSettings.getClassCountToUseImportOnDemand() !=
         (Integer) classCountSpinner.getValue()) return true;
-    if (ScalaProjectSettings.getInstance(myProject).getShift() !=
+    if (scalaProjectSettings.getShift() !=
         (Integer) shiftSpinner.getValue()) return true;
-    if (ScalaProjectSettings.getInstance(myProject).isAddImportMostCloseToReference() !=
+    if (scalaProjectSettings.isAddImportMostCloseToReference() !=
         addImportStatementInCheckBox.isSelected()) return true;
-    if (ScalaProjectSettings.getInstance(myProject).isAddFullQualifiedImports() !=
+    if (scalaProjectSettings.isAddFullQualifiedImports() !=
         addFullQualifiedImportsCheckBox.isSelected()) return true;
-    if (ScalaProjectSettings.getInstance(myProject).isSortImports() !=
+    if (scalaProjectSettings.isSortImports() !=
         sortImportsCheckBox.isSelected()) return true;
-    if (ScalaProjectSettings.getInstance(myProject).isImportMembersUsingUnderScore() !=
+    if (scalaProjectSettings.isImportMembersUsingUnderScore() !=
         importMembersUsingUnderscoreCheckBox.isSelected()) return true;
 
-    if (ScalaProjectSettings.getInstance(myProject).isSearchAllSymbols() !=
+    if (scalaProjectSettings.isSearchAllSymbols() !=
         searchAllSymbolsIncludeCheckBox.isSelected()) return true;
-    if (ScalaProjectSettings.getInstance(myProject).isEnableJavaToScalaConversion() !=
+    if (scalaProjectSettings.isEnableJavaToScalaConversion() !=
         enableConversionOnCopyCheckBox.isSelected()) return true;
-    if (ScalaProjectSettings.getInstance(myProject).isDontShowConversionDialog() !=
+    if (scalaProjectSettings.isDontShowConversionDialog() !=
         donTShowDialogCheckBox.isSelected()) return true;
-    if (ScalaProjectSettings.getInstance(myProject).isTreatDocCommentAsBlockComment() !=
+    if (scalaProjectSettings.isTreatDocCommentAsBlockComment() !=
         treatDocCommentAsBlockComment.isSelected()) return true;
-    if (ScalaProjectSettings.getInstance(myProject).isImportShortestPathForAmbiguousReferences() !=
+    if (scalaProjectSettings.isImportShortestPathForAmbiguousReferences() !=
         importTheShortestPathCheckBox.isSelected()) return true;
 
-    if (ScalaProjectSettings.getInstance(myProject).isIgnorePerformance() != myResolveToAllClassesCheckBox.isSelected())
+    if (scalaProjectSettings.isIgnorePerformance() != myResolveToAllClassesCheckBox.isSelected())
       return true;
 
-    if (ScalaProjectSettings.getInstance(myProject).isDisableLangInjection() != myDisableLanguageInjection.isSelected())
+    if (scalaProjectSettings.isDisableLangInjection() != myDisableLanguageInjection.isSelected())
       return true;
 
-    if (ScalaProjectSettings.getInstance(myProject).isScalaPriority() != useScalaClassesPriorityCheckBox.isSelected())
+    if (scalaProjectSettings.isScalaPriority() != useScalaClassesPriorityCheckBox.isSelected())
       return true;
 
-    if (ScalaProjectSettings.getInstance(myProject).getCollectionTypeHighlightingLevel() !=
+    if (scalaProjectSettings.getCollectionTypeHighlightingLevel() !=
         collectionHighlightingChooser.getSelectedIndex()) return true;
 
-    if (!Arrays.deepEquals(ScalaProjectSettings.getInstance(myProject).getImportsWithPrefix(),
-        getPrefixPackages())) return true;
+    if (!Arrays.deepEquals(scalaProjectSettings.getImportsWithPrefix(), getPrefixPackages())) return true;
+    
+    if (injectionPrefixTable.isModified(scalaProjectSettings)) return true;
 
     return false;
   }
@@ -205,52 +226,39 @@ public class ScalaProjectSettingsPanel {
   }
 
   private void setSettings() {
-    setValue(addImportStatementInCheckBox,
-        ScalaProjectSettings.getInstance(myProject).isAddImportMostCloseToReference());
-    setValue(addFullQualifiedImportsCheckBox,
-        ScalaProjectSettings.getInstance(myProject).isAddFullQualifiedImports());
-    setValue(sortImportsCheckBox,
-        ScalaProjectSettings.getInstance(myProject).isSortImports());
-    setValue(classCountSpinner,
-        ScalaProjectSettings.getInstance(myProject).getClassCountToUseImportOnDemand());
-    setValue(shiftSpinner,
-        ScalaProjectSettings.getInstance(myProject).getShift());
-    setValue(importMembersUsingUnderscoreCheckBox,
-        ScalaProjectSettings.getInstance(myProject).isImportMembersUsingUnderScore());
+    final ScalaProjectSettings scalaProjectSettings = ScalaProjectSettings.getInstance(myProject);
+    
+    setValue(addImportStatementInCheckBox, scalaProjectSettings.isAddImportMostCloseToReference());
+    setValue(addFullQualifiedImportsCheckBox, scalaProjectSettings.isAddFullQualifiedImports());
+    setValue(sortImportsCheckBox, scalaProjectSettings.isSortImports());
+    setValue(classCountSpinner, scalaProjectSettings.getClassCountToUseImportOnDemand());
+    setValue(shiftSpinner, scalaProjectSettings.getShift());
+    setValue(importMembersUsingUnderscoreCheckBox, scalaProjectSettings.isImportMembersUsingUnderScore());
 
-    setValue(searchAllSymbolsIncludeCheckBox,
-        ScalaProjectSettings.getInstance(myProject).isSearchAllSymbols());
-    setValue(enableConversionOnCopyCheckBox,
-        ScalaProjectSettings.getInstance(myProject).isEnableJavaToScalaConversion());
-    setValue(donTShowDialogCheckBox,
-        ScalaProjectSettings.getInstance(myProject).isDontShowConversionDialog());
-    setValue(treatDocCommentAsBlockComment,
-        ScalaProjectSettings.getInstance(myProject).isTreatDocCommentAsBlockComment());
+    setValue(searchAllSymbolsIncludeCheckBox, scalaProjectSettings.isSearchAllSymbols());
+    setValue(enableConversionOnCopyCheckBox, scalaProjectSettings.isEnableJavaToScalaConversion());
+    setValue(donTShowDialogCheckBox, scalaProjectSettings.isDontShowConversionDialog());
+    setValue(treatDocCommentAsBlockComment, scalaProjectSettings.isTreatDocCommentAsBlockComment());
 
-    setValue(showImplicitConversionsInCheckBox,
-        ScalaProjectSettings.getInstance(myProject).isShowImplisitConversions());
-    setValue(showArgumentsToByNameParametersCheckBox,
-        ScalaProjectSettings.getInstance(myProject).isShowArgumentsToByNameParams());
-    setValue(includeBlockExpressionsExpressionsCheckBox,
-        ScalaProjectSettings.getInstance(myProject).isIncludeBlockExpressions());
-    setValue(includeLiteralsCheckBox,
-        ScalaProjectSettings.getInstance(myProject).isIncludeLiterals());
+    setValue(showImplicitConversionsInCheckBox, scalaProjectSettings.isShowImplisitConversions());
+    setValue(showArgumentsToByNameParametersCheckBox, scalaProjectSettings.isShowArgumentsToByNameParams());
+    setValue(includeBlockExpressionsExpressionsCheckBox, scalaProjectSettings.isIncludeBlockExpressions());
+    setValue(includeLiteralsCheckBox, scalaProjectSettings.isIncludeLiterals());
 
-    setValue(myResolveToAllClassesCheckBox,
-        ScalaProjectSettings.getInstance(myProject).isIgnorePerformance());
+    setValue(myResolveToAllClassesCheckBox, scalaProjectSettings.isIgnorePerformance());
 
-    setValue(myDisableLanguageInjection,
-        ScalaProjectSettings.getInstance(myProject).isDisableLangInjection());
-    setValue(useScalaClassesPriorityCheckBox,
-        ScalaProjectSettings.getInstance(myProject).isScalaPriority());
-    setValue(importTheShortestPathCheckBox,
-        ScalaProjectSettings.getInstance(myProject).isImportShortestPathForAmbiguousReferences());
-    collectionHighlightingChooser.setSelectedIndex(ScalaProjectSettings.getInstance(myProject).getCollectionTypeHighlightingLevel());
+    setValue(myDisableLanguageInjection, scalaProjectSettings.isDisableLangInjection());
+    setValue(useScalaClassesPriorityCheckBox, scalaProjectSettings.isScalaPriority());
+    setValue(importTheShortestPathCheckBox, scalaProjectSettings.isImportShortestPathForAmbiguousReferences());
+    collectionHighlightingChooser.setSelectedIndex(scalaProjectSettings.getCollectionTypeHighlightingLevel()); 
+    
     myReferencesWithPrefixModel = new DefaultListModel();
-    for (String aPackage : ScalaProjectSettings.getInstance(myProject).getImportsWithPrefix()) {
+    for (String aPackage : scalaProjectSettings.getImportsWithPrefix()) {
       myReferencesWithPrefixModel.add(myReferencesWithPrefixModel.size(), aPackage);
     }
     referencesWithPrefixList.setModel(myReferencesWithPrefixModel);
+    
+    injectionPrefixTable.loadSettings(scalaProjectSettings);
   }
 
   private static void setValue(JSpinner spinner, int value) {
@@ -266,6 +274,8 @@ public class ScalaProjectSettingsPanel {
   }
 
   private void createUIComponents() {
-    // TODO: place custom component creation code here
+    injectionJPanel = new JPanel(new GridLayout(2, 1));
+    injectionJPanel.setPreferredSize(new Dimension(200, 500));
+    injectionJPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 0, 0));
   }
 }

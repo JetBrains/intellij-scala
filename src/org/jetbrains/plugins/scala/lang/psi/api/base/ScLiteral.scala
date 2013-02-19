@@ -5,7 +5,7 @@ package api
 package base
 
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import com.intellij.psi.{PsiLiteral, PsiLanguageInjectionHost}
+import com.intellij.psi.{PsiAnnotationOwner, PsiLiteral, PsiLanguageInjectionHost}
 import psi.types.ScType
 
 /**
@@ -21,6 +21,7 @@ trait ScLiteral extends ScExpression with PsiLiteral with PsiLanguageInjectionHo
   def setTypeWithoutImplicits(tp: Option[ScType])
   def isString: Boolean
   def isMultiLineString: Boolean
+  def getAnnotationOwner(annotationOwnerLookUp: ScLiteral => Option[PsiAnnotationOwner]): Option[PsiAnnotationOwner]
 }
 
 object ScLiteral {

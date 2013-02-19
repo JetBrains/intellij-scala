@@ -8,6 +8,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author Ksenia.Sautina
@@ -45,6 +47,14 @@ public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProj
 
   private boolean SCALA_CLASSES_PRIORITY = true;
 
+  private Map<String, String> INTERPOLATED_INJECTION_MAPPING = new HashMap<String, String>();
+  
+  {
+    INTERPOLATED_INJECTION_MAPPING.put("sql", "SQL");
+    INTERPOLATED_INJECTION_MAPPING.put("sqlu", "SQL");
+    INTERPOLATED_INJECTION_MAPPING.put("xml", "XML");
+  }
+  
   private String[] IMPORTS_WITH_PREFIX = {
       "scala.collection.mutable._",
       "java.util.AbstractCollection",
@@ -278,6 +288,14 @@ public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProj
 
   public void setImportsWithPrefix(String[] importsWithPrefix) {
     this.IMPORTS_WITH_PREFIX = importsWithPrefix;
+  }
+  
+  public Map<String, String> getIntInjectionMapping() {
+    return INTERPOLATED_INJECTION_MAPPING;
+  }
+  
+  public void setIntInjectionMapping(Map<String, String> intInjectionMapping) {
+    INTERPOLATED_INJECTION_MAPPING = intInjectionMapping;
   }
 
   public static String EXCLUDE_PREFIX = "exclude:";

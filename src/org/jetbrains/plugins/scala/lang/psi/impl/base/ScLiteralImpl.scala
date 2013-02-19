@@ -19,6 +19,7 @@ import com.intellij.psi._
 import org.jetbrains.plugins.scala.extensions._
 import api.ScalaElementVisitor
 import com.intellij.lang.injection.InjectedLanguageManager
+import java.util.Random
 
 /**
 * @author Alexander Podkhalyuzin
@@ -144,12 +145,7 @@ class ScLiteralImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScLite
     this
   }
 
-  def createLiteralTextEscaper = {
-    if (getFirstChild.getNode.getElementType == ScalaTokenTypes.tMULTILINE_STRING)
-      new PassthroughLiteralEscaper(this)
-    else
-      new ScLiteralEscaper(this)
-  }
+  def createLiteralTextEscaper = if (isMultiLineString) new PassthroughLiteralEscaper(this) else new ScLiteralEscaper(this)
 
   def isString = getFirstChild.getNode.getElementType match {
     case ScalaTokenTypes.tMULTILINE_STRING | ScalaTokenTypes.tSTRING => true
@@ -193,5 +189,36 @@ class ScLiteralImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScLite
     val tp = typeWithoutImplicits
     if (tp != None) return Success(tp.get, None)
     super.getTypeWithoutImplicits(ctx, ignoreBaseTypes, fromUnderscore)
+  }
+  
+  /*
+   * This part caches literal related annotation owners
+   * todo: think about extracting this feature to a trait  
+   * 
+   * trait AnnotationBasedInjectionHost {
+   *   private[this] var myAnnotationOwner: Option[PsiAnnotationOwner] = None
+   *   ...
+   *   private val expTimeLengthGenerator = if (needCaching()) new Random(System.currentTimeMillis()) else null
+   *   ...
+   *   ...
+   *   def needCaching(): Boolean
+   * }
+   */
+  
+  private[this] var myAnnotationOwner: Option[PsiAnnotationOwner] = None
+  private[this] var expirationTime = 0L
+  
+  private val expTimeLengthGenerator = if (isString) new Random(System.currentTimeMillis()) else null 
+  
+  
+  def getAnnotationOwner(annotationOwnerLookUp: ScLiteral => Option[PsiAnnotationOwner]): Option[PsiAnnotationOwner] = {
+    if (!isString) return None
+    
+    if (System.currentTimeMillis() > expirationTime) {
+      myAnnotationOwner = annotationOwnerLookUp(this)
+      expirationTime = System.currentTimeMillis() + (2 + expTimeLengthGenerator.nextInt(8))*1000
+    }
+    
+    myAnnotationOwner
   }
 }

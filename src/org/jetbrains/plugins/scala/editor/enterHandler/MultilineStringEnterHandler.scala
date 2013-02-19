@@ -192,12 +192,6 @@ class MultilineStringEnterHandler extends EnterHandlerDelegateAdapter {
           } else if (isCurrentLineEmpty && prevLine.length > 0) {
             caretShiftHor = if (!useTabs) wsPrefix else prefixLength(prevLine)
           } else if (prevLine.trim.length == 0) {
-            val d0 = document
-            val e0 = element
-            val e1 = editor
-            
-            val spaces = getSmartSpaces(editor.getCaretModel.getVisualPosition.getColumn)
-            
             if (useTabs) {
 //              document.insertString(currentLineOffset, spaces )
               caretShiftHor = editor.getCaretModel.getVisualPosition.getColumn//spaces.length + currentLine.length
@@ -299,11 +293,7 @@ object MultilineStringEnterHandler {
     if (calls.isEmpty) return defaultMargin
 
     calls.apply(0).headOption match {
-      case None => "|"
-      case Some(a: ScLiteral) =>
-        val value = a.getValue
-        if (value != null) value.toString
-        else defaultMargin
+      case Some(a: ScLiteral) => Option(a.getValue) map (_.toString) getOrElse defaultMargin
       case _ => defaultMargin
     }
   }

@@ -11,5 +11,9 @@
     <multiHostInjector implementation="org.jetbrains.plugins.scala.injection.ScalaLanguageInjector"/>
     <!--<multiHostInjector implementation="org.jetbrains.plugins.scala.lang.scaladoc.injection.ScalaDocInnerCodeInjector"/>-->
   </extensions>
+    
+  <extensions defaultExtensionNs="org.intellij.scala">
+      <scalaUiWithDependency implementation="org.jetbrains.plugins.scala.settings.uiControls.DependencyAwareInjectionSettings"/>
+  </extensions>
 
 </idea-plugin>
