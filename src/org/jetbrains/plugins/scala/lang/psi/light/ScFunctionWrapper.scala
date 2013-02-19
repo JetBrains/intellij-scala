@@ -3,11 +3,14 @@ package org.jetbrains.plugins.scala.lang.psi.light
 import com.intellij.psi.impl.light.LightMethod
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
-import com.intellij.psi.{PsiClass, PsiElement, PsiMethod, JavaPsiFacade}
+import com.intellij.psi._
 import collection.mutable.ArrayBuffer
 import org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, StdType, ScType, ScCompoundType}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTypeDefinition, ScObject}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScMethodLike, ScPrimaryConstructor}
+import scala.Some
+import org.jetbrains.plugins.scala.lang.psi.types.result.Success
+import org.jetbrains.plugins.scala.lang.psi.types.ScCompoundType
 
 class ScPrimaryConstructorWrapper(val constr: ScPrimaryConstructor) extends {
   val elementFactory = JavaPsiFacade.getInstance(constr.getProject).getElementFactory
@@ -101,6 +104,19 @@ class ScFunctionWrapper(val function: ScFunction, isStatic: Boolean, isInterface
   override def getPrevSibling: PsiElement = function.getPrevSibling
 
   override def getNextSibling: PsiElement = function.getNextSibling
+
+  @volatile
+  private var returnType: PsiType = null
+
+  override def getReturnType: PsiType = {
+    if (returnType == null) {
+      val scalaType = ScFunctionWrapper.getSubstitutor(cClass, function).subst(function.returnType.getOrAny)
+      returnType = ScType.toPsi(scalaType, function.getProject, function.getResolveScope)
+    }
+    returnType
+  }
+
+  override def getReturnTypeNoResolve: PsiType = getReturnType
 }
 
 object ScFunctionWrapper {
@@ -112,18 +128,7 @@ object ScFunctionWrapper {
 
     builder.append(JavaConversionUtil.modifiers(function, isStatic))
 
-    val subst = (cClass, function) match {
-      case (Some(clazz), function: ScFunction) =>
-        clazz match {
-          case td: ScTypeDefinition =>
-            td.signaturesByName(function.name).find(_.method == function) match {
-              case Some(sign) => sign.substitutor
-              case _ => ScSubstitutor.empty
-            }
-          case _ => ScSubstitutor.empty
-        }
-      case _ => ScSubstitutor.empty
-    }
+    val subst = getSubstitutor(cClass, function)
 
     function match {
       case function: ScFunction if function.typeParameters.length > 0 =>
@@ -162,9 +167,13 @@ object ScFunctionWrapper {
 
     function match {
       case function: ScFunction if !function.isConstructor =>
-        function.returnType match {
-          case Success(tp, _) => builder.append(JavaConversionUtil.typeText(subst.subst(tp), function.getProject, function.getResolveScope))
-          case _ => builder.append("java.lang.Object")
+        if (function.hasExplicitType) {
+          function.returnType match {
+            case Success(tp, _) => builder.append(JavaConversionUtil.typeText(subst.subst(tp), function.getProject, function.getResolveScope))
+            case _              => builder.append("java.lang.Object")
+          }
+        } else {
+          builder.append("FromTypeInference")
         }
       case _ =>
     }
@@ -196,5 +205,20 @@ object ScFunctionWrapper {
     }
 
     builder.toString()
+  }
+
+  def getSubstitutor(cClass: Option[PsiClass], function: ScMethodLike): ScSubstitutor = {
+    (cClass, function) match {
+      case (Some(clazz), function: ScFunction) =>
+        clazz match {
+          case td: ScTypeDefinition =>
+            td.signaturesByName(function.name).find(_.method == function) match {
+              case Some(sign) => sign.substitutor
+              case _          => ScSubstitutor.empty
+            }
+          case _ => ScSubstitutor.empty
+        }
+      case _ => ScSubstitutor.empty
+    }
   }
 }
