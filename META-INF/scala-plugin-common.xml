@@ -890,6 +890,9 @@
         <action id="Scala.CleanWorksheet" class="org.jetbrains.plugins.scala.worksheet.actions.CleanWorksheetAction"
                 text="Clean Scala Worksheet" description="Clean Scala Worksheet">
         </action>
+        <action id="Scala.CopyWorksheet" class="org.jetbrains.plugins.scala.worksheet.actions.CopyWorksheetAction"
+                text="Copy Scala Worksheet" description="Copy Scala Worksheet">
+        </action>
     </actions>
 
 </idea-plugin>
