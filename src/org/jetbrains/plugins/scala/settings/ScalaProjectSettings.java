@@ -27,6 +27,7 @@ public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProj
   private boolean IMPORT_SHORTEST_PATH_FOR_AMBIGUOUS_REFERENCES = true;
   private int CLASS_COUNT_TO_USE_IMPORT_ON_DEMAND = 5;
   private int SHIFT = 80;
+  private int OUTPUT_LIMIT = 35;
   private boolean ADD_IMPORT_MOST_CLOSE_TO_REFERENCE = false;
   private boolean ADD_FULL_QUALIFIED_IMPORTS = false;
   private boolean SORT_IMPORTS = false;
@@ -144,6 +145,14 @@ public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProj
 
   public void setShift(int value) {
     SHIFT = value;
+  }
+
+  public int getOutputLimit() {
+    return  OUTPUT_LIMIT;
+  }
+
+  public void setOutputLimit(int value) {
+    OUTPUT_LIMIT = value;
   }
 
   public boolean isAddImportMostCloseToReference() {
