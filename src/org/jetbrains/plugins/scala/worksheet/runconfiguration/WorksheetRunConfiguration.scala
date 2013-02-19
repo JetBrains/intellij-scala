@@ -55,7 +55,6 @@ class WorksheetRunConfiguration(val project: Project, val configurationFactory: 
   val CLASSPATH = "-Denv.classpath=\"%CLASSPATH%\""
   val EMACS = "-Denv.emacs=\"%EMACS%\""
   val MAIN_CLASS = "org.jetbrains.plugins.scala.worksheet.WorksheetRunner"
-  val MAX_RESULTS_COUNT = 35
   val END_MESSAGE = "Output exceeds cutoff limit.\n"
 
   val ContinueString = "     | "
@@ -426,7 +425,7 @@ class WorksheetRunConfiguration(val project: Project, val configurationFactory: 
               } else {
                 results_count = results_count + 1
               }
-              if (results_count > MAX_RESULTS_COUNT) {
+              if (results_count >  ScalaProjectSettings.getInstance(project).getOutputLimit) {
                 printResults(END_MESSAGE, editor, worksheetViewer)
                 endProcess(processHandler)
                 processHandler.removeProcessListener(this)
