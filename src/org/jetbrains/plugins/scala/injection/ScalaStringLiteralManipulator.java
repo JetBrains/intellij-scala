@@ -6,9 +6,12 @@ import com.intellij.psi.AbstractElementManipulator;
 import com.intellij.psi.PsiElement;
 import com.intellij.util.IncorrectOperationException;
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes;
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScInterpolatedStringLiteral;
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral;
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression;
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression;
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory;
+import scala.Option;
 
 /**
  * Pavel Fatin
@@ -37,13 +40,18 @@ public class ScalaStringLiteralManipulator extends AbstractElementManipulator<Sc
 
   public TextRange getRangeInElement(final ScLiteral element) {
     if (element.isString()) {
+      if (element instanceof ScInterpolatedStringLiteral) {
+        final Option<ScReferenceExpression> prefixReference = ((ScInterpolatedStringLiteral) element).reference();
+        int prefixLength = prefixReference.isDefined()? prefixReference.get().getText().length() : 0;
+        return getLiteralRange(element.getText().substring(prefixLength)).shiftRight(prefixLength);
+      }
       return getLiteralRange(element.getText());
     } else {
       return TextRange.from(0, element.getTextLength());  // Text range starting at 0 disables Injection
     }
   }
 
-  public static TextRange getLiteralRange(String text) {
+  private static TextRange getLiteralRange(String text) {
     String tripleQuote = "\"\"\"";
     if (text.length() >= 6 && text.startsWith(tripleQuote) && text.endsWith(tripleQuote)) {
       return new TextRange(3, text.length() - 3);
