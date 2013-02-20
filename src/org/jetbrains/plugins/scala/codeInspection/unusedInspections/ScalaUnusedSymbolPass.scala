@@ -157,10 +157,10 @@ class ScalaUnusedSymbolPass(file: PsiFile, editor: Editor) extends TextEditorHig
       state.annotations += annotation
     }
   }
-
-  private def createUnusedSymbolInfo(element: PsiElement, message: String, highlightInfoType: HighlightInfoType): HighlightInfo = {
-    return HighlightInfo.createHighlightInfo(highlightInfoType, element, message)
-  }
+     //todo: was unused. should we delete it? 
+//  private def createUnusedSymbolInfo(element: PsiElement, message: String, highlightInfoType: HighlightInfoType): HighlightInfo = {
+//    return HighlightInfo.createHighlightInfo(highlightInfoType, element, message)
+//  }
 }
 
 class DeleteElementFix(element: PsiElement) extends IntentionAction {
