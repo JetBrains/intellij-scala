@@ -25,6 +25,8 @@ import collection.mutable
 import ScalaLanguageInjector.extractMultiLineStringRanges
 import org.intellij.plugins.intelliLang.inject.config.BaseInjection
 import lang.psi.impl.expr.ScInterpolatedStringPrefixReference
+import lang.psi.api.statements.params.ScParameter
+import annotation.tailrec
 
 /**
  * @author Pavel Fatin
@@ -48,8 +50,10 @@ class ScalaLanguageInjector(myInjectionConfiguration: Configuration) extends Mul
   }
 
   private def literalsOf(host: PsiElement): Seq[ScLiteral] = {
-    if(host.getParent.isInstanceOf[ScInfixExpr])
-      return Seq.empty // process top-level expressions only
+    host.getParent match {
+      case infix: ScInfixExpr if "+" == infix.getInvokedExpr.getText => return Seq.empty // process top-level expressions only
+      case _ =>  
+    }
 
     val expressions = host.depthFirst {
       case injectedExpr: ScExpression if injectedExpr.getParent.isInstanceOf[ScInterpolatedStringLiteral] => false
@@ -156,26 +160,21 @@ class ScalaLanguageInjector(myInjectionConfiguration: Configuration) extends Mul
     }
   }
 
-  def annotationOwnerFor(literal: ScExpression): Option[PsiAnnotationOwner] = {
-    var threshold = 30
-    
-    @tailrec
-    def annotationOwnerLookUp(child: ScalaPsiElement): Option[PsiAnnotationOwner] =
-      if (threshold == 0) 
-        None
-      else {
-        threshold -= 1
-        child.getParent match {
-          case pattern: ScPatternDefinition => Some(pattern)
-          case variable: ScVariableDefinition => Some(variable)
-          case _: ScArgumentExprList => parameterOf(literal)
-          case assignment: ScAssignStmt => assignmentTarget(assignment)
-          case scalaPsi: ScalaPsiElement => annotationOwnerLookUp(scalaPsi)
-          case _ => None
-        }
-      }
-    
-    annotationOwnerLookUp(literal)
+  
+  @tailrec
+  final def annotationOwnerFor(child: ScExpression): Option[PsiAnnotationOwner with PsiElement] = child.getParent match {
+    case pattern: ScPatternDefinition => Some(pattern)
+    case variable: ScVariableDefinition => Some(variable)
+    case _: ScArgumentExprList => parameterOf(child)
+    case assignment: ScAssignStmt => assignmentTarget(assignment)
+    case infix: ScInfixExpr if child == infix.getFirstChild =>
+      if (ScalaLanguageInjector isSafeCall infix) annotationOwnerFor(infix) else None
+    case infix: ScInfixExpr => parameterOf(child)
+    case tuple: ScTuple if tuple.isCall => parameterOf(child)
+    case param: ScParameter => Some(param)
+    case parExpr: ScParenthesisedExpr => annotationOwnerFor(parExpr)
+    case safeCall: ScExpression if ScalaLanguageInjector isSafeCall safeCall => annotationOwnerFor(safeCall)
+    case _ => None
   }
 
   def implicitAnnotationOwnerFor(literal: ScLiteral): Option[PsiAnnotationOwner] = {
@@ -222,40 +221,43 @@ class ScalaLanguageInjector(myInjectionConfiguration: Configuration) extends Mul
     }
   }
 
-  private def assignmentTarget(assignment: ScAssignStmt): Option[PsiAnnotationOwner] = {
+  private def assignmentTarget(assignment: ScAssignStmt): Option[PsiAnnotationOwner with PsiElement] = {
     val l = assignment.getLExpression
     // map(x) = y check
     if (l.isInstanceOf[ScMethodCall]) None else l.asOptionOf[ScReferenceElement]
             .flatMap(_.resolve().toOption)
             .map(contextOf)
-            .flatMap(_.asOptionOf[PsiAnnotationOwner])
+            .flatMap(_.asOptionOf[PsiAnnotationOwner with PsiElement])
     }
 
-  private def parameterOf(argument: ScExpression): Option[PsiAnnotationOwner] = argument.getParent match {
-    case args: ScArgumentExprList => {
-      val index = args.exprs.indexOf(argument)
-      if(index == -1) None else {
-        args.getParent match {
-          case call: ScMethodCall => {
-            call.getEffectiveInvokedExpr.asOptionOf[ScReferenceExpression].flatMap { ref =>
-              ref.resolve().toOption match {
-                case Some(f: ScFunction) => {
-                  val parameters = f.parameters
-                  if(parameters.size == 0) None else Some(parameters.get(index.min(parameters.size - 1)))
-                }
-                case Some(m: PsiMethod) => {
-                  val parameters = m.getParameterList.getParameters
-                  if(parameters.size == 0) None else parameters(index.min(parameters.size - 1)).getModifierList.toOption
-                }
-                case _ => None
-              }
-            }
+  private def parameterOf(argument: ScExpression): Option[PsiAnnotationOwner with PsiElement] = {
+    def getParameter(methodInv: MethodInvocation, index: Int) = {
+      if (index == -1) None
+      else methodInv.getEffectiveInvokedExpr.asOptionOf[ScReferenceExpression] flatMap {
+        ref =>
+          ref.resolve().toOption match {
+            case Some(f: ScFunction) =>
+              val parameters = f.parameters
+              if (parameters.size == 0) None else Some(parameters.get(index.min(parameters.size - 1)))
+            case Some(m: PsiMethod) =>
+              val parameters = m.getParameterList.getParameters
+              if (parameters.size == 0) None else parameters(index.min(parameters.size - 1)).getModifierList.toOption
+            case _ => None
           }
-          case _ => None
-        }
       }
     }
-    case _ => None
+    
+    argument.getParent match {
+      case args: ScArgumentExprList =>
+        args.getParent match {
+          case call: ScMethodCall => getParameter(call, args.exprs.indexOf(argument))
+          case _ => None
+        }
+      case tuple: ScTuple if tuple.isCall => 
+        getParameter(tuple.getContext.asInstanceOf[ScInfixExpr], tuple.exprs.indexOf(argument))
+      case infix: ScInfixExpr => getParameter(infix, 0)
+      case _ => None
+    }
   }
 
   private def contextOf(element: PsiElement) = element match {
@@ -267,10 +269,7 @@ class ScalaLanguageInjector(myInjectionConfiguration: Configuration) extends Mul
 
 object ScalaLanguageInjector {
   private[this] val scalaStringLiteralManipulator = new ScalaStringLiteralManipulator 
-  
-  def findAllAvailableLanguages() {
-    
-  }
+  private[this] val safeMethodsNames = List("stripMargin", "+")
   
   def extractMultiLineStringRanges(literal: ScLiteral): mutable.MutableList[TextRange] = {
     val range = getRangeInElement(literal)
@@ -327,4 +326,10 @@ object ScalaLanguageInjector {
   }
   
   def getRangeInElement(element: ScLiteral) = scalaStringLiteralManipulator getRangeInElement element
+  
+  def isSafeCall(testExpr: ScExpression) = testExpr match {
+    case methodInv: MethodInvocation => safeMethodsNames contains methodInv.getEffectiveInvokedExpr.getText 
+    case ref: ScReferenceExpression => safeMethodsNames contains ref.refName
+    case _ => false
+  }
 }

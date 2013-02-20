@@ -205,16 +205,16 @@ class ScLiteralImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScLite
    * }
    */
   
-  private[this] var myAnnotationOwner: Option[PsiAnnotationOwner] = None
+  private[this] var myAnnotationOwner: Option[PsiAnnotationOwner with PsiElement] = None
   private[this] var expirationTime = 0L
   
-  private val expTimeLengthGenerator = if (isString) new Random(System.currentTimeMillis()) else null 
+  private val expTimeLengthGenerator: Random = if (isString) new Random(System.currentTimeMillis()) else null 
   
   
-  def getAnnotationOwner(annotationOwnerLookUp: ScLiteral => Option[PsiAnnotationOwner]): Option[PsiAnnotationOwner] = {
+  def getAnnotationOwner(annotationOwnerLookUp: ScLiteral => Option[PsiAnnotationOwner with PsiElement]): Option[PsiAnnotationOwner] = {
     if (!isString) return None
     
-    if (System.currentTimeMillis() > expirationTime) {
+    if (System.currentTimeMillis() > expirationTime || myAnnotationOwner.map(!_.isValid).getOrElse(false)) {
       myAnnotationOwner = annotationOwnerLookUp(this)
       expirationTime = System.currentTimeMillis() + (2 + expTimeLengthGenerator.nextInt(8))*1000
     }
