@@ -23,7 +23,7 @@ class ScModifiersElementType[Func <: ScModifierList](debugName: String)
         extends ScStubElementType[ScModifiersStub, ScModifierList](debugName) {
   def serialize(stub: ScModifiersStub, dataStream: StubOutputStream) {
     dataStream.writeBoolean(stub.hasExplicitModifiers)
-    dataStream.writeByte(stub.getModifiers.length)
+    dataStream.writeInt(stub.getModifiers.length)
     for (modifier <- stub.getModifiers) dataStream.writeName(modifier)
   }
 
@@ -37,7 +37,7 @@ class ScModifiersElementType[Func <: ScModifierList](debugName: String)
 
   def deserializeImpl(dataStream: StubInputStream, parentStub: Any): ScModifiersStub = {
     val explicitModifiers = dataStream.readBoolean()
-    val num = dataStream.readByte
+    val num = dataStream.readInt
     val modifiers = new Array[String](num)
     for (i <- 0 until num) modifiers(i) = dataStream.readName.toString
     new ScModifiersStubImpl(parentStub.asInstanceOf[StubElement[PsiElement]], this, modifiers, explicitModifiers)

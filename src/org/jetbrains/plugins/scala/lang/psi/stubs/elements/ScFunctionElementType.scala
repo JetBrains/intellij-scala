@@ -53,7 +53,7 @@ extends ScStubElementType[ScFunctionStub, ScFunction](debugName) {
     dataStream.writeName(stub.getName)
     dataStream.writeBoolean(stub.isDeclaration)
     val annotations = stub.getAnnotations
-    dataStream.writeByte(annotations.length)
+    dataStream.writeInt(annotations.length)
     for (annotation <- annotations) {
       dataStream.writeName(annotation)
     }
@@ -67,7 +67,7 @@ extends ScStubElementType[ScFunctionStub, ScFunction](debugName) {
   def deserializeImpl(dataStream: StubInputStream, parentStub: Any): ScFunctionStub = {
     val name = dataStream.readName
     val isDecl = dataStream.readBoolean
-    val length = dataStream.readByte
+    val length = dataStream.readInt
     val annotations = new Array[StringRef](length)
     for (i <- 0 until length) {
       annotations(i) = dataStream.readName
