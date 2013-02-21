@@ -21,7 +21,7 @@ abstract class ScTemplateParentsElementType[Func <: ScTemplateParents](debugName
         extends ScStubElementType[ScTemplateParentsStub, ScTemplateParents](debugName) {
   def serialize(stub: ScTemplateParentsStub, dataStream: StubOutputStream) {
     val array = stub.getTemplateParentsTypesTexts
-    dataStream.writeByte(array.length)
+    dataStream.writeInt(array.length)
     for (s <- array) {
       dataStream.writeName(s)
     }
@@ -43,7 +43,7 @@ abstract class ScTemplateParentsElementType[Func <: ScTemplateParents](debugName
   }
 
   def deserializeImpl(dataStream: StubInputStream, parentStub: Any): ScTemplateParentsStub = {
-    val length = dataStream.readByte
+    val length = dataStream.readInt
     if (length >= 0) {
       val res = new Array[StringRef](length)
       for (i <- 0 until length) {
