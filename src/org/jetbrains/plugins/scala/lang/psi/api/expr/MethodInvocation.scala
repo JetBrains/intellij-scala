@@ -16,7 +16,6 @@ import com.intellij.openapi.util.Key
 import org.jetbrains.plugins.scala.lang.languageLevel.ScalaLanguageLevel
 import org.jetbrains.plugins.scala.lang.resolve.ResolvableReferenceExpression
 import scala.collection
-import scala.collection
 
 /**
  * Pavel Fatin, Alexander Podkhalyuzin.

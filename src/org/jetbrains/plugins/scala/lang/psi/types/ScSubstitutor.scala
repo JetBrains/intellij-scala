@@ -13,6 +13,7 @@ import api.toplevel.typedef.ScTypeDefinition
 import collection.immutable.{HashSet, HashMap, Map}
 import api.statements.params.ScParameter
 import collection.mutable.ArrayBuffer
+import api.statements.ScVariable
 
 /**
 * @author ven

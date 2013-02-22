@@ -6,7 +6,7 @@ package types
 import impl.toplevel.synthetic.ScSyntheticClass
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
 import api.toplevel.typedef._
-import api.statements.{ScValue, ScTypeAliasDefinition, ScTypeAlias}
+import api.statements.{ScVariable, ScValue, ScTypeAliasDefinition, ScTypeAlias}
 import result.{TypingContext, Success}
 import api.toplevel.ScTypedDefinition
 import resolve.processor.ResolveProcessor

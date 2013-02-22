@@ -4,7 +4,7 @@ package resolve
 package processor
 
 import com.intellij.openapi.progress.ProgressManager
-import com.intellij.openapi.util.{Computable, RecursionManager, Key}
+import com.intellij.openapi.util.{RecursionManager, Key}
 import com.intellij.psi.scope._
 import com.intellij.psi._
 import collection.{mutable, Set}
