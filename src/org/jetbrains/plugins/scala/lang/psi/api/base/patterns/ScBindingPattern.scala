@@ -27,15 +27,11 @@ trait ScBindingPattern extends ScPattern with ScNamedElement with ScTypedDefinit
     if (func != null) new LocalSearchScope(func) else ResolveScopeManager.getElementUseScope(this)
   }
 
-  protected def getEnclosingVariable = {
-    def goUpper(e: PsiElement): Option[ScVariable] = e match {
-      case _ : ScPattern => goUpper(e.getParent)
-      case _ : ScPatternArgumentList => goUpper(e.getParent)
+  protected def getEnclosingVariable: Option[ScVariable] = {
+    ScalaPsiUtil.nameContext(this) match {
       case v: ScVariable => Some(v)
       case _ => None
     }
-
-    goUpper(this)
   }
 
   override def isStable = getEnclosingVariable match {
