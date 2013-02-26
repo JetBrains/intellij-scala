@@ -161,5 +161,26 @@ class ScalaCompleteWhileConditionTest extends ScalaCodeInsightTestBase {
     checkResultByText(resultText)
   }
 
+  def testWhileCondition7() {
+    val fileText =
+      """
+        |class B {
+        |  def method() {
+        |    while ()<caret>
+        |  }
+        |}
+      """.stripMargin('|').replaceAll("\r", "").trim()
+    val resultText =
+      """
+        |class B {
+        |  def method() {
+        |    while (<caret>) {}
+        |  }
+        |}
+      """.stripMargin('|').replaceAll("\r", "").trim()
 
+    configureFromFileTextAdapter("dummy.scala", fileText)
+    invokeSmartEnter()
+    checkResultByText(resultText)
+  }
 }

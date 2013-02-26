@@ -34,8 +34,7 @@ class ScalaWhileConditionFixer extends ScalaFixer {
       else {
         processor.registerUnresolvedError(leftParenthesis.getTextRange.getEndOffset)
       }
-    }
-    else if (rightParenthesis == null) {
+    } else if (rightParenthesis == null) {
       doc.insertString(condition.getTextRange.getEndOffset, ")")
     }
   }

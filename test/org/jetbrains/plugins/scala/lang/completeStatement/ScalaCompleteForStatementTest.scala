@@ -160,4 +160,28 @@ class ScalaCompleteForStatementTest extends ScalaCodeInsightTestBase {
     checkResultByText(resultText)
   }
 
+  def testForStatement7() {
+    val fileText =
+      """
+        |class B {
+        |  def method() {
+        |    for ()<caret>
+        |  }
+        |}
+      """.stripMargin('|').replaceAll("\r", "").trim()
+    val resultText =
+      """
+        |class B {
+        |  def method() {
+        |    for (<caret>) {}
+        |  }
+        |}
+      """.stripMargin('|').replaceAll("\r", "").trim()
+
+    configureFromFileTextAdapter("dummy.scala", fileText)
+    invokeSmartEnter()
+    checkResultByText(resultText)
+  }
+
+
 }
