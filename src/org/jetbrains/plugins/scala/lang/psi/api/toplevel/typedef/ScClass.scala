@@ -59,7 +59,11 @@ trait ScClass extends ScTypeDefinition with ScParameterOwner {
                   val typeElementText =
                     constructor.get.effectiveParameterClauses.map {
                       clause =>
-                        clause.parameters.map(_.typeElement.map(_.getText).getOrElse("Nothing")).mkString("(", ", ", ")")
+                        clause.parameters.map(parameter => {
+                          val parameterText = parameter.typeElement.map(_.getText).getOrElse("Nothing")
+                          if (parameter.isRepeatedParameter) s"Seq[$parameterText]"
+                          else parameterText
+                        }).mkString("(", ", ", ")")
                     }.mkString("(", " => ", s" => $name)")
                   val typeElement = ScalaPsiElementFactory.createTypeElementFromText(typeElementText, getManager)
                   s" extends ${typeElement.getText}"
