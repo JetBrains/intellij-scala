@@ -4,14 +4,7 @@ package editor.smartEnter
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.editor.{Document, RangeMarker, Editor}
 import com.intellij.psi._
-import fixers.BlockBraceFixer
-import fixers.Fixer
-import fixers.ForStatementFixer
-import fixers.IfConditionFixer
-import fixers.MethodCallFixer
-import fixers.MissingMethodBodyFixer
-import fixers.ParameterListFixer
-import fixers.WhileConditionFixer
+import fixers._
 import java.util
 import com.intellij.codeInsight.lookup.LookupManager
 import com.intellij.util.IncorrectOperationException
@@ -23,14 +16,14 @@ import java.lang.Long
 import com.intellij.util.text.CharArrayUtil
 import com.intellij.psi.codeStyle.{CodeStyleSettingsManager, CodeStyleSettings}
 import com.intellij.psi.util.PsiTreeUtil
-import lang.psi.api.expr.{ScExpression, ScBlock, ScForStatement}
+import lang.psi.api.expr._
 import com.intellij.openapi.editor.ex.EditorEx
 import com.intellij.openapi.editor.actionSystem.{EditorActionManager, EditorActionHandler}
 import com.intellij.openapi.actionSystem.IdeActions
 import lang.psi.api.toplevel.templates.ScTemplateBody
 import com.intellij.openapi.diagnostic.Logger
-import lang.psi.api.toplevel.imports.ScImportExpr
 import com.intellij.codeInsight.editorActions.smartEnter._
+import lang.psi.api.statements.ScPatternDefinition
 
 /**
  * @author Ksenia.Sautina
@@ -39,32 +32,18 @@ import com.intellij.codeInsight.editorActions.smartEnter._
 
 object ScalaSmartEnterProcessor {
   private val LOG = Logger.getInstance(getClass)
-  private final var ourFixers: Array[Fixer] = null
+  private final var ourFixers: Array[ScalaFixer] = null
   private final var ourEnterProcessors: Array[EnterProcessor] = null
 
-  val fixers = new util.ArrayList[Fixer]
-  fixers.add(new IfConditionFixer)
-  fixers.add(new ForStatementFixer)
-  fixers.add(new WhileConditionFixer)
-  fixers.add(new BlockBraceFixer)
-//  fixers.add(new CatchDeclarationFixer)
-  fixers.add(new MethodCallFixer)
-//  fixers.add(new MissingCatchBodyFixer)
-//  fixers.add(new MissingIfBranchesFixer)
-//  fixers.add(new MissingWhileBodyFixer)
-//  fixers.add(new MissingForBodyFixer)
-  fixers.add(new MissingMethodBodyFixer)
-//  fixers.add(new BodyFixer)
-//  fixers.add(new MissingThrowExpressionFixer)
-  fixers.add(new ParameterListFixer)
-//  fixers.add(new ParenthesizedFixer)
+  val fixers = new util.ArrayList[ScalaFixer]
+  fixers.add(new ScalaMethodCallFixer)
+  fixers.add(new ScalaIfConditionFixer)
+  fixers.add(new ScalaForStatementFixer)
+  fixers.add(new ScalaWhileConditionFixer)
 
-  ourFixers = fixers.toArray(new Array[Fixer](fixers.size))
+  ourFixers = fixers.toArray(new Array[ScalaFixer](fixers.size))
 
   val processors = new util.ArrayList[EnterProcessor]
-  processors.add(new PlainEnterProcessor)
-  processors.add(new CommentBreakerEnterProcessor)
-  processors.add(new LeaveCodeBlockEnterProcessor)
 
   ourEnterProcessors = processors.toArray(new Array[EnterProcessor](processors.size))
 }
@@ -73,7 +52,6 @@ class ScalaSmartEnterProcessor extends SmartEnterProcessor {
   private var myFirstErrorOffset: Int = Integer.MAX_VALUE
   private var mySkipEnter: Boolean = false
   private final val MAX_ATTEMPTS: Int = 20
-
   private final val SMART_ENTER_TIMESTAMP: Key[Long]  = Key.create("smartEnterOriginalTimestamp")
 
   class TooManyAttemptsException extends Exception {
@@ -90,11 +68,9 @@ class ScalaSmartEnterProcessor extends SmartEnterProcessor {
       myFirstErrorOffset = Integer.MAX_VALUE
       mySkipEnter = false
       process(project, editor, psiFile, 0)
-    }
-    catch {
-      case e: TooManyAttemptsException => {
+    } catch {
+      case e: TooManyAttemptsException =>
         document.replaceString(0, document.getTextLength, textForRollback)
-      }
     }
     finally {
       editor.putUserData(SMART_ENTER_TIMESTAMP, null)
@@ -152,15 +128,16 @@ class ScalaSmartEnterProcessor extends SmartEnterProcessor {
     }
     var atCaret = caret
     val parent: PsiElement = atCaret.getParent
-    if (parent.isInstanceOf[ScTemplateBody]) {
-      val block: ScTemplateBody = parent.asInstanceOf[ScTemplateBody]
-      if (block.exprs.length > 0 && block.exprs.apply(0) == atCaret) {
-        atCaret = block
+    parent match {
+      case block: ScTemplateBody => {
+        if (block.exprs.length > 0 && block.exprs.apply(0) == atCaret) {
+          atCaret = block
+        }
       }
+      case forStmt: ScForStatement => atCaret = parent
+      case _ =>
     }
-    else if (parent.isInstanceOf[ScForStatement]) {
-      atCaret = parent
-    }
+
     super.reformat(atCaret)
   }
 
@@ -213,17 +190,20 @@ class ScalaSmartEnterProcessor extends SmartEnterProcessor {
   }
 
   protected override def getStatementAtCaret(editor: Editor, psiFile: PsiFile): PsiElement = {
-        val atCaret: PsiElement = super.getStatementAtCaret(editor, psiFile)
+    val atCaret: PsiElement = super.getStatementAtCaret(editor, psiFile)
     if (atCaret.isInstanceOf[PsiWhiteSpace]) return null
     if (("}" == atCaret.getText) && !(atCaret.getParent.isInstanceOf[PsiArrayInitializerExpression])) return null
-    var statementAtCaret: PsiElement = PsiTreeUtil.getParentOfType(atCaret, classOf[PsiMember], classOf[ScExpression], classOf[PsiComment], classOf[ScImportExpr])
+    var statementAtCaret: PsiElement = PsiTreeUtil.getParentOfType(atCaret, classOf[ScPatternDefinition], classOf[ScIfStmt], classOf[ScWhileStmt], classOf[ScForStatement], classOf[ScCatchBlock], classOf[ScMethodCall])
     if (statementAtCaret.isInstanceOf[PsiBlockStatement]) return null
     if (statementAtCaret != null && statementAtCaret.getParent.isInstanceOf[ScForStatement]) {
       if (!PsiTreeUtil.hasErrorElements(statementAtCaret)) {
         statementAtCaret = statementAtCaret.getParent
       }
     }
-    if (statementAtCaret.isInstanceOf[ScExpression] || statementAtCaret.isInstanceOf[PsiComment] || statementAtCaret.isInstanceOf[ScImportExpr] || statementAtCaret.isInstanceOf[PsiMember]) statementAtCaret else null
+    statementAtCaret match {
+      case _: ScPatternDefinition | _: ScIfStmt | _: ScWhileStmt | _: ScForStatement | _: ScCatchBlock | _: ScMethodCall => statementAtCaret
+      case _ => null
+    }
   }
 
     protected def moveCaretInsideBracesIfAny(editor: Editor, file: PsiFile) {

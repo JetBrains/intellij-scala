@@ -5,6 +5,7 @@ package api
 package expr
 
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
+import com.intellij.psi.PsiElement
 
 /**
  * Author: Alexander Podkhalyuzin
@@ -12,4 +13,6 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
  */
 trait ScCatchBlock extends ScalaPsiElement {
   def expression: Option[ScExpression] = findChild(classOf[ScExpression])
+  def getLeftParenthesis : Option[PsiElement]
+  def getRightParenthesis : Option[PsiElement]
 }
