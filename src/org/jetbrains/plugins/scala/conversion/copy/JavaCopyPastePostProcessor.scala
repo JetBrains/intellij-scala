@@ -149,11 +149,27 @@ class JavaCopyPastePostProcessor extends CopyPastePostProcessor[TextBlockTransfe
   }
 
   class ConvertedCode(val data: String, val associations: Array[Association]) extends TextBlockTransferableData {
-    def setOffsets(offsets: Array[Int], index: Int): Int = 0
+    def setOffsets(offsets: Array[Int], _index: Int) = {
+      var index = _index
+      for (association <- associations) {
+        association.range = new TextRange(offsets(index), offsets(index + 1))
+        index += 2
+      }
+      index
+    }
 
-    def getOffsets(offsets: Array[Int], index: Int): Int = 0
+    def getOffsets(offsets: Array[Int], _index: Int) = {
+      var index = _index
+      for (association <- associations) {
+        offsets(index) = association.range.getStartOffset
+        index += 1
+        offsets(index) = association.range.getEndOffset
+        index += 1
+      }
+      index
+    }
 
-    def getOffsetCount: Int = 0
+    def getOffsetCount = associations.length * 2
 
     def getFlavor: DataFlavor = ConvertedCode.Flavor
   }
