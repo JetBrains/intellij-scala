@@ -14,6 +14,7 @@ import com.intellij.lang.ASTNode
 import types.result.{TypingContext, Success, Failure}
 import com.intellij.psi.{PsiElement, PsiElementVisitor}
 import api.ScalaElementVisitor
+import com.intellij.psi.impl.source.tree.LeafPsiElement
 
 /**
 * @author Alexander Podkhalyuzin
@@ -56,14 +57,12 @@ class ScIfStmtImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScIfStm
 
   def getLeftParenthesis = {
     val leftParenthesis = findChildByType(ScalaTokenTypes.tLPARENTHESIS)
-    val e = if (leftParenthesis != null) PsiTreeUtil.getNextSiblingOfType(leftParenthesis, classOf[PsiElement]) else null
-    if (e == null) None else Some(e)
+    if (leftParenthesis == null) None else Some(leftParenthesis)
   }
 
   def getRightParenthesis = {
     val rightParenthesis = findChildByType(ScalaTokenTypes.tRPARENTHESIS)
-    val e = if (rightParenthesis != null) PsiTreeUtil.getNextSiblingOfType(rightParenthesis, classOf[PsiElement]) else null
-    if (e == null) None else Some(e)
+    if (rightParenthesis == null) None else Some(rightParenthesis)
   }
 
   protected override def innerType(ctx: TypingContext) = {

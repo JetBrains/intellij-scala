@@ -10,6 +10,6 @@ import editor.smartEnter.ScalaSmartEnterProcessor
  * @since 1/28/13
  */
 
-trait Fixer {
+trait ScalaFixer {
   def apply(editor: Editor, processor: ScalaSmartEnterProcessor, psiElement: PsiElement)
 }

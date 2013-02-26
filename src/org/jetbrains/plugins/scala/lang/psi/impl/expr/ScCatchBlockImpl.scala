@@ -8,7 +8,9 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
 import com.intellij.lang.ASTNode
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import api.ScalaElementVisitor
-import com.intellij.psi.PsiElementVisitor
+import com.intellij.psi.{PsiElement, PsiElementVisitor}
+import lexer.ScalaTokenTypes
+import com.intellij.psi.util.PsiTreeUtil
 
 /** 
  * Author: Alexander Podkhalyuzin
@@ -27,4 +29,15 @@ class ScCatchBlockImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScC
       case _ => super.accept(visitor)
     }
   }
+
+  def getLeftParenthesis = {
+    val leftParenthesis = findChildByType(ScalaTokenTypes.tLPARENTHESIS)
+    if (leftParenthesis == null) None else Some(leftParenthesis)
+  }
+
+  def getRightParenthesis = {
+    val rightParenthesis = findChildByType(ScalaTokenTypes.tRPARENTHESIS)
+    if (rightParenthesis == null) None else Some(rightParenthesis)
+  }
+
 }
