@@ -142,7 +142,7 @@ class ScExtendsBlockImpl extends ScalaStubBasedElementImpl[ScExtendsBlock] with 
     }
     buffer.toList
   }
-  
+
   private def supersInner: Seq[PsiClass] = {
     val buffer = new ListBuffer[PsiClass]
     def addClass(t: PsiClass) {
@@ -183,7 +183,7 @@ class ScExtendsBlockImpl extends ScalaStubBasedElementImpl[ScExtendsBlock] with 
     }
     buffer.toSeq
   }
-  
+
   private def scalaProductClass: PsiClass =
     ScalaPsiManager.instance(getProject).getCachedClass(getResolveScope, "scala.Product")
 
