@@ -10,7 +10,7 @@ package typedef
 
 import collection.mutable.{ListBuffer, ArrayBuffer}
 import psi.types._
-import result.TypingContext
+import result.{Success, TypingContext}
 import synthetic.ScSyntheticClass
 import caches.CachesUtil
 import api.toplevel.typedef.{ScTrait, ScObject, ScTypeDefinition, ScTemplateDefinition}
@@ -540,7 +540,14 @@ object MixinNodes {
 
     val iterator = supers.iterator
     while (iterator.hasNext) {
-      val tp = iterator.next()
+      var tp = iterator.next()
+      def updateTp(tp: ScType): ScType = {
+        Conformance.isAliasType(tp) match {
+          case Some(AliasType(_, _, Success(upper, _))) => updateTp(upper)
+          case _ => tp
+        }
+      }
+      tp = updateTp(tp)
       ScType.extractClassType(tp) match {
         case Some((clazz, subst)) => {
           val lin = linearization(clazz)
