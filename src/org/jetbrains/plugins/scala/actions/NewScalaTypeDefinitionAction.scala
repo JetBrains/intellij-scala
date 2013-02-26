@@ -124,7 +124,7 @@ object NewScalaTypeDefinitionAction {
   def createFromTemplate(directory: PsiDirectory, name: String, fileName: String, templateName: String,
                          parameters: String*): PsiFile = {
     val template: FileTemplate = FileTemplateManager.getInstance.getInternalTemplate(templateName)
-    val properties: Properties = new Properties(FileTemplateManager.getInstance.getDefaultProperties)
+    val properties: Properties = new Properties(FileTemplateManager.getInstance.getDefaultProperties(directory.getProject))
     JavaTemplateUtil.setPackageNameAttribute(properties, directory)
     properties.setProperty(NAME_TEMPLATE_PROPERTY, name)
     properties.setProperty(LOW_CASE_NAME_TEMPLATE_PROPERTY, name.substring(0, 1).toLowerCase + name.substring(1))
