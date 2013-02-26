@@ -13,7 +13,7 @@ import com.intellij.openapi.util.text.StringUtil
 object FormattedStringFormatter extends StringFormatter {
   def format(parts: Seq[StringPart]) = {
     val bindings = parts.collect {
-      case Text(s) => (StringUtil.escapeStringCharacters(StringUtil.escapeSlashes(s)), None)
+      case Text(s) => (StringUtil.escapeStringCharacters(s), None)
       case injection @ Injection(expression, specifier) =>
         if (injection.isLiteral && specifier.isEmpty) (injection.value, None) else {
           val format = specifier.map(_.format)
