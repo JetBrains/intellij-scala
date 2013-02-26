@@ -15,9 +15,10 @@ class AddCallParentheses(e: ScExpression) extends AbstractFix("Add call parenthe
     if (!e.isValid) return
     val exprToFix = e.getParent match {
       case postf: ScPostfixExpr => postf
+      case call: ScGenericCall => call
       case _ => e
     }
-    val text = "%s()".format(exprToFix.getText)
+    val text = s"${exprToFix.getText}()"
     val call = ScalaPsiElementFactory.createExpressionFromText(text, e.getManager)
     exprToFix.replace(call)
   }
@@ -26,7 +27,7 @@ class AddCallParentheses(e: ScExpression) extends AbstractFix("Add call parenthe
 class AddGenericCallParentheses(e: ScGenericCall) extends AbstractFix("Add call parentheses", e) {
   def doApplyFix(project: Project, descriptor: ProblemDescriptor) {
     if (!e.isValid) return
-    val text = "%s()".format(e.getText)
+    val text = s"${e.getText}()"
     val call = ScalaPsiElementFactory.createExpressionFromText(text, e.getManager)
     e.replace(call)
   }
