@@ -32,7 +32,6 @@ import lang.psi.api.statements.ScPatternDefinition
 
 object ScalaSmartEnterProcessor {
   private val LOG = Logger.getInstance(getClass)
-  private final var ourFixers: Array[ScalaFixer] = null
   private final var ourEnterProcessors: Array[EnterProcessor] = null
 
   val fixers = new util.ArrayList[ScalaFixer]
@@ -40,11 +39,11 @@ object ScalaSmartEnterProcessor {
   fixers.add(new ScalaIfConditionFixer)
   fixers.add(new ScalaForStatementFixer)
   fixers.add(new ScalaWhileConditionFixer)
-
-  ourFixers = fixers.toArray(new Array[ScalaFixer](fixers.size))
+  fixers.add(new ScalaMissingWhileBodyFixer)
+  fixers.add(new ScalaMissingIfBranchesFixer)
+  fixers.add(new ScalaMissingForBodyFixer)
 
   val processors = new util.ArrayList[EnterProcessor]
-
   ourEnterProcessors = processors.toArray(new Array[EnterProcessor](processors.size))
 }
 
@@ -206,7 +205,7 @@ class ScalaSmartEnterProcessor extends SmartEnterProcessor {
     }
   }
 
-    protected def moveCaretInsideBracesIfAny(editor: Editor, file: PsiFile) {
+  protected def moveCaretInsideBracesIfAny(editor: Editor, file: PsiFile) {
     var caretOffset: Int = editor.getCaretModel.getOffset
     val chars: CharSequence = editor.getDocument.getCharsSequence
     if (CharArrayUtil.regionMatches(chars, caretOffset, "{}")) {

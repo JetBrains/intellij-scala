@@ -131,7 +131,6 @@ class ScalaCompleteIfConditionTest extends ScalaCodeInsightTestBase {
     checkResultByText(resultText)
   }
 
-
   def testIfCondition6() {
     val fileText =
       """
@@ -151,6 +150,29 @@ class ScalaCompleteIfConditionTest extends ScalaCodeInsightTestBase {
         |      <caret>
         |      println()
         |    }
+        |  }
+        |}
+      """.stripMargin('|').replaceAll("\r", "").trim()
+
+    configureFromFileTextAdapter("dummy.scala", fileText)
+    invokeSmartEnter()
+    checkResultByText(resultText)
+  }
+
+  def testIfCondition7() {
+    val fileText =
+      """
+        |class B {
+        |  def method() {
+        |    if ()<caret>
+        |  }
+        |}
+      """.stripMargin('|').replaceAll("\r", "").trim()
+    val resultText =
+      """
+        |class B {
+        |  def method() {
+        |    if (<caret>) {}
         |  }
         |}
       """.stripMargin('|').replaceAll("\r", "").trim()
