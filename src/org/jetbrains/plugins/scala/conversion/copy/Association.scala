@@ -10,7 +10,7 @@ import com.intellij.psi.PsiElement
  * Pavel Fatin
  */
 
-case class Association(kind: DependencyKind, range: TextRange, path: Path) {
+case class Association(kind: DependencyKind, var range: TextRange, path: Path) {
   def isSatisfiedIn(element: PsiElement): Boolean =
     element match {
       case reference: ScReferenceElement =>
