@@ -156,6 +156,8 @@ trait ScTypePsiTypeBridge {
         case Some(tp) => toPsi(tp, project, scope) case _ => javaObj
       }
       case ScCompoundType(Seq(t, _*), _, _, _) => toPsi(t, project, scope)
+      case ScDesignatorType(c: ScTypeDefinition) if ScType.baseTypesQualMap.contains(c.qualifiedName) =>
+        toPsi(ScType.baseTypesQualMap.get(c.qualifiedName).get, project, scope, noPrimitives, skolemToWildcard)
       case ScDesignatorType(c: PsiClass) => JavaPsiFacade.getInstance(project).getElementFactory.createType(c, PsiSubstitutor.EMPTY)
       case ScParameterizedType(ScDesignatorType(c: PsiClass), args) =>
         if (c.qualifiedName == "scala.Array" && args.length == 1)
