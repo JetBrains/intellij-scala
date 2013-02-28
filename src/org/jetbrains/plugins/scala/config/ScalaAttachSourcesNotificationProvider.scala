@@ -48,8 +48,7 @@ class ScalaAttachSourcesNotificationProvider(myProject: Project, notifications: 
     if (sourceFile != null) {
       panel.setText(ProjectBundle.message("library.sources.not.attached"))
       defaultAction = new AttachSourcesUtil.AttachJarAsSourcesAction(file, sourceFile, myProject)
-    }
-    else {
+    } else {
       panel.setText(ProjectBundle.message("library.sources.not.found"))
       defaultAction = new AttachSourcesUtil.ChooseAndAttachSourcesAction(myProject, panel)
     }
