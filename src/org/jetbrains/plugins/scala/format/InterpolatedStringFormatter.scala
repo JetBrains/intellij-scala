@@ -26,11 +26,22 @@ object InterpolatedStringFormatter extends StringFormatter {
       case it: Injection =>
         val text = it.value
         if (it.isLiteral && !it.isFormattingRequired) text else {
-          val presentation = if (it.isComplexBlock ||
-                  (!it.isLiteral && it.isAlphanumericIdentifier)) "$" + text else "${" + text + "}"
+          val presentation =
+            if ((it.isComplexBlock || (!it.isLiteral && it.isAlphanumericIdentifier)) && noBraces(parts, it)) "$" + text else "${" + text + "}"
           if (it.isFormattingRequired) presentation + it.format else presentation
         }
     }
     strings.mkString
+  }
+
+  def noBraces(parts: Seq[StringPart], it: Injection): Boolean =  {
+    val ind = parts.indexOf(it)
+    if (ind + 1 < parts.size) {
+      parts(ind + 1) match {
+        case Text(s) => return s.startsWith(" ")
+        case _ =>  true
+      }
+    }
+    true
   }
 }
