@@ -60,8 +60,8 @@ trait ScClass extends ScTypeDefinition with ScParameterOwner {
                     constructor.get.effectiveParameterClauses.map {
                       clause =>
                         clause.parameters.map(parameter => {
-                          val parameterText = parameter.typeElement.map(_.getText).getOrElse("Nothing")
-                          if (parameter.isRepeatedParameter) s"Seq[$parameterText]"
+                          val parameterText = parameter.typeElement.map(_.getText).getOrElse("_root_.scala.Nothing")
+                          if (parameter.isRepeatedParameter) s"_root_.scala.Seq[$parameterText]"
                           else parameterText
                         }).mkString("(", ", ", ")")
                     }.mkString("(", " => ", s" => $name)")
