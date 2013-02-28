@@ -67,10 +67,7 @@ class ScInterpolatedStringLiteralImpl(node: ASTNode) extends ScLiteralImpl(node)
   
   override def isMultiLineString: Boolean = getText.endsWith("\"\"\"")
 
-  override def isString: Boolean = this.getLastChild.getNode.getElementType match {
-    case ScalaTokenTypes.tINTERPOLATED_STRING_END => true
-    case _ => false
-  }
+  override def isString: Boolean = true
 
   override def getValue: AnyRef = findChildByClassScala(classOf[ScLiteralImpl]) match {
     case literal: ScLiteralImpl => literal.getValue
