@@ -35,6 +35,7 @@ class CleanWorksheetAction() extends AnAction {
 
     val splitPane = viewer.getComponent.getParent.asInstanceOf[JBSplitter]
     val parent = splitPane.getParent
+    if (parent == null) return
     parent.remove(splitPane)
     parent.add(editor.getComponent, BorderLayout.CENTER)
     editor.getSettings.setFoldingOutlineShown(true)
