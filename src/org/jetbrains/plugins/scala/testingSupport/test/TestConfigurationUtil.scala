@@ -16,13 +16,12 @@ object TestConfigurationUtil {
 
   def packageSettings(element: PsiElement, location: Location[_ <: PsiElement],
                       confFactory: AbstractTestRunConfigurationFactory,
-                      message: String): RunnerAndConfigurationSettings = {
+                      displayName: String): RunnerAndConfigurationSettings = {
       val pack: PsiPackage = element match {
         case dir: PsiDirectory => JavaDirectoryService.getInstance.getPackage(dir)
         case pack: PsiPackage => pack
       }
       if (pack == null) return null
-      val displayName = ScalaBundle.message(message, pack.getQualifiedName)
       val settings = RunManager.getInstance(location.getProject).createRunConfiguration(displayName, confFactory)
       val configuration = settings.getConfiguration.asInstanceOf[AbstractTestRunConfiguration]
       configuration.setTestPackagePath(pack.getQualifiedName)
