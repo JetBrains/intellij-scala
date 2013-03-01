@@ -13,7 +13,7 @@ class A {
 /*
 package a
 
-import collection.mutable.ArrayBuffer
+import scala.collection.mutable.ArrayBuffer
 
 
 class A {
