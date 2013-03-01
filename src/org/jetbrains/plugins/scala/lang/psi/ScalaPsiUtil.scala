@@ -1639,7 +1639,7 @@ object ScalaPsiUtil {
   }
 
   def disablePsiBuilderLogger[T](body: => T): T = {
-    val logger = diagnostic.Logger.getInstance(classOf[PsiBuilderImpl])
+    val logger = diagnostic.Logger.getInstance("#com.intellij.lang.impl.PsiBuilderImpl")
     logger.setLevel(Level.OFF)
     try {
       body
