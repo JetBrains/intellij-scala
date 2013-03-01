@@ -20,6 +20,7 @@ import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports._
 import com.intellij.psi._
+import impl.PsiElementFactoryImpl
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import parser.parsing.statements.{Dcl, Def}
 import com.intellij.psi.util.PsiTreeUtil
@@ -51,7 +52,7 @@ import com.intellij.psi.search.GlobalSearchScope
 import java.util
 import com.intellij.pom.java.LanguageLevel
 
-object ScalaPsiElementFactory extends JVMElementFactory {
+class ScalaPsiElementFactoryImpl(manager: PsiManager) extends JVMElementFactory {
 
   def createConstructor(name: String, context: PsiElement): PsiMethod = ???
 
@@ -67,11 +68,20 @@ object ScalaPsiElementFactory extends JVMElementFactory {
 
   def createMethod(name: String, returnType: PsiType): PsiMethod = throw new IncorrectOperationException
 
-  def createConstructor(): PsiMethod = throw new IncorrectOperationException
+  def createConstructor(): PsiMethod = {
+    ScalaPsiElementFactory.createMethodFromText("def this() {\nthis()\n}", manager)
+  }
+
+  def createConstructor(name: String): PsiMethod = {
+    ScalaPsiElementFactory.createMethodFromText("def this() {\nthis()\n}", manager)
+  }
 
   def createClassInitializer(): PsiClassInitializer = throw new IncorrectOperationException
 
-  def createParameter(name: String, `type`: PsiType): PsiParameter = throw new IncorrectOperationException
+  def createParameter(name: String, `type`: PsiType): PsiParameter = {
+    val scType = ScType.create(`type`, manager.getProject)
+    ScalaPsiElementFactory.createParameterFromText(s"$name : ${ScType.canonicalText(scType)}", manager)
+  }
 
   def createParameterList(names: Array[String], types: Array[PsiType]): PsiParameterList = throw new IncorrectOperationException
 
@@ -88,8 +98,6 @@ object ScalaPsiElementFactory extends JVMElementFactory {
   def createType(aClass: PsiClass): PsiClassType = ???
 
   def createAnnotationType(name: String): PsiClass = ???
-
-  def createConstructor(name: String): PsiMethod = ???
 
   def createType(resolve: PsiClass, substitutor: PsiSubstitutor): PsiClassType = ???
 
@@ -110,6 +118,17 @@ object ScalaPsiElementFactory extends JVMElementFactory {
   def createTypeByFQClassName(qName: String, resolveScope: GlobalSearchScope): PsiClassType = ???
 
   def createType(aClass: PsiClass, parameters: PsiType*): PsiClassType = ???
+
+  def createExpressionFromText(text: String, context: PsiElement): PsiElement = {
+    try {
+      ScalaPsiElementFactory.createExpressionWithContextFromText(text, context, context)
+    } catch {
+      case e: Throwable => throw new IncorrectOperationException
+    }
+  }
+}
+
+object ScalaPsiElementFactory {
 
   def createExpressionFromText(text: String, context: PsiElement): PsiElement = {
     try {

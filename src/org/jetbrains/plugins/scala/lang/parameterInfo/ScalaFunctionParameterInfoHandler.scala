@@ -340,7 +340,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
               }
             }
           }
-          case (constructor: ScPrimaryConstructor, subst: ScSubstitutor, i: Int) => {
+          case (constructor: ScPrimaryConstructor, subst: ScSubstitutor, i: Int) if constructor.isValid => {
             val clauses = constructor.effectiveParameterClauses
             if (clauses.length <= i) buffer.append(CodeInsightBundle.message("parameter.info.no.parameters"))
             else {

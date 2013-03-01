@@ -36,12 +36,25 @@ import api.expr.ScBlock
 import api.toplevel.templates.{ScTemplateParents, ScExtendsBlock, ScTemplateBody}
 import reflect.NameTransformer
 import extensions.toPsiNamedElementExt
+import com.intellij.lang.java.JavaLanguage
+import conversion.JavaToScala
 
 abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTemplateDefinition] with ScTypeDefinition with PsiClassFake {
   override def hasTypeParameters: Boolean = typeParameters.length > 0
 
   override def add(element: PsiElement): PsiElement = {
     element match {
+      case member: PsiMember if member.getLanguage.isKindOf(JavaLanguage.INSTANCE) =>
+        val newMemberText = JavaToScala.convertPsiToText(member).trim()
+        val mem: Option[ScMember] = member match {
+          case method: PsiMethod =>
+            Some(ScalaPsiElementFactory.createMethodFromText(newMemberText, getManager))
+          case _ => None
+        }
+        mem match {
+          case Some(m) => addMember(m, None)
+          case _ => super.add(element)
+        }
       case mem: ScMember => addMember(mem, None)
       case _ => super.add(element)
     }

@@ -67,6 +67,7 @@ trait ScTemplateParents extends ScalaPsiElement {
                   case Some(ref) => refTail(ref)
                   case _ => tail()
                 }
+              case _ => tail()
             }
           case _ => tail()
         }

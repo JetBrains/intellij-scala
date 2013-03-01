@@ -49,7 +49,9 @@ class CreateApplyQuickFix(ref: ScStableCodeReferenceElement, call: ScMethodCall)
       val placeholder = if (methodType.isDefined) "def apply%s: Int = " else "def apply%s = "
       val text = placeholder.format(parameters.mkString)
 
-      val entity = createEntity(blockFor(ref).get, ref, text)
+      val extendsBlockOption = blockFor(ref)
+      if (!extendsBlockOption.isDefined) return
+      val entity = createEntity(extendsBlockOption.get, ref, text)
 
       ScalaPsiUtil.adjustTypes(entity)
 
