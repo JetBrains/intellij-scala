@@ -12,6 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import com.intellij.psi._
 import scope.PsiScopeProcessor
 import api.ScalaElementVisitor
+import lexer.ScalaTokenTypes
 
 /**
 * @author Alexander Podkhalyuzin
@@ -70,6 +71,22 @@ class ScParametersImpl extends ScalaStubBasedElementImpl[ScParameters] with ScPa
     visitor match {
       case s: ScalaElementVisitor => s.visitParameters(this)
       case _ => super.accept(visitor)
+    }
+  }
+
+  override def add(element: PsiElement): PsiElement = {
+    element match {
+      case param: ScParameter =>
+        clauses.lastOption match {
+          case Some(clause) =>
+            clause.addParameter(param).parameters.last
+          case _ =>
+            val clause = ScalaPsiElementFactory.createClauseFromText("()", getManager)
+            val newClause = clause.addParameter(param)
+            super.add(clause)
+            newClause.parameters.last
+        }
+      case _ => super.add(element)
     }
   }
 }
