@@ -64,6 +64,17 @@ import org.jetbrains.plugins.scala.lang.scaladoc.parser.ScalaDocElementTypes;
 
       return type;
     }
+    
+    
+    private void splitInjection() {
+      CharSequence seq = yytext();
+      for (int i = 1; i < seq.length(); ++i) {
+        if (seq.charAt(i) == '$') {
+          yypushback(seq.length() - i);
+          return;
+        }
+      }
+    }
 %}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -183,6 +194,7 @@ XML_BEGIN = "<" ("_" | [:jletter:]) | "<!--" | "<?" ("_" | [:jletter:]) | "<![CD
 %xstate WAIT_FOR_INTERPOLATED_STRING
 %xstate INSIDE_INTERPOLATED_STRING
 %xstate INSIDE_MULTI_LINE_INTERPOLATED_STRING
+%xstate INJ_COMMON_STATE
 
 %%
 
@@ -221,6 +233,11 @@ XML_BEGIN = "<" ("_" | [:jletter:]) | "<!--" | "<?" ("_" | [:jletter:]) | "<![CD
   }
 }
 
+<INJ_COMMON_STATE> {identifier} {
+  splitInjection();
+  return process(tIDENTIFIER);
+}
+
 <INSIDE_INTERPOLATED_STRING> {
   {INTERPOLATED_STRING_ESCAPE} {
     return process(tINTERPOLATED_STRING_ESCAPE);
@@ -233,7 +250,7 @@ XML_BEGIN = "<" ("_" | [:jletter:]) | "<!--" | "<?" ("_" | [:jletter:]) | "<![CD
   "$"{identifier} {
     if (yycharat(1) != '$') {
       haveIdInString = true;
-      yybegin(COMMON_STATE);
+      yybegin(INJ_COMMON_STATE);
       yypushback(yytext().length() - 1);
       return process(tINTERPOLATED_STRING_INJECTION);
     } else {
@@ -275,7 +292,7 @@ XML_BEGIN = "<" ("_" | [:jletter:]) | "<!--" | "<?" ("_" | [:jletter:]) | "<![CD
   "$"{identifier} {
     if (yycharat(1) != '$') {
       haveIdInMultilineString = true;
-      yybegin(COMMON_STATE);
+      yybegin(INJ_COMMON_STATE);
       yypushback(yytext().length() - 1);
       return process(tINTERPOLATED_STRING_INJECTION);
     } else {
