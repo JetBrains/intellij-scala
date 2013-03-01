@@ -590,7 +590,9 @@ with DumbAware {
             val annotation = holder.createErrorAnnotation(refElement.nameId, error)
             annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR)
             annotation.registerFix(ReportHighlightingErrorQuickFix)
-            annotation.registerFix(new CreateApplyQuickFix(refWithoutArgs, mc))
+            if (refWithoutArgs.resolve().isInstanceOf[ScTypeDefinition]) {
+              annotation.registerFix(new CreateApplyQuickFix(refWithoutArgs, mc))
+            }
             return
           }
         case _ =>

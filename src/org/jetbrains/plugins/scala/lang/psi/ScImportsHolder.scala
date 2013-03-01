@@ -386,7 +386,7 @@ trait ScImportsHolder extends ScalaPsiElement {
             def iterateExpr() {
               val qualifier = expr.qualifier
               var firstQualifier = qualifier
-              if (firstQualifier.getText == "_root_") return
+              if (firstQualifier == null || firstQualifier.getText == "_root_") return
               while (firstQualifier.qualifier != None) firstQualifier = firstQualifier.qualifier.get
               if (subPackages.map(_.name).contains(firstQualifier.getText)) {
                 var classPackageQualifier = getSplitQualifierElement(firstQualifier.resolve() match {

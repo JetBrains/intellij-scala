@@ -51,7 +51,7 @@ class ScalaClassNameCompletionTest extends ScalaCodeInsightTestBase {
     val resultText =
       """
         |import collection.immutable.HashSet
-        |import collection.mutable
+        |import scala.collection.mutable
         |
         |object Sandbox extends App {
         |  val x: HashSet[Int] = new HashSet[Int]
@@ -86,7 +86,7 @@ class ScalaClassNameCompletionTest extends ScalaCodeInsightTestBase {
     val resultText =
       """
         |import collection.immutable.HashSet
-        |import collection.mutable
+        |import scala.collection.mutable
         |
         |object Sandbox extends App {
         |  val x: HashSet[Int] = new HashSet[Int]
@@ -125,7 +125,7 @@ class ScalaClassNameCompletionTest extends ScalaCodeInsightTestBase {
 
       val resultText =
         """
-          |import collection.mutable.{ListMap, Builder, Queue, ArrayBuffer}
+          |import scala.collection.mutable.{ListMap, Builder, Queue, ArrayBuffer}
           |import scala.collection.immutable.HashMap
           |
           |object Sandbox extends App {
@@ -151,8 +151,8 @@ class ScalaClassNameCompletionTest extends ScalaCodeInsightTestBase {
   def testImportsMess() {
     val fileText =
       """
-        |import collection.immutable.{BitSet, HashSet, ListMap, SortedMap}
-        |import collection.mutable._
+        |import scala.collection.immutable.{BitSet, HashSet, ListMap, SortedMap}
+        |import scala.collection.mutable._
         |
         |class Test2 {
         |  val x: HashMap[String, String] = HashMap.empty
@@ -164,9 +164,9 @@ class ScalaClassNameCompletionTest extends ScalaCodeInsightTestBase {
 
     val resultText =
       """
-        |import collection.immutable._
-        |import collection.mutable._
-        |import collection.mutable.HashMap
+        |import scala.collection.immutable._
+        |import scala.collection.mutable._
+        |import scala.collection.mutable.HashMap
         |
         |class Test2 {
         |  val x: HashMap[String, String] = HashMap.empty

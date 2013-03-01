@@ -29,7 +29,7 @@ public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProj
   private int SHIFT = 80;
   private int OUTPUT_LIMIT = 35;
   private boolean ADD_IMPORT_MOST_CLOSE_TO_REFERENCE = false;
-  private boolean ADD_FULL_QUALIFIED_IMPORTS = false;
+  private boolean ADD_FULL_QUALIFIED_IMPORTS = true;
   private boolean SORT_IMPORTS = false;
   private boolean IMPORTS_MEMBERS_USING_UNDERSCORE = true;
 

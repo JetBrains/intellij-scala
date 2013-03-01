@@ -296,7 +296,7 @@ class ScalaBasicCompletionTest extends ScalaCodeInsightTestBase {
 
     val resultText =
       """
-      |import collection.mutable.ListBuffer
+      |import scala.collection.mutable.ListBuffer
       |
       |class A {
       |  val f = new ListBuffer[<caret>]
@@ -675,7 +675,7 @@ class ScalaBasicCompletionTest extends ScalaCodeInsightTestBase {
 
     val resultText =
       """
-        |import annotation.tailrec
+        |import scala.annotation.tailrec
         |
         |class aaa {
         |  @tailrec<caret>
