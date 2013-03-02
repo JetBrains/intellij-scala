@@ -69,7 +69,7 @@ class MultilineStringEnterHandler extends EnterHandlerDelegateAdapter {
       }
     }
 
-    extensions.inWriteAction {
+    extensions inWriteAction {
       var caretShiftHor = 0
       var caretShiftVert = 0
 
@@ -86,7 +86,7 @@ class MultilineStringEnterHandler extends EnterHandlerDelegateAdapter {
         line prefixLength (_ == ' ')
       }
       @inline def prevLinePrefixAfterDelimiter(offsetInLine: Int): Int =
-        if (prevLine.length > offsetInLine) prevLine.substring(offsetInLine).prefixLength(c => c == ' ' || c == '\t') else 0
+        if (prevLine.length > offsetInLine) prevLine substring offsetInLine prefixLength (c => c == ' ' || c == '\t') else 0
 
       val wasSingleLine = element.getText.indexOf("\n") == element.getText.lastIndexOf("\n")
       val lines = element.getText.split("\n")
@@ -178,8 +178,10 @@ class MultilineStringEnterHandler extends EnterHandlerDelegateAdapter {
           prevLine.prefixLength(c => c == ' ' || c == '\t')
         }
 
+        val prefixStriped = prevLine.substring(wsPrefix)
+        
         if (scalaSettings.MULTILINE_STRING_SUPORT == ScalaCodeStyleSettings.MULTILINE_STRING_QUOTES_AND_INDENT ||
-          !prevLine.substring(wsPrefix).startsWith(marginChar)) {
+          !prefixStriped.startsWith(marginChar) && !prefixStriped.startsWith(multilineQuotes)) {
           if (prevLineStartOffset < elementOffset) {
             val elementStart = prevLine.indexOf(multilineQuotes) + multilineQuotesLength
             val prevLineWsPrefixAfterQuotes = prevLinePrefixAfterDelimiter(elementStart)
