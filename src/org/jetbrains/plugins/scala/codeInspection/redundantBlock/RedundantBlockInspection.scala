@@ -28,8 +28,8 @@ class RedundantBlockInspection extends AbstractInspection {
         val isRedundant =
           if (next == null) true
           else {
-            val refName: String = child.getText + next.getText.apply(0)
-            !ScalaNamesUtil.isIdentifier(refName)
+            val refName: String = child.getText + (if (next.getTextLength > 0) next.getText charAt 0 else "")
+            !ScalaNamesUtil.isIdentifier(refName) && !refName.exists(_ == '$') 
           }
         if (isRedundant) {
           holder.registerProblem(block, "The enclosing block is redundant", new QuickFix(block))

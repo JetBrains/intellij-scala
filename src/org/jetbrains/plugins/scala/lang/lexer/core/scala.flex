@@ -47,7 +47,7 @@ import org.jetbrains.plugins.scala.lang.scaladoc.parser.ScalaDocElementTypes;
     }
 
     private IElementType process(IElementType type){
-      if (type == tIDENTIFIER && (haveIdInString || haveIdInMultilineString)) {
+      if ((type == tIDENTIFIER || type == kTHIS) && (haveIdInString || haveIdInMultilineString)) {
 
         if (haveIdInString) {
           haveIdInString = false;
@@ -235,7 +235,12 @@ XML_BEGIN = "<" ("_" | [:jletter:]) | "<!--" | "<?" ("_" | [:jletter:]) | "<![CD
 
 <INJ_COMMON_STATE> {identifier} {
   splitInjection();
+  if ("this".contentEquals(yytext())) return process(kTHIS); 
   return process(tIDENTIFIER);
+}
+
+<INJ_COMMON_STATE> [^] {
+  return process(tWRONG_STRING);
 }
 
 <INSIDE_INTERPOLATED_STRING> {
