@@ -24,14 +24,18 @@ class CleanWorksheetAction() extends AnAction {
 
   def actionPerformed(e: AnActionEvent) {
     val dataContext: DataContext = e.getDataContext
-    val editor: Editor = PlatformDataKeys.EDITOR.getData(dataContext)
+    val editorFromContext: Editor = PlatformDataKeys.EDITOR.getData(dataContext)
     val project: Project = PlatformDataKeys.PROJECT.getData(dataContext)
     val file: VirtualFile = PlatformDataKeys.VIRTUAL_FILE.getData(dataContext)
-    if (project == null || editor == null || file == null) return
+    if (project == null || editorFromContext == null || file == null) return
     val psiFile: PsiFile = (PsiManager.getInstance(project).asInstanceOf[PsiManagerEx]).getFileManager.getCachedPsiFile(file)
     if (psiFile == null) return
-    val viewer: Editor = WorksheetViewerInfo.getViewer(editor)
-    if (viewer == null) return
+    val (editor, viewer) = if (editorFromContext.isViewer) {
+      (WorksheetViewerInfo.findEditor(editorFromContext), editorFromContext)
+    }  else {
+      (editorFromContext, WorksheetViewerInfo.getViewer(editorFromContext))
+    }
+    if (editor == null || viewer == null) return
 
     val splitPane = viewer.getComponent.getParent.asInstanceOf[JBSplitter]
     val parent = splitPane.getParent
