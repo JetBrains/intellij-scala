@@ -172,7 +172,9 @@ class ScalaCompleteIfConditionTest extends ScalaCodeInsightTestBase {
       """
         |class B {
         |  def method() {
-        |    if (<caret>) {}
+        |    if (<caret>) {
+        |
+        |    }
         |  }
         |}
       """.stripMargin('|').replaceAll("\r", "").trim()

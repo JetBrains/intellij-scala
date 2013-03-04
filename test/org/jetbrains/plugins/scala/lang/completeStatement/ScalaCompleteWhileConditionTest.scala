@@ -174,7 +174,9 @@ class ScalaCompleteWhileConditionTest extends ScalaCodeInsightTestBase {
       """
         |class B {
         |  def method() {
-        |    while (<caret>) {}
+        |    while (<caret>) {
+        |
+        |    }
         |  }
         |}
       """.stripMargin('|').replaceAll("\r", "").trim()

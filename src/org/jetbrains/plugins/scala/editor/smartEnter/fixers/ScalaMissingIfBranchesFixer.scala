@@ -30,11 +30,11 @@ class ScalaMissingIfBranchesFixer extends ScalaFixer {
       val rParenth = ifStatement.getRightParenthesis.getOrElse(null)
       assert(rParenth != null)
       if (elseBranch == null && !transformingOneLiner || thenBranch == null) {
-        doc.insertString(rParenth.getTextRange.getEndOffset, "{}")
+        doc.insertString(rParenth.getTextRange.getEndOffset, "{\n\n}")
       }
       else {
         doc.insertString(rParenth.getTextRange.getEndOffset, "{")
-        doc.insertString(thenBranch.getTextRange.getEndOffset + 1, "}")
+        doc.insertString(thenBranch.getTextRange.getEndOffset + 1, "\n\n}")
       }
     }
   }

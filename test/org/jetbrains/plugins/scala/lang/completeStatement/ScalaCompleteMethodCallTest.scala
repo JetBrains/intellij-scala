@@ -31,28 +31,4 @@ class ScalaCompleteMethodCallTest extends ScalaCodeInsightTestBase {
     invokeSmartEnter()
     checkResultByText(resultText)
   }
-
-  def testMethodCall1() {
-    val fileText =
-      """
-        |class B {
-        |  def method() {}
-        |
-        |  method( <caret>
-        |}
-      """.stripMargin('|').replaceAll("\r", "").trim()
-    val resultText =
-      """
-        |class B {
-        |  def method() {}
-        |
-        |  method()<caret>
-        |}
-      """.stripMargin('|').replaceAll("\r", "").trim()
-
-    configureFromFileTextAdapter("dummy.scala", fileText)
-    invokeSmartEnter()
-    checkResultByText(resultText)
-  }
-
 }

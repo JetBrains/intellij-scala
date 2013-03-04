@@ -27,7 +27,7 @@ class ScalaMissingWhileBodyFixer extends ScalaFixer {
     if (body != null && startLine(doc, body) == startLine(doc, whileStatement) && whileStatement.condition.getOrElse(null) != null) return
     val rParenth = whileStatement.getRightParenthesis.getOrElse(null)
     assert(rParenth != null)
-    doc.insertString(rParenth.getTextRange.getEndOffset, "{}")
+    doc.insertString(rParenth.getTextRange.getEndOffset, "{\n\n}")
   }
 }
 
