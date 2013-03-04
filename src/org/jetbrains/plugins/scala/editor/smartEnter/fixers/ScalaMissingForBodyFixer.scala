@@ -21,10 +21,10 @@ class ScalaMissingForBodyFixer  extends ScalaFixer {
     if (body.isInstanceOf[ScBlockExpr]) return
     if (body != null && startLine(doc, body) == startLine(doc, forStatement)) return
     var eltToInsertAfter: PsiElement = forStatement.getRightParenthesis.getOrElse(null)
-    var text: String = "{}"
+    var text: String = "{\n\n}"
     if (eltToInsertAfter == null) {
       eltToInsertAfter = forStatement
-      text = "){}"
+      text = "){\n\n}"
     }
     doc.insertString(eltToInsertAfter.getTextRange.getEndOffset, text)
   }

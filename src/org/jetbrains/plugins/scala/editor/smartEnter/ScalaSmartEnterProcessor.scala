@@ -128,12 +128,12 @@ class ScalaSmartEnterProcessor extends SmartEnterProcessor {
     var atCaret = caret
     val parent: PsiElement = atCaret.getParent
     parent match {
-      case block: ScTemplateBody => {
+      case block: ScBlockExpr => {
         if (block.exprs.length > 0 && block.exprs.apply(0) == atCaret) {
           atCaret = block
         }
       }
-      case forStmt: ScForStatement => atCaret = parent
+      case forStmt: ScForStatement => atCaret = forStmt
       case _ =>
     }
 
@@ -210,8 +210,9 @@ class ScalaSmartEnterProcessor extends SmartEnterProcessor {
     val chars: CharSequence = editor.getDocument.getCharsSequence
     if (CharArrayUtil.regionMatches(chars, caretOffset, "{}")) {
       caretOffset += 2
-    }
-    else if (CharArrayUtil.regionMatches(chars, caretOffset, "{\n}")) {
+    } else if (CharArrayUtil.regionMatches(chars, caretOffset, "{\n}")) {
+      caretOffset += 3
+    } else if (CharArrayUtil.regionMatches(chars, caretOffset, "{\n\n}")) {
       caretOffset += 3
     }
     caretOffset = CharArrayUtil.shiftBackward(chars, caretOffset - 1, " \t") + 1

@@ -173,7 +173,9 @@ class ScalaCompleteForStatementTest extends ScalaCodeInsightTestBase {
       """
         |class B {
         |  def method() {
-        |    for (<caret>) {}
+        |    for (<caret>) {
+        |
+        |    }
         |  }
         |}
       """.stripMargin('|').replaceAll("\r", "").trim()
