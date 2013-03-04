@@ -6,6 +6,6 @@ ScalaFile
       PsiElement(interpolated string id)('s')
     PsiElement(interpolated string)('"')
     PsiElement(interpolated string injection)('$')
-    ReferenceExpression
-      PsiElement(identifier)('this')
+    ThisReference
+      PsiElement(this)('this')
     PsiElement(interpolated string end)('"')

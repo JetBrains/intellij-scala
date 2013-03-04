@@ -11,6 +11,8 @@ import com.intellij.openapi.util.TextRange
 import com.intellij.codeHighlighting.Pass
 import collection.JavaConversions
 import com.intellij.codeInsight.daemon.impl._
+import org.jetbrains.plugins.scala.util.ScalaLanguageDerivative
+
 /**
  * User: Alexander Podkhalyuzin
  * Date: 31.05.2010
@@ -23,8 +25,9 @@ class ScalaAnnotatorHighlightVisitor(project: Project) extends HighlightVisitor 
   private var myRefCountHolder: ScalaRefCountHolder = null
   private var myAnnotationHolder: AnnotationHolderImpl = null
 
-  override def suitableForFile(file: PsiFile): Boolean = {
-    file.isInstanceOf[ScalaFile]
+  override def suitableForFile(file: PsiFile): Boolean = file match {
+    case _: ScalaFile => true
+    case otherFile => ScalaLanguageDerivative hasDerivativeOnFile otherFile
   }
 
   def visit(element: PsiElement) {
