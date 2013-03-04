@@ -189,7 +189,13 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
         case Some(c) => {
           var nonValueType = ScTypePolymorphicType(res, typeParameters)
           var i = 0
-          while (i < params.length - 1 && i < c.arguments.length) {
+          //We need to update type info for generics in the following order:
+          //1. All clauses without last params clause or last arguments clause
+          //2. According to expected type
+          //3. Last argument clause
+          //4. Implicit clauses if applicable
+          //5. In case of SafeCheckException return to 3 to complete update without expected type
+          while (i < params.length - 1 && i < c.arguments.length - 1) {
             nonValueType = ScalaPsiUtil.localTypeInference(nonValueType.internalType, params(i),
               c.arguments(i).exprs.map(new Expression(_)), nonValueType.typeParameters)
             i += 1
@@ -224,7 +230,10 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
             if (i < params.length && i < c.arguments.length) {
               nonValueType = ScalaPsiUtil.localTypeInference(nonValueType.internalType, params(i),
                 c.arguments(i).exprs.map(new Expression(_)), nonValueType.typeParameters, safeCheck = withExpected)
-            } else if (lastImplicit) {
+              i += 1
+            }
+
+            if (lastImplicit && i < params.length) {
               //Let's add implicit parameters
               updateImplicits(nonValueType, withExpected, params, lastImplicit) match {
                 case t: ScTypePolymorphicType => nonValueType = t

@@ -313,6 +313,7 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
     var res = javaPackageClassNamesMap.get(scope, qualifier)
     if (res == null) {
       res = calc
+      if (res == null) return Collections.emptySet()
       javaPackageClassNamesMap.put((scope, qualifier), res)
     }
     res
@@ -338,6 +339,7 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
     var res = scalaPackageClassNamesMap.get(scope, qualifier)
     if (res == null) {
       res = calc
+      if (res == null) return HashSet.empty
       scalaPackageClassNamesMap.put((scope, qualifier), res)
     }
     res
