@@ -8,7 +8,7 @@ package patterns
 import collection.mutable.ArrayBuffer
 import psi.types._
 import nonvalue.{TypeParameter, ScTypePolymorphicType}
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
+import psi.{types, ScalaPsiElement}
 import com.intellij.psi._
 import expr._
 import result.{Success, Failure, TypeResult, TypingContext}
@@ -279,12 +279,12 @@ trait ScPattern extends ScalaPsiElement {
 
           tuple.expectedType.flatMap {et0 =>
             ScType.extractTupleType(et0) match {
-              case Some(ScTupleType(comps)) => {
+              case Some(ScTupleType(comps)) =>
                 for ((t, p) <- comps.iterator.zip(patternList.patterns.iterator)) {
                   if (p == this) return Some(t)
                 }
                 None
-              }
+              case None if et0 == types.AnyRef || et0 == types.Any => Some(types.Any)
               case None => None
             }
           }
