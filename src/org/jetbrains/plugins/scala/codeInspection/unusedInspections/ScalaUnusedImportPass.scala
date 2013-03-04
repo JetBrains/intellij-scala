@@ -3,21 +3,19 @@ package codeInspection
 package unusedInspections
 
 
-import annotator.importsTracker.ImportTracker
+import annotator.importsTracker.{ScalaRefCountHolder, ImportTracker}
 import com.intellij.codeHighlighting.TextEditorHighlightingPass
-import com.intellij.codeInsight.daemon.impl.{HighlightInfo, UpdateHighlightersUtil, AnnotationHolderImpl}
-import com.intellij.codeInspection.ProblemHighlightType
+import com.intellij.codeInsight.daemon.impl.{HighlightInfo, AnnotationHolderImpl}
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.progress.ProgressIndicator
-import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.psi.{PsiElement, PsiFile}
-import lang.psi.api.toplevel.imports.usages.{ImportWildcardSelectorUsed, ImportSelectorUsed, ImportExprUsed, ImportUsed}
-import lang.psi.api.toplevel.imports.{ScImportExpr, ScImportSelector, ScImportStmt}
+import com.intellij.psi.PsiFile
+import lang.psi.api.toplevel.imports.usages.ImportUsed
 import lang.psi.api.ScalaFile
-import com.intellij.lang.annotation.{AnnotationSession, Annotation}
-import com.intellij.codeInsight.daemon.impl.analysis.{HighlightLevelUtil, HighlightInfoHolder}
-import java.util.{Collections, ArrayList}
+import com.intellij.lang.annotation.AnnotationSession
+import com.intellij.codeInsight.daemon.impl.analysis.HighlightLevelUtil
+import java.util.Collections
 import java.util
+import com.intellij.codeInsight.intention.IntentionAction
 
 /**
  * User: Alexander Podkhalyuzin
@@ -25,55 +23,28 @@ import java.util
  */
 
 class ScalaUnusedImportPass(file: PsiFile, editor: Editor)
-  extends TextEditorHighlightingPass(file.getProject, editor.getDocument) {
-  import org.jetbrains.plugins.scala.editor.importOptimizer.ScalaImportOptimizer.isLanguageFeatureImport
+  extends TextEditorHighlightingPass(file.getProject, editor.getDocument) with ScalaUnusedImportPassBase {
 
+  protected val myEditor: Editor = editor
+  protected val myFile: PsiFile = file
+  
   def doCollectInformation(progress: ProgressIndicator) {
   }
 
   def doApplyInformationToEditor() {
-    if (file.isInstanceOf[ScalaFile] && HighlightLevelUtil.shouldInspect(file)) {
-      val sFile = file.asInstanceOf[ScalaFile]
-      val annotationHolder = new AnnotationHolderImpl(new AnnotationSession(file))
-      val tracker = ImportTracker.getInstance(file.getProject)
-      val unusedImports: Array[ImportUsed] = tracker.getUnusedImport(sFile)
-      val annotations = unusedImports.flatMap({
-        imp: ImportUsed => {
-          val psi: PsiElement = imp match {
-            case ImportExprUsed(expr) if !PsiTreeUtil.hasErrorElements(expr) && !isLanguageFeatureImport(expr) => {
-              val impSt = expr.getParent.asInstanceOf[ScImportStmt]
-              if (impSt == null) null //todo: investigate this case, this cannot be null
-              else if (impSt.importExprs.length == 1) impSt
-              else expr
-            }
-            case ImportSelectorUsed(sel) if !isLanguageFeatureImport(PsiTreeUtil.getParentOfType(sel, classOf[ScImportExpr])) => sel
-            case ImportWildcardSelectorUsed(e) if e.selectors.length > 0 && !isLanguageFeatureImport(e) => e.wildcardElement.get
-            case ImportWildcardSelectorUsed(e) if !PsiTreeUtil.hasErrorElements(e) && !isLanguageFeatureImport(e) => e.getParent
-            case _ => null
-          }
-          psi match {
-            case null => Seq[Annotation]()
-            case sel: ScImportSelector if sel.importedName == "_" => Seq[Annotation]()
-            case _ => {
-              val annotation: Annotation = annotationHolder.createWarningAnnotation(psi, "Unused import statement")
-              annotation.setHighlightType(ProblemHighlightType.LIKE_UNUSED_SYMBOL)
-              annotation.registerFix(new ScalaOptimizeImportsFix)
-              Seq[Annotation](annotation)
-            }
-          }
-        }
-      }).toSeq
+    file match {
+      case scalaFile: ScalaFile if HighlightLevelUtil shouldInspect file =>
+        val unusedImports: Array[ImportUsed] = ImportTracker getInstance file.getProject getUnusedImport scalaFile
+        val annotations = collectAnnotations(unusedImports, new AnnotationHolderImpl(new AnnotationSession(file)))
 
-      val holder = new HighlightInfoHolder(file)
-      val list = new util.ArrayList[HighlightInfo](annotations.length)
-      for (annotation <- annotations) {
-        list.add(HighlightInfo.fromAnnotation(annotation))
-      }
-      UpdateHighlightersUtil.setHighlightersToEditor(file.getProject, editor.getDocument, 0,
-        file.getTextLength, list, getColorsScheme, getId)
-    } else if (file.isInstanceOf[ScalaFile]) {
-      UpdateHighlightersUtil.setHighlightersToEditor(file.getProject, editor.getDocument, 0,
-        file.getTextLength, Collections.emptyList(), getColorsScheme, getId)
+        val list = new util.ArrayList[HighlightInfo](annotations.length)
+        annotations foreach (annotation => list add (HighlightInfo fromAnnotation annotation) )
+        
+        highlightAll(list)
+      case _: ScalaFile => highlightAll(Collections.emptyList[HighlightInfo]())
+      case _ => 
     }
   }
+
+  protected def getOptimizeFix: IntentionAction = new ScalaOptimizeImportsFix //todo it is stateless => shouldn't it be singleton?
 }

@@ -32,11 +32,16 @@ class ScalaImportOptimizer extends ImportOptimizer {
   def processFile(file: PsiFile): Runnable = processFile(file, deleteOnlyWrongImorts = false)
 
   def processFile(file: PsiFile, deleteOnlyWrongImorts: Boolean): Runnable = {
-    if (file.isInstanceOf[ScalaFile]) {
-      val scalaFile: ScalaFile = file.asInstanceOf[ScalaFile]
-      def getUnusedImports: mutable.HashSet[ImportUsed] = {
+    val scalaFile = file match {
+      case scFile: ScalaFile => scFile
+      case multiRootFile: PsiFile if (multiRootFile.getViewProvider.getLanguages contains ScalaFileType.SCALA_LANGUAGE) != null =>
+        multiRootFile.getViewProvider.getPsi(ScalaFileType.SCALA_LANGUAGE).asInstanceOf[ScalaFile]
+      case _ => return EmptyRunnable.getInstance() 
+    }
+    
+    def getUnusedImports: mutable.HashSet[ImportUsed] = {
         val usedImports = new mutable.HashSet[ImportUsed]
-        file.accept(new ScalaRecursiveElementVisitor {
+        scalaFile.accept(new ScalaRecursiveElementVisitor {
           override def visitReference(ref: ScReferenceElement) {
             if (PsiTreeUtil.getParentOfType(ref, classOf[ScImportStmt]) == null) {
               ref.multiResolve(false) foreach {
@@ -65,7 +70,7 @@ class ScalaImportOptimizer extends ImportOptimizer {
         unusedImports --= usedImports
         unusedImports
       }
-      new Runnable {
+    new Runnable {
         def run() {
           val documentManager = PsiDocumentManager.getInstance(scalaFile.getProject)
           documentManager.commitDocument(documentManager.getDocument(scalaFile)) //before doing changes let's commit document
@@ -135,7 +140,7 @@ class ScalaImportOptimizer extends ImportOptimizer {
           }
           documentManager.commitDocument(documentManager.getDocument(scalaFile))
 
-          file.accept(new ScalaRecursiveElementVisitor {
+          scalaFile.accept(new ScalaRecursiveElementVisitor {
             override def visitImportExpr(expr: ScImportExpr) {
               expr.selectorSet match {
                 case Some(selectors) if selectors.selectors.length == 1 - (if (selectors.hasWildcard) 1 else 0) => {
@@ -163,7 +168,7 @@ class ScalaImportOptimizer extends ImportOptimizer {
           documentManager.commitDocument(documentManager.getDocument(scalaFile))
 
           // Sort all import sections in the file lexagraphically
-          if (ScalaProjectSettings.getInstance(file.getProject).isSortImports) {
+          if (ScalaProjectSettings.getInstance(scalaFile.getProject).isSortImports) {
             val fileHolder = Seq(scalaFile.getContainingFile.asInstanceOf[ScImportsHolder])
             (PsiTreeUtil.collectElementsOfType(scalaFile, classOf[ScImportsHolder]) match {
               case null => fileHolder
@@ -186,15 +191,12 @@ class ScalaImportOptimizer extends ImportOptimizer {
                 }
               }
             }
-            documentManager.commitDocument(documentManager.getDocument(scalaFile))
+            documentManager.commitDocument(documentManager.getDocument(file))
           }
           //todo: add other optimizing
           //todo: add removing blank lines (last)
         }
       }
-    } else {
-      EmptyRunnable.getInstance
-    }
   }
 
   private def checkTypeForExpression(expr: ScExpression): Set[ImportUsed] = {
