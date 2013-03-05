@@ -30,8 +30,9 @@ import extensions.{toPsiMemberExt, toPsiNamedElementExt, toPsiClassExt}
 import settings._
 import lang.resolve.{ScalaResolveResult, StdKinds}
 import annotation.tailrec
-import collection.mutable.{HashMap, HashSet, ArrayBuffer, Set}
+import collection.mutable.ArrayBuffer
 import com.intellij.psi.stubs.StubElement
+import collection.mutable
 
 trait ScImportsHolder extends ScalaPsiElement {
 
@@ -73,6 +74,8 @@ trait ScImportsHolder extends ScalaPsiElement {
 
   /**
    * This method is important to avoid SOE for long import lists.
+   * // 
+   * todo it became unused >1year ago   
    */
   private def updateResolveCaches() {
     val curModCount = getManager.getModificationTracker.getModificationCount
@@ -120,8 +123,8 @@ trait ScImportsHolder extends ScalaPsiElement {
     buffer.toSeq
   }
 
-  def getAllImportUsed: Set[ImportUsed] = {
-    val res: Set[ImportUsed] = new HashSet[ImportUsed]
+  def getAllImportUsed: mutable.Set[ImportUsed] = {
+    val res: mutable.Set[ImportUsed] = new mutable.HashSet[ImportUsed]
     def processChild(element: PsiElement) {
       for (child <- element.getChildren) {
         child match {
@@ -291,13 +294,13 @@ trait ScImportsHolder extends ScalaPsiElement {
     val place = getLastChild
     var everythingProcessor  = new CompletionProcessor(StdKinds.stableImportSelector, place, includePrefixImports = false)
     treeWalkUp(everythingProcessor, this, place)
-    val candidatesBefore: HashMap[String, collection.immutable.HashSet[PsiNamedElement]] = new HashMap
+    val candidatesBefore: mutable.HashMap[String, collection.immutable.HashSet[PsiNamedElement]] = new mutable.HashMap
     for (candidate <- everythingProcessor.candidates) {
       val set: collection.immutable.HashSet[PsiNamedElement] =
         candidatesBefore.getOrElse(candidate.name, collection.immutable.HashSet.empty[PsiNamedElement])
       candidatesBefore.update(candidate.name, set + candidate.getElement)
     }
-    val usedNames = new HashSet[String]()
+    val usedNames = new mutable.HashSet[String]()
 
     this.accept(new ScalaRecursiveElementVisitor {
       override def visitReference(reference: ScReferenceElement) {
@@ -325,7 +328,7 @@ trait ScImportsHolder extends ScalaPsiElement {
 
     val completionProcessor = new CompletionProcessor(StdKinds.packageRef, place, includePrefixImports = false)
     treeWalkUp(completionProcessor, this, place)
-    val names: HashSet[String] = new HashSet
+    val names: mutable.HashSet[String] = new mutable.HashSet
     val packs: ArrayBuffer[PsiPackage] = new ArrayBuffer
     for (candidate <- completionProcessor.candidatesS) {
       candidate match {
@@ -428,7 +431,7 @@ trait ScImportsHolder extends ScalaPsiElement {
       if (!explicitly) {
         everythingProcessor = new CompletionProcessor(StdKinds.stableImportSelector, getLastChild, includePrefixImports = false)
         treeWalkUp(everythingProcessor, this, getLastChild)
-        val candidatesAfter: HashMap[String, collection.immutable.HashSet[PsiNamedElement]] = new HashMap
+        val candidatesAfter: mutable.HashMap[String, collection.immutable.HashSet[PsiNamedElement]] = new mutable.HashMap
         for (candidate <- everythingProcessor.candidates) {
           val set: collection.immutable.HashSet[PsiNamedElement] =
             candidatesAfter.getOrElse(candidate.name, collection.immutable.HashSet.empty[PsiNamedElement])
@@ -437,7 +440,7 @@ trait ScImportsHolder extends ScalaPsiElement {
 
         def checkName(s: String) {
           if (candidatesBefore.get(s) != candidatesAfter.get(s)) {
-            val pathes = new HashSet[String]()
+            val pathes = new mutable.HashSet[String]()
             //let's try to fix it by adding all before imports explicitly
             candidatesBefore.get(s).getOrElse(collection.immutable.HashSet.empty[PsiNamedElement]).foreach {
               case c: PsiClass => pathes += c.qualifiedName
@@ -578,6 +581,14 @@ trait ScImportsHolder extends ScalaPsiElement {
   def addImportAfter(element: PsiElement, anchor: PsiElement): PsiElement = {
     if (anchor.getNode == getNode.getLastChildNode) return addImport(element)
     addImportBefore(element, anchor.getNode.getTreeNext.getPsi)
+  }
+  
+  def plainDeleteImport(stmt: ScImportExpr) {
+    stmt.deleteExpr()
+  }
+  
+  def plainDeleteSelector(sel: ScImportSelector) {
+    sel.deleteSelector()
   }
 
   def deleteImportStmt(stmt: ScImportStmt) {
