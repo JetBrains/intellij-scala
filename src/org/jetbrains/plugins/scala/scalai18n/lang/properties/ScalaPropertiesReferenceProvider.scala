@@ -8,6 +8,7 @@ import com.intellij.util.ProcessingContext
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import collection.mutable
 import org.jetbrains.plugins.scala.scalai18n.codeInspection.i18n.ScalaI18nUtil
+import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
 /**
  * @author Ksenia.Sautina
@@ -20,6 +21,7 @@ class ScalaPropertiesReferenceProvider(myDefaultSoft: Boolean) extends PsiRefere
   }
 
   def getReferencesByElement(element: PsiElement, context: ProcessingContext): Array[PsiReference] = {
+    if (ScalaProjectSettings.getInstance(element.getProject).isDisableI18N) return Array.empty
     var value: AnyRef = null
     var bundleName: String = null
     var soft: Boolean = myDefaultSoft

@@ -43,6 +43,7 @@ public class ScalaProjectSettingsPanel {
   private JCheckBox treatDocCommentAsBlockComment;
   private JCheckBox importMembersUsingUnderscoreCheckBox;
   private JCheckBox myDisableLanguageInjection;
+  private JCheckBox myDisablei18n;
   private JCheckBox useScalaClassesPriorityCheckBox;
   private JComboBox collectionHighlightingChooser;
   private JCheckBox importTheShortestPathCheckBox;
@@ -156,6 +157,7 @@ public class ScalaProjectSettingsPanel {
 
     scalaProjectSettings.setIgnorePerformance(myResolveToAllClassesCheckBox.isSelected());
     scalaProjectSettings.setDisableLangInjection(myDisableLanguageInjection.isSelected());
+    scalaProjectSettings.setDisableI18N(myDisablei18n.isSelected());
     scalaProjectSettings.setScalaPriority(useScalaClassesPriorityCheckBox.isSelected());
     scalaProjectSettings.setCollectionTypeHighlightingLevel(collectionHighlightingChooser.getSelectedIndex());
     scalaProjectSettings.setImportShortestPathForAmbiguousReferences(importTheShortestPathCheckBox.isSelected());
@@ -209,6 +211,9 @@ public class ScalaProjectSettingsPanel {
     if (scalaProjectSettings.isDisableLangInjection() != myDisableLanguageInjection.isSelected())
       return true;
 
+    if (scalaProjectSettings.isDisableI18N() != myDisablei18n.isSelected())
+      return true;
+
     if (scalaProjectSettings.isScalaPriority() != useScalaClassesPriorityCheckBox.isSelected())
       return true;
 
@@ -254,6 +259,7 @@ public class ScalaProjectSettingsPanel {
     setValue(myResolveToAllClassesCheckBox, scalaProjectSettings.isIgnorePerformance());
 
     setValue(myDisableLanguageInjection, scalaProjectSettings.isDisableLangInjection());
+    setValue(myDisablei18n, scalaProjectSettings.isDisableI18N());
     setValue(useScalaClassesPriorityCheckBox, scalaProjectSettings.isScalaPriority());
     setValue(importTheShortestPathCheckBox, scalaProjectSettings.isImportShortestPathForAmbiguousReferences());
     collectionHighlightingChooser.setSelectedIndex(scalaProjectSettings.getCollectionTypeHighlightingLevel()); 
