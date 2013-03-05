@@ -6,7 +6,7 @@ import org.jetbrains.plugins.scala.lang.psi.types
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import types.result.TypingContext
 import com.intellij.psi.PsiElement
-import types.ScType
+import types.{ScProjectionType, ScType}
 import java.util.{IllegalFormatConversionException, IllegalFormatException}
 
 /**
@@ -42,13 +42,18 @@ case class Injection(expression: ScExpression, specifier: Option[Specifier]) ext
   }
 
   def problem: Option[InjectionProblem] = specifier.flatMap { it =>
-    val v = expressionType.map(Types.valueOf).getOrElse(new Object())
-    try {
-      v.formatted(it.format)
-      None
-    } catch {
-      case e: IllegalFormatConversionException => Some(Inapplicable)
-      case e: IllegalFormatException => Some(Malformed)
+    expressionType.get match {
+      case projectionType: ScProjectionType => return None
+      case _ => {
+        val v = expressionType.map(Types.valueOf).getOrElse(new Object())
+        try {
+          v.formatted(it.format)
+          None
+        } catch {
+          case e: IllegalFormatConversionException => Some(Inapplicable)
+          case e: IllegalFormatException => Some(Malformed)
+        }
+      }
     }
   }
 }
