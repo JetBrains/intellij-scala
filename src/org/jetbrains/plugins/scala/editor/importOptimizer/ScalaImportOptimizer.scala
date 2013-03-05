@@ -108,16 +108,23 @@ class ScalaImportOptimizer extends ImportOptimizer {
               }
             }
           }
+          
+          def plainDeleteUnused(imp: ScImportExpr) {
+            imp.getContainingFile match {
+              case scalaFile: ScalaFile => scalaFile plainDeleteImport imp
+              case _ => imp.deleteExpr()
+            }
+          }
+          
           for (importUsed <- unusedImports) {
             importUsed match {
-              case ImportExprUsed(expr) => {
-                expr.deleteExpr()
-              }
+              case ImportExprUsed(expr) =>
+                plainDeleteUnused(expr)
               case ImportWildcardSelectorUsed(expr) => {
                 expr.wildcardElement match {
                   case Some(element: PsiElement) => {
                     if (expr.selectors.length == 0) {
-                      expr.deleteExpr()
+                      plainDeleteUnused(expr)
                     } else {
                       var node = element.getNode
                       var prev = node.getTreePrev
@@ -133,8 +140,9 @@ class ScalaImportOptimizer extends ImportOptimizer {
                   case _ =>
                 }
               }
-              case ImportSelectorUsed(sel) => {
-                sel.deleteSelector()
+              case ImportSelectorUsed(sel) => sel.getContainingFile match {
+                case scalaFile: ScalaFile => scalaFile plainDeleteSelector sel
+                case _ => sel.deleteSelector()
               }
             }
           }

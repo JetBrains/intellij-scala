@@ -12,7 +12,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile;
 abstract public class ScalaLanguageDerivative {
   public static final ExtensionPointName<ScalaLanguageDerivative> EP_NAME =
       ExtensionPointName.create("org.intellij.scala.scalaLanguageDerivative");
-  public static final ScalaLanguageDerivative defaultDerivative = new ScalaLanguageDerivative() { }; 
   
   public boolean isSuitableFile(PsiFile file) {
     return false;
@@ -29,5 +28,16 @@ abstract public class ScalaLanguageDerivative {
     }
     
     return false;
+  }
+  
+  @Nullable
+  public static ScalaFile getScalaFileOnDerivative(PsiFile file) {
+    for (ScalaLanguageDerivative derivative : EP_NAME.getExtensions()) {
+      if (derivative.isSuitableFile(file)) {
+        return derivative.getScalaFileIn(file);
+      }
+    }
+    
+    return null;
   }
 }
