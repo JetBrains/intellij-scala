@@ -31,7 +31,6 @@ class WorksheetConfigurationType  extends LocatableConfigurationType {
   def createConfigurationByLocation(location: Location[_ <: PsiElement]): RunnerAndConfigurationSettings = {
     val file = location.getPsiElement.getContainingFile
     file match {
-      case null => null
       case scalaFile: ScalaFile if (scalaFile.isWorksheetFile) => {
         val settings = RunManager.getInstance(location.getProject).createRunConfiguration("WS: " + scalaFile.getName, confFactory)
         val conf: WorksheetRunConfiguration = settings.getConfiguration.asInstanceOf[WorksheetRunConfiguration]
