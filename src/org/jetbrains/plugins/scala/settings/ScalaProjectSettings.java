@@ -45,11 +45,12 @@ public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProj
   private boolean IGNORE_PERFORMANCE_TO_FIND_ALL_CLASS_NAMES = false;
   private boolean TREAT_DOC_COMMENT_AS_BLOCK_COMMENT = false;
   private boolean DISABLE_LANGUAGE_INJECTION = false;
+  private boolean DISABLE_I18N = false;
 
   private boolean SCALA_CLASSES_PRIORITY = true;
 
   private Map<String, String> INTERPOLATED_INJECTION_MAPPING = new HashMap<String, String>();
-  
+
   {
     INTERPOLATED_INJECTION_MAPPING.put("sql", "SQL");
     INTERPOLATED_INJECTION_MAPPING.put("sqlu", "SQL");
@@ -257,6 +258,14 @@ public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProj
 
   public void setTreatDocCommentAsBlockComment(boolean value) {
     TREAT_DOC_COMMENT_AS_BLOCK_COMMENT = value;
+  }
+
+  public boolean isDisableI18N() {
+    return DISABLE_I18N;
+  }
+
+  public void setDisableI18N(boolean value) {
+    DISABLE_I18N = value;
   }
 
   public boolean isDisableLangInjection() {
