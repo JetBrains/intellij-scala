@@ -3,7 +3,6 @@ package worksheet.runconfiguration
 
 import com.intellij.util.containers.WeakHashMap
 import com.intellij.openapi.editor.Editor
-import collection.JavaConversions
 
 /**
  * @author Ksenia.Sautina
@@ -25,16 +24,6 @@ object WorksheetViewerInfo {
           allViewers.put(editor, viewer :: list)
       }
     }
-  }
-
-  def findEditor(viewer: Editor): Editor = {
-    synchronized {
-      val set = JavaConversions.asScalaSet(allViewers.entrySet())
-      for (entry <- set) {
-        if (entry.getValue.contains(viewer))  return entry.getKey
-      }
-    }
-    null
   }
 
   def disposeViewer(viewer: Editor, editor: Editor) {
