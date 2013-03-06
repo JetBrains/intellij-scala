@@ -1,9 +1,8 @@
 package org.jetbrains.plugins.scala
 package worksheet.actions
 
-import com.intellij.openapi.actionSystem.{PlatformDataKeys, DataContext, AnActionEvent, AnAction}
+import com.intellij.openapi.actionSystem.{AnActionEvent, AnAction}
 import com.intellij.openapi.editor._
-import com.intellij.openapi.project.Project
 import com.intellij.psi.{PsiDocumentManager, PsiFile}
 import worksheet.runconfiguration.WorksheetViewerInfo
 import java.lang.String
@@ -11,6 +10,9 @@ import java.awt.datatransfer.StringSelection
 import com.intellij.openapi.ide.CopyPasteManager
 import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.util.text.StringUtil
+import com.intellij.icons.AllIcons
+import com.intellij.openapi.fileEditor.FileEditorManager
+import lang.psi.api.ScalaFile
 
 /**
  * @author Ksenia.Sautina
@@ -18,19 +20,42 @@ import com.intellij.openapi.util.text.StringUtil
  */
 class CopyWorksheetAction extends AnAction {
   def actionPerformed(e: AnActionEvent) {
-    val dataContext: DataContext = e.getDataContext
-    val editor: Editor = PlatformDataKeys.EDITOR.getData(dataContext)
-    val project: Project = PlatformDataKeys.PROJECT.getData(dataContext)
-    if (project == null || editor == null) return
+    val editor = FileEditorManager.getInstance(e.getProject).getSelectedTextEditor
+    if (editor == null) return
 
-    val file: PsiFile = PsiDocumentManager.getInstance(project).getPsiFile(editor.getDocument)
+    val psiFile: PsiFile = PsiDocumentManager.getInstance(e.getProject).getPsiFile(editor.getDocument)
     val viewer = WorksheetViewerInfo.getViewer(editor)
-    if (file == null || viewer == null) return
+    if (psiFile == null || viewer == null) return
 
     var s = mergeDocuments(editor, viewer)
     s = StringUtil.convertLineSeparators(s)
     val contents: StringSelection = new StringSelection(s)
     CopyPasteManager.getInstance.setContents(contents)
+  }
+
+  override def update(e: AnActionEvent) {
+    val presentation = e.getPresentation
+    presentation.setIcon(AllIcons.Actions.Copy)
+
+    def enable() {
+      presentation.setEnabled(true)
+      presentation.setVisible(true)
+    }
+    def disable() {
+      presentation.setEnabled(false)
+      presentation.setVisible(false)
+    }
+
+    try {
+      val editor = FileEditorManager.getInstance(e.getProject).getSelectedTextEditor
+      val psiFile: PsiFile = PsiDocumentManager.getInstance(e.getProject).getPsiFile(editor.getDocument)
+      psiFile match {
+        case sf: ScalaFile if (sf.isWorksheetFile) => enable()
+        case _ => disable()
+      }
+    } catch {
+      case e: Exception => disable()
+    }
   }
 
 

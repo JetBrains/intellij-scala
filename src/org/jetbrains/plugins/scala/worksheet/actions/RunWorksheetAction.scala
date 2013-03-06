@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala
 package worksheet.actions
 
-import com.intellij.openapi.actionSystem.{PlatformDataKeys, LangDataKeys, AnActionEvent, AnAction}
+import com.intellij.openapi.actionSystem.{AnActionEvent, AnAction}
 import lang.psi.api.ScalaFile
 import com.intellij.execution._
 import com.intellij.execution.configurations.ConfigurationTypeUtil
@@ -12,6 +12,10 @@ import com.intellij.util.ActionRunner
 import worksheet.runconfiguration.{WorksheetRunConfigurationFactory, WorksheetRunConfiguration, WorksheetConfigurationType}
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.keymap.{KeymapUtil, KeymapManager}
+import com.intellij.openapi.fileEditor.FileEditorManager
+import com.intellij.openapi.project.Project
+import com.intellij.openapi.vfs.VirtualFile
+import com.intellij.psi.{PsiDocumentManager, PsiFile}
 
 /**
  * @author Ksenia.Sautina
@@ -20,55 +24,57 @@ import com.intellij.openapi.keymap.{KeymapUtil, KeymapManager}
 
 class RunWorksheetAction extends AnAction {
   def actionPerformed(e: AnActionEvent) {
-    val dataContext = e.getDataContext
-    val file = LangDataKeys.PSI_FILE.getData(dataContext)
-    val project = PlatformDataKeys.PROJECT.getData(dataContext)
-    if (file == null || project == null) return
-    file match {
-      case file: ScalaFile => {
-        if (!file.isWorksheetFile) return
-        val runManagerEx = RunManagerEx.getInstanceEx(file.getProject)
-        val configurationType = ConfigurationTypeUtil.findConfigurationType(classOf[WorksheetConfigurationType])
-        val settings = runManagerEx.getConfigurationSettings(configurationType)
-
-        def execute(setting: RunnerAndConfigurationSettings) {
-          val configuration = setting.getConfiguration.asInstanceOf[WorksheetRunConfiguration]
-          configuration.setWorksheetField(file.getContainingFile.getVirtualFile.getCanonicalPath)
-          configuration.setName("WS: " + file.getName)
-          runManagerEx.setSelectedConfiguration(setting)
-          val runExecutor = DefaultRunExecutor.getRunExecutorInstance
-          val runner = RunnerRegistry.getInstance().getRunner(runExecutor.getId, configuration)
-          if (runner != null) {
-            try {
-              runner.execute(runExecutor, new ExecutionEnvironment(runner, setting, project))
-            }
-            catch {
-              case e: ExecutionException =>
-                Messages.showErrorDialog(file.getProject, e.getMessage, ExecutionBundle.message("error.common.title"))
-            }
-          }
-        }
-        for (setting <- settings) {
-          ActionRunner.runInsideReadAction(new ActionRunner.InterruptibleRunnable {
-            def run() {
-              execute(setting)
-            }
-          })
-          return
-        }
-        ActionRunner.runInsideReadAction(new ActionRunner.InterruptibleRunnable {
-          def run() {
-            val factory: WorksheetRunConfigurationFactory =
-              configurationType.getConfigurationFactories.apply(0).asInstanceOf[WorksheetRunConfigurationFactory]
-            val setting = RunManagerEx.getInstanceEx(file.getProject).createConfiguration(file.getName, factory)
-
-            runManagerEx.setTemporaryConfiguration(setting)
-            execute(setting)
-          }
-        })
-      }
+    val editor = FileEditorManager.getInstance(e.getProject).getSelectedTextEditor
+    if (editor == null) return
+    val psiFile: PsiFile = PsiDocumentManager.getInstance(e.getProject).getPsiFile(editor.getDocument)
+    psiFile match {
+      case file: ScalaFile if file.isWorksheetFile =>
+        if (executeWorksheet(file.getName, e.getProject, file.getContainingFile.getVirtualFile)) return
       case _ =>
     }
+  }
+
+  def executeWorksheet(name: String, project: Project, virtualFile: VirtualFile): Boolean = {
+    val runManagerEx = RunManagerEx.getInstanceEx(project)
+    val configurationType = ConfigurationTypeUtil.findConfigurationType(classOf[WorksheetConfigurationType])
+    val settings = runManagerEx.getConfigurationSettings(configurationType)
+
+    def execute(setting: RunnerAndConfigurationSettings) {
+      val configuration = setting.getConfiguration.asInstanceOf[WorksheetRunConfiguration]
+      configuration.setWorksheetField(virtualFile.getCanonicalPath)
+      configuration.setName("WS: " + name)
+      runManagerEx.setSelectedConfiguration(setting)
+      val runExecutor = DefaultRunExecutor.getRunExecutorInstance
+      val runner = RunnerRegistry.getInstance().getRunner(runExecutor.getId, configuration)
+      if (runner != null) {
+        try {
+          runner.execute(runExecutor, new ExecutionEnvironment(runner, setting, project))
+        }
+        catch {
+          case e: ExecutionException =>
+            Messages.showErrorDialog(project, e.getMessage, ExecutionBundle.message("error.common.title"))
+        }
+      }
+    }
+    for (setting <- settings) {
+      ActionRunner.runInsideReadAction(new ActionRunner.InterruptibleRunnable {
+        def run() {
+          execute(setting)
+        }
+      })
+      return true
+    }
+    ActionRunner.runInsideReadAction(new ActionRunner.InterruptibleRunnable {
+      def run() {
+        val factory: WorksheetRunConfigurationFactory =
+          configurationType.getConfigurationFactories.apply(0).asInstanceOf[WorksheetRunConfigurationFactory]
+        val setting = RunManagerEx.getInstanceEx(project).createConfiguration(name, factory)
+
+        runManagerEx.setTemporaryConfiguration(setting)
+        execute(setting)
+      }
+    })
+    false
   }
 
   override def update(e: AnActionEvent) {
@@ -88,17 +94,16 @@ class RunWorksheetAction extends AnAction {
       presentation.setEnabled(false)
       presentation.setVisible(false)
     }
+
     try {
-      val file = LangDataKeys.PSI_FILE.getData(e.getDataContext)
-      file match {
-        case sf: ScalaFile => {
-          if (sf.isWorksheetFile) enable()
-          else disable()
-        }
-        case _ => disable()
+      val editor = FileEditorManager.getInstance(e.getProject).getSelectedTextEditor
+      val psiFile: PsiFile = PsiDocumentManager.getInstance(e.getProject).getPsiFile(editor.getDocument)
+
+      psiFile match {
+        case sf: ScalaFile if sf.isWorksheetFile => enable()
+        case _ =>  disable()
       }
-    }
-    catch {
+    } catch {
       case e: Exception => disable()
     }
   }

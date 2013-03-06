@@ -5,8 +5,7 @@ import com.intellij.openapi.actionSystem._
 import lang.psi.api.ScalaFile
 import com.intellij.openapi.editor.{Document, Editor}
 import com.intellij.openapi.project.Project
-import com.intellij.psi.{PsiDocumentManager, PsiManager, PsiFile}
-import com.intellij.psi.impl.PsiManagerEx
+import com.intellij.psi.{PsiDocumentManager, PsiFile}
 import com.intellij.openapi.util.TextRange
 import com.intellij.icons.AllIcons
 import com.intellij.lang.ASTNode
@@ -15,6 +14,7 @@ import com.intellij.openapi.vfs.VirtualFile
 import worksheet.runconfiguration.WorksheetViewerInfo
 import java.awt.BorderLayout
 import com.intellij.ui.JBSplitter
+import com.intellij.openapi.fileEditor.FileEditorManager
 
 /**
  * @author Ksenia.Sautina
@@ -23,19 +23,13 @@ import com.intellij.ui.JBSplitter
 class CleanWorksheetAction() extends AnAction {
 
   def actionPerformed(e: AnActionEvent) {
-    val dataContext: DataContext = e.getDataContext
-    val editorFromContext: Editor = PlatformDataKeys.EDITOR.getData(dataContext)
-    val project: Project = PlatformDataKeys.PROJECT.getData(dataContext)
-    val file: VirtualFile = PlatformDataKeys.VIRTUAL_FILE.getData(dataContext)
-    if (project == null || editorFromContext == null || file == null) return
-    val psiFile: PsiFile = (PsiManager.getInstance(project).asInstanceOf[PsiManagerEx]).getFileManager.getCachedPsiFile(file)
-    if (psiFile == null) return
-    val (editor, viewer) = if (editorFromContext.isViewer) {
-      (WorksheetViewerInfo.findEditor(editorFromContext), editorFromContext)
-    }  else {
-      (editorFromContext, WorksheetViewerInfo.getViewer(editorFromContext))
-    }
-    if (editor == null || viewer == null) return
+    val editor: Editor = FileEditorManager.getInstance(e.getProject).getSelectedTextEditor
+    val file: VirtualFile = PlatformDataKeys.VIRTUAL_FILE.getData(e.getDataContext)
+    if (editor == null || file == null) return
+
+    val psiFile: PsiFile = PsiDocumentManager.getInstance(e.getProject).getPsiFile(editor.getDocument)
+    val viewer =  WorksheetViewerInfo.getViewer(editor)
+    if (psiFile == null || viewer == null) return
 
     val splitPane = viewer.getComponent.getParent.asInstanceOf[JBSplitter]
     val parent = splitPane.getParent
@@ -47,7 +41,7 @@ class CleanWorksheetAction() extends AnAction {
     invokeLater {
       inWriteAction {
         val wvDocument = viewer.getDocument
-        cleanWorksheet(psiFile.getNode, editor.getDocument, wvDocument, project)
+        cleanWorksheet(psiFile.getNode, editor.getDocument, wvDocument, e.getProject)
       }
     }
   }
@@ -64,26 +58,15 @@ class CleanWorksheetAction() extends AnAction {
       presentation.setEnabled(false)
       presentation.setVisible(false)
     }
-    enable()
+
     try {
-      val file = LangDataKeys.PSI_FILE.getData(e.getDataContext)
-      val editor: Editor = PlatformDataKeys.EDITOR.getData(e.getDataContext)
-
-      if (file == null || editor == null)
-        disable()
-
-      file match {
-        case sf: ScalaFile => {
-          if (sf.isWorksheetFile) {
-            enable()
-          } else {
-            disable()
-          }
-        }
+      val editor = FileEditorManager.getInstance(e.getProject).getSelectedTextEditor
+      val psiFile: PsiFile = PsiDocumentManager.getInstance(e.getProject).getPsiFile(editor.getDocument)
+      psiFile match {
+        case sf: ScalaFile if (sf.isWorksheetFile) => enable()
         case _ => disable()
       }
-    }
-    catch {
+    } catch {
       case e: Exception => disable()
     }
   }
