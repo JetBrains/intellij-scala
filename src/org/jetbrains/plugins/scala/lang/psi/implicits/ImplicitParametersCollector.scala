@@ -200,7 +200,7 @@ class ImplicitParametersCollector(place: PsiElement, tp: ScType, searchImplicits
             searches.find{
               case t: ScType if tp.isInstanceOf[ScType] =>
                 if (Equivalence.equivInner(t, tp.asInstanceOf[ScType], new ScUndefinedSubstitutor(), falseUndef = false)._1) true
-                else dominates(t, tp.asInstanceOf[ScType])
+                else dominates(tp.asInstanceOf[ScType], t)
               case _ => false
             } == None
           }, coreTypeForTp, compute(), IMPLICIT_PARAM_TYPES_KEY) match {
