@@ -51,73 +51,11 @@ object InferUtil {
           case _ => //shouldn't be there
             resInner = t.copy(internalType = mt.copy(returnType = updatedType)(mt.project, mt.scope))
         }
-      case t@ScTypePolymorphicType(ScMethodType(retType, params, impl), typeParams) if impl => {
+      case t@ScTypePolymorphicType(ScMethodType(retType, params, impl), typeParams) if impl =>
         val polymorphicSubst = t.polymorphicTypeSubstitutor
         val abstractSubstitutor: ScSubstitutor = t.abstractTypeSubstitutor
-        val exprs = new ArrayBuffer[Expression]
-        val paramsForInfer = new ArrayBuffer[Parameter]()
-        val resolveResults = new ArrayBuffer[ScalaResolveResult]
-        val iterator = params.iterator
-        while (iterator.hasNext) {
-          val param = iterator.next()
-          val paramType = abstractSubstitutor.subst(param.paramType) //we should do all of this with information known before
-          val collector = new ImplicitParametersCollector(element, paramType, searchImplicitsRecursively)
-          val results = collector.collect
-          if (results.length == 1) {
-            if (check && !results(0).isApplicable) throw new SafeCheckException
-            resolveResults += results(0)
-            results(0) match {
-              case r: ScalaResolveResult if r.implicitParameterType.isDefined =>
-                exprs += new Expression(polymorphicSubst subst r.implicitParameterType.get)
-              case ScalaResolveResult(o: ScObject, subst) =>
-                exprs += new Expression(polymorphicSubst subst subst.subst(o.getType(TypingContext.empty).get))
-              case ScalaResolveResult(param: ScParameter, subst) =>
-                exprs += new Expression(polymorphicSubst subst subst.subst(param.getType(TypingContext.empty).get))
-              case ScalaResolveResult(patt: ScBindingPattern, subst) => {
-                exprs += new Expression(polymorphicSubst subst subst.subst(patt.getType(TypingContext.empty).get))
-              }
-              case ScalaResolveResult(fun: ScFunction, subst) => {
-                val funType = {
-                  if (fun.parameters.length == 0 || fun.paramClauses.clauses.apply(0).isImplicit) {
-                    subst.subst(fun.getType(TypingContext.empty).get) match {
-                      case ScFunctionType(ret, _) => ret
-                      case p: ScParameterizedType =>
-                        p.getFunctionType match {
-                          case Some(ScFunctionType(ret, _)) => ret
-                          case _ => p
-                        }
-                      case other => other
-                    }
-                  }
-                  else subst.subst(fun.getType(TypingContext.empty).get)
-                }
-                exprs += new Expression(polymorphicSubst subst funType)
-              }
-            }
-            paramsForInfer += param
-          } else {
-            def checkManifest(fun: ScalaResolveResult => Unit) {
-              val result = paramType match {
-                case p@ScParameterizedType(des, Seq(arg)) =>
-                  ScType.extractClass(des) match {
-                    case Some(clazz) if clazz.qualifiedName == "scala.reflect.ClassManifest"  ||
-                      clazz.qualifiedName == "scala.reflect.Manifest" ||
-                      clazz.qualifiedName == "scala.reflect.ClassTag" =>
-                      //do not throw, it's safe
-                      new ScalaResolveResult(clazz, p.substitutor)
-                    case _ => null
-                  }
-                case _ => null
-              }
-              fun(result)
-            }
-            //check if it's ClassManifest parameter:
-            checkManifest(r => {
-              if (r == null && check) throw new SafeCheckException
-              else resolveResults += r
-            })
-          }
-        }
+        val (paramsForInfer, exprs, resolveResults) =
+          findImplicits(params, element, check, searchImplicitsRecursively, abstractSubstitutor, polymorphicSubst)
         implicitParameters = Some(resolveResults.toSeq)
         resInner = ScalaPsiUtil.localTypeInference(retType, paramsForInfer, exprs, typeParams, safeCheck = check, checkAnyway = checkAnyway)
         val dependentSubst = new ScSubstitutor(() => {
@@ -130,74 +68,14 @@ object InferUtil {
           } else Map.empty
         })
         resInner = dependentSubst.subst(resInner)
-      }
       case mt@ScMethodType(retType, params, isImplicit) if !isImplicit =>
         // See SCL-3516
         val (updatedType, ps) = updateTypeWithImplicitParameters(retType, element, check, checkAnyway = checkAnyway)
         implicitParameters = ps
         resInner = mt.copy(returnType = updatedType)(mt.project, mt.scope)
       case ScMethodType(retType, params, isImplicit) if isImplicit => {
-        val resolveResults = new ArrayBuffer[ScalaResolveResult]
-        val exprs = new ArrayBuffer[Expression]
-        val paramsForInfer = new ArrayBuffer[Parameter]()
-        val iterator = params.iterator
-        while (iterator.hasNext) {
-          val param = iterator.next()
-          val paramType = param.paramType //we should do all of this with information known before
-          val collector = new ImplicitParametersCollector(element, paramType, searchImplicitsRecursively)
-          val results = collector.collect
-          if (results.length == 1) {
-            if (check && !results(0).isApplicable) throw new SafeCheckException
-            resolveResults += results(0)
-            results(0) match {
-              case r: ScalaResolveResult if r.implicitParameterType.isDefined =>
-                exprs += new Expression(r.implicitParameterType.get)
-              case ScalaResolveResult(o: ScObject, subst) =>
-                exprs += new Expression(subst.subst(o.getType(TypingContext.empty).get))
-              case ScalaResolveResult(param: ScParameter, subst) =>
-                exprs += new Expression(subst.subst(param.getType(TypingContext.empty).get))
-              case ScalaResolveResult(patt: ScBindingPattern, subst) => {
-                exprs += new Expression(subst.subst(patt.getType(TypingContext.empty).get))
-              }
-              case ScalaResolveResult(fun: ScFunction, subst) => {
-                val funType = {
-                  if (fun.parameters.length == 0 || fun.paramClauses.clauses.apply(0).isImplicit) {
-                    subst.subst(fun.getType(TypingContext.empty).get) match {
-                      case ScFunctionType(ret, _) => ret
-                      case p: ScParameterizedType =>
-                        p.getFunctionType match {
-                          case Some(ScFunctionType(ret, _)) => ret
-                          case _ => p
-                        }
-                      case other => other
-                    }
-                  }
-                  else subst.subst(fun.getType(TypingContext.empty).get)
-                }
-                exprs += new Expression(funType)
-              }
-            }
-            paramsForInfer += param
-          } else {
-            //check if it's ClassManifest parameter:
-            paramType match {
-              case p@ScParameterizedType(des, Seq(arg)) =>
-                ScType.extractClass(des) match {
-                  case Some(clazz) if clazz.qualifiedName == "scala.reflect.ClassManifest"  ||
-                    clazz.qualifiedName == "scala.reflect.Manifest" ||
-                    clazz.qualifiedName == "scala.reflect.ClassTag" =>
-                    //do not throw, it's safe
-                    resolveResults += new ScalaResolveResult(clazz, p.substitutor)
-                  case _ =>
-                    if (check) throw new SafeCheckException
-                    resolveResults += null
-                }
-              case _ =>
-                if (check) throw new SafeCheckException
-                resolveResults += null
-            }
-          }
-        }
+        val (paramsForInfer, exprs, resolveResults) =
+          findImplicits(params, element, check, searchImplicitsRecursively)
 
         implicitParameters = Some(resolveResults.toSeq)
         resInner = retType
@@ -215,6 +93,78 @@ object InferUtil {
       case _ =>
     }
     (resInner, implicitParameters)
+  }
+
+
+  def findImplicits(params: Seq[Parameter], place: PsiElement,
+                    check: Boolean, searchImplicitsRecursively: Int = ImplicitParametersCollector.SEARCH_ITERATIONS,
+                    abstractSubstitutor: ScSubstitutor = ScSubstitutor.empty,
+                    polymorphicSubst: ScSubstitutor = ScSubstitutor.empty): (Seq[Parameter], Seq[Compatibility.Expression], Seq[ScalaResolveResult]) = {
+    val exprs = new ArrayBuffer[Expression]
+    val paramsForInfer = new ArrayBuffer[Parameter]()
+    val resolveResults = new ArrayBuffer[ScalaResolveResult]
+    val iterator = params.iterator
+    while (iterator.hasNext) {
+      val param = iterator.next()
+      val paramType = abstractSubstitutor.subst(param.paramType) //we should do all of this with information known before
+      val collector = new ImplicitParametersCollector(place, paramType, searchImplicitsRecursively)
+      val results = collector.collect
+      if (results.length == 1) {
+        if (check && !results(0).isApplicable) throw new SafeCheckException
+        resolveResults += results(0)
+        results(0) match {
+          case r: ScalaResolveResult if r.implicitParameterType.isDefined =>
+            exprs += new Expression(polymorphicSubst subst r.implicitParameterType.get)
+          case ScalaResolveResult(o: ScObject, subst) =>
+            exprs += new Expression(polymorphicSubst subst subst.subst(o.getType(TypingContext.empty).get))
+          case ScalaResolveResult(param: ScParameter, subst) =>
+            exprs += new Expression(polymorphicSubst subst subst.subst(param.getType(TypingContext.empty).get))
+          case ScalaResolveResult(patt: ScBindingPattern, subst) => {
+            exprs += new Expression(polymorphicSubst subst subst.subst(patt.getType(TypingContext.empty).get))
+          }
+          case ScalaResolveResult(fun: ScFunction, subst) => {
+            val funType = {
+              if (fun.parameters.length == 0 || fun.paramClauses.clauses.apply(0).isImplicit) {
+                subst.subst(fun.getType(TypingContext.empty).get) match {
+                  case ScFunctionType(ret, _) => ret
+                  case p: ScParameterizedType =>
+                    p.getFunctionType match {
+                      case Some(ScFunctionType(ret, _)) => ret
+                      case _ => p
+                    }
+                  case other => other
+                }
+              }
+              else subst.subst(fun.getType(TypingContext.empty).get)
+            }
+            exprs += new Expression(polymorphicSubst subst funType)
+          }
+        }
+        paramsForInfer += param
+      } else {
+        def checkManifest(fun: ScalaResolveResult => Unit) {
+          val result = paramType match {
+            case p@ScParameterizedType(des, Seq(arg)) =>
+              ScType.extractClass(des) match {
+                case Some(clazz) if clazz.qualifiedName == "scala.reflect.ClassManifest" ||
+                  clazz.qualifiedName == "scala.reflect.Manifest" ||
+                  clazz.qualifiedName == "scala.reflect.ClassTag" =>
+                  //do not throw, it's safe
+                  new ScalaResolveResult(clazz, p.substitutor)
+                case _ => null
+              }
+            case _ => null
+          }
+          fun(result)
+        }
+        //check if it's ClassManifest parameter:
+        checkManifest(r => {
+          if (r == null && check) throw new SafeCheckException
+          else resolveResults += r
+        })
+      }
+    }
+    (paramsForInfer.toSeq, exprs.toSeq, resolveResults.toSeq)
   }
 
   /**
