@@ -12,6 +12,7 @@ import com.intellij.psi.PsiFile
  */
 
 object ScalaConsoleInfo {
+  private val NULL = (null, null, null)
   private val allConsoles =
     new WeakHashMap[Project, List[(ScalaLanguageConsole, ConsoleHistoryModel, ProcessHandler)]]()
 
@@ -51,8 +52,8 @@ object ScalaConsoleInfo {
   private def get(project: Project): (ScalaLanguageConsole, ConsoleHistoryModel, ProcessHandler) = {
     synchronized {
       allConsoles.get(project) match {
-        case null => null
-        case list => list.headOption.getOrElse(null, null, null)
+        case null => NULL
+        case list => list.headOption.getOrElse(NULL)
       }
     }
   }
@@ -60,14 +61,14 @@ object ScalaConsoleInfo {
   private def get(editor: Editor) = {
     synchronized {
       allConsoles.get(editor.getProject) match {
-        case null => null
+        case null => NULL
         case list =>
           list.find {
             case (console: ScalaLanguageConsole, model: ConsoleHistoryModel, handler: ProcessHandler) =>
               console.getConsoleEditor == editor
           } match {
             case Some(res) => res
-            case _ => (null, null, null)
+            case _ => NULL
           }
       }
     }
@@ -76,14 +77,14 @@ object ScalaConsoleInfo {
   private def get(file: PsiFile) = {
     synchronized {
       allConsoles.get(file.getProject) match {
-        case null => null
+        case null => NULL
         case list =>
           list.find {
             case (console: ScalaLanguageConsole, model: ConsoleHistoryModel, handler: ProcessHandler) =>
               console.getFile == file
           } match {
             case Some(res) => res
-            case _ => (null, null, null)
+            case _ => NULL
           }
       }
     }
