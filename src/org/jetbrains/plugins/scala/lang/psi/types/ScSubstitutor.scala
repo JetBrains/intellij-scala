@@ -85,8 +85,12 @@ class ScSubstitutor(val tvMap: Map[(String, String), ScType],
       throw new RuntimeException("Too much followers for substitutor: " + this.toString)
     if (follower == null && tvMap.size + aliasesMap.size  == 0 && updateThisType == None && getDependentMethodTypes.isEmpty) s
     else if (s.getFollower == null && s.tvMap.size + s.aliasesMap.size == 0 && s.updateThisType == None && s.getDependentMethodTypes.isEmpty) this
-    else new ScSubstitutor(tvMap, aliasesMap, updateThisType,
-      if (follower != null) follower followed (s, level + 1) else s)
+    else {
+      val res = new ScSubstitutor(tvMap, aliasesMap, updateThisType,
+        if (follower != null) follower followed (s, level + 1) else s)
+      res.myDependentMethodTypesFun = myDependentMethodTypesFun
+      res
+    }
   }
 
   def subst(t: ScType): ScType = try {
