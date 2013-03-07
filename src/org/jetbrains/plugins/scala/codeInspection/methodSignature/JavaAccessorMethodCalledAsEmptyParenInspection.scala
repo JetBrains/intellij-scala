@@ -17,12 +17,18 @@ class JavaAccessorMethodCalledAsEmptyParenInspection extends AbstractMethodSigna
 
   def actionFor(holder: ProblemsHolder) = {
     case e: ScReferenceExpression => e.getParent match {
-      case call: ScMethodCall if (call.getParent == null || !call.getParent.isInstanceOf[ScMethodCall]) =>
-      e.resolve() match {
-        case _: ScalaPsiElement => // do nothing
-        case (m: PsiMethod) if m.isAccessor => holder.registerProblem(e.nameId, getDisplayName, new RemoveCallParentheses(call))
-        case _ =>
-      }
+      case call: ScMethodCall =>
+        call.getParent match {
+          case callParent: ScMethodCall => // do nothing
+          case _ => if (call.argumentExpressions.isEmpty) {
+            e.resolve() match {
+              case _: ScalaPsiElement => // do nothing
+              case (m: PsiMethod) if m.isAccessor =>
+                holder.registerProblem(e.nameId, getDisplayName, new RemoveCallParentheses(call))
+              case _ =>
+            }
+          }
+        }
       case _ =>
     }
   }
