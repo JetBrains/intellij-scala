@@ -16,6 +16,7 @@ import api.base.patterns.ScBindingPattern
 import api.statements._
 import api.toplevel.{ScModifierListOwner, ScTypedDefinition}
 import api.toplevel.typedef._
+import nonvalue.Parameter
 import params.{ScClassParameter, ScParameter, ScTypeParam}
 import api.toplevel.templates.{ScExtendsBlock, ScTemplateBody}
 import lang.resolve.{ResolveUtils, StdKinds, ScalaResolveResult}
@@ -24,6 +25,10 @@ import api.expr.{ScMethodCall, ScExpression}
 import result.TypingContext
 import lang.resolve.processor.{BaseProcessor, ImplicitProcessor}
 import extensions.toObjectExt
+import api.InferUtil
+import psi.ScalaPsiUtil.SafeCheckException
+import languageLevel.ScalaLanguageLevel
+import types.Compatibility.Expression
 
 /**
  * @author ilyas
@@ -283,7 +288,7 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
         r.element match {
           case f: ScFunction if f.hasTypeParameters => {
             var uSubst = Conformance.undefinedSubst(newSubst.subst(tp), typez)
-            uSubst.getSubstitutor(false) match {
+            uSubst.getSubstitutor(notNonable = false) match {
               case Some(unSubst) =>
                 def hasRecursiveTypeParameters(typez: ScType): Boolean = {
 
@@ -316,8 +321,44 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
                     }
                   }
                 }
-                //todo: pass implicit parameters
-                (true, r, tp, retTp, newSubst, uSubst)
+
+                uSubst.getSubstitutor(notNonable = false) match {
+                  case Some(unSubst) =>
+                    if (f.name == "pimpApply") {
+                      "stop here"
+                    }
+                    //let's update dependent method types
+                    //todo: currently it looks like a hack in the right place, probably whole this class should be
+                    //todo: rewritten in more clean and clear way.
+                    val dependentSubst = new ScSubstitutor(() => {
+                      val level = ScalaLanguageLevel.getLanguageLevel(this)
+                      if (level.isThoughScala2_10) {
+                        f.paramClauses.clauses.headOption.map(_.parameters).toSeq.flatten.map {
+                          case (param: ScParameter) => (new Parameter(param), typez)
+                        }.toMap
+                      } else Map.empty
+                    })
+
+                    val implicitDependentSubst = new ScSubstitutor(() => {
+                      val level = ScalaLanguageLevel.getLanguageLevel(this)
+                      if (level.isThoughScala2_10) {
+                          if (f.paramClauses.clauses.length == 2) {
+                            val (inferredParams, expr, _) = InferUtil.findImplicits(f.paramClauses.clauses.last.parameters.map(
+                              param => new Parameter(param)), this, check = false, abstractSubstitutor = subst followed dependentSubst followed unSubst)
+                            inferredParams.zip(expr).map {
+                              case (param: Parameter, expr: Expression) =>
+                                (param, expr.getTypeAfterImplicitConversion(checkImplicits = true, isShape = false, None)._1.get)
+                            }.toMap
+                          } else Map.empty
+                      } else Map.empty
+                    })
+
+
+                    //todo: pass implicit parameters
+                    (true, r, tp, implicitDependentSubst subst dependentSubst.subst(retTp), newSubst, uSubst)
+                  case _ => (false, r, tp, retTp, null: ScSubstitutor, null: ScUndefinedSubstitutor)
+                }
+
               case _ => (false, r, tp, retTp, null: ScSubstitutor, null: ScUndefinedSubstitutor)
             }
           }
