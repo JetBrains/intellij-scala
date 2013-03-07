@@ -43,6 +43,7 @@ class ScSubstitutor(val tvMap: Map[(String, String), ScType],
     this.follower = follower
   }
 
+  //todo: this is excluded from constructor, can cause lots of bugs, probably it should be rewritten in more appropriate way
   private var myDependentMethodTypesFun: () => Map[Parameter, ScType] = () => Map.empty
   private var myDependentMethodTypes: Map[Parameter, ScType] = null
   private def getDependentMethodTypes: Map[Parameter, ScType] = {
@@ -54,7 +55,7 @@ class ScSubstitutor(val tvMap: Map[(String, String), ScType],
 
   def this(dependentMethodTypes: () => Map[Parameter, ScType]) {
     this()
-    myDependentMethodTypesFun= dependentMethodTypes
+    myDependentMethodTypesFun = dependentMethodTypes
   }
 
   private var follower: ScSubstitutor = null
@@ -64,12 +65,16 @@ class ScSubstitutor(val tvMap: Map[(String, String), ScType],
   override def toString: String = "ScSubstitutor(" + tvMap + ", " + aliasesMap + ")" +
     (if (follower != null) " followed " + follower.toString else "")
 
-  def bindT(name : (String, String), t: ScType) =
-    new ScSubstitutor(tvMap + ((name, t)), aliasesMap, updateThisType, follower)
-  def bindA(name: String, t: ScType) =
-    new ScSubstitutor(tvMap, aliasesMap + ((name, new Suspension[ScType](t))), updateThisType, follower)
-  def bindA(name: String, f: () => ScType) =
-    new ScSubstitutor(tvMap, aliasesMap + ((name, new Suspension[ScType](f))), updateThisType, follower)
+  def bindT(name : (String, String), t: ScType) = {
+    val res = new ScSubstitutor(tvMap + ((name, t)), aliasesMap, updateThisType, follower)
+    res.myDependentMethodTypesFun = myDependentMethodTypesFun
+    res
+  }
+  def bindA(name: String, f: () => ScType) = {
+    val res = new ScSubstitutor(tvMap, aliasesMap + ((name, new Suspension[ScType](f))), updateThisType, follower)
+    res.myDependentMethodTypesFun = myDependentMethodTypesFun
+    res
+  }
   def addUpdateThisType(tp: ScType): ScSubstitutor = {
     this followed (new ScSubstitutor(Map.empty, Map.empty, Some(tp)))
   }
@@ -78,8 +83,8 @@ class ScSubstitutor(val tvMap: Map[(String, String), ScType],
   private def followed(s: ScSubstitutor, level: Int): ScSubstitutor = {
     if (level > ScSubstitutor.followLimit)
       throw new RuntimeException("Too much followers for substitutor: " + this.toString)
-    if (follower == null && tvMap.size + aliasesMap.size  == 0 && updateThisType == None) s
-    else if (s.getFollower == null && s.tvMap.size + s.aliasesMap.size == 0 && s.updateThisType == None) this
+    if (follower == null && tvMap.size + aliasesMap.size  == 0 && updateThisType == None && getDependentMethodTypes.isEmpty) s
+    else if (s.getFollower == null && s.tvMap.size + s.aliasesMap.size == 0 && s.updateThisType == None && s.getDependentMethodTypes.isEmpty) this
     else new ScSubstitutor(tvMap, aliasesMap, updateThisType,
       if (follower != null) follower followed (s, level + 1) else s)
   }
@@ -312,13 +317,15 @@ class ScSubstitutor(val tvMap: Map[(String, String), ScType],
       case ex@ScExistentialType(q, wildcards) => {
         //remove bound names
         val trunc = aliasesMap -- ex.boundNames
-        new ScExistentialType(new ScSubstitutor(tvMap, trunc, updateThisType, follower).substInternal(q),
+        val substCopy = new ScSubstitutor(tvMap, trunc, updateThisType, follower)
+        substCopy.myDependentMethodTypesFun = myDependentMethodTypesFun
+        new ScExistentialType(substCopy.substInternal(q),
           wildcards.map(_.subst(this)))
       }
       case comp@ScCompoundType(comps, decls, typeDecls, substitutor) =>
-        ScCompoundType(comps.map(substInternal(_)), decls, typeDecls, substitutor.followed(
-          new ScSubstitutor(tvMap, aliasesMap, updateThisType)
-        ))
+        val substCopy = new ScSubstitutor(tvMap, aliasesMap, updateThisType)
+        substCopy.myDependentMethodTypesFun = myDependentMethodTypesFun
+        ScCompoundType(comps.map(substInternal(_)), decls, typeDecls, substitutor.followed(substCopy))
       case ScDesignatorType(param: ScParameter) if !getDependentMethodTypes.isEmpty =>
         getDependentMethodTypes.find {
           case (parameter: Parameter, tp: ScType) =>
