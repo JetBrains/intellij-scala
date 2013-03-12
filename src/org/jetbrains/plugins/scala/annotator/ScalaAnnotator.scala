@@ -720,7 +720,7 @@ with DumbAware {
     }
     
     ref.resolve() match {
-      case r: ScFunctionDefinition =>
+      case r: ScFunction =>
         val elementsMap = mutable.HashMap[Int, PsiElement]()
         val params = new mutable.StringBuilder("(")
 
