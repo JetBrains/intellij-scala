@@ -8,6 +8,7 @@ import com.intellij.ide.actions.{CreateFileFromTemplateDialog, CreateTemplateInP
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import com.intellij.psi._
+import codeStyle.CodeStyleManager
 import org.jetbrains.annotations.NonNls
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.actionSystem._
@@ -124,7 +125,8 @@ object NewScalaTypeDefinitionAction {
   def createFromTemplate(directory: PsiDirectory, name: String, fileName: String, templateName: String,
                          parameters: String*): PsiFile = {
     val template: FileTemplate = FileTemplateManager.getInstance.getInternalTemplate(templateName)
-    val properties: Properties = new Properties(FileTemplateManager.getInstance.getDefaultProperties(directory.getProject))
+    val project = directory.getProject
+    val properties: Properties = new Properties(FileTemplateManager.getInstance.getDefaultProperties(project))
     JavaTemplateUtil.setPackageNameAttribute(properties, directory)
     properties.setProperty(NAME_TEMPLATE_PROPERTY, name)
     properties.setProperty(LOW_CASE_NAME_TEMPLATE_PROPERTY, name.substring(0, 1).toLowerCase + name.substring(1))
@@ -145,8 +147,9 @@ object NewScalaTypeDefinitionAction {
         throw new RuntimeException("Unable to load template for " + FileTemplateManager.getInstance.internalTemplateToSubject(templateName), e)
       }
     }
-    val factory: PsiFileFactory = PsiFileFactory.getInstance(directory.getProject)
+    val factory: PsiFileFactory = PsiFileFactory.getInstance(project)
     val file: PsiFile = factory.createFileFromText(fileName, ScalaFileType.SCALA_FILE_TYPE, text)
+    CodeStyleManager.getInstance(project).reformat(file)
     directory.add(file).asInstanceOf[PsiFile]
   }
 }
