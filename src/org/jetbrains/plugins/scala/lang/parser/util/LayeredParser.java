@@ -646,8 +646,8 @@ public abstract class LayeredParser implements PsiParser {
         return;
       }
 
-      if (backStepToken != null && fakeStartMarker.getStartOffset() < backStepToken.getTokenStart() &&  
-          !(currentTokenInfo == fakeEndToken && myEofExtendedElements.contains(astElementType)) && checkBackStepMarker(astElementType)) {
+      if (backStepToken != null && fakeStartMarker.getStartOffset() < backStepToken.getTokenStart() /*&&  
+          !(currentTokenInfo == fakeEndToken && myEofExtendedElements.contains(astElementType))*/ && checkBackStepMarker(astElementType)) {
         backStepToken.addForeignProductionMarker(endMarker);
         endMarker.setEndOffset(backStepToken.getTokenStart());
         return;
