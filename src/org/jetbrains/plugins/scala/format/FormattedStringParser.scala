@@ -8,6 +8,7 @@ import lang.psi.api.statements.ScFunction
 import lang.psi.api.toplevel.typedef.{ScClass, ScTrait}
 import com.intellij.openapi.util.text.StringUtil
 import extensions._
+import lang.psi.impl.ScalaPsiElementFactory
 
 /**
  * Pavel Fatin
@@ -91,7 +92,9 @@ object FormattedStringParser extends StringParser {
           UnboundPositionalSpecifier(specifier, position)
         }
       } else {
-        if (remainingArguments.hasNext)
+        if (it.toString().equals("%n"))
+          Injection(ScalaPsiElementFactory.createExpressionFromText("", literal.getManager), Some(specifier))
+        else if (remainingArguments.hasNext)
           Injection(remainingArguments.next(), Some(specifier))
         else
           UnboundSpecifier(specifier)
