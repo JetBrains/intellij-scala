@@ -38,6 +38,7 @@ public class ScalaConsoleRunConfigurationForm {
     javaOptionsEditor.setText("-Djline.terminal=NONE");
     consoleArgsEditor.setName("Console arguments");
     consoleArgsEditor.setDialogCaption("Console arguments editor");
+    consoleArgsEditor.setText("-usejavacp");
     addFileChooser("Choose Working Directory", workingDirectoryField, project);
     VirtualFile baseDir = project.getBaseDir();
     String path = baseDir != null ? baseDir.getPath() : "";
