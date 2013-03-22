@@ -8,7 +8,7 @@
     <depends>org.intellij.scala</depends>
 
     <!-- please see http://confluence.jetbrains.net/display/IDEADEV/Build+Number+Ranges for description -->
-    <idea-version since-build="123.94" until-build="123.9999"/>
+    <idea-version since-build="129.17" until-build="1000.9999"/>
 
     <application-components>
         <!-- Add your application components here -->
