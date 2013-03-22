@@ -3,7 +3,6 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/intellij-sbt.iml" filepath="$PROJECT_DIR$/intellij-sbt.iml" />
-      <module fileurl="file://$PROJECT_DIR$/intellij-sbt-runner/intellij-sbt-runner.iml" filepath="$PROJECT_DIR$/intellij-sbt-runner/intellij-sbt-runner.iml" />
     </modules>
   </component>
 </project>

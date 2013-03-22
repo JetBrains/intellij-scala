@@ -15,6 +15,7 @@
       <entry name="?*.tld" />
       <entry name="?*.ftl" />
       <entry name="?*.test" />
+      <entry name="?*.plugins" />
     </wildcardResourcePatterns>
     <annotationProcessing>
       <profile default="true" name="Default" enabled="false">
