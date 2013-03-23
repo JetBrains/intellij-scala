@@ -34,7 +34,7 @@ class ScalaConsoleRunConfiguration(val project: Project, val configurationFactor
   val EMACS = "-Denv.emacs=\"%EMACS%\""
   val MAIN_CLASS = "org.jetbrains.plugins.scala.compiler.rt.ConsoleRunner"
   private var javaOptions = "-Djline.terminal=NONE"
-  private var consoleArgs = ""
+  private var consoleArgs = "-usejavacp"
   private var workingDirectory = Option(getProject.getBaseDir) map (_.getPath) getOrElse ""
   
 
@@ -106,7 +106,7 @@ class ScalaConsoleRunConfiguration(val project: Project, val configurationFactor
             val printer: PrintStream = new PrintStream(new FileOutputStream(fileWithParams))
             printer.println("-classpath")
             printer.println(getClassPath(module))
-            val parms: Array[String] = ParametersList.parse(consoleArgs)
+            val parms: Array[String] = ParametersList.parse(getConsoleArgs)
             for (parm <- parms) {
               printer.println(parm)
             }
@@ -120,7 +120,7 @@ class ScalaConsoleRunConfiguration(val project: Project, val configurationFactor
         } else {
           params.getProgramParametersList.add("-classpath")
           params.getProgramParametersList.add(getClassPath(module))
-          params.getProgramParametersList.addParametersString(consoleArgs)
+          params.getProgramParametersList.addParametersString(getConsoleArgs)
         }
         params
       }

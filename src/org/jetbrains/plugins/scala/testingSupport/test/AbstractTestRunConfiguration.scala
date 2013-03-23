@@ -42,6 +42,7 @@ import org.jetbrains.plugins.scala.compiler.rt.ClassRunner
 import lang.psi.api.toplevel.ScModifierListOwner
 import com.intellij.openapi.application.ApplicationManager
 import java.io.{IOException, FileOutputStream, PrintStream, File}
+import org.jetbrains.idea.maven.project.MavenProjectsManager
 
 /**
  * @author Ksenia.Sautina
@@ -226,6 +227,9 @@ abstract class AbstractTestRunConfiguration(val project: Project,
     if (suiteClass == null) {
       throw new RuntimeConfigurationException(errorMessage)
     }
+
+    val mavenProject = MavenProjectsManager.getInstance(project).findProject(getModule)
+    if (mavenProject != null) setWorkingDirectory(mavenProject.getDirectory)
 
     testKind match {
       case TestKind.ALL_IN_PACKAGE =>
