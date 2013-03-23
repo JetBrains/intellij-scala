@@ -1,20 +1,31 @@
 package org.jetbrains.plugins.scala.components;
 
 import com.intellij.icons.AllIcons;
-import com.intellij.openapi.actionSystem.*;
+import com.intellij.openapi.actionSystem.ActionPlaces;
+import com.intellij.openapi.actionSystem.ActionToolbar;
+import com.intellij.openapi.actionSystem.Presentation;
+import com.intellij.openapi.actionSystem.Shortcut;
 import com.intellij.openapi.actionSystem.impl.ActionButton;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.AbstractProjectComponent;
-import com.intellij.openapi.fileEditor.*;
+import com.intellij.openapi.editor.Editor;
+import com.intellij.openapi.editor.EditorFactory;
+import com.intellij.openapi.fileEditor.FileEditor;
+import com.intellij.openapi.fileEditor.FileEditorManager;
+import com.intellij.openapi.fileEditor.FileEditorManagerAdapter;
+import com.intellij.openapi.fileEditor.FileEditorManagerListener;
 import com.intellij.openapi.keymap.KeymapManager;
 import com.intellij.openapi.keymap.KeymapUtil;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.project.ProjectManager;
+import com.intellij.openapi.project.ProjectManagerAdapter;
 import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.plugins.scala.ScalaBundle;
 import org.jetbrains.plugins.scala.ScalaFileType;
 import org.jetbrains.plugins.scala.worksheet.actions.CleanWorksheetAction;
 import org.jetbrains.plugins.scala.worksheet.actions.CopyWorksheetAction;
 import org.jetbrains.plugins.scala.worksheet.actions.RunWorksheetAction;
+import org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetViewerInfo;
 
 import javax.swing.*;
 import java.awt.*;
@@ -34,6 +45,16 @@ public class WorksheetProjectComponent extends AbstractProjectComponent {
       @Override
       public void fileOpened(FileEditorManager source, VirtualFile file) {
         updateNotifications(file);
+      }
+    });
+    project.getMessageBus().connect(project).subscribe(ProjectManager.TOPIC, new ProjectManagerAdapter() {
+      @Override
+      public void projectClosed(Project project) {
+        Editor editor = FileEditorManager.getInstance(project).getSelectedTextEditor();
+        Editor viewer = WorksheetViewerInfo.getViewer(editor);
+        if (viewer != null) {
+          EditorFactory.getInstance().releaseEditor(viewer);
+        }
       }
     });
   }
