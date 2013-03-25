@@ -29,6 +29,7 @@ public class WorksheetRunConfigurationForm {
   private TextFieldWithBrowseButton workingDirectoryField;
   private TextFieldWithBrowseButton worksheetField;
   private JComboBox moduleComboBox;
+  private RawCommandLineEditor worksheetOptions;
   private Project myProject;
   private WorksheetRunConfiguration myConfiguration;
 
@@ -43,6 +44,9 @@ public class WorksheetRunConfigurationForm {
     javaOptionsEditor.setName("VM options");
     javaOptionsEditor.setDialogCaption("VM options editor");
     javaOptionsEditor.setText("-Djline.terminal=NONE");
+    worksheetOptions.setName("Worksheet options");
+    worksheetOptions.setDialogCaption("Worksheet options editor");
+    worksheetOptions.setText("");
     addFileChooser("Choose Working Directory", workingDirectoryField, project);
     addWSChooser("Choose Worksheet", worksheetField, project);
     VirtualFile baseDir = project.getBaseDir();
@@ -64,6 +68,7 @@ public class WorksheetRunConfigurationForm {
 
   public void apply(WorksheetRunConfiguration configuration) {
     setJavaOptions(configuration.getJavaOptions());
+    setWorksheetOptions(configuration.getWorksheetOptions());
     setWorkingDirectory(configuration.getWorkingDirectory());
     setWorksheetField(configuration.getWorksheetField());
     myModuleSelector.applyTo(configuration);
@@ -88,6 +93,14 @@ public class WorksheetRunConfigurationForm {
 
   public Module getModule() {
     return myModuleSelector.getModule();
+  }
+
+  public String getWorksheetOptions() {
+    return worksheetOptions.getText();
+  }
+
+  public void setWorksheetOptions(String worksheetOptions) {
+    this.worksheetOptions.setText(worksheetOptions);
   }
 
   private FileChooserDescriptor addFileChooser(final String title,
