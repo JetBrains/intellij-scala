@@ -10,6 +10,7 @@ import lexer.{ScalaElementType, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes._
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes._
 import parser.ScalaElementTypes
+import org.jetbrains.plugins.scala.util.MemberElementTypesExtension
 
 object TokenSets {
 
@@ -117,7 +118,7 @@ object TokenSets {
 
   val TEMPLATE_PARENTS = TokenSet.create(ScalaElementTypes.CLASS_PARENTS, ScalaElementTypes.TRAIT_PARENTS)
 
-  val MEMBERS = TokenSet.orSet(FUNCTIONS, TokenSet.orSet(
+  val MEMBERS = TokenSet.orSet(TokenSet.orSet(FUNCTIONS, TokenSet.orSet(
       ALIASES_SET, TokenSet.orSet(
         TMPL_DEF_BIT_SET, TokenSet.orSet(
           VALUES, TokenSet.orSet(
@@ -125,7 +126,8 @@ object TokenSets {
           )
         )
       )
-    ))
+    )), MemberElementTypesExtension.getAllElementTypes
+  )
 
   val DECLARED_ELEMENTS_HOLDER = TokenSet.orSet(FUNCTIONS, TokenSet.orSet(VALUES, VARIABLES))
 
