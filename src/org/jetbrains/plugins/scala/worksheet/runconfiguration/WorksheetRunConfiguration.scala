@@ -61,6 +61,7 @@ class WorksheetRunConfiguration(val project: Project, val configurationFactory: 
   val PromptString   = "scala> "
 
   private var javaOptions = "-Djline.terminal=NONE"
+  private var worksheetOptions = ""
   private var workingDirectory = Option(getProject.getBaseDir) map (_.getPath) getOrElse ""
 
   private var worksheetField = ""
@@ -68,6 +69,10 @@ class WorksheetRunConfiguration(val project: Project, val configurationFactory: 
   def getJavaOptions = javaOptions
 
   def setJavaOptions(s: String) {javaOptions = s}
+
+  def getWorksheetOptions = worksheetOptions
+
+  def setWorksheetOptions(s: String) {worksheetOptions = s}
 
   def getWorkingDirectory = workingDirectory
 
@@ -79,6 +84,7 @@ class WorksheetRunConfiguration(val project: Project, val configurationFactory: 
 
   def apply(params: WorksheetRunConfigurationForm) {
     setJavaOptions(params.getJavaOptions)
+    setWorksheetOptions(params.getWorksheetOptions)
     setWorkingDirectory(params.getWorkingDirectory)
     setWorksheetField(params.getWorksheetField)
     setModule(params.getModule)
@@ -375,6 +381,10 @@ class WorksheetRunConfiguration(val project: Project, val configurationFactory: 
             val printer: PrintStream = new PrintStream(new FileOutputStream(fileWithParams))
             printer.println("-classpath")
             printer.println(getClassPath(project, facet))
+            val parms: Array[String] = ParametersList.parse(getWorksheetOptions)
+            for (parm <- parms) {
+              printer.println(parm)
+            }
             printer.close()
             params.getProgramParametersList.add("@" + fileWithParams.getPath)
           }
@@ -386,6 +396,7 @@ class WorksheetRunConfiguration(val project: Project, val configurationFactory: 
           params.getProgramParametersList.add("-classpath")
           params.getProgramParametersList.add(getClassPath(project, facet))
           params.getProgramParametersList.addParametersString(worksheetField)
+          params.getProgramParametersList.addParametersString(getWorksheetOptions)
         }
         params
       }
@@ -530,6 +541,7 @@ class WorksheetRunConfiguration(val project: Project, val configurationFactory: 
     super.writeExternal(element)
     writeModule(element)
     JDOMExternalizer.write(element, "vmparams4", getJavaOptions)
+    JDOMExternalizer.write(element, "worksheetOptions", getWorksheetOptions)
     JDOMExternalizer.write(element, "workingDirectory", getWorkingDirectory)
     JDOMExternalizer.write(element, "worksheetField", getWorksheetField)
   }
@@ -542,6 +554,7 @@ class WorksheetRunConfiguration(val project: Project, val configurationFactory: 
       javaOptions = JDOMExternalizer.readString(element, "vmparams")
       if (javaOptions != null) javaOptions += " -Djline.terminal=NONE"
     }
+    worksheetOptions = JDOMExternalizer.readString(element, "worksheetOptions")
     val str = JDOMExternalizer.readString(element, "workingDirectory")
     if (str != null)
       workingDirectory = str
