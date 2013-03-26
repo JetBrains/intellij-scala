@@ -24,6 +24,8 @@ import java.util.Map;
     }
 )
 public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProjectSettings>, ExportableComponent {
+  private int IMPLICIT_PARAMETERS_SEARCH_DEPTH = 10;
+
   private boolean IMPORT_SHORTEST_PATH_FOR_AMBIGUOUS_REFERENCES = true;
   private int CLASS_COUNT_TO_USE_IMPORT_ON_DEMAND = 5;
   private int SHIFT = 80;
@@ -130,6 +132,14 @@ public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProj
   @NotNull
   public String getPresentableName() {
     return "Scala Project Settings";
+  }
+
+  public int getImplicitParametersSearchDepth() {
+    return IMPLICIT_PARAMETERS_SEARCH_DEPTH;
+  }
+
+  public void setImplicitParametersSearchDepth(int value) {
+    IMPLICIT_PARAMETERS_SEARCH_DEPTH = value;
   }
 
   public int getClassCountToUseImportOnDemand() {

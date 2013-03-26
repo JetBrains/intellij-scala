@@ -51,6 +51,7 @@ public class ScalaProjectSettingsPanel {
   private JSpinner shiftSpinner;
   private JPanel injectionJPanel;
   private JSpinner outputSpinner;
+  private JSpinner implicitParametersSearchDepthSpinner;
   private ScalaUiWithDependency.ComponentWithSettings injectionPrefixTable;
   private JBList referencesWithPrefixList;
   private DefaultListModel myReferencesWithPrefixModel;
@@ -140,6 +141,7 @@ public class ScalaProjectSettingsPanel {
     scalaProjectSettings.setAddImportMostCloseToReference(addImportStatementInCheckBox.isSelected());
     scalaProjectSettings.setAddFullQualifiedImports(addFullQualifiedImportsCheckBox.isSelected());
     scalaProjectSettings.setSortImports(sortImportsCheckBox.isSelected());
+    scalaProjectSettings.setImplicitParametersSearchDepth((Integer) implicitParametersSearchDepthSpinner.getValue());
     scalaProjectSettings.setClassCountToUseImportOnDemand((Integer) classCountSpinner.getValue());
     scalaProjectSettings.setShift((Integer) shiftSpinner.getValue());
     scalaProjectSettings.setOutputLimit((Integer) outputSpinner.getValue());
@@ -179,6 +181,8 @@ public class ScalaProjectSettingsPanel {
     if (scalaProjectSettings.isIncludeLiterals() !=
         includeLiteralsCheckBox.isSelected()) return true;
 
+    if (scalaProjectSettings.getImplicitParametersSearchDepth() !=
+        (Integer) implicitParametersSearchDepthSpinner.getValue()) return true;
     if (scalaProjectSettings.getClassCountToUseImportOnDemand() !=
         (Integer) classCountSpinner.getValue()) return true;
     if (scalaProjectSettings.getShift() !=
@@ -241,6 +245,7 @@ public class ScalaProjectSettingsPanel {
     setValue(addImportStatementInCheckBox, scalaProjectSettings.isAddImportMostCloseToReference());
     setValue(addFullQualifiedImportsCheckBox, scalaProjectSettings.isAddFullQualifiedImports());
     setValue(sortImportsCheckBox, scalaProjectSettings.isSortImports());
+    setValue(implicitParametersSearchDepthSpinner, scalaProjectSettings.getImplicitParametersSearchDepth());
     setValue(classCountSpinner, scalaProjectSettings.getClassCountToUseImportOnDemand());
     setValue(shiftSpinner, scalaProjectSettings.getShift());
     setValue(outputSpinner, scalaProjectSettings.getOutputLimit());

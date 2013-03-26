@@ -34,7 +34,7 @@ object InferUtil {
    */
   def updateTypeWithImplicitParameters(res: ScType, element: PsiElement,
                                        check: Boolean,
-                                       searchImplicitsRecursively: Int = ImplicitParametersCollector.SEARCH_ITERATIONS,
+                                       searchImplicitsRecursively: Int = 0,
                                        checkAnyway: Boolean = false): (ScType, Option[Seq[ScalaResolveResult]]) = {
     var resInner = res
     var implicitParameters: Option[Seq[ScalaResolveResult]] = None
@@ -97,7 +97,7 @@ object InferUtil {
 
 
   def findImplicits(params: Seq[Parameter], place: PsiElement,
-                    check: Boolean, searchImplicitsRecursively: Int = ImplicitParametersCollector.SEARCH_ITERATIONS,
+                    check: Boolean, searchImplicitsRecursively: Int = 0,
                     abstractSubstitutor: ScSubstitutor = ScSubstitutor.empty,
                     polymorphicSubst: ScSubstitutor = ScSubstitutor.empty): (Seq[Parameter], Seq[Compatibility.Expression], Seq[ScalaResolveResult]) = {
     val exprs = new ArrayBuffer[Expression]
