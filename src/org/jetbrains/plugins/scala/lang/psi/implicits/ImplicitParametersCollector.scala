@@ -20,6 +20,8 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.SafeCheckException
 import annotation.tailrec
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScExistentialClause
 import org.jetbrains.plugins.scala.lang.psi.types.Conformance.AliasType
+import com.intellij.openapi.progress.ProgressManager
+import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
 /**
  * @param place        The call site
@@ -28,8 +30,9 @@ import org.jetbrains.plugins.scala.lang.psi.types.Conformance.AliasType
  * User: Alexander Podkhalyuzin
  * Date: 23.11.2009
  */
-class ImplicitParametersCollector(place: PsiElement, tp: ScType, searchImplicitsRecursively: Int = ImplicitParametersCollector.SEARCH_ITERATIONS) {
+class ImplicitParametersCollector(place: PsiElement, tp: ScType, searchImplicitsRecursively: Int = 0) {
   def collect: Seq[ScalaResolveResult] = {
+    ProgressManager.checkCanceled()
     var processor = new ImplicitParametersProcessor(false)
     def treeWalkUp(placeForTreeWalkUp: PsiElement, lastParent: PsiElement) {
       if (placeForTreeWalkUp == null) return
@@ -159,9 +162,10 @@ class ImplicitParametersCollector(place: PsiElement, tp: ScType, searchImplicits
                         nonValueType = InferUtil.updateAccordingToExpectedType(nonValueType,
                           fromImplicitParameters = true, expected, place, check = true, checkAnyway = true)
 
-                        if (lastImplicit.isDefined) {
+                        if (lastImplicit.isDefined &&
+                          searchImplicitsRecursively < ScalaProjectSettings.getInstance(place.getProject).getImplicitParametersSearchDepth) {
                           val (resType, _) = InferUtil.updateTypeWithImplicitParameters(nonValueType.getOrElse(throw new SafeCheckException),
-                            place, check = true, searchImplicitsRecursively - 1, checkAnyway = true)
+                            place, check = true, searchImplicitsRecursively + 1, checkAnyway = true)
                           Some(c.copy(implicitParameterType = Some(resType.inferValueType)), subst)
                         } else {
                           Some(c.copy(implicitParameterType = Some(nonValueType.getOrElse(throw new SafeCheckException).inferValueType)), subst)
@@ -287,8 +291,4 @@ class ImplicitParametersCollector(place: PsiElement, tp: ScType, searchImplicits
       case _ => 1
     }
   }
-}
-
-object ImplicitParametersCollector {
-  val SEARCH_ITERATIONS = 10
 }
