@@ -216,7 +216,7 @@ object AnnotatorHighlighter {
       case x: ScParameter => {
         annotation.setTextAttributes(DefaultHighlighter.PARAMETER)
       }
-      case x@(_: ScFunctionDefinition | _: ScFunctionDeclaration) => {
+      case x@(_: ScFunctionDefinition | _: ScFunctionDeclaration | _: ScMacroDefinition) => {
         if (SCALA_FACTORY_METHODS_NAMES.contains(x.asInstanceOf[PsiMethod].getName) || x.asInstanceOf[PsiMethod].isConstructor) {
           val clazz = PsiTreeUtil.getParentOfType(x, classOf[PsiClass])
           if (clazz != null) {

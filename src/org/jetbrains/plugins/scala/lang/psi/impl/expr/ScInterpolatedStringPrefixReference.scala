@@ -5,7 +5,7 @@ import com.intellij.psi._
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import com.intellij.openapi.util.TextRange
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScInterpolatedStringLiteral
@@ -45,7 +45,9 @@ class ScInterpolatedStringPrefixReference(node: ASTNode) extends ScReferenceExpr
     
     parent.getStringContextExpression match {
       case Some(expr) => expr.getFirstChild.getLastChild.findReferenceAt(0) match {
-        case ref: PsiPolyVariantReference => ref.multiResolve(incomplete).filter(_.getElement.isInstanceOf[ScFunctionDefinition])
+        case ref: PsiPolyVariantReference =>
+          val resolve1 = ref.multiResolve(incomplete)
+          resolve1.filter(_.getElement.isInstanceOf[ScFunction])
         case _ => Array[ResolveResult]()
       } 
       case _ => Array[ResolveResult]()
@@ -67,7 +69,7 @@ class ScInterpolatedStringPrefixReference(node: ASTNode) extends ScReferenceExpr
   override def isSoft: Boolean = false
 
   override def expectedType(fromUnderscore: Boolean): Option[ScType] = resolve() match {
-    case f: ScFunctionDefinition =>
+    case f: ScFunction =>
       f.returnType match {
         case Success(result, _) => Option(result)
         case _ => super.expectedType(fromUnderscore)
