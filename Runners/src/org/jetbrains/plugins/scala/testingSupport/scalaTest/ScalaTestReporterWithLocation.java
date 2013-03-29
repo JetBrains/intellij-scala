@@ -73,6 +73,14 @@ public class ScalaTestReporterWithLocation implements Reporter {
       String decodedTestText = decodeString(testText);
       System.out.println("\n##teamcity[testFinished name='" + escapeString(decodedTestText) +
           "' duration='"+ duration +"']");
+      if (hasRecordedEventsMethod("org.scalatest.events.TestSucceeded")) {
+        scala.collection.Iterator<RecordableEvent> iter = testSucceeded.recordedEvents().iterator();
+        while (iter.hasNext()) {
+          RecordableEvent recordableEvent = iter.next();
+          if (recordableEvent instanceof InfoProvided)
+            sendInfoProvided((InfoProvided) recordableEvent);
+        }
+      }
     } else if (event instanceof TestFailed) {
       boolean error = true;
       TestFailed testFailed = (TestFailed) event;
@@ -109,6 +117,14 @@ public class ScalaTestReporterWithLocation implements Reporter {
       System.out.println(res);
       System.out.println("\n##teamcity[testFinished name='" + escapeString(decodedTestText) +
           "' duration='" + duration +"' captureStandardOutput='true' " + locationHint + "]");
+      if (hasRecordedEventsMethod("org.scalatest.events.TestFailed")) {
+        scala.collection.Iterator<RecordableEvent> iter = testFailed.recordedEvents().iterator();
+        while (iter.hasNext()) {
+          RecordableEvent recordableEvent = iter.next();
+          if (recordableEvent instanceof InfoProvided)
+            sendInfoProvided((InfoProvided) recordableEvent);
+        }
+      }
     } else if (event instanceof TestIgnored) {
       String testText = ((TestIgnored) event).testText();
       System.out.println("\n##teamcity[testIgnored name='" + escapeString(testText) + "' message='" +
@@ -119,13 +135,29 @@ public class ScalaTestReporterWithLocation implements Reporter {
       String decodedTestText = decodeString(testText);
       System.out.println("\n##teamcity[testFinished name='" + escapeString(decodedTestText) +
           "' duration='" + 0 +"']");
+      if (hasRecordedEventsMethod("org.scalatest.events.TestPending")) {
+        scala.collection.Iterator<RecordableEvent> iter = testPending.recordedEvents().iterator();
+        while (iter.hasNext()) {
+          RecordableEvent recordableEvent = iter.next();
+          if (recordableEvent instanceof InfoProvided)
+            sendInfoProvided((InfoProvided) recordableEvent);
+        }
+      }
     } else if (event instanceof TestCanceled) {
       TestCanceled testCanceled = (TestCanceled) event;
       String testText = testCanceled.testText();
       String decodedTestText = decodeString(testText);
       System.out.println("\n##teamcity[testFinished name='" + escapeString(decodedTestText) +
           "' duration='" + 0 +"']");
-    }else if (event instanceof SuiteStarting) {
+      if (hasRecordedEventsMethod("org.scalatest.events.TestCancelled")) {
+        scala.collection.Iterator<RecordableEvent> iter = testCanceled.recordedEvents().iterator();
+        while (iter.hasNext()) {
+          RecordableEvent recordableEvent = iter.next();
+          if (recordableEvent instanceof InfoProvided)
+            sendInfoProvided((InfoProvided) recordableEvent);
+        }
+      }
+    } else if (event instanceof SuiteStarting) {
       SuiteStarting suiteStarting = (SuiteStarting) event;
       String suiteName = suiteStarting.suiteName();
       String locationHint = getLocationHint(suiteStarting.suiteClassName(), suiteStarting.location(), suiteName);
@@ -181,6 +213,24 @@ public class ScalaTestReporterWithLocation implements Reporter {
       String message = ((ScopeClosed) event).message();
       System.out.println("\n##teamcity[testSuiteFinished name='" + escapeString(message) + "']");
     }
+  }
+
+  private void sendInfoProvided(InfoProvided infoProvided) {
+    String message = infoProvided.message();
+    String escapedMessage = escapeString(message + "\n");
+    if (!escapedMessage.isEmpty()) {
+      System.out.println("\n##teamcity[message text='" + escapedMessage + "' status='INFO'" + "]");
+    }
+  }
+
+  private boolean hasRecordedEventsMethod(String className) {
+    try {
+      Class<?> suiteClass = Class.forName(className);
+      suiteClass.getMethod("recordedEvents");
+    } catch (Exception e) {
+      return false;
+    }
+    return true;
   }
 
   private String decodeString(String input) {
