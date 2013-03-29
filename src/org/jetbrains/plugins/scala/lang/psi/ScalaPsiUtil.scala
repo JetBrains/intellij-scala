@@ -58,6 +58,7 @@ import org.apache.log4j.Level
 import com.intellij.lang.impl.PsiBuilderImpl
 import com.intellij.openapi.diagnostic
 import types.Conformance.AliasType
+import scala.util.control.ControlThrowable
 
 /**
  * User: Alexander Podkhalyuzin
@@ -755,8 +756,7 @@ object ScalaPsiUtil {
   }
 
 
-  class SafeCheckException extends Exception
-
+  class SafeCheckException extends ControlThrowable
 
   //todo: move to InferUtil
   def localTypeInferenceWithApplicability(retType: ScType, params: Seq[Parameter], exprs: Seq[Expression],
