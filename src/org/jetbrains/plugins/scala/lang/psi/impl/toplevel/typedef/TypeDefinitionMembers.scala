@@ -600,7 +600,7 @@ object TypeDefinitionMembers {
       }
     }
 
-    if (processor.isInstanceOf[ImplicitProcessor] && !clazz.isInstanceOf[ScTemplateDefinition]) return true
+    if (BaseProcessor.isImplicitProcessor(processor) && !clazz.isInstanceOf[ScTemplateDefinition]) return true
 
     if (!privateProcessDeclarations(processor, state, lastParent, place, getSignatures(clazz),
       getParameterlessSignatures(clazz), getTypes(clazz), isSupers = false,
@@ -779,7 +779,7 @@ object TypeDefinitionMembers {
             true
           }
           if (!checkList(decodedName)) return false
-        } else if (processor.isInstanceOf[ImplicitProcessor]) {
+        } else if (BaseProcessor.isImplicitProcessor(processor)) {
           val implicits = signatures.forImplicits()
           val iterator = implicits.iterator
           while (iterator.hasNext) {
@@ -935,7 +935,7 @@ object TypeDefinitionMembers {
   }
 
   def shouldProcessTypes(processor: PsiScopeProcessor) = processor match {
-    case _: ImplicitProcessor => false
+    case b: BaseProcessor if b.isImplicitProcessor => false
     case BaseProcessor(kinds) => (kinds contains CLASS) || (kinds contains METHOD)
     case _ => false //important: do not process inner classes!
   }

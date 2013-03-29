@@ -209,6 +209,8 @@ class ScImportStmtImpl extends ScalaStubBasedElementImpl[ScImportStmt] with ScIm
                     val p1 = new BaseProcessor(bp.kinds) {
                       override def getHint[T](hintKey: Key[T]): T = processor.getHint(hintKey)
 
+                      override def isImplicitProcessor: Boolean = bp.isImplicitProcessor
+
                       override def handleEvent(event: PsiScopeProcessor.Event, associated: Object) {
                         processor.handleEvent(event, associated)
                       }
