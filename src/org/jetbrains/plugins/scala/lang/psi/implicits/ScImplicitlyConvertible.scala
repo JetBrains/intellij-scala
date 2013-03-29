@@ -394,7 +394,8 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
         case named: PsiNamedElement if kindMatches(element) => named match {
           //there is special case for Predef.conforms method
           case f: ScFunction if f.hasModifierProperty("implicit") && !isConformsMethod(f) => {
-            if (!ResolveUtils.isAccessible(f, getPlace)) return true
+            if (!ScImplicitlyConvertible.checkFucntionIsEligible(f, ScImplicitlyConvertible.this) ||
+              !ResolveUtils.isAccessible(f, getPlace)) return true
             val clauses = f.paramClauses.clauses
             //filtered cases
             if (clauses.length > 2 || (clauses.length == 2 && !clauses(1).isImplicit)) return true
@@ -463,5 +464,39 @@ object ScImplicitlyConvertible {
     expr.getInvokedExpr.putUserData(FAKE_RESOLVE_RESULT_KEY, rr)
     expr.args.exprs.apply(0).putUserData(FAKE_EXPRESSION_TYPE_KEY, tp)
     expr.putUserData(FAKE_EXPECTED_TYPE_KEY, expected)
+  }
+
+  def checkFucntionIsEligible(function: ScFunction, place: PsiElement): Boolean = {
+    if (!function.hasExplicitType) {
+      if (PsiTreeUtil.isContextAncestor(function.getContainingFile, place, false)) {
+        val commonContext = PsiTreeUtil.findCommonContext(function, place)
+        if (function == commonContext || place == commonContext) return false
+        else {
+          var functionContext: PsiElement = function
+          while (functionContext.getContext != commonContext) functionContext = functionContext.getContext
+          var placeContext: PsiElement = place
+          while (placeContext.getContext != commonContext) placeContext = placeContext.getContext
+          (functionContext, placeContext) match {
+            case (functionContext: ScalaPsiElement, placeContext: ScalaPsiElement) =>
+              val funElem = functionContext.getDeepSameElementInContext
+              val conElem = placeContext.getDeepSameElementInContext
+              val children = commonContext match {
+                case stubPsi: StubBasedPsiElement[_] =>
+                  val stub = stubPsi.getStub
+                  import scala.collection.JavaConverters._
+                  if (stub != null) stub.getChildrenStubs.asScala.map(_.getPsi).toArray
+                  else stubPsi.getChildren
+                case _ => commonContext.getChildren
+              }
+              children.find(elem => elem == funElem || elem == conElem) match {
+                case Some(elem) if elem == conElem => return false
+                case _ =>
+              }
+            case _ =>
+          }
+        }
+      }
+    }
+    true
   }
 }

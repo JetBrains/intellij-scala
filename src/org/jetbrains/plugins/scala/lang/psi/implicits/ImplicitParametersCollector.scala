@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.lang.psi.implicits
 import org.jetbrains.plugins.scala.lang.psi.types._
 import nonvalue.{TypeParameter, ScTypePolymorphicType, Parameter, ScMethodType}
 import org.jetbrains.plugins.scala.lang.resolve._
-import org.jetbrains.plugins.scala.lang.psi.{types, ScalaPsiUtil}
+import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, types, ScalaPsiUtil}
 import processor.{ImplicitProcessor, MostSpecificUtil}
 import result.{TypeResult, Success, TypingContext}
 import com.intellij.psi._
@@ -88,8 +88,10 @@ class ImplicitParametersCollector(place: PsiElement, tp: ScType, searchImplicits
           }
         }
         case function: ScFunction if function.hasModifierProperty("implicit") => {
-          if (!ResolveUtils.isAccessible(function, getPlace)) return true
-          addResult(new ScalaResolveResult(named, subst, getImports(state)))
+          if (ScImplicitlyConvertible.checkFucntionIsEligible(function, place) &&
+            ResolveUtils.isAccessible(function, getPlace)) {
+            addResult(new ScalaResolveResult(named, subst, getImports(state)))
+          }
         }
         case _ =>
       }
