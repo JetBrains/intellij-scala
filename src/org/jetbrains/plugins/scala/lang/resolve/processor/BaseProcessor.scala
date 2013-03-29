@@ -36,12 +36,21 @@ object BaseProcessor {
   val FORWARD_REFERENCE_KEY: Key[java.lang.Boolean] = Key.create("forward.reference.key")
 
   val guard = RecursionManager.createGuard("process.element.guard")
+
+  def isImplicitProcessor(processor: PsiScopeProcessor): Boolean = {
+    processor match {
+      case b: BaseProcessor => b.isImplicitProcessor
+      case _ => false
+    }
+  }
 }
 
 abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value]) extends PsiScopeProcessor {
   protected val candidatesSet: mutable.HashSet[ScalaResolveResult] = new mutable.HashSet[ScalaResolveResult]
 
-  def changedLevel = true
+  def isImplicitProcessor: Boolean = false
+
+  def changedLevel: Boolean = true
 
   protected var accessibility = true
   def doNotCheckAccessibility() {accessibility = false}

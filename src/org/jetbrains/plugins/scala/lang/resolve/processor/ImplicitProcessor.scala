@@ -61,4 +61,6 @@ abstract class ImplicitProcessor(kinds: Set[Value], withoutPrecedence: Boolean) 
   }
 
   override protected def isCheckForEqualPrecedence = false
+
+  override def isImplicitProcessor: Boolean = true
 }

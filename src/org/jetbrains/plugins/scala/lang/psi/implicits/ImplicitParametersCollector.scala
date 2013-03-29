@@ -198,7 +198,6 @@ class ImplicitParametersCollector(place: PsiElement, tp: ScType, searchImplicits
 
         import org.jetbrains.plugins.scala.caches.ScalaRecursionManager._
 
-        //todo: find recursion on the types in more complex algorithm
         val coreTypeForTp = coreType(tp)
         doComputations(place, (tp: Object, searches: Seq[Object]) => {
             searches.find{

@@ -495,7 +495,7 @@ object ResolveUtils {
   def packageProcessDeclarations(pack: PsiPackage, processor: PsiScopeProcessor,
                                   state: ResolveState, lastParent: PsiElement, place: PsiElement): Boolean = {
     processor match {
-      case impl: ImplicitProcessor =>
+      case b: BaseProcessor if b.isImplicitProcessor =>
         val objectsIterator = ScalaPsiManager.instance(pack.getProject).
           getPackageImplicitObjects(pack.getQualifiedName, place.getResolveScope).iterator
         while (objectsIterator.hasNext) {

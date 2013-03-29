@@ -33,7 +33,7 @@ class ScPackageImpl(val pack: PsiPackage) extends PsiPackageImpl(pack.getManager
   override def processDeclarations(processor: PsiScopeProcessor, state: ResolveState,
                                    lastParent: PsiElement, place: PsiElement): Boolean = {
     if (place.getLanguage == ScalaFileType.SCALA_LANGUAGE && pack.getQualifiedName == "scala") {
-      if (!processor.isInstanceOf[ImplicitProcessor]) {
+      if (!BaseProcessor.isImplicitProcessor(processor)) {
         val scope = processor match {
           case r: ResolveProcessor => r.getResolveScope
           case _ => place.getResolveScope

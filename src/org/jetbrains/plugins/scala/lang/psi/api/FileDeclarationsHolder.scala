@@ -64,9 +64,10 @@ trait FileDeclarationsHolder extends PsiElement with ScDeclarationSequenceHolder
           if (defaultPackage != null &&
             !ResolveUtils.packageProcessDeclarations(defaultPackage, processor, state, null, place)) return false
         }
-        else if (defaultPackage != null && !processor.isInstanceOf[ImplicitProcessor]) { //we will add only packages
-        //only packages resolve, no classes from default package
-        val name = processor match {case rp: ResolveProcessor => rp.ScalaNameHint.getName(state) case _ => null}
+        else if (defaultPackage != null && !BaseProcessor.isImplicitProcessor(processor)) {
+          //we will add only packages
+          //only packages resolve, no classes from default package
+          val name = processor match {case rp: ResolveProcessor => rp.ScalaNameHint.getName(state) case _ => null}
           val facade = JavaPsiFacade.getInstance(getProject).asInstanceOf[com.intellij.psi.impl.JavaPsiFacadeImpl]
           if (name == null) {
             val packages = defaultPackage.getSubPackages(scope)
