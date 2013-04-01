@@ -37,13 +37,15 @@ import java.awt.event._
 import java.awt.{Container, Dimension, BorderLayout}
 import com.intellij.openapi.editor.impl.EditorImpl
 import settings.ScalaProjectSettings
-import lang.psi.api.expr.{ScMethodCall, ScInfixExpr}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScIfStmt, ScMethodCall, ScInfixExpr}
 import com.intellij.ui.JBSplitter
 import lang.psi.api.toplevel.imports.ScImportStmt
 import javax.swing.{JLayeredPane, JComponent}
 import lang.psi.api.ScalaFile
 import com.intellij.openapi.editor.ex.EditorGutterComponentEx
 import scala.Some
+import scala.annotation.tailrec
+import com.intellij.psi.impl.source.tree.LeafPsiElement
 
 /**
  * @author Ksenia.Sautina
@@ -274,24 +276,43 @@ class WorksheetRunConfiguration(val project: Project, val configurationFactory: 
             }
           }
 
-          if (!isObject || classAndObjectCount > 1) {
-            file.getChildren.foreach(child => {
-              if (child.getText.trim != "" && child.getText.trim != "\n" && (!child.isInstanceOf[PsiComment] && !child.isInstanceOf[ScDocComment])) {
-                val outputStream: OutputStream = processHandler.getProcessInput
-                try {
-                  val text = if (child.isInstanceOf[ScInfixExpr] || child.isInstanceOf[ScMethodCall])// ||
-                    child.getText.trim.replaceAll("\n", " ") else child.getText.trim
-                  lineNumbers.add(document.getLineNumber(child.getTextRange.getEndOffset))
-                  val result = deleteComments(text)
-                  val bytes: Array[Byte] = (result).getBytes
-                  outputStream.write(bytes)
-                  outputStream.flush()
+          def processElement(child: PsiElement) {
+            if (child.getText.trim != "" && child.getText.trim != "\n" && (!child.isInstanceOf[PsiComment] && !child.isInstanceOf[ScDocComment])) {
+              val outputStream: OutputStream = processHandler.getProcessInput
+              try {
+                val textBuilder = new StringBuilder
+                def checkChildren(elem: PsiElement) {
+                  val children = elem.getNode.getChildren(null).map(_.getPsi)
+                  for (child <- children) {
+                    child match {
+                      case whitespace: PsiWhiteSpace if whitespace.getText.contains("\n") =>
+                        val count = whitespace.getText.count(_ == '\n')
+                        if (count < 2) {
+                          whitespace.getParent match {
+                            case _: ScInfixExpr | _: ScMethodCall | _: ScIfStmt => textBuilder.append(" ")
+                            case _ => textBuilder.append(whitespace.getText)
+                          }
+                        } else textBuilder.append(whitespace.getText)
+                      case child: LeafPsiElement => textBuilder.append(child.getText)
+                      case child => checkChildren(child)
+                    }
+                  }
                 }
-                catch {
-                  case e: IOException => //ignore
-                }
+                checkChildren(child)
+                val text = textBuilder.toString()
+                lineNumbers.add(document.getLineNumber(child.getTextRange.getEndOffset))
+                val result = deleteComments(text)
+                val bytes: Array[Byte] = (result).getBytes
+                outputStream.write(bytes)
+                outputStream.flush()
               }
-            })
+              catch {
+                case ignore: IOException =>
+              }
+            }
+          }
+          if (!isObject || classAndObjectCount > 1) {
+            file.getChildren.foreach(processElement)
           } else if (isObject && classAndObjectCount == 1) {
             for (im <- imports) {
               val outputStream: OutputStream = processHandler.getProcessInput
@@ -309,23 +330,7 @@ class WorksheetRunConfiguration(val project: Project, val configurationFactory: 
               if (child.isInstanceOf[ScExtendsBlock]) {
                 child.getChildren.foreach(child => {
                   if (child.isInstanceOf[ScTemplateBody]) {
-                    child.getChildren.foreach(child => {
-                      if (child.getText.trim != "" && child.getText.trim != "\n" && (!child.isInstanceOf[PsiComment] && !child.isInstanceOf[ScDocComment])) {
-                        val outputStream: OutputStream = processHandler.getProcessInput
-                        try {
-                          val text = if (child.isInstanceOf[ScInfixExpr] || child.isInstanceOf[ScMethodCall])// ||
-                            child.getText.trim.replaceAll("\n", " ") else child.getText.trim
-                          lineNumbers.add(document.getLineNumber(child.getTextRange.getEndOffset))
-                          val result = deleteComments(text)
-                          val bytes: Array[Byte] = (result).getBytes
-                          outputStream.write(bytes)
-                          outputStream.flush()
-                        }
-                        catch {
-                          case e: IOException => //ignore
-                        }
-                      }
-                    })
+                    child.getChildren.foreach(processElement)
                   }
                 })
               }
