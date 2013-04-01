@@ -4,9 +4,9 @@ package worksheet.actions
 import com.intellij.openapi.actionSystem.{AnActionEvent, AnAction}
 import lang.psi.api.ScalaFile
 import com.intellij.execution._
-import com.intellij.execution.configurations.ConfigurationTypeUtil
+import com.intellij.execution.configurations.{RunProfileState, ConfigurationTypeUtil}
 import com.intellij.execution.executors.DefaultRunExecutor
-import com.intellij.execution.runners.ExecutionEnvironment
+import com.intellij.execution.runners.{DefaultProgramRunner, ExecutionEnvironment}
 import com.intellij.openapi.ui.Messages
 import com.intellij.util.ActionRunner
 import worksheet.runconfiguration.{WorksheetRunConfigurationFactory, WorksheetRunConfiguration, WorksheetConfigurationType}
@@ -16,6 +16,8 @@ import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.{PsiDocumentManager, PsiFile}
+import com.intellij.execution.ui.RunContentDescriptor
+import com.intellij.execution.impl.DefaultJavaProgramRunner
 
 /**
  * @author Ksenia.Sautina
@@ -45,7 +47,15 @@ class RunWorksheetAction extends AnAction {
       configuration.setName("WS: " + name)
       runManagerEx.setSelectedConfiguration(setting)
       val runExecutor = DefaultRunExecutor.getRunExecutorInstance
-      val runner = RunnerRegistry.getInstance().getRunner(runExecutor.getId, configuration)
+      val runner = new DefaultJavaProgramRunner {
+        override def doExecute(project: Project, executor: Executor, state: RunProfileState, 
+                               contentToReuse: RunContentDescriptor, env: ExecutionEnvironment): RunContentDescriptor = {
+          val descriptor = super.doExecute(project, executor, state, contentToReuse, env)
+          descriptor.setActivateToolWindowWhenAdded(false)
+          descriptor
+        }
+      }
+      
       if (runner != null) {
         try {
           runner.execute(runExecutor, new ExecutionEnvironment(runner, setting, project))
@@ -107,4 +117,6 @@ class RunWorksheetAction extends AnAction {
       case e: Exception => disable()
     }
   }
+  
+  
 }
