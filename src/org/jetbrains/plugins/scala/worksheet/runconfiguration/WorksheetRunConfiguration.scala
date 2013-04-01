@@ -29,7 +29,6 @@ import java.util
 import worksheet.WorksheetFoldingBuilder
 import com.intellij.lang.ASTNode
 import lang.psi.api.toplevel.typedef.{ScClass, ScObject}
-import lang.scaladoc.psi.api.ScDocComment
 import lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody}
 import collection.mutable
 import com.intellij.execution.impl.ConsoleViewImpl
@@ -44,7 +43,6 @@ import javax.swing.{JLayeredPane, JComponent}
 import lang.psi.api.ScalaFile
 import com.intellij.openapi.editor.ex.EditorGutterComponentEx
 import scala.Some
-import scala.annotation.tailrec
 import com.intellij.psi.impl.source.tree.LeafPsiElement
 
 /**
@@ -99,9 +97,11 @@ class WorksheetRunConfiguration(val project: Project, val configurationFactory: 
     var isFirstLine = true
 
     def createWorksheetViewer(editor: Editor, virtualFile: VirtualFile): Editor = {
-      val prop = if (editor.getComponent.getComponentCount > 0 && editor.getComponent.getComponent(0).isInstanceOf[JBSplitter])
-        editor.getComponent.getComponent(0).asInstanceOf[JBSplitter].getProportion else 0.5f
-      val dimension = editor.getComponent.getSize()
+      val editorComponent = editor.getComponent
+      
+      val prop = if (editorComponent.getComponentCount > 0 && editorComponent.getComponent(0).isInstanceOf[JBSplitter])
+        editorComponent.getComponent(0).asInstanceOf[JBSplitter].getProportion else 0.5f
+      val dimension: Dimension = editorComponent.getSize
       val prefDim = new Dimension((dimension.getWidth / 2).toInt, dimension.getHeight.toInt)
       editor.getSettings.setFoldingOutlineShown(false)
 
@@ -117,7 +117,6 @@ class WorksheetRunConfiguration(val project: Project, val configurationFactory: 
       worksheetViewer.getScrollPane.getVerticalScrollBar.setModel(editor.asInstanceOf[EditorImpl].getScrollPane.getVerticalScrollBar.getModel)
       editor.getContentComponent.setPreferredSize(prefDim)
 
-      val editorComponent = editor.getComponent
       val child: Container = editorComponent.getParent
       val parent: Container = child.getParent
 
@@ -262,42 +261,44 @@ class WorksheetRunConfiguration(val project: Project, val configurationFactory: 
           var classAndObjectCount = 0
           val imports = new util.ArrayList[ScImportStmt]()
 
-          for (ch <- file.getChildren) {
-            if (ch.isInstanceOf[ScObject]) {
+          file.getChildren.foreach {
+            case obj: ScObject =>
               isObject = true
-              myObject = ch.asInstanceOf[ScObject]
-              classAndObjectCount = classAndObjectCount + 1
-            } else if (ch.isInstanceOf[ScClass]) {
-              classAndObjectCount = classAndObjectCount + 1
-            } else if (ch.getText.trim != "" && !ch.isInstanceOf[ScImportStmt]) {
-              classAndObjectCount = classAndObjectCount + 1
-            } else if (ch.getText.trim != "" && ch.isInstanceOf[ScImportStmt]) {
-              imports.add(ch.asInstanceOf[ScImportStmt])
-            }
+              myObject = obj
+              classAndObjectCount += 1
+            case clazz: ScClass => classAndObjectCount += 1
+            case imp: ScImportStmt if imp.getText.trim != "" => imports.add(imp)
+            case another if another.getText.trim != "" => classAndObjectCount += 1
+            case _ =>
           }
 
           def processElement(child: PsiElement) {
-            if (child.getText.trim != "" && child.getText.trim != "\n" && (!child.isInstanceOf[PsiComment] && !child.isInstanceOf[ScDocComment])) {
+            val trimmed = child.getText.trim
+            
+            if (trimmed != "" && trimmed != "\n" && !child.isInstanceOf[PsiComment]) {
               val outputStream: OutputStream = processHandler.getProcessInput
               try {
                 val textBuilder = new StringBuilder
+                
                 def checkChildren(elem: PsiElement) {
-                  val children = elem.getNode.getChildren(null).map(_.getPsi)
-                  for (child <- children) {
-                    child match {
-                      case whitespace: PsiWhiteSpace if whitespace.getText.contains("\n") =>
-                        val count = whitespace.getText.count(_ == '\n')
-                        if (count < 2) {
-                          whitespace.getParent match {
-                            case _: ScInfixExpr | _: ScMethodCall | _: ScIfStmt => textBuilder.append(" ")
+                  elem.getNode.getChildren(null).map(_.getPsi).foreach {
+                    case whitespace: PsiWhiteSpace if whitespace.getText.contains("\n") =>
+                      val count = whitespace.getText.count(_ == '\n')
+                      if (count < 2) {
+                        whitespace.getParent match {
+                          case _: ScInfixExpr | _: ScMethodCall | _: ScIfStmt => textBuilder.append(" ")
+                          case _: ScClass | _: ScObject => whitespace.getNextSibling match {
+                            case extBlock: ScExtendsBlock => textBuilder.append(" ")
                             case _ => textBuilder.append(whitespace.getText)
                           }
-                        } else textBuilder.append(whitespace.getText)
-                      case child: LeafPsiElement => textBuilder.append(child.getText)
-                      case child => checkChildren(child)
-                    }
+                          case _ => textBuilder.append(whitespace.getText)
+                        }
+                      } else textBuilder.append(whitespace.getText)
+                    case child: LeafPsiElement => textBuilder.append(child.getText)
+                    case otherPsi => checkChildren(otherPsi)
                   }
                 }
+                
                 checkChildren(child)
                 val text = textBuilder.toString()
                 lineNumbers.add(document.getLineNumber(child.getTextRange.getEndOffset))
@@ -369,7 +370,7 @@ class WorksheetRunConfiguration(val project: Project, val configurationFactory: 
             val lib: Option[CompilerLibraryData] = Libraries.findBy(settings.COMPILER_LIBRARY_NAME,
               settings.COMPILER_LIBRARY_LEVEL, getProject)
             lib match {
-              case Some(lib) => lib.files
+              case Some(compilerLib) => compilerLib.files
               case _ => facet.files
             }
           } else facet.files
@@ -380,6 +381,7 @@ class WorksheetRunConfiguration(val project: Project, val configurationFactory: 
         params.getClassPath.add(rtJarPath)
         params.setWorkingDirectory(workingDirectory)
         params.setMainClass(MAIN_CLASS)
+        
         if (JdkUtil.useDynamicClasspath(getProject)) {
           try {
             val fileWithParams: File = File.createTempFile("worksheet", ".tmp")
@@ -403,22 +405,19 @@ class WorksheetRunConfiguration(val project: Project, val configurationFactory: 
           params.getProgramParametersList.addParametersString(worksheetField)
           params.getProgramParametersList.addParametersString(getWorksheetOptions)
         }
+        
         params
       }
 
       override def execute(executor: Executor, runner: ProgramRunner[_ <: JDOMExternalizable]): ExecutionResult = {
         val file = new File(getWorksheetField)
-        if (file == null) {
-          throw new RuntimeConfigurationException("Worksheet is not specified: file doesn't exist.")
-        }
+        if (file == null) throw new RuntimeConfigurationException("Worksheet is not specified: file doesn't exist.")
+        
         val virtualFile = LocalFileSystem.getInstance.refreshAndFindFileByIoFile(file)
-        if (virtualFile == null) {
-          throw new ExecutionException("Worksheet is not specified. File is not found.")
-        }
+        if (virtualFile == null) throw new ExecutionException("Worksheet is not specified. File is not found.")
+        
         val psiFile: PsiFile = PsiManager.getInstance(project).asInstanceOf[PsiManagerEx].getFileManager.getCachedPsiFile(virtualFile)
-        if (psiFile == null) {
-          throw new RuntimeConfigurationException("Worksheet is not specified: there is no cached file.")
-        }
+        if (psiFile == null) throw new RuntimeConfigurationException("Worksheet is not specified: there is no cached file.")
 
         val processHandler = startProcess
         val runnerSettings = getRunnerSettings
@@ -430,28 +429,36 @@ class WorksheetRunConfiguration(val project: Project, val configurationFactory: 
         val worksheetConsoleView = new ConsoleViewImpl(project, false)
         evaluateWorksheet(psiFile.asInstanceOf[ScalaFile], processHandler, editor)
 
-        var results_count = 0
         val myProcessListener: ProcessAdapter = new ProcessAdapter {
+          var resultsCount = 0
+          var chunksReceived = 0
+          
+          @inline private[this] def closeHandler() {
+            endProcess(processHandler)
+            processHandler.removeProcessListener(this)
+          }
+
           override def onTextAvailable(event: ProcessEvent, outputType: Key[_]) {
             val text = event.getText
             if (ConsoleViewContentType.NORMAL_OUTPUT == ConsoleViewContentType.getConsoleViewType(outputType) &&
               worksheetViewer != null && text.trim != "" && !text.startsWith(ContinueString)) {
+              
               if (text.startsWith(PromptString)) {
-                results_count = 1
-              } else {
-                results_count = results_count + 1
-              }
-              if (results_count >  ScalaProjectSettings.getInstance(project).getOutputLimit) {
+                resultsCount += 1
+                chunksReceived +=  1
+              } else resultsCount =1
+
+              if (resultsCount >  ScalaProjectSettings.getInstance(project).getOutputLimit) {
                 printResults(END_MESSAGE, editor, worksheetViewer)
-                endProcess(processHandler)
-                processHandler.removeProcessListener(this)
+                closeHandler()
               } else {
                 printResults(text, editor, worksheetViewer)
+                if (chunksReceived > lineNumbers.size()) closeHandler()
               }
             }
           }
         }
-
+        
         processHandler.addProcessListener(myProcessListener)
 
         editor.getContentComponent.addKeyListener(new KeyListener() {
@@ -470,9 +477,9 @@ class WorksheetRunConfiguration(val project: Project, val configurationFactory: 
           override def keyTyped(e: KeyEvent) {
           }
 
-          override def keyPressed(e: KeyEvent) {
-            endProcess(processHandler)
-            processHandler.removeProcessListener(myProcessListener)
+          override def keyPressed(e: KeyEvent) { //wtf???
+//            endProcess(processHandler)
+//            processHandler.removeProcessListener(myProcessListener)
           }
         })
 
