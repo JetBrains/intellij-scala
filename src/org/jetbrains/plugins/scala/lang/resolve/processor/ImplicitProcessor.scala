@@ -4,6 +4,7 @@ import org.jetbrains.plugins.scala.lang.resolve.ResolveTargets._
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import collection.mutable.HashMap
 import collection.Set
+import java.util
 
 /**
  * @author Alexander Podkhalyuzin
@@ -13,7 +14,7 @@ import collection.Set
  * This class mark processor that only implicit object important among all PsiClasses
  */
 abstract class ImplicitProcessor(kinds: Set[Value], withoutPrecedence: Boolean) extends BaseProcessor(kinds) with PrecedenceHelper[String] {
-  protected val precedence: HashMap[String, Int] = new HashMap[String, Int]()
+  protected val precedence: util.HashMap[String, Int] = new util.HashMap[String, Int]()
 
   protected def getQualifiedName(result: ScalaResolveResult): String = {
     result.isRenamed match {
@@ -22,7 +23,7 @@ abstract class ImplicitProcessor(kinds: Set[Value], withoutPrecedence: Boolean) 
     }
   }
 
-  protected def getTopPrecedence(result: ScalaResolveResult): Int = precedence.getOrElse(getQualifiedName(result), 0)
+  protected def getTopPrecedence(result: ScalaResolveResult): Int = Option(precedence.get(getQualifiedName(result))).getOrElse(0)
 
   protected def setTopPrecedence(result: ScalaResolveResult, i: Int) {
     precedence.put(getQualifiedName(result), i)
