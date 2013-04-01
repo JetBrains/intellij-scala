@@ -67,7 +67,7 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible with Ps
         return ExpressionTypeResult(getTypeWithoutImplicits(TypingContext.empty, ignoreBaseTypes, fromUnderscore), Set.empty, None)
       
       val tr = getTypeWithoutImplicits(TypingContext.empty, ignoreBaseTypes, fromUnderscore)
-      lazy val defaultResult: ExpressionTypeResult = ExpressionTypeResult(tr, Set.empty, None)
+      def defaultResult: ExpressionTypeResult = ExpressionTypeResult(tr, Set.empty, None)
       if (!checkImplicits) return defaultResult //do not try implicit conversions for shape check
 
       val tp = tr match {
