@@ -26,7 +26,7 @@ class ScalaMethodCompletionWeigher extends CompletionWeigher {
   def weigh(element: LookupElement, location: CompletionLocation): Comparable[_] = {
     val obj = element match {
       case s: ScalaLookupItem => s.element
-      case _ => element.getObject
+      case _ => return null //do not compare to anything in Java
     }
     obj match {
       case psi: ScFunction =>
