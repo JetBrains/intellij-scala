@@ -1,9 +1,10 @@
-package org.jetbrains.plugins.scala.lang.psi.implicits
+package org.jetbrains.plugins.scala
+package lang.psi.implicits
 
 import org.jetbrains.plugins.scala.lang.psi.types._
-import nonvalue.{TypeParameter, ScTypePolymorphicType, Parameter, ScMethodType}
+import nonvalue.{TypeParameter, ScTypePolymorphicType, ScMethodType}
 import org.jetbrains.plugins.scala.lang.resolve._
-import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, types, ScalaPsiUtil}
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import processor.{ImplicitProcessor, MostSpecificUtil}
 import result.{TypeResult, Success, TypingContext}
 import com.intellij.psi._
@@ -14,7 +15,7 @@ import util.PsiTreeUtil
 import collection.immutable.HashSet
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScMember}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody}
-import org.jetbrains.plugins.scala.extensions.{toPsiNamedElementExt, toPsiClassExt}
+import org.jetbrains.plugins.scala.extensions.toPsiClassExt
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.SafeCheckException
 import annotation.tailrec
