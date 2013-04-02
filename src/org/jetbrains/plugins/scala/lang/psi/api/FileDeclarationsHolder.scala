@@ -20,6 +20,8 @@ import lang.psi.types.result.TypingContext
 import lang.psi.types.ScType
 import caches.ScalaShortNamesCacheManager
 import lang.psi.{ScImportsHolder, ScDeclarationSequenceHolder}
+import com.intellij.psi.search.GlobalSearchScope
+import collection.mutable.ArrayBuffer
 
 /**
  * User: Dmitry Naydanov
@@ -116,7 +118,7 @@ trait FileDeclarationsHolder extends PsiElement with ScDeclarationSequenceHolder
 
     if (checkPredefinedClassesAndPackages) {
       val attachedQualifiers = new mutable.HashSet[String]()
-      val implObjIter = ImplicitlyImported.allImplicitlyImportedObjects(getManager, scope).iterator
+      val implObjIter = allImplicitlyImportedObjects(getManager, scope).iterator
 
       updateProcessor(processor) {
         while (implObjIter.hasNext) {
@@ -161,7 +163,7 @@ trait FileDeclarationsHolder extends PsiElement with ScDeclarationSequenceHolder
         if (!alreadyContains(synth.name) && !processor.execute(synth, state)) return false
       }
 
-      val implPIterator = ImplicitlyImported.packages.iterator
+      val implPIterator = implicitlyImportedPackages.iterator
       while (implPIterator.hasNext) {
         val implP = implPIterator.next()
         ProgressManager.checkCanceled()
@@ -189,5 +191,17 @@ trait FileDeclarationsHolder extends PsiElement with ScDeclarationSequenceHolder
     }
   }
 
+  private def allImplicitlyImportedObjects(manager: PsiManager, scope: GlobalSearchScope): Seq[PsiClass] = {
+    val res = new ArrayBuffer[PsiClass]
+    for (obj <- implicitlyImportedObjects) {
+      res ++= ScalaPsiManager.instance(manager.getProject).getCachedClasses(scope, obj)
+    }
+    res.toSeq
+  }
+
   protected def isScalaPredefinedClass: Boolean
+
+  protected def implicitlyImportedPackages: Seq[String]
+
+  protected def implicitlyImportedObjects: Seq[String]
 }
