@@ -102,7 +102,7 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
       while (iterator.hasNext) {
         candidatesSet += iterator.next()
       }
-      qualifiedNamesSet ++= levelQualifiedNamesSet
+      qualifiedNamesSet.addAll(levelQualifiedNamesSet)
       levelSet.clear()
       levelQualifiedNamesSet.clear()
       false
