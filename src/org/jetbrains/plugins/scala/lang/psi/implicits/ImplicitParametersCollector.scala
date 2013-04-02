@@ -257,7 +257,7 @@ class ImplicitParametersCollector(place: PsiElement, tp: ScType, searchImplicits
           }
         }), wilds)).removeUndefines()
       case _ =>
-        Conformance.isAliasType(tp) match {
+        tp.isAliasType match {
           case Some(AliasType(_, lower, upper)) => coreType(upper.getOrAny)
           case _ => abstractsToUpper(tp).removeUndefines()
         }

@@ -472,7 +472,7 @@ object ScalaPsiUtil {
     val projectOpt = Option(place).map(_.getProject)
     val parts: ListBuffer[ScType] = new ListBuffer[ScType]
     def collectParts(tp: ScType, place: PsiElement) {
-      Conformance.isAliasType(tp) match {
+      tp.isAliasType match {
         case Some(AliasType(t: ScTypeAliasDefinition, lower, _)) =>
           lower.foreach(collectParts(_, place))
         case _ =>

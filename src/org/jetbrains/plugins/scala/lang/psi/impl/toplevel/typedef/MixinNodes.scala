@@ -410,7 +410,7 @@ abstract class MixinNodes {
           }
         case _ =>
       }
-      (Conformance.isAliasType(superType) match {
+      (superType.isAliasType match {
         case Some(AliasType(td: ScTypeAliasDefinition, lower, _)) => lower.getOrElse(superType)
         case _ => superType
       }) match {
@@ -528,7 +528,7 @@ object MixinNodes {
           }
         }
         case _ =>
-          (Conformance.isAliasType(tp) match {
+          (tp.isAliasType match {
             case Some(AliasType(td: ScTypeAliasDefinition, lower, _)) => lower.getOrElse(tp)
             case _ => tp
           }) match {
@@ -542,7 +542,7 @@ object MixinNodes {
     while (iterator.hasNext) {
       var tp = iterator.next()
       def updateTp(tp: ScType): ScType = {
-        Conformance.isAliasType(tp) match {
+        tp.isAliasType match {
           case Some(AliasType(_, _, Success(upper, _))) => updateTp(upper)
           case _ => tp
         }
@@ -558,7 +558,7 @@ object MixinNodes {
           }
         }
         case _ =>
-          (Conformance.isAliasType(tp) match {
+          (tp.isAliasType match {
             case Some(AliasType(td: ScTypeAliasDefinition, lower, _)) => lower.getOrElse(tp)
             case _ => tp
           }) match {

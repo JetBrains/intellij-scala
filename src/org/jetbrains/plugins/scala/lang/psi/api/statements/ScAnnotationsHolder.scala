@@ -63,7 +63,7 @@ trait ScAnnotationsHolder extends ScalaPsiElement with PsiAnnotationOwner {
         case ScDesignatorType(clazz: PsiClass) => clazz.qualifiedName == qualifiedName
         case ScParameterizedType(ScDesignatorType(clazz: PsiClass), _) => clazz.qualifiedName == qualifiedName
         case _ =>
-          Conformance.isAliasType(tp) match {
+          tp.isAliasType match {
             case Some(AliasType(ta: ScTypeAliasDefinition, _, _)) => acceptType(ta.aliasedType(TypingContext.empty).getOrAny)
             case _ => false
           }

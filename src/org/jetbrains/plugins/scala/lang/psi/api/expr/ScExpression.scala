@@ -168,7 +168,7 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible with Ps
                 case ScFunctionType(_, params) =>
                 case p: ScParameterizedType if p.getFunctionType != None =>
                 case _ => {
-                  Conformance.isAliasType(expected) match {
+                  expected.isAliasType match {
                     case Some(AliasType(ta: ScTypeAliasDefinition, _, _)) => {
                       ta.aliasedType match {
                         case Success(ScFunctionType(_, _), _) =>
