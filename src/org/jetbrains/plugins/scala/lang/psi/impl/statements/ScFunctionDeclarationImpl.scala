@@ -30,7 +30,7 @@ class ScFunctionDeclarationImpl extends ScFunctionImpl with ScFunctionDeclaratio
 
   override def toString: String = "ScFunctionDeclaration"
 
-  def returnType: TypeResult[ScType] = {
+  def returnTypeInner: TypeResult[ScType] = {
     typeElement match {
       case Some(t) => t.getType(TypingContext.empty)
       case None => Success(Unit, Some(this))
