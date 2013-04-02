@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.lang.resolve.processor
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResult}
 import collection.mutable
+import java.util
 
 /**
  * User: Alexander Podkhalyuzin
@@ -14,9 +15,9 @@ trait PrecedenceHelper[T] {
 
   protected def getPlace: PsiElement
   protected lazy val placePackageName: String = ResolveUtils.getPlacePackage(getPlace)
-  protected val levelSet: java.util.HashSet[ScalaResolveResult] = new java.util.HashSet
-  protected val qualifiedNamesSet: mutable.HashSet[T] = new mutable.HashSet[T]
-  protected val levelQualifiedNamesSet: mutable.HashSet[T] = new mutable.HashSet[T]
+  protected val levelSet: util.HashSet[ScalaResolveResult] = new util.HashSet
+  protected val qualifiedNamesSet: util.HashSet[T] = new util.HashSet[T]
+  protected val levelQualifiedNamesSet: util.HashSet[T] = new util.HashSet[T]
 
   protected def getQualifiedName(result: ScalaResolveResult): T
 
@@ -32,6 +33,10 @@ trait PrecedenceHelper[T] {
     getPrecedence(p) < getTopPrecedence(n)
   }
   protected def isCheckForEqualPrecedence = true
+  protected def clearLevelQualifiedSet(result: ScalaResolveResult) {
+    levelQualifiedNamesSet.clear()
+  }
+  protected def getLevelSet(result: ScalaResolveResult): util.HashSet[ScalaResolveResult] = levelSet
 
   /**
    * Do not add ResolveResults through candidatesSet. It may break precedence. Use this method instead.
@@ -40,8 +45,9 @@ trait PrecedenceHelper[T] {
   protected def addResults(results: Seq[ScalaResolveResult]): Boolean = {
     if (results.length == 0) return true
     lazy val qualifiedName: T = getQualifiedName(results(0))
+    lazy val levelSet = getLevelSet(results(0))
     def addResults() {
-      if (qualifiedName != null) levelQualifiedNamesSet += qualifiedName
+      if (qualifiedName != null) levelQualifiedNamesSet.add(qualifiedName)
       val iterator = results.iterator
       while (iterator.hasNext) {
         levelSet.add(iterator.next())
@@ -71,7 +77,7 @@ trait PrecedenceHelper[T] {
             levelSetIterator.remove()
           }
         }
-        levelQualifiedNamesSet.clear()
+        clearLevelQualifiedSet(results(0))
         addResults()
       }
     }
