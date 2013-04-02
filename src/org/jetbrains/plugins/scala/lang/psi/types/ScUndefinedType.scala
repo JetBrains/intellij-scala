@@ -50,6 +50,15 @@ case class ScUndefinedType(tpt: ScTypeParameterType) extends NonValueType {
  * inferences work together.
  */
 case class ScAbstractType(tpt: ScTypeParameterType, lower: ScType, upper: ScType) extends NonValueType {
+  private var hash: Int = -1
+
+  override def hashCode: Int = {
+    if (hash == -1) {
+      hash = (upper.hashCode() * 31 + lower.hashCode()) * 31 + tpt.hashCode
+    }
+    hash
+  }
+
   def inferValueType = tpt
 
   def simplifyType: ScType = {

@@ -82,6 +82,15 @@ case class JavaArrayType(arg: ScType) extends ValueType {
 }
 
 case class ScParameterizedType(designator : ScType, typeArgs : Seq[ScType]) extends ValueType {
+  private var hash: Int = -1
+
+  override def hashCode: Int = {
+    if (hash == -1) {
+      hash = designator.hashCode() + typeArgs.hashCode() * 31
+    }
+    hash
+  }
+
   def designated: Option[PsiNamedElement] = ScType.extractDesignated(designator) match {
     case Some((e, _)) => Some(e)
     case _ => None
@@ -270,6 +279,15 @@ object ScParameterizedType {
 case class ScTypeParameterType(name: String, args: List[ScTypeParameterType],
                               lower: Suspension[ScType], upper: Suspension[ScType],
                               param: PsiTypeParameter) extends ValueType {
+  private var hash: Int = -1
+
+  override def hashCode: Int = {
+    if (hash == -1) {
+      hash = (((param.hashCode() * 31 + upper.hashCode) * 31 + lower.hashCode()) * 31 + args.hashCode()) * 31 + name.hashCode
+    }
+    hash
+  }
+
   def this(ptp: PsiTypeParameter, s: ScSubstitutor) = {
     this(ptp match {case tp: ScTypeParam => tp.name case _ => ptp.name},
          ptp match {case tp: ScTypeParam => tp.typeParameters.toList.map{new ScTypeParameterType(_, s)}

@@ -14,6 +14,15 @@ import collection.immutable.HashSet
 * @author ilyas
 */
 case class ScFunctionType(returnType: ScType, params: Seq[ScType])(project: Project, scope: GlobalSearchScope) extends ValueType {
+  private var hash: Int = -1
+
+  override def hashCode: Int = {
+    if (hash == -1) {
+      hash = returnType.hashCode() + params.hashCode() * 31
+    }
+    hash
+  }
+
   def getProject: Project = project
 
   def getScope = scope
