@@ -58,6 +58,17 @@ match {
 }
 */
 trait ScType {
+  private var aliasType: Option[AliasType] = null
+
+  final def isAliasType: Option[AliasType] = {
+    if (aliasType == null) {
+      aliasType = isAliasTypeInner
+    }
+    aliasType
+  }
+
+  protected def isAliasTypeInner: Option[AliasType] = None
+
   final def equiv(t: ScType): Boolean = Equivalence.equiv(this, t)
 
   /**
@@ -313,8 +324,8 @@ object ScType extends ScTypePresentation with ScTypePsiTypeBridge {
       t.upperBound.flatMap(expandAliases)
     case t: ScTypeAliasDefinition if t.typeParameters.isEmpty =>
       t.aliasedType(TypingContext.empty)
-    case pt: ScParameterizedType if Conformance.isAliasType(pt) != None =>
-      val aliasType: AliasType = Conformance.isAliasType(pt).get
+    case pt: ScParameterizedType if pt.isAliasType != None =>
+      val aliasType: AliasType = pt.isAliasType.get
       aliasType.upper.flatMap(expandAliases)
     case _ => Success(tp, None)
   }
