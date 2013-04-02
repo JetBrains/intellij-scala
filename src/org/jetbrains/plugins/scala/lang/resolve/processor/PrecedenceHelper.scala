@@ -1,8 +1,8 @@
-package org.jetbrains.plugins.scala.lang.resolve.processor
+package org.jetbrains.plugins.scala
+package lang.resolve.processor
 
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResult}
-import collection.mutable
 import java.util
 
 /**
@@ -84,7 +84,10 @@ trait PrecedenceHelper[T] {
     true
   }
 
-  protected def getPrecedence(result: ScalaResolveResult): Int = result.getPrecedence(getPlace, placePackageName)
+  protected def getPrecedence(result: ScalaResolveResult): Int = {
+    if (predefObject) PrecedenceHelper.PrecedenceTypes.SCALA
+    else result.getPrecedence(getPlace, placePackageName)
+  }
 }
 
 object PrecedenceHelper {

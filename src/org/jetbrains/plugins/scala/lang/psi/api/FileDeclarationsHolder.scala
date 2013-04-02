@@ -117,23 +117,27 @@ trait FileDeclarationsHolder extends PsiElement with ScDeclarationSequenceHolder
     if (checkPredefinedClassesAndPackages) {
       val attachedQualifiers = new mutable.HashSet[String]()
       val implObjIter = ImplicitlyImported.allImplicitlyImportedObjects(getManager, scope).iterator
-      while (implObjIter.hasNext) {
-        val clazz = implObjIter.next()
-        if (!attachedQualifiers.contains(clazz.qualifiedName)) {
-          attachedQualifiers += clazz.qualifiedName
-          ProgressManager.checkCanceled()
 
-          clazz match {
-            case td: ScTypeDefinition if !isScalaPredefinedClass =>
-              var newState = state
-              td.getType(TypingContext.empty).foreach {
-                case tp: ScType => newState = state.put(BaseProcessor.FROM_TYPE_KEY, tp)
-              }
-              if (!clazz.processDeclarations(processor, newState, null, place)) return false
-            case _ =>
+      updateProcessor(processor) {
+        while (implObjIter.hasNext) {
+          val clazz = implObjIter.next()
+          if (!attachedQualifiers.contains(clazz.qualifiedName)) {
+            attachedQualifiers += clazz.qualifiedName
+            ProgressManager.checkCanceled()
+
+            clazz match {
+              case td: ScTypeDefinition if !isScalaPredefinedClass =>
+                var newState = state
+                td.getType(TypingContext.empty).foreach {
+                  case tp: ScType => newState = state.put(BaseProcessor.FROM_TYPE_KEY, tp)
+                }
+                if (!clazz.processDeclarations(processor, newState, null, place)) return false
+              case _ =>
+            }
           }
         }
       }
+
 
 
       val scalaPack = ScPackageImpl.findPackage(getProject, "scala")
@@ -167,6 +171,22 @@ trait FileDeclarationsHolder extends PsiElement with ScDeclarationSequenceHolder
     }
 
     true
+  }
+
+  //method extracted due to VerifyError in Scala compiler
+  private def updateProcessor(processor: PsiScopeProcessor)(body: => Unit) {
+    processor match {
+      case b: BaseProcessor => b.processPredefinedObject(b = true)
+      case _ =>
+    }
+    try {
+      body
+    } finally {
+      processor match {
+        case b: BaseProcessor => b.processPredefinedObject(b = false)
+        case _ =>
+      }
+    }
   }
 
   protected def isScalaPredefinedClass: Boolean
