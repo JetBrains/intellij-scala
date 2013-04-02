@@ -10,8 +10,8 @@ import org.jetbrains.plugins.scala.extensions.{toPsiMemberExt, toPsiNamedElement
  */
 object ScEquivalenceUtil {
   def areClassesEquivalent(clazz1: PsiClass, clazz2: PsiClass): Boolean = {
-    if (clazz1.name != clazz2.name) return false
     if (clazz1 == clazz2) return true
+    if (clazz1.name != clazz2.name) return false
     val containingClazz1: PsiClass = clazz1.containingClass
     val containingClass2: PsiClass = clazz2.containingClass
     if (containingClazz1 != null) {
