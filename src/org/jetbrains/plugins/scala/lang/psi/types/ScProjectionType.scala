@@ -30,6 +30,14 @@ import api.base.patterns.ScBindingPattern
  */
 case class ScProjectionType(projected: ScType, element: PsiNamedElement,
                             superReference: Boolean /* todo: find a way to remove it*/) extends ValueType {
+  private var hash: Int = -1
+
+  override def hashCode: Int = {
+    if (hash == -1) {
+      hash = projected.hashCode() + element.hashCode() * 31 + (if (superReference) 239 else 0)
+    }
+    hash
+  }
 
   override def removeAbstracts = ScProjectionType(projected.removeAbstracts, element, superReference)
 
