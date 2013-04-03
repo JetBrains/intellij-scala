@@ -69,7 +69,7 @@ class ScPackageImpl(val pack: PsiPackage) extends PsiPackageImpl(pack.getManager
         case _ => place.getResolveScope
       }
       if (getQualifiedName == "scala") {
-        ImplicitlyImported.implicitlyImportedObject(place.getManager, scope, "scala") match {
+        ScPackageImpl.implicitlyImportedObject(place.getManager, scope, "scala") match {
           case Some(obj: ScObject) =>
             var newState = state
             obj.getType(TypingContext.empty).foreach {
@@ -153,5 +153,9 @@ object ScPackageImpl {
 
   private val processing: ThreadLocal[Long] = new ThreadLocal[Long] {
     override def initialValue(): Long = 0
+  }
+
+  private def implicitlyImportedObject(manager: PsiManager, scope: GlobalSearchScope, fqn: String): Option[PsiClass] = {
+    ScalaPsiManager.instance(manager.getProject).getCachedClasses(scope, fqn).headOption
   }
 }

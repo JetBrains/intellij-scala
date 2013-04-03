@@ -1,9 +1,10 @@
-package org.jetbrains.plugins.scala.lang.psi.implicits
+package org.jetbrains.plugins.scala
+package lang.psi.implicits
 
 import org.jetbrains.plugins.scala.lang.psi.types._
-import nonvalue.{TypeParameter, ScTypePolymorphicType, Parameter, ScMethodType}
+import nonvalue.{TypeParameter, ScTypePolymorphicType, ScMethodType}
 import org.jetbrains.plugins.scala.lang.resolve._
-import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, types, ScalaPsiUtil}
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import processor.{ImplicitProcessor, MostSpecificUtil}
 import result.{TypeResult, Success, TypingContext}
 import com.intellij.psi._
@@ -14,7 +15,7 @@ import util.PsiTreeUtil
 import collection.immutable.HashSet
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScMember}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody}
-import org.jetbrains.plugins.scala.extensions.{toPsiNamedElementExt, toPsiClassExt}
+import org.jetbrains.plugins.scala.extensions.toPsiClassExt
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.SafeCheckException
 import annotation.tailrec
@@ -69,12 +70,12 @@ class ImplicitParametersCollector(place: PsiElement, tp: ScType, searchImplicits
       val subst = getSubst(state)
       named match {
         case o: ScObject if o.hasModifierProperty("implicit") =>
-          if (!ResolveUtils.isAccessible(o, getPlace)) return true
+          if (!predefObject && !ResolveUtils.isAccessible(o, getPlace)) return true
           addResult(new ScalaResolveResult(o, subst, getImports(state)))
         case param: ScParameter if param.isImplicitParameter =>
           param match {
             case c: ScClassParameter =>
-              if (!ResolveUtils.isAccessible(c, getPlace)) return true
+              if (!predefObject && !ResolveUtils.isAccessible(c, getPlace)) return true
             case _ =>
           }
           addResult(new ScalaResolveResult(param, subst, getImports(state)))
@@ -82,14 +83,14 @@ class ImplicitParametersCollector(place: PsiElement, tp: ScType, searchImplicits
           val memb = ScalaPsiUtil.getContextOfType(patt, true, classOf[ScValue], classOf[ScVariable])
           memb match {
             case memb: ScMember if memb.hasModifierProperty("implicit") =>
-              if (!ResolveUtils.isAccessible(memb, getPlace)) return true
+              if (!predefObject && !ResolveUtils.isAccessible(memb, getPlace)) return true
               addResult(new ScalaResolveResult(named, subst, getImports(state)))
             case _ =>
           }
         }
         case function: ScFunction if function.hasModifierProperty("implicit") => {
-          if (ScImplicitlyConvertible.checkFucntionIsEligible(function, place) &&
-            ResolveUtils.isAccessible(function, getPlace)) {
+          if (predefObject || (ScImplicitlyConvertible.checkFucntionIsEligible(function, place) &&
+              ResolveUtils.isAccessible(function, getPlace))) {
             addResult(new ScalaResolveResult(named, subst, getImports(state)))
           }
         }
@@ -256,7 +257,7 @@ class ImplicitParametersCollector(place: PsiElement, tp: ScType, searchImplicits
           }
         }), wilds)).removeUndefines()
       case _ =>
-        Conformance.isAliasType(tp) match {
+        tp.isAliasType match {
           case Some(AliasType(_, lower, upper)) => coreType(upper.getOrAny)
           case _ => abstractsToUpper(tp).removeUndefines()
         }

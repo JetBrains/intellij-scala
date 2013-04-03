@@ -29,6 +29,8 @@ import java.lang.{ThreadLocal, String}
 import extensions.toPsiNamedElementExt
 import com.intellij.util.containers.ConcurrentHashMap
 import light.ScFunctionWrapper
+import com.intellij.openapi.util.Key
+import com.intellij.openapi.progress.ProgressManager
 
 /**
  * @author Alexander Podkhalyuzin
@@ -264,7 +266,30 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
 
   def isProcedure = paramClauses.clauses.isEmpty
 
-  def returnType: TypeResult[ScType]
+  def returnType: TypeResult[ScType] = {
+    def importantOrderFunction(fun: ScFunctionDefinition): Boolean = {
+      fun.hasModifierProperty("implicit") && !fun.hasExplicitType
+    }
+    this match {
+      case fun: ScFunctionDefinition if importantOrderFunction(fun) =>
+        val parent = fun.getParent
+        val data = parent.getUserData(ScFunction.calculatedBlockKey)
+        if (data != null) fun.returnTypeInner
+        else {
+          parent.getChildren.foreach {
+            case fun: ScFunctionDefinition if importantOrderFunction(fun) =>
+              ProgressManager.checkCanceled()
+              fun.returnTypeInner
+            case _ =>
+          }
+          parent.putUserData(ScFunction.calculatedBlockKey, java.lang.Boolean.TRUE)
+          fun.returnTypeInner
+        }
+      case _ => returnTypeInner
+    }
+  }
+
+  def returnTypeInner: TypeResult[ScType]
 
   def declaredType: TypeResult[ScType] = wrap(returnTypeElement) flatMap (_.getType(TypingContext.empty))
 
@@ -416,4 +441,6 @@ object ScFunction {
 
   /** Is this function sometimes invoked without it's name appearing at the call site? */
   def isSpecial(name: String): Boolean = Name.Special(name)
+
+  private val calculatedBlockKey: Key[java.lang.Boolean] = Key.create("calculated.function.returns.block")
 }

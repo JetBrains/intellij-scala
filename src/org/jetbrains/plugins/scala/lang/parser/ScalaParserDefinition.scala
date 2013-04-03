@@ -43,7 +43,11 @@ class ScalaParserDefinition extends ScalaParserDefinitionWrapper{
   def createElement(astNode: ASTNode): PsiElement = ScalaPsiCreator.createElement(astNode)
 
   def createFile(fileViewProvider: FileViewProvider): PsiFile = {
-    new ScalaFileImpl(fileViewProvider);
+    ScalaFileFactory.EP_NAME.getExtensions
+            .view
+            .flatMap(_.createFile(fileViewProvider))
+            .headOption
+            .getOrElse(new ScalaFileImpl(fileViewProvider))
   }
 
   override def spaceExistanceTypeBetweenTokens(leftNode: ASTNode, rightNode: ASTNode): ParserDefinition.SpaceRequirements = {
