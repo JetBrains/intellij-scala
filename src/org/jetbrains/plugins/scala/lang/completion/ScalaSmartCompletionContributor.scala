@@ -347,7 +347,7 @@ class ScalaSmartCompletionContributor extends CompletionContributor {
             case Some(ScFunctionType(_, params)) => params
             case _ => null
           }
-        case _ => Conformance.isAliasType(tp) match {
+        case _ => tp.isAliasType match {
           case Some(AliasType(_, Success(lowerType, _), _)) => params(lowerType)
           case _ => null
         }

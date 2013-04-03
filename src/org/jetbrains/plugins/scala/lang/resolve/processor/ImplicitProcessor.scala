@@ -1,9 +1,10 @@
-package org.jetbrains.plugins.scala.lang.resolve.processor
+package org.jetbrains.plugins.scala
+package lang.resolve.processor
 
 import org.jetbrains.plugins.scala.lang.resolve.ResolveTargets._
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
-import collection.mutable.HashMap
 import collection.Set
+import java.util
 
 /**
  * @author Alexander Podkhalyuzin
@@ -13,7 +14,8 @@ import collection.Set
  * This class mark processor that only implicit object important among all PsiClasses
  */
 abstract class ImplicitProcessor(kinds: Set[Value], withoutPrecedence: Boolean) extends BaseProcessor(kinds) with PrecedenceHelper[String] {
-  protected val precedence: HashMap[String, Int] = new HashMap[String, Int]()
+  protected val precedence: util.HashMap[String, Int] = new util.HashMap[String, Int]()
+  protected val levelMap: util.HashMap[String, util.HashSet[ScalaResolveResult]] = new util.HashMap[String, util.HashSet[ScalaResolveResult]]()
 
   protected def getQualifiedName(result: ScalaResolveResult): String = {
     result.isRenamed match {
@@ -22,10 +24,24 @@ abstract class ImplicitProcessor(kinds: Set[Value], withoutPrecedence: Boolean) 
     }
   }
 
-  protected def getTopPrecedence(result: ScalaResolveResult): Int = precedence.getOrElse(getQualifiedName(result), 0)
+  protected def getTopPrecedence(result: ScalaResolveResult): Int = Option(precedence.get(getQualifiedName(result))).getOrElse(0)
 
   protected def setTopPrecedence(result: ScalaResolveResult, i: Int) {
     precedence.put(getQualifiedName(result), i)
+  }
+
+  override protected def clearLevelQualifiedSet(result: ScalaResolveResult) {
+    //optimisation, do nothing
+  }
+
+  override protected def getLevelSet(result: ScalaResolveResult): util.HashSet[ScalaResolveResult] = {
+    val qualifiedName = getQualifiedName(result)
+    var levelSet = levelMap.get(qualifiedName)
+    if (levelSet == null) {
+      levelSet = new util.HashSet[ScalaResolveResult]
+      levelMap.put(qualifiedName, levelSet)
+    }
+    levelSet
   }
 
   override protected def addResults(results: Seq[ScalaResolveResult]): Boolean = {
@@ -36,22 +52,28 @@ abstract class ImplicitProcessor(kinds: Set[Value], withoutPrecedence: Boolean) 
   }
 
   override def changedLevel: Boolean = {
-    if (levelSet.isEmpty) return true
-    val iterator = levelSet.iterator()
+    if (levelMap.isEmpty) return true
+    val iterator = levelMap.values().iterator()
     while (iterator.hasNext) {
-      candidatesSet += iterator.next()
+      val setIterator = iterator.next().iterator()
+      while (setIterator.hasNext) {
+        candidatesSet += setIterator.next
+      }
     }
-    qualifiedNamesSet ++= levelQualifiedNamesSet
-    levelSet.clear()
+    qualifiedNamesSet.addAll(levelQualifiedNamesSet)
+    levelMap.clear()
     levelQualifiedNamesSet.clear()
     true
   }
 
   override def candidatesS: Set[ScalaResolveResult] = {
     val res = candidatesSet
-    val iterator = levelSet.iterator()
+    val iterator = levelMap.values().iterator()
     while (iterator.hasNext) {
-      res += iterator.next()
+      val setIterator = iterator.next().iterator()
+      while (setIterator.hasNext) {
+        candidatesSet += setIterator.next
+      }
     }
     res
   }

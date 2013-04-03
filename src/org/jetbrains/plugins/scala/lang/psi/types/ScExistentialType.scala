@@ -70,7 +70,7 @@ case class ScExistentialType(quantified : ScType,
     skolemSubst.subst(quantified).recursiveUpdate {
       case s: ScSkolemizedType => (true, s)
       case tp =>
-        Conformance.isAliasType(tp) match {
+        tp.isAliasType match {
           case Some(AliasType(ta, lower, upper)) if ta.isExistentialTypeAlias && wildcards.find(_.name == ta.name).isDefined =>
             val argument = wildcards.find(_.name == ta.name).get
             (true, unpacked.getOrElse(argument, argument.unpack))

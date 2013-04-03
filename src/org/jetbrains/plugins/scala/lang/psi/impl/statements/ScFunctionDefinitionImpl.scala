@@ -126,7 +126,7 @@ class ScFunctionDefinitionImpl extends ScFunctionImpl with ScFunctionDefinition 
 
   override def toString: String = "ScFunctionDefinition"
 
-  def returnType: TypeResult[ScType] = returnTypeElement match {
+  def returnTypeInner: TypeResult[ScType] = returnTypeElement match {
     case None if !hasAssign => Success(Unit, Some(this))
     case None => body match {
       case Some(b) => b.getType(TypingContext.empty)

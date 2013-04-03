@@ -20,6 +20,8 @@ import lang.psi.types.result.TypingContext
 import lang.psi.types.ScType
 import caches.ScalaShortNamesCacheManager
 import lang.psi.{ScImportsHolder, ScDeclarationSequenceHolder}
+import com.intellij.psi.search.GlobalSearchScope
+import collection.mutable.ArrayBuffer
 
 /**
  * User: Dmitry Naydanov
@@ -116,24 +118,28 @@ trait FileDeclarationsHolder extends PsiElement with ScDeclarationSequenceHolder
 
     if (checkPredefinedClassesAndPackages) {
       val attachedQualifiers = new mutable.HashSet[String]()
-      val implObjIter = ImplicitlyImported.allImplicitlyImportedObjects(getManager, scope).iterator
-      while (implObjIter.hasNext) {
-        val clazz = implObjIter.next()
-        if (!attachedQualifiers.contains(clazz.qualifiedName)) {
-          attachedQualifiers += clazz.qualifiedName
-          ProgressManager.checkCanceled()
+      val implObjIter = allImplicitlyImportedObjects(getManager, scope).iterator
 
-          clazz match {
-            case td: ScTypeDefinition if !isScalaPredefinedClass =>
-              var newState = state
-              td.getType(TypingContext.empty).foreach {
-                case tp: ScType => newState = state.put(BaseProcessor.FROM_TYPE_KEY, tp)
-              }
-              if (!clazz.processDeclarations(processor, newState, null, place)) return false
-            case _ =>
+      updateProcessor(processor) {
+        while (implObjIter.hasNext) {
+          val clazz = implObjIter.next()
+          if (!attachedQualifiers.contains(clazz.qualifiedName)) {
+            attachedQualifiers += clazz.qualifiedName
+            ProgressManager.checkCanceled()
+
+            clazz match {
+              case td: ScTypeDefinition if !isScalaPredefinedClass =>
+                var newState = state
+                td.getType(TypingContext.empty).foreach {
+                  case tp: ScType => newState = state.put(BaseProcessor.FROM_TYPE_KEY, tp)
+                }
+                if (!clazz.processDeclarations(processor, newState, null, place)) return false
+              case _ =>
+            }
           }
         }
       }
+
 
 
       val scalaPack = ScPackageImpl.findPackage(getProject, "scala")
@@ -157,7 +163,7 @@ trait FileDeclarationsHolder extends PsiElement with ScDeclarationSequenceHolder
         if (!alreadyContains(synth.name) && !processor.execute(synth, state)) return false
       }
 
-      val implPIterator = ImplicitlyImported.packages.iterator
+      val implPIterator = implicitlyImportedPackages.iterator
       while (implPIterator.hasNext) {
         val implP = implPIterator.next()
         ProgressManager.checkCanceled()
@@ -169,5 +175,33 @@ trait FileDeclarationsHolder extends PsiElement with ScDeclarationSequenceHolder
     true
   }
 
+  //method extracted due to VerifyError in Scala compiler
+  private def updateProcessor(processor: PsiScopeProcessor)(body: => Unit) {
+    processor match {
+      case b: BaseProcessor => b.processPredefinedObject(b = true)
+      case _ =>
+    }
+    try {
+      body
+    } finally {
+      processor match {
+        case b: BaseProcessor => b.processPredefinedObject(b = false)
+        case _ =>
+      }
+    }
+  }
+
+  private def allImplicitlyImportedObjects(manager: PsiManager, scope: GlobalSearchScope): Seq[PsiClass] = {
+    val res = new ArrayBuffer[PsiClass]
+    for (obj <- implicitlyImportedObjects) {
+      res ++= ScalaPsiManager.instance(manager.getProject).getCachedClasses(scope, obj)
+    }
+    res.toSeq
+  }
+
   protected def isScalaPredefinedClass: Boolean
+
+  protected def implicitlyImportedPackages: Seq[String]
+
+  protected def implicitlyImportedObjects: Seq[String]
 }

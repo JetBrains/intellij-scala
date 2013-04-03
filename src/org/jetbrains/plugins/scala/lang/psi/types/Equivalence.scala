@@ -31,12 +31,12 @@ object Equivalence {
       return equivInner(l, r.getValType.get, subst, falseUndef)
     }
 
-    Conformance.isAliasType(r) match {
+    r.isAliasType match {
       case Some(Conformance.AliasType(ta: ScTypeAliasDefinition, _, _)) => return r.equivInner(l, subst, falseUndef)
       case _ =>
     }
 
-    Conformance.isAliasType(l) match {
+    l.isAliasType match {
       case Some(Conformance.AliasType(ta: ScTypeAliasDefinition, _, _)) => return l.equivInner(r, subst, falseUndef)
       case _ =>
     }

@@ -173,7 +173,7 @@ class CompletionProcessor(override val kinds: Set[ResolveTargets.Value],
       postProcess(next)
       candidatesSet += next
     }
-    qualifiedNamesSet ++= levelQualifiedNamesSet
+    qualifiedNamesSet.addAll(levelQualifiedNamesSet)
     levelSet.clear()
     levelQualifiedNamesSet.clear()
     true

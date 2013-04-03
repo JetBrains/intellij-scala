@@ -38,14 +38,15 @@ import com.intellij.openapi.editor.Document
 import extensions._
 import com.intellij.psi.impl.source.codeStyle.CodeEditUtil
 import com.intellij.psi.impl.source.PostprocessReformattingAspect
+import com.intellij.openapi.fileTypes.LanguageFileType
 
-class ScalaFileImpl(viewProvider: FileViewProvider)
-        extends PsiFileBase(viewProvider, ScalaFileType.SCALA_FILE_TYPE.getLanguage)
+class ScalaFileImpl(viewProvider: FileViewProvider, fileType: LanguageFileType = ScalaFileType.SCALA_FILE_TYPE)
+        extends PsiFileBase(viewProvider, fileType.getLanguage)
                 with ScalaFile with FileDeclarationsHolder 
                 with CompiledFileAdjuster with ScControlFlowOwner with FileResolveScopeProvider {
   override def getViewProvider = viewProvider
 
-  override def getFileType = ScalaFileType.SCALA_FILE_TYPE
+  override def getFileType = fileType
 
   override def toString = "ScalaFile:" + getName
 
@@ -462,24 +463,10 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
       case _ => getCopyableUserData(ScalaFileImpl.CHILD_KEY).getNextSibling
     }
   }
-}
 
-object ImplicitlyImported {
-  val packages = Array("scala", "java.lang")
-  val objects = Array("scala.Predef", "scala" /* package object*/)
+  protected override def implicitlyImportedPackages = ScalaFileImpl.DefaultImplicitlyImportedPackges
 
-  def implicitlyImportedObject(manager: PsiManager, scope: GlobalSearchScope,
-                                fqn: String): Option[PsiClass] = {
-    ScalaPsiManager.instance(manager.getProject).getCachedClasses(scope, fqn).headOption
-  }
-
-  def allImplicitlyImportedObjects(manager: PsiManager, scope: GlobalSearchScope): Seq[PsiClass] = {
-    val res = new ArrayBuffer[PsiClass]
-    for (obj <- objects) {
-      res ++= ScalaPsiManager.instance(manager.getProject).getCachedClasses(scope, obj)
-    }
-    res.toSeq
-  }
+  protected override def implicitlyImportedObjects = ScalaFileImpl.DefaultImplicitlyImportedObjects
 }
 
 object ScalaFileImpl {
@@ -488,6 +475,10 @@ object ScalaFileImpl {
   val SCRIPT_KEY = new Key[java.lang.Boolean]("Is Script Key")
   val CONTEXT_KEY = new Key[PsiElement]("context.key")
   val CHILD_KEY = new Key[PsiElement]("child.key")
+
+  val DefaultImplicitlyImportedPackges = Seq("scala", "java.lang")
+
+  val DefaultImplicitlyImportedObjects = Seq("scala.Predef", "scala" /* package object*/)
 
   def pathIn(root: PsiElement): List[List[String]] =
     packagingsIn(root).map(packaging => toVector(packaging.getPackageName))

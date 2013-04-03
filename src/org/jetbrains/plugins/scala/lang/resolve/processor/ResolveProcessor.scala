@@ -102,13 +102,13 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
       while (iterator.hasNext) {
         candidatesSet += iterator.next()
       }
-      qualifiedNamesSet ++= levelQualifiedNamesSet
+      qualifiedNamesSet.addAll(levelQualifiedNamesSet)
       levelSet.clear()
       levelQualifiedNamesSet.clear()
       false
     }
     if (levelSet.isEmpty) true
-    else if (precedence == 6) update
+    else if (precedence == OTHER_MEMBERS) update
     else !update
   }
 
