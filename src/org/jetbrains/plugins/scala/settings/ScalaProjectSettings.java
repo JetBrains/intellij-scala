@@ -24,7 +24,7 @@ import java.util.Map;
     }
 )
 public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProjectSettings>, ExportableComponent {
-  private int IMPLICIT_PARAMETERS_SEARCH_DEPTH = 10;
+  private int IMPLICIT_PARAMETERS_SEARCH_DEPTH = 5;
 
   private boolean IMPORT_SHORTEST_PATH_FOR_AMBIGUOUS_REFERENCES = true;
   private int CLASS_COUNT_TO_USE_IMPORT_ON_DEMAND = 5;
