@@ -101,7 +101,7 @@ class ImplicitParametersCollector(place: PsiElement, tp: ScType, searchImplicits
 
     override def candidatesS: scala.collection.Set[ScalaResolveResult] = {
       val clazz = ScType.extractClass(tp)
-      def forFilter(c: ScalaResolveResult): Option[(ScalaResolveResult, ScSubstitutor)] = {
+      def forMap(c: ScalaResolveResult, withLocalTypeInference: Boolean): Option[(ScalaResolveResult, ScSubstitutor)] = {
         def compute(): Option[(ScalaResolveResult, ScSubstitutor)] = {
           val subst = c.substitutor
           c.element match {
@@ -180,8 +180,30 @@ class ImplicitParametersCollector(place: PsiElement, tp: ScType, searchImplicits
                     }
                   }
 
-                  val inferredSubst = subst.followed(ScalaPsiUtil.inferMethodTypesArgs(fun, subst))
-                  val substedFunType: ScType = inferredSubst.subst(funType)
+                  var substedFunType: ScType = funType
+
+                  if (fun.hasTypeParameters) {
+                    val typeParameters = fun.typeParameters.map(_.name)
+                    var hasTypeParametersInType = false
+                    funType.recursiveUpdate {
+                      case ScTypeParameterType(name, _, _, _, _) if typeParameters.contains(name) =>
+                        hasTypeParametersInType = true
+                        (true, tp)
+                      case tp: ScType if hasTypeParametersInType => (true, tp)
+                      case tp: ScType => (false, tp)
+                    }
+                    if (withLocalTypeInference && hasTypeParametersInType) {
+                      val inferredSubst = subst.followed(ScalaPsiUtil.inferMethodTypesArgs(fun, subst))
+                      substedFunType = inferredSubst subst funType
+                    } else if (!withLocalTypeInference && !hasTypeParametersInType) {
+                      substedFunType = subst subst funType
+                    } else return None
+                  } else {
+                    if (withLocalTypeInference) return None
+                    substedFunType = subst.subst(funType)
+                  }
+
+
                   if (substedFunType conforms tp) checkType(substedFunType)
                   else {
                     ScType.extractFunctionType(substedFunType) match {
@@ -215,7 +237,9 @@ class ImplicitParametersCollector(place: PsiElement, tp: ScType, searchImplicits
         }
       }
 
-      val applicable = super.candidatesS.map(forFilter).flatten
+      val candidates = super.candidatesS
+      var applicable = candidates.map(forMap(_, withLocalTypeInference = false)).flatten
+      if (applicable.isEmpty) applicable = candidates.map(forMap(_, withLocalTypeInference = true)).flatten
       //todo: remove it when you will be sure, that filtering according to implicit parameters works ok
       val filtered = applicable.filter {
         case (res: ScalaResolveResult, subst: ScSubstitutor) =>
