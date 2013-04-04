@@ -186,7 +186,7 @@ class ImplicitParametersCollector(place: PsiElement, tp: ScType, searchImplicits
                     val typeParameters = fun.typeParameters.map(_.name)
                     var hasTypeParametersInType = false
                     funType.recursiveUpdate {
-                      case ScTypeParameterType(name, _, _, _, _) if typeParameters.contains(name) =>
+                      case tp@ScTypeParameterType(name, _, _, _, _) if typeParameters.contains(name) =>
                         hasTypeParametersInType = true
                         (true, tp)
                       case tp: ScType if hasTypeParametersInType => (true, tp)

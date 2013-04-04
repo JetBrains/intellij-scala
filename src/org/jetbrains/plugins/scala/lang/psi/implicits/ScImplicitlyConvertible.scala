@@ -398,7 +398,29 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
               !ResolveUtils.isAccessible(f, getPlace)) return true
             val clauses = f.paramClauses.clauses
             //filtered cases
-            if (clauses.length > 2 || (clauses.length == 2 && !clauses(1).isImplicit)) return true
+            if (clauses.length > 2) return true
+            if (clauses.length == 2) {
+              if (!clauses(1).isImplicit) {
+                return true
+              }
+              if (f.hasTypeParameters) {
+                val typeParameters = f.typeParameters
+                for {
+                  param <- clauses(1).parameters
+                  paramType <- param.getType(TypingContext.empty)
+                } {
+                  var hasTypeParametersInType = false
+                  paramType.recursiveUpdate {
+                    case tp@ScTypeParameterType(name, _, _, _, _) if typeParameters.contains(name) =>
+                      hasTypeParametersInType = true
+                      (true, tp)
+                    case tp: ScType if hasTypeParametersInType => (true, tp)
+                    case tp: ScType => (false, tp)
+                  }
+                  if (hasTypeParametersInType) return true //looks like it's not working in compiler 2.10, so it's faster to avoid it
+                }
+              }
+            }
             if (clauses.length == 0) {
               val rt = subst.subst(f.returnType.getOrElse(return true))
               if (funType == null || !rt.conforms(funType)) return true
