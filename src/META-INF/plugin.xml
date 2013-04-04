@@ -1,33 +1,34 @@
 <idea-plugin version="2">
+
     <name>SBT Support</name>
-    <id>com.intellij.scala.sbt</id>
+    <id>org.jetbrains.sbt</id>
     <description>Simple Build Tool support</description>
     <version>VERSION</version>
     <vendor logo="/general/ijLogo.png">JetBrains</vendor>
 
     <depends>org.intellij.scala</depends>
 
-    <!-- please see http://confluence.jetbrains.net/display/IDEADEV/Build+Number+Ranges for description -->
     <idea-version since-build="129.17" until-build="1000.9999"/>
 
     <application-components>
-        <!-- Add your application components here -->
     </application-components>
 
     <project-components>
-        <!-- Add your project components here -->
+        <component>
+            <implementation-class>org.jetbrains.sbt.SbtProjectComponent</implementation-class>
+        </component>
     </project-components>
 
     <actions>
-        <!-- Add your actions here -->
     </actions>
 
     <extensions defaultExtensionNs="com.intellij">
-		<!-- Add your IntelliJ IDEA extensions here -->
+        <fileTypeFactory implementation="org.jetbrains.sbt.SbtFileTypeFactory"/>
+        <annotator language="Scala" implementationClass="org.jetbrains.sbt.SbtAnnotator" />
     </extensions>
 
     <extensions defaultExtensionNs="org.intellij.scala">
-	    <!-- Add your Scala extensions here -->
+        <scalaFileFactory implementation="org.jetbrains.sbt.SbtFileFactory" />
     </extensions>
 
 </idea-plugin>
