@@ -5,13 +5,14 @@ import com.intellij.openapi.components.ApplicationComponent
 import com.intellij.openapi.projectRoots.{JavaSdk, ProjectJdkTable}
 import collection.JavaConverters._
 import com.intellij.util.PathUtil
-import java.io.File
+import java.io.{IOException, File}
 import com.intellij.openapi.application.ApplicationManager
 import extensions._
 import com.intellij.notification.{Notifications, NotificationType, Notification}
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.project.Project
+import scala.util.control.Exception._
 
 /**
  * @author Pavel Fatin
@@ -25,7 +26,9 @@ class CompileServerLauncher extends ApplicationComponent {
      if (running) stop()
    }
 
-   def tryToStart(project: Project): Boolean = {
+  def tryToStart(project: Project): Boolean = running || start(project)
+
+  private def start(project: Project): Boolean = {
      val applicationSettings = ScalaApplicationSettings.getInstance
 
      if (applicationSettings.COMPILE_SERVER_SDK == null) {
@@ -43,24 +46,19 @@ class CompileServerLauncher extends ApplicationComponent {
 //         message, NotificationType.INFORMATION))
      }
 
-     javaExecutableIn(applicationSettings.COMPILE_SERVER_SDK) match {
-       case Left(error) =>
-         val title = "Cannot launch Scala compile server"
-         val message = error +
-                 "\nPlease either disable Scala compile server or configure a valid JVM SDK for it."
-         Notifications.Bus.notify(new Notification("scala", title, message, NotificationType.ERROR))
-         false
-       case Right(java) =>
-         init(java)
-         true
-     }
-   }
+    javaExecutableIn(applicationSettings.COMPILE_SERVER_SDK)
+            .left.map(_ + "\nPlease either disable Scala compile server or configure a valid JVM SDK for it.")
+            .right.flatMap(java => start(FileUtil.toCanonicalPath(java.getPath))) match {
+      case Left(error) =>
+        val title = "Cannot start Scala compile server"
+        Notifications.Bus.notify(new Notification("scala", title, error, NotificationType.ERROR))
+        false
+      case Right(_) =>
+        true
+    }
+  }
 
-   private def init(java: File) {
-     if (!running) start(FileUtil.toCanonicalPath(java.getPath))
-   }
-
-   private def start(java: String) {
+   private def start(java: String): Either[String, Process] = {
      val settings = ScalaApplicationSettings.getInstance
 
      val jvmParameters = {
@@ -97,19 +95,20 @@ class CompileServerLauncher extends ApplicationComponent {
          val commands = java +: "-cp" +: classpath +: jvmParameters :+
                  "org.jetbrains.plugins.scala.nailgun.NailgunRunner" :+ settings.COMPILE_SERVER_PORT
 
-         val process = new ProcessBuilder(commands.asJava).start()
+         val builder = new ProcessBuilder(commands.asJava)
 
-         val watcher = new ProcessWatcher(process)
-
-         instance = Some(ServerInstance(watcher, settings.COMPILE_SERVER_PORT.toInt))
-
-         watcher.startNotify()
+         catching(classOf[IOException]).either(builder.start())
+                 .left.map(_.getMessage)
+                 .right.map { process =>
+           val watcher = new ProcessWatcher(process)
+           instance = Some(ServerInstance(watcher, settings.COMPILE_SERVER_PORT.toInt))
+           watcher.startNotify()
+           process
+         }
 
        case (_, absentFiles) =>
          val paths = absentFiles.map(_.getPath).mkString(", ")
-
-         Notifications.Bus.notify(new Notification("scala", "Cannot start Scala compile server",
-           "Required file(s) not found: " + paths, NotificationType.ERROR))
+         Left("Required file(s) not found: " + paths)
      }
    }
 
