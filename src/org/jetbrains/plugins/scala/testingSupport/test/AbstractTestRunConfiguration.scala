@@ -76,9 +76,13 @@ abstract class AbstractTestRunConfiguration(val project: Project,
   private var testArgs = ""
   private var javaOptions = ""
   private var workingDirectory = {
-    val base = getProject.getBaseDir
-    if (base != null) base.getPath
-    else ""
+    val mavenProject = MavenProjectsManager.getInstance(project).findProject(getModule)
+    if (mavenProject != null) mavenProject.getDirectory
+    else {
+      val base = getProject.getBaseDir
+      if (base != null) base.getPath
+      else ""
+    }
   }
 
   def getTestClassPath = testClassPath
@@ -227,9 +231,6 @@ abstract class AbstractTestRunConfiguration(val project: Project,
     if (suiteClass == null) {
       throw new RuntimeConfigurationException(errorMessage)
     }
-
-    val mavenProject = MavenProjectsManager.getInstance(project).findProject(getModule)
-    if (mavenProject != null) setWorkingDirectory(mavenProject.getDirectory)
 
     testKind match {
       case TestKind.ALL_IN_PACKAGE =>
