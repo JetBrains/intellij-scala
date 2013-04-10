@@ -101,52 +101,53 @@ class ImplicitParametersCollector(place: PsiElement, tp: ScType, searchImplicits
 
     override def candidatesS: scala.collection.Set[ScalaResolveResult] = {
       val clazz = ScType.extractClass(tp)
-      def forFilter(c: ScalaResolveResult): Option[(ScalaResolveResult, ScSubstitutor)] = {
-        def compute(): Option[(ScalaResolveResult, ScSubstitutor)] = {
-          val subst = c.substitutor
-          c.element match {
-            case o: ScObject if !PsiTreeUtil.isContextAncestor(o, place, false) =>
-              o.getType(TypingContext.empty) match {
-                case Success(objType: ScType, _) =>
-                  if (!subst.subst(objType).conforms(tp)) None
-                  else Some(c, subst)
-                case _ => None
-              }
-            case param: ScParameter if !PsiTreeUtil.isContextAncestor(param, place, false) =>
-              param.getType(TypingContext.empty) match {
-                case Success(paramType: ScType, _) =>
-                  if (!subst.subst(paramType).conforms(tp)) None
-                  else Some(c, subst)
-                case _ => None
-              }
-            case patt: ScBindingPattern
-              if !PsiTreeUtil.isContextAncestor(ScalaPsiUtil.nameContext(patt), place, false) => {
-              patt.getType(TypingContext.empty) match {
-                case Success(pattType: ScType, _) =>
-                  if (!subst.subst(pattType).conforms(tp)) None
-                  else Some(c, subst)
-                case _ => None
+      def forMap(c: ScalaResolveResult, withLocalTypeInference: Boolean): Option[(ScalaResolveResult, ScSubstitutor)] = {
+        val subst = c.substitutor
+        c.element match {
+          case o: ScObject if !PsiTreeUtil.isContextAncestor(o, place, false) =>
+            o.getType(TypingContext.empty) match {
+              case Success(objType: ScType, _) =>
+                if (!subst.subst(objType).conforms(tp)) None
+                else Some(c, subst)
+              case _ => None
+            }
+          case param: ScParameter if !PsiTreeUtil.isContextAncestor(param, place, false) =>
+            param.getType(TypingContext.empty) match {
+              case Success(paramType: ScType, _) =>
+                if (!subst.subst(paramType).conforms(tp)) None
+                else Some(c, subst)
+              case _ => None
+            }
+          case patt: ScBindingPattern
+            if !PsiTreeUtil.isContextAncestor(ScalaPsiUtil.nameContext(patt), place, false) => {
+            patt.getType(TypingContext.empty) match {
+              case Success(pattType: ScType, _) =>
+                if (!subst.subst(pattType).conforms(tp)) None
+                else Some(c, subst)
+              case _ => None
+            }
+          }
+          case fun: ScFunction if !PsiTreeUtil.isContextAncestor(fun, place, false) => {
+            val oneImplicit = fun.paramClauses.clauses.length == 1 && fun.paramClauses.clauses.apply(0).isImplicit
+            //to avoid checking implicit functions in case of simple implicit parameter search
+            if (!oneImplicit && fun.paramClauses.clauses.length > 0) {
+              clazz match {
+                case Some(cl) =>
+                  val clause = fun.paramClauses.clauses(0)
+                  val funNum = clause.parameters.length
+                  val qName = "scala.Function" + funNum
+                  val classQualifiedName = cl.qualifiedName
+                  if (classQualifiedName != qName && classQualifiedName != "java.lang.Object" &&
+                      classQualifiedName != "scala.ScalaObject") return None
+                case _ =>
               }
             }
-            case fun: ScFunction if !PsiTreeUtil.isContextAncestor(fun, place, false) => {
-              val oneImplicit = fun.paramClauses.clauses.length == 1 && fun.paramClauses.clauses.apply(0).isImplicit
-              //to avoid checking implicit functions in case of simple implicit parameter search
-              if (!oneImplicit && fun.paramClauses.clauses.length > 0) {
-                clazz match {
-                  case Some(cl) =>
-                    val clause = fun.paramClauses.clauses(0)
-                    val funNum = clause.parameters.length
-                    val qName = "scala.Function" + funNum
-                    val classQualifiedName = cl.qualifiedName
-                    if (classQualifiedName != qName && classQualifiedName != "java.lang.Object" &&
-                        classQualifiedName != "scala.ScalaObject") return None
-                  case _ =>
-                }
-              }
 
-              fun.getTypeNoImplicits(TypingContext.empty) match {
-                case Success(funType: ScType, _) => {
-                  def checkType(ret: ScType): Option[(ScalaResolveResult, ScSubstitutor)] = {
+            fun.getTypeNoImplicits(TypingContext.empty) match {
+              case Success(funType: ScType, _) => {
+                def checkType(ret: ScType): Option[(ScalaResolveResult, ScSubstitutor)] = {
+                  def compute(): Option[(ScalaResolveResult, ScSubstitutor)] = {
+
                     val typeParameters = fun.typeParameters
                     val lastImplicit = fun.effectiveParameterClauses.lastOption.flatMap {
                       case clause if clause.isImplicit => Some(clause)
@@ -179,43 +180,66 @@ class ImplicitParametersCollector(place: PsiElement, tp: ScType, searchImplicits
                       }
                     }
                   }
+                  import org.jetbrains.plugins.scala.caches.ScalaRecursionManager._
 
-                  val inferredSubst = subst.followed(ScalaPsiUtil.inferMethodTypesArgs(fun, subst))
-                  val substedFunType: ScType = inferredSubst.subst(funType)
-                  if (substedFunType conforms tp) checkType(substedFunType)
-                  else {
-                    ScType.extractFunctionType(substedFunType) match {
-                      case Some(ScFunctionType(ret, params)) if params.length == 0 =>
-                        if (!ret.conforms(tp)) None
-                        else checkType(ret)
-                      case _ => None
-                    }
+                  val coreTypeForTp = coreType(tp)
+                  doComputations(place, (tp: Object, searches: Seq[Object]) => {
+                    searches.find{
+                      case t: ScType if tp.isInstanceOf[ScType] =>
+                        if (Equivalence.equivInner(t, tp.asInstanceOf[ScType], new ScUndefinedSubstitutor(), falseUndef = false)._1) true
+                        else dominates(tp.asInstanceOf[ScType], t)
+                      case _ => false
+                    } == None
+                  }, coreTypeForTp, compute(), IMPLICIT_PARAM_TYPES_KEY) match {
+                    case Some(res) => res
+                    case None => None
                   }
                 }
-                case _ => None
+
+                var substedFunType: ScType = funType
+
+                if (fun.hasTypeParameters) {
+                  val typeParameters = fun.typeParameters.map(_.name)
+                  var hasTypeParametersInType = false
+                  funType.recursiveUpdate {
+                    case tp@ScTypeParameterType(name, _, _, _, _) if typeParameters.contains(name) =>
+                      hasTypeParametersInType = true
+                      (true, tp)
+                    case tp: ScType if hasTypeParametersInType => (true, tp)
+                    case tp: ScType => (false, tp)
+                  }
+                  if (withLocalTypeInference && hasTypeParametersInType) {
+                    val inferredSubst = subst.followed(ScalaPsiUtil.inferMethodTypesArgs(fun, subst))
+                    substedFunType = inferredSubst subst funType
+                  } else if (!withLocalTypeInference && !hasTypeParametersInType) {
+                    substedFunType = subst subst funType
+                  } else return None
+                } else {
+                  if (withLocalTypeInference) return None
+                  substedFunType = subst.subst(funType)
+                }
+
+
+                if (substedFunType conforms tp) checkType(substedFunType)
+                else {
+                  ScType.extractFunctionType(substedFunType) match {
+                    case Some(ScFunctionType(ret, params)) if params.length == 0 =>
+                      if (!ret.conforms(tp)) None
+                      else checkType(ret)
+                    case _ => None
+                  }
+                }
               }
+              case _ => None
             }
-            case _ => None
           }
-        }
-
-        import org.jetbrains.plugins.scala.caches.ScalaRecursionManager._
-
-        val coreTypeForTp = coreType(tp)
-        doComputations(place, (tp: Object, searches: Seq[Object]) => {
-            searches.find{
-              case t: ScType if tp.isInstanceOf[ScType] =>
-                if (Equivalence.equivInner(t, tp.asInstanceOf[ScType], new ScUndefinedSubstitutor(), falseUndef = false)._1) true
-                else dominates(tp.asInstanceOf[ScType], t)
-              case _ => false
-            } == None
-          }, coreTypeForTp, compute(), IMPLICIT_PARAM_TYPES_KEY) match {
-          case Some(res) => res
-          case None => None
+          case _ => None
         }
       }
 
-      val applicable = super.candidatesS.map(forFilter).flatten
+      val candidates = super.candidatesS
+      var applicable = candidates.map(forMap(_, withLocalTypeInference = false)).flatten
+      if (applicable.isEmpty) applicable = candidates.map(forMap(_, withLocalTypeInference = true)).flatten
       //todo: remove it when you will be sure, that filtering according to implicit parameters works ok
       val filtered = applicable.filter {
         case (res: ScalaResolveResult, subst: ScSubstitutor) =>
