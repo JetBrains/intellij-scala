@@ -324,9 +324,6 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
 
                 uSubst.getSubstitutor(notNonable = false) match {
                   case Some(unSubst) =>
-                    if (f.name == "pimpApply") {
-                      "stop here"
-                    }
                     //let's update dependent method types
                     //todo: currently it looks like a hack in the right place, probably whole this class should be
                     //todo: rewritten in more clean and clear way.
@@ -342,14 +339,27 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
                     val implicitDependentSubst = new ScSubstitutor(() => {
                       val level = ScalaLanguageLevel.getLanguageLevel(this)
                       if (level.isThoughScala2_10) {
-                          if (f.paramClauses.clauses.length == 2) {
-                            val (inferredParams, expr, _) = InferUtil.findImplicits(f.paramClauses.clauses.last.parameters.map(
-                              param => new Parameter(param)), this, check = false, abstractSubstitutor = subst followed dependentSubst followed unSubst)
-                            inferredParams.zip(expr).map {
-                              case (param: Parameter, expr: Expression) =>
-                                (param, expr.getTypeAfterImplicitConversion(checkImplicits = true, isShape = false, None)._1.get)
-                            }.toMap
-                          } else Map.empty
+                        def probablyHasDepententMethodTypes: Boolean = {
+                          if (f.paramClauses.clauses.length != 2 || !f.paramClauses.clauses.last.isImplicit) return false
+                          val implicitClauseParameters = f.paramClauses.clauses.last.parameters
+                          var res = false
+                          f.returnType.foreach(_.recursiveUpdate {
+                            case tp if res => (true, tp)
+                            case ScDesignatorType(p: ScParameter) if implicitClauseParameters.contains(p) =>
+                              res = true
+                              (true, tp)
+                            case tp: ScType => (false, tp)
+                          })
+                          res
+                        }
+                        if (probablyHasDepententMethodTypes) {
+                          val (inferredParams, expr, _) = InferUtil.findImplicits(f.paramClauses.clauses.last.parameters.map(
+                            param => new Parameter(param)), this, check = false, abstractSubstitutor = subst followed dependentSubst followed unSubst)
+                          inferredParams.zip(expr).map {
+                            case (param: Parameter, expr: Expression) =>
+                              (param, expr.getTypeAfterImplicitConversion(checkImplicits = true, isShape = false, None)._1.get)
+                          }.toMap
+                        } else Map.empty
                       } else Map.empty
                     })
 
@@ -398,7 +408,29 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
               !ResolveUtils.isAccessible(f, getPlace)) return true
             val clauses = f.paramClauses.clauses
             //filtered cases
-            if (clauses.length > 2 || (clauses.length == 2 && !clauses(1).isImplicit)) return true
+            if (clauses.length > 2) return true
+            if (clauses.length == 2) {
+              if (!clauses(1).isImplicit) {
+                return true
+              }
+              if (f.hasTypeParameters) {
+                val typeParameters = f.typeParameters
+                for {
+                  param <- clauses(1).parameters
+                  paramType <- param.getType(TypingContext.empty)
+                } {
+                  var hasTypeParametersInType = false
+                  paramType.recursiveUpdate {
+                    case tp@ScTypeParameterType(name, _, _, _, _) if typeParameters.contains(name) =>
+                      hasTypeParametersInType = true
+                      (true, tp)
+                    case tp: ScType if hasTypeParametersInType => (true, tp)
+                    case tp: ScType => (false, tp)
+                  }
+                  if (hasTypeParametersInType) return true //looks like it's not working in compiler 2.10, so it's faster to avoid it
+                }
+              }
+            }
             if (clauses.length == 0) {
               val rt = subst.subst(f.returnType.getOrElse(return true))
               if (funType == null || !rt.conforms(funType)) return true

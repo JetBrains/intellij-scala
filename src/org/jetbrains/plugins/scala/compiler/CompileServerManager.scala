@@ -170,7 +170,7 @@ class CompileServerManager(project: Project) extends ProjectComponent {
    }
 
    private object TimerListener extends ActionListener {
-     private var wasRunning = false
+     private var wasRunning: Option[Boolean] = None
 
      def actionPerformed(e: ActionEvent) {
        val nowRunning = running
@@ -178,15 +178,15 @@ class CompileServerManager(project: Project) extends ProjectComponent {
        if (installed || nowRunning) updateWidget()
 
        wasRunning -> nowRunning match {
-         case (false, true) =>
+         case (Some(false), true) =>
            val message = "Started" + launcher.port.map(_.formatted(" on TCP %d")).getOrElse("") + "."
            Notifications.Bus.notify(new Notification("scala", title, message, NotificationType.INFORMATION), project)
-         case (true, false) =>
+         case (Some(true), false) =>
            Notifications.Bus.notify(new Notification("scala", title, "Stopped.", NotificationType.INFORMATION), project)
          case _ =>
        }
 
-       wasRunning = nowRunning
+       wasRunning = Some(nowRunning)
 
        val errors = launcher.errors()
 
