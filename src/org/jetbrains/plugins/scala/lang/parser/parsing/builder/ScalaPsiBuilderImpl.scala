@@ -7,6 +7,7 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.ScalaDocElementTypes
 import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 import com.intellij.lang.impl.PsiBuilderAdapter
+import scala.annotation.tailrec
 
 /**
  * @author Alexander Podkhalyuzin
@@ -32,9 +33,11 @@ class ScalaPsiBuilderImpl(builder: PsiBuilder)
     if (eof) return 0
     if (!ParserUtils.elementCanStartStatement(getTokenType, this)) return 0
 
-    var res: Int = 0
-    var i: Int = 1
-    while (i <= getCurrentOffset) {
+    val lineCommentsSubtrahend = if (countLineComments) 1 else 0
+
+    @tailrec
+    def go(i: Int, res: Int = 0, afterBlockComment: Boolean = false): Int = {
+      if (i > getCurrentOffset) return res
       val previousToken: IElementType = rawLookup(-i)
       previousToken match {
         case ScalaTokenTypes.tWHITE_SPACE_IN_LINE =>
@@ -43,17 +46,20 @@ class ScalaPsiBuilderImpl(builder: PsiBuilder)
           assert(previousTokenStart >= 0)
           assert(previousTokenEnd < getOriginalText.length)
           var j: Int = previousTokenStart
+          var add: Int = 0
           while (j < previousTokenEnd) {
-            if (getOriginalText.charAt(j) == '\n') res += 1
+            if (getOriginalText.charAt(j) == '\n') add += 1
             j = j + 1
           }
-        case ScalaTokenTypes.tLINE_COMMENT => if (countLineComments) res -= 1
-        case ScalaTokenTypes.tBLOCK_COMMENT | ScalaDocElementTypes.SCALA_DOC_COMMENT =>
-        case _ => return res
+          if (add > 0 && afterBlockComment) add -= lineCommentsSubtrahend
+          go(i + 1, res + add)
+        case ScalaTokenTypes.tLINE_COMMENT =>
+          go(i + 1, res - lineCommentsSubtrahend)
+        case ScalaTokenTypes.tBLOCK_COMMENT | ScalaDocElementTypes.SCALA_DOC_COMMENT => go(i + 1, res, afterBlockComment = true)
+        case _ => res
       }
-      i = i + 1
     }
-    res.max(0)
+    go(1).max(0)
   }
 
   def disableNewlines {
