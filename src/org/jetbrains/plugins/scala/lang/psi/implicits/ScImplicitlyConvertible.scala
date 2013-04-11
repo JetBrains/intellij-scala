@@ -29,6 +29,7 @@ import api.InferUtil
 import psi.ScalaPsiUtil.SafeCheckException
 import languageLevel.ScalaLanguageLevel
 import types.Compatibility.Expression
+import com.intellij.openapi.diagnostic.Logger
 
 /**
  * @author ilyas
@@ -232,7 +233,7 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
 
   def forMap(r: ScalaResolveResult, typez: ScType): (Boolean, ScalaResolveResult, ScType, ScType, ScSubstitutor,
                                                      ScUndefinedSubstitutor) = { //todo: extract case class
-  val default = (false, r, null: ScType, null: ScType, null: ScSubstitutor, null: ScUndefinedSubstitutor)
+    val default = (false, r, null: ScType, null: ScType, null: ScSubstitutor, null: ScUndefinedSubstitutor)
     if (!PsiTreeUtil.isContextAncestor(ScalaPsiUtil.nameContext(r.element), this, false)) { //to prevent infinite recursion
       ProgressManager.checkCanceled()
       lazy val funType: ScParameterizedType = {
@@ -241,6 +242,9 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
         funClass match {
           case cl: ScTrait => new ScParameterizedType(ScType.designator(funClass), cl.typeParameters.map(tp =>
             new ScUndefinedType(new ScTypeParameterType(tp, ScSubstitutor.empty), 1)))
+          case _ =>
+            ScImplicitlyConvertible.LOG.error(new Error("Problems with decompiler detected! Function1 treated as ClsClass"))
+            return default
         }
       }
       val subst = r.substitutor
@@ -479,6 +483,8 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
 }
 
 object ScImplicitlyConvertible {
+  private val LOG = Logger.getInstance("#org.jetbrains.plugins.scala.lang.psi.implicits.ScImplicitlyConvertible")
+
   val IMPLICIT_RESOLUTION_KEY: Key[PsiClass] = Key.create("implicit.resolution.key")
   val IMPLICIT_CONVERSIONS_KEY: Key[CachedValue[collection.Map[ScType, Set[(ScFunctionDefinition, Set[ImportUsed])]]]] = Key.create("implicit.conversions.key")
 
