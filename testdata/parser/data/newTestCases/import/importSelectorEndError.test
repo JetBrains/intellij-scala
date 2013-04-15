@@ -21,10 +21,6 @@ ScalaFile
         PsiElement(_)('_')
         PsiErrorElement:'}' expected
           <empty list>
-    PsiElement(,)(',')
-    ImportExpression
-      CodeReferenceElement
+        PsiElement(,)(',')
         PsiElement(identifier)('z')
-  PsiErrorElement:';' or newline expected
-    <empty list>
-  PsiElement(})('}')
+        PsiElement(})('}')

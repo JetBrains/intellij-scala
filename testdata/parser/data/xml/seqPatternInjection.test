@@ -38,5 +38,7 @@ ScalaFile
             XmlToken:XML_TAG_END('>')
         PsiWhiteSpace(' ')
         PsiElement(=>)('=>')
+        BlockOfExpressions
+          <empty list>
     PsiWhiteSpace('\n')
     PsiElement(})('}')

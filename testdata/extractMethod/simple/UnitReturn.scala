@@ -18,8 +18,10 @@ class UnitReturn {
   }
 
   def testMethodName {
-    1;
-    ()
+    {
+      1;
+      ()
+    }
   }
 }
 */

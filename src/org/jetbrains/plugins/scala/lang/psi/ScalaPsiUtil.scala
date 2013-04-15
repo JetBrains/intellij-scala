@@ -478,51 +478,51 @@ object ScalaPsiUtil {
         case _ =>
       }
       tp match {
-        case ScCompoundType(comps, _, _, _) => {
-          comps.foreach(collectParts(_, place))
-        }
-        case p@ScParameterizedType(a: ScAbstractType, args) => {
+        case ScDesignatorType(v: ScBindingPattern) => v.getType(TypingContext.empty).foreach(collectParts(_, place))
+        case ScDesignatorType(v: ScFieldId) => v.getType(TypingContext.empty).foreach(collectParts(_, place))
+        case ScDesignatorType(p: ScParameter) => p.getType(TypingContext.empty).foreach(collectParts(_, place))
+        case ScCompoundType(comps, _, _, _) => comps.foreach(collectParts(_, place))
+        case p@ScParameterizedType(a: ScAbstractType, args) =>
           collectParts(a, place)
           args.foreach(collectParts(_, place))
-        }
-        case p@ScParameterizedType(des, args) => {
+        case p@ScParameterizedType(des, args) =>
           ScType.extractClass(p, projectOpt) match {
             case Some(pair) => parts += des
             case _ =>
           }
           collectParts(des, place)
           args.foreach(collectParts(_, place))
-        }
-        case j: JavaArrayType => {
+        case j: JavaArrayType =>
           val parameterizedType = j.getParameterizedType(place.getProject, place.getResolveScope)
           collectParts(parameterizedType.getOrElse(return), place)
-        }
-        case f@ScFunctionType(retType, params) => {
+        case f@ScFunctionType(retType, params) =>
           ScType.extractClass(tp, projectOpt) match {
             case Some(pair) => parts += tp
             case _ =>
           }
           params.foreach(collectParts(_, place))
           collectParts(retType, place)
-        }
-        case f@ScTupleType(params) => {
+        case f@ScTupleType(params) =>
           ScType.extractClass(tp, projectOpt) match {
             case Some(pair) => parts += tp
             case _ =>
           }
           params.foreach(collectParts(_, place))
-        }
-        case proj@ScProjectionType(projected, _, _) => {
+        case proj@ScProjectionType(projected, _, _) =>
           collectParts(projected, place)
+          proj.actualElement match {
+            case v: ScBindingPattern => v.getType(TypingContext.empty).map(proj.actualSubst.subst(_)).foreach(collectParts(_, place))
+            case v: ScFieldId => v.getType(TypingContext.empty).map(proj.actualSubst.subst(_)).foreach(collectParts(_, place))
+            case v: ScParameter => v.getType(TypingContext.empty).map(proj.actualSubst.subst(_)).foreach(collectParts(_, place))
+            case _ =>
+          }
           ScType.extractClass(tp, projectOpt) match {
             case Some(pair) => parts += tp
             case _ =>
           }
-        }
-        case ScAbstractType(_, lower, upper) => {
+        case ScAbstractType(_, lower, upper) =>
           collectParts(lower, place)
           collectParts(upper, place)
-        }
         case ScExistentialType(quant, _) =>
           collectParts(quant, place)
         case _=> {

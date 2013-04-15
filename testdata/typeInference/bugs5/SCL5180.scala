@@ -3,7 +3,7 @@ object SCL5180 {
   {
     val subscribersByType = Map("One" -> new OneWorker,
       "Two" -> new TwoWorker)
-    /*start*/subscribersByType/*end*/.values foreach (println(_))
+    /*start*/subscribersByType/*end*/
   }
 
   abstract class Worker[A <: Auth, S <: AuthService[A]]

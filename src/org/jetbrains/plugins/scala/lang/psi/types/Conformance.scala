@@ -391,9 +391,24 @@ object Conformance {
           val projected2 = proj2.projected
           result = conformsInner(projected1, projected2, visited, undefinedSubst)
         } else {
-          proj2.element match {
+          proj2.actualElement match {
             case syntheticClass: ScSyntheticClass =>
               result = conformsInner(l, syntheticClass.t, HashSet.empty, undefinedSubst)
+            case v: ScBindingPattern => {
+              val res = v.getType(TypingContext.empty)
+              if (res.isEmpty) result = (false, undefinedSubst)
+              else result = conformsInner(l, proj2.actualSubst.subst(res.get), visited, undefinedSubst)
+            }
+            case v: ScParameter => {
+              val res = v.getType(TypingContext.empty)
+              if (res.isEmpty) result = (false, undefinedSubst)
+              else result = conformsInner(l, proj2.actualSubst.subst(res.get), visited, undefinedSubst)
+            }
+            case v: ScFieldId => {
+              val res = v.getType(TypingContext.empty)
+              if (res.isEmpty) result = (false, undefinedSubst)
+              else result = conformsInner(l, proj2.actualSubst.subst(res.get), visited, undefinedSubst)
+            }
             case _ =>
           }
         }

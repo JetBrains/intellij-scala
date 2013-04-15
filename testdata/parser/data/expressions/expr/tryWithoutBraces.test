@@ -49,6 +49,8 @@ ScalaFile
                           PsiElement(identifier)('Throwable')
                   PsiWhiteSpace(' ')
                   PsiElement(=>)('=>')
+                  BlockOfExpressions
+                    <empty list>
               PsiElement(})('}')
         PsiWhiteSpace('\n')
         PsiElement(})('}')

@@ -37,8 +37,9 @@ ScalaFile
               PsiWhiteSpace(' ')
               PsiElement(=>)('=>')
               PsiWhiteSpace(' ')
-              ReferenceExpression
-                PsiElement(identifier)('g')
+              BlockOfExpressions
+                ReferenceExpression
+                  PsiElement(identifier)('g')
             PsiWhiteSpace('\n    ')
             CaseClause
               PsiElement(case)('case')
@@ -48,8 +49,9 @@ ScalaFile
               PsiWhiteSpace(' ')
               PsiElement(=>)('=>')
               PsiWhiteSpace(' ')
-              ReferenceExpression
-                PsiElement(identifier)('f')
+              BlockOfExpressions
+                ReferenceExpression
+                  PsiElement(identifier)('f')
           PsiWhiteSpace('\n  ')
           PsiElement(})('}')
         PsiWhiteSpace('\n')
