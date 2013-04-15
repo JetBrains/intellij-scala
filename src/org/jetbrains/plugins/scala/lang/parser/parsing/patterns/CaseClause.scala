@@ -23,11 +23,11 @@ object CaseClause {
     val caseClauseMarker = builder.mark
     builder.getTokenType match {
       case ScalaTokenTypes.kCASE => {
-        builder.advanceLexer
+        builder.advanceLexer()
         builder.disableNewlines
       }
       case _ => {
-        caseClauseMarker.drop
+        caseClauseMarker.drop()
         return false
       }
     }
@@ -40,7 +40,7 @@ object CaseClause {
     }
     builder.getTokenType match {
       case ScalaTokenTypes.tFUNTYPE => {
-        builder.advanceLexer
+        builder.advanceLexer()
         builder.restoreNewlinesState
       }
       case _ => {
@@ -50,10 +50,10 @@ object CaseClause {
         return true
       }
     }
-    if (!Block.parse(builder, false)) {
+    if (!Block.parse(builder, hasBrace = false, needNode = true)) {
       builder error ErrMsg("wrong.expression")
     }
     caseClauseMarker.done(ScalaElementTypes.CASE_CLAUSE)
-    return true
+    true
   }
 }

@@ -173,8 +173,9 @@ ScalaFile
                         PsiWhiteSpace(' ')
                         PsiElement(=>)('=>')
                         PsiWhiteSpace(' ')
-                        ReferenceExpression
-                          PsiElement(identifier)('s1')
+                        BlockOfExpressions
+                          ReferenceExpression
+                            PsiElement(identifier)('s1')
                       PsiWhiteSpace('\n        ')
                       CaseClause
                         PsiElement(case)('case')
@@ -203,8 +204,9 @@ ScalaFile
                         PsiWhiteSpace('  ')
                         PsiElement(=>)('=>')
                         PsiWhiteSpace(' ')
-                        ReferenceExpression
-                          PsiElement(identifier)('e1')
+                        BlockOfExpressions
+                          ReferenceExpression
+                            PsiElement(identifier)('e1')
                       PsiWhiteSpace('\n        ')
                       CaseClause
                         PsiElement(case)('case')
@@ -229,152 +231,156 @@ ScalaFile
                         PsiWhiteSpace(' ')
                         PsiElement(=>)('=>')
                         PsiWhiteSpace(' ')
-                        MatchStatement
-                          MethodCall
-                            ReferenceExpression
-                              PsiElement(identifier)('q')
-                            ArgumentList
-                              PsiElement(()('(')
+                        BlockOfExpressions
+                          MatchStatement
+                            MethodCall
                               ReferenceExpression
-                                PsiElement(identifier)('in')
-                              PsiElement())(')')
-                          PsiWhiteSpace(' ')
-                          PsiElement(match)('match')
-                          PsiWhiteSpace(' ')
-                          PsiElement({)('{')
-                          PsiWhiteSpace('\n              ')
-                          CaseClauses
-                            CaseClause
-                              PsiElement(case)('case')
-                              PsiWhiteSpace(' ')
-                              NamingPattern
-                                PsiElement(identifier)('s2')
-                                PsiWhiteSpace(' ')
-                                PsiElement(@)('@')
-                                PsiWhiteSpace(' ')
-                                ConstructorPattern
-                                  CodeReferenceElement
-                                    PsiElement(identifier)('Success')
-                                  Pattern Argument List
-                                    PsiElement(()('(')
-                                    WildcardPattern
-                                      PsiElement(_)('_')
-                                    PsiElement(,)(',')
-                                    PsiWhiteSpace(' ')
-                                    WildcardPattern
-                                      PsiElement(_)('_')
-                                    PsiElement())(')')
-                              PsiWhiteSpace(' ')
-                              PsiElement(=>)('=>')
-                              PsiWhiteSpace(' ')
-                              ReferenceExpression
-                                PsiElement(identifier)('s2')
-                            PsiWhiteSpace('\n              ')
-                            CaseClause
-                              PsiElement(case)('case')
-                              PsiWhiteSpace(' ')
-                              NamingPattern
-                                PsiElement(identifier)('f2')
-                                PsiWhiteSpace(' ')
-                                PsiElement(@)('@')
-                                PsiWhiteSpace(' ')
-                                ConstructorPattern
-                                  CodeReferenceElement
-                                    PsiElement(identifier)('Failure')
-                                  Pattern Argument List
-                                    PsiElement(()('(')
-                                    WildcardPattern
-                                      PsiElement(_)('_')
-                                    PsiElement(,)(',')
-                                    PsiWhiteSpace(' ')
-                                    ReferencePattern
-                                      PsiElement(identifier)('next2')
-                                    PsiElement())(')')
-                              PsiWhiteSpace(' ')
-                              PsiElement(=>)('=>')
-                              PsiWhiteSpace(' ')
-                              IfStatement
-                                PsiElement(if)('if')
-                                PsiWhiteSpace(' ')
+                                PsiElement(identifier)('q')
+                              ArgumentList
                                 PsiElement(()('(')
-                                InfixExpression
-                                  ReferenceExpression
-                                    ReferenceExpression
-                                      PsiElement(identifier)('next2')
-                                    PsiElement(.)('.')
-                                    PsiElement(identifier)('pos')
-                                  PsiWhiteSpace(' ')
-                                  ReferenceExpression
-                                    PsiElement(identifier)('<')
-                                  PsiWhiteSpace(' ')
-                                  ReferenceExpression
-                                    ReferenceExpression
-                                      PsiElement(identifier)('next1')
-                                    PsiElement(.)('.')
-                                    PsiElement(identifier)('pos')
+                                ReferenceExpression
+                                  PsiElement(identifier)('in')
                                 PsiElement())(')')
+                            PsiWhiteSpace(' ')
+                            PsiElement(match)('match')
+                            PsiWhiteSpace(' ')
+                            PsiElement({)('{')
+                            PsiWhiteSpace('\n              ')
+                            CaseClauses
+                              CaseClause
+                                PsiElement(case)('case')
                                 PsiWhiteSpace(' ')
-                                ReferenceExpression
-                                  PsiElement(identifier)('f1')
+                                NamingPattern
+                                  PsiElement(identifier)('s2')
+                                  PsiWhiteSpace(' ')
+                                  PsiElement(@)('@')
+                                  PsiWhiteSpace(' ')
+                                  ConstructorPattern
+                                    CodeReferenceElement
+                                      PsiElement(identifier)('Success')
+                                    Pattern Argument List
+                                      PsiElement(()('(')
+                                      WildcardPattern
+                                        PsiElement(_)('_')
+                                      PsiElement(,)(',')
+                                      PsiWhiteSpace(' ')
+                                      WildcardPattern
+                                        PsiElement(_)('_')
+                                      PsiElement())(')')
                                 PsiWhiteSpace(' ')
-                                PsiElement(else)('else')
+                                PsiElement(=>)('=>')
                                 PsiWhiteSpace(' ')
-                                ReferenceExpression
+                                BlockOfExpressions
+                                  ReferenceExpression
+                                    PsiElement(identifier)('s2')
+                              PsiWhiteSpace('\n              ')
+                              CaseClause
+                                PsiElement(case)('case')
+                                PsiWhiteSpace(' ')
+                                NamingPattern
                                   PsiElement(identifier)('f2')
-                            PsiWhiteSpace('\n              ')
-                            CaseClause
-                              PsiElement(case)('case')
-                              PsiWhiteSpace(' ')
-                              NamingPattern
-                                PsiElement(identifier)('e2')
+                                  PsiWhiteSpace(' ')
+                                  PsiElement(@)('@')
+                                  PsiWhiteSpace(' ')
+                                  ConstructorPattern
+                                    CodeReferenceElement
+                                      PsiElement(identifier)('Failure')
+                                    Pattern Argument List
+                                      PsiElement(()('(')
+                                      WildcardPattern
+                                        PsiElement(_)('_')
+                                      PsiElement(,)(',')
+                                      PsiWhiteSpace(' ')
+                                      ReferencePattern
+                                        PsiElement(identifier)('next2')
+                                      PsiElement())(')')
                                 PsiWhiteSpace(' ')
-                                PsiElement(@)('@')
+                                PsiElement(=>)('=>')
                                 PsiWhiteSpace(' ')
-                                ConstructorPattern
-                                  CodeReferenceElement
-                                    PsiElement(identifier)('Error')
-                                  Pattern Argument List
-                                    PsiElement(()('(')
-                                    WildcardPattern
-                                      PsiElement(_)('_')
-                                    PsiElement(,)(',')
+                                BlockOfExpressions
+                                  IfStatement
+                                    PsiElement(if)('if')
                                     PsiWhiteSpace(' ')
-                                    ReferencePattern
-                                      PsiElement(identifier)('next2')
+                                    PsiElement(()('(')
+                                    InfixExpression
+                                      ReferenceExpression
+                                        ReferenceExpression
+                                          PsiElement(identifier)('next2')
+                                        PsiElement(.)('.')
+                                        PsiElement(identifier)('pos')
+                                      PsiWhiteSpace(' ')
+                                      ReferenceExpression
+                                        PsiElement(identifier)('<')
+                                      PsiWhiteSpace(' ')
+                                      ReferenceExpression
+                                        ReferenceExpression
+                                          PsiElement(identifier)('next1')
+                                        PsiElement(.)('.')
+                                        PsiElement(identifier)('pos')
                                     PsiElement())(')')
-                              PsiWhiteSpace(' ')
-                              PsiElement(=>)('=>')
-                              PsiWhiteSpace(' ')
-                              IfStatement
-                                PsiElement(if)('if')
-                                PsiWhiteSpace(' ')
-                                PsiElement(()('(')
-                                InfixExpression
-                                  ReferenceExpression
+                                    PsiWhiteSpace(' ')
                                     ReferenceExpression
-                                      PsiElement(identifier)('next2')
-                                    PsiElement(.)('.')
-                                    PsiElement(identifier)('pos')
-                                  PsiWhiteSpace(' ')
-                                  ReferenceExpression
-                                    PsiElement(identifier)('<')
-                                  PsiWhiteSpace(' ')
-                                  ReferenceExpression
+                                      PsiElement(identifier)('f1')
+                                    PsiWhiteSpace(' ')
+                                    PsiElement(else)('else')
+                                    PsiWhiteSpace(' ')
                                     ReferenceExpression
-                                      PsiElement(identifier)('next1')
-                                    PsiElement(.)('.')
-                                    PsiElement(identifier)('pos')
-                                PsiElement())(')')
+                                      PsiElement(identifier)('f2')
+                              PsiWhiteSpace('\n              ')
+                              CaseClause
+                                PsiElement(case)('case')
                                 PsiWhiteSpace(' ')
-                                ReferenceExpression
-                                  PsiElement(identifier)('f1')
-                                PsiWhiteSpace(' ')
-                                PsiElement(else)('else')
-                                PsiWhiteSpace(' ')
-                                ReferenceExpression
+                                NamingPattern
                                   PsiElement(identifier)('e2')
-                          PsiWhiteSpace('\n        ')
-                          PsiElement(})('}')
+                                  PsiWhiteSpace(' ')
+                                  PsiElement(@)('@')
+                                  PsiWhiteSpace(' ')
+                                  ConstructorPattern
+                                    CodeReferenceElement
+                                      PsiElement(identifier)('Error')
+                                    Pattern Argument List
+                                      PsiElement(()('(')
+                                      WildcardPattern
+                                        PsiElement(_)('_')
+                                      PsiElement(,)(',')
+                                      PsiWhiteSpace(' ')
+                                      ReferencePattern
+                                        PsiElement(identifier)('next2')
+                                      PsiElement())(')')
+                                PsiWhiteSpace(' ')
+                                PsiElement(=>)('=>')
+                                PsiWhiteSpace(' ')
+                                BlockOfExpressions
+                                  IfStatement
+                                    PsiElement(if)('if')
+                                    PsiWhiteSpace(' ')
+                                    PsiElement(()('(')
+                                    InfixExpression
+                                      ReferenceExpression
+                                        ReferenceExpression
+                                          PsiElement(identifier)('next2')
+                                        PsiElement(.)('.')
+                                        PsiElement(identifier)('pos')
+                                      PsiWhiteSpace(' ')
+                                      ReferenceExpression
+                                        PsiElement(identifier)('<')
+                                      PsiWhiteSpace(' ')
+                                      ReferenceExpression
+                                        ReferenceExpression
+                                          PsiElement(identifier)('next1')
+                                        PsiElement(.)('.')
+                                        PsiElement(identifier)('pos')
+                                    PsiElement())(')')
+                                    PsiWhiteSpace(' ')
+                                    ReferenceExpression
+                                      PsiElement(identifier)('f1')
+                                    PsiWhiteSpace(' ')
+                                    PsiElement(else)('else')
+                                    PsiWhiteSpace(' ')
+                                    ReferenceExpression
+                                      PsiElement(identifier)('e2')
+                            PsiWhiteSpace('\n        ')
+                            PsiElement(})('}')
                     PsiWhiteSpace('\n      ')
                     PsiElement(})('}')
                 PsiWhiteSpace('\n      ')

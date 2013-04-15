@@ -58,9 +58,10 @@ ScalaFile
               PsiWhiteSpace('  ')
               PsiElement(=>)('=>')
               PsiWhiteSpace(' ')
-              BlockExpression
-                PsiElement({)('{')
-                PsiElement(})('}')
+              BlockOfExpressions
+                BlockExpression
+                  PsiElement({)('{')
+                  PsiElement(})('}')
           PsiWhiteSpace('\n  ')
           PsiElement(})('}')
         PsiWhiteSpace('\n\n')

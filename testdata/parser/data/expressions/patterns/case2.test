@@ -47,6 +47,8 @@ ScalaFile
                   Literal
                     PsiElement(integer)('1')
                 PsiElement(=>)('=>')
+                BlockOfExpressions
+                  <empty list>
               PsiWhiteSpace('\n')
               CaseClause
                 PsiElement(case)('case')
@@ -55,6 +57,8 @@ ScalaFile
                   Literal
                     PsiElement(integer)('2')
                 PsiElement(=>)('=>')
+                BlockOfExpressions
+                  <empty list>
             PsiWhiteSpace('\n')
             PsiElement(})('}')
         PsiWhiteSpace('\n')
