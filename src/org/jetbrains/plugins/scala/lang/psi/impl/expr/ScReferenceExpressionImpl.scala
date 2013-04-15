@@ -29,6 +29,9 @@ import api.toplevel.typedef._
 import completion.lookups.LookupElementManager
 import extensions.{toPsiMemberExt, toPsiNamedElementExt, toPsiClassExt}
 import api.base.types.ScSelfTypeElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScFieldId, ScPrimaryConstructor}
+import org.jetbrains.plugins.scala.lang.psi.types.Conformance.AliasType
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil
 
 /**
  * @author AlexanderPodkhalyuzin
@@ -169,6 +172,34 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
 
   protected def convertBindToType(bind: Option[ScalaResolveResult]): TypeResult[ScType] = {
     val fromType: Option[ScType] = bind.map(_.fromType).getOrElse(None)
+
+    def stableTypeRequired: Boolean = {
+      //SLS 6.4
+
+      //The expected type pt is a stable type or
+      //The expected type pt is an abstract type with a stable type as lower bound,
+      // and the type T of the entity referred to by p does not conforms to pt,
+      expectedType() match {
+        case Some(tp) =>
+          (tp match {
+            case ScAbstractType(_, lower, _) => lower
+            case _ => tp
+          }).isAliasType match {
+            case Some(AliasType(_, lower, _)) if lower.isDefined =>
+              if (lower.get.isStable) return true
+            case _ => if (tp.isStable) return true
+          }
+        case _ =>
+      }
+      //The path p occurs as the prefix of a selection and it does not designate a constant
+      //todo: It seems that designating constant is not a problem, while we haven't type like Int(1)
+      getContext match {
+        case i: ScSugarCallExpr if this == i.getBaseExpr => true
+        case ref: ScReferenceExpression if ref.qualifier == Some(this) => true
+        case _ => false
+      }
+    }
+
     val inner: ScType = bind match {
       case Some(ScalaResolveResult(fun: ScFun, s)) =>
         s.subst(fun.polymorphicType)
@@ -190,14 +221,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
             case None => return Failure("No declared type found", Some(this))
           }
           case _ => {
-            val stableTypeRequired = {
-              val expectedTypeIsStable = expectedType().exists {
-                _.isStable
-              }
-              // TODO there are 4 cases in SLS 6.4, this is #2
-              expectedTypeIsStable
-            }
-            if (stableTypeRequired) {
+            if (stableTypeRequired && refPatt.isStable) {
               r.fromType match {
                 case Some(fT) => ScProjectionType(fT, refPatt, superReference = false)
                 case None => ScType.designator(refPatt)
@@ -210,6 +234,21 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
               }
             }
           }
+        }
+      case Some(r@ScalaResolveResult(param: ScParameter, s)) =>
+        val owner = param.owner match {
+          case f: ScPrimaryConstructor => f.containingClass
+          case f: ScFunctionExpr => null
+          case f => f
+        }
+        if (owner != null && PsiTreeUtil.isContextAncestor(owner, this, true) && stableTypeRequired) {
+          ScType.designator(param)
+        } else {
+          val result = param.getType(TypingContext.empty)
+          s.subst(result match {
+            case Success(tp, _) => tp
+            case _ => return result
+          })
         }
       case Some(ScalaResolveResult(value: ScSyntheticValue, _)) => value.tp
       case Some(ScalaResolveResult(fun: ScFunction, s)) if fun.isProbablyRecursive =>
@@ -301,8 +340,8 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
                     case ScDesignatorType(o: ScObject) => Any
                     case ScCompoundType(comps, _, _, _) =>
                       if (comps.length == 0) Any
-                      else comps(0)
-                    case _ => tp
+                      else ScTypeUtil.removeTypeDesignator(comps(0)).getOrElse(Any)
+                    case _ => ScTypeUtil.removeTypeDesignator(tp).getOrElse(Any)
                   }
                   Some(ScExistentialType(ScParameterizedType(ScDesignatorType(clazz),
                     Seq(ScTypeVariable("_$1"))), List(ScExistentialArgument("_$1", Nil, Nothing, actualType))))

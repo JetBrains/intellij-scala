@@ -5,7 +5,9 @@ class ForFilter {
   }
 
   object X {
-    for (i <- new O if /*start*/i/*end*/ != 2) {}
+    for (i <- new O if i != 2) {
+      /*start*/i/*end*/
+    }
   }
 }
 //Int

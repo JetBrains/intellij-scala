@@ -12,7 +12,9 @@ val catalog =
 
 catalog match {
   case <catalog>{therms @ _*}</catalog> =>
-    for (therm <- therms)
-      println("processing: "+ (/*start*/therm/*end*/ \ "description").text)          //<— Error message: "cannot resolve symbol \"
+    for (therm <- therms) {
+      /*start*/therm/*end*/
+      println("processing: "+ (therm \ "description").text)          //<ï¿½ Error message: "cannot resolve symbol \"
+    }
 }
 //Node
