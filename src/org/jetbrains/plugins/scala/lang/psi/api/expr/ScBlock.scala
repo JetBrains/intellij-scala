@@ -7,7 +7,7 @@ package expr
 import com.intellij.psi.scope.PsiScopeProcessor
 import statements.{ScDeclaredElementsHolder, ScTypeAlias}
 import toplevel.templates.ScTemplateBody
-import base.patterns.{ScCaseClauses, ScCaseClause}
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScCaseClauses, ScCaseClause}
 import types.result.{Failure, Success, TypingContext, TypeResult}
 import collection.mutable.HashMap
 import toplevel.ScTypedDefinition
@@ -19,6 +19,7 @@ import toplevel.typedef._
 import com.intellij.psi.tree.TokenSet
 import lexer.ScalaTokenTypes
 import com.intellij.lang.ASTNode
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 
 /**
  * Author: ilyas, alefas
@@ -68,26 +69,32 @@ trait ScBlock extends ScExpression with ScDeclarationSequenceHolder with ScImpor
             collection.immutable.Seq(params.map({existize _}).toSeq: _*))(fun.getProject, fun.getScope)
           case ScTupleType(comps) =>
             new ScTupleType(collection.immutable.Seq(comps.map({existize _}).toSeq: _*))(getProject, getResolveScope)
+          case ScDesignatorType(p: ScParameter) if p.owner.isInstanceOf[ScFunctionExpr] && p.owner.asInstanceOf[ScFunctionExpr].result == Some(this) =>
+            val t = existize(p.getType(TypingContext.empty).getOrAny)
+            m.put(p.name, new ScExistentialArgument(p.name, Nil, t, t))
+            new ScTypeVariable(p.name)
+          case ScDesignatorType(typed: ScBindingPattern) if typed.nameContext.isInstanceOf[ScCaseClause] &&
+            typed.nameContext.asInstanceOf[ScCaseClause].expr == Some(this) =>
+            val t = existize(typed.getType(TypingContext.empty).getOrAny)
+            m.put(typed.name, new ScExistentialArgument(typed.name, Nil, t, t))
+            new ScTypeVariable(typed.name)
           case ScDesignatorType(des) if PsiTreeUtil.isContextAncestor(this, des, true) => des match {
-            case obj: ScObject => {
+            case obj: ScObject =>
               val t = existize(leastClassType(obj))
-              m.put(obj.name, new ScExistentialArgument("_", Nil, t, t))
+              m.put(obj.name, new ScExistentialArgument(obj.name, Nil, t, t))
               new ScTypeVariable(obj.name)
-            }
-            case clazz: ScTypeDefinition => {
+            case clazz: ScTypeDefinition =>
               val t = existize(leastClassType(clazz))
               val vars = clazz.typeParameters.map {tp => ScalaPsiManager.typeVariable(tp)}.toList
-              m.put(clazz.name, new ScExistentialArgument("_", vars, t, t))
+              m.put(clazz.name, new ScExistentialArgument(clazz.name, vars, t, t))
               new ScTypeVariable(clazz.name)
-            }
-            case typed: ScTypedDefinition => {
+            case typed: ScTypedDefinition =>
               val t = existize(typed.getType(TypingContext.empty).getOrAny)
-              m.put(typed.name, new ScExistentialArgument("_", Nil, t, t))
+              m.put(typed.name, new ScExistentialArgument(typed.name, Nil, t, t))
               new ScTypeVariable(typed.name)
-            }
             case _ => t
           }
-          case ScProjectionType(p, elem, s) => new ScProjectionType(existize(p), elem, s)
+          case proj@ScProjectionType(p, elem, s) => new ScProjectionType(existize(p), elem, s)
           case ScCompoundType(comps, decls, types, s) =>
             new ScCompoundType(collection.immutable.Seq(comps.map({existize _}).toSeq: _*), decls, types, s)
           case JavaArrayType(arg) => JavaArrayType(existize(arg))
@@ -101,7 +108,7 @@ trait ScBlock extends ScExpression with ScDeclarationSequenceHolder with ScImpor
           case _ => t
         }
         val t = existize(e.getType(TypingContext.empty).getOrAny)
-        if (m.size == 0) t else new ScExistentialType(t, m.values.toList)
+        if (m.size == 0) t else new ScExistentialType(t, m.values.toList).simplify()
       }
     }
     Success(inner, Some(this))

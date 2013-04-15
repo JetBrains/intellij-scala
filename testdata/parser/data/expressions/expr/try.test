@@ -58,8 +58,9 @@ ScalaFile
                   PsiWhiteSpace(' ')
                   PsiElement(=>)('=>')
                   PsiWhiteSpace(' ')
-                  Literal
-                    PsiElement(string content)('"do nothing"')
+                  BlockOfExpressions
+                    Literal
+                      PsiElement(string content)('"do nothing"')
                 PsiWhiteSpace('\n    ')
                 CaseClause
                   PsiElement(case)('case')
@@ -70,8 +71,9 @@ ScalaFile
                   PsiWhiteSpace(' ')
                   PsiElement(=>)('=>')
                   PsiWhiteSpace(' ')
-                  Literal
-                    PsiElement(string content)('"you have a problem"')
+                  BlockOfExpressions
+                    Literal
+                      PsiElement(string content)('"you have a problem"')
               PsiWhiteSpace('\n  ')
               PsiElement(})('}')
         PsiWhiteSpace('\n')

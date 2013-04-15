@@ -4,9 +4,9 @@ package parser
 package parsing
 package base
 
-import com.intellij.lang.PsiBuilder
 import lexer.ScalaTokenTypes
 import builder.ScalaPsiBuilder
+import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 
 /**
 * @author Alexander Podkhalyuzin
@@ -24,11 +24,11 @@ object ImportSelectors extends ParserNode {
     //Look for {
     builder.getTokenType match {
       case ScalaTokenTypes.tLBRACE =>
-        builder.advanceLexer //Ate {
+        builder.advanceLexer() //Ate {
         builder.enableNewlines
       case _ => {
         builder error ErrMsg("lbrace.expected")
-        importSelectorMarker.drop
+        importSelectorMarker.drop()
         return false
       }
     }
@@ -37,22 +37,22 @@ object ImportSelectors extends ParserNode {
       builder.getTokenType match {
         case ScalaTokenTypes.tRBRACE => {
           builder error ErrMsg("import.selector.expected")
-          builder.advanceLexer //Ate }
+          builder.advanceLexer() //Ate }
           builder.restoreNewlinesState
           importSelectorMarker.done(ScalaElementTypes.IMPORT_SELECTORS)
           return true
         }
         case ScalaTokenTypes.tUNDER => {
-          builder.advanceLexer //Ate _
+          builder.advanceLexer() //Ate _
           builder.getTokenType match {
             case ScalaTokenTypes.tRBRACE => {
-              builder.advanceLexer //Ate }
+              builder.advanceLexer() //Ate }
               builder.restoreNewlinesState
               importSelectorMarker.done(ScalaElementTypes.IMPORT_SELECTORS)
               return true
             }
             case _ => {
-              builder error ErrMsg("rbrace.expected")
+              ParserUtils.parseLoopUntilRBrace(builder, () => {}) //we need to find closing brace, otherwise we can miss important things
               builder.restoreNewlinesState
               importSelectorMarker.done(ScalaElementTypes.IMPORT_SELECTORS)
               return true
@@ -63,10 +63,10 @@ object ImportSelectors extends ParserNode {
           ImportSelector parse builder
           builder.getTokenType match {
             case ScalaTokenTypes.tCOMMA => {
-              builder.advanceLexer //Ate ,
+              builder.advanceLexer() //Ate ,
             }
             case ScalaTokenTypes.tRBRACE => {
-              builder.advanceLexer //Ate}
+              builder.advanceLexer() //Ate}
               builder.restoreNewlinesState
               importSelectorMarker.done(ScalaElementTypes.IMPORT_SELECTORS)
               return true
@@ -78,7 +78,7 @@ object ImportSelectors extends ParserNode {
             }
             case _ => {
               builder error ErrMsg("rbrace.expected")
-              builder.advanceLexer
+              builder.advanceLexer()
             }
           }
         }
@@ -89,10 +89,10 @@ object ImportSelectors extends ParserNode {
         }
         case _ => {
           builder error ErrMsg("rbrace.expected")
-          builder.advanceLexer
+          builder.advanceLexer()
         }
       }
     }
-    return true
+    true
   }
 }

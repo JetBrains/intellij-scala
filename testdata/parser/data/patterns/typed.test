@@ -51,6 +51,8 @@ ScalaFile
                       CodeReferenceElement
                         PsiElement(identifier)('Type')
               PsiElement(=>)('=>')
+              BlockOfExpressions
+                <empty list>
           PsiWhiteSpace(' ')
           PsiElement(})('}')
         PsiWhiteSpace('\n')

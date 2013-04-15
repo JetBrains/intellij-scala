@@ -69,15 +69,16 @@ ScalaFile
             PsiWhiteSpace(' ')
             PsiElement(=>)('=>')
             PsiWhiteSpace(' ')
-            ScImportStatement
-              PsiElement(import)('import')
-              PsiWhiteSpace(' ')
-              ImportExpression
-                CodeReferenceElement
+            BlockOfExpressions
+              ScImportStatement
+                PsiElement(import)('import')
+                PsiWhiteSpace(' ')
+                ImportExpression
                   CodeReferenceElement
-                    PsiElement(identifier)('s')
-                  PsiElement(.)('.')
-                  PsiElement(identifier)('t')
+                    CodeReferenceElement
+                      PsiElement(identifier)('s')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('t')
           PsiWhiteSpace('\n  ')
           PsiElement(})('}')
         PsiWhiteSpace('\n')

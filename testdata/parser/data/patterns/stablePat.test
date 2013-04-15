@@ -62,15 +62,16 @@ ScalaFile
                 PsiWhiteSpace(' ')
                 PsiElement(=>)('=>')
                 PsiWhiteSpace(' ')
-                MethodCall
-                  ReferenceExpression
+                BlockOfExpressions
+                  MethodCall
                     ReferenceExpression
-                      PsiElement(identifier)('code')
-                    PsiElement(.)('.')
-                    PsiElement(identifier)('toString')
-                  ArgumentList
-                    PsiElement(()('(')
-                    PsiElement())(')')
+                      ReferenceExpression
+                        PsiElement(identifier)('code')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('toString')
+                    ArgumentList
+                      PsiElement(()('(')
+                      PsiElement())(')')
             PsiWhiteSpace('\n  ')
             PsiElement(})('}')
         PsiWhiteSpace('\n')

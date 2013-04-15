@@ -192,7 +192,10 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
             val dependentSubst = new ScSubstitutor(() => {
               val level = ScalaLanguageLevel.getLanguageLevel(this)
               if (level.isThoughScala2_10) {
-                cd._3.map {
+                cd._3.filter {
+                  case (_, null) => false //todo: how to handle this case? And why we have this case?
+                  case (_: Parameter, _: ScExpression) => true
+                }.map {
                   case (param: Parameter, expr: ScExpression) => (param, expr.getType(TypingContext.empty).getOrAny)
                 }.toMap
               } else Map.empty
