@@ -16,6 +16,8 @@ ScalaFile
                 PsiElement(identifier)('x')
           PsiWhiteSpace(' ')
           PsiElement(=>)('=>')
+          BlockOfExpressions
+            <empty list>
         PsiElement(})('}')
   PsiWhiteSpace('\n')
   MethodCall
@@ -34,4 +36,6 @@ ScalaFile
                 PsiElement(identifier)('x')
           PsiWhiteSpace(' ')
           PsiElement(=>)('=>')
+          BlockOfExpressions
+            <empty list>
         PsiElement(})('}')

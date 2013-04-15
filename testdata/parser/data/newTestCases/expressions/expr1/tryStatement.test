@@ -76,8 +76,9 @@ ScalaFile
                   PsiWhiteSpace(' ')
                   PsiElement(=>)('=>')
                   PsiWhiteSpace(' ')
-                  Literal
-                    PsiElement(integer)('2')
+                  BlockOfExpressions
+                    Literal
+                      PsiElement(integer)('2')
               PsiWhiteSpace('\n  ')
               PsiElement(})('}')
           PsiWhiteSpace('\n  ')

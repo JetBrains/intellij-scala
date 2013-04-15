@@ -26,10 +26,10 @@ object Block {
     while (!ResultExpr.parse(builder) && BlockStat.parse(builder)) {
       val rollMarker = builder.mark
       if (!ResultExpr.parse(builder) && BlockStat.parse(builder)) {
-        rollMarker.rollbackTo
+        rollMarker.rollbackTo()
         builder.getTokenType match {
           case ScalaTokenTypes.tSEMICOLON => {
-            builder.advanceLexer
+            builder.advanceLexer()
           }
           case _ => {
             if (!builder.newlineBeforeCurrentToken)
@@ -37,15 +37,15 @@ object Block {
           }
         }
       } else {
-        rollMarker.rollbackTo
+        rollMarker.rollbackTo()
       }
     }
   }
 
   private def parseImpl(builder: ScalaPsiBuilder): Int = {
-    var i: Int = 0;
+    var i: Int = 0
 
-    var tts: List[IElementType] = Nil;
+    var tts: List[IElementType] = Nil
     var continue = true
 
     while (continue) {
@@ -67,18 +67,18 @@ object Block {
     i
   }
 
-  def parse(builder: ScalaPsiBuilder, hasBrace: Boolean): Boolean = parse(builder, hasBrace, false)
+  def parse(builder: ScalaPsiBuilder, hasBrace: Boolean): Boolean = parse(builder, hasBrace, needNode = false)
 
   def parse(builder: ScalaPsiBuilder, hasBrace: Boolean, needNode: Boolean): Boolean = {
     if (hasBrace) {
       val blockMarker = builder.mark
       builder.getTokenType match {
         case ScalaTokenTypes.tLBRACE => {
-          builder.advanceLexer
+          builder.advanceLexer()
           builder.enableNewlines
         }
         case _ => {
-          blockMarker.drop
+          blockMarker.drop()
           return false
         }
       }
@@ -92,10 +92,10 @@ object Block {
       if (count > 1) {
         bm.done(ScalaElementTypes.BLOCK)
       } else {
-        if (!needNode) bm.drop else bm.done(ScalaElementTypes.BLOCK)
+        if (!needNode) bm.drop() else bm.done(ScalaElementTypes.BLOCK)
 //        bm.done(ScalaElementTypes.BLOCK)
       }
     }
-    return true
+    true
   }
 }
