@@ -2,12 +2,14 @@ package org.jetbrains.plugins.scala.compiler;
 
 import com.intellij.openapi.options.Configurable;
 import com.intellij.openapi.options.ConfigurationException;
-import com.intellij.openapi.projectRoots.JavaSdk;
+import com.intellij.openapi.project.Project;
+import com.intellij.openapi.project.ProjectManager;
 import com.intellij.openapi.projectRoots.ProjectJdkTable;
 import com.intellij.openapi.projectRoots.Sdk;
-import com.intellij.openapi.projectRoots.impl.SdkListCellRenderer;
+import com.intellij.openapi.roots.ui.configuration.JdkComboBox;
+import com.intellij.openapi.roots.ui.configuration.projectRoot.ProjectSdksModel;
 import com.intellij.openapi.ui.ex.MultiLineLabel;
-import com.intellij.ui.CollectionComboBoxModel;
+import com.intellij.openapi.util.NullableComputable;
 import com.intellij.ui.JBColor;
 import com.intellij.ui.RawCommandLineEditor;
 import com.intellij.util.containers.ComparatorUtil;
@@ -18,9 +20,6 @@ import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import java.awt.*;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
 
 /**
  * @author Pavel Fatin
@@ -32,8 +31,9 @@ public class ScalaApplicationSettingsForm implements Configurable {
   private JTextField myCompilationServerMaximumHeapSize;
   private JCheckBox myEnableCompileServer;
   private JPanel myContentPanel;
-  private JComboBox myCompilationServerSdk;
+  private JdkComboBox myCompilationServerSdk;
   private MultiLineLabel myNote;
+  private JPanel mySdkPanel;
 
   private ScalaApplicationSettings mySettings;
 
@@ -46,21 +46,17 @@ public class ScalaApplicationSettingsForm implements Configurable {
       }
     });
 
-    myCompilationServerSdk.setRenderer(new SdkRenderer());
-    myCompilationServerSdk.setModel(new CollectionComboBoxModel(getAllJdk(), null));
+    ProjectSdksModel model = new ProjectSdksModel();
+    model.reset(null);
+
+    myCompilationServerSdk = new JdkComboBox(model);
+    myCompilationServerSdk.insertItemAt(new JdkComboBox.NoneJdkComboBoxItem(), 0);
+
+    mySdkPanel.add(myCompilationServerSdk, BorderLayout.CENTER);
 
     myNote.setForeground(JBColor.GRAY);
 
     updateCompilationServerSettingsPanel();
-  }
-
-  private static List<Sdk> getAllJdk() {
-    List<Sdk> result = new ArrayList<Sdk>();
-
-    result.add(null);
-    result.addAll(ProjectJdkTable.getInstance().getSdksOfType(JavaSdk.getInstance()));
-
-    return result;
   }
 
   private void updateCompilationServerSettingsPanel() {
@@ -93,7 +89,7 @@ public class ScalaApplicationSettingsForm implements Configurable {
   }
 
   public boolean isModified() {
-    Sdk sdk = (Sdk) myCompilationServerSdk.getSelectedItem();
+    Sdk sdk = myCompilationServerSdk.getSelectedJdk();
     String sdkName = sdk == null ? null : sdk.getName();
 
     return !(myEnableCompileServer.isSelected() == mySettings.COMPILE_SERVER_ENABLED &&
@@ -107,7 +103,7 @@ public class ScalaApplicationSettingsForm implements Configurable {
     mySettings.COMPILE_SERVER_ENABLED = myEnableCompileServer.isSelected();
     mySettings.COMPILE_SERVER_PORT = myCompilationServerPort.getText();
 
-    Sdk sdk = (Sdk) myCompilationServerSdk.getSelectedItem();
+    Sdk sdk = myCompilationServerSdk.getSelectedJdk();
     mySettings.COMPILE_SERVER_SDK = sdk == null ? null : sdk.getName();
 
     mySettings.COMPILE_SERVER_MAXIMUM_HEAP_SIZE = myCompilationServerMaximumHeapSize.getText();
@@ -129,7 +125,7 @@ public class ScalaApplicationSettingsForm implements Configurable {
     Sdk sdk = mySettings.COMPILE_SERVER_SDK == null
         ? null
         : ProjectJdkTable.getInstance().findJdk(mySettings.COMPILE_SERVER_SDK);
-    myCompilationServerSdk.setSelectedItem(sdk);
+    myCompilationServerSdk.setSelectedJdk(sdk);
 
     myCompilationServerMaximumHeapSize.setText(mySettings.COMPILE_SERVER_MAXIMUM_HEAP_SIZE);
     myCompilationServerJvmParameters.setText(mySettings.COMPILE_SERVER_JVM_PARAMETERS);
