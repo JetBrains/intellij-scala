@@ -25,6 +25,7 @@ trait JavacOutputParsing extends Logger {
     process(msg(), Kind.PROGRESS)
   }
 
+  // Move Javac output parsing to SBT compiler
   private def process(line: String, kind: Kind) {
     line match {
       case LocationPattern(path, row, message) =>
