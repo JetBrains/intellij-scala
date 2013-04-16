@@ -53,7 +53,7 @@ class CompileServerLauncher extends ApplicationComponent {
             .right.flatMap(java => start(FileUtil.toCanonicalPath(java.getPath))) match {
       case Left(error) =>
         val title = "Cannot start Scala compile server"
-        val content = s"<html><body>$error <a href=''>Configure</a></body></html>"
+        val content = s"<html><body>${error.replace("\n", "<br>")} <a href=''>Configure</a></body></html>"
         Notifications.Bus.notify(new Notification("scala", title, content, NotificationType.ERROR, ConfigureLinkListener))
         false
       case Right(_) =>
