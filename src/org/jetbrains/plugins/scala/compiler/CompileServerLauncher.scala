@@ -8,11 +8,13 @@ import com.intellij.util.PathUtil
 import java.io.{IOException, File}
 import com.intellij.openapi.application.ApplicationManager
 import extensions._
-import com.intellij.notification.{Notifications, NotificationType, Notification}
+import com.intellij.notification.{NotificationListener, Notifications, NotificationType, Notification}
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.project.Project
 import scala.util.control.Exception._
+import javax.swing.event.HyperlinkEvent
+import com.intellij.openapi.options.ShowSettingsUtil
 
 /**
  * @author Pavel Fatin
@@ -51,7 +53,8 @@ class CompileServerLauncher extends ApplicationComponent {
             .right.flatMap(java => start(FileUtil.toCanonicalPath(java.getPath))) match {
       case Left(error) =>
         val title = "Cannot start Scala compile server"
-        Notifications.Bus.notify(new Notification("scala", title, error, NotificationType.ERROR))
+        val content = s"<html><body>$error <a href=''>Configure</a></body></html>"
+        Notifications.Bus.notify(new Notification("scala", title, content, NotificationType.ERROR, ConfigureLinkListener))
         false
       case Right(_) =>
         true
@@ -139,5 +142,12 @@ private case class ServerInstance(watcher: ProcessWatcher, port: Int) {
 
   def destroyProcess() {
     watcher.destroyProcess()
+  }
+}
+
+private object ConfigureLinkListener extends NotificationListener.Adapter {
+  def hyperlinkActivated(notification: Notification, event: HyperlinkEvent) {
+    ShowSettingsUtil.getInstance().showSettingsDialog(null, "Scala")
+    notification.expire()
   }
 }
