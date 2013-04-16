@@ -14,6 +14,8 @@ import org.jetbrains.plugins.scala.util.MemberElementTypesExtension
 
 object TokenSets {
 
+  val WHITESPACE_OR_COMMENT_SET = TokenSet.create(tWHITE_SPACE_IN_LINE, tLINE_COMMENT, tBLOCK_COMMENT, tDOC_COMMENT)
+
   val MODIFIERS = TokenSet.create(ScalaTokenTypes.kCASE, ScalaTokenTypes.kABSTRACT, ScalaTokenTypes.kLAZY,
     ScalaTokenTypes.kIMPLICIT, ScalaTokenTypes.kFINAL, ScalaTokenTypes.kOVERRIDE, ScalaTokenTypes.kPROTECTED,
     ScalaTokenTypes.kPRIVATE, ScalaTokenTypes.kSEALED)
