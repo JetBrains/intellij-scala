@@ -223,9 +223,11 @@ private class IdeClient(compilerName: String,
       hasErrors = true
     }
 
+    val name = if (source.isEmpty) compilerName else ""
+
     val sourcePath = source.map(file => file.getPath)
 
-    context.processMessage(new CompilerMessage(compilerName, kind, text, sourcePath.orNull,
+    context.processMessage(new CompilerMessage(name, kind, text, sourcePath.orNull,
       -1L, -1L, -1L, line.getOrElse(-1L), column.getOrElse(-1L)))
   }
 
