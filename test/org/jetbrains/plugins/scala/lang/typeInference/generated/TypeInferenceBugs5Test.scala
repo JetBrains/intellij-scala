@@ -25,6 +25,8 @@ class TypeInferenceBugs5Test extends TypeInferenceTestBase {
 
   def testRecursiveFunction() {doTest()}
 
+  def testRepeatedParams() {doTest()}
+
   def testSCL2292() {doTest()}
 
   def testSCL2929() {doTest()}
