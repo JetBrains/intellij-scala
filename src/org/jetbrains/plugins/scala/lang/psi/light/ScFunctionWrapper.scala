@@ -5,11 +5,18 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import com.intellij.psi._
 import collection.mutable.ArrayBuffer
-import org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, StdType, ScType, ScCompoundType}
+import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTypeDefinition, ScObject}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScMethodLike, ScPrimaryConstructor}
 import scala.Some
 import org.jetbrains.plugins.scala.lang.psi.types.result.Success
+import scala.collection.mutable
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import scala.Some
+import scala.Int
+import org.jetbrains.plugins.scala.lang.psi.types.result.Success
+import scala.Boolean
 import org.jetbrains.plugins.scala.lang.psi.types.ScCompoundType
 
 class ScPrimaryConstructorWrapper(val constr: ScPrimaryConstructor) extends {
@@ -110,7 +117,20 @@ class ScFunctionWrapper(val function: ScFunction, isStatic: Boolean, isInterface
 
   override def getReturnType: PsiType = {
     if (returnType == null) {
-      val scalaType = ScFunctionWrapper.getSubstitutor(cClass, function).subst(function.returnType.getOrAny)
+      val typeParameters = function.typeParameters
+      val generifySubst: ScSubstitutor =
+        if (typeParameters.length > 0) {
+          val methodTypeParameters = getTypeParameters
+          if (typeParameters.length == methodTypeParameters.length) {
+            val map: mutable.HashMap[(String, String), ScType] = new mutable.HashMap[(String, String), ScType]()
+            typeParameters.zip(methodTypeParameters).foreach {
+              case (param: ScTypeParam, parameter: PsiTypeParameter) =>
+                map += (((param.name, ScalaPsiUtil.getPsiElementId(param)), ScDesignatorType(parameter)))
+            }
+            new ScSubstitutor(map.toMap, Map.empty, None)
+          } else ScSubstitutor.empty
+        } else ScSubstitutor.empty
+      val scalaType = generifySubst subst ScFunctionWrapper.getSubstitutor(cClass, function).subst(function.returnType.getOrAny)
       returnType = ScType.toPsi(scalaType, function.getProject, function.getResolveScope)
     }
     returnType
