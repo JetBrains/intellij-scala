@@ -8,6 +8,8 @@ import org.jetbrains.plugins.scala.lang.scaladoc.parser.ScalaDocElementTypes
 import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 import com.intellij.lang.impl.PsiBuilderAdapter
 import scala.annotation.tailrec
+import com.intellij.openapi.util.text.StringUtil
+import org.jetbrains.plugins.scala.lang.TokenSets
 
 /**
  * @author Alexander Podkhalyuzin
@@ -18,48 +20,30 @@ class ScalaPsiBuilderImpl(builder: PsiBuilder)
   private final val newlinesEnabled: Stack[Boolean] = new Stack[Boolean]
 
   def newlineBeforeCurrentToken: Boolean = {
-    countNewlineBeforeCurrentToken(countLineComments = false) > 0
+    countNewlineBeforeCurrentToken() > 0
   }
 
   def twoNewlinesBeforeCurrentToken: Boolean = {
-    countNewlineBeforeCurrentToken(countLineComments = true) > 1
+    countNewlineBeforeCurrentToken() > 1
   }
 
   /**
-   * @param countLineComments means not to include line breaks which belongs to line comments
+   * @return 0 if new line is disabled here, or there is no \n chars between tokens
+   *         1 if there is no blank lines between tokens
+   *         2 otherwise
    */
-  private def countNewlineBeforeCurrentToken(countLineComments: Boolean): Int = {
+  private def countNewlineBeforeCurrentToken(): Int = {
     if (!newlinesEnabled.isEmpty && !newlinesEnabled.top) return 0
     if (eof) return 0
     if (!ParserUtils.elementCanStartStatement(getTokenType, this)) return 0
 
-    val lineCommentsSubtrahend = if (countLineComments) 1 else 0
-
-    @tailrec
-    def go(i: Int, res: Int = 0, afterBlockComment: Boolean = false): Int = {
-      if (i > getCurrentOffset) return res
-      val previousToken: IElementType = rawLookup(-i)
-      previousToken match {
-        case ScalaTokenTypes.tWHITE_SPACE_IN_LINE =>
-          val previousTokenStart: Int = rawTokenTypeStart(-i)
-          val previousTokenEnd: Int = rawTokenTypeStart(-i + 1)
-          assert(previousTokenStart >= 0)
-          assert(previousTokenEnd < getOriginalText.length)
-          var j: Int = previousTokenStart
-          var add: Int = 0
-          while (j < previousTokenEnd) {
-            if (getOriginalText.charAt(j) == '\n') add += 1
-            j = j + 1
-          }
-          if (add > 0 && afterBlockComment) add -= lineCommentsSubtrahend
-          go(i + 1, res + add)
-        case ScalaTokenTypes.tLINE_COMMENT =>
-          go(i + 1, res - lineCommentsSubtrahend)
-        case ScalaTokenTypes.tBLOCK_COMMENT | ScalaDocElementTypes.SCALA_DOC_COMMENT => go(i + 1, res, afterBlockComment = true)
-        case _ => res
-      }
-    }
-    go(1).max(0)
+    var i = 1
+    while (i < getCurrentOffset && TokenSets.WHITESPACE_OR_COMMENT_SET.contains(rawLookup(-i))) i += 1
+    val textBefore = getOriginalText.subSequence(rawTokenTypeStart(-i + 1), rawTokenTypeStart(0)).toString
+    if (!textBefore.contains('\n')) return 0
+    val lines = s"start $textBefore end".filter(_ != '\r').split('\n')
+    if (lines.find(_.forall(StringUtil.isWhiteSpace)).isDefined) 2
+    else 1
   }
 
   def disableNewlines {

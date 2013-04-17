@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala
 
 import java.io.File
-import com.intellij.openapi.projectRoots.{JavaSdkType, ProjectJdkTable}
+import com.intellij.openapi.projectRoots.{SdkType, JavaSdkType, ProjectJdkTable}
 
 /**
  * @author Pavel Fatin
@@ -16,7 +16,9 @@ package object compiler {
 
         projectSdk.right.flatMap { sdk =>
           sdk.getSdkType match {
-            case sdkType: JavaSdkType => Right(sdkType.getVMExecutablePath(sdk))
+            case sdkType: SdkType with JavaSdkType =>
+              Either.cond(sdkType.sdkHasValidPath(sdk),
+                sdkType.getVMExecutablePath(sdk), "Not valid SDK path: " + sdkName)
             case _ => Left("Not a Java SDK: " + sdkName)
           }
         }
