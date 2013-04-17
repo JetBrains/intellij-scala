@@ -383,7 +383,30 @@ abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTemplate
   }
 
   override def getInnerClasses: Array[PsiClass] = {
-    members.filter(_.isInstanceOf[PsiClass]).map(_.asInstanceOf[PsiClass]).toArray
+    def ownInnerClasses = members.filter(_.isInstanceOf[PsiClass]).map(_.asInstanceOf[PsiClass]).toArray
+
+    ScalaPsiUtil.getBaseCompanionModule(this) match {
+      case Some(o: ScObject) =>
+        val res: ArrayBuffer[PsiClass] = new ArrayBuffer[PsiClass]()
+        val innerClasses = ownInnerClasses
+        res ++= innerClasses
+        o.members.foreach {
+          case o: ScObject => o.fakeCompanionClass match {
+            case Some(clazz) =>
+              res += o
+              res += clazz
+            case None =>
+              res += o
+          }
+          case t: ScTrait =>
+            res += t
+            res += t.fakeCompanionClass
+          case c: ScClass => res += c
+          case _ =>
+        }
+        res.toArray
+      case _ => ownInnerClasses
+    }
   }
 
   override def getAllInnerClasses: Array[PsiClass] = {
