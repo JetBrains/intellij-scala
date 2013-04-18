@@ -27,6 +27,8 @@ class TypeInferenceBugs5Test extends TypeInferenceTestBase {
 
   def testRepeatedParams() {doTest()}
 
+  def testRepeatedParamsResolve() {doTest()}
+
   def testSCL2292() {doTest()}
 
   def testSCL2929() {doTest()}
