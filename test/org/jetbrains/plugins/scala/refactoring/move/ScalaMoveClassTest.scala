@@ -16,13 +16,16 @@ import com.intellij.refactoring.PackageWrapper
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import lang.psi.api.toplevel.typedef.ScObject
 import com.intellij.codeInsight.CodeInsightTestCase
+import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAdapter
+import com.intellij.openapi.vfs.pointers.VirtualFilePointerManager
+import com.intellij.openapi.vfs.impl.VirtualFilePointerManagerImpl
 
 /**
  * @author Alefas
  * @since 30.10.12
  */
-class ScalaMoveClassTest extends CodeInsightTestCase {
-  def testPackageObject() {
+class ScalaMoveClassTest extends ScalaLightPlatformCodeInsightTestCaseAdapter {
+def testPackageObject() {
     doTest("packageObject", Array("com.`package`"), "org")
   }
 
@@ -73,31 +76,32 @@ class ScalaMoveClassTest extends CodeInsightTestCase {
   def doTest(testName: String, classNames: Array[String], newPackageName: String) {
     val root: String = TestUtils.getTestDataPath + "/move/" + testName
     val rootBefore: String = root + "/before"
-    PsiTestUtil.removeAllRoots(myModule, IdeaTestUtil.getMockJdk17)
-    val rootDir: VirtualFile = PsiTestUtil.createTestProjectStructure(getProject, myModule, rootBefore, new util.HashSet[File]())
+    PsiTestUtil.removeAllRoots(getModuleAdapter, IdeaTestUtil.getMockJdk17)
+    val rootDir: VirtualFile = PsiTestUtil.createTestProjectStructure(getProjectAdapter, getModuleAdapter, rootBefore, new util.HashSet[File]())
+    (VirtualFilePointerManager.getInstance.asInstanceOf[VirtualFilePointerManagerImpl]).storePointers
     performAction(classNames, newPackageName)
     val rootAfter: String = root + "/after"
     val rootDir2: VirtualFile = LocalFileSystem.getInstance.findFileByPath(rootAfter.replace(File.separatorChar, '/'))
-    getProject.getComponent(classOf[PostprocessReformattingAspect]).doPostponedFormatting()
+    getProjectAdapter.getComponent(classOf[PostprocessReformattingAspect]).doPostponedFormatting()
     PlatformTestUtil.assertDirectoriesEqual(rootDir2, rootDir, PlatformTestUtil.CVS_FILE_FILTER)
   }
 
   private def performAction(classNames: Array[String], newPackageName: String) {
     val classes = new ArrayBuffer[PsiClass]()
     for (name <- classNames) {
-      classes ++= ScalaPsiManager.instance(getProject).getCachedClasses(GlobalSearchScope.allScope(getProject), name).filter {
+      classes ++= ScalaPsiManager.instance(getProjectAdapter).getCachedClasses(GlobalSearchScope.allScope(getProjectAdapter), name).filter {
         case o: ScObject if o.isSyntheticObject => false
         case _ => true
       }
     }
-    val aPackage: PsiPackage = JavaPsiFacade.getInstance(getProject).findPackage(newPackageName)
+    val aPackage: PsiPackage = JavaPsiFacade.getInstance(getProjectAdapter).findPackage(newPackageName)
     val dirs: Array[PsiDirectory] = aPackage.getDirectories
     assert(dirs.length == 1)
     ScalaFileImpl.performMoveRefactoring {
-      new MoveClassesOrPackagesProcessor(getProject, classes.toArray,
+      new MoveClassesOrPackagesProcessor(getProjectAdapter, classes.toArray,
         new SingleSourceRootMoveDestination(PackageWrapper.create(JavaDirectoryService.getInstance.getPackage(dirs(0))), dirs(0)), true, true, null).run()
     }
-    PsiDocumentManager.getInstance(getProject).commitAllDocuments()
+    PsiDocumentManager.getInstance(getProjectAdapter).commitAllDocuments()
     FileDocumentManager.getInstance.saveAllDocuments()
   }
 }

@@ -38,7 +38,7 @@ class CompilerImpl(javac: JavaCompiler, scalac: Option[AnalyzingCompiler], fileT
 
     val reporter = new ClientReporter(client)
 
-    val logger = new ClientLogger(client)
+    val logger = new ClientLogger(client) with JavacOutputParsing
 
     val outputToAnalysisMap = compilationData.outputToCacheMap.map { case (output, cache) =>
       val analysis = fileToStore(cache).get().map(_._1).getOrElse(Analysis.Empty)
@@ -67,7 +67,7 @@ class CompilerImpl(javac: JavaCompiler, scalac: Option[AnalyzingCompiler], fileT
   }
 }
 
-private class ClientLogger(client: Client) extends Logger {
+private class ClientLogger(val client: Client) extends Logger {
   def error(msg: F0[String]) {
     client.error(msg())
   }
