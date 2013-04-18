@@ -16,5 +16,13 @@ class ScShortClassNameIndex extends StringStubIndexExtension[PsiClass] {
 }
 
 object ScShortClassNameIndex {
-  val KEY = ScalaIndexKeys.SHORT_NAME_KEY;
+  val KEY = ScalaIndexKeys.SHORT_NAME_KEY
+}
+
+class ScNotVisibleInJavaShortClassNameIndex extends StringStubIndexExtension[PsiClass] {
+  def getKey = ScNotVisibleInJavaShortClassNameIndex.KEY
+}
+
+object ScNotVisibleInJavaShortClassNameIndex {
+  val KEY = ScalaIndexKeys.NOT_VISIBLE_IN_JAVA_SHORT_NAME_KEY
 }
