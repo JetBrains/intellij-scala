@@ -4,8 +4,8 @@ package psi
 package types
 
 import _root_.org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
-import api.statements.params.ScTypeParam
-import api.toplevel.typedef.ScTemplateDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScTypeParam}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition}
 import com.intellij.psi.PsiClass
 import collection.mutable.ArrayBuffer
 import api.statements.ScTypeAliasDefinition
@@ -13,6 +13,7 @@ import result.TypingContext
 import com.intellij.psi.util.InheritanceUtil
 import extensions.toPsiClassExt
 import collection.mutable
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 
 object Bounds {
   def lub(seq: Seq[ScType]): ScType = {
@@ -76,6 +77,14 @@ object Bounds {
             new ScTupleType(collection.immutable.Seq(c1.toSeq.zip(c2.toSeq).map({
               case (t1, t2) => lub(t1, t2, 0, checkWeak)
             }).toSeq: _*))(t1.getProject, t1.getScope)
+          case (ScDesignatorType(t: ScParameter), _) =>
+            lub(t.getRealParameterType(TypingContext.empty).getOrAny, t2, 0, checkWeak)
+          case (ScDesignatorType(t: ScTypedDefinition), _) if !t.isInstanceOf[ScObject] =>
+            lub(t.getType(TypingContext.empty).getOrAny, t2, 0, checkWeak)
+          case (_, ScDesignatorType(t: ScParameter)) =>
+            lub(t1, t.getRealParameterType(TypingContext.empty).getOrAny, 0, checkWeak)
+          case (_, ScDesignatorType(t: ScTypedDefinition)) if !t.isInstanceOf[ScObject] =>
+            lub(t1, t.getType(TypingContext.empty).getOrAny, 0, checkWeak)
           case (ex: ScExistentialType, _) => lub(ex.skolem, t2, 0, checkWeak).unpackedType
           case (_, ex: ScExistentialType) => lub(t1, ex.skolem, 0, checkWeak).unpackedType
           case (ScTypeParameterType(_, Nil, _, upper, _), _) => lub(upper.v, t2, 0, checkWeak)
