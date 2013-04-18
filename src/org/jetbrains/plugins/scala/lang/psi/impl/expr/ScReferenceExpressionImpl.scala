@@ -244,7 +244,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
         if (owner != null && PsiTreeUtil.isContextAncestor(owner, this, true) && stableTypeRequired) {
           ScType.designator(param)
         } else {
-          val result = param.getType(TypingContext.empty)
+          val result = param.getRealParameterType(TypingContext.empty)
           s.subst(result match {
             case Success(tp, _) => tp
             case _ => return result

@@ -23,6 +23,7 @@ import toplevel.ScTypedDefinition
 import toplevel.typedef.{ScObject, ScTemplateDefinition}
 import org.jetbrains.plugins.scala.extensions._
 import psi.impl.ScalaPsiManager
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 
 object BaseProcessor {
   def unapply(p: BaseProcessor) = Some(p.kinds)
@@ -202,6 +203,11 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value]) extends PsiSc
         }
         break
       case ScDesignatorType(o: ScObject) => processElement(o, ScSubstitutor.empty, place, state)
+      case ScDesignatorType(p: ScParameter) =>
+        p.getRealParameterType(TypingContext.empty) match {
+          case Success(tp, _) => processType(tp, place, state)
+          case _ => true
+        }
       case ScDesignatorType(e: ScTypedDefinition) if place.isInstanceOf[ScTypeProjection] =>
         e.getType(TypingContext.empty) match {
           case Success(tp, _) => processType(tp, place, state)

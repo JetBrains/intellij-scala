@@ -225,6 +225,7 @@
         <!--Stub indices -->
         <stubIndex implementation="org.jetbrains.plugins.scala.lang.psi.stubs.index.ScAllClassNamesIndex"/>
         <stubIndex implementation="org.jetbrains.plugins.scala.lang.psi.stubs.index.ScShortClassNameIndex"/>
+        <stubIndex implementation="org.jetbrains.plugins.scala.lang.psi.stubs.index.ScNotVisibleInJavaShortClassNameIndex"/>
         <stubIndex implementation="org.jetbrains.plugins.scala.lang.psi.stubs.index.ScFullClassNameIndex"/>
         <stubIndex implementation="org.jetbrains.plugins.scala.lang.psi.stubs.index.ScClassNameInPackageIndex"/>
         <stubIndex implementation="org.jetbrains.plugins.scala.lang.psi.stubs.index.ScJavaClassNameInPackageIndex"/>
@@ -474,6 +475,11 @@
         <intentionAction>
             <category>Scala/Control flow</category>
             <className>org.jetbrains.plugins.scala.codeInsight.intention.controlflow.MergeIfToOrIntention</className>
+        </intentionAction>
+
+        <intentionAction>
+            <category>Scala/Control flow</category>
+            <className>org.jetbrains.plugins.scala.codeInsight.intention.controlflow.ReplaceWhileWithDoWhileIntention</className>
         </intentionAction>
 
         <intentionAction>

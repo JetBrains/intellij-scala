@@ -11,16 +11,23 @@ import org.jetbrains.jps.incremental.ModuleLevelBuilder.ExitCode
  */
 class LocalServer extends Server {
   private var cachedCompilerFactory: Option[CompilerFactory] = None
+  private val lock = new Object()
 
   def compile(sbtData: SbtData, compilerData: CompilerData, compilationData: CompilationData, client: Client): ExitCode = {
-    val compilerFactory = compilerFactoryFrom(sbtData)
+    val compiler = lock.synchronized {
+      val compilerFactory = compilerFactoryFrom(sbtData)
 
-    client.progress("Instantiating compiler...")
-    val compiler = compilerFactory.createCompiler(compilerData, client, LocalServer.createAnalysisStore)
+      client.progress("Instantiating compiler...")
+      compilerFactory.createCompiler(compilerData, client, LocalServer.createAnalysisStore)
+    }
 
     if (!client.isCanceled) {
-      client.progress("Searching for changed files...")
-      compiler.compile(compilationData, client)
+      client.progress("Waiting for a free compiler...")
+
+      compiler.synchronized {
+        client.progress("Searching for changed files...")
+        compiler.compile(compilationData, client)
+      }
     }
 
     ExitCode.OK
