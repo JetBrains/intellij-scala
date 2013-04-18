@@ -19,6 +19,7 @@ import com.intellij.codeInsight.CodeInsightTestCase
 import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAdapter
 import com.intellij.openapi.vfs.pointers.VirtualFilePointerManager
 import com.intellij.openapi.vfs.impl.VirtualFilePointerManagerImpl
+import scala.annotation.tailrec
 
 /**
  * @author Alefas
@@ -76,17 +77,21 @@ def testPackageObject() {
   def doTest(testName: String, classNames: Array[String], newPackageName: String) {
     val root: String = TestUtils.getTestDataPath + "/move/" + testName
     val rootBefore: String = root + "/before"
-    PsiTestUtil.removeAllRoots(getModuleAdapter, IdeaTestUtil.getMockJdk17)
     val rootDir: VirtualFile = PsiTestUtil.createTestProjectStructure(getProjectAdapter, getModuleAdapter, rootBefore, new util.HashSet[File]())
-    (VirtualFilePointerManager.getInstance.asInstanceOf[VirtualFilePointerManagerImpl]).storePointers
-    performAction(classNames, newPackageName)
+    (VirtualFilePointerManager.getInstance.asInstanceOf[VirtualFilePointerManagerImpl]).storePointers()
+    try {
+      performAction(classNames, newPackageName, rootDir)
+    } finally {
+      PsiTestUtil.removeSourceRoot(getModuleAdapter, rootDir)
+    }
     val rootAfter: String = root + "/after"
     val rootDir2: VirtualFile = LocalFileSystem.getInstance.findFileByPath(rootAfter.replace(File.separatorChar, '/'))
+    (VirtualFilePointerManager.getInstance.asInstanceOf[VirtualFilePointerManagerImpl]).storePointers()
     getProjectAdapter.getComponent(classOf[PostprocessReformattingAspect]).doPostponedFormatting()
     PlatformTestUtil.assertDirectoriesEqual(rootDir2, rootDir, PlatformTestUtil.CVS_FILE_FILTER)
   }
 
-  private def performAction(classNames: Array[String], newPackageName: String) {
+  private def performAction(classNames: Array[String], newPackageName: String, rootDir: VirtualFile) {
     val classes = new ArrayBuffer[PsiClass]()
     for (name <- classNames) {
       classes ++= ScalaPsiManager.instance(getProjectAdapter).getCachedClasses(GlobalSearchScope.allScope(getProjectAdapter), name).filter {
@@ -95,7 +100,7 @@ def testPackageObject() {
       }
     }
     val aPackage: PsiPackage = JavaPsiFacade.getInstance(getProjectAdapter).findPackage(newPackageName)
-    val dirs: Array[PsiDirectory] = aPackage.getDirectories
+    val dirs: Array[PsiDirectory] = aPackage.getDirectories(GlobalSearchScope.moduleScope(getModuleAdapter))
     assert(dirs.length == 1)
     ScalaFileImpl.performMoveRefactoring {
       new MoveClassesOrPackagesProcessor(getProjectAdapter, classes.toArray,
