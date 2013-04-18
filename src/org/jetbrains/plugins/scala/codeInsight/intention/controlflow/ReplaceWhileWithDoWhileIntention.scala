@@ -6,7 +6,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.editor.Editor
 import com.intellij.psi.{PsiDocumentManager, PsiElement}
 import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScBlockExpr, ScWhileStmt}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScWhileStmt}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.extensions._
 
@@ -25,51 +25,41 @@ class ReplaceWhileWithDoWhileIntention extends PsiElementBaseIntentionAction {
   override def getText: String = ReplaceWhileWithDoWhileIntention.familyName
 
   def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean = {
-    val whileStmt: ScWhileStmt = PsiTreeUtil.getParentOfType(element, classOf[ScWhileStmt], false)
-    if (whileStmt == null) false
+    for {
+      whileStmt <- Option(PsiTreeUtil.getParentOfType(element, classOf[ScWhileStmt], false))
+      condition <- whileStmt.condition
+      body <- whileStmt.body
+    } {
+      val offset = editor.getCaretModel.getOffset
+      if (offset >= whileStmt.getTextRange.getStartOffset && offset <= condition.getTextRange.getStartOffset - 1)
+        return true
+    }
 
-    val condition = whileStmt.condition.getOrElse(null)
-    if (condition == null) false
-
-    val body = whileStmt.body.getOrElse(null)
-    if (body == null) false
-
-    val offset = editor.getCaretModel.getOffset
-    if (offset < whileStmt.getTextRange.getStartOffset || offset > condition.getTextRange.getStartOffset - 1)
-      false
-
-    true
+    false
   }
 
   override def invoke(project: Project, editor: Editor, element: PsiElement) {
-    val whileStmt : ScWhileStmt = PsiTreeUtil.getParentOfType(element, classOf[ScWhileStmt], false)
+    val whileStmt: ScWhileStmt = PsiTreeUtil.getParentOfType(element, classOf[ScWhileStmt])
     if (whileStmt == null || !whileStmt.isValid) return
 
-    if (false)
-    {print("")}
-    else
-    {print("")}
+    for {
+      condition <- whileStmt.condition
+      body <- whileStmt.body
+    } {
+      val condText = condition.getText
+      val bodyText = body.getText
 
-    val condition = whileStmt.condition.getOrElse(null)
-    val condText = if (condition != null) condition.getText() else return
+      val expr = new StringBuilder
+      expr.append("if (").append(condText).append(") {\n")
+      expr.append("do ").append(bodyText).append(" while (").append(condText).append(")\n")
+      expr.append("}")
 
-    val body = whileStmt.body.getOrElse(null)
-    val bodyText = if (body == null) "{\n\n}" else body match {
-      case e: ScBlockExpr => e.getText
-      case _ => "{\n" + body.getText + "\n}"
+      val newStmt: ScExpression = ScalaPsiElementFactory.createExpressionFromText(expr.toString(), element.getManager)
+
+      inWriteAction {
+        whileStmt.replaceExpression(newStmt, removeParenthesis = true)
+        PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument)
+      }
     }
-
-    val expr = new StringBuilder
-    expr.append("if (").append(condText).append(") {\n")
-    expr.append("do ").append(bodyText).append(" while (").append(condText).append(")\n")
-    expr.append("}")
-
-    val newStmt : ScExpression = ScalaPsiElementFactory.createExpressionFromText(expr.toString(), element.getManager)
-
-    inWriteAction {
-      whileStmt.replaceExpression(newStmt, true)
-      PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument)
-    }
-
   }
 }

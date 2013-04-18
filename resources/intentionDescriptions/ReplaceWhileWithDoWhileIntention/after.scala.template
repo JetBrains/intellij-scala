@@ -1,0 +1,11 @@
+class X {
+  val flag: Boolean
+
+  def f {
+    <spot>if</spot> (flag) {
+      <spot>do</spot> {
+        //looping
+      } <spot>while</spot> (flag)
+    }
+  }
+}
