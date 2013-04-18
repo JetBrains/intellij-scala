@@ -83,9 +83,7 @@ class ReplaceWhileWithDoWhileIntentionTest extends ScalaIntentionTestBase{
                        |
                        |  def f {
                        |    if (flag) {
-                       |      do {
-                       |        print("")
-                       |      } while (flag)
+                       |      do print("") while (flag)
                        |    }
                        |  }
                        |}
