@@ -119,6 +119,7 @@ extends ScStubElementType[ScTemplateDefinitionStub, ScTemplateDefinition](debugN
     }
     val javaName = stub.javaName
     if (javaName != null && stub.isVisibleInJava) sink.occurrence(JavaStubIndexKeys.CLASS_SHORT_NAMES, javaName)
+    else sink.occurrence(ScalaIndexKeys.NOT_VISIBLE_IN_JAVA_SHORT_NAME_KEY, name)
     sink.occurrence(ScalaIndexKeys.ALL_CLASS_NAMES, javaName)
     val additionalNames = stub.additionalJavaNames
     for (name <- additionalNames) {
