@@ -31,13 +31,6 @@ trait ScArgumentExprList extends ScArguments {
   def exprsArray = exprs.toArray
 
   /**
-   * Is there param with assign expression with same name as
-   * method param.
-   * @return number of such param or -1
-   */
-  def nameCallFromParameter: Int
-
-  /**
    * Number of clause.
    * For example: foo()()'()'()
    * then this method return 3.
