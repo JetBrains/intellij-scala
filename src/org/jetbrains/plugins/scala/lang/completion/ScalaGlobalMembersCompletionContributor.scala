@@ -163,8 +163,8 @@ class ScalaGlobalMembersCompletionContributor extends CompletionContributor {
     val iterator = candidates.iterator
     while (iterator.hasNext) {
       val next = iterator.next()
-      if (next._1) {
-        val retTp = next._4
+      if (next.condition) {
+        val retTp = next.rt
         val c = new CompletionProcessor(StdKinds.methodRef, ref)
         c.processType(retTp, ref)
         for (elem <- c.candidates) {
@@ -173,7 +173,7 @@ class ScalaGlobalMembersCompletionContributor extends CompletionContributor {
           val lookup: ScalaLookupItem = LookupElementManager.getLookupElement(elem, isClassName = true,
             isOverloadedForClassName = false, shouldImport = shouldImport, isInStableCodeReference = false).apply(0)
           lookup.usedImportStaticQuickfix = true
-          lookup.elementToImport = next._2.getElement
+          lookup.elementToImport = next.resolveResult.getElement
           result.addElement(lookup)
         }
       }

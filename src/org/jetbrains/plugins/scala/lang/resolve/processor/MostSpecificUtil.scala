@@ -15,9 +15,9 @@ import com.intellij.psi._
 import scala.collection.Set
 import psi.types._
 import psi.api.statements._
-import psi.api.toplevel.imports.usages.ImportUsed
 import psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.extensions.toPsiMemberExt
+import org.jetbrains.plugins.scala.lang.psi.implicits.ScImplicitlyConvertible.ImplicitResolveResult
 
 /**
  * User: Alexander Podkhalyuzin
@@ -38,11 +38,10 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
     }}).map(_.repr)
   }
 
-  def mostSpecificForImplicit(applicable: Set[(ScType, PsiNamedElement, Set[ImportUsed], ScSubstitutor)]):
-    Option[(ScType, PsiNamedElement, Set[ImportUsed], ScSubstitutor)] = {
+  def mostSpecificForImplicit(applicable: Set[ImplicitResolveResult]): Option[ImplicitResolveResult] = {
     mostSpecificGeneric(applicable.map(r => {
       var callByName = false
-      r._2 match {
+      r.element match {
         case f: ScFunction =>
           val clauses = f.paramClauses.clauses
           if (clauses.length > 0 && clauses(0).parameters.length == 1 && clauses(0).parameters(0).isCallByNameParameter) {
@@ -50,7 +49,7 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
           }
         case _ =>
       }
-      new InnerScalaResolveResult(r._2, None, r, r._4, callByName)
+      new InnerScalaResolveResult(r.element, None, r, r.implicitDependentSubst followed r.subst, callByName)
     })).map(_.repr)
   }
 

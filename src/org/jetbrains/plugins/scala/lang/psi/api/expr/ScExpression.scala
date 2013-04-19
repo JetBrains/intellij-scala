@@ -34,6 +34,7 @@ import scala.Some
 import types.ScFunctionType
 import lang.resolve.processor.MostSpecificUtil
 import types.Conformance.AliasType
+import org.jetbrains.plugins.scala.lang.psi.implicits.ScImplicitlyConvertible.ImplicitResolveResult
 
 /**
  * @author ilyas, Alexander Podkhalyuzin
@@ -80,19 +81,19 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible with Ps
       //this functionality for checking if this expression can be implicitly changed and then
       //it will conform to expected type
       val firstPart = implicitMapFirstPart(Some(expected), fromUnderscore)
-      var f: Seq[(ScType, PsiNamedElement, Set[ImportUsed], ScSubstitutor)] =
-        firstPart.filter(_._1.conforms(expected))
+      var f: Seq[ImplicitResolveResult] =
+        firstPart.filter(_.tp.conforms(expected))
       if (f.length == 0) {
-        f = implicitMapSecondPart(Some(expected), fromUnderscore).filter(_._1.conforms(expected))
+        f = implicitMapSecondPart(Some(expected), fromUnderscore).filter(_.tp.conforms(expected))
       }
-      if (f.length == 1) ExpressionTypeResult(Success(f(0)._1, Some(this)), f(0)._3, Some(f(0)._2))
+      if (f.length == 1) ExpressionTypeResult(Success(f(0).getTypeWithDependentSubstitutor(), Some(this)), f(0).importUsed, Some(f(0).element))
       else if (f.length == 0) defaultResult
       else {
         val res = MostSpecificUtil(this, 1).mostSpecificForImplicit(f.toSet) match {
           case Some(innerRes) => innerRes
           case None => return defaultResult
         }
-        ExpressionTypeResult(Success(res._1, Some(this)), res._3, Some(res._2))
+        ExpressionTypeResult(Success(res.getTypeWithDependentSubstitutor(), Some(this)), res.importUsed, Some(res.element))
       }
     }
     
@@ -365,26 +366,6 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible with Ps
     Failure(ScalaBundle.message("no.type.inferred", getText), Some(this))
 
   /**
-   * Returns all types in respect of implicit conversions (defined and default)
-   */
-  def allTypes: Seq[ScType] = {
-    (getType(TypingContext.empty) match {
-      case Success(t, _) => t :: getImplicitTypes
-      case _ => getImplicitTypes
-    })
-  }
-
-  def allTypesAndImports: List[(ScType, scala.collection.Set[ImportUsed])] = {
-    def implicitTypesAndImports = {
-      (for (t <- getImplicitTypes) yield (t, getImportsForImplicit(t)))
-    }
-    (getType(TypingContext.empty) match {
-      case Success(t, _) => (t, Set[ImportUsed]()) :: implicitTypesAndImports
-      case _ => implicitTypesAndImports
-    })
-  }
-
-  /**
    * Some expression may be replaced only with another one
    */
   def replaceExpression(expr: ScExpression, removeParenthesis: Boolean): ScExpression = {
@@ -454,8 +435,8 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible with Ps
   def getImplicitConversions(fromUnder: Boolean = false,
                              expectedOption: => Option[ScType] = smartExpectedType()):
     (Seq[PsiNamedElement], Option[PsiNamedElement], Seq[PsiNamedElement], Seq[PsiNamedElement]) = {
-    val (map, firstPart, secondPart) = implicitMap(fromUnder = fromUnder, args = expectedTypes(fromUnder).toSeq)
-    val implicits: Seq[PsiNamedElement] = map.map(_._2)
+    val map = implicitMap(fromUnder = fromUnder, args = expectedTypes(fromUnder).toSeq)
+    val implicits: Seq[PsiNamedElement] = map.map(_.element)
     val implicitFunction: Option[PsiNamedElement] = getParent match {
       case ref: ScReferenceExpression => {
         val resolve = ref.multiResolve(false)
@@ -477,7 +458,7 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible with Ps
       case _ => getTypeAfterImplicitConversion(expectedOption = expectedOption,
         fromUnderscore = fromUnder).implicitFunction
     }
-    (implicits, implicitFunction, firstPart, secondPart)
+    (implicits, implicitFunction, map.filter(!_.isFromCompanion).map(_.element), map.filter(_.isFromCompanion).map(_.element))
   }
 
   final def calculateReturns: Seq[PsiElement] = {
@@ -538,16 +519,17 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible with Ps
       var cand = applyProc.candidates
       if (cand.length == 0 && call != None && !tr.isEmpty) {
         val expr = call.get.getEffectiveInvokedExpr
-        //should think about implicit conversions
-        for ((t, implicitFunction, importsUsed, _) <- expr.implicitMap(exprType = Some(tr.get))._1) {
-          var state = ResolveState.initial.put(CachesUtil.IMPLICIT_FUNCTION, implicitFunction)
-          expr.getClazzForType(t) match {
-            case Some(cl: PsiClass) => state = state.put(ScImplicitlyConvertible.IMPLICIT_RESOLUTION_KEY, cl)
-            case _ =>
-          }
-          applyProc.processType(t, expr, state)
+        ScalaPsiUtil.findImplicitConversion(expr, "apply", expr, applyProc, noImplicitsForArgs = false) match {
+          case Some(res) =>
+            var state = ResolveState.initial.put(CachesUtil.IMPLICIT_FUNCTION, res.element)
+            res.getClazz match {
+              case Some(cl: PsiClass) => state = state.put(ScImplicitlyConvertible.IMPLICIT_RESOLUTION_KEY, cl)
+              case _ =>
+            }
+            applyProc.processType(res.getTypeWithDependentSubstitutor(), expr, state)
+            cand = applyProc.candidates
+          case _ =>
         }
-        cand = applyProc.candidates
       }
       cand
     }
