@@ -490,7 +490,7 @@ trait ResolvableReferenceExpression extends ScReferenceExpression {
       case _ =>
     }
     state = state.put(BaseProcessor.FROM_TYPE_KEY, res.tp)
-    processor.processType(res.getTypeWithDependentSubstitutor(), e, state)
+    processor.processType(res.getTypeWithDependentSubstitutor, e, state)
   }
 }
 

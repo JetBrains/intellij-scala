@@ -86,14 +86,14 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible with Ps
       if (f.length == 0) {
         f = implicitMapSecondPart(Some(expected), fromUnderscore).filter(_.tp.conforms(expected))
       }
-      if (f.length == 1) ExpressionTypeResult(Success(f(0).getTypeWithDependentSubstitutor(), Some(this)), f(0).importUsed, Some(f(0).element))
+      if (f.length == 1) ExpressionTypeResult(Success(f(0).getTypeWithDependentSubstitutor, Some(this)), f(0).importUsed, Some(f(0).element))
       else if (f.length == 0) defaultResult
       else {
         val res = MostSpecificUtil(this, 1).mostSpecificForImplicit(f.toSet) match {
           case Some(innerRes) => innerRes
           case None => return defaultResult
         }
-        ExpressionTypeResult(Success(res.getTypeWithDependentSubstitutor(), Some(this)), res.importUsed, Some(res.element))
+        ExpressionTypeResult(Success(res.getTypeWithDependentSubstitutor, Some(this)), res.importUsed, Some(res.element))
       }
     }
     
@@ -526,7 +526,7 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible with Ps
               case Some(cl: PsiClass) => state = state.put(ScImplicitlyConvertible.IMPLICIT_RESOLUTION_KEY, cl)
               case _ =>
             }
-            applyProc.processType(res.getTypeWithDependentSubstitutor(), expr, state)
+            applyProc.processType(res.getTypeWithDependentSubstitutor, expr, state)
             cand = applyProc.candidates
           case _ =>
         }
