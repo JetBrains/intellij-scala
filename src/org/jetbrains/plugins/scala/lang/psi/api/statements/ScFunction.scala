@@ -266,27 +266,24 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
 
   def isProcedure = paramClauses.clauses.isEmpty
 
+  def importantOrderFunction(): Boolean = false
+
   def returnType: TypeResult[ScType] = {
-    def importantOrderFunction(fun: ScFunctionDefinition): Boolean = {
-      fun.hasModifierProperty("implicit") && !fun.hasExplicitType
-    }
-    this match {
-      case fun: ScFunctionDefinition if importantOrderFunction(fun) =>
-        val parent = fun.getParent
-        val data = parent.getUserData(ScFunction.calculatedBlockKey)
-        if (data != null) fun.returnTypeInner
-        else {
-          parent.getChildren.foreach {
-            case fun: ScFunctionDefinition if importantOrderFunction(fun) =>
-              ProgressManager.checkCanceled()
-              fun.returnTypeInner
-            case _ =>
-          }
-          parent.putUserData(ScFunction.calculatedBlockKey, java.lang.Boolean.TRUE)
-          fun.returnTypeInner
+    if (importantOrderFunction()) {
+      val parent = getParent
+      val data = parent.getUserData(ScFunction.calculatedBlockKey)
+      if (data != null) returnTypeInner
+      else {
+        parent.getChildren.foreach {
+          case fun: ScFunction if fun.importantOrderFunction() =>
+            ProgressManager.checkCanceled()
+            fun.returnTypeInner
+          case _ =>
         }
-      case _ => returnTypeInner
-    }
+        parent.putUserData(ScFunction.calculatedBlockKey, java.lang.Boolean.TRUE)
+        returnTypeInner
+      }
+    } else returnTypeInner
   }
 
   def returnTypeInner: TypeResult[ScType]

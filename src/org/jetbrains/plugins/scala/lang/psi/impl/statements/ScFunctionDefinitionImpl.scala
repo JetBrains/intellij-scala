@@ -194,4 +194,8 @@ class ScFunctionDefinitionImpl extends ScFunctionImpl with ScFunctionDefinition 
       case _ => super.accept(visitor)
     }
   }
+
+  override def importantOrderFunction(): Boolean = {
+    hasModifierProperty("implicit") && !hasExplicitType
+  }
 }
