@@ -6,7 +6,7 @@ import com.intellij.codeInsight.highlighting.ReadWriteAccessDetector.Access
 import com.intellij.psi.{PsiElement, PsiReference, PsiNamedElement}
 import lang.psi.api.expr.{ScAssignStmt, ScExpression}
 import lang.psi.api.statements.{ScValue, ScVariableDefinition, ScPatternDefinition, ScVariable}
-import lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
 
 /**
  * User: Alexander Podkhalyuzin
@@ -22,7 +22,8 @@ class ScalaReadWriteAccessDetector extends ReadWriteAccessDetector {
   }
   def isReadWriteAccessible(element: PsiElement): Boolean = {
     element match {
-      case x: PsiNamedElement if ScalaPsiUtil.nameContext(x) != null => true
+      case x: PsiNamedElement =>
+        x.isInstanceOf[ScalaPsiElement] && ScalaPsiUtil.nameContext(x) != null
       case _ => false
     }
   }

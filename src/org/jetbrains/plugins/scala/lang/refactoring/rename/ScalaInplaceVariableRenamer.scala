@@ -3,7 +3,6 @@ package lang
 package refactoring
 package rename
 
-import _root_.scala.collection.mutable.ArrayBuffer
 import com.intellij.refactoring.util.TextOccurrencesUtil
 import com.intellij.usageView.UsageInfo
 import java.util.ArrayList
@@ -11,10 +10,9 @@ import psi.api.base.patterns.ScCaseClause
 import psi.api.statements.{ScFunction, ScValue, ScVariable}
 import psi.api.toplevel.templates.ScTemplateBody
 import psi.api.toplevel.{ScEarlyDefinitions, ScNamedElement}
-import psi.impl.statements.params.ScParameterImpl
 import psi.ScalaPsiUtil
 import com.intellij.psi.util.PsiTreeUtil
-import psi.api.expr.ScFunctionExpr
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScEnumerator, ScGenerator, ScFunctionExpr}
 import psi.api.statements.params.{ScParameters, ScClassParameter, ScParameter}
 import com.intellij.psi.search.searches.ReferencesSearch
 import com.intellij.psi.{PsiReference, PsiElement}
@@ -31,7 +29,8 @@ object ScalaInplaceVariableRenamer {
       case name: ScNamedElement => {
         def isOk(elem: PsiElement): Boolean = {
           elem match {
-            case v@(_: ScValue | _: ScVariable | _: ScFunction | _: ScCaseClause) if !v.getParent.isInstanceOf[ScTemplateBody] &&
+            case v@(_: ScValue | _: ScVariable | _: ScFunction | _: ScCaseClause | _: ScGenerator | _: ScEnumerator)
+              if !v.getParent.isInstanceOf[ScTemplateBody] &&
                     !v.isInstanceOf[ScClassParameter] && !v.getParent.isInstanceOf[ScEarlyDefinitions] => true
             case p: ScParameter if PsiTreeUtil.getParentOfType(p, classOf[ScParameters]).getParent.isInstanceOf[ScFunctionExpr] => true
             case _ => false

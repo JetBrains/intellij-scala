@@ -178,14 +178,14 @@ trait FileDeclarationsHolder extends PsiElement with ScDeclarationSequenceHolder
   //method extracted due to VerifyError in Scala compiler
   private def updateProcessor(processor: PsiScopeProcessor)(body: => Unit) {
     processor match {
-      case b: BaseProcessor => b.processPredefinedObject(b = true)
+      case b: BaseProcessor => b.predefObject = true
       case _ =>
     }
     try {
       body
     } finally {
       processor match {
-        case b: BaseProcessor => b.processPredefinedObject(b = false)
+        case b: BaseProcessor => b.predefObject = false
         case _ =>
       }
     }
