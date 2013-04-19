@@ -53,10 +53,7 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value]) extends PsiSc
 
   def changedLevel: Boolean = true
 
-  protected var predefObject: Boolean = false
-  def processPredefinedObject(b: Boolean) {
-    predefObject = b
-  }
+  var predefObject: Boolean = false
 
   protected var accessibility = true
   def doNotCheckAccessibility() {accessibility = false}
