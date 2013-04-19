@@ -291,7 +291,7 @@ object ScalaPsiUtil {
                       case Some(undef) =>
                         undef.getSubstitutor match {
                           case Some(subst) =>
-                            Seq(ImplicitResolveResult(subst.subst(implRes.getTypeWithDependentSubstitutor()), fun,
+                            Seq(ImplicitResolveResult(subst.subst(implRes.getTypeWithDependentSubstitutor)), fun,
                               implRes.importUsed, implRes.subst, implRes.implicitDependentSubst, implRes.isFromCompanion))
                           case _ => Seq(implRes)
                         }
@@ -381,7 +381,7 @@ object ScalaPsiUtil {
             case Some(cl: PsiClass) => state = state.put(ScImplicitlyConvertible.IMPLICIT_RESOLUTION_KEY, cl)
             case _ =>
           }
-          processor.processType(res.getTypeWithDependentSubstitutor(), expr, state)
+          processor.processType(res.getTypeWithDependentSubstitutor, expr, state)
         case _ =>
       }
       candidates = processor.candidatesS
