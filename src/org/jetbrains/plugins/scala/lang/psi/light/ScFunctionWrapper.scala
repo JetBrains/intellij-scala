@@ -122,12 +122,12 @@ class ScFunctionWrapper(val function: ScFunction, isStatic: Boolean, isInterface
         if (typeParameters.length > 0) {
           val methodTypeParameters = getTypeParameters
           if (typeParameters.length == methodTypeParameters.length) {
-            val map: mutable.HashMap[(String, String), ScType] = new mutable.HashMap[(String, String), ScType]()
-            typeParameters.zip(methodTypeParameters).foreach {
-              case (param: ScTypeParam, parameter: PsiTypeParameter) =>
-                map += (((param.name, ScalaPsiUtil.getPsiElementId(param)), ScDesignatorType(parameter)))
-            }
-            new ScSubstitutor(map.toMap, Map.empty, None)
+            val tvs =
+              typeParameters.zip(methodTypeParameters).map {
+                case (param: ScTypeParam, parameter: PsiTypeParameter) =>
+                  ((param.name, ScalaPsiUtil.getPsiElementId(param)), ScDesignatorType(parameter))
+              }
+            new ScSubstitutor(tvs.toMap, Map.empty, None)
           } else ScSubstitutor.empty
         } else ScSubstitutor.empty
       val scalaType = generifySubst subst ScFunctionWrapper.getSubstitutor(cClass, function).subst(function.returnType.getOrAny)
