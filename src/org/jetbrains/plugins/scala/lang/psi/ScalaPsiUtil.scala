@@ -291,7 +291,7 @@ object ScalaPsiUtil {
                       case Some(undef) =>
                         undef.getSubstitutor match {
                           case Some(subst) =>
-                            Seq(ImplicitResolveResult(subst.subst(implRes.getTypeWithDependentSubstitutor)), fun,
+                            Seq(ImplicitResolveResult(subst.subst(implRes.getTypeWithDependentSubstitutor), fun,
                               implRes.importUsed, implRes.subst, implRes.implicitDependentSubst, implRes.isFromCompanion))
                           case _ => Seq(implRes)
                         }
