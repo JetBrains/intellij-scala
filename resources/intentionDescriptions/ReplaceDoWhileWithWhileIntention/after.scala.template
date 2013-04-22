@@ -1,0 +1,11 @@
+class X {
+
+  def f {
+  var condition: Boolean
+
+    //work
+    <spot>while</spot>(condition) {
+      //work
+    }
+  }
+}
