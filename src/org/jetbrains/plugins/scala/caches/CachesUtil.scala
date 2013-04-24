@@ -19,6 +19,8 @@ import util.{PsiTreeUtil, CachedValuesManager, CachedValueProvider, CachedValue}
 import lang.psi.api.statements.ScFunction
 import scala.util.control.ControlThrowable
 import lang.psi.impl.ScPackageImpl
+import org.jetbrains.plugins.scala.lang.psi.implicits.ScImplicitlyConvertible
+import org.jetbrains.plugins.scala.lang.psi.implicits.ScImplicitlyConvertible.ImplicitResolveResult
 
 /**
  * User: Alexander Podkhalyuzin
@@ -34,9 +36,9 @@ object CachesUtil {
   val NON_VALUE_TYPE_KEY: MappedKey[(Boolean, Boolean), TypeResult[ScType]] = Key.create("non.value.type.key")
   val EXPECTED_TYPES_KEY: MappedKey[Boolean, Array[(ScType, Option[ScTypeElement])]] = Key.create("expected.types.key")
   val SMART_EXPECTED_TYPE: MappedKey[Boolean, Option[ScType]] = Key.create("smart.expected.type")
-  val IMPLICIT_MAP1_KEY: MappedKey[(Option[ScType], Boolean, Option[ScType]), Seq[(ScType, PsiNamedElement, collection.Set[ImportUsed], ScSubstitutor)]] =
+  val IMPLICIT_MAP1_KEY: MappedKey[(Option[ScType], Boolean, Option[ScType]), Seq[ImplicitResolveResult]] =
     Key.create("implicit.map1.key")
-  val IMPLICIT_MAP2_KEY: MappedKey[(Option[ScType], Boolean, Seq[ScType], Option[ScType]), Seq[(ScType, PsiNamedElement, collection.Set[ImportUsed], ScSubstitutor)]] =
+  val IMPLICIT_MAP2_KEY: MappedKey[(Option[ScType], Boolean, Seq[ScType], Option[ScType]), Seq[ImplicitResolveResult]] =
     Key.create("implicit.map2.key")
   val RESOLVE_KEY: MappedKey[Boolean, Array[ResolveResult]] =
     Key.create("resolve.key")
@@ -48,8 +50,7 @@ object CachesUtil {
     Key.create("ref.element.shape.resolve.constr.key")
   val REF_ELEMENT_RESOLVE_CONSTR_KEY: Key[CachedValue[Array[ResolveResult]]] =
     Key.create("ref.element.resolve.constr.key")
-  val IMPLICIT_SIMPLE_MAP_KEY: Key[CachedValue[ArrayBuffer[(ScalaResolveResult, ScType,
-    ScType, ScSubstitutor, ScUndefinedSubstitutor)]]] =
+  val IMPLICIT_SIMPLE_MAP_KEY: Key[CachedValue[ArrayBuffer[ScImplicitlyConvertible.ImplicitMapResult]]] =
     Key.create("implicit.simple.map.key")
   val NO_CONSTRUCTOR_RESOLVE_KEY: Key[CachedValue[Array[ResolveResult]]] = Key.create("no.constructor.resolve.key")
   val OBJECT_SYNTHETIC_MEMBERS_KEY: Key[CachedValue[Seq[PsiMethod]]] = Key.create("object.synthetic.members.key")

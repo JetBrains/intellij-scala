@@ -2,33 +2,38 @@ package org.jetbrains.plugins.scala
 
 import java.io.File
 import com.intellij.openapi.projectRoots.{SdkType, JavaSdkType, ProjectJdkTable}
+import com.intellij.openapi.util.io.FileUtil
 
 /**
  * @author Pavel Fatin
  */
 package object compiler {
-  def javaExecutableIn(sdkName: String): Either[String, File] = {
-    val javaPath = {
-      Option(sdkName).toRight("No JVM SDK configured").right.flatMap { name =>
+  case class JDK(executable: File, tools: File)
 
-        val projectSdk = Option(ProjectJdkTable.getInstance().findJdk(name))
-                .toRight("JVM SDK does not exists: " + sdkName)
+  def findJdkByName(sdkName: String): Either[String, JDK] = {
+    Option(sdkName).toRight("No JVM SDK configured").right.flatMap { name =>
 
-        projectSdk.right.flatMap { sdk =>
-          sdk.getSdkType match {
-            case sdkType: SdkType with JavaSdkType =>
-              Either.cond(sdkType.sdkHasValidPath(sdk),
-                sdkType.getVMExecutablePath(sdk), "Not valid SDK path: " + sdkName)
-            case _ => Left("Not a Java SDK: " + sdkName)
-          }
+      val projectSdk = Option(ProjectJdkTable.getInstance().findJdk(name))
+              .toRight("JVM SDK does not exists: " + sdkName)
+
+      projectSdk.right.flatMap { sdk =>
+        sdk.getSdkType match {
+          case jdkType: SdkType with JavaSdkType =>
+            val vmExecutable = Either.cond(jdkType.sdkHasValidPath(sdk),
+              new File(jdkType.getVMExecutablePath(sdk)), "Not valid SDK path: " + sdkName)
+
+            vmExecutable.right.flatMap { executable =>
+              val tools = new File(jdkType.getToolsPath(sdk)) // TODO properly handle JDK 6 on Mac OS
+              val toolsPresent = true //tools.exists()
+              Either.cond(toolsPresent, JDK(executable, tools), "SDK tools not found: " + tools)
+            }
+          case _ => Left("Not a Java SDK: " + sdkName)
         }
       }
     }
+  }
 
-    javaPath.right.flatMap { path =>
-      val file = new File(path)
-//      Either.cond(file.exists, file, "Java executable in JVM SDK does not exist: " + file.getPath)
-      Right(file)
-    }
+  implicit class RichFile(val file: File) {
+    def canonicalPath: String = FileUtil.toCanonicalPath(file.getPath)
   }
 }

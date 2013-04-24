@@ -25,10 +25,11 @@ class ServerMediator(project: Project) extends ProjectComponent {
       if (scalaProject) {
         if (externalCompiler) {
           if (firstCompilation) {
-            val title = "Using a new (SBT-based) Scala compiler."
-            val message = "In case of any compilation problems you may enable the previous (internal) compiler by clearing:\n" +
-                    "Project Settings / Compiler / Use external build"
-            Notifications.Bus.notify(new Notification("scala", title, message, NotificationType.INFORMATION))
+            val title = "Using a new Scala compilation subsystem."
+            val message = "<html><body>In case of any compilation problems you may revert to " +
+                    "the previous system by clearing: Project Settings / Compiler / Use external build" +
+                    "<br><a href='http://blog.jetbrains.com/scala/2012/12/28/a-new-way-to-compile/'>More info...</a></body></html></body></html>"
+            Notifications.Bus.notify(new Notification("scala", title, message, NotificationType.INFORMATION, DesktopUtils.LinkHandler))
             firstCompilation = false
           }
 

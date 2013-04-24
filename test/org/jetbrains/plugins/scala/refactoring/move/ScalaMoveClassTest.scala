@@ -80,7 +80,7 @@ def testPackageObject() {
     val rootDir: VirtualFile = PsiTestUtil.createTestProjectStructure(getProjectAdapter, getModuleAdapter, rootBefore, new util.HashSet[File]())
     (VirtualFilePointerManager.getInstance.asInstanceOf[VirtualFilePointerManagerImpl]).storePointers()
     try {
-      performAction(classNames, newPackageName, rootDir)
+      performAction(classNames, newPackageName)
     } finally {
       PsiTestUtil.removeSourceRoot(getModuleAdapter, rootDir)
     }
@@ -91,7 +91,7 @@ def testPackageObject() {
     PlatformTestUtil.assertDirectoriesEqual(rootDir2, rootDir, PlatformTestUtil.CVS_FILE_FILTER)
   }
 
-  private def performAction(classNames: Array[String], newPackageName: String, rootDir: VirtualFile) {
+  private def performAction(classNames: Array[String], newPackageName: String) {
     val classes = new ArrayBuffer[PsiClass]()
     for (name <- classNames) {
       classes ++= ScalaPsiManager.instance(getProjectAdapter).getCachedClasses(GlobalSearchScope.allScope(getProjectAdapter), name).filter {

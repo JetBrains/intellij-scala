@@ -458,15 +458,15 @@ trait ResolvableReferenceExpression extends ScReferenceExpression {
   private def collectImplicits(e: ScExpression, processor: BaseProcessor, noImplicitsForArgs: Boolean) {
     processor match {
       case _: CompletionProcessor => {
-        for ((t, fun, importsUsed, _) <- e.implicitMap()._1) { //todo: args?
+        for (res <- e.implicitMap()) { //todo: args?
           ProgressManager.checkCanceled()
-          var state = ResolveState.initial.put(ImportUsed.key, importsUsed)
-          state = state.put(CachesUtil.IMPLICIT_FUNCTION, fun).put(CachesUtil.IMPLICIT_TYPE, t)
-          e.getClazzForType(t) match {
+          var state = ResolveState.initial.put(ImportUsed.key, res.importUsed)
+          state = state.put(CachesUtil.IMPLICIT_FUNCTION, res.element).put(CachesUtil.IMPLICIT_TYPE, res.tp)
+          res.getClazz match {
             case Some(cl: PsiClass) => state = state.put(ScImplicitlyConvertible.IMPLICIT_RESOLUTION_KEY, cl)
             case _ =>
           }
-          processor.processType(t, e, state)
+          processor.processType(res.tp, e, state)
         }
         return
       }
@@ -477,20 +477,20 @@ trait ResolvableReferenceExpression extends ScReferenceExpression {
       case rp: ResolveProcessor => rp.name // See SCL-2934.
       case _ => refName
     }
-    val (t: ScType, fun: PsiNamedElement, importsUsed: collection.Set[ImportUsed], _) =
-      ScalaPsiUtil.findImplicitConversion(e, name, processor.kinds, this, processor, noImplicitsForArgs) match {
+    val res =
+      ScalaPsiUtil.findImplicitConversion(e, name, this, processor, noImplicitsForArgs) match {
         case Some(a) => a
         case None => return
       }
     ProgressManager.checkCanceled()
-    var state = ResolveState.initial.put(ImportUsed.key, importsUsed)
-    state = state.put(CachesUtil.IMPLICIT_FUNCTION, fun).put(CachesUtil.IMPLICIT_TYPE, t)
-    e.getClazzForType(t) match {
+    var state = ResolveState.initial.put(ImportUsed.key, res.importUsed)
+    state = state.put(CachesUtil.IMPLICIT_FUNCTION, res.element).put(CachesUtil.IMPLICIT_TYPE, res.tp)
+    res.getClazz match {
       case Some(cl: PsiClass) => state = state.put(ScImplicitlyConvertible.IMPLICIT_RESOLUTION_KEY, cl)
       case _ =>
     }
-    state = state.put(BaseProcessor.FROM_TYPE_KEY, t)
-    processor.processType(t, e, state)
+    state = state.put(BaseProcessor.FROM_TYPE_KEY, res.tp)
+    processor.processType(res.getTypeWithDependentSubstitutor, e, state)
   }
 }
 
