@@ -483,6 +483,11 @@
         </intentionAction>
 
         <intentionAction>
+            <category>Scala/Control flow</category>
+            <className>org.jetbrains.plugins.scala.codeInsight.intention.controlflow.ReplaceDoWhileWithWhileIntention</className>
+        </intentionAction>
+
+        <intentionAction>
             <category>Scala/Boolean</category>
             <className>org.jetbrains.plugins.scala.codeInsight.intention.booleans.ExpandBooleanIntention</className>
         </intentionAction>
