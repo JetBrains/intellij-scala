@@ -49,12 +49,9 @@ class ReplaceWhileWithDoWhileIntention extends PsiElementBaseIntentionAction {
       val condText = condition.getText
       val bodyText = body.getText
 
-      val expr = new StringBuilder
-      expr.append("if (").append(condText).append(") {\n")
-      expr.append("do ").append(bodyText).append(" while (").append(condText).append(")\n")
-      expr.append("}")
+      val newStmtText = s"if ($condText) {\n do $bodyText while ($condText)\n}"
 
-      val newStmt: ScExpression = ScalaPsiElementFactory.createExpressionFromText(expr.toString(), element.getManager)
+      val newStmt: ScExpression = ScalaPsiElementFactory.createExpressionFromText(newStmtText, element.getManager)
 
       inWriteAction {
         whileStmt.replaceExpression(newStmt, removeParenthesis = true)
