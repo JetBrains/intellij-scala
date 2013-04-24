@@ -7,6 +7,7 @@ import config.ScalaFacet
 import com.intellij.compiler.CompilerWorkspaceConfiguration
 import com.intellij.notification.{NotificationType, Notification, Notifications}
 import com.intellij.openapi.compiler.{CompileContext, CompileTask, CompilerManager}
+import org.intellij.lang.annotations.Language
 import extensions._
 
 /**
@@ -26,8 +27,9 @@ class ServerMediator(project: Project) extends ProjectComponent {
         if (externalCompiler) {
           if (firstCompilation) {
             val title = "Using a new Scala compilation subsystem."
-            val message = "<html><body>In case of any compilation problems you may revert to " +
-                    "the previous system by clearing: Project Settings / Compiler / Use external build" +
+            @Language("HTML")
+            val message = "<html><body>In case of any compilation problems you may revert to the previous system by clearing:" +
+                    "<br>Project&nbsp;Settings&nbsp;|&nbsp;Compiler&nbsp;|&nbsp;Use&nbsp;external&nbsp;build" +
                     "<br><a href='http://blog.jetbrains.com/scala/2012/12/28/a-new-way-to-compile/'>More info...</a></body></html></body></html>"
             Notifications.Bus.notify(new Notification("scala", title, message, NotificationType.INFORMATION, DesktopUtils.LinkHandler))
             firstCompilation = false
