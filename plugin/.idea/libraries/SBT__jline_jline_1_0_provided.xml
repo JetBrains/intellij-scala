@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="SBT: jline:jline:1.0:provided">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.ivy2/cache/jline/jline/jars/jline-1.0.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$USER_HOME$/.ivy2/cache/jline/jline/docs/jline-1.0-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.ivy2/cache/jline/jline/srcs/jline-1.0-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>
