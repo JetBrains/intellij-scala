@@ -102,6 +102,9 @@ public class ScalaPositionManager implements PositionManager {
         if (ScalaPsiUtil.isByNameArgument((ScExpression) element)) {
           break;
         }
+        if (isInsideMacro(position)) {
+          break;
+        }
       }
       element = element.getParent();
     }
@@ -157,7 +160,7 @@ public class ScalaPositionManager implements PositionManager {
           }
         });
         Boolean insideMacro =
-            ScalaMacroDebuggingUtil.isEnabled() && ApplicationManager.getApplication().runReadAction(new Computable<Boolean>() {
+            ApplicationManager.getApplication().runReadAction(new Computable<Boolean>() {
               public Boolean compute() {
                 return isInsideMacro(position);
               }
@@ -171,7 +174,7 @@ public class ScalaPositionManager implements PositionManager {
             sourceImage instanceof ScForStatement ||
             sourceImage instanceof ScExtendsBlock ||
             sourceImage instanceof ScCaseClauses && sourceImage.getParent() instanceof ScBlockExpr ||
-            sourceImage instanceof ScExpression /*by name argument*/ ||
+            sourceImage instanceof ScExpression /*by name or macro argument*/ ||
             sourceImage instanceof ScTypeDefinition) {
           ScTypeDefinition typeDefinition = findEnclosingTypeDefinition(position);
           if (typeDefinition != null) {

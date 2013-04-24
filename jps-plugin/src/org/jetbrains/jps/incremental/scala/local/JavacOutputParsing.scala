@@ -36,6 +36,8 @@ trait JavacOutputParsing extends Logger {
         client.message(kind, text, location.map(_._1), location.map(_._2), Some(1L + prefix.length))
         location = None
         lines = Vector.empty
+      case NotePattern(message) =>
+        client.message(Kind.WARNING, message)
       case TotalsPattern =>
         // do nothing
       case _ =>
@@ -51,5 +53,6 @@ trait JavacOutputParsing extends Logger {
 object JavacOutputParsing {
   val LocationPattern = "(.*?):(\\d+): (.*)".r
   val PointerPattern = "(\\s*)\\^".r
+  val NotePattern = "Note: (.*)".r
   val TotalsPattern = "\\d+ (errors?|warnings?)".r
 }

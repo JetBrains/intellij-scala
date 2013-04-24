@@ -194,13 +194,13 @@ class FscServerManager(project: Project) extends ProjectComponent {
 
       wasRunning -> nowRunning match {
         case (false, true) =>
-          val notification = new Notification("scala", title, "Startup", NotificationType.INFORMATION)
-          Notifications.Bus.register("scala", NotificationDisplayType.BALLOON)
-          Notifications.Bus.notify(notification, project)
+//          val notification = new Notification("scala", title, "Startup", NotificationType.INFORMATION)
+//          Notifications.Bus.register("scala", NotificationDisplayType.BALLOON)
+//          Notifications.Bus.notify(notification, project)
         case (true, false) =>
-          val notification = new Notification("scala", title, "Shutdown", NotificationType.INFORMATION)
-          Notifications.Bus.register("scala", NotificationDisplayType.BALLOON)
-          Notifications.Bus.notify(notification, project)
+//          val notification = new Notification("scala", title, "Shutdown", NotificationType.INFORMATION)
+//          Notifications.Bus.register("scala", NotificationDisplayType.BALLOON)
+//          Notifications.Bus.notify(notification, project)
         case _ =>
       }
 

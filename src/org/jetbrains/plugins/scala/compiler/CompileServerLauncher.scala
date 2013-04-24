@@ -48,9 +48,9 @@ class CompileServerLauncher extends ApplicationComponent {
 //         message, NotificationType.INFORMATION))
      }
 
-    javaExecutableIn(applicationSettings.COMPILE_SERVER_SDK)
+    findJdkByName(applicationSettings.COMPILE_SERVER_SDK)
             .left.map(_ + "\nPlease either disable Scala compile server or configure a valid JVM SDK for it.")
-            .right.flatMap(java => start(FileUtil.toCanonicalPath(java.getPath))) match {
+            .right.flatMap(start(_)) match {
       case Left(error) =>
         val title = "Cannot start Scala compile server"
         val content = s"<html><body>${error.replace("\n", "<br>")} <a href=''>Configure</a></body></html>"
@@ -61,7 +61,7 @@ class CompileServerLauncher extends ApplicationComponent {
     }
   }
 
-   private def start(java: String): Either[String, Process] = {
+   private def start(jdk: JDK): Either[String, Process] = {
      val settings = ScalaApplicationSettings.getInstance
 
      val jvmParameters = {
@@ -93,9 +93,9 @@ class CompileServerLauncher extends ApplicationComponent {
 
      files.partition(_.exists) match {
        case (presentFiles, Seq()) =>
-         val classpath = presentFiles.map(_.getPath).mkString(File.pathSeparator)
+         val classpath = (jdk.tools +: presentFiles).map(_.canonicalPath).mkString(File.pathSeparator)
 
-         val commands = java +: "-cp" +: classpath +: jvmParameters :+
+         val commands = jdk.executable.canonicalPath +: "-cp" +: classpath +: jvmParameters :+
                  "org.jetbrains.plugins.scala.nailgun.NailgunRunner" :+ settings.COMPILE_SERVER_PORT
 
          val builder = new ProcessBuilder(commands.asJava)

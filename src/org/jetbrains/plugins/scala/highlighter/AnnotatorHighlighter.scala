@@ -104,7 +104,7 @@ object AnnotatorHighlighter {
       } else if (conformsByNames(resolvedType, JAVA_COLLECTIONS_BASES)) {
         simpleAnnotate(ScalaBundle.message("java.collection"), DefaultHighlighter.JAVA_COLLECTION)
       } else if (resolvedType.canonicalText.startsWith(SCALA_COLLECTION_GENERIC_BASE) && refElement.isInstanceOf[ScReferenceExpression]) {
-        refElement.asInstanceOf[ScReferenceExpression].allTypes.headOption.foreach(_ match {
+        refElement.asInstanceOf[ScReferenceExpression].getType(TypingContext.empty).foreach(_ match {
           case f: ScFunctionType => Option(f.returnType).foreach(a =>
             if (a.canonicalText.startsWith(SCALA_COLLECTION_MUTABLE_BASE)) {
               simpleAnnotate(ScalaBundle.message("scala.mutable.collection"), DefaultHighlighter.MUTABLE_COLLECTION)

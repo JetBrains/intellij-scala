@@ -179,10 +179,10 @@ class CompileServerManager(project: Project) extends ProjectComponent {
 
        wasRunning -> nowRunning match {
          case (Some(false), true) =>
-           val message = "Started" + launcher.port.map(_.formatted(" on TCP %d")).getOrElse("") + "."
-           Notifications.Bus.notify(new Notification("scala", title, message, NotificationType.INFORMATION), project)
+//           val message = "Started" + launcher.port.map(_.formatted(" on TCP %d")).getOrElse("") + "."
+//           Notifications.Bus.notify(new Notification("scala", title, message, NotificationType.INFORMATION), project)
          case (Some(true), false) =>
-           Notifications.Bus.notify(new Notification("scala", title, "Stopped.", NotificationType.INFORMATION), project)
+//           Notifications.Bus.notify(new Notification("scala", title, "Stopped.", NotificationType.INFORMATION), project)
          case _ =>
        }
 

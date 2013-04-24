@@ -29,55 +29,6 @@ import extensions.toPsiNamedElementExt
 class ScArgumentExprListImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScArgumentExprList {
   override def toString: String = "ArgumentList"
 
-  def nameCallFromParameter: Int = {
-    var i = 0
-    for (expr <- exprs) {
-      expr match {
-        case assign: ScAssignStmt => {
-          assign.assignName match {
-            case Some(name: String) => {
-              callReference match {
-                case Some(ref: ScReferenceExpression) => {
-                  val count = invocationCount
-                  val variants = ref.getSameNameVariants.map(r => r.getElement)
-                  for {
-                    variant <- variants
-                    if variant.isInstanceOf[ScFunction]
-                    if variant.asInstanceOf[ScFunction].hasParamName(name, count)
-                  } {
-                    return i
-                  }
-                }
-                case None =>
-              }
-              val types = callExpression.allTypes
-              for (typez <- types) {
-                ScType.extractClass(typez) match {
-                  case Some(clazz) => {
-                    val applyMethods = clazz.findMethodsByName("apply", true)
-                    for{
-                      method <- applyMethods
-                      if method.isInstanceOf[ScFunction]
-                      function = method.asInstanceOf[ScFunction]
-                      if function.hasParamName(name)
-                    } {
-                      return i
-                    }
-                  }
-                  case None =>
-                }
-              }
-            }
-            case None =>
-          }
-        }
-        case _ =>
-      }
-      i = i + 1
-    }
-    -1
-  }
-
   def invocationCount: Int = {
     callExpression match {
       case call: ScMethodCall => call.args.invocationCount + 1

@@ -84,7 +84,7 @@ object Compatibility {
                                   undefSubst: ScUndefinedSubstitutor = new ScUndefinedSubstitutor,
                                   defaultParameterUsed: Boolean = false,
                                   matchedArgs: Seq[(Parameter, ScExpression)] = Seq())
-  
+
   def checkConformanceExt(checkNames: Boolean,
                           parameters: Seq[Parameter],
                           exprs: Seq[Expression],
