@@ -730,6 +730,10 @@
                        displayName="Double negation" groupName="Scala: General"
                        shortName="DoubleNegation" level="WARNING"
                        enabledByDefault="true" language="Scala"/>
+      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.booleans.SimplifyBooleanInspection"
+                       displayName="Simplify boolean expression" groupName="Scala: General"
+                       shortName="SimplifyBoolean" level="WARNING"
+                       enabledByDefault="true" language="Scala"/>
 
         <!--<localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.allErrorsInspection.AnnotatorBasedErrorInspection"
        displayName="All Errors Tool" groupName="Scala: General"
