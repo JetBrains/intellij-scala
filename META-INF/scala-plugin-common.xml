@@ -726,6 +726,10 @@
                          displayName="Type annotation required" groupName="Scala: General"
                          shortName="TypeAnnotation" level="WARNING"
                          enabledByDefault="true" language="Scala"/>
+      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.booleans.DoubleNegationInspection"
+                       displayName="Double negation" groupName="Scala: General"
+                       shortName="DoubleNegation" level="WARNING"
+                       enabledByDefault="true" language="Scala"/>
 
         <!--<localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.allErrorsInspection.AnnotatorBasedErrorInspection"
        displayName="All Errors Tool" groupName="Scala: General"
