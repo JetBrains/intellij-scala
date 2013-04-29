@@ -13,6 +13,7 @@ import statements.params.{ScParameterClause, ScParameters}
 import statements.{ScFunction, ScFunctionDefinition, ScParameterOwner}
 import caches.CachesUtil
 import com.intellij.psi.util.PsiModificationTracker
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScTupleTypeElement, ScTypeElement}
 
 /**
 * @author Alexander Podkhalyuzin
@@ -143,9 +144,15 @@ trait ScClass extends ScTypeDefinition with ScParameterOwner {
           val params = clauses(0).parameters
           if (params.length == 0) "scala.Boolean"
           else {
+            def convertTypeElement(te: Option[ScTypeElement]): String = {
+              te match {
+                case Some(t: ScTupleTypeElement) if params.length == 1 => "(" + t.getText + ",)"
+                case _ => te.map(_.getText).getOrElse("scala.Any")
+              }
+            }
             val strings = params.map(p =>
               (if (p.isRepeatedParameter) "scala.Seq[" else "") +
-                      p.typeElement.map(_.getText).getOrElse("scala.Any") +
+                       convertTypeElement(p.typeElement) +
                       (if (p.isRepeatedParameter) "]" else ""))
             strings.mkString("scala.Option[" + (if (strings.length > 1) "(" else ""), ", ",
               (if (strings.length > 1) ")" else "") + "]")
