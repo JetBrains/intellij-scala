@@ -1,4 +1,5 @@
 package org.jetbrains.sbt
+package language
 
 import com.intellij.lang.annotation.{AnnotationHolder, Annotator}
 import com.intellij.psi.{PsiWhiteSpace, PsiComment, PsiElement}

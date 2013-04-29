@@ -1,4 +1,5 @@
 package org.jetbrains.sbt
+package language
 
 import com.intellij.openapi.components.AbstractProjectComponent
 import com.intellij.openapi.project.Project

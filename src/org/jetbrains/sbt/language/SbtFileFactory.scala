@@ -1,4 +1,5 @@
 package org.jetbrains.sbt
+package language
 
 import org.jetbrains.plugins.scala.lang.parser.ScalaFileFactory
 import com.intellij.psi.FileViewProvider
