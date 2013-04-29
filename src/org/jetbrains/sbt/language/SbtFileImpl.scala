@@ -1,4 +1,5 @@
 package org.jetbrains.sbt
+package language
 
 import com.intellij.psi.{PsiElement, ResolveState, FileViewProvider}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaFileImpl
