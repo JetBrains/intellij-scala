@@ -413,6 +413,11 @@
         </intentionAction>
 
         <intentionAction>
+          <category>Scala/Expressions</category>
+          <className>org.jetbrains.plugins.scala.codeInsight.intention.expression.RemoveUnnecessaryParenthesesIntention</className>
+        </intentionAction>
+
+        <intentionAction>
             <category>Scala/Boolean</category>
             <className>org.jetbrains.plugins.scala.codeInsight.intention.booleans.FlipComparisonInInfixExprIntention</className>
         </intentionAction>
@@ -738,6 +743,10 @@
       <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.booleans.SimplifyBooleanInspection"
                        displayName="Simplify boolean expression" groupName="Scala: General"
                        shortName="SimplifyBoolean" level="WARNING"
+                       enabledByDefault="true" language="Scala"/>
+      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.parentheses.UnnecessaryParenthesesInspection"
+                       displayName="Unnecessary parentheses" groupName="Scala: General"
+                       shortName="UnnecessaryParentheses" level="WARNING"
                        enabledByDefault="true" language="Scala"/>
 
         <!--<localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.allErrorsInspection.AnnotatorBasedErrorInspection"
