@@ -94,7 +94,7 @@ object ScalaI18nUtil {
     val args: Array[ScExpression] = (parent.asInstanceOf[ScArgumentExprList]).exprsArray
     var i: Int = 0
     var flag = true
-    while (i < args.length && flag == true) {
+    while (i < args.length && flag) {
       val arg: ScExpression = args(i)
       if (PsiTreeUtil.isAncestor(arg, expression, false)) {
         idx = i
