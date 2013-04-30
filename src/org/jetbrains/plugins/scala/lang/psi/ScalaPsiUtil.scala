@@ -18,7 +18,7 @@ import impl.toplevel.typedef.TypeDefinitionMembers
 import impl.{ScalaPsiManager, ScalaPsiElementFactory}
 import implicits.ScImplicitlyConvertible
 import com.intellij.openapi.progress.ProgressManager
-import api.expr._
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import api.expr.xml.ScXmlExpr
 
 import com.intellij.openapi.project.Project
@@ -58,6 +58,24 @@ import com.intellij.openapi.diagnostic
 import types.Conformance.AliasType
 import scala.util.control.ControlThrowable
 import org.jetbrains.plugins.scala.lang.psi.implicits.ScImplicitlyConvertible.ImplicitResolveResult
+import scala.Some
+import org.jetbrains.plugins.scala.lang.psi.types.ScUndefinedType
+import org.jetbrains.plugins.scala.lang.psi.types.ScCompoundType
+import org.jetbrains.plugins.scala.lang.psi.types.ScAbstractType
+import org.jetbrains.plugins.scala.lang.psi.types.ScFunctionType
+import org.jetbrains.plugins.scala.lang.resolve.processor.MostSpecificUtil
+import org.jetbrains.plugins.scala.lang.psi.types.Conformance.AliasType
+import org.jetbrains.plugins.scala.lang.psi.types.ScDesignatorType
+import org.jetbrains.plugins.scala.lang.psi.implicits.ScImplicitlyConvertible.ImplicitResolveResult
+import org.jetbrains.plugins.scala.lang.psi.types.ScTypeParameterType
+import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
+import org.jetbrains.plugins.scala.lang.psi.types.ScTupleType
+import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScTypePolymorphicType
+import org.jetbrains.plugins.scala.lang.psi.types.result.Success
+import org.jetbrains.plugins.scala.lang.psi.types.JavaArrayType
+import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScMethodType
+import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.TypeParameter
+import org.jetbrains.plugins.scala.lang.psi.types.ScProjectionType
 
 /**
  * User: Alexander Podkhalyuzin
@@ -1345,140 +1363,219 @@ object ScalaPsiUtil {
     PseudoPsiSubstitutor(subst)
   }
 
-  //todo: rewrite this!
+  /*
+  ******** any subexpression of these does not need parentheses **********
+  * ScTuple, ScBlock, ScXmlExpr
+  *
+  ******** do not need parentheses with any parent ***************
+  * ScReferenceExpression, ScMethodCall,
+  * ScGenericCall, ScLiteral, ScTuple,
+  * ScXmlExpr, ScParenthesisedExpr, ScUnitExpr
+  * ScThisReference, ScSuperReference,
+  *
+  ********** other cases (1 - need parentheses, 0 - does not need parentheses *****
+  *
+  *		                        ScBlockExpr 	ScNewTemplateDefinition 	ScUnderscoreSection	  ScPrefixExpr	  ScInfixExpr	  ScPostfixExpr     Other
+  *   ScMethodCall	              1                   1	                        1	                1             1	              1        |    1
+  *   ScUnderscoreSection	        1                   1	                        1	                1             1	              1        |    1
+  *   ScGenericCall		            0                   1	                        1	                1             1	              1        |    1
+  *   ScReferenceExpression			  0                special                      1	                1             1	              1        |    1
+  *   ScPrefixExpr	              0                   0	                        0	                1             1	              1        |    1
+  *   ScPostfixExpr	              0                   0	                        0	                0             1	              1        |    1
+  *   ScInfixExpr	                0                   0	                        0	                0          special            1        |    1
+  *   ScTypedStmt	                0                   0	                        0	                0             0	              0        |    1
+  *   ScMatchStmt	                0                   0	                        0	                0             0	              0        |    1
+	*		-----------------------------------------------------------------------------------------------------------------------------------
+  *	  Other                       0                   0	                        0	                0             0	              0
+  * */
   def needParentheses(from: ScExpression, expr: ScExpression): Boolean = {
-    val parent = from.getParent
-    (parent, expr) match { //true only for other cases
-      case _ if !parent.isInstanceOf[ScExpression] => false
-      case (_: ScTuple, _) => false
-      case (_: ScReferenceExpression, _: ScBlockExpr) => false
-      case (_: ScReferenceExpression, _: ScNewTemplateDefinition) if expr.getText.endsWith(")") ||
-              expr.getText.endsWith("}") || expr.getText.endsWith("]") => false
-      case (_: ScReferenceExpression, _: ScReferenceExpression) => false
-      case (_: ScReferenceExpression, _: ScGenericCall) => false
-      case (_: ScReferenceExpression, _: ScMethodCall) => false
-      case (_: ScReferenceExpression, _: ScLiteral) => false
-      case (_: ScReferenceExpression, _) if expr.getText == "_" => false
-      case (_: ScReferenceExpression, _: ScTuple) => false
-      case (_: ScReferenceExpression, _: ScXmlExpr) => false
-      case (_: ScReferenceExpression, _: ScParenthesisedExpr) => false
-      case (_: ScReferenceExpression, _: ScThisReference) => false
-      case (_: ScReferenceExpression, _) => true
-      case (_: ScGenericCall, _: ScReferenceExpression) => false
-      case (_: ScGenericCall, _: ScMethodCall) => false
-      case (_: ScGenericCall, _: ScLiteral) => false
-      case (_: ScGenericCall, _: ScTuple) => false
-      case (_: ScGenericCall, _: ScXmlExpr) => false
-      case (_: ScGenericCall, _) if expr.getText == "_" => false
-      case (_: ScGenericCall, _: ScBlockExpr) => false
-      case (_: ScGenericCall, _) => true
-      case (_: ScMethodCall, _: ScReferenceExpression) => false
-      case (_: ScMethodCall, _: ScMethodCall) => false
-      case (_: ScMethodCall, _: ScGenericCall) => false
-      case (_: ScMethodCall, _: ScLiteral) => false
-      case (_: ScMethodCall, _) if expr.getText == "_" => false
-      case (_: ScMethodCall, _: ScXmlExpr) => false
-      case (_: ScMethodCall, _: ScTuple) => false
-      case (_: ScMethodCall, _) => true
-      case (_: ScUnderscoreSection, _: ScReferenceExpression) => false
-      case (_: ScUnderscoreSection, _: ScMethodCall) => false
-      case (_: ScUnderscoreSection, _: ScGenericCall) => false
-      case (_: ScUnderscoreSection, _: ScLiteral) => false
-      case (_: ScUnderscoreSection, _) if expr.getText == "_" => false
-      case (_: ScUnderscoreSection, _: ScXmlExpr) => false
-      case (_: ScUnderscoreSection, _: ScTuple) => false
-      case (_: ScUnderscoreSection, _) => true
-      case (_: ScBlock, _) => false
-      case (_: ScPrefixExpr, _: ScBlockExpr) => false
-      case (_: ScPrefixExpr, _: ScNewTemplateDefinition) => false
-      case (_: ScPrefixExpr, _: ScUnderscoreSection) => false
-      case (_: ScPrefixExpr, _: ScReferenceExpression) => false
-      case (_: ScPrefixExpr, _: ScGenericCall) => false
-      case (_: ScPrefixExpr, _: ScMethodCall) => false
-      case (_: ScPrefixExpr, _: ScLiteral) => false
-      case (_: ScPrefixExpr, _) if expr.getText == "_" => false
-      case (_: ScPrefixExpr, _: ScTuple) => false
-      case (_: ScPrefixExpr, _: ScXmlExpr) => false
-      case (_: ScPrefixExpr, _) => true
-      case (_: ScInfixExpr, _: ScBlockExpr) => false
-      case (_: ScInfixExpr, _: ScNewTemplateDefinition) => false
-      case (_: ScInfixExpr, _: ScUnderscoreSection) => false
-      case (_: ScInfixExpr, _: ScReferenceExpression) => false
-      case (_: ScInfixExpr, _: ScGenericCall) => false
-      case (_: ScInfixExpr, _: ScMethodCall) => false
-      case (_: ScInfixExpr, _: ScLiteral) => false
-      case (_: ScInfixExpr, _) if expr.getText == "_" => false
-      case (_: ScInfixExpr, _: ScTuple) => false
-      case (_: ScInfixExpr, _: ScXmlExpr) => false
-      case (_: ScInfixExpr, _: ScPrefixExpr) => false
-      case (_: ScInfixExpr, _: ScParenthesisedExpr) => false
-      case (_: ScInfixExpr, _: ScThisReference) => false
-      case (par: ScInfixExpr, child: ScInfixExpr) => {
-        import ParserUtils._
-        import InfixExpr._
-        if (par.lOp == from) {
-          val lid = par.operation.getText
-          val rid = child.operation.getText
-          if (priority(lid) < priority(rid)) true
-          else if (priority(rid) < priority(lid)) false
-          else if (associate(lid) != associate(rid)) true
-          else if (associate(lid) == -1) true
-          else false
-        }
-        else {
-          val lid = child.operation.getText
-          val rid = par.operation.getText
-          if (priority(lid) < priority(rid)) false
-          else if (priority(rid) < priority(lid)) true
-          else if (associate(lid) != associate(rid)) true
-          else if (associate(lid) == -1) false
-          else true
-        }
+    def infixInInfixParentheses(parent: ScInfixExpr, child: ScInfixExpr): Boolean = {
+      import ParserUtils._
+      import InfixExpr._
+      if (parent.lOp == from) {
+        val lid = parent.operation.getText
+        val rid = child.operation.getText
+        if (priority(lid) < priority(rid)) true
+        else if (priority(rid) < priority(lid)) false
+        else if (associate(lid) != associate(rid)) true
+        else if (associate(lid) == -1) true
+        else false
       }
-      case (_: ScInfixExpr, _) => true
-      case (_: ScPostfixExpr, _: ScBlockExpr) => false
-      case (_: ScPostfixExpr, _: ScNewTemplateDefinition) => false
-      case (_: ScPostfixExpr, _: ScUnderscoreSection) => false
-      case (_: ScPostfixExpr, _: ScReferenceExpression) => false
-      case (_: ScPostfixExpr, _: ScGenericCall) => false
-      case (_: ScPostfixExpr, _: ScMethodCall) => false
-      case (_: ScPostfixExpr, _: ScLiteral) => false
-      case (_: ScPostfixExpr, _) if expr.getText == "_" => false
-      case (_: ScPostfixExpr, _: ScTuple) => false
-      case (_: ScPostfixExpr, _: ScXmlExpr) => false
-      case (_: ScPostfixExpr, _: ScPrefixExpr) => false
-      case (_: ScPostfixExpr, _) => true
-      case (_: ScTypedStmt, _: ScBlockExpr) => false
-      case (_: ScTypedStmt, _: ScNewTemplateDefinition) => false
-      case (_: ScTypedStmt, _: ScUnderscoreSection) => false
-      case (_: ScTypedStmt, _: ScReferenceExpression) => false
-      case (_: ScTypedStmt, _: ScGenericCall) => false
-      case (_: ScTypedStmt, _: ScMethodCall) => false
-      case (_: ScTypedStmt, _: ScLiteral) => false
-      case (_: ScTypedStmt, _) if expr.getText == "_" => false
-      case (_: ScTypedStmt, _: ScTuple) => false
-      case (_: ScTypedStmt, _: ScXmlExpr) => false
-      case (_: ScTypedStmt, _: ScPrefixExpr) => false
-      case (_: ScTypedStmt, _: ScInfixExpr) => false
-      case (_: ScTypedStmt, _: ScPostfixExpr) => false
-      case (_: ScTypedStmt, _) => true
-      case (_: ScMatchStmt, _: ScBlockExpr) => false
-      case (_: ScMatchStmt, _: ScNewTemplateDefinition) => false
-      case (_: ScMatchStmt, _: ScUnderscoreSection) => false
-      case (_: ScMatchStmt, _: ScReferenceExpression) => false
-      case (_: ScMatchStmt, _: ScGenericCall) => false
-      case (_: ScMatchStmt, _: ScMethodCall) => false
-      case (_: ScMatchStmt, _: ScLiteral) => false
-      case (_: ScMatchStmt, _) if expr.getText == "_" => false
-      case (_: ScMatchStmt, _: ScTuple) => false
-      case (_: ScMatchStmt, _: ScXmlExpr) => false
-      case (_: ScMatchStmt, _: ScPrefixExpr) => false
-      case (_: ScMatchStmt, _: ScInfixExpr) => false
-      case (_: ScMatchStmt, _: ScPostfixExpr) => false
-      case (_: ScMatchStmt, _) => true
+      else {
+        val lid = child.operation.getText
+        val rid = parent.operation.getText
+        if (priority(lid) < priority(rid)) false
+        else if (priority(rid) < priority(lid)) true
+        else if (associate(lid) != associate(rid)) true
+        else if (associate(lid) == -1) false
+        else true
+      }
+    }
+    val parent = from.getParent
+
+    (parent, expr) match {
+      case _ if !parent.isInstanceOf[ScExpression] => false
+      case _ if expr.getText == "_" => false
+      case (_: ScTuple | _: ScBlock | _: ScXmlExpr   , _) => false
+      case (_                                        , _: ScReferenceExpression | _: ScMethodCall |
+                                                       _: ScGenericCall | _: ScLiteral | _: ScTuple |
+                                                       _: ScXmlExpr | _: ScParenthesisedExpr | _: ScUnitExpr |
+                                                       _: ScThisReference | _: ScSuperReference) => false
+      //order of following case clauses is important!
+      case (_: ScMethodCall | _: ScUnderscoreSection , _) => true
+      case (_                                        , _: ScBlock) => false
+      case (_: ScGenericCall                         , _) => true
+      case (_: ScReferenceExpression                 , _: ScNewTemplateDefinition) =>
+        val lastChar: Char = expr.getText.last
+        lastChar != ')' && lastChar != '}' && lastChar != ']'
+      case (_: ScReferenceExpression                 , _) => true
+      case (_                                        , _: ScNewTemplateDefinition |
+                                                        _: ScUnderscoreSection) => false
+      case (_: ScPrefixExpr                          , _) => true
+      case (_                                        , _: ScPrefixExpr) => false
+      case (_: ScPostfixExpr                         , _) => true
+      case (par: ScInfixExpr                         , child: ScInfixExpr) => infixInInfixParentheses(par, child)
+      case (_: ScInfixExpr                           , _) => true
+      case (_                                        , _: ScInfixExpr | _: ScPostfixExpr) => false
+      case (_: ScTypedStmt | _: ScMatchStmt          , _) => true
       case _ => false
     }
   }
+
+//  //old version
+//  def needParentheses(from: ScExpression, expr: ScExpression): Boolean = {
+//    val parent = from.getParent
+//    (parent, expr) match { //true only for other cases
+//      case _ if !parent.isInstanceOf[ScExpression] => false
+//      case (_: ScTuple, _) => false
+//      case (_: ScReferenceExpression, _: ScBlockExpr) => false
+//      case (_: ScReferenceExpression, _: ScNewTemplateDefinition) if expr.getText.endsWith(")") ||
+//              expr.getText.endsWith("}") || expr.getText.endsWith("]") => false
+//      case (_: ScReferenceExpression, _: ScReferenceExpression) => false
+//      case (_: ScReferenceExpression, _: ScGenericCall) => false
+//      case (_: ScReferenceExpression, _: ScMethodCall) => false
+//      case (_: ScReferenceExpression, _: ScLiteral) => false
+//      case (_: ScReferenceExpression, _) if expr.getText == "_" => false
+//      case (_: ScReferenceExpression, _: ScTuple) => false
+//      case (_: ScReferenceExpression, _: ScXmlExpr) => false
+//      case (_: ScReferenceExpression, _: ScParenthesisedExpr) => false
+//      case (_: ScReferenceExpression, _: ScThisReference) => false
+//      case (_: ScReferenceExpression, _) => true
+//      case (_: ScGenericCall, _: ScReferenceExpression) => false
+//      case (_: ScGenericCall, _: ScMethodCall) => false
+//      case (_: ScGenericCall, _: ScLiteral) => false
+//      case (_: ScGenericCall, _: ScTuple) => false
+//      case (_: ScGenericCall, _: ScXmlExpr) => false
+//      case (_: ScGenericCall, _) if expr.getText == "_" => false
+//      case (_: ScGenericCall, _: ScBlockExpr) => false
+//      case (_: ScGenericCall, _) => true
+//      case (_: ScMethodCall, _: ScReferenceExpression) => false
+//      case (_: ScMethodCall, _: ScMethodCall) => false
+//      case (_: ScMethodCall, _: ScGenericCall) => false
+//      case (_: ScMethodCall, _: ScLiteral) => false
+//      case (_: ScMethodCall, _) if expr.getText == "_" => false
+//      case (_: ScMethodCall, _: ScXmlExpr) => false
+//      case (_: ScMethodCall, _: ScTuple) => false
+//      case (_: ScMethodCall, _) => true
+//      case (_: ScUnderscoreSection, _: ScReferenceExpression) => false
+//      case (_: ScUnderscoreSection, _: ScMethodCall) => false
+//      case (_: ScUnderscoreSection, _: ScGenericCall) => false
+//      case (_: ScUnderscoreSection, _: ScLiteral) => false
+//      case (_: ScUnderscoreSection, _) if expr.getText == "_" => false
+//      case (_: ScUnderscoreSection, _: ScXmlExpr) => false
+//      case (_: ScUnderscoreSection, _: ScTuple) => false
+//      case (_: ScUnderscoreSection, _) => true
+//      case (_: ScBlock, _) => false
+//      case (_: ScPrefixExpr, _: ScBlockExpr) => false
+//      case (_: ScPrefixExpr, _: ScNewTemplateDefinition) => false
+//      case (_: ScPrefixExpr, _: ScUnderscoreSection) => false
+//      case (_: ScPrefixExpr, _: ScReferenceExpression) => false
+//      case (_: ScPrefixExpr, _: ScGenericCall) => false
+//      case (_: ScPrefixExpr, _: ScMethodCall) => false
+//      case (_: ScPrefixExpr, _: ScLiteral) => false
+//      case (_: ScPrefixExpr, _) if expr.getText == "_" => false
+//      case (_: ScPrefixExpr, _: ScTuple) => false
+//      case (_: ScPrefixExpr, _: ScXmlExpr) => false
+//      case (_: ScPrefixExpr, _) => true
+//      case (_: ScInfixExpr, _: ScBlockExpr) => false
+//      case (_: ScInfixExpr, _: ScNewTemplateDefinition) => false
+//      case (_: ScInfixExpr, _: ScUnderscoreSection) => false
+//      case (_: ScInfixExpr, _: ScReferenceExpression) => false
+//      case (_: ScInfixExpr, _: ScGenericCall) => false
+//      case (_: ScInfixExpr, _: ScMethodCall) => false
+//      case (_: ScInfixExpr, _: ScLiteral) => false
+//      case (_: ScInfixExpr, _) if expr.getText == "_" => false
+//      case (_: ScInfixExpr, _: ScTuple) => false
+//      case (_: ScInfixExpr, _: ScXmlExpr) => false
+//      case (_: ScInfixExpr, _: ScPrefixExpr) => false
+//      case (_: ScInfixExpr, _: ScParenthesisedExpr) => false
+//      case (_: ScInfixExpr, _: ScThisReference) => false
+//      case (par: ScInfixExpr, child: ScInfixExpr) => {
+//        import ParserUtils._
+//        import InfixExpr._
+//        if (par.lOp == from) {
+//          val lid = par.operation.getText
+//          val rid = child.operation.getText
+//          if (priority(lid) < priority(rid)) true
+//          else if (priority(rid) < priority(lid)) false
+//          else if (associate(lid) != associate(rid)) true
+//          else if (associate(lid) == -1) true
+//          else false
+//        }
+//        else {
+//          val lid = child.operation.getText
+//          val rid = par.operation.getText
+//          if (priority(lid) < priority(rid)) false
+//          else if (priority(rid) < priority(lid)) true
+//          else if (associate(lid) != associate(rid)) true
+//          else if (associate(lid) == -1) false
+//          else true
+//        }
+//      }
+//      case (_: ScInfixExpr, _) => true
+//      case (_: ScPostfixExpr, _: ScBlockExpr) => false
+//      case (_: ScPostfixExpr, _: ScNewTemplateDefinition) => false
+//      case (_: ScPostfixExpr, _: ScUnderscoreSection) => false
+//      case (_: ScPostfixExpr, _: ScReferenceExpression) => false
+//      case (_: ScPostfixExpr, _: ScGenericCall) => false
+//      case (_: ScPostfixExpr, _: ScMethodCall) => false
+//      case (_: ScPostfixExpr, _: ScLiteral) => false
+//      case (_: ScPostfixExpr, _) if expr.getText == "_" => false
+//      case (_: ScPostfixExpr, _: ScTuple) => false
+//      case (_: ScPostfixExpr, _: ScXmlExpr) => false
+//      case (_: ScPostfixExpr, _: ScPrefixExpr) => false
+//      case (_: ScPostfixExpr, _) => true
+//      case (_: ScTypedStmt, _: ScBlockExpr) => false
+//      case (_: ScTypedStmt, _: ScNewTemplateDefinition) => false
+//      case (_: ScTypedStmt, _: ScUnderscoreSection) => false
+//      case (_: ScTypedStmt, _: ScReferenceExpression) => false
+//      case (_: ScTypedStmt, _: ScGenericCall) => false
+//      case (_: ScTypedStmt, _: ScMethodCall) => false
+//      case (_: ScTypedStmt, _: ScLiteral) => false
+//      case (_: ScTypedStmt, _) if expr.getText == "_" => false
+//      case (_: ScTypedStmt, _: ScTuple) => false
+//      case (_: ScTypedStmt, _: ScXmlExpr) => false
+//      case (_: ScTypedStmt, _: ScPrefixExpr) => false
+//      case (_: ScTypedStmt, _: ScInfixExpr) => false
+//      case (_: ScTypedStmt, _: ScPostfixExpr) => false
+//      case (_: ScTypedStmt, _) => true
+//      case (_: ScMatchStmt, _: ScBlockExpr) => false
+//      case (_: ScMatchStmt, _: ScNewTemplateDefinition) => false
+//      case (_: ScMatchStmt, _: ScUnderscoreSection) => false
+//      case (_: ScMatchStmt, _: ScReferenceExpression) => false
+//      case (_: ScMatchStmt, _: ScGenericCall) => false
+//      case (_: ScMatchStmt, _: ScMethodCall) => false
+//      case (_: ScMatchStmt, _: ScLiteral) => false
+//      case (_: ScMatchStmt, _) if expr.getText == "_" => false
+//      case (_: ScMatchStmt, _: ScTuple) => false
+//      case (_: ScMatchStmt, _: ScXmlExpr) => false
+//      case (_: ScMatchStmt, _: ScPrefixExpr) => false
+//      case (_: ScMatchStmt, _: ScInfixExpr) => false
+//      case (_: ScMatchStmt, _: ScPostfixExpr) => false
+//      case (_: ScMatchStmt, _) => true
+//      case _ => false
+//    }
+//  }
 
   def isScope(element: PsiElement): Boolean = element match {
     case _: ScalaFile | _: ScBlock | _: ScTemplateBody | _: ScPackageContainer | _: ScParameters |
