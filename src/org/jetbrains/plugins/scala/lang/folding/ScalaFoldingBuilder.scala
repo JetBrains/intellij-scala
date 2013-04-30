@@ -348,7 +348,7 @@ class ScalaFoldingBuilder extends FoldingBuilder {
     var current: PsiElement = comment.getNextSibling
     var flag = true
 
-    while (current != null && flag == true) {
+    while (current != null && flag) {
       val node: ASTNode = current.getNode
       if (node != null) {
         val elementType: IElementType = node.getElementType
@@ -379,7 +379,7 @@ class ScalaFoldingBuilder extends FoldingBuilder {
     var current: PsiElement = element.getNextSibling
     var flag = true
 
-    while (current != null && flag == true) {
+    while (current != null && flag) {
       val node: ASTNode = current.getNode
       if (node != null) {
         val elementType: IElementType = node.getElementType
