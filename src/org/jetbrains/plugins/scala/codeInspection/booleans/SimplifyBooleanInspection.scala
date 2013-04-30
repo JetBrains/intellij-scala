@@ -70,7 +70,7 @@ object SimplifyBooleanUtil {
 
   private def isOfBooleanType(expr: ScExpression): Boolean = expr.getType(TypingContext.empty).getOrAny.equiv(lang.psi.types.Boolean)
 
-  private def getScExprChildren(expr: ScExpression) = expr.children.filter(_.isInstanceOf[ScExpression]).map(_.asInstanceOf[ScExpression]).toList
+  private def getScExprChildren(expr: ScExpression) =  expr.children.collect { case expr: ScExpression => expr }.toList
 
   private def booleanConst(expr: ScExpression): Option[Boolean] = expr match {
     case literal: ScLiteral =>
