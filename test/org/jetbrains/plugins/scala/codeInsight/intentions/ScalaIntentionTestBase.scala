@@ -32,4 +32,12 @@ abstract class ScalaIntentionTestBase extends ScalaLightCodeInsightFixtureTestAd
     }
   }
 
+  def checkIntentionIsNotAvailable(text: String, familyName: String = this.familyName) {
+    myFixture.configureByText(ScalaFileType.SCALA_FILE_TYPE, text)
+    val intentions: util.List[IntentionAction] = myFixture.getAvailableIntentions
+
+    import scala.collection.JavaConversions._
+    assert(intentions.filter(action => action.getFamilyName == familyName).isEmpty)
+  }
+
 }
