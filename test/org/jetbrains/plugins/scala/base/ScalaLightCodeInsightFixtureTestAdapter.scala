@@ -11,6 +11,7 @@ import util.ScalaToolsFactory
 import com.intellij.codeInspection.LocalInspectionTool
 import collection.mutable.ListBuffer
 import com.intellij.codeInsight.intention.IntentionAction
+import org.jetbrains.plugins.scala.codeInspection.booleans.SimplifyBooleanInspection
 
 /**
  * User: Dmitry Naydanov
@@ -44,6 +45,15 @@ abstract class ScalaLightCodeInsightFixtureTestAdapter extends LightCodeInsightF
     CodeFoldingManager.getInstance(getProject).buildInitialFoldings(myFixture.getEditor)
 
     myFixture.testHighlighting(false, false, false, myFixture.getFile.getVirtualFile)
+  }
+
+  protected def checkTextHasNoErrors(text: String, annotation: String, inspectionsEnabled: Class[_ <: LocalInspectionTool]*) {
+    import scala.collection.JavaConversions._
+
+    myFixture.configureByText("dummy.scala", text)
+    myFixture.enableInspections(inspectionsEnabled: _*)
+
+    assert(myFixture.doHighlighting().filter(info => info.description == annotation).isEmpty)
   }
 
   protected def performTest(text: String, assumedText: String)(testBody: () => Unit) {
