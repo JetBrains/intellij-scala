@@ -21,6 +21,10 @@ class SimplifyBooleanInspectionTest extends ScalaLightCodeInsightFixtureTestAdap
     testQuickFix(text.replace("\r", ""), result.replace("\r", ""), hint, classOf[SimplifyBooleanInspection])
   }
 
+  private def checkHasNoErrors(text: String) {
+    checkTextHasNoErrors(text, annotation, classOf[SimplifyBooleanInspection])
+  }
+
   def test_NotTrue() {
     val selectedText = s"$s!true$e"
     check(selectedText)
@@ -129,4 +133,20 @@ class SimplifyBooleanInspectionTest extends ScalaLightCodeInsightFixtureTestAdap
     testFix(text, result, hint)
   }
 
+  def test_TrueAsAny() {
+    val text =
+      """
+        |def trueAsAny: Any = {
+        |  true
+        |}
+        |if (trueAsAny == true) {
+        |  println("true")
+        |} else {
+        |  println("false")
+        |}
+        |
+      """.stripMargin.replace("\r", "").trim
+
+    checkHasNoErrors(text)
+  }
 }

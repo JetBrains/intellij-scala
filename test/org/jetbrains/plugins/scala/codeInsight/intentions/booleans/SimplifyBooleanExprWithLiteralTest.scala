@@ -3,6 +3,7 @@ package codeInsight.intentions.booleans
 
 import org.jetbrains.plugins.scala.codeInsight.intentions.ScalaIntentionTestBase
 import org.jetbrains.plugins.scala.codeInsight.intention.booleans.SimplifyBooleanExprWithLiteralIntention
+import org.jetbrains.plugins.scala.codeInspection.booleans.SimplifyBooleanInspection
 
 /**
  * Nikolay.Tropin
@@ -52,5 +53,26 @@ class SimplifyBooleanExprWithLiteralTest extends ScalaIntentionTestBase{
     val result = "!(!a)"
     doTest(text, result)
   }
+
+  def test_TrueAsAny() {
+    val text =
+      """
+        |def trueAsAny: Any = {
+        |  true
+        |}
+        |if (trueAsAny =<caret>= true) {
+        |  println("true")
+        |} else {
+        |  println("false")
+        |}
+        |
+      """.stripMargin.replace("\r", "").trim
+
+    checkIntentionIsNotAvailable(text)
+  }
+
+
+
+
 
 }

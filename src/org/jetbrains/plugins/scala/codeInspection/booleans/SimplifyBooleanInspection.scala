@@ -48,8 +48,13 @@ object SimplifyBooleanUtil {
       case expression: ScExpression =>
         val children = getScExprChildren(expr)
         val isBooleanOperation = expression match {
-          case prExpr: ScPrefixExpr => prExpr.operation.refName == "!"
-          case infExpr: ScInfixExpr => boolInfixOperations contains infExpr.operation.refName
+//          case prExpr: ScPrefixExpr => prExpr.operation.refName == "!"
+//          case infExpr: ScInfixExpr => boolInfixOperations contains infExpr.operation.refName
+//          case _ => false
+          case prExpr: ScPrefixExpr => prExpr.operation.refName == "!" && isOfBooleanType(prExpr.operand)
+          case infExpr: ScInfixExpr =>
+            boolInfixOperations.contains(infExpr.operation.refName) &&
+                    isOfBooleanType(infExpr.lOp) && isOfBooleanType(infExpr.rOp)
           case _ => false
         }
         isOfBooleanType(expr) && isBooleanOperation && children.exists(canBeSimplified(_, isTopLevel = false))
