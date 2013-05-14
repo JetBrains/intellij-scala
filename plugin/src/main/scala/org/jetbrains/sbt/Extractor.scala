@@ -45,7 +45,9 @@ object Extractor {
   }
 
   def extractConfiguration(state: State, structure: BuildStructure, projectRef: ProjectRef, configuration: Configuration): ConfigurationData = {
-    val sources = Keys.sourceDirectories.in(projectRef, configuration).get(structure.data).get
+    val sources = Keys.unmanagedSourceDirectories.in(projectRef, configuration).get(structure.data).get
+
+    val resources = Keys.unmanagedResourceDirectories.in(projectRef, configuration).get(structure.data).get
 
     val output = Keys.classDirectory.in(projectRef, configuration).get(structure.data).get
 
@@ -66,7 +68,7 @@ object Extractor {
       classpath.get.map(_.data)
     }
 
-    ConfigurationData(configuration.name, sources, output, moduleDependencies, jarDependencies)
+    ConfigurationData(configuration.name, sources, resources, output, moduleDependencies, jarDependencies)
   }
 
   def extractRepository(state: State, projectRef: ProjectRef): RepositoryData = {
