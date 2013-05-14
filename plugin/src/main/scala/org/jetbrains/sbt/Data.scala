@@ -19,7 +19,7 @@ case class ProjectData(name: String, base: File, configurations: Seq[Configurati
   def toXML: Elem = {
     <project>
       <name>{name}</name>
-      <base>{base.getPath}</base>
+      <base>{base}</base>
       {scala.map(_.toXML).getOrElse("")}
       {configurations.map(_.toXML)}
       {projects.map(_.toXML)}
@@ -27,18 +27,21 @@ case class ProjectData(name: String, base: File, configurations: Seq[Configurati
   }
 }
 
-case class ConfigurationData(id: String, sources: Seq[File], classes: File, modules: Seq[ModuleIdentifier], jars: Seq[File]) {
+case class ConfigurationData(id: String, sources: Seq[File], resources: Seq[File], classes: File, modules: Seq[ModuleIdentifier], jars: Seq[File]) {
   def toXML: Elem = {
     <configuration id={id}>
       {sources.map { directory =>
         <sources>{directory}</sources>
       }}
-      <classes>{classes.getPath}</classes>
+      {resources.map { directory =>
+        <resources>{directory}</resources>
+      }}
+      <classes>{classes}</classes>
       {modules.map { module =>
         <module organization={module.organization} name={module.name} revision={module.revision}/>
        }}
       {jars.map { jar =>
-        <jar>{jar.getPath}</jar>
+        <jar>{jar}</jar>
       }}
     </configuration>
   }
@@ -66,9 +69,9 @@ case class ModuleIdentifier(organization: String, name: String, revision: String
 case class ModuleData(id: ModuleIdentifier, binaries: Seq[File], docs: Seq[File], sources: Seq[File]) {
   def toXML: Elem = {
     val artifacts =
-      binaries.map(it => <jar>{it.getPath}</jar>) ++
-      docs.map(it => <doc>{it.getPath}</doc>) ++
-      sources.map(it => <src>{it.getPath}</src>)
+      binaries.map(it => <jar>{it}</jar>) ++
+      docs.map(it => <doc>{it}</doc>) ++
+      sources.map(it => <src>{it}</src>)
 
     id.toXML.copy(child = artifacts)
   }
