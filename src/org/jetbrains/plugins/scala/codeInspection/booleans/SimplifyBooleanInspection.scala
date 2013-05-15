@@ -65,7 +65,7 @@ object SimplifyBooleanUtil {
     simplifyTrivially(exprCopy)
   }
 
-  private def isOfBooleanType(expr: ScExpression): Boolean = expr.getType(TypingContext.empty).getOrAny.equiv(lang.psi.types.Boolean)
+  private def isOfBooleanType(expr: ScExpression): Boolean = expr.getType(TypingContext.empty).getOrAny.conforms(lang.psi.types.Boolean, checkWeak = true)
 
   private def getScExprChildren(expr: ScExpression) =  expr.children.collect { case expr: ScExpression => expr }.toList
 
