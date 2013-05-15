@@ -18,6 +18,7 @@
       <sourceFolder url="file://$MODULE_DIR$/resources" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/test" isTestSource="true" />
+      <excludeFolder url="file://$MODULE_DIR$/SDK/IDEA13SDK" />
       <excludeFolder url="file://$MODULE_DIR$/SDK/LedaSDK" />
       <excludeFolder url="file://$MODULE_DIR$/SDK/NikaSDK" />
       <excludeFolder url="file://$MODULE_DIR$/SDK/TrunkSDK" />

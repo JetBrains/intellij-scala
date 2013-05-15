@@ -11,7 +11,7 @@ import com.intellij.openapi.progress.ProgressIndicator
 import collection.mutable.Buffer
 import com.intellij.lang.annotation.{Annotation, AnnotationSession}
 import com.intellij.codeInsight.intention.IntentionAction
-import com.intellij.codeInsight.CodeInsightUtilBase
+import com.intellij.codeInsight.{FileModificationService, CodeInsightUtilBase}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import com.intellij.profile.codeInspection.InspectionProjectProfileManager
 import varCouldBeValInspection.VarCouldBeValInspection
@@ -186,7 +186,7 @@ class DeleteElementFix(element: PsiElement) extends IntentionAction {
   }
 
   def invoke(project: Project, editor: Editor, file: PsiFile) {
-    if (!CodeInsightUtilBase.prepareFileForWrite(file)) return
+    if (!FileModificationService.getInstance.prepareFileForWrite(file)) return
     PsiDocumentManager.getInstance(project).commitAllDocuments()
     IdeDocumentHistory.getInstance(project).includeCurrentPlaceAsChangePlace()
     element.delete()
@@ -211,7 +211,7 @@ class VarToValFix(varDef: ScVariableDefinition, name: Option[String]) extends In
 
   def invoke(project: Project, editor: Editor, file: PsiFile) {
     if (!varDef.isValid) return
-    if (!CodeInsightUtilBase.prepareFileForWrite(file)) return
+    if (!FileModificationService.getInstance.prepareFileForWrite(file)) return
     varDef.replace(ScalaPsiElementFactory.createValFromVarDefinition(varDef, varDef.getManager))
   }
 }

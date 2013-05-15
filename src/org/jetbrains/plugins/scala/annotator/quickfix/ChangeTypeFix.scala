@@ -11,7 +11,7 @@ import lang.psi.api.base.types.ScTypeElement
 import lang.psi.types.ScType
 import lang.psi.impl.ScalaPsiElementFactory
 import lang.psi.ScalaPsiUtil
-import com.intellij.codeInsight.CodeInsightUtilBase
+import com.intellij.codeInsight.{FileModificationService, CodeInsightUtilBase}
 import com.intellij.openapi.command.undo.UndoUtil
 
 class ChangeTypeFix(typeElement: ScTypeElement, newType: ScType) extends IntentionAction {
@@ -25,7 +25,7 @@ class ChangeTypeFix(typeElement: ScTypeElement, newType: ScType) extends Intenti
 
   def invoke(project: Project, editor: Editor, file: PsiFile) {
     if (!typeElement.isValid) return
-    if (!CodeInsightUtilBase.prepareFileForWrite(typeElement.getContainingFile)) return
+    if (!FileModificationService.getInstance.prepareFileForWrite(typeElement.getContainingFile)) return
     if (typeElement.getParent == null || typeElement.getParent.getNode == null) return
     val newTypeElement = ScalaPsiElementFactory.createTypeElementFromText(newType.canonicalText, typeElement.getManager)
     typeElement.replace(newTypeElement)

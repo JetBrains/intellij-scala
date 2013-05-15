@@ -5,7 +5,7 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.extensions._
-import com.intellij.codeInsight.CodeInsightUtilBase
+import com.intellij.codeInsight.{FileModificationService, CodeInsightUtilBase}
 import com.intellij.openapi.fileEditor.ex.IdeDocumentHistory
 import com.intellij.openapi.fileEditor.{FileEditorManager, OpenFileDescriptor}
 import com.intellij.codeInsight.template.{TemplateManager, TemplateBuilderImpl}
@@ -38,7 +38,7 @@ class CreateApplyQuickFix(ref: ScStableCodeReferenceElement, call: ScMethodCall)
     PsiDocumentManager.getInstance(project).commitAllDocuments()
     if (!ref.isValid) return
 
-    if (!CodeInsightUtilBase.prepareFileForWrite(file)) return
+    if (!FileModificationService.getInstance.prepareFileForWrite(file)) return
 
     IdeDocumentHistory.getInstance(project).includeCurrentPlaceAsChangePlace()
 
