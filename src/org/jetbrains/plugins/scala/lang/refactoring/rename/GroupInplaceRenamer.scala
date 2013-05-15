@@ -105,7 +105,6 @@ class GroupInplaceRenamer(parent: PsiElement) {
           }
           if (attributes != null) rangesToHighlight.put(segmentMarker, attributes)
         }
-        val ranges = rangesToHighlight.keys.toList
         addHighlights(rangesToHighlight, editor, myHighlighters, HighlightManager.getInstance(project))
       }
 
