@@ -11,6 +11,7 @@ import org.jetbrains.jps.incremental.CompileContext
 import org.jetbrains.jps.ModuleChunk
 import org.jetbrains.jps.model.java.JpsJavaSdkType
 import collection.JavaConverters._
+import org.jetbrains.jps.builders.java.JavaBuilderUtil
 
 /**
  * @author Pavel Fatin
@@ -35,7 +36,7 @@ object CompilerData {
 
         val globalSettings = SettingsManager.getGlobalSettings(model.getGlobal)
 
-        val jvmSdk = if (globalSettings.isCompileServerEnabled) {
+        val jvmSdk = if (globalSettings.isCompileServerEnabled && JavaBuilderUtil.CONSTANT_SEARCH_SERVICE.get(context) != null) {
           Option(globalSettings.getCompileServerSdk).flatMap { sdkName =>
             val libraries = model.getGlobal.getLibraryCollection.getLibraries(JpsJavaSdkType.INSTANCE).asScala
             libraries.find(_.getName == sdkName).map(_.getProperties)
