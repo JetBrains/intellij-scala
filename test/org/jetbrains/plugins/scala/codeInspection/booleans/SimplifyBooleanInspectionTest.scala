@@ -89,10 +89,9 @@ class SimplifyBooleanInspectionTest extends ScalaLightCodeInsightFixtureTestAdap
         |val a = true
         |true && (a || false)
       """.stripMargin
-    val result = s"""
+    val result = """
         |val a = true
-        |a
-      """.stripMargin
+        |a""".stripMargin
     val hint = "Simplify true && (a || false)"
     testFix(text, result, hint)
   }
