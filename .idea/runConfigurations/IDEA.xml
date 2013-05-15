@@ -4,7 +4,7 @@
     <option name="MAIN_CLASS_NAME" value="com.intellij.idea.Main" />
     <option name="VM_PARAMETERS" value="-Xmx800m -XX:ReservedCodeCacheSize=64m -XX:MaxPermSize=250m -XX:+HeapDumpOnOutOfMemoryError -ea -Didea.is.internal=true -Didea.debug.mode=true -Didea.system.path=../system-idea -Didea.config.path=../config -Dapple.laf.useScreenMenuBar=true -Dplugin.path=$PROJECT_DIR$/classes/artifacts/Scala" />
     <option name="PROGRAM_PARAMETERS" value="" />
-    <option name="WORKING_DIRECTORY" value="file://$PROJECT_DIR$/SDK/LedaSDK/bin/" />
+    <option name="WORKING_DIRECTORY" value="file://$PROJECT_DIR$/SDK/IDEA13SDK/bin/" />
     <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
     <option name="ALTERNATIVE_JRE_PATH" value="" />
     <option name="ENABLE_SWING_INSPECTOR" value="false" />

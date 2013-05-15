@@ -380,7 +380,7 @@ object SafeDeleteProcessorUtil {
             newText.append("/** @see #").append(method.name).append('(')
             val parameters: java.util.List[PsiParameter] = new util.ArrayList[PsiParameter](util.Arrays.asList(method.getParameterList.getParameters: _*))
             parameters.remove(parameter)
-            newText.append(StringUtil.join(parameters, new Function[PsiParameter, String] {
+            newText.append(StringUtil.join(parameters: java.lang.Iterable[_ <: PsiParameter], new Function[PsiParameter, String] {
               def fun(psiParameter: PsiParameter): String = {
                 parameter.getType.getCanonicalText
               }
