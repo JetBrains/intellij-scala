@@ -54,7 +54,7 @@ object SimplifyBooleanUtil {
                     isOfBooleanType(infExpr.lOp) && isOfBooleanType(infExpr.rOp)
           case _ => false
         }
-        isOfBooleanType(expr) && isBooleanOperation && children.exists(canBeSimplified(_, isTopLevel = false))
+        isBooleanOperation && isOfBooleanType(expr) && children.exists(canBeSimplified(_, isTopLevel = false))
     }
   }
 
