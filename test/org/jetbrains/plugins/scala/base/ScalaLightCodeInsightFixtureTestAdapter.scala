@@ -122,7 +122,7 @@ abstract class ScalaLightCodeInsightFixtureTestAdapter extends LightCodeInsightF
   }
 
   /**
-   * Checks quick fix's result
+   * Checks quick fix's result. If caret position is specified, chooses only appropriate fix.
    *
    * @param text                 File text before fix invocation
    * @param assumedStub          File text after fix invocation
@@ -136,8 +136,13 @@ abstract class ScalaLightCodeInsightFixtureTestAdapter extends LightCodeInsightF
     myFixture.enableInspections(inspectionsEnabled: _*)
 
     val actions = new ListBuffer[IntentionAction]
+    val caretIndex = text.indexOf(CARET_MARKER)
+    def checkCaret(startOffset: Int, endOffset: Int): Boolean = {
+      if (caretIndex < 0) true
+      else startOffset <= caretIndex && endOffset >= caretIndex
+    }
     myFixture.doHighlighting().foreach(info =>
-      if (info != null && info.quickFixActionRanges != null)
+      if (info != null && info.quickFixActionRanges != null && checkCaret(info.getStartOffset, info.getEndOffset))
         actions ++= (for (pair <- info.quickFixActionRanges if pair != null) yield pair.getFirst.getAction))
 
     actions.find(_.getText == quickFixHint) match {
