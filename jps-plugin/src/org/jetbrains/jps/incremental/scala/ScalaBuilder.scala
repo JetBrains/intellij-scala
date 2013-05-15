@@ -9,7 +9,7 @@ import com.intellij.util.PathUtil
 import com.intellij.util.Processor
 import org.jetbrains.jps.ModuleChunk
 import org.jetbrains.jps.builders.{FileProcessor, BuildRootDescriptor, BuildTarget, DirtyFilesHolder}
-import org.jetbrains.jps.builders.java.JavaSourceRootDescriptor
+import org.jetbrains.jps.builders.java.{JavaBuilderUtil, JavaSourceRootDescriptor}
 import org.jetbrains.jps.builders.impl.TargetOutputIndexImpl
 import org.jetbrains.jps.incremental._
 import messages.BuildMessage.Kind
@@ -108,7 +108,7 @@ class ScalaBuilder extends ModuleLevelBuilder(BuilderCategory.TRANSLATOR) {
 
           val settings = SettingsManager.getGlobalSettings(context.getProjectDescriptor.getModel.getGlobal)
 
-          val server = if (settings.isCompileServerEnabled) {
+          val server = if (settings.isCompileServerEnabled && JavaBuilderUtil.CONSTANT_SEARCH_SERVICE.get(context) != null) {
             ScalaBuilder.cleanLocalServerCache()
             new RemoteServer(InetAddress.getByName(null), settings.getCompileServerPort)
           } else {
