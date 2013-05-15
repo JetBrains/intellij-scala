@@ -34,7 +34,9 @@ object Extractor {
       extractConfiguration(state, structure, projectRef, Test))
 
     val scala: Option[ScalaData] = Project.runTask(scalaInstance.in(projectRef, Compile), state) collect {
-      case (_, Value(it)) => ScalaData(it.version, it.libraryJar, it.compilerJar, it.extraJars)
+      case (_, Value(it)) =>
+        val extraJars = it.extraJars.filter(_.getName.contains("reflect"))
+        ScalaData(it.version, it.libraryJar, it.compilerJar, extraJars)
     }
 
     val project = Project.getProject(projectRef, structure).get
