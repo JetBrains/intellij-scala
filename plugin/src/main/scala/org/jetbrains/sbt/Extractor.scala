@@ -72,23 +72,30 @@ object Extractor {
   }
 
   def extractRepository(state: State, projectRef: ProjectRef): RepositoryData = {
-    val report: UpdateReport = Project.runTask(updateClassifiers.in(projectRef), state) collect {
-      case (_, Value(it)) => it
-    } getOrElse {
-      throw new RuntimeException()
+    def run(task: TaskKey[UpdateReport]): Seq[ModuleReport] = {
+      val updateReport: UpdateReport = Project.runTask(task.in(projectRef), state) collect {
+        case (_, Value(it)) => it
+      } getOrElse {
+        throw new RuntimeException()
+      }
+
+      updateReport.configurations.flatMap(_.modules)
     }
 
-    val moduleReports = report.configurations.flatMap(_.modules).distinctBy(_.module)
+    val moduleReports = run(update) ++ run(updateClassifiers) //++ run(updateSbtClassifiers)
 
-    val moduleDescriptors = moduleReports.map { moduleReport =>
-      def artifacts(kind: String): Seq[File] = moduleReport.artifacts.filter(_._1.`type` == kind).map(_._2)
+    RepositoryData(new File("."), merge(moduleReports))
+  }
 
-      val module = moduleReport.module
+  private def merge(moduleReports: Seq[ModuleReport]): Seq[ModuleData] = {
+    moduleReports.groupBy(_.module).toSeq.map { case (module, reports) =>
+      val id = ModuleIdentifier(module.organization, module.name, module.revision)
 
-      ModuleData(ModuleIdentifier(module.organization, module.name, module.revision),
-        artifacts("jar"), artifacts("doc"), artifacts("src"))
+      val allArtifacts = reports.flatMap(_.artifacts)
+
+      def artifacts(kind: String) = allArtifacts.filter(_._1.`type` == kind).map(_._2).distinct
+
+      ModuleData(id, artifacts("jar"), artifacts("doc"), artifacts("src"))
     }
-
-    RepositoryData(new File("."), moduleDescriptors)
   }
 }
