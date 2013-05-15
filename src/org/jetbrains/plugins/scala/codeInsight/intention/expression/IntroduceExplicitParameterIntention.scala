@@ -155,7 +155,7 @@ class IntroduceExplicitParameterIntention extends PsiElementBaseIntentionAction 
       parent match {
         case f: ScFunctionExpr =>
           for (parameter <- f.parameters) {
-            val lookupExpr = new MyLookupExpression(parameter.name, null, parameter, false, null)
+            val lookupExpr = new MyLookupExpression(parameter.name, null, parameter, f, false, null)
             builder.replaceElement(parameter.nameId, parameter.name, lookupExpr, true)
 
             val dependantParam = file.findElementAt(offsets(parameter.name) + diff)

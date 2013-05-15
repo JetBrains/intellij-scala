@@ -88,7 +88,7 @@ def testPackageObject() {
     val rootDir2: VirtualFile = LocalFileSystem.getInstance.findFileByPath(rootAfter.replace(File.separatorChar, '/'))
     (VirtualFilePointerManager.getInstance.asInstanceOf[VirtualFilePointerManagerImpl]).storePointers()
     getProjectAdapter.getComponent(classOf[PostprocessReformattingAspect]).doPostponedFormatting()
-    PlatformTestUtil.assertDirectoriesEqual(rootDir2, rootDir, PlatformTestUtil.CVS_FILE_FILTER)
+    PlatformTestUtil.assertDirectoriesEqual(rootDir2, rootDir)
   }
 
   private def performAction(classNames: Array[String], newPackageName: String) {

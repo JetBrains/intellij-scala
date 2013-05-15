@@ -107,7 +107,7 @@ abstract class ScalaLightCodeInsightFixtureTestAdapter extends LightCodeInsightF
 
     assert(myFixture.doHighlighting().exists(info => {
       info.getStartOffset == selectionModel.getSelectionStart && info.getEndOffset == selectionModel.getSelectionEnd &&
-              info.description == annotation
+              info.getDescription == annotation
     }))
   }
 
