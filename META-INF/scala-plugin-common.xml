@@ -748,6 +748,10 @@
                        displayName="Unnecessary parentheses" groupName="Scala: General"
                        shortName="UnnecessaryParentheses" level="WARNING"
                        enabledByDefault="true" language="Scala"/>
+      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.typeChecking.TypeCheckCanBeMatchInspection"
+                       displayName="Type check can be pattern matching" groupName="Scala: General"
+                       shortName="TypeCheckCanBeMatch" level="WARNING"
+                       enabledByDefault="true" language="Scala"/>
 
         <!--<localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.allErrorsInspection.AnnotatorBasedErrorInspection"
        displayName="All Errors Tool" groupName="Scala: General"
