@@ -80,7 +80,7 @@ class SendSelectionToConsoleAction extends AnAction {
 
     if (consoleEditor != null) {
       val document = console.getEditorDocument
-      console.addTextToCurrentEditor(text)
+      console.setTextToEditor(text)
 
       extensions.inWriteAction {
         val range: TextRange = new TextRange(0, document.getTextLength)
