@@ -4,6 +4,7 @@ package codeInspection.typeChecking
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 import com.intellij.codeInsight.CodeInsightTestCase
 import org.jetbrains.plugins.scala.codeInspection.parentheses.UnnecessaryParenthesesInspection
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticClasses
 
 /**
  * Nikolay.Tropin
@@ -119,20 +120,7 @@ class TypeCheckCanBeMatchInspectionTest extends ScalaLightCodeInsightFixtureTest
                      |  val y = x.asInstanceOf[Int]
                      |  println(y)
                      |}""".stripMargin.replace("\r", "").trim
-    check(selected)
-
-    val text = """val x = 0
-                 |if (x > 0 && (<caret>x.isInstanceOf[Int] && x.asInstanceOf[Int] == 1)) {
-                 |  val y = x.asInstanceOf[Int]
-                 |  println(y)
-                 |}""".stripMargin.replace("\r", "").trim
-    val result = """val x = 0
-                   |x match {
-                   |  case y: Int if x > 0 && y == 1 =>
-                   |    println(y)
-                   |  case _ =>
-                   |}""".stripMargin.replace("\r", "").trim
-    testFix(text, result)
+    checkTextHasNoErrors(selected)
   }
 
   def test_6() {
@@ -254,32 +242,7 @@ class TypeCheckCanBeMatchInspectionTest extends ScalaLightCodeInsightFixtureTest
                      |  val y2 = x2.asInstanceOf[Int]
                      |  println(y1 + y2)
                      |}""".stripMargin.replace("\r", "").trim
-    check(selected)
-
-    val text = s"""val x1 = 0
-                 |val x2 = 0
-                 |if (x1.isInstanceOf[Int] && <caret>x2.isInstanceOf[Int]) {
-                 |  val y1 = x1.asInstanceOf[Int]
-                 |  val y2 = x2.asInstanceOf[Int]
-                 |  println(y1 + y2)
-                 |} else if (x1.isInstanceOf[Long] && x2.isInstanceOf[Long]) {
-                 |  val y1 = x1.asInstanceOf[Int]
-                 |  val y2 = x2.asInstanceOf[Int]
-                 |  println(y1 + y2)
-                 |}""".stripMargin.replace("\r", "").trim
-    val result = """val x1 = 0
-                   |val x2 = 0
-                   |x2 match {
-                   |  case y2: Int if x1.isInstanceOf[Int] =>
-                   |    val y1 = x1.asInstanceOf[Int]
-                   |    println(y1 + y2)
-                   |  case _: Long if x1.isInstanceOf[Long] =>
-                   |    val y1 = x1.asInstanceOf[Int]
-                   |    val y2 = x2.asInstanceOf[Int]
-                   |    println(y1 + y2)
-                   |  case _ =>
-                   |} """.stripMargin.replace("\r", "").trim
-    testFix(text, result)
+    checkTextHasNoErrors(selected)
   }
 
   def test_8c() {
