@@ -273,4 +273,20 @@ class TypeCheckCanBeMatchInspectionTest extends ScalaLightCodeInsightFixtureTest
                    |}""".stripMargin.replace("\r", "").trim
     testFix(text, result)
   }
+
+  def test_10() {
+    val selected = s"""val x = 0
+                      |if (${START}x.isInstanceOf[Int]$END) x else if (x.isInstanceOf[Long]) x else 0""".stripMargin.replace("\r", "").trim
+    check(selected)
+
+    val text = """val x = 0
+                 |if (x.isInstance<caret>Of[Int]) x else if (x.isInstanceOf[Long]) x else 0""".stripMargin.replace("\r", "").trim
+    val result = """val x = 0
+                   |x match {
+                   |  case _: Int => x
+                   |  case _: Long => x
+                   |  case _ => 0
+                   |}""".stripMargin.replace("\r", "").trim
+    testFix(text, result)
+  }
 }
