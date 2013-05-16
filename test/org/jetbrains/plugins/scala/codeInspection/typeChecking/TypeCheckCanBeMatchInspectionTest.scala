@@ -29,19 +29,7 @@ class TypeCheckCanBeMatchInspectionTest extends ScalaLightCodeInsightFixtureTest
                      |if (${START}x.isInstanceOf[Int]$END) {
                      |  x.toString
                      |}""".stripMargin.replace("\r", "").trim
-    check(selected)
-
-    val text = """val x = 0
-                 |if (<caret>x.isInstanceOf[Int]) {
-                 |  x.toString
-                 |}""".stripMargin.replace("\r", "").trim
-    val result = """val x = 0
-                   |x match {
-                   |  case _: Int =>
-                   |    x.toString
-                   |  case _ =>
-                   |}""".stripMargin.replace("\r", "").trim
-    testFix(text, result)
+    checkTextHasNoErrors(selected)
   }
 
   def test_2() {
@@ -257,34 +245,7 @@ class TypeCheckCanBeMatchInspectionTest extends ScalaLightCodeInsightFixtureTest
                      |  val y2 = x2.asInstanceOf[Int]
                      |  println(y1 + y2)
                      |}""".stripMargin.replace("\r", "").trim
-    check(selected)
-
-    val text = s"""val x1 = 0
-                 |val x2 = 0
-                 |if (x1.isInstanceOf[Int] && x2.isInstanceOf[Int]) {
-                 |  val y1 = x1.asInstanceOf[Int]
-                 |  val y2 = x2.asInstanceOf[Int]
-                 |  println(y1 + y2)
-                 |} else if (<caret>x1.isInstanceOf[Long] && x2.isInstanceOf[Long]) {
-                 |  val y1 = x1.asInstanceOf[Int]
-                 |  val y2 = x2.asInstanceOf[Int]
-                 |  println(y1 + y2)
-                 |}""".stripMargin.replace("\r", "").trim
-    val result = """val x1 = 0
-                   |val x2 = 0
-                   |if (x1.isInstanceOf[Int] && x2.isInstanceOf[Int]) {
-                   |  val y1 = x1.asInstanceOf[Int]
-                   |  val y2 = x2.asInstanceOf[Int]
-                   |  println(y1 + y2)
-                   |} else x1 match {
-                   |  case _: Long if x2.isInstanceOf[Long] =>
-                   |    val y1 = x1.asInstanceOf[Int]
-                   |    val y2 = x2.asInstanceOf[Int]
-                   |    println(y1 + y2)
-                   |  case _ =>
-                   |}
-                   |""".stripMargin.replace("\r", "").trim
-    testFix(text, result)
+    checkTextHasNoErrors(selected)
   }
 
   def test_9() {
