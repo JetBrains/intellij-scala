@@ -65,6 +65,8 @@ object Extractor {
       moduleIDs.map(it => ModuleIdentifier(it.organization, it.name, it.revision))
     }
 
+    val projectDependencies = Project.getProject(projectRef, structure).get.dependencies.map(it => it.project.project)
+
     val jarDependencies: Seq[File] = {
       val classpath: Option[Classpath] = Project.runTask(unmanagedJars.in(projectRef, configuration), state) collect {
         case (_, Value(it)) => it
@@ -72,7 +74,7 @@ object Extractor {
       classpath.get.map(_.data)
     }
 
-    ConfigurationData(configuration.name, sources, resources, output, moduleDependencies, jarDependencies)
+    ConfigurationData(configuration.name, sources, resources, output, projectDependencies, moduleDependencies, jarDependencies)
   }
 
   def extractRepository(state: State, projectRef: ProjectRef): RepositoryData = {
