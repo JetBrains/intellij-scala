@@ -32,7 +32,8 @@ object Extractor {
 
     val configurations = Seq(
       extractConfiguration(state, structure, projectRef, Compile),
-      extractConfiguration(state, structure, projectRef, Test))
+      extractConfiguration(state, structure, projectRef, Test),
+      extractConfiguration(state, structure, projectRef, Runtime))
 
     val scala: Option[ScalaData] = Project.runTask(scalaInstance.in(projectRef, Compile), state) collect {
       case (_, Value(it)) =>
