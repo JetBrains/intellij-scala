@@ -1,9 +1,7 @@
 package org.jetbrains.sbt
 
 import sbt._
-import sbt.Keys._
-import sbt.Load.BuildStructure
-import xml.{PrettyPrinter, XML}
+import xml.PrettyPrinter
 import java.io.FileWriter
 
 /**
@@ -15,8 +13,11 @@ object Plugin extends (State => State) {
 
     val structure = Extractor.extractStructure(state)
 
-    val printer = new PrettyPrinter(180, 2)
-    val text = printer.format(structure.toXML)
+    val text = {
+      val printer = new PrettyPrinter(180, 2)
+      val home = new File(System.getProperty("user.home"))
+      printer.format(structure.toXML(home))
+    }
 
     Keys.artifactPath.in(Project.current(state)).get(Project.extract(state).structure.data).map { file =>
       log.info("Writing structure to " + file.getPath + "...")
