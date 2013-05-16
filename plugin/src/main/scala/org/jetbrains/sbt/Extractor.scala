@@ -4,7 +4,6 @@ import sbt.Keys._
 import sbt._
 import sbt.Load.BuildStructure
 import sbt.Value
-import Utilities._
 
 /**
  * @author Pavel Fatin
@@ -27,6 +26,8 @@ object Extractor {
   def extractProject(state: State, structure: BuildStructure, projectRef: ProjectRef): ProjectData = {
     val name = Keys.name.in(projectRef, Compile).get(structure.data).get
 
+    val organization = Keys.organization.in(projectRef, Compile).get(structure.data).get
+
     val base = Keys.baseDirectory.in(projectRef, Compile).get(structure.data).get
 
     val configurations = Seq(
@@ -43,7 +44,7 @@ object Extractor {
 
     val projects = project.aggregate.map(extractProject(state, structure, _))
 
-    ProjectData(name, base, configurations, scala, projects)
+    ProjectData(name, organization, base, configurations, scala, projects)
   }
 
   def extractConfiguration(state: State, structure: BuildStructure, projectRef: ProjectRef, configuration: Configuration): ConfigurationData = {
