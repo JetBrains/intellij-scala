@@ -151,15 +151,15 @@ case class ScProjectionType(projected: ScType, element: PsiNamedElement,
       }
     }
 
-    if (superReference) return (element, ScSubstitutor.empty) //todo: probably it's wrong to pass empty substitutor?
-
     val (actualElement, actualSubst) =
       CachesUtil.getMappedWithRecursionPreventingWithRollback[PsiNamedElement, ScType, Option[(PsiNamedElement, ScSubstitutor)]](
         element, projected, CachesUtil.PROJECTION_TYPE_ACTUAL_INNER, actualInner, None,
         PsiModificationTracker.MODIFICATION_COUNT).getOrElse(
           (element, ScSubstitutor.empty)
         )
-    (actualElement, new ScSubstitutor(Map.empty, Map.empty, Some(projected)) followed actualSubst)
+
+    if (superReference) (element, actualSubst)
+    else (actualElement, actualSubst)
   }
 
   def actualElement: PsiNamedElement = actual._1
