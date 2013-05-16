@@ -39,10 +39,11 @@ case class StructureData(project: ProjectData, repository: RepositoryData) {
   }
 }
 
-case class ProjectData(name: String, base: File, configurations: Seq[ConfigurationData], scala: Option[ScalaData], projects: Seq[ProjectData]) {
+case class ProjectData(name: String, organization: String, base: File, configurations: Seq[ConfigurationData], scala: Option[ScalaData], projects: Seq[ProjectData]) {
   def toXML(implicit fs: FS): Elem = {
     <project>
       <name>{name}</name>
+      <organization>{name}</organization>
       <base>{base.absolutePath}</base>
       {scala.map(_.toXML).getOrElse("")}
       {configurations.map(_.toXML)}
