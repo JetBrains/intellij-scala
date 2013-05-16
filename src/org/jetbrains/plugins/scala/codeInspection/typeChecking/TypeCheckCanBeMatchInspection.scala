@@ -52,12 +52,19 @@ class TypeCheckCanBeMatchInspection extends AbstractInspection(inspectionId, ins
         condition <- ifStmt.condition
         iioCall <- findIsInstanceOfCalls(condition, onlyFirst = true)
         if iioCall == call
+        if typeCheckIsUsedEnough(ifStmt, call)
       } {
-          val fix = new TypeCheckCanBeMatchQuickFix(call, ifStmt)
-          holder.registerProblem(call, inspectionId, ProblemHighlightType.GENERIC_ERROR_OR_WARNING, fix)
-        }
+        val fix = new TypeCheckCanBeMatchQuickFix(call, ifStmt)
+        holder.registerProblem(call, inspectionId, ProblemHighlightType.GENERIC_ERROR_OR_WARNING, fix)
       }
   }
+
+  private def typeCheckIsUsedEnough (ifStmt: ScIfStmt, isInstOf: ScGenericCall): Boolean = {
+    val chainSize = listOfIfAndIsInstOf(ifStmt, isInstOf, onlyFirst = true).size
+    val typeCastsNumber = findAsInstOfCalls(ifStmt.condition, isInstOf).size + findAsInstOfCalls(ifStmt.thenBranch, isInstOf).size
+    chainSize > 1 || typeCastsNumber > 0
+  }
+}
 
 class TypeCheckCanBeMatchQuickFix(isInstOfUnderFix: ScGenericCall, ifStmt: ScIfStmt) extends AbstractFix(inspectionName, isInstOfUnderFix) {
   def doApplyFix(project: Project, descriptor: ProblemDescriptor) {
@@ -185,26 +192,26 @@ object TypeCheckToMatchUtil {
     builder.toString()
   }
 
-  private def buildCaseClausesText(ifStmt: ScIfStmt, isInstOfUnderFix: ScGenericCall, onlyFirst: Boolean): (String, RenameData) = {
-
-    def listOfIfAndIsInstOf(currentIfStmt: ScIfStmt, currentCall: ScGenericCall, onlyFirst: Boolean): List[(ScIfStmt, ScGenericCall)] = {
-      for (currentBase <- baseExpr(currentCall)) {
-        currentIfStmt.elseBranch match {
-          case Some(nextIfStmt: ScIfStmt) =>
-            for {
-              nextCond <- nextIfStmt.condition
-              nextCall <- findIsInstanceOfCalls(nextCond, onlyFirst)
-              nextBase <- baseExpr(nextCall)
-              if equiv(currentBase, nextBase)
-            } {
-              return (currentIfStmt, currentCall) :: listOfIfAndIsInstOf(nextIfStmt, nextCall, onlyFirst)
-            }
-            return (currentIfStmt, currentCall) :: Nil
-          case _ => return (currentIfStmt, currentCall) :: Nil
-        }
+  def listOfIfAndIsInstOf(currentIfStmt: ScIfStmt, currentCall: ScGenericCall, onlyFirst: Boolean): List[(ScIfStmt, ScGenericCall)] = {
+    for (currentBase <- baseExpr(currentCall)) {
+      currentIfStmt.elseBranch match {
+        case Some(nextIfStmt: ScIfStmt) =>
+          for {
+            nextCond <- nextIfStmt.condition
+            nextCall <- findIsInstanceOfCalls(nextCond, onlyFirst)
+            nextBase <- baseExpr(nextCall)
+            if equiv(currentBase, nextBase)
+          } {
+            return (currentIfStmt, currentCall) :: listOfIfAndIsInstOf(nextIfStmt, nextCall, onlyFirst)
+          }
+          return (currentIfStmt, currentCall) :: Nil
+        case _ => return (currentIfStmt, currentCall) :: Nil
       }
-      Nil
     }
+    Nil
+  }
+
+  private def buildCaseClausesText(ifStmt: ScIfStmt, isInstOfUnderFix: ScGenericCall, onlyFirst: Boolean): (String, RenameData) = {
 
     val builder = new StringBuilder
     val (ifStmts, isInstOf) = listOfIfAndIsInstOf(ifStmt, isInstOfUnderFix, onlyFirst).unzip
