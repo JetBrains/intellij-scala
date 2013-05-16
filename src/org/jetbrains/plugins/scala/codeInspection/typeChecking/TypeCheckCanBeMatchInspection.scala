@@ -101,6 +101,8 @@ object TypeCheckToMatchUtil {
   private def buildCaseClauseText(ifStmt: ScIfStmt, isInstOf: ScGenericCall, caseClauseIndex: Int, renameData: RenameData): Option[String] = {
     var definedName: Option[String] = None
     var definition: Option[ScPatternDefinition] = None
+
+    //method for finding and saving named type cast
     def checkAndStoreNameAndDef(asInstOfCall: ScGenericCall): Boolean = {
       ScalaPsiUtil.getContextOfType(asInstOfCall, strict = true, classOf[ScPatternDefinition]) match {
         case patternDef: ScPatternDefinition =>
@@ -189,6 +191,7 @@ object TypeCheckToMatchUtil {
       case Some(expr: ScExpression) => builder.append(expr.getText)
       case None =>
     }
+    if (!builder.last.isWhitespace) builder.append("\n")
     builder.toString()
   }
 
@@ -253,7 +256,7 @@ object TypeCheckToMatchUtil {
   def findAsInstOfCalls(body: Option[ScExpression], isInstOfCall: ScGenericCall): Seq[ScGenericCall] = {
     def isAsInstOfCall(genCall: ScGenericCall) = {
       genCall.referencedExpr match {
-        case ref: ScReferenceExpression if ref.refName == "asInstanceOf" => true
+        case ref: ScReferenceExpression if ref.refName == "asInstanceOf" =>
           ref.resolve() match {
             case synth: SyntheticNamedElement => true
             case _ => false
