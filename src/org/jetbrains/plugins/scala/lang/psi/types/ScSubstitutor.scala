@@ -62,8 +62,8 @@ class ScSubstitutor(val tvMap: Map[(String, String), ScType],
 
   def getFollower: ScSubstitutor = follower
 
-  override def toString: String = "ScSubstitutor(" + tvMap + ", " + aliasesMap + ")" +
-    (if (follower != null) " followed " + follower.toString else "")
+  override def toString: String =
+    s"ScSubstitutor($tvMap, $aliasesMap, $updateThisType)${(if (follower != null) " >> " + follower.toString else "")}"
 
   def bindT(name : (String, String), t: ScType) = {
     val res = new ScSubstitutor(tvMap + ((name, t)), aliasesMap, updateThisType, follower)
