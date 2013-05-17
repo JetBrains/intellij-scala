@@ -28,6 +28,8 @@ object Extractor {
 
     val organization = Keys.organization.in(projectRef, Compile).get(structure.data).get
 
+    val version = Keys.version.in(projectRef, Compile).get(structure.data).get
+
     val base = Keys.baseDirectory.in(projectRef, Compile).get(structure.data).get
 
     val configurations = Seq(
@@ -45,7 +47,7 @@ object Extractor {
 
     val projects = project.aggregate.map(extractProject(state, structure, _))
 
-    ProjectData(name, organization, base, configurations, scala, projects)
+    ProjectData(name, organization, version, base, configurations, scala, projects)
   }
 
   def extractConfiguration(state: State, structure: BuildStructure, projectRef: ProjectRef, configuration: Configuration): ConfigurationData = {
