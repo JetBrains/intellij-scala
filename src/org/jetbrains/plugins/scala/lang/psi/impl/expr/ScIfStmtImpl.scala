@@ -39,9 +39,12 @@ class ScIfStmtImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScIfStm
 
   def thenBranch = {
     val kElse = findChildByType(ScalaTokenTypes.kELSE)
-    val t = if (kElse != null) PsiTreeUtil.getPrevSiblingOfType(kElse, classOf[ScExpression])
-            else if (getLastChild.isInstanceOf[ScExpression]) getLastChild.asInstanceOf[ScExpression] 
-            else PsiTreeUtil.getPrevSiblingOfType(getLastChild, classOf[ScExpression])
+    val t =
+      if (kElse != null) PsiTreeUtil.getPrevSiblingOfType(kElse, classOf[ScExpression])
+      else getLastChild match {
+        case expression: ScExpression => expression
+        case _ => PsiTreeUtil.getPrevSiblingOfType(getLastChild, classOf[ScExpression])
+    }
     if (t == null) None else condition match {
       case None => Some(t) 
       case Some(c) if c != t => Some(t)
