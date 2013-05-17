@@ -101,8 +101,8 @@ class ScalaApplicationConfigurationProducer extends JavaRuntimeConfigurationProd
     if (aClass == null) {
       return null
     }
-    val predefinedModule: Module = ((RunManagerEx.getInstanceEx(location.getProject).asInstanceOf[RunManagerImpl]).
-      getConfigurationTemplate(getConfigurationFactory).getConfiguration.asInstanceOf[ApplicationConfiguration]).getConfigurationModule.getModule
+    val predefinedModule: Module = RunManagerEx.getInstanceEx(location.getProject).asInstanceOf[RunManagerImpl].
+            getConfigurationTemplate(getConfigurationFactory).getConfiguration.asInstanceOf[ApplicationConfiguration].getConfigurationModule.getModule
     for (existingConfiguration <- existingConfigurations) {
       val appConfiguration: ApplicationConfiguration = existingConfiguration.getConfiguration.asInstanceOf[ApplicationConfiguration]
       if (Comparing.equal(JavaExecutionUtil.getRuntimeQualifiedName(aClass), appConfiguration.MAIN_CLASS_NAME)) {
@@ -124,8 +124,10 @@ class ScalaApplicationConfigurationProducer extends JavaRuntimeConfigurationProd
   private def getContainingMethod(_element: PsiElement): PsiMethod = {
     var element = _element
     while (element != null) {
-      if (element.isInstanceOf[PsiMethod]) return element.asInstanceOf[PsiMethod]
-      else element = element.getParent
+      element match {
+        case method: PsiMethod => return method
+        case _ => element = element.getParent
+      }
     }
     element.asInstanceOf[PsiMethod]
   }
@@ -139,7 +141,7 @@ class ScalaApplicationConfigurationProducer extends JavaRuntimeConfigurationProd
           case f: ScFunction =>
             f.containingClass match {
               case o: ScObject =>
-                val wrapper = f.getFunctionWrapper(true, false)
+                val wrapper = f.getFunctionWrapper(isStatic = true, isInterface = false)
                 if (PsiMethodUtil.isMainMethod(wrapper)) Some(wrapper)
                 else None
               case _ => None
