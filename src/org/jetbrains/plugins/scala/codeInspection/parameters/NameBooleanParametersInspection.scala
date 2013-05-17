@@ -43,14 +43,16 @@ class NameBooleanParametersInspection extends LocalInspectionTool {
           case _ =>
         }
         for (expr <- mc.args.exprs) {
-          if (expr.isInstanceOf[ScLiteral] && isBooleanType(expr) &&
-                  IntentionUtils.check(expr.asInstanceOf[ScLiteral], true).isDefined &&
-                  (expr.getNode.getFirstChildNode.getElementType == ScalaTokenTypes.kTRUE ||
-                          expr.getNode.getFirstChildNode.getElementType == ScalaTokenTypes.kFALSE)) {
-            holder.registerProblem(holder.getManager.createProblemDescriptor(expr,
-              InspectionBundle.message("name.boolean"),
-              new NameBooleanParametersQuickFix(mc, expr.asInstanceOf[ScLiteral]),
-              ProblemHighlightType.GENERIC_ERROR_OR_WARNING, isOnTheFly))
+          expr match {
+            case literal: ScLiteral if isBooleanType(expr) &&
+                    IntentionUtils.check(literal, onlyBoolean = true).isDefined &&
+                    (expr.getNode.getFirstChildNode.getElementType == ScalaTokenTypes.kTRUE ||
+                    expr.getNode.getFirstChildNode.getElementType == ScalaTokenTypes.kFALSE) =>
+              holder.registerProblem(holder.getManager.createProblemDescriptor(expr,
+                InspectionBundle.message("name.boolean"),
+                new NameBooleanParametersQuickFix(mc, literal),
+                ProblemHighlightType.GENERIC_ERROR_OR_WARNING, isOnTheFly))
+            case _ =>
           }
         }
       }
