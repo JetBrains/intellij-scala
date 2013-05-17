@@ -43,7 +43,7 @@ case class ProjectData(name: String, organization: String, base: File, configura
   def toXML(implicit fs: FS): Elem = {
     <project>
       <name>{name}</name>
-      <organization>{name}</organization>
+      <organization>{organization}</organization>
       <base>{base.absolutePath}</base>
       {scala.map(_.toXML).getOrElse("")}
       {configurations.map(_.toXML)}
