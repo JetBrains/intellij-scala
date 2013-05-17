@@ -48,7 +48,7 @@ case class ProjectData(name: String, organization: String, version: String, base
       <base>{base.absolutePath}</base>
       {scala.map(_.toXML).getOrElse("")}
       {configurations.map(_.toXML)}
-      {projects.map(_.toXML)}
+      {projects.map(it => it.toXML(fs.withBase(it.base)))}
     </project>
   }
 }
