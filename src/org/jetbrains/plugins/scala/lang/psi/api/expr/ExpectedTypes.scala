@@ -315,27 +315,28 @@ private[expr] object ExpectedTypes {
           params(params.length - 1).paramType
         else if (i >= params.length) Nothing
         else params(i).paramType
-      if (expr.isInstanceOf[ScAssignStmt]) {
-        val assign = expr.asInstanceOf[ScAssignStmt]
-        val lE = assign.getLExpression
-        lE match {
-          case ref: ScReferenceExpression if ref.qualifier == None => {
-            val name = ref.refName
-            params.find(_.name == name) match {
-              case Some(param) => res += param.paramType
-              case _ => res += p
+      expr match {
+        case assign: ScAssignStmt =>
+          val lE = assign.getLExpression
+          lE match {
+            case ref: ScReferenceExpression if ref.qualifier == None => {
+              val name = ref.refName
+              params.find(_.name == name) match {
+                case Some(param) => res += param.paramType
+                case _ => res += p
+              }
             }
+            case _ => res += p
           }
-          case _ => res += p
-        }
-      } else if (expr.isInstanceOf[ScTypedStmt] && expr.asInstanceOf[ScTypedStmt].isSequenceArg && params.length > 0) {
-        val seqClass: Array[PsiClass] = ScalaPsiManager.instance(expr.getProject).
-          getCachedClasses(expr.getResolveScope, "scala.collection.Seq").filter(!_.isInstanceOf[ScObject])
-        if (seqClass.length != 0) {
-          val tp = ScParameterizedType(ScType.designator(seqClass(0)), Seq(params(params.length - 1).paramType))
-          res += tp
-        }
-      } else res += p
+        case typedStmt: ScTypedStmt if typedStmt.isSequenceArg && params.length > 0 =>
+          val seqClass: Array[PsiClass] = ScalaPsiManager.instance(expr.getProject).
+                  getCachedClasses(expr.getResolveScope, "scala.collection.Seq").filter(!_.isInstanceOf[ScObject])
+          if (seqClass.length != 0) {
+            val tp = ScParameterizedType(ScType.designator(seqClass(0)), Seq(params(params.length - 1).paramType))
+            res += tp
+          }
+        case _ => res += p
+      }
     }
     tp match {
       case Success(ScMethodType(_, params, _), _) => {
