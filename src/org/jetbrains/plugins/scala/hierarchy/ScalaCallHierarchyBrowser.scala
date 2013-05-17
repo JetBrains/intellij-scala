@@ -38,38 +38,32 @@ final class ScalaCallHierarchyBrowser(project: Project, method: PsiMethod)
   }
 
   protected def getElementFromDescriptor(descriptor: HierarchyNodeDescriptor): PsiElement = {
-    if (descriptor.isInstanceOf[CallHierarchyNodeDescriptor]) {
-      var nodeDescriptor: CallHierarchyNodeDescriptor = descriptor.asInstanceOf[CallHierarchyNodeDescriptor]
-      return nodeDescriptor.getEnclosingElement
+    descriptor match {
+      case nodeDescriptor: CallHierarchyNodeDescriptor => nodeDescriptor.getEnclosingElement
+      case _ => null
     }
-    return null
   }
 
   protected override def getOpenFileElementFromDescriptor(descriptor: HierarchyNodeDescriptor): PsiElement = {
-    if (descriptor.isInstanceOf[CallHierarchyNodeDescriptor]) {
-      var nodeDescriptor: CallHierarchyNodeDescriptor = descriptor.asInstanceOf[CallHierarchyNodeDescriptor]
-      return nodeDescriptor.getTargetElement
+    descriptor match {
+      case nodeDescriptor: CallHierarchyNodeDescriptor => nodeDescriptor.getTargetElement
+      case _ => null
     }
-    return null
   }
 
   protected def isApplicableElement(element: PsiElement): Boolean = {
-    return element.isInstanceOf[PsiMethod]
+    element.isInstanceOf[PsiMethod]
   }
 
   protected def createHierarchyTreeStructure(typeName: String, psiElement: PsiElement): HierarchyTreeStructure = {
-    if (CALLER_TYPE.equals(typeName)) {
-      return new ScalaCallerMethodsTreeStructure(myProject, psiElement.asInstanceOf[PsiMethod], getCurrentScopeType)
-    }
-    else if (CALLEE_TYPE.equals(typeName)) {
-      return new ScalaCalleeMethodsTreeStructure(myProject, psiElement.asInstanceOf[PsiMethod], getCurrentScopeType)
-    }
-    else {
-      return null
-    }
+    if (CALLER_TYPE.equals(typeName))
+      new ScalaCallerMethodsTreeStructure(myProject, psiElement.asInstanceOf[PsiMethod], getCurrentScopeType)
+    else if (CALLEE_TYPE.equals(typeName))
+      new ScalaCalleeMethodsTreeStructure(myProject, psiElement.asInstanceOf[PsiMethod], getCurrentScopeType)
+    else null
   }
 
   protected def getComparator: Comparator[NodeDescriptor[_]] = {
-    return JavaHierarchyUtil.getComparator(myProject)
+    JavaHierarchyUtil.getComparator(myProject)
   }
 }
