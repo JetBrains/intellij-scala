@@ -167,15 +167,15 @@ case class ScProjectionType(projected: ScType, element: PsiNamedElement,
 
   override def equivInner(r: ScType, uSubst: ScUndefinedSubstitutor,
                           falseUndef: Boolean): (Boolean, ScUndefinedSubstitutor) = {
-    if (actualElement.isInstanceOf[ScBindingPattern] &&
-      actualElement.asInstanceOf[ScBindingPattern].nameContext.isInstanceOf[ScValue]) {
-      val a = actualElement.asInstanceOf[ScBindingPattern]
-      val subst = actualSubst
-      val tp = subst.subst(a.getType(TypingContext.empty).getOrAny)
-      if (ScType.isSingletonType(tp)) {
-        val resInner = Equivalence.equivInner(tp, r, uSubst, falseUndef)
-        if (resInner._1) return resInner
-      }
+    actualElement match {
+      case a: ScBindingPattern if a.nameContext.isInstanceOf[ScValue] =>
+        val subst = actualSubst
+        val tp = subst.subst(a.getType(TypingContext.empty).getOrAny)
+        if (ScType.isSingletonType(tp)) {
+          val resInner = Equivalence.equivInner(tp, r, uSubst, falseUndef)
+          if (resInner._1) return resInner
+        }
+      case _ =>
     }
     isAliasType match {
       case Some(Conformance.AliasType(ta: ScTypeAliasDefinition, lower, _)) =>
