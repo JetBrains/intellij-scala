@@ -77,8 +77,10 @@ class ScAnnotationImpl extends ScalaStubBasedElementImpl[ScAnnotation] with ScAn
         val iterator = methods.iterator
         while (!iterator.isEmpty) {
           val method = iterator.next()
-          if (method.isInstanceOf[PsiAnnotationMethod] && Comparing.equal(method.name, attributeName)) {
-            return (method.asInstanceOf[PsiAnnotationMethod]).getDefaultValue
+          method match {
+            case annotMethod: PsiAnnotationMethod if Comparing.equal(method.name, attributeName) =>
+              return annotMethod.getDefaultValue
+            case _ =>
           }
         }
       case _ =>
