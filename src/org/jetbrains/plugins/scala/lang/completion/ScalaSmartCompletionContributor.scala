@@ -652,10 +652,11 @@ private[completion] object ScalaSmartCompletionContributor {
   def extractReference[T <: PsiElement](element: PsiElement): (ScReferenceExpression, T) = {
     val reference = element.getParent.asInstanceOf[ScReferenceExpression]
     val parent = reference.getParent
-    if (parent.isInstanceOf[ScReferenceExpression]) {
-      (parent.asInstanceOf[ScReferenceExpression], parent.getParent.asInstanceOf[T])
-    } else {
-      (reference, parent.asInstanceOf[T])
+    parent match {
+      case refExpr: ScReferenceExpression =>
+        (refExpr, parent.getParent.asInstanceOf[T])
+      case _ =>
+        (reference, parent.asInstanceOf[T])
     }
   }
 
