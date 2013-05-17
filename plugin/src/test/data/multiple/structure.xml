@@ -46,24 +46,24 @@
         <extra>~/.sbt/boot/scala-2.10.1/lib/scala-reflect.jar</extra>
       </scala>
       <configuration id="compile">
-        <sources>foo/src/main/scala</sources>
-        <sources>foo/src/main/java</sources>
-        <resources>foo/src/main/resources</resources>
-        <classes>foo/target/scala-2.10/classes</classes>
+        <sources>src/main/scala</sources>
+        <sources>src/main/java</sources>
+        <resources>src/main/resources</resources>
+        <classes>target/scala-2.10/classes</classes>
         <module revision="2.10.1" name="scala-library" organization="org.scala-lang"></module>
       </configuration>
       <configuration id="test">
-        <sources>foo/src/test/scala</sources>
-        <sources>foo/src/test/java</sources>
-        <resources>foo/src/test/resources</resources>
-        <classes>foo/target/scala-2.10/test-classes</classes>
+        <sources>src/test/scala</sources>
+        <sources>src/test/java</sources>
+        <resources>src/test/resources</resources>
+        <classes>target/scala-2.10/test-classes</classes>
         <module revision="2.10.1" name="scala-library" organization="org.scala-lang"></module>
       </configuration>
       <configuration id="runtime">
-        <sources>foo/src/main/scala</sources>
-        <sources>foo/src/main/java</sources>
-        <resources>foo/src/main/resources</resources>
-        <classes>foo/target/scala-2.10/classes</classes>
+        <sources>src/main/scala</sources>
+        <sources>src/main/java</sources>
+        <resources>src/main/resources</resources>
+        <classes>target/scala-2.10/classes</classes>
         <module revision="2.10.1" name="scala-library" organization="org.scala-lang"></module>
       </configuration>
     </project>
@@ -79,24 +79,24 @@
         <extra>~/.sbt/boot/scala-2.10.1/lib/scala-reflect.jar</extra>
       </scala>
       <configuration id="compile">
-        <sources>bar/src/main/scala</sources>
-        <sources>bar/src/main/java</sources>
-        <resources>bar/src/main/resources</resources>
-        <classes>bar/target/scala-2.10/classes</classes>
+        <sources>src/main/scala</sources>
+        <sources>src/main/java</sources>
+        <resources>src/main/resources</resources>
+        <classes>target/scala-2.10/classes</classes>
         <module revision="2.10.1" name="scala-library" organization="org.scala-lang"></module>
       </configuration>
       <configuration id="test">
-        <sources>bar/src/test/scala</sources>
-        <sources>bar/src/test/java</sources>
-        <resources>bar/src/test/resources</resources>
-        <classes>bar/target/scala-2.10/test-classes</classes>
+        <sources>src/test/scala</sources>
+        <sources>src/test/java</sources>
+        <resources>src/test/resources</resources>
+        <classes>target/scala-2.10/test-classes</classes>
         <module revision="2.10.1" name="scala-library" organization="org.scala-lang"></module>
       </configuration>
       <configuration id="runtime">
-        <sources>bar/src/main/scala</sources>
-        <sources>bar/src/main/java</sources>
-        <resources>bar/src/main/resources</resources>
-        <classes>bar/target/scala-2.10/classes</classes>
+        <sources>src/main/scala</sources>
+        <sources>src/main/java</sources>
+        <resources>src/main/resources</resources>
+        <classes>target/scala-2.10/classes</classes>
         <module revision="2.10.1" name="scala-library" organization="org.scala-lang"></module>
       </configuration>
     </project>
