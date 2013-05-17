@@ -1695,8 +1695,10 @@ object ScalaPsiUtil {
   }
 
   def isReadonly(e: PsiElement): Boolean = {
-    if(e.isInstanceOf[ScClassParameter]) {
-      return e.asInstanceOf[ScClassParameter].isVal
+    e match {
+      case classParameter: ScClassParameter =>
+        return classParameter.isVal
+      case _ =>
     }
 
     if(e.isInstanceOf[ScParameter]) {

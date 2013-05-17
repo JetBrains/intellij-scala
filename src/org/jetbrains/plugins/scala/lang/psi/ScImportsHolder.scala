@@ -116,7 +116,10 @@ trait ScImportsHolder extends ScalaPsiElement {
       var run = ScalaPsiUtil.getPrevStubOrPsiElement(lastParent)
       while (run != null) {
         ProgressManager.checkCanceled()
-        if (run.isInstanceOf[ScImportStmt]) buffer += run.asInstanceOf[ScImportStmt]
+        run match {
+          case importStmt: ScImportStmt => buffer += importStmt
+          case _ =>
+        }
         run = ScalaPsiUtil.getPrevStubOrPsiElement(run)
       }
     }
