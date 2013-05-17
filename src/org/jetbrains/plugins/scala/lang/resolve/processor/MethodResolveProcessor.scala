@@ -223,8 +223,10 @@ object MethodResolveProcessor {
       case fun: ScTypeParametersOwner if (typeArgElements.length == 0 ||
               typeArgElements.length == fun.typeParameters.length) && argumentClauses.length == 0 &&
               fun.isInstanceOf[PsiNamedElement] => {
-        if (fun.isInstanceOf[ScFunction] && fun.asInstanceOf[ScFunction].isConstructor)
-          return ConformanceExtResult(Seq(new ApplicabilityProblem("1")))
+        fun match {
+          case function: ScFunction if function.isConstructor => return ConformanceExtResult(Seq(new ApplicabilityProblem("1")))
+          case _ =>
+        }
         checkFunction(fun.asInstanceOf[PsiNamedElement])
       }
       case fun: PsiTypeParameterListOwner if (typeArgElements.length == 0 ||
