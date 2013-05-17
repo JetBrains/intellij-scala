@@ -156,8 +156,10 @@ with DumbAware {
 
 
       override def visitLiteral(l: ScLiteral) {
-        if (l.isInstanceOf[ScInterpolatedStringLiteral] && l.getFirstChild != null) {
-          highlightWrongInterpolatedString(l.asInstanceOf[ScInterpolatedStringLiteral], holder)
+        l match {
+          case interpolated: ScInterpolatedStringLiteral if l.getFirstChild != null =>
+            highlightWrongInterpolatedString(interpolated, holder)
+          case _ =>
         }
         super.visitLiteral(l)
       }
@@ -328,25 +330,27 @@ with DumbAware {
     element.accept(visitor)
     AnnotatorHighlighter.highlightElement(element, holder)
 
-    if (element.isInstanceOf[ScTemplateDefinition]) {
-      val templateDefinition = element.asInstanceOf[ScTemplateDefinition]
-      val tdParts = Seq(AbstractInstantiation, FinalClassInheritance, IllegalInheritance, ObjectCreationImpossible,
-        MultipleInheritance, NeedsToBeAbstract, NeedsToBeMixin, NeedsToBeTrait, SealedClassInheritance, UndefinedMember)
-      tdParts.foreach(_.annotate(templateDefinition, holder, typeAware))
-      templateDefinition match {
-        case cls: ScClass =>
-          val clsParts = Seq(CaseClassWithoutParamList, HasImplicitParamAndBound)
-          clsParts.foreach(_.annotate(cls, holder, typeAware))
-        case trt: ScTrait =>
-          val traitParts = Seq(TraitHasImplicitBound)
-          traitParts.foreach(_.annotate(trt, holder, typeAware))
-        case _ =>
-      }
+    element match {
+      case templateDefinition: ScTemplateDefinition =>
+        val tdParts = Seq(AbstractInstantiation, FinalClassInheritance, IllegalInheritance, ObjectCreationImpossible,
+          MultipleInheritance, NeedsToBeAbstract, NeedsToBeMixin, NeedsToBeTrait, SealedClassInheritance, UndefinedMember)
+        tdParts.foreach(_.annotate(templateDefinition, holder, typeAware))
+        templateDefinition match {
+          case cls: ScClass =>
+            val clsParts = Seq(CaseClassWithoutParamList, HasImplicitParamAndBound)
+            clsParts.foreach(_.annotate(cls, holder, typeAware))
+          case trt: ScTrait =>
+            val traitParts = Seq(TraitHasImplicitBound)
+            traitParts.foreach(_.annotate(trt, holder, typeAware))
+          case _ =>
+        }
+      case _ =>
     }
 
-    if (element.isInstanceOf[ScTypeBoundsOwner]) {
-      val sTypeParam = element.asInstanceOf[ScTypeBoundsOwner]
-      checkTypeParamBounds(sTypeParam, holder)
+    element match {
+      case sTypeParam: ScTypeBoundsOwner =>
+        checkTypeParamBounds(sTypeParam, holder)
+      case _ =>
     }
     //todo: super[ControlFlowInspections].annotate(element, holder)
   }
