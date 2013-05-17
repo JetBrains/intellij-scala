@@ -91,7 +91,7 @@ class FilePathReferenceProvider extends PsiReferenceProvider {
 
       @NotNull override def computeDefaultContexts: java.util.Collection[PsiFileSystemItem] = {
         val module: Module = ModuleUtilCore.findModuleForPsiElement(getElement)
-        getRoots(module, true)
+        getRoots(module, includingClasses = true)
       }
 
       override def createFileReference(range: TextRange, index: Int, text: String): FileReference = {
@@ -122,14 +122,17 @@ class FilePathReferenceProvider extends PsiReferenceProvider {
 
   @NotNull def getReferencesByElement(@NotNull element: PsiElement, @NotNull context: ProcessingContext): Array[PsiReference] = {
     var text: String = null
-    if (element.isInstanceOf[ScLiteral]) {
-      val value = (element.asInstanceOf[ScLiteral]).getValue
-      if (value.isInstanceOf[String]) {
-        text = value.asInstanceOf[String]
-      }
+    element match {
+      case literal: ScLiteral =>
+        literal.getValue match {
+          case s: String =>
+            text = s
+          case _ =>
+        }
+      case _ =>
     }
     if (text == null) return PsiReference.EMPTY_ARRAY
-    getReferencesByElement(element, text, 1, true)
+    getReferencesByElement(element, text, 1, soft = true)
   }
 
   private final val myEndingSlashNotAllowed: Boolean = false
