@@ -158,8 +158,10 @@ abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTemplate
       case st: ScalaStubBasedElementImpl[_] => st.getStub
       case _ => null
     }
-    if (stub.isInstanceOf[ScMemberOrLocal]) {
-      return stub.asInstanceOf[ScMemberOrLocal].isLocal
+    stub match {
+      case memberOrLocal: ScMemberOrLocal =>
+        return memberOrLocal.isLocal
+      case _ =>
     }
     containingClass == null && PsiTreeUtil.getParentOfType(this, classOf[ScTemplateDefinition]) != null
   }
