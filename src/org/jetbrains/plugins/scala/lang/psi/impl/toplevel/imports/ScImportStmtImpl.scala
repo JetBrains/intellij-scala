@@ -117,39 +117,40 @@ class ScImportStmtImpl extends ScalaStubBasedElementImpl[ScImportStmt] with ScIm
                 s.substitutor)
             case r: ResolveResult => (r.getElement, Set[ImportUsed](), ScSubstitutor.empty)
           }
-          if (elem.isInstanceOf[PsiPackage] && processor.isInstanceOf[CompletionProcessor] &&
-            processor.asInstanceOf[CompletionProcessor].includePrefixImports) {
-            val prefixImports = ScalaProjectSettings.getInstance(getProject).getImportsWithPrefix.filter(s =>
-              !s.startsWith(ScalaProjectSettings.EXCLUDE_PREFIX) &&
-                s.substring(0, s.lastIndexOf(".")) == elem.asInstanceOf[PsiPackage].getQualifiedName
-            )
-            val excludeImports = ScalaProjectSettings.getInstance(getProject).getImportsWithPrefix.filter(s =>
-              s.startsWith(ScalaProjectSettings.EXCLUDE_PREFIX) &&
-                s.substring(ScalaProjectSettings.EXCLUDE_PREFIX.length, s.lastIndexOf(".")) == elem.asInstanceOf[PsiPackage].getQualifiedName
-            )
-            val names = new HashSet[String]()
-            for (prefixImport <- prefixImports) {
-              names += prefixImport.substring(prefixImport.lastIndexOf('.') + 1)
-            }
-            val excludeNames = new HashSet[String]()
-            for (prefixImport <- excludeImports) {
-              excludeNames += prefixImport.substring(prefixImport.lastIndexOf('.') + 1)
-            }
-            val wildcard = names.contains("_")
-            def isOK(name: String): Boolean = {
-              if (wildcard) !excludeNames.contains(name)
-              else names.contains(name)
-            }
-            val newImportsUsed = Set(importsUsed.toSeq: _*) + ImportExprUsed(importExpr)
-            val newState = state.put(ScalaCompletionUtil.PREFIX_COMPLETION_KEY, true).put(ImportUsed.key, newImportsUsed)
-            elem.processDeclarations(new BaseProcessor(StdKinds.stableImportSelector) {
-              def execute(element: PsiElement, state: ResolveState): Boolean = {
-                element match {
-                  case elem: PsiNamedElement if isOK(elem.name) => processor.execute(element, state)
-                  case _ => true
-                }
+          (elem, processor) match {
+            case (pack: PsiPackage, complProc: CompletionProcessor) if complProc.includePrefixImports =>
+              val prefixImports = ScalaProjectSettings.getInstance(getProject).getImportsWithPrefix.filter(s =>
+                !s.startsWith(ScalaProjectSettings.EXCLUDE_PREFIX) &&
+                        s.substring(0, s.lastIndexOf(".")) == pack.getQualifiedName
+              )
+              val excludeImports = ScalaProjectSettings.getInstance(getProject).getImportsWithPrefix.filter(s =>
+                s.startsWith(ScalaProjectSettings.EXCLUDE_PREFIX) &&
+                        s.substring(ScalaProjectSettings.EXCLUDE_PREFIX.length, s.lastIndexOf(".")) == pack.getQualifiedName
+              )
+              val names = new HashSet[String]()
+              for (prefixImport <- prefixImports) {
+                names += prefixImport.substring(prefixImport.lastIndexOf('.') + 1)
               }
-            }, newState, this, place)
+              val excludeNames = new HashSet[String]()
+              for (prefixImport <- excludeImports) {
+                excludeNames += prefixImport.substring(prefixImport.lastIndexOf('.') + 1)
+              }
+              val wildcard = names.contains("_")
+              def isOK(name: String): Boolean = {
+                if (wildcard) !excludeNames.contains(name)
+                else names.contains(name)
+              }
+              val newImportsUsed = Set(importsUsed.toSeq: _*) + ImportExprUsed(importExpr)
+              val newState = state.put(ScalaCompletionUtil.PREFIX_COMPLETION_KEY, true).put(ImportUsed.key, newImportsUsed)
+              elem.processDeclarations(new BaseProcessor(StdKinds.stableImportSelector) {
+                def execute(element: PsiElement, state: ResolveState): Boolean = {
+                  element match {
+                    case elem: PsiNamedElement if isOK(elem.name) => processor.execute(element, state)
+                    case _ => true
+                  }
+                }
+              }, newState, this, place)
+            case _ =>
           }
           val subst = state.get(ScSubstitutor.key).toOption.getOrElse(ScSubstitutor.empty).followed(s)
           ProgressManager.checkCanceled()
