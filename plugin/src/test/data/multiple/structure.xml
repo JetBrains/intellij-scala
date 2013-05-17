@@ -2,6 +2,7 @@
   <project>
     <name>some-name</name>
     <organization>some-organization</organization>
+    <version>1.2.3</version>
     <base>$BASE</base>
     <scala>
       <version>2.10.1</version>
@@ -36,6 +37,7 @@
     <project>
       <name>foo</name>
       <organization>foo</organization>
+      <version>0.1-SNAPSHOT</version>
       <base>$BASE/foo</base>
       <scala>
         <version>2.10.1</version>
@@ -68,6 +70,7 @@
     <project>
       <name>bar</name>
       <organization>bar</organization>
+      <version>0.1-SNAPSHOT</version>
       <base>$BASE/bar</base>
       <scala>
         <version>2.10.1</version>
