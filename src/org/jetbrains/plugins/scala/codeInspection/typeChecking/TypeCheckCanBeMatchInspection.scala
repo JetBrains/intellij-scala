@@ -335,8 +335,8 @@ object TypeCheckToMatchUtil {
     }
   }
 
-  def baseExpr(gCall: ScGenericCall): Option[ScExpression] = gCall.referencedExpr.children.toList match {
-    case List(expr: ScExpression, ElementText("."), ElementText(_)) => Some(expr)
+  def baseExpr(gCall: ScGenericCall): Option[ScExpression] = gCall.referencedExpr match {
+    case ref: ScReferenceExpression => ref.qualifier
     case _ => None
   }
 
