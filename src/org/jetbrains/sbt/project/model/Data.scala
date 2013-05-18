@@ -5,9 +5,9 @@ import java.io.File
 
 case class StructureData(project: ProjectData, repository: RepositoryData)
 
-case class ProjectData(name: String, base: File, configurations: Seq[ConfigurationData], scala: Option[ScalaData], projects: Seq[ProjectData])
+case class ProjectData(name: String, organization: String, version: String, base: File, configurations: Seq[ConfigurationData], scala: Option[ScalaData], projects: Seq[ProjectData])
 
-case class ConfigurationData(id: String, sources: Seq[File], classes: File, modules: Seq[ModuleIdData], jars: Seq[File])
+case class ConfigurationData(id: String, sources: Seq[File], resources: Seq[File], classes: File, dependencies: Seq[String], modules: Seq[ModuleIdData], jars: Seq[File])
 
 case class ScalaData(version: String, libraryJar: File, compilerJar: File, extraJars: Seq[File])
 
