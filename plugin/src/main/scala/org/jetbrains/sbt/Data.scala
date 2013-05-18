@@ -9,8 +9,6 @@ import FS._
  */
 case class FS(home: File, base: Option[File] = None) {
   def withBase(base: File): FS = copy(base = Some(base))
-
-  def path(file: File): String = file.getAbsolutePath
 }
 
 object FS {
