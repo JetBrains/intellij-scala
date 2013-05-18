@@ -3,16 +3,16 @@ package project.model
 
 import java.io.File
 
-case class StructureData(project: ProjectData, repository: RepositoryData)
+case class Structure(project: Project, repository: Repository)
 
-case class ProjectData(name: String, organization: String, version: String, base: File, configurations: Seq[ConfigurationData], scala: Option[ScalaData], projects: Seq[ProjectData])
+case class Project(name: String, organization: String, version: String, base: File, configurations: Seq[Configuration], scala: Option[Scala], projects: Seq[Project])
 
-case class ConfigurationData(id: String, sources: Seq[File], resources: Seq[File], classes: File, dependencies: Seq[String], modules: Seq[ModuleIdData], jars: Seq[File])
+case class Configuration(id: String, sources: Seq[File], resources: Seq[File], classes: File, dependencies: Seq[String], modules: Seq[ModuleId], jars: Seq[File])
 
-case class ScalaData(version: String, libraryJar: File, compilerJar: File, extraJars: Seq[File])
+case class Scala(version: String, libraryJar: File, compilerJar: File, extraJars: Seq[File])
 
-case class ModuleIdData(organization: String, name: String, revision: String)
+case class ModuleId(organization: String, name: String, revision: String)
 
-case class ModuleData(id: ModuleIdData, binaries: Seq[File], docs: Seq[File], sources: Seq[File])
+case class Module(id: ModuleId, binaries: Seq[File], docs: Seq[File], sources: Seq[File])
 
-case class RepositoryData(base: File, modules: Seq[ModuleData])
+case class Repository(base: File, modules: Seq[Module])
