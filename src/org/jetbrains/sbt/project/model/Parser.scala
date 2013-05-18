@@ -7,7 +7,7 @@ import java.io.File
 /**
  * @author Pavel Fatin
  */
-class Parser {
+object Parser {
   def parse(node: Node): StructureData = {
     val project = parseProject(node ! "project")
     val repository = parseRepository(node ! "repository")
@@ -17,12 +17,14 @@ class Parser {
 
   private def parseProject(node: Node): ProjectData = {
     val name = (node \ "name").text
+    val organization = (node \ "organization").text
+    val version = (node \ "version").text
     val base = new File((node \ "base").text)
     val configurations = (node \ "configuration").map(parseConfiguration)
     val scala = (node \ "scala").headOption.map(parseScala)
     val projects = (node \ "project").map(parseProject)
 
-    ProjectData(name, base, configurations, scala, projects)
+    ProjectData(name, organization, version, base, configurations, scala, projects)
   }
 
   private def parseScala(node: Node): ScalaData = {
@@ -37,11 +39,13 @@ class Parser {
   private def parseConfiguration(node: Node): ConfigurationData = {
     val id = (node \ "@id").text
     val sources = (node \ "sources").map(e => new File(e.text))
+    val resources = (node \ "resources").map(e => new File(e.text))
     val classes = new File((node ! "classes").text)
+    val dependencies = (node \ "dependency").map(_.text)
     val modules = (node \ "module").map(parseModuleIdentifier)
     val jars = (node \ "jar").map(e => new File(e.text))
 
-    ConfigurationData(id, sources, classes, modules, jars)
+    ConfigurationData(id, sources, resources, classes, dependencies, modules, jars)
   }
 
   private def parseModuleIdentifier(node: Node): ModuleIdData = {
