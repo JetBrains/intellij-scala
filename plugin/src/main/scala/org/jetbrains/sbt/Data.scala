@@ -53,7 +53,7 @@ case class ProjectData(name: String, organization: String, version: String, base
   }
 }
 
-case class ConfigurationData(id: String, sources: Seq[File], resources: Seq[File], classes: File, projects: Seq[String], modules: Seq[ModuleIdentifier], jars: Seq[File]) {
+case class ConfigurationData(id: String, sources: Seq[File], resources: Seq[File], classes: File, dependencies: Seq[String], modules: Seq[ModuleIdentifier], jars: Seq[File]) {
   def toXML(implicit fs: FS): Elem = {
     <configuration id={id}>
       {sources.map { directory =>
@@ -63,8 +63,8 @@ case class ConfigurationData(id: String, sources: Seq[File], resources: Seq[File
         <resources>{directory.path}</resources>
       }}
       <classes>{classes.path}</classes>
-      {projects.map { project =>
-        <dependency>{project}</dependency>
+      {dependencies.map { dependency =>
+        <dependency>{dependency}</dependency>
       }}
       {modules.map { module =>
         <module organization={module.organization} name={module.name} revision={module.revision}/>
