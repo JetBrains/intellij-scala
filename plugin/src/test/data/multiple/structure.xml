@@ -15,7 +15,7 @@
       <sources>src/main/java</sources>
       <resources>src/main/resources</resources>
       <classes>target/scala-2.10/classes</classes>
-      <project>bar</project>
+      <dependency>bar</dependency>
       <module revision="2.10.1" name="scala-library" organization="org.scala-lang"></module>
     </configuration>
     <configuration id="test">
@@ -23,7 +23,7 @@
       <sources>src/test/java</sources>
       <resources>src/test/resources</resources>
       <classes>target/scala-2.10/test-classes</classes>
-      <project>bar</project>
+      <dependency>bar</dependency>
       <module revision="2.10.1" name="scala-library" organization="org.scala-lang"></module>
     </configuration>
     <configuration id="runtime">
@@ -31,7 +31,7 @@
       <sources>src/main/java</sources>
       <resources>src/main/resources</resources>
       <classes>target/scala-2.10/classes</classes>
-      <project>bar</project>
+      <dependency>bar</dependency>
       <module revision="2.10.1" name="scala-library" organization="org.scala-lang"></module>
     </configuration>
     <project>
