@@ -9,11 +9,11 @@ import FS._
  * @author Pavel Fatin
  */
 
-case class FS(home: File, base: Option[File] = None) {
+private case class FS(home: File, base: Option[File] = None) {
   def withBase(base: File): FS = copy(base = Some(base))
 }
 
-object FS {
+private object FS {
   def file(path: String)(implicit fs: FS): File = {
     if (path.startsWith("~/")) {
       new File(fs.home, path.substring(2))
@@ -24,16 +24,16 @@ object FS {
 }
 
 object Parser {
-  def parse(node: Node, home: File): StructureData = {
+  def parse(node: Node, home: File): Structure = {
     implicit val fs = new FS(home)
 
     val project = parseProject(node ! "project")
     val repository = parseRepository(node ! "repository")
 
-    StructureData(project, repository)
+    Structure(project, repository)
   }
 
-  private def parseProject(node: Node)(implicit fs: FS): ProjectData = {
+  private def parseProject(node: Node)(implicit fs: FS): Project = {
     val name = (node \ "name").text
     val organization = (node \ "organization").text
     val version = (node \ "version").text
@@ -42,19 +42,19 @@ object Parser {
     val scala = (node \ "scala").headOption.map(parseScala(_)(fs.withBase(base)))
     val projects = (node \ "project").map(parseProject)
 
-    ProjectData(name, organization, version, base, configurations, scala, projects)
+    Project(name, organization, version, base, configurations, scala, projects)
   }
 
-  private def parseScala(node: Node)(implicit fs: FS): ScalaData = {
+  private def parseScala(node: Node)(implicit fs: FS): Scala = {
     val version = (node \ "version").text
     val library = file((node \ "library").text)
     val compiler = file((node \ "compiler").text)
     val extra = (node \ "extra").map(e => file(e.text))
 
-    ScalaData(version, library, compiler, extra)
+    Scala(version, library, compiler, extra)
   }
 
-  private def parseConfiguration(node: Node)(implicit fs: FS): ConfigurationData = {
+  private def parseConfiguration(node: Node)(implicit fs: FS): Configuration = {
     val id = (node \ "@id").text
     val sources = (node \ "sources").map(e => file(e.text))
     val resources = (node \ "resources").map(e => file(e.text))
@@ -63,29 +63,29 @@ object Parser {
     val modules = (node \ "module").map(parseModuleIdentifier)
     val jars = (node \ "jar").map(e => file(e.text))
 
-    ConfigurationData(id, sources, resources, classes, dependencies, modules, jars)
+    Configuration(id, sources, resources, classes, dependencies, modules, jars)
   }
 
-  private def parseModuleIdentifier(node: Node): ModuleIdData = {
+  private def parseModuleIdentifier(node: Node): ModuleId = {
     val organization = (node \ "@organization").text
     val name = (node \ "@name").text
     val revision = (node \ "@revision").text
 
-    ModuleIdData(organization, name, revision)
+    ModuleId(organization, name, revision)
   }
 
-  private def parseRepository(node: Node)(implicit fs: FS): RepositoryData = {
+  private def parseRepository(node: Node)(implicit fs: FS): Repository = {
     val modules = (node \ "module").map { it =>
-      val identifier = parseModuleIdentifier(node)
+      val identifier = parseModuleIdentifier(it)
 
       val binaries = (it \ "jar").map(e => file(e.text))
       val docs = (it \ "doc").map(e => file(e.text))
       val sources = (it \ "src").map(e => file(e.text))
 
-      ModuleData(identifier, binaries, docs, sources)
+      Module(identifier, binaries, docs, sources)
     }
 
-    RepositoryData(new File("."), modules)
+    Repository(new File("."), modules)
   }
 
   private implicit class NodeExt(node: Node) {
