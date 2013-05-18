@@ -64,7 +64,7 @@ case class ConfigurationData(id: String, sources: Seq[File], resources: Seq[File
       }}
       <classes>{classes.path}</classes>
       {projects.map { project =>
-        <project>{project}</project>
+        <dependency>{project}</dependency>
       }}
       {modules.map { module =>
         <module organization={module.organization} name={module.name} revision={module.revision}/>
