@@ -17,7 +17,6 @@ import com.intellij.openapi.components._
   )
 )
 class SbtSettings(project: Project) extends AbstractExternalSystemSettings[SbtProjectSettings, SbtSettingsListener](SbtTopic, project) {
-
   def checkSettings(old: SbtProjectSettings, current: SbtProjectSettings) {}
 }
 
