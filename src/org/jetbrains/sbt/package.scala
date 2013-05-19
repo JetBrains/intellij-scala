@@ -4,6 +4,8 @@ import com.intellij.util.{Function => IdeaFunction, PathUtil}
 import com.intellij.openapi.util.{Pair => IdeaPair}
 
 import reflect.ClassTag
+import java.io.File
+import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil
 
 /**
  * @author Pavel Fatin
@@ -15,6 +17,22 @@ package object sbt {
 
   implicit def toIdeaFunction2[A, B, C](f: (A, B) => C): IdeaFunction[IdeaPair[A, B], C] = new IdeaFunction[IdeaPair[A, B], C] {
     def fun(pair: IdeaPair[A, B]) = f(pair.getFirst, pair.getSecond)
+  }
+
+  implicit class RichFile(file: File) {
+    def /(path: String): File = new File(file, path)
+
+    def `<<`: File = file.getParentFile
+
+    def path: String = file.getPath
+
+    def absolutePath: String = file.getAbsolutePath
+
+    def canonicalPath = ExternalSystemApiUtil.toCanonicalPath(file.getAbsolutePath)
+  }
+
+  implicit class RichString(path: String) {
+    def toFile: File = new File(path)
   }
 
   def jarWith[T : ClassTag]: String = {
