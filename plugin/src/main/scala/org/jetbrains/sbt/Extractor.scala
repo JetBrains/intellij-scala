@@ -37,17 +37,35 @@ object Extractor {
       extractConfiguration(state, structure, projectRef, Test),
       extractConfiguration(state, structure, projectRef, Runtime))
 
-    val scala: Option[ScalaData] = Project.runTask(scalaInstance.in(projectRef, Compile), state) collect {
-      case (_, Value(it)) =>
-        val extraJars = it.extraJars.filter(_.getName.contains("reflect"))
-        ScalaData(it.version, it.libraryJar, it.compilerJar, extraJars)
+    val java = {
+      val home = Keys.javaHome.in(projectRef, Compile).get(structure.data).get
+
+      val options: Seq[String] = Project.runTask(javacOptions.in(projectRef, Compile), state) match {
+        case Some((_, Value(it))) => it
+        case _ => Seq.empty
+      }
+
+      home.map(JavaData(_, options))
+    }
+
+    val scala: Option[ScalaData] = {
+      val options: Seq[String] = Project.runTask(scalacOptions.in(projectRef, Compile), state) match {
+        case Some((_, Value(it))) => it
+        case _ => Seq.empty
+      }
+
+      Project.runTask(scalaInstance.in(projectRef, Compile), state) collect {
+        case (_, Value(instance)) =>
+          val extraJars = instance.extraJars.filter(_.getName.contains("reflect"))
+          ScalaData(instance.version, instance.libraryJar, instance.compilerJar, extraJars, options)
+      }
     }
 
     val project = Project.getProject(projectRef, structure).get
 
     val projects = project.aggregate.map(extractProject(state, structure, _))
 
-    ProjectData(name, organization, version, base, configurations, scala, projects)
+    ProjectData(name, organization, version, base, configurations, java, scala, projects)
   }
 
   def extractConfiguration(state: State, structure: BuildStructure, projectRef: ProjectRef, configuration: Configuration): ConfigurationData = {
