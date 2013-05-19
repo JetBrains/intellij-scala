@@ -4,11 +4,18 @@
     <organization>some-organization</organization>
     <version>1.2.3</version>
     <base>$BASE</base>
+    <java>
+      <home>some/home</home>
+      <option>-j1</option>
+      <option>-j2</option>
+    </java>
     <scala>
       <version>2.10.1</version>
       <library>~/.sbt/boot/scala-2.10.1/lib/scala-library.jar</library>
       <compiler>~/.sbt/boot/scala-2.10.1/lib/scala-compiler.jar</compiler>
       <extra>~/.sbt/boot/scala-2.10.1/lib/scala-reflect.jar</extra>
+      <option>-s1</option>
+      <option>-s2</option>
     </scala>
     <configuration id="compile">
       <sources>src/main/scala</sources>
