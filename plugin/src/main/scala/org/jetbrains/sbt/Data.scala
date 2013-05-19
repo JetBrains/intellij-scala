@@ -37,14 +37,15 @@ case class StructureData(project: ProjectData, repository: RepositoryData) {
   }
 }
 
-case class ProjectData(name: String, organization: String, version: String, base: File, configurations: Seq[ConfigurationData], scala: Option[ScalaData], projects: Seq[ProjectData]) {
+case class ProjectData(name: String, organization: String, version: String, base: File, configurations: Seq[ConfigurationData], java: Option[JavaData], scala: Option[ScalaData], projects: Seq[ProjectData]) {
   def toXML(implicit fs: FS): Elem = {
     <project>
       <name>{name}</name>
       <organization>{organization}</organization>
       <version>{version}</version>
       <base>{base.absolutePath}</base>
-      {scala.map(_.toXML).getOrElse("")}
+      {java.map(_.toXML).toSeq}
+      {scala.map(_.toXML).toSeq}
       {configurations.map(_.toXML)}
       {projects.map(it => it.toXML(fs.withBase(it.base)))}
     </project>
@@ -74,7 +75,18 @@ case class ConfigurationData(id: String, sources: Seq[File], resources: Seq[File
   }
 }
 
-case class ScalaData(version: String, libraryJar: File, compilerJar: File, extraJars: Seq[File]) {
+case class JavaData(home: File, options: Seq[String]) {
+  def toXML(implicit fs: FS): Elem = {
+    <java>
+      <home>{home.path}</home>
+      {options.map { option =>
+        <option>{option}</option>
+      }}
+    </java>
+  }
+}
+
+case class ScalaData(version: String, libraryJar: File, compilerJar: File, extraJars: Seq[File], options: Seq[String]) {
   def toXML(implicit fs: FS): Elem = {
     <scala>
       <version>{version}</version>
@@ -82,6 +94,9 @@ case class ScalaData(version: String, libraryJar: File, compilerJar: File, extra
       <compiler>{compilerJar.path}</compiler>
       {extraJars.map { jar =>
         <extra>{jar.path}</extra>
+      }}
+      {options.map { option =>
+        <option>{option}</option>
       }}
     </scala>
   }
