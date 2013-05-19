@@ -20,7 +20,7 @@ object Loader {
       """ "; set artifactPath := new File(\"""" + canonicalPath(tempFile) +
       """\") ; apply -cp """ + SbtPlugin + """ org.jetbrains.sbt.Plugin""""
 
-    Runtime.getRuntime.exec(command, null, project).waitFor()
+    run(command, project)
 
     assert(tempFile.exists, "File must be created: " + tempFile.getPath)
 
@@ -28,4 +28,36 @@ object Loader {
   }
 
   private def canonicalPath(file: File): String = file.getAbsolutePath.replace('\\', '/')
+
+  private def run(command: String, directory: File) {
+    val process = Runtime.getRuntime.exec(command, null, directory)
+
+    val stdinThread = inThread {
+      Source.fromInputStream(process.getInputStream).getLines().foreach { it =>
+//        System.out.println("stdout: " + it)
+      }
+    }
+
+    val stderrThread = inThread {
+      Source.fromInputStream(process.getErrorStream).getLines().foreach { it =>
+        System.err.println("stderr: " + it)
+      }
+    }
+
+    process.waitFor()
+
+    stdinThread.join()
+    stderrThread.join()
+  }
+
+  private def inThread(block: => Unit): Thread = {
+    val runnable = new Runnable {
+      def run() {
+        block
+      }
+    }
+    val thread = new Thread(runnable)
+    thread.start()
+    thread
+  }
 }
