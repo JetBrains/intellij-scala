@@ -33,11 +33,16 @@ object ParserTest {
       modules = Seq(moduleId),
       jars = Seq.empty)
 
+    val java = Java(
+      home = new File("$BASE/some/home"),
+      options = Seq("-j1", "-j2"))
+
     val scala = Scala(
       version = "2.10.1",
       libraryJar = new File("$HOME/.sbt/boot/scala-2.10.1/lib/scala-library.jar"),
       compilerJar = new File("$HOME/.sbt/boot/scala-2.10.1/lib/scala-compiler.jar"),
-      extraJars = Seq(new File("$HOME/.sbt/boot/scala-2.10.1/lib/scala-reflect.jar")))
+      extraJars = Seq(new File("$HOME/.sbt/boot/scala-2.10.1/lib/scala-reflect.jar")),
+      options = Seq("-s1", "-s2"))
 
     val project = Project(
       name = "some-name",
@@ -45,6 +50,7 @@ object ParserTest {
       version = "1.2.3",
       base = new File("$BASE"),
       configurations = Seq(configuration),
+      java = Some(java),
       scala = Some(scala),
       projects = Seq())
 

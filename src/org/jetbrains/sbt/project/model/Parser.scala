@@ -39,10 +39,18 @@ object Parser {
     val version = (node \ "version").text
     val base = new File((node \ "base").text)
     val configurations = (node \ "configuration").map(parseConfiguration(_)(fs.withBase(base)))
+    val java = (node \ "java").headOption.map(parseJava(_)(fs.withBase(base)))
     val scala = (node \ "scala").headOption.map(parseScala(_)(fs.withBase(base)))
     val projects = (node \ "project").map(parseProject)
 
-    Project(name, organization, version, base, configurations, scala, projects)
+    Project(name, organization, version, base, configurations, java, scala, projects)
+  }
+
+  private def parseJava(node: Node)(implicit fs: FS): Java = {
+    val home = file((node \ "home").text)
+    val options = (node \ "option").map(_.text)
+
+    Java(home, options)
   }
 
   private def parseScala(node: Node)(implicit fs: FS): Scala = {
@@ -50,8 +58,9 @@ object Parser {
     val library = file((node \ "library").text)
     val compiler = file((node \ "compiler").text)
     val extra = (node \ "extra").map(e => file(e.text))
+    val options = (node \ "option").map(_.text)
 
-    Scala(version, library, compiler, extra)
+    Scala(version, library, compiler, extra, options)
   }
 
   private def parseConfiguration(node: Node)(implicit fs: FS): Configuration = {
