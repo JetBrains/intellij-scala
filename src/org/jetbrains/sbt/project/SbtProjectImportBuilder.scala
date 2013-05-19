@@ -46,7 +46,7 @@ class SbtImportControl extends AbstractImportFromExternalSystemControl[SbtProjec
   def createProjectSettingsControl(settings: SbtProjectSettings) = new AbstractExternalProjectSettingsControl[SbtProjectSettings](settings) {
     def isExtraSettingModified = false
 
-    def applyExtraSettings(settings: SbtProjectSettings) = ""
+    def applyExtraSettings(settings: SbtProjectSettings) = null
 
     def resetExtraSettings() {}
 
@@ -66,7 +66,7 @@ class SbtImportControl extends AbstractImportFromExternalSystemControl[SbtProjec
 
     def disposeUIResources() {}
 
-    def apply(settings: SbtSettings) = ""
+    def apply(settings: SbtSettings) = null
 
     def reset() {}
   }
