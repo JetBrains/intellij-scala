@@ -1715,9 +1715,6 @@ object Conformance {
         case Some((rClass: PsiClass, subst: ScSubstitutor)) => {
           ScType.extractClass(l) match {
             case Some(lClass) => {
-              if (rClass.name == "LkDiEdge" && lClass.name == "GraphParamIn") {
-                "stop here"
-              }
               if (rClass.qualifiedName == "java.lang.Object") {
                 return conformsInner(l, AnyRef, visited, uSubst, checkWeak)
               } else if (lClass.qualifiedName == "java.lang.Object") {
