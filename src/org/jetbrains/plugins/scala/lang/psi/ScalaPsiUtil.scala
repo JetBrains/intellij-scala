@@ -496,8 +496,8 @@ object ScalaPsiUtil {
     val parts: ListBuffer[ScType] = new ListBuffer[ScType]
     def collectParts(tp: ScType, place: PsiElement) {
       tp.isAliasType match {
-        case Some(AliasType(t: ScTypeAliasDefinition, lower, _)) =>
-          lower.foreach(collectParts(_, place))
+        case Some(AliasType(_, _, upper)) =>
+          upper.foreach(collectParts(_, place))
         case _ =>
       }
       tp match {
