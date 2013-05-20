@@ -20,7 +20,7 @@ import com.intellij.navigation.ItemPresentation
 import com.intellij.openapi.editor.colors.TextAttributesKey
 import java.lang.String
 import com.intellij.openapi.progress.ProcessCanceledException
-import processor.{BaseProcessor, ResolveProcessor, ResolverEnv}
+import org.jetbrains.plugins.scala.lang.resolve.processor.{ImplicitProcessor, BaseProcessor, ResolveProcessor, ResolverEnv}
 import result.Success
 import org.jetbrains.plugins.scala.util.ScalaUtils
 import api.toplevel.typedef.ScObject
@@ -112,7 +112,7 @@ extends SyntheticNamedElement(manager, className) with PsiClass with PsiClassFak
                                   lastParent: PsiElement,
                                   place: PsiElement): Boolean = {
     processor match {
-      case p : ResolveProcessor => {
+      case p : ResolveProcessor =>
         val nameSet = state.get(ResolverEnv.nameKey)
         val name = if (nameSet == null) p.name else nameSet
         methods.get(name) match {
@@ -121,7 +121,7 @@ extends SyntheticNamedElement(manager, className) with PsiClass with PsiClassFak
           }
           case None =>
         }
-      }
+      case _: ImplicitProcessor => //do nothing, there is no implicit synthetic methods
       case _: BaseProcessor =>
         //method toString and hashCode exists in java.lang.Object
         for (p <- methods; method <- p._2) {
