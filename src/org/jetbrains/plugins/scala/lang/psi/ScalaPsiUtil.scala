@@ -1366,7 +1366,9 @@ object ScalaPsiUtil {
   * ScReferenceExpression, ScMethodCall,
   * ScGenericCall, ScLiteral, ScTuple,
   * ScXmlExpr, ScParenthesisedExpr, ScUnitExpr
-  * ScThisReference, ScSuperReference,
+  * ScThisReference, ScSuperReference
+  *
+  * ScTuple in ScInfixExpr should be treated specially because of auto-tupling
   *
   ********** other cases (1 - need parentheses, 0 - does not need parentheses *****
   *
@@ -1406,12 +1408,39 @@ object ScalaPsiUtil {
         else true
       }
     }
+
+    def tupleInInfixCanBeStripped(parent: ScInfixExpr, expr: ScTuple): Boolean = {
+      parent.operation.bind() match {
+        case Some(resolveResult: ResolveResult) =>
+          val parentCopy = parent.copy().asInstanceOf[ScInfixExpr]
+          parentCopy match {
+            case ScInfixExpr(_, oper, parTuple @ ScParenthesisedExpr(tuple: ScTuple)) =>
+              val replaced = parTuple.replace(tuple)
+              val modifiedText = replaced.getParent.getText
+              val context = parent.getContext
+              val modifiedCopy = ScalaPsiElementFactory.createExpressionWithContextFromText(modifiedText, context, parent)
+              modifiedCopy match {
+                case ScInfixExpr(_, newOper, _) =>
+                  newOper.bind() match {
+                    case Some(newResolveResult) =>
+                      newResolveResult.getElement == resolveResult.getElement && newResolveResult.tuplingUsed
+                    case _ => false
+                  }
+                case _ => false
+              }
+            case ScInfixExpr(ScParenthesisedExpr(tuple: ScTuple), oper, _) => true
+            case _ => false
+          }
+        case _ => false
+      }
+    }
     val parent = from.getParent
 
     (parent, expr) match {
       case _ if !parent.isInstanceOf[ScExpression] => false
       case _ if expr.getText == "_" => false
       case (_: ScTuple | _: ScBlock | _: ScXmlExpr   , _) => false
+      case (infix: ScInfixExpr                       , tuple: ScTuple) => !tupleInInfixCanBeStripped(infix, tuple)
       case (_                                        , _: ScReferenceExpression | _: ScMethodCall |
                                                        _: ScGenericCall | _: ScLiteral | _: ScTuple |
                                                        _: ScXmlExpr | _: ScParenthesisedExpr | _: ScUnitExpr |
