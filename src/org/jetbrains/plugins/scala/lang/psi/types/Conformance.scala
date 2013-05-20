@@ -953,8 +953,7 @@ object Conformance {
       }
 
       rightVisitor = new ParameterizedSkolemizeVisitor with OtherNonvalueTypesVisitor with NothingNullVisitor 
-         with TypeParameterTypeVisitor with TupleVisitor with FunctionVisitor 
-        with ThisVisitor with DesignatorVisitor {}
+         with TupleVisitor with FunctionVisitor with ThisVisitor with DesignatorVisitor {}
       r.visitType(rightVisitor)
       if (result != null) return
 
@@ -975,10 +974,23 @@ object Conformance {
           val s = subst.followed(genericSubst)
           result = conformsInner(s.subst(lBound), r, visited, undefinedSubst)
           return
+        case ScDesignatorType(a: ScTypeAlias) =>
+          val args = p.typeArgs
+          val lower: ScType = a.lowerBound.toOption match {
+            case Some(low) => low
+            case _ =>
+              result = (false, undefinedSubst)
+              return
+          }
+          val lBound = lower
+          val genericSubst = ScalaPsiUtil.
+            typesCallSubstitutor(a.typeParameters.map(tp => (tp.name, ScalaPsiUtil.getPsiElementId(tp))), args)
+          result = conformsInner(genericSubst.subst(lBound), r, visited, undefinedSubst)
+          return
         case _ =>
       }
 
-      rightVisitor = new ParameterizedAliasVisitor {}
+      rightVisitor = new ParameterizedAliasVisitor with TypeParameterTypeVisitor {}
       r.visitType(rightVisitor)
       if (result != null) return
 
@@ -1120,35 +1132,6 @@ object Conformance {
                 result = (false, undefinedSubst)
                 return
               }
-            case (owner1: ScUndefinedType, _) =>
-              val parameterType = owner1.tpt
-              var anotherType: ScType = ScParameterizedType(des2, parameterType.args)
-              var args2replace = args2
-              if (args1.length != args2.length) {
-                ScType.extractClassType(r) match {
-                  case Some((clazz, classSubst)) =>
-                    val t: (Boolean, ScType) = parentWithArgNumber(clazz, classSubst, args1.length)
-                    if (!t._1) {
-                      result = (false, undefinedSubst)
-                      return
-                    }
-                    t._2 match {
-                      case ScParameterizedType(newDes, newArgs) =>
-                        args2replace = newArgs
-                        anotherType = ScParameterizedType(newDes, parameterType.args)
-                      case _ =>
-                        result = (false, undefinedSubst)
-                        return
-                    }
-                  case _ =>
-                    result = (false, undefinedSubst)
-                    return
-                }
-              }
-              undefinedSubst = undefinedSubst.addLower((owner1.tpt.name, owner1.tpt.getId), anotherType)
-              result = checkParameterizedType(owner1.tpt.args.map(_.param).iterator, args1, args2replace,
-                undefinedSubst, visited, checkWeak)
-              return
             case (_: ScUndefinedType, owner2: ScUndefinedType) =>
               val parameterType = owner2.tpt
               var anotherType: ScType = ScParameterizedType(des1, parameterType.args)
@@ -1176,6 +1159,35 @@ object Conformance {
               }
               undefinedSubst = undefinedSubst.addUpper((owner2.tpt.name, owner2.tpt.getId), anotherType)
               result = checkParameterizedType(owner2.tpt.args.map(_.param).iterator, args1replace, args2,
+                undefinedSubst, visited, checkWeak)
+              return
+            case (owner1: ScUndefinedType, _) =>
+              val parameterType = owner1.tpt
+              var anotherType: ScType = ScParameterizedType(des2, parameterType.args)
+              var args2replace = args2
+              if (args1.length != args2.length) {
+                ScType.extractClassType(r) match {
+                  case Some((clazz, classSubst)) =>
+                    val t: (Boolean, ScType) = parentWithArgNumber(clazz, classSubst, args1.length)
+                    if (!t._1) {
+                      result = (false, undefinedSubst)
+                      return
+                    }
+                    t._2 match {
+                      case ScParameterizedType(newDes, newArgs) =>
+                        args2replace = newArgs
+                        anotherType = ScParameterizedType(newDes, parameterType.args)
+                      case _ =>
+                        result = (false, undefinedSubst)
+                        return
+                    }
+                  case _ =>
+                    result = (false, undefinedSubst)
+                    return
+                }
+              }
+              undefinedSubst = undefinedSubst.addLower((owner1.tpt.name, owner1.tpt.getId), anotherType)
+              result = checkParameterizedType(owner1.tpt.args.map(_.param).iterator, args1, args2replace,
                 undefinedSubst, visited, checkWeak)
               return
             case _ if des1 equiv des2 =>
@@ -1755,9 +1767,6 @@ object Conformance {
         case Some((rClass: PsiClass, subst: ScSubstitutor)) => {
           ScType.extractClass(l) match {
             case Some(lClass) => {
-              if (rClass.name == "LkDiEdge" && lClass.name == "GraphParamIn") {
-                "stop here"
-              }
               if (rClass.qualifiedName == "java.lang.Object") {
                 return conformsInner(l, AnyRef, visited, uSubst, checkWeak)
               } else if (lClass.qualifiedName == "java.lang.Object") {
