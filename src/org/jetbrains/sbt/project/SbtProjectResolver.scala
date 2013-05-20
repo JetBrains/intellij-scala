@@ -2,7 +2,7 @@ package org.jetbrains.sbt
 package project
 
 import com.intellij.openapi.externalSystem.service.project.ExternalSystemProjectResolver
-import com.intellij.openapi.externalSystem.model.task.ExternalSystemTaskId
+import com.intellij.openapi.externalSystem.model.task.{ExternalSystemTaskType, ExternalSystemTaskNotificationEvent, ExternalSystemTaskId}
 import com.intellij.openapi.externalSystem.model.project._
 import com.intellij.openapi.module.StdModuleTypes
 import com.intellij.openapi.externalSystem.model.{ExternalSystemException, ProjectKeys, DataNode}
@@ -22,11 +22,19 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     }
 
     val xml = {
-      val (output, node) = PluginRunner.read(new File(path))
+      val listener = settings.getNotificationListener
 
-      node.getOrElse {
-        val message = s"Exit code: ${output.code}\nStdout:\n${output.stdout}\nStderr:\n${output.stderr}"
-        throw new ExternalSystemException(message)
+      val task = ExternalSystemTaskId.create(ExternalSystemTaskType.RESOLVE_PROJECT)
+
+      listener.onStart(task)
+      val result = PluginRunner.read(new File(path)) { message =>
+        listener.onStatusChange(new ExternalSystemTaskNotificationEvent(task, message))
+      }
+      listener.onEnd(task)
+
+      result match {
+        case Left(errors) => throw new ExternalSystemException(errors)
+        case Right(node) => node
       }
     }
 
