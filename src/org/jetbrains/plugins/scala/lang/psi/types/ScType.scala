@@ -276,6 +276,22 @@ object ScType extends ScTypePresentation with ScTypePsiTypeBridge {
     case _ => false
   }
 
+  def extractDesignatorSingletonType(tp: ScType): Option[ScType] = tp match {
+    case ScDesignatorType(v) =>
+      v match {
+        case o: ScObject => None
+        case t: ScTypedDefinition if t.isStable => t.getType(TypingContext.empty).toOption
+        case _ => None
+      }
+    case proj@ScProjectionType(_, elem, _) =>
+      elem match {
+        case o: ScObject => None
+        case t: ScTypedDefinition if t.isStable => t.getType(TypingContext.empty).toOption.map(proj.actualSubst.subst)
+        case _ => None
+      }
+    case _ => None
+  }
+
   // TODO: Review this against SLS 3.2.1
   def isStable(t: ScType): Boolean = t match {
     case ScThisType(_) => true
