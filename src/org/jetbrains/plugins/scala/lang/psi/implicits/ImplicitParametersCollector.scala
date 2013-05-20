@@ -23,6 +23,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScExistentialClause
 import org.jetbrains.plugins.scala.lang.psi.types.Conformance.AliasType
 import com.intellij.openapi.progress.ProgressManager
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 
 /**
  * @param place        The call site
@@ -298,7 +299,8 @@ class ImplicitParametersCollector(place: PsiElement, tp: ScType, searchImplicits
     tp match {
       case ScProjectionType(_, element, _) => Set(ScDesignatorType(element))
       case ScParameterizedType(designator, _) => Set(designator)
-      case ScDesignatorType(v: ScValue) =>
+      case tp@ScDesignatorType(o: ScObject) => Set(tp)
+      case ScDesignatorType(v: ScTypedDefinition) =>
         val valueType: ScType = v.getType(TypingContext.empty).getOrAny
         topLevelTypeConstructors(valueType)
       case ScCompoundType(comps, _, _, _) => comps.flatMap(topLevelTypeConstructors(_)).toSet
@@ -310,7 +312,8 @@ class ImplicitParametersCollector(place: PsiElement, tp: ScType, searchImplicits
     tp match {
       case ScProjectionType(proj, _, _) => 1 + complexity(proj)
       case ScParameterizedType(des, args) => 1 + args.foldLeft(0)(_ + complexity(_))
-      case ScDesignatorType(v: ScValue) =>
+      case ScDesignatorType(o: ScObject) => 1
+      case ScDesignatorType(v: ScTypedDefinition) =>
         val valueType: ScType = v.getType(TypingContext.empty).getOrAny
         1 + complexity(valueType)
       case ScCompoundType(comps, _, _, _) => comps.foldLeft(0)(_ + complexity(_))
