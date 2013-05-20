@@ -18,7 +18,7 @@ import scala.collection.mutable
 
 class DoubleNegationInspection extends AbstractInspection("DoubleNegation", "Double negation"){
   def actionFor(holder: ProblemsHolder): PartialFunction[PsiElement, Any] = {
-    case expr: ScExpression if (DoubleNegationUtil.hasDoubleNegation(expr)) =>
+    case expr: ScExpression if DoubleNegationUtil.hasDoubleNegation(expr) =>
       holder.registerProblem(expr, "Double negation", ProblemHighlightType.GENERIC_ERROR_OR_WARNING, new DoubleNegationQuickFix(expr))
     case _ =>
   }
@@ -38,26 +38,24 @@ object DoubleNegationUtil {
   def hasDoubleNegation(expr: ScExpression): Boolean = {
     if (hasNegation(expr))
       expr match {
-        case prefix: ScPrefixExpr => hasNegation(prefix.operand)
-        case infix: ScInfixExpr => hasNegation(infix.lOp) || hasNegation(infix.rOp)
+        case ScPrefixExpr(_, operand) => hasNegation(operand)
+        case ScInfixExpr(left, _, right) => hasNegation(left) || hasNegation(right)
         case _ => false
       }
     else
       expr match {
-        case infix: ScInfixExpr => infix.operation.refName == "==" && hasNegation(infix.lOp) && hasNegation(infix.rOp)
+        case ScInfixExpr(left, operation, right) => operation.refName == "==" && hasNegation(left) && hasNegation(right)
         case _ => false
       }
   }
 
   def removeDoubleNegation(expr: ScExpression): ScExpression = {
     val text: String = stripParentheses(expr) match {
-      case prefixExpr: ScPrefixExpr => invertedNegationText(prefixExpr.operand)
-      case infixExpr: ScInfixExpr =>
-        val left = infixExpr.lOp
-        val right = infixExpr.rOp
+      case ScPrefixExpr(_, operand) => invertedNegationText(operand)
+      case infix @ ScInfixExpr(left, _, right) =>
         val hasNegLeft = hasNegation(left)
         val hasNegRight = hasNegation(right)
-        val hasNegInfix = hasNegation(infixExpr)
+        val hasNegInfix = hasNegation(infix)
         val builder = new mutable.StringBuilder()
         builder.append(if (hasNegLeft) invertedNegationText(left) else left.getText)
         builder.append(if (hasNegLeft && hasNegInfix && hasNegRight) " != " else " == ")
@@ -69,15 +67,15 @@ object DoubleNegationUtil {
 
   @tailrec
   private def stripParentheses(expr: ScExpression): ScExpression = expr match {
-    case parenthesized: ScParenthesisedExpr => stripParentheses(parenthesized.expr.get)
+    case ScParenthesisedExpr(inner) => stripParentheses(inner)
     case expr: ScExpression => expr
   }
 
   private def hasNegation(expr: ScExpression): Boolean = {
     val withoutParentheses = stripParentheses(expr)
     withoutParentheses match {
-      case prefix: ScPrefixExpr => prefix.operation.refName == "!"
-      case infix: ScInfixExpr => infix.operation.refName == "!="
+      case ScPrefixExpr(operation, _) => operation.refName == "!"
+      case ScInfixExpr(_, operation, _) => operation.refName == "!="
       case _ => false
     }
   }
@@ -86,11 +84,8 @@ object DoubleNegationUtil {
     require(hasNegation(expr))
     val withoutParentheses = stripParentheses(expr)
     withoutParentheses match {
-      case prefixExpr: ScPrefixExpr => prefixExpr.operand.getText
-      case infixExpr: ScInfixExpr =>
-        val lOpText = infixExpr.lOp.getText
-        val rOpText = infixExpr.rOp.getText
-        s"$lOpText == $rOpText"
+      case ScPrefixExpr(_, operand) => operand.getText
+      case ScInfixExpr(left, _, right) => left.getText + "==" + right.getText
     }
   }
 }
