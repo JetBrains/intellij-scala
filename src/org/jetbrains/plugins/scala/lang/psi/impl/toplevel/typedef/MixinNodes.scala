@@ -378,10 +378,6 @@ abstract class MixinNodes {
               (Seq.empty, ScSubstitutor.empty, ScSubstitutor.empty)
           }
     }
-
-    if (tp.toString == "Z") {
-      "stop here"
-    }
     val iter = superTypes.iterator
     while (iter.hasNext) {
       val superType = iter.next()
