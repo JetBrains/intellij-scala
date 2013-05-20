@@ -4,7 +4,6 @@ package project.model
 import java.io.File
 import scala.xml.{Elem, XML}
 import com.intellij.execution.process.OSProcessHandler
-import com.intellij.execution.OutputListener
 
 /**
  * @author Pavel Fatin
@@ -16,7 +15,7 @@ object PluginRunner {
   private val SbtPlugin = (LauncherDir / "sbt-structure.jar").canonicalPath
   private val JavaOpts = Option(System.getenv("JAVA_OPTS")).getOrElse("")
 
-  def read(directory: File): (Output, Option[Elem]) = {
+  def read(directory: File)(listener: (String) => Unit): Either[String, Elem] = {
     val tempFile = File.createTempFile("sbt-structure", "xml")
     tempFile.deleteOnExit()
 
@@ -26,17 +25,21 @@ object PluginRunner {
 
     val process = Runtime.getRuntime.exec(command, null, directory)
 
-    val listener = new OutputListener()
+    val errors = new StringBuilder()
+
+    val processListener: (OutputType, String) => Unit = {
+      case (OutputType.StdOut, text) =>
+        listener(text)
+      case (OutputType.StdErr, text) =>
+        listener(text)
+        errors.append(text)
+    }
+
     val handler = new OSProcessHandler(process, null, null)
-    handler.addProcessListener(listener)
+    handler.addProcessListener(new ListenerAdapter(processListener))
     handler.startNotify()
 
     process.waitFor()
-
-    val output = {
-      val o = listener.getOutput
-      Output(o.getExitCode, o.getStdout, o.getStderr)
-    }
 
     val xml = try {
       Some(XML.load(tempFile.toURI.toURL))
@@ -46,10 +49,8 @@ object PluginRunner {
       tempFile.delete()
     }
 
-    (output, xml)
+    xml.toRight(errors.toString())
   }
 
   private def canonicalPath(file: File): String = file.getAbsolutePath.replace('\\', '/')
 }
-
-case class Output(code: Int, stdout: String, stderr: String)
