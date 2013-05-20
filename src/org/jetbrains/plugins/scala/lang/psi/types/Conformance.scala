@@ -1715,6 +1715,9 @@ object Conformance {
         case Some((rClass: PsiClass, subst: ScSubstitutor)) => {
           ScType.extractClass(l) match {
             case Some(lClass) => {
+              if (rClass.name == "LkDiEdge" && lClass.name == "GraphParamIn") {
+                "stop here"
+              }
               if (rClass.qualifiedName == "java.lang.Object") {
                 return conformsInner(l, AnyRef, visited, uSubst, checkWeak)
               } else if (lClass.qualifiedName == "java.lang.Object") {
@@ -1764,15 +1767,15 @@ object Conformance {
   private def smartIsInheritor(leftClass: PsiClass, substitutor: ScSubstitutor, rightClass: PsiClass) : (Boolean, ScType) = {
     if (ScEquivalenceUtil.areClassesEquivalent(leftClass, rightClass)) return (false, null)
     if (!ScalaPsiUtil.cachedDeepIsInheritor(leftClass, rightClass)) return (false, null)
-    smartIsInheritor(leftClass, substitutor, ScEquivalenceUtil.areClassesEquivalent(_, rightClass), new collection.mutable.HashSet[PsiClass])
+    smartIsInheritor(leftClass, substitutor, ScEquivalenceUtil.areClassesEquivalent(_, rightClass), new collection.immutable.HashSet[PsiClass])
   }
 
   private def parentWithArgNumber(leftClass: PsiClass, substitutor: ScSubstitutor, argsNumber: Int): (Boolean, ScType) = {
-    smartIsInheritor(leftClass, substitutor, c => c.getTypeParameters.length == argsNumber, new collection.mutable.HashSet[PsiClass]())
+    smartIsInheritor(leftClass, substitutor, c => c.getTypeParameters.length == argsNumber, new collection.immutable.HashSet[PsiClass]())
   }
 
   private def smartIsInheritor(leftClass: PsiClass, substitutor: ScSubstitutor, condition: PsiClass => Boolean,
-                               visited: collection.mutable.HashSet[PsiClass]): (Boolean, ScType) = {
+                               visited: collection.immutable.HashSet[PsiClass]): (Boolean, ScType) = {
     ProgressManager.checkCanceled()
     val bases: Seq[Any] = leftClass match {
       case td: ScTypeDefinition => td.superTypes
@@ -1793,7 +1796,6 @@ object Conformance {
       ScType.extractClassType(tp) match {
         case Some((clazz: PsiClass, _)) if visited.contains(clazz) =>
         case Some((clazz: PsiClass, subst)) if condition(clazz) => {
-          visited += clazz
           if (res == null) res = tp
           else if (tp.conforms(res)) res = tp
         }
@@ -1805,8 +1807,7 @@ object Conformance {
     val laterIterator = later.iterator
     while (laterIterator.hasNext) {
       val (clazz, subst) = laterIterator.next()
-      visited += clazz
-      val recursive = smartIsInheritor(clazz, subst, condition, visited)
+      val recursive = smartIsInheritor(clazz, subst, condition, visited + clazz)
       if (recursive._1) {
         if (res == null) res = recursive._2
         else if (recursive._2.conforms(res)) res = recursive._2
