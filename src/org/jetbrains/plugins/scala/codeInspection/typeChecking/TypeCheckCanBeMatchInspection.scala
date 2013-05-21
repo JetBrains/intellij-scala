@@ -55,7 +55,7 @@ class TypeCheckCanBeMatchInspection extends AbstractInspection(inspectionId, ins
         if typeCheckIsUsedEnough(ifStmt, call)
       } {
         val fix = new TypeCheckCanBeMatchQuickFix(call, ifStmt)
-        holder.registerProblem(call, inspectionId, ProblemHighlightType.GENERIC_ERROR_OR_WARNING, fix)
+        holder.registerProblem(call, inspectionName, ProblemHighlightType.GENERIC_ERROR_OR_WARNING, fix)
       }
   }
 
