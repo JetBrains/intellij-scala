@@ -68,7 +68,17 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
       moduleNode.createChild(ProjectKeys.LIBRARY_DEPENDENCY, dependency)
     }
 
+    project.scala.foreach { scala =>
+      moduleNode.createChild(ScalaFacetData.Key, createFacet(project, scala))
+    }
+
     projectNode
+  }
+
+  private def createFacet(project: Project, scala: Scala): ScalaFacetData = {
+    val basePackage = Some(project.organization).filter(_.contains(".")).mkString
+
+    new ScalaFacetData(SbtProjectSystemId, scala.version, basePackage, nameFor(scala), scala.options)
   }
 
   private def createProject(project: Project): ProjectData = {
