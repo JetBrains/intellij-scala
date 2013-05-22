@@ -111,7 +111,7 @@ object Extractor {
         throw new RuntimeException()
       }
 
-      updateReport.configurations.flatMap(_.modules)
+      updateReport.configurations.flatMap(_.modules).filter(_.artifacts.nonEmpty)
     }
 
     val moduleReports = run(update) ++ run(updateClassifiers) //++ run(updateSbtClassifiers)
