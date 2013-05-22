@@ -15,7 +15,9 @@ import org.jetbrains.sbt.project.model.Structure
  * @author Pavel Fatin
  */
 class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSettings] {
-  def resolveProjectInfo(id: ExternalSystemTaskId, projectPath: String, downloadLibraries: Boolean, settings: SbtExecutionSettings) = {
+  def resolveProjectInfo(id: ExternalSystemTaskId, projectPath: String, downloadLibraries: Boolean, settings: SbtExecutionSettings): DataNode[ProjectData] = {
+    if (downloadLibraries) return null
+
     val path = {
       val file = new File(projectPath)
       if (file.isDirectory) file.getPath else file.getParent
