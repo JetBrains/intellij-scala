@@ -4,6 +4,7 @@ import sbt.Keys._
 import sbt._
 import sbt.Load.BuildStructure
 import sbt.Value
+import Utilities._
 
 /**
  * @author Pavel Fatin
@@ -18,7 +19,12 @@ object Extractor {
 
     val projectData = extractProject(state, structure, projectRef)
 
-    val repositoryData = Extractor.extractRepository(state, projectRef)
+    val repositoryData = {
+      val modulesData = extracted.structure.allProjectRefs
+        .flatMap(extractModules(state, _)).distinctBy(_.id)
+
+      RepositoryData(new File("."), modulesData)
+    }
 
     StructureData(projectData, repositoryData)
   }
@@ -97,7 +103,7 @@ object Extractor {
     ConfigurationData(configuration.name, sources, resources, output, projectDependencies, moduleDependencies, jarDependencies)
   }
 
-  def extractRepository(state: State, projectRef: ProjectRef): RepositoryData = {
+  def extractModules(state: State, projectRef: ProjectRef): Seq[ModuleData] = {
     def run(task: TaskKey[UpdateReport]): Seq[ModuleReport] = {
       val updateReport: UpdateReport = Project.runTask(task.in(projectRef), state) collect {
         case (_, Value(it)) => it
@@ -110,7 +116,7 @@ object Extractor {
 
     val moduleReports = run(update) ++ run(updateClassifiers) //++ run(updateSbtClassifiers)
 
-    RepositoryData(new File("."), merge(moduleReports))
+    merge(moduleReports)
   }
 
   private def merge(moduleReports: Seq[ModuleReport]): Seq[ModuleData] = {
