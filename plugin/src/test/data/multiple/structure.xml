@@ -101,7 +101,6 @@
     </project>
   </project>
   <repository>
-    <module revision="0.1-SNAPSHOT" name="bar_2.10" organization="bar"></module>
     <module revision="2.10.1" name="scala-library" organization="org.scala-lang">
       <jar>~/.sbt/boot/scala-2.10.1/lib/scala-library.jar</jar>
       <doc>~/.ivy2/cache/org.scala-lang/scala-library/docs/scala-library-2.10.1-javadoc.jar</doc>
