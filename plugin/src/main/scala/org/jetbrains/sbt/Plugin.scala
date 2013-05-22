@@ -3,6 +3,7 @@ package org.jetbrains.sbt
 import sbt._
 import xml.PrettyPrinter
 import java.io.FileWriter
+import sbt.File
 
 /**
  * @author Pavel Fatin
@@ -10,6 +11,8 @@ import java.io.FileWriter
 object Plugin extends (State => State) {
   def apply(state: State): State = {
     val log = state.log
+
+    log.info("Reading structure from " + System.getProperty("user.dir"))
 
     val structure = Extractor.extractStructure(state)
 
