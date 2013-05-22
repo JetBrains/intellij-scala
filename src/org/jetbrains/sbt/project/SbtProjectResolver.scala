@@ -48,19 +48,33 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
 
     val projectNode = new DataNode[ProjectData](ProjectKeys.PROJECT, createProject(project), null)
 
-    val libraries = data.repository.modules.map(createLibrary)
+    val libraries = {
+      val moduleLibraries = data.repository.modules.map(createLibrary)
+      val compilerLibraries = scalaInstancesIn(project).distinct.map(createCompilerLibrary)
+      moduleLibraries ++ compilerLibraries
+    }
 
     libraries.foreach { library =>
       projectNode.createChild(ProjectKeys.LIBRARY, library)
     }
 
-    project.scala.foreach { scala =>
-      projectNode.createChild(ProjectKeys.LIBRARY, createCompilerLibrary(scala))
+    projectsIn(project).foreach { project =>
+      createModuleNodeIn(projectNode)(project, libraries)
     }
 
+    projectNode
+  }
+
+  private def scalaInstancesIn(project: Project): Seq[Scala] =
+    project.scala.toSeq ++ project.projects.flatMap(it => scalaInstancesIn(it))
+
+  private def projectsIn(project: Project): Seq[Project] =
+    project +: project.projects.flatMap(projectsIn)
+
+  private def createModuleNodeIn(root: DataNode[ProjectData])(project: Project, libraries: Seq[LibraryData]) {
     val moduleData = createModule(project)
 
-    val moduleNode = projectNode.createChild(ProjectKeys.MODULE, moduleData)
+    val moduleNode = root.createChild(ProjectKeys.MODULE, moduleData)
 
     moduleNode.createChild(ProjectKeys.CONTENT_ROOT, createContentRoot(project))
 
@@ -71,8 +85,6 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     project.scala.foreach { scala =>
       moduleNode.createChild(ScalaFacetData.Key, createFacet(project, scala))
     }
-
-    projectNode
   }
 
   private def createFacet(project: Project, scala: Scala): ScalaFacetData = {
