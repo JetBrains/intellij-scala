@@ -17,6 +17,10 @@ class SbtExternalSystemManager extends ExternalSystemManager[SbtProjectSettings,
     classpath.add(jarWith[this.type])
     classpath.add(jarWith[scala.App])
     classpath.add(jarWith[ExternalSystemBundle])
+
+    val vmParameters = parameters.getVMParametersList
+    vmParameters.addParametersString(System.getenv("JAVA_OPTS"))
+//    vmParameters.add("-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005")
   }
 
   def getSystemId = SbtProjectSystemId
