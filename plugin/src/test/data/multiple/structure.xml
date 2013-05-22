@@ -40,31 +40,30 @@
       <version>0.1-SNAPSHOT</version>
       <base>$BASE/foo</base>
       <scala>
-        <version>2.10.1</version>
-        <library>~/.sbt/boot/scala-2.10.1/lib/scala-library.jar</library>
-        <compiler>~/.sbt/boot/scala-2.10.1/lib/scala-compiler.jar</compiler>
-        <extra>~/.sbt/boot/scala-2.10.1/lib/scala-reflect.jar</extra>
+        <version>2.9.2</version>
+        <library>~/.sbt/boot/scala-2.9.2/lib/scala-library.jar</library>
+        <compiler>~/.sbt/boot/scala-2.9.2/lib/scala-compiler.jar</compiler>
       </scala>
       <configuration id="compile">
         <sources>src/main/scala</sources>
         <sources>src/main/java</sources>
         <resources>src/main/resources</resources>
         <classes>target/scala-2.10/classes</classes>
-        <module revision="2.10.1" name="scala-library" organization="org.scala-lang"></module>
+        <module revision="2.9.2" name="scala-library" organization="org.scala-lang"></module>
       </configuration>
       <configuration id="test">
         <sources>src/test/scala</sources>
         <sources>src/test/java</sources>
         <resources>src/test/resources</resources>
         <classes>target/scala-2.10/test-classes</classes>
-        <module revision="2.10.1" name="scala-library" organization="org.scala-lang"></module>
+        <module revision="2.9.2" name="scala-library" organization="org.scala-lang"></module>
       </configuration>
       <configuration id="runtime">
         <sources>src/main/scala</sources>
         <sources>src/main/java</sources>
         <resources>src/main/resources</resources>
         <classes>target/scala-2.10/classes</classes>
-        <module revision="2.10.1" name="scala-library" organization="org.scala-lang"></module>
+        <module revision="2.9.2" name="scala-library" organization="org.scala-lang"></module>
       </configuration>
     </project>
     <project>
@@ -107,6 +106,11 @@
       <jar>~/.sbt/boot/scala-2.10.1/lib/scala-library.jar</jar>
       <doc>~/.ivy2/cache/org.scala-lang/scala-library/docs/scala-library-2.10.1-javadoc.jar</doc>
       <src>~/.ivy2/cache/org.scala-lang/scala-library/srcs/scala-library-2.10.1-sources.jar</src>
+    </module>
+    <module revision="2.9.2" name="scala-library" organization="org.scala-lang">
+      <jar>~/.sbt/boot/scala-2.9.2/lib/scala-library.jar</jar>
+      <doc>~/.ivy2/cache/org.scala-lang/scala-library/docs/scala-library-2.9.2-javadoc.jar</doc>
+      <src>~/.ivy2/cache/org.scala-lang/scala-library/srcs/scala-library-2.9.2-sources.jar</src>
     </module>
   </repository>
 </structure>
