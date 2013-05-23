@@ -50,6 +50,9 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
 
     val projectNode = new DataNode[ProjectData](ProjectKeys.PROJECT, createProject(project), null)
 
+    val javaHome = project.java.map(_.home).getOrElse(new File(System.getProperty("java.home")))
+    projectNode.createChild(ScalaProjectData.Key, ScalaProjectData(SbtProjectSystemId, javaHome))
+
     val libraries = {
       val moduleLibraries = data.repository.modules.map(createLibrary)
       val compilerLibraries = scalaInstancesIn(project).distinct.map(createCompilerLibrary)

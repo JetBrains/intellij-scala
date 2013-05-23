@@ -30,6 +30,7 @@
 
         <externalSystemManager implementation="org.jetbrains.sbt.project.SbtExternalSystemManager"/>
         <externalProjectDataService implementation="org.jetbrains.sbt.project.SbtFacetDataService"/>
+        <externalProjectDataService implementation="org.jetbrains.sbt.project.SbtProjectDataService"/>
 
         <projectService serviceImplementation="org.jetbrains.sbt.project.settings.SbtSettings"/>
         <projectService serviceImplementation="org.jetbrains.sbt.project.settings.SbtLocalSettings"/>
