@@ -20,6 +20,7 @@ import java.awt._
 import javax.swing.event.{ChangeListener, ChangeEvent}
 import scala.Some
 import lang.psi.api.statements.ScFunction
+import com.intellij.ide.util.PropertiesComponent
 
 /**
  * @author Ksenia.Sautina
@@ -37,7 +38,7 @@ class NameBooleanParametersInspection extends LocalInspectionTool {
             case fun: ScFunction =>
               //todo
               if (fun.name.startsWith("set") && mc.args.exprs.size == 1 && isBooleanType(mc.args.exprs(0)) &&
-                IGNORE_SETTERS) return
+                ignoreSetters) return
             case _ =>
           }
           case _ =>
@@ -90,12 +91,21 @@ class NameBooleanParametersInspection extends LocalInspectionTool {
     }
   }
 
+  //persistent storage of "ignore setters" setting
+  private val properties = PropertiesComponent.getInstance()
+  private var ignoreSettersCached: Option[Boolean] = None
+  def ignoreSetters: Boolean = ignoreSettersCached.getOrElse(properties.getBoolean("name.boolean.ignore.setters", true))
+  def ignoreSetters_= (b: Boolean) {
+    properties.setValue("name.boolean.ignore.setters", b.toString)
+    ignoreSettersCached = Some(b)
+  }
+
   override def createOptionsPanel: JComponent = {
     val ignoreSettersCheckbox = new JCheckBox(InspectionBundle.message("name.boolean.ignore.setters"))
-    ignoreSettersCheckbox.setSelected(IGNORE_SETTERS)
+    ignoreSettersCheckbox.setSelected(ignoreSetters)
     ignoreSettersCheckbox.getModel.addChangeListener(new ChangeListener {
       def stateChanged(e: ChangeEvent) {
-        IGNORE_SETTERS = ignoreSettersCheckbox.isSelected
+        ignoreSetters = ignoreSettersCheckbox.isSelected
       }
     })
     val panel: JPanel = new JPanel(new FlowLayout(FlowLayout.LEFT))
@@ -103,7 +113,6 @@ class NameBooleanParametersInspection extends LocalInspectionTool {
     panel
   }
 
-  var IGNORE_SETTERS: Boolean = true
 }
 
 object NameBooleanParametersInspection {
