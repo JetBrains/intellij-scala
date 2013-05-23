@@ -12,6 +12,7 @@ import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil._
 import collection.JavaConverters._
 import SbtProjectDataService._
+import org.jetbrains.plugins.scala.components.HighlightingAdvisor
 
 /**
  * @author Pavel Fatin
@@ -30,6 +31,10 @@ class SbtProjectDataService(platformFacade: PlatformFacade, helper: ProjectStruc
         rootManager.setProjectSdk(jdk)
       }
     }
+
+    val highlightingSettings = project.getComponent(classOf[HighlightingAdvisor]).getState()
+    highlightingSettings.TYPE_AWARE_HIGHLIGHTING_ENABLED = true
+    highlightingSettings.SUGGEST_TYPE_AWARE_HIGHLIGHTING = false
   }
 
   def removeData(toRemove: util.Collection[_ <: Project], project: Project, synchronous: Boolean) {}
