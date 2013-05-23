@@ -10,6 +10,7 @@ import java.io.File
 import settings._
 import org.jetbrains.sbt.project.model._
 import org.jetbrains.sbt.project.model.Structure
+import com.intellij.openapi.roots.DependencyScope
 
 /**
  * @author Pavel Fatin
@@ -165,13 +166,33 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
   }
 
   private def createDependencies(project: Project)(moduleData: ModuleData, libraries: Seq[LibraryData]): Seq[LibraryDependencyData] = {
-    project.configurations.flatMap { configuration =>
-      configuration.modules.map { module =>
-        val name = nameFor(module)
-        val library = libraries.find(_.getName == name).getOrElse(
-          throw new ExternalSystemException("Library not found: " + name))
-        new LibraryDependencyData(moduleData, library)
-      }
+    val moduleToConfigurations =
+      project.configurations
+        .flatMap(configuration => configuration.modules.map(module => (module, configuration)))
+        .groupBy(_._1)
+        .mapValues(_.unzip._2.toSet)
+        .toSeq
+
+    moduleToConfigurations.map { case (module, configurations) =>
+      val name = nameFor(module)
+      val library = libraries.find(_.getName == name).getOrElse(
+        throw new ExternalSystemException("Library not found: " + name))
+      val data = new LibraryDependencyData(moduleData, library)
+      data.setScope(scopeFor(configurations))
+      data
     }
+  }
+
+  private def scopeFor(configurations: Set[Configuration]): DependencyScope = {
+    val ids = configurations.map(_.id)
+
+    if (ids.contains("compile"))
+      DependencyScope.COMPILE
+    else if (ids.contains("test"))
+      DependencyScope.TEST
+    else if (ids.contains("runtime"))
+      DependencyScope.RUNTIME
+    else
+      DependencyScope.PROVIDED
   }
 }
