@@ -14,7 +14,7 @@ import com.intellij.openapi.externalSystem.service.project.{ProjectStructureHelp
 /**
  * @author Pavel Fatin
  */
-class SbtProjectDataService(platformFacade: PlatformFacade, helper: ProjectStructureHelper) extends ProjectDataService[ScalaFacetData, ScalaFacet] {
+class SbtFacetDataService(platformFacade: PlatformFacade, helper: ProjectStructureHelper) extends ProjectDataService[ScalaFacetData, ScalaFacet] {
   def getTargetDataKey = ScalaFacetData.Key
 
   def importData(toImport: util.Collection[DataNode[ScalaFacetData]], project: Project, synchronous: Boolean) {
