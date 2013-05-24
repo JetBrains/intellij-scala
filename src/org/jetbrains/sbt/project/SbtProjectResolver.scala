@@ -64,8 +64,32 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
       projectNode.createChild(ProjectKeys.LIBRARY, library)
     }
 
-    projectsIn(project).foreach { project =>
-      createModuleNodeIn(projectNode)(project, libraries)
+    val projects = projectsIn(project)
+
+    val modules: Seq[DataNode[ModuleData]] = projects.map { project =>
+      val moduleData = createModule(project)
+
+      val moduleNode = projectNode.createChild(ProjectKeys.MODULE, moduleData)
+
+      moduleNode.createChild(ProjectKeys.CONTENT_ROOT, createContentRoot(project))
+
+      createDependencies(project)(moduleData, libraries).foreach { dependency =>
+        moduleNode.createChild(ProjectKeys.LIBRARY_DEPENDENCY, dependency)
+      }
+
+      project.scala.foreach { scala =>
+        moduleNode.createChild(ScalaFacetData.Key, createFacet(project, scala))
+      }
+
+      moduleNode
+    }
+
+    projects.zip(modules).foreach { case (moduleProject, moduleNode) =>
+      moduleProject.configurations.flatMap(_.dependencies).foreach { dependencyName =>
+        val dependency = modules.find(_.getData.getName == dependencyName).map(_.getData).getOrElse(
+          throw new ExternalSystemException("Cannot find module dependency: " + dependencyName))
+        moduleNode.createChild(ProjectKeys.MODULE_DEPENDENCY, new ModuleDependencyData(moduleNode.getData, dependency))
+      }
     }
 
     projectNode
@@ -76,22 +100,6 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
 
   private def projectsIn(project: Project): Seq[Project] =
     project +: project.projects.flatMap(projectsIn)
-
-  private def createModuleNodeIn(root: DataNode[ProjectData])(project: Project, libraries: Seq[LibraryData]) {
-    val moduleData = createModule(project)
-
-    val moduleNode = root.createChild(ProjectKeys.MODULE, moduleData)
-
-    moduleNode.createChild(ProjectKeys.CONTENT_ROOT, createContentRoot(project))
-
-    createDependencies(project)(moduleData, libraries).foreach { dependency =>
-      moduleNode.createChild(ProjectKeys.LIBRARY_DEPENDENCY, dependency)
-    }
-
-    project.scala.foreach { scala =>
-      moduleNode.createChild(ScalaFacetData.Key, createFacet(project, scala))
-    }
-  }
 
   private def createFacet(project: Project, scala: Scala): ScalaFacetData = {
     val basePackage = Some(project.organization).filter(_.contains(".")).mkString
