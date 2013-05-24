@@ -114,10 +114,11 @@ abstract class ScalaLightCodeInsightFixtureTestAdapter extends LightCodeInsightF
     myFixture.configureByText("dummy.scala", text)
     myFixture.enableInspections(inspectionsEnabled: _*)
     val selectionModel = myFixture.getEditor.getSelectionModel
+    val selectionStart = selectionModel.getSelectionStart
+    val selectionEnd = selectionModel.getSelectionEnd
 
     assert(myFixture.doHighlighting().exists(info => {
-      info.getStartOffset == selectionModel.getSelectionStart && info.getEndOffset == selectionModel.getSelectionEnd &&
-              info.description == annotation
+     info.getStartOffset == selectionStart && info.getEndOffset == selectionEnd && info.description == annotation
     }))
   }
 
