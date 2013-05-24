@@ -54,11 +54,9 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     val javaHome = project.java.map(_.home).getOrElse(new File(System.getProperty("java.home")))
     projectNode.add(new ScalaProjectNode(SbtProjectSystemId, javaHome))
 
-    val libraries = {
-      val moduleLibraries = data.repository.modules.map(createLibrary)
-      val compilerLibraries = scalaInstancesIn(project).distinct.map(createCompilerLibrary)
-      moduleLibraries ++ compilerLibraries
-    }
+    val libraries =
+      data.repository.modules.map(createLibrary) ++
+        projectsIn(project).flatMap(_.scala).distinct.map(createCompilerLibrary)
 
     projectNode.addAll(libraries)
 
@@ -84,9 +82,6 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
 
     projectNode
   }
-
-  private def scalaInstancesIn(project: Project): Seq[Scala] =
-    project.scala.toSeq ++ project.projects.flatMap(it => scalaInstancesIn(it))
 
   private def projectsIn(project: Project): Seq[Project] =
     project +: project.projects.flatMap(projectsIn)
