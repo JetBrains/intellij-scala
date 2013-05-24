@@ -7,11 +7,11 @@ import com.intellij.openapi.externalSystem.model.project.AbstractProjectEntityDa
 /**
  * @author Pavel Fatin
  */
-case class ScalaFacetData(owner: ProjectSystemId,
-                          scalaVersion: String,
-                          basePackage: String,
-                          compilerLibraryName: String,
-                          compilerOptions: Seq[String]) extends AbstractProjectEntityData(owner)
+class ScalaFacetData(val owner: ProjectSystemId,
+                     val scalaVersion: String,
+                     val basePackage: String,
+                     val compilerLibraryName: String,
+                     val compilerOptions: Seq[String]) extends AbstractProjectEntityData(owner)
 
 object ScalaFacetData {
   val Key: Key[ScalaFacetData] = new Key(classOf[ScalaFacetData].getName)

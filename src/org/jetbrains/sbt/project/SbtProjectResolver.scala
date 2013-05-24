@@ -43,16 +43,16 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
 
     val data = Parser.parse(xml, new File(System.getProperty("user.home")))
 
-    convert(data)
+    convert(data).toDataNode
   }
 
-  private def convert(data: Structure): DataNode[ProjectData] = {
+  private def convert(data: Structure): Node[ProjectData] = {
     val project = data.project
 
-    val projectNode = new DataNode[ProjectData](ProjectKeys.PROJECT, createProject(project), null)
+    val projectNode = createProject(project)
 
     val javaHome = project.java.map(_.home).getOrElse(new File(System.getProperty("java.home")))
-    projectNode.createChild(ScalaProjectData.Key, ScalaProjectData(SbtProjectSystemId, javaHome))
+    projectNode.add(new ScalaProjectNode(SbtProjectSystemId, javaHome))
 
     val libraries = {
       val moduleLibraries = data.repository.modules.map(createLibrary)
@@ -60,35 +60,25 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
       moduleLibraries ++ compilerLibraries
     }
 
-    libraries.foreach { library =>
-      projectNode.createChild(ProjectKeys.LIBRARY, library)
-    }
+    projectNode.addAll(libraries)
 
     val projects = projectsIn(project)
 
-    val modules: Seq[DataNode[ModuleData]] = projects.map { project =>
-      val moduleData = createModule(project)
-
-      val moduleNode = projectNode.createChild(ProjectKeys.MODULE, moduleData)
-
-      moduleNode.createChild(ProjectKeys.CONTENT_ROOT, createContentRoot(project))
-
-      createDependencies(project)(moduleData, libraries).foreach { dependency =>
-        moduleNode.createChild(ProjectKeys.LIBRARY_DEPENDENCY, dependency)
-      }
-
-      project.scala.foreach { scala =>
-        moduleNode.createChild(ScalaFacetData.Key, createFacet(project, scala))
-      }
-
+    val moduleNodes: Seq[ModuleNode] = projects.map { project =>
+      val moduleNode = createModule(project)
+      moduleNode.add(createContentRoot(project))
+      moduleNode.addAll(createLibraryDependencies(project)(moduleNode, libraries))
+      moduleNode.addAll(project.scala.map(createFacet(project, _)).toSeq)
       moduleNode
     }
 
-    projects.zip(modules).foreach { case (moduleProject, moduleNode) =>
+    projectNode.addAll(moduleNodes)
+
+    projects.zip(moduleNodes).foreach { case (moduleProject, moduleNode) =>
       moduleProject.configurations.flatMap(_.dependencies).foreach { dependencyName =>
-        val dependency = modules.find(_.getData.getName == dependencyName).map(_.getData).getOrElse(
+        val dependency = moduleNodes.find(_.getName == dependencyName).getOrElse(
           throw new ExternalSystemException("Cannot find module dependency: " + dependencyName))
-        moduleNode.createChild(ProjectKeys.MODULE_DEPENDENCY, new ModuleDependencyData(moduleNode.getData, dependency))
+        moduleNode.add(new ModuleDependencyNode(moduleNode, dependency))
       }
     }
 
@@ -101,79 +91,70 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
   private def projectsIn(project: Project): Seq[Project] =
     project +: project.projects.flatMap(projectsIn)
 
-  private def createFacet(project: Project, scala: Scala): ScalaFacetData = {
+  private def createFacet(project: Project, scala: Scala): ScalaFacetNode = {
     val basePackage = Some(project.organization).filter(_.contains(".")).mkString
 
-    new ScalaFacetData(SbtProjectSystemId, scala.version, basePackage, nameFor(scala), scala.options)
+    new ScalaFacetNode(SbtProjectSystemId, scala.version, basePackage, nameFor(scala), scala.options)
   }
 
-  private def createProject(project: Project): ProjectData = {
-    val data = new ProjectData(SbtProjectSystemId, project.base.path, project.base.path)
-    data.setName(project.name)
-    data
+  private def createProject(project: Project): ProjectNode = {
+    val result = new ProjectNode(SbtProjectSystemId, project.base.path, project.base.path)
+    result.setName(project.name)
+    result
   }
 
-  private def createLibrary(module: Module): LibraryData = {
-    val data = new LibraryData(SbtProjectSystemId, nameFor(module.id))
-    module.binaries.foreach(file => data.addPath(LibraryPathType.BINARY, file.path))
-    module.docs.foreach(file => data.addPath(LibraryPathType.DOC, file.path))
-    module.sources.foreach(file => data.addPath(LibraryPathType.SOURCE, file.path))
-    data
+  private def createLibrary(module: Module): LibraryNode = {
+    val result = new LibraryNode(SbtProjectSystemId, nameFor(module.id))
+    result.addPaths(LibraryPathType.BINARY, module.binaries.map(_.path))
+    result.addPaths(LibraryPathType.DOC, module.docs.map(_.path))
+    result.addPaths(LibraryPathType.SOURCE, module.sources.map(_.path))
+    result
   }
 
   private def nameFor(id: ModuleId) = s"SBT: ${id.organization}:${id.name}:${id.revision}"
 
-  private def createCompilerLibrary(scala: Scala): LibraryData = {
-    val data = new LibraryData(SbtProjectSystemId, nameFor(scala))
-    data.addPath(LibraryPathType.BINARY, scala.compilerJar.path)
-    data.addPath(LibraryPathType.BINARY, scala.libraryJar.path)
-    scala.extraJars.foreach(file => data.addPath(LibraryPathType.BINARY, file.path))
-    data
+  private def createCompilerLibrary(scala: Scala): LibraryNode = {
+    val result = new LibraryNode(SbtProjectSystemId, nameFor(scala))
+    val jars = scala.compilerJar +: scala.libraryJar +: scala.extraJars
+    result.addPaths(LibraryPathType.BINARY, jars.map(_.path))
+    result
   }
 
   private def nameFor(scala: Scala) = s"SBT: scala-compiler:${scala.version}"
 
-  private def createModule(project: Project): ModuleData = {
-    val data = new ModuleData(SbtProjectSystemId, StdModuleTypes.JAVA.getId, project.name, project.base.path)
+  private def createModule(project: Project): ModuleNode = {
+    val result = new ModuleNode(SbtProjectSystemId, StdModuleTypes.JAVA.getId, project.name, project.base.path)
 
-    data.setInheritProjectCompileOutputPath(false)
+    result.setInheritProjectCompileOutputPath(false)
 
     project.configurations.find(_.id == "compile").foreach { configuration =>
-      data.setCompileOutputPath(ExternalSystemSourceType.SOURCE, configuration.classes.path)
+      result.setCompileOutputPath(ExternalSystemSourceType.SOURCE, configuration.classes.path)
     }
 
     project.configurations.find(_.id == "test").foreach { configuration =>
-      data.setCompileOutputPath(ExternalSystemSourceType.TEST, configuration.classes.path)
+      result.setCompileOutputPath(ExternalSystemSourceType.TEST, configuration.classes.path)
     }
 
-    data
+    result
   }
 
-  private def createContentRoot(project: Project): ContentRootData = {
-    val data = new ContentRootData(SbtProjectSystemId, project.base.path)
+  private def createContentRoot(project: Project): ContentRootNode = {
+    val result = new ContentRootNode(SbtProjectSystemId, project.base.path)
 
-    project.configurations.find(_.id == "compile").foreach { configuration =>
-      configuration.sources.foreach { directory =>
-        data.storePath(ExternalSystemSourceType.SOURCE, directory.path)
-      }
-      configuration.resources.foreach { directory =>
-        data.storePath(ExternalSystemSourceType.SOURCE, directory.path)
-      }
-    }
+    result.storePaths(ExternalSystemSourceType.SOURCE, rootPathsIn(project, "compile"))
+    result.storePaths(ExternalSystemSourceType.TEST, rootPathsIn(project, "test"))
 
-    project.configurations.find(_.id == "test").foreach { configuration =>
-      configuration.sources.foreach { directory =>
-        data.storePath(ExternalSystemSourceType.TEST, directory.path)
-      }
-      configuration.resources.foreach { directory =>
-        data.storePath(ExternalSystemSourceType.TEST, directory.path)
-      }
-    }
-
-    data
+    result
   }
 
-  private def createDependencies(project: Project)(moduleData: ModuleData, libraries: Seq[LibraryData]): Seq[LibraryDependencyData] = {
+  private def rootPathsIn(project: Project, scope: String): Seq[String] = {
+    project.configurations.find(_.id == scope)
+      .map(configuration => configuration.sources ++ configuration.resources)
+      .getOrElse(Seq.empty)
+      .map(_.path)
+  }
+
+  private def createLibraryDependencies(project: Project)(moduleData: ModuleData, libraries: Seq[LibraryData]): Seq[LibraryDependencyNode] = {
     val moduleToConfigurations =
       project.configurations
         .flatMap(configuration => configuration.modules.map(module => (module, configuration)))
@@ -185,7 +166,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
       val name = nameFor(module)
       val library = libraries.find(_.getName == name).getOrElse(
         throw new ExternalSystemException("Library not found: " + name))
-      val data = new LibraryDependencyData(moduleData, library)
+      val data = new LibraryDependencyNode(moduleData, library)
       data.setScope(scopeFor(configurations))
       data
     }
