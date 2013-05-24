@@ -8,7 +8,6 @@ import com.intellij.codeInspection.{ProblemDescriptor, ProblemHighlightType, Pro
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.plugins.scala.extensions.ElementText
 import com.intellij.openapi.project.Project
 import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
@@ -21,18 +20,17 @@ import scala.Some
 import scala.collection.mutable
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScPattern, ScBindingPattern}
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.{SyntheticNamedElement, ScSyntheticFunction}
 import java.util.Comparator
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import com.intellij.codeInsight.PsiEquivalenceUtil
-import scala.annotation.tailrec
 import com.intellij.openapi.application.ApplicationManager
 import org.jetbrains.plugins.scala.lang.refactoring.rename.GroupInplaceRenamer
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaVariableValidator
 import TypeCheckToMatchUtil._
 import scala.annotation.tailrec
 import extensions.inWriteAction
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScExistentialClause, ScTypeElement}
 
 /**
  * Nikolay.Tropin
@@ -122,13 +120,20 @@ object TypeCheckToMatchUtil {
       }
     }
 
+    def typeNeedParentheses(typeElem: ScTypeElement): Boolean = {
+      PsiTreeUtil.getChildOfType(typeElem, classOf[ScExistentialClause]) != null
+    }
+
     for {
       args <- isInstOf.typeArgs
       condition <- ifStmt.condition
-
+      if args.typeArgs.size == 1
     } yield {
-      val scType = args.typeArgs(0).calcType
-      val typeName = scType.presentableText
+      val typeElem = args.typeArgs(0)
+      val typeName0 = typeElem.getText
+      val typeName =
+        if (typeNeedParentheses(typeElem)) s"($typeName0)"
+        else typeName0
       val asInstOfInBody = findAsInstOfCalls(ifStmt.thenBranch, isInstOf)
       val guardCond = guardCondition(condition, isInstOf)
       val asInstOfInGuard = findAsInstOfCalls(guardCond, isInstOf)
@@ -269,9 +274,12 @@ object TypeCheckToMatchUtil {
       val option = for {
         firstArgs <- firstCall.typeArgs
         secondArgs <- secondCall.typeArgs
+        firstTypes = firstArgs.typeArgs
+        secondTypes = secondArgs.typeArgs
+        if firstTypes.size == 1 && secondTypes.size == 1
       } yield {
-        val firstType = firstArgs.typeArgs(0).calcType
-        val secondType = secondArgs.typeArgs(0).calcType
+        val firstType = firstTypes(0).calcType
+        val secondType = secondTypes(0).calcType
         firstType.equiv(secondType)
       }
       option.getOrElse(false)

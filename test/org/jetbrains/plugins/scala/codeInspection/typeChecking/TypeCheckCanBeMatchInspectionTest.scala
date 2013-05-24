@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticCla
 class TypeCheckCanBeMatchInspectionTest extends ScalaLightCodeInsightFixtureTestAdapter{
   val START = CodeInsightTestCase.SELECTION_START_MARKER
   val END = CodeInsightTestCase.SELECTION_END_MARKER
-  val annotation = TypeCheckCanBeMatchInspection.inspectionId
+  val annotation = TypeCheckCanBeMatchInspection.inspectionName
   val hint = TypeCheckCanBeMatchInspection.inspectionName
 
   private def check(text: String) {
@@ -286,6 +286,51 @@ class TypeCheckCanBeMatchInspectionTest extends ScalaLightCodeInsightFixtureTest
                    |  case _: Int => x
                    |  case _: Long => x
                    |  case _ => 0
+                   |}""".stripMargin.replace("\r", "").trim
+    testFix(text, result)
+  }
+
+  def test_11() {
+    val selected = s"""import java.util
+                     |val foo = (p: AnyVal) => {
+                     |  if (${START}p.isInstanceOf[util.ArrayList[_]]$END) {}
+                     |  else if (p.isInstanceOf[scala.util.control.Breaks]) {}
+                     |}""".stripMargin.replace("\r", "").trim
+    check(selected)
+
+    val text = """import java.util
+                 |val foo = (p: AnyVal) => {
+                 |  if (p.isInstanceOf[util.ArrayList[_]]) {}
+                 |  else if (p.isInstanceOf[scala.util.control.Breaks]) {}
+                 |}""".stripMargin.replace("\r", "").trim
+    val result = """import java.util
+                   |val foo = (p: AnyVal) => {
+                   |  p match {
+                   |    case _: util.ArrayList[_] =>
+                   |    case _: scala.util.control.Breaks =>
+                   |    case _ =>
+                   |  }
+                   |}""".stripMargin.replace("\r", "").trim
+    testFix(text, result)
+  }
+
+  def test_12() {
+    val selected = s"""def test2(p: AnyVal) {
+                     |  if (${START}p.isInstanceOf[T forSome {type T <: Number}]$END) {}
+                     |  else if (p.isInstanceOf[Int]) {}
+                     |}""".stripMargin.replace("\r", "").trim
+    check(selected)
+
+    val text = """def test2(p: AnyVal) {
+                 |  if (p.isInstanceOf[T forSome {type T <: Number}]) {}
+                 |  else if (p.isInstanceOf[Int]) {}
+                 |}""".stripMargin.replace("\r", "").trim
+    val result = """def test2(p: AnyVal) {
+                   |  p match {
+                   |    case _: (T forSome {type T <: Number}) =>
+                   |    case _: Int =>
+                   |    case _ =>
+                   |  }
                    |}""".stripMargin.replace("\r", "").trim
     testFix(text, result)
   }
