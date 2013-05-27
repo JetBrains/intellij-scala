@@ -20,6 +20,7 @@ import psi.impl.ScalaPsiManager
 import extensions.toPsiNamedElementExt
 import com.intellij.openapi.application.ApplicationManager
 import org.jetbrains.annotations.TestOnly
+import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiParameter
 
 /**
  * @author ven
@@ -385,8 +386,11 @@ object Compatibility {
 
 
         checkConformanceExt(checkNames = false, parameters = parameters.map {
-          param: PsiParameter => new Parameter("", {
-            val tp = substitutor.subst(ScType.create(param.getType, method.getProject, scope, paramTopLevel = true))
+          case param: PsiParameter => new Parameter("", {
+            val tp = substitutor.subst(param match {
+              case f: FakePsiParameter => f.parameter.paramType
+              case _ => ScType.create(param.getType, method.getProject, scope, paramTopLevel = true)
+            })
             if (param.isVarArgs) tp match {
               case ScParameterizedType(_, args) if args.length == 1 => args(0)
               case JavaArrayType(arg) => arg
