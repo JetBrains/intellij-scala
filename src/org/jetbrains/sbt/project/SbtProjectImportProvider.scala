@@ -14,7 +14,7 @@ class SbtProjectImportProvider(builder: SbtProjectImportBuilder) extends Abstrac
 
   override def getName = "SBT project"
 
-  override def getIcon = AllIcons.General.Add
+  override def getIcon = AllIcons.Actions.Compile
 
   override def canImport(entry: VirtualFile, project: Project) = {
     !entry.isDirectory && entry.getName == "build.sbt" ||
@@ -22,4 +22,7 @@ class SbtProjectImportProvider(builder: SbtProjectImportBuilder) extends Abstrac
         (Option(entry.findChild("build.sbt")).exists(!_.isDirectory) ||
           Option(entry.findChild("project")).exists(_.isDirectory)))
   }
+
+  override def getPathToBeImported(file: VirtualFile) =
+    if (file.isDirectory) file.getPath else file.getParent.getPath
 }

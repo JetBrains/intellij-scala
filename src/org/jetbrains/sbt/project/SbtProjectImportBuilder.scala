@@ -23,7 +23,7 @@ class SbtProjectImportBuilder(settingsManager: ExternalSystemSettingsManager, da
 
   def getName = "SBT"
 
-  def getIcon = AllIcons.General.Add
+  def getIcon = AllIcons.Actions.Compile
 
   def doPrepare(context: WizardContext) {}
 
