@@ -1,7 +1,6 @@
 package org.jetbrains.sbt
 package language
 
-import com.intellij.icons.AllIcons
 import com.intellij.openapi.fileTypes.LanguageFileType
 import org.jetbrains.plugins.scala.ScalaFileType
 
@@ -15,5 +14,5 @@ object SbtFileType extends LanguageFileType(ScalaFileType.SCALA_LANGUAGE) {
 
   def getDefaultExtension = "sbt"
 
-  def getIcon = AllIcons.Actions.Compile
+  def getIcon = SbtIcon
 }

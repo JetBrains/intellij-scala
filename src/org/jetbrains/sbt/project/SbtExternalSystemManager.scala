@@ -23,7 +23,7 @@ class SbtExternalSystemManager extends ExternalSystemManager[SbtProjectSettings,
 //    vmParameters.add("-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005")
   }
 
-  def getSystemId = SbtProjectSystemId
+  def getSystemId = SbtProjectSystem.Id
 
   def isReady(project: Project) = true
 

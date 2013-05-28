@@ -6,11 +6,14 @@ import com.intellij.openapi.util.{Pair => IdeaPair}
 import reflect.ClassTag
 import java.io.File
 import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil
+import com.intellij.icons.AllIcons
 
 /**
  * @author Pavel Fatin
  */
 package object sbt {
+  val SbtIcon = AllIcons.Actions.Compile
+
   implicit def toIdeaFunction1[A, B](f: A => B): IdeaFunction[A, B] = new IdeaFunction[A, B] {
     def fun(a: A) = f(a)
   }

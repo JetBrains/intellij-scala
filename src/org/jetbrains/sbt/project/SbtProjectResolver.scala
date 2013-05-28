@@ -5,7 +5,7 @@ import com.intellij.openapi.externalSystem.service.project.ExternalSystemProject
 import com.intellij.openapi.externalSystem.model.task.{ExternalSystemTaskType, ExternalSystemTaskNotificationEvent, ExternalSystemTaskId}
 import com.intellij.openapi.externalSystem.model.project._
 import com.intellij.openapi.module.StdModuleTypes
-import com.intellij.openapi.externalSystem.model.{ExternalSystemException, ProjectKeys, DataNode}
+import com.intellij.openapi.externalSystem.model.{ExternalSystemException, DataNode}
 import java.io.File
 import settings._
 import org.jetbrains.sbt.project.model._
@@ -52,7 +52,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     val projectNode = createProject(project)
 
     val javaHome = project.java.map(_.home).getOrElse(new File(System.getProperty("java.home")))
-    projectNode.add(new ScalaProjectNode(SbtProjectSystemId, javaHome))
+    projectNode.add(new ScalaProjectNode(SbtProjectSystem.Id, javaHome))
 
     val libraries =
       data.repository.modules.map(createLibrary) ++
@@ -89,17 +89,17 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
   private def createFacet(project: Project, scala: Scala): ScalaFacetNode = {
     val basePackage = Some(project.organization).filter(_.contains(".")).mkString
 
-    new ScalaFacetNode(SbtProjectSystemId, scala.version, basePackage, nameFor(scala), scala.options)
+    new ScalaFacetNode(SbtProjectSystem.Id, scala.version, basePackage, nameFor(scala), scala.options)
   }
 
   private def createProject(project: Project): ProjectNode = {
-    val result = new ProjectNode(SbtProjectSystemId, project.base.path, project.base.path)
+    val result = new ProjectNode(SbtProjectSystem.Id, project.base.path, project.base.path)
     result.setName(project.name)
     result
   }
 
   private def createLibrary(module: Module): LibraryNode = {
-    val result = new LibraryNode(SbtProjectSystemId, nameFor(module.id))
+    val result = new LibraryNode(SbtProjectSystem.Id, nameFor(module.id))
     result.addPaths(LibraryPathType.BINARY, module.binaries.map(_.path))
     result.addPaths(LibraryPathType.DOC, module.docs.map(_.path))
     result.addPaths(LibraryPathType.SOURCE, module.sources.map(_.path))
@@ -109,7 +109,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
   private def nameFor(id: ModuleId) = s"SBT: ${id.organization}:${id.name}:${id.revision}"
 
   private def createCompilerLibrary(scala: Scala): LibraryNode = {
-    val result = new LibraryNode(SbtProjectSystemId, nameFor(scala))
+    val result = new LibraryNode(SbtProjectSystem.Id, nameFor(scala))
     val jars = scala.compilerJar +: scala.libraryJar +: scala.extraJars
     result.addPaths(LibraryPathType.BINARY, jars.map(_.path))
     result
@@ -118,7 +118,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
   private def nameFor(scala: Scala) = s"SBT: scala-compiler:${scala.version}"
 
   private def createModule(project: Project): ModuleNode = {
-    val result = new ModuleNode(SbtProjectSystemId, StdModuleTypes.JAVA.getId, project.name, project.base.path)
+    val result = new ModuleNode(SbtProjectSystem.Id, StdModuleTypes.JAVA.getId, project.name, project.base.path)
 
     result.setInheritProjectCompileOutputPath(false)
 
@@ -134,7 +134,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
   }
 
   private def createContentRoot(project: Project): ContentRootNode = {
-    val result = new ContentRootNode(SbtProjectSystemId, project.base.path)
+    val result = new ContentRootNode(SbtProjectSystem.Id, project.base.path)
 
     result.storePaths(ExternalSystemSourceType.SOURCE, rootPathsIn(project, "compile"))
     result.storePaths(ExternalSystemSourceType.TEST, rootPathsIn(project, "test"))

@@ -9,7 +9,6 @@ import com.intellij.openapi.externalSystem.model.DataNode
 import com.intellij.openapi.externalSystem.model.project.ProjectData
 import com.intellij.openapi.externalSystem.settings.ExternalSystemSettingsManager
 import com.intellij.openapi.externalSystem.service.project.manage.ProjectDataManager
-import com.intellij.icons.AllIcons
 import com.intellij.openapi.fileChooser.FileChooserDescriptor
 import com.intellij.openapi.externalSystem.service.settings.{ExternalSettingsControl, AbstractExternalProjectSettingsControl, AbstractImportFromExternalSystemControl}
 import com.intellij.openapi.externalSystem.util.PaintAwarePanel
@@ -19,11 +18,11 @@ import settings._
  * @author Pavel Fatin
  */
 class SbtProjectImportBuilder(settingsManager: ExternalSystemSettingsManager, dataManager: ProjectDataManager)
-  extends AbstractExternalProjectImportBuilder[SbtImportControl](settingsManager, dataManager, new SbtImportControl(), SbtProjectSystemId) {
+  extends AbstractExternalProjectImportBuilder[SbtImportControl](settingsManager, dataManager, new SbtImportControl(), SbtProjectSystem.Id) {
 
   def getName = "SBT"
 
-  def getIcon = AllIcons.Actions.Compile
+  def getIcon = SbtProjectSystem.Icon
 
   def doPrepare(context: WizardContext) {}
 
@@ -37,7 +36,7 @@ class SbtProjectImportBuilder(settingsManager: ExternalSystemSettingsManager, da
 }
 
 class SbtImportControl extends AbstractImportFromExternalSystemControl[SbtProjectSettings, SbtSettingsListener, SbtSettings](
-  SbtProjectSystemId, new SbtSettings(ProjectManager.getInstance.getDefaultProject), new SbtProjectSettings()) {
+  SbtProjectSystem.Id, new SbtSettings(ProjectManager.getInstance.getDefaultProject), new SbtProjectSettings()) {
 
   def getLinkedProjectChooserDescriptor = new FileChooserDescriptor(true, true, true, true, true, true)
 
