@@ -16,6 +16,7 @@
       <resources>src/main/resources</resources>
       <classes>target/scala-2.10/classes</classes>
       <module revision="2.10.1" name="scala-library" organization="org.scala-lang"></module>
+      <jar>lib/unmanaged.jar</jar>
     </configuration>
     <configuration id="test">
       <sources>src/test/scala</sources>
@@ -24,6 +25,7 @@
       <classes>target/scala-2.10/test-classes</classes>
       <module revision="2.10.1" name="scala-library" organization="org.scala-lang"></module>
       <module revision="3.8.1" name="junit" organization="junit"></module>
+      <jar>lib/unmanaged.jar</jar>
     </configuration>
     <configuration id="runtime">
       <sources>src/main/scala</sources>
@@ -31,6 +33,7 @@
       <resources>src/main/resources</resources>
       <classes>target/scala-2.10/classes</classes>
       <module revision="2.10.1" name="scala-library" organization="org.scala-lang"></module>
+      <jar>lib/unmanaged.jar</jar>
     </configuration>
   </project>
   <repository>
