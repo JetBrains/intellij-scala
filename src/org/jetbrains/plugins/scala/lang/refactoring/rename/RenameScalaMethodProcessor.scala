@@ -93,7 +93,7 @@ class RenameScalaMethodProcessor extends RenameJavaMethodProcessor {
     result match {
       case 0 => signs.last.namedElement.get
       case 1 => function
-      case 2 => null
+      case _ => null
     }
   }
 
