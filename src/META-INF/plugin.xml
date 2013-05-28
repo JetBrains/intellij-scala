@@ -37,6 +37,8 @@
 
         <projectImportProvider implementation="org.jetbrains.sbt.project.SbtProjectImportProvider"/>
         <projectImportBuilder implementation="org.jetbrains.sbt.project.SbtProjectImportBuilder"/>
+
+        <projectOpenProcessor implementation="org.jetbrains.sbt.project.SbtProjectOpenProcessor"/>
     </extensions>
 
     <extensions defaultExtensionNs="org.intellij.scala">

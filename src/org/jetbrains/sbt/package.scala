@@ -7,6 +7,7 @@ import reflect.ClassTag
 import java.io.File
 import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil
 import com.intellij.icons.AllIcons
+import java.lang.{Boolean => JavaBoolean}
 
 /**
  * @author Pavel Fatin
@@ -16,6 +17,10 @@ package object sbt {
 
   implicit def toIdeaFunction1[A, B](f: A => B): IdeaFunction[A, B] = new IdeaFunction[A, B] {
     def fun(a: A) = f(a)
+  }
+
+  implicit def toIdeaPredicate[A](f: A => Boolean): IdeaFunction[A, JavaBoolean] = new IdeaFunction[A, JavaBoolean] {
+    def fun(a: A) = JavaBoolean.valueOf(f(a))
   }
 
   implicit def toIdeaFunction2[A, B, C](f: (A, B) => C): IdeaFunction[IdeaPair[A, B], C] = new IdeaFunction[IdeaPair[A, B], C] {

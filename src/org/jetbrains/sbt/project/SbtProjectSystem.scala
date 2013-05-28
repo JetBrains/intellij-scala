@@ -10,4 +10,8 @@ object SbtProjectSystem {
   val Id = new ProjectSystemId("SBT")
 
   val Icon = SbtIcon
+
+  val Name = "SBT"
+
+  val ProjectName = "SBT project"
 }
