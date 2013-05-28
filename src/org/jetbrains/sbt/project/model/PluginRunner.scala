@@ -29,7 +29,12 @@ object PluginRunner {
 
     val processListener: (OutputType, String) => Unit = {
       case (OutputType.StdOut, text) =>
-        listener(text)
+        if (text.contains("(q)uit")) {
+          // TODO send 'q' instead
+          process.destroy()
+        } else {
+          listener(text)
+        }
       case (OutputType.StdErr, text) =>
         listener(text)
         errors.append(text)
