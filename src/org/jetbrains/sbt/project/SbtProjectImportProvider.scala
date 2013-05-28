@@ -9,9 +9,9 @@ import com.intellij.openapi.externalSystem.service.project.wizard.AbstractExtern
  * @author Pavel Fatin
  */
 class SbtProjectImportProvider(builder: SbtProjectImportBuilder) extends AbstractExternalProjectImportProvider(builder) {
-  override def getId = "SBT"
+  override def getId = SbtProjectSystem.Name
 
-  override def getName = "SBT project"
+  override def getName = SbtProjectSystem.ProjectName
 
   override def getIcon = SbtProjectSystem.Icon
 
