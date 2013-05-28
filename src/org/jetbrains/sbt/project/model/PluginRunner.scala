@@ -1,7 +1,7 @@
 package org.jetbrains.sbt
 package project.model
 
-import java.io.File
+import java.io.{PrintWriter, File}
 import scala.xml.{Elem, XML}
 import com.intellij.execution.process.OSProcessHandler
 
@@ -19,7 +19,8 @@ object PluginRunner {
     val tempFile = File.createTempFile("sbt-structure", "xml")
     tempFile.deleteOnExit()
 
-    val command = JavaVM + " " + JavaOpts + """ -jar """ + SbtLauncher +
+    val command = JavaVM + " -Djline.terminal=jline.UnsupportedTerminal -Dsbt.log.noformat=true " +
+      JavaOpts + """ -jar """ + SbtLauncher +
       """ "; set artifactPath := new File(\"""" + canonicalPath(tempFile) +
       """\") ; apply -cp """ + SbtPlugin + """ org.jetbrains.sbt.Plugin""""
 
@@ -30,8 +31,9 @@ object PluginRunner {
     val processListener: (OutputType, String) => Unit = {
       case (OutputType.StdOut, text) =>
         if (text.contains("(q)uit")) {
-          // TODO send 'q' instead
-          process.destroy()
+          val writer = new PrintWriter(process.getOutputStream)
+          writer.println("q")
+          writer.close()
         } else {
           listener(text)
         }
