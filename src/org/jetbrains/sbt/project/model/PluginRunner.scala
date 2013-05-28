@@ -4,6 +4,7 @@ package project.model
 import java.io.{PrintWriter, File}
 import scala.xml.{Elem, XML}
 import com.intellij.execution.process.OSProcessHandler
+import scala.util.control.Exception._
 
 /**
  * @author Pavel Fatin
@@ -24,8 +25,21 @@ object PluginRunner {
       """ "; set artifactPath := new File(\"""" + canonicalPath(tempFile) +
       """\") ; apply -cp """ + SbtPlugin + """ org.jetbrains.sbt.Plugin""""
 
-    val process = Runtime.getRuntime.exec(command, null, directory)
+    catching(classOf[Exception])
+      .either(Runtime.getRuntime.exec(command, null, directory))
+      .left.map(_.getMessage)
+      .right.flatMap { process =>
 
+      val errors = handle(process, listener)
+
+      catching(classOf[Exception])
+        .andFinally(tempFile.delete())
+        .opt(XML.load(tempFile.toURI.toURL))
+        .toRight(errors)
+    }
+  }
+
+  private def handle(process: Process, listener: (String) => Unit): String = {
     val errors = new StringBuilder()
 
     val processListener: (OutputType, String) => Unit = {
@@ -46,17 +60,9 @@ object PluginRunner {
     handler.addProcessListener(new ListenerAdapter(processListener))
     handler.startNotify()
 
-    process.waitFor()
+    handler.waitFor()
 
-    val xml = try {
-      Some(XML.load(tempFile.toURI.toURL))
-    } catch {
-      case _: Exception => None
-    } finally {
-      tempFile.delete()
-    }
-
-    xml.toRight(errors.toString())
+    errors.toString()
   }
 
   private def canonicalPath(file: File): String = file.getAbsolutePath.replace('\\', '/')
