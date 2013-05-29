@@ -757,6 +757,10 @@
                        displayName="Type check can be pattern matching" groupName="Scala: General"
                        shortName="TypeCheckCanBeMatch" level="WARNING"
                        enabledByDefault="true" language="Scala"/>
+      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.OperationOnCollectionInspection"
+                       displayName="Simplifiable operation on collection" groupName="Scala: General"
+                       shortName="OperationOnCollection" level="WARNING"
+                       enabledByDefault="true" language="Scala"/>
 
         <!--<localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.allErrorsInspection.AnnotatorBasedErrorInspection"
        displayName="All Errors Tool" groupName="Scala: General"
