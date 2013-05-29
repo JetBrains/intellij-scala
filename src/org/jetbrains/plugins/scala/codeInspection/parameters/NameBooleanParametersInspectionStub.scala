@@ -21,13 +21,15 @@ import javax.swing.event.{ChangeListener, ChangeEvent}
 import scala.Some
 import lang.psi.api.statements.ScFunction
 import com.intellij.ide.util.PropertiesComponent
+import org.jdom.Element
+import com.intellij.codeInspection.ui.SingleCheckboxOptionsPanel
 
 /**
  * @author Ksenia.Sautina
  * @since 5/10/12
  */
 
-class NameBooleanParametersInspection extends LocalInspectionTool {
+abstract class NameBooleanParametersInspectionStub extends LocalInspectionTool {
 
   override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor = {
     new ScalaElementVisitor {
@@ -38,7 +40,7 @@ class NameBooleanParametersInspection extends LocalInspectionTool {
             case fun: ScFunction =>
               //todo
               if (fun.name.startsWith("set") && mc.args.exprs.size == 1 && isBooleanType(mc.args.exprs(0)) &&
-                ignoreSetters) return
+                      getIgnoreSetters) return
             case _ =>
           }
           case _ =>
@@ -91,30 +93,11 @@ class NameBooleanParametersInspection extends LocalInspectionTool {
     }
   }
 
-  //persistent storage of "ignore setters" setting
-  private val properties = PropertiesComponent.getInstance()
-  private var ignoreSettersCached: Option[Boolean] = None
-  def ignoreSetters: Boolean = ignoreSettersCached.getOrElse(properties.getBoolean("name.boolean.ignore.setters", true))
-  def ignoreSetters_= (b: Boolean) {
-    properties.setValue("name.boolean.ignore.setters", b.toString)
-    ignoreSettersCached = Some(b)
-  }
-
-  override def createOptionsPanel: JComponent = {
-    val ignoreSettersCheckbox = new JCheckBox(InspectionBundle.message("name.boolean.ignore.setters"))
-    ignoreSettersCheckbox.setSelected(ignoreSetters)
-    ignoreSettersCheckbox.getModel.addChangeListener(new ChangeListener {
-      def stateChanged(e: ChangeEvent) {
-        ignoreSetters = ignoreSettersCheckbox.isSelected
-      }
-    })
-    val panel: JPanel = new JPanel(new FlowLayout(FlowLayout.LEFT))
-    panel.add(ignoreSettersCheckbox)
-    panel
-  }
+  def getIgnoreSetters: Boolean
+  def setIgnoreSetters(value: Boolean)
 
 }
 
-object NameBooleanParametersInspection {
+object NameBooleanParametersInspectionStub {
   private val LOG = Logger.getInstance(getClass)
 }
