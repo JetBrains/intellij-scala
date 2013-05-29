@@ -7,7 +7,7 @@ package util
 
 import index.{ScSelfTypeInheritorsIndex, ScDirectInheritorsIndex}
 import com.intellij.psi.search.GlobalSearchScope
-import com.intellij.psi.stubs.StubIndex
+import com.intellij.psi.stubs.{StubInputStream, StubOutputStream, StubIndex}
 import com.intellij.psi.{PsiMethod, PsiElement, PsiClass}
 import elements.ScTemplateDefinitionElementType
 import psi.impl.toplevel.templates.ScExtendsBlockImpl
@@ -25,6 +25,7 @@ import com.intellij.psi.search.searches.ClassInheritorsSearch
 import com.intellij.util.Processor
 import api.statements.{ScVariable, ScValue}
 import api.toplevel.packaging.ScPackageContainer
+import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScFileStubImpl
 
 /**
  * User: Alexander Podkhalyuzin
@@ -230,6 +231,21 @@ object ScalaStubsUtil {
         }
         false
     }
+  }
+  
+  def serializeFileStubElement(stub: ScFileStub, dataStream: StubOutputStream) {
+    dataStream.writeBoolean(stub.isScript)
+    dataStream.writeBoolean(stub.isCompiled)
+    dataStream.writeName(stub.packageName)
+    dataStream.writeName(stub.getFileName)
+  }
+  
+  def deserializeFileStubElement(dataStream: StubInputStream, parentStub: Object) = {
+    val script = dataStream.readBoolean
+    val compiled = dataStream.readBoolean
+    val packName = dataStream.readName
+    val fileName = dataStream.readName
+    new ScFileStubImpl(null, packName, fileName, compiled, script)
   }
 
   private val LOG = Logger.getInstance("#org.jetbrains.plugins.scala.lang.psi.stubs.util.ScalaStubsUtil")
