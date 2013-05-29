@@ -1,6 +1,6 @@
 package org.jetbrains.sbt
 
-import com.intellij.icons.AllIcons
+import com.intellij.openapi.util.IconLoader
 
 /**
  * @author Pavel Fatin
@@ -18,5 +18,5 @@ object Sbt {
 
   val ProjectDescription = "SBT project"
 
-  val Icon = AllIcons.Actions.Compile
+  lazy val Icon = IconLoader.getIcon("/sbt.png")
 }
