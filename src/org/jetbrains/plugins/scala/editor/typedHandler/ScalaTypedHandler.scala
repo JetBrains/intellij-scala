@@ -53,14 +53,14 @@ class ScalaTypedHandler extends TypedHandlerDelegate {
     } else if (c == ' ' && offset >= 6 && offset < text.length && text.substring(offset - 6, offset) == " case ") {
       myTask = indentCase(file)
     } else if (isInPlace(element, classOf[ScXmlExpr], classOf[ScXmlPattern])) {
-      chooseXmlTask(true)
+      chooseXmlTask(withAttr = true)
     } else if (file.findElementAt(offset - 2) 
         match {case i: PsiElement if !ScalaNamesUtil.isOperatorName(i.getText) => c == '>' || c == '/' case _ => false}) {
-      chooseXmlTask(false)
+      chooseXmlTask(withAttr = false)
     } else if (element.getPrevSibling != null && element.getPrevSibling.getNode.getElementType == ScalaElementTypes.CASE_CLAUSES) {
       val ltIndex = element.getPrevSibling.getText.indexOf("<")
       if (ltIndex > "case ".length - 1 && element.getPrevSibling.getText.substring(0, ltIndex).trim() == "case") {
-        chooseXmlTask(false)
+        chooseXmlTask(withAttr = false)
       }
     } else if (c == '{' && (element.getParent match {
             case l: ScInterpolatedStringLiteral => !l.isMultiLineString; case _ => false} )) {
@@ -182,7 +182,7 @@ class ScalaTypedHandler extends TypedHandlerDelegate {
     import ScalaTokenTypes._
     
     if (element.getNode.getElementType == tLBRACE && 
-      Option(element.getParent.getPrevSibling).map(_.getNode.getElementType == tINTERPOLATED_STRING_INJECTION).getOrElse(false)) {
+      Option(element.getParent.getPrevSibling).exists(_.getNode.getElementType == tINTERPOLATED_STRING_INJECTION)) {
       insertAndCommit(offset, "}", document, project)
     }
   }

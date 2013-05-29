@@ -33,11 +33,11 @@ import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.diagnostic.Logger
 import refactoring.util.ScalaNamesUtil
 import scaladoc.lexer.ScalaDocTokenType
-import extensions.toPsiNamedElementExt
 import parser.ScalaElementTypes
 import psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.editor.enterHandler.MultilineStringEnterHandler
 import extensions._
+import scala.annotation.tailrec
 
 object ScalaSpacingProcessor extends ScalaTokenTypes {
   private val LOG = Logger.getInstance("#org.jetbrains.plugins.scala.lang.formatting.processors.ScalaSpacingProcessor")
@@ -255,15 +255,16 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
       rightElementType == tINTERPOLATED_STRING_END) {
       return Spacing.getReadOnlySpacing
     }
-    if (Option(leftNode.getTreeParent.getTreePrev).map(_.getElementType == tINTERPOLATED_STRING_ID).getOrElse(false) || 
-      Option(rightNode.getTreeParent.getTreeNext).map(a => 
+    if (Option(leftNode.getTreeParent.getTreePrev).exists(_.getElementType == tINTERPOLATED_STRING_ID) ||
+      Option(rightNode.getTreeParent.getTreeNext).exists(a =>
         Set(tINTERPOLATED_STRING, tINTERPOLATED_STRING_END, tINTERPOLATED_MULTILINE_STRING).
-          contains(a.getElementType)).getOrElse(false) && (leftString == "{" || rightString == "}")) {
+                contains(a.getElementType)) && (leftString == "{" || rightString == "}")) {
       return Spacing.getReadOnlySpacing
     }
     
 
 
+    @tailrec
     def isMultiLineStringCase(psiElem: PsiElement): Boolean = {
       psiElem match {
         case ml: ScLiteral if ml.isMultiLineString =>
@@ -739,9 +740,9 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
         ScalaNamesUtil.isIdentifier(getText(left, fileText) + ":")) WITH_SPACING else WITHOUT_SPACING
     }
     if (rightString.length > 0 && rightString(0) == ';') {
-      if (settings.SPACE_BEFORE_SEMICOLON && !(rightNode.getTreeParent.getPsi.isInstanceOf[ScalaFile]) &&
+      if (settings.SPACE_BEFORE_SEMICOLON && !rightNode.getTreeParent.getPsi.isInstanceOf[ScalaFile] &&
               rightNode.getPsi.getParent.getParent.isInstanceOf[ScForStatement]) return WITH_SPACING
-      else if (!(rightNode.getTreeParent.getPsi.isInstanceOf[ScalaFile]) &&
+      else if (!rightNode.getTreeParent.getPsi.isInstanceOf[ScalaFile] &&
               rightNode.getPsi.getParent.getParent.isInstanceOf[ScForStatement]) return WITHOUT_SPACING
     }
     if (leftString.length > 0 && leftString(leftString.length - 1) == '.') {
@@ -813,7 +814,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
     }
     // SCL-2601
     if ((rightNode.getPsi.isInstanceOf[ScUnitExpr] || rightNode.getPsi.isInstanceOf[ScTuple]) &&
-            (leftNode.getTreeParent.getPsi.isInstanceOf[ScInfixExpr])) {
+            leftNode.getTreeParent.getPsi.isInstanceOf[ScInfixExpr]) {
       if (scalaSettings.SPACE_BEFORE_INFIX_METHOD_CALL_PARENTHESES) return WITH_SPACING
       else return WITHOUT_SPACING
     }

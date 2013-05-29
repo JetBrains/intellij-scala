@@ -72,7 +72,7 @@ extends Object with ScalaTokenTypes with Block {
       case l: ScLiteral
         if l.isMultiLineString && scalaSettings.MULTILINE_STRING_SUPORT != ScalaCodeStyleSettings.MULTILINE_STRING_NONE =>
         new ChildAttributes(Indent.getSpaceIndent(3, true), null)
-      case b: ScBlockExpr if b.lastExpr.map(_.isInstanceOf[ScFunctionExpr]).getOrElse(false) =>
+      case b: ScBlockExpr if b.lastExpr.exists(_.isInstanceOf[ScFunctionExpr]) =>
         var i = getSubBlocks.size() - newChildIndex
         val elem = b.lastExpr.get.getNode.getTreePrev
         if (elem.getElementType != TokenType.WHITE_SPACE || !elem.getText.contains("\n")) i = 0
@@ -127,19 +127,19 @@ extends Object with ScalaTokenTypes with Block {
 
   def isIncomplete(node: ASTNode): Boolean = {
     if (node.getPsi.isInstanceOf[PsiErrorElement])
-      return true;
+      return true
     var lastChild = node.getLastChildNode
     while (lastChild != null &&
       (lastChild.getPsi.isInstanceOf[PsiWhiteSpace] || lastChild.getPsi.isInstanceOf[PsiComment])) {
       lastChild = lastChild.getTreePrev
     }
     if (lastChild == null) {
-      return false;
+      return false
     }
     if (lastChild.getPsi.isInstanceOf[PsiErrorElement]) {
-      return true;
+      return true
     }
-    isIncomplete(lastChild);
+    isIncomplete(lastChild)
   }
 
   private var _suggestedWrap: Wrap = null

@@ -57,7 +57,7 @@ class ScImportStmtImpl extends ScalaStubBasedElementImpl[ScImportStmt] with ScIm
       if (importExpr == lastParent) return true
       def workWithImportExpr: Boolean = {
         val ref = importExpr.reference match {
-          case Some(ref) => ref
+          case Some(element) => element
           case _ => return true
         }
         val nameHint = processor.getHint(NameHint.KEY)
@@ -65,8 +65,7 @@ class ScImportStmtImpl extends ScalaStubBasedElementImpl[ScImportStmt] with ScIm
         if (name != "" && !importExpr.singleWildcard) {
           val decodedName = ScalaPsiUtil.convertMemberName(name)
           importExpr.selectorSet match {
-            case Some(set) => set.selectors.
-                find(selector => ScalaPsiUtil.convertMemberName(selector.reference.refName) == decodedName) != None
+            case Some(set) => set.selectors.exists(selector => ScalaPsiUtil.convertMemberName(selector.reference.refName) == decodedName)
             case None => if (ScalaPsiUtil.convertMemberName(ref.refName) != decodedName) return true
           }
         }
@@ -227,7 +226,7 @@ class ScImportStmtImpl extends ScalaStubBasedElementImpl[ScImportStmt] with ScIm
                         val elementIsShadowed = shadowed.find(p => element == p._2)
 
                         var newState = elementIsShadowed match {
-                          case Some((selector, elem)) => {
+                          case Some((selector, _)) => {
                             val oldImports = state.get(ImportUsed.key)
                             val newImports = if (oldImports == null) Set[ImportUsed]() else oldImports
 

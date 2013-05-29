@@ -79,7 +79,7 @@ object ScalaStubsUtil {
                   def checkTp(tp: ScType): Boolean = {
                     tp match {
                       case c: ScCompoundType =>
-                        c.components.find(checkTp(_)) != None
+                        c.components.exists(checkTp(_))
                       case _ =>
                         ScType.extractClass(tp, Some(inheritedClazz.getProject)) match {
                           case Some(otherClazz) =>
