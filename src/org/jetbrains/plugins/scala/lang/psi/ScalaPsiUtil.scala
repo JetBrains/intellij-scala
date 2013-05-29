@@ -271,7 +271,7 @@ object ScalaPsiUtil {
       e.getTypeWithoutImplicits(TypingContext.empty).map(_.isInstanceOf[ValType]).getOrElse(false)
     val kinds = processor.kinds
     var implicitMap: Seq[ImplicitResolveResult] = Seq.empty
-    def checkImplicits(secondPart: Boolean, noApplicability: Boolean) {
+    def checkImplicits(secondPart: Boolean, noApplicability: Boolean, noImplicitsForArgs: Boolean = noImplicitsForArgs) {
       lazy val args = processor match {
         case m: MethodResolveProcessor => m.argumentClauses.flatMap(_.map(
           _.getTypeAfterImplicitConversion(checkImplicits = false, isShape = m.isShapeResolve, None)._1.getOrAny
@@ -326,9 +326,20 @@ object ScalaPsiUtil {
         }
       })
     }
+    //todo: insane logic. Important to have to navigate to problematic method, in case of failed resolve. That's why we need to have noApplicability parameter
     checkImplicits(secondPart = false, noApplicability = false)
-    if (implicitMap.isEmpty) checkImplicits(secondPart = true, noApplicability = false)
-    if (implicitMap.isEmpty) checkImplicits(secondPart = false, noApplicability = true)
+    if (implicitMap.size > 1) {
+      val oldMap = implicitMap
+      checkImplicits(secondPart = false, noApplicability = false, noImplicitsForArgs = true)
+      if (implicitMap.isEmpty) implicitMap = oldMap
+    } else if (implicitMap.isEmpty) {
+      checkImplicits(secondPart = true, noApplicability = false)
+      if (implicitMap.size > 1) {
+        val oldMap = implicitMap
+        checkImplicits(secondPart = false, noApplicability = false, noImplicitsForArgs = true)
+        if (implicitMap.isEmpty) implicitMap = oldMap
+      } else if (implicitMap.isEmpty) checkImplicits(secondPart = false, noApplicability = true)
+    }
     if (implicitMap.isEmpty) None
     else if (implicitMap.length == 1) Some(implicitMap.apply(0))
     else MostSpecificUtil(ref, 1).mostSpecificForImplicit(implicitMap.toSet)
