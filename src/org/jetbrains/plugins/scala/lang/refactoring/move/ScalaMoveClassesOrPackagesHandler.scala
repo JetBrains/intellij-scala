@@ -4,9 +4,7 @@ package lang.refactoring.move
 import com.intellij.refactoring.move.moveClassesOrPackages.JavaMoveClassesOrPackagesHandler
 import com.intellij.openapi.project.Project
 import com.intellij.psi.{PsiClass, PsiElement}
-import lang.psi.api.ScalaFile
-import lang.psi.light.PsiClassWrapper
-import lang.psi.api.toplevel.typedef.{ScTypeDefinition, ScObject}
+import lang.psi.api.toplevel.typedef.ScTypeDefinition
 import com.intellij.refactoring.move.MoveCallback
 import lang.psi.impl.ScalaFileImpl
 import com.intellij.openapi.ui.Messages
@@ -25,7 +23,7 @@ class ScalaMoveClassesOrPackagesHandler extends JavaMoveClassesOrPackagesHandler
         refactoringIsNotSupported()
         return
       case clazz: PsiClass =>
-        if (elements.find(_.isInstanceOf[ScTypeDefinition]).isDefined) {
+        if (elements.exists(_.isInstanceOf[ScTypeDefinition])) {
           refactoringIsNotSupported()
           return
         }

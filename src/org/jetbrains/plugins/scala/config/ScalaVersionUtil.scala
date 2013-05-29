@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.config
 
 import com.intellij.psi.PsiElement
-import com.intellij.openapi.module.{ModuleUtilCore, ModuleUtil, Module}
+import com.intellij.openapi.module.{ModuleUtilCore, Module}
 
 /**
  * @author Alefas
@@ -19,7 +19,7 @@ object ScalaVersionUtil {
     if (module == null) return defaultValue
     ScalaFacet.findIn(module).map(facet => {
       val version = facet.version
-      if (versionText.find(version.startsWith(_)) != None) true
+      if (versionText.exists(version.startsWith(_))) true
       else false
     }).getOrElse(defaultValue)
   }

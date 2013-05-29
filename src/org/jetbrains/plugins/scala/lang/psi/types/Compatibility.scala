@@ -243,7 +243,7 @@ object Compatibility {
           if (!conforms) {
             return ConformanceExtResult(Seq(new ElementApplicabilityProblem(exprs(k).expr, exprType, paramType)), undefSubst, defaultParameterUsed, matched)
           } else {
-            matched ::= ((parameters.last, exprs(k).expr))
+            matched ::= (parameters.last, exprs(k).expr)
             undefSubst += Conformance.undefinedSubst(paramType, exprType, checkWeak = true)
           }
         }
@@ -255,8 +255,8 @@ object Compatibility {
         return ConformanceExtResult(Seq.empty, undefSubst, defaultParameterUsed, matched)
       
       val missed = for ((parameter: Parameter, b) <- parameters.zip(used)
-                        if (!b && !parameter.isDefault)) yield MissedValueParameter(parameter)
-      defaultParameterUsed = parameters.zip(used).find{case (param, bool) => !bool && param.isDefault} != None
+                        if !b && !parameter.isDefault) yield MissedValueParameter(parameter)
+      defaultParameterUsed = parameters.zip(used).exists { case (param, bool) => !bool && param.isDefault}
       if(!missed.isEmpty) return ConformanceExtResult(missed, undefSubst, defaultParameterUsed, matched)
     }
     ConformanceExtResult(Seq.empty, undefSubst, defaultParameterUsed, matched)

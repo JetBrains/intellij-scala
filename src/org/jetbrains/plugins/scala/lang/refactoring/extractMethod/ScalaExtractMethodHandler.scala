@@ -27,9 +27,10 @@ import psi.api.statements.{ScFunction, ScFunctionDefinition}
 import psi.api.{ScalaElementVisitor, ScalaRecursiveElementVisitor, ScalaFile}
 import psi.api.base.patterns.ScCaseClause
 import psi.types.result.TypingContext
-import com.intellij.refactoring.util.{CommonRefactoringUtil, RefactoringMessageDialog}
+import com.intellij.refactoring.util.CommonRefactoringUtil
 import org.jetbrains.plugins.scala.extensions.{toPsiElementExt, Parent, toPsiNamedElementExt}
 import com.intellij.psi.codeStyle.CodeStyleManager
+import scala.annotation.tailrec
 
 /**
  * User: Alexander Podkhalyuzin
@@ -56,7 +57,7 @@ class ScalaExtractMethodHandler extends RefactoringActionHandler {
       return
     }
     if (!editor.getSelectionModel.hasSelection) return
-    ScalaRefactoringUtil.trimSpacesAndComments(editor, file, false)
+    ScalaRefactoringUtil.trimSpacesAndComments(editor, file, trimComments = false)
     val startElement: PsiElement = file.findElementAt(editor.getSelectionModel.getSelectionStart)
     val endElement: PsiElement = file.findElementAt(editor.getSelectionModel.getSelectionEnd - 1)
     val elements = ScalaPsiUtil.getElementsRange(startElement, endElement).toArray
@@ -79,6 +80,7 @@ class ScalaExtractMethodHandler extends RefactoringActionHandler {
         case _ => false
       }
     }
+    @tailrec
     def checkLastExpressionMeaningful(elem: PsiElement): Boolean = {
       if (!elem.isInstanceOf[ScExpression]) return false
       val expr = elem.asInstanceOf[ScExpression]
@@ -286,7 +288,7 @@ class ScalaExtractMethodHandler extends RefactoringActionHandler {
             s.getParent.getNode.addChild(ScalaPsiElementFactory.createNewLineNode(method.getManager), s.getNode)
         }
         val methodCall = new StringBuilder(settings.methodName)
-        if (settings.parameters.find(p => p.passAsParameter) != None) {
+        if (settings.parameters.exists(p => p.passAsParameter)) {
           val paramStrings = new ArrayBuffer[String]
           for (param <- settings.parameters if param.passAsParameter) {
             paramStrings += param.oldName + (if (param.isFunction) " _" else "")

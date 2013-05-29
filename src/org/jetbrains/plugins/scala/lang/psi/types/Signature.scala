@@ -26,7 +26,7 @@ class Signature(val name: String, val typesEval: List[Stream[ScType]], val param
 
   def equiv(other: Signature): Boolean = {
     def fieldCheck(other: Signature): Boolean = {
-      def isField(s: Signature) = s.namedElement.map(_.isInstanceOf[PsiField]).getOrElse(false)
+      def isField(s: Signature) = s.namedElement.exists(_.isInstanceOf[PsiField])
       !isField(this) ^ isField(other)
     }
     
@@ -49,7 +49,7 @@ class Signature(val name: String, val typesEval: List[Stream[ScType]], val param
   }
 
   def paramTypesEquiv(other: Signature): Boolean = {
-    paramTypesEquivExtended(other, new ScUndefinedSubstitutor, true)._1
+    paramTypesEquivExtended(other, new ScUndefinedSubstitutor, falseUndef = true)._1
   }
 
 

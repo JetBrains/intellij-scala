@@ -94,7 +94,7 @@ case class ScalaMethodEvaluator(objectEvaluator: Evaluator, methodName: String, 
                   def run() {
                     try {
                       val lines = methodPosition.map(_.getLine)
-                      result = m.allLineLocations().find(l => lines.contains(l.lineNumber())) != None
+                      result = m.allLineLocations().exists(l => lines.contains(l.lineNumber()))
                     }
                     catch {
                       case e: Exception => //ignore

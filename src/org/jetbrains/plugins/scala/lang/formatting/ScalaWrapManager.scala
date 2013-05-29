@@ -195,7 +195,7 @@ object ScalaWrapManager {
           else return null
         } else {
           e.templateParents match {
-            case Some(tp) if tp.typeElements.find(_ == childPsi) != None => return suggestedWrap
+            case Some(tp) if tp.typeElements.exists(_ == childPsi) => return suggestedWrap
             case _ => return null
           }
         }

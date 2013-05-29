@@ -88,7 +88,7 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
                 paramType, paramType, p.isDefaultParam,
                 p.isRepeatedParameter, p.isCallByNameParameter, index, Some(p))
           }),
-            fun.parameterList.clauses.lastOption.map(_.isImplicit).getOrElse(false))
+            fun.parameterList.clauses.lastOption.exists(_.isImplicit))
         case f: ScPrimaryConstructor =>
           (f.effectiveParameterClauses.map(_.parameters.mapWithIndex {
             case (p, index) =>
@@ -97,7 +97,7 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
                 paramType, paramType, p.isDefaultParam,
                 p.isRepeatedParameter, p.isCallByNameParameter, index, Some(p))
           }),
-            f.parameterList.clauses.lastOption.map(_.isImplicit).getOrElse(false))
+            f.parameterList.clauses.lastOption.exists(_.isImplicit))
         case m: PsiMethod =>
           (Seq(m.getParameterList.getParameters.toSeq.mapWithIndex {
             case (p, index) =>
@@ -173,10 +173,10 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
       getContext match {
         case p: ScParameterizedTypeElement => {
           val zipped = p.typeArgList.typeArgs.zip(typeParameters)
-          val appSubst = new ScSubstitutor(new HashMap[(String, String), ScType] ++ (zipped.map{case (arg, typeParam) =>
+          val appSubst = new ScSubstitutor(new HashMap[(String, String), ScType] ++ zipped.map{case (arg, typeParam) =>
             ((typeParam.name, ScalaPsiUtil.getPsiElementId(typeParam.ptp)),
               arg.getType(TypingContext.empty).getOrAny
-              )}),
+              )},
             Map.empty, None)
           val newRes = appSubst.subst(res)
           updateImplicits(newRes, withExpected = false, params = params, lastImplicit = lastImplicit)
@@ -288,10 +288,10 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
           }
 
           val zipped = p.typeArgList.typeArgs.zip(typeParameters)
-          val appSubst = new ScSubstitutor(new HashMap[(String, String), ScType] ++ (zipped.map{case (arg, typeParam) =>
+          val appSubst = new ScSubstitutor(new HashMap[(String, String), ScType] ++ zipped.map { case (arg, typeParam) =>
             ((typeParam.name, ScalaPsiUtil.getPsiElementId(typeParam.ptp)),
-              arg.getType(TypingContext.empty).getOrAny
-              )}),
+                    arg.getType(TypingContext.empty).getOrAny)
+          },
             Map.empty, None)
           appSubst.subst(res)
         }

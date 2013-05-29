@@ -78,7 +78,7 @@ class CompletionProcessor(override val kinds: Set[ResolveTargets.Value],
     lazy val substitutor: ScSubstitutor = Option(state.get(ScSubstitutor.key)).getOrElse(ScSubstitutor.empty)
     lazy val isRenamed: Option[String] = Option(state.get(ResolverEnv.nameKey))
     lazy val implFunction: Option[PsiNamedElement] = Option(state.get(CachesUtil.IMPLICIT_FUNCTION))
-    lazy val isNamedParameter: Boolean = Option(state.get(CachesUtil.NAMED_PARAM_KEY)).map(_.booleanValue()).getOrElse(false)
+    lazy val isNamedParameter: Boolean = Option(state.get(CachesUtil.NAMED_PARAM_KEY)).exists(_.booleanValue())
     val fromType: Option[ScType] = Option(state.get(BaseProcessor.FROM_TYPE_KEY))
     val importsUsed: Set[ImportUsed] = Option(state.get(ImportUsed.key)).getOrElse(Set.empty)
     val prefixCompletion: Boolean = Option(state.get(ScalaCompletionUtil.PREFIX_COMPLETION_KEY)).getOrElse(false)

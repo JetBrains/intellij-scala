@@ -214,7 +214,7 @@ class ScLiteralImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScLite
   def getAnnotationOwner(annotationOwnerLookUp: ScLiteral => Option[PsiAnnotationOwner with PsiElement]): Option[PsiAnnotationOwner] = {
     if (!isString) return None
     
-    if (System.currentTimeMillis() > expirationTime || myAnnotationOwner.map(!_.isValid).getOrElse(false)) {
+    if (System.currentTimeMillis() > expirationTime || myAnnotationOwner.exists(!_.isValid)) {
       myAnnotationOwner = annotationOwnerLookUp(this)
       expirationTime = System.currentTimeMillis() + (2 + expTimeLengthGenerator.nextInt(8))*1000
     }

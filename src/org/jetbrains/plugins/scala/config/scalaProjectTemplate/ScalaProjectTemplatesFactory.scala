@@ -4,7 +4,6 @@ package config.scalaProjectTemplate
 import com.intellij.platform.{ProjectTemplate, ProjectTemplatesFactory}
 import com.intellij.ide.util.projectWizard.WizardContext
 import javax.swing.Icon
-import tools.scalap.scalax.rules.scalasig.NoSymbol
 
 /**
  * User: Dmitry Naydanov

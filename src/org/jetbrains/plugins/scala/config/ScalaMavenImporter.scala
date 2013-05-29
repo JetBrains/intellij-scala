@@ -143,7 +143,7 @@ private class ScalaConfiguration(project: MavenProject) {
   def compilerVersion: Option[String] =
     element("scalaVersion").map(_.getTextTrim).orElse(standardLibrary.map(_.getVersion))
 
-  def usesReflect: Boolean = compilerVersion.map(it => Version(it) >= Version("2.10")).getOrElse(false)
+  def usesReflect: Boolean = compilerVersion.exists(it => Version(it) >= Version("2.10"))
 
   def vmOptions: Seq[String] = elements("jvmArgs", "jvmArg").map(_.getTextTrim)
 
