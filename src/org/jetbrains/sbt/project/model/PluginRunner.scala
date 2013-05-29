@@ -4,7 +4,7 @@ package project.model
 import java.io.{PrintWriter, File}
 import scala.xml.{Elem, XML}
 import com.intellij.execution.process.OSProcessHandler
-import scala.util.control.Exception._
+import project.SbtException
 
 /**
  * @author Pavel Fatin
@@ -16,7 +16,7 @@ object PluginRunner {
   private val SbtPlugin = (LauncherDir / "sbt-structure.jar").canonicalPath
   private val JavaOpts = Option(System.getenv("JAVA_OPTS")).getOrElse("")
 
-  def read(directory: File)(listener: (String) => Unit): Either[String, Elem] = {
+  def read(directory: File)(listener: (String) => Unit): Either[Exception, Elem] = {
     val tempFile = File.createTempFile("sbt-structure", "xml")
     tempFile.deleteOnExit()
 
@@ -25,21 +25,18 @@ object PluginRunner {
       """ "; set artifactPath := new File(\"""" + canonicalPath(tempFile) +
       """\") ; apply -cp """ + SbtPlugin + """ org.jetbrains.sbt.Plugin""""
 
-    catching(classOf[Exception])
-      .either(Runtime.getRuntime.exec(command, null, directory))
-      .left.map(_.getMessage)
-      .right.flatMap { process =>
-
-      val errors = handle(process, listener)
-
-      catching(classOf[Exception])
-        .andFinally(tempFile.delete())
-        .opt(XML.load(tempFile.toURI.toURL))
-        .toRight(errors)
+    try {
+      val process = Runtime.getRuntime.exec(command.split("\\s+"), null, directory)
+      val errors = handle(process, listener).map(new SbtException(_))
+      errors.toLeft(XML.load(tempFile.toURI.toURL))
+    } catch {
+      case e: Exception => Left(e)
+    } finally {
+      tempFile.delete()
     }
   }
 
-  private def handle(process: Process, listener: (String) => Unit): String = {
+  private def handle(process: Process, listener: (String) => Unit): Option[String] = {
     val errors = new StringBuilder()
 
     val processListener: (OutputType, String) => Unit = {
@@ -50,6 +47,9 @@ object PluginRunner {
           writer.close()
         } else {
           listener(text)
+        }
+        if (text.startsWith("[error]")) {
+          errors.append(text)
         }
       case (OutputType.StdErr, text) =>
         listener(text)
@@ -62,7 +62,7 @@ object PluginRunner {
 
     handler.waitFor()
 
-    errors.toString()
+    if (errors.isEmpty) None else Some(errors.toString())
   }
 
   private def canonicalPath(file: File): String = file.getAbsolutePath.replace('\\', '/')
