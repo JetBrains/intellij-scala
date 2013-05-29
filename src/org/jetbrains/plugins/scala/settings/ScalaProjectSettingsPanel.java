@@ -3,13 +3,6 @@ package org.jetbrains.plugins.scala.settings;
 import com.intellij.openapi.application.ApplicationBundle;
 import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.ui.InputValidator;
-import com.intellij.openapi.ui.Messages;
-import com.intellij.openapi.wm.IdeFocusManager;
-import com.intellij.ui.AnActionButton;
-import com.intellij.ui.AnActionButtonRunnable;
-import com.intellij.ui.ListScrollingUtil;
-import com.intellij.ui.ToolbarDecorator;
 import com.intellij.ui.components.JBList;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.ScalaFileType;
@@ -63,34 +56,8 @@ public class ScalaProjectSettingsPanel {
     shiftSpinner.setModel(new SpinnerNumberModel(80, 40, null, 10));
     outputSpinner.setModel(new SpinnerNumberModel(35, 1, null, 1));
     referencesWithPrefixList = new JBList();
-    JPanel panel = ToolbarDecorator.createDecorator(referencesWithPrefixList)
-        .setAddAction(new AnActionButtonRunnable() {
-          @Override
-          public void run(AnActionButton button) {
-            InputValidator validator = new InputValidator() {
-
-              public boolean checkInput(String inputString) {
-                return checkInput(inputString, true);
-              }
-
-              private boolean checkInput(String inputString, boolean checkExcludes) {
-                if (checkExcludes && inputString.startsWith(ScalaProjectSettings.EXCLUDE_PREFIX)) {
-                  return checkInput(inputString.substring(ScalaProjectSettings.EXCLUDE_PREFIX.length()), false);
-                }
-                return inputString.contains(".") && ScalaProjectSettingsUtil.isValidPackage(inputString);
-              }
-
-              public boolean canClose(String inputString) {
-                return checkInput(inputString);
-              }
-            };
-            String packageName = Messages.showInputDialog(myPanel,
-                "Add pattern to use appropriate classes only with prefix",
-                "Use References With Prefix:",
-                Messages.getWarningIcon(), "", validator);
-            addPrefixPackage(packageName);
-          }
-        }).disableUpDownActions().createPanel();
+    JPanel panel = ScalaProjectSettingsUtil.getPatternListPanel(myPanel, referencesWithPrefixList,
+        "Add pattern to use appropriate classes only with prefix", "Use References With Prefix:");
     myImportsWithPrefixPanel.add(panel, BorderLayout.CENTER);
     
     ScalaUiWithDependency[] deps = DependencyAwareInjectionSettings.EP_NAME.getExtensions();
@@ -104,19 +71,6 @@ public class ScalaProjectSettingsPanel {
 
     referencesWithPrefixList.getEmptyText().setText(ApplicationBundle.message("exclude.from.imports.no.exclusions"));
     setSettings();
-  }
-
-  private void addPrefixPackage(String packageName) {
-    if (packageName == null) {
-      return;
-    }
-    int index = -Arrays.binarySearch(myReferencesWithPrefixModel.toArray(), packageName) - 1;
-    if (index < 0) return;
-
-    myReferencesWithPrefixModel.add(index, packageName);
-    referencesWithPrefixList.setSelectedValue(packageName, true);
-    ListScrollingUtil.ensureIndexIsVisible(referencesWithPrefixList, index, 0);
-    IdeFocusManager.getGlobalInstance().requestFocus(referencesWithPrefixList, false);
   }
 
   public String[] getPrefixPackages() {
