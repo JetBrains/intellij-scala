@@ -14,19 +14,24 @@ object PluginRunner {
   private val LauncherDir = ((jarWith[this.type].toFile <<) <<) / "launcher"
   private val SbtLauncher = (LauncherDir / "sbt-launch.jar").canonicalPath
   private val SbtPlugin = (LauncherDir / "sbt-structure.jar").canonicalPath
-  private val JavaOpts = Option(System.getenv("JAVA_OPTS")).getOrElse("")
+  private val JavaOpts = Option(System.getenv("JAVA_OPTS")).map(_.split("\\s++").toSeq).getOrElse(Seq.empty)
+  private val OS = System.getProperty("os.name")
 
   def read(directory: File)(listener: (String) => Unit): Either[Exception, Elem] = {
-    val tempFile = File.createTempFile("sbt-structure", "xml")
+    val tempFile = File.createTempFile("sbt-structure", ".xml")
     tempFile.deleteOnExit()
 
-    val command = JavaVM + " -Djline.terminal=jline.UnsupportedTerminal -Dsbt.log.noformat=true " +
-      JavaOpts + """ -jar """ + SbtLauncher +
-      """ "; set artifactPath := new File(\"""" + canonicalPath(tempFile) +
-      """\") ; apply -cp """ + SbtPlugin + """ org.jetbrains.sbt.Plugin""""
+    val commands = {
+      val vmOptions = "-Djline.terminal=jline.UnsupportedTerminal" +: "-Dsbt.log.noformat=true" +: JavaOpts
+      val tempPath =  canonicalPath(tempFile)
+      val quote = if (OS.startsWith("Windows")) "\\\"" else "\""
+
+      JavaVM +: vmOptions :+ "-jar" :+ SbtLauncher :+
+        s"; set artifactPath := new File($quote$tempPath$quote) ; apply -cp $SbtPlugin org.jetbrains.sbt.Plugin"
+    }
 
     try {
-      val process = Runtime.getRuntime.exec(command.split("\\s+"), null, directory)
+      val process = Runtime.getRuntime.exec(commands.toArray, null, directory)
       val errors = handle(process, listener).map(new SbtException(_))
       errors.toLeft(XML.load(tempFile.toURI.toURL))
     } catch {
