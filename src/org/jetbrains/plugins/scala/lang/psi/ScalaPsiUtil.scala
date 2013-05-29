@@ -494,7 +494,10 @@ object ScalaPsiUtil {
   def collectImplicitObjects(tp: ScType, place: PsiElement): Seq[ScType] = {
     val projectOpt = Option(place).map(_.getProject)
     val parts: ListBuffer[ScType] = new ListBuffer[ScType]
+    val visited = new mutable.HashSet[ScType]()
     def collectParts(tp: ScType, place: PsiElement) {
+      if (visited.contains(tp)) return
+      visited += tp
       tp.isAliasType match {
         case Some(AliasType(_, _, upper)) =>
           upper.foreach(collectParts(_, place))
