@@ -20,9 +20,9 @@ import settings._
 class SbtProjectImportBuilder(settingsManager: ExternalSystemSettingsManager, dataManager: ProjectDataManager)
   extends AbstractExternalProjectImportBuilder[SbtImportControl](settingsManager, dataManager, new SbtImportControl(), SbtProjectSystem.Id) {
 
-  def getName = "SBT"
+  def getName = Sbt.Name
 
-  def getIcon = SbtProjectSystem.Icon
+  def getIcon = Sbt.Icon
 
   def doPrepare(context: WizardContext) {}
 

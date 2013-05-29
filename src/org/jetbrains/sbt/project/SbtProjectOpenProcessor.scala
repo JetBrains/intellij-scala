@@ -13,7 +13,7 @@ import com.intellij.ide.wizard.Step
  * @author Pavel Fatin
  */
 class SbtProjectOpenProcessor(builder: SbtProjectImportBuilder) extends ProjectOpenProcessorBase[SbtProjectImportBuilder](builder) {
-  def getSupportedExtensions = Array("build.sbt")
+  def getSupportedExtensions = Array(Sbt.BuildFile)
 
   override def doQuickImport(file: VirtualFile, wizardContext: WizardContext) = {
     val path = if (file.isDirectory) file.getPath else file.getParent.getPath

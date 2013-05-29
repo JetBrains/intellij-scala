@@ -9,17 +9,17 @@ import com.intellij.openapi.externalSystem.service.project.wizard.AbstractExtern
  * @author Pavel Fatin
  */
 class SbtProjectImportProvider(builder: SbtProjectImportBuilder) extends AbstractExternalProjectImportProvider(builder) {
-  override def getId = SbtProjectSystem.Name
+  override def getId = Sbt.Name
 
-  override def getName = SbtProjectSystem.ProjectName
+  override def getName = Sbt.ProjectDescription
 
-  override def getIcon = SbtProjectSystem.Icon
+  override def getIcon = Sbt.Icon
 
   override def canImport(entry: VirtualFile, project: Project) = {
-    !entry.isDirectory && entry.getName == "build.sbt" ||
+    !entry.isDirectory && entry.getName == Sbt.BuildFile ||
       (entry.isDirectory &&
-        (Option(entry.findChild("build.sbt")).exists(!_.isDirectory) ||
-          Option(entry.findChild("project")).exists(_.isDirectory)))
+        (Option(entry.findChild(Sbt.BuildFile)).exists(!_.isDirectory) ||
+          Option(entry.findChild(Sbt.ProjectDirectory)).exists(_.isDirectory)))
   }
 
   override def getPathToBeImported(file: VirtualFile) =

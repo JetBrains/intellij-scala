@@ -8,11 +8,11 @@ import org.jetbrains.plugins.scala.ScalaFileType
  * @author Pavel Fatin
  */
 object SbtFileType extends LanguageFileType(ScalaFileType.SCALA_LANGUAGE) {
-  def getName = "SBT"
+  def getName = Sbt.Name
 
-  def getDescription = "SBT files"
+  def getDescription = Sbt.FileDescription
 
-  def getDefaultExtension = "sbt"
+  def getDefaultExtension = Sbt.FileExtension
 
-  def getIcon = SbtIcon
+  def getIcon = Sbt.Icon
 }
