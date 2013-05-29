@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.util;
 
 import com.intellij.openapi.extensions.ExtensionPointName;
+import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.psi.PsiFile;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile;
@@ -20,6 +21,18 @@ abstract public class ScalaLanguageDerivative {
   @Nullable
   public ScalaFile getScalaFileIn(PsiFile file) {
     return null;
+  }
+  
+  public boolean isSuitableForFileType(FileType fileType) {
+    return false;
+  }
+  
+  public static boolean hasDerivativeForFileType(FileType fileType) {
+    for (ScalaLanguageDerivative derivative : EP_NAME.getExtensions()) {
+      if (derivative.isSuitableForFileType(fileType)) return true;
+    }
+    
+    return false;
   }
   
   public static boolean hasDerivativeOnFile(PsiFile file) {
