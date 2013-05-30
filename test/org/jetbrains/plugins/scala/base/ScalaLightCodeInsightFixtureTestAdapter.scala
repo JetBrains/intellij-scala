@@ -7,7 +7,7 @@ import com.intellij.codeInsight.folding.CodeFoldingManager
 import com.intellij.testFramework.fixtures.{CodeInsightTestFixture, LightCodeInsightFixtureTestCase}
 import com.intellij.codeInsight.generation.surroundWith.SurroundWithHandler
 import com.intellij.lang.surroundWith.{SurroundDescriptor, Surrounder}
-import util.ScalaToolsFactory
+import org.jetbrains.plugins.scala.util.{TestUtils, ScalaToolsFactory}
 import com.intellij.codeInspection.LocalInspectionTool
 import collection.mutable.ListBuffer
 import com.intellij.codeInsight.intention.IntentionAction
@@ -20,6 +20,16 @@ import org.jetbrains.plugins.scala.codeInspection.booleans.SimplifyBooleanInspec
 
 abstract class ScalaLightCodeInsightFixtureTestAdapter extends LightCodeInsightFixtureTestCase {
   import ScalaLightCodeInsightFixtureTestAdapter.CARET_MARKER
+
+  private var libLoader: ScalaLibraryLoader = null
+
+  override protected def setUp() {
+    super.setUp()
+
+    libLoader = new ScalaLibraryLoader(myFixture.getProject, myFixture.getModule, rootPath = null)
+
+    libLoader.loadLibrary(TestUtils.DEFAULT_SCALA_SDK_VERSION)
+  }
 
   protected def checkAfterSurroundWith(text: String, assumedText: String, surrounder: Surrounder, canSurround: Boolean) {
     myFixture.configureByText("dummy.scala", text)
@@ -158,6 +168,11 @@ abstract class ScalaLightCodeInsightFixtureTestAdapter extends LightCodeInsightF
         myFixture.checkResult(assumedStub)
       case _ => assert(false)
     }
+  }
+
+  protected override def tearDown() {
+    libLoader.clean()
+    super.tearDown()
   }
 }
 
