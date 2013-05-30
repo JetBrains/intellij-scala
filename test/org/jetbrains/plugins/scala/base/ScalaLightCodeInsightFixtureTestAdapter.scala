@@ -12,6 +12,8 @@ import com.intellij.codeInspection.LocalInspectionTool
 import collection.mutable.ListBuffer
 import com.intellij.codeInsight.intention.IntentionAction
 import org.jetbrains.plugins.scala.codeInspection.booleans.SimplifyBooleanInspection
+import scala.collection.mutable
+import com.intellij.codeInsight.daemon.impl.HighlightInfo
 
 /**
  * User: Dmitry Naydanov
@@ -63,7 +65,9 @@ abstract class ScalaLightCodeInsightFixtureTestAdapter extends LightCodeInsightF
     myFixture.configureByText("dummy.scala", text)
     myFixture.enableInspections(inspectionsEnabled: _*)
 
-    assert(myFixture.doHighlighting().filter(info => info.description == annotation).isEmpty)
+    val highlights: mutable.Buffer[HighlightInfo] = myFixture.doHighlighting().filter(info => info.description == annotation)
+    val ranges = highlights.map(info => (info.startOffset, info.endOffset))
+    assert(highlights.isEmpty, "Highlights with this errors at " + ranges.mkString("", ", ", "."))
   }
 
   protected def performTest(text: String, assumedText: String)(testBody: () => Unit) {
@@ -127,9 +131,13 @@ abstract class ScalaLightCodeInsightFixtureTestAdapter extends LightCodeInsightF
     val selectionStart = selectionModel.getSelectionStart
     val selectionEnd = selectionModel.getSelectionEnd
 
-    assert(myFixture.doHighlighting().exists(info => {
-     info.getStartOffset == selectionStart && info.getEndOffset == selectionEnd && info.description == annotation
-    }))
+    val withRightDescription = myFixture.doHighlighting().filter(info => info.description == annotation)
+    assert(!withRightDescription.isEmpty, "No highlightings with such description: " + annotation)
+
+    val ranges = withRightDescription.map(info => (info.getStartOffset, info.getEndOffset))
+    val message = "Highlights with this description are at " + ranges.mkString(" ") + ", but has to be at " + (selectionStart, selectionEnd)
+    assert(withRightDescription.exists(info => info.getStartOffset == selectionStart && info.getEndOffset == selectionEnd), message)
+
   }
 
   /**
@@ -156,6 +164,8 @@ abstract class ScalaLightCodeInsightFixtureTestAdapter extends LightCodeInsightF
       if (info != null && info.quickFixActionRanges != null && checkCaret(info.getStartOffset, info.getEndOffset))
         actions ++= (for (pair <- info.quickFixActionRanges if pair != null) yield pair.getFirst.getAction))
 
+    assert(!actions.isEmpty, "There is no available fixes.")
+
     actions.find(_.getText == quickFixHint) match {
       case Some(action) =>
         CommandProcessor.getInstance().executeCommand(myFixture.getProject, new Runnable {
@@ -166,7 +176,7 @@ abstract class ScalaLightCodeInsightFixtureTestAdapter extends LightCodeInsightF
           }
         }, "", null)
         myFixture.checkResult(assumedStub)
-      case _ => assert(false)
+      case _ => assert(false, "There is no fixes with such hint.")
     }
   }
 
