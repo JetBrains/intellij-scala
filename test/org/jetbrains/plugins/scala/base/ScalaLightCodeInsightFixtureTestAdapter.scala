@@ -6,12 +6,11 @@ import com.intellij.openapi.actionSystem.IdeActions
 import com.intellij.codeInsight.folding.CodeFoldingManager
 import com.intellij.testFramework.fixtures.{CodeInsightTestFixture, LightCodeInsightFixtureTestCase}
 import com.intellij.codeInsight.generation.surroundWith.SurroundWithHandler
-import com.intellij.lang.surroundWith.{SurroundDescriptor, Surrounder}
+import com.intellij.lang.surroundWith.Surrounder
 import org.jetbrains.plugins.scala.util.{TestUtils, ScalaToolsFactory}
 import com.intellij.codeInspection.LocalInspectionTool
 import collection.mutable.ListBuffer
 import com.intellij.codeInsight.intention.IntentionAction
-import org.jetbrains.plugins.scala.codeInspection.booleans.SimplifyBooleanInspection
 import scala.collection.mutable
 import com.intellij.codeInsight.daemon.impl.HighlightInfo
 
