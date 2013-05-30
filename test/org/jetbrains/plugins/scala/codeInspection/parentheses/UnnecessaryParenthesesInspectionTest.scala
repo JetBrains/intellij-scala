@@ -129,4 +129,20 @@ class UnnecessaryParenthesesInspectionTest extends ScalaLightCodeInsightFixtureT
     testFix(text, result, hint)
   }
 
+  def test_7() {
+    val text  = """def a(x: Any): Boolean = true
+                      |List() count (a(_))""".stripMargin.replace("\r", "").trim
+    checkTextHasNoErrors(text, annotation, classOf[UnnecessaryParenthesesInspection])
+  }
+
+  def test_8() {
+    val selected = "1 to " + START +"((1, 2))" + END
+    check(selected)
+
+    val text = "1 to ((1, 2))"
+    val result = "1 to (1, 2)"
+    val hint = hintBeginning + " ((1, 2))"
+    testFix(text, result, hint)
+  }
+
 }

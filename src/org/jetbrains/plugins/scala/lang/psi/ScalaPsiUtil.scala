@@ -75,6 +75,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.TypeParameter
 import org.jetbrains.plugins.scala.lang.psi.types.ScProjectionType
 import scala.annotation.tailrec
 import scala.annotation.tailrec
+import com.intellij.openapi.util.TextRange
 
 /**
  * User: Alexander Podkhalyuzin
@@ -1390,11 +1391,14 @@ object ScalaPsiUtil {
   * ScXmlExpr, ScParenthesisedExpr, ScUnitExpr
   * ScThisReference, ScSuperReference
   *
+  * *********
   * ScTuple in ScInfixExpr should be treated specially because of auto-tupling
+  * Underscore functions in ScInfixExpression do need parentheses
   *
   ********** other cases (1 - need parentheses, 0 - does not need parentheses *****
   *
-  *		                        ScBlockExpr 	ScNewTemplateDefinition 	ScUnderscoreSection	  ScPrefixExpr	  ScInfixExpr	  ScPostfixExpr     Other
+  *		          \ Child       ScBlockExpr 	ScNewTemplateDefinition 	ScUnderscoreSection	  ScPrefixExpr	  ScInfixExpr	  ScPostfixExpr     Other
+  *      Parent  \
   *   ScMethodCall	              1                   1	                        1	                1             1	              1        |    1
   *   ScUnderscoreSection	        1                   1	                        1	                1             1	              1        |    1
   *   ScGenericCall		            0                   1	                        1	                1             1	              1        |    1
@@ -1431,43 +1435,44 @@ object ScalaPsiUtil {
       }
     }
 
-    def tupleInInfixCanBeStripped(parent: ScInfixExpr, expr: ScTuple): Boolean = {
-      parent.operation.bind() match {
-        case Some(resolveResult: ResolveResult) =>
-          val parentCopy = parent.copy().asInstanceOf[ScInfixExpr]
-          parentCopy match {
-            case ScInfixExpr(_, oper, parTuple @ ScParenthesisedExpr(tuple: ScTuple)) =>
-              val replaced = parTuple.replace(tuple)
-              val modifiedText = replaced.getParent.getText
-              val context = parent.getContext
-              val modifiedCopy = ScalaPsiElementFactory.createExpressionWithContextFromText(modifiedText, context, parent)
-              modifiedCopy match {
-                case ScInfixExpr(_, newOper, _) =>
-                  newOper.bind() match {
-                    case Some(newResolveResult) =>
-                      newResolveResult.getElement == resolveResult.getElement && newResolveResult.tuplingUsed
-                    case _ => false
-                  }
-                case _ => false
-              }
-            case ScInfixExpr(ScParenthesisedExpr(tuple: ScTuple), oper, _) => true
-            case _ => false
-          }
-        case _ => false
+    def tupleInInfixNeedParentheses(parent: ScInfixExpr, from: ScExpression, expr: ScTuple): Boolean = {
+      if (from.getParent != parent) throw new IllegalArgumentException
+      if (from == parent.lOp) false
+      else {
+        parent.operation.bind() match {
+          case Some(resolveResult: ResolveResult) =>
+            val startInParent: Int = from.getStartOffsetInParent
+            val endInParent: Int = startInParent + from.getTextLength
+            val parentText = parent.getText
+            val modifiedParentText = parentText.substring(0, startInParent) + from.getText + parentText.substring(endInParent)
+            val modifiedParent = ScalaPsiElementFactory.createExpressionFromText(modifiedParentText, parent.getContext)
+            modifiedParent match {
+              case ScInfixExpr(_, newOper, tuple: ScTuple) =>
+                newOper.bind() match {
+                  case Some(newResolveResult) =>
+                    newResolveResult.getElement == resolveResult.getElement && newResolveResult.tuplingUsed
+                  case _ => true
+                }
+              case _ => true
+            }
+          case _ => false
+        }
       }
     }
+
     val parent = from.getParent
 
     (parent, expr) match {
+      //order of these case clauses is important!
       case _ if !parent.isInstanceOf[ScExpression] => false
       case _ if expr.getText == "_" => false
       case (_: ScTuple | _: ScBlock | _: ScXmlExpr   , _) => false
-      case (infix: ScInfixExpr                       , tuple: ScTuple) => !tupleInInfixCanBeStripped(infix, tuple)
+      case (infix: ScInfixExpr                       , tuple: ScTuple) => tupleInInfixNeedParentheses(infix, from, tuple)
+      case (infix: ScInfixExpr                       , elem: PsiElement) if ScUnderScoreSectionUtil.isUnderscoreFunction(elem) => true
       case (_                                        , _: ScReferenceExpression | _: ScMethodCall |
                                                        _: ScGenericCall | _: ScLiteral | _: ScTuple |
                                                        _: ScXmlExpr | _: ScParenthesisedExpr | _: ScUnitExpr |
                                                        _: ScThisReference | _: ScSuperReference) => false
-      //order of following case clauses is important!
       case (_: ScMethodCall | _: ScUnderscoreSection , _) => true
       case (_                                        , _: ScBlock) => false
       case (_: ScGenericCall                         , _) => true
