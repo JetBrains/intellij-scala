@@ -3,7 +3,7 @@ package codeInspection.collections
 
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTemplateDefinition, ScMember}
 import scala.Some
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScMethodCall, ScInfixExpr}
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import Utils._
 import com.intellij.openapi.util.TextRange
 import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
@@ -13,6 +13,8 @@ import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiManager, ScalaPsiEleme
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.execution.util.EnvironmentVariable
 import com.intellij.openapi.application.ApplicationManager
+import org.jetbrains.plugins.scala.lang.psi.types.ScDesignatorType
+import scala.Some
 
 /**
  * Nikolay.Tropin
@@ -46,7 +48,13 @@ abstract class SimplificationType(inspection: OperationOnCollectionInspection) {
         methodToBuildFrom.optionalBase match {
           case Some(baseExpr) =>
             val baseText = baseExpr.getText
-            val bracedArg = if (argText != "") s"($argText)" else ""
+            //val bracedArg = if (argText != "") s"($argText)" else ""
+            val bracedArg = methodToBuildFrom.args match {
+              case Seq(_: ScBlock) => argText
+              case Seq(_: ScParenthesisedExpr) => argText
+              case _ if argText == "" => ""
+              case _ => s"($argText)"
+            }
             List(new Simplification(baseText + "." + newMethodName + bracedArg, hint, rangeInParent))
           case _ => Nil
         }
@@ -150,9 +158,7 @@ class FoldLeftSum(inspection: OperationOnCollectionInspection) extends Simplific
   def description = hint
 
   private def checkNumeric(optionalBase: Option[ScExpression]): Boolean = {
-    if (ApplicationManager.getApplication.isUnitTestMode) true
-    else
-      optionalBase match {
+    optionalBase match {
       case Some(expr) =>
         expr.getType(TypingContext.empty).getOrAny match {
           case ScParameterizedType(_, Seq(scType)) =>

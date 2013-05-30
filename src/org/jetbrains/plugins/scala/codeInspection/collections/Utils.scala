@@ -55,7 +55,7 @@ object MethodRepr {
           case methCall: ScMethodCall => Some(expr, Some(methCall), None, args)
           case other => Some(expr, None, None, args)
         }
-      case infix: ScInfixExpr => Some(expr, Some(stripped(infix.getBaseExpr)), Some(infix.operation), Seq(stripped(infix.getArgExpr)))
+      case infix: ScInfixExpr => Some(expr, Some(stripped(infix.getBaseExpr)), Some(infix.operation), Seq(infix.getArgExpr))
       case prefix: ScPrefixExpr => Some(expr, Some(stripped(prefix.getBaseExpr)), Some(prefix.operation), Seq())
       case postfix: ScPostfixExpr => Some(expr, Some(stripped(postfix.getBaseExpr)), Some(postfix.operation), Seq())
       case refExpr: ScReferenceExpression => Some(expr, refExpr.qualifier, Some(refExpr), Seq())
@@ -187,8 +187,21 @@ object Utils {
   }
 
   def checkResolve(expr: ScExpression, patterns: Array[String]): Boolean = {
-    if (ApplicationManager.getApplication.isUnitTestMode) true
-    else expr match {
+//    if (ApplicationManager.getApplication.isUnitTestMode) true
+//    else expr match {
+//      case ref: ScReferenceExpression =>
+//        import org.jetbrains.plugins.scala.settings.ScalaProjectSettings.nameFitToPatterns
+//        ref.resolve() match {
+//          case obj: ScObject =>
+//            nameFitToPatterns(obj.qualifiedName, patterns)
+//          case member: ScMember =>
+//            val className = member.containingClass.qualifiedName
+//            nameFitToPatterns(className, patterns)
+//          case _ => false
+//        }
+//      case _ => false
+//    }
+    expr match {
       case ref: ScReferenceExpression =>
         import org.jetbrains.plugins.scala.settings.ScalaProjectSettings.nameFitToPatterns
         ref.resolve() match {
