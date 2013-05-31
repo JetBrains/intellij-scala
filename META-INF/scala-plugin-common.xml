@@ -13,6 +13,7 @@
         <extensionPoint name="scalaUiWithDependency" interface="org.jetbrains.plugins.scala.settings.uiControls.ScalaUiWithDependency"/>
         <extensionPoint name="scalaLanguageDerivative" interface="org.jetbrains.plugins.scala.util.ScalaLanguageDerivative"/>
         <extensionPoint name="memberElementTypesExtension" interface="org.jetbrains.plugins.scala.util.MemberElementTypesExtension"/>
+        <extensionPoint name="scalaElementToRenameContributor" interface="org.jetbrains.plugins.scala.lang.refactoring.rename.ScalaElementToRenameContributor"/>
     </extensionPoints>
 
     <extensions defaultExtensionNs="com.intellij">
