@@ -83,6 +83,8 @@ class RenameScalaClassProcessor extends RenameJavaClassProcessor {
         allRenames.put(t.fakeCompanionClass, newName + "$class")
       case _ =>
     }
+    
+    ScalaElementToRenameContributor.getAll(element, newName, allRenames)
   }
 
   override def getElementToSearchInStringsAndComments(element: PsiElement): PsiElement = {
