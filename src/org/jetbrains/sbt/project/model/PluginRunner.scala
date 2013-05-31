@@ -1,7 +1,7 @@
 package org.jetbrains.sbt
 package project.model
 
-import java.io.{PrintWriter, File}
+import java.io.{FileNotFoundException, PrintWriter, File}
 import scala.xml.{Elem, XML}
 import com.intellij.execution.process.OSProcessHandler
 import project.SbtException
@@ -10,14 +10,22 @@ import project.SbtException
  * @author Pavel Fatin
  */
 object PluginRunner {
-  private val JavaVM = (System.getProperty("java.home").toFile / "bin" / "java").canonicalPath
-  private val LauncherDir = ((jarWith[this.type].toFile <<) <<) / "launcher"
-  private val SbtLauncher = (LauncherDir / "sbt-launch.jar").canonicalPath
-  private val SbtPlugin = (LauncherDir / "sbt-structure.jar").canonicalPath
-  private val JavaOpts = Option(System.getenv("JAVA_OPTS")).map(_.split("\\s++").toSeq).getOrElse(Seq.empty)
+  private val JavaHome = new File(System.getProperty("java.home"))
+  private val JavaVM = JavaHome / "bin" / "java"
+  private val LauncherDir = (jarWith[this.type] << 2) / "launcher"
+  private val SbtLauncher = LauncherDir / "sbt-launch.jar"
+  private val SbtPlugin = LauncherDir / "sbt-structure.jar"
+  private val JavaOpts = Option(System.getenv("JAVA_OPTS")).map(_.split("\\s+")).toSeq.flatten
   private val OS = System.getProperty("os.name")
 
   def read(directory: File)(listener: (String) => Unit): Either[Exception, Elem] = {
+    val problem = Stream(JavaHome, SbtLauncher, SbtPlugin).map(check).flatten.headOption
+    problem.map(it => Left(new FileNotFoundException(it))).getOrElse(read0(directory, listener))
+  }
+
+  private def check(file: File) = (!file.exists()).option(s"File does not exist: $file")
+
+  private def read0(directory: File, listener: (String) => Unit) = {
     val tempFile = File.createTempFile("sbt-structure", ".xml")
     tempFile.deleteOnExit()
 
@@ -26,7 +34,7 @@ object PluginRunner {
       val tempPath =  canonicalPath(tempFile)
       val quote = if (OS.startsWith("Windows")) "\\\"" else "\""
 
-      JavaVM +: vmOptions :+ "-jar" :+ SbtLauncher :+
+      JavaVM.getPath +: vmOptions :+ "-jar" :+ SbtLauncher.getPath :+
         s"; set artifactPath := new File($quote$tempPath$quote) ; apply -cp $SbtPlugin org.jetbrains.sbt.Plugin"
     }
 
