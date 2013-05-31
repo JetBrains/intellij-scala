@@ -192,7 +192,7 @@ class ScalaLanguageInjector(myInjectionConfiguration: Configuration) extends Mul
           
           literals filter {
             case interpolated: ScInterpolatedStringLiteral 
-              if interpolated.reference map (mapping containsKey _.getText) getOrElse false => true
+              if interpolated.reference exists (mapping containsKey _.getText) => true
             case _ => false
           } foreach {
             case literal: ScInterpolatedStringLiteral => 
@@ -293,7 +293,7 @@ object ScalaLanguageInjector {
 
       count += lineLength + 1
     }
-    if (rangesCollected.isEmpty) rangesCollected += (new TextRange(range.getStartOffset, range.getStartOffset))
+    if (rangesCollected.isEmpty) rangesCollected += new TextRange(range.getStartOffset, range.getStartOffset)
 
     rangesCollected
   }

@@ -4,8 +4,6 @@ package psi
 package api
 package expr
 
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
-
 /** 
 * @author Alexander Podkhalyuzin
 * Date: 07.03.2008
@@ -13,4 +11,8 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 
 trait ScParenthesisedExpr extends ScExpression {
   def expr = findChild(classOf[ScExpression])
+}
+
+object ScParenthesisedExpr {
+  def unapply(p: ScParenthesisedExpr) = p.expr
 }

@@ -45,7 +45,7 @@ class ScalaFoldingBuilder extends FoldingBuilder {
     if (isMultiline(node) || isMultilineImport(node)) {
       node.getElementType match {
         case ScalaTokenTypes.tBLOCK_COMMENT | ScalaTokenTypes.tSH_COMMENT | ScalaElementTypes.TEMPLATE_BODY |
-             ScalaDocElementTypes.SCALA_DOC_COMMENT => if (!isWorksheetResults(node)) descriptors += (new FoldingDescriptor(node, node.getTextRange))
+             ScalaDocElementTypes.SCALA_DOC_COMMENT => if (!isWorksheetResults(node)) descriptors += new FoldingDescriptor(node, node.getTextRange)
         case ScalaElementTypes.IMPORT_STMT if isGoodImport(node) => {
           descriptors += (new FoldingDescriptor(node,
             new TextRange(node.getTextRange.getStartOffset + IMPORT_KEYWORD.length + 1, getImportEnd(node))))
@@ -58,7 +58,7 @@ class ScalaFoldingBuilder extends FoldingBuilder {
           psi match {
             case f: ScFunctionDefinition => {
               val (isMultilineBody, textRange, _) = isMultilineFuncBody(f)
-              if (isMultilineBody) descriptors += (new FoldingDescriptor(node, textRange))
+              if (isMultilineBody) descriptors += new FoldingDescriptor(node, textRange)
             }
             case _ =>
           }
@@ -70,11 +70,11 @@ class ScalaFoldingBuilder extends FoldingBuilder {
             new TextRange(node.getTextRange.getStartOffset + PACKAGE_KEYWORD.length + 1, node.getTextRange.getEndOffset)))
         }
         case p: ScLiteral if p.isMultiLineString =>
-          descriptors += (new FoldingDescriptor(node, node.getTextRange))
+          descriptors += new FoldingDescriptor(node, node.getTextRange)
         case p: ScArgumentExprList =>
-          descriptors += (new FoldingDescriptor(node, node.getTextRange))
+          descriptors += new FoldingDescriptor(node, node.getTextRange)
         case _: ScBlockExpr
-          if (ScalaCodeFoldingSettings.getInstance().isFoldingForAllBlocks) =>
+          if ScalaCodeFoldingSettings.getInstance().isFoldingForAllBlocks =>
           descriptors += new FoldingDescriptor(node, node.getTextRange)
         case _ =>
       }
@@ -127,9 +127,9 @@ class ScalaFoldingBuilder extends FoldingBuilder {
         addCommentFolds(node.getPsi.asInstanceOf[PsiComment], processedComments, descriptors)
       } else if (isCustomRegionStart(node.getText)) {
         if (isTagRegionStart(node.getText)) {
-          addCustomRegionFolds(node.getPsi, processedRegions, descriptors, true, stack)
+          addCustomRegionFolds(node.getPsi, processedRegions, descriptors, isTagRegion = true, stack)
         } else if (isSimpleRegionStart(node.getText)) {
-          addCustomRegionFolds(node.getPsi, processedRegions, descriptors, false, stack)
+          addCustomRegionFolds(node.getPsi, processedRegions, descriptors, isTagRegion = false, stack)
         }
       }
     }
@@ -165,8 +165,10 @@ class ScalaFoldingBuilder extends FoldingBuilder {
         case _ =>
       }
       if (node.getPsi != null) {
-        if (node.getPsi.isInstanceOf[ScLiteral] && node.getPsi.asInstanceOf[ScLiteral].isMultiLineString)
-          return "\"\"\"...\"\"\""
+        node.getPsi match {
+          case literal: ScLiteral if literal.isMultiLineString => return "\"\"\"...\"\"\""
+          case _ =>
+        }
         if (node.getPsi.isInstanceOf[ScArgumentExprList])
           return "(...)"
       }
@@ -217,23 +219,23 @@ class ScalaFoldingBuilder extends FoldingBuilder {
     else {
       node.getElementType match {
         case ScalaTokenTypes.tBLOCK_COMMENT
-          if (ScalaCodeFoldingSettings.getInstance().isCollapseBlockComments && !isWorksheetResults(node)) => true
+          if ScalaCodeFoldingSettings.getInstance().isCollapseBlockComments && !isWorksheetResults(node) => true
         case ScalaTokenTypes.tLINE_COMMENT
-          if (!isCustomRegionStart(node.getText) &&
-                  ScalaCodeFoldingSettings.getInstance().isCollapseLineComments &&  !isWorksheetResults(node)) => true
+          if !isCustomRegionStart(node.getText) &&
+                  ScalaCodeFoldingSettings.getInstance().isCollapseLineComments && !isWorksheetResults(node) => true
         case ScalaTokenTypes.tLINE_COMMENT
-          if (isCustomRegionStart(node.getText) &&
-                  ScalaCodeFoldingSettings.getInstance().isCollapseCustomRegions) => true
+          if isCustomRegionStart(node.getText) &&
+                  ScalaCodeFoldingSettings.getInstance().isCollapseCustomRegions => true
         case ScalaDocElementTypes.SCALA_DOC_COMMENT
-          if (ScalaCodeFoldingSettings.getInstance().isCollapseScalaDocComments && !isWorksheetResults(node)) => true
+          if ScalaCodeFoldingSettings.getInstance().isCollapseScalaDocComments && !isWorksheetResults(node) => true
         case ScalaElementTypes.TEMPLATE_BODY
           if ScalaCodeFoldingSettings.getInstance().isCollapseTemplateBodies => true
         case ScalaElementTypes.PACKAGING
           if ScalaCodeFoldingSettings.getInstance().isCollapsePackagings => true
         case ScalaElementTypes.IMPORT_STMT
           if ScalaCodeFoldingSettings.getInstance().isCollapseImports => true
-        case ScalaTokenTypes.tSH_COMMENT if
-        (ScalaCodeFoldingSettings.getInstance().isCollapseShellComments && !isWorksheetResults(node)) => true
+        case ScalaTokenTypes.tSH_COMMENT
+          if ScalaCodeFoldingSettings.getInstance().isCollapseShellComments && !isWorksheetResults(node) => true
         case ScalaElementTypes.MATCH_STMT
           if ScalaCodeFoldingSettings.getInstance().isCollapseMultilineBlocks => true
         case ScalaElementTypes.BLOCK_EXPR
@@ -348,7 +350,7 @@ class ScalaFoldingBuilder extends FoldingBuilder {
     var current: PsiElement = comment.getNextSibling
     var flag = true
 
-    while (current != null && flag == true) {
+    while (current != null && flag) {
       val node: ASTNode = current.getNode
       if (node != null) {
         val elementType: IElementType = node.getElementType
@@ -379,7 +381,7 @@ class ScalaFoldingBuilder extends FoldingBuilder {
     var current: PsiElement = element.getNextSibling
     var flag = true
 
-    while (current != null && flag == true) {
+    while (current != null && flag) {
       val node: ASTNode = current.getNode
       if (node != null) {
         val elementType: IElementType = node.getElementType

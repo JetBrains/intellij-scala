@@ -41,7 +41,7 @@ object SafeDeleteProcessorUtil {
   def getUsageInsideDeletedFilter(allElementsToDelete: Array[PsiElement]): Condition[PsiElement] = {
     new Condition[PsiElement] {
       def value(usage: PsiElement): Boolean = {
-        !(usage.isInstanceOf[PsiFile]) && isInside(usage, allElementsToDelete)
+        !usage.isInstanceOf[PsiFile] && isInside(usage, allElementsToDelete)
       }
     }
   }
@@ -55,14 +55,15 @@ object SafeDeleteProcessorUtil {
           val parent: PsiElement = element.getParent
           if (parent.isInstanceOf[PsiReferenceList]) {
             val pparent: PsiElement = parent.getParent
-            if (pparent.isInstanceOf[PsiClass]) {
-              val inheritor: PsiClass = pparent.asInstanceOf[PsiClass]
-              if (justPrivates) {
-                if (parent.equals(inheritor.getExtendsList) || parent.equals(inheritor.getImplementsList)) {
-                  usages.add(new SafeDeleteExtendsClassUsageInfo(element.asInstanceOf[PsiJavaCodeReferenceElement], psiClass, inheritor))
-                  return true
+            pparent match {
+              case inheritor: PsiClass =>
+                if (justPrivates) {
+                  if (parent.equals(inheritor.getExtendsList) || parent.equals(inheritor.getImplementsList)) {
+                    usages.add(new SafeDeleteExtendsClassUsageInfo(element.asInstanceOf[PsiJavaCodeReferenceElement], psiClass, inheritor))
+                    return true
+                  }
                 }
-              }
+              case _ =>
             }
           }
           LOG.assertTrue(element.getTextRange != null)
@@ -99,11 +100,13 @@ object SafeDeleteProcessorUtil {
       val index: Int = owner.getTypeParameterList.getTypeParameterIndex(typeParameter)
       ReferencesSearch.search(owner).forEach(new Processor[PsiReference] {
         def process(reference: PsiReference): Boolean = {
-          if (reference.isInstanceOf[PsiJavaCodeReferenceElement]) {
-            val typeArgs: Array[PsiTypeElement] = (reference.asInstanceOf[PsiJavaCodeReferenceElement]).getParameterList.getTypeParameterElements
-            if (typeArgs.length > index) {
-              usages.add(new SafeDeleteReferenceJavaDeleteUsageInfo(typeArgs(index), typeParameter, true))
-            }
+          reference match {
+            case referenceElement: PsiJavaCodeReferenceElement =>
+              val typeArgs: Array[PsiTypeElement] = referenceElement.getParameterList.getTypeParameterElements
+              if (typeArgs.length > index) {
+                usages.add(new SafeDeleteReferenceJavaDeleteUsageInfo(typeArgs(index), typeParameter, true))
+              }
+            case _ =>
           }
           true
         }
@@ -277,8 +280,10 @@ object SafeDeleteProcessorUtil {
           parent = parent.getParent
           if (parent.isInstanceOf[PsiCodeBlock]) {
             parent = parent.getParent
-            if (parent.isInstanceOf[PsiMethod] && (parent.asInstanceOf[PsiMethod]).isConstructor) {
-              return parent.asInstanceOf[PsiMethod]
+            parent match {
+              case method: PsiMethod if method.isConstructor =>
+                return method
+              case _ =>
             }
           }
         }
@@ -323,12 +328,12 @@ object SafeDeleteProcessorUtil {
         if (!isInsideDeleted.value(reference.getElement)) {
           val element: PsiElement = reference.getElement
           val parent: PsiElement = element.getParent
-          if (parent.isInstanceOf[PsiAssignmentExpression] && element == (parent.asInstanceOf[PsiAssignmentExpression]).getLExpression) {
-            usages.add(new SafeDeleteFieldWriteReference(parent.asInstanceOf[PsiAssignmentExpression], psiField))
-          }
-          else {
-            val range: TextRange = reference.getRangeInElement
-            usages.add(new SafeDeleteReferenceJavaDeleteUsageInfo(reference.getElement, psiField, range.getStartOffset, range.getEndOffset, false, PsiTreeUtil.getParentOfType(element, classOf[PsiImportStaticStatement]) != null))
+          parent match {
+            case assignExpr: PsiAssignmentExpression if element == assignExpr.getLExpression =>
+              usages.add(new SafeDeleteFieldWriteReference(assignExpr, psiField))
+            case _ =>
+              val range: TextRange = reference.getRangeInElement
+              usages.add(new SafeDeleteReferenceJavaDeleteUsageInfo(reference.getElement, psiField, range.getStartOffset, range.getEndOffset, false, PsiTreeUtil.getParentOfType(element, classOf[PsiImportStaticStatement]) != null))
           }
         }
         true
@@ -344,11 +349,15 @@ object SafeDeleteProcessorUtil {
       def process(reference: PsiReference): Boolean = {
         val element: PsiElement = reference.getElement
         var call: PsiCall = null
-        if (element.isInstanceOf[PsiCall]) {
-          call = element.asInstanceOf[PsiCall]
-        }
-        else if (element.getParent.isInstanceOf[PsiCall]) {
-          call = element.getParent.asInstanceOf[PsiCall]
+        element match {
+          case psiCall: PsiCall =>
+            call = psiCall
+          case _ =>
+            element.getParent match {
+            case psiCall: PsiCall =>
+              call = psiCall
+            case _ =>
+          }
         }
         if (call != null) {
           val argList: PsiExpressionList = call.getArgumentList
@@ -374,27 +383,29 @@ object SafeDeleteProcessorUtil {
             }
           }
         }
-        else if (element.isInstanceOf[PsiDocMethodOrFieldRef]) {
-          if ((element.asInstanceOf[PsiDocMethodOrFieldRef]).getSignature != null) {
-            @NonNls val newText: StringBuffer = new StringBuffer
-            newText.append("/** @see #").append(method.name).append('(')
-            val parameters: java.util.List[PsiParameter] = new util.ArrayList[PsiParameter](util.Arrays.asList(method.getParameterList.getParameters: _*))
-            parameters.remove(parameter)
-            newText.append(StringUtil.join(parameters, new Function[PsiParameter, String] {
-              def fun(psiParameter: PsiParameter): String = {
-                parameter.getType.getCanonicalText
-              }
-            }, ","))
-            newText.append(")*/")
-            usages.add(new SafeDeleteReferenceJavaDeleteUsageInfo(element, parameter, true) {
-              override def deleteElement() {
-                val javadocMethodReference: PsiDocMethodOrFieldRef#MyReference = element.getReference.asInstanceOf[PsiDocMethodOrFieldRef#MyReference]
-                if (javadocMethodReference != null) {
-                  javadocMethodReference.bindToText(method.containingClass, newText)
+        else element match {
+          case methodOrFieldRef: PsiDocMethodOrFieldRef =>
+            if (methodOrFieldRef.getSignature != null) {
+              @NonNls val newText: StringBuffer = new StringBuffer
+              newText.append("/** @see #").append(method.name).append('(')
+              val parameters: java.util.List[PsiParameter] = new util.ArrayList[PsiParameter](util.Arrays.asList(method.getParameterList.getParameters: _*))
+              parameters.remove(parameter)
+              newText.append(StringUtil.join(parameters, new Function[PsiParameter, String] {
+                def fun(psiParameter: PsiParameter): String = {
+                  parameter.getType.getCanonicalText
                 }
-              }
-            })
-          }
+              }, ","))
+              newText.append(")*/")
+              usages.add(new SafeDeleteReferenceJavaDeleteUsageInfo(element, parameter, true) {
+                override def deleteElement() {
+                  val javadocMethodReference: PsiDocMethodOrFieldRef#MyReference = element.getReference.asInstanceOf[PsiDocMethodOrFieldRef#MyReference]
+                  if (javadocMethodReference != null) {
+                    javadocMethodReference.bindToText(method.containingClass, newText)
+                  }
+                }
+              })
+            }
+          case _ =>
         }
         true
       }
@@ -408,18 +419,19 @@ object SafeDeleteProcessorUtil {
           return true
         }
         var isSafeDelete: Boolean = false
-        if (element.getParent.getParent.isInstanceOf[PsiMethodCallExpression]) {
-          val call: PsiMethodCallExpression = element.getParent.getParent.asInstanceOf[PsiMethodCallExpression]
-          val methodExpression: PsiReferenceExpression = call.getMethodExpression
-          if (methodExpression.getText.equals(PsiKeyword.SUPER)) {
-            isSafeDelete = true
-          }
-          else if (methodExpression.getQualifierExpression.isInstanceOf[PsiSuperExpression]) {
-            val superMethod: PsiMethod = call.resolveMethod
-            if (superMethod != null && MethodSignatureUtil.isSuperMethod(superMethod, method)) {
+        element.getParent.getParent match {
+          case call: PsiMethodCallExpression =>
+            val methodExpression: PsiReferenceExpression = call.getMethodExpression
+            if (methodExpression.getText.equals(PsiKeyword.SUPER)) {
               isSafeDelete = true
             }
-          }
+            else if (methodExpression.getQualifierExpression.isInstanceOf[PsiSuperExpression]) {
+              val superMethod: PsiMethod = call.resolveMethod
+              if (superMethod != null && MethodSignatureUtil.isSuperMethod(superMethod, method)) {
+                isSafeDelete = true
+              }
+            }
+          case _ =>
         }
         usages.add(new SafeDeleteReferenceJavaDeleteUsageInfo(element, parameter, isSafeDelete))
         true
@@ -442,13 +454,14 @@ object SafeDeleteProcessorUtil {
     if (SafeDeleteProcessor.isInside(place, ancestor)) return true
     if (place.isInstanceOf[PsiComment] && ancestor.isInstanceOf[PsiClass]) {
       val aClass: PsiClass = ancestor.asInstanceOf[PsiClass]
-      if (aClass.getParent.isInstanceOf[PsiJavaFile]) {
-        val file: PsiJavaFile = aClass.getParent.asInstanceOf[PsiJavaFile]
-        if (PsiTreeUtil.isAncestor(file, place, false)) {
-          if (file.getClasses.length == 1) {
-            return true
+      aClass.getParent match {
+        case file: PsiJavaFile =>
+          if (PsiTreeUtil.isAncestor(file, place, false)) {
+            if (file.getClasses.length == 1) {
+              return true
+            }
           }
-        }
+        case _ =>
       }
     }
     false

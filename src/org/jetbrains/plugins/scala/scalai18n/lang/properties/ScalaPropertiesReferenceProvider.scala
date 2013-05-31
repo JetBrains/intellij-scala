@@ -25,25 +25,27 @@ class ScalaPropertiesReferenceProvider(myDefaultSoft: Boolean) extends PsiRefere
     var value: AnyRef = null
     var bundleName: String = null
     var soft: Boolean = myDefaultSoft
-    if (element.isInstanceOf[ScLiteral]) {
-      val literalExpression: ScLiteral = element.asInstanceOf[ScLiteral]
-      value = literalExpression.getValue
-      val annotationParams = new mutable.HashMap[String, AnyRef]
-      annotationParams.put(AnnotationUtil.PROPERTY_KEY_RESOURCE_BUNDLE_PARAMETER, null)
-      if (ScalaI18nUtil.mustBePropertyKey(element.getProject, literalExpression, annotationParams)) {
-        soft = false
-        val resourceBundleName = annotationParams.get(AnnotationUtil.PROPERTY_KEY_RESOURCE_BUNDLE_PARAMETER).getOrElse(null)
-        if (resourceBundleName != null && resourceBundleName.isInstanceOf[PsiExpression]) {
-          val expr: PsiExpression = resourceBundleName.asInstanceOf[PsiExpression]
-          val bundleValue: AnyRef = JavaPsiFacade.getInstance(expr.getProject).getConstantEvaluationHelper.computeConstantExpression(expr)
-          bundleName = if (bundleValue == null) null else bundleValue.toString
+    element match {
+      case literalExpression: ScLiteral =>
+        value = literalExpression.getValue
+        val annotationParams = new mutable.HashMap[String, AnyRef]
+        annotationParams.put(AnnotationUtil.PROPERTY_KEY_RESOURCE_BUNDLE_PARAMETER, null)
+        if (ScalaI18nUtil.mustBePropertyKey(element.getProject, literalExpression, annotationParams)) {
+          soft = false
+          val resourceBundleName = annotationParams.get(AnnotationUtil.PROPERTY_KEY_RESOURCE_BUNDLE_PARAMETER).getOrElse(null)
+          if (resourceBundleName != null && resourceBundleName.isInstanceOf[PsiExpression]) {
+            val expr: PsiExpression = resourceBundleName.asInstanceOf[PsiExpression]
+            val bundleValue: AnyRef = JavaPsiFacade.getInstance(expr.getProject).getConstantEvaluationHelper.computeConstantExpression(expr)
+            bundleName = if (bundleValue == null) null else bundleValue.toString
+          }
         }
-      }
+      case _ =>
     }
-    if (value.isInstanceOf[String]) {
-      val text: String = value.asInstanceOf[String]
-      val reference: PsiReference = new PropertyReference(text, element, bundleName, soft)
-      return Array[PsiReference](reference)
+    value match {
+      case text: String =>
+        val reference: PsiReference = new PropertyReference(text, element, bundleName, soft)
+        return Array[PsiReference](reference)
+      case _ =>
     }
     PsiReference.EMPTY_ARRAY
   }

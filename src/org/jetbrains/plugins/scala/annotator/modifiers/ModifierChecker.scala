@@ -189,27 +189,29 @@ private[annotator] object ModifierChecker {
                   if (onTopLevel) {
                     proccessError("'implicit' modifier cannot be used for top-level objects",
                       modifierPsi, holder, new RemoveModifierQuickFix(owner, "implicit"))
-                  } else if (c.isInstanceOf[ScClass]) {
-                    val clazz = c.asInstanceOf[ScClass]
+                  } else
+                    c match {
+                    case clazz: ScClass =>
 
-                    def errorResult() {
-                      proccessError("implicit class must have a primary constructor with exactly one " +
-                        "argument in first parameter list",
-                        modifierPsi, holder, new RemoveModifierQuickFix(owner, "implicit"))
-                    }
+                      def errorResult() {
+                        proccessError("implicit class must have a primary constructor with exactly one " +
+                                "argument in first parameter list",
+                          modifierPsi, holder, new RemoveModifierQuickFix(owner, "implicit"))
+                      }
 
-                    clazz.constructor match {
-                      case Some(constr) =>
-                        val clauses = constr.parameterList.clauses
-                        if (clauses.length == 0) errorResult()
-                        else {
-                          val parameters = clauses(0).parameters
-                          if (parameters.length != 1) errorResult()
-                          else if (parameters(0).isRepeatedParameter) errorResult()
-                          else if (clauses.length > 2 || (clauses.length == 2 && !clauses(1).isImplicit)) errorResult()
-                        }
-                      case _ => errorResult()
-                    }
+                      clazz.constructor match {
+                        case Some(constr) =>
+                          val clauses = constr.parameterList.clauses
+                          if (clauses.length == 0) errorResult()
+                          else {
+                            val parameters = clauses(0).parameters
+                            if (parameters.length != 1) errorResult()
+                            else if (parameters(0).isRepeatedParameter) errorResult()
+                            else if (clauses.length > 2 || (clauses.length == 2 && !clauses(1).isImplicit)) errorResult()
+                          }
+                        case _ => errorResult()
+                      }
+                    case _ =>
                   }
                 case _: ScTrait | _: ScTypeAlias =>
                   proccessError("'implicit' modifier can be used only for values, variables, methods and classes",

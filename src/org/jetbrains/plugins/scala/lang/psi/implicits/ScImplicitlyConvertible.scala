@@ -90,9 +90,18 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
                                isFromCompanion: Boolean,
                                args: Seq[ScType] = Seq.empty,
                                exprType: Option[ScType] = None): Seq[ImplicitResolveResult] = {
-    val typez: ScType = exprType.getOrElse(
-      getTypeWithoutImplicits(TypingContext.empty, fromUnderscore = fromUnder).getOrElse(return Seq.empty)
-    )
+    val typez: ScType = exprType.getOrElse{
+      //this code is required, because compiler works in the same way
+      //otherwise we will see strange error messages like:
+      // def foo(x: Map[String, Int]) {}
+      // def foo(x: String) {}
+      // foo(Map(y -> 1)) //Error is here
+      val tp = getTypeWithoutImplicits(TypingContext.empty, fromUnderscore = fromUnder).getOrElse(return Seq.empty)
+      ScType.extractDesignatorSingletonType(tp) match {
+        case Some(res) => res
+        case _ => tp
+      }
+    }
 
     val buffer = new ArrayBuffer[ImplicitMapResult]
     if (!isFromCompanion) {
@@ -156,8 +165,14 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
   }
 
   private def buildSimpleImplicitMapInner(fromUnder: Boolean): ArrayBuffer[ImplicitMapResult] = {
-    val typez: ScType = getTypeWithoutImplicits(TypingContext.empty, fromUnderscore = fromUnder).getOrElse(null)
-    if (typez == null) return ArrayBuffer.empty
+    val typez: ScType = {
+      val tp = getTypeWithoutImplicits(TypingContext.empty, fromUnderscore = fromUnder).getOrElse(return ArrayBuffer.empty)
+      ScType.extractDesignatorSingletonType(tp) match {
+        case Some(res) => res
+        case _ => tp
+      }
+    }
+
     val processor = new CollectImplicitsProcessor(false)
 
     // Collect implicit conversions from bottom to up

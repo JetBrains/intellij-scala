@@ -39,13 +39,12 @@ object NameSuggester {
 
     for (tpe <- types.reverse) {generateNamesByType(tpe)(names, validator)}
     generateNamesByExpr(expr)(names, validator)
-    if (names.size == 0) {
-      names += validator.validateName("value", increaseNumber = true)
-    }
 
-    (for (name <- names if name != "" && ScalaNamesUtil.isIdentifier(name) || name == "class") yield {
+    val result = (for (name <- names if name != "" && ScalaNamesUtil.isIdentifier(name) || name == "class") yield {
       if (name != "class") name else "clazz"
     }).toList.reverse.toArray
+    if (result.size > 0) result
+    else Array(validator.validateName("value", increaseNumber = true))
   }
 
   def suggestNamesByType(typez: ScType): Array[String] = {

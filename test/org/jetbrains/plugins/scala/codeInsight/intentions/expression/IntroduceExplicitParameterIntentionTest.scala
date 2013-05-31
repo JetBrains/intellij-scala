@@ -28,7 +28,7 @@ class IntroduceExplicitParameterIntentionTest extends ScalaIntentionTestBase{
 
   def testIntroduceExplicitParameter3() {
     val text = "some.foreach(println(<caret>_))"
-    val resultText = "some.foreach(value => println(value))"
+    val resultText = "some.foreach(x => println(x))"
 
     doTest(text, resultText)
   }
@@ -42,7 +42,7 @@ class IntroduceExplicitParameterIntentionTest extends ScalaIntentionTestBase{
     val resultText =
       """
         |val name: String = "gfgfgfgfg"
-        |val nameHasUpperCase = name.exists(value => value.isUpper)
+        |val nameHasUpperCase = name.exists(c => c.isUpper)
       """.stripMargin.replace("\r", "").trim
 
     doTest(text, resultText)

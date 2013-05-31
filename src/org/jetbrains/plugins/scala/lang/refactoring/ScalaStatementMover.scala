@@ -93,8 +93,7 @@ class ScalaStatementMover extends LineMover {
     left.zip(right)
             .filter(p => p._1 == p._2 || p._1.parentsInFile.contains(p._2))
             .map(_._2)
-            .filter(it => editor.offsetToLogicalPosition(it.getTextOffset).line == line)
-            .headOption
+            .find(it => editor.offsetToLogicalPosition(it.getTextOffset).line == line)
   }
 
   private def edgeLeafsOf(line: Int, editor: Editor, file: PsiFile): (Option[PsiElement], Option[PsiElement]) = {

@@ -168,26 +168,26 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
                 selector.deleteSelector() //we can't do anything here, so just simply delete it
                 return importExpr.reference.get //todo: what we should return exactly?
 //              }
-            } else if (getParent.isInstanceOf[ScImportExpr] && !getParent.asInstanceOf[ScImportExpr].singleWildcard &&
-                       !getParent.asInstanceOf[ScImportExpr].selectorSet.isDefined) {
-              val holder = PsiTreeUtil.getParentOfType(this, classOf[ScImportsHolder])
-              holder.addImportForClass(c)
-              getParent.asInstanceOf[ScImportExpr].deleteExpr()
+            } else getParent match {
+              case importExpr: ScImportExpr if !importExpr.singleWildcard && !importExpr.selectorSet.isDefined =>
+                val holder = PsiTreeUtil.getParentOfType(this, classOf[ScImportsHolder])
+                holder.addImportForClass(c)
+                importExpr.deleteExpr()
               //todo: so what to return? probable PIEAE after such code invocation
-            } else {
-              return safeBindToElement(qname, {
-                case (qual, true) => ScalaPsiElementFactory.createReferenceFromText(qual, getContext, this)
-                case (qual, false) => ScalaPsiElementFactory.createReferenceFromText(qual, getManager)
-              }) {
-                ScalaImportClassFix.getImportHolder(ref = this, project = getProject).
-                  addImportForClass(c, ref = this)
-                if (qualifier != None) {
-                  //let's make our reference unqualified
-                  val ref: ScStableCodeReferenceElement = ScalaPsiElementFactory.createReferenceFromText(c.name, getManager)
-                  this.replace(ref).asInstanceOf[ScReferenceElement]
+              case _ =>
+                return safeBindToElement(qname, {
+                  case (qual, true) => ScalaPsiElementFactory.createReferenceFromText(qual, getContext, this)
+                  case (qual, false) => ScalaPsiElementFactory.createReferenceFromText(qual, getManager)
+                }) {
+                  ScalaImportClassFix.getImportHolder(ref = this, project = getProject).
+                          addImportForClass(c, ref = this)
+                  if (qualifier != None) {
+                    //let's make our reference unqualified
+                    val ref: ScStableCodeReferenceElement = ScalaPsiElementFactory.createReferenceFromText(c.name, getManager)
+                    this.replace(ref).asInstanceOf[ScReferenceElement]
+                  }
+                  this
                 }
-                this
-              }
             }
           }
           this

@@ -516,9 +516,10 @@ object JavaToScala {
           if (!c.isInstanceOf[PsiAnonymousClass]) if (c.isInterface) res.append("trait ") else res.append("class ")
           if (!c.isInstanceOf[PsiAnonymousClass]) res.append(escapeKeyword(c.getName))
           else res.append(ScType.presentableText(ScType.create(c.asInstanceOf[PsiAnonymousClass].getBaseClassType, c.getProject)))
-          if (c.isInstanceOf[PsiAnonymousClass] &&
-              c.asInstanceOf[PsiAnonymousClass].getArgumentList.getExpressions.length > 0) {
-            res.append("(").append(convertPsiToText(c.asInstanceOf[PsiAnonymousClass].getArgumentList)).append(")")
+          c match {
+            case clazz: PsiAnonymousClass if clazz.getArgumentList.getExpressions.length > 0 =>
+              res.append("(").append(convertPsiToText(clazz.getArgumentList)).append(")")
+            case _ =>
           }
           val typez = new ArrayBuffer[PsiJavaCodeReferenceElement]
           if (c.getExtendsList != null) typez ++= c.getExtendsList.getReferenceElements
@@ -714,7 +715,7 @@ object JavaToScala {
     AnnotationUtil.getAnnotationMethod(pair) match {
       case method: PsiMethod => {
         val returnType = method.getReturnType
-        returnType != null && returnType.isInstanceOf[PsiArrayType];
+        returnType != null && returnType.isInstanceOf[PsiArrayType]
       }
       case _ => false
     }

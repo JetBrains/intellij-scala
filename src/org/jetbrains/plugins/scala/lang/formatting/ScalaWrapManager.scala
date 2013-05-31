@@ -34,25 +34,25 @@ object ScalaWrapManager {
           val childPriority = priority(elementOperation(psi).getText, assignments)
           val notSamePriority = parentPriority != childPriority
           if (notSamePriority) {
-            return Wrap.createChildWrap(block.getWrap,
+            Wrap.createChildWrap(block.getWrap,
                                         WrapType.byLegacyRepresentation(settings.BINARY_OPERATION_WRAP),
                                         false)
           }
-          else return Wrap.createWrap(settings.BINARY_OPERATION_WRAP, false)
+          else Wrap.createWrap(settings.BINARY_OPERATION_WRAP, false)
         }
-        case _ => return Wrap.createWrap(settings.BINARY_OPERATION_WRAP, false)
+        case _ => Wrap.createWrap(settings.BINARY_OPERATION_WRAP, false)
       }
     }
 
     psi match {
       case psi: ScInfixExpr => {
-        return wrapBinary(_.isInstanceOf[ScInfixExpr], _.asInstanceOf[ScInfixExpr].operation, true)
+        return wrapBinary(_.isInstanceOf[ScInfixExpr], _.asInstanceOf[ScInfixExpr].operation, assignments = true)
       }
       case psi: ScInfixPattern => {
-        return wrapBinary(_.isInstanceOf[ScInfixPattern], _.asInstanceOf[ScInfixPattern].refernece, false)
+        return wrapBinary(_.isInstanceOf[ScInfixPattern], _.asInstanceOf[ScInfixPattern].refernece, assignments = false)
       }
       case psi: ScInfixTypeElement => {
-        return wrapBinary(_.isInstanceOf[ScInfixTypeElement], _.asInstanceOf[ScInfixTypeElement].ref, false)
+        return wrapBinary(_.isInstanceOf[ScInfixTypeElement], _.asInstanceOf[ScInfixTypeElement].ref, assignments = false)
       }
       case psi: ScCompositePattern => {
         return Wrap.createWrap(settings.BINARY_OPERATION_WRAP, false)
@@ -100,7 +100,7 @@ object ScalaWrapManager {
       }
       case _ =>
     }
-    return null
+    null
   }
 
   def arrangeSuggestedWrapForChild(parent: ScalaBlock, child: ASTNode, scalaSettings: ScalaCodeStyleSettings,
@@ -120,12 +120,12 @@ object ScalaWrapManager {
       childPsi.getParent match {
         case parent: PsiElement if elementMatch(parent) => {
           if (elementOperation(parent) == childPsi) return null
-          if (parent != parentPsi) return suggestedWrap
-          else if (elementLeftSide(parentPsi) == childPsi) return suggestedWrap
-          else if (elementRightSide(parentPsi) == childPsi) return suggestedWrap
-          else return null
+          if (parent != parentPsi) suggestedWrap
+          else if (elementLeftSide(parentPsi) == childPsi) suggestedWrap
+          else if (elementRightSide(parentPsi) == childPsi) suggestedWrap
+          else null
         }
-        case _ => return null //hasn't to be
+        case _ => null //hasn't to be
       }
     }
 
@@ -161,9 +161,11 @@ object ScalaWrapManager {
         else return null
       }
       case patt: ScPatternArgumentList => {
-        if (childPsi.isInstanceOf[ScPattern]) return suggestedWrap
-        else if (childPsi.isInstanceOf[ScSequenceArg]) return suggestedWrap
-        else return null
+        childPsi match {
+          case _: ScPattern => return suggestedWrap
+          case _: ScSequenceArg => return suggestedWrap
+          case _ => return null
+        }
       }
       case params: ScParameterClause => {
         if (childPsi.isInstanceOf[ScParameter]) return suggestedWrap
@@ -193,7 +195,7 @@ object ScalaWrapManager {
           else return null
         } else {
           e.templateParents match {
-            case Some(tp) if tp.typeElements.find(_ == childPsi) != None => return suggestedWrap
+            case Some(tp) if tp.typeElements.exists(_ == childPsi) => return suggestedWrap
             case _ => return null
           }
         }

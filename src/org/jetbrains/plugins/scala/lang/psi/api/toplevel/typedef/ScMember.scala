@@ -94,8 +94,10 @@ trait ScMember extends ScalaPsiElement with ScModifierListOwner with PsiMember {
       case st: ScalaStubBasedElementImpl[_] => st.getStub
       case _ => null
     }
-    if (stub.isInstanceOf[ScMemberOrLocal]) {
-      return stub.asInstanceOf[ScMemberOrLocal].isLocal
+    stub match {
+      case memberOrLocal: ScMemberOrLocal =>
+        return memberOrLocal.isLocal
+      case _ =>
     }
     containingClass == null
   }
@@ -124,12 +126,12 @@ trait ScMember extends ScalaPsiElement with ScModifierListOwner with PsiMember {
             val buf: ArrayBuffer[ScMember] = new ArrayBuffer[ScMember]
             while (membersIterator.hasNext) {
               val member = membersIterator.next()
-              if (isSimilarMemberForNavigation(member, false)) buf += member
+              if (isSimilarMemberForNavigation(member, isStrict = false)) buf += member
             }
             if (buf.length == 0) this
             else if (buf.length == 1) buf(0)
             else {
-              val filter = buf.filter(isSimilarMemberForNavigation(_, true))
+              val filter = buf.filter(isSimilarMemberForNavigation(_, isStrict = true))
               if (filter.length == 0) buf(0)
               else filter(0)
             }

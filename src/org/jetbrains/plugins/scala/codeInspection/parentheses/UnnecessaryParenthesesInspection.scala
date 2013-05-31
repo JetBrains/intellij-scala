@@ -38,16 +38,14 @@ class UnnecessaryParenthesesQuickFix(parenthesized: ScParenthesisedExpr)
 
 object UnnecessaryParenthesesUtil {
 
-  def canBeStripped(parenthesized: ScParenthesisedExpr): Boolean = {
-    val expression: Option[ScExpression] = parenthesized.expr
-    if (expression == None) false
-    else !ScalaPsiUtil.needParentheses(parenthesized, expression.get)
+  def canBeStripped(parenthesized: ScParenthesisedExpr): Boolean = parenthesized match {
+    case ScParenthesisedExpr(inner) => !ScalaPsiUtil.needParentheses(parenthesized, inner)
+    case _ => false
   }
 
   @tailrec
   def getTextOfStripped(expr: ScExpression): String = expr match {
-    case parenthesized: ScParenthesisedExpr if canBeStripped(parenthesized) =>
-      getTextOfStripped(parenthesized.expr.getOrElse(parenthesized))
+    case parenthesized @ ScParenthesisedExpr(inner) if canBeStripped(parenthesized) => getTextOfStripped(inner)
     case _ => expr.getText
   }
 }

@@ -3,6 +3,7 @@ package codeInsight.intentions.booleans
 
 import org.jetbrains.plugins.scala.codeInsight.intentions.ScalaIntentionTestBase
 import org.jetbrains.plugins.scala.codeInsight.intention.booleans.SimplifyBooleanExprWithLiteralIntention
+import org.jetbrains.plugins.scala.codeInspection.booleans.SimplifyBooleanInspection
 
 /**
  * Nikolay.Tropin
@@ -18,14 +19,18 @@ class SimplifyBooleanExprWithLiteralTest extends ScalaIntentionTestBase{
   }
 
   def test_TrueEqualsA() {
-    val text = "<caret>true == a"
-    val result = "a"
+    val text = """val a = true
+                 |<caret>true == a""".stripMargin.replace("\r", "").trim
+    val result = """val a = true
+                   |a""".stripMargin.replace("\r", "").trim
     doTest(text, result)
   }
 
   def test_TrueAndA() {
-    val text = "(<caret>true && a)"
-    val result = "a"
+    val text = """val a = true
+                 |true <caret>&& a""".stripMargin.replace("\r", "").trim
+    val result = """val a = true
+                   |a""".stripMargin.replace("\r", "").trim
     doTest(text, result)
   }
 
@@ -36,21 +41,50 @@ class SimplifyBooleanExprWithLiteralTest extends ScalaIntentionTestBase{
   }
 
   def test_TwoExpressions() {
-    val text = "<caret>true && (a || false)"
-    val result = "a"
+    val text = s"""
+        |val a = true
+        |<caret>true && (a || false)
+      """.stripMargin.replace("\r", "").trim
+    val result = """val a = true
+                   |a""".stripMargin.replace("\r", "").trim
     doTest(text, result)
   }
 
   def test_TrueNotEqualsA() {
-    val text = "val flag: Boolean = <caret>true != a"
-    val result = "val flag: Boolean = !a"
+    val text = """val a = true
+                  |val flag: Boolean = <caret>true != a""".stripMargin.replace("\r", "").trim
+    val result = """val a = true
+                   |val flag: Boolean = !a""".stripMargin.replace("\r", "").trim
     doTest(text, result)
   }
 
   def test_SimplifyInParentheses() {
-    val text = "!(<caret>true != a)"
-    val result = "!(!a)"
+    val text = """val a = true
+                 |!(<caret>true != a)""".stripMargin.replace("\r", "").trim
+    val result = """val a = true
+                    |!(!a)""".stripMargin.replace("\r", "").trim
     doTest(text, result)
   }
+
+  def test_TrueAsAny() {
+    val text =
+      """
+        |def trueAsAny: Any = {
+        |  true
+        |}
+        |if (trueAsAny =<caret>= true) {
+        |  println("true")
+        |} else {
+        |  println("false")
+        |}
+        |
+      """.stripMargin.replace("\r", "").trim
+
+    checkIntentionIsNotAvailable(text)
+  }
+
+
+
+
 
 }

@@ -13,6 +13,7 @@ import com.intellij.lang.injection.InjectedLanguageManager
 import extensions.toPsiNamedElementExt
 import console.ScalaLanguageConsoleView
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.util.IntentionAvailabilityChecker
 
 /**
  * User: Alexander Podkhalyuzin
@@ -26,7 +27,8 @@ class ScalaFileNameInspection extends LocalInspectionTool {
 
   override def checkFile(file: PsiFile, manager: InspectionManager, isOnTheFly: Boolean): Array[ProblemDescriptor] = {
     if (!file.isInstanceOf[ScalaFile] ||
-            InjectedLanguageManager.getInstance(file.getProject).isInjectedFragment(file)) return Array.empty
+            InjectedLanguageManager.getInstance(file.getProject).isInjectedFragment(file) || 
+      !IntentionAvailabilityChecker.checkInspection(this, file)) return Array.empty
     if (file.getName == ScalaLanguageConsoleView.SCALA_CONSOLE) return Array.empty
 
     val virtualFile = file.getVirtualFile

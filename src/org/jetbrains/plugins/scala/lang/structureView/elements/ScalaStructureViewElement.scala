@@ -56,8 +56,11 @@ abstract class ScalaStructureViewElement(protected val myElement: PsiElement, va
   }
 
   override def equals(o: Any): Boolean = {
-    val clazz = if (o.isInstanceOf[Object]) o.asInstanceOf[Object].getClass else return false
-    if (o == null || getClass != clazz) return false;
+    val clazz = o match {
+      case obj: Object => obj.getClass
+      case _ => return false
+    }
+    if (o == null || getClass != clazz) return false
     val that = o.asInstanceOf[ScalaStructureViewElement]
     if (inherited != that.inherited) return false
 

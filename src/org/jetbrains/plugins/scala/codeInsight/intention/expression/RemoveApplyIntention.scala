@@ -38,13 +38,14 @@ class RemoveApplyIntention extends PsiElementBaseIntentionAction {
     val methodCallExpr: ScMethodCall = PsiTreeUtil.getParentOfType(element, classOf[ScMethodCall], false)
     if (methodCallExpr == null) return false
 
-    if (methodCallExpr.getInvokedExpr.isInstanceOf[ScReferenceExpression]) {
-      val ref: ScReferenceExpression = methodCallExpr.getInvokedExpr.asInstanceOf[ScReferenceExpression]
-      val range: TextRange = ref.nameId.getTextRange
-      val offset = editor.getCaretModel.getOffset
+    methodCallExpr.getInvokedExpr match {
+      case ref: ScReferenceExpression =>
+        val range: TextRange = ref.nameId.getTextRange
+        val offset = editor.getCaretModel.getOffset
 
-      if (!(range.getStartOffset <= offset && offset <= range.getEndOffset)) return false
-      if (ref.isQualified && ref.nameId.getText == "apply") return true
+        if (!(range.getStartOffset <= offset && offset <= range.getEndOffset)) return false
+        if (ref.isQualified && ref.nameId.getText == "apply") return true
+      case _ =>
     }
 
     false
@@ -74,59 +75,63 @@ class RemoveApplyIntention extends PsiElementBaseIntentionAction {
     var qualifier = expr.getInvokedExpr.asInstanceOf[ScReferenceExpression].qualifier.get
     buf.append(qualifier.getText)
 
-    if (qualifier.isInstanceOf[ScParenthesisedExpr]) {
-      qualifier = qualifier.asInstanceOf[ScParenthesisedExpr].expr.get
+    qualifier match {
+      case parenth: ScParenthesisedExpr =>
+        qualifier = parenth.expr.get
+      case _ =>
     }
 
     qualifier match {
       case ref: ScReferenceExpression =>
         val resolved = ref.resolve()
-        if (resolved.isInstanceOf[PsiNamedElement]) {
-          val name = resolved.asInstanceOf[PsiNamedElement].name
-          val clazz: Option[ScTemplateDefinition] = expr.getParent match {
-            case _ if expr.isInstanceOf[ScClassParameter] =>
-              Option(PsiTreeUtil.getParentOfType(expr, classOf[ScTemplateDefinition]))
-            case _: ScEarlyDefinitions =>
-              Option(PsiTreeUtil.getParentOfType(expr, classOf[ScTemplateDefinition]))
-            case _: ScTemplateBody =>
-              Option(PsiTreeUtil.getParentOfType(expr, classOf[ScTemplateDefinition]))
-            case _ => None
-          }
+        resolved match {
+          case namedElement: PsiNamedElement =>
+            val name = namedElement.name
+            val clazz: Option[ScTemplateDefinition] = expr.getParent match {
+              case _ if expr.isInstanceOf[ScClassParameter] =>
+                Option(PsiTreeUtil.getParentOfType(expr, classOf[ScTemplateDefinition]))
+              case _: ScEarlyDefinitions =>
+                Option(PsiTreeUtil.getParentOfType(expr, classOf[ScTemplateDefinition]))
+              case _: ScTemplateBody =>
+                Option(PsiTreeUtil.getParentOfType(expr, classOf[ScTemplateDefinition]))
+              case _ => None
+            }
 
-          var flag = false
-          if (!(clazz == None)) {
-            val signs = clazz.get.allSignatures
+            var flag = false
+            if (!(clazz == None)) {
+              val signs = clazz.get.allSignatures
 
-            for (sign <- signs if !flag) {
-              sign.namedElement match {
-                case Some(function: ScFunction) =>
-                  if (function.name == name && resolved != function) {
-                    flag = true
-                  } else if (resolved == function) {
-                    if (function.getParameterList.getParameters.length == 0) {
-                      buf.append("()")
-                      start = start + 2
+              for (sign <- signs if !flag) {
+                sign.namedElement match {
+                  case Some(function: ScFunction) =>
+                    if (function.name == name && resolved != function) {
+                      flag = true
+                    } else if (resolved == function) {
+                      if (function.getParameterList.getParameters.length == 0) {
+                        buf.append("()")
+                        start = start + 2
+                      }
                     }
-                  }
-                case Some(method: PsiMethod) =>
-                  if (method.name == name && resolved != method) {
-                    flag = true
-                  } else if (resolved == method) {
-                    if (method.getParameterList.getParameters.length == 0) {
-                      buf.append("()")
-                      start = start + 2
+                  case Some(method: PsiMethod) =>
+                    if (method.name == name && resolved != method) {
+                      flag = true
+                    } else if (resolved == method) {
+                      if (method.getParameterList.getParameters.length == 0) {
+                        buf.append("()")
+                        start = start + 2
+                      }
                     }
-                  }
-                case _ =>
+                  case _ =>
+                }
               }
             }
-          }
 
-          if (flag) {
-            showErrorHint(InspectionBundle.message("remove.apply.overloaded",
-              resolved.asInstanceOf[PsiNamedElement].name))
-            return
-          }
+            if (flag) {
+              showErrorHint(InspectionBundle.message("remove.apply.overloaded",
+                namedElement.name))
+              return
+            }
+          case _ =>
         }
 
       case call: ScMethodCall =>
