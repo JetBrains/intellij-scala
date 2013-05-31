@@ -27,7 +27,9 @@ package object sbt {
   implicit class RichFile(file: File) {
     def /(path: String): File = new File(file, path)
 
-    def `<<`: File = file.getParentFile
+    def `<<`: File = << (1)
+
+    def `<<`(level: Int): File = RichFile.parent(file, level)
 
     def path: String = file.getPath
 
@@ -36,14 +38,25 @@ package object sbt {
     def canonicalPath = ExternalSystemApiUtil.toCanonicalPath(file.getAbsolutePath)
   }
 
+  private object RichFile {
+    def parent(file: File, level: Int): File =
+      if (level > 0) parent(file.getParentFile, level - 1) else file
+  }
+
   implicit class RichString(path: String) {
     def toFile: File = new File(path)
   }
 
-  def jarWith[T : ClassTag]: String = {
+  implicit class RichBoolean(val b: Boolean) {
+    def option[A](a: => A): Option[A] = if(b) Some(a) else None
+
+    def either[A, B](right: => B)(left: => A): Either[A, B] = if (b) Right(right) else Left(left)
+  }
+
+  def jarWith[T : ClassTag]: File = {
     val tClass = implicitly[ClassTag[T]].runtimeClass
 
-    Option(PathUtil.getJarPathForClass(tClass)).getOrElse {
+    Option(PathUtil.getJarPathForClass(tClass)).map(new File(_)).getOrElse {
       throw new RuntimeException("Jar file not found for class " + tClass.getName)
     }
   }
