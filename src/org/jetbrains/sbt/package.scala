@@ -2,9 +2,8 @@ package org.jetbrains
 
 import com.intellij.util.{Function => IdeaFunction, PathUtil}
 import com.intellij.openapi.util.{Pair => IdeaPair}
-
 import reflect.ClassTag
-import java.io.File
+import java.io._
 import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil
 import java.lang.{Boolean => JavaBoolean}
 
@@ -59,5 +58,66 @@ package object sbt {
     Option(PathUtil.getJarPathForClass(tClass)).map(new File(_)).getOrElse {
       throw new RuntimeException("Jar file not found for class " + tClass.getName)
     }
+  }
+
+  type Closeable = {
+    def close()
+  }
+
+  def using[A <: Closeable, B](resource: A)(block: A => B): B = {
+    try {
+      block(resource)
+    } finally {
+      resource.close()
+    }
+  }
+
+  def writeLinesTo(file: File, lines: String*) {
+    using(new PrintWriter(new FileWriter(file))) { writer =>
+      lines.foreach(writer.println(_))
+      writer.flush()
+    }
+  }
+
+  def copy(source: File, destination: File) {
+    using(new BufferedInputStream(new FileInputStream(source))) { in =>
+      using(new BufferedOutputStream(new FileOutputStream(destination))) { out =>
+        var eof = false
+        while (!eof) {
+          val b = in.read()
+          if (b == -1) eof = true else out.write(b)
+        }
+        out.flush()
+      }
+    }
+  }
+
+  def usingTempFile[T](prefix: String, suffix: String)(block: File => T): T = {
+    val file = File.createTempFile(prefix, suffix)
+    file.deleteOnExit()
+    try {
+      block(file)
+    } finally {
+      file.delete()
+    }
+  }
+
+  def usingSafeCopyOf[T](file: File)(block: File => T): T = {
+    if (file.getPath.contains(" ")) {
+      val (prefix, suffix) = parse(file.getName)
+      usingTempFile(prefix, suffix) { tempFile =>
+        copy(file, tempFile)
+        block(tempFile)
+      }
+    } else {
+      block(file)
+    }
+  }
+
+  private val NameWithExtension = """(.+)(\..+?)""".r
+
+  private def parse(fileName: String): (String, String) = fileName match {
+    case NameWithExtension(name, extension) => (name, extension)
+    case name => (name, "")
   }
 }
