@@ -16,7 +16,6 @@ object PluginRunner {
   private val SbtLauncher = LauncherDir / "sbt-launch.jar"
   private val SbtPlugin = LauncherDir / "sbt-structure.jar"
   private val JavaOpts = Option(System.getenv("JAVA_OPTS")).map(_.split("\\s+")).toSeq.flatten
-  private val OS = System.getProperty("os.name")
 
   def read(directory: File)(listener: (String) => Unit): Either[Exception, Elem] = {
     val problem = Stream(JavaHome, SbtLauncher, SbtPlugin).map(check).flatten.headOption
@@ -25,27 +24,42 @@ object PluginRunner {
 
   private def check(file: File) = (!file.exists()).option(s"File does not exist: $file")
 
+  /* It's rather tricky to launch the SBT plugin from a command line.
+
+     There're various OS/JRE-dependent issues with quotes
+     see (https://www.google.ru/search?q=processbuilder+quotes),
+     so we have to use a temporary files to pass commands to SBT.
+
+     Another problem is that the SBT's "apply" command is unable
+     to correctly parse classpath entries with spaces,
+     so we have to use a "safe" copy of the plugin JAR. */
   private def read0(directory: File, listener: (String) => Unit) = {
-    val tempFile = File.createTempFile("sbt-structure", ".xml")
-    tempFile.deleteOnExit()
+    usingTempFile("sbt-structure", ".xml") { structureFile =>
+      usingTempFile("sbt-commands", ".lst") { commandsFile =>
+        usingSafeCopyOf(SbtPlugin) { pluginFile =>
 
-    val commands = {
-      val vmOptions = "-Djline.terminal=jline.UnsupportedTerminal" +: "-Dsbt.log.noformat=true" +: JavaOpts
-      val tempPath =  canonicalPath(tempFile)
-      val quote = if (OS.startsWith("Windows")) "\\\"" else "\""
+          writeLinesTo(commandsFile,
+            s"set artifactPath := new File(\042${path(structureFile)}\042)",
+            s"apply -cp ${path(pluginFile)} org.jetbrains.sbt.Plugin")
 
-      JavaVM.getPath +: vmOptions :+ "-jar" :+ SbtLauncher.getPath :+
-        s"; set artifactPath := new File($quote$tempPath$quote) ; apply -cp $SbtPlugin org.jetbrains.sbt.Plugin"
-    }
+          val processCommands =
+            path(JavaVM) +:
+              "-Djline.terminal=jline.UnsupportedTerminal" +:
+              "-Dsbt.log.noformat=true" +:
+              JavaOpts :+
+              "-jar" :+
+              path(SbtLauncher) :+
+              s"< ${path(commandsFile)}"
 
-    try {
-      val process = Runtime.getRuntime.exec(commands.toArray, null, directory)
-      val errors = handle(process, listener).map(new SbtException(_))
-      errors.toLeft(XML.load(tempFile.toURI.toURL))
-    } catch {
-      case e: Exception => Left(e)
-    } finally {
-      tempFile.delete()
+          try {
+            val process = Runtime.getRuntime.exec(processCommands.toArray, null, directory)
+            val errors = handle(process, listener).map(new SbtException(_))
+            errors.toLeft(XML.load(structureFile.toURI.toURL))
+          } catch {
+            case e: Exception => Left(e)
+          }
+        }
+      }
     }
   }
 
@@ -78,5 +92,5 @@ object PluginRunner {
     if (errors.isEmpty) None else Some(errors.toString())
   }
 
-  private def canonicalPath(file: File): String = file.getAbsolutePath.replace('\\', '/')
+  private def path(file: File): String = file.getAbsolutePath.replace('\\', '/')
 }
