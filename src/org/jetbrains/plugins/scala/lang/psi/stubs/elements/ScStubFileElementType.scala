@@ -5,12 +5,11 @@ package stubs
 package elements
 import api.ScalaFile
 import com.intellij.lang.Language
-import com.intellij.psi.stubs.{StubElement, IndexSink, StubOutputStream, StubInputStream}
-import com.intellij.psi.tree.IStubFileElementType
-import com.intellij.util.io.StringRef
+import com.intellij.psi.stubs.{IndexSink, StubOutputStream, StubInputStream}
 import decompiler.DecompilerUtil
-import impl.ScFileStubImpl
 import wrappers.IStubFileElementWrapper
+import com.intellij.psi.StubBuilder
+import org.jetbrains.plugins.scala.lang.psi.stubs.util.ScalaStubsUtil
 
 /**
  * @author ilyas
@@ -20,23 +19,16 @@ class ScStubFileElementType(lang: Language) extends IStubFileElementWrapper[Scal
 
   override def getStubVersion: Int = StubVersion.STUB_VERSION
 
-  override def getBuilder = new ScalaFileStubBuilder()
+  override def getBuilder: StubBuilder = new ScalaFileStubBuilder()
 
   override def getExternalId = "scala.FILE"
 
   override def deserializeImpl(dataStream: StubInputStream, parentStub: Object): ScFileStub = {
-    val script = dataStream.readBoolean
-    val compiled = dataStream.readBoolean
-    val packName = dataStream.readName
-    val fileName = dataStream.readName
-    new ScFileStubImpl(null, packName, fileName, compiled, script)
+    ScalaStubsUtil.deserializeFileStubElement(dataStream, parentStub)
   }
 
   override def serialize(stub: ScFileStub, dataStream: StubOutputStream): Unit = {
-    dataStream.writeBoolean(stub.isScript)
-    dataStream.writeBoolean(stub.isCompiled)
-    dataStream.writeName(stub.packageName)
-    dataStream.writeName(stub.getFileName)
+    ScalaStubsUtil.serializeFileStubElement(stub, dataStream)
   }
 
   def indexStub(stub: ScFileStub, sink: IndexSink){

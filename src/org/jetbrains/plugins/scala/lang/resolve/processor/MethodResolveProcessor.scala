@@ -5,7 +5,7 @@ package processor
 
 import psi.api.statements._
 import com.intellij.psi._
-import params.{ScClassParameter, ScTypeParam}
+import params.ScTypeParam
 import psi.types._
 import nonvalue.TypeParameter
 import psi.api.base.types.ScTypeElement
@@ -23,7 +23,6 @@ import psi.api.base.{ScMethodLike, ScPrimaryConstructor}
 import psi.api.toplevel.{ScTypeParametersOwner, ScTypedDefinition}
 import extensions._
 import psi.types.Compatibility.{ConformanceExtResult, Expression}
-import psi.api.base.patterns.ScBindingPattern
 
 //todo: remove all argumentClauses, we need just one of them
 class MethodResolveProcessor(override val ref: PsiElement,
@@ -53,7 +52,7 @@ class MethodResolveProcessor(override val ref: PsiElement,
     def implicitConversionClass: Option[PsiClass] = state.get(ScImplicitlyConvertible.IMPLICIT_RESOLUTION_KEY).toOption
     def implFunction: Option[PsiNamedElement] = state.get(CachesUtil.IMPLICIT_FUNCTION).toOption
     def implType: Option[ScType] = state.get(CachesUtil.IMPLICIT_TYPE).toOption
-    def isNamedParameter: Boolean = state.get(CachesUtil.NAMED_PARAM_KEY).toOption.map(_.booleanValue).getOrElse(false)
+    def isNamedParameter: Boolean = state.get(CachesUtil.NAMED_PARAM_KEY).toOption.exists(_.booleanValue)
     def fromType: Option[ScType] = state.get(BaseProcessor.FROM_TYPE_KEY).toOption
     def nameShadow: Option[String] = Option(state.get(ResolverEnv.nameKey))
     def forwardReference: Boolean = isForwardReference(state)
@@ -223,8 +222,10 @@ object MethodResolveProcessor {
       case fun: ScTypeParametersOwner if (typeArgElements.length == 0 ||
               typeArgElements.length == fun.typeParameters.length) && argumentClauses.length == 0 &&
               fun.isInstanceOf[PsiNamedElement] => {
-        if (fun.isInstanceOf[ScFunction] && fun.asInstanceOf[ScFunction].isConstructor)
-          return ConformanceExtResult(Seq(new ApplicabilityProblem("1")))
+        fun match {
+          case function: ScFunction if function.isConstructor => return ConformanceExtResult(Seq(new ApplicabilityProblem("1")))
+          case _ =>
+        }
         checkFunction(fun.asInstanceOf[PsiNamedElement])
       }
       case fun: PsiTypeParameterListOwner if (typeArgElements.length == 0 ||

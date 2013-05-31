@@ -32,7 +32,7 @@ abstract class LibraryData(protected val delegate: Library, name: String,
     if(version.isEmpty) 
       return Some("unable to read %s version".format(jar.get.getName))
     
-    if(!jar.map(exists(_, marker)).getOrElse(false)) 
+    if(!jar.exists(exists(_, marker)))
       return Some("no %s classes found in %s".format(name, jar.get.getName))
     
     None

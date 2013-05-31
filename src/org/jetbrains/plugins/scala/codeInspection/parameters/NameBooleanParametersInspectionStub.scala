@@ -20,13 +20,16 @@ import java.awt._
 import javax.swing.event.{ChangeListener, ChangeEvent}
 import scala.Some
 import lang.psi.api.statements.ScFunction
+import com.intellij.ide.util.PropertiesComponent
+import org.jdom.Element
+import com.intellij.codeInspection.ui.SingleCheckboxOptionsPanel
 
 /**
  * @author Ksenia.Sautina
  * @since 5/10/12
  */
 
-class NameBooleanParametersInspection extends LocalInspectionTool {
+abstract class NameBooleanParametersInspectionStub extends LocalInspectionTool {
 
   override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor = {
     new ScalaElementVisitor {
@@ -37,20 +40,22 @@ class NameBooleanParametersInspection extends LocalInspectionTool {
             case fun: ScFunction =>
               //todo
               if (fun.name.startsWith("set") && mc.args.exprs.size == 1 && isBooleanType(mc.args.exprs(0)) &&
-                IGNORE_SETTERS) return
+                      getIgnoreSetters) return
             case _ =>
           }
           case _ =>
         }
         for (expr <- mc.args.exprs) {
-          if (expr.isInstanceOf[ScLiteral] && isBooleanType(expr) &&
-                  IntentionUtils.check(expr.asInstanceOf[ScLiteral], true).isDefined &&
-                  (expr.getNode.getFirstChildNode.getElementType == ScalaTokenTypes.kTRUE ||
-                          expr.getNode.getFirstChildNode.getElementType == ScalaTokenTypes.kFALSE)) {
-            holder.registerProblem(holder.getManager.createProblemDescriptor(expr,
-              InspectionBundle.message("name.boolean"),
-              new NameBooleanParametersQuickFix(mc, expr.asInstanceOf[ScLiteral]),
-              ProblemHighlightType.GENERIC_ERROR_OR_WARNING, isOnTheFly))
+          expr match {
+            case literal: ScLiteral if isBooleanType(expr) &&
+                    IntentionUtils.check(literal, onlyBoolean = true).isDefined &&
+                    (expr.getNode.getFirstChildNode.getElementType == ScalaTokenTypes.kTRUE ||
+                    expr.getNode.getFirstChildNode.getElementType == ScalaTokenTypes.kFALSE) =>
+              holder.registerProblem(holder.getManager.createProblemDescriptor(expr,
+                InspectionBundle.message("name.boolean"),
+                new NameBooleanParametersQuickFix(mc, literal),
+                ProblemHighlightType.GENERIC_ERROR_OR_WARNING, isOnTheFly))
+            case _ =>
           }
         }
       }
@@ -88,22 +93,11 @@ class NameBooleanParametersInspection extends LocalInspectionTool {
     }
   }
 
-  override def createOptionsPanel: JComponent = {
-    val ignoreSettersCheckbox = new JCheckBox(InspectionBundle.message("name.boolean.ignore.setters"))
-    ignoreSettersCheckbox.setSelected(IGNORE_SETTERS)
-    ignoreSettersCheckbox.getModel.addChangeListener(new ChangeListener {
-      def stateChanged(e: ChangeEvent) {
-        IGNORE_SETTERS = ignoreSettersCheckbox.isSelected
-      }
-    })
-    val panel: JPanel = new JPanel(new FlowLayout(FlowLayout.LEFT))
-    panel.add(ignoreSettersCheckbox)
-    panel
-  }
+  def getIgnoreSetters: Boolean
+  def setIgnoreSetters(value: Boolean)
 
-  var IGNORE_SETTERS: Boolean = true
 }
 
-object NameBooleanParametersInspection {
+object NameBooleanParametersInspectionStub {
   private val LOG = Logger.getInstance(getClass)
 }

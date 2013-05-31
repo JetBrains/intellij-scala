@@ -40,21 +40,24 @@ class ScalaI18nMessageGotoDeclarationHandler extends GotoDeclarationHandlerBase 
     if (element.isInstanceOf[ScLiteral]) {
       return resolve(element)
     }
-    if (element.isInstanceOf[ScMethodCall]) {
-      val methodCall: ScMethodCall = element.asInstanceOf[ScMethodCall]
-      var foldRegion: FoldRegion = null
-      for (region <- editor.getFoldingModel.getAllFoldRegions) {
-        val psiElement: PsiElement = EditorFoldingInfo.get(editor).getPsiElement(region)
-        if (methodCall == psiElement) {
-          foldRegion = region
+    element match {
+      case methodCall: ScMethodCall =>
+        var foldRegion: FoldRegion = null
+        for (region <- editor.getFoldingModel.getAllFoldRegions) {
+          val psiElement: PsiElement = EditorFoldingInfo.get(editor).getPsiElement(region)
+          if (methodCall == psiElement) {
+            foldRegion = region
+          }
         }
-      }
-      if (foldRegion == null || foldRegion.isExpanded) return null
-      for (expression <- methodCall.args.exprsArray) {
-        if (expression.isInstanceOf[ScLiteral] && ScalaI18nUtil.isI18nProperty(expression.getProject, expression.asInstanceOf[ScLiteral])) {
-          return resolve(expression)
+        if (foldRegion == null || foldRegion.isExpanded) return null
+        for (expression <- methodCall.args.exprsArray) {
+          expression match {
+            case literal: ScLiteral if ScalaI18nUtil.isI18nProperty(expression.getProject, literal) =>
+              return resolve(expression)
+            case _ =>
+          }
         }
-      }
+      case _ =>
     }
     null
   }

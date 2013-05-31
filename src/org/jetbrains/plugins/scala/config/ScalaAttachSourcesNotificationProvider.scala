@@ -65,7 +65,7 @@ class ScalaAttachSourcesNotificationProvider(myProject: Project, notifications: 
             actions.add(action)
           }
         } else {
-          if (!(action.isInstanceOf[AttachSourcesProvider.LightAttachSourcesAction])) {
+          if (!action.isInstanceOf[AttachSourcesProvider.LightAttachSourcesAction]) {
             actions.clear()
             hasNonLightAction = true
           }
@@ -114,8 +114,10 @@ class ScalaAttachSourcesNotificationProvider(myProject: Project, notifications: 
     val entries: util.List[OrderEntry] = ProjectRootManager.getInstance(myProject).getFileIndex.getOrderEntriesForFile(file)
     import scala.collection.JavaConversions._
     for (entry <- entries) {
-      if (entry.isInstanceOf[LibraryOrderEntry]) {
-        libs.add(entry.asInstanceOf[LibraryOrderEntry])
+      entry match {
+        case entry: LibraryOrderEntry =>
+          libs.add(entry)
+        case _ =>
       }
     }
     if (libs.isEmpty) null else libs

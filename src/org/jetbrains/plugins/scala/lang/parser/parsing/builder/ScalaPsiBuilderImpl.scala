@@ -2,12 +2,8 @@ package org.jetbrains.plugins.scala.lang.parser.parsing.builder
 
 import com.intellij.lang.PsiBuilder
 import collection.mutable.Stack
-import com.intellij.psi.tree.IElementType
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.scaladoc.parser.ScalaDocElementTypes
 import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 import com.intellij.lang.impl.PsiBuilderAdapter
-import scala.annotation.tailrec
 import com.intellij.openapi.util.text.StringUtil
 import org.jetbrains.plugins.scala.lang.TokenSets
 
@@ -42,7 +38,7 @@ class ScalaPsiBuilderImpl(builder: PsiBuilder)
     val textBefore = getOriginalText.subSequence(rawTokenTypeStart(-i + 1), rawTokenTypeStart(0)).toString
     if (!textBefore.contains('\n')) return 0
     val lines = s"start $textBefore end".split('\n')
-    if (lines.find(_.forall(StringUtil.isWhiteSpace)).isDefined) 2
+    if (lines.exists(_.forall(StringUtil.isWhiteSpace))) 2
     else 1
   }
 

@@ -75,9 +75,9 @@ object ScalaCompletionUtil {
     if (braceArgs) text.append("case ")
     val paramNamesWithTypes = new ArrayBuffer[(String, ScType)]
     def contains(name: String): Boolean = {
-      paramNamesWithTypes.find {
+      paramNamesWithTypes.exists{
         case (s, _) => s == name
-      } != None
+      }
     }
     for (param <- params) {
       val names = NameSuggester.suggestNamesByType(param)

@@ -27,13 +27,13 @@ trait AnnotatorPart[T <: ScalaPsiElement] {
 
   protected def isMixable(entity: PsiClass) = entity match {
     case _: ScTrait => true
-    case c: PsiClass if c.isInterface => true && !c.isAnnotationType
+    case c: PsiClass if c.isInterface => !c.isAnnotationType
     case _ => false
   }
 
   protected def isAbstract(entity: PsiClass) = entity match {
     case _: ScTrait => true
-    case c: PsiClass if c.isInterface => true && !c.isAnnotationType
+    case c: PsiClass if c.isInterface => !c.isAnnotationType
     case c: PsiClass if c.hasAbstractModifier => true
     case _ => false
   }

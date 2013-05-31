@@ -96,7 +96,7 @@ object DebuggerUtil {
         }
       case t@ScTupleType(components) =>
         t.resolveTupleTrait match {
-          case Some(t) => getJVMQualifiedName(t)
+          case Some(scType) => getJVMQualifiedName(scType)
           case None => JVMNameUtil.getJVMRawText("scala.Tuple" + components.length)
         }
       case JavaArrayType(arg) =>
@@ -104,8 +104,7 @@ object DebuggerUtil {
         buff.append(getJVMQualifiedName(arg))
         buff.append("[]")
         buff.toName
-      case ScParameterizedType(arr, Seq(arg)) if ScType.extractClass(arr).map(_.qualifiedName == "scala.Array").
-        getOrElse(false) =>
+      case ScParameterizedType(arr, Seq(arg)) if ScType.extractClass(arr).exists(_.qualifiedName == "scala.Array") =>
         val buff = new JVMNameBuffer()
         buff.append(getJVMQualifiedName(arg))
         buff.append("[]")
@@ -163,7 +162,7 @@ object DebuggerUtil {
       if (!param.isRepeatedParameter) {
         getJVMStringForType(subst.subst(param.getType(TypingContext.empty).getOrAny))
       } else "Lscala/collection/Seq;").mkString("(", ",", ")") +
-      (if (!function.isConstructor) getJVMStringForType(subst.subst(function.returnType.getOrAny), false) else "V")
+      (if (!function.isConstructor) getJVMStringForType(subst.subst(function.returnType.getOrAny), isParam = false) else "V")
     JVMNameUtil.getJVMRawText(sign)
   }
 

@@ -141,7 +141,7 @@ class ScObjectImpl extends ScTypeDefinitionImpl with ScObject with ScTemplateDef
     })(PsiModificationTracker.OUT_OF_CODE_BLOCK_MODIFICATION_COUNT))
   }
 
-  private def objectSyntheticMembersImpl: Seq[PsiMethod] = {
+  protected def objectSyntheticMembersImpl: Seq[PsiMethod] = {
     if (isSyntheticObject) return Seq.empty
     ScalaPsiUtil.getCompanionModule(this) match {
       case Some(c: ScClass) if c.isCase =>

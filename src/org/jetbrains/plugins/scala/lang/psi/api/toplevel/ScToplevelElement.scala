@@ -61,7 +61,10 @@ trait ScToplevelElement extends ScalaPsiElement {
       val buffer = new ArrayBuffer[ScPackaging]
       var curr = getFirstChild
       while (curr != null) {
-        if (curr.isInstanceOf[ScPackaging]) buffer += curr.asInstanceOf[ScPackaging]
+        curr match {
+          case packaging: ScPackaging => buffer += packaging
+          case _ =>
+        }
         curr = curr.getNextSibling
       }
       buffer.toSeq

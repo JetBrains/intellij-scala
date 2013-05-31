@@ -52,17 +52,19 @@ class RenameScalaValsProcessor extends RenameJavaMemberProcessor {
             val newBeanName = prefix + StringUtil.capitalize(newName)
             allRenames.put(method, newBeanName)
           }
-          if (t.nameContext.isInstanceOf[ScMember] && t.nameContext.asInstanceOf[ScMember].containingClass != null) {
-            Seq(GETTER, SETTER, IS_GETTER).foreach(
-              r => {
-                val wrapper = t.getTypedDefinitionWrapper(false, false, r, None)
-                val name = wrapper.getName
-                val is = name.startsWith("is")
-                val prefix = if (is) "is" else name.substring(0, 3)
-                val newBeanName = prefix + StringUtil.capitalize(newName)
-                allRenames.put(wrapper, newBeanName)
-              }
-            )
+          t.nameContext match {
+            case member: ScMember if member.containingClass != null =>
+              Seq(GETTER, SETTER, IS_GETTER).foreach(
+                r => {
+                  val wrapper = t.getTypedDefinitionWrapper(isStatic = false, isInterface = false, r, None)
+                  val name = wrapper.getName
+                  val is = name.startsWith("is")
+                  val prefix = if (is) "is" else name.substring(0, 3)
+                  val newBeanName = prefix + StringUtil.capitalize(newName)
+                  allRenames.put(wrapper, newBeanName)
+                }
+              )
+            case _ =>
           }
         case _ =>
       }

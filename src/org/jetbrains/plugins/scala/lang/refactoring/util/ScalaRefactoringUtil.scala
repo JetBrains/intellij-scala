@@ -211,15 +211,16 @@ object ScalaRefactoringUtil {
 
   private val comparator = new Comparator[PsiElement]() {
     def compare(element1: PsiElement, element2: PsiElement): Int = {
-      if (element1 == element2) return 0
-      if (element1.isInstanceOf[ScParameter] && element2.isInstanceOf[ScParameter]) {
-        val name1 = element1.asInstanceOf[ScParameter].name
-        val name2 = element2.asInstanceOf[ScParameter].name
-        if (name1 != null && name2 != null) {
-          return name1.compareTo(name2)
-        }
+      (element1, element2) match {
+        case _ if element1 == element2 => 0
+        case (par1: ScParameter, par2: ScParameter) =>
+          val name1 = par1.name
+          val name2 = par2.name
+          if (name1 != null && name2 != null) name1 compareTo name2
+          else 1
+        case _ => 1
+
       }
-      1
     }
   }
 
@@ -250,7 +251,6 @@ object ScalaRefactoringUtil {
     list.setCellRenderer(new DefaultListCellRenderer {
       override def getListCellRendererComponent(list: JList, value: Object, index: Int, isSelected: Boolean, cellHasFocus: Boolean): Component = {
         val rendererComponent: Component = super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus)
-        val buf: StringBuffer = new StringBuffer
         val element: T = value.asInstanceOf[T]
         if (element.isValid) {
           setText(elementName(element))

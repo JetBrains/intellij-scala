@@ -137,7 +137,7 @@ trait ApplicationAnnotator {
     }
     val refElementOpt = qualifier.flatMap(_.asOptionOf[ScReferenceElement])
     val ref: Option[PsiElement] = refElementOpt.flatMap(_.resolve().toOption)
-    val reassignment = ref.find(ScalaPsiUtil.isReadonly).isDefined
+    val reassignment = ref.exists(ScalaPsiUtil.isReadonly)
     if (reassignment) {
       val annotation = holder.createErrorAnnotation(reference, "Reassignment to val")
       ref.get match {

@@ -46,17 +46,13 @@ class MergeIfToOrIntention extends PsiElementBaseIntentionAction {
 
     val comparator = new util.Comparator[PsiElement]() {
       def compare(element1: PsiElement, element2: PsiElement): Int = {
-        if (element1 == element2) return 0
-        if (element1.isInstanceOf[ScBlockExpr] && element2.isInstanceOf[ScBlockExpr]) {
-          val size1 = element1.asInstanceOf[ScBlockExpr].exprs.size
-          val size2 = element2.asInstanceOf[ScBlockExpr].exprs.size
-          if (size1 != size2) return 1
-          if (element1.asInstanceOf[ScBlockExpr] == element2.asInstanceOf[ScBlockExpr]) return 0
+        (element1, element2) match {
+          case _ if element1 == element2 =>  0
+          case (block1: ScBlockExpr, block2: ScBlockExpr) if block1.exprs.size != block2.exprs.size => 1
+          case (block1: ScBlockExpr, block2: ScBlockExpr) if block1 == block2 => 0
+          case (expr1: ScExpression, expr2: ScExpression) if expr1 == expr2 => 0
+          case _ => 1
         }
-        if (element1.isInstanceOf[ScExpression] && element2.isInstanceOf[ScExpression]) {
-          if (element1.asInstanceOf[ScExpression] == element2.asInstanceOf[ScExpression]) return 0
-        }
-        1
       }
     }
 

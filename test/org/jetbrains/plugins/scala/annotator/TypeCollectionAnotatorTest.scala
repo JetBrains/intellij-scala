@@ -28,7 +28,10 @@ class TypeCollectionAnotatorTest extends ScalaLightPlatformCodeInsightTestCaseAd
     configureFromFileTextAdapter("dummy.scala", text.replace("\r", ""))
 
     getFileAdapter.asInstanceOf[ScalaFile].breadthFirst.foreach { a =>
-      if (a.isInstanceOf[ScReferenceElement]) AnnotatorHighlighter.highlightReferenceElement(a.asInstanceOf[ScReferenceElement], holder)
+      a match {
+        case refElement: ScReferenceElement => AnnotatorHighlighter.highlightReferenceElement(refElement, holder)
+        case _ =>
+      }
     }
   }
 

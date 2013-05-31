@@ -352,9 +352,10 @@ object ScalaOIUtil {
               var flag = false
               for (signe <- clazz.allMethods if signe.method.containingClass == clazz) {
                 //containingClass == clazz so we sure that this is ScFunction (it is safe cast)
-                if (signe.method.isInstanceOf[ScFunction] &&
-                        signe.method.asInstanceOf[ScFunction].parameters.length == 0 &&
-                        x.declaredElements.exists(_.name == signe.method.name)) flag = true
+                signe.method match {
+                  case function: ScFunction if function.parameters.length == 0 && x.declaredElements.exists(_.name == signe.method.name) => flag = true
+                  case _ =>
+                }
               }
               for (pair <- clazz.allVals; v = pair._1) if (v.name == name.name) {
                 ScalaPsiUtil.nameContext(v) match {

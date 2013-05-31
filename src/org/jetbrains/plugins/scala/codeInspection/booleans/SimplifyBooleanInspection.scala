@@ -21,8 +21,8 @@ import scala.Some
 class SimplifyBooleanInspection extends AbstractInspection("SimplifyBoolean", "Simplify boolean expression"){
 
   def actionFor(holder: ProblemsHolder): PartialFunction[PsiElement, Any] = {
-    case parenthesized: ScParenthesisedExpr => //do nothing to avoid many similar expressions
-    case expr: ScExpression if (SimplifyBooleanUtil.canBeSimplified(expr)) =>
+    case _: ScParenthesisedExpr => //do nothing to avoid many similar expressions
+    case expr: ScExpression if SimplifyBooleanUtil.canBeSimplified(expr) =>
         holder.registerProblem(expr, "Simplify boolean expression", ProblemHighlightType.GENERIC_ERROR_OR_WARNING, new SimplifyBooleanQuickFix(expr))
   }
 
@@ -48,11 +48,13 @@ object SimplifyBooleanUtil {
       case expression: ScExpression =>
         val children = getScExprChildren(expr)
         val isBooleanOperation = expression match {
-          case prExpr: ScPrefixExpr => prExpr.operation.refName == "!"
-          case infExpr: ScInfixExpr => boolInfixOperations contains infExpr.operation.refName
+          case ScPrefixExpr(operation, operand) => operation.refName == "!" && isOfBooleanType(operand)
+          case ScInfixExpr(left, oper, right) =>
+            boolInfixOperations.contains(oper.refName) &&
+                    isOfBooleanType(left) && isOfBooleanType(right)
           case _ => false
         }
-        isOfBooleanType(expr) && isBooleanOperation && children.exists(canBeSimplified(_, isTopLevel = false))
+        isBooleanOperation && isOfBooleanType(expr) && children.exists(canBeSimplified(_, isTopLevel = false))
     }
   }
 
@@ -63,9 +65,9 @@ object SimplifyBooleanUtil {
     simplifyTrivially(exprCopy)
   }
 
-  private def isOfBooleanType(expr: ScExpression): Boolean = expr.getType(TypingContext.empty).getOrAny.equiv(lang.psi.types.Boolean)
+  private def isOfBooleanType(expr: ScExpression): Boolean = expr.getType(TypingContext.empty).getOrAny.conforms(lang.psi.types.Boolean, checkWeak = true)
 
-  private def getScExprChildren(expr: ScExpression) = expr.children.filter(_.isInstanceOf[ScExpression]).map(_.asInstanceOf[ScExpression]).toList
+  private def getScExprChildren(expr: ScExpression) =  expr.children.collect { case expr: ScExpression => expr }.toList
 
   private def booleanConst(expr: ScExpression): Option[Boolean] = expr match {
     case literal: ScLiteral =>
@@ -81,26 +83,24 @@ object SimplifyBooleanUtil {
     case parenthesized: ScParenthesisedExpr =>
       val copy = parenthesized.copy.asInstanceOf[ScParenthesisedExpr]
       copy.replaceExpression(copy.expr.getOrElse(copy), removeParenthesis = true)
-    case prefixExpr: ScPrefixExpr =>
-      if (prefixExpr.operation.refName != "!") prefixExpr
+    case ScPrefixExpr(operation, operand) =>
+      if (operation.refName != "!") expr
       else {
-        booleanConst(prefixExpr.operand) match {
+        booleanConst(operand) match {
           case Some(bool: Boolean) =>
             ScalaPsiElementFactory.createExpressionFromText((!bool).toString, expr.getManager)
-          case None => prefixExpr
+          case None => expr
         }
       }
-    case infixExpr: ScInfixExpr =>
-      val oper = infixExpr.operation.refName
-      if (!boolInfixOperations.contains(oper)) infixExpr
+    case ScInfixExpr(leftExpr, operation, rightExpr) =>
+      val operName = operation.refName
+      if (!boolInfixOperations.contains(operName)) expr
       else {
-        val leftExpr: ScExpression = infixExpr.lOp
-        val rightExpr: ScExpression = infixExpr.rOp
         booleanConst(leftExpr) match {
-          case Some(bool: Boolean) => simplifyInfixWithLiteral(bool, oper, rightExpr)
+          case Some(bool: Boolean) => simplifyInfixWithLiteral(bool, operName, rightExpr)
           case None => booleanConst(rightExpr) match {
-            case Some(bool: Boolean) => simplifyInfixWithLiteral(bool, oper, leftExpr)
-            case None => infixExpr
+            case Some(bool: Boolean) => simplifyInfixWithLiteral(bool, operName, leftExpr)
+            case None => expr
           }
         }
       }

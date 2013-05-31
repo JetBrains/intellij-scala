@@ -25,3 +25,7 @@ trait ScPrefixExpr extends ScExpression with MethodInvocation with ScSugarCallEx
 
   def getBaseExpr: ScExpression = operand
 }
+
+object ScPrefixExpr {
+  def unapply(e: ScPrefixExpr) = Some(e.operation, e.operand)
+}

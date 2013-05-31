@@ -41,7 +41,10 @@ class ScTypeParamClauseImpl extends ScalaStubBasedElementImpl[ScTypeParamClause]
       val buffer = new ArrayBuffer[ScTypeParam]
       var curr = getFirstChild
       while (curr != null) {
-        if (curr.isInstanceOf[ScTypeParam]) buffer += curr.asInstanceOf[ScTypeParam]
+        curr match {
+          case param: ScTypeParam => buffer += param
+          case _ =>
+        }
         curr = curr.getNextSibling
       }
       buffer.toSeq

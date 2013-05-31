@@ -22,13 +22,15 @@ class WorksheetFoldingBuilder extends FoldingBuilder {
 
   def getPlaceholderText(node: ASTNode): String = {
     val element: PsiElement = SourceTreeToPsiMap.treeElementToPsi(node)
-    if (element.isInstanceOf[PsiComment]) {
-      val text = element.asInstanceOf[PsiComment].getText
-      if (text.startsWith(WorksheetFoldingBuilder.FIRST_LINE_PREFIX)) {
-        return WorksheetFoldingBuilder.FIRST_LINE_PREFIX
-      } else if (text.startsWith(WorksheetFoldingBuilder.LINE_PREFIX)) {
-        return WorksheetFoldingBuilder.LINE_PREFIX
-      }
+    element match {
+      case comment: PsiComment =>
+        val text = comment.getText
+        if (text.startsWith(WorksheetFoldingBuilder.FIRST_LINE_PREFIX)) {
+          return WorksheetFoldingBuilder.FIRST_LINE_PREFIX
+        } else if (text.startsWith(WorksheetFoldingBuilder.LINE_PREFIX)) {
+          return WorksheetFoldingBuilder.LINE_PREFIX
+        }
+      case _ =>
     }
     "/../"
   }

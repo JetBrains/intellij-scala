@@ -20,6 +20,7 @@ import psi.impl.ScalaPsiManager
 import extensions.toPsiNamedElementExt
 import com.intellij.openapi.application.ApplicationManager
 import org.jetbrains.annotations.TestOnly
+import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiParameter
 
 /**
  * @author ven
@@ -186,7 +187,7 @@ object Compatibility {
         }
         case Expression(assign@NamedAssignStmt(name)) => {
           val ind = parameters.indexWhere(p => ScalaPsiUtil.memberNamesEquals(p.name, name))
-          if (ind == -1 || used(ind) == true) {
+          if (ind == -1 || used(ind)) {
             def extractExpression(assign: ScAssignStmt): ScExpression = {
               if (ScUnderScoreSectionUtil.isUnderscoreFunction(assign)) assign
               else assign.getRExpression.getOrElse(assign)
@@ -242,7 +243,7 @@ object Compatibility {
           if (!conforms) {
             return ConformanceExtResult(Seq(new ElementApplicabilityProblem(exprs(k).expr, exprType, paramType)), undefSubst, defaultParameterUsed, matched)
           } else {
-            matched ::= ((parameters.last, exprs(k).expr))
+            matched ::= (parameters.last, exprs(k).expr)
             undefSubst += Conformance.undefinedSubst(paramType, exprType, checkWeak = true)
           }
         }
@@ -254,8 +255,8 @@ object Compatibility {
         return ConformanceExtResult(Seq.empty, undefSubst, defaultParameterUsed, matched)
       
       val missed = for ((parameter: Parameter, b) <- parameters.zip(used)
-                        if (!b && !parameter.isDefault)) yield MissedValueParameter(parameter)
-      defaultParameterUsed = parameters.zip(used).find{case (param, bool) => !bool && param.isDefault} != None
+                        if !b && !parameter.isDefault) yield MissedValueParameter(parameter)
+      defaultParameterUsed = parameters.zip(used).exists { case (param, bool) => !bool && param.isDefault}
       if(!missed.isEmpty) return ConformanceExtResult(missed, undefSubst, defaultParameterUsed, matched)
     }
     ConformanceExtResult(Seq.empty, undefSubst, defaultParameterUsed, matched)
@@ -385,8 +386,11 @@ object Compatibility {
 
 
         checkConformanceExt(checkNames = false, parameters = parameters.map {
-          param: PsiParameter => new Parameter("", {
-            val tp = substitutor.subst(ScType.create(param.getType, method.getProject, scope, paramTopLevel = true))
+          case param: PsiParameter => new Parameter("", {
+            val tp = substitutor.subst(param match {
+              case f: FakePsiParameter => f.parameter.paramType
+              case _ => ScType.create(param.getType, method.getProject, scope, paramTopLevel = true)
+            })
             if (param.isVarArgs) tp match {
               case ScParameterizedType(_, args) if args.length == 1 => args(0)
               case JavaArrayType(arg) => arg

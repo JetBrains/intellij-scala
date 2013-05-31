@@ -13,6 +13,7 @@
         <extensionPoint name="scalaUiWithDependency" interface="org.jetbrains.plugins.scala.settings.uiControls.ScalaUiWithDependency"/>
         <extensionPoint name="scalaLanguageDerivative" interface="org.jetbrains.plugins.scala.util.ScalaLanguageDerivative"/>
         <extensionPoint name="memberElementTypesExtension" interface="org.jetbrains.plugins.scala.util.MemberElementTypesExtension"/>
+        <extensionPoint name="scalaElementToRenameContributor" interface="org.jetbrains.plugins.scala.lang.refactoring.rename.ScalaElementToRenameContributor"/>
     </extensionPoints>
 
     <extensions defaultExtensionNs="com.intellij">
@@ -418,6 +419,11 @@
         </intentionAction>
 
         <intentionAction>
+          <category>Scala/Expressions</category>
+          <className>org.jetbrains.plugins.scala.codeInsight.intention.expression.ReplaceTypeCheckWithMatchIntention</className>
+        </intentionAction>
+
+        <intentionAction>
             <category>Scala/Boolean</category>
             <className>org.jetbrains.plugins.scala.codeInsight.intention.booleans.FlipComparisonInInfixExprIntention</className>
         </intentionAction>
@@ -747,6 +753,14 @@
       <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.parentheses.UnnecessaryParenthesesInspection"
                        displayName="Unnecessary parentheses" groupName="Scala: General"
                        shortName="UnnecessaryParentheses" level="WARNING"
+                       enabledByDefault="true" language="Scala"/>
+      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.typeChecking.TypeCheckCanBeMatchInspection"
+                       displayName="Type check can be pattern matching" groupName="Scala: General"
+                       shortName="TypeCheckCanBeMatch" level="WARNING"
+                       enabledByDefault="true" language="Scala"/>
+      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.OperationOnCollectionInspection"
+                       displayName="Simplifiable operation on collection" groupName="Scala: General"
+                       shortName="OperationOnCollection" level="WARNING"
                        enabledByDefault="true" language="Scala"/>
 
         <!--<localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.allErrorsInspection.AnnotatorBasedErrorInspection"

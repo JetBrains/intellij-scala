@@ -21,6 +21,10 @@ class SimplifyBooleanInspectionTest extends ScalaLightCodeInsightFixtureTestAdap
     testQuickFix(text.replace("\r", ""), result.replace("\r", ""), hint, classOf[SimplifyBooleanInspection])
   }
 
+  private def checkHasNoErrors(text: String) {
+    checkTextHasNoErrors(text, annotation, classOf[SimplifyBooleanInspection])
+  }
+
   def test_NotTrue() {
     val selectedText = s"$s!true$e"
     check(selectedText)
@@ -32,40 +36,44 @@ class SimplifyBooleanInspectionTest extends ScalaLightCodeInsightFixtureTestAdap
   }
 
   def test_TrueEqualsA() {
-    val selectedText = s"${s}true == a$e"
+    val selectedText =
+      s"""val a = true
+          |${s}true == a$e""".stripMargin
     check(selectedText)
 
-    val text = "true == a"
-    val result = "a"
+    val text =
+      """val a = true
+        |true == a""".stripMargin
+    val result = """val a = true
+                   |a""".stripMargin
     val hint = "Simplify true == a"
     testFix(text, result, hint)
   }
 
   def test_TrueAndA() {
-    val selectedText = s"(${s}true && a$e)"
+    val selectedText =
+      s"""val a = true
+          |${s}true && a$e""".stripMargin
     check(selectedText)
 
-    val text = "(true && a)"
-    val result = "a"
+    val text =
+       """val a = true
+          |true && a""".stripMargin
+    val result = """val a = true
+                    |a""".stripMargin
     val hint = "Simplify true && a"
     testFix(text, result, hint)
   }
 
   def test_AOrFalse() {
-    val selectedText = s"""
-        |val a = true
-        |${s}a | false$e
-      """.stripMargin
+    val selectedText = s"""val a = true
+                          |${s}a | false$e""".stripMargin
     check(selectedText)
 
-    val text = s"""
-        |val a = true
-        |a | false
-      """.stripMargin
-    val result =  s"""
-        |val a = true
-        |a
-      """.stripMargin
+    val text = """val a = true
+                   |a | false""".stripMargin
+    val result =  """val a = true
+                    |a""".stripMargin
     val hint = "Simplify a | false"
     testFix(text, result, hint)
   }
@@ -79,12 +87,10 @@ class SimplifyBooleanInspectionTest extends ScalaLightCodeInsightFixtureTestAdap
 
     val text = s"""
         |val a = true
-        |true && (a || false)
-      """.stripMargin
-    val result = s"""
+        |true && (a || false)""".stripMargin
+    val result = """
         |val a = true
-        |a
-      """.stripMargin
+        |a""".stripMargin
     val hint = "Simplify true && (a || false)"
     testFix(text, result, hint)
   }
@@ -110,23 +116,45 @@ class SimplifyBooleanInspectionTest extends ScalaLightCodeInsightFixtureTestAdap
   }
 
   def test_TrueNotEqualsA() {
-    val selectedText = s"val flag: Boolean = ${s}true != a$e"
+    val selectedText =  s"""val a = true
+                            |val flag: Boolean = ${s}true != a$e""".stripMargin
     check(selectedText)
 
-    val text = s"val flag: Boolean = true != a"
-    val result = s"val flag: Boolean = !a"
+    val text = s"""val a = true
+                  |val flag: Boolean = true != a""".stripMargin
+    val result = """val a = true
+                    |val flag: Boolean = !a""".stripMargin
     val hint = "Simplify true != a"
     testFix(text, result, hint)
   }
 
   def test_SimplifyInParentheses() {
-    val selectedText = s"!(${s}true != a$e)"
+    val selectedText = s"""val a = true
+                            |!(${s}true != a$e)""".stripMargin
     check(selectedText)
 
-    val text = "!(true != a)"
-    val result = "!(!a)"
+    val text = """val a = true
+                  |!(true != a)""".stripMargin
+    val result = """val a = true
+                   |!(!a)""".stripMargin
     val hint = "Simplify true != a"
     testFix(text, result, hint)
   }
 
+  def test_TrueAsAny() {
+    val text =
+      """
+        |def trueAsAny: Any = {
+        |  true
+        |}
+        |if (trueAsAny == true) {
+        |  println("true")
+        |} else {
+        |  println("false")
+        |}
+        |
+      """.stripMargin.replace("\r", "").trim
+
+    checkHasNoErrors(text)
+  }
 }

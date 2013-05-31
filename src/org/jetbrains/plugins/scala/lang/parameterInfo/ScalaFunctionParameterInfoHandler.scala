@@ -172,7 +172,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                   exprs(k) match {
                     case assign@NamedAssignStmt(name) => {
                       val ind = parameters.indexWhere(param => ScalaPsiUtil.memberNamesEquals(param._1.name, name))
-                      if (ind == -1 || used(ind) == true) {
+                      if (ind == -1 || used(ind)) {
                         doNoNamed(assign)
                       } else {
                         if (k != ind) namedMode = true
@@ -205,7 +205,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                   exprs(k) match {
                     case NamedAssignStmt(name) => {
                       val ind = parameters.indexWhere(param => ScalaPsiUtil.memberNamesEquals(param._1.name, name))
-                      if (ind == -1 || used(ind) == true) {
+                      if (ind == -1 || used(ind)) {
                         appendFirst()
                       } else {
                         if (k != ind) namedMode = true
