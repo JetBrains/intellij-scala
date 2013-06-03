@@ -9,6 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import com.intellij.openapi.project.Project
 import scala.annotation.tailrec
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil.getShortText
 
 /**
  * Nikolay.Tropin
@@ -25,7 +26,7 @@ class UnnecessaryParenthesesInspection extends AbstractInspection("UnnecessaryPa
 }
 
 class UnnecessaryParenthesesQuickFix(parenthesized: ScParenthesisedExpr)
-        extends AbstractFix("Remove unnecessary parentheses " + parenthesized.getText, parenthesized){
+        extends AbstractFix("Remove unnecessary parentheses " + getShortText(parenthesized), parenthesized){
 
   def doApplyFix(project: Project, descriptor: ProblemDescriptor) {
     if (!parenthesized.isValid) return
