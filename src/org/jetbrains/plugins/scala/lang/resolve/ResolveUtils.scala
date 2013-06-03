@@ -92,15 +92,20 @@ object ResolveUtils {
       case (_, None) => s.subst(ScType.create(m.getReturnType, m.getProject, scope))
       case (_, Some(x)) => x
     }
-    new ScMethodType(retType, m.getParameterList.getParameters.toSeq.mapWithIndex {
-      case (param, index) => {
-        var psiType = param.getType
-        if (param.isVarArgs && psiType.isInstanceOf[PsiArrayType]) {
-          psiType = psiType.asInstanceOf[PsiArrayType].getComponentType
-        }
-        new Parameter("", s.subst(ScType.create(psiType, m.getProject, scope, paramTopLevel = true)), false, param.isVarArgs, false, index)
-      }
-    }.toSeq, false)(m.getProject, scope)
+    new ScMethodType(retType,
+      m match {
+        case f: FakePsiMethod => f.params.toSeq
+        case _ =>
+          m.getParameterList.getParameters.toSeq.mapWithIndex {
+            case (param, index) => {
+              var psiType = param.getType
+              if (param.isVarArgs && psiType.isInstanceOf[PsiArrayType]) {
+                psiType = psiType.asInstanceOf[PsiArrayType].getComponentType
+              }
+              new Parameter("", s.subst(ScType.create(psiType, m.getProject, scope, paramTopLevel = true)), false, param.isVarArgs, false, index)
+            }
+          }
+      }, false)(m.getProject, scope)
   }
 
   def javaPolymorphicType(m: PsiMethod, s: ScSubstitutor, scope: GlobalSearchScope = null, returnType: Option[ScType] = None): NonValueType = {

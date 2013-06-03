@@ -15,6 +15,8 @@ class TypeInferenceBugs5Test extends TypeInferenceTestBase {
 
   def testExpectedOption() {doTest()}
 
+  def testFakePrimitiveConversion() {doTest()}
+
   def testForStmtBug() {doTest()}
 
   def testImplicitClause() {doTest()}
