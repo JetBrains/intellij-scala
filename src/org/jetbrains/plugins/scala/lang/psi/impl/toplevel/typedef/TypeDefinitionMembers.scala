@@ -702,7 +702,8 @@ object TypeDefinitionMembers {
     def process[T <: MixinNodes](signatures: T#Map): Boolean = {
       if (processValsForScala || processMethods) {
         def runForValInfo(n: T#Node): Boolean = {
-          val elem = n.info.asInstanceOf[Signature].namedElement match {
+          val signature = n.info.asInstanceOf[Signature]
+          val elem = signature.namedElement match {
             case Some(named) => named
             case _ => return true
           }
@@ -727,6 +728,15 @@ object TypeDefinitionMembers {
           def tail: Boolean = {
             if (processValsForScala && checkName(elem.name) &&
               !processor.execute(elem, state.put(ScSubstitutor.key, n.substitutor followed subst))) return false
+
+            if (name == null || name.isEmpty || checkName(s"${elem.name}_=")) {
+              elem match {
+                case t: ScTypedDefinition if t.isVar && signature.name.endsWith("_=") =>
+                  if (processValsForScala && !processor.execute(t.getUnderEqualsMethod,
+                    state.put(ScSubstitutor.key, n.substitutor followed subst))) return false
+                case _ =>
+              }
+            }
 
             if (checkNameGetSetIs(elem.name)) {
               elem match {
