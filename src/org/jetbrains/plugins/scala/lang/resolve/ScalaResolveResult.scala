@@ -139,7 +139,8 @@ class ScalaResolveResult(val element: PsiNamedElement,
         if (q == "java.lang") return JAVA_LANG
         else if (q == "scala") return SCALA
         else if (PsiTreeUtil.isContextAncestor(clazz.getContainingFile, place, true)) return OTHER_MEMBERS
-        else return PACKAGE_LOCAL
+        else if (q == placePackageName) return PACKAGE_LOCAL
+        else return OTHER_MEMBERS
       }
       if (importsUsed.size == 0) {
         ScalaPsiUtil.nameContext(getActualElement) match {
