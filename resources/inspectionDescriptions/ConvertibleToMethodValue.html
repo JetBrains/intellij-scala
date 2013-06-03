@@ -1,0 +1,24 @@
+<html>
+<body>
+Checks if anonymous function can be converted to eta expansion with or without placeholder.
+Also checks if placeholder can be removed from eta expansion. <br/>
+For example <br/>
+<br />
+
+<code>
+    def f(x: Any, y: Int) {} <br />
+    val x = f(_, _) <br />
+    val y: (Int, Int) => Unit = f _
+</code>
+
+<p>can be rewritten as </p>
+<br />
+
+<code>
+    def f(x: Any, y: Int) {}<br />
+    val x = A.f _ <br />
+    val y: (Int, Int) => Unit = A.f
+</code>
+
+</body>
+</html>
