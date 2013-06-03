@@ -287,7 +287,7 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible with Ps
       compute, Failure("Recursive getTypeWithoutImplicits", Some(this)), PsiModificationTracker.MODIFICATION_COUNT)
   }
 
-  def getType(ctx: TypingContext): TypeResult[ScType] = {
+  def getType(ctx: TypingContext = TypingContext.empty): TypeResult[ScType] = {
     this match {
       case ref: ScReferenceExpression if ref.refName == ScImplicitlyConvertible.IMPLICIT_EXPRESSION_NAME =>
         val data = getUserData(ScImplicitlyConvertible.FAKE_EXPRESSION_TYPE_KEY)
@@ -296,8 +296,8 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible with Ps
     }
     getTypeAfterImplicitConversion().tr
   }
-  def getTypeIgnoreBaseType(ctx: TypingContext): TypeResult[ScType] = getTypeAfterImplicitConversion(ignoreBaseTypes = true).tr
-  def getTypeExt(ctx: TypingContext): ScExpression.ExpressionTypeResult = getTypeAfterImplicitConversion()
+  def getTypeIgnoreBaseType(ctx: TypingContext = TypingContext.empty): TypeResult[ScType] = getTypeAfterImplicitConversion(ignoreBaseTypes = true).tr
+  def getTypeExt(ctx: TypingContext = TypingContext.empty): ScExpression.ExpressionTypeResult = getTypeAfterImplicitConversion()
 
   def getShape(ignoreAssign: Boolean = false): (ScType, String) = {
     this match {
@@ -330,7 +330,7 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible with Ps
     implicitParameters
   }
 
-  def getNonValueType(ctx: TypingContext, //todo: remove?
+  def getNonValueType(ctx: TypingContext = TypingContext.empty, //todo: remove?
                       ignoreBaseType: Boolean = false, 
                       fromUnderscore: Boolean = false): TypeResult[ScType] = {
     ProgressManager.checkCanceled()
