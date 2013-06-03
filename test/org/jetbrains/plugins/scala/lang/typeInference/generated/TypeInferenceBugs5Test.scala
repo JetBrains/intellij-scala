@@ -13,6 +13,8 @@ class TypeInferenceBugs5Test extends TypeInferenceTestBase {
 
   def testExistentialConformance2() {doTest()}
 
+  def testExpectedOption() {doTest()}
+
   def testForStmtBug() {doTest()}
 
   def testImplicitClause() {doTest()}
@@ -100,6 +102,8 @@ class TypeInferenceBugs5Test extends TypeInferenceTestBase {
   def testSCL3590() {doTest()}
 
   def testSCL3372() {doTest()}
+
+  def testSCL3385() {doTest()}
 
   def testSCL3394() {doTest()}
 
