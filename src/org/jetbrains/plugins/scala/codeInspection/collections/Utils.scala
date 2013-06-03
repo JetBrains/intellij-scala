@@ -4,21 +4,18 @@ package codeInspection.collections
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import collection.mutable.ArrayBuffer
 import org.jetbrains.plugins.scala.lang.psi.{types, ScalaPsiUtil}
-import scala.annotation.tailrec
 import Utils._
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
-import scala.{ref, Some}
-import org.jetbrains.plugins.scala.lang.psi.types.ScFunctionType
+import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScFunctionType}
+import scala.Some
 import org.jetbrains.plugins.scala.lang.psi.types.result.Success
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
+import lang.psi.api.expr.ScTuple
 import com.intellij.openapi.util.TextRange
-import org.jetbrains.plugins.scala.findUsages.factory.ScalaFindUsagesHandlerFactory
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaRecursiveElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScMember}
 import scala.annotation.tailrec
-import com.intellij.openapi.application.ApplicationManager
 
 /**
  * Nikolay.Tropin
@@ -55,7 +52,12 @@ object MethodRepr {
           case methCall: ScMethodCall => Some(expr, Some(methCall), None, args)
           case other => Some(expr, None, None, args)
         }
-      case infix: ScInfixExpr => Some(expr, Some(stripped(infix.getBaseExpr)), Some(infix.operation), Seq(infix.getArgExpr))
+      case infix: ScInfixExpr =>
+        val args = infix.getArgExpr match {
+          case tuple: ScTuple => tuple.exprs
+          case _ => Seq(infix.getArgExpr)
+        }
+        Some(expr, Some(stripped(infix.getBaseExpr)), Some(infix.operation), args)
       case prefix: ScPrefixExpr => Some(expr, Some(stripped(prefix.getBaseExpr)), Some(prefix.operation), Seq())
       case postfix: ScPostfixExpr => Some(expr, Some(stripped(postfix.getBaseExpr)), Some(postfix.operation), Seq())
       case refExpr: ScReferenceExpression => Some(expr, refExpr.qualifier, Some(refExpr), Seq())
