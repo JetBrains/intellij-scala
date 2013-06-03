@@ -90,6 +90,7 @@ class ScalaGoToDeclarationHandler extends GotoDeclarationHandler {
 
   private def goToTargets(element: PsiElement): Seq[PsiElement] = {
     element match {
+      case null => Seq.empty
       case fun: ScFunction =>
         val clazz = fun.containingClass
         if (fun.name == "copy" && fun.isSyntheticCopy) {
