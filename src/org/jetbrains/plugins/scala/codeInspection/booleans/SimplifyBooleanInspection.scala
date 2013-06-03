@@ -12,6 +12,8 @@ import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.scala.lang.completion.ScalaKeyword
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import scala.Some
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil.getShortText
+
 
 /**
  * Nikolay.Tropin
@@ -28,7 +30,7 @@ class SimplifyBooleanInspection extends AbstractInspection("SimplifyBoolean", "S
 
 }
 
-class SimplifyBooleanQuickFix(expr: ScExpression) extends AbstractFix("Simplify " + expr.getText, expr) {
+class SimplifyBooleanQuickFix(expr: ScExpression) extends AbstractFix("Simplify " + getShortText(expr), expr) {
 
   def doApplyFix(project: Project, descriptor: ProblemDescriptor) {
     if (!expr.isValid || !SimplifyBooleanUtil.canBeSimplified(expr)) return
