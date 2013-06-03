@@ -7,6 +7,7 @@ import com.intellij.psi._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import com.intellij.codeInsight.lookup.LookupElement
 import org.jetbrains.plugins.scala.extensions.{toPsiMemberExt, toPsiNamedElementExt}
+import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiMethod
 
 /**
  * @author Alefas
@@ -79,7 +80,7 @@ object LookupElementManager {
     val name: String = isRenamed.getOrElse(element.name)
     val Setter = """(.*)_=""".r
     name match {
-      case Setter(prefix) =>
+      case Setter(prefix) if !element.isInstanceOf[FakePsiMethod] => //if element is fake psi method, then this setter is already generated from var
         Seq(getLookupElementInternal(true, prefix), getLookupElementInternal(false, name))
       case _ => Seq(getLookupElementInternal(false, name))
     }
