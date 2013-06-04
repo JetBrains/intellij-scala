@@ -11,22 +11,26 @@ import Utilities._
  */
 object Extractor {
   def extractStructure(state: State): StructureData = {
-    val extracted = Project.extract(state)
+    val structure = Project.extract(state).structure
 
-    val structure = extracted.structure
+    val scalaData = extractScala(state)
 
-    val projectRef = Project.current(state)
-
-    val projectData = extractProject(state, structure, projectRef)
+    val projectData = extractProject(state, structure, Project.current(state))
 
     val repositoryData = {
-      val modulesData = extracted.structure.allProjectRefs
-        .flatMap(extractModules(state, _)).distinctBy(_.id)
-
-      RepositoryData(new File("."), modulesData)
+      val modulesData = structure.allProjectRefs.flatMap(extractModules(state, _)).distinctBy(_.id)
+      RepositoryData(modulesData)
     }
 
-    StructureData(projectData, repositoryData)
+    StructureData(scalaData, projectData, repositoryData)
+  }
+
+  def extractScala(state: State): ScalaData = {
+    val provider = state.configuration.provider.scalaProvider
+    val libraryJar = provider.libraryJar
+    val compilerJar = provider.compilerJar
+    val extraJars = provider.jars.filter(_.getName.contains("reflect")).toSet - libraryJar - compilerJar
+    ScalaData(provider.version, libraryJar, provider.compilerJar, extraJars.toSeq, Seq.empty)
   }
 
   def extractProject(state: State, structure: BuildStructure, projectRef: ProjectRef): ProjectData = {
@@ -67,11 +71,16 @@ object Extractor {
       }
     }
 
+    val build = {
+      val unit = structure.units(projectRef.build)
+      BuildData(unit.classpath, unit.imports)
+    }
+
     val project = Project.getProject(projectRef, structure).get
 
     val projects = project.aggregate.map(extractProject(state, structure, _))
 
-    ProjectData(name, organization, version, base, configurations, java, scala, projects)
+    ProjectData(name, organization, version, base, build, configurations, java, scala, projects)
   }
 
   def extractConfiguration(state: State, structure: BuildStructure, projectRef: ProjectRef, configuration: Configuration): ConfigurationData = {
