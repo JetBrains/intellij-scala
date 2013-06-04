@@ -123,9 +123,9 @@ public class ScalaModuleSettingsUi {
 
     @Override
     protected void customizeCellRenderer(JList list, Object value, int index, boolean selected, boolean hasFocus) {
-      Library library = (Library) value;
       if (value == null) return;
-      
+      Library library = (Library) value;
+
       append(library.getName() + "  ", SimpleTextAttributes.REGULAR_ATTRIBUTES);
       append(
           Libraries.extractLibraryVersion(library, "scala-" + libraryNameBase + ".jar", libraryNameBase + ".properties"), 
