@@ -73,7 +73,9 @@ object Extractor {
 
     val build = {
       val unit = structure.units(projectRef.build)
-      BuildData(unit.classpath, unit.imports)
+      val target = "project" + System.getProperty("file.separator") + "target"
+      val classpath = unit.classpath.filterNot(_.getPath.contains(target))
+      BuildData(classpath, unit.imports)
     }
 
     val project = Project.getProject(projectRef, structure).get

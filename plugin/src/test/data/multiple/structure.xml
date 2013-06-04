@@ -5,7 +5,6 @@
     <version>1.2.3</version>
     <base>$BASE</base>
     <build>
-      <classes>project/target/scala-2.9.2/sbt-0.12/classes</classes>
       <classes>~/.sbt/plugins/target/scala-2.9.2/sbt-0.12/classes</classes>
       <classes>~/.ivy2/cache/commons-io/commons-io/jars/commons-io-2.0.1.jar</classes>
       <classes>~/.sbt/boot/scala-2.9.2/org.scala-sbt/sbt/0.12.2/actions-0.12.2.jar</classes>
@@ -86,7 +85,6 @@
       <version>0.1-SNAPSHOT</version>
       <base>$BASE/foo</base>
       <build>
-        <classes>$BASE/project/target/scala-2.9.2/sbt-0.12/classes</classes>
         <classes>~/.sbt/plugins/target/scala-2.9.2/sbt-0.12/classes</classes>
         <classes>~/.ivy2/cache/commons-io/commons-io/jars/commons-io-2.0.1.jar</classes>
         <classes>~/.sbt/boot/scala-2.9.2/org.scala-sbt/sbt/0.12.2/actions-0.12.2.jar</classes>
@@ -164,7 +162,6 @@
       <version>0.1-SNAPSHOT</version>
       <base>$BASE/bar</base>
       <build>
-        <classes>$BASE/project/target/scala-2.9.2/sbt-0.12/classes</classes>
         <classes>~/.sbt/plugins/target/scala-2.9.2/sbt-0.12/classes</classes>
         <classes>~/.ivy2/cache/commons-io/commons-io/jars/commons-io-2.0.1.jar</classes>
         <classes>~/.sbt/boot/scala-2.9.2/org.scala-sbt/sbt/0.12.2/actions-0.12.2.jar</classes>
