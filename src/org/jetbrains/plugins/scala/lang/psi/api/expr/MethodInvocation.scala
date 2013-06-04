@@ -183,7 +183,7 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
         dependentSubst.subst(c._1)
       }
       if (!c._2.isEmpty) {
-        ScalaPsiUtil.tuplizy(exprs, getResolveScope, getManager).map {e =>
+        ScalaPsiUtil.tuplizy(exprs, getResolveScope, getManager, ScalaPsiUtil.firstLeaf(this)).map {e =>
           val cd = fun(e)
           if (!cd._2.isEmpty) tail
           else {
