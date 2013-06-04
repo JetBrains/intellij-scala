@@ -21,6 +21,9 @@ import extensions.toPsiNamedElementExt
 import com.intellij.openapi.application.ApplicationManager
 import org.jetbrains.annotations.TestOnly
 import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiParameter
+import org.jetbrains.plugins.scala.lang.psi.implicits.ScImplicitlyConvertible.ImplicitResolveResult
+import org.jetbrains.plugins.scala.lang.resolve.processor.MostSpecificUtil
+import org.jetbrains.plugins.scala.lang.psi.implicits.ScImplicitlyConvertible
 
 /**
  * @author ven
@@ -33,17 +36,45 @@ object Compatibility {
 
   case class Expression(expr: ScExpression) {
     var typez: ScType = null
+    var place: PsiElement = null
     def this(tp: ScType) = {
       this(null: ScExpression)
       typez = tp
     }
+    def this(tp: ScType, place: PsiElement) {
+      this(tp)
+      this.place = place
+    }
+
     def getTypeAfterImplicitConversion(checkImplicits: Boolean, isShape: Boolean,
                                        expectedOption: Option[ScType]): (TypeResult[ScType], collection.Set[ImportUsed]) = {
       if (expr != null) {
         val expressionTypeResult = expr.getTypeAfterImplicitConversion(checkImplicits, isShape, expectedOption)
         (expressionTypeResult.tr, expressionTypeResult.importsUsed)
+      } else {
+        if (isShape) return (Success(typez, None), Set.empty)
+        if (!checkImplicits || place == null) return (Success(typez, None), Set.empty)
+        if (expectedOption.isEmpty) return (Success(typez, None), Set.empty)
+        val expected = expectedOption.get
+        if (typez.conforms(expected)) return (Success(typez, None), Set.empty)
+        (Success(typez, None), Set.empty)
+
+        /*val convertible = new ScImplicitlyConvertible()
+        val firstPart = implicitMapFirstPart(Some(expected), fromUnderscore)
+        var f: Seq[ImplicitResolveResult] =
+          firstPart.filter(_.tp.conforms(expected))
+        if (f.length == 0) {
+          f = implicitMapSecondPart(Some(expected), fromUnderscore).filter(_.tp.conforms(expected))
+        }
+        if (f.length == 1) ExpressionTypeResult(Success(f(0).getTypeWithDependentSubstitutor, Some(this)), f(0).importUsed, Some(f(0).element))
+        else if (f.length == 0) defaultResult
+        else {
+          val res = MostSpecificUtil(this, 1).mostSpecificForImplicit(f.toSet) match {
+            case Some(innerRes) => innerRes
+            case None => return defaultResult
+          }
+          ExpressionTypeResult(Success(res.getTypeWithDependentSubstitutor, Some(this)), res.importUsed, Some(res.element))*/
       }
-      else (Success(typez, None), Set.empty)
     }
   }
 

@@ -458,7 +458,8 @@ trait ResolvableReferenceExpression extends ScReferenceExpression {
   private def collectImplicits(e: ScExpression, processor: BaseProcessor, noImplicitsForArgs: Boolean) {
     processor match {
       case _: CompletionProcessor => {
-        for (res <- e.implicitMap()) { //todo: args?
+        val convertible: ScImplicitlyConvertible = new ScImplicitlyConvertible(e)
+        for (res <- convertible.implicitMap()) { //todo: args?
           ProgressManager.checkCanceled()
           var state = ResolveState.initial.put(ImportUsed.key, res.importUsed)
           state = state.put(CachesUtil.IMPLICIT_FUNCTION, res.element).put(CachesUtil.IMPLICIT_TYPE, res.tp)
