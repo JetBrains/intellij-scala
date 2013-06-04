@@ -81,6 +81,13 @@ import com.intellij.openapi.util.TextRange
  * User: Alexander Podkhalyuzin
  */
 object ScalaPsiUtil {
+  @tailrec
+  def firstLeaf(elem: PsiElement): PsiElement = {
+    val firstChild: PsiElement = elem.getFirstChild
+    if (firstChild == null) return elem
+    firstLeaf(firstChild)
+  }
+
   def isBooleanBeanProperty(s: ScAnnotationsHolder, noResolve: Boolean = false): Boolean = {
     if (noResolve) {
       s.annotations.exists {
@@ -196,7 +203,7 @@ object ScalaPsiUtil {
    *
    * See SCL-2001, SCL-3485
    */
-  def tuplizy(s: Seq[Expression], scope: GlobalSearchScope, manager: PsiManager): Option[Seq[Expression]] = {
+  def tuplizy(s: Seq[Expression], scope: GlobalSearchScope, manager: PsiManager, place: PsiElement): Option[Seq[Expression]] = {
     s match {
       case Seq() =>
         // object A { def foo(a: Any) = ()}; A foo () ==>> A.foo(()), or A.foo() ==>> A.foo( () )
@@ -209,10 +216,9 @@ object ScalaPsiUtil {
           }
         val qual = "scala.Tuple" + exprTypes.length
         val tupleClass = ScalaPsiManager.instance(manager.getProject).getCachedClass(scope, qual)
-        if (tupleClass == null)
-          None
+        if (tupleClass == null) None
         else
-          Some(Seq(new Expression(ScParameterizedType(ScDesignatorType(tupleClass), exprTypes))))
+          Some(Seq(new Expression(ScParameterizedType(ScDesignatorType(tupleClass), exprTypes), place)))
     }
   }
 
