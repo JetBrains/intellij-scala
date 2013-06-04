@@ -33,7 +33,7 @@ object FS {
   def toPath(file: File) = file.getAbsolutePath.replace('\\', '/')
 }
 
-case class StructureData(project: ProjectData, repository: RepositoryData) {
+case class StructureData(scala: ScalaData, project: ProjectData, repository: RepositoryData) {
   def toXML(home: File): Elem = {
     val fs = new FS(home)
 
@@ -44,18 +44,32 @@ case class StructureData(project: ProjectData, repository: RepositoryData) {
   }
 }
 
-case class ProjectData(name: String, organization: String, version: String, base: File, configurations: Seq[ConfigurationData], java: Option[JavaData], scala: Option[ScalaData], projects: Seq[ProjectData]) {
+case class ProjectData(name: String, organization: String, version: String, base: File, build: BuildData, configurations: Seq[ConfigurationData], java: Option[JavaData], scala: Option[ScalaData], projects: Seq[ProjectData]) {
   def toXML(implicit fs: FS): Elem = {
     <project>
       <name>{name}</name>
       <organization>{organization}</organization>
       <version>{version}</version>
       <base>{base.absolutePath}</base>
+      {build.toXML}
       {java.map(_.toXML).toSeq}
       {scala.map(_.toXML).toSeq}
       {configurations.map(_.toXML)}
       {projects.map(it => it.toXML(fs.withBase(it.base)))}
     </project>
+  }
+}
+
+case class BuildData(classpath: Seq[File], imports: Seq[String]) {
+  def toXML(implicit fs: FS): Elem = {
+    <build>
+      {classpath.map { it =>
+        <classes>{it.path}</classes>
+      }}
+      {imports.map { it =>
+        <import>{it}</import>
+      }}
+    </build>
   }
 }
 
@@ -126,7 +140,7 @@ case class ModuleData(id: ModuleIdentifier, binaries: Seq[File], docs: Seq[File]
   }
 }
 
-case class RepositoryData(base: File, modules: Seq[ModuleData]) {
+case class RepositoryData(modules: Seq[ModuleData]) {
   def toXML(implicit fs: FS): Elem = {
     <repository>
       {modules.sortBy(it => (it.id.organization, it.id.name)).map(_.toXML)}
