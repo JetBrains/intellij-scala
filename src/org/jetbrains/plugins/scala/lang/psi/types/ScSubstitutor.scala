@@ -68,11 +68,13 @@ class ScSubstitutor(val tvMap: Map[(String, String), ScType],
   def bindT(name : (String, String), t: ScType) = {
     val res = new ScSubstitutor(tvMap + ((name, t)), aliasesMap, updateThisType, follower)
     res.myDependentMethodTypesFun = myDependentMethodTypesFun
+    res.myDependentMethodTypes = myDependentMethodTypes
     res
   }
   def bindA(name: String, f: () => ScType) = {
     val res = new ScSubstitutor(tvMap, aliasesMap + ((name, new Suspension[ScType](f))), updateThisType, follower)
     res.myDependentMethodTypesFun = myDependentMethodTypesFun
+    res.myDependentMethodTypes = myDependentMethodTypes
     res
   }
   def addUpdateThisType(tp: ScType): ScSubstitutor = {
@@ -89,7 +91,7 @@ class ScSubstitutor(val tvMap: Map[(String, String), ScType],
       val res = new ScSubstitutor(tvMap, aliasesMap, updateThisType,
         if (follower != null) follower followed (s, level + 1) else s)
       res.myDependentMethodTypesFun = myDependentMethodTypesFun
-      if (myDependentMethodTypes != null) res.myDependentMethodTypes = myDependentMethodTypes
+      res.myDependentMethodTypes = myDependentMethodTypes
       res
     }
   }
