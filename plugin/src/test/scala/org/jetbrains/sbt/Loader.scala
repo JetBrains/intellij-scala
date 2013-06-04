@@ -12,7 +12,7 @@ object Loader {
   private val SbtPlugin = canonicalPath(new File("target/scala-2.9.2/sbt-0.12/classes/"))
   private val JavaOpts = Option(System.getenv("JAVA_OPTS")).getOrElse("")
 
-  def load(project: File): String = {
+  def load(project: File): Seq[String] = {
     val tempFile = File.createTempFile("sbt-structure", "xml")
     tempFile.deleteOnExit()
 
@@ -24,7 +24,7 @@ object Loader {
 
     assert(tempFile.exists, "File must be created: " + tempFile.getPath)
 
-    Source.fromFile(tempFile).getLines().mkString("\n")
+    read(tempFile)
   }
 
   private def canonicalPath(file: File): String = file.getAbsolutePath.replace('\\', '/')
