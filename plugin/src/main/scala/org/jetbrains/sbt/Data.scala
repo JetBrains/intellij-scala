@@ -12,15 +12,22 @@ case class FS(home: File, base: Option[File] = None) {
 }
 
 object FS {
+  private val Windows = System.getProperty("os.name").startsWith("Win")
+
   implicit def toRichFile(file: File)(implicit fs: FS) = new {
     def path: String = {
       val home = toPath(fs.home)
       val base = fs.base.map(toPath)
-      val path = toPath(file).replace(home, "~")
-      base.map(it => path.replace(it + "/", "")).getOrElse(path)
+      val path = replace(toPath(file), home, "~")
+      base.map(it => replace(path, it + "/", "")).getOrElse(path)
     }
 
     def absolutePath: String = toPath(file)
+  }
+
+  private def replace(path: String, root: String, replacement: String) = {
+    val (target, prefix) = if (Windows) (path.toLowerCase, root.toLowerCase) else (path, root)
+    if (target.startsWith(prefix)) replacement + path.substring(root.length) else path
   }
 
   def toPath(file: File) = file.getAbsolutePath.replace('\\', '/')
