@@ -281,10 +281,11 @@ object ScalaPsiUtil {
         ))
         case _ => Seq.empty
       }
+      val convertible: ScImplicitlyConvertible = new ScImplicitlyConvertible(e)
       val mp =
-        if (noApplicability) e.implicitMap(args = args)
-        else if (!secondPart) e.implicitMapFirstPart()
-        else e.implicitMapSecondPart(args = args)
+        if (noApplicability) convertible.implicitMap(args = args)
+        else if (!secondPart) convertible.implicitMapFirstPart()
+        else convertible.implicitMapSecondPart(args = args)
       implicitMap = mp.flatMap({
         case implRes: ImplicitResolveResult => {
           ProgressManager.checkCanceled()

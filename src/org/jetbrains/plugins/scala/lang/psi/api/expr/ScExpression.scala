@@ -40,7 +40,7 @@ import org.jetbrains.plugins.scala.lang.psi.implicits.ScImplicitlyConvertible.Im
  * @author ilyas, Alexander Podkhalyuzin
  */
 
-trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible with PsiAnnotationMemberValue {
+trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue {
   import ScExpression._
   /**
    * This method returns real type, after using implicit conversions.
@@ -80,11 +80,12 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible with Ps
 
       //this functionality for checking if this expression can be implicitly changed and then
       //it will conform to expected type
-      val firstPart = implicitMapFirstPart(Some(expected), fromUnderscore)
+      val convertible: ScImplicitlyConvertible = new ScImplicitlyConvertible(this)
+      val firstPart = convertible.implicitMapFirstPart(Some(expected), fromUnderscore)
       var f: Seq[ImplicitResolveResult] =
         firstPart.filter(_.tp.conforms(expected))
       if (f.length == 0) {
-        f = implicitMapSecondPart(Some(expected), fromUnderscore).filter(_.tp.conforms(expected))
+        f = convertible.implicitMapSecondPart(Some(expected), fromUnderscore).filter(_.tp.conforms(expected))
       }
       if (f.length == 1) ExpressionTypeResult(Success(f(0).getTypeWithDependentSubstitutor, Some(this)), f(0).importUsed, Some(f(0).element))
       else if (f.length == 0) defaultResult
@@ -435,7 +436,7 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible with Ps
   def getImplicitConversions(fromUnder: Boolean = false,
                              expectedOption: => Option[ScType] = smartExpectedType()):
     (Seq[PsiNamedElement], Option[PsiNamedElement], Seq[PsiNamedElement], Seq[PsiNamedElement]) = {
-    val map = implicitMap(fromUnder = fromUnder, args = expectedTypes(fromUnder).toSeq)
+    val map = new ScImplicitlyConvertible(this).implicitMap(fromUnder = fromUnder, args = expectedTypes(fromUnder).toSeq)
     val implicits: Seq[PsiNamedElement] = map.map(_.element)
     val implicitFunction: Option[PsiNamedElement] = getParent match {
       case ref: ScReferenceExpression => {
