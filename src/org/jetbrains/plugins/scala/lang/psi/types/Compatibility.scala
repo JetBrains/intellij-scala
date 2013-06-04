@@ -57,23 +57,23 @@ object Compatibility {
         if (expectedOption.isEmpty) return (Success(typez, None), Set.empty)
         val expected = expectedOption.get
         if (typez.conforms(expected)) return (Success(typez, None), Set.empty)
-        (Success(typez, None), Set.empty)
 
-        /*val convertible = new ScImplicitlyConvertible()
-        val firstPart = implicitMapFirstPart(Some(expected), fromUnderscore)
+        val convertible = new ScImplicitlyConvertible(place, p => Some(typez))
+        val firstPart = convertible.implicitMapFirstPart(Some(expected), fromUnder = false)
         var f: Seq[ImplicitResolveResult] =
           firstPart.filter(_.tp.conforms(expected))
         if (f.length == 0) {
-          f = implicitMapSecondPart(Some(expected), fromUnderscore).filter(_.tp.conforms(expected))
+          f = convertible.implicitMapSecondPart(Some(expected), fromUnder = false).filter(_.tp.conforms(expected))
         }
-        if (f.length == 1) ExpressionTypeResult(Success(f(0).getTypeWithDependentSubstitutor, Some(this)), f(0).importUsed, Some(f(0).element))
-        else if (f.length == 0) defaultResult
+        if (f.length == 1) (Success(f(0).getTypeWithDependentSubstitutor, Some(place)), f(0).importUsed)
+        else if (f.length == 0) (Success(typez, None), Set.empty)
         else {
-          val res = MostSpecificUtil(this, 1).mostSpecificForImplicit(f.toSet) match {
+          val res = MostSpecificUtil(place, 1).mostSpecificForImplicit(f.toSet) match {
             case Some(innerRes) => innerRes
-            case None => return defaultResult
+            case None => return (Success(typez, None), Set.empty)
           }
-          ExpressionTypeResult(Success(res.getTypeWithDependentSubstitutor, Some(this)), res.importUsed, Some(res.element))*/
+          (Success(res.getTypeWithDependentSubstitutor, Some(place)), res.importUsed)
+        }
       }
     }
   }
