@@ -281,6 +281,7 @@ case class ScProjectionType(projected: ScType, element: PsiNamedElement,
  * So when expression is typed, we should replace all such types be return value.
  */
 case class ScThisType(clazz: ScTemplateDefinition) extends ValueType {
+  clazz.getClass //throw NPE if clazz is null...
 
   override def equivInner(r: ScType, uSubst: ScUndefinedSubstitutor,
                           falseUndef: Boolean): (Boolean, ScUndefinedSubstitutor) = {
