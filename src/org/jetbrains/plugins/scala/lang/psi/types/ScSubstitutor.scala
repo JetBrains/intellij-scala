@@ -89,6 +89,7 @@ class ScSubstitutor(val tvMap: Map[(String, String), ScType],
       val res = new ScSubstitutor(tvMap, aliasesMap, updateThisType,
         if (follower != null) follower followed (s, level + 1) else s)
       res.myDependentMethodTypesFun = myDependentMethodTypesFun
+      if (myDependentMethodTypes != null) res.myDependentMethodTypes = myDependentMethodTypes
       res
     }
   }
