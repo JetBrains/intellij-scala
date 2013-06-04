@@ -126,7 +126,12 @@ case class ScCompoundType(components: Seq[ScType], decls: Seq[ScDeclaredElements
     update(this) match {
       case (true, res) => res
       case _ =>
-        ScCompoundType(components.map(_.recursiveUpdate(update, visited + this)), decls, typeDecls, subst)
+        init()
+        new ScCompoundType(components.map(_.recursiveUpdate(update, visited + this)), decls, typeDecls, subst, signatureMapVal.map {
+          case (signature: Signature, tp: ScType) => (signature, tp.recursiveUpdate(update, visited + this))
+        }, typesVal.map {
+          case (s: String, (tp1, tp2)) => (s, (tp1.recursiveUpdate(update, visited + this), tp2.recursiveUpdate(update, visited + this)))
+        }, problemsVal.toList)
     }
   }
 
@@ -134,7 +139,12 @@ case class ScCompoundType(components: Seq[ScType], decls: Seq[ScDeclaredElements
     update(this, variance) match {
       case (true, res) => res
       case _ =>
-        ScCompoundType(components.map(_.recursiveVarianceUpdate(update, variance)), decls, typeDecls, subst)
+        init()
+        new ScCompoundType(components.map(_.recursiveVarianceUpdate(update, variance)), decls, typeDecls, subst, signatureMapVal.map {
+          case (signature: Signature, tp: ScType) => (signature, tp.recursiveVarianceUpdate(update, 1))
+        }, typesVal.map {
+          case (s: String, (tp1, tp2)) => (s, (tp1.recursiveVarianceUpdate(update, 1), tp2.recursiveVarianceUpdate(update, 1)))
+        }, problemsVal.toList)
     }
   }
 
