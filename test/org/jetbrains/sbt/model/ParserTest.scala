@@ -33,6 +33,10 @@ object ParserTest {
       modules = Seq(moduleId),
       jars = Seq.empty)
 
+    val build = Build(
+      Seq(new File("$HOME/.sbt/boot/scala-2.9.2/org.scala-sbt/sbt/0.12.2/api-0.12.2.jar")),
+      Seq("import sbt._, Process._, Keys._"))
+
     val java = Java(
       home = new File("$BASE/some/home"),
       options = Seq("-j1", "-j2"))
@@ -49,6 +53,7 @@ object ParserTest {
       organization = "some-organization",
       version = "1.2.3",
       base = new File("$BASE"),
+      build,
       configurations = Seq(configuration),
       java = Some(java),
       scala = Some(scala),
