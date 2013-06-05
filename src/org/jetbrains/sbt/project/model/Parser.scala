@@ -38,12 +38,20 @@ object Parser {
     val organization = (node \ "organization").text
     val version = (node \ "version").text
     val base = new File((node \ "base").text)
+    val build = parseBuild(node ! "build")(fs.withBase(base))
     val configurations = (node \ "configuration").map(parseConfiguration(_)(fs.withBase(base)))
     val java = (node \ "java").headOption.map(parseJava(_)(fs.withBase(base)))
     val scala = (node \ "scala").headOption.map(parseScala(_)(fs.withBase(base)))
     val projects = (node \ "project").map(parseProject)
 
-    Project(name, organization, version, base, configurations, java, scala, projects)
+    Project(name, organization, version, base, build, configurations, java, scala, projects)
+  }
+
+  private def parseBuild(node: Node)(implicit fs: FS): Build = {
+    val classpath = (node \ "classes").map(e => file(e.text))
+    val imports = (node \ "import").map(_.text)
+
+    Build(classpath, imports)
   }
 
   private def parseJava(node: Node)(implicit fs: FS): Java = {
