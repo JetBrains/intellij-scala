@@ -6,6 +6,7 @@ import reflect.ClassTag
 import java.io._
 import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil
 import java.lang.{Boolean => JavaBoolean}
+import com.intellij.openapi.vfs.VfsUtil
 
 /**
  * @author Pavel Fatin
@@ -35,6 +36,8 @@ package object sbt {
     def absolutePath: String = file.getAbsolutePath
 
     def canonicalPath = ExternalSystemApiUtil.toCanonicalPath(file.getAbsolutePath)
+
+    def url: String = VfsUtil.getUrlForLibraryRoot(file)
   }
 
   private object RichFile {
