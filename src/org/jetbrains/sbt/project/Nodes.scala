@@ -59,6 +59,12 @@ class ScalaProjectNode(owner: ProjectSystemId, javaHome: File)
   protected def key = ScalaProjectData.Key
 }
 
+class BuildModuleNode(owner: ProjectSystemId, name: String, path: String, sourceDirs: Seq[File], excludedDirs: Seq[File], classpath: Seq[File])
+  extends BuildModuleData(owner, name, path, sourceDirs, excludedDirs, classpath) with Node[BuildModuleData] {
+
+  protected def key = BuildModuleData.Key
+}
+
 class ScalaFacetNode(owner: ProjectSystemId, scalaVersion: String, basePackage: String, compilerLibraryName: String, compilerOptions: Seq[String])
   extends ScalaFacetData(owner, scalaVersion, basePackage, compilerLibraryName, compilerOptions) with Node[ScalaFacetData] {
 
