@@ -80,6 +80,8 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
       }
     }
 
+    projectNode.addAll(projects.map(createBuildModule))
+
     projectNode
   }
 
@@ -131,6 +133,16 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     }
 
     result
+  }
+
+  private def createBuildModule(project: Project): BuildModuleNode = {
+    val name = s"${project.name}-build"
+    val path = project.base.path
+    val classpath = project.build.classpath
+    val buildDir = project.base / "project"
+    val sourceDirs = Seq(project.base, buildDir)
+    val exludedDirs = project.configurations.flatMap(it => it.sources ++ it.resources) :+ buildDir / "target"
+    new BuildModuleNode(SbtProjectSystem.Id, name, path, sourceDirs, exludedDirs, classpath)
   }
 
   private def createContentRoot(project: Project): ContentRootNode = {
