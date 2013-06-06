@@ -135,21 +135,41 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     result
   }
 
-  private def createBuildModule(project: Project): BuildModuleNode = {
-    val name = s"${project.name}-build"
-    val path = project.base.path
-    val classpath = project.build.classpath
-    val buildDir = project.base / "project"
-    val sourceDirs = Seq(project.base, buildDir)
-    val exludedDirs = project.configurations.flatMap(it => it.sources ++ it.resources) :+ buildDir / "target"
-    new BuildModuleNode(SbtProjectSystem.Id, name, path, sourceDirs, exludedDirs, classpath)
-  }
-
   private def createContentRoot(project: Project): ContentRootNode = {
     val result = new ContentRootNode(SbtProjectSystem.Id, project.base.path)
 
     result.storePaths(ExternalSystemSourceType.SOURCE, rootPathsIn(project, "compile"))
     result.storePaths(ExternalSystemSourceType.TEST, rootPathsIn(project, "test"))
+
+    result
+  }
+
+  private def createBuildModule(project: Project): ModuleNode = {
+    val name = s"${project.name}-build"
+    val path = project.base.path + "/project"
+
+    val result = new ModuleNode(SbtProjectSystem.Id, StdModuleTypes.JAVA.getId, name, path)
+
+    result.setInheritProjectCompileOutputPath(false)
+    result.setCompileOutputPath(ExternalSystemSourceType.SOURCE, path + "/target/idea-classes")
+    result.setCompileOutputPath(ExternalSystemSourceType.TEST, path + "/target/idea-test-classes")
+
+    result.add(createBuildContentRoot(project))
+    result.add(new ModuleLibraryNode(SbtProjectSystem.Id, "sbt-and-plugins", project.build.classpath))
+
+    result
+  }
+
+  private def createBuildContentRoot(project: Project): ContentRootNode = {
+    val root = project.base / "project"
+
+    val result = new ContentRootNode(SbtProjectSystem.Id, root.path)
+
+    val sourceDirs = Seq(root) // , base << 1
+    val exludedDirs = project.configurations.flatMap(it => it.sources ++ it.resources) :+ root / "target"
+
+    result.storePaths(ExternalSystemSourceType.SOURCE, sourceDirs.map(_.path))
+    result.storePaths(ExternalSystemSourceType.EXCLUDED, exludedDirs.map(_.path))
 
     result
   }

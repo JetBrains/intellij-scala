@@ -1,23 +1,22 @@
 package org.jetbrains.sbt
 package project
 
-import com.intellij.openapi.externalSystem.service.project.manage.ProjectDataService
 import java.util
 import com.intellij.openapi.externalSystem.model.{ProjectKeys, DataNode}
 import com.intellij.openapi.project.Project
 import collection.JavaConverters._
 import com.intellij.openapi.externalSystem.model.project.ModuleData
 import com.intellij.facet.FacetManager
-import org.jetbrains.plugins.scala.config.{LibraryId, LibraryLevel, ScalaFacetConfiguration, ScalaFacet}
+import org.jetbrains.plugins.scala.config.{LibraryId, LibraryLevel, ScalaFacet}
 import com.intellij.openapi.externalSystem.service.project.{ProjectStructureHelper, PlatformFacade}
 
 /**
  * @author Pavel Fatin
  */
-class SbtFacetDataService(platformFacade: PlatformFacade, helper: ProjectStructureHelper) extends ProjectDataService[ScalaFacetData, ScalaFacet] {
-  def getTargetDataKey = ScalaFacetData.Key
+class SbtFacetDataService(platformFacade: PlatformFacade, helper: ProjectStructureHelper)
+  extends AbstractDataService[ScalaFacetData, ScalaFacet](ScalaFacetData.Key) {
 
-  def importData(toImport: util.Collection[DataNode[ScalaFacetData]], project: Project, synchronous: Boolean) {
+  def doImportData(toImport: util.Collection[DataNode[ScalaFacetData]], project: Project) {
     toImport.asScala.foreach { facetNode =>
       val facetData = facetNode.getData
 
@@ -36,7 +35,7 @@ class SbtFacetDataService(platformFacade: PlatformFacade, helper: ProjectStructu
     facet.compilerParameters = data.compilerOptions.toArray
   }
 
-  def removeData(toRemove: util.Collection[_ <: ScalaFacet], project: Project, synchronous: Boolean) {
+  def doRemoveData(toRemove: util.Collection[_ <: ScalaFacet], project: Project) {
     toRemove.asScala.foreach { facet =>
       val facetManager = FacetManager.getInstance(facet.getModule)
       val model = facetManager.createModifiableModel
