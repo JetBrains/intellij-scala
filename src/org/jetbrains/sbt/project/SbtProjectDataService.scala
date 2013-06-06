@@ -3,7 +3,6 @@ package project
 
 import java.io.File
 import java.util
-import com.intellij.openapi.externalSystem.service.project.manage.ProjectDataService
 import com.intellij.openapi.externalSystem.model.DataNode
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.externalSystem.service.project.{ProjectStructureHelper, PlatformFacade}
@@ -17,10 +16,10 @@ import org.jetbrains.plugins.scala.components.HighlightingAdvisor
 /**
  * @author Pavel Fatin
  */
-class SbtProjectDataService(platformFacade: PlatformFacade, helper: ProjectStructureHelper) extends ProjectDataService[ScalaProjectData, Project] {
-  def getTargetDataKey = ScalaProjectData.Key
+class SbtProjectDataService(platformFacade: PlatformFacade, helper: ProjectStructureHelper)
+  extends AbstractDataService[ScalaProjectData, Project](ScalaProjectData.Key) {
 
-  def importData(toImport: util.Collection[DataNode[ScalaProjectData]], project: Project, synchronous: Boolean) {
+  def doImportData(toImport: util.Collection[DataNode[ScalaProjectData]], project: Project) {
     toImport.asScala.foreach { node =>
       val data = node.getData
 
@@ -37,7 +36,7 @@ class SbtProjectDataService(platformFacade: PlatformFacade, helper: ProjectStruc
     highlightingSettings.SUGGEST_TYPE_AWARE_HIGHLIGHTING = false
   }
 
-  def removeData(toRemove: util.Collection[_ <: Project], project: Project, synchronous: Boolean) {}
+  def doRemoveData(toRemove: util.Collection[_ <: Project], project: Project) {}
 }
 
 object SbtProjectDataService {

@@ -12,14 +12,17 @@ case class FS(home: File, base: Option[File] = None) {
 }
 
 object FS {
+  val Home = "~"
+  val Base = ""
+
   private val Windows = System.getProperty("os.name").startsWith("Win")
 
   implicit def toRichFile(file: File)(implicit fs: FS) = new {
     def path: String = {
       val home = toPath(fs.home)
       val base = fs.base.map(toPath)
-      val path = replace(toPath(file), home, "~")
-      base.map(it => replace(path, it + "/", "")).getOrElse(path)
+      val path = replace(toPath(file), home, Home)
+      base.map(it => replace(path, it + "/", Base)).getOrElse(path)
     }
 
     def absolutePath: String = toPath(file)
@@ -63,8 +66,8 @@ case class ProjectData(name: String, organization: String, version: String, base
 case class BuildData(classpath: Seq[File], imports: Seq[String]) {
   def toXML(implicit fs: FS): Elem = {
     <build>
-      {classpath.map { it =>
-        <classes>{it.path}</classes>
+      {classpath.map(_.path).filter(_.startsWith(FS.Home)).map { it =>
+        <classes>{it}</classes>
       }}
       {imports.map { it =>
         <import>{it}</import>
