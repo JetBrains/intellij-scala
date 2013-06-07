@@ -155,7 +155,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     result.setCompileOutputPath(ExternalSystemSourceType.TEST, path + "/target/idea-test-classes")
 
     result.add(createBuildContentRoot(project))
-    result.add(new ModuleLibraryNode(SbtProjectSystem.Id, "sbt-and-plugins", project.build.classpath))
+    result.add(new ModuleLibraryNode(SbtProjectSystem.Id, "sbt-and-plugins", project.build.classpath.filter(_.exists)))
 
     result
   }
