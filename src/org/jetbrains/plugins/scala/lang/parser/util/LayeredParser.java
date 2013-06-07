@@ -25,6 +25,8 @@ public abstract class LayeredParser implements PsiParser {
   private static final ASTNode fakeTreeBuilt = new DummyHolderElement("ololo");
 
   private final List<RegisteredInfo<?, ?>> myParsers = new ArrayList<RegisteredInfo<?, ?>>();
+  private final List<IElementType> mySubRootElements = new ArrayList<IElementType>();
+  
   private TokenSet myEofExtendedElements = TokenSet.EMPTY;
   private boolean isDebug = false;
   private ConflictResolver myResolver = new DefaultConflictResolver();
@@ -53,6 +55,14 @@ public abstract class LayeredParser implements PsiParser {
 
   protected void register(RegisteredInfo<?, ?> info) {
     myParsers.add(info);
+  }
+  
+  protected void setSubRootElements(Collection<IElementType> elements) {
+    mySubRootElements.addAll(elements);
+  }
+  
+  protected void clearSubRootElements() {
+    mySubRootElements.clear();
   }
   
   protected void setEofExtendedElements(IElementType... elements) {
@@ -339,6 +349,12 @@ public abstract class LayeredParser implements PsiParser {
 
     public void copyMarkersWithRoot(IElementType rootElementType) {
       final PsiBuilder.Marker rootMarker = rootElementType != null? myDelegate.mark() : null;
+      final List<Pair<Marker, IElementType>> subRootMarkers = mySubRootElements.isEmpty()? 
+          Collections.<Pair<Marker, IElementType>>emptyList() : 
+          new ArrayList<Pair<Marker, IElementType>>(mySubRootElements.size());
+      for (IElementType tpe : mySubRootElements) {
+        subRootMarkers.add(new Pair<Marker, IElementType>(myDelegate.mark(), tpe));
+      }
       
       final Stack<FakeStartMarker> openMarkers = new Stack<FakeStartMarker>();
       myDelegate.setWhitespaceSkippedCallback(null);
@@ -394,6 +410,11 @@ public abstract class LayeredParser implements PsiParser {
           
           for (FakeMarker marker : eofMarkers) processFakeMarker(marker, openMarkers);
         }
+      }
+      
+      for (ListIterator<Pair<Marker, IElementType>> iterator = subRootMarkers.listIterator(subRootMarkers.size()); iterator.hasPrevious();) {
+        Pair<Marker, IElementType> listElement = iterator.previous();
+        listElement.getFirst().done(listElement.getSecond());
       }
       
       if (rootMarker != null) rootMarker.done(rootElementType);
