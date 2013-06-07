@@ -18,5 +18,9 @@ object Sbt {
 
   val ProjectDescription = "SBT project"
 
+  val BuildModuleSuffix = "-build"
+
+  val BuildLibraryName = "sbt-and-plugins"
+
   lazy val Icon = IconLoader.getIcon("/sbt.png")
 }

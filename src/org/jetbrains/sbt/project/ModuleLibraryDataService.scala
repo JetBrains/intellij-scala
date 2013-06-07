@@ -55,7 +55,7 @@ object ModuleLibraryDataService {
 
     val libraryTable = model.getModuleLibraryTable
 
-    Option(libraryTable.getLibraryByName("sbt-and-plugins")) // TODO don't hardcode the name
+    Option(libraryTable.getLibraryByName(Sbt.BuildLibraryName)) // TODO don't hardcode the name
       .foreach(libraryTable.removeLibrary(_))
 
     model.commit()

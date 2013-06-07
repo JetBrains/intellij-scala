@@ -4,6 +4,7 @@ package language
 import com.intellij.psi.{PsiElement, ResolveState, FileViewProvider}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaFileImpl
 import com.intellij.psi.scope.PsiScopeProcessor
+import com.intellij.openapi.module.{ModuleManager, ModuleUtilCore}
 
 /**
  * @author Pavel Fatin
@@ -21,5 +22,14 @@ class SbtFileImpl(provider: FileViewProvider) extends ScalaFileImpl(provider, Sb
 
   override def implicitlyImportedPackages = super.implicitlyImportedPackages :+ "sbt"
 
-  override def implicitlyImportedObjects = super.implicitlyImportedObjects ++ Seq("sbt.Process", "sbt.Keys")
+  override def implicitlyImportedObjects = super.implicitlyImportedObjects ++ Seq("sbt", "sbt.Process", "sbt.Keys")
+
+  override def getFileResolveScope = {
+    val manager = ModuleManager.getInstance(getProject)
+
+    Option(ModuleUtilCore.findModuleForPsiElement(this))
+      .flatMap(module => Option(manager.findModuleByName(module.getName + Sbt.BuildModuleSuffix)))
+      .map(_.getModuleWithLibrariesScope)
+      .getOrElse(super.getFileResolveScope)
+  }
 }
