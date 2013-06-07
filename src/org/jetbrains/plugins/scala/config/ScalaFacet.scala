@@ -94,7 +94,15 @@ class ScalaFacet(module: Module, name: String,
     Option(data.basePackage).filter(!_.isEmpty)
   }
 
+  def basePackage_=(aPackage: Option[String]) {
+    getConfiguration.getState.basePackage = aPackage.getOrElse("")
+  }
+
   def languageLevel: ScalaLanguageLevel.Value = {
     ScalaLanguageLevel.withName(getConfiguration.getState.languageLevel)
+  }
+
+  def languageLevel_=(level: ScalaLanguageLevel.Value) {
+    getConfiguration.getState.languageLevel = level.toString
   }
 }
