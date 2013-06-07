@@ -11,7 +11,7 @@ import com.intellij.psi.{PsiDocumentManager, PsiElement}
 import lang.psi.impl.ScalaPsiElementFactory
 import extensions._
 import lang.refactoring.namesSuggester.NameSuggester
-import com.intellij.codeInsight.CodeInsightUtilBase
+import com.intellij.codeInsight.{CodeInsightUtilCore, CodeInsightUtilBase}
 import com.intellij.refactoring.rename.inplace.MyLookupExpression
 import lang.psi.api.statements.params.ScParameter
 import lang.refactoring.util.ScalaVariableValidator
@@ -169,7 +169,7 @@ class IntroduceExplicitParameterIntention extends PsiElementBaseIntentionAction 
         case _ =>
       }
 
-      CodeInsightUtilBase.forcePsiPostprocessAndRestoreElement(parent)
+      CodeInsightUtilCore.forcePsiPostprocessAndRestoreElement(parent)
 
       editor.getCaretModel.moveToOffset(parent.getTextRange.getStartOffset)
       val template = builder.buildInlineTemplate()
