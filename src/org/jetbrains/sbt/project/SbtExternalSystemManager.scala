@@ -36,4 +36,6 @@ class SbtExternalSystemManager extends ExternalSystemManager[SbtProjectSettings,
   def getProjectResolverClass = classOf[SbtProjectResolver]
 
   def getBuildManagerClass = classOf[SbtBuildManager]
+
+  def getTaskManagerClass = classOf[SbtTaskManager]
 }

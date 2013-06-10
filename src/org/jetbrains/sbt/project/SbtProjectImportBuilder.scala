@@ -10,8 +10,9 @@ import com.intellij.openapi.externalSystem.model.project.ProjectData
 import com.intellij.openapi.externalSystem.settings.ExternalSystemSettingsManager
 import com.intellij.openapi.externalSystem.service.project.manage.ProjectDataManager
 import com.intellij.openapi.fileChooser.FileChooserDescriptor
-import com.intellij.openapi.externalSystem.service.settings.{ExternalSettingsControl, AbstractExternalProjectSettingsControl, AbstractImportFromExternalSystemControl}
+import com.intellij.openapi.externalSystem.service.settings.{AbstractExternalProjectSettingsControl, AbstractImportFromExternalSystemControl}
 import com.intellij.openapi.externalSystem.util.PaintAwarePanel
+import com.intellij.openapi.externalSystem.util.ExternalSystemSettingsControl
 import settings._
 
 /**
@@ -49,14 +50,10 @@ class SbtImportControl extends AbstractImportFromExternalSystemControl[SbtProjec
 
     def resetExtraSettings() {}
 
-    def showExtraUi(show: Boolean) {}
-
-    def disposeExtraUIControls() {}
-
     def fillExtraControls(content: PaintAwarePanel, indentLevel: Int) {}
   }
 
-  def createSystemSettingsControl(settings: SbtSettings) = new ExternalSettingsControl[SbtSettings] {
+  def createSystemSettingsControl(settings: SbtSettings) = new ExternalSystemSettingsControl[SbtSettings] {
     def isModified = false
 
     def showUi(show: Boolean) {}
