@@ -15,7 +15,7 @@ import com.intellij.openapi.editor.colors.{EditorColorsManager, EditorColors}
 
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi._
-import psi.api.base.patterns.{ScCaseClause, ScReferencePattern}
+import psi.api.base.patterns.ScReferencePattern
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import psi.api.expr._
 import psi.impl.ScalaPsiElementFactory
@@ -27,14 +27,17 @@ import com.intellij.openapi.vfs.ReadonlyStatusHandler
 import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.scala.util.ScalaUtils
 import psi.types._
-import psi.api.statements.{ScFunction, ScFunctionDefinition}
+import psi.api.statements.ScFunction
 import lang.resolve.ScalaResolveResult
 import psi.api.expr.xml.ScXmlExpr
 import psi.ScalaPsiElement
 import psi.api.base.ScLiteral
 import com.intellij.openapi.editor.{VisualPosition, Editor}
 import com.intellij.openapi.actionSystem.DataContext
-import extensions.toPsiClassExt
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScEarlyDefinitions
+import org.jetbrains.plugins.scala.extensions._
 
 /**
  * User: Alexander Podkhalyuzin
@@ -473,6 +476,32 @@ object ScalaRefactoringUtil {
     }
     invokesNext()
   }
+
+  def fileEncloser(startOffset: Int, file: PsiFile): PsiElement = {
+    if (file.asInstanceOf[ScalaFile].isScriptFile()) file
+    else {
+      var res: PsiElement = file.findElementAt(startOffset)
+      while (!res.isInstanceOf[ScFunction] && res.getParent != null &&
+              !res.getParent.isInstanceOf[ScTemplateBody] &&
+              !res.getParent.isInstanceOf[ScEarlyDefinitions] &&
+              res != file) res = res.getParent
+      if (res == null) {
+        for (child <- file.getChildren) {
+          val textRange: TextRange = child.getTextRange
+          if (textRange.contains(startOffset)) res = child
+        }
+      }
+      res
+    }
+  }
+
+  def enclosingContainer(file: PsiFile, textRanges: TextRange*): PsiElement = {
+    val elemSeq = (for (textRange <- textRanges) yield file.findElementAt(textRange.getStartOffset)).toSeq ++
+            (for (textRange <- textRanges) yield file.findElementAt(textRange.getEndOffset - 1)).toSeq
+    val commonParent: PsiElement = PsiTreeUtil.findCommonParent(elemSeq: _*)
+    Option(commonParent).flatMap(_.scopes.toStream.headOption).orNull
+  }
+
 
   private[refactoring] class IntroduceException extends Exception
 }

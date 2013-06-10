@@ -1,46 +1,80 @@
 package org.jetbrains.plugins.scala.lang.refactoring.util
 
-import com.intellij.openapi.util.TextRange
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import _root_.scala.collection.mutable.ArrayBuffer
 import com.intellij.openapi.project.Project
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
-import com.intellij.psi.PsiElement
+import com.intellij.psi.{PsiFile, PsiElement}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTypeDefinition, ScTrait, ScClass}
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import params.{ScParameters, ScParameter}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
+import com.intellij.openapi.util.TextRange
+import com.intellij.openapi.editor.Editor
+
 
 /**
 * User: Alexander Podkhalyuzin
 * Date: 24.06.2008
 */
 
-class ScalaVariableValidator(introduceVariableBase: ConflictsReporter,
+object ScalaVariableValidator {
+  def apply(conflictsReporter: ConflictsReporter,
+            project: Project,
+            editor: Editor,
+            file: PsiFile,
+            mainOccurence: TextRange,
+            occurrences: Array[TextRange]): ScalaVariableValidator = {
+    val container = ScalaRefactoringUtil.enclosingContainer(file, occurrences: _*)
+    val containerOne = ScalaRefactoringUtil.enclosingContainer(file, mainOccurence)
+    ScalaRefactoringUtil.getExpression(project, editor, file, mainOccurence.getStartOffset, mainOccurence.getEndOffset) match {
+      case Some((expr, _)) => new ScalaVariableValidator(conflictsReporter, project, expr, occurrences.isEmpty, container, containerOne)
+      case _ => null
+    }
+  }
+
+  def apply(conflictsReporter: ConflictsReporter,
+            project: Project,
+            editor: Editor,
+            file: PsiFile,
+            element: PsiElement,
+            occurrences: Array[TextRange]): ScalaVariableValidator = {
+    val container = ScalaRefactoringUtil.enclosingContainer(file, occurrences: _*)
+    val containerOne = ScalaRefactoringUtil.enclosingContainer(file, element.getTextRange)
+    new ScalaVariableValidator(conflictsReporter, project, element, occurrences.isEmpty, container, containerOne)
+  }
+}
+
+class ScalaVariableValidator(conflictsReporter: ConflictsReporter,
                              myProject: Project,
-                             selectedExpr: ScExpression,
-                              noOccurrences: Boolean,
-                             enclosingContainerAll: PsiElement, enclosingOne: PsiElement) extends NameValidator {
+                             selectedElement: PsiElement,
+                             noOccurrences: Boolean,
+                             enclosingContainerAll: PsiElement,
+                             enclosingOne: PsiElement) extends NameValidator {
+
   def getProject(): Project = {
     myProject
   }
 
-  def isOK(dialog: NamedDialog): Boolean = {
+
+  def enclosingContainer(allOcc: Boolean): PsiElement =
+    if (allOcc) enclosingContainerAll else enclosingOne
+
+  def isOK(dialog: NamedDialog): Boolean = isOK(dialog.getEnteredName, dialog.isReplaceAllOccurrences)
+
+  def isOK(newName: String, isReplaceAllOcc: Boolean): Boolean = {
     if (noOccurrences) return true
-    val name = dialog.getEnteredName
-    val allOcc = dialog.isReplaceAllOccurrences
-    val conflicts = isOKImpl(name, allOcc)
-    conflicts.length == 0 || introduceVariableBase.reportConflicts(conflicts, myProject)
+    val conflicts = isOKImpl(newName, isReplaceAllOcc)
+    conflicts.length == 0 || conflictsReporter.reportConflicts(conflicts, myProject)
   }
 
   def isOKImpl(name: String, allOcc: Boolean): Array[String] = {
-    val enclosingContainer: PsiElement = if (allOcc) enclosingContainerAll else enclosingOne
-    if (enclosingContainer == null) return Array()
+    val container = enclosingContainer(allOcc)
+    if (container == null) return Array()
     val buf = new ArrayBuffer[String]
-    buf ++= validateDown(enclosingContainer, name, allOcc)
-    buf ++= validateUp(enclosingContainer, name)
-    var cl = enclosingContainer
+    buf ++= validateDown(container, name, allOcc)
+    buf ++= validateUp(container, name)
+    var cl = container
     while (cl != null && !cl.isInstanceOf[ScClass] && !cl.isInstanceOf[ScTrait]) cl = cl.getParent
     if (cl != null) {
       cl match {
@@ -111,7 +145,7 @@ class ScalaVariableValidator(introduceVariableBase: ConflictsReporter,
   }
 
   private def validateDown(element: PsiElement, name: String, allOcc: Boolean): Array[String] = {
-    val enclosingContainer: PsiElement = if (allOcc) enclosingContainerAll else enclosingOne
+    val container = enclosingContainer(allOcc)
     val buf = new ArrayBuffer[String]
     for (child <- element.getChildren) {
       child match {
@@ -133,24 +167,26 @@ class ScalaVariableValidator(introduceVariableBase: ConflictsReporter,
         case _ =>
       }
     }
-    if (element != enclosingContainer)
+    if (element != container)
       for (child <- element.getChildren) {
         buf ++= validateDown(child, name, allOcc)
       }
     else {
       var from = {
         var parent: PsiElement = if (allOcc) {
-          selectedExpr //todo:
+          selectedElement //todo:
         } else {
-          selectedExpr
+          selectedElement
         }
-        if (parent != enclosingContainer)
-          while (parent.getParent != null && parent.getParent != enclosingContainer) parent = parent.getParent
+        if (parent != container)
+          while (parent.getParent != null && parent.getParent != container) parent = parent.getParent
         else parent = parent.getFirstChild
         parent
       }
       var fromDoubles = from.getPrevSibling
+      var i = 0
       while (fromDoubles != null) {
+        i = i + 1
         fromDoubles match {
           case x: ScVariableDefinition => {
             val elems = x.declaredElements
