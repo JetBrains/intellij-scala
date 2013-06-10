@@ -2,7 +2,7 @@ package org.jetbrains.sbt
 package project
 
 import com.intellij.openapi.externalSystem.service.project.ExternalSystemProjectResolver
-import com.intellij.openapi.externalSystem.model.task.{ExternalSystemTaskType, ExternalSystemTaskNotificationEvent, ExternalSystemTaskId}
+import com.intellij.openapi.externalSystem.model.task.{ExternalSystemTaskNotificationListener, ExternalSystemTaskType, ExternalSystemTaskNotificationEvent, ExternalSystemTaskId}
 import com.intellij.openapi.externalSystem.model.project._
 import com.intellij.openapi.module.StdModuleTypes
 import com.intellij.openapi.externalSystem.model.{ExternalSystemException, DataNode}
@@ -16,7 +16,7 @@ import com.intellij.openapi.roots.DependencyScope
  * @author Pavel Fatin
  */
 class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSettings] {
-  def resolveProjectInfo(id: ExternalSystemTaskId, projectPath: String, downloadLibraries: Boolean, settings: SbtExecutionSettings): DataNode[ProjectData] = {
+  def resolveProjectInfo(id: ExternalSystemTaskId, projectPath: String, downloadLibraries: Boolean, settings: SbtExecutionSettings, listener: ExternalSystemTaskNotificationListener): DataNode[ProjectData] = {
     if (downloadLibraries) return null
 
     val path = {
@@ -24,21 +24,11 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
       if (file.isDirectory) file.getPath else file.getParent
     }
 
-    val xml = {
-      val listener = settings.getNotificationListener
-
-      val task = ExternalSystemTaskId.create(ExternalSystemTaskType.RESOLVE_PROJECT)
-
-      listener.onStart(task)
-      val result = PluginRunner.read(new File(path)) { message =>
-        listener.onStatusChange(new ExternalSystemTaskNotificationEvent(task, message))
-      }
-      listener.onEnd(task)
-
-      result match {
-        case Left(errors) => throw new ExternalSystemException(errors)
-        case Right(node) => node
-      }
+    val xml = PluginRunner.read(new File(path)) { message =>
+      listener.onStatusChange(new ExternalSystemTaskNotificationEvent(id, message))
+    } match {
+      case Left(errors) => throw new ExternalSystemException(errors)
+      case Right(node) => node
     }
 
     val data = Parser.parse(xml, new File(System.getProperty("user.home")))
@@ -120,7 +110,8 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
   private def nameFor(scala: Scala) = s"SBT: scala-compiler:${scala.version}"
 
   private def createModule(project: Project): ModuleNode = {
-    val result = new ModuleNode(SbtProjectSystem.Id, StdModuleTypes.JAVA.getId, project.name, project.base.path)
+    val result = new ModuleNode(SbtProjectSystem.Id, StdModuleTypes.JAVA.getId, project.name,
+      project.base.path, project.base.path)
 
     result.setInheritProjectCompileOutputPath(false)
 
@@ -148,7 +139,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     val name = project.name + Sbt.BuildModuleSuffix
     val path = project.base.path + "/project"
 
-    val result = new ModuleNode(SbtProjectSystem.Id, StdModuleTypes.JAVA.getId, name, path)
+    val result = new ModuleNode(SbtProjectSystem.Id, StdModuleTypes.JAVA.getId, name, path, path)
 
     result.setInheritProjectCompileOutputPath(false)
     result.setCompileOutputPath(ExternalSystemSourceType.SOURCE, path + "/target/idea-classes")

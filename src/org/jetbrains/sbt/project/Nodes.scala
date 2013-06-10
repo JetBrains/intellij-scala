@@ -15,8 +15,8 @@ class ProjectNode(owner: ProjectSystemId, ideProjectFileDirectoryPath: String, l
   protected def key = ProjectKeys.PROJECT
 }
 
-class ModuleNode(owner: ProjectSystemId, typeId: String, name: String, moduleFileDirectoryPath: String)
-  extends ModuleData(owner, typeId, name, moduleFileDirectoryPath) with Node[ModuleData] {
+class ModuleNode(owner: ProjectSystemId, typeId: String, name: String, moduleFileDirectoryPath: String, externalConfigPath: String)
+  extends ModuleData(owner, typeId, name, moduleFileDirectoryPath, externalConfigPath) with Node[ModuleData] {
 
   protected def key = ProjectKeys.MODULE
 }

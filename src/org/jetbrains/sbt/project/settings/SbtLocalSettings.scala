@@ -14,7 +14,7 @@ import com.intellij.openapi.components.{ServiceManager, State, Storage, StorageP
     new Storage(file = StoragePathMacros.WORKSPACE_FILE)
   )
 )
-class SbtLocalSettings extends AbstractExternalSystemLocalSettings[SbtLocalSettings]
+class SbtLocalSettings extends AbstractExternalSystemLocalSettings
 
 object SbtLocalSettings {
   def getInstance(project: Project) = ServiceManager.getService(project, classOf[SbtLocalSettings])
