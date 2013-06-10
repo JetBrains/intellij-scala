@@ -12,12 +12,13 @@ import com.intellij.ui.EditorComboBoxEditor;
 import com.intellij.ui.EditorComboBoxRenderer;
 import com.intellij.ui.EditorTextField;
 import com.intellij.ui.StringComboboxEditor;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.scala.ScalaBundle;
 import org.jetbrains.plugins.scala.ScalaFileType;
+import org.jetbrains.plugins.scala.lang.psi.types.ScType;
 import org.jetbrains.plugins.scala.lang.refactoring.util.*;
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings;
-import org.jetbrains.plugins.scala.lang.psi.types.ScType;
 
 import javax.swing.*;
 import javax.swing.event.EventListenerList;
@@ -54,13 +55,13 @@ public class ScalaIntroduceVariableDialog extends DialogWrapper implements Named
 
 
   public ScalaIntroduceVariableDialog(Project project,
-                                      ScType[] myType,
+                                      ScType[] myTypes,
                                       int occurrencesCount,
                                       ScalaVariableValidator validator,
                                       String[] possibleNames) {
     super(project, true);
     this.project = project;
-    this.myTypes = myType;
+    this.myTypes = myTypes;
     this.occurrencesCount = occurrencesCount;
     this.validator = validator;
     this.possibleNames = possibleNames;
@@ -125,7 +126,7 @@ public class ScalaIntroduceVariableDialog extends DialogWrapper implements Named
       if (ScTypeUtil.presentableText(myType) == null) nullText = true;
     }
     // Type specification
-    if (myTypes == null || nullText) {
+    if (myTypes.length == 0 || nullText) {
       myCbTypeSpec.setSelected(false);
       myCbTypeSpec.setEnabled(false);
       myTypeComboBox.setEnabled(false);
@@ -216,6 +217,7 @@ public class ScalaIntroduceVariableDialog extends DialogWrapper implements Named
     return myNameComboBox;
   }
 
+  @NotNull
   protected Action[] createActions() {
     return new Action[]{getOKAction(), getCancelAction(), getHelpAction()};
   }
