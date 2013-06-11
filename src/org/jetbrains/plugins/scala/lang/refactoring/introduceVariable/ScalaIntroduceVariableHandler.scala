@@ -87,6 +87,17 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Confli
         case _ if expr.isInstanceOf[ScConstrExpr] => showErrorMessage(ScalaBundle.message("cannot.refactor.constr.expression"), project, editor)
         case _ =>
       }
+
+      ScalaPsiUtil.getParentOfType(expr, classOf[ScConstrBlock]) match {
+        case block: ScConstrBlock =>
+          for {
+            selfInv <- block.selfInvocation
+            args <- selfInv.args
+            if args.isAncestorOf(expr)
+          } showErrorMessage(ScalaBundle.message("cannot.refactor.arg.in.self.invocation.of.constructor"), project, editor)
+        case _ =>
+      }
+
       val guard: ScGuard = PsiTreeUtil.getParentOfType(expr, classOf[ScGuard])
       if (guard != null && guard.getParent.isInstanceOf[ScCaseClause]) showErrorMessage(ScalaBundle.message("refactoring.is.not.supported.in.guard"), project, editor)
 
