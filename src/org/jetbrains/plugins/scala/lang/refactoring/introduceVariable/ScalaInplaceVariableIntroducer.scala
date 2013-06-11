@@ -26,6 +26,7 @@ import com.intellij.openapi.editor.event.{DocumentEvent, DocumentListener, Docum
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import com.intellij.openapi.ui.MessageType
 import com.intellij.openapi.ui.popup.{Balloon, JBPopupFactory}
+import org.jetbrains.plugins.scala.lang.refactoring.util.{ScalaVariableValidator, ConflictsReporter}
 
 /**
  * Nikolay.Tropin
@@ -51,7 +52,9 @@ class ScalaInplaceVariableIntroducer(project: Project,
   private var myCheckIdentifierListener: DocumentListener = null
   private val myFile: PsiFile = namedElement.getContainingFile
   private var myBalloonPanel: JPanel = null
-  private val myLblNotValid: JLabel = new JLabel()
+  private var nameIsValid: Boolean = true
+
+  private val myLabel: JLabel = new JLabel()
 
   setDeclaration(newDeclaration)
   myCheckIdentifierListener = checkIdentifierListener()
@@ -65,13 +68,13 @@ class ScalaInplaceVariableIntroducer(project: Project,
       val named: Option[ScNamedElement] = namedElement(declaration)
       if (named.isDefined && range.contains(named.get.getNameIdentifier.getTextRange)) {
         setDeclaration(declaration)
-        if (named.isEmpty || !isIdentifier(input, declaration.getLanguage) || named.get.name != input) {
-          myVarCheckbox.setEnabled(false)
-          mySpecifyTypeChb.setEnabled(false)
-        } else {
-          myVarCheckbox.setEnabled(true)
-          mySpecifyTypeChb.setEnabled(true)
+        if (nameIsValid != (named.isDefined && isIdentifier(input, declaration.getLanguage) && named.get.name == input)) {
+          nameIsValid = !nameIsValid
+          resetBalloonPanel(nameIsValid)
         }
+      } else {
+        nameIsValid = false
+        resetBalloonPanel(nameIsValid)
       }
       super.documentChanged(e)
     }
@@ -112,8 +115,9 @@ class ScalaInplaceVariableIntroducer(project: Project,
                 ScalaPsiElementFactory.createVarFromValDeclaration(value, value.getManager)
               case variable: ScVariableDefinition if !asVar =>
                 ScalaPsiElementFactory.createValFromVarDefinition(variable, variable.getManager)
+              case _ => declaration
             }
-            setDeclaration(declaration.replace(replacement).asInstanceOf[ScDeclaredElementsHolder])
+            if (replacement != declaration) setDeclaration(declaration.replace(replacement).asInstanceOf[ScDeclaredElementsHolder])
           }
 
           protected def run(result: Result[Unit]) {
@@ -210,10 +214,20 @@ class ScalaInplaceVariableIntroducer(project: Project,
       })
     }
 
+    editor.getDocument.addDocumentListener(myCheckIdentifierListener)
+
+    setBalloonPanel(nameIsValid = true)
+    myBalloonPanel
+  }
+
+  private def setBalloonPanel(nameIsValid: Boolean) {
+    this.nameIsValid = nameIsValid
     myBalloonPanel = new JPanel(new GridBagLayout)
     myBalloonPanel.setBorder(null)
-   /* val label: JLabel = new JLabel("Identifier is not valid")
-    myBalloon.add(label)*/
+    myBalloonPanel.add(myLabel)
+    if (!nameIsValid) myLabel.setText(ScalaBundle.message("introduce.variable.identifier.is.not.valid"))
+    else myLabel.setText(" ")
+
     var count: Int = 1
     if (myVarCheckbox != null) {
       myBalloonPanel.add(myVarCheckbox,
@@ -228,31 +242,37 @@ class ScalaInplaceVariableIntroducer(project: Project,
     myBalloonPanel.add(Box.createVerticalBox,
       new GridBagConstraints(0, count, 1, 1, 1, 1, GridBagConstraints.NORTHWEST, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0))
 
-    editor.getDocument.addDocumentListener(myCheckIdentifierListener)
-
+    myVarCheckbox.setEnabled(nameIsValid)
+    mySpecifyTypeChb.setEnabled(nameIsValid)
     myBalloonPanel
   }
 
+  private def resetBalloonPanel(nameIsValid: Boolean) {
+    if (!nameIsValid) myLabel.setText(ScalaBundle.message("introduce.variable.identifier.is.not.valid"))
+    else myLabel.setText(" ")
+
+    myVarCheckbox.setEnabled(nameIsValid)
+    mySpecifyTypeChb.setEnabled(nameIsValid)
+  }
+
   protected override def moveOffsetAfter(success: Boolean) {
-    if (!replaceAll || myExprMarker == null) {
-      myEditor.getCaretModel.moveToOffset(getDeclaration.getTextRange.getEndOffset)
-    }
-    else {
+    if (myExprMarker != null) {
       val startOffset: Int = myExprMarker.getStartOffset
-      val file: PsiFile = getDeclaration.getContainingFile
-      val elementAt: PsiElement = file.findElementAt(startOffset)
+      val elementAt: PsiElement = myFile.findElementAt(startOffset)
       if (elementAt != null) {
         myEditor.getCaretModel.moveToOffset(elementAt.getTextRange.getEndOffset)
       }
       else {
         myEditor.getCaretModel.moveToOffset(myExprMarker.getEndOffset)
       }
+    } else if (getDeclaration != null) {
+      myEditor.getCaretModel.moveToOffset(getDeclaration.getTextRange.getEndOffset)
     }
   }
 
   private def createWarningBalloon(message: String) {
     SwingUtilities invokeLater new Runnable {
-      def run {
+      def run() {
         val popupFactory = JBPopupFactory.getInstance
         val bestLocation = popupFactory.guessBestPopupLocation(myEditor)
         popupFactory.createHtmlTextBalloonBuilder(message, null, MessageType.WARNING.getPopupBackground, null).
@@ -267,20 +287,18 @@ class ScalaInplaceVariableIntroducer(project: Project,
     ScalaApplicationSettings.getInstance.INTRODUCE_LOCAL_CREATE_VARIABLE = myVarCheckbox.isSelected
     ScalaApplicationSettings.getInstance.SPECIFY_TYPE_EXPLICITLY = mySpecifyTypeChb.isSelected
 
-    /*val declaration = getDeclaration
     val named = namedElement(getDeclaration).getOrElse(null)
-    if (named != null) {
-      val templateState: TemplateState = TemplateManagerImpl.getTemplateState(myEditor)
+    val templateState: TemplateState = TemplateManagerImpl.getTemplateState(myEditor)
+    if (named != null && templateState != null) {
       val occurrences = (for (i <- 0 to templateState.getSegmentsCount - 1) yield templateState.getSegmentRange(i)).toArray
-
       val validator = ScalaVariableValidator(new ConflictsReporter {
         def reportConflicts(conflicts: Array[String], project: Project): Boolean = {
           createWarningBalloon(conflicts.toSet.mkString("\n"))
           true //this means that we do nothing, only show balloon
         }
-      }, project, editor, declaration.getContainingFile, named, occurrences)
+      }, project, editor, myFile, named, occurrences)
       validator.isOK(named.name, replaceAll)
-    }*/
+    }
     editor.getDocument.removeDocumentListener(myCheckIdentifierListener)
 
     super.finish(success)
