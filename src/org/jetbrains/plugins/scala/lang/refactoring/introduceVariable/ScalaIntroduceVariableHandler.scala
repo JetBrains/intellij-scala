@@ -17,7 +17,7 @@ import java.util.regex.{Pattern, Matcher}
 import java.util.LinkedHashSet
 import lexer.ScalaTokenTypes
 import namesSuggester.NameSuggester
-import psi.api.base.patterns.ScCaseClause
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScLiteralPattern, ScCaseClause}
 import psi.api.ScalaFile
 import psi.api.statements._
 import psi.api.toplevel.ScEarlyDefinitions
@@ -85,6 +85,8 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Confli
         case post: ScPostfixExpr if post.operation == expr => showErrorMessage(ScalaBundle.message("cannot.refactor.not.expression"), project, editor)
         case _: ScGenericCall => showErrorMessage(ScalaBundle.message("cannot.refactor.under.generic.call"), project, editor)
         case _ if expr.isInstanceOf[ScConstrExpr] => showErrorMessage(ScalaBundle.message("cannot.refactor.constr.expression"), project, editor)
+        case _: ScArgumentExprList if expr.isInstanceOf[ScAssignStmt] => showErrorMessage(ScalaBundle.message("cannot.refactor.named.arg"), project, editor)
+        case _: ScLiteralPattern => showErrorMessage(ScalaBundle.message("cannot.refactor.literal.pattern"), project, editor)
         case _ =>
       }
 
