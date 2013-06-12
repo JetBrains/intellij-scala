@@ -22,7 +22,7 @@ import psi.api.ScalaFile
 import psi.api.statements._
 import psi.api.toplevel.ScEarlyDefinitions
 import psi.api.toplevel.templates.ScTemplateBody
-import psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import psi.api.expr._
 import com.intellij.openapi.application.ApplicationManager
@@ -134,14 +134,20 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Confli
             val asVar = ScalaApplicationSettings.getInstance().INTRODUCE_LOCAL_CREATE_VARIABLE
             ScalaApplicationSettings.getInstance().SPECIFY_TYPE_EXPLICITLY
             val selectedType = if (ScalaApplicationSettings.getInstance().SPECIFY_TYPE_EXPLICITLY) types(0) else null
-            val introduceRunnable: Computable[ScDeclaredElementsHolder] =
+            val introduceRunnable: Computable[PsiElement] =
               introduceVariable(startOffset, endOffset, file, editor, expr, occurrences, suggestedNames(0), selectedType,
                 replaceAll, asVar)
             CommandProcessor.getInstance.executeCommand(project, new Runnable {
               def run() {
-                val newDeclaration: ScDeclaredElementsHolder = ApplicationManager.getApplication.runWriteAction(introduceRunnable)
-                if (newDeclaration.declaredElements.nonEmpty) {
-                  val namedElement: PsiNamedElement = newDeclaration.declaredElements(0)
+                val newDeclaration: PsiElement = ApplicationManager.getApplication.runWriteAction(introduceRunnable)
+                var namedElement: PsiNamedElement = null
+                newDeclaration match {
+                  case holder: ScDeclaredElementsHolder if holder.declaredElements.nonEmpty =>
+                    namedElement = holder.declaredElements(0)
+                  case enum: ScEnumerator =>
+                    namedElement = enum.pattern.bindings(0)
+                }
+                if (namedElement != null) {
                   editor.getCaretModel.moveToOffset(namedElement.getTextOffset)
                   editor.getSelectionModel.removeSelection()
                   if (isInplaceAvailable(editor)) {
@@ -178,11 +184,11 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Confli
   def isInplaceAvailable(editor: Editor): Boolean =
     editor.getSettings.isVariableInplaceRenameEnabled && !ApplicationManager.getApplication.isUnitTestMode
 
-
+  //returns ScDeclaredElementsHolder or ScEnumerator
   def runRefactoringInside(startOffset: Int, endOffset: Int, file: PsiFile, editor: Editor, expression_ : ScExpression,
                            occurrences_ : Array[TextRange], varName: String, varType: ScType,
-                           replaceAllOccurrences: Boolean, isVariable: Boolean): ScDeclaredElementsHolder = {
-    var createdMember: ScMember = null
+                           replaceAllOccurrences: Boolean, isVariable: Boolean): PsiElement = {
+    var createdDeclaration: PsiElement = null
     val expression = {
       def copyExpr = expression_.copy.asInstanceOf[ScExpression]
       def liftMethod = ScalaPsiElementFactory.createExpressionFromText(expression_.getText + " _", expression_.getManager)
@@ -223,8 +229,9 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Confli
       if (introduceEnumerator) parExpr.asInstanceOf[ScForStatement]
       else null
     def checkEnd(prev: PsiElement, parExpr: ScExpression): Boolean = {
+      var result: Option[Boolean] = None
       prev match {
-        case _: ScBlock => return true
+        case _: ScBlock => result = Some(true)
         case _: ScFunction => needBraces = true
         case memb: ScMember if memb.getParent.isInstanceOf[ScTemplateBody] => needBraces = true
         case memb: ScMember if memb.getParent.isInstanceOf[ScEarlyDefinitions] => needBraces = true
@@ -237,7 +244,7 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Confli
         case forSt: ScForStatement => {
           introduceEnumerator = true
           introduceEnumeratorForStmt = forSt
-          return true
+          result = Some(true)
         }
         case _: ScEnumerator | _: ScGenerator => {
           introduceEnumeratorForStmt = prev.getParent.getParent.asInstanceOf[ScForStatement]
@@ -260,7 +267,7 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Confli
         case clause: ScCaseClause => needBraces = false
         case _ =>
       }
-      needBraces
+      result getOrElse needBraces
     }
     if (!parExpr.isInstanceOf[ScBlock] || (commonParent.isInstanceOf[ScBlock] && occurrences.length == 1))
       while (prev != null && !checkEnd(prev, parExpr) && prev.isInstanceOf[ScExpression]) {
@@ -280,17 +287,17 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Confli
       document.replaceString(offset, occurrences(i).getEndOffset, varName)
       val documentManager = PsiDocumentManager.getInstance(editor.getProject)
       documentManager.commitDocument(document)
-      val leaf = file.findElementAt(offset)
-      if (!(deleteOccurrence && replaceAllOccurrences) && leaf.getParent != null &&
-              leaf.getParent.getParent.isInstanceOf[ScParenthesisedExpr]) {
-        val textRange = leaf.getParent.getParent.getTextRange
+      val leafIdentifier = file.findElementAt(offset)
+      if (!(deleteOccurrence && replaceAllOccurrences) && leafIdentifier.getParent != null &&
+              leafIdentifier.getParent.getParent.isInstanceOf[ScParenthesisedExpr]) {
+        val textRange = leafIdentifier.getParent.getParent.getTextRange
         document.replaceString(textRange.getStartOffset, textRange.getEndOffset, varName)
         documentManager.commitDocument(document)
         parentheses = -2
-      } else if (leaf.getParent != null && leaf.getParent.getParent.isInstanceOf[ScPostfixExpr] &&
-              leaf.getParent.getParent.asInstanceOf[ScPostfixExpr].operation == leaf.getParent) {
+      } else if (leafIdentifier.getParent != null && leafIdentifier.getParent.getParent.isInstanceOf[ScPostfixExpr] &&
+              leafIdentifier.getParent.getParent.asInstanceOf[ScPostfixExpr].operation == leafIdentifier.getParent) {
         //This case for block argument expression
-        val textRange = leaf.getParent.getTextRange
+        val textRange = leafIdentifier.getParent.getTextRange
         document.replaceString(textRange.getStartOffset, textRange.getEndOffset, "(" + varName + ")")
         documentManager.commitDocument(document)
         parentheses = 2
@@ -314,9 +321,8 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Confli
               case _ => sibling = sibling.getPrevSibling
             }
           }
-          var createStmt: PsiElement =
-            ScalaPsiElementFactory.createEnumerator(varName, ScalaRefactoringUtil.unparExpr(expression),
-              file.getManager)
+          createdDeclaration =
+            ScalaPsiElementFactory.createEnumerator(varName, ScalaRefactoringUtil.unparExpr(expression), file.getManager, varType)
           var elem = file.findElementAt(occurrences(0).getStartOffset + (if (needBraces) 1 else 0) + parentheses)
           while (elem != null && elem.getParent != parent) elem = elem.getParent
           if (elem != null) {
@@ -325,22 +331,18 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Confli
               sibling = elem.getPrevSibling
               while (sibling != null && sibling.getText.trim == "") sibling = sibling.getPrevSibling
               if (sibling != null && sibling.getText.endsWith(";")) needSemicolon = false
-              createStmt = parent.addBefore(createStmt, parent.addBefore(ScalaPsiElementFactory.
-                      createSemicolon(parent.getManager),
-                elem))
+              createdDeclaration = parent.addBefore(createdDeclaration, parent.addBefore(ScalaPsiElementFactory.createSemicolon(parent.getManager), elem))
               if (needSemicolon) {
-                parent.addBefore(ScalaPsiElementFactory.
-                        createSemicolon(parent.getManager), createStmt)
+                parent.addBefore(ScalaPsiElementFactory.createSemicolon(parent.getManager), createdDeclaration)
               }
             } else {
               needSemicolon = true
               sibling = elem.getPrevSibling
               if (sibling.getText.indexOf('\n') != -1) needSemicolon = false
-              createStmt = parent.addBefore(createStmt, elem)
+              createdDeclaration = parent.addBefore(createdDeclaration, elem)
               parent.addBefore(ScalaPsiElementFactory.createNewLineNode(elem.getManager).getPsi, elem)
               if (needSemicolon) {
-                parent.addBefore(ScalaPsiElementFactory.
-                        createNewLineNode(parent.getManager).getPsi, createStmt)
+                parent.addBefore(ScalaPsiElementFactory.createNewLineNode(parent.getManager).getPsi, createdDeclaration)
               }
             }
           }
@@ -380,21 +382,21 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Confli
           }
           val parent = if ((needBraces || needBlockWithoutBraces) && parExpr != null && parExpr.isValid) parExpr
           else container
-          createdMember = ScalaPsiElementFactory.createDeclaration(varType, varName, isVariable,
+          createdDeclaration = ScalaPsiElementFactory.createDeclaration(varType, varName, isVariable,
             ScalaRefactoringUtil.unparExpr(expression), file.getManager)
-          var elem = file.findElementAt(occurrences(0).getStartOffset + (if (needBraces) 1 else 0) + parentheses)
+          var elem = file.findElementAt(occurrences(0).getStartOffset + (if (needBraces) 1 else 0) + parentheses / 2)
           while (elem != null && elem.getParent != parent) elem = elem.getParent
           if (elem != null) {
-            createdMember = parent.addBefore(createdMember, elem).asInstanceOf[ScMember]
+            createdDeclaration = parent.addBefore(createdDeclaration, elem).asInstanceOf[ScMember]
             parent.addBefore(ScalaPsiElementFactory.createNewLineNode(elem.getManager, "\n").getPsi, elem)
-            ScalaPsiUtil.adjustTypes(createdMember)
+            ScalaPsiUtil.adjustTypes(createdDeclaration)
           }
           if (deleteOccurrence && !replaceAllOccurrences) {
-            elem = createdMember.getNextSibling
+            elem = createdDeclaration.getNextSibling
             while (elem != null && elem.getText.trim == "") elem = elem.getNextSibling
             if (elem != null) {
               elem.getParent.getNode.removeChild(elem.getNode)
-              val element = createdMember.getNextSibling
+              val element = createdDeclaration.getNextSibling
               if (element.getText.trim == "") {
                 val nl = Pattern.compile("\n", Pattern.LITERAL).matcher(element.getText).replaceFirst(Matcher.quoteReplacement(""))
                 if (nl.replace(" ", "") != "") {
@@ -404,17 +406,14 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Confli
                 }
               }
             }
-            editor.getCaretModel.moveToOffset(createdMember.getTextRange.getEndOffset)
+            editor.getCaretModel.moveToOffset(createdDeclaration.getTextRange.getEndOffset)
           }
         }
       }
       i = i - 1
     }
 
-    createdMember match {
-      case declaration: ScDeclaredElementsHolder => declaration
-      case _ => null
-    }
+    createdDeclaration
   }
 
   def runRefactoring(startOffset: Int, endOffset: Int, file: PsiFile, editor: Editor, expression: ScExpression,
@@ -433,10 +432,10 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Confli
 
   def introduceVariable(startOffset: Int, endOffset: Int, file: PsiFile, editor: Editor, expression: ScExpression,
                         occurrences_ : Array[TextRange], varName: String, varType: ScType,
-                        replaceAllOccurrences: Boolean, isVariable: Boolean): Computable[ScDeclaredElementsHolder] = {
+                        replaceAllOccurrences: Boolean, isVariable: Boolean): Computable[PsiElement] = {
 
-    new Computable[ScDeclaredElementsHolder]() {
-      def compute(): ScDeclaredElementsHolder = runRefactoringInside(startOffset, endOffset, file, editor, expression, occurrences_, varName,
+    new Computable[PsiElement]() {
+      def compute(): PsiElement = runRefactoringInside(startOffset, endOffset, file, editor, expression, occurrences_, varName,
         varType, replaceAllOccurrences, isVariable)
     }
 
