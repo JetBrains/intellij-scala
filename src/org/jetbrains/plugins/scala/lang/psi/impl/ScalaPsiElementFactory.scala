@@ -20,7 +20,6 @@ import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports._
 import com.intellij.psi._
-import impl.PsiElementFactoryImpl
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import parser.parsing.statements.{Dcl, Def}
 import com.intellij.psi.util.PsiTreeUtil
@@ -525,8 +524,9 @@ object ScalaPsiElementFactory {
     classDef.members(0).asInstanceOf[ScVariable]
   }
 
-  def createEnumerator(name: String, expr: ScExpression, manager: PsiManager): ScEnumerator = {
-    val text = "for {\n  i <- 1 to 239\n  " + name + " = " + expr.getText + "\n}"
+  def createEnumerator(name: String, expr: ScExpression, manager: PsiManager, scType: ScType = null): ScEnumerator = {
+    val typeText = if (scType == null) "" else ": " + scType.presentableText
+    val text = s"for {\n  i <- 1 to 239\n  $name$typeText = ${expr.getText}\n}"
     val dummyFile = createScalaFile(text, manager)
     val forStmt: ScForStatement = dummyFile.getFirstChild.asInstanceOf[ScForStatement]
     forStmt.enumerators.getOrElse(null).enumerators.apply(0)
