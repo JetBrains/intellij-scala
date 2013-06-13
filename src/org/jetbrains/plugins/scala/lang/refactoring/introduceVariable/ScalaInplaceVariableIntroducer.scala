@@ -170,7 +170,6 @@ class ScalaInplaceVariableIntroducer(project: Project,
           }
 
           val writeAction = new WriteCommandAction[Unit](myProject, getCommandName, getCommandName) {
-
             private def addTypeAnnotation(selectedType: ScType) {
               getDeclaration match {
                 case _: ScDeclaredElementsHolder | _: ScEnumerator =>
@@ -207,14 +206,11 @@ class ScalaInplaceVariableIntroducer(project: Project,
                 case _ =>
               }
             }
-
             protected def run(result: Result[Unit]) {
               commitDocument()
+              setGreedyToRightToFalse()
               if (mySpecifyTypeChb.isSelected) {
-                setGreedyToRightToFalse()
                 addTypeAnnotation(selectedType)
-                val templateState: TemplateState = TemplateManagerImpl.getTemplateState(myEditor)
-                if (templateState != null) templateState.doReformat(getDeclaration.getTextRange)
               } else {
                 removeTypeAnnotation()
               }
