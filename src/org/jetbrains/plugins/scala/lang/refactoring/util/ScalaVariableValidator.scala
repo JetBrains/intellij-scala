@@ -95,7 +95,7 @@ class ScalaVariableValidator(conflictsReporter: ConflictsReporter,
             }
           }
           for (function <- x.functions; if function.name == name && function.parameters.size == 0) {
-            buf += ((x, messageForField(x.name)))
+            buf += ((x, messageForField(function.name)))
           }
           x match {
             case scClass: ScClass =>
