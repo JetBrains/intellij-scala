@@ -153,8 +153,9 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Confli
                   if (isInplaceAvailable(editor)) {
                     PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument)
                     PsiDocumentManager.getInstance(project).doPostponedOperationsAndUnblockDocument(editor.getDocument)
+                    val checkedExpr = if (expr.isValid) expr else null
                     val variableIntroducer =
-                      new ScalaInplaceVariableIntroducer(project, editor, expr, types.toArray, namedElement, replaces,
+                      new ScalaInplaceVariableIntroducer(project, editor, checkedExpr, types.toArray, namedElement, replaces,
                         REFACTORING_NAME, replaceAll, asVar, false)
                     variableIntroducer.performInplaceRefactoring(suggestedNamesSet)
                   }
