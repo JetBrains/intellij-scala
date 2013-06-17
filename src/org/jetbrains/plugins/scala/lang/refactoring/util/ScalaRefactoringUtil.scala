@@ -38,7 +38,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.{ScalaRecursiveElementVisitor, S
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScEarlyDefinitions
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportSelector
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportExpr
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScTypeProjection, ScTypeElement, ScSimpleTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.types.ScDesignatorType
 import scala.Some
@@ -507,40 +507,48 @@ object ScalaRefactoringUtil {
     Option(commonParent).flatMap(_.scopes.toStream.headOption).orNull
   }
 
-  def availableImportSelectors(position: PsiElement): Set[ScImportSelector] = {
-    if (position != null && position.getLanguage.getID != "Scala")
-      throw new IllegalArgumentException("Only for scala")
-    def getSelectors(holder: ScImportsHolder): Set[ScImportSelector] = {
-      if (holder != null) holder.getImportStatements.flatMap(_.importExprs).flatMap(_.selectors).toSet
+  def availableImportAliases(position: PsiElement): Set[(ScReferenceElement, String)] = {
+
+    def getSelectors(holder: ScImportsHolder): Set[(ScReferenceElement, String)] = {
+      val result = collection.mutable.Set[(ScReferenceElement, String)]()
+      if (holder != null) {
+        val importExprs: Seq[ScImportExpr] = holder.getImportStatements.flatMap(_.importExprs)
+        importExprs.flatMap(_.selectors).foreach(s => result += ((s.reference, s.importedName)))
+        importExprs.filter(_.selectors.isEmpty).flatMap(_.reference).foreach(ref => result += ((ref, ref.refName)))
+        result.toSet
+      }
       else Set.empty
     }
 
+    if (position != null && position.getLanguage.getID != "Scala")
+      throw new IllegalArgumentException("Only for scala")
+
     var parent = position.getParent
-    val selectors = collection.mutable.Set[ScImportSelector]()
+    val aliases = collection.mutable.Set[(ScReferenceElement, String)]()
     while (parent != null) {
       parent match {
-        case holder: ScImportsHolder => selectors ++= getSelectors(holder)
+        case holder: ScImportsHolder => aliases ++= getSelectors(holder)
         case _ =>
       }
       parent = if (parent.isInstanceOf[PsiFile]) null else parent.getParent
     }
-    selectors.filter(_.getTextRange.getEndOffset < position.getTextOffset).toSet
+    aliases.filter(_._1.getTextRange.getEndOffset < position.getTextOffset).toSet
   }
 
   def typeNameWithImportAliases(scType: ScType, position: PsiElement): String = {
 
-    def referencesToReplace(psiElement: PsiElement, selectors: Set[ScImportSelector]): Map[ScSimpleTypeElement, (ScReferenceElement, String)] = {
+    def referencesToReplace(psiElement: PsiElement, aliases: Set[(ScReferenceElement, String)]): Map[ScSimpleTypeElement, (ScReferenceElement, String)] = {
       val result = collection.mutable.Map[ScSimpleTypeElement, (ScReferenceElement, String)]()
       val visitor = new ScalaRecursiveElementVisitor() {
         //Override also visitReferenceExpression! and visitTypeProjection!
         override def visitReference(ref: ScReferenceElement) {
           for {
-            selector <- selectors
-            if ref.resolve() == selector.reference.resolve() || (ref.resolve() == null && ref.refName == selector.reference.refName)
+            alias <- aliases
+            if ref.resolve() == alias._1.resolve() || (ref.resolve() == null && ref.refName == alias._1.refName)
             simpleTypeElem = ScalaPsiUtil.getParentOfType(ref, classOf[ScSimpleTypeElement]).asInstanceOf[ScSimpleTypeElement]
             if simpleTypeElem != null
           } {
-            result += (simpleTypeElem -> (ref, selector.importedName))
+            result += (simpleTypeElem -> (ref, alias._2))
           }
           super.visitReference(ref)
         }
@@ -557,17 +565,17 @@ object ScalaRefactoringUtil {
       result.filterKeys(ref => ScalaPsiUtil.getParentOfType(ref, classOf[ScSimpleTypeElement]) != null).toMap
     }
 
-    def replaceRefsWithAliases(psiElement: PsiElement, referencesToReplace: Map[ScSimpleTypeElement, (ScReferenceElement, String)]) {
+    def replaceRefsWithAliases(psiElement: PsiElement, aliases: Map[ScSimpleTypeElement, (ScReferenceElement, String)]) {
       val visitor = new ScalaRecursiveElementVisitor() {
         override def visitSimpleTypeElement(simple: ScSimpleTypeElement) {
           //replace by import aliases
-          if (referencesToReplace.isDefinedAt(simple)) {
-            val (ref, alias) = referencesToReplace(simple)
-            val newRef = ScalaPsiElementFactory.createReferenceFromText(alias, position.getManager)
+          if (aliases.isDefinedAt(simple)) {
+            val (ref, name) = aliases(simple)
+            val newRef = ScalaPsiElementFactory.createReferenceFromText(name, position.getManager)
             ref.getParent.getNode.replaceChild(ref.getNode, newRef.getNode)
           } else {
             //replace canonical texts by presentable text
-            for (oldRef <- simple.reference) {
+            for (oldRef <- simple.reference; if oldRef.resolve != null) {
               val typeName = simple.calcType.presentableText
               val newRef = ScalaPsiElementFactory.createReferenceFromText(typeName, position.getManager)
               oldRef.getParent.getNode.replaceChild(oldRef.getNode, newRef.getNode)
@@ -584,8 +592,8 @@ object ScalaRefactoringUtil {
     else {
       val canonicalTypeElem: ScTypeElement =
         ScalaPsiElementFactory.createTypeElementFromText(scType.canonicalText, position.getManager)
-      val selectors = availableImportSelectors(position).filter(_.isAliasedImport)
-      val refsWithAliases = referencesToReplace(canonicalTypeElem, selectors)
+      val aliases = availableImportAliases(position)
+      val refsWithAliases = referencesToReplace(canonicalTypeElem, aliases)
       val maxRefsWithAliases = refsWithAliases.filterKeys(ref =>
         refsWithAliases.keys.forall(!_.isAncestorOf(ref)))
       replaceRefsWithAliases(canonicalTypeElem, maxRefsWithAliases)
