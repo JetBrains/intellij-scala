@@ -216,6 +216,7 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Confli
     val elemSeq = (for (occurence <- occurrences) yield file.findElementAt(occurence.getStartOffset)).toSeq ++
             (for (occurence <- occurrences) yield file.findElementAt(occurence.getEndOffset - 1)).toSeq
     val commonParent: PsiElement = PsiTreeUtil.findCommonParent(elemSeq: _*)
+    val typeName = ScalaRefactoringUtil.typeNameWithImportAliases(varType, commonParent)
     val container: PsiElement =
       ScalaPsiUtil.getParentOfType(commonParent, occurrences.length == 1, classOf[ScalaFile], classOf[ScBlock],
         classOf[ScTemplateBody], classOf[ScCaseClause], classOf[ScFunctionDefinition], classOf[ScFunctionExpr])
@@ -322,8 +323,7 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Confli
               case _ => sibling = sibling.getPrevSibling
             }
           }
-          createdDeclaration =
-            ScalaPsiElementFactory.createEnumerator(varName, ScalaRefactoringUtil.unparExpr(expression), file.getManager, varType)
+          createdDeclaration = ScalaPsiElementFactory.createEnumerator(varName, ScalaRefactoringUtil.unparExpr(expression), file.getManager, typeName)
           var elem = file.findElementAt(occurrences(0).getStartOffset + (if (needBraces) 1 else 0) + parentheses)
           while (elem != null && elem.getParent != parent) elem = elem.getParent
           if (elem != null) {
@@ -383,14 +383,13 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Confli
           }
           val parent = if ((needBraces || needBlockWithoutBraces) && parExpr != null && parExpr.isValid) parExpr
           else container
-          createdDeclaration = ScalaPsiElementFactory.createDeclaration(varType, varName, isVariable,
+          createdDeclaration = ScalaPsiElementFactory.createDeclaration(varName, typeName, isVariable,
             ScalaRefactoringUtil.unparExpr(expression), file.getManager)
           var elem = file.findElementAt(occurrences(0).getStartOffset + (if (needBraces) 1 else 0) + parentheses / 2)
           while (elem != null && elem.getParent != parent) elem = elem.getParent
           if (elem != null) {
             createdDeclaration = parent.addBefore(createdDeclaration, elem).asInstanceOf[ScMember]
             parent.addBefore(ScalaPsiElementFactory.createNewLineNode(elem.getManager, "\n").getPsi, elem)
-            ScalaPsiUtil.adjustTypes(createdDeclaration)
           }
           if (deleteOccurrence && !replaceAllOccurrences) {
             elem = createdDeclaration.getNextSibling
