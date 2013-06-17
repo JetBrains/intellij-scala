@@ -26,7 +26,7 @@ import com.intellij.openapi.editor.event.{DocumentEvent, DocumentListener, Docum
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import com.intellij.openapi.ui.MessageType
 import com.intellij.openapi.ui.popup.{Balloon, JBPopupFactory}
-import org.jetbrains.plugins.scala.lang.refactoring.util.{ScalaVariableValidator, ConflictsReporter}
+import org.jetbrains.plugins.scala.lang.refactoring.util.{ScalaRefactoringUtil, ScalaVariableValidator, ConflictsReporter}
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScTypedPattern
 
 /**
@@ -54,6 +54,7 @@ class ScalaInplaceVariableIntroducer(project: Project,
   private val myFile: PsiFile = namedElement.getContainingFile
   private var myBalloonPanel: JPanel = null
   private var nameIsValid: Boolean = true
+  private val isEnumerator: Boolean = newDeclaration.isInstanceOf[ScEnumerator]
 
   private val myLabel: JLabel = new JLabel()
 
@@ -104,7 +105,7 @@ class ScalaInplaceVariableIntroducer(project: Project,
 
   override def getComponent: JComponent = {
 
-    if (getDeclaration.isInstanceOf[ScDeclaredElementsHolder]) {
+    if (!isEnumerator) {
       myVarCheckbox = new NonFocusableCheckBox(ScalaBundle.message("introduce.variable.declare.as.var"))
       val withVarSetting = ScalaApplicationSettings.getInstance.INTRODUCE_LOCAL_CREATE_VARIABLE
       if (withVarSetting != null) {
@@ -153,16 +154,16 @@ class ScalaInplaceVariableIntroducer(project: Project,
 
           def setGreedyToRightToFalse() {
             val highlighters: Array[RangeHighlighter] = myEditor.getMarkupModel.getAllHighlighters
-            for (highlighter <- highlighters; if checkRange(highlighter.getStartOffset, highlighter.getEndOffset, getDeclaration))
+            for (highlighter <- highlighters; if checkRange(highlighter.getStartOffset, highlighter.getEndOffset))
               greedyToRight += (highlighter -> highlighter.isGreedyToRight)
           }
           def resetGreedyToRightBack() {
             val highlighters: Array[RangeHighlighter] = myEditor.getMarkupModel.getAllHighlighters
-            for (highlighter <- highlighters; if checkRange(highlighter.getStartOffset, highlighter.getEndOffset, getDeclaration))
+            for (highlighter <- highlighters; if checkRange(highlighter.getStartOffset, highlighter.getEndOffset))
               highlighter.setGreedyToRight(greedyToRight(highlighter))
           }
-          def checkRange(start: Int, end: Int, declaration: PsiElement): Boolean = {
-            val named: Option[ScNamedElement] = namedElement(declaration)
+          def checkRange(start: Int, end: Int): Boolean = {
+            val named: Option[ScNamedElement] = namedElement(getDeclaration)
             if (named.isDefined) {
               val nameRange = named.get.getNameIdentifier.getTextRange
               nameRange.getStartOffset == start && nameRange.getEndOffset <= end
@@ -171,12 +172,14 @@ class ScalaInplaceVariableIntroducer(project: Project,
 
           val writeAction = new WriteCommandAction[Unit](myProject, getCommandName, getCommandName) {
             private def addTypeAnnotation(selectedType: ScType) {
-              getDeclaration match {
+              val declaration = getDeclaration
+              declaration match {
                 case _: ScDeclaredElementsHolder | _: ScEnumerator =>
-                  val declarationCopy = getDeclaration.copy.asInstanceOf[ScalaPsiElement]
+                  val declarationCopy = declaration.copy.asInstanceOf[ScalaPsiElement]
                   val manager = declarationCopy.getManager
+                  val typeName = ScalaRefactoringUtil.typeNameWithImportAliases(selectedType, declaration)
                   val fakeDeclaration =
-                    ScalaPsiElementFactory.createDeclaration(selectedType, "x", isVariable = false, "", manager, isPresentableText = true)
+                    ScalaPsiElementFactory.createDeclaration("x", typeName, isVariable = false, null, manager)
                   val first = fakeDeclaration.findFirstChildByType(ScalaTokenTypes.tCOLON)
                   val last = fakeDeclaration.findFirstChildByType(ScalaTokenTypes.tASSIGN)
                   val assign = declarationCopy.findFirstChildByType(ScalaTokenTypes.tASSIGN)
@@ -292,7 +295,7 @@ class ScalaInplaceVariableIntroducer(project: Project,
     editor.getDocument.removeDocumentListener(myCheckIdentifierListener)
 
     if (myVarCheckbox != null) ScalaApplicationSettings.getInstance.INTRODUCE_LOCAL_CREATE_VARIABLE = myVarCheckbox.isSelected
-    if (mySpecifyTypeChb != null) ScalaApplicationSettings.getInstance.SPECIFY_TYPE_EXPLICITLY = mySpecifyTypeChb.isSelected
+    if (mySpecifyTypeChb != null && !isEnumerator) ScalaApplicationSettings.getInstance.SPECIFY_TYPE_EXPLICITLY = mySpecifyTypeChb.isSelected
 
     val named = namedElement(getDeclaration).getOrElse(null)
     val templateState: TemplateState = TemplateManagerImpl.getTemplateState(myEditor)
