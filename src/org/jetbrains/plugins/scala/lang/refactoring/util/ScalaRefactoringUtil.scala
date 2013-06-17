@@ -21,7 +21,7 @@ import psi.api.expr._
 import psi.impl.ScalaPsiElementFactory
 import com.intellij.codeInsight.PsiEquivalenceUtil
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
-import collection.mutable.ArrayBuffer
+import scala.collection.mutable.ArrayBuffer
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.openapi.vfs.ReadonlyStatusHandler
 import com.intellij.openapi.project.Project
@@ -30,14 +30,19 @@ import psi.types._
 import psi.api.statements.ScFunction
 import lang.resolve.ScalaResolveResult
 import psi.api.expr.xml.ScXmlExpr
-import psi.ScalaPsiElement
-import psi.api.base.ScLiteral
+import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiUtil, ScImportsHolder, ScalaPsiElement}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScReferenceElement, ScLiteral}
 import com.intellij.openapi.editor.{VisualPosition, Editor}
 import com.intellij.openapi.actionSystem.DataContext
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.lang.psi.api.{ScalaRecursiveElementVisitor, ScalaFile}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScEarlyDefinitions
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportSelector
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScTypeProjection, ScTypeElement, ScSimpleTypeElement}
+import org.jetbrains.plugins.scala.lang.psi.types.ScDesignatorType
+import scala.Some
+import org.jetbrains.plugins.scala.lang.psi.types.ScFunctionType
 
 /**
  * User: Alexander Podkhalyuzin
@@ -502,6 +507,91 @@ object ScalaRefactoringUtil {
     Option(commonParent).flatMap(_.scopes.toStream.headOption).orNull
   }
 
+  def availableImportSelectors(position: PsiElement): Set[ScImportSelector] = {
+    if (position != null && position.getLanguage.getID != "Scala")
+      throw new IllegalArgumentException("Only for scala")
+    def getSelectors(holder: ScImportsHolder): Set[ScImportSelector] = {
+      if (holder != null) holder.getImportStatements.flatMap(_.importExprs).flatMap(_.selectors).toSet
+      else Set.empty
+    }
+
+    var parent = position.getParent
+    val selectors = collection.mutable.Set[ScImportSelector]()
+    while (parent != null) {
+      parent match {
+        case holder: ScImportsHolder => selectors ++= getSelectors(holder)
+        case _ =>
+      }
+      parent = if (parent.isInstanceOf[PsiFile]) null else parent.getParent
+    }
+    selectors.filter(_.getTextRange.getEndOffset < position.getTextOffset).toSet
+  }
+
+  def typeNameWithImportAliases(scType: ScType, position: PsiElement): String = {
+
+    def referencesToReplace(psiElement: PsiElement, selectors: Set[ScImportSelector]): Map[ScSimpleTypeElement, (ScReferenceElement, String)] = {
+      val result = collection.mutable.Map[ScSimpleTypeElement, (ScReferenceElement, String)]()
+      val visitor = new ScalaRecursiveElementVisitor() {
+        //Override also visitReferenceExpression! and visitTypeProjection!
+        override def visitReference(ref: ScReferenceElement) {
+          for {
+            selector <- selectors
+            if ref.resolve() == selector.reference.resolve() || (ref.resolve() == null && ref.refName == selector.reference.refName)
+            simpleTypeElem = ScalaPsiUtil.getParentOfType(ref, classOf[ScSimpleTypeElement]).asInstanceOf[ScSimpleTypeElement]
+            if simpleTypeElem != null
+          } {
+            result += (simpleTypeElem -> (ref, selector.importedName))
+          }
+          super.visitReference(ref)
+        }
+        override def visitReferenceExpression(ref: ScReferenceExpression) {
+          visitReference(ref)
+          super.visitReferenceExpression(ref)
+        }
+        override def visitTypeProjection(proj: ScTypeProjection) {
+          visitReference(proj)
+          super.visitTypeProjection(proj)
+        }
+      }
+      psiElement.accept(visitor)
+      result.filterKeys(ref => ScalaPsiUtil.getParentOfType(ref, classOf[ScSimpleTypeElement]) != null).toMap
+    }
+
+    def replaceRefsWithAliases(psiElement: PsiElement, referencesToReplace: Map[ScSimpleTypeElement, (ScReferenceElement, String)]) {
+      val visitor = new ScalaRecursiveElementVisitor() {
+        override def visitSimpleTypeElement(simple: ScSimpleTypeElement) {
+          //replace by import aliases
+          if (referencesToReplace.isDefinedAt(simple)) {
+            val (ref, alias) = referencesToReplace(simple)
+            val newRef = ScalaPsiElementFactory.createReferenceFromText(alias, position.getManager)
+            ref.getParent.getNode.replaceChild(ref.getNode, newRef.getNode)
+          } else {
+            //replace canonical texts by presentable text
+            for (oldRef <- simple.reference) {
+              val typeName = simple.calcType.presentableText
+              val newRef = ScalaPsiElementFactory.createReferenceFromText(typeName, position.getManager)
+              oldRef.getParent.getNode.replaceChild(oldRef.getNode, newRef.getNode)
+            }
+          }
+          super.visitSimpleTypeElement(simple)
+        }
+      }
+      psiElement.accept(visitor)
+
+    }
+
+    if (scType == null) ""
+    else {
+      val canonicalTypeElem: ScTypeElement =
+        ScalaPsiElementFactory.createTypeElementFromText(scType.canonicalText, position.getManager)
+      val selectors = availableImportSelectors(position).filter(_.isAliasedImport)
+      val refsWithAliases = referencesToReplace(canonicalTypeElem, selectors)
+      val maxRefsWithAliases = refsWithAliases.filterKeys(ref =>
+        refsWithAliases.keys.forall(!_.isAncestorOf(ref)))
+      replaceRefsWithAliases(canonicalTypeElem, maxRefsWithAliases)
+      canonicalTypeElem.getText
+    }
+  }
 
   private[refactoring] class IntroduceException extends Exception
 }
