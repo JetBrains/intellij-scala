@@ -548,7 +548,7 @@ object ScalaPsiElementFactory {
     createEnumerator(name, expr, manager, typeName)
   }
 
-  def createEnumerator(name: String, expr: ScExpression, manager: PsiManager, typeName: String = null): ScEnumerator = {
+  def createEnumerator(name: String, expr: ScExpression, manager: PsiManager, typeName: String): ScEnumerator = {
     val typeText = if (typeName == null || typeName == "") "" else ": " + typeName
     val text = s"for {\n  i <- 1 to 239\n  $name$typeText = ${expr.getText}\n}"
     val dummyFile = createScalaFile(text, manager)
