@@ -1,11 +1,11 @@
 package org.jetbrains.plugins.scala
 package codeInspection.collections
 
-import org.jetbrains.plugins.scala.codeInspection.{InspectionBundle, AbstractFix, AbstractInspection}
-import com.intellij.codeInspection.{ProblemHighlightType, ProblemDescriptor, ProblemsHolder}
+import org.jetbrains.plugins.scala.codeInspection.{InspectionBundle, AbstractInspection}
+import com.intellij.codeInspection.{ProblemHighlightType, ProblemsHolder}
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import OperationOnCollectionInspectionStub._
+import OperationOnCollectionInspectionBase._
 import javax.swing._
 import com.intellij.ui.components.JBList
 import com.intellij.ui.{ListScrollingUtil, AnActionButtonRunnable, AnActionButton, ToolbarDecorator}
@@ -20,7 +20,7 @@ import org.jetbrains.plugins.scala.settings.ScalaProjectSettingsUtil
  * Nikolay.Tropin
  * 5/17/13
  */
-object OperationOnCollectionInspectionStub {
+object OperationOnCollectionInspectionBase {
   val inspectionId = InspectionBundle.message("operation.on.collection.id")
   val inspectionName = InspectionBundle.message("operation.on.collection.name")
 
@@ -46,7 +46,7 @@ object OperationOnCollectionInspectionStub {
   )
 }
 
-abstract class OperationOnCollectionInspectionStub extends AbstractInspection(inspectionId, inspectionName){
+abstract class OperationOnCollectionInspectionBase extends AbstractInspection(inspectionId, inspectionName){
   def actionFor(holder: ProblemsHolder): PartialFunction[PsiElement, Any] = {
     case expr: ScExpression  =>
       for (s <- simplifications(expr)) {
