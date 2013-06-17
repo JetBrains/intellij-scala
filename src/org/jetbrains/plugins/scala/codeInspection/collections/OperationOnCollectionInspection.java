@@ -1,15 +1,12 @@
 package org.jetbrains.plugins.scala.codeInspection.collections;
 
-import com.intellij.openapi.util.WriteExternalException;
-import org.jdom.Element;
-
 import java.util.Arrays;
 
 /**
  * Nikolay.Tropin
  * 5/28/13
  */
-public class OperationOnCollectionInspection extends OperationOnCollectionInspectionStub {
+public class OperationOnCollectionInspection extends OperationOnCollectionInspectionBase {
   private final String[] likeOptionClassesDefault = {"scala.Option"};
   private final String[] likeCollectionClassesDefault = {"scala.collection._", "scala.Option"};
   public String[] likeOptionClasses = likeOptionClassesDefault;
