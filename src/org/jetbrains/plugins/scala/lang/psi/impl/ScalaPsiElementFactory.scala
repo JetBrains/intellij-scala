@@ -8,7 +8,6 @@ import api.toplevel.packaging.ScPackaging
 import com.intellij.lang.{PsiBuilderFactory, ASTNode}
 import com.intellij.psi.impl.compiled.ClsParameterImpl
 import api.statements._
-import collection.mutable.HashSet
 import com.intellij.psi.impl.source.tree.{TreeElement, FileElement}
 import com.intellij.psi.impl.source.DummyHolderFactory
 import expr.ScBlockImpl
@@ -50,6 +49,7 @@ import settings._
 import com.intellij.psi.search.GlobalSearchScope
 import java.util
 import com.intellij.pom.java.LanguageLevel
+import scala.collection.mutable
 
 class ScalaPsiElementFactoryImpl(manager: PsiManager) extends JVMElementFactory {
 
@@ -442,7 +442,7 @@ object ScalaPsiElementFactory {
   def createBigImportStmt(expr: ScImportExpr, exprs: Array[ScImportExpr], manager: PsiManager): ScImportStmt = {
     val qualifier = expr.qualifier.getText
     var text = "import " + qualifier
-    val names = new HashSet[String]
+    val names = new mutable.HashSet[String]
     names ++= expr.getNames
     for (expr <- exprs) names ++= expr.getNames
     if ((names("_") ||
@@ -488,16 +488,35 @@ object ScalaPsiElementFactory {
       case _ => throw new com.intellij.util.IncorrectOperationException()
     }
   }
+
   def createDeclaration(typez: ScType, name: String, isVariable: Boolean,
-                        expr: ScExpression, manager: PsiManager): ScMember = {
-    createDeclaration(typez, name, isVariable, expr.getText, manager)
+                        expr: ScExpression, manager: PsiManager, isPresentableText: Boolean): ScMember = {
+    val typeText = if(isPresentableText) typez.presentableText else typez.canonicalText
+    createDeclaration(name, typeText, isVariable, expr, manager)
   }
+
   def createDeclaration(typez: ScType, name: String, isVariable: Boolean,
                         exprText: String, manager: PsiManager, isPresentableText: Boolean = false): ScMember = {
-    val typeToString = if (isPresentableText) ScType.presentableText _ else ScType.canonicalText _
-    val text = "class a {" + (if (isVariable) "var " else "val ") +
-              name + (if (typez != null && typeToString(typez) != "") ": "  +
-            typeToString(typez) else "") + " = " + exprText + "}"
+    val expr = createExpressionFromText(exprText, manager)
+    createDeclaration(typez, name, isVariable, expr, manager, isPresentableText)
+  }
+
+  def createDeclaration(name: String, typeName: String, isVariable: Boolean, expr: ScExpression, manager: PsiManager): ScMember = {
+    val exprText: String =  expr match {
+      case ScFunctionExpr(Seq(param), Some(result)) if param.typeElement.isDefined =>
+        if (param.getPrevSiblingNotWhitespace == null) {
+          s"(${param.getText}) => ${result.getText}"
+        } else expr.getText
+      case null => ""
+      case _ => expr.getText
+    }
+    val typeText =
+      if (typeName != null && typeName != ""){
+        createTypeElementFromText(typeName, manager) //throws an exception if type name is incorrect
+        ": " + typeName
+      }  else ""
+    val keyword: String = if (isVariable) "var" else "val"
+    val text = s"class a {$keyword $name$typeText = $exprText}"
     val dummyFile = createScalaFile(text, manager)
     val classDef = dummyFile.typeDefinitions(0)
     if (!isVariable) classDef.members(0).asInstanceOf[ScValue]
@@ -525,7 +544,12 @@ object ScalaPsiElementFactory {
   }
 
   def createEnumerator(name: String, expr: ScExpression, manager: PsiManager, scType: ScType = null): ScEnumerator = {
-    val typeText = if (scType == null) "" else ": " + scType.presentableText
+    val typeName = if (scType == null) null else scType.presentableText
+    createEnumerator(name, expr, manager, typeName)
+  }
+
+  def createEnumerator(name: String, expr: ScExpression, manager: PsiManager, typeName: String = null): ScEnumerator = {
+    val typeText = if (typeName == null || typeName == "") "" else ": " + typeName
     val text = s"for {\n  i <- 1 to 239\n  $name$typeText = ${expr.getText}\n}"
     val dummyFile = createScalaFile(text, manager)
     val forStmt: ScForStatement = dummyFile.getFirstChild.asInstanceOf[ScForStatement]
@@ -639,7 +663,7 @@ object ScalaPsiElementFactory {
       case Some(x) => x
       case None => return false
     }
-    imp.resolve match {
+    imp.resolve() match {
       case x: PsiClass => {
         x.qualifiedName == clazz.qualifiedName
       }
@@ -690,7 +714,7 @@ object ScalaPsiElementFactory {
             }
             res
           }
-          val strings = (for (t <- method.typeParameters) yield get(t))
+          val strings = for (t <- method.typeParameters) yield get(t)
           res += strings.mkString("[", ", ", "]")
         }
         if (method.paramClauses != null) {
@@ -705,7 +729,7 @@ object ScalaPsiElementFactory {
               }
               res
             }
-            val strings = (for (t <- paramClause.parameters) yield get(t))
+            val strings = for (t <- paramClause.parameters) yield get(t)
             res += strings.mkString(if (paramClause.isImplicit) "(implicit " else "(", ", ", ")")
           }
         }
@@ -713,8 +737,8 @@ object ScalaPsiElementFactory {
         val retAndBody = (needsInferType, retType) match {
           case (_, Some(tp)) if tp.equiv(Unit) => body
           case (_, None) if !method.hasAssign => body
-          case (true, Some(retType)) =>
-            var text = ScType.canonicalText(retType)
+          case (true, Some(scType)) =>
+            var text = ScType.canonicalText(scType)
             if (text == "_root_.java.lang.Object") text = "AnyRef"
             val colon = if (method.paramClauses.clauses.isEmpty && method.typeParameters.isEmpty && ScalaNamesUtil.isIdentifier(method.name + ":")) " : " else ": "
             colon + text + " = " + body
