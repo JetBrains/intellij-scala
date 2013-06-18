@@ -10,6 +10,10 @@ class ImportTest extends FunSuite {
   val DataDir = new File("src/test/data")
   val Exclusions = Seq("sbt-idea", "SbtIdea")
 
+  test("bare projects") {
+    doTest("bare", download = false)
+  }
+
   test("simple project") {
     doTest("simple")
   }
@@ -22,10 +26,10 @@ class ImportTest extends FunSuite {
     doTest("multiple")
   }
 
-  private def doTest(project: String) {
+  private def doTest(project: String, download: Boolean = true) {
     val base = new File(DataDir, project)
 
-    val actual = Loader.load(base).filterNot(s => Exclusions.exists(s.contains)).mkString("\n")
+    val actual = Loader.load(base, download).filterNot(s => Exclusions.exists(s.contains)).mkString("\n")
 
     val expected = {
       val text = read(new File(base, "structure.xml")).mkString("\n")

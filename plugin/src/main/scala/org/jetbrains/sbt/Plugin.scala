@@ -8,13 +8,13 @@ import sbt.File
 /**
  * @author Pavel Fatin
  */
-object Plugin extends (State => State) {
-  def apply(state: State): State = {
+private object Plugin {
+  def read(state: State, download: Boolean) {
     val log = state.log
 
     log.info("Reading structure from " + System.getProperty("user.dir"))
 
-    val structure = Extractor.extractStructure(state)
+    val structure = Extractor.extractStructure(state, download)
 
     val text = {
       val printer = new PrettyPrinter(180, 2)
@@ -31,8 +31,6 @@ object Plugin extends (State => State) {
       println(text)
       log.info("Done.")
     }
-
-    state
   }
 
   private def write(file: File, text: String) {
@@ -44,4 +42,12 @@ object Plugin extends (State => State) {
       writer.close()
     }
   }
+}
+
+object ReadProject extends (State => State) {
+  def apply(state: State) = const(state)(Plugin.read(state, download = false))
+}
+
+object ReadProjectAndRepository extends (State => State) {
+  def apply(state: State) = const(state)(Plugin.read(state, download = true))
 }

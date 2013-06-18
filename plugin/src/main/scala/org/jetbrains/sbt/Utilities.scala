@@ -14,4 +14,10 @@ object Utilities {
       ys
     }
   }
+
+  implicit def toRichBoolean(b: Boolean) = new {
+    def option[A](a: => A): Option[A] = if(b) Some(a) else None
+
+    def either[A, B](right: => B)(left: => A): Either[A, B] = if (b) Right(right) else Left(left)
+  }
 }

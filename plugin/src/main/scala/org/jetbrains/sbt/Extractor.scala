@@ -10,14 +10,14 @@ import Utilities._
  * @author Pavel Fatin
  */
 object Extractor {
-  def extractStructure(state: State): StructureData = {
+  def extractStructure(state: State, download: Boolean): StructureData = {
     val structure = Project.extract(state).structure
 
     val scalaData = extractScala(state)
 
     val projectData = extractProject(state, structure, Project.current(state))
 
-    val repositoryData = {
+    val repositoryData = download.option {
       val modulesData = structure.allProjectRefs.flatMap(extractModules(state, _)).distinctBy(_.id)
       RepositoryData(modulesData)
     }
