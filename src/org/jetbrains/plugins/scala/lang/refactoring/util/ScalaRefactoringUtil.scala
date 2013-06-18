@@ -15,7 +15,7 @@ import com.intellij.openapi.editor.colors.{EditorColorsManager, EditorColors}
 
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi._
-import psi.api.base.patterns.ScReferencePattern
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScLiteralPattern, ScReferencePattern}
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import psi.api.expr._
 import psi.impl.ScalaPsiElementFactory
@@ -501,10 +501,7 @@ object ScalaRefactoringUtil {
   }
 
   def enclosingContainer(file: PsiFile, textRanges: TextRange*): PsiElement = {
-    val elemSeq = (for (textRange <- textRanges) yield file.findElementAt(textRange.getStartOffset)).toSeq ++
-            (for (textRange <- textRanges) yield file.findElementAt(textRange.getEndOffset - 1)).toSeq
-    val commonParent: PsiElement = PsiTreeUtil.findCommonParent(elemSeq: _*)
-    Option(commonParent).flatMap(_.scopes.toStream.headOption).orNull
+    Option(commonParent(file, textRanges: _*)).flatMap(_.scopes.toStream.headOption).orNull
   }
 
   def availableImportAliases(position: PsiElement): Set[(ScReferenceElement, String)] = {
@@ -600,6 +597,19 @@ object ScalaRefactoringUtil {
       canonicalTypeElem.getText
     }
   }
+
+  def commonParent(file: PsiFile, textRanges: TextRange*): PsiElement = {
+    val elemSeq = (for (occurence <- textRanges) yield file.findElementAt(occurence.getStartOffset)).toSeq ++
+            (for (occurence <- textRanges) yield file.findElementAt(occurence.getEndOffset - 1)).toSeq
+    PsiTreeUtil.findCommonParent(elemSeq: _*)
+  }
+
+  def isLiteralPattern(file: PsiFile, textRange: TextRange): Boolean = {
+    val parent = ScalaRefactoringUtil.commonParent(file, textRange)
+    val literalPattern = PsiTreeUtil.getParentOfType(parent, classOf[ScLiteralPattern])
+    literalPattern != null && literalPattern.getTextRange == textRange
+  }
+
 
   private[refactoring] class IntroduceException extends Exception
 }
