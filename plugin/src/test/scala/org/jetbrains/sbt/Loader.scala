@@ -1,6 +1,6 @@
 package org.jetbrains.sbt
 
-import java.io.File
+import java.io.{PrintWriter, FileWriter, File}
 import scala.io.Source
 
 /**
@@ -10,31 +10,45 @@ object Loader {
   private val JavaVM = canonicalPath(new File(new File(new File(System.getProperty("java.home")), "bin"), "java"))
   private val SbtLauncher = canonicalPath(new File("sbt-launch.jar"))
   private val SbtPlugin = canonicalPath(new File("target/scala-2.9.2/sbt-0.12/classes/"))
-  private val JavaOpts = Option(System.getenv("JAVA_OPTS")).getOrElse("")
+  private val JavaOpts = Option(System.getenv("JAVA_OPTS")).map(_.split("\\s+")).toSeq.flatten
 
   def load(project: File): Seq[String] = {
-    val tempFile = File.createTempFile("sbt-structure", "xml")
-    tempFile.deleteOnExit()
+    val structureFile = createTempFile("sbt-structure", ".xml")
+    val commandsFile = createTempFile("sbt-commands", ".lst")
 
-    val command = JavaVM + " " + JavaOpts + """ -jar """ + SbtLauncher +
-      """ "; set artifactPath := new File(\"""" + canonicalPath(tempFile) +
-      """\") ; apply -cp """ + SbtPlugin + """ org.jetbrains.sbt.Plugin""""
+    writeLinesTo(commandsFile,
+      "set artifactPath := new File(\"" + canonicalPath(structureFile) + "\")",
+      "apply -cp " + SbtPlugin + " org.jetbrains.sbt.Plugin")
 
-    run(command, project)
+    val commands = JavaVM +: JavaOpts :+ "-jar" :+ SbtLauncher :+ ("< " + canonicalPath(commandsFile))
 
-    assert(tempFile.exists, "File must be created: " + tempFile.getPath)
+    run(commands, project)
 
-    read(tempFile)
+    assert(structureFile.exists, "File must be created: " + structureFile.getPath)
+
+    read(structureFile)
   }
 
   private def canonicalPath(file: File): String = file.getAbsolutePath.replace('\\', '/')
 
-  private def run(command: String, directory: File) {
-    val process = Runtime.getRuntime.exec(command, null, directory)
+  private def createTempFile(prefix: String, suffix: String): File = {
+    val file = File.createTempFile(prefix, suffix)
+    file.deleteOnExit()
+    file
+  }
+
+  private def writeLinesTo(file: File, lines: String*) {
+    val writer = new PrintWriter(new FileWriter(file))
+    lines.foreach(writer.println(_))
+    writer.close()
+  }
+
+  private def run(commands: Seq[String], directory: File) {
+    val process = Runtime.getRuntime.exec(commands.toArray, null, directory)
 
     val stdinThread = inThread {
       Source.fromInputStream(process.getInputStream).getLines().foreach { it =>
-//        System.out.println("stdout: " + it)
+        System.out.println("stdout: " + it)
       }
     }
 
