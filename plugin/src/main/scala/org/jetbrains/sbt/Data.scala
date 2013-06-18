@@ -12,7 +12,7 @@ case class FS(home: File, base: Option[File] = None) {
 }
 
 object FS {
-  val Home = "~"
+  val Home = "~/"
   val Base = ""
 
   private val Windows = System.getProperty("os.name").startsWith("Win")
@@ -21,8 +21,9 @@ object FS {
     def path: String = {
       val home = toPath(fs.home)
       val base = fs.base.map(toPath)
-      val path = replace(toPath(file), home, Home)
-      base.map(it => replace(path, it + "/", Base)).getOrElse(path)
+
+      val path = toPath(file)
+      replace(base.map(it => replace(path, it + "/", Base)).getOrElse(path), home + "/", Home)
     }
 
     def absolutePath: String = toPath(file)
