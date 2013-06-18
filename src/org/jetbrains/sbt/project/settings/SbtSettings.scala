@@ -4,6 +4,9 @@ package project.settings
 import com.intellij.openapi.externalSystem.settings.AbstractExternalSystemSettings
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.components._
+import com.intellij.util.containers.ContainerUtilRt
+import com.intellij.util.xmlb.annotations.AbstractCollection
+import java.util
 
 /**
  * @author Pavel Fatin
@@ -16,10 +19,38 @@ import com.intellij.openapi.components._
     new Storage(file = StoragePathMacros.PROJECT_CONFIG_DIR + "/sbt.xml", scheme = StorageScheme.DIRECTORY_BASED)
   )
 )
-class SbtSettings(project: Project) extends AbstractExternalSystemSettings[SbtProjectSettings, SbtSettingsListener](SbtTopic, project) {
+class SbtSettings(project: Project)
+  extends AbstractExternalSystemSettings[SbtProjectSettings, SbtSettingsListener](SbtTopic, project)
+  with PersistentStateComponent[SbtSettingsState]{
+
   def checkSettings(old: SbtProjectSettings, current: SbtProjectSettings) {}
+
+  def getState = {
+    val state = new SbtSettingsState()
+    fillState(state)
+    state
+  }
+
+  def loadState(state: SbtSettingsState) {
+    super[AbstractExternalSystemSettings].loadState(state)
+  }
 }
 
 object SbtSettings {
   def getInstance(project: Project) = ServiceManager.getService(project, classOf[SbtSettings])
+}
+
+class SbtSettingsState extends AbstractExternalSystemSettings.State[SbtProjectSettings] {
+  private val projectSettings = ContainerUtilRt.newTreeSet[SbtProjectSettings]()
+
+  @AbstractCollection(surroundWithTag = false, elementTypes = Array(classOf[SbtProjectSettings]))
+  def getLinkedExternalProjectsSettings: util.Set[SbtProjectSettings] = {
+    projectSettings
+  }
+
+  def setLinkedExternalProjectsSettings(settings: util.Set[SbtProjectSettings]) {
+    if (settings != null) {
+      projectSettings.addAll(settings)
+    }
+  }
 }
