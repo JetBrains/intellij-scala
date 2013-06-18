@@ -1,16 +1,22 @@
 package org.jetbrains.sbt
 package project
 
-import com.intellij.openapi.externalSystem.ExternalSystemManager
+import com.intellij.openapi.externalSystem.{ExternalSystemAutoImportAware, ExternalSystemManager}
 import com.intellij.openapi.project.Project
 import com.intellij.execution.configurations.SimpleJavaParameters
 import com.intellij.openapi.externalSystem.util.ExternalSystemBundle
 import settings._
+import com.intellij.openapi.externalSystem.service.project.autoimport.CachingExternalSystemAutoImportAware
 
 /**
  * @author Pavel Fatin
  */
-class SbtExternalSystemManager extends ExternalSystemManager[SbtProjectSettings, SbtSettingsListener, SbtSettings, SbtLocalSettings, SbtExecutionSettings] {
+class SbtExternalSystemManager
+  extends ExternalSystemManager[SbtProjectSettings, SbtSettingsListener, SbtSettings, SbtLocalSettings, SbtExecutionSettings]
+  with ExternalSystemAutoImportAware{
+
+  private val delegate = new CachingExternalSystemAutoImportAware(new SbtAutoImport())
+
   def enhanceParameters(parameters: SimpleJavaParameters) {
     val classpath = parameters.getClassPath
 
@@ -25,8 +31,6 @@ class SbtExternalSystemManager extends ExternalSystemManager[SbtProjectSettings,
 
   def getSystemId = SbtProjectSystem.Id
 
-  def isReady(project: Project) = true
-
   def getSettingsProvider = SbtSettings.getInstance(_: Project)
 
   def getLocalSettingsProvider = SbtLocalSettings.getInstance(_: Project)
@@ -35,7 +39,8 @@ class SbtExternalSystemManager extends ExternalSystemManager[SbtProjectSettings,
 
   def getProjectResolverClass = classOf[SbtProjectResolver]
 
-  def getBuildManagerClass = classOf[SbtBuildManager]
-
   def getTaskManagerClass = classOf[SbtTaskManager]
+
+  def getAffectedExternalProjectPath(changedFileOrDirPath: String, project: Project) =
+    delegate.getAffectedExternalProjectPath(changedFileOrDirPath, project)
 }
