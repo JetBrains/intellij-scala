@@ -5,7 +5,7 @@ import java.util
 import com.intellij.openapi.externalSystem.service.project.manage.ProjectDataService
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.externalSystem.model.{Key, DataNode}
-import com.intellij.util.ui.UIUtil
+import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil
 
 /**
  * @author Pavel Fatin
@@ -32,9 +32,7 @@ abstract class AbstractDataService[E, I](key: Key[E]) extends ProjectDataService
 
 object AbstractDataService {
   def invoke(synchronous: Boolean)(block: => Unit) {
-    val procedure = if (synchronous) UIUtil.invokeAndWaitIfNeeded _ else UIUtil.invokeLaterIfNeeded _
-
-    procedure(new Runnable {
+    ExternalSystemApiUtil.executeProjectChangeAction(synchronous, new Runnable {
       def run() {
         block
       }
