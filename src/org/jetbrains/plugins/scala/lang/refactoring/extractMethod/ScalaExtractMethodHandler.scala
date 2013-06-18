@@ -125,8 +125,11 @@ class ScalaExtractMethodHandler extends RefactoringActionHandler {
         }
       }
       element match {
-        case psiElement: ScalaPsiElement => visitor.visitElement(psiElement)
-        case retStmt: ScReturnStmt => checkReturn(retStmt)
+        case element: ScalaPsiElement => visitor.visitElement(element)
+        case _ =>
+      }
+      element match {
+        case returnStmt: ScReturnStmt => checkReturn(returnStmt)
         case _ =>
       }
     }
