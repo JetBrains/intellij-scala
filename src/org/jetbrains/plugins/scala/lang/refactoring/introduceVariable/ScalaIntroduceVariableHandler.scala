@@ -104,7 +104,8 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Confli
       if (guard != null && guard.getParent.isInstanceOf[ScCaseClause]) showErrorMessage(ScalaBundle.message("refactoring.is.not.supported.in.guard"), project, editor)
 
       val fileEncloser = ScalaRefactoringUtil.fileEncloser(startOffset, file)
-      val occurrences: Array[TextRange] = ScalaRefactoringUtil.getOccurrences(ScalaRefactoringUtil.unparExpr(expr), fileEncloser)
+      val occurrencesAll: Array[TextRange] = ScalaRefactoringUtil.getOccurrences(ScalaRefactoringUtil.unparExpr(expr), fileEncloser)
+      val occurrences = occurrencesAll.filterNot(ScalaRefactoringUtil.isLiteralPattern(file, _))
       val validator = ScalaVariableValidator(this, project, editor, file, expr, occurrences)
 
       def runWithDialog() {
@@ -213,9 +214,7 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Confli
     val mainOcc = occurrences.indexWhere(_.getStartOffset == startOffset)
     val document = editor.getDocument
     var i = occurrences.length - 1
-    val elemSeq = (for (occurence <- occurrences) yield file.findElementAt(occurence.getStartOffset)).toSeq ++
-            (for (occurence <- occurrences) yield file.findElementAt(occurence.getEndOffset - 1)).toSeq
-    val commonParent: PsiElement = PsiTreeUtil.findCommonParent(elemSeq: _*)
+    val commonParent: PsiElement = ScalaRefactoringUtil.commonParent(file, occurrences: _*)
     val typeName = ScalaRefactoringUtil.typeNameWithImportAliases(varType, commonParent)
     val container: PsiElement =
       ScalaPsiUtil.getParentOfType(commonParent, occurrences.length == 1, classOf[ScalaFile], classOf[ScBlock],
