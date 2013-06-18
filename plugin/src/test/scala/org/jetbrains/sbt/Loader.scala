@@ -12,13 +12,15 @@ object Loader {
   private val SbtPlugin = canonicalPath(new File("target/scala-2.9.2/sbt-0.12/classes/"))
   private val JavaOpts = Option(System.getenv("JAVA_OPTS")).map(_.split("\\s+")).toSeq.flatten
 
-  def load(project: File): Seq[String] = {
+  def load(project: File, download: Boolean): Seq[String] = {
     val structureFile = createTempFile("sbt-structure", ".xml")
     val commandsFile = createTempFile("sbt-commands", ".lst")
 
+    val className = if (download) "ReadProjectAndRepository" else "ReadProject"
+
     writeLinesTo(commandsFile,
       "set artifactPath := new File(\"" + canonicalPath(structureFile) + "\")",
-      "apply -cp " + SbtPlugin + " org.jetbrains.sbt.Plugin")
+      "apply -cp " + SbtPlugin + " org.jetbrains.sbt." + className)
 
     val commands = JavaVM +: JavaOpts :+ "-jar" :+ SbtLauncher :+ ("< " + canonicalPath(commandsFile))
 
