@@ -106,7 +106,7 @@ package object sbt {
   }
 
   def usingSafeCopyOf[T](file: File)(block: File => T): T = {
-    if (file.getPath.contains(" ")) {
+    if (file.getAbsolutePath.contains(" ")) {
       val (prefix, suffix) = parse(file.getName)
       usingTempFile(prefix, suffix) { tempFile =>
         copy(file, tempFile)
