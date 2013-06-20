@@ -24,7 +24,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
       if (file.isDirectory) file.getPath else file.getParent
     }
 
-    val xml = PluginRunner.read(new File(path)) { message =>
+    val xml = PluginRunner.read(new File(path), downloadLibraries) { message =>
       listener.onStatusChange(new ExternalSystemTaskNotificationEvent(id, message))
     } match {
       case Left(errors) => throw new ExternalSystemException(errors)
@@ -45,7 +45,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     projectNode.add(new ScalaProjectNode(SbtProjectSystem.Id, javaHome))
 
     val libraries =
-      data.repository.modules.map(createLibrary) ++
+      data.repository.map(_.modules).getOrElse(modulesIn(project)).map(createLibrary) ++
         projectsIn(project).flatMap(_.scala).distinct.map(createCompilerLibrary)
 
     projectNode.addAll(libraries)
@@ -73,6 +73,11 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     projectNode.addAll(projects.map(createBuildModule))
 
     projectNode
+  }
+
+  private def modulesIn(project: Project): Seq[Module] = {
+    val ids = projectsIn(project).flatMap(_.configurations.flatMap(_.modules))
+    ids.map(id => Module(id, Seq.empty, Seq.empty, Seq.empty))
   }
 
   private def projectsIn(project: Project): Seq[Project] =

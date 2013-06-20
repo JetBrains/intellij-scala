@@ -67,6 +67,6 @@ object ParserTest {
 
     val repository = Repository(new File("."), Seq(module))
 
-    Structure(project, repository)
+    Structure(project, Some(repository))
   }
 }

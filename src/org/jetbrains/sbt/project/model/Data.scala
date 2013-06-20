@@ -3,7 +3,7 @@ package project.model
 
 import java.io.File
 
-case class Structure(project: Project, repository: Repository)
+case class Structure(project: Project, repository: Option[Repository])
 
 case class Project(name: String, organization: String, version: String, base: File, build: Build, configurations: Seq[Configuration], java: Option[Java], scala: Option[Scala], projects: Seq[Project])
 
