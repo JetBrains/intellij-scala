@@ -28,7 +28,7 @@ object Parser {
     implicit val fs = new FS(home)
 
     val project = parseProject(node ! "project")
-    val repository = parseRepository(node ! "repository")
+    val repository = (node \ "repository").headOption.map(parseRepository(_))
 
     Structure(project, repository)
   }
