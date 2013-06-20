@@ -5,6 +5,8 @@ package util
 
 import com.intellij.openapi.application.ApplicationManager
 import lexer.{ScalaLexer, ScalaTokenTypes}
+import com.intellij.psi.{PsiNamedElement, PsiElement}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 
 /**
  * User: Alexander Podkhalyuzin
@@ -40,4 +42,9 @@ object ScalaNamesUtil {
   }
   
   def isOperatorName(text: String): Boolean = isIdentifier(text) && isOpCharacter(text(0))
+
+  def scalaName(element: PsiElement) = element match {
+    case scNamed: ScNamedElement => scNamed.name
+    case psiNamed: PsiNamedElement => psiNamed.getName
+  }
 }
