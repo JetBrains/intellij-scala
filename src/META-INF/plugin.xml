@@ -40,6 +40,8 @@
         <projectImportBuilder implementation="org.jetbrains.sbt.project.SbtProjectImportBuilder"/>
 
         <projectOpenProcessor implementation="org.jetbrains.sbt.project.SbtProjectOpenProcessor"/>
+
+        <moduleType id="SBT_MODULE" implementationClass="org.jetbrains.sbt.project.SbtModuleType"/>
     </extensions>
 
     <extensions defaultExtensionNs="org.intellij.scala">

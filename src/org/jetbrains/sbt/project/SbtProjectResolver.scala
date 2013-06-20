@@ -144,7 +144,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     val name = project.name + Sbt.BuildModuleSuffix
     val path = project.base.path + "/project"
 
-    val result = new ModuleNode(SbtProjectSystem.Id, StdModuleTypes.JAVA.getId, name, path, path)
+    val result = new ModuleNode(SbtProjectSystem.Id, SbtModuleType.instance.getId, name, path, path)
 
     result.setInheritProjectCompileOutputPath(false)
     result.setCompileOutputPath(ExternalSystemSourceType.SOURCE, path + "/target/idea-classes")
