@@ -10,10 +10,10 @@ import extractMethod.ScalaExtractMethodHandler
 import introduceParameter.ScalaIntroduceParameterHandler
 import introduceVariable.ScalaIntroduceVariableHandler
 import psi.api.toplevel.typedef.ScTypeDefinition
-import rename.ScalaInplaceVariableRenamer
 import psi.api.base.patterns.ScReferencePattern
 import psi.api.statements._
 import psi.api.base.ScFieldId
+import org.jetbrains.plugins.scala.lang.refactoring.rename.inplace.ScalaInplaceVariableRenamer
 
 /**
  * User: Alexander Podkhalyuzin

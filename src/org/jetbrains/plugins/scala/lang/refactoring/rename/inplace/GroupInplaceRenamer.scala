@@ -1,5 +1,5 @@
 package org.jetbrains.plugins.scala
-package lang.refactoring.rename
+package lang.refactoring.rename.inplace
 
 import com.intellij.codeInsight.template._
 import com.intellij.psi.{PsiDocumentManager, PsiElement}
