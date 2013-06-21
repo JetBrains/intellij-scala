@@ -25,12 +25,12 @@ import java.util.Comparator
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import com.intellij.codeInsight.PsiEquivalenceUtil
 import com.intellij.openapi.application.ApplicationManager
-import org.jetbrains.plugins.scala.lang.refactoring.rename.GroupInplaceRenamer
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaVariableValidator
 import TypeCheckToMatchUtil._
 import scala.annotation.tailrec
 import extensions.inWriteAction
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScExistentialClause, ScTypeElement}
+import org.jetbrains.plugins.scala.lang.refactoring.rename.inplace.GroupInplaceRenamer
 
 /**
  * Nikolay.Tropin

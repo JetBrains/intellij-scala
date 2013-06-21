@@ -1,22 +1,20 @@
 package org.jetbrains.plugins.scala
-package lang
-package refactoring
-package rename
+package lang.refactoring.rename.inplace
 
 import com.intellij.refactoring.util.TextOccurrencesUtil
 import com.intellij.usageView.UsageInfo
 import java.util.ArrayList
-import psi.api.base.patterns.ScCaseClause
-import psi.api.statements.{ScFunction, ScValue, ScVariable}
-import psi.api.toplevel.templates.ScTemplateBody
-import psi.api.toplevel.{ScEarlyDefinitions, ScNamedElement}
-import psi.ScalaPsiUtil
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScEnumerator, ScGenerator, ScFunctionExpr}
-import psi.api.statements.params.{ScParameters, ScClassParameter, ScParameter}
 import com.intellij.psi.search.searches.ReferencesSearch
 import com.intellij.psi.{PsiReference, PsiElement}
 import com.intellij.util.Processor
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScNamedElement}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScVariable, ScValue}
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameters, ScParameter, ScClassParameter}
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 
 /**
  * User: Alexander Podkhalyuzin

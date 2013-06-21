@@ -12,14 +12,17 @@ import com.intellij.refactoring.rename.RenameJavaMethodProcessor
 import java.awt.{GridLayout, BorderLayout}
 
 import javax.swing._
-import psi.api.statements.ScFunction
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import psi.impl.search.ScalaOverridengMemberSearch
 import psi.api.base.ScPrimaryConstructor
 import collection.mutable.ArrayBuffer
 import psi.fake.FakePsiMethod
 import extensions.toPsiNamedElementExt
-import com.intellij.psi.PsiElement
+import com.intellij.psi.{PsiMethod, PsiElement}
 import java.util
+import com.intellij.openapi.util.Pass
+import com.intellij.ide.util.SuperMethodWarningUtil
+import com.intellij.psi.search.PsiElementProcessor
 
 /**
  * User: Alexander Podkhalyuzin
@@ -27,9 +30,10 @@ import java.util
  */
 
 class RenameScalaMethodProcessor extends RenameJavaMethodProcessor {
-  override def canProcessElement(element: PsiElement): Boolean = {
-    (element.isInstanceOf[ScFunction] || element.isInstanceOf[ScPrimaryConstructor]) &&
-      !element.isInstanceOf[FakePsiMethod]
+  override def canProcessElement(element: PsiElement): Boolean = element match {
+    case _: FakePsiMethod => false
+    case _: ScFunction | _:ScPrimaryConstructor => true
+    case _ => false
   }
 
   override def findReferences(element: PsiElement) = ScalaRenameUtil.filterAliasedReferences(super.findReferences(element))
@@ -72,29 +76,31 @@ class RenameScalaMethodProcessor extends RenameJavaMethodProcessor {
     ScalaElementToRenameContributor.getAll(element, newName, allRenames)
   }
 
-
+  private def substituteElementGuess(element: PsiElement) = element match {
+    case primConstr: ScPrimaryConstructor => primConstr.containingClass
+    case fun: ScFunction if fun.isConstructor => fun.containingClass
+    case fun: ScFunction if Seq("apply", "unapply", "unapplySeq") contains fun.name => fun.containingClass
+    case fun: ScFunction => null
+    case _ => element
+  }
 
   override def substituteElementToRename(element: PsiElement, editor: Editor): PsiElement = {
-    element match {case x: ScPrimaryConstructor => return x.containingClass case _ =>}
-    val function: ScFunction = element match {case x: ScFunction => x case _ => return element}
-    if (function.isConstructor) return function.containingClass
-    function.name match {
-      case "apply" | "unapply" | "unapplySeq" => {
-        return function.containingClass
-      }
-      case _ =>
-    }
+    val guess = substituteElementGuess(element)
+    if (guess != null) guess else SuperMethodWarningUtil.checkSuperMethod(element.asInstanceOf[PsiMethod] , "Rename")
+  }
 
-    val signs = function.superSignatures
-    if (signs.length == 0 || signs.last.namedElement.isEmpty) return function
-    val result = Messages.showDialog(element.getProject, ScalaBundle.message("method.has.supers", function.name), "Warning",
-      Array(CommonBundle.getYesButtonText, CommonBundle.getNoButtonText, CommonBundle.getCancelButtonText), 0, Messages.getQuestionIcon
-    )
-    result match {
-      case 0 => signs.last.namedElement.get
-      case 1 => function
-      case _ => null
-    }
+  override def substituteElementToRename(element: PsiElement, editor: Editor, renameCallback: Pass[PsiElement]) {
+    val guess = substituteElementGuess(element)
+    if (guess != null) renameCallback.pass(guess)
+    else SuperMethodWarningUtil.checkSuperMethod(element.asInstanceOf[PsiMethod], "Rename", new PsiElementProcessor[PsiMethod] {
+      def execute(method: PsiMethod): Boolean = {
+        if (!canProcessElement(method)) false
+        else {
+          renameCallback.pass(method)
+          false
+        }
+      }
+    }, editor)
   }
 
   private class WarningDialog(project: Project, text: String) extends DialogWrapper(project, true) {

@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.lang.refactoring.rename;
+package org.jetbrains.plugins.scala.lang.refactoring.rename.inplace;
 
 import com.intellij.codeInsight.completion.InsertHandler;
 import com.intellij.codeInsight.completion.InsertionContext;
