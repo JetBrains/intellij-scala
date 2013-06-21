@@ -9,8 +9,8 @@ import codeInspection.typeChecking.TypeCheckToMatchUtil._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScMatchStmt, ScIfStmt, ScGenericCall}
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.openapi.application.ApplicationManager
-import org.jetbrains.plugins.scala.lang.refactoring.rename.GroupInplaceRenamer
 import extensions.inWriteAction
+import org.jetbrains.plugins.scala.lang.refactoring.rename.inplace.GroupInplaceRenamer
 
 
 /**
