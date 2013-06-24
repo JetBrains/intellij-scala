@@ -10,9 +10,9 @@ import JavacOutputParsing._
  * @author Pavel Fatin
  */
 trait JavacOutputParsing extends Logger {
-  private type Location = (File, Long)
+  private case class Header(file: File, line: Long, kind: Kind)
 
-  private var location: Option[Location] = None
+  private var header: Option[Header] = None
   private var lines: Vector[String] = Vector.empty
 
   protected def client: Client
@@ -28,20 +28,20 @@ trait JavacOutputParsing extends Logger {
   // Move Javac output parsing to SBT compiler
   private def process(line: String, kind: Kind) {
     line match {
-      case LocationPattern(path, row, message) =>
-        location = Some((new File(path), row.toLong))
+      case HeaderPattern(path, row, modifier, message) =>
+        header = Some(Header(new File(path), row.toLong, if (modifier == null) kind else Kind.WARNING))
         lines :+= message
-      case PointerPattern(prefix) if location.isDefined =>
+      case PointerPattern(prefix) if header.isDefined =>
         val text = (lines :+ line).mkString("\n")
-        client.message(kind, text, location.map(_._1), location.map(_._2), Some(1L + prefix.length))
-        location = None
+        client.message(header.get.kind, text, header.map(_.file), header.map(_.line), Some(1L + prefix.length))
+        header = None
         lines = Vector.empty
       case NotePattern(message) =>
         client.message(Kind.WARNING, message)
       case TotalsPattern =>
         // do nothing
       case _ =>
-        if (location.isDefined) {
+        if (header.isDefined) {
           lines :+= line
         } else {
           client.message(kind, line)
@@ -51,7 +51,7 @@ trait JavacOutputParsing extends Logger {
 }
 
 object JavacOutputParsing {
-  val LocationPattern = "(.*?):(\\d+): (.*)".r
+  val HeaderPattern = "(.*?):(\\d+):( warning:)?(.*)".r
   val PointerPattern = "(\\s*)\\^".r
   val NotePattern = "Note: (.*)".r
   val TotalsPattern = "\\d+ (errors?|warnings?)".r
