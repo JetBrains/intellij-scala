@@ -11,7 +11,9 @@ import com.intellij.openapi.actionSystem.DataContext
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import com.intellij.ui.components.JBList
 import com.intellij.openapi.ui.popup.JBPopupFactory
-import com.intellij.psi.util.{PsiTreeUtil, PsiUtilBase}
+import com.intellij.psi.util.PsiUtilBase
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 
 
 /**
@@ -71,11 +73,16 @@ class ScalaMemberInplaceRenameHandler extends MemberInplaceRenameHandler{
       }).createPopup.showInBestPositionFor(editor)
     }
 
-    val selected = PsiUtilBase.getElementAtCaret(editor)
+    val atCaret = PsiUtilBase.getElementAtCaret(editor)
+    val selected = ScalaPsiUtil.getParentOfType(atCaret, classOf[ScReferenceElement], classOf[ScNamedElement])
+    val nameId = selected match {
+      case ref: ScReferenceElement => ref.nameId
+      case named: ScNamedElement => named.nameId
+      case _ => null
+    }
     elementToRename match {
       case fun: ScFunction
-        if (Seq("apply", "unapply", "unapplySeq").contains(fun.name) || fun.isConstructor) &&
-                PsiTreeUtil.isAncestor(elementToRename, selected, false) =>
+        if nameId != null && nameId.getText == fun.name && Seq("apply", "unapply", "unapplySeq").contains(fun.name) || fun.isConstructor =>
           specialMethodPopup(fun)
           null
       case _ => super.doRename(elementToRename, editor, dataContext)
