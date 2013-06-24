@@ -28,6 +28,9 @@ import com.intellij.openapi.ui.MessageType
 import com.intellij.openapi.ui.popup.{Balloon, JBPopupFactory}
 import org.jetbrains.plugins.scala.lang.refactoring.util.{ScalaRefactoringUtil, ScalaVariableValidator, ConflictsReporter}
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScTypedPattern
+import com.intellij.openapi.vfs.VirtualFile
+import com.intellij.psi.search.{LocalSearchScope, SearchScope}
+import com.intellij.psi.util.PsiTreeUtil
 
 /**
  * Nikolay.Tropin
@@ -289,6 +292,17 @@ class ScalaInplaceVariableIntroducer(project: Project,
                 createBalloon.show(bestLocation, Balloon.Position.below)
       }
     }
+  }
+
+
+  override def getReferencesSearchScope(file: VirtualFile): SearchScope = {
+   new LocalSearchScope(myElementToRename.getContainingFile)
+  }
+
+  override def checkLocalScope(): PsiElement = {
+    val scope = new LocalSearchScope(myElementToRename.getContainingFile)
+    val elements: Array[PsiElement] = scope.getScope
+    PsiTreeUtil.findCommonParent(elements: _*)
   }
 
   override def finish(success: Boolean) {

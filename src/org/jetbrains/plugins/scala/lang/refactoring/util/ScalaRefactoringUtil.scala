@@ -35,7 +35,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.{ScReferenceElement, ScLite
 import com.intellij.openapi.editor.{VisualPosition, Editor}
 import com.intellij.openapi.actionSystem.DataContext
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaRecursiveElementVisitor, ScalaFile}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScEarlyDefinitions
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportExpr
@@ -43,6 +42,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScTypeProjection, Sc
 import org.jetbrains.plugins.scala.lang.psi.types.ScDesignatorType
 import scala.Some
 import org.jetbrains.plugins.scala.lang.psi.types.ScFunctionType
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 
 /**
  * User: Alexander Podkhalyuzin
@@ -487,7 +487,7 @@ object ScalaRefactoringUtil {
     else {
       var res: PsiElement = file.findElementAt(startOffset)
       while (!res.isInstanceOf[ScFunction] && res.getParent != null &&
-              !res.getParent.isInstanceOf[ScTemplateBody] &&
+              !res.getParent.isInstanceOf[ScTypeDefinition] &&
               !res.getParent.isInstanceOf[ScEarlyDefinitions] &&
               res != file) res = res.getParent
       if (res == null) {
