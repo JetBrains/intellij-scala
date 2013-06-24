@@ -29,7 +29,7 @@ import com.intellij.openapi.application.ApplicationManager
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.openapi.project.Project
-import psi.api.toplevel.typedef.ScMember
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScMember}
 import refactoring.util.ScalaRefactoringUtil.IntroduceException
 import com.intellij.refactoring.util.CommonRefactoringUtil
 import refactoring.util.{ConflictsReporter, ScalaRefactoringUtil}
@@ -39,6 +39,7 @@ import com.intellij.refactoring.introduce.inplace.OccurrencesChooser
 import com.intellij.openapi.util.Pass
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaVariableValidator
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
 
 /**
  * User: Alexander Podkhalyuzin
@@ -87,6 +88,11 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Confli
         case _ if expr.isInstanceOf[ScConstrExpr] => showErrorMessage(ScalaBundle.message("cannot.refactor.constr.expression"), project, editor)
         case _: ScArgumentExprList if expr.isInstanceOf[ScAssignStmt] => showErrorMessage(ScalaBundle.message("cannot.refactor.named.arg"), project, editor)
         case _: ScLiteralPattern => showErrorMessage(ScalaBundle.message("cannot.refactor.literal.pattern"), project, editor)
+        case par: ScClassParameter =>
+          par.containingClass match {
+            case clazz: ScClass if clazz.isTopLevel => showErrorMessage(ScalaBundle.message("cannot.refactor.class.parameter.top.level"), project, editor)
+            case _ =>
+          }
         case _ =>
       }
 
