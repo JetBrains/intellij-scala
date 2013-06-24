@@ -121,7 +121,7 @@ object CompilerData {
 
         libraryName.flatMap { name =>
           Option(libraries.findLibrary(name)).toRight(String.format(
-            "Сompiler library for module %s not found: %s / %s ", module.getName, libraryLevel, libraryName))
+            "Сompiler library for module %s not found: %s / %s ", module.getName, level, name))
         }
       }
     }
