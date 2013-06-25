@@ -35,10 +35,6 @@ class ScalaMemberInplaceRenamer(elementToRename: PsiNamedElement,
     this(elementToRename, substituted, editor)
   }
 
-  protected override def createLookupExpression(): ScalaLookupExpression =
-    new ScalaLookupExpression(getInitialName, myNameSuggestions, substituted, shouldSelectAll, myAdvertisementText)
-
-
   protected override def getCommandName: String = {
     if (myInitialName != null) RefactoringBundle.message("renaming.command.name", myInitialName)
     else "Rename"
