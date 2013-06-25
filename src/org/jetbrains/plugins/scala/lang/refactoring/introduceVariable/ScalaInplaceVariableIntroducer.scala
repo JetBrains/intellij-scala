@@ -55,17 +55,20 @@ class ScalaInplaceVariableIntroducer(project: Project,
   private val newDeclaration = ScalaPsiUtil.getParentOfType(namedElement, classOf[ScEnumerator], classOf[ScDeclaredElementsHolder])
   private var myCheckIdentifierListener: DocumentListener = null
   private val myFile: PsiFile = namedElement.getContainingFile
-  private var myBalloonPanel: JPanel = null
+  private val myBalloonPanel: JPanel = new JPanel()
   private var nameIsValid: Boolean = true
   private val isEnumerator: Boolean = newDeclaration.isInstanceOf[ScEnumerator]
 
-  private val myLabel: JLabel = new JLabel()
+  private val myLabel = new JLabel()
+  private val myLabelPanel = new JPanel()
+
+  private val myChbPanel = new JPanel()
 
   setDeclaration(newDeclaration)
   myCheckIdentifierListener = checkIdentifierListener()
 
   private def checkIdentifierListener(): DocumentListener = new DocumentAdapter() {
-    override def documentChanged(e: DocumentEvent) {
+    override def documentChanged(e: DocumentEvent): Unit = {
       commitDocument()
       val range = new TextRange(myCaretRangeMarker.getStartOffset, myCaretRangeMarker.getEndOffset)
       val input = myCaretRangeMarker.getDocument.getText(range)
@@ -76,7 +79,7 @@ class ScalaInplaceVariableIntroducer(project: Project,
       val named: Option[ScNamedElement] = namedElement(declaration)
       if (named.isDefined && range.contains(named.get.getNameIdentifier.getTextRange)) {
         setDeclaration(declaration)
-        if (nameIsValid != (named.isDefined && isIdentifier(inputTrimmed, myFile.getLanguage) && named.get.name == inputTrimmed)) {
+        if (nameIsValid != (named.isDefined && isIdentifier(input, myFile.getLanguage) && named.get.name == input)) {
           nameIsValid = !nameIsValid
           resetBalloonPanel(nameIsValid)
         }
@@ -97,12 +100,12 @@ class ScalaInplaceVariableIntroducer(project: Project,
 
   def getDeclaration: PsiElement = myPointer.getElement
 
-  def setDeclaration(declaration: PsiElement) {
+  def setDeclaration(declaration: PsiElement): Unit = {
     myPointer = if (declaration != null) SmartPointerManager.getInstance(project).createSmartPsiElementPointer(declaration)
     else myPointer
   }
 
-  private def commitDocument() {
+  private def commitDocument(): Unit = {
     PsiDocumentManager.getInstance(myProject).commitDocument(myEditor.getDocument)
   }
 
@@ -116,10 +119,10 @@ class ScalaInplaceVariableIntroducer(project: Project,
       }
       myVarCheckbox.setMnemonic('v')
       myVarCheckbox.addActionListener(new ActionListener {
-        def actionPerformed(e: ActionEvent) {
+        def actionPerformed(e: ActionEvent): Unit = {
           val writeAction = new WriteCommandAction[Unit](myProject, getCommandName, getCommandName) {
 
-            private def changeValOrVar(asVar: Boolean, declaration: PsiElement) {
+            private def changeValOrVar(asVar: Boolean, declaration: PsiElement): Unit = {
               val replacement =
                 declaration match {
                 case value: ScValue if asVar =>
@@ -131,7 +134,7 @@ class ScalaInplaceVariableIntroducer(project: Project,
               if (replacement != declaration) setDeclaration(declaration.replace(replacement))
             }
 
-            protected def run(result: Result[Unit]) {
+            protected def run(result: Result[Unit]): Unit = {
               changeValOrVar(myVarCheckbox.isSelected, getDeclaration)
               commitDocument()
             }
@@ -152,15 +155,15 @@ class ScalaInplaceVariableIntroducer(project: Project,
       }
       mySpecifyTypeChb.setMnemonic('t')
       mySpecifyTypeChb.addActionListener(new ActionListener {
-        def actionPerformed(e: ActionEvent) {
+        def actionPerformed(e: ActionEvent): Unit = {
           val greedyToRight = mutable.WeakHashMap[RangeHighlighter, Boolean]()
 
-          def setGreedyToRightToFalse() {
+          def setGreedyToRightToFalse(): Unit = {
             val highlighters: Array[RangeHighlighter] = myEditor.getMarkupModel.getAllHighlighters
             for (highlighter <- highlighters; if checkRange(highlighter.getStartOffset, highlighter.getEndOffset))
               greedyToRight += (highlighter -> highlighter.isGreedyToRight)
           }
-          def resetGreedyToRightBack() {
+          def resetGreedyToRightBack(): Unit = {
             val highlighters: Array[RangeHighlighter] = myEditor.getMarkupModel.getAllHighlighters
             for (highlighter <- highlighters; if checkRange(highlighter.getStartOffset, highlighter.getEndOffset))
               highlighter.setGreedyToRight(greedyToRight(highlighter))
@@ -174,7 +177,7 @@ class ScalaInplaceVariableIntroducer(project: Project,
           }
 
           val writeAction = new WriteCommandAction[Unit](myProject, getCommandName, getCommandName) {
-            private def addTypeAnnotation(selectedType: ScType) {
+            private def addTypeAnnotation(selectedType: ScType): Unit = {
               val declaration = getDeclaration
               declaration match {
                 case _: ScDeclaredElementsHolder | _: ScEnumerator =>
@@ -194,7 +197,7 @@ class ScalaInplaceVariableIntroducer(project: Project,
                 case _ =>
               }
             }
-            private def removeTypeAnnotation() {
+            private def removeTypeAnnotation(): Unit = {
               getDeclaration match {
                 case holder: ScDeclaredElementsHolder =>
                   val colon = holder.findFirstChildByType(ScalaTokenTypes.tCOLON)
@@ -212,7 +215,7 @@ class ScalaInplaceVariableIntroducer(project: Project,
                 case _ =>
               }
             }
-            protected def run(result: Result[Unit]) {
+            protected def run(result: Result[Unit]): Unit = {
               commitDocument()
               setGreedyToRightToFalse()
               if (mySpecifyTypeChb.isSelected) {
@@ -224,7 +227,7 @@ class ScalaInplaceVariableIntroducer(project: Project,
           }
           writeAction.execute()
           ApplicationManager.getApplication.runReadAction(new Runnable {
-            def run() {
+            def run(): Unit = {
               if (mySpecifyTypeChb.isSelected) {
                 resetGreedyToRightBack()
               }
@@ -240,34 +243,43 @@ class ScalaInplaceVariableIntroducer(project: Project,
     myBalloonPanel
   }
 
-  private def setBalloonPanel(nameIsValid: Boolean) {
+  private def setBalloonPanel(nameIsValid: Boolean): Unit = {
     this.nameIsValid = nameIsValid
-    myBalloonPanel = new JPanel(new GridBagLayout)
-    myBalloonPanel.setBorder(null)
-    myBalloonPanel.add(myLabel)
-    if (!nameIsValid) myLabel.setText(ScalaBundle.message("introduce.variable.identifier.is.not.valid"))
-    else myLabel.setText(" ")
 
-    var count: Int = 1
+    myChbPanel.setLayout(new BoxLayout(myChbPanel, BoxLayout.Y_AXIS))
+    myChbPanel.setBorder(null)
     Seq(myVarCheckbox, mySpecifyTypeChb).filter(_ != null).foreach{chb =>
-      myBalloonPanel.add(chb,
-        new GridBagConstraints(0, count, 1, 1, 1, 0, GridBagConstraints.NORTHWEST, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 0, 0))
-      count += 1
+      myChbPanel.add(chb)
       chb.setEnabled(nameIsValid)
     }
-    myBalloonPanel.add(Box.createVerticalBox,
-      new GridBagConstraints(0, count, 1, 1, 1, 1, GridBagConstraints.NORTHWEST, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0))
+
+    myLabel.setText(ScalaBundle.message("introduce.variable.identifier.is.not.valid"))
+    myLabel.setForeground(Color.RED)
+    myLabelPanel.setLayout(new BoxLayout(myLabelPanel, BoxLayout.X_AXIS))
+    myLabelPanel.add(Box.createHorizontalGlue())
+    myLabelPanel.add(myLabel)
+    myLabelPanel.add(Box.createHorizontalGlue())
+
+    if (!nameIsValid) myBalloonPanel add myLabelPanel
+    else myBalloonPanel add myChbPanel
 
     myBalloonPanel
   }
 
-  private def resetBalloonPanel(nameIsValid: Boolean) {
-    if (!nameIsValid) myLabel.setText(ScalaBundle.message("introduce.variable.identifier.is.not.valid"))
-    else myLabel.setText(" ")
+  private def resetBalloonPanel(nameIsValid: Boolean): Unit = {
+    if (!nameIsValid) {
+      myBalloonPanel add myLabelPanel
+      myBalloonPanel remove myChbPanel
+    }
+    else {
+      myBalloonPanel add myChbPanel
+      myBalloonPanel remove myLabelPanel
+    }
     Seq(myVarCheckbox, mySpecifyTypeChb) filter(_ != null) foreach (_.setEnabled(nameIsValid))
+    myBalloon.revalidate()
   }
 
-  protected override def moveOffsetAfter(success: Boolean) {
+  protected override def moveOffsetAfter(success: Boolean): Unit = {
     if (myExprMarker != null) {
       val startOffset: Int = myExprMarker.getStartOffset
       val elementAt: PsiElement = myFile.findElementAt(startOffset)
@@ -282,9 +294,9 @@ class ScalaInplaceVariableIntroducer(project: Project,
     }
   }
 
-  private def createWarningBalloon(message: String) {
+  private def createWarningBalloon(message: String): Unit = {
     SwingUtilities invokeLater new Runnable {
-      def run() {
+      def run(): Unit = {
         val popupFactory = JBPopupFactory.getInstance
         val bestLocation = popupFactory.guessBestPopupLocation(myEditor)
         popupFactory.createHtmlTextBalloonBuilder(message, null, MessageType.WARNING.getPopupBackground, null).
@@ -305,7 +317,7 @@ class ScalaInplaceVariableIntroducer(project: Project,
     PsiTreeUtil.findCommonParent(elements: _*)
   }
 
-  override def finish(success: Boolean) {
+  override def finish(success: Boolean): Unit = {
     editor.getDocument.removeDocumentListener(myCheckIdentifierListener)
 
     if (myVarCheckbox != null) ScalaApplicationSettings.getInstance.INTRODUCE_LOCAL_CREATE_VARIABLE = myVarCheckbox.isSelected
