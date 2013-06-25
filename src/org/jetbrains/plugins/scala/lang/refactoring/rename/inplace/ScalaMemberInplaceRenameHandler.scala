@@ -15,7 +15,6 @@ import com.intellij.psi.util.PsiUtilBase
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 
-
 /**
  * Nikolay.Tropin
  * 6/20/13
@@ -23,7 +22,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 class ScalaMemberInplaceRenameHandler extends MemberInplaceRenameHandler{
 
   def renameProcessor(element: PsiElement): RenamePsiElementProcessor = {
-    val processor = if (element != null) RenamePsiElementProcessor.forElement(element) else null
+    val processor = if (element != null && element.getLanguage.getID == "Scala") RenamePsiElementProcessor.forElement(element) else null
     if (processor != RenamePsiElementProcessor.DEFAULT) processor else null
   }
 
@@ -46,7 +45,7 @@ class ScalaMemberInplaceRenameHandler extends MemberInplaceRenameHandler{
   }
 
   override def doRename(elementToRename: PsiElement, editor: Editor, dataContext: DataContext): InplaceRefactoring = {
-    def specialMethodPopup(fun: ScFunction) {
+    def specialMethodPopup(fun: ScFunction): Unit = {
       val clazz = fun.containingClass
       val clazzType = clazz match {
         case _: ScObject => "object"
@@ -63,7 +62,7 @@ class ScalaMemberInplaceRenameHandler extends MemberInplaceRenameHandler{
               .setResizable(false)
               .setRequestFocus(true)
               .setItemChoosenCallback(new Runnable {
-        def run() {
+        def run(): Unit = {
           list.getSelectedValue match {
             case s: String if s == renameClass =>
               new DialogRenamer().doDialogRename(clazz, editor.getProject, null, editor)
