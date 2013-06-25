@@ -1,12 +1,26 @@
-<html><body>Methods with a result type of <code>Unit</code> are only executed for their <a href="http://en.wikipedia.org/wiki/Side_effect_(computer_science)">side effects</a>.
-
-A better way to express such methods is to leave off the result type and the equals sign,
-and enclose the body of the method in curly braces.
-
-In this form, the method looks like a <dfn>procedure</dfn>, a method that is executed only
-for its side effects:
-
-<pre><code>  <span style="color:#808080">// excessive clutter, looks like a function</span><br>  <strong style="color:#000080">def</strong> close(): Unit = { file.delete() }
-  <span style="color:#808080">// concise form, side-effect is clearly stated</span><br>  <strong style="color:#000080">def</strong> close() { file.delete() }</code></pre>
-<small>* Refer to Programming in Scala, 4.1 Classes, fields, and methods</small>
+<html><body>
+This inspection became deprecated.
+<br/>
+It is not recommended to use procedure-like syntax for methods with <code>Unit</code> return type. It is inconsistent,
+may lead to errors and will be deprecated in future versions of Scala.
+<br/>
+<br/>
+* Reference: The talk <a href="http://www.parleys.com/play/51c1994ae4b0d38b54f4621b/chapter46/agenda">"Scala with Style"</a>  by Martin Odersky at
+ScalaDays 2013
+<br/>
+<br/>
+<span style="color:#808080">Old description:<br/>
+    Methods with a result type of Unit are only executed for their <a href="http://en.wikipedia.org/wiki/Side_effect_(computer_science)">side effects</a>.
+    <br><br>
+    A better way to express such methods is to leave off the result type and the equals sign,
+    and enclose the body of the method in curly braces.
+    <br><br>
+    In this form, the method looks like a procedure, a method that is executed only
+    for its side effects:
+    <br><br>
+  // excessive clutter, looks like a function<br>
+    def close(): Unit = { file.delete() } <br>
+    // concise form, side-effect is clearly stated<br>
+    def close() { file.delete() }<br/><br/>
+    * Refer to Programming in Scala, 4.1 Classes, fields, and methods</span>
 </body></html>

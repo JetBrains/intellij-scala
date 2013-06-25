@@ -353,7 +353,7 @@
             <category>Scala</category>
             <className>org.jetbrains.plugins.scala.codeInsight.intention.types.ConvertImplicitBoundsToImplicitParameter</className>
         </intentionAction>
-        
+
         <intentionAction>
             <category>Scala</category>
             <className>org.jetbrains.plugins.scala.util.macroDebug.OpenSynFileIntention</className>
@@ -619,15 +619,15 @@
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.methodSignature.UnitMethodDeclaredWithTypeAnnotationInspection"
                          displayName="Redundant Unit result type annotation" groupName="Scala: Method signature"
                          shortName="UnitMethodDeclaredWithTypeAnnotation" level="WARNING"
-                         enabledByDefault="true" language="Scala"/>
+                         enabledByDefault="false" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.methodSignature.UnitMethodDefinedLikeFunctionInspection"
                          displayName="Method with Unit result type defined like function" groupName="Scala: Method signature"
                          shortName="UnitMethodDefinedLikeFunction" level="WARNING"
-                         enabledByDefault="true" language="Scala"/>
+                         enabledByDefault="false" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.methodSignature.UnitMethodDefinedWithEqualsSignInspection"
                          displayName="Method with Unit result type defined with equals sign" groupName="Scala: Method signature"
                          shortName="UnitMethodDefinedWithEqualsSign" level="WARNING"
-                         enabledByDefault="true" language="Scala"/>
+                         enabledByDefault="false" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.methodSignature.UnitMethodIsParameterlessInspection"
                          displayName="Method with Unit result type is parameterless" groupName="Scala: Method signature"
                          shortName="UnitMethodIsParameterless" level="WARNING"
@@ -643,6 +643,14 @@
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.methodSignature.ApparentRefinementOfResultTypeInspection"
                          displayName="Apparent refinement of result type; are you missing an '=' sign?" groupName="Scala: Method signature"
                          shortName="ApparentRefinementOfResultType" level="WARNING"
+                         enabledByDefault="true" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.methodSignature.UnitMethodDefinedLikeProcedureInspection"
+                         displayName="Method with Unit result type is defined like procedure" groupName="Scala: Method signature"
+                         shortName="UnitMethodDefinedLikeProcedure" level="WARNING"
+                         enabledByDefault="true" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.methodSignature.DeclarationHasNoExplicitTypeInspection"
+                         displayName="Method declaration has no explicit return type" groupName="Scala: Method signature"
+                         shortName="DeclarationHasNoExplicitType" level="WARNING"
                          enabledByDefault="true" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.postfix.PostfixMethodCallInspection"
                          displayName="Use of postfix method call" groupName="Scala: General"
