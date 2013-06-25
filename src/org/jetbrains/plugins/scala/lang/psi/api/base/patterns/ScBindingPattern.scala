@@ -14,8 +14,9 @@ import toplevel.templates.ScTemplateBody
 import toplevel.{ScEarlyDefinitions, ScNamedElement, ScTypedDefinition}
 import toplevel.typedef.{ScTemplateDefinition, ScMember, ScTypeDefinition}
 import com.intellij.psi.javadoc.PsiDocComment
-import extensions.{toPsiMemberExt, toPsiNamedElementExt}
+import extensions.toPsiNamedElementExt
 import com.intellij.psi._
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlock
 
 trait ScBindingPattern extends ScPattern with ScNamedElement with ScTypedDefinition with NavigationItem with PsiDocCommentOwner {
   override def getTextOffset: Int = nameId.getTextRange.getStartOffset
@@ -23,8 +24,8 @@ trait ScBindingPattern extends ScPattern with ScNamedElement with ScTypedDefinit
   def isWildcard: Boolean
 
   override def getUseScope = {
-    val func = PsiTreeUtil.getContextOfType(this, true, classOf[ScFunctionDefinition])
-    if (func != null) new LocalSearchScope(func) else ResolveScopeManager.getElementUseScope(this)
+    val block = PsiTreeUtil.getContextOfType(this, true, classOf[ScBlock])
+    if (block != null) new LocalSearchScope(block) else ResolveScopeManager.getElementUseScope(this)
   }
 
   protected def getEnclosingVariable: Option[ScVariable] = {
