@@ -1006,7 +1006,18 @@ object ScalaPsiElementFactory {
       ScalaFileType.SCALA_FILE_TYPE, ",").asInstanceOf[ScalaFile]
     dummyFile.findChildrenByType(ScalaTokenTypes.tCOMMA).head
   }
-  
+
+  def createAssign(manager: PsiManager): PsiElement = {
+    val dummyFile = PsiFileFactory.getInstance(manager.getProject).
+            createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension,
+      ScalaFileType.SCALA_FILE_TYPE, "val x = 0").asInstanceOf[ScalaFile]
+    dummyFile.findChildrenByType(ScalaTokenTypes.tASSIGN).head
+  }
+
+  def createWhitespace(manager: PsiManager): PsiElement = {
+    createExpressionFromText("1 + 1", manager).findElementAt(1)
+  }
+
   def createTypeElementFromText(text: String, context: PsiElement, child: PsiElement): ScTypeElement = {
     val holder: FileElement = DummyHolderFactory.createHolder(context.getManager, context).getTreeElement
     val builder: ScalaPsiBuilder =
