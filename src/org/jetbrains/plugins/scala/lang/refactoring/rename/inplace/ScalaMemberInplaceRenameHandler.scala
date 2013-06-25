@@ -4,7 +4,7 @@ package lang.refactoring.rename.inplace
 import com.intellij.refactoring.rename.inplace.{InplaceRefactoring, MemberInplaceRenamer, MemberInplaceRenameHandler}
 import com.intellij.psi._
 import com.intellij.openapi.editor.Editor
-import com.intellij.refactoring.rename.RenamePsiElementProcessor
+import com.intellij.refactoring.rename.{PsiElementRenameHandler, RenamePsiElementProcessor}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTrait, ScObject, ScClass}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import com.intellij.openapi.actionSystem.DataContext
@@ -14,6 +14,7 @@ import com.intellij.openapi.ui.popup.JBPopupFactory
 import com.intellij.psi.util.PsiUtilBase
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
+import com.intellij.openapi.project.Project
 
 /**
  * Nikolay.Tropin
@@ -65,7 +66,7 @@ class ScalaMemberInplaceRenameHandler extends MemberInplaceRenameHandler{
         def run(): Unit = {
           list.getSelectedValue match {
             case s: String if s == renameClass =>
-              new DialogRenamer().doDialogRename(clazz, editor.getProject, null, editor)
+              doDialogRename(clazz, editor.getProject, null, editor)
             case s: String if s == cancel =>
           }
         }
@@ -87,5 +88,9 @@ class ScalaMemberInplaceRenameHandler extends MemberInplaceRenameHandler{
       case _ => super.doRename(elementToRename, editor, dataContext)
     }
 
+  }
+
+  protected def doDialogRename(element: PsiElement, project: Project, nameSuggestionContext: PsiElement, editor: Editor): Unit = {
+    PsiElementRenameHandler.rename(element, project, nameSuggestionContext, editor)
   }
 }
