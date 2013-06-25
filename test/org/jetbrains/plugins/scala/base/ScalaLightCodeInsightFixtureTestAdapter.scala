@@ -20,7 +20,7 @@ import com.intellij.codeInsight.daemon.impl.HighlightInfo
  */
 
 abstract class ScalaLightCodeInsightFixtureTestAdapter extends LightCodeInsightFixtureTestCase {
-  import ScalaLightCodeInsightFixtureTestAdapter.CARET_MARKER
+  protected val CARET_MARKER = ScalaLightCodeInsightFixtureTestAdapter.CARET_MARKER
 
   private var libLoader: ScalaLibraryLoader = null
 

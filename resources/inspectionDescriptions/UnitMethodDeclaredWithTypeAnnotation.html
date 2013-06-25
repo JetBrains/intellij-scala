@@ -1,6 +1,20 @@
-<html><body><code>Unit</code> result type annotation is redundant:
-
-<pre><code><span style="color:#808080">  // excessive clutter</span><br>  <strong style="color:#000080">def</strong> foo(): Unit
-  <span style="color:#808080">// concise form</span><br>  <strong style="color:#000080">def</strong> foo()</code></pre>
-<small>* Refer to Programming in Scala, 2.3 Define some functions</small>
+<html><body>
+This inspection became deprecated.
+<br/>
+It is not recommended to use procedure-like syntax for methods with <code>Unit</code> return type. It is inconsistent,
+may lead to errors and will be deprecated in future versions of Scala.
+<br/>
+<br/>
+* Reference: The talk <a href="http://www.parleys.com/play/51c1994ae4b0d38b54f4621b/chapter46/agenda">"Scala with Style"</a>  by Martin Odersky at
+ScalaDays 2013
+<br/>
+<br/>
+<span style="color:#808080">Old description:<br/>
+    Unit result type annotation is redundant:<br/>
+    // excessive clutter<br>
+    def foo(): Unit<br/>
+    // concise form<br>
+    def foo()<br/><br/>
+    * Refer to Programming in Scala, 2.3 Define some functions
+</span>
 </body></html>
