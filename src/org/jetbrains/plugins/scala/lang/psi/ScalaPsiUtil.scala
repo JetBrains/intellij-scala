@@ -74,8 +74,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScMethodType
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.TypeParameter
 import org.jetbrains.plugins.scala.lang.psi.types.ScProjectionType
 import scala.annotation.tailrec
-import scala.annotation.tailrec
-import com.intellij.openapi.util.TextRange
 
 /**
  * User: Alexander Podkhalyuzin
@@ -1467,36 +1465,51 @@ object ScalaPsiUtil {
       }
     }
 
-    val parent = from.getParent
+    def parsedDifferently(expr: ScExpression): Boolean = {
+      expr.getParent match {
+        case ScParenthesisedExpr(_) =>
+          val text = expr.getText
+          val dummyFile = ScalaPsiElementFactory.createScalaFile(text, expr.getManager)
+          dummyFile.firstChild match {
+            case Some(newExpr: ScExpression) => newExpr.getText != text
+            case _ => true
+          }
+        case _ => false
+      }
+    }
 
-    (parent, expr) match {
-      //order of these case clauses is important!
-      case _ if !parent.isInstanceOf[ScExpression] => false
-      case _ if expr.getText == "_" => false
-      case (_: ScTuple | _: ScBlock | _: ScXmlExpr   , _) => false
-      case (infix: ScInfixExpr                       , tuple: ScTuple) => tupleInInfixNeedParentheses(infix, from, tuple)
-      case (infix: ScInfixExpr                       , elem: PsiElement) if ScUnderScoreSectionUtil.isUnderscoreFunction(elem) => true
-      case (_                                        , _: ScReferenceExpression | _: ScMethodCall |
-                                                       _: ScGenericCall | _: ScLiteral | _: ScTuple |
-                                                       _: ScXmlExpr | _: ScParenthesisedExpr | _: ScUnitExpr |
-                                                       _: ScThisReference | _: ScSuperReference) => false
-      case (_: ScMethodCall | _: ScUnderscoreSection , _) => true
-      case (_                                        , _: ScBlock) => false
-      case (_: ScGenericCall                         , _) => true
-      case (_: ScReferenceExpression                 , _: ScNewTemplateDefinition) =>
-        val lastChar: Char = expr.getText.last
-        lastChar != ')' && lastChar != '}' && lastChar != ']'
-      case (_: ScReferenceExpression                 , _) => true
-      case (_                                        , _: ScNewTemplateDefinition |
-                                                        _: ScUnderscoreSection) => false
-      case (_: ScPrefixExpr                          , _) => true
-      case (_                                        , _: ScPrefixExpr) => false
-      case (_: ScPostfixExpr                         , _) => true
-      case (par: ScInfixExpr                         , child: ScInfixExpr) => infixInInfixParentheses(par, child)
-      case (_: ScInfixExpr                           , _) => true
-      case (_                                        , _: ScInfixExpr | _: ScPostfixExpr) => false
-      case (_: ScTypedStmt | _: ScMatchStmt          , _) => true
-      case _ => false
+    if (parsedDifferently(expr)) true
+    else {
+      val parent = from.getParent
+      (parent, expr) match {
+        //order of these case clauses is important!
+        case _ if !parent.isInstanceOf[ScExpression] => false
+        case _ if expr.getText == "_" => false
+        case (_: ScTuple | _: ScBlock | _: ScXmlExpr   , _) => false
+        case (infix: ScInfixExpr                       , tuple: ScTuple) => tupleInInfixNeedParentheses(infix, from, tuple)
+        case (infix: ScInfixExpr                       , elem: PsiElement) if ScUnderScoreSectionUtil.isUnderscoreFunction(elem) => true
+        case (_                                        , _: ScReferenceExpression | _: ScMethodCall |
+                                                         _: ScGenericCall | _: ScLiteral | _: ScTuple |
+                                                         _: ScXmlExpr | _: ScParenthesisedExpr | _: ScUnitExpr |
+                                                         _: ScThisReference | _: ScSuperReference) => false
+        case (_: ScMethodCall | _: ScUnderscoreSection , _) => true
+        case (_                                        , _: ScBlock) => false
+        case (_: ScGenericCall                         , _) => true
+        case (_: ScReferenceExpression                 , _: ScNewTemplateDefinition) =>
+          val lastChar: Char = expr.getText.last
+          lastChar != ')' && lastChar != '}' && lastChar != ']'
+        case (_: ScReferenceExpression                 , _) => true
+        case (_                                        , _: ScNewTemplateDefinition |
+                                                         _: ScUnderscoreSection) => false
+        case (_: ScPrefixExpr                          , _) => true
+        case (_                                        , _: ScPrefixExpr) => false
+        case (_: ScPostfixExpr                         , _) => true
+        case (par: ScInfixExpr                         , child: ScInfixExpr) => infixInInfixParentheses(par, child)
+        case (_: ScInfixExpr                           , _) => true
+        case (_                                        , _: ScInfixExpr | _: ScPostfixExpr) => false
+        case (_: ScTypedStmt | _: ScMatchStmt          , _) => true
+        case _ => false
+      }
     }
   }
 
