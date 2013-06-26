@@ -1,30 +1,21 @@
 package org.jetbrains.plugins.scala
 package codeInspection.parentheses
 
-import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
-import com.intellij.codeInsight.CodeInsightTestCase
-import org.jetbrains.plugins.scala.codeInspection.booleans.SimplifyBooleanInspection
+import org.jetbrains.plugins.scala.codeInspection.ScalaLightInspectionFixtureTestAdapter
+import com.intellij.codeInspection.LocalInspectionTool
 
 /**
  * Nikolay.Tropin
  * 4/29/13
  */
-class UnnecessaryParenthesesInspectionTest extends ScalaLightCodeInsightFixtureTestAdapter{
+class UnnecessaryParenthesesInspectionTest extends ScalaLightInspectionFixtureTestAdapter{
 
-  val START = CodeInsightTestCase.SELECTION_START_MARKER
-  val END = CodeInsightTestCase.SELECTION_END_MARKER
   val annotation = "Unnecessary parentheses"
   val hintBeginning = "Remove unnecessary parentheses"
+  protected def classOfInspection: Class[_ <: LocalInspectionTool] = classOf[UnnecessaryParenthesesInspection]
 
-  private def check(text: String) {
-    checkTextHasError(text, annotation, classOf[UnnecessaryParenthesesInspection])
-  }
 
-  private def testFix(text: String, result: String, hint: String) {
-    testQuickFix(text.replace("\r", ""), result.replace("\r", ""), hint, classOf[UnnecessaryParenthesesInspection])
-  }
-
-  def test_1() {
+  def test_1(): Unit = {
     val selected = START + "(1 + 1)" + END
     check(selected)
 
@@ -34,7 +25,7 @@ class UnnecessaryParenthesesInspectionTest extends ScalaLightCodeInsightFixtureT
     testFix(text, result, hint)
   }
 
-  def test_2() {
+  def test_2(): Unit = {
     val selected = "1 + " + START + "(1 * 2<caret>)" + END
     check(selected)
 
@@ -44,7 +35,7 @@ class UnnecessaryParenthesesInspectionTest extends ScalaLightCodeInsightFixtureT
     testFix(text, result, hint)
   }
 
-  def test_3() {
+  def test_3(): Unit = {
     val selected  = s"""
                   |def f(n: Int): Int = n match {
                   |  case even if $START(<caret>even % 2 == 0)$END => (even + 1)
@@ -69,7 +60,7 @@ class UnnecessaryParenthesesInspectionTest extends ScalaLightCodeInsightFixtureT
     testFix(text, result, hint)
   }
 
-  def test_4() {
+  def test_4(): Unit = {
     val selected  = s"""
                   |def f(n: Int): Int = n match {
                   |  case even if (even % 2 == 0) => $START(even + 1<caret>)$END
@@ -94,7 +85,7 @@ class UnnecessaryParenthesesInspectionTest extends ScalaLightCodeInsightFixtureT
     testFix(text, result, hint)
   }
 
-  def test_5() {
+  def test_5(): Unit = {
     val selected  = s"""
                   |def f(n: Int): Int = n match {
                   |  case even if (even % 2 == 0) => (even + 1)
@@ -119,7 +110,7 @@ class UnnecessaryParenthesesInspectionTest extends ScalaLightCodeInsightFixtureT
     testFix(text, result, hint)
   }
 
-  def test_6() {
+  def test_6(): Unit = {
     val selected = "val a = " + START + "((<caret>(1)))" + END
     check(selected)
 
@@ -129,13 +120,13 @@ class UnnecessaryParenthesesInspectionTest extends ScalaLightCodeInsightFixtureT
     testFix(text, result, hint)
   }
 
-  def test_7() {
+  def test_7(): Unit = {
     val text  = """def a(x: Any): Boolean = true
                       |List() count (a(_))""".stripMargin.replace("\r", "").trim
     checkTextHasNoErrors(text, annotation, classOf[UnnecessaryParenthesesInspection])
   }
 
-  def test_8() {
+  def test_8(): Unit = {
     val selected = "1 to " + START +"((1, 2))" + END
     check(selected)
 
@@ -143,6 +134,14 @@ class UnnecessaryParenthesesInspectionTest extends ScalaLightCodeInsightFixtureT
     val result = "1 to (1, 2)"
     val hint = hintBeginning + " ((1, 2))"
     testFix(text, result, hint)
+  }
+
+  def test_9(): Unit = {
+    val text = """(List("a")
+                 |    :+ new String("b")
+                 |    :+ new String("c")
+                 |    :+ new String("d"))"""
+    checkHasNoErrors(text)
   }
 
 }
