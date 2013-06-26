@@ -16,15 +16,15 @@ abstract class ScalaLightInspectionFixtureTestAdapter extends ScalaLightCodeInsi
   protected def classOfInspection: Class[_ <: LocalInspectionTool]
   protected def annotation: String
 
-  protected def check(text: String) {
+  protected def check(text: String): Unit = {
     checkTextHasError(text, annotation, classOfInspection)
   }
 
-  protected def testFix(text: String, result: String, hint: String) {
+  protected def testFix(text: String, result: String, hint: String): Unit = {
     testQuickFix(text.replace("\r", ""), result.replace("\r", ""), hint, classOf[DoubleNegationInspection])
   }
 
-  protected def checkHasNoErrors(text: String) {
+  protected def checkHasNoErrors(text: String): Unit = {
     checkTextHasNoErrors(text, annotation, classOfInspection)
   }
 }
