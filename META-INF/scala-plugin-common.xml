@@ -647,11 +647,11 @@
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.methodSignature.UnitMethodDefinedLikeProcedureInspection"
                          displayName="Method with Unit result type is defined like procedure" groupName="Scala: Method signature"
                          shortName="UnitMethodDefinedLikeProcedure" level="WARNING"
-                         enabledByDefault="true" language="Scala"/>
+                         enabledByDefault="false" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.methodSignature.DeclarationHasNoExplicitTypeInspection"
                          displayName="Method declaration has no explicit return type" groupName="Scala: Method signature"
                          shortName="DeclarationHasNoExplicitType" level="WARNING"
-                         enabledByDefault="true" language="Scala"/>
+                         enabledByDefault="false" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.postfix.PostfixMethodCallInspection"
                          displayName="Use of postfix method call" groupName="Scala: General"
                          shortName="PostfixMethodCall" level="WARNING"
