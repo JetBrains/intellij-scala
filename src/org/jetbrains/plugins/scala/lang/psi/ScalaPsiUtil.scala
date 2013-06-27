@@ -1434,8 +1434,8 @@ object ScalaPsiUtil {
   *   ScGenericCall		            0                   1	                        1	                1             1	              1        |    1
   *   ScReferenceExpression			  0                special                      1	                1             1	              1        |    1
   *   ScPrefixExpr	              0                   0	                        0	                1             1	              1        |    1
-  *   ScPostfixExpr	              0                   0	                        0	                0             1	              1        |    1
   *   ScInfixExpr	                0                   0	                        0	                0          special            1        |    1
+  *   ScPostfixExpr	              0                   0	                        0	                0             0	              1        |    1
   *   ScTypedStmt	                0                   0	                        0	                0             0	              0        |    1
   *   ScMatchStmt	                0                   0	                        0	                0             0	              0        |    1
 	*		-----------------------------------------------------------------------------------------------------------------------------------
@@ -1530,10 +1530,10 @@ object ScalaPsiUtil {
                                                          _: ScUnderscoreSection) => false
         case (_: ScPrefixExpr                          , _) => true
         case (_                                        , _: ScPrefixExpr) => false
-        case (_: ScPostfixExpr                         , _) => true
         case (par: ScInfixExpr                         , child: ScInfixExpr) => infixInInfixParentheses(par, child)
-        case (_: ScInfixExpr                           , _) => true
-        case (_                                        , _: ScInfixExpr | _: ScPostfixExpr) => false
+        case (_                                        , _: ScInfixExpr) => false
+        case (_: ScPostfixExpr | _: ScInfixExpr        , _) => true
+        case (_                                        , _: ScPostfixExpr) => false
         case (_: ScTypedStmt | _: ScMatchStmt          , _) => true
         case _ => false
       }
