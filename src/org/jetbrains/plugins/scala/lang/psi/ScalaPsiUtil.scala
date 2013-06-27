@@ -3,7 +3,7 @@ package lang
 package psi
 
 import api.base._
-import api.base.types.{ScRefinement, ScExistentialClause, ScTypeElement}
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScTypeArgs, ScRefinement, ScExistentialClause, ScTypeElement}
 import api.toplevel.imports.usages.ImportUsed
 import api.toplevel.imports.{ScImportStmt, ScImportExpr, ScImportSelector, ScImportSelectors}
 import api.toplevel.packaging.{ScPackaging, ScPackageContainer}
@@ -27,7 +27,7 @@ import api.statements._
 import com.intellij.psi._
 import codeStyle.CodeStyleSettingsManager
 import com.intellij.psi.search.GlobalSearchScope
-import patterns.{ScBindingPattern, ScReferencePattern, ScCaseClause}
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScPatternArgumentList, ScBindingPattern, ScReferencePattern, ScCaseClause}
 import stubs.ScModifiersStub
 import types.Compatibility.Expression
 import params._
@@ -74,6 +74,8 @@ import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScMethodType
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.TypeParameter
 import org.jetbrains.plugins.scala.lang.psi.types.ScProjectionType
 import scala.annotation.tailrec
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import com.intellij.psi.tree.TokenSet
 
 /**
  * User: Alexander Podkhalyuzin
@@ -1386,6 +1388,29 @@ object ScalaPsiUtil {
     PseudoPsiSubstitutor(subst)
   }
 
+  @tailrec
+  def newLinesEnabled(element: PsiElement): Boolean = {
+    if (element == null) true
+    else {
+      element.getParent match {
+        case block: ScBlock if block.hasRBrace => true
+        case _: ScMatchStmt | _: ScalaFile | null => true
+        case argList: ScArgumentExprList if argList.isBraceArgs => true
+
+        case argList: ScArgumentExprList if !argList.isBraceArgs => false
+        case _: ScParenthesisedExpr | _: ScTuple |
+             _: ScTypeArgs | _: ScPatternArgumentList |
+             _: ScParameterClause | _: ScTypeParamClause => false
+        case caseClause: ScCaseClause =>
+          import ScalaTokenTypes._
+          val funTypeToken = caseClause.findLastChildByType(TokenSet.create(tFUNTYPE, tFUNTYPE_ASCII))
+          if (funTypeToken != null &&  element.getTextOffset < funTypeToken.getTextOffset) false
+          else newLinesEnabled(caseClause.getParent)
+
+        case other => newLinesEnabled(other.getParent)
+      }
+    }
+  }
   /*
   ******** any subexpression of these does not need parentheses **********
   * ScTuple, ScBlock, ScXmlExpr
@@ -1465,20 +1490,22 @@ object ScalaPsiUtil {
       }
     }
 
-    def parsedDifferently(expr: ScExpression): Boolean = {
-      expr.getParent match {
-        case ScParenthesisedExpr(_) =>
-          val text = expr.getText
-          val dummyFile = ScalaPsiElementFactory.createScalaFile(text, expr.getManager)
-          dummyFile.firstChild match {
-            case Some(newExpr: ScExpression) => newExpr.getText != text
-            case _ => true
-          }
-        case _ => false
-      }
+    def parsedDifferently(from: ScExpression, expr: ScExpression): Boolean = {
+      if (newLinesEnabled(from)) {
+        expr.getParent match {
+          case ScParenthesisedExpr(_) =>
+            val text = expr.getText
+            val dummyFile = ScalaPsiElementFactory.createScalaFile(text, expr.getManager)
+            dummyFile.firstChild match {
+              case Some(newExpr: ScExpression) => newExpr.getText != text
+              case _ => true
+            }
+          case _ => false
+        }
+      } else false
     }
 
-    if (parsedDifferently(expr)) true
+    if (parsedDifferently(from, expr)) true
     else {
       val parent = from.getParent
       (parent, expr) match {
