@@ -24,14 +24,14 @@ class DeclarationHasNoExplicitTypeInspectionTest extends ScalaLightInspectionFix
   def test2(): Unit = {
     val selected = s"""def haha()
                      |def ${START}hoho$END()
-                     |def hihi()""".stripMargin.replace("\r", "").trim
+                     |def hihi()"""
     check(selected)
     val text = s"""def haha()
                  |def ho${CARET_MARKER}ho()
-                 |def hihi()""".stripMargin.replace("\r", "").trim
+                 |def hihi()"""
     val result = """def haha()
                    |def hoho(): Unit
-                   |def hihi()""".stripMargin.replace("\r", "").trim
+                   |def hihi()"""
     testFix(text, result, hint)
   }
 

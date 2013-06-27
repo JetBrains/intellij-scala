@@ -21,18 +21,18 @@ class ConvertibleToMethodValueInspectionTest extends ScalaLightInspectionFixture
                      |  }
                      |  val f1 = ${START}A.f(_, _)$END
                      |}
-                     |""".stripMargin
+                     |"""
     check(selected)
     val text = """object A {
                  |  def f(x: Int, y: Int) {
                  |  }
                  |  val f1 = A.f(_, _)
-                 |}""".stripMargin
+                 |}"""
     val result = """object A {
                    |  def f(x: Int, y: Int) {
                    |  }
                    |  val f1 = A.f _
-                   |}""".stripMargin
+                   |}"""
     testFix(text, result, hintAnon)
   }
 
@@ -42,7 +42,7 @@ class ConvertibleToMethodValueInspectionTest extends ScalaLightInspectionFixture
                      |  }
                      |  val f1 = A f (_, _)
                      |}
-                     |""".stripMargin
+                     |"""
     checkHasNoErrors(text)
   }
 
@@ -52,7 +52,7 @@ class ConvertibleToMethodValueInspectionTest extends ScalaLightInspectionFixture
                  |  }
                  |  val f1 = A.f _
                  |}
-                 |""".stripMargin
+                 |"""
     checkHasNoErrors(text)
   }
 
@@ -61,18 +61,18 @@ class ConvertibleToMethodValueInspectionTest extends ScalaLightInspectionFixture
                      |  def f(x: Int, y: Int) {
                      |  }
                      |  val f1: (Int, Int) => Unit = ${START}A.f(_, _)$END
-                     |}""".stripMargin
+                     |}"""
     check(selected)
     val text = """object A {
                  |  def f(x: Int, y: Int) {
                  |  }
                  |  val f1: (Int, Int) => Unit = A.f(_, _)
-                 |}""".stripMargin
+                 |}"""
     val result = """object A {
                    |  def f(x: Int, y: Int) {
                    |  }
                    |  val f1: (Int, Int) => Unit = A.f
-                   |}""".stripMargin
+                   |}"""
     testFix(text, result, hintAnon)
   }
 
@@ -81,18 +81,18 @@ class ConvertibleToMethodValueInspectionTest extends ScalaLightInspectionFixture
                      |  def f(x: Int, y: Int) {
                      |  }
                      |  val f1: (Int, Int) => Unit = ${START}A.f _$END
-                     |}""".stripMargin
+                     |}"""
     check(selected)
     val text = """object A {
                  |  def f(x: Int, y: Int) {
                  |  }
                  |  val f1: (Int, Int) => Unit = A.f _
-                 |}""".stripMargin
+                 |}"""
     val result = """object A {
                    |  def f(x: Int, y: Int) {
                    |  }
                    |  val f1: (Int, Int) => Unit = A.f
-                   |}""".stripMargin
+                   |}"""
     testFix(text, result, hintEta)
   }
 
@@ -101,18 +101,18 @@ class ConvertibleToMethodValueInspectionTest extends ScalaLightInspectionFixture
                      |  def f(x: Int, y: Int = 0) {
                      |  }
                      |  val f1 = ${START}A.f(_, _)$END
-                     |}""".stripMargin
+                     |}"""
     check(selected)
     val text = """object A {
                  |  def f(x: Int, y: Int = 0) {
                  |  }
                  |  val f1 = A.f(_, _)
-                 |}""".stripMargin
+                 |}"""
     val result = """object A {
                    |  def f(x: Int, y: Int = 0) {
                    |  }
                    |  val f1 = A.f _
-                   |}""".stripMargin
+                   |}"""
     testFix(text, result, hintAnon)
   }
 
@@ -122,7 +122,7 @@ class ConvertibleToMethodValueInspectionTest extends ScalaLightInspectionFixture
                  |  }
                  |  val f1: (Int) => Unit = A.f(_)
                  |}
-                 |""".stripMargin
+                 |"""
     checkHasNoErrors(text)
   }
 
@@ -132,7 +132,7 @@ class ConvertibleToMethodValueInspectionTest extends ScalaLightInspectionFixture
                  |  }
                  |  val f1: (Int) => Unit = A f _
                  |}
-                 |""".stripMargin
+                 |"""
     checkHasNoErrors(text)
   }
 
@@ -141,7 +141,7 @@ class ConvertibleToMethodValueInspectionTest extends ScalaLightInspectionFixture
                  |  def f(x: Any, y: Int = 0) {
                  |  }
                  |  val f1 = A.f(_: Int, _)
-                 |}""".stripMargin
+                 |}"""
     checkHasNoErrors(text)
   }
 
@@ -150,7 +150,7 @@ class ConvertibleToMethodValueInspectionTest extends ScalaLightInspectionFixture
                  |  def f(x: Any, y: Int = 0) {
                  |  }
                  |  val f1 = A f (_: Int, _: Int)
-                 |}""".stripMargin
+                 |}"""
     checkHasNoErrors(text)
   }
 }

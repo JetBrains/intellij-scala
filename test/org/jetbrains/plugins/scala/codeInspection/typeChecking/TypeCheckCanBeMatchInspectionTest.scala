@@ -1,34 +1,33 @@
 package org.jetbrains.plugins.scala
 package codeInspection.typeChecking
 
-import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
-import com.intellij.codeInsight.CodeInsightTestCase
-import org.jetbrains.plugins.scala.codeInspection.parentheses.UnnecessaryParenthesesInspection
-import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticClasses
+import org.jetbrains.plugins.scala.codeInspection.ScalaLightInspectionFixtureTestAdapter
+import com.intellij.codeInspection.LocalInspectionTool
 
 /**
  * Nikolay.Tropin
  * 5/15/13
  */
-class TypeCheckCanBeMatchInspectionTest extends ScalaLightCodeInsightFixtureTestAdapter{
-  val START = CodeInsightTestCase.SELECTION_START_MARKER
-  val END = CodeInsightTestCase.SELECTION_END_MARKER
+class TypeCheckCanBeMatchInspectionTest extends ScalaLightInspectionFixtureTestAdapter{
+
   val annotation = TypeCheckCanBeMatchInspection.inspectionName
   val hint = TypeCheckCanBeMatchInspection.inspectionName
+
+  protected def classOfInspection: Class[_ <: LocalInspectionTool] = classOf[TypeCheckCanBeMatchInspection]
 
   private def check(text: String) {
     checkTextHasError(text, annotation, classOf[TypeCheckCanBeMatchInspection])
   }
 
   private def testFix(text: String, result: String) {
-    testQuickFix(text.replace("\r", ""), result.replace("\r", ""), hint, classOf[TypeCheckCanBeMatchInspection])
+    testFix(text, result, hint)
   }
 
   def test_1() {
     val selected = s"""val x = 0
                      |if (${START}x.isInstanceOf[Int]$END) {
                      |  x.toString
-                     |}""".stripMargin.replace("\r", "").trim
+                     |}"""
     checkTextHasNoErrors(selected)
   }
 
@@ -37,21 +36,21 @@ class TypeCheckCanBeMatchInspectionTest extends ScalaLightCodeInsightFixtureTest
                      |if (${START}x.isInstanceOf[Int]$END) {
                      |  x.asInstanceOf[Int].toString
                      |  println(x.asInstanceOf[Int])
-                     |}""".stripMargin.replace("\r", "").trim
+                     |}"""
     check(selected)
 
     val text = """val x = 0
                      |if (x.isInstanc<caret>eOf[Int]) {
                      |  x.asInstanceOf[Int].toString
                      |  println(x.asInstanceOf[Int])
-                     |}""".stripMargin.replace("\r", "").trim
+                     |}"""
     val result = """val x = 0
                    |x match {
                    |  case i: Int =>
                    |    i.toString
                    |    println(i)
                    |  case _ =>
-                   |}""".stripMargin.replace("\r", "").trim
+                   |}"""
     testFix(text, result)
   }
 
@@ -61,7 +60,7 @@ class TypeCheckCanBeMatchInspectionTest extends ScalaLightCodeInsightFixtureTest
                      |  val y = x.asInstanceOf[Int]
                      |  x.asInstanceOf[Int].toString
                      |  println(y)
-                     |}""".stripMargin.replace("\r", "").trim
+                     |}"""
     check(selected)
 
     val text = """val x = 0
@@ -69,14 +68,14 @@ class TypeCheckCanBeMatchInspectionTest extends ScalaLightCodeInsightFixtureTest
                  |  val y = x.asInstanceOf[Int]
                  |  x.asInstanceOf[Int].toString
                  |  println(y)
-                 |}""".stripMargin.replace("\r", "").trim
+                 |}"""
     val result = """val x = 0
                    |x match {
                    |  case y: Int =>
                    |    y.toString
                    |    println(y)
                    |  case _ =>
-                   |}""".stripMargin.replace("\r", "").trim
+                   |}"""
     testFix(text, result)
   }
 
@@ -85,20 +84,20 @@ class TypeCheckCanBeMatchInspectionTest extends ScalaLightCodeInsightFixtureTest
                      |if (${START}x.isInstanceOf[Int]$END && x.asInstanceOf[Int] == 1) {
                      |  val y = x.asInstanceOf[Int]
                      |  println(y)
-                     |}""".stripMargin.replace("\r", "").trim
+                     |}"""
     check(selected)
 
     val text = """val x = 0
                  |if (<caret>x.isInstanceOf[Int] && x.asInstanceOf[Int] == 1) {
                  |  val y = x.asInstanceOf[Int]
                  |  println(y)
-                 |}""".stripMargin.replace("\r", "").trim
+                 |}"""
     val result = """val x = 0
                    |x match {
                    |  case y: Int if y == 1 =>
                    |    println(y)
                    |  case _ =>
-                   |}""".stripMargin.replace("\r", "").trim
+                   |}"""
     testFix(text, result)
   }
 
@@ -107,7 +106,7 @@ class TypeCheckCanBeMatchInspectionTest extends ScalaLightCodeInsightFixtureTest
                      |if (x > 0 && (${START}x.isInstanceOf[Int]$END && x.asInstanceOf[Int] == 1)) {
                      |  val y = x.asInstanceOf[Int]
                      |  println(y)
-                     |}""".stripMargin.replace("\r", "").trim
+                     |}"""
     checkTextHasNoErrors(selected)
   }
 
@@ -118,7 +117,7 @@ class TypeCheckCanBeMatchInspectionTest extends ScalaLightCodeInsightFixtureTest
                      |  println(y)
                      |} else if (x.isInstanceOf[Long]) {
                      |  println(x)
-                     |} else println()""".stripMargin.replace("\r", "").trim
+                     |} else println()"""
     check(selected)
 
     val text = """val x = 0
@@ -127,7 +126,7 @@ class TypeCheckCanBeMatchInspectionTest extends ScalaLightCodeInsightFixtureTest
                  |  println(y)
                  |} else if (x.isInstanceOf[Long]) {
                  |  println(x)
-                 |} else println()""".stripMargin.replace("\r", "").trim
+                 |} else println()"""
     val result = """val x = 0
                    |x match {
                    |  case y: Int =>
@@ -135,7 +134,7 @@ class TypeCheckCanBeMatchInspectionTest extends ScalaLightCodeInsightFixtureTest
                    |  case _: Long =>
                    |    println(x)
                    |  case _ => println()
-                   |}""".stripMargin.replace("\r", "").trim
+                   |}"""
     testFix(text, result)
   }
 
@@ -150,7 +149,7 @@ class TypeCheckCanBeMatchInspectionTest extends ScalaLightCodeInsightFixtureTest
                      |} else {
                      |  println(x)
                      |  println()
-                     |}""".stripMargin.replace("\r", "").trim
+                     |}"""
     check(selected)
 
     val text = """val x = 0
@@ -163,7 +162,7 @@ class TypeCheckCanBeMatchInspectionTest extends ScalaLightCodeInsightFixtureTest
                  |} else {
                  |  println(x)
                  |  println()
-                 |}""".stripMargin.replace("\r", "").trim
+                 |}"""
     val result = """val x = 0
                    |x match {
                    |  case y: Int if x.asInstanceOf[Long] == 1 =>
@@ -174,7 +173,7 @@ class TypeCheckCanBeMatchInspectionTest extends ScalaLightCodeInsightFixtureTest
                    |  case _ =>
                    |    println(x)
                    |    println()
-                   |}""".stripMargin.replace("\r", "").trim
+                   |}"""
     testFix(text, result)
   }
 
@@ -189,7 +188,7 @@ class TypeCheckCanBeMatchInspectionTest extends ScalaLightCodeInsightFixtureTest
                      |  val y1 = x1.asInstanceOf[Int]
                      |  val y2 = x2.asInstanceOf[Int]
                      |  println(y1 + y2)
-                     |}""".stripMargin.replace("\r", "").trim
+                     |}"""
     check(selected)
 
     val text = """val x1 = 0
@@ -202,7 +201,7 @@ class TypeCheckCanBeMatchInspectionTest extends ScalaLightCodeInsightFixtureTest
                  |  val y1 = x1.asInstanceOf[Int]
                  |  val y2 = x2.asInstanceOf[Int]
                  |  println(y1 + y2)
-                 |}""".stripMargin.replace("\r", "").trim
+                 |}"""
     val result = """val x1 = 0
                    |val x2 = 0
                    |x1 match {
@@ -214,7 +213,7 @@ class TypeCheckCanBeMatchInspectionTest extends ScalaLightCodeInsightFixtureTest
                    |    val y2 = x2.asInstanceOf[Int]
                    |    println(y1 + y2)
                    |  case _ =>
-                   |}""".stripMargin.replace("\r", "").trim
+                   |}"""
     testFix(text, result)
   }
 
@@ -229,7 +228,7 @@ class TypeCheckCanBeMatchInspectionTest extends ScalaLightCodeInsightFixtureTest
                      |  val y1 = x1.asInstanceOf[Int]
                      |  val y2 = x2.asInstanceOf[Int]
                      |  println(y1 + y2)
-                     |}""".stripMargin.replace("\r", "").trim
+                     |}"""
     checkTextHasNoErrors(selected)
   }
 
@@ -244,7 +243,7 @@ class TypeCheckCanBeMatchInspectionTest extends ScalaLightCodeInsightFixtureTest
                      |  val y1 = x1.asInstanceOf[Int]
                      |  val y2 = x2.asInstanceOf[Int]
                      |  println(y1 + y2)
-                     |}""".stripMargin.replace("\r", "").trim
+                     |}"""
     checkTextHasNoErrors(selected)
   }
 
@@ -254,7 +253,7 @@ class TypeCheckCanBeMatchInspectionTest extends ScalaLightCodeInsightFixtureTest
                      |if (${START}x.isInstanceOf[Int]$END) {
                      |  x.asInstanceOf[Int].toString
                      |  println(x.asInstanceOf[Int])
-                     |}""".stripMargin.replace("\r", "").trim
+                     |}"""
     check(selected)
 
     val text = """val x = 0
@@ -262,7 +261,7 @@ class TypeCheckCanBeMatchInspectionTest extends ScalaLightCodeInsightFixtureTest
                  |if (x.isInstanc<caret>eOf[Int]) {
                  |  x.asInstanceOf[Int].toString
                  |  println(x.asInstanceOf[Int])
-                 |}""".stripMargin.replace("\r", "").trim
+                 |}"""
     val result = """val x = 0
                    |val i = 0
                    |x match {
@@ -270,23 +269,23 @@ class TypeCheckCanBeMatchInspectionTest extends ScalaLightCodeInsightFixtureTest
                    |    i1.toString
                    |    println(i1)
                    |  case _ =>
-                   |}""".stripMargin.replace("\r", "").trim
+                   |}"""
     testFix(text, result)
   }
 
   def test_10() {
     val selected = s"""val x = 0
-                      |if (${START}x.isInstanceOf[Int]$END) x else if (x.isInstanceOf[Long]) x else 0""".stripMargin.replace("\r", "").trim
+                      |if (${START}x.isInstanceOf[Int]$END) x else if (x.isInstanceOf[Long]) x else 0"""
     check(selected)
 
     val text = """val x = 0
-                 |if (x.isInstance<caret>Of[Int]) x else if (x.isInstanceOf[Long]) x else 0""".stripMargin.replace("\r", "").trim
+                 |if (x.isInstance<caret>Of[Int]) x else if (x.isInstanceOf[Long]) x else 0"""
     val result = """val x = 0
                    |x match {
                    |  case _: Int => x
                    |  case _: Long => x
                    |  case _ => 0
-                   |}""".stripMargin.replace("\r", "").trim
+                   |}"""
     testFix(text, result)
   }
 
@@ -295,14 +294,14 @@ class TypeCheckCanBeMatchInspectionTest extends ScalaLightCodeInsightFixtureTest
                      |val foo = (p: AnyVal) => {
                      |  if (${START}p.isInstanceOf[util.ArrayList[_]]$END) {}
                      |  else if (p.isInstanceOf[scala.util.control.Breaks]) {}
-                     |}""".stripMargin.replace("\r", "").trim
+                     |}"""
     check(selected)
 
     val text = """import java.util
                  |val foo = (p: AnyVal) => {
                  |  if (p.isInstanceOf[util.ArrayList[_]]) {}
                  |  else if (p.isInstanceOf[scala.util.control.Breaks]) {}
-                 |}""".stripMargin.replace("\r", "").trim
+                 |}"""
     val result = """import java.util
                    |val foo = (p: AnyVal) => {
                    |  p match {
@@ -310,7 +309,7 @@ class TypeCheckCanBeMatchInspectionTest extends ScalaLightCodeInsightFixtureTest
                    |    case _: scala.util.control.Breaks =>
                    |    case _ =>
                    |  }
-                   |}""".stripMargin.replace("\r", "").trim
+                   |}"""
     testFix(text, result)
   }
 
@@ -318,20 +317,21 @@ class TypeCheckCanBeMatchInspectionTest extends ScalaLightCodeInsightFixtureTest
     val selected = s"""def test2(p: AnyVal) {
                      |  if (${START}p.isInstanceOf[T forSome {type T <: Number}]$END) {}
                      |  else if (p.isInstanceOf[Int]) {}
-                     |}""".stripMargin.replace("\r", "").trim
+                     |}"""
     check(selected)
 
     val text = """def test2(p: AnyVal) {
                  |  if (p.isInstanceOf[T forSome {type T <: Number}]) {}
                  |  else if (p.isInstanceOf[Int]) {}
-                 |}""".stripMargin.replace("\r", "").trim
+                 |}"""
     val result = """def test2(p: AnyVal) {
                    |  p match {
                    |    case _: (T forSome {type T <: Number}) =>
                    |    case _: Int =>
                    |    case _ =>
                    |  }
-                   |}""".stripMargin.replace("\r", "").trim
+                   |}"""
     testFix(text, result)
   }
+
 }
