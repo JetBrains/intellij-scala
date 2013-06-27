@@ -13,6 +13,7 @@ import collection.mutable.ListBuffer
 import com.intellij.codeInsight.intention.IntentionAction
 import scala.collection.mutable
 import com.intellij.codeInsight.daemon.impl.HighlightInfo
+import com.intellij.openapi.util.TextRange
 
 /**
  * User: Dmitry Naydanov
@@ -64,7 +65,12 @@ abstract class ScalaLightCodeInsightFixtureTestAdapter extends LightCodeInsightF
     myFixture.configureByText("dummy.scala", text)
     myFixture.enableInspections(inspectionsEnabled: _*)
 
-    val highlights: mutable.Buffer[HighlightInfo] = myFixture.doHighlighting().filter(info => info.description == annotation)
+    val caretIndex = text.indexOf(CARET_MARKER)
+    val highlights: mutable.Buffer[HighlightInfo] = for {
+      info <- myFixture.doHighlighting()
+      if info.description == annotation
+      if caretIndex == -1 || new TextRange(info.getStartOffset, info.getEndOffset).contains(caretIndex)
+    } yield info
     val ranges = highlights.map(info => (info.startOffset, info.endOffset))
     assert(highlights.isEmpty, "Highlights with this errors at " + ranges.mkString("", ", ", "."))
   }
