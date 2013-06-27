@@ -43,7 +43,7 @@ class ConvertibleToMethodValueInspectionTest extends ScalaLightInspectionFixture
                      |  val f1 = A f (_, _)
                      |}
                      |"""
-    checkHasNoErrors(text)
+    checkTextHasNoErrors(text)
   }
 
   def test_methodCallEtaUntyped() {
@@ -53,7 +53,7 @@ class ConvertibleToMethodValueInspectionTest extends ScalaLightInspectionFixture
                  |  val f1 = A.f _
                  |}
                  |"""
-    checkHasNoErrors(text)
+    checkTextHasNoErrors(text)
   }
 
   def test_methodCallTyped() {
@@ -123,7 +123,7 @@ class ConvertibleToMethodValueInspectionTest extends ScalaLightInspectionFixture
                  |  val f1: (Int) => Unit = A.f(_)
                  |}
                  |"""
-    checkHasNoErrors(text)
+    checkTextHasNoErrors(text)
   }
 
   def test_infixWithDefaultTyped() {
@@ -133,7 +133,7 @@ class ConvertibleToMethodValueInspectionTest extends ScalaLightInspectionFixture
                  |  val f1: (Int) => Unit = A f _
                  |}
                  |"""
-    checkHasNoErrors(text)
+    checkTextHasNoErrors(text)
   }
 
   def test_methodCallTypedArgs() {
@@ -142,7 +142,7 @@ class ConvertibleToMethodValueInspectionTest extends ScalaLightInspectionFixture
                  |  }
                  |  val f1 = A.f(_: Int, _)
                  |}"""
-    checkHasNoErrors(text)
+    checkTextHasNoErrors(text)
   }
 
   def test_infixTypedArgs() {
@@ -151,6 +151,6 @@ class ConvertibleToMethodValueInspectionTest extends ScalaLightInspectionFixture
                  |  }
                  |  val f1 = A f (_: Int, _: Int)
                  |}"""
-    checkHasNoErrors(text)
+    checkTextHasNoErrors(text)
   }
 }
