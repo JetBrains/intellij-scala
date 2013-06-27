@@ -26,13 +26,8 @@ class UnnecessaryParenthesesInspectionTest extends ScalaLightInspectionFixtureTe
   }
 
   def test_2(): Unit = {
-    val selected = "1 + " + START + "(1 * 2<caret>)" + END
-    check(selected)
-
-    val text = "1 + (1 * 2<caret>)"
-    val result = "1 + 1 * 2"
-    val hint = hintBeginning + " (1 * 2)"
-    testFix(text, result, hint)
+    val text = "1 + (1 * 2)"
+    checkTextHasNoErrors(text)
   }
 
   def test_3(): Unit = {
@@ -41,7 +36,7 @@ class UnnecessaryParenthesesInspectionTest extends ScalaLightInspectionFixtureTe
                   |  case even if $START(<caret>even % 2 == 0)$END => (even + 1)
                   |  case odd => 1 + (odd * 3)
                   |}
-                """.stripMargin.replace("\r", "").trim
+                """
     check(selected)
 
     val text  = """
@@ -49,13 +44,13 @@ class UnnecessaryParenthesesInspectionTest extends ScalaLightInspectionFixtureTe
                   |  case even if (<caret>even % 2 == 0) => (even + 1)
                   |  case odd => 1 + (odd * 3)
                   |}
-                """.stripMargin.replace("\r", "").trim
+                """
     val result = """
                    |def f(n: Int): Int = n match {
                    |  case even if even % 2 == 0 => (even + 1)
                    |  case odd => 1 + (odd * 3)
                    |}
-                 """.stripMargin.replace("\r", "").trim
+                 """
     val hint = hintBeginning + " (even % 2 == 0)"
     testFix(text, result, hint)
   }
@@ -66,7 +61,7 @@ class UnnecessaryParenthesesInspectionTest extends ScalaLightInspectionFixtureTe
                   |  case even if (even % 2 == 0) => $START(even + 1<caret>)$END
                   |  case odd => 1 + (odd * 3)
                   |}
-                """.stripMargin.replace("\r", "").trim
+                """
     check(selected)
 
     val text  = """
@@ -74,40 +69,20 @@ class UnnecessaryParenthesesInspectionTest extends ScalaLightInspectionFixtureTe
                   |  case even if (even % 2 == 0) => (even + 1<caret>)
                   |  case odd => 1 + (odd * 3)
                   |}
-                """.stripMargin.replace("\r", "").trim
+                """
     val result = """
                    |def f(n: Int): Int = n match {
                    |  case even if (even % 2 == 0) => even + 1
                    |  case odd => 1 + (odd * 3)
                    |}
-                 """.stripMargin.replace("\r", "").trim
+                 """
     val hint = hintBeginning + " (even + 1)"
     testFix(text, result, hint)
   }
 
   def test_5(): Unit = {
-    val selected  = s"""
-                  |def f(n: Int): Int = n match {
-                  |  case even if (even % 2 == 0) => (even + 1)
-                  |  case odd => 1 + $START(odd * 3<caret>)$END
-                  |}
-                """.stripMargin.replace("\r", "").trim
-    check(selected)
-
-    val text  = """
-                  |def f(n: Int): Int = n match {
-                  |  case even if (even % 2 == 0) => (even + 1)
-                  |  case odd => 1 + (odd * 3<caret>)
-                  |}
-                """.stripMargin.replace("\r", "").trim
-    val result = """
-                   |def f(n: Int): Int = n match {
-                   |  case even if (even % 2 == 0) => (even + 1)
-                   |  case odd => 1 + odd * 3
-                   |}
-                 """.stripMargin.replace("\r", "").trim
-    val hint = hintBeginning + " (odd * 3)"
-    testFix(text, result, hint)
+    val text  = "1 :: (2 :: Nil)"
+    checkTextHasNoErrors(text)
   }
 
   def test_6(): Unit = {
@@ -122,7 +97,7 @@ class UnnecessaryParenthesesInspectionTest extends ScalaLightInspectionFixtureTe
 
   def test_7(): Unit = {
     val text  = """def a(x: Any): Boolean = true
-                      |List() count (a(_))""".stripMargin.replace("\r", "").trim
+                      |List() count (a(_))"""
     checkTextHasNoErrors(text, annotation, classOf[UnnecessaryParenthesesInspection])
   }
 
