@@ -46,6 +46,7 @@ object PluginRunner {
 
           val processCommands =
             path(JavaVM) +:
+//              "-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005" +:
               "-Djline.terminal=jline.UnsupportedTerminal" +:
               "-Dsbt.log.noformat=true" +:
               JavaOpts :+

@@ -57,6 +57,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
       moduleNode.add(createContentRoot(project))
       moduleNode.addAll(createLibraryDependencies(project)(moduleNode, libraries))
       moduleNode.addAll(project.scala.map(createFacet(project, _)).toSeq)
+      moduleNode.addAll(createUnmanagedLibraries(project))
       moduleNode
     }
 
@@ -192,6 +193,20 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
       val data = new LibraryDependencyNode(moduleData, library)
       data.setScope(scopeFor(configurations))
       data
+    }
+  }
+
+  private def createUnmanagedLibraries(project: Project): Seq[ModuleLibraryNode] = {
+    val jarsToConfigurations =
+      project.configurations
+        .filter(_.jars.nonEmpty)
+        .map(configuration => (configuration.jars, configuration))
+        .groupBy(_._1)
+        .mapValues(_.unzip._2.toSet)
+        .toSeq
+
+    jarsToConfigurations.map { case (jars, configurations) =>
+      new ModuleLibraryNode(SbtProjectSystem.Id, Sbt.UnmanagedLibraryName, jars, scopeFor(configurations))
     }
   }
 
