@@ -116,7 +116,7 @@ class UnnecessaryParenthesesInspectionTest extends ScalaLightInspectionFixtureTe
                  |    :+ new String("b")
                  |    :+ new String("c")
                  |    :+ new String("d"))"""
-    checkHasNoErrors(text)
+    checkTextHasNoErrors(text)
   }
 
 }
