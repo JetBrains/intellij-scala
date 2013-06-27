@@ -3,7 +3,7 @@ package project
 
 import com.intellij.openapi.externalSystem.model.{DataNode, ProjectKeys, ProjectSystemId, Key}
 import com.intellij.openapi.externalSystem.model.project._
-import scala.Some
+import com.intellij.openapi.roots.DependencyScope
 import java.io.File
 
 /**
@@ -59,8 +59,8 @@ class ScalaProjectNode(owner: ProjectSystemId, javaHome: File)
   protected def key = ScalaProjectData.Key
 }
 
-class ModuleLibraryNode(owner: ProjectSystemId, name: String, classes: Seq[File])
-  extends ModuleLibraryData(owner, name, classes) with Node[ModuleLibraryData] {
+class ModuleLibraryNode(owner: ProjectSystemId, name: String, classes: Seq[File], scope: DependencyScope = DependencyScope.COMPILE)
+  extends ModuleLibraryData(owner, name, classes, scope) with Node[ModuleLibraryData] {
 
   protected def key = ModuleLibraryData.Key
 }
