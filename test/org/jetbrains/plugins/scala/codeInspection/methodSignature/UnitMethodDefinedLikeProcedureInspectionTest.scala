@@ -65,6 +65,6 @@ class UnitMethodDefinedLikeProcedureInspectionTest extends ScalaLightInspectionF
                  |      this(x, 0)
                  |    }
                  |  }""".stripMargin.replace("\r", "")
-    checkHasNoErrors(text)
+    checkTextHasNoErrors(text)
   }
 }

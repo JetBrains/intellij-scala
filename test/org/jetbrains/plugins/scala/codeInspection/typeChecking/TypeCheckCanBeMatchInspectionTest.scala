@@ -15,17 +15,14 @@ class TypeCheckCanBeMatchInspectionTest extends ScalaLightInspectionFixtureTestA
 
   protected def classOfInspection: Class[_ <: LocalInspectionTool] = classOf[TypeCheckCanBeMatchInspection]
 
-  private def check(text: String) {
-    checkTextHasError(text, annotation, classOf[TypeCheckCanBeMatchInspection])
-  }
-
-  private def testFix(text: String, result: String) {
+  private def testQuickFix(text: String, result: String) {
     testFix(text, result, hint)
   }
 
   def test_1() {
-    val selected = s"""val x = 0
-                     |if (${START}x.isInstanceOf[Int]$END) {
+    val selected = """
+                     |val x = 0
+                     |if (x.isInstanceOf[Int]) {
                      |  x.toString
                      |}"""
     checkTextHasNoErrors(selected)
@@ -51,7 +48,7 @@ class TypeCheckCanBeMatchInspectionTest extends ScalaLightInspectionFixtureTestA
                    |    println(i)
                    |  case _ =>
                    |}"""
-    testFix(text, result)
+    testQuickFix(text, result)
   }
 
   def test_3() {
@@ -76,7 +73,7 @@ class TypeCheckCanBeMatchInspectionTest extends ScalaLightInspectionFixtureTestA
                    |    println(y)
                    |  case _ =>
                    |}"""
-    testFix(text, result)
+    testQuickFix(text, result)
   }
 
   def test_4() {
@@ -98,7 +95,7 @@ class TypeCheckCanBeMatchInspectionTest extends ScalaLightInspectionFixtureTestA
                    |    println(y)
                    |  case _ =>
                    |}"""
-    testFix(text, result)
+    testQuickFix(text, result)
   }
 
   def test_5() {
@@ -135,7 +132,7 @@ class TypeCheckCanBeMatchInspectionTest extends ScalaLightInspectionFixtureTestA
                    |    println(x)
                    |  case _ => println()
                    |}"""
-    testFix(text, result)
+    testQuickFix(text, result)
   }
 
   def test_7() {
@@ -174,7 +171,7 @@ class TypeCheckCanBeMatchInspectionTest extends ScalaLightInspectionFixtureTestA
                    |    println(x)
                    |    println()
                    |}"""
-    testFix(text, result)
+    testQuickFix(text, result)
   }
 
   def test_8a() {
@@ -214,13 +211,13 @@ class TypeCheckCanBeMatchInspectionTest extends ScalaLightInspectionFixtureTestA
                    |    println(y1 + y2)
                    |  case _ =>
                    |}"""
-    testFix(text, result)
+    testQuickFix(text, result)
   }
 
   def test_8b() {
     val selected = s"""val x1 = 0
                      |val x2 = 0
-                     |if (x1.isInstanceOf[Int] && ${START}x2.isInstanceOf[Int]$END) {
+                     |if (x1.isInstanceOf[Int] && x2.isI${CARET_MARKER}nstanceOf[Int]) {
                      |  val y1 = x1.asInstanceOf[Int]
                      |  val y2 = x2.asInstanceOf[Int]
                      |  println(y1 + y2)
@@ -239,7 +236,7 @@ class TypeCheckCanBeMatchInspectionTest extends ScalaLightInspectionFixtureTestA
                      |  val y1 = x1.asInstanceOf[Int]
                      |  val y2 = x2.asInstanceOf[Int]
                      |  println(y1 + y2)
-                     |} else if (${START}x1.isInstanceOf[Long]$END && x2.isInstanceOf[Long]) {
+                     |} else if (x1.isIn${CARET_MARKER}stanceOf[Long] && x2.isInstanceOf[Long]) {
                      |  val y1 = x1.asInstanceOf[Int]
                      |  val y2 = x2.asInstanceOf[Int]
                      |  println(y1 + y2)
@@ -270,7 +267,7 @@ class TypeCheckCanBeMatchInspectionTest extends ScalaLightInspectionFixtureTestA
                    |    println(i1)
                    |  case _ =>
                    |}"""
-    testFix(text, result)
+    testQuickFix(text, result)
   }
 
   def test_10() {
@@ -286,7 +283,7 @@ class TypeCheckCanBeMatchInspectionTest extends ScalaLightInspectionFixtureTestA
                    |  case _: Long => x
                    |  case _ => 0
                    |}"""
-    testFix(text, result)
+    testQuickFix(text, result)
   }
 
   def test_11() {
@@ -310,7 +307,7 @@ class TypeCheckCanBeMatchInspectionTest extends ScalaLightInspectionFixtureTestA
                    |    case _ =>
                    |  }
                    |}"""
-    testFix(text, result)
+    testQuickFix(text, result)
   }
 
   def test_12() {
@@ -331,7 +328,7 @@ class TypeCheckCanBeMatchInspectionTest extends ScalaLightInspectionFixtureTestA
                    |    case _ =>
                    |  }
                    |}"""
-    testFix(text, result)
+    testQuickFix(text, result)
   }
 
 }
