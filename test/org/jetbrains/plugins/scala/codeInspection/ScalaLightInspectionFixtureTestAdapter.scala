@@ -15,16 +15,17 @@ abstract class ScalaLightInspectionFixtureTestAdapter extends ScalaLightCodeInsi
   protected val END = CodeInsightTestCase.SELECTION_END_MARKER
   protected def classOfInspection: Class[_ <: LocalInspectionTool]
   protected def annotation: String
+  protected def normalize(str: String): String = str.stripMargin.replace("\r", "").trim
 
   protected def check(text: String): Unit = {
-    checkTextHasError(text, annotation, classOfInspection)
+    checkTextHasError(normalize(text), normalize(annotation), classOfInspection)
   }
 
   protected def testFix(text: String, result: String, hint: String): Unit = {
-    testQuickFix(text.replace("\r", ""), result.replace("\r", ""), hint, classOf[DoubleNegationInspection])
+    testQuickFix(normalize(text), normalize(result), hint, classOf[DoubleNegationInspection])
   }
 
   protected def checkHasNoErrors(text: String): Unit = {
-    checkTextHasNoErrors(text, annotation, classOfInspection)
+    checkTextHasNoErrors(normalize(text), normalize(annotation), classOfInspection)
   }
 }
