@@ -15,21 +15,15 @@ import lang.psi.types.nonvalue.Parameter
 import lang.psi.api.base.ScLiteral
 import lang.psi.api.expr._
 import com.intellij.openapi.diagnostic.Logger
-import javax.swing.{JCheckBox, JPanel, JComponent}
-import java.awt._
-import javax.swing.event.{ChangeListener, ChangeEvent}
 import scala.Some
 import lang.psi.api.statements.ScFunction
-import com.intellij.ide.util.PropertiesComponent
-import org.jdom.Element
-import com.intellij.codeInspection.ui.SingleCheckboxOptionsPanel
 
 /**
  * @author Ksenia.Sautina
  * @since 5/10/12
  */
 
-abstract class NameBooleanParametersInspectionStub extends LocalInspectionTool {
+abstract class NameBooleanParametersInspectionBase extends LocalInspectionTool {
 
   override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor = {
     new ScalaElementVisitor {
@@ -98,6 +92,6 @@ abstract class NameBooleanParametersInspectionStub extends LocalInspectionTool {
 
 }
 
-object NameBooleanParametersInspectionStub {
+object NameBooleanParametersInspectionBase {
   private val LOG = Logger.getInstance(getClass)
 }
