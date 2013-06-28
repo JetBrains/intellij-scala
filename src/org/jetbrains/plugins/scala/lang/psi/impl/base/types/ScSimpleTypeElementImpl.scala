@@ -17,7 +17,7 @@ import result.{Failure, TypeResult, Success, TypingContext}
 import scala.None
 import api.statements._
 import api.toplevel.ScTypeParametersOwner
-import params.ScTypeParam
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScTypeParam}
 import psi.types.Compatibility.Expression
 import collection.immutable.HashMap
 import api.expr.{ScSuperReference, ScThisReference, ScUnderScoreSectionUtil}
@@ -443,6 +443,8 @@ object ScSimpleTypeElementImpl {
           }
           case _ => {
             resolvedElement match {
+              case param: ScParameter if !param.isVal =>
+                Success(ScDesignatorType(param), Some(ref))
               case self: ScSelfTypeElement =>
                 val td = PsiTreeUtil.getContextOfType(self, true, classOf[ScTemplateDefinition])
                 Success(ScThisType(td), Some(ref))
