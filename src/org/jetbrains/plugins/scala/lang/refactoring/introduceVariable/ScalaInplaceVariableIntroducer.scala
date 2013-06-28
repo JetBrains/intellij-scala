@@ -73,7 +73,6 @@ class ScalaInplaceVariableIntroducer(project: Project,
       val range = new TextRange(myCaretRangeMarker.getStartOffset, myCaretRangeMarker.getEndOffset)
       val input = myCaretRangeMarker.getDocument.getText(range)
       val numberOfSpaces = input.lastIndexOf(' ') + 1
-      val inputTrimmed = input.trim
       val element = myFile.findElementAt(range.getStartOffset + numberOfSpaces)
       val declaration = ScalaPsiUtil.getParentOfType(element, classOf[ScEnumerator], classOf[ScDeclaredElementsHolder])
       val named: Option[ScNamedElement] = namedElement(declaration)
@@ -262,8 +261,6 @@ class ScalaInplaceVariableIntroducer(project: Project,
 
     if (!nameIsValid) myBalloonPanel add myLabelPanel
     else myBalloonPanel add myChbPanel
-
-    myBalloonPanel
   }
 
   private def resetBalloonPanel(nameIsValid: Boolean): Unit = {

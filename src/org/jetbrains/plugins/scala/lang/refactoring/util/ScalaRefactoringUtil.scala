@@ -5,7 +5,7 @@ package util
 
 import _root_.com.intellij.codeInsight.unwrap.ScopeHighlighter
 import _root_.com.intellij.openapi.ui.popup.{LightweightWindowEvent, JBPopupAdapter, JBPopupFactory}
-import _root_.java.util.{ArrayList, HashMap, Comparator}
+import _root_.java.util.Comparator
 import _root_.javax.swing.event.{ListSelectionEvent, ListSelectionListener}
 import _root_.java.awt.Component
 import _root_.javax.swing.{DefaultListCellRenderer, DefaultListModel, JList}
@@ -15,12 +15,12 @@ import com.intellij.openapi.editor.colors.{EditorColorsManager, EditorColors}
 
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi._
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScLiteralPattern, ScReferencePattern}
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClause, ScLiteralPattern, ScReferencePattern}
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import psi.api.expr._
 import psi.impl.ScalaPsiElementFactory
 import com.intellij.codeInsight.PsiEquivalenceUtil
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
 import scala.collection.mutable.ArrayBuffer
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.openapi.vfs.ReadonlyStatusHandler
@@ -42,7 +42,11 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScTypeProjection, Sc
 import org.jetbrains.plugins.scala.lang.psi.types.ScDesignatorType
 import scala.Some
 import org.jetbrains.plugins.scala.lang.psi.types.ScFunctionType
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTypeDefinition}
+import com.intellij.openapi.application.ApplicationManager
+import com.intellij.refactoring.util.CommonRefactoringUtil
+import com.intellij.refactoring.HelpID
+import java.util
 
 /**
  * User: Alexander Podkhalyuzin
@@ -69,7 +73,7 @@ object ScalaRefactoringUtil {
     var e = unparExpr(expr)
     e match {
       case x: ScReferenceExpression => {
-        x.resolve match {
+        x.resolve() match {
           case _: ScReferencePattern => return e
           case _ =>
         }
@@ -89,6 +93,16 @@ object ScalaRefactoringUtil {
         ScalaPsiElementFactory.createExpressionFromText(e.getText + " _", e.getManager)
       case _ => e
     }
+  }
+
+  def addPossibleTypes(scType: ScType, expr: ScExpression): Array[ScType] = {
+    val types = new ArrayBuffer[ScType]
+    if (scType != null && scType != psi.types.Unit) types += scType
+    expr.getTypeWithoutImplicits(TypingContext.empty).foreach(types +=)
+    expr.getTypeIgnoreBaseType(TypingContext.empty).foreach(types +=)
+    if (scType == psi.types.Unit) types += scType
+    if (types.isEmpty) types += psi.types.Any
+    types.toArray
   }
 
   def getExpression(project: Project, editor: Editor, file: PsiFile, startOffset: Int, endOffset: Int): Option[(ScExpression, ScType)] = {
@@ -160,12 +174,12 @@ object ScalaRefactoringUtil {
     !operationStatus.hasReadonlyFiles
   }
 
-  def getOccurrences(expr: ScExpression, enclosingContainer: PsiElement): Array[TextRange] = {
+  def getOccurrences(element: PsiElement, enclosingContainer: PsiElement): Array[TextRange] = {
     val occurrences: ArrayBuffer[TextRange] = new ArrayBuffer[TextRange]()
-    if (enclosingContainer == expr) occurrences += enclosingContainer.asInstanceOf[ScExpression].getTextRange
+    if (enclosingContainer == element) occurrences += enclosingContainer.asInstanceOf[ScExpression].getTextRange
     else
       for (child <- enclosingContainer.getChildren) {
-        if (PsiEquivalenceUtil.areElementsEquivalent(child, expr, comparator, false)) {
+        if (PsiEquivalenceUtil.areElementsEquivalent(child, element, comparator, false)) {
           child match {
             case x: ScExpression => {
               x.getParent match {
@@ -176,7 +190,7 @@ object ScalaRefactoringUtil {
             case _ =>
           }
         } else {
-          occurrences ++= getOccurrences(expr, child)
+          occurrences ++= getOccurrences(element, child)
         }
       }
     occurrences.toArray
@@ -205,14 +219,14 @@ object ScalaRefactoringUtil {
     hasNlToken
   }
 
-  def getCompatibleTypeNames(myType: ScType): HashMap[String, ScType] = {
-    val map = new HashMap[String, ScType]
+  def getCompatibleTypeNames(myType: ScType): util.HashMap[String, ScType] = {
+    val map = new util.HashMap[String, ScType]
     map.put(ScType.presentableText(myType), myType)
     map
   }
 
-  def getCompatibleTypeNames(myTypes: Array[ScType]): HashMap[String, ScType] = {
-    val map = new HashMap[String, ScType]
+  def getCompatibleTypeNames(myTypes: Array[ScType]): util.HashMap[String, ScType] = {
+    val map = new util.HashMap[String, ScType]
     myTypes.foreach(myType => map.put(ScType.presentableText(myType), myType))
     map
   }
@@ -236,7 +250,7 @@ object ScalaRefactoringUtil {
     val highlighters = new java.util.ArrayList[RangeHighlighter]
     var highlightManager: HighlightManager = null
     if (editor != null) {
-      highlightManager = HighlightManager.getInstance(project);
+      highlightManager = HighlightManager.getInstance(project)
       val colorsManager = EditorColorsManager.getInstance
       val attributes = colorsManager.getGlobalScheme.getAttributes(EditorColors.SEARCH_RESULT_ATTRIBUTES)
       for (occurence <- occurrences)
@@ -272,7 +286,7 @@ object ScalaRefactoringUtil {
         val index: Int = list.getSelectedIndex
         if (index < 0) return
         val element: T = model.get(index).asInstanceOf[T]
-        val toExtract: ArrayList[PsiElement] = new ArrayList[PsiElement]
+        val toExtract: util.ArrayList[PsiElement] = new util.ArrayList[PsiElement]
         toExtract.add(if (highlightParent) element.getParent else element)
         highlighter.highlight(if (highlightParent) element.getParent else element, toExtract)
       }
@@ -331,7 +345,7 @@ object ScalaRefactoringUtil {
       case l: ScLiteral => builder.append(l.getText)
       case m: ScMatchStmt => {
         m.expr match {
-          case Some(expr) => builder.append(getShortText(expr))
+          case Some(expression) => builder.append(getShortText(expression))
           case _ => builder.append("...")
         }
         builder.append(" match {...}")
@@ -358,7 +372,7 @@ object ScalaRefactoringUtil {
       }
       case p: ScParenthesisedExpr => {
         builder.append("(")
-        p.expr match {case Some(expr) => builder.append(getShortText(expr)) case _ =>}
+        p.expr match {case Some(expression) => builder.append(getShortText(expression)) case _ =>}
         builder.append(")")
       }
       case p: ScPostfixExpr => {
@@ -380,7 +394,7 @@ object ScalaRefactoringUtil {
       case r: ScReturnStmt => {
         builder.append("return ")
         r.expr match {
-          case Some(expr) => builder.append(getShortText(expr))
+          case Some(expression) => builder.append(getShortText(expression))
           case _ =>
         }
       }
@@ -389,7 +403,7 @@ object ScalaRefactoringUtil {
       case t: ScThrowStmt => {
         builder.append("throw ")
         t.body match {
-          case Some(expr) => builder.append(getShortText(expr))
+          case Some(expression) => builder.append(getShortText(expression))
           case _ => builder.append("...")
         }
       }
@@ -431,7 +445,7 @@ object ScalaRefactoringUtil {
     val lineNumber = editor.getCaretModel.getLogicalPosition.line
     if (lineNumber >= editor.getDocument.getLineCount) return ""
     val caret = editor.getCaretModel.getVisualPosition
-    val lineStart = editor.visualToLogicalPosition(new VisualPosition(caret.line, 0));
+    val lineStart = editor.visualToLogicalPosition(new VisualPosition(caret.line, 0))
     val nextLineStart = editor.visualToLogicalPosition(new VisualPosition(caret.line + 1, 0))
     val start = editor.logicalPositionToOffset(lineStart)
     val end = editor.logicalPositionToOffset(nextLineStart)
@@ -439,7 +453,7 @@ object ScalaRefactoringUtil {
   }
 
   def invokeRefactoring(project: Project, editor: Editor, file: PsiFile, dataContext: DataContext,
-                        refactoringName: String, invokesNext: () => Unit) {
+                        refactoringName: String, invokesNext: () => Unit, exprFilter: (ScExpression) => Boolean = e => true) {
 
     if (!editor.getSelectionModel.hasSelection) {
       val offset = editor.getCaretModel.getOffset
@@ -460,7 +474,7 @@ object ScalaRefactoringUtil {
         }
         res.toArray
       }
-      val expressions = getExpressions
+      val expressions = getExpressions.filter(exprFilter)
       def chooseExpression(expr: ScExpression) {
         editor.getSelectionModel.setSelection(expr.getTextRange.getStartOffset,
           expr.getTextRange.getEndOffset)
@@ -473,7 +487,7 @@ object ScalaRefactoringUtil {
         return
       } else {
         ScalaRefactoringUtil.showChooser(editor, expressions, elem =>
-          chooseExpression(elem.asInstanceOf[ScExpression]), "Choose Expression for " + refactoringName, (expr: ScExpression) => {
+          chooseExpression(elem.asInstanceOf[ScExpression]), ScalaBundle.message("choose.expression.for", refactoringName), (expr: ScExpression) => {
           ScalaRefactoringUtil.getShortText(expr)
         })
         return
@@ -481,6 +495,8 @@ object ScalaRefactoringUtil {
     }
     invokesNext()
   }
+
+
 
   def fileEncloser(startOffset: Int, file: PsiFile): PsiElement = {
     if (file.asInstanceOf[ScalaFile].isScriptFile()) file
@@ -610,6 +626,57 @@ object ScalaRefactoringUtil {
     literalPattern != null && literalPattern.getTextRange == textRange
   }
 
+  /**
+   * @throws IntroduceException
+   */
+  def showErrorMessage(text: String, project: Project, editor: Editor, refactoringName: String): Nothing = {
+    if (ApplicationManager.getApplication.isUnitTestMode) throw new RuntimeException(text)
+    CommonRefactoringUtil.showErrorHint(project, editor, text, refactoringName, HelpID.INTRODUCE_PARAMETER)
+    throw new IntroduceException
+  }
+
+  def checkFile(file: PsiFile, project: Project, editor: Editor, refactoringName: String) {
+    if (!file.isInstanceOf[ScalaFile])
+      showErrorMessage(ScalaBundle.message("only.for.scala"), project, editor, refactoringName)
+
+    if (!ScalaRefactoringUtil.ensureFileWritable(project, file))
+      showErrorMessage(ScalaBundle.message("file.is.not.writable"), project, editor, refactoringName)
+  }
+
+  def checkCanBeIntroduced(expr: ScExpression, action: (String) => Unit = s => {}): Boolean = {
+    var errorMessage: String = null
+    val constrBlock = ScalaPsiUtil.getParentOfType(expr, classOf[ScConstrBlock])
+    constrBlock match {
+      case block: ScConstrBlock =>
+        for {
+          selfInv <- block.selfInvocation
+          args <- selfInv.args
+          if args.isAncestorOf(expr)
+        } errorMessage = ScalaBundle.message("cannot.refactor.arg.in.self.invocation.of.constructor")
+      case _ =>
+    }
+
+    val guard: ScGuard = PsiTreeUtil.getParentOfType(expr, classOf[ScGuard])
+    if (guard != null && guard.getParent.isInstanceOf[ScCaseClause])
+      errorMessage = ScalaBundle.message("refactoring.is.not.supported.in.guard")
+
+    if (errorMessage == null) errorMessage = expr.getParent match {
+      case inf: ScInfixExpr if inf.operation == expr => ScalaBundle.message("cannot.refactor.not.expression")
+      case post: ScPostfixExpr if post.operation == expr => ScalaBundle.message("cannot.refactor.not.expression")
+      case _: ScGenericCall => ScalaBundle.message("cannot.refactor.under.generic.call")
+      case _ if expr.isInstanceOf[ScConstrExpr] => ScalaBundle.message("cannot.refactor.constr.expression")
+      case _: ScArgumentExprList if expr.isInstanceOf[ScAssignStmt] => ScalaBundle.message("cannot.refactor.named.arg")
+      case _: ScLiteralPattern => ScalaBundle.message("cannot.refactor.literal.pattern")
+      case par: ScClassParameter =>
+        par.containingClass match {
+          case clazz: ScClass if clazz.isTopLevel => ScalaBundle.message("cannot.refactor.class.parameter.top.level")
+          case _ => null
+        }
+      case _ => null
+    }
+    if (errorMessage != null) action(errorMessage)
+    errorMessage == null
+  }
 
   private[refactoring] class IntroduceException extends Exception
 }
