@@ -43,6 +43,9 @@ import org.jetbrains.plugins.scala.lang.psi.types.ScDesignatorType
 import scala.Some
 import org.jetbrains.plugins.scala.lang.psi.types.ScFunctionType
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
+import com.intellij.openapi.application.ApplicationManager
+import com.intellij.refactoring.util.CommonRefactoringUtil
+import com.intellij.refactoring.HelpID
 
 /**
  * User: Alexander Podkhalyuzin
@@ -89,6 +92,16 @@ object ScalaRefactoringUtil {
         ScalaPsiElementFactory.createExpressionFromText(e.getText + " _", e.getManager)
       case _ => e
     }
+  }
+
+  def addPossibleTypes(scType: ScType, expr: ScExpression): Array[ScType] = {
+    val types = new ArrayBuffer[ScType]
+    if (scType != null && scType != psi.types.Unit) types += scType
+    expr.getTypeWithoutImplicits(TypingContext.empty).foreach(types +=)
+    expr.getTypeIgnoreBaseType(TypingContext.empty).foreach(types +=)
+    if (scType == psi.types.Unit) types += scType
+    if (types.isEmpty) types += psi.types.Any
+    types.toArray
   }
 
   def getExpression(project: Project, editor: Editor, file: PsiFile, startOffset: Int, endOffset: Int): Option[(ScExpression, ScType)] = {
@@ -160,12 +173,12 @@ object ScalaRefactoringUtil {
     !operationStatus.hasReadonlyFiles
   }
 
-  def getOccurrences(expr: ScExpression, enclosingContainer: PsiElement): Array[TextRange] = {
+  def getOccurrences(element: PsiElement, enclosingContainer: PsiElement): Array[TextRange] = {
     val occurrences: ArrayBuffer[TextRange] = new ArrayBuffer[TextRange]()
-    if (enclosingContainer == expr) occurrences += enclosingContainer.asInstanceOf[ScExpression].getTextRange
+    if (enclosingContainer == element) occurrences += enclosingContainer.asInstanceOf[ScExpression].getTextRange
     else
       for (child <- enclosingContainer.getChildren) {
-        if (PsiEquivalenceUtil.areElementsEquivalent(child, expr, comparator, false)) {
+        if (PsiEquivalenceUtil.areElementsEquivalent(child, element, comparator, false)) {
           child match {
             case x: ScExpression => {
               x.getParent match {
@@ -176,7 +189,7 @@ object ScalaRefactoringUtil {
             case _ =>
           }
         } else {
-          occurrences ++= getOccurrences(expr, child)
+          occurrences ++= getOccurrences(element, child)
         }
       }
     occurrences.toArray
@@ -610,6 +623,14 @@ object ScalaRefactoringUtil {
     literalPattern != null && literalPattern.getTextRange == textRange
   }
 
+  /**
+   * @throws IntroduceException
+   */
+  def showErrorMessage(text: String, project: Project, editor: Editor, refactoringName: String): Nothing = {
+    if (ApplicationManager.getApplication.isUnitTestMode) throw new RuntimeException(text)
+    CommonRefactoringUtil.showErrorHint(project, editor, text, refactoringName, HelpID.INTRODUCE_PARAMETER)
+    throw new IntroduceException
+  }
 
   private[refactoring] class IntroduceException extends Exception
 }
