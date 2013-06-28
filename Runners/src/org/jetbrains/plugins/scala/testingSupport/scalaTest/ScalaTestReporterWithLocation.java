@@ -115,12 +115,14 @@ public class ScalaTestReporterWithLocation implements Reporter {
       collectRecordableEvents(event, eventName);
     } else if (event instanceof TestIgnored) {
       String testText = ((TestIgnored) event).testText();
-      System.out.println("\n##teamcity[testIgnored name='" + escapeString(testText) + "' message='" +
-          escapeString("") + "']");
+      System.out.println("\n##teamcity[testIgnored name='" + escapeString(testText) + " (Ignored)' message='" +
+          escapeString("Test Ignored") + "']");
     } else if (event instanceof TestPending) {
       TestPending testPending = (TestPending) event;
       String testText = testPending.testText();
       String decodedTestText = decodeString(testText);
+      System.out.println("\n##teamcity[testIgnored name='" + escapeString(decodedTestText) + "' message='" +
+          escapeString("Test Pending") + "']");
       System.out.println("\n##teamcity[testFinished name='" + escapeString(decodedTestText) +
           "' duration='" + 0 +"']");
       final String eventName = "org.scalatest.events.TestPending";
@@ -129,6 +131,8 @@ public class ScalaTestReporterWithLocation implements Reporter {
       TestCanceled testCanceled = (TestCanceled) event;
       String testText = testCanceled.testText();
       String decodedTestText = decodeString(testText);
+      System.out.println("\n##teamcity[testIgnored name='" + escapeString(decodedTestText) + "' message='" +
+          escapeString("Test Canceled") + "']");
       System.out.println("\n##teamcity[testFinished name='" + escapeString(decodedTestText) +
           "' duration='" + 0 +"']");
       final String eventName = "org.scalatest.events.TestCancelled";
