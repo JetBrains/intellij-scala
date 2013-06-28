@@ -7,7 +7,6 @@ package introduceParameter
 import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
-import psi.api.ScalaFile
 import com.intellij.openapi.application.ApplicationManager
 import refactoring.util.ScalaRefactoringUtil.IntroduceException
 import com.intellij.refactoring.ui.ConflictsDialog
@@ -21,10 +20,10 @@ import refactoring.util.{ScalaVariableValidator, ConflictsReporter, ScalaRefacto
 import com.intellij.psi._
 import com.intellij.refactoring.util.CommonRefactoringUtil
 import com.intellij.ide.util.SuperMethodWarningUtil
-import com.intellij.refactoring.{RefactoringBundle, HelpID, RefactoringActionHandler}
-import collection.mutable.{HashSet, ArrayBuffer}
-import psi.types.result.TypingContext
+import com.intellij.refactoring.{RefactoringBundle, RefactoringActionHandler}
+import collection.mutable.ArrayBuffer
 import extensions.toPsiModifierListOwnerExt
+import ScalaRefactoringUtil.showErrorMessage
 
 /**
  * User: Alexander Podkhalyuzin
@@ -38,36 +37,22 @@ class ScalaIntroduceParameterHandler extends RefactoringActionHandler with Confl
       ScalaRefactoringUtil.trimSpacesAndComments(editor, file)
       invoke(project, editor, file, editor.getSelectionModel.getSelectionStart, editor.getSelectionModel.getSelectionEnd)
     }
-    ScalaRefactoringUtil.invokeRefactoring(project, editor, file, dataContext, "Introduce Parameter", invokes _)
+    val canBeIntroduced: (ScExpression) => Boolean = ScalaRefactoringUtil.checkCanBeIntroduced(_)
+    ScalaRefactoringUtil.invokeRefactoring(project, editor, file, dataContext, "Introduce Parameter", invokes, canBeIntroduced)
   }
 
   def invoke(project: Project, editor: Editor, file: PsiFile, startOffset: Int, endOffset: Int) {
     try {
       PsiDocumentManager.getInstance(project).commitAllDocuments()
-      if (!file.isInstanceOf[ScalaFile])
-        showErrorMessage(ScalaBundle.message("only.for.scala"), project, editor)
+      ScalaRefactoringUtil.checkFile(file, project, editor, REFACTORING_NAME)
 
-      if (!ScalaRefactoringUtil.ensureFileWritable(project, file))
-        showErrorMessage(ScalaBundle.message("file.is.not.writable"), project, editor)
+      val (expr: ScExpression, scType: ScType) = ScalaRefactoringUtil.getExpression(project, editor, file, startOffset, endOffset).
+              getOrElse(showErrorMessage(ScalaBundle.message("cannot.refactor.not.expression"), project, editor, REFACTORING_NAME))
+      val types = ScalaRefactoringUtil.addPossibleTypes(scType, expr)
 
-      val (expr: ScExpression, typez: ScType) = ScalaRefactoringUtil.getExpression(project, editor, file, startOffset, endOffset).
-              getOrElse(showErrorMessage(ScalaBundle.message("cannot.refactor.not.expression"), project, editor))
-      val types = new HashSet[ScType]
+      ScalaRefactoringUtil.checkCanBeIntroduced(expr)
 
-      if (typez != psi.types.Unit) types += typez
-      expr.getTypeWithoutImplicits(TypingContext.empty).foreach(types += _)
-      expr.getTypeIgnoreBaseType(TypingContext.empty).foreach(types += _)
-      if (typez == psi.types.Unit) types += typez
-
-      expr.getParent match {
-        case inf: ScInfixExpr if inf.operation == expr => showErrorMessage(ScalaBundle.message("cannot.refactor.not.expression"), project, editor)
-        case post: ScPostfixExpr if post.operation == expr => showErrorMessage(ScalaBundle.message("cannot.refactor.not.expression"), project, editor)
-        case _: ScGenericCall => showErrorMessage(ScalaBundle.message("connot.refactor.under.generic.call"), project, editor)
-        case _ if expr.isInstanceOf[ScConstrExpr] => showErrorMessage(ScalaBundle.message("cannot.refactor.constr.expression"), project, editor)
-        case _ =>
-      }
-
-     chooseEnclosingMethod(project, editor, file, startOffset, endOffset, expr, types.toArray)
+      chooseEnclosingMethod(project, editor, file, startOffset, endOffset, expr, types.toArray)
     }
     catch {
       case _: IntroduceException => return
@@ -78,7 +63,7 @@ class ScalaIntroduceParameterHandler extends RefactoringActionHandler with Confl
                 function: ScFunctionDefinition, expr: ScExpression, types: Array[ScType]) {
     try {
       if (function == null) {
-        showErrorMessage(ScalaBundle.message("cannot.refactor.no.function"), project, editor)
+        showErrorMessage(ScalaBundle.message("cannot.refactor.no.function"), project, editor, REFACTORING_NAME)
       }
 
       val methodToSearchFor: PsiMethod = SuperMethodWarningUtil.checkSuperMethod(function, RefactoringBundle.message("to.refactor"))
@@ -111,14 +96,6 @@ class ScalaIntroduceParameterHandler extends RefactoringActionHandler with Confl
     conflictsDialog.isOK
   }
 
-  /**
-   * @throws IntroduceException
-   */
-  def showErrorMessage(text: String, project: Project, editor: Editor): Nothing = {
-    if (ApplicationManager.getApplication.isUnitTestMode) throw new RuntimeException(text)
-    CommonRefactoringUtil.showErrorHint(project, editor, text, REFACTORING_NAME, HelpID.INTRODUCE_PARAMETER)
-    throw new IntroduceException
-  }
 
   private def getEnclosingMethods(expr: PsiElement): Seq[ScFunctionDefinition] = {
     var enclosingMethods = new ArrayBuffer[ScFunctionDefinition]
@@ -168,7 +145,7 @@ class ScalaIntroduceParameterHandler extends RefactoringActionHandler with Confl
       ScalaRefactoringUtil.showChooser[ScFunctionDefinition](editor, validEnclosingMethods.toArray, {selectedValue =>
         runDialog(project, editor, file, startOffset, endOffset,
           selectedValue.asInstanceOf[ScFunctionDefinition], expr, types)
-      }, "Choose level for Extract Method", getTextForElement _, false)
+      }, "Choose level for Extract Method", getTextForElement, false)
     }
     else if (validEnclosingMethods.size == 1) {
       runDialog(project, editor, file, startOffset, endOffset, validEnclosingMethods(0), expr, types)
