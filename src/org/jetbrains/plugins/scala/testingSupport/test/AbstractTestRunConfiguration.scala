@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala
 package testingSupport.test
 
-import com.intellij.psi.search.GlobalSearchScope
+import com.intellij.psi.search.{ProjectScope, GlobalSearchScope}
 import org.jdom.Element
 import config.ScalaFacet
 import collection.JavaConversions._
@@ -168,24 +168,27 @@ abstract class AbstractTestRunConfiguration(val project: Project,
       if (withDependencies) GlobalSearchScope.moduleWithDependenciesAndLibrariesScope(module)
       else GlobalSearchScope.moduleScope(module)
     }
+    def unionScope(moduleGuard: Module => Boolean): GlobalSearchScope = {
+      var scope: GlobalSearchScope = mScope(getModule)
+      for (module <- ModuleManager.getInstance(getProject).getModules) {
+        if (moduleGuard(module)) {
+          scope = scope.union(mScope(module))
+        }
+      }
+      scope
+    }
     testKind match {
       case TestKind.ALL_IN_PACKAGE =>
         searchTest match {
-          case SearchForTest.IN_WHOLE_PROJECT => GlobalSearchScope.allScope(project)
+          case SearchForTest.IN_WHOLE_PROJECT => unionScope(_ => true)
           case SearchForTest.IN_SINGLE_MODULE if getModule != null => mScope(getModule)
           case SearchForTest.ACCROSS_MODULE_DEPENDENCIES if getModule != null =>
-            var scope: GlobalSearchScope = mScope(getModule)
-            for (module <- ModuleManager.getInstance(getProject).getModules) {
-              if (ModuleManager.getInstance(getProject).isModuleDependent(getModule, module)) {
-                scope = scope.union(mScope(module))
-              }
-            }
-            scope
-          case _ => GlobalSearchScope.allScope(project)
+            unionScope(ModuleManager.getInstance(getProject).isModuleDependent(getModule, _))
+          case _ => unionScope(_ => true)
         }
       case _ =>
         if (getModule != null) mScope(getModule)
-        else GlobalSearchScope.allScope(project)
+        else unionScope(_ => true)
     }
   }
 
