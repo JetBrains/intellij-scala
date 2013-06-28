@@ -136,7 +136,10 @@ private class ScalaConfiguration(project: MavenProject) {
     project.findPlugin("org.scala-tools", "maven-scala-plugin").toOption.filter(!_.isDefault).orElse(
       project.findPlugin("net.alchim31.maven", "scala-maven-plugin").toOption.filter(!_.isDefault))
 
-  private def compilerConfiguration = compilerPlugin.flatMap(_.getConfigurationElement.toOption)
+  private def compilerConfigurations = compilerPlugin.toSeq.flatMap { plugin =>
+    plugin.getConfigurationElement.toOption.toSeq ++
+            plugin.getGoalConfiguration("compile").toOption.toSeq
+  }
 
   private def standardLibrary = project.findDependencies("org.scala-lang", "scala-library").headOption
 
@@ -166,7 +169,7 @@ private class ScalaConfiguration(project: MavenProject) {
     root.getChildren(name).map(_.asInstanceOf[Element])
 
   private def element(name: String): Option[Element] =
-    compilerConfiguration.flatMap(_.getChild(name).toOption)
+    compilerConfigurations.flatMap(_.getChild(name).toOption.toSeq).headOption
 
   def valid = compilerPlugin.isDefined && compilerVersion.isDefined
 }
