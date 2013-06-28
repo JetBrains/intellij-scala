@@ -30,7 +30,7 @@ class GenericScalaArchiveDownloader(localDescriptor: URL, downloadableName: Stri
   protected def showDialog(): Option[DownloadableFileSetDescription] = {
     if (versionDescriptions == null) return None
     
-    val myDialog = new DownloadWebLibraryDialog(project, versionDescriptions)
+    val myDialog = new MyWebDialog /*DownloadWebLibraryDialog*/(project, versionDescriptions)
     myDialog setTitle s"Download $downloadableName"
 
     myDialog.show()
