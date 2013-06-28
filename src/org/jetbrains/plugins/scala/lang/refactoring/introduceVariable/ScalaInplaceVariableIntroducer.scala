@@ -3,7 +3,7 @@ package lang.refactoring.introduceVariable
 
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScEnumerator, ScExpression}
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.editor.{ScrollType, Editor}
+import com.intellij.openapi.editor.Editor
 import com.intellij.psi._
 import com.intellij.refactoring.introduce.inplace.InplaceVariableIntroducer
 import javax.swing._
@@ -277,28 +277,17 @@ class ScalaInplaceVariableIntroducer(project: Project,
   }
 
   protected override def moveOffsetAfter(success: Boolean): Unit = {
-    if (success) {
-      if (myExprMarker != null) {
-        val startOffset: Int = myExprMarker.getStartOffset
-        val elementAt: PsiElement = myFile.findElementAt(startOffset)
-        if (elementAt != null) {
-          myEditor.getCaretModel.moveToOffset(elementAt.getTextRange.getEndOffset)
-        }
-        else {
-          myEditor.getCaretModel.moveToOffset(myExprMarker.getEndOffset)
-        }
-      } else if (getDeclaration != null) {
-        myEditor.getCaretModel.moveToOffset(getDeclaration.getTextRange.getEndOffset)
+    if (myExprMarker != null) {
+      val startOffset: Int = myExprMarker.getStartOffset
+      val elementAt: PsiElement = myFile.findElementAt(startOffset)
+      if (elementAt != null) {
+        myEditor.getCaretModel.moveToOffset(elementAt.getTextRange.getEndOffset)
       }
-    } else {
-      val revertInfo = editor.getUserData(ScalaIntroduceVariableHandler.REVERT_INFO)
-      if (revertInfo != null) {
-        extensions.inWriteAction {
-          myEditor.getDocument.replaceString(0, myFile.getTextLength, revertInfo.fileText)
-        }
-        myEditor.getCaretModel.moveToOffset(revertInfo.caretOffset)
-        myEditor.getScrollingModel.scrollToCaret(ScrollType.MAKE_VISIBLE)
+      else {
+        myEditor.getCaretModel.moveToOffset(myExprMarker.getEndOffset)
       }
+    } else if (getDeclaration != null) {
+      myEditor.getCaretModel.moveToOffset(getDeclaration.getTextRange.getEndOffset)
     }
   }
 
