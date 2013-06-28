@@ -6,13 +6,13 @@ package introduceVariable
 
 import org.jetbrains.plugins.scala.util.ScalaUtils
 import com.intellij.openapi.editor.Editor
-import com.intellij.openapi.util.{Computable, TextRange}
+import com.intellij.openapi.util.{Key, Computable, TextRange, Pass}
 import com.intellij.openapi.command.CommandProcessor
 import com.intellij.openapi.wm.WindowManager
 import com.intellij.psi.{xml => _, _}
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.refactoring.ui.ConflictsDialog
-import com.intellij.refactoring.{HelpID, RefactoringActionHandler}
+import com.intellij.refactoring.RefactoringActionHandler
 import java.util.regex.{Pattern, Matcher}
 import java.util.LinkedHashSet
 import lexer.ScalaTokenTypes
@@ -30,16 +30,13 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScMember}
-import refactoring.util.ScalaRefactoringUtil.IntroduceException
-import com.intellij.refactoring.util.CommonRefactoringUtil
+import refactoring.util.ScalaRefactoringUtil.{IntroduceException, showErrorMessage}
 import refactoring.util.{ConflictsReporter, ScalaRefactoringUtil}
-import psi.types.result.TypingContext
-import scala.collection.mutable.ArrayBuffer
 import com.intellij.refactoring.introduce.inplace.OccurrencesChooser
-import com.intellij.openapi.util.Pass
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaVariableValidator
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
+import org.jetbrains.plugins.scala.lang.refactoring.introduceVariable.ScalaIntroduceVariableHandler.RevertInfo
 
 /**
  * User: Alexander Podkhalyuzin
@@ -66,31 +63,26 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Confli
     try {
       PsiDocumentManager.getInstance(project).commitAllDocuments()
       if (!file.isInstanceOf[ScalaFile])
-        showErrorMessage(ScalaBundle.message("only.for.scala"), project, editor)
+        showErrorMessage(ScalaBundle.message("only.for.scala"), project, editor, REFACTORING_NAME)
 
       if (!ScalaRefactoringUtil.ensureFileWritable(project, file))
-        showErrorMessage(ScalaBundle.message("file.is.not.writable"), project, editor)
+        showErrorMessage(ScalaBundle.message("file.is.not.writable"), project, editor, REFACTORING_NAME)
 
-      val (expr: ScExpression, typez: ScType) = ScalaRefactoringUtil.getExpression(project, editor, file, startOffset, endOffset).
-              getOrElse(showErrorMessage(ScalaBundle.message("cannot.refactor.not.expression"), project, editor))
-      val types = new ArrayBuffer[ScType]
+      val (expr: ScExpression, scType: ScType) = ScalaRefactoringUtil.getExpression(project, editor, file, startOffset, endOffset).
+              getOrElse(showErrorMessage(ScalaBundle.message("cannot.refactor.not.expression"), project, editor, REFACTORING_NAME))
 
-      if (typez != psi.types.Unit) types += typez
-      expr.getTypeWithoutImplicits(TypingContext.empty).foreach(types +=)
-      expr.getTypeIgnoreBaseType(TypingContext.empty).foreach(types +=)
-      if (typez == psi.types.Unit) types += typez
-      if (types.isEmpty) types += psi.types.Any
+      val types = ScalaRefactoringUtil.addPossibleTypes(scType, expr)
 
       expr.getParent match {
-        case inf: ScInfixExpr if inf.operation == expr => showErrorMessage(ScalaBundle.message("cannot.refactor.not.expression"), project, editor)
-        case post: ScPostfixExpr if post.operation == expr => showErrorMessage(ScalaBundle.message("cannot.refactor.not.expression"), project, editor)
-        case _: ScGenericCall => showErrorMessage(ScalaBundle.message("cannot.refactor.under.generic.call"), project, editor)
-        case _ if expr.isInstanceOf[ScConstrExpr] => showErrorMessage(ScalaBundle.message("cannot.refactor.constr.expression"), project, editor)
-        case _: ScArgumentExprList if expr.isInstanceOf[ScAssignStmt] => showErrorMessage(ScalaBundle.message("cannot.refactor.named.arg"), project, editor)
-        case _: ScLiteralPattern => showErrorMessage(ScalaBundle.message("cannot.refactor.literal.pattern"), project, editor)
+        case inf: ScInfixExpr if inf.operation == expr => showErrorMessage(ScalaBundle.message("cannot.refactor.not.expression"), project, editor, REFACTORING_NAME)
+        case post: ScPostfixExpr if post.operation == expr => showErrorMessage(ScalaBundle.message("cannot.refactor.not.expression"), project, editor, REFACTORING_NAME)
+        case _: ScGenericCall => showErrorMessage(ScalaBundle.message("cannot.refactor.under.generic.call"), project, editor, REFACTORING_NAME)
+        case _ if expr.isInstanceOf[ScConstrExpr] => showErrorMessage(ScalaBundle.message("cannot.refactor.constr.expression"), project, editor, REFACTORING_NAME)
+        case _: ScArgumentExprList if expr.isInstanceOf[ScAssignStmt] => showErrorMessage(ScalaBundle.message("cannot.refactor.named.arg"), project, editor, REFACTORING_NAME)
+        case _: ScLiteralPattern => showErrorMessage(ScalaBundle.message("cannot.refactor.literal.pattern"), project, editor, REFACTORING_NAME)
         case par: ScClassParameter =>
           par.containingClass match {
-            case clazz: ScClass if clazz.isTopLevel => showErrorMessage(ScalaBundle.message("cannot.refactor.class.parameter.top.level"), project, editor)
+            case clazz: ScClass if clazz.isTopLevel => showErrorMessage(ScalaBundle.message("cannot.refactor.class.parameter.top.level"), project, editor, REFACTORING_NAME)
             case _ =>
           }
         case _ =>
@@ -102,12 +94,12 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Confli
             selfInv <- block.selfInvocation
             args <- selfInv.args
             if args.isAncestorOf(expr)
-          } showErrorMessage(ScalaBundle.message("cannot.refactor.arg.in.self.invocation.of.constructor"), project, editor)
+          } showErrorMessage(ScalaBundle.message("cannot.refactor.arg.in.self.invocation.of.constructor"), project, editor, REFACTORING_NAME)
         case _ =>
       }
 
       val guard: ScGuard = PsiTreeUtil.getParentOfType(expr, classOf[ScGuard])
-      if (guard != null && guard.getParent.isInstanceOf[ScCaseClause]) showErrorMessage(ScalaBundle.message("refactoring.is.not.supported.in.guard"), project, editor)
+      if (guard != null && guard.getParent.isInstanceOf[ScCaseClause]) showErrorMessage(ScalaBundle.message("refactoring.is.not.supported.in.guard"), project, editor, REFACTORING_NAME)
 
       val fileEncloser = ScalaRefactoringUtil.fileEncloser(startOffset, file)
       val occurrencesAll: Array[TextRange] = ScalaRefactoringUtil.getOccurrences(ScalaRefactoringUtil.unparExpr(expr), fileEncloser)
@@ -115,7 +107,7 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Confli
       val validator = ScalaVariableValidator(this, project, editor, file, expr, occurrences)
 
       def runWithDialog() {
-        val dialog = getDialog(project, editor, expr, types.toArray, occurrences, declareVariable = false, validator)
+        val dialog = getDialog(project, editor, expr, types, occurrences, declareVariable = false, validator)
         if (!dialog.isOK) return
         val varName: String = dialog.getEnteredName
         val varType: ScType = dialog.getSelectedType
@@ -162,7 +154,7 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Confli
                     PsiDocumentManager.getInstance(project).doPostponedOperationsAndUnblockDocument(editor.getDocument)
                     val checkedExpr = if (expr.isValid) expr else null
                     val variableIntroducer =
-                      new ScalaInplaceVariableIntroducer(project, editor, checkedExpr, types.toArray, namedElement, replaces,
+                      new ScalaInplaceVariableIntroducer(project, editor, checkedExpr, types, namedElement, replaces,
                         REFACTORING_NAME, replaceAll, asVar, false)
                     variableIntroducer.performInplaceRefactoring(suggestedNamesSet)
                   }
@@ -225,6 +217,10 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Confli
     val container: PsiElement =
       ScalaPsiUtil.getParentOfType(commonParent, occurrences.length == 1, classOf[ScalaFile], classOf[ScBlock],
         classOf[ScTemplateBody], classOf[ScCaseClause], classOf[ScFunctionDefinition], classOf[ScFunctionExpr])
+
+    val revertInfo = RevertInfo(file.getText, editor.getCaretModel.getOffset)
+    editor.putUserData(ScalaIntroduceVariableHandler.REVERT_INFO, revertInfo)
+
     var needBraces = false
     var needBlockWithoutBraces = false
     var elseBranch = false
@@ -475,15 +471,9 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Confli
     conflictsDialog.show()
     conflictsDialog.isOK
   }
+}
 
-  /**
-   * @throws IntroduceException
-   */
-  def showErrorMessage(text: String, project: Project, editor: Editor): Nothing = {
-    if (ApplicationManager.getApplication.isUnitTestMode) throw new RuntimeException(text)
-    CommonRefactoringUtil.showErrorHint(project, editor, text, REFACTORING_NAME, HelpID.INTRODUCE_VARIABLE)
-    throw new IntroduceException
-  }
-
-
+object ScalaIntroduceVariableHandler {
+  val REVERT_INFO: Key[RevertInfo] = new Key("RevertInfo")
+  case class RevertInfo(fileText: String, caretOffset: Int)
 }
