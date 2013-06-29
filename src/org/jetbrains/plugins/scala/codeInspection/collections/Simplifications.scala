@@ -165,6 +165,7 @@ class FoldLeftSum(inspection: OperationOnCollectionInspection) extends Simplific
             val project = expr.getProject
             val manager = ScalaPsiManager.instance(project)
             val stringClass = manager.getCachedClass(GlobalSearchScope.allScope(project), "java.lang.String")
+            if (stringClass == null) return false
             val stringType = new ScDesignatorType(stringClass)
             if (scType.conforms(stringType)) false
             else {
