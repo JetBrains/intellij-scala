@@ -404,10 +404,9 @@ trait ResolvableReferenceExpression extends ScReferenceExpression {
 
   private def processDynamic(aType: ScType, reference: ScReferenceExpression, e: ScExpression,
                              baseProcessor: BaseProcessor): BaseProcessor = {
-    val dynamicType = {
-      val cachedClass = ScalaPsiManager.instance(getProject).getCachedClass(getResolveScope, "scala.Dynamic")
-      ScDesignatorType(cachedClass)
-    }
+    val cachedClass = ScalaPsiManager.instance(getProject).getCachedClass(getResolveScope, "scala.Dynamic")
+    if (cachedClass == null) return baseProcessor
+    val dynamicType = ScDesignatorType(cachedClass)
 
     if (aType.conforms(dynamicType)) {
       baseProcessor match {
