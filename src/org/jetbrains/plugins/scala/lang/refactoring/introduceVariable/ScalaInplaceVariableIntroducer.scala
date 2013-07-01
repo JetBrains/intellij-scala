@@ -3,7 +3,7 @@ package lang.refactoring.introduceVariable
 
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScEnumerator, ScExpression}
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.editor.{ScrollType, Editor}
 import com.intellij.psi._
 import com.intellij.refactoring.introduce.inplace.InplaceVariableIntroducer
 import javax.swing._
@@ -51,7 +51,7 @@ class ScalaInplaceVariableIntroducer(project: Project,
 
   private var myVarCheckbox: JCheckBox = null
   private var mySpecifyTypeChb: JCheckBox = null
-  var myPointer: SmartPsiElementPointer[PsiElement] = null
+  private var myPointer: SmartPsiElementPointer[PsiElement] = null
   private val newDeclaration = ScalaPsiUtil.getParentOfType(namedElement, classOf[ScEnumerator], classOf[ScDeclaredElementsHolder])
   private var myCheckIdentifierListener: DocumentListener = null
   private val myFile: PsiFile = namedElement.getContainingFile
@@ -264,6 +264,11 @@ class ScalaInplaceVariableIntroducer(project: Project,
   }
 
   private def resetBalloonPanel(nameIsValid: Boolean): Unit = {
+    if (myBalloon.isDisposed) return
+    if (getDeclaration == null) {
+      myBalloon.dispose()
+      return
+    }
     if (!nameIsValid) {
       myBalloonPanel add myLabelPanel
       myBalloonPanel remove myChbPanel
@@ -277,17 +282,38 @@ class ScalaInplaceVariableIntroducer(project: Project,
   }
 
   protected override def moveOffsetAfter(success: Boolean): Unit = {
-    if (myExprMarker != null) {
-      val startOffset: Int = myExprMarker.getStartOffset
-      val elementAt: PsiElement = myFile.findElementAt(startOffset)
-      if (elementAt != null) {
-        myEditor.getCaretModel.moveToOffset(elementAt.getTextRange.getEndOffset)
+    try {
+      myBalloon.hide()
+      if (success) {
+        if (myExprMarker != null) {
+          val startOffset: Int = myExprMarker.getStartOffset
+          val elementAt: PsiElement = myFile.findElementAt(startOffset)
+          if (elementAt != null) {
+            myEditor.getCaretModel.moveToOffset(elementAt.getTextRange.getEndOffset)
+          }
+          else {
+            myEditor.getCaretModel.moveToOffset(myExprMarker.getEndOffset)
+          }
+        } else if (getDeclaration != null) {
+          myEditor.getCaretModel.moveToOffset(getDeclaration.getTextRange.getEndOffset)
+        }
+      } else if (getDeclaration != null) {
+        val revertInfo = editor.getUserData(ScalaIntroduceVariableHandler.REVERT_INFO)
+        if (revertInfo != null) {
+          extensions.inWriteAction {
+            myEditor.getDocument.replaceString(0, myFile.getTextLength, revertInfo.fileText)
+          }
+          myEditor.getCaretModel.moveToOffset(revertInfo.caretOffset)
+          myEditor.getScrollingModel.scrollToCaret(ScrollType.MAKE_VISIBLE)
+        }
       }
-      else {
-        myEditor.getCaretModel.moveToOffset(myExprMarker.getEndOffset)
+    }
+    finally {
+      import scala.collection.JavaConversions._
+      for (occurrenceMarker <- getOccurrenceMarkers) {
+        occurrenceMarker.dispose()
       }
-    } else if (getDeclaration != null) {
-      myEditor.getCaretModel.moveToOffset(getDeclaration.getTextRange.getEndOffset)
+      if (getExprMarker != null) getExprMarker.dispose()
     }
   }
 
