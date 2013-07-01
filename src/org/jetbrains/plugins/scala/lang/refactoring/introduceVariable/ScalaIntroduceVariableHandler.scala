@@ -48,9 +48,9 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Confli
 
   def invoke(project: Project, editor: Editor, file: PsiFile, dataContext: DataContext) {
     def invokes() {
-      val lineText = ScalaRefactoringUtil.getLineText(editor)
-      if (editor.getSelectionModel.getSelectedText != null &&
-              lineText != null && editor.getSelectionModel.getSelectedText.trim == lineText.trim) deleteOccurrence = true
+//      val lineText = ScalaRefactoringUtil.getLineText(editor)
+//      if (editor.getSelectionModel.getSelectedText != null &&
+//              lineText != null && editor.getSelectionModel.getSelectedText.trim == lineText.trim) deleteOccurrence = true
       ScalaRefactoringUtil.trimSpacesAndComments(editor, file)
       invoke(project, editor, file, editor.getSelectionModel.getSelectionStart, editor.getSelectionModel.getSelectionEnd)
     }
