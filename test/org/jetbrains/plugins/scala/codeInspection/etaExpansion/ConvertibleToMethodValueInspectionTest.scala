@@ -153,4 +153,20 @@ class ConvertibleToMethodValueInspectionTest extends ScalaLightInspectionFixture
                  |}"""
     checkTextHasNoErrors(text)
   }
+
+  def test_AbstractExpectedType() {
+    val text = """class A {
+                 |  def foo() {
+                 |    val (x, y) = (0, 1)
+                 |    def a1(): Int = 1
+                 |    def a2(): Int = 0
+                 |    val aa = Map(
+                 |      x -> a1 _,
+                 |      y -> a2 _
+                 |    )
+                 |  }
+                 |}
+                 |"""
+    checkTextHasNoErrors(text)
+  }
 }
