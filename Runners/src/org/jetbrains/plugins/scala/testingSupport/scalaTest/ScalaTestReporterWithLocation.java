@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala.testingSupport.scalaTest;
 
 import org.scalatest.Reporter;
 import org.scalatest.events.*;
-import org.scalatest.events.Location;
 import scala.Option;
 import scala.Some;
 
@@ -24,10 +23,10 @@ public class ScalaTestReporterWithLocation implements Reporter {
     return writer.getBuffer().toString();
   }
 
-  private String getLocationHint(Option<String> classNameOption, Option<Location> locationOption, String testName) {
+  private String getLocationHint(Option<String> classNameOption, Option<org.scalatest.events.Location> locationOption, String testName) {
     if(classNameOption instanceof Some && locationOption instanceof Some) {
       String className = classNameOption.get();
-      Location location = locationOption.get();
+      org.scalatest.events.Location location = locationOption.get();
       if(location instanceof TopOfClass)
         return " locationHint='scalatest://TopOfClass:" + ((TopOfClass) location).className() + "TestName:" + testName + "'";
       else if(location instanceof TopOfMethod) {
@@ -191,6 +190,14 @@ public class ScalaTestReporterWithLocation implements Reporter {
     }
     else if(event instanceof ScopeClosed) {
       String message = ((ScopeClosed) event).message();
+      System.out.println("\n##teamcity[testSuiteFinished name='" + escapeString(message) + "']");
+    }
+    else if(event instanceof ScopePending) {
+      String message = ((ScopePending) event).message();
+      System.out.println("\n##teamcity[testIgnored name='(Scope Pending)' message='" +
+          escapeString("Scope Pending") + "']");
+      //System.out.println("\n##teamcity[testIgnored name='" + escapeString(message) + "' message='" +
+      //    escapeString("Scope Pending") + "']");
       System.out.println("\n##teamcity[testSuiteFinished name='" + escapeString(message) + "']");
     }
   }

@@ -258,11 +258,20 @@ public class ScalaTestRunner {
     Class<?> suiteClass = Class.forName("org.scalatest.Suite");
     Method method = suiteClass.getMethod("run", Option.class, Reporter.class, Stopper.class, org.scalatest.Filter.class,
         Map.class, Option.class, Tracker.class);
-    method.invoke(suite, Some$.MODULE$.apply(testName), reporter, new Stopper() {
+    // This stopper could be used to request stop to runner
+    Stopper stopper = new Stopper() {
+      private volatile boolean stopRequested = false;
       public boolean apply() {
-        return false;
+        return stopRequested();
       }
-    }, Filter$.MODULE$.getClass().getMethod("apply").invoke(Filter$.MODULE$),
+      public boolean stopRequested() {
+        return stopRequested;
+      }
+      public void requestStop() {
+        stopRequested = true;
+      }
+    };
+    method.invoke(suite, Some$.MODULE$.apply(testName), reporter, stopper, Filter$.MODULE$.getClass().getMethod("apply").invoke(Filter$.MODULE$),
         scala.collection.immutable.Map$.MODULE$.empty(), None$.MODULE$, Tracker.class.getConstructor().newInstance());
     }
     catch(Exception e) {
