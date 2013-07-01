@@ -31,6 +31,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScTypedPattern
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.search.{LocalSearchScope, SearchScope}
 import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.ui.awt.RelativePoint
+import com.intellij.openapi.command.undo.UndoManager
 
 /**
  * Nikolay.Tropin
@@ -71,20 +73,23 @@ class ScalaInplaceVariableIntroducer(project: Project,
     override def documentChanged(e: DocumentEvent): Unit = {
       commitDocument()
       val range = new TextRange(myCaretRangeMarker.getStartOffset, myCaretRangeMarker.getEndOffset)
-      val input = myCaretRangeMarker.getDocument.getText(range)
-      val numberOfSpaces = input.lastIndexOf(' ') + 1
-      val element = myFile.findElementAt(range.getStartOffset + numberOfSpaces)
-      val declaration = ScalaPsiUtil.getParentOfType(element, classOf[ScEnumerator], classOf[ScDeclaredElementsHolder])
-      val named: Option[ScNamedElement] = namedElement(declaration)
-      if (named.isDefined && range.contains(named.get.getNameIdentifier.getTextRange)) {
-        setDeclaration(declaration)
-        if (nameIsValid != (named.isDefined && isIdentifier(input, myFile.getLanguage) && named.get.name == input)) {
-          nameIsValid = !nameIsValid
+      if (range.getLength == 0 && UndoManager.getInstance(myProject).isUndoInProgress) {}
+      else {
+        val input = myCaretRangeMarker.getDocument.getText(range)
+        val numberOfSpaces = input.lastIndexOf(' ') + 1
+        val element = myFile.findElementAt(range.getStartOffset + numberOfSpaces)
+        val declaration = ScalaPsiUtil.getParentOfType(element, classOf[ScEnumerator], classOf[ScDeclaredElementsHolder])
+        val named: Option[ScNamedElement] = namedElement(declaration)
+        if (named.isDefined && range.contains(named.get.getNameIdentifier.getTextRange)) {
+          setDeclaration(declaration)
+          if (nameIsValid != (named.isDefined && isIdentifier(input, myFile.getLanguage) && named.get.name == input)) {
+            nameIsValid = !nameIsValid
+            resetBalloonPanel(nameIsValid)
+          }
+        } else {
+          nameIsValid = false
           resetBalloonPanel(nameIsValid)
         }
-      } else {
-        nameIsValid = false
-        resetBalloonPanel(nameIsValid)
       }
       super.documentChanged(e)
     }
@@ -265,10 +270,6 @@ class ScalaInplaceVariableIntroducer(project: Project,
 
   private def resetBalloonPanel(nameIsValid: Boolean): Unit = {
     if (myBalloon.isDisposed) return
-    if (getDeclaration == null) {
-      myBalloon.dispose()
-      return
-    }
     if (!nameIsValid) {
       myBalloonPanel add myLabelPanel
       myBalloonPanel remove myChbPanel
@@ -322,13 +323,14 @@ class ScalaInplaceVariableIntroducer(project: Project,
       def run(): Unit = {
         val popupFactory = JBPopupFactory.getInstance
         val bestLocation = popupFactory.guessBestPopupLocation(myEditor)
-        popupFactory.createHtmlTextBalloonBuilder(message, null, MessageType.WARNING.getPopupBackground, null).
-                setFadeoutTime(-1).setShowCallout(false).
-                createBalloon.show(bestLocation, Balloon.Position.below)
+        val screenPoint: Point = bestLocation.getScreenPoint
+        val y: Int = screenPoint.y - editor.getLineHeight * 2
+        val balloon: Balloon = popupFactory.createHtmlTextBalloonBuilder(message, null, MessageType.WARNING.getPopupBackground, null).
+                setFadeoutTime(-1).setShowCallout(false).createBalloon
+        balloon.show(new RelativePoint(new Point(screenPoint.x, y)), Balloon.Position.above)
       }
     }
   }
-
 
   override def getReferencesSearchScope(file: VirtualFile): SearchScope = {
    new LocalSearchScope(myElementToRename.getContainingFile)
