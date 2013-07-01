@@ -6,7 +6,7 @@ package introduceVariable
 
 import org.jetbrains.plugins.scala.util.ScalaUtils
 import com.intellij.openapi.editor.Editor
-import com.intellij.openapi.util.{Computable, TextRange, Pass}
+import com.intellij.openapi.util.{Key, Computable, TextRange, Pass}
 import com.intellij.openapi.command.CommandProcessor
 import com.intellij.openapi.wm.WindowManager
 import com.intellij.psi.{xml => _, _}
@@ -35,6 +35,7 @@ import refactoring.util.{ConflictsReporter, ScalaRefactoringUtil}
 import com.intellij.refactoring.introduce.inplace.OccurrencesChooser
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaVariableValidator
+import org.jetbrains.plugins.scala.lang.refactoring.introduceVariable.ScalaIntroduceVariableHandler.RevertInfo
 
 /**
  * User: Alexander Podkhalyuzin
@@ -186,6 +187,10 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Confli
     val container: PsiElement =
       ScalaPsiUtil.getParentOfType(commonParent, occurrences.length == 1, classOf[ScalaFile], classOf[ScBlock],
         classOf[ScTemplateBody], classOf[ScCaseClause], classOf[ScFunctionDefinition], classOf[ScFunctionExpr])
+
+    val revertInfo = RevertInfo(file.getText, editor.getCaretModel.getOffset)
+    editor.putUserData(ScalaIntroduceVariableHandler.REVERT_INFO, revertInfo)
+
     var needBraces = false
     var needBlockWithoutBraces = false
     var elseBranch = false
@@ -436,4 +441,9 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Confli
     conflictsDialog.show()
     conflictsDialog.isOK
   }
+}
+
+object ScalaIntroduceVariableHandler {
+  val REVERT_INFO: Key[RevertInfo] = new Key("RevertInfo")
+  case class RevertInfo(fileText: String, caretOffset: Int)
 }
