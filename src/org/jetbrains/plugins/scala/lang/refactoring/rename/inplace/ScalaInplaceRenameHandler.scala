@@ -66,7 +66,12 @@ class ScalaInplaceRenameHandler extends MemberInplaceRenameHandler{
         def run(): Unit = {
           list.getSelectedValue match {
             case s: String if s == renameClass =>
-              doDialogRename(clazz, editor.getProject, null, editor)
+              if (clazz.getContainingFile == elementToRename.getContainingFile) {
+                editor.getCaretModel.moveToOffset(clazz.getTextOffset)
+                doRename(clazz, editor, dataContext)
+              } else {
+                doDialogRename(clazz, editor.getProject, null, editor)
+              }
             case s: String if s == cancel =>
           }
         }
