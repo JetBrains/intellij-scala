@@ -20,7 +20,7 @@ import com.intellij.openapi.project.Project
  * Nikolay.Tropin
  * 6/20/13
  */
-class ScalaMemberInplaceRenameHandler extends MemberInplaceRenameHandler{
+class ScalaInplaceRenameHandler extends MemberInplaceRenameHandler{
 
   def renameProcessor(element: PsiElement): RenamePsiElementProcessor = {
     val processor = if (element != null && element.getLanguage.getID == "Scala") RenamePsiElementProcessor.forElement(element) else null
@@ -38,9 +38,9 @@ class ScalaMemberInplaceRenameHandler extends MemberInplaceRenameHandler{
     substituted match {
       case clazz: PsiClass =>
         val companion = ScalaPsiUtil.getBaseCompanionModule(clazz)
-        if (companion.isDefined) new ScalaMemberInplaceRenamer(clazz, companion.get, editor)
-        else new ScalaMemberInplaceRenamer(clazz, clazz, editor)
-      case subst: PsiNamedElement => new ScalaMemberInplaceRenamer(elementToRename, subst, editor)
+        if (companion.isDefined) new ScalaInplaceRenamer(clazz, companion.get, editor)
+        else new ScalaInplaceRenamer(clazz, clazz, editor)
+      case subst: PsiNamedElement => new ScalaInplaceRenamer(elementToRename, subst, editor)
       case _ => throw new IllegalArgumentException("Substituted element for renaming has no name")
     }
   }
@@ -93,4 +93,6 @@ class ScalaMemberInplaceRenameHandler extends MemberInplaceRenameHandler{
   protected def doDialogRename(element: PsiElement, project: Project, nameSuggestionContext: PsiElement, editor: Editor): Unit = {
     PsiElementRenameHandler.rename(element, project, nameSuggestionContext, editor)
   }
+
+
 }

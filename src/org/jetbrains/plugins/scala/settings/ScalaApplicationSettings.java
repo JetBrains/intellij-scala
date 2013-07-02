@@ -11,8 +11,6 @@ import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.util.xmlb.XmlSerializerUtil;
 
-import java.util.ArrayList;
-
 @State(
     name = "ScalaApplicationSettings",
     storages = {
@@ -31,6 +29,7 @@ public class ScalaApplicationSettings implements PersistentStateComponent<ScalaA
   public boolean ADD_UNAMBIGUOUS_IMPORTS_ON_THE_FLY = false;
   public boolean SHOW_IMPORT_POPUP = true;
   public int ADD_IMPORTS_ON_PASTE = CodeInsightSettings.ASK;
+  public boolean RENAME_SEARCH_IN_COMMENTS_AND_STRINGS = false;
 
   public ScalaApplicationSettings getState() {
     return this;

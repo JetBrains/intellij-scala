@@ -20,6 +20,7 @@ import com.intellij.refactoring.rename.RenameJavaMemberProcessor
 import com.intellij.psi.{PsiElement, PsiNamedElement}
 import org.jetbrains.plugins.scala.lang.psi.light.PsiTypedDefinitionWrapper.DefinitionRole._
 import psi.api.toplevel.typedef.ScMember
+import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 
 /**
  * User: Alexander Podkhalyuzin
@@ -91,5 +92,13 @@ class RenameScalaValsProcessor extends RenameJavaMemberProcessor {
       case method: FakePsiMethod => method.navElement
       case _ => element
     }
+  }
+
+  override def setToSearchInComments(element: PsiElement, enabled: Boolean) {
+    ScalaApplicationSettings.getInstance().RENAME_SEARCH_IN_COMMENTS_AND_STRINGS = enabled
+  }
+
+  override def isToSearchInComments(psiElement: PsiElement): Boolean = {
+    ScalaApplicationSettings.getInstance().RENAME_SEARCH_IN_COMMENTS_AND_STRINGS
   }
 }
