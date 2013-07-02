@@ -29,8 +29,8 @@ class ScInterpolatedStringLiteralImpl(node: ASTNode) extends ScLiteralImpl(node)
   }
 
   protected override def innerType(ctx: TypingContext): TypeResult[ScType] = {
-    reference.map(_.resolve()) match {
-      case Some(f: ScFunctionDefinition) => f.returnType
+    getStringContextExpression match {
+      case Some(expr) => expr.getNonValueType(ctx)
       case _ => Failure(s"Cannot find method ${getFirstChild.getText} of String Context", Some(this))
     }
   }
