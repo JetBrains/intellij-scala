@@ -16,13 +16,15 @@ import com.intellij.ide.startup.impl.StartupManagerImpl
 import com.intellij.openapi.startup.StartupManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.module.Module
+import com.intellij.openapi.projectRoots.Sdk
 
 /**
  * Nikolay.Tropin
  * 5/29/13
  */
 class ScalaLibraryLoader(project: Project, module: Module, rootPath: String,
-                         isIncludeScalazLibrary: Boolean = false, isIncludeReflectLibrary: Boolean = false) {
+                         isIncludeScalazLibrary: Boolean = false, isIncludeReflectLibrary: Boolean = false,
+                         javaSdk: Option[Sdk] = None) {
 
   var contentEntry: ContentEntry = null
 
@@ -56,6 +58,12 @@ class ScalaLibraryLoader(project: Project, module: Module, rootPath: String,
     if (isIncludeScalazLibrary) {
       rootModel = addLibrary(libVersion, rootModel, rootManager, libs, libModels, "scalaz",
         TestUtils.getMockScalazLib(libVersion), null)
+    }
+
+    javaSdk.foreach {
+      case sdk: Sdk =>
+        if (rootModel == null) rootModel = rootManager.getModifiableModel
+        rootModel.setSdk(sdk)
     }
 
     if (!libModels.isEmpty || rootModel != null) {
@@ -139,4 +147,8 @@ class ScalaLibraryLoader(project: Project, module: Module, rootPath: String,
   }
 
 
+}
+
+object ScalaLibraryLoader {
+  def getSdkNone: Option[Sdk] = None
 }
