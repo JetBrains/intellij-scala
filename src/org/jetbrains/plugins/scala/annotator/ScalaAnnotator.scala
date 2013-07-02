@@ -531,14 +531,17 @@ with DumbAware {
       }
     } else {
       AnnotatorHighlighter.highlightReferenceElement(refElement, holder)
+      def showError(): Unit = {
+        val error = ScalaBundle.message("forward.reference.detected")
+        val annotation = holder.createErrorAnnotation(refElement.nameId, error)
+        annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
+      }
       resolve(0) match {
         case r: ScalaResolveResult if r.isForwardReference =>
           ScalaPsiUtil.nameContext(r.getActualElement) match {
-            case _: ScValue | _: ScVariable | _: ScObject =>
-              val error = ScalaBundle.message("forward.reference.detected")
-              val annotation = holder.createErrorAnnotation(refElement.nameId, error)
-              annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
-            case _ => //todo: check forward references for functions, classes
+            case v: ScValue if !v.hasModifierProperty("lazy") => showError()
+            case _: ScVariable | _: ScObject => showError()
+            case _ => //todo: check forward references for functions, classes, lazy values
           }
         case _ =>
       }
