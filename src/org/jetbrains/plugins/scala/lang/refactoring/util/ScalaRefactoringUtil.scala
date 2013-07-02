@@ -517,7 +517,9 @@ object ScalaRefactoringUtil {
   }
 
   def enclosingContainer(file: PsiFile, textRanges: TextRange*): PsiElement = {
-    Option(commonParent(file, textRanges: _*)).flatMap(_.firstChild).flatMap(_.scopes.toStream.headOption).orNull
+    Option(commonParent(file, textRanges: _*))
+            .map(elem => elem.firstChild.getOrElse(elem)) //to make enclosing container non-strict
+            .flatMap(_.scopes.toStream.headOption).orNull
   }
 
   def availableImportAliases(position: PsiElement): Set[(ScReferenceElement, String)] = {
