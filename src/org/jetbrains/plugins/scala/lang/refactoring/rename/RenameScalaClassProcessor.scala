@@ -14,6 +14,7 @@ import com.intellij.psi.PsiElement
 import scala.Some
 import annotation.tailrec
 import java.util
+import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 
 /**
  * User: Alexander Podkhalyuzin
@@ -96,5 +97,13 @@ class RenameScalaClassProcessor extends RenameJavaClassProcessor {
       }
       case _ => element
     }
+  }
+
+  override def setToSearchInComments(element: PsiElement, enabled: Boolean) {
+    ScalaApplicationSettings.getInstance().RENAME_SEARCH_IN_COMMENTS_AND_STRINGS = enabled
+  }
+
+  override def isToSearchInComments(psiElement: PsiElement): Boolean = {
+    ScalaApplicationSettings.getInstance().RENAME_SEARCH_IN_COMMENTS_AND_STRINGS
   }
 }

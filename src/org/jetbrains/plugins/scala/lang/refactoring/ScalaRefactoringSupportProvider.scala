@@ -13,7 +13,8 @@ import psi.api.toplevel.typedef.ScTypeDefinition
 import psi.api.base.patterns.ScReferencePattern
 import psi.api.statements._
 import psi.api.base.ScFieldId
-import org.jetbrains.plugins.scala.lang.refactoring.rename.inplace.ScalaInplaceVariableRenamer
+import org.jetbrains.plugins.scala.lang.refactoring.rename.inplace.ScalaInplaceRenameUtil
+import org.jetbrains.plugins.scala.lang.refactoring.introduceField.ScalaIntroduceFieldHandler
 
 /**
  * User: Alexander Podkhalyuzin
@@ -22,14 +23,14 @@ import org.jetbrains.plugins.scala.lang.refactoring.rename.inplace.ScalaInplaceV
 
 class ScalaRefactoringSupportProvider extends RefactoringSupportProvider {
   override def isInplaceRenameAvailable(element: PsiElement, context: PsiElement) = {
-    ScalaInplaceVariableRenamer.myRenameInPlace(element, context)
+    ScalaInplaceRenameUtil.myRenameInPlace(element, context)
   }
 
   override def getIntroduceConstantHandler: RefactoringActionHandler = null
 
   override def getIntroduceVariableHandler: RefactoringActionHandler = new ScalaIntroduceVariableHandler
 
-  override def getIntroduceFieldHandler: RefactoringActionHandler = null
+  override def getIntroduceFieldHandler: RefactoringActionHandler = new ScalaIntroduceFieldHandler
 
   override def getIntroduceParameterHandler: RefactoringActionHandler = new ScalaIntroduceParameterHandler
 

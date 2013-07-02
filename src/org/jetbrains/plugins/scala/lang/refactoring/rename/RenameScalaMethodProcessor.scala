@@ -23,6 +23,7 @@ import java.util
 import com.intellij.openapi.util.Pass
 import com.intellij.ide.util.SuperMethodWarningUtil
 import com.intellij.psi.search.PsiElementProcessor
+import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 
 /**
  * User: Alexander Podkhalyuzin
@@ -62,7 +63,7 @@ class RenameScalaMethodProcessor extends RenameJavaMethodProcessor {
     }
     if (!buff.isEmpty) {
       val dialog = new WarningDialog(function.getProject,
-        "Function has getters or setters with same name. Rename them as well?")
+        ScalaBundle.message("rename.getters.and.setters.title"))
       dialog.show()
 
       if (dialog.getExitCode == DialogWrapper.OK_EXIT_CODE) {
@@ -128,5 +129,13 @@ class RenameScalaMethodProcessor extends RenameJavaMethodProcessor {
   }
 
   def capitalize(text: String): String = Character.toUpperCase(text.charAt(0)) + text.substring(1)
+
+  override def setToSearchInComments(element: PsiElement, enabled: Boolean) {
+    ScalaApplicationSettings.getInstance().RENAME_SEARCH_IN_COMMENTS_AND_STRINGS = enabled
+  }
+
+  override def isToSearchInComments(psiElement: PsiElement): Boolean = {
+    ScalaApplicationSettings.getInstance().RENAME_SEARCH_IN_COMMENTS_AND_STRINGS
+  }
 }
 

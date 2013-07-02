@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala
 package lang.refactoring.rename.inplace
 
 import com.intellij.refactoring.rename.inplace.MemberInplaceRenamer
-import com.intellij.psi.{PsiClass, PsiReference, PsiElement, PsiNamedElement}
+import com.intellij.psi._
 import com.intellij.openapi.editor.Editor
 import com.intellij.refactoring.RefactoringBundle
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
@@ -10,12 +10,16 @@ import com.intellij.psi.search.SearchScope
 import java.util
 import com.intellij.refactoring.rename.RenamePsiElementProcessor
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import com.intellij.openapi.util.{TextRange, Pair}
+import scala.Some
+import com.intellij.refactoring.util.TextOccurrencesUtil
+import com.intellij.util.PairProcessor
 
 /**
  * Nikolay.Tropin
  * 6/20/13
  */
-class ScalaMemberInplaceRenamer(elementToRename: PsiNamedElement,
+class ScalaInplaceRenamer(elementToRename: PsiNamedElement,
                                 substituted: PsiNamedElement,
                                 editor: Editor,
                                 initialName: String,
@@ -38,6 +42,24 @@ class ScalaMemberInplaceRenamer(elementToRename: PsiNamedElement,
   protected override def getCommandName: String = {
     if (myInitialName != null) RefactoringBundle.message("renaming.command.name", myInitialName)
     else "Rename"
+  }
+
+
+  override def collectAdditionalElementsToRename(stringUsages: util.List[Pair[PsiElement, TextRange]]) {
+    if (ScalaInplaceRenameUtil.isLocallyDefined(elementToRename)) {
+      val stringToSearch: String = ScalaNamesUtil.scalaName(elementToRename)
+      val currentFile: PsiFile = PsiDocumentManager.getInstance(myProject).getPsiFile(myEditor.getDocument)
+      if (stringToSearch != null) {
+        TextOccurrencesUtil.processUsagesInStringsAndComments(elementToRename, stringToSearch, true, new PairProcessor[PsiElement, TextRange] {
+          def process(psiElement: PsiElement, textRange: TextRange): Boolean = {
+            if (psiElement.getContainingFile == currentFile) {
+              stringUsages.add(Pair.create(psiElement, textRange))
+            }
+            true
+          }
+        })
+      }
+    } else stringUsages.clear()
   }
 
   override def collectRefs(referencesSearchScope: SearchScope): util.Collection[PsiReference] = {
@@ -64,5 +86,16 @@ class ScalaMemberInplaceRenamer(elementToRename: PsiNamedElement,
     }
     val processor: RenamePsiElementProcessor = RenamePsiElementProcessor.forElement(element)
     processor.findReferences(element).asScala.filter(isSameFile).toSet
+  }
+
+  override def revertStateOnFinish() {
+    if (ScalaInplaceRenameUtil.isLocallyDefined(elementToRename)) {
+      if (myInsertedName == null || !isIdentifier(myInsertedName, elementToRename.getLanguage)) {
+        revertState()
+      }
+    }
+    else {
+      super.revertStateOnFinish()
+    }
   }
 }
