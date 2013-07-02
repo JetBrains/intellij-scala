@@ -32,6 +32,7 @@ import com.intellij.openapi.roots.{ModuleRootEvent, ModuleRootListener}
 import ParameterlessNodes.{Map => PMap}, TypeNodes.{Map => TMap}, SignatureNodes.{Map => SMap}
 import psi.stubs.util.ScalaStubsUtil
 import java.util
+import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
 class ScalaPsiManager(project: Project) extends ProjectComponent {
   private val implicitObjectMap: ConcurrentMap[String, SoftReference[java.util.Map[GlobalSearchScope, Seq[ScObject]]]] =
@@ -81,6 +82,7 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
   }
 
   def getTypes(tp: ScCompoundType, compoundTypeThisType: Option[ScType]): TMap = {
+    if (ScalaProjectSettings.getInstance(project).isDontCacheCompoundTypes) return TypeNodes.build(tp, compoundTypeThisType)
     val ref = compoundTypesTypeNodes.get(tp, compoundTypeThisType)
     var result: TMap = if (ref == null) null else ref.get()
     if (result == null) {
@@ -91,6 +93,7 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
   }
 
   def getSignatures(tp: ScCompoundType, compoundTypeThisType: Option[ScType]): SMap = {
+    if (ScalaProjectSettings.getInstance(project).isDontCacheCompoundTypes) return SignatureNodes.build(tp, compoundTypeThisType)
     val ref = compoundTypesSignatureNodes.get(tp, compoundTypeThisType)
     var result: SMap = if (ref == null) null else ref.get()
     if (result == null) {

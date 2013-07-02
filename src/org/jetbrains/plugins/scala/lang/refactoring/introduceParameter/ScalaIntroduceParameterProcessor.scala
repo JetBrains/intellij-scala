@@ -35,8 +35,8 @@ class ScalaIntroduceParameterProcessor(project: Project, editor: Editor, methodT
     val clauses = function.paramClauses.clauses
     if (clauses.length == 0) (false, false, 0)
     else {
-      val hasDef = clauses.apply(0).parameters.find(p => p.isDefaultParam) != None
-      val hasRep = clauses.apply(0).parameters.find(p => p.isRepeatedParameter) != None
+      val hasDef = clauses.apply(0).parameters.exists(p => p.isDefaultParam)
+      val hasRep = clauses.apply(0).parameters.exists(p => p.isRepeatedParameter)
       val num = clauses.apply(0).parameters.length - (if (hasRep) 1 else 0)
       (hasDef, hasRep, num)
     }
@@ -51,28 +51,28 @@ class ScalaIntroduceParameterProcessor(project: Project, editor: Editor, methodT
       if (element.getTextRange.equals(range) && element.isInstanceOf[ScExpression]) return element
       element = element.getParent
     }
-    return file
+    file
   }
 
-  private def changeMethodSignatureAndResolveFieldConflicts(usage: UsageInfo, usages: Array[UsageInfo]): Unit = {
+  private def changeMethodSignatureAndResolveFieldConflicts(usage: UsageInfo, usages: Array[UsageInfo]) {
     for (processor <- IntroduceParameterMethodUsagesProcessor.EP_NAME.getExtensions) {
       if (!processor.processChangeMethodSignature(this, usage, usages)) return
     }
   }
 
-  private def changeExternalUsage(usage: UsageInfo, usages: Array[UsageInfo]): Unit = {
+  private def changeExternalUsage(usage: UsageInfo, usages: Array[UsageInfo]) {
     for (processor <- IntroduceParameterMethodUsagesProcessor.EP_NAME.getExtensions) {
       if (!processor.processChangeMethodUsage(this, usage, usages)) return
     }
   }
 
-  private def addDefaultConstructor(usage: UsageInfo, usages: Array[UsageInfo]): Unit = {
+  private def addDefaultConstructor(usage: UsageInfo, usages: Array[UsageInfo]) {
     for (processor <- IntroduceParameterMethodUsagesProcessor.EP_NAME.getExtensions) {
       if (!processor.processAddDefaultConstructor(this, usage, usages)) return
     }
   }
 
-  private def addSuperCall(usage: UsageInfo, usages: Array[UsageInfo]): Unit = {
+  private def addSuperCall(usage: UsageInfo, usages: Array[UsageInfo]) {
     for (processor <- IntroduceParameterMethodUsagesProcessor.EP_NAME.getExtensions) {
       if (!processor.processAddSuperCall(this, usage, usages)) return
     }
@@ -87,7 +87,7 @@ class ScalaIntroduceParameterProcessor(project: Project, editor: Editor, methodT
 
   def getCommandName: String = "Introduce Parameter"
 
-  def performRefactoring(usages: Array[UsageInfo]): Unit = {
+  def performRefactoring(usages: Array[UsageInfo]) {
     val sortedUsages = Arrays.copyOf(usages, usages.length)
     Arrays.sort(sortedUsages, new Comparator[UsageInfo] {
       def compare(o1: UsageInfo, o2: UsageInfo): Int =
@@ -114,7 +114,7 @@ class ScalaIntroduceParameterProcessor(project: Project, editor: Editor, methodT
           element match {
             case expr: ScExpression =>
               val refExpr = ScalaPsiElementFactory.createExpressionFromText(paramName, element.getManager)
-              expr.replaceExpression(refExpr, true)
+              expr.replaceExpression(refExpr, removeParenthesis = true)
             case _ =>
               PsiDocumentManager.getInstance(project).doPostponedOperationsAndUnblockDocument(document)
               document.replaceString(range.getStartOffset, range.getEndOffset, paramName)
@@ -162,7 +162,7 @@ class ScalaIntroduceParameterProcessor(project: Project, editor: Editor, methodT
       }
     }
     val usageInfos: Array[UsageInfo] = result.toArray
-    return UsageViewUtil.removeDuplicatedUsages(usageInfos)
+    UsageViewUtil.removeDuplicatedUsages(usageInfos)
   }
 
   def createUsageViewDescriptor(usages: Array[UsageInfo]): UsageViewDescriptor = {

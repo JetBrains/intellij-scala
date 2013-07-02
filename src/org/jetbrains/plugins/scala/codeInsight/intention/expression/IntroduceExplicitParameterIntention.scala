@@ -112,10 +112,11 @@ class IntroduceExplicitParameterIntention extends PsiElementBaseIntentionAction 
       usedNames.add(un)
       buf.append(un)
 
-      if (u.getParent.isInstanceOf[ScTypedStmt]) {
-        needBraces = true
-        val typedStmt = u.getParent.asInstanceOf[ScTypedStmt]
-        buf.append(": ").append(typedStmt.getType(TypingContext.empty).get.canonicalText)
+      u.getParent match {
+        case typedStmt: ScTypedStmt =>
+          needBraces = true
+          buf.append(": ").append(typedStmt.getType(TypingContext.empty).get.canonicalText)
+        case _ =>
       }
 
       val newParam = ScalaPsiElementFactory.createParameterFromText(un, element.getManager)

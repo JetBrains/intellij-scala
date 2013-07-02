@@ -13,4 +13,6 @@ class TypeInferenceScalaReflectTest extends TypeInferenceTestBase {
   protected override def isIncludeReflectLibrary: Boolean = true
 
   def testSCL4662() {doTest()}
+
+  def testSCL5790() {doTest()}
 }

@@ -60,7 +60,7 @@ abstract class CreateEntityQuickFix(ref: ScReferenceExpression,
   def invoke(project: Project, editor: Editor, file: PsiFile) {
     PsiDocumentManager.getInstance(project).commitAllDocuments()
     if (!ref.isValid) return
-    val isScalaConsole = (file.getName == ScalaLanguageConsoleView.SCALA_CONSOLE)
+    val isScalaConsole = file.getName == ScalaLanguageConsoleView.SCALA_CONSOLE
 
     IdeDocumentHistory.getInstance(project).includeCurrentPlaceAsChangePlace()
 
@@ -71,8 +71,8 @@ abstract class CreateEntityQuickFix(ref: ScReferenceExpression,
     val text = placeholder.format(keyword, ref.nameId.getText, parameters.mkString)
 
     val block = ref match {
-      case it if it.isQualified => Some(ref.qualifier.flatMap(blockFor).get)
-      case Parent(infix: ScInfixExpr) => Some(blockFor(infix.getBaseExpr).get)
+      case it if it.isQualified => ref.qualifier.flatMap(blockFor)
+      case Parent(infix: ScInfixExpr) => blockFor(infix.getBaseExpr)
       case _ => None
     }
 
@@ -164,7 +164,7 @@ abstract class CreateEntityQuickFix(ref: ScReferenceExpression,
 
   private def anchorForUnqualified(ref: ScReferenceExpression): Option[PsiElement] = {
     val parents = ref.parents.toList
-    val anchors = (ref :: parents)
+    val anchors = ref :: parents
 
     val place = parents.zip(anchors).find {
       case (_ : ScTemplateBody, _) => true

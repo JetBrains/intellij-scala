@@ -7,6 +7,7 @@ import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.fileTypes.StdFileTypes
 import com.intellij.openapi.module.Module
+import org.jetbrains.plugins.scala.util.ScalaLanguageDerivative
 
 /**
  * User: Alexander Podkhalyuzin
@@ -30,8 +31,8 @@ class ScalaSourceFilterScope(myDelegate: GlobalSearchScope, project: Project) ex
   def contains(file: VirtualFile): Boolean = {
     val extention = file.getExtension
     (null == myDelegate || myDelegate.contains(file)) && (
-      ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension == extention &&
-        myIndex.isInSourceContent(file) ||
+      (ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension == extention || 
+        ScalaLanguageDerivative.hasDerivativeForFileType(file.getFileType)) && myIndex.isInSourceContent(file) ||
         StdFileTypes.CLASS.getDefaultExtension == extention && myIndex.isInLibraryClasses(file))
   }
 }

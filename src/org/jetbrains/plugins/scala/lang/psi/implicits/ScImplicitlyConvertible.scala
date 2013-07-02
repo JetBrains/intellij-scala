@@ -17,7 +17,7 @@ import api.statements._
 import api.toplevel.{ScModifierListOwner, ScTypedDefinition}
 import api.toplevel.typedef._
 import nonvalue.Parameter
-import params.{ScClassParameter, ScParameter, ScTypeParam}
+import params.{ScClassParameter, ScParameter}
 import api.toplevel.templates.{ScExtendsBlock, ScTemplateBody}
 import lang.resolve.{ResolveUtils, StdKinds, ScalaResolveResult}
 import psi.impl.ScalaPsiManager
@@ -26,19 +26,33 @@ import result.TypingContext
 import lang.resolve.processor.{BaseProcessor, ImplicitProcessor}
 import extensions.toObjectExt
 import api.InferUtil
-import psi.ScalaPsiUtil.SafeCheckException
 import languageLevel.ScalaLanguageLevel
 import types.Compatibility.Expression
 import com.intellij.openapi.diagnostic.Logger
 
 /**
- * @author ilyas
- *
- * Mix-in implementing functionality to collect [and possibly apply] implicit conversions
+ * Utility class for implicit conversions.
+ * @author alefas, ilyas
  */
 //todo: refactor this terrible code
-trait ScImplicitlyConvertible extends ScalaPsiElement {
-  self: ScExpression =>
+class ScImplicitlyConvertible(place: PsiElement, placeType: Boolean => Option[ScType]) {
+  def this(expr: ScExpression) {
+    this(expr, fromUnder => {
+      //this code is required, because compiler works in the same way
+      //otherwise we will see strange error messages like:
+      // def foo(x: Map[String, Int]) {}
+      // def foo(x: String) {}
+      // foo(Map(y -> 1)) //Error is here
+      expr.getTypeWithoutImplicits(TypingContext.empty, fromUnderscore = fromUnder).toOption.map {
+        case tp =>
+          ScType.extractDesignatorSingletonType(tp) match {
+            case Some(res) => res
+            case _ => tp
+          }
+      }
+    })
+  }
+
   import ScImplicitlyConvertible._
 
   def implicitMap(exp: Option[ScType] = None,
@@ -68,8 +82,8 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
     type Data = (Option[ScType], Boolean, Option[ScType])
     val data = (exp, fromUnder, exprType)
 
-    CachesUtil.getMappedWithRecursionPreventingWithRollback(this, data, CachesUtil.IMPLICIT_MAP1_KEY,
-      (expr: ScExpression, data: Data) => buildImplicitMap(data._1, data._2, isFromCompanion = false, Seq.empty, data._3), Seq.empty,
+    CachesUtil.getMappedWithRecursionPreventingWithRollback(place, data, CachesUtil.IMPLICIT_MAP1_KEY,
+      (expr: PsiElement, data: Data) => buildImplicitMap(data._1, data._2, isFromCompanion = false, Seq.empty, data._3), Seq.empty,
       PsiModificationTracker.MODIFICATION_COUNT)
   }
 
@@ -80,8 +94,8 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
     type Data = (Option[ScType], Boolean, Seq[ScType], Option[ScType])
     val data = (exp, fromUnder, args, exprType)
 
-    CachesUtil.getMappedWithRecursionPreventingWithRollback(this, data, CachesUtil.IMPLICIT_MAP2_KEY,
-      (expr: ScExpression, data: Data) => buildImplicitMap(data._1, data._2, isFromCompanion = true, data._3, data._4), Seq.empty,
+    CachesUtil.getMappedWithRecursionPreventingWithRollback(place, data, CachesUtil.IMPLICIT_MAP2_KEY,
+      (expr: PsiElement, data: Data) => buildImplicitMap(data._1, data._2, isFromCompanion = true, data._3, data._4), Seq.empty,
       PsiModificationTracker.MODIFICATION_COUNT)
   }
 
@@ -90,9 +104,7 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
                                isFromCompanion: Boolean,
                                args: Seq[ScType] = Seq.empty,
                                exprType: Option[ScType] = None): Seq[ImplicitResolveResult] = {
-    val typez: ScType = exprType.getOrElse(
-      getTypeWithoutImplicits(TypingContext.empty, fromUnderscore = fromUnder).getOrElse(return Seq.empty)
-    )
+    val typez: ScType = exprType.getOrElse(placeType(fromUnder).getOrElse(return Seq.empty))
 
     val buffer = new ArrayBuffer[ImplicitMapResult]
     if (!isFromCompanion) {
@@ -102,12 +114,12 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
       val processor = new CollectImplicitsProcessor(true)
       val expandedType: ScType = exp match {
         case Some(expected) =>
-          new ScFunctionType(expected, Seq(typez) ++ args)(getProject, getResolveScope)
-        case None if !args.isEmpty => ScTupleType(Seq(typez) ++ args)(getProject, getResolveScope)
+          new ScFunctionType(expected, Seq(typez) ++ args)(place.getProject, place.getResolveScope)
+        case None if !args.isEmpty => ScTupleType(Seq(typez) ++ args)(place.getProject, place.getResolveScope)
         case None => typez
       }
-      for (obj <- ScalaPsiUtil.collectImplicitObjects(expandedType, this)) {
-        processor.processType(obj, this, ResolveState.initial())
+      for (obj <- ScalaPsiUtil.collectImplicitObjects(expandedType, place)) {
+        processor.processType(obj, place, ResolveState.initial())
       }
       for (res <- processor.candidatesS.map(forMap(_, typez)) if res.condition) {
         buffer += res
@@ -149,15 +161,15 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
   private def buildSimpleImplicitMap(fromUnder: Boolean): ArrayBuffer[ImplicitMapResult] = {
     if (fromUnder) return buildSimpleImplicitMapInner(fromUnder)
     import org.jetbrains.plugins.scala.caches.CachesUtil._
-    get(this, IMPLICIT_SIMPLE_MAP_KEY,
+    get(place, IMPLICIT_SIMPLE_MAP_KEY,
       new MyProvider[ScImplicitlyConvertible, ArrayBuffer[ImplicitMapResult]](this, impl => {
         impl.buildSimpleImplicitMapInner(fromUnder /* false */)
       })(PsiModificationTracker.MODIFICATION_COUNT))
   }
 
   private def buildSimpleImplicitMapInner(fromUnder: Boolean): ArrayBuffer[ImplicitMapResult] = {
-    val typez: ScType = getTypeWithoutImplicits(TypingContext.empty, fromUnderscore = fromUnder).getOrElse(null)
-    if (typez == null) return ArrayBuffer.empty
+    val typez: ScType = placeType(fromUnder).getOrElse(return ArrayBuffer.empty)
+
     val processor = new CollectImplicitsProcessor(false)
 
     // Collect implicit conversions from bottom to up
@@ -165,14 +177,14 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
       if (place == null) return
       if (!place.processDeclarations(processor,
         ResolveState.initial,
-        lastParent, this)) return
+        lastParent, place)) return
       place match {
         case (_: ScTemplateBody | _: ScExtendsBlock) => //template body and inherited members are at the same level
         case _ => if (!processor.changedLevel) return
       }
       treeWalkUp(place.getContext, place)
     }
-    treeWalkUp(this, null)
+    treeWalkUp(place, null)
 
     val result = new ArrayBuffer[ImplicitMapResult]
     if (typez == types.Nothing) return result
@@ -190,11 +202,11 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
 
   def forMap(r: ScalaResolveResult, typez: ScType): ImplicitMapResult = {
     val default = ImplicitMapResult(condition = false, r, null, null, null, null, null)
-    if (!PsiTreeUtil.isContextAncestor(ScalaPsiUtil.nameContext(r.element), this, false)) { //to prevent infinite recursion
+    if (!PsiTreeUtil.isContextAncestor(ScalaPsiUtil.nameContext(r.element), place, false)) { //to prevent infinite recursion
       ProgressManager.checkCanceled()
       lazy val funType: ScParameterizedType = {
         val fun = "scala.Function1"
-        val funClass = ScalaPsiManager.instance(getProject).getCachedClass(fun, this.getResolveScope, ScalaPsiManager.ClassCategory.TYPE)
+        val funClass = ScalaPsiManager.instance(place.getProject).getCachedClass(fun, place.getResolveScope, ScalaPsiManager.ClassCategory.TYPE)
         funClass match {
           case cl: ScTrait => new ScParameterizedType(ScType.designator(funClass), cl.typeParameters.map(tp =>
             new ScUndefinedType(new ScTypeParameterType(tp, ScSubstitutor.empty), 1)))
@@ -288,7 +300,7 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
                     //todo: currently it looks like a hack in the right place, probably whole this class should be
                     //todo: rewritten in more clean and clear way.
                     val dependentSubst = new ScSubstitutor(() => {
-                      val level = ScalaLanguageLevel.getLanguageLevel(this)
+                      val level = ScalaLanguageLevel.getLanguageLevel(place)
                       if (level.isThoughScala2_10) {
                         f.paramClauses.clauses.headOption.map(_.parameters).toSeq.flatten.map {
                           case (param: ScParameter) => (new Parameter(param), typez)
@@ -311,11 +323,11 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
                     }
 
                     val implicitDependentSubst = new ScSubstitutor(() => {
-                      val level = ScalaLanguageLevel.getLanguageLevel(this)
+                      val level = ScalaLanguageLevel.getLanguageLevel(place)
                       if (level.isThoughScala2_10) {
                         if (probablyHasDepententMethodTypes) {
                           val (inferredParams, expr, _) = InferUtil.findImplicits(f.paramClauses.clauses.last.parameters.map(
-                            param => new Parameter(param)), this, check = false, abstractSubstitutor = subst followed dependentSubst followed unSubst)
+                            param => new Parameter(param)), place, check = false, abstractSubstitutor = subst followed dependentSubst followed unSubst)
                           inferredParams.zip(expr).map {
                             case (param: Parameter, expr: Expression) =>
                               (param, expr.getTypeAfterImplicitConversion(checkImplicits = true, isShape = false, None)._1.get)
@@ -344,7 +356,7 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
   class CollectImplicitsProcessor(withoutPrecedence: Boolean) extends ImplicitProcessor(StdKinds.refExprLastRef, withoutPrecedence) {
     //can be null (in Unit tests or without library)
     private val funType: ScParameterizedType = {
-      val funClass: PsiClass = ScalaPsiManager.instance(getProject).getCachedClass(getResolveScope, "scala.Function1")
+      val funClass: PsiClass = ScalaPsiManager.instance(place.getProject).getCachedClass(place.getResolveScope, "scala.Function1")
       funClass match {
         case cl: ScTrait => new ScParameterizedType(ScType.designator(funClass), cl.typeParameters.map(tp =>
           new ScUndefinedType(new ScTypeParameterType(tp, ScSubstitutor.empty))))
@@ -352,7 +364,7 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
       }
     }
 
-    protected def getPlace: PsiElement = ScImplicitlyConvertible.this
+    protected def getPlace: PsiElement = place
 
     def execute(element: PsiElement, state: ResolveState): Boolean = {
       def fromType: Option[ScType] = state.get(BaseProcessor.FROM_TYPE_KEY).toOption
@@ -365,7 +377,7 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
         case named: PsiNamedElement if kindMatches(element) => named match {
           //there is special case for Predef.conforms method
           case f: ScFunction if f.hasModifierProperty("implicit") && !isConformsMethod(f) => {
-            if (!ScImplicitlyConvertible.checkFucntionIsEligible(f, ScImplicitlyConvertible.this) ||
+            if (!ScImplicitlyConvertible.checkFucntionIsEligible(f, place) ||
               !ResolveUtils.isAccessible(f, getPlace)) return true
             val clauses = f.paramClauses.clauses
             //filtered cases

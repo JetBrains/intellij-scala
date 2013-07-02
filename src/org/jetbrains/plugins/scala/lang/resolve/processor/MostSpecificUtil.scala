@@ -18,6 +18,9 @@ import psi.api.statements._
 import psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.extensions.toPsiMemberExt
 import org.jetbrains.plugins.scala.lang.psi.implicits.ScImplicitlyConvertible.ImplicitResolveResult
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameterClause
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 
 /**
  * User: Alexander Podkhalyuzin
@@ -41,12 +44,14 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
   def mostSpecificForImplicit(applicable: Set[ImplicitResolveResult]): Option[ImplicitResolveResult] = {
     mostSpecificGeneric(applicable.map(r => {
       var callByName = false
+      def checkCallByName(clauses: Seq[ScParameterClause]): Unit = {
+        if (clauses.length > 0 && clauses(0).parameters.length == 1 && clauses(0).parameters(0).isCallByNameParameter) {
+          callByName = true
+        }
+      }
       r.element match {
-        case f: ScFunction =>
-          val clauses = f.paramClauses.clauses
-          if (clauses.length > 0 && clauses(0).parameters.length == 1 && clauses(0).parameters(0).isCallByNameParameter) {
-            callByName = true
-          }
+        case f: ScFunction => checkCallByName(f.paramClauses.clauses)
+        case f: ScPrimaryConstructor => checkCallByName(f.effectiveParameterClauses)
         case _ =>
       }
       new InnerScalaResolveResult(r.element, None, r, r.implicitDependentSubst followed r.subst, callByName)
@@ -93,8 +98,9 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
         }
         var params1 = calcParams(t1, existential = true)
         val params2 = calcParams(t2, existential = false)
-        if (((t1.isInstanceOf[ScTypePolymorphicType] && t2.isInstanceOf[ScTypePolymorphicType]) ||
-          (!(m1.isInstanceOf[ScFunction] || m1.isInstanceOf[ScFun]) || !(m2.isInstanceOf[ScFunction] || m2.isInstanceOf[ScFun]))) &&
+        if ((t1.isInstanceOf[ScTypePolymorphicType] && t2.isInstanceOf[ScTypePolymorphicType] ||
+          (!(m1.isInstanceOf[ScFunction] || m1.isInstanceOf[ScFun] || m1.isInstanceOf[ScPrimaryConstructor]) ||
+                  !(m2.isInstanceOf[ScFunction] || m2.isInstanceOf[ScFun] || m2.isInstanceOf[ScPrimaryConstructor]))) &&
           (lastRepeated(params1) ^ lastRepeated(params2))) return lastRepeated(params2) //todo: this is hack!!! see SCL-3846, SCL-4048
         if (lastRepeated(params1) && !lastRepeated(params2)) params1 = params1.map {
           case p: Parameter if p.isRepeated =>
@@ -234,7 +240,15 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
   //todo: implement existential dual
   def getType(e: PsiNamedElement): ScType = e match {
     case fun: ScFun => fun.polymorphicType
+    case f: ScFunction if f.isConstructor =>
+      f.containingClass match {
+        case td: ScTypeDefinition if td.hasTypeParameters =>
+          ScTypePolymorphicType(f.methodType, td.typeParameters.map(tp =>
+            TypeParameter(tp.name, tp.lowerBound.getOrNothing, tp.upperBound.getOrAny, tp)))
+        case _ => f.polymorphicType
+      }
     case f: ScFunction => f.polymorphicType
+    case p: ScPrimaryConstructor => p.polymorphicType
     case m: PsiMethod => ResolveUtils.javaPolymorphicType(m, ScSubstitutor.empty, elem.getResolveScope)
     case refPatt: ScReferencePattern => refPatt.getParent /*id list*/ .getParent match {
       case pd: ScPatternDefinition if (PsiTreeUtil.isContextAncestor(pd, elem, true)) =>

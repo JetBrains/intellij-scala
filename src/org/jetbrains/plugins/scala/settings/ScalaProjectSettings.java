@@ -48,6 +48,7 @@ public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProj
   private boolean TREAT_DOC_COMMENT_AS_BLOCK_COMMENT = false;
   private boolean DISABLE_LANGUAGE_INJECTION = false;
   private boolean DISABLE_I18N = false;
+  private boolean DONT_CACHE_COMPOUND_TYPES = false;
 
   private boolean SCALA_CLASSES_PRIORITY = true;
 
@@ -278,6 +279,14 @@ public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProj
     DISABLE_I18N = value;
   }
 
+  public boolean isDontCacheCompoundTypes() {
+      return DONT_CACHE_COMPOUND_TYPES;
+  }
+
+  public void setDontCacheCompoundTypes(boolean value) {
+      DONT_CACHE_COMPOUND_TYPES = value;
+  }
+
   public boolean isDisableLangInjection() {
     return DISABLE_LANGUAGE_INJECTION;
   }
@@ -331,24 +340,36 @@ public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProj
   public boolean hasImportWithPrefix(@Nullable String qualName) {
     if (qualName != null && qualName.contains(".")) {
       String[] importsWithPrefix = getImportsWithPrefix();
-      boolean res = false;
-      for (String importWithPrefix : importsWithPrefix) {
-        if (importWithPrefix.startsWith(EXCLUDE_PREFIX)) {
-          String s = importWithPrefix.substring(EXCLUDE_PREFIX.length());
-          if (s.endsWith("._")) {
-            if (s.substring(0, s.lastIndexOf('.')).equals(qualName.substring(0, qualName.lastIndexOf('.')))) {
-              return false;
-            }
-          } else if (s.equals(qualName)) return false;
-        } else {
-          if (importWithPrefix.endsWith("._")) {
-            if (importWithPrefix.substring(0, importWithPrefix.lastIndexOf('.')).equals(qualName.substring(0, qualName.lastIndexOf('.')))) {
-              res = true;
-            }
-          } else if (importWithPrefix.equals(qualName)) res = true;
-        }
-      }
-      return res;
+      return nameFitToPatterns(qualName, importsWithPrefix);
     } else return false;
+  }
+
+  /**
+   * Checks whether qualified class name fit to the list of patterns.
+   * Expamples of patterns:
+   * "java.util.ArrayList"                              java.util.ArrayList added
+   * "scala.collection.mutable._"                       all classes from package scala.collection.mutable added
+   * "exclude:scala.Option"                             scala.Option excluded
+   * "exclude:scala.collection.immutable._"             all classes from package scala.collection.immutable excluded
+   * */
+  public static boolean nameFitToPatterns(String qualName, String[] patterns) {
+    boolean res = false;
+    for (String pattern : patterns) {
+      if (pattern.startsWith(EXCLUDE_PREFIX)) {
+        String s = pattern.substring(EXCLUDE_PREFIX.length());
+        if (s.endsWith("._")) {
+          if (s.substring(0, s.lastIndexOf('.')).equals(qualName.substring(0, qualName.lastIndexOf('.')))) {
+            return false;
+          }
+        } else if (s.equals(qualName)) return false;
+      } else {
+        if (pattern.endsWith("._")) {
+          if (pattern.substring(0, pattern.lastIndexOf('.')).equals(qualName.substring(0, qualName.lastIndexOf('.')))) {
+            res = true;
+          }
+        } else if (pattern.equals(qualName)) res = true;
+      }
+    }
+    return res;
   }
 }

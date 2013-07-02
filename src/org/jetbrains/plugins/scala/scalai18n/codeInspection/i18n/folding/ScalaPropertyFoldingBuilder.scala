@@ -23,7 +23,7 @@ import org.jetbrains.plugins.scala.lang.psi.util.ScalaConstantExpressionEvaluato
 class ScalaPropertyFoldingBuilder extends FoldingBuilderEx {
 
   @NotNull def buildFoldRegions(@NotNull element: PsiElement, @NotNull document: Document, quick: Boolean): Array[FoldingDescriptor] = {
-    if (!(element.isInstanceOf[ScalaFile]) || quick || !ScalaI18nUtil.isFoldingsOn) {
+    if (!element.isInstanceOf[ScalaFile] || quick || !ScalaI18nUtil.isFoldingsOn) {
       return FoldingDescriptor.EMPTY
     }
     val file: ScalaFile = element.asInstanceOf[ScalaFile]
@@ -39,11 +39,12 @@ class ScalaPropertyFoldingBuilder extends FoldingBuilderEx {
 
   def getPlaceholderText(@NotNull node: ASTNode): String = {
     val element: PsiElement = SourceTreeToPsiMap.treeElementToPsi(node)
-    if (element.isInstanceOf[ScLiteral]) {
-      return ScalaI18nUtil.getI18nMessage(element.getProject, element.asInstanceOf[ScLiteral])
-    }
-    else if (element.isInstanceOf[ScMethodCall]) {
-      return ScalaI18nUtil.formatMethodCallExpression(element.getProject, element.asInstanceOf[ScMethodCall])
+    element match {
+      case literal: ScLiteral =>
+        return ScalaI18nUtil.getI18nMessage(element.getProject, literal)
+      case methodCall: ScMethodCall =>
+        return ScalaI18nUtil.formatMethodCallExpression(element.getProject, methodCall)
+      case _ =>
     }
     element.getText
   }
@@ -59,32 +60,33 @@ class ScalaPropertyFoldingBuilder extends FoldingBuilderEx {
       set.add(property)
       val msg: String = ScalaI18nUtil.formatI18nProperty(expression, property)
       val parent: PsiElement = expression.getParent
-      if (parent.isInstanceOf[ScArgumentExprList]) {
-        val exprs = parent.asInstanceOf[ScArgumentExprList].exprsArray
-        if (!(msg == expression.getText) && (exprs(0) eq expression)) {
-          val expressions: ScArgumentExprList = parent.asInstanceOf[ScArgumentExprList]
-          val count: Int = ScalaI18nUtil.getPropertyValueParamsMaxCount(expression)
-          val args: Array[ScExpression] = expressions.exprsArray
-          if (args.length == 1 + count && parent.getParent.isInstanceOf[ScMethodCall]) {
-            var ok: Boolean = true
-            var i: Int = 1
-            while (i < count + 1 && ok) {
-              val evaluator = new ScalaConstantExpressionEvaluator
-              val value: AnyRef = evaluator.computeConstantExpression(args(i), false)
-              if (value == null) {
-                if (!(args(i).isInstanceOf[ScReferenceExpression])) {
-                  ok = false
+      parent match {
+        case expressions: ScArgumentExprList =>
+          val exprs = expressions.exprsArray
+          if (!(msg == expression.getText) && (exprs(0) eq expression)) {
+            val count: Int = ScalaI18nUtil.getPropertyValueParamsMaxCount(expression)
+            val args: Array[ScExpression] = expressions.exprsArray
+            if (args.length == 1 + count && parent.getParent.isInstanceOf[ScMethodCall]) {
+              var ok: Boolean = true
+              var i: Int = 1
+              while (i < count + 1 && ok) {
+                val evaluator = new ScalaConstantExpressionEvaluator
+                val value: AnyRef = evaluator.computeConstantExpression(args(i), throwExceptionOnOverflow = false)
+                if (value == null) {
+                  if (!args(i).isInstanceOf[ScReferenceExpression]) {
+                    ok = false
+                  }
                 }
+                i += 1
+                i
               }
-              i += 1
-              i
-            }
-            if (ok) {
-              result.add(new FoldingDescriptor(ObjectUtils.assertNotNull(parent.getParent.getNode), parent.getParent.getTextRange, null, set))
-              return
+              if (ok) {
+                result.add(new FoldingDescriptor(ObjectUtils.assertNotNull(parent.getParent.getNode), parent.getParent.getTextRange, null, set))
+                return
+              }
             }
           }
-        }
+        case _ =>
       }
       result.add(new FoldingDescriptor(ObjectUtils.assertNotNull(expression.getNode), expression.getTextRange, null, set))
     }

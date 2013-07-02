@@ -404,10 +404,9 @@ trait ResolvableReferenceExpression extends ScReferenceExpression {
 
   private def processDynamic(aType: ScType, reference: ScReferenceExpression, e: ScExpression,
                              baseProcessor: BaseProcessor): BaseProcessor = {
-    val dynamicType = {
-      val cachedClass = ScalaPsiManager.instance(getProject).getCachedClass(getResolveScope, "scala.Dynamic")
-      ScDesignatorType(cachedClass)
-    }
+    val cachedClass = ScalaPsiManager.instance(getProject).getCachedClass(getResolveScope, "scala.Dynamic")
+    if (cachedClass == null) return baseProcessor
+    val dynamicType = ScDesignatorType(cachedClass)
 
     if (aType.conforms(dynamicType)) {
       baseProcessor match {
@@ -458,7 +457,8 @@ trait ResolvableReferenceExpression extends ScReferenceExpression {
   private def collectImplicits(e: ScExpression, processor: BaseProcessor, noImplicitsForArgs: Boolean) {
     processor match {
       case _: CompletionProcessor => {
-        for (res <- e.implicitMap()) { //todo: args?
+        val convertible: ScImplicitlyConvertible = new ScImplicitlyConvertible(e)
+        for (res <- convertible.implicitMap()) { //todo: args?
           ProgressManager.checkCanceled()
           var state = ResolveState.initial.put(ImportUsed.key, res.importUsed)
           state = state.put(CachesUtil.IMPLICIT_FUNCTION, res.element).put(CachesUtil.IMPLICIT_TYPE, res.tp)

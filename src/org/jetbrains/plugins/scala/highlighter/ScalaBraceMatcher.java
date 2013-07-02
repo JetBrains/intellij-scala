@@ -38,17 +38,17 @@ public class ScalaBraceMatcher implements PairedBraceMatcher {
       new BracePair(ScalaTokenTypes.tLSQBRACKET, ScalaTokenTypes.tRSQBRACKET, false),
       new BracePair(ScalaTokenTypes.tLBRACE, ScalaTokenTypes.tRBRACE, true),
       new BracePair(ScalaTokenTypesEx.SCALA_IN_XML_INJECTION_START, ScalaTokenTypesEx.SCALA_IN_XML_INJECTION_END, true),
-      new BracePair(ScalaDocElementTypes.DOC_LINK_TAG, ScalaDocElementTypes.DOC_LINK_CLOSE_TAG, true),
-      new BracePair(ScalaDocElementTypes.DOC_HTTP_LINK_TAG, ScalaDocElementTypes.DOC_LINK_CLOSE_TAG, true),
-      new BracePair(ScalaDocElementTypes.DOC_INNER_CODE_TAG, ScalaDocElementTypes.DOC_INNER_CLOSE_CODE_TAG, true),
-      new BracePair(ScalaDocElementTypes.DOC_UNDERLINE_TAG, ScalaDocElementTypes.DOC_COMMON_CLOSE_WIKI_TAG, true),
-      new BracePair(ScalaDocElementTypes.DOC_BOLD_TAG, ScalaDocElementTypes.DOC_COMMON_CLOSE_WIKI_TAG, true),
-      new BracePair(ScalaDocElementTypes.DOC_ITALIC_TAG, ScalaDocElementTypes.DOC_COMMON_CLOSE_WIKI_TAG, true),
-      new BracePair(ScalaDocElementTypes.DOC_MONOSPACE_TAG, ScalaDocElementTypes.DOC_COMMON_CLOSE_WIKI_TAG, true),
-      new BracePair(ScalaDocElementTypes.DOC_SUBSCRIPT_TAG, ScalaDocElementTypes.DOC_COMMON_CLOSE_WIKI_TAG, true),
-      new BracePair(ScalaDocElementTypes.DOC_SUPERSCRIPT_TAG, ScalaDocElementTypes.DOC_COMMON_CLOSE_WIKI_TAG, true),
+      new BracePair(ScalaDocElementTypes.DOC_LINK_TAG, ScalaDocElementTypes.DOC_LINK_CLOSE_TAG, false),
+      new BracePair(ScalaDocElementTypes.DOC_HTTP_LINK_TAG, ScalaDocElementTypes.DOC_LINK_CLOSE_TAG, false),
+      new BracePair(ScalaDocElementTypes.DOC_INNER_CODE_TAG, ScalaDocElementTypes.DOC_INNER_CLOSE_CODE_TAG, false),
+      new BracePair(ScalaDocElementTypes.DOC_UNDERLINE_TAG, ScalaDocElementTypes.DOC_COMMON_CLOSE_WIKI_TAG, false),
+      new BracePair(ScalaDocElementTypes.DOC_BOLD_TAG, ScalaDocElementTypes.DOC_COMMON_CLOSE_WIKI_TAG, false),
+      new BracePair(ScalaDocElementTypes.DOC_ITALIC_TAG, ScalaDocElementTypes.DOC_COMMON_CLOSE_WIKI_TAG, false),
+      new BracePair(ScalaDocElementTypes.DOC_MONOSPACE_TAG, ScalaDocElementTypes.DOC_COMMON_CLOSE_WIKI_TAG, false),
+      new BracePair(ScalaDocElementTypes.DOC_SUBSCRIPT_TAG, ScalaDocElementTypes.DOC_COMMON_CLOSE_WIKI_TAG, false),
+      new BracePair(ScalaDocElementTypes.DOC_SUPERSCRIPT_TAG, ScalaDocElementTypes.DOC_COMMON_CLOSE_WIKI_TAG, false),
       new BracePair(ScalaTokenTypes.tOPENXMLTAG, ScalaTokenTypes.tCLOSEXMLTAG, true), 
-      new BracePair(ScalaTokenTypes.tXML_COMMENT_START, ScalaTokenTypes.tXML_COMMENT_END, true)
+      new BracePair(ScalaTokenTypes.tXML_COMMENT_START, ScalaTokenTypes.tXML_COMMENT_END, false)
   };
 
   public BracePair[] getPairs() {

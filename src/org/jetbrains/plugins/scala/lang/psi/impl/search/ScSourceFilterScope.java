@@ -10,6 +10,7 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.search.GlobalSearchScope;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.ScalaFileType;
+import org.jetbrains.plugins.scala.util.ScalaLanguageDerivative;
 
 /**
  * @author ilyas
@@ -26,8 +27,8 @@ public class ScSourceFilterScope extends GlobalSearchScope {
   public boolean contains(final VirtualFile file) {
     final FileType fileType = file.getFileType();
     return (myDelegate == null || myDelegate.contains(file)) &&
-            (ScalaFileType.SCALA_FILE_TYPE == fileType && myIndex.isInSourceContent(file) ||
-                    StdFileTypes.CLASS == fileType && myIndex.isInLibraryClasses(file));
+            ((ScalaFileType.SCALA_FILE_TYPE == fileType || ScalaLanguageDerivative.hasDerivativeForFileType(fileType)) && 
+                myIndex.isInSourceContent(file) || StdFileTypes.CLASS == fileType && myIndex.isInLibraryClasses(file));
   }
 
   public int compare(final VirtualFile file1, final VirtualFile file2) {

@@ -3,7 +3,7 @@ package lang
 package psi
 
 import api.base._
-import api.base.types.{ScRefinement, ScExistentialClause, ScTypeElement}
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScTypeArgs, ScRefinement, ScExistentialClause, ScTypeElement}
 import api.toplevel.imports.usages.ImportUsed
 import api.toplevel.imports.{ScImportStmt, ScImportExpr, ScImportSelector, ScImportSelectors}
 import api.toplevel.packaging.{ScPackaging, ScPackageContainer}
@@ -18,7 +18,7 @@ import impl.toplevel.typedef.TypeDefinitionMembers
 import impl.{ScalaPsiManager, ScalaPsiElementFactory}
 import implicits.ScImplicitlyConvertible
 import com.intellij.openapi.progress.ProgressManager
-import api.expr._
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import api.expr.xml.ScXmlExpr
 
 import com.intellij.openapi.project.Project
@@ -27,20 +27,19 @@ import api.statements._
 import com.intellij.psi._
 import codeStyle.CodeStyleSettingsManager
 import com.intellij.psi.search.GlobalSearchScope
-import nonvalue.{ScMethodType, Parameter, TypeParameter, ScTypePolymorphicType}
-import patterns.{ScBindingPattern, ScReferencePattern, ScCaseClause}
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScPatternArgumentList, ScBindingPattern, ScReferencePattern, ScCaseClause}
 import stubs.ScModifiersStub
 import types.Compatibility.Expression
 import params._
 import parser.parsing.expressions.InfixExpr
 import parser.util.ParserUtils
-import result.{TypingContext, Success, TypeResult}
+import result.{TypingContext, TypeResult}
 import structureView.ScalaElementPresentation
 import com.intellij.psi.util._
 import formatting.settings.ScalaCodeStyleSettings
 import com.intellij.openapi.roots.{ProjectRootManager, ProjectFileIndex}
 import lang.resolve.processor._
-import lang.resolve.{ResolveTargets, ResolveUtils, ScalaResolveResult}
+import lang.resolve.{ResolveUtils, ScalaResolveResult}
 import com.intellij.psi.impl.light.LightModifierList
 import collection.immutable.Stream
 import com.intellij.psi.impl.source.PsiFileImpl
@@ -50,26 +49,52 @@ import config.ScalaFacet
 import reflect.NameTransformer
 import caches.CachesUtil
 import extensions._
-import collection.mutable.{ListBuffer, HashSet, ArrayBuffer}
+import collection.mutable.{ListBuffer, ArrayBuffer}
 import com.intellij.psi.impl.compiled.ClsFileImpl
-import collection.{Set, Seq}
+import scala.collection.{mutable, Set, Seq}
 import org.apache.log4j.Level
 import com.intellij.openapi.diagnostic
-import types.Conformance.AliasType
 import scala.util.control.ControlThrowable
+import scala.Some
+import org.jetbrains.plugins.scala.lang.psi.types.ScUndefinedType
+import org.jetbrains.plugins.scala.lang.psi.types.ScCompoundType
+import org.jetbrains.plugins.scala.lang.psi.types.ScAbstractType
+import org.jetbrains.plugins.scala.lang.psi.types.ScFunctionType
+import org.jetbrains.plugins.scala.lang.resolve.processor.MostSpecificUtil
+import org.jetbrains.plugins.scala.lang.psi.types.Conformance.AliasType
+import org.jetbrains.plugins.scala.lang.psi.types.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.psi.implicits.ScImplicitlyConvertible.ImplicitResolveResult
+import org.jetbrains.plugins.scala.lang.psi.types.ScTypeParameterType
+import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
+import org.jetbrains.plugins.scala.lang.psi.types.ScTupleType
+import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScTypePolymorphicType
+import org.jetbrains.plugins.scala.lang.psi.types.result.Success
+import org.jetbrains.plugins.scala.lang.psi.types.JavaArrayType
+import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScMethodType
+import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.TypeParameter
+import org.jetbrains.plugins.scala.lang.psi.types.ScProjectionType
+import scala.annotation.tailrec
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import com.intellij.psi.tree.TokenSet
 
 /**
  * User: Alexander Podkhalyuzin
  */
 object ScalaPsiUtil {
+  @tailrec
+  def firstLeaf(elem: PsiElement): PsiElement = {
+    val firstChild: PsiElement = elem.getFirstChild
+    if (firstChild == null) return elem
+    firstLeaf(firstChild)
+  }
+
   def isBooleanBeanProperty(s: ScAnnotationsHolder, noResolve: Boolean = false): Boolean = {
     if (noResolve) {
-      s.annotations.find {
+      s.annotations.exists {
         case annot => Set("scala.reflect.BooleanBeanProperty", "reflect.BooleanBeanProperty",
           "BooleanBeanProperty", "scala.beans.BooleanBeanProperty", "beans.BooleanBeanProperty").
-          contains(annot.typeElement.getText.replace(" ", ""))
-      }.isDefined
+                contains(annot.typeElement.getText.replace(" ", ""))
+      }
     } else {
       s.hasAnnotation("scala.reflect.BooleanBeanProperty") != None ||
         s.hasAnnotation("scala.beans.BooleanBeanProperty") != None
@@ -78,11 +103,11 @@ object ScalaPsiUtil {
 
   def isBeanProperty(s: ScAnnotationsHolder, noResolve: Boolean = false): Boolean = {
     if (noResolve) {
-      s.annotations.find {
+      s.annotations.exists {
         case annot => Set("scala.reflect.BeanProperty", "reflect.BeanProperty",
           "BeanProperty", "scala.beans.BeanProperty", "beans.BeanProperty").
-          contains(annot.typeElement.getText.replace(" ", ""))
-      }.isDefined
+                contains(annot.typeElement.getText.replace(" ", ""))
+      }
     } else {
       s.hasAnnotation("scala.reflect.BeanProperty") != None ||
         s.hasAnnotation("scala.beans.BeanProperty") != None
@@ -107,6 +132,7 @@ object ScalaPsiUtil {
     }
   }
 
+  @tailrec
   def withEtaExpansion(expr: ScExpression): Boolean = {
     expr.getContext match {
       case call: ScMethodCall => false
@@ -116,6 +142,7 @@ object ScalaPsiUtil {
     }
   }
 
+  @tailrec
   def isLocalClass(td: PsiClass): Boolean = {
     td.getParent match {
       case tb: ScTemplateBody =>
@@ -162,6 +189,7 @@ object ScalaPsiUtil {
     }
   }
 
+  @tailrec
   def fileContext(psi: PsiElement): PsiFile = {
     if (psi == null) return null
     psi match {
@@ -175,7 +203,7 @@ object ScalaPsiUtil {
    *
    * See SCL-2001, SCL-3485
    */
-  def tuplizy(s: Seq[Expression], scope: GlobalSearchScope, manager: PsiManager): Option[Seq[Expression]] = {
+  def tuplizy(s: Seq[Expression], scope: GlobalSearchScope, manager: PsiManager, place: PsiElement): Option[Seq[Expression]] = {
     s match {
       case Seq() =>
         // object A { def foo(a: Any) = ()}; A foo () ==>> A.foo(()), or A.foo() ==>> A.foo( () )
@@ -183,15 +211,14 @@ object ScalaPsiUtil {
         Some(Seq(Expression(unitExpr)))
       case _ =>
         val exprTypes: Seq[ScType] =
-          s.map(_.getTypeAfterImplicitConversion(true, false, None)).map {
+          s.map(_.getTypeAfterImplicitConversion(checkImplicits = true, isShape = false, None)).map {
             case (res, _) => res.getOrAny
           }
         val qual = "scala.Tuple" + exprTypes.length
         val tupleClass = ScalaPsiManager.instance(manager.getProject).getCachedClass(scope, qual)
-        if (tupleClass == null)
-          None
+        if (tupleClass == null) None
         else
-          Some(Seq(new Expression(ScParameterizedType(ScDesignatorType(tupleClass), exprTypes))))
+          Some(Seq(new Expression(ScParameterizedType(ScDesignatorType(tupleClass), exprTypes), place)))
     }
   }
 
@@ -253,17 +280,18 @@ object ScalaPsiUtil {
       e.getTypeWithoutImplicits(TypingContext.empty).map(_.isInstanceOf[ValType]).getOrElse(false)
     val kinds = processor.kinds
     var implicitMap: Seq[ImplicitResolveResult] = Seq.empty
-    def checkImplicits(secondPart: Boolean, noApplicability: Boolean) {
+    def checkImplicits(secondPart: Boolean, noApplicability: Boolean, noImplicitsForArgs: Boolean = noImplicitsForArgs) {
       lazy val args = processor match {
         case m: MethodResolveProcessor => m.argumentClauses.flatMap(_.map(
           _.getTypeAfterImplicitConversion(checkImplicits = false, isShape = m.isShapeResolve, None)._1.getOrAny
         ))
         case _ => Seq.empty
       }
+      val convertible: ScImplicitlyConvertible = new ScImplicitlyConvertible(e)
       val mp =
-        if (noApplicability) e.implicitMap(args = args)
-        else if (!secondPart) e.implicitMapFirstPart()
-        else e.implicitMapSecondPart(args = args)
+        if (noApplicability) convertible.implicitMap(args = args)
+        else if (!secondPart) convertible.implicitMapFirstPart()
+        else convertible.implicitMapSecondPart(args = args)
       implicitMap = mp.flatMap({
         case implRes: ImplicitResolveResult => {
           ProgressManager.checkCanceled()
@@ -308,14 +336,26 @@ object ScalaPsiUtil {
         }
       })
     }
+    //todo: insane logic. Important to have to navigate to problematic method, in case of failed resolve. That's why we need to have noApplicability parameter
     checkImplicits(secondPart = false, noApplicability = false)
-    if (implicitMap.isEmpty) checkImplicits(secondPart = true, noApplicability = false)
-    if (implicitMap.isEmpty) checkImplicits(secondPart = false, noApplicability = true)
+    if (implicitMap.size > 1) {
+      val oldMap = implicitMap
+      checkImplicits(secondPart = false, noApplicability = false, noImplicitsForArgs = true)
+      if (implicitMap.isEmpty) implicitMap = oldMap
+    } else if (implicitMap.isEmpty) {
+      checkImplicits(secondPart = true, noApplicability = false)
+      if (implicitMap.size > 1) {
+        val oldMap = implicitMap
+        checkImplicits(secondPart = false, noApplicability = false, noImplicitsForArgs = true)
+        if (implicitMap.isEmpty) implicitMap = oldMap
+      } else if (implicitMap.isEmpty) checkImplicits(secondPart = false, noApplicability = true)
+    }
     if (implicitMap.isEmpty) None
     else if (implicitMap.length == 1) Some(implicitMap.apply(0))
     else MostSpecificUtil(ref, 1).mostSpecificForImplicit(implicitMap.toSet)
   }
 
+  @tailrec
   def findCall(place: PsiElement): Option[ScMethodCall] = {
     place.getContext match {
       case call: ScMethodCall => Some(call)
@@ -358,7 +398,7 @@ object ScalaPsiUtil {
       isShapeResolve = isShape, enableTupling = true)
     var candidates: Set[ScalaResolveResult] = Set.empty
     exprTp match {
-      case ScTypePolymorphicType(internal, tp) if !tp.isEmpty &&
+      case ScTypePolymorphicType(internal, typeParam) if !typeParam.isEmpty &&
         !internal.isInstanceOf[ScMethodType] && !internal.isInstanceOf[ScUndefinedType] =>
         processor.processType(internal, call.getEffectiveInvokedExpr, ResolveState.initial())
         candidates = processor.candidatesS
@@ -436,10 +476,10 @@ object ScalaPsiUtil {
           tp.recursiveUpdate {tp =>
             tp match {
               case t: ScTypeParameterType =>
-                if (typeParameters.find {
+                if (typeParameters.exists {
                   case TypeParameter(_, _, _, ptp) if ptp == t.param && ptp.getOwner != ownerPtp.getOwner => true
                   case _ => false
-                } != None) res = None
+                }) res = None
               case _ =>
             }
             (false, tp)
@@ -456,6 +496,7 @@ object ScalaPsiUtil {
     }
   }
 
+  @tailrec
   def isAnonymousExpression(expr: ScExpression): (Int, ScExpression) = {
     val seq = ScUnderScoreSectionUtil.underscores(expr)
     if (seq.length > 0) return (seq.length, expr)
@@ -469,17 +510,20 @@ object ScalaPsiUtil {
   }
 
   def getModule(element: PsiElement): Module = {
-    var index: ProjectFileIndex = ProjectRootManager.getInstance(element.getProject).getFileIndex
+    val index: ProjectFileIndex = ProjectRootManager.getInstance(element.getProject).getFileIndex
     index.getModuleForFile(element.getContainingFile.getVirtualFile)
   }
 
   def collectImplicitObjects(tp: ScType, place: PsiElement): Seq[ScType] = {
     val projectOpt = Option(place).map(_.getProject)
     val parts: ListBuffer[ScType] = new ListBuffer[ScType]
+    val visited = new mutable.HashSet[ScType]()
     def collectParts(tp: ScType, place: PsiElement) {
+      if (visited.contains(tp)) return
+      visited += tp
       tp.isAliasType match {
-        case Some(AliasType(t: ScTypeAliasDefinition, lower, _)) =>
-          lower.foreach(collectParts(_, place))
+        case Some(AliasType(_, _, upper)) =>
+          upper.foreach(collectParts(_, place))
         case _ =>
       }
       tp match {
@@ -546,13 +590,13 @@ object ScalaPsiUtil {
       }
     }
     collectParts(tp, place)
-    val res: HashSet[ScType] = new HashSet
+    val res: mutable.HashSet[ScType] = new mutable.HashSet
     for (part <- parts) {
       //here we want to convert projection types to right projections
-      val visited = new HashSet[PsiClass]()
-      def collectObjects(tp: ScType, update: Option[ScSubstitutor] = None) {
+      val visited = new mutable.HashSet[PsiClass]()
+      def collectObjects(tp: ScType) {
         tp match {
-          case Any => return
+          case types.Any => return
           case tp: StdType if Seq("Int", "Float", "Double", "Boolean", "Byte", "Short", "Long", "Char").contains(tp.name) =>
             val obj = ScalaPsiManager.instance(place.getProject).
               getCachedClass("scala." + tp.name, place.getResolveScope, ClassCategory.OBJECT)
@@ -562,16 +606,16 @@ object ScalaPsiUtil {
             }
             return
           case ScDesignatorType(ta: ScTypeAliasDefinition) =>
-            collectObjects(ta.aliasedType.getOrAny, update)
+            collectObjects(ta.aliasedType.getOrAny)
             return
           case p: ScProjectionType if p.actualElement.isInstanceOf[ScTypeAliasDefinition] =>
             collectObjects(p.actualSubst.subst(p.actualElement.asInstanceOf[ScTypeAliasDefinition].
-              aliasedType.getOrAny), update)
+              aliasedType.getOrAny))
             return
           case ScParameterizedType(ScDesignatorType(ta: ScTypeAliasDefinition), args) => {
             val genericSubst = ScalaPsiUtil.
               typesCallSubstitutor(ta.typeParameters.map(tp => (tp.name, ScalaPsiUtil.getPsiElementId(tp))), args)
-            collectObjects(genericSubst.subst(ta.aliasedType.getOrAny), update)
+            collectObjects(genericSubst.subst(ta.aliasedType.getOrAny))
             return
           }
           case ScParameterizedType(p: ScProjectionType, args) if p.actualElement.isInstanceOf[ScTypeAliasDefinition] => {
@@ -580,13 +624,13 @@ object ScalaPsiUtil {
               )), args)
             val s = p.actualSubst.followed(genericSubst)
             collectObjects(s.subst(p.actualElement.asInstanceOf[ScTypeAliasDefinition].
-              aliasedType.getOrAny), update)
+              aliasedType.getOrAny))
             return
           }
           case _ =>
         }
-        ScType.extractClass(tp, projectOpt) match {
-          case Some(clazz: PsiClass) if !visited.contains(clazz) =>
+        ScType.extractClassType(tp, projectOpt) match {
+          case Some((clazz: PsiClass, subst: ScSubstitutor)) if !visited.contains(clazz) =>
             clazz match {
               case o: ScObject => res += tp
               case _ =>
@@ -594,32 +638,27 @@ object ScalaPsiUtil {
                   case Some(obj: ScObject) =>
                     tp match {
                       case ScProjectionType(proj, _, s) =>
-                        res += update.getOrElse(ScSubstitutor.empty).subst(ScProjectionType(proj, obj, s))
+                        res += ScProjectionType(proj, obj, s)
                       case ScParameterizedType(ScProjectionType(proj, _, s), _) =>
-                        res += update.getOrElse(ScSubstitutor.empty).subst(ScProjectionType(proj, obj, s))
+                        res += ScProjectionType(proj, obj, s)
                       case _ =>
                         res += ScDesignatorType(obj)
                     }
                   case _ =>
                 }
             }
-            val newSubst = tp match {
-              case p: ScProjectionType => Some(p.actualSubst)
-              case ScParameterizedType(p: ScProjectionType, _) => Some(p.actualSubst)
-              case _ => None
-            }
             clazz match {
               case td: ScTemplateDefinition =>
                 td.superTypes.foreach((tp: ScType) => {
                   visited += clazz
-                  collectObjects(tp, newSubst)
+                  collectObjects(subst.subst(tp))
                   visited -= clazz
                 })
               case clazz: PsiClass =>
                 clazz.getSuperTypes.foreach(tp => {
                   val stp = ScType.create(tp, place.getProject, place.getResolveScope)
                   visited += clazz
-                  collectObjects(stp, newSubst)
+                  collectObjects(subst.subst(stp))
                   visited -= clazz
                 })
             }
@@ -788,7 +827,7 @@ object ScalaPsiUtil {
     val abstractSubst = ScTypePolymorphicType(retType, typeParams).abstractTypeSubstitutor
     val paramsWithUndefTypes = params.map(p => p.copy(paramType = s.subst(p.paramType),
       expectedType = abstractSubst.subst(p.paramType)))
-    val c = Compatibility.checkConformanceExt(true, paramsWithUndefTypes, exprs, true, false)
+    val c = Compatibility.checkConformanceExt(checkNames = true, paramsWithUndefTypes, exprs, checkWithImplicits = true, isShapesResolve = false)
     val tpe = if (c.problems.isEmpty) {
       var un: ScUndefinedSubstitutor = c.undefSubst
       val subst = c.undefSubst
@@ -870,11 +909,11 @@ object ScalaPsiUtil {
               }
             }
             un.getSubstitutor match {
-              case Some(unSubst) =>
-                ScTypePolymorphicType(unSubst.subst(retType), typeParams.filter {case tp =>
+              case Some(unSubstitutor) =>
+                ScTypePolymorphicType(unSubstitutor.subst(retType), typeParams.filter {case tp =>
                   val name = (tp.name, ScalaPsiUtil.getPsiElementId(tp.ptp))
                   !un.names.contains(name)
-                }.map(tp => TypeParameter(tp.name, unSubst.subst(tp.lowerType), unSubst.subst(tp.upperType), tp.ptp)))
+                }.map(tp => TypeParameter(tp.name, unSubstitutor.subst(tp.lowerType), unSubstitutor.subst(tp.upperType), tp.ptp)))
               case _ =>
                 if (checkAnyway) throw new SafeCheckException
                 ScTypePolymorphicType(unSubst.subst(retType), typeParams.filter {case tp =>
@@ -925,6 +964,7 @@ object ScalaPsiUtil {
   }
 
   def getParents(elem: PsiElement, topLevel: PsiElement): List[PsiElement] = {
+    @tailrec
     def inner(parent: PsiElement, k: List[PsiElement] => List[PsiElement]): List[PsiElement] = {
       if (parent != topLevel && parent != null)
         inner(parent.getParent, {l => parent :: k(l)})
@@ -934,6 +974,7 @@ object ScalaPsiUtil {
   }
 
   //todo: always returns true?!
+  @tailrec
   def shouldCreateStub(elem: PsiElement): Boolean = {
     return true
     elem match {
@@ -1046,6 +1087,7 @@ object ScalaPsiUtil {
     res
   }
 
+  @tailrec
   def isPlaceTdAncestor(td: ScTemplateDefinition, placer: PsiElement): Boolean = {
     val newTd = getPlaceTd(placer)
     if (newTd == null) return false
@@ -1095,7 +1137,7 @@ object ScalaPsiUtil {
     val sigs = signatures.forName(x.name)._1
     var res: Seq[Signature] = (sigs.get(s): @unchecked) match {
       //partial match
-      case Some(x) => x.supers.map {_.info}
+      case Some(node) => node.supers.map {_.info}
       case None =>
         throw new RuntimeException(s"internal error: could not find val matching: \n${x.getText}\n\nin class: \n${clazz.getText}")
     }
@@ -1106,7 +1148,7 @@ object ScalaPsiUtil {
       val sigs = TypeDefinitionMembers.getSignatures(clazz).forName(method.name)._1
       (sigs.get(new PhysicalSignature(method, ScSubstitutor.empty)): @unchecked) match {
         //partial match
-        case Some(x) => res ++= (x.supers.map {_.info})
+        case Some(node) => res ++= node.supers.map {_.info}
         case None =>
       }
     }
@@ -1175,7 +1217,7 @@ object ScalaPsiUtil {
   def getMethodPresentableText(method: PsiMethod, subst: ScSubstitutor = ScSubstitutor.empty): String = {
     method match {
       case method: ScFunction => {
-        ScalaElementPresentation.getMethodPresentableText(method, false, subst)
+        ScalaElementPresentation.getMethodPresentableText(method, short = false, subst)
       }
       case _ => {
         val PARAM_OPTIONS: Int = PsiFormatUtilBase.SHOW_NAME | PsiFormatUtilBase.SHOW_TYPE | PsiFormatUtilBase.TYPE_AFTER
@@ -1305,6 +1347,7 @@ object ScalaPsiUtil {
     }
   }
 
+  @tailrec
   def hasStablePath(o: ScTypeDefinition): Boolean = {
     o.getContext match {
       case f: ScalaFile => return true
@@ -1345,140 +1388,292 @@ object ScalaPsiUtil {
     PseudoPsiSubstitutor(subst)
   }
 
-  //todo: rewrite this!
-  def needParentheses(from: ScExpression, expr: ScExpression): Boolean = {
-    val parent = from.getParent
-    (parent, expr) match { //true only for other cases
-      case _ if !parent.isInstanceOf[ScExpression] => false
-      case (_: ScTuple, _) => false
-      case (_: ScReferenceExpression, _: ScBlockExpr) => false
-      case (_: ScReferenceExpression, _: ScNewTemplateDefinition) if expr.getText.endsWith(")") ||
-              expr.getText.endsWith("}") || expr.getText.endsWith("]") => false
-      case (_: ScReferenceExpression, _: ScReferenceExpression) => false
-      case (_: ScReferenceExpression, _: ScGenericCall) => false
-      case (_: ScReferenceExpression, _: ScMethodCall) => false
-      case (_: ScReferenceExpression, _: ScLiteral) => false
-      case (_: ScReferenceExpression, _) if expr.getText == "_" => false
-      case (_: ScReferenceExpression, _: ScTuple) => false
-      case (_: ScReferenceExpression, _: ScXmlExpr) => false
-      case (_: ScReferenceExpression, _: ScParenthesisedExpr) => false
-      case (_: ScReferenceExpression, _: ScThisReference) => false
-      case (_: ScReferenceExpression, _) => true
-      case (_: ScGenericCall, _: ScReferenceExpression) => false
-      case (_: ScGenericCall, _: ScMethodCall) => false
-      case (_: ScGenericCall, _: ScLiteral) => false
-      case (_: ScGenericCall, _: ScTuple) => false
-      case (_: ScGenericCall, _: ScXmlExpr) => false
-      case (_: ScGenericCall, _) if expr.getText == "_" => false
-      case (_: ScGenericCall, _: ScBlockExpr) => false
-      case (_: ScGenericCall, _) => true
-      case (_: ScMethodCall, _: ScReferenceExpression) => false
-      case (_: ScMethodCall, _: ScMethodCall) => false
-      case (_: ScMethodCall, _: ScGenericCall) => false
-      case (_: ScMethodCall, _: ScLiteral) => false
-      case (_: ScMethodCall, _) if expr.getText == "_" => false
-      case (_: ScMethodCall, _: ScXmlExpr) => false
-      case (_: ScMethodCall, _: ScTuple) => false
-      case (_: ScMethodCall, _) => true
-      case (_: ScUnderscoreSection, _: ScReferenceExpression) => false
-      case (_: ScUnderscoreSection, _: ScMethodCall) => false
-      case (_: ScUnderscoreSection, _: ScGenericCall) => false
-      case (_: ScUnderscoreSection, _: ScLiteral) => false
-      case (_: ScUnderscoreSection, _) if expr.getText == "_" => false
-      case (_: ScUnderscoreSection, _: ScXmlExpr) => false
-      case (_: ScUnderscoreSection, _: ScTuple) => false
-      case (_: ScUnderscoreSection, _) => true
-      case (_: ScBlock, _) => false
-      case (_: ScPrefixExpr, _: ScBlockExpr) => false
-      case (_: ScPrefixExpr, _: ScNewTemplateDefinition) => false
-      case (_: ScPrefixExpr, _: ScUnderscoreSection) => false
-      case (_: ScPrefixExpr, _: ScReferenceExpression) => false
-      case (_: ScPrefixExpr, _: ScGenericCall) => false
-      case (_: ScPrefixExpr, _: ScMethodCall) => false
-      case (_: ScPrefixExpr, _: ScLiteral) => false
-      case (_: ScPrefixExpr, _) if expr.getText == "_" => false
-      case (_: ScPrefixExpr, _: ScTuple) => false
-      case (_: ScPrefixExpr, _: ScXmlExpr) => false
-      case (_: ScPrefixExpr, _) => true
-      case (_: ScInfixExpr, _: ScBlockExpr) => false
-      case (_: ScInfixExpr, _: ScNewTemplateDefinition) => false
-      case (_: ScInfixExpr, _: ScUnderscoreSection) => false
-      case (_: ScInfixExpr, _: ScReferenceExpression) => false
-      case (_: ScInfixExpr, _: ScGenericCall) => false
-      case (_: ScInfixExpr, _: ScMethodCall) => false
-      case (_: ScInfixExpr, _: ScLiteral) => false
-      case (_: ScInfixExpr, _) if expr.getText == "_" => false
-      case (_: ScInfixExpr, _: ScTuple) => false
-      case (_: ScInfixExpr, _: ScXmlExpr) => false
-      case (_: ScInfixExpr, _: ScPrefixExpr) => false
-      case (_: ScInfixExpr, _: ScParenthesisedExpr) => false
-      case (_: ScInfixExpr, _: ScThisReference) => false
-      case (par: ScInfixExpr, child: ScInfixExpr) => {
-        import ParserUtils._
-        import InfixExpr._
-        if (par.lOp == from) {
-          val lid = par.operation.getText
-          val rid = child.operation.getText
-          if (priority(lid) < priority(rid)) true
-          else if (priority(rid) < priority(lid)) false
-          else if (associate(lid) != associate(rid)) true
-          else if (associate(lid) == -1) true
-          else false
-        }
-        else {
-          val lid = child.operation.getText
-          val rid = par.operation.getText
-          if (priority(lid) < priority(rid)) false
-          else if (priority(rid) < priority(lid)) true
-          else if (associate(lid) != associate(rid)) true
-          else if (associate(lid) == -1) false
-          else true
-        }
+  @tailrec
+  def newLinesEnabled(element: PsiElement): Boolean = {
+    if (element == null) true
+    else {
+      element.getParent match {
+        case block: ScBlock if block.hasRBrace => true
+        case _: ScMatchStmt | _: ScalaFile | null => true
+        case argList: ScArgumentExprList if argList.isBraceArgs => true
+
+        case argList: ScArgumentExprList if !argList.isBraceArgs => false
+        case _: ScParenthesisedExpr | _: ScTuple |
+             _: ScTypeArgs | _: ScPatternArgumentList |
+             _: ScParameterClause | _: ScTypeParamClause => false
+        case caseClause: ScCaseClause =>
+          import ScalaTokenTypes._
+          val funTypeToken = caseClause.findLastChildByType(TokenSet.create(tFUNTYPE, tFUNTYPE_ASCII))
+          if (funTypeToken != null &&  element.getTextOffset < funTypeToken.getTextOffset) false
+          else newLinesEnabled(caseClause.getParent)
+
+        case other => newLinesEnabled(other.getParent)
       }
-      case (_: ScInfixExpr, _) => true
-      case (_: ScPostfixExpr, _: ScBlockExpr) => false
-      case (_: ScPostfixExpr, _: ScNewTemplateDefinition) => false
-      case (_: ScPostfixExpr, _: ScUnderscoreSection) => false
-      case (_: ScPostfixExpr, _: ScReferenceExpression) => false
-      case (_: ScPostfixExpr, _: ScGenericCall) => false
-      case (_: ScPostfixExpr, _: ScMethodCall) => false
-      case (_: ScPostfixExpr, _: ScLiteral) => false
-      case (_: ScPostfixExpr, _) if expr.getText == "_" => false
-      case (_: ScPostfixExpr, _: ScTuple) => false
-      case (_: ScPostfixExpr, _: ScXmlExpr) => false
-      case (_: ScPostfixExpr, _: ScPrefixExpr) => false
-      case (_: ScPostfixExpr, _) => true
-      case (_: ScTypedStmt, _: ScBlockExpr) => false
-      case (_: ScTypedStmt, _: ScNewTemplateDefinition) => false
-      case (_: ScTypedStmt, _: ScUnderscoreSection) => false
-      case (_: ScTypedStmt, _: ScReferenceExpression) => false
-      case (_: ScTypedStmt, _: ScGenericCall) => false
-      case (_: ScTypedStmt, _: ScMethodCall) => false
-      case (_: ScTypedStmt, _: ScLiteral) => false
-      case (_: ScTypedStmt, _) if expr.getText == "_" => false
-      case (_: ScTypedStmt, _: ScTuple) => false
-      case (_: ScTypedStmt, _: ScXmlExpr) => false
-      case (_: ScTypedStmt, _: ScPrefixExpr) => false
-      case (_: ScTypedStmt, _: ScInfixExpr) => false
-      case (_: ScTypedStmt, _: ScPostfixExpr) => false
-      case (_: ScTypedStmt, _) => true
-      case (_: ScMatchStmt, _: ScBlockExpr) => false
-      case (_: ScMatchStmt, _: ScNewTemplateDefinition) => false
-      case (_: ScMatchStmt, _: ScUnderscoreSection) => false
-      case (_: ScMatchStmt, _: ScReferenceExpression) => false
-      case (_: ScMatchStmt, _: ScGenericCall) => false
-      case (_: ScMatchStmt, _: ScMethodCall) => false
-      case (_: ScMatchStmt, _: ScLiteral) => false
-      case (_: ScMatchStmt, _) if expr.getText == "_" => false
-      case (_: ScMatchStmt, _: ScTuple) => false
-      case (_: ScMatchStmt, _: ScXmlExpr) => false
-      case (_: ScMatchStmt, _: ScPrefixExpr) => false
-      case (_: ScMatchStmt, _: ScInfixExpr) => false
-      case (_: ScMatchStmt, _: ScPostfixExpr) => false
-      case (_: ScMatchStmt, _) => true
-      case _ => false
     }
   }
+  /*
+  ******** any subexpression of these does not need parentheses **********
+  * ScTuple, ScBlock, ScXmlExpr
+  *
+  ******** do not need parentheses with any parent ***************
+  * ScReferenceExpression, ScMethodCall,
+  * ScGenericCall, ScLiteral, ScTuple,
+  * ScXmlExpr, ScParenthesisedExpr, ScUnitExpr
+  * ScThisReference, ScSuperReference
+  *
+  * *********
+  * ScTuple in ScInfixExpr should be treated specially because of auto-tupling
+  * Underscore functions in ScInfixExpression do need parentheses
+  *
+  ********** other cases (1 - need parentheses, 0 - does not need parentheses *****
+  *
+  *		          \ Child       ScBlockExpr 	ScNewTemplateDefinition 	ScUnderscoreSection	  ScPrefixExpr	  ScInfixExpr	  ScPostfixExpr     Other
+  *      Parent  \
+  *   ScMethodCall	              1                   1	                        1	                1             1	              1        |    1
+  *   ScUnderscoreSection	        1                   1	                        1	                1             1	              1        |    1
+  *   ScGenericCall		            0                   1	                        1	                1             1	              1        |    1
+  *   ScReferenceExpression			  0                special                      1	                1             1	              1        |    1
+  *   ScPrefixExpr	              0                   0	                        0	                1             1	              1        |    1
+  *   ScInfixExpr	                0                   0	                        0	                0          special            1        |    1
+  *   ScPostfixExpr	              0                   0	                        0	                0             0	              1        |    1
+  *   ScTypedStmt	                0                   0	                        0	                0             0	              0        |    1
+  *   ScMatchStmt	                0                   0	                        0	                0             0	              0        |    1
+	*		-----------------------------------------------------------------------------------------------------------------------------------
+  *	  Other                       0                   0	                        0	                0             0	              0
+  * */
+  def needParentheses(from: ScExpression, expr: ScExpression): Boolean = {
+    def infixInInfixParentheses(parent: ScInfixExpr, child: ScInfixExpr): Boolean = {
+      import ParserUtils._
+      import InfixExpr._
+      if (parent.lOp == from) {
+        val lid = parent.operation.getText
+        val rid = child.operation.getText
+        if (priority(lid) < priority(rid)) true
+        else if (priority(rid) < priority(lid)) false
+        else if (associate(lid) != associate(rid)) true
+        else if (associate(lid) == -1) true
+        else false
+      }
+      else {
+        val lid = child.operation.getText
+        val rid = parent.operation.getText
+        if (priority(lid) < priority(rid)) false
+        else if (priority(rid) < priority(lid)) true
+        else if (associate(lid) != associate(rid)) true
+        else if (associate(lid) == -1) false
+        else true
+      }
+    }
+
+    def tupleInInfixNeedParentheses(parent: ScInfixExpr, from: ScExpression, expr: ScTuple): Boolean = {
+      if (from.getParent != parent) throw new IllegalArgumentException
+      if (from == parent.lOp) false
+      else {
+        parent.operation.bind() match {
+          case Some(resolveResult: ResolveResult) =>
+            val startInParent: Int = from.getStartOffsetInParent
+            val endInParent: Int = startInParent + from.getTextLength
+            val parentText = parent.getText
+            val modifiedParentText = parentText.substring(0, startInParent) + from.getText + parentText.substring(endInParent)
+            val modifiedParent = ScalaPsiElementFactory.createExpressionFromText(modifiedParentText, parent.getContext)
+            modifiedParent match {
+              case ScInfixExpr(_, newOper, tuple: ScTuple) =>
+                newOper.bind() match {
+                  case Some(newResolveResult) =>
+                    newResolveResult.getElement == resolveResult.getElement && newResolveResult.tuplingUsed
+                  case _ => true
+                }
+              case _ => true
+            }
+          case _ => false
+        }
+      }
+    }
+
+    def parsedDifferently(from: ScExpression, expr: ScExpression): Boolean = {
+      if (newLinesEnabled(from)) {
+        expr.getParent match {
+          case ScParenthesisedExpr(_) =>
+            val text = expr.getText
+            val dummyFile = ScalaPsiElementFactory.createScalaFile(text, expr.getManager)
+            dummyFile.firstChild match {
+              case Some(newExpr: ScExpression) => newExpr.getText != text
+              case _ => true
+            }
+          case _ => false
+        }
+      } else false
+    }
+
+    if (parsedDifferently(from, expr)) true
+    else {
+      val parent = from.getParent
+      (parent, expr) match {
+        //order of these case clauses is important!
+        case _ if !parent.isInstanceOf[ScExpression] => false
+        case _ if expr.getText == "_" => false
+        case (_: ScTuple | _: ScBlock | _: ScXmlExpr   , _) => false
+        case (infix: ScInfixExpr                       , tuple: ScTuple) => tupleInInfixNeedParentheses(infix, from, tuple)
+        case (infix: ScInfixExpr                       , elem: PsiElement) if ScUnderScoreSectionUtil.isUnderscoreFunction(elem) => true
+        case (_                                        , _: ScReferenceExpression | _: ScMethodCall |
+                                                         _: ScGenericCall | _: ScLiteral | _: ScTuple |
+                                                         _: ScXmlExpr | _: ScParenthesisedExpr | _: ScUnitExpr |
+                                                         _: ScThisReference | _: ScSuperReference) => false
+        case (_: ScMethodCall | _: ScUnderscoreSection , _) => true
+        case (_                                        , _: ScBlock) => false
+        case (_: ScGenericCall                         , _) => true
+        case (_: ScReferenceExpression                 , _: ScNewTemplateDefinition) =>
+          val lastChar: Char = expr.getText.last
+          lastChar != ')' && lastChar != '}' && lastChar != ']'
+        case (_: ScReferenceExpression                 , _) => true
+        case (_                                        , _: ScNewTemplateDefinition |
+                                                         _: ScUnderscoreSection) => false
+        case (_: ScPrefixExpr                          , _) => true
+        case (_                                        , _: ScPrefixExpr) => false
+        case (par: ScInfixExpr                         , child: ScInfixExpr) => infixInInfixParentheses(par, child)
+        case (_                                        , _: ScInfixExpr) => false
+        case (_: ScPostfixExpr | _: ScInfixExpr        , _) => true
+        case (_                                        , _: ScPostfixExpr) => false
+        case (_: ScTypedStmt | _: ScMatchStmt          , _) => true
+        case _ => false
+      }
+    }
+  }
+
+//  //old version
+//  def needParentheses(from: ScExpression, expr: ScExpression): Boolean = {
+//    val parent = from.getParent
+//    (parent, expr) match { //true only for other cases
+//      case _ if !parent.isInstanceOf[ScExpression] => false
+//      case (_: ScTuple, _) => false
+//      case (_: ScReferenceExpression, _: ScBlockExpr) => false
+//      case (_: ScReferenceExpression, _: ScNewTemplateDefinition) if expr.getText.endsWith(")") ||
+//              expr.getText.endsWith("}") || expr.getText.endsWith("]") => false
+//      case (_: ScReferenceExpression, _: ScReferenceExpression) => false
+//      case (_: ScReferenceExpression, _: ScGenericCall) => false
+//      case (_: ScReferenceExpression, _: ScMethodCall) => false
+//      case (_: ScReferenceExpression, _: ScLiteral) => false
+//      case (_: ScReferenceExpression, _) if expr.getText == "_" => false
+//      case (_: ScReferenceExpression, _: ScTuple) => false
+//      case (_: ScReferenceExpression, _: ScXmlExpr) => false
+//      case (_: ScReferenceExpression, _: ScParenthesisedExpr) => false
+//      case (_: ScReferenceExpression, _: ScThisReference) => false
+//      case (_: ScReferenceExpression, _) => true
+//      case (_: ScGenericCall, _: ScReferenceExpression) => false
+//      case (_: ScGenericCall, _: ScMethodCall) => false
+//      case (_: ScGenericCall, _: ScLiteral) => false
+//      case (_: ScGenericCall, _: ScTuple) => false
+//      case (_: ScGenericCall, _: ScXmlExpr) => false
+//      case (_: ScGenericCall, _) if expr.getText == "_" => false
+//      case (_: ScGenericCall, _: ScBlockExpr) => false
+//      case (_: ScGenericCall, _) => true
+//      case (_: ScMethodCall, _: ScReferenceExpression) => false
+//      case (_: ScMethodCall, _: ScMethodCall) => false
+//      case (_: ScMethodCall, _: ScGenericCall) => false
+//      case (_: ScMethodCall, _: ScLiteral) => false
+//      case (_: ScMethodCall, _) if expr.getText == "_" => false
+//      case (_: ScMethodCall, _: ScXmlExpr) => false
+//      case (_: ScMethodCall, _: ScTuple) => false
+//      case (_: ScMethodCall, _) => true
+//      case (_: ScUnderscoreSection, _: ScReferenceExpression) => false
+//      case (_: ScUnderscoreSection, _: ScMethodCall) => false
+//      case (_: ScUnderscoreSection, _: ScGenericCall) => false
+//      case (_: ScUnderscoreSection, _: ScLiteral) => false
+//      case (_: ScUnderscoreSection, _) if expr.getText == "_" => false
+//      case (_: ScUnderscoreSection, _: ScXmlExpr) => false
+//      case (_: ScUnderscoreSection, _: ScTuple) => false
+//      case (_: ScUnderscoreSection, _) => true
+//      case (_: ScBlock, _) => false
+//      case (_: ScPrefixExpr, _: ScBlockExpr) => false
+//      case (_: ScPrefixExpr, _: ScNewTemplateDefinition) => false
+//      case (_: ScPrefixExpr, _: ScUnderscoreSection) => false
+//      case (_: ScPrefixExpr, _: ScReferenceExpression) => false
+//      case (_: ScPrefixExpr, _: ScGenericCall) => false
+//      case (_: ScPrefixExpr, _: ScMethodCall) => false
+//      case (_: ScPrefixExpr, _: ScLiteral) => false
+//      case (_: ScPrefixExpr, _) if expr.getText == "_" => false
+//      case (_: ScPrefixExpr, _: ScTuple) => false
+//      case (_: ScPrefixExpr, _: ScXmlExpr) => false
+//      case (_: ScPrefixExpr, _) => true
+//      case (_: ScInfixExpr, _: ScBlockExpr) => false
+//      case (_: ScInfixExpr, _: ScNewTemplateDefinition) => false
+//      case (_: ScInfixExpr, _: ScUnderscoreSection) => false
+//      case (_: ScInfixExpr, _: ScReferenceExpression) => false
+//      case (_: ScInfixExpr, _: ScGenericCall) => false
+//      case (_: ScInfixExpr, _: ScMethodCall) => false
+//      case (_: ScInfixExpr, _: ScLiteral) => false
+//      case (_: ScInfixExpr, _) if expr.getText == "_" => false
+//      case (_: ScInfixExpr, _: ScTuple) => false
+//      case (_: ScInfixExpr, _: ScXmlExpr) => false
+//      case (_: ScInfixExpr, _: ScPrefixExpr) => false
+//      case (_: ScInfixExpr, _: ScParenthesisedExpr) => false
+//      case (_: ScInfixExpr, _: ScThisReference) => false
+//      case (par: ScInfixExpr, child: ScInfixExpr) => {
+//        import ParserUtils._
+//        import InfixExpr._
+//        if (par.lOp == from) {
+//          val lid = par.operation.getText
+//          val rid = child.operation.getText
+//          if (priority(lid) < priority(rid)) true
+//          else if (priority(rid) < priority(lid)) false
+//          else if (associate(lid) != associate(rid)) true
+//          else if (associate(lid) == -1) true
+//          else false
+//        }
+//        else {
+//          val lid = child.operation.getText
+//          val rid = par.operation.getText
+//          if (priority(lid) < priority(rid)) false
+//          else if (priority(rid) < priority(lid)) true
+//          else if (associate(lid) != associate(rid)) true
+//          else if (associate(lid) == -1) false
+//          else true
+//        }
+//      }
+//      case (_: ScInfixExpr, _) => true
+//      case (_: ScPostfixExpr, _: ScBlockExpr) => false
+//      case (_: ScPostfixExpr, _: ScNewTemplateDefinition) => false
+//      case (_: ScPostfixExpr, _: ScUnderscoreSection) => false
+//      case (_: ScPostfixExpr, _: ScReferenceExpression) => false
+//      case (_: ScPostfixExpr, _: ScGenericCall) => false
+//      case (_: ScPostfixExpr, _: ScMethodCall) => false
+//      case (_: ScPostfixExpr, _: ScLiteral) => false
+//      case (_: ScPostfixExpr, _) if expr.getText == "_" => false
+//      case (_: ScPostfixExpr, _: ScTuple) => false
+//      case (_: ScPostfixExpr, _: ScXmlExpr) => false
+//      case (_: ScPostfixExpr, _: ScPrefixExpr) => false
+//      case (_: ScPostfixExpr, _) => true
+//      case (_: ScTypedStmt, _: ScBlockExpr) => false
+//      case (_: ScTypedStmt, _: ScNewTemplateDefinition) => false
+//      case (_: ScTypedStmt, _: ScUnderscoreSection) => false
+//      case (_: ScTypedStmt, _: ScReferenceExpression) => false
+//      case (_: ScTypedStmt, _: ScGenericCall) => false
+//      case (_: ScTypedStmt, _: ScMethodCall) => false
+//      case (_: ScTypedStmt, _: ScLiteral) => false
+//      case (_: ScTypedStmt, _) if expr.getText == "_" => false
+//      case (_: ScTypedStmt, _: ScTuple) => false
+//      case (_: ScTypedStmt, _: ScXmlExpr) => false
+//      case (_: ScTypedStmt, _: ScPrefixExpr) => false
+//      case (_: ScTypedStmt, _: ScInfixExpr) => false
+//      case (_: ScTypedStmt, _: ScPostfixExpr) => false
+//      case (_: ScTypedStmt, _) => true
+//      case (_: ScMatchStmt, _: ScBlockExpr) => false
+//      case (_: ScMatchStmt, _: ScNewTemplateDefinition) => false
+//      case (_: ScMatchStmt, _: ScUnderscoreSection) => false
+//      case (_: ScMatchStmt, _: ScReferenceExpression) => false
+//      case (_: ScMatchStmt, _: ScGenericCall) => false
+//      case (_: ScMatchStmt, _: ScMethodCall) => false
+//      case (_: ScMatchStmt, _: ScLiteral) => false
+//      case (_: ScMatchStmt, _) if expr.getText == "_" => false
+//      case (_: ScMatchStmt, _: ScTuple) => false
+//      case (_: ScMatchStmt, _: ScXmlExpr) => false
+//      case (_: ScMatchStmt, _: ScPrefixExpr) => false
+//      case (_: ScMatchStmt, _: ScInfixExpr) => false
+//      case (_: ScMatchStmt, _: ScPostfixExpr) => false
+//      case (_: ScMatchStmt, _) => true
+//      case _ => false
+//    }
+//  }
 
   def isScope(element: PsiElement): Boolean = element match {
     case _: ScalaFile | _: ScBlock | _: ScTemplateBody | _: ScPackageContainer | _: ScParameters |
@@ -1511,7 +1706,7 @@ object ScalaPsiUtil {
     annotation.findAttributeValue(name) match {
       case literal: PsiLiteral => stringValueOf(literal)
       case element: ScReferenceElement => element.getReference.toOption
-              .flatMap(_.resolve.asOptionOf[ScBindingPattern])
+              .flatMap(_.resolve().asOptionOf[ScBindingPattern])
               .flatMap(_.getParent.asOptionOf[ScPatternList])
               .filter(_.allPatternsSimple)
               .flatMap(_.getParent.asOptionOf[ScPatternDefinition])
@@ -1598,8 +1793,10 @@ object ScalaPsiUtil {
   }
 
   def isReadonly(e: PsiElement): Boolean = {
-    if(e.isInstanceOf[ScClassParameter]) {
-      return e.asInstanceOf[ScClassParameter].isVal
+    e match {
+      case classParameter: ScClassParameter =>
+        return classParameter.isVal
+      case _ =>
     }
 
     if(e.isInstanceOf[ScParameter]) {
@@ -1632,11 +1829,11 @@ object ScalaPsiUtil {
         val op = inf.operation
         op.bind() match {
           case Some(ScalaResolveResult(fun: ScFunction, _)) =>
-            fun.clauses.map(clause => {
+            fun.clauses.exists(clause => {
               val clauses = clause.clauses
               if (clauses.length == 0) false
               else !clauses(0).parameters.forall(p => !p.isCallByNameParameter)
-            }).getOrElse(false)
+            })
           case _ => false
         }
       case _ => false

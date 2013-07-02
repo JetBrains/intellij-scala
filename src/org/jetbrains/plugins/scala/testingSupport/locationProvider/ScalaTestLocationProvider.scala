@@ -33,7 +33,7 @@ class ScalaTestLocationProvider extends TestLocationProvider {
         locationData match {
           case SpecsHintPattern(className, fileName, lineNumber) =>
             val clazzes = ScalaPsiManager.instance(project).getCachedClasses(GlobalSearchScope.allScope(project), className)
-            val found = clazzes.find(c => Option(c.getContainingFile).map(_.name == fileName).getOrElse(false))
+            val found = clazzes.find(c => Option(c.getContainingFile).exists(_.name == fileName))
 
             found match {
               case Some(file) =>
@@ -71,7 +71,7 @@ class ScalaTestLocationProvider extends TestLocationProvider {
           case ScalaTestLineInFinePattern(className, fileName, lineNumber, testName) =>
             val clazzes: Array[PsiClass] =
               ScalaPsiManager.instance(project).getCachedClasses(GlobalSearchScope.allScope(project), className)
-            val found = clazzes.find(c => Option(c.getContainingFile).map(_.name == fileName).getOrElse(false))
+            val found = clazzes.find(c => Option(c.getContainingFile).exists(_.name == fileName))
             found match {
               case Some(file) =>
                 res.add(createLocationFor(project, file.getContainingFile, lineNumber.toInt, Some(testName)))
@@ -115,7 +115,7 @@ class ScalaTestLocationProvider extends TestLocationProvider {
     var found = false
     while (offset <= endOffset && !found) {
       elementAtLine = psiFile.findElementAt(offset)
-      if (!(elementAtLine.isInstanceOf[PsiWhiteSpace])) {
+      if (!elementAtLine.isInstanceOf[PsiWhiteSpace]) {
         found = true
       }
       val length: Int = elementAtLine.getTextLength

@@ -76,32 +76,31 @@ class ScalaFieldEvaluator(objectEvaluator: Evaluator, filter: ReferenceType => B
   }
   
   private def findField(t: Type, context: EvaluationContextImpl): Field = {
-    if (t.isInstanceOf[ClassType]) {
-      val cls: ClassType = t.asInstanceOf[ClassType]
-      if (filter(cls)) {
-        return fieldByName(cls, fieldName)
-      }
-      import scala.collection.JavaConversions._
-      for (interfaceType <- cls.interfaces) {
-        val field: Field = findField(interfaceType, context)
-        if (field != null) {
-          return field
+    t match {
+      case cls: ClassType =>
+        if (filter(cls)) {
+          return fieldByName(cls, fieldName)
         }
-      }
-      return findField(cls.superclass, context)
-    }
-    else if (t.isInstanceOf[InterfaceType]) {
-      val iface: InterfaceType = t.asInstanceOf[InterfaceType]
-      if (filter(iface)) {
-        return fieldByName(iface, fieldName)
-      }
-      import scala.collection.JavaConversions._
-      for (interfaceType <- iface.superinterfaces) {
-        val field: Field = findField(interfaceType, context)
-        if (field != null) {
-          return field
+        import scala.collection.JavaConversions._
+        for (interfaceType <- cls.interfaces) {
+          val field: Field = findField(interfaceType, context)
+          if (field != null) {
+            return field
+          }
         }
-      }
+        return findField(cls.superclass, context)
+      case iface: InterfaceType =>
+        if (filter(iface)) {
+          return fieldByName(iface, fieldName)
+        }
+        import scala.collection.JavaConversions._
+        for (interfaceType <- iface.superinterfaces) {
+          val field: Field = findField(interfaceType, context)
+          if (field != null) {
+            return field
+          }
+        }
+      case _ =>
     }
     null
   }
@@ -131,8 +130,10 @@ class ScalaFieldEvaluator(objectEvaluator: Evaluator, filter: ReferenceType => B
         if (!(refType.isInstanceOf[ClassType] || refType.isInstanceOf[ArrayType])) {
           throw EvaluateExceptionUtil.createEvaluateException(DebuggerBundle.message("evaluation.error.class.or.array.expected", fieldName))
         }
-        if (objRef.isInstanceOf[ArrayReference] && "length" == fieldName) {
-          return DebuggerUtilsEx.createValue(context.getDebugProcess.getVirtualMachineProxy, "int", (objRef.asInstanceOf[ArrayReference]).length)
+        objRef match {
+          case arrayRef: ArrayReference if "length" == fieldName =>
+            return DebuggerUtilsEx.createValue(context.getDebugProcess.getVirtualMachineProxy, "int", arrayRef.length)
+          case _ =>
         }
         var field: Field = findField(refType, context)
         if (field == null) {
@@ -180,10 +181,11 @@ class ScalaFieldEvaluator(objectEvaluator: Evaluator, filter: ReferenceType => B
         }
 
         def getInspectItem(project: Project): NodeDescriptorImpl = {
-          if (myEvaluatedQualifier.isInstanceOf[ObjectReference]) {
-            new FieldDescriptorImpl(project, myEvaluatedQualifier.asInstanceOf[ObjectReference], myEvaluatedField)
+          myEvaluatedQualifier match {
+            case reference: ObjectReference =>
+              new FieldDescriptorImpl(project, reference, myEvaluatedField)
+            case _ => null
           }
-          else null
         }
       }
     }

@@ -6,7 +6,6 @@ import com.intellij.lang.{LanguageParserDefinitions, Language, CodeDocumentation
 import com.intellij.codeInsight.editorActions.{JavaLikeQuoteHandler, TypedHandler, QuoteHandler, CommentCompleteHandler}
 import com.intellij.psi.tree.IElementType
 import com.intellij.psi.{PsiErrorElement, PsiElement, PsiFile, PsiComment}
-import org.jetbrains.plugins.scala.lang.editor.ScalaQuoteHandler
 import com.intellij.openapi.editor.Editor
 
 /**
@@ -31,9 +30,10 @@ class ScalaIsCommentComplete extends CommentCompleteHandler {
     lexer.start(commentText, if (commentPrefix eq null) 0 else commentPrefix.length, commentText.length)
     val fileTypeHandler: QuoteHandler = TypedHandler.getQuoteHandler(containingFile, editor)
     val javaLikeQuoteHandler: JavaLikeQuoteHandler =
-      if (fileTypeHandler.isInstanceOf[JavaLikeQuoteHandler])
-        fileTypeHandler.asInstanceOf[JavaLikeQuoteHandler]
-      else null
+      fileTypeHandler match {
+        case quoteHandler: JavaLikeQuoteHandler => quoteHandler
+        case _ => null
+      }
     while (true) {
       val tokenType: IElementType = lexer.getTokenType
       if (tokenType eq null) {
@@ -67,13 +67,13 @@ class ScalaIsCommentComplete extends CommentCompleteHandler {
         lexer.advance()
       }
     }
-    return false
+    false
   }
 
   private def isDocComment(element: PsiElement, commenter: CodeDocumentationAwareCommenter): Boolean = {
-    if (!(element.isInstanceOf[PsiComment])) return false
+    if (!element.isInstanceOf[PsiComment]) return false
     val comment: PsiComment = element.asInstanceOf[PsiComment]
-    return commenter.isDocumentationComment(comment)
+    commenter.isDocumentationComment(comment)
   }
 
   private def isInvalidPsi(base: PsiElement): Boolean = {
@@ -84,6 +84,6 @@ class ScalaIsCommentComplete extends CommentCompleteHandler {
       }
       current = current.getNextSibling
     }
-    return false
+    false
   }
 }

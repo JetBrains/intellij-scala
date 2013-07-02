@@ -31,8 +31,10 @@ object ScalaDocPsiCreator {
         var parrentNode = node
         while (parrentNode != null && parrentNode.getElementType != SCALA_DOC_COMMENT) {
           parrentNode = parrentNode.getTreeParent
-          if (parrentNode.getElementType.isInstanceOf[ScaladocSyntaxElementType]){
-            element.setFlag(parrentNode.getElementType.asInstanceOf[ScaladocSyntaxElementType].getFlagConst)
+          parrentNode.getElementType match {
+            case a: ScaladocSyntaxElementType =>
+              element.setFlag(a.getFlagConst)
+            case _ =>
           }
         }
 

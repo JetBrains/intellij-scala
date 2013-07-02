@@ -93,7 +93,10 @@ class ScPackagingImpl extends ScalaStubBasedElementImpl[ScPackageContainer] with
       val buffer = new ArrayBuffer[ScTypeDefinition]
       var curr = getFirstChild
       while (curr != null) {
-        if (curr.isInstanceOf[ScTypeDefinition]) buffer += curr.asInstanceOf[ScTypeDefinition]
+        curr match {
+          case definition: ScTypeDefinition => buffer += definition
+          case _ =>
+        }
         curr = curr.getNextSibling
       }
       buffer.toSeq

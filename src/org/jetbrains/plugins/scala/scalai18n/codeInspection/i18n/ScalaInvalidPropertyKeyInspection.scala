@@ -95,7 +95,7 @@ class ScalaInvalidPropertyKeyInspection extends LocalInspectionTool {
   class UnresolvedPropertyVisitor(myManager: InspectionManager, onTheFly: Boolean) extends ScalaRecursiveElementVisitor {
     override def visitLiteral(expression: ScLiteral) {
       val value: AnyRef = expression.getValue
-      if (value == null || !(value.isInstanceOf[String])) return
+      if (value == null || !value.isInstanceOf[String]) return
       val key: String = value.asInstanceOf[String]
       if (UnresolvedPropertyVisitor.isComputablePropertyExpression(expression)) return
       val resourceBundleName: Ref[String] = new Ref[String]
@@ -103,56 +103,56 @@ class ScalaInvalidPropertyKeyInspection extends LocalInspectionTool {
         UnresolvedPropertyVisitor.appendPropertyKeyNotFoundProblem(resourceBundleName.get, key,
           expression, myManager, myProblems, onTheFly)
       }
-      else if (expression.getParent.isInstanceOf[ScNameValuePair]) {
-        val nvp: ScNameValuePair = expression.getParent.asInstanceOf[ScNameValuePair]
-        if (Comparing.equal(nvp.getName, AnnotationUtil.PROPERTY_KEY_RESOURCE_BUNDLE_PARAMETER)) {
-          val manager: PropertiesReferenceManager = PropertiesReferenceManager.getInstance(expression.getProject)
-          val module: Module = ModuleUtilCore.findModuleForPsiElement(expression)
-          if (module != null) {
-            val propFiles: List[PropertiesFile] = manager.findPropertiesFiles(module, key)
-            if (propFiles.isEmpty) {
-              val description: String = CodeInsightBundle.message("inspection.invalid.resource.bundle.reference", key)
-              val problem: ProblemDescriptor = myManager.createProblemDescriptor(expression, description, null.asInstanceOf[LocalQuickFix], ProblemHighlightType.LIKE_UNKNOWN_SYMBOL, onTheFly)
-              myProblems.add(problem)
-            }
-          }
-        }
-      }
-      else if (expression.getParent.isInstanceOf[ScArgumentExprList] &&
-        expression.getParent.getParent.isInstanceOf[ScMethodCall]) {
-        val annotationParams = new mutable.HashMap[String, AnyRef]
-        annotationParams.put(AnnotationUtil.PROPERTY_KEY_RESOURCE_BUNDLE_PARAMETER, null)
-        if (!ScalaI18nUtil.mustBePropertyKey(myManager.getProject, expression, annotationParams)) return
-        val paramsCount: java.lang.Integer  = ScalaI18nUtil.getPropertyValueParamsMaxCount(expression)
-        if (paramsCount == -1) return
-        val expressions: ScArgumentExprList = expression.getParent.asInstanceOf[ScArgumentExprList]
-        val methodCall: ScMethodCall = expressions.getParent.asInstanceOf[ScMethodCall]
-        val invokedExpr = methodCall.getInvokedExpr
-        if (invokedExpr.isInstanceOf[ScReferenceExpression]) {
-          val methodResolved = invokedExpr.asInstanceOf[ScReferenceExpression].resolve()
-          if (methodResolved.isInstanceOf[PsiMethod]) {
-            val method = methodResolved.asInstanceOf[PsiMethod]
-            val args: Array[ScExpression] = expressions.exprsArray
-            var i: Int = 0
-            var flag = true
-            while (i < args.length && flag) {
-              if (args(i) eq expression) {
-                val param: java.lang.Integer = args.length - i - 1
-                val parameters =  method.getParameterList.getParameters
-                if (i + paramsCount >= args.length && method != null &&
-                  method.getParameterList.getParametersCount == i + 2 &&
-                  parameters(i + 1).isVarArgs) {
-                  myProblems.add(myManager.createProblemDescriptor(methodCall,
-                  CodeInsightBundle.message("property.has.more.parameters.than.passed", key, paramsCount, param),
-                    onTheFly, new Array[LocalQuickFix](0), ProblemHighlightType.GENERIC_ERROR))
-                }
-                flag = false
+      else
+        expression.getParent match {
+        case nvp: ScNameValuePair =>
+          if (Comparing.equal(nvp.getName, AnnotationUtil.PROPERTY_KEY_RESOURCE_BUNDLE_PARAMETER)) {
+            val manager: PropertiesReferenceManager = PropertiesReferenceManager.getInstance(expression.getProject)
+            val module: Module = ModuleUtilCore.findModuleForPsiElement(expression)
+            if (module != null) {
+              val propFiles: List[PropertiesFile] = manager.findPropertiesFiles(module, key)
+              if (propFiles.isEmpty) {
+                val description: String = CodeInsightBundle.message("inspection.invalid.resource.bundle.reference", key)
+                val problem: ProblemDescriptor = myManager.createProblemDescriptor(expression, description, null.asInstanceOf[LocalQuickFix], ProblemHighlightType.LIKE_UNKNOWN_SYMBOL, onTheFly)
+                myProblems.add(problem)
               }
-              i += 1
-              i
             }
           }
-        }
+        case expressions: ScArgumentExprList if expression.getParent.getParent.isInstanceOf[ScMethodCall] =>
+          val annotationParams = new mutable.HashMap[String, AnyRef]
+          annotationParams.put(AnnotationUtil.PROPERTY_KEY_RESOURCE_BUNDLE_PARAMETER, null)
+          if (!ScalaI18nUtil.mustBePropertyKey(myManager.getProject, expression, annotationParams)) return
+          val paramsCount: java.lang.Integer = ScalaI18nUtil.getPropertyValueParamsMaxCount(expression)
+          if (paramsCount == -1) return
+          val methodCall: ScMethodCall = expressions.getParent.asInstanceOf[ScMethodCall]
+          methodCall.getInvokedExpr match {
+            case referenceExpression: ScReferenceExpression =>
+              referenceExpression.resolve() match {
+                case method: PsiMethod =>
+                  val args: Array[ScExpression] = expressions.exprsArray
+                  var i: Int = 0
+                  var flag = true
+                  while (i < args.length && flag) {
+                    if (args(i) eq expression) {
+                      val param: java.lang.Integer = args.length - i - 1
+                      val parameters = method.getParameterList.getParameters
+                      if (i + paramsCount >= args.length && method != null &&
+                              method.getParameterList.getParametersCount == i + 2 &&
+                              parameters(i + 1).isVarArgs) {
+                        myProblems.add(myManager.createProblemDescriptor(methodCall,
+                          CodeInsightBundle.message("property.has.more.parameters.than.passed", key, paramsCount, param),
+                          onTheFly, new Array[LocalQuickFix](0), ProblemHighlightType.GENERIC_ERROR))
+                      }
+                      flag = false
+                    }
+                    i += 1
+                    i
+                  }
+                case _ =>
+              }
+            case _ =>
+          }
+        case _ =>
       }
     }
 

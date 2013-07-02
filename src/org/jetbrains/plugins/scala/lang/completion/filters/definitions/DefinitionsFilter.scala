@@ -36,12 +36,13 @@ class DefinitionsFilter extends ElementFilter {
         if (p == null) return null
         p.getParent match {
           case parent@(_: ScBlock | _: ScCaseClause | _: ScTemplateBody | _: ScClassParameter | _: ScalaFile) => {
-            if (parent.isInstanceOf[ScCaseClause]) {
-              val clause = parent.asInstanceOf[ScCaseClause]
-              clause.funType match {
-                case Some(elem) => if (leaf.getTextRange.getStartOffset <= elem.getTextRange.getStartOffset) return null
-                case _ => return null
-              }
+            parent match {
+              case clause: ScCaseClause =>
+                clause.funType match {
+                  case Some(elem) => if (leaf.getTextRange.getStartOffset <= elem.getTextRange.getStartOffset) return null
+                  case _ => return null
+                }
+              case _ =>
             }
             if (!parent.isInstanceOf[ScalaFile] || parent.asInstanceOf[ScalaFile].isScriptFile())
               if ((leaf.getPrevSibling == null || leaf.getPrevSibling.getPrevSibling == null ||

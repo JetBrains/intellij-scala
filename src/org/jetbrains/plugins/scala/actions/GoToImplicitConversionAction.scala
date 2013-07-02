@@ -264,8 +264,10 @@ class GoToImplicitConversionAction extends AnAction("Go to implicit conversion a
           if (!e.isPopupTrigger && e.getButton == MouseEvent.BUTTON1) {
             val tuple = GoToImplicitConversionAction.getList.getSelectedValue.asInstanceOf[Parameters]
             val function: ScFunction =
-              if (tuple.getNewExpression.isInstanceOf[ScFunction]) tuple.getNewExpression.asInstanceOf[ScFunction]
-              else null
+              tuple.getNewExpression match {
+                case fun: ScFunction => fun
+                case _ => null
+              }
             if (function == null) return
 
             IntentionUtils.showMakeExplicitPopup(project, expr, function, editor, secondPart, getCurrentItemBounds _)

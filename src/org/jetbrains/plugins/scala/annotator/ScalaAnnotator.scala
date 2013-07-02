@@ -17,11 +17,11 @@ import org.jetbrains.plugins.scala.lang.resolve._
 import com.intellij.codeInspection._
 import org.jetbrains.plugins.scala.annotator.intention._
 import params.{ScParameter, ScParameters, ScClassParameter}
-import patterns.{ScBindingPattern, ScConstructorPattern, ScPattern, ScInfixPattern}
+import patterns.{ScConstructorPattern, ScPattern, ScInfixPattern}
 import processor.MethodResolveProcessor
 import modifiers.ModifierChecker
 import com.intellij.psi._
-import quickfix.{ChangeTypeFix, ReportHighlightingErrorQuickFix}
+import org.jetbrains.plugins.scala.annotator.quickfix.{WrapInOptionQuickFix, ChangeTypeFix, ReportHighlightingErrorQuickFix}
 import template._
 import com.intellij.openapi.project.DumbAware
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression.ExpressionTypeResult
@@ -41,7 +41,7 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import highlighter.{DefaultHighlighter, AnnotatorHighlighter}
 import types.{ScParameterizedTypeElement, ScTypeProjection, ScTypeElement}
 import com.intellij.openapi.util.{TextRange, Key}
-import collection.mutable.{ArrayBuffer, HashSet}
+import collection.mutable.ArrayBuffer
 import com.intellij.codeInsight.daemon.impl.AnnotationHolderImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScInterpolatedStringPrefixReference
 import codeInspection.caseClassParamInspection.{RemoveValFromGeneratorIntentionAction, RemoveValFromEnumeratorIntentionAction}
@@ -156,8 +156,10 @@ with DumbAware {
 
 
       override def visitLiteral(l: ScLiteral) {
-        if (l.isInstanceOf[ScInterpolatedStringLiteral] && l.getFirstChild != null) {
-          highlightWrongInterpolatedString(l.asInstanceOf[ScInterpolatedStringLiteral], holder)
+        l match {
+          case interpolated: ScInterpolatedStringLiteral if l.getFirstChild != null =>
+            highlightWrongInterpolatedString(interpolated, holder)
+          case _ =>
         }
         super.visitLiteral(l)
       }
@@ -328,25 +330,27 @@ with DumbAware {
     element.accept(visitor)
     AnnotatorHighlighter.highlightElement(element, holder)
 
-    if (element.isInstanceOf[ScTemplateDefinition]) {
-      val templateDefinition = element.asInstanceOf[ScTemplateDefinition]
-      val tdParts = Seq(AbstractInstantiation, FinalClassInheritance, IllegalInheritance, ObjectCreationImpossible,
-        MultipleInheritance, NeedsToBeAbstract, NeedsToBeMixin, NeedsToBeTrait, SealedClassInheritance, UndefinedMember)
-      tdParts.foreach(_.annotate(templateDefinition, holder, typeAware))
-      templateDefinition match {
-        case cls: ScClass =>
-          val clsParts = Seq(CaseClassWithoutParamList, HasImplicitParamAndBound)
-          clsParts.foreach(_.annotate(cls, holder, typeAware))
-        case trt: ScTrait =>
-          val traitParts = Seq(TraitHasImplicitBound)
-          traitParts.foreach(_.annotate(trt, holder, typeAware))
-        case _ =>
-      }
+    element match {
+      case templateDefinition: ScTemplateDefinition =>
+        val tdParts = Seq(AbstractInstantiation, FinalClassInheritance, IllegalInheritance, ObjectCreationImpossible,
+          MultipleInheritance, NeedsToBeAbstract, NeedsToBeMixin, NeedsToBeTrait, SealedClassInheritance, UndefinedMember)
+        tdParts.foreach(_.annotate(templateDefinition, holder, typeAware))
+        templateDefinition match {
+          case cls: ScClass =>
+            val clsParts = Seq(CaseClassWithoutParamList, HasImplicitParamAndBound)
+            clsParts.foreach(_.annotate(cls, holder, typeAware))
+          case trt: ScTrait =>
+            val traitParts = Seq(TraitHasImplicitBound)
+            traitParts.foreach(_.annotate(trt, holder, typeAware))
+          case _ =>
+        }
+      case _ =>
     }
 
-    if (element.isInstanceOf[ScTypeBoundsOwner]) {
-      val sTypeParam = element.asInstanceOf[ScTypeBoundsOwner]
-      checkTypeParamBounds(sTypeParam, holder)
+    element match {
+      case sTypeParam: ScTypeBoundsOwner =>
+        checkTypeParamBounds(sTypeParam, holder)
+      case _ =>
     }
     //todo: super[ControlFlowInspections].annotate(element, holder)
   }
@@ -527,14 +531,17 @@ with DumbAware {
       }
     } else {
       AnnotatorHighlighter.highlightReferenceElement(refElement, holder)
+      def showError(): Unit = {
+        val error = ScalaBundle.message("forward.reference.detected")
+        val annotation = holder.createErrorAnnotation(refElement.nameId, error)
+        annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
+      }
       resolve(0) match {
         case r: ScalaResolveResult if r.isForwardReference =>
           ScalaPsiUtil.nameContext(r.getActualElement) match {
-            case _: ScValue | _: ScVariable | _: ScObject =>
-              val error = ScalaBundle.message("forward.reference.detected")
-              val annotation = holder.createErrorAnnotation(refElement.nameId, error)
-              annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
-            case _ => //todo: check forward references for functions, classes
+            case v: ScValue if !v.hasModifierProperty("lazy") => showError()
+            case _: ScVariable | _: ScObject => showError()
+            case _ => //todo: check forward references for functions, classes, lazy values
           }
         case _ =>
       }
@@ -822,15 +829,20 @@ with DumbAware {
               val conformance = ScalaAnnotator.smartCheckConformance(expectedType, exprType)
               if (!conformance) {
                 if (typeAware) {
-                  val error = ScalaBundle.message("expr.type.does.not.conform.expected.type",
-                    ScType.presentableText(exprType.getOrNothing), ScType.presentableText(expectedType.get))
                   val markedPsi = (expr, expr.getParent) match {
                     case (b: ScBlockExpr, _) => b.getRBrace.map(_.getPsi).getOrElse(expr)
                     case (_, b: ScBlockExpr) => b.getRBrace.map(_.getPsi).getOrElse(expr)
                     case _ => expr
                   }
+
+                  val error = ScalaBundle.message("expr.type.does.not.conform.expected.type",
+                    ScType.presentableText(exprType.getOrNothing), ScType.presentableText(expectedType.get))
                   val annotation: Annotation = holder.createErrorAnnotation(markedPsi, error)
                   annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
+                  if (WrapInOptionQuickFix.isAvailable(expr, expectedType, exprType)) {
+                    val wrapInOptionFix = new WrapInOptionQuickFix(expr, expectedType, exprType)
+                    annotation.registerFix(wrapInOptionFix)
+                  }
                   typeElement match {
                     case Some(te) => annotation.registerFix(new ChangeTypeFix(te, exprType.getOrNothing))
                     case None =>

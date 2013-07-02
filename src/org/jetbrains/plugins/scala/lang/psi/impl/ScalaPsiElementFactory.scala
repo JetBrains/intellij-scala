@@ -8,7 +8,6 @@ import api.toplevel.packaging.ScPackaging
 import com.intellij.lang.{PsiBuilderFactory, ASTNode}
 import com.intellij.psi.impl.compiled.ClsParameterImpl
 import api.statements._
-import collection.mutable.HashSet
 import com.intellij.psi.impl.source.tree.{TreeElement, FileElement}
 import com.intellij.psi.impl.source.DummyHolderFactory
 import expr.ScBlockImpl
@@ -20,7 +19,6 @@ import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports._
 import com.intellij.psi._
-import impl.PsiElementFactoryImpl
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import parser.parsing.statements.{Dcl, Def}
 import com.intellij.psi.util.PsiTreeUtil
@@ -51,6 +49,7 @@ import settings._
 import com.intellij.psi.search.GlobalSearchScope
 import java.util
 import com.intellij.pom.java.LanguageLevel
+import scala.collection.mutable
 
 class ScalaPsiElementFactoryImpl(manager: PsiManager) extends JVMElementFactory {
 
@@ -186,11 +185,12 @@ object ScalaPsiElementFactory {
     val node = builder.getTreeBuilt
     holder.rawAddChildren(node.asInstanceOf[TreeElement])
     val psi = node.getPsi
-    if (psi.isInstanceOf[ScParameterClause]) {
-      val fun = psi.asInstanceOf[ScParameterClause]
-      fun.asInstanceOf[ScalaPsiElement].setContext(context, contextLastChild(context))
-      fun
-    } else null
+    psi match {
+      case fun: ScParameterClause =>
+        fun.asInstanceOf[ScalaPsiElement].setContext(context, contextLastChild(context))
+        fun
+      case _ => null
+    }
   }
 
   def createImplicitClassParamClauseFromTextWithContext(clauseText: String, manager: PsiManager,
@@ -205,11 +205,12 @@ object ScalaPsiElementFactory {
     val node = builder.getTreeBuilt
     holder.rawAddChildren(node.asInstanceOf[TreeElement])
     val psi = node.getPsi
-    if (psi.isInstanceOf[ScParameterClause]) {
-      val fun = psi.asInstanceOf[ScParameterClause]
-      fun.asInstanceOf[ScalaPsiElement].setContext(context, contextLastChild(context))
-      fun
-    } else null
+    psi match {
+      case fun: ScParameterClause =>
+        fun.asInstanceOf[ScalaPsiElement].setContext(context, contextLastChild(context))
+        fun
+      case _ => null
+    }
   }
 
   def createEmptyClassParamClauseWithContext(manager: PsiManager, context: PsiElement): ScParameterClause = {
@@ -222,11 +223,12 @@ object ScalaPsiElementFactory {
     val node = builder.getTreeBuilt
     holder.rawAddChildren(node.asInstanceOf[TreeElement])
     val psi = node.getPsi
-    if (psi.isInstanceOf[ScParameterClause]) {
-      val fun = psi.asInstanceOf[ScParameterClause]
-      fun.asInstanceOf[ScalaPsiElement].setContext(context, contextLastChild(context))
-      fun
-    } else null
+    psi match {
+      case fun: ScParameterClause =>
+        fun.asInstanceOf[ScalaPsiElement].setContext(context, contextLastChild(context))
+        fun
+      case _ => null
+    }
   }
 
   private def contextLastChild(context: PsiElement): PsiElement = {
@@ -344,13 +346,14 @@ object ScalaPsiElementFactory {
     val builder: ScalaPsiBuilderImpl =
       new ScalaPsiBuilderImpl(PsiBuilderFactory.getInstance.createBuilder(context.getProject, holder,
         new ScalaLexer, ScalaFileType.SCALA_LANGUAGE, text))
-    Block.parse(builder, false, true)
+    Block.parse(builder, hasBrace = false, needNode = true)
     val node = builder.getTreeBuilt
     holder.rawAddChildren(node.asInstanceOf[TreeElement])
     val psi = node.getPsi
-    if (psi.isInstanceOf[ScBlockImpl]) {
-      psi.asInstanceOf[ScBlockImpl]
-    } else null
+    psi match {
+      case blockImpl: ScBlockImpl => blockImpl
+      case _ => null
+    }
   }
 
 
@@ -439,7 +442,7 @@ object ScalaPsiElementFactory {
   def createBigImportStmt(expr: ScImportExpr, exprs: Array[ScImportExpr], manager: PsiManager): ScImportStmt = {
     val qualifier = expr.qualifier.getText
     var text = "import " + qualifier
-    val names = new HashSet[String]
+    val names = new mutable.HashSet[String]
     names ++= expr.getNames
     for (expr <- exprs) names ++= expr.getNames
     if ((names("_") ||
@@ -485,16 +488,35 @@ object ScalaPsiElementFactory {
       case _ => throw new com.intellij.util.IncorrectOperationException()
     }
   }
+
   def createDeclaration(typez: ScType, name: String, isVariable: Boolean,
-                        expr: ScExpression, manager: PsiManager): ScMember = {
-    createDeclaration(typez, name, isVariable, expr.getText, manager)
+                        expr: ScExpression, manager: PsiManager, isPresentableText: Boolean): ScMember = {
+    val typeText = if(isPresentableText) typez.presentableText else typez.canonicalText
+    createDeclaration(name, typeText, isVariable, expr, manager)
   }
+
   def createDeclaration(typez: ScType, name: String, isVariable: Boolean,
                         exprText: String, manager: PsiManager, isPresentableText: Boolean = false): ScMember = {
-    val typeToString = if (isPresentableText) ScType.presentableText _ else ScType.canonicalText _
-    val text = "class a {" + (if (isVariable) "var " else "val ") +
-              name + (if (typez != null && typeToString(typez) != "") ": "  +
-            typeToString(typez) else "") + " = " + exprText + "}"
+    val expr = createExpressionFromText(exprText, manager)
+    createDeclaration(typez, name, isVariable, expr, manager, isPresentableText)
+  }
+
+  def createDeclaration(name: String, typeName: String, isVariable: Boolean, expr: ScExpression, manager: PsiManager): ScMember = {
+    val exprText: String =  expr match {
+      case ScFunctionExpr(Seq(param), Some(result)) if param.typeElement.isDefined =>
+        if (param.getPrevSiblingNotWhitespace == null) {
+          s"(${param.getText}) => ${result.getText}"
+        } else expr.getText
+      case null => ""
+      case _ => expr.getText
+    }
+    val typeText =
+      if (typeName != null && typeName != ""){
+        createTypeElementFromText(typeName, manager) //throws an exception if type name is incorrect
+        ": " + typeName
+      }  else ""
+    val keyword: String = if (isVariable) "var" else "val"
+    val text = s"class a {$keyword $name$typeText = $exprText}"
     val dummyFile = createScalaFile(text, manager)
     val classDef = dummyFile.typeDefinitions(0)
     if (!isVariable) classDef.members(0).asInstanceOf[ScValue]
@@ -521,8 +543,14 @@ object ScalaPsiElementFactory {
     classDef.members(0).asInstanceOf[ScVariable]
   }
 
-  def createEnumerator(name: String, expr: ScExpression, manager: PsiManager): ScEnumerator = {
-    val text = "for {\n  i <- 1 to 239\n  " + name + " = " + expr.getText + "\n}"
+  def createEnumerator(name: String, expr: ScExpression, manager: PsiManager, scType: ScType = null): ScEnumerator = {
+    val typeName = if (scType == null) null else scType.presentableText
+    createEnumerator(name, expr, manager, typeName)
+  }
+
+  def createEnumerator(name: String, expr: ScExpression, manager: PsiManager, typeName: String): ScEnumerator = {
+    val typeText = if (typeName == null || typeName == "") "" else ": " + typeName
+    val text = s"for {\n  i <- 1 to 239\n  $name$typeText = ${expr.getText}\n}"
     val dummyFile = createScalaFile(text, manager)
     val forStmt: ScForStatement = dummyFile.getFirstChild.asInstanceOf[ScForStatement]
     forStmt.enumerators.getOrElse(null).enumerators.apply(0)
@@ -635,7 +663,7 @@ object ScalaPsiElementFactory {
       case Some(x) => x
       case None => return false
     }
-    imp.resolve match {
+    imp.resolve() match {
       case x: PsiClass => {
         x.qualifiedName == clazz.qualifiedName
       }
@@ -686,7 +714,7 @@ object ScalaPsiElementFactory {
             }
             res
           }
-          val strings = (for (t <- method.typeParameters) yield get(t))
+          val strings = for (t <- method.typeParameters) yield get(t)
           res += strings.mkString("[", ", ", "]")
         }
         if (method.paramClauses != null) {
@@ -701,7 +729,7 @@ object ScalaPsiElementFactory {
               }
               res
             }
-            val strings = (for (t <- paramClause.parameters) yield get(t))
+            val strings = for (t <- paramClause.parameters) yield get(t)
             res += strings.mkString(if (paramClause.isImplicit) "(implicit " else "(", ", ", ")")
           }
         }
@@ -709,8 +737,8 @@ object ScalaPsiElementFactory {
         val retAndBody = (needsInferType, retType) match {
           case (_, Some(tp)) if tp.equiv(Unit) => body
           case (_, None) if !method.hasAssign => body
-          case (true, Some(retType)) =>
-            var text = ScType.canonicalText(retType)
+          case (true, Some(scType)) =>
+            var text = ScType.canonicalText(scType)
             if (text == "_root_.java.lang.Object") text = "AnyRef"
             val colon = if (method.paramClauses.clauses.isEmpty && method.typeParameters.isEmpty && ScalaNamesUtil.isIdentifier(method.name + ":")) " : " else ": "
             colon + text + " = " + body
@@ -872,11 +900,12 @@ object ScalaPsiElementFactory {
     val node = builder.getTreeBuilt
     holder.rawAddChildren(node.asInstanceOf[TreeElement])
     val psi = node.getPsi
-    if (psi.isInstanceOf[ScFunction]) {
-      val fun = psi.asInstanceOf[ScFunction]
-      fun.asInstanceOf[ScalaPsiElement].setContext(context, child)
-      fun
-    } else null
+    psi match {
+      case fun: ScFunction =>
+        fun.asInstanceOf[ScalaPsiElement].setContext(context, child)
+        fun
+      case _ => null
+    }
   }
 
   def createObjectWithContext(text: String, context: PsiElement, child: PsiElement): ScObject = {
@@ -888,11 +917,12 @@ object ScalaPsiElementFactory {
     val node = builder.getTreeBuilt
     holder.rawAddChildren(node.asInstanceOf[TreeElement])
     val psi = node.getPsi
-    if (psi.isInstanceOf[ScObject]) {
-      val obj = psi.asInstanceOf[ScObject]
-      obj.asInstanceOf[ScalaPsiElement].setContext(context, child)
-      obj
-    } else null
+    psi match {
+      case obj: ScObject =>
+        obj.asInstanceOf[ScalaPsiElement].setContext(context, child)
+        obj
+      case _ => null
+    }
   }
 
   def createReferenceFromText(text: String, context: PsiElement, child: PsiElement): ScStableCodeReferenceElement = {
@@ -904,11 +934,12 @@ object ScalaPsiElementFactory {
     val node = builder.getTreeBuilt
     holder.rawAddChildren(node.asInstanceOf[TreeElement])
     val psi = node.getPsi
-    if (psi.isInstanceOf[ScStableCodeReferenceElement]) {
-      val referenceElement = psi.asInstanceOf[ScStableCodeReferenceElement]
-      referenceElement.asInstanceOf[ScalaPsiElement].setContext(context, child)
-      referenceElement
-    } else null
+    psi match {
+      case referenceElement: ScStableCodeReferenceElement =>
+        referenceElement.asInstanceOf[ScalaPsiElement].setContext(context, child)
+        referenceElement
+      case _ => null
+    }
   }
 
   def createExpressionWithContextFromText(text: String, context: PsiElement, child: PsiElement): ScExpression = {
@@ -940,11 +971,12 @@ object ScalaPsiElementFactory {
     val node = builder.getTreeBuilt
     holder.rawAddChildren(node.asInstanceOf[TreeElement])
     val psi = node.getPsi
-    if (psi.isInstanceOf[ScImportStmt]) {
-      val stmt = psi.asInstanceOf[ScImportStmt]
-      stmt.setContext(context, child)
-      stmt
-    } else null
+    psi match {
+      case stmt: ScImportStmt =>
+        stmt.setContext(context, child)
+        stmt
+      case _ => null
+    }
   }
 
   def createTypeElementFromText(text: String, manager: PsiManager): ScTypeElement = {
@@ -974,7 +1006,18 @@ object ScalaPsiElementFactory {
       ScalaFileType.SCALA_FILE_TYPE, ",").asInstanceOf[ScalaFile]
     dummyFile.findChildrenByType(ScalaTokenTypes.tCOMMA).head
   }
-  
+
+  def createAssign(manager: PsiManager): PsiElement = {
+    val dummyFile = PsiFileFactory.getInstance(manager.getProject).
+            createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension,
+      ScalaFileType.SCALA_FILE_TYPE, "val x = 0").asInstanceOf[ScalaFile]
+    dummyFile.findChildrenByType(ScalaTokenTypes.tASSIGN).head
+  }
+
+  def createWhitespace(manager: PsiManager): PsiElement = {
+    createExpressionFromText("1 + 1", manager).findElementAt(1)
+  }
+
   def createTypeElementFromText(text: String, context: PsiElement, child: PsiElement): ScTypeElement = {
     val holder: FileElement = DummyHolderFactory.createHolder(context.getManager, context).getTreeElement
     val builder: ScalaPsiBuilder =
@@ -984,10 +1027,12 @@ object ScalaPsiElementFactory {
     val node = builder.getTreeBuilt
     holder.rawAddChildren(node.asInstanceOf[TreeElement])
     val psi = node.getPsi
-    if (psi.isInstanceOf[ScTypeElement]) {
-      psi.asInstanceOf[ScalaPsiElement].setContext(context, child)
-      psi.asInstanceOf[ScTypeElement]
-    } else null
+    psi match {
+      case typeElement: ScTypeElement =>
+        psi.asInstanceOf[ScalaPsiElement].setContext(context, child)
+        typeElement
+      case _ => null
+    }
   }
 
   def createConstructorTypeElementFromText(text: String, context: PsiElement, child: PsiElement): ScTypeElement = {
@@ -999,10 +1044,12 @@ object ScalaPsiElementFactory {
     val node = builder.getTreeBuilt
     holder.rawAddChildren(node.asInstanceOf[TreeElement])
     val psi = node.getPsi
-    if (psi.isInstanceOf[ScConstructor]) {
-      psi.asInstanceOf[ScalaPsiElement].setContext(context, child)
-      psi.asInstanceOf[ScConstructor].typeElement
-    } else null
+    psi match {
+      case constructor: ScConstructor =>
+        psi.asInstanceOf[ScalaPsiElement].setContext(context, child)
+        constructor.typeElement
+      case _ => null
+    }
   }
 
   def createTypeParameterClauseFromTextWithContext(text: String, context: PsiElement,
@@ -1015,10 +1062,12 @@ object ScalaPsiElementFactory {
     val node = builder.getTreeBuilt
     holder.rawAddChildren(node.asInstanceOf[TreeElement])
     val psi = node.getPsi
-    if (psi.isInstanceOf[ScTypeParamClause]) {
-      psi.asInstanceOf[ScalaPsiElement].setContext(context, child)
-      psi.asInstanceOf[ScTypeParamClause]
-    } else null
+    psi match {
+      case clause: ScTypeParamClause =>
+        psi.asInstanceOf[ScalaPsiElement].setContext(context, child)
+        clause
+      case _ => null
+    }
   }
 
   def createExistentialClauseForName(name: String, manager: PsiManager): ScExistentialClause = {
@@ -1045,11 +1094,13 @@ object ScalaPsiElementFactory {
     val node = builder.getTreeBuilt
     holder.rawAddChildren(node.asInstanceOf[TreeElement])
     val psi = node.getPsi
-    if (psi.isInstanceOf[ScPatternDefinition]) {
-      val pList: ScPatternList = psi.asInstanceOf[ScPatternDefinition].pList
-      pList.asInstanceOf[ScalaPsiElement].setContext(context, child)
-      pList
-    } else null
+    psi match {
+      case patternDef: ScPatternDefinition =>
+        val pList: ScPatternList = patternDef.pList
+        pList.asInstanceOf[ScalaPsiElement].setContext(context, child)
+        pList
+      case _ => null
+    }
   }
 
   def createIdsListFromText(text: String, context: PsiElement, child: PsiElement): ScIdList = {

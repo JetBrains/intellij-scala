@@ -159,7 +159,7 @@ class FakePsiTypeElement(manager: PsiManager, language: Language, tp: ScType)
   override def copy: PsiElement = new FakePsiTypeElement(manager, language, tp)
 }
 
-class FakePsiParameter(manager: PsiManager, language: Language, parameter: Parameter, name: String)
+class FakePsiParameter(manager: PsiManager, language: Language, val parameter: Parameter, name: String)
         extends LightElement(manager, language) with PsiParameter {
   def getDeclarationScope: PsiElement = null
 

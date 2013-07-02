@@ -15,8 +15,8 @@ class ScalaMainMethodProvider extends JavaMainMethodProvider {
 
 
   def findMainInClass(clazz: PsiClass): PsiMethod = clazz match {
-    case o: ScObject if clazz.getContainingFile.asInstanceOf[ScalaFile].isScriptFile() == false => {
-      val mainMethods = o.findMethodsByName("main", true)
+    case o: ScObject if !clazz.getContainingFile.asInstanceOf[ScalaFile].isScriptFile() => {
+      val mainMethods = o.findMethodsByName("main", checkBases = true)
       for (m <- mainMethods) {
         if (isMainMethod(m)) return m
       }

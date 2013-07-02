@@ -13,6 +13,10 @@ class TypeInferenceBugs5Test extends TypeInferenceTestBase {
 
   def testExistentialConformance2() {doTest()}
 
+  def testExpectedOption() {doTest()}
+
+  def testFakePrimitiveConversion() {doTest()}
+
   def testForStmtBug() {doTest()}
 
   def testImplicitClause() {doTest()}
@@ -31,9 +35,13 @@ class TypeInferenceBugs5Test extends TypeInferenceTestBase {
 
   def testRepeatedParamsResolve() {doTest()}
 
+  def testSCL1971() {doTest()}
+
   def testSCL2292() {doTest()}
 
   def testSCL2929() {doTest()}
+
+  def testSCL3052() {doTest()}
 
   def testSCL2381A() {doTest()}
 
@@ -87,6 +95,8 @@ class TypeInferenceBugs5Test extends TypeInferenceTestBase {
 
   def testSCL3330() {doTest()}
 
+  def testSCL3338() {doTest()}
+
   def testSCL3343() {doTest()}
 
   def testSCL3347() {doTest()}
@@ -96,6 +106,8 @@ class TypeInferenceBugs5Test extends TypeInferenceTestBase {
   def testSCL3590() {doTest()}
 
   def testSCL3372() {doTest()}
+
+  def testSCL3385() {doTest()}
 
   def testSCL3394() {doTest()}
 
@@ -150,6 +162,8 @@ class TypeInferenceBugs5Test extends TypeInferenceTestBase {
   def testSCL3549B() {doTest()}
 
   def testSCL3552() {doTest()}
+
+  def testSCL3565() {doTest()}
   
   def testSCL3567() {doTest()}
 
@@ -204,6 +218,8 @@ class TypeInferenceBugs5Test extends TypeInferenceTestBase {
   def testSCL4052() {doTest()}
 
   def testSCL4065() {doTest()}
+
+  def testSCL4093() {doTest()}
 
   def testSCL4095A() {doTest()}
 
@@ -349,7 +365,39 @@ class TypeInferenceBugs5Test extends TypeInferenceTestBase {
 
   def testSCL5197() {doTest()}
 
+  def testSCL5247() {doTest()}
+
+  def testSCL5303() {doTest()}
+
+  def testSCL5337() {doTest()}
+
   def testSCL5594() {doTest()}
+
+  def testSCL5650A() {doTest()}
+
+  def testSCL5650B() {doTest()}
+
+  def testSCL5650C() {doTest()}
+
+  def testSCL5661() {doTest()}
+
+  def testSCL5669() {doTest()}
+
+  def testSCL5669A() {doTest()}
+
+  def testSCL5669B() {doTest()}
+
+  def testSCL5681() {doTest()}
+
+  def testSCL5729() {doTest()}
+
+  def testSCL5733() {doTest()}
+
+  def testSCL5737() {doTest()}
+
+  def testSCL5738() {doTest()}
+
+  def testSCL5840() {doTest()}
 
   def testSOE() {doTest()}
 

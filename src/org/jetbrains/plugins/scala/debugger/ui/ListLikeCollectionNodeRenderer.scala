@@ -148,7 +148,7 @@ class ListLikeCollectionNodeRenderer extends NodeRendererImpl {
       val pointIndex = typeName.lastIndexOf('.')
       import scala.collection.JavaConversions._
       @inline def hasSuitableMethod(methodName: String): Boolean = 
-        refType.methodsByName(methodName).filter(_.signature() startsWith "()").size > 0
+        refType.methodsByName(methodName).count(_.signature() startsWith "()") > 0
       
       !(mustNotExpandStreams && typeName.substring(if (pointIndex > 0) pointIndex else 0).contains("Stream")) && 
         hasSuitableMethod("head") && hasSuitableMethod("tail")
