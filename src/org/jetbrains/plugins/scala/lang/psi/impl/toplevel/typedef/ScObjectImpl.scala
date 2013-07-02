@@ -29,7 +29,7 @@ import types.ScType
 import extensions.toPsiMemberExt
 import collection.mutable
 import lang.resolve.processor.BaseProcessor
-import com.intellij.lexer.JavaLexer
+import com.intellij.lang.java.lexer.JavaLexer
 
 /**
  * @author Alexander Podkhalyuzin
