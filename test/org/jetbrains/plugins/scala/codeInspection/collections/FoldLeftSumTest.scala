@@ -10,11 +10,7 @@ import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
 class FoldLeftSumTest extends OperationsOnCollectionInspectionTest {
   val hint = InspectionBundle.message("foldLeft.sum.hint")
 
-  def test_0() {
-    //stub test
-  }
-
-  /*def test_1() {
+  def test_1() {
     val selected = s"List(0).$START/:(0)(_ + _)$END"
     check(selected)
     val text = "List(0)./:(0)(_ + _)"
@@ -36,11 +32,10 @@ class FoldLeftSumTest extends OperationsOnCollectionInspectionTest {
     val text = "List(0).foldLeft[Int](0) {(x,y) => x + y}"
     val result = "List(0).sum"
     testFix(text, result, hint)
-  }*/
+  }
 
-  //need to checkNumeric
-//  def test_4() {
-//    val text = s"""List("a").foldLeft(0)(_ + _)"""
-//    checkTextHasNoErrors(text, annotation, classOf[OperationOnCollectionInspection])
-//  }
+  def test_4() {
+    val text = s"""List("a").foldLeft(0)(_ + _)"""
+    checkTextHasNoErrors(text, annotation, classOf[OperationOnCollectionInspection])
+  }
 }
