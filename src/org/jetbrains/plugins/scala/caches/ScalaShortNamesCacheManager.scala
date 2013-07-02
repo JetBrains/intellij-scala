@@ -43,10 +43,11 @@ class ScalaShortNamesCacheManager(project: Project) extends ProjectComponent {
       if (!ScalaStubsUtil.checkPsiForClass(element)) return null
       val clazz: PsiClass = element.asInstanceOf[PsiClass]
       if (name == clazz.getQualifiedName) {
-        if (clazz.getContainingFile.isInstanceOf[ScalaFile]) {
-          val file: ScalaFile = clazz.getContainingFile.asInstanceOf[ScalaFile]
-          if (!file.isScriptFile(withCashing = true)) return clazz
-        } else return clazz
+        clazz.getContainingFile match {
+          case file: ScalaFile =>
+            if (!file.isScriptFile(withCashing = true)) return clazz
+          case _ => return clazz
+        }
       }
     }
     null
@@ -64,7 +65,7 @@ class ScalaShortNamesCacheManager(project: Project) extends ProjectComponent {
     val iterator = classes.iterator()
     while (iterator.hasNext) {
       val element: PsiElement = iterator.next()
-      if (!(element.isInstanceOf[PsiClass])) {
+      if (!element.isInstanceOf[PsiClass]) {
         val faultyContainer: VirtualFile = PsiUtilCore.getVirtualFile(element)
         LOG.error(s"Non class in class list: $faultyContainer. found: $element")
         if (faultyContainer != null && faultyContainer.isValid) {
@@ -227,8 +228,10 @@ class ScalaShortNamesCacheManager(project: Project) extends ProjectComponent {
           }
         }
         if (fqn == qualifiedName) {
-          if (psiClass.isInstanceOf[ScTypeDefinition]) {
-            return (psiClass.asInstanceOf[ScTypeDefinition])
+          psiClass match {
+            case typeDefinition: ScTypeDefinition =>
+              return typeDefinition
+            case _ =>
           }
         }
       }
@@ -244,7 +247,7 @@ class ScalaShortNamesCacheManager(project: Project) extends ProjectComponent {
     while (classesIterator.hasNext) {
       val element = classesIterator.next()
       if (!ScalaStubsUtil.checkPsiForObject(element)) return Seq.empty
-      res += (element.asInstanceOf[ScObject])
+      res += element.asInstanceOf[ScObject]
     }
     res.toSeq
   }

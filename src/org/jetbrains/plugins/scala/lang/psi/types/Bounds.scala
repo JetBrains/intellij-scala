@@ -71,11 +71,11 @@ object Bounds {
           case (fun@ScFunctionType(rt1, p1), ScFunctionType(rt2, p2)) if p1.length == p2.length =>
             new ScFunctionType(lub(rt1, rt2, 0, checkWeak),
               collection.immutable.Seq(p1.toSeq.zip(p2.toSeq).map({
-                case (t1, t2) => glb(t1, t2, checkWeak)
+                case (type1, type2) => glb(type1, type2, checkWeak)
               }).toSeq: _*))(fun.getProject, fun.getScope)
           case (t1@ScTupleType(c1), ScTupleType(c2)) if c1.length == c2.length =>
             new ScTupleType(collection.immutable.Seq(c1.toSeq.zip(c2.toSeq).map({
-              case (t1, t2) => lub(t1, t2, 0, checkWeak)
+              case (type1, type2) => lub(type1, type2, 0, checkWeak)
             }).toSeq: _*))(t1.getProject, t1.getScope)
           case (ScDesignatorType(t: ScParameter), _) =>
             lub(t.getRealParameterType(TypingContext.empty).getOrAny, t2, 0, checkWeak)
@@ -143,7 +143,7 @@ object Bounds {
                 case _ => Seq(new Options(t2))
               }
             }
-            if (aOptions.find(_.isEmpty) != None || bOptions.find(_.isEmpty) != None) types.Any
+            if (aOptions.exists(_.isEmpty) || bOptions.exists(_.isEmpty)) types.Any
             else {
               val buf = new ArrayBuffer[ScType]
               val supers: Array[(Options, Int, Int)] =
@@ -262,7 +262,7 @@ object Bounds {
             case None =>
             case Some((c, s)) => superSubstitutor(base, c, s, visited) match {
               case None =>
-              case Some(s) => return Some(s.followed(drvSubst))
+              case Some(subst) => return Some(subst.followed(drvSubst))
             }
           }
         }

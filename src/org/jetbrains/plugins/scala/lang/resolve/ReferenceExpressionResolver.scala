@@ -91,20 +91,7 @@ class ReferenceExpressionResolver(shapesOnly: Boolean)
     // val a: (Int) => Int = foo
     // and for case
     // val a: (Int) => Int = _.foo
-    val expectedOption = () => {
-      val expr: PsiElement = reference.getContext match {
-        case parent@(_: ScPrefixExpr | _: ScPostfixExpr | _: ScInfixExpr) => parent
-        case _ => reference
-      }
-      val unders = ScUnderScoreSectionUtil.underscores(expr)
-      if (unders.length != 0) {
-        info.expectedType.apply() match {
-          case Some(ScFunctionType(ret, _)) => Some(ret)
-          case Some(p: ScParameterizedType) if p.getFunctionType != None => Some(p.typeArgs.last)
-          case other => other
-        }
-      } else info.expectedType.apply()
-    }
+    val expectedOption = () => info.expectedType.apply()
 
     val prevInfoTypeParams = reference.getPrevTypeInfoParams
 

@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala
 package testingSupport.test
 
-import com.intellij.psi.search.GlobalSearchScope
+import com.intellij.psi.search.{ProjectScope, GlobalSearchScope}
 import org.jdom.Element
 import config.ScalaFacet
 import collection.JavaConversions._
@@ -168,24 +168,27 @@ abstract class AbstractTestRunConfiguration(val project: Project,
       if (withDependencies) GlobalSearchScope.moduleWithDependenciesAndLibrariesScope(module)
       else GlobalSearchScope.moduleScope(module)
     }
+    def unionScope(moduleGuard: Module => Boolean): GlobalSearchScope = {
+      var scope: GlobalSearchScope = mScope(getModule)
+      for (module <- ModuleManager.getInstance(getProject).getModules) {
+        if (moduleGuard(module)) {
+          scope = scope.union(mScope(module))
+        }
+      }
+      scope
+    }
     testKind match {
       case TestKind.ALL_IN_PACKAGE =>
         searchTest match {
-          case SearchForTest.IN_WHOLE_PROJECT => GlobalSearchScope.allScope(project)
+          case SearchForTest.IN_WHOLE_PROJECT => unionScope(_ => true)
           case SearchForTest.IN_SINGLE_MODULE if getModule != null => mScope(getModule)
           case SearchForTest.ACCROSS_MODULE_DEPENDENCIES if getModule != null =>
-            var scope: GlobalSearchScope = mScope(getModule)
-            for (module <- ModuleManager.getInstance(getProject).getModules) {
-              if (ModuleManager.getInstance(getProject).isModuleDependent(getModule, module)) {
-                scope = scope.union(mScope(module))
-              }
-            }
-            scope
-          case _ => GlobalSearchScope.allScope(project)
+            unionScope(ModuleManager.getInstance(getProject).isModuleDependent(getModule, _))
+          case _ => unionScope(_ => true)
         }
       case _ =>
         if (getModule != null) mScope(getModule)
-        else GlobalSearchScope.allScope(project)
+        else unionScope(_ => true)
     }
   }
 
@@ -229,7 +232,7 @@ abstract class AbstractTestRunConfiguration(val project: Project,
   override def checkConfiguration() {
     super.checkConfiguration()
 
-    val suiteClass = getClazz(suitePath, true)
+    val suiteClass = getClazz(suitePath, withDependencies = true)
 
     if (suiteClass == null) {
       throw new RuntimeConfigurationException(errorMessage)
@@ -255,7 +258,7 @@ abstract class AbstractTestRunConfiguration(val project: Project,
         if (getTestClassPath == "") {
           throw new RuntimeConfigurationException("Test Class is not specified")
         }
-        val clazz = getClazz(getTestClassPath, false)
+        val clazz = getClazz(getTestClassPath, withDependencies = false)
         if (clazz == null || AbstractTestRunConfiguration.isInvalidSuite(clazz)) {
           throw new RuntimeConfigurationException("No Suite Class is found for Class %s in module %s".format(getTestClassPath,
             getModule.getName))
@@ -290,17 +293,17 @@ abstract class AbstractTestRunConfiguration(val project: Project,
     try {
       testKind match {
         case TestKind.CLASS =>
-          clazz = getClazz(getTestClassPath, false)
+          clazz = getClazz(getTestClassPath, withDependencies = false)
         case TestKind.ALL_IN_PACKAGE =>
           pack = ScPackageImpl(getPackage(getTestPackagePath))
         case TestKind.TEST_NAME =>
-          clazz = getClazz(getTestClassPath, false)
-          if (getTestName == null || getTestName() == "") throw new ExecutionException("Test name not found.")
+          clazz = getClazz(getTestClassPath, withDependencies = false)
+          if (getTestName == null || getTestName == "") throw new ExecutionException("Test name not found.")
       }
-      suiteClass = getClazz(suitePath, true)
+      suiteClass = getClazz(suitePath, withDependencies = true)
     }
     catch {
-      case e if (clazz == null) => classNotFoundError()
+      case e if clazz == null => classNotFoundError()
     }
     if (clazz == null && pack == null) classNotFoundError()
     if (suiteClass == null)
@@ -309,7 +312,7 @@ abstract class AbstractTestRunConfiguration(val project: Project,
     if (clazz != null) {
       if (ScalaPsiUtil.cachedDeepIsInheritor(clazz, suiteClass)) classes += clazz
     } else {
-      val scope = getScope(false)
+      val scope = getScope(withDependencies = false)
       def getClasses(pack: ScPackage): Seq[PsiClass] = {
         val buffer = new ArrayBuffer[PsiClass]
 
@@ -437,8 +440,8 @@ abstract class AbstractTestRunConfiguration(val project: Project,
       override def execute(executor: Executor, runner: ProgramRunner[_ <: JDOMExternalizable]): ExecutionResult = {
         val processHandler = startProcess
         val runnerSettings = getRunnerSettings
-        if (getConfiguration() == null) setConfiguration(currentConfiguration)
-        val config = getConfiguration()
+        if (getConfiguration == null) setConfiguration(currentConfiguration)
+        val config = getConfiguration
         JavaRunConfigurationExtensionManager.getInstance.
           attachExtensionsToProcess(currentConfiguration, processHandler, runnerSettings)
         val consoleProperties = new SMTRunnerConsoleProperties(currentConfiguration, "Scala", executor)
@@ -535,8 +538,10 @@ object AbstractTestRunConfiguration {
         val constructors = c.secondaryConstructors.filter(_.isConstructor).toList ::: c.constructor.toList
         for (con <- constructors) {
           if (con.isConstructor && con.parameterList.getParametersCount == 0) {
-            if (con.isInstanceOf[ScModifierListOwner]) {
-              if (con.asInstanceOf[ScModifierListOwner].hasModifierProperty("public")) return false
+            con match {
+              case owner: ScModifierListOwner =>
+                if (owner.hasModifierProperty("public")) return false
+              case _ =>
             }
           }
         }
@@ -544,8 +549,10 @@ object AbstractTestRunConfiguration {
       case _ =>
         for (constructor <- clazz.getConstructors) {
           if (constructor.isConstructor && constructor.getParameterList.getParametersCount == 0) {
-            if (constructor.isInstanceOf[ScModifierListOwner]) {
-              if (constructor.asInstanceOf[ScModifierListOwner].hasModifierProperty("public")) return false
+            constructor match {
+              case owner: ScModifierListOwner =>
+                if (owner.hasModifierProperty("public")) return false
+              case _ =>
             }
           }
         }

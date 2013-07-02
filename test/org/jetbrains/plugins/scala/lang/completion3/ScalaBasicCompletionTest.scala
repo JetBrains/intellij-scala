@@ -54,6 +54,62 @@ class ScalaBasicCompletionTest extends ScalaCodeInsightTestBase {
     checkResultByText(resultText)
   }
 
+  def testVarCompletion() {
+    val fileText =
+      """
+        |class A {
+        |  A.<caret>
+        |}
+        |object A {
+        |  var xxxxx = 1
+        |}
+      """.stripMargin('|').replaceAll("\r", "").trim()
+    configureFromFileTextAdapter("dummy.scala", fileText)
+    val (activeLookup, _) = complete(1, CompletionType.BASIC)
+
+    val resultText =
+      """
+        |class A {
+        |  A.xxxxx<caret>
+        |}
+        |object A {
+        |  var xxxxx = 1
+        |}
+      """.stripMargin('|').replaceAll("\r", "").trim()
+
+    assert(activeLookup.find(le => le.getLookupString == "xxxxx_=").isEmpty)
+
+    completeLookupItem(activeLookup.find(le => le.getLookupString == "xxxxx").get)
+    checkResultByText(resultText)
+  }
+
+  def testVarCompletion2() {
+    val fileText =
+      """
+        |class A {
+        |  A.<caret>
+        |}
+        |object A {
+        |  var xxxxx = 1
+        |}
+      """.stripMargin('|').replaceAll("\r", "").trim()
+    configureFromFileTextAdapter("dummy.scala", fileText)
+    val (activeLookup, _) = complete(2, CompletionType.BASIC)
+
+    val resultText =
+      """
+        |class A {
+        |  A.xxxxx_=(<caret>)
+        |}
+        |object A {
+        |  var xxxxx = 1
+        |}
+      """.stripMargin('|').replaceAll("\r", "").trim()
+
+    completeLookupItem(activeLookup.find(le => le.getLookupString == "xxxxx_=").get)
+    checkResultByText(resultText)
+  }
+
 
   def testNewInnerClass() {
     val fileText =

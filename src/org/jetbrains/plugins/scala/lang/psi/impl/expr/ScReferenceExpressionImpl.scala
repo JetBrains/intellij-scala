@@ -241,14 +241,18 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
           case f: ScFunctionExpr => null
           case f => f
         }
-        if (owner != null && PsiTreeUtil.isContextAncestor(owner, this, true) && stableTypeRequired) {
-          ScType.designator(param)
-        } else {
-          val result = param.getRealParameterType(TypingContext.empty)
-          s.subst(result match {
-            case Success(tp, _) => tp
-            case _ => return result
-          })
+        r.fromType match {
+          case Some(fT) if param.isVal && stableTypeRequired => ScProjectionType(fT, param, superReference = false)
+          case _ =>
+            if (owner != null && PsiTreeUtil.isContextAncestor(owner, this, true) && stableTypeRequired) {
+              ScType.designator(param)
+            } else {
+              val result = param.getRealParameterType(TypingContext.empty)
+              s.subst(result match {
+                case Success(tp, _) => tp
+                case _ => return result
+              })
+            }
         }
       case Some(ScalaResolveResult(value: ScSyntheticValue, _)) => value.tp
       case Some(ScalaResolveResult(fun: ScFunction, s)) if fun.isProbablyRecursive =>

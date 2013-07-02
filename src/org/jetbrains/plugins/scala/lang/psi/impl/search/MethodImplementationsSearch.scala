@@ -16,12 +16,14 @@ import extensions.inReadAction
  */
 class MethodImplementationsSearch extends QueryExecutor[PsiElement, PsiElement] {
   override def execute(sourceElement: PsiElement, consumer: Processor[PsiElement]): Boolean = {
-    if (sourceElement.isInstanceOf[ScNamedElement]) {
-      for (implementation <- getOverridingMethods(sourceElement.asInstanceOf[ScNamedElement])) {
-        if (!consumer.process(implementation)) {
-          return false
+    sourceElement match {
+      case namedElement: ScNamedElement =>
+        for (implementation <- getOverridingMethods(namedElement)) {
+          if (!consumer.process(implementation)) {
+            return false
+          }
         }
-      }
+      case _ =>
     }
     true
   }

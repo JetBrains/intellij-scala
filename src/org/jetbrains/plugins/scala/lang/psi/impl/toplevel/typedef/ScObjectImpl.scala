@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import collection.mutable.ArrayBuffer
 import api.ScalaElementVisitor
 import caches.CachesUtil
-import util.PsiModificationTracker
+import com.intellij.psi.util.{PsiUtil, PsiModificationTracker}
 import lang.resolve.ResolveUtils
 import com.intellij.openapi.project.{Project, DumbServiceImpl}
 import com.intellij.openapi.util.TextRange
@@ -29,6 +29,7 @@ import types.ScType
 import extensions.toPsiMemberExt
 import collection.mutable
 import lang.resolve.processor.BaseProcessor
+import com.intellij.lexer.JavaLexer
 
 /**
  * @author Alexander Podkhalyuzin
@@ -141,7 +142,7 @@ class ScObjectImpl extends ScTypeDefinitionImpl with ScObject with ScTemplateDef
     })(PsiModificationTracker.OUT_OF_CODE_BLOCK_MODIFICATION_COUNT))
   }
 
-  private def objectSyntheticMembersImpl: Seq[PsiMethod] = {
+  protected def objectSyntheticMembersImpl: Seq[PsiMethod] = {
     if (isSyntheticObject) return Seq.empty
     ScalaPsiUtil.getCompanionModule(this) match {
       case Some(c: ScClass) if c.isCase =>
@@ -179,29 +180,32 @@ class ScObjectImpl extends ScTypeDefinitionImpl with ScObject with ScTemplateDef
   }
 
   @volatile
-  private var moduleField: PsiField = null
+  private var moduleField: Option[PsiField] = null
   @volatile
   private var moduleFieldModCount: Long = 0L
 
-  private def getModuleField: PsiField = {
+  private def getModuleField: Option[PsiField] = {
     val count = getManager.getModificationTracker.getOutOfCodeBlockModificationCount
     if (moduleField != null && moduleFieldModCount == count) return moduleField
-    val field = new LightField(getManager, JavaPsiFacade.getInstance(getProject).getElementFactory.createFieldFromText(
-      "public final static " + getQualifiedName + " MODULE$", this
-    ), this)
-    field.setNavigationElement(this)
-    moduleField = field
+    val fieldOption = if (getQualifiedName.split('.').exists(JavaLexer.isKeyword(_, PsiUtil.getLanguageLevel(this)))) None else {
+      val field: LightField = new LightField(getManager, JavaPsiFacade.getInstance(getProject).getElementFactory.createFieldFromText(
+        "public final static " + getQualifiedName + " MODULE$", this
+      ), this)
+      field.setNavigationElement(this)
+      Some(field)
+    }
+    moduleField = fieldOption
     moduleFieldModCount = count
-    field
+    fieldOption
   }
 
   override def getFields: Array[PsiField] = {
-    Array(getModuleField)
+    getModuleField.toArray
   }
 
   override def findFieldByName(name: String, checkBases: Boolean): PsiField = {
     name match {
-      case "MODULE$" => getModuleField
+      case "MODULE$" => getModuleField.getOrElse(null)
       case _ => null
     }
   }

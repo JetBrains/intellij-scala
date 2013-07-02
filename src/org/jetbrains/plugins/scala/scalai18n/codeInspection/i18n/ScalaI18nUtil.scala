@@ -94,7 +94,7 @@ object ScalaI18nUtil {
     val args: Array[ScExpression] = (parent.asInstanceOf[ScArgumentExprList]).exprsArray
     var i: Int = 0
     var flag = true
-    while (i < args.length && flag == true) {
+    while (i < args.length && flag) {
       val arg: ScExpression = args(i)
       if (PsiTreeUtil.isAncestor(arg, expression, false)) {
         idx = i
@@ -105,16 +105,21 @@ object ScalaI18nUtil {
     }
     if (idx == -1) return false
     val grParent: PsiElement = parent.getParent
-    if (grParent.isInstanceOf[ScMethodCall]) {
-      val invokedExpr = (grParent.asInstanceOf[ScMethodCall]).getInvokedExpr
-      if (invokedExpr.isInstanceOf[ScReferenceExpression]) {
-        val method = invokedExpr.asInstanceOf[ScReferenceExpression].resolve()
-        if (method.isInstanceOf[PsiMethod]) {
-          if (method != null && isMethodParameterAnnotatedWith(method.asInstanceOf[PsiMethod], idx, null, annFqn, annotationAttributeValues, nonNlsTargets)) {
-            return true
-          }
+    grParent match {
+      case methodCall: ScMethodCall =>
+        methodCall.getInvokedExpr match {
+          case refExpr: ScReferenceExpression =>
+            val method = refExpr.resolve()
+            method match {
+              case psiMethod: PsiMethod =>
+                if (method != null && isMethodParameterAnnotatedWith(psiMethod, idx, null, annFqn, annotationAttributeValues, nonNlsTargets)) {
+                  return true
+                }
+              case _ =>
+            }
+          case _ =>
         }
-      }
+      case _ =>
     }
     false
   }
@@ -133,8 +138,10 @@ object ScalaI18nUtil {
     while (expression.getParent.isInstanceOf[ScExpression] && flag) {
       i += 1
       val parent: ScExpression = expression.getParent.asInstanceOf[ScExpression]
-      if (parent.isInstanceOf[PsiConditionalExpression] &&
-        (parent.asInstanceOf[PsiConditionalExpression]).getCondition == expression) flag = false
+      parent match {
+        case condExpr: PsiConditionalExpression if condExpr.getCondition == expression => flag = false
+        case _ =>
+      }
       expression = parent
       if (expression.isInstanceOf[PsiAssignmentExpression]) flag = false
       if (i > 10 && expression.isInstanceOf[PsiBinaryExpression]) {
@@ -245,24 +252,26 @@ object ScalaI18nUtil {
     if (isI18nProperty(project, literal)) {
       val references: Array[PsiReference] = literal.getReferences
       for (reference <- references) {
-        if (reference.isInstanceOf[PsiPolyVariantReference]) {
-          val results: Array[ResolveResult] = (reference.asInstanceOf[PsiPolyVariantReference]).multiResolve(false)
-          for (result <- results) {
-            val element: PsiElement = result.getElement
-            if (element.isInstanceOf[IProperty]) {
-              val p: IProperty = element.asInstanceOf[IProperty]
-              literal.putUserData(CACHE, p)
-              return p
+        reference match {
+          case polyVarRef: PsiPolyVariantReference =>
+            val results: Array[ResolveResult] = polyVarRef.multiResolve(false)
+            for (result <- results) {
+              val element: PsiElement = result.getElement
+              element match {
+                case p: IProperty =>
+                  literal.putUserData(CACHE, p)
+                  return p
+                case _ =>
+              }
             }
-          }
-        }
-        else {
-          val element: PsiElement = reference.resolve
-          if (element.isInstanceOf[IProperty]) {
-            val p: IProperty = element.asInstanceOf[IProperty]
-            literal.putUserData(CACHE, p)
-            return p
-          }
+          case _ =>
+            val element: PsiElement = reference.resolve
+            element match {
+              case p: IProperty =>
+                literal.putUserData(CACHE, p)
+                return p
+              case _ =>
+            }
         }
       }
     }
@@ -289,32 +298,34 @@ object ScalaI18nUtil {
   def getPropertyValueParamsMaxCount(expression: ScLiteral): Int = {
     var maxCount: Int = -1
     for (reference <- expression.getReferences) {
-      if (reference.isInstanceOf[PsiPolyVariantReference]) {
-        for (result <- (reference.asInstanceOf[PsiPolyVariantReference]).multiResolve(false)) {
-          var flag = true
-          if (result.isValidResult && result.getElement.isInstanceOf[IProperty]) {
-            val value: String = (result.getElement.asInstanceOf[IProperty]).getValue
-            var format: MessageFormat = null
-            try {
-              format = new MessageFormat(value)
-            }
-            catch {
-              case e: Exception => {
-                flag = false
-              }
-            }
-            if (flag) {
+      reference match {
+        case polyVarRef: PsiPolyVariantReference =>
+          for (result <- polyVarRef.multiResolve(false)) {
+            var flag = true
+            if (result.isValidResult && result.getElement.isInstanceOf[IProperty]) {
+              val value: String = result.getElement.asInstanceOf[IProperty].getValue
+              var format: MessageFormat = null
               try {
-                val count: Int = format.getFormatsByArgumentIndex.length
-                maxCount = Math.max(maxCount, count)
+                format = new MessageFormat(value)
               }
               catch {
-                case ignored: IllegalArgumentException => {
+                case e: Exception => {
+                  flag = false
+                }
+              }
+              if (flag) {
+                try {
+                  val count: Int = format.getFormatsByArgumentIndex.length
+                  maxCount = Math.max(maxCount, count)
+                }
+                catch {
+                  case ignored: IllegalArgumentException => {
+                  }
                 }
               }
             }
           }
-        }
+        case _ =>
       }
     }
     maxCount
@@ -331,7 +342,7 @@ object ScalaI18nUtil {
         var flag = true
         while (i < count + 1 && flag) {
           val evaluator = new ScalaConstantExpressionEvaluator
-          var value: AnyRef = evaluator.computeConstantExpression(args(i), false)
+          var value: AnyRef = evaluator.computeConstantExpression(args(i), throwExceptionOnOverflow = false)
           if (value == null) {
             if (args(i).isInstanceOf[ScReferenceExpression]) {
               value = "{" + args(i).getText + "}"
@@ -361,7 +372,7 @@ object ScalaI18nUtil {
     annotationAttributeValues.put(AnnotationUtil.PROPERTY_KEY_RESOURCE_BUNDLE_PARAMETER, null)
     if (mustBePropertyKey(project, expression, annotationAttributeValues)) {
       val resourceBundleName: AnyRef = annotationAttributeValues.get(AnnotationUtil.PROPERTY_KEY_RESOURCE_BUNDLE_PARAMETER).getOrElse(null)
-      if (resourceBundleName== null || !(resourceBundleName.isInstanceOf[PsiReferenceExpression])) {
+      if (resourceBundleName== null || !resourceBundleName.isInstanceOf[PsiReferenceExpression]) {
         return false
       }
       val expr: PsiReferenceExpression = resourceBundleName.asInstanceOf[PsiReferenceExpression]

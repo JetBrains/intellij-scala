@@ -15,9 +15,11 @@ import lang.psi.api.expr.{ScExpression, ScMethodCall}
 
 class ScalaMethodCallFixer extends ScalaFixer {
   def apply(editor: Editor, processor: ScalaSmartEnterProcessor, psiElement: PsiElement) {
-    val args = if (psiElement.isInstanceOf[ScMethodCall]) {
-      (psiElement.asInstanceOf[ScMethodCall]).args
-    }  else null
+    val args = psiElement match {
+      case call: ScMethodCall =>
+        call.args
+      case _ => null
+    }
 
     if (args == null) return
     val parenthesis: PsiElement = args.lastChild.getOrElse(null)
@@ -27,12 +29,13 @@ class ScalaMethodCallFixer extends ScalaFixer {
       var flag = true
       //todo tail recursion
       while (child != null && flag) {
-        if (child.isInstanceOf[PsiErrorElement]) {
-          val errorElement: PsiErrorElement = child.asInstanceOf[PsiErrorElement]
-          if (errorElement.getErrorDescription.indexOf("')'") >= 0) {
-            endOffset = errorElement.getTextRange.getStartOffset
-            flag = false
-          }
+        child match {
+          case errorElement: PsiErrorElement =>
+            if (errorElement.getErrorDescription.indexOf("')'") >= 0) {
+              endOffset = errorElement.getTextRange.getStartOffset
+              flag = false
+            }
+          case _ =>
         }
         child = child.getNextSibling
       }

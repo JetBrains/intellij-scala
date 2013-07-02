@@ -34,6 +34,7 @@ import org.jetbrains.plugins.scala.lang.completion.ScalaAfterNewCompletionUtil._
 import psi.api.toplevel.typedef.ScTemplateDefinition
 import extensions.toPsiNamedElementExt
 import scaladoc.lexer.ScalaDocTokenType
+import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiMethod
 
 /**
  * @author Alexander Podkhalyuzin
@@ -61,9 +62,9 @@ class ScalaCompletionContributor extends CompletionContributor {
       val insertedElement: PsiElement = parameters.getPosition
       if (!insertedElement.getContainingFile.isInstanceOf[ScalaFile]) return
       val lookingForAnnotations: Boolean =
-        Option(insertedElement.getContainingFile findElementAt (insertedElement.getTextOffset - 1)) map {
+        Option(insertedElement.getContainingFile findElementAt (insertedElement.getTextOffset - 1)) exists {
           _.getNode.getElementType == ScalaTokenTypes.tAT
-        } getOrElse false
+        }
 
       var elementAdded = false
       def addElement(el: LookupElement) {
@@ -98,6 +99,7 @@ class ScalaCompletionContributor extends CompletionContributor {
                       }
                     }
                   case _ if lookingForAnnotations =>
+                  case f: FakePsiMethod if f.name.endsWith("_=") && parameters.getInvocationCount < 2 => //don't show _= methods for vars in basic completion
                   case fun: ScFun => addElement(el)
                   case param: ScClassParameter =>
                     addElement(el)

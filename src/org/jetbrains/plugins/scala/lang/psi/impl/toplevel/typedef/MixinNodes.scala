@@ -378,7 +378,6 @@ abstract class MixinNodes {
               (Seq.empty, ScSubstitutor.empty, ScSubstitutor.empty)
           }
     }
-
     val iter = superTypes.iterator
     while (iter.hasNext) {
       val superType = iter.next()

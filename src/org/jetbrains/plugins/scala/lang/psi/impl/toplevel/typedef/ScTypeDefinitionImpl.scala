@@ -38,6 +38,7 @@ import reflect.NameTransformer
 import extensions.toPsiNamedElementExt
 import com.intellij.lang.java.JavaLanguage
 import conversion.JavaToScala
+import scala.annotation.tailrec
 
 abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTemplateDefinition] with ScTypeDefinition with PsiClassFake {
   override def hasTypeParameters: Boolean = typeParameters.length > 0
@@ -158,8 +159,10 @@ abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTemplate
       case st: ScalaStubBasedElementImpl[_] => st.getStub
       case _ => null
     }
-    if (stub.isInstanceOf[ScMemberOrLocal]) {
-      return stub.asInstanceOf[ScMemberOrLocal].isLocal
+    stub match {
+      case memberOrLocal: ScMemberOrLocal =>
+        return memberOrLocal.isLocal
+      case _ =>
     }
     containingClass == null && PsiTreeUtil.getParentOfType(this, classOf[ScTemplateDefinition]) != null
   }
@@ -227,7 +230,7 @@ abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTemplate
 
   def getQualifiedNameForDebugger: String = qualifiedName("$", encodeName = true)
 
-  private def transformName(encodeName: Boolean, name: String): String = {
+  protected def transformName(encodeName: Boolean, name: String): String = {
     if (!encodeName) name
     else {
       val deticked =
@@ -238,9 +241,10 @@ abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTemplate
     }
   }
 
-  private def qualifiedName(classSeparator: String, trunced: Boolean = false,
+  protected def qualifiedName(classSeparator: String, trunced: Boolean = false,
                             encodeName: Boolean = false): String = {
     // Returns prefix with convenient separator sep
+    @tailrec
     def _packageName(e: PsiElement, sep: String, k: (String) => String): String = e.getContext match {
       case o: ScObject if o.isPackageObject && o.name == "`package`" => _packageName(o, sep, k)
       case _: ScClass | _: ScTrait if trunced => k("")

@@ -91,12 +91,12 @@ class ScalaTestConfigurationProducer extends {
     val (testClassPath, testClassName) = getLocationClassAndTest(location)
     if (testClassPath == null) return false
     configuration match {
-      case configuration: ScalaTestRunConfiguration if configuration.getTestKind() == TestKind.CLASS &&
+      case configuration: ScalaTestRunConfiguration if configuration.getTestKind == TestKind.CLASS &&
         testClassName == null =>
         testClassPath == configuration.getTestClassPath
-      case configuration: ScalaTestRunConfiguration if configuration.getTestKind() == TestKind.TEST_NAME =>
+      case configuration: ScalaTestRunConfiguration if configuration.getTestKind == TestKind.TEST_NAME =>
         testClassPath == configuration.getTestClassPath && testClassName != null &&
-          testClassName == configuration.getTestName()
+          testClassName == configuration.getTestName
       case _ => false
     }
   }
@@ -158,7 +158,7 @@ class ScalaTestConfigurationProducer extends {
                         case Success(Unit, _) => failedToCheck = false
                         case Success(tp, _) =>
                           ScType.extractClass(tp) match {
-                            case Some(clazz) if clazz.qualifiedName == "java.lang.String" =>
+                            case Some(psiClass) if psiClass.qualifiedName == "java.lang.String" =>
                               call.argumentExpressions.apply(0) match {
                                 case l: ScLiteral if l.isString =>
                                   failedToCheck = false
@@ -174,7 +174,7 @@ class ScalaTestConfigurationProducer extends {
                   }
               }
             }
-            if (containingClass != null && fqns.find(_ == containingClass.qualifiedName) != None) {
+            if (containingClass != null && fqns.exists(_ == containingClass.qualifiedName)) {
               if (!failedToCheck) {
                 val res = inv(call)
                 if (res.isDefined) return SuccessResult(call, res.get, middleName)
@@ -183,7 +183,7 @@ class ScalaTestConfigurationProducer extends {
             }
           }
         case _call: MethodInvocation =>
-          checkCallGeneral(_call, namesSet, inv, false, checkFirstArgIsUnitOrString) match {
+          checkCallGeneral(_call, namesSet, inv, recursive = false, checkFirstArgIsUnitOrString) match {
             case res: SuccessResult => return res.copy(invocation = call)
             case WrongResult => return WrongResult
             case _ =>
@@ -191,7 +191,7 @@ class ScalaTestConfigurationProducer extends {
         case _ =>
       }
       if (!recursive) return NotFoundResult
-      checkCallGeneral(PsiTreeUtil.getParentOfType(call, classOf[MethodInvocation], true), namesSet, inv, true,
+      checkCallGeneral(PsiTreeUtil.getParentOfType(call, classOf[MethodInvocation], true), namesSet, inv, recursive = true,
         checkFirstArgIsUnitOrString)
     }
 
@@ -208,7 +208,7 @@ class ScalaTestConfigurationProducer extends {
         val literal = call.argumentExpressions.apply(0)
         endupWithLitral(literal)
       }
-      checkCallGeneral(call, namesSet, inv, true, false)
+      checkCallGeneral(call, namesSet, inv, recursive = true, checkFirstArgIsUnitOrString = false)
     }
 
     def checkInfix(call: MethodInvocation, namesSet: Map[String, Set[String]],
@@ -226,7 +226,7 @@ class ScalaTestConfigurationProducer extends {
             case _ => None
           }
       }
-      checkCallGeneral(call, namesSet, inv, true, checkFirstArgIsUnitOrString)
+      checkCallGeneral(call, namesSet, inv, recursive = true, checkFirstArgIsUnitOrString)
     }
 
     def checkInfixTagged(call: MethodInvocation, namesSet: Map[String, Set[String]], fqn: Set[String],
@@ -275,7 +275,7 @@ class ScalaTestConfigurationProducer extends {
             }
         }
       }
-      checkCallGeneral(call, namesSet, if (testNameIsAlwaysEmpty) _ => Some("") else inv, true, checkFirstArgIsUnitOrString)
+      checkCallGeneral(call, namesSet, if (testNameIsAlwaysEmpty) _ => Some("") else inv, recursive = true, checkFirstArgIsUnitOrString)
     }
 
     implicit def s2set(s: String): Set[String] = Set(s) //todo: inline?
@@ -329,9 +329,9 @@ class ScalaTestConfigurationProducer extends {
           while (call != null) {
             checkCall(PsiTreeUtil.getParentOfType(call, classOf[MethodInvocation], true),
               Map("describe" -> fqn)) match {
-              case SuccessResult(_call, featureName, _) =>
+              case SuccessResult(invoc, featureName, _) =>
                 testName = featureName + " " + testName
-                call = _call
+                call = invoc
               case WrongResult => return None
               case _ => call = null
             }
@@ -354,9 +354,9 @@ class ScalaTestConfigurationProducer extends {
             while (call != null) {
               checkInfix(PsiTreeUtil.getParentOfType(call, classOf[MethodInvocation], true),
                 Map("-" -> (fqn + ".FreeSpecStringWrapper"))) match {
-                case SuccessResult(_call, _testName, _) =>
-                  call = _call
-                  testName = _testName + " " + testName
+                case SuccessResult(invoc, tName, _) =>
+                  call = invoc
+                  testName = tName + " " + testName
                 case WrongResult => return None
                 case _ => call = null
               }
@@ -387,10 +387,10 @@ class ScalaTestConfigurationProducer extends {
             var call = _call
             while (call != null) {
               checkInfix(PsiTreeUtil.getParentOfType(call, classOf[MethodInvocation], true),
-                Map("when" -> wfqn, "that" -> ifqn, "should" -> shouldFqn, "must" -> mustFqn, "can" -> canFqn), true) match {
-                case SuccessResult(_call, _testName, refName) =>
-                  call = _call
-                  testName = _testName + " " + refName + " " + testName
+                Map("when" -> wfqn, "that" -> ifqn, "should" -> shouldFqn, "must" -> mustFqn, "can" -> canFqn), checkFirstArgIsUnitOrString = true) match {
+                case SuccessResult(invoc, tName, refName) =>
+                  call = invoc
+                  testName = tName + " " + refName + " " + testName
                 case WrongResult => return None
                 case _ => call = null
               }
@@ -521,7 +521,7 @@ class ScalaTestConfigurationProducer extends {
             case _ => None
           }
       }
-      checkCallGeneral(call, namesSet, inv, false, checkFirstArgIsUnitOrString)
+      checkCallGeneral(call, namesSet, inv, recursive = false, checkFirstArgIsUnitOrString)
     }
 
     def checkFlatSpec(fqn: String): Option[String] = {
@@ -555,10 +555,10 @@ class ScalaTestConfigurationProducer extends {
               case null => call = null
               case m: MethodInvocation =>
                 checkInfixWithIt(m, Map("should" -> Set(shouldFqn, itFqn, igFqn), "must" -> Set(mustFqn, itFqn, igFqn),
-                  "can" -> Set(canFqn, itFqn, igFqn)), true) match {
-                  case SuccessResult(_call, _testName, middleName) =>
-                    call = _call
-                    testName = _testName + " " + middleName + (if (testName.isEmpty) "" else " ") + testName
+                  "can" -> Set(canFqn, itFqn, igFqn)), checkFirstArgIsUnitOrString = true) match {
+                  case SuccessResult(invoc, tName, middleName) =>
+                    call = invoc
+                    testName = tName + " " + middleName + (if (testName.isEmpty) "" else " ") + testName
                   case WrongResult => return None
                   case _ => call = null
                 }

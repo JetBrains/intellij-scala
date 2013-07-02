@@ -128,9 +128,11 @@ class ScPackageImpl(val pack: PsiPackage) extends PsiPackageImpl(pack.getManager
 
 object ScPackageImpl {
   def apply(pack: PsiPackage): ScPackageImpl = {
-    if (pack == null) null
-    else if (pack.isInstanceOf[ScPackageImpl]) pack.asInstanceOf[ScPackageImpl]
-    else new ScPackageImpl(pack)
+    pack match {
+      case null => null
+      case impl: ScPackageImpl => impl
+      case _ => new ScPackageImpl(pack)
+    }
   }
 
   def findPackage(project: Project, pName: String) = {

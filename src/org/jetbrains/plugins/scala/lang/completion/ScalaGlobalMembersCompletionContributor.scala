@@ -28,6 +28,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTyp
 import org.jetbrains.plugins.scala.extensions.{toPsiMemberExt, toPsiNamedElementExt, toPsiClassExt}
 import com.intellij.psi.search.searches.ClassInheritorsSearch
 import collection.mutable
+import org.jetbrains.plugins.scala.lang.psi.implicits.ScImplicitlyConvertible
 
 /**
  * @author Alexander Podkhalyuzin
@@ -134,8 +135,9 @@ class ScalaGlobalMembersCompletionContributor extends CompletionContributor {
     val collection = StubIndex.getInstance.get(ScalaIndexKeys.IMPLICITS_KEY, "implicit", file.getProject, scope)
     
     import scala.collection.JavaConversions._
-    
-    val proc = new ref.CollectImplicitsProcessor(true)
+
+    val convertible = new ScImplicitlyConvertible(ref)
+    val proc = new convertible.CollectImplicitsProcessor(true)
     for (element <- collection) {
       element match {
         case v: ScValue =>
@@ -153,7 +155,7 @@ class ScalaGlobalMembersCompletionContributor extends CompletionContributor {
         case _ =>
       }
     }
-    val candidates = proc.candidates.map(ref.forMap(_, originalType))
+    val candidates = proc.candidates.map(convertible.forMap(_, originalType))
 
     ref.getVariants(implicits = false, filterNotNamedVariants = false).foreach {
       case ScalaLookupItem(elem: PsiNamedElement) => addElemToSet(elem)

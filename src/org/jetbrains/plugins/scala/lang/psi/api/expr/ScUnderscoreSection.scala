@@ -9,7 +9,7 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.PsiElement
 import collection.mutable.ListBuffer
 import annotation.tailrec
-import annotation.tailrec
+import ScUnderScoreSectionUtil.isUnderscore
 
 /**
 * @author Alexander Podkhalyuzin
@@ -26,20 +26,6 @@ trait ScUnderscoreSection extends ScExpression {
 
   def overExpr: Option[ScExpression] = {
     if (bindingExpr != None) return Some(this)
-
-    @tailrec
-    def isUnderscore(expr: PsiElement): Boolean = {
-      expr match {
-        case u: ScUnderscoreSection => true
-        case t: ScTypedStmt => t.expr.isInstanceOf[ScUnderscoreSection]
-        case p: ScParenthesisedExpr =>
-          p.expr match {
-            case Some(expr) => isUnderscore(expr)
-            case _ => false
-          }
-        case _ => false
-      }
-    }
 
     @tailrec
     def go(expr: PsiElement, calcArguments: Boolean = true): Option[ScExpression] = {
@@ -99,6 +85,20 @@ trait ScUnderscoreSection extends ScExpression {
 }
 
 object ScUnderScoreSectionUtil {
+  @tailrec
+  def isUnderscore(expr: PsiElement): Boolean = {
+    expr match {
+      case u: ScUnderscoreSection => true
+      case t: ScTypedStmt => t.expr.isInstanceOf[ScUnderscoreSection]
+      case p: ScParenthesisedExpr =>
+        p.expr match {
+          case Some(expr) => isUnderscore(expr)
+          case _ => false
+        }
+      case _ => false
+    }
+  }
+
   def isUnderscoreFunction(expr: PsiElement) = underscores(expr).length > 0
 
   def underscores(expr: PsiElement): Seq[ScUnderscoreSection] = {

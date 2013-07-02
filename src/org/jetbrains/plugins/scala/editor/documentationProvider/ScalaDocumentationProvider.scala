@@ -208,11 +208,13 @@ class ScalaDocumentationProvider extends CodeDocumentationProvider {
   }
 
   def findExistingDocComment(contextElement: PsiComment): PsiComment = {
-    if (contextElement.isInstanceOf[ScDocComment]) {
-      val commentOwner = contextElement.asInstanceOf[ScDocComment].getOwner
-      if (commentOwner != null) {
-        return commentOwner.getDocComment
-      }
+    contextElement match {
+      case comment: ScDocComment =>
+        val commentOwner = comment.getOwner
+        if (commentOwner != null) {
+          return commentOwner.getDocComment
+        }
+      case _ =>
     }
 
     null

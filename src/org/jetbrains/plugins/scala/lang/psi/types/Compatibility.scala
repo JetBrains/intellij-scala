@@ -20,6 +20,10 @@ import psi.impl.ScalaPsiManager
 import extensions.toPsiNamedElementExt
 import com.intellij.openapi.application.ApplicationManager
 import org.jetbrains.annotations.TestOnly
+import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiParameter
+import org.jetbrains.plugins.scala.lang.psi.implicits.ScImplicitlyConvertible.ImplicitResolveResult
+import org.jetbrains.plugins.scala.lang.resolve.processor.MostSpecificUtil
+import org.jetbrains.plugins.scala.lang.psi.implicits.ScImplicitlyConvertible
 
 /**
  * @author ven
@@ -32,17 +36,45 @@ object Compatibility {
 
   case class Expression(expr: ScExpression) {
     var typez: ScType = null
+    var place: PsiElement = null
     def this(tp: ScType) = {
       this(null: ScExpression)
       typez = tp
     }
+    def this(tp: ScType, place: PsiElement) {
+      this(tp)
+      this.place = place
+    }
+
     def getTypeAfterImplicitConversion(checkImplicits: Boolean, isShape: Boolean,
                                        expectedOption: Option[ScType]): (TypeResult[ScType], collection.Set[ImportUsed]) = {
       if (expr != null) {
         val expressionTypeResult = expr.getTypeAfterImplicitConversion(checkImplicits, isShape, expectedOption)
         (expressionTypeResult.tr, expressionTypeResult.importsUsed)
+      } else {
+        if (isShape) return (Success(typez, None), Set.empty)
+        if (!checkImplicits || place == null) return (Success(typez, None), Set.empty)
+        if (expectedOption.isEmpty) return (Success(typez, None), Set.empty)
+        val expected = expectedOption.get
+        if (typez.conforms(expected)) return (Success(typez, None), Set.empty)
+
+        val convertible = new ScImplicitlyConvertible(place, p => Some(typez))
+        val firstPart = convertible.implicitMapFirstPart(Some(expected), fromUnder = false)
+        var f: Seq[ImplicitResolveResult] =
+          firstPart.filter(_.tp.conforms(expected))
+        if (f.length == 0) {
+          f = convertible.implicitMapSecondPart(Some(expected), fromUnder = false).filter(_.tp.conforms(expected))
+        }
+        if (f.length == 1) (Success(f(0).getTypeWithDependentSubstitutor, Some(place)), f(0).importUsed)
+        else if (f.length == 0) (Success(typez, None), Set.empty)
+        else {
+          val res = MostSpecificUtil(place, 1).mostSpecificForImplicit(f.toSet) match {
+            case Some(innerRes) => innerRes
+            case None => return (Success(typez, None), Set.empty)
+          }
+          (Success(res.getTypeWithDependentSubstitutor, Some(place)), res.importUsed)
+        }
       }
-      else (Success(typez, None), Set.empty)
     }
   }
 
@@ -186,7 +218,7 @@ object Compatibility {
         }
         case Expression(assign@NamedAssignStmt(name)) => {
           val ind = parameters.indexWhere(p => ScalaPsiUtil.memberNamesEquals(p.name, name))
-          if (ind == -1 || used(ind) == true) {
+          if (ind == -1 || used(ind)) {
             def extractExpression(assign: ScAssignStmt): ScExpression = {
               if (ScUnderScoreSectionUtil.isUnderscoreFunction(assign)) assign
               else assign.getRExpression.getOrElse(assign)
@@ -242,7 +274,7 @@ object Compatibility {
           if (!conforms) {
             return ConformanceExtResult(Seq(new ElementApplicabilityProblem(exprs(k).expr, exprType, paramType)), undefSubst, defaultParameterUsed, matched)
           } else {
-            matched ::= ((parameters.last, exprs(k).expr))
+            matched ::= (parameters.last, exprs(k).expr)
             undefSubst += Conformance.undefinedSubst(paramType, exprType, checkWeak = true)
           }
         }
@@ -254,8 +286,8 @@ object Compatibility {
         return ConformanceExtResult(Seq.empty, undefSubst, defaultParameterUsed, matched)
       
       val missed = for ((parameter: Parameter, b) <- parameters.zip(used)
-                        if (!b && !parameter.isDefault)) yield MissedValueParameter(parameter)
-      defaultParameterUsed = parameters.zip(used).find{case (param, bool) => !bool && param.isDefault} != None
+                        if !b && !parameter.isDefault) yield MissedValueParameter(parameter)
+      defaultParameterUsed = parameters.zip(used).exists { case (param, bool) => !bool && param.isDefault}
       if(!missed.isEmpty) return ConformanceExtResult(missed, undefSubst, defaultParameterUsed, matched)
     }
     ConformanceExtResult(Seq.empty, undefSubst, defaultParameterUsed, matched)
@@ -385,8 +417,11 @@ object Compatibility {
 
 
         checkConformanceExt(checkNames = false, parameters = parameters.map {
-          param: PsiParameter => new Parameter("", {
-            val tp = substitutor.subst(ScType.create(param.getType, method.getProject, scope, paramTopLevel = true))
+          case param: PsiParameter => new Parameter("", {
+            val tp = substitutor.subst(param match {
+              case f: FakePsiParameter => f.parameter.paramType
+              case _ => ScType.create(param.getType, method.getProject, scope, paramTopLevel = true)
+            })
             if (param.isVarArgs) tp match {
               case ScParameterizedType(_, args) if args.length == 1 => args(0)
               case JavaArrayType(arg) => arg

@@ -43,14 +43,14 @@ trait ScTypePresentation {
       s.split('.').map(s => if (ScalaNamesUtil.isKeyword(s)) "`" + s + "`" else s).mkString(".")
     }
     def nameFun(e: PsiNamedElement, withPoint: Boolean): String = {
-      removeKeywords((e match {
+      removeKeywords(e match {
         case c: PsiClass => {
           val qname = c.qualifiedName
           if (qname != null && qname != c.name /* exlude default package*/ ) "_root_." + qname else c.name
         }
         case p: PsiPackage => "_root_." + p.getQualifiedName
         case _ => e.name
-      })) + (if (withPoint) "." else "")
+      }) + (if (withPoint) "." else "")
     }
     typeText(t, nameFun(_, withPoint = false), nameFun(_, withPoint = true))
   }
@@ -255,7 +255,7 @@ trait ScTypePresentation {
           val left = wilds.filter {
             case arg: ScExistentialArgument =>
               val seq = wildcardsMap.getOrElse(arg, Seq.empty)
-              if (seq.length == 1 && typeArgs.find(_ eq seq(0)).isDefined) {
+              if (seq.length == 1 && typeArgs.exists(_ eq seq(0))) {
                 replacingArgs += ((seq(0), arg))
                 false
               } else true

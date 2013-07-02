@@ -94,7 +94,7 @@ case class ScalaMethodEvaluator(objectEvaluator: Evaluator, methodName: String, 
                   def run() {
                     try {
                       val lines = methodPosition.map(_.getLine)
-                      result = m.allLineLocations().find(l => lines.contains(l.lineNumber())) != None
+                      result = m.allLineLocations().exists(l => lines.contains(l.lineNumber()))
                     }
                     catch {
                       case e: Exception => //ignore
@@ -112,16 +112,18 @@ case class ScalaMethodEvaluator(objectEvaluator: Evaluator, methodName: String, 
         jdiMethod
       }
       if (obj.isInstanceOf[ClassType]) {
-        if (referenceType.isInstanceOf[ClassType]) {
-          val jdiMethod = findMethod(referenceType)
-          if (jdiMethod != null && methodName == "<init>") {
-            import scala.collection.JavaConversions._
-            return debugProcess.newInstance(context, referenceType.asInstanceOf[ClassType], jdiMethod, args)
-          }
-          if (jdiMethod != null && jdiMethod.isStatic) {
-            import scala.collection.JavaConversions._
-            return debugProcess.invokeMethod(context, referenceType.asInstanceOf[ClassType], jdiMethod, args)
-          }
+        referenceType match {
+          case classType: ClassType =>
+            val jdiMethod = findMethod(referenceType)
+            if (jdiMethod != null && methodName == "<init>") {
+              import scala.collection.JavaConversions._
+              return debugProcess.newInstance(context, classType, jdiMethod, args)
+            }
+            if (jdiMethod != null && jdiMethod.isStatic) {
+              import scala.collection.JavaConversions._
+              return debugProcess.invokeMethod(context, classType, jdiMethod, args)
+            }
+          case _ =>
         }
         throw EvaluateExceptionUtil.createEvaluateException(DebuggerBundle.message("evaluation.error.no.static.method", mName))
       }
@@ -134,11 +136,11 @@ case class ScalaMethodEvaluator(objectEvaluator: Evaluator, methodName: String, 
             if (className != null) {
               context.getDebugProcess.findClass(context, className, context.getClassLoader) match {
                 case c: ClassType => _refType = c
-                case _ => _refType = (referenceType.asInstanceOf[ClassType]).superclass
+                case _ => _refType = referenceType.asInstanceOf[ClassType].superclass
               }
-            } else _refType = (referenceType.asInstanceOf[ClassType]).superclass
+            } else _refType = referenceType.asInstanceOf[ClassType].superclass
           case _ =>
-            _refType = (referenceType.asInstanceOf[ClassType]).superclass
+            _refType = referenceType.asInstanceOf[ClassType].superclass
         }
       }
       val jdiMethod: Method = findMethod(_refType)

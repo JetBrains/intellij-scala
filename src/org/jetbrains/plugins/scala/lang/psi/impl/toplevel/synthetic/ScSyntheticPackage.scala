@@ -118,7 +118,7 @@ object ScSyntheticPackage {
           }
 
           def containsClassNamed(name: String): Boolean = {
-            getClasses.find(_.name == name) != None
+            getClasses.exists(_.name == name)
           }
 
           def getQualifiedName = fqn

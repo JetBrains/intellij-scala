@@ -6,11 +6,15 @@ import com.intellij.openapi.actionSystem.IdeActions
 import com.intellij.codeInsight.folding.CodeFoldingManager
 import com.intellij.testFramework.fixtures.{CodeInsightTestFixture, LightCodeInsightFixtureTestCase}
 import com.intellij.codeInsight.generation.surroundWith.SurroundWithHandler
-import com.intellij.lang.surroundWith.{SurroundDescriptor, Surrounder}
-import util.ScalaToolsFactory
+import com.intellij.lang.surroundWith.Surrounder
+import org.jetbrains.plugins.scala.util.{TestUtils, ScalaToolsFactory}
 import com.intellij.codeInspection.LocalInspectionTool
 import collection.mutable.ListBuffer
 import com.intellij.codeInsight.intention.IntentionAction
+import scala.collection.mutable
+import com.intellij.codeInsight.daemon.impl.HighlightInfo
+import com.intellij.openapi.util.TextRange
+import com.intellij.openapi.projectRoots.JavaSdk
 
 /**
  * User: Dmitry Naydanov
@@ -18,7 +22,18 @@ import com.intellij.codeInsight.intention.IntentionAction
  */
 
 abstract class ScalaLightCodeInsightFixtureTestAdapter extends LightCodeInsightFixtureTestCase {
-  import ScalaLightCodeInsightFixtureTestAdapter.CARET_MARKER
+  protected val CARET_MARKER = ScalaLightCodeInsightFixtureTestAdapter.CARET_MARKER
+
+  private var libLoader: ScalaLibraryLoader = null
+
+  override protected def setUp() {
+    super.setUp()
+
+    libLoader = new ScalaLibraryLoader(myFixture.getProject, myFixture.getModule, rootPath = null,
+      javaSdk = Some(JavaSdk.getInstance.createJdk("java sdk", TestUtils.getMockJdk, false)))
+
+    libLoader.loadLibrary(TestUtils.DEFAULT_SCALA_SDK_VERSION)
+  }
 
   protected def checkAfterSurroundWith(text: String, assumedText: String, surrounder: Surrounder, canSurround: Boolean) {
     myFixture.configureByText("dummy.scala", text)
@@ -44,6 +59,22 @@ abstract class ScalaLightCodeInsightFixtureTestAdapter extends LightCodeInsightF
     CodeFoldingManager.getInstance(getProject).buildInitialFoldings(myFixture.getEditor)
 
     myFixture.testHighlighting(false, false, false, myFixture.getFile.getVirtualFile)
+  }
+
+  protected def checkTextHasNoErrors(text: String, annotation: String, inspectionsEnabled: Class[_ <: LocalInspectionTool]*) {
+    import scala.collection.JavaConversions._
+
+    myFixture.configureByText("dummy.scala", text)
+    myFixture.enableInspections(inspectionsEnabled: _*)
+
+    val caretIndex = text.indexOf(CARET_MARKER)
+    val highlights: mutable.Buffer[HighlightInfo] = for {
+      info <- myFixture.doHighlighting()
+      if info.description == annotation
+      if caretIndex == -1 || new TextRange(info.getStartOffset, info.getEndOffset).contains(caretIndex)
+    } yield info
+    val ranges = highlights.map(info => (info.startOffset, info.endOffset))
+    assert(highlights.isEmpty, "Highlights with this errors at " + ranges.mkString("", ", ", "."))
   }
 
   protected def performTest(text: String, assumedText: String)(testBody: () => Unit) {
@@ -104,15 +135,20 @@ abstract class ScalaLightCodeInsightFixtureTestAdapter extends LightCodeInsightF
     myFixture.configureByText("dummy.scala", text)
     myFixture.enableInspections(inspectionsEnabled: _*)
     val selectionModel = myFixture.getEditor.getSelectionModel
+    val selectionStart = selectionModel.getSelectionStart
+    val selectionEnd = selectionModel.getSelectionEnd
 
-    assert(myFixture.doHighlighting().exists(info => {
-      info.getStartOffset == selectionModel.getSelectionStart && info.getEndOffset == selectionModel.getSelectionEnd &&
-              info.getDescription == annotation
-    }))
+    val withRightDescription = myFixture.doHighlighting().filter(info => info.description == annotation)
+    assert(!withRightDescription.isEmpty, "No highlightings with such description: " + annotation)
+
+    val ranges = withRightDescription.map(info => (info.getStartOffset, info.getEndOffset))
+    val message = "Highlights with this description are at " + ranges.mkString(" ") + ", but has to be at " + (selectionStart, selectionEnd)
+    assert(withRightDescription.exists(info => info.getStartOffset == selectionStart && info.getEndOffset == selectionEnd), message)
+
   }
 
   /**
-   * Checks quick fix's result
+   * Checks quick fix's result. If caret position is specified, chooses only appropriate fix.
    *
    * @param text                 File text before fix invocation
    * @param assumedStub          File text after fix invocation
@@ -126,9 +162,16 @@ abstract class ScalaLightCodeInsightFixtureTestAdapter extends LightCodeInsightF
     myFixture.enableInspections(inspectionsEnabled: _*)
 
     val actions = new ListBuffer[IntentionAction]
+    val caretIndex = text.indexOf(CARET_MARKER)
+    def checkCaret(startOffset: Int, endOffset: Int): Boolean = {
+      if (caretIndex < 0) true
+      else startOffset <= caretIndex && endOffset >= caretIndex
+    }
     myFixture.doHighlighting().foreach(info =>
-      if (info != null && info.quickFixActionRanges != null)
+      if (info != null && info.quickFixActionRanges != null && checkCaret(info.getStartOffset, info.getEndOffset))
         actions ++= (for (pair <- info.quickFixActionRanges if pair != null) yield pair.getFirst.getAction))
+
+    assert(!actions.isEmpty, "There is no available fixes.")
 
     actions.find(_.getText == quickFixHint) match {
       case Some(action) =>
@@ -140,8 +183,13 @@ abstract class ScalaLightCodeInsightFixtureTestAdapter extends LightCodeInsightF
           }
         }, "", null)
         myFixture.checkResult(assumedStub)
-      case _ => assert(false)
+      case _ => assert(false, "There is no fixes with such hint.")
     }
+  }
+
+  protected override def tearDown() {
+    libLoader.clean()
+    super.tearDown()
   }
 }
 
