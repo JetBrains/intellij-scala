@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala.base;
 
 import com.intellij.openapi.actionSystem.DataContext;
-import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.Result;
 import com.intellij.openapi.application.WriteAction;
 import com.intellij.openapi.editor.Editor;
@@ -9,9 +8,6 @@ import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.projectRoots.JavaSdk;
 import com.intellij.openapi.projectRoots.Sdk;
-import com.intellij.openapi.roots.ContentEntry;
-import com.intellij.openapi.roots.ModifiableRootModel;
-import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
@@ -57,7 +53,7 @@ public abstract class ScalaLightPlatformCodeInsightTestCaseAdapter extends Light
   protected void setUp(TestUtils.ScalaSdkVersion libVersion) throws Exception {
     super.setUp();
     myLibraryLoader = new ScalaLibraryLoader(getProject(), getModule(), rootPath(),
-        isIncludeScalazLibrary(), isIncludeReflectLibrary());
+        isIncludeScalazLibrary(), isIncludeReflectLibrary(), ScalaLibraryLoader.getSdkNone());
     myLibraryLoader.loadLibrary(libVersion);
     //libLoader.clean();
   }

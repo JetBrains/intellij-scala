@@ -1,18 +1,14 @@
 package org.jetbrains.plugins.scala
 package codeInspection.collections
 
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTemplateDefinition, ScMember}
-import scala.Some
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import Utils._
 import com.intellij.openapi.util.TextRange
 import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
-import org.jetbrains.plugins.scala.lang.psi.types.{ScDesignatorType, ScParameterizedType}
+import org.jetbrains.plugins.scala.lang.psi.types.ScParameterizedType
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiManager, ScalaPsiElementFactory}
 import com.intellij.psi.search.GlobalSearchScope
-import com.intellij.execution.util.EnvironmentVariable
-import com.intellij.openapi.application.ApplicationManager
 import org.jetbrains.plugins.scala.lang.psi.types.ScDesignatorType
 import scala.Some
 
@@ -157,7 +153,7 @@ class FoldLeftSum(inspection: OperationOnCollectionInspection) extends Simplific
   def hint = InspectionBundle.message("foldLeft.sum.hint")
   def description = hint
 
-  private def checkNumeric(optionalBase: Option[ScExpression]): Boolean = {
+  private def checkNotString(optionalBase: Option[ScExpression]): Boolean = {
     optionalBase match {
       case Some(expr) =>
         expr.getType(TypingContext.empty).getOrAny match {
@@ -188,7 +184,7 @@ class FoldLeftSum(inspection: OperationOnCollectionInspection) extends Simplific
                 last.args.size == 1 &&
                 isSum(last.args(0)) &&
                 checkResolve(secondRef, likeCollectionClasses) &&
-                checkNumeric(second.optionalBase))
+                checkNotString(second.optionalBase))
         {
           createSimplification(second, last.itself, "", "sum", hint)
         }

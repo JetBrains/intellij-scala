@@ -14,6 +14,7 @@ import com.intellij.codeInsight.intention.IntentionAction
 import scala.collection.mutable
 import com.intellij.codeInsight.daemon.impl.HighlightInfo
 import com.intellij.openapi.util.TextRange
+import com.intellij.openapi.projectRoots.JavaSdk
 
 /**
  * User: Dmitry Naydanov
@@ -28,7 +29,8 @@ abstract class ScalaLightCodeInsightFixtureTestAdapter extends LightCodeInsightF
   override protected def setUp() {
     super.setUp()
 
-    libLoader = new ScalaLibraryLoader(myFixture.getProject, myFixture.getModule, rootPath = null)
+    libLoader = new ScalaLibraryLoader(myFixture.getProject, myFixture.getModule, rootPath = null,
+      javaSdk = Some(JavaSdk.getInstance.createJdk("java sdk", TestUtils.getMockJdk, false)))
 
     libLoader.loadLibrary(TestUtils.DEFAULT_SCALA_SDK_VERSION)
   }
