@@ -14,6 +14,7 @@ import com.intellij.execution.testframework.sm.runner.SMTestProxy
 import com.intellij.execution.testframework.sm.runner.states.TestStateInfo.Magnitude
 import org.jetbrains.plugins.scala.testingSupport.locationProvider.PsiLocationWithName
 import org.jetbrains.plugins.scala.testingSupport.test.AbstractTestRunConfiguration.{TestCommandLinePatcher, PropertiesExtension}
+import com.intellij.psi.search.GlobalSearchScope
 
 /**
  * User: Alexander Podkhalyuzin
@@ -31,7 +32,7 @@ class AbstractTestRerunFailedTestsAction(parent: JComponent)
       def getModules: Array[Module] = configuration.getModules
 
       def getTestName(failed: AbstractTestProxy): String = {
-        failed.getLocation(getProject) match {
+        failed.getLocation(getProject, GlobalSearchScope.allScope(getProject)) match {
           case PsiLocationWithName(_, _, testName) => testName
           case _ => failed.getName
         }
