@@ -15,6 +15,7 @@
 
 package org.jetbrains.plugins.scala.testcases;
 
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.testFramework.LightIdeaTestCase;
 import junit.framework.TestSuite;
@@ -36,6 +37,10 @@ public abstract class FileSetTestCase extends TestSuite {
   @NonNls
   protected static final String TEST_FILE_PATTERN = "(.*)\\.test";
   private File[] myFiles;
+  private Project myProject;
+  protected Project getProject() {
+    return myProject;
+  }
 
   public FileSetTestCase(String path) {
     List<File> myFileList;
@@ -48,10 +53,11 @@ public abstract class FileSetTestCase extends TestSuite {
     addAllTests();
   }
 
-  protected void setUp() {
+  protected void setUp(Project project) {
+      myProject = project;
   }
 
-  protected void tearDown() {
+  protected void tearDown(Project project) {
   }
 
   private void addAllTests() {
@@ -99,12 +105,12 @@ public abstract class FileSetTestCase extends TestSuite {
 
     protected void setUp() throws Exception {
       super.setUp();
-      FileSetTestCase.this.setUp();
+      FileSetTestCase.this.setUp(getProject());
 
     }
 
     protected void tearDown() throws Exception {
-      FileSetTestCase.this.tearDown();
+      FileSetTestCase.this.tearDown(getProject());
       try {
         super.tearDown();
       }

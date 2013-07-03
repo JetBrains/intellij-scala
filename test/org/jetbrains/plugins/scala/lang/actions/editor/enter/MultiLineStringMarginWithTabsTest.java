@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.actions.editor.enter;
 
+import com.intellij.openapi.project.Project;
 import com.intellij.psi.codeStyle.CommonCodeStyleSettings;
 import junit.framework.Test;
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings;
@@ -17,8 +18,8 @@ public class MultiLineStringMarginWithTabsTest extends AbstractEnterActionTestBa
   }
 
   @Override
-  protected void setUp() {
-    super.setUp();
+  protected void setUp(Project project) {
+    super.setUp(project);
     final CommonCodeStyleSettings settings = getSettings();
     final ScalaCodeStyleSettings scalaSettings = settings.getRootSettings().getCustomSettings(ScalaCodeStyleSettings.class);
 
