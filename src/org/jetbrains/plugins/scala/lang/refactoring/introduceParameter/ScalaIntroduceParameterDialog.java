@@ -220,10 +220,7 @@ public class ScalaIntroduceParameterDialog extends RefactoringDialog implements 
     }
 
     if (methodToSearchFor instanceof ScFunction) {
-      if (ScalaApplicationSettings.getInstance().INTRODUCE_PARAMETER_CREATE_DEFAULT != null) {
-        makeWithDefaultValueCheckBox.setSelected(ScalaApplicationSettings.getInstance().
-            INTRODUCE_PARAMETER_CREATE_DEFAULT);
-      }
+      makeWithDefaultValueCheckBox.setSelected(ScalaApplicationSettings.getInstance().INTRODUCE_PARAMETER_CREATE_DEFAULT);
       makeWithDefaultValueCheckBox.setEnabled(true);
     } else {
       makeWithDefaultValueCheckBox.setSelected(false);

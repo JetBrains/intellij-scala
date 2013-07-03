@@ -131,22 +131,15 @@ public class ScalaIntroduceVariableDialog extends DialogWrapper implements Named
       myCbTypeSpec.setEnabled(false);
       myTypeComboBox.setEnabled(false);
     } else {
-      if (ScalaApplicationSettings.getInstance().SPECIFY_TYPE_EXPLICITLY != null) {
-        myCbTypeSpec.setSelected(ScalaApplicationSettings.getInstance().SPECIFY_TYPE_EXPLICITLY);
-        myTypeComboBox.setEnabled(ScalaApplicationSettings.getInstance().SPECIFY_TYPE_EXPLICITLY);
-      } else {
-        myCbTypeSpec.setSelected(true);
-        myTypeComboBox.setEnabled(true);
-      }
+      myCbTypeSpec.setSelected(ScalaApplicationSettings.getInstance().SPECIFY_TYPE_EXPLICITLY);
+      myTypeComboBox.setEnabled(ScalaApplicationSettings.getInstance().SPECIFY_TYPE_EXPLICITLY);
       myTypeMap = ScalaRefactoringUtil.getCompatibleTypeNames(myTypes);
       for (String typeName : myTypeMap.keySet()) {
         myTypeComboBox.addItem(typeName);
       }
     }
 
-    if (ScalaApplicationSettings.getInstance().INTRODUCE_LOCAL_CREATE_VARIABLE != null) {
-      declareVariableCheckBox.setSelected(ScalaApplicationSettings.getInstance().INTRODUCE_LOCAL_CREATE_VARIABLE);
-    }
+    declareVariableCheckBox.setSelected(ScalaApplicationSettings.getInstance().INTRODUCE_LOCAL_CREATE_VARIABLE);
 
     myCbTypeSpec.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent event) {
