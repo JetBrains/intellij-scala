@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala
 package config.scalaProjectTemplate.scalaDownloader
 
 import com.intellij.util.download.{DownloadableFileSetVersions, DownloadableFileService, DownloadableFileSetDescription}
-import com.intellij.webcore.libraries.ui.download.DownloadWebLibraryDialog
 import com.intellij.openapi.project.Project
 import java.util.concurrent.locks.LockSupport
 import com.intellij.openapi.progress.ProgressManager
