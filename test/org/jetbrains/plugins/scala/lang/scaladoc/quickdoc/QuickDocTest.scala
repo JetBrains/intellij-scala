@@ -128,7 +128,7 @@ class QuickDocTest extends ScalaLightPlatformCodeInsightTestCaseAdapter {
     generateSimpleByText(fileText, testText)
   }
 
-  def testCodeDocGeneration() {
+  /*def testCodeDocGeneration() {
     val fileText =
       """
       | /** &&
@@ -145,7 +145,7 @@ class QuickDocTest extends ScalaLightPlatformCodeInsightTestCaseAdapter {
             "</code> </pre>  "
 
     generateSimpleByText(fileText, testText)
-  }
+  }*/
 
   def testSyntaxInTags() {
     val fileText =
