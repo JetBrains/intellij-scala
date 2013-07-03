@@ -33,6 +33,7 @@ import com.intellij.psi.search.{LocalSearchScope, SearchScope}
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.ui.awt.RelativePoint
 import com.intellij.openapi.command.undo.UndoManager
+import com.intellij.openapi.command.impl.StartMarkAction
 
 /**
  * Nikolay.Tropin
@@ -102,9 +103,9 @@ class ScalaInplaceVariableIntroducer(project: Project,
     case _ => None
   }
 
-  def getDeclaration: PsiElement = myPointer.getElement
+  private def getDeclaration: PsiElement = myPointer.getElement
 
-  def setDeclaration(declaration: PsiElement): Unit = {
+  private def setDeclaration(declaration: PsiElement): Unit = {
     myPointer = if (declaration != null) SmartPointerManager.getInstance(project).createSmartPsiElementPointer(declaration)
     else myPointer
   }
@@ -113,14 +114,11 @@ class ScalaInplaceVariableIntroducer(project: Project,
     PsiDocumentManager.getInstance(myProject).commitDocument(myEditor.getDocument)
   }
 
-  override def getComponent: JComponent = {
+  protected override def getComponent: JComponent = {
 
     if (!isEnumerator) {
       myVarCheckbox = new NonFocusableCheckBox(ScalaBundle.message("introduce.variable.declare.as.var"))
-      val withVarSetting = ScalaApplicationSettings.getInstance.INTRODUCE_LOCAL_CREATE_VARIABLE
-      if (withVarSetting != null) {
-        myVarCheckbox.setSelected(withVarSetting)
-      }
+      myVarCheckbox.setSelected(ScalaApplicationSettings.getInstance.INTRODUCE_LOCAL_CREATE_VARIABLE)
       myVarCheckbox.setMnemonic('v')
       myVarCheckbox.addActionListener(new ActionListener {
         def actionPerformed(e: ActionEvent): Unit = {
@@ -151,12 +149,7 @@ class ScalaInplaceVariableIntroducer(project: Project,
     if (types.nonEmpty && !noTypeInference) {
       val selectedType = types(0)
       mySpecifyTypeChb = new NonFocusableCheckBox(ScalaBundle.message("introduce.variable.specify.type.explicitly"))
-      val specifyTypeSetting = ScalaApplicationSettings.getInstance.SPECIFY_TYPE_EXPLICITLY
-      if (specifyTypeSetting != null) {
-        mySpecifyTypeChb.setSelected(specifyTypeSetting)
-      } else {
-        mySpecifyTypeChb.setSelected(true)
-      }
+      mySpecifyTypeChb.setSelected(ScalaApplicationSettings.getInstance.SPECIFY_TYPE_EXPLICITLY)
       mySpecifyTypeChb.setMnemonic('t')
       mySpecifyTypeChb.addActionListener(new ActionListener {
         def actionPerformed(e: ActionEvent): Unit = {
@@ -332,14 +325,18 @@ class ScalaInplaceVariableIntroducer(project: Project,
     }
   }
 
-  override def getReferencesSearchScope(file: VirtualFile): SearchScope = {
+  protected override def getReferencesSearchScope(file: VirtualFile): SearchScope = {
    new LocalSearchScope(myElementToRename.getContainingFile)
   }
 
-  override def checkLocalScope(): PsiElement = {
+  protected override def checkLocalScope(): PsiElement = {
     val scope = new LocalSearchScope(myElementToRename.getContainingFile)
     val elements: Array[PsiElement] = scope.getScope
     PsiTreeUtil.findCommonParent(elements: _*)
+  }
+
+  protected override def startRename: StartMarkAction = {
+    StartMarkAction.start(myEditor, myProject, getCommandName)
   }
 
   override def finish(success: Boolean): Unit = {
