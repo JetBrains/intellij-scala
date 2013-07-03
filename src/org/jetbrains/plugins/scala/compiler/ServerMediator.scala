@@ -7,6 +7,9 @@ import config.ScalaFacet
 import com.intellij.compiler.CompilerWorkspaceConfiguration
 import com.intellij.notification.{NotificationListener, NotificationType, Notification, Notifications}
 import com.intellij.openapi.compiler.{CompileContext, CompileTask, CompilerManager}
+import com.intellij.openapi.module.ModuleManager
+import com.intellij.openapi.roots.{ModuleRootManager, CompilerModuleExtension}
+import com.intellij.openapi.ui.Messages
 import org.intellij.lang.annotations.Language
 import javax.swing.event.HyperlinkEvent
 import extensions._
@@ -42,6 +45,9 @@ class ServerMediator(project: Project) extends ProjectComponent {
           }
 
           invokeAndWait {
+            if (!checkCompilationSettings()) {
+              return false
+            }
             project.getComponent(classOf[FscServerLauncher]).stop()
             project.getComponent(classOf[FscServerManager]).removeWidget()
           }
@@ -76,6 +82,48 @@ class ServerMediator(project: Project) extends ProjectComponent {
       true
     }
   })
+
+  private def checkCompilationSettings(): Boolean = {
+    val modulesWithClashes = ModuleManager.getInstance(project).getModules.toSeq.filter { module =>
+      val extension = CompilerModuleExtension.getInstance(module)
+
+      val production = extension.getCompilerOutputUrl
+      val test = extension.getCompilerOutputUrlForTests
+
+      production == test
+    }
+
+    if (modulesWithClashes.nonEmpty) {
+      val result = Messages.showYesNoDialog(project,
+        "Production and test output paths are shared in: " + modulesWithClashes.map(_.getName).mkString(" "),
+        "Shared compile output paths in Scala module(s)",
+        "Split output path(s) automatically", "Cancel compilation", Messages.getErrorIcon)
+
+      val splitAutomatically = result == Messages.YES
+
+      if (splitAutomatically) {
+        inWriteAction {
+          modulesWithClashes.foreach { module =>
+            val model = ModuleRootManager.getInstance(module).getModifiableModel
+            val extension = model.getModuleExtension(classOf[CompilerModuleExtension])
+
+            val name = if (extension.getCompilerOutputPath.getName == "classes") "test-classes" else "test"
+
+            extension.inheritCompilerOutputPath(false)
+            extension.setCompilerOutputPathForTests(extension.getCompilerOutputPath.getParent.getUrl + "/" + name)
+
+            model.commit()
+          }
+
+          project.save()
+        }
+      }
+
+      splitAutomatically
+    } else {
+      true
+    }
+  }
 
   def getComponentName = getClass.getSimpleName
 

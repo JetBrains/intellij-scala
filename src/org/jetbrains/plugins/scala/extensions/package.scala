@@ -8,6 +8,8 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi._
 import scala.util.matching.Regex
 import javax.swing.SwingUtilities
+import scala.runtime.NonLocalReturnControl
+import java.lang.reflect.InvocationTargetException
 
 /**
   * Pavel Fatin
@@ -80,11 +82,24 @@ package object extensions {
   }
 
   def invokeAndWait[T](body: => Unit) {
-    SwingUtilities.invokeAndWait(new Runnable {
-      def run() {
-        body
+    preservingControlFlow {
+      SwingUtilities.invokeAndWait(new Runnable {
+        def run() {
+          body
+        }
+      })
+    }
+  }
+
+  private def preservingControlFlow(body: => Unit) {
+    try {
+      body
+    } catch {
+      case e: InvocationTargetException => e.getTargetException match {
+        case control: NonLocalReturnControl[_] => throw control
+        case _ => throw e
       }
-    })
+    }
   }
 
   /** Create a PartialFunction from a sequence of cases. Workaround for pattern matcher bug */
