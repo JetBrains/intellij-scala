@@ -85,21 +85,9 @@ object Pattern3 {
     }
     return true
   }
-  //Defines priority
-  private def priority(id: String) : Int = {
-    id.charAt(0) match {
-      case '~' | '#' | '@' | '$' | '?' | '\\'     => 0
-      case '*' | '/' | '%'                        => 1
-      case '+' | '-'                              => 2
-      case ':'                                    => 3
-      case '=' | '!'                              => 4
-      case '<' | '>'                              => 5
-      case '&'                                    => 6
-      case '^'                                    => 7
-      case '|'                                    => 8
-      case _                                      => 9
-    }
-  }
+
+  import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils.priority
+
   //compares two operators a id2 b id1 c
   private def compar(id1: String, id2: String, builder: PsiBuilder): Boolean = {
     if (priority(id1) < priority(id2)) return true        //  a * b + c  =((a * b) + c)

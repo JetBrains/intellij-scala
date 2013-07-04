@@ -81,7 +81,7 @@ object ParserUtils extends ParserUtilsBase {
       return 10
     }
     id.charAt(0) match {
-      case '~' | '#' | '@' | '$' | '?' | '\\' => 0 //todo: other special characters?
+      case '~' | '#' | '@' | '?' | '\\' => 0 //todo: other special characters?
       case '*' | '/' | '%' => 1
       case '+' | '-' => 2
       case ':' => 3
