@@ -41,7 +41,7 @@ object PluginRunner {
           val className = if (download) "ReadProjectAndRepository" else "ReadProject"
 
           writeLinesTo(commandsFile,
-            s"set artifactPath := new File(\042${path(structureFile)}\042)",
+            s"set artifactPath := file(\042${path(structureFile)}\042)",
             s"apply -cp ${path(pluginFile)} org.jetbrains.sbt.$className")
 
           val processCommands =
