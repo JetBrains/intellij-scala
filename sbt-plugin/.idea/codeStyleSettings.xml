@@ -4,6 +4,10 @@
     <option name="PER_PROJECT_SETTINGS">
       <value>
         <option name="LINE_SEPARATOR" value="&#10;" />
+        <ScalaCodeStyleSettings>
+          <option name="OVERRIDING_PROPERTY_TYPE_ANNOTATION" value="0" />
+          <option name="OVERRIDING_METHOD_TYPE_ANNOTATION" value="0" />
+        </ScalaCodeStyleSettings>
         <XML>
           <option name="XML_LEGACY_SETTINGS_IMPORTED" value="true" />
         </XML>
