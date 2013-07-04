@@ -1,11 +1,11 @@
 <component name="libraryTable">
   <library name="external-system">
     <CLASSES>
-      <root url="jar://$PROJECT_DIR$/lib/external-system.jar!/" />
+      <root url="jar://$PROJECT_DIR$/idea-plugin/lib/external-system.jar!/" />
     </CLASSES>
     <JAVADOC />
     <SOURCES>
-      <root url="jar://$PROJECT_DIR$/lib/external-system-src.jar!/" />
+      <root url="jar://$PROJECT_DIR$/idea-plugin/lib/external-system-src.jar!/" />
     </SOURCES>
   </library>
 </component>

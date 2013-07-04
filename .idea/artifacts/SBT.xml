@@ -4,7 +4,7 @@
     <root id="root">
       <element id="directory" name="lib">
         <element id="archive" name="intellij-sbt.jar">
-          <element id="module-output" name="intellij-sbt" />
+          <element id="module-output" name="idea-plugin" />
         </element>
         <element id="library" level="project" name="external-system" />
       </element>
