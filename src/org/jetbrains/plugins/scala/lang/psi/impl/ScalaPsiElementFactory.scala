@@ -503,10 +503,18 @@ object ScalaPsiElementFactory {
 
   def createDeclaration(name: String, typeName: String, isVariable: Boolean, expr: ScExpression, manager: PsiManager): ScMember = {
     val exprText: String =  expr match {
-      case ScFunctionExpr(Seq(param), Some(result)) if param.typeElement.isDefined =>
-        if (param.getPrevSiblingNotWhitespace == null) {
-          s"(${param.getText}) => ${result.getText}"
-        } else expr.getText
+      case fun @ ScFunctionExpr(parSeq, Some(result)) =>
+        val paramText =
+          if (parSeq.size == 1) {
+            val par = parSeq.head
+            if (par.typeElement.isDefined && par.getPrevSiblingNotWhitespace == null) s"(${par.getText})"
+            else fun.params.getText
+          } else fun.params.getText
+        val resultText = result match {
+          case block: ScBlock if !block.hasRBrace => s"{\n${block.getText}\n}"
+          case _ => result.getText
+        }
+        s"$paramText => $resultText"
       case null => ""
       case _ => expr.getText
     }
