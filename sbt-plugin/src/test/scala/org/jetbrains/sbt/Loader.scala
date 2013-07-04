@@ -19,7 +19,7 @@ object Loader {
     val className = if (download) "ReadProjectAndRepository" else "ReadProject"
 
     writeLinesTo(commandsFile,
-      "set artifactPath := new File(\"" + canonicalPath(structureFile) + "\")",
+      "set artifactPath := file(\"" + canonicalPath(structureFile) + "\")",
       "apply -cp " + SbtPlugin + " org.jetbrains.sbt." + className)
 
     val commands = JavaVM +: JavaOpts :+ "-jar" :+ SbtLauncher :+ ("< " + canonicalPath(commandsFile))
