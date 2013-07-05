@@ -34,7 +34,7 @@ object RootBuild extends Build {
       (sbtPluginBase / "sbt-launch.jar", "launcher/sbt-launch.jar"),
       (sbtPluginJar, "launcher/sbt-structure.jar"))
 
-    val archive = target / (pluginName + ".zip")
+    val archive = target / (pluginName + "-bin.zip")
 
     s.log.info("Creating a distribution archive " + archive.getPath + " ...")
 
