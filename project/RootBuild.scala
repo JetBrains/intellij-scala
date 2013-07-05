@@ -29,8 +29,8 @@ object RootBuild extends Build {
     packageBin.in(ideaPluginProject).in(Compile),
     packageBin.in(sbtPluginProject).in(Compile)) map { (s, target, pluginName, ideaPluginBase, sbtPluginBase, ideaPluginJar, sbtPluginJar) =>
 
-    val files = Seq((ideaPluginJar, "lib/" + pluginName + ".jar"),
-      (ideaPluginBase / "lib" / "external-system.jar", "lib/external-system.jar"),
+    val files = Seq((ideaPluginJar, pluginName + ".jar"),
+      (ideaPluginBase / "lib" / "external-system.jar", "external-system.jar"),
       (sbtPluginBase / "sbt-launch.jar", "launcher/sbt-launch.jar"),
       (sbtPluginJar, "launcher/sbt-structure.jar"))
 
@@ -39,7 +39,7 @@ object RootBuild extends Build {
     s.log.info("Creating a distribution archive " + archive.getPath + " ...")
 
     IO.delete(archive)
-    IO.zip(files.map(p => (p._1, pluginName + "/" + p._2)), archive)
+    IO.zip(files.map(p => (p._1, pluginName + "/lib/" + p._2)), archive)
 
     s.log.info("Done creating the distribution archive.")
 
