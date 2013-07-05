@@ -66,7 +66,10 @@ object RootBuild extends Build {
 
   val generateUpdateDescriptor = TaskKey[File]("generate-update-descriptor", "Generates a descriptor for auto-updates.")
 
-  val generateUpdateDescriptorTask = generateUpdateDescriptor <<= (streams, target, version) map { (s, target, version) =>
+  val generateUpdateDescriptorTask = generateUpdateDescriptor <<= (streams,
+    target, 
+    version.in(ideaPluginProject)) map { (s, target, version) =>
+
     val xml =
       <plugins>
         <plugin id="com.intellij.scala.sbt" url={"http://download.jetbrains.com/scala/intellij-sbt-bin-" + version + ".zip"} version={version} />
