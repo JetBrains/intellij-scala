@@ -75,7 +75,7 @@ object RootBuild extends Build {
         <plugin id="com.intellij.scala.sbt" url={"http://download.jetbrains.com/scala/intellij-sbt-bin-" + version + ".zip"} version={version} />
       </plugins>
 
-    val descriptor = target / "intellij-sbt-nightly-leda.xml"
+    val descriptor = target / "sbt-nightly-leda.xml"
 
     s.log.info("Generating an update descriptor " + descriptor.getPath + " with version " + version + "...")
 
