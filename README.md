@@ -11,3 +11,11 @@ Features
 * SBT project import (via "Open" or "Import project")
 * Auto-import on project changes
 * .sbt files support
+
+
+TODO
+----
+
+* Console
+* Command tool window
+* SBT project make

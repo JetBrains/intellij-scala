@@ -2,7 +2,7 @@ import sbt._
 import Keys._
 
 object RootBuild extends Build {
-  lazy val rootProject = Project(id = "root", base = file("."), settings = Defaults.defaultSettings :+ distTask)
+  lazy val rootProject = Project(id = "root", base = file("."), settings = Defaults.defaultSettings :+ distTask :+ updatePluginVersionTask)
     .aggregate(ideaPluginProject, sbtPluginProject)
 
   lazy val ideaPluginProject = Project(id = "idea-plugin", base = file("idea-plugin"))
@@ -24,17 +24,18 @@ object RootBuild extends Build {
   val distTask = dist <<= (streams,
     target,
     name.in(ideaPluginProject),
+    version.in(ideaPluginProject),
     baseDirectory.in(ideaPluginProject),
     baseDirectory.in(sbtPluginProject),
     packageBin.in(ideaPluginProject).in(Compile),
-    packageBin.in(sbtPluginProject).in(Compile)) map { (s, target, pluginName, ideaPluginBase, sbtPluginBase, ideaPluginJar, sbtPluginJar) =>
+    packageBin.in(sbtPluginProject).in(Compile)) map { (s, target, pluginName, pluginVersion, ideaPluginBase, sbtPluginBase, ideaPluginJar, sbtPluginJar) =>
 
     val files = Seq((ideaPluginJar, pluginName + ".jar"),
       (ideaPluginBase / "lib" / "external-system.jar", "external-system.jar"),
       (sbtPluginBase / "sbt-launch.jar", "launcher/sbt-launch.jar"),
       (sbtPluginJar, "launcher/sbt-structure.jar"))
 
-    val archive = target / (pluginName + "-bin.zip")
+    val archive = target / (pluginName + "-bin-" + pluginVersion + ".zip")
 
     s.log.info("Creating a distribution archive " + archive.getPath + " ...")
 
@@ -44,5 +45,22 @@ object RootBuild extends Build {
     s.log.info("Done creating the distribution archive.")
 
     archive
+  }
+
+  val updatePluginVersion = TaskKey[String]("update-plugin-version", "Updates the plugin version in plugin.xml.")
+
+  val updatePluginVersionTask = updatePluginVersion <<= (streams,
+    baseDirectory.in(ideaPluginProject),
+    version.in(ideaPluginProject)) map { (s, base, version) =>
+
+    val descriptor = base / "src" / "main" / "resources" / "META-INF" / "plugin.xml"
+
+    s.log.info("Updating plugin version in " + descriptor.getPath + " to " + version + "...")
+
+    IO.writeLines(descriptor, IO.readLines(descriptor).map(_.replaceAll("(?<=<version>)\\S+(?=</version>)", version)))
+
+    s.log.info("Done updating the plugin version.")
+
+    version
   }
 }

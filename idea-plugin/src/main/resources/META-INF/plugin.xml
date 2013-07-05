@@ -3,7 +3,7 @@
     <name>SBT support</name>
     <id>org.jetbrains.sbt</id>
     <description>Simple Build Tool support</description>
-    <version>0.1</version>
+    <version>SNAPSHOT</version>
     <vendor logo="/general/ijLogo.png">JetBrains</vendor>
 
     <depends>org.intellij.scala</depends>

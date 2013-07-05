@@ -2,7 +2,7 @@ name := "intellij-sbt"
 
 organization := "org.jetbrains"
 
-version := "0.1"
+version := sys.env.get("BUILD_NUMBER").getOrElse("0.1-SNAPSHOT")
 
 scalaVersion := "2.10.2"
 
