@@ -2,7 +2,7 @@ import sbt._
 import Keys._
 
 object RootBuild extends Build {
-  lazy val rootProject = Project(id = "root", base = file("."), settings = Defaults.defaultSettings :+ distTask :+ updatePluginVersionTask)
+  lazy val rootProject = Project(id = "root", base = file("."), settings = Defaults.defaultSettings :+ distTask :+ updatePluginVersionTask :+ generateUpdateDescriptorTask)
     .aggregate(ideaPluginProject, sbtPluginProject)
 
   lazy val ideaPluginProject = Project(id = "idea-plugin", base = file("idea-plugin"))
@@ -62,5 +62,24 @@ object RootBuild extends Build {
     s.log.info("Done updating the plugin version.")
 
     version
+  }
+
+  val generateUpdateDescriptor = TaskKey[File]("generate-update-descriptor", "Generates a descriptor for auto-updates.")
+
+  val generateUpdateDescriptorTask = generateUpdateDescriptor <<= (streams, target, version) map { (s, target, version) =>
+    val xml =
+      <plugins>
+        <plugin id="com.intellij.scala.sbt" url={"http://download.jetbrains.com/scala/intellij-sbt-bin-" + version + ".zip"} version={version} />
+      </plugins>
+
+    val descriptor = target / "intellij-sbt-nightly-leda.xml"
+
+    s.log.info("Generating an update descriptor " + descriptor.getPath + " with version " + version + "...")
+
+    IO.write(descriptor, xml.toString())
+
+    s.log.info("Done generating the update descriptor.")
+
+    descriptor
   }
 }
