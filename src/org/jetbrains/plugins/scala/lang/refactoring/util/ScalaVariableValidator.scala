@@ -12,6 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBod
 import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.editor.Editor
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
+import com.intellij.psi.util.PsiTreeUtil
 
 
 /**
@@ -184,9 +185,9 @@ class ScalaVariableValidator(conflictsReporter: ConflictsReporter,
         } else {
           selectedElement
         }
-        if (parent != container)
+        if (PsiTreeUtil.isAncestor(container, parent, true))
           while (parent.getParent != null && parent.getParent != container) parent = parent.getParent
-        else parent = parent.getFirstChild
+        else parent = container.getFirstChild
         parent
       }
       var fromDoubles = from.getPrevSibling
