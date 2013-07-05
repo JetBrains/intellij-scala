@@ -12,7 +12,7 @@ import project.SbtException
 object PluginRunner {
   private val JavaHome = new File(System.getProperty("java.home"))
   private val JavaVM = JavaHome / "bin" / "java"
-  private val LauncherDir = (jarWith[this.type] << 2) / "launcher"
+  private val LauncherDir = (jarWith[this.type] <<) / "launcher"
   private val SbtLauncher = LauncherDir / "sbt-launch.jar"
   private val SbtPlugin = LauncherDir / "sbt-structure.jar"
   private val JavaOpts = Option(System.getenv("JAVA_OPTS")).map(_.split("\\s+")).toSeq.flatten
