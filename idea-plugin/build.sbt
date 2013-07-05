@@ -1,9 +1,5 @@
 name := "intellij-sbt"
 
-organization := "org.jetbrains"
-
-version := sys.env.get("BUILD_NUMBER").getOrElse("0.1-SNAPSHOT")
-
 scalaVersion := "2.10.2"
 
 scalacOptions := Seq("-language:implicitConversions", "-language:reflectiveCalls", "-language:postfixOps")
