@@ -1,9 +1,9 @@
 <idea-plugin version="2">
 
-    <name>SBT Support</name>
+    <name>SBT support</name>
     <id>org.jetbrains.sbt</id>
     <description>Simple Build Tool support</description>
-    <version>VERSION</version>
+    <version>0.1</version>
     <vendor logo="/general/ijLogo.png">JetBrains</vendor>
 
     <depends>org.intellij.scala</depends>
