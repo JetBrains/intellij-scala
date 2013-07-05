@@ -1,5 +1,5 @@
 <component name="ArtifactManager">
-  <artifact build-on-make="true" name="SBT">
+  <artifact name="SBT">
     <output-path>$PROJECT_DIR$/out/artifacts/SBT</output-path>
     <root id="root">
       <element id="directory" name="lib">
