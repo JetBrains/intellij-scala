@@ -160,3 +160,7 @@ trait ScBlock extends ScExpression with ScDeclarationSequenceHolder with ScImpor
   
   def needCheckExpectedType = true
 }
+
+object ScBlock {
+  def unapplySeq(block: ScBlock): Option[Seq[ScBlockStatement]] = Option(block.statements)
+}
