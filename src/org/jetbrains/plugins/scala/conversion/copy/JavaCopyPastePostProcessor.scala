@@ -11,7 +11,6 @@ import java.lang.Boolean
 import org.jetbrains.plugins.scala.extensions._
 import com.intellij.openapi.extensions.Extensions
 import collection.mutable.{ListBuffer, ArrayBuffer}
-import com.intellij.codeInsight.editorActions.ReferenceTransferableData.ReferenceData
 import com.intellij.openapi.project.{DumbService, Project}
 import org.jetbrains.plugins.scala.ScalaFileType
 import com.intellij.codeInsight.editorActions._

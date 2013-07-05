@@ -12,7 +12,7 @@ import lang.psi.types.ScType
 import java.lang.String
 import com.intellij.openapi.util.TextRange
 import collection.mutable.{ListBuffer, ArrayBuffer, LinkedHashSet}
-import com.intellij.codeInsight.editorActions.ReferenceTransferableData.ReferenceData
+import com.intellij.codeInsight.editorActions.ReferenceData
 import lang.dependency.{DependencyKind, Path}
 
 /**
