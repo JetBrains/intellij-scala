@@ -748,5 +748,9 @@ object ScalaRefactoringUtil {
     if (newExpr != null) newExpr else throw new IntroduceException
   }
 
+  def replaceOccurences(occurences: Array[TextRange], newString: String, file: PsiFile, editor: Editor): Array[ScExpression] = {
+    occurences.reverseMap(ScalaRefactoringUtil.replaceOccurence(_, newString, file, editor)).reverse
+  }
+
   private[refactoring] class IntroduceException extends Exception
 }

@@ -99,9 +99,9 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Confli
             val suggestedNames: Array[String] = NameSuggester.suggestNames(expr, validator)
             import scala.collection.JavaConversions.asJavaCollection
             val suggestedNamesSet = new LinkedHashSet[String](suggestedNames.toIterable)
-            val asVar = ScalaApplicationSettings.getInstance().INTRODUCE_LOCAL_CREATE_VARIABLE
-            ScalaApplicationSettings.getInstance().SPECIFY_TYPE_EXPLICITLY
-            val selectedType = if (ScalaApplicationSettings.getInstance().SPECIFY_TYPE_EXPLICITLY) types(0) else null
+            val asVar = ScalaApplicationSettings.getInstance().INTRODUCE_VARIABLE_IS_VAR
+            ScalaApplicationSettings.getInstance().INTRODUCE_VARIABLE_EXPLICIT_TYPE
+            val selectedType = if (ScalaApplicationSettings.getInstance().INTRODUCE_VARIABLE_EXPLICIT_TYPE) types(0) else null
             val introduceRunnable: Computable[PsiElement] =
               introduceVariable(startOffset, endOffset, file, editor, expr, occurrences, suggestedNames(0), selectedType,
                 replaceAll, asVar)
@@ -234,7 +234,7 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Confli
     val mainOcc = occurrences.indexWhere(_.getStartOffset == startOffset)
 
     //changes document directly
-    val replacedOccurences = occurrences.reverseMap(ScalaRefactoringUtil.replaceOccurence(_, varName, file, editor)).reverse
+    val replacedOccurences = ScalaRefactoringUtil.replaceOccurences(occurrences, varName, file, editor)
     //only Psi-operations after this moment
     var firstRange = replacedOccurences(0).getTextRange
 
