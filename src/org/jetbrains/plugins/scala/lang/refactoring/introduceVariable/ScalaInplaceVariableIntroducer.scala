@@ -118,7 +118,7 @@ class ScalaInplaceVariableIntroducer(project: Project,
 
     if (!isEnumerator) {
       myVarCheckbox = new NonFocusableCheckBox(ScalaBundle.message("introduce.variable.declare.as.var"))
-      myVarCheckbox.setSelected(ScalaApplicationSettings.getInstance.INTRODUCE_LOCAL_CREATE_VARIABLE)
+      myVarCheckbox.setSelected(ScalaApplicationSettings.getInstance.INTRODUCE_VARIABLE_IS_VAR)
       myVarCheckbox.setMnemonic('v')
       myVarCheckbox.addActionListener(new ActionListener {
         def actionPerformed(e: ActionEvent): Unit = {
@@ -149,7 +149,7 @@ class ScalaInplaceVariableIntroducer(project: Project,
     if (types.nonEmpty && !noTypeInference) {
       val selectedType = types(0)
       mySpecifyTypeChb = new NonFocusableCheckBox(ScalaBundle.message("introduce.variable.specify.type.explicitly"))
-      mySpecifyTypeChb.setSelected(ScalaApplicationSettings.getInstance.SPECIFY_TYPE_EXPLICITLY)
+      mySpecifyTypeChb.setSelected(ScalaApplicationSettings.getInstance.INTRODUCE_VARIABLE_EXPLICIT_TYPE)
       mySpecifyTypeChb.setMnemonic('t')
       mySpecifyTypeChb.addActionListener(new ActionListener {
         def actionPerformed(e: ActionEvent): Unit = {
@@ -342,8 +342,8 @@ class ScalaInplaceVariableIntroducer(project: Project,
   override def finish(success: Boolean): Unit = {
     editor.getDocument.removeDocumentListener(myCheckIdentifierListener)
 
-    if (myVarCheckbox != null) ScalaApplicationSettings.getInstance.INTRODUCE_LOCAL_CREATE_VARIABLE = myVarCheckbox.isSelected
-    if (mySpecifyTypeChb != null && !isEnumerator) ScalaApplicationSettings.getInstance.SPECIFY_TYPE_EXPLICITLY = mySpecifyTypeChb.isSelected
+    if (myVarCheckbox != null) ScalaApplicationSettings.getInstance.INTRODUCE_VARIABLE_IS_VAR = myVarCheckbox.isSelected
+    if (mySpecifyTypeChb != null && !isEnumerator) ScalaApplicationSettings.getInstance.INTRODUCE_VARIABLE_EXPLICIT_TYPE = mySpecifyTypeChb.isSelected
 
     val named = namedElement(getDeclaration).getOrElse(null)
     val templateState: TemplateState = TemplateManagerImpl.getTemplateState(myEditor)

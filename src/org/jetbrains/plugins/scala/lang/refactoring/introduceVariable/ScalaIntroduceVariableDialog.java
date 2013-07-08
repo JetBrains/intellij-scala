@@ -131,15 +131,15 @@ public class ScalaIntroduceVariableDialog extends DialogWrapper implements Named
       myCbTypeSpec.setEnabled(false);
       myTypeComboBox.setEnabled(false);
     } else {
-      myCbTypeSpec.setSelected(ScalaApplicationSettings.getInstance().SPECIFY_TYPE_EXPLICITLY);
-      myTypeComboBox.setEnabled(ScalaApplicationSettings.getInstance().SPECIFY_TYPE_EXPLICITLY);
+      myCbTypeSpec.setSelected(ScalaApplicationSettings.getInstance().INTRODUCE_VARIABLE_EXPLICIT_TYPE);
+      myTypeComboBox.setEnabled(ScalaApplicationSettings.getInstance().INTRODUCE_VARIABLE_EXPLICIT_TYPE);
       myTypeMap = ScalaRefactoringUtil.getCompatibleTypeNames(myTypes);
       for (String typeName : myTypeMap.keySet()) {
         myTypeComboBox.addItem(typeName);
       }
     }
 
-    declareVariableCheckBox.setSelected(ScalaApplicationSettings.getInstance().INTRODUCE_LOCAL_CREATE_VARIABLE);
+    declareVariableCheckBox.setSelected(ScalaApplicationSettings.getInstance().INTRODUCE_VARIABLE_IS_VAR);
 
     myCbTypeSpec.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent event) {
@@ -220,10 +220,10 @@ public class ScalaIntroduceVariableDialog extends DialogWrapper implements Named
       return;
     }
     if (myCbTypeSpec.isEnabled()) {
-      ScalaApplicationSettings.getInstance().SPECIFY_TYPE_EXPLICITLY = myCbTypeSpec.isSelected();
+      ScalaApplicationSettings.getInstance().INTRODUCE_VARIABLE_EXPLICIT_TYPE = myCbTypeSpec.isSelected();
     }
     if (declareVariableCheckBox.isEnabled()) {
-      ScalaApplicationSettings.getInstance().INTRODUCE_LOCAL_CREATE_VARIABLE = declareVariableCheckBox.isSelected();
+      ScalaApplicationSettings.getInstance().INTRODUCE_VARIABLE_IS_VAR = declareVariableCheckBox.isSelected();
     }
     super.doOKAction();
   }
