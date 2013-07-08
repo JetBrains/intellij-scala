@@ -41,14 +41,11 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportExpr
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScTypeProjection, ScTypeElement, ScSimpleTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.types.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.psi.types.ScFunctionType
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTemplateDefinition, ScClass, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTypeDefinition}
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.refactoring.util.CommonRefactoringUtil
 import com.intellij.refactoring.HelpID
 import java.util
-import com.intellij.psi.search.PsiElementProcessor
-import com.intellij.codeInsight.navigation.NavigationUtil
-import com.intellij.ide.util.PsiClassListCellRenderer
 
 
 /**
@@ -170,6 +167,23 @@ object ScalaRefactoringUtil {
     Some((element, exprType))
   }
 
+  def expressionToIntroduce(expr: ScExpression): ScExpression = {
+    def copyExpr = expr.copy.asInstanceOf[ScExpression]
+    def liftMethod = ScalaPsiElementFactory.createExpressionFromText(expr.getText + " _", expr.getManager)
+    expr match {
+      case ref: ScReferenceExpression => {
+        ref.resolve() match {
+          case fun: ScFunction if fun.paramClauses.clauses.length > 0 &&
+                  fun.paramClauses.clauses.head.isImplicit => copyExpr
+          case fun: ScFunction if !fun.parameters.isEmpty => liftMethod
+          case meth: PsiMethod if !meth.getParameterList.getParameters.isEmpty => liftMethod
+          case _ => copyExpr
+        }
+      }
+      case _ => copyExpr
+    }
+  }
+
   def ensureFileWritable(project: Project, file: PsiFile): Boolean = {
     val virtualFile = file.getVirtualFile
     val readonlyStatusHandler = ReadonlyStatusHandler.getInstance(project)
@@ -202,24 +216,6 @@ object ScalaRefactoringUtil {
     occurrences.toArray
   }
 
-  def afterClassChoosing[T <: PsiElement](elem: T, types: Array[ScType], project: Project, editor: Editor, file: PsiFile, title: String)
-                        (action: (T, Array[ScType], ScTemplateDefinition, Project, Editor, PsiFile) => Unit) {
-    val classes = ScalaPsiUtil.getParents(elem, file).collect{ case t: ScTemplateDefinition => t}.toArray[PsiClass]
-    classes.size match {
-      case 0 =>
-      case 1 => action(elem, types, classes(0).asInstanceOf[ScTemplateDefinition], project, editor, file)
-      case _ =>
-        val selection = classes(0)
-        val processor = new PsiElementProcessor[PsiClass] {
-          def execute(aClass: PsiClass): Boolean = {
-            action(elem, types, aClass.asInstanceOf[ScTemplateDefinition], project, editor, file)
-            false
-          }
-        }
-        NavigationUtil.getPsiElementPopup(classes, new PsiClassListCellRenderer(),
-          title, processor, selection).showInBestPositionFor(editor)
-    }
-  }
 
   def unparExpr(expr: ScExpression): ScExpression = {
     expr match {

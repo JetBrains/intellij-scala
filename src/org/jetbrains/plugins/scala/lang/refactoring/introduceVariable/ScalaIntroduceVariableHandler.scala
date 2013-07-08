@@ -225,22 +225,7 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Confli
     val revertInfo = RevertInfo(file.getText, editor.getCaretModel.getOffset)
     editor.putUserData(ScalaIntroduceVariableHandler.REVERT_INFO, revertInfo)
 
-    val expression = {
-      def copyExpr = expression_.copy.asInstanceOf[ScExpression]
-      def liftMethod = ScalaPsiElementFactory.createExpressionFromText(expression_.getText + " _", expression_.getManager)
-      expression_ match {
-        case ref: ScReferenceExpression => {
-          ref.resolve() match {
-            case fun: ScFunction if fun.paramClauses.clauses.length > 0 &&
-                    fun.paramClauses.clauses.head.isImplicit => copyExpr
-            case fun: ScFunction if !fun.parameters.isEmpty => liftMethod
-            case meth: PsiMethod if !meth.getParameterList.getParameters.isEmpty => liftMethod
-            case _ => copyExpr
-          }
-        }
-        case _ => copyExpr
-      }
-    }
+    val expression = ScalaRefactoringUtil.expressionToIntroduce(expression_)
 
     val occurrences: Array[TextRange] = if (!replaceAllOccurrences) {
       Array[TextRange](new TextRange(startOffset, endOffset))
