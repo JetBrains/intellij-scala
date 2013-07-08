@@ -553,8 +553,9 @@ object ScalaPsiElementFactory {
     classDef.members(0).asInstanceOf[ScVariable]
   }
 
-  def createEnumerator(name: String, expr: ScExpression, manager: PsiManager, scType: ScType = null): ScEnumerator = {
-    val typeName = if (scType == null) null else scType.presentableText
+  def createEnumerator(name: String, expr: ScExpression, manager: PsiManager, scType: ScType = null, isPresentableText: Boolean = false): ScEnumerator = {
+    val typeName = if (scType == null) null
+    else if (isPresentableText) scType.presentableText else scType.canonicalText
     createEnumerator(name, expr, manager, typeName)
   }
 
