@@ -29,7 +29,8 @@ class ScalaRefactoringSupportProvider extends RefactoringSupportProvider {
 
   override def getIntroduceVariableHandler: RefactoringActionHandler = new ScalaIntroduceVariableHandler
 
-  //override def getIntroduceFieldHandler: RefactoringActionHandler = new ScalaIntroduceFieldHandler
+  override def getIntroduceFieldHandler: RefactoringActionHandler = null
+    //new ScalaIntroduceFieldFromExpressionHandler
 
   override def getIntroduceParameterHandler: RefactoringActionHandler = new ScalaIntroduceParameterHandler
 
