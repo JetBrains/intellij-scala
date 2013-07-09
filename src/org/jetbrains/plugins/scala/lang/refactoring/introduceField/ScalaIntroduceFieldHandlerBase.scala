@@ -1,90 +1,58 @@
 package org.jetbrains.plugins.scala
 package lang.refactoring.introduceField
 
-import com.intellij.refactoring.{HelpID, RefactoringActionHandler}
+import com.intellij.refactoring.RefactoringActionHandler
 import com.intellij.openapi.project.Project
 import com.intellij.psi._
-import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.openapi.editor.Editor
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil._
-import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScNewTemplateDefinition, ScExpression}
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
-import scala.collection.mutable.ArrayBuffer
-import org.jetbrains.plugins.scala.lang.psi
-import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 import com.intellij.codeInsight.navigation.NavigationUtil
 import com.intellij.ide.util.PsiClassListCellRenderer
 import com.intellij.psi.search.PsiElementProcessor
-import com.intellij.refactoring.introduceField.{ElementToWorkOn, BaseExpressionToFieldHandler}
-import com.intellij.refactoring.introduceField.BaseExpressionToFieldHandler.Settings
-import com.intellij.refactoring.util.occurrences.OccurrenceManager
-import com.intellij.refactoring.introduce.inplace.AbstractInplaceIntroducer
+import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 
 /**
  * Nikolay.Tropin
  * 6/28/13
  */
-abstract class ScalaIntroduceFieldHandlerBase extends BaseExpressionToFieldHandler(false) {
+abstract class ScalaIntroduceFieldHandlerBase extends RefactoringActionHandler{
 
   val REFACTORING_NAME = ScalaBundle.message("introduce.field.title")
 
-  def convertExpressionToField(expr: ScExpression, aClass: ScTemplateDefinition, project: Project, editor: Editor, file: PsiFile) {
-
-  }
-  def invokeImpl(project: Project, localVariable: PsiLocalVariable, editor: Editor): Boolean = ???
-
-  def createOccurrenceManager(selectedExpr: PsiExpression, parentClass: PsiClass): OccurrenceManager = ???
-
-  def validClass(parentClass: PsiClass, editor: Editor): Boolean = parentClass.isInstanceOf[ScTemplateDefinition]
-
-  def getInplaceIntroducer: AbstractInplaceIntroducer[_ <: PsiNameIdentifierOwner, _ <: PsiElement] = null
-
-  def invoke(project: Project, editor: Editor, file: PsiFile, dataContext: DataContext) {
-    def invokes() {
-      ScalaRefactoringUtil.trimSpacesAndComments(editor, file)
-      invoke(project, editor, file, editor.getSelectionModel.getSelectionStart, editor.getSelectionModel.getSelectionEnd)
-    }
-    val canBeIntroduced: (ScExpression) => Boolean = ScalaRefactoringUtil.checkCanBeIntroduced(_)
-    ScalaRefactoringUtil.invokeRefactoring(project, editor, file, dataContext, "Introduce Field", invokes, canBeIntroduced)
-  }
-
-  def invoke(project: Project, editor: Editor, file: PsiFile, startOffset: Int, endOffset: Int) {
+  def afterClassChoosing[T <: PsiElement](elem: T, types: Array[ScType], project: Project, editor: Editor, file: PsiFile, title: String)
+                                         (action: (T, Array[ScType], ScTemplateDefinition, Project, Editor, PsiFile) => Unit) {
     try {
-      PsiDocumentManager.getInstance(project).commitAllDocuments()
-      ScalaRefactoringUtil.checkFile(file, project, editor, REFACTORING_NAME)
-
-      val (expr: ScExpression, scType: ScType) = ScalaRefactoringUtil.getExpression(project, editor, file, startOffset, endOffset).
-              getOrElse(showErrorMessage(ScalaBundle.message("cannot.refactor.not.expression"), project, editor, REFACTORING_NAME))
-      val types = ScalaRefactoringUtil.addPossibleTypes(scType, expr)
-      val classes = ScalaPsiUtil.getParents(expr, file).collect{ case t: ScTemplateDefinition => t}.toArray[PsiClass]
+      val classes = ScalaPsiUtil.getParents(elem, file).collect{ case t: ScTemplateDefinition if t != elem => t}.toArray[PsiClass]
       classes.size match {
         case 0 =>
-        case 1 => convertExpressionToField(expr, classes(0).asInstanceOf[ScTemplateDefinition], project, editor, file)
+        case 1 => action(elem, types, classes(0).asInstanceOf[ScTemplateDefinition], project, editor, file)
         case _ =>
           val selection = classes(0)
           val processor = new PsiElementProcessor[PsiClass] {
             def execute(aClass: PsiClass): Boolean = {
-              convertExpressionToField(expr, aClass.asInstanceOf[ScTemplateDefinition], project, editor, file)
+              action(elem, types, aClass.asInstanceOf[ScTemplateDefinition], project, editor, file)
               false
             }
           }
-          NavigationUtil.getPsiElementPopup(classes, new PsiClassListCellRenderer(),
-            "Choose class to introduce field", processor, selection).showInBestPositionFor(editor)
+          NavigationUtil.getPsiElementPopup(classes, new PsiClassListCellRenderer() {
+            override def getElementText(element: PsiClass): String = super.getElementText(element).replace("$", "")
+          }, title, processor, selection).showInBestPositionFor(editor)
       }
-
-
     }
     catch {
       case _: IntroduceException => return
     }
+    }
+
+  class Settings(val name: String, val varType: ScType) {
+    private val scalaSettings = ScalaApplicationSettings.getInstance()
+    val isVar = scalaSettings.INTRODUCE_FIELD_IS_VAR
+    val replaceAll = scalaSettings.INTRODUCE_FIELD_REPLACE_ALL
+    val accessLevel = scalaSettings.INTRODUCE_FIELD_MODIFIER
+    val explicitType = scalaSettings.INTRODUCE_FIELD_EXPLICIT_TYPE
   }
-
-  def showRefactoringDialog(project: Project, editor: Editor, parentClass: PsiClass, expr: PsiExpression, `type`: PsiType, occurrences: Array[PsiExpression], anchorElement: PsiElement, anchorElementIfAll: PsiElement): Settings = ???
-
-  def accept(elementToWorkOn: ElementToWorkOn): Boolean = ???
 
 }
