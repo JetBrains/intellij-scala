@@ -6,7 +6,7 @@ package expr
 
 import com.intellij.psi.{PsiField, PsiElement}
 import resolve.{ResolvableReferenceExpression, ScalaResolveResult}
-import statements.{ScFunction, ScVariable}
+import statements.ScVariable
 import statements.params.ScClassParameter
 
 
@@ -53,11 +53,6 @@ trait ScAssignStmt extends ScExpression {
   def resolveAssignment: Option[ScalaResolveResult]
 
   def shapeResolveAssignment: Option[ScalaResolveResult]
-
-  def isViableForAssignmentFunction(fun: ScFunction): Boolean = {
-    val clauses = fun.paramClauses.clauses
-    clauses.length == 0 || (clauses.length == 1 && clauses(0).isImplicit)
-  }
 
   /**
    * @return element to which equals sign should navigate

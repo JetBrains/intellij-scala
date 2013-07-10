@@ -1913,4 +1913,9 @@ object ScalaPsiUtil {
     case ref1 @ ScReferenceExpression.qualifier(`elem`) => ParserUtils.isAssignmentOperator(ref1.refName)
     case _ => false
   }
+
+  def isViableForAssignmentFunction(fun: ScFunction): Boolean = {
+    val clauses = fun.paramClauses.clauses
+    clauses.length == 0 || (clauses.length == 1 && clauses(0).isImplicit)
+  }
 }
