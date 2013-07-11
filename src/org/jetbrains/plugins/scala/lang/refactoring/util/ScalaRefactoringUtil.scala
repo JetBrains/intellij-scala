@@ -30,15 +30,13 @@ import psi.types._
 import psi.api.statements.ScFunction
 import lang.resolve.ScalaResolveResult
 import psi.api.expr.xml.ScXmlExpr
-import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiUtil, ScImportsHolder, ScalaPsiElement}
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScReferenceElement, ScLiteral}
+import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiUtil, ScalaPsiElement}
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import com.intellij.openapi.editor.{VisualPosition, Editor}
 import com.intellij.openapi.actionSystem.DataContext
-import org.jetbrains.plugins.scala.lang.psi.api.{ScalaRecursiveElementVisitor, ScalaFile}
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScEarlyDefinitions
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportExpr
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScTypeProjection, ScTypeElement, ScSimpleTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.types.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.psi.types.ScFunctionType
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTypeDefinition}
@@ -544,109 +542,6 @@ object ScalaRefactoringUtil {
     Option(commonParent(file, textRanges: _*))
             .map(elem => elem.firstChild.getOrElse(elem)) //to make enclosing container non-strict
             .flatMap(_.scopes.toStream.headOption).orNull
-  }
-
-  def availableImportAliases(position: PsiElement): Set[(ScReferenceElement, String)] = {
-
-    def getSelectors(holder: ScImportsHolder): Set[(ScReferenceElement, String)] = {
-      val result = collection.mutable.Set[(ScReferenceElement, String)]()
-      if (holder != null) {
-        val importExprs: Seq[ScImportExpr] = holder.getImportStatements.flatMap(_.importExprs)
-        importExprs.flatMap(_.selectors).foreach(s => result += ((s.reference, s.importedName)))
-        importExprs.filter(_.selectors.isEmpty).flatMap(_.reference).foreach(ref => result += ((ref, ref.refName)))
-        result.toSet
-      }
-      else Set.empty
-    }
-
-    if (position != null && position.getLanguage.getID != "Scala")
-      throw new IllegalArgumentException("Only for scala")
-
-    var parent = position.getParent
-    val aliases = collection.mutable.Set[(ScReferenceElement, String)]()
-    while (parent != null) {
-      parent match {
-        case holder: ScImportsHolder => aliases ++= getSelectors(holder)
-        case _ =>
-      }
-      parent = if (parent.isInstanceOf[PsiFile]) null else parent.getParent
-    }
-
-    def correctResolve(alias: (ScReferenceElement, String)): Boolean = {
-      val typeElem = ScalaPsiElementFactory.createReferenceFromText(alias._2, position.getContext, position)
-      val ref1 = typeElem.resolve()
-      val ref2 = alias._1.resolve()
-      typeElem.resolve == alias._1.resolve()
-    }
-    aliases.filter(_._1.getTextRange.getEndOffset < position.getTextOffset).filter(correctResolve).toSet
-  }
-
-  def typeNameWithImportAliases(scType: ScType, position: PsiElement): String = {
-
-    def referencesToReplace(psiElement: PsiElement, aliases: Set[(ScReferenceElement, String)]): Map[ScSimpleTypeElement, (ScReferenceElement, String)] = {
-      val result = collection.mutable.Map[ScSimpleTypeElement, (ScReferenceElement, String)]()
-      val visitor = new ScalaRecursiveElementVisitor() {
-        //Override also visitReferenceExpression! and visitTypeProjection!
-        override def visitReference(ref: ScReferenceElement) {
-          for {
-            alias <- aliases
-            if ref.resolve() == alias._1.resolve() || (ref.resolve() == null && ref.refName == alias._1.refName)
-            simpleTypeElem = ScalaPsiUtil.getParentOfType(ref, classOf[ScSimpleTypeElement]).asInstanceOf[ScSimpleTypeElement]
-            if simpleTypeElem != null
-          } {
-            result += (simpleTypeElem -> (ref, alias._2))
-          }
-          super.visitReference(ref)
-        }
-        override def visitReferenceExpression(ref: ScReferenceExpression) {
-          visitReference(ref)
-          super.visitReferenceExpression(ref)
-        }
-        override def visitTypeProjection(proj: ScTypeProjection) {
-          visitReference(proj)
-          super.visitTypeProjection(proj)
-        }
-      }
-      psiElement.accept(visitor)
-      result.filterKeys(ref => ScalaPsiUtil.getParentOfType(ref, classOf[ScSimpleTypeElement]) != null).toMap
-    }
-
-    def replaceRefsWithAliases(psiElement: PsiElement, aliases: Map[ScSimpleTypeElement, (ScReferenceElement, String)]) {
-      val visitor = new ScalaRecursiveElementVisitor() {
-        override def visitSimpleTypeElement(simple: ScSimpleTypeElement) {
-          //replace by import aliases
-          if (aliases.isDefinedAt(simple)) {
-            val (ref, name) = aliases(simple)
-            val newRef = ScalaPsiElementFactory.createReferenceFromText(name, position.getManager)
-            ref.getParent.getNode.replaceChild(ref.getNode, newRef.getNode)
-          } else {
-            //replace canonical texts by presentable text
-            for (oldRef <- simple.reference; if oldRef.resolve != null) {
-              val typeName = simple.calcType.presentableText
-              val newRef = ScalaPsiElementFactory.createReferenceFromText(typeName, position.getManager)
-              oldRef.getParent.getNode.replaceChild(oldRef.getNode, newRef.getNode)
-            }
-          }
-          super.visitSimpleTypeElement(simple)
-        }
-      }
-      psiElement.accept(visitor)
-
-    }
-
-    if (scType == null) ""
-    else {
-      val aliases = availableImportAliases(position)
-      if (aliases.isEmpty) scType.presentableText
-      else {
-        val canonicalTypeElem: ScTypeElement =
-          ScalaPsiElementFactory.createTypeElementFromText(scType.canonicalText, position.getManager)
-        val refsWithAliases = referencesToReplace(canonicalTypeElem, aliases)
-        val maxRefsWithAliases = refsWithAliases.filterKeys(ref => refsWithAliases.keys.forall(!_.isAncestorOf(ref)))
-        replaceRefsWithAliases(canonicalTypeElem, maxRefsWithAliases)
-        canonicalTypeElem.getText
-      }
-    }
   }
 
   def commonParent(file: PsiFile, textRanges: TextRange*): PsiElement = {

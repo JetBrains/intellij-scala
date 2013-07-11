@@ -16,6 +16,7 @@ import com.intellij.openapi.wm.WindowManager
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.util.ScalaUtils
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 
 
 /**
@@ -67,14 +68,15 @@ class ScalaIntroduceFieldFromExpressionHandler extends ScalaIntroduceFieldHandle
       val dialog = getDialog(project, editor, expr, types, occurrences, declareVariable = false, validator)
       if (!dialog.isOK) return
       val settings = new Settings(dialog.getEnteredName, dialog.getSelectedType)
-      runRefactoring(expr, aClass, occurrences, editor, settings)
+      runRefactoring(expr, types, aClass, occurrences, editor, settings)
     }
 
     runWithDialog()
 
   }
 
-  private def runRefactoringInside(expr: ScExpression, aClass: ScTemplateDefinition, occurrences: Array[TextRange], editor: Editor, settings: Settings) {
+  private def runRefactoringInside(expr: ScExpression, types: Array[ScType], aClass: ScTemplateDefinition,
+                                   occurrences: Array[TextRange], editor: Editor, settings: Settings) {
     def findAnchor(expr: ScExpression, occurrences: Array[PsiElement], aClass: ScTemplateDefinition): PsiElement = {
       val body = aClass.extendsBlock.templateBody
       val stmts: Seq[PsiElement] = body.toSeq.flatMap(_.children)
@@ -89,8 +91,8 @@ class ScalaIntroduceFieldFromExpressionHandler extends ScalaIntroduceFieldHandle
     val replacedOccurences = ScalaRefactoringUtil.replaceOccurences(occurrencesToReplace, name, aClass.getContainingFile, editor)
             .map(_.asInstanceOf[PsiElement])
     val anchor: PsiElement = findAnchor(expression, replacedOccurences, aClass)
-    val typeName = ScalaRefactoringUtil.typeNameWithImportAliases(settings.varType, anchor)
-    val createdDeclaration = ScalaPsiElementFactory.createDeclaration(name, typeName, settings.isVar, expression, aClass.getManager)
+    val createdDeclaration = ScalaPsiElementFactory
+            .createDeclaration(types(0), name, settings.isVar, expression, aClass.getManager, isPresentableText = false)
     import ScalaApplicationSettings.AccessLevel
     val accessModifier = settings.accessLevel match {
       case AccessLevel.DEFAULT => None
@@ -104,13 +106,14 @@ class ScalaIntroduceFieldFromExpressionHandler extends ScalaIntroduceFieldHandle
         createdDeclaration.addBefore(mod.getPsi, createdDeclaration.getFirstChild)
     }
     val parent = anchor.getParent
-    parent.addBefore(createdDeclaration, anchor)
+    val declaration = parent.addBefore(createdDeclaration, anchor)
     parent.addBefore(ScalaPsiElementFactory.createNewLineNode(anchor.getManager, "\n").getPsi, anchor)
+    ScalaPsiUtil.adjustTypes(declaration)
   }
 
-  def runRefactoring(expr: ScExpression, aClass: ScTemplateDefinition, occurrences: Array[TextRange], editor: Editor, settings: Settings) {
+  def runRefactoring(expr: ScExpression, types: Array[ScType], aClass: ScTemplateDefinition, occurrences: Array[TextRange], editor: Editor, settings: Settings) {
     val runnable = new Runnable {
-      def run() = runRefactoringInside(expr: ScExpression, aClass: ScTemplateDefinition, occurrences: Array[TextRange], editor: Editor, settings: Settings)
+      def run() = runRefactoringInside(expr, types, aClass, occurrences, editor, settings)
     }
     ScalaUtils.runWriteAction(runnable, editor.getProject, REFACTORING_NAME)
     editor.getSelectionModel.removeSelection()

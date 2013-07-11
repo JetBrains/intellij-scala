@@ -26,7 +26,7 @@ import com.intellij.openapi.editor.event.{DocumentEvent, DocumentListener, Docum
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import com.intellij.openapi.ui.MessageType
 import com.intellij.openapi.ui.popup.{Balloon, JBPopupFactory}
-import org.jetbrains.plugins.scala.lang.refactoring.util.{ScalaRefactoringUtil, ScalaVariableValidator, ConflictsReporter}
+import org.jetbrains.plugins.scala.lang.refactoring.util.{ScalaVariableValidator, ConflictsReporter}
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScTypedPattern
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.search.{LocalSearchScope, SearchScope}
@@ -180,15 +180,15 @@ class ScalaInplaceVariableIntroducer(project: Project,
                 case _: ScDeclaredElementsHolder | _: ScEnumerator =>
                   val declarationCopy = declaration.copy.asInstanceOf[ScalaPsiElement]
                   val manager = declarationCopy.getManager
-                  val typeName = ScalaRefactoringUtil.typeNameWithImportAliases(selectedType, declaration)
-                  val fakeDeclaration =
-                    ScalaPsiElementFactory.createDeclaration("x", typeName, isVariable = false, null, manager)
+                  val fakeDeclaration = ScalaPsiElementFactory.createDeclaration(selectedType, "x", isVariable = false,
+                    "", manager, isPresentableText = false)
                   val first = fakeDeclaration.findFirstChildByType(ScalaTokenTypes.tCOLON)
                   val last = fakeDeclaration.findFirstChildByType(ScalaTokenTypes.tASSIGN)
                   val assign = declarationCopy.findFirstChildByType(ScalaTokenTypes.tASSIGN)
                   declarationCopy.addRangeAfter(first, last, assign)
                   assign.delete()
                   val replaced = getDeclaration.replace(declarationCopy)
+                  ScalaPsiUtil.adjustTypes(replaced)
                   setDeclaration(replaced)
                   commitDocument()
                 case _ =>
