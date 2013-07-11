@@ -37,6 +37,7 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaVariableValidator
 import org.jetbrains.plugins.scala.lang.refactoring.introduceVariable.ScalaIntroduceVariableHandler.RevertInfo
 import scala.annotation.tailrec
 
+
 /**
  * User: Alexander Podkhalyuzin
  * Date: 23.06.2008
@@ -250,12 +251,11 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Confli
     editor.getCaretModel.moveToOffset(replacedOccurences(mainOcc).getTextRange.getEndOffset)
 
     var createdDeclaration: PsiElement = null
-    val typeName = ScalaRefactoringUtil.typeNameWithImportAliases(varType, replacedOccurences(0))
 
     if (introduceEnumerator) {
       val parent: ScEnumerators = introduceEnumeratorForStmt.enumerators.getOrElse(null)
       val inParentheses = parent.prevSiblings.toList.exists(_.getNode.getElementType == ScalaTokenTypes.tLPARENTHESIS)
-      createdDeclaration = ScalaPsiElementFactory.createEnumerator(varName, ScalaRefactoringUtil.unparExpr(expression), file.getManager, typeName)
+      createdDeclaration = ScalaPsiElementFactory.createEnumerator(varName, ScalaRefactoringUtil.unparExpr(expression), file.getManager, varType)
       val elem = parent.getChildren.filter(_.getTextRange.contains(firstRange)).head
       if (elem != null) {
         var needSemicolon = true
@@ -277,8 +277,8 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Confli
         }
       }
     } else {
-      createdDeclaration = ScalaPsiElementFactory.createDeclaration(varName, typeName, isVariable,
-        ScalaRefactoringUtil.unparExpr(expression), file.getManager)
+      createdDeclaration = ScalaPsiElementFactory.createDeclaration(varType, varName, isVariable,
+        ScalaRefactoringUtil.unparExpr(expression), file.getManager, isPresentableText = false)
       val container: PsiElement =
         ScalaPsiUtil.getParentOfType(parExpr, occCount == 1, classOf[ScalaFile], classOf[ScBlock],
           classOf[ScTemplateBody], classOf[ScCaseClause], classOf[ScEarlyDefinitions])
@@ -296,6 +296,7 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Confli
         parent.addBefore(ScalaPsiElementFactory.createNewLineNode(anchor.getManager, "\n").getPsi, anchor)
       } else throw new IntroduceException
     }
+    ScalaPsiUtil.adjustTypes(createdDeclaration)
     createdDeclaration
   }
 
@@ -353,6 +354,24 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Confli
     conflictsDialog.show()
     conflictsDialog.isOK
   }
+
+  def runTest(project: Project, editor: Editor, file: PsiFile, startOffset: Int, endOffset: Int, replaceAll: Boolean) {
+    PsiDocumentManager.getInstance(project).commitAllDocuments()
+    ScalaRefactoringUtil.checkFile(file, project, editor, REFACTORING_NAME)
+
+    val (expr: ScExpression, scType: ScType) = ScalaRefactoringUtil.getExpression(project, editor, file, startOffset, endOffset).
+            getOrElse(showErrorMessage(ScalaBundle.message("cannot.refactor.not.expression"), project, editor, REFACTORING_NAME))
+
+    val types = ScalaRefactoringUtil.addPossibleTypes(scType, expr)
+
+    ScalaRefactoringUtil.checkCanBeIntroduced(expr, showErrorMessage(_, project, editor, REFACTORING_NAME))
+
+    val fileEncloser = ScalaRefactoringUtil.fileEncloser(startOffset, file)
+    val occurrencesAll: Array[TextRange] = ScalaRefactoringUtil.getOccurrenceRanges(ScalaRefactoringUtil.unparExpr(expr), fileEncloser)
+    val occurrences = occurrencesAll.filterNot(ScalaRefactoringUtil.isLiteralPattern(file, _))
+    runRefactoring(startOffset, endOffset, file, editor, expr, occurrences, "value", types(0), replaceAll, isVariable = false)
+  }
+
 }
 
 object ScalaIntroduceVariableHandler {
