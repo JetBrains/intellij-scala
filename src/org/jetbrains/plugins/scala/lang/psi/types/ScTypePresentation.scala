@@ -7,7 +7,7 @@ import com.intellij.psi._
 import result.TypingContext
 import org.apache.commons.lang.StringEscapeUtils
 import org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocumentationProvider
-import api.toplevel.typedef.{ScTypeDefinition, ScObject}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTypeDefinition, ScObject}
 import api.statements._
 import api.base.patterns.{ScReferencePattern, ScBindingPattern}
 import extensions.{toPsiNamedElementExt, toPsiClassExt}
@@ -49,7 +49,15 @@ trait ScTypePresentation {
           if (qname != null && qname != c.name /* exlude default package*/ ) "_root_." + qname else c.name
         }
         case p: PsiPackage => "_root_." + p.getQualifiedName
-        case _ => e.name
+        case _ =>
+          ScalaPsiUtil.nameContext(e) match {
+            case m: ScMember =>
+              m.containingClass match {
+                case o: ScObject => nameFun(o, withPoint = true) + e.name
+                case _ => e.name
+              }
+            case _ => e.name
+          }
       }) + (if (withPoint) "." else "")
     }
     typeText(t, nameFun(_, withPoint = false), nameFun(_, withPoint = true))

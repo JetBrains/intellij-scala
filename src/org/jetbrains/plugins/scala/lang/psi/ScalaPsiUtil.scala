@@ -7,8 +7,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScTypeArgs, ScRefine
 import api.toplevel.imports.usages.ImportUsed
 import api.toplevel.imports.{ScImportStmt, ScImportExpr, ScImportSelector, ScImportSelectors}
 import api.toplevel.packaging.{ScPackaging, ScPackageContainer}
-import api.toplevel.{ScTypeParametersOwner, ScEarlyDefinitions, ScTypedDefinition}
-import api.{ScPackageLike, ScalaFile, ScalaRecursiveElementVisitor}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScTypeParametersOwner, ScEarlyDefinitions, ScTypedDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.{ScPackageLike, ScalaFile, ScalaRecursiveElementVisitor}
 import com.intellij.psi.scope.PsiScopeProcessor
 import api.toplevel.templates.ScTemplateBody
 import api.toplevel.typedef._
@@ -1195,20 +1195,30 @@ object ScalaPsiUtil {
     new LightModifierList(manager, ScalaFileType.SCALA_LANGUAGE)
 
   def adjustTypes(element: PsiElement) {
+    def replaceStablePath(ref: ScReferenceElement, name: String, toBind: PsiElement): PsiElement = {
+      ref.replace(ScalaPsiElementFactory.createReferenceFromText(name, toBind.getManager)).
+              asInstanceOf[ScStableCodeReferenceElement].bindToElement(toBind)
+    }
     for (child <- element.getChildren) {
       child match {
-        case x: ScStableCodeReferenceElement => x.resolve() match {
-          case clazz: PsiClass =>
-            x.replace(ScalaPsiElementFactory.createReferenceFromText(clazz.getName, clazz.getManager)).
-                    asInstanceOf[ScStableCodeReferenceElement].bindToElement(clazz)
-          case m: ScTypeAlias if m.containingClass != null && (
-                  m.containingClass.qualifiedName == "scala.Predef" ||
-                  m.containingClass.qualifiedName == "scala") => {
-            x.replace(ScalaPsiElementFactory.createReferenceFromText(m.name, m.getManager)).
-                    asInstanceOf[ScStableCodeReferenceElement].bindToElement(m)
+        case stableRef: ScStableCodeReferenceElement =>
+          stableRef.resolve() match {
+            case named: PsiNamedElement if hasStablePath(named) =>
+              named match {
+                case clazz: PsiClass if hasStablePath(clazz)=> replaceStablePath(stableRef, clazz.name, clazz)
+                case typeAlias: ScTypeAlias if typeAlias.containingClass != null &&
+                        Seq("scala", "scala.Predef").contains(typeAlias.containingClass.qualifiedName) =>
+                  replaceStablePath(stableRef, typeAlias.name, typeAlias)
+                case binding: ScBindingPattern if hasStablePath(binding) => replaceStablePath(stableRef, binding.name, binding)
+                case _ => adjustTypes(child)
+              }
+            case null => adjustTypes(child)
+            case resolved =>
+              val aliasedRef: Option[ScReferenceElement] = ScalaPsiUtil.importAliasFor(resolved, stableRef)
+              if (aliasedRef.isDefined) {
+                stableRef.replace(aliasedRef.get)
+              } else adjustTypes(child)
           }
-          case _ => adjustTypes(child)
-        }
         case _ => adjustTypes(child)
       }
     }
@@ -1347,16 +1357,25 @@ object ScalaPsiUtil {
     }
   }
 
-  @tailrec
-  def hasStablePath(o: ScTypeDefinition): Boolean = {
-    o.getContext match {
-      case f: ScalaFile => return true
-      case p: ScPackaging => return true
-      case _ =>
+  def hasStablePath(o: PsiNamedElement): Boolean = {
+    @tailrec
+    def hasStablePathInner(m: PsiMember): Boolean = {
+      m.getContext match {
+        case f: PsiFile => return true
+        case p: ScPackaging => return true
+        case _ =>
+      }
+      m.containingClass match {
+        case null => false
+        case o: ScObject if o.hasPackageKeyword || o.qualifiedName == "scala.Predef" => true
+        case o: ScObject => hasStablePathInner(o)
+        case j if j.getLanguage.isInstanceOf[JavaLanguage] => true
+        case _ => false
+      }
     }
-    o.containingClass match {
-      case null => false
-      case o: ScObject => hasStablePath(o)
+
+    nameContext(o) match {
+      case member: PsiMember => hasStablePathInner(member)
       case _ => false
     }
   }
@@ -1912,6 +1931,55 @@ object ScalaPsiUtil {
     case infix: ScInfixExpr if infix.isAssignmentOperator => true
     case ref1 @ ScReferenceExpression.qualifier(`elem`) => ParserUtils.isAssignmentOperator(ref1.refName)
     case _ => false
+  }
+
+  def availableImportAliases(position: PsiElement): Set[(ScReferenceElement, String)] = {
+
+    def getSelectors(holder: ScImportsHolder): Set[(ScReferenceElement, String)] = {
+      val result = collection.mutable.Set[(ScReferenceElement, String)]()
+      if (holder != null) {
+        val importExprs: Seq[ScImportExpr] = holder.getImportStatements.flatMap(_.importExprs)
+        importExprs.flatMap(_.selectors).foreach(s => result += ((s.reference, s.importedName)))
+        importExprs.filter(_.selectors.isEmpty).flatMap(_.reference).foreach(ref => result += ((ref, ref.refName)))
+        result.toSet
+      }
+      else Set.empty
+    }
+
+    if (position != null && position.getLanguage.getID != "Scala")
+      throw new IllegalArgumentException("Only for scala")
+
+    var parent = position.getParent
+    val aliases = collection.mutable.Set[(ScReferenceElement, String)]()
+    while (parent != null) {
+      parent match {
+        case holder: ScImportsHolder => aliases ++= getSelectors(holder)
+        case _ =>
+      }
+      parent = if (parent.isInstanceOf[PsiFile]) null else parent.getParent
+    }
+
+    def correctResolve(alias: (ScReferenceElement, String)): Boolean = {
+      val (aliasRef, text) = alias
+      val ref = ScalaPsiElementFactory.createReferenceFromText(text, position.getContext, position)
+      val resolves = aliasRef.multiResolve(false)
+      resolves.exists { rr =>
+          ScEquivalenceUtil.smartEquivalence(ref.resolve(), rr.getElement)
+      }
+    }
+    aliases.filter(_._1.getTextRange.getEndOffset < position.getTextOffset).filter(correctResolve).toSet
+  }
+
+  def importAliasFor(element: PsiElement, position: PsiElement): Option[ScReferenceElement] = {
+    val importAliases = ScalaPsiUtil.availableImportAliases(position)
+    val suitableAliases = importAliases.collect {
+      case (aliasRef, aliasName)
+        if aliasRef.multiResolve(false).exists(rr => ScEquivalenceUtil.smartEquivalence(rr.getElement, element)) => aliasName
+    }
+    if (suitableAliases.nonEmpty) {
+      val newRef: ScStableCodeReferenceElement = ScalaPsiElementFactory.createReferenceFromText(suitableAliases.head, position.getManager)
+      Some(newRef)
+    } else None
   }
 
   def isViableForAssignmentFunction(fun: ScFunction): Boolean = {
