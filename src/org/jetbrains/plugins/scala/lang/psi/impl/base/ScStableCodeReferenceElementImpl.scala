@@ -16,7 +16,7 @@ import com.intellij.lang.ASTNode
 import com.intellij.psi._
 import com.intellij.psi.PsiElement
 import com.intellij.util.IncorrectOperationException
-import api.base.patterns.{ScInfixPattern, ScConstructorPattern}
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScInfixPattern, ScConstructorPattern}
 import api.base.types.{ScParameterizedTypeElement, ScInfixTypeElement, ScSimpleTypeElement}
 import impl.source.tree.LeafPsiElement
 import processor.CompletionProcessor
@@ -27,10 +27,11 @@ import api.expr.{ScSuperReference, ScThisReference}
 import annotator.intention.ScalaImportClassFix
 import util.PsiTreeUtil
 import settings.ScalaProjectSettings
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
 
 /**
  * @author AlexanderPodkhalyuzin
- * Date: 22.02.2008
+ *         Date: 22.02.2008
  */
 
 class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ResolvableStableCodeReferenceElement {
@@ -99,7 +100,8 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
       case _: ScStableCodeReferenceElement => stableQualRef
       case e: ScImportExpr => if (e.selectorSet != None
               //import Class._ is not allowed
-              || qualifier == None || e.singleWildcard) stableQualRef else stableImportSelector
+              || qualifier == None || e.singleWildcard) stableQualRef
+      else stableImportSelector
       case ste: ScSimpleTypeElement =>
         if (incomplete) noPackagesClassCompletion // todo use the settings to include packages
         else if (ste.getLastChild.isInstanceOf[PsiErrorElement]) stableQualRef
@@ -124,7 +126,11 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
   def bindToElement(element: PsiElement): PsiElement = {
     if (isReferenceTo(element)) this
     else {
-      element match {
+      val aliasedRef: Option[ScReferenceElement] = ScalaPsiUtil.importAliasFor(element, this)
+      if (aliasedRef.isDefined) {
+        this.replace(aliasedRef.get)
+      }
+      else element match {
         case c: PsiClass => {
           val suitableKinds = getKinds(incomplete = false)
           if (!ResolveUtils.kindMatches(element, suitableKinds))
@@ -155,19 +161,9 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
             val selector: ScImportSelector = PsiTreeUtil.getParentOfType(this, classOf[ScImportSelector])
             if (selector != null) {
               val importExpr = PsiTreeUtil.getParentOfType(this, classOf[ScImportExpr])
-//              val selectors: Array[ScImportSelector] = selector.getParent.asInstanceOf[ScImportSelectors].selectors
-//              if (selectors.forall {
-//                case sel => sel == selector || !sel.isAliasedImport
-//              } && selectors.length == 2) {
-//                val selectorText: String = selectors.find(_ != selector).get.getText
-//                val prefix: String = importExpr.reference.get.getText
-//                val newExpr: ScImportExpr = ScalaPsiElementFactory.createImportExprFromText(prefix + "." + selectorText, getManager)
-//                importExpr.replace(newExpr)
-//                return newExpr.reference.get //todo: what we should return exactly?
-//              } else {
-                selector.deleteSelector() //we can't do anything here, so just simply delete it
-                return importExpr.reference.get //todo: what we should return exactly?
-//              }
+              selector.deleteSelector() //we can't do anything here, so just simply delete it
+              return importExpr.reference.get //todo: what we should return exactly?
+              //              }
             } else getParent match {
               case importExpr: ScImportExpr if !importExpr.singleWildcard && !importExpr.selectorSet.isDefined =>
                 val holder = PsiTreeUtil.getParentOfType(this, classOf[ScImportsHolder])
@@ -192,6 +188,14 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
           }
           this
         }
+        case binding: ScBindingPattern =>
+          binding.nameContext match {
+            case member: ScMember =>
+              val containingClass = member.containingClass
+              val refToClass = bindToElement(containingClass)
+              val refToMember = ScalaPsiElementFactory.createReferenceFromText(refToClass.getText + "." + binding.name, getManager)
+              this.replace(refToMember).asInstanceOf[ScReferenceElement]
+          }
         case t: ScTypeAlias => this //todo: do something
         case _ => throw new IncorrectOperationException("Cannot bind to anything but class")
       }
