@@ -76,6 +76,8 @@ import org.jetbrains.plugins.scala.lang.psi.types.ScProjectionType
 import scala.annotation.tailrec
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import com.intellij.psi.tree.TokenSet
+import com.intellij.lang.java.JavaLanguage
+import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
 
 /**
  * User: Alexander Podkhalyuzin
