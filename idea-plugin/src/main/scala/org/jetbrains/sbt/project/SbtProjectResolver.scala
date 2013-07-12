@@ -57,7 +57,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
       moduleNode.add(createContentRoot(project))
       moduleNode.addAll(createLibraryDependencies(project)(moduleNode, libraries))
       moduleNode.addAll(project.scala.map(createFacet(project, _)).toSeq)
-      moduleNode.addAll(createUnmanagedLibraries(project))
+      moduleNode.addAll(createUnmanagedDependencies(project)(moduleNode))
       moduleNode
     }
 
@@ -152,7 +152,8 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     result.setCompileOutputPath(ExternalSystemSourceType.TEST, path + "/target/idea-test-classes")
 
     result.add(createBuildContentRoot(project))
-    result.add(new ModuleLibraryNode(SbtProjectSystem.Id, Sbt.BuildLibraryName, project.build.classpath.filter(_.exists)))
+    result.add(createModuleLevelDependency(Sbt.BuildLibraryName,
+      project.build.classpath.filter(_.exists).map(_.path), DependencyScope.COMPILE)(result))
 
     result
   }
@@ -190,13 +191,13 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
       val name = nameFor(module)
       val library = libraries.find(_.getName == name).getOrElse(
         throw new ExternalSystemException("Library not found: " + name))
-      val data = new LibraryDependencyNode(moduleData, library)
+      val data = new LibraryDependencyNode(moduleData, library, LibraryLevel.PROJECT)
       data.setScope(scopeFor(configurations))
       data
     }
   }
 
-  private def createUnmanagedLibraries(project: Project): Seq[ModuleLibraryNode] = {
+  private def createUnmanagedDependencies(project: Project)(moduleData: ModuleData): Seq[LibraryDependencyNode] = {
     val jarsToConfigurations =
       project.configurations
         .filter(_.jars.nonEmpty)
@@ -206,8 +207,19 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
         .toSeq
 
     jarsToConfigurations.map { case (jars, configurations) =>
-      new ModuleLibraryNode(SbtProjectSystem.Id, Sbt.UnmanagedLibraryName, jars, scopeFor(configurations))
+      createModuleLevelDependency(Sbt.UnmanagedLibraryName, jars.map(_.path), scopeFor(configurations))(moduleData)
     }
+  }
+
+  private def createModuleLevelDependency(name: String, binaries: Seq[String], scope: DependencyScope)
+                                         (moduleData: ModuleData): LibraryDependencyNode = {
+
+    val libraryNode = new LibraryNode(SbtProjectSystem.Id, name)
+    libraryNode.addPaths(LibraryPathType.BINARY, binaries)
+
+    val result = new LibraryDependencyNode(moduleData, libraryNode, LibraryLevel.MODULE)
+    result.setScope(scope)
+    result
   }
 
   private def scopeFor(configurations: Set[Configuration]): DependencyScope = {

@@ -43,4 +43,6 @@ class SbtExternalSystemManager
 
   def getAffectedExternalProjectPath(changedFileOrDirPath: String, project: Project) =
     delegate.getAffectedExternalProjectPath(changedFileOrDirPath, project)
+
+  def getExternalProjectDescriptor = new SbtOpenProjectDescriptor()
 }

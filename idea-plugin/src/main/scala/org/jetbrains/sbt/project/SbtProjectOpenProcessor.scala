@@ -5,7 +5,7 @@ import com.intellij.projectImport.ProjectOpenProcessorBase
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.ide.util.projectWizard.WizardContext
 import com.intellij.ide.util.newProjectWizard.AddModuleWizard
-import com.intellij.openapi.externalSystem.service.project.wizard.SelectExternalProjectStepBase
+import com.intellij.openapi.externalSystem.service.project.wizard.SelectExternalProjectStep
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.ide.wizard.Step
 
@@ -21,10 +21,10 @@ class SbtProjectOpenProcessor(builder: SbtProjectImportBuilder) extends ProjectO
     val dialog = new AddModuleWizard(null, path, new SbtProjectImportProvider(getBuilder))
 
     getBuilder.prepare(wizardContext)
-    getBuilder.getControl.setLinkedProjectPath(path)
+    getBuilder.getControl(null).setLinkedProjectPath(path)
 
     dialog.getWizardContext.setProjectBuilder(getBuilder)
-    dialog.navigateToStep((step: Step) => step.isInstanceOf[SelectExternalProjectStepBase])
+    dialog.navigateToStep((step: Step) => step.isInstanceOf[SelectExternalProjectStep])
 
     if (StringUtil.isEmpty(wizardContext.getProjectName)) {
       val projectName = dialog.getWizardContext.getProjectName
