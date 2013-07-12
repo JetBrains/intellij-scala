@@ -1,0 +1,20 @@
+class a {
+  object tre {
+    def too() = 1
+  }
+  def foo = {
+    tre.too()
+    <all>tre.too<end>
+  }
+}
+------
+class a {
+  object tre {
+    def too() = 1
+  }
+  def foo = {
+    val value: Int = tre.too
+    value
+    value
+  }
+}
