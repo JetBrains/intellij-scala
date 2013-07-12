@@ -9,6 +9,5 @@ object O {
   {
     class T
     val value: T = new T
-    value
   }
 }

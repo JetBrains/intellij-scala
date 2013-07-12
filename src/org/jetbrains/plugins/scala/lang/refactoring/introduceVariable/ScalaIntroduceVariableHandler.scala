@@ -48,9 +48,6 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Confli
 
   def invoke(project: Project, editor: Editor, file: PsiFile, dataContext: DataContext) {
     def invokes() {
-//      val lineText = ScalaRefactoringUtil.getLineText(editor)
-//      if (editor.getSelectionModel.getSelectedText != null &&
-//              lineText != null && editor.getSelectionModel.getSelectedText.trim == lineText.trim) deleteOccurrence = true
       ScalaRefactoringUtil.trimSpacesAndComments(editor, file)
       invoke(project, editor, file, editor.getSelectionModel.getSelectionStart, editor.getSelectionModel.getSelectionEnd)
     }
@@ -164,7 +161,7 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Confli
         case guard: ScGuard if guard.getParent.isInstanceOf[ScEnumerators] => Option(prev.getParent.getParent.asInstanceOf[ScForStatement])
         case _ => None
       }
-      for { //check that first occurence is after first generator
+      for {//check that first occurence is after first generator
         forSt <- result
         enums <- forSt.enumerators
         generator = enums.generators.apply(0)
@@ -217,7 +214,8 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Confli
     }
 
     def previous(expr: ScExpression, file: PsiFile): PsiElement = {
-      if (expr == null) file else expr.getParent match {
+      if (expr == null) file
+      else expr.getParent match {
         case args: ScArgumentExprList => args.getParent
         case other => other
       }
@@ -227,12 +225,16 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Confli
     editor.putUserData(ScalaIntroduceVariableHandler.REVERT_INFO, revertInfo)
 
     val expression = ScalaRefactoringUtil.expressionToIntroduce(expression_)
-
+    val mainRange = new TextRange(startOffset, endOffset)
     val occurrences: Array[TextRange] = if (!replaceAllOccurrences) {
-      Array[TextRange](new TextRange(startOffset, endOffset))
+      Array[TextRange](mainRange)
     } else occurrences_
     val occCount = occurrences.length
-    val mainOcc = occurrences.indexWhere(_.getStartOffset == startOffset)
+    val mainOcc = occurrences.indexWhere(range => range.contains(mainRange) || mainRange.contains(range))
+
+    val lineText = ScalaRefactoringUtil.getLineText(editor)
+    val fastDefinition = editor.getSelectionModel.getSelectedText != null &&
+            lineText != null && editor.getSelectionModel.getSelectedText.trim == lineText.trim && occCount == 1
 
     //changes document directly
     val replacedOccurences = ScalaRefactoringUtil.replaceOccurences(occurrences, varName, file, editor)
@@ -279,22 +281,27 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Confli
     } else {
       createdDeclaration = ScalaPsiElementFactory.createDeclaration(varType, varName, isVariable,
         ScalaRefactoringUtil.unparExpr(expression), file.getManager, isPresentableText = false)
-      val container: PsiElement =
-        ScalaPsiUtil.getParentOfType(parExpr, occCount == 1, classOf[ScalaFile], classOf[ScBlock],
-          classOf[ScTemplateBody], classOf[ScCaseClause], classOf[ScEarlyDefinitions])
-      val needBraces = needNewBraces(parExpr, prev, occCount)
-      val parent =
-        if (needBraces) {
-          firstRange = firstRange.shiftRight(1)
-          parExpr.replaceExpression(ScalaPsiElementFactory.createExpressionFromText("{" + parExpr.getText + "}", file.getManager),
-            removeParenthesis = false)
-        } else container
+      if (fastDefinition) {
+        replacedOccurences(0).replace(createdDeclaration)
+        editor.getCaretModel.moveToOffset(createdDeclaration.getTextRange.getEndOffset)
+      } else {
+        val container: PsiElement =
+          ScalaPsiUtil.getParentOfType(parExpr, occCount == 1, classOf[ScalaFile], classOf[ScBlock],
+            classOf[ScTemplateBody], classOf[ScCaseClause], classOf[ScEarlyDefinitions])
+        val needBraces = needNewBraces(parExpr, prev, occCount)
+        val parent =
+          if (needBraces) {
+            firstRange = firstRange.shiftRight(1)
+            parExpr.replaceExpression(ScalaPsiElementFactory.createExpressionFromText("{" + parExpr.getText + "}", file.getManager),
+              removeParenthesis = false)
+          } else container
 
-      val anchor = parent.getChildren.filter(_.getTextRange.contains(firstRange)).head
-      if (anchor != null) {
-        createdDeclaration = parent.addBefore(createdDeclaration, anchor).asInstanceOf[ScMember]
-        parent.addBefore(ScalaPsiElementFactory.createNewLineNode(anchor.getManager, "\n").getPsi, anchor)
-      } else throw new IntroduceException
+        val anchor = parent.getChildren.filter(_.getTextRange.contains(firstRange)).head
+        if (anchor != null) {
+          createdDeclaration = parent.addBefore(createdDeclaration, anchor).asInstanceOf[ScMember]
+          parent.addBefore(ScalaPsiElementFactory.createNewLineNode(anchor.getManager, "\n").getPsi, anchor)
+        } else throw new IntroduceException
+      }
     }
     ScalaPsiUtil.adjustTypes(createdDeclaration)
     createdDeclaration
@@ -376,5 +383,7 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Confli
 
 object ScalaIntroduceVariableHandler {
   val REVERT_INFO: Key[RevertInfo] = new Key("RevertInfo")
+
   case class RevertInfo(fileText: String, caretOffset: Int)
+
 }
