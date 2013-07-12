@@ -1,6 +1,6 @@
 class s {
   def foo = {
-    <begin>x<end>
+    <begin>x<end> + 1
   }
   def x(implicit i: Int) = 33
 }
@@ -8,6 +8,7 @@ class s {
 class s {
   def foo = {
     val value: Int = x
+    value + 1
   }
   def x(implicit i: Int) = 33
 }

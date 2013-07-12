@@ -1,4 +1,3 @@
 <begin>1<end>
 -------
 val value: Int = 1
-value
