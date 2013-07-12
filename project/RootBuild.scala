@@ -74,7 +74,7 @@ object RootBuild extends Build {
 
     val xml =
       <plugins>
-        <plugin id="com.intellij.scala.sbt" version={version} url={"http://download.jetbrains.com/scala/" + pluginName + "-bin-" + version + ".zip"} />
+        <plugin id="org.intellij.sbt" version={version} url={"http://download.jetbrains.com/scala/" + pluginName + "-bin-" + version + ".zip"} />
       </plugins>
 
     val descriptor = target / "sbt-nightly-leda.xml"

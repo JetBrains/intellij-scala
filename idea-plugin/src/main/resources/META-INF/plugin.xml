@@ -1,7 +1,7 @@
 <idea-plugin version="2">
 
     <name>SBT support</name>
-    <id>org.jetbrains.sbt</id>
+    <id>org.intellij.sbt</id>
     <description>Simple Build Tool support</description>
     <version>SNAPSHOT</version>
     <vendor logo="/general/ijLogo.png">JetBrains</vendor>
