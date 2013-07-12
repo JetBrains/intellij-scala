@@ -25,4 +25,6 @@ object Sbt {
   val UnmanagedLibraryName = "sbt-unmanaged-jars"
 
   lazy val Icon = IconLoader.getIcon("/sbt.png")
+
+  lazy val FileIcon = IconLoader.getIcon("/sbt-file.png")
 }

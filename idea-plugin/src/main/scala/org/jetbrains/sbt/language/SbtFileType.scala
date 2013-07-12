@@ -14,5 +14,5 @@ object SbtFileType extends LanguageFileType(ScalaFileType.SCALA_LANGUAGE) {
 
   def getDefaultExtension = Sbt.FileExtension
 
-  def getIcon = Sbt.Icon
+  def getIcon = Sbt.FileIcon
 }
