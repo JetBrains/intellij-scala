@@ -47,8 +47,8 @@ class ModuleDependencyNode(ownerModule: ModuleData, module: ModuleData)
   protected def key = ProjectKeys.MODULE_DEPENDENCY
 }
 
-class LibraryDependencyNode(ownerModule: ModuleData, library: LibraryData)
-  extends LibraryDependencyData(ownerModule, library) with Node[LibraryDependencyData] {
+class LibraryDependencyNode(ownerModule: ModuleData, library: LibraryData, level: LibraryLevel)
+  extends LibraryDependencyData(ownerModule, library, level) with Node[LibraryDependencyData] {
 
   protected def key = ProjectKeys.LIBRARY_DEPENDENCY
 }
@@ -57,12 +57,6 @@ class ScalaProjectNode(owner: ProjectSystemId, javaHome: File)
   extends ScalaProjectData(owner, javaHome) with Node[ScalaProjectData] {
 
   protected def key = ScalaProjectData.Key
-}
-
-class ModuleLibraryNode(owner: ProjectSystemId, name: String, classes: Seq[File], scope: DependencyScope = DependencyScope.COMPILE)
-  extends ModuleLibraryData(owner, name, classes, scope) with Node[ModuleLibraryData] {
-
-  protected def key = ModuleLibraryData.Key
 }
 
 class ScalaFacetNode(owner: ProjectSystemId, scalaVersion: String, basePackage: String, compilerLibraryName: String, compilerOptions: Seq[String])

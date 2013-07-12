@@ -1,7 +1,7 @@
 package org.jetbrains.sbt
 package project.settings
 
-import com.intellij.openapi.externalSystem.settings.AbstractExternalSystemSettings
+import com.intellij.openapi.externalSystem.settings.{ExternalSystemSettingsListener, AbstractExternalSystemSettings}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.components._
 import com.intellij.util.containers.ContainerUtilRt
@@ -20,7 +20,7 @@ import java.util
   )
 )
 class SbtSettings(project: Project)
-  extends AbstractExternalSystemSettings[SbtProjectSettings, SbtSettingsListener](SbtTopic, project)
+  extends AbstractExternalSystemSettings[SbtSettings, SbtProjectSettings, SbtSettingsListener](SbtTopic, project)
   with PersistentStateComponent[SbtSettingsState]{
 
   def checkSettings(old: SbtProjectSettings, current: SbtProjectSettings) {}
@@ -34,6 +34,13 @@ class SbtSettings(project: Project)
   def loadState(state: SbtSettingsState) {
     super[AbstractExternalSystemSettings].loadState(state)
   }
+
+  def subscribe(listener: ExternalSystemSettingsListener[SbtProjectSettings]) {
+    val adapter = new SbtSettingsListenerAdapter(listener)
+    getProject.getMessageBus.connect(getProject).subscribe(SbtTopic, adapter)
+  }
+
+  def copyExtraSettingsFrom(settings: SbtSettings) {}
 }
 
 object SbtSettings {

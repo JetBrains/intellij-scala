@@ -4,6 +4,7 @@ package project.settings
 import com.intellij.openapi.externalSystem.settings.AbstractExternalSystemLocalSettings
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.components._
+import project.SbtProjectSystem
 
 /**
  * @author Pavel Fatin
@@ -14,7 +15,10 @@ import com.intellij.openapi.components._
     new Storage(file = StoragePathMacros.WORKSPACE_FILE)
   )
 )
-class SbtLocalSettings extends AbstractExternalSystemLocalSettings with PersistentStateComponent[AbstractExternalSystemLocalSettings.State] {
+class SbtLocalSettings(project: Project)
+  extends AbstractExternalSystemLocalSettings(SbtProjectSystem.Id, project)
+  with PersistentStateComponent[AbstractExternalSystemLocalSettings.State] {
+
   def getState = {
     val state = new AbstractExternalSystemLocalSettings.State
     fillState(state)

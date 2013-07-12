@@ -10,8 +10,6 @@ import java.util
 trait SbtSettingsListener extends ExternalSystemSettingsListener[SbtProjectSettings] {
   def onProjectsLinked(settings: util.Collection[SbtProjectSettings]) {}
 
-  def onProjectsUnlinked(linkedProjectPaths: util.Collection[String]) {}
-
   def onUseAutoImportChange(currentValue: Boolean, linkedProjectPath: String) {}
 
   def onBulkChangeStart() {}
