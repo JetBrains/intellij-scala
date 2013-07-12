@@ -2,13 +2,12 @@ package org.jetbrains.sbt
 package project
 
 import com.intellij.openapi.module.JavaModuleType
-import com.intellij.icons.AllIcons
 
 /**
  * @author Pavel Fatin
  */
 class SbtModuleType extends JavaModuleType("SBT_MODULE") {
-  override def getNodeIcon(isOpened: Boolean) = AllIcons.Actions.Compile
+  override def getNodeIcon(isOpened: Boolean) = Sbt.Icon
 }
 
 object SbtModuleType {
