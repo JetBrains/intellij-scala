@@ -1,5 +1,6 @@
 import sbt._
 import Keys._
+import xml.PrettyPrinter
 
 object RootBuild extends Build {
   lazy val rootProject = Project(id = "root", base = file("."), settings = Defaults.defaultSettings :+ distTask :+ updatePluginVersionTask :+ generateUpdateDescriptorTask)
@@ -24,7 +25,7 @@ object RootBuild extends Build {
   val distTask = dist <<= (streams,
     target,
     name.in(ideaPluginProject),
-    version.in(ideaPluginProject),
+    version,
     baseDirectory.in(ideaPluginProject),
     baseDirectory.in(sbtPluginProject),
     packageBin.in(ideaPluginProject).in(Compile),
@@ -51,7 +52,7 @@ object RootBuild extends Build {
 
   val updatePluginVersionTask = updatePluginVersion <<= (streams,
     baseDirectory.in(ideaPluginProject),
-    version.in(ideaPluginProject)) map { (s, base, version) =>
+    version) map { (s, base, version) =>
 
     val descriptor = base / "src" / "main" / "resources" / "META-INF" / "plugin.xml"
 
@@ -68,18 +69,20 @@ object RootBuild extends Build {
 
   val generateUpdateDescriptorTask = generateUpdateDescriptor <<= (streams,
     target, 
-    version.in(ideaPluginProject)) map { (s, target, version) =>
+    name.in(ideaPluginProject),
+    version) map { (s, target, pluginName, version) =>
 
     val xml =
       <plugins>
-        <plugin id="com.intellij.scala.sbt" url={"http://download.jetbrains.com/scala/intellij-sbt-bin-" + version + ".zip"} version={version} />
+        <plugin id="com.intellij.scala.sbt" version={version} url={"http://download.jetbrains.com/scala/" + pluginName + "-bin-" + version + ".zip"} />
       </plugins>
 
     val descriptor = target / "sbt-nightly-leda.xml"
 
     s.log.info("Generating an update descriptor " + descriptor.getPath + " with version " + version + "...")
 
-    IO.write(descriptor, xml.toString())
+    val printer = new PrettyPrinter(180, 2)
+    IO.write(descriptor, printer.format(xml))
 
     s.log.info("Done generating the update descriptor.")
 
