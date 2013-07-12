@@ -1204,7 +1204,10 @@ object ScalaPsiUtil {
     for (child <- element.getChildren) {
       child match {
         case stableRef: ScStableCodeReferenceElement =>
+          var aliasedRef: Option[ScReferenceElement] = None
           stableRef.resolve() match {
+            case resolved if {aliasedRef = ScalaPsiUtil.importAliasFor(resolved, stableRef); aliasedRef.isDefined} =>
+              stableRef.replace(aliasedRef.get)
             case named: PsiNamedElement if hasStablePath(named) =>
               named match {
                 case clazz: PsiClass if hasStablePath(clazz)=> replaceStablePath(stableRef, clazz.name, clazz)
@@ -1214,12 +1217,7 @@ object ScalaPsiUtil {
                 case binding: ScBindingPattern if hasStablePath(binding) => replaceStablePath(stableRef, binding.name, binding)
                 case _ => adjustTypes(child)
               }
-            case null => adjustTypes(child)
-            case resolved =>
-              val aliasedRef: Option[ScReferenceElement] = ScalaPsiUtil.importAliasFor(resolved, stableRef)
-              if (aliasedRef.isDefined) {
-                stableRef.replace(aliasedRef.get)
-              } else adjustTypes(child)
+            case _ => adjustTypes(child)
           }
         case _ => adjustTypes(child)
       }
