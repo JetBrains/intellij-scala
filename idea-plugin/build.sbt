@@ -1,4 +1,4 @@
-name := "intellij-sbt"
+name := "sbt-intellij"
 
 scalaVersion := "2.10.2"
 
