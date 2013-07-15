@@ -345,17 +345,26 @@ class ScalaInplaceVariableIntroducer(project: Project,
     if (myVarCheckbox != null) ScalaApplicationSettings.getInstance.INTRODUCE_VARIABLE_IS_VAR = myVarCheckbox.isSelected
     if (mySpecifyTypeChb != null && !isEnumerator) ScalaApplicationSettings.getInstance.INTRODUCE_VARIABLE_EXPLICIT_TYPE = mySpecifyTypeChb.isSelected
 
-    val named = namedElement(getDeclaration).getOrElse(null)
-    val templateState: TemplateState = TemplateManagerImpl.getTemplateState(myEditor)
-    if (named != null && templateState != null) {
-      val occurrences = (for (i <- 0 to templateState.getSegmentsCount - 1) yield templateState.getSegmentRange(i)).toArray
-      val validator = ScalaVariableValidator(new ConflictsReporter {
-        def reportConflicts(conflicts: Array[String], project: Project): Boolean = {
-          createWarningBalloon(conflicts.toSet.mkString("\n"))
-          true //this means that we do nothing, only show balloon
-        }
-      }, project, editor, myFile, named, occurrences)
-      validator.isOK(named.name, replaceAll)
+    try {
+      val named = namedElement(getDeclaration).getOrElse(null)
+      val templateState: TemplateState = TemplateManagerImpl.getTemplateState(myEditor)
+      if (named != null && templateState != null) {
+        val occurrences = (for (i <- 0 to templateState.getSegmentsCount - 1) yield templateState.getSegmentRange(i)).toArray
+        val validator = ScalaVariableValidator(new ConflictsReporter {
+          def reportConflicts(conflicts: Array[String], project: Project): Boolean = {
+            createWarningBalloon(conflicts.toSet.mkString("\n"))
+            true //this means that we do nothing, only show balloon
+          }
+        }, project, editor, myFile, named, occurrences)
+        validator.isOK(named.name, replaceAll)
+      }
+    }
+    catch {
+      //templateState can contain null private fields
+      case exc: NullPointerException =>
+    }
+    finally {
+      myEditor.getSelectionModel.removeSelection()
     }
     super.finish(success)
   }
