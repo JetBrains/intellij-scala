@@ -759,9 +759,9 @@
                        displayName="Simplify boolean expression" groupName="Scala: General"
                        shortName="SimplifyBoolean" level="WARNING"
                        enabledByDefault="true" language="Scala"/>
-      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.parentheses.UnnecessaryParenthesesInspection"
+      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.parentheses.ScalaUnnecessaryParenthesesInspection"
                        displayName="Unnecessary parentheses" groupName="Scala: General"
-                       shortName="UnnecessaryParentheses" level="WARNING"
+                       shortName="ScalaUnnecessaryParentheses" level="WARNING"
                        enabledByDefault="true" language="Scala"/>
       <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.typeChecking.TypeCheckCanBeMatchInspection"
                        displayName="Type check can be pattern matching" groupName="Scala: General"
