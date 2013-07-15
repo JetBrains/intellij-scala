@@ -10,7 +10,7 @@ import javax.swing.*;
  * Nikolay.Tropin
  * 6/26/13
  */
-public class UnnecessaryParenthesesInspection extends UnnecessaryParenthesesInspectionBase {
+public class ScalaUnnecessaryParenthesesInspection extends ScalaUnnecessaryParenthesesInspectionBase {
   public boolean ignoreClarifying = true;
 
   @Override
