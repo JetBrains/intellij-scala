@@ -1,8 +1,8 @@
 package org.jetbrains.plugins.scala
 package codeInspection.parentheses
 
-import org.jetbrains.plugins.scala.codeInspection.{InspectionBundle, AbstractFix, AbstractInspection}
-import com.intellij.codeInspection.{ProblemDescriptor, ProblemHighlightType, ProblemsHolder}
+import org.jetbrains.plugins.scala.codeInspection.{InspectionBundle, AbstractFix}
+import com.intellij.codeInspection.{LocalInspectionTool, ProblemDescriptor, ProblemHighlightType, ProblemsHolder}
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
@@ -17,7 +17,7 @@ import scala.annotation.tailrec
  * Nikolay.Tropin
  * 4/25/13
  */
-abstract class UnnecessaryParenthesesInspectionBase extends AbstractInspection("UnnecessaryParentheses", "Remove unnecessary parentheses") {
+abstract class UnnecessaryParenthesesInspectionBase extends LocalInspectionTool {
 
   def actionFor(holder: ProblemsHolder): PartialFunction[PsiElement, Any] = {
     case parenthesized: ScParenthesisedExpr
@@ -41,7 +41,8 @@ class UnnecessaryParenthesesQuickFix(parenthesized: ScParenthesisedExpr, textOfS
     if (!parenthesized.isValid) return
 
     val newExpr = ScalaPsiElementFactory.createExpressionFromText(textOfStripped, parenthesized.getManager)
-    parenthesized.replaceExpression(newExpr, removeParenthesis = true)
+    val replaced = parenthesized.replaceExpression(newExpr, removeParenthesis = true)
+    ScalaPsiUtil.padWithWhitespaces(replaced)
   }
 }
 

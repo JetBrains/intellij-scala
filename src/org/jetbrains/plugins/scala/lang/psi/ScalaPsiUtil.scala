@@ -78,6 +78,7 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import com.intellij.psi.tree.TokenSet
 import com.intellij.lang.java.JavaLanguage
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
+import com.intellij.openapi.util.TextRange
 
 /**
  * User: Alexander Podkhalyuzin
@@ -1985,5 +1986,24 @@ object ScalaPsiUtil {
   def isViableForAssignmentFunction(fun: ScFunction): Boolean = {
     val clauses = fun.paramClauses.clauses
     clauses.length == 0 || (clauses.length == 1 && clauses(0).isImplicit)
+  }
+
+  def padWithWhitespaces(element: PsiElement) {
+    val range: TextRange = element.getTextRange
+    val previousOffset = range.getStartOffset - 1
+    val nextOffset = range.getEndOffset
+      for {
+        file <- element.containingFile
+        prevElement = file.findElementAt(previousOffset)
+        nextElement = file.findElementAt(nextOffset)
+        parent <- element.parent
+      } {
+        if (!prevElement.isInstanceOf[PsiWhiteSpace]) {
+          parent.addBefore(ScalaPsiElementFactory.createWhitespace(element.getManager), element)
+        }
+        if (!nextElement.isInstanceOf[PsiWhiteSpace]) {
+          parent.addAfter(ScalaPsiElementFactory.createWhitespace(element.getManager), element)
+        }
+      }
   }
 }
