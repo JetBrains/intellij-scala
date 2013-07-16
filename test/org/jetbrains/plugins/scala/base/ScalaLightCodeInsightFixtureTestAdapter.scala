@@ -182,7 +182,7 @@ abstract class ScalaLightCodeInsightFixtureTestAdapter extends LightCodeInsightF
             }
           }
         }, "", null)
-        myFixture.checkResult(assumedStub)
+        myFixture.checkResult(assumedStub, /*stripTrailingSpaces = */true)
       case _ => assert(false, "There is no fixes with such hint.")
     }
   }
