@@ -14,6 +14,7 @@ import psi.api.base.patterns.ScReferencePattern
 import psi.api.statements._
 import psi.api.base.ScFieldId
 import org.jetbrains.plugins.scala.lang.refactoring.rename.inplace.ScalaInplaceRenameUtil
+import org.jetbrains.plugins.scala.lang.refactoring.introduceField.ScalaIntroduceFieldFromExpressionHandler
 
 /**
  * User: Alexander Podkhalyuzin
@@ -29,8 +30,7 @@ class ScalaRefactoringSupportProvider extends RefactoringSupportProvider {
 
   override def getIntroduceVariableHandler: RefactoringActionHandler = new ScalaIntroduceVariableHandler
 
-  override def getIntroduceFieldHandler: RefactoringActionHandler = null
-    //new ScalaIntroduceFieldFromExpressionHandler
+  override def getIntroduceFieldHandler: RefactoringActionHandler = new ScalaIntroduceFieldFromExpressionHandler
 
   override def getIntroduceParameterHandler: RefactoringActionHandler = new ScalaIntroduceParameterHandler
 

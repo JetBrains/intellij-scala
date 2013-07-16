@@ -34,16 +34,18 @@ import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiUtil, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import com.intellij.openapi.editor.{VisualPosition, Editor}
 import com.intellij.openapi.actionSystem.DataContext
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.lang.psi.api.{ScalaRecursiveElementVisitor, ScalaFile}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScEarlyDefinitions
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.types.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.psi.types.ScFunctionType
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTemplateDefinition, ScClass, ScTypeDefinition}
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.refactoring.util.CommonRefactoringUtil
 import com.intellij.refactoring.HelpID
 import java.util
+import scala.annotation.tailrec
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 
 
 /**
@@ -461,12 +463,11 @@ object ScalaRefactoringUtil {
   }
 
   private[refactoring] def getLineText(editor: Editor): String = {
-    val lineNumber = Option(editor.getSelectionModel.getSelectionEndPosition.getLine)
-            .getOrElse(editor.getCaretModel.getLogicalPosition.line)
+    val lineNumber = editor.getCaretModel.getLogicalPosition.line
     if (lineNumber >= editor.getDocument.getLineCount) return ""
     val caret = editor.getCaretModel.getVisualPosition
-    val lineStart = editor.visualToLogicalPosition(new VisualPosition(lineNumber, 0))
-    val nextLineStart = editor.visualToLogicalPosition(new VisualPosition(lineNumber + 1, 0))
+    val lineStart = editor.visualToLogicalPosition(new VisualPosition(caret.line, 0))
+    val nextLineStart = editor.visualToLogicalPosition(new VisualPosition(caret.line + 1, 0))
     val start = editor.logicalPositionToOffset(lineStart)
     val end = editor.logicalPositionToOffset(nextLineStart)
     editor.getDocument.getText.substring(start, end)
@@ -515,8 +516,6 @@ object ScalaRefactoringUtil {
     }
     invokesNext()
   }
-
-
 
   def fileEncloser(startOffset: Int, file: PsiFile): PsiElement = {
     if (file.asInstanceOf[ScalaFile].isScriptFile()) file
@@ -646,6 +645,90 @@ object ScalaRefactoringUtil {
 
   def replaceOccurences(occurences: Array[TextRange], newString: String, file: PsiFile, editor: Editor): Array[ScExpression] = {
     occurences.reverseMap(ScalaRefactoringUtil.replaceOccurence(_, newString, file, editor)).reverse
+  }
+
+  def statementsAndMembersInClass(aClass: ScTemplateDefinition): Seq[PsiElement] = {
+    val body = aClass.extendsBlock.templateBody
+    body.toSeq.flatMap(_.children).filter(child => child.isInstanceOf[ScBlockStatement] || child.isInstanceOf[ScMember])
+  }
+
+  @tailrec
+  def findParentExpr(elem: PsiElement): ScExpression = {
+    def checkEnd(prev: PsiElement, parExpr: ScExpression): Boolean = {
+      val result: Boolean = prev match {
+        case _: ScBlock => true
+        case forSt: ScForStatement if forSt.body.getOrElse(null) == parExpr => false //in this case needBraces == true
+        case forSt: ScForStatement => true
+        case _ => false
+      }
+      result || needNewBraces(parExpr, prev)
+    }
+    val expr = PsiTreeUtil.getParentOfType(elem, classOf[ScExpression], false)
+    val prev = previous(expr, elem.getContainingFile)
+    prev match {
+      case prevExpr: ScExpression if !checkEnd(prev, expr) => findParentExpr(prevExpr)
+      case prevExpr: ScExpression if checkEnd(prev, expr) => expr
+      case _ => expr
+    }
+  }
+
+  def previous(expr: ScExpression, file: PsiFile): PsiElement = {
+    if (expr == null) file
+    else expr.getParent match {
+      case args: ScArgumentExprList => args.getParent
+      case other => other
+    }
+  }
+
+  def needNewBraces(parExpr: PsiElement, prev: PsiElement): Boolean = {
+    if (!parExpr.isInstanceOf[ScBlock])
+      prev match {
+        case _: ScBlock | _: ScTemplateBody | _: ScEarlyDefinitions | _: ScalaFile | _: ScCaseClause => false
+        case _: ScFunction => true
+        case memb: ScMember if memb.getParent.isInstanceOf[ScTemplateBody] => true
+        case memb: ScMember if memb.getParent.isInstanceOf[ScEarlyDefinitions] => true
+        case ifSt: ScIfStmt if Seq(ifSt.thenBranch, ifSt.elseBranch) contains Option(parExpr) => true
+        case forSt: ScForStatement if forSt.body.getOrElse(null) == parExpr => true
+        case forSt: ScForStatement => false
+        case _: ScEnumerator | _: ScGenerator => false
+        case guard: ScGuard if guard.getParent.isInstanceOf[ScEnumerators] => false
+        case whSt: ScWhileStmt if whSt.body.getOrElse(null) == parExpr => true
+        case doSt: ScDoStmt if doSt.getExprBody.getOrElse(null) == parExpr => true
+        case finBl: ScFinallyBlock if finBl.expression.getOrElse(null) == parExpr => true
+        case fE: ScFunctionExpr =>
+          fE.getContext match {
+            case be: ScBlock if be.lastExpr == Some(fE) => false
+            case _ => true
+          }
+        case _ => false
+      } else false
+  }
+
+
+  def checkForwardReferences(expr: ScExpression, position: PsiElement): Boolean = {
+    var result = true
+    val visitor = new ScalaRecursiveElementVisitor() {
+      override def visitReferenceExpression(ref: ScReferenceExpression) {
+        ref.getParent match {
+          case ScInfixExpr(_, `ref`, _)  =>
+          case ScPostfixExpr(_, `ref`) =>
+          case ScPrefixExpr(`ref`, _) =>
+          case _ =>
+            val newRef = ScalaPsiElementFactory.createExpressionFromText(ref.getText, position)
+                    .asInstanceOf[ScReferenceExpression]
+            result &= ref.resolve() == newRef.resolve()
+        }
+        super.visitReferenceExpression(ref)
+      }
+    }
+    expr.accept(visitor)
+    result
+  }
+
+  def container(element: PsiElement, file: PsiFile, strict: Boolean): PsiElement = {
+    if (element == null) file
+    else ScalaPsiUtil.getParentOfType(element, strict, classOf[ScalaFile], classOf[ScBlock],
+      classOf[ScTemplateBody], classOf[ScCaseClause], classOf[ScEarlyDefinitions])
   }
 
   private[refactoring] class IntroduceException extends Exception

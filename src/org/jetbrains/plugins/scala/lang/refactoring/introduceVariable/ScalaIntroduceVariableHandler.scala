@@ -10,17 +10,12 @@ import com.intellij.openapi.util._
 import com.intellij.openapi.command.CommandProcessor
 import com.intellij.openapi.wm.WindowManager
 import com.intellij.psi.{xml => _, _}
-import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.refactoring.ui.ConflictsDialog
 import com.intellij.refactoring.RefactoringActionHandler
 import java.util.LinkedHashSet
 import lexer.ScalaTokenTypes
 import namesSuggester.NameSuggester
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
-import psi.api.ScalaFile
 import psi.api.statements._
-import psi.api.toplevel.ScEarlyDefinitions
-import psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import psi.api.expr._
@@ -35,7 +30,6 @@ import com.intellij.refactoring.introduce.inplace.OccurrencesChooser
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaVariableValidator
 import org.jetbrains.plugins.scala.lang.refactoring.introduceVariable.ScalaIntroduceVariableHandler.RevertInfo
-import scala.annotation.tailrec
 
 
 /**
@@ -169,58 +163,6 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Confli
       } yield forSt
     }
 
-    def needNewBraces(parExpr: PsiElement, prev: PsiElement, occurrenceCount: Int): Boolean = {
-      if (!parExpr.isInstanceOf[ScBlock])
-        prev match {
-          case _: ScBlock | _: ScTemplateBody | _: ScEarlyDefinitions | _: ScalaFile | _: ScCaseClause => false
-          case _: ScFunction => true
-          case memb: ScMember if memb.getParent.isInstanceOf[ScTemplateBody] => true
-          case memb: ScMember if memb.getParent.isInstanceOf[ScEarlyDefinitions] => true
-          case ifSt: ScIfStmt if Seq(ifSt.thenBranch, ifSt.elseBranch) contains Option(parExpr) => true
-          case forSt: ScForStatement if forSt.body.getOrElse(null) == parExpr => true
-          case forSt: ScForStatement => false
-          case _: ScEnumerator | _: ScGenerator => false
-          case guard: ScGuard if guard.getParent.isInstanceOf[ScEnumerators] => false
-          case whSt: ScWhileStmt if whSt.body.getOrElse(null) == parExpr => true
-          case doSt: ScDoStmt if doSt.getExprBody.getOrElse(null) == parExpr => true
-          case finBl: ScFinallyBlock if finBl.expression.getOrElse(null) == parExpr => true
-          case fE: ScFunctionExpr =>
-            fE.getContext match {
-              case be: ScBlock if be.lastExpr == Some(fE) => false
-              case _ => true
-            }
-          case _ => false
-        } else false
-    }
-
-    @tailrec
-    def findParentExpr(elem: PsiElement, occurrenceCount: Int): ScExpression = {
-      def checkEnd(prev: PsiElement, parExpr: ScExpression, occurrenceCount: Int): Boolean = {
-        val result: Boolean = prev match {
-          case _: ScBlock => true
-          case forSt: ScForStatement if forSt.body.getOrElse(null) == parExpr => false //in this case needBraces == true
-          case forSt: ScForStatement => true
-          case _ => false
-        }
-        result || needNewBraces(parExpr, prev, occurrenceCount)
-      }
-      val expr = PsiTreeUtil.getParentOfType(elem, classOf[ScExpression], false)
-      val prev = previous(expr, expr.getContainingFile)
-      prev match {
-        case prevExpr: ScExpression if !checkEnd(prev, expr, occurrenceCount) => findParentExpr(prevExpr, occurrenceCount)
-        case prevExpr: ScExpression if checkEnd(prev, expr, occurrenceCount) => expr
-        case _ => expr
-      }
-    }
-
-    def previous(expr: ScExpression, file: PsiFile): PsiElement = {
-      if (expr == null) file
-      else expr.getParent match {
-        case args: ScArgumentExprList => args.getParent
-        case other => other
-      }
-    }
-
     val revertInfo = RevertInfo(file.getText, editor.getCaretModel.getOffset)
     editor.putUserData(ScalaIntroduceVariableHandler.REVERT_INFO, revertInfo)
 
@@ -243,8 +185,8 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Confli
 
     val commonParent: PsiElement = ScalaRefactoringUtil.commonParent(file, replacedOccurences.map(_.getTextRange): _*)
 
-    val parExpr: ScExpression = findParentExpr(commonParent, occCount)
-    val prev: PsiElement = previous(parExpr, file)
+    val parExpr: ScExpression = ScalaRefactoringUtil.findParentExpr(commonParent)
+    val prev: PsiElement = ScalaRefactoringUtil.previous(parExpr, file)
 
     val forStmtOption = forStmtIfIntroduceEnumerator(parExpr, prev, firstRange.getStartOffset)
     val introduceEnumerator = forStmtOption.isDefined
@@ -285,10 +227,8 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Confli
         replacedOccurences(0).replace(createdDeclaration)
         editor.getCaretModel.moveToOffset(createdDeclaration.getTextRange.getEndOffset)
       } else {
-        val container: PsiElement =
-          ScalaPsiUtil.getParentOfType(parExpr, occCount == 1, classOf[ScalaFile], classOf[ScBlock],
-            classOf[ScTemplateBody], classOf[ScCaseClause], classOf[ScEarlyDefinitions])
-        val needBraces = needNewBraces(parExpr, prev, occCount)
+        val container: PsiElement = ScalaRefactoringUtil.container(parExpr, file, occCount == 1)
+        val needBraces = ScalaRefactoringUtil.needNewBraces(parExpr, prev)
         val parent =
           if (needBraces) {
             firstRange = firstRange.shiftRight(1)

@@ -12,7 +12,11 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefin
 import com.intellij.codeInsight.navigation.NavigationUtil
 import com.intellij.ide.util.PsiClassListCellRenderer
 import com.intellij.psi.search.PsiElementProcessor
-import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil
+import com.intellij.openapi.util.TextRange
+import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 
 /**
  * Nikolay.Tropin
@@ -22,18 +26,22 @@ abstract class ScalaIntroduceFieldHandlerBase extends RefactoringActionHandler{
 
   val REFACTORING_NAME = ScalaBundle.message("introduce.field.title")
 
+  protected def isSuitableClass(elem: PsiElement, clazz: ScTemplateDefinition): Boolean
+
   def afterClassChoosing[T <: PsiElement](elem: T, types: Array[ScType], project: Project, editor: Editor, file: PsiFile, title: String)
-                                         (action: (T, Array[ScType], ScTemplateDefinition, Project, Editor, PsiFile) => Unit) {
+                                         (action: IntroduceFieldContext[T] => Unit) {
     try {
-      val classes = ScalaPsiUtil.getParents(elem, file).collect{ case t: ScTemplateDefinition if t != elem => t}.toArray[PsiClass]
+      val classes = ScalaPsiUtil.getParents(elem, file).collect {
+        case t: ScTemplateDefinition if isSuitableClass(elem, t) => t
+      }.toArray[PsiClass]
       classes.size match {
         case 0 =>
-        case 1 => action(elem, types, classes(0).asInstanceOf[ScTemplateDefinition], project, editor, file)
+        case 1 => action(new IntroduceFieldContext[T](project, editor, file, elem, types, classes(0).asInstanceOf[ScTemplateDefinition]))
         case _ =>
           val selection = classes(0)
           val processor = new PsiElementProcessor[PsiClass] {
             def execute(aClass: PsiClass): Boolean = {
-              action(elem, types, aClass.asInstanceOf[ScTemplateDefinition], project, editor, file)
+              action(new IntroduceFieldContext[T](project, editor, file, elem, types, aClass.asInstanceOf[ScTemplateDefinition]))
               false
             }
           }
@@ -45,14 +53,56 @@ abstract class ScalaIntroduceFieldHandlerBase extends RefactoringActionHandler{
     catch {
       case _: IntroduceException => return
     }
-    }
+  }
 
-  class Settings(val name: String, val varType: ScType) {
-    private val scalaSettings = ScalaApplicationSettings.getInstance()
-    val isVar = scalaSettings.INTRODUCE_FIELD_IS_VAR
-    val replaceAll = scalaSettings.INTRODUCE_FIELD_REPLACE_ALL
-    val accessLevel = scalaSettings.INTRODUCE_FIELD_MODIFIER
-    val explicitType = scalaSettings.INTRODUCE_FIELD_EXPLICIT_TYPE
+  protected def anchorForNewDeclaration(expr: ScExpression, occurrences: Array[PsiElement], aClass: ScTemplateDefinition): PsiElement = {
+    val firstOccOffset = occurrences.map(_.getTextRange.getStartOffset).min
+    ScalaRefactoringUtil.statementsAndMembersInClass(aClass).find(_.getTextRange.getEndOffset > firstOccOffset).get
+  }
+}
+
+object ScalaIntroduceFieldHandlerBase {
+
+  def canBeInitializedInDeclaration(expr: ScExpression, aClass: ScTemplateDefinition): Boolean = {
+    var result = true
+    ScalaRefactoringUtil.statementsAndMembersInClass(aClass).find(PsiTreeUtil.isAncestor(_, expr, false)).foreach { ancestor =>
+      val checkRef = ScalaRefactoringUtil.checkForwardReferences(expr, ancestor)
+      result &= checkRef
+    }
+    result
+  }
+
+  def canBeInitInLocalScope[T <: PsiElement](ifc: IntroduceFieldContext[T], replaceAll: Boolean): Boolean = {
+    val occurrences = if (replaceAll) ifc.occurrences else Array(ifc.element.getTextRange)
+    val parExpr: ScExpression = ScalaRefactoringUtil.findParentExpr(ScalaRefactoringUtil.commonParent(ifc.file, occurrences: _*))
+    val container = ScalaRefactoringUtil.container(parExpr, ifc.file, strict = false)
+    val containerIsLocal =
+      ScalaRefactoringUtil.statementsAndMembersInClass(ifc.aClass).exists(PsiTreeUtil.isAncestor(_, container, /*strict =*/false))
+    if (!containerIsLocal) false
+    else {
+      ifc.element match {
+        case expr: ScExpression => checkForwardReferences(expr, parExpr)
+        case _ => false
+      }
+    }
+  }
+
+  def anchorForInitializer(occurences: Array[TextRange], file: PsiFile): Option[PsiElement] = {
+    var firstRange = occurences(0)
+    val commonParent = ScalaRefactoringUtil.commonParent(file, occurences: _*)
+
+    val parExpr = ScalaRefactoringUtil.findParentExpr(commonParent)
+    if (parExpr == null) return None
+    val container: PsiElement = ScalaRefactoringUtil.container(parExpr, file, strict = occurences.length == 1)
+    val needBraces = ScalaRefactoringUtil.needNewBraces(parExpr, ScalaRefactoringUtil.previous(parExpr, file))
+    val parent =
+      if (needBraces) {
+        firstRange = firstRange.shiftRight(1)
+        parExpr.replaceExpression(ScalaPsiElementFactory.createExpressionFromText("{" + parExpr.getText + "}", file.getManager),
+          removeParenthesis = false)
+      } else container
+    if (parent == null) None
+    else parent.getChildren.find(_.getTextRange.contains(firstRange))
   }
 
 }

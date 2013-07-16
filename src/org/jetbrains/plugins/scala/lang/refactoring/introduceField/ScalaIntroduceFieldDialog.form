@@ -16,7 +16,7 @@
         <properties/>
         <border type="none"/>
         <children>
-          <component id="59979" class="javax.swing.JCheckBox" binding="myCbTypeSpec">
+          <component id="59979" class="javax.swing.JCheckBox" binding="myExplicitTypeChb">
             <constraints>
               <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
@@ -39,7 +39,7 @@
         <properties/>
         <border type="none"/>
         <children>
-          <component id="9baab" class="javax.swing.JCheckBox" binding="declareVariableCheckBox">
+          <component id="9baab" class="javax.swing.JCheckBox" binding="myDefineVarChb">
             <constraints>
               <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
@@ -47,7 +47,7 @@
               <text value="Declare &amp;variable"/>
             </properties>
           </component>
-          <component id="c7422" class="javax.swing.JCheckBox" binding="myCbReplaceAllOccurences">
+          <component id="c7422" class="javax.swing.JCheckBox" binding="myReplaceAllChb">
             <constraints>
               <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
@@ -105,7 +105,7 @@
         <properties/>
         <border type="none"/>
         <children>
-          <component id="ac280" class="javax.swing.JLabel" binding="myAccessLabel">
+          <component id="ac280" class="javax.swing.JLabel" binding="myVisibilityLabel">
             <constraints>
               <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
@@ -118,7 +118,7 @@
               <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
-              <text value="Default"/>
+              <text value="&amp;Default"/>
             </properties>
           </component>
           <component id="c7a8" class="javax.swing.JRadioButton" binding="myProtectedRB">
@@ -126,7 +126,7 @@
               <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
-              <text value="Protected"/>
+              <text value="Prote&amp;cted"/>
             </properties>
           </component>
           <component id="80799" class="javax.swing.JRadioButton" binding="myPrivateRB">
@@ -134,14 +134,33 @@
               <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
-              <text value="Private"/>
+              <text value="&amp;Private"/>
             </properties>
           </component>
-          <hspacer id="96b3a">
+          <component id="6ab51" class="javax.swing.JLabel">
             <constraints>
-              <grid row="1" column="1" row-span="2" col-span="1" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+              <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
-          </hspacer>
+            <properties>
+              <text value="Initialize in:"/>
+            </properties>
+          </component>
+          <component id="5cf49" class="javax.swing.JRadioButton" binding="myInitInDeclarationRB">
+            <constraints>
+              <grid row="1" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties>
+              <text value="&amp;Field declaration"/>
+            </properties>
+          </component>
+          <component id="e91d7" class="javax.swing.JRadioButton" binding="myInitInLocalScopeRB">
+            <constraints>
+              <grid row="2" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties>
+              <text value="&amp;Local scope"/>
+            </properties>
+          </component>
         </children>
       </grid>
     </children>
