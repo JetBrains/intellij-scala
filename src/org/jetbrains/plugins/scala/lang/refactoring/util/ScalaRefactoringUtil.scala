@@ -463,11 +463,11 @@ object ScalaRefactoringUtil {
   }
 
   private[refactoring] def getLineText(editor: Editor): String = {
-    val lineNumber = editor.getCaretModel.getLogicalPosition.line
+    val lineNumber = Option(editor.getSelectionModel.getSelectionEndPosition.getLine)
+            .getOrElse(editor.getCaretModel.getLogicalPosition.line)
     if (lineNumber >= editor.getDocument.getLineCount) return ""
-    val caret = editor.getCaretModel.getVisualPosition
-    val lineStart = editor.visualToLogicalPosition(new VisualPosition(caret.line, 0))
-    val nextLineStart = editor.visualToLogicalPosition(new VisualPosition(caret.line + 1, 0))
+    val lineStart = editor.visualToLogicalPosition(new VisualPosition(lineNumber, 0))
+    val nextLineStart = editor.visualToLogicalPosition(new VisualPosition(lineNumber + 1, 0))
     val start = editor.logicalPositionToOffset(lineStart)
     val end = editor.logicalPositionToOffset(nextLineStart)
     editor.getDocument.getText.substring(start, end)
