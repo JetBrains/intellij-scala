@@ -16,11 +16,14 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.scala.ScalaBundle;
 import org.jetbrains.plugins.scala.ScalaFileType;
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression;
 import org.jetbrains.plugins.scala.lang.psi.types.ScType;
 import org.jetbrains.plugins.scala.lang.refactoring.util.*;
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings;
 
 import javax.swing.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.event.EventListenerList;
 import java.awt.event.*;
 import java.util.EventListener;
@@ -31,19 +34,20 @@ import java.util.HashMap;
  * Date: 01.07.2008
  */
 public class ScalaIntroduceFieldDialog extends DialogWrapper implements NamedDialog {
-  private JCheckBox myCbTypeSpec;
-  private JCheckBox declareVariableCheckBox;
-  private JCheckBox myCbReplaceAllOccurences;
+  private JCheckBox myExplicitTypeChb;
+  private JCheckBox myDefineVarChb;
+  private JCheckBox myReplaceAllChb;
   private JComboBox myTypeComboBox;
   private ComboBox myNameComboBox;
-  private ButtonGroup myAccessButtons;
   private JRadioButton myDefaultRB;
   private JRadioButton myProtectedRB;
   private JRadioButton myPrivateRB;
+  private JRadioButton myInitInDeclarationRB;
+  private JRadioButton myInitInLocalScopeRB;
 
   private JLabel myTypeLabel;
   private JLabel myNameLabel;
-  private JLabel myAccessLabel;
+  private JLabel myVisibilityLabel;
   private JPanel contentPane;
   private JButton buttonOK;
   public String myEnteredName;
@@ -52,32 +56,30 @@ public class ScalaIntroduceFieldDialog extends DialogWrapper implements NamedDia
   private ScType[] myTypes;
   private int occurrencesCount;
   private ScalaVariableValidator validator;
-  private String[] possibleNames;
+  private IntroduceFieldSettings mySettings;
 
   private HashMap<String, ScType> myTypeMap = null;
   private EventListenerList myListenerList = new EventListenerList();
 
   private static final String REFACTORING_NAME = ScalaBundle.message("introduce.field.title");
+  private ButtonGroup myVisibilityButtons;
 
 
-  public ScalaIntroduceFieldDialog(Project project,
-                                      ScType[] myTypes,
-                                      int occurrencesCount,
-                                      ScalaVariableValidator validator,
-                                      String[] possibleNames) {
-    super(project, true);
-    this.project = project;
-    this.myTypes = myTypes;
-    this.occurrencesCount = occurrencesCount;
-    this.validator = validator;
-    this.possibleNames = possibleNames;
-    setUpNameComboBox(possibleNames);
+  public ScalaIntroduceFieldDialog(IntroduceFieldContext<ScExpression> ifc, IntroduceFieldSettings<ScExpression> settings) {
+    super(ifc.project(), true);
+    this.project = ifc.project();
+    this.myTypes = ifc.types();
+    this.occurrencesCount = ifc.occurrences().length;
+    this.validator = ifc.validator();
+    this.mySettings = settings;
 
     setModal(true);
     getRootPane().setDefaultButton(buttonOK);
     setTitle(REFACTORING_NAME);
     init();
     setUpDialog();
+    setUpNameComboBox(ifc.possibleNames());
+    bindToSettings(ifc);
     updateOkStatus();
   }
 
@@ -101,54 +103,149 @@ public class ScalaIntroduceFieldDialog extends DialogWrapper implements NamedDia
   }
 
   public boolean isReplaceAllOccurrences() {
-    return myCbReplaceAllOccurences.isSelected();
+    return myReplaceAllChb.isSelected();
   }
 
   public boolean isDeclareVariable() {
-    return declareVariableCheckBox.isSelected();
+    return myDefineVarChb.isSelected();
   }
 
   public ScType getSelectedType() {
-    if (!myCbTypeSpec.isSelected() || !myCbTypeSpec.isEnabled()) {
+    if (!myExplicitTypeChb.isSelected()) {
       return null;
     } else {
       return myTypeMap.get(myTypeComboBox.getSelectedItem());
     }
   }
 
+  private void bindToSettings(final IntroduceFieldContext ifc) {
+
+//    if (!canBeInitInDeclaration && !canBeInitLocal) {
+//      this.close(1, false);
+//      ScalaRefactoringUtil.showErrorMessage("Field cannot be created.", ifc.project(), ifc.editor(), ScalaBundle.message("introduce.field.title"));
+//    }
+
+//    if (!canBeInitLocal) {
+//      myInitInLocalScopeRB.setEnabled(false);
+//      myInitInDeclarationRB.setSelected(true);
+//    }
+
+//    if (!canBeInitInDeclaration) {
+//      myInitInLocalScopeRB.setSelected(true);
+//      myInitInDeclarationRB.setEnabled(false);
+//      myDefineVarChb.setSelected(true);
+//      myDefineVarChb.setEnabled(false);
+//      if (!canBeInitLocalIfReplaceAll) {
+//        myReplaceAllChb.setSelected(false);
+//        myReplaceAllChb.setEnabled(false);
+//      }
+//    }
+
+//    if (myInitInDeclarationRB.isEnabled() && myInitInLocalScopeRB.isEnabled()){
+//      if (ScalaApplicationSettings.getInstance().INTRODUCE_FIELD_INITIALIZE_IN_DECLARATION)
+//        myInitInDeclarationRB.setSelected(true);
+//      else myInitInLocalScopeRB.setSelected(true);
+//    }
+//
+//    if (myInitInLocalScopeRB.isSelected()) {
+//      myDefineVarChb.setSelected(true);
+//      myDefineVarChb.setEnabled(false);
+//      myExplicitTypeChb.setSelected(true);
+//      myExplicitTypeChb.setEnabled(false);
+//    }
+
+    myInitInDeclarationRB.addChangeListener(new ChangeListener() {
+      @Override
+      public void stateChanged(ChangeEvent e) {
+        mySettings.setInitInDeclaration(myInitInDeclarationRB.isSelected());
+        readSettings();
+      }
+    });
+
+    myInitInLocalScopeRB.addChangeListener(new ChangeListener() {
+      @Override
+      public void stateChanged(ChangeEvent e) {
+        mySettings.setInitInDeclaration(myInitInDeclarationRB.isSelected());
+        readSettings();
+      }
+    });
+
+    myReplaceAllChb.addChangeListener(new ChangeListener() {
+      @Override
+      public void stateChanged(ChangeEvent e) {
+        mySettings.setReplaceAll(myReplaceAllChb.isSelected());
+        readSettings();
+      }
+    });
+
+    myExplicitTypeChb.addChangeListener(new ChangeListener() {
+      @Override
+      public void stateChanged(ChangeEvent e) {
+        mySettings.setExplicitType(myExplicitTypeChb.isSelected());
+        readSettings();
+      }
+    });
+
+    myDefineVarChb.addChangeListener(new ChangeListener() {
+      @Override
+      public void stateChanged(ChangeEvent e) {
+        mySettings.setDefineVar(myDefineVarChb.isSelected());
+        readSettings();
+      }
+    });
+
+    ChangeListener visibilityListener = new ChangeListener() {
+      @Override
+      public void stateChanged(ChangeEvent e) {
+        if (myDefaultRB.isSelected()) {
+          mySettings.setVisibilityLelel(ScalaApplicationSettings.VisibilityLevel.DEFAULT);
+          readSettings();
+        }
+        else if (myProtectedRB.isSelected()) {
+          mySettings.setVisibilityLelel(ScalaApplicationSettings.VisibilityLevel.PROTECTED);
+          readSettings();
+        }
+        else if (myPrivateRB.isSelected()) {
+          mySettings.setVisibilityLelel(ScalaApplicationSettings.VisibilityLevel.PRIVATE);
+          readSettings();
+        }
+      }
+    };
+    myDefaultRB.addChangeListener(visibilityListener);
+    myPrivateRB.addChangeListener(visibilityListener);
+    myProtectedRB.addChangeListener(visibilityListener);
+  }
+
   private void setUpDialog() {
-    myCbReplaceAllOccurences.setMnemonic(KeyEvent.VK_A);
-    myCbReplaceAllOccurences.setFocusable(false);
-    declareVariableCheckBox.setMnemonic(KeyEvent.VK_V);
-    declareVariableCheckBox.setFocusable(false);
-    myCbTypeSpec.setMnemonic(KeyEvent.VK_T);
-    myCbTypeSpec.setFocusable(false);
+    myReplaceAllChb.setMnemonic(KeyEvent.VK_A);
+    myReplaceAllChb.setFocusable(false);
+    myDefineVarChb.setMnemonic(KeyEvent.VK_V);
+    myDefineVarChb.setFocusable(false);
+    myExplicitTypeChb.setMnemonic(KeyEvent.VK_T);
+    myExplicitTypeChb.setFocusable(false);
     myNameLabel.setLabelFor(myNameComboBox);
     myTypeLabel.setLabelFor(myTypeComboBox);
 
-    myAccessButtons = new ButtonGroup();
-    myAccessButtons.add(myDefaultRB);
-    myAccessButtons.add(myProtectedRB);
-    myAccessButtons.add(myPrivateRB);
-
+    myVisibilityButtons = new ButtonGroup();
+    myVisibilityButtons.add(myDefaultRB);
+    myVisibilityButtons.add(myProtectedRB);
+    myVisibilityButtons.add(myPrivateRB);
     myDefaultRB.setMnemonic(KeyEvent.VK_D);
     myProtectedRB.setMnemonic(KeyEvent.VK_C);
     myPrivateRB.setMnemonic(KeyEvent.VK_P);
-
     myDefaultRB.setFocusable(false);
     myProtectedRB.setFocusable(false);
     myPrivateRB.setFocusable(false);
 
-    ScalaApplicationSettings scalaSettings = ScalaApplicationSettings.getInstance();
-    switch (scalaSettings.INTRODUCE_FIELD_MODIFIER) {
-      case DEFAULT: myDefaultRB.setSelected(true);
-        break;
-      case PROTECTED: myProtectedRB.setSelected(true);
-        break;
-      case PRIVATE: myPrivateRB.setSelected(true);
-        break;
-    }
+    ButtonGroup initButtons = new ButtonGroup();
+    initButtons.add(myInitInDeclarationRB);
+    initButtons.add(myInitInLocalScopeRB);
+    myInitInDeclarationRB.setMnemonic(KeyEvent.VK_F);
+    myInitInLocalScopeRB.setMnemonic(KeyEvent.VK_L);
+    myInitInDeclarationRB.setFocusable(false);
+    myInitInLocalScopeRB.setFocusable(false);
 
+    readSettings();
 
     boolean nullText = false;
     for (ScType myType : myTypes) {
@@ -156,35 +253,23 @@ public class ScalaIntroduceFieldDialog extends DialogWrapper implements NamedDia
     }
     // Type specification
     if (myTypes.length == 0 || nullText) {
-      myCbTypeSpec.setSelected(false);
-      myCbTypeSpec.setEnabled(false);
       myTypeComboBox.setEnabled(false);
     } else {
-      myCbTypeSpec.setSelected(scalaSettings.INTRODUCE_FIELD_EXPLICIT_TYPE);
-      myTypeComboBox.setEnabled(scalaSettings.INTRODUCE_FIELD_EXPLICIT_TYPE);
       myTypeMap = ScalaRefactoringUtil.getCompatibleTypeNames(myTypes);
       for (String typeName : myTypeMap.keySet()) {
         myTypeComboBox.addItem(typeName);
       }
     }
 
-    declareVariableCheckBox.setSelected(scalaSettings.INTRODUCE_FIELD_IS_VAR);
-
-    myCbTypeSpec.addActionListener(new ActionListener() {
+    myExplicitTypeChb.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent event) {
-        myTypeComboBox.setEnabled(myCbTypeSpec.isSelected());
+        myTypeComboBox.setEnabled(myExplicitTypeChb.isSelected());
       }
     });
 
-    // Replace occurences
-    myCbReplaceAllOccurences.setSelected(scalaSettings.INTRODUCE_FIELD_REPLACE_ALL);
     if (occurrencesCount > 1) {
-      myCbReplaceAllOccurences.setEnabled(true);
-      myCbReplaceAllOccurences.setText(myCbReplaceAllOccurences.getText() + " (" + occurrencesCount + " occurrences)");
-    } else {
-      myCbReplaceAllOccurences.setEnabled(false);
+      myReplaceAllChb.setText(myReplaceAllChb.getText() + " (" + occurrencesCount + " occurrences)");
     }
-
 
     contentPane.registerKeyboardAction(new ActionListener() {
       public void actionPerformed(ActionEvent e) {
@@ -192,6 +277,28 @@ public class ScalaIntroduceFieldDialog extends DialogWrapper implements NamedDia
       }
     }, KeyStroke.getKeyStroke(KeyEvent.VK_Y, KeyEvent.ALT_MASK), JComponent.WHEN_IN_FOCUSED_WINDOW);
 
+  }
+
+  private void readSettings() {
+    myExplicitTypeChb.setEnabled(mySettings.explicitTypeChbEnabled());
+    myDefineVarChb.setEnabled(mySettings.defineVarChbEnabled());
+    myInitInDeclarationRB.setEnabled(mySettings.initInDeclarationEnabled());
+    myInitInLocalScopeRB.setEnabled(mySettings.initLocallyEnabled());
+    myReplaceAllChb.setEnabled(mySettings.replaceAllChbEnabled());
+
+    myExplicitTypeChb.setSelected(mySettings.explicitType());
+    myDefineVarChb.setSelected(mySettings.defineVar());
+    myInitInDeclarationRB.setSelected(mySettings.initInDeclaration());
+    myInitInLocalScopeRB.setSelected(!mySettings.initInDeclaration());
+    myReplaceAllChb.setSelected(mySettings.replaceAll());
+    switch (mySettings.visibilityLevel()) {
+      case DEFAULT: myDefaultRB.setSelected(true);
+        break;
+      case PROTECTED: myProtectedRB.setSelected(true);
+        break;
+      case PRIVATE: myPrivateRB.setSelected(true);
+        break;
+    }
   }
 
   private void setUpNameComboBox(String[] possibleNames) {
@@ -243,22 +350,35 @@ public class ScalaIntroduceFieldDialog extends DialogWrapper implements NamedDia
     return new Action[]{getOKAction(), getCancelAction(), getHelpAction()};
   }
 
+  private void saveSettings() {
+    ScalaApplicationSettings scalaSettings = ScalaApplicationSettings.getInstance();
+    if (myExplicitTypeChb.isEnabled())
+      scalaSettings.INTRODUCE_FIELD_EXPLICIT_TYPE = myExplicitTypeChb.isSelected();
+    if (myDefineVarChb.isEnabled())
+      scalaSettings.INTRODUCE_FIELD_IS_VAR = myDefineVarChb.isSelected();
+    if (myReplaceAllChb.isEnabled())
+      scalaSettings.INTRODUCE_FIELD_REPLACE_ALL = myReplaceAllChb.isSelected();
+    if (myDefaultRB.isSelected()) {
+      scalaSettings.INTRODUCE_FIELD_VISIBILITY = ScalaApplicationSettings.VisibilityLevel.DEFAULT;
+    }
+    else if (myPrivateRB.isSelected()){
+      scalaSettings.INTRODUCE_FIELD_VISIBILITY = ScalaApplicationSettings.VisibilityLevel.PRIVATE;
+    }
+    else if (myProtectedRB.isSelected()) {
+      scalaSettings.INTRODUCE_FIELD_VISIBILITY = ScalaApplicationSettings.VisibilityLevel.PROTECTED;
+    }
+
+    if (myInitInDeclarationRB.isEnabled() && myInitInLocalScopeRB.isEnabled()) {
+      scalaSettings.INTRODUCE_FIELD_INITIALIZE_IN_DECLARATION = myInitInDeclarationRB.isSelected();
+    }
+  }
+
   protected void doOKAction() {
     if (!validator.isOK(this)) return;
+    saveSettings();
 
-    ScalaApplicationSettings scalaSettings = ScalaApplicationSettings.getInstance();
-    if (myCbTypeSpec.isEnabled())
-      scalaSettings.INTRODUCE_FIELD_EXPLICIT_TYPE = myCbTypeSpec.isSelected();
-    if (declareVariableCheckBox.isEnabled())
-      scalaSettings.INTRODUCE_FIELD_IS_VAR = declareVariableCheckBox.isSelected();
-    if (myCbReplaceAllOccurences.isEnabled())
-      scalaSettings.INTRODUCE_FIELD_REPLACE_ALL = myCbReplaceAllOccurences.isSelected();
-    if (myDefaultRB.isSelected())
-      scalaSettings.INTRODUCE_FIELD_MODIFIER = ScalaApplicationSettings.AccessLevel.DEFAULT;
-    else if (myPrivateRB.isSelected())
-      scalaSettings.INTRODUCE_FIELD_MODIFIER = ScalaApplicationSettings.AccessLevel.PRIVATE;
-    else if (myProtectedRB.isSelected())
-      scalaSettings.INTRODUCE_FIELD_MODIFIER = ScalaApplicationSettings.AccessLevel.PROTECTED;
+    mySettings.setName(getEnteredName());
+    mySettings.setType(getSelectedType());
 
     super.doOKAction();
   }
