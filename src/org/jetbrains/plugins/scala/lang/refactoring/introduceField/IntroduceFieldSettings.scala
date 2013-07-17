@@ -71,12 +71,14 @@ class IntroduceFieldSettings[T <: PsiElement](ifc: IntroduceFieldContext[T]) {
 
   def initInDeclaration = initInDecl
   def initInDeclaration_=(value: Boolean) {
-    initInDecl = value
-    defineVarChbEnabled = value
-    explicitTypeChbEnabled = value
-    if (!initInDecl) {
-      defineVar = true
-      explicitType = true
+    if (value && initInDeclarationEnabled || !value && initLocallyEnabled) {
+      initInDecl = value
+      if (!initInDecl) {
+        defineVar = true
+        explicitType = true
+      }
+      defineVarChbEnabled = value
+      explicitTypeChbEnabled = value
     }
   }
   def setInitInDeclaration(value: Boolean) {initInDeclaration = value}
@@ -87,8 +89,8 @@ class IntroduceFieldSettings[T <: PsiElement](ifc: IntroduceFieldContext[T]) {
     if (!initInDeclarationEnabled) {
       initInDeclaration = false
       if (!canBeInitLocalIfReplaceAll) {
-        replaceAllChbEnabled = false
         replaceAll = false
+        replaceAllChbEnabled = false
       }
     }
   }
