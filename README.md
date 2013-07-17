@@ -5,6 +5,8 @@ SBT support in IntelliJ IDEA.
 
 Currently the plugin is in an alpha stage.
 
+[More info & Nightly builds](http://blog.jetbrains.com/scala/2013/07/17/sbt-plugin-nightly-builds/)
+
 Features
 --------
 
