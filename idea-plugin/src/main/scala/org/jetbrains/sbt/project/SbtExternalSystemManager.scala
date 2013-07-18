@@ -5,8 +5,9 @@ import com.intellij.openapi.externalSystem.{ExternalSystemAutoImportAware, Exter
 import com.intellij.openapi.project.Project
 import com.intellij.execution.configurations.SimpleJavaParameters
 import com.intellij.openapi.externalSystem.util.ExternalSystemBundle
-import settings._
 import com.intellij.openapi.externalSystem.service.project.autoimport.CachingExternalSystemAutoImportAware
+import com.intellij.util.net.HttpConfigurable
+import settings._
 
 /**
  * @author Pavel Fatin
@@ -35,7 +36,8 @@ class SbtExternalSystemManager
 
   def getLocalSettingsProvider = SbtLocalSettings.getInstance(_: Project)
 
-  def getExecutionSettingsProvider = new SbtExecutionSettings(_: Project, _: String)
+  def getExecutionSettingsProvider = (_: Project, _: String) =>
+    new SbtExecutionSettings(SbtExternalSystemManager.proxySettings)
 
   def getProjectResolverClass = classOf[SbtProjectResolver]
 
@@ -45,4 +47,13 @@ class SbtExternalSystemManager
     delegate.getAffectedExternalProjectPath(changedFileOrDirPath, project)
 
   def getExternalProjectDescriptor = new SbtOpenProjectDescriptor()
+}
+
+object SbtExternalSystemManager {
+  def proxySettings = {
+    val http = HttpConfigurable.getInstance
+
+    new ProxySettings(http.USE_HTTP_PROXY && !http.PROXY_TYPE_IS_SOCKS, http.PROXY_HOST, http.PROXY_PORT,
+      http.PROXY_AUTHENTICATION, http.PROXY_LOGIN, http.getPlainProxyPassword)
+  }
 }
