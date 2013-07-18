@@ -14,8 +14,7 @@ import com.intellij.psi.{PsiElement, PsiClass}
 import com.intellij.lang.ASTNode
 import collection.mutable.{ArrayBuffer, HashSet}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
-import org.jetbrains.plugins.scala.lang.psi.types.{ScTypeParameterType, ScSubstitutor, ScType}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
+import org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, ScType}
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.extensions.toPsiClassExt
@@ -268,6 +267,14 @@ object DebuggerUtil {
     }
 
     private final val mySourcePosition: SourcePosition = null
+  }
+
+  def withoutBackticks(name: String): String = {
+    val backticked = """\$u0060(.+)\$u0060""".r
+    name match {
+      case backticked(id) => id
+      case _ => name
+    }
   }
 
   def getClassJVMName(clazz: PsiClass, withPostfix: Boolean = false): JVMName = {

@@ -12,6 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinitio
 import com.intellij.psi.{PsiClass, PsiAnonymousClass, PsiElement}
 import com.intellij.debugger.engine.JVMNameUtil
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil
 
 /**
  * User: Alefas
@@ -48,11 +49,13 @@ object ScalaFieldEvaluator {
   }
 }
 
-class ScalaFieldEvaluator(objectEvaluator: Evaluator, filter: ReferenceType => Boolean,  fieldName: String,
+class ScalaFieldEvaluator(objectEvaluator: Evaluator, filter: ReferenceType => Boolean, _fieldName: String,
                           classPrivateThisField: Boolean = false) extends Evaluator {
   private var myEvaluatedQualifier: AnyRef = null
   private var myEvaluatedField: Field = null
-  
+
+  private val fieldName = DebuggerUtil.withoutBackticks(_fieldName)
+
   private def fieldByName(t: ReferenceType, fieldName: String): Field = {
     if (classPrivateThisField) {
       import scala.collection.JavaConversions._

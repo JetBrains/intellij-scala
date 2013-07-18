@@ -1,20 +1,21 @@
 package org.jetbrains.plugins.scala.debugger.evaluation.evaluator
 
 import com.intellij.debugger.DebuggerBundle
-import com.intellij.debugger.jdi.{ThreadReferenceProxyImpl, StackFrameProxyImpl, LocalVariableProxyImpl}
+import com.intellij.debugger.jdi.{StackFrameProxyImpl, LocalVariableProxyImpl}
 import com.intellij.debugger.ui.impl.watch.{LocalVariableDescriptorImpl, NodeDescriptorImpl}
 import com.intellij.debugger.engine.evaluation.expression.{Evaluator, Modifier}
 import com.intellij.debugger.engine.evaluation.{EvaluateException, EvaluateExceptionUtil, EvaluationContextImpl}
 import com.sun.jdi.{Value, Type, AbsentInformationException}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.diagnostic.Logger
+import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil
 
 /**
  * User: Alefas
  * Date: 12.10.11
  */
 
-class ScalaLocalVariableEvaluator(name: String, fromLocalMethod: Boolean = false) extends Evaluator {
+class ScalaLocalVariableEvaluator(_name: String, fromLocalMethod: Boolean = false) extends Evaluator {
   import ScalaLocalVariableEvaluator.LOG
   private var myContext: EvaluationContextImpl = null
   private var myEvaluatedVariable: LocalVariableProxyImpl = null
@@ -23,6 +24,8 @@ class ScalaLocalVariableEvaluator(name: String, fromLocalMethod: Boolean = false
   def setParameterIndex(parameterIndex: Int) {
     myParameterIndex = parameterIndex
   }
+
+  private val name: String = DebuggerUtil.withoutBackticks(_name)
 
   def evaluate(context: EvaluationContextImpl): AnyRef = {
     var frameProxy: StackFrameProxyImpl = context.getFrameProxy
