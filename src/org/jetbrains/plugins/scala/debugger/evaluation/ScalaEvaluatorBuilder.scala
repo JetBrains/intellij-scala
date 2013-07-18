@@ -1090,7 +1090,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
             val rightEvaluator = myResult
             leftEvaluator match {
               case m: ScalaMethodEvaluator =>
-                myResult = m.copy(methodName = m.methodName + "_$eq", argumentEvaluators = Seq(rightEvaluator)) //todo: signature?
+                myResult = m.copy(_methodName = m.methodName + "_$eq", argumentEvaluators = Seq(rightEvaluator)) //todo: signature?
               case _ =>
                 myResult = new AssignmentEvaluator(leftEvaluator, rightEvaluator)
             }
