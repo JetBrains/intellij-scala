@@ -22,6 +22,10 @@
     <actions>
     </actions>
 
+    <extensionPoints>
+        <extensionPoint name="sbtOptionsProvider" interface="org.jetbrains.sbt.project.SbtOptionsProvider"/>
+    </extensionPoints>
+
     <extensions defaultExtensionNs="com.intellij">
         <errorHandler implementation="com.intellij.diagnostic.ITNReporter"/>
 

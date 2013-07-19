@@ -37,8 +37,8 @@ class SbtExternalSystemManager
 
   def getLocalSettingsProvider = SbtLocalSettings.getInstance(_: Project)
 
-  def getExecutionSettingsProvider = (_: Project, _: String) =>
-    new SbtExecutionSettings(SbtExternalSystemManager.proxySettings)
+  def getExecutionSettingsProvider = (project: Project, path: String) =>
+    new SbtExecutionSettings(SbtExternalSystemManager.vmOptionsFor(project, path))
 
   def getProjectResolverClass = classOf[SbtProjectResolver]
 
@@ -51,10 +51,17 @@ class SbtExternalSystemManager
 }
 
 object SbtExternalSystemManager {
-  def proxySettings = {
-    val http = HttpConfigurable.getInstance
+  def vmOptionsFor(project: Project, path: String): Seq[String] =
+    javaOptions ++ proxyOptionsFor(HttpConfigurable.getInstance) ++ Sbt.VmOptions ++
+      SbtOptionsProvider.vmOptionsFor(project, path)
 
-    new ProxySettings(http.USE_HTTP_PROXY && !http.PROXY_TYPE_IS_SOCKS, http.PROXY_HOST, http.PROXY_PORT,
-      http.PROXY_AUTHENTICATION, http.PROXY_LOGIN, http.getPlainProxyPassword)
+  private def javaOptions = Option(System.getenv("JAVA_OPTS")).map(_.split("\\s+")).toSeq.flatten
+
+  private def proxyOptionsFor(http: HttpConfigurable): Seq[String] = {
+    val useProxy = http.USE_HTTP_PROXY && !http.PROXY_TYPE_IS_SOCKS
+    val useCredentials = useProxy && http.PROXY_AUTHENTICATION
+
+    useProxy.seq(s"-Dhttp.proxyHost=${http.PROXY_HOST}", s"-Dhttp.proxyPort=${http.PROXY_PORT}") ++
+      useCredentials.seq(s"-Dhttp.proxyUser=${http.PROXY_LOGIN}", s"-Dhttp.proxyPassword=${http.getPlainProxyPassword}")
   }
 }

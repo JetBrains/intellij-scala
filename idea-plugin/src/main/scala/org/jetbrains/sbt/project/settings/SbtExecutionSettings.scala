@@ -6,4 +6,4 @@ import com.intellij.openapi.externalSystem.model.settings.ExternalSystemExecutio
 /**
  * @author Pavel Fatin
  */
-class SbtExecutionSettings(val proxySettings: ProxySettings) extends ExternalSystemExecutionSettings
+class SbtExecutionSettings(val vmOptions: Seq[String]) extends ExternalSystemExecutionSettings
