@@ -24,7 +24,7 @@ object Sbt {
 
   val UnmanagedLibraryName = "sbt-unmanaged-jars"
 
-  val VmOptions = Seq("-Xmx512M", "-XX:MaxPermSize=256M")
+  val VmOptions = Seq("-Xmx768M", "-XX:MaxPermSize=384M")
 
   lazy val Icon = IconLoader.getIcon("/sbt.png")
 
