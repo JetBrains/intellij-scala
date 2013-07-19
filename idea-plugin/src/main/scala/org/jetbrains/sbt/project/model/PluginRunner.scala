@@ -78,7 +78,8 @@ object PluginRunner {
   }
 
   private def handle(process: Process, listener: (String) => Unit): Option[String] = {
-    val errors = new StringBuilder()
+    var hasErrors = false
+    val output = new StringBuilder()
 
     val processListener: (OutputType, String) => Unit = {
       case (OutputType.StdOut, text) =>
@@ -87,14 +88,16 @@ object PluginRunner {
           writer.println("q")
           writer.close()
         } else {
+          if (text.startsWith("[error]")) {
+            hasErrors = true
+          }
+          output.append(text)
           listener(text)
         }
-        if (text.startsWith("[error]")) {
-          errors.append(text)
-        }
       case (OutputType.StdErr, text) =>
+        hasErrors = true
+        output.append(text)
         listener(text)
-        errors.append(text)
     }
 
     val handler = new OSProcessHandler(process, null, null)
@@ -103,7 +106,7 @@ object PluginRunner {
 
     handler.waitFor()
 
-    if (errors.isEmpty) None else Some(errors.toString())
+    hasErrors.option(output.toString())
   }
 
   private def path(file: File): String = file.getAbsolutePath.replace('\\', '/')

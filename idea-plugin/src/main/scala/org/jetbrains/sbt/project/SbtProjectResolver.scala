@@ -25,7 +25,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     }
 
     val xml = PluginRunner.read(new File(path), downloadLibraries, settings.proxySettings) { message =>
-      listener.onStatusChange(new ExternalSystemTaskNotificationEvent(id, message))
+      listener.onStatusChange(new ExternalSystemTaskNotificationEvent(id, message.trim))
     } match {
       case Left(errors) => throw new ExternalSystemException(errors)
       case Right(node) => node
