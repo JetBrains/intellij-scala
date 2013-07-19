@@ -49,7 +49,7 @@ object PluginRunner {
 //              "-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005" +:
               "-Djline.terminal=jline.UnsupportedTerminal" +:
               "-Dsbt.log.noformat=true" +:
-              (vmOptions ++ vmOptionsFor(proxySettings)) :+
+              (vmOptions ++ vmOptionsFor(proxySettings) ++ Sbt.VmOptions) :+
               "-jar" :+
               path(SbtLauncher) :+
               s"< ${path(commandsFile)}"
