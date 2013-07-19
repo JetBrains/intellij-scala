@@ -27,6 +27,7 @@ class SbtExternalSystemManager
 
     val vmParameters = parameters.getVMParametersList
     vmParameters.addParametersString(System.getenv("JAVA_OPTS"))
+    vmParameters.addParametersString("-Xmx256M")
 //    vmParameters.add("-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005")
   }
 
