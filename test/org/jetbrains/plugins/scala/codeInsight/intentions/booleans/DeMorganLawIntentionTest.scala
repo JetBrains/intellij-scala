@@ -87,12 +87,12 @@ class DeMorganLawIntentionTest extends ScalaIntentionTestBase {
       """
         |val % = true
         |!(!(%) &<caret>& !(%))
-      """.stripMargin.replace("\r", "").trim
+      """
     val resultText =
       """
         |val % = true
         |% |<caret>| %
-      """.stripMargin.replace("\r", "").trim
+      """
 
     doTest(text, resultText)
   }
@@ -102,12 +102,12 @@ class DeMorganLawIntentionTest extends ScalaIntentionTestBase {
       """
         |val % = true
         |% |<caret>| %
-      """.stripMargin.replace("\r", "").trim
+      """
     val resultText =
       """
         |val % = true
         |!(!(%) &<caret>& !(%))
-      """.stripMargin.replace("\r", "").trim
+      """
 
     doTest(text, resultText)
   }
@@ -117,12 +117,12 @@ class DeMorganLawIntentionTest extends ScalaIntentionTestBase {
       """
         |val b = true
         |(true equals b) |<caret>| true
-      """.stripMargin.replace("\r", "").trim
+      """
     val resultText =
       """
         |val b = true
         |!(!(true equals b) &<caret>& false)
-      """.stripMargin.replace("\r", "").trim
+      """
 
     doTest(text, resultText)
   }
@@ -132,12 +132,12 @@ class DeMorganLawIntentionTest extends ScalaIntentionTestBase {
       """
         |val b = true
         |!(!(true equals b) &<caret>& false)
-      """.stripMargin.replace("\r", "").trim
+      """
     val resultText =
       """
         |val b = true
         |(true equals b) |<caret>| true
-      """.stripMargin.replace("\r", "").trim
+      """
 
     doTest(text, resultText)
   }
@@ -147,16 +147,13 @@ class DeMorganLawIntentionTest extends ScalaIntentionTestBase {
       """
         |val % = true
         |(%) |<caret>| (%)
-      """.stripMargin.replace("\r", "").trim
+      """
     val resultText =
       """
         |val % = true
         |!(!(%) &<caret>& !(%))
-      """.stripMargin.replace("\r", "").trim
+      """
 
     doTest(text, resultText)
   }
-
-
-
 }
