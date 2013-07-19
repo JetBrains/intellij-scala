@@ -4,7 +4,7 @@ package debugger
 import com.intellij.openapi.diagnostic.Logger
 import java.util
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTypeDefinition, ScTrait, ScObject}
-import com.intellij.psi.{PsiManager, PsiElement, PsiFile, PsiClass}
+import com.intellij.psi._
 import com.intellij.debugger.requests.ClassPrepareRequestor
 import com.intellij.debugger.engine.{DebugProcess, DebugProcessImpl, CompoundPositionManager}
 import com.intellij.debugger.{NoDataException, PositionManager, SourcePosition}
@@ -68,17 +68,31 @@ class ScalaPositionManager(debugProcess: DebugProcess) extends PositionManager {
       }
     }
 
+    val element = nonWhitespaceElement(position)
+    findSuitableParent(element).asInstanceOf[ScalaPsiElement]
+  }
+
+  def nonWhitespaceElement(position: SourcePosition): PsiElement = {
     val file = position.getFile
     if (!file.isInstanceOf[ScalaFile]) null
     else {
-      val element = file.findElementAt(position.getOffset)
-      findSuitableParent(element).asInstanceOf[ScalaPsiElement]
+      var element = file.findElementAt(position.getOffset)
+      try {
+        val document = PsiDocumentManager.getInstance(file.getProject).getDocument(file)
+        while (element != null && element.isInstanceOf[PsiWhiteSpace]) {
+          val endOffset = element.getTextRange.getEndOffset
+          if (document.getLineNumber(endOffset) == position.getLine) element = file.findElementAt(endOffset)
+        }
+      }
+      catch {
+        case t: Throwable => //ignore
+      }
+      element
     }
   }
 
   private def isInsideMacro(position: SourcePosition): Boolean = {
-    val file: PsiFile = position.getFile
-    val element: PsiElement = file.findElementAt(position.getOffset)
+    val element: PsiElement = nonWhitespaceElement(position)
     var call = PsiTreeUtil.getParentOfType(element, classOf[ScMethodCall])
     while (call != null) {
       call.getEffectiveInvokedExpr match {
@@ -101,12 +115,9 @@ class ScalaPositionManager(debugProcess: DebugProcess) extends PositionManager {
       }
     }
 
-    val file: PsiFile = position.getFile
-    if (!file.isInstanceOf[ScalaFile]) null
-    else {
-      val element: PsiElement = file.findElementAt(position.getOffset)
-      notLocalEnclosingTypeDefinition(element)
-    }
+    val element = nonWhitespaceElement(position)
+    notLocalEnclosingTypeDefinition(element)
+
   }
 
   def createPrepareRequest(requestor: ClassPrepareRequestor, position: SourcePosition): ClassPrepareRequest = {
@@ -250,19 +261,21 @@ class ScalaPositionManager(debugProcess: DebugProcess) extends PositionManager {
             if (qName != null) getDebugProcess.getVirtualMachineProxy.classesByName(qName)
             else util.Collections.emptyList[ReferenceType]
           case _ =>
-            findEnclosingTypeDefinition(position)
-                    .map(typeDef => typeDef.getQualifiedNameForDebugger)
-                    .map { enclosingName =>
-              val outers = getDebugProcess.getVirtualMachineProxy.allClasses
-              import scala.collection.JavaConverters._
-              outers.asScala.filter { outer =>
-                var hasLocations = false
-                try hasLocations = outer.locationsOfLine(position.getLine + 1).size > 0
-                catch {
-                  case ignore @ (_: AbsentInformationException | _: ClassNotPreparedException) =>
-                }
-                outer.name.startsWith(enclosingName) && hasLocations
-              }.asJava
+            val qName = findEnclosingTypeDefinition(position).map(typeDef => typeDef.getQualifiedNameForDebugger)
+            def hasLocations(refType: ReferenceType): Boolean = {
+              var hasLocations = false
+              try {
+                hasLocations = refType.locationsOfLine(position.getLine + 1).size > 0
+              } catch {
+                case ignore @ (_: AbsentInformationException | _: ClassNotPreparedException) =>
+              }
+              hasLocations
+            }
+            import scala.collection.JavaConverters._
+            qName.map { name =>
+              val outers = getDebugProcess.getVirtualMachineProxy.allClasses.asScala
+              val sameStart = outers.filter(_.name.startsWith(name))
+              sameStart.filter(hasLocations).asJava
             }.getOrElse(util.Collections.emptyList[ReferenceType])
         }
       }
