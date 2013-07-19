@@ -63,7 +63,7 @@ class IntroduceImplicitParameterIntentionTest  extends ScalaIntentionTestBase{
     |     }
     |   }
     | }
-    """.stripMargin.replace("\r", "").trim
+    """
     val resultText= """
     | val x: Int => Int = i => {
     |   i + {
@@ -72,7 +72,7 @@ class IntroduceImplicitParameterIntentionTest  extends ScalaIntentionTestBase{
     |     }
     |   }
     | }
-    """.stripMargin.replace("\r", "").trim
+    """
 
     try {
       doTest(text, resultText)
@@ -117,14 +117,14 @@ class IntroduceImplicitParameterIntentionTest  extends ScalaIntentionTestBase{
     |    1
     |  }
     |}
-    """.stripMargin.replace("\r", "").trim
+    """
     val resultText = """
     |val x: Int => Int = <caret>{
     |  _ + {
     |    1
     |  }
     |}
-    """.stripMargin.replace("\r", "").trim
+    """
 
     doTest(text, resultText)
   }
