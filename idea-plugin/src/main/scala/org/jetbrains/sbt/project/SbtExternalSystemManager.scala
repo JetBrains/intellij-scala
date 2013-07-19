@@ -52,7 +52,7 @@ class SbtExternalSystemManager
 
 object SbtExternalSystemManager {
   def vmOptionsFor(project: Project, path: String): Seq[String] =
-    javaOptions ++ proxyOptionsFor(HttpConfigurable.getInstance) ++ Sbt.VmOptions ++
+    Sbt.VmOptions ++ javaOptions ++ proxyOptionsFor(HttpConfigurable.getInstance) ++
       SbtOptionsProvider.vmOptionsFor(project, path)
 
   private def javaOptions = Option(System.getenv("JAVA_OPTS")).map(_.split("\\s+")).toSeq.flatten
