@@ -4,8 +4,7 @@ package project.model
 import java.io.{FileNotFoundException, PrintWriter, File}
 import scala.xml.{Elem, XML}
 import com.intellij.execution.process.OSProcessHandler
-import project.SbtException
-import project.settings.ProxySettings
+import org.jetbrains.sbt.project.SbtException
 
 /**
  * @author Pavel Fatin
@@ -17,9 +16,9 @@ object PluginRunner {
   private val SbtLauncher = LauncherDir / "sbt-launch.jar"
   private val SbtPlugin = LauncherDir / "sbt-structure.jar"
 
-  def read(directory: File, download: Boolean, proxySettings: ProxySettings)(listener: (String) => Unit): Either[Exception, Elem] = {
+  def read(directory: File, download: Boolean, vmOptions: Seq[String])(listener: (String) => Unit): Either[Exception, Elem] = {
     val problem = Stream(JavaHome, SbtLauncher, SbtPlugin).map(check).flatten.headOption
-    problem.map(it => Left(new FileNotFoundException(it))).getOrElse(read0(directory, download, proxySettings, listener))
+    problem.map(it => Left(new FileNotFoundException(it))).getOrElse(read0(directory, download, vmOptions, listener))
   }
 
   private def check(file: File) = (!file.exists()).option(s"File does not exist: $file")
@@ -33,7 +32,7 @@ object PluginRunner {
      Another problem is that the SBT's "apply" command is unable
      to correctly parse classpath entries with spaces,
      so we have to use a "safe" copy of the plugin JAR. */
-  private def read0(directory: File, download: Boolean, proxySettings: ProxySettings, listener: (String) => Unit) = {
+  private def read0(directory: File, download: Boolean, vmOptions: Seq[String], listener: (String) => Unit) = {
     usingTempFile("sbt-structure", ".xml") { structureFile =>
       usingTempFile("sbt-commands", ".lst") { commandsFile =>
         usingSafeCopyOf(SbtPlugin) { pluginFile =>
@@ -49,7 +48,7 @@ object PluginRunner {
 //              "-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005" +:
               "-Djline.terminal=jline.UnsupportedTerminal" +:
               "-Dsbt.log.noformat=true" +:
-              (vmOptions ++ vmOptionsFor(proxySettings) ++ Sbt.VmOptions) :+
+              vmOptions :+
               "-jar" :+
               path(SbtLauncher) :+
               s"< ${path(commandsFile)}"
@@ -64,17 +63,6 @@ object PluginRunner {
         }
       }
     }
-  }
-
-  private def vmOptions: Seq[String] =
-    Option(System.getenv("JAVA_OPTS")).map(_.split("\\s+")).toSeq.flatten
-
-  private def vmOptionsFor(settings: ProxySettings): Seq[String] = {
-    val useProxy = settings.proxyRequired
-    val useCredentials = settings.proxyRequired && settings.authenticationRequired
-
-    useProxy.seq(s"-Dhttp.proxyHost=${settings.host}", s"-Dhttp.proxyPort=${settings.port}") ++
-      useCredentials.seq(s"-Dhttp.proxyUser=${settings.login}", s"-Dhttp.proxyPassword=${settings.password}")
   }
 
   private def handle(process: Process, listener: (String) => Unit): Option[String] = {
