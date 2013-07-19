@@ -52,10 +52,11 @@ class SbtExternalSystemManager
 
 object SbtExternalSystemManager {
   def vmOptionsFor(project: Project, path: String): Seq[String] =
-    Sbt.VmOptions ++ javaOptions ++ proxyOptionsFor(HttpConfigurable.getInstance) ++
+    Sbt.VmOptions ++ options("JAVA_OPTS") ++ options("SBT_OPTS") ++
+      proxyOptionsFor(HttpConfigurable.getInstance) ++
       SbtOptionsProvider.vmOptionsFor(project, path)
 
-  private def javaOptions = Option(System.getenv("JAVA_OPTS")).map(_.split("\\s+")).toSeq.flatten
+  private def options(name: String) = Option(System.getenv(name)).map(_.split("\\s+")).toSeq.flatten
 
   private def proxyOptionsFor(http: HttpConfigurable): Seq[String] = {
     val useProxy = http.USE_HTTP_PROXY && !http.PROXY_TYPE_IS_SOCKS
