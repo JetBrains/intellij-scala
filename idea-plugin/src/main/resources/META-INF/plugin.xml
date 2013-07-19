@@ -49,22 +49,28 @@
 
     <!-- External project system entries -->
     <actions>
-        <!--Tool window actions-->
+
         <action id="ExternalSystem.RefreshAllProjects"
                 class="com.intellij.openapi.externalSystem.action.RefreshAllExternalProjectsAction"
                 icon="AllIcons.Actions.Refresh"/>
+        <action id="ExternalSystem.AttachProject"
+                class="com.intellij.openapi.externalSystem.action.AttachExternalProjectAction"/>
+        <action id="ExternalSystem.DetachProject"
+                class="com.intellij.openapi.externalSystem.action.DetachExternalProjectAction"/>
 
+        <!--Tool window actions-->
         <group id="ExternalSystem.ToolWindow.Toolbar">
             <reference id="ExternalSystem.RefreshAllProjects"/>
+            <reference id="ExternalSystem.AttachProject"/>
+            <reference ref="ExternalSystem.DetachProject"/>
         </group>
 
         <!--Context menu action-->
-        <action id="ExternalSystem.RunTask"
-                class="com.intellij.openapi.externalSystem.action.RunExternalTaskAction"
-                icon="AllIcons.Toolwindows.ToolWindowRun"/>
         <group id="ExternalSystem.Tree.Context" popup="true">
+            <reference ref="ExternalSystem.DetachProject"/>
             <reference ref="RunContextGroup"/>
         </group>
+
     </actions>
 
     <extensionPoints>
@@ -74,13 +80,13 @@
 
     <!-- External project system entries -->
     <extensions defaultExtensionNs="com.intellij">
+
         <postStartupActivity implementation="com.intellij.openapi.externalSystem.service.ExternalSystemStartupActivity"/>
 
         <!--Generic services-->
         <applicationService serviceImplementation="com.intellij.openapi.externalSystem.service.ExternalSystemFacadeManager"/>
-        <applicationService
-                serviceInterface="com.intellij.openapi.externalSystem.service.notification.ExternalSystemProgressNotificationManager"
-                serviceImplementation="com.intellij.openapi.externalSystem.service.remote.ExternalSystemProgressNotificationManagerImpl"/>
+        <applicationService serviceInterface="com.intellij.openapi.externalSystem.service.notification.ExternalSystemProgressNotificationManager"
+                            serviceImplementation="com.intellij.openapi.externalSystem.service.remote.ExternalSystemProgressNotificationManagerImpl"/>
         <applicationService serviceInterface="com.intellij.openapi.externalSystem.service.project.PlatformFacade"
                             serviceImplementation="com.intellij.openapi.externalSystem.service.project.PlatformFacadeImpl"/>
         <applicationService serviceInterface="com.intellij.openapi.externalSystem.service.project.ExternalLibraryPathTypeMapper"
@@ -106,6 +112,7 @@
         <!--Execution-->
         <programRunner implementation="com.intellij.openapi.externalSystem.service.execution.ExternalSystemTaskRunner"/>
         <programRunner implementation="com.intellij.openapi.externalSystem.service.execution.ExternalSystemTaskDebugRunner"/>
+
     </extensions>
 
 </idea-plugin>
