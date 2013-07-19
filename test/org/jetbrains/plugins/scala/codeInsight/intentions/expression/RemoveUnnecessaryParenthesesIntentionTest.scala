@@ -24,50 +24,56 @@ class RemoveUnnecessaryParenthesesIntentionTest extends ScalaIntentionTestBase {
   }
 
   def test_3() {
-    val text  = """
-                  |def f(n: Int): Int = n match {
-                  |  case even if (<caret>even % 2 == 0) => (even + 1)
-                  |  case odd =>  1 + (odd * 3)
-                  |}
-                """.stripMargin.replace("\r", "").trim
-    val result = """
-                   |def f(n: Int): Int = n match {
-                   |  case even if even % 2 == 0 => (even + 1)
-                   |  case odd => 1 + (odd * 3)
-                   |}
-                 """.stripMargin.replace("\r", "").trim
+    val text =
+      """
+        |def f(n: Int): Int = n match {
+        |  case even if (<caret>even % 2 == 0) => (even + 1)
+        |  case odd =>  1 + (odd * 3)
+        |}
+      """
+    val result =
+      """
+        |def f(n: Int): Int = n match {
+        |  case even if even % 2 == 0 => (even + 1)
+        |  case odd => 1 + (odd * 3)
+        |}
+      """
     doTest(text, result)
   }
 
   def test_4() {
-    val text  = """
-                  |def f(n: Int): Int = n match {
-                  |  case even if (even % 2 == 0) => (even + 1<caret>)
-                  |  case odd => 1 + (odd * 3)
-                  |}
-                """.stripMargin.replace("\r", "").trim
-    val result = """
-                   |def f(n: Int): Int = n match {
-                   |  case even if (even % 2 == 0) => even + 1
-                   |  case odd => 1 + (odd * 3)
-                   |}
-                 """.stripMargin.replace("\r", "").trim
+    val text =
+      """
+        |def f(n: Int): Int = n match {
+        |  case even if (even % 2 == 0) => (even + 1<caret>)
+        |  case odd => 1 + (odd * 3)
+        |}
+      """
+    val result =
+      """
+        |def f(n: Int): Int = n match {
+        |  case even if (even % 2 == 0) => even + 1
+        |  case odd => 1 + (odd * 3)
+        |}
+      """
     doTest(text, result)
   }
 
   def test_5() {
-    val text  = """
-                  |def f(n: Int): Int = n match {
-                  |  case even if (even % 2 == 0) => (even + 1)
-                  |  case odd =>  1 + (odd * 3<caret>)
-                  |}
-                """.stripMargin.replace("\r", "").trim
-    val result = """
-                   |def f(n: Int): Int = n match {
-                   |  case even if (even % 2 == 0) => (even + 1)
-                   |  case odd => 1 + odd * 3
-                   |}
-                 """.stripMargin.replace("\r", "").trim
+    val text =
+      """
+        |def f(n: Int): Int = n match {
+        |  case even if (even % 2 == 0) => (even + 1)
+        |  case odd =>  1 + (odd * 3<caret>)
+        |}
+      """
+    val result =
+      """
+        |def f(n: Int): Int = n match {
+        |  case even if (even % 2 == 0) => (even + 1)
+        |  case odd => 1 + odd * 3
+        |}
+      """
     doTest(text, result)
   }
 
