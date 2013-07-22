@@ -1108,9 +1108,8 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
                            matchedParameters: Map[Parameter, Seq[ScExpression]] = Map.empty) {
         if (call.isApplyOrUpdateCall) {
           if (!call.isUpdateCall) {
-            val newExprText = new StringBuilder
-            newExprText.append("(").append(call.getInvokedExpr.getText).append(").apply").append(call.args.getText + tailString)
-            val expr = ScalaPsiElementFactory.createExpressionWithContextFromText(newExprText.toString(), call.getContext, call)
+            val newExprText = s"(${call.getInvokedExpr.getText}).apply${call.args.getText}$tailString"
+            val expr = ScalaPsiElementFactory.createExpressionWithContextFromText(newExprText, call.getContext, call)
             expr.accept(this)
           } else {
             //should be handled on assignment
@@ -1131,11 +1130,19 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
           case gen: ScGenericCall =>
             gen.referencedExpr match {
               case ref: ScReferenceExpression =>
-                visitCall(ref, ref.qualifier, call.argumentExpressions ++ collected, s => {
-                  val exprText = s + "." + ref.refName + call.args.getText + tailString
-                  ScalaPsiElementFactory.createExpressionWithContextFromText(exprText, parentCall.getContext,
-                    parentCall)
-                }, matchedParameters ++ call.matchedParametersMap, parentCall)
+                ref match {
+                  case fun: {def apply(args: (T forSome {type T})*)} if !ref.isQualified =>
+                    val typeArgsText = gen.typeArgs.map(_.getText).getOrElse("")
+                    val newExprText = s"(${fun.getText}).apply$typeArgsText${call.args.getText}$tailString"
+                    val expr = ScalaPsiElementFactory.createExpressionWithContextFromText(newExprText, call.getContext, call)
+                    expr.accept(this)
+                  case _ =>
+                    visitCall(ref, ref.qualifier, call.argumentExpressions ++ collected, s => {
+                    val exprText = s + "." + ref.refName + call.args.getText + tailString
+                    ScalaPsiElementFactory.createExpressionWithContextFromText(exprText, parentCall.getContext,
+                      parentCall)
+                  }, matchedParameters ++ call.matchedParametersMap, parentCall)
+                }
               case _ =>
                 throw EvaluateExceptionUtil.createEvaluateException("Method call is invalid")
             }
