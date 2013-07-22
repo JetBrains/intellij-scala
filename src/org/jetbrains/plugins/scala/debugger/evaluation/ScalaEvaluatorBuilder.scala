@@ -1151,22 +1151,33 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
 
     override def visitInfixExpression(infix: ScInfixExpr) {
       val operation = infix.operation
-      if (operation.refName.endsWith("=")) {
-        operation.resolve() match {
-          case n: PsiNamedElement if n.name + "=" == operation.refName =>
-            val exprText = new StringBuilder
-            exprText.append(infix.getBaseExpr.getText).append(" = ").append(infix.getBaseExpr.getText).
-              append(" ").append(operation.refName.dropRight(1)).append(" ").append(infix.getArgExpr.getText)
-            val expr = ScalaPsiElementFactory.createExpressionWithContextFromText(exprText.toString(), infix.getContext, infix)
-            expr.accept(this)
-            return
-          case _ =>
-        }
+      def isUpdate(ref: ScReferenceExpression): Boolean = {
+        ref.refName.endsWith("=") &&
+                (ref.resolve() match {
+                  case n: PsiNamedElement if n.name + "=" == ref.refName => true
+                  case _ => false
+                })
       }
-      visitCall(operation, Some(infix.getBaseExpr), infix.argumentExpressions, s => {
-        val exprText = s + " " + operation.refName + " " + infix.getArgExpr.getText
-        ScalaPsiElementFactory.createExpressionWithContextFromText(exprText, infix.getContext, infix)
-      }, infix.matchedParametersMap, infix)
+
+      if (isUpdate(operation)) {
+        val baseExprText = infix.getBaseExpr.getText
+        val operationText = operation.refName.dropRight(1)
+        val argText = infix.getArgExpr.getText
+        val exprText = s"$baseExprText = $baseExprText $operationText $argText"
+        val expr = ScalaPsiElementFactory.createExpressionWithContextFromText(exprText, infix.getContext, infix)
+        expr.accept(this)
+      } else {
+        val arguments = infix.getArgExpr match {
+          case u: ScUnitExpr => Nil
+          case b: ScBlock if b.statements.isEmpty => Nil
+          case _ => infix.argumentExpressions
+        }
+        val argumentsText = if (arguments.nonEmpty) infix.getArgExpr.getText else ""
+        visitCall(operation, Some(infix.getBaseExpr), arguments, s => {
+          val exprText = s"$s ${operation.refName} $argumentsText"
+          ScalaPsiElementFactory.createExpressionWithContextFromText(exprText, infix.getContext, infix)
+        }, infix.matchedParametersMap, infix)
+      }
       super.visitInfixExpression(infix)
     }
 
