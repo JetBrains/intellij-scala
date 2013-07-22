@@ -229,13 +229,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
     }
 
     override def visitLiteral(l: ScLiteral) {
-      val tp = l.getType(TypingContext.empty).getOrAny
-      val value = l.getValue
-      import org.jetbrains.plugins.scala.lang.psi.types.Null
-      if (value == null && tp != Null) {
-        throw EvaluateExceptionUtil.createEvaluateException("Literal has null value")
-      }
-      myResult = new ScalaLiteralEvaluator(value, tp)
+      myResult = ScalaLiteralEvaluator(l)
       super.visitLiteral(l)
     }
 
@@ -993,31 +987,32 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
           functionEvaluator(qualOption, ref, replaceWithImplicit, fun.name, argEvaluators, resolve)
         case method: PsiMethod => //here you can use just arguments
           qualOption match {
+            case Some(literal: ScLiteral) =>
+              val litEval = boxEvaluator(ScalaLiteralEvaluator(literal))
+              myResult = ScalaMethodEvaluator(litEval, method.name, JVMNameUtil.getJVMSignature(method), boxArguments(argEvaluators, method),
+                false, traitImplementation(resolve), DebuggerUtil.getSourcePositions(resolve.getNavigationElement))
             case Some(qual) =>
               if (method.hasModifierPropertyScala("static")) {
                 val eval =
                   new TypeEvaluator(JVMNameUtil.getContextClassJVMQualifiedName(SourcePosition.createFromElement(method)))
                 val name = method.name
-
-                myResult = new ScalaMethodEvaluator(eval, name, JVMNameUtil.getJVMSignature(method), boxArguments(argEvaluators, method),
+                myResult = ScalaMethodEvaluator(eval, name, JVMNameUtil.getJVMSignature(method), boxArguments(argEvaluators, method),
                   false, traitImplementation(resolve), DebuggerUtil.getSourcePositions(resolve.getNavigationElement))
-                return
               } else {
                 ref.bind() match {
                   case Some(r: ScalaResolveResult) =>
                     r.implicitFunction match {
                       case Some(fun) =>
                         replaceWithImplicitFunction(fun, qual, replaceWithImplicit)
-                        return
                       case _ =>
                         qual.accept(this)
                         val name = method.name
                         myResult = new ScalaMethodEvaluator(myResult, name, JVMNameUtil.getJVMSignature(method),
                           boxArguments(argEvaluators, method), false,
                           traitImplementation(resolve), DebuggerUtil.getSourcePositions(resolve.getNavigationElement))
-                        return
                     }
                   case _ => //resolve not null => shouldn't be
+                    throw EvaluateExceptionUtil.createEvaluateException("Cannot evaluate method")
                 }
               }
             case None =>
@@ -1032,12 +1027,12 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
                     myResult = new ScalaMethodEvaluator(evaluator, name, JVMNameUtil.getJVMSignature(method),
                       boxArguments(argEvaluators, method), false,
                       traitImplementation(resolve), DebuggerUtil.getSourcePositions(resolve.getNavigationElement))
-                    return
                   }
                 case _ => //resolve not null => shouldn't be
+                  throw EvaluateExceptionUtil.createEvaluateException("Cannot evaluate method")
               }
           }
-          throw EvaluateExceptionUtil.createEvaluateException("Cannot evaluate method")
+
         case _ =>
           val argEvaluators: Seq[Evaluator] = arguments.map(arg => {
             arg.accept(this)

@@ -4,6 +4,7 @@ import com.intellij.debugger.engine.evaluation.expression.{Modifier, Evaluator}
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil
 import com.intellij.debugger.engine.evaluation.{EvaluateExceptionUtil, EvaluationContextImpl}
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 
 /**
  * User: Alefas
@@ -26,4 +27,16 @@ class ScalaLiteralEvaluator(value: AnyRef, tp: ScType) extends Evaluator {
   }
 
   def getModifier: Modifier = null
+}
+
+object ScalaLiteralEvaluator {
+  def apply(l: ScLiteral): ScalaLiteralEvaluator = {
+    val tp = l.getType().getOrAny
+    val value = l.getValue
+    import org.jetbrains.plugins.scala.lang.psi.types.Null
+    if (value == null && tp != Null) {
+      throw EvaluateExceptionUtil.createEvaluateException("Literal has null value")
+    }
+    new ScalaLiteralEvaluator(value, tp)
+  }
 }
