@@ -119,41 +119,6 @@ public class ScalaIntroduceFieldDialog extends DialogWrapper implements NamedDia
   }
 
   private void bindToSettings(final IntroduceFieldContext ifc) {
-
-//    if (!canBeInitInDeclaration && !canBeInitLocal) {
-//      this.close(1, false);
-//      ScalaRefactoringUtil.showErrorMessage("Field cannot be created.", ifc.project(), ifc.editor(), ScalaBundle.message("introduce.field.title"));
-//    }
-
-//    if (!canBeInitLocal) {
-//      myInitInLocalScopeRB.setEnabled(false);
-//      myInitInDeclarationRB.setSelected(true);
-//    }
-
-//    if (!canBeInitInDeclaration) {
-//      myInitInLocalScopeRB.setSelected(true);
-//      myInitInDeclarationRB.setEnabled(false);
-//      myDefineVarChb.setSelected(true);
-//      myDefineVarChb.setEnabled(false);
-//      if (!canBeInitLocalIfReplaceAll) {
-//        myReplaceAllChb.setSelected(false);
-//        myReplaceAllChb.setEnabled(false);
-//      }
-//    }
-
-//    if (myInitInDeclarationRB.isEnabled() && myInitInLocalScopeRB.isEnabled()){
-//      if (ScalaApplicationSettings.getInstance().INTRODUCE_FIELD_INITIALIZE_IN_DECLARATION)
-//        myInitInDeclarationRB.setSelected(true);
-//      else myInitInLocalScopeRB.setSelected(true);
-//    }
-//
-//    if (myInitInLocalScopeRB.isSelected()) {
-//      myDefineVarChb.setSelected(true);
-//      myDefineVarChb.setEnabled(false);
-//      myExplicitTypeChb.setSelected(true);
-//      myExplicitTypeChb.setEnabled(false);
-//    }
-
     myInitInDeclarationRB.addChangeListener(new ChangeListener() {
       @Override
       public void stateChanged(ChangeEvent e) {
