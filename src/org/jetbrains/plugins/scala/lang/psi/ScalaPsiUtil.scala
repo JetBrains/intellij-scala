@@ -1948,7 +1948,7 @@ object ScalaPsiUtil {
     }
 
     if (position != null && position.getLanguage.getID != "Scala")
-      throw new IllegalArgumentException("Only for scala")
+      return Set.empty
 
     var parent = position.getParent
     val aliases = collection.mutable.Set[(ScReferenceElement, String)]()
@@ -1972,7 +1972,7 @@ object ScalaPsiUtil {
   }
 
   def importAliasFor(element: PsiElement, position: PsiElement): Option[ScReferenceElement] = {
-    val importAliases = ScalaPsiUtil.availableImportAliases(position)
+    val importAliases = availableImportAliases(position)
     val suitableAliases = importAliases.collect {
       case (aliasRef, aliasName)
         if aliasRef.multiResolve(false).exists(rr => ScEquivalenceUtil.smartEquivalence(rr.getElement, element)) => aliasName
