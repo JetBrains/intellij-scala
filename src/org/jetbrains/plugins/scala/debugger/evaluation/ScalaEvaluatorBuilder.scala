@@ -229,13 +229,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
     }
 
     override def visitLiteral(l: ScLiteral) {
-      val tp = l.getType(TypingContext.empty).getOrAny
-      val value = l.getValue
-      import org.jetbrains.plugins.scala.lang.psi.types.Null
-      if (value == null && tp != Null) {
-        throw EvaluateExceptionUtil.createEvaluateException("Literal has null value")
-      }
-      myResult = new ScalaLiteralEvaluator(value, tp)
+      myResult = ScalaLiteralEvaluator(l)
       super.visitLiteral(l)
     }
 
@@ -993,31 +987,32 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
           functionEvaluator(qualOption, ref, replaceWithImplicit, fun.name, argEvaluators, resolve)
         case method: PsiMethod => //here you can use just arguments
           qualOption match {
+            case Some(literal: ScLiteral) =>
+              val litEval = boxEvaluator(ScalaLiteralEvaluator(literal))
+              myResult = ScalaMethodEvaluator(litEval, method.name, JVMNameUtil.getJVMSignature(method), boxArguments(argEvaluators, method),
+                false, traitImplementation(resolve), DebuggerUtil.getSourcePositions(resolve.getNavigationElement))
             case Some(qual) =>
               if (method.hasModifierPropertyScala("static")) {
                 val eval =
                   new TypeEvaluator(JVMNameUtil.getContextClassJVMQualifiedName(SourcePosition.createFromElement(method)))
                 val name = method.name
-
-                myResult = new ScalaMethodEvaluator(eval, name, JVMNameUtil.getJVMSignature(method), boxArguments(argEvaluators, method),
+                myResult = ScalaMethodEvaluator(eval, name, JVMNameUtil.getJVMSignature(method), boxArguments(argEvaluators, method),
                   false, traitImplementation(resolve), DebuggerUtil.getSourcePositions(resolve.getNavigationElement))
-                return
               } else {
                 ref.bind() match {
                   case Some(r: ScalaResolveResult) =>
                     r.implicitFunction match {
                       case Some(fun) =>
                         replaceWithImplicitFunction(fun, qual, replaceWithImplicit)
-                        return
                       case _ =>
                         qual.accept(this)
                         val name = method.name
                         myResult = new ScalaMethodEvaluator(myResult, name, JVMNameUtil.getJVMSignature(method),
                           boxArguments(argEvaluators, method), false,
                           traitImplementation(resolve), DebuggerUtil.getSourcePositions(resolve.getNavigationElement))
-                        return
                     }
                   case _ => //resolve not null => shouldn't be
+                    throw EvaluateExceptionUtil.createEvaluateException("Cannot evaluate method")
                 }
               }
             case None =>
@@ -1032,12 +1027,12 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
                     myResult = new ScalaMethodEvaluator(evaluator, name, JVMNameUtil.getJVMSignature(method),
                       boxArguments(argEvaluators, method), false,
                       traitImplementation(resolve), DebuggerUtil.getSourcePositions(resolve.getNavigationElement))
-                    return
                   }
                 case _ => //resolve not null => shouldn't be
+                  throw EvaluateExceptionUtil.createEvaluateException("Cannot evaluate method")
               }
           }
-          throw EvaluateExceptionUtil.createEvaluateException("Cannot evaluate method")
+
         case _ =>
           val argEvaluators: Seq[Evaluator] = arguments.map(arg => {
             arg.accept(this)
@@ -1108,9 +1103,8 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
                            matchedParameters: Map[Parameter, Seq[ScExpression]] = Map.empty) {
         if (call.isApplyOrUpdateCall) {
           if (!call.isUpdateCall) {
-            val newExprText = new StringBuilder
-            newExprText.append("(").append(call.getInvokedExpr.getText).append(").apply").append(call.args.getText + tailString)
-            val expr = ScalaPsiElementFactory.createExpressionWithContextFromText(newExprText.toString(), call.getContext, call)
+            val newExprText = s"(${call.getInvokedExpr.getText}).apply${call.args.getText}$tailString"
+            val expr = ScalaPsiElementFactory.createExpressionWithContextFromText(newExprText, call.getContext, call)
             expr.accept(this)
           } else {
             //should be handled on assignment
@@ -1131,11 +1125,19 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
           case gen: ScGenericCall =>
             gen.referencedExpr match {
               case ref: ScReferenceExpression =>
-                visitCall(ref, ref.qualifier, call.argumentExpressions ++ collected, s => {
-                  val exprText = s + "." + ref.refName + call.args.getText + tailString
-                  ScalaPsiElementFactory.createExpressionWithContextFromText(exprText, parentCall.getContext,
-                    parentCall)
-                }, matchedParameters ++ call.matchedParametersMap, parentCall)
+                ref match {
+                  case fun: {def apply(args: (T forSome {type T})*)} if !ref.isQualified =>
+                    val typeArgsText = gen.typeArgs.map(_.getText).getOrElse("")
+                    val newExprText = s"(${fun.getText}).apply$typeArgsText${call.args.getText}$tailString"
+                    val expr = ScalaPsiElementFactory.createExpressionWithContextFromText(newExprText, call.getContext, call)
+                    expr.accept(this)
+                  case _ =>
+                    visitCall(ref, ref.qualifier, call.argumentExpressions ++ collected, s => {
+                    val exprText = s + "." + ref.refName + call.args.getText + tailString
+                    ScalaPsiElementFactory.createExpressionWithContextFromText(exprText, parentCall.getContext,
+                      parentCall)
+                  }, matchedParameters ++ call.matchedParametersMap, parentCall)
+                }
               case _ =>
                 throw EvaluateExceptionUtil.createEvaluateException("Method call is invalid")
             }
@@ -1149,22 +1151,33 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
 
     override def visitInfixExpression(infix: ScInfixExpr) {
       val operation = infix.operation
-      if (operation.refName.endsWith("=")) {
-        operation.resolve() match {
-          case n: PsiNamedElement if n.name + "=" == operation.refName =>
-            val exprText = new StringBuilder
-            exprText.append(infix.getBaseExpr.getText).append(" = ").append(infix.getBaseExpr.getText).
-              append(" ").append(operation.refName.dropRight(1)).append(" ").append(infix.getArgExpr.getText)
-            val expr = ScalaPsiElementFactory.createExpressionWithContextFromText(exprText.toString(), infix.getContext, infix)
-            expr.accept(this)
-            return
-          case _ =>
-        }
+      def isUpdate(ref: ScReferenceExpression): Boolean = {
+        ref.refName.endsWith("=") &&
+                (ref.resolve() match {
+                  case n: PsiNamedElement if n.name + "=" == ref.refName => true
+                  case _ => false
+                })
       }
-      visitCall(operation, Some(infix.getBaseExpr), infix.argumentExpressions, s => {
-        val exprText = s + " " + operation.refName + " " + infix.getArgExpr.getText
-        ScalaPsiElementFactory.createExpressionWithContextFromText(exprText, infix.getContext, infix)
-      }, infix.matchedParametersMap, infix)
+
+      if (isUpdate(operation)) {
+        val baseExprText = infix.getBaseExpr.getText
+        val operationText = operation.refName.dropRight(1)
+        val argText = infix.getArgExpr.getText
+        val exprText = s"$baseExprText = $baseExprText $operationText $argText"
+        val expr = ScalaPsiElementFactory.createExpressionWithContextFromText(exprText, infix.getContext, infix)
+        expr.accept(this)
+      } else {
+        val arguments = infix.getArgExpr match {
+          case u: ScUnitExpr => Nil
+          case b: ScBlock if b.statements.isEmpty => Nil
+          case _ => infix.argumentExpressions
+        }
+        val argumentsText = if (arguments.nonEmpty) infix.getArgExpr.getText else ""
+        visitCall(operation, Some(infix.getBaseExpr), arguments, s => {
+          val exprText = s"$s ${operation.refName} $argumentsText"
+          ScalaPsiElementFactory.createExpressionWithContextFromText(exprText, infix.getContext, infix)
+        }, infix.matchedParametersMap, infix)
+      }
       super.visitInfixExpression(infix)
     }
 

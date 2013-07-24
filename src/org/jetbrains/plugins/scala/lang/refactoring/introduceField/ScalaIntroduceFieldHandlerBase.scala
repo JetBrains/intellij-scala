@@ -15,8 +15,8 @@ import com.intellij.psi.search.PsiElementProcessor
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil
 import com.intellij.openapi.util.TextRange
-import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.extensions.implementation.iterator.ParentsIterator
 
 /**
  * Nikolay.Tropin
@@ -64,20 +64,18 @@ abstract class ScalaIntroduceFieldHandlerBase extends RefactoringActionHandler{
 object ScalaIntroduceFieldHandlerBase {
 
   def canBeInitializedInDeclaration(expr: ScExpression, aClass: ScTemplateDefinition): Boolean = {
-    var result = true
-    ScalaRefactoringUtil.statementsAndMembersInClass(aClass).find(PsiTreeUtil.isAncestor(_, expr, false)).foreach { ancestor =>
-      val checkRef = ScalaRefactoringUtil.checkForwardReferences(expr, ancestor)
-      result &= checkRef
-    }
-    result
+    val stmtsAndMmbrs = ScalaRefactoringUtil.statementsAndMembersInClass(aClass)
+    (Iterator(expr) ++ expr.parents)
+            .find(stmtsAndMmbrs.contains(_))
+            .forall(ScalaRefactoringUtil.checkForwardReferences(expr, _))
   }
 
   def canBeInitInLocalScope[T <: PsiElement](ifc: IntroduceFieldContext[T], replaceAll: Boolean): Boolean = {
     val occurrences = if (replaceAll) ifc.occurrences else Array(ifc.element.getTextRange)
     val parExpr: ScExpression = ScalaRefactoringUtil.findParentExpr(ScalaRefactoringUtil.commonParent(ifc.file, occurrences: _*))
     val container = ScalaRefactoringUtil.container(parExpr, ifc.file, strict = false)
-    val containerIsLocal =
-      ScalaRefactoringUtil.statementsAndMembersInClass(ifc.aClass).exists(PsiTreeUtil.isAncestor(_, container, /*strict =*/false))
+    val stmtsAndMmbrs = ScalaRefactoringUtil.statementsAndMembersInClass(ifc.aClass)
+    val containerIsLocal = (Iterator(container) ++ new ParentsIterator(container)).exists(stmtsAndMmbrs.contains(_))
     if (!containerIsLocal) false
     else {
       ifc.element match {
