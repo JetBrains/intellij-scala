@@ -331,11 +331,15 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
       super.visitForExpression(forStmt)
     }
 
-//    override def visitBlockExpression(block: ScBlockExpr) {
-//      val evaluators = mutable
-//      block.statements
-//      super.visitBlockExpression(block)
-//    }
+    override def visitBlockExpression(block: ScBlockExpr) {
+      val evaluators = mutable.ListBuffer[Evaluator]()
+      for (stmt <- block.statements) {
+        stmt.accept(this)
+        evaluators += myResult
+      }
+      myResult = new ScalaBlockExpressionEvaluator(evaluators.toSeq)
+      super.visitBlockExpression(block)
+    }
 
     override def visitTryExpression(tryStmt: ScTryStmt) {
       throw EvaluateExceptionUtil.createEvaluateException("Try expression is not supported")
