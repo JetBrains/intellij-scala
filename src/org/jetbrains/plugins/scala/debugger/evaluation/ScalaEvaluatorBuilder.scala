@@ -135,13 +135,10 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
     }
 
     private def paramCount(fun: ScFunction, context: PsiElement, elem: PsiElement): Int = {
-      var index = localParams(fun, context).indexOf(elem)
-      index = index
-      if (index < 0) index = 0
-      fun.effectiveParameterClauses.foldLeft(0) {
-        case (i: Int, clause: ScParameterClause) => 
-          i + clause.parameters.length
-      } + index
+      val locIndex = localParams(fun, context).indexOf(elem)
+      val funParams = fun.effectiveParameterClauses.flatMap(_.parameters)
+      if (locIndex < 0) funParams.indexOf(elem)
+      else locIndex + funParams.size
     }
 
     private def isLocalV(resolve: PsiElement): Boolean = {
@@ -1109,7 +1106,6 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
     }
 
     override def visitMethodCallExpression(parentCall: ScMethodCall) {
-      @tailrec
       def collectArguments(call: ScMethodCall, collected: Seq[ScExpression] = Seq.empty, tailString: String = "",
                            matchedParameters: Map[Parameter, Seq[ScExpression]] = Map.empty) {
         if (call.isApplyOrUpdateCall) {
