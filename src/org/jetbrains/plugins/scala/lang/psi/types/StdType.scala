@@ -62,6 +62,7 @@ object StdType {
     "scala.Int" -> Int,
     "scala.Long" -> Long,
     "scala.Double" -> Double,
+    "scala.Float" -> Float,
     "scala.Null" -> Null,
     "scala.Nothing" -> Nothing,
     "scala.Singleton" -> Singleton
