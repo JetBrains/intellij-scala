@@ -12,12 +12,13 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTrait, ScTypeDefinition}
 import com.intellij.psi.{PsiElement, PsiClass}
 import com.intellij.lang.ASTNode
-import collection.mutable.{ArrayBuffer, HashSet}
+import collection.mutable.ArrayBuffer
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, ScType}
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.extensions.toPsiClassExt
+import scala.collection.mutable
 
 /**
  * User: Alefas
@@ -160,7 +161,7 @@ object DebuggerUtil {
     val sign = function.effectiveParameterClauses.flatMap(_.parameters).map(param =>
       if (!param.isRepeatedParameter) {
         getJVMStringForType(subst.subst(param.getType(TypingContext.empty).getOrAny))
-      } else "Lscala/collection/Seq;").mkString("(", ",", ")") +
+      } else "Lscala/collection/Seq;").mkString("(", "", ")") +
       (if (!function.isConstructor) getJVMStringForType(subst.subst(function.returnType.getOrAny), isParam = false) else "V")
     JVMNameUtil.getJVMRawText(sign)
   }
@@ -176,7 +177,7 @@ object DebuggerUtil {
     val sign = constr.effectiveParameterClauses.flatMap(_.parameters).map(param =>
       if (!param.isRepeatedParameter) {
         getJVMStringForType(subst.subst(param.getType(TypingContext.empty).getOrAny))
-      } else "Lscala/collection/Seq;").mkString("(", ",", ")") + "V"
+      } else "Lscala/collection/Seq;").mkString("(", "", ")") + "V"
     JVMNameUtil.getJVMRawText(sign)
   }
   
@@ -296,7 +297,7 @@ object DebuggerUtil {
     }
   }
 
-  def getSourcePositions(elem: PsiElement, lines: HashSet[SourcePosition] = new HashSet[SourcePosition]): Set[SourcePosition] = {
+  def getSourcePositions(elem: PsiElement, lines: mutable.HashSet[SourcePosition] = new mutable.HashSet[SourcePosition]): Set[SourcePosition] = {
     val node = elem.getNode
     val children: Array[ASTNode] = if (node != null) node.getChildren(null) else Array.empty[ASTNode]
     if (children.isEmpty) {
