@@ -1106,6 +1106,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
     }
 
     override def visitMethodCallExpression(parentCall: ScMethodCall) {
+      @tailrec
       def collectArguments(call: ScMethodCall, collected: Seq[ScExpression] = Seq.empty, tailString: String = "",
                            matchedParameters: Map[Parameter, Seq[ScExpression]] = Map.empty) {
         if (call.isApplyOrUpdateCall) {
@@ -1130,26 +1131,26 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
             collectArguments(newCall, call.argumentExpressions ++ collected, call.args.getText + tailString,
               matchedParameters ++ call.matchedParametersMap)
           case gen: ScGenericCall =>
-            val ref = gen.referencedExpr
-            ref.getType().getOrAny match {
-                //isApplyOrUpdateCall does not work for generic calls
-              case ScType.ExtractClass(psiClass) if psiClass.findMethodsByName("apply", true).nonEmpty &&
-                      !ref.getText.endsWith("apply") =>
-                val typeArgsText = gen.typeArgs.map(_.getText).getOrElse("")
-                val newExprText = s"(${ref.getText}).apply$typeArgsText${call.args.getText}$tailString"
-                val expr = ScalaPsiElementFactory.createExpressionWithContextFromText(newExprText, call.getContext, call)
-                expr.accept(this)
-              case _  =>
-                ref match {
-                  case re: ScReferenceExpression =>
-                    visitCall(re, re.qualifier, call.argumentExpressions ++ collected, s => {
-                      val exprText = s + "." + re.refName + call.args.getText + tailString
-                      ScalaPsiElementFactory.createExpressionWithContextFromText(exprText, parentCall.getContext,
-                        parentCall)
-                    }, matchedParameters ++ call.matchedParametersMap, parentCall)
+            gen.referencedExpr match {
+              case ref: ScReferenceExpression if ref.resolve().isInstanceOf[ScFunction] =>
+                visitCall(ref, ref.qualifier, call.argumentExpressions ++ collected, s => {
+                  val exprText = s + "." + ref.refName + call.args.getText + tailString
+                  ScalaPsiElementFactory.createExpressionWithContextFromText(exprText, parentCall.getContext,
+                    parentCall)
+                }, matchedParameters ++ call.matchedParametersMap, parentCall)
+              case ref: ScReferenceExpression =>
+                ref.getType().getOrAny match {
+                  //isApplyOrUpdateCall does not work for generic calls
+                  case ScType.ExtractClass(psiClass) if psiClass.findMethodsByName("apply", true).nonEmpty =>
+                    val typeArgsText = gen.typeArgs.map(_.getText).getOrElse("")
+                    val newExprText = s"(${ref.getText}).apply$typeArgsText${call.args.getText}$tailString"
+                    val expr = ScalaPsiElementFactory.createExpressionWithContextFromText(newExprText, call.getContext, call)
+                    expr.accept(this)
                   case _ => throw EvaluateExceptionUtil.createEvaluateException("Method call is invalid")
                 }
-              case _ => throw EvaluateExceptionUtil.createEvaluateException("Method call is invalid")
+              case _ =>
+                throw EvaluateExceptionUtil.createEvaluateException("Method call is invalid")
+
             }
           case _ => throw EvaluateExceptionUtil.createEvaluateException("Method call is invalid")
         }
