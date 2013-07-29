@@ -1,8 +1,5 @@
 package org.jetbrains.plugins.scala.debugger.evaluateExpression
 
-import org.junit.runner.RunWith
-import org.junit.experimental.categories.Categories
-import org.junit.experimental.categories.Categories.IncludeCategory
 
 /**
  * User: Alefas
@@ -42,6 +39,7 @@ class ScalaMethodEvaluationTest extends ScalaDebuggerTestCase {
     runDebugger("Sample") {
       waitForBreakpoint()
       evalStartsWith("1 -> 2", "(1,2)")
+      evalEquals("123.toString", "123")
     }
   }
   
