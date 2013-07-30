@@ -15,11 +15,10 @@ import com.intellij.openapi.project.{DumbService, Project}
 import org.jetbrains.plugins.scala.ScalaFileType
 import com.intellij.codeInsight.editorActions._
 import com.intellij.openapi.util.{TextRange, Ref}
-import com.intellij.openapi.diagnostic.Logger
+import com.intellij.openapi.diagnostic.{Attachment, Logger}
 import settings._
 import com.intellij.diagnostic.LogMessageEx
 import com.intellij.util.ExceptionUtil
-import com.intellij.diagnostic.errordialog.Attachment
 
 /**
  * User: Alexander Podkhalyuzin

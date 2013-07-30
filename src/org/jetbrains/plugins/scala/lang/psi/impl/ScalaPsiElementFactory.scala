@@ -50,8 +50,20 @@ import com.intellij.psi.search.GlobalSearchScope
 import java.util
 import com.intellij.pom.java.LanguageLevel
 import scala.collection.mutable
+import com.intellij.psi.javadoc.PsiDocComment
 
 class ScalaPsiElementFactoryImpl(manager: PsiManager) extends JVMElementFactory {
+  def createDocCommentFromText(text: String): PsiDocComment = ???
+
+  def isValidClassName(name: String): Boolean = ScalaNamesUtil.isIdentifier(name)
+
+  def isValidMethodName(name: String): Boolean = ScalaNamesUtil.isIdentifier(name)
+
+  def isValidParameterName(name: String): Boolean = ScalaNamesUtil.isIdentifier(name)
+
+  def isValidFieldName(name: String): Boolean = ScalaNamesUtil.isIdentifier(name)
+
+  def isValidLocalVariableName(name: String): Boolean = ScalaNamesUtil.isIdentifier(name)
 
   def createConstructor(name: String, context: PsiElement): PsiMethod = ???
 

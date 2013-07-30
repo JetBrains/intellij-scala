@@ -4,7 +4,7 @@ package console
 import com.intellij.execution._
 import com.intellij.execution.configurations.ConfigurationTypeUtil
 import com.intellij.execution.executors.DefaultRunExecutor
-import com.intellij.execution.runners.ExecutionEnvironment
+import com.intellij.execution.runners.{ExecutionEnvironmentBuilder, ExecutionEnvironment}
 import com.intellij.openapi.actionSystem._
 import com.intellij.openapi.ui.Messages
 import com.intellij.util.ActionRunner
@@ -57,7 +57,9 @@ class RunConsoleAction extends AnAction {
           val runner = RunnerRegistry.getInstance().getRunner(runExecutor.getId, configuration)
           if (runner != null) {
             try {
-              runner.execute(runExecutor, new ExecutionEnvironment(runner, setting, project))
+              val builder: ExecutionEnvironmentBuilder = new ExecutionEnvironmentBuilder(project, runExecutor)
+              builder.setRunnerAndSettings(runner, setting)
+              runner.execute(builder.build())
             }
             catch {
               case e: ExecutionException =>

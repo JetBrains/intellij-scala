@@ -6,7 +6,7 @@ import lang.psi.api.ScalaFile
 import com.intellij.execution._
 import com.intellij.execution.configurations.{RunProfileState, ConfigurationTypeUtil}
 import com.intellij.execution.executors.DefaultRunExecutor
-import com.intellij.execution.runners.{DefaultProgramRunner, ExecutionEnvironment}
+import com.intellij.execution.runners.{ExecutionEnvironmentBuilder, DefaultProgramRunner, ExecutionEnvironment}
 import com.intellij.openapi.ui.Messages
 import com.intellij.util.ActionRunner
 import worksheet.runconfiguration.{WorksheetRunConfigurationFactory, WorksheetRunConfiguration, WorksheetConfigurationType}
@@ -47,10 +47,10 @@ class RunWorksheetAction extends AnAction {
       configuration.setName("WS: " + name)
       runManagerEx.setSelectedConfiguration(setting)
       val runExecutor = DefaultRunExecutor.getRunExecutorInstance
-      val runner = new DefaultJavaProgramRunner {
-        override def doExecute(project: Project, executor: Executor, state: RunProfileState, 
+      val runner: DefaultJavaProgramRunner = new DefaultJavaProgramRunner {
+        override protected def doExecute(project: Project, state: RunProfileState,
                                contentToReuse: RunContentDescriptor, env: ExecutionEnvironment): RunContentDescriptor = {
-          val descriptor = super.doExecute(project, executor, state, contentToReuse, env)
+          val descriptor = super.doExecute(project, state, contentToReuse, env)
           descriptor.setActivateToolWindowWhenAdded(false)
           descriptor
         }
@@ -58,7 +58,9 @@ class RunWorksheetAction extends AnAction {
       
       if (runner != null) {
         try {
-          runner.execute(runExecutor, new ExecutionEnvironment(runner, setting, project))
+          val builder: ExecutionEnvironmentBuilder = new ExecutionEnvironmentBuilder(project, runExecutor)
+          builder.setRunnerAndSettings(runner, setting)
+          runner.execute(builder.build())
         }
         catch {
           case e: ExecutionException =>
