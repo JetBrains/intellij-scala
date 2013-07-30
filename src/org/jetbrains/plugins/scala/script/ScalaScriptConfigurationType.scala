@@ -29,32 +29,4 @@ class ScalaScriptConfigurationType extends ConfigurationType {
   def getConfigurationFactories: Array[ConfigurationFactory] = Array[ConfigurationFactory](confFactory)
 
   def getId: String = "ScalaScriptRunConfiguration"
-
-  def createConfigurationByLocation(location: Location[_ <: PsiElement]): RunnerAndConfigurationSettings = {
-    val file = location.getPsiElement.getContainingFile
-    file match {
-      case null => null
-      case scalaFile: ScalaFile if (scalaFile.isScriptFile() && !scalaFile.isWorksheetFile) => {
-        val settings = RunManager.getInstance(location.getProject).createRunConfiguration(scalaFile.name, confFactory)
-        val conf: ScalaScriptRunConfiguration = settings.getConfiguration.asInstanceOf[ScalaScriptRunConfiguration]
-        val module = ModuleUtilCore.findModuleForFile(scalaFile.getVirtualFile, scalaFile.getProject)
-        if (module == null || !ScalaFacet.isPresentIn(module)) return null
-        conf.setModule(module)
-        conf.setScriptPath(scalaFile.getVirtualFile.getPath)
-        settings
-      }
-      case _ => null
-    }
-  }
-
-  def isConfigurationByLocation(configuration: RunConfiguration, location: Location[_ <: PsiElement]): Boolean = {
-    configuration match {
-      case conf: ScalaScriptRunConfiguration => {
-        val file: PsiFile = location.getPsiElement.getContainingFile
-        if (file == null || !file.isInstanceOf[ScalaFile]) return false
-        conf.getScriptPath.trim == file.getVirtualFile.getPath.trim
-      }
-      case _ => false
-    }
-  }
 }
