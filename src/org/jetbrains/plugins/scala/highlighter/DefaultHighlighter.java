@@ -16,6 +16,7 @@
 package org.jetbrains.plugins.scala.highlighter;
 
 import com.intellij.codeInsight.daemon.impl.HighlightInfoType;
+import com.intellij.openapi.editor.DefaultLanguageHighlighterColors;
 import com.intellij.openapi.editor.HighlighterColors;
 import com.intellij.openapi.editor.SyntaxHighlighterColors;
 import com.intellij.openapi.editor.colors.TextAttributesKey;
@@ -138,20 +139,20 @@ public class DefaultHighlighter {
   @NonNls
   static final String IMPLICIT_SECOND_PART_ID = "Implicit conversion second part";
 
-  public static TextAttributesKey LINE_COMMENT = createKey(LINE_COMMENT_ID, SyntaxHighlighterColors.LINE_COMMENT);
-  public static TextAttributesKey BLOCK_COMMENT = createKey(BLOCK_COMMENT_ID, SyntaxHighlighterColors.JAVA_BLOCK_COMMENT);
-  public static TextAttributesKey KEYWORD = createKey(KEYWORD_ID, SyntaxHighlighterColors.KEYWORD);
-  public static TextAttributesKey NUMBER = createKey(NUMBER_ID, SyntaxHighlighterColors.NUMBER);
-  public static TextAttributesKey STRING = createKey(STRING_ID, SyntaxHighlighterColors.STRING);
-  public static TextAttributesKey VALID_STRING_ESCAPE = createKey(VALID_STRING_ESCAPE_ID, SyntaxHighlighterColors.VALID_STRING_ESCAPE);
-  public static TextAttributesKey INVALID_STRING_ESCAPE = createKey(INVALID_STRING_ESCAPE_ID, SyntaxHighlighterColors.INVALID_STRING_ESCAPE);
-  public static TextAttributesKey BRACKETS = createKey(BRACKETS_ID, SyntaxHighlighterColors.BRACKETS);
-  public static TextAttributesKey BRACES = createKey(BRACES_ID, SyntaxHighlighterColors.BRACES);
-  public static TextAttributesKey PARENTHESES = createKey(PARENTHESES_ID, SyntaxHighlighterColors.PARENTHS);
-  public static TextAttributesKey COLON = createKey(COLON_ID, SyntaxHighlighterColors.COMMA);
-  public static TextAttributesKey SEMICOLON = createKey(SEMICOLON_ID, SyntaxHighlighterColors.COMMA);
-  public static TextAttributesKey DOT = createKey(DOT_ID, SyntaxHighlighterColors.DOT);
-  public static TextAttributesKey COMMA = createKey(COMMA_ID, SyntaxHighlighterColors.COMMA);
+  public static TextAttributesKey LINE_COMMENT = createKey(LINE_COMMENT_ID, DefaultLanguageHighlighterColors.LINE_COMMENT);
+  public static TextAttributesKey BLOCK_COMMENT = createKey(BLOCK_COMMENT_ID, DefaultLanguageHighlighterColors.BLOCK_COMMENT);
+  public static TextAttributesKey KEYWORD = createKey(KEYWORD_ID, DefaultLanguageHighlighterColors.KEYWORD);
+  public static TextAttributesKey NUMBER = createKey(NUMBER_ID, DefaultLanguageHighlighterColors.NUMBER);
+  public static TextAttributesKey STRING = createKey(STRING_ID, DefaultLanguageHighlighterColors.STRING);
+  public static TextAttributesKey VALID_STRING_ESCAPE = createKey(VALID_STRING_ESCAPE_ID, DefaultLanguageHighlighterColors.VALID_STRING_ESCAPE);
+  public static TextAttributesKey INVALID_STRING_ESCAPE = createKey(INVALID_STRING_ESCAPE_ID, DefaultLanguageHighlighterColors.INVALID_STRING_ESCAPE);
+  public static TextAttributesKey BRACKETS = createKey(BRACKETS_ID, DefaultLanguageHighlighterColors.BRACKETS);
+  public static TextAttributesKey BRACES = createKey(BRACES_ID, DefaultLanguageHighlighterColors.BRACES);
+  public static TextAttributesKey PARENTHESES = createKey(PARENTHESES_ID, DefaultLanguageHighlighterColors.PARENTHESES);
+  public static TextAttributesKey COLON = createKey(COLON_ID, DefaultLanguageHighlighterColors.COMMA);
+  public static TextAttributesKey SEMICOLON = createKey(SEMICOLON_ID, DefaultLanguageHighlighterColors.COMMA);
+  public static TextAttributesKey DOT = createKey(DOT_ID, DefaultLanguageHighlighterColors.DOT);
+  public static TextAttributesKey COMMA = createKey(COMMA_ID, DefaultLanguageHighlighterColors.COMMA);
   public static TextAttributesKey INTERPOLATED_STRING_INJECTION = TextAttributesKey.createTextAttributesKey(INTERPOLATED_STRING_INJECTION_ID,
       new TextAttributes(new Color(0, 184, 187), null, null, null, Font.BOLD));
   public static TextAttributesKey MUTABLE_COLLECTION = TextAttributesKey.createTextAttributesKey(MUTABLE_COLLECTION_ID,
@@ -160,16 +161,16 @@ public class DefaultHighlighter {
       new TextAttributes(null, null, new Color(172, 203, 121), EffectType.BOLD_DOTTED_LINE, Font.PLAIN));
   public static TextAttributesKey JAVA_COLLECTION = TextAttributesKey.createTextAttributesKey(JAVA_COLLECTION_ID,
       new TextAttributes(null, null, new Color(129, 194, 195), EffectType.BOLD_DOTTED_LINE, Font.PLAIN));
-  public static TextAttributesKey PREDEF = createKey(PREDEF_ID, SyntaxHighlighterColors.COMMA);
+  public static TextAttributesKey PREDEF = createKey(PREDEF_ID, DefaultLanguageHighlighterColors.COMMA);
   public static TextAttributesKey TYPEPARAM = createKey(TYPEPARAM_ID, HighlightInfoType.TYPE_PARAMETER_NAME.getAttributesKey());
   public static TextAttributesKey OBJECT = createKey(OBJECT_ID, HighlightInfoType.CLASS_NAME.getAttributesKey());
   public static TextAttributesKey CLASS = createKey(CLASS_ID, HighlightInfoType.CLASS_NAME.getAttributesKey());
-  public static TextAttributesKey SCALA_DOC_TAG = createKey(SCALA_DOC_TAG_ID, SyntaxHighlighterColors.DOC_COMMENT_TAG);
-  public static TextAttributesKey SCALA_DOC_HTML_TAG = createKey(SCALA_DOC_HTML_TAG_ID, SyntaxHighlighterColors.DOC_COMMENT_MARKUP);
-  public static TextAttributesKey SCALA_DOC_WIKI_SYNTAX = createKey(SCALA_DOC_WIKI_SYNTAX_ID,SyntaxHighlighterColors.DOC_COMMENT_MARKUP);
-  public static TextAttributesKey SCALA_DOC_HTML_ESCAPE = createKey(SCALA_DOC_HTML_ESCAPE_ID, SyntaxHighlighterColors.DOC_COMMENT_MARKUP);
-  public static TextAttributesKey SCALA_DOC_MARKUP = createKey(SCALA_DOC_MARKUP_ID, SyntaxHighlighterColors.DOC_COMMENT_MARKUP);
-  public static TextAttributesKey SCALA_DOC_TAG_PARAM_VALUE = createKey(SCALA_DOC_TAG_PARAM_VALUE_ID, SyntaxHighlighterColors.DOC_COMMENT_TAG);
+  public static TextAttributesKey SCALA_DOC_TAG = createKey(SCALA_DOC_TAG_ID, DefaultLanguageHighlighterColors.DOC_COMMENT_TAG);
+  public static TextAttributesKey SCALA_DOC_HTML_TAG = createKey(SCALA_DOC_HTML_TAG_ID, DefaultLanguageHighlighterColors.DOC_COMMENT_MARKUP);
+  public static TextAttributesKey SCALA_DOC_WIKI_SYNTAX = createKey(SCALA_DOC_WIKI_SYNTAX_ID,DefaultLanguageHighlighterColors.DOC_COMMENT_MARKUP);
+  public static TextAttributesKey SCALA_DOC_HTML_ESCAPE = createKey(SCALA_DOC_HTML_ESCAPE_ID, DefaultLanguageHighlighterColors.DOC_COMMENT_MARKUP);
+  public static TextAttributesKey SCALA_DOC_MARKUP = createKey(SCALA_DOC_MARKUP_ID, DefaultLanguageHighlighterColors.DOC_COMMENT_MARKUP);
+  public static TextAttributesKey SCALA_DOC_TAG_PARAM_VALUE = createKey(SCALA_DOC_TAG_PARAM_VALUE_ID, DefaultLanguageHighlighterColors.DOC_COMMENT_TAG);
   public static TextAttributesKey IMPLICIT_CONVERSIONS = TextAttributesKey.createTextAttributesKey(SCALA_IMPLICITS_ID,
       new TextAttributes(null, null, Color.LIGHT_GRAY, EffectType.LINE_UNDERSCORE, Font.PLAIN));
   public static TextAttributesKey ABSTRACT_CLASS = createKey(ABSTRACT_CLASS_ID, HighlightInfoType.ABSTRACT_CLASS_NAME.getAttributesKey());
@@ -189,11 +190,11 @@ public class DefaultHighlighter {
   public static TextAttributesKey ANNOTATION = createKey(ANNOTATION_ID, HighlightInfoType.ANNOTATION_NAME.getAttributesKey());
   public static TextAttributesKey ANNOTATION_ATTRIBUTE = createKey(ANNOTATION_ATTRIBUTE_ID, HighlightInfoType.ANNOTATION_ATTRIBUTE_NAME.getAttributesKey());
   public static TextAttributesKey TYPE_ALIAS = createKey(TYPE_ALIAS_ID, HighlightInfoType.TYPE_PARAMETER_NAME.getAttributesKey());
-  public static TextAttributesKey ASSIGN = createKey(ASSIGN_ID, SyntaxHighlighterColors.OPERATION_SIGN);
+  public static TextAttributesKey ASSIGN = createKey(ASSIGN_ID, DefaultLanguageHighlighterColors.OPERATION_SIGN);
   public static TextAttributesKey BAD_CHARACTER = createKey(BAD_CHARACTER_ID, HighlighterColors.BAD_CHARACTER);
-  public static TextAttributesKey DOC_COMMENT = createKey(DOC_COMMENT_ID, SyntaxHighlighterColors.DOC_COMMENT);
-  public static TextAttributesKey XML_TEXT = createKey(XML_TEXT_ID, SyntaxHighlighterColors.STRING);
-  public static TextAttributesKey XML_TAG = createKey(XML_TAG_ID, SyntaxHighlighterColors.DOC_COMMENT_TAG);
+  public static TextAttributesKey DOC_COMMENT = createKey(DOC_COMMENT_ID, DefaultLanguageHighlighterColors.DOC_COMMENT);
+  public static TextAttributesKey XML_TEXT = createKey(XML_TEXT_ID, DefaultLanguageHighlighterColors.STRING);
+  public static TextAttributesKey XML_TAG = createKey(XML_TAG_ID, DefaultLanguageHighlighterColors.DOC_COMMENT_TAG);
   public static TextAttributesKey IMPLICIT_FIRST_PART = TextAttributesKey.createTextAttributesKey(IMPLICIT_FIRST_PART_ID, new TextAttributes(new Color(187, 223, 255), null, null, null, Font.PLAIN));
   public static TextAttributesKey IMPLICIT_SECOND_PART = TextAttributesKey.createTextAttributesKey(IMPLICIT_SECOND_PART_ID, new TextAttributes(new Color(223, 240, 255), null, null, null, Font.PLAIN));
 
