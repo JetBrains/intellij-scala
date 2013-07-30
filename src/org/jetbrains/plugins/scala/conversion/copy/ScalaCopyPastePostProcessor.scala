@@ -18,10 +18,9 @@ import org.jetbrains.plugins.scala.settings._
 import com.intellij.openapi.ui.DialogWrapper
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
 import scala.util.control.Breaks._
-import com.intellij.openapi.diagnostic.Logger
+import com.intellij.openapi.diagnostic.{Attachment, Logger}
 import com.intellij.diagnostic.LogMessageEx
 import com.intellij.util.ExceptionUtil
-import com.intellij.diagnostic.errordialog.Attachment
 
 /**
  * Pavel Fatin

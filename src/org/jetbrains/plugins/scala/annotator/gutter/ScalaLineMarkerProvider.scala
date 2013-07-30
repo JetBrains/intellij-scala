@@ -8,7 +8,6 @@ import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi._
 import com.intellij.psi.search.searches.ClassInheritorsSearch
-import java.util.{Collection, List}
 import lang.lexer.ScalaTokenTypes
 import lang.psi.api.toplevel.templates.ScTemplateBody
 import lang.psi.api.toplevel.ScNamedElement
@@ -16,18 +15,18 @@ import lang.psi.impl.search.ScalaOverridengMemberSearch
 import com.intellij.util.NullableFunction
 import lang.psi.ScalaPsiUtil
 import com.intellij.openapi.editor.colors.{EditorColorsManager, CodeInsightColors}
-import com.intellij.openapi.editor.markup.{SeparatorPlacement, GutterIconRenderer}
-import com.intellij.codeInsight.daemon.{DaemonCodeAnalyzerSettings, LineMarkerInfo, LineMarkerProvider}
+import com.intellij.openapi.editor.markup.SeparatorPlacement
+import com.intellij.codeInsight.daemon.{GutterMark, DaemonCodeAnalyzerSettings, LineMarkerInfo, LineMarkerProvider}
 import lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition, ScTrait}
 import javax.swing.Icon
 import GutterIcons._
 import lang.psi.api.base.ScReferenceElement
 import collection.{mutable, Seq}
 import lang.psi.types.Signature
-import extensions.toPsiModifierListOwnerExt
 import lang.psi.api.statements._
 import params.ScParameter
 import extensions._
+import java.util
 
 
 /**
@@ -56,7 +55,7 @@ class ScalaLineMarkerProvider(daemonSettings: DaemonCodeAnalyzerSettings, colors
     new LineMarkerInfo[PsiElement](
             element, element.getTextRange, null, Pass.UPDATE_ALL,
             NullableFunction.NULL.asInstanceOf[com.intellij.util.Function[PsiElement,String]],
-            null,GutterIconRenderer.Alignment.RIGHT)
+            null,GutterMark.Alignment.RIGHT)
   }
 
   def addSeparatorInfo(info: LineMarkerInfo[_ <: PsiElement]) = {
@@ -81,7 +80,7 @@ class ScalaLineMarkerProvider(daemonSettings: DaemonCodeAnalyzerSettings, colors
         e
       }
       def marker(element: PsiElement, icon: Icon, typez: ScalaMarkerType): LineMarkerInfo[PsiElement] =
-        new LineMarkerInfo[PsiElement](element, offset, icon, Pass.UPDATE_ALL, typez.fun, typez.handler, GutterIconRenderer.Alignment.LEFT)
+        new LineMarkerInfo[PsiElement](element, offset, icon, Pass.UPDATE_ALL, typez.fun, typez.handler, GutterMark.Alignment.LEFT)
 
       val parent = getParent
       if (parent == null) return null
@@ -90,7 +89,7 @@ class ScalaLineMarkerProvider(daemonSettings: DaemonCodeAnalyzerSettings, colors
 
       (parent, parent.getParent) match {
         case (method: ScFunction, _: ScTemplateBody) if method.nameId == element =>
-          val signatures: Seq[Signature] = (mutable.HashSet[Signature](method.superSignaturesIncludingSelfType: _*)).toSeq
+          val signatures: Seq[Signature] = mutable.HashSet[Signature](method.superSignaturesIncludingSelfType: _*).toSeq
           val icon = if (GutterUtil.isOverrides(method, signatures)) OVERRIDING_METHOD_ICON else IMPLEMENTING_METHOD_ICON
           val typez = ScalaMarkerType.OVERRIDING_MEMBER
           if (signatures.length > 0) {
@@ -139,10 +138,10 @@ class ScalaLineMarkerProvider(daemonSettings: DaemonCodeAnalyzerSettings, colors
           method.recursionType match {
             case RecursionType.OrdinaryRecursion =>
               return new LineMarkerInfo[PsiElement](method.nameId, offset, RECURSION_ICON, Pass.UPDATE_ALL,
-                (e: PsiElement) => "Method '%s' is recursive".format(e.getText), null, GutterIconRenderer.Alignment.LEFT)
+                (e: PsiElement) => "Method '%s' is recursive".format(e.getText), null, GutterMark.Alignment.LEFT)
             case RecursionType.TailRecursion =>
               return new LineMarkerInfo[PsiElement](method.nameId, offset, TAIL_RECURSION_ICON, Pass.UPDATE_ALL,
-                (e: PsiElement) => "Method '%s' is tail recursive".format(e.getText), null, GutterIconRenderer.Alignment.LEFT)
+                (e: PsiElement) => "Method '%s' is tail recursive".format(e.getText), null, GutterMark.Alignment.LEFT)
             case RecursionType.NoRecursion => // no markers
           }
         case _ =>
@@ -152,7 +151,7 @@ class ScalaLineMarkerProvider(daemonSettings: DaemonCodeAnalyzerSettings, colors
     null
   }
 
-  def collectSlowLineMarkers(elements: List[PsiElement], result: Collection[LineMarkerInfo[_ <: PsiElement]]) {
+  def collectSlowLineMarkers(elements: util.List[PsiElement], result: util.Collection[LineMarkerInfo[_ <: PsiElement]]) {
     ApplicationManager.getApplication.assertReadAccessAllowed()
 
     val members = new ArrayBuffer[PsiElement]
@@ -181,7 +180,7 @@ class ScalaLineMarkerProvider(daemonSettings: DaemonCodeAnalyzerSettings, colors
 }
 
 private object GutterUtil {
-  def collectInheritingClasses(clazz: ScTypeDefinition, result: Collection[LineMarkerInfo[_ <: PsiElement]]) {
+  def collectInheritingClasses(clazz: ScTypeDefinition, result: util.Collection[LineMarkerInfo[_ <: PsiElement]]) {
     if ("scala.ScalaObject".equals(clazz.qualifiedName)) return
 
     val inheritor = ClassInheritorsSearch.search(clazz, false).findFirst
@@ -197,7 +196,7 @@ private object GutterUtil {
     }
   }
 
-  def collectOverridingMembers(members: ArrayBuffer[PsiElement], result: Collection[LineMarkerInfo[_ <: PsiElement]]) {
+  def collectOverridingMembers(members: ArrayBuffer[PsiElement], result: util.Collection[LineMarkerInfo[_ <: PsiElement]]) {
     for (member <- members if !member.isInstanceOf[PsiMethod] || !member.asInstanceOf[PsiMethod].isConstructor) {
       ProgressManager.checkCanceled()
       val offset = member.getTextOffset

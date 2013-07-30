@@ -1,13 +1,11 @@
 package org.jetbrains.plugins.scala
 package script
 
-import com.intellij.execution.configurations.{RunConfiguration, ConfigurationType, ConfigurationFactory}
-import com.intellij.execution.{RunManager, Location, RunnerAndConfigurationSettings, LocatableConfigurationType}
-import com.intellij.facet.FacetManager
-import com.intellij.openapi.module.{ModuleUtilCore, ModuleUtil}
+import com.intellij.execution.configurations.{ConfigurationType, RunConfiguration, ConfigurationFactory}
+import com.intellij.execution.{RunManager, Location, RunnerAndConfigurationSettings}
+import com.intellij.openapi.module.ModuleUtilCore
 import com.intellij.psi.{PsiElement, PsiFile}
 import config.ScalaFacet
-import console.ScalaConsoleRunConfigurationFactory
 import icons.Icons
 import javax.swing.Icon
 import java.lang.String
@@ -19,7 +17,7 @@ import extensions.toPsiNamedElementExt
  * Date: 04.02.2009
  */
 
-class ScalaScriptConfigurationType extends LocatableConfigurationType {
+class ScalaScriptConfigurationType extends ConfigurationType {
   val confFactory = new ScalaScriptRunConfigurationFactory(this)
 
   def getIcon: Icon = Icons.SCRIPT_FILE_LOGO

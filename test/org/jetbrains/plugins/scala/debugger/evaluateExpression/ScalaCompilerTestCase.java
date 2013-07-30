@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.debugger.evaluateExpression;
 
 import com.intellij.compiler.CompilerManagerImpl;
 import com.intellij.compiler.CompilerWorkspaceConfiguration;
+import com.intellij.debugger.impl.GenericDebuggerRunnerSettings;
 import com.intellij.execution.ExecutionException;
 import com.intellij.execution.Executor;
 import com.intellij.execution.application.ApplicationConfiguration;
@@ -11,6 +12,7 @@ import com.intellij.execution.executors.DefaultRunExecutor;
 import com.intellij.execution.impl.DefaultJavaProgramRunner;
 import com.intellij.execution.process.*;
 import com.intellij.execution.runners.ExecutionEnvironment;
+import com.intellij.execution.runners.ExecutionEnvironmentBuilder;
 import com.intellij.execution.runners.ProgramRunner;
 import com.intellij.execution.ui.RunContentDescriptor;
 import com.intellij.openapi.Disposable;
@@ -191,13 +193,13 @@ public abstract class ScalaCompilerTestCase extends JavaCodeInsightFixtureTestCa
     configuration.setModule(module);
     configuration.setMainClassName(className);
     final Executor executor = Executor.EXECUTOR_EXTENSION_NAME.findExtension(executorClass);
-    final ExecutionEnvironment environment = new ExecutionEnvironment(configuration, getProject(),
-        new RunnerSettings<JDOMExternalizable>(null, null), null, null);
+    ExecutionEnvironmentBuilder executionEnvironmentBuilder = new ExecutionEnvironmentBuilder(getProject(), executor);
+    executionEnvironmentBuilder.setRunProfile(configuration);
     final Semaphore semaphore = new Semaphore();
     semaphore.down();
 
     final AtomicReference<ProcessHandler> processHandler = new AtomicReference<ProcessHandler>();
-    runner.execute(executor, environment, new ProgramRunner.Callback() {
+    runner.execute(executionEnvironmentBuilder.build(), new ProgramRunner.Callback() {
       public void processStarted(final RunContentDescriptor descriptor) {
         disposeOnTearDown(new Disposable() {
           public void dispose() {
