@@ -220,6 +220,8 @@
 
         <configurationProducer implementation="org.jetbrains.plugins.scala.testingSupport.test.specs2.Specs2ConfigurationProducer"/>
         <configurationProducer implementation="org.jetbrains.plugins.scala.testingSupport.test.scalatest.ScalaTestConfigurationProducer"/>
+        <configurationProducer implementation="org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetConfigurationProducer"/>
+        <configurationProducer implementation="org.jetbrains.plugins.scala.script.ScalaScriptConfugurationProducer"/>
 
         <configurationProducer implementation="org.jetbrains.plugins.scala.runner.ScalaApplicationConfigurationProducer"/>
 
