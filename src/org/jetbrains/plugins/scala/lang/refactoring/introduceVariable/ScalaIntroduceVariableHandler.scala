@@ -162,6 +162,13 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Confli
         if firstOccurenceOffset > generator.getTextRange.getEndOffset
       } yield forSt
     }
+    def addPrivateIfNotLocal(declaration: PsiElement) {
+      declaration match {
+        case member: ScMember if !member.isLocal =>
+          member.setModifierProperty("private", value = true)
+        case _ =>
+      }
+    }
 
     val revertInfo = RevertInfo(file.getText, editor.getCaretModel.getOffset)
     editor.putUserData(ScalaIntroduceVariableHandler.REVERT_INFO, revertInfo)
@@ -243,6 +250,7 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Confli
         } else throw new IntroduceException
       }
     }
+    addPrivateIfNotLocal(createdDeclaration)
     ScalaPsiUtil.adjustTypes(createdDeclaration)
     createdDeclaration
   }
