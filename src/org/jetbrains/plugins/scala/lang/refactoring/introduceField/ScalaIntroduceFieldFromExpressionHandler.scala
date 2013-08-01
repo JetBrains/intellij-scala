@@ -8,7 +8,7 @@ import com.intellij.openapi.editor.Editor
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTemplateDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 import ScalaRefactoringUtil._
 import ScalaIntroduceFieldHandlerBase._
 import com.intellij.openapi.wm.WindowManager
@@ -88,7 +88,7 @@ class ScalaIntroduceFieldFromExpressionHandler extends ScalaIntroduceFieldHandle
             .map(_.asInstanceOf[PsiElement])
     val anchor: PsiElement = anchorForNewDeclaration(expression, replacedOccurences, aClass)
     val initInDecl = settings.initInDeclaration
-    var createdDeclaration: ScMember = null
+    var createdDeclaration: PsiElement = null
     if (initInDecl) {
       createdDeclaration = ScalaPsiElementFactory
               .createDeclaration(settings.scType, name, settings.defineVar, expression, manager, isPresentableText = false)
@@ -121,7 +121,7 @@ class ScalaIntroduceFieldFromExpressionHandler extends ScalaIntroduceFieldHandle
         createdDeclaration.addBefore(mod.getPsi, createdDeclaration.getFirstChild)
     }
     val parent = anchor.getParent
-    parent.addBefore(createdDeclaration, anchor)
+    createdDeclaration = parent.addBefore(createdDeclaration, anchor)
     parent.addBefore(ScalaPsiElementFactory.createNewLineNode(manager, "\n").getPsi, anchor)
     ScalaPsiUtil.adjustTypes(createdDeclaration)
   }
