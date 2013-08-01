@@ -97,12 +97,13 @@ object ScalaRefactoringUtil {
 
   def addPossibleTypes(scType: ScType, expr: ScExpression): Array[ScType] = {
     val types = new ArrayBuffer[ScType]
-    if (scType != null && scType != psi.types.Unit) types += scType
+    if (scType != null) types += scType
     expr.getTypeWithoutImplicits(TypingContext.empty).foreach(types +=)
     expr.getTypeIgnoreBaseType(TypingContext.empty).foreach(types +=)
-    if (scType == psi.types.Unit) types += scType
     if (types.isEmpty) types += psi.types.Any
-    types.toArray
+    val unit = psi.types.Unit
+    val result = if (types.contains(unit)) (types.distinct - unit) :+ unit else types.distinct
+    result.toArray
   }
 
   def getExpression(project: Project, editor: Editor, file: PsiFile, startOffset: Int, endOffset: Int): Option[(ScExpression, ScType)] = {
