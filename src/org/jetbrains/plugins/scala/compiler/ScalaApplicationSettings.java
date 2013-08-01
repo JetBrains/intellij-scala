@@ -8,6 +8,8 @@ import com.intellij.util.xmlb.XmlSerializerUtil;
  */
 @State(name = "ScalaSettings", storages = {@Storage(file = StoragePathMacros.APP_CONFIG + "/scala.xml")})
 public class ScalaApplicationSettings implements PersistentStateComponent<ScalaApplicationSettings> {
+  public boolean SHOW_TYPE_TOOLTIP_ON_MOUSE_HOVER = false;
+
   public boolean SHOW_EXTERNAL_COMPILER_INTRO = true;
 
   public boolean COMPILE_SERVER_ENABLED = true;
