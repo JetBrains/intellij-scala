@@ -163,14 +163,18 @@ public abstract class LayeredParser implements PsiParser {
       while (it.hasNext()) {
         final BufferedTokenInfo nextInfo = it.next();
         final int index = it.nextIndex() - 1;
-        
-        for (Class<? extends IElementType> elementTypeClass : currentTokenTypes) {    
-          if(elementTypeClass.isInstance(nextInfo.getTokenType()) && !usedTokens.get(index)) {
+        final IElementType tokenType = nextInfo.getTokenType();
+
+        for (Class<? extends IElementType> elementTypeClass : currentTokenTypes) {
+          currentParser.processNextTokenWithChooser(tokenType);
+          
+          if(( elementTypeClass.isInstance(tokenType) && !currentParser.mustRejectOwnToken(tokenType) || 
+              currentParser.mustTakeForeignToken(tokenType)) && !usedTokens.get(index)) {
             if (filteredTokens.isEmpty() && nextInfo.isWhitespace()) continue;
             filteredTokens.add(index);
             usedTokens.set(index);
             
-            if (currentStateFlusher.isFlushOnBuilderNeeded(nextInfo.getTokenType())) {
+            if (currentStateFlusher.isFlushOnBuilderNeeded(tokenType)) {
               stateFlushedNums.add(index);
             }
           }
@@ -1008,6 +1012,24 @@ public abstract class LayeredParser implements PsiParser {
     void parseContents(ASTNode chameleon, PsiBuilder builder);
   }
 
+  /**
+   * Can be stateful 
+   */
+  public interface CustomTokenChooser {
+    /**
+     * Processes the next token type. This token type will be then passed to 
+     * {@link CustomTokenChooser#shouldSelectForeignToken(com.intellij.psi.tree.IElementType)} 
+     */
+    void processToken(IElementType tokenType);
+
+    /**
+     * Don't put your filtering logic in these methods as it won't be called if tokenType is already of a 
+     * suitable class or already rejected.  
+     */
+    boolean shouldSelectForeignToken(IElementType tokenType);
+    boolean shouldRejectOwnToken(IElementType tokenType);
+  }
+
   public interface ConflictResolver {
     boolean needDoBackStep(IElementType backStepTokenType, IElementType astDoneElementType, 
                            IElementType currentElementType, CharSequence tokenText);
@@ -1027,6 +1049,8 @@ public abstract class LayeredParser implements PsiParser {
     protected final AstElementRemapper myElementRemapper;
     protected final T myReferenceElement;
     protected final TokenSet myIgnoredTokens;
+
+    protected CustomTokenChooser myTokenChooser;
 
     protected RegisteredInfo(@NotNull E myParser, @NotNull List<Class<? extends IElementType>> myRegisteredTokens, 
                              @Nullable StateFlusher myStateFlusher, @Nullable T myReferenceElement, 
@@ -1062,7 +1086,24 @@ public abstract class LayeredParser implements PsiParser {
     public AstElementRemapper getMyElementRemapper() {
       return myElementRemapper;
     }
+
+    public RegisteredInfo<E, T> setTokenChooser(CustomTokenChooser myTokenChooser) {
+      this.myTokenChooser = myTokenChooser;
+      return this;
+    }
     
+    public boolean mustTakeForeignToken(IElementType tokenType) {
+      return myTokenChooser != null && myTokenChooser.shouldSelectForeignToken(tokenType);
+    }
+    
+    public boolean mustRejectOwnToken(IElementType tokenType) {
+      return myTokenChooser != null && myTokenChooser.shouldRejectOwnToken(tokenType);
+    }
+    
+    public void processNextTokenWithChooser(IElementType tokenType) {
+      if (myTokenChooser != null) myTokenChooser.processToken(tokenType);
+    }
+
     abstract void parse(@NotNull PsiBuilder builder);
   }
   
