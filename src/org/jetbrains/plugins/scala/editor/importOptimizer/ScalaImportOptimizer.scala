@@ -20,6 +20,7 @@ import scala.Some
 import scala.collection.JavaConversions._
 import settings.ScalaProjectSettings
 import lang.psi.api.toplevel.typedef.ScObject
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSimpleTypeElement
 
 /**
  * User: Alexander Podkhalyuzin
@@ -52,6 +53,17 @@ class ScalaImportOptimizer extends ImportOptimizer {
               }
             }
             super.visitReference(ref)
+          }
+
+          override def visitSimpleTypeElement(simple: ScSimpleTypeElement) {
+            simple.findImplicitParameters match {
+              case Some(parameters) =>
+                parameters.foreach {
+                  case r: ScalaResolveResult => usedImports ++= r.importsUsed
+                }
+              case _ =>
+            }
+            super.visitSimpleTypeElement(simple)
           }
 
           override def visitElement(element: ScalaPsiElement) {
