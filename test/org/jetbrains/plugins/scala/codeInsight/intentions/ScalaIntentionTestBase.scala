@@ -8,6 +8,7 @@ import extensions._
 import scala.Some
 import com.intellij.psi.codeStyle.CodeStyleManager
 import base.ScalaLightCodeInsightFixtureTestAdapter
+import scala.collection.JavaConversions._
 
 /**
  * @author Ksenia.Sautina
@@ -18,26 +19,30 @@ abstract class ScalaIntentionTestBase extends ScalaLightCodeInsightFixtureTestAd
   def familyName: String
 
   def doTest(text: String, resultText: String, familyName: String = this.familyName) {
-    myFixture.configureByText(ScalaFileType.SCALA_FILE_TYPE, text)
-    val intentions: util.List[IntentionAction] = myFixture.getAvailableIntentions
-    assert(!intentions.isEmpty)
-    import scala.collection.JavaConversions._
-    intentions.find(action => action.getFamilyName == familyName) match {
+    intentionByFamilyName(text, familyName) match {
       case Some(action) => action.invoke(myFixture.getProject, myFixture.getEditor, myFixture.getFile)
       case None => Assert.fail("Intention is not found")
     }
     inWriteAction {
       CodeStyleManager.getInstance(getProject).reformat(myFixture.getFile)
-      myFixture.checkResult(resultText)
+      myFixture.checkResult(groom(resultText))
     }
   }
 
   def checkIntentionIsNotAvailable(text: String, familyName: String = this.familyName) {
-    myFixture.configureByText(ScalaFileType.SCALA_FILE_TYPE, text)
-    val intentions: util.List[IntentionAction] = myFixture.getAvailableIntentions
-
-    import scala.collection.JavaConversions._
-    assert(intentions.filter(action => action.getFamilyName == familyName).isEmpty)
+    assert(intentionByFamilyName(text, familyName).isEmpty, "Intention is found")
   }
 
+  def checkIntentionIsAvailable(text: String, familyName: String = this.familyName) {
+    assert(intentionByFamilyName(text, familyName).isDefined, "Intention is not found")
+  }
+
+
+  def intentionByFamilyName(text: String, familyName: String): Option[IntentionAction] = {
+    myFixture.configureByText(ScalaFileType.SCALA_FILE_TYPE, groom(text))
+    val intentions: util.List[IntentionAction] = myFixture.getAvailableIntentions
+    intentions.find(action => action.getFamilyName == familyName)
+  }
+
+  protected def groom(text: String) = text.stripMargin.replace("\r", "").trim
 }

@@ -12,6 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBod
 import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.editor.Editor
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
+import com.intellij.psi.util.PsiTreeUtil
 
 
 /**
@@ -94,7 +95,7 @@ class ScalaVariableValidator(conflictsReporter: ConflictsReporter,
               case _ =>
             }
           }
-          for (function <- x.functions; if function.name == name && function.parameters.size == 0) {
+          for (function <- x.functions; if function.name == name) {
             buf += ((x, messageForField(function.name)))
           }
           x match {
@@ -141,7 +142,7 @@ class ScalaVariableValidator(conflictsReporter: ConflictsReporter,
         }
       }
       case x: ScFunctionDefinition => {
-        if (x.name == name && x.parameters.size == 0) {
+        if (x.name == name) {
           buf += ((x, messageForLocal(x.name)))
         }
       }
@@ -166,7 +167,7 @@ class ScalaVariableValidator(conflictsReporter: ConflictsReporter,
           buf += ((x, messageForClassParameter(x.name)))
         case x: ScParameter if x.name == name =>
           buf += ((x, messageForParameter(x.name)))
-        case x: ScFunctionDefinition if x.name == name && x.parameters.size == 0 =>
+        case x: ScFunctionDefinition if x.name == name =>
           buf += (if (x.isLocal) (x, messageForLocal(x.name)) else (x, messageForField(x.name)))
         case x: ScBindingPattern if x.name == name =>
           buf += (if (x.isClassMember) (x, messageForField(x.name)) else (x, messageForLocal(x.name)))
@@ -184,9 +185,9 @@ class ScalaVariableValidator(conflictsReporter: ConflictsReporter,
         } else {
           selectedElement
         }
-        if (parent != container)
+        if (PsiTreeUtil.isAncestor(container, parent, true))
           while (parent.getParent != null && parent.getParent != container) parent = parent.getParent
-        else parent = parent.getFirstChild
+        else parent = container.getFirstChild
         parent
       }
       var fromDoubles = from.getPrevSibling

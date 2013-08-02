@@ -52,7 +52,7 @@ trait AssignmentAnnotator {
               case f: PsiField if !f.hasModifierProperty("final") =>
                 if (!advancedHighlighting) return
                 checkVariable()
-              case fun: ScFunction if fun.paramClauses.clauses.length == 0 =>
+              case fun: ScFunction if ScalaPsiUtil.isViableForAssignmentFunction(fun) =>
                 if (!advancedHighlighting) return
                 assignment.resolveAssignment match {
                   case Some(r) =>

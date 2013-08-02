@@ -70,7 +70,7 @@ class ScalaIntroduceParameterHandler extends RefactoringActionHandler with Confl
       if (methodToSearchFor == null) return
       if (!CommonRefactoringUtil.checkReadOnlyStatus(project, methodToSearchFor)) return
 
-      val occurrences: Array[TextRange] = ScalaRefactoringUtil.getOccurrences(ScalaRefactoringUtil.unparExpr(expr),
+      val occurrences: Array[TextRange] = ScalaRefactoringUtil.getOccurrenceRanges(ScalaRefactoringUtil.unparExpr(expr),
         function.body.getOrElse(function))
       // Getting settings
       val validator = new ScalaVariableValidator(this, project, expr, occurrences.isEmpty, function, function)

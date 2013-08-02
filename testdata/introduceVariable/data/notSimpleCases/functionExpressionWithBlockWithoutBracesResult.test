@@ -1,0 +1,17 @@
+class a {
+  def foo = {
+    <begin>(x: Int) =>
+      val y = x * x
+      y + 1<end>
+  }
+}
+------
+class a {
+  def foo = {
+    val value: (Int) => Int = (x: Int) => {
+      val y = x * x
+      y + 1
+    }
+    value
+  }
+}

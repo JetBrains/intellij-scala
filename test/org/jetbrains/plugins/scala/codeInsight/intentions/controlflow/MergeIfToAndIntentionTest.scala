@@ -12,101 +12,109 @@ class MergeIfToAndIntentionTest extends ScalaIntentionTestBase {
   val familyName = MergeIfToAndIntention.familyName
 
   def testMergeIfToAnd() {
-    val text = """
-                 |class MergeIfToAnd {
-                 |  def mthd() {
-                 |    val a: Int = 0
-                 |    i<caret>f (a == 9) {
-                 |      if (a == 7) {
-                 |        System.out.println("if")
-                 |      }
-                 |    }
-                 |  }
-                 |}
-               """.stripMargin.replace("\r", "").trim
-    val resultText = """
-                       |class MergeIfToAnd {
-                       |  def mthd() {
-                       |    val a: Int = 0
-                       |    i<caret>f (a == 9 && a == 7) {
-                       |      System.out.println("if")
-                       |    }
-                       |  }
-                       |}
-                     """.stripMargin.replace("\r", "").trim
+    val text =
+      """
+        |class MergeIfToAnd {
+        |  def mthd() {
+        |    val a: Int = 0
+        |    i<caret>f (a == 9) {
+        |      if (a == 7) {
+        |        System.out.println("if")
+        |      }
+        |    }
+        |  }
+        |}
+      """
+    val resultText =
+      """
+        |class MergeIfToAnd {
+        |  def mthd() {
+        |    val a: Int = 0
+        |    i<caret>f (a == 9 && a == 7) {
+        |      System.out.println("if")
+        |    }
+        |  }
+        |}
+      """
 
     doTest(text, resultText)
   }
 
   def testMergeIfToAnd2() {
-    val text = """
-                 |class MergeIfToAnd {
-                 |  def mthd() {
-                 |    val a: Int = 0
-                 |    i<caret>f (a == 9)
-                 |      if (a == 7)
-                 |        System.out.println("if")
-                 |  }
-                 |}
-               """.stripMargin.replace("\r", "").trim
-    val resultText = """
-                       |class MergeIfToAnd {
-                       |  def mthd() {
-                       |    val a: Int = 0
-                       |    i<caret>f (a == 9 && a == 7) System.out.println("if")
-                       |  }
-                       |}
-                     """.stripMargin.replace("\r", "").trim
+    val text =
+      """
+        |class MergeIfToAnd {
+        |  def mthd() {
+        |    val a: Int = 0
+        |    i<caret>f (a == 9)
+        |      if (a == 7)
+        |        System.out.println("if")
+        |  }
+        |}
+      """
+    val resultText =
+      """
+        |class MergeIfToAnd {
+        |  def mthd() {
+        |    val a: Int = 0
+        |    i<caret>f (a == 9 && a == 7) System.out.println("if")
+        |  }
+        |}
+      """
 
     doTest(text, resultText)
   }
 
   def testMergeIfToAnd3() {
-    val text = """
-                 |class MergeIfToAnd {
-                 |  def mthd() {
-                 |    val a: Int = 0
-                 |    i<caret>f (a == 9) {
-                 |      if (a == 7)
-                 |        System.out.println("if")
-                 |    }
-                 |  }
-                 |}
-               """.stripMargin.replace("\r", "").trim
-    val resultText = """
-                       |class MergeIfToAnd {
-                       |  def mthd() {
-                       |    val a: Int = 0
-                       |    i<caret>f (a == 9 && a == 7) System.out.println("if")
-                       |  }
-                       |}
-                     """.stripMargin.replace("\r", "").trim
+    val text =
+      """
+        |class MergeIfToAnd {
+        |  def mthd() {
+        |    val a: Int = 0
+        |    i<caret>f (a == 9) {
+        |      if (a == 7)
+        |        System.out.println("if")
+        |    }
+        |  }
+        |}
+      """
+    val resultText =
+      """
+        |class MergeIfToAnd {
+        |  def mthd() {
+        |    val a: Int = 0
+        |    i<caret>f (a == 9 && a == 7) System.out.println("if")
+        |  }
+        |}
+      """
 
     doTest(text, resultText)
   }
 
   def testMergeIfToAnd4() {
-    val text = """
-                 |class MergeIfToAnd {
-                 |  def mthd() {
-                 |    val a: Int = 0
-                 |    i<caret>f (a == 9)
-                 |      if (a == 7) {
-                 |        System.out.println("if")
-                 |      }
-                 |  }
-                 |}
-               """.stripMargin.replace("\r", "").trim
-    val resultText = """
-                       |class MergeIfToAnd {
-                       |  def mthd() {
-                       |    val a: Int = 0
-                       |    i<caret>f (a == 9 && a == 7) {
-                       |      System.out.println("if")
-                       |    }
-                       |  }
-                       |}
-                     """.stripMargin.replace("\r", "").trim
+    val text =
+      """
+        |class MergeIfToAnd {
+        |  def mthd() {
+        |    val a: Int = 0
+        |    i<caret>f (a == 9)
+        |      if (a == 7) {
+        |        System.out.println("if")
+        |      }
+        |  }
+        |}
+      """
+    val resultText =
+      """
+        |class MergeIfToAnd {
+        |  def mthd() {
+        |    val a: Int = 0
+        |    i<caret>f (a == 9 && a == 7) {
+        |      System.out.println("if")
+        |    }
+        |  }
+        |}
+      """
 
     doTest(text, resultText)
   }

@@ -11,7 +11,8 @@ import parser.ScalaElementTypes
 import com.intellij.util.ReflectionCache
 import java.util.{List, ArrayList}
 import api.statements.{ScFunction, ScVariable, ScValue}
-import com.intellij.psi.{PsiClass, PsiModifiableCodeBlock, PsiElement}
+import com.intellij.psi.{PsiElementVisitor, PsiClass, PsiModifiableCodeBlock, PsiElement}
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 
 /**
 * @author Alexander Podkhalyuzin
@@ -62,5 +63,14 @@ class ScBlockExprImpl(text: CharSequence) extends LazyParseablePsiElement(ScalaE
       parent = parent.getParent
     }
     false
+  }
+
+  override def accept(visitor: ScalaElementVisitor) = {visitor.visitBlockExpression(this)}
+
+  override def accept(visitor: PsiElementVisitor) {
+    visitor match {
+      case s: ScalaElementVisitor => accept(s)
+      case _ => super.accept(visitor)
+    }
   }
 }

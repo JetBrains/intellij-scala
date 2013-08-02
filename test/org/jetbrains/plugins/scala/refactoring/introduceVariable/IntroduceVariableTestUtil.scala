@@ -39,7 +39,7 @@ object IntroduceVariableTestUtil {
         res
       }
     }
-    val occurrences: Array[TextRange] = ScalaRefactoringUtil.getOccurrences(ScalaRefactoringUtil.unparExpr(expr), fileEncloser)
+    val occurrences: Array[TextRange] = ScalaRefactoringUtil.getOccurrenceRanges(ScalaRefactoringUtil.unparExpr(expr), fileEncloser)
     // Getting settings
     val elemSeq = (for (occurence <- occurrences) yield file.findElementAt(occurence.getStartOffset)).toSeq ++
             (for (occurence <- occurrences) yield file.findElementAt(occurence.getEndOffset - 1)).toSeq
@@ -49,7 +49,7 @@ object IntroduceVariableTestUtil {
     val commonParentOne = PsiTreeUtil.findCommonParent(file.findElementAt(startOffset), file.findElementAt(endOffset - 1))
     val containerOne = ScalaPsiUtil.getParentOfType(commonParentOne, occurrences.length == 1, classOf[ScalaFile], classOf[ScBlock],
       classOf[ScTemplateBody])
-    var validator = new ScalaVariableValidator(new ScalaIntroduceVariableHandler, project, expr, occurrences.isEmpty, container, containerOne)
-    validator
+
+    new ScalaVariableValidator(new ScalaIntroduceVariableHandler, project, expr, occurrences.isEmpty, container, containerOne)
   }
 }

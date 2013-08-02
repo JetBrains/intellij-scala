@@ -171,6 +171,7 @@ class ScalaExpressionsEvaluator extends ScalaDebuggerTestCase {
     runDebugger("Sample") {
       waitForBreakpoint()
       evalEquals("x x", "1")
+      evalEquals("1 toString ()", "1")
     }
   }
 
@@ -241,4 +242,23 @@ class ScalaExpressionsEvaluator extends ScalaDebuggerTestCase {
       evalEquals("\"text\" != null", "true")
     }
   }
+
+  def testBackticks() {
+    myFixture.addFileToProject("Sample.scala",
+      """
+        |object Sample {
+        |  def main(args: Array[String]) {
+        |    val `val` = 100
+        |    "stop here"
+        |  }
+        |}
+      """.stripMargin.trim()
+    )
+    addBreakpoint("Sample.scala", 3)
+    runDebugger("Sample") {
+      waitForBreakpoint()
+      evalEquals("`val`", "100")
+    }
+  }
+
 }
