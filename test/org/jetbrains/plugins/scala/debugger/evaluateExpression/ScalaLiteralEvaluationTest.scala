@@ -107,4 +107,22 @@ class ScalaLiteralEvaluationTest extends ScalaDebuggerTestCase {
       evalEquals("1", "1")
     }
   }
+
+  def testFloat() {
+    myFixture.addFileToProject("Sample.scala",
+      """
+        |object Sample {
+        |  def main(args: Array[String]) {
+        |    "stop here"
+        |  }
+        |}
+      """.stripMargin.trim()
+    )
+    addBreakpoint("Sample.scala", 2)
+    runDebugger("Sample") {
+      waitForBreakpoint()
+      evalEquals("1F", "1.0")
+      evalEquals("Array(1F, 2.0F)", "[1.0,2.0]")
+    }
+  }
 }

@@ -17,10 +17,8 @@ import lang.formatting.settings.ScalaCodeStyleSettings
 
 class AddStripMarginToMLStringIntention extends PsiElementBaseIntentionAction{
   def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean = {
-    if (element == null || element.getNode.getElementType != ScalaTokenTypes.tMULTILINE_STRING ||
-            !element.getText.contains("\n")) {
-      return false
-    }
+    if (element == null || element.getNode == null || element.getNode.getElementType != ScalaTokenTypes.tMULTILINE_STRING ||
+            !element.getText.contains("\n")) return false
 
     MultilineStringEnterHandler.needAddStripMargin(element, getMarginChar(project))
   }

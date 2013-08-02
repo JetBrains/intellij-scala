@@ -12,7 +12,7 @@ class UnnecessaryParenthesesInspectionTest extends ScalaLightInspectionFixtureTe
 
   val annotation = "Unnecessary parentheses"
   val hintBeginning = "Remove unnecessary parentheses"
-  protected def classOfInspection: Class[_ <: LocalInspectionTool] = classOf[UnnecessaryParenthesesInspection]
+  protected def classOfInspection: Class[_ <: LocalInspectionTool] = classOf[ScalaUnnecessaryParenthesesInspection]
 
 
   def test_1(): Unit = {
@@ -98,7 +98,7 @@ class UnnecessaryParenthesesInspectionTest extends ScalaLightInspectionFixtureTe
   def test_7(): Unit = {
     val text  = """def a(x: Any): Boolean = true
                       |List() count (a(_))"""
-    checkTextHasNoErrors(text, annotation, classOf[UnnecessaryParenthesesInspection])
+    checkTextHasNoErrors(text, annotation, classOf[ScalaUnnecessaryParenthesesInspection])
   }
 
   def test_8(): Unit = {

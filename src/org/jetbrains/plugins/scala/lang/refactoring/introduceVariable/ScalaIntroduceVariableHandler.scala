@@ -6,22 +6,16 @@ package introduceVariable
 
 import org.jetbrains.plugins.scala.util.ScalaUtils
 import com.intellij.openapi.editor.Editor
-import com.intellij.openapi.util.{Key, Computable, TextRange, Pass}
+import com.intellij.openapi.util._
 import com.intellij.openapi.command.CommandProcessor
 import com.intellij.openapi.wm.WindowManager
 import com.intellij.psi.{xml => _, _}
-import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.refactoring.ui.ConflictsDialog
 import com.intellij.refactoring.RefactoringActionHandler
-import java.util.regex.{Pattern, Matcher}
 import java.util.LinkedHashSet
 import lexer.ScalaTokenTypes
 import namesSuggester.NameSuggester
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
-import psi.api.ScalaFile
 import psi.api.statements._
-import psi.api.toplevel.ScEarlyDefinitions
-import psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import psi.api.expr._
@@ -37,6 +31,7 @@ import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaVariableValidator
 import org.jetbrains.plugins.scala.lang.refactoring.introduceVariable.ScalaIntroduceVariableHandler.RevertInfo
 
+
 /**
  * User: Alexander Podkhalyuzin
  * Date: 23.06.2008
@@ -44,13 +39,9 @@ import org.jetbrains.plugins.scala.lang.refactoring.introduceVariable.ScalaIntro
 
 class ScalaIntroduceVariableHandler extends RefactoringActionHandler with ConflictsReporter {
   val REFACTORING_NAME = ScalaBundle.message("introduce.variable.title")
-  var deleteOccurrence = false
 
   def invoke(project: Project, editor: Editor, file: PsiFile, dataContext: DataContext) {
     def invokes() {
-//      val lineText = ScalaRefactoringUtil.getLineText(editor)
-//      if (editor.getSelectionModel.getSelectedText != null &&
-//              lineText != null && editor.getSelectionModel.getSelectedText.trim == lineText.trim) deleteOccurrence = true
       ScalaRefactoringUtil.trimSpacesAndComments(editor, file)
       invoke(project, editor, file, editor.getSelectionModel.getSelectionStart, editor.getSelectionModel.getSelectionEnd)
     }
@@ -72,7 +63,7 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Confli
       ScalaRefactoringUtil.checkCanBeIntroduced(expr, showErrorMessage(_, project, editor, REFACTORING_NAME))
 
       val fileEncloser = ScalaRefactoringUtil.fileEncloser(startOffset, file)
-      val occurrencesAll: Array[TextRange] = ScalaRefactoringUtil.getOccurrences(ScalaRefactoringUtil.unparExpr(expr), fileEncloser)
+      val occurrencesAll: Array[TextRange] = ScalaRefactoringUtil.getOccurrenceRanges(ScalaRefactoringUtil.unparExpr(expr), fileEncloser)
       val occurrences = occurrencesAll.filterNot(ScalaRefactoringUtil.isLiteralPattern(file, _))
       val validator = ScalaVariableValidator(this, project, editor, file, expr, occurrences)
 
@@ -100,9 +91,9 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Confli
             val suggestedNames: Array[String] = NameSuggester.suggestNames(expr, validator)
             import scala.collection.JavaConversions.asJavaCollection
             val suggestedNamesSet = new LinkedHashSet[String](suggestedNames.toIterable)
-            val asVar = ScalaApplicationSettings.getInstance().INTRODUCE_LOCAL_CREATE_VARIABLE
-            ScalaApplicationSettings.getInstance().SPECIFY_TYPE_EXPLICITLY
-            val selectedType = if (ScalaApplicationSettings.getInstance().SPECIFY_TYPE_EXPLICITLY) types(0) else null
+            val asVar = ScalaApplicationSettings.getInstance().INTRODUCE_VARIABLE_IS_VAR
+            ScalaApplicationSettings.getInstance().INTRODUCE_VARIABLE_EXPLICIT_TYPE
+            val selectedType = if (ScalaApplicationSettings.getInstance().INTRODUCE_VARIABLE_EXPLICIT_TYPE) types(0) else null
             val introduceRunnable: Computable[PsiElement] =
               introduceVariable(startOffset, endOffset, file, editor, expr, occurrences, suggestedNames(0), selectedType,
                 replaceAll, asVar)
@@ -119,7 +110,7 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Confli
                 if (namedElement != null) {
                   editor.getCaretModel.moveToOffset(namedElement.getTextOffset)
                   editor.getSelectionModel.removeSelection()
-                  if (isInplaceAvailable(editor)) {
+                  if (ScalaRefactoringUtil.isInplaceAvailable(editor)) {
                     PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument)
                     PsiDocumentManager.getInstance(project).doPostponedOperationsAndUnblockDocument(editor.getDocument)
                     val checkedExpr = if (expr.isValid) expr else null
@@ -133,7 +124,7 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Confli
             }, REFACTORING_NAME, null)
           }
         }
-        if (isInplaceAvailable(editor)) {
+        if (ScalaRefactoringUtil.isInplaceAvailable(editor)) {
           OccurrencesChooser.simpleChooser[ScExpression](editor).showChooser(expr, allExpressionsList, callback)
         }
         else {
@@ -141,7 +132,7 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Confli
         }
       }
 
-      if (isInplaceAvailable(editor)) runInplace()
+      if (ScalaRefactoringUtil.isInplaceAvailable(editor)) runInplace()
       else runWithDialog()
 
     }
@@ -151,239 +142,116 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Confli
     }
   }
 
-  def isInplaceAvailable(editor: Editor): Boolean =
-    editor.getSettings.isVariableInplaceRenameEnabled && !ApplicationManager.getApplication.isUnitTestMode
-
   //returns ScDeclaredElementsHolder or ScEnumerator
   def runRefactoringInside(startOffset: Int, endOffset: Int, file: PsiFile, editor: Editor, expression_ : ScExpression,
                            occurrences_ : Array[TextRange], varName: String, varType: ScType,
                            replaceAllOccurrences: Boolean, isVariable: Boolean): PsiElement = {
-    var createdDeclaration: PsiElement = null
-    val expression = {
-      def copyExpr = expression_.copy.asInstanceOf[ScExpression]
-      def liftMethod = ScalaPsiElementFactory.createExpressionFromText(expression_.getText + " _", expression_.getManager)
-      expression_ match {
-        case ref: ScReferenceExpression => {
-          ref.resolve() match {
-            case fun: ScFunction if fun.paramClauses.clauses.length > 0 &&
-                    fun.paramClauses.clauses.head.isImplicit => copyExpr
-            case fun: ScFunction if !fun.parameters.isEmpty => liftMethod
-            case meth: PsiMethod if !meth.getParameterList.getParameters.isEmpty => liftMethod
-            case _ => copyExpr
-          }
-        }
-        case _ => copyExpr
+
+    def forStmtIfIntroduceEnumerator(parExpr: PsiElement, prev: PsiElement, firstOccurenceOffset: Int): Option[ScForStatement] = {
+      val result = prev match {
+        case forSt: ScForStatement if forSt.body.getOrElse(null) == parExpr => None
+        case forSt: ScForStatement => Some(forSt)
+        case _: ScEnumerator | _: ScGenerator => Option(prev.getParent.getParent.asInstanceOf[ScForStatement])
+        case guard: ScGuard if guard.getParent.isInstanceOf[ScEnumerators] => Option(prev.getParent.getParent.asInstanceOf[ScForStatement])
+        case _ => None
+      }
+      for {//check that first occurence is after first generator
+        forSt <- result
+        enums <- forSt.enumerators
+        generator = enums.generators.apply(0)
+        if firstOccurenceOffset > generator.getTextRange.getEndOffset
+      } yield forSt
+    }
+    def addPrivateIfNotLocal(declaration: PsiElement) {
+      declaration match {
+        case member: ScMember if !member.isLocal =>
+          member.setModifierProperty("private", value = true)
+        case _ =>
       }
     }
-    val occurrences: Array[TextRange] = if (!replaceAllOccurrences) {
-      Array[TextRange](new TextRange(startOffset, endOffset))
-    } else occurrences_
-    //val cursorOffset = editor.getCaretModel.getOffset
-    val mainOcc = occurrences.indexWhere(_.getStartOffset == startOffset)
-    val document = editor.getDocument
-    var i = occurrences.length - 1
-    val commonParent: PsiElement = ScalaRefactoringUtil.commonParent(file, occurrences: _*)
-    val typeName = ScalaRefactoringUtil.typeNameWithImportAliases(varType, commonParent)
-    val container: PsiElement =
-      ScalaPsiUtil.getParentOfType(commonParent, occurrences.length == 1, classOf[ScalaFile], classOf[ScBlock],
-        classOf[ScTemplateBody], classOf[ScCaseClause], classOf[ScFunctionDefinition], classOf[ScFunctionExpr])
 
     val revertInfo = RevertInfo(file.getText, editor.getCaretModel.getOffset)
     editor.putUserData(ScalaIntroduceVariableHandler.REVERT_INFO, revertInfo)
 
-    var needBraces = false
-    var needBlockWithoutBraces = false
-    var elseBranch = false
-    var parExpr: ScExpression = PsiTreeUtil.getParentOfType(commonParent, classOf[ScExpression], false)
-    var prev: PsiElement = if (parExpr == null) file else parExpr.getParent
-    if (prev.isInstanceOf[ScArgumentExprList]) prev = prev.getParent
-    var introduceEnumerator = parExpr.isInstanceOf[ScForStatement]
-    var introduceEnumeratorForStmt: ScForStatement =
-      if (introduceEnumerator) parExpr.asInstanceOf[ScForStatement]
-      else null
-    def checkEnd(prev: PsiElement, parExpr: ScExpression): Boolean = {
-      var result: Option[Boolean] = None
-      prev match {
-        case _: ScBlock => result = Some(true)
-        case _: ScFunction => needBraces = true
-        case memb: ScMember if memb.getParent.isInstanceOf[ScTemplateBody] => needBraces = true
-        case memb: ScMember if memb.getParent.isInstanceOf[ScEarlyDefinitions] => needBraces = true
-        case ifSt: ScIfStmt if ifSt.thenBranch.getOrElse(null) == parExpr ||
-                ifSt.elseBranch.getOrElse(null) == parExpr => {
-          if (ifSt.elseBranch.getOrElse(null) == parExpr) elseBranch = true
-          needBraces = true
-        }
-        case forSt: ScForStatement if forSt.body.getOrElse(null) == parExpr => needBraces = true
-        case forSt: ScForStatement => {
-          introduceEnumerator = true
-          introduceEnumeratorForStmt = forSt
-          result = Some(true)
-        }
-        case _: ScEnumerator | _: ScGenerator => {
-          introduceEnumeratorForStmt = prev.getParent.getParent.asInstanceOf[ScForStatement]
-          introduceEnumerator = true
-        }
-        case guard: ScGuard if guard.getParent.isInstanceOf[ScEnumerators] => {
-          introduceEnumeratorForStmt = prev.getParent.getParent.asInstanceOf[ScForStatement]
-          introduceEnumerator = true
-        }
-        case whSt: ScWhileStmt if whSt.body.getOrElse(null) == parExpr => needBraces = true
-        case doSt: ScDoStmt if doSt.getExprBody.getOrElse(null) == parExpr => needBraces = true
-        case finBl: ScFinallyBlock if finBl.expression.getOrElse(null) == parExpr => needBraces = true
-        case fE: ScFunctionExpr =>
-          needBraces = fE.getContext match {
-            case be: ScBlock if be.lastExpr == Some(fE) =>
-              needBlockWithoutBraces = true
-              false
-            case _ => true
-          }
-        case clause: ScCaseClause => needBraces = false
-        case _ =>
-      }
-      result getOrElse needBraces
-    }
-    if (!parExpr.isInstanceOf[ScBlock] || (commonParent.isInstanceOf[ScBlock] && occurrences.length == 1))
-      while (prev != null && !checkEnd(prev, parExpr) && prev.isInstanceOf[ScExpression]) {
-        parExpr = prev.asInstanceOf[ScExpression]
-        prev = prev.getParent
-        if (prev.isInstanceOf[ScArgumentExprList]) prev = prev.getParent
-      }
+    val expression = ScalaRefactoringUtil.expressionToIntroduce(expression_)
+    val mainRange = new TextRange(startOffset, endOffset)
+    val occurrences: Array[TextRange] = if (!replaceAllOccurrences) {
+      Array[TextRange](mainRange)
+    } else occurrences_
+    val occCount = occurrences.length
+    val mainOcc = occurrences.indexWhere(range => range.contains(mainRange) || mainRange.contains(range))
+
+    val lineText = ScalaRefactoringUtil.getLineText(editor)
+    val fastDefinition = editor.getSelectionModel.getSelectedText != null &&
+            lineText != null && editor.getSelectionModel.getSelectedText.trim == lineText.trim && occCount == 1
+
+    //changes document directly
+    val replacedOccurences = ScalaRefactoringUtil.replaceOccurences(occurrences, varName, file, editor)
+    //only Psi-operations after this moment
+    var firstRange = replacedOccurences(0).getTextRange
+
+    val commonParent: PsiElement = ScalaRefactoringUtil.commonParent(file, replacedOccurences.map(_.getTextRange): _*)
+
+    val parExpr: ScExpression = ScalaRefactoringUtil.findParentExpr(commonParent)
+    val prev: PsiElement = ScalaRefactoringUtil.previous(parExpr, file)
+
+    val forStmtOption = forStmtIfIntroduceEnumerator(parExpr, prev, firstRange.getStartOffset)
+    val introduceEnumerator = forStmtOption.isDefined
+    val introduceEnumeratorForStmt: ScForStatement = forStmtOption.getOrElse(null)
+
+    editor.getCaretModel.moveToOffset(replacedOccurences(mainOcc).getTextRange.getEndOffset)
+
+    var createdDeclaration: PsiElement = null
 
     if (introduceEnumerator) {
-      val endoffset =
-        introduceEnumeratorForStmt.enumerators.getOrElse(null).generators.apply(0).getTextRange.getEndOffset
-      if (occurrences(0).getStartOffset < endoffset) introduceEnumerator = false
-    }
-    while (i >= 0) {
-      var parentheses = 0
-      val offset = occurrences(i).getStartOffset
-      document.replaceString(offset, occurrences(i).getEndOffset, varName)
-      val documentManager = PsiDocumentManager.getInstance(editor.getProject)
-      documentManager.commitDocument(document)
-      val leafIdentifier = file.findElementAt(offset)
-      if (!(deleteOccurrence && replaceAllOccurrences) && leafIdentifier.getParent != null &&
-              leafIdentifier.getParent.getParent.isInstanceOf[ScParenthesisedExpr]) {
-        val textRange = leafIdentifier.getParent.getParent.getTextRange
-        document.replaceString(textRange.getStartOffset, textRange.getEndOffset, varName)
-        documentManager.commitDocument(document)
-        parentheses = -2
-      } else if (leafIdentifier.getParent != null && leafIdentifier.getParent.getParent.isInstanceOf[ScPostfixExpr] &&
-              leafIdentifier.getParent.getParent.asInstanceOf[ScPostfixExpr].operation == leafIdentifier.getParent) {
-        //This case for block argument expression
-        val textRange = leafIdentifier.getParent.getTextRange
-        document.replaceString(textRange.getStartOffset, textRange.getEndOffset, "(" + varName + ")")
-        documentManager.commitDocument(document)
-        parentheses = 2
-      }
-      if (i == mainOcc) {
-        editor.getCaretModel.moveToOffset(offset + parentheses + varName.length)
-      }
-      if (i == 0) {
-        //from here we must to end changing document, only Psi operations (because document will be locked)
-        if (introduceEnumerator) {
-          val parent: ScEnumerators = introduceEnumeratorForStmt.
-                  enumerators.getOrElse(null)
-          var needSemicolon = false
-          var sibling: PsiElement = parent
-          while (sibling != null) {
-            sibling.getNode.getElementType match {
-              case ScalaTokenTypes.tLBRACE => sibling = null
-              case ScalaTokenTypes.tLPARENTHESIS =>
-                needSemicolon = true
-                sibling = null
-              case _ => sibling = sibling.getPrevSibling
-            }
-          }
-          createdDeclaration = ScalaPsiElementFactory.createEnumerator(varName, ScalaRefactoringUtil.unparExpr(expression), file.getManager, typeName)
-          var elem = file.findElementAt(occurrences(0).getStartOffset + (if (needBraces) 1 else 0) + parentheses)
-          while (elem != null && elem.getParent != parent) elem = elem.getParent
-          if (elem != null) {
-            if (needSemicolon) {
-              needSemicolon = true
-              sibling = elem.getPrevSibling
-              while (sibling != null && sibling.getText.trim == "") sibling = sibling.getPrevSibling
-              if (sibling != null && sibling.getText.endsWith(";")) needSemicolon = false
-              createdDeclaration = parent.addBefore(createdDeclaration, parent.addBefore(ScalaPsiElementFactory.createSemicolon(parent.getManager), elem))
-              if (needSemicolon) {
-                parent.addBefore(ScalaPsiElementFactory.createSemicolon(parent.getManager), createdDeclaration)
-              }
-            } else {
-              needSemicolon = true
-              sibling = elem.getPrevSibling
-              if (sibling.getText.indexOf('\n') != -1) needSemicolon = false
-              createdDeclaration = parent.addBefore(createdDeclaration, elem)
-              parent.addBefore(ScalaPsiElementFactory.createNewLineNode(elem.getManager).getPsi, elem)
-              if (needSemicolon) {
-                parent.addBefore(ScalaPsiElementFactory.createNewLineNode(parent.getManager).getPsi, createdDeclaration)
-              }
-            }
+      val parent: ScEnumerators = introduceEnumeratorForStmt.enumerators.getOrElse(null)
+      val inParentheses = parent.prevSiblings.toList.exists(_.getNode.getElementType == ScalaTokenTypes.tLPARENTHESIS)
+      createdDeclaration = ScalaPsiElementFactory.createEnumerator(varName, ScalaRefactoringUtil.unparExpr(expression), file.getManager, varType)
+      val elem = parent.getChildren.filter(_.getTextRange.contains(firstRange)).head
+      if (elem != null) {
+        var needSemicolon = true
+        var sibling = elem.getPrevSibling
+        if (inParentheses) {
+          while (sibling != null && sibling.getText.trim == "") sibling = sibling.getPrevSibling
+          if (sibling != null && sibling.getText.endsWith(";")) needSemicolon = false
+          createdDeclaration = parent.addBefore(createdDeclaration, parent.addBefore(ScalaPsiElementFactory.createSemicolon(parent.getManager), elem))
+          if (needSemicolon) {
+            parent.addBefore(ScalaPsiElementFactory.createSemicolon(parent.getManager), createdDeclaration)
           }
         } else {
-          if (needBraces && parExpr != null && !parExpr.isValid && prev != null && prev.isValid) {
-            parExpr = {
-              prev match {
-                case fun: ScFunctionDefinition => fun.body.getOrElse(null)
-                case vl@ScPatternDefinition.expr(expr) => expr
-                case vr@ScVariableDefinition.expr(expr) => expr
-                case ifSt: ScIfStmt if elseBranch => ifSt.elseBranch.getOrElse(null)
-                case ifSt: ScIfStmt => ifSt.thenBranch.getOrElse(null)
-                case whSt: ScWhileStmt => whSt.body.getOrElse(null)
-                case doSt: ScDoStmt => doSt.getExprBody.getOrElse(null)
-                case fE: ScFunctionExpr => fE.result.getOrElse(null)
-                case forSt: ScForStatement => forSt.body.getOrElse(null)
-                case clause: ScCaseClause => clause.expr.getOrElse(null)
-                case _ => null
-              }
-            }
-          } else if (needBlockWithoutBraces && parExpr != null && parExpr.isValid && parExpr.isInstanceOf[ScFunctionExpr]) {
-            parExpr match {
-              case f: ScFunctionExpr =>
-                f.result match {
-                  case Some(res) => parExpr = res
-                  case _ => needBlockWithoutBraces = false
-                }
-              case _ => needBlockWithoutBraces = false
-            }
-          } else needBlockWithoutBraces = false
-          if (needBraces && parExpr != null && parExpr.isValid) {
-            parExpr = parExpr.replaceExpression(ScalaPsiElementFactory.createExpressionFromText("{" + parExpr.getText + "}", file.getManager), removeParenthesis = false)
-          } else if (needBlockWithoutBraces && parExpr != null && parExpr.isValid) {
-            val fromText = ScalaPsiElementFactory.createBlockExpressionWithoutBracesFromText(parExpr.getText, file.getManager)
-            if (fromText != null)
-              parExpr = parExpr.replaceExpression(fromText, removeParenthesis = false)
-          }
-          val parent = if ((needBraces || needBlockWithoutBraces) && parExpr != null && parExpr.isValid) parExpr
-          else container
-          createdDeclaration = ScalaPsiElementFactory.createDeclaration(varName, typeName, isVariable,
-            ScalaRefactoringUtil.unparExpr(expression), file.getManager)
-          var elem = file.findElementAt(occurrences(0).getStartOffset + (if (needBraces) 1 else 0) + parentheses / 2)
-          while (elem != null && elem.getParent != parent) elem = elem.getParent
-          if (elem != null) {
-            createdDeclaration = parent.addBefore(createdDeclaration, elem).asInstanceOf[ScMember]
-            parent.addBefore(ScalaPsiElementFactory.createNewLineNode(elem.getManager, "\n").getPsi, elem)
-          }
-          if (deleteOccurrence && !replaceAllOccurrences) {
-            elem = createdDeclaration.getNextSibling
-            while (elem != null && elem.getText.trim == "") elem = elem.getNextSibling
-            if (elem != null) {
-              elem.getParent.getNode.removeChild(elem.getNode)
-              val element = createdDeclaration.getNextSibling
-              if (element.getText.trim == "") {
-                val nl = Pattern.compile("\n", Pattern.LITERAL).matcher(element.getText).replaceFirst(Matcher.quoteReplacement(""))
-                if (nl.replace(" ", "") != "") {
-                  element.replace(ScalaPsiElementFactory.createNewLineNode(element.getManager, nl).getPsi)
-                } else {
-                  element.getParent.getNode.removeChild(element.getNode)
-                }
-              }
-            }
-            editor.getCaretModel.moveToOffset(createdDeclaration.getTextRange.getEndOffset)
+          if (sibling.getText.indexOf('\n') != -1) needSemicolon = false
+          createdDeclaration = parent.addBefore(createdDeclaration, elem)
+          parent.addBefore(ScalaPsiElementFactory.createNewLineNode(elem.getManager).getPsi, elem)
+          if (needSemicolon) {
+            parent.addBefore(ScalaPsiElementFactory.createNewLineNode(parent.getManager).getPsi, createdDeclaration)
           }
         }
       }
-      i = i - 1
-    }
+    } else {
+      createdDeclaration = ScalaPsiElementFactory.createDeclaration(varType, varName, isVariable,
+        ScalaRefactoringUtil.unparExpr(expression), file.getManager, isPresentableText = false)
+      if (fastDefinition) {
+        replacedOccurences(0).replace(createdDeclaration)
+        editor.getCaretModel.moveToOffset(createdDeclaration.getTextRange.getEndOffset)
+      } else {
+        val container: PsiElement = ScalaRefactoringUtil.container(parExpr, file, occCount == 1)
+        val needBraces = !parExpr.isInstanceOf[ScBlock] && ScalaRefactoringUtil.needBraces(parExpr, prev)
+        val parent =
+          if (needBraces) {
+            firstRange = firstRange.shiftRight(1)
+            parExpr.replaceExpression(ScalaPsiElementFactory.createExpressionFromText("{" + parExpr.getText + "}", file.getManager),
+              removeParenthesis = false)
+          } else container
 
+        val anchor = parent.getChildren.filter(_.getTextRange.contains(firstRange)).head
+        if (anchor != null) {
+          createdDeclaration = parent.addBefore(createdDeclaration, anchor).asInstanceOf[ScMember]
+          parent.addBefore(ScalaPsiElementFactory.createNewLineNode(anchor.getManager, "\n").getPsi, anchor)
+        } else throw new IntroduceException
+      }
+    }
+    addPrivateIfNotLocal(createdDeclaration)
+    ScalaPsiUtil.adjustTypes(createdDeclaration)
     createdDeclaration
   }
 
@@ -441,9 +309,29 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Confli
     conflictsDialog.show()
     conflictsDialog.isOK
   }
+
+  def runTest(project: Project, editor: Editor, file: PsiFile, startOffset: Int, endOffset: Int, replaceAll: Boolean) {
+    PsiDocumentManager.getInstance(project).commitAllDocuments()
+    ScalaRefactoringUtil.checkFile(file, project, editor, REFACTORING_NAME)
+
+    val (expr: ScExpression, scType: ScType) = ScalaRefactoringUtil.getExpression(project, editor, file, startOffset, endOffset).
+            getOrElse(showErrorMessage(ScalaBundle.message("cannot.refactor.not.expression"), project, editor, REFACTORING_NAME))
+
+    val types = ScalaRefactoringUtil.addPossibleTypes(scType, expr)
+
+    ScalaRefactoringUtil.checkCanBeIntroduced(expr, showErrorMessage(_, project, editor, REFACTORING_NAME))
+
+    val fileEncloser = ScalaRefactoringUtil.fileEncloser(startOffset, file)
+    val occurrencesAll: Array[TextRange] = ScalaRefactoringUtil.getOccurrenceRanges(ScalaRefactoringUtil.unparExpr(expr), fileEncloser)
+    val occurrences = occurrencesAll.filterNot(ScalaRefactoringUtil.isLiteralPattern(file, _))
+    runRefactoring(startOffset, endOffset, file, editor, expr, occurrences, "value", types(0), replaceAll, isVariable = false)
+  }
+
 }
 
 object ScalaIntroduceVariableHandler {
   val REVERT_INFO: Key[RevertInfo] = new Key("RevertInfo")
+
   case class RevertInfo(fileText: String, caretOffset: Int)
+
 }

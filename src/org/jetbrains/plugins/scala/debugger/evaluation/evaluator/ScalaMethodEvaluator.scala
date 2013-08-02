@@ -9,15 +9,18 @@ import com.sun.jdi._
 import java.lang.String
 import com.intellij.debugger.{SourcePosition, DebuggerBundle}
 import com.intellij.openapi.application.ApplicationManager
+import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil
 
 /**
  * User: Alefas
  * Date: 12.10.11
  */
-case class ScalaMethodEvaluator(objectEvaluator: Evaluator, methodName: String, signature: JVMName,
+case class ScalaMethodEvaluator(objectEvaluator: Evaluator, _methodName: String, signature: JVMName,
                            argumentEvaluators: Seq[Evaluator], localMethod: Boolean,
                            traitImplementation: Option[JVMName], methodPosition: Set[SourcePosition]) extends Evaluator {
   def getModifier: Modifier = null
+
+  val methodName = DebuggerUtil.withoutBackticks(_methodName)
 
   def evaluate(context: EvaluationContextImpl): AnyRef = {
     if (!context.getDebugProcess.isAttached) return null

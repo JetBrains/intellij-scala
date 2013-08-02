@@ -3,7 +3,7 @@ package codeInspection.relativeImports
 
 import codeInspection.AbstractInspection
 import com.intellij.codeInspection.{ProblemDescriptor, LocalQuickFix, ProblemsHolder}
-import com.intellij.psi.{PsiClass, PsiPackage, PsiElement}
+import com.intellij.psi.{PsiPackage, PsiElement}
 import lang.psi.api.toplevel.imports.ScImportExpr
 import lang.psi.api.base.ScStableCodeReferenceElement
 import annotation.tailrec
@@ -12,8 +12,7 @@ import com.intellij.openapi.project.Project
 import settings.ScalaProjectSettings
 import collection.mutable.ArrayBuffer
 import lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.extensions
-import lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
+import lang.psi.api.toplevel.typedef.ScObject
 
 /**
  * @author Alefas
@@ -23,8 +22,7 @@ class RelativeImportInspection extends AbstractInspection("RelativeImport", "Rel
   import RelativeImportInspection.qual
 
   def actionFor(holder: ProblemsHolder): PartialFunction[PsiElement, Any] = {
-    case expr: ScImportExpr =>
-      assert(expr.qualifier != null, s"Expression qualifier is null, expression text: ${expr.getText}, expr parent text: ${expr.getParent.getText}")
+    case expr: ScImportExpr if expr.qualifier != null =>
       val q = qual(expr.qualifier)
       val resolve = q.multiResolve(false)
       for (elem <- resolve) {

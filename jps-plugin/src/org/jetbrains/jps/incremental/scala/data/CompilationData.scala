@@ -140,8 +140,7 @@ object CompilationData {
     }
 
     if (errors.isEmpty) None else Some(errors.mkString("\n") +
-            "\nCurrently external Scala compiler prohibits output path sharing." +
-            "\nEither disable the external build mode or configure separate output paths." +
-            "\nTIP: you can use Project Artifacts to combine compiled classes.")
+            "\nPlease configure separate output paths to proceed with the compilation." +
+            "\nTIP: you can use Project Artifacts to combine compiled classes if needed.")
   }
 }

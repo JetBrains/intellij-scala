@@ -22,6 +22,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTe
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.debugger.evaluation.ScalaCodeFragment
 import org.jetbrains.plugins.scala.console.ScalaLanguageConsoleView
+import org.jetbrains.plugins.scala.codeInspection.collections.MethodRepr
 
 /**
  * Pavel Fatin
@@ -153,8 +154,8 @@ abstract class CreateEntityQuickFix(ref: ScReferenceExpression,
   }
 
   private def parametersFor(ref: ScReferenceExpression): Option[String] = ref.parent.collect {
-    case call: MethodInvocation =>
-      val types = call.argumentExpressions.map(_.getType(TypingContext.empty).getOrAny)
+    case MethodRepr(_, _, Some(`ref`), args) =>
+      val types = args.map(_.getType(TypingContext.empty).getOrAny)
       val names = types.map(NameSuggester.suggestNamesByType(_).headOption.getOrElse("value"))
       val uniqueNames = names.foldLeft(List[String]()) { (r, h) =>
         (h #:: Stream.from(1).map(h + _)).find(!r.contains(_)).get :: r

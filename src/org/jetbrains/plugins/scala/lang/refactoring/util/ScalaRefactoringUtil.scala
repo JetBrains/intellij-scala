@@ -30,23 +30,23 @@ import psi.types._
 import psi.api.statements.ScFunction
 import lang.resolve.ScalaResolveResult
 import psi.api.expr.xml.ScXmlExpr
-import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiUtil, ScImportsHolder, ScalaPsiElement}
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScReferenceElement, ScLiteral}
+import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiUtil, ScalaPsiElement}
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import com.intellij.openapi.editor.{VisualPosition, Editor}
 import com.intellij.openapi.actionSystem.DataContext
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaRecursiveElementVisitor, ScalaFile}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScEarlyDefinitions
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportExpr
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScTypeProjection, ScTypeElement, ScSimpleTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.types.ScDesignatorType
-import scala.Some
 import org.jetbrains.plugins.scala.lang.psi.types.ScFunctionType
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTemplateDefinition, ScClass, ScTypeDefinition}
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.refactoring.util.CommonRefactoringUtil
 import com.intellij.refactoring.HelpID
 import java.util
+import scala.annotation.tailrec
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
+
 
 /**
  * User: Alexander Podkhalyuzin
@@ -97,12 +97,13 @@ object ScalaRefactoringUtil {
 
   def addPossibleTypes(scType: ScType, expr: ScExpression): Array[ScType] = {
     val types = new ArrayBuffer[ScType]
-    if (scType != null && scType != psi.types.Unit) types += scType
+    if (scType != null) types += scType
     expr.getTypeWithoutImplicits(TypingContext.empty).foreach(types +=)
     expr.getTypeIgnoreBaseType(TypingContext.empty).foreach(types +=)
-    if (scType == psi.types.Unit) types += scType
     if (types.isEmpty) types += psi.types.Any
-    types.toArray
+    val unit = psi.types.Unit
+    val result = if (types.contains(unit)) (types.distinct - unit) :+ unit else types.distinct
+    result.toArray
   }
 
   def getExpression(project: Project, editor: Editor, file: PsiFile, startOffset: Int, endOffset: Int): Option[(ScExpression, ScType)] = {
@@ -167,6 +168,23 @@ object ScalaRefactoringUtil {
     Some((element, exprType))
   }
 
+  def expressionToIntroduce(expr: ScExpression): ScExpression = {
+    def copyExpr = expr.copy.asInstanceOf[ScExpression]
+    def liftMethod = ScalaPsiElementFactory.createExpressionFromText(expr.getText + " _", expr.getManager)
+    expr match {
+      case ref: ScReferenceExpression => {
+        ref.resolve() match {
+          case fun: ScFunction if fun.paramClauses.clauses.length > 0 &&
+                  fun.paramClauses.clauses.head.isImplicit => copyExpr
+          case fun: ScFunction if !fun.parameters.isEmpty => liftMethod
+          case meth: PsiMethod if !meth.getParameterList.getParameters.isEmpty => liftMethod
+          case _ => copyExpr
+        }
+      }
+      case _ => copyExpr
+    }
+  }
+
   def ensureFileWritable(project: Project, file: PsiFile): Boolean = {
     val virtualFile = file.getVirtualFile
     val readonlyStatusHandler = ReadonlyStatusHandler.getInstance(project)
@@ -174,17 +192,20 @@ object ScalaRefactoringUtil {
     !operationStatus.hasReadonlyFiles
   }
 
-  def getOccurrences(element: PsiElement, enclosingContainer: PsiElement): Array[TextRange] = {
-    val occurrences: ArrayBuffer[TextRange] = new ArrayBuffer[TextRange]()
-    if (enclosingContainer == element) occurrences += enclosingContainer.asInstanceOf[ScExpression].getTextRange
+  def getOccurrenceRanges(element: PsiElement, enclosingContainer: PsiElement): Array[TextRange] =
+    getOccurrences(element, enclosingContainer).map(_.getTextRange)
+
+  def getOccurrences(element: PsiElement, enclosingContainer: PsiElement): Array[ScExpression] = {
+    val occurrences: ArrayBuffer[ScExpression] = new ArrayBuffer[ScExpression]()
+    if (enclosingContainer == element) occurrences += enclosingContainer.asInstanceOf[ScExpression]
     else
       for (child <- enclosingContainer.getChildren) {
         if (PsiEquivalenceUtil.areElementsEquivalent(child, element, comparator, false)) {
           child match {
             case x: ScExpression => {
               x.getParent match {
-                case y: ScMethodCall if y.args.exprs.size == 0 => occurrences += y.getTextRange
-                case _ => occurrences += x.getTextRange
+                case y: ScMethodCall if y.args.exprs.size == 0 => occurrences += y
+                case _ => occurrences += x
               }
             }
             case _ =>
@@ -195,6 +216,7 @@ object ScalaRefactoringUtil {
       }
     occurrences.toArray
   }
+
 
   def unparExpr(expr: ScExpression): ScExpression = {
     expr match {
@@ -442,11 +464,11 @@ object ScalaRefactoringUtil {
   }
 
   private[refactoring] def getLineText(editor: Editor): String = {
-    val lineNumber = editor.getCaretModel.getLogicalPosition.line
+    val lineNumber = Option(editor.getSelectionModel.getSelectionEndPosition.getLine)
+            .getOrElse(editor.getCaretModel.getLogicalPosition.line)
     if (lineNumber >= editor.getDocument.getLineCount) return ""
-    val caret = editor.getCaretModel.getVisualPosition
-    val lineStart = editor.visualToLogicalPosition(new VisualPosition(caret.line, 0))
-    val nextLineStart = editor.visualToLogicalPosition(new VisualPosition(caret.line + 1, 0))
+    val lineStart = editor.visualToLogicalPosition(new VisualPosition(lineNumber, 0))
+    val nextLineStart = editor.visualToLogicalPosition(new VisualPosition(lineNumber + 1, 0))
     val start = editor.logicalPositionToOffset(lineStart)
     val end = editor.logicalPositionToOffset(nextLineStart)
     editor.getDocument.getText.substring(start, end)
@@ -486,17 +508,15 @@ object ScalaRefactoringUtil {
         chooseExpression(expressions(0))
         return
       } else {
-        ScalaRefactoringUtil.showChooser(editor, expressions, elem =>
+        showChooser(editor, expressions, elem =>
           chooseExpression(elem.asInstanceOf[ScExpression]), ScalaBundle.message("choose.expression.for", refactoringName), (expr: ScExpression) => {
-          ScalaRefactoringUtil.getShortText(expr)
+          getShortText(expr)
         })
         return
       }
     }
     invokesNext()
   }
-
-
 
   def fileEncloser(startOffset: Int, file: PsiFile): PsiElement = {
     if (file.asInstanceOf[ScalaFile].isScriptFile()) file
@@ -516,102 +536,13 @@ object ScalaRefactoringUtil {
     }
   }
 
+  def isInplaceAvailable(editor: Editor): Boolean =
+    editor.getSettings.isVariableInplaceRenameEnabled && !ApplicationManager.getApplication.isUnitTestMode
+
   def enclosingContainer(file: PsiFile, textRanges: TextRange*): PsiElement = {
-    Option(commonParent(file, textRanges: _*)).flatMap(_.firstChild).flatMap(_.scopes.toStream.headOption).orNull
-  }
-
-  def availableImportAliases(position: PsiElement): Set[(ScReferenceElement, String)] = {
-
-    def getSelectors(holder: ScImportsHolder): Set[(ScReferenceElement, String)] = {
-      val result = collection.mutable.Set[(ScReferenceElement, String)]()
-      if (holder != null) {
-        val importExprs: Seq[ScImportExpr] = holder.getImportStatements.flatMap(_.importExprs)
-        importExprs.flatMap(_.selectors).foreach(s => result += ((s.reference, s.importedName)))
-        importExprs.filter(_.selectors.isEmpty).flatMap(_.reference).foreach(ref => result += ((ref, ref.refName)))
-        result.toSet
-      }
-      else Set.empty
-    }
-
-    if (position != null && position.getLanguage.getID != "Scala")
-      throw new IllegalArgumentException("Only for scala")
-
-    var parent = position.getParent
-    val aliases = collection.mutable.Set[(ScReferenceElement, String)]()
-    while (parent != null) {
-      parent match {
-        case holder: ScImportsHolder => aliases ++= getSelectors(holder)
-        case _ =>
-      }
-      parent = if (parent.isInstanceOf[PsiFile]) null else parent.getParent
-    }
-    aliases.filter(_._1.getTextRange.getEndOffset < position.getTextOffset).toSet
-  }
-
-  def typeNameWithImportAliases(scType: ScType, position: PsiElement): String = {
-
-    def referencesToReplace(psiElement: PsiElement, aliases: Set[(ScReferenceElement, String)]): Map[ScSimpleTypeElement, (ScReferenceElement, String)] = {
-      val result = collection.mutable.Map[ScSimpleTypeElement, (ScReferenceElement, String)]()
-      val visitor = new ScalaRecursiveElementVisitor() {
-        //Override also visitReferenceExpression! and visitTypeProjection!
-        override def visitReference(ref: ScReferenceElement) {
-          for {
-            alias <- aliases
-            if ref.resolve() == alias._1.resolve() || (ref.resolve() == null && ref.refName == alias._1.refName)
-            simpleTypeElem = ScalaPsiUtil.getParentOfType(ref, classOf[ScSimpleTypeElement]).asInstanceOf[ScSimpleTypeElement]
-            if simpleTypeElem != null
-          } {
-            result += (simpleTypeElem -> (ref, alias._2))
-          }
-          super.visitReference(ref)
-        }
-        override def visitReferenceExpression(ref: ScReferenceExpression) {
-          visitReference(ref)
-          super.visitReferenceExpression(ref)
-        }
-        override def visitTypeProjection(proj: ScTypeProjection) {
-          visitReference(proj)
-          super.visitTypeProjection(proj)
-        }
-      }
-      psiElement.accept(visitor)
-      result.filterKeys(ref => ScalaPsiUtil.getParentOfType(ref, classOf[ScSimpleTypeElement]) != null).toMap
-    }
-
-    def replaceRefsWithAliases(psiElement: PsiElement, aliases: Map[ScSimpleTypeElement, (ScReferenceElement, String)]) {
-      val visitor = new ScalaRecursiveElementVisitor() {
-        override def visitSimpleTypeElement(simple: ScSimpleTypeElement) {
-          //replace by import aliases
-          if (aliases.isDefinedAt(simple)) {
-            val (ref, name) = aliases(simple)
-            val newRef = ScalaPsiElementFactory.createReferenceFromText(name, position.getManager)
-            ref.getParent.getNode.replaceChild(ref.getNode, newRef.getNode)
-          } else {
-            //replace canonical texts by presentable text
-            for (oldRef <- simple.reference; if oldRef.resolve != null) {
-              val typeName = simple.calcType.presentableText
-              val newRef = ScalaPsiElementFactory.createReferenceFromText(typeName, position.getManager)
-              oldRef.getParent.getNode.replaceChild(oldRef.getNode, newRef.getNode)
-            }
-          }
-          super.visitSimpleTypeElement(simple)
-        }
-      }
-      psiElement.accept(visitor)
-
-    }
-
-    if (scType == null) ""
-    else {
-      val canonicalTypeElem: ScTypeElement =
-        ScalaPsiElementFactory.createTypeElementFromText(scType.canonicalText, position.getManager)
-      val aliases = availableImportAliases(position)
-      val refsWithAliases = referencesToReplace(canonicalTypeElem, aliases)
-      val maxRefsWithAliases = refsWithAliases.filterKeys(ref =>
-        refsWithAliases.keys.forall(!_.isAncestorOf(ref)))
-      replaceRefsWithAliases(canonicalTypeElem, maxRefsWithAliases)
-      canonicalTypeElem.getText
-    }
+    Option(commonParent(file, textRanges: _*))
+            .map(elem => elem.firstChild.getOrElse(elem)) //to make enclosing container non-strict
+            .flatMap(_.scopes.toStream.headOption).orNull
   }
 
   def commonParent(file: PsiFile, textRanges: TextRange*): PsiElement = {
@@ -660,6 +591,12 @@ object ScalaRefactoringUtil {
     if (guard != null && guard.getParent.isInstanceOf[ScCaseClause])
       errorMessage = ScalaBundle.message("refactoring.is.not.supported.in.guard")
 
+    expr match {
+      case block: ScBlock if !block.hasRBrace && block.statements.size != 1 =>
+        errorMessage = ScalaBundle.message("cannot.refactor.not.expression")
+      case _ =>
+    }
+
     if (errorMessage == null) errorMessage = expr.getParent match {
       case inf: ScInfixExpr if inf.operation == expr => ScalaBundle.message("cannot.refactor.not.expression")
       case post: ScPostfixExpr if post.operation == expr => ScalaBundle.message("cannot.refactor.not.expression")
@@ -676,6 +613,122 @@ object ScalaRefactoringUtil {
     }
     if (errorMessage != null) action(errorMessage)
     errorMessage == null
+  }
+
+
+  def replaceOccurence(textRange: TextRange, newString: String, file: PsiFile, editor: Editor): ScExpression = {
+    var shift = 0
+    val document = editor.getDocument
+    val start = textRange.getStartOffset
+    document.replaceString(start, textRange.getEndOffset, newString)
+    val documentManager = PsiDocumentManager.getInstance(editor.getProject)
+    documentManager.commitDocument(document)
+    val leafIdentifier = file.findElementAt(start)
+    if (leafIdentifier.getParent != null &&
+            leafIdentifier.getParent.getParent.isInstanceOf[ScParenthesisedExpr]) {
+      val textRange = leafIdentifier.getParent.getParent.getTextRange
+      document.replaceString(textRange.getStartOffset, textRange.getEndOffset, newString)
+      documentManager.commitDocument(document)
+      shift = -2
+    } else if (leafIdentifier.getParent != null && leafIdentifier.getParent.getParent.isInstanceOf[ScPostfixExpr] &&
+            leafIdentifier.getParent.getParent.asInstanceOf[ScPostfixExpr].operation == leafIdentifier.getParent) {
+      //This case for block argument expression
+      val textRange = leafIdentifier.getParent.getTextRange
+      document.replaceString(textRange.getStartOffset, textRange.getEndOffset, "(" + newString + ")")
+      documentManager.commitDocument(document)
+      shift = 2
+    }
+    val newStart = start + shift / 2
+    val newEnd = newStart + newString.length
+    val newExpr = PsiTreeUtil.findElementOfClassAtRange(file, newStart, newEnd, classOf[ScExpression])
+    if (newExpr != null) newExpr else throw new IntroduceException
+  }
+
+  def replaceOccurences(occurences: Array[TextRange], newString: String, file: PsiFile, editor: Editor): Array[ScExpression] = {
+    occurences.reverseMap(ScalaRefactoringUtil.replaceOccurence(_, newString, file, editor)).reverse
+  }
+
+  def statementsAndMembersInClass(aClass: ScTemplateDefinition): Seq[PsiElement] = {
+    val body = aClass.extendsBlock.templateBody
+    body.toSeq.flatMap(_.children).filter(child => child.isInstanceOf[ScBlockStatement] || child.isInstanceOf[ScMember])
+  }
+
+  @tailrec
+  def findParentExpr(elem: PsiElement): ScExpression = {
+    def checkEnd(prev: PsiElement, parExpr: ScExpression): Boolean = {
+      val result: Boolean = prev match {
+        case _: ScBlock => true
+        case forSt: ScForStatement if forSt.body.getOrElse(null) == parExpr => false //in this case needBraces == true
+        case forSt: ScForStatement => true
+        case _ => false
+      }
+      result || needBraces(parExpr, prev)
+    }
+    val expr = PsiTreeUtil.getParentOfType(elem, classOf[ScExpression], false)
+    val prev = previous(expr, elem.getContainingFile)
+    prev match {
+      case prevExpr: ScExpression if !checkEnd(prev, expr) => findParentExpr(prevExpr)
+      case prevExpr: ScExpression if checkEnd(prev, expr) => expr
+      case _ => expr
+    }
+  }
+
+  def previous(expr: ScExpression, file: PsiFile): PsiElement = {
+    if (expr == null) file
+    else expr.getParent match {
+      case args: ScArgumentExprList => args.getParent
+      case other => other
+    }
+  }
+
+  def needBraces(parExpr: PsiElement, prev: PsiElement): Boolean = {
+    prev match {
+      case _: ScBlock | _: ScTemplateBody | _: ScEarlyDefinitions | _: ScalaFile | _: ScCaseClause => false
+      case _: ScFunction => true
+      case memb: ScMember if memb.getParent.isInstanceOf[ScTemplateBody] => true
+      case memb: ScMember if memb.getParent.isInstanceOf[ScEarlyDefinitions] => true
+      case ifSt: ScIfStmt if Seq(ifSt.thenBranch, ifSt.elseBranch) contains Option(parExpr) => true
+      case forSt: ScForStatement if forSt.body.getOrElse(null) == parExpr => true
+      case forSt: ScForStatement => false
+      case _: ScEnumerator | _: ScGenerator => false
+      case guard: ScGuard if guard.getParent.isInstanceOf[ScEnumerators] => false
+      case whSt: ScWhileStmt if whSt.body.getOrElse(null) == parExpr => true
+      case doSt: ScDoStmt if doSt.getExprBody.getOrElse(null) == parExpr => true
+      case finBl: ScFinallyBlock if finBl.expression.getOrElse(null) == parExpr => true
+      case fE: ScFunctionExpr =>
+        fE.getContext match {
+          case be: ScBlock if be.lastExpr == Some(fE) => false
+          case _ => true
+        }
+      case _ => false
+    }
+  }
+
+
+  def checkForwardReferences(expr: ScExpression, position: PsiElement): Boolean = {
+    var result = true
+    val visitor = new ScalaRecursiveElementVisitor() {
+      override def visitReferenceExpression(ref: ScReferenceExpression) {
+        ref.getParent match {
+          case ScInfixExpr(_, `ref`, _)  =>
+          case ScPostfixExpr(_, `ref`) =>
+          case ScPrefixExpr(`ref`, _) =>
+          case _ =>
+            val newRef = ScalaPsiElementFactory.createExpressionFromText(ref.getText, position)
+                    .asInstanceOf[ScReferenceExpression]
+            result &= ref.resolve() == newRef.resolve()
+        }
+        super.visitReferenceExpression(ref)
+      }
+    }
+    expr.accept(visitor)
+    result
+  }
+
+  def container(element: PsiElement, file: PsiFile, strict: Boolean): PsiElement = {
+    if (element == null) file
+    else ScalaPsiUtil.getParentOfType(element, strict, classOf[ScalaFile], classOf[ScBlock],
+      classOf[ScTemplateBody], classOf[ScCaseClause], classOf[ScEarlyDefinitions])
   }
 
   private[refactoring] class IntroduceException extends Exception

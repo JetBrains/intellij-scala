@@ -120,7 +120,7 @@ class ScAssignStmtImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScA
               case v: ScVariable => None
               case c: ScClassParameter if c.isVar => None
               case f: PsiField => None
-              case fun: ScFunction if fun.paramClauses.clauses.length == 0 =>
+              case fun: ScFunction if ScalaPsiUtil.isViableForAssignmentFunction(fun) =>
                 val processor = new MethodResolveProcessor(ref, fun.name + "_=",
                   getRExpression.map(expr => List(Seq(new Expression(expr)))).getOrElse(Nil), Nil, ref.getPrevTypeInfoParams,
                   isShapeResolve = shapeResolve, kinds = StdKinds.methodsOnly)

@@ -1,29 +1,24 @@
 package org.jetbrains.plugins.scala.refactoring.introduceVariable;
 
-import com.intellij.openapi.vfs.VirtualFile;
-import org.jetbrains.plugins.scala.Console;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.fileEditor.OpenFileDescriptor;
 import com.intellij.openapi.util.InvalidDataException;
-import com.intellij.psi.PsiElement;
+import com.intellij.openapi.util.TextRange;
+import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
 import com.intellij.util.IncorrectOperationException;
 import junit.framework.Assert;
-import junit.framework.Test;
-import org.jetbrains.annotations.NonNls;
 import org.jetbrains.plugins.scala.lang.actions.ActionTestBase;
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement;
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile;
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression;
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticClasses;
 import org.jetbrains.plugins.scala.lang.psi.types.ScType;
 import org.jetbrains.plugins.scala.lang.refactoring.introduceVariable.ScalaIntroduceVariableHandler;
-import org.jetbrains.plugins.scala.util.TestUtils;
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil;
+import org.jetbrains.plugins.scala.util.TestUtils;
 import scala.Some;
 import scala.Tuple2;
-import com.intellij.openapi.util.TextRange;
 
 import java.io.IOException;
 
@@ -98,7 +93,7 @@ abstract public class AbstractIntroduceVariableTestBase extends ActionTestBase {
       }
       Assert.assertNotNull("Selected expression reference points to null", selectedExpr);
 
-      TextRange[] occurences = ScalaRefactoringUtil.getOccurrences(ScalaRefactoringUtil.unparExpr(selectedExpr), myFile);
+      TextRange[] occurences = ScalaRefactoringUtil.getOccurrenceRanges(ScalaRefactoringUtil.unparExpr(selectedExpr), myFile);
       String varName = "value";
 
       introduceVariableHandler.runRefactoring(startOffset, endOffset, myFile, myEditor, selectedExpr,
@@ -121,8 +116,7 @@ abstract public class AbstractIntroduceVariableTestBase extends ActionTestBase {
     setSettings();
     String fileText = data[0];
     final PsiFile psiFile = TestUtils.createPseudoPhysicalScalaFile(getProject(), fileText);
-    String result = processFile(psiFile);
-    return result;
+    return processFile(psiFile);
   }
 
 

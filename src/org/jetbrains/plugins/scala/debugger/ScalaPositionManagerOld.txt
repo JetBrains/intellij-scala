@@ -54,8 +54,8 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * @author ilyas
- */
+* @author ilyas
+*/
 public class ScalaPositionManager implements PositionManager {
 
   private static final Logger LOG = Logger.getInstance("#com.intellij.debugger.engine.PositionManagerImpl");
@@ -111,11 +111,10 @@ public class ScalaPositionManager implements PositionManager {
 
     return (ScalaPsiElement) element;
   }
-  
-  private boolean isInsideMacro(SourcePosition position) {
+
+ private boolean isInsideMacro(SourcePosition position) {
     PsiFile file = position.getFile();
     PsiElement element = file.findElementAt(position.getOffset());
-    
     while (element != null) {
       if (element instanceof ScMethodCall) {
         ScExpression invokedExpr = ((ScMethodCall) element).getEffectiveInvokedExpr();
@@ -123,10 +122,8 @@ public class ScalaPositionManager implements PositionManager {
           if (((ResolvableReferenceElement) invokedExpr).resolve() instanceof ScMacroDefinition) return true;
         }
       }
-      
       element = element.getParent();
     }
-    
     return false;
   }
 
@@ -165,8 +162,8 @@ public class ScalaPositionManager implements PositionManager {
                 return isInsideMacro(position);
               }
             });
-        
-        
+
+
         if (sourceImage instanceof ScTypeDefinition && !isLocalOrUnderDelayedInit((PsiClass) sourceImage)) {
           final String specificName = getSpecificName(((ScTypeDefinition) sourceImage).getQualifiedNameForDebugger(), ((ScTypeDefinition) sourceImage).getClass());
           qName.set(insideMacro? specificName + "*" : specificName);
@@ -286,12 +283,10 @@ public class ScalaPositionManager implements PositionManager {
           if (vFile != null) {
             PsiFile psiFile = PsiManager.getInstance(project).findFile(vFile);
             PsiFile debugFile = ScalaMacroDebuggingUtil.loadCode(psiFile, false);
-            
             if (debugFile != null) {
               result.set(debugFile);
               return false;
             }
-            
             if (psiFile instanceof ScalaFile) {
               result.set(psiFile);
               return false;

@@ -495,17 +495,6 @@ public abstract class LayeredParser implements PsiParser {
     }
     
     private BufferedTokenInfo getValidTokenInfo(int filteredTokenNumber) {
-//      if (filteredTokenNumber >= filteredTokens.size()) return fakeEndToken;
-//      
-//      int originalNumber = filteredTokens.get(filteredTokenNumber);
-//      Integer validNumberFloor = validNumbersLookUp.floorKey(originalNumber);
-//      
-//      if (validNumberFloor == null || validNumberFloor >= originalTokens.size()) {
-//        return getTokenInfoByRelativeNumber(filteredTokenNumber);
-//      }
-//
-//      final int rawNumber = validNumbersLookUp.get(validNumberFloor) + (originalNumber - validNumberFloor); 
-//      return rawNumber >= originalTokens.size()? fakeEndToken : originalTokens.get(rawNumber);
       final int rawNumber = getValidTokenNum(filteredTokenNumber);
       return rawNumber == originalTokens.size()? fakeEndToken : originalTokens.get(rawNumber);
     }
@@ -740,9 +729,9 @@ public abstract class LayeredParser implements PsiParser {
       FakeEndMarker endMarker = createEndMarker(doneMarker, astElementType, beforeTokenNum, errorMessage);
       insertMarkerBefore(endMarker, beforeMarker);
 
-      final List<FakeMarker> allMarkers = getValidTokenInfo(beforeMarker.getMyTokenNum()).getAllMarkers();
+      final List<FakeMarker> allMarkers = getTokenInfoByRelativeNumber(beforeMarker.getMyTokenNum()).getAllMarkers();
       if (beforeTokenNum == beforeMarker.getMyTokenNum() || (allMarkers != null && allMarkers.get(0) != beforeMarker)) {
-        getValidTokenInfo(beforeTokenNum).addProductionMarker(endMarker);
+        getTokenInfoByRelativeNumber(beforeTokenNum).addProductionMarker(endMarker);
         return;
       } 
       
@@ -828,11 +817,19 @@ public abstract class LayeredParser implements PsiParser {
       private FakeEndMarker endMarker;
       private Marker delegateMarker;
       private Pair<WhitespacesAndCommentsBinder, WhitespacesAndCommentsBinder> myCustomEdgeTokenBinders;
+      private StackTraceElement[] createdAt;
       
 
       private FakeStartMarker(int myStart, int myTokenNum) {
+        if (isDebug) {
+          createdAt = new Exception().getStackTrace();
+        }
         this.myStart = myStart;
         this.myTokenNum = myTokenNum;
+      }
+      
+      public StackTraceElement[] getCreatedAt() {
+        return createdAt;
       }
 
       public int getStartOffset() {

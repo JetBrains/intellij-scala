@@ -1,0 +1,18 @@
+package org.jetbrains.plugins.scala
+package debugger.evaluation.evaluator
+
+import com.intellij.debugger.engine.evaluation.expression.{Modifier, Evaluator}
+import com.intellij.debugger.engine.evaluation.EvaluationContextImpl
+
+/**
+ * Nikolay.Tropin
+ * 7/24/13
+ */
+class ScalaBlockExpressionEvaluator(statements: Seq[Evaluator]) extends Evaluator{
+  def evaluate(context: EvaluationContextImpl): AnyRef = {
+    val void: AnyRef = context.getSuspendContext.getDebugProcess.getVirtualMachineProxy.mirrorOf()
+    statements.foldLeft(void)((_, stmt) => stmt.evaluate(context))
+  }
+
+  def getModifier: Modifier = null
+}

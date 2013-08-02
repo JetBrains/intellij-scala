@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.refactoring.introduceParameter
 
-import com.intellij.openapi.fileEditor.impl.text.TextEditorProvider
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import com.intellij.openapi.vfs.{CharsetToolkit, LocalFileSystem}
 import java.io.File
@@ -8,17 +7,16 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import com.intellij.openapi.fileEditor.{OpenFileDescriptor, FileEditorManager}
 import org.jetbrains.plugins.scala.util.ScalaUtils
 import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.openapi.command.undo.UndoManager
 import org.jetbrains.plugins.scala.lang.refactoring.introduceParameter.ScalaIntroduceParameterProcessor
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import com.intellij.refactoring.RefactoringBundle
 import com.intellij.ide.util.SuperMethodWarningUtil
-import com.intellij.psi.{PsiMethod, PsiDocumentManager, PsiManager}
+import com.intellij.psi.{PsiMethod, PsiDocumentManager}
 import com.intellij.openapi.util.TextRange
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil
-import org.jetbrains.plugins.scala.base.{ScalaLightPlatformCodeInsightTestCaseAdapter, ScalaPsiTestCase}
+import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAdapter
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.util.io.FileUtil
 
@@ -98,7 +96,7 @@ abstract class IntroduceParameterTestBase extends ScalaLightPlatformCodeInsightT
             val function = PsiTreeUtil.getContextOfType(expr, true, classOf[ScFunctionDefinition])
             val methodToSearchFor: PsiMethod = SuperMethodWarningUtil.checkSuperMethod(function, RefactoringBundle.message("to.refactor"))
 
-            val occurrences: Array[TextRange] = ScalaRefactoringUtil.getOccurrences(ScalaRefactoringUtil.unparExpr(expr),
+            val occurrences: Array[TextRange] = ScalaRefactoringUtil.getOccurrenceRanges(ScalaRefactoringUtil.unparExpr(expr),
               function.body.getOrElse(function))
             val processor = new ScalaIntroduceParameterProcessor(project, editor, methodToSearchFor, function,
               replaceAllOccurrences, occurrences, startOffset, endOffset, paramName, isDefaultParam, typez, expr)

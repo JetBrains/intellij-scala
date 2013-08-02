@@ -10,9 +10,10 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefin
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTrait;
 import org.jetbrains.plugins.scala.util.ScalaUtils;
 
-/**
- * @author ilyas
- */
+/*
+* @author ilyas
+*/
+
 public class ScalaJVMNameMapper implements NameMapper {
 
   public String getQualifiedName(@NotNull final PsiClass clazz) {
@@ -28,4 +29,5 @@ public class ScalaJVMNameMapper implements NameMapper {
     return qualifiedName;
   }
 }
+
 

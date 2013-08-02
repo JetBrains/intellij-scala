@@ -228,7 +228,12 @@ abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTemplate
 
   def getTruncedQualifiedName: String = qualifiedName(".", trunced = true)
 
-  def getQualifiedNameForDebugger: String = qualifiedName("$", encodeName = true)
+  def getQualifiedNameForDebugger: String = {
+    if (isPackageObject) {
+      qualifiedName("", encodeName = true) + ".package"
+    } else
+    qualifiedName("$", encodeName = true)
+  }
 
   protected def transformName(encodeName: Boolean, name: String): String = {
     if (!encodeName) name

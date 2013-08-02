@@ -38,12 +38,12 @@ class IntroduceExplicitParameterIntentionTest extends ScalaIntentionTestBase{
       """
         |val name: String = "gfgfgfgfg"
         |val nameHasUpperCase = name.exists(<caret>_.isUpper)
-      """.stripMargin.replace("\r", "").trim
+      """
     val resultText =
       """
         |val name: String = "gfgfgfgfg"
         |val nameHasUpperCase = name.exists(c => c.isUpper)
-      """.stripMargin.replace("\r", "").trim
+      """
 
     doTest(text, resultText)
   }
