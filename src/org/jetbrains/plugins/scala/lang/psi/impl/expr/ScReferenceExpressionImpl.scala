@@ -195,6 +195,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
       //todo: It seems that designating constant is not a problem, while we haven't type like Int(1)
       getContext match {
         case i: ScSugarCallExpr if this == i.getBaseExpr => true
+        case m: ScMethodCall if this == m.getInvokedExpr => true
         case ref: ScReferenceExpression if ref.qualifier == Some(this) => true
         case _ => false
       }
