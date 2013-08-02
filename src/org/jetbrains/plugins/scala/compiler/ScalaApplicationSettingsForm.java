@@ -34,7 +34,7 @@ public class ScalaApplicationSettingsForm implements Configurable {
   private JdkComboBox myCompilationServerSdk;
   private MultiLineLabel myNote;
   private JPanel mySdkPanel;
-
+  private JCheckBox showTypeInfoOnCheckBox;
   private ScalaApplicationSettings mySettings;
 
   public ScalaApplicationSettingsForm(ScalaApplicationSettings settings) {
@@ -92,6 +92,8 @@ public class ScalaApplicationSettingsForm implements Configurable {
     Sdk sdk = myCompilationServerSdk.getSelectedJdk();
     String sdkName = sdk == null ? null : sdk.getName();
 
+    if (showTypeInfoOnCheckBox.isSelected() != mySettings.SHOW_TYPE_TOOLTIP_ON_MOUSE_HOVER) return true;
+
     return !(myEnableCompileServer.isSelected() == mySettings.COMPILE_SERVER_ENABLED &&
         myCompilationServerPort.getText().equals(mySettings.COMPILE_SERVER_PORT) &&
         ComparatorUtil.equalsNullable(sdkName, mySettings.COMPILE_SERVER_SDK) &&
@@ -108,6 +110,7 @@ public class ScalaApplicationSettingsForm implements Configurable {
 
     mySettings.COMPILE_SERVER_MAXIMUM_HEAP_SIZE = myCompilationServerMaximumHeapSize.getText();
     mySettings.COMPILE_SERVER_JVM_PARAMETERS = myCompilationServerJvmParameters.getText();
+    mySettings.SHOW_TYPE_TOOLTIP_ON_MOUSE_HOVER = showTypeInfoOnCheckBox.isSelected();
 
     // TODO
 //    boolean externalCompiler = CompilerWorkspaceConfiguration.getInstance(myProject).USE_COMPILE_SERVER;
@@ -129,6 +132,7 @@ public class ScalaApplicationSettingsForm implements Configurable {
 
     myCompilationServerMaximumHeapSize.setText(mySettings.COMPILE_SERVER_MAXIMUM_HEAP_SIZE);
     myCompilationServerJvmParameters.setText(mySettings.COMPILE_SERVER_JVM_PARAMETERS);
+    showTypeInfoOnCheckBox.setSelected(mySettings.SHOW_TYPE_TOOLTIP_ON_MOUSE_HOVER);
   }
 
   public void disposeUIResources() {

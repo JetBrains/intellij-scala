@@ -1199,8 +1199,8 @@ object ScalaPsiUtil {
 
   def adjustTypes(element: PsiElement) {
     def replaceStablePath(ref: ScReferenceElement, name: String, toBind: PsiElement): PsiElement = {
-      ref.replace(ScalaPsiElementFactory.createReferenceFromText(name, toBind.getManager)).
-              asInstanceOf[ScStableCodeReferenceElement].bindToElement(toBind)
+      val replaced = ref.replace(ScalaPsiElementFactory.createReferenceFromText(name, toBind.getManager))
+      replaced.asInstanceOf[ScStableCodeReferenceElement].bindToElement(toBind)
     }
     for (child <- element.getChildren) {
       child match {
@@ -1211,11 +1211,11 @@ object ScalaPsiUtil {
               stableRef.replace(aliasedRef.get)
             case named: PsiNamedElement if hasStablePath(named) =>
               named match {
-                case clazz: PsiClass if hasStablePath(clazz)=> replaceStablePath(stableRef, clazz.name, clazz)
+                case clazz: PsiClass => replaceStablePath(stableRef, clazz.name, clazz)
                 case typeAlias: ScTypeAlias if typeAlias.containingClass != null &&
                         Seq("scala", "scala.Predef").contains(typeAlias.containingClass.qualifiedName) =>
                   replaceStablePath(stableRef, typeAlias.name, typeAlias)
-                case binding: ScBindingPattern if hasStablePath(binding) => replaceStablePath(stableRef, binding.name, binding)
+                case binding: ScBindingPattern => replaceStablePath(stableRef, binding.name, binding)
                 case _ => adjustTypes(child)
               }
             case _ => adjustTypes(child)

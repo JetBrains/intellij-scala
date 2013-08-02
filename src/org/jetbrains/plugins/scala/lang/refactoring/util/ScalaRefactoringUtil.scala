@@ -97,12 +97,13 @@ object ScalaRefactoringUtil {
 
   def addPossibleTypes(scType: ScType, expr: ScExpression): Array[ScType] = {
     val types = new ArrayBuffer[ScType]
-    if (scType != null && scType != psi.types.Unit) types += scType
+    if (scType != null) types += scType
     expr.getTypeWithoutImplicits(TypingContext.empty).foreach(types +=)
     expr.getTypeIgnoreBaseType(TypingContext.empty).foreach(types +=)
-    if (scType == psi.types.Unit) types += scType
     if (types.isEmpty) types += psi.types.Any
-    types.toArray
+    val unit = psi.types.Unit
+    val result = if (types.contains(unit)) (types.distinct - unit) :+ unit else types.distinct
+    result.toArray
   }
 
   def getExpression(project: Project, editor: Editor, file: PsiFile, startOffset: Int, endOffset: Int): Option[(ScExpression, ScType)] = {
@@ -661,7 +662,7 @@ object ScalaRefactoringUtil {
         case forSt: ScForStatement => true
         case _ => false
       }
-      result || needNewBraces(parExpr, prev)
+      result || needBraces(parExpr, prev)
     }
     val expr = PsiTreeUtil.getParentOfType(elem, classOf[ScExpression], false)
     val prev = previous(expr, elem.getContainingFile)
@@ -680,28 +681,27 @@ object ScalaRefactoringUtil {
     }
   }
 
-  def needNewBraces(parExpr: PsiElement, prev: PsiElement): Boolean = {
-    if (!parExpr.isInstanceOf[ScBlock])
-      prev match {
-        case _: ScBlock | _: ScTemplateBody | _: ScEarlyDefinitions | _: ScalaFile | _: ScCaseClause => false
-        case _: ScFunction => true
-        case memb: ScMember if memb.getParent.isInstanceOf[ScTemplateBody] => true
-        case memb: ScMember if memb.getParent.isInstanceOf[ScEarlyDefinitions] => true
-        case ifSt: ScIfStmt if Seq(ifSt.thenBranch, ifSt.elseBranch) contains Option(parExpr) => true
-        case forSt: ScForStatement if forSt.body.getOrElse(null) == parExpr => true
-        case forSt: ScForStatement => false
-        case _: ScEnumerator | _: ScGenerator => false
-        case guard: ScGuard if guard.getParent.isInstanceOf[ScEnumerators] => false
-        case whSt: ScWhileStmt if whSt.body.getOrElse(null) == parExpr => true
-        case doSt: ScDoStmt if doSt.getExprBody.getOrElse(null) == parExpr => true
-        case finBl: ScFinallyBlock if finBl.expression.getOrElse(null) == parExpr => true
-        case fE: ScFunctionExpr =>
-          fE.getContext match {
-            case be: ScBlock if be.lastExpr == Some(fE) => false
-            case _ => true
-          }
-        case _ => false
-      } else false
+  def needBraces(parExpr: PsiElement, prev: PsiElement): Boolean = {
+    prev match {
+      case _: ScBlock | _: ScTemplateBody | _: ScEarlyDefinitions | _: ScalaFile | _: ScCaseClause => false
+      case _: ScFunction => true
+      case memb: ScMember if memb.getParent.isInstanceOf[ScTemplateBody] => true
+      case memb: ScMember if memb.getParent.isInstanceOf[ScEarlyDefinitions] => true
+      case ifSt: ScIfStmt if Seq(ifSt.thenBranch, ifSt.elseBranch) contains Option(parExpr) => true
+      case forSt: ScForStatement if forSt.body.getOrElse(null) == parExpr => true
+      case forSt: ScForStatement => false
+      case _: ScEnumerator | _: ScGenerator => false
+      case guard: ScGuard if guard.getParent.isInstanceOf[ScEnumerators] => false
+      case whSt: ScWhileStmt if whSt.body.getOrElse(null) == parExpr => true
+      case doSt: ScDoStmt if doSt.getExprBody.getOrElse(null) == parExpr => true
+      case finBl: ScFinallyBlock if finBl.expression.getOrElse(null) == parExpr => true
+      case fE: ScFunctionExpr =>
+        fE.getContext match {
+          case be: ScBlock if be.lastExpr == Some(fE) => false
+          case _ => true
+        }
+      case _ => false
+    }
   }
 
 

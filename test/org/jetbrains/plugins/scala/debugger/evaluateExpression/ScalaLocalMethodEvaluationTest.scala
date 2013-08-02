@@ -186,6 +186,32 @@ class ScalaLocalMethodEvaluationTest extends ScalaDebuggerTestCase {
       waitForBreakpoint()
       evalEquals("foo", "1")
     }
+  }
 
+  def testClojure() {
+    myFixture.addFileToProject("Sample.scala",
+      """
+        |object Sample {
+        |  def main(args: Array[String]) {
+        |    def outer() {
+        |      val s = "start"
+        |        def inner(a: String, b: String) {
+        |          println(s + a + b)
+        |          "stop here"
+        |        }
+        |      inner("aa", "bb")
+        |    }
+        |    outer()
+        |  }
+        |}
+      """.stripMargin.trim()
+    )
+    addBreakpoint("Sample.scala", 6)
+    runDebugger("Sample") {
+      waitForBreakpoint()
+      evalEquals("a", "aa")
+      evalEquals("b", "bb")
+      evalEquals("s", "start")
+    }
   }
 }

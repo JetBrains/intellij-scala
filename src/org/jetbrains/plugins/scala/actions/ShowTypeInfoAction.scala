@@ -10,11 +10,12 @@ import _root_.org.jetbrains.plugins.scala.ScalaBundle
 import lang.psi.api.statements.ScFunction
 import lang.psi.api.statements.params.ScParameter
 import lang.psi.api.base.patterns.ScBindingPattern
-import lang.psi.api.base.ScFieldId
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScPrimaryConstructor, ScFieldId}
 import lang.psi.types.{ScType, ScSubstitutor}
 import org.jetbrains.plugins.scala.extensions._
 import lang.refactoring.util.ScalaRefactoringUtil
 import lang.psi.api.expr.ScExpression
+import com.intellij.openapi.editor.Editor
 
 /**
  * Pavel.Fatin, 16.04.2010
@@ -63,32 +64,38 @@ class ShowTypeInfoAction extends AnAction(ScalaBundle.message("type.info")) {
           ScalaActionUtil.showHint(editor, hint)
       }
     } else {
-      val offest = TargetElementUtilBase.adjustOffset(editor.getDocument,
+      val offset = TargetElementUtilBase.adjustOffset(editor.getDocument,
         editor.logicalPositionToOffset(editor.getCaretModel.getLogicalPosition))
+      ShowTypeInfoAction.getTypeInfoHint(editor, file, offset).foreach(ScalaActionUtil.showHint(editor, _))
+    }
+  }
+}
 
-      val hint = file.findReferenceAt(offest) match {
-        case Resolved(e, subst) => typeOf(e, subst)
-        case _ => {
-          file.findElementAt(offest) match {
-            case Parent(p) => typeOf(p, ScSubstitutor.empty)
-            case _ => None
-          }
+object ShowTypeInfoAction {
+  def getTypeInfoHint(editor: Editor, file: PsiFile, offset: Int): Option[String] = {
+    file.findReferenceAt(offset) match {
+      case Resolved(e, subst) => typeOf(e, subst)
+      case _ => {
+        file.findElementAt(offset) match {
+          case Parent(p) => typeOf(p, ScSubstitutor.empty)
+          case _ => None
         }
       }
-
-      hint.foreach(ScalaActionUtil.showHint(editor, _))
     }
   }
 
-  val typeOf: (PsiElement, ScSubstitutor) => Option[String] = {
+  private[this] val typeOf: (PsiElement, ScSubstitutor) => Option[String] = {
+    case (p: ScPrimaryConstructor, _) => None
+    case (e: ScFunction, _) if e.isConstructor => None
     case (e: ScFunction, s) => e.returnType.toOption.map(s.subst(_)).map(_.presentableText)
     case (e: ScBindingPattern, s) => e.getType(TypingContext.empty).toOption.map(s.subst(_)).map(_ .presentableText)
     case (e: ScFieldId, s) => e.getType(TypingContext.empty).toOption.map(s.subst(_)).map(_ .presentableText)
     case (e: ScParameter, s) => e.getRealParameterType(TypingContext.empty).toOption.map(s.subst(_)).map(_ .presentableText)
+    case (e: PsiMethod, _) if e.isConstructor => None
     case (e: PsiMethod, s) => e.getReturnType.toOption.
-      map(p => s.subst(ScType.create(p, e.getProject, e.getResolveScope))).map(_ presentableText)
+            map(p => s.subst(ScType.create(p, e.getProject, e.getResolveScope))).map(_ presentableText)
     case (e: PsiVariable, s) => e.getType.toOption.
-      map(p => s.subst(ScType.create(p, e.getProject, e.getResolveScope))).map(_ presentableText)
+            map(p => s.subst(ScType.create(p, e.getProject, e.getResolveScope))).map(_ presentableText)
     case _ => None
   }
 }
