@@ -235,7 +235,7 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Confli
         editor.getCaretModel.moveToOffset(createdDeclaration.getTextRange.getEndOffset)
       } else {
         val container: PsiElement = ScalaRefactoringUtil.container(parExpr, file, occCount == 1)
-        val needBraces = ScalaRefactoringUtil.needNewBraces(parExpr, prev)
+        val needBraces = !parExpr.isInstanceOf[ScBlock] && ScalaRefactoringUtil.needBraces(parExpr, prev)
         val parent =
           if (needBraces) {
             firstRange = firstRange.shiftRight(1)
