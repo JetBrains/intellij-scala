@@ -83,7 +83,7 @@ class GoToExpandedMacroCallProviderExt extends LineMarkerProvider {
                 Array[NavigatablePsiElement](macroExpanded.asInstanceOf[NavigatablePsiElement]),
                 "GoTo Expanded", "GoTo Expanded" /* todo: please review */, new GotoFileCellRenderer(5))
             }
-          }, GutterMark.Alignment.RIGHT, util.Arrays.asList[GotoRelatedItem]())
+          }, GutterIconRenderer.Alignment.RIGHT, util.Arrays.asList[GotoRelatedItem]())
 
         result add markerInfo
 

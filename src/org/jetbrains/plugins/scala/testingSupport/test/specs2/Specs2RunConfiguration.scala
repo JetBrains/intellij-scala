@@ -28,8 +28,4 @@ class Specs2RunConfiguration(override val project: Project,
   override def errorMessage: String = "Specs2 is not specified"
 
   override def currentConfiguration = Specs2RunConfiguration.this
-
-  def createInstance: ModuleBasedConfiguration[_ <: RunConfigurationModule] =
-    new Specs2RunConfiguration(getProject, getFactory, getName)
-
 }
