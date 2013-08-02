@@ -24,12 +24,17 @@ import java.util
 object ScalaInplaceRenameUtil {
 
   def isLocallyDefined(elem: PsiNamedElement): Boolean = {
-    ScalaPsiUtil.nameContext(elem) match {
-      case v@(_: ScValue | _: ScVariable | _: ScFunction | _: ScCaseClause | _: ScGenerator | _: ScEnumerator)
-        if !v.getParent.isInstanceOf[ScTemplateBody] &&
-                !v.isInstanceOf[ScClassParameter] && !v.getParent.isInstanceOf[ScEarlyDefinitions] => true
-      case p: ScParameter if PsiTreeUtil.getParentOfType(p, classOf[ScParameters]).getParent.isInstanceOf[ScFunctionExpr] => true
-      case _ => false
+    try {
+      ScalaPsiUtil.nameContext(elem) match {
+        case v@(_: ScValue | _: ScVariable | _: ScFunction | _: ScCaseClause | _: ScGenerator | _: ScEnumerator)
+          if !v.getParent.isInstanceOf[ScTemplateBody] &&
+                  !v.isInstanceOf[ScClassParameter] && !v.getParent.isInstanceOf[ScEarlyDefinitions] => true
+        case p: ScParameter if PsiTreeUtil.getParentOfType(p, classOf[ScParameters]).getParent.isInstanceOf[ScFunctionExpr] => true
+        case _ => false
+      }
+    }
+    catch {
+      case e: Exception => false
     }
   }
 

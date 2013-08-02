@@ -39,7 +39,7 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import highlighter.{DefaultHighlighter, AnnotatorHighlighter}
-import types.{ScParameterizedTypeElement, ScTypeProjection, ScTypeElement}
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSimpleTypeElement, ScParameterizedTypeElement, ScTypeProjection, ScTypeElement}
 import com.intellij.openapi.util.{TextRange, Key}
 import collection.mutable.ArrayBuffer
 import com.intellij.codeInsight.daemon.impl.AnnotationHolderImpl
@@ -54,12 +54,12 @@ import com.intellij.openapi.roots.ProjectFileIndex
  * Date: 23.06.2008
  */
 class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotator
-with ParametersAnnotator with ApplicationAnnotator
-with AssignmentAnnotator with VariableDefinitionAnnotator
-with TypedStatementAnnotator with PatternDefinitionAnnotator
-with ConstructorPatternAnnotator with ControlFlowInspections
-with ConstructorAnnotator with OverridingAnnotator
-with DumbAware {
+  with ParametersAnnotator with ApplicationAnnotator
+  with AssignmentAnnotator with VariableDefinitionAnnotator
+  with TypedStatementAnnotator with PatternDefinitionAnnotator
+  with ConstructorPatternAnnotator with ControlFlowInspections
+  with ConstructorAnnotator with OverridingAnnotator
+  with DumbAware {
   override def annotate(element: PsiElement, holder: AnnotationHolder) {
     val compiled = element.getContainingFile match {
       case file: ScalaFile => file.isCompiled
@@ -943,6 +943,18 @@ with DumbAware {
 
   private def checkTypeElementForm(typeElement: ScTypeElement, holder: AnnotationHolder) {
     //todo: check bounds conformance for parameterized type
+    typeElement match {
+      case simpleTypeElement: ScSimpleTypeElement =>
+        simpleTypeElement.findImplicitParameters match {
+          case Some(parameters) =>
+            parameters.foreach {
+              case r: ScalaResolveResult =>
+                registerUsedImports(typeElement, r)
+            }
+          case _ =>
+        }
+      case _ =>
+    }
   }
 
   private def checkAnnotationType(annotation: ScAnnotation, holder: AnnotationHolder) {

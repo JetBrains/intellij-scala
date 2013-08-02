@@ -17,7 +17,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClauses
 import org.jetbrains.plugins.scala.lang.resolve.ResolvableReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScMacroDefinition
 import com.intellij.psi.util.PsiTreeUtil
-import scala.annotation.tailrec
 import com.sun.jdi.request.ClassPrepareRequest
 import com.intellij.openapi.application.ApplicationManager
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
@@ -31,6 +30,8 @@ import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.project.Project
 import com.intellij.util.{Processor, Query}
 import org.jetbrains.annotations.{NotNull, Nullable}
+import scala.annotation.tailrec
+import com.intellij.openapi.editor.Document
 
 /**
  * @author ilyas
@@ -74,20 +75,26 @@ class ScalaPositionManager(debugProcess: DebugProcess) extends PositionManager {
 
   def nonWhitespaceElement(position: SourcePosition): PsiElement = {
     val file = position.getFile
+    @tailrec
+    def nonWhitespaceInner(element: PsiElement, document: Document): PsiElement = {
+      element match {
+        case null => null
+        case ws: PsiWhiteSpace if document.getLineNumber(element.getTextRange.getEndOffset) == position.getLine =>
+          val nextElement = file.findElementAt(element.getTextRange.getEndOffset)
+          nonWhitespaceInner(nextElement, document)
+        case _ => element
+      }
+    }
     if (!file.isInstanceOf[ScalaFile]) null
     else {
-      var element = file.findElementAt(position.getOffset)
+      val firstElement = file.findElementAt(position.getOffset)
       try {
         val document = PsiDocumentManager.getInstance(file.getProject).getDocument(file)
-        while (element != null && element.isInstanceOf[PsiWhiteSpace]) {
-          val endOffset = element.getTextRange.getEndOffset
-          if (document.getLineNumber(endOffset) == position.getLine) element = file.findElementAt(endOffset)
-        }
+        nonWhitespaceInner(firstElement, document)
       }
       catch {
-        case t: Throwable => //ignore
+        case t: Throwable => firstElement
       }
-      element
     }
   }
 
