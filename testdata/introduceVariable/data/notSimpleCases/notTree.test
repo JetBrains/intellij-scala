@@ -3,6 +3,6 @@ class A {
 }
 ------
 class A {
-  val value: Int = 1 + 1
+  private val value: Int = 1 + 1
   1 + value
 }
