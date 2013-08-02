@@ -27,7 +27,7 @@ import caches.CachesUtil
 import util.{PsiTreeUtil, PsiModificationTracker}
 import psi.ScalaPsiUtil.SafeCheckException
 import api.{InferUtil, ScalaElementVisitor}
-import extensions.{toPsiMemberExt, toSeqExt, toPsiNamedElementExt}
+import org.jetbrains.plugins.scala.extensions.{PsiParameterExt, toPsiMemberExt, toSeqExt, toPsiNamedElementExt}
 import com.intellij.openapi.progress.ProgressManager
 import api.toplevel.typedef.{ScObject, ScTemplateDefinition}
 
@@ -100,13 +100,11 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
             f.parameterList.clauses.lastOption.exists(_.isImplicit))
         case m: PsiMethod =>
           (Seq(m.getParameterList.getParameters.toSeq.mapWithIndex {
-            case (p, index) =>
-              val paramType = ScType.create(p.getType, getProject, getResolveScope, paramTopLevel = true)
-              new Parameter("", paramType, false, p.isVarArgs, false, index)
-          }),
-            false)
+            case (p, index) => new Parameter("", p.paramType, false, p.isVarArgs, false, index)
+          }), false)
       }
     }
+
     def updateImplicits(tp: ScType, withExpected: Boolean, params: Seq[Seq[Parameter]], lastImplicit: Boolean): ScType = {
       if (lastImplicit) {
         //Let's add implicit parameters

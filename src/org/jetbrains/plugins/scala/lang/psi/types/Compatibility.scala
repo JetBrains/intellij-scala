@@ -17,7 +17,7 @@ import search.GlobalSearchScope
 import collection.Seq
 import api.base.ScPrimaryConstructor
 import psi.impl.ScalaPsiManager
-import extensions.toPsiNamedElementExt
+import org.jetbrains.plugins.scala.extensions.{PsiParameterExt, toPsiNamedElementExt}
 import com.intellij.openapi.application.ApplicationManager
 import org.jetbrains.annotations.TestOnly
 import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiParameter
@@ -298,8 +298,8 @@ object Compatibility {
     new Parameter(p.name, t, t, p.isDefaultParam, p.isRepeatedParameter, p.isCallByNameParameter, p.index, Some(p))
   }
   def toParameter(p: PsiParameter) = {
-    val t = ScType.create(p.getType, p.getProject, paramTopLevel = true)
-    new Parameter(if (p.isInstanceOf[ClsParameterImpl]) "" else p.name, t, t, false, p.isVarArgs, false, -1, p match {
+    val tp = p.paramType
+    new Parameter(if (p.isInstanceOf[ClsParameterImpl]) "" else p.name, tp, tp, false, p.isVarArgs, false, -1, p match {
       case param: ScParameter => Some(param)
       case _ => None
     })
@@ -417,18 +417,8 @@ object Compatibility {
 
 
         checkConformanceExt(checkNames = false, parameters = parameters.map {
-          case param: PsiParameter => new Parameter("", {
-            val tp = substitutor.subst(param match {
-              case f: FakePsiParameter => f.parameter.paramType
-              case _ => ScType.create(param.getType, method.getProject, scope, paramTopLevel = true)
-            })
-            if (param.isVarArgs) tp match {
-              case ScParameterizedType(_, args) if args.length == 1 => args(0)
-              case JavaArrayType(arg) => arg
-              case _ => tp
-            }
-            else tp
-          }, false, param.isVarArgs, false, -1)
+          case param: PsiParameter => new Parameter("", substitutor.subst(param.exactParamType()),
+            false, param.isVarArgs, false, -1)
         }, exprs = exprs, checkWithImplicits = checkWithImplicits, isShapesResolve = isShapesResolve)
       }
       case _ => ConformanceExtResult(Seq(new ApplicabilityProblem("22")))

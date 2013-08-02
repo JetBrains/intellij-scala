@@ -32,7 +32,7 @@ import result.TypingContext
 import psi.fake.FakePsiMethod
 import collection.Seq
 import psi.api.statements.params.{ScParameter, ScParameterClause}
-import extensions.toPsiNamedElementExt
+import org.jetbrains.plugins.scala.extensions.{PsiParameterExt, toPsiNamedElementExt}
 
 /**
  * User: Alexander Podkhalyuzin
@@ -313,19 +313,13 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                       if (element != null) buffer.append("@").append(element.getText)
                     }
                     if (lastSize != buffer.length) buffer.append(" ")
-                    val paramType = param.getType match {
-                      case arr: PsiArrayType if param.isVarArgs => arr.getComponentType
-                      case tp => tp
-                    }
 
                     val name = param.name
                     if (name != null) {
                       buffer.append(name)
                     }
                     buffer.append(": ")
-                    buffer.append(ScType.presentableText(subst.subst(
-                      ScType.create(paramType, method.getProject, paramTopLevel = true)
-                    )))
+                    buffer.append(ScType.presentableText(subst.subst(param.exactParamType())))
                     if (param.isVarArgs) buffer.append("*")
 
                     val isBold = if (p.getParameters.indexOf(param) == index || (param.isVarArgs && p.getParameters.indexOf(param) <= index)) true

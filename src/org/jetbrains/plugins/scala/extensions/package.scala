@@ -10,6 +10,10 @@ import scala.util.matching.Regex
 import javax.swing.SwingUtilities
 import scala.runtime.NonLocalReturnControl
 import java.lang.reflect.InvocationTargetException
+import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiParameter
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
+import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 
 /**
   * Pavel Fatin
@@ -114,6 +118,30 @@ package object extensions {
           return caze(v1)
       }
       throw new MatchError(v1.toString)
+    }
+  }
+
+  implicit class PsiParameterExt(val param: PsiParameter) extends AnyVal {
+    def paramType: ScType = {
+      param match {
+        case f: FakePsiParameter => f.parameter.paramType
+        case param: ScParameter => param.getType(TypingContext.empty).getOrAny
+        case _ => ScType.create(param.getType, param.getProject, param.getResolveScope, paramTopLevel = true)
+      }
+    }
+
+    def exactParamType(treatJavaObjectAsAny: Boolean = true): ScType = {
+      param match {
+        case f: FakePsiParameter => f.parameter.paramType
+        case param: ScParameter => param.getType(TypingContext.empty).getOrAny
+        case _ =>
+          val paramType = param.getType match {
+            case p: PsiArrayType if param.isVarArgs => p.getComponentType
+            case tp => tp
+          }
+          ScType.create(paramType, param.getProject, param.getResolveScope, paramTopLevel = true,
+            treatJavaObjectAsAny = treatJavaObjectAsAny)
+      }
     }
   }
 }

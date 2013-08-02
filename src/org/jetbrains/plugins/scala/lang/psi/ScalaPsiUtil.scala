@@ -693,15 +693,7 @@ object ScalaPsiUtil {
             case Some(cls) if cls.qualifiedName == "java.lang.Object" => true // See SCL-3036
             case _ => false
           }
-          if (!p.isVarArgs) {
-            ScType.create(p.getType, p.getProject, paramTopLevel = true, treatJavaObjectAsAny = treatJavaObjectAsAny)
-          } else {
-            val baseType = p.getType match {
-              case a: PsiArrayType => a.getComponentType
-              case tp => tp
-            }
-            ScType.create(baseType, p.getProject, paramTopLevel = true, treatJavaObjectAsAny = treatJavaObjectAsAny)
-          }
+          p.exactParamType(treatJavaObjectAsAny)
       }
     })
   }
