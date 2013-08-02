@@ -15,7 +15,7 @@ import lang.psi.impl.search.ScalaOverridengMemberSearch
 import com.intellij.util.NullableFunction
 import lang.psi.ScalaPsiUtil
 import com.intellij.openapi.editor.colors.{EditorColorsManager, CodeInsightColors}
-import com.intellij.openapi.editor.markup.SeparatorPlacement
+import com.intellij.openapi.editor.markup.{GutterIconRenderer, SeparatorPlacement}
 import com.intellij.codeInsight.daemon.{GutterMark, DaemonCodeAnalyzerSettings, LineMarkerInfo, LineMarkerProvider}
 import lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition, ScTrait}
 import javax.swing.Icon
@@ -55,7 +55,7 @@ class ScalaLineMarkerProvider(daemonSettings: DaemonCodeAnalyzerSettings, colors
     new LineMarkerInfo[PsiElement](
             element, element.getTextRange, null, Pass.UPDATE_ALL,
             NullableFunction.NULL.asInstanceOf[com.intellij.util.Function[PsiElement,String]],
-            null,GutterMark.Alignment.RIGHT)
+            null, GutterIconRenderer.Alignment.RIGHT)
   }
 
   def addSeparatorInfo(info: LineMarkerInfo[_ <: PsiElement]) = {
@@ -80,7 +80,7 @@ class ScalaLineMarkerProvider(daemonSettings: DaemonCodeAnalyzerSettings, colors
         e
       }
       def marker(element: PsiElement, icon: Icon, typez: ScalaMarkerType): LineMarkerInfo[PsiElement] =
-        new LineMarkerInfo[PsiElement](element, offset, icon, Pass.UPDATE_ALL, typez.fun, typez.handler, GutterMark.Alignment.LEFT)
+        new LineMarkerInfo[PsiElement](element, offset, icon, Pass.UPDATE_ALL, typez.fun, typez.handler, GutterIconRenderer.Alignment.LEFT)
 
       val parent = getParent
       if (parent == null) return null
@@ -138,10 +138,10 @@ class ScalaLineMarkerProvider(daemonSettings: DaemonCodeAnalyzerSettings, colors
           method.recursionType match {
             case RecursionType.OrdinaryRecursion =>
               return new LineMarkerInfo[PsiElement](method.nameId, offset, RECURSION_ICON, Pass.UPDATE_ALL,
-                (e: PsiElement) => "Method '%s' is recursive".format(e.getText), null, GutterMark.Alignment.LEFT)
+                (e: PsiElement) => "Method '%s' is recursive".format(e.getText), null, GutterIconRenderer.Alignment.LEFT)
             case RecursionType.TailRecursion =>
               return new LineMarkerInfo[PsiElement](method.nameId, offset, TAIL_RECURSION_ICON, Pass.UPDATE_ALL,
-                (e: PsiElement) => "Method '%s' is tail recursive".format(e.getText), null, GutterMark.Alignment.LEFT)
+                (e: PsiElement) => "Method '%s' is tail recursive".format(e.getText), null, GutterIconRenderer.Alignment.LEFT)
             case RecursionType.NoRecursion => // no markers
           }
         case _ =>

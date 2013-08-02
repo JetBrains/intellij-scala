@@ -27,8 +27,4 @@ class ScalaTestRunConfiguration(override val project: Project,
   override def errorMessage: String = "ScalaTest is not specified"
 
   override def currentConfiguration = ScalaTestRunConfiguration.this
-
-  def createInstance: ModuleBasedConfiguration[_ <: RunConfigurationModule] =
-    new ScalaTestRunConfiguration(getProject, getFactory, getName)
-
 }

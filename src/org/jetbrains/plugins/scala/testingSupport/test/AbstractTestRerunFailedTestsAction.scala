@@ -7,9 +7,9 @@ import com.intellij.execution.runners.ExecutionEnvironment
 import com.intellij.openapi.module.Module
 import collection.mutable.ArrayBuffer
 import com.intellij.openapi.project.Project
-import com.intellij.execution.testframework.AbstractTestProxy
+import com.intellij.execution.testframework.{TestConsoleProperties, AbstractTestProxy}
 import java.util.{ArrayList, List}
-import com.intellij.execution.configurations.{RuntimeConfiguration, RunProfileState}
+import com.intellij.execution.configurations.{RunConfigurationBase, RuntimeConfiguration, RunProfileState}
 import com.intellij.execution.testframework.sm.runner.SMTestProxy
 import com.intellij.execution.testframework.sm.runner.states.TestStateInfo.Magnitude
 import org.jetbrains.plugins.scala.testingSupport.locationProvider.PsiLocationWithName
@@ -27,7 +27,8 @@ class AbstractTestRerunFailedTestsAction(parent: JComponent)
   registerCustomShortcutSet(getShortcutSet, parent)
 
   override def getRunProfile: MyRunProfileAdapter = {
-    val configuration: RuntimeConfiguration = getModel.getProperties.getConfiguration
+    val properties: TestConsoleProperties = getModel.getProperties
+    val configuration = properties.getConfiguration.asInstanceOf[AbstractTestRunConfiguration]
     new MyRunProfileAdapter(configuration) {
       def getModules: Array[Module] = configuration.getModules
 
@@ -40,7 +41,7 @@ class AbstractTestRerunFailedTestsAction(parent: JComponent)
 
       def getState(executor: Executor, env: ExecutionEnvironment): RunProfileState = {
         val extensionConfiguration =
-          getModel.getProperties.asInstanceOf[PropertiesExtension].getRunConfigurationBase
+          properties.asInstanceOf[PropertiesExtension].getRunConfigurationBase
         val state = configuration.getState(executor, env)
         val patcher = state.asInstanceOf[TestCommandLinePatcher]
         val failedTests = getFailedTests(configuration.getProject)

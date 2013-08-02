@@ -543,9 +543,6 @@ class WorksheetRunConfiguration(val project: Project, val configurationFactory: 
 
   def getModule: Module = getConfigurationModule.getModule
 
-  def createInstance: ModuleBasedConfiguration[_ <: RunConfigurationModule] =
-    new WorksheetRunConfiguration(getProject, getFactory, getName)
-
   def getValidModules: java.util.List[Module] = ScalaFacet.findModulesIn(getProject).toList
   def getConfigurationEditor: SettingsEditor[_ <: RunConfiguration] = new WorksheetRunConfigurationEditor(project, this)
 
