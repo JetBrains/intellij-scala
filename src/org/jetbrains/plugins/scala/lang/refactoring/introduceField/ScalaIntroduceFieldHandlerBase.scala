@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefin
 import com.intellij.codeInsight.navigation.NavigationUtil
 import com.intellij.ide.util.PsiClassListCellRenderer
 import com.intellij.psi.search.PsiElementProcessor
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlock, ScExpression}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil
 import com.intellij.openapi.util.TextRange
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
@@ -92,7 +92,7 @@ object ScalaIntroduceFieldHandlerBase {
     val parExpr = ScalaRefactoringUtil.findParentExpr(commonParent)
     if (parExpr == null) return None
     val container: PsiElement = ScalaRefactoringUtil.container(parExpr, file, strict = occurences.length == 1)
-    val needBraces = ScalaRefactoringUtil.needNewBraces(parExpr, ScalaRefactoringUtil.previous(parExpr, file))
+    val needBraces = !parExpr.isInstanceOf[ScBlock] && ScalaRefactoringUtil.needBraces(parExpr, ScalaRefactoringUtil.previous(parExpr, file))
     val parent =
       if (needBraces) {
         firstRange = firstRange.shiftRight(1)
