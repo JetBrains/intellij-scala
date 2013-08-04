@@ -51,12 +51,6 @@ class ScSubstitutor(val tvMap: Map[(String, String), ScType],
     if (myDependentMethodTypes == null) {
       myDependentMethodTypes = myDependentMethodTypesFun()
     }
-    val stopIf = myDependentMethodTypes.exists {
-      case (parameter: Parameter, to: ScType) => to.toString == "AnyRef with ParamDefMagnet2[A] {type Out = B}"
-    }
-    if (stopIf) {
-      "stop here"
-    }
     myDependentMethodTypes
   }
 
