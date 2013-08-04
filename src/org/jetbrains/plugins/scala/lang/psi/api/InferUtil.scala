@@ -25,16 +25,6 @@ import org.jetbrains.plugins.scala.lang.languageLevel.ScalaLanguageLevel
  */
 
 object InferUtil {
-  class A[A, B]
-  class BB[A, B]
-
-  def foo[A, B, C](x: A)(implicit a: A[A, B], b: BB[B, C]): C = sys.exit()
-
-  implicit def a[T]: A[T, List[T]] = new A
-  implicit def b[T]: BB[T, List[T]] = new BB
-
-  foo("")
-
   /**
    * This method can find implicit parameters for given MethodType
    * @param res MethodType or PolymorphicType(MethodType)
