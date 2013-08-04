@@ -51,17 +51,33 @@ object InferUtil {
           case _ => //shouldn't be there
             resInner = t.copy(internalType = mt.copy(returnType = updatedType)(mt.project, mt.scope))
         }
-      case t@ScTypePolymorphicType(ScMethodType(retType, params, impl), typeParams) if impl =>
-        val polymorphicSubst = t.polymorphicTypeSubstitutor
-        val abstractSubstitutor: ScSubstitutor = t.abstractTypeSubstitutor
-        val (paramsForInfer, exprs, resolveResults) =
-          findImplicits(params, element, check, searchImplicitsRecursively, abstractSubstitutor, polymorphicSubst)
-        implicitParameters = Some(resolveResults.toSeq)
-        resInner = ScalaPsiUtil.localTypeInference(retType, paramsForInfer, exprs, typeParams, safeCheck = check, checkAnyway = checkAnyway)
+      case t@ScTypePolymorphicType(mt@ScMethodType(retType, params, impl), typeParams) if impl =>
+        val splitMethodType = params.reverse.foldLeft(retType) {
+          case (tp: ScType, param: Parameter) => ScMethodType(tp, Seq(param), isImplicit = true)(mt.project, mt.scope)
+        }
+        resInner = ScTypePolymorphicType(splitMethodType, typeParams)
+        val paramsForInferBuffer = new ArrayBuffer[Parameter]()
+        val exprsBuffer = new ArrayBuffer[Compatibility.Expression]()
+        val resolveResultsBuffer = new ArrayBuffer[ScalaResolveResult]()
+        params.foreach {
+          case _ =>
+            resInner match {
+              case t@ScTypePolymorphicType(mt@ScMethodType(retTypeSingle, paramsSingle, _), typeParamsSingle) =>
+                val polymorphicSubst = t.polymorphicTypeSubstitutor
+                val abstractSubstitutor: ScSubstitutor = t.abstractTypeSubstitutor
+                val (paramsForInfer, exprs, resolveResults) =
+                  findImplicits(paramsSingle, element, check, searchImplicitsRecursively, abstractSubstitutor, polymorphicSubst)
+                resInner = ScalaPsiUtil.localTypeInference(retTypeSingle, paramsForInfer, exprs, typeParamsSingle, safeCheck = check, checkAnyway = checkAnyway)
+                paramsForInferBuffer ++= paramsForInfer
+                exprsBuffer ++= exprs
+                resolveResultsBuffer ++= resolveResults
+            }
+        }
+        implicitParameters = Some(resolveResultsBuffer.toSeq)
         val dependentSubst = new ScSubstitutor(() => {
           val level = ScalaLanguageLevel.getLanguageLevel(element)
           if (level.isThoughScala2_10) {
-            paramsForInfer.zip(exprs).map {
+            paramsForInferBuffer.zip(exprsBuffer).map {
               case (param: Parameter, expr: Expression) =>
                 val paramType: ScType = expr.getTypeAfterImplicitConversion(checkImplicits = true,
                   isShape = false, Some(param.expectedType))._1.getOrAny
