@@ -45,10 +45,17 @@ class ScSubstitutor(val tvMap: Map[(String, String), ScType],
 
   //todo: this is excluded from constructor, can cause lots of bugs, probably it should be rewritten in more appropriate way
   private var myDependentMethodTypesFun: () => Map[Parameter, ScType] = () => Map.empty
+  private var myDependentMethodTypesFunDefined: Boolean = false
   private var myDependentMethodTypes: Map[Parameter, ScType] = null
   private def getDependentMethodTypes: Map[Parameter, ScType] = {
     if (myDependentMethodTypes == null) {
       myDependentMethodTypes = myDependentMethodTypesFun()
+    }
+    val stopIf = myDependentMethodTypes.exists {
+      case (parameter: Parameter, to: ScType) => to.toString == "AnyRef with ParamDefMagnet2[A] {type Out = B}"
+    }
+    if (stopIf) {
+      "stop here"
     }
     myDependentMethodTypes
   }
@@ -56,6 +63,7 @@ class ScSubstitutor(val tvMap: Map[(String, String), ScType],
   def this(dependentMethodTypes: () => Map[Parameter, ScType]) {
     this()
     myDependentMethodTypesFun = dependentMethodTypes
+    myDependentMethodTypesFunDefined = true
   }
 
   private var follower: ScSubstitutor = null
@@ -68,12 +76,14 @@ class ScSubstitutor(val tvMap: Map[(String, String), ScType],
   def bindT(name : (String, String), t: ScType) = {
     val res = new ScSubstitutor(tvMap + ((name, t)), aliasesMap, updateThisType, follower)
     res.myDependentMethodTypesFun = myDependentMethodTypesFun
+    res.myDependentMethodTypesFunDefined = myDependentMethodTypesFunDefined
     res.myDependentMethodTypes = myDependentMethodTypes
     res
   }
   def bindA(name: String, f: () => ScType) = {
     val res = new ScSubstitutor(tvMap, aliasesMap + ((name, new Suspension[ScType](f))), updateThisType, follower)
     res.myDependentMethodTypesFun = myDependentMethodTypesFun
+    res.myDependentMethodTypesFunDefined = myDependentMethodTypesFunDefined
     res.myDependentMethodTypes = myDependentMethodTypes
     res
   }
@@ -85,8 +95,8 @@ class ScSubstitutor(val tvMap: Map[(String, String), ScType],
   private def followed(s: ScSubstitutor, level: Int): ScSubstitutor = {
     if (level > ScSubstitutor.followLimit)
       throw new RuntimeException("Too much followers for substitutor: " + this.toString)
-    if (follower == null && tvMap.size + aliasesMap.size  == 0 && updateThisType == None && getDependentMethodTypes.isEmpty) s
-    else if (s.getFollower == null && s.tvMap.size + s.aliasesMap.size == 0 && s.updateThisType == None && s.getDependentMethodTypes.isEmpty) this
+    if (follower == null && tvMap.size + aliasesMap.size  == 0 && updateThisType == None && !myDependentMethodTypesFunDefined) s
+    else if (s.getFollower == null && s.tvMap.size + s.aliasesMap.size == 0 && s.updateThisType == None && !s.myDependentMethodTypesFunDefined) this
     else {
       val res = new ScSubstitutor(tvMap, aliasesMap, updateThisType,
         if (follower != null) follower followed (s, level + 1) else s)

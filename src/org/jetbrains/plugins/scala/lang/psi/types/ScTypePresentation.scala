@@ -160,7 +160,7 @@ trait ScTypePresentation {
           if (decls.length + typeDecls.length > 0) {
             if (!comps.isEmpty) buffer.append(" ")
             buffer.append("{")
-            buffer.append(decls.map {
+            buffer.append(decls.map { //todo: make it better including substitution
               decl =>
                 decl match {
                   case fun: ScFunction => {
@@ -206,23 +206,30 @@ trait ScTypePresentation {
 
                   val defnText = ta match {
                     case tad: ScTypeAliasDefinition =>
-                      var x = ""
-                      tad.aliasedType.foreach {
-                        case psi.types.Nothing => ""
-                        case tpe => x += (" = " + typeText0(tpe))
+                      c.types.get(tad.name) match {
+                        case Some((lower, upper)) =>
+                          s" = ${typeText0(s.subst(upper))}"
+                        case _ =>
+                          tad.aliasedType.map {
+                            case psi.types.Nothing => ""
+                            case tpe => s" = ${typeText0(tpe)}"
+                          }.getOrElse("")
                       }
-                      x
                     case _ =>
-                      var x = ""
-                      ta.lowerBound foreach {
+                      val (lowerBound, upperBound) = c.types.get(ta.name) match {
+                        case Some((lower, upper)) => (s.subst(lower), s.subst(upper))
+                        case _ => (ta.lowerBound.getOrNothing, ta.upperBound.getOrAny)
+                      }
+                      val builder = new StringBuilder
+                      lowerBound match {
                         case psi.types.Nothing =>
-                        case tp: ScType => x += (" >: " + typeText0(tp))
+                        case tp: ScType => builder.append(s" >: ${typeText0(tp)}")
                       }
-                      ta.upperBound foreach {
+                      upperBound match {
                         case psi.types.Any =>
-                        case tp: ScType => x += (" <: " + typeText0(tp))
+                        case tp: ScType => builder.append(s" <: ${typeText0(tp)}")
                       }
-                      x
+                      builder.toString()
                   }
                   decl + defnText
               }.mkString("; "))
