@@ -25,6 +25,16 @@ import org.jetbrains.plugins.scala.lang.languageLevel.ScalaLanguageLevel
  */
 
 object InferUtil {
+  class A[A, B]
+  class BB[A, B]
+
+  def foo[A, B, C](x: A)(implicit a: A[A, B], b: BB[B, C]): C = sys.exit()
+
+  implicit def a[T]: A[T, List[T]] = new A
+  implicit def b[T]: BB[T, List[T]] = new BB
+
+  foo("")
+
   /**
    * This method can find implicit parameters for given MethodType
    * @param res MethodType or PolymorphicType(MethodType)
@@ -62,8 +72,10 @@ object InferUtil {
           val level = ScalaLanguageLevel.getLanguageLevel(element)
           if (level.isThoughScala2_10) {
             paramsForInfer.zip(exprs).map {
-              case (param: Parameter, expr: Expression) => (param, expr.getTypeAfterImplicitConversion(checkImplicits = true,
-                isShape = false, Some(param.expectedType))._1.getOrAny)
+              case (param: Parameter, expr: Expression) =>
+                val paramType: ScType = expr.getTypeAfterImplicitConversion(checkImplicits = true,
+                  isShape = false, Some(param.expectedType))._1.getOrAny
+                (param, paramType)
             }.toMap
           } else Map.empty
         })
@@ -83,8 +95,10 @@ object InferUtil {
           val level = ScalaLanguageLevel.getLanguageLevel(element)
           if (level.isThoughScala2_10) {
             paramsForInfer.zip(exprs).map {
-              case (param: Parameter, expr: Expression) => (param, expr.getTypeAfterImplicitConversion(checkImplicits = true,
-                isShape = false, Some(param.expectedType))._1.getOrAny)
+              case (param: Parameter, expr: Expression) =>
+                val paramType: ScType = expr.getTypeAfterImplicitConversion(checkImplicits = true,
+                  isShape = false, Some(param.expectedType))._1.getOrAny
+                (param, paramType)
             }.toMap
           } else Map.empty
         })
