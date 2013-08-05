@@ -32,6 +32,7 @@ import scala.Some
 import org.jetbrains.plugins.scala.debugger.evaluation.evaluator.ScalaMethodEvaluator
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import org.jetbrains.plugins.scala.lang.psi.types.ScThisType
+import org.jetbrains.plugins.scala.lang.psi.api.expr.xml.ScXmlPattern
 
 /**
  * User: Alefas
@@ -56,6 +57,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
         case f: ScFunctionExpr => true
         case f: ScForStatement if f.body == Some(child) => true
         case e: ScExpression if ScUnderScoreSectionUtil.underscores(e).length > 0 => true
+        case b: ScBlockExpr if b.isAnonymousFunction => true
         case _ => false
       }
     }
@@ -111,7 +113,8 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
       super.visitFile(file)
     }
 
-    private def localParams(fun: ScFunction, context: PsiElement): Seq[PsiElement] = {
+    private def localParams(fun: PsiElement, context: PsiElement): Seq[PsiElement] = {
+      assert(fun.isInstanceOf[ScFunction] || fun.isInstanceOf[ScFunctionExpr])
       val buf = new mutable.HashSet[PsiElement]
       fun.accept(new ScalaRecursiveElementVisitor {
         override def visitReference(ref: ScReferenceElement) {
@@ -137,9 +140,13 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
       buf.toSeq.filter(isLocalV).sortBy(e => (e.isInstanceOf[ScObject], e.getTextRange.getStartOffset))
     }
 
-    private def paramCount(fun: ScFunction, context: PsiElement, elem: PsiElement): Int = {
+    private def paramCount(fun: PsiElement, context: PsiElement, elem: PsiElement): Int = {
+      assert(fun.isInstanceOf[ScFunction] || fun.isInstanceOf[ScFunctionExpr])
       val locIndex = localParams(fun, context).indexOf(elem)
-      val funParams = fun.effectiveParameterClauses.flatMap(_.parameters)
+      val funParams = fun match {
+        case function: ScFunction => function.effectiveParameterClauses.flatMap(_.parameters)
+        case funExpr: ScFunctionExpr => funExpr.parameters
+      }
       if (locIndex < 0) funParams.indexOf(elem)
       else locIndex + funParams.size
     }
@@ -151,9 +158,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
         case _: PsiParameter => true
         case b: ScBindingPattern =>
           ScalaPsiUtil.nameContext(b) match {
-            case v: ScValue =>
-              !v.getContext.isInstanceOf[ScTemplateBody] && !v.getContext.isInstanceOf[ScEarlyDefinitions]
-            case v: ScVariable =>
+            case v @ (_: ScValue | _: ScVariable) =>
               !v.getContext.isInstanceOf[ScTemplateBody] && !v.getContext.isInstanceOf[ScEarlyDefinitions]
             case clause: ScCaseClause => true
             case _ => true //todo: for generator/enumerators
@@ -1300,7 +1305,21 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
                                            resolve: PsiElement,
                                            ref: ScReferenceExpression, replaceWithImplicit: String => ScExpression) {
       val isLocalValue = isLocalV(resolve)
-      def calcLocal: Boolean = {
+
+      def evaluateFromParameter(fun: PsiElement, resolve: PsiElement): Evaluator = {
+        assert(fun.isInstanceOf[ScFunction] || fun.isInstanceOf[ScFunctionExpr])
+        val name = NameTransformer.encode(resolve.asInstanceOf[PsiNamedElement].name)
+        val evaluator = new ScalaLocalVariableEvaluator(name)
+        val pCount = paramCount(fun, getContextClass(fun), resolve)
+        //it's simple, let's take parameter
+        evaluator.setParameterIndex(pCount)
+        evaluator.setMethodName(fun match {case f: ScFunction => f.name; case e: ScFunctionExpr => "apply"})
+        evaluator.setSourceName(fun.getContainingFile.getName)
+        myResult = evaluator
+        myResult
+      }
+
+      def calcLocal(): Boolean = {
         val labeledValue = resolve.getUserData(CodeFragmentFactoryContextWrapper.LABEL_VARIABLE_VALUE_KEY)
         if (labeledValue != null) {
           myResult = new IdentityEvaluator(labeledValue)
@@ -1313,13 +1332,13 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
         val name = NameTransformer.encode(namedElement.name) + (if (isObject) "$module" else "")
         val containingClass = getContainingClass(namedElement)
 
-        if (getContextClass == null || getContextClass == containingClass) {
-          val evaluator = new ScalaLocalVariableEvaluator(name)
+        def evaluateLocalVariable(): Evaluator = {
           ScalaPsiUtil.nameContext(namedElement) match {
             case param: ScParameter =>
-              val clause = param.getContext.asInstanceOf[ScParameterClause]
-              evaluator.setParameterIndex(clause.parameters.indexOf(param))
-              myResult = evaluator
+              param.owner match {
+                case fun @ (_: ScFunction | _: ScFunctionExpr) => evaluateFromParameter(fun, param)
+                case _ => throw EvaluateExceptionUtil.createEvaluateException("Cannot evaluate parameter")
+              }
             case caseCl: ScCaseClause =>
               if (caseCl.getParent != null) {
                 caseCl.getParent.getParent match {
@@ -1329,57 +1348,64 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
                     if (expr.isEmpty) throw EvaluateExceptionUtil.createEvaluateException("Cannot find expression of match statement")
                     if (pattern.isEmpty) throw EvaluateExceptionUtil.createEvaluateException("Cannot find pattern of case clause")
                     evaluateSubpatternFromPattern(expr.get, pattern.get, namedElement.asInstanceOf[ScPattern])
-                    myResult = new ScalaDuplexEvaluator(evaluator, myResult)
+                    myResult = new ScalaDuplexEvaluator(new ScalaLocalVariableEvaluator(name), myResult)
+                  case block: ScBlockExpr =>
+                    val evaluator = new ScalaLocalVariableEvaluator(name)
+                    if (caseCl.pattern.getOrElse(null) == namedElement) {
+                      //in this case value is a parameter of an anonymous function
+                      evaluator.setParameterIndex(0)
+                    }
+                    myResult = evaluator
+                  case _ =>  myResult = new ScalaLocalVariableEvaluator(name)
                 }
               } else throw EvaluateExceptionUtil.createEvaluateException("Invalid case clause")
-            case _ => myResult = evaluator
+            case _ => myResult = new ScalaLocalVariableEvaluator(name)
           }
           if (isObject) {
             myResult = new ScalaFieldEvaluator(myResult, ref => true, "elem") //get from VolatileObjectReference
           }
-          return true
+          myResult
         }
 
-        var iterationCount = 0
-        var positionClass = getContextClass
-        var outerClass = getContextClass(getContextClass)
-        while (outerClass != null && outerClass != containingClass) {
-          iterationCount += anonClassCount(outerClass)
-          outerClass = getContextClass(outerClass)
-          positionClass = getContextClass(positionClass)
+        getContextClass match {
+          case null | `containingClass` =>
+            evaluateLocalVariable()
+            true
+          case _ =>
+            var iterationCount = 0
+            var positionClass = getContextClass
+            var outerClass = getContextClass(getContextClass)
+            while (outerClass != null && outerClass != containingClass) {
+              iterationCount += anonClassCount(outerClass)
+              outerClass = getContextClass(outerClass)
+              positionClass = getContextClass(positionClass)
+            }
+            if (outerClass != null) {
+              val evaluator = new ScalaThisEvaluator(iterationCount)
+              val filter = ScalaFieldEvaluator.getFilter(positionClass)
+              myResult = new ScalaFieldEvaluator(evaluator, filter, name)
+              if (isObject) {
+                //todo: calss name() method to initialize this field?
+                myResult = new ScalaFieldEvaluator(myResult, ref => true, "elem") //get from VolatileObjectReference
+              }
+              myResult = new ScalaDuplexEvaluator(myResult, evaluateLocalVariable())
+              true
+            } else throw EvaluateExceptionUtil.createEvaluateException("Cannot load local variable from anonymous class")
         }
-        if (outerClass != null) {
-          val evaluator = new ScalaThisEvaluator(iterationCount)
-          val filter = ScalaFieldEvaluator.getFilter(positionClass)
-          myResult = new ScalaFieldEvaluator(evaluator, filter, name)
-          if (isObject) {
-            //todo: calss name() method to initialize this field?
-            myResult = new ScalaFieldEvaluator(myResult, ref => true, "elem") //get from VolatileObjectReference
-          }
-          return true
-        }
-        throw EvaluateExceptionUtil.createEvaluateException("Cannot load local variable from anonymous class")
       }
 
       resolve match {
-        case _ if isLocalValue && isInsideLocalFunction(ref) == None =>
-          calcLocal
+        case _ if isLocalValue && isInsideLocalFunction(resolve) == None =>
+          calcLocal()
         case _ if isLocalValue =>
-          val fun = isInsideLocalFunction(ref).get
-          val contextClass = getContextClass(fun)
-          if (PsiTreeUtil.isContextAncestor(contextClass, resolve, true)) {
-            val pCount = paramCount(fun, contextClass, resolve)
-            val context = getContextClass
-            if (context != contextClass) {
-              calcLocal
-            } else {
-              val name = NameTransformer.encode(resolve.asInstanceOf[PsiNamedElement].name)
-              val evaluator = new ScalaLocalVariableEvaluator(name, true)
-              //it's simple, let's take parameter
-              evaluator.setParameterIndex(pCount)
-              myResult = evaluator
-            }
-          } else calcLocal
+          val fun = isInsideLocalFunction(resolve).get
+          val funContextClass = getContextClass(fun)
+          if (PsiTreeUtil.isContextAncestor(funContextClass, resolve, true) && getContextClass == funContextClass)
+            evaluateFromParameter(fun, resolve)
+          else {
+            calcLocal()
+            myResult = new ScalaDuplexEvaluator(myResult, evaluateFromParameter(fun, resolve))
+          }
         case o: ScObject =>
           val obj = resolve.asInstanceOf[ScObject]
           //here we have few possibilities
@@ -1541,7 +1567,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
               }
               myResult = new ScalaFieldEvaluator(myResult, ref => true, name)
             case None =>
-              myResult = new ScalaLocalVariableEvaluator(name, false)
+              myResult = new ScalaLocalVariableEvaluator(name)
           }
       }
     }
@@ -1683,6 +1709,8 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
             //todo: handle infix with tuple right pattern
           case composite: ScCompositePattern =>
             throw EvaluateExceptionUtil.createEvaluateException("Pattern alternatives cannot bind variables")
+          case xmlPattern: ScXmlPattern =>
+            throw EvaluateExceptionUtil.createEvaluateException("Xml patterns are not supported") //todo: xml patterns
           case _ =>
         }
       }
