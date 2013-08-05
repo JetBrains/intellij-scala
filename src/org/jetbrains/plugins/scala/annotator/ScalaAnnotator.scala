@@ -950,6 +950,7 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
             parameters.foreach {
               case r: ScalaResolveResult =>
                 registerUsedImports(typeElement, r)
+              case null =>
             }
           case _ =>
         }
