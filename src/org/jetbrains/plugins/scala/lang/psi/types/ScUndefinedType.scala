@@ -59,6 +59,20 @@ case class ScAbstractType(tpt: ScTypeParameterType, lower: ScType, upper: ScType
     hash
   }
 
+  override def equivInner(r: ScType, uSubst: ScUndefinedSubstitutor,
+                          falseUndef: Boolean): (Boolean, ScUndefinedSubstitutor) = {
+    r match {
+      case _ if falseUndef => (false, uSubst)
+      case rt => {
+        var t: (Boolean, ScUndefinedSubstitutor) = Conformance.conformsInner(upper, r, Set.empty, uSubst)
+        if (!t._1) return (false, uSubst)
+        t = Conformance.conformsInner(r, lower, Set.empty, t._2)
+        if (!t._1) return (false, uSubst)
+        (true, t._2)
+      }
+    }
+  }
+
   def inferValueType = tpt
 
   def simplifyType: ScType = {
