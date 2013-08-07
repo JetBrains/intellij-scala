@@ -27,7 +27,8 @@ class MultilineStringEnterHandler extends EnterHandlerDelegateAdapter {
 
     if (!file.isInstanceOf[ScalaFile]) return Result.Continue
 
-    val offset = editor.getCaretModel.getOffset
+    val caretModel = editor.getCaretModel
+    val offset = caretModel.getOffset
     val project = file.getProject
     val document = editor.getDocument
     val element = file.findElementAt(offset)
@@ -50,14 +51,17 @@ class MultilineStringEnterHandler extends EnterHandlerDelegateAdapter {
 
     @inline def getLineByNumber(number: Int): String =
       document.getText(new TextRange(document.getLineStartOffset(number), document.getLineEndOffset(number)))
+    
     @inline def getSpaces(count: Int) = StringUtil.repeat(" ", count)
-    @inline def getSmartSpaces(count: Int) = {
-      if (useTabs) {
-        StringUtil.repeat("\t", count/tabSize) + StringUtil.repeat(" ", count%tabSize)
-      } else {
-        StringUtil.repeat(" ", count)
-      }
+    
+    @inline def getSmartSpaces(count: Int) = if (useTabs) {
+      StringUtil.repeat("\t", count/tabSize) + StringUtil.repeat(" ", count%tabSize)
+    } else {
+      StringUtil.repeat(" ", count)
     }
+    
+    @inline def getSmartLength(line: String) = if (useTabs) line.length + line.count(_ == '\t')*(tabSize - 1) else line.length 
+    
     @inline def insertNewLine(nlOffset: Int) {
       document.insertString(nlOffset, "\n")
     }
@@ -67,6 +71,23 @@ class MultilineStringEnterHandler extends EnterHandlerDelegateAdapter {
         case ScalaCodeStyleSettings.MULTILINE_STRING_QUOTES_AND_INDENT => ifIndent
         case ScalaCodeStyleSettings.MULTILINE_STRING_ALL => ifAll
       }
+    }
+    
+    def moveCaret(verticalShift: Int, horizontalShift: Int) {
+      val visualPosition = caretModel.getVisualPosition
+      
+      val newLineNumber = visualPosition.getLine + verticalShift
+      
+      if (newLineNumber > document.getLineCount) return 
+      
+      val newHorPosition = visualPosition.getColumn + horizontalShift
+      val newLineEndOffset = document.getLineEndOffset(newLineNumber) 
+      val newLineLength = getSmartLength(getLineByNumber(newLineNumber))
+      
+      if (newHorPosition > newLineLength) 
+        document.insertString(newLineEndOffset, getSpaces(newHorPosition - newLineLength))
+      
+      caretModel.moveCaretRelatively(horizontalShift, verticalShift, false, false, false)
     }
 
     extensions inWriteAction {
@@ -126,7 +147,7 @@ class MultilineStringEnterHandler extends EnterHandlerDelegateAdapter {
           if (needInsertNLBefore && scalaSettings.MULTILINE_STRING_SUPORT == ScalaCodeStyleSettings.MULTILINE_STRING_ALL)
             caretShiftVert = -1
 
-          document.insertString(document.getLineStartOffset(prevLineNumber + 2) + (getLineByNumber(prevLineNumber + 2)).prefixLength(_ == ' '),
+          document.insertString(document.getLineStartOffset(prevLineNumber + 2) + getLineByNumber(prevLineNumber + 2).prefixLength(_ == ' '),
             (if (scalaSettings.MULTILINE_STRING_SUPORT == ScalaCodeStyleSettings.MULTILINE_STRING_QUOTES_AND_INDENT)
               getSmartSpaces(caretShiftHor - nextLine.prefixLength(_ == ' ') ) else getPrefix(currentLine)) + insertToNextLine)
         }
@@ -196,9 +217,9 @@ class MultilineStringEnterHandler extends EnterHandlerDelegateAdapter {
           } else if (prevLine.trim.length == 0) {
             if (useTabs) {
 //              document.insertString(currentLineOffset, spaces )
-              caretShiftHor = editor.getCaretModel.getVisualPosition.getColumn//spaces.length + currentLine.length
+              caretShiftHor = caretModel.getVisualPosition.getColumn//spaces.length + currentLine.length
             } else {
-              document.insertString(prevLineStartOffset, getSmartSpaces(editor.getCaretModel.getVisualPosition.getColumn))
+              document.insertString(prevLineStartOffset, getSmartSpaces(caretModel.getVisualPosition.getColumn))
               caretShiftHor = currentLine.length
             }
 
@@ -240,12 +261,13 @@ class MultilineStringEnterHandler extends EnterHandlerDelegateAdapter {
         Option(getReformatRange(anotherElement.getParent)) getOrElse anotherElement.getTextRange)
 
       if (caretShiftHor != 0 || caretShiftVert != 0) {
-        editor.getCaretModel.moveCaretRelatively(caretShiftHor, caretShiftVert, false, false, false)
+        moveCaret(caretShiftVert, caretShiftHor)
+//        caretModel.moveCaretRelatively(caretShiftHor, caretShiftVert, false, false, false)
       }
 
-      val newLineNumber = document.getLineNumber(editor.getCaretModel.getOffset)
+      val newLineNumber = document.getLineNumber(caretModel.getOffset)
       val newLine = getLineByNumber(newLineNumber)
-      val newSpaces = editor.getCaretModel.getVisualPosition.getColumn - newLine.length
+      val newSpaces = caretModel.getVisualPosition.getColumn - newLine.length
       if (newSpaces > 0 && !useTabs) {
         document.insertString(document.getLineEndOffset(newLineNumber), getSmartSpaces(newSpaces))
       }
