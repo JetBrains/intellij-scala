@@ -132,7 +132,7 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue {
 
         val checkImplicitParameters = ScalaPsiUtil.withEtaExpansion(this)
         if (checkImplicitParameters) {
-          val tuple = InferUtil.updateTypeWithImplicitParameters(res, this, checkExpectedType)
+          val tuple = InferUtil.updateTypeWithImplicitParameters(res, this, None, checkExpectedType)
           res = tuple._1
           implicitParameters = tuple._2
         }

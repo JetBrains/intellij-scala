@@ -14,6 +14,7 @@ import extensions.{toPsiNamedElementExt, toPsiClassExt}
 import params.{ScParameter, ScTypeParam}
 import refactoring.util.{ScalaNamesUtil, ScTypeUtil}
 import collection.mutable.ArrayBuffer
+import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{ScMethodType, ScTypePolymorphicType}
 
 trait ScTypePresentation {
   def presentableText(t: ScType) = typeText(t, _.name, {
@@ -243,22 +244,22 @@ trait ScTypePresentation {
             case ScTypeVariable(name) if name == wilds(0).name =>
               val wildcard = wilds(0)
               buffer.append("_")
-              if (wildcard.lowerBound != Nothing) {
+              if (wildcard.lowerBound != types.Nothing) {
                 buffer.append(" >: ")
                 inner(wildcard.lowerBound, stable = false)
               }
-              if (wildcard.upperBound != Any) {
+              if (wildcard.upperBound != types.Any) {
                 buffer.append(" <: ")
                 inner(wildcard.upperBound, stable = false)
               }
             case ScDesignatorType(a: ScTypeAlias) if a.isExistentialTypeAlias && a.name == wilds(0).name =>
               val wildcard = wilds(0)
               buffer.append("_")
-              if (wildcard.lowerBound != Nothing) {
+              if (wildcard.lowerBound != types.Nothing) {
                 buffer.append(" >: ")
                 inner(wildcard.lowerBound, stable = false)
               }
-              if (wildcard.upperBound != Any) {
+              if (wildcard.upperBound != types.Any) {
                 buffer.append(" <: ")
                 inner(wildcard.upperBound, stable = false)
               }
@@ -285,11 +286,11 @@ trait ScTypePresentation {
             replacingArgs.find(_._1 eq t) match {
               case Some((_, wildcard)) =>
                 buffer.append("_")
-                if (wildcard.lowerBound != Nothing) {
+                if (wildcard.lowerBound != types.Nothing) {
                   buffer.append(" >: ")
                   inner(wildcard.lowerBound, stable = false)
                 }
-                if (wildcard.upperBound != Any) {
+                if (wildcard.upperBound != types.Any) {
                   buffer.append(" <: ")
                   inner(wildcard.upperBound, stable = false)
                 }
@@ -303,11 +304,11 @@ trait ScTypePresentation {
             while (iter.hasNext) {
               val next = iter.next()
               buffer.append("type ").append(next.name)
-              if (next.lowerBound != Nothing) {
+              if (next.lowerBound != types.Nothing) {
                 buffer.append(" >: ")
                 inner(next.lowerBound, stable = false)
               }
-              if (next.upperBound != Any) {
+              if (next.upperBound != types.Any) {
                 buffer.append(" <: ")
                 inner(next.upperBound, stable = false)
               }
@@ -315,7 +316,7 @@ trait ScTypePresentation {
             }
             buffer.append("}")
           }
-        case ScExistentialType(q, wilds) => {
+        case ScExistentialType(q, wilds) =>
           buffer.append("(")
           inner(q, stable = false)
           buffer.append(")")
@@ -324,18 +325,24 @@ trait ScTypePresentation {
           while (iter.hasNext) {
             val next = iter.next()
             buffer.append("type ").append(next.name)
-            if (next.lowerBound != Nothing) {
+            if (next.lowerBound != types.Nothing) {
               buffer.append(" >: ")
               inner(next.lowerBound, stable = false)
             }
-            if (next.upperBound != Any) {
+            if (next.upperBound != types.Any) {
               buffer.append(" <: ")
               inner(next.upperBound, stable = false)
             }
             if (iter.hasNext) buffer.append("; ")
           }
           buffer.append("}")
-        }
+        case ScTypePolymorphicType(internalType, typeParameters) =>
+          typeParameters.map(tp => {
+            tp.name + (if (tp.lowerType.equiv(types.Nothing)) "" else " >: " + tp.lowerType.toString) +
+                    (if (tp.upperType.equiv(types.Any)) "" else " <: " + tp.upperType.toString)
+          }).mkString("[", ", ", "] ") + internalType.toString
+        case mt@ScMethodType(retType, params, isImplicit) =>
+          inner(ScFunctionType(retType, params.map(_.paramType))(mt.project, mt.scope), stable)
         case _ => //todo
       }
     }
@@ -368,5 +375,5 @@ trait ScTypePresentation {
 }
 
 object ScTypePresentation {
-  val ABSTRACT_TYPE_PREFIX = "AbstractType"
+  val ABSTRACT_TYPE_PREFIX = "_"
 }

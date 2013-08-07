@@ -5,7 +5,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScFieldId
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveTargets, StdKinds}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScFunction}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAliasDeclaration, ScTypeAliasDefinition, ScTypeAlias, ScFunction}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScTypeParametersOwner, ScNamedElement}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScTypeParam, ScParameter}
 import com.intellij.psi._
@@ -98,9 +98,29 @@ class CompoundTypeCheckProcessor(decl: ScNamedElement, undefSubst: ScUndefinedSu
       case _ => if (typeParameters.length > 0) return true
     }
 
+    def checkDeclarationForTypeAlias(tp: ScTypeAlias): Boolean = {
+      decl match {
+        case ta: ScTypeAliasDeclaration =>
+          var t = Conformance.conformsInner(subst.subst(tp.lowerBound.getOrNothing),
+            substitutor.subst(ta.lowerBound.getOrNothing), Set.empty, undef)
+          if (t._1) {
+            t = Conformance.conformsInner(substitutor.subst(ta.upperBound.getOrAny),
+              subst.subst(tp.upperBound.getOrAny), Set.empty, t._2)
+            if (t._1) {
+              trueResult = true
+              undef = t._2
+              innerUndefinedSubstitutor = undef
+              return true
+            }
+          }
+        case _ =>
+      }
+      false
+    }
+
     element match {
       case _: ScBindingPattern | _: ScFieldId | _: ScFunction | _: ScParameter if !element.isInstanceOf[ScFunction] ||
-        !element.asInstanceOf[ScFunction].hasParameterClause => {
+        !element.asInstanceOf[ScFunction].hasParameterClause =>
         lazy val bType = subst.subst(element match {
           case b: ScBindingPattern => b.getType(TypingContext.empty).getOrNothing
           case f: ScFieldId => f.getType(TypingContext.empty).getOrNothing
@@ -121,8 +141,7 @@ class CompoundTypeCheckProcessor(decl: ScNamedElement, undefSubst: ScUndefinedSu
           innerUndefinedSubstitutor = undef
           return false
         }
-      }
-      case method: PsiMethod => {
+      case method: PsiMethod =>
         val anotherMethod = decl match {
           case fun: ScFunction if !fun.hasParameterClause => return true
           case meth: PsiMethod => meth
@@ -155,11 +174,22 @@ class CompoundTypeCheckProcessor(decl: ScNamedElement, undefSubst: ScUndefinedSu
           innerUndefinedSubstitutor = undef
           return false
         }
-      }
-      case tp: ScTypeAlias => {
-        trueResult = true
-        return false //todo: we don't know anything about this case, now we can match it only by name
-      }
+      case tp: ScTypeAliasDefinition =>
+        decl match {
+          case td: ScTypeAliasDefinition =>
+            val t = Equivalence.equivInner(subst.subst(tp.aliasedType.getOrNothing),
+              substitutor.subst(td.aliasedType.getOrNothing), undef, falseUndef = false)
+            if (t._1) {
+              undef = t._2
+              trueResult = true
+              innerUndefinedSubstitutor = undef
+              return false
+            }
+          case ta: ScTypeAliasDeclaration => if (checkDeclarationForTypeAlias(tp)) return false
+          case _ =>
+        }
+      case tp: ScTypeAliasDeclaration =>
+        if (checkDeclarationForTypeAlias(tp)) return false
       case _ =>
     }
     true

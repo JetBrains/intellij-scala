@@ -155,7 +155,7 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
       tuplizyCase(psiExprs) { t =>
         val result = Compatibility.checkConformanceExt(checkNames = true, parameters = parameters, exprs = t,
           checkWithImplicits = true, isShapesResolve = false)
-        (retType, result.problems, result.matchedArgs)
+        (retType, result.problems, result.matchedArgs, result.matchedTypes)
       }
     }
 
@@ -167,7 +167,8 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
     }
 
     def tuplizyCase(exprs: Seq[Expression])
-                   (fun: (Seq[Expression]) => (ScType, scala.Seq[ApplicabilityProblem], Seq[(Parameter, ScExpression)])): ScType = {
+                   (fun: (Seq[Expression]) => (ScType, scala.Seq[ApplicabilityProblem],
+                           Seq[(Parameter, ScExpression)], Seq[(Parameter, ScType)])): ScType = {
       val c = fun(exprs)
       def tail: ScType = {
         setApplicabilityProblemsVar(c._2)
@@ -175,9 +176,7 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
         val dependentSubst = new ScSubstitutor(() => {
           val level = ScalaLanguageLevel.getLanguageLevel(this)
           if (level.isThoughScala2_10) {
-            c._3.map {
-              case (param: Parameter, expr: ScExpression) => (param, expr.getType(TypingContext.empty).getOrAny)
-            }.toMap
+            c._4.toMap
           } else Map.empty
         })
         dependentSubst.subst(c._1)
@@ -192,12 +191,7 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
             val dependentSubst = new ScSubstitutor(() => {
               val level = ScalaLanguageLevel.getLanguageLevel(this)
               if (level.isThoughScala2_10) {
-                cd._3.filter {
-                  case (_, null) => false //todo: how to handle this case? And why we have this case?
-                  case (_: Parameter, _: ScExpression) => true
-                }.map {
-                  case (param: Parameter, expr: ScExpression) => (param, expr.getType(TypingContext.empty).getOrAny)
-                }.toMap
+                cd._4.toMap
               } else Map.empty
             })
             dependentSubst.subst(cd._1)
@@ -291,7 +285,7 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
     //Implicit parameters
     val checkImplicitParameters = withEtaExpansion(this)
     if (checkImplicitParameters) {
-      val tuple = InferUtil.updateTypeWithImplicitParameters(res, this, useExpectedType)
+      val tuple = InferUtil.updateTypeWithImplicitParameters(res, this, None, useExpectedType)
       res = tuple._1
       implicitParameters = tuple._2
     }

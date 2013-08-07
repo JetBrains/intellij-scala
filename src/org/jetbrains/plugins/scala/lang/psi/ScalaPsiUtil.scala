@@ -804,7 +804,7 @@ object ScalaPsiUtil {
                                           safeCheck: Boolean = false,
                                           filterTypeParams: Boolean = true,
                                           checkAnyway: Boolean = false): (ScTypePolymorphicType, Seq[ApplicabilityProblem]) = {
-    val (tp, problems, _) = localTypeInferenceWithApplicabilityExt(retType, params, exprs, typeParams,
+    val (tp, problems, _, _) = localTypeInferenceWithApplicabilityExt(retType, params, exprs, typeParams,
       shouldUndefineParameters, safeCheck, filterTypeParams, checkAnyway)
     (tp, problems)
   }
@@ -815,7 +815,7 @@ object ScalaPsiUtil {
                                              safeCheck: Boolean = false,
                                              filterTypeParams: Boolean = true,
                                              checkAnyway: Boolean = false
-    ): (ScTypePolymorphicType, Seq[ApplicabilityProblem], Seq[(Parameter, ScExpression)]) = {
+    ): (ScTypePolymorphicType, Seq[ApplicabilityProblem], Seq[(Parameter, ScExpression)], Seq[(Parameter, ScType)]) = {
     // See SCL-3052, SCL-3058
     // This corresponds to use of `isCompatible` in `Infer#methTypeArgs` in scalac, where `isCompatible` uses `weak_<:<`
     val s: ScSubstitutor = if (shouldUndefineParameters) undefineSubstitutor(typeParams) else ScSubstitutor.empty
@@ -920,7 +920,7 @@ object ScalaPsiUtil {
         case None => throw new SafeCheckException
       }
     } else ScTypePolymorphicType(retType, typeParams)
-    (tpe, c.problems, c.matchedArgs)
+    (tpe, c.problems, c.matchedArgs, c.matchedTypes)
   }
 
   def getElementsRange(start: PsiElement, end: PsiElement): Seq[PsiElement] = {
