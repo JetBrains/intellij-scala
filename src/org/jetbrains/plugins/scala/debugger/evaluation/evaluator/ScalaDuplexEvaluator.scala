@@ -22,16 +22,15 @@ class ScalaDuplexEvaluator(first: Evaluator, second: Evaluator) extends Evaluato
       myModifier = first.getModifier
     }
     catch {
-      case e: Exception => result = null; myModifier = null
-    }
-    if (result == null) {
-      try {
-        result = second.evaluate(context)
-        myModifier = second.getModifier
-      }
-      catch {
-        case e: Exception => throw EvaluateExceptionUtil.createEvaluateException(e)
-      }
+      case e1: Exception if first != second =>
+        try {
+          result = second.evaluate(context)
+          myModifier = second.getModifier
+        }
+        catch {
+          case e2: Exception => throw EvaluateExceptionUtil.createEvaluateException(e1.getMessage + "\n " + e2.getMessage)
+        }
+      case e: Exception => throw EvaluateExceptionUtil.createEvaluateException(e)
     }
     result
   }

@@ -49,7 +49,7 @@ object ScalaFieldEvaluator {
   }
 }
 
-class ScalaFieldEvaluator(objectEvaluator: Evaluator, filter: ReferenceType => Boolean, _fieldName: String,
+case class ScalaFieldEvaluator(objectEvaluator: Evaluator, filter: ReferenceType => Boolean, _fieldName: String,
                           classPrivateThisField: Boolean = false) extends Evaluator {
   private var myEvaluatedQualifier: AnyRef = null
   private var myEvaluatedField: Field = null

@@ -24,15 +24,15 @@ import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScClassParents, ScTemplateBody}
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTypeDefinition, ScClass, ScTrait, ScObject}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScPrimaryConstructor, ScStableCodeReferenceElement, ScLiteral, ScReferenceElement}
 import org.jetbrains.plugins.scala.extensions.{toPsiModifierListOwnerExt, toPsiNamedElementExt, toPsiClassExt}
 import scala.annotation.tailrec
+import org.jetbrains.plugins.scala.lang.psi.api.expr.xml.ScXmlPattern
 import scala.Some
 import org.jetbrains.plugins.scala.debugger.evaluation.evaluator.ScalaMethodEvaluator
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import org.jetbrains.plugins.scala.lang.psi.types.ScThisType
-import org.jetbrains.plugins.scala.lang.psi.api.expr.xml.ScXmlPattern
 
 /**
  * User: Alefas
@@ -1341,21 +1341,22 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
               }
             case caseCl: ScCaseClause =>
               if (caseCl.getParent != null) {
+                val pattern = caseCl.pattern
+                if (pattern.isEmpty) throw EvaluateExceptionUtil.createEvaluateException("Cannot find pattern of case clause")
                 caseCl.getParent.getParent match {
                   case matchStmt: ScMatchStmt if namedElement.isInstanceOf[ScPattern] =>
                     val expr = matchStmt.expr
-                    val pattern = caseCl.pattern
                     if (expr.isEmpty) throw EvaluateExceptionUtil.createEvaluateException("Cannot find expression of match statement")
-                    if (pattern.isEmpty) throw EvaluateExceptionUtil.createEvaluateException("Cannot find pattern of case clause")
-                    evaluateSubpatternFromPattern(expr.get, pattern.get, namedElement.asInstanceOf[ScPattern])
+                    expr.get.accept(this)
+                    evaluateSubpatternFromPattern(myResult, pattern.get, namedElement.asInstanceOf[ScPattern])
                     myResult = new ScalaDuplexEvaluator(new ScalaLocalVariableEvaluator(name), myResult)
-                  case block: ScBlockExpr =>
-                    val evaluator = new ScalaLocalVariableEvaluator(name)
-                    if (caseCl.pattern.getOrElse(null) == namedElement) {
-                      //in this case value is a parameter of an anonymous function
-                      evaluator.setParameterIndex(0)
-                    }
-                    myResult = evaluator
+                  case block: ScBlockExpr => //it is anonymous function
+                    val argEvaluator = new ScalaLocalVariableEvaluator("")
+                    argEvaluator.setMethodName("apply")
+                    argEvaluator.setSourceName(block.getContainingFile.getName)
+                    argEvaluator.setParameterIndex(0)
+                    val fromPatternEvaluator = evaluateSubpatternFromPattern(argEvaluator, pattern.get, namedElement.asInstanceOf[ScPattern])
+                    myResult = new ScalaDuplexEvaluator(new ScalaLocalVariableEvaluator(name), fromPatternEvaluator)
                   case _ =>  myResult = new ScalaLocalVariableEvaluator(name)
                 }
               } else throw EvaluateExceptionUtil.createEvaluateException("Invalid case clause")
@@ -1399,13 +1400,8 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
           calcLocal()
         case _ if isLocalValue =>
           val fun = isInsideLocalFunction(resolve).get
-          val funContextClass = getContextClass(fun)
-          if (PsiTreeUtil.isContextAncestor(funContextClass, resolve, true) && getContextClass == funContextClass)
-            evaluateFromParameter(fun, resolve)
-          else {
-            calcLocal()
-            myResult = new ScalaDuplexEvaluator(myResult, evaluateFromParameter(fun, resolve))
-          }
+          calcLocal()
+          myResult = new ScalaDuplexEvaluator(myResult, evaluateFromParameter(fun, resolve))
         case o: ScObject =>
           val obj = resolve.asInstanceOf[ScObject]
           //here we have few possibilities
@@ -1510,6 +1506,17 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
                     val name = NameTransformer.encode(named.name)
                     myResult = new ScalaMethodEvaluator(evaluator, name, null/* todo */, Seq.empty, false,
                       traitImplementation(resolve), DebuggerUtil.getSourcePositions(resolve.getNavigationElement))
+                    getContextClass(named) match {
+                        //in some cases compiler uses full qualified names for fields and methods
+                      case clazz: ScTemplateDefinition if ScalaPsiUtil.hasStablePath(clazz)
+                              && clazz.members.contains(ScalaPsiUtil.nameContext(named)) =>
+                        val qualName = clazz.qualifiedName
+                        val newName = qualName.split('.').map(NameTransformer.encode).mkString("$") + "$$" + name
+                        val reserveEval = new ScalaMethodEvaluator(evaluator, newName, null/* todo */, Seq.empty, false,
+                          traitImplementation(resolve), DebuggerUtil.getSourcePositions(resolve.getNavigationElement))
+                        myResult = new ScalaDuplexEvaluator(myResult, reserveEval)
+                      case _ =>
+                    }
                   }
                 case _ => throw new RuntimeException("Match is not exhaustive")
               }
@@ -1657,26 +1664,44 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
       super.visitNewTemplateDefinition(templ)
     }
 
-    private def evaluateSubpatternFromPattern(expr: ScExpression, pattern: ScPattern, subPattern: ScPattern) {
-      def evaluateConstructorOrInfix(ref: ScStableCodeReferenceElement, pattern: ScPattern, nextPatternIndex: Int) {
+    private def evaluateSubpatternFromPattern(exprEval: Evaluator, pattern: ScPattern, subPattern: ScPattern): Evaluator = {
+      def evaluateConstructorOrInfix(exprEval: Evaluator, ref: ScStableCodeReferenceElement, pattern: ScPattern, nextPatternIndex: Int): Evaluator = {
         ref.resolve() match {
           case fun: ScFunctionDefinition =>
-            val refName = ref.refName
-            val newExpr =
-              if (fun.name == "unapply") {
-                val extractionText = s"$refName.unapply.(${expr.getText}).get"
-                ScalaPsiElementFactory.createExpressionWithContextFromText(
-                  if (pattern.subpatterns.length == 1) extractionText
-                  else if (pattern.subpatterns.length > 1) s"$extractionText._${nextPatternIndex + 1}"
-                  else throw EvaluateExceptionUtil.createEvaluateException("Cannot extract value from unapply without arguments")
-                  , expr.getContext, expr)
-              } else if (fun.name == "unapplySeq") {
-                val qName = s"$refName.unapplySeq"
-                ScalaPsiElementFactory.createExpressionWithContextFromText(
-                  s"$qName(${expr.getText}).get.apply($nextPatternIndex)", expr.getContext, expr)
+            val elem = ref.bind().get.getActualElement //object or case class
+            visitReferenceNoParameters(None, elem,
+              ScalaPsiElementFactory.createExpressionFromText(ref.getText, ref.getManager).asInstanceOf[ScReferenceExpression],
+              (s: String) => {
+              val exprText = s + "." + ref.refName
+              ScalaPsiElementFactory.createExpressionWithContextFromText(exprText, ref.getContext, ref)
+            })
+            val refEvaluator = myResult
+            val funName = fun.name
+            val newEval =
+              if (funName == "unapply") {
+                val extractEval = new ScalaMethodEvaluator(refEvaluator, funName, DebuggerUtil.getFunctionJVMSignature(fun), Seq(exprEval), false, None, Set.empty)
+                if (pattern.subpatterns.length == 1) {
+                  myResult = new ScalaMethodEvaluator(extractEval, "get", null, Seq.empty, false, None, Set.empty)
+                  myResult
+                }
+                else if (pattern.subpatterns.length > 1) {
+                  val getEval = new ScalaMethodEvaluator(extractEval, "get", null, Seq.empty, false, None, Set.empty)
+                  val _nEval = new ScalaFieldEvaluator(getEval, x => true, s"_${nextPatternIndex + 1}")
+                  myResult = _nEval
+                  myResult
+                }
+                else throw EvaluateExceptionUtil.createEvaluateException("Cannot extract value from unapply without arguments")
+              } else if (funName == "unapplySeq") {
+                val extractEval = new ScalaMethodEvaluator(refEvaluator, funName, DebuggerUtil.getFunctionJVMSignature(fun), Seq(exprEval), false, None, Set.empty)
+                val getEval = new ScalaMethodEvaluator(extractEval, "get", null, Seq.empty, false, None, Set.empty)
+                ScalaPsiElementFactory.createExpressionFromText("" + nextPatternIndex, pattern.getManager).accept(this)
+                val numberEval = myResult
+                val applyEval = new ScalaMethodEvaluator(getEval, "apply", null, Seq(numberEval), false, None, Set.empty)
+                myResult = applyEval
+                myResult
               } else throw EvaluateExceptionUtil.createEvaluateException("Pattern reference does not resolve to unapply or unapplySeq")
             val nextPattern = pattern.subpatterns(nextPatternIndex)
-            evaluateSubpatternFromPattern(newExpr, nextPattern, subPattern)
+            evaluateSubpatternFromPattern(newEval, nextPattern, subPattern)
           case _ => throw EvaluateExceptionUtil.createEvaluateException("Pattern reference does not resolve to unapply or unapplySeq")
         }
       }
@@ -1684,34 +1709,36 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
       if (pattern == null || subPattern == null)
         throw new IllegalArgumentException("Patterns should not be null")
       val nextPatternIndex: Int = pattern.subpatterns.indexWhere(next => next == subPattern || subPattern.parents.contains(next))
-      if (pattern == subPattern) expr.accept(this)
+      if (pattern == subPattern) {
+        myResult = exprEval
+        myResult
+      }
       else if (nextPatternIndex < 0)
         throw new IllegalArgumentException("Pattern is not ancestor of subpattern")
       else {
         pattern match {
-          case namingPattern: ScNamingPattern => evaluateSubpatternFromPattern(expr, namingPattern.named, subPattern)
-          case typedPattern: ScTypedPattern => evaluateSubpatternFromPattern(expr, pattern.subpatterns.head, subPattern)
+          case namingPattern: ScNamingPattern => evaluateSubpatternFromPattern(exprEval, namingPattern.named, subPattern)
+          case typedPattern: ScTypedPattern => evaluateSubpatternFromPattern(exprEval, pattern.subpatterns.head, subPattern)
           case parenthesized: ScParenthesisedPattern =>
             val withoutPars = parenthesized.subpattern
                     .getOrElse(throw new IllegalStateException("Empty parentheses pattern"))
-            evaluateSubpatternFromPattern(expr, withoutPars, subPattern)
+            evaluateSubpatternFromPattern(exprEval, withoutPars, subPattern)
           case tuplePattern: ScTuplePattern =>
             val nextPattern = tuplePattern.subpatterns(nextPatternIndex)
-            val newExpr = ScalaPsiElementFactory.createExpressionWithContextFromText(
-              s"(${expr.getText})._${nextPatternIndex + 1}", expr.getContext, expr)
-            evaluateSubpatternFromPattern(newExpr, nextPattern, subPattern)
+            val newEval = new ScalaFieldEvaluator(exprEval, x => true, s"_${nextPatternIndex + 1}")
+            evaluateSubpatternFromPattern(newEval, nextPattern, subPattern)
           case constrPattern: ScConstructorPattern =>
             val ref: ScStableCodeReferenceElement = constrPattern.ref
-            evaluateConstructorOrInfix(ref, constrPattern, nextPatternIndex)
+            evaluateConstructorOrInfix(exprEval, ref, constrPattern, nextPatternIndex)
           case infixPattern: ScInfixPattern =>
             val ref: ScStableCodeReferenceElement = infixPattern.refernece
-            evaluateConstructorOrInfix(ref, infixPattern, nextPatternIndex)
+            evaluateConstructorOrInfix(exprEval, ref, infixPattern, nextPatternIndex)
             //todo: handle infix with tuple right pattern
           case composite: ScCompositePattern =>
             throw EvaluateExceptionUtil.createEvaluateException("Pattern alternatives cannot bind variables")
           case xmlPattern: ScXmlPattern =>
             throw EvaluateExceptionUtil.createEvaluateException("Xml patterns are not supported") //todo: xml patterns
-          case _ =>
+          case _ => throw EvaluateExceptionUtil.createEvaluateException("This kind of patterns is not supported") //todo: xml patterns
         }
       }
     }
