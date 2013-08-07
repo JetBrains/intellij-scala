@@ -111,7 +111,9 @@ case class ScalaFieldEvaluator(objectEvaluator: Evaluator, filter: ReferenceType
   def evaluate(context: EvaluationContextImpl): AnyRef = {
     myEvaluatedField = null
     myEvaluatedQualifier = null
-    val obj: AnyRef = objectEvaluator.evaluate(context)
+    val obj: AnyRef = DebuggerUtil.unwrapScalaRuntimeObjectRef {
+      objectEvaluator.evaluate(context)
+    }
     evaluateField(obj, context)
   }
 
