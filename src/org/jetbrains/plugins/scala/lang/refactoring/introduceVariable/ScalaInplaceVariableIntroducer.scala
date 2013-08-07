@@ -81,9 +81,9 @@ class ScalaInplaceVariableIntroducer(project: Project,
         val element = myFile.findElementAt(range.getStartOffset + numberOfSpaces)
         val declaration = ScalaPsiUtil.getParentOfType(element, classOf[ScEnumerator], classOf[ScDeclaredElementsHolder])
         val named: Option[ScNamedElement] = namedElement(declaration)
-        if (named.isDefined && range.contains(named.get.getNameIdentifier.getTextRange)) {
+        if (named.isDefined) {
           setDeclaration(declaration)
-          if (nameIsValid != (named.isDefined && isIdentifier(input, myFile.getLanguage) && named.get.name == input)) {
+          if (nameIsValid != (named.isDefined && isIdentifier(input.trim, myFile.getLanguage))) {
             nameIsValid = !nameIsValid
           }
           resetBalloonPanel(nameIsValid)
