@@ -84,6 +84,7 @@ class ScalaIntroduceFieldFromExpressionHandler extends ScalaIntroduceFieldHandle
     val aClass = ifc.aClass
     val manager = aClass.getManager
     val name = settings.name
+    val typeName = settings.scType.canonicalText
     val replacedOccurences = ScalaRefactoringUtil.replaceOccurences(occurrencesToReplace, name, ifc.file, ifc.editor)
             .map(_.asInstanceOf[PsiElement])
     val anchor: PsiElement = anchorForNewDeclaration(expression, replacedOccurences, aClass)
@@ -91,11 +92,11 @@ class ScalaIntroduceFieldFromExpressionHandler extends ScalaIntroduceFieldHandle
     var createdDeclaration: PsiElement = null
     if (initInDecl) {
       createdDeclaration = ScalaPsiElementFactory
-              .createDeclaration(settings.scType, name, settings.defineVar, expression, manager, isPresentableText = false)
+              .createDeclaration(name, typeName, settings.defineVar, expression, manager)
     } else {
       val underscore = ScalaPsiElementFactory.createExpressionFromText("_", manager)
       createdDeclaration = ScalaPsiElementFactory
-              .createDeclaration(settings.scType, name, settings.defineVar, underscore, manager, isPresentableText = false)
+              .createDeclaration(name, typeName, settings.defineVar, underscore, manager)
 
       anchorForInitializer(replacedOccurences.map(_.getTextRange), ifc.file) match {
         case Some(anchorForInit) =>
