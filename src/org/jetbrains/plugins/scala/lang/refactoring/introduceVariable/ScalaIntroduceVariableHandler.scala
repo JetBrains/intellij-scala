@@ -173,6 +173,7 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Confli
     val revertInfo = RevertInfo(file.getText, editor.getCaretModel.getOffset)
     editor.putUserData(ScalaIntroduceVariableHandler.REVERT_INFO, revertInfo)
 
+    val typeName = varType.canonicalText
     val expression = ScalaRefactoringUtil.expressionToIntroduce(expression_)
     val mainRange = new TextRange(startOffset, endOffset)
     val occurrences: Array[TextRange] = if (!replaceAllOccurrences) {
@@ -206,7 +207,7 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Confli
     if (introduceEnumerator) {
       val parent: ScEnumerators = introduceEnumeratorForStmt.enumerators.getOrElse(null)
       val inParentheses = parent.prevSiblings.toList.exists(_.getNode.getElementType == ScalaTokenTypes.tLPARENTHESIS)
-      createdDeclaration = ScalaPsiElementFactory.createEnumerator(varName, ScalaRefactoringUtil.unparExpr(expression), file.getManager, varType)
+      createdDeclaration = ScalaPsiElementFactory.createEnumerator(varName, ScalaRefactoringUtil.unparExpr(expression), file.getManager, typeName)
       val elem = parent.getChildren.filter(_.getTextRange.contains(firstRange)).head
       if (elem != null) {
         var needSemicolon = true
@@ -228,8 +229,8 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Confli
         }
       }
     } else {
-      createdDeclaration = ScalaPsiElementFactory.createDeclaration(varType, varName, isVariable,
-        ScalaRefactoringUtil.unparExpr(expression), file.getManager, isPresentableText = false)
+      createdDeclaration = ScalaPsiElementFactory.createDeclaration(varName, typeName, isVariable,
+        ScalaRefactoringUtil.unparExpr(expression), file.getManager)
       if (fastDefinition) {
         replacedOccurences(0).replace(createdDeclaration)
         editor.getCaretModel.moveToOffset(createdDeclaration.getTextRange.getEndOffset)
