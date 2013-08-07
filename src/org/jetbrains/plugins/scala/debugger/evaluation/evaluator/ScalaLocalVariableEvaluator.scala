@@ -5,11 +5,10 @@ import com.intellij.debugger.jdi.{StackFrameProxyImpl, LocalVariableProxyImpl}
 import com.intellij.debugger.ui.impl.watch.{LocalVariableDescriptorImpl, NodeDescriptorImpl}
 import com.intellij.debugger.engine.evaluation.expression.{Evaluator, Modifier}
 import com.intellij.debugger.engine.evaluation.{EvaluateException, EvaluateExceptionUtil, EvaluationContextImpl}
-import com.sun.jdi.{Value, Type}
+import com.sun.jdi.{InternalException, Value, Type}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.diagnostic.Logger
 import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil
-import scala.annotation.tailrec
 
 /**
  * User: Alefas
@@ -83,25 +82,29 @@ class ScalaLocalVariableEvaluator(_name: String) extends Evaluator {
       throw EvaluateExceptionUtil.
               createEvaluateException(DebuggerBundle.message("evaluation.error.local.variable.missing", name))
     }
-    @tailrec
+
     def parameterWithIndex(index: Int, frameProxy: StackFrameProxyImpl): Option[AnyRef] = {
+      def inNextFrame: Option[AnyRef] = {
+        val frameIndex = frameProxy.getFrameIndex
+        if (frameIndex < threadProxy.frameCount() - 1) {
+          parameterWithIndex(myParameterIndex, threadProxy.frame(frameIndex + 1))
+        } else None
+      }
       if (frameProxy == null || index < 0) None
       else {
         val frameMethodName = frameProxy.location().method().name()
         val frameSourceName = frameProxy.location().sourceName()
         if ((myMethodName == null && mySourceName == null) || (frameMethodName.startsWith(myMethodName) && mySourceName == frameSourceName)) {
-          val values = frameProxy.getArgumentValues
-          if (values != null && !values.isEmpty && index >= 0 && index < values.size()) {
-            Some(values.get(index))
-          } else {
-            None
+          try {
+            val values = frameProxy.getArgumentValues
+            if (values != null && !values.isEmpty && index >= 0 && index < values.size()) {
+              Some(values.get(index))
+            } else {
+              None
+            }
           }
-        } else {
-          val frameIndex = frameProxy.getFrameIndex
-          if (frameIndex < threadProxy.frameCount() - 1) {
-            parameterWithIndex(myParameterIndex, threadProxy.frame(frameIndex + 1))
-          } else None
-        }
+          catch {case ignore: InternalException => inNextFrame}
+        } else inNextFrame
       }
     }
 
