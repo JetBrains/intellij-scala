@@ -138,9 +138,9 @@ public class ScalaSupportUiBase {
 
     String version = distribution.version();
 
-    boolean versionOkay = version.startsWith("2.8") || version.startsWith("2.9") || version.startsWith("2.10");
+    boolean versionOkay = version.startsWith("2.8") || version.startsWith("2.9") || version.startsWith("2.10") || version.startsWith("2.11");
     if(!versionOkay) {
-      stateLabel.setText("(version " + version + ", 2.8-2.10 required)");
+      stateLabel.setText("(version " + version + ", 2.8-2.11 required)");
       stateLabel.setIcon(Icons.WARNING);
       return;
     }
