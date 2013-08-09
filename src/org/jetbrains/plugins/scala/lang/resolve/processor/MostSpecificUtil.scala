@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.Expression
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{ScTypePolymorphicType, ScMethodType, TypeParameter, Parameter}
 import psi.{types, ScalaPsiUtil}
 import com.intellij.psi._
-import scala.collection.Set
+import scala.collection.{immutable, Set}
 import psi.types._
 import psi.api.statements._
 import psi.impl.ScalaPsiManager
@@ -71,9 +71,9 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
     (r1.element, r2.element) match {
       case (m1@(_: PsiMethod | _: ScFun), m2@(_: PsiMethod | _: ScFun)) => {
         val (t1, t2) = (r1.substitutor.subst(getType(m1)), r2.substitutor.subst(getType(m2)))
-        def calcParams(tp: ScType, existential: Boolean): Seq[Parameter] = {
+        def calcParams(tp: ScType, existential: Boolean): Either[Seq[Parameter], ScType] = {
           tp match {
-            case ScMethodType(_, params, _) => params
+            case ScMethodType(_, params, _) => Left(params)
             case ScTypePolymorphicType(ScMethodType(_, params, _), typeParams) => {
               if (!existential) {
                 val s: ScSubstitutor = typeParams.foldLeft(ScSubstitutor.empty) {
@@ -81,7 +81,7 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
                     subst.bindT((tp.name, ScalaPsiUtil.getPsiElementId(tp.ptp)),
                       new ScUndefinedType(ScalaPsiManager.typeVariable(tp.ptp)))
                 }
-                params.map(p => p.copy(paramType = s.subst(p.paramType)))
+                Left(params.map(p => p.copy(paramType = s.subst(p.paramType))))
               } else {
                 val s: ScSubstitutor = typeParams.foldLeft(ScSubstitutor.empty) {
                   (subst: ScSubstitutor, tp: TypeParameter) =>
@@ -90,42 +90,68 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
                 }
                 val arguments = typeParams.toList.map(tp =>
                   new ScExistentialArgument(tp.name, List.empty /* todo? */ , s.subst(tp.lowerType), s.subst(tp.upperType)))
-                params.map(p => p.copy(paramType = ScExistentialType(s.subst(p.paramType), arguments)))
+                Left(params.map(p => p.copy(paramType = ScExistentialType(s.subst(p.paramType), arguments))))
               }
             }
-            case _ => Seq.empty
+            case ScTypePolymorphicType(internal, typeParams) =>
+              if (!existential) {
+                val s: ScSubstitutor = typeParams.foldLeft(ScSubstitutor.empty) {
+                  (subst: ScSubstitutor, tp: TypeParameter) =>
+                    subst.bindT((tp.name, ScalaPsiUtil.getPsiElementId(tp.ptp)),
+                      new ScUndefinedType(ScalaPsiManager.typeVariable(tp.ptp)))
+                }
+                Right(s.subst(internal))
+              } else {
+                val s: ScSubstitutor = typeParams.foldLeft(ScSubstitutor.empty) {
+                  (subst: ScSubstitutor, tp: TypeParameter) =>
+                    subst.bindT((tp.name, ScalaPsiUtil.getPsiElementId(tp.ptp)),
+                      new ScTypeVariable(tp.name))
+                }
+                val arguments = typeParams.toList.map(tp =>
+                  new ScExistentialArgument(tp.name, List.empty /* todo? */ , s.subst(tp.lowerType), s.subst(tp.upperType)))
+                Right(ScExistentialType(s.subst(internal), arguments))
+              }
+            case _ => Right(tp)
           }
         }
-        var params1 = calcParams(t1, existential = true)
-        val params2 = calcParams(t2, existential = false)
-        if ((t1.isInstanceOf[ScTypePolymorphicType] && t2.isInstanceOf[ScTypePolymorphicType] ||
-          (!(m1.isInstanceOf[ScFunction] || m1.isInstanceOf[ScFun] || m1.isInstanceOf[ScPrimaryConstructor]) ||
-                  !(m2.isInstanceOf[ScFunction] || m2.isInstanceOf[ScFun] || m2.isInstanceOf[ScPrimaryConstructor]))) &&
-          (lastRepeated(params1) ^ lastRepeated(params2))) return lastRepeated(params2) //todo: this is hack!!! see SCL-3846, SCL-4048
-        if (lastRepeated(params1) && !lastRepeated(params2)) params1 = params1.map {
-          case p: Parameter if p.isRepeated =>
-            val seq = ScalaPsiManager.instance(r1.element.getProject).getCachedClass(r1.element.getResolveScope,
-              "scala.collection.Seq")
-            if (seq != null) {
-              val newParamType = p.paramType match {
-                case ScExistentialType(q, wilds) =>
-                  ScExistentialType(ScParameterizedType(ScDesignatorType(seq), Seq(q)), wilds)
-                case paramType => ScParameterizedType(ScDesignatorType(seq), Seq(paramType))
+
+        val conformance = (calcParams(t1, existential = true), calcParams(t2, existential = false)) match {
+            case (Left(p1), Left(p2)) =>
+              var (params1, params2) = (p1, p2)
+              if ((t1.isInstanceOf[ScTypePolymorphicType] && t2.isInstanceOf[ScTypePolymorphicType] ||
+                      (!(m1.isInstanceOf[ScFunction] || m1.isInstanceOf[ScFun] || m1.isInstanceOf[ScPrimaryConstructor]) ||
+                              !(m2.isInstanceOf[ScFunction] || m2.isInstanceOf[ScFun] || m2.isInstanceOf[ScPrimaryConstructor]))) &&
+                      (lastRepeated(params1) ^ lastRepeated(params2))) return lastRepeated(params2) //todo: this is hack!!! see SCL-3846, SCL-4048
+              if (lastRepeated(params1) && !lastRepeated(params2)) params1 = params1.map {
+                case p: Parameter if p.isRepeated =>
+                  val seq = ScalaPsiManager.instance(r1.element.getProject).getCachedClass(r1.element.getResolveScope,
+                    "scala.collection.Seq")
+                  if (seq != null) {
+                    val newParamType = p.paramType match {
+                      case ScExistentialType(q, wilds) =>
+                        ScExistentialType(ScParameterizedType(ScDesignatorType(seq), Seq(q)), wilds)
+                      case paramType => ScParameterizedType(ScDesignatorType(seq), Seq(paramType))
+                    }
+                    Parameter(p.name, newParamType, p.expectedType,
+                      p.isDefault, isRepeated = false, isByName = p.isByName)
+                  }
+                  else p
+                case p => p
               }
-              Parameter(p.name, newParamType, p.expectedType,
-                p.isDefault, isRepeated = false, isByName = p.isByName)
-            }
-            else p
-          case p => p
-        }
-        val i: Int = if (params1.length > 0) 0.max(length - params1.length) else 0
-        val default: Expression = new Expression(if (params1.length > 0) params1.last.paramType else types.Nothing)
-        val exprs: Seq[Expression] = params1.map(p => new Expression(p.paramType)) ++ Seq.fill(i)(default)
-        val conformance = Compatibility.checkConformance(checkNames = false, params2, exprs, checkWithImplicits = false)
+              val i: Int = if (params1.length > 0) 0.max(length - params1.length) else 0
+              val default: Expression = new Expression(if (params1.length > 0) params1.last.paramType else types.Nothing)
+              val exprs: Seq[Expression] = params1.map(p => new Expression(p.paramType)) ++ Seq.fill(i)(default)
+              Compatibility.checkConformance(checkNames = false, params2, exprs, checkWithImplicits = false)
+            case (Right(t1), Right(t2)) =>
+              Conformance.conformsInner(t2, t1, immutable.Set.empty, new ScUndefinedSubstitutor())
+            case _ => return false //todo?
+          }
+
         var u = conformance._2
         if (!conformance._1) return false
+
         t2 match {
-          case ScTypePolymorphicType(ScMethodType(_, params, _), typeParams) => {
+          case ScTypePolymorphicType(_, typeParams) => {
             u.getSubstitutor match {
               case Some(uSubst) =>
                 def hasRecursiveTypeParameters(typez: ScType): Boolean = {
@@ -238,26 +264,35 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
   }
 
   //todo: implement existential dual
-  def getType(e: PsiNamedElement): ScType = e match {
-    case fun: ScFun => fun.polymorphicType
-    case f: ScFunction if f.isConstructor =>
-      f.containingClass match {
-        case td: ScTypeDefinition if td.hasTypeParameters =>
-          ScTypePolymorphicType(f.methodType, td.typeParameters.map(tp =>
-            TypeParameter(tp.name, tp.lowerBound.getOrNothing, tp.upperBound.getOrAny, tp)))
-        case _ => f.polymorphicType
+  def getType(e: PsiNamedElement): ScType = {
+    val res = e match {
+      case fun: ScFun => fun.polymorphicType
+      case f: ScFunction if f.isConstructor =>
+        f.containingClass match {
+          case td: ScTypeDefinition if td.hasTypeParameters =>
+            ScTypePolymorphicType(f.methodType, td.typeParameters.map(tp =>
+              TypeParameter(tp.name, tp.lowerBound.getOrNothing, tp.upperBound.getOrAny, tp)))
+          case _ => f.polymorphicType
+        }
+      case f: ScFunction => f.polymorphicType
+      case p: ScPrimaryConstructor => p.polymorphicType
+      case m: PsiMethod => ResolveUtils.javaPolymorphicType(m, ScSubstitutor.empty, elem.getResolveScope)
+      case refPatt: ScReferencePattern => refPatt.getParent /*id list*/ .getParent match {
+        case pd: ScPatternDefinition if (PsiTreeUtil.isContextAncestor(pd, elem, true)) =>
+          pd.declaredType match {case Some(t) => t; case None => types.Nothing}
+        case vd: ScVariableDefinition if (PsiTreeUtil.isContextAncestor(vd, elem, true)) =>
+          vd.declaredType match {case Some(t) => t; case None => types.Nothing}
+        case _ => refPatt.getType(TypingContext.empty).getOrAny
       }
-    case f: ScFunction => f.polymorphicType
-    case p: ScPrimaryConstructor => p.polymorphicType
-    case m: PsiMethod => ResolveUtils.javaPolymorphicType(m, ScSubstitutor.empty, elem.getResolveScope)
-    case refPatt: ScReferencePattern => refPatt.getParent /*id list*/ .getParent match {
-      case pd: ScPatternDefinition if (PsiTreeUtil.isContextAncestor(pd, elem, true)) =>
-        pd.declaredType match {case Some(t) => t; case None => types.Nothing}
-      case vd: ScVariableDefinition if (PsiTreeUtil.isContextAncestor(vd, elem, true)) =>
-        vd.declaredType match {case Some(t) => t; case None => types.Nothing}
-      case _ => refPatt.getType(TypingContext.empty).getOrAny
+      case typed: ScTypedDefinition => typed.getType(TypingContext.empty).getOrAny
+      case _ => types.Nothing
     }
-    case typed: ScTypedDefinition => typed.getType(TypingContext.empty).getOrAny
-    case _ => types.Nothing
+
+    res match {
+      case ScMethodType(retType, _, true) => retType
+      case ScTypePolymorphicType(ScMethodType(retType, _, true), typeParameters) =>
+        ScTypePolymorphicType(retType, typeParameters)
+      case tp => tp
+    }
   }
 }
