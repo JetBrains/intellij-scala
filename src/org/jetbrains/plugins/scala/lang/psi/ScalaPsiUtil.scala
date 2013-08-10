@@ -518,22 +518,7 @@ object ScalaPsiUtil {
   }
 
   def collectImplicitObjects(_tp: ScType, place: PsiElement): Seq[ScType] = {
-    @tailrec
-    def updateAliases(tp: ScType): ScType = {
-      var updated = false
-      val res = tp.recursiveUpdate { t =>
-        t.isAliasType match {
-          case Some(AliasType(ta, _, upper)) if ta.isInstanceOf[ScTypeAliasDefinition] =>
-            updated = true
-            (true, upper.getOrAny)
-          case _ => (false, t)
-        }
-      }
-      if (!updated) tp
-      else updateAliases(res)
-    }
-
-    val tp = updateAliases(_tp)
+    val tp = ScType.removeAliasDefinitions(_tp)
     val projectOpt = Option(place).map(_.getProject)
     val parts: ListBuffer[ScType] = new ListBuffer[ScType]
     val visited = new mutable.HashSet[ScType]()
