@@ -131,14 +131,20 @@ trait ScTypePsiTypeBridge {
     }
   }
 
-  def toPsi(t: ScType, project: Project, scope: GlobalSearchScope, noPrimitives: Boolean = false,
+  def toPsi(_t: ScType, project: Project, scope: GlobalSearchScope, noPrimitives: Boolean = false,
             skolemToWildcard: Boolean = false): PsiType = {
+    val t = ScType.removeAliasDefinitions(_t)
     if (t.isInstanceOf[NonValueType]) return toPsi(t.inferValueType, project, scope)
     def javaObj = JavaPsiFacade.getInstance(project).getElementFactory.createTypeByFQClassName("java.lang.Object", scope)
     t match {
       case types.Any => javaObj
       case types.AnyRef => javaObj
-      case types.Unit => if (noPrimitives) javaObj else PsiType.VOID
+      case types.Unit =>
+        if (noPrimitives) {
+          val boxed = JavaPsiFacade.getInstance(project).getElementFactory.createTypeByFQClassName("scala.runtime.BoxedUnit", scope)
+          if (boxed != null) boxed
+          else javaObj
+        } else PsiType.VOID
       case types.Boolean => if (noPrimitives) javaObj else PsiType.BOOLEAN
       case types.Char => if (noPrimitives) javaObj else PsiType.CHAR
       case types.Int => if (noPrimitives) javaObj else PsiType.INT
