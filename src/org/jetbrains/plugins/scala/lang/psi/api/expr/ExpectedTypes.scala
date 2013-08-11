@@ -19,6 +19,7 @@ import base.types.{ScSequenceArg, ScTypeElement}
 import lang.resolve.ScalaResolveResult
 import psi.impl.ScalaPsiManager
 import toplevel.typedef.ScObject
+import scala.annotation.tailrec
 
 /**
  * @author ilyas
@@ -294,7 +295,19 @@ private[expr] object ExpectedTypes {
       case _ => Array.empty
     }
 
-    if (fromUnderscore && ScUnderScoreSectionUtil.underscores(expr).length != 0) {
+    @tailrec
+    def checkIsUnderscore(expr: ScExpression): Boolean = {
+      expr match {
+        case p: ScParenthesisedExpr =>
+          p.expr match {
+            case Some(e) => checkIsUnderscore(e)
+            case _ => false
+          }
+        case _ => ScUnderScoreSectionUtil.underscores(expr).length != 0
+      }
+    }
+
+    if (fromUnderscore && checkIsUnderscore(expr)) {
       val res = new ArrayBuffer[(ScType, Option[ScTypeElement])]
       for (tp <- result) {
         ScType.extractFunctionType(tp._1) match {
