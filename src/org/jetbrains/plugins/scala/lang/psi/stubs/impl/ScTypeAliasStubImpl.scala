@@ -9,8 +9,8 @@ import api.statements.ScTypeAlias
 import com.intellij.psi.PsiElement
 import com.intellij.psi.stubs.{StubElement, IStubElementType}
 import com.intellij.util.io.StringRef
-import com.intellij.util.PatchedSoftReference
 import psi.impl.ScalaPsiElementFactory
+import com.intellij.reference.SoftReference
 
 /**
  *  User: Alexander Podkhalyuzin
@@ -23,23 +23,25 @@ extends StubBaseWrapper[ScTypeAlias](parent, elemType) with ScTypeAliasStub {
   private var name: StringRef = _
   private var declaration: Boolean = false
   private var typeElementText: StringRef = _
-  private var myTypeElement: PatchedSoftReference[ScTypeElement] = null
+  private var myTypeElement: SoftReference[ScTypeElement] = null
   private var lowerTypeElementText: StringRef = _
-  private var myLowerTypeElement: PatchedSoftReference[ScTypeElement] = null
+  private var myLowerTypeElement: SoftReference[ScTypeElement] = null
   private var upperTypeElementText: StringRef = _
-  private var myUpperTypeElement: PatchedSoftReference[ScTypeElement] = null
+  private var myUpperTypeElement: SoftReference[ScTypeElement] = null
   private var local: Boolean = false
+  private var _stableQualifier: Boolean = false
 
   def this(parent: StubElement[ParentPsi],
           elemType: IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement],
           name: String, isDeclaration: Boolean, typeElementText: String, lowerTypeElementText: String,
-                  upperTypeElementText: String, isLocal: Boolean) = {
+                  upperTypeElementText: String, isLocal: Boolean, stableQualifier: Boolean) = {
     this(parent, elemType.asInstanceOf[IStubElementType[StubElement[PsiElement], PsiElement]])
     this.name = StringRef.fromString(name)
     this.declaration = isDeclaration
     this.typeElementText = StringRef.fromString(typeElementText)
     this.lowerTypeElementText = StringRef.fromString(lowerTypeElementText)
     this.upperTypeElementText = StringRef.fromString(upperTypeElementText)
+    this._stableQualifier = stableQualifier
     local = isLocal
   }
 
@@ -55,7 +57,7 @@ extends StubBaseWrapper[ScTypeAlias](parent, elemType) with ScTypeAliasStub {
     val res: ScTypeElement = {
       ScalaPsiElementFactory.createTypeElementFromText(getTypeElementText, getPsi, null)
     }
-    myTypeElement = new PatchedSoftReference[ScTypeElement](res)
+    myTypeElement = new SoftReference[ScTypeElement](res)
     res
   }
 
@@ -67,7 +69,7 @@ extends StubBaseWrapper[ScTypeAlias](parent, elemType) with ScTypeAliasStub {
     val res: ScTypeElement = {
       ScalaPsiElementFactory.createTypeElementFromText(getUpperBoundElementText, getPsi, null)
     }
-    myUpperTypeElement = new PatchedSoftReference[ScTypeElement](res)
+    myUpperTypeElement = new SoftReference[ScTypeElement](res)
     res
   }
 
@@ -79,9 +81,11 @@ extends StubBaseWrapper[ScTypeAlias](parent, elemType) with ScTypeAliasStub {
     val res: ScTypeElement = {
       ScalaPsiElementFactory.createTypeElementFromText(getLowerBoundElementText, getPsi, null)
     }
-    myLowerTypeElement = new PatchedSoftReference[ScTypeElement](res)
+    myLowerTypeElement = new SoftReference[ScTypeElement](res)
     res
   }
 
   def getLowerBoundElementText: String = lowerTypeElementText.toString
+
+  def isStableQualifier: Boolean = _stableQualifier
 }

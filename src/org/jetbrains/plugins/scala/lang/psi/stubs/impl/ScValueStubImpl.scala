@@ -12,8 +12,8 @@ import api.statements.ScValue
 import com.intellij.psi.PsiElement
 import com.intellij.psi.stubs.{StubElement, IStubElementType}
 import com.intellij.util.io.StringRef
-import com.intellij.util.PatchedSoftReference
 import psi.impl.ScalaPsiElementFactory
+import com.intellij.reference.SoftReference
 
 /**
  * User: Alexander Podkhalyuzin
@@ -28,10 +28,10 @@ extends StubBaseWrapper[ScValue](parent, elemType) with ScValueStub {
   private var typeText: StringRef = _
   private var bodyText: StringRef = _
   private var containerText: StringRef = _
-  private var myTypeElement: PatchedSoftReference[Option[ScTypeElement]] = null
-  private var myBodyExpression: PatchedSoftReference[Option[ScExpression]] = null
-  private var myIds: PatchedSoftReference[Option[ScIdList]] = null
-  private var myPatterns: PatchedSoftReference[Option[ScPatternList]] = null
+  private var myTypeElement: SoftReference[Option[ScTypeElement]] = null
+  private var myBodyExpression: SoftReference[Option[ScExpression]] = null
+  private var myIds: SoftReference[Option[ScIdList]] = null
+  private var myPatterns: SoftReference[Option[ScPatternList]] = null
   private var _implicit: Boolean = false
   private var local: Boolean = false
 
@@ -77,7 +77,7 @@ extends StubBaseWrapper[ScValue](parent, elemType) with ScValueStub {
         Some(ScalaPsiElementFactory.createPatterListFromText(getBindingsContainerText, getPsi, null))
       } else None
     }
-    myPatterns = new PatchedSoftReference[Option[ScPatternList]](res)
+    myPatterns = new SoftReference[Option[ScPatternList]](res)
     res
   }
 
@@ -93,7 +93,7 @@ extends StubBaseWrapper[ScValue](parent, elemType) with ScValueStub {
         None
       }
     }
-    myBodyExpression = new PatchedSoftReference[Option[ScExpression]](res)
+    myBodyExpression = new SoftReference[Option[ScExpression]](res)
     res
   }
 
@@ -105,7 +105,7 @@ extends StubBaseWrapper[ScValue](parent, elemType) with ScValueStub {
       }
       else None
     }
-    myTypeElement = new PatchedSoftReference[Option[ScTypeElement]](res)
+    myTypeElement = new SoftReference[Option[ScTypeElement]](res)
     res
   }
 
@@ -117,7 +117,7 @@ extends StubBaseWrapper[ScValue](parent, elemType) with ScValueStub {
         Some(ScalaPsiElementFactory.createIdsListFromText(getBindingsContainerText, getPsi, null))
       } else None
     }
-    myIds = new PatchedSoftReference[Option[ScIdList]](res)
+    myIds = new SoftReference[Option[ScIdList]](res)
     res
   }
 

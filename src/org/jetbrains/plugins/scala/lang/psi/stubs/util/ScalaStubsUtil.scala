@@ -23,7 +23,7 @@ import psi.types.result.{Success, TypingContext}
 import psi.types.{ScCompoundType, ScType}
 import com.intellij.psi.search.searches.ClassInheritorsSearch
 import com.intellij.util.Processor
-import api.statements.{ScVariable, ScValue}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScVariable, ScValue}
 import api.toplevel.packaging.ScPackageContainer
 import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScFileStubImpl
 
@@ -158,6 +158,20 @@ object ScalaStubsUtil {
       case _ => {
         val faultyContainer = PsiUtilCore.getVirtualFile(element)
         LOG.error(s"Non PsiClass in PsiClass list: $faultyContainer. found: $element")
+        if (faultyContainer != null && faultyContainer.isValid) {
+          FileBasedIndex.getInstance.requestReindex(faultyContainer)
+        }
+        false
+      }
+    }
+  }
+
+  def checkPsiForTypeAlias(element: PsiElement): Boolean = {
+    element match {
+      case x: ScTypeAlias => true
+      case _ => {
+        val faultyContainer = PsiUtilCore.getVirtualFile(element)
+        LOG.error(s"Non TypeAlias in TypeAlias list: $faultyContainer. found: $element")
         if (faultyContainer != null && faultyContainer.isValid) {
           FileBasedIndex.getInstance.requestReindex(faultyContainer)
         }
