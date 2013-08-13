@@ -10,8 +10,9 @@ import api.toplevel.imports.ScImportExpr
 import com.intellij.psi.PsiElement
 import com.intellij.psi.stubs.{IStubElementType, StubElement}
 import com.intellij.util.io.StringRef
-import com.intellij.util.PatchedSoftReference
 import psi.impl.ScalaPsiElementFactory
+import com.intellij.reference.SoftReference
+
 /**
  * User: Alexander Podkhalyuzin
  * Date: 20.06.2009
@@ -23,7 +24,7 @@ class ScImportExprStubImpl[ParentPsi <: PsiElement](parent: StubElement[ParentPs
 
   var referenceText: StringRef = StringRef.fromString("")
   var singleWildcard: Boolean = _
-  private var myReference: PatchedSoftReference[Option[ScStableCodeReferenceElement]] = null
+  private var myReference: SoftReference[Option[ScStableCodeReferenceElement]] = null
 
   def this(parent : StubElement[ParentPsi],
           elemType : IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement], refText: String, singleWildcard: Boolean) {
@@ -42,7 +43,7 @@ class ScImportExprStubImpl[ParentPsi <: PsiElement](parent: StubElement[ParentPs
         Some(psi)
       } else None
     }
-    myReference = new PatchedSoftReference[Option[ScStableCodeReferenceElement]](res)
+    myReference = new SoftReference[Option[ScStableCodeReferenceElement]](res)
     res
   }
 

@@ -480,9 +480,9 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
 
   private def checkNotQualifiedReferenceElement(refElement: ScReferenceElement, holder: AnnotationHolder) {
     def getFix: Seq[IntentionAction] = {
-      val classes = ScalaImportClassFix.getClasses(refElement, refElement.getProject)
+      val classes = ScalaImportTypeFix.getTypesToImport(refElement, refElement.getProject)
       if (classes.length == 0) return Seq.empty
-      Seq[IntentionAction](new ScalaImportClassFix(classes, refElement))
+      Seq[IntentionAction](new ScalaImportTypeFix(classes, refElement))
     }
 
     val resolve: Array[ResolveResult] = refElement.multiResolve(false)

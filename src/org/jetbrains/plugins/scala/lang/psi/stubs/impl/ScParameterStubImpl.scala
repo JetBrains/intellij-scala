@@ -9,9 +9,9 @@ import com.intellij.psi.PsiElement
 import com.intellij.psi.stubs.{StubElement, IStubElementType}
 import com.intellij.util.io.StringRef
 import api.base.types.ScTypeElement
-import com.intellij.util.PatchedSoftReference
 import psi.impl.ScalaPsiElementFactory
 import api.expr.ScExpression
+import com.intellij.reference.SoftReference
 
 /**
  * User: Alexander Podkhalyuzin
@@ -23,14 +23,14 @@ class ScParameterStubImpl[ParentPsi <: PsiElement](parent: StubElement[ParentPsi
 extends StubBaseWrapper[ScParameter](parent, elemType) with ScParameterStub {
   private var name: String = _
   private var typeText: String = _
-  private var myTypeElement: PatchedSoftReference[Option[ScTypeElement]] = null
+  private var myTypeElement: SoftReference[Option[ScTypeElement]] = null
   private var stable: Boolean = false
   private var default: Boolean = false
   private var repeated: Boolean = false
   private var _isVal: Boolean = false
   private var _isVar: Boolean = false
   private var _isCallByName: Boolean = false
-  private var myDefaultExpression: PatchedSoftReference[Option[ScExpression]] = null
+  private var myDefaultExpression: SoftReference[Option[ScExpression]] = null
   private var defaultExprText: Option[String] = None
 
   def this(parent: StubElement[ParentPsi],
@@ -77,7 +77,7 @@ extends StubBaseWrapper[ScParameter](parent, elemType) with ScParameterStub {
       }
       else None
     }
-    myTypeElement = new PatchedSoftReference[Option[ScTypeElement]](res)
+    myTypeElement = new SoftReference[Option[ScTypeElement]](res)
     res
   }
 
@@ -105,7 +105,7 @@ extends StubBaseWrapper[ScParameter](parent, elemType) with ScParameterStub {
           Some(ScalaPsiElementFactory.createExpressionWithContextFromText(text, getPsi, null))
       }
     }
-    myDefaultExpression = new PatchedSoftReference[Option[ScExpression]](res)
+    myDefaultExpression = new SoftReference[Option[ScExpression]](res)
     res
   }
 }

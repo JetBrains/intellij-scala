@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala
 package lang
 package autoImport
 
-import org.jetbrains.plugins.scala.annotator.intention.ScalaImportClassFix
+import org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix
 import com.intellij.openapi.command.undo.UndoManager
 import com.intellij.openapi.fileEditor.impl.text.TextEditorProvider
 import com.intellij.openapi.fileEditor.{OpenFileDescriptor, FileEditorManager}
@@ -18,6 +18,7 @@ import lexer.ScalaTokenTypes
 import util.ScalaUtils
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.util.text.StringUtil
+import org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix.{TypeAliasToImport, ClassTypeToImport}
 
 /**
  * User: Alexander Podkhalyuzin
@@ -51,15 +52,21 @@ abstract class AutoImportTestBase extends ScalaLightPlatformCodeInsightTestCaseA
       case _ => assert(assertion = false, message = "Reference must be unresolved.")
     }
 
-    val classes = ScalaImportClassFix.getClasses(ref, getProjectAdapter)
+    val classes = ScalaImportTypeFix.getTypesToImport(ref, getProjectAdapter)
     assert(classes.length > 0, "Haven't classes to import")
     var res: String = null
     val lastPsi = scalaFile.findElementAt(scalaFile.getText.length - 1)
     try {
       ScalaUtils.runWriteAction(new Runnable {
         def run() {
-          org.jetbrains.plugins.scala.annotator.intention.ScalaImportClassFix.
-                  getImportHolder(ref, getProjectAdapter).addImportForClass(classes(0))
+          classes(0) match {
+            case ClassTypeToImport(clazz) =>
+              org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix.
+                getImportHolder(ref, getProjectAdapter).addImportForClass(clazz)
+            case ta =>
+              org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix.
+                getImportHolder(ref, getProjectAdapter).addImportForPath(ta.qualifiedName, ref)
+          }
         }
       }, getProjectAdapter, "Test")
       res = scalaFile.getText.substring(0, lastPsi.getTextOffset).trim//getImportStatements.map(_.getText()).mkString("\n")

@@ -16,7 +16,7 @@ import psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
 import extensions.{toPsiMemberExt, toPsiNamedElementExt, toPsiClassExt}
 import settings.ScalaProjectSettings
-import annotator.intention.ScalaImportClassFix
+import annotator.intention.ScalaImportTypeFix
 import collection.mutable.HashSet
 import toplevel.imports.ScImportSelector
 
@@ -214,7 +214,7 @@ trait ScReferenceElement extends ScalaPsiElement with ResolvableReferenceElement
             else {
               val result: ResolveResult = resolve(0)
               def smartCheck: Boolean = {
-                val holder = ScalaImportClassFix.getImportHolder(this, getProject)
+                val holder = ScalaImportTypeFix.getImportHolder(this, getProject)
                 var res = true
                 holder.accept(new ScalaRecursiveElementVisitor {
                   //Override also visitReferenceExpression! and visitTypeProjection!
@@ -244,7 +244,7 @@ trait ScReferenceElement extends ScalaPsiElement with ResolvableReferenceElement
             }
           }
           if (isOk) {
-            ScalaImportClassFix.getImportHolder(this, getProject).addImportForPath(packagePart, this)
+            ScalaImportTypeFix.getImportHolder(this, getProject).addImportForPath(packagePart, this)
             val ref = referenceCreator(toReplace, false)
             return this.replace(ref)
           }

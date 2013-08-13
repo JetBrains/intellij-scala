@@ -10,14 +10,14 @@ import com.intellij.psi.stubs.{StubElement, IndexSink, StubOutputStream, StubInp
 import com.intellij.util.io.StringRef
 import impl.ScTypeAliasStubImpl
 import index.ScalaIndexKeys
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 
 /**
  * User: Alexander Podkhalyuzin
  * Date: 18.10.2008
  */
-
 abstract class ScTypeAliasElementType[Func <: ScTypeAlias](debugName: String)
-extends ScStubElementType[ScTypeAliasStub, ScTypeAlias](debugName) {
+       extends ScStubElementType[ScTypeAliasStub, ScTypeAlias](debugName) {
   def createStubImpl[ParentPsi <: PsiElement](psi: ScTypeAlias, parentStub: StubElement[ParentPsi]): ScTypeAliasStub = {
     val isDeclaration = psi.isInstanceOf[ScTypeAliasDeclaration]
     val typeElementText = {
@@ -34,7 +34,10 @@ extends ScStubElementType[ScTypeAliasStub, ScTypeAlias](debugName) {
       if (!isDeclaration) ""
       else psi.asInstanceOf[ScTypeAliasDeclaration].upperTypeElement.map(_.getText).getOrElse("")
     }
-    new ScTypeAliasStubImpl[ParentPsi](parentStub, this, psi.name, isDeclaration, typeElementText, lower, upper, psi.containingClass == null)
+    val containingClass = psi.containingClass
+    val isStableQualifier = ScalaPsiUtil.hasStablePath(psi) && containingClass.isInstanceOf[ScObject]
+    new ScTypeAliasStubImpl[ParentPsi](parentStub, this, psi.name, isDeclaration, typeElementText, lower, upper,
+      containingClass == null, isStableQualifier)
   }
 
   def serialize(stub: ScTypeAliasStub, dataStream: StubOutputStream) {
@@ -44,6 +47,7 @@ extends ScStubElementType[ScTypeAliasStub, ScTypeAlias](debugName) {
     dataStream.writeName(stub.getLowerBoundElementText)
     dataStream.writeName(stub.getUpperBoundElementText)
     dataStream.writeBoolean(stub.isLocal)
+    dataStream.writeBoolean(stub.isStableQualifier)
   }
 
   def deserializeImpl(dataStream: StubInputStream, parentStub: Any): ScTypeAliasStub = {
@@ -54,13 +58,17 @@ extends ScStubElementType[ScTypeAliasStub, ScTypeAlias](debugName) {
     val lower = dataStream.readName.toString
     val upper = dataStream.readName.toString
     val isLocal = dataStream.readBoolean()
-    new ScTypeAliasStubImpl(parent, this, name, isDecl, typeElementText, lower, upper, isLocal)
+    val isStable = dataStream.readBoolean()
+    new ScTypeAliasStubImpl(parent, this, name, isDecl, typeElementText, lower, upper, isLocal, isStable)
   }
 
   def indexStub(stub: ScTypeAliasStub, sink: IndexSink) {
     val name = stub.getName
     if (name != null) {
       sink.occurrence(ScalaIndexKeys.TYPE_ALIAS_NAME_KEY, name)
+      if (stub.isStableQualifier) {
+        sink.occurrence(ScalaIndexKeys.STABLE_ALIAS_NAME_KEY, name)
+      }
     }
   }
 }

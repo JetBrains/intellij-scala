@@ -17,7 +17,7 @@ import com.intellij.codeInsight.AutoPopupController
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.annotator.intention.ScalaImportClassFix
+import org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScSubstitutor}
 import com.intellij.openapi.util.Condition
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
@@ -282,7 +282,7 @@ class ScalaLookupItem(val element: PsiNamedElement, _name: String, containingCla
                           case memb: PsiMember =>
                             val containingClass = memb.containingClass
                             if (containingClass != null && containingClass.qualifiedName != null) {
-                              ScalaImportClassFix.getImportHolder(ref, ref.getProject).addImportForPsiNamedElement(elementToImport, null)
+                              ScalaImportTypeFix.getImportHolder(ref, ref.getProject).addImportForPsiNamedElement(elementToImport, null)
                             }
                           case _ =>
                         }
