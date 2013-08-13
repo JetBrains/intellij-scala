@@ -39,6 +39,7 @@ import extensions._
 import com.intellij.psi.impl.source.codeStyle.CodeEditUtil
 import com.intellij.psi.impl.source.PostprocessReformattingAspect
 import com.intellij.openapi.fileTypes.LanguageFileType
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 
 class ScalaFileImpl(viewProvider: FileViewProvider, fileType: LanguageFileType = ScalaFileType.SCALA_FILE_TYPE)
         extends PsiFileBase(viewProvider, fileType.getLanguage)
@@ -467,6 +468,17 @@ class ScalaFileImpl(viewProvider: FileViewProvider, fileType: LanguageFileType =
   protected override def implicitlyImportedPackages = ScalaFileImpl.DefaultImplicitlyImportedPackges
 
   protected override def implicitlyImportedObjects = ScalaFileImpl.DefaultImplicitlyImportedObjects
+
+  override protected def insertFirstImport(importSt: ScImportStmt, first: PsiElement): PsiElement = {
+    if (isScriptFile) {
+      first match {
+        case c: PsiComment if c.getNode.getElementType == ScalaTokenTypes.tSH_COMMENT => addImportAfter(importSt, c)
+        case _ => super.insertFirstImport(importSt, first)
+      }
+    } else {
+      super.insertFirstImport(importSt, first)
+    }
+  }
 }
 
 object ScalaFileImpl {
