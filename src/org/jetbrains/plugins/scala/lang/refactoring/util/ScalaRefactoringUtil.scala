@@ -644,13 +644,20 @@ object ScalaRefactoringUtil {
     if (newExpr != null) newExpr else throw new IntroduceException
   }
 
-  def replaceOccurences(occurences: Array[TextRange], newString: String, file: PsiFile, editor: Editor): Array[ScExpression] = {
+  def replaceOccurences(occurences: Array[TextRange], newString: String, file: PsiFile, editor: Editor): Array[TextRange] = {
     occurences.reverseMap(ScalaRefactoringUtil.replaceOccurence(_, newString, file, editor)).reverse
+            .map(_.getTextRange)
   }
 
   def statementsAndMembersInClass(aClass: ScTemplateDefinition): Seq[PsiElement] = {
-    val body = aClass.extendsBlock.templateBody
-    body.toSeq.flatMap(_.children).filter(child => child.isInstanceOf[ScBlockStatement] || child.isInstanceOf[ScMember])
+    val extendsBlock = aClass.extendsBlock
+    if (extendsBlock == null) return Nil
+    val body = extendsBlock.templateBody
+    val earlyDefs = extendsBlock.earlyDefinitions
+    (earlyDefs ++ body)
+            .flatMap(_.children)
+            .filter(child => child.isInstanceOf[ScBlockStatement] || child.isInstanceOf[ScMember])
+            .toSeq
   }
 
   @tailrec
@@ -729,6 +736,13 @@ object ScalaRefactoringUtil {
     if (element == null) file
     else ScalaPsiUtil.getParentOfType(element, strict, classOf[ScalaFile], classOf[ScBlock],
       classOf[ScTemplateBody], classOf[ScCaseClause], classOf[ScEarlyDefinitions])
+  }
+
+  def inSuperConstructor(element: PsiElement, aClass: ScTemplateDefinition): Boolean = {
+    aClass.extendsBlock.templateParents match {
+      case Some(parents) if parents.isAncestorOf(element) => true
+      case None => false
+    }
   }
 
   private[refactoring] class IntroduceException extends Exception
