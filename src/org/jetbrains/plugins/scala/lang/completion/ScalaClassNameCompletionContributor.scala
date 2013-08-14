@@ -11,7 +11,7 @@ import com.intellij.codeInsight.completion._
 import lookups.{ScalaLookupItem, LookupElementManager}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTrait, ScClass}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTemplateDefinition, ScObject, ScTrait, ScClass}
 import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, ResolveUtils}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScConstructorPattern
@@ -29,6 +29,9 @@ import org.jetbrains.plugins.scala.extensions.{toPsiNamedElementExt, toPsiClassE
 import org.jetbrains.plugins.scala.lang.psi.light.PsiClassWrapper
 import org.jetbrains.plugins.scala.config.ScalaVersionUtil
 import scala.collection.mutable
+import org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix.{TypeAliasToImport, ClassTypeToImport, TypeToImport}
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
 
 class ScalaClassNameCompletionContributor extends CompletionContributor {
   import ScalaClassNameCompletionContributor._
@@ -82,33 +85,44 @@ object ScalaClassNameCompletionContributor {
       case _ =>
     }
 
-    def addClass(psiClass: PsiClass) {
+    def addTypeForCompletion(typeToImport: TypeToImport) {
       val isExcluded: Boolean = ApplicationManager.getApplication.runReadAction(new Computable[Boolean] {
         def compute: Boolean = {
-          JavaCompletionUtil.isInExcludedPackage(psiClass, true)
+          val clazz = typeToImport match {
+            case ClassTypeToImport(clazz) => clazz
+            case TypeAliasToImport(alias) =>
+              val containingClass = alias.containingClass
+              if (containingClass == null) return false
+              containingClass
+          }
+          JavaCompletionUtil.isInExcludedPackage(clazz, true)
         }
-      }).booleanValue
+      })
       if (isExcluded) return
 
       val isAccessible =
-        invocationCount >= 2 || ResolveUtils.isAccessible(psiClass, insertedElement, forCompletion = true)
+        invocationCount >= 2 || ResolveUtils.isAccessible(typeToImport.element, insertedElement, forCompletion = true)
       if (!isAccessible) return
 
-      if (lookingForAnnotations && !psiClass.isAnnotationType) return
-      psiClass match {
-        case _: ScClass | _: ScTrait if !isInImport && !onlyClasses => return
+      if (lookingForAnnotations && !typeToImport.isAnnotationType) return
+      typeToImport.element match {
+        case _: ScClass | _: ScTrait | _: ScTypeAlias if !isInImport && !onlyClasses => return
         case _: ScObject if !isInImport && onlyClasses => return
         case _ =>
       }
-      val renamed = renamesMap.get(psiClass.getName).filter(_._2 == psiClass).map(_._1)
+      val renamed = renamesMap.get(typeToImport.name).filter(_._2 == typeToImport).map(_._1)
       for {
-        el <- LookupElementManager.getLookupElement(new ScalaResolveResult(psiClass, nameShadow = renamed),
+        el <- LookupElementManager.getLookupElement(new ScalaResolveResult(typeToImport.element, nameShadow = renamed),
           isClassName = true, isInImport = isInImport, isInStableCodeReference = stableRefElement != null)
       } {
-        result.addElement(
-          if (!afterNewPattern.accepts(parameters.getPosition, context)) el
-          else getLookupElementFromClass(expectedTypesAfterNew, psiClass, renamesMap)
-        )
+        if (!afterNewPattern.accepts(parameters.getPosition, context)) result.addElement(el)
+        else {
+          typeToImport match {
+            case ClassTypeToImport(clazz) =>
+              result.addElement(getLookupElementFromClass(expectedTypesAfterNew, clazz, renamesMap))
+            case _ =>
+          }
+        }
       }
     }
 
@@ -119,7 +133,7 @@ object ScalaClassNameCompletionContributor {
     for {
       clazz <- SyntheticClasses.get(project).all.valuesIterator
       if checkSynthetic || !ScType.baseTypesQualMap.contains(clazz.qualifiedName)
-    } addClass(clazz)
+    } addTypeForCompletion(ClassTypeToImport(clazz))
 
     val prefixMatcher = result.getPrefixMatcher
     AllClassesGetter.processJavaClasses(parameters, prefixMatcher, parameters.getInvocationCount <= 1,
@@ -127,16 +141,30 @@ object ScalaClassNameCompletionContributor {
         def consume(psiClass: PsiClass) {
           //todo: filter according to position
           if (psiClass.isInstanceOf[PsiClassWrapper]) return
-          ScalaPsiUtil.getCompanionModule(psiClass).foreach(addClass)
-          addClass(psiClass)
+          ScalaPsiUtil.getCompanionModule(psiClass).foreach(clazz => addTypeForCompletion(ClassTypeToImport(clazz)))
+          addTypeForCompletion(ClassTypeToImport(psiClass))
         }
       })
 
     for {
-      (name, clazz: PsiClass) <- reverseRenamesMap
+      name <- ScalaPsiManager.instance(project).getStableTypeAliasesNames
       if prefixMatcher.prefixMatches(name)
-      if !prefixMatcher.prefixMatches(clazz.name)
-    } addClass(clazz)
+      alias <- ScalaPsiManager.instance(project).getStableAliasesByName(name, insertedElement.getResolveScope)
+    } {
+      addTypeForCompletion(TypeAliasToImport(alias))
+    }
+
+    for {
+      (name, elem: PsiNamedElement) <- reverseRenamesMap
+      if prefixMatcher.prefixMatches(name)
+      if !prefixMatcher.prefixMatches(elem.name)
+    } {
+      elem match {
+        case clazz: PsiClass => addTypeForCompletion(ClassTypeToImport(clazz))
+        case ta: ScTypeAlias => addTypeForCompletion(TypeAliasToImport(ta))
+        case _ =>
+      }
+    }
 
     false
   }

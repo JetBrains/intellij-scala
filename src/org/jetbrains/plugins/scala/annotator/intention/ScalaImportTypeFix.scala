@@ -217,16 +217,28 @@ object ScalaImportTypeFix {
   sealed trait TypeToImport {
     def name: String
     def qualifiedName: String
-    def element: PsiNamedElement
+    def element: PsiMember with PsiNamedElement
+    def isAnnotationType: Boolean = false
     def isValid: Boolean = element.isValid
     def getIcon: Icon = element.getIcon(0)
     def getProject: Project = element.getProject
   }
 
+  object TypeToImport {
+    def unapply(elem: PsiElement): Option[TypeToImport] = {
+      elem match {
+        case clazz: PsiClass => Some(ClassTypeToImport(clazz))
+        case ta: ScTypeAlias => Some(TypeAliasToImport(ta))
+        case _ => None
+      }
+    }
+  }
+
   case class ClassTypeToImport(clazz: PsiClass) extends TypeToImport {
     def name: String = clazz.name
     def qualifiedName: String = clazz.qualifiedName
-    def element: PsiNamedElement = clazz
+    def element: PsiMember with PsiNamedElement = clazz
+    override def isAnnotationType: Boolean = clazz.isAnnotationType
   }
 
   case class TypeAliasToImport(ta: ScTypeAlias) extends TypeToImport {
@@ -236,7 +248,7 @@ object ScalaImportTypeFix {
       if (clazz == null || clazz.qualifiedName == "") ta.name
       else clazz.qualifiedName + "." + ta.name
     }
-    def element: PsiNamedElement = ta
+    def element: PsiMember with PsiNamedElement = ta
   }
 
   def getImportHolder(ref: PsiElement, project: Project): ScImportsHolder = {

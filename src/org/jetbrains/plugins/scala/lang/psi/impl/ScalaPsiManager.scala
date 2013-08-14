@@ -458,6 +458,12 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
       }
     }
   }
+
+  def getStableTypeAliasesNames: Seq[String] = {
+    val keys = StubIndex.getInstance.getAllKeys(ScalaIndexKeys.STABLE_ALIAS_NAME_KEY, project)
+    import scala.collection.JavaConversions._
+    keys.toSeq
+  }
 }
 
 object ScalaPsiManager {
