@@ -17,6 +17,7 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil
 import com.intellij.openapi.util.TextRange
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.extensions.implementation.iterator.ParentsIterator
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScExtendsBlock
 
 /**
  * Nikolay.Tropin
@@ -55,9 +56,17 @@ abstract class ScalaIntroduceFieldHandlerBase extends RefactoringActionHandler{
     }
   }
 
-  protected def anchorForNewDeclaration(expr: ScExpression, occurrences: Array[PsiElement], aClass: ScTemplateDefinition): PsiElement = {
-    val firstOccOffset = occurrences.map(_.getTextRange.getStartOffset).min
-    ScalaRefactoringUtil.statementsAndMembersInClass(aClass).find(_.getTextRange.getEndOffset > firstOccOffset).get
+  protected def anchorForNewDeclaration(expr: ScExpression, occurrences: Array[TextRange], aClass: ScTemplateDefinition): PsiElement = {
+    val commonParent = ScalaRefactoringUtil.commonParent(aClass.getContainingFile, occurrences: _*)
+    val firstOccOffset = occurrences.map(_.getStartOffset).min
+    val anchor = ScalaRefactoringUtil.statementsAndMembersInClass(aClass).find(_.getTextRange.getEndOffset >= firstOccOffset)
+    aClass.extendsBlock match {
+      case ScExtendsBlock.TemplateBody(body) if body.isAncestorOf(commonParent) =>
+        anchor.getOrElse(null)
+      case ScExtendsBlock.EarlyDefinitions(earlyDef) =>
+        anchor.getOrElse(
+          earlyDef.lastChild.getOrElse(null)) //if no occurrences in earlyDef
+    }
   }
 }
 
