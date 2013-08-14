@@ -13,6 +13,7 @@ import psi.impl.ScalaPsiElementFactory
 import extensions.toPsiNamedElementExt
 import psi.types.nonvalue.TypeParameter
 import lang.resolve.ScalaResolveResult
+import org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix.TypeToImport
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -65,11 +66,11 @@ trait ScReferenceExpression extends ScalaPsiElement with ScExpression with ScRef
 
   def shapeType: TypeResult[ScType]
 
-  override def createReplacingElementWithClassName(useFullQualifiedName: Boolean, clazz: PsiClass) = {
+  override def createReplacingElementWithClassName(useFullQualifiedName: Boolean, clazz: TypeToImport) = {
     if (useFullQualifiedName) {
       super.createReplacingElementWithClassName(useFullQualifiedName, clazz)
     } else {
-      ScalaPsiElementFactory.createExpressionFromText(clazz.name, clazz.getManager).asInstanceOf[ScReferenceExpression]
+      ScalaPsiElementFactory.createExpressionFromText(clazz.name, clazz.element).asInstanceOf[ScReferenceExpression]
     }
   }
 

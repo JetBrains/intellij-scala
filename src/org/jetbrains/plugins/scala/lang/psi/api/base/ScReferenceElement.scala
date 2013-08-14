@@ -19,6 +19,7 @@ import settings.ScalaProjectSettings
 import annotator.intention.ScalaImportTypeFix
 import collection.mutable.HashSet
 import toplevel.imports.ScImportSelector
+import org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix.TypeToImport
 
 /**
  * @author Alexander Podkhalyuzin
@@ -74,9 +75,9 @@ trait ScReferenceElement extends ScalaPsiElement with ResolvableReferenceElement
     false
   }
 
-  def createReplacingElementWithClassName(useFullQualifiedName: Boolean, clazz: PsiClass): ScReferenceElement =
+  def createReplacingElementWithClassName(useFullQualifiedName: Boolean, clazz: TypeToImport): ScReferenceElement =
     ScalaPsiElementFactory.createReferenceFromText(
-      if (useFullQualifiedName) clazz.qualifiedName else clazz.name, clazz.getManager)
+      if (useFullQualifiedName) clazz.qualifiedName else clazz.name, clazz.element.getManager)
 
   def isReferenceTo(element: PsiElement, resolved: PsiElement): Boolean = {
     if (ScEquivalenceUtil.smartEquivalence(resolved, element)) return true

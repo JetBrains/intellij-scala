@@ -6,7 +6,7 @@ package handlers
 import com.intellij.codeInsight.{CodeInsightSettings, AutoPopupController}
 import com.intellij.codeInsight.completion._
 import psi.impl.toplevel.synthetic.ScSyntheticFunction
-import psi.api.statements.{ScFunction, ScFun}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScFunction, ScFun}
 import com.intellij.codeInsight.lookup.LookupElement
 import extensions._
 import psi.api.expr._
@@ -187,7 +187,7 @@ class ScalaInsertHandler extends InsertHandler[LookupElement] {
           })
         }
         return
-      case clazz: PsiClass if context.getCompletionChar == '[' =>
+      case _: PsiClass | _: ScTypeAlias if context.getCompletionChar == '[' =>
         context.setAddCompletionChar(false)
         insertIfNeeded(placeInto = true, openChar = '[', closeChar = ']', withSpace = false, withSomeNum = false)
       case named: PsiNamedElement if item.isNamedParameter => { //some is impossible here
