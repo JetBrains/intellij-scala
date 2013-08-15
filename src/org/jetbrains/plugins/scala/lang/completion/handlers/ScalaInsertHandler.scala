@@ -12,7 +12,7 @@ import extensions._
 import psi.api.expr._
 import psi.api.toplevel.typedef.ScObject
 import com.intellij.openapi.util.Condition
-import com.intellij.psi.{PsiClass, PsiFile, PsiNamedElement, PsiMethod}
+import com.intellij.psi._
 import lookups.ScalaLookupItem
 import psi.api.base.ScStableCodeReferenceElement
 import psi.ScalaPsiUtil
@@ -71,7 +71,8 @@ class ScalaInsertHandler extends InsertHandler[LookupElement] {
 
     val some = item.someSmartCompletion
     val someNum = if (some) 1 else 0
-    val file = context.getFile
+    //val file = context.getFile //returns wrong file in evaluate expression in debugger (runtime type completion)
+    val file = PsiDocumentManager.getInstance(context.getProject).getPsiFile(document)
     val element =
       if (completionChar == '\t') {
         file.findElementAt(startOffset) match {

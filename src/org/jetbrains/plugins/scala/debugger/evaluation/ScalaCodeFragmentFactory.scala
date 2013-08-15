@@ -5,8 +5,17 @@ import com.intellij.debugger.engine.evaluation.{TextWithImports, CodeFragmentFac
 import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.scala.ScalaFileType
 import com.intellij.psi._
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import com.intellij.debugger.engine.evaluation.expression.EvaluatorBuilder
+import com.intellij.debugger.ui.DebuggerExpressionComboBox
+import com.intellij.codeInsight.completion.CompletionParameters
+import com.intellij.debugger.impl.DebuggerContextImpl
+import com.intellij.debugger.DebuggerManagerEx
+import com.intellij.util.concurrency.Semaphore
+import com.intellij.openapi.progress.ProgressManager
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
+import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import java.util.concurrent.atomic.AtomicReference
+import org.jetbrains.annotations.Nullable
 
 /**
  * @author Alexander Podkhalyuzin
@@ -14,10 +23,39 @@ import com.intellij.debugger.engine.evaluation.expression.EvaluatorBuilder
 
 class ScalaCodeFragmentFactory extends CodeFragmentFactory {
   def createCodeFragment(item: TextWithImports, context: PsiElement, project: Project): JavaCodeFragment = {
-    val result: ScalaCodeFragment = new ScalaCodeFragment(project, item.getText)
-    result.setContext(context, null)
-    result.addImportsFromString(item.getImports)
-    result
+    val fragment = new ScalaCodeFragment(project, item.getText)
+    fragment.setContext(context, null)
+    fragment.addImportsFromString(item.getImports)
+    fragment.putUserData(DebuggerExpressionComboBox.KEY, "DebuggerComboBoxEditor.IS_DEBUGGER_EDITOR")
+
+    def evaluateType(expr: ScExpression, parameters: CompletionParameters): ScType = {
+      val debuggerContext: DebuggerContextImpl = DebuggerManagerEx.getInstanceEx(project).getContext
+      val debuggerSession = debuggerContext.getDebuggerSession
+      if (debuggerSession != null) {
+        val semaphore: Semaphore = new Semaphore
+        semaphore.down()
+        val nameRef = new AtomicReference[PsiClass]
+        val worker = new ScalaRuntimeTypeEvaluator(null, expr, debuggerContext, ProgressManager.getInstance.getProgressIndicator) {
+          protected def typeCalculationFinished(@Nullable psiClass: PsiClass) {
+            nameRef.set(psiClass)
+            semaphore.up()
+          }
+        }
+        debuggerContext.getDebugProcess.getManagerThread.invoke(worker)
+        var i: Int = 0
+        while (i < 50 && !semaphore.waitFor(20)) {
+          ProgressManager.checkCanceled()
+          i += 1
+        }
+        val psiClass: PsiClass = nameRef.get
+        if (psiClass != null) {
+          return ScType.designator(psiClass)
+        }
+      }
+      null
+    }
+    fragment.putCopyableUserData(ScalaRuntimeTypeEvaluator.KEY, evaluateType: (ScExpression, CompletionParameters) => ScType)
+    fragment
   }
 
   def createPresentationCodeFragment(item: TextWithImports, context: PsiElement, project: Project): JavaCodeFragment = {
