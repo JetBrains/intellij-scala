@@ -19,7 +19,6 @@ import com.intellij.psi.search.GlobalSearchScope
 import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil
 import com.intellij.openapi.util.Key
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
-import com.intellij.codeInsight.completion.CompletionParameters
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.ScType.ExtractClass
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
@@ -50,7 +49,7 @@ abstract class ScalaRuntimeTypeEvaluator(@Nullable editor: Editor, expression: P
 
 object ScalaRuntimeTypeEvaluator {
 
-  val KEY: Key[(ScExpression, CompletionParameters) => ScType] = Key.create("SCALA_RUNTIME_TYPE_EVALUATOR")
+  val KEY: Key[ScExpression => ScType] = Key.create("SCALA_RUNTIME_TYPE_EVALUATOR")
 
   def getCastableRuntimeType(project: Project, value: Value): PsiClass = {
     val jdiType: Type = DebuggerUtil.unwrapScalaRuntimeObjectRef(value).asInstanceOf[Value].`type`

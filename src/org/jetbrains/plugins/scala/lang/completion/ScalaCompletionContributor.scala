@@ -262,7 +262,7 @@ class ScalaCompletionContributor extends CompletionContributor {
       case refExpr: ScReferenceExpression =>
         (for (qualifier <- refExpr.qualifier) yield {
           val evaluator = refExpr.getContainingFile.getCopyableUserData(ScalaRuntimeTypeEvaluator.KEY)
-          if (evaluator != null) evaluator(qualifier, parameters) else null
+          if (evaluator != null) evaluator(qualifier) else null
         }).getOrElse(null)
       case _ => null
     }

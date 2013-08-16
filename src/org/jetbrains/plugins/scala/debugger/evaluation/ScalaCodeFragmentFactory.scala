@@ -7,7 +7,6 @@ import org.jetbrains.plugins.scala.ScalaFileType
 import com.intellij.psi._
 import com.intellij.debugger.engine.evaluation.expression.EvaluatorBuilder
 import com.intellij.debugger.ui.DebuggerExpressionComboBox
-import com.intellij.codeInsight.completion.CompletionParameters
 import com.intellij.debugger.impl.DebuggerContextImpl
 import com.intellij.debugger.DebuggerManagerEx
 import com.intellij.util.concurrency.Semaphore
@@ -28,7 +27,7 @@ class ScalaCodeFragmentFactory extends CodeFragmentFactory {
     fragment.addImportsFromString(item.getImports)
     fragment.putUserData(DebuggerExpressionComboBox.KEY, "DebuggerComboBoxEditor.IS_DEBUGGER_EDITOR")
 
-    def evaluateType(expr: ScExpression, parameters: CompletionParameters): ScType = {
+    def evaluateType(expr: ScExpression): ScType = {
       val debuggerContext: DebuggerContextImpl = DebuggerManagerEx.getInstanceEx(project).getContext
       val debuggerSession = debuggerContext.getDebuggerSession
       if (debuggerSession != null) {
@@ -54,7 +53,7 @@ class ScalaCodeFragmentFactory extends CodeFragmentFactory {
       }
       null
     }
-    fragment.putCopyableUserData(ScalaRuntimeTypeEvaluator.KEY, evaluateType: (ScExpression, CompletionParameters) => ScType)
+    fragment.putCopyableUserData(ScalaRuntimeTypeEvaluator.KEY, evaluateType: (ScExpression) => ScType)
     fragment
   }
 
