@@ -33,6 +33,7 @@ import scala.Some
 import org.jetbrains.plugins.scala.debugger.evaluation.evaluator.ScalaMethodEvaluator
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import org.jetbrains.plugins.scala.lang.psi.types.ScThisType
+import com.intellij.codeInsight.PsiEquivalenceUtil
 
 /**
  * User: Alefas
@@ -40,10 +41,31 @@ import org.jetbrains.plugins.scala.lang.psi.types.ScThisType
  */
 
 object ScalaEvaluatorBuilder extends EvaluatorBuilder {
+  private var currentPosition: SourcePosition = null
+  private val cachedEvaluators = mutable.HashMap[PsiElement, ExpressionEvaluator]()
+
   def build(codeFragment: PsiElement, position: SourcePosition): ExpressionEvaluator = {
-    new Builder(position).buildElement(codeFragment)
+    def cached: Option[ExpressionEvaluator] = {
+      val cached = cachedEvaluators.filterKeys(key => PsiEquivalenceUtil.areElementsEquivalent(key, codeFragment))
+      cached.values.headOption
+    }
+    def buildNew(): ExpressionEvaluator = {
+      val eval = new Builder(position).buildElement(codeFragment)
+      cachedEvaluators += (codeFragment -> eval)
+      eval
+    }
+
+    assert(codeFragment != null)
+    if (position != currentPosition) {
+      currentPosition = position
+      cachedEvaluators.clear()
+      buildNew()
+    }
+    else {
+      cached.getOrElse(buildNew())
+    }
   }
-  
+
   private class Builder(position: SourcePosition) extends ScalaElementVisitor {
     private var myResult: Evaluator = null
     private var myCurrentFragmentEvaluator: CodeFragmentEvaluator = null
