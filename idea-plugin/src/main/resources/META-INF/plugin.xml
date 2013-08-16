@@ -9,7 +9,7 @@
 
     <depends>org.intellij.scala</depends>
 
-    <idea-version since-build="129.17" until-build="1000.9999"/>
+    <idea-version since-build="129.17" until-build="129.10000"/>
 
     <project-components>
         <component>
