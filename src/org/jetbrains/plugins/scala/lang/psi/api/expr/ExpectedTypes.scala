@@ -356,7 +356,7 @@ private[expr] object ExpectedTypes {
         if (params.length == 1 && !params.apply(0).isRepeated && exprs.length > 1) {
           ScType.extractTupleType(params.apply(0).paramType) match {
             case Some(ScTupleType(args)) => applyForParams(args.zipWithIndex.map {
-              case (tpe, index) => new Parameter("", tpe, false, false, false, index)
+              case (tpe, index) => new Parameter("", None, tpe, false, false, false, index)
             })
             case None =>
           }
@@ -368,7 +368,7 @@ private[expr] object ExpectedTypes {
         if (newParams.length == 1 && !newParams.apply(0).isRepeated && exprs.length > 1) {
           ScType.extractTupleType(newParams.apply(0).paramType) match {
             case Some(ScTupleType(args)) => applyForParams(args.zipWithIndex.map {
-              case (tpe, index) => new Parameter("", tpe, false, false, false, index)
+              case (tpe, index) => new Parameter("", None, tpe, false, false, false, index)
             })
             case None =>
           }

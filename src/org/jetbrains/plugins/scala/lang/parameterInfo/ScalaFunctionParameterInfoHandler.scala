@@ -250,7 +250,8 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
             else {
               val paramsSeq: Seq[(Parameter, String)] = seq.zipWithIndex.map {
                 case (t, paramIndex) =>
-                  (new Parameter(t._1, t._2, t._3 != null, false, false, paramIndex), t._1 + ": " + ScType.presentableText(t._2) + (
+                  (new Parameter(t._1, None, t._2, t._3 != null, false, false, paramIndex),
+                    t._1 + ": " + ScType.presentableText(t._2) + (
                           if (t._3 != null) " = " + t._3.getText else ""))
               }
               applyToParameters(paramsSeq, ScSubstitutor.empty, canBeNaming = true, isImplicit = false)

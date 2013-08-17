@@ -227,7 +227,7 @@ object InferUtil {
             case _ => internal
           }
           val update: ScTypePolymorphicType = ScalaPsiUtil.localTypeInference(m,
-            Seq(Parameter("", expected, expected, isDefault = false, isRepeated = false, isByName = false)),
+            Seq(Parameter("", None, expected, expected, isDefault = false, isRepeated = false, isByName = false)),
             Seq(new Expression(ScalaPsiUtil.undefineSubstitutor(typeParams).subst(innerInternal.inferValueType))),
             typeParams, shouldUndefineParameters = false, safeCheck = check, filterTypeParams = false, checkAnyway = checkAnyway)
           nonValueType = Success(update, Some(expr)) //here should work in different way:
@@ -238,7 +238,7 @@ object InferUtil {
       case Success(ScTypePolymorphicType(internal, typeParams), _) if expectedType != None && fromImplicitParameters => {
         def updateRes(expected: ScType) {
           nonValueType = Success(ScalaPsiUtil.localTypeInference(internal,
-            Seq(Parameter("", expected, expected, isDefault = false, isRepeated = false, isByName = false)),
+            Seq(Parameter("", None, expected, expected, isDefault = false, isRepeated = false, isByName = false)),
               Seq(new Expression(ScalaPsiUtil.undefineSubstitutor(typeParams).subst(internal.inferValueType))),
             typeParams, shouldUndefineParameters = false, safeCheck = check,
             filterTypeParams = false, checkAnyway = checkAnyway), Some(expr)) //here should work in different way:

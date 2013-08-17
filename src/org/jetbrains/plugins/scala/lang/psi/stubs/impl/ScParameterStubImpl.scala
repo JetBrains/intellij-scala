@@ -32,11 +32,13 @@ extends StubBaseWrapper[ScParameter](parent, elemType) with ScParameterStub {
   private var _isCallByName: Boolean = false
   private var myDefaultExpression: SoftReference[Option[ScExpression]] = null
   private var defaultExprText: Option[String] = None
+  private var _deprecatedName: Option[String] = None
 
   def this(parent: StubElement[ParentPsi],
           elemType: IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement],
           name: String, typeText: String, stable: Boolean, default: Boolean, repeated: Boolean,
-          isVal: Boolean, isVar: Boolean, isCallByName: Boolean, defaultExprText: Option[String]) = {
+          isVal: Boolean, isVar: Boolean, isCallByName: Boolean, defaultExprText: Option[String],
+          deprecatedName: Option[String]) = {
     this(parent, elemType.asInstanceOf[IStubElementType[StubElement[PsiElement], PsiElement]])
     this.name = name
     this.typeText = typeText
@@ -47,12 +49,14 @@ extends StubBaseWrapper[ScParameter](parent, elemType) with ScParameterStub {
     this._isVal = isVal
     this._isCallByName = isCallByName
     this.defaultExprText = defaultExprText
+    this._deprecatedName = deprecatedName
   }
 
   def this(parent: StubElement[ParentPsi],
           elemType: IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement],
           name: StringRef, typeText: StringRef, stable: Boolean, default: Boolean, repeated: Boolean,
-          isVal: Boolean, isVar: Boolean, isCallByName: Boolean, defaultExprText: Option[String]) = {
+          isVal: Boolean, isVar: Boolean, isCallByName: Boolean, defaultExprText: Option[String],
+          deprecatedName: Option[String]) = {
     this(parent, elemType.asInstanceOf[IStubElementType[StubElement[PsiElement], PsiElement]])
     this.name = StringRef.toString(name)
     this.typeText = StringRef.toString(typeText)
@@ -63,6 +67,7 @@ extends StubBaseWrapper[ScParameter](parent, elemType) with ScParameterStub {
     this._isVal = isVal
     this._isCallByName = isCallByName
     this.defaultExprText = defaultExprText
+    this._deprecatedName = deprecatedName
   }
 
   def getName: String = name
@@ -108,4 +113,6 @@ extends StubBaseWrapper[ScParameter](parent, elemType) with ScParameterStub {
     myDefaultExpression = new SoftReference[Option[ScExpression]](res)
     res
   }
+
+  def deprecatedName: Option[String] = _deprecatedName
 }

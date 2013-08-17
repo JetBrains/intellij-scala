@@ -20,7 +20,6 @@ import psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.extensions.{PsiParameterExt, toPsiNamedElementExt}
 import com.intellij.openapi.application.ApplicationManager
 import org.jetbrains.annotations.TestOnly
-import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiParameter
 import org.jetbrains.plugins.scala.lang.psi.implicits.ScImplicitlyConvertible.ImplicitResolveResult
 import org.jetbrains.plugins.scala.lang.resolve.processor.MostSpecificUtil
 import org.jetbrains.plugins.scala.lang.psi.implicits.ScImplicitlyConvertible
@@ -141,7 +140,7 @@ object Compatibility {
 
     if (excess > 0) {
       val arguments = exprs.takeRight(excess).map(_.expr)
-      return ConformanceExtResult(arguments.map(ExcessArgument(_)), undefSubst)
+      return ConformanceExtResult(arguments.map(ExcessArgument), undefSubst)
     }
     
     val minParams = parameters.count(p => !p.isDefault && !p.isRepeated)
@@ -221,7 +220,10 @@ object Compatibility {
           }
         }
         case Expression(assign@NamedAssignStmt(name)) => {
-          val ind = parameters.indexWhere(p => ScalaPsiUtil.memberNamesEquals(p.name, name))
+          val ind = parameters.indexWhere { p =>
+            ScalaPsiUtil.memberNamesEquals(p.name, name) ||
+              p.deprecatedName.exists(ScalaPsiUtil.memberNamesEquals(_, name))
+          }
           if (ind == -1 || used(ind)) {
             def extractExpression(assign: ScAssignStmt): ScExpression = {
               if (ScUnderScoreSectionUtil.isUnderscoreFunction(assign)) assign
@@ -301,11 +303,12 @@ object Compatibility {
 
   def toParameter(p: ScParameter, substitutor: ScSubstitutor) = {
     val t = substitutor.subst(p.getType(TypingContext.empty).getOrNothing)
-    new Parameter(p.name, t, t, p.isDefaultParam, p.isRepeatedParameter, p.isCallByNameParameter, p.index, Some(p))
+    new Parameter(p.name, p.deprecatedName, t, t, p.isDefaultParam, p.isRepeatedParameter, p.isCallByNameParameter, p.index, Some(p))
   }
+
   def toParameter(p: PsiParameter) = {
     val tp = p.paramType
-    new Parameter(if (p.isInstanceOf[ClsParameterImpl]) "" else p.name, tp, tp, false, p.isVarArgs, false, -1, p match {
+    new Parameter(if (p.isInstanceOf[ClsParameterImpl]) "" else p.name, None, tp, tp, false, p.isVarArgs, false, -1, p match {
       case param: ScParameter => Some(param)
       case _ => None
     })
@@ -348,7 +351,7 @@ object Compatibility {
         
         if (excess > 0) {
           val arguments = exprs.takeRight(excess).map(_.expr)
-          return ConformanceExtResult(arguments.map(ExcessArgument(_)))
+          return ConformanceExtResult(arguments.map(ExcessArgument))
         }
         
         val obligatory = parameters.filter(p => !p.isDefaultParam && !p.isRepeatedParameter)
@@ -380,7 +383,7 @@ object Compatibility {
 
         if (excess > 0) {
           val part = exprs.takeRight(excess).map(_.expr)
-          return ConformanceExtResult(part.map(ExcessArgument(_)))
+          return ConformanceExtResult(part.map(ExcessArgument))
         }
         
         val obligatory = parameters.filter(p => !p.isDefaultParam && !p.isRepeatedParameter)
@@ -389,7 +392,8 @@ object Compatibility {
         if (shortage > 0) { 
           val part = obligatory.takeRight(shortage).map { p =>
             val t = p.getType(TypingContext.empty).getOrAny
-            new Parameter(p.name, t, t, p.isDefaultParam, p.isRepeatedParameter, p.isCallByNameParameter, p.index, Some(p))
+            new Parameter(p.name, p.deprecatedName, t, t, p.isDefaultParam, p.isRepeatedParameter,
+              p.isCallByNameParameter, p.index, Some(p))
           }
           return ConformanceExtResult(part.map(new MissedValueParameter(_)))
         }
@@ -397,7 +401,7 @@ object Compatibility {
         val res = checkConformanceExt(checkNames = true, parameters = parameters.map {
           param: ScParameter => {
             val paramType: ScType = substitutor.subst(param.getType(TypingContext.empty).getOrNothing)
-            new Parameter(param.name,
+            new Parameter(param.name, param.deprecatedName,
               paramType, paramType,
               param.isDefaultParam, param.isRepeatedParameter, param.isRepeatedParameter, param.index, Some(param))
           }
@@ -413,7 +417,7 @@ object Compatibility {
         val hasRepeated = parameters.exists(_.isVarArgs)
         if (excess > 0 && !hasRepeated) {
           val arguments = exprs.takeRight(excess).map(_.expr)
-          return ConformanceExtResult(arguments.map(ExcessArgument(_)))
+          return ConformanceExtResult(arguments.map(ExcessArgument))
         }
 
         val obligatory = parameters.filterNot(_.isVarArgs)
@@ -423,7 +427,7 @@ object Compatibility {
 
 
         checkConformanceExt(checkNames = false, parameters = parameters.map {
-          case param: PsiParameter => new Parameter("", substitutor.subst(param.exactParamType()),
+          case param: PsiParameter => new Parameter("", None, substitutor.subst(param.exactParamType()),
             false, param.isVarArgs, false, -1)
         }, exprs = exprs, checkWithImplicits = checkWithImplicits, isShapesResolve = isShapesResolve)
       }
