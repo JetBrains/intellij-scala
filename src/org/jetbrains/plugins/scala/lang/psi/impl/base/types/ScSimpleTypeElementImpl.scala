@@ -84,7 +84,7 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
           (fun.effectiveParameterClauses.map(_.parameters.mapWithIndex {
             case (p, index) =>
               val paramType: ScType = subst.subst(p.getType(TypingContext.empty).getOrAny)
-              new Parameter(p.name,
+              new Parameter(p.name, p.deprecatedName,
                 paramType, paramType, p.isDefaultParam,
                 p.isRepeatedParameter, p.isCallByNameParameter, index, Some(p))
           }),
@@ -93,14 +93,14 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
           (f.effectiveParameterClauses.map(_.parameters.mapWithIndex {
             case (p, index) =>
               val paramType: ScType = subst.subst(p.getType(TypingContext.empty).getOrAny)
-              new Parameter(p.name,
+              new Parameter(p.name, p.deprecatedName,
                 paramType, paramType, p.isDefaultParam,
                 p.isRepeatedParameter, p.isCallByNameParameter, index, Some(p))
           }),
             f.parameterList.clauses.lastOption.exists(_.isImplicit))
         case m: PsiMethod =>
           (Seq(m.getParameterList.getParameters.toSeq.mapWithIndex {
-            case (p, index) => new Parameter("", p.paramType, false, p.isVarArgs, false, index)
+            case (p, index) => new Parameter("", None, p.paramType, false, p.isVarArgs, false, index)
           }), false)
       }
     }
@@ -204,7 +204,7 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
               case Some(expected) if withExpected => {
                 def updateRes(expected: ScType) {
                   nonValueType = ScalaPsiUtil.localTypeInference(nonValueType.internalType,
-                    Seq(new Parameter("", expected, false, false, false, 0)),
+                    Seq(new Parameter("", None, expected, false, false, false, 0)),
                       Seq(new Expression(ScalaPsiUtil.undefineSubstitutor(nonValueType.typeParameters).subst(res.inferValueType))),
                     nonValueType.typeParameters, shouldUndefineParameters = false, filterTypeParams = false) //here should work in different way:
                 }

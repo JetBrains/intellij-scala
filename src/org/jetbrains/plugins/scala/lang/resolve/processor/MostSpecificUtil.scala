@@ -132,7 +132,7 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
                         ScExistentialType(ScParameterizedType(ScDesignatorType(seq), Seq(q)), wilds)
                       case paramType => ScParameterizedType(ScDesignatorType(seq), Seq(paramType))
                     }
-                    Parameter(p.name, newParamType, p.expectedType,
+                    Parameter(p.name, p.deprecatedName, newParamType, p.expectedType,
                       p.isDefault, isRepeated = false, isByName = p.isByName)
                   }
                   else p

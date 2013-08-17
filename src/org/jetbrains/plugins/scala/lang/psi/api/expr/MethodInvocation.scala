@@ -206,7 +206,8 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
         ScalaPsiManager.ClassCategory.TYPE)).flatMap {case t: ScTrait => Option(t) case _ => None}
       val applyFunction = functionClass.flatMap(_.functions.find(_.name == "apply"))
       params.mapWithIndex {
-        case (tp, i) => new Parameter("v" + (i + 1), tp, tp, false, false, false, i, applyFunction.map(_.parameters.apply(i)))
+        case (tp, i) =>
+          new Parameter("v" + (i + 1), None, tp, tp, false, false, false, i, applyFunction.map(_.parameters.apply(i)))
       }
     }
 
