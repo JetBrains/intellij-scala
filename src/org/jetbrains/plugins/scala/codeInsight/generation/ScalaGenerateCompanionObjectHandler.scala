@@ -7,7 +7,6 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.psi.PsiFile
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScClass, ScTrait, ScTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 
 /**
@@ -16,10 +15,11 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
  */
 class ScalaGenerateCompanionObjectHandler extends LanguageCodeInsightActionHandler {
   def isValidFor(editor: Editor, file: PsiFile): Boolean =
-    file != null && ScalaFileType.SCALA_FILE_TYPE == file.getFileType && needCompanionObject(getClassAtCaret(editor, file))
+    file != null && ScalaFileType.SCALA_FILE_TYPE == file.getFileType &&
+            canAddCompanionObject(GenerationUtil.getClassAtCaret(editor, file))
 
   def invoke(project: Project, editor: Editor, file: PsiFile) {
-    val clazz = getClassAtCaret(editor, file)
+    val clazz = GenerationUtil.getClassAtCaret(editor, file)
     if (clazz == null) return
     val obj = createCompanionObject(clazz)
     val parent = clazz.getParent
@@ -33,19 +33,14 @@ class ScalaGenerateCompanionObjectHandler extends LanguageCodeInsightActionHandl
 
   def startInWriteAction(): Boolean = true
 
-  private def needCompanionObject(clazz: ScTemplateDefinition): Boolean = clazz match {
+  private def canAddCompanionObject(clazz: ScTemplateDefinition): Boolean = clazz match {
     case c: ScClass if c.isCase => false
     case _: ScTrait | _: ScClass => ScalaPsiUtil.getBaseCompanionModule(clazz).isEmpty
     case _ => false
   }
 
-  private def getClassAtCaret(editor: Editor, file: PsiFile): ScTemplateDefinition = {
-    val elem = file.findElementAt(editor.getCaretModel.getOffset - 1)
-    PsiTreeUtil.getParentOfType(elem, classOf[ScClass], classOf[ScTrait])
-  }
-
   private def createCompanionObject(clazz: ScTemplateDefinition): ScObject = {
-    if (needCompanionObject(clazz)) {
+    if (canAddCompanionObject(clazz)) {
       val name = clazz.name
       val text = s"object $name {\n \n}"
       ScalaPsiElementFactory.createObjectWithContext(text, clazz.getContext, clazz)

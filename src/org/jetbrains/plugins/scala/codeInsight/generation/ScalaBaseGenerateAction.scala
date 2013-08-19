@@ -9,12 +9,13 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 import com.intellij.lang.LanguageCodeInsightActionHandler
+import com.intellij.codeInsight.CodeInsightActionHandler
 
 /**
  * Nikolay.Tropin
  * 8/17/13
  */
-abstract class ScalaBaseGenerateAction(val handler: LanguageCodeInsightActionHandler)
+abstract class ScalaBaseGenerateAction(val handler: CodeInsightActionHandler)
         extends BaseGenerateAction(handler) {
 
   override protected def isValidForFile(project: Project, editor: Editor, file: PsiFile): Boolean = {
@@ -23,7 +24,11 @@ abstract class ScalaBaseGenerateAction(val handler: LanguageCodeInsightActionHan
       val targetClass: PsiClass = getTargetClass(editor, file)
       targetClass != null && isValidForClass(targetClass)
     }
-    file.isInstanceOf[ScalaFile] && file.isWritable && classOk
+    lazy val handlerIsValid = handler match {
+      case l: LanguageCodeInsightActionHandler => l.isValidFor(editor, file)
+      case _ => true
+    }
+    file.isInstanceOf[ScalaFile] && file.isWritable && classOk && handlerIsValid
   }
 
   override protected def isValidForClass(targetClass: PsiClass): Boolean = true
