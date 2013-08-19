@@ -18,6 +18,7 @@ import com.intellij.openapi.util.TextRange
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.extensions.implementation.iterator.ParentsIterator
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScExtendsBlock
+import com.intellij.psi.util.PsiTreeUtil
 
 /**
  * Nikolay.Tropin
@@ -61,7 +62,7 @@ abstract class ScalaIntroduceFieldHandlerBase extends RefactoringActionHandler{
     val firstOccOffset = occurrences.map(_.getStartOffset).min
     val anchor = ScalaRefactoringUtil.statementsAndMembersInClass(aClass).find(_.getTextRange.getEndOffset >= firstOccOffset)
     aClass.extendsBlock match {
-      case ScExtendsBlock.TemplateBody(body) if body.isAncestorOf(commonParent) =>
+      case ScExtendsBlock.TemplateBody(body) if PsiTreeUtil.isAncestor(body, commonParent, /*strict = */false) =>
         anchor.getOrElse(null)
       case ScExtendsBlock.EarlyDefinitions(earlyDef) =>
         anchor.getOrElse(
