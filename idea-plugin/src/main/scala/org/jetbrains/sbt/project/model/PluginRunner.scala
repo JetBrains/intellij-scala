@@ -17,11 +17,12 @@ class PluginRunner(vmOptions: Seq[String], customLauncher: Option[File]) {
   private val SbtPlugin = LauncherDir / "sbt-structure.jar"
 
   def read(directory: File, download: Boolean)(listener: (String) => Unit): Either[Exception, Elem] = {
-    val problem = Stream(JavaHome, SbtLauncher, SbtPlugin).map(check).flatten.headOption
+    val files = Stream("Java home" -> JavaHome, "SBT launcher" -> SbtLauncher, "SBT plugin" -> SbtPlugin)
+    val problem = files.map((check _).tupled).flatten.headOption
     problem.map(it => Left(new FileNotFoundException(it))).getOrElse(read0(directory, download, listener))
   }
 
-  private def check(file: File) = (!file.exists()).option(s"File does not exist: $file")
+  private def check(entity: String, file: File) = (!file.exists()).option(s"$entity does not exist: $file")
 
   /* It's rather tricky to launch the SBT plugin from a command line.
 
