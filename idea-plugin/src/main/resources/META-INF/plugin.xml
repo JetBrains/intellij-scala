@@ -11,6 +11,12 @@
 
     <idea-version since-build="129.17" until-build="129.10000"/>
 
+    <application-components>
+        <component>
+            <implementation-class>org.jetbrains.sbt.settings.SbtApplicationSettings</implementation-class>
+        </component>
+    </application-components>
+
     <project-components>
         <component>
             <implementation-class>org.jetbrains.sbt.language.SbtProjectComponent</implementation-class>
@@ -40,6 +46,8 @@
         <projectOpenProcessor implementation="org.jetbrains.sbt.project.SbtProjectOpenProcessor"/>
 
         <moduleType id="SBT_MODULE" implementationClass="org.jetbrains.sbt.project.SbtModuleType"/>
+
+        <applicationConfigurable instance="org.jetbrains.sbt.settings.SbtConfigurable"/>
     </extensions>
 
     <extensions defaultExtensionNs="org.intellij.scala">

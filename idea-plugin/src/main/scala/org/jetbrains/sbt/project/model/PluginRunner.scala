@@ -9,16 +9,16 @@ import org.jetbrains.sbt.project.SbtException
 /**
  * @author Pavel Fatin
  */
-object PluginRunner {
+class PluginRunner(vmOptions: Seq[String], customLauncher: Option[File]) {
   private val JavaHome = new File(System.getProperty("java.home"))
   private val JavaVM = JavaHome / "bin" / "java"
   private val LauncherDir = (jarWith[this.type] <<) / "launcher"
-  private val SbtLauncher = LauncherDir / "sbt-launch.jar"
+  private val SbtLauncher = customLauncher.getOrElse(LauncherDir / "sbt-launch.jar")
   private val SbtPlugin = LauncherDir / "sbt-structure.jar"
 
-  def read(directory: File, download: Boolean, vmOptions: Seq[String])(listener: (String) => Unit): Either[Exception, Elem] = {
+  def read(directory: File, download: Boolean)(listener: (String) => Unit): Either[Exception, Elem] = {
     val problem = Stream(JavaHome, SbtLauncher, SbtPlugin).map(check).flatten.headOption
-    problem.map(it => Left(new FileNotFoundException(it))).getOrElse(read0(directory, download, vmOptions, listener))
+    problem.map(it => Left(new FileNotFoundException(it))).getOrElse(read0(directory, download, listener))
   }
 
   private def check(file: File) = (!file.exists()).option(s"File does not exist: $file")
@@ -32,7 +32,7 @@ object PluginRunner {
      Another problem is that the SBT's "apply" command is unable
      to correctly parse classpath entries with spaces,
      so we have to use a "safe" copy of the plugin JAR. */
-  private def read0(directory: File, download: Boolean, vmOptions: Seq[String], listener: (String) => Unit) = {
+  private def read0(directory: File, download: Boolean, listener: (String) => Unit) = {
     usingTempFile("sbt-structure", ".xml") { structureFile =>
       usingTempFile("sbt-commands", ".lst") { commandsFile =>
         usingSafeCopyOf(SbtPlugin) { pluginFile =>
