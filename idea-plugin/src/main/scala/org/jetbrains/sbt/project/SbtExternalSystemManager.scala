@@ -7,6 +7,7 @@ import com.intellij.execution.configurations.SimpleJavaParameters
 import com.intellij.openapi.externalSystem.util.ExternalSystemBundle
 import com.intellij.openapi.externalSystem.service.project.autoimport.CachingExternalSystemAutoImportAware
 import com.intellij.util.net.HttpConfigurable
+import org.jetbrains.sbt.settings.SbtApplicationSettings
 import settings._
 
 /**
@@ -33,12 +34,11 @@ class SbtExternalSystemManager
 
   def getSystemId = SbtProjectSystem.Id
 
-  def getSettingsProvider = SbtSettings.getInstance(_: Project)
+  def getSettingsProvider = SbtSettings.getInstance _
 
-  def getLocalSettingsProvider = SbtLocalSettings.getInstance(_: Project)
+  def getLocalSettingsProvider = SbtLocalSettings.getInstance _
 
-  def getExecutionSettingsProvider = (project: Project, path: String) =>
-    new SbtExecutionSettings(SbtExternalSystemManager.vmOptionsFor(project, path))
+  def getExecutionSettingsProvider = SbtExternalSystemManager.executionSettingsFor _
 
   def getProjectResolverClass = classOf[SbtProjectResolver]
 
@@ -51,12 +51,19 @@ class SbtExternalSystemManager
 }
 
 object SbtExternalSystemManager {
-  def vmOptionsFor(project: Project, path: String): Seq[String] =
-    Sbt.VmOptions ++ options("JAVA_OPTS") ++ options("SBT_OPTS") ++
+  def executionSettingsFor(project: Project, path: String) = {
+    val app = SbtApplicationSettings.instance
+
+    val customLauncher = app.customLauncherEnabled
+      .option(app.getCustomLauncherPath).map(_.toFile)
+
+    val vmOptions = Seq(s"-Xmx${app.getMaximumHeapSize}M") ++
+      app.getVmParameters.split("\\s+").toSeq ++
       proxyOptionsFor(HttpConfigurable.getInstance) ++
       SbtOptionsProvider.vmOptionsFor(project, path)
 
-  private def options(name: String) = Option(System.getenv(name)).map(_.split("\\s+")).toSeq.flatten
+    new SbtExecutionSettings(vmOptions, customLauncher)
+  }
 
   private def proxyOptionsFor(http: HttpConfigurable): Seq[String] = {
     val useProxy = http.USE_HTTP_PROXY && !http.PROXY_TYPE_IS_SOCKS
