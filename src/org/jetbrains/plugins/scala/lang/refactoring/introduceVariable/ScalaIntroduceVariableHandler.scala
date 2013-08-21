@@ -60,6 +60,7 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Confli
               getOrElse(showErrorMessage(ScalaBundle.message("cannot.refactor.not.expression"), project, editor, REFACTORING_NAME))
 
       val types = ScalaRefactoringUtil.addPossibleTypes(scType, expr)
+              .map(ScalaRefactoringUtil.replaceSingletonTypes)
 
       ScalaRefactoringUtil.checkCanBeIntroduced(expr, showErrorMessage(_, project, editor, REFACTORING_NAME))
 

@@ -106,6 +106,16 @@ object ScalaRefactoringUtil {
     result.toArray
   }
 
+  def replaceSingletonTypes(scType: ScType): ScType = {
+    def replaceSingleton(scType: ScType): (Boolean, ScType) = {
+      ScType.extractDesignatorSingletonType(scType) match {
+        case None => (false, scType)
+        case Some(tp) => (true, tp)
+      }
+    }
+    scType.recursiveUpdate(replaceSingleton)
+  }
+
   def getExpression(project: Project, editor: Editor, file: PsiFile, startOffset: Int, endOffset: Int): Option[(ScExpression, ScType)] = {
     val element = PsiTreeUtil.findElementOfClassAtRange(file, startOffset, endOffset, classOf[ScExpression])
     if (element == null || element.getTextRange.getStartOffset != startOffset || element.getTextRange.getEndOffset != endOffset) {
