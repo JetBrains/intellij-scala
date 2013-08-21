@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.injection
 
 import org.intellij.plugins.intelliLang.inject.AbstractLanguageInjectionSupport
-import com.intellij.psi.PsiElement
+import com.intellij.psi.{PsiLanguageInjectionHost, PsiElement}
 
 /**
  * Pavel Fatin
@@ -14,5 +14,5 @@ class ScalaLanguageInjectionSupport extends AbstractLanguageInjectionSupport {
 
   override def getPatternClasses: Array[Class[_]] = Array(classOf[ScalaPatterns])
 
-  override def useDefaultInjector(host: PsiElement): Boolean = false
+  override def useDefaultInjector(host: PsiLanguageInjectionHost): Boolean = false
 }
