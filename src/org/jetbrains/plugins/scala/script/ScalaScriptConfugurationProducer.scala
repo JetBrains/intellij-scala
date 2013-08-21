@@ -11,6 +11,7 @@ import com.intellij.openapi.module.ModuleUtilCore
 import org.jetbrains.plugins.scala.config.ScalaFacet
 import com.intellij.execution.configurations.RunConfiguration
 import org.jetbrains.plugins.scala.extensions.toPsiNamedElementExt
+import java.util
 
 /**
  * @author Alefas
@@ -23,8 +24,9 @@ class ScalaScriptConfugurationProducer extends {
   private var myPsiElement: PsiElement = null
   def getSourceElement: PsiElement = myPsiElement
 
-  override def findExistingByElement(location: Location[_ <: PsiElement], existingConfigurations: Array[RunnerAndConfigurationSettings],
+  override def findExistingByElement(location: Location[_ <: PsiElement], existingConfigurations: util.List[RunnerAndConfigurationSettings],
                                      context: ConfigurationContext): RunnerAndConfigurationSettings = {
+    import collection.JavaConversions._
     existingConfigurations.find(c => isConfigurationByLocation(c.getConfiguration, location)).getOrElse(null)
   }
 

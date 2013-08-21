@@ -22,6 +22,9 @@ import org.jetbrains.plugins.scala.extensions.{toPsiClassExt, toPsiMemberExt}
 import com.intellij.openapi.util.{TextRange, Pair}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import java.util
+import com.intellij.pom.java.LanguageLevel
+import com.intellij.psi.scope.processor.MethodsProcessor
+import com.intellij.psi.util.PsiUtil
 
 /**
  * @author Alefas
@@ -303,7 +306,12 @@ class PsiClassWrapper(val definition: ScTemplateDefinition,
 
   override def processDeclarations(processor: PsiScopeProcessor, state: ResolveState, lastParent: PsiElement, place: PsiElement): Boolean = {
     if (!processor.isInstanceOf[BaseProcessor]) {
-      return PsiClassImplUtil.processDeclarationsInClass(this, processor, state, null, lastParent, place, false)
+      val languageLevel: LanguageLevel =
+        processor match {
+          case methodProcessor: MethodsProcessor => methodProcessor.getLanguageLevel
+          case _ => PsiUtil.getLanguageLevel(place)
+        }
+      return PsiClassImplUtil.processDeclarationsInClass(this, processor, state, null, lastParent, place, languageLevel, false)
     }
     true
   }

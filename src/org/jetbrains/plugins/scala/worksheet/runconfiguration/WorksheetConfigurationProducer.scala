@@ -12,6 +12,7 @@ import com.intellij.openapi.module.ModuleUtilCore
 import org.jetbrains.plugins.scala.config.ScalaFacet
 import com.intellij.execution.impl.RunnerAndConfigurationSettingsImpl
 import org.jetbrains.plugins.scala.testingSupport.RuntimeConfigurationProducerAdapter
+import java.util
 
 /**
  * @author Alefas
@@ -24,8 +25,9 @@ class WorksheetConfigurationProducer extends {
   private var myPsiElement: PsiElement = null
   def getSourceElement: PsiElement = myPsiElement
 
-  override def findExistingByElement(location: Location[_ <: PsiElement], existingConfigurations: Array[RunnerAndConfigurationSettings],
+  override def findExistingByElement(location: Location[_ <: PsiElement], existingConfigurations: util.List[RunnerAndConfigurationSettings],
                                      context: ConfigurationContext): RunnerAndConfigurationSettings = {
+    import collection.JavaConversions._
     existingConfigurations.find(c => isConfigurationByLocation(c.getConfiguration, location)).getOrElse(null)
   }
 
