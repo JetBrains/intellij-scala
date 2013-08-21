@@ -35,6 +35,7 @@ class ScalaIntroduceFieldFromExpressionHandler extends ScalaIntroduceFieldHandle
       val (expr: ScExpression, scType: ScType) = getExpression(project, editor, file, startOffset, endOffset).
               getOrElse(showErrorMessage(ScalaBundle.message("cannot.refactor.not.expression"), project, editor, REFACTORING_NAME))
       val types = ScalaRefactoringUtil.addPossibleTypes(scType, expr)
+              .map(ScalaRefactoringUtil.replaceSingletonTypes)
       afterClassChoosing[ScExpression](expr, types, project, editor, file, "Choose class for Introduce Field") {
         convertExpressionToField
       }
