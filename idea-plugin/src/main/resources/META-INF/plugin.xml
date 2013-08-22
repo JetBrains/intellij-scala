@@ -48,6 +48,10 @@
         <moduleType id="SBT_MODULE" implementationClass="org.jetbrains.sbt.project.SbtModuleType"/>
 
         <applicationConfigurable instance="org.jetbrains.sbt.settings.SbtConfigurable"/>
+
+        <toolWindow id="SBT" anchor="right" icon="Sbt.Icon"
+                    factoryClass="org.jetbrains.sbt.project.ScalaToolWindowFactory"
+                    conditionClass="org.jetbrains.sbt.project.ScalaToolWindowFactoryCondition"/>
     </extensions>
 
     <extensions defaultExtensionNs="org.intellij.scala">
