@@ -22,7 +22,7 @@ import com.intellij.reference.SoftReference
  */
 object DecompilerUtil {
   protected val LOG: Logger = Logger.getInstance("#org.jetbrains.plugins.scala.decompiler.DecompilerUtil")
-  val DECOMPILER_VERSION = 231
+  val DECOMPILER_VERSION = 232
   private val SCALA_DECOMPILER_FILE_ATTRIBUTE = new FileAttribute("_is_scala_compiled_", DECOMPILER_VERSION, true)
   private val SCALA_DECOMPILER_KEY = new Key[SoftReference[DecompilationResult]]("Is Scala File Key")
   
@@ -164,15 +164,18 @@ object DecompilerUtil {
       }
 
       val sourceFileName = {
-        val Some(SourceFileInfo(index: Int)) = classFile.attribute(SOURCE_FILE).map(_.byteCode).
-          map(SourceFileAttributeParser.parse)
-        val c = classFile.header.constants(index)
-        val sBytes: Array[Byte] = c match {
-          case s: String => s.getBytes(UTF8)
-          case scala.tools.scalap.scalax.rules.scalasig.StringBytesPair(s: String, bytes: Array[Byte]) => bytes
-          case _ => Array.empty
+        classFile.attribute(SOURCE_FILE) match {
+          case Some(attr: Attribute) =>
+            val SourceFileInfo(index: Int) = SourceFileAttributeParser.parse(attr.byteCode)
+            val c = classFile.header.constants(index)
+            val sBytes: Array[Byte] = c match {
+              case s: String => s.getBytes(UTF8)
+              case scala.tools.scalap.scalax.rules.scalasig.StringBytesPair(s: String, bytes: Array[Byte]) => bytes
+              case _ => Array.empty
+            }
+            new String(sBytes, UTF8)
+          case None => "-no-source-"
         }
-        new String(sBytes, UTF8)
       }
 
       DecompilationResult(true, sourceFileName, sourceText, file.getTimeStamp)
