@@ -183,7 +183,7 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Confli
     val revertInfo = RevertInfo(file.getText, editor.getCaretModel.getOffset)
     editor.putUserData(ScalaIntroduceVariableHandler.REVERT_INFO, revertInfo)
 
-    val typeName = varType.canonicalText
+    val typeName = if (varType != null) varType.canonicalText else ""
     val expression = ScalaRefactoringUtil.expressionToIntroduce(expression_)
     val mainRange = new TextRange(startOffset, endOffset)
     val occurrences: Array[TextRange] = if (!replaceAllOccurrences) {
