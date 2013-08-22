@@ -6,4 +6,4 @@ import com.intellij.util.messages.Topic
 /**
  * @author Pavel Fatin
  */
-object SbtTopic extends Topic[SbtSettingsListener]("SBT-cpecific settings", classOf[SbtSettingsListener])
+object SbtTopic extends Topic[SbtSettingsListener]("SBT-specific settings", classOf[SbtSettingsListener])
