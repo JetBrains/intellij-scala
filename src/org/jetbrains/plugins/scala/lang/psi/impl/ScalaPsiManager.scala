@@ -208,8 +208,9 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
     val classesIterator = scalaClasses.iterator
     while (classesIterator.hasNext) {
       val clazz = classesIterator.next()
-      ScalaStubsUtil.checkPsiForClass(clazz)
-      buffer += clazz.asInstanceOf[PsiClass]
+      if (ScalaStubsUtil.checkPsiForClass(clazz)) {
+        buffer += clazz.asInstanceOf[PsiClass]
+      }
     }
     buffer.toSeq
   }
