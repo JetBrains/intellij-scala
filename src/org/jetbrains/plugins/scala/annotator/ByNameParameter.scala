@@ -36,7 +36,7 @@ object ByNameParameter extends AnnotatorPart[ScExpression] {
         else nonLiteralRangesIn(exp)
 
       ranges.foreach { r =>
-        val annotation = holder.createInfoAnnotation(r, null)
+        val annotation = holder.createInfoAnnotation(r, "Passed as by-name parameter")
         annotation.setEnforcedTextAttributes(attributes)
       }
     }
