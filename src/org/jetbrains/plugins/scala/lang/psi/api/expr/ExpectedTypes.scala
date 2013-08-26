@@ -59,7 +59,7 @@ private[expr] object ExpectedTypes {
   def expectedExprTypes(expr: ScExpression, withResolvedFunction: Boolean = false,
                         fromUnderscore: Boolean = true): Array[(ScType, Option[ScTypeElement])] = {
     val result: Array[(ScType, Option[ScTypeElement])] = expr.getContext match {
-      case p: ScParenthesisedExpr => p.expectedTypesEx(fromUnderscore)
+      case p: ScParenthesisedExpr => p.expectedTypesEx(fromUnderscore = false)
       //see SLS[6.11]
       case b: ScBlockExpr => b.lastExpr match {
         case Some(e) if b.needCheckExpectedType && e == expr.getSameElementInContext => b.expectedTypesEx(fromUnderscore = true)
