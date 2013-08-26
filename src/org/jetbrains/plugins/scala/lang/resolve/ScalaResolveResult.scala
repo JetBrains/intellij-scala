@@ -125,10 +125,10 @@ class ScalaResolveResult(val element: PsiNamedElement,
         val index: Int = qualifier.lastIndexOf('.')
         if (index == -1) return PACKAGE_LOCAL_PACKAGE
         val q = qualifier.substring(0, index)
-        if (q == "java.lang") return JAVA_LANG
-        else if (q == "scala") return SCALA
-        else if (q == placePackageName) return OTHER_MEMBERS
-        else return PACKAGE_LOCAL_PACKAGE
+        if (q == "java.lang") JAVA_LANG
+        else if (q == "scala") SCALA
+        else if (q == placePackageName) OTHER_MEMBERS
+        else PACKAGE_LOCAL_PACKAGE
       }
       def getClazzPrecedence(clazz: PsiClass): Int = {
         val qualifier = clazz.qualifiedName
@@ -136,11 +136,9 @@ class ScalaResolveResult(val element: PsiNamedElement,
         val index: Int = qualifier.lastIndexOf('.')
         if (index == -1) return OTHER_MEMBERS
         val q = qualifier.substring(0, index)
-        if (q == "java.lang") return JAVA_LANG
-        else if (q == "scala") return SCALA
-        else if (PsiTreeUtil.isContextAncestor(clazz.getContainingFile, place, true)) return OTHER_MEMBERS
-        else if (q == placePackageName) return PACKAGE_LOCAL
-        else return OTHER_MEMBERS
+        if (q == "java.lang") JAVA_LANG
+        else if (q == "scala") SCALA
+        else OTHER_MEMBERS
       }
       if (importsUsed.size == 0) {
         ScalaPsiUtil.nameContext(getActualElement) match {

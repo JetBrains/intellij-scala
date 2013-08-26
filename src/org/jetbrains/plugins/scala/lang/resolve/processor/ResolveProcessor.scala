@@ -60,8 +60,6 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
 
   def checkPredefinedClassesAndPackages(): Boolean = precedence <= SCALA
 
-  def checkPackageLocals(): Boolean = precedence <= PACKAGE_LOCAL
-
   protected def getQualifiedName(result: ScalaResolveResult): String = {
     def defaultForTypeAlias(t: ScTypeAlias): String = {
       if (t.getParent.isInstanceOf[ScTemplateBody] && t.containingClass != null) {
