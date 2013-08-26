@@ -70,7 +70,7 @@ trait ScReferenceExpression extends ScalaPsiElement with ScExpression with ScRef
     if (useFullQualifiedName) {
       super.createReplacingElementWithClassName(useFullQualifiedName, clazz)
     } else {
-      ScalaPsiElementFactory.createExpressionFromText(clazz.name, clazz.element).asInstanceOf[ScReferenceExpression]
+      ScalaPsiElementFactory.createExpressionFromText(clazz.name, clazz.element.getManager).asInstanceOf[ScReferenceExpression]
     }
   }
 
