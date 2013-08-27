@@ -27,12 +27,13 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScPrimaryConstructor, ScStableCodeReferenceElement, ScLiteral, ScReferenceElement}
 import org.jetbrains.plugins.scala.extensions.{toPsiModifierListOwnerExt, toPsiNamedElementExt, toPsiClassExt}
-import scala.annotation.tailrec
 import org.jetbrains.plugins.scala.lang.psi.api.expr.xml.ScXmlPattern
 import scala.Some
 import org.jetbrains.plugins.scala.debugger.evaluation.evaluator.ScalaMethodEvaluator
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import org.jetbrains.plugins.scala.lang.psi.types.ScThisType
+import com.intellij.codeInsight.PsiEquivalenceUtil
+import scala.annotation.tailrec
 
 /**
  * User: Alefas
@@ -40,10 +41,31 @@ import org.jetbrains.plugins.scala.lang.psi.types.ScThisType
  */
 
 object ScalaEvaluatorBuilder extends EvaluatorBuilder {
+  private var currentPosition: SourcePosition = null
+  private val cachedEvaluators = mutable.HashMap[PsiElement, ExpressionEvaluator]()
+
   def build(codeFragment: PsiElement, position: SourcePosition): ExpressionEvaluator = {
-    new Builder(position).buildElement(codeFragment)
+    def cached: Option[ExpressionEvaluator] = {
+      val cached = cachedEvaluators.filterKeys(key => PsiEquivalenceUtil.areElementsEquivalent(key, codeFragment))
+      cached.values.headOption
+    }
+    def buildNew(): ExpressionEvaluator = {
+      val eval = new Builder(position).buildElement(codeFragment)
+      cachedEvaluators += (codeFragment -> eval)
+      eval
+    }
+
+    assert(codeFragment != null)
+    if (position != currentPosition) {
+      currentPosition = position
+      cachedEvaluators.clear()
+      buildNew()
+    }
+    else {
+      cached.getOrElse(buildNew())
+    }
   }
-  
+
   private class Builder(position: SourcePosition) extends ScalaElementVisitor {
     private var myResult: Evaluator = null
     private var myCurrentFragmentEvaluator: CodeFragmentEvaluator = null
@@ -1098,12 +1120,17 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
               case _ => throw EvaluateExceptionUtil.createEvaluateException("Cannot evaluate assign statement without expression")
             }
             val rightEvaluator = myResult
-            leftEvaluator match {
-              case m: ScalaMethodEvaluator =>
-                myResult = m.copy(_methodName = m.methodName + "_$eq", argumentEvaluators = Seq(rightEvaluator)) //todo: signature?
-              case _ =>
-                myResult = new AssignmentEvaluator(leftEvaluator, rightEvaluator)
+            def createAssignEvaluator(leftEvaluator: Evaluator): Boolean = {
+              leftEvaluator match {
+                case m: ScalaMethodEvaluator =>
+                  myResult = m.copy(_methodName = m.methodName + "_$eq", argumentEvaluators = Seq(rightEvaluator)) //todo: signature?
+                  true
+                case ScalaDuplexEvaluator(first, second) => createAssignEvaluator(first) || createAssignEvaluator(second)
+                case _ => myResult = new AssignmentEvaluator(leftEvaluator, rightEvaluator)
+                  false
+              }
             }
+            createAssignEvaluator(leftEvaluator)
         }
       }
     }

@@ -88,8 +88,8 @@ abstract public class AbstractIntroduceVariableTestBase extends ActionTestBase {
       ScType varType = null;
       if (ScalaRefactoringUtil.getExpression(getProject(), myEditor, myFile, startOffset, endOffset) instanceof Some) {
         Some temp = (Some) ScalaRefactoringUtil.getExpression(getProject(), myEditor, myFile, startOffset, endOffset);
-        selectedExpr = (ScExpression) IntroduceVariableTestUtil.extract1((Tuple2<ScExpression, ScType>) temp.get());
-        varType = (ScType) IntroduceVariableTestUtil.extract2((Tuple2<ScExpression, ScType>) temp.get());
+        selectedExpr = IntroduceVariableTestUtil.extract1((Tuple2<ScExpression, ScType>) temp.get());
+        varType = ScalaRefactoringUtil.replaceSingletonTypes(IntroduceVariableTestUtil.extract2((Tuple2<ScExpression, ScType>) temp.get()));
       }
       Assert.assertNotNull("Selected expression reference points to null", selectedExpr);
 

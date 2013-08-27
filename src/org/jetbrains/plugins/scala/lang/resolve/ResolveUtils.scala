@@ -107,7 +107,7 @@ object ResolveUtils {
         case _ =>
           m.getParameterList.getParameters.toSeq.mapWithIndex {
             case (param, index) => {
-              new Parameter("", s.subst(param.exactParamType()), false, param.isVarArgs, false, index)
+              new Parameter("", None, s.subst(param.exactParamType()), false, param.isVarArgs, false, index)
             }
           }
       }, false)(m.getProject, scope)

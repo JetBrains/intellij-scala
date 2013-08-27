@@ -16,9 +16,10 @@ import psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
 import extensions.{toPsiMemberExt, toPsiNamedElementExt, toPsiClassExt}
 import settings.ScalaProjectSettings
-import annotator.intention.ScalaImportClassFix
+import annotator.intention.ScalaImportTypeFix
 import collection.mutable.HashSet
 import toplevel.imports.ScImportSelector
+import org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix.TypeToImport
 
 /**
  * @author Alexander Podkhalyuzin
@@ -74,9 +75,9 @@ trait ScReferenceElement extends ScalaPsiElement with ResolvableReferenceElement
     false
   }
 
-  def createReplacingElementWithClassName(useFullQualifiedName: Boolean, clazz: PsiClass): ScReferenceElement =
+  def createReplacingElementWithClassName(useFullQualifiedName: Boolean, clazz: TypeToImport): ScReferenceElement =
     ScalaPsiElementFactory.createReferenceFromText(
-      if (useFullQualifiedName) clazz.qualifiedName else clazz.name, clazz.getManager)
+      if (useFullQualifiedName) clazz.qualifiedName else clazz.name, clazz.element.getManager)
 
   def isReferenceTo(element: PsiElement, resolved: PsiElement): Boolean = {
     if (ScEquivalenceUtil.smartEquivalence(resolved, element)) return true
@@ -214,7 +215,7 @@ trait ScReferenceElement extends ScalaPsiElement with ResolvableReferenceElement
             else {
               val result: ResolveResult = resolve(0)
               def smartCheck: Boolean = {
-                val holder = ScalaImportClassFix.getImportHolder(this, getProject)
+                val holder = ScalaImportTypeFix.getImportHolder(this, getProject)
                 var res = true
                 holder.accept(new ScalaRecursiveElementVisitor {
                   //Override also visitReferenceExpression! and visitTypeProjection!
@@ -244,7 +245,7 @@ trait ScReferenceElement extends ScalaPsiElement with ResolvableReferenceElement
             }
           }
           if (isOk) {
-            ScalaImportClassFix.getImportHolder(this, getProject).addImportForPath(packagePart, this)
+            ScalaImportTypeFix.getImportHolder(this, getProject).addImportForPath(packagePart, this)
             val ref = referenceCreator(toReplace, false)
             return this.replace(ref)
           }

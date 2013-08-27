@@ -17,7 +17,7 @@ class UnitMethodDefinedLikeProcedureInspection
 
   def actionFor(holder: ProblemsHolder): PartialFunction[PsiElement, Any] = {
     case funDef: ScFunctionDefinition
-      if funDef.hasUnitResultType && (!funDef.hasAssign || !funDef.hasExplicitType) && !funDef.isSecondaryConstructor =>
+      if funDef.hasUnitResultType && !funDef.hasAssign && !funDef.isSecondaryConstructor =>
       holder.registerProblem(funDef.nameId, getDisplayName, new InsertReturnTypeAndEquals(funDef))
   }
   

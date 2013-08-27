@@ -517,7 +517,8 @@ object ScalaPsiUtil {
     index.getModuleForFile(element.getContainingFile.getVirtualFile)
   }
 
-  def collectImplicitObjects(tp: ScType, place: PsiElement): Seq[ScType] = {
+  def collectImplicitObjects(_tp: ScType, place: PsiElement): Seq[ScType] = {
+    val tp = ScType.removeAliasDefinitions(_tp)
     val projectOpt = Option(place).map(_.getProject)
     val parts: ListBuffer[ScType] = new ListBuffer[ScType]
     val visited = new mutable.HashSet[ScType]()

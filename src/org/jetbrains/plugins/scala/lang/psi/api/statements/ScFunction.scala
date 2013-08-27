@@ -327,8 +327,6 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
 
   def superSignaturesIncludingSelfType: Seq[Signature]
 
-  def hasParamName(name: String, clausePosition: Int = -1): Boolean = getParamByName(name, clausePosition) != None
-
   /**
    * Seek parameter with appropriate name in appropriate parameter clause.
    * @param name parameter name
@@ -336,17 +334,17 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
    */
   def getParamByName(name: String, clausePosition: Int = -1): Option[ScParameter] = {
     clausePosition match {
-      case -1 => {
-        for (param <- parameters if ScalaPsiUtil.memberNamesEquals(param.name, name)) return Some(param)
-        None
-      }
-      case i if i < 0 => None
-      case i if i >= effectiveParameterClauses.length => None
-      case i => {
-        val clause: ScParameterClause = effectiveParameterClauses.apply(i)
-        for (param <- clause.parameters if ScalaPsiUtil.memberNamesEquals(param.name, name)) return Some(param)
-        None
-      }
+      case -1 =>
+        parameters.find { case param =>
+            ScalaPsiUtil.memberNamesEquals(param.name, name) ||
+              param.deprecatedName.exists(ScalaPsiUtil.memberNamesEquals(_, name))
+        }
+      case i if i < 0 || i >= effectiveParameterClauses.length => None
+      case _ =>
+        effectiveParameterClauses.apply(clausePosition).parameters.find { case param =>
+          ScalaPsiUtil.memberNamesEquals(param.name, name) ||
+            param.deprecatedName.exists(ScalaPsiUtil.memberNamesEquals(_, name))
+        }
     }
   }
 

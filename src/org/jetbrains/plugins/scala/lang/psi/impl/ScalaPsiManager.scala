@@ -33,6 +33,8 @@ import ParameterlessNodes.{Map => PMap}, TypeNodes.{Map => TMap}, SignatureNodes
 import psi.stubs.util.ScalaStubsUtil
 import java.util
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
+import com.intellij.navigation.NavigationItem
 
 class ScalaPsiManager(project: Project) extends ProjectComponent {
   private val implicitObjectMap: ConcurrentMap[String, SoftReference[java.util.Map[GlobalSearchScope, Seq[ScObject]]]] =
@@ -188,6 +190,16 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
     result.getOrElse(null)
   }
 
+  def getStableAliasesByName(name: String, scope: GlobalSearchScope): Seq[ScTypeAlias] = {
+    val types: util.Collection[_ <: PsiElement] =
+      StubIndex.getInstance.get(ScalaIndexKeys.TYPE_ALIAS_NAME_KEY, name, project, new ScalaSourceFilterScope(scope, project))
+    import scala.collection.JavaConversions._
+    types.flatMap {
+      case t: ScTypeAlias => Seq(t)
+      case elem => ScalaStubsUtil.checkPsiForTypeAlias(elem); Seq.empty
+    }.toSeq
+  }
+
   def getClassesByName(name: String, scope: GlobalSearchScope): Seq[PsiClass] = {
     val scalaClasses: Seq[_ <: PsiElement] = ScalaShortNamesCacheManager.getInstance(project).getClassesByName(name, scope)
     val buffer: mutable.Buffer[PsiClass] = PsiShortNamesCache.getInstance(project).getClassesByName(name, scope).filterNot(p =>
@@ -196,8 +208,9 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
     val classesIterator = scalaClasses.iterator
     while (classesIterator.hasNext) {
       val clazz = classesIterator.next()
-      ScalaStubsUtil.checkPsiForClass(clazz)
-      buffer += clazz.asInstanceOf[PsiClass]
+      if (ScalaStubsUtil.checkPsiForClass(clazz)) {
+        buffer += clazz.asInstanceOf[PsiClass]
+      }
     }
     buffer.toSeq
   }
@@ -445,6 +458,12 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
         res
       }
     }
+  }
+
+  def getStableTypeAliasesNames: Seq[String] = {
+    val keys = StubIndex.getInstance.getAllKeys(ScalaIndexKeys.STABLE_ALIAS_NAME_KEY, project)
+    import scala.collection.JavaConversions._
+    keys.toSeq
   }
 }
 

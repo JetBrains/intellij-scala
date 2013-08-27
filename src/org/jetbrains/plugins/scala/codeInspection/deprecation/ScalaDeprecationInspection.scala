@@ -4,13 +4,15 @@ package codeInspection.deprecation
 import org.jetbrains.plugins.scala.codeInspection.InspectionsUtil
 import com.intellij.psi._
 import com.intellij.codeInspection.{ProblemHighlightType, ProblemsHolder, LocalInspectionTool}
-import lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import lang.psi.api.ScalaElementVisitor
 import lang.psi.api.statements.{ScFunction, ScAnnotationsHolder}
 import lang.psi.api.base.{ScReferenceElement, ScPrimaryConstructor}
 import org.jetbrains.plugins.scala.extensions._
 import lang.psi.api.expr.ScReferenceExpression
 import lang.psi.api.base.types.ScTypeProjection
+import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 
 
 /**
@@ -20,9 +22,18 @@ import lang.psi.api.base.types.ScTypeProjection
 
 class ScalaDeprecationInspection extends LocalInspectionTool {
   override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor = {
-    def checkDeprecated(refElement: PsiElement, elementToHighlight: PsiElement, name: String) {
-      if (refElement == null) return
-      if (!refElement.isInstanceOf[PsiNamedElement]) return
+    def checkDeprecated(result: Option[ScalaResolveResult], elementToHighlight: PsiElement, name: String) {
+      val refElement = result.getOrElse(return).element
+      refElement match {
+        case param: ScParameter if result.get.isNamedParameter &&
+          !ScalaPsiUtil.memberNamesEquals(param.name, name)=>
+          val description: String = s"Parameter name ${param.deprecatedName.get} is deprecated"
+          holder.registerProblem(holder.getManager.createProblemDescriptor(elementToHighlight, description, true,
+            ProblemHighlightType.LIKE_DEPRECATED, isOnTheFly))
+          return
+        case _: PsiNamedElement =>
+        case _ => return
+      }
       val context = ScalaPsiUtil.nameContext(refElement.asInstanceOf[PsiNamedElement])
       context match {
         case doc: PsiDocCommentOwner => {
@@ -53,7 +64,7 @@ class ScalaDeprecationInspection extends LocalInspectionTool {
 
       override def visitReference(ref: ScReferenceElement) {
         if (!ref.isValid) return
-        checkDeprecated(ref.resolve(), ref.nameId, ref.refName)
+        checkDeprecated(ref.bind(), ref.nameId, ref.refName)
       }
 
       override def visitReferenceExpression(ref: ScReferenceExpression) {

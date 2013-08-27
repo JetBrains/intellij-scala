@@ -24,10 +24,11 @@ import api.ScalaElementVisitor
 import extensions.{toPsiNamedElementExt, toPsiClassExt}
 import api.statements.{ScMacroDefinition, ScTypeAlias}
 import api.expr.{ScSuperReference, ScThisReference}
-import annotator.intention.ScalaImportClassFix
+import annotator.intention.ScalaImportTypeFix
 import util.PsiTreeUtil
 import settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
+import org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix.{TypeAliasToImport, ClassTypeToImport}
 
 /**
  * @author AlexanderPodkhalyuzin
@@ -130,8 +131,8 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
       if (aliasedRef.isDefined) {
         this.replace(aliasedRef.get)
       }
-      else element match {
-        case c: PsiClass => {
+      else {
+        def bindToType(c: ScalaImportTypeFix.TypeToImport): PsiElement = {
           val suitableKinds = getKinds(incomplete = false)
           if (!ResolveUtils.kindMatches(element, suitableKinds))
             throw new IncorrectOperationException("class does not match expected kind, problem place: " + {
@@ -167,7 +168,10 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
             } else getParent match {
               case importExpr: ScImportExpr if !importExpr.singleWildcard && !importExpr.selectorSet.isDefined =>
                 val holder = PsiTreeUtil.getParentOfType(this, classOf[ScImportsHolder])
-                holder.addImportForClass(c)
+                c match {
+                  case ClassTypeToImport(clazz) => holder.addImportForClass(clazz)
+                  case ta => holder.addImportForPath(ta.qualifiedName)
+                }
                 importExpr.deleteExpr()
               //todo: so what to return? probable PIEAE after such code invocation
               case _ =>
@@ -175,8 +179,14 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
                   case (qual, true) => ScalaPsiElementFactory.createReferenceFromText(qual, getContext, this)
                   case (qual, false) => ScalaPsiElementFactory.createReferenceFromText(qual, getManager)
                 }) {
-                  ScalaImportClassFix.getImportHolder(ref = this, project = getProject).
-                          addImportForClass(c, ref = this)
+                  c match {
+                    case ClassTypeToImport(clazz) =>
+                      ScalaImportTypeFix.getImportHolder(ref = this, project = getProject).
+                        addImportForClass(clazz, ref = this)
+                    case ta =>
+                      ScalaImportTypeFix.getImportHolder(ref = this, project = getProject).
+                        addImportForPath(ta.qualifiedName, ref = this)
+                  }
                   if (qualifier != None) {
                     //let's make our reference unqualified
                     val ref: ScStableCodeReferenceElement = ScalaPsiElementFactory.createReferenceFromText(c.name, getManager)
@@ -188,16 +198,25 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
           }
           this
         }
-        case binding: ScBindingPattern =>
-          binding.nameContext match {
-            case member: ScMember =>
-              val containingClass = member.containingClass
-              val refToClass = bindToElement(containingClass)
-              val refToMember = ScalaPsiElementFactory.createReferenceFromText(refToClass.getText + "." + binding.name, getManager)
-              this.replace(refToMember).asInstanceOf[ScReferenceElement]
-          }
-        case t: ScTypeAlias => this //todo: do something
-        case _ => throw new IncorrectOperationException("Cannot bind to anything but class")
+        element match {
+          case c: PsiClass => bindToType(ClassTypeToImport(c))
+          case ta: ScTypeAlias =>
+            if (ta.containingClass != null && ScalaPsiUtil.hasStablePath(ta)) {
+              bindToType(TypeAliasToImport(ta))
+            } else {
+              //todo: nothing to do yet, probably in future it would be great to implement something context-specific
+              this
+            }
+          case binding: ScBindingPattern =>
+            binding.nameContext match {
+              case member: ScMember =>
+                val containingClass = member.containingClass
+                val refToClass = bindToElement(containingClass)
+                val refToMember = ScalaPsiElementFactory.createReferenceFromText(refToClass.getText + "." + binding.name, getManager)
+                this.replace(refToMember).asInstanceOf[ScReferenceElement]
+            }
+          case _ => throw new IncorrectOperationException("Cannot bind to anything but class")
+        }
       }
     }
   }

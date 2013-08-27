@@ -6,14 +6,12 @@ package impl
 
 
 import api.expr.ScAnnotation
-import api.toplevel.ScEarlyDefinitions
 import com.intellij.psi.PsiElement
 import com.intellij.psi.stubs.{IStubElementType, StubElement}
-import api.base.ScStableCodeReferenceElement
 import com.intellij.util.io.StringRef
-import com.intellij.util.PatchedSoftReference
 import api.base.types.ScTypeElement
 import psi.impl.ScalaPsiElementFactory
+import com.intellij.reference.SoftReference
 
 /**
  * User: Alexander Podkhalyuzin
@@ -25,7 +23,7 @@ class ScAnnotationStubImpl[ParentPsi <: PsiElement](parent: StubElement[ParentPs
         extends StubBaseWrapper[ScAnnotation](parent, elemType) with ScAnnotationStub {
   var name: StringRef = StringRef.fromString("")
   private var typeText: StringRef = _
-  private var myTypeElement: PatchedSoftReference[ScTypeElement] = null
+  private var myTypeElement: SoftReference[ScTypeElement] = null
 
   def this(parent : StubElement[ParentPsi],
           elemType : IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement],
@@ -42,7 +40,7 @@ class ScAnnotationStubImpl[ParentPsi <: PsiElement](parent: StubElement[ParentPs
     val res: ScTypeElement = {
         ScalaPsiElementFactory.createTypeElementFromText(getTypeText, getPsi, null)
     }
-    myTypeElement = new PatchedSoftReference[ScTypeElement](res)
+    myTypeElement = new SoftReference[ScTypeElement](res)
     res
   }
 }

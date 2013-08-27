@@ -97,7 +97,7 @@ object PrecedenceHelper {
     val PACKAGE_LOCAL_PACKAGE = 3
     val WILDCARD_IMPORT_PACKAGE = 4
     val IMPORT_PACKAGE = 5
-    val PACKAGE_LOCAL = 6
+
     val WILDCARD_IMPORT = 7
     val IMPORT = 8
     val OTHER_MEMBERS = 9
