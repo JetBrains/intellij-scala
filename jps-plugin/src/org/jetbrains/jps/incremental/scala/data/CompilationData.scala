@@ -12,6 +12,8 @@ import org.jetbrains.jps.model.java.JpsJavaExtensionService
 import org.jetbrains.jps.model.java.LanguageLevel._
 import org.jetbrains.jps.model.module.JpsModule
 import java.util.Collections
+import com.intellij.openapi.diagnostic.{Logger => JpsLogger}
+import scala.collection.JavaConversions._
 
 /**
  * @author Pavel Fatin
@@ -26,6 +28,8 @@ case class CompilationData(sources: Seq[File],
                            outputToCacheMap: Map[File, File])
 
 object CompilationData {
+  val Log = JpsLogger.getInstance(classOf[CompilationData])
+
   def from(sources: Seq[File], context: CompileContext, chunk: ModuleChunk): Either[String, CompilationData] = {
     val target = chunk.representativeTarget
     val module = target.getModule
@@ -64,10 +68,11 @@ object CompilationData {
 
   // TODO expect future JPS API to provide a public API for Java options retrieval
   private def javaOptionsFor(module: JpsModule): Seq[String] = {
-    val config = {
+    val (config, processorOptions) = {
       val project = module.getProject
       val compilerConfig = JpsJavaExtensionService.getInstance.getOrCreateCompilerConfiguration(project)
-      compilerConfig.getCurrentCompilerOptions
+
+      (compilerConfig.getCurrentCompilerOptions, compilerConfig.getAnnotationProcessingProfile(module).getProcessorOptions)
     }
 
     var options: Vector[String] = Vector.empty
@@ -87,6 +92,10 @@ object CompilationData {
     javaLanguageLevelFor(module).foreach { level =>
       options :+= "-source"
       options :+= level
+    }
+
+    processorOptions.foreach { case (key, value) =>
+      options :+= s"-A${key}=${value}"
     }
 
     if (!config.ADDITIONAL_OPTIONS_STRING.isEmpty) {
