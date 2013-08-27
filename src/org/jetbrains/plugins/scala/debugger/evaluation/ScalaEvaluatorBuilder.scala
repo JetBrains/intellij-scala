@@ -25,15 +25,14 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScClassParents, ScTemplateBody}
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScPrimaryConstructor, ScStableCodeReferenceElement, ScLiteral, ScReferenceElement}
+import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.extensions.{toPsiModifierListOwnerExt, toPsiNamedElementExt, toPsiClassExt}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.xml.ScXmlPattern
-import scala.Some
+import com.intellij.codeInsight.PsiEquivalenceUtil
+import scala.annotation.tailrec
 import org.jetbrains.plugins.scala.debugger.evaluation.evaluator.ScalaMethodEvaluator
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import org.jetbrains.plugins.scala.lang.psi.types.ScThisType
-import com.intellij.codeInsight.PsiEquivalenceUtil
-import scala.annotation.tailrec
 
 /**
  * User: Alefas
@@ -92,7 +91,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
         case _ => 1
       }
     }
-    
+
     private def getContainingClass(elem: PsiElement): PsiElement = {
       var element = elem.getParent
       var child = elem
@@ -257,7 +256,17 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
     }
 
     override def visitLiteral(l: ScLiteral) {
-      myResult = ScalaLiteralEvaluator(l)
+      myResult = l match {
+        case interpolated: ScInterpolatedStringLiteral if interpolated.getType != InterpolatedStringType.STANDART =>
+          throw EvaluateExceptionUtil.createEvaluateException("Only standart string interpolator s\"...\" is supported")
+        case interpolated: ScInterpolatedStringLiteral if interpolated.getType == InterpolatedStringType.STANDART =>
+          val evaluatorOpt = for (expr <- interpolated.getStringContextExpression) yield {
+            expr.accept(this)
+            myResult
+          }
+          evaluatorOpt.getOrElse(ScalaLiteralEvaluator(l))
+        case _ => ScalaLiteralEvaluator(l)
+      }
       super.visitLiteral(l)
     }
 
@@ -402,7 +411,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
       //local method
       val fun = resolve.asInstanceOf[ScFunction]
       val name = NameTransformer.encode(fun.name)
-      val containingClass = getContainingClass(fun)
+      val containingClass = if (fun.isSynthetic) fun.containingClass else getContainingClass(fun)
       if (getContextClass == null) {
         throw EvaluateExceptionUtil.createEvaluateException("Cannot evaluate local method")
       }
