@@ -45,12 +45,11 @@ class ScalaInplaceVariableIntroducer(project: Project,
                                      expr: ScExpression,
                                      types: Array[ScType],
                                      namedElement: PsiNamedElement,
-                                     occurences: Array[ScExpression],
                                      title: String,
                                      replaceAll: Boolean,
                                      asVar: Boolean,
                                      noTypeInference: Boolean)
-        extends InplaceVariableIntroducer[ScExpression](namedElement, editor, project, title, occurences, expr) {
+        extends InplaceVariableIntroducer[ScExpression](namedElement, editor, project, title, Array.empty[ScExpression], expr) {
 
   private var myVarCheckbox: JCheckBox = null
   private var mySpecifyTypeChb: JCheckBox = null
