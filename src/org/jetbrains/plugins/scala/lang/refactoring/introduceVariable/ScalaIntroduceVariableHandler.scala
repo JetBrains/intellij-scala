@@ -89,7 +89,6 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Confli
         val callback = new Pass[OccurrencesChooser.ReplaceChoice] {
           def pass(replaceChoice: OccurrencesChooser.ReplaceChoice) {
             val replaceAll = OccurrencesChooser.ReplaceChoice.NO != replaceChoice
-            val replaces: Array[ScExpression] = if (replaceAll) allExpressions else Array(expr)
             val suggestedNames: Array[String] = NameSuggester.suggestNames(expr, validator)
             import scala.collection.JavaConversions.asJavaCollection
             val suggestedNamesSet = new LinkedHashSet[String](suggestedNames.toIterable)
@@ -117,7 +116,7 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Confli
                     PsiDocumentManager.getInstance(project).doPostponedOperationsAndUnblockDocument(editor.getDocument)
                     val checkedExpr = if (expr.isValid) expr else null
                     val variableIntroducer =
-                      new ScalaInplaceVariableIntroducer(project, editor, checkedExpr, types, namedElement, replaces,
+                      new ScalaInplaceVariableIntroducer(project, editor, checkedExpr, types, namedElement,
                         REFACTORING_NAME, replaceAll, asVar, false)
                     variableIntroducer.performInplaceRefactoring(suggestedNamesSet)
                   }
