@@ -1318,14 +1318,16 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
     }
 
     private def isInsideLocalFunction(elem: PsiElement): Option[ScFunction] = {
-      var element = elem
-      while (element != null) {
+      @tailrec
+      def inner(element: PsiElement): Option[ScFunction] = {
         element match {
-          case fun: ScFunction if isLocalFunction(fun) && fun.parameters.find(elem == _) == None => return Some(fun)
-          case _ => element = element.getContext
+          case fun: ScFunction
+            if isLocalFunction(fun) && !fun.parameters.exists(param => PsiTreeUtil.isAncestor(param, elem, false)) => Some(fun)
+          case other if other.getContext != null => inner(other.getContext)
+          case _ => None
         }
       }
-      None
+      inner(elem)
     }
 
     private def visitReferenceNoParameters(qualifier: Option[ScExpression],
