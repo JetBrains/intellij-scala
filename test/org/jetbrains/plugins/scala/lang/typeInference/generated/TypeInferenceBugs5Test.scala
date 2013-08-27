@@ -29,6 +29,8 @@ class TypeInferenceBugs5Test extends TypeInferenceTestBase {
 
   def testParenthesisedUnderscore() {doTest()}
 
+  def testParenthesisedUnderscore2() {doTest()}
+
   def testRecursiveFunction() {doTest()}
 
   def testRepeatedParams() {doTest()}

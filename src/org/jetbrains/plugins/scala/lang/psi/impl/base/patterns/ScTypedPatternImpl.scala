@@ -92,7 +92,7 @@ class ScTypedPatternImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
                               else subst.subst(Bounds.glb(listTypes.toSeq.map(ScType.create(_, getProject, param.getResolveScope)), checkWeak = true))
                             } else arg.upper //todo: glb?
                           ScSkolemizedType(arg.name, arg.args, lowerBound, upperBound)
-                        case (tp: ScType, param: ScTypeParam) => tp
+                        case (tp: ScType, _) => tp
                       }).unpackedType
                     case _ => tp
                   }

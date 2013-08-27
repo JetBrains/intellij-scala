@@ -10,7 +10,6 @@ import com.intellij.lang.ASTNode
 
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports._
 import com.intellij.psi._
-import _root_.scala.collection.mutable.HashSet
 import parser.ScalaElementTypes
 import psi.stubs.ScImportStmtStub
 import usages._
@@ -29,6 +28,7 @@ import completion.ScalaCompletionUtil
 import caches.ScalaShortNamesCacheManager
 import util.PsiTreeUtil
 import annotation.tailrec
+import scala.collection.mutable
 
 /**
  * @author Alexander Podkhalyuzin
@@ -81,25 +81,40 @@ class ScImportStmtImpl extends ScalaStubBasedElementImpl[ScImportStmt] with ScIm
           case None => ref.qualifier.getOrElse(return true)
         }
         val resolve: Array[ResolveResult] = ref.multiResolve(false)
-        val refType = exprQual.bind() match {
+
+        //todo: making lazy next two definitions leads to compiler failure
+        val poOpt = () => exprQual.bind() match {
           case Some(ScalaResolveResult(p: PsiPackage, _)) =>
-            resolve.find {
-              case ScalaResolveResult(elem, _) =>
-                PsiTreeUtil.getContextOfType(elem, true, classOf[ScTypeDefinition]) match {
-                  case obj: ScObject if obj.isPackageObject => true
-                  case _ => false
-                }
-              case _ => false
-            } match {
-              case Some(_) =>
-                val po = ScalaShortNamesCacheManager.getInstance(getProject).getPackageObjectByName(p.getQualifiedName, getResolveScope)
-                if (po != null) {
-                  po.getType(TypingContext.empty)
-                } else Failure("no failure", Some(this))
-              case _ => Failure("no failure", Some(this))
-            }
-          case _ => ScSimpleTypeElementImpl.calculateReferenceType(exprQual, shapesOnly = false)
+            Option(ScalaShortNamesCacheManager.getInstance(getProject).getPackageObjectByName(p.getQualifiedName, getResolveScope))
+          case _ => None
         }
+
+        val exprQualRefType = () => ScSimpleTypeElementImpl.calculateReferenceType(exprQual, shapesOnly = false)
+
+        def checkResolve(resolve: Array[ResolveResult]): Boolean = {
+          resolve.exists {
+            case ScalaResolveResult(elem, _) =>
+              PsiTreeUtil.getContextOfType(elem, true, classOf[ScTypeDefinition]) match {
+                case obj: ScObject if obj.isPackageObject => true
+                case _ => false
+              }
+            case _ => false
+          }
+        }
+        def calculateRefType(checkPo: => Boolean) = {
+          exprQual.bind() match {
+            case Some(ScalaResolveResult(p: PsiPackage, _)) =>
+              poOpt() match {
+                case Some(po) =>
+                  if (checkPo) {
+                    po.getType(TypingContext.empty)
+                  } else Failure("no failure", Some(this))
+                case _ => Failure("no failure", Some(this))
+              }
+            case _ => exprQualRefType()
+          }
+        }
+
         val resolveIterator = resolve.iterator
         while (resolveIterator.hasNext) {
           val (elem, importsUsed, s) = resolveIterator.next() match {
@@ -126,11 +141,11 @@ class ScImportStmtImpl extends ScalaStubBasedElementImpl[ScImportStmt] with ScIm
                 s.startsWith(ScalaProjectSettings.EXCLUDE_PREFIX) &&
                         s.substring(ScalaProjectSettings.EXCLUDE_PREFIX.length, s.lastIndexOf(".")) == pack.getQualifiedName
               )
-              val names = new HashSet[String]()
+              val names = new mutable.HashSet[String]()
               for (prefixImport <- prefixImports) {
                 names += prefixImport.substring(prefixImport.lastIndexOf('.') + 1)
               }
-              val excludeNames = new HashSet[String]()
+              val excludeNames = new mutable.HashSet[String]()
               for (prefixImport <- excludeImports) {
                 excludeNames += prefixImport.substring(prefixImport.lastIndexOf('.') + 1)
               }
@@ -158,6 +173,8 @@ class ScImportStmtImpl extends ScalaStubBasedElementImpl[ScImportStmt] with ScIm
               // Update the set of used imports
               val newImportsUsed = Set(importsUsed.toSeq: _*) + ImportExprUsed(importExpr)
               var newState: ResolveState = state.put(ImportUsed.key, newImportsUsed).put(ScSubstitutor.key, subst)
+
+              val refType = calculateRefType(checkResolve(resolve))
               refType.foreach { tp =>
                 newState = newState.put(BaseProcessor.FROM_TYPE_KEY, tp)
               }
@@ -175,14 +192,14 @@ class ScImportStmtImpl extends ScalaStubBasedElementImpl[ScImportStmt] with ScIm
                 if (!processor.execute(elem, newState)) return false
               }
             case Some(set) => {
-              val shadowed: HashSet[(ScImportSelector, PsiElement)] = HashSet.empty
+              val shadowed: mutable.HashSet[(ScImportSelector, PsiElement)] = mutable.HashSet.empty
               set.selectors foreach {
                 selector =>
                 ProgressManager.checkCanceled()
-                selector.reference.multiResolve(false) foreach {
-                  result =>
-                  //Resolve the name imported by selector
-                  //Collect shadowed elements
+                  val selectorResolve: Array[ResolveResult] = selector.reference.multiResolve(false)
+                  selectorResolve foreach { result =>
+                    //Resolve the name imported by selector
+                    //Collect shadowed elements
                     shadowed += ((selector, result.getElement))
                     var newState: ResolveState = state
                     if (selector.isAliasedImport && selector.importedName != selector.reference.refName) {
@@ -190,7 +207,7 @@ class ScImportStmtImpl extends ScalaStubBasedElementImpl[ScImportStmt] with ScIm
                     }
                     newState = newState.put(ImportUsed.key, Set(importsUsed.toSeq: _*) + ImportSelectorUsed(selector)).
                             put(ScSubstitutor.key, subst)
-                    refType.foreach {tp =>
+                    calculateRefType(checkResolve(selectorResolve)).foreach {tp =>
                       newState = newState.put(BaseProcessor.FROM_TYPE_KEY, tp)
                     }
                     if (!processor.execute(result.getElement, newState)) {
@@ -236,7 +253,13 @@ class ScImportStmtImpl extends ScalaStubBasedElementImpl[ScImportStmt] with ScIm
                           case None => state.put(ScSubstitutor.key, subst)
                         }
 
-                        refType.foreach {tp =>
+                        def isElementInPo: Boolean = {
+                          PsiTreeUtil.getContextOfType(element, true, classOf[ScTypeDefinition]) match {
+                            case obj: ScObject if obj.isPackageObject => true
+                            case _ => false
+                          }
+                        }
+                        calculateRefType(isElementInPo).foreach {tp =>
                           newState = newState.put(BaseProcessor.FROM_TYPE_KEY, tp)
                         }
 
@@ -246,11 +269,12 @@ class ScImportStmtImpl extends ScalaStubBasedElementImpl[ScImportStmt] with ScIm
 
                     val newImportsUsed: Set[ImportUsed] = Set(importsUsed.toSeq: _*) + ImportWildcardSelectorUsed(importExpr)
                     var newState: ResolveState = state.put(ImportUsed.key, newImportsUsed).put(ScSubstitutor.key, subst)
-                    refType.foreach {tp =>
-                      newState = newState.put(BaseProcessor.FROM_TYPE_KEY, tp)
-                    }
+
                     (elem, processor) match {
                       case (cl: PsiClass, processor: BaseProcessor) if !cl.isInstanceOf[ScTemplateDefinition] => {
+                        calculateRefType(checkResolve(resolve)).foreach {tp =>
+                          newState = newState.put(BaseProcessor.FROM_TYPE_KEY, tp)
+                        }
                         if (!processor.processType(new ScDesignatorType(cl, true), place, newState)) return false
                       }
                       case _ => {

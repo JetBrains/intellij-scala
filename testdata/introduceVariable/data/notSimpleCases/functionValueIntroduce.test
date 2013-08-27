@@ -2,13 +2,13 @@ class a {
   def foo = {
     <begin>x<end>("balletik")
   }
-  val x: (Int => Boolean) = _.startsWith("ballet")
+  val x: (Any => Boolean) = _.isInstanceOf[String]
 }
 ------
 class a {
   def foo = {
-    val value: (Int) => Boolean = x
+    val value: (Any) => Boolean = x
     value("balletik")
   }
-  val x: (Int => Boolean) = _.startsWith("ballet")
+  val x: (Any => Boolean) = _.isInstanceOf[String]
 }

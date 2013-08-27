@@ -13,8 +13,9 @@ import toplevel.{ScImportableDeclarationsOwner, ScModifierListOwner, ScTypedDefi
 import types.result.{TypeResult, TypingContext}
 import types.ScType
 import util.PsiTreeUtil
-import base.ScPrimaryConstructor
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScLiteral, ScPrimaryConstructor}
 import expr.{ScArgumentExprList, ScFunctionExpr, ScExpression}
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 
 /**
  * @author Alexander Podkhalyuzin
@@ -52,6 +53,8 @@ trait ScParameter extends ScTypedDefinition with ScModifierListOwner with
   def getSuperParameter: Option[ScParameter]
 
   def expectedParamType: Option[ScType]
+
+  def deprecatedName: Option[String]
 
   def owner: PsiElement = {
     ScalaPsiUtil.getContextOfType(this, true, classOf[ScFunctionExpr],

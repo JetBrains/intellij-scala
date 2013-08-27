@@ -17,7 +17,7 @@ trait TypingContextOwner {
    *
    * @param ctx Context (possibly) augmented with informations about duplications
    */
-  def getType(ctx: TypingContext): TypeResult[ScType]
+  def getType(ctx: TypingContext = TypingContext.empty): TypeResult[ScType]
 
 }
 

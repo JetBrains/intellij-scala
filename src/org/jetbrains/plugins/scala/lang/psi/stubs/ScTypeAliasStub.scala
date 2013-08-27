@@ -26,4 +26,6 @@ trait ScTypeAliasStub extends NamedStub[ScTypeAlias] with ScMemberOrLocal {
   def getUpperBoundElementText: String
 
   def getUpperBoundTypeElement: ScTypeElement
+
+  def isStableQualifier: Boolean
 }

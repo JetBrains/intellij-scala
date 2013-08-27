@@ -30,6 +30,7 @@ import com.intellij.refactoring.introduce.inplace.OccurrencesChooser
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaVariableValidator
 import org.jetbrains.plugins.scala.lang.refactoring.introduceVariable.ScalaIntroduceVariableHandler.RevertInfo
+import com.intellij.psi.util.PsiTreeUtil
 
 
 /**
@@ -59,6 +60,7 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Confli
               getOrElse(showErrorMessage(ScalaBundle.message("cannot.refactor.not.expression"), project, editor, REFACTORING_NAME))
 
       val types = ScalaRefactoringUtil.addPossibleTypes(scType, expr)
+              .map(ScalaRefactoringUtil.replaceSingletonTypes)
 
       ScalaRefactoringUtil.checkCanBeIntroduced(expr, showErrorMessage(_, project, editor, REFACTORING_NAME))
 
@@ -169,6 +171,14 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Confli
         case _ =>
       }
     }
+    def replaceRangeByElement(range: TextRange, element: PsiElement): PsiElement = {
+      val (start, end) = (range.getStartOffset, range.getEndOffset)
+      val text: String = element.getText
+      editor.getDocument.replaceString(start, end, text)
+      val newEnd = start + text.length
+      editor.getCaretModel.moveToOffset(newEnd)
+      PsiTreeUtil.findElementOfClassAtRange(file, start, newEnd, classOf[PsiElement])
+    }
 
     val revertInfo = RevertInfo(file.getText, editor.getCaretModel.getOffset)
     editor.putUserData(ScalaIntroduceVariableHandler.REVERT_INFO, revertInfo)
@@ -189,9 +199,9 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Confli
     //changes document directly
     val replacedOccurences = ScalaRefactoringUtil.replaceOccurences(occurrences, varName, file, editor)
     //only Psi-operations after this moment
-    var firstRange = replacedOccurences(0).getTextRange
+    var firstRange = replacedOccurences(0)
 
-    val commonParent: PsiElement = ScalaRefactoringUtil.commonParent(file, replacedOccurences.map(_.getTextRange): _*)
+    val commonParent: PsiElement = ScalaRefactoringUtil.commonParent(file, replacedOccurences: _*)
 
     val parExpr: ScExpression = ScalaRefactoringUtil.findParentExpr(commonParent)
     val prev: PsiElement = ScalaRefactoringUtil.previous(parExpr, file)
@@ -200,7 +210,7 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Confli
     val introduceEnumerator = forStmtOption.isDefined
     val introduceEnumeratorForStmt: ScForStatement = forStmtOption.getOrElse(null)
 
-    editor.getCaretModel.moveToOffset(replacedOccurences(mainOcc).getTextRange.getEndOffset)
+    editor.getCaretModel.moveToOffset(replacedOccurences(mainOcc).getEndOffset)
 
     var createdDeclaration: PsiElement = null
 
@@ -232,9 +242,9 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Confli
       createdDeclaration = ScalaPsiElementFactory.createDeclaration(varName, typeName, isVariable,
         ScalaRefactoringUtil.unparExpr(expression), file.getManager)
       if (fastDefinition) {
-        replacedOccurences(0).replace(createdDeclaration)
-        editor.getCaretModel.moveToOffset(createdDeclaration.getTextRange.getEndOffset)
-      } else {
+        replaceRangeByElement(replacedOccurences(0), createdDeclaration)
+      }
+      else {
         val container: PsiElement = ScalaRefactoringUtil.container(parExpr, file, occCount == 1)
         val needBraces = !parExpr.isInstanceOf[ScBlock] && ScalaRefactoringUtil.needBraces(parExpr, prev)
         val parent =

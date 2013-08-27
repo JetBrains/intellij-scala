@@ -20,7 +20,7 @@ object ScalaVersionUtil {
     if (module == null) return defaultValue
     ScalaFacet.findIn(module).map(facet => {
       val version = facet.version
-      if (versionText.exists(version.startsWith(_))) true
+      if (versionText.exists(version.startsWith)) true
       else false
     }).getOrElse(defaultValue)
   }
