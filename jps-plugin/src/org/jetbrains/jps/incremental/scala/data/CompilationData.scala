@@ -12,7 +12,6 @@ import org.jetbrains.jps.model.java.JpsJavaExtensionService
 import org.jetbrains.jps.model.java.LanguageLevel._
 import org.jetbrains.jps.model.module.JpsModule
 import java.util.Collections
-import com.intellij.openapi.diagnostic.{Logger => JpsLogger}
 import scala.collection.JavaConversions._
 
 /**
@@ -28,7 +27,6 @@ case class CompilationData(sources: Seq[File],
                            outputToCacheMap: Map[File, File])
 
 object CompilationData {
-  val Log = JpsLogger.getInstance(classOf[CompilationData])
 
   def from(sources: Seq[File], context: CompileContext, chunk: ModuleChunk): Either[String, CompilationData] = {
     val target = chunk.representativeTarget
