@@ -1,18 +1,94 @@
 package org.jetbrains.plugins.scala
 package codeInsight.generation
 
-import com.intellij.openapi.editor.Editor
-import com.intellij.psi.PsiFile
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTrait, ScClass, ScTemplateDefinition}
+import com.intellij.openapi.editor.{Document, Editor}
+import com.intellij.psi._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTrait, ScClass, ScTemplateDefinition}
 import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScExtendsBlock
+import com.intellij.psi.codeStyle.CodeStyleManager
+import scala.collection.mutable.ListBuffer
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScVariable, ScValue}
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 
 /**
  * Nikolay.Tropin
  * 8/19/13
  */
 object GenerationUtil {
-  def getClassAtCaret(editor: Editor, file: PsiFile): ScTemplateDefinition = {
+  def classOrTraitAtCaret(editor: Editor, file: PsiFile): Option[ScTemplateDefinition] =
+    elementOfTypeAtCaret(editor, file, classOf[ScClass], classOf[ScTrait])
+
+  def classAtCaret(editor: Editor, file: PsiFile): Option[ScClass] =
+    elementOfTypeAtCaret(editor, file, classOf[ScClass])
+
+  protected def findAnchor(aClass: PsiClass): Option[PsiElement] = aClass match {
+    case cl: ScTemplateDefinition =>
+      cl.extendsBlock match {
+        case ScExtendsBlock.TemplateBody(body) => body.lastChild
+        case _ => None
+      }
+    case _ => None
+  }
+
+  def addMembers(aClass: ScTemplateDefinition, members: Seq[ScMember], document: Document, anchor: Option[PsiElement] = None): Unit = {
+    val addedMembers = ListBuffer[PsiElement]()
+    val psiDocManager = PsiDocumentManager.getInstance(aClass.getProject)
+    for {
+      anch <- anchor orElse findAnchor(aClass)
+      parent <- Option(anch.getParent)
+    } {
+      members.foldLeft(anch) {
+        (anchor, member) =>
+          val added = parent.addBefore(member, anchor)
+          addedMembers += added
+          added
+      }
+    }
+
+    if (addedMembers.nonEmpty) {
+      psiDocManager.doPostponedOperationsAndUnblockDocument(document)
+      val styleManager = CodeStyleManager.getInstance(aClass.getProject)
+      val ranges = addedMembers.map(_.getTextRange)
+      val minOffset = ranges.map(_.getStartOffset).min
+      val maxOffset = ranges.map(_.getEndOffset).max
+      val minLine = document.getLineNumber(minOffset)
+      val maxLine = document.getLineNumber(maxOffset)
+      for {
+        file <- aClass.containingFile
+        line <- minLine to maxLine
+      } {
+        psiDocManager.commitDocument(document)
+        styleManager.adjustLineIndent(file, document.getLineStartOffset(line))
+      }
+    }
+  }
+
+  def isVar(elem: ScNamedElement) = ScalaPsiUtil.nameContext(elem) match {
+    case _: ScVariable => true
+    case param: ScClassParameter if param.isVar => true
+    case _ => false
+  }
+
+  def getAllFields(aClass: PsiClass): Seq[ScNamedElement] = {
+    val memberProcessor: (ScMember) => Seq[ScNamedElement] = {
+      case classParam: ScClassParameter if classParam.isVal || classParam.isVar => Seq(classParam)
+      case value: ScValue => value.declaredElements
+      case variable: ScVariable => variable.declaredElements
+      case _ => Seq.empty
+    }
+    aClass match {
+      case scClass: ScClass =>
+        (scClass.members ++ scClass.constructor.toSeq.flatMap(_.parameters))
+                .flatMap(memberProcessor)
+      case _ => Seq.empty
+    }
+  }
+
+  private def elementOfTypeAtCaret[T <: PsiElement](editor: Editor, file: PsiFile, types: Class[_ <: T]*): Option[T] = {
     val elem = file.findElementAt(editor.getCaretModel.getOffset - 1)
-    PsiTreeUtil.getParentOfType(elem, classOf[ScClass], classOf[ScTrait])
+    Option(PsiTreeUtil.getParentOfType(elem, types: _*))
   }
 }

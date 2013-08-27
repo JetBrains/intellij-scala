@@ -4,10 +4,11 @@ package codeInsight.generation
 import com.intellij.lang.LanguageCodeInsightActionHandler
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.editor.Editor
-import com.intellij.psi.PsiFile
+import com.intellij.psi.{PsiDocumentManager, PsiFile}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScClass, ScTrait, ScTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import com.intellij.psi.codeStyle.CodeStyleManager
 
 /**
  * Nikolay.Tropin
@@ -16,19 +17,22 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 class ScalaGenerateCompanionObjectHandler extends LanguageCodeInsightActionHandler {
   def isValidFor(editor: Editor, file: PsiFile): Boolean =
     file != null && ScalaFileType.SCALA_FILE_TYPE == file.getFileType &&
-            canAddCompanionObject(GenerationUtil.getClassAtCaret(editor, file))
+            GenerationUtil.classOrTraitAtCaret(editor, file).exists(canAddCompanionObject)
 
   def invoke(project: Project, editor: Editor, file: PsiFile) {
-    val clazz = GenerationUtil.getClassAtCaret(editor, file)
-    if (clazz == null) return
-    val obj = createCompanionObject(clazz)
-    val parent = clazz.getParent
-    val addedObj = parent.addAfter(obj, clazz)
-    parent.addAfter(ScalaPsiElementFactory.createNewLine(clazz.getManager), clazz)
-    val offset = addedObj.getTextRange.getStartOffset
-    val document = editor.getDocument
-    val lineInside = document.getLineNumber(offset) + 1
-    editor.getCaretModel.moveToOffset(document.getLineEndOffset(lineInside))
+    val classOpt = GenerationUtil.classOrTraitAtCaret(editor, file)
+    for (clazz <- classOpt) {
+      val obj = createCompanionObject(clazz)
+      val parent = clazz.getParent
+      val addedObj = parent.addAfter(obj, clazz)
+      parent.addAfter(ScalaPsiElementFactory.createNewLine(clazz.getManager), clazz)
+      val document = editor.getDocument
+      PsiDocumentManager.getInstance(project).doPostponedOperationsAndUnblockDocument(document)
+      val offset = addedObj.getTextRange.getStartOffset
+      val lineInside = document.getLineNumber(offset) + 1
+      CodeStyleManager.getInstance(project).adjustLineIndent(document, document.getLineStartOffset(lineInside))
+      editor.getCaretModel.moveToOffset(document.getLineEndOffset(lineInside))
+    }
   }
 
   def startInWriteAction(): Boolean = true
