@@ -46,12 +46,13 @@ class IntroduceImplicitParameterIntention extends PsiElementBaseIntentionAction 
   override def invoke(project: Project, editor: Editor, element: PsiElement) {
     val expr: ScFunctionExpr = PsiTreeUtil.getParentOfType(element, classOf[ScFunctionExpr], false)
     if (expr == null || !expr.isValid) return
+    val result = expr.result.getOrElse(return)
 
     val buf = new StringBuilder
-    buf.append(expr.result.get.getText)
+    buf.append(result.getText)
 
     val startOffset = expr.getTextRange.getStartOffset
-    val diff = expr.result.get.getTextRange.getStartOffset
+    val diff = result.getTextRange.getStartOffset
     var previousOffset = -1
     var occurances: mutable.HashMap[String, Int] = new mutable.HashMap[String, Int]
     occurances = seekParams(expr)
