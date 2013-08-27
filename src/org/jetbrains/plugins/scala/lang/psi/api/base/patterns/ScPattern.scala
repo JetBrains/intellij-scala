@@ -29,8 +29,6 @@ import extensions.toPsiClassExt
  */
 
 trait ScPattern extends ScalaPsiElement {
-  this: PsiNamedElement =>
-  
   def isIrrefutableFor(t: Option[ScType]): Boolean = false
 
   def getType(ctx: TypingContext): TypeResult[ScType] = Failure("Cannot type pattern", Some(this))
