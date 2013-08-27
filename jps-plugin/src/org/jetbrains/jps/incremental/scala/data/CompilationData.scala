@@ -27,7 +27,6 @@ case class CompilationData(sources: Seq[File],
                            outputToCacheMap: Map[File, File])
 
 object CompilationData {
-
   def from(sources: Seq[File], context: CompileContext, chunk: ModuleChunk): Either[String, CompilationData] = {
     val target = chunk.representativeTarget
     val module = target.getModule
@@ -69,7 +68,6 @@ object CompilationData {
     val (config, processorOptions) = {
       val project = module.getProject
       val compilerConfig = JpsJavaExtensionService.getInstance.getOrCreateCompilerConfiguration(project)
-
       (compilerConfig.getCurrentCompilerOptions, compilerConfig.getAnnotationProcessingProfile(module).getProcessorOptions)
     }
 
