@@ -89,10 +89,9 @@ class ScalaInplaceRenamer(elementToRename: PsiNamedElement,
   }
 
   override def revertStateOnFinish() {
-    if (ScalaInplaceRenameUtil.isLocallyDefined(elementToRename)) {
-      if (myInsertedName == null || !isIdentifier(myInsertedName, elementToRename.getLanguage)) {
-        revertState()
-      }
+    if (ScalaInplaceRenameUtil.isLocallyDefined(elementToRename) &&
+            (myInsertedName == null || !isIdentifier(myInsertedName, elementToRename.getLanguage))) {
+      revertState()
     }
     else {
       super.revertStateOnFinish()
