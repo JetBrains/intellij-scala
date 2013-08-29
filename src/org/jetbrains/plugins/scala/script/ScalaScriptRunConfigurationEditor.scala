@@ -16,8 +16,6 @@ extends SettingsEditor[ScalaScriptRunConfiguration] {
 
   def resetEditorFrom(s: ScalaScriptRunConfiguration): Unit = form(s)
 
-  def disposeEditor: Unit = {}
-
   def applyEditorTo(s: ScalaScriptRunConfiguration): Unit = s(form)
 
   def createEditor: JComponent = form.getPanel

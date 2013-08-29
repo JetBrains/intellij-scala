@@ -4,7 +4,7 @@ import java.util.jar.JarFile
 import java.util.Properties
 import com.intellij.openapi.vfs.{VfsUtilCore, VfsUtil, VirtualFile}
 import com.intellij.openapi.util.io.FileUtil
-import io.Source
+import scala.io.Source
 import java.io.{StringBufferInputStream, File}
 
 /**

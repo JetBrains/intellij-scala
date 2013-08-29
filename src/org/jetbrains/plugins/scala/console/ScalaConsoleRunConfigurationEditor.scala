@@ -18,8 +18,6 @@ class ScalaConsoleRunConfigurationEditor(project: Project, configuration: ScalaC
     form(s)
   }
 
-  def disposeEditor() {}
-
   def applyEditorTo(s: ScalaConsoleRunConfiguration) {
     s(form)
   }
