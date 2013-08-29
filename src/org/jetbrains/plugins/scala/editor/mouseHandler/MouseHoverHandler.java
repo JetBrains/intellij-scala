@@ -15,26 +15,15 @@
  */
 package org.jetbrains.plugins.scala.editor.mouseHandler;
 
-import com.intellij.codeInsight.CodeInsightBundle;
-import com.intellij.codeInsight.TargetElementUtilBase;
 import com.intellij.codeInsight.documentation.DocumentationManager;
 import com.intellij.codeInsight.hint.HintManager;
 import com.intellij.codeInsight.hint.HintManagerImpl;
 import com.intellij.codeInsight.hint.HintUtil;
 import com.intellij.codeInsight.navigation.AbstractDocumentationTooltipAction;
 import com.intellij.codeInsight.navigation.DocPreviewUtil;
-import com.intellij.codeInsight.navigation.ImplementationSearcher;
 import com.intellij.codeInsight.navigation.ShowQuickDocAtPinnedWindowFromTooltipAction;
-import com.intellij.codeInsight.navigation.actions.GotoDeclarationAction;
-import com.intellij.codeInsight.navigation.actions.GotoTypeDeclarationAction;
 import com.intellij.ide.IdeTooltipManager;
-import com.intellij.ide.util.EditSourceUtil;
 import com.intellij.lang.documentation.DocumentationProvider;
-import com.intellij.navigation.ItemPresentation;
-import com.intellij.navigation.NavigationItem;
-import com.intellij.openapi.actionSystem.IdeActions;
-import com.intellij.openapi.actionSystem.MouseShortcut;
-import com.intellij.openapi.actionSystem.Shortcut;
 import com.intellij.openapi.actionSystem.impl.ActionButton;
 import com.intellij.openapi.actionSystem.impl.PresentationFactory;
 import com.intellij.openapi.application.AccessToken;
@@ -45,63 +34,44 @@ import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.EditorFactory;
 import com.intellij.openapi.editor.LogicalPosition;
-import com.intellij.openapi.editor.colors.EditorColors;
 import com.intellij.openapi.editor.colors.EditorColorsManager;
 import com.intellij.openapi.editor.event.*;
 import com.intellij.openapi.editor.ex.util.EditorUtil;
-import com.intellij.openapi.editor.markup.HighlighterLayer;
-import com.intellij.openapi.editor.markup.HighlighterTargetArea;
-import com.intellij.openapi.editor.markup.RangeHighlighter;
-import com.intellij.openapi.editor.markup.TextAttributes;
 import com.intellij.openapi.fileEditor.FileEditorManager;
-import com.intellij.openapi.fileEditor.FileEditorManagerAdapter;
-import com.intellij.openapi.fileEditor.FileEditorManagerEvent;
-import com.intellij.openapi.fileEditor.FileEditorManagerListener;
-import com.intellij.openapi.keymap.Keymap;
-import com.intellij.openapi.keymap.KeymapManager;
 import com.intellij.openapi.progress.util.ProgressIndicatorUtils;
 import com.intellij.openapi.project.DumbAwareRunnable;
 import com.intellij.openapi.project.DumbService;
 import com.intellij.openapi.project.IndexNotReadyException;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.startup.StartupManager;
-import com.intellij.openapi.util.Comparing;
 import com.intellij.openapi.util.Ref;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.openapi.util.text.StringUtil;
-import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.pom.Navigatable;
 import com.intellij.psi.*;
 import com.intellij.psi.impl.source.tree.injected.InjectedLanguageUtil;
-import com.intellij.psi.search.searches.DefinitionsSearch;
-import com.intellij.psi.util.PsiUtilCore;
 import com.intellij.ui.HintListener;
 import com.intellij.ui.LightweightHint;
 import com.intellij.ui.ScreenUtil;
 import com.intellij.ui.components.JBLayeredPane;
-import com.intellij.usageView.UsageViewShortNameLocation;
-import com.intellij.usageView.UsageViewTypeLocation;
 import com.intellij.util.Alarm;
 import com.intellij.util.Consumer;
-import com.intellij.util.Processor;
 import com.intellij.util.ui.UIUtil;
 import gnu.trove.TIntArrayList;
 import org.intellij.lang.annotations.JdkConstants;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.annotations.TestOnly;
 import org.jetbrains.plugins.scala.actions.ShowTypeInfoAction;
-import org.jetbrains.plugins.scala.actions.ShowTypeInfoAction$;
 import org.jetbrains.plugins.scala.compiler.ScalaApplicationSettings;
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile;
 import scala.Option;
-import scala.Some;
 
 import javax.swing.*;
 import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkListener;
 import java.awt.*;
-import java.awt.event.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EventObject;
@@ -111,72 +81,17 @@ import java.util.List;
 public class MouseHoverHandler extends AbstractProjectComponent {
 
   private static final AbstractDocumentationTooltipAction[] ourTooltipActions = {new ShowQuickDocAtPinnedWindowFromTooltipAction()};
-
-  private       HighlightersSet myHighlighter;
-  @JdkConstants.InputEventMask private int             myStoredModifiers = 0;
   private                              TooltipProvider myTooltipProvider = null;
-  private final     FileEditorManager    myFileEditorManager;
   private final     DocumentationManager myDocumentationManager;
   @Nullable private Point                myPrevMouseLocation;
   private LightweightHint myHint;
 
   private enum BrowseMode {None, Hover}
 
-  private final KeyListener myEditorKeyListener = new KeyAdapter() {
-    @Override
-    public void keyPressed(final KeyEvent e) {
-      handleKey(e);
-    }
-
-    @Override
-    public void keyReleased(final KeyEvent e) {
-      handleKey(e);
-    }
-
-    private void handleKey(final KeyEvent e) {
-      int modifiers = e.getModifiers();
-      if (modifiers == myStoredModifiers) {
-        return;
-      }
-
-      BrowseMode browseMode = getBrowseMode(modifiers);
-
-      if (browseMode != BrowseMode.None && ScalaApplicationSettings.getInstance().SHOW_TYPE_TOOLTIP_ON_MOUSE_HOVER) {
-        if (myTooltipProvider != null) {
-          if (browseMode != myTooltipProvider.getBrowseMode()) {
-            disposeHighlighter();
-          }
-          myStoredModifiers = modifiers;
-          myTooltipProvider.execute(browseMode);
-        }
-      }
-      else {
-        disposeHighlighter();
-        myTooltipProvider = null;
-      }
-    }
-  };
-
-  private final FileEditorManagerListener myFileEditorManagerListener = new FileEditorManagerAdapter() {
-    @Override
-    public void selectionChanged(FileEditorManagerEvent e) {
-      disposeHighlighter();
-      myTooltipProvider = null;
-    }
-  };
-
-  private final VisibleAreaListener myVisibleAreaListener = new VisibleAreaListener() {
-    @Override
-    public void visibleAreaChanged(VisibleAreaEvent e) {
-      disposeHighlighter();
-      myTooltipProvider = null;
-    }
-  };
-
   private final EditorMouseAdapter myEditorMouseAdapter = new EditorMouseAdapter() {
     @Override
     public void mouseReleased(EditorMouseEvent e) {
-      disposeHighlighter();
+      myTooltipAlarm.cancelAllRequests();
       myTooltipProvider = null;
     }
   };
@@ -184,6 +99,11 @@ public class MouseHoverHandler extends AbstractProjectComponent {
   private final EditorMouseMotionListener myEditorMouseMotionListener = new EditorMouseMotionAdapter() {
     @Override
     public void mouseMoved(final EditorMouseEvent e) {
+      if (myHint != null) {
+        HintManager.getInstance().hideAllHints();
+        myHint = null;
+      }
+
       if (e.isConsumed() || !myProject.isInitialized()) {
         return;
       }
@@ -206,30 +126,38 @@ public class MouseHoverHandler extends AbstractProjectComponent {
           .getEditorForInjectedLanguageNoCommit(editor, psiFile, editor.logicalPositionToOffset(editor.xyToLogicalPosition(point)));
       }
 
-      LogicalPosition pos = editor.xyToLogicalPosition(point);
+      final LogicalPosition pos = editor.xyToLogicalPosition(point);
       int offset = editor.logicalPositionToOffset(pos);
       int selStart = editor.getSelectionModel().getSelectionStart();
       int selEnd = editor.getSelectionModel().getSelectionEnd();
 
-      myStoredModifiers = mouseEvent.getModifiers();
-      BrowseMode browseMode = getBrowseMode(myStoredModifiers);
+      int myStoredModifiers = mouseEvent.getModifiers();
+      final BrowseMode browseMode = getBrowseMode(myStoredModifiers);
 
       if (myTooltipProvider != null) {
         myTooltipProvider.dispose();
       }
 
       if (browseMode == BrowseMode.None || offset >= selStart && offset < selEnd) {
-        disposeHighlighter();
+        myTooltipAlarm.cancelAllRequests();
         myTooltipProvider = null;
         return;
       }
 
-      myTooltipProvider = new TooltipProvider(editor, pos);
-      myTooltipProvider.execute(browseMode);
+      myTooltipAlarm.cancelAllRequests();
+      final Editor finalEditor = editor;
+      myTooltipAlarm.addRequest(new Runnable() {
+        @Override
+        public void run() {
+          myTooltipProvider = new TooltipProvider(finalEditor, pos);
+          myTooltipProvider.execute(browseMode);
+        }
+      }, ScalaApplicationSettings.getInstance().SHOW_TYPE_TOOLTIP_DELAY);
     }
   };
 
   @NotNull private final Alarm myDocAlarm;
+  @NotNull private final Alarm myTooltipAlarm;
 
   public MouseHoverHandler(final Project project, StartupManager startupManager, EditorColorsManager colorsManager,
                            FileEditorManager fileEditorManager, @NotNull DocumentationManager documentationManager,
@@ -251,9 +179,9 @@ public class MouseHoverHandler extends AbstractProjectComponent {
         }, project);
       }
     });
-    myFileEditorManager = fileEditorManager;
     myDocumentationManager = documentationManager;
     myDocAlarm = new Alarm(Alarm.ThreadToUse.POOLED_THREAD, myProject);
+    myTooltipAlarm = new Alarm(Alarm.ThreadToUse.SWING_THREAD, myProject);
   }
 
   @Override
@@ -287,69 +215,9 @@ public class MouseHoverHandler extends AbstractProjectComponent {
     return BrowseMode.None;
   }
 
-  private static boolean matchMouseShortcut(final Keymap activeKeymap, @JdkConstants.InputEventMask int modifiers, final String actionId) {
-    final MouseShortcut syntheticShortcut = new MouseShortcut(MouseEvent.BUTTON1, modifiers, 1);
-    for (Shortcut shortcut : activeKeymap.getShortcuts(actionId)) {
-      if (shortcut instanceof MouseShortcut) {
-        final MouseShortcut mouseShortcut = (MouseShortcut)shortcut;
-        if (mouseShortcut.getModifiers() == syntheticShortcut.getModifiers()) {
-          return true;
-        }
-      }
-    }
-    return false;
-  }
-
   @NotNull
   private static DocInfo generateInfo(PsiElement atPointer, String result) {
     return result == null ? DocInfo.EMPTY : new DocInfo(result, null, null);
-  }
-
-  @Nullable
-  private static String doGenerateInfo(@NotNull PsiElement element,
-                                       @NotNull PsiElement atPointer,
-                                       @NotNull DocumentationProvider documentationProvider)
-  {
-    String info = documentationProvider.getQuickNavigateInfo(element, atPointer);
-    if (info != null) {
-      return info;
-    }
-
-    if (element instanceof PsiFile) {
-      final VirtualFile virtualFile = ((PsiFile)element).getVirtualFile();
-      if (virtualFile != null) {
-        return virtualFile.getPresentableUrl();
-      }
-    }
-
-    info = getQuickNavigateInfo(element);
-    if (info != null) {
-      return info;
-    }
-
-    if (element instanceof NavigationItem) {
-      final ItemPresentation presentation = ((NavigationItem)element).getPresentation();
-      if (presentation != null) {
-        return presentation.getPresentableText();
-      }
-    }
-
-    return null;
-  }
-
-  @Nullable
-  private static String getQuickNavigateInfo(PsiElement element) {
-    final String name = ElementDescriptionUtil.getElementDescription(element, UsageViewShortNameLocation.INSTANCE);
-    if (StringUtil.isEmpty(name)) return null;
-    final String typeName = ElementDescriptionUtil.getElementDescription(element, UsageViewTypeLocation.INSTANCE);
-    final PsiFile file = element.getContainingFile();
-    final StringBuilder sb = new StringBuilder();
-    if (StringUtil.isNotEmpty(typeName)) sb.append(typeName).append(" ");
-    sb.append("\"").append(name).append("\"");
-    if (file != null && file.isPhysical()) {
-      sb.append(" [").append(file.getName()).append("]");
-    }
-    return sb.toString();
   }
 
   private abstract static class Info {
@@ -364,10 +232,6 @@ public class MouseHoverHandler extends AbstractProjectComponent {
     public Info(@NotNull PsiElement elementAtPointer) {
       this(elementAtPointer, Collections.singletonList(new TextRange(elementAtPointer.getTextOffset(),
                                                                      elementAtPointer.getTextOffset() + elementAtPointer.getTextLength())));
-    }
-
-    boolean isSimilarTo(final Info that) {
-      return Comparing.equal(myElementAtPointer, that.myElementAtPointer) && myRanges.equals(that.myRanges);
     }
 
     public List<TextRange> getRanges() {
@@ -433,33 +297,6 @@ public class MouseHoverHandler extends AbstractProjectComponent {
     }
   }
 
-  private static class InfoMultiple extends Info {
-
-    public InfoMultiple(@NotNull final PsiElement elementAtPointer) {
-      super(elementAtPointer);
-    }
-
-    public InfoMultiple(@NotNull final PsiElement elementAtPointer, @NotNull PsiReference ref) {
-      super(elementAtPointer, ReferenceRange.getAbsoluteRanges(ref));
-    }
-
-    @Override
-    @NotNull
-    public DocInfo getInfo() {
-      return new DocInfo(CodeInsightBundle.message("multiple.implementations.tooltip"), null, null);
-    }
-
-    @Override
-    public boolean isValid(Document document) {
-      return rangesAreCorrect(document);
-    }
-
-    @Override
-    public void showDocInfo(@NotNull DocumentationManager docManager) {
-      // Do nothing
-    }
-  }
-
   @Nullable
   private Info getInfoAt(final Editor editor, PsiFile file, int offset, BrowseMode browseMode) {
     if (browseMode == BrowseMode.Hover) {
@@ -477,31 +314,6 @@ public class MouseHoverHandler extends AbstractProjectComponent {
     }
 
     return null;
-  }
-
-  private static List<PsiElement> resolve(final PsiReference ref) {
-    // IDEA-56727 try resolve first as in GotoDeclarationAction
-    PsiElement resolvedElement = ref.resolve();
-
-    if (resolvedElement == null && ref instanceof PsiPolyVariantReference) {
-      List<PsiElement> result = new ArrayList<PsiElement>();
-      final ResolveResult[] psiElements = ((PsiPolyVariantReference)ref).multiResolve(false);
-      for (ResolveResult resolveResult : psiElements) {
-        if (resolveResult.getElement() != null) {
-          result.add(resolveResult.getElement());
-        }
-      }
-      return result;
-    }
-    return resolvedElement == null ? Collections.<PsiElement>emptyList() : Collections.singletonList(resolvedElement);
-  }
-
-  private void disposeHighlighter() {
-    if (myHighlighter != null) {
-      myHighlighter.uninstall();
-      HintManager.getInstance().hideAllHints();
-      myHighlighter = null;
-    }
   }
 
   private void fulfillDocInfo(@NotNull final String header,
@@ -655,10 +467,6 @@ public class MouseHoverHandler extends AbstractProjectComponent {
       myDisposed = true;
     }
 
-    public BrowseMode getBrowseMode() {
-      return myBrowseMode;
-    }
-
     public void execute(BrowseMode browseMode) {
       myBrowseMode = browseMode;
 
@@ -713,23 +521,11 @@ public class MouseHoverHandler extends AbstractProjectComponent {
     private void showHint(Info info) {
       if (myDisposed || myEditor.isDisposed()) return;
       Component internalComponent = myEditor.getContentComponent();
-      if (myHighlighter != null) {
-        if (!info.isSimilarTo(myHighlighter.getStoredInfo())) {
-          disposeHighlighter();
-        }
-        else {
-          // highlighter already set
-          internalComponent.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-          return;
-        }
-      }
 
       if (!info.isValid(myEditor.getDocument())) {
         return;
       }
       
-      myHighlighter = installHighlighterSet(info, myEditor);
-
       DocInfo docInfo = info.getInfo();
 
       if (docInfo.text == null) return;
@@ -797,63 +593,13 @@ public class MouseHoverHandler extends AbstractProjectComponent {
     public void showHint(LightweightHint hint) {
       final HintManagerImpl hintManager = HintManagerImpl.getInstanceImpl();
       Point p = HintManagerImpl.getHintPosition(hint, myEditor, myPosition, HintManager.ABOVE);
+
       hintManager.showEditorHint(hint, myEditor, p,
                                  HintManager.HIDE_BY_ANY_KEY | HintManager.HIDE_BY_TEXT_CHANGE | HintManager.HIDE_BY_SCROLLING,
                                  0, false, HintManagerImpl.createHintHint(myEditor, p,  hint, HintManager.ABOVE).setContentActive(false));
     }
   }
-  
-  private HighlightersSet installHighlighterSet(Info info, Editor editor) {
-    final JComponent internalComponent = editor.getContentComponent();
-    internalComponent.addKeyListener(myEditorKeyListener);
-    editor.getScrollingModel().addVisibleAreaListener(myVisibleAreaListener);
-    final Cursor cursor = internalComponent.getCursor();
-    internalComponent.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-    myFileEditorManager.addFileEditorManagerListener(myFileEditorManagerListener);
 
-    List<RangeHighlighter> highlighters = new ArrayList<RangeHighlighter>();
-    TextAttributes attributes = EditorColorsManager.getInstance().getGlobalScheme().getAttributes(EditorColors.REFERENCE_HYPERLINK_COLOR);
-    for (TextRange range : info.getRanges()) {
-      final RangeHighlighter highlighter = editor.getMarkupModel().addRangeHighlighter(range.getStartOffset(), range.getEndOffset(),
-                                                                                       HighlighterLayer.SELECTION + 1,
-                                                                                       attributes,
-                                                                                       HighlighterTargetArea.EXACT_RANGE);
-      highlighters.add(highlighter);
-    }
-
-    return new HighlightersSet(highlighters, editor, cursor, info);
-  }
-
-  private class HighlightersSet {
-    private final List<RangeHighlighter> myHighlighters;
-    private final Editor myHighlighterView;
-    private final Cursor myStoredCursor;
-    private final Info myStoredInfo;
-
-    private HighlightersSet(List<RangeHighlighter> highlighters, Editor highlighterView, Cursor storedCursor, Info storedInfo) {
-      myHighlighters = highlighters;
-      myHighlighterView = highlighterView;
-      myStoredCursor = storedCursor;
-      myStoredInfo = storedInfo;
-    }
-
-    public void uninstall() {
-      for (RangeHighlighter highlighter : myHighlighters) {
-        highlighter.dispose();
-      }
-
-      Component internalComponent = myHighlighterView.getContentComponent();
-      internalComponent.setCursor(myStoredCursor);
-      internalComponent.removeKeyListener(myEditorKeyListener);
-      myHighlighterView.getScrollingModel().removeVisibleAreaListener(myVisibleAreaListener);
-      myFileEditorManager.removeFileEditorManagerListener(myFileEditorManagerListener);
-    }
-
-    public Info getStoredInfo() {
-      return myStoredInfo;
-    }
-  }
-  
   private static class DocInfo {
 
     public static final DocInfo EMPTY = new DocInfo(null, null, null);
