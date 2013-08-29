@@ -6,7 +6,6 @@ import com.intellij.psi.search.searches.ReferencesSearch
 import com.intellij.util.{Processor, QueryExecutor}
 import com.intellij.psi._
 import lang.psi.api.statements.ScFunctionDefinition
-import org.jetbrains.plugins.scala.util.ScalaUtil
 import com.intellij.psi.search.{TextOccurenceProcessor, PsiSearchHelper, UsageSearchContext}
 import extensions.{inReadAction, Parent}
 import lang.psi.api.expr.ScAssignStmt
@@ -15,7 +14,7 @@ import lang.resolve.ResolvableReferenceElement
 
 class SetterMethodSearcher extends QueryExecutor[PsiReference, ReferencesSearch.SearchParameters] {
   def execute(queryParameters: ReferencesSearch.SearchParameters, consumer: Processor[PsiReference]): Boolean = {
-    val scope = queryParameters.getScope
+    val scope = queryParameters.getEffectiveSearchScope
     val element = queryParameters.getElementToSearch
     val SetterSuffix = "_="
     inReadAction {
