@@ -161,8 +161,8 @@ class ScalaResolveResult(val element: PsiNamedElement,
             if (clazz == null) return OTHER_MEMBERS
             else {
               clazz.qualifiedName match {
-                case "scala.Predef" => return SCALA
-                case "scala.LowPriorityImplicits" => return SCALA
+                case "scala.Predef" => return SCALA_PREDEF
+                case "scala.LowPriorityImplicits" => return SCALA_PREDEF
                 case "scala" => return SCALA
                 case _ => OTHER_MEMBERS
               }

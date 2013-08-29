@@ -58,7 +58,7 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
   
   def checkWildcardImports(): Boolean = precedence <= WILDCARD_IMPORT
 
-  def checkPredefinedClassesAndPackages(): Boolean = precedence <= SCALA
+  def checkPredefinedClassesAndPackages(): Boolean = precedence <= SCALA_PREDEF
 
   protected def getQualifiedName(result: ScalaResolveResult): String = {
     def defaultForTypeAlias(t: ScTypeAlias): String = {
