@@ -18,7 +18,7 @@ import com.intellij.openapi.project.IndexNotReadyException
 
 class ObjectTraitReferenceSearcher extends QueryExecutor[PsiReference, ReferencesSearch.SearchParameters] {
   def execute(queryParameters: ReferencesSearch.SearchParameters, consumer: Processor[PsiReference]): Boolean = {
-    val scope = queryParameters.getScope
+    val scope = queryParameters.getEffectiveSearchScope
     val element = queryParameters.getElementToSearch
     ApplicationManager.getApplication.runReadAction(new Computable[Boolean] {
       def compute: Boolean = {
