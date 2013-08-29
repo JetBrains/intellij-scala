@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.util.ScalaUtil
 
 class UnapplyMethodSearcher extends QueryExecutor[PsiReference, ReferencesSearch.SearchParameters] {
   def execute(queryParameters: ReferencesSearch.SearchParameters, consumer: Processor[PsiReference]): Boolean = {
-    val scope = queryParameters.getScope
+    val scope = queryParameters.getEffectiveSearchScope
     val element = queryParameters.getElementToSearch
     val ignoreAccess = queryParameters.isIgnoreAccessScope
     ScalaUtil.readAction(element.getProject) {
