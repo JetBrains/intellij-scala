@@ -11,7 +11,6 @@ import com.intellij.psi.search.{PsiSearchHelper, UsageSearchContext, TextOccuren
 import com.intellij.psi.{PsiReferenceExpression, PsiElement, PsiReference}
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.util.Computable
-import com.intellij.openapi.util.text.StringUtil
 import org.jetbrains.plugins.scala.lang.psi.light.{StaticPsiTypedDefinitionWrapper, PsiTypedDefinitionWrapper}
 
 /**
@@ -21,7 +20,7 @@ import org.jetbrains.plugins.scala.lang.psi.light.{StaticPsiTypedDefinitionWrapp
 
 class JavaValsUsagesSearcher extends QueryExecutor[PsiReference, ReferencesSearch.SearchParameters] {
   def execute(queryParameters: ReferencesSearch.SearchParameters, consumer: Processor[PsiReference]): Boolean = {
-    val scope = queryParameters.getScope
+    val scope = queryParameters.getEffectiveSearchScope
     val element = queryParameters.getElementToSearch
     ApplicationManager.getApplication.runReadAction(new Computable[Boolean] {
       def compute: Boolean = {
