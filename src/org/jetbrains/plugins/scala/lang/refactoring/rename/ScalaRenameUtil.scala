@@ -1,15 +1,18 @@
 package org.jetbrains.plugins.scala
 package lang.refactoring.rename
 
-import com.intellij.psi.{PsiElement, PsiReference}
+import com.intellij.psi.{PsiNamedElement, PsiElement, PsiReference}
 import lang.resolve.ResolvableReferenceElement
 import collection.JavaConverters.{asJavaCollectionConverter, iterableAsScalaIterableConverter}
 import java.util
-import lang.psi.api.base.ScStableCodeReferenceElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScPrimaryConstructor, ScStableCodeReferenceElement}
 import lang.psi.api.toplevel.typedef.ScTypeDefinition
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.util.PsiTreeUtil
 import lang.psi.api.toplevel.imports.ScImportStmt
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 
 object ScalaRenameUtil {
   def filterAliasedReferences(allReferences: util.Collection[PsiReference]): util.Collection[PsiReference] = {
@@ -58,4 +61,16 @@ object ScalaRenameUtil {
     }.asJavaCollection
   }
 
+  def findSubstituteElement(elementToRename: PsiElement): PsiNamedElement = {
+    elementToRename match {
+      case primConstr: ScPrimaryConstructor => primConstr.containingClass
+      case fun: ScFunction if fun.isConstructor => fun.containingClass
+      case fun: ScFunction if Seq("apply", "unapply", "unapplySeq") contains fun.name =>
+        fun.containingClass match {
+          case newTempl: ScNewTemplateDefinition => ScalaPsiUtil.findInstanceBinding(newTempl).getOrElse(null)
+          case clazz => clazz
+        }
+      case _ => null
+    }
+  }
 }
