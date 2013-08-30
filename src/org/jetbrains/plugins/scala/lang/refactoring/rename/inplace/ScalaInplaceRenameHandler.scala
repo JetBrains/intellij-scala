@@ -15,6 +15,9 @@ import com.intellij.psi.util.PsiUtilBase
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import com.intellij.openapi.project.Project
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
+import org.jetbrains.plugins.scala.lang.refactoring.rename.ScalaRenameUtil
+import com.intellij.openapi.fileEditor.FileDocumentManager
 
 /**
  * Nikolay.Tropin
@@ -52,6 +55,7 @@ class ScalaInplaceRenameHandler extends MemberInplaceRenameHandler{
         case _: ScObject => "object"
         case _: ScClass => "class"
         case _: ScTrait => "trait"
+        case _: ScNewTemplateDefinition => "instance"
       }
       val title = ScalaBundle.message("rename.special.method.title")
       val renameClass = ScalaBundle.message("rename.special.method.rename.class", clazzType)
@@ -66,11 +70,13 @@ class ScalaInplaceRenameHandler extends MemberInplaceRenameHandler{
         def run(): Unit = {
           list.getSelectedValue match {
             case s: String if s == renameClass =>
-              if (clazz.getContainingFile == elementToRename.getContainingFile) {
-                editor.getCaretModel.moveToOffset(clazz.getTextOffset)
-                doRename(clazz, editor, dataContext)
+              val subst = ScalaRenameUtil.findSubstituteElement(elementToRename)
+              val file = subst.getContainingFile.getVirtualFile
+              if (FileDocumentManager.getInstance.getDocument(file) == editor.getDocument) {
+                editor.getCaretModel.moveToOffset(subst.getTextOffset)
+                doRename(subst, editor, dataContext)
               } else {
-                doDialogRename(clazz, editor.getProject, null, editor)
+                doDialogRename(subst, editor.getProject, null, editor)
               }
             case s: String if s == cancel =>
           }
