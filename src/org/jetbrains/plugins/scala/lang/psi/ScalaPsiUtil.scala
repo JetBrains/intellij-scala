@@ -20,9 +20,8 @@ import implicits.ScImplicitlyConvertible
 import com.intellij.openapi.progress.ProgressManager
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import api.expr.xml.ScXmlExpr
-
 import com.intellij.openapi.project.Project
-import _root_.org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types._
 import api.statements._
 import com.intellij.psi._
 import codeStyle.CodeStyleSettingsManager
@@ -41,20 +40,26 @@ import com.intellij.openapi.roots.{ProjectRootManager, ProjectFileIndex}
 import lang.resolve.processor._
 import lang.resolve.{ResolveUtils, ScalaResolveResult}
 import com.intellij.psi.impl.light.LightModifierList
-import collection.immutable.Stream
+import scala.collection.immutable.Stream
 import com.intellij.psi.impl.source.PsiFileImpl
 import com.intellij.psi.stubs.StubElement
 import com.intellij.openapi.module.{ModuleUtilCore, Module}
 import config.ScalaFacet
-import reflect.NameTransformer
+import scala.reflect.NameTransformer
 import caches.CachesUtil
 import extensions._
-import collection.mutable.{ListBuffer, ArrayBuffer}
+import scala.collection.mutable.{ListBuffer, ArrayBuffer}
 import com.intellij.psi.impl.compiled.ClsFileImpl
 import scala.collection.{mutable, Set, Seq}
 import org.apache.log4j.Level
 import com.intellij.openapi.diagnostic
 import scala.util.control.ControlThrowable
+import scala.annotation.tailrec
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import com.intellij.psi.tree.TokenSet
+import com.intellij.lang.java.JavaLanguage
+import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
+import com.intellij.openapi.util.TextRange
 import scala.Some
 import org.jetbrains.plugins.scala.lang.psi.types.ScUndefinedType
 import org.jetbrains.plugins.scala.lang.psi.types.ScCompoundType
@@ -73,12 +78,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.JavaArrayType
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScMethodType
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.TypeParameter
 import org.jetbrains.plugins.scala.lang.psi.types.ScProjectionType
-import scala.annotation.tailrec
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import com.intellij.psi.tree.TokenSet
-import com.intellij.lang.java.JavaLanguage
-import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
-import com.intellij.openapi.util.TextRange
 
 /**
  * User: Alexander Podkhalyuzin
@@ -1999,4 +1998,26 @@ object ScalaPsiUtil {
         }
       }
   }
+
+  def findInstanceBinding(instance: ScExpression): Option[ScBindingPattern] = {
+    instance match {
+      case _: ScNewTemplateDefinition =>
+      case ref: ScReferenceExpression if ref.resolve().isInstanceOf[ScObject] =>
+      case _ => return None
+    }
+    val nameContext = PsiTreeUtil.getParentOfType(instance, classOf[ScVariableDefinition], classOf[ScPatternDefinition])
+    val (bindings, expr) = nameContext match {
+      case vd: ScVariableDefinition => (vd.bindings, vd.expr)
+      case td: ScPatternDefinition => (td.bindings, td.expr)
+      case _ => (Seq.empty[ScBindingPattern], None)
+    }
+    if (bindings.size == 1 && expr.exists(_ == instance)) Option(bindings(0))
+    else {
+      for (bind <- bindings) {
+        if (bind.getType(TypingContext.empty).toOption == instance.getType(TypingContext.empty).toOption) return Option(bind)
+      }
+      None
+    }
+  }
+
 }
