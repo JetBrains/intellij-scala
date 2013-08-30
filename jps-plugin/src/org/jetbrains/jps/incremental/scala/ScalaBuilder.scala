@@ -139,14 +139,20 @@ object ScalaBuilder {
   // Cached local localServer
   private var cachedServer: Option[Server] = None
 
+  private val lock = new Object()
+
   private def localServer = {
-    val server = cachedServer.getOrElse(new LocalServer())
-    cachedServer = Some(server)
-    server
+    lock.synchronized {
+      val server = cachedServer.getOrElse(new LocalServer())
+      cachedServer = Some(server)
+      server
+    }
   }
 
   private def cleanLocalServerCache() {
-    cachedServer = None
+    lock.synchronized {
+      cachedServer = None
+    }
   }
 
   private lazy val sbtData = {

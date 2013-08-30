@@ -22,12 +22,8 @@ class LocalServer extends Server {
     }
 
     if (!client.isCanceled) {
-      client.progress("Waiting for a free compiler...")
-
-      compiler.synchronized {
-        client.progress("Searching for changed files...")
-        compiler.compile(compilationData, client)
-      }
+      client.progress("Searching for changed files...")
+      compiler.compile(compilationData, client)
     }
 
     ExitCode.OK
