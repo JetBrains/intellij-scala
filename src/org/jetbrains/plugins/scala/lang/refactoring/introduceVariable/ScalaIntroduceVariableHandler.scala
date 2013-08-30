@@ -170,13 +170,17 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Confli
         case _ =>
       }
     }
-    def replaceRangeByElement(range: TextRange, element: PsiElement): PsiElement = {
+    def replaceRangeByDeclaration(range: TextRange, element: PsiElement): PsiElement = {
       val (start, end) = (range.getStartOffset, range.getEndOffset)
       val text: String = element.getText
-      editor.getDocument.replaceString(start, end, text)
+      val document = editor.getDocument
+      document.replaceString(start, end, text)
+      PsiDocumentManager.getInstance(element.getProject).commitDocument(document)
       val newEnd = start + text.length
       editor.getCaretModel.moveToOffset(newEnd)
-      PsiTreeUtil.findElementOfClassAtRange(file, start, newEnd, classOf[PsiElement])
+      val decl = PsiTreeUtil.findElementOfClassAtRange(file, start, newEnd, classOf[ScMember])
+      lazy val enum = PsiTreeUtil.findElementOfClassAtRange(file, start, newEnd, classOf[ScEnumerator])
+      Option(decl).getOrElse(enum)
     }
 
     val revertInfo = RevertInfo(file.getText, editor.getCaretModel.getOffset)
@@ -241,7 +245,7 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Confli
       createdDeclaration = ScalaPsiElementFactory.createDeclaration(varName, typeName, isVariable,
         ScalaRefactoringUtil.unparExpr(expression), file.getManager)
       if (fastDefinition) {
-        replaceRangeByElement(replacedOccurences(0), createdDeclaration)
+        createdDeclaration = replaceRangeByDeclaration(replacedOccurences(0), createdDeclaration)
       }
       else {
         val container: PsiElement = ScalaRefactoringUtil.container(parExpr, file, occCount == 1)
