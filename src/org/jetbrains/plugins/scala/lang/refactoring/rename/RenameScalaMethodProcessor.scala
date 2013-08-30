@@ -12,7 +12,7 @@ import com.intellij.refactoring.rename.RenameJavaMethodProcessor
 import java.awt.{GridLayout, BorderLayout}
 
 import javax.swing._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
+import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import psi.impl.search.ScalaOverridengMemberSearch
 import psi.api.base.ScPrimaryConstructor
 import collection.mutable.ArrayBuffer
@@ -24,6 +24,7 @@ import com.intellij.openapi.util.Pass
 import com.intellij.ide.util.SuperMethodWarningUtil
 import com.intellij.psi.search.PsiElementProcessor
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
+import scala.Some
 
 /**
  * User: Alexander Podkhalyuzin
@@ -77,21 +78,13 @@ class RenameScalaMethodProcessor extends RenameJavaMethodProcessor {
     ScalaElementToRenameContributor.getAll(element, newName, allRenames)
   }
 
-  private def substituteElementGuess(element: PsiElement) = element match {
-    case primConstr: ScPrimaryConstructor => primConstr.containingClass
-    case fun: ScFunction if fun.isConstructor => fun.containingClass
-    case fun: ScFunction if Seq("apply", "unapply", "unapplySeq") contains fun.name => fun.containingClass
-    case fun: ScFunction => null
-    case _ => element
-  }
-
   override def substituteElementToRename(element: PsiElement, editor: Editor): PsiElement = {
-    val guess = substituteElementGuess(element)
+    val guess = ScalaRenameUtil.findSubstituteElement(element)
     if (guess != null) guess else SuperMethodWarningUtil.checkSuperMethod(element.asInstanceOf[PsiMethod] , "Rename")
   }
 
   override def substituteElementToRename(element: PsiElement, editor: Editor, renameCallback: Pass[PsiElement]) {
-    val guess = substituteElementGuess(element)
+    val guess = ScalaRenameUtil.findSubstituteElement(element)
     if (guess != null) renameCallback.pass(guess)
     else SuperMethodWarningUtil.checkSuperMethod(element.asInstanceOf[PsiMethod], "Rename", new PsiElementProcessor[PsiMethod] {
       def execute(method: PsiMethod): Boolean = {
