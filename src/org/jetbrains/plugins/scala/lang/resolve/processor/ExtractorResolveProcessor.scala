@@ -10,10 +10,10 @@ import psi.types._
 
 import result.{Success, TypingContext}
 import scala._
-import collection.mutable.HashSet
-import collection.Set
+import scala.collection.{mutable, Set}
 import psi.api.toplevel.typedef.ScObject
 import psi.api.toplevel.ScTypedDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 
 class ExtractorResolveProcessor(ref: ScReferenceElement,
                                 refName: String,
@@ -41,8 +41,14 @@ class ExtractorResolveProcessor(ref: ScReferenceElement,
           }.toSeq
           addResults(sigs.map {
             case (m, subst, parent) =>
-              new ScalaResolveResult(m, getSubst(state).followed(subst), getImports(state),
+              val resolveToMethod = new ScalaResolveResult(m, getSubst(state).followed(subst), getImports(state),
                 fromType = getFromType(state), parentElement = parent, isAccessible = accessible)
+              val resolveToNamed = new ScalaResolveResult(named, getSubst(state).followed(subst), getImports(state),
+                fromType = getFromType(state), parentElement = parent, isAccessible = accessible)
+              named match {
+                case bind: ScBindingPattern => resolveToNamed.copy(innerResolveResult = Option(resolveToMethod))
+                case _ => resolveToMethod.copy(innerResolveResult = Option(resolveToNamed))
+              }
           })
         }
         resultsFor("unapply")
@@ -71,20 +77,20 @@ class ExtractorResolveProcessor(ref: ScReferenceElement,
                 for (paramType <- clauses(0).parameters.apply(0).getType(TypingContext.empty)
                      if tp conforms r.substitutor.subst(paramType)) return true
               }
-              return false
-            case _ => return true
+              false
+            case _ => true
           }
         }
         val filtered = candidates.filter(t => isApplicable(t))
-        if (filtered.size == 0) return candidates
-        else if (filtered.size == 1) return filtered
+        if (filtered.size == 0) candidates
+        else if (filtered.size == 1) filtered
         else {
           new MostSpecificUtil(ref, 1).mostSpecificForResolveResult(filtered) match {
-            case Some(r) => return HashSet(r)
-            case None => return candidates
+            case Some(r) => mutable.HashSet(r)
+            case None => candidates
           }
         }
-      case _ => return candidates
+      case _ => candidates
     }
   }
 }
