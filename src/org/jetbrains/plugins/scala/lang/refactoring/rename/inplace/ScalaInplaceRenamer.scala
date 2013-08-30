@@ -73,7 +73,7 @@ class ScalaInplaceRenamer(elementToRename: PsiNamedElement,
         }
       case _ => Set.empty
     }
-    (refs ++ companionRefs).asJavaCollection
+    new util.ArrayList((refs ++ companionRefs).asJavaCollection)
   }
 
   private def collectRefsForElement(element: PsiNamedElement): Set[PsiReference] = {
