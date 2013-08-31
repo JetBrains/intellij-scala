@@ -10,9 +10,10 @@ import api.statements.params.ScTypeParam
 import com.intellij.psi.PsiElement
 import com.intellij.psi.stubs.{IStubElementType, StubElement}
 import com.intellij.util.io.StringRef
-import com.intellij.util.PatchedSoftReference
 import java.lang.String
 import psi.impl.ScalaPsiElementFactory
+import com.intellij.reference.SoftReference
+
 /**
  * User: Alexander Podkhalyuzin
  * Date: 17.06.2009
@@ -26,10 +27,10 @@ class ScTypeParamStubImpl[ParentPsi <: PsiElement](parent: StubElement[ParentPsi
   private var lowerText: StringRef = _
   private var viewText: Array[StringRef] = _
   private var contextBoundText: Array[StringRef] = _
-  private var upperElement: PatchedSoftReference[Option[ScTypeElement]] = null
-  private var lowerElement: PatchedSoftReference[Option[ScTypeElement]] = null
-  private var viewElement: Array[PatchedSoftReference[ScTypeElement]] = null
-  private var contextBoundElement: Array[PatchedSoftReference[ScTypeElement]] = null
+  private var upperElement: SoftReference[Option[ScTypeElement]] = null
+  private var lowerElement: SoftReference[Option[ScTypeElement]] = null
+  private var viewElement: Array[SoftReference[ScTypeElement]] = null
+  private var contextBoundElement: Array[SoftReference[ScTypeElement]] = null
   private var covariant: Boolean = _
   private var contravariant: Boolean = _
   private var positionInFile: Int = _
@@ -46,8 +47,8 @@ class ScTypeParamStubImpl[ParentPsi <: PsiElement](parent: StubElement[ParentPsi
     this.name = StringRef.fromString(name)
     this.upperText = StringRef.fromString(upperText)
     this.lowerText = StringRef.fromString(lowerText)
-    this.viewText = viewText.map(StringRef.fromString(_))
-    this.contextBoundText = contextBoundText.map(StringRef.fromString(_))
+    this.viewText = viewText.map(StringRef.fromString)
+    this.contextBoundText = contextBoundText.map(StringRef.fromString)
     this.covariant = covariant
     this.contravariant = contravariant
     this.positionInFile = position
@@ -89,7 +90,7 @@ class ScTypeParamStubImpl[ParentPsi <: PsiElement](parent: StubElement[ParentPsi
         Some(ScalaPsiElementFactory.createTypeElementFromText(getLowerText, getPsi, null))
       else None
     }
-    lowerElement = new PatchedSoftReference[Option[ScTypeElement]](res)
+    lowerElement = new SoftReference[Option[ScTypeElement]](res)
     res
   }
 
@@ -100,7 +101,7 @@ class ScTypeParamStubImpl[ParentPsi <: PsiElement](parent: StubElement[ParentPsi
         Some(ScalaPsiElementFactory.createTypeElementFromText(getUpperText, getPsi, null))
       else None
     }
-    upperElement = new PatchedSoftReference[Option[ScTypeElement]](res)
+    upperElement = new SoftReference[Option[ScTypeElement]](res)
     res
   }
 
@@ -113,14 +114,14 @@ class ScTypeParamStubImpl[ParentPsi <: PsiElement](parent: StubElement[ParentPsi
   def getViewTypeElement: Array[ScTypeElement] = {
     if (viewElement != null && viewElement.forall(_.get ne null)) return viewElement.map(_.get)
     val res: Array[ScTypeElement] = getViewText.map(ScalaPsiElementFactory.createTypeElementFromText(_, getPsi, null))
-    viewElement = res.map(new PatchedSoftReference[ScTypeElement](_))
+    viewElement = res.map(new SoftReference[ScTypeElement](_))
     res
   }
 
   def getContextBoundTypeElement: Array[ScTypeElement] = {
     if (contextBoundElement != null && contextBoundElement.forall(_.get ne null)) return contextBoundElement.map(_.get)
     val res: Array[ScTypeElement] = getContextBoundText.map(ScalaPsiElementFactory.createTypeElementFromText(_, getPsi, null))
-    contextBoundElement = res.map(new PatchedSoftReference[ScTypeElement](_))
+    contextBoundElement = res.map(new SoftReference[ScTypeElement](_))
     res
   }
 

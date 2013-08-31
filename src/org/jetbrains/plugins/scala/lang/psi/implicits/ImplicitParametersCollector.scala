@@ -23,7 +23,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScExistentialClause
 import org.jetbrains.plugins.scala.lang.psi.types.Conformance.AliasType
 import com.intellij.openapi.progress.ProgressManager
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScTypedDefinition}
 
 /**
  * @param place        The call site
@@ -32,7 +32,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
  * User: Alexander Podkhalyuzin
  * Date: 23.11.2009
  */
-class ImplicitParametersCollector(place: PsiElement, tp: ScType, searchImplicitsRecursively: Int = 0) {
+class ImplicitParametersCollector(place: PsiElement, tp: ScType, coreElement: Option[ScNamedElement], searchImplicitsRecursively: Int = 0) {
   def collect: Seq[ScalaResolveResult] = {
     ProgressManager.checkCanceled()
     var processor = new ImplicitParametersProcessor(false)
@@ -48,6 +48,8 @@ class ImplicitParametersCollector(place: PsiElement, tp: ScType, searchImplicits
     }
     treeWalkUp(place, null) //collecting all references from scope
 
+    InferUtil.logInfo(searchImplicitsRecursively, "Implicit parameters search first part for type: " + tp.toString)
+
     val candidates = processor.candidatesS.toSeq
     if (!candidates.isEmpty && !candidates.forall(r => !r.problems.isEmpty)) return candidates
 
@@ -57,9 +59,13 @@ class ImplicitParametersCollector(place: PsiElement, tp: ScType, searchImplicits
       processor.processType(obj, place, ResolveState.initial())
     }
 
+    InferUtil.logInfo(searchImplicitsRecursively, "Implicit parameters search second part for type: " + tp.toString)
+
     val secondCandidates = processor.candidatesS.toSeq
-    if (secondCandidates.isEmpty) candidates
-    else secondCandidates
+    if (secondCandidates.isEmpty) {
+      InferUtil.logInfo(searchImplicitsRecursively, "Implicit parameters search second part failed for type: " + tp.toString)
+      candidates
+    } else secondCandidates
   }
 
   class ImplicitParametersProcessor(withoutPrecedence: Boolean) extends ImplicitProcessor(StdKinds.refExprLastRef, withoutPrecedence) {
@@ -148,7 +154,7 @@ class ImplicitParametersCollector(place: PsiElement, tp: ScType, searchImplicits
               case Success(funType: ScType, _) => {
                 def checkType(ret: ScType): Option[(ScalaResolveResult, ScSubstitutor)] = {
                   def compute(): Option[(ScalaResolveResult, ScSubstitutor)] = {
-
+                    InferUtil.logInfo(searchImplicitsRecursively, "Implicit parameters search, check function: " + fun.name)
                     val typeParameters = fun.typeParameters
                     val lastImplicit = fun.effectiveParameterClauses.lastOption.flatMap {
                       case clause if clause.isImplicit => Some(clause)
@@ -156,7 +162,6 @@ class ImplicitParametersCollector(place: PsiElement, tp: ScType, searchImplicits
                     }
                     if (typeParameters.isEmpty && lastImplicit.isEmpty) Some(c, subst)
                     else {
-//                      println(List.fill(searchImplicitsRecursively)("  ").mkString + fun.name)
                       val methodType = lastImplicit.map(li => subst.subst(ScMethodType(ret, li.getSmartParameters, isImplicit = true)
                         (place.getProject, place.getResolveScope))).getOrElse(ret)
                       var nonValueType: TypeResult[ScType] =
@@ -165,19 +170,25 @@ class ImplicitParametersCollector(place: PsiElement, tp: ScType, searchImplicits
                           TypeParameter(tp.name, tp.lowerBound.getOrNothing, tp.upperBound.getOrAny, tp))), Some(place))
                       try {
                         val expected = Some(tp)
+                        InferUtil.logInfo(searchImplicitsRecursively, "Implicit parameters search, function type: " + nonValueType.toString)
                         nonValueType = InferUtil.updateAccordingToExpectedType(nonValueType,
                           fromImplicitParameters = true, expected, place, check = true, checkAnyway = true)
+
+                        InferUtil.logInfo(searchImplicitsRecursively, "Implicit parameters search, function type after expected type: " + nonValueType.toString)
 
                         if (lastImplicit.isDefined &&
                           searchImplicitsRecursively < ScalaProjectSettings.getInstance(place.getProject).getImplicitParametersSearchDepth) {
                           val (resType, _) = InferUtil.updateTypeWithImplicitParameters(nonValueType.getOrElse(throw new SafeCheckException),
-                            place, check = true, searchImplicitsRecursively + 1, checkAnyway = true)
-                          Some(c.copy(implicitParameterType = Some(resType.inferValueType)), subst)
+                            place, Some(fun), check = true, searchImplicitsRecursively + 1, checkAnyway = true)
+                          val valueType: ValueType = resType.inferValueType
+                          InferUtil.logInfo(searchImplicitsRecursively, "Implicit parameters search, function type after additional implicit search: " + valueType.toString)
+                          Some(c.copy(implicitParameterType = Some(valueType)), subst)
                         } else {
                           Some(c.copy(implicitParameterType = Some(nonValueType.getOrElse(throw new SafeCheckException).inferValueType)), subst)
                         }
                       } catch {
                         case e: SafeCheckException =>
+                          InferUtil.logInfo(searchImplicitsRecursively, "Implicit parameters search, problem detected for function: " + fun.name)
                           return Some(c.copy(problems = Seq(WrongTypeParameterInferred)), subst)
                       }
                     }
@@ -185,7 +196,7 @@ class ImplicitParametersCollector(place: PsiElement, tp: ScType, searchImplicits
                   import org.jetbrains.plugins.scala.caches.ScalaRecursionManager._
 
                   val coreTypeForTp = coreType(tp)
-                  doComputations(place, (tp: Object, searches: Seq[Object]) => {
+                  doComputations(coreElement.getOrElse(place), (tp: Object, searches: Seq[Object]) => {
                     searches.find{
                       case t: ScType if tp.isInstanceOf[ScType] =>
                         if (Equivalence.equivInner(t, tp.asInstanceOf[ScType], new ScUndefinedSubstitutor(), falseUndef = false)._1) true
@@ -261,13 +272,28 @@ class ImplicitParametersCollector(place: PsiElement, tp: ScType, searchImplicits
   }
 
   private def abstractsToUpper(tp: ScType): ScType = {
-    tp.recursiveUpdate {
+    val noAbstracts = tp.recursiveUpdate {
       case ScAbstractType(_, _, upper) => (true, upper)
-      case tp => (false, tp)
+      case t => (false, t)
     }
+
+    @tailrec
+    def updateAliases(tp: ScType): ScType = {
+      var updated = false
+      val res = tp.recursiveUpdate { t =>
+        t.isAliasType match {
+          case Some(AliasType(ta, _, upper)) =>
+            updated = true
+            (true, upper.getOrAny)
+          case _ => (false, t)
+        }
+      }
+      if (!updated) tp
+      else updateAliases(res)
+    }
+    updateAliases(noAbstracts)
   }
 
-  @tailrec
   private def coreType(tp: ScType): ScType = {
     tp match {
       case ScCompoundType(comps, _, _, subst) => abstractsToUpper(ScCompoundType(comps, Seq.empty, Seq.empty, subst)).removeUndefines()
@@ -282,11 +308,7 @@ class ImplicitParametersCollector(place: PsiElement, tp: ScType, searchImplicits
             case _ => (false, tp)
           }
         }), wilds)).removeUndefines()
-      case _ =>
-        tp.isAliasType match {
-          case Some(AliasType(_, lower, upper)) => coreType(upper.getOrAny)
-          case _ => abstractsToUpper(tp).removeUndefines()
-        }
+      case _ => abstractsToUpper(tp).removeUndefines()
     }
   }
 
@@ -304,8 +326,9 @@ class ImplicitParametersCollector(place: PsiElement, tp: ScType, searchImplicits
       case ScDesignatorType(v: ScTypedDefinition) =>
         val valueType: ScType = v.getType(TypingContext.empty).getOrAny
         topLevelTypeConstructors(valueType)
-      case ScCompoundType(comps, _, _, _) => comps.flatMap(topLevelTypeConstructors(_)).toSet
-      case tp => Set(tp)
+      case ScCompoundType(comps, _, _, _) => comps.flatMap(topLevelTypeConstructors).toSet
+      case t@ScTupleType(comps) => t.resolveTupleTrait(t.getProject).map(topLevelTypeConstructors(_)).getOrElse(Set(t))
+      case _ => Set(tp)
     }
   }
 
@@ -318,6 +341,7 @@ class ImplicitParametersCollector(place: PsiElement, tp: ScType, searchImplicits
         val valueType: ScType = v.getType(TypingContext.empty).getOrAny
         1 + complexity(valueType)
       case ScCompoundType(comps, _, _, _) => comps.foldLeft(0)(_ + complexity(_))
+      case ScTupleType(comps) => 1 + comps.foldLeft(0)(_ + complexity(_))
       case _ => 1
     }
   }

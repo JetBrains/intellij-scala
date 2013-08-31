@@ -85,7 +85,7 @@ trait PrecedenceHelper[T] {
   }
 
   protected def getPrecedence(result: ScalaResolveResult): Int = {
-    if (predefObject) PrecedenceHelper.PrecedenceTypes.SCALA
+    if (predefObject) PrecedenceHelper.PrecedenceTypes.SCALA_PREDEF
     else result.getPrecedence(getPlace, placePackageName)
   }
 }
@@ -94,10 +94,10 @@ object PrecedenceHelper {
   object PrecedenceTypes {
     val JAVA_LANG = 1
     val SCALA = 2
-    val PACKAGE_LOCAL_PACKAGE = 3
-    val WILDCARD_IMPORT_PACKAGE = 4
-    val IMPORT_PACKAGE = 5
-    val PACKAGE_LOCAL = 6
+    val SCALA_PREDEF = 3
+    val PACKAGE_LOCAL_PACKAGE = 4
+    val WILDCARD_IMPORT_PACKAGE = 5
+    val IMPORT_PACKAGE = 6
     val WILDCARD_IMPORT = 7
     val IMPORT = 8
     val OTHER_MEMBERS = 9

@@ -6,7 +6,6 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
 import codeInspection.{AbstractFix, AbstractInspection}
 import lang.psi.api.expr.{ScThisReference, ScReferenceExpression, ScBlockExpr}
-import extensions._
 import lang.refactoring.util.ScalaNamesUtil
 
 /**
@@ -28,7 +27,7 @@ class RedundantBlockInspection extends AbstractInspection {
         val isRedundant =
           if (next == null) true
           else {
-            val refName: String = child.getText + (if (next.getTextLength > 0) next.getText charAt 0 else "")
+            val refName: String = child.getText + (if (next.getText.length > 0) next.getText charAt 0 else "")
             !ScalaNamesUtil.isIdentifier(refName) && !refName.exists(_ == '$') 
           }
         if (isRedundant) {

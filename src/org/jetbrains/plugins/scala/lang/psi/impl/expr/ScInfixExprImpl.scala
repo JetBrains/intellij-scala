@@ -17,7 +17,7 @@ import collection.Seq
 import result.{Success, TypeResult, TypingContext}
 import api.ScalaElementVisitor
 import com.intellij.psi.{PsiElementVisitor, PsiParameter, PsiMethod, PsiTypeParameter}
-import extensions.toPsiNamedElementExt
+import org.jetbrains.plugins.scala.extensions.{PsiParameterExt, toPsiNamedElementExt}
 
 /**
  * @author Alexander Podkhalyuzin
@@ -67,14 +67,7 @@ class ScInfixExprImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScIn
             }
             case method: PsiMethod if invocationCount == 1 => {
               buffer += method.getParameterList.getParameters.map({
-                p: PsiParameter => {
-                  val tp: ScType = subst.subst(ScType.create(p.getType, p.getProject, getResolveScope, paramTopLevel = true))
-                  ("", if (!p.isVarArgs) tp else tp match {
-                    case ScParameterizedType(_, args) if args.length == 1 => args(0)
-                    case JavaArrayType(arg) => arg
-                    case _ => tp
-                  })
-                }
+                p: PsiParameter => ("", subst.subst(p.exactParamType()))
               })
             }
             case _ =>

@@ -59,7 +59,7 @@ trait ScTypedDefinition extends ScNamedElement with TypingContextOwner {
       }
       val tType = getType(TypingContext.empty).getOrAny
       implicit def arr2arr(a: Array[ScType]): Array[Parameter] = a.toSeq.mapWithIndex {
-        case (tpe, index) => new Parameter("", tpe, false, false, false, index)
+        case (tpe, index) => new Parameter("", None, tpe, false, false, false, index)
       }.toArray
       new FakePsiMethod(this, name + "_=", Array[ScType](tType), types.Unit, hasModifierProperty)
     }
@@ -98,7 +98,7 @@ trait ScTypedDefinition extends ScNamedElement with TypingContextOwner {
       }
       val tType = getType(TypingContext.empty).getOrAny
       implicit def arr2arr(a: Array[ScType]): Array[Parameter] = a.toSeq.mapWithIndex {
-        case (tpe, index) => new Parameter("", tpe, false, false, false, index)
+        case (tpe, index) => new Parameter("", None, tpe, false, false, false, index)
       }.toArray
       new FakePsiMethod(this, "set" + name.capitalize, Array[ScType](tType), types.Unit, hasModifierProperty)
     }

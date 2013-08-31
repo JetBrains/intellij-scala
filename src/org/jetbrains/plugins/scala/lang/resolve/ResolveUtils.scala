@@ -16,7 +16,7 @@ import psi.api.toplevel.packaging.ScPackaging
 import ResolveTargets._
 import psi.api.statements._
 import params.{ScClassParameter, ScParameter, ScTypeParam}
-import psi.{ScalaPsiUtil, ScalaPsiElement}
+import org.jetbrains.plugins.scala.lang.psi.{types, ScalaPsiUtil, ScalaPsiElement}
 import psi.impl.toplevel.synthetic.{ScSyntheticClass, ScSyntheticValue}
 import result.{Success, TypingContext}
 import scope.{NameHint, PsiScopeProcessor}
@@ -29,7 +29,16 @@ import psi.api.base.types.{ScTypeElement, ScSelfTypeElement}
 import psi.api.base.{ScReferenceElement, ScAccessModifier, ScFieldId}
 import psi.api.expr.{ScThisReference, ScSuperReference}
 import psi.impl.{ScPackageImpl, ScalaPsiManager}
-import extensions.{toPsiModifierListOwnerExt, toPsiMemberExt, toSeqExt, toPsiNamedElementExt}
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
+import scala.Some
+import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScTypePolymorphicType
+import org.jetbrains.plugins.scala.lang.psi.types.ScFunctionType
+import org.jetbrains.plugins.scala.lang.psi.types.result.Success
+import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScMethodType
+import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.TypeParameter
+import org.jetbrains.plugins.scala.lang.psi.types.ScThisType
+import org.jetbrains.plugins.scala.lang.psi.types.ScCompoundType
 
 /**
  * @author ven
@@ -82,7 +91,7 @@ object ResolveUtils {
       collection.immutable.Seq(m.getParameterList.getParameters.map({
         p => val pt = p.getType
         //scala hack: Objects in java are modelled as Any in scala
-        if (pt.equalsToText("java.lang.Object")) Any
+        if (pt.equalsToText("java.lang.Object")) types.Any
         else s.subst(ScType.create(pt, m.getProject, scope))
       }).toSeq: _*))(m.getProject, scope)
 
@@ -98,11 +107,7 @@ object ResolveUtils {
         case _ =>
           m.getParameterList.getParameters.toSeq.mapWithIndex {
             case (param, index) => {
-              var psiType = param.getType
-              if (param.isVarArgs && psiType.isInstanceOf[PsiArrayType]) {
-                psiType = psiType.asInstanceOf[PsiArrayType].getComponentType
-              }
-              new Parameter("", s.subst(ScType.create(psiType, m.getProject, scope, paramTopLevel = true)), false, param.isVarArgs, false, index)
+              new Parameter("", None, s.subst(param.exactParamType()), false, param.isVarArgs, false, index)
             }
           }
       }, false)(m.getProject, scope)
@@ -112,7 +117,7 @@ object ResolveUtils {
     if (m.getTypeParameters.length == 0) javaMethodType(m, s, scope, returnType)
     else {
       ScTypePolymorphicType(javaMethodType(m, s, scope, returnType), m.getTypeParameters.map(tp =>
-        TypeParameter(tp.name, Nothing, Any, tp))) //todo: add lower and upper bounds
+        TypeParameter(tp.name, types.Nothing, types.Any, tp))) //todo: add lower and upper bounds
     }
   }
 

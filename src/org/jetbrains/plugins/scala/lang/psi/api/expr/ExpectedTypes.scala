@@ -19,6 +19,7 @@ import base.types.{ScSequenceArg, ScTypeElement}
 import lang.resolve.ScalaResolveResult
 import psi.impl.ScalaPsiManager
 import toplevel.typedef.ScObject
+import scala.annotation.tailrec
 
 /**
  * @author ilyas
@@ -58,7 +59,7 @@ private[expr] object ExpectedTypes {
   def expectedExprTypes(expr: ScExpression, withResolvedFunction: Boolean = false,
                         fromUnderscore: Boolean = true): Array[(ScType, Option[ScTypeElement])] = {
     val result: Array[(ScType, Option[ScTypeElement])] = expr.getContext match {
-      case p: ScParenthesisedExpr => p.expectedTypesEx(fromUnderscore)
+      case p: ScParenthesisedExpr => p.expectedTypesEx(fromUnderscore = false)
       //see SLS[6.11]
       case b: ScBlockExpr => b.lastExpr match {
         case Some(e) if b.needCheckExpectedType && e == expr.getSameElementInContext => b.expectedTypesEx(fromUnderscore = true)
@@ -294,7 +295,19 @@ private[expr] object ExpectedTypes {
       case _ => Array.empty
     }
 
-    if (fromUnderscore && ScUnderScoreSectionUtil.underscores(expr).length != 0) {
+    @tailrec
+    def checkIsUnderscore(expr: ScExpression): Boolean = {
+      expr match {
+        case p: ScParenthesisedExpr =>
+          p.expr match {
+            case Some(e) => checkIsUnderscore(e)
+            case _ => false
+          }
+        case _ => ScUnderScoreSectionUtil.underscores(expr).length != 0
+      }
+    }
+
+    if (fromUnderscore && checkIsUnderscore(expr)) {
       val res = new ArrayBuffer[(ScType, Option[ScTypeElement])]
       for (tp <- result) {
         ScType.extractFunctionType(tp._1) match {
@@ -343,7 +356,7 @@ private[expr] object ExpectedTypes {
         if (params.length == 1 && !params.apply(0).isRepeated && exprs.length > 1) {
           ScType.extractTupleType(params.apply(0).paramType) match {
             case Some(ScTupleType(args)) => applyForParams(args.zipWithIndex.map {
-              case (tpe, index) => new Parameter("", tpe, false, false, false, index)
+              case (tpe, index) => new Parameter("", None, tpe, false, false, false, index)
             })
             case None =>
           }
@@ -355,7 +368,7 @@ private[expr] object ExpectedTypes {
         if (newParams.length == 1 && !newParams.apply(0).isRepeated && exprs.length > 1) {
           ScType.extractTupleType(newParams.apply(0).paramType) match {
             case Some(ScTupleType(args)) => applyForParams(args.zipWithIndex.map {
-              case (tpe, index) => new Parameter("", tpe, false, false, false, index)
+              case (tpe, index) => new Parameter("", None, tpe, false, false, false, index)
             })
             case None =>
           }

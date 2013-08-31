@@ -20,6 +20,7 @@ import extensions.{toPsiNamedElementExt, toPsiClassExt}
 import com.intellij.psi.search.GlobalSearchScope
 import psi.types.result.{Failure, Success, TypingContext}
 import psi.types.{ScType, ScDesignatorType}
+import org.jetbrains.plugins.scala.caches.CachesUtil
 
 class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
                        val ref: PsiElement,
@@ -57,9 +58,7 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
   
   def checkWildcardImports(): Boolean = precedence <= WILDCARD_IMPORT
 
-  def checkPredefinedClassesAndPackages(): Boolean = precedence <= SCALA
-
-  def checkPackageLocals(): Boolean = precedence <= PACKAGE_LOCAL
+  def checkPredefinedClassesAndPackages(): Boolean = precedence <= SCALA_PREDEF
 
   protected def getQualifiedName(result: ScalaResolveResult): String = {
     def defaultForTypeAlias(t: ScTypeAlias): String = {

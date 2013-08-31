@@ -49,7 +49,7 @@ object ScalaFieldEvaluator {
   }
 }
 
-class ScalaFieldEvaluator(objectEvaluator: Evaluator, filter: ReferenceType => Boolean, _fieldName: String,
+case class ScalaFieldEvaluator(objectEvaluator: Evaluator, filter: ReferenceType => Boolean, _fieldName: String,
                           classPrivateThisField: Boolean = false) extends Evaluator {
   private var myEvaluatedQualifier: AnyRef = null
   private var myEvaluatedField: Field = null
@@ -111,7 +111,9 @@ class ScalaFieldEvaluator(objectEvaluator: Evaluator, filter: ReferenceType => B
   def evaluate(context: EvaluationContextImpl): AnyRef = {
     myEvaluatedField = null
     myEvaluatedQualifier = null
-    val obj: AnyRef = objectEvaluator.evaluate(context)
+    val obj: AnyRef = DebuggerUtil.unwrapScalaRuntimeObjectRef {
+      objectEvaluator.evaluate(context)
+    }
     evaluateField(obj, context)
   }
 

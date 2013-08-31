@@ -18,6 +18,7 @@ import util.PsiTreeUtil
 import api.toplevel.typedef.{ScTemplateDefinition, ScClass, ScObject}
 import collection.mutable
 import types.Conformance.AliasType
+import scala.annotation.tailrec
 
 /*
 Current types for pattern matching, this approach is bad for many reasons (one of them is bad performance).
@@ -344,6 +345,21 @@ object ScType extends ScTypePresentation with ScTypePsiTypeBridge {
       val aliasType: AliasType = pt.isAliasType.get
       aliasType.upper.flatMap(expandAliases)
     case _ => Success(tp, None)
+  }
+
+  @tailrec
+  def removeAliasDefinitions(tp: ScType): ScType = {
+    var updated = false
+    val res = tp.recursiveUpdate { t =>
+      t.isAliasType match {
+        case Some(AliasType(ta, _, upper)) if ta.isInstanceOf[ScTypeAliasDefinition] =>
+          updated = true
+          (true, upper.getOrAny)
+        case _ => (false, t)
+      }
+    }
+    if (!updated) tp
+    else removeAliasDefinitions(res)
   }
 
   def extractTupleType(tp: ScType): Option[ScTupleType] = expandAliases(tp).getOrAny match {

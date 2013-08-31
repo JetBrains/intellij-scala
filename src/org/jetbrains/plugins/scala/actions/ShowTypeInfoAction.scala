@@ -16,6 +16,7 @@ import org.jetbrains.plugins.scala.extensions._
 import lang.refactoring.util.ScalaRefactoringUtil
 import lang.psi.api.expr.ScExpression
 import com.intellij.openapi.editor.Editor
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 
 /**
  * Pavel.Fatin, 16.04.2010
@@ -76,7 +77,9 @@ object ShowTypeInfoAction {
     file.findReferenceAt(offset) match {
       case Resolved(e, subst) => typeOf(e, subst)
       case _ => {
-        file.findElementAt(offset) match {
+        val element = file.findElementAt(offset)
+        if (element.getNode.getElementType != ScalaTokenTypes.tIDENTIFIER) return None
+        element match {
           case Parent(p) => typeOf(p, ScSubstitutor.empty)
           case _ => None
         }

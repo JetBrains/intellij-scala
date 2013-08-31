@@ -9,11 +9,6 @@ import lang.psi.api.expr.{ScReferenceExpression, ScExpression}
  */
 
 trait ScInterpolatedStringLiteral extends ScLiteral {
-  object InterpolatedStringType extends Enumeration {
-    type StringType = Value
-    val STANDART, FORMAT, PATTERN = Value
-  }
-
   def getType: InterpolatedStringType.StringType
 
   def getInjections: Array[ScExpression]
@@ -21,4 +16,9 @@ trait ScInterpolatedStringLiteral extends ScLiteral {
   def getStringContextExpression: Option[ScExpression]
 
   def reference: Option[ScReferenceExpression]
+}
+
+object InterpolatedStringType extends Enumeration {
+  type StringType = Value
+  val STANDART, FORMAT, PATTERN, RAW = Value
 }
