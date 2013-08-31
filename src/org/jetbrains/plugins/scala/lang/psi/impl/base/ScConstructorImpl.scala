@@ -160,7 +160,7 @@ class ScConstructorImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
               val params = clazz.getMethods.flatMap {
                 case p: PsiAnnotationMethod =>
                   val paramType = subst.subst(ScType.create(p.getReturnType, getProject, getResolveScope))
-                  Seq(Parameter(p.getName, paramType, paramType, p.getDefaultValue != null, false, false))
+                  Seq(Parameter(p.getName, None, paramType, paramType, p.getDefaultValue != null, false, false))
                 case _ => Seq.empty
               }
               buffer += Success(ScMethodType(ScDesignatorType(clazz), params, false)(getProject, getResolveScope), Some(this))

@@ -155,13 +155,18 @@ trait ResolvableReferenceExpression extends ScReferenceExpression {
           fun.name == ResolvableReferenceExpression.APPLY_DYNAMIC_NAMED =>
           //Just ignore it
         case ScalaResolveResult(fun: ScFunction, subst: ScSubstitutor) => {
-          if (!processor.isInstanceOf[CompletionProcessor])
+          if (!processor.isInstanceOf[CompletionProcessor]) {
             fun.getParamByName(ref.refName, invocationCount - 1) match { //todo: why -1?
-              case Some(param) => processor.execute(param, ResolveState.initial.put(ScSubstitutor.key, subst).
-                      put(CachesUtil.NAMED_PARAM_KEY, java.lang.Boolean.TRUE))
+              case Some(param) =>
+                var state = ResolveState.initial.put(ScSubstitutor.key, subst).
+                  put(CachesUtil.NAMED_PARAM_KEY, java.lang.Boolean.TRUE)
+                if (!ScalaPsiUtil.memberNamesEquals(param.name, ref.refName)) {
+                  state = state.put(ResolverEnv.nameKey, param.deprecatedName.get)
+                }
+                processor.execute(param, state)
               case None =>
             }
-          else {
+          } else {
             //for completion only!
             funCollectNamedCompletions(fun.paramClauses, assign, processor, subst, exprs, invocationCount)
           }
@@ -263,14 +268,18 @@ trait ResolvableReferenceExpression extends ScReferenceExpression {
             for (candidate <- processor.candidatesS) {
               candidate match {
                 case ScalaResolveResult(fun: ScFunction, subst: ScSubstitutor) => {
-                  if (!baseProcessor.isInstanceOf[CompletionProcessor])
+                  if (!baseProcessor.isInstanceOf[CompletionProcessor]) {
                     fun.getParamByName(ref.refName, constr.arguments.indexOf(args)) match {
                       case Some(param) =>
-                        baseProcessor.execute(param, ResolveState.initial.put(ScSubstitutor.key, subst).
-                          put(CachesUtil.NAMED_PARAM_KEY, java.lang.Boolean.TRUE))
+                        var state = ResolveState.initial.put(ScSubstitutor.key, subst).
+                          put(CachesUtil.NAMED_PARAM_KEY, java.lang.Boolean.TRUE)
+                        if (!ScalaPsiUtil.memberNamesEquals(param.name, ref.refName)) {
+                          state = state.put(ResolverEnv.nameKey, param.deprecatedName.get)
+                        }
+                        baseProcessor.execute(param, state)
                       case None =>
                     }
-                  else {
+                  } else {
                     //for completion only!
                     funCollectNamedCompletions(fun.paramClauses, assign, baseProcessor, subst, args.exprs, args.invocationCount)
                   }

@@ -6,12 +6,13 @@ package impl
 
 
 import api.base.ScStableCodeReferenceElement
-import com.intellij.util.PatchedSoftReference
 import psi.impl.ScalaPsiElementFactory
 import api.toplevel.imports.ScImportSelector
 import com.intellij.psi.PsiElement
 import com.intellij.psi.stubs.{IStubElementType, StubElement}
 import com.intellij.util.io.StringRef
+import com.intellij.reference.SoftReference
+
 /**
  * User: Alexander Podkhalyuzin
  * Date: 20.06.2009
@@ -22,7 +23,7 @@ class ScImportSelectorStubImpl[ParentPsi <: PsiElement](parent: StubElement[Pare
 extends StubBaseWrapper[ScImportSelector](parent, elemType) with ScImportSelectorStub {
   var referenceText: StringRef = _
   var name: StringRef = _
-  private var myReference: PatchedSoftReference[ScStableCodeReferenceElement] = null
+  private var myReference: SoftReference[ScStableCodeReferenceElement] = null
 
   def this(parent : StubElement[ParentPsi],
           elemType : IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement], refText: String, importedName: String) {
@@ -38,7 +39,7 @@ extends StubBaseWrapper[ScImportSelector](parent, elemType) with ScImportSelecto
     } else {
       ScalaPsiElementFactory.createReferenceFromText(StringRef.toString(referenceText), getPsi, null)
     }
-    myReference = new PatchedSoftReference[ScStableCodeReferenceElement](res)
+    myReference = new SoftReference[ScStableCodeReferenceElement](res)
     res
   }
 

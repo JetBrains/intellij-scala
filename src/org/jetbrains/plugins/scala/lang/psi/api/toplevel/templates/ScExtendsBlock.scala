@@ -9,7 +9,7 @@ import base.types.ScSelfTypeElement
 import com.intellij.psi.PsiClass
 import psi.ScalaPsiElement
 import statements.{ScFunction, ScTypeAlias}
-import typedef.{ScTypeDefinition, ScMember, ScTemplateDefinition}
+import typedef.{ScTypeDefinition, ScMember}
 import types.ScType
 
 /** 
@@ -55,6 +55,10 @@ trait ScExtendsBlock extends ScalaPsiElement {
 }
 
 object ScExtendsBlock {
+
+  object EarlyDefinitions {
+    def unapply(block: ScExtendsBlock): Option[ScEarlyDefinitions] = block.earlyDefinitions
+  }
   object TemplateBody {
     def unapply(block: ScExtendsBlock): Option[ScTemplateBody] = block.templateBody
   }

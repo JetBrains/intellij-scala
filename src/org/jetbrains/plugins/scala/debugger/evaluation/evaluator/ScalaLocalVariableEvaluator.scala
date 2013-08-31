@@ -5,7 +5,7 @@ import com.intellij.debugger.jdi.{StackFrameProxyImpl, LocalVariableProxyImpl}
 import com.intellij.debugger.ui.impl.watch.{LocalVariableDescriptorImpl, NodeDescriptorImpl}
 import com.intellij.debugger.engine.evaluation.expression.{Evaluator, Modifier}
 import com.intellij.debugger.engine.evaluation.{EvaluateException, EvaluateExceptionUtil, EvaluationContextImpl}
-import com.sun.jdi.{Value, Type, AbsentInformationException}
+import com.sun.jdi.{InternalException, Value, Type}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.diagnostic.Logger
 import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil
@@ -15,14 +15,24 @@ import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil
  * Date: 12.10.11
  */
 
-class ScalaLocalVariableEvaluator(_name: String, fromLocalMethod: Boolean = false) extends Evaluator {
+class ScalaLocalVariableEvaluator(_name: String) extends Evaluator {
   import ScalaLocalVariableEvaluator.LOG
   private var myContext: EvaluationContextImpl = null
   private var myEvaluatedVariable: LocalVariableProxyImpl = null
   private var myParameterIndex: Int = -1
+  private var myMethodName: String = null
+  private var mySourceName: String = null
 
   def setParameterIndex(parameterIndex: Int) {
     myParameterIndex = parameterIndex
+  }
+
+  def setMethodName(name: String) {
+    myMethodName = name
+  }
+
+  def setSourceName(path: String) {
+    mySourceName = path
   }
 
   private val name: String = DebuggerUtil.withoutBackticks(_name)
@@ -60,59 +70,59 @@ class ScalaLocalVariableEvaluator(_name: String, fromLocalMethod: Boolean = fals
       None
     }
     def evaluateWithFrames(): AnyRef = {
-      if (fromLocalMethod) {
-        var frameIndex = frameProxy.getFrameIndex
-        val lastIndex = threadProxy.frameCount() - 1
-        while (frameIndex < lastIndex) {
-          frameProxy = threadProxy.frame(frameIndex)
-          evaluate match {
-            case Some(x) => return x
-            case None => frameIndex += 1
-          }
+      var frameIndex = frameProxy.getFrameIndex
+      val lastIndex = threadProxy.frameCount() - 1
+      while (frameIndex < lastIndex) {
+        frameProxy = threadProxy.frame(frameIndex)
+        evaluate match {
+          case Some(x) => return x
+          case None => frameIndex += 1
         }
       }
       throw EvaluateExceptionUtil.
               createEvaluateException(DebuggerBundle.message("evaluation.error.local.variable.missing", name))
     }
+
     def parameterWithIndex(index: Int, frameProxy: StackFrameProxyImpl): Option[AnyRef] = {
-      val values = frameProxy.getArgumentValues
-      if (values != null && !values.isEmpty && index >= 0 && index < values.size()) {
-        Some(values.get(index))
-      } else {
-        None
+      def inNextFrame: Option[AnyRef] = {
+        val frameIndex = frameProxy.getFrameIndex
+        if (frameIndex < threadProxy.frameCount() - 1) {
+          parameterWithIndex(myParameterIndex, threadProxy.frame(frameIndex + 1))
+        } else None
+      }
+      if (frameProxy == null || index < 0) None
+      else {
+        val frameMethodName = frameProxy.location().method().name()
+        val frameSourceName = frameProxy.location().sourceName()
+        if ((myMethodName == null && mySourceName == null) || (frameMethodName.startsWith(myMethodName) && mySourceName == frameSourceName)) {
+          try {
+            val values = frameProxy.getArgumentValues
+            if (values != null && !values.isEmpty && index >= 0 && index < values.size()) {
+              Some(values.get(index))
+            } else {
+              None
+            }
+          }
+          catch {case ignore: InternalException => inNextFrame}
+        } else inNextFrame
       }
     }
 
     try {
-      if (fromLocalMethod) {
-        //this is local variable outside of local method
-        try {
-          parameterWithIndex(myParameterIndex ,frameProxy)
-                  .getOrElse(evaluateWithFrames())
-        }
-        catch {
-          case ignore: Exception => evaluateWithFrames()
-          //Strange Unexpected JDWP error: 35 is possible here, let's try to find local by stackframe
-        }
-      } else {
-        evaluate match {
-          case Some(x) => x
-          case None => throw EvaluateExceptionUtil.
-                  createEvaluateException(DebuggerBundle.message("evaluation.error.local.variable.missing", name))
-        }
-      }
+      evaluate.getOrElse(
+        throw EvaluateExceptionUtil.createEvaluateException(DebuggerBundle.message("evaluation.error.local.variable.missing", name)))
     }
     catch {
-      case e: EvaluateException => {
-        val param = parameterWithIndex(myParameterIndex, frameProxy)
-        if (e.getCause.isInstanceOf[AbsentInformationException] && param.nonEmpty) {
-          param.get
-        } else {
-          myEvaluatedVariable = null
-          myContext = null
-          throw e
+      case e: EvaluateException =>
+        try {
+          parameterWithIndex(myParameterIndex ,frameProxy).getOrElse(evaluateWithFrames())
         }
-      }
+        catch {
+          case e: EvaluateException =>
+            myEvaluatedVariable = null
+            myContext = null
+            throw e
+        }
     }
   }
 

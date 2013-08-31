@@ -112,7 +112,8 @@ class ScalaGenerateAnonymousFunctionInsertHandler(params: Seq[ScType], braceArgs
 
     val template = builder.buildTemplate()
     for (name <- abstractNames) {
-      template.addVariable(name, name.substring(12), name.substring(12), false)
+      val actualName: String = name.substring(ScTypePresentation.ABSTRACT_TYPE_PREFIX.length)
+      template.addVariable(name, actualName, actualName, false)
     }
 
     document.deleteString(commonParent.getTextRange.getStartOffset, commonParent.getTextRange.getEndOffset)

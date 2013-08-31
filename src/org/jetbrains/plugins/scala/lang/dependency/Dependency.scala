@@ -6,7 +6,7 @@ import com.intellij.psi._
 import lang.psi.api.base.{ScReferenceElement, ScPrimaryConstructor}
 import lang.psi.api.statements.ScFunctionDefinition
 import lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScMember}
-import annotator.intention.ScalaImportClassFix
+import annotator.intention.ScalaImportTypeFix
 import lang.psi.api.base.patterns.{ScReferencePattern, ScConstructorPattern}
 import extensions._
 import lang.psi.api.toplevel.ScNamedElement
@@ -27,7 +27,7 @@ case class Dependency(kind: DependencyKind, source: PsiElement, target: PsiEleme
   def restoreFor(source: ScReferenceElement) {
     if (source.resolve() != target) {
 //        source.bindToElement(target)
-      val holder = ScalaImportClassFix.getImportHolder(source, source.getProject)
+      val holder = ScalaImportTypeFix.getImportHolder(source, source.getProject)
       holder.addImportForPath(path.asString, source)
     }
   }

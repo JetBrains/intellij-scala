@@ -6,13 +6,13 @@ package handlers
 import com.intellij.codeInsight.{CodeInsightSettings, AutoPopupController}
 import com.intellij.codeInsight.completion._
 import psi.impl.toplevel.synthetic.ScSyntheticFunction
-import psi.api.statements.{ScFunction, ScFun}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScFunction, ScFun}
 import com.intellij.codeInsight.lookup.LookupElement
 import extensions._
 import psi.api.expr._
 import psi.api.toplevel.typedef.ScObject
 import com.intellij.openapi.util.Condition
-import com.intellij.psi.{PsiClass, PsiFile, PsiNamedElement, PsiMethod}
+import com.intellij.psi._
 import lookups.ScalaLookupItem
 import psi.api.base.ScStableCodeReferenceElement
 import psi.ScalaPsiUtil
@@ -71,7 +71,8 @@ class ScalaInsertHandler extends InsertHandler[LookupElement] {
 
     val some = item.someSmartCompletion
     val someNum = if (some) 1 else 0
-    val file = context.getFile
+    //val file = context.getFile //returns wrong file in evaluate expression in debugger (runtime type completion)
+    val file = PsiDocumentManager.getInstance(context.getProject).getPsiFile(document)
     val element =
       if (completionChar == '\t') {
         file.findElementAt(startOffset) match {
@@ -187,7 +188,7 @@ class ScalaInsertHandler extends InsertHandler[LookupElement] {
           })
         }
         return
-      case clazz: PsiClass if context.getCompletionChar == '[' =>
+      case _: PsiClass | _: ScTypeAlias if context.getCompletionChar == '[' =>
         context.setAddCompletionChar(false)
         insertIfNeeded(placeInto = true, openChar = '[', closeChar = ']', withSpace = false, withSomeNum = false)
       case named: PsiNamedElement if item.isNamedParameter => { //some is impossible here

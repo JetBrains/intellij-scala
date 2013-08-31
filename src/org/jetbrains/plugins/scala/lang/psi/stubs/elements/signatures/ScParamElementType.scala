@@ -28,8 +28,9 @@ extends ScStubElementType[ScParameterStub, ScParameter](debugName) {
     }
     val isCallByName = psi.isCallByNameParameter
     val defaultExprText = psi.getActualDefaultExpression.map(_.getText)
+    val deprecatedName = psi.deprecatedName
     new ScParameterStubImpl[ParentPsi](parentStub, this, psi.name, typeText, psi.isStable, psi.baseDefaultParam,
-      psi.isRepeatedParameter, isVal, isVar, isCallByName, defaultExprText)
+      psi.isRepeatedParameter, isVal, isVar, isCallByName, defaultExprText, deprecatedName)
   }
 
   def serialize(stub: ScParameterStub, dataStream: StubOutputStream) {
@@ -48,7 +49,12 @@ extends ScStubElementType[ScParameterStub, ScParameter](debugName) {
         dataStream.writeBoolean(true)
         dataStream.writeName(str)
     }
-
+    stub.deprecatedName match {
+      case None => dataStream.writeBoolean(false)
+      case Some(name) =>
+        dataStream.writeBoolean(true)
+        dataStream.writeName(name)
+    }
   }
 
   def deserializeImpl(dataStream: StubInputStream, parentStub: Any): ScParameterStub = {
@@ -62,8 +68,9 @@ extends ScStubElementType[ScParameterStub, ScParameter](debugName) {
     val isVar = dataStream.readBoolean
     val isCallByName = dataStream.readBoolean()
     val defaultExpr = if (dataStream.readBoolean()) Some(dataStream.readName().toString) else None
+    val deprecatedName = if (dataStream.readBoolean()) Some(dataStream.readName().toString) else None
     new ScParameterStubImpl(parent, this, name, typeText, stable, default, repeated, isVal, isVar, isCallByName,
-      defaultExpr)
+      defaultExpr, deprecatedName)
   }
 
   def indexStub(stub: ScParameterStub, sink: IndexSink) {}

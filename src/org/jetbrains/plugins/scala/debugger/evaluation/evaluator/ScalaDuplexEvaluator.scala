@@ -12,24 +12,32 @@ import com.intellij.debugger.engine.evaluation.{EvaluateExceptionUtil, Evaluatio
 /**
  * Tries to use first evaluator first. If gets exception or null, uses second one.
  */
-class ScalaDuplexEvaluator(first: Evaluator, second: Evaluator) extends Evaluator {
+class ScalaDuplexEvaluator(val first: Evaluator, val second: Evaluator) extends Evaluator {
+  private var myModifier: Modifier = null
 
   def evaluate(context: EvaluationContextImpl): AnyRef = {
     var result: AnyRef = null
-    try
+    try {
       result = first.evaluate(context)
-    catch {
-      case e: Exception => result = null
+      myModifier = first.getModifier
     }
-    if (result == null) {
-      try
-        result = second.evaluate(context)
-      catch {
-        case e: Exception => throw EvaluateExceptionUtil.createEvaluateException(e)
-      }
+    catch {
+      case e1: Exception if first != second =>
+        try {
+          result = second.evaluate(context)
+          myModifier = second.getModifier
+        }
+        catch {
+          case e2: Exception => throw EvaluateExceptionUtil.createEvaluateException(e1.getMessage + "\n " + e2.getMessage)
+        }
+      case e: Exception => throw EvaluateExceptionUtil.createEvaluateException(e)
     }
     result
   }
 
-  def getModifier: Modifier = null
+  def getModifier: Modifier = myModifier
+}
+
+object ScalaDuplexEvaluator {
+  def unapply(evaluator: ScalaDuplexEvaluator): Option[(Evaluator, Evaluator)] = Option(evaluator.first, evaluator.second)
 }

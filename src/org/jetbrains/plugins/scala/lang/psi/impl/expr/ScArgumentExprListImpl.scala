@@ -19,7 +19,7 @@ import api.base.{ScStableCodeReferenceElement, ScPrimaryConstructor, ScConstruct
 import com.intellij.psi._
 import lexer.ScalaTokenTypes
 import nonvalue.Parameter
-import extensions.toPsiNamedElementExt
+import org.jetbrains.plugins.scala.extensions.{PsiParameterExt, toPsiNamedElementExt}
 
 /**
 * @author Alexander Podkhalyuzin
@@ -118,7 +118,7 @@ class ScArgumentExprListImpl(node: ASTNode) extends ScalaPsiElementImpl(node) wi
                     }
                     s.followed(ScalaPsiUtil.genericCallSubstitutor(tp, gen))
                   }
-                  case _ if method.getTypeParameters.length != 0 => {
+                  case _ if method.getTypeParameters.length != 0 =>
                     val subst = method.getTypeParameters.foldLeft(ScSubstitutor.empty) {
                       (subst, tp) => subst.bindT((tp.name, ScalaPsiUtil.getPsiElementId(tp)), ScUndefinedType(tp match {
                         case tp: ScTypeParam => new ScTypeParameterType(tp: ScTypeParam, s)
@@ -126,27 +126,16 @@ class ScArgumentExprListImpl(node: ASTNode) extends ScalaPsiElementImpl(node) wi
                       }))
                     }
                     s.followed(subst)
-                  }
                   case _ => s
                 }
                 method match {
-                  case fun: ScFunction => {
+                  case fun: ScFunction =>
                     if (fun.paramClauses.clauses.length >= invocationCount) {
                       buffer += fun.paramClauses.clauses.apply(invocationCount - 1).parameters.map({p => (p.name,
                               subst.subst(p.getType(TypingContext.empty).getOrAny))}).toArray
                     } else if (invocationCount == 1) buffer += Array.empty
-                  }
-                  case method: PsiMethod if invocationCount == 1=> {
-                    buffer += method.getParameterList.getParameters.map({p: PsiParameter => {
-                            val tp: ScType = subst.subst(ScType.create(p.getType, p.getProject, getResolveScope,
-                              paramTopLevel = true))
-                            ("", if (!p.isVarArgs) tp else tp match {
-                              case ScParameterizedType(_, args) if args.length == 1=> args(0)
-                              case JavaArrayType(arg) => arg
-                              case _ => tp
-                            })
-                          }})
-                  }
+                  case method: PsiMethod if invocationCount == 1 =>
+                    buffer += method.getParameterList.getParameters.map({p: PsiParameter => ("", subst.subst(p.exactParamType()))})
                   case _ =>
                 }
               }
@@ -164,10 +153,11 @@ class ScArgumentExprListImpl(node: ASTNode) extends ScalaPsiElementImpl(node) wi
             constr.typeElement.getType(TypingContext.empty).getOrAny, Some(elem.getProject)
           )
           case simple: ScSimpleTypeElement => simple.reference match {
-            case Some(ref: ScStableCodeReferenceElement) => ref.bind match {
-              case Some(ScalaResolveResult(clazz: PsiClass, subst)) => Some((clazz, subst))
-              case _ => None
-            }
+            case Some(ref: ScStableCodeReferenceElement) =>
+              ref.bind() match {
+                case Some(ScalaResolveResult(clazz: PsiClass, subst)) => Some((clazz, subst))
+                case _ => None
+              }
             case _ => None
           }
           case _ => None //todo: Singleton type, Tuple type?
@@ -204,8 +194,7 @@ class ScArgumentExprListImpl(node: ASTNode) extends ScalaPsiElementImpl(node) wi
             for (constr: PsiMethod <- clazz.getConstructors) {
               val add: ArrayBuffer[(String, ScType)] = new ArrayBuffer
               for (param: PsiParameter <- constr.getParameterList.getParameters) {
-                add += (("", subst.subst(ScType.create(param.getType, getProject, getResolveScope,
-                  paramTopLevel = true))))
+                add += (("", subst.subst(param.paramType)))
               }
               res += add.toArray
             }

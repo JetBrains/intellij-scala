@@ -480,9 +480,9 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
 
   private def checkNotQualifiedReferenceElement(refElement: ScReferenceElement, holder: AnnotationHolder) {
     def getFix: Seq[IntentionAction] = {
-      val classes = ScalaImportClassFix.getClasses(refElement, refElement.getProject)
+      val classes = ScalaImportTypeFix.getTypesToImport(refElement, refElement.getProject)
       if (classes.length == 0) return Seq.empty
-      Seq[IntentionAction](new ScalaImportClassFix(classes, refElement))
+      Seq[IntentionAction](new ScalaImportTypeFix(classes, refElement))
     }
 
     val resolve: Array[ResolveResult] = refElement.multiResolve(false)
@@ -737,7 +737,11 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
         }
         if (injections.length > 0) params.setCharAt(params.length - 1, ')') else params.append(')')
         val expr = l.getStringContextExpression.get
-        val shift = "StringContext(str).".length + r.getName.length  + expr.getTextRange.getStartOffset
+        val shift = expr match {
+          case ScMethodCall(invoked, _) => invoked.getTextRange.getEndOffset
+          case _ => return
+        }
+//        val shift = "StringContext(str).".length + r.getName.length  + expr.getTextRange.getStartOffset
 
         val fakeAnnotator = new AnnotationHolderImpl(Option(holder.getCurrentAnnotationSession)
                 .getOrElse(new AnnotationSession(l.getContainingFile))) {
@@ -950,6 +954,7 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
             parameters.foreach {
               case r: ScalaResolveResult =>
                 registerUsedImports(typeElement, r)
+              case null =>
             }
           case _ =>
         }

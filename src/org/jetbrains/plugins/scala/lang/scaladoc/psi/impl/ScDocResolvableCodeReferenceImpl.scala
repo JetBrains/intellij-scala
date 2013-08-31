@@ -21,6 +21,7 @@ import lang.psi.impl.ScPackageImpl._
 import com.intellij.psi.{JavaPsiFacade, ResolveState, PsiElement, PsiClass}
 import lang.psi.impl.{ScPackageImpl, ScalaPsiElementFactory}
 import extensions.toPsiClassExt
+import org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix.TypeToImport
 
 /**
  * User: Dmitry Naydanov
@@ -30,8 +31,8 @@ import extensions.toPsiClassExt
 class ScDocResolvableCodeReferenceImpl(node: ASTNode) extends ScStableCodeReferenceElementImpl(node) with ScDocResolvableCodeReference {
   override def getKinds(incomplete: Boolean, completion: Boolean) = stableImportSelector
 
-  override def createReplacingElementWithClassName(useFullQualifiedName: Boolean, clazz: PsiClass) = {
-    ScalaPsiElementFactory.createDocLinkValue(clazz.qualifiedName, clazz.getManager)
+  override def createReplacingElementWithClassName(useFullQualifiedName: Boolean, clazz: TypeToImport) = {
+    ScalaPsiElementFactory.createDocLinkValue(clazz.qualifiedName, clazz.element.getManager)
   }
 
   override protected def processQualifier(ref: ScStableCodeReferenceElement, processor: BaseProcessor) {

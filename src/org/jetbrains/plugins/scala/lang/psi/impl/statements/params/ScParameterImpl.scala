@@ -24,6 +24,7 @@ import collection.mutable.ArrayBuffer
 import api.ScalaElementVisitor
 import collection.mutable
 import collection.immutable.HashSet
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 
 /**
  * @author Alexander Podkhalyuzin
@@ -52,6 +53,30 @@ class ScParameterImpl extends ScalaStubBasedElementImpl[ScParameter] with ScPara
   }
 
   override def getNameIdentifier: PsiIdentifier = new JavaIdentifier(nameId)
+
+  def deprecatedName: Option[String] = {
+    val stub = getStub
+    if (stub != null) return stub.asInstanceOf[ScParameterStub].deprecatedName
+    hasAnnotation("scala.deprecatedName") match {
+      case Some(deprecationAnnotation) =>
+        deprecationAnnotation.constructor.args.flatMap {
+          case args =>
+            val exprs = args.exprs
+            if (exprs.length != 1) None
+            else {
+              exprs(0) match {
+                case literal: ScLiteral if literal.getNode.getFirstChildNode != null &&
+                  literal.getNode.getFirstChildNode.getElementType == ScalaTokenTypes.tSYMBOL =>
+                  val literalText = literal.getText
+                  if (literalText.length < 2) None
+                  else Some(literalText.substring(1))
+                case _ => None
+              }
+            }
+        }
+      case None => None
+    }
+  }
 
   def getRealParameterType(ctx: TypingContext): TypeResult[ScType] = {
     if (!isRepeatedParameter) return getType(ctx)
