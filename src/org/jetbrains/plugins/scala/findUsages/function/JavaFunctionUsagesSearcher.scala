@@ -4,10 +4,10 @@ import com.intellij.psi.search.searches.ReferencesSearch
 import com.intellij.util.{Processor, QueryExecutor}
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.util.Computable
-import collection.mutable.HashSet
 import com.intellij.psi.search.{UsageSearchContext, PsiSearchHelper, TextOccurenceProcessor}
 import com.intellij.psi.{PsiMethod, PsiReferenceExpression, PsiElement, PsiReference}
 import org.jetbrains.plugins.scala.lang.psi.light.{StaticPsiMethodWrapper, ScFunctionWrapper}
+import scala.collection.mutable
 
 /**
  * @author Alefas
@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.light.{StaticPsiMethodWrapper, ScFun
  */
 class JavaFunctionUsagesSearcher extends QueryExecutor[PsiReference, ReferencesSearch.SearchParameters] {
   def execute(queryParameters: ReferencesSearch.SearchParameters, consumer: Processor[PsiReference]): Boolean = {
-    val scope = queryParameters.getScope
+    val scope = queryParameters.getEffectiveSearchScope
     val element = queryParameters.getElementToSearch
     ApplicationManager.getApplication.runReadAction(new Computable[Boolean] {
       def compute: Boolean = {
@@ -23,7 +23,7 @@ class JavaFunctionUsagesSearcher extends QueryExecutor[PsiReference, ReferencesS
         element match {
           case p: PsiMethod => {
             val name: String = p.getName
-            val collectedReferences: HashSet[PsiReference] = new HashSet[PsiReference]
+            val collectedReferences: mutable.HashSet[PsiReference] = new mutable.HashSet[PsiReference]
             val processor = new TextOccurenceProcessor {
               def execute(element: PsiElement, offsetInElement: Int): Boolean = {
                 val references = element.getReferences
@@ -45,6 +45,7 @@ class JavaFunctionUsagesSearcher extends QueryExecutor[PsiReference, ReferencesS
               }
             }
             val helper: PsiSearchHelper = PsiSearchHelper.SERVICE.getInstance(p.getProject)
+            if (name == "") return true
             helper.processElementsWithWord(processor, scope, name, UsageSearchContext.IN_CODE, true)
           }
           case _ =>

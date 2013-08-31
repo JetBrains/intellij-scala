@@ -13,7 +13,7 @@ import com.intellij.openapi.module.Module
 import com.intellij.openapi.components.PathMacroManager
 import lang.psi.impl.ScalaPsiManager
 import lang.psi.api.toplevel.typedef.{ScClass, ScObject}
-import com.intellij.psi.{PsiPackage, JavaPsiFacade, PsiClass}
+import com.intellij.psi.{PsiModifierList, PsiPackage, JavaPsiFacade, PsiClass}
 import com.intellij.openapi.util.{JDOMExternalizable, Computable, JDOMExternalizer, Getter}
 
 import testingSupport.test.TestRunConfigurationForm.{SearchForTest, TestKind}
@@ -529,7 +529,8 @@ object AbstractTestRunConfiguration {
   }
 
   protected[test] def isInvalidSuite(clazz: PsiClass): Boolean = {
-    clazz.getModifierList.hasModifierProperty("abstract") || lackNoArgConstructor(clazz)
+    val list: PsiModifierList = clazz.getModifierList
+    list != null && list.hasModifierProperty("abstract") || lackNoArgConstructor(clazz)
   }
 
   private def lackNoArgConstructor(clazz: PsiClass): Boolean = {

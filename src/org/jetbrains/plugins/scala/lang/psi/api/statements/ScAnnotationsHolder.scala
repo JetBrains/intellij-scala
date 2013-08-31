@@ -18,7 +18,7 @@ import extensions.toPsiClassExt
 import extensions._
 import api.base.ScReferenceElement
 import psi.impl.ScalaPsiElementFactory
-import annotator.intention.ScalaImportClassFix
+import annotator.intention.ScalaImportTypeFix
 import psi.types.Conformance.AliasType
 import types.ScDesignatorType
 import scala.Some
@@ -90,7 +90,7 @@ trait ScAnnotationsHolder extends ScalaPsiElement with PsiAnnotationOwner {
     for (topReference <- unresolvedReferences.headOption;
          manager = JavaPsiFacade.getInstance(getProject);
          annotationClass = manager.findClass(qualifiedName, topReference.getResolveScope)) {
-      val holder = ScalaImportClassFix.getImportHolder(this, getProject)
+      val holder = ScalaImportTypeFix.getImportHolder(this, getProject)
       holder.addImportForClass(annotationClass, topReference)
     }
 

@@ -52,14 +52,6 @@ class UnitMethodDefinedLikeProcedureInspectionTest extends ScalaLightInspectionF
   }
 
   def test5(): Unit = {
-    val selected = s"def ${START}foo$END() = {}"
-    check(selected)
-    val text = "def foo() = {}"
-    val result = "def foo(): Unit = {}"
-    testFix(text, result, hint)
-  }
-
-  def test6(): Unit = {
     val text = """class A(val x: Int, val y: Int) {
                  |    def this(x: Int) {
                  |      this(x, 0)

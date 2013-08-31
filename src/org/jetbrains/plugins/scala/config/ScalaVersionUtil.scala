@@ -13,13 +13,14 @@ object ScalaVersionUtil {
   val SCALA_2_8 = "2.8"
   val SCALA_2_9 = "2.9"
   val SCALA_2_10 = "2.10"
+  val SCALA_2_11 = "2.11"
 
   def isGeneric(element: PsiElement, defaultValue: Boolean, versionText: String*): Boolean = {
     val module: Module = ModuleUtilCore.findModuleForPsiElement(element)
     if (module == null) return defaultValue
     ScalaFacet.findIn(module).map(facet => {
       val version = facet.version
-      if (versionText.exists(version.startsWith(_))) true
+      if (versionText.exists(version.startsWith)) true
       else false
     }).getOrElse(defaultValue)
   }

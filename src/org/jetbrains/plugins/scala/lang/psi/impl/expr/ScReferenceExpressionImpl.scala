@@ -24,7 +24,7 @@ import api.ScalaElementVisitor
 import api.toplevel.imports.ScImportStmt
 import api.base.patterns.ScReferencePattern
 import com.intellij.util.IncorrectOperationException
-import annotator.intention.ScalaImportClassFix
+import annotator.intention.ScalaImportTypeFix
 import api.toplevel.typedef._
 import completion.lookups.LookupElementManager
 import extensions.{toPsiMemberExt, toPsiNamedElementExt, toPsiClassExt}
@@ -77,7 +77,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
             case (qual, false) =>
               ScalaPsiElementFactory.createExpressionFromText(qual, getManager).asInstanceOf[ScReferenceExpression]
           }) {
-            ScalaImportClassFix.getImportHolder(ref = this, project = getProject).addImportForClass(c, ref = this)
+            ScalaImportTypeFix.getImportHolder(ref = this, project = getProject).addImportForClass(c, ref = this)
             this
           }
         }
@@ -100,7 +100,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
                 case (qual, false) =>
                   ScalaPsiElementFactory.createExpressionFromText(qual, getManager).asInstanceOf[ScReferenceExpression]
               }) {
-                ScalaImportClassFix.getImportHolder(this, getProject).
+                ScalaImportTypeFix.getImportHolder(this, getProject).
                   addImportForPsiNamedElement(elem, this, Some(cClass))
                 this
               }
@@ -195,6 +195,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
       //todo: It seems that designating constant is not a problem, while we haven't type like Int(1)
       getContext match {
         case i: ScSugarCallExpr if this == i.getBaseExpr => true
+        case m: ScMethodCall if this == m.getInvokedExpr => true
         case ref: ScReferenceExpression if ref.qualifier == Some(this) => true
         case _ => false
       }

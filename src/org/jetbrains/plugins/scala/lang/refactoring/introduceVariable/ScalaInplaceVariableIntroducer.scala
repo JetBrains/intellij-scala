@@ -45,12 +45,11 @@ class ScalaInplaceVariableIntroducer(project: Project,
                                      expr: ScExpression,
                                      types: Array[ScType],
                                      namedElement: PsiNamedElement,
-                                     occurences: Array[ScExpression],
                                      title: String,
                                      replaceAll: Boolean,
                                      asVar: Boolean,
                                      noTypeInference: Boolean)
-        extends InplaceVariableIntroducer[ScExpression](namedElement, editor, project, title, occurences, expr) {
+        extends InplaceVariableIntroducer[ScExpression](namedElement, editor, project, title, Array.empty[ScExpression], expr) {
 
   private var myVarCheckbox: JCheckBox = null
   private var mySpecifyTypeChb: JCheckBox = null
@@ -81,9 +80,9 @@ class ScalaInplaceVariableIntroducer(project: Project,
         val element = myFile.findElementAt(range.getStartOffset + numberOfSpaces)
         val declaration = ScalaPsiUtil.getParentOfType(element, classOf[ScEnumerator], classOf[ScDeclaredElementsHolder])
         val named: Option[ScNamedElement] = namedElement(declaration)
-        if (named.isDefined && range.contains(named.get.getNameIdentifier.getTextRange)) {
+        if (named.isDefined) {
           setDeclaration(declaration)
-          if (nameIsValid != (named.isDefined && isIdentifier(input, myFile.getLanguage) && named.get.name == input)) {
+          if (nameIsValid != (named.isDefined && isIdentifier(input.trim, myFile.getLanguage))) {
             nameIsValid = !nameIsValid
           }
           resetBalloonPanel(nameIsValid)

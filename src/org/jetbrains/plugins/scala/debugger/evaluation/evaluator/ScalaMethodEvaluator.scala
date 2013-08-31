@@ -27,8 +27,10 @@ case class ScalaMethodEvaluator(objectEvaluator: Evaluator, _methodName: String,
     val debugProcess: DebugProcessImpl = context.getDebugProcess
     val requiresSuperObject: Boolean = objectEvaluator.isInstanceOf[ScSuperEvaluator] ||
       (objectEvaluator.isInstanceOf[DisableGC] &&
-        (objectEvaluator.asInstanceOf[DisableGC]).getDelegate.isInstanceOf[ScSuperEvaluator])
-    val obj : AnyRef = objectEvaluator.evaluate(context)
+        objectEvaluator.asInstanceOf[DisableGC].getDelegate.isInstanceOf[ScSuperEvaluator])
+    val obj : AnyRef = DebuggerUtil.unwrapScalaRuntimeObjectRef {
+      objectEvaluator.evaluate(context)
+    }
     if (obj == null) {
       throw EvaluateExceptionUtil.createEvaluateException(new NullPointerException)
     }
@@ -53,7 +55,7 @@ case class ScalaMethodEvaluator(objectEvaluator: Evaluator, _methodName: String,
         var jdiMethod: Method = null
         if (signature != null) {
           if (!localMethod) {
-            jdiMethod = (referenceType.asInstanceOf[ClassType]).concreteMethodByName(methodName,
+            jdiMethod = referenceType.asInstanceOf[ClassType].concreteMethodByName(methodName,
               signature.getName(debugProcess))
           }
           if (jdiMethod == null && localMethod) {
@@ -63,7 +65,7 @@ case class ScalaMethodEvaluator(objectEvaluator: Evaluator, _methodName: String,
             for (method <- methods if jdiMethod == null) {
               if (method.name().startsWith(methodName + "$")) {
                 mName = DebuggerUtilsEx.methodName(referenceType.name, method.name(), sign)
-                jdiMethod = (referenceType.asInstanceOf[ClassType]).concreteMethodByName(mName, signature.getName(debugProcess))
+                jdiMethod = referenceType.asInstanceOf[ClassType].concreteMethodByName(mName, signature.getName(debugProcess))
               }
             }
           }

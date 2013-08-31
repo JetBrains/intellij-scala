@@ -5,7 +5,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
 import com.intellij.debugger.engine.evaluation.EvaluateExceptionUtil
 import com.intellij.debugger.{DebuggerBundle, SourcePosition}
 import com.intellij.openapi.application.ApplicationManager
-import com.sun.jdi.Value
+import com.sun.jdi.{ObjectReference, Value}
 import com.intellij.debugger.engine.{DebugProcessImpl, JVMNameUtil, JVMName}
 import com.intellij.openapi.util.Computable
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
@@ -310,5 +310,18 @@ object DebuggerUtil {
       getSourcePositions(child.getPsi, lines)
     }
     lines.toSet
+  }
+
+  def unwrapScalaRuntimeObjectRef(evaluated: AnyRef): AnyRef = evaluated match {
+    case objRef: ObjectReference => {
+      val refType = objRef.referenceType()
+      if (refType.name == "scala.runtime.ObjectRef") {
+        val elemField = refType.fieldByName("elem")
+        if (elemField != null) objRef.getValue(elemField)
+        else objRef
+      }
+      else objRef
+    }
+    case _ => evaluated
   }
 }

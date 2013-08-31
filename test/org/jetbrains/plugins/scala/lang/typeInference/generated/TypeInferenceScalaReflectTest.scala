@@ -14,5 +14,9 @@ class TypeInferenceScalaReflectTest extends TypeInferenceTestBase {
 
   def testSCL4662() {doTest()}
 
+  def testSCL5592() {doTest()}
+
   def testSCL5790() {doTest()}
+
+  def testSCL5871() = doTest()
 }
