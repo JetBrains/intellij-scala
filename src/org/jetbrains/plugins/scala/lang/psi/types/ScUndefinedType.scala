@@ -52,11 +52,42 @@ case class ScUndefinedType(tpt: ScTypeParameterType) extends NonValueType {
 case class ScAbstractType(tpt: ScTypeParameterType, lower: ScType, upper: ScType) extends NonValueType {
   private var hash: Int = -1
 
+  override def toString: String = {
+    val buffer = new StringBuilder
+    buffer.append("?")
+    buffer.append(super.toString)
+    buffer.append("/*")
+    if (!lower.equiv(Nothing)) {
+      val lowerText: String = " >: " + lower.toString
+      buffer.append(lowerText)
+    }
+    if (!upper.equiv(Any)) {
+      val upperText: String = " <: " + upper.toString
+      buffer.append(upperText)
+    }
+    buffer.append("*/")
+    buffer.toString()
+  }
+
   override def hashCode: Int = {
     if (hash == -1) {
       hash = (upper.hashCode() * 31 + lower.hashCode()) * 31 + tpt.hashCode
     }
     hash
+  }
+
+  override def equivInner(r: ScType, uSubst: ScUndefinedSubstitutor,
+                          falseUndef: Boolean): (Boolean, ScUndefinedSubstitutor) = {
+    r match {
+      case _ if falseUndef => (false, uSubst)
+      case rt => {
+        var t: (Boolean, ScUndefinedSubstitutor) = Conformance.conformsInner(upper, r, Set.empty, uSubst)
+        if (!t._1) return (false, uSubst)
+        t = Conformance.conformsInner(r, lower, Set.empty, t._2)
+        if (!t._1) return (false, uSubst)
+        (true, t._2)
+      }
+    }
   }
 
   def inferValueType = tpt

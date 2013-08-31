@@ -1757,9 +1757,6 @@ object Conformance {
     val uSubst = new ScUndefinedSubstitutor()
 
     def comp(): (Boolean, ScUndefinedSubstitutor) = {
-      if (l.toString == "AnotherTest.this.type#u" && r.toString == "u.type") {
-        "stop here"
-      }
       val leftVisitor = new LeftConformanceVisitor(l, r, visited, uSubst, checkWeak)
       l.visitType(leftVisitor)
       if (leftVisitor.getResult != null) return leftVisitor.getResult

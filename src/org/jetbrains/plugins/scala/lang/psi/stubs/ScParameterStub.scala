@@ -33,4 +33,6 @@ trait ScParameterStub extends NamedStub[ScParameter] {
   def getDefaultExprText: Option[String]
 
   def getDefaultExpr: Option[ScExpression]
+
+  def deprecatedName: Option[String]
 }

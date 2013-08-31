@@ -1,14 +1,20 @@
 <artifacts>
-    <artifact name="Scala_2_9_Win" version="2.9.2">
-        <item name="scala-2.9.2.zip" url="http://www.scala-lang.org/downloads/distrib/files/scala-2.9.2.zip"/>
+    <artifact name="Scala_2_9_Win" version="2.9.3">
+        <item name="scala-2.9.3.zip" url="http://www.scala-lang.org/files/archive/scala-2.9.3.zip"/>
     </artifact>
-    <artifact name="Scala_2_9" version="2.9.2">
-        <item name="scala-2.9.2.tgz" url="http://www.scala-lang.org/downloads/distrib/files/scala-2.9.2.tgz"/>
+    <artifact name="Scala_2_9" version="2.9.3">
+        <item name="scala-2.9.3.tgz" url="http://www.scala-lang.org/files/archive/scala-2.9.3.tgz"/>
     </artifact>
-    <artifact name="Scala_2_10_Win" version="2.10.0-RC2">
-        <item name="scala-2.10.0-RC.zip" url="http://www.scala-lang.org/downloads/distrib/files/scala-2.10.0-RC2.zip"/>
+    <artifact name="Scala_2_10_Win" version="2.10.2">
+        <item name="scala-2.10.2.zip" url="http://www.scala-lang.org/files/archive/scala-2.10.2.zip"/>
     </artifact>
-    <artifact name="Scala_2_10" version="2.10.0-RC2">
-        <item name="scala-2.10.0-RC.tgz" url="http://www.scala-lang.org/downloads/distrib/files/scala-2.10.0-RC2.tgz"/>
+    <artifact name="Scala_2_10" version="2.10.22">
+        <item name="scala-2.10.2.tgz" url="http://www.scala-lang.org/files/archive/scala-2.10.2.tgz"/>
+    </artifact>
+    <artifact name="Scala_2_11_Win" version="2.11.0-M4">
+        <item name="scala-2.11.0-M4.zip" url="http://www.scala-lang.org/files/archive/scala-2.11.0-M4.zip"/>
+    </artifact>
+    <artifact name="Scala_2_11" version="2.11.0-M4">
+        <item name="scala-2.11.0-M4.tgz" url="http://www.scala-lang.org/files/archive/scala-2.11.0-M4.tgz"/>
     </artifact>
 </artifacts>

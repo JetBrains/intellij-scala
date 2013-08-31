@@ -7,14 +7,12 @@ package impl
 import api.base.types.ScTypeElement
 import api.expr.ScExpression
 import api.statements.ScFunction
-import api.toplevel.typedef.ScTemplateDefinition
-import com.intellij.psi.impl.cache.TypeInfo
 import com.intellij.psi.stubs.{StubElement, IStubElementType}
-import com.intellij.psi.{PsiElement, PsiType}
+import com.intellij.psi.PsiElement
 import com.intellij.util.io.StringRef
-import com.intellij.util.PatchedSoftReference
 import psi.impl.ScalaPsiElementFactory
-import types.ScType
+import com.intellij.reference.SoftReference
+
 /**
  *  User: Alexander Podkhalyuzin
  *  Date: 14.10.2008
@@ -28,8 +26,8 @@ extends StubBaseWrapper[ScFunction](parent, elemType) with ScFunctionStub {
   private var annotations: Array[StringRef] = Array[StringRef]()
   private var typeText: StringRef = _
   private var bodyText: StringRef = _
-  private var myReturnTypeElement: PatchedSoftReference[Option[ScTypeElement]] = null
-  private var myBodyExpression: PatchedSoftReference[Option[ScExpression]] = null
+  private var myReturnTypeElement: SoftReference[Option[ScTypeElement]] = null
+  private var myBodyExpression: SoftReference[Option[ScExpression]] = null
   private var assign: Boolean = false
   private var _implicit: Boolean = false
   private var local: Boolean = false
@@ -80,7 +78,7 @@ extends StubBaseWrapper[ScFunction](parent, elemType) with ScFunctionStub {
       }
       else None
     }
-    myReturnTypeElement = new PatchedSoftReference[Option[ScTypeElement]](res)
+    myReturnTypeElement = new SoftReference[Option[ScTypeElement]](res)
     res
   }
 
@@ -94,7 +92,7 @@ extends StubBaseWrapper[ScFunction](parent, elemType) with ScFunctionStub {
         None
       }
     }
-    myBodyExpression = new PatchedSoftReference[Option[ScExpression]](res)
+    myBodyExpression = new SoftReference[Option[ScExpression]](res)
     res
   }
 

@@ -15,6 +15,8 @@ import psi.ScalaPsiUtil
 import psi.api.toplevel.ScTypeBoundsOwner
 import psi.api.statements.params.ScTypeParam
 import psi.api.base.{ScMethodLike, ScStableCodeReferenceElement}
+import com.intellij.psi.PsiFile
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 
 class StableCodeReferenceElementResolver(reference: ResolvableStableCodeReferenceElement, shapeResolve: Boolean,
                                           allConstructorResults: Boolean, noConstructorResolve: Boolean)

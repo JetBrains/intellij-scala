@@ -10,7 +10,7 @@ import com.intellij.codeInsight.editorActions.CopyPastePostProcessor
 import com.intellij.openapi.project.{DumbService, Project}
 import com.intellij.openapi.util.Ref
 import com.intellij.psi._
-import org.jetbrains.plugins.scala.annotator.intention.ScalaImportClassFix
+import org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix
 import com.intellij.codeInsight.CodeInsightSettings
 import org.jetbrains.plugins.scala.lang.dependency.Dependency
 import org.jetbrains.plugins.scala.extensions._
@@ -119,7 +119,7 @@ class ScalaCopyPastePostProcessor extends CopyPastePostProcessor[Associations] {
 
     inWriteAction {
       for (Binding(ref, path) <- bindingsToRestore;
-           holder = ScalaImportClassFix.getImportHolder(ref, file.getProject))
+           holder = ScalaImportTypeFix.getImportHolder(ref, file.getProject))
         holder.addImportForPath(path, ref)
     }
   }

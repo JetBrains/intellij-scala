@@ -517,7 +517,8 @@ object ScalaPsiUtil {
     index.getModuleForFile(element.getContainingFile.getVirtualFile)
   }
 
-  def collectImplicitObjects(tp: ScType, place: PsiElement): Seq[ScType] = {
+  def collectImplicitObjects(_tp: ScType, place: PsiElement): Seq[ScType] = {
+    val tp = ScType.removeAliasDefinitions(_tp)
     val projectOpt = Option(place).map(_.getProject)
     val parts: ListBuffer[ScType] = new ListBuffer[ScType]
     val visited = new mutable.HashSet[ScType]()
@@ -693,15 +694,7 @@ object ScalaPsiUtil {
             case Some(cls) if cls.qualifiedName == "java.lang.Object" => true // See SCL-3036
             case _ => false
           }
-          if (!p.isVarArgs) {
-            ScType.create(p.getType, p.getProject, paramTopLevel = true, treatJavaObjectAsAny = treatJavaObjectAsAny)
-          } else {
-            val baseType = p.getType match {
-              case a: PsiArrayType => a.getComponentType
-              case tp => tp
-            }
-            ScType.create(baseType, p.getProject, paramTopLevel = true, treatJavaObjectAsAny = treatJavaObjectAsAny)
-          }
+          p.exactParamType(treatJavaObjectAsAny)
       }
     })
   }
@@ -812,7 +805,7 @@ object ScalaPsiUtil {
                                           safeCheck: Boolean = false,
                                           filterTypeParams: Boolean = true,
                                           checkAnyway: Boolean = false): (ScTypePolymorphicType, Seq[ApplicabilityProblem]) = {
-    val (tp, problems, _) = localTypeInferenceWithApplicabilityExt(retType, params, exprs, typeParams,
+    val (tp, problems, _, _) = localTypeInferenceWithApplicabilityExt(retType, params, exprs, typeParams,
       shouldUndefineParameters, safeCheck, filterTypeParams, checkAnyway)
     (tp, problems)
   }
@@ -823,7 +816,7 @@ object ScalaPsiUtil {
                                              safeCheck: Boolean = false,
                                              filterTypeParams: Boolean = true,
                                              checkAnyway: Boolean = false
-    ): (ScTypePolymorphicType, Seq[ApplicabilityProblem], Seq[(Parameter, ScExpression)]) = {
+    ): (ScTypePolymorphicType, Seq[ApplicabilityProblem], Seq[(Parameter, ScExpression)], Seq[(Parameter, ScType)]) = {
     // See SCL-3052, SCL-3058
     // This corresponds to use of `isCompatible` in `Infer#methTypeArgs` in scalac, where `isCompatible` uses `weak_<:<`
     val s: ScSubstitutor = if (shouldUndefineParameters) undefineSubstitutor(typeParams) else ScSubstitutor.empty
@@ -928,7 +921,7 @@ object ScalaPsiUtil {
         case None => throw new SafeCheckException
       }
     } else ScTypePolymorphicType(retType, typeParams)
-    (tpe, c.problems, c.matchedArgs)
+    (tpe, c.problems, c.matchedArgs, c.matchedTypes)
   }
 
   def getElementsRange(start: PsiElement, end: PsiElement): Seq[PsiElement] = {

@@ -20,6 +20,8 @@ import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import java.awt.*;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 
 /**
  * @author Pavel Fatin
@@ -35,6 +37,7 @@ public class ScalaApplicationSettingsForm implements Configurable {
   private MultiLineLabel myNote;
   private JPanel mySdkPanel;
   private JCheckBox showTypeInfoOnCheckBox;
+  private JSpinner delaySpinner;
   private ScalaApplicationSettings mySettings;
 
   public ScalaApplicationSettingsForm(ScalaApplicationSettings settings) {
@@ -55,6 +58,15 @@ public class ScalaApplicationSettingsForm implements Configurable {
     mySdkPanel.add(myCompilationServerSdk, BorderLayout.CENTER);
 
     myNote.setForeground(JBColor.GRAY);
+
+    delaySpinner.setEnabled(showTypeInfoOnCheckBox.isSelected());
+    showTypeInfoOnCheckBox.addItemListener(new ItemListener() {
+      @Override
+      public void itemStateChanged(ItemEvent e) {
+        delaySpinner.setEnabled(showTypeInfoOnCheckBox.isSelected());
+      }
+    });
+    delaySpinner.setValue(mySettings.SHOW_TYPE_TOOLTIP_DELAY);
 
     updateCompilationServerSettingsPanel();
   }
@@ -93,6 +105,7 @@ public class ScalaApplicationSettingsForm implements Configurable {
     String sdkName = sdk == null ? null : sdk.getName();
 
     if (showTypeInfoOnCheckBox.isSelected() != mySettings.SHOW_TYPE_TOOLTIP_ON_MOUSE_HOVER) return true;
+    if (!delaySpinner.getValue().equals(mySettings.SHOW_TYPE_TOOLTIP_DELAY)) return true;
 
     return !(myEnableCompileServer.isSelected() == mySettings.COMPILE_SERVER_ENABLED &&
         myCompilationServerPort.getText().equals(mySettings.COMPILE_SERVER_PORT) &&
@@ -111,6 +124,7 @@ public class ScalaApplicationSettingsForm implements Configurable {
     mySettings.COMPILE_SERVER_MAXIMUM_HEAP_SIZE = myCompilationServerMaximumHeapSize.getText();
     mySettings.COMPILE_SERVER_JVM_PARAMETERS = myCompilationServerJvmParameters.getText();
     mySettings.SHOW_TYPE_TOOLTIP_ON_MOUSE_HOVER = showTypeInfoOnCheckBox.isSelected();
+    mySettings.SHOW_TYPE_TOOLTIP_DELAY = (Integer) delaySpinner.getValue();
 
     // TODO
 //    boolean externalCompiler = CompilerWorkspaceConfiguration.getInstance(myProject).USE_COMPILE_SERVER;
@@ -133,6 +147,7 @@ public class ScalaApplicationSettingsForm implements Configurable {
     myCompilationServerMaximumHeapSize.setText(mySettings.COMPILE_SERVER_MAXIMUM_HEAP_SIZE);
     myCompilationServerJvmParameters.setText(mySettings.COMPILE_SERVER_JVM_PARAMETERS);
     showTypeInfoOnCheckBox.setSelected(mySettings.SHOW_TYPE_TOOLTIP_ON_MOUSE_HOVER);
+    delaySpinner.setValue(mySettings.SHOW_TYPE_TOOLTIP_DELAY);
   }
 
   public void disposeUIResources() {
