@@ -8,12 +8,11 @@ import com.intellij.refactoring.RefactoringBundle
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import com.intellij.psi.search.SearchScope
 import java.util
-import com.intellij.refactoring.rename.RenamePsiElementProcessor
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import com.intellij.openapi.util.{TextRange, Pair}
-import scala.Some
 import com.intellij.refactoring.util.TextOccurrencesUtil
 import com.intellij.util.PairProcessor
+import com.intellij.psi.search.searches.ReferencesSearch
+import org.jetbrains.plugins.scala.lang.refactoring.rename.ScalaRenameUtil
 
 /**
  * Nikolay.Tropin
@@ -62,31 +61,11 @@ class ScalaInplaceRenamer(elementToRename: PsiNamedElement,
     } else stringUsages.clear()
   }
 
-  override def collectRefs(referencesSearchScope: SearchScope): util.Collection[PsiReference] = {
-    import scala.collection.JavaConverters.asJavaCollectionConverter
-    val refs = collectRefsForElement(substituted)
-    val companionRefs: Set[PsiReference] = substituted match {
-      case clazz: PsiClass =>
-        ScalaPsiUtil.getBaseCompanionModule(clazz) match {
-          case Some(c) => collectRefsForElement(c)
-          case _ => Set.empty
-        }
-      case _ => Set.empty
+  override def collectRefs(referencesSearchScope: SearchScope): util.Collection[PsiReference] =
+    ScalaRenameUtil.filterAliasedReferences {
+      ReferencesSearch.search(substituted, referencesSearchScope, true).findAll()
     }
-    new util.ArrayList((refs ++ companionRefs).asJavaCollection)
-  }
 
-  private def collectRefsForElement(element: PsiNamedElement): Set[PsiReference] = {
-    import scala.collection.JavaConverters.collectionAsScalaIterableConverter
-    def isSameFile(ref: PsiReference): Boolean = {
-      if (ref != null) {
-        val element = ref.getElement
-        element != null && element.isValid && !notSameFile(null, element.getContainingFile)
-      } else false
-    }
-    val processor: RenamePsiElementProcessor = RenamePsiElementProcessor.forElement(element)
-    processor.findReferences(element).asScala.filter(isSameFile).toSet
-  }
 
   override def revertStateOnFinish() {
     if (ScalaInplaceRenameUtil.isLocallyDefined(elementToRename) &&
