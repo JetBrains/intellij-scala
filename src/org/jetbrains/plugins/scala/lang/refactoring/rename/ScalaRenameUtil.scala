@@ -70,6 +70,7 @@ object ScalaRenameUtil {
           case newTempl: ScNewTemplateDefinition => ScalaPsiUtil.findInstanceBinding(newTempl).getOrElse(null)
           case clazz => clazz
         }
+      case named: PsiNamedElement => named
       case _ => null
     }
   }

@@ -91,12 +91,12 @@ class ScalaInplaceRenameHandler extends MemberInplaceRenameHandler{
       case named: ScNamedElement => named.nameId
       case _ => null
     }
-    elementToRename match {
+    ScalaRenameUtil.findSubstituteElement(elementToRename) match {
       case fun: ScFunction
         if nameId != null && nameId.getText == fun.name && Seq("apply", "unapply", "unapplySeq").contains(fun.name) || fun.isConstructor =>
           specialMethodPopup(fun)
           null
-      case _ => super.doRename(elementToRename, editor, dataContext)
+      case elem => super.doRename(elem, editor, dataContext)
     }
 
   }
