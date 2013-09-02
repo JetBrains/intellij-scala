@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 
 object ScalaRenameUtil {
-  def filterAliasedReferences(allReferences: util.Collection[PsiReference]): util.Collection[PsiReference] = {
+  def filterAliasedReferences(allReferences: util.Collection[PsiReference]): util.ArrayList[PsiReference] = {
     val filtered = allReferences.asScala.filter {
       case resolvableReferenceElement: ResolvableReferenceElement =>
         resolvableReferenceElement.bind() match {
@@ -26,7 +26,7 @@ object ScalaRenameUtil {
         }
       case _ => true
     }
-    filtered.asJavaCollection
+    new util.ArrayList(filtered.asJavaCollection)
   }
 
   def replaceImportClassReferences(allReferences: util.Collection[PsiReference]): util.Collection[PsiReference] = {
