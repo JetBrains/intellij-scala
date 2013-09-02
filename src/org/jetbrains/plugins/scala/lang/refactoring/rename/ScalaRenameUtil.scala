@@ -16,17 +16,19 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 
 object ScalaRenameUtil {
   def filterAliasedReferences(allReferences: util.Collection[PsiReference]): util.ArrayList[PsiReference] = {
-    val filtered = allReferences.asScala.filter {
-      case resolvableReferenceElement: ResolvableReferenceElement =>
-        resolvableReferenceElement.bind() match {
-          case Some(result) =>
-            val renamed = result.isRenamed
-            renamed.isEmpty
-          case None => true
-        }
-      case _ => true
-    }
+    val filtered = allReferences.asScala.filterNot(isAliased)
     new util.ArrayList(filtered.asJavaCollection)
+  }
+
+  def isAliased(ref: PsiReference): Boolean = ref match {
+    case resolvableReferenceElement: ResolvableReferenceElement =>
+      resolvableReferenceElement.bind() match {
+        case Some(result) =>
+          val renamed = result.isRenamed
+          renamed.nonEmpty
+        case None => false
+      }
+    case _ => false
   }
 
   def replaceImportClassReferences(allReferences: util.Collection[PsiReference]): util.Collection[PsiReference] = {

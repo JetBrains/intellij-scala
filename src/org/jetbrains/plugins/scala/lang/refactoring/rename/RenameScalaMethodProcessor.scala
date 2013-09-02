@@ -38,7 +38,8 @@ class RenameScalaMethodProcessor extends RenameJavaMethodProcessor {
     case _ => false
   }
 
-  override def findReferences(element: PsiElement) = ScalaRenameUtil.filterAliasedReferences(super.findReferences(element))
+  override def findReferences(element: PsiElement) =
+    ScalaRenameUtil.filterAliasedReferences(super.findReferences(element))
 
   override def prepareRenaming(element: PsiElement, newName: String, allRenames: util.Map[PsiElement, String]) {
     val function = element match {case x: ScFunction => x case _ => return}
