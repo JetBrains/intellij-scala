@@ -44,7 +44,9 @@ class RenameScalaValsProcessor extends RenameJavaMemberProcessor {
       case p: ScClassParameter if !p.isEffectiveVal => new LocalSearchScope(element.getContainingFile)
       case _ => GlobalSearchScope.allScope(element.getProject)
     }
-    ReferencesSearch.search(element, scope, true).findAll()
+    ScalaRenameUtil.filterAliasedReferences {
+      ReferencesSearch.search(element, scope, true).findAll()
+    }
   }
 
   override def prepareRenaming(element: PsiElement, newName: String, allRenames: Map[PsiElement, String]) {
