@@ -13,7 +13,6 @@ import scala._
 import scala.collection.{mutable, Set}
 import psi.api.toplevel.typedef.ScObject
 import psi.api.toplevel.ScTypedDefinition
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 
 class ExtractorResolveProcessor(ref: ScReferenceElement,
                                 refName: String,
@@ -45,10 +44,8 @@ class ExtractorResolveProcessor(ref: ScReferenceElement,
                 fromType = getFromType(state), parentElement = parent, isAccessible = accessible)
               val resolveToNamed = new ScalaResolveResult(named, getSubst(state).followed(subst), getImports(state),
                 fromType = getFromType(state), parentElement = parent, isAccessible = accessible)
-              named match {
-                case bind: ScBindingPattern => resolveToNamed.copy(innerResolveResult = Option(resolveToMethod))
-                case _ => resolveToMethod.copy(innerResolveResult = Option(resolveToNamed))
-              }
+
+              resolveToMethod.copy(innerResolveResult = Option(resolveToNamed))
           })
         }
         resultsFor("unapply")
