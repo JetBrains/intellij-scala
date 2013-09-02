@@ -19,7 +19,8 @@ import org.jetbrains.plugins.scala.lang.scaladoc.parser.ScalaDocElementTypes;
 %function advance
 %type IElementType
 
-%eof{ return;
+%eof{ 
+  return;
 %eof}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -27,6 +28,40 @@ import org.jetbrains.plugins.scala.lang.scaladoc.parser.ScalaDocElementTypes;
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 %{
+    private static abstract class InterpolatedStringLevel {
+      private int value = 0;
+      
+      public int get() {
+        return value;
+      }
+      
+      public boolean isZero() {
+        return value == 0;
+      }
+      
+      public void increase() {
+        ++value;
+      }
+      
+      public void decrease() {
+        --value;
+      }
+      
+      public abstract int getState();
+    }
+    
+    private static class RegularLevel extends InterpolatedStringLevel { 
+      public int getState() {
+        return INSIDE_INTERPOLATED_STRING;
+      }
+    }
+    
+    private static class MultilineLevel extends InterpolatedStringLevel { 
+      public int getState() {
+        return INSIDE_MULTI_LINE_INTERPOLATED_STRING;
+      }
+    }
+
     //do we need to close interpolated String ${}
     private boolean insideInterpolatedStringBracers = false;
     private boolean insideInterpolatedMultilineStringBracers = false;
@@ -35,15 +70,21 @@ import org.jetbrains.plugins.scala.lang.scaladoc.parser.ScalaDocElementTypes;
     private boolean haveIdInMultilineString = false;
     //bracers count inside injection
     private int structuralBracers = 0;
-
-    public boolean isInsideInterpolatedStringInjection() {
-      return structuralBracers > 0;
-    }
+    // Currently opened interpolated Strings. Each int represents the number of the opened left structural braces in the String 
+    private Stack<InterpolatedStringLevel> nestedString = new Stack<InterpolatedStringLevel>();
     
     public boolean isInterpolatedStringState() {
-        return insideInterpolatedStringBracers || insideInterpolatedMultilineStringBracers ||
-            haveIdInString || haveIdInMultilineString || yystate() == INSIDE_INTERPOLATED_STRING || 
-            yystate() == INSIDE_MULTI_LINE_INTERPOLATED_STRING;
+        return shouldProcessBracesForInterpolated()    || haveIdInString || haveIdInMultilineString || 
+               yystate() == INSIDE_INTERPOLATED_STRING || yystate() == INSIDE_MULTI_LINE_INTERPOLATED_STRING;
+    }
+    
+    private boolean shouldProcessBracesForInterpolated() {
+      return !nestedString.empty();      
+    }
+    
+    private void changeStringLevel() {
+      if (!nestedString.isEmpty()) nestedString.pop();
+      yybegin(COMMON_STATE);
     }
 
     private IElementType process(IElementType type){
@@ -224,11 +265,13 @@ XML_BEGIN = "<" ("_" | [:jletter:]) | "<!--" | "<?" ("_" | [:jletter:]) | "<![CD
 <WAIT_FOR_INTERPOLATED_STRING> {
   {INTERPOLATED_STRING_BEGIN} {
     yybegin(INSIDE_INTERPOLATED_STRING);
+    nestedString.push(new RegularLevel());
     return process(tINTERPOLATED_STRING);
   }
 
   {INTERPOLATED_MULTI_LINE_STRING_BEGIN} {
     yybegin(INSIDE_MULTI_LINE_INTERPOLATED_STRING);
+    nestedString.push(new MultilineLevel());
     return process(tINTERPOLATED_MULTILINE_STRING);
   }
 }
@@ -265,13 +308,12 @@ XML_BEGIN = "<" ("_" | [:jletter:]) | "<!--" | "<?" ("_" | [:jletter:]) | "<![CD
   }
 
   \" {
-    yybegin(COMMON_STATE);
+    changeStringLevel();
     return process(tINTERPOLATED_STRING_END);
   }
 
   "$" / "{" {
     yybegin(COMMON_STATE);
-    insideInterpolatedStringBracers = true;
     return process(tINTERPOLATED_STRING_INJECTION);
   }
   
@@ -307,13 +349,12 @@ XML_BEGIN = "<" ("_" | [:jletter:]) | "<!--" | "<?" ("_" | [:jletter:]) | "<![CD
   }
 
   \"\"\" {
-      yybegin(COMMON_STATE);
+      changeStringLevel();
       return process(tINTERPOLATED_STRING_END);
   }
 
   "$" / "{" {
       yybegin(COMMON_STATE);
-      insideInterpolatedMultilineStringBracers = true;
       return process(tINTERPOLATED_STRING_INJECTION);
   }
   
@@ -352,30 +393,26 @@ XML_BEGIN = "<" ("_" | [:jletter:]) | "<!--" | "<?" ("_" | [:jletter:]) | "<![CD
 "["                                     {   return process(tLSQBRACKET); }
 "]"                                     {   return process(tRSQBRACKET); }
 
-"{"                                     {   if (insideInterpolatedStringBracers || insideInterpolatedMultilineStringBracers) {
-                                              ++structuralBracers;
+"{"                                     {   if (shouldProcessBracesForInterpolated()) {
+                                              nestedString.peek().increase();
                                             }
 
                                             return process(tLBRACE); }
-"{"{XML_BEGIN}                          {   if (insideInterpolatedStringBracers || insideInterpolatedMultilineStringBracers) {
-                                              ++structuralBracers;
+"{"{XML_BEGIN}                          {   if (shouldProcessBracesForInterpolated()) {
+                                              nestedString.peek().increase();
                                             }
+                                            
                                             yypushback(yytext().length() - 1);
                                             yybegin(YYINITIAL);
                                             return process(tLBRACE); }
 
-"}"                                     {   if (insideInterpolatedStringBracers || insideInterpolatedMultilineStringBracers) {
-                                              --structuralBracers;
-                                              if (structuralBracers == 0) {
-                                                 if (insideInterpolatedMultilineStringBracers) {
-                                                    yybegin(INSIDE_MULTI_LINE_INTERPOLATED_STRING);
-                                                    insideInterpolatedMultilineStringBracers = false;
-                                                 } else {
-                                                    yybegin(INSIDE_INTERPOLATED_STRING);
-                                                    insideInterpolatedStringBracers = false;
-                                                 }
+"}"                                     {   if (shouldProcessBracesForInterpolated()) {
+                                              InterpolatedStringLevel level = nestedString.peek();
+                                              level.decrease();
+                                              
+                                              if (level.isZero()) {
+                                                yybegin(level.getState());
                                               }
-
                                             }
                                             return process(tRBRACE); }
 
