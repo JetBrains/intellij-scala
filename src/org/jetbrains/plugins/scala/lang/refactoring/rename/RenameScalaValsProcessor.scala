@@ -21,6 +21,8 @@ import com.intellij.psi.{PsiElement, PsiNamedElement}
 import org.jetbrains.plugins.scala.lang.psi.light.PsiTypedDefinitionWrapper.DefinitionRole._
 import psi.api.toplevel.typedef.ScMember
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
+import com.intellij.psi.search.searches.ReferencesSearch
+import com.intellij.psi.search.{LocalSearchScope, GlobalSearchScope}
 
 /**
  * User: Alexander Podkhalyuzin
@@ -30,16 +32,20 @@ import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 class RenameScalaValsProcessor extends RenameJavaMemberProcessor {
   override def canProcessElement(element: PsiElement): Boolean = element match {
     case c: ScNamedElement => ScalaPsiUtil.nameContext(c) match {
-      case _: ScVariable => true 
-      case _: ScValue => true
-      case c: ScClassParameter if c.isVal || c.isVar => true
+      case _: ScVariable | _: ScValue | _: ScClassParameter => true
       case method: FakePsiMethod => true
       case _ => false
     }
     case _ => false
   }
 
-  override def findReferences(element: PsiElement) = ScalaRenameUtil.filterAliasedReferences(super.findReferences(element))
+  override def findReferences(element: PsiElement) = {
+    val scope = element match {
+      case p: ScClassParameter if !p.isEffectiveVal => new LocalSearchScope(element.getContainingFile)
+      case _ => GlobalSearchScope.allScope(element.getProject)
+    }
+    ReferencesSearch.search(element, scope, true).findAll()
+  }
 
   override def prepareRenaming(element: PsiElement, newName: String, allRenames: Map[PsiElement, String]) {
     val namedElement = element match {case x: PsiNamedElement => x case _ => return}

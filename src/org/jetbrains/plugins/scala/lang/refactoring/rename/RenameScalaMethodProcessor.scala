@@ -80,12 +80,12 @@ class RenameScalaMethodProcessor extends RenameJavaMethodProcessor {
 
   override def substituteElementToRename(element: PsiElement, editor: Editor): PsiElement = {
     val guess = ScalaRenameUtil.findSubstituteElement(element)
-    if (guess != null) guess else SuperMethodWarningUtil.checkSuperMethod(element.asInstanceOf[PsiMethod] , "Rename")
+    if (guess != element) guess else SuperMethodWarningUtil.checkSuperMethod(element.asInstanceOf[PsiMethod] , "Rename")
   }
 
   override def substituteElementToRename(element: PsiElement, editor: Editor, renameCallback: Pass[PsiElement]) {
     val guess = ScalaRenameUtil.findSubstituteElement(element)
-    if (guess != null) renameCallback.pass(guess)
+    if (guess != element) renameCallback.pass(guess)
     else SuperMethodWarningUtil.checkSuperMethod(element.asInstanceOf[PsiMethod], "Rename", new PsiElementProcessor[PsiMethod] {
       def execute(method: PsiMethod): Boolean = {
         if (!canProcessElement(method)) false
