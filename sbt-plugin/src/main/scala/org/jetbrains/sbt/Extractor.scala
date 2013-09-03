@@ -85,9 +85,9 @@ object Extractor {
   }
 
   def extractConfiguration(state: State, structure: BuildStructure, projectRef: ProjectRef, configuration: Configuration): ConfigurationData = {
-    val sources = Keys.unmanagedSourceDirectories.in(projectRef, configuration).get(structure.data).get
+    val sources = Keys.sourceDirectories.in(projectRef, configuration).get(structure.data).get
 
-    val resources = Keys.unmanagedResourceDirectories.in(projectRef, configuration).get(structure.data).get
+    val resources = Keys.resourceDirectories.in(projectRef, configuration).get(structure.data).get
 
     val output = Keys.classDirectory.in(projectRef, configuration).get(structure.data).get
 
