@@ -7,10 +7,9 @@ import scala.io.Source
  * @author Pavel Fatin
  */
 object Loader {
-  private val JavaVM = canonicalPath(new File(new File(new File(System.getProperty("java.home")), "bin"), "java"))
-  private val SbtLauncher = canonicalPath(new File("sbt-launch.jar"))
-  private val SbtPlugin = canonicalPath(new File("target/scala-2.9.2/sbt-0.12/classes/"))
-  private val JavaOpts = Option(System.getenv("JAVA_OPTS")).map(_.split("\\s+")).toSeq.flatten
+  private val JavaVM = path(new File(new File(new File(System.getProperty("java.home")), "bin"), "java"))
+  private val SbtLauncher = path(new File("sbt-launch.jar"))
+  private val SbtPlugin = path(new File("target/scala-2.9.2/sbt-0.12/classes/"))
 
   def load(project: File, download: Boolean): Seq[String] = {
     val structureFile = createTempFile("sbt-structure", ".xml")
@@ -19,10 +18,10 @@ object Loader {
     val className = if (download) "ReadProjectAndRepository" else "ReadProject"
 
     writeLinesTo(commandsFile,
-      "set artifactPath := file(\"" + canonicalPath(structureFile) + "\")",
+      "set artifactPath := file(\"" + path(structureFile) + "\")",
       "apply -cp " + SbtPlugin + " org.jetbrains.sbt." + className)
 
-    val commands = JavaVM +: JavaOpts :+ "-jar" :+ SbtLauncher :+ ("< " + canonicalPath(commandsFile))
+    val commands = Seq(JavaVM, "-jar", SbtLauncher, "< " + path(commandsFile))
 
     run(commands, project)
 
@@ -31,7 +30,7 @@ object Loader {
     read(structureFile)
   }
 
-  private def canonicalPath(file: File): String = file.getAbsolutePath.replace('\\', '/')
+  private def path(file: File): String = file.getAbsolutePath.replace('\\', '/')
 
   private def createTempFile(prefix: String, suffix: String): File = {
     val file = File.createTempFile(prefix, suffix)
