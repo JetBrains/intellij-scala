@@ -77,7 +77,7 @@ class RenameScalaClassProcessor extends RenameJavaClassProcessor {
     element match {
       case o: ScObject =>
         o.fakeCompanionClass match {
-          case Some(clazz) => allRenames.put(clazz, newName + "$")
+          case Some(clazz) => allRenames.put(clazz, newName)
           case None =>
         }
       case t: ScTrait =>
