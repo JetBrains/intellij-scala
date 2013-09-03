@@ -296,11 +296,6 @@
 
         <intentionAction>
             <category>Scala/Type</category>
-            <className>org.jetbrains.plugins.scala.codeInsight.intention.types.ConvertScalaToJavaCollectionIntention</className>
-        </intentionAction>
-
-        <intentionAction>
-            <category>Scala/Type</category>
             <className>org.jetbrains.plugins.scala.codeInsight.intention.types.ToggleTypeAnnotation</className>
         </intentionAction>
 
@@ -972,11 +967,11 @@
         <action id="Scala.CopyWorksheet" class="org.jetbrains.plugins.scala.worksheet.actions.CopyWorksheetAction"
                 text="Copy Scala Worksheet" description="Copy Scala Worksheet">
         </action>
-        <action id="Scala.GenerateCompanionObject"
-                class="org.jetbrains.plugins.scala.codeInsight.generation.ScalaGenerateCompanionObjectAction" text="Companion object"
-                description="Generate companion object for class or trait">
+        <action id="Scala.GenerateEquals"
+                class="org.jetbrains.plugins.scala.codeInsight.generation.ScalaGenerateEqualsAction" text="equals() and hashCode()"
+                description="Generate equals() and hashCode() methods">
           <add-to-group group-id="GenerateGroup"/>
         </action>
-    </actions>
+      </actions>
 
 </idea-plugin>
