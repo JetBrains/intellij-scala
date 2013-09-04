@@ -120,6 +120,16 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
   override def getVariants(implicits: Boolean, filterNotNamedVariants: Boolean): Array[Object] = {
     val isInImport: Boolean = ScalaPsiUtil.getParentOfType(this, classOf[ScImportStmt]) != null
 
+    getSimpleVariants(implicits, filterNotNamedVariants).flatMap {
+      case res: ScalaResolveResult =>
+        import org.jetbrains.plugins.scala.lang.psi.types.Nothing
+        val qualifier = res.fromType.getOrElse(Nothing)
+        LookupElementManager.getLookupElement(res, isInImport = isInImport, qualifierType = qualifier, isInStableCodeReference = false)
+      case r => Seq(r.getElement)
+    }
+  }
+
+  def getSimpleVariants(implicits: Boolean, filterNotNamedVariants: Boolean): Array[ResolveResult] = {
     doResolve(this, new CompletionProcessor(getKinds(incomplete = true), this, implicits)).filter(r => {
       if (filterNotNamedVariants) {
         r match {
@@ -127,13 +137,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
           case _ => false
         }
       } else true
-    }).flatMap {
-      case res: ScalaResolveResult =>
-        import org.jetbrains.plugins.scala.lang.psi.types.Nothing
-        val qualifier = res.fromType.getOrElse(Nothing)
-        LookupElementManager.getLookupElement(res, isInImport = isInImport, qualifierType = qualifier, isInStableCodeReference = false)
-      case r => Seq(r.getElement)
-    }
+    })
   }
 
   def getSameNameVariants: Array[ResolveResult] = doResolve(this, new CompletionProcessor(getKinds(incomplete = true), this, true, Some(refName)))
