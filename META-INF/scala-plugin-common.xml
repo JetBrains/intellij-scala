@@ -72,6 +72,8 @@
                                 implementationClass="org.jetbrains.plugins.scala.lang.scaladoc.completion.ScalaDocCompletionContributor"/>
         <completion.contributor language="Scala" id="scalaCompletionContrubutor"
                                 implementationClass="org.jetbrains.plugins.scala.lang.completion.ScalaCompletionContributor"/>
+        <completion.contributor language="Scala" id="sameSignatureCallParametersProvider"
+                                implementationClass="org.jetbrains.plugins.scala.lang.completion.SameSignatureCallParametersProvider"/>
         <completion.contributor language="Scala" id="scalaClassNameCompletionContributor"
                                 implementationClass="org.jetbrains.plugins.scala.lang.completion.ScalaClassNameCompletionContributor"
                                 order="after scalaCompletionContrubutor"/> <!-- This is the last completion contributor! -->
