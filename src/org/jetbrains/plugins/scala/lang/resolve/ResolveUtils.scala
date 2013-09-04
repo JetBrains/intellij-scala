@@ -344,7 +344,7 @@ object ResolveUtils {
                 val isConstr = member match {case m: PsiMethod => m.isConstructor case _ => false}
                 var placeTd: ScTemplateDefinition = getPlaceTd(place, isConstr)
                 if (isConstr) {
-                  if (placeTd != null && !placeTd.isInstanceOf[ScTypeDefinition]) {
+                  if (placeTd != null && !placeTd.isInstanceOf[ScTypeDefinition] && placeTd.extendsBlock.templateBody == None) {
                     placeTd = getPlaceTd(placeTd)
                   } else if (placeTd !=  null) {
                     if (td != null && isInheritorOrSelfOrSame(placeTd, td)) return true
