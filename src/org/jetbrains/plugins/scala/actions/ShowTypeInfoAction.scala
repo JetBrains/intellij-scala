@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala
 package actions
 
 import _root_.com.intellij.codeInsight.TargetElementUtilBase
-import _root_.com.intellij.openapi.actionSystem.{AnAction, AnActionEvent, PlatformDataKeys}
+import com.intellij.openapi.actionSystem.{CommonDataKeys, AnAction, AnActionEvent}
 import _root_.com.intellij.psi._
 import _root_.com.intellij.psi.util.PsiUtilBase
 import _root_.org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
@@ -30,10 +30,10 @@ class ShowTypeInfoAction extends AnAction(ScalaBundle.message("type.info")) {
 
   def actionPerformed(e: AnActionEvent) {
     val context = e.getDataContext
-    val editor = PlatformDataKeys.EDITOR.getData(context)
+    val editor = CommonDataKeys.EDITOR.getData(context)
 
     if(editor == null) return
-    val file = PsiUtilBase.getPsiFileInEditor(editor, PlatformDataKeys.PROJECT.getData(context))
+    val file = PsiUtilBase.getPsiFileInEditor(editor, CommonDataKeys.PROJECT.getData(context))
     if (file.getLanguage != ScalaFileType.SCALA_LANGUAGE) return
 
     val selectionModel = editor.getSelectionModel

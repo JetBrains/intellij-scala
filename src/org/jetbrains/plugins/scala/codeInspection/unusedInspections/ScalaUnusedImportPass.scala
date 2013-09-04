@@ -12,7 +12,7 @@ import com.intellij.psi.PsiFile
 import lang.psi.api.toplevel.imports.usages.ImportUsed
 import lang.psi.api.ScalaFile
 import com.intellij.lang.annotation.AnnotationSession
-import com.intellij.codeInsight.daemon.impl.analysis.HighlightLevelUtil
+import com.intellij.codeInsight.daemon.impl.analysis.{HighlightingLevelManager, HighlightLevelUtil}
 import java.util.Collections
 import java.util
 import com.intellij.codeInsight.intention.IntentionAction
@@ -33,7 +33,7 @@ class ScalaUnusedImportPass(file: PsiFile, editor: Editor)
 
   def doApplyInformationToEditor() {
     file match {
-      case scalaFile: ScalaFile if HighlightLevelUtil shouldInspect file =>
+      case scalaFile: ScalaFile if HighlightingLevelManager.getInstance(file.getProject) shouldInspect file =>
         val unusedImports: Array[ImportUsed] = ImportTracker getInstance file.getProject getUnusedImport scalaFile
         val annotations = collectAnnotations(unusedImports, new AnnotationHolderImpl(new AnnotationSession(file)))
 

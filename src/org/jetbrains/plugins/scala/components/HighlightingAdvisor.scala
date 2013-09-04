@@ -13,7 +13,7 @@ import collection.JavaConversions._
 import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.scala.config.ScalaFacet
 import com.intellij.facet.{ProjectWideFacetAdapter, ProjectWideFacetListenersRegistry}
-import com.intellij.openapi.actionSystem.{DataContext, PlatformDataKeys}
+import com.intellij.openapi.actionSystem.{CommonDataKeys, DataContext}
 import com.intellij.openapi.editor.ex.EditorEx
 import com.intellij.openapi.util._
 import com.intellij.openapi.components._
@@ -151,7 +151,7 @@ class HighlightingAdvisor(project: Project) extends ProjectComponent with Persis
     val context = DataManager.getInstance.getDataContextFromFocus
     context.doWhenDone(new AsyncResult.Handler[DataContext]() {
       def run(v: DataContext) {
-        PlatformDataKeys.EDITOR_EVEN_IF_INACTIVE.getData(v) match {
+        CommonDataKeys.EDITOR_EVEN_IF_INACTIVE.getData(v) match {
           case editor: EditorEx => {
             FileContentUtil.reparseFiles(project, Seq(editor.getVirtualFile), true)
           }
