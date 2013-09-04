@@ -77,16 +77,15 @@ object ScSyntheticPackage {
 
     import com.intellij.psi.stubs.StubIndex
 
-    if (!SyntheticPackageHelper.checkNeedReindex(project, fqn)) return null
-
-    val packages = collection.immutable.Seq(StubIndex.getInstance().get(
+    import scala.collection.JavaConversions._
+    val packages = StubIndex.getInstance().safeGet(
       ScalaIndexKeys.PACKAGE_FQN_KEY.asInstanceOf[StubIndexKey[Any, ScPackageContainer]],
-      fqn.hashCode(), project, GlobalSearchScope.allScope(project)).toArray(Array[ScPackageContainer]()).toSeq : _*)
+      fqn.hashCode(), project, GlobalSearchScope.allScope(project), classOf[ScPackageContainer]).toSeq
 
     if (packages.isEmpty) {
-      collection.immutable.Seq(StubIndex.getInstance().get(
+      StubIndex.getInstance().safeGet(
         ScalaIndexKeys.PACKAGE_OBJECT_KEY.asInstanceOf[StubIndexKey[Any, PsiClass]],
-        fqn.hashCode(), project, GlobalSearchScope.allScope(project)).toArray(Array[PsiClass]()).toSeq: _*).
+        fqn.hashCode(), project, GlobalSearchScope.allScope(project), classOf[PsiClass]).toSeq.
         find(pc => {
         pc.qualifiedName == fqn
       }) match {

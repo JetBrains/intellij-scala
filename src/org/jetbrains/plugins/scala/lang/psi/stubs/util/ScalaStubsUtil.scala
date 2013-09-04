@@ -26,6 +26,8 @@ import com.intellij.util.Processor
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScVariable, ScValue}
 import api.toplevel.packaging.ScPackageContainer
 import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScFileStubImpl
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScExtendsBlock
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSelfTypeElement
 
 /**
  * User: Alexander Podkhalyuzin
@@ -37,23 +39,20 @@ object ScalaStubsUtil {
     val name: String = clazz.name
     if (name == null) return Seq.empty
     val inheritors = new ArrayBuffer[ScTemplateDefinition]
-    val iterator: java.util.Iterator[PsiElement] =
-      StubIndex.getInstance().get(ScDirectInheritorsIndex.KEY, name, clazz.getProject, scope).iterator.
-              asInstanceOf[java.util.Iterator[PsiElement]]
+    val iterator: java.util.Iterator[ScExtendsBlock] =
+      StubIndex.getInstance().safeGet(ScDirectInheritorsIndex.KEY, name, clazz.getProject, scope, classOf[ScExtendsBlock]).iterator
     while (iterator.hasNext) {
       val extendsBlock: PsiElement = iterator.next
-      if (checkPsiForExtendsBlock(extendsBlock)) {
-        val stub = extendsBlock.asInstanceOf[ScExtendsBlockImpl].getStub
-        if (stub != null) {
-          if (stub.getParentStub.getStubType.isInstanceOf[ScTemplateDefinitionElementType[_ <: ScTemplateDefinition]]) {
-            inheritors += stub.getParentStub.getPsi.asInstanceOf[ScTemplateDefinition]
-          }
+      val stub = extendsBlock.asInstanceOf[ScExtendsBlockImpl].getStub
+      if (stub != null) {
+        if (stub.getParentStub.getStubType.isInstanceOf[ScTemplateDefinitionElementType[_ <: ScTemplateDefinition]]) {
+          inheritors += stub.getParentStub.getPsi.asInstanceOf[ScTemplateDefinition]
         }
-        else {
-          extendsBlock.getParent match {
-            case tp: ScTemplateDefinition => inheritors += tp
-            case _ =>
-          }
+      }
+      else {
+        extendsBlock.getParent match {
+          case tp: ScTemplateDefinition => inheritors += tp
+          case _ =>
         }
       }
     }
@@ -65,38 +64,34 @@ object ScalaStubsUtil {
     if (name == null) return Seq.empty
     val inheritors = new ArrayBuffer[ScTemplateDefinition]
     def processClass(inheritedClazz: PsiClass) {
-      val iterator: java.util.Iterator[PsiElement] =
-        StubIndex.getInstance().get(ScSelfTypeInheritorsIndex.KEY, name, inheritedClazz.getProject, scope).iterator.
-          asInstanceOf[java.util.Iterator[PsiElement]]
+      val iterator: java.util.Iterator[ScSelfTypeElement] =
+        StubIndex.getInstance().safeGet(ScSelfTypeInheritorsIndex.KEY, name, inheritedClazz.getProject, scope, classOf[ScSelfTypeElement]).iterator
       while (iterator.hasNext) {
-        val elem: PsiElement = iterator.next
-        if (checkPsiForSelfTypeElement(elem)) {
-          val selfTypeElement = elem.asInstanceOf[ScSelfTypeElementImpl]
-          selfTypeElement.typeElement match {
-            case Some(typeElement) =>
-              typeElement.getType(TypingContext.empty) match {
-                case Success(tp, _) =>
-                  def checkTp(tp: ScType): Boolean = {
-                    tp match {
-                      case c: ScCompoundType =>
-                        c.components.exists(checkTp(_))
-                      case _ =>
-                        ScType.extractClass(tp, Some(inheritedClazz.getProject)) match {
-                          case Some(otherClazz) =>
-                            if (otherClazz == inheritedClazz) return true
-                          case _ =>
-                        }
-                    }
-                    false
+        val selfTypeElement = iterator.next
+        selfTypeElement.typeElement match {
+          case Some(typeElement) =>
+            typeElement.getType(TypingContext.empty) match {
+              case Success(tp, _) =>
+                def checkTp(tp: ScType): Boolean = {
+                  tp match {
+                    case c: ScCompoundType =>
+                      c.components.exists(checkTp)
+                    case _ =>
+                      ScType.extractClass(tp, Some(inheritedClazz.getProject)) match {
+                        case Some(otherClazz) =>
+                          if (otherClazz == inheritedClazz) return true
+                        case _ =>
+                      }
                   }
-                  if (checkTp(tp)) {
-                    val clazz = PsiTreeUtil.getContextOfType(selfTypeElement, classOf[ScTemplateDefinition])
-                    if (clazz != null) inheritors += clazz
-                  }
-                case _ =>
-              }
-            case _ =>
-          }
+                  false
+                }
+                if (checkTp(tp)) {
+                  val clazz = PsiTreeUtil.getContextOfType(selfTypeElement, classOf[ScTemplateDefinition])
+                  if (clazz != null) inheritors += clazz
+                }
+              case _ =>
+            }
+          case _ =>
         }
       }
     }
@@ -110,143 +105,6 @@ object ScalaStubsUtil {
     inheritors.toSeq
   }
 
-  def checkPsiForExtendsBlock(element: PsiElement): Boolean = {
-    element match {
-      case x: ScExtendsBlockImpl => true
-      case _ => {
-        val faultyContainer = PsiUtilCore.getVirtualFile(element)
-        LOG.error(s"Non ScExtendsBlock in ScExtendsBlock list: $faultyContainer. found: $element")
-        if (faultyContainer != null && faultyContainer.isValid) {
-          FileBasedIndex.getInstance.requestReindex(faultyContainer)
-        }
-        false
-      }
-    }
-  }
-
-  def checkPsiForSelfTypeElement(element: PsiElement): Boolean = {
-    element match {
-      case x: ScSelfTypeElementImpl => true
-      case _ => {
-        val faultyContainer = PsiUtilCore.getVirtualFile(element)
-        LOG.error(s"Non ScSelfTypeElement in ScSelfTypeElement list: $faultyContainer. found: $element")
-        if (faultyContainer != null && faultyContainer.isValid) {
-          FileBasedIndex.getInstance.requestReindex(faultyContainer)
-        }
-        false
-      }
-    }
-  }
-
-  def checkPsiForAnnotation(element: PsiElement): Boolean = {
-    element match {
-      case x: ScAnnotation => true
-      case _ => {
-        val faultyContainer = PsiUtilCore.getVirtualFile(element)
-        LOG.error(s"Non ScAnnotation in ScAnnotation list: $faultyContainer. found: $element")
-        if (faultyContainer != null && faultyContainer.isValid) {
-          FileBasedIndex.getInstance.requestReindex(faultyContainer)
-        }
-        false
-      }
-    }
-  }
-
-  def checkPsiForClass(element: PsiElement): Boolean = {
-    element match {
-      case x: PsiClass => true
-      case _ => {
-        val faultyContainer = PsiUtilCore.getVirtualFile(element)
-        LOG.error(s"Non PsiClass in PsiClass list: $faultyContainer. found: $element")
-        if (faultyContainer != null && faultyContainer.isValid) {
-          FileBasedIndex.getInstance.requestReindex(faultyContainer)
-        }
-        false
-      }
-    }
-  }
-
-  def checkPsiForTypeAlias(element: PsiElement): Boolean = {
-    element match {
-      case x: ScTypeAlias => true
-      case _ => {
-        val faultyContainer = PsiUtilCore.getVirtualFile(element)
-        LOG.error(s"Non TypeAlias in TypeAlias list: $faultyContainer. found: $element")
-        if (faultyContainer != null && faultyContainer.isValid) {
-          FileBasedIndex.getInstance.requestReindex(faultyContainer)
-        }
-        false
-      }
-    }
-  }
-
-  def checkPsiForValue(element: PsiElement): Boolean = {
-    element match {
-      case x: ScValue => true
-      case _ => {
-        val faultyContainer = PsiUtilCore.getVirtualFile(element)
-        LOG.error(s"Non ScValue in ScValue list: $faultyContainer. found: $element")
-        if (faultyContainer != null && faultyContainer.isValid) {
-          FileBasedIndex.getInstance.requestReindex(faultyContainer)
-        }
-        false
-      }
-    }
-  }
-
-  def checkPsiForVariable(element: PsiElement): Boolean = {
-    element match {
-      case x: ScVariable => true
-      case _ => {
-        val faultyContainer = PsiUtilCore.getVirtualFile(element)
-        LOG.error(s"Non ScVariable in ScVariable list: $faultyContainer. found: $element")
-        if (faultyContainer != null && faultyContainer.isValid) {
-          FileBasedIndex.getInstance.requestReindex(faultyContainer)
-        }
-        false
-      }
-    }
-  }
-
-  def checkPsiForPsiMethod(element: PsiElement): Boolean = {
-    element match {
-      case x: PsiMethod => true
-      case _ =>
-        val faultyContainer = PsiUtilCore.getVirtualFile(element)
-        LOG.error(s"Non PsiMethod in PsiMethod list: $faultyContainer. found: $element")
-        if (faultyContainer != null && faultyContainer.isValid) {
-          FileBasedIndex.getInstance.requestReindex(faultyContainer)
-        }
-        false
-    }
-  }
-
-  def checkPsiForObject(element: PsiElement): Boolean = {
-    element match {
-      case x: ScObject => true
-      case _ =>
-        val faultyContainer = PsiUtilCore.getVirtualFile(element)
-        LOG.error(s"Non ScObject in ScObject list: $faultyContainer. found: $element")
-        if (faultyContainer != null && faultyContainer.isValid) {
-          FileBasedIndex.getInstance.requestReindex(faultyContainer)
-        }
-        false
-    }
-  }
-  
-  def checkPsiForPackageContainer(element: PsiElement): Boolean = {
-    element match {
-      case x: ScPackageContainer => true
-      case _ =>
-        val faultyContainer = PsiUtilCore.getVirtualFile(element)
-        LOG.error(s"Non ScPackageContainer in ScPackageContainer list: $faultyContainer. found: $element")
-        if (faultyContainer != null && faultyContainer.isValid) {
-          FileBasedIndex.getInstance.requestReindex(faultyContainer)
-        }
-        false
-    }
-  }
-  
   def serializeFileStubElement(stub: ScFileStub, dataStream: StubOutputStream) {
     dataStream.writeBoolean(stub.isScript)
     dataStream.writeBoolean(stub.isCompiled)
