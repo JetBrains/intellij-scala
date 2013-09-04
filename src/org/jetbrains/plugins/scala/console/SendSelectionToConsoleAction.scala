@@ -26,12 +26,12 @@ class SendSelectionToConsoleAction extends AnAction {
     }
     try {
       val context = e.getDataContext
-      val file = LangDataKeys.PSI_FILE.getData(context)
+      val file = CommonDataKeys.PSI_FILE.getData(context)
       if (file == null) {
         disable()
         return
       }
-      val editor = PlatformDataKeys.EDITOR.getData(context)
+      val editor = CommonDataKeys.EDITOR.getData(context)
       val hasSelection = editor.getSelectionModel.hasSelection
       val console = ScalaConsoleInfo.getConsole(file.getProject)
 
@@ -64,8 +64,8 @@ class SendSelectionToConsoleAction extends AnAction {
 
   def actionPerformed(e: AnActionEvent) {
     val context = e.getDataContext
-    val editor = PlatformDataKeys.EDITOR.getData(context)
-    val project = PlatformDataKeys.PROJECT.getData(context)
+    val editor = CommonDataKeys.EDITOR.getData(context)
+    val project = CommonDataKeys.PROJECT.getData(context)
 
     if (editor == null || project == null) return
     val selectedText = editor.getSelectionModel.getSelectedText

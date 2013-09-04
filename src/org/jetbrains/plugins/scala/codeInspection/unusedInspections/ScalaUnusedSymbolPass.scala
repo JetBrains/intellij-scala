@@ -24,7 +24,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScVariab
 import com.intellij.psi._
 import com.intellij.codeInsight.daemon.HighlightDisplayKey
 import com.intellij.codeInsight.daemon.impl._
-import analysis.HighlightLevelUtil
+import com.intellij.codeInsight.daemon.impl.analysis.{HighlightingLevelManager, HighlightLevelUtil}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import annotator.importsTracker.ScalaRefCountHolder
 import extensions.toPsiNamedElementExt
@@ -42,7 +42,7 @@ class ScalaUnusedSymbolPass(file: PsiFile, editor: Editor) extends TextEditorHig
 
   def doApplyInformationToEditor() {
     file match {
-      case sFile: ScalaFile if HighlightLevelUtil.shouldInspect(file) =>
+      case sFile: ScalaFile if HighlightingLevelManager.getInstance(file.getProject).shouldInspect(file) =>
         processScalaFile(sFile)
         import scala.collection.JavaConversions._
         UpdateHighlightersUtil.setHighlightersToEditor(file.getProject, editor.getDocument, 0, file.getTextLength,
