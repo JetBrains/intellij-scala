@@ -25,31 +25,29 @@ import stubs.StubIndex
 import psi.stubs.index.ScalaIndexKeys
 import finder.ScalaSourceFilterScope
 import com.intellij.openapi.diagnostic.Logger
-import collection.mutable.HashSet
 import com.intellij.psi.search.{PsiShortNamesCache, GlobalSearchScope}
-import java.util.{Collections, Map}
+import java.util.Collections
 import com.intellij.openapi.roots.{ModuleRootEvent, ModuleRootListener}
 import ParameterlessNodes.{Map => PMap}, TypeNodes.{Map => TMap}, SignatureNodes.{Map => SMap}
 import psi.stubs.util.ScalaStubsUtil
 import java.util
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
-import com.intellij.navigation.NavigationItem
 
 class ScalaPsiManager(project: Project) extends ProjectComponent {
   private val implicitObjectMap: ConcurrentMap[String, SoftReference[java.util.Map[GlobalSearchScope, Seq[ScObject]]]] =
     new ConcurrentHashMap()
 
-  private val classMap: ConcurrentMap[String, SoftReference[Map[GlobalSearchScope, Option[PsiClass]]]] =
+  private val classMap: ConcurrentMap[String, SoftReference[util.Map[GlobalSearchScope, Option[PsiClass]]]] =
     new ConcurrentHashMap()
 
-  private val classesMap: ConcurrentMap[String, SoftReference[Map[GlobalSearchScope, Array[PsiClass]]]] =
+  private val classesMap: ConcurrentMap[String, SoftReference[util.Map[GlobalSearchScope, Array[PsiClass]]]] =
     new ConcurrentHashMap()
 
-  private val classFacadeMap: ConcurrentMap[String, SoftReference[Map[GlobalSearchScope, Option[PsiClass]]]] =
+  private val classFacadeMap: ConcurrentMap[String, SoftReference[util.Map[GlobalSearchScope, Option[PsiClass]]]] =
     new ConcurrentHashMap()
 
-  private val classesFacadeMap: ConcurrentMap[String, SoftReference[Map[GlobalSearchScope, Array[PsiClass]]]] =
+  private val classesFacadeMap: ConcurrentMap[String, SoftReference[util.Map[GlobalSearchScope, Array[PsiClass]]]] =
     new ConcurrentHashMap()
 
   private val inheritorsMap: ConcurrentMap[PsiClass, SoftReference[ConcurrentMap[PsiClass, java.lang.Boolean]]] =
@@ -61,8 +59,8 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
   private val javaPackageClassNamesMap: ConcurrentMap[(GlobalSearchScope, String), java.util.Set[String]] =
     new ConcurrentHashMap[(GlobalSearchScope, String), java.util.Set[String]]
 
-  private val scalaPackageClassNamesMap: ConcurrentMap[(GlobalSearchScope, String), HashSet[String]] =
-    new ConcurrentHashMap[(GlobalSearchScope, String), HashSet[String]]
+  private val scalaPackageClassNamesMap: ConcurrentMap[(GlobalSearchScope, String), mutable.HashSet[String]] =
+    new ConcurrentHashMap[(GlobalSearchScope, String), mutable.HashSet[String]]
 
   private val compoundTypesParameterslessNodes: ConcurrentMap[(ScCompoundType, Option[ScType]), SoftReference[PMap]] =
     new ConcurrentHashMap
@@ -191,26 +189,22 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
   }
 
   def getStableAliasesByName(name: String, scope: GlobalSearchScope): Seq[ScTypeAlias] = {
-    val types: util.Collection[_ <: PsiElement] =
-      StubIndex.getInstance.get(ScalaIndexKeys.TYPE_ALIAS_NAME_KEY, name, project, new ScalaSourceFilterScope(scope, project))
+    val types: util.Collection[ScTypeAlias] =
+      StubIndex.getInstance.safeGet(ScalaIndexKeys.TYPE_ALIAS_NAME_KEY, name, project,
+        new ScalaSourceFilterScope(scope, project), classOf[ScTypeAlias])
     import scala.collection.JavaConversions._
-    types.flatMap {
-      case t: ScTypeAlias => Seq(t)
-      case elem => ScalaStubsUtil.checkPsiForTypeAlias(elem); Seq.empty
-    }.toSeq
+    types.toSeq
   }
 
   def getClassesByName(name: String, scope: GlobalSearchScope): Seq[PsiClass] = {
-    val scalaClasses: Seq[_ <: PsiElement] = ScalaShortNamesCacheManager.getInstance(project).getClassesByName(name, scope)
+    val scalaClasses = ScalaShortNamesCacheManager.getInstance(project).getClassesByName(name, scope)
     val buffer: mutable.Buffer[PsiClass] = PsiShortNamesCache.getInstance(project).getClassesByName(name, scope).filterNot(p =>
       p.isInstanceOf[ScTemplateDefinition] || p.isInstanceOf[PsiClassWrapper]
     ).toBuffer
     val classesIterator = scalaClasses.iterator
     while (classesIterator.hasNext) {
       val clazz = classesIterator.next()
-      if (ScalaStubsUtil.checkPsiForClass(clazz)) {
-        buffer += clazz.asInstanceOf[PsiClass]
-      }
+      buffer += clazz
     }
     buffer.toSeq
   }
@@ -307,16 +301,13 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
     val qualifier: String = psiPackage.getQualifiedName
     def calc: JSet[String] = {
       if (DumbServiceImpl.getInstance(project).isDumb) return Collections.emptySet()
-      val classes: util.Collection[_ <: PsiElement] =
-        StubIndex.getInstance.get(ScalaIndexKeys.JAVA_CLASS_NAME_IN_PACKAGE_KEY, qualifier, project,
-          new ScalaSourceFilterScope(scope, project))
-      import java.util.HashSet
-      val strings: HashSet[String] = new HashSet[String]
+      val classes: util.Collection[PsiClass] =
+        StubIndex.getInstance.safeGet(ScalaIndexKeys.JAVA_CLASS_NAME_IN_PACKAGE_KEY, qualifier, project,
+          new ScalaSourceFilterScope(scope, project), classOf[PsiClass])
+      val strings: util.HashSet[String] = new util.HashSet[String]
       val classesIterator = classes.iterator()
       while (classesIterator.hasNext) {
-        val element = classesIterator.next()
-        if (!ScalaStubsUtil.checkPsiForClass(element)) return null
-        val clazz: PsiClass = element.asInstanceOf[PsiClass]
+        val clazz: PsiClass = classesIterator.next()
         strings add clazz.getName
         clazz match {
           case t: ScTemplateDefinition =>
@@ -335,19 +326,17 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
     res
   }
 
-  def getScalaClassNames(psiPackage: PsiPackage, scope: GlobalSearchScope): HashSet[String] = {
+  def getScalaClassNames(psiPackage: PsiPackage, scope: GlobalSearchScope): mutable.HashSet[String] = {
     val qualifier: String = psiPackage.getQualifiedName
-    def calc: HashSet[String] = {
-      if (DumbServiceImpl.getInstance(project).isDumb) return HashSet.empty
-      val classes: util.Collection[_ <: PsiElement] =
-        StubIndex.getInstance.get(ScalaIndexKeys.CLASS_NAME_IN_PACKAGE_KEY, qualifier, project,
-          new ScalaSourceFilterScope(scope, project))
-      var strings: HashSet[String] = new HashSet[String]
+    def calc: mutable.HashSet[String] = {
+      if (DumbServiceImpl.getInstance(project).isDumb) return mutable.HashSet.empty
+      val classes: util.Collection[PsiClass] =
+        StubIndex.getInstance.safeGet(ScalaIndexKeys.CLASS_NAME_IN_PACKAGE_KEY, qualifier, project,
+          new ScalaSourceFilterScope(scope, project), classOf[PsiClass])
+      var strings: mutable.HashSet[String] = new mutable.HashSet[String]
       val classesIterator = classes.iterator()
       while (classesIterator.hasNext) {
-        val element = classesIterator.next()
-        if (!ScalaStubsUtil.checkPsiForClass(element)) return null
-        val clazz: PsiClass = element.asInstanceOf[PsiClass]
+        val clazz: PsiClass = classesIterator.next()
         strings += clazz.name
       }
       strings
@@ -355,7 +344,7 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
     var res = scalaPackageClassNamesMap.get(scope, qualifier)
     if (res == null) {
       res = calc
-      if (res == null) return HashSet.empty
+      if (res == null) return mutable.HashSet.empty
       scalaPackageClassNamesMap.put((scope, qualifier), res)
     }
     res
@@ -420,7 +409,7 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
     var p = syntheticPackages.get(fqn)
     if (p == null) {
       p = syntheticPackagesCreator.getPackage(fqn)
-      if (p == null) p = Null
+      if (p == null) p = types.Null
       synchronized {
         val pp = syntheticPackages.get(fqn)
         if (pp == null) {
@@ -446,7 +435,7 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
         res
       }
       case _ => {
-        val lower = () => Nothing
+        val lower = () => types.Nothing
         val upper = () => tp.getSuperTypes match {
           case array: Array[PsiClassType] if array.length == 1 => ScType.create(array(0), project)
           case many => new ScCompoundType(collection.immutable.Seq(many.map {
