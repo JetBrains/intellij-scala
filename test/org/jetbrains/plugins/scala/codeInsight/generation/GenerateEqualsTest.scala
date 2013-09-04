@@ -33,7 +33,7 @@ class GenerateEqualsTest extends ScalaGenerateTestBase {
                    |  }
                    |
                    |  override def hashCode(): Int = {
-                   |    val state = Seq(x, y, z, j)
+                   |    val state = Seq(x, z, j)
                    |    state.map(_.hashCode()).foldLeft(0)((a, b) => 31 * a + b)
                    |  }
                    |}"""
