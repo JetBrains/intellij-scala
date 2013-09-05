@@ -1,0 +1,43 @@
+<?xml version='1.0'?>
+<list>
+    <option name="Implicit conversion first part">
+        <value>
+            <option name="FOREGROUND" value="1a5746"/>
+        </value>
+    </option>
+    <option name="Implicit conversion second part">
+        <value>
+            <option name="FOREGROUND" value="1e7866"/>
+        </value>
+    </option>
+    <option name="Implicit conversion">
+        <value>
+            <option name="EFFECT_COLOR" value="c0c0c0" />
+            <option name="EFFECT_TYPE" value="1" />
+        </value>
+    </option>
+    <option name="Scala Mutable Collection">
+        <value>
+            <option name="EFFECT_COLOR" value="e29ec2" />
+            <option name="EFFECT_TYPE" value="5" />
+        </value>
+    </option>
+    <option name="Scala Immutable Collection">
+        <value>
+            <option name="EFFECT_COLOR" value="accb79" />
+            <option name="EFFECT_TYPE" value="5" />
+        </value>
+    </option>
+    <option name="Standart Java Collection">
+        <value>
+            <option name="EFFECT_COLOR" value="81c2c3" />
+            <option name="EFFECT_TYPE" value="5" />
+        </value>
+    </option>
+    <option name="Interpolated String Injection">
+        <value>
+            <option name="FONT_TYPE" value="1" />
+            <option name="FOREGROUND" value="00b8bb" />
+        </value>
+    </option>
+</list>
