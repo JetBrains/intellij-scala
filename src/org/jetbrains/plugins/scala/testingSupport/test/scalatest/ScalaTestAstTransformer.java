@@ -28,6 +28,7 @@ import org.scalatest.finders.Finder;
 import org.scalatest.finders.Selection;
 import org.scalatest.finders.ToStringTarget;
 import scala.Option;
+import scala.Option$;
 import scala.collection.JavaConversions;
 import scala.collection.Seq;
 
@@ -91,7 +92,7 @@ public class ScalaTestAstTransformer {
     public ScTypeDefinition clazzWithStyleOpt(ScClass clazz) {
         List<ScType> list = (List) MixinNodes.linearization(clazz);
         for (ScType t : list) {
-            Option<PsiClass> tp = ScType$.MODULE$.extractClass2(t, clazz.getProject());
+            Option<PsiClass> tp = ScType$.MODULE$.extractClass(t, Option$.MODULE$.apply(clazz.getProject()));
             if ((tp instanceof ScClass) && (((ScClass) tp).hasAnnotation("org.scalatest.Style").get() != null)) {
                 return (ScClass) tp;
             }
@@ -107,7 +108,7 @@ public class ScalaTestAstTransformer {
         List<ScType> list = JavaConversions.seqAsJavaList(classes);
         List<PsiClass> newList = new ArrayList<PsiClass>();
         for (ScType type : list) {
-            PsiClass c = ScType$.MODULE$.extractClass2(type, clazz.getProject()).get();
+            PsiClass c = ScType$.MODULE$.extractClass(type, Option$.MODULE$.apply(clazz.getProject())).get();
             if (c != null) {
                 newList.add(c);
             }

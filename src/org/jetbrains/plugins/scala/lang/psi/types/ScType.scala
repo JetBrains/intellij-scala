@@ -202,13 +202,6 @@ object ScType extends ScTypePresentation with ScTypePsiTypeBridge {
     }
   }
 
-  def extractClass2(t: ScType, project: Project = null): Option[PsiClass] = {
-    t match {
-      case p@ScParameterizedType(t1, _) => extractClass2(t1, project)
-      case _ => extractClassType(t, Some(project)).map(_._1)
-    }
-  }
-
   def extractClassType(t: ScType, project: Option[Project] = None): Option[Pair[PsiClass, ScSubstitutor]] = t match {
     case n: NonValueType => extractClassType(n.inferValueType)
     case ScDesignatorType(clazz: PsiClass) => Some(clazz, ScSubstitutor.empty)
@@ -249,16 +242,50 @@ object ScType extends ScTypePresentation with ScTypePsiTypeBridge {
     case _ => None
   }
 
-  def extractDesignated(t: ScType): Option[Pair[PsiNamedElement, ScSubstitutor]] = t match {
+  /**
+   * Returns named element associated with type `t`.
+   * If withoutAliases is `true` expands alias definitions first
+   * @param t type
+   * @param withoutAliases need to expand alias or not
+   * @return element and substitutor
+   */
+  def extractDesignated(t: ScType, withoutAliases: Boolean): Option[Pair[PsiNamedElement, ScSubstitutor]] = t match {
+    case n: NonValueType => extractDesignated(n.inferValueType, withoutAliases)
+    case ScDesignatorType(ta: ScTypeAliasDefinition) if withoutAliases =>
+      val result = ta.aliasedType(TypingContext.empty)
+      if (result.isEmpty) return None
+      extractDesignated(result.get, withoutAliases)
     case ScDesignatorType(e) => Some(e, ScSubstitutor.empty)
     case ScThisType(c) => Some(c, ScSubstitutor.empty)
-    case proj@ScProjectionType(p, e, _) => Some((proj.actualElement, proj.actualSubst))
+    case proj@ScProjectionType(p, e, _) => proj.actualElement match {
+      case t: ScTypeAliasDefinition if withoutAliases =>
+        val result = t.aliasedType(TypingContext.empty)
+        if (result.isEmpty) return None
+        extractDesignated(proj.actualSubst.subst(result.get), withoutAliases)
+      case _ => Some((proj.actualElement, proj.actualSubst))
+    }
     case p@ScParameterizedType(t1, _) => {
-      extractClassType(t1) match {
+      extractDesignated(t1, withoutAliases) match {
         case Some((e, s)) => Some((e, s.followed(p.substitutor)))
         case None => None
       }
     }
+    case tuple@ScTupleType(comp) => {
+      tuple.resolveTupleTrait match {
+        case Some(clazz) => extractDesignated(clazz, withoutAliases)
+        case _ => None
+      }
+    }
+    case fun: ScFunctionType => {
+      fun.resolveFunctionTrait match {
+        case Some(tp) => extractDesignated(tp, withoutAliases)
+        case _ => None
+      }
+    }
+    case std@StdType(_, _) =>
+      val asClass = std.asClass(DecompilerUtil.obtainProject)
+      if (asClass.isEmpty) return None
+      Some((asClass.get, ScSubstitutor.empty))
     case _ => None
   }
 
