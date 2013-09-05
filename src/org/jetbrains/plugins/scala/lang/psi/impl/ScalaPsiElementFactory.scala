@@ -514,13 +514,23 @@ object ScalaPsiElementFactory {
   }
 
   def createDeclaration(name: String, typeName: String, isVariable: Boolean, expr: ScExpression, manager: PsiManager): ScMember = {
-    val exprText: String =  expr match {
-      case ScFunctionExpr(Seq(param), Some(result)) if param.typeElement.isDefined =>
-        if (param.getPrevSiblingNotWhitespace == null) {
-          s"(${param.getText}) => ${result.getText}"
-        } else expr.getText
+    def stmtText(stmt: ScBlockStatement): String =  stmt match {
+      case block @ ScBlock(st) if !block.hasRBrace => stmtText(st)
+      case fun @ ScFunctionExpr(parSeq, Some(result)) =>
+        val paramText =
+          if (parSeq.size == 1) {
+            val par = parSeq.head
+            if (par.typeElement.isDefined && par.getPrevSiblingNotWhitespace == null) s"(${par.getText})"
+            else fun.params.getText
+          } else fun.params.getText
+        val resultText = result match {
+          case block: ScBlock if !block.hasRBrace && block.statements.size != 1 => s"{\n${block.getText}\n}"
+          case block @ ScBlock(st) if !block.hasRBrace => stmtText(st)
+          case _ => result.getText
+        }
+        s"$paramText => $resultText"
       case null => ""
-      case _ => expr.getText
+      case _ => stmt.getText
     }
     val typeText =
       if (typeName != null && typeName != ""){
@@ -528,7 +538,7 @@ object ScalaPsiElementFactory {
         ": " + typeName
       }  else ""
     val keyword: String = if (isVariable) "var" else "val"
-    val text = s"class a {$keyword $name$typeText = $exprText}"
+    val text = s"class a {$keyword $name$typeText = ${stmtText(expr)}"
     val dummyFile = createScalaFile(text, manager)
     val classDef = dummyFile.typeDefinitions(0)
     if (!isVariable) classDef.members(0).asInstanceOf[ScValue]

@@ -296,6 +296,11 @@
 
         <intentionAction>
             <category>Scala/Type</category>
+            <className>org.jetbrains.plugins.scala.codeInsight.intention.types.ConvertScalaToJavaCollectionIntention</className>
+        </intentionAction>
+
+        <intentionAction>
+            <category>Scala/Type</category>
             <className>org.jetbrains.plugins.scala.codeInsight.intention.types.ToggleTypeAnnotation</className>
         </intentionAction>
 
