@@ -15,10 +15,10 @@ import scala.collection.mutable
  */
 class JavaFunctionUsagesSearcher extends QueryExecutor[PsiReference, ReferencesSearch.SearchParameters] {
   def execute(queryParameters: ReferencesSearch.SearchParameters, consumer: Processor[PsiReference]): Boolean = {
-    val scope = queryParameters.getEffectiveSearchScope
-    val element = queryParameters.getElementToSearch
     ApplicationManager.getApplication.runReadAction(new Computable[Boolean] {
       def compute: Boolean = {
+        val scope = queryParameters.getEffectiveSearchScope
+        val element = queryParameters.getElementToSearch
         if (!element.isValid) return true
         element match {
           case p: PsiMethod => {
