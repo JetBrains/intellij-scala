@@ -220,8 +220,8 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value]) extends PsiSc
         p.designator match {
           case ScTypeParameterType(_, _, _, upper, _) => processType(p.substitutor.subst(upper.v), place,
             state.put(ScSubstitutor.key, new ScSubstitutor(p)))
-          case _ => p.designated match {
-            case Some(designator) => processElement(designator, p.substitutor, place, state)
+          case _ => ScType.extractDesignated(p, withoutAliases = true) match {
+            case Some((designator, subst)) => processElement(designator, subst, place, state)
             case None => true
           }
         }

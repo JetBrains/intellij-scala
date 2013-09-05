@@ -111,11 +111,6 @@ case class ScParameterizedType(designator : ScType, typeArgs : Seq[ScType]) exte
     hash
   }
 
-  def designated: Option[PsiNamedElement] = ScType.extractDesignated(designator) match {
-    case Some((e, _)) => Some(e)
-    case _ => None
-  }
-
   @volatile
   private var sub: ScSubstitutor = null
 
@@ -144,7 +139,7 @@ case class ScParameterizedType(designator : ScType, typeArgs : Seq[ScType]) exte
       case ScTypeParameterType(_, args, _, _, _) => {
         forParams(args.iterator, ScSubstitutor.empty, (p: ScTypeParameterType) => p)
       }
-      case _ => ScType.extractDesignated(designator) match {
+      case _ => ScType.extractDesignated(designator, withoutAliases = false) match {
         case Some((owner: ScTypeParametersOwner, s)) => {
           forParams(owner.typeParameters.iterator, s, (tp: ScTypeParam) => ScalaPsiManager.typeVariable(tp))
         }
@@ -177,7 +172,7 @@ case class ScParameterizedType(designator : ScType, typeArgs : Seq[ScType]) exte
     update(this, variance) match {
       case (true, res) => res
       case _ =>
-        val des = ScType.extractDesignated(designator) match {
+        val des = ScType.extractDesignated(designator, withoutAliases = false) match {
           case Some((n: ScTypeParametersOwner, _)) =>
             n.typeParameters.map {
               case tp if tp.isContravariant => -1

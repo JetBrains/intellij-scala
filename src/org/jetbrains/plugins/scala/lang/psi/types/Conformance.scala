@@ -233,7 +233,7 @@ object Conformance {
             result = (false, undefinedSubst)
             return
           }
-          ScType.extractDesignated(l) match {
+          ScType.extractDesignated(l, withoutAliases = false) match {
             case Some((el, _)) => {
               val notNullClass = ScalaPsiManager.instance(el.getProject).getCachedClass("scala.NotNull", el.getResolveScope, ScalaPsiManager.ClassCategory.TYPE)
               if (notNullClass != null) {
