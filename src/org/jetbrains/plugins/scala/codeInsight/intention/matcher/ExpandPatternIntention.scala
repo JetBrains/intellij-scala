@@ -72,7 +72,7 @@ class ExpandPatternIntention extends PsiElementBaseIntentionAction {
         val tuplePattern = names.mkParenString
         Some(tuplePattern)
       case _ =>
-        expectedType.flatMap(ScType.extractDesignated).map(_._1) match {
+        expectedType.flatMap(ScType.extractDesignated(_, withoutAliases = true)).map(_._1) match {
           case Some(cls: ScClass) if cls.isCase =>
             val companionObj = ScalaPsiUtil.getCompanionModule(cls).get
             cls.constructor match {
