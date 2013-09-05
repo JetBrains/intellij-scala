@@ -152,14 +152,14 @@ class ScSubstitutor(val tvMap: Map[(String, String), ScType],
           case Some(oldTp) if !hasRecursiveThisType(oldTp) => {  //todo: hack to avoid infinite recursion during type substitution
             var tp = oldTp
             def update(typez: ScType): ScType = {
-              ScType.extractDesignated(typez) match {
+              ScType.extractDesignated(typez, withoutAliases = true) match {
                 case Some((t: ScTypeDefinition, subst)) =>
                   if (t == clazz) tp
                   else if (ScalaPsiUtil.cachedDeepIsInheritor(t, clazz)) tp 
                   else {
                     t.selfType match {
                       case Some(selfType) =>
-                        ScType.extractDesignated(selfType) match {
+                        ScType.extractDesignated(selfType, withoutAliases = true) match {
                           case Some((cl: PsiClass, _)) =>
                             if (cl == clazz) tp
                             else if (ScalaPsiUtil.cachedDeepIsInheritor(cl, clazz)) tp
