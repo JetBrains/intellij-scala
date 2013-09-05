@@ -10,6 +10,7 @@ import collection.JavaConverters._
 import org.jetbrains.jps.incremental.scala.model.Order
 import org.jetbrains.jps.builders.java.JavaModuleBuildTargetType
 import org.jetbrains.jps.model.java.JpsJavaExtensionService
+import org.jetbrains.jps.model.java.compiler.JpsJavaCompilerOptions
 import java.util
 import java.util.Collections
 
@@ -63,16 +64,43 @@ object CompilationData {
   }
 
   private def javaOptionsFor(context: CompileContext, chunk: ModuleChunk): Seq[String] = {
-    val annotationProcessingProfile = {
+    val compilerConfig = {
       val project = context.getProjectDescriptor.getProject
-      val compilerConfig = JpsJavaExtensionService.getInstance.getOrCreateCompilerConfiguration(project)
+      JpsJavaExtensionService.getInstance.getOrCreateCompilerConfiguration(project)
+    }
+
+    val options = new util.ArrayList[String]()
+
+    addCommonJavacOptions(options, compilerConfig.getCurrentCompilerOptions)
+
+    val annotationProcessingProfile = {
       val module = chunk.representativeTarget.getModule
       compilerConfig.getAnnotationProcessingProfile(module)
     }
 
-    val options = new util.ArrayList[String]()
     JavaBuilder.addCompilationOptions(options, context, chunk, annotationProcessingProfile)
+
     options.asScala
+  }
+
+  // TODO JavaBuilder.loadCommonJavacOptions should be public
+  def addCommonJavacOptions(options: util.ArrayList[String], compilerOptions: JpsJavaCompilerOptions) {
+    if (compilerOptions.DEBUGGING_INFO) {
+      options.add("-g")
+    }
+
+    if (compilerOptions.DEPRECATION) {
+      options.add("-deprecation")
+    }
+
+    if (compilerOptions.GENERATE_NO_WARNINGS) {
+      options.add("-nowarn")
+    }
+
+    if (!compilerOptions.ADDITIONAL_OPTIONS_STRING.isEmpty) {
+      // TODO extract VM options
+      options.addAll(compilerOptions.ADDITIONAL_OPTIONS_STRING.split("\\s+").toSeq.asJava)
+    }
   }
 
   private def createOutputToCacheMap(context: CompileContext): Either[String, Map[File, File]] = {
