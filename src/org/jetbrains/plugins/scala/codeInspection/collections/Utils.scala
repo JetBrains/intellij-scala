@@ -42,7 +42,10 @@ object MethodRepr {
   def unapply(expr: ScExpression): Option[(ScExpression, Option[ScExpression], Option[ScReferenceExpression], Seq[ScExpression])] = {
     expr match {
       case call: ScMethodCall =>
-        val args = call.args.exprs.map(stripped)
+        val args = call.args match {
+          case exprList: ScArgumentExprList => exprList.exprs.map(stripped)
+          case _ => Nil
+        }
         call.getEffectiveInvokedExpr match {
           case ref: ScReferenceExpression => Some(expr, ref.qualifier, Some(ref), args)
           case genericCall: ScGenericCall =>
