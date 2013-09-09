@@ -13,6 +13,7 @@ import lang.psi.impl.ScalaPsiElementFactory
 import decompiler.DecompilerUtil.DecompilationResult
 import com.intellij.openapi.project.{Project, ProjectManager}
 import reflect.NameTransformer
+import scala.annotation.tailrec
 
 /**
  * @author ilyas
@@ -42,11 +43,20 @@ class ScClsStubBuilderFactory extends ClsStubBuilderFactory[ScalaFile] {
     val name: String = file.getNameWithoutExtension
     if (name.endsWith("$")) {
       val parent: VirtualFile = file.getParent
-      val child: VirtualFile = parent.findChild(name.dropRight(1) + ".class")
-      if (child != null) {
-        val res = DecompilerUtil.isScalaFile(child)
-        if (res) return true //let's handle it separately to avoid giving it for Java.
+      @tailrec
+      def checkName(name: String): Boolean = {
+        val child: VirtualFile = parent.findChild(name + ".class")
+        if (child != null) {
+          val res = DecompilerUtil.isScalaFile(child)
+          if (res) return true //let's handle it separately to avoid giving it for Java.
+        }
+        val index = name.lastIndexOf("$")
+        if (index == -1) return false
+        var newName = name.substring(0, index)
+        while (newName.endsWith("$")) newName = newName.dropRight(1)
+        checkName(newName)
       }
+      if (checkName(name.dropRight(1))) return true
     }
     DecompilerUtil.isScalaFile(file, bytes)
   }
@@ -55,13 +65,7 @@ class ScClsStubBuilderFactory extends ClsStubBuilderFactory[ScalaFile] {
     if (file.getExtension != "class") return false
     val name: String = file.getNameWithoutExtension
     val parent: VirtualFile = file.getParent
-    if (name.endsWith("$")) {
-      val child: VirtualFile = parent.findChild(name.dropRight(1) + ".class")
-      if (child != null) {
-        val res = DecompilerUtil.isScalaFile(child)
-        if (res) return false //let's handle it separately to avoid giving it for Java.
-      }
-    }
+    if (name.endsWith("$")) return false //let's consider all such files as Scala to check it more attentively in canBeProcessed
     isInner(name, new ParentDirectory(parent))
   }
 
