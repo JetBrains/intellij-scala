@@ -755,5 +755,7 @@ object ScalaRefactoringUtil {
     }
   }
 
+  private[refactoring] case class RevertInfo(fileText: String, caretOffset: Int)
+
   private[refactoring] class IntroduceException extends Exception
 }
