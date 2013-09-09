@@ -36,7 +36,7 @@ class ObjectTraitReferenceSearcher extends QueryExecutor[PsiReference, Reference
             def execute(element: PsiElement, offsetInElement: Int): Boolean = {
               val references = element.getReferences
               for (ref <- references if ref.getRangeInElement.contains(offsetInElement)) {
-                if (ref.isReferenceTo(elem)) {
+                if (ref.isReferenceTo(elem) || ref.resolve() == elem) {
                   if (!consumer.process(ref)) return false
                 }
               }
