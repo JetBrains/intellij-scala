@@ -22,7 +22,7 @@ import org.jetbrains.plugins.scala.lang.psi.light.PsiTypedDefinitionWrapper.Defi
 import psi.api.toplevel.typedef.ScMember
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 import com.intellij.psi.search.searches.ReferencesSearch
-import com.intellij.psi.search.{LocalSearchScope, GlobalSearchScope}
+import com.intellij.psi.search.LocalSearchScope
 
 /**
  * User: Alexander Podkhalyuzin
@@ -42,10 +42,11 @@ class RenameScalaValsProcessor extends RenameJavaMemberProcessor {
   override def findReferences(element: PsiElement) = {
     val scope = element match {
       case p: ScClassParameter if !p.isEffectiveVal => new LocalSearchScope(element.getContainingFile)
-      case _ => GlobalSearchScope.allScope(element.getProject)
+      case _ => null
     }
     ScalaRenameUtil.filterAliasedReferences {
-      ReferencesSearch.search(element, scope, true).findAll()
+      if (scope != null) ReferencesSearch.search(element, scope, true).findAll()
+      else super.findReferences(element)
     }
   }
 
