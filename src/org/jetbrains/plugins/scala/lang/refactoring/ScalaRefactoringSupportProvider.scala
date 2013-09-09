@@ -23,7 +23,7 @@ import org.jetbrains.plugins.scala.lang.refactoring.introduceField.ScalaIntroduc
 
 class ScalaRefactoringSupportProvider extends RefactoringSupportProvider {
   override def isInplaceRenameAvailable(element: PsiElement, context: PsiElement) = {
-    ScalaInplaceRenameUtil.myRenameInPlace(element, context)
+    false // handled by ScalaInplaceRenameHandler
   }
 
   override def getIntroduceConstantHandler: RefactoringActionHandler = null
@@ -33,6 +33,11 @@ class ScalaRefactoringSupportProvider extends RefactoringSupportProvider {
   override def getIntroduceFieldHandler: RefactoringActionHandler = new ScalaIntroduceFieldFromExpressionHandler
 
   override def getIntroduceParameterHandler: RefactoringActionHandler = new ScalaIntroduceParameterHandler
+
+  override def isAvailable(context: PsiElement): Boolean = {
+    val available: Boolean = super.isAvailable(context)
+    available
+  }
 
   override def isSafeDeleteAvailable(element: PsiElement): Boolean = element match {
     case _: ScTypeDefinition | _: ScFunction | _: ScFieldId | _: ScReferencePattern => true

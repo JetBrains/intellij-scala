@@ -37,30 +37,5 @@ object ScalaInplaceRenameUtil {
       case e: Exception => false
     }
   }
-
-  def myRenameInPlace(element: PsiElement, context: PsiElement): Boolean = {
-    element match {
-      case named: ScNamedElement if isLocallyDefined(named) =>
-        val stringToSearch = named.name
-        val usages = new util.ArrayList[UsageInfo]
-        // See: SCL-4336
-        var hasBackTickedRef = false
-        if (stringToSearch != null) {
-          TextOccurrencesUtil.addUsagesInStringsAndComments(element, stringToSearch, usages, new TextOccurrencesUtil.UsageInfoFactory {
-            def createUsageInfo(usage: PsiElement, startOffset: Int, endOffset: Int): UsageInfo = new UsageInfo(usage)
-          })
-          ReferencesSearch.search(element).forEach(new Processor[PsiReference] {
-            def process(t: PsiReference): Boolean = {
-              if (t.getElement.getText.contains("`")) {
-                hasBackTickedRef = true
-                false
-              } else true
-            }
-          })
-        }
-        usages.isEmpty && !hasBackTickedRef
-
-      case _ => false
-    }
-  }
 }
+
