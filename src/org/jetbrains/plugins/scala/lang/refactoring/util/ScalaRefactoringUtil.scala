@@ -15,37 +15,37 @@ import com.intellij.openapi.editor.colors.{EditorColorsManager, EditorColors}
 
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi._
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClause, ScLiteralPattern, ScReferencePattern}
-import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
+import psi.api.base.patterns.{ScCaseClause, ScLiteralPattern, ScReferencePattern}
+import psi.types.result.TypingContext
 import psi.api.expr._
 import psi.impl.ScalaPsiElementFactory
 import com.intellij.codeInsight.PsiEquivalenceUtil
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
+import psi.api.statements.params.{ScClassParameter, ScParameter}
 import scala.collection.mutable.ArrayBuffer
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.openapi.vfs.ReadonlyStatusHandler
 import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.scala.util.ScalaUtils
 import psi.types._
-import psi.api.statements.ScFunction
+import psi.api.statements.{ScVariableDefinition, ScPatternDefinition, ScFunctionDefinition, ScFunction}
 import lang.resolve.ScalaResolveResult
 import psi.api.expr.xml.ScXmlExpr
-import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiUtil, ScalaPsiElement}
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
+import psi.{ScalaPsiUtil, ScalaPsiElement}
+import psi.api.base.ScLiteral
 import com.intellij.openapi.editor.{VisualPosition, Editor}
 import com.intellij.openapi.actionSystem.DataContext
-import org.jetbrains.plugins.scala.lang.psi.api.{ScalaRecursiveElementVisitor, ScalaFile}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScEarlyDefinitions
-import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.types.ScDesignatorType
-import org.jetbrains.plugins.scala.lang.psi.types.ScFunctionType
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTemplateDefinition, ScClass, ScTypeDefinition}
+import psi.api.{ScalaRecursiveElementVisitor, ScalaFile}
+import psi.api.toplevel.ScEarlyDefinitions
+import extensions._
+import psi.types.ScDesignatorType
+import psi.types.ScFunctionType
+import psi.api.toplevel.typedef.{ScMember, ScTemplateDefinition, ScClass, ScTypeDefinition}
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.refactoring.util.CommonRefactoringUtil
 import com.intellij.refactoring.HelpID
 import java.util
-import scala.annotation.tailrec
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
+import scala.annotation.tailrec
 
 
 /**
@@ -742,10 +742,30 @@ object ScalaRefactoringUtil {
     result
   }
 
+  @tailrec
   def container(element: PsiElement, file: PsiFile, strict: Boolean): PsiElement = {
     if (element == null) file
-    else ScalaPsiUtil.getParentOfType(element, strict, classOf[ScalaFile], classOf[ScBlock],
-      classOf[ScTemplateBody], classOf[ScCaseClause], classOf[ScEarlyDefinitions])
+    else {
+      def oneExprBody(expr: ScExpression): Boolean = {
+        val definition = ScalaPsiUtil.getParentOfType(expr, true,
+          classOf[ScFunctionDefinition], classOf[ScPatternDefinition], classOf[ScVariableDefinition])
+        val result = definition match {
+          case fun: ScFunctionDefinition => fun.body.exists(_ == expr)
+          case vl: ScPatternDefinition => vl.expr.exists(_ == expr)
+          case vr: ScVariableDefinition => vr.expr.exists(_ == expr)
+          case _ => false
+        }
+        result && PsiTreeUtil.isAncestor(expr, element, strict)
+      }
+      ScalaPsiUtil.getParentOfType(element, strict, classOf[ScalaFile], classOf[ScBlock],
+        classOf[ScTemplateBody], classOf[ScCaseClause], classOf[ScEarlyDefinitions], classOf[ScExpression])
+      match {
+        case expr: ScExpression if oneExprBody(expr) => expr
+        case block: ScBlock => block
+        case expr: ScExpression => container(expr, file, strict = true)
+        case elem => elem
+      }
+    }
   }
 
   def inSuperConstructor(element: PsiElement, aClass: ScTemplateDefinition): Boolean = {
