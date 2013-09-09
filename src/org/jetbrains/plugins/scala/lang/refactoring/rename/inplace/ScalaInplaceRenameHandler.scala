@@ -18,6 +18,9 @@ import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
 import org.jetbrains.plugins.scala.lang.refactoring.rename.ScalaRenameUtil
 import com.intellij.openapi.fileEditor.FileDocumentManager
+import org.jetbrains.plugins.scala.lang.psi.light.PsiClassWrapper
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil
+import com.intellij.openapi.util.Key
 
 /**
  * Nikolay.Tropin
@@ -39,10 +42,11 @@ class ScalaInplaceRenameHandler extends MemberInplaceRenameHandler{
                                              elementToRename: PsiNameIdentifierOwner,
                                              editor: Editor): MemberInplaceRenamer = {
     substituted match {
+      case clazz: PsiClass if elementToRename.isInstanceOf[PsiClassWrapper] =>
+        new ScalaInplaceRenamer(elementToRename, clazz, editor)
       case clazz: PsiClass =>
         val companion = ScalaPsiUtil.getBaseCompanionModule(clazz)
-        if (companion.isDefined) new ScalaInplaceRenamer(clazz, companion.get, editor)
-        else new ScalaInplaceRenamer(clazz, clazz, editor)
+        new ScalaInplaceRenamer(clazz, companion.getOrElse(clazz), editor)
       case subst: PsiNamedElement => new ScalaInplaceRenamer(elementToRename, subst, editor)
       case _ => throw new IllegalArgumentException("Substituted element for renaming has no name")
     }
@@ -92,6 +96,9 @@ class ScalaInplaceRenameHandler extends MemberInplaceRenameHandler{
       showSubstitutePopup(title, positive, ScalaRenameUtil.findSubstituteElement(elementToRename))
     }
 
+    val revertInfo = ScalaRefactoringUtil.RevertInfo(editor.getDocument.getText, editor.getCaretModel.getOffset)
+    editor.putUserData(ScalaInplaceRenameHandler.REVERT_INFO, revertInfo)
+
     val atCaret = PsiUtilBase.getElementAtCaret(editor)
     val selected = ScalaPsiUtil.getParentOfType(atCaret, classOf[ScReferenceElement], classOf[ScNamedElement])
     val nameId = selected match {
@@ -119,5 +126,8 @@ class ScalaInplaceRenameHandler extends MemberInplaceRenameHandler{
     PsiElementRenameHandler.rename(element, project, nameSuggestionContext, editor)
   }
 
+}
 
+object ScalaInplaceRenameHandler {
+  val REVERT_INFO: Key[ScalaRefactoringUtil.RevertInfo] = new Key("RevertInfo")
 }

@@ -32,7 +32,7 @@ import com.intellij.psi.util.PsiUtil
  */
 class PsiClassWrapper(val definition: ScTemplateDefinition,
                       private var qualName: String,
-                      private var name: String) extends LightElement(definition.getManager, definition.getLanguage) with PsiClass with SyntheticElement {
+                      private var name: String) extends LightElement(definition.getManager, definition.getLanguage) with PsiClass /*with SyntheticElement*/ {
   override def hashCode(): Int = definition.hashCode()
 
   override def equals(obj: Any): Boolean = {

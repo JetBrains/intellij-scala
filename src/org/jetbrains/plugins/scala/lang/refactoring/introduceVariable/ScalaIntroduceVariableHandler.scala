@@ -29,7 +29,6 @@ import refactoring.util.{ConflictsReporter, ScalaRefactoringUtil}
 import com.intellij.refactoring.introduce.inplace.OccurrencesChooser
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaVariableValidator
-import org.jetbrains.plugins.scala.lang.refactoring.introduceVariable.ScalaIntroduceVariableHandler.RevertInfo
 import com.intellij.psi.util.PsiTreeUtil
 
 
@@ -183,7 +182,7 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Confli
       Option(decl).getOrElse(enum)
     }
 
-    val revertInfo = RevertInfo(file.getText, editor.getCaretModel.getOffset)
+    val revertInfo = ScalaRefactoringUtil.RevertInfo(file.getText, editor.getCaretModel.getOffset)
     editor.putUserData(ScalaIntroduceVariableHandler.REVERT_INFO, revertInfo)
 
     val typeName = if (varType != null) varType.canonicalText else ""
@@ -344,8 +343,5 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Confli
 }
 
 object ScalaIntroduceVariableHandler {
-  val REVERT_INFO: Key[RevertInfo] = new Key("RevertInfo")
-
-  case class RevertInfo(fileText: String, caretOffset: Int)
-
+  val REVERT_INFO: Key[ScalaRefactoringUtil.RevertInfo] = new Key("RevertInfo")
 }
