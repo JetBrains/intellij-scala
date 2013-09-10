@@ -3,7 +3,7 @@ package codeInsight.generation
 
 import com.intellij.lang.LanguageCodeInsightActionHandler
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.editor.{ScrollType, Editor}
 import com.intellij.psi.{PsiDocumentManager, PsiFile}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScClass, ScTrait, ScTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
@@ -32,6 +32,7 @@ class ScalaGenerateCompanionObjectHandler extends LanguageCodeInsightActionHandl
       val lineInside = document.getLineNumber(offset) + 1
       CodeStyleManager.getInstance(project).adjustLineIndent(document, document.getLineStartOffset(lineInside))
       editor.getCaretModel.moveToOffset(document.getLineEndOffset(lineInside))
+      editor.getScrollingModel.scrollToCaret(ScrollType.MAKE_VISIBLE)
     }
   }
 
