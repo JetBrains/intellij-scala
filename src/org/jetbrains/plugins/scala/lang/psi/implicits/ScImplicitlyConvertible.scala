@@ -173,16 +173,16 @@ class ScImplicitlyConvertible(place: PsiElement, placeType: Boolean => Option[Sc
     val processor = new CollectImplicitsProcessor(false)
 
     // Collect implicit conversions from bottom to up
-    def treeWalkUp(place: PsiElement, lastParent: PsiElement) {
-      if (place == null) return
-      if (!place.processDeclarations(processor,
+    def treeWalkUp(p: PsiElement, lastParent: PsiElement) {
+      if (p == null) return
+      if (!p.processDeclarations(processor,
         ResolveState.initial,
         lastParent, place)) return
-      place match {
+      p match {
         case (_: ScTemplateBody | _: ScExtendsBlock) => //template body and inherited members are at the same level
         case _ => if (!processor.changedLevel) return
       }
-      treeWalkUp(place.getContext, place)
+      treeWalkUp(p.getContext, p)
     }
     treeWalkUp(place, null)
 
