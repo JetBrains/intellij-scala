@@ -283,18 +283,19 @@ trait ScImportsHolder extends ScalaPsiElement {
       isPlaceHolderImport = true
     }
 
+    val place = getLastChild
+
     @tailrec
-    def treeWalkUp(completionProcessor: CompletionProcessor, place: PsiElement, lastParent: PsiElement) {
-      place match {
+    def treeWalkUp(completionProcessor: CompletionProcessor, p: PsiElement, lastParent: PsiElement) {
+      p match {
         case null =>
-        case p => {
+        case _ => {
           if (!p.processDeclarations(completionProcessor, ResolveState.initial, lastParent, place)) return
-          treeWalkUp(completionProcessor, place.getContext, place)
+          treeWalkUp(completionProcessor, p.getContext, p)
         }
       }
     }
 
-    val place = getLastChild
     var everythingProcessor  = new CompletionProcessor(StdKinds.stableImportSelector, place, includePrefixImports = false)
     treeWalkUp(everythingProcessor, this, place)
     val candidatesBefore: mutable.HashMap[String, collection.immutable.HashSet[PsiNamedElement]] = new mutable.HashMap
