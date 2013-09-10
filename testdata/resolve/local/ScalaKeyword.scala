@@ -1,3 +1,3 @@
 def foo(`object`: Int) = {
-  <ref>`object`
+  `<ref>object`
 }
