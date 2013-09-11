@@ -58,7 +58,7 @@ class OperatorAndBacktickedSearcher extends QueryExecutor[PsiReference, Referenc
     }
   }
 
-  private val isBackticked = new {
+  private object isBackticked {
     def unapply(named: ScNamedElement): Option[String] = {
       val name = named.name
       if (name.startsWith("`") && name.endsWith("`")) Some(name.substring(1, name.length - 1))
