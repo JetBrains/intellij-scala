@@ -13,6 +13,7 @@ import com.intellij.refactoring.util.TextOccurrencesUtil
 import com.intellij.util.PairProcessor
 import org.jetbrains.plugins.scala.lang.refactoring.rename.ScalaRenameUtil
 import com.intellij.codeInsight.TargetElementUtilBase
+import com.intellij.lang.Language
 
 /**
  * Nikolay.Tropin
@@ -110,4 +111,6 @@ class ScalaInplaceRenamer(elementToRename: PsiNamedElement,
       else null
     }
   }
+
+  override def isIdentifier(newName: String, language: Language): Boolean = ScalaNamesUtil.isIdentifier(newName)
 }

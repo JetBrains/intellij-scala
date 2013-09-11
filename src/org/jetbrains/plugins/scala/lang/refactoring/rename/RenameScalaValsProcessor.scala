@@ -23,6 +23,7 @@ import psi.api.toplevel.typedef.ScMember
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 import com.intellij.psi.search.searches.ReferencesSearch
 import com.intellij.psi.search.LocalSearchScope
+import com.intellij.refactoring.listeners.RefactoringElementListener
 
 /**
  * User: Alexander Podkhalyuzin
@@ -109,5 +110,9 @@ class RenameScalaValsProcessor extends RenameJavaMemberProcessor {
 
   override def isToSearchInComments(psiElement: PsiElement): Boolean = {
     ScalaApplicationSettings.getInstance().RENAME_SEARCH_IN_COMMENTS_AND_STRINGS
+  }
+
+  override def renameElement(element: PsiElement, newName: String, usages: Array[UsageInfo], listener: RefactoringElementListener) {
+    ScalaRenameUtil.doRenameGenericNamedElement(element, newName, usages, listener)
   }
 }
