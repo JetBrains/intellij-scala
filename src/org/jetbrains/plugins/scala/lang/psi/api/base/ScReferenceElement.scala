@@ -32,11 +32,7 @@ trait ScReferenceElement extends ScalaPsiElement with ResolvableReferenceElement
 
   def nameId: PsiElement
 
-  def refName: String = {
-    val text: String = nameId.getText
-    if (isBackQuoted) text.substring(1, text.length - 1)
-    else text
-  }
+  def refName: String = nameId.getText
 
   private def isBackQuoted = {
     val id: PsiElement = nameId

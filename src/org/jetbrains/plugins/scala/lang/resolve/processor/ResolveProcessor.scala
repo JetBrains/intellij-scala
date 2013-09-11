@@ -156,9 +156,9 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
       val name = named.name
       if (name == null) return false
       if (name == "") return false
-      if (name.charAt(0) == '`') name.substring(1, name.length - 1) else name
-    } else if (nameSet.charAt(0) == '`') nameSet.substring(1, nameSet.length - 1) else nameSet
-    val nameMatches = NameTransformer.decode(elName) == NameTransformer.decode(name)
+      name
+    } else  nameSet
+    val nameMatches = ScalaPsiUtil.memberNamesEquals(elName, name)
     nameMatches && kindMatches(named)
   }
 
