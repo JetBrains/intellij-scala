@@ -19,6 +19,8 @@ import com.intellij.openapi.project.Project
 import javax.swing.{JPanel, JComponent, JCheckBox}
 import org.jetbrains.plugins.scala.ScalaBundle
 import java.awt.BorderLayout
+import com.intellij.usageView.UsageInfo
+import com.intellij.refactoring.listeners.RefactoringElementListener
 
 /**
  * User: Alexander Podkhalyuzin
@@ -113,6 +115,10 @@ class RenameScalaClassProcessor extends RenameJavaClassProcessor {
 
   override def createRenameDialog(project: Project, element: PsiElement, nameSuggestionContext: PsiElement, editor: Editor): RenameDialog =
     new ScalaClassRenameDialog(project, element, nameSuggestionContext, editor)
+
+  override def renameElement(element: PsiElement, newName: String, usages: Array[UsageInfo], listener: RefactoringElementListener) {
+    ScalaRenameUtil.doRenameGenericNamedElement(element, newName, usages, listener)
+  }
 }
 
 class ScalaClassRenameDialog(project: Project, psiElement: PsiElement, nameSuggestionContext: PsiElement, editor: Editor)

@@ -18,7 +18,7 @@ import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
 import org.jetbrains.plugins.scala.lang.refactoring.rename.ScalaRenameUtil
 import com.intellij.openapi.fileEditor.FileDocumentManager
-import org.jetbrains.plugins.scala.lang.psi.light.PsiClassWrapper
+import org.jetbrains.plugins.scala.lang.psi.light.{LightScalaMethod, PsiClassWrapper}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil
 import com.intellij.openapi.util.Key
 
@@ -29,7 +29,12 @@ import com.intellij.openapi.util.Key
 class ScalaInplaceRenameHandler extends MemberInplaceRenameHandler{
 
   def renameProcessor(element: PsiElement): RenamePsiElementProcessor = {
-    val processor = if (element != null && element.getLanguage.getID == "Scala") RenamePsiElementProcessor.forElement(element) else null
+    val isScalaElement = element match {
+      case null => false
+      case _: LightScalaMethod | _: PsiClassWrapper => true
+      case _  => element.getLanguage.isInstanceOf[ScalaLanguage]
+    }
+    val processor = if (isScalaElement) RenamePsiElementProcessor.forElement(element) else null
     if (processor != RenamePsiElementProcessor.DEFAULT) processor else null
   }
 

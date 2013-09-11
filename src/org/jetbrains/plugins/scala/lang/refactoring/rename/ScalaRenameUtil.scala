@@ -13,6 +13,10 @@ import lang.psi.api.toplevel.imports.ScImportStmt
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import com.intellij.usageView.UsageInfo
+import com.intellij.refactoring.listeners.RefactoringElementListener
+import scala.reflect.NameTransformer
+import com.intellij.refactoring.rename.RenameUtil
 
 object ScalaRenameUtil {
   def filterAliasedReferences(allReferences: util.Collection[PsiReference]): util.ArrayList[PsiReference] = {
@@ -74,6 +78,26 @@ object ScalaRenameUtil {
         }
       case named: PsiNamedElement => named
       case _ => null
+    }
+  }
+
+  def doRenameGenericNamedElement(namedElement: PsiElement,
+                                  newName: String,
+                                  usages: Array[UsageInfo],
+                                  listener: RefactoringElementListener): Unit = {
+
+    val encodedName = NameTransformer.encode(newName)
+    if (encodedName == newName) RenameUtil.doRenameGenericNamedElement(namedElement, newName, usages, listener)
+    else {
+      val needEncodedName: UsageInfo => Boolean = { u =>
+        val ref = u.getReference.getElement
+        !ref.getLanguage.isInstanceOf[ScalaLanguage] //todo more concise condition?
+      }
+      val (usagesEncoded, usagesPlain) = usages.partition(needEncodedName)
+      if (usagesEncoded.nonEmpty)
+        RenameUtil.doRenameGenericNamedElement(namedElement, encodedName, usagesEncoded, listener)
+      if (usagesPlain.nonEmpty)
+        RenameUtil.doRenameGenericNamedElement(namedElement, newName, usagesPlain, listener)
     }
   }
 }

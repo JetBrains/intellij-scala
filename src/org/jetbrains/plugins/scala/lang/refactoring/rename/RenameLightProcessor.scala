@@ -5,6 +5,8 @@ import com.intellij.refactoring.rename.RenamePsiElementProcessor
 import com.intellij.openapi.editor.Editor
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.psi.light.{StaticPsiTypedDefinitionWrapper, StaticPsiMethodWrapper, PsiTypedDefinitionWrapper, ScFunctionWrapper}
+import com.intellij.usageView.UsageInfo
+import com.intellij.refactoring.listeners.RefactoringElementListener
 
 /**
  * User: Alexander Podkhalyuzin
@@ -31,5 +33,9 @@ class RenameLightProcessor extends RenamePsiElementProcessor {
       case p: StaticPsiMethodWrapper => p.method
       case _ => element
     }
+  }
+
+  override def renameElement(element: PsiElement, newName: String, usages: Array[UsageInfo], listener: RefactoringElementListener) {
+    ScalaRenameUtil.doRenameGenericNamedElement(element, newName, usages, listener)
   }
 }

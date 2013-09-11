@@ -25,6 +25,8 @@ import com.intellij.ide.util.SuperMethodWarningUtil
 import com.intellij.psi.search.PsiElementProcessor
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 import scala.Some
+import com.intellij.usageView.UsageInfo
+import com.intellij.refactoring.listeners.RefactoringElementListener
 
 /**
  * User: Alexander Podkhalyuzin
@@ -130,6 +132,10 @@ class RenameScalaMethodProcessor extends RenameJavaMethodProcessor {
 
   override def isToSearchInComments(psiElement: PsiElement): Boolean = {
     ScalaApplicationSettings.getInstance().RENAME_SEARCH_IN_COMMENTS_AND_STRINGS
+  }
+
+  override def renameElement(psiElement: PsiElement, newName: String, usages: Array[UsageInfo], listener: RefactoringElementListener) {
+    ScalaRenameUtil.doRenameGenericNamedElement(psiElement, newName, usages, listener)
   }
 }
 
