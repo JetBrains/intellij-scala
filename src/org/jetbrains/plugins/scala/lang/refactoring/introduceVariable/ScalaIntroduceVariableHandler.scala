@@ -64,8 +64,7 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Confli
       ScalaRefactoringUtil.checkCanBeIntroduced(expr, showErrorMessage(_, project, editor, REFACTORING_NAME))
 
       val fileEncloser = ScalaRefactoringUtil.fileEncloser(startOffset, file)
-      val occurrencesAll: Array[TextRange] = ScalaRefactoringUtil.getOccurrenceRanges(ScalaRefactoringUtil.unparExpr(expr), fileEncloser)
-      val occurrences = occurrencesAll.filterNot(ScalaRefactoringUtil.isLiteralPattern(file, _))
+      val occurrences: Array[TextRange] = ScalaRefactoringUtil.getOccurrenceRanges(ScalaRefactoringUtil.unparExpr(expr), fileEncloser)
       val validator = ScalaVariableValidator(this, project, editor, file, expr, occurrences)
 
       def runWithDialog() {
@@ -335,8 +334,7 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Confli
     ScalaRefactoringUtil.checkCanBeIntroduced(expr, showErrorMessage(_, project, editor, REFACTORING_NAME))
 
     val fileEncloser = ScalaRefactoringUtil.fileEncloser(startOffset, file)
-    val occurrencesAll: Array[TextRange] = ScalaRefactoringUtil.getOccurrenceRanges(ScalaRefactoringUtil.unparExpr(expr), fileEncloser)
-    val occurrences = occurrencesAll.filterNot(ScalaRefactoringUtil.isLiteralPattern(file, _))
+    val occurrences: Array[TextRange] = ScalaRefactoringUtil.getOccurrenceRanges(ScalaRefactoringUtil.unparExpr(expr), fileEncloser)
     runRefactoring(startOffset, endOffset, file, editor, expr, occurrences, "value", types(0), replaceAll, isVariable = false)
   }
 
