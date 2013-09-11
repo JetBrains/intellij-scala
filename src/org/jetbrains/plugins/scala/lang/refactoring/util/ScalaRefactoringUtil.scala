@@ -15,7 +15,7 @@ import com.intellij.openapi.editor.colors.{EditorColorsManager, EditorColors}
 
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi._
-import psi.api.base.patterns.{ScCaseClause, ScLiteralPattern, ScReferencePattern}
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScPattern, ScCaseClause, ScLiteralPattern, ScReferencePattern}
 import psi.types.result.TypingContext
 import psi.api.expr._
 import psi.impl.ScalaPsiElementFactory
@@ -626,7 +626,7 @@ object ScalaRefactoringUtil {
   }
 
 
-  def replaceOccurence(textRange: TextRange, newString: String, file: PsiFile, editor: Editor): ScExpression = {
+  def replaceOccurence(textRange: TextRange, newString: String, file: PsiFile, editor: Editor): TextRange = {
     var shift = 0
     val document = editor.getDocument
     val start = textRange.getStartOffset
@@ -634,29 +634,36 @@ object ScalaRefactoringUtil {
     val documentManager = PsiDocumentManager.getInstance(editor.getProject)
     documentManager.commitDocument(document)
     val leafIdentifier = file.findElementAt(start)
-    if (leafIdentifier.getParent != null &&
-            leafIdentifier.getParent.getParent.isInstanceOf[ScParenthesisedExpr]) {
-      val textRange = leafIdentifier.getParent.getParent.getTextRange
-      document.replaceString(textRange.getStartOffset, textRange.getEndOffset, newString)
-      documentManager.commitDocument(document)
-      shift = -2
-    } else if (leafIdentifier.getParent != null && leafIdentifier.getParent.getParent.isInstanceOf[ScPostfixExpr] &&
-            leafIdentifier.getParent.getParent.asInstanceOf[ScPostfixExpr].operation == leafIdentifier.getParent) {
-      //This case for block argument expression
-      val textRange = leafIdentifier.getParent.getTextRange
-      document.replaceString(textRange.getStartOffset, textRange.getEndOffset, "(" + newString + ")")
-      documentManager.commitDocument(document)
-      shift = 2
+    val parent = leafIdentifier.getParent
+    if (parent != null) parent.getParent match {
+      case pars: ScParenthesisedExpr =>
+        val textRange = pars.getTextRange
+        document.replaceString(textRange.getStartOffset, textRange.getEndOffset, newString)
+        documentManager.commitDocument(document)
+        shift = -2
+      case ScPostfixExpr(_, `parent`) =>
+        //This case for block argument expression
+        val textRange = parent.getTextRange
+        document.replaceString(textRange.getStartOffset, textRange.getEndOffset, "(" + newString + ")")
+        documentManager.commitDocument(document)
+        shift = 2
+      case _ if parent.isInstanceOf[ScReferencePattern] =>
+        val textRange = parent.getTextRange
+        document.replaceString(textRange.getStartOffset, textRange.getEndOffset, "`" + newString + "`")
+        documentManager.commitDocument(document)
+      case _ =>
     }
     val newStart = start + shift / 2
     val newEnd = newStart + newString.length
     val newExpr = PsiTreeUtil.findElementOfClassAtRange(file, newStart, newEnd, classOf[ScExpression])
-    if (newExpr != null) newExpr else throw new IntroduceException
+    val newPattern = PsiTreeUtil.findElementOfClassAtOffset(file, newStart, classOf[ScPattern], true)
+    Option(newExpr).orElse(Option(newPattern))
+            .map(_.getTextRange)
+            .getOrElse(throw new IntroduceException)
   }
 
   def replaceOccurences(occurences: Array[TextRange], newString: String, file: PsiFile, editor: Editor): Array[TextRange] = {
     occurences.reverseMap(ScalaRefactoringUtil.replaceOccurence(_, newString, file, editor)).reverse
-            .map(_.getTextRange)
   }
 
   def statementsAndMembersInClass(aClass: ScTemplateDefinition): Seq[PsiElement] = {

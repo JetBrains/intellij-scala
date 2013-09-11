@@ -8,7 +8,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 import org.jetbrains.plugins.scala.lang.refactoring.util.{ConflictsReporter, ScalaVariableValidator, ScalaRefactoringUtil}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
-import com.intellij.openapi.util.TextRange
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil.IntroduceException
 import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester
 import ScalaIntroduceFieldHandlerBase._
@@ -27,8 +26,7 @@ class IntroduceFieldContext[T <: PsiElement](val project: Project,
 
   val occurrences = element match {
     case expr: ScExpression =>
-      val occurrencesAll: Array[TextRange] = ScalaRefactoringUtil.getOccurrenceRanges(ScalaRefactoringUtil.unparExpr(expr), aClass.extendsBlock)
-      occurrencesAll.filterNot(ScalaRefactoringUtil.isLiteralPattern(file, _))
+      ScalaRefactoringUtil.getOccurrenceRanges(ScalaRefactoringUtil.unparExpr(expr), aClass.extendsBlock)
     case _ => null
   }
 
