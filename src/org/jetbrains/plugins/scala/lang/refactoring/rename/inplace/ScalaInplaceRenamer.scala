@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala
 package lang.refactoring.rename.inplace
 
-import com.intellij.refactoring.rename.inplace.MemberInplaceRenamer
+import com.intellij.refactoring.rename.inplace.{VariableInplaceRenamer, MemberInplaceRenamer}
 import com.intellij.psi._
 import com.intellij.openapi.editor.{ScrollType, Editor}
 import com.intellij.refactoring.RefactoringBundle
@@ -20,15 +20,15 @@ import com.intellij.lang.Language
  * 6/20/13
  */
 class ScalaInplaceRenamer(elementToRename: PsiNamedElement,
-                                substituted: PsiNamedElement,
+                                substituted: PsiElement,
                                 editor: Editor,
                                 initialName: String,
                                 oldName: String)
         extends MemberInplaceRenamer(elementToRename, substituted, editor, initialName, oldName) {
 
-  private def this(t: (PsiNamedElement, PsiNamedElement, Editor, String, String)) = this(t._1, t._2, t._3, t._4, t._5)
+  private def this(t: (PsiNamedElement, PsiElement, Editor, String, String)) = this(t._1, t._2, t._3, t._4, t._5)
 
-  def this(elementToRename: PsiNamedElement, substituted: PsiNamedElement, editor: Editor) {
+  def this(elementToRename: PsiNamedElement, substituted: PsiElement, editor: Editor) {
     this {
       val name = ScalaNamesUtil.scalaName(substituted)
       (elementToRename, substituted, editor, name, name)
@@ -113,4 +113,7 @@ class ScalaInplaceRenamer(elementToRename: PsiNamedElement,
   }
 
   override def isIdentifier(newName: String, language: Language): Boolean = ScalaNamesUtil.isIdentifier(newName)
+
+  override def createInplaceRenamerToRestart(variable: PsiNamedElement, editor: Editor, initialName: String): VariableInplaceRenamer =
+    new ScalaInplaceRenamer(variable, getSubstituted, editor, initialName, oldName)
 }
