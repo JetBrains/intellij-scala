@@ -13,7 +13,6 @@ import psi.api.toplevel.typedef.ScTypeDefinition
 import psi.api.base.patterns.ScReferencePattern
 import psi.api.statements._
 import psi.api.base.ScFieldId
-import org.jetbrains.plugins.scala.lang.refactoring.rename.inplace.ScalaInplaceRenameUtil
 import org.jetbrains.plugins.scala.lang.refactoring.introduceField.ScalaIntroduceFieldFromExpressionHandler
 
 /**
@@ -33,11 +32,6 @@ class ScalaRefactoringSupportProvider extends RefactoringSupportProvider {
   override def getIntroduceFieldHandler: RefactoringActionHandler = new ScalaIntroduceFieldFromExpressionHandler
 
   override def getIntroduceParameterHandler: RefactoringActionHandler = new ScalaIntroduceParameterHandler
-
-  override def isAvailable(context: PsiElement): Boolean = {
-    val available: Boolean = super.isAvailable(context)
-    available
-  }
 
   override def isSafeDeleteAvailable(element: PsiElement): Boolean = element match {
     case _: ScTypeDefinition | _: ScFunction | _: ScFieldId | _: ScReferencePattern => true
