@@ -20,6 +20,7 @@ import annotator.intention.ScalaImportTypeFix
 import collection.mutable.HashSet
 import toplevel.imports.ScImportSelector
 import org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix.TypeToImport
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScStableReferenceElementPattern
 
 /**
  * @author Alexander Podkhalyuzin
@@ -44,12 +45,14 @@ trait ScReferenceElement extends ScalaPsiElement with ResolvableReferenceElement
     text.charAt(0) == '`' && text.length > 1
   }
 
+  private def patternNeedBackticks(name: String) = name.charAt(0).isLower && getParent.isInstanceOf[ScStableReferenceElementPattern]
+
   def getElement = this
 
   def getRangeInElement: TextRange = {
     val start = nameId.getTextRange.getStartOffset - getTextRange.getStartOffset
     val len = getTextLength
-    if (isBackQuoted)
+    if (patternNeedBackticks(refName) && isBackQuoted)
       new TextRange(start + 1, len - 1)
     else
       new TextRange(start, len)
@@ -69,11 +72,11 @@ trait ScReferenceElement extends ScalaPsiElement with ResolvableReferenceElement
 
   def handleElementRename(newElementName: String): PsiElement = {
     if (!ScalaNamesUtil.isIdentifier(newElementName)) return this
-    val isQuoted = nameId.getText.startsWith("`")
     val id = nameId.getNode
     val parent = id.getTreeParent
+    val needBackticks = patternNeedBackticks(newElementName)
     parent.replaceChild(id,
-      ScalaPsiElementFactory.createIdentifier(if (isQuoted) "`" + newElementName + "`" else newElementName, getManager))
+      ScalaPsiElementFactory.createIdentifier(if (needBackticks) "`" + newElementName + "`" else newElementName, getManager))
     this
   }
 
