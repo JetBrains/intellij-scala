@@ -169,7 +169,7 @@ abstract class AbstractTestRunConfiguration(val project: Project,
       else GlobalSearchScope.moduleScope(module)
     }
     def unionScope(moduleGuard: Module => Boolean): GlobalSearchScope = {
-      var scope: GlobalSearchScope = mScope(getModule)
+      var scope: GlobalSearchScope = if (getModule != null) mScope(getModule) else GlobalSearchScope.EMPTY_SCOPE
       for (module <- ModuleManager.getInstance(getProject).getModules) {
         if (moduleGuard(module)) {
           scope = scope.union(mScope(module))
