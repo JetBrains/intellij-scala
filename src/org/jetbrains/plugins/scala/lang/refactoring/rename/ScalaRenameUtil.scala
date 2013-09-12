@@ -6,7 +6,7 @@ import lang.resolve.ResolvableReferenceElement
 import collection.JavaConverters.{asJavaCollectionConverter, iterableAsScalaIterableConverter}
 import java.util
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScPrimaryConstructor, ScStableCodeReferenceElement}
-import lang.psi.api.toplevel.typedef.ScTypeDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.util.PsiTreeUtil
 import lang.psi.api.toplevel.imports.ScImportStmt
@@ -85,19 +85,48 @@ object ScalaRenameUtil {
                                   newName: String,
                                   usages: Array[UsageInfo],
                                   listener: RefactoringElementListener): Unit = {
+    case class UsagesWithName(name: String, usages: Array[UsageInfo])
 
-    val encodedName = NameTransformer.encode(newName)
-    if (encodedName == newName) RenameUtil.doRenameGenericNamedElement(namedElement, newName, usages, listener)
-    else {
-      val needEncodedName: UsageInfo => Boolean = { u =>
-        val ref = u.getReference.getElement
-        !ref.getLanguage.isInstanceOf[ScalaLanguage] //todo more concise condition?
-      }
-      val (usagesEncoded, usagesPlain) = usages.partition(needEncodedName)
-      if (usagesEncoded.nonEmpty)
-        RenameUtil.doRenameGenericNamedElement(namedElement, encodedName, usagesEncoded, listener)
-      if (usagesPlain.nonEmpty)
-        RenameUtil.doRenameGenericNamedElement(namedElement, newName, usagesPlain, listener)
+    val encodeNames: UsagesWithName => Seq[UsagesWithName] = {
+      case UsagesWithName(name, usagez) =>
+        if (usagez.isEmpty) Nil
+        else {
+          val encodedName = NameTransformer.encode(newName)
+          if (encodedName == name) Seq(UsagesWithName(name, usagez))
+          else {
+            val needEncodedName: UsageInfo => Boolean = { u =>
+              val ref = u.getReference.getElement
+              !ref.getLanguage.isInstanceOf[ScalaLanguage] //todo more concise condition?
+            }
+            val (usagesEncoded, usagesPlain) = usagez.partition(needEncodedName)
+            Seq(UsagesWithName(encodedName, usagesEncoded), UsagesWithName(name, usagesPlain))
+          }
+        }
     }
+
+    val modifyScObjectName: UsagesWithName => Seq[UsagesWithName] = {
+      case UsagesWithName(name, usagez) => {
+        if (usagez.isEmpty) Nil
+        else {
+          namedElement match {
+            case obj: ScObject =>
+              val needDollarSign: UsageInfo => Boolean = { u =>
+                val ref = u.getReference.getElement
+                !ref.getLanguage.isInstanceOf[ScalaLanguage]
+              }
+              val (usagesWithDS, usagesPlain) = usagez.partition(needDollarSign)
+              Seq(UsagesWithName(name + "$", usagesWithDS), UsagesWithName(name, usagesPlain))
+            case _ => Seq(UsagesWithName(name, usagez))
+          }
+        }
+      }
+    }
+
+    val modified = Seq(UsagesWithName(newName, usages)).flatMap(encodeNames).flatMap(modifyScObjectName)
+    modified.foreach { case UsagesWithName(name, usagez) =>
+      RenameUtil.doRenameGenericNamedElement(namedElement, name, usagez, listener)
+    }
+    //to guarantee correct name of namedElement itself
+    RenameUtil.doRenameGenericNamedElement(namedElement, newName, Array.empty[UsageInfo], listener)
   }
 }
