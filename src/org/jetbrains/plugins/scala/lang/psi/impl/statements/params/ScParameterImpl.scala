@@ -57,7 +57,7 @@ class ScParameterImpl extends ScalaStubBasedElementImpl[ScParameter] with ScPara
   def deprecatedName: Option[String] = {
     val stub = getStub
     if (stub != null) return stub.asInstanceOf[ScParameterStub].deprecatedName
-    hasAnnotation("scala.deprecatedName") match {
+    annotations.find(_.typeElement.getText.contains("deprecatedName")) match {
       case Some(deprecationAnnotation) =>
         deprecationAnnotation.constructor.args.flatMap {
           case args =>
