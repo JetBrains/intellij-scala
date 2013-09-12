@@ -242,7 +242,9 @@ class ScalaCompletionContributor extends CompletionContributor {
         CompletionUtil.DUMMY_IDENTIFIER_TRIMMED
       }
       context.setDummyIdentifier(
-        if (ref.getElement.getPrevSibling.getNode.getElementType == ScalaTokenTypes.tSTUB) id + "`" else id
+        if (ref.getElement != null &&
+                ref.getElement.getPrevSibling != null &&
+                ref.getElement.getPrevSibling.getNode.getElementType == ScalaTokenTypes.tSTUB) id + "`" else id
       )
     } else {
       if (element != null && element.getNode.getElementType == ScalaTokenTypes.tSTUB) {
