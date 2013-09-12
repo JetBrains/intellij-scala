@@ -205,7 +205,10 @@ object ScFunctionWrapper {
     builder.append(function.effectiveParameterClauses.flatMap(_.parameters).map { case param =>
       val builder = new StringBuilder
       param.getRealParameterType(TypingContext.empty) match {
-        case Success(tp, _) => builder.append(JavaConversionUtil.typeText(subst.subst(tp), function.getProject, function.getResolveScope))
+        case Success(tp, _) =>
+          if (param.isCallByNameParameter) builder.append("scala.Function0<")
+          builder.append(JavaConversionUtil.typeText(subst.subst(tp), function.getProject, function.getResolveScope))
+          if (param.isCallByNameParameter) builder.append(">")
         case _ => builder.append("java.lang.Object")
       }
       builder.append(" ").append(param.getName)
