@@ -912,4 +912,30 @@ class ScalaBasicCompletionTest extends ScalaCodeInsightTestBase {
 
     checkResultByText(resultText)
   }
+
+  def testBackticks() {
+    val fileText =
+      """
+        |object Z {
+        |  def `foo` = 123
+        |
+        |  `f<caret>
+        |}
+      """.stripMargin.replaceAll("\r", "").trim()
+    configureFromFileTextAdapter("dummy.scala", fileText)
+    val (activeLookup, _) = complete(1, CompletionType.BASIC)
+
+    val resultText =
+      """
+        |object Z {
+        |  def `foo` = 123
+        |
+        |  `foo`<caret>
+        |}
+      """.stripMargin.replaceAll("\r", "").trim()
+
+    completeLookupItem(activeLookup.find(le => le.getLookupString == "`foo`").get)
+
+    checkResultByText(resultText)
+  }
 }

@@ -234,19 +234,26 @@ class ScalaCompletionContributor extends CompletionContributor {
         case ref: PsiElement => text.substring(offset - ref.getTextRange.getStartOffset + 1)
         case ref: PsiReference => text.substring(offset - ref.getElement.getTextRange.getStartOffset + 1)
       }
-      if (isOpChar(text(text.length - 1))) {
-        context.setDummyIdentifier("+++++++++++++++++++++++")
+      val id = if (isOpChar(text(text.length - 1))) {
+        "+++++++++++++++++++++++"
       } else if (ScalaNamesUtil.isKeyword(rest)) {
-        context.setDummyIdentifier(CompletionUtil.DUMMY_IDENTIFIER)
+        CompletionUtil.DUMMY_IDENTIFIER
       } else {
-        context.setDummyIdentifier(CompletionUtil.DUMMY_IDENTIFIER_TRIMMED)
+        CompletionUtil.DUMMY_IDENTIFIER_TRIMMED
       }
+      context.setDummyIdentifier(
+        if (ref.getElement.getPrevSibling.getNode.getElementType == ScalaTokenTypes.tSTUB) id + "`" else id
+      )
     } else {
-      val actualElement = file.findElementAt(offset + 1)
-      if (actualElement != null && ScalaNamesUtil.isKeyword(actualElement.getText)) {
-        context.setDummyIdentifier(CompletionUtil.DUMMY_IDENTIFIER)
+      if (element != null && element.getNode.getElementType == ScalaTokenTypes.tSTUB) {
+        context.setDummyIdentifier(CompletionUtil.DUMMY_IDENTIFIER_TRIMMED + "`")
       } else {
-        context.setDummyIdentifier(CompletionUtil.DUMMY_IDENTIFIER_TRIMMED)
+        val actualElement = file.findElementAt(offset + 1)
+        if (actualElement != null && ScalaNamesUtil.isKeyword(actualElement.getText)) {
+          context.setDummyIdentifier(CompletionUtil.DUMMY_IDENTIFIER)
+        } else {
+          context.setDummyIdentifier(CompletionUtil.DUMMY_IDENTIFIER_TRIMMED)
+        }
       }
     }
     super.beforeCompletion(context)
