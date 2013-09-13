@@ -1,0 +1,17 @@
+class test {
+  private var v3 = ???
+  var v1 = ???
+  protected var v2 = ???
+  override protected var v4 = ???
+  override var v5 = ???
+  override private var v6 = ???
+}
+-----------------
+class test {
+  override var v5 = ???
+  override protected var v4 = ???
+  override private var v6 = ???
+  var v1 = ???
+  protected var v2 = ???
+  private var v3 = ???
+}

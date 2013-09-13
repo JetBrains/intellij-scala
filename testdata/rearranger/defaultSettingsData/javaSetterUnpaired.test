@@ -1,0 +1,23 @@
+class test {
+  def junk0 = 0
+
+  def setValue(value: Int): Unit = ???
+
+  def junk1 = 1
+
+  def getJalue(value: Int): Unit = ???
+
+  def junk2 = 2
+}
+--------------------
+class test {
+  def junk0 = 0
+
+  def setValue(value: Int): Unit = ???
+
+  def junk1 = 1
+
+  def getJalue(value: Int): Unit = ???
+
+  def junk2 = 2
+}
