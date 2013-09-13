@@ -1,0 +1,50 @@
+class test {
+  val ara1 = 1
+  def ttt = {
+    val ara = 1
+    class inner {
+      val t1 = 1
+      var v1 = 3
+      protected val t2 = 1
+      var v3 = 1
+      def innerT = {
+        val val1 = 1
+        var var1 = 2
+        val val2 = 3
+      }
+    }
+    val arba = new inner()
+    var yty = 1
+    val ttr = 1
+    arba
+  }
+  var ara2 = 2
+  private val ara3 = 3
+}
+----------------
+class test {
+  val ara1 = 1
+  private val ara3 = 3
+  var ara2 = 2
+
+  def ttt = {
+    val ara = 1
+
+    class inner {
+      val t1 = 1
+      protected val t2 = 1
+      var v1 = 3
+      var v3 = 1
+
+      def innerT = {
+        val val1 = 1
+        var var1 = 2
+        val val2 = 3
+      }
+    }
+    val arba = new inner()
+    var yty = 1
+    val ttr = 1
+    arba
+  }
+}
