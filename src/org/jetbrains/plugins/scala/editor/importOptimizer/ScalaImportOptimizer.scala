@@ -60,6 +60,7 @@ class ScalaImportOptimizer extends ImportOptimizer {
               case Some(parameters) =>
                 parameters.foreach {
                   case r: ScalaResolveResult => usedImports ++= r.importsUsed
+                  case _ =>
                 }
               case _ =>
             }
