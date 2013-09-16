@@ -9,6 +9,7 @@ import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.util.xmlb.XmlSerializerUtil;
 import org.jdom.Element;
+import org.jetbrains.annotations.TestOnly;
 import org.jetbrains.plugins.scala.config.ui.FacetConfigurationEditor;
 
 /**
@@ -17,7 +18,7 @@ import org.jetbrains.plugins.scala.config.ui.FacetConfigurationEditor;
 
 
 @State(name = "ScalaFacetConfiguration", storages = {@Storage(id = "default", file = "$MODULE_FILE$")})
-class ScalaFacetConfiguration implements FacetConfiguration, PersistentStateComponent<ConfigurationData> {
+public class ScalaFacetConfiguration implements FacetConfiguration, PersistentStateComponent<ConfigurationData> {
   private ConfigurationData data = new ConfigurationData();
 
   public FacetEditorTab[] createEditorTabs(FacetEditorContext editorContext, FacetValidatorsManager validatorsManager) {
@@ -38,5 +39,10 @@ class ScalaFacetConfiguration implements FacetConfiguration, PersistentStateComp
 
   public void loadState(ConfigurationData state) {
     XmlSerializerUtil.copyBean(state, data);
+  }
+
+  @TestOnly
+  public void setLanguageLevel(String languageLevel) {
+    data.setLanguageLevel(languageLevel);
   }
 }
