@@ -61,7 +61,7 @@ object ScalaLanguageLevel extends Enumeration {
       }
     }
 
-    def isThoughScala2_11(languageLevel: ScalaLanguageLevel): Boolean = {
+    def isThoughScala2_11: Boolean = {
       languageLevel match {
         case SCALA2_11 | SCALA2_11_VIRTUALIZED => true
         case _ => false
