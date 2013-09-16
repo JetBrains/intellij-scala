@@ -19,11 +19,11 @@ import com.intellij.psi._
 import api.ScalaElementVisitor
 import lang.resolve.processor.BaseProcessor
 import caches.CachesUtil
-import util.{PsiTreeUtil, PsiModificationTracker}
+import util.PsiModificationTracker
 import com.intellij.openapi.project.DumbServiceImpl
 import types.ScType
 import api.toplevel.{ScTypedDefinition, ScTypeParametersOwner}
-import collection.mutable.{HashSet, ArrayBuffer}
+import collection.mutable.ArrayBuffer
 import light.StaticPsiMethodWrapper
 import api.statements._
 import extensions.toPsiMemberExt
@@ -44,7 +44,7 @@ class ScClassImpl extends ScTypeDefinitionImpl with ScClass with ScTypeParameter
 
   override def additionalJavaNames: Array[String] = {
     fakeCompanionModule match {
-      case Some(m) => Array(m.javaName)
+      case Some(m) => Array(m.getName)
       case _ => Array.empty
     }
   }
