@@ -80,16 +80,22 @@ class RenameScalaClassProcessor extends RenameJavaClassProcessor {
     }
 
     //put rename for fake object companion class
-    element match {
-      case o: ScObject =>
-        o.fakeCompanionClass match {
-          case Some(clazz) => allRenames.put(clazz, newName)
-          case None =>
-        }
-      case t: ScTrait =>
-        allRenames.put(t.fakeCompanionClass, newName + "$class")
-      case _ =>
+    def addLightClasses(element: PsiElement) {
+      element match {
+        case o: ScObject =>
+          o.fakeCompanionClass match {
+            case Some(clazz) => allRenames.put(clazz, newName)
+            case None =>
+          }
+        case t: ScTrait =>
+          allRenames.put(t.fakeCompanionClass, newName + "$class")
+        case _ =>
+      }
     }
+
+    import scala.collection.JavaConverters.asScalaSetConverter
+    val elems = allRenames.keySet().asScala.clone()
+    elems.foreach(addLightClasses)
 
     ScalaElementToRenameContributor.getAll(element, newName, allRenames)
   }
