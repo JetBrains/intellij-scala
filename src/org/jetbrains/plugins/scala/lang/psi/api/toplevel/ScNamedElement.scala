@@ -48,8 +48,6 @@ trait ScNamedElement extends ScalaPsiElement with PsiNameIdentifierOwner with Na
     NameTransformer.encode(withoutBackticks)
   }
 
-  def javaName = getName //todo: join with getName
-
   def nameId: PsiElement
 
   override def getNameIdentifier: PsiIdentifier = if (nameId != null) new JavaIdentifier(nameId) else null
