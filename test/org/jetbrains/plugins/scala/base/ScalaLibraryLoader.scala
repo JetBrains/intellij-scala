@@ -17,6 +17,9 @@ import com.intellij.openapi.startup.StartupManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.projectRoots.Sdk
+import org.jetbrains.plugins.scala.util.TestUtils.ScalaSdkVersion
+import org.jetbrains.plugins.scala.config.{ScalaFacetConfiguration, ScalaFacet}
+import org.jetbrains.plugins.scala.lang.languageLevel.ScalaLanguageLevel
 
 /**
  * Nikolay.Tropin
@@ -44,7 +47,21 @@ class ScalaLibraryLoader(project: Project, module: Module, rootPath: String,
       contentEntry = rootModel.addContentEntry(testDataRoot)
       contentEntry.addSourceFolder(testDataRoot, false)
     }
-
+    
+    if (libVersion == ScalaSdkVersion._2_11) {
+      val modelsProvider = ModifiableModelsProvider.SERVICE.getInstance()
+      val facetModifiableModel = modelsProvider.getFacetModifiableModel(module)
+      val defaultConfiguration = ScalaFacet.Type.createDefaultConfiguration
+      defaultConfiguration.setLanguageLevel(ScalaLanguageLevel.SCALA2_11.toString)
+      val scalaFacet = ScalaFacet.Type.createFacet(module, "Scala", defaultConfiguration, null)
+      facetModifiableModel.addFacet(scalaFacet)
+      ApplicationManager.getApplication.runWriteAction(new Runnable {
+        def run() {
+          modelsProvider.commitFacetModifiableModel(module, facetModifiableModel)
+        }
+      })
+    }
+    
     val libs: OrderEnumerator = rootManager.orderEntries.librariesOnly
     val libModels: util.ArrayList[Library.ModifiableModel] = new util.ArrayList[Library.ModifiableModel]
     rootModel = addLibrary(libVersion, rootModel, rootManager, libs, libModels, "scala_lib",
@@ -91,6 +108,16 @@ class ScalaLibraryLoader(project: Project, module: Module, rootPath: String,
       ApplicationManager.getApplication.runWriteAction(new Runnable {
         def run() {
           rootModel.commit()
+        }
+      })
+    }
+    if (!ScalaFacet.findIn(module).isEmpty) {
+      val modelsProvider = ModifiableModelsProvider.SERVICE.getInstance()
+      val facetModifiableModel = modelsProvider.getFacetModifiableModel(module)
+      facetModifiableModel.removeFacet(ScalaFacet.findIn(module).get)
+      ApplicationManager.getApplication.runWriteAction(new Runnable {
+        def run() {
+          modelsProvider.commitFacetModifiableModel(module, facetModifiableModel)
         }
       })
     }

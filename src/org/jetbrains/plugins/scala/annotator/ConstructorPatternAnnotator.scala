@@ -20,34 +20,15 @@ trait ConstructorPatternAnnotator {
         case Some(ScalaResolveResult(element, subst)) =>
           val patternArgs = pattern.args.patterns
           element match {
-            case fun: ScFunction if fun.name == "unapply" =>
-              processUnapplyReturn(fun.returnType) {
-                case Some(args) => checkArity(args.length, holder, pattern, patternArgs, isRepeated = false)
-                case None =>
-              }
-            case fun: ScFunction if fun.name == "unapplySeq" =>
-              processUnapplyReturn(fun.returnType) {
-                case Some(args) => checkArity(args.length, holder, pattern, patternArgs, isRepeated = true)
-                case None =>
+            case fun: ScFunction if fun.name == "unapply" || fun.name == "unapplySeq" =>
+              fun.returnType.foreach { rt =>
+                  checkArity(ScPattern.extractorParameters(rt, pattern).length,
+                    holder, pattern, patternArgs, fun.name == "unapplySeq")
               }
             case _ =>
           }
         case None =>
       }
-    }
-  }
-
-  def processUnapplyReturn[A](unapplyReturn: TypeResult[ScType])(processArgs: Option[Seq[ScType]] => A): A = {
-    unapplyReturn.flatMap(ScType.expandAliases).getOrAny match {
-      case ScParameterizedType(des, Seq(argType))
-        if Set("_root_.scala.Option", "_root_.scala.Some")(des.canonicalText) => //TODO better checking of base type.
-
-        ScType.extractTupleType(argType) match {
-          case Some(ScTupleType(components)) => processArgs(Some(components))
-          case None => processArgs(Some(Seq(argType)))
-        }
-      case t if t.canonicalText == "Boolean" => processArgs(Some(Seq()))
-      case _ => processArgs(None)
     }
   }
 
