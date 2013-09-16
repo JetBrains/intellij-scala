@@ -17,6 +17,7 @@ import com.intellij.usageView.UsageInfo
 import com.intellij.refactoring.listeners.RefactoringElementListener
 import scala.reflect.NameTransformer
 import com.intellij.refactoring.rename.RenameUtil
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
 object ScalaRenameUtil {
   def filterAliasedReferences(allReferences: util.Collection[PsiReference]): util.ArrayList[PsiReference] = {
@@ -87,11 +88,19 @@ object ScalaRenameUtil {
                                   listener: RefactoringElementListener): Unit = {
     case class UsagesWithName(name: String, usages: Array[UsageInfo])
 
+    def encode(name: String) = {
+      val toEncode = newName match {
+        case ScalaNamesUtil.isBacktickedName(s) => s
+        case _ => newName
+      }
+      NameTransformer.encode(toEncode)
+    }
+
     val encodeNames: UsagesWithName => Seq[UsagesWithName] = {
       case UsagesWithName(name, usagez) =>
         if (usagez.isEmpty) Nil
         else {
-          val encodedName = NameTransformer.encode(newName)
+          val encodedName = encode(newName)
           if (encodedName == name) Seq(UsagesWithName(name, usagez))
           else {
             val needEncodedName: UsageInfo => Boolean = { u =>
@@ -123,10 +132,12 @@ object ScalaRenameUtil {
     }
 
     val modified = Seq(UsagesWithName(newName, usages)).flatMap(encodeNames).flatMap(modifyScObjectName)
-    modified.foreach { case UsagesWithName(name, usagez) =>
-      RenameUtil.doRenameGenericNamedElement(namedElement, name, usagez, listener)
+    modified.foreach {
+      case UsagesWithName(name, usagez) if usagez.nonEmpty =>
+        RenameUtil.doRenameGenericNamedElement(namedElement, name, usagez, listener)
+      case _ =>
     }
-    //to guarantee correct name of namedElement itself
+      //to guarantee correct name of namedElement itself
     RenameUtil.doRenameGenericNamedElement(namedElement, newName, Array.empty[UsageInfo], listener)
   }
 }
