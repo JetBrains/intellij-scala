@@ -18,7 +18,8 @@ import base.patterns.ScCaseClause
 import icons.Icons
 import psi.impl.ScalaPsiElementFactory
 import reflect.NameTransformer
-import statements.params.{ScClassParameter, ScParameterClause}
+import statements.params.ScClassParameter
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
 trait ScNamedElement extends ScalaPsiElement with PsiNameIdentifierOwner with NavigatablePsiElement {
   def name: String = {
@@ -39,7 +40,13 @@ trait ScNamedElement extends ScalaPsiElement with PsiNameIdentifierOwner with Na
 
   override def getTextOffset: Int = nameId.getTextRange.getStartOffset
 
-  override def getName = NameTransformer.encode(name)
+  override def getName = {
+    val withoutBackticks = name match {
+      case ScalaNamesUtil.isBacktickedName(s) => s
+      case _ => name
+    }
+    NameTransformer.encode(withoutBackticks)
+  }
 
   def javaName = getName //todo: join with getName
 
@@ -50,7 +57,8 @@ trait ScNamedElement extends ScalaPsiElement with PsiNameIdentifierOwner with Na
   override def setName(name: String): PsiElement = {
     val id = nameId.getNode
     val parent = id.getTreeParent
-    parent.replaceChild(id, ScalaPsiElementFactory.createIdentifier(name, getManager))
+    val newId = ScalaPsiElementFactory.createIdentifier(name, getManager)
+    parent.replaceChild(id, newId)
     this
   }
 
