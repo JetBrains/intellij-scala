@@ -14,6 +14,7 @@ import com.intellij.util.PairProcessor
 import org.jetbrains.plugins.scala.lang.refactoring.rename.ScalaRenameUtil
 import com.intellij.codeInsight.TargetElementUtilBase
 import com.intellij.lang.Language
+import com.intellij.refactoring.rename.RenamePsiElementProcessor
 
 /**
  * Nikolay.Tropin
@@ -96,12 +97,17 @@ class ScalaInplaceRenamer(elementToRename: PsiNamedElement,
       myEditor.getScrollingModel.scrollToCaret(ScrollType.MAKE_VISIBLE)
       PsiDocumentManager.getInstance(myEditor.getProject).commitDocument(document)
       val clazz = myElementToRename.getClass
-      myElementToRename = TargetElementUtilBase.findTargetElement(editor, TargetElementUtilBase.getInstance().getAllAccepted) match {
+      val element = TargetElementUtilBase.findTargetElement(myEditor,
+        TargetElementUtilBase.REFERENCED_ELEMENT_ACCEPTED | TargetElementUtilBase.ELEMENT_NAME_ACCEPTED)
+      myElementToRename = element match {
         case null => null
-        case target: PsiNamedElement if target.getClass == clazz => target
-        case _ => null
+        case named: PsiNamedElement if named.getClass == clazz => named
+        case _ =>
+          RenamePsiElementProcessor.forElement(element).substituteElementToRename(element, myEditor) match {
+            case named: PsiNamedElement if named.getClass == clazz => named
+            case _ => null
+          }
       }
-
     }
   }
 
