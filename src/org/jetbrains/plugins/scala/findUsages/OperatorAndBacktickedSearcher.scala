@@ -30,7 +30,7 @@ class OperatorAndBacktickedSearcher extends QueryExecutor[PsiReference, Referenc
     extensions.inReadAction{
       if (!element.isValid) return true
       val toProcess = element match {
-        case isBackticked(name) => Seq((element, name), (element, s"`$name`"))
+        case ScalaNamesUtil.isBackticked(name) => Seq((element, name), (element, s"`$name`"))
         case named: ScNamedElement if named.name.exists(ScalaNamesUtil.isOpCharacter) => Seq((named, named.name))
         case _ => Nil
       }
@@ -55,14 +55,6 @@ class OperatorAndBacktickedSearcher extends QueryExecutor[PsiReference, Referenc
         }
       }
       true
-    }
-  }
-
-  private object isBackticked {
-    def unapply(named: ScNamedElement): Option[String] = {
-      val name = named.name
-      if (name.startsWith("`") && name.endsWith("`")) Some(name.substring(1, name.length - 1))
-      else None
     }
   }
 

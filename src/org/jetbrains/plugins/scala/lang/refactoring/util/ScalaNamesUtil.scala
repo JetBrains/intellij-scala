@@ -47,4 +47,18 @@ object ScalaNamesUtil {
     case scNamed: ScNamedElement => scNamed.name
     case psiNamed: PsiNamedElement => psiNamed.getName
   }
+
+  object isBackticked {
+    def unapply(named: ScNamedElement): Option[String] = {
+      val name = named.name
+      isBacktickedName.unapply(name)
+    }
+  }
+
+  object isBacktickedName {
+    def unapply(name: String): Option[String] = {
+      if (name.startsWith("`") && name.endsWith("`")) Some(name.substring(1, name.length - 1))
+      else None
+    }
+  }
 }
