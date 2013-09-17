@@ -1,16 +1,13 @@
 package org.jetbrains.plugins.scala.lang.psi.light
 
 import com.intellij.psi.impl.light.LightMethod
-import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
+import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import com.intellij.psi._
 import collection.mutable.ArrayBuffer
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTypeDefinition, ScObject}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScMethodLike, ScPrimaryConstructor}
-import scala.Some
-import org.jetbrains.plugins.scala.lang.psi.types.result.Success
-import scala.collection.mutable
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import scala.Some
@@ -137,6 +134,8 @@ class ScFunctionWrapper(val function: ScFunction, isStatic: Boolean, isInterface
   }
 
   override def getReturnTypeNoResolve: PsiType = getReturnType
+
+  override def getNameIdentifier = function.getNameIdentifier
 }
 
 object ScFunctionWrapper {
