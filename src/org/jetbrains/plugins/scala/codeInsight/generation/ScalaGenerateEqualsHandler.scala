@@ -15,12 +15,13 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import com.intellij.lang.LanguageCodeInsightActionHandler
-import com.intellij.psi.util.{MethodSignature, MethodSignatureUtil}
 import org.jetbrains.plugins.scala.lang.completion.ScalaKeyword
 import org.jetbrains.plugins.scala.overrideImplement.ScalaOIUtil
-import org.jetbrains.plugins.scala.lang.psi.types.{ScType, PhysicalSignature}
+import org.jetbrains.plugins.scala.lang.psi.types._
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.codeInsight.hint.HintManager
+import scala.Some
+import scala.Boolean
 
 /**
  * Nikolay.Tropin
@@ -88,13 +89,17 @@ class ScalaGenerateEqualsHandler extends LanguageCodeInsightActionHandler {
   }
 
   protected def createHashCode(aClass: ScClass): ScFunction = {
-    val superCall = aClass.extendsBlock.templateParents.map(_ => "super.hashCode()")
+    val declText = "def hashCode(): Int"
+    val signature = new PhysicalSignature(
+      ScalaPsiElementFactory.createMethodWithContext(declText + " = 0", aClass, aClass.extendsBlock),
+      ScSubstitutor.empty)
+    val superCall = Option(if (!overridesFromJavaObject(aClass, signature)) "super.hashCode()" else null)
     val usedFields = superCall ++: myHashCodeFields.map(_.name)
     val stateText = usedFields.mkString("Seq(", ", ", ")")
     val firstStmtText = s"val state = $stateText"
     val calculationText = "state.map(_.hashCode()).foldLeft(0)((a, b) => 31 * a + b)"
     val methodText =
-      s"""override def hashCode(): Int = {
+      s"""override $declText = {
         |  $firstStmtText
         |  $calculationText
         |}""".stripMargin.replace("\r", "")
@@ -102,21 +107,26 @@ class ScalaGenerateEqualsHandler extends LanguageCodeInsightActionHandler {
   }
 
   protected def createCanEqual(aClass: ScClass, project: Project): ScFunction = {
-    val javaLangObject: PsiClassType = PsiType.getJavaLangObject(PsiManager.getInstance(project), aClass.getResolveScope)
-    val signature = MethodSignatureUtil.createMethodSignature(
-      "canEqual", Array[PsiType](javaLangObject), PsiTypeParameter.EMPTY_ARRAY, PsiSubstitutor.EMPTY)
-    val overrideMod = overrideModifier(aClass, signature)
-    val text = s"$overrideMod def canEqual(other: Any): Boolean = other.isInstanceOf[${aClass.name}]"
+    val declText = "def canEqual(other: Any): Boolean"
+    val sign = new PhysicalSignature(
+      ScalaPsiElementFactory.createMethodWithContext(declText + " = true", aClass, aClass.extendsBlock),
+      ScSubstitutor.empty)
+    val overrideMod = overrideModifier(aClass, sign)
+    val text = s"$overrideMod $declText = other.isInstanceOf[${aClass.name}]"
     ScalaPsiElementFactory.createMethodWithContext(text, aClass, aClass.extendsBlock)
   }
 
   protected def createEquals(aClass: ScClass, project: Project): ScFunction = {
     val fieldComparisons = myEqualsFields.map(_.name).map(name => s"$name == that.$name")
-    val superCheck = aClass.extendsBlock.templateParents.map(_ => "super.equals(that)")
+    val declText = "def equals(other: Any): Boolean"
+    val signature = new PhysicalSignature(
+      ScalaPsiElementFactory.createMethodWithContext(declText + " = false", aClass, aClass.extendsBlock),
+      ScSubstitutor.empty)
+    val superCheck = Option(if (!overridesFromJavaObject(aClass, signature)) "super.equals(that)" else null)
     val canEqualCheck = Option(if (aClass.hasFinalModifier) null else "(that canEqual this)")
     val allChecks = superCheck ++: canEqualCheck ++: fieldComparisons
     val checksText = allChecks.mkString(" &&\n")
-    val text = s"""override def equals(other: Any): Boolean = other match {
+    val text = s"""override $declText = other match {
                  |  case that: ${aClass.name} =>
                  |    $checksText
                  |  case _ => false
@@ -187,12 +197,22 @@ class ScalaGenerateEqualsHandler extends LanguageCodeInsightActionHandler {
             .find(fun => fun.methodType(None) equiv methodType)
   }
 
-  private def overrideModifier(aClass: ScTemplateDefinition, signature: MethodSignature): String = {
+  private def overrideModifier(aClass: ScTemplateDefinition, signature: Signature): String = {
     val methodsToOverride = ScalaOIUtil.getMembersToOverride(aClass, withSelfType = false)
     val needModifier = methodsToOverride.exists {
-      case sign: PhysicalSignature => sign.method.getSignature(EmptySubstitutor.getInstance()) == signature
+      case sign: PhysicalSignature => sign.equiv(signature)
       case _ => false
     }
     if (needModifier) ScalaKeyword.OVERRIDE else ""
+  }
+
+  private def overridesFromJavaObject(aClass: ScTemplateDefinition, signature: Signature): Boolean = {
+    val methodsToOverride = ScalaOIUtil.getMembersToOverride(aClass, withSelfType = false)
+    methodsToOverride exists {
+      case sign: PhysicalSignature if sign.equiv(signature) =>
+        //used only for equals and hashcode methods
+        sign.isJava && sign.method.findSuperMethods(false).isEmpty
+      case _ => false
+    }
   }
 }
