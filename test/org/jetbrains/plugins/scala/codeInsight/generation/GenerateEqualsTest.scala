@@ -150,4 +150,37 @@ class GenerateEqualsTest extends ScalaGenerateTestBase {
                    |}"""
     testInvoke(text, result, checkCaret = false)
   }
+
+  def testInheritsMethodsFromJavaLangObject() = {
+    val text = s"""class A {
+                 |  val a = 0
+                 |}
+                 |
+                 |class B (i: Int, val j: Int) extends A {
+                 |  val z = 0$CARET_MARKER
+                 |}"""
+    val result = """class A {
+                   |  val a = 0
+                   |}
+                   |
+                   |class B (i: Int, val j: Int) extends A {
+                   |  val z = 0
+                   |
+                   |  def canEqual(other: Any): Boolean = other.isInstanceOf[B]
+                   |
+                   |  override def equals(other: Any): Boolean = other match {
+                   |    case that: B =>
+                   |      (that canEqual this) &&
+                   |        z == that.z &&
+                   |        j == that.j
+                   |    case _ => false
+                   |  }
+                   |
+                   |  override def hashCode(): Int = {
+                   |    val state = Seq(z, j)
+                   |    state.map(_.hashCode()).foldLeft(0)((a, b) => 31 * a + b)
+                   |  }
+                   |}"""
+    testInvoke(text, result, checkCaret = false)
+  }
 }
