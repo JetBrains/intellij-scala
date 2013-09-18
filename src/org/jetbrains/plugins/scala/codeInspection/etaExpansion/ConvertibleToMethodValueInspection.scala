@@ -11,6 +11,7 @@ import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import scala.Some
 import org.jetbrains.plugins.scala.lang.psi.types.result.Success
+import org.jetbrains.plugins.scala.lang.psi.types.ScType
 
 /**
  * Nikolay.Tropin
@@ -51,7 +52,7 @@ class ConvertibleToMethodValueInspection extends AbstractInspection(inspectionId
   private def isSuitableForReplace(oldExpr: ScExpression, newExprText: String): Boolean = {
     val newExpr = ScalaPsiElementFactory.createExpressionWithContextFromText(newExprText, oldExpr.getContext, oldExpr)
     oldExpr.expectedType(fromUnderscore = false) match {
-      case Some(expectedType) =>
+      case Some(expectedType) if ScType.extractFunctionType(expectedType).isDefined =>
         def conformsExpected(expr: ScExpression): Boolean = expr.getType().getOrAny conforms expectedType
         conformsExpected(oldExpr) && conformsExpected(newExpr) && oldExpr.getType().getOrAny.conforms(newExpr.getType().getOrNothing)
       case None if newExprText endsWith "_" =>
