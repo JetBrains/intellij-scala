@@ -6,7 +6,6 @@ package inline
 import base.ScalaLightPlatformCodeInsightTestCaseAdapter
 import com.intellij.psi.util.PsiTreeUtil
 import lang.lexer.ScalaTokenTypes
-import lang.psi.api.base.patterns.ScBindingPattern
 import util.ScalaUtils
 import com.intellij.openapi.fileEditor.{FileEditorManager, OpenFileDescriptor}
 
@@ -17,6 +16,8 @@ import com.intellij.openapi.vfs.{CharsetToolkit, LocalFileSystem}
 import lang.refactoring.inline.ScalaInlineHandler
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.util.io.FileUtil
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
+import com.intellij.refactoring.util.CommonRefactoringUtil.RefactoringErrorHintException
 
 /**
  * User: Alexander Podkhalyuzin
@@ -44,19 +45,26 @@ abstract class InlineRefactoringTestBase extends ScalaLightPlatformCodeInsightTe
 
     var res: String = null
 
+    val firstPsi = scalaFile.findElementAt(0)
+    val warning = firstPsi.getNode.getElementType match {
+      case ScalaTokenTypes.tLINE_COMMENT => ScalaBundle.message(firstPsi.getText.substring(2).trim)
+      case _ => null
+    }
     val lastPsi = scalaFile.findElementAt(scalaFile.getText.length - 1)
-    
     //start to inline
     try {
       ScalaUtils.runWriteActionDoNotRequestConfirmation(new Runnable {
         def run() {
           GenericInlineHandler.invoke(PsiTreeUtil.
-                  getParentOfType(element, classOf[ScBindingPattern]), editor, new ScalaInlineHandler)
+                  getParentOfType(element, classOf[ScNamedElement]), editor, new ScalaInlineHandler)
         }
       }, getProjectAdapter, "Test")
       res = scalaFile.getText.substring(0, lastPsi.getTextOffset).trim//getImportStatements.map(_.getText()).mkString("\n")
     }
     catch {
+      case e: RefactoringErrorHintException =>
+        assert(e.getMessage == warning, s"Warning should be: $warning, but is: ${e.getMessage}")
+        return
       case e: Exception => assert(assertion = false, message = e.getMessage + "\n" + e.getStackTrace)
     }
 
