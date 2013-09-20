@@ -22,8 +22,10 @@ import org.jetbrains.plugins.scala.lang.psi.light.PsiTypedDefinitionWrapper.Defi
 import psi.api.toplevel.typedef.ScMember
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 import com.intellij.psi.search.searches.ReferencesSearch
-import com.intellij.psi.search.LocalSearchScope
+import com.intellij.psi.search.{PsiElementProcessor, LocalSearchScope}
 import com.intellij.refactoring.listeners.RefactoringElementListener
+import org.jetbrains.plugins.scala.util.SuperMemberUtil
+import com.intellij.openapi.util.Pass
 
 /**
  * User: Alexander Podkhalyuzin
@@ -99,9 +101,21 @@ class RenameScalaValsProcessor extends RenameJavaMemberProcessor {
 
   override def substituteElementToRename(element: PsiElement, editor: Editor): PsiElement = {
     element match {
-      case method: FakePsiMethod => method.navElement
+      case method: FakePsiMethod => substituteElementToRename(method.navElement, editor)
+      case named: ScNamedElement => SuperMemberUtil.chooseSuper(named, "Choose element to rename")
       case _ => element
     }
+  }
+
+
+  override def substituteElementToRename(element: PsiElement, editor: Editor, renameCallback: Pass[PsiElement]) {
+    val named = element match {case named: ScNamedElement => named; case _ => return}
+    SuperMemberUtil.chooseAndProcessSuper(named, new PsiElementProcessor[PsiNamedElement] {
+      def execute(named: PsiNamedElement): Boolean = {
+        renameCallback.pass(named)
+        false
+      }
+    }, "Choose element to rename", editor)
   }
 
   override def setToSearchInComments(element: PsiElement, enabled: Boolean) {
