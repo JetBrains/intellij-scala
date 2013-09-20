@@ -17,7 +17,6 @@ import typedef._
 import base.patterns.ScCaseClause
 import icons.Icons
 import psi.impl.ScalaPsiElementFactory
-import reflect.NameTransformer
 import statements.params.ScClassParameter
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
@@ -40,13 +39,7 @@ trait ScNamedElement extends ScalaPsiElement with PsiNameIdentifierOwner with Na
 
   override def getTextOffset: Int = nameId.getTextRange.getStartOffset
 
-  override def getName = {
-    val withoutBackticks = name match {
-      case ScalaNamesUtil.isBacktickedName(s) => s
-      case _ => name
-    }
-    NameTransformer.encode(withoutBackticks)
-  }
+  override def getName = ScalaNamesUtil.toJavaName(name)
 
   def nameId: PsiElement
 
