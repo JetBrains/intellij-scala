@@ -15,6 +15,7 @@ import org.jetbrains.plugins.scala.lang.refactoring.rename.ScalaRenameUtil
 import com.intellij.codeInsight.TargetElementUtilBase
 import com.intellij.lang.Language
 import com.intellij.refactoring.rename.RenamePsiElementProcessor
+import com.intellij.psi.util.PsiTreeUtil
 
 /**
  * Nikolay.Tropin
@@ -116,6 +117,19 @@ class ScalaInplaceRenamer(elementToRename: PsiNamedElement,
       if (myElementToRename.isValid && oldName == ScalaNamesUtil.scalaName(myElementToRename)) myElementToRename
       else null
     }
+  }
+
+  private val substitorOffset = substituted.getTextRange.getStartOffset
+
+  override def getSubstituted: PsiElement = {
+    val subst = super.getSubstituted
+    if (subst.getText == substituted.getText) subst
+    else {
+      val psiFile: PsiFile = PsiDocumentManager.getInstance(myProject).getPsiFile(myEditor.getDocument)
+      if (psiFile != null) PsiTreeUtil.getParentOfType(psiFile.findElementAt(substitorOffset), classOf[PsiNameIdentifierOwner])
+      else null
+    }
+
   }
 
   override def isIdentifier(newName: String, language: Language): Boolean = ScalaNamesUtil.isIdentifier(newName)
