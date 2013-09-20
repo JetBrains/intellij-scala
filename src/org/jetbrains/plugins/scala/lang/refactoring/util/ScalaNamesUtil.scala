@@ -7,6 +7,7 @@ import com.intellij.openapi.application.ApplicationManager
 import lexer.{ScalaLexer, ScalaTokenTypes}
 import com.intellij.psi.{PsiNamedElement, PsiElement}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
+import scala.reflect.NameTransformer
 
 /**
  * User: Alexander Podkhalyuzin
@@ -60,5 +61,13 @@ object ScalaNamesUtil {
       if (name.startsWith("`") && name.endsWith("`")) Some(name.substring(1, name.length - 1))
       else None
     }
+  }
+
+  def toJavaName(name: String) = {
+    val toEncode = name match {
+      case ScalaNamesUtil.isBacktickedName(s) => s
+      case _ => name
+    }
+    NameTransformer.encode(toEncode)
   }
 }
