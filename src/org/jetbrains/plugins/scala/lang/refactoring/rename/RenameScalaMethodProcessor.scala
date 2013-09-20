@@ -18,15 +18,16 @@ import psi.api.base.ScPrimaryConstructor
 import collection.mutable.ArrayBuffer
 import psi.fake.FakePsiMethod
 import extensions.toPsiNamedElementExt
-import com.intellij.psi.{PsiMethod, PsiElement}
+import com.intellij.psi.{PsiNamedElement, PsiElement}
 import java.util
 import com.intellij.openapi.util.Pass
-import com.intellij.ide.util.SuperMethodWarningUtil
 import com.intellij.psi.search.PsiElementProcessor
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 import scala.Some
 import com.intellij.usageView.UsageInfo
 import com.intellij.refactoring.listeners.RefactoringElementListener
+import org.jetbrains.plugins.scala.util.SuperMemberUtil
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 
 /**
  * User: Alexander Podkhalyuzin
@@ -83,21 +84,19 @@ class RenameScalaMethodProcessor extends RenameJavaMethodProcessor {
 
   override def substituteElementToRename(element: PsiElement, editor: Editor): PsiElement = {
     val guess = ScalaRenameUtil.findSubstituteElement(element)
-    if (guess != element) guess else SuperMethodWarningUtil.checkSuperMethod(element.asInstanceOf[PsiMethod] , "Rename")
+    if (guess != element) guess else SuperMemberUtil.chooseSuper(element.asInstanceOf[ScNamedElement], "Choose element to rename")
   }
 
   override def substituteElementToRename(element: PsiElement, editor: Editor, renameCallback: Pass[PsiElement]) {
+    val named = element match {case named: ScNamedElement => named; case _ => return}
     val guess = ScalaRenameUtil.findSubstituteElement(element)
     if (guess != element) renameCallback.pass(guess)
-    else SuperMethodWarningUtil.checkSuperMethod(element.asInstanceOf[PsiMethod], "Rename", new PsiElementProcessor[PsiMethod] {
-      def execute(method: PsiMethod): Boolean = {
-        if (!canProcessElement(method)) false
-        else {
-          renameCallback.pass(method)
-          false
-        }
+    else SuperMemberUtil.chooseAndProcessSuper(named, new PsiElementProcessor[PsiNamedElement] {
+      def execute(named: PsiNamedElement): Boolean = {
+        renameCallback.pass(named)
+        false
       }
-    }, editor)
+    }, "Choose element to rename", editor)
   }
 
   private class WarningDialog(project: Project, text: String) extends DialogWrapper(project, true) {
