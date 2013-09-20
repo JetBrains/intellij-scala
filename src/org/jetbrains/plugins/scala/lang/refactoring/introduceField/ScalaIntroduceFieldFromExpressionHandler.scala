@@ -117,7 +117,7 @@ class ScalaIntroduceFieldFromExpressionHandler extends ScalaIntroduceFieldHandle
     settings.visibilityLevel match {
       case VisibilityLevel.DEFAULT =>
       case VisibilityLevel.PRIVATE => createdDeclaration.asInstanceOf[ScMember].setModifierProperty("private", value = true)
-      case VisibilityLevel.PROTECTED => createdDeclaration.asInstanceOf[ScMember].setModifierProperty("private", value = true)
+      case VisibilityLevel.PROTECTED => createdDeclaration.asInstanceOf[ScMember].setModifierProperty("protected", value = true)
     }
 
 
