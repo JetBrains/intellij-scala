@@ -112,11 +112,6 @@ class ScalaInlineHandler extends InlineHandler {
     def getSettings(v: ScDeclaredElementsHolder, inlineTitleSuffix: String, inlineDescriptionSuffix: String): InlineHandler.Settings = {
       val bind = v.declaredElements.apply(0)
       val refs = ReferencesSearch.search(bind).findAll.asScala
-      val usedInSameClassOnly = v match {
-        case member: ScMember if member.containingClass != null =>
-          refs.forall(ref => PsiTreeUtil.isAncestor(member.containingClass, ref.getElement, true))
-        case _ => true
-      }
       val inlineTitle = title(inlineTitleSuffix)
       ScalaRefactoringUtil.highlightOccurrences(element.getProject, refs.map(_.getElement).toArray, editor)
       val settings = new InlineHandler.Settings {def isOnlyOneReferenceToInline: Boolean = false}
@@ -148,7 +143,9 @@ class ScalaInlineHandler extends InlineHandler {
         showErrorHint(ScalaBundle.message("cannot.inline.used.outside.class"), "member")
       case bp: ScBindingPattern =>
         PsiTreeUtil.getParentOfType(bp, classOf[ScPatternDefinition], classOf[ScVariableDefinition]) match {
-          case definition: {def isSimple: Boolean} if !definition.isSimple =>
+          case definition: ScPatternDefinition if !definition.isSimple =>
+            showErrorHint(ScalaBundle.message("cannot.inline.not.simple.pattern"), "value")
+          case definition: ScVariableDefinition if !definition.isSimple =>
             showErrorHint(ScalaBundle.message("cannot.inline.not.simple.pattern"), "variable")
           case parent if parent != null && parent.declaredElements == Seq(element) =>
             if (parent.isLocal) getSettings(parent, "Variable", "local variable")
