@@ -2,6 +2,7 @@ package org.jetbrains.sbt.settings;
 
 import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
+import com.intellij.ui.JBColor;
 import com.intellij.ui.RawCommandLineEditor;
 import com.intellij.ui.TitledSeparator;
 import com.intellij.uiDesigner.core.GridConstraints;
@@ -24,6 +25,7 @@ public class SbtSettingsPane {
     private RawCommandLineEditor myVmParameters;
     private JLabel myLauncherPathLabel;
     private JPanel myContentPanel;
+    private JLabel myLauncherNote;
 
     public SbtSettingsPane() {
         myBundledButton.addItemListener(new ItemListener() {
@@ -44,6 +46,8 @@ public class SbtSettingsPane {
 
         myLauncherPath.addBrowseFolderListener("Choose a custom launcher", "Choose sbt-launch.jar", null,
                 FileChooserDescriptorFactory.createSingleLocalFileDescriptor());
+
+        myLauncherNote.setForeground(JBColor.GRAY);
     }
 
     public JPanel getContentPanel() {
@@ -145,13 +149,16 @@ public class SbtSettingsPane {
         myCustomButton.setDisplayedMnemonicIndex(0);
         panel2.add(myCustomButton, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final JPanel panel3 = new JPanel();
-        panel3.setLayout(new GridLayoutManager(1, 2, new Insets(0, 0, 0, 0), -1, -1));
+        panel3.setLayout(new GridLayoutManager(2, 2, new Insets(0, 0, 0, 0), -1, -1));
         panel2.add(panel3, new GridConstraints(2, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 1, false));
         myLauncherPath = new TextFieldWithBrowseButton();
         panel3.add(myLauncherPath, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, new Dimension(250, -1), null, null, 0, false));
         myLauncherPathLabel = new JLabel();
         myLauncherPathLabel.setText("Path:");
         panel3.add(myLauncherPathLabel, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        myLauncherNote = new JLabel();
+        myLauncherNote.setText("SBT 0.13.* launchers are not supported yet");
+        panel3.add(myLauncherNote, new GridConstraints(1, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         label1.setLabelFor(myMaximumHeapSize);
         ButtonGroup buttonGroup;
         buttonGroup = new ButtonGroup();
