@@ -15,7 +15,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import com.intellij.usageView.UsageInfo
 import com.intellij.refactoring.listeners.RefactoringElementListener
-import scala.reflect.NameTransformer
 import com.intellij.refactoring.rename.RenameUtil
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
@@ -88,19 +87,11 @@ object ScalaRenameUtil {
                                   listener: RefactoringElementListener): Unit = {
     case class UsagesWithName(name: String, usages: Array[UsageInfo])
 
-    def encode(name: String) = {
-      val toEncode = newName match {
-        case ScalaNamesUtil.isBacktickedName(s) => s
-        case _ => newName
-      }
-      NameTransformer.encode(toEncode)
-    }
-
     val encodeNames: UsagesWithName => Seq[UsagesWithName] = {
       case UsagesWithName(name, usagez) =>
         if (usagez.isEmpty) Nil
         else {
-          val encodedName = encode(newName)
+          val encodedName = ScalaNamesUtil.toJavaName(newName)
           if (encodedName == name) Seq(UsagesWithName(name, usagez))
           else {
             val needEncodedName: UsageInfo => Boolean = { u =>
