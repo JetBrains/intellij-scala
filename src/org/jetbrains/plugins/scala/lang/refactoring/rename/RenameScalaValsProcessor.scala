@@ -22,7 +22,7 @@ import org.jetbrains.plugins.scala.lang.psi.light.PsiTypedDefinitionWrapper.Defi
 import psi.api.toplevel.typedef.ScMember
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 import com.intellij.psi.search.searches.ReferencesSearch
-import com.intellij.psi.search.{PsiElementProcessor, LocalSearchScope}
+import com.intellij.psi.search.{GlobalSearchScope, PsiElementProcessor, LocalSearchScope}
 import com.intellij.refactoring.listeners.RefactoringElementListener
 import org.jetbrains.plugins.scala.util.SuperMemberUtil
 import com.intellij.openapi.util.Pass
@@ -44,23 +44,25 @@ class RenameScalaValsProcessor extends RenameJavaMemberProcessor {
   }
 
   override def findReferences(element: PsiElement) = {
+    val isClassParameter = element.isInstanceOf[ScClassParameter]
     val (localScope, onlyLocal) = element match {
-      case p: ScClassParameter if p.isPrivateThis => (new LocalSearchScope(p.containingClass), true)
       case m: ScMember if m.isPrivate => (new LocalSearchScope(m.containingClass), true)
       case _ => (new LocalSearchScope(element.getContainingFile), false)
     }
 
     ScalaRenameUtil.filterAliasedReferences {
+      /*todo Search in GlobalSearchScope only cannot find reference like this:
+      * var a = 0
+      * a_=(1)
+      * But search in local scope finds it
+      */
       val local = ReferencesSearch.search(element, localScope, true).findAll()
-      if (onlyLocal) local
+      lazy val global = ReferencesSearch.search(element, GlobalSearchScope.allScope(element.getProject), isClassParameter).findAll
+      if (onlyLocal && !isClassParameter) local
       else {
-        /* In GlobalSearchScope only cannot find reference like this:
-        * var a = 0
-        * a_=(1)
-        */
         val buf = new util.HashSet[PsiReference]
         buf.addAll(local)
-        buf.addAll(super.findReferences(element))
+        buf.addAll(global)
         buf
       }
     }
