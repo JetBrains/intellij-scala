@@ -5,7 +5,6 @@ import com.intellij.util.{Processor, QueryExecutor}
 import com.intellij.psi.PsiReference
 import com.intellij.psi.search.searches.ReferencesSearch
 import com.intellij.psi.search.searches.ReferencesSearch.SearchParameters
-import org.jetbrains.plugins.scala.util.ScalaUtil
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.resolve.{ResolvableReferenceElement, ScalaResolveResult}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
@@ -21,10 +20,10 @@ abstract class ApplyUnapplyMethodSearcherBase extends QueryExecutor[PsiReference
   protected def checkAndTransform(ref: PsiReference): Option[ResolvableReferenceElement]
 
   def execute(queryParameters: SearchParameters, consumer: Processor[PsiReference]): Boolean = {
-    val scope = queryParameters.getEffectiveSearchScope
-    val element = queryParameters.getElementToSearch
-    val ignoreAccess = queryParameters.isIgnoreAccessScope
-    ScalaUtil.readAction(element.getProject) {
+    extensions.inReadAction {
+      val scope = queryParameters.getEffectiveSearchScope
+      val element = queryParameters.getElementToSearch
+      val ignoreAccess = queryParameters.isIgnoreAccessScope
       element match {
         case fun: ScFunctionDefinition if names.contains(fun.name) =>
           val processor = new Processor[PsiReference] {

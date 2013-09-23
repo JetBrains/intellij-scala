@@ -20,9 +20,9 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
  */
 class ApplyUnapplyForBindingSearcher extends QueryExecutor[PsiReference, ReferencesSearch.SearchParameters] {
   def execute(queryParameters: SearchParameters, consumer: Processor[PsiReference]): Boolean = {
-    val scope = queryParameters.getEffectiveSearchScope
-    val element = queryParameters.getElementToSearch
     extensions.inReadAction {
+      val scope = queryParameters.getEffectiveSearchScope
+      val element = queryParameters.getElementToSearch
       if (!element.isValid) return true
       element match {
         case binding: ScBindingPattern =>
