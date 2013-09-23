@@ -1194,6 +1194,7 @@ object ScalaPsiUtil {
       val replaced = ref.replace(ScalaPsiElementFactory.createReferenceFromText(name, toBind.getManager))
       replaced.asInstanceOf[ScStableCodeReferenceElement].bindToElement(toBind)
     }
+    if (element == null) return
     for (child <- element.getChildren) {
       child match {
         case stableRef: ScStableCodeReferenceElement =>
