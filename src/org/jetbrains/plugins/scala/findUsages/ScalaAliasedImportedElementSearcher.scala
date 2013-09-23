@@ -1,4 +1,5 @@
-package org.jetbrains.plugins.scala.findUsages
+package org.jetbrains.plugins.scala
+package findUsages
 
 import com.intellij.openapi.application.QueryExecutorBase
 import com.intellij.openapi.util.text.StringUtil
@@ -17,21 +18,23 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
 class ScalaAliasedImportedElementSearcher extends QueryExecutorBase[PsiReference, ReferencesSearch.SearchParameters](true) {
 
   def processQuery(@NotNull parameters: ReferencesSearch.SearchParameters, @NotNull consumer: Processor[PsiReference]) {
-    val target: PsiElement = parameters.getElementToSearch
-    target match {
-      case named: PsiNamedElement =>
-        ScalaPsiUtil.nameContext(named) match {
-          case _: PsiNamedElement | _: PsiMember | _: ScTypeAlias =>
-          case _ => return
-        }
-      case _ => return
+    extensions.inReadAction {
+      val target: PsiElement = parameters.getElementToSearch
+      target match {
+        case named: PsiNamedElement =>
+          ScalaPsiUtil.nameContext(named) match {
+            case _: PsiNamedElement | _: PsiMember | _: ScTypeAlias =>
+            case _ => return
+          }
+        case _ => return
+      }
+      val name: String = (target.asInstanceOf[PsiNamedElement]).name
+      if (name == null || StringUtil.isEmptyOrSpaces(name)) return
+      val scope: SearchScope = parameters.getEffectiveSearchScope // TODO PsiUtil.restrictScopeToGroovyFiles(parameters.getEffectiveSearchScope)
+      val collector: SearchRequestCollector = parameters.getOptimizer
+      val session: SearchSession = collector.getSearchSession
+      collector.searchWord(name, scope, UsageSearchContext.IN_CODE, true, new MyProcessor(target, null, session))
     }
-    val name: String = (target.asInstanceOf[PsiNamedElement]).name
-    if (name == null || StringUtil.isEmptyOrSpaces(name)) return
-    val scope: SearchScope = parameters.getEffectiveSearchScope // TODO PsiUtil.restrictScopeToGroovyFiles(parameters.getEffectiveSearchScope)
-    val collector: SearchRequestCollector = parameters.getOptimizer
-    val session: SearchSession = collector.getSearchSession
-    collector.searchWord(name, scope, UsageSearchContext.IN_CODE, true, new MyProcessor(target, null, session))
   }
 
   private class MyProcessor(myTarget: PsiElement, @Nullable prefix: String, mySession: SearchSession) extends RequestResultProcessor(myTarget, prefix) {
@@ -42,7 +45,7 @@ class ScalaAliasedImportedElementSearcher extends QueryExecutorBase[PsiReference
     }
 
     def processTextOccurrence(element: PsiElement, offsetInElement: Int, consumer: Processor[PsiReference]): Boolean = {
-      var alias: String = getAlias(element)
+      val alias: String = getAlias(element)
       if (alias == null) return true
       val reference: PsiReference = element.getReference
       if (reference == null) {

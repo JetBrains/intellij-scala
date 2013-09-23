@@ -25,9 +25,9 @@ import com.intellij.util.indexing.FileBasedIndex
  */
 class OperatorAndBacktickedSearcher extends QueryExecutor[PsiReference, ReferencesSearch.SearchParameters] {
   def execute(queryParameters: ReferencesSearch.SearchParameters, consumer: Processor[PsiReference]): Boolean = {
-    val scope = queryParameters.getEffectiveSearchScope
-    val element = queryParameters.getElementToSearch
     extensions.inReadAction{
+      val scope = queryParameters.getEffectiveSearchScope
+      val element = queryParameters.getElementToSearch
       if (!element.isValid) return true
       val toProcess = element match {
         case ScalaNamesUtil.isBackticked(name) => Seq((element, name), (element, s"`$name`"))
