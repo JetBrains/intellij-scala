@@ -129,7 +129,7 @@ class ScalaConsoleRunConfiguration(val project: Project, val configurationFactor
     val consoleBuilder = new TextConsoleBuilderImpl(project) {
       override def getConsole: ConsoleView = {
         val consoleView = new ScalaLanguageConsoleView(getProject)
-        consoleView.getConsole.setPrompt("")
+        consoleView.getConsole.setPrompt(null)
         consoleView
       }
     }
