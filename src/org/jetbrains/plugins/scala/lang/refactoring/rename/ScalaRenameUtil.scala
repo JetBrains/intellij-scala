@@ -122,7 +122,25 @@ object ScalaRenameUtil {
       }
     }
 
-    val modified = Seq(UsagesWithName(newName, usages)).flatMap(encodeNames).flatMap(modifyScObjectName)
+    val modifySetterName: UsagesWithName => Seq[UsagesWithName] = {
+      case UsagesWithName(name, usagez) => {
+        if (usagez.isEmpty) Nil
+        else {
+          def suffix(setterName: String) = {
+            if (setterName.endsWith("_=")) "_="
+            else if (setterName.endsWith("_$eq")) "_$eq"
+            else ""
+          }
+          val grouped = usagez.groupBy(u => suffix(u.getElement.getText))
+          grouped.map(entry => UsagesWithName(name + entry._1, entry._2)).toSeq
+        }
+      }
+    }
+
+    val modified = Seq(UsagesWithName(newName, usages))
+            .flatMap(encodeNames)
+            .flatMap(modifyScObjectName)
+            .flatMap(modifySetterName)
     modified.foreach {
       case UsagesWithName(name, usagez) if usagez.nonEmpty =>
         RenameUtil.doRenameGenericNamedElement(namedElement, name, usagez, listener)
