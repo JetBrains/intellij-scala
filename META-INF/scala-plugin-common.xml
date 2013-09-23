@@ -182,6 +182,7 @@
         <customUsageSearcher implementation="org.jetbrains.plugins.scala.findUsages.parameters.ConstructorParamsInConstructorPatternSearcher"/>
         <qualifiedNameProvider implementation="org.jetbrains.plugins.scala.actions.ScalaQualifiedNameProvider" order="first"/>
         <targetElementEvaluator language="Scala" implementationClass="org.jetbrains.plugins.scala.codeInsight.ScalaTargetElementEvaluator"/>
+        <targetElementEvaluator language="JAVA" implementationClass="org.jetbrains.plugins.scala.codeInsight.ScalaTargetElementEvaluator"/>
 
         <codeInsight.parameterInfo language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.parameterInfo.ScalaFunctionParameterInfoHandler"/>
         <codeInsight.parameterInfo language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.parameterInfo.ScalaPatternParameterInfoHandler"/>
