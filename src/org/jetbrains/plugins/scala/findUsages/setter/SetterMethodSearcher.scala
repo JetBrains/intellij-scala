@@ -21,10 +21,10 @@ class SetterMethodSearcher extends QueryExecutor[PsiReference, ReferencesSearch.
   private val suffixJava = "_$eq"
 
   def execute(queryParameters: ReferencesSearch.SearchParameters, cons: Processor[PsiReference]): Boolean = {
-    implicit val scope = queryParameters.getEffectiveSearchScope
-    implicit val consumer = cons
-    val element = queryParameters.getElementToSearch
     inReadAction {
+      implicit val scope = queryParameters.getEffectiveSearchScope
+      implicit val consumer = cons
+      val element = queryParameters.getElementToSearch
       if (element.isValid) {
         element match {
           case fun: ScFunction if fun.name endsWith suffixScala =>
