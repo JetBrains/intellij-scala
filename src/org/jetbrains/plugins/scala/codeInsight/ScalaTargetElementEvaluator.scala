@@ -2,12 +2,15 @@ package org.jetbrains.plugins.scala
 package codeInsight
 
 import com.intellij.codeInsight.TargetElementEvaluatorEx
-import com.intellij.psi.{PsiFile, PsiElement, PsiReference}
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
+import com.intellij.psi.{PsiReferenceExpression, PsiFile, PsiElement, PsiReference}
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScReferencePattern, ScBindingPattern}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScVariable, ScFunctionDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScReferenceElement, ScStableCodeReferenceElement}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiMethod
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.light.PsiTypedDefinitionWrapper
 
 /**
  * Nikolay.Tropin
@@ -19,10 +22,12 @@ class ScalaTargetElementEvaluator extends TargetElementEvaluatorEx {
 
   def getElementByReference(ref: PsiReference, flags: Int): PsiElement = ref.getElement match {
     case isUnapplyFromVal(binding) => binding
+    case isVarSetterFakeMethod(refPattern) => refPattern
+    case isVarSetterWrapper(refPattern) => refPattern
     case _ => null
   }
 
-  private val isUnapplyFromVal = new {
+  private object isUnapplyFromVal {
     def unapply(ref: ScStableCodeReferenceElement): Option[(ScBindingPattern)] = {
       if (ref == null) return null
       ref.bind() match {
@@ -30,6 +35,34 @@ class ScalaTargetElementEvaluator extends TargetElementEvaluatorEx {
           if Set("unapply", "unapplySeq").contains(fun.name) =>
           resolve.innerResolveResult match {
             case Some(ScalaResolveResult(binding: ScBindingPattern, _)) => Some(binding)
+            case _ => None
+          }
+        case _ => None
+      }
+    }
+  }
+
+  private object isVarSetterFakeMethod {
+    val setterSuffixes = Seq("_=", "_$eq")
+    def unapply(ref: ScReferenceElement): Option[ScReferencePattern] = {
+      ref.resolve() match {
+        case fakeMethod: FakePsiMethod if setterSuffixes.exists(fakeMethod.getName.endsWith) =>
+          fakeMethod.navElement match {
+            case refPattern: ScReferencePattern if ScalaPsiUtil.nameContext(refPattern).isInstanceOf[ScVariable] => Some(refPattern)
+            case _ => None
+          }
+        case _ => None
+      }
+    }
+  }
+
+  private object isVarSetterWrapper {
+    val setterSuffix = "_$eq"
+    def unapply(ref: PsiReferenceExpression): Option[ScReferencePattern] = {
+      ref.resolve() match {
+        case wrapper: PsiTypedDefinitionWrapper if wrapper.getName endsWith setterSuffix =>
+          wrapper.typedDefinition match {
+            case refPattern: ScReferencePattern if ScalaPsiUtil.nameContext(refPattern).isInstanceOf[ScVariable] => Some(refPattern)
             case _ => None
           }
         case _ => None
