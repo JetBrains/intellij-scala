@@ -17,7 +17,7 @@ import com.intellij.openapi.util.text.StringUtil
 import psi.fake.FakePsiMethod
 import extensions.toPsiNamedElementExt
 import com.intellij.refactoring.rename.RenameJavaMemberProcessor
-import com.intellij.psi.{PsiElement, PsiNamedElement}
+import com.intellij.psi.{PsiReference, PsiElement, PsiNamedElement}
 import org.jetbrains.plugins.scala.lang.psi.light.PsiTypedDefinitionWrapper.DefinitionRole._
 import psi.api.toplevel.typedef.ScMember
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
@@ -26,6 +26,7 @@ import com.intellij.psi.search.{PsiElementProcessor, LocalSearchScope}
 import com.intellij.refactoring.listeners.RefactoringElementListener
 import org.jetbrains.plugins.scala.util.SuperMemberUtil
 import com.intellij.openapi.util.Pass
+import java.util
 
 /**
  * User: Alexander Podkhalyuzin
@@ -43,13 +44,25 @@ class RenameScalaValsProcessor extends RenameJavaMemberProcessor {
   }
 
   override def findReferences(element: PsiElement) = {
-    val scope = element match {
-      case p: ScClassParameter if !p.isEffectiveVal => new LocalSearchScope(element.getContainingFile)
-      case _ => null
+    val (localScope, onlyLocal) = element match {
+      case p: ScClassParameter if p.isPrivateThis => (new LocalSearchScope(p.containingClass), true)
+      case m: ScMember if m.isPrivate => (new LocalSearchScope(m.containingClass), true)
+      case _ => (new LocalSearchScope(element.getContainingFile), false)
     }
+
     ScalaRenameUtil.filterAliasedReferences {
-      if (scope != null) ReferencesSearch.search(element, scope, true).findAll()
-      else super.findReferences(element)
+      val local = ReferencesSearch.search(element, localScope, true).findAll()
+      if (onlyLocal) local
+      else {
+        /* In GlobalSearchScope only cannot find reference like this:
+        * var a = 0
+        * a_=(1)
+        */
+        val buf = new util.HashSet[PsiReference]
+        buf.addAll(local)
+        buf.addAll(super.findReferences(element))
+        buf
+      }
     }
   }
 
@@ -83,8 +96,20 @@ class RenameScalaValsProcessor extends RenameJavaMemberProcessor {
       }
     }
 
+    def addScalaSetter(element: PsiElement, newName: String): Unit = {
+      element match {
+        case t: ScTypedDefinition =>
+          val underEq = t.getUnderEqualsMethod
+          val wrapper = t.getTypedDefinitionWrapper(isStatic = false, isInterface = false, EQ, None)
+          allRenames.put(underEq, newName + "_=")
+          allRenames.put(wrapper, newName + "_$eq")
+        case _ =>
+      }
+    }
+
     addBeanMethods(element, newName)
-    
+//    addScalaSetter(namedElement, newName)
+
     for (elem <- ScalaOverridengMemberSearch.search(namedElement, deep = true)) {
       val overriderName = elem.name
       val baseName = namedElement.name
@@ -92,6 +117,7 @@ class RenameScalaValsProcessor extends RenameJavaMemberProcessor {
       if (newOverriderName != null) {
         allRenames.put(elem, newOverriderName)
         addBeanMethods(elem, newOverriderName)
+//        addScalaSetter(elem, newOverriderName)
       }
     }
   }
@@ -106,7 +132,6 @@ class RenameScalaValsProcessor extends RenameJavaMemberProcessor {
       case _ => element
     }
   }
-
 
   override def substituteElementToRename(element: PsiElement, editor: Editor, renameCallback: Pass[PsiElement]) {
     val named = element match {case named: ScNamedElement => named; case _ => return}
