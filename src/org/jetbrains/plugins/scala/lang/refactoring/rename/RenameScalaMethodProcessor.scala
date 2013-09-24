@@ -28,6 +28,7 @@ import com.intellij.usageView.UsageInfo
 import com.intellij.refactoring.listeners.RefactoringElementListener
 import org.jetbrains.plugins.scala.util.SuperMemberUtil
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
+import com.intellij.openapi.application.ApplicationManager
 
 /**
  * User: Alexander Podkhalyuzin
@@ -67,14 +68,25 @@ class RenameScalaMethodProcessor extends RenameJavaMethodProcessor {
       }
     }
     if (!buff.isEmpty) {
-      val dialog = new WarningDialog(function.getProject,
-        ScalaBundle.message("rename.getters.and.setters.title"))
-      dialog.show()
-
-      if (dialog.getExitCode == DialogWrapper.OK_EXIT_CODE) {
-        val shortNewName = if (newName.endsWith("_=")) newName.substring(0, newName.length - 2) else newName
+      def addGettersAndSetters() {
+        val newSuffix = ScalaRenameUtil.setterSuffix(newName)
+        val oldSuffix = ScalaRenameUtil.setterSuffix(function.name)
+        val shortNewName = newName.stripSuffix(newSuffix)
+        if (newSuffix == "" && oldSuffix != "") { //user typed name without suffix for setter and chose to rename getter too
+          allRenames.put(function, shortNewName + oldSuffix)
+        }
         for (elem <- buff) {
-          allRenames.put(elem, if (elem.name.endsWith("_=")) shortNewName + "_=" else shortNewName)
+          val elemSuffix = ScalaRenameUtil.setterSuffix(elem.name)
+          allRenames.put(elem, shortNewName + elemSuffix)
+        }
+      }
+      if (ApplicationManager.getApplication.isUnitTestMode) {
+        addGettersAndSetters()
+      } else {
+        val dialog = new WarningDialog(function.getProject, ScalaBundle.message("rename.getters.and.setters.title"))
+        dialog.show()
+        if (dialog.getExitCode == DialogWrapper.OK_EXIT_CODE || ApplicationManager.getApplication.isUnitTestMode) {
+          addGettersAndSetters()
         }
       }
     }

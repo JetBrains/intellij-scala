@@ -17,6 +17,8 @@ import com.intellij.usageView.UsageInfo
 import com.intellij.refactoring.listeners.RefactoringElementListener
 import com.intellij.refactoring.rename.RenameUtil
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
+import org.jetbrains.plugins.scala.lang.psi.light.PsiTypedDefinitionWrapper
+import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiMethod
 
 object ScalaRenameUtil {
   def filterAliasedReferences(allReferences: util.Collection[PsiReference]): util.ArrayList[PsiReference] = {
@@ -108,39 +110,34 @@ object ScalaRenameUtil {
       case UsagesWithName(name, usagez) => {
         if (usagez.isEmpty) Nil
         else {
-          namedElement match {
-            case obj: ScObject =>
-              val needDollarSign: UsageInfo => Boolean = { u =>
-                val ref = u.getReference.getElement
-                !ref.getLanguage.isInstanceOf[ScalaLanguage]
-              }
-              val (usagesWithDS, usagesPlain) = usagez.partition(needDollarSign)
-              Seq(UsagesWithName(name + "$", usagesWithDS), UsagesWithName(name, usagesPlain))
-            case _ => Seq(UsagesWithName(name, usagez))
+          val needDollarSign: UsageInfo => Boolean = { u =>
+            val ref = u.getReference.getElement
+            !ref.getLanguage.isInstanceOf[ScalaLanguage]
           }
+          val (usagesWithDS, usagesPlain) = usagez.partition(needDollarSign)
+          Seq(UsagesWithName(name + "$", usagesWithDS), UsagesWithName(name, usagesPlain))
         }
       }
     }
 
     val modifySetterName: UsagesWithName => Seq[UsagesWithName] = {
-      case UsagesWithName(name, usagez) => {
+      case arg @ UsagesWithName(name, usagez) => {
         if (usagez.isEmpty) Nil
         else {
-          def suffix(setterName: String) = {
-            if (setterName.endsWith("_=")) "_="
-            else if (setterName.endsWith("_$eq")) "_$eq"
-            else ""
-          }
-          val grouped = usagez.groupBy(u => suffix(u.getElement.getText))
-          grouped.map(entry => UsagesWithName(name + entry._1, entry._2)).toSeq
+          val nameWithoutSuffix = name.stripSuffix(setterSuffix(name))
+          val grouped = usagez.groupBy(u => setterSuffix(u.getElement.getText))
+          grouped.map(entry => UsagesWithName(nameWithoutSuffix + entry._1, entry._2)).toSeq
         }
       }
     }
 
-    val modified = Seq(UsagesWithName(newName, usages))
-            .flatMap(encodeNames)
-            .flatMap(modifyScObjectName)
-            .flatMap(modifySetterName)
+    val encoded = encodeNames(UsagesWithName(newName, usages))
+    val modified = namedElement match {
+      case _: ScObject => encoded.flatMap(modifyScObjectName)
+      case _: PsiTypedDefinitionWrapper | _: FakePsiMethod => encoded.flatMap(modifySetterName)
+      case fun: ScFunction if setterSuffix(fun.name) != "" => encoded.flatMap(modifySetterName)
+      case _ => encoded
+    }
     modified.foreach {
       case UsagesWithName(name, usagez) if usagez.nonEmpty =>
         RenameUtil.doRenameGenericNamedElement(namedElement, name, usagez, listener)
@@ -148,5 +145,11 @@ object ScalaRenameUtil {
     }
       //to guarantee correct name of namedElement itself
     RenameUtil.doRenameGenericNamedElement(namedElement, newName, Array.empty[UsageInfo], listener)
+  }
+
+  def setterSuffix(name: String) = {
+    if (name.endsWith("_=")) "_="
+    else if (name.endsWith("_$eq")) "_$eq"
+    else ""
   }
 }
