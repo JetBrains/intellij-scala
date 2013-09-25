@@ -7,7 +7,6 @@ package rename
 import com.intellij.openapi.editor.Editor
 import com.intellij.refactoring.util.RefactoringUtil
 import com.intellij.usageView.UsageInfo
-import java.util.{List, Map}
 import psi.api.statements.{ScValue, ScVariable}
 import psi.impl.search.ScalaOverridengMemberSearch
 import psi.ScalaPsiUtil
@@ -27,6 +26,7 @@ import com.intellij.refactoring.listeners.RefactoringElementListener
 import org.jetbrains.plugins.scala.util.SuperMemberUtil
 import com.intellij.openapi.util.Pass
 import java.util
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
 /**
  * User: Alexander Podkhalyuzin
@@ -68,7 +68,7 @@ class RenameScalaValsProcessor extends RenameJavaMemberProcessor {
     }
   }
 
-  override def prepareRenaming(element: PsiElement, newName: String, allRenames: Map[PsiElement, String]) {
+  override def prepareRenaming(element: PsiElement, newName: String, allRenames: util.Map[PsiElement, String]) {
     val namedElement = element match {case x: PsiNamedElement => x case _ => return}
     def addBeanMethods(element: PsiElement, newName: String) {
       element match {
@@ -88,7 +88,7 @@ class RenameScalaValsProcessor extends RenameJavaMemberProcessor {
                   val name = wrapper.getName
                   val is = name.startsWith("is")
                   val prefix = if (is) "is" else name.substring(0, 3)
-                  val newBeanName = prefix + StringUtil.capitalize(newName)
+                  val newBeanName = prefix + StringUtil.capitalize(ScalaNamesUtil.toJavaName(newName))
                   allRenames.put(wrapper, newBeanName)
                 }
               )
@@ -98,19 +98,7 @@ class RenameScalaValsProcessor extends RenameJavaMemberProcessor {
       }
     }
 
-    def addScalaSetter(element: PsiElement, newName: String): Unit = {
-      element match {
-        case t: ScTypedDefinition =>
-          val underEq = t.getUnderEqualsMethod
-          val wrapper = t.getTypedDefinitionWrapper(isStatic = false, isInterface = false, EQ, None)
-          allRenames.put(underEq, newName + "_=")
-          allRenames.put(wrapper, newName + "_$eq")
-        case _ =>
-      }
-    }
-
     addBeanMethods(element, newName)
-//    addScalaSetter(namedElement, newName)
 
     for (elem <- ScalaOverridengMemberSearch.search(namedElement, deep = true)) {
       val overriderName = elem.name
@@ -119,13 +107,12 @@ class RenameScalaValsProcessor extends RenameJavaMemberProcessor {
       if (newOverriderName != null) {
         allRenames.put(elem, newOverriderName)
         addBeanMethods(elem, newOverriderName)
-//        addScalaSetter(elem, newOverriderName)
       }
     }
   }
 
   override def findCollisions(element: PsiElement, newName: String,
-                              allRenames: Map[_ <: PsiElement, String], result: List[UsageInfo]) {/*todo*/}
+                              allRenames: util.Map[_ <: PsiElement, String], result: util.List[UsageInfo]) {/*todo*/}
 
   override def substituteElementToRename(element: PsiElement, editor: Editor): PsiElement = {
     element match {

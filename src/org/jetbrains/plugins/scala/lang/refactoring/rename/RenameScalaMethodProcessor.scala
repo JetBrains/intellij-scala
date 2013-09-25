@@ -17,7 +17,6 @@ import psi.impl.search.ScalaOverridengMemberSearch
 import psi.api.base.ScPrimaryConstructor
 import collection.mutable.ArrayBuffer
 import psi.fake.FakePsiMethod
-import extensions.toPsiNamedElementExt
 import com.intellij.psi.{PsiNamedElement, PsiElement}
 import java.util
 import com.intellij.openapi.util.Pass
@@ -29,6 +28,7 @@ import com.intellij.refactoring.listeners.RefactoringElementListener
 import org.jetbrains.plugins.scala.util.SuperMemberUtil
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import com.intellij.openapi.application.ApplicationManager
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
 /**
  * User: Alexander Podkhalyuzin
@@ -47,39 +47,45 @@ class RenameScalaMethodProcessor extends RenameJavaMethodProcessor {
 
   override def prepareRenaming(element: PsiElement, newName: String, allRenames: util.Map[PsiElement, String]) {
     val function = element match {case x: ScFunction => x case _ => return}
-    val buff = new ArrayBuffer[ScFunction]
-    function.getGetterOrSetterFunction match {
-      case Some(function2) => buff += function2
-      case _ =>
+    val buff = new ArrayBuffer[PsiNamedElement]
+    val getterOrSetter = function.getGetterOrSetterFunction match {
+      case Some(function2) =>
+        buff += function2
+        Some(function2)
+      case _ => None
     }
     for (elem <- ScalaOverridengMemberSearch.search(function, deep = true)) {
-      val overriderName = elem.name
-      val baseName = function.name
-      //val newOverriderName = RefactoringUtil.suggestNewOverriderName(overriderName, baseName, newName)
-      if (overriderName == baseName) {
-        allRenames.put(elem, newName)
-        elem match {
-          case fun: ScFunction => fun.getGetterOrSetterFunction match {
-            case Some(function2) => buff += function2
-            case _ =>
-          }
+      allRenames.put(elem, newName)
+      elem match {
+        case fun: ScFunction => fun.getGetterOrSetterFunction match {
+          case Some(function2) => buff += function2
           case _ =>
         }
+        case _ =>
       }
+    }
+    for {
+      setter <- getterOrSetter
+      elem <- ScalaOverridengMemberSearch.search(setter, deep = true)
+    } {
+      buff += elem
     }
     if (!buff.isEmpty) {
       def addGettersAndSetters() {
-        val newSuffix = ScalaRenameUtil.setterSuffix(newName)
-        val oldSuffix = ScalaRenameUtil.setterSuffix(function.name)
-        val shortNewName = newName.stripSuffix(newSuffix)
-        if (newSuffix == "" && oldSuffix != "") { //user typed name without suffix for setter and chose to rename getter too
-          allRenames.put(function, shortNewName + oldSuffix)
+        def nameWithSetterSuffix(oldName: String, newName: String): String = {
+          val newSuffix = ScalaRenameUtil.setterSuffix(newName)
+          val oldSuffix = ScalaRenameUtil.setterSuffix(oldName)
+          if (newSuffix == "" && oldSuffix != "") newName + oldSuffix //user typed name without suffix for setter and chose to rename getter too
+          else if (newSuffix != "" && oldSuffix == "") newName.stripSuffix(newSuffix) //for renaming getters
+          else newName
         }
-        for (elem <- buff) {
-          val elemSuffix = ScalaRenameUtil.setterSuffix(elem.name)
-          allRenames.put(elem, shortNewName + elemSuffix)
+        import scala.collection.JavaConverters.asScalaSetConverter
+        for (elem <- allRenames.keySet.asScala ++ buff) {
+          val oldName = ScalaNamesUtil.scalaName(elem)
+          allRenames.put(elem, nameWithSetterSuffix(oldName, newName))
         }
       }
+
       if (ApplicationManager.getApplication.isUnitTestMode) {
         addGettersAndSetters()
       } else {
