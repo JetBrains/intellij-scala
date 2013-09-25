@@ -19,6 +19,7 @@ import com.intellij.refactoring.rename.RenameUtil
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.psi.light.PsiTypedDefinitionWrapper
 import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiMethod
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern
 
 object ScalaRenameUtil {
   def filterAliasedReferences(allReferences: util.Collection[PsiReference]): util.ArrayList[PsiReference] = {
@@ -124,9 +125,9 @@ object ScalaRenameUtil {
       case arg @ UsagesWithName(name, usagez) => {
         if (usagez.isEmpty) Nil
         else {
-          val nameWithoutSuffix = name.stripSuffix(setterSuffix(name))
+          val newNameWithoutSuffix = name.stripSuffix(setterSuffix(name))
           val grouped = usagez.groupBy(u => setterSuffix(u.getElement.getText))
-          grouped.map(entry => UsagesWithName(nameWithoutSuffix + entry._1, entry._2)).toSeq
+          grouped.map(entry => UsagesWithName(newNameWithoutSuffix + entry._1, entry._2)).toSeq
         }
       }
     }
@@ -136,6 +137,7 @@ object ScalaRenameUtil {
       case _: ScObject => encoded.flatMap(modifyScObjectName)
       case _: PsiTypedDefinitionWrapper | _: FakePsiMethod => encoded.flatMap(modifySetterName)
       case fun: ScFunction if setterSuffix(fun.name) != "" => encoded.flatMap(modifySetterName)
+      case variable: ScReferencePattern => encoded.flatMap(modifySetterName)
       case _ => encoded
     }
     modified.foreach {

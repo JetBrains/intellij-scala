@@ -8,6 +8,7 @@ import org.jetbrains.plugins.scala.lang.psi.light.{StaticPsiTypedDefinitionWrapp
 import com.intellij.usageView.UsageInfo
 import com.intellij.refactoring.listeners.RefactoringElementListener
 import com.intellij.openapi.util.Pass
+import java.util
 
 /**
  * User: Alexander Podkhalyuzin
@@ -22,6 +23,16 @@ class RenameLightProcessor extends RenamePsiElementProcessor {
       case d: StaticPsiTypedDefinitionWrapper => true
       case p: StaticPsiMethodWrapper => true
       case _ => false
+    }
+  }
+
+
+  override def prepareRenaming(element: PsiElement, newName: String, allRenames: util.Map[PsiElement, String]) {
+    val orig = originalElement(element)
+    allRenames.put(orig, newName)
+    import scala.collection.JavaConverters.asScalaBufferConverter
+    for (processor <- RenamePsiElementProcessor.allForElement(orig).asScala) {
+      processor.prepareRenaming(orig, newName, allRenames)
     }
   }
 
