@@ -6,16 +6,18 @@ package search
 
 import _root_.scala.collection.mutable.ArrayBuffer
 import api.statements.{ScFunction, ScTypeAlias}
-import api.toplevel.templates.ScTemplateBody
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import api.toplevel.typedef.{ScTypeDefinition, ScTemplateDefinition}
 import com.intellij.psi._
 import com.intellij.psi.search.searches.ClassInheritorsSearch
-import search.{GlobalSearchScope, SearchScope}
+import search.SearchScope
 import com.intellij.psi.util.PsiTreeUtil
 import toplevel.typedef.TypeDefinitionMembers
 import types._
 import extensions.{toPsiMemberExt, toPsiNamedElementExt}
 import psi.stubs.util.ScalaStubsUtil
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScEarlyDefinitions
 
 /**
  * User: Alexander Podkhalyuzin
@@ -26,13 +28,17 @@ object ScalaOverridengMemberSearch {
   def search(member: PsiNamedElement, scopeOption: Option[SearchScope] = None, deep: Boolean = true,
              withSelfType: Boolean = false): Array[PsiNamedElement] = {
     val scope = scopeOption.getOrElse(member.getUseScope)
+    def inTemplateBodyOrEarlyDef(element: PsiElement) = element.getParent match {
+        case _: ScTemplateBody | _: ScEarlyDefinitions => true
+        case _ => false
+    }
     member match {
-      case _: ScFunction =>  if (!member.getParent.isInstanceOf[ScTemplateBody]) return Array[PsiNamedElement]()
-      case _: ScTypeAlias => if (!member.getParent.isInstanceOf[ScTemplateBody]) return Array[PsiNamedElement]()
-      case td: ScTypeDefinition if !td.isObject =>
-        if (!member.getParent.isInstanceOf[ScTemplateBody]) return Array[PsiNamedElement]()
-      case x: PsiNamedElement if ScalaPsiUtil.nameContext(x) != null &&
-        ScalaPsiUtil.nameContext(x).getParent.isInstanceOf[ScTemplateBody] =>
+      case _: ScFunction | _: ScTypeAlias => if (!inTemplateBodyOrEarlyDef(member)) return Array[PsiNamedElement]()
+      case td: ScTypeDefinition if !td.isObject => if (!inTemplateBodyOrEarlyDef(member)) return Array[PsiNamedElement]()
+      case cp: ScClassParameter if cp.isEffectiveVal =>
+      case x: PsiNamedElement =>
+        val nameContext = ScalaPsiUtil.nameContext(x)
+        if (nameContext == null || !inTemplateBodyOrEarlyDef(nameContext)) return Array[PsiNamedElement]()
       case _: PsiMethod =>
       case _ => return Array[PsiNamedElement]()
     }

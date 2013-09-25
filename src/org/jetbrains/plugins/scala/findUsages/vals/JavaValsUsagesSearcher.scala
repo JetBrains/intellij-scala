@@ -10,6 +10,7 @@ import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiMethod
 import com.intellij.psi.search.{PsiSearchHelper, UsageSearchContext, TextOccurenceProcessor}
 import com.intellij.psi.{PsiReferenceExpression, PsiElement, PsiReference}
 import org.jetbrains.plugins.scala.lang.psi.light.{StaticPsiTypedDefinitionWrapper, PsiTypedDefinitionWrapper}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
 
 /**
  * User: Alexander Podkhalyuzin
@@ -23,32 +24,34 @@ class JavaValsUsagesSearcher extends QueryExecutor[PsiReference, ReferencesSearc
       val element = queryParameters.getElementToSearch
       if (!element.isValid) return true
       element match {
-        case vals: ScTypedDefinition if ScalaPsiUtil.nameContext(vals).isInstanceOf[ScValue] ||
-                ScalaPsiUtil.nameContext(vals).isInstanceOf[ScVariable] =>
-          val name: String = vals.getName
-          val processor = new TextOccurenceProcessor {
-            def execute(element: PsiElement, offsetInElement: Int): Boolean = {
-              val references = element.getReferences
-              for (ref <- references if ref.getRangeInElement.contains(offsetInElement)) {
-                ref match {
-                  case refElement: PsiReferenceExpression => {
-                    refElement.resolve match {
-                      case f: FakePsiMethod if f.navElement == vals =>
-                        if (!consumer.process(refElement)) return false
-                      case t @ (_: StaticPsiTypedDefinitionWrapper | _: PsiTypedDefinitionWrapper)
-                        if t.getNavigationElement == vals =>
-                        if (!consumer.process(refElement)) return false
-                      case _ =>
+        case vals: ScTypedDefinition => ScalaPsiUtil.nameContext(vals) match {
+          case _: ScValue | _: ScVariable | _: ScClassParameter =>
+            val name: String = vals.getName
+            val processor = new TextOccurenceProcessor {
+              def execute(element: PsiElement, offsetInElement: Int): Boolean = {
+                val references = element.getReferences
+                for (ref <- references if ref.getRangeInElement.contains(offsetInElement)) {
+                  ref match {
+                    case refElement: PsiReferenceExpression => {
+                      refElement.resolve match {
+                        case f: FakePsiMethod if f.navElement == vals =>
+                          if (!consumer.process(refElement)) return false
+                        case t @ (_: StaticPsiTypedDefinitionWrapper | _: PsiTypedDefinitionWrapper)
+                          if t.getNavigationElement == vals =>
+                          if (!consumer.process(refElement)) return false
+                        case _ =>
+                      }
                     }
+                    case _ =>
                   }
-                  case _ =>
                 }
+                true
               }
-              true
             }
-          }
-          val helper: PsiSearchHelper = PsiSearchHelper.SERVICE.getInstance(vals.getProject)
-          helper.processElementsWithWord(processor, scope, name, UsageSearchContext.IN_CODE, true)
+            val helper: PsiSearchHelper = PsiSearchHelper.SERVICE.getInstance(vals.getProject)
+            helper.processElementsWithWord(processor, scope, name, UsageSearchContext.IN_CODE, true)
+          case _ =>
+        }
         case wrapper: PsiTypedDefinitionWrapper => //only this is added for find usages factory
           val name: String = wrapper.getName
           val processor = new TextOccurenceProcessor {
