@@ -26,6 +26,10 @@ abstract class ScalaLightInspectionFixtureTestAdapter extends ScalaLightCodeInsi
   }
 
   override protected def checkTextHasNoErrors(text: String): Unit = {
-    checkTextHasNoErrors(normalize(text), normalize(annotation), classOfInspection)
+    checkTextHasNoErrors(normalize(text), annotation, classOfInspection)
+  }
+
+  protected def checkTextHasError(text: String) {
+    checkTextHasError(normalize(text), annotation, classOfInspection)
   }
 }
