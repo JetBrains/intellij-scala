@@ -1,19 +1,18 @@
 <component name="libraryTable">
   <library name="community-plugins">
     <CLASSES>
-      <root url="file://$PROJECT_DIR$/SDK/LedaSDK/plugins/copyright/lib" />
-      <root url="file://$PROJECT_DIR$/SDK/LedaSDK/plugins/copyright/lib" />
-      <root url="file://$PROJECT_DIR$/SDK/LedaSDK/plugins/IntelliLang/lib" />
-      <root url="file://$PROJECT_DIR$/SDK/LedaSDK/plugins/maven/lib" />
-      <root url="file://$PROJECT_DIR$/SDK/LedaSDK/plugins/java-i18n/lib" />
-      <root url="file://$PROJECT_DIR$/SDK/LedaSDK/plugins/properties/lib" />
+      <root url="file://$LEDA_HOME$/plugins/copyright/lib" />
+      <root url="file://$LEDA_HOME$/plugins/IntelliLang/lib" />
+      <root url="file://$LEDA_HOME$/plugins/java-i18n/lib" />
+      <root url="file://$LEDA_HOME$/plugins/maven/lib" />
+      <root url="file://$LEDA_HOME$/plugins/properties/lib" />
     </CLASSES>
     <JAVADOC />
     <SOURCES />
-    <jarDirectory url="file://$PROJECT_DIR$/SDK/LedaSDK/plugins/copyright/lib" recursive="false" />
-    <jarDirectory url="file://$PROJECT_DIR$/SDK/LedaSDK/plugins/IntelliLang/lib" recursive="false" />
-    <jarDirectory url="file://$PROJECT_DIR$/SDK/LedaSDK/plugins/java-i18n/lib" recursive="false" />
-    <jarDirectory url="file://$PROJECT_DIR$/SDK/LedaSDK/plugins/maven/lib" recursive="false" />
-    <jarDirectory url="file://$PROJECT_DIR$/SDK/LedaSDK/plugins/properties/lib" recursive="false" />
+    <jarDirectory url="file://$LEDA_HOME$/plugins/copyright/lib" recursive="false" />
+    <jarDirectory url="file://$LEDA_HOME$/plugins/IntelliLang/lib" recursive="false" />
+    <jarDirectory url="file://$LEDA_HOME$/plugins/java-i18n/lib" recursive="false" />
+    <jarDirectory url="file://$LEDA_HOME$/plugins/maven/lib" recursive="false" />
+    <jarDirectory url="file://$LEDA_HOME$/plugins/properties/lib" recursive="false" />
   </library>
 </component>

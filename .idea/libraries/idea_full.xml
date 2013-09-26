@@ -1,15 +1,13 @@
 <component name="libraryTable">
   <library name="idea-full">
+    <ANNOTATIONS>
+      <root url="jar://$LEDA_HOME$/sources.zip!/" />
+    </ANNOTATIONS>
     <CLASSES>
-      <root url="file://$PROJECT_DIR$/SDK/LedaSDK/lib" />
-      <root url="file://$PROJECT_DIR$/SDK/LedaSDK/lib" />
+      <root url="file://$LEDA_HOME$/lib" />
     </CLASSES>
     <JAVADOC />
-    <SOURCES>
-      <root url="file://$PROJECT_DIR$/SDK/LedaSDK/lib" />
-      <root url="file://$PROJECT_DIR$/SDK/LedaSDK/lib" />
-    </SOURCES>
-    <jarDirectory url="file://$PROJECT_DIR$/SDK/LedaSDK/lib" recursive="false" />
-    <jarDirectory url="file://$PROJECT_DIR$/SDK/LedaSDK/lib" recursive="false" type="SOURCES" />
+    <SOURCES />
+    <jarDirectory url="file://$LEDA_HOME$/lib" recursive="false" />
   </library>
 </component>
