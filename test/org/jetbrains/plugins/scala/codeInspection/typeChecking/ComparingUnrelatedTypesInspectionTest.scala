@@ -112,7 +112,7 @@ class ComparingUnrelatedTypesInspectionTest extends ScalaLightInspectionFixtureT
                   |class C extends A
                   |val c: A = new C
                   |${START}c != B$END"""
-    checkTextHasError(text1)
+    checkTextHasNoErrors(text1)
     checkTextHasError(text2)
     checkTextHasNoErrors(text3)
   }
