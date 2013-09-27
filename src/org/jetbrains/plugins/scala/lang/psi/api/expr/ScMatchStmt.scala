@@ -34,3 +34,9 @@ trait ScMatchStmt extends ScExpression {
 
   override def accept(visitor: ScalaElementVisitor) = visitor.visitMatchStatement(this)
 }
+
+object ScMatchStmt {
+  def unapply(ms: ScMatchStmt): Option[(ScExpression, ScCaseClauses)] = {
+    ms.expr.flatMap(Some(_, ms.getCaseClauses))
+  }
+}
