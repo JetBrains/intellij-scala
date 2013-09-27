@@ -798,6 +798,10 @@
                        displayName="Comparing unrelated types" groupName="Scala: General"
                        shortName="ComparingUnrelatedTypes" level="WARNING"
                        enabledByDefault="true" language="Scala"/>
+      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.functionExpressions.MatchToPartialFunctionInspection"
+                       displayName="Match statement convertible to partial function" groupName="Scala: General"
+                       shortName="MatchToPartialFunction" level="WARNING"
+                       enabledByDefault="true" language="Scala"/>
 
 
         <!--<localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.allErrorsInspection.AnnotatorBasedErrorInspection"
