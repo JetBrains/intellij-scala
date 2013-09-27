@@ -1,0 +1,19 @@
+<html><body>Detects if the match statement can be converted to a partial function
+For example:
+<br />
+
+<code>iterable.map(value => value match {<br />
+        case Some(value) => whenValue(value)<br />
+        case None => whenNothing()<br />
+    })</code>
+
+<br />
+<p>can be converted to </p>
+<br />
+<code>iterable.map {<br />
+        case Some(value) => whenValue(value)<br />
+        case None => whenNothing()<br />
+    }</code>
+
+</body>
+</html>
