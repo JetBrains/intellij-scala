@@ -20,6 +20,7 @@ import annotator.intention.ScalaImportTypeFix
 import collection.mutable.HashSet
 import toplevel.imports.ScImportSelector
 import org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix.TypeToImport
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScStableReferenceElementPattern
 
 /**
  * @author Alexander Podkhalyuzin
@@ -31,18 +32,27 @@ trait ScReferenceElement extends ScalaPsiElement with ResolvableReferenceElement
 
   def nameId: PsiElement
 
-  def refName: String = {
+  def refName: String = nameId.getText
+
+  private def isBackQuoted = {
     val id: PsiElement = nameId
     assert(id != null, s"nameId is null for reference with text: $getText")
     val text: String = id.getText
-    if (text.charAt(0) == '`' && text.length > 1) text.substring(1, text.length - 1)
-    else text
+    text.charAt(0) == '`' && text.length > 1
   }
+
+  private def patternNeedBackticks(name: String) = name.charAt(0).isLower && getParent.isInstanceOf[ScStableReferenceElementPattern]
 
   def getElement = this
 
-  def getRangeInElement: TextRange =
-    new TextRange(nameId.getTextRange.getStartOffset - getTextRange.getStartOffset, getTextLength)
+  def getRangeInElement: TextRange = {
+    val start = nameId.getTextRange.getStartOffset - getTextRange.getStartOffset
+    val len = getTextLength
+    if (isBackQuoted && patternNeedBackticks(refName.drop(1).dropRight(1)))
+      new TextRange(start + 1, len - 1)
+    else
+      new TextRange(start, len)
+  }
 
   def getCanonicalText: String = {
     resolve() match {
@@ -58,11 +68,11 @@ trait ScReferenceElement extends ScalaPsiElement with ResolvableReferenceElement
 
   def handleElementRename(newElementName: String): PsiElement = {
     if (!ScalaNamesUtil.isIdentifier(newElementName)) return this
-    val isQuoted = nameId.getText.startsWith("`")
     val id = nameId.getNode
     val parent = id.getTreeParent
+    val needBackticks = patternNeedBackticks(newElementName)
     parent.replaceChild(id,
-      ScalaPsiElementFactory.createIdentifier(if (isQuoted) "`" + newElementName + "`" else newElementName, getManager))
+      ScalaPsiElementFactory.createIdentifier(if (needBackticks) "`" + newElementName + "`" else newElementName, getManager))
     this
   }
 

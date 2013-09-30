@@ -543,7 +543,11 @@ object MixinNodes {
       def updateTp(tp: ScType): ScType = {
         tp.isAliasType match {
           case Some(AliasType(_, _, Success(upper, _))) => updateTp(upper)
-          case _ => tp
+          case _ =>
+            tp match {
+              case ex: ScExistentialType => ex.skolem
+              case _ => tp
+            }
         }
       }
       tp = updateTp(tp)

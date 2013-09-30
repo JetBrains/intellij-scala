@@ -12,18 +12,23 @@ import com.intellij.refactoring.rename.RenameJavaMethodProcessor
 import java.awt.{GridLayout, BorderLayout}
 
 import javax.swing._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
+import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import psi.impl.search.ScalaOverridengMemberSearch
 import psi.api.base.ScPrimaryConstructor
 import collection.mutable.ArrayBuffer
 import psi.fake.FakePsiMethod
-import extensions.toPsiNamedElementExt
-import com.intellij.psi.{PsiMethod, PsiElement}
+import com.intellij.psi.{PsiNamedElement, PsiElement}
 import java.util
 import com.intellij.openapi.util.Pass
-import com.intellij.ide.util.SuperMethodWarningUtil
 import com.intellij.psi.search.PsiElementProcessor
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
+import scala.Some
+import com.intellij.usageView.UsageInfo
+import com.intellij.refactoring.listeners.RefactoringElementListener
+import org.jetbrains.plugins.scala.util.SuperMemberUtil
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
+import com.intellij.openapi.application.ApplicationManager
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
 /**
  * User: Alexander Podkhalyuzin
@@ -37,39 +42,57 @@ class RenameScalaMethodProcessor extends RenameJavaMethodProcessor {
     case _ => false
   }
 
-  override def findReferences(element: PsiElement) = ScalaRenameUtil.filterAliasedReferences(super.findReferences(element))
+  override def findReferences(element: PsiElement) =
+    ScalaRenameUtil.filterAliasedReferences(super.findReferences(element))
 
   override def prepareRenaming(element: PsiElement, newName: String, allRenames: util.Map[PsiElement, String]) {
     val function = element match {case x: ScFunction => x case _ => return}
-    val buff = new ArrayBuffer[ScFunction]
-    function.getGetterOrSetterFunction match {
-      case Some(function2) => buff += function2
-      case _ =>
+    val buff = new ArrayBuffer[PsiNamedElement]
+    val getterOrSetter = function.getGetterOrSetterFunction match {
+      case Some(function2) =>
+        buff += function2
+        Some(function2)
+      case _ => None
     }
     for (elem <- ScalaOverridengMemberSearch.search(function, deep = true)) {
-      val overriderName = elem.name
-      val baseName = function.name
-      //val newOverriderName = RefactoringUtil.suggestNewOverriderName(overriderName, baseName, newName)
-      if (overriderName == baseName) {
-        allRenames.put(elem, newName)
-        elem match {
-          case fun: ScFunction => fun.getGetterOrSetterFunction match {
-            case Some(function2) => buff += function2
-            case _ =>
-          }
+      allRenames.put(elem, newName)
+      elem match {
+        case fun: ScFunction => fun.getGetterOrSetterFunction match {
+          case Some(function2) => buff += function2
           case _ =>
         }
+        case _ =>
       }
     }
+    for {
+      setter <- getterOrSetter
+      elem <- ScalaOverridengMemberSearch.search(setter, deep = true)
+    } {
+      buff += elem
+    }
     if (!buff.isEmpty) {
-      val dialog = new WarningDialog(function.getProject,
-        ScalaBundle.message("rename.getters.and.setters.title"))
-      dialog.show()
+      def addGettersAndSetters() {
+        def nameWithSetterSuffix(oldName: String, newName: String): String = {
+          val newSuffix = ScalaRenameUtil.setterSuffix(newName)
+          val oldSuffix = ScalaRenameUtil.setterSuffix(oldName)
+          if (newSuffix == "" && oldSuffix != "") newName + oldSuffix //user typed name without suffix for setter and chose to rename getter too
+          else if (newSuffix != "" && oldSuffix == "") newName.stripSuffix(newSuffix) //for renaming getters
+          else newName
+        }
+        import scala.collection.JavaConverters.asScalaSetConverter
+        for (elem <- allRenames.keySet.asScala ++ buff) {
+          val oldName = ScalaNamesUtil.scalaName(elem)
+          allRenames.put(elem, nameWithSetterSuffix(oldName, newName))
+        }
+      }
 
-      if (dialog.getExitCode == DialogWrapper.OK_EXIT_CODE) {
-        val shortNewName = if (newName.endsWith("_=")) newName.substring(0, newName.length - 2) else newName
-        for (elem <- buff) {
-          allRenames.put(elem, if (elem.name.endsWith("_=")) shortNewName + "_=" else shortNewName)
+      if (ApplicationManager.getApplication.isUnitTestMode) {
+        addGettersAndSetters()
+      } else {
+        val dialog = new WarningDialog(function.getProject, ScalaBundle.message("rename.getters.and.setters.title"))
+        dialog.show()
+        if (dialog.getExitCode == DialogWrapper.OK_EXIT_CODE || ApplicationManager.getApplication.isUnitTestMode) {
+          addGettersAndSetters()
         }
       }
     }
@@ -77,31 +100,21 @@ class RenameScalaMethodProcessor extends RenameJavaMethodProcessor {
     ScalaElementToRenameContributor.getAll(element, newName, allRenames)
   }
 
-  private def substituteElementGuess(element: PsiElement) = element match {
-    case primConstr: ScPrimaryConstructor => primConstr.containingClass
-    case fun: ScFunction if fun.isConstructor => fun.containingClass
-    case fun: ScFunction if Seq("apply", "unapply", "unapplySeq") contains fun.name => fun.containingClass
-    case fun: ScFunction => null
-    case _ => element
-  }
-
   override def substituteElementToRename(element: PsiElement, editor: Editor): PsiElement = {
-    val guess = substituteElementGuess(element)
-    if (guess != null) guess else SuperMethodWarningUtil.checkSuperMethod(element.asInstanceOf[PsiMethod] , "Rename")
+    val guess = ScalaRenameUtil.findSubstituteElement(element)
+    if (guess != element) guess else SuperMemberUtil.chooseSuper(element.asInstanceOf[ScNamedElement], "Choose element to rename")
   }
 
   override def substituteElementToRename(element: PsiElement, editor: Editor, renameCallback: Pass[PsiElement]) {
-    val guess = substituteElementGuess(element)
-    if (guess != null) renameCallback.pass(guess)
-    else SuperMethodWarningUtil.checkSuperMethod(element.asInstanceOf[PsiMethod], "Rename", new PsiElementProcessor[PsiMethod] {
-      def execute(method: PsiMethod): Boolean = {
-        if (!canProcessElement(method)) false
-        else {
-          renameCallback.pass(method)
-          false
-        }
+    val named = element match {case named: ScNamedElement => named; case _ => return}
+    val guess = ScalaRenameUtil.findSubstituteElement(element)
+    if (guess != element) renameCallback.pass(guess)
+    else SuperMemberUtil.chooseAndProcessSuper(named, new PsiElementProcessor[PsiNamedElement] {
+      def execute(named: PsiNamedElement): Boolean = {
+        renameCallback.pass(named)
+        false
       }
-    }, editor)
+    }, "Choose element to rename", editor)
   }
 
   private class WarningDialog(project: Project, text: String) extends DialogWrapper(project, true) {
@@ -136,6 +149,10 @@ class RenameScalaMethodProcessor extends RenameJavaMethodProcessor {
 
   override def isToSearchInComments(psiElement: PsiElement): Boolean = {
     ScalaApplicationSettings.getInstance().RENAME_SEARCH_IN_COMMENTS_AND_STRINGS
+  }
+
+  override def renameElement(psiElement: PsiElement, newName: String, usages: Array[UsageInfo], listener: RefactoringElementListener) {
+    ScalaRenameUtil.doRenameGenericNamedElement(psiElement, newName, usages, listener)
   }
 }
 

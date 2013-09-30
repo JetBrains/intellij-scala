@@ -13,7 +13,6 @@ import psi.api.toplevel.typedef.ScTypeDefinition
 import psi.api.base.patterns.ScReferencePattern
 import psi.api.statements._
 import psi.api.base.ScFieldId
-import org.jetbrains.plugins.scala.lang.refactoring.rename.inplace.ScalaInplaceRenameUtil
 import org.jetbrains.plugins.scala.lang.refactoring.introduceField.ScalaIntroduceFieldFromExpressionHandler
 
 /**
@@ -23,7 +22,7 @@ import org.jetbrains.plugins.scala.lang.refactoring.introduceField.ScalaIntroduc
 
 class ScalaRefactoringSupportProvider extends RefactoringSupportProvider {
   override def isInplaceRenameAvailable(element: PsiElement, context: PsiElement) = {
-    ScalaInplaceRenameUtil.myRenameInPlace(element, context)
+    false // handled by ScalaInplaceRenameHandler
   }
 
   override def getIntroduceConstantHandler: RefactoringActionHandler = null

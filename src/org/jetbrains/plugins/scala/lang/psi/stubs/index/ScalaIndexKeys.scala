@@ -12,7 +12,7 @@ import com.intellij.psi.PsiClass
 import com.intellij.psi.stubs.StubIndexKey
 import api.expr.ScAnnotation
 import api.toplevel.ScNamedElement
-import api.toplevel.typedef.{ScMember, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScMember, ScTypeDefinition}
 import api.statements.params.ScClassParameter
 import api.base.types.ScSelfTypeElement
 
@@ -31,7 +31,7 @@ object ScalaIndexKeys {
   val METHOD_NAME_KEY: StubIndexKey[String, ScFunction] = StubIndexKey.createIndexKey("sc.method.name")
   val CLASS_NAME_IN_PACKAGE_KEY: StubIndexKey[String, PsiClass] = StubIndexKey.createIndexKey("sc.class.name.in.package")
   val JAVA_CLASS_NAME_IN_PACKAGE_KEY: StubIndexKey[String, PsiClass] = StubIndexKey.createIndexKey("sc.java.class.name.in.package")
-  val IMPLICIT_OBJECT_KEY: StubIndexKey[String, PsiClass] = StubIndexKey.createIndexKey("sc.implcit.object")
+  val IMPLICIT_OBJECT_KEY: StubIndexKey[String, ScObject] = StubIndexKey.createIndexKey("sc.implcit.object")
   @deprecated
   val METHOD_NAME_TO_CLASS_KEY: StubIndexKey[String, ScTypeDefinition] = StubIndexKey.createIndexKey("sc.method.name.class")
   val ANNOTATED_MEMBER_KEY: StubIndexKey[String, ScAnnotation] = StubIndexKey.createIndexKey("sc.annotatde.member.name")

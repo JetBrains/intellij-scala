@@ -165,6 +165,37 @@ object ResolveUtils {
     if (member.hasModifierProperty("public")) return true
 
 
+    def checkProtected(td: PsiClass, withCompanion: Boolean): Boolean = {
+      val isConstr = member match {
+        case m: PsiMethod => m.isConstructor
+        case _ => false
+      }
+      var placeTd: ScTemplateDefinition = getPlaceTd(place, isConstr)
+      if (isConstr) {
+        if (placeTd != null && !placeTd.isInstanceOf[ScTypeDefinition] && placeTd.extendsBlock.templateBody == None) {
+          placeTd = getPlaceTd(placeTd)
+        } else if (placeTd != null) {
+          if (td != null && isInheritorOrSelfOrSame(placeTd, td)) return true
+        }
+        while (placeTd != null) {
+          if (td == placeTd) return true
+          val companion: ScTemplateDefinition = ScalaPsiUtil.getCompanionModule(placeTd).getOrElse(null: ScTemplateDefinition)
+          if (companion != null && companion == td) return true
+          placeTd = getPlaceTd(placeTd)
+        }
+        return false
+      }
+      while (placeTd != null) {
+        if (td != null && isInheritorOrSelfOrSame(placeTd, td)) return true
+        val companion: ScTemplateDefinition = ScalaPsiUtil.
+                getCompanionModule(placeTd).getOrElse(null: ScTemplateDefinition)
+        if (withCompanion && companion != null && td != null &&
+                ScalaPsiUtil.cachedDeepIsInheritor(companion, td)) return true
+        placeTd = getPlaceTd(placeTd)
+      }
+      false
+    }
+
     member match {
       case scMember: ScMember => scMember.getModifierList.accessModifier match {
         case None => true
@@ -341,31 +372,7 @@ object ResolveUtils {
                 if (PsiTreeUtil.isContextAncestor(td, place, false) ||
                         (withCompanion && PsiTreeUtil.isContextAncestor(ScalaPsiUtil.getCompanionModule(td).
                                 getOrElse(null: PsiElement), place, false))) return true
-                val isConstr = member match {case m: PsiMethod => m.isConstructor case _ => false}
-                var placeTd: ScTemplateDefinition = getPlaceTd(place, isConstr)
-                if (isConstr) {
-                  if (placeTd != null && !placeTd.isInstanceOf[ScTypeDefinition]) {
-                    placeTd = getPlaceTd(placeTd)
-                  } else if (placeTd !=  null) {
-                    if (td != null && isInheritorOrSelfOrSame(placeTd, td)) return true
-                  }
-                  while (placeTd != null) {
-                    if (td == placeTd) return true
-                    val companion: ScTemplateDefinition = ScalaPsiUtil.getCompanionModule(placeTd).getOrElse(null: ScTemplateDefinition)
-                    if (companion != null && companion == td) return true
-                    placeTd = getPlaceTd(placeTd)
-                  }
-                  return false
-                }
-                while (placeTd != null) {
-                  if (td != null && isInheritorOrSelfOrSame(placeTd, td)) return true
-                  val companion: ScTemplateDefinition = ScalaPsiUtil.
-                          getCompanionModule(placeTd).getOrElse(null: ScTemplateDefinition)
-                  if (withCompanion && companion != null && td != null &&
-                    ScalaPsiUtil.cachedDeepIsInheritor(companion, td)) return true
-                  placeTd = getPlaceTd(placeTd)
-                }
-                false
+                checkProtected(td, withCompanion)
               }
               case td: ScTemplateDefinition => {
                 //it'd anonymous class, has access only inside
@@ -394,31 +401,7 @@ object ResolveUtils {
         if (member.hasModifierProperty("public")) true
         else if (member.hasModifierProperty("private")) false
         else if (member.hasModifierProperty("protected")) {
-          val clazz = member.containingClass
-          val isConstr = member match {case m: PsiMethod => m.isConstructor case _ => false}
-          var placeTd = getPlaceTd(place, isConstr)
-          if (isConstr) {
-            if (placeTd != null && !placeTd.isInstanceOf[ScTypeDefinition]) {
-              placeTd = getPlaceTd(placeTd)
-            } else if (placeTd !=  null) {
-              if (clazz != null && isInheritorOrSelfOrSame(placeTd, clazz)) return true
-            }
-            while (placeTd != null) {
-              if (clazz == placeTd) return true
-              val companion: ScTemplateDefinition = ScalaPsiUtil.getCompanionModule(placeTd).getOrElse(null: ScTemplateDefinition)
-              if (companion != null && companion == clazz) return true
-              placeTd = getPlaceTd(placeTd)
-            }
-            return false
-          }
-          while (placeTd != null) {
-            if (clazz != null && isInheritorOrSelfOrSame(placeTd, clazz)) return true
-            val companion: ScTemplateDefinition = ScalaPsiUtil.getCompanionModule(placeTd).getOrElse(null: ScTemplateDefinition)
-            if (companion != null && clazz != null &&
-              ScalaPsiUtil.cachedDeepIsInheritor(companion, clazz)) return true
-            placeTd = getPlaceTd(placeTd)
-          }
-          false
+          checkProtected(member.containingClass, withCompanion = true)
         } else {
           val packageName = member.getContainingFile match {
             case s: ScalaFile => ""

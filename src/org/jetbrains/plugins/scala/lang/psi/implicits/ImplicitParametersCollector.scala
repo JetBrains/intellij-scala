@@ -40,7 +40,7 @@ class ImplicitParametersCollector(place: PsiElement, tp: ScType, coreElement: Op
       if (placeForTreeWalkUp == null) return
       if (!placeForTreeWalkUp.processDeclarations(processor,
         ResolveState.initial(), lastParent, place)) return
-      place match {
+      placeForTreeWalkUp match {
         case (_: ScTemplateBody | _: ScExtendsBlock) => //template body and inherited members are at the same level
         case _ => if (!processor.changedLevel) return
       }

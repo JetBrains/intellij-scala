@@ -24,7 +24,7 @@ import org.jetbrains.plugins.scala.lang.resolve.processor.CompletionProcessor
 import org.jetbrains.plugins.scala.lang.resolve.{StdKinds, ScalaResolveResult, ResolveUtils}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScVariable, ScValue}
 import org.jetbrains.plugins.scala.caches.ScalaShortNamesCacheManager
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTypeDefinition, ScObject}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScClass, ScTypeDefinition, ScObject}
 import org.jetbrains.plugins.scala.extensions.{toPsiMemberExt, toPsiNamedElementExt, toPsiClassExt}
 import com.intellij.psi.search.searches.ClassInheritorsSearch
 import collection.mutable
@@ -132,7 +132,7 @@ class ScalaGlobalMembersCompletionContributor extends CompletionContributor {
       } else elemsSet.contains(elem)
     }
 
-    val collection = StubIndex.getInstance.get(ScalaIndexKeys.IMPLICITS_KEY, "implicit", file.getProject, scope)
+    val collection = StubIndex.getInstance.safeGet(ScalaIndexKeys.IMPLICITS_KEY, "implicit", file.getProject, scope, classOf[ScMember])
     
     import scala.collection.JavaConversions._
 

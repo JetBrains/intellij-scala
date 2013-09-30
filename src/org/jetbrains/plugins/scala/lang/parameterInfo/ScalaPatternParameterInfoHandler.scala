@@ -8,12 +8,11 @@ import com.intellij.codeInsight.CodeInsightBundle
 import com.intellij.psi._
 import com.intellij.codeInsight.lookup.LookupElement
 import com.intellij.psi.tree.IElementType
-import _root_.java.util.Set
 import com.intellij.lang.parameterInfo._
 import com.intellij.psi.util.PsiTreeUtil
 import psi.api.base.ScStableCodeReferenceElement
 import psi.api.statements.ScFunction
-import psi.api.toplevel.typedef.{ScTypeDefinition, ScObject, ScClass}
+import psi.api.toplevel.typedef.{ScObject, ScClass}
 import psi.ScalaPsiUtil
 import psi.types._
 import com.intellij.util.ArrayUtil
@@ -68,7 +67,7 @@ class ScalaPatternParameterInfoHandler extends ParameterInfoHandlerWithTabAction
     if (context == null || context.getParameterOwner == null || !context.getParameterOwner.isValid) return
     context.getParameterOwner match {
       case args: ScPatternArgumentList => {
-        var color: Color = context.getDefaultParameterColor
+        val color: Color = context.getDefaultParameterColor
         val index = context.getCurrentParameterIndex
         val buffer: StringBuilder = new StringBuilder("")
         p match {
@@ -78,43 +77,15 @@ class ScalaPatternParameterInfoHandler extends ParameterInfoHandlerWithTabAction
             val methodName = sign.method.name
 
             val subst = sign.substitutor
-            val p = sign.method match {
-              case method: ScFunction => {
-                subst.subst(method.returnType.getOrAny)
-              }
-              case method: PsiMethod => {
-                subst.subst(ScType.create(method.getReturnType, method.getProject))
-              }
+            val returnType = sign.method match {
+              case method: ScFunction => subst.subst(method.returnType.getOrAny)
+              case method: PsiMethod => subst.subst(ScType.create(method.getReturnType, method.getProject))
             }
-            val qual = ScType.extractClass(p) match {
-              case Some(clazz) => clazz.qualifiedName
-              case _ => ""
-            }
-            val generics: Seq[ScType] = p match {
-              case pt: ScParameterizedType => pt.typeArgs
-              case JavaArrayType(arg) => Seq(arg)
-              case _ => Seq.empty
-            }
-            if (qual != "scala.Option" || generics.length == 0) buffer.append(CodeInsightBundle.message("parameter.info.no.parameters"))
+
+            val params = ScPattern.extractorParameters(returnType, args).zipWithIndex
+
+            if (params.length == 0) buffer.append(CodeInsightBundle.message("parameter.info.no.parameters"))
             else {
-              var o = -1 //index for right search bold parameter
-              val params = for (t <- (generics(0) match {
-                case tuple: ScTupleType => tuple.components
-                case tp => ScType.extractClassType(tp, Some(context.getParameterOwner.getProject)) match {
-                  case Some((clazz, _)) if clazz != null && clazz.qualifiedName != null &&
-                          clazz.qualifiedName.startsWith("scala.Tuple") => {
-                    tp match {
-                      case pt: ScParameterizedType => pt.typeArgs.toSeq
-                      case JavaArrayType(arg) => Seq(arg)
-                      case _ => Seq[ScType](tp)
-                    }
-                  }
-                  case _ => Seq[ScType](tp)
-                }
-              })) yield {
-                o += 1
-                (t, o)
-              }
               buffer.append(params.map {
                 case (param, o) =>
                   val buffer: StringBuilder = new StringBuilder("")
@@ -133,7 +104,7 @@ class ScalaPatternParameterInfoHandler extends ParameterInfoHandlerWithTabAction
                     //todo: check type
                     false
                   }
-                  val paramTypeText = buffer.toString
+                  val paramTypeText = buffer.toString()
                   val paramText = paramTextFor(sign, o, paramTypeText)
 
                   if (isBold) "<b>" + paramText + "</b>" else paramText
@@ -151,7 +122,7 @@ class ScalaPatternParameterInfoHandler extends ParameterInfoHandlerWithTabAction
         if (endOffset != -1) buffer.replace(endOffset, endOffset + 4, "")
 
         if (buffer.toString != "")
-          context.setupUIComponentPresentation(buffer.toString, startOffset, endOffset, false, false, false, color)
+          context.setupUIComponentPresentation(buffer.toString(), startOffset, endOffset, false, false, false, color)
         else
           context.setUIComponentEnabled(false)
       }
@@ -208,7 +179,7 @@ class ScalaPatternParameterInfoHandler extends ParameterInfoHandlerWithTabAction
   }
 
   def updateParameterInfo(o: ScPatternArgumentList, context: UpdateParameterInfoContext): Unit = {
-    if (context.getParameterOwner != o) context.removeHint
+    if (context.getParameterOwner != o) context.removeHint()
     val offset = context.getOffset
     var child = o.getNode.getFirstChildNode
     var i = 0

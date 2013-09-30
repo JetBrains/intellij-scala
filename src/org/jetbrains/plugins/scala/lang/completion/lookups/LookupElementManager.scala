@@ -37,7 +37,7 @@ object LookupElementManager {
       lookupItem.isClassName = isClassName
       var isBold = false
       var isDeprecated = false
-      ScType.extractDesignated(qualifierType) match {
+      ScType.extractDesignated(qualifierType, withoutAliases = false) match {
         case Some((named, _)) => {
           val clazz: PsiClass = named match {
             case cl: PsiClass => cl

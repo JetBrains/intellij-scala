@@ -44,6 +44,8 @@
         <fileTypeFactory implementation="org.jetbrains.plugins.scala.ScalaFileTypeFactory"/>
         <syntaxHighlighter key="Scala" implementationClass="org.jetbrains.plugins.scala.highlighter.ScalaSyntaxHighlighter"/>
         <lang.syntaxHighlighterFactory key="Scala" implementationClass="org.jetbrains.plugins.scala.highlighter.ScalaSyntaxHighlighterFactory"/>
+        <additionalTextAttributes scheme="Default" file="colorSchemes/ScalaDefault.xml"/>
+        <additionalTextAttributes scheme="Darcula" file="colorSchemes/ScalaDarcula.xml"/>
         <treeStructureProvider implementation="org.jetbrains.plugins.scala.components.ScalaDefsProjectViewProvider" order="last"/>
         <lang.braceMatcher language="Scala" implementationClass="org.jetbrains.plugins.scala.highlighter.ScalaBraceMatcher"/>
         <lang.parserDefinition language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.parser.ScalaParserDefinition"/>
@@ -71,6 +73,8 @@
                                 implementationClass="org.jetbrains.plugins.scala.lang.scaladoc.completion.ScalaDocCompletionContributor"/>
         <completion.contributor language="Scala" id="scalaCompletionContrubutor"
                                 implementationClass="org.jetbrains.plugins.scala.lang.completion.ScalaCompletionContributor"/>
+        <completion.contributor language="Scala" id="sameSignatureCallParametersProvider"
+                                implementationClass="org.jetbrains.plugins.scala.lang.completion.SameSignatureCallParametersProvider"/>
         <completion.contributor language="Scala" id="scalaClassNameCompletionContributor"
                                 implementationClass="org.jetbrains.plugins.scala.lang.completion.ScalaClassNameCompletionContributor"
                                 order="after scalaCompletionContrubutor"/> <!-- This is the last completion contributor! -->
@@ -170,10 +174,14 @@
         <referencesSearch implementation="org.jetbrains.plugins.scala.findUsages.ScalaAliasedImportedElementSearcher"/>
         <referencesSearch implementation="org.jetbrains.plugins.scala.findUsages.TypeAliasUsagesSearcher"/>
         <referencesSearch implementation="org.jetbrains.plugins.scala.findUsages.ScalaPackageUsagesSearcher"/>
+        <referencesSearch implementation="org.jetbrains.plugins.scala.findUsages.vals.ApplyUnapplyForBindingSearcher"/>
+        <referencesSearch implementation="org.jetbrains.plugins.scala.findUsages.OperatorAndBacktickedSearcher"/>
         <methodReferencesSearch implementation="org.jetbrains.plugins.scala.findUsages.NonMemberMethodUsagesSearcher"/>
         <findUsagesHandlerFactory implementation="org.jetbrains.plugins.scala.findUsages.factory.ScalaFindUsagesHandlerFactory" order="first"/>
         <customUsageSearcher implementation="org.jetbrains.plugins.scala.findUsages.parameters.ConstructorParamsInConstructorPatternSearcher"/>
         <qualifiedNameProvider implementation="org.jetbrains.plugins.scala.actions.ScalaQualifiedNameProvider" order="first"/>
+        <targetElementEvaluator language="Scala" implementationClass="org.jetbrains.plugins.scala.codeInsight.ScalaTargetElementEvaluator"/>
+        <targetElementEvaluator language="JAVA" implementationClass="org.jetbrains.plugins.scala.codeInsight.ScalaTargetElementEvaluator"/>
 
         <codeInsight.parameterInfo language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.parameterInfo.ScalaFunctionParameterInfoHandler"/>
         <codeInsight.parameterInfo language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.parameterInfo.ScalaPatternParameterInfoHandler"/>
@@ -786,6 +794,15 @@
                        displayName="Anonymous function convertible to a method value" groupName="Scala: General"
                        shortName="ConvertibleToMethodValue" level="WARNING"
                        enabledByDefault="true" language="Scala"/>
+      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.typeChecking.ComparingUnrelatedTypesInspection"
+                       displayName="Comparing unrelated types" groupName="Scala: General"
+                       shortName="ComparingUnrelatedTypes" level="WARNING"
+                       enabledByDefault="true" language="Scala"/>
+      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.functionExpressions.MatchToPartialFunctionInspection"
+                       displayName="Match statement convertible to partial function" groupName="Scala: General"
+                       shortName="MatchToPartialFunction" level="WARNING"
+                       enabledByDefault="true" language="Scala"/>
+
 
         <!--<localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.allErrorsInspection.AnnotatorBasedErrorInspection"
        displayName="All Errors Tool" groupName="Scala: General"

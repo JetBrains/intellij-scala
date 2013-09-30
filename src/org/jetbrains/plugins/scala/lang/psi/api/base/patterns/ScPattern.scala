@@ -16,13 +16,16 @@ import statements.{ScFunction, ScValue, ScVariable}
 import psi.impl.base.ScStableCodeReferenceElementImpl
 import org.jetbrains.plugins.scala.lang.psi.api.expr.xml.ScXmlPattern
 import lang.resolve._
-import processor.ExpandedExtractorResolveProcessor
+import org.jetbrains.plugins.scala.lang.resolve.processor.{CompletionProcessor, ExpandedExtractorResolveProcessor}
 import statements.params.{ScTypeParam, ScParameter}
 import caches.CachesUtil
 import psi.impl.ScalaPsiManager
 import util.{PsiTreeUtil, PsiModificationTracker}
 import toplevel.typedef.ScTemplateDefinition
 import extensions.toPsiClassExt
+import org.jetbrains.plugins.scala.lang.languageLevel.ScalaLanguageLevel
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
+import scala.annotation.tailrec
 
 /**
  * @author Alexander Podkhalyuzin
@@ -64,7 +67,7 @@ trait ScPattern extends ScalaPsiElement {
     val bind: Option[ScalaResolveResult] = ref.bind() match {
       case Some(ScalaResolveResult(_: ScBindingPattern | _: ScParameter, _)) => {
         val refImpl = ref.asInstanceOf[ScStableCodeReferenceElementImpl]
-        val resolve = refImpl.doResolve(refImpl, new ExpandedExtractorResolveProcessor(ref, ref.refName, ref.getKinds(false), ref.getContext match {
+        val resolve = refImpl.doResolve(refImpl, new ExpandedExtractorResolveProcessor(ref, ref.refName, ref.getKinds(incomplete = false), ref.getContext match {
           case inf: ScInfixPattern => inf.expectedType
           case constr: ScConstructorPattern => constr.expectedType
           case _ => None
@@ -126,30 +129,9 @@ trait ScPattern extends ScalaPsiElement {
               }
             }
             if (subst.subst(rt).equiv(lang.psi.types.Boolean)) return None
-            rt match {
-              case ScParameterizedType(des, args) if (ScType.extractClass(des) match {
-                case Some(clazz) if clazz.qualifiedName == "scala.Option" ||
-                        clazz.qualifiedName == "scala.Some" => true
-                case _ => false
-              }) => {
-                if (args.length != 1) return None
-                args(0) match {
-                  case ScTupleType(args) => {
-                    if (i < args.length) return Some(updateRes(subst.subst(args(i)).unpackedType))
-                    else return None
-                  }
-                  case p@ScParameterizedType(des, args) if p.getTupleType != None => {
-                    if (i < args.length) return Some(updateRes(subst.subst(args(i)).unpackedType))
-                    else return None
-                  }
-                  case tp => {
-                    if (i == 0) return Some(updateRes(subst.subst(tp).unpackedType))
-                    else return None
-                  }
-                }
-              }
-              case _ => return None
-            }
+            val args = ScPattern.extractorParameters(rt, this)
+            if (i < args.length) return Some(updateRes(subst.subst(args(i)).unpackedType))
+            else return None
           case _ =>
         }
         None
@@ -180,39 +162,21 @@ trait ScPattern extends ScalaPsiElement {
         }
         fun.returnType match {
           case Success(rt, _) =>
-            subst.subst(rt) match {
-              case ScParameterizedType(des, args) if (ScType.extractClass(des) match {
-                case Some(clazz) if clazz.qualifiedName == "scala.Option" ||
-                        clazz.qualifiedName == "scala.Some" => true
+            val args = ScPattern.extractorParameters(subst.subst(rt), this)
+            if (args.length == 0) return None
+            if (i < args.length - 1) return Some(subst.subst(args(i)))
+            val lastArg = args(args.length - 1)
+            (Seq(lastArg) ++ BaseTypes.get(lastArg)).find({
+              case ScParameterizedType(des, seqArgs) if seqArgs.length == 1 && (ScType.extractClass(des) match {
+                case Some(clazz) if clazz.qualifiedName == "scala.collection.Seq" => true
                 case _ => false
-              }) => {
-                if (args.length != 1) return None
-                val tupleArgs = args(0) match {
-                  case ScTupleType(comps) => comps
-                  case p: ScParameterizedType =>
-                    p.getTupleType match {
-                      case Some(ScTupleType(comps)) => comps
-                      case _ => Seq(p)
-                    }
-                  case tp => Seq(tp)
-                }
-                if (tupleArgs.length == 0) return None
-                if (i < tupleArgs.length - 1) return Some(subst.subst(tupleArgs(i)))
-                val lastArg = tupleArgs(tupleArgs.length - 1)
-                (Seq(lastArg) ++ BaseTypes.get(lastArg)).find({
-                  case ScParameterizedType(des, args) if args.length == 1 && (ScType.extractClass(des) match {
-                    case Some(clazz) if clazz.qualifiedName == "scala.collection.Seq" => true
-                    case _ => false
-                  }) => true
-                  case _ => false
-                }) match {
-                  case Some(seq@ScParameterizedType(des, args)) => {
-                    this match {
-                      case n: ScNamingPattern if n.getLastChild.isInstanceOf[ScSeqWildcard] => return Some(subst.subst(seq))
-                      case _ => return Some(subst.subst(args(0)))
-                    }
-                  }
-                  case _ => return None
+              }) => true
+              case _ => false
+            }) match {
+              case Some(seq@ScParameterizedType(des, seqArgs)) => {
+                this match {
+                  case n: ScNamingPattern if n.getLastChild.isInstanceOf[ScSeqWildcard] => return Some(subst.subst(seq))
+                  case _ => return Some(subst.subst(seqArgs(0)))
                 }
               }
               case _ => return None
@@ -314,10 +278,10 @@ trait ScPattern extends ScalaPsiElement {
           if (thr != null) Some(ScType.designator(thr)) else None
         }
         case b : ScBlockExpr => {
-          b.expectedType(false) match {
+          b.expectedType(fromUnderscore = false) match {
             case Some(et) =>
               ScType.extractFunctionType(et) match {
-                case Some(ScFunctionType(_, Seq())) => Some(Unit)
+                case Some(ScFunctionType(_, Seq())) => Some(types.Unit)
                 case Some(ScFunctionType(_, Seq(p0))) => Some(p0.removeAbstracts)
                 case Some(ScFunctionType(_, params)) =>
                   val tt = new ScTupleType(params.map(_.removeAbstracts))(getProject, getResolveScope)
@@ -366,4 +330,64 @@ trait ScPattern extends ScalaPsiElement {
 
   var desugarizedPatternIndex = -1
   var analog: ScPattern = null
+}
+
+object ScPattern {
+  def extractorParameters(returnType: ScType, place: PsiElement): Seq[ScType] = {
+    val level = ScalaLanguageLevel.getLanguageLevel(place)
+    if (level.isThoughScala2_11) {
+      def findMember(name: String, tp: ScType = returnType): Option[ScType] = {
+        val cp = new CompletionProcessor(StdKinds.methodRef, place, forName = Some(name))
+        cp.processType(tp, place)
+        cp.candidatesS.flatMap {
+          case ScalaResolveResult(fun: ScFunction, subst) if fun.parameters.length == 0 && fun.name == name =>
+            Seq(subst.subst(fun.returnType.getOrAny))
+          case ScalaResolveResult(b: ScBindingPattern, subst) if b.name == name =>
+            Seq(subst.subst(b.getType(TypingContext.empty).getOrAny))
+          case _ => Seq.empty
+        }.headOption
+      }
+
+      findMember("isEmpty") match {
+        case Some(tp) if types.Boolean.equiv(tp) =>
+        case _ => return Seq.empty
+      }
+
+      val receiverType = findMember("get").getOrElse(return Seq.empty)
+      val res: ArrayBuffer[ScType] = new ArrayBuffer[ScType]()
+      @tailrec
+      def collect(i: Int) {
+        findMember(s"_$i", receiverType) match {
+          case Some(tp) =>
+            res += tp
+            collect(i + 1)
+          case _ =>
+            if (i == 1) res += receiverType
+        }
+      }
+      collect(1)
+      res.toSeq
+    } else {
+      returnType match {
+        case ScParameterizedType(des, args) =>
+          ScType.extractClass(des) match {
+            case Some(clazz) if clazz.qualifiedName == "scala.Option" ||
+                    clazz.qualifiedName == "scala.Some" =>
+              if (args.length == 1) {
+                args(0) match {
+                  case ScTupleType(comps) => comps
+                  case p: ScParameterizedType =>
+                    p.getTupleType match {
+                      case Some(ScTupleType(comps)) => comps
+                      case _ => Seq(p)
+                    }
+                  case tp => Seq(tp)
+                }
+              } else Seq.empty
+            case _ => Seq.empty
+          }
+        case _ => Seq.empty
+      }
+    }
+  }
 }

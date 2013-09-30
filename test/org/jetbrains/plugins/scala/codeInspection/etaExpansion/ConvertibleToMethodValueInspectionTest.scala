@@ -169,4 +169,12 @@ class ConvertibleToMethodValueInspectionTest extends ScalaLightInspectionFixture
                  |"""
     checkTextHasNoErrors(text)
   }
+
+  def test_SCL6000() {
+    val text = """class A {
+                 |  def inc(f: Int) = f+1
+                 |  val set = Set(inc _)
+                 |}"""
+    checkTextHasNoErrors(text)
+  }
 }

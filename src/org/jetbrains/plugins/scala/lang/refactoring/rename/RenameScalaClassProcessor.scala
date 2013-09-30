@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.lang.refactoring.rename
 
-import com.intellij.refactoring.rename.RenameJavaClassProcessor
+import com.intellij.refactoring.rename.{RenameDialog, RenameJavaClassProcessor}
 import java.lang.String
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
@@ -15,6 +15,12 @@ import scala.Some
 import annotation.tailrec
 import java.util
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
+import com.intellij.openapi.project.Project
+import javax.swing.{JPanel, JComponent, JCheckBox}
+import org.jetbrains.plugins.scala.ScalaBundle
+import java.awt.BorderLayout
+import com.intellij.usageView.UsageInfo
+import com.intellij.refactoring.listeners.RefactoringElementListener
 
 /**
  * User: Alexander Podkhalyuzin
@@ -41,7 +47,7 @@ class RenameScalaClassProcessor extends RenameJavaClassProcessor {
     element match {
       case td: ScTypeDefinition => {
         ScalaPsiUtil.getCompanionModule(td) match {
-          case Some(companion) => allRenames.put(companion, newName)
+          case Some(companion) if ScalaApplicationSettings.getInstance().RENAME_COMPANION_MODULE => allRenames.put(companion, newName)
           case _ =>
         }
         @tailrec
@@ -74,17 +80,23 @@ class RenameScalaClassProcessor extends RenameJavaClassProcessor {
     }
 
     //put rename for fake object companion class
-    element match {
-      case o: ScObject =>
-        o.fakeCompanionClass match {
-          case Some(clazz) => allRenames.put(clazz, newName + "$")
-          case None =>
-        }
-      case t: ScTrait =>
-        allRenames.put(t.fakeCompanionClass, newName + "$class")
-      case _ =>
+    def addLightClasses(element: PsiElement) {
+      element match {
+        case o: ScObject =>
+          o.fakeCompanionClass match {
+            case Some(clazz) => allRenames.put(clazz, newName)
+            case None =>
+          }
+        case t: ScTrait =>
+          allRenames.put(t.fakeCompanionClass, newName + "$class")
+        case _ =>
+      }
     }
-    
+
+    import scala.collection.JavaConverters.asScalaSetConverter
+    val elems = allRenames.keySet().asScala.clone()
+    elems.foreach(addLightClasses)
+
     ScalaElementToRenameContributor.getAll(element, newName, allRenames)
   }
 
@@ -105,5 +117,48 @@ class RenameScalaClassProcessor extends RenameJavaClassProcessor {
 
   override def isToSearchInComments(psiElement: PsiElement): Boolean = {
     ScalaApplicationSettings.getInstance().RENAME_SEARCH_IN_COMMENTS_AND_STRINGS
+  }
+
+  override def createRenameDialog(project: Project, element: PsiElement, nameSuggestionContext: PsiElement, editor: Editor): RenameDialog =
+    new ScalaClassRenameDialog(project, element, nameSuggestionContext, editor)
+
+  override def renameElement(element: PsiElement, newName: String, usages: Array[UsageInfo], listener: RefactoringElementListener) {
+    ScalaRenameUtil.doRenameGenericNamedElement(element, newName, usages, listener)
+  }
+}
+
+class ScalaClassRenameDialog(project: Project, psiElement: PsiElement, nameSuggestionContext: PsiElement, editor: Editor)
+        extends {
+          private val chbRenameCompanion: JCheckBox = new JCheckBox("", true)
+        }
+        with RenameDialog(project: Project, psiElement: PsiElement, nameSuggestionContext: PsiElement, editor: Editor) {
+
+  override def createCenterPanel(): JComponent = {
+
+    val companionType: Option[String] = psiElement match {
+      case clazz: ScTypeDefinition =>
+        ScalaPsiUtil.getBaseCompanionModule(clazz) match {
+          case Some(_: ScObject) => Some("object")
+          case Some(_: ScTrait) => Some("trait")
+          case Some(_: ScClass) => Some("class")
+          case _ => None
+        }
+      case _ => None
+    }
+
+    if (companionType.isDefined) {
+      chbRenameCompanion.setText(ScalaBundle.message("rename.companion.module", companionType.get))
+      chbRenameCompanion.setSelected(true)
+      val panel = Option(super.createCenterPanel()).getOrElse(new JPanel(new BorderLayout()))
+      panel.add(chbRenameCompanion, BorderLayout.WEST)
+      panel
+    }
+    else null
+  }
+
+  override def performRename(newName: String) {
+    ScalaApplicationSettings.getInstance().RENAME_COMPANION_MODULE = chbRenameCompanion.isSelected
+    super.performRename(newName)
+    ScalaApplicationSettings.getInstance().RENAME_COMPANION_MODULE = true
   }
 }

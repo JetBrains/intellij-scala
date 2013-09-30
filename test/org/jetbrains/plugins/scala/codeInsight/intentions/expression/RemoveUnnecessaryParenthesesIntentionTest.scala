@@ -82,4 +82,11 @@ class RemoveUnnecessaryParenthesesIntentionTest extends ScalaIntentionTestBase {
     val result = "val a = 1"
     doTest(text, result)
   }
+
+  def test_7() {
+    val text = """1 match {
+                 |    case i if (<caret>i match {case 1 => true}) =>
+                 |  }"""
+    checkIntentionIsNotAvailable(text)
+  }
 }

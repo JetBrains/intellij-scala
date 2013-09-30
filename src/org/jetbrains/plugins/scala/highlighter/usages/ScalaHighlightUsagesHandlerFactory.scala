@@ -10,6 +10,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScVariableDefinition, ScPatternDefinition, ScFunction, ScFunctionDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
+import com.intellij.codeInsight.TargetElementUtilBase
 
 /**
  * User: Alexander Podkhalyuzin
@@ -19,7 +20,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefin
 class ScalaHighlightUsagesHandlerFactory extends  HighlightUsagesHandlerFactory {
   def createHighlightUsagesHandler(editor: Editor, file: PsiFile): HighlightUsagesHandlerBase[_ <: PsiElement] = {
     if (!file.isInstanceOf[ScalaFile]) return null
-    val element: PsiElement = file.findElementAt(editor.getCaretModel.getOffset)
+    val offset = TargetElementUtilBase.adjustOffset(file, editor.getDocument, editor.getCaretModel.getOffset)
+    val element: PsiElement = file.findElementAt(offset)
     if (element == null || element.getNode == null) return null
     element.getNode.getElementType match {
       case ScalaTokenTypes.kRETURN => {
@@ -109,6 +111,6 @@ class ScalaHighlightUsagesHandlerFactory extends  HighlightUsagesHandlerFactory 
       }
       case _ =>
     }
-    return null
+    null
   }
 }

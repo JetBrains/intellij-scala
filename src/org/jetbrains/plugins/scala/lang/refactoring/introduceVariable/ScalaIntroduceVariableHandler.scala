@@ -29,7 +29,6 @@ import refactoring.util.{ConflictsReporter, ScalaRefactoringUtil}
 import com.intellij.refactoring.introduce.inplace.OccurrencesChooser
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaVariableValidator
-import org.jetbrains.plugins.scala.lang.refactoring.introduceVariable.ScalaIntroduceVariableHandler.RevertInfo
 import com.intellij.psi.util.PsiTreeUtil
 
 
@@ -65,8 +64,7 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Confli
       ScalaRefactoringUtil.checkCanBeIntroduced(expr, showErrorMessage(_, project, editor, REFACTORING_NAME))
 
       val fileEncloser = ScalaRefactoringUtil.fileEncloser(startOffset, file)
-      val occurrencesAll: Array[TextRange] = ScalaRefactoringUtil.getOccurrenceRanges(ScalaRefactoringUtil.unparExpr(expr), fileEncloser)
-      val occurrences = occurrencesAll.filterNot(ScalaRefactoringUtil.isLiteralPattern(file, _))
+      val occurrences: Array[TextRange] = ScalaRefactoringUtil.getOccurrenceRanges(ScalaRefactoringUtil.unparExpr(expr), fileEncloser)
       val validator = ScalaVariableValidator(this, project, editor, file, expr, occurrences)
 
       def runWithDialog() {
@@ -101,14 +99,11 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Confli
             CommandProcessor.getInstance.executeCommand(project, new Runnable {
               def run() {
                 val newDeclaration: PsiElement = ApplicationManager.getApplication.runWriteAction(introduceRunnable)
-                var namedElement: PsiNamedElement = null
-                newDeclaration match {
-                  case holder: ScDeclaredElementsHolder if holder.declaredElements.nonEmpty =>
-                    namedElement = holder.declaredElements(0)
-                  case enum: ScEnumerator =>
-                    namedElement = enum.pattern.bindings(0)
+                val namedElement: PsiNamedElement = newDeclaration match {
+                  case holder: ScDeclaredElementsHolder if holder.declaredElements.nonEmpty => holder.declaredElements(0)
+                  case enum: ScEnumerator => enum.pattern.bindings(0)
                 }
-                if (namedElement != null) {
+                if (namedElement != null && namedElement.isValid) {
                   editor.getCaretModel.moveToOffset(namedElement.getTextOffset)
                   editor.getSelectionModel.removeSelection()
                   if (ScalaRefactoringUtil.isInplaceAvailable(editor)) {
@@ -183,7 +178,7 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Confli
       Option(decl).getOrElse(enum)
     }
 
-    val revertInfo = RevertInfo(file.getText, editor.getCaretModel.getOffset)
+    val revertInfo = ScalaRefactoringUtil.RevertInfo(file.getText, editor.getCaretModel.getOffset)
     editor.putUserData(ScalaIntroduceVariableHandler.REVERT_INFO, revertInfo)
 
     val typeName = if (varType != null) varType.canonicalText else ""
@@ -336,16 +331,12 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Confli
     ScalaRefactoringUtil.checkCanBeIntroduced(expr, showErrorMessage(_, project, editor, REFACTORING_NAME))
 
     val fileEncloser = ScalaRefactoringUtil.fileEncloser(startOffset, file)
-    val occurrencesAll: Array[TextRange] = ScalaRefactoringUtil.getOccurrenceRanges(ScalaRefactoringUtil.unparExpr(expr), fileEncloser)
-    val occurrences = occurrencesAll.filterNot(ScalaRefactoringUtil.isLiteralPattern(file, _))
+    val occurrences: Array[TextRange] = ScalaRefactoringUtil.getOccurrenceRanges(ScalaRefactoringUtil.unparExpr(expr), fileEncloser)
     runRefactoring(startOffset, endOffset, file, editor, expr, occurrences, "value", types(0), replaceAll, isVariable = false)
   }
 
 }
 
 object ScalaIntroduceVariableHandler {
-  val REVERT_INFO: Key[RevertInfo] = new Key("RevertInfo")
-
-  case class RevertInfo(fileText: String, caretOffset: Int)
-
+  val REVERT_INFO: Key[ScalaRefactoringUtil.RevertInfo] = new Key("RevertInfo")
 }

@@ -19,9 +19,9 @@ import org.jetbrains.plugins.scala.extensions.inReadAction
  */
 class NamingParamsSearcher extends QueryExecutor[PsiReference, ReferencesSearch.SearchParameters] {
   def execute(queryParameters: ReferencesSearch.SearchParameters, consumer: Processor[PsiReference]): Boolean = {
-    val scope = queryParameters.getScope
-    val element = queryParameters.getElementToSearch
     inReadAction {
+      val scope = queryParameters.getEffectiveSearchScope
+      val element = queryParameters.getElementToSearch
       if (element.isValid) {
         element match {
           case parameter : ScParameter => {

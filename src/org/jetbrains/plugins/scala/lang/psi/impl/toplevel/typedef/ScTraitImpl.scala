@@ -58,7 +58,7 @@ class ScTraitImpl extends ScTypeDefinitionImpl with ScTrait with ScTypeParameter
 
   override def isInterface: Boolean = true
 
-  def fakeCompanionClass: PsiClass = new PsiClassWrapper(this, getQualifiedName + "$class", javaName + "$class")
+  def fakeCompanionClass: PsiClass = new PsiClassWrapper(this, getQualifiedName + "$class", getName + "$class")
 
   import org.jetbrains.plugins.scala.lang.psi.light.PsiTypedDefinitionWrapper.DefinitionRole._
 
