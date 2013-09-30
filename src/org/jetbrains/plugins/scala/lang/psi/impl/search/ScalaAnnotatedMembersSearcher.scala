@@ -33,20 +33,17 @@ class ScalaAnnotatedMembersSearcher extends QueryExecutor[PsiMember, AnnotatedEl
 
     ApplicationManager.getApplication.runReadAction(new Computable[Boolean] {
       def compute: Boolean = {
-        val candidates: java.util.Collection[_ <: PsiElement] = StubIndex.getInstance.get(ScAnnotatedMemberIndex.KEY,
-          annClass.name, annClass.getProject, scope)
+        val candidates: java.util.Collection[ScAnnotation] = StubIndex.getInstance.safeGet(ScAnnotatedMemberIndex.KEY,
+          annClass.name, annClass.getProject, scope, classOf[ScAnnotation])
         val iter = candidates.iterator
         while (iter.hasNext) {
-          val next = iter.next
-          if (ScalaStubsUtil.checkPsiForAnnotation(next)) {
-            val annotation = next.asInstanceOf[ScAnnotation]
-            annotation.getParent match {
-              case ann: ScAnnotations => ann.getParent match {
-                case member: PsiMember => if (!consumer.process(member)) return false
-                case _ =>
-              }
+          val annotation = iter.next
+          annotation.getParent match {
+            case ann: ScAnnotations => ann.getParent match {
+              case member: PsiMember => if (!consumer.process(member)) return false
               case _ =>
             }
+            case _ =>
           }
         }
         true

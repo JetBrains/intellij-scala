@@ -11,12 +11,9 @@ import org.jetbrains.annotations.NotNull
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import lang.resolve.ResolvableReferenceElement
-import lang.psi.api.expr.ScNewTemplateDefinition
 import lang.psi.api.base.ScConstructor
-import com.intellij.refactoring.introduceParameter.Util
 import com.intellij.psi.util.PsiTreeUtil
-import lang.psi.api.statements.{ScTypeAliasDefinition, ScTypeAlias}
-import lang.psi.types.ScType
+import lang.psi.api.statements.ScTypeAliasDefinition
 
 
 /**
@@ -38,21 +35,23 @@ import lang.psi.types.ScType
 class TypeAliasUsagesSearcher extends QueryExecutorBase[PsiReference, ReferencesSearch.SearchParameters](true) {
 
   def processQuery(@NotNull parameters: ReferencesSearch.SearchParameters, @NotNull consumer: Processor[PsiReference]) {
-    val target: PsiElement = parameters.getElementToSearch
-    val ta = target match {
-      case named: PsiNamedElement =>
-        ScalaPsiUtil.nameContext(named) match {
-          case ta: ScTypeAliasDefinition => ta
-          case _ => return
-        }
-      case _ => return
+    extensions.inReadAction {
+      val target: PsiElement = parameters.getElementToSearch
+      val ta = target match {
+        case named: PsiNamedElement =>
+          ScalaPsiUtil.nameContext(named) match {
+            case ta: ScTypeAliasDefinition => ta
+            case _ => return
+          }
+        case _ => return
+      }
+      val name: String = ta.name
+      if (name == null || StringUtil.isEmptyOrSpaces(name)) return
+      val scope: SearchScope = parameters.getEffectiveSearchScope // TODO PsiUtil.restrictScopeToGroovyFiles(parameters.getEffectiveSearchScope)
+      val collector: SearchRequestCollector = parameters.getOptimizer
+      val session: SearchSession = collector.getSearchSession
+      collector.searchWord(name, scope, UsageSearchContext.IN_CODE, true, new MyProcessor(target, null, session))
     }
-    val name: String = ta.name
-    if (name == null || StringUtil.isEmptyOrSpaces(name)) return
-    val scope: SearchScope = parameters.getEffectiveSearchScope // TODO PsiUtil.restrictScopeToGroovyFiles(parameters.getEffectiveSearchScope)
-    val collector: SearchRequestCollector = parameters.getOptimizer
-    val session: SearchSession = collector.getSearchSession
-    collector.searchWord(name, scope, UsageSearchContext.IN_CODE, true, new MyProcessor(target, null, session))
   }
 
   private class MyProcessor(myTarget: PsiElement, @Nullable prefix: String, mySession: SearchSession) extends RequestResultProcessor(myTarget, prefix) {

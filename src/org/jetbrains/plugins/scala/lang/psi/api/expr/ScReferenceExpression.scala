@@ -77,6 +77,8 @@ trait ScReferenceExpression extends ScalaPsiElement with ScExpression with ScRef
   def bindToElement(element: PsiElement, containingClass: Option[PsiClass]): PsiElement
 
   def getPrevTypeInfoParams: Seq[TypeParameter]
+
+  def getSimpleVariants(implicits: Boolean, filterNotNamedVariants: Boolean): Array[ResolveResult]
 }
 
 object ScReferenceExpression {

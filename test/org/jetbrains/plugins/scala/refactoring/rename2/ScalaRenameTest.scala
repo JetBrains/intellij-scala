@@ -220,8 +220,7 @@ class ScalaRenameTest extends ScalaRenameTestBase {
     myFixture.checkResult(resultText)
   }
 
-  //todo:
-  /*def testObjectToCaseClass() {
+  def testObjectToCaseClass() {
     val fileText =
       """
       |object ObjectToCaseClass {
@@ -243,5 +242,5 @@ class ScalaRenameTest extends ScalaRenameTestBase {
       """.stripMargin('|').replaceAll("\r", "").trim()
 
     myFixture.checkResult(resultText)
-  }*/
+  }
 }

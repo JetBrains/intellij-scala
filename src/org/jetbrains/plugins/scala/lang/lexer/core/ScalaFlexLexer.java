@@ -37,6 +37,6 @@ public class ScalaFlexLexer extends FlexAdapter {
   public int getState() {
     final _ScalaCoreLexer scalaCoreLexer = getScalaCoreLexer();
     return super.getState() << 1 |
-        (scalaCoreLexer.isInsideInterpolatedStringInjection() || scalaCoreLexer.isInterpolatedStringState() ? 1 : 0);
+        (scalaCoreLexer.isInterpolatedStringState() ? 1 : 0);
   }
 }

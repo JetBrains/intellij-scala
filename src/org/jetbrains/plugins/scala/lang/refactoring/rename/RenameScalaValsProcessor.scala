@@ -7,7 +7,6 @@ package rename
 import com.intellij.openapi.editor.Editor
 import com.intellij.refactoring.util.RefactoringUtil
 import com.intellij.usageView.UsageInfo
-import java.util.{List, Map}
 import psi.api.statements.{ScValue, ScVariable}
 import psi.impl.search.ScalaOverridengMemberSearch
 import psi.ScalaPsiUtil
@@ -17,10 +16,17 @@ import com.intellij.openapi.util.text.StringUtil
 import psi.fake.FakePsiMethod
 import extensions.toPsiNamedElementExt
 import com.intellij.refactoring.rename.RenameJavaMemberProcessor
-import com.intellij.psi.{PsiElement, PsiNamedElement}
+import com.intellij.psi.{PsiReference, PsiElement, PsiNamedElement}
 import org.jetbrains.plugins.scala.lang.psi.light.PsiTypedDefinitionWrapper.DefinitionRole._
 import psi.api.toplevel.typedef.ScMember
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
+import com.intellij.psi.search.searches.ReferencesSearch
+import com.intellij.psi.search.{GlobalSearchScope, PsiElementProcessor, LocalSearchScope}
+import com.intellij.refactoring.listeners.RefactoringElementListener
+import org.jetbrains.plugins.scala.util.SuperMemberUtil
+import com.intellij.openapi.util.Pass
+import java.util
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
 /**
  * User: Alexander Podkhalyuzin
@@ -30,18 +36,39 @@ import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 class RenameScalaValsProcessor extends RenameJavaMemberProcessor {
   override def canProcessElement(element: PsiElement): Boolean = element match {
     case c: ScNamedElement => ScalaPsiUtil.nameContext(c) match {
-      case _: ScVariable => true 
-      case _: ScValue => true
-      case c: ScClassParameter if c.isVal || c.isVar => true
+      case _: ScVariable | _: ScValue | _: ScClassParameter => true
       case method: FakePsiMethod => true
       case _ => false
     }
     case _ => false
   }
 
-  override def findReferences(element: PsiElement) = ScalaRenameUtil.filterAliasedReferences(super.findReferences(element))
+  override def findReferences(element: PsiElement) = {
+    val isClassParameter = element.isInstanceOf[ScClassParameter]
+    val (localScope, onlyLocal) = element match {
+      case m: ScMember if m.isPrivate => (new LocalSearchScope(m.containingClass), true)
+      case _ => (new LocalSearchScope(element.getContainingFile), false)
+    }
 
-  override def prepareRenaming(element: PsiElement, newName: String, allRenames: Map[PsiElement, String]) {
+    ScalaRenameUtil.filterAliasedReferences {
+      /*todo Search in GlobalSearchScope only cannot find reference like this:
+      * var a = 0
+      * a_=(1)
+      * But search in local scope finds it
+      */
+      val local = ReferencesSearch.search(element, localScope, true).findAll()
+      lazy val global = ReferencesSearch.search(element, GlobalSearchScope.allScope(element.getProject), isClassParameter).findAll
+      if (onlyLocal && !isClassParameter) local
+      else {
+        val buf = new util.HashSet[PsiReference]
+        buf.addAll(local)
+        buf.addAll(global)
+        buf
+      }
+    }
+  }
+
+  override def prepareRenaming(element: PsiElement, newName: String, allRenames: util.Map[PsiElement, String]) {
     val namedElement = element match {case x: PsiNamedElement => x case _ => return}
     def addBeanMethods(element: PsiElement, newName: String) {
       element match {
@@ -61,7 +88,7 @@ class RenameScalaValsProcessor extends RenameJavaMemberProcessor {
                   val name = wrapper.getName
                   val is = name.startsWith("is")
                   val prefix = if (is) "is" else name.substring(0, 3)
-                  val newBeanName = prefix + StringUtil.capitalize(newName)
+                  val newBeanName = prefix + StringUtil.capitalize(ScalaNamesUtil.toJavaName(newName))
                   allRenames.put(wrapper, newBeanName)
                 }
               )
@@ -72,7 +99,7 @@ class RenameScalaValsProcessor extends RenameJavaMemberProcessor {
     }
 
     addBeanMethods(element, newName)
-    
+
     for (elem <- ScalaOverridengMemberSearch.search(namedElement, deep = true)) {
       val overriderName = elem.name
       val baseName = namedElement.name
@@ -85,13 +112,24 @@ class RenameScalaValsProcessor extends RenameJavaMemberProcessor {
   }
 
   override def findCollisions(element: PsiElement, newName: String,
-                              allRenames: Map[_ <: PsiElement, String], result: List[UsageInfo]) {/*todo*/}
+                              allRenames: util.Map[_ <: PsiElement, String], result: util.List[UsageInfo]) {/*todo*/}
 
   override def substituteElementToRename(element: PsiElement, editor: Editor): PsiElement = {
     element match {
-      case method: FakePsiMethod => method.navElement
+      case method: FakePsiMethod => substituteElementToRename(method.navElement, editor)
+      case named: ScNamedElement => SuperMemberUtil.chooseSuper(named, "Choose element to rename")
       case _ => element
     }
+  }
+
+  override def substituteElementToRename(element: PsiElement, editor: Editor, renameCallback: Pass[PsiElement]) {
+    val named = element match {case named: ScNamedElement => named; case _ => return}
+    SuperMemberUtil.chooseAndProcessSuper(named, new PsiElementProcessor[PsiNamedElement] {
+      def execute(named: PsiNamedElement): Boolean = {
+        renameCallback.pass(named)
+        false
+      }
+    }, "Choose element to rename", editor)
   }
 
   override def setToSearchInComments(element: PsiElement, enabled: Boolean) {
@@ -100,5 +138,9 @@ class RenameScalaValsProcessor extends RenameJavaMemberProcessor {
 
   override def isToSearchInComments(psiElement: PsiElement): Boolean = {
     ScalaApplicationSettings.getInstance().RENAME_SEARCH_IN_COMMENTS_AND_STRINGS
+  }
+
+  override def renameElement(element: PsiElement, newName: String, usages: Array[UsageInfo], listener: RefactoringElementListener) {
+    ScalaRenameUtil.doRenameGenericNamedElement(element, newName, usages, listener)
   }
 }

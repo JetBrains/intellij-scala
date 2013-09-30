@@ -5,14 +5,15 @@ import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiClass
 import com.intellij.psi.stubs.StringStubIndexExtension
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 
 /**
  * @author Alexander Podkhalyuzin
  */
 
-class ScImplicitObjectKey extends StringStubIndexExtension[PsiClass] {
+class ScImplicitObjectKey extends StringStubIndexExtension[ScObject] {
 
-  override def get(fqn: String, project: Project, scope: GlobalSearchScope): java.util.Collection[PsiClass] =
+  override def get(fqn: String, project: Project, scope: GlobalSearchScope): java.util.Collection[ScObject] =
     super.get(fqn, project, new ScSourceFilterScope(scope, project))
 
   def getKey = ScImplicitObjectKey.KEY

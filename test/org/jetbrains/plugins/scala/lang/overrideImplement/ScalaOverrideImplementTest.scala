@@ -576,7 +576,7 @@ class ScalaOverrideImplementTest extends ScalaLightPlatformCodeInsightTestCaseAd
         |}
         |
         |class Child extends Parent {
-        |  def m(p: (T) forSome {type T <: Number}) {}
+        |  def m(p: (T) forSome {type T <: Number}): Unit = <selection>???</selection>
         |}
       """.replace("\r", "").stripMargin.trim
     val methodName: String = "m"
@@ -634,9 +634,7 @@ class ScalaOverrideImplementTest extends ScalaLightPlatformCodeInsightTestCaseAd
         |}
         |
         |class Child extends Parent {
-        |  override def doSmth(smth: => String) {
-        |    <selection>super.doSmth(smth)</selection>
-        |  }
+        |  override def doSmth(smth: => String): Unit = <selection>super.doSmth(smth)</selection>
         |}
       """.replace("\r", "").stripMargin.trim
     val methodName: String = "doSmth"
@@ -799,7 +797,7 @@ class ScalaOverrideImplementTest extends ScalaLightPlatformCodeInsightTestCaseAd
         |}
         |
         |class C extends B {
-        |  def foo(v: Nested2) {}
+        |  def foo(v: Nested2): Unit = <selection>???</selection>
         |}
       """.replace("\r", "").stripMargin.trim
     val methodName: String = "foo"
@@ -825,7 +823,7 @@ class ScalaOverrideImplementTest extends ScalaLightPlatformCodeInsightTestCaseAd
         |package test
         |
         |class Foo extends b {
-        |  def foo(x: b) {}
+        |  def foo(x: b): Unit = <selection>???</selection>
         |}
         |abstract class b {
         |  def foo(x: b): Unit
@@ -854,9 +852,7 @@ class ScalaOverrideImplementTest extends ScalaLightPlatformCodeInsightTestCaseAd
         |package test
         |
         |class Foo extends b {
-        |  override def foo(x: b) {
-        |    <selection>super.foo(x)</selection>
-        |  }
+        |  override def foo(x: b): Unit = <selection>super.foo(x)</selection>
         |}
         |abstract class b {
         |  def foo(x: b) = ()

@@ -7,6 +7,7 @@ import com.intellij.openapi.application.ApplicationManager
 import lexer.{ScalaLexer, ScalaTokenTypes}
 import com.intellij.psi.{PsiNamedElement, PsiElement}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
+import scala.reflect.NameTransformer
 
 /**
  * User: Alexander Podkhalyuzin
@@ -46,5 +47,27 @@ object ScalaNamesUtil {
   def scalaName(element: PsiElement) = element match {
     case scNamed: ScNamedElement => scNamed.name
     case psiNamed: PsiNamedElement => psiNamed.getName
+  }
+
+  object isBackticked {
+    def unapply(named: ScNamedElement): Option[String] = {
+      val name = named.name
+      isBacktickedName.unapply(name)
+    }
+  }
+
+  object isBacktickedName {
+    def unapply(name: String): Option[String] = {
+      if (name.startsWith("`") && name.endsWith("`")) Some(name.substring(1, name.length - 1))
+      else None
+    }
+  }
+
+  def toJavaName(name: String) = {
+    val toEncode = name match {
+      case ScalaNamesUtil.isBacktickedName(s) => s
+      case _ => name
+    }
+    NameTransformer.encode(toEncode)
   }
 }

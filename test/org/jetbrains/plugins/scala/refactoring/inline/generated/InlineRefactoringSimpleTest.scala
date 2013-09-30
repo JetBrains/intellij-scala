@@ -9,4 +9,8 @@ class InlineRefactoringSimpleTest extends InlineRefactoringTestBase {
   def testInlineFew = doTest
 
   def testInlineSimple = doTest
+
+  def testMember = doTest
+
+  def testMethodWithParentheses = doTest
 }

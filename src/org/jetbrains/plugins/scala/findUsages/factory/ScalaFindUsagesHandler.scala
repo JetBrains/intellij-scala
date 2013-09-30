@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala.findUsages.factory
 
 import com.intellij.find.findUsages.{AbstractFindUsagesDialog, FindUsagesOptions, FindUsagesHandler}
-import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiMethod
 import com.intellij.psi.{PsiClass, PsiNamedElement, PsiElement}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import com.intellij.openapi.util.text.StringUtil
@@ -18,11 +17,9 @@ import com.intellij.usageView.UsageInfo
 import com.intellij.psi.search.searches.ClassInheritorsSearch
 import collection.mutable
 import org.jetbrains.plugins.scala.util.ScalaUtil
-import com.intellij.openapi.ui.Messages
-import org.jetbrains.plugins.scala.ScalaBundle
 import scala.Array
-import com.intellij.CommonBundle
 import org.jetbrains.plugins.scala.lang.psi.impl.search.ScalaOverridengMemberSearch
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 
 /**
  * User: Alexander Podkhalyuzin
@@ -126,6 +123,8 @@ class ScalaFindUsagesHandler(element: PsiElement) extends FindUsagesHandler(elem
             case ta: ScTypeAlias =>
               if (!super.processElementUsages(ta, processor, options)) return false
             case c: ScTypeDefinition =>
+              if (!super.processElementUsages(c, processor, options)) return false
+            case c: ScPrimaryConstructor =>
               if (!super.processElementUsages(c, processor, options)) return false
           }
           clazz match {
