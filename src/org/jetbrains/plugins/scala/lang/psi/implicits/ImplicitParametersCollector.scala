@@ -162,7 +162,6 @@ class ImplicitParametersCollector(place: PsiElement, tp: ScType, coreElement: Op
                     }
                     if (typeParameters.isEmpty && lastImplicit.isEmpty) Some(c, subst)
                     else {
-                      println(List.fill(searchImplicitsRecursively)("  ").mkString + fun.name)
                       val methodType = lastImplicit.map(li => subst.subst(ScMethodType(ret, li.getSmartParameters, isImplicit = true)
                         (place.getProject, place.getResolveScope))).getOrElse(ret)
                       var nonValueType: TypeResult[ScType] =
