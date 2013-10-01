@@ -28,17 +28,17 @@ public class ScalaTestReporterWithLocation implements Reporter {
       String className = classNameOption.get();
       org.scalatest.events.Location location = locationOption.get();
       if(location instanceof TopOfClass)
-        return " locationHint='scalatest://TopOfClass:" + ((TopOfClass) location).className() + "TestName:" + testName + "'";
+        return " locationHint='scalatest://TopOfClass:" + ((TopOfClass) location).className() + "TestName:" + escapeString(testName) + "'";
       else if(location instanceof TopOfMethod) {
         TopOfMethod topOfMethod = (TopOfMethod) location;
         String methodId = topOfMethod.methodId();
         String methodName = methodId.substring(methodId.lastIndexOf('.') + 1, methodId.lastIndexOf('('));
-        return " locationHint='scalatest://TopOfMethod:" + topOfMethod.className() + ":" + methodName + "TestName:" + testName + "'";
+        return " locationHint='scalatest://TopOfMethod:" + topOfMethod.className() + ":" + methodName + "TestName:" + escapeString(testName) + "'";
       }
       else if(location instanceof LineInFile) {
         LineInFile lineInFile = (LineInFile) location;
-        return " locationHint='scalatest://LineInFile:" + className + ":" + lineInFile.fileName() +  ":" +
-            lineInFile.lineNumber() + "TestName:" + testName + "'";
+        return " locationHint='scalatest://LineInFile:" + className + ":" + escapeString(lineInFile.fileName()) +  ":" +
+            lineInFile.lineNumber() + "TestName:" + escapeString(testName) + "'";
       }
       else
         return "";

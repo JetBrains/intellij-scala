@@ -16,4 +16,5 @@ class ScalaTestTestFramework extends AbstractTestFramework {
 
   def getMarkerClassFQName: String = "org.scalatest.Suite"
 
+  def getMnemonic: Char = 'c'
 }

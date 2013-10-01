@@ -1,13 +1,13 @@
 <component name="libraryTable">
   <library name="idea-full">
     <ANNOTATIONS>
-      <root url="jar://$LEDA_HOME$/sources.zip!/" />
+      <root url="jar://$CARDEA_HOME$/sources.zip!/" />
     </ANNOTATIONS>
     <CLASSES>
-      <root url="file://$LEDA_HOME$/lib" />
+      <root url="file://$CARDEA_HOME$/lib" />
     </CLASSES>
     <JAVADOC />
     <SOURCES />
-    <jarDirectory url="file://$LEDA_HOME$/lib" recursive="false" />
+    <jarDirectory url="file://$CARDEA_HOME$/lib" recursive="false" />
   </library>
 </component>

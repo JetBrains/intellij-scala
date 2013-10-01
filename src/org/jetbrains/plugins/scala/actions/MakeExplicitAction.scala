@@ -22,7 +22,7 @@ class MakeExplicitAction  extends AnAction("Replace implicit conversion action")
 
   def actionPerformed(e: AnActionEvent) {
     val context = e.getDataContext
-    val project = PlatformDataKeys.PROJECT.getData(context)
+    val project = CommonDataKeys.PROJECT.getData(context)
     val selectedItem = PlatformDataKeys.SELECTED_ITEM.getData(context) match {
       case s: Parameters => s
       case _ => null

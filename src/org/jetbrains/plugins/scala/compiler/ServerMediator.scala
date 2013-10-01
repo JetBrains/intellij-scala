@@ -25,7 +25,7 @@ class ServerMediator(project: Project) extends ProjectComponent {
     def execute(context: CompileContext): Boolean = {
       val scalaProject = ScalaFacet.isPresentIn(project)
 
-      val externalCompiler = CompilerWorkspaceConfiguration.getInstance(project).USE_COMPILE_SERVER
+      val externalCompiler = CompilerWorkspaceConfiguration.getInstance(project).USE_OUT_OF_PROCESS_BUILD
 
       if (scalaProject) {
         if (externalCompiler) {

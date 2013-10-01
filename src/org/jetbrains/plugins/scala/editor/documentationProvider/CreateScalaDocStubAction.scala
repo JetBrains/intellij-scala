@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala
 package editor.documentationProvider
 
-import com.intellij.openapi.actionSystem.{PlatformDataKeys, AnActionEvent, AnAction}
+import com.intellij.openapi.actionSystem.{CommonDataKeys, AnActionEvent, AnAction}
 import org.jetbrains.plugins.scala.actions.ScalaActionUtil
 import com.intellij.psi.util.PsiUtilBase
 import lang.psi.api.toplevel.typedef.{ScTrait, ScClass, ScDocCommentOwner}
@@ -28,10 +28,10 @@ class CreateScalaDocStubAction extends AnAction(ScalaBundle message "create.scal
 
   def actionPerformed(e: AnActionEvent) {
     val context = e.getDataContext
-    val editor = PlatformDataKeys.EDITOR.getData(context)
+    val editor = CommonDataKeys.EDITOR.getData(context)
 
     if(editor == null) return
-    val file = PsiUtilBase.getPsiFileInEditor(editor, PlatformDataKeys.PROJECT.getData(context))
+    val file = PsiUtilBase.getPsiFileInEditor(editor, CommonDataKeys.PROJECT.getData(context))
     if (file.getLanguage != ScalaFileType.SCALA_LANGUAGE) return
     
     file findElementAt editor.getCaretModel.getOffset match {

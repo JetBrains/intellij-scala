@@ -5,7 +5,7 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.extensions._
-import com.intellij.codeInsight.CodeInsightUtilBase
+import com.intellij.codeInsight.{CodeInsightUtilCore, FileModificationService, CodeInsightUtilBase}
 import com.intellij.openapi.fileEditor.ex.IdeDocumentHistory
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import com.intellij.openapi.fileEditor.{FileEditorManager, OpenFileDescriptor}
@@ -77,7 +77,7 @@ abstract class CreateEntityQuickFix(ref: ScReferenceExpression,
       case _ => None
     }
 
-    if (!CodeInsightUtilBase.prepareFileForWrite(block.map(_.getContainingFile).getOrElse(file))) return
+    if (!FileModificationService.getInstance.prepareFileForWrite(block.map(_.getContainingFile).getOrElse(file))) return
 
     inWriteAction {
       val entity = block match {
@@ -103,7 +103,7 @@ abstract class CreateEntityQuickFix(ref: ScReferenceExpression,
         }
       }
 
-      CodeInsightUtilBase.forcePsiPostprocessAndRestoreElement(entity)
+      CodeInsightUtilCore.forcePsiPostprocessAndRestoreElement(entity)
 
       val template = builder.buildTemplate()
 

@@ -24,7 +24,7 @@ class CleanWorksheetAction() extends AnAction {
 
   def actionPerformed(e: AnActionEvent) {
     val editor: Editor = FileEditorManager.getInstance(e.getProject).getSelectedTextEditor
-    val file: VirtualFile = PlatformDataKeys.VIRTUAL_FILE.getData(e.getDataContext)
+    val file: VirtualFile = CommonDataKeys.VIRTUAL_FILE.getData(e.getDataContext)
     if (editor == null || file == null) return
 
     val psiFile: PsiFile = PsiDocumentManager.getInstance(e.getProject).getPsiFile(editor.getDocument)

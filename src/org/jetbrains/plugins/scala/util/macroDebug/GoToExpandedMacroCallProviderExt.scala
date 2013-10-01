@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala
 package util.macroDebug
 
-import com.intellij.codeInsight.daemon.{GutterIconNavigationHandler, RelatedItemLineMarkerInfo, LineMarkerInfo, LineMarkerProvider}
+import com.intellij.codeInsight.daemon._
 import java.util
 import com.intellij.psi.{PsiDocumentManager, NavigatablePsiElement, PsiElement}
 import lang.psi.api.ScalaFile
@@ -15,6 +15,7 @@ import com.intellij.openapi.editor.markup.GutterIconRenderer
 import com.intellij.navigation.GotoRelatedItem
 import com.intellij.openapi.util.TextRange
 import collection.GenIterable
+import scala.Some
 
 /**
  * User: Dmitry Naydanov

@@ -6,7 +6,7 @@ package matcher
 import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.editor.Editor
-import com.intellij.codeInsight.CodeInsightUtilBase
+import com.intellij.codeInsight.{FileModificationService, CodeInsightUtilBase}
 import com.intellij.openapi.fileEditor.ex.IdeDocumentHistory
 import lang.psi.api.expr.{ScExpression, ScMatchStmt}
 import lang.psi.impl.ScalaPsiElementFactory
@@ -42,7 +42,7 @@ class ExpandPatternIntention extends PsiElementBaseIntentionAction {
     findReferencePattern(element) match {
       case Some((origPattern, newPatternText)) =>
         PsiDocumentManager.getInstance(project).commitAllDocuments()
-        if (!CodeInsightUtilBase.prepareFileForWrite(element.getContainingFile)) return
+        if (!FileModificationService.getInstance.prepareFileForWrite(element.getContainingFile)) return
         IdeDocumentHistory.getInstance(project).includeCurrentPlaceAsChangePlace()
         val newPattern = ScalaPsiElementFactory.createPatternFromText(newPatternText, element.getManager)
         val replaced = origPattern.replace(newPattern)

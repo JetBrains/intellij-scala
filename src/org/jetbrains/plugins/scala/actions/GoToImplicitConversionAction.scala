@@ -18,12 +18,11 @@ import com.intellij.openapi.keymap.KeymapUtil
 import com.intellij.codeInsight.CodeInsightBundle
 import java.awt.event.{MouseAdapter, MouseEvent}
 import javax.swing.border.Border
-import java.awt.{Font, Point, Rectangle, Color}
+import java.awt.{Point, Rectangle, Color}
 import javax.swing.event.{ListSelectionEvent, ListSelectionListener}
 import com.intellij.util.Alarm
 import scala.Some
 import org.jetbrains.plugins.scala.util.IntentionUtils
-import com.intellij.openapi.editor.colors.impl.EditorColorsSchemeImpl
 import com.intellij.openapi.editor.colors.EditorFontType
 
 /**
@@ -58,8 +57,8 @@ class GoToImplicitConversionAction extends AnAction("Go to implicit conversion a
 
   def actionPerformed(e: AnActionEvent) {
     val context = e.getDataContext
-    val project = PlatformDataKeys.PROJECT.getData(context)
-    val editor = PlatformDataKeys.EDITOR.getData(context)
+    val project = CommonDataKeys.PROJECT.getData(context)
+    val editor = CommonDataKeys.EDITOR.getData(context)
     if (project == null || editor == null) return
     val file = PsiUtilBase.getPsiFileInEditor(editor, project)
     if (!file.isInstanceOf[ScalaFile]) return

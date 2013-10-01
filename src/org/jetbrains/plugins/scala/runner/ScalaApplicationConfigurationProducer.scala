@@ -15,6 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.extensions.toPsiMemberExt
 import org.jetbrains.plugins.scala.lang.psi.light.{PsiClassWrapper, ScFunctionWrapper}
+import java.util
 
 /**
  * @author Alefas
@@ -95,7 +96,7 @@ class ScalaApplicationConfigurationProducer extends JavaRuntimeConfigurationProd
   }
 
   protected override def findExistingByElement(location: Location[_ <: PsiElement],
-                                               existingConfigurations: Array[RunnerAndConfigurationSettings],
+                                               existingConfigurations: util.List[RunnerAndConfigurationSettings],
                                                context: ConfigurationContext): RunnerAndConfigurationSettings = {
     val aClass: PsiClass = getMainClass(location.getPsiElement)
     if (aClass == null) {
@@ -103,6 +104,7 @@ class ScalaApplicationConfigurationProducer extends JavaRuntimeConfigurationProd
     }
     val predefinedModule: Module = RunManagerEx.getInstanceEx(location.getProject).asInstanceOf[RunManagerImpl].
             getConfigurationTemplate(getConfigurationFactory).getConfiguration.asInstanceOf[ApplicationConfiguration].getConfigurationModule.getModule
+    import collection.JavaConversions._
     for (existingConfiguration <- existingConfigurations) {
       val appConfiguration: ApplicationConfiguration = existingConfiguration.getConfiguration.asInstanceOf[ApplicationConfiguration]
       if (Comparing.equal(JavaExecutionUtil.getRuntimeQualifiedName(aClass), appConfiguration.MAIN_CLASS_NAME)) {

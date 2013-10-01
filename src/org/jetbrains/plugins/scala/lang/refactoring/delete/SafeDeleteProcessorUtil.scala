@@ -6,7 +6,6 @@ package delete
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.util.Condition
 import com.intellij.openapi.util.TextRange
-import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi._
 import com.intellij.psi.impl.source.javadoc.PsiDocMethodOrFieldRef
 import com.intellij.psi.javadoc.PsiDocTag
@@ -371,12 +370,8 @@ object SafeDeleteProcessorUtil {
                 {
                   var i: Int = index
                   while (i < args.length) {
-                    {
-                      usages.add(new SafeDeleteReferenceJavaDeleteUsageInfo(args(i), parameter, true))
-                    }
-                    ({
-                      i += 1; i
-                    })
+                    usages.add(new SafeDeleteReferenceJavaDeleteUsageInfo(args(i), parameter, true))
+                    i += 1
                   }
                 }
               }
@@ -390,11 +385,7 @@ object SafeDeleteProcessorUtil {
               newText.append("/** @see #").append(method.name).append('(')
               val parameters: java.util.List[PsiParameter] = new util.ArrayList[PsiParameter](util.Arrays.asList(method.getParameterList.getParameters: _*))
               parameters.remove(parameter)
-              newText.append(StringUtil.join(parameters, new Function[PsiParameter, String] {
-                def fun(psiParameter: PsiParameter): String = {
-                  parameter.getType.getCanonicalText
-                }
-              }, ","))
+              newText.append(parameters.map(_.getType.getCanonicalText).mkString(","))
               newText.append(")*/")
               usages.add(new SafeDeleteReferenceJavaDeleteUsageInfo(element, parameter, true) {
                 override def deleteElement() {

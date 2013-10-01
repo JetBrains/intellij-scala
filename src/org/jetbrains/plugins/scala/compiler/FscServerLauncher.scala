@@ -4,7 +4,7 @@ package compiler
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ProjectRootManager
 import java.io.File
-import io.Source
+import scala.io.Source
 import config.{Version, Libraries}
 import com.intellij.openapi.components.ProjectComponent
 import com.intellij.openapi.projectRoots.JavaSdkType

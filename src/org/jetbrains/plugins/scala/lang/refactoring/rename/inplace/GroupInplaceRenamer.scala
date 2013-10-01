@@ -13,7 +13,7 @@ import scala.collection.mutable.ArrayBuffer
 import com.intellij.codeInsight.highlighting.HighlightManager
 import com.intellij.openapi.editor.colors.{EditorColors, EditorColorsManager}
 import com.intellij.codeInsight.template.impl.{TemplateManagerImpl, TemplateState}
-import com.intellij.codeInsight.CodeInsightUtilBase
+import com.intellij.codeInsight.{CodeInsightUtilCore, CodeInsightUtilBase}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 
 /**
@@ -33,7 +33,7 @@ class GroupInplaceRenamer(parent: PsiElement) {
   def addGroup(primary: ScNamedElement, dependents: List[ScalaPsiElement], suggestedNames: Seq[String]) {
     val names = new java.util.LinkedHashSet[String]()
     suggestedNames.foreach(names.add(_))
-    val lookupExpr = new MyLookupExpression(primary.name, names, primary, false, null)
+    val lookupExpr = new MyLookupExpression(primary.name, names, primary, parent, false, null)
     builder.replaceElement(primary.nameId, primary.name, lookupExpr, true)
 
     val depNames = mutable.ArrayBuffer[String]()
@@ -47,7 +47,7 @@ class GroupInplaceRenamer(parent: PsiElement) {
   }
 
   def startRenaming() {
-    CodeInsightUtilBase.forcePsiPostprocessAndRestoreElement(parent)
+    CodeInsightUtilCore.forcePsiPostprocessAndRestoreElement(parent)
     editor.getCaretModel.moveToOffset(parent.getTextRange.getStartOffset)
 
     val template = builder.buildInlineTemplate()

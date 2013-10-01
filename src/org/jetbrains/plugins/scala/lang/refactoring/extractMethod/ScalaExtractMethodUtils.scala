@@ -2,14 +2,13 @@ package org.jetbrains.plugins.scala.lang
 package refactoring.extractMethod
 
 import _root_.com.intellij.psi._
-import _root_.com.intellij.refactoring.util.ParameterTablePanel.VariableData
 import _root_.org.jetbrains.annotations.Nullable
 import _root_.org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
 import _root_.org.jetbrains.plugins.scala.lang.psi.{ScalaPsiUtil, ScalaPsiElement}
 import _root_.org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import java.util.ArrayList
-import com.intellij.refactoring.util.ParameterTablePanel
+import com.intellij.refactoring.util.{VariableData, ParameterTablePanel}
 import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiParameter
 import org.jetbrains.plugins.scala.lang.psi.dataFlow.impl.reachingDefs.VariableInfo
@@ -235,13 +234,13 @@ object ScalaExtractMethodUtils {
 
   class ScalaVariableData(val vari: ScTypedDefinition, val isMutable: Boolean, val isInsideOfElements: Boolean, 
                           val tp: ScType, val param: FakePsiParameter)
-          extends ParameterTablePanel.VariableData(param, new FakePsiType(tp)) {
+          extends VariableData(param, new FakePsiType(tp)) {
     passAsParameter = true
     name = param.name
   }
 
   @Nullable
-  def convertVariableData(variable: VariableInfo, elements: Array[PsiElement]): ParameterTablePanel.VariableData = {
+  def convertVariableData(variable: VariableInfo, elements: Array[PsiElement]): VariableData = {
     var isMutable = false
     if (!variable.element.isInstanceOf[ScTypedDefinition]) return null
     val definition = variable.element.asInstanceOf[ScTypedDefinition]

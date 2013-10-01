@@ -17,8 +17,6 @@ class WorksheetRunConfigurationEditor(project: Project, configuration: Worksheet
     form(s)
   }
 
-  def disposeEditor() {}
-
   def applyEditorTo(s: WorksheetRunConfiguration) {
     s(form)
   }

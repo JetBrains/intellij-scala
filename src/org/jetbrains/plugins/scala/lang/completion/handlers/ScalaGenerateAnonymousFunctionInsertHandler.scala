@@ -4,7 +4,7 @@ import com.intellij.codeInsight.lookup.LookupElement
 import com.intellij.codeInsight.completion.{InsertionContext, InsertHandler}
 import com.intellij.psi.PsiDocumentManager
 import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.codeInsight.CodeInsightUtilBase
+import com.intellij.codeInsight.{CodeInsightUtilCore, CodeInsightUtilBase}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScFunctionExpr
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScTypedPattern, ScCaseClause}
@@ -108,7 +108,7 @@ class ScalaGenerateAnonymousFunctionInsertHandler(params: Seq[ScType], braceArgs
       }
     }
 
-    CodeInsightUtilBase.forcePsiPostprocessAndRestoreElement(commonParent)
+    CodeInsightUtilCore.forcePsiPostprocessAndRestoreElement(commonParent)
 
     val template = builder.buildTemplate()
     for (name <- abstractNames) {

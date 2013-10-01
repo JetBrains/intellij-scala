@@ -11,7 +11,7 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.codeInsight.daemon.DaemonCodeAnalyzerSettings
 import scala.collection.JavaConversions._
 import junit.framework.Assert._
-import io.Source
+import scala.io.Source
 import java.io.File
 
 /**

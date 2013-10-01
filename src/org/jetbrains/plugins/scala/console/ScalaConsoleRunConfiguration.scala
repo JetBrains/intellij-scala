@@ -139,9 +139,6 @@ class ScalaConsoleRunConfiguration(val project: Project, val configurationFactor
 
   def getModule: Module = getConfigurationModule.getModule
 
-  def createInstance: ModuleBasedConfiguration[_ <: RunConfigurationModule] =
-    new ScalaConsoleRunConfiguration(getProject, getFactory, getName)
-
   def getValidModules: java.util.List[Module] = ScalaFacet.findModulesIn(getProject).toList
 
   def getConfigurationEditor: SettingsEditor[_ <: RunConfiguration] = new ScalaConsoleRunConfigurationEditor(project, this)

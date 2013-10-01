@@ -3,7 +3,7 @@ package codeInspection
 package packageNameInspection
 
 
-import com.intellij.codeInsight.CodeInsightUtilBase
+import com.intellij.codeInsight.{FileModificationService, CodeInsightUtilBase}
 import com.intellij.ide.util.PackageUtil
 import com.intellij.openapi.ui.Messages
 import com.intellij.refactoring.move.moveClassesOrPackages.{MoveClassesOrPackagesProcessor, SingleSourceRootMoveDestination}
@@ -30,7 +30,7 @@ import extensions.toPsiNamedElementExt
 
 class ScalaMoveToPackageQuickFix(file: ScalaFile, packQualName: String) extends LocalQuickFix {
   def applyFix(project: Project, descriptor: ProblemDescriptor) {
-    if (!CodeInsightUtilBase.prepareFileForWrite(file)) return
+    if (!FileModificationService.getInstance.prepareFileForWrite(file)) return
     val packageName = packQualName
     val fileIndex: ProjectFileIndex = ProjectRootManager.getInstance(project).getFileIndex
     val currentModule: Module = fileIndex.getModuleForFile(file.getVirtualFile)

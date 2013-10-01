@@ -6,7 +6,7 @@ package toplevel
 package typedef
 
 import com.intellij.psi.scope.PsiScopeProcessor
-import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.psi.util.{PsiUtil, PsiTreeUtil}
 import psi.impl.ScalaPsiElementFactory
 import psi.impl.toplevel.typedef.TypeDefinitionMembers
 import parser.ScalaElementTypes
@@ -23,6 +23,8 @@ import impl.{PsiSuperMethodImplUtil, PsiClassImplUtil}
 import search.GlobalSearchScope
 import com.intellij.openapi.project.{DumbServiceImpl, DumbService}
 import extensions.{toPsiNamedElementExt, toPsiClassExt}
+import com.intellij.pom.java.LanguageLevel
+import com.intellij.psi.scope.processor.MethodsProcessor
 
 /**
  * @author ven
@@ -244,7 +246,12 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
         case s: ScalaStubBasedElementImpl[_] => s.getLastChildStub
         case _ => this.getLastChild
       }
-      return PsiClassImplUtil.processDeclarationsInClass(this, processor, oldState, null, lastChild, place, false)
+      val languageLevel: LanguageLevel =
+        processor match {
+          case methodProcessor: MethodsProcessor => methodProcessor.getLanguageLevel
+          case _ => PsiUtil.getLanguageLevel(place)
+        }
+      return PsiClassImplUtil.processDeclarationsInClass(this, processor, oldState, null, lastChild, place, languageLevel, false)
     }
     if (extendsBlock.templateBody != None &&
       PsiTreeUtil.isContextAncestor(extendsBlock.templateBody.get, place, false) && lastParent != null) return true

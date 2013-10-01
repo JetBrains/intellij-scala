@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.formatter.tests;
 
+import com.intellij.openapi.project.Project;
 import com.intellij.psi.codeStyle.CommonCodeStyleSettings;
 import junit.framework.Test;
 import org.jetbrains.plugins.scala.lang.formatter.FormatterTest;
@@ -25,8 +26,8 @@ public class MultiLineStringFormatterTest extends FormatterTest {
   }
 
   @Override
-  protected void setUp() {
-    super.setUp();
+  protected void setUp(Project project) {
+    super.setUp(project);
     CommonCodeStyleSettings settings = getSettings();
     ScalaCodeStyleSettings scalaSettings = settings.getRootSettings().getCustomSettings(ScalaCodeStyleSettings.class);
 

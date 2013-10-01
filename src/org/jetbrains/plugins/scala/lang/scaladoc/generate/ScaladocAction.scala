@@ -3,14 +3,17 @@ package org.jetbrains.plugins.scala.lang.scaladoc.generate
 import com.intellij.openapi.project.Project
 import com.intellij.execution.executors.DefaultRunExecutor
 import com.intellij.openapi.util.JDOMExternalizable
-import com.intellij.execution.runners.{ExecutionEnvironment, ProgramRunner}
-import com.intellij.execution.{ExecutionException, RunnerRegistry}
+import com.intellij.execution.runners.{ExecutionEnvironmentBuilder, ExecutionEnvironment, ProgramRunner}
+import com.intellij.execution.{RunnerAndConfigurationSettings, Executor, ExecutionException, RunnerRegistry}
 import com.intellij.execution.util.ExecutionErrorDialog
 import com.intellij.CommonBundle
 import javax.swing.JComponent
 import com.intellij.analysis.{BaseAnalysisActionDialog, AnalysisScope, BaseAnalysisAction}
 import com.intellij.ui.DocumentAdapter
 import javax.swing.event.DocumentEvent
+import com.intellij.execution.configurations.RunnerSettings
+import com.intellij.execution.impl.{RunManagerImpl, RunnerAndConfigurationSettingsImpl}
+import com.intellij.ide.util.{PropertiesComponent, PropertiesComponentImpl}
 
 
 /**
@@ -25,15 +28,19 @@ class ScaladocAction extends BaseAnalysisAction("Generate Scaladoc", "Scaladoc")
   }
 
   def analyze(project: Project, scope: AnalysisScope) {
-    var myConfig: ScaladocConfiguration = null
+    var config: ScaladocConfiguration = null
     try {
-      configurationDialog.saveSettings();
-      myConfig = new ScaladocConfiguration(configurationDialog, project, scope)
+      configurationDialog.saveSettings()
+      config = new ScaladocConfiguration(configurationDialog, project, scope)
       try {
-        val runner: ProgramRunner[_ <: JDOMExternalizable] =
-          RunnerRegistry.getInstance.getRunner(DefaultRunExecutor.EXECUTOR_ID, myConfig)
-          runner.execute(DefaultRunExecutor.getRunExecutorInstance,
-            new ExecutionEnvironment(myConfig, project, null, null, null))
+        val runner: ProgramRunner[_ <: RunnerSettings] =
+          RunnerRegistry.getInstance.getRunner(DefaultRunExecutor.EXECUTOR_ID, config)
+        val builder: ExecutionEnvironmentBuilder =
+          new ExecutionEnvironmentBuilder(project, DefaultRunExecutor.getRunExecutorInstance)
+        builder.setRunProfile(config)
+        builder.setRunnerAndSettings(runner,
+          new RunnerAndConfigurationSettingsImpl(new RunManagerImpl(project, PropertiesComponent.getInstance())))
+        runner.execute(builder.build())
       } catch {
         case e: ExecutionException => ExecutionErrorDialog.show(e, CommonBundle.getErrorTitle, project)
       }

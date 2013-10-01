@@ -18,7 +18,7 @@ class ScalaStructureViewBuilder(private val myPsiFile: ScalaFile, private val co
   extends TreeBasedStructureViewBuilder {
 
   @NotNull
-  def createStructureViewModel(): StructureViewModel = {
+  override def createStructureViewModel(): StructureViewModel = {
     new ScalaStructureViewModel(myPsiFile, console)
   }
 

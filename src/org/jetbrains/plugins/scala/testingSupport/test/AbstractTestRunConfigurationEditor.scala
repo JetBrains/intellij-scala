@@ -18,8 +18,6 @@ class AbstractTestRunConfigurationEditor (project: Project, configuration: Abstr
     form(s)
   }
 
-  def disposeEditor() {}
-
   def applyEditorTo(s: AbstractTestRunConfiguration) {
     s(form)
   }

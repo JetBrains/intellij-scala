@@ -409,7 +409,7 @@ class WorksheetRunConfiguration(val project: Project, val configurationFactory: 
         params
       }
 
-      override def execute(executor: Executor, runner: ProgramRunner[_ <: JDOMExternalizable]): ExecutionResult = {
+      override def execute(executor: Executor, runner: ProgramRunner[_ <: RunnerSettings]): ExecutionResult = {
         val file = new File(getWorksheetField)
         if (file == null) throw new RuntimeConfigurationException("Worksheet is not specified: file doesn't exist.")
         
@@ -542,9 +542,6 @@ class WorksheetRunConfiguration(val project: Project, val configurationFactory: 
   }
 
   def getModule: Module = getConfigurationModule.getModule
-
-  def createInstance: ModuleBasedConfiguration[_ <: RunConfigurationModule] =
-    new WorksheetRunConfiguration(getProject, getFactory, getName)
 
   def getValidModules: java.util.List[Module] = ScalaFacet.findModulesIn(getProject).toList
   def getConfigurationEditor: SettingsEditor[_ <: RunConfiguration] = new WorksheetRunConfigurationEditor(project, this)

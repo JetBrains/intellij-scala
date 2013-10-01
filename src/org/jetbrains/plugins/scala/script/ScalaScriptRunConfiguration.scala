@@ -145,9 +145,6 @@ class ScalaScriptRunConfiguration(val project: Project, val configurationFactory
     module
   }
 
-  def createInstance: ModuleBasedConfiguration[_ <: RunConfigurationModule] =
-    new ScalaScriptRunConfiguration(getProject, getFactory, getName)
-
   def getValidModules: java.util.List[Module] = ScalaFacet.findModulesIn(getProject).toList
 
   def getConfigurationEditor: SettingsEditor[_ <: RunConfiguration] = new ScalaScriptRunConfigurationEditor(project, this)

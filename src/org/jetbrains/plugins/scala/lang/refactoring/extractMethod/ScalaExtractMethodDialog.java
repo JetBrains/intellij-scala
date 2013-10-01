@@ -7,6 +7,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.psi.PsiElement;
 import com.intellij.refactoring.util.ParameterTablePanel;
+import com.intellij.refactoring.util.VariableData;
 import com.intellij.ui.EditorTextField;
 import org.jetbrains.plugins.scala.ScalaBundle;
 import org.jetbrains.plugins.scala.ScalaFileType;
@@ -164,13 +165,13 @@ public class ScalaExtractMethodDialog extends DialogWrapper {
   }
 
   private void setupParametersPanel() {
-    ArrayList<ParameterTablePanel.VariableData> data = new ArrayList<ParameterTablePanel.VariableData>();
+    ArrayList<VariableData> data = new ArrayList<VariableData>();
     for (int i = 0; i < myInput.length; ++i) {
-      ParameterTablePanel.VariableData d = ScalaExtractMethodUtils.convertVariableData(myInput[i], myElements);
+      VariableData d = ScalaExtractMethodUtils.convertVariableData(myInput[i], myElements);
       if (d != null) data.add(d);
     }
     parameterTablePanel = new ScalaParameterTablePanel(myProject, data.toArray(
-        new ParameterTablePanel.VariableData[data.size()]));
+        new VariableData[data.size()]));
     inputParametersPanel.add(parameterTablePanel);
   }
 
@@ -198,9 +199,9 @@ public class ScalaExtractMethodDialog extends DialogWrapper {
   }
 
   public ExtractMethodParameter[] getParameters() {
-    ParameterTablePanel.VariableData[] data = parameterTablePanel.getVariableData();
+    VariableData[] data = parameterTablePanel.getVariableData();
     ArrayList<ExtractMethodParameter> list = new ArrayList<ExtractMethodParameter>();
-    for (ParameterTablePanel.VariableData d : data) {
+    for (VariableData d : data) {
       ScalaExtractMethodUtils.ScalaVariableData variableData = (ScalaExtractMethodUtils.ScalaVariableData) d;
       ExtractMethodParameter param = ScalaExtractMethodUtils.getParameter(d, variableData);
       list.add(param);

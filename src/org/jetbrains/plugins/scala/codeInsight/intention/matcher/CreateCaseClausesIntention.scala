@@ -11,7 +11,7 @@ import collection.Seq
 import java.lang.String
 import lang.psi.types.{ScSubstitutor, ScType}
 import lang.psi.ScalaPsiUtil
-import com.intellij.codeInsight.CodeInsightUtilBase
+import com.intellij.codeInsight.{FileModificationService, CodeInsightUtilBase}
 import com.intellij.openapi.fileEditor.ex.IdeDocumentHistory
 import lang.psi.api.toplevel.typedef.{ScTypeDefinition, ScObject, ScClass}
 import lang.psi.api.base.patterns.{ScPattern, ScCaseClause}
@@ -39,7 +39,7 @@ final class CreateCaseClausesIntention extends PsiElementBaseIntentionAction {
     findSurroundingMatch(element) match {
       case Some((action, _)) =>
         PsiDocumentManager.getInstance(project).commitAllDocuments()
-        if (!CodeInsightUtilBase.prepareFileForWrite(element.getContainingFile)) return
+        if (!FileModificationService.getInstance.prepareFileForWrite(element.getContainingFile)) return
         IdeDocumentHistory.getInstance(project).includeCurrentPlaceAsChangePlace()
         action(project, editor, element)
       case None =>
