@@ -11,7 +11,7 @@ import com.intellij.openapi.project.Project
 
 class ToggleTypeAwareHighlightingAction extends AnAction {
   def actionPerformed(e: AnActionEvent) {
-    PlatformDataKeys.PROJECT.getData(e.getDataContext) match {
+    CommonDataKeys.PROJECT.getData(e.getDataContext) match {
       case project: Project => HighlightingAdvisor.getInstance(project).toggle()
       case _ =>
     }

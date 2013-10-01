@@ -16,4 +16,5 @@ class Specs2TestFramework extends AbstractTestFramework {
 
   def getMarkerClassFQName: String = "org.specs2.specification.SpecificationStructure"
 
+  def getMnemonic: Char = 'p'
 }

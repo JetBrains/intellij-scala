@@ -77,7 +77,7 @@ class CompileServerManager(project: Project) extends ProjectComponent {
    }
 
    private def applicable = running ||
-           CompilerWorkspaceConfiguration.getInstance(project).USE_COMPILE_SERVER &&
+           CompilerWorkspaceConfiguration.getInstance(project).USE_OUT_OF_PROCESS_BUILD &&
                    ScalaApplicationSettings.getInstance.COMPILE_SERVER_ENABLED &&
                    ScalaFacet.isPresentIn(project)
 

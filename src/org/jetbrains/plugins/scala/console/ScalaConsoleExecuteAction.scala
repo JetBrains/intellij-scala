@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala
 package console
 
-import com.intellij.openapi.actionSystem.{PlatformDataKeys, AnActionEvent, AnAction}
+import com.intellij.openapi.actionSystem.{CommonDataKeys, AnActionEvent, AnAction}
 import com.intellij.openapi.util.TextRange
 import java.io.{IOException, OutputStream}
 import com.intellij.openapi.editor.ex.EditorEx
@@ -13,7 +13,7 @@ import com.intellij.openapi.diagnostic.Logger
  */
 class ScalaConsoleExecuteAction extends AnAction {
   override def update(e: AnActionEvent) {
-    val editor = e.getData(PlatformDataKeys.EDITOR)
+    val editor = e.getData(CommonDataKeys.EDITOR)
     if (editor == null || !editor.isInstanceOf[EditorEx]) {
       e.getPresentation.setEnabled(false)
       return
@@ -30,7 +30,7 @@ class ScalaConsoleExecuteAction extends AnAction {
   }
 
   def actionPerformed(e: AnActionEvent) {
-    val editor = e.getData(PlatformDataKeys.EDITOR)
+    val editor = e.getData(CommonDataKeys.EDITOR)
     if (editor == null) {
       return
     }

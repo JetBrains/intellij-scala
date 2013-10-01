@@ -50,8 +50,20 @@ import com.intellij.psi.search.GlobalSearchScope
 import java.util
 import com.intellij.pom.java.LanguageLevel
 import scala.collection.mutable
+import com.intellij.psi.javadoc.PsiDocComment
 
 class ScalaPsiElementFactoryImpl(manager: PsiManager) extends JVMElementFactory {
+  def createDocCommentFromText(text: String): PsiDocComment = ???
+
+  def isValidClassName(name: String): Boolean = ScalaNamesUtil.isIdentifier(name)
+
+  def isValidMethodName(name: String): Boolean = ScalaNamesUtil.isIdentifier(name)
+
+  def isValidParameterName(name: String): Boolean = ScalaNamesUtil.isIdentifier(name)
+
+  def isValidFieldName(name: String): Boolean = ScalaNamesUtil.isIdentifier(name)
+
+  def isValidLocalVariableName(name: String): Boolean = ScalaNamesUtil.isIdentifier(name)
 
   def createConstructor(name: String, context: PsiElement): PsiMethod = ???
 
@@ -491,7 +503,7 @@ object ScalaPsiElementFactory {
 
   def createDeclaration(typez: ScType, name: String, isVariable: Boolean,
                         expr: ScExpression, manager: PsiManager, isPresentableText: Boolean): ScMember = {
-    val typeText = if (typez == null) "" else if(isPresentableText) typez.presentableText else typez.canonicalText
+    val typeText = if(isPresentableText) typez.presentableText else typez.canonicalText
     createDeclaration(name, typeText, isVariable, expr, manager)
   }
 
@@ -553,9 +565,8 @@ object ScalaPsiElementFactory {
     classDef.members(0).asInstanceOf[ScVariable]
   }
 
-  def createEnumerator(name: String, expr: ScExpression, manager: PsiManager, scType: ScType = null, isPresentableText: Boolean = false): ScEnumerator = {
-    val typeName = if (scType == null) null
-    else if (isPresentableText) scType.presentableText else scType.canonicalText
+  def createEnumerator(name: String, expr: ScExpression, manager: PsiManager, scType: ScType = null): ScEnumerator = {
+    val typeName = if (scType == null) null else scType.presentableText
     createEnumerator(name, expr, manager, typeName)
   }
 

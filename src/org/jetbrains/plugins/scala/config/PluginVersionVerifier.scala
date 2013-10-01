@@ -3,7 +3,7 @@ package config
 
 import com.intellij.openapi.components.ApplicationComponent
 import com.intellij.openapi.extensions.ExtensionPointName
-import com.intellij.ide.plugins.{PluginManagerConfigurable, PluginManager}
+import com.intellij.ide.plugins.{PluginManagerCore, PluginManagerConfigurable, PluginManager}
 import com.intellij.ide.plugins.cl.PluginClassLoader
 import com.intellij.openapi.application.{Application, ApplicationManager}
 import com.intellij.openapi.diagnostic.Logger
@@ -93,7 +93,7 @@ class ScalaPluginVersionVerifierApplicationComponent extends ApplicationComponen
                         val description = event.getDescription
                         description match {
                           case "Yes" =>
-                            PluginManager.disablePlugin(plugin.getPluginId.getIdString)
+                            PluginManagerCore.disablePlugin(plugin.getPluginId.getIdString)
                             PluginManagerConfigurable.showRestartIDEADialog()
                           case "No"  => //do nothing it seems all is ok for the user
                           case _     => //do nothing it seems all is ok for the user

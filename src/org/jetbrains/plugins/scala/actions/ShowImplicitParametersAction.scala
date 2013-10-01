@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.actions
 
-import com.intellij.openapi.actionSystem.{PlatformDataKeys, AnActionEvent, AnAction}
+import com.intellij.openapi.actionSystem.{CommonDataKeys, AnActionEvent, AnAction}
 import com.intellij.psi.util.PsiUtilBase
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil
@@ -89,8 +89,8 @@ class ShowImplicitParametersAction extends AnAction("Show implicit parameters ac
 
   def actionPerformed(e: AnActionEvent) {
     val context = e.getDataContext
-    val project = PlatformDataKeys.PROJECT.getData(context)
-    val editor = PlatformDataKeys.EDITOR.getData(context)
+    val project = CommonDataKeys.PROJECT.getData(context)
+    val editor = CommonDataKeys.EDITOR.getData(context)
     if (editor == null) return
     val file = PsiUtilBase.getPsiFileInEditor(editor, project)
     if (!file.isInstanceOf[ScalaFile]) return

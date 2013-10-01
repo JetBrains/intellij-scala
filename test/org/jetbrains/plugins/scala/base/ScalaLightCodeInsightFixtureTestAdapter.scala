@@ -70,7 +70,7 @@ abstract class ScalaLightCodeInsightFixtureTestAdapter extends LightCodeInsightF
     val caretIndex = text.indexOf(CARET_MARKER)
     val highlights: mutable.Buffer[HighlightInfo] = for {
       info <- myFixture.doHighlighting()
-      if info.description == annotation
+      if info.getDescription == annotation
       if caretIndex == -1 || new TextRange(info.getStartOffset, info.getEndOffset).contains(caretIndex)
     } yield info
     val ranges = highlights.map(info => (info.startOffset, info.endOffset))
@@ -138,7 +138,7 @@ abstract class ScalaLightCodeInsightFixtureTestAdapter extends LightCodeInsightF
     val selectionStart = selectionModel.getSelectionStart
     val selectionEnd = selectionModel.getSelectionEnd
 
-    val withRightDescription = myFixture.doHighlighting().filter(info => info.description == annotation)
+    val withRightDescription = myFixture.doHighlighting().filter(info => info.getDescription == annotation)
     assert(!withRightDescription.isEmpty, "No highlightings with such description: " + annotation)
 
     val ranges = withRightDescription.map(info => (info.getStartOffset, info.getEndOffset))

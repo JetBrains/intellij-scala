@@ -149,7 +149,7 @@ class ScalaLanguageInjector(myInjectionConfiguration: Configuration) extends Mul
     val registry = TemporaryPlacesRegistry getInstance element.getProject
 
     element match {
-      case host: PsiLanguageInjectionHost => Option(registry getLanguageFor host) flatMap { injectedLanguage =>
+      case host: PsiLanguageInjectionHost => Option(registry getLanguageFor (host, element.getContainingFile)) flatMap { injectedLanguage =>
         ScalaLanguageInjector withInjectionSupport { support =>
           ScalaLanguageInjector performSimpleInjection (literals, injectedLanguage, new BaseInjection(support.getId), 
             host, registrar, support)

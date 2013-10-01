@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.codeInspection.shadow
 
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern
 import org.jetbrains.plugins.scala.codeInspection.AbstractFix
 import com.intellij.openapi.project.Project
 import com.intellij.codeInspection.ProblemDescriptor
@@ -39,12 +38,12 @@ class RenameElementQuickfix(ref: PsiElement, name: String) extends AbstractFix(n
     val containingFile = ref.getContainingFile
     val editor: Editor = InjectedLanguageUtil.openEditorFor(containingFile, project)
     if (editor.isInstanceOf[EditorWindow]) {
-      map.put(PlatformDataKeys.EDITOR.getName, editor)
-      map.put(LangDataKeys.PSI_ELEMENT.getName, ref)
+      map.put(CommonDataKeys.EDITOR.getName, editor)
+      map.put(CommonDataKeys.PSI_ELEMENT.getName, ref)
     } else if (ApplicationManager.getApplication.isUnitTestMode) {
-      val element = new TextEditorPsiDataProvider().getData(LangDataKeys.PSI_ELEMENT.getName,
+      val element = new TextEditorPsiDataProvider().getData(CommonDataKeys.PSI_ELEMENT.getName,
         editor, containingFile.getVirtualFile)
-      map.put(LangDataKeys.PSI_ELEMENT.getName, element)
+      map.put(CommonDataKeys.PSI_ELEMENT.getName, element)
     }
     val dataContext = SimpleDataContext.getSimpleContext(map, DataManager.getInstance.getDataContext)
     new AnActionEvent(null, dataContext, "", action.getTemplatePresentation, ActionManager.getInstance, 0)

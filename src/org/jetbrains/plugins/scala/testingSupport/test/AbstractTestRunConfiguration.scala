@@ -437,7 +437,7 @@ abstract class AbstractTestRunConfiguration(val project: Project,
         params
       }
 
-      override def execute(executor: Executor, runner: ProgramRunner[_ <: JDOMExternalizable]): ExecutionResult = {
+      override def execute(executor: Executor, runner: ProgramRunner[_ <: RunnerSettings]): ExecutionResult = {
         val processHandler = startProcess
         val runnerSettings = getRunnerSettings
         if (getConfiguration == null) setConfiguration(currentConfiguration)
@@ -451,8 +451,7 @@ abstract class AbstractTestRunConfiguration(val project: Project,
 
         // console view
         val consoleView: BaseTestsOutputConsoleView = SMTestRunnerConnectionUtil.createAndAttachConsole("Scala",
-          processHandler, consoleProperties, runnerSettings,
-          getConfigurationSettings)
+          processHandler, consoleProperties, getEnvironment)
 
         val res = new DefaultExecutionResult(consoleView, processHandler,
           createActions(consoleView, processHandler, executor): _*)

@@ -8,7 +8,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.editor.Editor
 import java.lang.String
 import lang.psi.api.base.ScLiteral
-import com.intellij.codeInsight.CodeInsightUtilBase
+import com.intellij.codeInsight.{FileModificationService, CodeInsightUtilBase}
 import com.intellij.openapi.command.undo.UndoUtil
 import lang.psi.impl.ScalaPsiElementFactory
 import com.intellij.openapi.util.text.StringUtil
@@ -37,7 +37,7 @@ class StringToMultilineStringIntention extends PsiElementBaseIntentionAction {
 
     lit.getValue match {
       case s: String =>
-        if (!CodeInsightUtilBase.preparePsiElementForWrite(element)) return
+        if (!FileModificationService.getInstance.preparePsiElementForWrite(element)) return
         val newContent = if (lit.isMultiLineString) {
           "\"" + StringUtil.escapeStringCharacters(s) + "\""
         } else {

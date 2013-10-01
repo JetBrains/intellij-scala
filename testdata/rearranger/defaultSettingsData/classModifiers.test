@@ -1,0 +1,12 @@
+class cl{}
+abstract class aCl{}
+abstract sealed class asCl{}
+sealed class sCl{}
+---------
+abstract sealed class asCl{}
+
+abstract class aCl{}
+
+sealed class sCl{}
+
+class cl{}

@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.annotator.intention
 
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging.ScPackaging
 import com.intellij.codeInsight.hint.{HintManager, HintManagerImpl, QuestionAction}
-import com.intellij.codeInsight.CodeInsightUtilBase
+import com.intellij.codeInsight.{FileModificationService, CodeInsightUtilBase}
 
 import com.intellij.ide.util.FQNameCellRenderer
 import com.intellij.openapi.editor.{LogicalPosition, Editor}
@@ -137,7 +137,7 @@ class ScalaImportTypeFix(private var classes: Array[TypeToImport], ref: ScRefere
     def addImportOrReference(clazz: TypeToImport) {
       ApplicationManager.getApplication.invokeLater(new Runnable() {
         def run() {
-          if (!ref.isValid || !CodeInsightUtilBase.prepareFileForWrite(ref.getContainingFile)) return
+          if (!ref.isValid || !FileModificationService.getInstance.prepareFileForWrite(ref.getContainingFile)) return
           ScalaUtils.runWriteAction(new Runnable {
             def run() {
               PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument)

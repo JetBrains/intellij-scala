@@ -15,23 +15,14 @@
 
 package org.jetbrains.plugins.scala.testcases;
 
-import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
-import com.intellij.psi.codeStyle.CodeStyleSettings;
 import com.intellij.psi.codeStyle.CodeStyleSettingsManager;
 import com.intellij.psi.codeStyle.CommonCodeStyleSettings;
-import com.intellij.testFramework.fixtures.IdeaProjectTestFixture;
-import com.intellij.testFramework.fixtures.IdeaTestFixtureFactory;
-import com.intellij.testFramework.fixtures.TestFixtureBuilder;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.plugins.scala.ScalaFileType;
 import org.jetbrains.plugins.scala.ScalaLoader;
 
 public abstract class ScalaFileSetTestCase extends FileSetTestCase {
-  protected Project getProject() {
-      return fixture.getModule().getProject();
-  }
-  private IdeaProjectTestFixture fixture;
   @NonNls
   protected final static String TEMP_FILE = "temp.scala";
 
@@ -50,33 +41,13 @@ public abstract class ScalaFileSetTestCase extends FileSetTestCase {
       getSettings().getIndentOptions().TAB_SIZE = 2;
   }
 
-  protected void setUp() {
-    super.setUp();
-
-    fixture = createFixtury();
-
-    try {
-      fixture.setUp();
-    } catch (Exception e) {
-      e.printStackTrace();
-    }
-
+  protected void setUp(Project project) {
+    super.setUp(project);
     ScalaLoader.loadScala();
     setSettings();
-
   }
 
-  protected void tearDown() {
-    try {
-      fixture.tearDown();
-    } catch (Exception e) {
-      //ignore
-    }
-    super.tearDown();
-  }
-
-  protected IdeaProjectTestFixture createFixtury() {
-    TestFixtureBuilder<IdeaProjectTestFixture> fixtureBuilder = IdeaTestFixtureFactory.getFixtureFactory().createLightFixtureBuilder();
-    return fixtureBuilder.getFixture();
+  protected void tearDown(Project project) {
+    super.tearDown(project);
   }
 }

@@ -6,7 +6,7 @@ import com.intellij.psi.{PsiFile, PsiElement}
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.fileEditor.{FileEditorManager, OpenFileDescriptor}
-import com.intellij.codeInsight.CodeInsightUtilBase
+import com.intellij.codeInsight.{CodeInsightUtilCore, CodeInsightUtilBase}
 import com.intellij.codeInsight.template.{TemplateManager, TemplateBuilderImpl}
 import com.intellij.codeInspection.{ProblemDescriptor, ProblemHighlightType, ProblemsHolder}
 import extensions._
@@ -26,7 +26,7 @@ class NotImplementedCodeInspection extends AbstractInspection {
     def doApplyFix(project: Project, descriptor: ProblemDescriptor) {
       val builder = new TemplateBuilderImpl(e)
       builder.replaceElement(e, e.getText)
-      CodeInsightUtilBase.forcePsiPostprocessAndRestoreElement(e)
+      CodeInsightUtilCore.forcePsiPostprocessAndRestoreElement(e)
       val template = builder.buildTemplate()
       val editor = positionCursor(project, e.getContainingFile, e)
       val range = e.getTextRange

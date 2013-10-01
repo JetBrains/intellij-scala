@@ -1,0 +1,23 @@
+class IntHolder(private var myValue: Int) {
+  def intVal = myValue
+
+  def junk = 1
+
+  def junk2 = 2
+
+  def intVal_=(value: Int) = myValue = value
+
+  def junk3 = 3
+}
+----------
+class IntHolder(private var myValue: Int) {
+  def intVal = myValue
+
+  def intVal_=(value: Int) = myValue = value
+
+  def junk = 1
+
+  def junk2 = 2
+
+  def junk3 = 3
+}

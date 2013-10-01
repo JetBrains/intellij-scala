@@ -4,7 +4,7 @@ package console
 import com.intellij.execution._
 import com.intellij.execution.configurations.ConfigurationTypeUtil
 import com.intellij.execution.executors.DefaultRunExecutor
-import com.intellij.execution.runners.ExecutionEnvironment
+import com.intellij.execution.runners.ExecutionEnvironmentBuilder
 import com.intellij.openapi.actionSystem._
 import com.intellij.openapi.ui.Messages
 import com.intellij.util.ActionRunner
@@ -29,7 +29,7 @@ class RunConsoleAction extends AnAction {
       presentation.setVisible(false)
     }
     try {
-      val file = LangDataKeys.PSI_FILE.getData(e.getDataContext)
+      val file = CommonDataKeys.PSI_FILE.getData(e.getDataContext)
       file match {
         case _: ScalaFile => enable()
         case _ => disable()
@@ -42,8 +42,8 @@ class RunConsoleAction extends AnAction {
 
   def actionPerformed(e: AnActionEvent) {
     val dataContext = e.getDataContext
-    val file = LangDataKeys.PSI_FILE.getData(dataContext)
-    val project = PlatformDataKeys.PROJECT.getData(dataContext)
+    val file = CommonDataKeys.PSI_FILE.getData(dataContext)
+    val project = CommonDataKeys.PROJECT.getData(dataContext)
     file match {
       case file: ScalaFile => {
         val runManagerEx = RunManagerEx.getInstanceEx(file.getProject)
@@ -57,7 +57,9 @@ class RunConsoleAction extends AnAction {
           val runner = RunnerRegistry.getInstance().getRunner(runExecutor.getId, configuration)
           if (runner != null) {
             try {
-              runner.execute(runExecutor, new ExecutionEnvironment(runner, setting, project))
+              val builder: ExecutionEnvironmentBuilder = new ExecutionEnvironmentBuilder(project, runExecutor)
+              builder.setRunnerAndSettings(runner, setting)
+              runner.execute(builder.build())
             }
             catch {
               case e: ExecutionException =>

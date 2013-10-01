@@ -3,7 +3,7 @@ package codeInspection
 package unusedInspections
 
 
-import com.intellij.codeInsight.CodeInsightUtilBase
+import com.intellij.codeInsight.{FileModificationService, CodeInsightUtilBase}
 import com.intellij.codeInsight.daemon.QuickFixBundle
 import com.intellij.codeInsight.intention.IntentionAction
 import com.intellij.psi.PsiFile
@@ -29,7 +29,7 @@ class ScalaOptimizeImportsFix extends IntentionAction {
   }
 
   def invoke(project: Project, editor: Editor, file: PsiFile) {
-    if (!CodeInsightUtilBase.prepareFileForWrite(file)) return
+    if (!FileModificationService.getInstance.prepareFileForWrite(file)) return
     new ScalaImportOptimizer().processFile(file).run()
   }
 

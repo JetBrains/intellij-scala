@@ -17,6 +17,7 @@
     </extensionPoints>
 
     <extensions defaultExtensionNs="com.intellij">
+        <lang.rearranger language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.rearranger.ScalaRearranger"/>
         <compileServer.plugin classpath="scala-library.jar;jps/nailgun.jar;jps/scala-jps-plugin.jar;jps/sbt-interface.jar;jps/incremental-compiler.jar;jps/jline.jar"/>
         <projectTemplatesFactory implementation="org.jetbrains.plugins.scala.config.scalaProjectTemplate.ScalaProjectTemplatesFactory"/>
         <!--<moduleBuilder builderClass="org.jetbrains.plugins.scala.config.scalaProjectTemplate.ScalaModuleBuilder"/>-->
@@ -921,6 +922,7 @@
         <action id="Scala.RunConsole" class="org.jetbrains.plugins.scala.console.RunConsoleAction"
                 text="Run Scala Console" description="Run Scala console">
             <add-to-group group-id="RunContextPopupGroup" anchor="last"/>
+            <add-to-group group-id="ToolsMenu" anchor="last"/>
             <keyboard-shortcut first-keystroke="control shift D" keymap="$default"/>
         </action>
         <action id="Scala.SendSelectionToConsole" class="org.jetbrains.plugins.scala.console.SendSelectionToConsoleAction"
@@ -989,11 +991,11 @@
         <action id="Scala.CopyWorksheet" class="org.jetbrains.plugins.scala.worksheet.actions.CopyWorksheetAction"
                 text="Copy Scala Worksheet" description="Copy Scala Worksheet">
         </action>
-        <action id="Scala.GenerateCompanionObject"
-                class="org.jetbrains.plugins.scala.codeInsight.generation.ScalaGenerateCompanionObjectAction" text="Companion object"
-                description="Generate companion object for class or trait">
+        <action id="Scala.GenerateEquals"
+                class="org.jetbrains.plugins.scala.codeInsight.generation.ScalaGenerateEqualsAction" text="equals() and hashCode()"
+                description="Generate equals() and hashCode() methods">
           <add-to-group group-id="GenerateGroup"/>
         </action>
-    </actions>
+      </actions>
 
 </idea-plugin>

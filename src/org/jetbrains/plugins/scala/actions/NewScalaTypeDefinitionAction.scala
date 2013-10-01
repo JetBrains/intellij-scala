@@ -22,6 +22,7 @@ import com.intellij.ide.fileTemplates.{FileTemplateManager, FileTemplate, JavaTe
 import com.intellij.openapi.fileTypes.ex.FileTypeManagerEx
 import com.intellij.openapi.fileTypes.FileType
 import com.intellij.openapi.ui.InputValidatorEx
+import org.jetbrains.jps.model.java.JavaModuleSourceRootTypes
 
 /**
  * User: Alexander Podkhalyuzin
@@ -29,7 +30,8 @@ import com.intellij.openapi.ui.InputValidatorEx
  */
 
 class NewScalaTypeDefinitionAction extends CreateTemplateInPackageAction[ScTypeDefinition](
-  ScalaBundle.message("newclass.menu.action.text"), ScalaBundle.message("newclass.menu.action.description"), Icons.CLASS, true) with DumbAware {
+  ScalaBundle.message("newclass.menu.action.text"), ScalaBundle.message("newclass.menu.action.description"), Icons.CLASS,
+  JavaModuleSourceRootTypes.SOURCES) with DumbAware {
   protected def buildDialog(project: Project, directory: PsiDirectory,
                             builder: CreateFileFromTemplateDialog.Builder) {
     builder.addKind("Class", Icons.CLASS, "Scala Class")
@@ -93,7 +95,7 @@ class NewScalaTypeDefinitionAction extends CreateTemplateInPackageAction[ScTypeD
       return false
     }
     val view = dataContext.getData(LangDataKeys.IDE_VIEW.getName).asInstanceOf[IdeView]
-    val project = dataContext.getData(PlatformDataKeys.PROJECT.getName).asInstanceOf[Project]
+    val project = dataContext.getData(CommonDataKeys.PROJECT.getName).asInstanceOf[Project]
     if (view != null && project != null) {
       val projectFileIndex = ProjectRootManager.getInstance(project).getFileIndex
       val dirs = view.getDirectories
