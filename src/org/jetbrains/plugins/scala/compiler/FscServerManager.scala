@@ -78,7 +78,7 @@ class FscServerManager(project: Project) extends ProjectComponent {
   }
 
   private def applicable = running ||
-          !CompilerWorkspaceConfiguration.getInstance(project).USE_COMPILE_SERVER &&
+          !CompilerWorkspaceConfiguration.getInstance(project).USE_OUT_OF_PROCESS_BUILD &&
                   ScalacSettings.getInstance(project).INTERNAL_SERVER &&
                   ScalaFacet.findIn(project).exists(_.fsc)
 
