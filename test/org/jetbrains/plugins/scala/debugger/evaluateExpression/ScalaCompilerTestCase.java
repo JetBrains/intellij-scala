@@ -148,7 +148,7 @@ public abstract class ScalaCompilerTestCase extends JavaCodeInsightFixtureTestCa
     UIUtil.invokeAndWaitIfNeeded(new Runnable() {
       public void run() {
         try {
-          CompilerWorkspaceConfiguration.getInstance(getProject()).USE_COMPILE_SERVER = false;
+          CompilerWorkspaceConfiguration.getInstance(getProject()).USE_OUT_OF_PROCESS_BUILD = false;
           CompilerManager.getInstance(getProject()).make(callback);
         }
         catch (Exception e) {
