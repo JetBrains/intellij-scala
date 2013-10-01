@@ -9,7 +9,7 @@ import java.io.File
 import com.intellij.openapi.vfs.pointers.VirtualFilePointerManager
 import com.intellij.openapi.vfs.impl.VirtualFilePointerManagerImpl
 import com.intellij.openapi.fileEditor.FileDocumentManager
-import com.intellij.openapi.vfs.{LocalFileSystem, VirtualFile}
+import com.intellij.openapi.vfs.{VirtualFileFilter, LocalFileSystem, VirtualFile}
 import com.intellij.codeInsight.TargetElementUtilBase
 import com.intellij.psi.impl.source.tree.injected.InjectedLanguageUtil
 import com.intellij.refactoring.rename.{RenameProcessor, RenamePsiElementProcessor}
@@ -52,7 +52,7 @@ abstract class ScalaRenameTestBase extends ScalaLightPlatformCodeInsightTestCase
       val oldName = doRename(editor, file, newName)
 
       val dirAfter = LocalFileSystem.getInstance.refreshAndFindFileByPath(rootAfter)
-      PlatformTestUtil.assertDirectoriesEqual(dirAfter, myDirectory, PlatformTestUtil.CVS_FILE_FILTER)
+      PlatformTestUtil.assertDirectoriesEqual(dirAfter, myDirectory)
 
       //rename back for next caret position
       doRename(editor, file, oldName)
