@@ -138,7 +138,7 @@ public class FacetConfigurationEditor extends FacetEditorTab {
       }
     });
 
-    final boolean externalCompiler = CompilerWorkspaceConfiguration.getInstance(myEditorContext.getProject()).USE_COMPILE_SERVER;
+    final boolean externalCompiler = CompilerWorkspaceConfiguration.getInstance(myEditorContext.getProject()).USE_OUT_OF_PROCESS_BUILD;
 
     myValidatorsManager.registerValidator(new FacetEditorValidator() {
       @Override
@@ -180,7 +180,7 @@ public class FacetConfigurationEditor extends FacetEditorTab {
   }
 
   private void updateCompilerSection() {
-    boolean externalCompiler = CompilerWorkspaceConfiguration.getInstance(myEditorContext.getProject()).USE_COMPILE_SERVER;
+    boolean externalCompiler = CompilerWorkspaceConfiguration.getInstance(myEditorContext.getProject()).USE_OUT_OF_PROCESS_BUILD;
     boolean b = externalCompiler || !myFSCRadioButton.isSelected();
     myCompilerLibraryLabel.setEnabled(b);
     myCompilerLibrary.setEnabled(b);

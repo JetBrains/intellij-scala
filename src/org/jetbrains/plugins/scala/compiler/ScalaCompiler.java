@@ -116,7 +116,7 @@ public class ScalaCompiler implements TranslatingCompiler {
 
     ScalacSettings settings = ScalacSettings.getInstance(project);
 
-    if (!CompilerWorkspaceConfiguration.getInstance(project).USE_COMPILE_SERVER && myFsc && settings.INTERNAL_SERVER) {
+    if (!CompilerWorkspaceConfiguration.getInstance(project).USE_OUT_OF_PROCESS_BUILD && myFsc && settings.INTERNAL_SERVER) {
       FscServerLauncher server = myProject.getComponent(FscServerLauncher.class);
       server.init();
     }
