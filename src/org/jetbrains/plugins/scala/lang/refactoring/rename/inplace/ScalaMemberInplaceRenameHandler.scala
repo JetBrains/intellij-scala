@@ -15,6 +15,7 @@ import com.intellij.psi.util.PsiUtilBase
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import com.intellij.openapi.project.Project
+import javax.swing.JList
 
 /**
  * Nikolay.Tropin
@@ -56,7 +57,7 @@ class ScalaMemberInplaceRenameHandler extends MemberInplaceRenameHandler{
       val title = ScalaBundle.message("rename.special.method.title")
       val renameClass = ScalaBundle.message("rename.special.method.rename.class", clazzType)
       val cancel = ScalaBundle.message("rename.special.method.cancel")
-      val list: JBList = new JBList(renameClass, cancel)
+      val list: JList[_] = new JBList(renameClass, cancel).asInstanceOf[JList[_]]
       JBPopupFactory.getInstance.createListPopupBuilder(list)
               .setTitle(title)
               .setMovable(false)

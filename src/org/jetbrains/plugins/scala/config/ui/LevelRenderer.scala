@@ -2,21 +2,21 @@ package org.jetbrains.plugins.scala.config
 package ui
 
 import javax.swing.{DefaultListCellRenderer, JList}
+import org.jetbrains.plugins.scala.lang.refactoring.util.DefaultListCellRendererAdapter
+import java.awt.Component
 
 /**
  * Pavel.Fatin, 05.07.2010
  */
 
-class LevelRenderer extends DefaultListCellRenderer {
-  override def getListCellRendererComponent(list: JList, value: Any, index: Int, 
-                                            isSelected: Boolean, cellHasFocus: Boolean) = {
+class LevelRenderer extends DefaultListCellRendererAdapter {
+  def getListCellRendererComponentAdapter(list: JList[_], value: Any, index: Int,
+                                            isSelected: Boolean, cellHasFocus: Boolean): Component = {
     val text = Option(value.asInstanceOf[LibraryLevel]).map {
-      _ match {
-        case LibraryLevel.Global => "global"
-        case LibraryLevel.Project => "project-level"
-        case LibraryLevel.Module => "module-level"
-      }
+      case LibraryLevel.Global => "global"
+      case LibraryLevel.Project => "project-level"
+      case LibraryLevel.Module => "module-level"
     }
-    super.getListCellRendererComponent(list, text.mkString, index, isSelected, hasFocus)
+    getSuperListCellRendererComponent(list, text.mkString, index, isSelected, hasFocus)
   }
 }

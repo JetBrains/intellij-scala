@@ -26,7 +26,7 @@ import com.intellij.codeInsight.completion.JavaCompletionUtil
 import com.intellij.openapi.ui.popup.util.BaseListPopupStep
 import com.intellij.codeInsight.daemon.QuickFixBundle
 import com.intellij.util.ObjectUtils
-import javax.swing.{Icon, JList}
+import javax.swing.{ListCellRenderer, Icon, JList}
 import com.intellij.codeInsight.daemon.impl.actions.AddImportAction
 import com.intellij.openapi.ui.popup.{JBPopupFactory, PopupStep}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScInfixExpr, ScPrefixExpr, ScPostfixExpr, ScMethodCall}
@@ -153,8 +153,8 @@ class ScalaImportTypeFix(private var classes: Array[TypeToImport], ref: ScRefere
     }
 
     def chooseClass() {
-      val list = new JList(classes.asInstanceOf[Array[Object]])
-      list.setCellRenderer(new FQNameCellRenderer())
+      val list = new JList(classes)
+      list.setCellRenderer(new FQNameCellRenderer().asInstanceOf[ListCellRenderer[Any]])
 
       val popup = new BaseListPopupStep[TypeToImport](QuickFixBundle.message("class.to.import.chooser.title"), classes) {
         override def getIconFor(aValue: TypeToImport): Icon = {

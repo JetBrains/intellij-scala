@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScEarlyDefinitions
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import javax.swing.{JList, DefaultListModel}
+import javax.swing.{ListCellRenderer, JList, DefaultListModel}
 import com.intellij.openapi.ui.popup.JBPopupFactory
 import com.intellij.psi.{NavigatablePsiElement, PsiNamedElement, PsiWhiteSpace, PsiElement}
 import org.jetbrains.plugins.scala.lang.psi.presentation.ScImplicitParametersListCellRenderer
@@ -102,19 +102,19 @@ class ShowImplicitParametersAction extends AnAction("Show implicit parameters ac
           ScalaActionUtil.showHint(editor, "No implicit parameters")
         case Some(seq) =>
           val defaultElement = ScalaPsiElementFactory.createParameterFromText("NotFoundParameter: Int", expr.getManager)
-          val model: DefaultListModel = new DefaultListModel
+          val model: DefaultListModel[PsiNamedElement] = new DefaultListModel
           for (element <- seq) {
             if (element != null)
               model.addElement(element.getElement)
             else 
               model.addElement(defaultElement)
           }
-          val list: JList = new JList(model)
+          val list: JList[PsiNamedElement] = new JList(model)
           val renderer = new ScImplicitParametersListCellRenderer
           val font = editor.getColorsScheme.getFont(EditorFontType.PLAIN)
           renderer.setFont(font)
           list.setFont(font)
-          list.setCellRenderer(renderer)
+          list.setCellRenderer(renderer.asInstanceOf[ListCellRenderer[_ >: PsiNamedElement]])
 
           val builder = JBPopupFactory.getInstance.createListPopupBuilder(list)
           builder.setTitle("Actual implicit parameters:").

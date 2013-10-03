@@ -3,12 +3,13 @@ package config.ui
 
 import javax.swing.{DefaultListCellRenderer, JList}
 import config.CompileOrder
+import org.jetbrains.plugins.scala.lang.refactoring.util.DefaultListCellRendererAdapter
 
 /**
  * @author Pavel Fatin
  */
-class CompileOrderRenderer extends DefaultListCellRenderer {
-  override def getListCellRendererComponent(list: JList, value: Any, index: Int, 
+class CompileOrderRenderer extends DefaultListCellRendererAdapter {
+  def getListCellRendererComponentAdapter(list: JList[_], value: Any, index: Int,
                                             isSelected: Boolean, cellHasFocus: Boolean) = {
     val text = value match {
       case CompileOrder.Mixed => "Mixed"
@@ -17,6 +18,6 @@ class CompileOrderRenderer extends DefaultListCellRenderer {
       case _ => "Unknown"
     }
 
-    super.getListCellRendererComponent(list, text, index, isSelected, hasFocus)
+    getSuperListCellRendererComponent(list, text, index, isSelected, hasFocus)
   }
 }

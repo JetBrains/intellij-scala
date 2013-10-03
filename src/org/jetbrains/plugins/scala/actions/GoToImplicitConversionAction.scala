@@ -24,6 +24,7 @@ import com.intellij.util.Alarm
 import scala.Some
 import org.jetbrains.plugins.scala.util.IntentionUtils
 import com.intellij.openapi.editor.colors.EditorFontType
+import org.jetbrains.plugins.scala.extensions.toPsiNamedElementExt
 
 /**
  * User: Alexander Podkhalyuzin
@@ -32,7 +33,7 @@ import com.intellij.openapi.editor.colors.EditorFontType
 
 object GoToImplicitConversionAction {
   var popup: JBPopup = null
-  var list: JList = null
+  var list: JList[_] = null
 
   def getPopup = popup
 
@@ -42,7 +43,7 @@ object GoToImplicitConversionAction {
 
   def getList = list
 
-  def setList(l: JList) {
+  def setList(l: JList[_]) {
     list = l
   }
 }
@@ -85,9 +86,9 @@ class GoToImplicitConversionAction extends AnAction("Go to implicit conversion a
       val functions = implicitConversions._1
       if (functions.length == 0) return true
       val conversionFun = implicitConversions._2.getOrElse(null)
-      val model: DefaultListModel = new DefaultListModel
-      val firstPart = implicitConversions._3.sortBy(_.getName)
-      val secondPart = implicitConversions._4.sortBy(_.getName)
+      val model: DefaultListModel[Parameters] = new DefaultListModel
+      val firstPart = implicitConversions._3.sortBy(_.name)
+      val secondPart = implicitConversions._4.sortBy(_.name)
       var actualIndex = -1
       //todo actualIndex should be another if conversionFun is not one
       for (element <- firstPart) {
@@ -100,12 +101,12 @@ class GoToImplicitConversionAction extends AnAction("Go to implicit conversion a
         model.addElement(elem)
         if (element == conversionFun) actualIndex = model.indexOf(elem)
       }
-      val list: JList = new JList(model)
+      val list: JList[Parameters] = new JList(model)
       val renderer = new ScImplicitFunctionListCellRenderer(conversionFun)
       val font = editor.getColorsScheme.getFont(EditorFontType.PLAIN)
       renderer.setFont(font)
       list.setFont(font)
-      list.setCellRenderer(renderer)
+      list.setCellRenderer(renderer.asInstanceOf[ListCellRenderer[_ >: Parameters]])
       list.getSelectionModel.addListSelectionListener(new ListSelectionListener {
         def valueChanged(e: ListSelectionEvent) {
           hintAlarm.cancelAllRequests
