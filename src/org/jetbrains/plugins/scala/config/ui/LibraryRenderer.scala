@@ -6,12 +6,13 @@ import com.intellij.openapi.util.IconLoader
 import java.awt.BorderLayout
 import javax.swing._
 import reflect.BeanProperty
+import org.jetbrains.plugins.scala.lang.refactoring.util.DefaultListCellRendererAdapter
 
 /**
  * Pavel.Fatin, 05.07.2010
  */
 
-class LibraryRenderer(comboBox: JComboBox) extends DefaultListCellRenderer {
+class LibraryRenderer(comboBox: JComboBox[Object]) extends DefaultListCellRendererAdapter {
   val Empty = """<html><body><span style="color: #ff0000;">&lt;none&gt;</span>&nbsp;</body></html>"""
   val NotFound = """<html><body><span style="color: #ff0000;">%s [not found]</span>&nbsp;</body></html>"""
   val Unknown = """<html><body>%s&nbsp;</html>"""
@@ -40,15 +41,15 @@ class LibraryRenderer(comboBox: JComboBox) extends DefaultListCellRenderer {
   }
 
   @BeanProperty
-  var prefixLength = -1;
+  var prefixLength = -1
 
-  override def getListCellRendererComponent(list: JList, value: Any, index: Int, 
+  override def getListCellRendererComponentAdapter(list: JList[_], value: Any, index: Int,
                                             isSelected: Boolean, cellHasFocus: Boolean) = {
     val holder = Option(value.asInstanceOf[LibraryDescriptor])
     val html = htmlFor(holder)
     val enabled = comboBox.isEnabled
     lazy val plain = html.replaceAll("<.*?>", "").replaceAll("&lt;", "<").replaceAll("&gt;", ">").replaceAll("&nbsp;", " ")
-    val result = super.getListCellRendererComponent(list, if (enabled) html else plain, index, isSelected, hasFocus)
+    val result = getSuperListCellRendererComponent(list, if (enabled) html else plain, index, isSelected, hasFocus)
     setIcon(if (enabled) ENABLED_ICON else DISABLED_ICON)
     if (prefixLength >= 0 && prefixLength == index) {
       val panel = new JPanel(new BorderLayout())

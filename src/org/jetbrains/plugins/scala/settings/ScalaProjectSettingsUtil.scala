@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.settings
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import com.intellij.openapi.ui.{Messages, InputValidator}
 import scala.annotation.tailrec
-import javax.swing.{DefaultListModel, JComponent, JPanel}
+import javax.swing.{JList, DefaultListModel, JComponent, JPanel}
 import com.intellij.ui.{ListScrollingUtil, AnActionButton, AnActionButtonRunnable, ToolbarDecorator}
 import com.intellij.ui.components.JBList
 import com.intellij.openapi.wm.IdeFocusManager
@@ -44,12 +44,12 @@ object ScalaProjectSettingsUtil {
     }
   }
 
-  def getPatternListPanel(parent: JComponent, patternJBList: JBList, inputMessage: String, inputTitle: String): JPanel = {
-    def addPattern(pattern: String, patternJBList: JBList) {
+  def getPatternListPanel(parent: JComponent, patternJBList: JList[_], inputMessage: String, inputTitle: String): JPanel = {
+    def addPattern(pattern: String, patternJBList: JList[_]) {
       if (pattern == null) return
       val listModel = patternJBList.getModel match {
         case null => return
-        case default: DefaultListModel => default
+        case default: DefaultListModel[Any] => default
         case _ => return
       }
       val index: Int = - util.Arrays.binarySearch(listModel.toArray, pattern) - 1

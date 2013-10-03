@@ -21,6 +21,7 @@ import com.intellij.openapi.fileEditor.FileDocumentManager
 import org.jetbrains.plugins.scala.lang.psi.light.{LightScalaMethod, PsiClassWrapper}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil
 import com.intellij.openapi.util.Key
+import javax.swing.JList
 
 /**
  * Nikolay.Tropin
@@ -60,7 +61,7 @@ class ScalaInplaceRenameHandler extends MemberInplaceRenameHandler{
   override def doRename(elementToRename: PsiElement, editor: Editor, dataContext: DataContext): InplaceRefactoring = {
     def showSubstitutePopup(title: String, positive: String, subst: => PsiNamedElement): Unit = {
       val cancel = ScalaBundle.message("rename.cancel")
-      val list: JBList = new JBList(positive, cancel)
+      val list: JList[_] = new JBList(positive, cancel).asInstanceOf[JList[_]]
       JBPopupFactory.getInstance.createListPopupBuilder(list)
               .setTitle(title)
               .setMovable(false)

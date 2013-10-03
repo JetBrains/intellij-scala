@@ -106,9 +106,9 @@ abstract class OperationOnCollectionInspectionBase extends AbstractInspection(in
 
     def createPatternListPanel(parent: JComponent, patternListKey: String): JComponent = {
       val patternList: Array[String] = patternLists(patternListKey)()
-      val listModel = new DefaultListModel()
+      val listModel = new DefaultListModel[String]()
       patternList.foreach(listModel.add(listModel.size, _))
-      val patternJBList = new JBList(listModel)
+      val patternJBList: JList[_] = new JBList(listModel).asInstanceOf[JList[_]]
       def resetValues() {
         val newArray = listModel.toArray collect {case s: String => s}
         setPatternLists(patternListKey)(newArray)

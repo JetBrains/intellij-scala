@@ -297,14 +297,14 @@ object ScalaRefactoringUtil {
   def showChooser[T <: PsiElement](editor: Editor, elements: Array[T], pass: PsiElement => Unit, title: String,
                                    elementName: T => String, highlightParent: Boolean = false) {
     val highlighter: ScopeHighlighter = new ScopeHighlighter(editor)
-    val model: DefaultListModel = new DefaultListModel
+    val model: DefaultListModel[T] = new DefaultListModel
     for (element <- elements) {
       model.addElement(element)
     }
-    val list: JList = new JList(model)
-    list.setCellRenderer(new DefaultListCellRenderer {
-      override def getListCellRendererComponent(list: JList, value: Object, index: Int, isSelected: Boolean, cellHasFocus: Boolean): Component = {
-        val rendererComponent: Component = super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus)
+    val list: JList[T] = new JList(model)
+    list.setCellRenderer(new DefaultListCellRendererAdapter {
+      def getListCellRendererComponentAdapter(list: JList[_], value: Object, index: Int, isSelected: Boolean, cellHasFocus: Boolean): Component = {
+        val rendererComponent: Component = getSuperListCellRendererComponent(list, value, index, isSelected, cellHasFocus)
         val element: T = value.asInstanceOf[T]
         if (element.isValid) {
           setText(elementName(element))
