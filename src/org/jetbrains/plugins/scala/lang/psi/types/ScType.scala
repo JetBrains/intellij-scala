@@ -361,7 +361,7 @@ object ScType extends ScTypePresentation with ScTypePsiTypeBridge {
         t.upperBound.flatMap(upper => expandAliases(proj.actualSubst.subst(upper)))
       case _ => Success(tp, None)
     }
-    case at: ScAbstractType => Success(at.upper, None) // ugly hack for SCL-3592
+    case at: ScAbstractType => expandAliases(at.upper) // ugly hack for SCL-3592
     case ScDesignatorType(t: ScType) => expandAliases(t)
     case ScDesignatorType(ta: ScTypeAliasDefinition) => expandAliases(ta.aliasedType(TypingContext.empty).getOrNothing)
     case t: ScTypeAliasDeclaration if t.typeParameters.isEmpty =>
