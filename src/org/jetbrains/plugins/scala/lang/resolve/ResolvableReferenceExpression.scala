@@ -421,7 +421,7 @@ trait ResolvableReferenceExpression extends ScReferenceExpression {
       baseProcessor match {
         case mrp: MethodResolveProcessor =>
           val callOption = reference.getContext match {
-            case m: MethodInvocation => Some(m)
+            case m: ScMethodCall => Some(m)
             case _ => None
           }
           val argumentExpressions = callOption.map(_.argumentExpressions)
