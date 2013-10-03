@@ -58,6 +58,16 @@ private[expr] object ExpectedTypes {
    */
   def expectedExprTypes(expr: ScExpression, withResolvedFunction: Boolean = false,
                         fromUnderscore: Boolean = true): Array[(ScType, Option[ScTypeElement])] = {
+    def fromFunction(tp: (ScType, Option[ScTypeElement])): Array[(ScType, Option[ScTypeElement])] = {
+      ScType.extractFunctionType(tp._1) match {
+        case Some(ScFunctionType(retType, _)) => Array[(ScType, Option[ScTypeElement])]((retType, None))
+        case _ => ScType.extractPartialFunctionType(tp._1) match {
+          case Some((des, param, ret)) => Array[(ScType, Option[ScTypeElement])]((ret, None))
+          case None => Array[(ScType, Option[ScTypeElement])]()
+        }
+      }
+    }
+
     val result: Array[(ScType, Option[ScTypeElement])] = expr.getContext match {
       case p: ScParenthesisedExpr => p.expectedTypesEx(fromUnderscore = false)
       //see SLS[6.11]
@@ -90,21 +100,12 @@ private[expr] object ExpectedTypes {
         case b: ScBlockExpr if b.isAnonymousFunction && b.getContext.isInstanceOf[ScCatchBlock] =>
           b.getContext.getContext.asInstanceOf[ScTryStmt].expectedTypesEx(fromUnderscore = true)
         case b: ScBlockExpr if b.isAnonymousFunction => {
-          b.expectedTypesEx(fromUnderscore = true).flatMap(tp => ScType.extractFunctionType(tp._1) match {
-            case Some(ScFunctionType(retType, _)) => Array[(ScType, Option[ScTypeElement])]((retType, None))
-            case _ => ScType.extractPartialFunctionType(tp._1) match {
-              case Some((des, param, ret)) => Array[(ScType, Option[ScTypeElement])]((ret, None))
-              case None => Array[(ScType, Option[ScTypeElement])]()
-            }
-          })
+          b.expectedTypesEx(fromUnderscore = true).flatMap(tp => fromFunction(tp))
         }
         case _ => Array.empty
       }
       //see SLS[6.23]
-      case f: ScFunctionExpr => f.expectedTypesEx(fromUnderscore = true).flatMap(tp => ScType.extractFunctionType(tp._1) match {
-        case Some(ScFunctionType(retType, _)) => Array[(ScType, Option[ScTypeElement])]((retType, None))
-        case _ => Array[(ScType, Option[ScTypeElement])]()
-      })
+      case f: ScFunctionExpr => f.expectedTypesEx(fromUnderscore = true).flatMap(tp => fromFunction(tp))
       case t: ScTypedStmt if t.getLastChild.isInstanceOf[ScSequenceArg] => {
         t.expectedTypesEx(fromUnderscore = true)
       }
