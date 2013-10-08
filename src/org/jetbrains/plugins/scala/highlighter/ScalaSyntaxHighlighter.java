@@ -20,6 +20,8 @@ import com.intellij.lexer.LayeredLexer;
 import com.intellij.lexer.Lexer;
 import com.intellij.lexer.StringLiteralLexer;
 import com.intellij.openapi.editor.colors.TextAttributesKey;
+import com.intellij.openapi.fileTypes.FileType;
+import com.intellij.openapi.fileTypes.FileTypeManager;
 import com.intellij.openapi.fileTypes.SyntaxHighlighterBase;
 import com.intellij.psi.StringEscapesTokenTypes;
 import com.intellij.psi.tree.IElementType;
@@ -367,6 +369,10 @@ public class ScalaSyntaxHighlighter extends SyntaxHighlighterBase {
   }
 
   private static class ScalaHtmlHighlightingLexerWrapper extends HtmlHighlightingLexer {
+    public ScalaHtmlHighlightingLexerWrapper() {
+      super(FileTypeManager.getInstance().getStdFileType("CSS"));
+    }
+
     @Override
     public IElementType getTokenType() {
       IElementType htmlType = super.getTokenType();
