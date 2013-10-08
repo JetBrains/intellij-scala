@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.lang.formatting.settings
 import org.jetbrains.plugins.scala.ScalaFileType
 import com.intellij.application.options._
 import com.intellij.psi.codeStyle.CodeStyleSettings
+import org.jetbrains.plugins.scala.lang.rearranger.ScalaArrangementPanel
 
 /**
  * User: Alefas
@@ -14,5 +15,6 @@ class ScalaTabbedCodeStylePanel(currentSettings: CodeStyleSettings, settings: Co
     super.initTabs(settings)
     addTab(new MultiLineStringCodeStylePanel(settings))
     addTab(new TypeAnnotationsPanel(settings))
+    addTab(new ScalaArrangementPanel(settings))
   }
 }
