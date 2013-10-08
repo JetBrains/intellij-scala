@@ -4,6 +4,8 @@ package config.scalaProjectTemplate
 import com.intellij.platform.ProjectTemplate
 import com.intellij.openapi.ui.ValidationInfo
 import com.intellij.ide.util.projectWizard.ModuleBuilder
+import javax.swing.Icon
+import org.jetbrains.plugins.scala.icons.Icons
 
 /**
  * User: Dmitry Naydanov
@@ -17,4 +19,6 @@ class ScalaProjectTemplate extends ProjectTemplate {
   def createModuleBuilder(): ModuleBuilder = new ScalaModuleBuilder
 
   def validateSettings(): ValidationInfo = null
+
+  def getIcon: Icon = Icons.SCALA_SMALL_LOGO
 }
