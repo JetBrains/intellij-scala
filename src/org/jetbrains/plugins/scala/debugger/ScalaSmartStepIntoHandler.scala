@@ -125,7 +125,7 @@ class ScalaSmartStepIntoHandler extends JvmSmartStepIntoHandler {
               case _ =>
             }
           case f: ScForStatement =>
-            f.getDesugarisedExpr match {
+            f.getDesugarizedExpr match {
               case Some(expr) =>
                 expr.accept(new MethodsVisitor)
                 return

@@ -360,7 +360,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
     }
 
     override def visitForExpression(forStmt: ScForStatement) {
-      forStmt.getDesugarisedExpr match {
+      forStmt.getDesugarizedExpr match {
         case Some(expr) => expr.accept(this)
         case None => throw EvaluateExceptionUtil.createEvaluateException("Cannot desugarize for statement")
       }

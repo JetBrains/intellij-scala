@@ -734,7 +734,7 @@ object ScalaPsiUtil {
       override def visitExpression(expr: ScExpression) {
         expr match {
           case f: ScForStatement => {
-            f.getDesugarisedExpr match {
+            f.getDesugarizedExpr match {
               case Some(e) => res = res ++ getExprImports(e)
               case _ =>
             }
