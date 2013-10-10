@@ -153,8 +153,7 @@ class ScalaLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSettingsPr
         CodeStyleSettingsCustomizable.SPACES_OTHER)
       showCustomOption("SPACE_BEFORE_INFIX_METHOD_CALL_PARENTHESES", "Space before infix method call parentheses",
         CodeStyleSettingsCustomizable.SPACES_BEFORE_PARENTHESES)
-      showCustomOption("INSERT_WHITESPACES_IN_SIMPLE_ONE_LINE_METHOD", "Insert whitespaces in simple one line methods",
-        CodeStyleSettingsCustomizable.SPACES_OTHER)
+      showCustomOption("SPACES_IN_ONE_LINE_BLOCKS", "Insert whitespaces in simple one line blocks", CodeStyleSettingsCustomizable.SPACES_OTHER)
       showCustomOption("SPACE_BEFORE_INFIX_LIKE_METHOD_PARENTHESES", "Space before infix method parentheses",
         CodeStyleSettingsCustomizable.SPACES_BEFORE_PARENTHESES)
       showCustomOption("PRESERVE_SPACE_AFTER_METHOD_DECLARATION_NAME", "Preserve space before method parentheses",

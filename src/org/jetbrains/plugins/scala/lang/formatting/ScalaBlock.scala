@@ -82,7 +82,10 @@ extends Object with ScalaTokenTypes with Block {
            _: ScTryBlock | _: ScCatchBlock =>
         new ChildAttributes(if (braceShifted) Indent.getNoneIndent else Indent.getNormalIndent, null)
       case p : ScPackaging if p.isExplicit => new ChildAttributes(Indent.getNormalIndent, null)
-      case _: ScBlock => new ChildAttributes(Indent.getNoneIndent, null)
+      case _: ScBlock =>
+        val grandParent = parent.getParent
+        new ChildAttributes(if (grandParent != null && grandParent.isInstanceOf[ScCaseClause]) Indent.getNormalIndent
+                            else Indent.getNoneIndent, null)
       case _: ScIfStmt => new ChildAttributes(Indent.getNormalIndent(scalaSettings.ALIGN_IF_ELSE),
         this.getAlignment)
       case x: ScDoStmt => {
