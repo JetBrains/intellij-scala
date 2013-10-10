@@ -248,21 +248,13 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
     }
 
     //for interpolated strings
-    if (Set(tINTERPOLATED_STRING, tINTERPOLATED_MULTILINE_STRING).contains(rightElementType)) {
-      return WITHOUT_SPACING
-    }
-    if (Set(leftElementType, rightElementType).contains(tINTERPOLATED_STRING_INJECTION) || 
-      rightElementType == tINTERPOLATED_STRING_END) {
+    if (rightElementType == tINTERPOLATED_STRING_ESCAPE) return Spacing.getReadOnlySpacing
+    if (Set(tINTERPOLATED_STRING, tINTERPOLATED_MULTILINE_STRING).contains(rightElementType)) return WITHOUT_SPACING
+    if (Set(leftElementType, rightElementType).contains(tINTERPOLATED_STRING_INJECTION) ||
+      rightElementType == tINTERPOLATED_STRING_END) return Spacing.getReadOnlySpacing
+    if (Option(leftNode.getTreeParent.getTreePrev).exists(_.getElementType == tINTERPOLATED_STRING_ID)) {
       return Spacing.getReadOnlySpacing
     }
-    if (Option(leftNode.getTreeParent.getTreePrev).exists(_.getElementType == tINTERPOLATED_STRING_ID) ||
-      Option(rightNode.getTreeParent.getTreeNext).exists(a =>
-        Set(tINTERPOLATED_STRING, tINTERPOLATED_STRING_END, tINTERPOLATED_MULTILINE_STRING).
-                contains(a.getElementType)) && (leftString == "{" || rightString == "}")) {
-      return Spacing.getReadOnlySpacing
-    }
-    
-
 
     @tailrec
     def isMultiLineStringCase(psiElem: PsiElement): Boolean = {
@@ -523,12 +515,12 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
             rightNode.getTreeParent.getTreeParent != null && rightNode.getTreeParent.getTreeParent.getPsi.isInstanceOf[ScFunction]
           val spaceInsideClosure = scalaSettings.SPACE_INSIDE_CLOSURE_BRACES && scalaSettings.KEEP_ONE_LINE_LAMBDAS_IN_ARG_LIST &&
             (leftPsi.isInstanceOf[ScFunctionExpr] || block.isInstanceOf[ScBlockExpr] || leftPsi.isInstanceOf[ScCaseClauses])
-
-          val needsSpace = (oneLineNonEmpty && (spaceInsideOneLineMethod || spaceInsideClosure)) ||
-            leftPsi.isInstanceOf[PsiComment] && scalaSettings.KEEP_ONE_LINE_LAMBDAS_IN_ARG_LIST
+          val needsSpace = (oneLineNonEmpty && (spaceInsideOneLineMethod || spaceInsideClosure ||
+                  scalaSettings.SPACES_IN_ONE_LINE_BLOCKS)) ||
+                  leftPsi.isInstanceOf[PsiComment] && scalaSettings.KEEP_ONE_LINE_LAMBDAS_IN_ARG_LIST
           val spaces = if (needsSpace) 1 else 0
-          
-          
+
+
           return Spacing.createDependentLFSpacing(spaces, spaces, block.getTextRange, keepLineBreaks, keepBlankLinesBeforeRBrace)
         }
         case _ => return Spacing.createSpacing(0, 0, 0, keepLineBreaks, keepBlankLinesBeforeRBrace)
@@ -579,8 +571,11 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
           (b.getParent.isInstanceOf[ScArgumentExprList] || b.getParent.isInstanceOf[ScInfixExpr]) => return WITH_SPACING
         case block@(_: ScPackaging | _: ScBlockExpr | _: ScMatchStmt |
                     _: ScTryBlock | _: ScCatchBlock) => {
-          if (settings.KEEP_SIMPLE_BLOCKS_IN_ONE_LINE) {
-            return Spacing.createDependentLFSpacing(0, 0, block.getTextRange, keepLineBreaks,
+          val prev = block.getPrevSibling
+          if (settings.KEEP_SIMPLE_BLOCKS_IN_ONE_LINE || prev != null &&
+                  prev.getNode.getElementType == tINTERPOLATED_STRING_INJECTION) {
+            val spaces = if (scalaSettings.SPACES_IN_ONE_LINE_BLOCKS) 1 else 0
+            return Spacing.createDependentLFSpacing(spaces, spaces, block.getTextRange, keepLineBreaks,
               keepBlankLinesBeforeRBrace)
           } else {
             return ON_NEW_LINE
@@ -733,7 +728,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
         left = left.getLastChildNode
       }
       val tp = PsiTreeUtil.getParentOfType(left.getPsi, classOf[ScTypeParam])
-      if (tp ne null) {          
+      if (tp ne null) {
           return if (tp.nameId.getNode eq left) WITHOUT_SPACING else WITH_SPACING
       }
       return if (left.getElementType == ScalaTokenTypes.tIDENTIFIER &&

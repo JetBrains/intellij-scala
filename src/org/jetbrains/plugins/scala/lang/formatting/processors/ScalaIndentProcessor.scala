@@ -199,7 +199,17 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
         Indent.getContinuationWithoutFirstIndent
       }
       case _: ScArgumentExprList => {
-        if (child.getElementType != ScalaTokenTypes.tRPARENTHESIS &&
+        val refExpr = node.getTreePrev.getPsi
+        if (refExpr.getText.contains("\n")) {
+          //ugly hack for SCL-3859
+          if (child.getElementType != ScalaTokenTypes.tRPARENTHESIS &&
+                  child.getElementType != ScalaTokenTypes.tLPARENTHESIS) {
+            val indentSettings = settings.getIndentOptions
+            Indent.getSpaceIndent(indentSettings.CONTINUATION_INDENT_SIZE + indentSettings.INDENT_SIZE)
+          } else {
+            Indent.getContinuationWithoutFirstIndent
+          }
+        } else if (child.getElementType != ScalaTokenTypes.tRPARENTHESIS &&
             child.getElementType != ScalaTokenTypes.tLPARENTHESIS)
           Indent.getNormalIndent(settings.ALIGN_MULTILINE_METHOD_BRACKETS)
         else Indent.getNoneIndent
