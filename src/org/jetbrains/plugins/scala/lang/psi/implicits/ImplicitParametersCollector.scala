@@ -4,7 +4,7 @@ package lang.psi.implicits
 import org.jetbrains.plugins.scala.lang.psi.types._
 import nonvalue.{TypeParameter, ScTypePolymorphicType, ScMethodType}
 import org.jetbrains.plugins.scala.lang.resolve._
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.{types, ScalaPsiUtil}
 import processor.{ImplicitProcessor, MostSpecificUtil}
 import result.{TypeResult, Success, TypingContext}
 import com.intellij.psi._
@@ -284,7 +284,16 @@ class ImplicitParametersCollector(place: PsiElement, tp: ScType, coreElement: Op
         t.isAliasType match {
           case Some(AliasType(ta, _, upper)) =>
             updated = true
-            (true, upper.getOrAny)
+            //todo: looks like a hack. Imagine type A <: B; type B <: List[A];
+            val nonRecursiveUpper = upper.map { upper =>
+              upper.recursiveUpdate { t =>
+                t.isAliasType match {
+                  case Some(AliasType(`ta`, _, _)) => (true, types.Any)
+                  case _ => (false, t)
+                }
+              }
+            }
+            (true, nonRecursiveUpper.getOrAny)
           case _ => (false, t)
         }
       }
@@ -297,17 +306,15 @@ class ImplicitParametersCollector(place: PsiElement, tp: ScType, coreElement: Op
   private def coreType(tp: ScType): ScType = {
     tp match {
       case ScCompoundType(comps, _, _, subst) => abstractsToUpper(ScCompoundType(comps, Seq.empty, Seq.empty, subst)).removeUndefines()
-      case ScExistentialType(quant, wilds) => abstractsToUpper(ScExistentialType(quant.recursiveUpdate((tp: ScType) => {
-          tp match {
-            case ScTypeVariable(name) => wilds.find(_.name == name).map(w => (true, w.upperBound)).getOrElse((false, tp))
-            case ScDesignatorType(element) => element match {
-              case a: ScTypeAlias if a.getContext.isInstanceOf[ScExistentialClause] =>
-                wilds.find(_.name == a.name).map(w => (true, w.upperBound)).getOrElse((false, tp))
-              case _ => (false, tp)
-            }
-            case _ => (false, tp)
-          }
-        }), wilds)).removeUndefines()
+      case ScExistentialType(quant, wilds) => abstractsToUpper(ScExistentialType(quant.recursiveUpdate {
+        case tp@ScTypeVariable(name) => wilds.find(_.name == name).map(w => (true, w.upperBound)).getOrElse((false, tp))
+        case tp@ScDesignatorType(element) => element match {
+          case a: ScTypeAlias if a.getContext.isInstanceOf[ScExistentialClause] =>
+            wilds.find(_.name == a.name).map(w => (true, w.upperBound)).getOrElse((false, tp))
+          case _ => (false, tp)
+        }
+        case other => (false, other)
+      }, wilds)).removeUndefines()
       case _ => abstractsToUpper(tp).removeUndefines()
     }
   }
