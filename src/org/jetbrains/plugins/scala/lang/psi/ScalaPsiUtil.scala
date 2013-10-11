@@ -440,7 +440,7 @@ object ScalaPsiUtil {
         case Array(r@ScalaResolveResult(fun: PsiMethod, s: ScSubstitutor)) =>
           val res = fun match {
             case fun: ScFun => (s.subst(fun.polymorphicType), r.importsUsed, r.implicitFunction, Some(fun))
-            case fun: ScFunction => (s.subst(fun.polymorphicType), r.importsUsed, r.implicitFunction, Some(fun))
+            case fun: ScFunction => (s.subst(fun.polymorphicType()), r.importsUsed, r.implicitFunction, Some(fun))
             case meth: PsiMethod => (ResolveUtils.javaPolymorphicType(meth, s, call.getResolveScope), r.importsUsed,
               r.implicitFunction, Some(fun))
           }

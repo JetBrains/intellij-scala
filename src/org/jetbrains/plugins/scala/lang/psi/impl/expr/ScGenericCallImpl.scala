@@ -60,7 +60,7 @@ class ScGenericCallImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
         case ScalaResolveResult(fun: PsiMethod, s: ScSubstitutor) => {
           fun match {
             case fun: ScFun => s.subst(fun.polymorphicType)
-            case fun: ScFunction => s.subst(fun.polymorphicType)
+            case fun: ScFunction => s.subst(fun.polymorphicType())
             case meth: PsiMethod => ResolveUtils.javaPolymorphicType(meth, s, getResolveScope)
           }
         }

@@ -269,7 +269,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
         }
         s.subst(fun.polymorphicType(optionResult))
       case Some(result @ ScalaResolveResult(fun: ScFunction, s)) =>
-        val functionType = s.subst(fun.polymorphicType)
+        val functionType = s.subst(fun.polymorphicType())
         if (result.isDynamic) {
           functionType match {
             case methodType: ScMethodType => methodType.returnType
