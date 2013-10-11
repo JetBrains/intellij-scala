@@ -380,7 +380,7 @@ private[expr] object ExpectedTypes {
         if (cand.length == 1) {
           cand(0) match {
             case ScalaResolveResult(fun: ScFunction, s) => {
-              var polyType: TypeResult[ScType] = Success(s.subst(fun.polymorphicType) match {
+              var polyType: TypeResult[ScType] = Success(s.subst(fun.polymorphicType()) match {
                 case ScTypePolymorphicType(internal, params) =>
                   ScTypePolymorphicType(internal, params ++ typeParams)
                 case tp => ScTypePolymorphicType(tp, typeParams)
@@ -397,7 +397,7 @@ private[expr] object ExpectedTypes {
         if (cand.length == 1) {
           cand(0) match {
             case ScalaResolveResult(fun: ScFunction, subst) =>
-              var polyType: TypeResult[ScType] = Success(subst.subst(fun.polymorphicType), Some(expr))
+              var polyType: TypeResult[ScType] = Success(subst.subst(fun.polymorphicType()), Some(expr))
               call.foreach(call => polyType = call.updateAccordingToExpectedType(polyType))
               processArgsExpected(res, expr, i, polyType, exprs, forApply = true)
             case _ =>

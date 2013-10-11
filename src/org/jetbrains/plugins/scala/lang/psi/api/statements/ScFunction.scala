@@ -224,8 +224,7 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
   /**
    * Returns internal type with type parameters.
    */
-  def polymorphicType: ScType = polymorphicType(None)
-  def polymorphicType(result: Option[ScType]): ScType = {
+  def polymorphicType(result: Option[ScType] = None): ScType = {
     if (typeParameters.length == 0) methodType(result)
     else ScTypePolymorphicType(methodType(result), typeParameters.map(tp =>
       TypeParameter(tp.name, tp.lowerBound.getOrNothing, tp.upperBound.getOrAny, tp)))
