@@ -24,6 +24,7 @@
           <element id="library" level="project" name="sbt" />
           <element id="library" level="project" name="nailgun" />
         </element>
+        <element id="library" level="project" name="concurrentlinkedhashmap-lru" />
       </element>
     </root>
   </artifact>
