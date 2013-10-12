@@ -36,7 +36,7 @@ trait ResolvableReferenceExpression extends ScReferenceExpression {
   def multiResolve(incomplete: Boolean): Array[ResolveResult] = {
     if (resolveFunction != null) return resolveFunction()
     ScalaPsiManager.getMappedWithRecursionPreventingWithRollback[ResolvableReferenceExpression, Boolean, Array[ResolveResult]](
-      this, incomplete, ScalaPsiManager.RESOLVE_KEY, Resolver.resolve, Array.empty, isOutOfCodeBlock = false)
+      this, incomplete, ScalaPsiManager.RESOLVE_KEY, Resolver.resolve, Array.empty, isOutOfCodeBlock = false, isResolve = true)
   }
 
   def shapeResolve: Array[ResolveResult] = {

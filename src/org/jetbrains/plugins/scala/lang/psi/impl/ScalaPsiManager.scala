@@ -14,7 +14,7 @@ import com.intellij.ProjectTopics
 import com.intellij.reference.SoftReference
 import scala.collection.{mutable, Seq}
 import com.intellij.psi._
-import com.intellij.util.containers.{ConcurrentHashMap, WeakValueHashMap}
+import com.intellij.util.containers.{ConcurrentHashSet, ConcurrentHashMap, WeakValueHashMap}
 import impl.JavaPsiFacadeImpl
 import java.util.concurrent.ConcurrentMap
 import org.jetbrains.plugins.scala.caches.{CachesUtil, ScalaShortNamesCacheManager}
@@ -30,7 +30,7 @@ import java.util.Collections
 import com.intellij.openapi.roots.{ModuleRootEvent, ModuleRootListener}
 import ParameterlessNodes.{Map => PMap}, TypeNodes.{Map => TMap}, SignatureNodes.{Map => SMap}
 import java.util
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScFunction, ScTypeAlias}
 import com.googlecode.concurrentlinkedhashmap.ConcurrentLinkedHashMap
 import com.intellij.psi.util._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
@@ -38,13 +38,14 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.types.ScCompoundType
 import org.jetbrains.plugins.scala.lang.psi.types.ScTypeParameterType
 import org.jetbrains.plugins.scala.caches.CachesUtil.ProbablyRecursionException
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScExpression}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockExpr, MethodInvocation, ScExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression.ExpressionTypeResult
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.implicits.ScImplicitlyConvertible.ImplicitResolveResult
 import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, ResolvableStableCodeReferenceElement, ResolvableReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.impl.base.types.ScSimpleTypeElementImpl
+import scala.annotation.tailrec
 
 class ScalaPsiManager(project: Project) extends ProjectComponent {
   import ScalaPsiManager._
@@ -354,6 +355,59 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
       ScalaPsiManager.clearOutOfCodeBlockCaches()
     }
 
+    PsiManager.getInstance(project).addPsiTreeChangeListener(new PsiTreeChangeAdapter {
+      def clearResolveCaches(element: PsiElement) {
+        @tailrec
+        def treeWalkup(element: PsiElement, found: Boolean = false): Boolean = {
+          val newFound = element match {
+            case null => return found
+            case b: ScBlockExpr =>
+              b.getParent match {
+                case f: ScFunctionDefinition if f.hasExplicitType && f.body == Some(b) =>
+                  val set = resolveStorage.get(b)
+                  if (set != null) {
+                    val iterator = set.iterator()
+                    while (iterator.hasNext) {
+                      val next = iterator.next()
+                      ScalaPsiManager.caches.apply(ScalaPsiManager.RESOLVE_KEY).remove(next)
+                      ScalaPsiManager.caches.apply(ScalaPsiManager.STABLE_RESOLVE_KEY).remove(next)
+                    }
+                  }
+                  true
+                case _ => found
+              }
+            case _ => found
+          }
+          treeWalkup(element.getParent, newFound)
+        }
+        if (!treeWalkup(element)) {
+          ScalaPsiManager.caches.apply(ScalaPsiManager.RESOLVE_KEY).clear()
+          ScalaPsiManager.caches.apply(ScalaPsiManager.STABLE_RESOLVE_KEY).clear()
+        }
+      }
+
+      override def beforeChildAddition(event: PsiTreeChangeEvent) {
+        clearResolveCaches(event.getParent)
+      }
+
+      override def beforeChildRemoval(event: PsiTreeChangeEvent) {
+        clearResolveCaches(event.getParent)
+      }
+
+      override def beforeChildReplacement(event: PsiTreeChangeEvent) {
+        clearResolveCaches(event.getParent)
+      }
+
+      override def beforeChildMovement(event: PsiTreeChangeEvent) {
+        clearResolveCaches(event.getOldParent)
+        clearResolveCaches(event.getNewParent)
+      }
+
+      override def beforeChildrenChange(event: PsiTreeChangeEvent) {
+        clearResolveCaches(event.getParent)
+      }
+    })
+
     project.getMessageBus.connect.subscribe(ProjectTopics.PROJECT_ROOTS, new ModuleRootListener {
       def beforeRootsChange(event: ModuleRootEvent) {
       }
@@ -462,7 +516,7 @@ object ScalaPsiManager {
 
   private val classStructureCacheCapacity: Long = 100
   private val smallCacheCapacity: Long = 2000
-  private val resolveCapacity: Long = scala.Long.MaxValue
+  private val resolveCapacity: Long = 50000 //should be big to cover big files completely, otherwise inspections would be slow
 
   //class structure cache
   private val compoundTypesParameterslessNodes: ConcurrentLinkedHashMap[(ScCompoundType, Option[ScType]), PMap] = buildMap(classStructureCacheCapacity)
@@ -495,13 +549,18 @@ object ScalaPsiManager {
 
   private val caches: mutable.HashMap[Key[_], ConcurrentLinkedHashMap[_, _]] = new mutable.HashMap[Key[_], ConcurrentLinkedHashMap[_, _]]()
   private val outOfCodeBlockCaches: mutable.HashMap[Key[_], ConcurrentLinkedHashMap[_, _]] = new mutable.HashMap[Key[_], ConcurrentLinkedHashMap[_, _]]()
+  private val resolveStorage: ConcurrentHashMap[PsiElement, ConcurrentHashSet[PsiElement]] = new ConcurrentHashMap[PsiElement, ConcurrentHashSet[PsiElement]]()
 
   private def addCache[From, To](key: Cache[From, To], capacity: Long = smallCacheCapacity, isOutOfCodeBlock: Boolean = false) = {
     (if (isOutOfCodeBlock) outOfCodeBlockCaches else caches) += key -> buildMap[From, To](capacity)
   }
 
   private def clearCaches() {
-    caches.valuesIterator.foreach(_.clear())
+    caches.iterator.foreach {
+      case (RESOLVE_KEY, _) => //do nothing
+      case (STABLE_RESOLVE_KEY, _) => //do nothing
+      case (_, map) => map.clear()
+    }
   }
 
   private def clearOutOfCodeBlockCaches() {
@@ -597,7 +656,8 @@ object ScalaPsiManager {
                                                                                     key: Cache[(Dom, Data), Result],
                                                                                     builder: (Dom, Data) => Result,
                                                                                     defaultValue: => Result,
-                                                                                    isOutOfCodeBlock: Boolean): Result = {
+                                                                                    isOutOfCodeBlock: Boolean,
+                                                                                    isResolve: Boolean = false): Result = {
     val storage = (if (isOutOfCodeBlock) outOfCodeBlockCaches else caches).apply(key).asInstanceOf[ConcurrentLinkedHashMap[(Dom, Data), Result]]
     var result = storage.get(e, data)
     if (result == null) {
@@ -644,6 +704,24 @@ object ScalaPsiManager {
       }
       if (isCache) {
         storage.put((e, data), result)
+        if (isResolve) {
+          @tailrec
+          def treeWalkup(element: PsiElement) {
+            element match {
+              case null => return
+              case b: ScBlockExpr =>
+                b.getParent match {
+                  case f: ScFunctionDefinition if f.hasExplicitType && f.body == Some(b) =>
+                    val set = resolveStorage.cacheOrGet(b, new ConcurrentHashSet[PsiElement]())
+                    set.add(e)
+                  case _ =>
+                }
+              case _ =>
+            }
+            treeWalkup(element.getParent)
+          }
+          treeWalkup(e)
+        }
       }
     }
     result

@@ -34,7 +34,7 @@ trait ResolvableStableCodeReferenceElement extends ScStableCodeReferenceElement 
   def multiResolve(incomplete: Boolean): Array[ResolveResult] = {
 //    ResolveCache.getInstance(getProject).resolveWithCaching(this, Resolver, true, incomplete)
     ScalaPsiManager.getMappedWithRecursionPreventingWithRollback[ResolvableStableCodeReferenceElement, Boolean, Array[ResolveResult]](
-      this, incomplete, ScalaPsiManager.STABLE_RESOLVE_KEY, Resolver.resolve, Array.empty, isOutOfCodeBlock = false)
+      this, incomplete, ScalaPsiManager.STABLE_RESOLVE_KEY, Resolver.resolve, Array.empty, isOutOfCodeBlock = false, isResolve = true)
   }
 
   protected def processQualifierResolveResult(res: ResolveResult, processor: BaseProcessor, ref: ScStableCodeReferenceElement) {
