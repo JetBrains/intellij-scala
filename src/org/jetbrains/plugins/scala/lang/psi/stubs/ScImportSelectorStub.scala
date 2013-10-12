@@ -17,4 +17,6 @@ trait ScImportSelectorStub extends StubElement[ScImportSelector] {
   def reference: ScStableCodeReferenceElement
 
   def importedName: String
+
+  def isAliasImport: Boolean
 }

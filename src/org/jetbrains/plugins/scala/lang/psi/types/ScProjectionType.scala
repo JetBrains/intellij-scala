@@ -20,6 +20,7 @@ import impl.toplevel.templates.ScTemplateBodyImpl
 import api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.types.Conformance.AliasType
 import scala.collection.mutable.ArrayBuffer
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 
 /**
  * @author ilyas
@@ -152,9 +153,9 @@ case class ScProjectionType(projected: ScType, element: PsiNamedElement,
     }
 
     val (actualElement, actualSubst) =
-      CachesUtil.getMappedWithRecursionPreventingWithRollback[PsiNamedElement, ScType, Option[(PsiNamedElement, ScSubstitutor)]](
-        element, projected, CachesUtil.PROJECTION_TYPE_ACTUAL_INNER, actualInner, None,
-        PsiModificationTracker.MODIFICATION_COUNT).getOrElse(
+      ScalaPsiManager.getMappedWithRecursionPreventingWithRollback[PsiNamedElement, ScType, Option[(PsiNamedElement, ScSubstitutor)]](
+        element, projected, ScalaPsiManager.PROJECTION_TYPE_ACTUAL_INNER, actualInner, None,
+        isOutOfCodeBlock = false).getOrElse(
           (element, ScSubstitutor.empty)
         )
 

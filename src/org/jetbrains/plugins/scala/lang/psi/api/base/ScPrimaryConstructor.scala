@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import com.intellij.psi.{PsiClass, PsiMethod}
 import psi.types.nonvalue.{ScMethodType, ScTypePolymorphicType, TypeParameter}
 import psi.types._
-import impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiManager, ScalaPsiElementFactory}
 import toplevel.ScTypeParametersOwner
 import caches.CachesUtil
 import com.intellij.psi.util.PsiModificationTracker
@@ -122,20 +122,7 @@ trait ScPrimaryConstructor extends ScMember with ScMethodLike {
     }
   }
 
-  @volatile
-  private var functionWrapper: ScPrimaryConstructorWrapper = null
-
-  @volatile
-  private var functionWrapperModificationCount: Long = 0L
-
-  def getFunctionWrapper: ScPrimaryConstructorWrapper = {
-    val curModCount = getManager.getModificationTracker.getOutOfCodeBlockModificationCount
-    if (functionWrapper != null && functionWrapperModificationCount == curModCount) {
-      return functionWrapper
-    }
-    val res = new ScPrimaryConstructorWrapper(this)
-    functionWrapper = res
-    functionWrapperModificationCount = curModCount
-    res
+  def getFunctionWrapper: ScPrimaryConstructorWrapper = ScalaPsiManager.getOutOfCodeBlockCaches(ScalaPsiManager.primaryConstructorWrapperKey, this) {
+    new ScPrimaryConstructorWrapper(_)
   }
 }

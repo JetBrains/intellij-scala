@@ -458,9 +458,8 @@ object MixinNodes {
       case _ =>
     }
 
-    CachesUtil.getWithRecursionPreventingWithRollback(clazz, CachesUtil.LINEARIZATION_KEY,
-    new CachesUtil.MyOptionalProvider(clazz, (clazz: PsiClass) => linearizationInner(clazz))
-      (ScalaPsiUtil.getDependentItem(clazz)), Seq.empty)
+    ScalaPsiManager.getWithRecursionPreventingWithRollback(clazz, ScalaPsiManager.LINEARIZATION_KEY,
+      (clazz: PsiClass) => linearizationInner(clazz), Seq.empty, isOutOfCodeBlock = true)
   }
 
 

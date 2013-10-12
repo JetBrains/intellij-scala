@@ -12,6 +12,7 @@ import caches.CachesUtil
 import result.{Failure, TypeResult, TypingContext, TypingContextOwner}
 import com.intellij.psi.util.{PsiTreeUtil, PsiModificationTracker}
 import statements.params.ScTypeParam
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 
 /**
 * @author Alexander Podkhalyuzin
@@ -19,10 +20,8 @@ import statements.params.ScTypeParam
 
 trait ScTypeElement extends ScalaPsiElement with TypingContextOwner {
   def getType(ctx: TypingContext): TypeResult[ScType] = {
-    CachesUtil.getWithRecursionPreventingWithRollback(this, CachesUtil.TYPE_ELEMENT_TYPE_KEY,
-      new CachesUtil.MyProvider[ScTypeElement, TypeResult[ScType]](
-        this, elem => elem.innerType(ctx)
-      )(PsiModificationTracker.MODIFICATION_COUNT), Failure("Recursive type of type element", Some(this)))
+    ScalaPsiManager.getWithRecursionPreventingWithRollback(this, ScalaPsiManager.TYPE_ELEMENT_TYPE_KEY,
+      (elem: ScTypeElement) => elem.innerType(ctx), Failure("Recursive type of type element", Some(this)), isOutOfCodeBlock = false)
   }
 
   def getNonValueType(ctx: TypingContext): TypeResult[ScType] = innerType(ctx)

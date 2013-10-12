@@ -19,21 +19,18 @@ import util._
 import reflect.NameTransformer
 import com.intellij.openapi.diagnostic.Logger
 import types._
-import caches.CachesUtil
-import lang.resolve.processor.{ImplicitProcessor, BaseProcessor}
+import lang.resolve.processor.BaseProcessor
 import psi.ScalaPsiUtil.convertMemberName
 import api.toplevel.{ScNamedElement, ScModifierListOwner, ScTypedDefinition}
 import api.base.{ScAccessModifier, ScFieldId, ScPrimaryConstructor}
 import extensions.toPsiNamedElementExt
-import caches.CachesUtil.MyOptionalProvider
-import api.ScalaFile
 
 /**
  * @author ven
  * @author alefas
  */
 object TypeDefinitionMembers {
-  private val LOG: Logger = Logger.getInstance("#org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers")
+  private val LOG : Logger = Logger.getInstance("#org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers")
 
   def isBridge(place: Option[PsiElement], memb: PsiMember): Boolean = {
     memb match {
@@ -113,8 +110,8 @@ object TypeDefinitionMembers {
         map addToMap (phys, new Node(phys, subst))
       }
 
-      for (field <- clazz.getFields if (isBridge(place, field) &&
-        !field.hasModifierProperty("static"))) {
+      for (field <- clazz.getFields if isBridge(place, field) &&
+              !field.hasModifierProperty("static")) {
         val sig = new Signature(field.getName, Stream.empty, 0, subst, Some(field))
         map addToMap (sig, new Node(sig, subst))
       }
@@ -175,7 +172,7 @@ object TypeDefinitionMembers {
           case c: ScClass if c.isCase && c.fakeCompanionModule != None && isBridge(place, c) =>
             val o = c.fakeCompanionModule.get
             addSignature(new Signature(o.name, Stream.empty, 0, subst, Some(o)))
-          case o: ScObject if (isBridge(place, o)) =>
+          case o: ScObject if isBridge(place, o) =>
             addSignature(new Signature(o.name, Stream.empty, 0, subst, Some(o)))
           case _ =>
         }
@@ -336,8 +333,8 @@ object TypeDefinitionMembers {
         map addToMap (phys, new Node(phys, subst))
       }
 
-      for (field <- clazz.getFields if (isBridge(place, field) &&
-        !field.hasModifierProperty("static"))) {
+      for (field <- clazz.getFields if isBridge(place, field) &&
+              !field.hasModifierProperty("static")) {
         val sig = new Signature(field.getName, Stream.empty, 0, subst, Some(field))
         map addToMap (sig, new Node(sig, subst))
       }
@@ -424,7 +421,7 @@ object TypeDefinitionMembers {
                 case _ =>
               }
             }
-          case o: ScObject if (isBridge(place, o)) =>
+          case o: ScObject if isBridge(place, o) =>
             addSignature(new Signature(o.name, Stream.empty, 0, subst, Some(o)))
           case _ =>
         }
@@ -472,12 +469,8 @@ object TypeDefinitionMembers {
   val signaturesKey: Key[CachedValue[SMap]] = Key.create("signatures key")
   val parameterlessKey: Key[CachedValue[PMap]] = Key.create("parameterless key")
 
-  import CachesUtil.get
-  import CachesUtil.MyProvider
-  import PsiModificationTracker.{OUT_OF_CODE_BLOCK_MODIFICATION_COUNT => dep_item}
-
   def getParameterlessSignatures(clazz: PsiClass): PMap = {
-    clazz match {
+    /*clazz match {
       case o: ScObject =>
         val qual = o.qualifiedName
         if (qual == "scala" || qual == "scala.Predef") {
@@ -487,11 +480,12 @@ object TypeDefinitionMembers {
     }
     get(clazz, parameterlessKey, new MyOptionalProvider(clazz, {clazz: PsiClass => ParameterlessNodes.build(clazz)})(
       ScalaPsiUtil.getDependentItem(clazz)
-    ))
+    ))*/
+    ScalaPsiManager.getParameterlessSignatures(clazz)
   }
 
   def getTypes(clazz: PsiClass): TMap = {
-    clazz match {
+    /*clazz match {
       case o: ScObject =>
         val qual = o.qualifiedName
         if (qual == "scala" || qual == "scala.Predef") {
@@ -501,11 +495,12 @@ object TypeDefinitionMembers {
     }
     get(clazz, typesKey, new MyOptionalProvider(clazz, {clazz: PsiClass => TypeNodes.build(clazz)})(
       ScalaPsiUtil.getDependentItem(clazz)
-    ))
+    ))*/
+    ScalaPsiManager.getTypes(clazz)
   }
 
   def getSignatures(clazz: PsiClass): SMap = {
-    clazz match {
+    /*clazz match {
       case o: ScObject =>
         val qual = o.qualifiedName
         if (qual == "scala" || qual == "scala.Predef") {
@@ -515,19 +510,20 @@ object TypeDefinitionMembers {
     }
     get(clazz, signaturesKey, new MyOptionalProvider(clazz, {c: PsiClass => SignatureNodes.build(c)})(
       ScalaPsiUtil.getDependentItem(clazz)
-    ))
+    ))*/
+    ScalaPsiManager.getSignatures(clazz)
   }
 
-  def getParameterlessSignatures(tp: ScCompoundType, compoundTypeThisType: Option[ScType], place: PsiElement): PMap = {
-    ScalaPsiManager.instance(place.getProject).getParameterlessSignatures(tp, compoundTypeThisType)
+  def getParameterlessSignatures(tp: ScCompoundType, compoundTypeThisType: Option[ScType]): PMap = {
+    ScalaPsiManager.getParameterlessSignatures(tp, compoundTypeThisType)
   }
 
-  def getTypes(tp: ScCompoundType, compoundTypeThisType: Option[ScType], place: PsiElement): TMap = {
-    ScalaPsiManager.instance(place.getProject).getTypes(tp, compoundTypeThisType)
+  def getTypes(tp: ScCompoundType, compoundTypeThisType: Option[ScType]): TMap = {
+    ScalaPsiManager.getTypes(tp, compoundTypeThisType)
   }
 
-  def getSignatures(tp: ScCompoundType, compoundTypeThisType: Option[ScType], place: PsiElement): SMap = {
-    ScalaPsiManager.instance(place.getProject).getSignatures(tp, compoundTypeThisType)
+  def getSignatures(tp: ScCompoundType, compoundTypeThisType: Option[ScType]): SMap = {
+    ScalaPsiManager.getSignatures(tp, compoundTypeThisType)
   }
 
   def getSelfTypeSignatures(clazz: PsiClass): SMap = {
@@ -538,7 +534,7 @@ object TypeDefinitionMembers {
             val clazzType = td.getTypeWithProjections(TypingContext.empty).getOrAny
             Bounds.glb(selfType, clazzType) match {
               case c: ScCompoundType =>
-                getSignatures(c, Some(clazzType), clazz)
+                getSignatures(c, Some(clazzType))
               case _ =>
                 getSignatures(clazz)
             }
@@ -557,7 +553,7 @@ object TypeDefinitionMembers {
             val clazzType = td.getTypeWithProjections(TypingContext.empty).getOrAny
             Bounds.glb(selfType, clazzType) match {
               case c: ScCompoundType =>
-                getTypes(c, Some(clazzType), clazz)
+                getTypes(c, Some(clazzType))
               case _ =>
                 getTypes(clazz)
             }
@@ -649,8 +645,8 @@ object TypeDefinitionMembers {
                           place: PsiElement): Boolean = {
     val compoundTypeThisType = Option(state.get(BaseProcessor.COMPOUND_TYPE_THIS_TYPE_KEY)).getOrElse(None)
     if (!privateProcessDeclarations(processor, state, lastParent, place,
-      getSignatures(comp, compoundTypeThisType, place), getParameterlessSignatures(comp, compoundTypeThisType, place),
-      getTypes(comp, compoundTypeThisType, place), isSupers = false, isObject = false)) return false
+      getSignatures(comp, compoundTypeThisType), getParameterlessSignatures(comp, compoundTypeThisType),
+      getTypes(comp, compoundTypeThisType), isSupers = false, isObject = false)) return false
 
     val project =
       if (lastParent != null) lastParent.getProject

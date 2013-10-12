@@ -15,6 +15,7 @@ import com.intellij.psi.{PsiElement, PsiClass, PsiMethod}
 import com.intellij.util.containers.ConcurrentHashMap
 import light.{PsiClassWrapper, StaticPsiTypedDefinitionWrapper, PsiTypedDefinitionWrapper}
 import extensions.toSeqExt
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 
 /**
  * Member definitions, classes, named patterns which have types
@@ -25,31 +26,6 @@ trait ScTypedDefinition extends ScNamedElement with TypingContextOwner {
    * @return false for variable elements
    */
   def isStable = true
-  
-  @volatile
-  private var beanMethodsCache: Seq[PsiMethod] = null
-  @volatile
-  private var modCount: Long = 0L
-
-  @volatile
-  private var isBeanMethodsCache: PsiMethod = null
-  @volatile
-  private var isModCount: Long = 0L
-
-  @volatile
-  private var getBeanMethodsCache: PsiMethod = null
-  @volatile
-  private var getModCount: Long = 0L
-
-  @volatile
-  private var setBeanMethodsCache: PsiMethod = null
-  @volatile
-  private var setModCount: Long = 0L
-
-  @volatile
-  private var underEqualsMethodsCache: PsiMethod = null
-  @volatile
-  private var underEqualsModCount: Long = 0L
 
   def getUnderEqualsMethod: PsiMethod = {
     def inner(): PsiMethod = {
@@ -64,12 +40,9 @@ trait ScTypedDefinition extends ScNamedElement with TypingContextOwner {
       new FakePsiMethod(this, name + "_=", Array[ScType](tType), types.Unit, hasModifierProperty)
     }
 
-    val curModCount = getManager.getModificationTracker.getOutOfCodeBlockModificationCount
-    if (underEqualsMethodsCache != null && underEqualsModCount == curModCount) return underEqualsMethodsCache
-    val res = inner()
-    underEqualsModCount = curModCount
-    underEqualsMethodsCache = res
-    res
+    ScalaPsiManager.getOutOfCodeBlockCaches(ScalaPsiManager.underEqualsMethodsKey, this) {
+      _ => inner()
+    }
   }
 
   def getGetBeanMethod: PsiMethod = {
@@ -82,12 +55,9 @@ trait ScTypedDefinition extends ScNamedElement with TypingContextOwner {
         this.getType(TypingContext.empty).getOrAny, hasModifierProperty)
     }
 
-    val curModCount = getManager.getModificationTracker.getOutOfCodeBlockModificationCount
-    if (getBeanMethodsCache != null && getModCount == curModCount) return getBeanMethodsCache
-    val res = inner()
-    getModCount = curModCount
-    getBeanMethodsCache = res
-    res
+    ScalaPsiManager.getOutOfCodeBlockCaches(ScalaPsiManager.getBeanMethodsKey, this) {
+      _ => inner()
+    }
   }
 
   def getSetBeanMethod: PsiMethod = {
@@ -103,12 +73,9 @@ trait ScTypedDefinition extends ScNamedElement with TypingContextOwner {
       new FakePsiMethod(this, "set" + name.capitalize, Array[ScType](tType), types.Unit, hasModifierProperty)
     }
 
-    val curModCount = getManager.getModificationTracker.getOutOfCodeBlockModificationCount
-    if (setBeanMethodsCache != null && setModCount == curModCount) return setBeanMethodsCache
-    val res = inner()
-    setModCount = curModCount
-    setBeanMethodsCache = res
-    res
+    ScalaPsiManager.getOutOfCodeBlockCaches(ScalaPsiManager.setBeanMethodsKey, this) {
+      _ => inner()
+    }
   }
 
   def getIsBeanMethod: PsiMethod = {
@@ -121,12 +88,9 @@ trait ScTypedDefinition extends ScNamedElement with TypingContextOwner {
         this.getType(TypingContext.empty).getOrAny, hasModifierProperty)
     }
 
-    val curModCount = getManager.getModificationTracker.getOutOfCodeBlockModificationCount
-    if (isBeanMethodsCache != null && isModCount == curModCount) return isBeanMethodsCache
-    val res = inner()
-    isModCount = curModCount
-    isBeanMethodsCache = res
-    res
+    ScalaPsiManager.getOutOfCodeBlockCaches(ScalaPsiManager.isBeanMethodKey, this) {
+      _ => inner()
+    }
   }
 
   def getBeanMethods: Seq[PsiMethod] = {
@@ -158,12 +122,9 @@ trait ScTypedDefinition extends ScNamedElement with TypingContextOwner {
       }
     }
     
-    val curModCount = getManager.getModificationTracker.getOutOfCodeBlockModificationCount
-    if (beanMethodsCache != null && modCount == curModCount) return beanMethodsCache
-    val res = getBeanMethodsInner(this)
-    modCount = curModCount
-    beanMethodsCache = res
-    res
+    ScalaPsiManager.getOutOfCodeBlockCaches(ScalaPsiManager.beanMethodsKey, this) {
+      t => getBeanMethodsInner(t)
+    }
   }
 
   import PsiTypedDefinitionWrapper.DefinitionRole._

@@ -4,7 +4,7 @@ package psi
 package api
 package expr
 
-import psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiManager, ScalaPsiElementFactory}
 import types.result.{TypingContext, TypeResult}
 import toplevel.imports.usages.ImportUsed
 import lang.resolve.{StdKinds, ScalaResolveResult}
@@ -56,7 +56,7 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue {
     type Data = (Boolean, Boolean, Option[ScType], Boolean, Boolean)
     val data = (checkImplicits, isShape, expectedOption, ignoreBaseTypes, fromUnderscore)
     
-    CachesUtil.getMappedWithRecursionPreventingWithRollback(this, data, CachesUtil.TYPE_AFTER_IMPLICIT_KEY,
+    ScalaPsiManager.getMappedWithRecursionPreventingWithRollback(this, data, ScalaPsiManager.TYPE_AFTER_IMPLICIT_KEY,
       (expr: ScExpression, data: Data) => {
         val (checkImplicits: Boolean, isShape: Boolean,
         expectedOption: Option[ScType],
@@ -97,8 +97,7 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue {
           }
           ExpressionTypeResult(Success(res.getTypeWithDependentSubstitutor, Some(this)), res.importUsed, Some(res.element))
         }
-      }, ExpressionTypeResult(Failure("Recursive getTypeAfterImplicitConversion", Some(this)), Set.empty, None),
-      PsiModificationTracker.MODIFICATION_COUNT)
+      }, ExpressionTypeResult(Failure("Recursive getTypeAfterImplicitConversion", Some(this)), Set.empty, None), isOutOfCodeBlock = false)
   }
 
   def getTypeWithoutImplicits(ctx: TypingContext, //todo: remove TypingContext?
@@ -109,7 +108,7 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue {
     type Data = (Boolean, Boolean)
     val data = (ignoreBaseTypes, fromUnderscore)
 
-    CachesUtil.getMappedWithRecursionPreventingWithRollback(this, data, CachesUtil.TYPE_WITHOUT_IMPLICITS,
+    ScalaPsiManager.getMappedWithRecursionPreventingWithRollback(this, data, ScalaPsiManager.TYPE_WITHOUT_IMPLICITS,
       (expr: ScExpression, data: Data) => {
         val (ignoreBaseTypes: Boolean,
         fromUnderscore: Boolean) = data
@@ -281,7 +280,7 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue {
           case _ =>
         }
         Success(valType, Some(this))
-      }, Failure("Recursive getTypeWithoutImplicits", Some(this)), PsiModificationTracker.MODIFICATION_COUNT)
+      }, Failure("Recursive getTypeWithoutImplicits", Some(this)), isOutOfCodeBlock = false)
   }
 
   def getType(ctx: TypingContext = TypingContext.empty): TypeResult[ScType] = {
@@ -334,7 +333,7 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue {
     type Data = (Boolean, Boolean)
     val data = (ignoreBaseType, fromUnderscore)
 
-    CachesUtil.getMappedWithRecursionPreventingWithRollback(this, data, CachesUtil.NON_VALUE_TYPE_KEY,
+    ScalaPsiManager.getMappedWithRecursionPreventingWithRollback(this, data, ScalaPsiManager.NON_VALUE_TYPE_KEY,
       (expr: ScExpression, data: Data) => {
       val (ignoreBaseType, fromUnderscore) = data
 
@@ -354,7 +353,7 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue {
             params, false)(getProject, getResolveScope)
         new Success(methType, Some(this))
       }
-    }, Failure("Recursive getNonValueType", Some(this)), PsiModificationTracker.MODIFICATION_COUNT)
+    }, Failure("Recursive getNonValueType", Some(this)), isOutOfCodeBlock = false)
   }
 
   protected def innerType(ctx: TypingContext): TypeResult[ScType] =
@@ -395,15 +394,15 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue {
   def expectedTypes(fromUnderscore: Boolean = true): Array[ScType] = expectedTypesEx(fromUnderscore).map(_._1)
   
   def expectedTypesEx(fromUnderscore: Boolean = true): Array[(ScType, Option[ScTypeElement])] = {
-    CachesUtil.getMappedWithRecursionPreventingWithRollback(this, fromUnderscore, CachesUtil.EXPECTED_TYPES_KEY,
+    ScalaPsiManager.getMappedWithRecursionPreventingWithRollback(this, fromUnderscore, ScalaPsiManager.EXPECTED_TYPES_KEY,
       (expr: ScExpression, data: Boolean) => ExpectedTypes.expectedExprTypes(expr, fromUnderscore = data),
-      Array.empty[(ScType, Option[ScTypeElement])], PsiModificationTracker.MODIFICATION_COUNT)
+      Array.empty[(ScType, Option[ScTypeElement])], isOutOfCodeBlock = false)
   }
 
   def smartExpectedType(fromUnderscore: Boolean = true): Option[ScType] = {
-    CachesUtil.getMappedWithRecursionPreventingWithRollback(this, fromUnderscore, CachesUtil.SMART_EXPECTED_TYPE,
+    ScalaPsiManager.getMappedWithRecursionPreventingWithRollback(this, fromUnderscore, ScalaPsiManager.SMART_EXPECTED_TYPE,
       (expr: ScExpression, data: Boolean) => ExpectedTypes.smartExpectedType(expr, fromUnderscore = data),
-      None, PsiModificationTracker.MODIFICATION_COUNT)
+      None, isOutOfCodeBlock = false)
   }
 
   @volatile
@@ -529,11 +528,11 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue {
       cand
     }
     type Data = (ScType, Seq[ScExpression], Option[MethodInvocation], TypeResult[ScType])
-    CachesUtil.getMappedWithRecursionPreventingWithRollback[ScExpression, Data,
+    ScalaPsiManager.getMappedWithRecursionPreventingWithRollback[ScExpression, Data,
       Array[ScalaResolveResult]](this, (tp, exprs, call, tr),
-      CachesUtil.EXPRESSION_APPLY_SHAPE_RESOLVE_KEY,
+      ScalaPsiManager.EXPRESSION_APPLY_SHAPE_RESOLVE_KEY,
       (expr: ScExpression, tuple: Data) => inner(expr, tuple._1, tuple._2, tuple._3, tuple._4),
-      Array.empty[ScalaResolveResult], PsiModificationTracker.MODIFICATION_COUNT)
+      Array.empty[ScalaResolveResult], isOutOfCodeBlock = false)
   }
 }
 

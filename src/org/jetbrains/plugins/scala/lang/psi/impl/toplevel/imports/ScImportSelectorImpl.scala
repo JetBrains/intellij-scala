@@ -40,7 +40,10 @@ class ScImportSelectorImpl extends ScalaStubBasedElementImpl[ScImportSelector] w
     if (stub != null) {
       return stub.asInstanceOf[ScImportSelectorStub].reference
     }
-    (getFirstChild match {case s: ScStableCodeReferenceElement => s case _ => null})
+    getFirstChild match {
+      case s: ScStableCodeReferenceElement => s
+      case _ => null
+    }
   }
 
   def deleteSelector() {
@@ -63,6 +66,10 @@ class ScImportSelectorImpl extends ScalaStubBasedElementImpl[ScImportSelector] w
   }
 
   def isAliasedImport: Boolean = {
+    val stub = getStub
+    if (stub != null) {
+      return stub.asInstanceOf[ScImportSelectorStub].isAliasImport
+    }
     val expr: ScImportExpr = PsiTreeUtil.getParentOfType(this, classOf[ScImportExpr])
     if (expr.selectors.length > 0 &&
             !getLastChild.isInstanceOf[ScStableCodeReferenceElement]) {

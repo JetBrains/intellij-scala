@@ -74,9 +74,8 @@ trait ScImportsHolder extends ScalaPsiElement {
 
   /**
    * This method is important to avoid SOE for long import lists.
-   * // 
-   * todo it became unused >1year ago   
    */
+  //todo it became unused >1year ago
   private def updateResolveCaches() {
     val curModCount = getManager.getModificationTracker.getModificationCount
     if (curModCount == modCount || updating.get()) return

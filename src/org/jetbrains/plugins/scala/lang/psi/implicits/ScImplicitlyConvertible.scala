@@ -82,9 +82,9 @@ class ScImplicitlyConvertible(place: PsiElement, placeType: Boolean => Option[Sc
     type Data = (Option[ScType], Boolean, Option[ScType])
     val data = (exp, fromUnder, exprType)
 
-    CachesUtil.getMappedWithRecursionPreventingWithRollback(place, data, CachesUtil.IMPLICIT_MAP1_KEY,
+    ScalaPsiManager.getMappedWithRecursionPreventingWithRollback(place, data, ScalaPsiManager.IMPLICIT_MAP1_KEY,
       (expr: PsiElement, data: Data) => buildImplicitMap(data._1, data._2, isFromCompanion = false, Seq.empty, data._3), Seq.empty,
-      PsiModificationTracker.MODIFICATION_COUNT)
+      isOutOfCodeBlock = false)
   }
 
   def implicitMapSecondPart(exp: Option[ScType] = None,
@@ -94,9 +94,9 @@ class ScImplicitlyConvertible(place: PsiElement, placeType: Boolean => Option[Sc
     type Data = (Option[ScType], Boolean, Seq[ScType], Option[ScType])
     val data = (exp, fromUnder, args, exprType)
 
-    CachesUtil.getMappedWithRecursionPreventingWithRollback(place, data, CachesUtil.IMPLICIT_MAP2_KEY,
+    ScalaPsiManager.getMappedWithRecursionPreventingWithRollback(place, data, ScalaPsiManager.IMPLICIT_MAP2_KEY,
       (expr: PsiElement, data: Data) => buildImplicitMap(data._1, data._2, isFromCompanion = true, data._3, data._4), Seq.empty,
-      PsiModificationTracker.MODIFICATION_COUNT)
+      isOutOfCodeBlock = false)
   }
 
   private def buildImplicitMap(exp: Option[ScType],

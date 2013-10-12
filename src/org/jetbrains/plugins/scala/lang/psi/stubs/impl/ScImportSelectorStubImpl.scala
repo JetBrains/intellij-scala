@@ -24,13 +24,18 @@ extends StubBaseWrapper[ScImportSelector](parent, elemType) with ScImportSelecto
   var referenceText: StringRef = _
   var name: StringRef = _
   private var myReference: SoftReference[ScStableCodeReferenceElement] = null
+  private var aliasImport: Boolean = _
 
   def this(parent : StubElement[ParentPsi],
-          elemType : IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement], refText: String, importedName: String) {
+          elemType : IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement], refText: String, 
+          importedName: String, isAliasImport: Boolean) {
     this (parent, elemType.asInstanceOf[IStubElementType[StubElement[PsiElement], PsiElement]])
     this.referenceText = StringRef.fromString(refText)
     this.name = StringRef.fromString(importedName)
+    this.aliasImport = isAliasImport
   }
+
+  def isAliasImport: Boolean = aliasImport
 
   def reference: ScStableCodeReferenceElement = {
     if (myReference != null && myReference.get != null) return myReference.get

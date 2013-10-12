@@ -52,12 +52,12 @@ object Conformance {
       val tp = parametersIterator.next()
       val argsPair = (args1Iterator.next(), args2Iterator.next())
       tp match {
-        case scp: ScTypeParam if (scp.isContravariant) => {
+        case scp: ScTypeParam if scp.isContravariant => {
           val y = Conformance.conformsInner(argsPair._2, argsPair._1, HashSet.empty, undefinedSubst)
           if (!y._1) return (false, undefinedSubst)
           else undefinedSubst = y._2
         }
-        case scp: ScTypeParam if (scp.isCovariant) => {
+        case scp: ScTypeParam if scp.isCovariant => {
           val y = Conformance.conformsInner(argsPair._1, argsPair._2, HashSet.empty, undefinedSubst)
           if (!y._1) return (false, undefinedSubst)
           else undefinedSubst = y._2
@@ -223,13 +223,13 @@ object Conformance {
     
     trait NothingNullVisitor extends ScalaTypeVisitor {
       override def visitStdType(x: StdType) {
-        if (x eq Nothing) result = (true, undefinedSubst)
-        else if (x eq Null) {
+        if (x eq types.Nothing) result = (true, undefinedSubst)
+        else if (x eq types.Null) {
           /*
             this case for checking: val x: T = null
             This is good if T class type: T <: AnyRef and !(T <: NotNull)
            */
-          if (!conforms(AnyRef, l)) {
+          if (!conforms(types.AnyRef, l)) {
             result = (false, undefinedSubst)
             return
           }
@@ -452,29 +452,29 @@ object Conformance {
 
       if (checkWeak && r.isInstanceOf[ValType]) {
         (r, x) match {
-          case (Byte, Short | Int | Long | Float | Double) =>
+          case (types.Byte, types.Short | types.Int | types.Long | types.Float | types.Double) =>
             result = (true, undefinedSubst)
             return
-          case (Short, Int | Long | Float | Double) =>
+          case (types.Short, types.Int | types.Long | types.Float | types.Double) =>
             result = (true, undefinedSubst)
             return
-          case (Char, Byte | Short | Int | Long | Float | Double) =>
+          case (types.Char, types.Byte | types.Short | types.Int | types.Long | types.Float | types.Double) =>
             result = (true, undefinedSubst)
             return
-          case (Int, Long | Float | Double) =>
+          case (types.Int, types.Long | types.Float | types.Double) =>
             result = (true, undefinedSubst)
             return
-          case (Long, Float | Double) =>
+          case (types.Long, types.Float | types.Double) =>
             result = (true, undefinedSubst)
             return
-          case (Float, Double) =>
+          case (types.Float, types.Double) =>
             result = (true, undefinedSubst)
             return
           case _ =>
         }
       }
 
-      if (x eq Any) {
+      if (x eq types.Any) {
         result = (true, undefinedSubst)
         return
       }
@@ -498,17 +498,17 @@ object Conformance {
       r.visitType(rightVisitor)
       if (result != null) return
 
-      if (x eq Null) {
-        result = (r == Nothing, undefinedSubst)
+      if (x eq types.Null) {
+        result = (r == types.Nothing, undefinedSubst)
         return
       }
 
-      if (x eq AnyRef) {
-        if (r eq  Any) {
+      if (x eq types.AnyRef) {
+        if (r eq  types.Any) {
           result = (false, undefinedSubst)
           return
         }
-        else if (r eq  AnyVal) {
+        else if (r eq  types.AnyVal) {
           result = (false, undefinedSubst)
           return
         }
@@ -533,7 +533,7 @@ object Conformance {
         result = (false, undefinedSubst)
       }
 
-      if (x eq AnyVal) {
+      if (x eq types.AnyVal) {
         result = (r.isInstanceOf[ValType], undefinedSubst)
         return
       }
@@ -653,13 +653,11 @@ object Conformance {
           val t = conformsInner(comp, r, HashSet.empty, undefinedSubst)
           undefinedSubst = t._2
           t._1
-        }) && decls.forall(decl => {
-          decl match {
-            case fun: ScFunction => workWith(fun)
-            case v: ScValue => v.declaredElements forall (decl => workWith(decl))
-            case v: ScVariable => v.declaredElements forall (decl => workWith(decl))
-          }
-        }) && typeMembers.forall(typeMember => {
+        }) && decls.forall {
+          case fun: ScFunction => workWith(fun)
+          case v: ScValue => v.declaredElements forall (decl => workWith(decl))
+          case v: ScVariable => v.declaredElements forall (decl => workWith(decl))
+        } && typeMembers.forall(typeMember => {
           workWith(typeMember)
         }), undefinedSubst)
     }
@@ -1734,18 +1732,15 @@ object Conformance {
     }
   }
 
-  val guard = RecursionManager.createGuard("conformance.guard")
+  private val guard = RecursionManager.createGuard("conformance.guard")
   
-  val cache: ConcurrentWeakHashMap[(ScType, ScType, Boolean), (Boolean, ScUndefinedSubstitutor)] =
-    new ConcurrentWeakHashMap[(ScType, ScType, Boolean), (Boolean, ScUndefinedSubstitutor)]()
-
   def conformsInner(l: ScType, r: ScType, visited: Set[PsiClass], unSubst: ScUndefinedSubstitutor,
                             checkWeak: Boolean = false): (Boolean, ScUndefinedSubstitutor) = {
     ProgressManager.checkCanceled()
 
     val key = (l, r, checkWeak)
 
-    val tuple = cache.get(key)
+    val tuple = ScalaPsiManager.getConformanceCache(key)
     if (tuple != null) {
       if (unSubst.isEmpty) return tuple
       return tuple.copy(_2 = unSubst + tuple._2)
@@ -1768,9 +1763,9 @@ object Conformance {
           ScType.extractClass(l) match {
             case Some(lClass) => {
               if (rClass.qualifiedName == "java.lang.Object") {
-                return conformsInner(l, AnyRef, visited, uSubst, checkWeak)
+                return conformsInner(l, types.AnyRef, visited, uSubst, checkWeak)
               } else if (lClass.qualifiedName == "java.lang.Object") {
-                return conformsInner(AnyRef, r, visited, uSubst, checkWeak)
+                return conformsInner(types.AnyRef, r, visited, uSubst, checkWeak)
               }
               val inh = smartIsInheritor(rClass, subst, lClass)
               if (!inh._1) return (false, uSubst)
@@ -1808,7 +1803,7 @@ object Conformance {
       def compute(): (Boolean, ScUndefinedSubstitutor) = comp()
     })
     if (res == null) return (false, new ScUndefinedSubstitutor())
-    cache.put(key, res)
+    ScalaPsiManager.putConformanceCache(key, res)
     if (unSubst.isEmpty) return res
     res.copy(_2 = unSubst + res._2)
   }

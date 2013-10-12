@@ -35,16 +35,15 @@ trait ResolvableReferenceExpression extends ScReferenceExpression {
 
   def multiResolve(incomplete: Boolean): Array[ResolveResult] = {
     if (resolveFunction != null) return resolveFunction()
-    CachesUtil.getMappedWithRecursionPreventingWithRollback[ResolvableReferenceExpression, Boolean, Array[ResolveResult]](
-      this, incomplete, CachesUtil.RESOLVE_KEY, Resolver.resolve, Array.empty, PsiModificationTracker.MODIFICATION_COUNT)
+    ScalaPsiManager.getMappedWithRecursionPreventingWithRollback[ResolvableReferenceExpression, Boolean, Array[ResolveResult]](
+      this, incomplete, ScalaPsiManager.RESOLVE_KEY, Resolver.resolve, Array.empty, isOutOfCodeBlock = false)
   }
 
   def shapeResolve: Array[ResolveResult] = {
     ProgressManager.checkCanceled()
     if (shapeResolveFunction != null) return shapeResolveFunction()
-    CachesUtil.getWithRecursionPreventingWithRollback(this, CachesUtil.REF_EXPRESSION_SHAPE_RESOLVE_KEY,
-      new CachesUtil.MyProvider(this, (expr: ResolvableReferenceExpression) => expr.shapeResolveInner)
-      (PsiModificationTracker.MODIFICATION_COUNT), Array.empty[ResolveResult])
+    ScalaPsiManager.getWithRecursionPreventingWithRollback(this, ScalaPsiManager.REF_EXPRESSION_SHAPE_RESOLVE_KEY,
+      (expr: ResolvableReferenceExpression) => expr.shapeResolveInner, Array.empty[ResolveResult], isOutOfCodeBlock = false)
   }
 
   private def shapeResolveInner: Array[ResolveResult] = {

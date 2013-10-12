@@ -148,7 +148,7 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
         val clazzType = getTypeWithProjections(TypingContext.empty).getOrAny
         Bounds.glb(selfType, clazzType) match {
           case c: ScCompoundType =>
-            TypeDefinitionMembers.getTypes(c, Some(clazzType), this).allFirstSeq().
+            TypeDefinitionMembers.getTypes(c, Some(clazzType)).allFirstSeq().
               flatMap(_.map { case (_, n) => n.info })
           case _ =>
             allTypeAliases
@@ -175,7 +175,7 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
         val clazzType = getTypeWithProjections(TypingContext.empty).getOrAny
         Bounds.glb(selfType, clazzType) match {
           case c: ScCompoundType =>
-            TypeDefinitionMembers.getSignatures(c, Some(clazzType), this).allFirstSeq().flatMap(n => n.filter{
+            TypeDefinitionMembers.getSignatures(c, Some(clazzType)).allFirstSeq().flatMap(n => n.filter{
               case (_, n) => !n.info.isInstanceOf[PhysicalSignature] &&
                 (n.info.namedElement match {
                   case Some(v) => ScalaPsiUtil.nameContext(v) match {
@@ -205,7 +205,7 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
         val clazzType = getTypeWithProjections(TypingContext.empty).getOrAny
         Bounds.glb(selfType, clazzType) match {
           case c: ScCompoundType =>
-            TypeDefinitionMembers.getSignatures(c, Some(clazzType), this).allFirstSeq().flatMap(_.filter {
+            TypeDefinitionMembers.getSignatures(c, Some(clazzType)).allFirstSeq().flatMap(_.filter {
               case (_, n) => n.info.isInstanceOf[PhysicalSignature]}).
               map { case (_, n) => n.info.asInstanceOf[PhysicalSignature] } ++
               syntheticMembers.map(new PhysicalSignature(_, ScSubstitutor.empty))
@@ -225,7 +225,7 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
         val clazzType = getTypeWithProjections(TypingContext.empty).getOrAny
         Bounds.glb(selfType, clazzType) match {
           case c: ScCompoundType =>
-            TypeDefinitionMembers.getSignatures(c, Some(clazzType), this).allFirstSeq().
+            TypeDefinitionMembers.getSignatures(c, Some(clazzType)).allFirstSeq().
               flatMap(_.map { case (_, n) => n.info })
           case _ =>
             allSignatures

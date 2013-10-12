@@ -6,18 +6,18 @@ package impl
 import api.statements.params.ScTypeParam
 import com.intellij.openapi.components.ProjectComponent
 import toplevel.synthetic.{SyntheticPackageCreator, ScSyntheticPackage}
-import light.PsiClassWrapper
+import org.jetbrains.plugins.scala.lang.psi.light.{ScPrimaryConstructorWrapper, PsiClassWrapper}
 import toplevel.typedef.TypeDefinitionMembers._
 import types._
-import com.intellij.openapi.util.Key
+import com.intellij.openapi.util.{Computable, Key}
 import com.intellij.ProjectTopics
 import com.intellij.reference.SoftReference
-import collection.{mutable, Seq}
+import scala.collection.{mutable, Seq}
 import com.intellij.psi._
-import com.intellij.util.containers.WeakValueHashMap
-import impl.{JavaPsiFacadeImpl, PsiManagerEx}
-import java.util.concurrent.{ConcurrentHashMap, ConcurrentMap}
-import caches.ScalaShortNamesCacheManager
+import com.intellij.util.containers.{ConcurrentHashMap, WeakValueHashMap}
+import impl.JavaPsiFacadeImpl
+import java.util.concurrent.ConcurrentMap
+import org.jetbrains.plugins.scala.caches.{CachesUtil, ScalaShortNamesCacheManager}
 import api.toplevel.typedef.{ScTemplateDefinition, ScObject}
 import extensions.toPsiNamedElementExt
 import com.intellij.openapi.project.{DumbServiceImpl, Project}
@@ -29,12 +29,26 @@ import com.intellij.psi.search.{PsiShortNamesCache, GlobalSearchScope}
 import java.util.Collections
 import com.intellij.openapi.roots.{ModuleRootEvent, ModuleRootListener}
 import ParameterlessNodes.{Map => PMap}, TypeNodes.{Map => TMap}, SignatureNodes.{Map => SMap}
-import psi.stubs.util.ScalaStubsUtil
 import java.util
-import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias}
+import com.googlecode.concurrentlinkedhashmap.ConcurrentLinkedHashMap
+import com.intellij.psi.util._
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
+import org.jetbrains.plugins.scala.lang.psi.types.ScCompoundType
+import org.jetbrains.plugins.scala.lang.psi.types.ScTypeParameterType
+import org.jetbrains.plugins.scala.caches.CachesUtil.ProbablyRecursionException
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScExpression}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression.ExpressionTypeResult
+import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
+import org.jetbrains.plugins.scala.lang.psi.implicits.ScImplicitlyConvertible.ImplicitResolveResult
+import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, ResolvableStableCodeReferenceElement, ResolvableReferenceExpression}
+import org.jetbrains.plugins.scala.lang.psi.impl.base.types.ScSimpleTypeElementImpl
 
 class ScalaPsiManager(project: Project) extends ProjectComponent {
+  import ScalaPsiManager._
+
   private val implicitObjectMap: ConcurrentMap[String, SoftReference[java.util.Map[GlobalSearchScope, Seq[ScObject]]]] =
     new ConcurrentHashMap()
 
@@ -61,47 +75,6 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
 
   private val scalaPackageClassNamesMap: ConcurrentMap[(GlobalSearchScope, String), mutable.HashSet[String]] =
     new ConcurrentHashMap[(GlobalSearchScope, String), mutable.HashSet[String]]
-
-  private val compoundTypesParameterslessNodes: ConcurrentMap[(ScCompoundType, Option[ScType]), SoftReference[PMap]] =
-    new ConcurrentHashMap
-
-  private val compoundTypesTypeNodes: ConcurrentMap[(ScCompoundType, Option[ScType]), SoftReference[TMap]] =
-    new ConcurrentHashMap
-
-  private val compoundTypesSignatureNodes: ConcurrentMap[(ScCompoundType, Option[ScType]), SoftReference[SMap]] =
-    new ConcurrentHashMap
-
-  def getParameterlessSignatures(tp: ScCompoundType, compoundTypeThisType: Option[ScType]): PMap = {
-    val ref = compoundTypesParameterslessNodes.get(tp, compoundTypeThisType)
-    var result: PMap = if (ref == null) null else ref.get()
-    if (result == null) {
-      result = ParameterlessNodes.build(tp, compoundTypeThisType)
-      compoundTypesParameterslessNodes.put((tp, compoundTypeThisType), new SoftReference(result))
-    }
-    result
-  }
-
-  def getTypes(tp: ScCompoundType, compoundTypeThisType: Option[ScType]): TMap = {
-    if (ScalaProjectSettings.getInstance(project).isDontCacheCompoundTypes) return TypeNodes.build(tp, compoundTypeThisType)
-    val ref = compoundTypesTypeNodes.get(tp, compoundTypeThisType)
-    var result: TMap = if (ref == null) null else ref.get()
-    if (result == null) {
-      result = TypeNodes.build(tp, compoundTypeThisType)
-      compoundTypesTypeNodes.put((tp, compoundTypeThisType), new SoftReference(result))
-    }
-    result
-  }
-
-  def getSignatures(tp: ScCompoundType, compoundTypeThisType: Option[ScType]): SMap = {
-    if (ScalaProjectSettings.getInstance(project).isDontCacheCompoundTypes) return SignatureNodes.build(tp, compoundTypeThisType)
-    val ref = compoundTypesSignatureNodes.get(tp, compoundTypeThisType)
-    var result: SMap = if (ref == null) null else ref.get()
-    if (result == null) {
-      result = SignatureNodes.build(tp, compoundTypeThisType)
-      compoundTypesSignatureNodes.put((tp, compoundTypeThisType), new SoftReference(result))
-    }
-    result
-  }
 
   def cachedDeepIsInheritor(clazz: PsiClass, base: PsiClass): Boolean = {
     val ref = inheritorsMap.get(clazz)
@@ -356,49 +329,53 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
   def getComponentName = "ScalaPsiManager"
   def disposeComponent() {}
   def initComponent() {
-    PsiManager.getInstance(project).asInstanceOf[PsiManagerEx].registerRunnableToRunOnAnyChange(new Runnable {
-      override def run() {
-        syntheticPackages.clear()
-      }
-    })
+    def clearOnChange() {
+      implicitObjectMap.clear()
+      classMap.clear()
+      classesMap.clear()
+      classFacadeMap.clear()
+      classesFacadeMap.clear()
+      inheritorsMap.clear()
+      scalaPackageClassesMap.clear()
+      javaPackageClassNamesMap.clear()
+      scalaPackageClassNamesMap.clear()
+      compoundTypesParameterslessNodes.clear()
+      compoundTypesSignatureNodes.clear()
+      compoundTypesTypeNodes.clear()
+      conformanceCache.clear()
+      ScalaPsiManager.clearCaches()
+    }
 
-    PsiManager.getInstance(project).asInstanceOf[PsiManagerEx].registerRunnableToRunOnChange(new Runnable {
-      def run() {
-        implicitObjectMap.clear()
-        classMap.clear()
-        classesMap.clear()
-        classFacadeMap.clear()
-        classesFacadeMap.clear()
-        inheritorsMap.clear()
-        scalaPackageClassesMap.clear()
-        javaPackageClassNamesMap.clear()
-        scalaPackageClassNamesMap.clear()
-        compoundTypesParameterslessNodes.clear()
-        compoundTypesSignatureNodes.clear()
-        compoundTypesTypeNodes.clear()
-        Conformance.cache.clear()
-      }
-    })
+    def clearOnOutOfCodeBlockChange() {
+      syntheticPackages.clear()
+      classParameterslessNodes.clear()
+      classSignatureNodes.clear()
+      classTypeNodes.clear()
+      ScalaPsiManager.clearOutOfCodeBlockCaches()
+    }
 
     project.getMessageBus.connect.subscribe(ProjectTopics.PROJECT_ROOTS, new ModuleRootListener {
       def beforeRootsChange(event: ModuleRootEvent) {
       }
 
       def rootsChanged(event: ModuleRootEvent) {
-        implicitObjectMap.clear()
-        classMap.clear()
-        classesMap.clear()
-        classFacadeMap.clear()
-        classesFacadeMap.clear()
-        inheritorsMap.clear()
-        scalaPackageClassesMap.clear()
-        javaPackageClassNamesMap.clear()
-        scalaPackageClassNamesMap.clear()
-        compoundTypesParameterslessNodes.clear()
-        compoundTypesSignatureNodes.clear()
-        compoundTypesTypeNodes.clear()
-        Conformance.cache.clear()
+        clearOnChange()
+        clearOnOutOfCodeBlockChange()
       }
+    })
+
+    project.getMessageBus.connect.subscribe(PsiModificationTracker.TOPIC, new PsiModificationTracker.Listener {
+      def modificationCountChanged() {
+        clearOnChange()
+        val count = PsiModificationTracker.SERVICE.getInstance(project).getOutOfCodeBlockModificationCount
+        if (outOfCodeBlockModCount != count) {
+          outOfCodeBlockModCount = count
+          clearOnOutOfCodeBlockChange()
+        }
+      }
+
+      @volatile
+      private var outOfCodeBlockModCount: Long = 0L
     })
   }
 
@@ -468,5 +445,258 @@ object ScalaPsiManager {
   object ClassCategory extends Enumeration {
     type ClassCategory = Value
     val ALL, OBJECT, TYPE = Value
+  }
+
+  private def buildMap[T, S](capacity: Long): ConcurrentLinkedHashMap[T, S] = {
+    new ConcurrentLinkedHashMap.Builder[T, S].maximumWeightedCapacity(capacity).build()
+  }
+
+  private def getCache[T, S](t: T, cache: ConcurrentLinkedHashMap[T, S])(builder: T => S): S = {
+    var result: S = cache.get(t)
+    if (result == null) {
+      result = builder(t)
+      cache.put(t, result)
+    }
+    result
+  }
+
+  private val classStructureCacheCapacity: Long = 100
+  private val smallCacheCapacity: Long = 2000
+  private val resolveCapacity: Long = scala.Long.MaxValue
+
+  //class structure cache
+  private val compoundTypesParameterslessNodes: ConcurrentLinkedHashMap[(ScCompoundType, Option[ScType]), PMap] = buildMap(classStructureCacheCapacity)
+  private val compoundTypesTypeNodes: ConcurrentLinkedHashMap[(ScCompoundType, Option[ScType]), TMap] = buildMap(classStructureCacheCapacity)
+  private val compoundTypesSignatureNodes: ConcurrentLinkedHashMap[(ScCompoundType, Option[ScType]), SMap] = buildMap(classStructureCacheCapacity)
+  private val classParameterslessNodes: ConcurrentLinkedHashMap[PsiClass, PMap] = buildMap(classStructureCacheCapacity)
+  private val classTypeNodes: ConcurrentLinkedHashMap[PsiClass, TMap] = buildMap(classStructureCacheCapacity)
+  private val classSignatureNodes: ConcurrentLinkedHashMap[PsiClass, SMap] = buildMap(classStructureCacheCapacity)
+
+  type ConformanceKey = (ScType, ScType, Boolean)
+  private val conformanceCache: ConcurrentLinkedHashMap[ConformanceKey, (Boolean, ScUndefinedSubstitutor)] = buildMap(smallCacheCapacity)
+
+  def getParameterlessSignatures(tp: ScCompoundType, compoundTypeThisType: Option[ScType]): PMap =
+    getCache((tp, compoundTypeThisType), compoundTypesParameterslessNodes){ case (t, c) => ParameterlessNodes.build(t, c) }
+
+  def getTypes(tp: ScCompoundType, compoundTypeThisType: Option[ScType]): TMap =
+    getCache((tp, compoundTypeThisType), compoundTypesTypeNodes){ case (t, c) => TypeNodes.build(t, c) }
+
+  def getSignatures(tp: ScCompoundType, compoundTypeThisType: Option[ScType]): SMap =
+    getCache((tp, compoundTypeThisType), compoundTypesSignatureNodes){ case (t, c) => SignatureNodes.build(t, c) }
+
+  def getParameterlessSignatures(clazz: PsiClass): PMap = getCache(clazz, classParameterslessNodes)(ParameterlessNodes.build)
+  def getTypes(clazz: PsiClass): TMap = getCache(clazz, classTypeNodes)(TypeNodes.build)
+  def getSignatures(clazz: PsiClass): SMap = getCache(clazz, classSignatureNodes)(SignatureNodes.build)
+
+  def getConformanceCache(key: ConformanceKey): (Boolean, ScUndefinedSubstitutor) = conformanceCache.get(key)
+  def putConformanceCache(key: ConformanceKey, data: (Boolean, ScUndefinedSubstitutor)): Unit = conformanceCache.put(key, data)
+
+  type Cache[From, To] = Key[(From, To)]
+
+  private val caches: mutable.HashMap[Key[_], ConcurrentLinkedHashMap[_, _]] = new mutable.HashMap[Key[_], ConcurrentLinkedHashMap[_, _]]()
+  private val outOfCodeBlockCaches: mutable.HashMap[Key[_], ConcurrentLinkedHashMap[_, _]] = new mutable.HashMap[Key[_], ConcurrentLinkedHashMap[_, _]]()
+
+  private def addCache[From, To](key: Cache[From, To], capacity: Long = smallCacheCapacity, isOutOfCodeBlock: Boolean = false) = {
+    (if (isOutOfCodeBlock) outOfCodeBlockCaches else caches) += key -> buildMap[From, To](capacity)
+  }
+
+  private def clearCaches() {
+    caches.valuesIterator.foreach(_.clear())
+  }
+
+  private def clearOutOfCodeBlockCaches() {
+    outOfCodeBlockCaches.valuesIterator.foreach(_.clear())
+  }
+
+  private def getCacheGeneric[From, To](key: Cache[From, To], elem: From,
+                                        storage: mutable.HashMap[Key[_], ConcurrentLinkedHashMap[_, _]])(builder: From => To): To = {
+    val cache = storage(key).asInstanceOf[ConcurrentLinkedHashMap[From, To]]
+    var result: To = cache.get(elem)
+    if (result == null) {
+      result = builder(elem)
+      cache.put(elem, result)
+    }
+    result
+  }
+
+  def getCaches[From, To](key: Cache[From, To], elem: From)(builder: From => To): To =
+    getCacheGeneric(key, elem, caches)(builder)
+
+  def getOutOfCodeBlockCaches[From, To](key: Cache[From, To], elem: From)(builder: From => To): To =
+    getCacheGeneric(key, elem, outOfCodeBlockCaches)(builder)
+
+  val primaryConstructorWrapperKey: Cache[ScPrimaryConstructor, ScPrimaryConstructorWrapper] = Key.create("primaryConstructorWrapperKey")
+  addCache(primaryConstructorWrapperKey, isOutOfCodeBlock = true)
+  val beanMethodsKey: Cache[ScTypedDefinition, Seq[PsiMethod]] = Key.create("beanMethodsKey")
+  addCache(beanMethodsKey, isOutOfCodeBlock = true)
+  val isBeanMethodKey: Cache[ScTypedDefinition, PsiMethod] = Key.create("isBeanMethodKey")
+  addCache(isBeanMethodKey, isOutOfCodeBlock = true)
+  val getBeanMethodsKey: Cache[ScTypedDefinition, PsiMethod] = Key.create("getBeanMethodsKey")
+  addCache(getBeanMethodsKey, isOutOfCodeBlock = true)
+  val setBeanMethodsKey: Cache[ScTypedDefinition, PsiMethod] = Key.create("setBeanMethodsKey")
+  addCache(setBeanMethodsKey, isOutOfCodeBlock = true)
+  val underEqualsMethodsKey: Cache[ScTypedDefinition, PsiMethod] = Key.create("underEqualsMethodsKey")
+  addCache(underEqualsMethodsKey, isOutOfCodeBlock = true)
+
+  //Map cache keys
+  type MappedKey[Data, Result] = Key[(Data, Result)]
+  val TYPE_AFTER_IMPLICIT_KEY: MappedKey[(ScExpression, (Boolean, Boolean, Option[ScType], Boolean, Boolean)), ExpressionTypeResult] =
+    Key.create("type.after.implicit.key")
+  addCache(TYPE_AFTER_IMPLICIT_KEY)
+  val TYPE_WITHOUT_IMPLICITS: MappedKey[(ScExpression, (Boolean, Boolean)), TypeResult[ScType]] =
+    Key.create("type.without.implicits.key")
+  addCache(TYPE_WITHOUT_IMPLICITS)
+  val NON_VALUE_TYPE_KEY: MappedKey[(ScExpression, (Boolean, Boolean)), TypeResult[ScType]] = Key.create("non.value.type.key")
+  addCache(NON_VALUE_TYPE_KEY)
+  val EXPECTED_TYPES_KEY: MappedKey[(ScExpression, Boolean), Array[(ScType, Option[ScTypeElement])]] = Key.create("expected.types.key")
+  addCache(EXPECTED_TYPES_KEY)
+  val SMART_EXPECTED_TYPE: MappedKey[(ScExpression, Boolean), Option[ScType]] = Key.create("smart.expected.type")
+  addCache(SMART_EXPECTED_TYPE)
+  val IMPLICIT_MAP1_KEY: MappedKey[(PsiElement, (Option[ScType], Boolean, Option[ScType])), Seq[ImplicitResolveResult]] =
+    Key.create("implicit.map1.key")
+  addCache(IMPLICIT_MAP1_KEY)
+  val IMPLICIT_MAP2_KEY: MappedKey[(PsiElement, (Option[ScType], Boolean, Seq[ScType], Option[ScType])), Seq[ImplicitResolveResult]] =
+    Key.create("implicit.map2.key")
+  addCache(IMPLICIT_MAP2_KEY)
+  val RESOLVE_KEY: MappedKey[(ResolvableReferenceExpression, Boolean), Array[ResolveResult]] =
+    Key.create("resolve.key")
+  addCache(RESOLVE_KEY, capacity = resolveCapacity)
+  val STABLE_RESOLVE_KEY: MappedKey[(ResolvableStableCodeReferenceElement, Boolean), Array[ResolveResult]] =
+    Key.create("resolve.key")
+  addCache(STABLE_RESOLVE_KEY, capacity = resolveCapacity)
+  val EXPRESSION_APPLY_SHAPE_RESOLVE_KEY: MappedKey[(ScExpression, (ScType, Seq[ScExpression], Option[MethodInvocation], TypeResult[ScType])), Array[ScalaResolveResult]] =
+    Key.create("expression.apply.shape.resolve.key")
+  addCache(EXPRESSION_APPLY_SHAPE_RESOLVE_KEY)
+  val PROJECTION_TYPE_ACTUAL_INNER: MappedKey[(PsiNamedElement, ScType), Option[(PsiNamedElement, ScSubstitutor)]] =
+    Key.create("projection.type.actual.inner.key")
+  addCache(PROJECTION_TYPE_ACTUAL_INNER)
+
+  //preventing recursion cache
+  val TYPE_ELEMENT_TYPE_KEY: Cache[ScTypeElement, TypeResult[ScType]] = Key.create("type.element.type.key")
+  addCache(TYPE_ELEMENT_TYPE_KEY)
+  val NON_VALUE_TYPE_ELEMENT_TYPE_KEY: Cache[ScSimpleTypeElementImpl, TypeResult[ScType]] = Key.create("type.element.type.key")
+  addCache(NON_VALUE_TYPE_ELEMENT_TYPE_KEY)
+  val LINEARIZATION_KEY: Cache[PsiClass, Seq[ScType]] = Key.create("linearization.key")
+  addCache(LINEARIZATION_KEY, isOutOfCodeBlock = true)
+  val REF_EXPRESSION_SHAPE_RESOLVE_KEY: Cache[ResolvableReferenceExpression, Array[ResolveResult]] =
+    Key.create("ref.expression.shape.resolve.key")
+  addCache(REF_EXPRESSION_SHAPE_RESOLVE_KEY, capacity = resolveCapacity)
+  val NO_CONSTRUCTOR_RESOLVE_KEY: Cache[ResolvableStableCodeReferenceElement, Array[ResolveResult]] = Key.create("no.constructor.resolve.key")
+  addCache(NO_CONSTRUCTOR_RESOLVE_KEY, capacity = resolveCapacity)
+  val REF_ELEMENT_RESOLVE_CONSTR_KEY: Cache[ResolvableStableCodeReferenceElement, Array[ResolveResult]] =
+    Key.create("ref.element.resolve.constr.key")
+  addCache(REF_ELEMENT_RESOLVE_CONSTR_KEY, capacity = resolveCapacity)
+  val REF_ELEMENT_SHAPE_RESOLVE_KEY: Cache[ResolvableStableCodeReferenceElement, Array[ResolveResult]] =
+    Key.create("ref.element.shape.resolve.key")
+  addCache(REF_ELEMENT_SHAPE_RESOLVE_KEY, capacity = resolveCapacity)
+  val REF_ELEMENT_SHAPE_RESOLVE_CONSTR_KEY: Cache[ResolvableStableCodeReferenceElement, Array[ResolveResult]] =
+    Key.create("ref.element.shape.resolve.constr.key")
+  addCache(REF_ELEMENT_SHAPE_RESOLVE_CONSTR_KEY, capacity = resolveCapacity)
+
+  def getMappedWithRecursionPreventingWithRollback[Dom <: PsiElement, Data, Result](e: Dom, data: Data,
+                                                                                    key: Cache[(Dom, Data), Result],
+                                                                                    builder: (Dom, Data) => Result,
+                                                                                    defaultValue: => Result,
+                                                                                    isOutOfCodeBlock: Boolean): Result = {
+    val storage = (if (isOutOfCodeBlock) outOfCodeBlockCaches else caches).apply(key).asInstanceOf[ConcurrentLinkedHashMap[(Dom, Data), Result]]
+    var result = storage.get(e, data)
+    if (result == null) {
+      var isCache = true
+      result = {
+        val guard = CachesUtil.getRecursionGuard(key.toString)
+        if (guard.currentStack().contains((e, data))) {
+          if (ScPackageImpl.isPackageObjectProcessing) {
+            throw new ScPackageImpl.DoNotProcessPackageObjectException
+          }
+          val fun = PsiTreeUtil.getContextOfType(e, true, classOf[ScFunction])
+          if (fun == null || fun.isProbablyRecursive) {
+            isCache = false
+            defaultValue
+          } else {
+            fun.setProbablyRecursive(b = true)
+            throw new ProbablyRecursionException(e, data, key, Set(fun))
+          }
+        } else {
+          guard.doPreventingRecursion((e, data), false, new Computable[Result] {
+            def compute(): Result = {
+              try {
+                builder(e, data)
+              }
+              catch {
+                case ProbablyRecursionException(`e`, `data`, k, set) if k == key =>
+                  try {
+                    builder(e, data)
+                  } finally set.foreach(_.setProbablyRecursive(b = false))
+                case t@ProbablyRecursionException(ee, innerData, k, set) if k == key =>
+                  val fun = PsiTreeUtil.getContextOfType(e, true, classOf[ScFunction])
+                  if (fun == null || fun.isProbablyRecursive) throw t
+                  else {
+                    fun.setProbablyRecursive(b = true)
+                    throw ProbablyRecursionException(ee, innerData, k, set + fun)
+                  }
+              }
+            }
+          }) match {
+            case null => defaultValue
+            case notNull => notNull
+          }
+        }
+      }
+      if (isCache) {
+        storage.put((e, data), result)
+      }
+    }
+    result
+  }
+
+  def getWithRecursionPreventingWithRollback[Dom <: PsiElement, Result](e: Dom, key: Cache[Dom, Result],
+                                                                        builder: Dom => Result,
+                                                                        defaultValue: => Result,
+                                                                        isOutOfCodeBlock: Boolean): Result = {
+    val storage = (if (isOutOfCodeBlock) outOfCodeBlockCaches else caches).apply(key).asInstanceOf[ConcurrentLinkedHashMap[Dom, Result]]
+    var result = storage.get(e)
+    if (result == null) {
+      result = {
+        val guard = CachesUtil.getRecursionGuard(key.toString)
+        if (guard.currentStack().contains(e)) {
+          if (ScPackageImpl.isPackageObjectProcessing) {
+            throw new ScPackageImpl.DoNotProcessPackageObjectException
+          }
+          val fun = PsiTreeUtil.getContextOfType(e, true, classOf[ScFunction])
+          if (fun == null || fun.isProbablyRecursive) {
+            defaultValue
+          } else {
+            fun.setProbablyRecursive(b = true)
+            throw new ProbablyRecursionException(e, (), key, Set(fun))
+          }
+        }
+        guard.doPreventingRecursion(e, false /* todo: true? */, new Computable[Result] {
+          def compute(): Result = {
+            try {
+              builder(e)
+            }
+            catch {
+              case ProbablyRecursionException(`e`, (), k, set) if k == key =>
+                try {
+                  builder(e)
+                }
+                finally set.foreach(_.setProbablyRecursive(b = false))
+              case t@ProbablyRecursionException(ee, data, k, set) if k == key =>
+                val fun = PsiTreeUtil.getContextOfType(e, true, classOf[ScFunction])
+                if (fun == null || fun.isProbablyRecursive) throw t
+                else {
+                  fun.setProbablyRecursive(b = true)
+                  throw ProbablyRecursionException(ee, data, k, set + fun)
+                }
+            }
+          }
+        }) match {
+          case null => defaultValue
+          case notNull => notNull
+        }
+      }
+      storage.put(e, result)
+    }
+    result
   }
 }

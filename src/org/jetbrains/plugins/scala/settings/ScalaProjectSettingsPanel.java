@@ -45,7 +45,6 @@ public class ScalaProjectSettingsPanel {
   private JPanel injectionJPanel;
   private JSpinner outputSpinner;
   private JSpinner implicitParametersSearchDepthSpinner;
-  private JCheckBox myDontCacheCompound;
   private ScalaUiWithDependency.ComponentWithSettings injectionPrefixTable;
   private JBList referencesWithPrefixList;
   private DefaultListModel myReferencesWithPrefixModel;
@@ -115,7 +114,6 @@ public class ScalaProjectSettingsPanel {
     scalaProjectSettings.setIgnorePerformance(myResolveToAllClassesCheckBox.isSelected());
     scalaProjectSettings.setDisableLangInjection(myDisableLanguageInjection.isSelected());
     scalaProjectSettings.setDisableI18N(myDisablei18n.isSelected());
-    scalaProjectSettings.setDontCacheCompoundTypes(myDontCacheCompound.isSelected());
     scalaProjectSettings.setScalaPriority(useScalaClassesPriorityCheckBox.isSelected());
     scalaProjectSettings.setCollectionTypeHighlightingLevel(collectionHighlightingChooser.getSelectedIndex());
     scalaProjectSettings.setImportShortestPathForAmbiguousReferences(importTheShortestPathCheckBox.isSelected());
@@ -174,8 +172,6 @@ public class ScalaProjectSettingsPanel {
     if (scalaProjectSettings.isDisableI18N() != myDisablei18n.isSelected())
       return true;
 
-    if (scalaProjectSettings.isDontCacheCompoundTypes() != myDontCacheCompound.isSelected()) return true;
-
     if (scalaProjectSettings.isScalaPriority() != useScalaClassesPriorityCheckBox.isSelected())
       return true;
 
@@ -223,7 +219,6 @@ public class ScalaProjectSettingsPanel {
 
     setValue(myDisableLanguageInjection, scalaProjectSettings.isDisableLangInjection());
     setValue(myDisablei18n, scalaProjectSettings.isDisableI18N());
-    setValue(myDontCacheCompound, scalaProjectSettings.isDontCacheCompoundTypes());
     setValue(useScalaClassesPriorityCheckBox, scalaProjectSettings.isScalaPriority());
     setValue(importTheShortestPathCheckBox, scalaProjectSettings.isImportShortestPathForAmbiguousReferences());
     collectionHighlightingChooser.setSelectedIndex(scalaProjectSettings.getCollectionTypeHighlightingLevel()); 

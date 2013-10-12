@@ -33,8 +33,8 @@ trait ResolvableStableCodeReferenceElement extends ScStableCodeReferenceElement 
 
   def multiResolve(incomplete: Boolean): Array[ResolveResult] = {
 //    ResolveCache.getInstance(getProject).resolveWithCaching(this, Resolver, true, incomplete)
-    CachesUtil.getMappedWithRecursionPreventingWithRollback[ResolvableStableCodeReferenceElement, Boolean, Array[ResolveResult]](
-      this, incomplete, CachesUtil.RESOLVE_KEY, Resolver.resolve, Array.empty, PsiModificationTracker.MODIFICATION_COUNT)
+    ScalaPsiManager.getMappedWithRecursionPreventingWithRollback[ResolvableStableCodeReferenceElement, Boolean, Array[ResolveResult]](
+      this, incomplete, ScalaPsiManager.STABLE_RESOLVE_KEY, Resolver.resolve, Array.empty, isOutOfCodeBlock = false)
   }
 
   protected def processQualifierResolveResult(res: ResolveResult, processor: BaseProcessor, ref: ScStableCodeReferenceElement) {
@@ -44,7 +44,7 @@ trait ResolvableStableCodeReferenceElement extends ScStableCodeReferenceElement 
           case obj: ScObject =>
             val fromType = r.fromType match {
               case Some(fType) => Success(ScProjectionType(fType, obj, superReference = false), Some(this))
-              case _ => td.getType(TypingContext.empty).map(substitutor.subst(_))
+              case _ => td.getType(TypingContext.empty).map(substitutor.subst)
             }
             var state = ResolveState.initial.put(ScSubstitutor.key, substitutor)
             if (fromType.isDefined) {
@@ -87,7 +87,7 @@ trait ResolvableStableCodeReferenceElement extends ScStableCodeReferenceElement 
           case stmt: ScImportStmt =>
             stmt.importExprs.foreach {
               case expr: ScImportExpr => expr.reference match {
-                case Some(ref) => ref.resolve()
+                case Some(reference) => reference.resolve()
                 case None => expr.qualifier.resolve()
               }
             }
@@ -189,33 +189,29 @@ trait ResolvableStableCodeReferenceElement extends ScStableCodeReferenceElement 
 
   def resolveNoConstructor: Array[ResolveResult] = {
     ProgressManager.checkCanceled()
-    CachesUtil.getWithRecursionPreventingWithRollback(this, CachesUtil.NO_CONSTRUCTOR_RESOLVE_KEY,
-      new CachesUtil.MyProvider(this, (expr: ResolvableStableCodeReferenceElement) =>
-        NoConstructorResolver.resolve(expr, incomplete = false))
-      (PsiModificationTracker.MODIFICATION_COUNT), Array.empty[ResolveResult])
+    ScalaPsiManager.getWithRecursionPreventingWithRollback(this, ScalaPsiManager.NO_CONSTRUCTOR_RESOLVE_KEY,
+      (expr: ResolvableStableCodeReferenceElement) =>
+        NoConstructorResolver.resolve(expr, incomplete = false), Array.empty[ResolveResult], isOutOfCodeBlock = false)
   }
 
   def resolveAllConstructors: Array[ResolveResult] = {
     ProgressManager.checkCanceled()
-    CachesUtil.getWithRecursionPreventingWithRollback(this, CachesUtil.REF_ELEMENT_RESOLVE_CONSTR_KEY,
-      new CachesUtil.MyProvider(this, (expr: ResolvableStableCodeReferenceElement) =>
-        ResolverAllConstructors.resolve(expr, incomplete = false))
-      (PsiModificationTracker.MODIFICATION_COUNT), Array.empty[ResolveResult])
+    ScalaPsiManager.getWithRecursionPreventingWithRollback(this, ScalaPsiManager.REF_ELEMENT_RESOLVE_CONSTR_KEY,
+      (expr: ResolvableStableCodeReferenceElement) =>
+        ResolverAllConstructors.resolve(expr, incomplete = false), Array.empty[ResolveResult], isOutOfCodeBlock = false)
   }
 
   def shapeResolve: Array[ResolveResult] = {
     ProgressManager.checkCanceled()
-    CachesUtil.getWithRecursionPreventingWithRollback(this, CachesUtil.REF_ELEMENT_SHAPE_RESOLVE_KEY,
-      new CachesUtil.MyProvider(this, (expr: ResolvableStableCodeReferenceElement) =>
-        ShapesResolver.resolve(expr, incomplete = false))
-      (PsiModificationTracker.MODIFICATION_COUNT), Array.empty[ResolveResult])
+    ScalaPsiManager.getWithRecursionPreventingWithRollback(this, ScalaPsiManager.REF_ELEMENT_SHAPE_RESOLVE_KEY,
+      (expr: ResolvableStableCodeReferenceElement) =>
+        ShapesResolver.resolve(expr, incomplete = false), Array.empty[ResolveResult], isOutOfCodeBlock = false)
   }
 
   def shapeResolveConstr: Array[ResolveResult] = {
     ProgressManager.checkCanceled()
-    CachesUtil.getWithRecursionPreventingWithRollback(this, CachesUtil.REF_ELEMENT_SHAPE_RESOLVE_CONSTR_KEY,
-      new CachesUtil.MyProvider(this, (expr: ResolvableStableCodeReferenceElement) =>
-        ShapesResolverAllConstructors.resolve(expr, incomplete = false))
-      (PsiModificationTracker.MODIFICATION_COUNT), Array.empty[ResolveResult])
+    ScalaPsiManager.getWithRecursionPreventingWithRollback(this, ScalaPsiManager.REF_ELEMENT_SHAPE_RESOLVE_CONSTR_KEY,
+      (expr: ResolvableStableCodeReferenceElement) =>
+        ShapesResolverAllConstructors.resolve(expr, incomplete = false), Array.empty[ResolveResult], isOutOfCodeBlock = false)
   }
 }

@@ -116,7 +116,7 @@ object ScalaPsiUtil {
     }
   }
 
-  def getDependentItem(element: PsiElement,
+  def getDependentItem(element : PsiElement,
                        dep_item: Object = PsiModificationTracker.OUT_OF_CODE_BLOCK_MODIFICATION_COUNT): Option[Object] = {
     element.getContainingFile match {
       case file: ScalaFile if file.isCompiled =>
