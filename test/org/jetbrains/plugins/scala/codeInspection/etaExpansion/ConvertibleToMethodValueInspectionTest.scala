@@ -177,4 +177,16 @@ class ConvertibleToMethodValueInspectionTest extends ScalaLightInspectionFixture
                  |}"""
     checkTextHasNoErrors(text)
   }
+
+  def test_SCL6154() {
+    val text =
+      """class A {
+        |def bar() = {
+        |    val x = List(1, 2, 3)
+        |    x.map(1 + _)
+        |  }
+        |}
+      """
+    checkTextHasNoErrors(text)
+  }
 }
