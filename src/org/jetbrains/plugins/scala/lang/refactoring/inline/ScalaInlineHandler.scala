@@ -22,7 +22,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScMethodCall, ScExpression
 import psi.api.statements._
 import util.ScalaRefactoringUtil
 import com.intellij.usageView.UsageInfo
-import psi.api.base.ScStableCodeReferenceElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolatedStringLiteral, ScStableCodeReferenceElement}
 import collection.JavaConverters.iterableAsScalaIterableConverter
 import com.intellij.lang.refactoring.InlineHandler.Settings
 import com.intellij.psi.{PsiReference, PsiElement}
@@ -32,6 +32,8 @@ import org.jetbrains.plugins.scala.extensions.Parent
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScTypedDefinition, ScNamedElement}
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import extensions.childOf
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 
 /**
  * User: Alexander Podkhalyuzin
@@ -84,7 +86,12 @@ class ScalaInlineHandler extends InlineHandler {
           case _ => None
         }
         expressionOpt.foreach { expression =>
-          val newExpr = expression.replaceExpression(expr, removeParenthesis = true)
+          val replacement = expression match {
+            case _ childOf (_: ScInterpolatedStringLiteral) =>
+              ScalaPsiElementFactory.createExpressionFromText(s"{" + expr.getText + "}", expression.getManager)
+            case _ => expr
+          }
+          val newExpr = expression.replaceExpression(replacement, removeParenthesis = true)
           val project = newExpr.getProject
           val manager = FileEditorManager.getInstance(project)
           val editor = manager.getSelectedTextEditor
