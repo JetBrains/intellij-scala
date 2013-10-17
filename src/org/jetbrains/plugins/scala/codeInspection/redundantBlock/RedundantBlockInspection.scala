@@ -26,6 +26,7 @@ class RedundantBlockInspection extends AbstractInspection {
         val next: PsiElement = block.getNextSibling
         val isRedundant =
           if (next == null) true
+          else if (child.getText.startsWith("_")) false //SCL-6124
           else {
             val refName: String = child.getText + (if (next.getText.length > 0) next.getText charAt 0 else "")
             !ScalaNamesUtil.isIdentifier(refName) && !refName.exists(_ == '$') 
