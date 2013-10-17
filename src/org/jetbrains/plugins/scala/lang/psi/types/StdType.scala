@@ -10,6 +10,7 @@ import com.intellij.psi.{PsiElement, PsiManager}
 import impl.ScalaPsiManager
 import extensions.toPsiClassExt
 import api.toplevel.typedef.ScObject
+import scala.Some
 
 
 abstract class StdType(val name: String, val tSuper: Option[StdType]) extends ValueType {
@@ -67,6 +68,24 @@ object StdType {
     "scala.Nothing" -> Nothing,
     "scala.Singleton" -> Singleton
   )
+
+  import com.intellij.psi.CommonClassNames._
+  val fqnBoxedToScType = Map(
+    JAVA_LANG_BOOLEAN -> Boolean,
+    JAVA_LANG_BYTE -> Byte,
+    JAVA_LANG_CHARACTER -> Char,
+    JAVA_LANG_SHORT -> Short,
+    JAVA_LANG_INTEGER -> Int,
+    JAVA_LANG_LONG -> Long,
+    JAVA_LANG_FLOAT -> Float,
+    JAVA_LANG_DOUBLE -> Double
+  )
+
+  def unboxedType(tp: ScType): ScType = {
+    val name = tp.canonicalText.stripPrefix("_root_.")
+    if (fqnBoxedToScType.contains(name)) fqnBoxedToScType(name)
+    else tp
+  }
 
   def unapply(tp: StdType): Option[(String, Option[StdType])] = Some(tp.name, tp.tSuper)
 }
