@@ -12,6 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import scala.Some
 import org.jetbrains.plugins.scala.lang.psi.types.result.Success
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
 /**
  * Nikolay.Tropin
@@ -41,7 +42,7 @@ class ConvertibleToMethodValueInspection extends AbstractInspection(inspectionId
 
   private def methodWithoutArgumentsText(expr: ScExpression): Seq[String] = expr match {
     case call: ScMethodCall => Seq(call.getEffectiveInvokedExpr.getText)
-    case ScInfixExpr(_, _, right) =>
+    case ScInfixExpr(_, oper, right) if !ScalaNamesUtil.isOperatorName(oper.refName) =>
       val infixCopy = expr.copy.asInstanceOf[ScInfixExpr]
       infixCopy.getNode.removeChild(infixCopy.rOp.getNode)
       Seq(infixCopy.getText)
