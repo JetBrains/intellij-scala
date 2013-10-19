@@ -6,8 +6,8 @@ import model.Order
 import sbt.compiler._
 import java.io.File
 import sbt.{CompileSetup, CompileOptions}
-import xsbti.compile.{CompileProgress, CompileOrder}
-import sbt.inc.{Analysis, AnalysisStore, Locate}
+import xsbti.compile.{ExtendedCompileProgress, CompileProgress, CompileOrder}
+import sbt.inc.{IncOptions, Analysis, AnalysisStore, Locate}
 import xsbti._
 import org.jetbrains.jps.incremental.messages.BuildMessage.Kind
 
@@ -34,8 +34,6 @@ class CompilerImpl(javac: JavaCompiler, scalac: Option[AnalyzingCompiler], fileT
 
     val progress = new ClientProgress(client)
 
-    val listener = new ClientCompileListener(client)
-
     val reporter = new ClientReporter(client)
 
     val logger = new ClientLogger(client) with JavacOutputParsing
@@ -54,12 +52,12 @@ class CompilerImpl(javac: JavaCompiler, scalac: Option[AnalyzingCompiler], fileT
         analysisStore,
         outputToAnalysisMap.get,
         Locate.definesClass,
-        scalac,
+        scalac.orNull,
         javac,
         reporter,
-        Some(listener),
         false,
-        CompilerCache.fresh
+        CompilerCache.fresh,
+        IncOptions.Default
       )(logger)
     } catch {
       case _: xsbti.CompileFailed => // the error should be already handled via the `reporter`
@@ -97,7 +95,16 @@ private object ClientLogger {
     if (line.length > MaxLineLength) line.substring(0, MaxLineLength) + "..." else line
 }
 
-private class ClientProgress(client: Client) extends CompileProgress {
+private class ClientProgress(client: Client) extends ExtendedCompileProgress {
+  def generated(source: File, module: File, name: String) {
+    client.progress("Generated " + module.getName)
+    client.generated(source, module, name)
+  }
+
+  def deleted(module: File) {
+    client.deleted(module)
+  }
+
   def startUnit(phase: String, unitPath: String) {
     val unitName = new File(unitPath).getName
     client.progress("Phase " + phase + " on " + unitName)
@@ -151,15 +158,6 @@ private class ClientReporter(client: Client) extends Reporter {
   }
 
   def toOption[T](value: Maybe[T]): Option[T] = if (value.isDefined) Some(value.get) else None
-}
 
-private class ClientCompileListener(client: Client) extends CompileListener {
-  def generated(source: File, module: File, name: String) {
-    client.progress("Generated " + module.getName)
-    client.generated(source, module, name)
-  }
-
-  def deleted(module: File) {
-    client.deleted(module)
-  }
+  def comment(p1: Position, p2: String) {} // TODO
 }
