@@ -316,7 +316,10 @@ trait ScPattern extends ScalaPsiElement {
   def getAnalog: ScPattern = {
     getContext match {
       case gen: ScGenerator => {
-        val f: ScForStatement = gen.getContext.getContext.asInstanceOf[ScForStatement]
+        val f: ScForStatement = gen.getContext.getContext match {
+          case fr: ScForStatement => fr
+          case _ => return this
+        }
         f.getDesugarizedExpr match {
           case Some(expr) =>
             if (analog != null) return analog
