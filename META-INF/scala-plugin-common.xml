@@ -137,6 +137,7 @@
         <definitionsSearch implementation="org.jetbrains.plugins.scala.lang.psi.impl.search.MethodImplementationsSearch"/>
         <antCustomCompiler implementation="org.jetbrains.plugins.scala.ant.ScalaAntCustomCompilerProvider"/>
         <refactoring.moveClassHandler implementation="org.jetbrains.plugins.scala.lang.refactoring.move.MoveScalaClassHandler" order="first"/>
+        <refactoring.elementListenerProvider implementation="org.jetbrains.plugins.scala.runner.ScalaRunConfigurationRefactoringListenerProvider"/>
         <!--<moveFileHandler implementation="org.jetbrains.plugins.scala.lang.refactoring.move.MoveScalaFileHandler" order="first"/>-->
         <refactoring.inlineHandler language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.refactoring.inline.ScalaInlineHandler"/>
         <refactoring.introduceParameterMethodUsagesProcessor implementation="org.jetbrains.plugins.scala.lang.refactoring.introduceParameter.ScalaIntroduceParameterMethodUsagesProcessor"/>
