@@ -19,7 +19,7 @@ class ScalaRunConfigurationRefactoringListenerProvider extends RunConfigurationR
       case _ =>
     }
     def elementRenamed(newElement: PsiElement) = newElement match {
-      case td: ScTemplateDefinition => listener.elementRenamed(wrap(td))
+      case td: ScTemplateDefinition if listener != null => listener.elementRenamed(wrap(td))
       case _ =>
     }
   }
