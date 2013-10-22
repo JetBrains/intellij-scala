@@ -37,6 +37,7 @@ import org.jetbrains.plugins.scala.extensions.{toPsiMemberExt, toPsiNamedElement
 import com.intellij.openapi.util.Pair
 import annotation.tailrec
 import collection.mutable
+import com.intellij.openapi.fileTypes.StdFileTypes
 
 /**
  * User: Alexander Podkhalyuzin
@@ -102,7 +103,7 @@ class ScalaDocumentationProvider extends CodeDocumentationProvider {
 
 
         buffer.append("<PRE>")
-        buffer.append(parseAnnotations(clazz, ScType.urlText(_)))
+        buffer.append(parseAnnotations(clazz, ScType.urlText))
         val start = buffer.length
         buffer.append(parseModifiers(clazz))
         buffer.append(clazz match {
@@ -114,7 +115,7 @@ class ScalaDocumentationProvider extends CodeDocumentationProvider {
         buffer.append(parseTypeParameters(clazz))
         val end = buffer.length
         clazz match {
-          case par: ScParameterOwner => buffer.append(parseParameters(par, ScType.urlText(_), end - start - 7))
+          case par: ScParameterOwner => buffer.append(parseParameters(par, ScType.urlText, end - start - 7))
           case _ =>
         }
         buffer.append("\n")
@@ -128,15 +129,15 @@ class ScalaDocumentationProvider extends CodeDocumentationProvider {
         val buffer: StringBuilder = new StringBuilder("")
         buffer.append(parseClassUrl(fun))
         buffer.append("<PRE>")
-        buffer.append(parseAnnotations(fun, ScType.urlText(_)))
+        buffer.append(parseAnnotations(fun, ScType.urlText))
         val start = buffer.length
         buffer.append(parseModifiers(fun))
         buffer.append("def ")
         buffer.append("<b>" + escapeHtml(fun.name) + "</b>")
         buffer.append(parseTypeParameters(fun))
         val end = buffer.length
-        buffer.append(parseParameters(fun, ScType.urlText(_), end - start - 7))
-        buffer.append(parseType(fun, ScType.urlText(_)))
+        buffer.append(parseParameters(fun, ScType.urlText, end - start - 7))
+        buffer.append(parseType(fun, ScType.urlText))
         buffer.append("</PRE>")
         buffer.append(parseDocComment(fun))
         return "<html><body>" + buffer.toString + "</body></html>"
@@ -145,14 +146,14 @@ class ScalaDocumentationProvider extends CodeDocumentationProvider {
         val buffer: StringBuilder = new StringBuilder("")
         decl match {case decl: ScMember => buffer.append(parseClassUrl(decl)) case _ =>}
         buffer.append("<PRE>")
-        decl match {case an: ScAnnotationsHolder => buffer.append(parseAnnotations(an, ScType.urlText(_))) case _ =>}
+        decl match {case an: ScAnnotationsHolder => buffer.append(parseAnnotations(an, ScType.urlText)) case _ =>}
         decl match {case m: ScModifierListOwner => buffer.append(parseModifiers(m)) case _ =>}
         buffer.append(decl match {case _: ScValue => "val " case _: ScVariable => "var " case _ => ""})
         buffer.append("<b>" + (element match {
           case named: ScNamedElement => escapeHtml(named.name) case _ => "unknown"
         }) + "</b>")
         buffer.append(element match {
-          case typed: ScTypedDefinition => parseType(typed, ScType.urlText(_)) case _ => ": Nothing"
+          case typed: ScTypedDefinition => parseType(typed, ScType.urlText) case _ => ": Nothing"
         } )
         buffer.append("</PRE>")
         decl match {case doc: ScDocCommentOwner => buffer.append(parseDocComment(doc)) case _ =>}
@@ -161,7 +162,7 @@ class ScalaDocumentationProvider extends CodeDocumentationProvider {
       case param: ScParameter => {
         val buffer: StringBuilder = new StringBuilder("")
         buffer.append("<PRE>")
-        buffer.append(parseAnnotations(param, ScType.urlText(_)))
+        buffer.append(parseAnnotations(param, ScType.urlText))
         param match {case cl: ScClassParameter => buffer.append(parseModifiers(cl)) case _ => }
         buffer.append(param match {
           case c: ScClassParameter if c.isVal => "val "
@@ -169,7 +170,7 @@ class ScalaDocumentationProvider extends CodeDocumentationProvider {
           case _ => ""
         })
         buffer.append("<b>" + escapeHtml(param.name) + "</b>")
-        buffer.append(parseType(param, ScType.urlText(_)))
+        buffer.append(parseType(param, ScType.urlText))
         return "<html><body>" + buffer.toString + "</body></html>"
       }
       case typez: ScTypeAlias => {
@@ -177,7 +178,7 @@ class ScalaDocumentationProvider extends CodeDocumentationProvider {
         buffer.append(parseClassUrl(typez))
 
         buffer.append("<PRE>")
-        buffer.append(parseAnnotations(typez, ScType.urlText(_)))
+        buffer.append(parseAnnotations(typez, ScType.urlText))
         buffer.append(parseModifiers(typez))
         buffer.append("type <b>" + escapeHtml(typez.name) + "</b>")
         typez match {
@@ -195,7 +196,7 @@ class ScalaDocumentationProvider extends CodeDocumentationProvider {
         buffer.append("<PRE>")
         buffer.append("Pattern: ")
         buffer.append("<b>" + escapeHtml(pattern.name) + "</b>")
-        buffer.append(parseType(pattern, ScType.urlText(_)))
+        buffer.append(parseType(pattern, ScType.urlText))
         if (pattern.getContext != null)
           pattern.getContext.getContext match {
             case co: PsiDocCommentOwner => buffer.append(parseDocComment(co, false))
@@ -290,7 +291,7 @@ object ScalaDocumentationProvider {
     def processProbablyJavaDocCommentWithOwner(owner: PsiDocCommentOwner) {
       owner.getDocComment match {
         case scalaComment: ScDocComment =>
-          for (docTag <- scalaComment.findTagsByName(Set(PARAM_TAG, TYPE_PARAM_TAG).contains( _ ))) {
+          for (docTag <- scalaComment.findTagsByName(Set(PARAM_TAG, TYPE_PARAM_TAG) contains _)) {
             docTag.name match {
               case PARAM_TAG => registerInheritedParam(inheritedParams, docTag)
               case TYPE_PARAM_TAG => registerInheritedParam(inheritedTParams, docTag)
@@ -542,22 +543,23 @@ object ScalaDocumentationProvider {
     comment match {
       case Some(y) => {
         val x = replaceWikiWithTags(y)
+        val xText = if (x == null) "" else x.getText
+        
         val text = elem match {
           case clazz: ScClass =>
-            "\nclass A {\n " + x.getText + " \npublic " + getTypeParams(clazz) + "void f" +
+            "\nclass A {\n " + xText + " \npublic " + getTypeParams(clazz) + "void f" +
                     getParams(clazz) + " {\n}\n}"
-          case typeAlias: ScTypeAlias => x.getText + "\n class A" + getTypeParams(typeAlias) + " {}"
-          case _: ScTypeDefinition => x.getText + "\nclass A {\n }"
+          case typeAlias: ScTypeAlias => xText + "\n class A" + getTypeParams(typeAlias) + " {}"
+          case _: ScTypeDefinition => xText + "\nclass A {\n }"
           case f: ScFunction => {
-            "class A {\n" + x.getText + "\npublic " + getTypeParams(f) + "int f" + getParams(f) + " {}\n}"
+            "class A {\n" + xText + "\npublic " + getTypeParams(f) + "int f" + getParams(f) + " {}\n}"
           }
           case m: PsiMethod => {
             "class A {\n" + m.getText + "\n}"
           }
-          case _ => x.getText + "\nclass A"
+          case _ => xText + "\nclass A"
         }
-        val dummyFile: PsiJavaFile = PsiFileFactory.getInstance(elem.getProject).
-                createFileFromText("dummy" + ".java", text).asInstanceOf[PsiJavaFile]
+        val dummyFile = PsiFileFactory.getInstance(elem.getProject).createFileFromText("dummy", StdFileTypes.JAVA, text).asInstanceOf[PsiJavaFile]
         val javadoc: String = elem match {
           case _: ScFunction | _: ScClass =>
             JavaDocumentationProvider.generateExternalJavadoc(dummyFile.getClasses.apply(0).getAllMethods.apply(0))
