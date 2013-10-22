@@ -37,6 +37,7 @@ import org.jetbrains.plugins.scala.extensions.{toPsiMemberExt, toPsiNamedElement
 import com.intellij.openapi.util.Pair
 import annotation.tailrec
 import collection.mutable
+import org.jetbrains.plugins.scala.lang.psi.impl.statements.ScFunctionDefinitionImpl
 
 /**
  * User: Alexander Podkhalyuzin
@@ -638,6 +639,8 @@ object ScalaDocumentationProvider {
         case MyScaladocParsing.SEE_TAG =>
           element.getNode.getChildren(null).foreach(node => visitElementInner(node.getPsi, commentBody))
           commentBody.append("</dl>")
+        case MyScaladocParsing.INHERITDOC_TAG =>
+          element.getNode.getChildren(null).foreach(node => visitElementInner(node.getPsi, commentBody))
         case _ =>
           element.getNode.getChildren(null).foreach(node => visitElementInner(node.getPsi, tagsPart))
       }
@@ -652,6 +655,19 @@ object ScalaDocumentationProvider {
               case MyScaladocParsing.NOTE_TAG | MyScaladocParsing.TODO_TAG | MyScaladocParsing.EXAMPLE_TAG => 
                 result.append("<b>").append(element.getText.substring(1).capitalize).append(":</b><br/>")
               case MyScaladocParsing.SEE_TAG => result.append("<dl><dt><b>See Also:</b></dt>")
+
+              case MyScaladocParsing.INHERITDOC_TAG =>
+                val parent = element.getParent.getParent.getParent
+                val superMethod : Option[PsiMethod] = parent match {
+                  case funDef : ScFunctionDefinition => funDef.superMethod
+                  case funDecl : ScFunctionDeclaration => funDecl.superMethod
+                  case _ => None
+                }
+                superMethod match {
+                  case Some(sm) => result.append(parseDocComment(sm))
+                  case _ =>
+                }
+
               case _ => result.append(element.getText)
             }
           case ScalaDocTokenType.DOC_TAG_VALUE_TOKEN
