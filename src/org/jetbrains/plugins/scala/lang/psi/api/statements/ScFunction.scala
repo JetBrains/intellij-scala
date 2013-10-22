@@ -31,6 +31,7 @@ import com.intellij.util.containers.ConcurrentHashMap
 import light.ScFunctionWrapper
 import com.intellij.openapi.util.Key
 import com.intellij.openapi.progress.ProgressManager
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockStatement
 
 /**
  * @author Alexander Podkhalyuzin
@@ -62,7 +63,7 @@ trait ScFun extends ScTypeParametersOwner {
  */
 trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwner
         with ScParameterOwner with ScDocCommentOwner with ScTypedDefinition
-        with ScDeclaredElementsHolder with ScAnnotationsHolder with ScMethodLike {
+        with ScDeclaredElementsHolder with ScAnnotationsHolder with ScMethodLike with ScBlockStatement {
   private var synth = false
   private var synthNavElement: Option[PsiElement] = None
   def setSynthetic(navElement: PsiElement) {
