@@ -9,7 +9,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlock, ScThisReference, 
 import lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.extensions.childOf
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import com.intellij.openapi.util.TextRange
 
 /**
@@ -52,16 +51,11 @@ class RedundantBlockInspection extends AbstractInspection {
   
   private class InCaseClauseQuickFix(block: ScBlock) extends AbstractFix("Remove redundant braces", block) {
     def doApplyFix(project: Project, descriptor: ProblemDescriptor): Unit = {
-      val children = block.children.toList.drop(1).dropRight(1)
-      if (children.length == 1)
-        block.replace(children(0))
-      else {
-        for (child <- children; parent = block.getParent) {
-          parent.addBefore(ScalaPsiElementFactory.createNewLine(parent.getManager), block)
-          parent.addBefore(child, block)
-        }
-        block.delete()
+      val stmts = block.statements
+      for (stmt <- stmts) {
+        block.getParent.addBefore(stmt, block)
       }
+      block.delete()
     }
   }
 }
