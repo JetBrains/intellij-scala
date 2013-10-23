@@ -13,14 +13,18 @@ import org.jetbrains.plugins.scala.lang.psi.light.PsiClassWrapper
  */
 class ScalaRunConfigurationRefactoringListenerProvider extends RunConfigurationRefactoringElementListenerProvider {
   private def wrap(td: ScTemplateDefinition) = new PsiClassWrapper(td, td.qualifiedName, td.name)
-  private def decorate(listener: RefactoringElementListener): RefactoringElementListener = new RefactoringElementListener {
-    def elementMoved(newElement: PsiElement) = newElement match {
-      case td: ScTemplateDefinition => listener.elementMoved(wrap(td))
-      case _ =>
-    }
-    def elementRenamed(newElement: PsiElement) = newElement match {
-      case td: ScTemplateDefinition if listener != null => listener.elementRenamed(wrap(td))
-      case _ =>
+  private def decorate(listener: RefactoringElementListener): RefactoringElementListener = {
+    if (listener == null) return null
+
+    new RefactoringElementListener {
+      def elementMoved(newElement: PsiElement) = newElement match {
+        case td: ScTemplateDefinition => listener.elementMoved(wrap(td))
+        case _ =>
+      }
+      def elementRenamed(newElement: PsiElement) = newElement match {
+        case td: ScTemplateDefinition => listener.elementRenamed(wrap(td))
+        case _ =>
+      }
     }
   }
 
