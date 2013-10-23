@@ -58,6 +58,8 @@ class ScForStatementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
     if (lastParent == enumerators) return true
     enumerators.processDeclarations(processor, state, null, place)
   }
+  
+  protected def bodyToText(expr: ScExpression) = expr.getText
 
   @tailrec
   private def nextEnumerator(gen: PsiElement): PsiElement = {
@@ -84,7 +86,7 @@ class ScForStatementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
       gen.pattern.desugarizedPatternIndex = exprText.length
       exprText.append(gen.pattern.getText).append(" => ")
       body match {
-        case Some(x) => exprText.append(x.getText)
+        case Some(x) => exprText.append(bodyToText(x))
         case _ => exprText.append("{}")
       }
       exprText.append(" } ")
@@ -136,7 +138,7 @@ class ScForStatementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
           exprText.append("\n} ")
           if (isYield) exprText.append("yield ")
           body match {
-            case Some(x) => exprText append x.getText
+            case Some(x) => exprText append bodyToText(x)
             case _ => exprText append "{}"
           }
         case gen2: ScGenerator =>
@@ -156,7 +158,7 @@ class ScForStatementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
           exprText.append("\n} ")
           if (isYield) exprText.append("yield ")
           body match {
-            case Some(x) => exprText append x.getText
+            case Some(x) => exprText append bodyToText(x)
             case _ => exprText append "{}"
           }
           exprText.append("\n}")
@@ -190,7 +192,7 @@ class ScForStatementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
           exprText.append("\n} ")
           if (isYield) exprText.append("yield ")
           body match {
-            case Some(x) => exprText append x.getText
+            case Some(x) => exprText append bodyToText(x)
             case _ => exprText append "{}"
           }
         case _ =>
