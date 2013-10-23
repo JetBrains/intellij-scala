@@ -30,7 +30,7 @@ import types._
 import api.base.ScModifierList
 import api.toplevel.ScToplevelElement
 import result.{TypeResult, Failure, Success, TypingContext}
-import util.{PsiUtil, PsiTreeUtil}
+import com.intellij.psi.util.{PsiUtil, PsiTreeUtil}
 import collection.Seq
 import api.expr.ScBlock
 import api.toplevel.templates.{ScTemplateParents, ScExtendsBlock, ScTemplateBody}
