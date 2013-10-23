@@ -24,8 +24,8 @@ public abstract class LayeredParser implements PsiParser {
   private static final Logger LOG = Logger.getInstance("#org.jetbrains.plugins.scala.lang.parser.util.LayeredParser");
   private static final ASTNode fakeTreeBuilt = new DummyHolderElement("ololo");
 
-  private final List<RegisteredInfo<?, ?>> myParsers = new ArrayList<>();
-  private final List<IElementType> mySubRootElements = new ArrayList<>();
+  private final List<RegisteredInfo<?, ?>> myParsers = new ArrayList<RegisteredInfo<?, ?>>();
+  private final List<IElementType> mySubRootElements = new ArrayList<IElementType>();
   
   private TokenSet myEofExtendedElements = TokenSet.EMPTY;
   private boolean isDebug = false;
@@ -119,7 +119,7 @@ public abstract class LayeredParser implements PsiParser {
 
       //carefully copypasted from PsiBuilderImpl 
       final int approxLength = Math.max(10, delegate.getOriginalText().length() / 5);
-      final Ref<Integer> validTokensCountRef = new Ref<>();
+      final Ref<Integer> validTokensCountRef = new Ref<Integer>();
       validTokensCountRef.set(0);
 
       delegate.setWhitespaceSkippedCallback(new WhitespaceSkippedCallback() {
@@ -132,8 +132,8 @@ public abstract class LayeredParser implements PsiParser {
         }
       });
 
-      originalTokens  = new ArrayList<>(approxLength);
-      validNumbersLookUp = new TreeMap<>();
+      originalTokens  = new ArrayList<BufferedTokenInfo>(approxLength);
+      validNumbersLookUp = new TreeMap<Integer, Integer>();
       
       Marker rollbackMarker = delegate.mark();
       while (!delegate.eof()) {
@@ -152,8 +152,8 @@ public abstract class LayeredParser implements PsiParser {
     private boolean initParser(RegisteredInfo<?, ?> currentParser) {
       backStepToken = null;
       myCurrentParser = currentParser;
-      filteredTokens = new ArrayList<>();
-      stateFlushedNums = new LinkedList<>();
+      filteredTokens = new ArrayList<Integer>();
+      stateFlushedNums = new LinkedList<Integer>();
       stateFlushedNums.add(0);
 
       List<Class<? extends IElementType>> currentTokenTypes = currentParser.getMyRegisteredTokens();
@@ -357,10 +357,10 @@ public abstract class LayeredParser implements PsiParser {
           Collections.<Pair<Marker, IElementType>>emptyList() : 
           new ArrayList<Pair<Marker, IElementType>>(mySubRootElements.size());
       for (IElementType tpe : mySubRootElements) {
-        subRootMarkers.add(new Pair<>(myDelegate.mark(), tpe));
+        subRootMarkers.add(new Pair<Marker, IElementType>(myDelegate.mark(), tpe));
       }
       
-      final Stack<FakeStartMarker> openMarkers = new Stack<>();
+      final Stack<FakeStartMarker> openMarkers = new Stack<FakeStartMarker>();
       myDelegate.setWhitespaceSkippedCallback(null);
       
       
@@ -903,7 +903,7 @@ public abstract class LayeredParser implements PsiParser {
 
       @Override
       public void setCustomEdgeTokenBinders(@Nullable WhitespacesAndCommentsBinder left, @Nullable WhitespacesAndCommentsBinder right) {
-        myCustomEdgeTokenBinders = new Pair<>(left, right);
+        myCustomEdgeTokenBinders = new Pair<WhitespacesAndCommentsBinder, WhitespacesAndCommentsBinder>(left, right);
       }
 
       @Override
@@ -1246,7 +1246,7 @@ public abstract class LayeredParser implements PsiParser {
     }
     
     private void ensureProduction() {
-      if (myProductionMarkerList == null) myProductionMarkerList = new LinkedList<>();
+      if (myProductionMarkerList == null) myProductionMarkerList = new LinkedList<LayeredParserPsiBuilder.FakeMarker>();
     }
   }
 
