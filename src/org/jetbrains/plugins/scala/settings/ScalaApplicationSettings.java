@@ -41,6 +41,8 @@ public class ScalaApplicationSettings implements PersistentStateComponent<ScalaA
 
   public boolean INTRODUCE_FIELD_INITIALIZE_IN_DECLARATION = true;
 
+  public boolean INSERT_MULTILINE_QUOTES = true;
+
   public ScalaApplicationSettings getState() {
     return this;
   }
