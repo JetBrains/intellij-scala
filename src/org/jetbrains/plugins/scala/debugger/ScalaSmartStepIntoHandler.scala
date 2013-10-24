@@ -19,7 +19,9 @@ import org.jetbrains.plugins.scala.lang.psi.types.{PhysicalSignature, ScDesignat
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSimpleTypeElement, ScParameterizedTypeElement}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
-import com.intellij.debugger.engine.RequestHint.SmartStepFilter
+import com.intellij.debugger.actions.JvmSmartStepIntoHandler.StepTarget
+import com.intellij.debugger.engine.MethodFilter
+import scala.collection.JavaConverters._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 
 /**
@@ -28,11 +30,11 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
  */
 
 class ScalaSmartStepIntoHandler extends JvmSmartStepIntoHandler {
-  def findReferencedMethods(position: SourcePosition): JList[PsiMethod] = {
-    import scala.collection.JavaConversions.seqAsJavaList
-    findReferencedMethodsScala(position)
+  override def findSmartStepTargets(position: SourcePosition): JList[StepTarget] = {
+    val targets: List[StepTarget] = findReferencedMethodsScala(position).map(new MethodTarget(_, null, false))
+    targets.asJava
   }
-  
+
   def isAvailable(position: SourcePosition): Boolean = {
     val file: PsiFile = position.getFile
     file.isInstanceOf[ScalaFile]
@@ -87,7 +89,7 @@ class ScalaSmartStepIntoHandler extends JvmSmartStepIntoHandler {
           }
           case _ =>
         }
-        
+
         expr match {
           case n: ScNewTemplateDefinition if n.extendsBlock.templateBody != None =>
             return //ignore anonymous classes
@@ -140,7 +142,7 @@ class ScalaSmartStepIntoHandler extends JvmSmartStepIntoHandler {
         super.visitExpression(expr)
       }
     }
-    
+
     val methodCollector: PsiElementVisitor = new MethodsVisitor
     element.accept(methodCollector)
 
@@ -152,15 +154,18 @@ class ScalaSmartStepIntoHandler extends JvmSmartStepIntoHandler {
     methods.toList
   }
 
-  override def getSmartStepFilter(method: PsiMethod): SmartStepFilter = {
+  override def createMethodFilter(target: StepTarget): MethodFilter = {
+    val method = target.getMethod
+
     method match {
       case f: ScFunction =>
-        val clazz = f.getContainingClass
-        new SmartStepFilter(DebuggerUtil.getClassJVMName(clazz, true), method.getName, DebuggerUtil.getFunctionJVMSignature(f))
+        new MethodFilter(DebuggerUtil.getClassJVMName(f.getContainingClass, withPostfix = true),
+          method.getName, DebuggerUtil.getFunctionJVMSignature(f), null)
       case f: ScPrimaryConstructor =>
-        val clazz = f.getContainingClass
-        new SmartStepFilter(DebuggerUtil.getClassJVMName(clazz, true), "<init>", DebuggerUtil.getFunctionJVMSignature(f))
-      case _ => super.getSmartStepFilter(method)
+        new MethodFilter(DebuggerUtil.getClassJVMName(f.getContainingClass, withPostfix = true),
+          "<init>", DebuggerUtil.getFunctionJVMSignature(f), null)
+      case _ =>
+        super.createMethodFilter(target)
     }
   }
 }
