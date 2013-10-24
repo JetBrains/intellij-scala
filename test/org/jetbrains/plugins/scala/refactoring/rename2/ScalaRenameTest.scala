@@ -195,10 +195,10 @@ class ScalaRenameTest extends ScalaRenameTestBase {
   def testRenameInterpolatedStringPrefix() {
     val fileText =
       """
-        | object A {
-        |   class B { def aa<caret>a(a: Any*) = a.length }
+        | object AAA {
+        |   class BBB { def aa<caret>a(a: Any*) = a.length }
         |   
-        |   implicit def ctxToB(ctx: StringContext) = new B
+        |   implicit def ctxToB(ctx: StringContext) = new BBB
         |   
         |   val a = aaa"blah blah"
         | }
@@ -206,10 +206,10 @@ class ScalaRenameTest extends ScalaRenameTestBase {
     
     val resultText =
       """
-        | object A {
-        |   class B { def bb<caret>b(a: Any*) = a.length }
+        | object AAA {
+        |   class BBB { def bb<caret>b(a: Any*) = a.length }
         |   
-        |   implicit def ctxToB(ctx: StringContext) = new B
+        |   implicit def ctxToB(ctx: StringContext) = new BBB
         |   
         |   val a = bbb"blah blah"
         | }
