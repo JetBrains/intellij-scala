@@ -179,7 +179,7 @@ public abstract class AbstractScalaFormatterTestBase extends LightIdeaTestCase {
       public void run() {
         ApplicationManager.getApplication().runWriteAction(new Runnable() {
           public void run() {
-            ((DocumentImpl)doc).stripTrailingSpaces();
+            ((DocumentImpl)doc).stripTrailingSpaces(getProject());
           }
         });
       }
