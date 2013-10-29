@@ -832,6 +832,7 @@
         <!-- end of scaladoc inspections -->
         <!-- end of inspections -->
 
+      <library.type implementation="org.jetbrains.plugins.scala.configuration.ScalaLibraryType" />
     </extensions>
 
 
