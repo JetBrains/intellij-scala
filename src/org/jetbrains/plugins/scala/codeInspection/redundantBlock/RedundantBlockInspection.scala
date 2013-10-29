@@ -5,11 +5,12 @@ import com.intellij.codeInspection.{ProblemDescriptor, ProblemsHolder}
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
 import codeInspection.{AbstractFix, AbstractInspection}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlock, ScThisReference, ScReferenceExpression, ScBlockExpr}
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.extensions.childOf
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
 import com.intellij.openapi.util.TextRange
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScInterpolatedStringLiteral
 
 /**
  * Pavel Fatin
@@ -30,12 +31,14 @@ class RedundantBlockInspection extends AbstractInspection {
       }
       if (probablyRedundant) {
         val next: PsiElement = block.getNextSibling
+        val parent = block.getParent
         val isRedundant =
-          if (next == null) true
-          else if (child.getText.startsWith("_")) false //SCL-6124
-          else {
+        if (parent.isInstanceOf[ScArgumentExprList]) false
+        else if (next == null) true
+        else if (parent.isInstanceOf[ScInterpolatedStringLiteral] && child.getText.startsWith("_")) false //SCL-6124
+        else {
             val refName: String = child.getText + (if (next.getText.length > 0) next.getText charAt 0 else "")
-            !ScalaNamesUtil.isIdentifier(refName) && !refName.exists(_ == '$') 
+            !ScalaNamesUtil.isIdentifier(refName) && !refName.exists(_ == '$')
           }
         if (isRedundant) {
           holder.registerProblem(block, "The enclosing block is redundant", new QuickFix(block))

@@ -30,6 +30,7 @@
         <treeCopyHandler implementation="org.jetbrains.plugins.scala.lang.refactoring.util.ScalaChangeUtilSupport"/>
         <iconProvider implementation="org.jetbrains.plugins.scala.components.ScalaIconProvider"/>
         <colorSettingsPage implementation="org.jetbrains.plugins.scala.highlighter.ScalaColorsAndFontsPage"/>
+        <editorSmartKeysConfigurable instance="org.jetbrains.plugins.scala.settings.ScalaEditorSmartKeysConfigurable"/>
         <codeFoldingOptionsProvider instance="org.jetbrains.plugins.scala.editor.codeFolding.ScalaCodeFoldingOptionsProvider"/>
         <langCodeStyleSettingsProvider implementation="org.jetbrains.plugins.scala.lang.formatting.settings.ScalaLanguageCodeStyleSettingsProvider"/>
         <projectConfigurable instance="org.jetbrains.plugins.scala.settings.ScalaProjectSettingsConfigurable"/>
@@ -1002,6 +1003,11 @@
                 description="Generate equals() and hashCode() methods">
           <add-to-group group-id="GenerateGroup"/>
         </action>
+        <action id="Scala.GenerateCompanionObject"
+              class="org.jetbrains.plugins.scala.codeInsight.generation.ScalaGenerateCompanionObjectAction" text="Companion object"
+              description="Generate companion object">
+        <add-to-group group-id="GenerateGroup"/>
+      </action>
       </actions>
 
 </idea-plugin>
