@@ -1,17 +1,15 @@
 package org.jetbrains.plugins.scala
 package editor.selectioner
 
-import lang.psi.api.base.{ScReferenceElement, ScLiteral}
-import lang.psi.api.expr.{ScNewTemplateDefinition, ScMethodCall}
+import lang.psi.api.base.ScReferenceElement
+import lang.psi.api.expr.ScMethodCall
 import lang.psi.api.toplevel.templates.ScExtendsBlock
-import lang.psi.api.statements.params.{ScArguments, ScParameterClause, ScParameters}
+import lang.psi.api.statements.params.{ScArguments, ScParameterClause}
 import lang.lexer.ScalaTokenTypes
-import lang.parser.ScalaElementTypes
 import com.intellij.openapi.util.TextRange
-import com.intellij.codeInsight.editorActions.{ExtendWordSelectionHandler, ExtendWordSelectionHandlerBase}
+import com.intellij.codeInsight.editorActions.ExtendWordSelectionHandlerBase
 import com.intellij.openapi.editor.Editor
 import com.intellij.psi.PsiElement
-import lang.psi.api.base.types.ScTypeArgs
 
 /**
  * User: Alexander Podkhalyuzin
@@ -44,7 +42,7 @@ class ScalaWordSelectioner extends ExtendWordSelectionHandlerBase {
         result.add(new TextRange(start, end))
         def isEmptyChar(c: Char): Boolean = c == ' ' || c == '\n'
         while (isEmptyChar(ext.getContainingFile.getText.charAt(end - 1))) end = end - 1
-        result.add(new TextRange(start, end))
+        if (start <= end) result.add(new TextRange(start, end))
       }
       //case for references
       case x: ScReferenceElement => {
