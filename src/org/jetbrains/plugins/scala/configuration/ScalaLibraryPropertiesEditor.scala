@@ -4,58 +4,44 @@ package configuration
 import com.intellij.openapi.roots.libraries.ui.{LibraryPropertiesEditor, LibraryEditorComponent}
 import com.intellij.openapi.projectRoots.ui.PathEditor
 import com.intellij.openapi.fileChooser.FileChooserDescriptor
-import javax.swing.{Box, JLabel, JPanel}
-import java.awt.{Font, BorderLayout}
-import com.intellij.ui.IdeBorderFactory
+import com.intellij.ui.TabbedPaneWrapper
 import com.intellij.openapi.vfs.{VfsUtilCore, VfsUtil}
 import collection.JavaConverters._
+import com.intellij.openapi.util.Disposer
 
 /**
  * @author Pavel Fatin
  */
 private class ScalaLibraryPropertiesEditor(editorComponent: LibraryEditorComponent[ScalaLibraryProperties]) extends LibraryPropertiesEditor {
-  private val editor = {
-    val descriptor = new FileChooserDescriptor(true, false, true, false, false, true)
-    new PathEditor(descriptor)
-  }
+  private val disposable = Disposer.newDisposable()
+  private val chooserDescriptor = new FileChooserDescriptor(true, false, true, false, false, true)
+  private val classpathEditor = new PathEditor(chooserDescriptor)
+  private val pluginsEditor = new PathEditor(chooserDescriptor)
 
   def createComponent() = {
-    val compilerPanel = {
-      val component = editor.createComponent()
-      component.setBorder(IdeBorderFactory.createBorder())
+    val tabs = new TabbedPaneWrapper(disposable)
+    tabs.addTab("Classpath", classpathEditor.createComponent())
+    tabs.addTab("Options", new CompilerOptionsTab().getComponent)
+    tabs.addTab("Plugins", pluginsEditor.createComponent())
 
-      val panel = new JPanel(new BorderLayout())
-      panel.add(Box.createVerticalStrut(10), BorderLayout.NORTH)
-      panel.add(ScalaLibraryPropertiesEditor.titleLabel("Scala compiler classpath:"), BorderLayout.CENTER)
-      panel.add(component, BorderLayout.SOUTH)
-      panel
-    }
-
-    val panel = new JPanel(new BorderLayout(0, 15))
-    panel.add(compilerPanel, BorderLayout.CENTER)
-    panel.add(ScalaLibraryPropertiesEditor.titleLabel("Scala library:"), BorderLayout.SOUTH)
-    panel
+    new ScalaLibraryEditorForm(tabs.getComponent).getComponent
   }
 
-  def isModified = editor.isModified
+  override def disposeUIResources() {
+    Disposer.dispose(disposable)
+  }
+
+  def isModified = classpathEditor.isModified
 
   def reset() {
     val files = properties.compilerClasspath.map(VfsUtil.findFileByIoFile(_, true))
-    editor.resetPath(files.asJava)
+    classpathEditor.resetPath(files.asJava)
   }
 
   def apply() {
-    val roots = editor.getRoots.toSeq
+    val roots = classpathEditor.getRoots.toSeq
     properties.compilerClasspath = roots.map(VfsUtilCore.virtualToIoFile)
   }
 
   private def properties = editorComponent.getProperties
-}
-
-private object ScalaLibraryPropertiesEditor {
-  private def titleLabel(title: String): JLabel = {
-    val label = new JLabel(title)
-    label.setFont(label.getFont.deriveFont(Font.BOLD))
-    label
-  }
 }
