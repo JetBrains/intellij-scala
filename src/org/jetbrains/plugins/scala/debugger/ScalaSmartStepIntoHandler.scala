@@ -1,8 +1,7 @@
 package org.jetbrains.plugins.scala.debugger
 
-import com.intellij.debugger.actions.JvmSmartStepIntoHandler
+import com.intellij.debugger.actions.{JvmSmartStepIntoHandler, SmartStepTarget, MethodSmartStepTarget}
 import com.intellij.debugger.SourcePosition
-import evaluation.util.DebuggerUtil
 import java.util.{List => JList}
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.editor.Document
@@ -19,9 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.{PhysicalSignature, ScDesignat
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSimpleTypeElement, ScParameterizedTypeElement}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
-import com.intellij.debugger.engine.MethodFilter
 import scala.collection.JavaConverters._
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 
 /**
  * User: Alexander Podkhalyuzin
@@ -29,8 +26,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
  */
 
 class ScalaSmartStepIntoHandler extends JvmSmartStepIntoHandler {
-  override def findSmartStepTargets(position: SourcePosition): JList[JvmSmartStepIntoHandler#StepTarget] = {
-    val targets: List[JvmSmartStepIntoHandler#StepTarget] = findReferencedMethodsScala(position).map(new StepTarget(_))
+  override def findSmartStepTargets(position: SourcePosition): JList[SmartStepTarget] = {
+    val targets: List[SmartStepTarget] = findReferencedMethodsScala(position).map(new MethodSmartStepTarget(_))
     targets.asJava
   }
 
@@ -151,20 +148,5 @@ class ScalaSmartStepIntoHandler extends JvmSmartStepIntoHandler {
       element = element.getNextSibling
     }
     methods.toList
-  }
-
-  override def createMethodFilter(target: JvmSmartStepIntoHandler#StepTarget): MethodFilter = {
-    val method = target.getMethod
-
-    method match {
-      case f: ScFunction =>
-        new MethodFilter(DebuggerUtil.getClassJVMName(f.getContainingClass, withPostfix = true),
-          method.getName, DebuggerUtil.getFunctionJVMSignature(f), null)
-      case f: ScPrimaryConstructor =>
-        new MethodFilter(DebuggerUtil.getClassJVMName(f.getContainingClass, withPostfix = true),
-          "<init>", DebuggerUtil.getFunctionJVMSignature(f), null)
-      case _ =>
-        super.createMethodFilter(target)
-    }
   }
 }
