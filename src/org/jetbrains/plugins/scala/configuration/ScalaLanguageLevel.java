@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.configuration;
 /**
  * @author Pavel Fatin
  */
-public enum ScalaLanguageLevel {
+public enum ScalaLanguageLevel implements Named {
   SCALA_2_9("Scala 2.9"),
   SCALA_2_10("Scala 2.10"),
   SCALA_2_10_VIRTUALIZED("Scala 2.10 virtualized"),
@@ -18,10 +18,5 @@ public enum ScalaLanguageLevel {
 
   public String getName() {
     return myName;
-  }
-
-  @Override
-  public String toString() {
-    return getName();
   }
 }

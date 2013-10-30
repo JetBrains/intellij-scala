@@ -26,7 +26,10 @@ public class ScalaCompilerSettingsForm {
   private MyPathEditor myPluginsEditor = new MyPathEditor(new FileChooserDescriptor(true, false, true, false, false, true));
 
   public ScalaCompilerSettingsForm() {
+    myCompileOrder.setRenderer(new NamedValueRenderer());
     myCompileOrder.setModel(new DefaultComboBoxModel<CompileOrder>(CompileOrder.values()));
+
+    myDebuggingInfoLevel.setRenderer(new NamedValueRenderer());
     myDebuggingInfoLevel.setModel(new DefaultComboBoxModel<DebuggingInfoLevel>(DebuggingInfoLevel.values()));
 
     myPluginsPanel.setBorder(IdeBorderFactory.createBorder());
