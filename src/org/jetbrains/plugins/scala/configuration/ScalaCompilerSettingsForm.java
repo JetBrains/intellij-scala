@@ -22,6 +22,7 @@ public class ScalaCompilerSettingsForm {
   private JCheckBox myExplainTypeErrors;
   private JCheckBox myContinuations;
   private JComboBox<CompileOrder> myCompileOrder;
+
   private MyPathEditor myPluginsEditor = new MyPathEditor(new FileChooserDescriptor(true, false, true, false, false, true));
 
   public ScalaCompilerSettingsForm() {
