@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.configuration;
 /**
  * @author Pavel Fatin
  */
-public enum DebuggingInfoLevel {
+public enum DebuggingInfoLevel implements Named {
   None("None", "none"),
   Source("Source file attribute", "source"),
   Line("Source and line number information", "line"),
@@ -18,16 +18,11 @@ public enum DebuggingInfoLevel {
     myOption = option;
   }
 
-  public String getDescription() {
+  public String getName() {
     return myDescription;
   }
 
   public String getOption() {
     return myOption;
-  }
-
-  @Override
-  public String toString() {
-    return myDescription;
   }
 }
