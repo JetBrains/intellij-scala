@@ -1,17 +1,11 @@
 package org.jetbrains.plugins.scala.configuration;
 
 import com.intellij.openapi.fileChooser.FileChooserDescriptor;
-import com.intellij.openapi.projectRoots.ui.PathEditor;
-import com.intellij.openapi.vfs.VfsUtil;
-import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.ui.IdeBorderFactory;
 import com.intellij.ui.RawCommandLineEditor;
 
 import javax.swing.*;
 import java.awt.*;
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * @author Pavel Fatin
@@ -28,7 +22,7 @@ public class ScalaCompilerSettingsForm {
   private JCheckBox myExplainTypeErrors;
   private JCheckBox myContinuations;
   private JComboBox<CompileOrder> myCompileOrder;
-  private PathEditor myPluginsEditor = new PathEditor(new FileChooserDescriptor(true, false, true, false, false, true));
+  private MyPathEditor myPluginsEditor = new MyPathEditor(new FileChooserDescriptor(true, false, true, false, false, true));
 
   public ScalaCompilerSettingsForm() {
     myCompileOrder.setModel(new DefaultComboBoxModel<CompileOrder>(CompileOrder.values()));
@@ -49,18 +43,8 @@ public class ScalaCompilerSettingsForm {
     state.continuations = myContinuations.isSelected();
     state.debuggingInfoLevel = (DebuggingInfoLevel) myDebuggingInfoLevel.getSelectedItem();
     state.additionalCompilerOptions = myAdditionalCompilerOptions.getText();
-    state.plugins = virtualFilesToPaths(myPluginsEditor.getRoots());
+    state.plugins = myPluginsEditor.getPaths();
     return state;
-  }
-
-  private static String[] virtualFilesToPaths(VirtualFile[] files) {
-    String[] result = new String[files.length];
-    int i = 0;
-    for (VirtualFile file : files) {
-      result[i] = file.getUrl();
-      i++;
-    }
-    return result;
   }
 
   public void setState(ScalaCompilerSettingsState state) {
@@ -73,16 +57,7 @@ public class ScalaCompilerSettingsForm {
     myContinuations.setSelected(state.continuations);
     myDebuggingInfoLevel.setSelectedItem(state.debuggingInfoLevel);
     myAdditionalCompilerOptions.setText(state.additionalCompilerOptions);
-    myPluginsEditor.resetPath(pathsToVirtualFiles(state.plugins));
-  }
-
-  private static List<VirtualFile> pathsToVirtualFiles(String[] urls) {
-    List<VirtualFile> result = new ArrayList<VirtualFile>(urls.length);
-    for (String url : urls) {
-      VirtualFile file = VfsUtil.findFileByIoFile(new File(VfsUtil.urlToPath(url)), true);
-      result.add(file);
-    }
-    return result;
+    myPluginsEditor.setPaths(state.plugins);
   }
 
   public JPanel getComponent() {
