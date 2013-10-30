@@ -3,11 +3,11 @@ package configuration
 
 import com.intellij.openapi.roots.libraries.{LibraryTypeService, LibraryType}
 import com.intellij.openapi.roots.libraries.ui.{LibraryPropertiesEditor, LibraryEditorComponent}
-import javax.swing.{JScrollPane, JList, JComponent}
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.project.Project
-import org.jetbrains.plugins.scala.icons.Icons
 import com.intellij.openapi.roots.ui.configuration.libraryEditor.DefaultLibraryRootsComponentDescriptor
+import org.jetbrains.plugins.scala.icons.Icons
+import javax.swing.JComponent
 
 /**
  * @author Pavel Fatin
