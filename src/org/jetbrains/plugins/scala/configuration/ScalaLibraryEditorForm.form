@@ -15,8 +15,7 @@
           </grid>
         </constraints>
         <properties>
-          <font style="1"/>
-          <text value="Scala compiler:"/>
+          <text value="Compiler classpath:"/>
         </properties>
       </component>
       <grid id="c816c" binding="myPluginsPanel" layout-manager="BorderLayout" hgap="0" vgap="0">
