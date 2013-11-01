@@ -7,14 +7,16 @@ import com.intellij.codeInsight.editorActions.enter.EnterHandlerDelegate.Result
 import lang.psi.api.ScalaFile
 import lang.lexer.ScalaTokenTypes
 import lang.formatting.settings.ScalaCodeStyleSettings
-import com.intellij.openapi.util.TextRange
+import com.intellij.openapi.util.{Ref, TextRange}
 import com.intellij.openapi.util.text.StringUtil
 import lang.psi.api.base.{ScReferenceElement, ScLiteral}
 import com.intellij.psi.{PsiElement, PsiDocumentManager, PsiFile}
 import com.intellij.psi.codeStyle.{CodeStyleSettingsManager, CodeStyleManager}
 import lang.psi.api.expr._
 import collection.mutable.ArrayBuffer
-import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.editor.{Document, Editor}
+import com.intellij.openapi.editor.actionSystem.EditorActionHandler
+import com.intellij.codeInsight.CodeInsightSettings
 
 /**
  * User: Dmitry Naydanov
@@ -22,6 +24,28 @@ import com.intellij.openapi.editor.Editor
  */
 
 class MultilineStringEnterHandler extends EnterHandlerDelegateAdapter {
+  override def preprocessEnter(file: PsiFile, editor: Editor, caretOffsetRef: Ref[Integer], caretAdvance: Ref[Integer], 
+                               dataContext: DataContext, originalHandler: EditorActionHandler): Result = {
+    val document = editor.getDocument
+    val text = document.getCharsSequence
+    val caretOffset = caretOffsetRef.get.intValue
+
+    if (caretOffset == 0 || caretOffset >= text.length()) return Result.Continue
+    
+    val ch1 = text.charAt(caretOffset - 1)
+    val ch2 = text.charAt(caretOffset)
+
+    if ((ch1 != '(' || ch2 != ')')&&(ch1 != '{' || ch2 != '}') || !CodeInsightSettings.getInstance.SMART_INDENT_ON_ENTER) 
+      return Result.Continue
+    
+    val element = file findElementAt caretOffset
+    if (element == null || element.getNode.getElementType != ScalaTokenTypes.tMULTILINE_STRING)
+      return Result.Continue
+    
+    originalHandler.execute(editor, dataContext)
+    Result.DefaultForceIndent
+  }
+
   override def postProcessEnter(file: PsiFile, editor: Editor, dataContext: DataContext): Result = {
     import MultilineStringEnterHandler.{multilineQuotes, multilineQuotesLength}
 
@@ -34,7 +58,7 @@ class MultilineStringEnterHandler extends EnterHandlerDelegateAdapter {
     val element = file.findElementAt(offset)
     
     if (element == null || element.getNode.getElementType != ScalaTokenTypes.tMULTILINE_STRING)
-    return Result.Continue
+      return Result.Continue
 
     val settings = CodeStyleSettingsManager.getInstance(element.getProject).getCurrentSettings
     val scalaSettings: ScalaCodeStyleSettings = ScalaCodeStyleSettings.getInstance(project)
@@ -71,6 +95,10 @@ class MultilineStringEnterHandler extends EnterHandlerDelegateAdapter {
         case ScalaCodeStyleSettings.MULTILINE_STRING_QUOTES_AND_INDENT => ifIndent
         case ScalaCodeStyleSettings.MULTILINE_STRING_ALL => ifAll
       }
+    }
+    
+    def enterInsideBraces(nextLine: String, prevLine: String) {
+      
     }
     
     def moveCaret(verticalShift: Int, horizontalShift: Int) {

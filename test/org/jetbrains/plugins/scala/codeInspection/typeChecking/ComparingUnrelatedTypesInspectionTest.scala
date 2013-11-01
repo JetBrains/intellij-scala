@@ -116,4 +116,13 @@ class ComparingUnrelatedTypesInspectionTest extends ScalaLightInspectionFixtureT
     checkTextHasError(text2)
     checkTextHasNoErrors(text3)
   }
+
+  def testBoxedTypes() {
+    val text1 = """val i = new java.lang.Integer(0)
+                  |i == 100"""
+    val text2 = """val b = new java.lang.Boolean(false)
+                  |b equals true"""
+    checkTextHasNoErrors(text1)
+    checkTextHasNoErrors(text2)
+  }
 }

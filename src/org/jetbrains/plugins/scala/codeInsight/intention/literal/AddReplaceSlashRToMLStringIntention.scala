@@ -15,9 +15,8 @@ import editor.enterHandler.MultilineStringEnterHandler
 
 class AddReplaceSlashRToMLStringIntention extends PsiElementBaseIntentionAction {
   def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean = {
-    if (element == null || element.getNode.getElementType != ScalaTokenTypes.tMULTILINE_STRING || !element.getText.contains("\n")) {
-      return false
-    }
+    if (element == null || element.getNode == null || element.getText == null || 
+      element.getNode.getElementType != ScalaTokenTypes.tMULTILINE_STRING || !element.getText.contains("\n")) return false
 
     val calls = MultilineStringEnterHandler.findAllMethodCallsOnMLString(element, "replace")
     !MultilineStringEnterHandler.containsArgs(calls, """"\r"""", "\"\"")

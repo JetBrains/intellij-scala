@@ -7,7 +7,7 @@ import com.intellij.codeInspection.{ProblemHighlightType, ProblemsHolder}
 import com.intellij.psi.{PsiModifier, PsiClass, PsiElement}
 import org.jetbrains.plugins.scala.lang.psi.types.result.Success
 import org.jetbrains.plugins.scala.codeInspection.collections.MethodRepr
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.psi.types.{ScTypeParameterType, StdType, ScType}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTemplateDefinition, ScObject, ScClass}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticClass
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
@@ -24,7 +24,7 @@ object ComparingUnrelatedTypesInspection {
 
 class ComparingUnrelatedTypesInspection extends AbstractInspection(inspectionId, inspectionName){
   def actionFor(holder: ProblemsHolder): PartialFunction[PsiElement, Any] = {
-    case MethodRepr(expr, Some(left), Some(oper), Seq(right)) if Seq("==", "!=") contains oper.refName =>
+    case MethodRepr(expr, Some(left), Some(oper), Seq(right)) if Seq("==", "!=", "ne", "eq", "equals") contains oper.refName =>
       //getType() for the reference on the left side returns singleton type, little hack here
       val leftOnTheRight = ScalaPsiElementFactory.createExpressionWithContextFromText(left.getText, right.getParent, right)
       Seq(leftOnTheRight, right) map (_.getType()) match {
@@ -44,6 +44,10 @@ class ComparingUnrelatedTypesInspection extends AbstractInspection(inspectionId,
       case clazz: PsiClass => clazz.hasModifierProperty(PsiModifier.FINAL)
       case _ => false
     }
-    (isFinal(class1) || isFinal(class2)) && !type1.weakConforms(type2) && !type2.weakConforms(type1)
+    val bothFinal = isFinal(class1) || isFinal(class2)
+    val (unboxed1, unboxed2) = (StdType.unboxedType(type1), StdType.unboxedType(type2))
+    val notGeneric = !Seq(type1, type2).exists(_.isInstanceOf[ScTypeParameterType])
+    val noConformance = !unboxed1.weakConforms(unboxed2) && !unboxed2.weakConforms(unboxed1)
+    bothFinal && noConformance && notGeneric
   }
 }
