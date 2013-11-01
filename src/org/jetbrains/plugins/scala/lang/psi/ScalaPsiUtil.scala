@@ -91,10 +91,6 @@ object ScalaPsiUtil {
   }
 
   def isBooleanBeanProperty(s: ScAnnotationsHolder, noResolve: Boolean = false): Boolean = {
-    s.annotations.exists {
-      case annot =>
-        annot.annotationExpr.constr.args
-    }
     if (noResolve) {
       s.annotations.exists {
         case annot => Set("scala.reflect.BooleanBeanProperty", "reflect.BooleanBeanProperty",
