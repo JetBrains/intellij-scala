@@ -7,6 +7,8 @@ import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocumentationProvider
 import base.ScalaLightPlatformCodeInsightTestCaseAdapter
 import org.junit.Assert
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.lang.psi.light.ScFunctionWrapper
 
 /**
  * User: Dmitry Naydanov
@@ -220,6 +222,44 @@ class QuickDocTest extends ScalaLightPlatformCodeInsightTestCaseAdapter {
     val testText = "\n     <dl><dt><b>See Also:</b></dt>\n     </dl><br><br><b>Note:</b><br> aaaaa "
 
     generateSimpleByText(fileText, testText)
+  }
+  
+  def testInheritdoc() {
+    val fileText =
+      """
+        |class A {
+        | /**
+        |  * The function f defined in $THIS returns some integer without no special property. (previously defined in $PARENT)
+        |  * @param i An ignored parameter.
+        |  * @return The value $RESULT.
+        |  */
+        | def f(i: Int) = 3
+        |}
+        |class B extends A {
+        | /**
+        |  * &&
+        |  * @inheritdoc
+        |  * Some notes on implementation performance, the function runs in O(1).
+        |  * @param i An important parameter&&
+        |  */
+        | override def f(i: Int) = i + 3
+        |}
+      """.stripMargin
+    val test =
+      """
+        |    
+        |    The function f defined in $THIS returns some integer without no special property. (previously defined in $PARENT)
+        |    
+        |    Some notes on implementation performance, the function runs in O(1).
+        |    <br>
+        |<DD><DL><DT><b>Parameters:</b><DD><code>i</code> - An important parameter""".stripMargin.replaceAll("\r", "")
+
+    configureFromFileTextAdapter("dummy.scala", fileText.stripMargin('|').replaceAll("\r", "").trim())
+    getFileAdapter.asInstanceOf[ScalaFile].getClasses find {
+      case a => a.getName == "B"
+    } flatMap  (_.findMethodsByName("f", false).headOption) map {
+      case m: ScFunctionWrapper => generateByElement(m.function, test)
+    } getOrElse Assert.assertTrue(false)
   }
 }
 
