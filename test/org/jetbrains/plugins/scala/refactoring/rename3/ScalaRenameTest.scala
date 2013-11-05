@@ -44,4 +44,6 @@ class ScalaRenameTest extends ScalaRenameTestBase {
   def testOverrideDef() = doTest()
 
   def testMethodArgument() = doTest()
+
+  def testMultipleBaseMembers() = doTest()
 }

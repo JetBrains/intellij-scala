@@ -23,7 +23,6 @@ import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 import com.intellij.psi.search.searches.ReferencesSearch
 import com.intellij.psi.search.{GlobalSearchScope, PsiElementProcessor, LocalSearchScope}
 import com.intellij.refactoring.listeners.RefactoringElementListener
-import org.jetbrains.plugins.scala.util.SuperMemberUtil
 import com.intellij.openapi.util.Pass
 import java.util
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
@@ -109,27 +108,27 @@ class RenameScalaValsProcessor extends RenameJavaMemberProcessor {
         addBeanMethods(elem, newOverriderName)
       }
     }
+    RenameSuperMembersUtil.prepareSuperMembers(element, newName, allRenames)
   }
-
   override def findCollisions(element: PsiElement, newName: String,
                               allRenames: util.Map[_ <: PsiElement, String], result: util.List[UsageInfo]) {/*todo*/}
 
   override def substituteElementToRename(element: PsiElement, editor: Editor): PsiElement = {
     element match {
       case method: FakePsiMethod => substituteElementToRename(method.navElement, editor)
-      case named: ScNamedElement => SuperMemberUtil.chooseSuper(named, "Choose element to rename")
+      case named: ScNamedElement => RenameSuperMembersUtil.chooseSuper(named)
       case _ => element
     }
   }
 
   override def substituteElementToRename(element: PsiElement, editor: Editor, renameCallback: Pass[PsiElement]) {
     val named = element match {case named: ScNamedElement => named; case _ => return}
-    SuperMemberUtil.chooseAndProcessSuper(named, new PsiElementProcessor[PsiNamedElement] {
+    RenameSuperMembersUtil.chooseAndProcessSuper(named, new PsiElementProcessor[PsiNamedElement] {
       def execute(named: PsiNamedElement): Boolean = {
         renameCallback.pass(named)
         false
       }
-    }, "Choose element to rename", editor)
+    }, editor)
   }
 
   override def setToSearchInComments(element: PsiElement, enabled: Boolean) {

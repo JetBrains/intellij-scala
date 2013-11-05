@@ -25,7 +25,6 @@ import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 import scala.Some
 import com.intellij.usageView.UsageInfo
 import com.intellij.refactoring.listeners.RefactoringElementListener
-import org.jetbrains.plugins.scala.util.SuperMemberUtil
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import com.intellij.openapi.application.ApplicationManager
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
@@ -96,25 +95,25 @@ class RenameScalaMethodProcessor extends RenameJavaMethodProcessor {
         }
       }
     }
-
+    RenameSuperMembersUtil.prepareSuperMembers(element, newName, allRenames)
     ScalaElementToRenameContributor.getAll(element, newName, allRenames)
   }
 
-  override def substituteElementToRename(element: PsiElement, editor: Editor): PsiElement = {
-    val guess = ScalaRenameUtil.findSubstituteElement(element)
-    if (guess != element) guess else SuperMemberUtil.chooseSuper(element.asInstanceOf[ScNamedElement], "Choose element to rename")
+
+  override def substituteElementToRename(element: PsiElement, editor: Editor): PsiElement = { val guess = ScalaRenameUtil.findSubstituteElement(element)
+    if (guess != element) guess else RenameSuperMembersUtil.chooseSuper(element.asInstanceOf[ScNamedElement])
   }
 
   override def substituteElementToRename(element: PsiElement, editor: Editor, renameCallback: Pass[PsiElement]) {
     val named = element match {case named: ScNamedElement => named; case _ => return}
     val guess = ScalaRenameUtil.findSubstituteElement(element)
     if (guess != element) renameCallback.pass(guess)
-    else SuperMemberUtil.chooseAndProcessSuper(named, new PsiElementProcessor[PsiNamedElement] {
+    else RenameSuperMembersUtil.chooseAndProcessSuper(named, new PsiElementProcessor[PsiNamedElement] {
       def execute(named: PsiNamedElement): Boolean = {
         renameCallback.pass(named)
         false
       }
-    }, "Choose element to rename", editor)
+    }, editor)
   }
 
   private class WarningDialog(project: Project, text: String) extends DialogWrapper(project, true) {
