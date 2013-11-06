@@ -6,7 +6,6 @@
         <element id="archive" name="intellij-sbt.jar">
           <element id="module-output" name="idea-plugin" />
         </element>
-        <element id="library" level="project" name="external-system" />
         <element id="directory" name="launcher">
           <element id="file-copy" path="$PROJECT_DIR$/sbt-plugin/sbt-launch.jar" />
           <element id="file-copy" path="$PROJECT_DIR$/sbt-plugin/target/scala-2.9.2/sbt-0.12/sbt-structure-0.1-SNAPSHOT.jar" output-file-name="sbt-structure.jar" />

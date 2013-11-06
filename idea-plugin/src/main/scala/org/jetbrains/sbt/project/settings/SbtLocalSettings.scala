@@ -5,6 +5,7 @@ import com.intellij.openapi.externalSystem.settings.AbstractExternalSystemLocalS
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.components._
 import project.SbtProjectSystem
+import com.intellij.openapi.externalSystem.service.project.PlatformFacade
 
 /**
  * @author Pavel Fatin
@@ -15,8 +16,8 @@ import project.SbtProjectSystem
     new Storage(file = StoragePathMacros.WORKSPACE_FILE)
   )
 )
-class SbtLocalSettings(project: Project)
-  extends AbstractExternalSystemLocalSettings(SbtProjectSystem.Id, project)
+class SbtLocalSettings(platformFacade: PlatformFacade, project: Project)
+  extends AbstractExternalSystemLocalSettings(SbtProjectSystem.Id, project, platformFacade)
   with PersistentStateComponent[AbstractExternalSystemLocalSettings.State] {
 
   def getState = {

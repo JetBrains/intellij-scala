@@ -2,9 +2,9 @@
   <configuration default="false" name="IDEA" type="Application" factoryName="Application">
     <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea" />
     <option name="MAIN_CLASS_NAME" value="com.intellij.idea.Main" />
-    <option name="VM_PARAMETERS" value="-Xmx800m -XX:ReservedCodeCacheSize=64m -XX:MaxPermSize=250m -XX:+HeapDumpOnOutOfMemoryError -ea -Didea.is.internal=true -Didea.debug.mode=true -Didea.system.path=$USER_HOME$/.IdeaData/leda/scala/system -Didea.config.path=$USER_HOME$/.IdeaData/leda/scala/config -Dapple.laf.useScreenMenuBar=true -Dplugin.path=&quot;$SCALA_PLUGIN_HOME$/out/leda/artifacts/Scala;$PROJECT_DIR$/out/artifacts/SBT&quot;" />
+    <option name="VM_PARAMETERS" value="-Xmx800m -XX:ReservedCodeCacheSize=64m -XX:MaxPermSize=250m -XX:+HeapDumpOnOutOfMemoryError -ea -Didea.is.internal=true -Didea.debug.mode=true -Didea.system.path=$USER_HOME$/.IdeaData/cardea/scala/system -Didea.config.path=$USER_HOME$/.IdeaData/cardea/scala/config -Dapple.laf.useScreenMenuBar=true -Dplugin.path=&quot;$SCALA_PLUGIN_HOME$/out/cardea/artifacts/Scala;$PROJECT_DIR$/out/artifacts/SBT&quot;" />
     <option name="PROGRAM_PARAMETERS" value="" />
-    <option name="WORKING_DIRECTORY" value="file://$LEDA_HOME$/bin" />
+    <option name="WORKING_DIRECTORY" value="file://$CARDEA_HOME$/bin" />
     <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
     <option name="ALTERNATIVE_JRE_PATH" value="" />
     <option name="ENABLE_SWING_INSPECTOR" value="false" />
@@ -34,9 +34,7 @@
       <option name="TRANSPORT" value="0" />
       <option name="LOCAL" value="true" />
     </RunnerSettings>
-    <RunnerSettings RunnerId="Profile ">
-      <option name="myExternalizedOptions" value="&#13;&#10;use-64-bit=false&#13;&#10;additional-options2=onexit\=snapshot&#13;&#10;" />
-    </RunnerSettings>
+    <RunnerSettings RunnerId="Profile " />
     <RunnerSettings RunnerId="Run" />
     <ConfigurationWrapper RunnerId="Debug" />
     <ConfigurationWrapper RunnerId="Run" />

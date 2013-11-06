@@ -4,6 +4,8 @@
     <facet type="scala" name="Scala">
       <configuration>
         <option name="basePackage" value="org.jetbrains.sbt" />
+        <option name="compilerLibraryLevel" value="Project" />
+        <option name="compilerLibraryName" value="sbt" />
         <option name="languageLevel" value="Scala 2.9" />
       </configuration>
     </facet>

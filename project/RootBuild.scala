@@ -32,7 +32,6 @@ object RootBuild extends Build {
     packageBin.in(sbtPluginProject).in(Compile)) map { (s, target, pluginName, pluginVersion, ideaPluginBase, sbtPluginBase, ideaPluginJar, sbtPluginJar) =>
 
     val files = Seq((ideaPluginJar, pluginName + ".jar"),
-      (ideaPluginBase / "lib" / "external-system.jar", "external-system.jar"),
       (sbtPluginBase / "sbt-launch.jar", "launcher/sbt-launch.jar"),
       (sbtPluginJar, "launcher/sbt-structure.jar"))
 

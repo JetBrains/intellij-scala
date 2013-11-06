@@ -4,11 +4,13 @@ package project
 import com.intellij.openapi.externalSystem.{ExternalSystemAutoImportAware, ExternalSystemManager}
 import com.intellij.openapi.project.Project
 import com.intellij.execution.configurations.SimpleJavaParameters
-import com.intellij.openapi.externalSystem.util.ExternalSystemBundle
+import com.intellij.openapi.externalSystem.util.{ExternalSystemConstants, ExternalSystemBundle}
 import com.intellij.openapi.externalSystem.service.project.autoimport.CachingExternalSystemAutoImportAware
 import com.intellij.util.net.HttpConfigurable
 import org.jetbrains.sbt.settings.SbtApplicationSettings
 import settings._
+import java.util
+import java.net.URL
 
 /**
  * @author Pavel Fatin
@@ -16,10 +18,13 @@ import settings._
 class SbtExternalSystemManager
   extends ExternalSystemManager[SbtProjectSettings, SbtSettingsListener, SbtSettings, SbtLocalSettings, SbtExecutionSettings]
   with ExternalSystemAutoImportAware{
+  def enhanceLocalProcessing(urls: util.List[URL]) {
+    urls.add(jarWith[scala.App].toURI.toURL)
+  }
 
   private val delegate = new CachingExternalSystemAutoImportAware(new SbtAutoImport())
 
-  def enhanceParameters(parameters: SimpleJavaParameters) {
+  def enhanceRemoteProcessing(parameters: SimpleJavaParameters) {
     val classpath = parameters.getClassPath
 
     classpath.add(jarWith[this.type])
@@ -29,6 +34,9 @@ class SbtExternalSystemManager
     val vmParameters = parameters.getVMParametersList
     vmParameters.addParametersString(System.getenv("JAVA_OPTS"))
     vmParameters.addParametersString("-Xmx256M")
+
+    parameters.getVMParametersList.addProperty(ExternalSystemConstants.EXTERNAL_SYSTEM_ID_KEY,
+      SbtProjectSystem.Id.getId)
 //    vmParameters.add("-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005")
   }
 
