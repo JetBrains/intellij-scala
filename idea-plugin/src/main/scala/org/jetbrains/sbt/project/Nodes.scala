@@ -1,74 +1,99 @@
 package org.jetbrains.sbt
 package project
 
-import com.intellij.openapi.externalSystem.model.{DataNode, ProjectKeys, ProjectSystemId, Key}
+import com.intellij.openapi.externalSystem.model.{ProjectSystemId, DataNode, ProjectKeys, Key}
 import com.intellij.openapi.externalSystem.model.project._
-import com.intellij.openapi.roots.DependencyScope
 import java.io.File
 
 /**
  * @author Pavel Fatin
  */
-class ProjectNode(owner: ProjectSystemId, ideProjectFileDirectoryPath: String, linkedExternalProjectPath: String)
-  extends ProjectData(owner, ideProjectFileDirectoryPath, linkedExternalProjectPath) with Node[ProjectData] {
+class ProjectNode(val data: ProjectData)
+  extends Node[ProjectData] {
+  def this(owner: ProjectSystemId, ideProjectFileDirectoryPath: String, linkedExternalProjectPath: String) {
+    this(new ProjectData(owner, ideProjectFileDirectoryPath, linkedExternalProjectPath))
+  }
 
   protected def key = ProjectKeys.PROJECT
 }
 
-class ModuleNode(owner: ProjectSystemId, typeId: String, name: String, moduleFileDirectoryPath: String, externalConfigPath: String)
-  extends ModuleData(owner, typeId, name, moduleFileDirectoryPath, externalConfigPath) with Node[ModuleData] {
+class ModuleNode(val data: ModuleData)
+  extends Node[ModuleData] {
+  def this(owner: ProjectSystemId, typeId: String, name: String, moduleFileDirectoryPath: String, externalConfigPath: String) {
+    this(new ModuleData(owner, typeId, name, moduleFileDirectoryPath, externalConfigPath))
+  }
 
   protected def key = ProjectKeys.MODULE
 }
 
-class LibraryNode(owner: ProjectSystemId, name: String)
-  extends LibraryData(owner, name) with Node[LibraryData] {
+class LibraryNode(val data: LibraryData)
+  extends Node[LibraryData] {
+  def this(owner: ProjectSystemId, name: String) {
+    this(new LibraryData(owner, name))
+  }
 
   def addPaths(pathType: LibraryPathType, paths: Seq[String]) {
-    paths.foreach(addPath(pathType, _))
+    paths.foreach(data.addPath(pathType, _))
   }
 
   protected def key = ProjectKeys.LIBRARY
 }
 
-class ContentRootNode(owner: ProjectSystemId, name: String)
-  extends ContentRootData(owner, name) with Node[ContentRootData] {
+class ContentRootNode(val data: ContentRootData)
+  extends Node[ContentRootData] {
+  def this(owner: ProjectSystemId, name: String) {
+   this(new ContentRootData(owner, name))
+  }
 
   def storePaths(sourceType: ExternalSystemSourceType, paths: Seq[String]) {
-    paths.foreach(storePath(sourceType, _))
+    paths.foreach(data.storePath(sourceType, _))
   }
 
   protected def key = ProjectKeys.CONTENT_ROOT
 }
 
-class ModuleDependencyNode(ownerModule: ModuleData, module: ModuleData)
-  extends ModuleDependencyData(ownerModule, module) with Node[ModuleDependencyData] {
+class ModuleDependencyNode(val data: ModuleDependencyData)
+  extends Node[ModuleDependencyData] {
+  def this(ownerModule: ModuleData, module: ModuleData) {
+    this(new ModuleDependencyData(ownerModule, module))
+  }
 
   protected def key = ProjectKeys.MODULE_DEPENDENCY
 }
 
-class LibraryDependencyNode(ownerModule: ModuleData, library: LibraryData, level: LibraryLevel)
-  extends LibraryDependencyData(ownerModule, library, level) with Node[LibraryDependencyData] {
+class LibraryDependencyNode(val data: LibraryDependencyData)
+  extends Node[LibraryDependencyData] {
+  def this(ownerModule: ModuleData, library: LibraryData, level: LibraryLevel) {
+    this(new LibraryDependencyData(ownerModule, library, level))
+  }
 
   protected def key = ProjectKeys.LIBRARY_DEPENDENCY
 }
 
-class ScalaProjectNode(owner: ProjectSystemId, javaHome: File)
-  extends ScalaProjectData(owner, javaHome) with Node[ScalaProjectData] {
+class ScalaProjectNode(val data: ScalaProjectData)
+  extends Node[ScalaProjectData] {
+  def this(owner: ProjectSystemId, javaHome: File) {
+    this(new ScalaProjectData(owner, javaHome))
+  }
 
   protected def key = ScalaProjectData.Key
 }
 
-class ScalaFacetNode(owner: ProjectSystemId, scalaVersion: String, basePackage: String, compilerLibraryName: String, compilerOptions: Seq[String])
-  extends ScalaFacetData(owner, scalaVersion, basePackage, compilerLibraryName, compilerOptions) with Node[ScalaFacetData] {
+class ScalaFacetNode(val data: ScalaFacetData)
+  extends Node[ScalaFacetData] {
+  def this(owner: ProjectSystemId, scalaVersion: String, basePackage: String, compilerLibraryName: String, compilerOptions: Seq[String]) {
+    this(new ScalaFacetData(owner, scalaVersion, basePackage, compilerLibraryName, compilerOptions))
+  }
 
   protected def key = ScalaFacetData.Key
 }
 
-trait Node[T] { self: T =>
+abstract class Node[T] {
   private var children = Vector.empty[Node[_]]
 
   protected def key: Key[T]
+
+  protected def data: T
 
   def add(node: Node[_]) {
     children :+= node
@@ -81,8 +106,12 @@ trait Node[T] { self: T =>
   def toDataNode: DataNode[T] = toDataNode(None)
 
   private def toDataNode(parent: Option[DataNode[_]]): DataNode[T] = {
-    val node = new DataNode[T](key, this, parent.orNull)
+    val node = new DataNode[T](key, data, parent.orNull)
     children.map(_.toDataNode(Some(node))).foreach(node.addChild)
     node
   }
+}
+
+object Node {
+  implicit def node2data[T](node: Node[T]): T = node.data
 }

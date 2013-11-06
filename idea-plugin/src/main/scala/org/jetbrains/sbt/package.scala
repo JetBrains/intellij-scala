@@ -3,9 +3,9 @@ package org.jetbrains
 import com.intellij.util.{Function => IdeaFunction, PathUtil}
 import com.intellij.openapi.util.{Pair => IdeaPair}
 import reflect.ClassTag
-import java.io._
+import _root_.java.io._
 import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil
-import java.lang.{Boolean => JavaBoolean}
+import _root_.java.lang.{Boolean => JavaBoolean}
 import com.intellij.openapi.vfs.VfsUtil
 
 /**

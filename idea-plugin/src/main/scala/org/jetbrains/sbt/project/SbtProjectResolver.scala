@@ -2,7 +2,7 @@ package org.jetbrains.sbt
 package project
 
 import com.intellij.openapi.externalSystem.service.project.ExternalSystemProjectResolver
-import com.intellij.openapi.externalSystem.model.task.{ExternalSystemTaskNotificationListener, ExternalSystemTaskType, ExternalSystemTaskNotificationEvent, ExternalSystemTaskId}
+import com.intellij.openapi.externalSystem.model.task.{ExternalSystemTaskNotificationListener, ExternalSystemTaskNotificationEvent, ExternalSystemTaskId}
 import com.intellij.openapi.externalSystem.model.project._
 import com.intellij.openapi.module.StdModuleTypes
 import com.intellij.openapi.externalSystem.model.{ExternalSystemException, DataNode}
@@ -57,7 +57,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     val moduleNodes: Seq[ModuleNode] = projects.map { project =>
       val moduleNode = createModule(project)
       moduleNode.add(createContentRoot(project))
-      moduleNode.addAll(createLibraryDependencies(project)(moduleNode, libraries))
+      moduleNode.addAll(createLibraryDependencies(project)(moduleNode, libraries.map(t => t.data)))
       moduleNode.addAll(project.scala.map(createFacet(project, _)).toSeq)
       moduleNode.addAll(createUnmanagedDependencies(project)(moduleNode))
       moduleNode

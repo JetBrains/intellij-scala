@@ -9,7 +9,7 @@
 
     <depends>org.intellij.scala</depends>
 
-    <idea-version since-build="129.17" until-build="129.10000"/>
+    <idea-version since-build="132.943" until-build="133.0"/>
 
     <application-components>
         <component>
@@ -57,9 +57,5 @@
     <extensions defaultExtensionNs="org.intellij.scala">
         <scalaFileFactory implementation="org.jetbrains.sbt.language.SbtFileFactory" />
     </extensions>
-
-    <xi:include href="/META-INF/ExternalSystemActions.xml" xpointer="xpointer(/component/*)"/>
-    <xi:include href="/META-INF/ExternalSystemExtensionPoints.xml" xpointer="xpointer(/idea-plugin/*)"/>
-    <xi:include href="/META-INF/ExternalSystemExtensions.xml" xpointer="xpointer(/idea-plugin/*)"/>
 
 </idea-plugin>

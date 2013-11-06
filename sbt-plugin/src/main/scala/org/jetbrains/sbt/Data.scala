@@ -1,7 +1,7 @@
 package org.jetbrains.sbt
 
 import java.io.File
-import xml.Elem
+import scala.xml.Elem
 import FS._
 
 /**

@@ -6,4 +6,4 @@ scalacOptions := Seq("-language:implicitConversions", "-language:reflectiveCalls
 
 unmanagedJars in Compile <++= ideaDirectory.map(base => ((base / "lib") ** "*.jar").classpath)
 
-unmanagedJars in Compile <++= scalaPluginDirectory.map(base => ((base / "classes" / "artifacts" / "Scala" / "lib") ** "*.jar").classpath)
+unmanagedJars in Compile <++= scalaPluginDirectory.map(base => ((base / "out" / "cardea" / "artifacts" / "Scala" / "lib") ** "*.jar").classpath)

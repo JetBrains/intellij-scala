@@ -1,8 +1,8 @@
 <component name="libraryTable">
   <library name="scala-plugin">
     <CLASSES>
-      <root url="jar://$SCALA_PLUGIN_HOME$/out/leda/artifacts/Scala/lib/scala-plugin.jar!/" />
-      <root url="jar://$SCALA_PLUGIN_HOME$/out/leda/artifacts/Scala/lib/scala-library.jar!/" />
+      <root url="jar://$SCALA_PLUGIN_HOME$/out/cardea/artifacts/Scala/lib/scala-plugin.jar!/" />
+      <root url="jar://$SCALA_PLUGIN_HOME$/out/cardea/artifacts/Scala/lib/scala-library.jar!/" />
     </CLASSES>
     <JAVADOC />
     <SOURCES>

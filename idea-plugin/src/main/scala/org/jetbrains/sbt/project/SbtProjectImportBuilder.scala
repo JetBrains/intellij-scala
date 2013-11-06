@@ -7,19 +7,18 @@ import com.intellij.ide.util.projectWizard.WizardContext
 import java.io.File
 import com.intellij.openapi.externalSystem.model.DataNode
 import com.intellij.openapi.externalSystem.model.project.ProjectData
-import com.intellij.openapi.externalSystem.settings.ExternalSystemSettingsManager
-import com.intellij.openapi.externalSystem.service.project.manage.ProjectDataManager
 import com.intellij.openapi.fileChooser.FileChooserDescriptor
 import com.intellij.openapi.externalSystem.service.settings.{AbstractExternalProjectSettingsControl, AbstractImportFromExternalSystemControl}
 import com.intellij.openapi.externalSystem.util.PaintAwarePanel
 import com.intellij.openapi.externalSystem.util.ExternalSystemSettingsControl
 import settings._
+import com.intellij.openapi.externalSystem.service.project.manage.ProjectDataManager
 
 /**
  * @author Pavel Fatin
  */
-class SbtProjectImportBuilder(settingsManager: ExternalSystemSettingsManager, dataManager: ProjectDataManager)
-  extends AbstractExternalProjectImportBuilder[SbtImportControl](settingsManager, dataManager, new SbtImportControl(), SbtProjectSystem.Id) {
+class SbtProjectImportBuilder(projectDataManager: ProjectDataManager)
+  extends AbstractExternalProjectImportBuilder[SbtImportControl](projectDataManager, new SbtImportControl(), SbtProjectSystem.Id) {
 
   def getName = Sbt.Name
 
@@ -48,7 +47,9 @@ class SbtImportControl extends AbstractImportFromExternalSystemControl[SbtProjec
 
     def applyExtraSettings(settings: SbtProjectSettings) = null
 
-    def resetExtraSettings() {}
+    def resetExtraSettings(b: Boolean) {}
+
+    def validate(settings: SbtProjectSettings): Boolean = true
 
     def fillExtraControls(content: PaintAwarePanel, indentLevel: Int) {}
   }
@@ -65,5 +66,7 @@ class SbtImportControl extends AbstractImportFromExternalSystemControl[SbtProjec
     def apply(settings: SbtSettings) = null
 
     def reset() {}
+
+    def validate(settings: SbtSettings): Boolean = true
   }
 }
