@@ -166,6 +166,7 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
 
       override def visitAnnotation(annotation: ScAnnotation) {
         checkAnnotationType(annotation, holder)
+        PrivateBeanProperty.annotate(annotation, holder)
         super.visitAnnotation(annotation)
       }
 
