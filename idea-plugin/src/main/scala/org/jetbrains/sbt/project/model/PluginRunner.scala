@@ -9,12 +9,12 @@ import org.jetbrains.sbt.project.SbtException
 /**
  * @author Pavel Fatin
  */
-class PluginRunner(vmOptions: Seq[String], customLauncher: Option[File]) {
+class PluginRunner(vmOptions: Seq[String], customLauncher: Option[File], isSbt12: Boolean) {
   private val JavaHome = new File(System.getProperty("java.home"))
   private val JavaVM = JavaHome / "bin" / "java"
   private val LauncherDir = (jarWith[this.type] <<) / "launcher"
   private val SbtLauncher = customLauncher.getOrElse(LauncherDir / "sbt-launch.jar")
-  private val SbtPlugin = LauncherDir / "sbt-structure.jar"
+  private val SbtPlugin = LauncherDir / s"sbt-structure${if (isSbt12) "-0.12" else ""}.jar"
 
   def read(directory: File, download: Boolean)(listener: (String) => Unit): Either[Exception, Elem] = {
     val files = Stream("Java home" -> JavaHome, "SBT launcher" -> SbtLauncher, "SBT plugin" -> SbtPlugin)

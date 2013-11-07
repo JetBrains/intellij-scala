@@ -7,4 +7,6 @@ import com.intellij.openapi.externalSystem.model.settings.ExternalSystemExecutio
 /**
  * @author Pavel Fatin
  */
-class SbtExecutionSettings(val vmOptions: Seq[String], val customLauncher: Option[File]) extends ExternalSystemExecutionSettings
+class SbtExecutionSettings(val vmOptions: Seq[String],
+                           val customLauncher: Option[File],
+                           val isSbt12: Boolean) extends ExternalSystemExecutionSettings

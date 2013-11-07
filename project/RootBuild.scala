@@ -3,8 +3,9 @@ import Keys._
 import xml.PrettyPrinter
 
 object RootBuild extends Build {
-  lazy val rootProject = Project(id = "root", base = file("."), settings = Defaults.defaultSettings :+ distTask :+ updatePluginVersionTask :+ generateUpdateDescriptorTask)
-    .aggregate(ideaPluginProject, sbtPluginProject)
+  lazy val mainProject = 
+    Project(id = "root", base = file("."), settings = Defaults.defaultSettings :+ distTask :+ updatePluginVersionTask :+ generateUpdateDescriptorTask)
+      .aggregate(ideaPluginProject, sbtPluginProject)
 
   lazy val ideaPluginProject = Project(id = "idea-plugin", base = file("idea-plugin"))
 

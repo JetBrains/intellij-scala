@@ -49,7 +49,7 @@
 
         <applicationConfigurable instance="org.jetbrains.sbt.settings.SbtConfigurable"/>
 
-        <toolWindow id="SBT" anchor="right" icon="Sbt.Icon"
+        <toolWindow id="SBT" anchor="right" icon="/sbt.png"
                     factoryClass="org.jetbrains.sbt.project.ScalaToolWindowFactory"
                     conditionClass="org.jetbrains.sbt.project.ScalaToolWindowFactoryCondition"/>
     </extensions>

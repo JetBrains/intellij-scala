@@ -9,7 +9,7 @@ import scala.io.Source
 object Loader {
   private val JavaVM = path(new File(new File(new File(System.getProperty("java.home")), "bin"), "java"))
   private val SbtLauncher = path(new File("sbt-launch.jar"))
-  private val SbtPlugin = path(new File("target/scala-2.9.2/sbt-0.12/classes/"))
+  private val SbtPlugin = path(new File("target/scala-2.10/sbt-0.13/classes/"))
 
   def load(project: File, download: Boolean): Seq[String] = {
     val structureFile = createTempFile("sbt-structure", ".xml")

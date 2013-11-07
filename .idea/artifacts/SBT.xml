@@ -8,7 +8,8 @@
         </element>
         <element id="directory" name="launcher">
           <element id="file-copy" path="$PROJECT_DIR$/sbt-plugin/sbt-launch.jar" />
-          <element id="file-copy" path="$PROJECT_DIR$/sbt-plugin/target/scala-2.9.2/sbt-0.12/sbt-structure-0.1-SNAPSHOT.jar" output-file-name="sbt-structure.jar" />
+          <element id="file-copy" path="$PROJECT_DIR$/sbt-plugin/target/scala-2.10/sbt-0.13/sbt-structure-0.1-SNAPSHOT.jar" output-file-name="sbt-structure.jar" />
+          <element id="file-copy" path="$PROJECT_DIR$/sbt-plugin/sbt-structure-0.12.jar" />
         </element>
       </element>
     </root>
