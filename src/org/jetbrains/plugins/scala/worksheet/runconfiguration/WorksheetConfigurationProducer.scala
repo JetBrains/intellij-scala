@@ -41,7 +41,7 @@ class WorksheetConfigurationProducer extends {
       case conf: WorksheetRunConfiguration => {
         val file: PsiFile = location.getPsiElement.getContainingFile
         if (file == null || !file.isInstanceOf[ScalaFile]) return false
-        conf.getWorksheetField.trim == file.getVirtualFile.getPath.trim
+        conf.worksheetField.trim == file.getVirtualFile.getPath.trim
       }
       case _ => false
     }
@@ -56,7 +56,7 @@ class WorksheetConfigurationProducer extends {
         val module = ModuleUtilCore.findModuleForFile(scalaFile.getVirtualFile, scalaFile.getProject)
         if (module == null || !ScalaFacet.isPresentIn(module)) return null
         conf.setModule(module)
-        conf.setWorksheetField(scalaFile.getVirtualFile.getPath)
+        conf.worksheetField = scalaFile.getVirtualFile.getPath
         settings
       }
       case _ => null

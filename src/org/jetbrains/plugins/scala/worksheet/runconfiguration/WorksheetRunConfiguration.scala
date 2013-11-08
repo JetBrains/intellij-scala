@@ -2,22 +2,16 @@ package org.jetbrains.plugins.scala
 package worksheet.runconfiguration
 
 import com.intellij.execution.configurations._
-import com.intellij.openapi.vfs.{LocalFileSystem, JarFileSystem, VirtualFile}
+import com.intellij.openapi.vfs.{LocalFileSystem, VirtualFile}
 import com.intellij.openapi.project.Project
-import com.intellij.util.PathUtil
 import java.lang.String
 import org.jdom.Element
 import com.intellij.openapi.options.SettingsEditor
-import com.intellij.openapi.module.{ModuleManager, Module}
-import com.intellij.openapi.projectRoots.{JdkUtil, JavaSdkType}
 import java.io._
 import collection.JavaConversions._
-import com.intellij.openapi.roots.{CompilerModuleExtension, OrderRootType, ModuleRootManager}
 import com.intellij.execution.runners.{ProgramRunner, ExecutionEnvironment}
 import com.intellij.openapi.util._
 import com.intellij.execution._
-import config.{CompilerLibraryData, Libraries, ScalaFacet}
-import compiler.ScalacSettings
 import com.intellij.execution.process.{ProcessHandler, ProcessEvent, ProcessAdapter}
 import ui.ConsoleViewContentType
 import com.intellij.ide.util.EditorHelper
@@ -42,51 +36,28 @@ import lang.psi.api.toplevel.imports.ScImportStmt
 import javax.swing.{JLayeredPane, JComponent}
 import lang.psi.api.ScalaFile
 import com.intellij.openapi.editor.ex.EditorGutterComponentEx
-import scala.Some
 import com.intellij.psi.impl.source.tree.LeafPsiElement
+import org.jetbrains.plugins.scala.runner.BaseRunConfiguration
 
 /**
  * @author Ksenia.Sautina
  * @since 10/15/12
  */
-class WorksheetRunConfiguration(val project: Project, val configurationFactory: ConfigurationFactory, val name: String)
-  extends ModuleBasedConfiguration[RunConfigurationModule](name, new RunConfigurationModule(project), configurationFactory) {
-  val SCALA_HOME = "-Dscala.home="
-  val CLASSPATH = "-Denv.classpath=\"%CLASSPATH%\""
-  val EMACS = "-Denv.emacs=\"%EMACS%\""
-  val MAIN_CLASS = "org.jetbrains.plugins.scala.worksheet.WorksheetRunner"
+class WorksheetRunConfiguration(project: Project, configurationFactory: ConfigurationFactory, name: String)
+  extends BaseRunConfiguration(project, configurationFactory, name) {
+  val mainClass = "org.jetbrains.plugins.scala.worksheet.WorksheetRunner"
   val END_MESSAGE = "Output exceeds cutoff limit.\n"
 
   val ContinueString = "     | "
   val PromptString   = "scala> "
 
-  private var javaOptions = "-Djline.terminal=NONE"
-  private var worksheetOptions = ""
-  private var workingDirectory = Option(getProject.getBaseDir) map (_.getPath) getOrElse ""
-
-  private var worksheetField = ""
-
-  def getJavaOptions = javaOptions
-
-  def setJavaOptions(s: String) {javaOptions = s}
-
-  def getWorksheetOptions = worksheetOptions
-
-  def setWorksheetOptions(s: String) {worksheetOptions = s}
-
-  def getWorkingDirectory = workingDirectory
-
-  def setWorkingDirectory(s: String) {workingDirectory = s}
-
-  def getWorksheetField = worksheetField
-
-  def setWorksheetField(s: String) {worksheetField = s}
+  var worksheetField = ""
 
   def apply(params: WorksheetRunConfigurationForm) {
-    setJavaOptions(params.getJavaOptions)
-    setWorksheetOptions(params.getWorksheetOptions)
-    setWorkingDirectory(params.getWorkingDirectory)
-    setWorksheetField(params.getWorksheetField)
+    javaOptions = params.getJavaOptions
+    consoleArgs = params.getWorksheetOptions
+    workingDirectory = params.getWorkingDirectory
+    worksheetField = params.getWorksheetField
     setModule(params.getModule)
   }
 
@@ -98,7 +69,7 @@ class WorksheetRunConfiguration(val project: Project, val configurationFactory: 
 
     def createWorksheetViewer(editor: Editor, virtualFile: VirtualFile): Editor = {
       val editorComponent = editor.getComponent
-      
+
       val prop = if (editorComponent.getComponentCount > 0 && editorComponent.getComponent(0).isInstanceOf[JBSplitter])
         editorComponent.getComponent(0).asInstanceOf[JBSplitter].getProportion else 0.5f
       val dimension: Dimension = editorComponent.getSize
@@ -274,12 +245,12 @@ class WorksheetRunConfiguration(val project: Project, val configurationFactory: 
 
           def processElement(child: PsiElement) {
             val trimmed = child.getText.trim
-            
+
             if (trimmed != "" && trimmed != "\n" && !child.isInstanceOf[PsiComment]) {
               val outputStream: OutputStream = processHandler.getProcessInput
               try {
                 val textBuilder = new StringBuilder
-                
+
                 def checkChildren(elem: PsiElement) {
                   elem.getNode.getChildren(null).map(_.getPsi).foreach {
                     case whitespace: PsiWhiteSpace if whitespace.getText.contains("\n") =>
@@ -298,12 +269,12 @@ class WorksheetRunConfiguration(val project: Project, val configurationFactory: 
                     case otherPsi => checkChildren(otherPsi)
                   }
                 }
-                
+
                 checkChildren(child)
                 val text = textBuilder.toString()
                 lineNumbers.add(document.getLineNumber(child.getTextRange.getEndOffset))
                 val result = deleteComments(text)
-                val bytes: Array[Byte] = (result).getBytes
+                val bytes: Array[Byte] = result.getBytes
                 outputStream.write(bytes)
                 outputStream.flush()
               }
@@ -343,79 +314,21 @@ class WorksheetRunConfiguration(val project: Project, val configurationFactory: 
       }
     }
 
-    val module = getModule
-    if (module == null) throw new ExecutionException("Module is not specified")
-
-    val facet = ScalaFacet.findIn(module).getOrElse {
-      throw new ExecutionException("No Scala facet configured for module " + module.getName)
-    }
-
-    val rootManager = ModuleRootManager.getInstance(module)
-    val sdk = rootManager.getSdk
-    if (sdk == null || !(sdk.getSdkType.isInstanceOf[JavaSdkType])) {
-      throw CantRunException.noJdkForModule(module)
-    }
-
     val state = new JavaCommandLineState(env) {
       protected override def createJavaParameters: JavaParameters = {
-        val params = new JavaParameters()
-        params.setJdk(sdk)
-        params.setCharset(null)
-        params.getVMParametersList.addParametersString(getJavaOptions)
-//        params.getVMParametersList.addParametersString("-Xnoagent -Djava.compiler=NONE -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5009")
-
-        val files =
-          if (facet.fsc) {
-            val settings = ScalacSettings.getInstance(getProject)
-            val lib: Option[CompilerLibraryData] = Libraries.findBy(settings.COMPILER_LIBRARY_NAME,
-              settings.COMPILER_LIBRARY_LEVEL, getProject)
-            lib match {
-              case Some(compilerLib) => compilerLib.files
-              case _ => facet.files
-            }
-          } else facet.files
-
-        params.getClassPath.addAllFiles(files)
-
-        val rtJarPath = PathUtil.getJarPathForClass(classOf[_root_.org.jetbrains.plugins.scala.worksheet.WorksheetRunner])
-        params.getClassPath.add(rtJarPath)
-        params.setWorkingDirectory(workingDirectory)
-        params.setMainClass(MAIN_CLASS)
-        
-        if (JdkUtil.useDynamicClasspath(getProject)) {
-          try {
-            val fileWithParams: File = File.createTempFile("worksheet", ".tmp")
-            val printer: PrintStream = new PrintStream(new FileOutputStream(fileWithParams))
-            printer.println("-classpath")
-            printer.println(getClassPath(project, facet))
-            val parms: Array[String] = ParametersList.parse(getWorksheetOptions)
-            for (parm <- parms) {
-              printer.println(parm)
-            }
-            printer.close()
-            params.getProgramParametersList.add("@" + fileWithParams.getPath)
-          }
-          catch {
-            case ignore: IOException => {
-            }
-          }
-        } else {
-          params.getProgramParametersList.add("-classpath")
-          params.getProgramParametersList.add(getClassPath(project, facet))
-          params.getProgramParametersList.addParametersString(worksheetField)
-          params.getProgramParametersList.addParametersString(getWorksheetOptions)
-        }
-        
+        val params = createParams
+        params.getProgramParametersList.addParametersString(worksheetField)
+        params.getProgramParametersList.addParametersString(consoleArgs)
         params
       }
 
       override def execute(executor: Executor, runner: ProgramRunner[_ <: RunnerSettings]): ExecutionResult = {
-        val file = new File(getWorksheetField)
+        val file = new File(worksheetField)
         if (file == null) throw new RuntimeConfigurationException("Worksheet is not specified: file doesn't exist.")
-        
+
         val virtualFile = LocalFileSystem.getInstance.refreshAndFindFileByIoFile(file)
         if (virtualFile == null) throw new ExecutionException("Worksheet is not specified. File is not found.")
-        
+
         val psiFile: PsiFile = PsiManager.getInstance(project).asInstanceOf[PsiManagerEx].getFileManager.getCachedPsiFile(virtualFile)
         if (psiFile == null) throw new RuntimeConfigurationException("Worksheet is not specified: there is no cached file.")
 
@@ -432,7 +345,7 @@ class WorksheetRunConfiguration(val project: Project, val configurationFactory: 
         val myProcessListener: ProcessAdapter = new ProcessAdapter {
           var resultsCount = 0
           var chunksReceived = 0
-          
+
           @inline private[this] def closeHandler() {
             endProcess(processHandler)
             processHandler.removeProcessListener(this)
@@ -442,7 +355,7 @@ class WorksheetRunConfiguration(val project: Project, val configurationFactory: 
             val text = event.getText
             if (ConsoleViewContentType.NORMAL_OUTPUT == ConsoleViewContentType.getConsoleViewType(outputType) &&
               worksheetViewer != null && text.trim != "" && !text.startsWith(ContinueString)) {
-              
+
               if (text.startsWith(PromptString)) {
                 resultsCount += 1
                 chunksReceived +=  1
@@ -458,7 +371,7 @@ class WorksheetRunConfiguration(val project: Project, val configurationFactory: 
             }
           }
         }
-        
+
         processHandler.addProcessListener(myProcessListener)
 
         editor.getContentComponent.addKeyListener(new KeyListener() {
@@ -516,7 +429,7 @@ class WorksheetRunConfiguration(val project: Project, val configurationFactory: 
   override def checkConfiguration() {
     super.checkConfiguration()
 
-    val file = new File(getWorksheetField)
+    val file = new File(worksheetField)
 
     if (file == null) {
       throw new RuntimeConfigurationException("Worksheet is not specified: file does not exist.")
@@ -541,74 +454,20 @@ class WorksheetRunConfiguration(val project: Project, val configurationFactory: 
     JavaRunConfigurationExtensionManager.checkConfigurationIsValid(this)
   }
 
-  def getModule: Module = getConfigurationModule.getModule
-
-  def getValidModules: java.util.List[Module] = ScalaFacet.findModulesIn(getProject).toList
   def getConfigurationEditor: SettingsEditor[_ <: RunConfiguration] = new WorksheetRunConfigurationEditor(project, this)
 
   override def writeExternal(element: Element) {
     super.writeExternal(element)
-    writeModule(element)
-    JDOMExternalizer.write(element, "vmparams4", getJavaOptions)
-    JDOMExternalizer.write(element, "worksheetOptions", getWorksheetOptions)
-    JDOMExternalizer.write(element, "workingDirectory", getWorkingDirectory)
-    JDOMExternalizer.write(element, "worksheetField", getWorksheetField)
+    JDOMExternalizer.write(element, "worksheetOptions", consoleArgs)
+    JDOMExternalizer.write(element, "worksheetField", worksheetField)
   }
 
   override def readExternal(element: Element) {
     super.readExternal(element)
-    readModule(element)
-    javaOptions = JDOMExternalizer.readString(element, "vmparams4")
-    if (javaOptions == null) {
-      javaOptions = JDOMExternalizer.readString(element, "vmparams")
-      if (javaOptions != null) javaOptions += " -Djline.terminal=NONE"
-    }
-    worksheetOptions = JDOMExternalizer.readString(element, "worksheetOptions")
-    val str = JDOMExternalizer.readString(element, "workingDirectory")
-    if (str != null)
-      workingDirectory = str
+    consoleArgs = JDOMExternalizer.readString(element, "worksheetOptions")
     val ws = JDOMExternalizer.readString(element, "worksheetField")
     if (ws != null)
       worksheetField = ws
   }
 
-  private def getClassPath(project: Project, facet: ScalaFacet): String = {
-    val pathes: Seq[String] = (for (module <- ModuleManager.getInstance(project).getModules) yield
-      getClassPath(module)).toSeq
-    pathes.mkString(File.pathSeparator) + File.pathSeparator + getClassPath(facet)
-  }
-
-  private def getClassPath(module: Module): String = {
-    val moduleRootManager = ModuleRootManager.getInstance(module)
-    val entries = moduleRootManager.getOrderEntries
-    val cpVFiles = new mutable.HashSet[VirtualFile]
-    cpVFiles ++= CompilerModuleExtension.getInstance(module).getOutputRoots(true)
-    for (orderEntry <- entries) {
-      cpVFiles ++= orderEntry.getFiles(OrderRootType.CLASSES)
-    }
-    val res = new StringBuilder("")
-    for (file <- cpVFiles) {
-      var path = file.getPath
-      val jarSeparatorIndex = path.indexOf(JarFileSystem.JAR_SEPARATOR)
-      if (jarSeparatorIndex > 0) {
-        path = path.substring(0, jarSeparatorIndex)
-      }
-      res.append(path).append(File.pathSeparator)
-    }
-    res.toString()
-  }
-
-  private def getClassPath(facet: ScalaFacet): String = {
-    val res = new StringBuilder("")
-    for (file <- facet.files) {
-      var path = file.getPath
-      val jarSeparatorIndex = path.indexOf(JarFileSystem.JAR_SEPARATOR)
-      if (jarSeparatorIndex > 0) {
-        path = path.substring(0, jarSeparatorIndex)
-      }
-      path = PathUtil.getCanonicalPath(path).replace('/', File.separatorChar)
-      res.append(path).append(File.pathSeparator)
-    }
-    res.toString()
-  }
 }

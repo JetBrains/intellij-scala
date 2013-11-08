@@ -43,7 +43,7 @@ class RunWorksheetAction extends AnAction {
 
     def execute(setting: RunnerAndConfigurationSettings) {
       val configuration = setting.getConfiguration.asInstanceOf[WorksheetRunConfiguration]
-      configuration.setWorksheetField(virtualFile.getCanonicalPath)
+      configuration.worksheetField = virtualFile.getCanonicalPath
       configuration.setName("WS: " + name)
       runManagerEx.setSelectedConfiguration(setting)
       val runExecutor = DefaultRunExecutor.getRunExecutorInstance
