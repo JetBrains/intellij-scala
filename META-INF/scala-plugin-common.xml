@@ -105,7 +105,6 @@
         <usageTypeProvider implementation="org.jetbrains.plugins.scala.lang.findUsages.ScalaUsageTypeProvider"/>
         <importFilteringRule implementation="org.jetbrains.plugins.scala.lang.findUsages.ScalaImportFilteringRule"/>
         <codeStyleSettingsProvider implementation="org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettingsProvider"/>
-        <compilerSettingsFactory implementation="org.jetbrains.plugins.scala.compiler.ScalaCompilerSettingsFactory"/>
         <internalFileTemplate name="Scala Class"/>
         <internalFileTemplate name="Scala Trait"/>
         <internalFileTemplate name="Scala Object"/>
@@ -886,16 +885,7 @@
           <implementation-class>org.jetbrains.plugins.scala.compiler.CompilerConfigurationMonitor</implementation-class>
         </component>
         <component>
-            <implementation-class>org.jetbrains.plugins.scala.compiler.CompilerProjectComponent</implementation-class>
-        </component>
-        <component>
             <implementation-class>org.jetbrains.plugins.scala.components.HighlightingAdvisor</implementation-class>
-        </component>
-        <component>
-            <implementation-class>org.jetbrains.plugins.scala.compiler.FscServerLauncher</implementation-class>
-        </component>
-        <component>
-            <implementation-class>org.jetbrains.plugins.scala.compiler.FscServerManager</implementation-class>
         </component>
         <component>
           <implementation-class>org.jetbrains.plugins.scala.compiler.CompileServerManager</implementation-class>
