@@ -1,4 +1,5 @@
-package org.jetbrains.plugins.scala.lang.psi.api.expr
+package org.jetbrains.plugins.scala
+package lang.psi.api.expr
 
 import org.jetbrains.plugins.scala.lang.psi.types.result.{TypingContext, Success, TypeResult}
 import org.jetbrains.plugins.scala.lang.psi.types._
@@ -15,6 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTrait
 import com.intellij.openapi.util.Key
 import org.jetbrains.plugins.scala.lang.resolve.ResolvableReferenceExpression
 import scala.collection
+import configuration._
 
 /**
  * Pavel Fatin, Alexander Podkhalyuzin.
@@ -173,7 +175,7 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
         setApplicabilityProblemsVar(c._2)
         setMatchedParametersVar(c._3)
         val dependentSubst = new ScSubstitutor(() => {
-          val level = languageLevel
+          val level = this.languageLevel
           if (level.isSinceScala2_10) {
             c._4.toMap
           } else Map.empty
@@ -188,7 +190,7 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
             setApplicabilityProblemsVar(cd._2)
             setMatchedParametersVar(cd._3)
             val dependentSubst = new ScSubstitutor(() => {
-              val level = languageLevel
+              val level = this.languageLevel
               if (level.isSinceScala2_10) {
                 cd._4.toMap
               } else Map.empty

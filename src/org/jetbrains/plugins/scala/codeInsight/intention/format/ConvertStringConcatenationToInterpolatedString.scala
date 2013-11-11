@@ -5,7 +5,7 @@ import org.jetbrains.plugins.scala.format.{InterpolatedStringFormatter, StringCo
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.editor.Editor
 import com.intellij.psi.PsiElement
-import extensions._
+import configuration._
 
 /**
  * Pavel Fatin
