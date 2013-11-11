@@ -23,9 +23,8 @@ import psi.impl.ScalaPsiManager
 import util.{PsiTreeUtil, PsiModificationTracker}
 import toplevel.typedef.ScTemplateDefinition
 import extensions.toPsiClassExt
-import org.jetbrains.plugins.scala.lang.languageLevel.ScalaLanguageLevel
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import scala.annotation.tailrec
+import extensions._
 
 /**
  * @author Alexander Podkhalyuzin
@@ -334,8 +333,8 @@ trait ScPattern extends ScalaPsiElement {
 
 object ScPattern {
   def extractorParameters(returnType: ScType, place: PsiElement): Seq[ScType] = {
-    val level = ScalaLanguageLevel.getLanguageLevel(place)
-    if (level.isThoughScala2_11) {
+    val level = place.languageLevel
+    if (level.isSinceScala2_11) {
       def findMember(name: String, tp: ScType = returnType): Option[ScType] = {
         val cp = new CompletionProcessor(StdKinds.methodRef, place, forName = Some(name))
         cp.processType(tp, place)
