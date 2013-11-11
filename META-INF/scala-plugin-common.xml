@@ -1,10 +1,6 @@
 <idea-plugin version="2">
     <resource-bundle xmlns="">org.jetbrains.plugins.scala.ScalaBundle</resource-bundle>
 
-    <extensions xmlns="org.jetbrains.idea.maven">
-        <importer implementation="org.jetbrains.plugins.scala.config.ScalaMavenImporter"/>
-    </extensions>
-
     <extensionPoints>
         <extensionPoint name="scalaParserPatcher" interface="org.jetbrains.plugins.scala.lang.parser.util.ParserPatcher"/>
         <extensionPoint name="scalaFileFactory" interface="org.jetbrains.plugins.scala.lang.parser.ScalaFileFactory"/>
