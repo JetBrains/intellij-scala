@@ -5,7 +5,7 @@ package conversion
 import com.intellij.openapi.actionSystem.{AnActionEvent, DataConstants, AnAction}
 import com.intellij.psi.{PsiDocumentManager, PsiJavaFile}
 import com.intellij.psi.codeStyle. {CodeStyleSettingsManager, CodeStyleManager}
-import lang.psi.ScalaPsiUtil
+import extensions._
 
 /**
  * @author Alexander Podkhalyuzin
@@ -25,7 +25,7 @@ class RenameJavaToScalaAction extends AnAction {
       val dataContext = e.getDataContext
       val file = dataContext.getData(DataConstants.PSI_FILE)
       file match {
-        case j: PsiJavaFile if ScalaPsiUtil.hasScalaFacet(j) =>
+        case j: PsiJavaFile if j.isInScalaModule =>
           val dir = j.getContainingDirectory
           if (dir.isWritable) enable()
           else disable()

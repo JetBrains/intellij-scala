@@ -44,7 +44,6 @@ import scala.collection.immutable.Stream
 import com.intellij.psi.impl.source.PsiFileImpl
 import com.intellij.psi.stubs.StubElement
 import com.intellij.openapi.module.{ModuleUtilCore, Module}
-import config.ScalaFacet
 import scala.reflect.NameTransformer
 import caches.CachesUtil
 import extensions._
@@ -171,12 +170,6 @@ object ScalaPsiUtil {
   def cachedDeepIsInheritor(clazz: PsiClass, base: PsiClass): Boolean = {
     val manager = ScalaPsiManager.instance(clazz.getProject)
     manager.cachedDeepIsInheritor(clazz, base)
-  }
-
-  def hasScalaFacet(element: PsiElement): Boolean = {
-    val module: Module = ModuleUtilCore.findModuleForPsiElement(element)
-    if (module == null) false
-    else ScalaFacet.findIn(module) != None
   }
 
   def lastChildElementOrStub(element: PsiElement): PsiElement = {
