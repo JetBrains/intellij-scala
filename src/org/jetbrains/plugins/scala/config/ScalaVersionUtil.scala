@@ -1,7 +1,9 @@
-package org.jetbrains.plugins.scala.config
+package org.jetbrains.plugins.scala
+package config
 
 import com.intellij.psi.PsiElement
 import com.intellij.openapi.module.{ModuleUtilCore, Module}
+import configuration._
 
 /**
  * @author Alefas
@@ -18,9 +20,9 @@ object ScalaVersionUtil {
   def isGeneric(element: PsiElement, defaultValue: Boolean, versionText: String*): Boolean = {
     val module: Module = ModuleUtilCore.findModuleForPsiElement(element)
     if (module == null) return defaultValue
-    ScalaFacet.findIn(module).map(facet => {
-      val version = facet.version
-      if (versionText.exists(version.startsWith)) true
+    module.scalaSdk.map( sdk => {
+      val version = sdk.languageLevel.getName
+      if (versionText.exists(version.contains)) true
       else false
     }).getOrElse(defaultValue)
   }
