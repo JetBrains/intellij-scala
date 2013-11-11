@@ -26,9 +26,9 @@ import result.TypingContext
 import lang.resolve.processor.{BaseProcessor, ImplicitProcessor}
 import extensions.toObjectExt
 import api.InferUtil
-import languageLevel.ScalaLanguageLevel
 import types.Compatibility.Expression
 import com.intellij.openapi.diagnostic.Logger
+import extensions._
 
 /**
  * Utility class for implicit conversions.
@@ -300,8 +300,8 @@ class ScImplicitlyConvertible(place: PsiElement, placeType: Boolean => Option[Sc
                     //todo: currently it looks like a hack in the right place, probably whole this class should be
                     //todo: rewritten in more clean and clear way.
                     val dependentSubst = new ScSubstitutor(() => {
-                      val level = ScalaLanguageLevel.getLanguageLevel(place)
-                      if (level.isThoughScala2_10) {
+                      val level = place.languageLevel
+                      if (level.isSinceScala2_10) {
                         f.paramClauses.clauses.headOption.map(_.parameters).toSeq.flatten.map {
                           case (param: ScParameter) => (new Parameter(param), typez)
                         }.toMap
@@ -323,8 +323,8 @@ class ScImplicitlyConvertible(place: PsiElement, placeType: Boolean => Option[Sc
                     }
 
                     val implicitDependentSubst = new ScSubstitutor(() => {
-                      val level = ScalaLanguageLevel.getLanguageLevel(place)
-                      if (level.isThoughScala2_10) {
+                      val level = place.languageLevel
+                      if (level.isSinceScala2_10) {
                         if (probablyHasDepententMethodTypes) {
                           val params: Seq[Parameter] = f.paramClauses.clauses.last.parameters.map(
                             param => new Parameter(param))

@@ -13,7 +13,6 @@ import org.jetbrains.plugins.scala.extensions.toSeqExt
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTrait
 import com.intellij.openapi.util.Key
-import org.jetbrains.plugins.scala.lang.languageLevel.ScalaLanguageLevel
 import org.jetbrains.plugins.scala.lang.resolve.ResolvableReferenceExpression
 import scala.collection
 
@@ -174,8 +173,8 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
         setApplicabilityProblemsVar(c._2)
         setMatchedParametersVar(c._3)
         val dependentSubst = new ScSubstitutor(() => {
-          val level = ScalaLanguageLevel.getLanguageLevel(this)
-          if (level.isThoughScala2_10) {
+          val level = languageLevel
+          if (level.isSinceScala2_10) {
             c._4.toMap
           } else Map.empty
         })
@@ -189,8 +188,8 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
             setApplicabilityProblemsVar(cd._2)
             setMatchedParametersVar(cd._3)
             val dependentSubst = new ScSubstitutor(() => {
-              val level = ScalaLanguageLevel.getLanguageLevel(this)
-              if (level.isThoughScala2_10) {
+              val level = languageLevel
+              if (level.isSinceScala2_10) {
                 cd._4.toMap
               } else Map.empty
             })
