@@ -5,7 +5,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import com.intellij.openapi.module.Module
+import com.intellij.openapi.module.{ModuleUtilCore, Module}
 import com.intellij.openapi.roots.ProjectFileIndex
 import org.jetbrains.plugins.scala.configuration._
 import scala.annotation.tailrec
@@ -127,6 +127,9 @@ trait PsiElementExt {
     case sf: ScalaFile => Some(sf)
     case _ => None
   }
+
+  def isInScalaModule: Boolean =
+    Option(ModuleUtilCore.findModuleForPsiElement(repr)).exists(_.hasScala)
 
   def languageLevel: ScalaLanguageLevel = {
     @tailrec
