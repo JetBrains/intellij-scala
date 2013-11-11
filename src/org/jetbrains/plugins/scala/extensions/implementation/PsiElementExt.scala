@@ -127,23 +127,4 @@ trait PsiElementExt {
     case sf: ScalaFile => Some(sf)
     case _ => None
   }
-
-  def isInScalaModule: Boolean =
-    Option(ModuleUtilCore.findModuleForPsiElement(repr)).exists(_.hasScala)
-
-  def languageLevel: ScalaLanguageLevel = {
-    @tailrec
-    def getContainingFileByContext(element: PsiElement): PsiFile = {
-      element match {
-        case file: PsiFile => file
-        case null => null
-        case elem => getContainingFileByContext(elem.getContext)
-      }
-    }
-    val file: PsiFile = getContainingFileByContext(repr)
-    if (file == null || file.getVirtualFile == null) return ScalaLanguageLevel.getDefault
-    val module: Module = ProjectFileIndex.SERVICE.getInstance(repr.getProject).getModuleForFile(file.getVirtualFile)
-    if (module == null) return ScalaLanguageLevel.getDefault
-    module.scalaSdk.map(_.languageLevel).getOrElse(ScalaLanguageLevel.getDefault)
-  }
 }

@@ -24,7 +24,7 @@ import util.{PsiTreeUtil, PsiModificationTracker}
 import toplevel.typedef.ScTemplateDefinition
 import extensions.toPsiClassExt
 import scala.annotation.tailrec
-import extensions._
+import configuration._
 
 /**
  * @author Alexander Podkhalyuzin

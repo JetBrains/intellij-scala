@@ -1,12 +1,14 @@
 package org.jetbrains.plugins.scala
 
+import java.io.File
+import scala.annotation.tailrec
+import com.intellij.psi.{PsiFile, PsiElement}
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.module.{ModuleManager, Module}
+import com.intellij.openapi.module.{ModuleUtilCore, ModuleManager, Module}
 import com.intellij.openapi.roots.libraries.Library
 import com.intellij.openapi.roots.impl.libraries.LibraryEx
-import com.intellij.openapi.roots.{LibraryOrderEntry, ModuleRootManager}
+import com.intellij.openapi.roots.{ProjectFileIndex, LibraryOrderEntry, ModuleRootManager}
 import extensions._
-import java.io.File
 
 /**
  * @author Pavel Fatin
@@ -71,5 +73,26 @@ package object configuration {
 
   object ScalaSdk {
     implicit def toLibrary(v: ScalaSdk): Library = v.library
+  }
+
+  implicit class ProjectPsiElementExt(element: PsiElement) {
+    def isInScalaModule: Boolean = Option(ModuleUtilCore.findModuleForPsiElement(element)).exists(_.hasScala)
+
+    // TODO clean this legacy code
+    def languageLevel: ScalaLanguageLevel = {
+      @tailrec
+      def getContainingFileByContext(element: PsiElement): PsiFile = {
+        element match {
+          case file: PsiFile => file
+          case null => null
+          case elem => getContainingFileByContext(elem.getContext)
+        }
+      }
+      val file: PsiFile = getContainingFileByContext(element)
+      if (file == null || file.getVirtualFile == null) return ScalaLanguageLevel.getDefault
+      val module: Module = ProjectFileIndex.SERVICE.getInstance(element.getProject).getModuleForFile(file.getVirtualFile)
+      if (module == null) return ScalaLanguageLevel.getDefault
+      module.scalaSdk.map(_.languageLevel).getOrElse(ScalaLanguageLevel.getDefault)
+    }
   }
 }

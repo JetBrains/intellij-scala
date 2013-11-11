@@ -5,7 +5,7 @@ package conversion
 import com.intellij.openapi.actionSystem.{AnActionEvent, DataConstants, AnAction}
 import com.intellij.psi.{PsiDocumentManager, PsiJavaFile}
 import com.intellij.psi.codeStyle. {CodeStyleSettingsManager, CodeStyleManager}
-import extensions._
+import configuration._
 
 /**
  * @author Alexander Podkhalyuzin
