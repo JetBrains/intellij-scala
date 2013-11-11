@@ -62,18 +62,6 @@ abstract class ScalaDistribution(val home: File) {
   def valid: Boolean = libraryFile.isDefined
 
   def version = compilerVersion
-
-  def createCompilerLibrary(id: LibraryId, rootModel: ModifiableRootModel) =
-    Libraries.create(id, rootModel, attach = false) { model =>
-      compilerClasses.foreach(it => model.addRoot(it.toLibraryRootURL, OrderRootType.CLASSES))
-    }
-
-  def createStandardLibrary(id: LibraryId, rootModel: ModifiableRootModel) =
-    Libraries.create(id, rootModel, attach = true) { model =>
-      classes.foreach(it => model.addRoot(it.toLibraryRootURL, OrderRootType.CLASSES))
-      sources.foreach(it => model.addRoot(it.toLibraryRootURL, OrderRootType.SOURCES))
-      model.addRoot(docs.toLibraryRootURL, JavadocOrderRootType.getInstance)
-    }
 }
 
 class Scala28Distribution(home: File) extends ScalaDistribution(home) {
