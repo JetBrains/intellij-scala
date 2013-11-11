@@ -1,4 +1,5 @@
-package org.jetbrains.plugins.scala.components
+package org.jetbrains.plugins.scala
+package components
 
 import org.intellij.lang.annotations.Language
 import javax.swing.event.HyperlinkEvent
@@ -11,13 +12,12 @@ import com.intellij.ide.DataManager
 import com.intellij.util.{FileContentUtil, Consumer}
 import collection.JavaConversions._
 import com.intellij.openapi.project.Project
-import org.jetbrains.plugins.scala.config.ScalaFacet
-import com.intellij.facet.{ProjectWideFacetAdapter, ProjectWideFacetListenersRegistry}
 import com.intellij.openapi.actionSystem.{CommonDataKeys, DataContext}
 import com.intellij.openapi.editor.ex.EditorEx
 import com.intellij.openapi.util._
 import com.intellij.openapi.components._
 import com.intellij.notification._
+import configuration._
 
 @State(name = "HighlightingAdvisor", storages = Array(
   new Storage(id = "default", file = "$PROJECT_FILE$"),
@@ -67,13 +67,13 @@ class HighlightingAdvisor(project: Project) extends ProjectComponent with Persis
   def disposeComponent() {}
 
   def projectOpened() {
-    registry.registerListener(ScalaFacet.Id, FacetListener)
+    project.scalaEvents.addScalaProjectListener(ScalaListener)
     configureWidget()
     notifyIfNeeded()
   }
 
   def projectClosed() {
-    registry.unregisterListener(ScalaFacet.Id, FacetListener)
+    project.scalaEvents.removeScalaProjectListener(ScalaListener)
     configureWidget()
   }
 
@@ -110,9 +110,6 @@ class HighlightingAdvisor(project: Project) extends ProjectComponent with Persis
     Notifications.Bus.notify(notification, project)
   }
 
-  private def registry: ProjectWideFacetListenersRegistry =
-    ProjectWideFacetListenersRegistry.getInstance(project)
-
   def toggle() {
     if(applicable) {
       enabled = !enabled
@@ -120,7 +117,7 @@ class HighlightingAdvisor(project: Project) extends ProjectComponent with Persis
     }
   }
 
-  private def applicable = ScalaFacet.isPresentIn(project)
+  private def applicable = project.hasScala
 
   def enabled = settings.TYPE_AWARE_HIGHLIGHTING_ENABLED
 
@@ -216,13 +213,13 @@ class HighlightingAdvisor(project: Project) extends ProjectComponent with Persis
     }
   }
 
-  private object FacetListener extends ProjectWideFacetAdapter[ScalaFacet]() {
-    override def facetAdded(facet: ScalaFacet) {
+  private object ScalaListener extends ScalaProjectListener {
+    def onScalaAdded() {
       configureWidget()
       notifyIfNeeded()
     }
 
-    override def facetRemoved(facet: ScalaFacet) {
+    def onScalaRemoved() {
       configureWidget()
     }
   }
