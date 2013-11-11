@@ -7,8 +7,8 @@ import com.intellij.ide.fileTemplates.actions.{AttributesDefaults, CreateFromTem
 import com.intellij.ide.fileTemplates.FileTemplateManager
 import com.intellij.openapi.actionSystem._
 import com.intellij.psi.JavaDirectoryService
-import config.ScalaFacet
 import com.intellij.openapi.module.Module
+import configuration._
 
 /**
  * Pavel Fatin
@@ -30,7 +30,7 @@ class NewPackageObjectAction
             .exists(!_.isEmpty)
 
     val module: Module = e.getDataContext.getData(LangDataKeys.MODULE.getName).asInstanceOf[Module]
-    val isEnabled: Boolean = if (module == null) false else ScalaFacet.isPresentIn(module)
+    val isEnabled: Boolean = Option(module).exists(_.hasScala)
 
     e.getPresentation.setEnabled(hasPackage && isEnabled)
     e.getPresentation.setVisible(hasPackage && isEnabled)
