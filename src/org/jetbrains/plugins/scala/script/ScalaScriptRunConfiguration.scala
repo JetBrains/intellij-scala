@@ -15,8 +15,7 @@ import lang.psi.api.ScalaFile
 import com.intellij.vcsUtil.VcsUtil
 import org.jdom.Element
 import collection.JavaConversions._
-import compiler.ScalacSettings
-import config.{Libraries, CompilerLibraryData, ScalaFacet}
+import configuration._
 
 /**
  * User: Alexander Podkhalyuzin
@@ -104,20 +103,7 @@ class ScalaScriptRunConfiguration(val project: Project, val configurationFactory
         params.getProgramParametersList.add("-classpath")
         params.configureByModule(module, JavaParameters.JDK_AND_CLASSES_AND_TESTS)
         params.getProgramParametersList.add(params.getClassPath.getPathsString)
-        ScalaFacet.findIn(module).foreach {
-          case facet =>
-            val files =
-              if (facet.fsc) {
-                val settings = ScalacSettings.getInstance(getProject)
-                val lib: Option[CompilerLibraryData] = Libraries.findBy(settings.COMPILER_LIBRARY_NAME,
-                  settings.COMPILER_LIBRARY_LEVEL, getProject)
-                lib match {
-                  case Some(lib) => lib.files
-                  case _ => facet.files
-                }
-              } else facet.files
-            files.foreach(params.getClassPath.add(_))
-        }
+        params.getClassPath.addAllFiles(module.scalaSdk.map(_.compilerClasspath).getOrElse(Seq.empty))
         val array = getConsoleArgs.trim.split("\\s+").filter(!_.trim().isEmpty)
         params.getProgramParametersList.addAll(array: _*)
         params.getProgramParametersList.add(scriptPath)
@@ -145,7 +131,7 @@ class ScalaScriptRunConfiguration(val project: Project, val configurationFactory
     module
   }
 
-  def getValidModules: java.util.List[Module] = ScalaFacet.findModulesIn(getProject).toList
+  def getValidModules: java.util.List[Module] = getProject.modulesWithScala
 
   def getConfigurationEditor: SettingsEditor[_ <: RunConfiguration] = new ScalaScriptRunConfigurationEditor(project, this)
 

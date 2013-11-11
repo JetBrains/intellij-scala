@@ -8,10 +8,10 @@ import com.intellij.execution.actions.ConfigurationContext
 import com.intellij.execution.impl.RunnerAndConfigurationSettingsImpl
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import com.intellij.openapi.module.ModuleUtilCore
-import org.jetbrains.plugins.scala.config.ScalaFacet
 import com.intellij.execution.configurations.RunConfiguration
 import org.jetbrains.plugins.scala.extensions.toPsiNamedElementExt
 import java.util
+import configuration._
 
 /**
  * @author Alefas
@@ -43,7 +43,7 @@ class ScalaScriptConfugurationProducer extends {
         val settings = RunManager.getInstance(location.getProject).createRunConfiguration(scalaFile.name, confFactory)
         val conf: ScalaScriptRunConfiguration = settings.getConfiguration.asInstanceOf[ScalaScriptRunConfiguration]
         val module = ModuleUtilCore.findModuleForFile(scalaFile.getVirtualFile, scalaFile.getProject)
-        if (module == null || !ScalaFacet.isPresentIn(module)) return null
+        if (module == null || !module.hasScala) return null
         conf.setModule(module)
         conf.setScriptPath(scalaFile.getVirtualFile.getPath)
         settings

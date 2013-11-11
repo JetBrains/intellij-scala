@@ -1,18 +1,16 @@
 package org.jetbrains.plugins.scala
 package worksheet.runconfiguration
 
-import com.intellij.execution.junit.RuntimeConfigurationProducer
 import com.intellij.execution.{RunManager, RunnerAndConfigurationSettings, Location}
 import com.intellij.psi.{PsiFile, PsiElement}
 import com.intellij.execution.actions.ConfigurationContext
-import org.jetbrains.plugins.scala.testingSupport.test.AbstractTestConfigurationProducer
 import com.intellij.execution.configurations.RunConfiguration
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import com.intellij.openapi.module.ModuleUtilCore
-import org.jetbrains.plugins.scala.config.ScalaFacet
 import com.intellij.execution.impl.RunnerAndConfigurationSettingsImpl
 import org.jetbrains.plugins.scala.testingSupport.RuntimeConfigurationProducerAdapter
 import java.util
+import configuration._
 
 /**
  * @author Alefas
@@ -54,7 +52,7 @@ class WorksheetConfigurationProducer extends {
         val settings = RunManager.getInstance(location.getProject).createRunConfiguration("WS: " + scalaFile.getName, confFactory)
         val conf: WorksheetRunConfiguration = settings.getConfiguration.asInstanceOf[WorksheetRunConfiguration]
         val module = ModuleUtilCore.findModuleForFile(scalaFile.getVirtualFile, scalaFile.getProject)
-        if (module == null || !ScalaFacet.isPresentIn(module)) return null
+        if (module == null || !module.hasScala) return null
         conf.setModule(module)
         conf.setWorksheetField(scalaFile.getVirtualFile.getPath)
         settings
