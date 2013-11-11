@@ -4,7 +4,7 @@ package console
 
 import com.intellij.execution.configurations.{RunConfiguration, ConfigurationType, ConfigurationFactory}
 import com.intellij.openapi.project.Project
-import config.ScalaFacet
+import configuration._
 
 /**
  * User: Alexander Podkhalyuzin
@@ -17,9 +17,8 @@ class ScalaConsoleRunConfigurationFactory(val typez: ConfigurationType) extends 
   }
 
   override def createConfiguration(name: String, template: RunConfiguration): RunConfiguration = {
-    val configuration = (super.createConfiguration(name, template)).asInstanceOf[ScalaConsoleRunConfiguration]
-    ScalaFacet.findModulesIn(template.getProject).headOption.foreach {
-      configuration.setModule _
-    }
-    configuration  }
+    val configuration = super.createConfiguration(name, template).asInstanceOf[ScalaConsoleRunConfiguration]
+    template.getProject.anyScalaModule.foreach(configuration.setModule(_))
+    configuration
+  }
 }

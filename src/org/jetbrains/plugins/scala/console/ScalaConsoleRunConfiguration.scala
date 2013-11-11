@@ -19,8 +19,7 @@ import com.intellij.openapi.roots.{CompilerModuleExtension, OrderRootType, Modul
 import com.intellij.execution.runners.ExecutionEnvironment
 import com.intellij.openapi.util.JDOMExternalizer
 import com.intellij.execution.{CantRunException, ExecutionException, Executor}
-import config.{CompilerLibraryData, Libraries, ScalaFacet}
-import compiler.ScalacSettings
+import configuration._
 
 /**
  * User: Alexander Podkhalyuzin
@@ -62,10 +61,6 @@ class ScalaConsoleRunConfiguration(val project: Project, val configurationFactor
     val module = getModule
     if (module == null) throw new ExecutionException("Module is not specified")
 
-    val facet = ScalaFacet.findIn(module).getOrElse {
-      throw new ExecutionException("No Scala facet configured for module " + module.getName)
-    }
-
     val rootManager = ModuleRootManager.getInstance(module)
     val sdk = rootManager.getSdk
     if (sdk == null || !(sdk.getSdkType.isInstanceOf[JavaSdkType])) {
@@ -83,18 +78,7 @@ class ScalaConsoleRunConfiguration(val project: Project, val configurationFactor
         //params.getVMParametersList.addParametersString("-Xnoagent -Djava.compiler=NONE -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5009")
 //        params.getVMParametersList.add(SCALA_HOME  + scalaSdkPath)
 
-        val files =
-          if (facet.fsc) {
-            val settings = ScalacSettings.getInstance(getProject)
-            val lib: Option[CompilerLibraryData] = Libraries.findBy(settings.COMPILER_LIBRARY_NAME,
-              settings.COMPILER_LIBRARY_LEVEL, getProject)
-            lib match {
-              case Some(lib) => lib.files
-              case _ => facet.files
-            }
-          } else facet.files
-
-        params.getClassPath.addAllFiles(files)
+        params.getClassPath.addAllFiles(module.scalaSdk.map(_.compilerClasspath).getOrElse(Seq.empty))
 
         val rtJarPath = PathUtil.getJarPathForClass(classOf[_root_.org.jetbrains.plugins.scala.compiler.rt.ConsoleRunner])
         params.getClassPath.add(rtJarPath)
@@ -139,7 +123,7 @@ class ScalaConsoleRunConfiguration(val project: Project, val configurationFactor
 
   def getModule: Module = getConfigurationModule.getModule
 
-  def getValidModules: java.util.List[Module] = ScalaFacet.findModulesIn(getProject).toList
+  def getValidModules: java.util.List[Module] = getProject.modulesWithScala
 
   def getConfigurationEditor: SettingsEditor[_ <: RunConfiguration] = new ScalaConsoleRunConfigurationEditor(project, this)
 

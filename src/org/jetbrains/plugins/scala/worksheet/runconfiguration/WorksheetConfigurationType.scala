@@ -1,14 +1,9 @@
 package org.jetbrains.plugins.scala
 package worksheet.runconfiguration
 
-import com.intellij.execution.configurations.{ConfigurationType, RunConfiguration, ConfigurationFactory}
+import com.intellij.execution.configurations.{ConfigurationType, ConfigurationFactory}
 import javax.swing.Icon
 import org.jetbrains.plugins.scala.icons.Icons
-import com.intellij.execution.{RunManager, RunnerAndConfigurationSettings, Location}
-import com.intellij.psi.{PsiFile, PsiElement}
-import lang.psi.api.ScalaFile
-import com.intellij.openapi.module.ModuleUtilCore
-import config.ScalaFacet
 
 /**
  * @author Ksenia.Sautina

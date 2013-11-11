@@ -16,8 +16,6 @@ import com.intellij.openapi.roots.{CompilerModuleExtension, OrderRootType, Modul
 import com.intellij.execution.runners.{ProgramRunner, ExecutionEnvironment}
 import com.intellij.openapi.util._
 import com.intellij.execution._
-import config.{CompilerLibraryData, Libraries, ScalaFacet}
-import compiler.ScalacSettings
 import com.intellij.execution.process.{ProcessHandler, ProcessEvent, ProcessAdapter}
 import ui.ConsoleViewContentType
 import com.intellij.ide.util.EditorHelper
@@ -42,8 +40,9 @@ import lang.psi.api.toplevel.imports.ScImportStmt
 import javax.swing.{JLayeredPane, JComponent}
 import lang.psi.api.ScalaFile
 import com.intellij.openapi.editor.ex.EditorGutterComponentEx
-import scala.Some
 import com.intellij.psi.impl.source.tree.LeafPsiElement
+import org.jetbrains.plugins.scala.configuration._
+import collection.JavaConverters._
 
 /**
  * @author Ksenia.Sautina
@@ -346,8 +345,8 @@ class WorksheetRunConfiguration(val project: Project, val configurationFactory: 
     val module = getModule
     if (module == null) throw new ExecutionException("Module is not specified")
 
-    val facet = ScalaFacet.findIn(module).getOrElse {
-      throw new ExecutionException("No Scala facet configured for module " + module.getName)
+    val scalaSdk = module.scalaSdk.getOrElse {
+      throw new ExecutionException("No Scala SDK configured for module " + module.getName)
     }
 
     val rootManager = ModuleRootManager.getInstance(module)
@@ -364,18 +363,7 @@ class WorksheetRunConfiguration(val project: Project, val configurationFactory: 
         params.getVMParametersList.addParametersString(getJavaOptions)
 //        params.getVMParametersList.addParametersString("-Xnoagent -Djava.compiler=NONE -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5009")
 
-        val files =
-          if (facet.fsc) {
-            val settings = ScalacSettings.getInstance(getProject)
-            val lib: Option[CompilerLibraryData] = Libraries.findBy(settings.COMPILER_LIBRARY_NAME,
-              settings.COMPILER_LIBRARY_LEVEL, getProject)
-            lib match {
-              case Some(compilerLib) => compilerLib.files
-              case _ => facet.files
-            }
-          } else facet.files
-
-        params.getClassPath.addAllFiles(files)
+        params.getClassPath.addAllFiles(scalaSdk.compilerClasspath.asJava)
 
         val rtJarPath = PathUtil.getJarPathForClass(classOf[_root_.org.jetbrains.plugins.scala.worksheet.WorksheetRunner])
         params.getClassPath.add(rtJarPath)
@@ -387,7 +375,7 @@ class WorksheetRunConfiguration(val project: Project, val configurationFactory: 
             val fileWithParams: File = File.createTempFile("worksheet", ".tmp")
             val printer: PrintStream = new PrintStream(new FileOutputStream(fileWithParams))
             printer.println("-classpath")
-            printer.println(getClassPath(project, facet))
+            printer.println(getClassPath(project, scalaSdk))
             val parms: Array[String] = ParametersList.parse(getWorksheetOptions)
             for (parm <- parms) {
               printer.println(parm)
@@ -401,7 +389,7 @@ class WorksheetRunConfiguration(val project: Project, val configurationFactory: 
           }
         } else {
           params.getProgramParametersList.add("-classpath")
-          params.getProgramParametersList.add(getClassPath(project, facet))
+          params.getProgramParametersList.add(getClassPath(project, scalaSdk))
           params.getProgramParametersList.addParametersString(worksheetField)
           params.getProgramParametersList.addParametersString(getWorksheetOptions)
         }
@@ -543,7 +531,7 @@ class WorksheetRunConfiguration(val project: Project, val configurationFactory: 
 
   def getModule: Module = getConfigurationModule.getModule
 
-  def getValidModules: java.util.List[Module] = ScalaFacet.findModulesIn(getProject).toList
+  def getValidModules: java.util.List[Module] = getProject.modulesWithScala
   def getConfigurationEditor: SettingsEditor[_ <: RunConfiguration] = new WorksheetRunConfigurationEditor(project, this)
 
   override def writeExternal(element: Element) {
@@ -572,10 +560,10 @@ class WorksheetRunConfiguration(val project: Project, val configurationFactory: 
       worksheetField = ws
   }
 
-  private def getClassPath(project: Project, facet: ScalaFacet): String = {
+  private def getClassPath(project: Project, sdk: ScalaSdk): String = {
     val pathes: Seq[String] = (for (module <- ModuleManager.getInstance(project).getModules) yield
       getClassPath(module)).toSeq
-    pathes.mkString(File.pathSeparator) + File.pathSeparator + getClassPath(facet)
+    pathes.mkString(File.pathSeparator) + File.pathSeparator + getClassPath(sdk)
   }
 
   private def getClassPath(module: Module): String = {
@@ -598,9 +586,9 @@ class WorksheetRunConfiguration(val project: Project, val configurationFactory: 
     res.toString()
   }
 
-  private def getClassPath(facet: ScalaFacet): String = {
+  private def getClassPath(sdk: ScalaSdk): String = {
     val res = new StringBuilder("")
-    for (file <- facet.files) {
+    for (file <- sdk.compilerClasspath) {
       var path = file.getPath
       val jarSeparatorIndex = path.indexOf(JarFileSystem.JAR_SEPARATOR)
       if (jarSeparatorIndex > 0) {

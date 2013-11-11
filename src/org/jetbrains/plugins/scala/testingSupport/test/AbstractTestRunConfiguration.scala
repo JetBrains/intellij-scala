@@ -3,7 +3,6 @@ package testingSupport.test
 
 import com.intellij.psi.search.{ProjectScope, GlobalSearchScope}
 import org.jdom.Element
-import config.ScalaFacet
 import collection.JavaConversions._
 import com.intellij.openapi.options.{SettingsEditorGroup, SettingsEditor}
 import com.intellij.diagnostic.logging.LogConfigurationPanel
@@ -43,6 +42,7 @@ import lang.psi.api.toplevel.ScModifierListOwner
 import com.intellij.openapi.application.ApplicationManager
 import java.io.{IOException, FileOutputStream, PrintStream, File}
 import org.jetbrains.idea.maven.project.MavenProjectsManager
+import org.jetbrains.plugins.scala.configuration._
 
 /**
  * @author Ksenia.Sautina
@@ -205,7 +205,7 @@ abstract class AbstractTestRunConfiguration(val project: Project,
     getConfigurationModule.getModule
   }
 
-  def getValidModules: java.util.List[Module] = ScalaFacet.findModulesIn(getProject).toList
+  def getValidModules: java.util.List[Module] = getProject.modulesWithScala
 
   override def getModules: Array[Module] = {
     ApplicationManager.getApplication.runReadAction(new Computable[Array[Module]] {
