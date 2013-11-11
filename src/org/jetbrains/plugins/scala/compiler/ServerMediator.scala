@@ -3,7 +3,6 @@ package compiler
 
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.components.ProjectComponent
-import config.ScalaFacet
 import com.intellij.compiler.CompilerWorkspaceConfiguration
 import com.intellij.notification.{NotificationListener, NotificationType, Notification, Notifications}
 import com.intellij.openapi.compiler.{CompileContext, CompileTask, CompilerManager}
@@ -13,6 +12,7 @@ import com.intellij.openapi.ui.Messages
 import org.intellij.lang.annotations.Language
 import javax.swing.event.HyperlinkEvent
 import extensions._
+import configuration._
 
 /**
  * Pavel Fatin
@@ -23,7 +23,7 @@ class ServerMediator(project: Project) extends ProjectComponent {
     var firstCompilation = true
 
     def execute(context: CompileContext): Boolean = {
-      val scalaProject = ScalaFacet.isPresentIn(project)
+      val scalaProject = project.hasScala
 
       val externalCompiler = CompilerWorkspaceConfiguration.getInstance(project).USE_OUT_OF_PROCESS_BUILD
 
@@ -48,8 +48,6 @@ class ServerMediator(project: Project) extends ProjectComponent {
             if (!checkCompilationSettings()) {
               return false
             }
-            project.getComponent(classOf[FscServerLauncher]).stop()
-            project.getComponent(classOf[FscServerManager]).removeWidget()
           }
 
           val applicationSettings = ScalaApplicationSettings.getInstance

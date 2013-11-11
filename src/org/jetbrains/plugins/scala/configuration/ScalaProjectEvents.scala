@@ -35,11 +35,11 @@ class ScalaProjectEvents(project: Project) extends AbstractProjectComponent(proj
     if (project.hasScala) fireScalaAdded() else fireScalaRemoved()
   }
 
-  def addScalaListener(listener: ScalaProjectListener) {
+  def addScalaProjectListener(listener: ScalaProjectListener) {
     listeners ::= listener
   }
 
-  def removeScalaListener(listener: ScalaProjectListener) {
+  def removeScalaProjectListener(listener: ScalaProjectListener) {
     listeners = listeners.filterNot(_ == listener)
   }
 
