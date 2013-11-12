@@ -2,7 +2,7 @@ package org.jetbrains.sbt
 
 import sbt.Keys._
 import sbt._
-import sbt.BuildStructure
+import sbt.Load.BuildStructure
 import sbt.Value
 import Utilities._
 

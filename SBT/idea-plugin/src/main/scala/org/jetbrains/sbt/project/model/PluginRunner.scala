@@ -14,10 +14,9 @@ class PluginRunner(vmOptions: Seq[String], customLauncher: Option[File], isSbt12
   private val JavaVM = JavaHome / "bin" / "java"
   private val LauncherDir = (jarWith[this.type] <<) / "launcher"
   private val SbtLauncher = customLauncher.getOrElse(LauncherDir / "sbt-launch.jar")
-  private val SbtPlugin = LauncherDir / s"sbt-structure${if (isSbt12) "-0.12" else ""}.jar"
 
   def read(directory: File, download: Boolean)(listener: (String) => Unit): Either[Exception, Elem] = {
-    val files = Stream("Java home" -> JavaHome, "SBT launcher" -> SbtLauncher, "SBT plugin" -> SbtPlugin)
+    val files = Stream("Java home" -> JavaHome, "SBT launcher" -> SbtLauncher)
     val problem = files.map((check _).tupled).flatten.headOption
     problem.map(it => Left(new FileNotFoundException(it))).getOrElse(read0(directory, download, listener))
   }
@@ -36,31 +35,31 @@ class PluginRunner(vmOptions: Seq[String], customLauncher: Option[File], isSbt12
   private def read0(directory: File, download: Boolean, listener: (String) => Unit) = {
     usingTempFile("sbt-structure", ".xml") { structureFile =>
       usingTempFile("sbt-commands", ".lst") { commandsFile =>
-        usingSafeCopyOf(SbtPlugin) { pluginFile =>
+        val className = if (download) "ReadProjectAndRepository" else "ReadProject"
+        val commandName = if (download) "read-project-and-repository" else "read-project"
 
-          val className = if (download) "ReadProjectAndRepository" else "ReadProject"
+        writeLinesTo(commandsFile,
+          s"set artifactPath := file(\042${path(structureFile)}\042)",
+          """set libraryDependencies += Defaults.sbtPluginExtra("org.jetbrains" % "sbt-structure" % "1.0", "0.12", "2.9.2")""",
+          commandName
+        )
 
-          writeLinesTo(commandsFile,
-            s"set artifactPath := file(\042${path(structureFile)}\042)",
-            s"apply -cp ${path(pluginFile)} org.jetbrains.sbt.$className")
+        val processCommands =
+          path(JavaVM) +:
+                  //              "-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005" +:
+                  "-Djline.terminal=jline.UnsupportedTerminal" +:
+                  "-Dsbt.log.noformat=true" +:
+                  vmOptions :+
+                  "-jar" :+
+                  path(SbtLauncher) :+
+                  s"< ${path(commandsFile)}"
 
-          val processCommands =
-            path(JavaVM) +:
-//              "-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005" +:
-              "-Djline.terminal=jline.UnsupportedTerminal" +:
-              "-Dsbt.log.noformat=true" +:
-              vmOptions :+
-              "-jar" :+
-              path(SbtLauncher) :+
-              s"< ${path(commandsFile)}"
-
-          try {
-            val process = Runtime.getRuntime.exec(processCommands.toArray, null, directory)
-            val errors = handle(process, listener).map(new SbtException(_))
-            errors.toLeft(XML.load(structureFile.toURI.toURL))
-          } catch {
-            case e: Exception => Left(e)
-          }
+        try {
+          val process = Runtime.getRuntime.exec(processCommands.toArray, null, directory)
+          val errors = handle(process, listener).map(new SbtException(_))
+          errors.toLeft(XML.load(structureFile.toURI.toURL))
+        } catch {
+          case e: Exception => Left(e)
         }
       }
     }
