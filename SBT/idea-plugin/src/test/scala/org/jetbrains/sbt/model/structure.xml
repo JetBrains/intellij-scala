@@ -1,0 +1,39 @@
+<structure>
+  <project>
+    <name>some-name</name>
+    <organization>some-organization</organization>
+    <version>1.2.3</version>
+    <base>$BASE</base>
+    <build>
+        <classes>~/.sbt/boot/scala-2.9.2/org.scala-sbt/sbt/0.12.2/api-0.12.2.jar</classes>
+        <import>import sbt._, Process._, Keys._</import>
+    </build>
+    <java>
+      <home>some/home</home>
+      <option>-j1</option>
+      <option>-j2</option>
+    </java>
+    <scala>
+      <version>2.10.1</version>
+      <library>~/.sbt/boot/scala-2.10.1/lib/scala-library.jar</library>
+      <compiler>~/.sbt/boot/scala-2.10.1/lib/scala-compiler.jar</compiler>
+      <extra>~/.sbt/boot/scala-2.10.1/lib/scala-reflect.jar</extra>
+      <option>-s1</option>
+      <option>-s2</option>
+    </scala>
+    <configuration id="compile">
+      <sources>src/main/scala</sources>
+      <sources>src/main/java</sources>
+      <resources>src/main/resources</resources>
+      <classes>target/scala-2.10/classes</classes>
+      <module revision="2.10.1" name="scala-library" organization="org.scala-lang"></module>
+    </configuration>
+  </project>
+  <repository>
+    <module revision="2.10.1" name="scala-library" organization="org.scala-lang">
+      <jar>~/.sbt/boot/scala-2.10.1/lib/scala-library.jar</jar>
+      <doc>~/.ivy2/cache/org.scala-lang/scala-library/docs/scala-library-2.10.1-javadoc.jar</doc>
+      <src>~/.ivy2/cache/org.scala-lang/scala-library/srcs/scala-library-2.10.1-sources.jar</src>
+    </module>
+  </repository>
+</structure>
