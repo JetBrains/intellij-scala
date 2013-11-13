@@ -72,30 +72,7 @@ object SbtExternalSystemManager {
       app.getVmParameters.split("\\s+").toSeq ++
       proxyOptionsFor(HttpConfigurable.getInstance)
 
-    var rootPath: File = path.toFile
-
-    var isSbt12 = false
-    if (rootPath.exists) {
-      if (!rootPath.isDirectory) rootPath = rootPath.getParentFile
-      if (rootPath != null) {
-        FileUtil.processFilesRecursively(rootPath, new Processor[File] {
-          def process(t: File): Boolean = {
-            if (t.getName == "build.properties") {
-              val SbtVersion = """\s*sbt.version\s*=\s*([0-9]*)\.([0-9]*)(\.[0-9]*)?\s*""".r
-              FileUtil.loadFile(t).split("\n").foreach {
-                case SbtVersion(_, s,_) =>
-                  if (s.toInt < 13) isSbt12 = true
-                  return false
-                case _ =>
-              }
-            }
-            true
-          }
-        })
-      }
-    }
-
-    new SbtExecutionSettings(vmOptions, customLauncher, isSbt12)
+    new SbtExecutionSettings(vmOptions, customLauncher)
   }
 
   private def proxyOptionsFor(http: HttpConfigurable): Seq[String] = {

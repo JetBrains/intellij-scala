@@ -30,7 +30,6 @@
       <element id="directory" name="launcher">
         <element id="file-copy" path="$PROJECT_DIR$/SBT/lib/sbt-launch.jar" />
       </element>
-      <element id="library" level="project" name="idea-full" />
     </root>
   </artifact>
 </component>
