@@ -24,7 +24,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
       if (file.isDirectory) file.getPath else file.getParent
     }
 
-    val runner = new PluginRunner(settings.vmOptions, settings.customLauncher, settings.isSbt12)
+    val runner = new PluginRunner(settings.vmOptions, settings.customLauncher)
 
     val xml = runner.read(new File(path), downloadLibraries) { message =>
       listener.onStatusChange(new ExternalSystemTaskNotificationEvent(id, message.trim))

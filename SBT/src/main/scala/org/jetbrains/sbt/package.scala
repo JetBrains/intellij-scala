@@ -7,6 +7,7 @@ import _root_.java.io._
 import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil
 import _root_.java.lang.{Boolean => JavaBoolean}
 import com.intellij.openapi.vfs.VfsUtil
+import com.intellij.openapi.util.io.FileUtil
 
 /**
  * @author Pavel Fatin
@@ -98,12 +99,20 @@ package object sbt {
   }
 
   def usingTempFile[T](prefix: String, suffix: String)(block: File => T): T = {
-    val file = File.createTempFile(prefix, suffix)
-    file.deleteOnExit()
+    val file = FileUtil.createTempFile(prefix, suffix, true)
     try {
       block(file)
     } finally {
       file.delete()
+    }
+  }
+
+  def usingTempDirectory[T](prefix: String, suffix: String)(block: File => T): T = {
+    val dir = FileUtil.createTempDirectory(prefix, suffix, true)
+    try {
+      block(dir)
+    } finally {
+      dir.delete()
     }
   }
 
