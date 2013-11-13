@@ -16,7 +16,7 @@ import com.intellij.openapi.roots.DependencyScope
  * @author Pavel Fatin
  */
 class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSettings] {
-  def resolveProjectInfo(id: ExternalSystemTaskId, projectPath: String, downloadLibraries: Boolean, settings: SbtExecutionSettings, listener: ExternalSystemTaskNotificationListener): DataNode[ProjectData] = {
+  def resolveProjectInfo(id: ExternalSystemTaskId, projectPath: String, isPreview: Boolean, settings: SbtExecutionSettings, listener: ExternalSystemTaskNotificationListener): DataNode[ProjectData] = {
 //    if (downloadLibraries) return null
 
     val path = {
@@ -26,7 +26,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
 
     val runner = new PluginRunner(settings.vmOptions, settings.customLauncher)
 
-    val xml = runner.read(new File(path), downloadLibraries) { message =>
+    val xml = runner.read(new File(path), !isPreview) { message =>
       listener.onStatusChange(new ExternalSystemTaskNotificationEvent(id, message.trim))
     } match {
       case Left(errors) => throw new ExternalSystemException(errors)
