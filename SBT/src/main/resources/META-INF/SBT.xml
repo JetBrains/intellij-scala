@@ -2,7 +2,7 @@
 
 <idea-plugin version="2">
 
-    <application-components>
+    <!--<application-components>
         <component>
             <implementation-class>org.jetbrains.sbt.settings.SbtApplicationSettings</implementation-class>
         </component>
@@ -45,6 +45,6 @@
 
     <extensions defaultExtensionNs="org.intellij.scala">
         <scalaFileFactory implementation="org.jetbrains.sbt.language.SbtFileFactory" />
-    </extensions>
+    </extensions>-->
 
 </idea-plugin>

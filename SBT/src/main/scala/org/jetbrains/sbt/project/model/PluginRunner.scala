@@ -13,7 +13,11 @@ import com.intellij.openapi.util.io.FileUtil
 class PluginRunner(vmOptions: Seq[String], customLauncher: Option[File]) {
   private val JavaHome = new File(System.getProperty("java.home"))
   private val JavaVM = JavaHome / "bin" / "java"
-  private val LauncherDir = (jarWith[this.type] << 2) / "launcher"
+  private val LauncherDir = {
+    val file: File = jarWith[this.type]
+    val deep = if (file.getName == "classes") 1 else 2
+    (file << deep) / "launcher"
+  }
   private val SbtLauncher = customLauncher.getOrElse(LauncherDir / "sbt-launch.jar")
 
   def read(directory: File, download: Boolean)(listener: (String) => Unit): Either[Exception, Elem] = {
