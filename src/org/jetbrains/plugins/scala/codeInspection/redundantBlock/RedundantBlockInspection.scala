@@ -8,7 +8,7 @@ import codeInspection.{AbstractFix, AbstractInspection}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.extensions.childOf
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClauses, ScCaseClause}
 import com.intellij.openapi.util.TextRange
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScInterpolatedStringLiteral
 
@@ -20,7 +20,8 @@ class RedundantBlockInspection extends AbstractInspection {
 
   def actionFor(holder: ProblemsHolder) = {
     case (block: ScBlock) childOf ((blockOfExpr: ScBlock) childOf (_: ScCaseClause))
-      if blockOfExpr.getChildren.length == 1 && block.hasRBrace && block.getFirstChild.getText == "{" =>
+      if block.hasRBrace && block.getFirstChild.getText == "{" &&
+              blockOfExpr.getChildren.length == 1 && !block.getChildren.exists(_.isInstanceOf[ScCaseClauses]) =>
       holder.registerProblem(block, new TextRange(0, 1), "Remove redundant braces", new InCaseClauseQuickFix(block))
     case block: ScBlockExpr if block.getChildren.length == 3 =>
       val child: PsiElement = block.getChildren.apply(1)
@@ -54,9 +55,9 @@ class RedundantBlockInspection extends AbstractInspection {
   
   private class InCaseClauseQuickFix(block: ScBlock) extends AbstractFix("Remove redundant braces", block) {
     def doApplyFix(project: Project, descriptor: ProblemDescriptor): Unit = {
-      val stmts = block.statements
-      for (stmt <- stmts) {
-        block.getParent.addBefore(stmt, block)
+      val children = block.getChildren.drop(1).dropRight(1)
+      for (child <- children) {
+        block.getParent.addBefore(child, block)
       }
       block.delete()
     }
