@@ -27,11 +27,11 @@
             <children>
               <component id="7bf33" class="javax.swing.JCheckBox" binding="addImportStatementInCheckBox" default-binding="true">
                 <constraints>
-                  <grid row="2" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                  <grid row="4" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties>
                   <selected value="false"/>
-                  <text value="Add import statement in closest block"/>
+                  <text value="Place imports in nearest code block"/>
                 </properties>
               </component>
               <component id="9885" class="javax.swing.JCheckBox" binding="addFullQualifiedImportsCheckBox" default-binding="true">
@@ -39,32 +39,32 @@
                   <grid row="3" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties>
-                  <text value="Add full qualified imports"/>
+                  <text value="Full qualified imports"/>
                 </properties>
               </component>
               <component id="3be4a" class="javax.swing.JCheckBox" binding="importMembersUsingUnderscoreCheckBox">
                 <constraints>
-                  <grid row="5" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                  <grid row="2" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties>
-                  <text value="Import members using '_'"/>
+                  <text value="Widcard import of members"/>
                 </properties>
               </component>
               <component id="87b42" class="javax.swing.JCheckBox" binding="sortImportsCheckBox">
                 <constraints>
-                  <grid row="4" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                  <grid row="6" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties>
-                  <text value="Sort imports lexicographically (for optimize imports)"/>
+                  <text value="Sort imports lexicographically (on optimization)"/>
                 </properties>
               </component>
               <component id="8720b" class="javax.swing.JCheckBox" binding="importTheShortestPathCheckBox" default-binding="true">
                 <constraints>
-                  <grid row="6" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                  <grid row="5" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties>
                   <selected value="true"/>
-                  <text value="Import the shortest path for ambiguous references"/>
+                  <text value="Use shortest path for ambiguous reference"/>
                 </properties>
               </component>
               <component id="20661" class="javax.swing.JLabel">
@@ -82,7 +82,7 @@
                   </grid>
                 </constraints>
                 <properties>
-                  <columns value="30"/>
+                  <columns value="50"/>
                 </properties>
               </component>
               <component id="bfc77" class="javax.swing.JLabel">
@@ -104,14 +104,6 @@
                   <grid row="9" column="0" row-span="1" col-span="2" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
                 </constraints>
               </vspacer>
-              <component id="72ea6" class="com.intellij.ui.TitledSeparator">
-                <constraints>
-                  <grid row="7" column="0" row-span="1" col-span="2" vsize-policy="3" hsize-policy="3" anchor="2" fill="1" indent="0" use-parent-layout="false"/>
-                </constraints>
-                <properties>
-                  <text value="Classes to use only with prefix:"/>
-                </properties>
-              </component>
               <grid id="34b18" binding="myImportsWithPrefixPanel" layout-manager="BorderLayout" hgap="0" vgap="0">
                 <constraints>
                   <grid row="8" column="0" row-span="1" col-span="2" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
@@ -120,6 +112,14 @@
                 <border type="none"/>
                 <children/>
               </grid>
+              <component id="8aa60" class="javax.swing.JLabel">
+                <constraints>
+                  <grid row="7" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <text value="Classes to use only with prefix:"/>
+                </properties>
+              </component>
             </children>
           </grid>
           <grid id="ff810" layout-manager="GridLayoutManager" row-count="3" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
