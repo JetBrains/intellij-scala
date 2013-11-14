@@ -24,7 +24,6 @@ import psi.controlFlow.impl.ScalaControlFlowBuilder
 import decompiler.{DecompilerUtil, CompiledFileAdjuster}
 import collection.mutable.ArrayBuffer
 import com.intellij.psi.search.GlobalSearchScope
-import config.ScalaFacet
 import com.intellij.openapi.util.{TextRange, Key}
 import caches.CachesUtil
 import com.intellij.psi.impl.ResolveScopeManager
@@ -40,6 +39,7 @@ import com.intellij.psi.impl.source.codeStyle.CodeEditUtil
 import com.intellij.psi.impl.source.PostprocessReformattingAspect
 import com.intellij.openapi.fileTypes.LanguageFileType
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
+import configuration._
 
 class ScalaFileImpl(viewProvider: FileViewProvider, fileType: LanguageFileType = ScalaFileType.SCALA_FILE_TYPE)
         extends PsiFileBase(viewProvider, fileType.getLanguage)
@@ -205,10 +205,7 @@ class ScalaFileImpl(viewProvider: FileViewProvider, fileType: LanguageFileType =
 
 
   def setPackageName(name: String) {
-    val basePackageName = Option(ScalaPsiUtil.getModule(this))
-            .flatMap(ScalaFacet.findIn)
-            .flatMap(_.basePackage)
-            .mkString
+    val basePackageName = getProject.scalaSettings.basePackage.getOrElse("")
 
     this match {
       // Handle package object
