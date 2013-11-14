@@ -39,7 +39,7 @@
                   <grid row="3" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties>
-                  <text value="Full qualified imports"/>
+                  <text value="Fully qualified names"/>
                 </properties>
               </component>
               <component id="3be4a" class="javax.swing.JCheckBox" binding="importMembersUsingUnderscoreCheckBox">
@@ -50,21 +50,13 @@
                   <text value="Widcard import of members"/>
                 </properties>
               </component>
-              <component id="87b42" class="javax.swing.JCheckBox" binding="sortImportsCheckBox">
+              <component id="8720b" class="javax.swing.JCheckBox" binding="importTheShortestPathCheckBox" default-binding="true">
                 <constraints>
                   <grid row="6" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties>
-                  <text value="Sort imports lexicographically (on optimization)"/>
-                </properties>
-              </component>
-              <component id="8720b" class="javax.swing.JCheckBox" binding="importTheShortestPathCheckBox" default-binding="true">
-                <constraints>
-                  <grid row="5" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-                </constraints>
-                <properties>
                   <selected value="true"/>
-                  <text value="Use shortest path for ambiguous reference"/>
+                  <text value="Prepend shortest prefx to ambiguous reference"/>
                 </properties>
               </component>
               <component id="20661" class="javax.swing.JLabel">
@@ -118,6 +110,14 @@
                 </constraints>
                 <properties>
                   <text value="Classes to use only with prefix:"/>
+                </properties>
+              </component>
+              <component id="87b42" class="javax.swing.JCheckBox" binding="sortImportsCheckBox">
+                <constraints>
+                  <grid row="5" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <text value="Sort imports lexicographically (on optimization)"/>
                 </properties>
               </component>
             </children>
