@@ -1,4 +1,5 @@
-package org.jetbrains.plugins.scala.lang.scaladoc.generate
+package org.jetbrains.plugins.scala
+package lang.scaladoc.generate
 
 import com.intellij.execution.runners.ExecutionEnvironment
 import com.intellij.openapi.project.Project
@@ -15,12 +16,13 @@ import com.intellij.analysis.AnalysisScope
 import com.intellij.openapi.projectRoots.{JdkUtil, Sdk}
 import java.io.{FileOutputStream, IOException, PrintStream, File}
 import com.intellij.execution.ExecutionException
-import org.jetbrains.plugins.scala.config.ScalaFacet
 import scala.collection.mutable.{ListBuffer, MutableList}
 import com.intellij.psi.PsiManager
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import com.intellij.openapi.module.{Module, ModuleManager}
 import java.util.regex.Pattern
+import collection.JavaConverters._
+import configuration._
 
 /**
  * User: Dmitry Naidanov
@@ -157,13 +159,12 @@ class ScaladocCommandLineState(env: ExecutionEnvironment, project: Project)
     jp.configureByProject(project, JavaParameters.JDK_AND_CLASSES_AND_TESTS, jdk)
     jp.setWorkingDirectory(project.getBaseDir.getPath)
 
-    val modules = ModuleManager.getInstance(project).getModules
-    val facets = ScalaFacet.findIn(modules)
-    if (facets.isEmpty) throw new ExecutionException("No facets are configured")
-    val facet: ScalaFacet = facets(0)
+    val scalaModule = project.anyScalaModule.getOrElse {
+      throw new ExecutionException("No modules with Scala SDK are configured")
+    }
     val classpathWithFacet = ListBuffer.apply[String]()
     val sourcepathWithFacet = ListBuffer.apply[String]()
-    jp.getClassPath.addAll(facet.classpath.split(classpathDelimeter).toList)
+    jp.getClassPath.addAllFiles(scalaModule.sdk.compilerClasspath.asJava)
     jp.setCharset(null)
     jp.setMainClass(MAIN_CLASS)
 
@@ -176,6 +177,7 @@ class ScaladocCommandLineState(env: ExecutionEnvironment, project: Project)
 
     val paramListSimple =  ListBuffer.apply[String]()
 
+    val modules = ModuleManager.getInstance(project).getModules
 
     val sourcePath = OrderEnumerator.orderEntries(project).withoutLibraries().withoutSdk().getAllSourceRoots
     val documentableFilesList = ListBuffer.apply[String]()
