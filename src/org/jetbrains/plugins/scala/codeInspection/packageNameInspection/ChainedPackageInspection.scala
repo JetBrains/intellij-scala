@@ -5,11 +5,9 @@ package packageNameInspection
 import com.intellij.psi.PsiFile
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import com.intellij.codeInspection._
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import config.ScalaFacet
 import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.project.Project
-import org.intellij.lang.annotations.Language
+import org.jetbrains.plugins.scala.configuration.ProjectExt
 
 class ChainedPackageInspection extends LocalInspectionTool {
   override def isEnabledByDefault: Boolean = true
@@ -18,11 +16,7 @@ class ChainedPackageInspection extends LocalInspectionTool {
 
   override def checkFile(file: PsiFile, manager: InspectionManager, isOnTheFly: Boolean): Array[ProblemDescriptor] = {
     if (!file.isInstanceOf[ScalaFile]) return Array.empty
-    val basePackage: Option[String] = for {
-      m <- Option(ScalaPsiUtil.getModule(file))
-      facet <- ScalaFacet.findIn(m)
-      p <- facet.basePackage
-    } yield p
+    val basePackage: Option[String] = file.getProject.scalaSettings.basePackage
     (file, basePackage) match {
       case (sf: ScalaFile, Some(base)) if !sf.isScriptFile() =>
         sf.packagings.toList match {

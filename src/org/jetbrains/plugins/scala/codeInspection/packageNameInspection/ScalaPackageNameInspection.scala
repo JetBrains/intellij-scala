@@ -10,9 +10,6 @@ import java.lang.String
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
-import com.intellij.openapi.module.{ModuleUtilCore, ModuleUtil, Module}
-import config.ScalaFacet
-import settings._
 
 /**
  * User: Alexander Podkhalyuzin
