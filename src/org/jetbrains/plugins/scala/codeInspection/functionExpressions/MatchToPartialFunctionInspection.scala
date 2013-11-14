@@ -60,7 +60,9 @@ class MatchToPartialFunctionQuickFix(matchStmt: ScMatchStmt, fExprToReplace: ScE
         extends AbstractFix(inspectionName, fExprToReplace){
   def doApplyFix(project: Project, descriptor: ProblemDescriptor) {
     val matchStmtCopy = matchStmt.copy.asInstanceOf[ScMatchStmt]
-    val leftBrace = matchStmtCopy.getCaseClauses.getPrevSiblingNotWhitespace
+    val leftBrace = matchStmtCopy.findFirstChildByType(ScalaTokenTypes.tLBRACE)
+    if (leftBrace == null) return
+
     addNamingPatterns(matchStmtCopy, needNamingPattern(matchStmt))
     matchStmtCopy.deleteChildRange(matchStmtCopy.getFirstChild, leftBrace.getPrevSibling)
     val newBlock = ScalaPsiElementFactory.createExpressionFromText(matchStmtCopy.getText, matchStmt.getManager)
