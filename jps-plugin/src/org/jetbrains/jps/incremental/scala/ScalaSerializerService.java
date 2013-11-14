@@ -5,14 +5,11 @@ import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.jps.incremental.scala.model.*;
-import org.jetbrains.jps.model.JpsElement;
 import org.jetbrains.jps.model.JpsGlobal;
 import org.jetbrains.jps.model.JpsProject;
-import org.jetbrains.jps.model.module.JpsModule;
 import org.jetbrains.jps.model.serialization.JpsGlobalExtensionSerializer;
 import org.jetbrains.jps.model.serialization.JpsModelSerializerExtension;
 import org.jetbrains.jps.model.serialization.JpsProjectExtensionSerializer;
-import org.jetbrains.jps.model.serialization.facet.JpsFacetConfigurationSerializer;
 import org.jetbrains.jps.model.serialization.library.JpsLibraryPropertiesSerializer;
 
 import java.util.Collections;
@@ -26,12 +23,6 @@ public class ScalaSerializerService extends JpsModelSerializerExtension {
   @Override
   public List<? extends JpsGlobalExtensionSerializer> getGlobalExtensionSerializers() {
     return Collections.singletonList(new GlobalSettingsSerializer());
-  }
-
-  @NotNull
-  @Override
-  public List<? extends JpsFacetConfigurationSerializer<?>> getFacetConfigurationSerializers() {
-    return Collections.singletonList(new FacetSettingsSerializer());
   }
 
   @NotNull
@@ -95,23 +86,6 @@ public class ScalaSerializerService extends JpsModelSerializerExtension {
 
     @Override
     public void saveProperties(LibrarySettings properties, Element element) {
-      // do nothing
-    }
-  }
-
-  private static class FacetSettingsSerializer extends JpsFacetConfigurationSerializer<FacetSettings> {
-    public FacetSettingsSerializer() {
-      super(SettingsManager.FACET_SETTINGS_ROLE, "scala", null);
-    }
-
-    @Override
-    protected FacetSettings loadExtension(@NotNull Element facetConfigurationElement, String name, JpsElement parent, JpsModule module) {
-      FacetSettingsImpl.State state = XmlSerializer.deserialize(facetConfigurationElement, FacetSettingsImpl.State.class);
-      return new FacetSettingsImpl(state);
-    }
-
-    @Override
-    protected void saveExtension(FacetSettings extension, Element facetConfigurationTag, JpsModule module) {
       // do nothing
     }
   }
