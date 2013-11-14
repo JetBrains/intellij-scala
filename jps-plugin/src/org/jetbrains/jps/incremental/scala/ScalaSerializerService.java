@@ -3,6 +3,7 @@ package org.jetbrains.jps.incremental.scala;
 import com.intellij.util.xmlb.XmlSerializer;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.jps.incremental.scala.model.*;
 import org.jetbrains.jps.model.JpsElement;
 import org.jetbrains.jps.model.JpsGlobal;
@@ -12,6 +13,7 @@ import org.jetbrains.jps.model.serialization.JpsGlobalExtensionSerializer;
 import org.jetbrains.jps.model.serialization.JpsModelSerializerExtension;
 import org.jetbrains.jps.model.serialization.JpsProjectExtensionSerializer;
 import org.jetbrains.jps.model.serialization.facet.JpsFacetConfigurationSerializer;
+import org.jetbrains.jps.model.serialization.library.JpsLibraryPropertiesSerializer;
 
 import java.util.Collections;
 import java.util.List;
@@ -36,6 +38,12 @@ public class ScalaSerializerService extends JpsModelSerializerExtension {
   @Override
   public List<? extends JpsProjectExtensionSerializer> getProjectExtensionSerializers() {
     return Collections.singletonList(new ProjectSettingsSerializer());
+  }
+
+  @NotNull
+  @Override
+  public List<? extends JpsLibraryPropertiesSerializer<?>> getLibraryPropertiesSerializers() {
+    return Collections.singletonList(new LibraryPropertiesSerializer());
   }
 
   private static class GlobalSettingsSerializer extends JpsGlobalExtensionSerializer {
@@ -70,6 +78,23 @@ public class ScalaSerializerService extends JpsModelSerializerExtension {
 
     @Override
     public void saveExtension(@NotNull JpsProject jpsProject, @NotNull Element componentTag) {
+      // do nothing
+    }
+  }
+
+  private static class LibraryPropertiesSerializer extends JpsLibraryPropertiesSerializer<LibrarySettings> {
+    private LibraryPropertiesSerializer() {
+      super(ScalaLibraryType.getInstance(), "scala");
+    }
+
+    @Override
+    public LibrarySettings loadProperties(@Nullable Element propertiesElement) {
+      LibrarySettingsImpl.State state = XmlSerializer.deserialize(propertiesElement, LibrarySettingsImpl.State.class);
+      return state == null ? null : new LibrarySettingsImpl(state);
+    }
+
+    @Override
+    public void saveProperties(LibrarySettings properties, Element element) {
       // do nothing
     }
   }
