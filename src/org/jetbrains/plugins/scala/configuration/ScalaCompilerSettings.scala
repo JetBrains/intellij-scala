@@ -52,7 +52,9 @@ class ScalaCompilerSettings extends PersistentStateComponent[ScalaCompilerSettin
     state.plugins = plugins.toArray
     state
   }
+}
 
-  def instance(project: Project): ScalaCompilerSettings =
+object ScalaCompilerSettings {
+  def instanceIn(project: Project): ScalaCompilerSettings =
     ServiceManager.getService(project, classOf[ScalaCompilerSettings])
 }

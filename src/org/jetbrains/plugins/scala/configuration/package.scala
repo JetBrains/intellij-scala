@@ -52,6 +52,8 @@ package object configuration {
     def scalaEvents: ScalaProjectEvents = project.getComponent(classOf[ScalaProjectEvents])
 
     def scalaSettings: ScalaSettings = new ScalaSettings(ScalaProjectSettings.getInstance(project))
+    
+    def scalaCompilerSettigns: ScalaCompilerSettings = ScalaCompilerSettings.instanceIn(project)
   }
 
   class ScalaModule(val module: Module) {
