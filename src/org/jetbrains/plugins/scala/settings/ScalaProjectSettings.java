@@ -26,6 +26,7 @@ import java.util.Map;
 public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProjectSettings>, ExportableComponent {
   private int IMPLICIT_PARAMETERS_SEARCH_DEPTH = 5;
 
+  private String BASE_PACKAGE = "";
   private boolean IMPORT_SHORTEST_PATH_FOR_AMBIGUOUS_REFERENCES = true;
   private int CLASS_COUNT_TO_USE_IMPORT_ON_DEMAND = 5;
   private int SHIFT = 80;
@@ -326,11 +327,19 @@ public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProj
   public void setImportsWithPrefix(String[] importsWithPrefix) {
     this.IMPORTS_WITH_PREFIX = importsWithPrefix;
   }
-  
+
   public Map<String, String> getIntInjectionMapping() {
     return INTERPOLATED_INJECTION_MAPPING;
   }
-  
+
+  public String getBasePackage() {
+    return BASE_PACKAGE;
+  }
+
+  public void setBasePackage(String name) {
+    BASE_PACKAGE = name;
+  }
+
   public void setIntInjectionMapping(Map<String, String> intInjectionMapping) {
     INTERPOLATED_INJECTION_MAPPING = intInjectionMapping;
   }

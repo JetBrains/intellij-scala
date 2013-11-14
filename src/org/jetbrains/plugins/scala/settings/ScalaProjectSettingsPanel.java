@@ -46,6 +46,7 @@ public class ScalaProjectSettingsPanel {
   private JSpinner outputSpinner;
   private JSpinner implicitParametersSearchDepthSpinner;
   private JCheckBox myDontCacheCompound;
+  private JTextField myBasePackage;
   private ScalaUiWithDependency.ComponentWithSettings injectionPrefixTable;
   private JBList referencesWithPrefixList;
   private DefaultListModel myReferencesWithPrefixModel;
@@ -93,6 +94,7 @@ public class ScalaProjectSettingsPanel {
 
     final ScalaProjectSettings scalaProjectSettings = ScalaProjectSettings.getInstance(myProject);
     
+    scalaProjectSettings.setBasePackage(myBasePackage.getText());
     scalaProjectSettings.setAddImportMostCloseToReference(addImportStatementInCheckBox.isSelected());
     scalaProjectSettings.setAddFullQualifiedImports(addFullQualifiedImportsCheckBox.isSelected());
     scalaProjectSettings.setSortImports(sortImportsCheckBox.isSelected());
@@ -127,7 +129,9 @@ public class ScalaProjectSettingsPanel {
   public boolean isModified() {
 
     final ScalaProjectSettings scalaProjectSettings = ScalaProjectSettings.getInstance(myProject);
-    
+
+    if (!scalaProjectSettings.getBasePackage().equals(
+        myBasePackage.getText())) return true;
     if (scalaProjectSettings.isShowImplisitConversions() !=
         showImplicitConversionsInCheckBox.isSelected()) return true;
     if (scalaProjectSettings.isShowArgumentsToByNameParams() !=
@@ -200,6 +204,7 @@ public class ScalaProjectSettingsPanel {
   private void setSettings() {
     final ScalaProjectSettings scalaProjectSettings = ScalaProjectSettings.getInstance(myProject);
     
+    setValue(myBasePackage, scalaProjectSettings.getBasePackage());
     setValue(addImportStatementInCheckBox, scalaProjectSettings.isAddImportMostCloseToReference());
     setValue(addFullQualifiedImportsCheckBox, scalaProjectSettings.isAddFullQualifiedImports());
     setValue(sortImportsCheckBox, scalaProjectSettings.isSortImports());
@@ -247,6 +252,10 @@ public class ScalaProjectSettingsPanel {
 
   private static void setValue(final JComboBox box, final int value) {
     box.setSelectedIndex(value);
+  }
+
+  private static void setValue(final JTextField field, final String value) {
+    field.setText(value);
   }
 
   private void createUIComponents() {
