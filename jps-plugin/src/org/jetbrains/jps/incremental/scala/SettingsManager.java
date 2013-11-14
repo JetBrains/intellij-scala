@@ -14,6 +14,7 @@ import org.jetbrains.jps.model.module.JpsModule;
 public class SettingsManager {
   public static final JpsElementChildRoleBase<GlobalSettings> GLOBAL_SETTINGS_ROLE = JpsElementChildRoleBase.create("scala global settings");
   public static final JpsElementChildRoleBase<ProjectSettings> PROJECT_SETTINGS_ROLE = JpsElementChildRoleBase.create("scala project settings");
+  public static final JpsElementChildRoleBase<LibrarySettings> LIBRARY_SETTINGS_ROLE = JpsElementChildRoleBase.create("scala library settings");
   public static final JpsElementChildRoleBase<FacetSettings> FACET_SETTINGS_ROLE = JpsElementChildRoleBase.create("scala facet settings");
 
   public static GlobalSettings getGlobalSettings(JpsGlobal global) {
@@ -31,6 +32,15 @@ public class SettingsManager {
 
   public static void setProjectSettings(JpsProject project, ProjectSettings settings) {
     project.getContainer().setChild(PROJECT_SETTINGS_ROLE, settings);
+  }
+
+  @Nullable
+  public static LibrarySettings getLibrarySettings(JpsModule library) {
+    return library.getContainer().getChild(LIBRARY_SETTINGS_ROLE);
+  }
+
+  public static void setLibrarySettings(JpsModule module, LibrarySettings settings) {
+    module.getContainer().setChild(LIBRARY_SETTINGS_ROLE, settings);
   }
 
   @Nullable
