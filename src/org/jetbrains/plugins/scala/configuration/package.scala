@@ -8,6 +8,7 @@ import com.intellij.openapi.module.{ModuleUtilCore, ModuleManager, Module}
 import com.intellij.openapi.roots.libraries.Library
 import com.intellij.openapi.roots.impl.libraries.LibraryEx
 import com.intellij.openapi.roots.{ProjectFileIndex, LibraryOrderEntry, ModuleRootManager}
+import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import extensions._
 
 /**
@@ -49,6 +50,8 @@ package object configuration {
     def anyScalaModule: Option[ScalaModule] = scalaModules.headOption
 
     def scalaEvents: ScalaProjectEvents = project.getComponent(classOf[ScalaProjectEvents])
+
+    def scalaSettings: ScalaSettings = new ScalaSettings(ScalaProjectSettings.getInstance(project))
   }
 
   class ScalaModule(val module: Module) {
@@ -94,5 +97,9 @@ package object configuration {
       if (module == null) return ScalaLanguageLevel.getDefault
       module.scalaSdk.map(_.languageLevel).getOrElse(ScalaLanguageLevel.getDefault)
     }
+  }
+
+  class ScalaSettings(delegate: ScalaProjectSettings) {
+    def basePackage: Option[String] = Option(delegate.getBasePackage).filter(!_.isEmpty)
   }
 }
