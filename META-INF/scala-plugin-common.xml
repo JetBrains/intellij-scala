@@ -806,10 +806,6 @@
                        displayName="Match statement convertible to partial function" groupName="Scala: General"
                        shortName="MatchToPartialFunction" level="WARNING"
                        enabledByDefault="true" language="Scala"/>
-      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.annotations.PrivateBeanPropertyInspection"
-                       displayName="Bean property should not be private" groupName="Scala: General"
-                       shortName="PrivateBeanProperty" level="WARNING"
-                       enabledByDefault="true" language="Scala"/>
 
 
 
