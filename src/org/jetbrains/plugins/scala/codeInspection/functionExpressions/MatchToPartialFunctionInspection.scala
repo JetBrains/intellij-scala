@@ -60,7 +60,9 @@ class MatchToPartialFunctionQuickFix(matchStmt: ScMatchStmt, fExprToReplace: ScE
         extends AbstractFix(inspectionName, fExprToReplace){
   def doApplyFix(project: Project, descriptor: ProblemDescriptor) {
     val matchStmtCopy = matchStmt.copy.asInstanceOf[ScMatchStmt]
-    val leftBrace = matchStmtCopy.getCaseClauses.getPrevSiblingNotWhitespace
+    val leftBrace = matchStmtCopy.findFirstChildByType(ScalaTokenTypes.tLBRACE)
+    if (leftBrace == null) return
+
     addNamingPatterns(matchStmtCopy, needNamingPattern(matchStmt))
     matchStmtCopy.deleteChildRange(matchStmtCopy.getFirstChild, leftBrace.getPrevSibling)
     val newBlock = ScalaPsiElementFactory.createExpressionFromText(matchStmtCopy.getText, matchStmt.getManager)
@@ -99,7 +101,9 @@ class MatchToPartialFunctionQuickFix(matchStmt: ScMatchStmt, fExprToReplace: ScE
     val name = matchStmt.expr.map(_.getText).getOrElse(return)
     indexes.map(i => clauses(i).pattern).foreach {
       case Some(w: ScWildcardPattern) => w.replace(ScalaPsiElementFactory.createPatternFromText(name, matchStmt.getManager))
-      case Some(p: ScPattern) => p.replace(ScalaPsiElementFactory.createPatternFromText(s"$name @ ${p.getText}", matchStmt.getManager))
+      case Some(p: ScPattern) => //todo: remove parentheses if unnecesary
+        val newPatternText = s"$name @ (${p.getText})"
+        p.replace(ScalaPsiElementFactory.createPatternFromText(newPatternText, matchStmt.getManager))
       case _ =>
     }
   }

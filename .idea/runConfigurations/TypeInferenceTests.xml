@@ -40,9 +40,7 @@
       <option name="TRANSPORT" value="0" />
       <option name="LOCAL" value="true" />
     </RunnerSettings>
-    <RunnerSettings RunnerId="Profile ">
-      <option name="myExternalizedOptions" value="&#13;&#10;use-64-bit=false&#13;&#10;additional-options2=onexit\=snapshot&#13;&#10;" />
-    </RunnerSettings>
+    <RunnerSettings RunnerId="Profile " />
     <RunnerSettings RunnerId="Run" />
     <ConfigurationWrapper RunnerId="Run" />
     <method>

@@ -6,6 +6,9 @@
       <root url="jar://$PROJECT_DIR$/SDK/scala/scala-reflect.jar!/" />
     </CLASSES>
     <JAVADOC />
-    <SOURCES />
+    <SOURCES>
+      <root url="file://$USER_HOME$/Downloads/scala-2.10.1-sources/src/library" />
+      <root url="file://$USER_HOME$/Downloads/scala-2.10.1-sources/src/compiler" />
+    </SOURCES>
   </library>
 </component>

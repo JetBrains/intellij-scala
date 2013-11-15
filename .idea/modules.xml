@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/Runners/Runners.iml" filepath="$PROJECT_DIR$/Runners/Runners.iml" />
+      <module fileurl="file://$PROJECT_DIR$/SBT/SBT.iml" filepath="$PROJECT_DIR$/SBT/SBT.iml" />
       <module fileurl="file://$PROJECT_DIR$/ScalaCommunity.iml" filepath="$PROJECT_DIR$/ScalaCommunity.iml" />
       <module fileurl="file://$PROJECT_DIR$/ScalaRunner/ScalaRunner.iml" filepath="$PROJECT_DIR$/ScalaRunner/ScalaRunner.iml" />
       <module fileurl="file://$PROJECT_DIR$/idea-runner/idea-runner.iml" filepath="$PROJECT_DIR$/idea-runner/idea-runner.iml" />
