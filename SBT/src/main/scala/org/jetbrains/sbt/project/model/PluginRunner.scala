@@ -43,7 +43,10 @@ class PluginRunner(vmOptions: Seq[String], customLauncher: Option[File]) {
         usingTempDirectory("sbt-global-plugins", null) { globalPluginsDirectory =>
           val commandName = if (download) "read-project-and-repository" else "read-project"
 
-          FileUtil.writeToFile(new File(globalPluginsDirectory.getPath, "build.sbt"), """addSbtPlugin("org.jetbrains" % "sbt-structure" % "latest.integration")""")
+          FileUtil.writeToFile(new File(globalPluginsDirectory.getPath, "build.sbt"),
+            """resolvers += "sbt-releases" at "http://repo.scala-sbt.org/scalasbt/sbt-plugin-releases/"
+
+              addSbtPlugin("org.jetbrains" % "sbt-structure" % "1.0")""".replace("\r", ""))
 
           writeLinesTo(commandsFile,
             s"set artifactPath := file(\042${path(structureFile)}\042)",
