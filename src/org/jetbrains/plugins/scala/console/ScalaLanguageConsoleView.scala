@@ -22,12 +22,6 @@ class ScalaLanguageConsoleView(project: Project) extends {
     ScalaConsoleInfo.addConsole(scalaConsole, model, processHandler)
   }
 
-  override def getData(dataId: String): AnyRef = {
-    if (PlatformDataKeys.ACTIONS_SORTER.is(dataId)) {
-      ScalaLanguageConsoleView.CONSOLE_ACTIONS_COMPARATOR
-    } else super.getData(dataId)
-  }
-
   override def dispose() {
     super.dispose()
     ScalaConsoleInfo.disposeConsole(scalaConsole)
@@ -36,15 +30,4 @@ class ScalaLanguageConsoleView(project: Project) extends {
 
 object ScalaLanguageConsoleView {
   val SCALA_CONSOLE = "Scala Console"
-
-  private val CONSOLE_ACTIONS_COMPARATOR: Comparator[AnAction] = new Comparator[AnAction] {
-    def compare(o1: AnAction, o2: AnAction): Int = {
-      (o1, o2) match {
-        case (_: ScalaConsoleExecuteAction, _: ScalaConsoleExecuteAction) => 0
-        case (_: ScalaConsoleExecuteAction, _) => -1
-        case (_, _: ScalaConsoleExecuteAction) => 1
-        case _ => 0
-      }
-    }
-  }
 }
