@@ -10,13 +10,15 @@ import com.intellij.openapi.util.io.FileUtil
 /**
  * @author Pavel Fatin
  */
-case class Arguments(sbtData: SbtData, compilerData: CompilerData, compilationData: CompilationData, incrementalType: IncrementalType) {
+case class Arguments(sbtData: SbtData, compilerData: CompilerData, compilationData: CompilationData) {
   def asStrings: Seq[String] = {
     val (outputs, caches) = compilationData.outputToCacheMap.toSeq.unzip
 
     val compilerJarPaths = compilerData.compilerJars.map(jars => filesToPaths(jars.library +: jars.compiler +: jars.extra))
 
     val javaHomePath = compilerData.javaHome.map(fileToPath)
+
+    val incrementalType = compilerData.incrementalType
 
     Seq(
       fileToPath(sbtData.interfaceJar),
@@ -72,15 +74,16 @@ object Arguments {
         case PathToFile(file) => file
       }
 
-      val compilerData = CompilerData(compilerJars, javaHome)
+      val incrementalType = IncrementalType.valueOf(incrementalTypeName)
+
+      val compilerData = CompilerData(compilerJars, javaHome, incrementalType)
 
       val outputToCacheMap = outputs.zip(caches).toMap
 
       val compilationData = CompilationData(sources, classpath, output, scalaOptions, javaOptions, Order.valueOf(order), cacheFile, outputToCacheMap)
 
-      val incrementalType = IncrementalType.valueOf(incrementalTypeName)
 
-      Arguments(sbtData, compilerData, compilationData, incrementalType)
+      Arguments(sbtData, compilerData, compilationData)
   }
 
   private def fileToPath(file: File): String = FileUtil.toCanonicalPath(file.getPath)
