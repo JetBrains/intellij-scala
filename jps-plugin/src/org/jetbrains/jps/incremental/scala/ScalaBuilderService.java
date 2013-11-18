@@ -80,7 +80,7 @@ public class ScalaBuilderService extends BuilderService {
 
   private static boolean isScalaProject(JpsProject project) {
     for (JpsModule module : project.getModules()) {
-      if (SettingsManager.getFacetSettings(module) != null) {
+      if (SettingsManager.hasScalaSdk(module)) {
         return true;
       }
     }

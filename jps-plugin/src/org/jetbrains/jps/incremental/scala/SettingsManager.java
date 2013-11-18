@@ -35,9 +35,13 @@ public class SettingsManager {
     project.getContainer().setChild(PROJECT_SETTINGS_ROLE, settings);
   }
 
+  public static boolean hasScalaSdk(JpsModule module) {
+    return getLibrarySettings(module) != null;
+  }
+
   @Nullable
-  public static LibrarySettings getLibrarySettings(JpsModule library) {
-    return library.getContainer().getChild(LIBRARY_SETTINGS_ROLE);
+  public static LibrarySettings getLibrarySettings(JpsModule module) {
+    return module.getContainer().getChild(LIBRARY_SETTINGS_ROLE);
   }
 
   public static void setLibrarySettings(JpsModule module, LibrarySettings settings) {
