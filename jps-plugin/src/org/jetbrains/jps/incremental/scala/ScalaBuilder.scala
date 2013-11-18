@@ -98,10 +98,10 @@ class ScalaBuilder extends ModuleLevelBuilder(BuilderCategory.TRANSLATOR) {
     ScalaBuilder.sbtData.flatMap { sbtData =>
       CompilerData.from(context, chunk).flatMap { compilerData =>
         CompilationData.from(sources, context, chunk).map { compilationData =>
-          val hasScalaFacet = modules.exists(SettingsManager.getFacetSettings(_) != null)
+          val hasScalaSdk = modules.exists(SettingsManager.hasScalaSdk)
           val hasScalaLibrary = compilationData.classpath.exists(_.getName.startsWith("scala-library"))
 
-          if (hasScalaFacet && !hasScalaLibrary) {
+          if (hasScalaSdk && !hasScalaLibrary) {
             val names = modules.map(_.getName).mkString(", ")
             client.warning("No 'scala-library*.jar' in module dependencies [%s]".format(names))
           }
