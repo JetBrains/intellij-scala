@@ -2,8 +2,6 @@ package org.jetbrains.jps.incremental.scala
 
 import java.io.File
 import java.net.InetAddress
-import java.util
-import com.intellij.openapi.util.Key
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.util.PathUtil
 import com.intellij.util.Processor
@@ -12,15 +10,13 @@ import org.jetbrains.jps.builders.{FileProcessor, BuildRootDescriptor, BuildTarg
 import org.jetbrains.jps.builders.java.{JavaBuilderUtil, JavaSourceRootDescriptor}
 import org.jetbrains.jps.builders.impl.TargetOutputIndexImpl
 import org.jetbrains.jps.incremental._
-import messages.BuildMessage.Kind
-import messages.{FileDeletedEvent, CompilerMessage, ProgressMessage}
+import messages.ProgressMessage
 import org.jetbrains.jps.incremental.scala.data.CompilationData
 import org.jetbrains.jps.incremental.scala.data.CompilerData
 import org.jetbrains.jps.incremental.scala.data.SbtData
 import collection.JavaConverters._
-import _root_.scala.util.control.Exception._
 import org.jetbrains.jps.incremental.ModuleLevelBuilder.{OutputConsumer, ExitCode}
-import local.LocalServer
+import org.jetbrains.jps.incremental.scala.local.{IdeClientSbt, LocalServer}
 import remote.RemoteServer
 import com.intellij.openapi.diagnostic.{Logger => JpsLogger}
 
@@ -91,7 +87,7 @@ class ScalaBuilder extends ModuleLevelBuilder(BuilderCategory.TRANSLATOR) {
 
     val modules = chunk.getModules.asScala
 
-    val client = new IdeClient("scala", context, modules.map(_.getName).toSeq, outputConsumer, filesToCompile.get)
+    val client = new IdeClientSbt("scala", context, modules.map(_.getName).toSeq, outputConsumer, filesToCompile.get)
 
     client.progress("Reading compilation settings...")
 
@@ -159,7 +155,7 @@ object ScalaBuilder {
 
   private lazy val sbtData = {
     val classLoader = getClass.getClassLoader
-    val pluginRoot = (new File(PathUtil.getJarPathForClass(getClass))).getParentFile
+    val pluginRoot = new File(PathUtil.getJarPathForClass(getClass)).getParentFile
     val systemRoot = Utils.getSystemRoot
     val javaClassVersion = System.getProperty("java.class.version")
 
@@ -215,106 +211,5 @@ object ScalaBuilder {
     }
 
     dependencies.filter(_.isInstanceOf[ModuleBuildTarget]).map(_.asInstanceOf[ModuleBuildTarget]).toSeq
-  }
-}
-
-private class IdeClient(compilerName: String,
-                        context: CompileContext,
-                        modules: Seq[String],
-                        consumer: OutputConsumer,
-                        sourceToTarget: File => Option[BuildTarget[_ <: BuildRootDescriptor]]) extends Client {
-
-  private var hasErrors = false
-
-  def message(kind: Kind, text: String, source: Option[File], line: Option[Long], column: Option[Long]) {
-    if (kind == Kind.ERROR) {
-      hasErrors = true
-    }
-
-    val name = if (source.isEmpty) compilerName else ""
-
-    val sourcePath = source.map(file => file.getPath)
-
-    context.processMessage(new CompilerMessage(name, kind, text, sourcePath.orNull,
-      -1L, -1L, -1L, line.getOrElse(-1L), column.getOrElse(-1L)))
-  }
-
-  def trace(exception: Throwable) {
-    context.processMessage(new CompilerMessage(compilerName, exception))
-  }
-
-  def progress(text: String, done: Option[Float]) {
-    val formattedText = if (text.isEmpty) "" else {
-      val decapitalizedText = text.charAt(0).toLower.toString + text.substring(1)
-      "%s: %s [%s]".format(compilerName, decapitalizedText, modules.mkString(", "))
-    }
-    context.processMessage(new ProgressMessage(formattedText, done.getOrElse(-1.0F)))
-  }
-
-  def debug(text: String) {
-    ScalaBuilder.Log.info(text)
-  }
-
-  def generated(source: File, module: File, name: String) {
-    invalidateBoundForms(source)
-    val target = sourceToTarget(source).getOrElse {
-      throw new RuntimeException("Unknown source file: " + source)
-    }
-    val compiledClass = new LazyCompiledClass(module, source, name)
-    consumer.registerCompiledClass(target, compiledClass)
-  }
-
-  // TODO Expect JPS compiler in UI-designer to take generated class events into account
-  private val FormsToCompileKey = catching(classOf[ClassNotFoundException], classOf[NoSuchFieldException]).opt {
-    val field = Class.forName("org.jetbrains.jps.uiDesigner.compiler.FormsBuilder").getDeclaredField("FORMS_TO_COMPILE")
-    field.setAccessible(true)
-    field.get(null).asInstanceOf[Key[util.Map[File, util.Collection[File]]]]
-  }
-
-  private def invalidateBoundForms(source: File) {
-    FormsToCompileKey.foreach { key =>
-      val boundForms: Option[Iterable[File]] = {
-        val sourceToForm = context.getProjectDescriptor.dataManager.getSourceToFormMap
-        val sourcePath = FileUtil.toCanonicalPath(source.getPath)
-        Option(sourceToForm.getState(sourcePath)).map(_.asScala.map(new File(_)))
-      }
-
-      boundForms.foreach { forms =>
-        val formsToCompile = Option(key.get(context)).getOrElse(new util.HashMap[File, util.Collection[File]]())
-        formsToCompile.put(source, forms.toVector.asJava)
-        key.set(context, formsToCompile)
-      }
-    }
-  }
-
-  def deleted(module: File) {
-    val paths = util.Collections.singletonList(FileUtil.toCanonicalPath(module.getPath))
-    context.processMessage(new FileDeletedEvent(paths))
-  }
-
-  def isCanceled = context.getCancelStatus.isCanceled
-
-  def hasReportedErrors: Boolean = hasErrors
-}
-
-// TODO expect future JPS API to load the generated file content lazily (on demand)
-private class LazyCompiledClass(outputFile: File, sourceFile: File, className: String)
-        extends CompiledClass(outputFile, sourceFile, className, new BinaryContent(Array.empty)){
-
-  private var loadedContent: Option[BinaryContent] = None
-  private var contentIsSet = false
-
-  override def getContent = {
-    if (contentIsSet) super.getContent else loadedContent.getOrElse {
-      val content = new BinaryContent(FileUtil.loadFileBytes(outputFile))
-      loadedContent = Some(content)
-      content
-    }
-  }
-
-  override def setContent(content: BinaryContent) {
-    super.setContent(content)
-    loadedContent = None
-    contentIsSet = true
   }
 }

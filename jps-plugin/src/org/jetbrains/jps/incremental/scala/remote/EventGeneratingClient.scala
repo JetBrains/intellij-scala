@@ -38,4 +38,8 @@ class EventGeneratingClient(listener: Event => Unit, canceled: => Boolean) exten
   }
 
   def isCanceled = canceled
+
+  def processed(source: File) {
+    listener(SourceProcessedEvent(source))
+  }
 }
