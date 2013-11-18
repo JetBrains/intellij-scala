@@ -14,6 +14,9 @@ import sbt.inc.{IncOptions, Analysis, AnalysisStore, Locate}
  */
 class SbtCompiler(javac: JavaCompiler, scalac: Option[AnalyzingCompiler], fileToStore: File => AnalysisStore) extends AbstractCompiler {
   def compile(compilationData: CompilationData, client: Client) {
+
+    client.progress("Searching for changed files...")
+
     val compileSetup = {
       val output = CompileOutput(compilationData.output)
       val options = new CompileOptions(compilationData.scalaOptions, compilationData.javaOptions)

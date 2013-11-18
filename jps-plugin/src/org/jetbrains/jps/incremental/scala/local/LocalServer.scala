@@ -23,7 +23,6 @@ class LocalServer extends Server {
     }
 
     if (!client.isCanceled) {
-      client.progress("Searching for changed files...")
       compiler.compile(compilationData, client)
     }
 
