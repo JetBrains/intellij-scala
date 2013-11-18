@@ -115,7 +115,9 @@ class ScalaBuilder extends ModuleLevelBuilder(BuilderCategory.TRANSLATOR) {
             ScalaBuilder.localServer
           }
 
-          server.compile(sbtData, compilerData, compilationData, client)
+          val incrementalType = SettingsManager.getProjectSettings.incrementalType
+
+          server.compile(sbtData, compilerData, compilationData, incrementalType, client)
         }
       }
     } match {

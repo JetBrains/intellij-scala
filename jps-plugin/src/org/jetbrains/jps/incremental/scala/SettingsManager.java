@@ -4,7 +4,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.jps.incremental.scala.model.*;
 import org.jetbrains.jps.model.JpsGlobal;
-import org.jetbrains.jps.model.JpsProject;
 import org.jetbrains.jps.model.ex.JpsElementChildRoleBase;
 import org.jetbrains.jps.model.module.JpsModule;
 
@@ -31,5 +30,9 @@ public class SettingsManager {
 
   public static void setFacetSettings(@NotNull JpsModule project, FacetSettings module) {
     project.getContainer().setChild(FACET_SETTINGS_ROLE, module);
+  }
+
+  public static ProjectSettings getProjectSettings() {
+    return new ProjectSetingsImpl(); //todo use real settings
   }
 }

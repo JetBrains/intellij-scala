@@ -9,14 +9,15 @@ import org.jetbrains.jps.incremental.messages.BuildMessage.Kind
 import org.jetbrains.jps.incremental.ModuleLevelBuilder.ExitCode
 import com.intellij.util.Base64Converter
 import RemoteServer._
+import org.jetbrains.jps.incremental.scala.model.IncrementalType
 
 /**
  * @author Pavel Fatin
  */
 class RemoteServer(address: InetAddress, port: Int) extends Server {
-  def compile(sbtData: SbtData, compilerData: CompilerData, compilationData: CompilationData, client: Client): ExitCode = {
+  def compile(sbtData: SbtData, compilerData: CompilerData, compilationData: CompilationData, incrType: IncrementalType, client: Client): ExitCode = {
     val arguments = {
-      val strings = Arguments(sbtData, compilerData, compilationData).asStrings
+      val strings = Arguments(sbtData, compilerData, compilationData, incrType).asStrings
       strings.map(s => Base64Converter.encode(s.getBytes("UTF-8")))
     }
 
