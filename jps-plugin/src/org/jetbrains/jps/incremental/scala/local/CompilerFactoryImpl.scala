@@ -32,7 +32,7 @@ class CompilerFactoryImpl(sbtData: SbtData) extends CompilerFactory {
       AggressiveCompile.directOrFork(scala, classpathOptions, compilerData.javaHome)
     }
 
-    new CompilerImpl(javac, scalac, fileToStore)
+    new SbtCompiler(javac, scalac, fileToStore)
   }
 }
 
