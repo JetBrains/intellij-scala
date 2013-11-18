@@ -36,6 +36,8 @@ trait Client {
 
   def generated(source: File, module: File, name: String)
 
+  def processed(source: File)
+
   def deleted(module: File)
 
   def isCanceled: Boolean
