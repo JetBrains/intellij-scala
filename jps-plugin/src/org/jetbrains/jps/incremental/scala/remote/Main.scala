@@ -28,7 +28,7 @@ object Main {
         val strings = args.map(arg => new String(Base64Converter.decode(arg.getBytes), "UTF-8"))
         Arguments.from(strings)
       }
-      Server.compile(arguments.sbtData, arguments.compilerData, arguments.compilationData, client)
+      Server.compile(arguments.sbtData, arguments.compilerData, arguments.compilationData, arguments.incrementalType, client)
     } catch {
       case e: Throwable => client.trace(e)
     }

@@ -2,7 +2,7 @@ package org.jetbrains.jps.incremental.scala
 package remote
 
 import data._
-import model.Order
+import org.jetbrains.jps.incremental.scala.model.{IncrementalType, Order}
 import java.io.File
 import Arguments._
 import com.intellij.openapi.util.io.FileUtil
@@ -10,7 +10,7 @@ import com.intellij.openapi.util.io.FileUtil
 /**
  * @author Pavel Fatin
  */
-case class Arguments(sbtData: SbtData, compilerData: CompilerData, compilationData: CompilationData) {
+case class Arguments(sbtData: SbtData, compilerData: CompilerData, compilationData: CompilationData, incrementalType: IncrementalType) {
   def asStrings: Seq[String] = {
     val (outputs, caches) = compilationData.outputToCacheMap.toSeq.unzip
 
@@ -33,7 +33,8 @@ case class Arguments(sbtData: SbtData, compilerData: CompilerData, compilationDa
       compilationData.order.toString,
       fileToPath(compilationData.cacheFile),
       filesToPaths(outputs),
-      filesToPaths(caches)
+      filesToPaths(caches),
+      incrementalType.name
     )
   }
 }
@@ -57,7 +58,8 @@ object Arguments {
     order,
     PathToFile(cacheFile),
     PathsToFiles(outputs),
-    PathsToFiles(caches)) =>
+    PathsToFiles(caches),
+    incrementalTypeName) =>
 
       val sbtData = SbtData(interfaceJar, sourceJar, interfacesHome, javaClassVersion)
 
@@ -76,7 +78,9 @@ object Arguments {
 
       val compilationData = CompilationData(sources, classpath, output, scalaOptions, javaOptions, Order.valueOf(order), cacheFile, outputToCacheMap)
 
-      Arguments(sbtData, compilerData, compilationData)
+      val incrementalType = IncrementalType.valueOf(incrementalTypeName)
+
+      Arguments(sbtData, compilerData, compilationData, incrementalType)
   }
 
   private def fileToPath(file: File): String = FileUtil.toCanonicalPath(file.getPath)
