@@ -4,13 +4,12 @@ import data.{CompilationData, CompilerData, SbtData}
 import org.jetbrains.jps.incremental.messages.BuildMessage.Kind
 import org.jetbrains.jps.incremental.ModuleLevelBuilder.ExitCode
 import java.io.File
-import org.jetbrains.jps.incremental.scala.model.IncrementalType
 
 /**
  * @author Pavel Fatin
  */
 trait Server {
-  def compile(sbtData: SbtData, compilerData: CompilerData, compilationData: CompilationData, incrType: IncrementalType, client: Client): ExitCode
+  def compile(sbtData: SbtData, compilerData: CompilerData, compilationData: CompilationData, client: Client): ExitCode
 }
 
 trait Client {
