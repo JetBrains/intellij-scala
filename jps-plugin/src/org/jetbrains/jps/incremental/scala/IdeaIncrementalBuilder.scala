@@ -1,3 +1,4 @@
+package org.jetbrains.jps.incremental.scala
 
 import java.io.File
 import scala.collection.mutable
@@ -9,7 +10,6 @@ import org.jetbrains.jps.incremental.messages.ProgressMessage
 import org.jetbrains.jps.incremental.ModuleLevelBuilder.{ExitCode, OutputConsumer}
 import org.jetbrains.jps.incremental.scala.local.IdeClientIdea
 import org.jetbrains.jps.incremental.scala.model.Order
-import org.jetbrains.jps.incremental.scala.{ScalaBuilder, ChunkExclusionService, SettingsManager}
 import org.jetbrains.jps.incremental._
 import org.jetbrains.jps.ModuleChunk
 
@@ -17,7 +17,7 @@ import org.jetbrains.jps.ModuleChunk
  * Nikolay.Tropin
  * 11/19/13
  */
-class IdeaIncrementalBuilder(builderCategory: BuilderCategory) extends ScalaBuilder(builderCategory) {
+object IdeaIncrementalBuilder extends ScalaBuilderDelegate {
   def getPresentableName: String = "Scala IDEA builder"
 
   def build(context: CompileContext,
