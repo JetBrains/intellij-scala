@@ -12,7 +12,7 @@ import xsbti.api.SourceAPI
  * Nikolay.Tropin
  * 11/18/13
  */
-class IdeaCompiler(scalac: AnalyzingCompiler) extends AbstractCompiler {
+class IdeaIncrementalCompiler(scalac: AnalyzingCompiler) extends AbstractCompiler {
   def compile(compilationData: CompilationData, client: Client): Unit = {
     val progress = getProgress(client)
     val reporter = getReporter(client)

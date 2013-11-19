@@ -29,7 +29,7 @@ class LocalServer extends Server {
   }
 
   private def compilerFactoryFrom(sbtData: SbtData): CompilerFactory = cachedCompilerFactory.getOrElse {
-    val factory = new CachingFactory(new CompilerFactoryImpl(sbtData), 5, 5)
+    val factory = new CachingFactory(new CompilerFactoryImpl(sbtData), 5, 5, 5)
     cachedCompilerFactory = Some(factory)
     factory
   }
