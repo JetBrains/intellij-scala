@@ -34,8 +34,6 @@ class ScalaNameSuggestionProvider extends NameSuggestionProvider {
       case _ => Array[String]()
     }
     for (name <- array) result.add(name)
-    new SuggestedNameInfo(array) {
-      override def nameChoosen(name: String): Unit = {}
-    }
+    new SuggestedNameInfo(array) {}
   }
 }
