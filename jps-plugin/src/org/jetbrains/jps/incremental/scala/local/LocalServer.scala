@@ -37,8 +37,7 @@ class LocalServer extends Server {
 
 object LocalServer {
   private def createAnalysisStore(cacheFile: File): AnalysisStore = {
-    import sbinary.DefaultProtocol.StringFormat
-    //need for implicits
+    import sbinary.DefaultProtocol.{immutableMapFormat, immutableSetFormat, StringFormat, tuple2Format} //need for implicits
     import sbt.inc.AnalysisFormats._
     val store = FileBasedStore(cacheFile)(AnalysisFormats.analysisFormat, AnalysisFormats.setupFormat)
     AnalysisStore.sync(AnalysisStore.cached(store))
