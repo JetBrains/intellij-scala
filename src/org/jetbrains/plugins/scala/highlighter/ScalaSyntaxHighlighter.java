@@ -253,7 +253,7 @@ public class ScalaSyntaxHighlighter extends SyntaxHighlighterBase {
     SyntaxHighlighterBase.fillMap(ATTRIBUTES, tOPS, DefaultHighlighter.ASSIGN);
     SyntaxHighlighterBase.fillMap(ATTRIBUTES, tXML_TAGS, DefaultHighlighter.ASSIGN);
     SyntaxHighlighterBase.fillMap(ATTRIBUTES, tCOMMENT_TAGS, DefaultHighlighter.SCALA_DOC_TAG);
-    SyntaxHighlighterBase.fillMap(ATTRIBUTES, TokenSet.orSet(ScalaDocTokenType.ALL_SCALADOC_TOKENS.minus(tCOMMENT_TAGS),
+    SyntaxHighlighterBase.fillMap(ATTRIBUTES, TokenSet.orSet(TokenSet.andNot(ScalaDocTokenType.ALL_SCALADOC_TOKENS, tCOMMENT_TAGS),
         TokenSet.create(ScalaDocTokenType.DOC_COMMENT_BAD_CHARACTER,
         ScalaDocTokenType.DOC_HTML_ESCAPE_HIGHLIGHTED_ELEMENT)), DefaultHighlighter.DOC_COMMENT);
     SyntaxHighlighterBase.fillMap(ATTRIBUTES, tSCALADOC_HTML_TAGS, DefaultHighlighter.SCALA_DOC_HTML_TAG);
@@ -389,7 +389,7 @@ public class ScalaSyntaxHighlighter extends SyntaxHighlighterBase {
   }
 
   private static class ScalaDocLexerHighlightingWrapper extends ScalaDocLexer {
-    private static TokenSet SYNTAX_TO_SWAP = tSCALADOC_WIKI_SYNTAX.minus(TokenSet.create(ScalaDocTokenType.DOC_LINK_TAG,
+    private static TokenSet SYNTAX_TO_SWAP = TokenSet.andNot(tSCALADOC_WIKI_SYNTAX, TokenSet.create(ScalaDocTokenType.DOC_LINK_TAG,
         ScalaDocTokenType.DOC_LINK_CLOSE_TAG, ScalaDocTokenType.DOC_HTTP_LINK_TAG, ScalaDocTokenType.DOC_INNER_CODE_TAG,
         ScalaDocTokenType.DOC_INNER_CLOSE_CODE_TAG));
 
