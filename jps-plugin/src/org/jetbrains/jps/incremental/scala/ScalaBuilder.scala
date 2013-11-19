@@ -1,5 +1,6 @@
 package org.jetbrains.jps.incremental.scala
 
+import _root_.java.util
 import java.io.File
 import java.net.InetAddress
 import com.intellij.openapi.util.io.FileUtil
@@ -19,6 +20,7 @@ import org.jetbrains.jps.incremental.ModuleLevelBuilder.{OutputConsumer, ExitCod
 import org.jetbrains.jps.incremental.scala.local.{IdeClientSbt, LocalServer}
 import remote.RemoteServer
 import com.intellij.openapi.diagnostic.{Logger => JpsLogger}
+import org.jetbrains.jps.model.module.JpsModule
 
 /**
  * @author Pavel Fatin
@@ -37,7 +39,7 @@ class ScalaBuilder extends ModuleLevelBuilder(BuilderCategory.TRANSLATOR) {
     val targetTimestamp = timestamps.get(representativeTarget)
 
     val hasDirtyDependencies = {
-      val dependencies = ScalaBuilder.moduleDependenciesIn(context, representativeTarget)
+      val dependencies = moduleDependenciesIn(context, representativeTarget)
 
       targetTimestamp.map { thisTimestamp =>
         dependencies.exists { dependency =>
@@ -50,7 +52,7 @@ class ScalaBuilder extends ModuleLevelBuilder(BuilderCategory.TRANSLATOR) {
     }
 
     if (!hasDirtyDependencies &&
-            !ScalaBuilder.hasDirtyFiles(dirtyFilesHolder) &&
+            !hasDirtyFiles(dirtyFilesHolder) &&
             !dirtyFilesHolder.hasRemovedFiles) {
 
       if (targetTimestamp.isEmpty) {
@@ -74,7 +76,7 @@ class ScalaBuilder extends ModuleLevelBuilder(BuilderCategory.TRANSLATOR) {
     }
 
     context.processMessage(new ProgressMessage("Searching for compilable files..."))
-    val filesToCompile = ScalaBuilder.collectCompilableFiles(context, chunk)
+    val filesToCompile = collectCompilableFiles(context, chunk)
 
     if (filesToCompile.isEmpty) {
       return ExitCode.NOTHING_DONE
@@ -85,36 +87,14 @@ class ScalaBuilder extends ModuleLevelBuilder(BuilderCategory.TRANSLATOR) {
 
     val sources = filesToCompile.keySet.toSeq
 
-    val modules = chunk.getModules.asScala
+    val modules = chunk.getModules.asScala.toSet
 
     val client = new IdeClientSbt("scala", context, modules.map(_.getName).toSeq, outputConsumer, filesToCompile.get)
 
     client.progress("Reading compilation settings...")
 
-    ScalaBuilder.sbtData.flatMap { sbtData =>
-      CompilerData.from(context, chunk).flatMap { compilerData =>
-        CompilationData.from(sources, context, chunk).map { compilationData =>
-          val hasScalaFacet = modules.exists(SettingsManager.getFacetSettings(_) != null)
-          val hasScalaLibrary = compilationData.classpath.exists(_.getName.startsWith("scala-library"))
+    compile(context, chunk, sources, modules, client) match {
 
-          if (hasScalaFacet && !hasScalaLibrary) {
-            val names = modules.map(_.getName).mkString(", ")
-            client.warning("No 'scala-library*.jar' in module dependencies [%s]".format(names))
-          }
-
-          val settings = SettingsManager.getGlobalSettings(context.getProjectDescriptor.getModel.getGlobal)
-
-          val server = if (settings.isCompileServerEnabled && JavaBuilderUtil.CONSTANT_SEARCH_SERVICE.get(context) != null) {
-            ScalaBuilder.cleanLocalServerCache()
-            new RemoteServer(InetAddress.getByName(null), settings.getCompileServerPort)
-          } else {
-            ScalaBuilder.localServer
-          }
-
-          server.compile(sbtData, compilerData, compilationData, client)
-        }
-      }
-    } match {
       case Left(error) =>
         client.error(error)
         ExitCode.ABORT
@@ -127,38 +107,49 @@ class ScalaBuilder extends ModuleLevelBuilder(BuilderCategory.TRANSLATOR) {
         }
     }
   }
-}
 
-object ScalaBuilder {
-  val Log = JpsLogger.getInstance(classOf[ScalaBuilder])
 
-  // Cached local localServer
-  private var cachedServer: Option[Server] = None
+  def compile(context: CompileContext,
+              chunk: ModuleChunk,
+              sources: Seq[File],
+              modules: Set[JpsModule],
+              client: IdeClientSbt): Either[String, ModuleLevelBuilder.ExitCode] = {
+    for {
+      sbtData <-  ScalaBuilder.sbtData
+      compilerData <- CompilerData.from(context, chunk)
+      compilationData <- CompilationData.from(sources, context, chunk)
+    }
+    yield {
+      scalaLibraryWarning(modules, compilationData, client)
 
-  private val lock = new Object()
-
-  private def localServer = {
-    lock.synchronized {
-      val server = cachedServer.getOrElse(new LocalServer())
-      cachedServer = Some(server)
-      server
+      val server = getServer(context)
+      server.compile(sbtData, compilerData, compilationData, client)
     }
   }
 
-  private def cleanLocalServerCache() {
-    lock.synchronized {
-      cachedServer = None
+  def scalaLibraryWarning(modules: Set[JpsModule], compilationData: CompilationData, client: IdeClientSbt) {
+    val hasScalaFacet = modules.exists(SettingsManager.getFacetSettings(_) != null)
+    val hasScalaLibrary = compilationData.classpath.exists(_.getName.startsWith("scala-library"))
+
+    if (hasScalaFacet && !hasScalaLibrary) {
+      val names = modules.map(_.getName).mkString(", ")
+      client.warning("No 'scala-library*.jar' in module dependencies [%s]".format(names))
     }
   }
 
-  private lazy val sbtData = {
-    val classLoader = getClass.getClassLoader
-    val pluginRoot = new File(PathUtil.getJarPathForClass(getClass)).getParentFile
-    val systemRoot = Utils.getSystemRoot
-    val javaClassVersion = System.getProperty("java.class.version")
+  def getServer(context: CompileContext): Server = {
+    val settings = SettingsManager.getGlobalSettings(context.getProjectDescriptor.getModel.getGlobal)
 
-    SbtData.from(classLoader, pluginRoot, systemRoot, javaClassVersion)
+    if (settings.isCompileServerEnabled && JavaBuilderUtil.CONSTANT_SEARCH_SERVICE.get(context) != null) {
+      ScalaBuilder.cleanLocalServerCache()
+      new RemoteServer(InetAddress.getByName(null), settings.getCompileServerPort)
+    } else {
+      ScalaBuilder.localServer
+    }
   }
+
+  //we need to override this method by the contract
+  override def getCompilableFileExtensions: util.List[String] = List("scala").asJava
 
   private def hasDirtyFiles(dirtyFilesHolder: DirtyFilesHolder[JavaSourceRootDescriptor, ModuleBuildTarget]): Boolean = {
     var result = false
@@ -209,5 +200,37 @@ object ScalaBuilder {
     }
 
     dependencies.filter(_.isInstanceOf[ModuleBuildTarget]).map(_.asInstanceOf[ModuleBuildTarget]).toSeq
+  }
+}
+
+object ScalaBuilder {
+  val Log = JpsLogger.getInstance(classOf[ScalaBuilder])
+
+  // Cached local localServer
+  private var cachedServer: Option[Server] = None
+
+  private val lock = new Object()
+
+  private def localServer = {
+    lock.synchronized {
+      val server = cachedServer.getOrElse(new LocalServer())
+      cachedServer = Some(server)
+      server
+    }
+  }
+
+  private def cleanLocalServerCache() {
+    lock.synchronized {
+      cachedServer = None
+    }
+  }
+
+  private lazy val sbtData = {
+    val classLoader = getClass.getClassLoader
+    val pluginRoot = new File(PathUtil.getJarPathForClass(getClass)).getParentFile
+    val systemRoot = Utils.getSystemRoot
+    val javaClassVersion = System.getProperty("java.class.version")
+
+    SbtData.from(classLoader, pluginRoot, systemRoot, javaClassVersion)
   }
 }
