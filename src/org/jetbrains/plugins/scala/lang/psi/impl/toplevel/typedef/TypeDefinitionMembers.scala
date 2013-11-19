@@ -602,10 +602,10 @@ object TypeDefinitionMembers {
 
     if (BaseProcessor.isImplicitProcessor(processor) && !clazz.isInstanceOf[ScTemplateDefinition]) return true
 
-    if (!privateProcessDeclarations(processor, state, lastParent, place, getSignatures(clazz),
-      getParameterlessSignatures(clazz), getTypes(clazz), isSupers = false,
-      isObject = clazz.isInstanceOf[ScObject], signaturesForJava = signaturesForJava,
-      syntheticMethods = syntheticMethods)) return false
+    if (!privateProcessDeclarations(processor, state, lastParent, place, () => getSignatures(clazz),
+      () => getParameterlessSignatures(clazz), () => getTypes(clazz), isSupers = false,
+      isObject = clazz.isInstanceOf[ScObject], signaturesForJavaFun = () => signaturesForJava,
+      syntheticMethodsFun = () => syntheticMethods)) return false
 
     if (!(types.AnyRef.asClass(clazz.getProject).getOrElse(return true).processDeclarations(processor, state, lastParent, place) &&
             types.Any.asClass(clazz.getProject).getOrElse(return true).processDeclarations(processor, state, lastParent, place))) return false
@@ -632,8 +632,8 @@ object TypeDefinitionMembers {
                                state: ResolveState,
                                lastParent: PsiElement,
                                place: PsiElement): Boolean = {
-    if (!privateProcessDeclarations(processor, state, lastParent, place, getSignatures(td),
-      getParameterlessSignatures(td), getTypes(td), isSupers = true, isObject = td.isInstanceOf[ScObject])) return false
+    if (!privateProcessDeclarations(processor, state, lastParent, place, () => getSignatures(td),
+      () => getParameterlessSignatures(td), () => getTypes(td), isSupers = true, isObject = td.isInstanceOf[ScObject])) return false
 
     if (!(types.AnyRef.asClass(td.getProject).getOrElse(return true).
       processDeclarations(processor, state, lastParent, place) &&
@@ -649,8 +649,8 @@ object TypeDefinitionMembers {
                           place: PsiElement): Boolean = {
     val compoundTypeThisType = Option(state.get(BaseProcessor.COMPOUND_TYPE_THIS_TYPE_KEY)).getOrElse(None)
     if (!privateProcessDeclarations(processor, state, lastParent, place,
-      getSignatures(comp, compoundTypeThisType, place), getParameterlessSignatures(comp, compoundTypeThisType, place),
-      getTypes(comp, compoundTypeThisType, place), isSupers = false, isObject = false)) return false
+      () => getSignatures(comp, compoundTypeThisType, place), () => getParameterlessSignatures(comp, compoundTypeThisType, place),
+      () => getTypes(comp, compoundTypeThisType, place), isSupers = false, isObject = false)) return false
 
     val project =
       if (lastParent != null) lastParent.getProject
@@ -667,14 +667,56 @@ object TypeDefinitionMembers {
                                          state: ResolveState,
                                          lastParent: PsiElement,
                                          place: PsiElement,
-                                         signatures: => SignatureNodes.Map,
-                                         parameterlessSignatures: => ParameterlessNodes.Map,
-                                         types: => TypeNodes.Map,
+                                         signaturesFun: () => SignatureNodes.Map,
+                                         parameterlessSignaturesFun:  () => ParameterlessNodes.Map,
+                                         typesFun: () => TypeNodes.Map,
                                          isSupers: Boolean,
                                          isObject: Boolean,
-                                         signaturesForJava: => SignatureNodes.Map = new SignatureNodes.Map,
-                                         syntheticMethods: => Seq[(Signature, SignatureNodes.Node)] = Seq.empty
+                                         signaturesForJavaFun: () => SignatureNodes.Map = () => new SignatureNodes.Map,
+                                         syntheticMethodsFun: () => Seq[(Signature, SignatureNodes.Node)] = () => Seq.empty
                                          ): Boolean = {
+    //todo: Worst code ever start, trying to avoid NPE due to possible Scala compiler bug.
+    var _signatures: SignatureNodes.Map = null
+    def signatures: SignatureNodes.Map = {
+      if (_signatures == null) {
+        _signatures = signaturesFun()
+      }
+      _signatures
+    }
+    
+    var _parameterlessSignature: ParameterlessNodes.Map = null
+    def parameterlessSignatures: ParameterlessNodes.Map = {
+      if (_parameterlessSignature == null) {
+        _parameterlessSignature = parameterlessSignaturesFun()
+      }
+      _parameterlessSignature
+    }
+    
+    var _types: TypeNodes.Map = null
+    def types: TypeNodes.Map = {
+      if (_types == null) {
+        _types = typesFun()
+      }
+      _types
+    }
+
+    var _signaturesForJava: SignatureNodes.Map = null
+    def signaturesForJava: SignatureNodes.Map = {
+      if (_signaturesForJava == null) {
+        _signaturesForJava = signaturesForJavaFun()
+      }
+      _signaturesForJava
+    }
+
+    var _syntheticMethods: Seq[(Signature, SignatureNodes.Node)] = null
+    def syntheticMethods: Seq[(Signature, SignatureNodes.Node)] = {
+      if (_syntheticMethods == null) {
+        _syntheticMethods = syntheticMethodsFun()
+      }
+      _syntheticMethods
+    }
+    //todo: Worst ever code block ended
+    
     val substK = state.get(ScSubstitutor.key)
     val subst = if (substK == null) ScSubstitutor.empty else substK
     val nameHint = processor.getHint(NameHint.KEY)
