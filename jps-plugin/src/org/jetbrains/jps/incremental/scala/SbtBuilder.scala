@@ -17,7 +17,7 @@ import org.jetbrains.jps.incremental.scala.local.IdeClientSbt
  * @author Pavel Fatin
  */
 class SbtBuilder extends ScalaBuilder(BuilderCategory.TRANSLATOR) {
-  def getPresentableName = "Scala builder"
+  def getPresentableName = "Scala SBT builder"
 
   def build(context: CompileContext, chunk: ModuleChunk,
             dirtyFilesHolder: DirtyFilesHolder[JavaSourceRootDescriptor, ModuleBuildTarget],
