@@ -12,11 +12,14 @@ import messages.ProgressMessage
 import collection.JavaConverters._
 import org.jetbrains.jps.incremental.ModuleLevelBuilder.{OutputConsumer, ExitCode}
 import org.jetbrains.jps.incremental.scala.local.IdeClientSbt
+import org.jetbrains.jps.model.JpsProject
+import org.jetbrains.jps.incremental.scala.model.IncrementalType
+import org.jetbrains.jps.model.java.JpsJavaExtensionService
 
 /**
  * @author Pavel Fatin
  */
-class SbtBuilder extends ScalaBuilder(BuilderCategory.TRANSLATOR) {
+object SbtBuilder extends ScalaBuilderDelegate {
   def getPresentableName = "Scala SBT builder"
 
   def build(context: CompileContext, chunk: ModuleChunk,
