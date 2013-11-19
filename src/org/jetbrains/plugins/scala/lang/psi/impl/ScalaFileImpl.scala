@@ -291,11 +291,10 @@ class ScalaFileImpl(viewProvider: FileViewProvider, fileType: LanguageFileType =
     case s: ScFileStub => s
     case _ =>
       val faultyContainer: VirtualFile = PsiUtilCore.getVirtualFile(this)
-      ScalaFileImpl.LOG.error("Scala File has wrong stub file: " + faultyContainer)
       if (faultyContainer != null && faultyContainer.isValid) {
         FileBasedIndex.getInstance.requestReindex(faultyContainer)
       }
-      null
+      throw new Throwable("Scala File has wrong stub file: " + faultyContainer)
   }
 
   def getPackagings: Array[ScPackaging] = {

@@ -28,11 +28,10 @@ trait ScModifierListOwner extends ScalaPsiElement with PsiModifierListOwner {
           val array = stub.getChildrenByType(ScalaElementTypes.MODIFIERS, JavaArrayFactoryUtil.ScModifierListFactory)
           if (array.length == 0) {
             val faultyContainer: VirtualFile = PsiUtilCore.getVirtualFile(this)
-            LOG.error("Stub hasn't ScModifierList child: " + faultyContainer)
             if (faultyContainer != null && faultyContainer.isValid) {
               FileBasedIndex.getInstance.requestReindex(faultyContainer)
             }
-            return null
+            throw new Throwable("Stub hasn't ScModifierList child: " + faultyContainer)
           }
           else return array.apply(0)
         }
