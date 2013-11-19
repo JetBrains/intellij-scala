@@ -31,7 +31,7 @@ public class ScalaBuilderService extends BuilderService {
     return Collections.singletonList(new StubTargetBuilder());
   }
 
-  private static class ScalaBuilderDecorator extends ScalaBuilder {
+  private static class ScalaBuilderDecorator extends SbtBuilder {
     @Override
     public ExitCode build(CompileContext context,
                           ModuleChunk chunk,
