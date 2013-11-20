@@ -23,7 +23,7 @@ public class ScalaCompilerSettingsForm {
   private JCheckBox myContinuations;
   private JComboBox<CompileOrder> myCompileOrder;
 
-  private MyPathEditor myPluginsEditor = new MyPathEditor(new FileChooserDescriptor(true, false, true, false, false, true));
+  private MyPathEditor myPluginsEditor = new MyPathEditor(new FileChooserDescriptor(true, false, true, true, false, true));
 
   public ScalaCompilerSettingsForm() {
     myCompileOrder.setRenderer(new NamedValueRenderer());
