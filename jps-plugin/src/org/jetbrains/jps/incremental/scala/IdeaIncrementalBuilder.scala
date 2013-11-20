@@ -31,7 +31,8 @@ object IdeaIncrementalBuilder extends ScalaBuilderDelegate {
 
     context.processMessage(new ProgressMessage("Searching for compilable files..."))
     val sources = collectSources(context, chunk, dirtyFilesHolder)
-
+    if (sources.isEmpty)
+      return ExitCode.NOTHING_DONE
 
     context.processMessage(new ProgressMessage("Reading compilation settings..."))
 
