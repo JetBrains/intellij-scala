@@ -9,7 +9,7 @@ import org.jetbrains.jps.ModuleChunk
 import org.jetbrains.jps.model.java.JpsJavaSdkType
 import collection.JavaConverters._
 import org.jetbrains.jps.builders.java.JavaBuilderUtil
-import org.jetbrains.jps.util.JpsPathUtil
+import org.jetbrains.jps.incremental.scala.model.LibrarySettings
 
 /**
  * @author Pavel Fatin
@@ -55,16 +55,18 @@ object CompilerData {
   }
 
   private def compilerJarsIn(module: JpsModule): Either[String, CompilerJars] = {
-    val files = SettingsManager.getLibrarySettings(module).getCompilerClasspath.map(JpsPathUtil.urlToFile)
+    val sdk = SettingsManager.getScalaSdk(module)
+
+    val files = sdk.getProperties.asInstanceOf[LibrarySettings].getCompilerClasspath
 
     val library = find(files, "scala-library", ".jar") match {
-      case Left(error) => Left(error + " in Scala compiler library in " + module.getName)
+      case Left(error) => Left(error + " in Scala compiler classpath in Scala SDK " + sdk.getName)
       case right => right
     }
 
     library.flatMap { libraryJar =>
       val compiler = find(files, "scala-compiler", ".jar") match {
-        case Left(error) => Left(error + " in Scala compiler library in " + module.getName)
+        case Left(error) => Left(error + " in Scala compiler classpath in Scala SDK " + sdk.getName)
         case right => right
       }
 
@@ -75,7 +77,7 @@ object CompilerData {
           readProperty(compilerJar, "compiler.properties", "version.number").flatMap {
             case version if version.startsWith("2.10") => // TODO implement a better version comparison
               find(extraJars, "scala-reflect", ".jar").left.toOption
-                      .map(_ + " in Scala compiler library in " + module.getName)
+                      .map(_ + " in Scala compiler classpath in Scala SDK " + sdk.getName)
             case _ => None
           }
         }
