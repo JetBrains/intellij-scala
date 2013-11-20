@@ -14,7 +14,7 @@ public class ScalaLibraryEditorForm {
   private JComboBox<ScalaLanguageLevel> myLanguageLevel;
   private JPanel myPluginsPanel;
 
-  private MyPathEditor myClasspathEditor = new MyPathEditor(new FileChooserDescriptor(true, false, true, false, false, true));
+  private MyPathEditor myClasspathEditor = new MyPathEditor(new FileChooserDescriptor(true, false, true, true, false, true));
 
   public ScalaLibraryEditorForm() {
     myLanguageLevel.setRenderer(new NamedValueRenderer());
