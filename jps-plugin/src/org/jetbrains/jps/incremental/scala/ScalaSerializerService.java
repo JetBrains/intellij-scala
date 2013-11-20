@@ -75,7 +75,7 @@ public class ScalaSerializerService extends JpsModelSerializerExtension {
 
   private static class LibraryPropertiesSerializer extends JpsLibraryPropertiesSerializer<LibrarySettings> {
     private LibraryPropertiesSerializer() {
-      super(ScalaLibraryType.getInstance(), "scala");
+      super(ScalaLibraryType.getInstance(), "Scala");
     }
 
     @Override
