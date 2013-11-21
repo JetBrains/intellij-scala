@@ -26,6 +26,8 @@ abstract class ScalaBuilderDelegate {
                      dirtyFilesHolder: DirtyFilesHolder[JavaSourceRootDescriptor, ModuleBuildTarget],
                      outputConsumer: ModuleLevelBuilder.OutputConsumer): ExitCode
 
+  def buildStarted(context: CompileContext) = {}
+
   def compile(context: CompileContext,
               chunk: ModuleChunk,
               sources: Seq[File],
