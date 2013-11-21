@@ -13,14 +13,19 @@ import collection.JavaConverters._
 import org.jetbrains.jps.incremental.ModuleLevelBuilder.{OutputConsumer, ExitCode}
 import org.jetbrains.jps.incremental.scala.local.IdeClientSbt
 import org.jetbrains.jps.model.JpsProject
-import org.jetbrains.jps.incremental.scala.model.IncrementalType
-import org.jetbrains.jps.model.java.JpsJavaExtensionService
+import org.jetbrains.jps.incremental.java.JavaBuilder
 
 /**
  * @author Pavel Fatin
  */
 object SbtBuilder extends ScalaBuilderDelegate {
   def getPresentableName = "Scala SBT builder"
+
+  override def buildStarted(context: CompileContext) = {
+    val project: JpsProject = context.getProjectDescriptor.getProject
+    if (ScalaBuilder.isScalaProject(project))
+      JavaBuilder.IS_ENABLED.set(context, false)
+  }
 
   def build(context: CompileContext, chunk: ModuleChunk,
             dirtyFilesHolder: DirtyFilesHolder[JavaSourceRootDescriptor, ModuleBuildTarget],

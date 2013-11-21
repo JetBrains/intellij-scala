@@ -24,13 +24,18 @@ class ScalaBuilder(category: BuilderCategory, @NotNull delegate: ScalaBuilderDel
             dirtyFilesHolder: DirtyFilesHolder[JavaSourceRootDescriptor, ModuleBuildTarget],
             outputConsumer: ModuleLevelBuilder.OutputConsumer): ModuleLevelBuilder.ExitCode = {
 
-    if (shouldBeTurnedOff(context)) ExitCode.NOTHING_DONE
+    if (isDisabled(context)) ExitCode.NOTHING_DONE
     else delegate.build(context, chunk, dirtyFilesHolder, outputConsumer)
+  }
+
+  override def buildStarted(context: CompileContext) {
+    if (isDisabled(context)) {}
+    else delegate.buildStarted(context)
   }
 
   override def getCompilableFileExtensions: util.List[String] = List("scala").asJava
 
-  private def shouldBeTurnedOff(context: CompileContext): Boolean = {
+  private def isDisabled(context: CompileContext): Boolean = {
     val project: JpsProject = context.getProjectDescriptor.getProject
     if (!isScalaProject(project)) return true
 
