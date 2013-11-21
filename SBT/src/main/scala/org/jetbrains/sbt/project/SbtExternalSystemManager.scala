@@ -19,7 +19,7 @@ import com.intellij.util.Processor
  * @author Pavel Fatin
  */
 class SbtExternalSystemManager
-  extends ExternalSystemManager[SbtProjectSettings, SbtSettingsListener, SbtSettings, SbtLocalSettings, SbtExecutionSettings]
+  extends ExternalSystemManager[SbtProjectSettings, SbtSettingsListener, ScalaSbtSettings, SbtLocalSettings, SbtExecutionSettings]
   with ExternalSystemAutoImportAware{
   def enhanceLocalProcessing(urls: util.List[URL]) {
     urls.add(jarWith[scala.App].toURI.toURL)
@@ -45,7 +45,7 @@ class SbtExternalSystemManager
 
   def getSystemId = SbtProjectSystem.Id
 
-  def getSettingsProvider = SbtSettings.getInstance _
+  def getSettingsProvider = ScalaSbtSettings.getInstance _
 
   def getLocalSettingsProvider = SbtLocalSettings.getInstance _
 

@@ -35,8 +35,8 @@ class SbtProjectImportBuilder(projectDataManager: ProjectDataManager)
   def applyExtraSettings(context: WizardContext) {}
 }
 
-class SbtImportControl extends AbstractImportFromExternalSystemControl[SbtProjectSettings, SbtSettingsListener, SbtSettings](
-  SbtProjectSystem.Id, new SbtSettings(ProjectManager.getInstance.getDefaultProject), new SbtProjectSettings()) {
+class SbtImportControl extends AbstractImportFromExternalSystemControl[SbtProjectSettings, SbtSettingsListener, ScalaSbtSettings](
+  SbtProjectSystem.Id, new ScalaSbtSettings(ProjectManager.getInstance.getDefaultProject), new SbtProjectSettings()) {
 
   def getLinkedProjectChooserDescriptor = new FileChooserDescriptor(true, true, true, true, true, true)
 
@@ -54,7 +54,7 @@ class SbtImportControl extends AbstractImportFromExternalSystemControl[SbtProjec
     def fillExtraControls(content: PaintAwarePanel, indentLevel: Int) {}
   }
 
-  def createSystemSettingsControl(settings: SbtSettings) = new ExternalSystemSettingsControl[SbtSettings] {
+  def createSystemSettingsControl(settings: ScalaSbtSettings) = new ExternalSystemSettingsControl[ScalaSbtSettings] {
     def isModified = false
 
     def showUi(show: Boolean) {}
@@ -63,10 +63,10 @@ class SbtImportControl extends AbstractImportFromExternalSystemControl[SbtProjec
 
     def disposeUIResources() {}
 
-    def apply(settings: SbtSettings) = null
+    def apply(settings: ScalaSbtSettings) = null
 
     def reset() {}
 
-    def validate(settings: SbtSettings): Boolean = true
+    def validate(settings: ScalaSbtSettings): Boolean = true
   }
 }
