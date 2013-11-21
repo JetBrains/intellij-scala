@@ -41,6 +41,7 @@ class PluginRunner(vmOptions: Seq[String], customLauncher: Option[File]) {
     usingTempFile("sbt-structure", ".xml") { structureFile =>
       usingTempFile("sbt-commands", ".lst") { commandsFile =>
         usingTempDirectory("sbt-global-plugins", null) { globalPluginsDirectory =>
+        usingTempDirectory("sbt-global-settings", null) { globalSettingsDirectory =>
 //          val commandName = if (download) "read-project-and-repository" else "read-project"
           val commandName = "read-project-and-repository" //todo: enable presentation mode, when it will be fixed
 
@@ -60,6 +61,7 @@ class PluginRunner(vmOptions: Seq[String], customLauncher: Option[File]) {
                     "-Djline.terminal=jline.UnsupportedTerminal" +:
                     "-Dsbt.log.noformat=true" +:
                     s"-Dsbt.global.plugins=${globalPluginsDirectory.getCanonicalPath}" +:
+                    s"-Dsbt.global.settings=${globalSettingsDirectory.getCanonicalPath}" +:
                     vmOptions :+
                     "-jar" :+
                     path(SbtLauncher) :+
@@ -72,7 +74,7 @@ class PluginRunner(vmOptions: Seq[String], customLauncher: Option[File]) {
           } catch {
             case e: Exception => Left(e)
           }
-        }
+        }}
       }
     }
   }
