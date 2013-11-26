@@ -28,7 +28,7 @@ extends StubBaseWrapper[ScImportSelector](parent, elemType) with ScImportSelecto
 
   def this(parent : StubElement[ParentPsi],
           elemType : IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement], refText: String,
-          importedName: String, isAliasImport: Boolean) {
+          importedName: String, isAliasedImport: Boolean) {
     this (parent, elemType.asInstanceOf[IStubElementType[StubElement[PsiElement], PsiElement]])
     this.referenceText = StringRef.fromString(refText)
     this.name = StringRef.fromString(importedName)
