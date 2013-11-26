@@ -1,14 +1,14 @@
 package org.jetbrains.sbt
 package project
 
-import com.intellij.openapi.externalSystem.{ExternalSystemConfigurableAware, ExternalSystemAutoImportAware, ExternalSystemManager}
+import com.intellij.openapi.externalSystem.{ExternalSystemAutoImportAware, ExternalSystemManager}
 import com.intellij.openapi.project.Project
 import com.intellij.execution.configurations.SimpleJavaParameters
 import settings._
 import com.intellij.openapi.externalSystem.util._
 import com.intellij.openapi.externalSystem.service.project.autoimport.CachingExternalSystemAutoImportAware
 import com.intellij.util.net.HttpConfigurable
-import org.jetbrains.sbt.settings.{SbtExternalSystemConfigurable, SbtApplicationSettings}
+import org.jetbrains.sbt.settings.SbtApplicationSettings
 import java.util
 import java.net.URL
 import com.intellij.openapi.startup.StartupActivity
@@ -20,7 +20,6 @@ import com.intellij.openapi.externalSystem.model.project.ProjectData
 import com.intellij.openapi.externalSystem.service.execution.ProgressExecutionMode
 import com.intellij.openapi.roots.ex.ProjectRootManagerEx
 import java.util.Collections
-import com.intellij.openapi.options.Configurable
 
 /**
  * @author Pavel Fatin
