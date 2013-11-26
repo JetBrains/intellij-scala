@@ -23,7 +23,7 @@ class IdeaIncrementalCompiler(scalac: AnalyzingCompiler) extends AbstractCompile
 
     val out = CompileOutput(output)
     val cArgs = new CompilerArguments(scalac.scalaInstance, scalac.cp)
-    val options = cArgs(Nil, classpath, None, scalaOptions)
+    val options = "IntellijIdea.simpleAnalysis" +: cArgs(Nil, classpath, None, scalaOptions)
 
     scalac.compile(sources, emptyChanges, options, out, clientCallback, reporter, CompilerCache.fresh, logger, Option(progress))
   }
