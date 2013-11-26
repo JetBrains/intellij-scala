@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+<idea-plugin version="2">
+
+    <application-components>
+        <component>
+            <implementation-class>org.jetbrains.sbt.settings.SbtApplicationSettings</implementation-class>
+        </component>
+    </application-components>
+
+    <project-components>
+        <component>
+            <implementation-class>org.jetbrains.sbt.language.SbtProjectComponent</implementation-class>
+        </component>
+    </project-components>
+
+    <extensionPoints>
+        <extensionPoint name="sbtOptionsProvider" interface="org.jetbrains.sbt.project.SbtOptionsProvider"/>
+    </extensionPoints>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <fileTypeFactory implementation="org.jetbrains.sbt.language.SbtFileTypeFactory"/>
+        <annotator language="Scala" implementationClass="org.jetbrains.sbt.language.SbtAnnotator" />
+
+        <externalSystemManager implementation="org.jetbrains.sbt.project.SbtExternalSystemManager"/>
+        <externalProjectDataService implementation="org.jetbrains.sbt.project.SbtFacetDataService"/>
+        <externalProjectDataService implementation="org.jetbrains.sbt.project.SbtProjectDataService"/>
+
+        <projectService serviceImplementation="org.jetbrains.sbt.project.settings.ScalaSbtSettings"/>
+        <projectService serviceImplementation="org.jetbrains.sbt.project.settings.SbtLocalSettings"/>
+        <!--<projectService serviceImplementation="org.jetbrains.sbt.settings.SbtProjectSettings"/>-->
+
+        <projectImportProvider implementation="org.jetbrains.sbt.project.SbtProjectImportProvider"/>
+        <projectImportBuilder implementation="org.jetbrains.sbt.project.SbtProjectImportBuilder"/>
+
+        <projectOpenProcessor implementation="org.jetbrains.sbt.project.SbtProjectOpenProcessor"/>
+
+        <moduleType id="SBT_MODULE" implementationClass="org.jetbrains.sbt.project.SbtModuleType"/>
+
+        <applicationConfigurable instance="org.jetbrains.sbt.settings.SbtConfigurable"/>
+        
+        <!--<projectConfigurable instance="org.jetbrains.sbt.settings.SbtExternalSystemConfigurable"/>-->
+        
+        <moduleConfigurationEditorProvider
+                implementation="org.jetbrains.sbt.settings.moduleConfig.SbtModuleEditorProvider"/>
+
+        <toolWindow id="SBT" anchor="right" icon="/sbt.png"
+                    factoryClass="org.jetbrains.sbt.project.ScalaToolWindowFactory"
+                    conditionClass="org.jetbrains.sbt.project.ScalaToolWindowFactoryCondition"/>
+    </extensions>
+
+    <extensions defaultExtensionNs="org.intellij.scala">
+        <scalaFileFactory implementation="org.jetbrains.sbt.language.SbtFileFactory" />
+    </extensions>
+
+</idea-plugin>

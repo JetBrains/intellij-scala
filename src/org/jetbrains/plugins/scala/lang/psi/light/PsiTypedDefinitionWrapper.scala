@@ -65,6 +65,8 @@ class PsiTypedDefinitionWrapper(val typedDefinition: ScTypedDefinition, isStatic
   override def getPrevSibling: PsiElement = typedDefinition.getPrevSibling
 
   override def getNextSibling: PsiElement = typedDefinition.getNextSibling
+
+  override def getNameIdentifier: PsiIdentifier = typedDefinition.getNameIdentifier
 }
 
 object PsiTypedDefinitionWrapper {

@@ -35,7 +35,7 @@ class ScClsStubBuilderFactory extends ClsStubBuilderFactory[ScalaFile] {
 
     val fType = LanguageParserDefinitions.INSTANCE.forLanguage(ScalaFileType.SCALA_LANGUAGE).getFileNodeType
     val stub = fType.asInstanceOf[IStubFileElementType[PsiFileStub[PsiFile]]].getBuilder.buildStubTree(file)
-    stub.asInstanceOf[PsiFileStubImpl[PsiFile]].setPsi(null)
+    stub.asInstanceOf[PsiFileStubImpl[PsiFile]].clearPsi("Stub was built from decompiled file")
     stub.asInstanceOf[PsiFileStub[ScalaFile]]
   }
 

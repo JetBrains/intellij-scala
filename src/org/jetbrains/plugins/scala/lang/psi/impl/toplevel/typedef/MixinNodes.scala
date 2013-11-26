@@ -22,6 +22,7 @@ import collection.mutable
 import psi.types.Conformance.AliasType
 import api.statements.ScTypeAliasDefinition
 import com.intellij.psi.search.GlobalSearchScope
+import scala.annotation.tailrec
 
 abstract class MixinNodes {
   type T
@@ -71,7 +72,7 @@ abstract class MixinNodes {
       val thisMap: NodesMap = toNodesMap(getOrElse(convertedName, new ArrayBuffer))
       val maps: List[NodesMap] = supersList.map(sup => toNodesMap(sup.getOrElse(convertedName, new ArrayBuffer)))
       val supers = mergeWithSupers(thisMap, mergeSupers(maps))
-      val list = (supersList).map(_.privatesMap.getOrElse(convertedName, new ArrayBuffer[(T, Node)])).flatten
+      val list = supersList.map(_.privatesMap.getOrElse(convertedName, new ArrayBuffer[(T, Node)])).flatten
       val supersPrivates = toNodesSeq(list)
       val thisPrivates = toNodesSeq(privatesMap.getOrElse(convertedName, new ArrayBuffer[(T, Node)]).toList ::: list)
       val thisAllNodes = new AllNodes(thisMap, thisPrivates)
@@ -347,7 +348,7 @@ abstract class MixinNodes {
               (if (!lin.isEmpty) lin.tail else lin, Bounds.putAliases(template, ScSubstitutor.empty), zSubst)
             }
             case template: ScTemplateDefinition => {
-              place = Some(template.getLastChild)
+              place = Some(template.asInstanceOf[ScalaStubBasedElementImpl[_]].getLastChildStub)
               processScala(template, ScSubstitutor.empty, map, place)
               var zSubst = new ScSubstitutor(Map.empty, Map.empty, Some(ScThisType(template)))
               var placer = template.getContext
@@ -539,6 +540,7 @@ object MixinNodes {
     val iterator = supers.iterator
     while (iterator.hasNext) {
       var tp = iterator.next()
+      @tailrec
       def updateTp(tp: ScType): ScType = {
         tp.isAliasType match {
           case Some(AliasType(_, _, Success(upper, _))) => updateTp(upper)

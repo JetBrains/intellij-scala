@@ -598,10 +598,10 @@ object TypeDefinitionMembers {
 
     if (BaseProcessor.isImplicitProcessor(processor) && !clazz.isInstanceOf[ScTemplateDefinition]) return true
 
-    if (!privateProcessDeclarations(processor, state, lastParent, place, getSignatures(clazz),
-      getParameterlessSignatures(clazz), getTypes(clazz), isSupers = false,
-      isObject = clazz.isInstanceOf[ScObject], signaturesForJava = signaturesForJava,
-      syntheticMethods = syntheticMethods)) return false
+    if (!privateProcessDeclarations(processor, state, lastParent, place, () => getSignatures(clazz),
+      () => getParameterlessSignatures(clazz), () => getTypes(clazz), isSupers = false,
+      isObject = clazz.isInstanceOf[ScObject], signaturesForJava = () => signaturesForJava,
+      syntheticMethods = () => syntheticMethods)) return false
 
     if (!(types.AnyRef.asClass(clazz.getProject).getOrElse(return true).processDeclarations(processor, state, lastParent, place) &&
             types.Any.asClass(clazz.getProject).getOrElse(return true).processDeclarations(processor, state, lastParent, place))) return false
@@ -628,8 +628,8 @@ object TypeDefinitionMembers {
                                state: ResolveState,
                                lastParent: PsiElement,
                                place: PsiElement): Boolean = {
-    if (!privateProcessDeclarations(processor, state, lastParent, place, getSignatures(td),
-      getParameterlessSignatures(td), getTypes(td), isSupers = true, isObject = td.isInstanceOf[ScObject])) return false
+    if (!privateProcessDeclarations(processor, state, lastParent, place, () => getSignatures(td),
+      () => getParameterlessSignatures(td), () => getTypes(td), isSupers = true, isObject = td.isInstanceOf[ScObject])) return false
 
     if (!(types.AnyRef.asClass(td.getProject).getOrElse(return true).
       processDeclarations(processor, state, lastParent, place) &&
@@ -645,8 +645,8 @@ object TypeDefinitionMembers {
                           place: PsiElement): Boolean = {
     val compoundTypeThisType = Option(state.get(BaseProcessor.COMPOUND_TYPE_THIS_TYPE_KEY)).getOrElse(None)
     if (!privateProcessDeclarations(processor, state, lastParent, place,
-      getSignatures(comp, compoundTypeThisType), getParameterlessSignatures(comp, compoundTypeThisType),
-      getTypes(comp, compoundTypeThisType), isSupers = false, isObject = false)) return false
+      () => getSignatures(comp, compoundTypeThisType), () => getParameterlessSignatures(comp, compoundTypeThisType),
+      () => getTypes(comp, compoundTypeThisType), isSupers = false, isObject = false)) return false
 
     val project =
       if (lastParent != null) lastParent.getProject
@@ -659,17 +659,33 @@ object TypeDefinitionMembers {
     true
   }
 
+  class Lazy[T](private var thunk: () => T) {
+    private var value: T = _
+    def apply() = {
+      if (value == null) {
+        value = thunk()
+        require(value != null)
+        thunk = null // release memory captured by the thunk
+      }
+      value
+    }
+  }
+
+  object Lazy {
+    implicit def any2lazy[T](t: () => T): Lazy[T] = new Lazy(t)
+  }
+
   private def privateProcessDeclarations(processor: PsiScopeProcessor,
                                          state: ResolveState,
                                          lastParent: PsiElement,
                                          place: PsiElement,
-                                         signatures: => SignatureNodes.Map,
-                                         parameterlessSignatures: => ParameterlessNodes.Map,
-                                         types: => TypeNodes.Map,
+                                         signatures: Lazy[SignatureNodes.Map],
+                                         parameterlessSignatures:  Lazy[ParameterlessNodes.Map],
+                                         types: Lazy[TypeNodes.Map],
                                          isSupers: Boolean,
                                          isObject: Boolean,
-                                         signaturesForJava: => SignatureNodes.Map = new SignatureNodes.Map,
-                                         syntheticMethods: => Seq[(Signature, SignatureNodes.Node)] = Seq.empty
+                                         signaturesForJava: Lazy[SignatureNodes.Map] = () => new SignatureNodes.Map,
+                                         syntheticMethods: Lazy[Seq[(Signature, SignatureNodes.Node)]] = () => Seq.empty
                                          ): Boolean = {
     val substK = state.get(ScSubstitutor.key)
     val subst = if (substK == null) ScSubstitutor.empty else substK
@@ -845,7 +861,7 @@ object TypeDefinitionMembers {
         }
 
         if (processMethods) {
-          val maps = signaturesForJava.allFirstSeq()
+          val maps = signaturesForJava().allFirstSeq()
           val valuesIterator = maps.iterator
           while (valuesIterator.hasNext) {
             val iterator = valuesIterator.next().iterator
@@ -854,7 +870,7 @@ object TypeDefinitionMembers {
               case None =>
             }
           }
-          runIterator(syntheticMethods.iterator) match {
+          runIterator(syntheticMethods().iterator) match {
             case Some(x) => return x
             case None =>
           }
@@ -864,21 +880,21 @@ object TypeDefinitionMembers {
     }
 
     if (processOnlyStable) {
-      if (!process(parameterlessSignatures)) return false
+      if (!process(parameterlessSignatures())) return false
     } else {
-      if (!process(signatures)) return false
+      if (!process(signatures())) return false
     }
 
     if (shouldProcessTypes(processor)) {
       if (decodedName != "") {
-        val l: TypeNodes.AllNodes = if (!isSupers) types.forName(decodedName)._1 else types.forName(decodedName)._2
+        val l: TypeNodes.AllNodes = if (!isSupers) types().forName(decodedName)._1 else types().forName(decodedName)._2
         val iterator = l.iterator
         while (iterator.hasNext) {
           val (_, n) = iterator.next()
           if (!processor.execute(n.info, state.put(ScSubstitutor.key, n.substitutor followed subst))) return false
         }
       } else {
-        val map = if (!isSupers) types.allFirstSeq() else types.allSecondSeq()
+        val map = if (!isSupers) types().allFirstSeq() else types().allSecondSeq()
         val valuesIterator = map.iterator
         while (valuesIterator.hasNext) {
           val iterator = valuesIterator.next().iterator
@@ -895,7 +911,7 @@ object TypeDefinitionMembers {
     //inner classes
     if (shouldProcessJavaInnerClasses(processor)) {
       if (decodedName != "") {
-        val l: TypeNodes.AllNodes = if (!isSupers) types.forName(decodedName)._1 else types.forName(decodedName)._2
+        val l: TypeNodes.AllNodes = if (!isSupers) types().forName(decodedName)._1 else types().forName(decodedName)._2
         val iterator = l.iterator
         while (iterator.hasNext) {
           val (_, n) = iterator.next()
@@ -903,7 +919,7 @@ object TypeDefinitionMembers {
             !processor.execute(n.info, state.put(ScSubstitutor.key, n.substitutor followed subst))) return false
         }
       } else {
-        val map = if (!isSupers) types.allFirstSeq() else types.allSecondSeq()
+        val map = if (!isSupers) types().allFirstSeq() else types().allSecondSeq()
         val valuesIterator = map.iterator
         while (valuesIterator.hasNext) {
           val iterator = valuesIterator.next().iterator

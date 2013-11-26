@@ -22,13 +22,14 @@ class ScImportSelectorElementType[Func <: ScImportSelector]
   def serialize(stub: ScImportSelectorStub, dataStream: StubOutputStream): Unit = {
     dataStream.writeName(stub.asInstanceOf[ScImportSelectorStubImpl[_ <: PsiElement]].referenceText.toString)
     dataStream.writeName(stub.importedName)
-    dataStream.writeBoolean(stub.isAliasImport)
+    dataStream.writeBoolean(stub.isAliasedImport)
   }
 
   def createStubImpl[ParentPsi <: PsiElement](psi: ScImportSelector, parentStub: StubElement[ParentPsi]): ScImportSelectorStub = {
     val refText = psi.reference.getText
     val importedName = psi.importedName
-    new ScImportSelectorStubImpl(parentStub, this, refText, importedName, psi.isAliasedImport)
+    val aliasImport = psi.isAliasedImport
+    new ScImportSelectorStubImpl(parentStub, this, refText, importedName, aliasImport)
   }
 
   def deserializeImpl(dataStream: StubInputStream, parentStub: Any): ScImportSelectorStub = {

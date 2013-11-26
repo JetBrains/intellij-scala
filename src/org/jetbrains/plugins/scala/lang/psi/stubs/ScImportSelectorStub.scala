@@ -14,6 +14,8 @@ import com.intellij.psi.stubs.StubElement
  */
 
 trait ScImportSelectorStub extends StubElement[ScImportSelector] {
+  def isAliasedImport: Boolean
+
   def reference: ScStableCodeReferenceElement
 
   def importedName: String

@@ -393,7 +393,7 @@ public class FacetConfigurationEditor extends FacetEditorTab {
     }
 
     public void actionPerformed(ActionEvent e) {
-      VirtualFile[] files = FileChooser.chooseFiles(myEditorContext.getProject(), CHOOSER_DESCRIPTOR);
+      VirtualFile[] files = FileChooser.chooseFiles(CHOOSER_DESCRIPTOR, myEditorContext.getProject(), null);
       tablePlugins.clearSelection();
       for(VirtualFile file : files) {
         String path = CompilerPlugin.pathTo(VfsUtil.virtualToIoFile(file), myEditorContext.getModule());

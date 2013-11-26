@@ -66,15 +66,11 @@ class ScImportSelectorImpl extends ScalaStubBasedElementImpl[ScImportSelector] w
   }
 
   def isAliasedImport: Boolean = {
-    val stub = getStub
-    if (stub != null) {
-      return stub.asInstanceOf[ScImportSelectorStub].isAliasImport
+    getStub match {
+      case stub: ScImportSelectorStub => stub.isAliasedImport
+      case _ =>
+        PsiTreeUtil.getParentOfType(this, classOf[ScImportExpr]).selectors.length > 0 &&
+                !getLastChild.isInstanceOf[ScStableCodeReferenceElement]
     }
-    val expr: ScImportExpr = PsiTreeUtil.getParentOfType(this, classOf[ScImportExpr])
-    if (expr.selectors.length > 0 &&
-            !getLastChild.isInstanceOf[ScStableCodeReferenceElement]) {
-      return true
-    }
-    false
   }
 }

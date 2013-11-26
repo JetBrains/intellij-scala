@@ -29,6 +29,7 @@ import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.openapi.vfs.CharsetToolkit;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.encoding.EncodingManager;
+import com.intellij.util.ArrayFactory;
 import com.intellij.util.ArrayUtil;
 import com.intellij.util.PathUtil;
 import org.jetbrains.annotations.NonNls;
@@ -88,7 +89,13 @@ public class ScalacBackendCompiler extends ExternalCompiler {
 
     final ProjectFileIndex index = ProjectRootManager.getInstance(myProject).getFileIndex();
     Set<Module> modules = new HashSet<Module>();
-    for (VirtualFile file : ArrayUtil.mergeArrays(javaFiles, scalaFiles, VirtualFile.class)) {
+    for (VirtualFile file : ArrayUtil.mergeArrays(javaFiles, scalaFiles, new ArrayFactory<VirtualFile>() {
+      @NotNull
+      @Override
+      public VirtualFile[] create(int count) {
+        return new VirtualFile[count];
+      }
+    })) {
       Module module = index.getModuleForFile(file);
       if (module != null) {
         modules.add(module);

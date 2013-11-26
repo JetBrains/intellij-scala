@@ -129,8 +129,6 @@ class FakePsiMethod(
 
   override def getName: String = name
 
-  def getMethodReceiver: PsiMethodReceiver = null
-
   def getNameIdentifier: PsiIdentifier = null
 }
 

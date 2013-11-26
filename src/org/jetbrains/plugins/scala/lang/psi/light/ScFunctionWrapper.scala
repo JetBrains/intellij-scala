@@ -133,8 +133,6 @@ class ScFunctionWrapper(val function: ScFunction, isStatic: Boolean, isInterface
     returnType
   }
 
-  override def getReturnTypeNoResolve: PsiType = getReturnType
-
   override def getNameIdentifier = function.getNameIdentifier
 }
 
