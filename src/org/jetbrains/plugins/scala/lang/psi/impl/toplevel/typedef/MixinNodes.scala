@@ -348,7 +348,7 @@ abstract class MixinNodes {
               (if (!lin.isEmpty) lin.tail else lin, Bounds.putAliases(template, ScSubstitutor.empty), zSubst)
             }
             case template: ScTemplateDefinition => {
-              place = Some(template.getLastChild)
+              place = Some(template.asInstanceOf[ScalaStubBasedElementImpl[_]].getLastChildStub)
               processScala(template, ScSubstitutor.empty, map, place)
               var zSubst = new ScSubstitutor(Map.empty, Map.empty, Some(ScThisType(template)))
               var placer = template.getContext
