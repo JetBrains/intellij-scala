@@ -13,11 +13,7 @@ import com.intellij.openapi.util.io.FileUtil
 class PluginRunner(vmOptions: Seq[String], customLauncher: Option[File]) {
   private val JavaHome = new File(System.getProperty("java.home"))
   private val JavaVM = JavaHome / "bin" / "java"
-  private val LauncherDir = {
-    val file: File = jarWith[this.type]
-    val deep = if (file.getName == "classes") 1 else 2
-    (file << deep) / "launcher"
-  }
+  private val LauncherDir = PluginRunner.getSbtLauncherDir
   private val SbtLauncher = customLauncher.getOrElse(LauncherDir / "sbt-launch.jar")
 
   def read(directory: File, download: Boolean)(listener: (String) => Unit): Either[Exception, Elem] = {
@@ -42,8 +38,8 @@ class PluginRunner(vmOptions: Seq[String], customLauncher: Option[File]) {
       usingTempFile("sbt-commands", ".lst") { commandsFile =>
         usingTempDirectory("sbt-global-plugins", null) { globalPluginsDirectory =>
         usingTempDirectory("sbt-global-settings", null) { globalSettingsDirectory =>
-//          val commandName = if (download) "read-project-and-repository" else "read-project"
-          val commandName = "read-project-and-repository" //todo: enable presentation mode, when it will be fixed
+          val commandName = if (download) "read-project-and-repository" else "read-project"
+//          val commandName = "read-project-and-repository" //todo: enable presentation mode, when it will be fixed
 
           FileUtil.writeToFile(new File(globalPluginsDirectory.getPath, "build.sbt"),
             """resolvers += "sbt-releases" at "http://repo.scala-sbt.org/scalasbt/sbt-plugin-releases/"
@@ -112,4 +108,14 @@ class PluginRunner(vmOptions: Seq[String], customLauncher: Option[File]) {
   }
 
   private def path(file: File): String = file.getAbsolutePath.replace('\\', '/')
+}
+
+object PluginRunner {
+  def getSbtLauncherDir = {
+    val file: File = jarWith[this.type]
+    val deep = if (file.getName == "classes") 1 else 2
+    (file << deep) / "launcher"
+  }
+
+  def getDefaultLauncher = getSbtLauncherDir / "sbt-launch.jar"
 }
