@@ -13,7 +13,7 @@ class ScalaFacetType extends FacetType[ScalaFacet, ScalaFacetConfiguration](Scal
   override def getIcon = Icons.SCALA_SMALL_LOGO
   
   def isSuitableModuleType(moduleType: ModuleType[_ <: ModuleBuilder]) = 
-    moduleType.isInstanceOf[JavaModuleType] || moduleType.getId == "PLUGIN_MODULE"
+    moduleType.isInstanceOf[JavaModuleType] || moduleType.getId == "PLUGIN_MODULE" || moduleType.isInstanceOf[ScalaFacetAvailabilityMarker]
   
   def createDefaultConfiguration = {
     new ScalaFacetConfiguration
