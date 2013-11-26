@@ -32,10 +32,10 @@ extends StubBaseWrapper[ScImportSelector](parent, elemType) with ScImportSelecto
     this (parent, elemType.asInstanceOf[IStubElementType[StubElement[PsiElement], PsiElement]])
     this.referenceText = StringRef.fromString(refText)
     this.name = StringRef.fromString(importedName)
-    this.aliasImport = isAliasedImport
+    this.aliasImport = isAliasImport
   }
 
-  def isAliasedImport: Boolean = aliasImport
+  def isAliasImport: Boolean = aliasImport
 
   def reference: ScStableCodeReferenceElement = {
     if (myReference != null && myReference.get != null) return myReference.get
