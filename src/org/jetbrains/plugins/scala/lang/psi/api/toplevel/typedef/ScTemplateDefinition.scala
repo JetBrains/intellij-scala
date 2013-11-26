@@ -30,6 +30,8 @@ import com.intellij.psi.scope.processor.MethodsProcessor
  * @author ven
  */
 trait ScTemplateDefinition extends ScNamedElement with PsiClass {
+  this: ScalaStubBasedElementImpl =>
+
   import com.intellij.psi.PsiMethod
   def qualifiedName: String = null
 
