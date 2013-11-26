@@ -28,6 +28,7 @@
 
         <projectService serviceImplementation="org.jetbrains.sbt.project.settings.ScalaSbtSettings"/>
         <projectService serviceImplementation="org.jetbrains.sbt.project.settings.SbtLocalSettings"/>
+        <!--<projectService serviceImplementation="org.jetbrains.sbt.settings.SbtProjectSettings"/>-->
 
         <projectImportProvider implementation="org.jetbrains.sbt.project.SbtProjectImportProvider"/>
         <projectImportBuilder implementation="org.jetbrains.sbt.project.SbtProjectImportBuilder"/>
@@ -37,6 +38,11 @@
         <moduleType id="SBT_MODULE" implementationClass="org.jetbrains.sbt.project.SbtModuleType"/>
 
         <applicationConfigurable instance="org.jetbrains.sbt.settings.SbtConfigurable"/>
+        
+        <!--<projectConfigurable instance="org.jetbrains.sbt.settings.SbtExternalSystemConfigurable"/>-->
+        
+        <moduleConfigurationEditorProvider
+                implementation="org.jetbrains.sbt.settings.moduleConfig.SbtModuleEditorProvider"/>
 
         <toolWindow id="SBT" anchor="right" icon="/sbt.png"
                     factoryClass="org.jetbrains.sbt.project.ScalaToolWindowFactory"
