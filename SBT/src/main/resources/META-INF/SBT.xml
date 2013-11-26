@@ -28,7 +28,7 @@
 
         <projectService serviceImplementation="org.jetbrains.sbt.project.settings.ScalaSbtSettings"/>
         <projectService serviceImplementation="org.jetbrains.sbt.project.settings.SbtLocalSettings"/>
-        <!--<projectService serviceImplementation="org.jetbrains.sbt.settings.SbtProjectSettings"/>-->
+        <projectService serviceImplementation="org.jetbrains.sbt.settings.SbtProjectSettings"/>
 
         <projectImportProvider implementation="org.jetbrains.sbt.project.SbtProjectImportProvider"/>
         <projectImportBuilder implementation="org.jetbrains.sbt.project.SbtProjectImportBuilder"/>
