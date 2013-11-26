@@ -13,5 +13,5 @@ import typedef.ScMember
 */
 
 trait ScEarlyDefinitions extends ScalaPsiElement {
-  def members : Seq[ScMember] = collection.immutable.Seq(findChildrenByClassScala(classOf[ScMember]).toSeq : _*)
+  def members: Seq[ScMember]
 }

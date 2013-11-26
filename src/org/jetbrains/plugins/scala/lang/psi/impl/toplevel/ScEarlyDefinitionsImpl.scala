@@ -24,6 +24,7 @@ import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.icons.Icons
 
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -59,5 +60,18 @@ class ScEarlyDefinitionsImpl private () extends ScalaStubBasedElementImpl[ScEarl
       element = element.getPrevSibling
     }
     return true
+  }
+
+  def members: Seq[ScMember] = {
+    getStub match {
+      case stub: ScEarlyDefinitionsStub =>
+        import scala.collection.JavaConverters._
+        for {
+          child <- stub.getChildrenStubs.asScala
+          psi = child.getPsi
+          if psi.isInstanceOf[ScMember]
+        } yield psi.asInstanceOf[ScMember]
+      case _ => findChildrenByClassScala(classOf[ScMember])
+    }
   }
 }
