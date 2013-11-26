@@ -96,6 +96,10 @@ public class DragBuilderWrapper implements PsiBuilder {
     return myBuilder.rawTokenTypeStart(steps);
   }
 
+  public int rawTokenIndex() {
+    return myBuilder.rawTokenIndex();
+  }
+
   public Marker mark() {
     return myBuilder.mark();
   }
