@@ -15,7 +15,7 @@ import base.types.ScTypeProjection
 import statements.ScTypeAlias
 import psi.types._
 import psi.impl.toplevel.typedef.TypeDefinitionMembers
-import result.{Success, TypingContext}
+import org.jetbrains.plugins.scala.lang.psi.types.result.{TypeResult, Success, TypingContext}
 import toplevel.imports.usages.ImportUsed
 import ResolveTargets._
 import psi.impl.toplevel.synthetic.{ScSyntheticFunction, SyntheticClasses}
@@ -313,7 +313,12 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value]) extends PsiSc
           case clazz: PsiClass =>
             TypeDefinitionMembers.processDeclarations(clazz, BaseProcessor.this, state.put(ScSubstitutor.key, newSubst), null, place)
           case des: ScTypedDefinition =>
-            des.getType(TypingContext.empty) match {
+            val typeResult: TypeResult[ScType] =
+              des match {
+                case p: ScParameter => p.getRealParameterType(TypingContext.empty)
+                case _ => des.getType(TypingContext.empty)
+              }
+            typeResult match {
               case Success(tp, _) =>
                 processType(newSubst subst tp, place, state.put(ScSubstitutor.key, ScSubstitutor.empty),
                   updateWithProjectionSubst = false)

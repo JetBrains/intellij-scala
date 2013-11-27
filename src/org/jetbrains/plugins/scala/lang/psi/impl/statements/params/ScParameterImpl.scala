@@ -137,6 +137,7 @@ class ScParameterImpl extends ScalaStubBasedElementImpl[ScParameter] with ScPara
   def getInitializer = null
 
   def getType(ctx: TypingContext) : TypeResult[ScType] = {
+  //todo: this is very error prone way to calc type, when usually we need real parameter type
     val computeType: ScType = {
       val stub = getStub
       if (stub != null) {
