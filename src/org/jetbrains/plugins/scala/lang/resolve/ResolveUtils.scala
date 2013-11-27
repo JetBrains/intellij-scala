@@ -3,7 +3,7 @@ package lang
 package resolve
 
 import com.intellij.psi.util.PsiTreeUtil
-import processor.{ResolveProcessor, ImplicitProcessor, BaseProcessor}
+import org.jetbrains.plugins.scala.lang.resolve.processor.{ResolverEnv, ResolveProcessor, ImplicitProcessor, BaseProcessor}
 import psi.api.ScalaFile
 import psi.api.toplevel.typedef._
 import psi.impl.toplevel.typedef.TypeDefinitionMembers
@@ -506,15 +506,28 @@ object ResolveUtils {
             if (base.getClassKindInner) {
               val manager = ScalaPsiManager.instance(pack.getProject)
               val qName = pack.getQualifiedName
-              val fqn = if (qName.length() > 0) qName + "." + name else name
-              val scope = base match {
-                case r: ResolveProcessor => r.getResolveScope
-                case _ => place.getResolveScope
+              def calcForName(name: String): Boolean = {
+                val fqn = if (qName.length() > 0) qName + "." + name else name
+                val scope = base match {
+                  case r: ResolveProcessor => r.getResolveScope
+                  case _ => place.getResolveScope
+                }
+                val classes: Array[PsiClass] = manager.getCachedClasses(scope, fqn)
+                for (clazz <- classes if clazz.containingClass == null) {
+                  if (!processor.execute(clazz, state)) return false
+                }
+                true
               }
-              val classes: Array[PsiClass] = manager.getCachedClasses(scope, fqn)
-              for (clazz <- classes if clazz.containingClass == null) {
-                if (!processor.execute(clazz, state)) return false
+              if (!calcForName(name)) return false
+              val scalaName = { //todo: fast fix for problem with classes, should be fixed in indexes
+                base match {
+                  case r: ResolveProcessor =>
+                    val stateName = state.get(ResolverEnv.nameKey)
+                    if (stateName == null) r.name else stateName
+                  case _ => name
+                }
               }
+              if (scalaName != name && !calcForName(scalaName)) return false
             }
 
             //process subpackages
