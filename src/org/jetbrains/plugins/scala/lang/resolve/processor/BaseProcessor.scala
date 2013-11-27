@@ -200,13 +200,13 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value]) extends PsiSc
         }
         break
       case ScDesignatorType(o: ScObject) => processElement(o, ScSubstitutor.empty, place, state)
-      case ScDesignatorType(p: ScParameter) =>
-        p.getRealParameterType(TypingContext.empty) match {
-          case Success(tp, _) => processType(tp, place, state)
-          case _ => true
-        }
       case ScDesignatorType(e: ScTypedDefinition) if place.isInstanceOf[ScTypeProjection] =>
-        e.getType(TypingContext.empty) match {
+        val result: TypeResult[ScType] =
+          e match {
+            case p: ScParameter => p.getRealParameterType(TypingContext.empty)
+            case _ => e.getType(TypingContext.empty)
+          }
+        result match {
           case Success(tp, _) => processType(tp, place, state)
           case _ => true
         }
