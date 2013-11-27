@@ -13,7 +13,7 @@ import _root_.scala.collection.immutable.HashSet
 
 import collection.{immutable, mutable, Seq}
 import lang.resolve.processor.CompoundTypeCheckProcessor
-import result.{TypingContext, TypeResult}
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext, TypeResult}
 import api.base.patterns.ScBindingPattern
 import api.base.ScFieldId
 import api.toplevel.{ScTypeParametersOwner, ScNamedElement}
@@ -363,7 +363,7 @@ object Conformance {
     
     trait CompoundTypeVisitor extends ScalaTypeVisitor {
       override def visitCompoundType(c: ScCompoundType) {
-        val comps = r.asInstanceOf[ScCompoundType].components
+        val comps = c.components
         val iterator = comps.iterator
         while (iterator.hasNext) {
           val comp = iterator.next()
@@ -373,7 +373,11 @@ object Conformance {
             return
           }
         }
-        result = (false, undefinedSubst)
+        result = l.isAliasType match {
+          case Some(AliasType(_: ScTypeAliasDefinition, Success(comp: ScCompoundType, _), _)) =>
+            conformsInner(comp, c, HashSet.empty, undefinedSubst)
+          case _ => (false, undefinedSubst)
+        }
       }
     }
     
