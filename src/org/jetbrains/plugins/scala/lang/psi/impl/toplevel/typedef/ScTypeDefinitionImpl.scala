@@ -353,7 +353,7 @@ abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTemplate
 
   def signaturesByName(name: String): Seq[PhysicalSignature] = {
     (for ((s: PhysicalSignature, _) <- TypeDefinitionMembers.getSignatures(this).forName(name)._1) yield s).toSeq ++
-            syntheticMembers.filter(_.name == name).map(new PhysicalSignature(_, ScSubstitutor.empty))
+            syntheticMethodsNoOverride.filter(_.name == name).map(new PhysicalSignature(_, ScSubstitutor.empty))
   }
 
   override def getNameIdentifier: PsiIdentifier = {
