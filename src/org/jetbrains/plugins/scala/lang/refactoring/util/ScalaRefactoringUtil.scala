@@ -8,7 +8,7 @@ import _root_.com.intellij.openapi.ui.popup.{LightweightWindowEvent, JBPopupAdap
 import _root_.java.util.Comparator
 import _root_.javax.swing.event.{ListSelectionEvent, ListSelectionListener}
 import _root_.java.awt.Component
-import _root_.javax.swing.{DefaultListCellRenderer, DefaultListModel, JList}
+import _root_.javax.swing.{DefaultListModel, JList}
 import com.intellij.openapi.editor.markup.RangeHighlighter
 import com.intellij.codeInsight.highlighting.HighlightManager
 import com.intellij.openapi.editor.colors.{EditorColorsManager, EditorColors}
@@ -72,12 +72,11 @@ object ScalaRefactoringUtil {
   def getExprFrom(expr: ScExpression): ScExpression = {
     var e = unparExpr(expr)
     e match {
-      case x: ScReferenceExpression => {
+      case x: ScReferenceExpression =>
         x.resolve() match {
           case _: ScReferencePattern => return e
           case _ =>
         }
-      }
       case _ =>
     }
     var hasNlToken = false
@@ -122,7 +121,7 @@ object ScalaRefactoringUtil {
       val rangeText = file.getText.substring(startOffset, endOffset)
       val expr = ScalaPsiElementFactory.createOptionExpressionFromText(rangeText, file.getManager)
       expr match {
-        case Some(expression: ScInfixExpr) => {
+        case Some(expression: ScInfixExpr) =>
           val op1 = expression.operation
           if (ScalaRefactoringUtil.ensureFileWritable(project, file)) {
             var res: Option[(ScExpression, ScType)] = None
@@ -135,18 +134,16 @@ object ScalaRefactoringUtil {
                 documentManager.commitDocument(document)
                 val newOpt = getExpression(project, editor, file, startOffset, endOffset + 2)
                 newOpt match {
-                  case Some((expression: ScExpression, typez)) => {
+                  case Some((expression: ScExpression, typez)) =>
                     expression.getParent match {
-                      case inf: ScInfixExpr => {
+                      case inf: ScInfixExpr =>
                         val op2 = inf.operation
                         import parser.util.ParserUtils.priority
                         if (priority(op1.getText) == priority(op2.getText)) {
                           res = Some((expression.copy.asInstanceOf[ScExpression], typez))
                         }
-                      }
                       case _ =>
                     }
-                  }
                   case None =>
                 }
                 document.deleteString(endOffset + 1, endOffset + 2)
@@ -156,7 +153,6 @@ object ScalaRefactoringUtil {
             }, project, "IntroduceVariable helping writer")
             return res
           } else return None
-        }
         case _ => return None
       }
       return None
@@ -182,7 +178,7 @@ object ScalaRefactoringUtil {
     def copyExpr = expr.copy.asInstanceOf[ScExpression]
     def liftMethod = ScalaPsiElementFactory.createExpressionFromText(expr.getText + " _", expr.getManager)
     expr match {
-      case ref: ScReferenceExpression => {
+      case ref: ScReferenceExpression =>
         ref.resolve() match {
           case fun: ScFunction if fun.paramClauses.clauses.length > 0 &&
                   fun.paramClauses.clauses.head.isImplicit => copyExpr
@@ -190,7 +186,6 @@ object ScalaRefactoringUtil {
           case meth: PsiMethod if !meth.getParameterList.getParameters.isEmpty => liftMethod
           case _ => copyExpr
         }
-      }
       case _ => copyExpr
     }
   }
@@ -212,12 +207,11 @@ object ScalaRefactoringUtil {
       for (child <- enclosingContainer.getChildren) {
         if (PsiEquivalenceUtil.areElementsEquivalent(child, element, comparator, false)) {
           child match {
-            case x: ScExpression => {
+            case x: ScExpression =>
               x.getParent match {
                 case y: ScMethodCall if y.args.exprs.size == 0 => occurrences += y
                 case _ => occurrences += x
               }
-            }
             case _ =>
           }
         } else {
@@ -230,12 +224,11 @@ object ScalaRefactoringUtil {
 
   def unparExpr(expr: ScExpression): ScExpression = {
     expr match {
-      case x: ScParenthesisedExpr => {
+      case x: ScParenthesisedExpr =>
         x.expr match {
           case Some(e) => e
           case _ => x
         }
-      }
       case _ => expr
     }
   }
@@ -317,7 +310,7 @@ object ScalaRefactoringUtil {
         highlighter.dropHighlight()
         val index: Int = list.getSelectedIndex
         if (index < 0) return
-        val element: T = model.get(index).asInstanceOf[T]
+        val element: T = model.get(index)
         val toExtract: util.ArrayList[PsiElement] = new util.ArrayList[PsiElement]
         toExtract.add(if (highlightParent) element.getParent else element)
         highlighter.highlight(if (highlightParent) element.getParent else element, toExtract)
@@ -325,7 +318,7 @@ object ScalaRefactoringUtil {
     })
     JBPopupFactory.getInstance.createListPopupBuilder(list).setTitle(title).setMovable(false).setResizable(false).setRequestFocus(true).setItemChoosenCallback(new Runnable {
       def run() {
-        pass(list.getSelectedValue.asInstanceOf[T])
+        pass(list.getSelectedValue)
       }
     }).addListener(new JBPopupAdapter {
       override def onClosed(event: LightweightWindowEvent) {
@@ -337,62 +330,52 @@ object ScalaRefactoringUtil {
   def getShortText(expr: ScalaPsiElement): String = {
     val builder = new StringBuilder
     expr match {
-      case ass: ScAssignStmt => {
+      case ass: ScAssignStmt =>
         builder.append(getShortText(ass.getLExpression))
         builder.append(" = ")
         ass.getRExpression match {
           case Some(r) => builder.append(getShortText(r))
           case _ =>
         }
-      }
-      case bl: ScBlock => {
+      case bl: ScBlock =>
         builder.append("{...}")
-      }
-      case d: ScDoStmt => {
+      case d: ScDoStmt =>
         builder.append("do {...} while (...)")
-      }
-      case f: ScForStatement => {
+      case f: ScForStatement =>
         builder.append("for (...) ")
         if (f.isYield) builder.append("yield ")
         builder.append("{...}")
-      }
-      case f: ScFunctionExpr => {
+      case f: ScFunctionExpr =>
         builder.append(f.params.getText).append(" => {...}")
-      }
-      case g: ScGenericCall => {
+      case g: ScGenericCall =>
         builder.append(getShortText(g.referencedExpr))
         builder.append("[...]")
-      }
-      case i: ScIfStmt => {
+      case i: ScIfStmt =>
         builder.append("if (...) {...}")
         if (i.elseBranch != None) builder.append(" else {...}")
-      }
-      case i: ScInfixExpr => {
+      case i: ScInfixExpr =>
         builder.append(getShortText(i.lOp))
         builder.append(" ")
         builder.append(getShortText(i.operation))
         builder.append(" ")
         builder.append(getShortText(i.rOp))
-      }
       case l: ScLiteral => builder.append(l.getText)
-      case m: ScMatchStmt => {
+      case m: ScMatchStmt =>
         m.expr match {
           case Some(expression) => builder.append(getShortText(expression))
           case _ => builder.append("...")
         }
         builder.append(" match {...}")
-      }
-      case m: ScMethodCall => {
+      case m: ScMethodCall =>
         builder.append(getShortText(m.getInvokedExpr))
         if (m.argumentExpressions.length == 0) builder.append("()")
         else builder.append("(...)")
-      }
-      case n: ScNewTemplateDefinition => {
+      case n: ScNewTemplateDefinition =>
         builder.append("new ")
-        val types = n.extendsBlock.superTypes.filter(_ match {
+        val types = n.extendsBlock.superTypes.filter {
           case ScDesignatorType(clazz: PsiClass) => clazz.qualifiedName != "scala.ScalaObject"
           case _ => true
-        })
+        }
         for (tp <- types) {
           builder.append(ScType.presentableText(tp))
           if (tp != types(types.length - 1)) builder.append(" with ")
@@ -401,50 +384,42 @@ object ScalaRefactoringUtil {
           case Some(tb) => builder.append(" {...}")
           case _ =>
         }
-      }
-      case p: ScParenthesisedExpr => {
+      case p: ScParenthesisedExpr =>
         builder.append("(")
         p.expr match {case Some(expression) => builder.append(getShortText(expression)) case _ =>}
         builder.append(")")
-      }
-      case p: ScPostfixExpr => {
+      case p: ScPostfixExpr =>
         builder.append(getShortText(p.operand))
         builder.append(" ")
         builder.append(getShortText(p.operation))
-      }
-      case p: ScPrefixExpr => {
+      case p: ScPrefixExpr =>
         builder.append(getShortText(p.operation))
         builder.append(getShortText(p.operand))
-      }
-      case r: ScReferenceExpression => {
+      case r: ScReferenceExpression =>
         r.qualifier match {
           case Some(q) => builder.append(getShortText(q)).append(".")
           case _ =>
         }
         builder.append(r.refName)
-      }
-      case r: ScReturnStmt => {
+      case r: ScReturnStmt =>
         builder.append("return ")
         r.expr match {
           case Some(expression) => builder.append(getShortText(expression))
           case _ =>
         }
-      }
       case s: ScSuperReference => builder.append(s.getText)
       case t: ScThisReference => builder.append(t.getText)
-      case t: ScThrowStmt => {
+      case t: ScThrowStmt =>
         builder.append("throw ")
         t.body match {
           case Some(expression) => builder.append(getShortText(expression))
           case _ => builder.append("...")
         }
-      }
-      case t: ScTryStmt => {
+      case t: ScTryStmt =>
         builder.append("try {...}")
         if (t.catchBlock != None) builder.append(" catch {...}")
         if (t.finallyBlock != None) builder.append(" finally {...}")
-      }
-      case t: ScTuple => {
+      case t: ScTuple =>
         builder.append("(")
         val exprs = t.exprs
         for (expr <- exprs) {
@@ -452,19 +427,16 @@ object ScalaRefactoringUtil {
           if (expr != exprs.apply(exprs.length - 1)) builder.append(", ")
         }
         builder.append(")")
-      }
-      case t: ScTypedStmt => {
+      case t: ScTypedStmt =>
         builder.append(getShortText(t.expr))
         builder.append(" : ")
         builder.append(t.typeElement match {case Some(te) => te.getText case _ => "..."})
-      }
-      case u: ScUnderscoreSection => {
+      case u: ScUnderscoreSection =>
         if (u.bindingExpr == None) builder.append("_")
         else {
           builder.append(getShortText(u.bindingExpr.get))
           builder.append(" _")
         }
-      }
       case u: ScUnitExpr => builder.append("()")
       case w: ScWhileStmt => builder.append("while (...) {...}")
       case x: ScXmlExpr => builder.append(x.getText)
@@ -767,6 +739,7 @@ object ScalaRefactoringUtil {
       ScalaPsiUtil.getParentOfType(element, strict, classOf[ScalaFile], classOf[ScBlock],
         classOf[ScTemplateBody], classOf[ScCaseClause], classOf[ScEarlyDefinitions], classOf[ScExpression])
       match {
+        case newTempl: ScNewTemplateDefinition => container(newTempl, file, strict = true)
         case expr: ScExpression if oneExprBody(expr) => expr
         case block: ScBlock => block
         case expr: ScExpression => container(expr, file, strict = true)
