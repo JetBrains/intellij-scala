@@ -265,7 +265,7 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
 
   //todo: implement existential dual
   def getType(e: PsiNamedElement): ScType = {
-    val res = e match {
+    e match {
       case fun: ScFun => fun.polymorphicType
       case f: ScFunction if f.isConstructor =>
         f.containingClass match {
@@ -278,21 +278,20 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
       case p: ScPrimaryConstructor => p.polymorphicType
       case m: PsiMethod => ResolveUtils.javaPolymorphicType(m, ScSubstitutor.empty, elem.getResolveScope)
       case refPatt: ScReferencePattern => refPatt.getParent /*id list*/ .getParent match {
-        case pd: ScPatternDefinition if (PsiTreeUtil.isContextAncestor(pd, elem, true)) =>
-          pd.declaredType match {case Some(t) => t; case None => types.Nothing}
-        case vd: ScVariableDefinition if (PsiTreeUtil.isContextAncestor(vd, elem, true)) =>
-          vd.declaredType match {case Some(t) => t; case None => types.Nothing}
+        case pd: ScPatternDefinition if PsiTreeUtil.isContextAncestor(pd, elem, true) =>
+          pd.declaredType match {
+            case Some(t) => t
+            case None => types.Nothing
+          }
+        case vd: ScVariableDefinition if PsiTreeUtil.isContextAncestor(vd, elem, true) =>
+          vd.declaredType match {
+            case Some(t) => t
+            case None => types.Nothing
+          }
         case _ => refPatt.getType(TypingContext.empty).getOrAny
       }
       case typed: ScTypedDefinition => typed.getType(TypingContext.empty).getOrAny
       case _ => types.Nothing
-    }
-
-    res match {
-      case ScMethodType(retType, _, true) => retType
-      case ScTypePolymorphicType(ScMethodType(retType, _, true), typeParameters) =>
-        ScTypePolymorphicType(retType, typeParameters)
-      case tp => tp
     }
   }
 }
