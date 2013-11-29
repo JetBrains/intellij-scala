@@ -13,6 +13,7 @@
     </extensionPoints>
 
     <extensions defaultExtensionNs="com.intellij">
+        <project.converterProvider implementation="org.jetbrains.plugins.scala.converter.ScalaProjectConverterProvider"/>
         <lang.rearranger language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.rearranger.ScalaRearranger"/>
         <compileServer.plugin classpath="scala-library.jar;jps/nailgun.jar;jps/scala-jps-plugin.jar;jps/sbt-interface.jar;jps/incremental-compiler.jar;jps/jline.jar"/>
         <!--<moduleBuilder builderClass="org.jetbrains.plugins.scala.config.scalaProjectTemplate.ScalaModuleBuilder"/>-->
