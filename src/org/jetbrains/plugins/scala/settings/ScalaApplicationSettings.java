@@ -43,6 +43,8 @@ public class ScalaApplicationSettings implements PersistentStateComponent<ScalaA
 
   public boolean INSERT_MULTILINE_QUOTES = true;
 
+  public boolean MOVE_COMPANION = true;
+
   public ScalaApplicationSettings getState() {
     return this;
   }

@@ -22,6 +22,7 @@
         <projectTemplatesFactory implementation="org.jetbrains.plugins.scala.config.scalaProjectTemplate.ScalaProjectTemplatesFactory"/>
         <!--<moduleBuilder builderClass="org.jetbrains.plugins.scala.config.scalaProjectTemplate.ScalaModuleBuilder"/>-->
         <refactoring.moveHandler implementation="org.jetbrains.plugins.scala.lang.refactoring.move.ScalaMoveClassesOrPackagesHandler" order="first"/>
+        <refactoring.moveAllClassesInFileHandler implementation="org.jetbrains.plugins.scala.lang.refactoring.move.MoveScalaClassesInFileHandler" order="last"/>
         <statementUpDownMover implementation="org.jetbrains.plugins.scala.lang.refactoring.ScalaStatementMover"/>
         <debugger.codeFragmentFactory implementation="org.jetbrains.plugins.scala.debugger.evaluation.ScalaCodeFragmentFactory"/>
         <debugger.positionManagerFactory implementation="org.jetbrains.plugins.scala.debugger.ScalaPositionManagerFactory"/>
@@ -213,7 +214,6 @@
         <constantExpressionEvaluator language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.psi.util.ScalaConstantExpressionEvaluator"/>
         <annotationSupport language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.psi.ScalaAnnotationSupport"/>
         <!--<classNameInsertHandler implementationClass="org.jetbrains.plugins.scala.lang.completion.ScalaClassNameInsertHandler" language="Scala"/>-->
-        <actionPromoter implementation="org.jetbrains.plugins.scala.console.ExecuteInConsoleActionPromoter" />
 
         <gotoClassContributor implementation="org.jetbrains.plugins.scala.gotoclass.ScalaGoToClassContributor"/>
         <gotoSymbolContributor implementation="org.jetbrains.plugins.scala.gotoclass.ScalaGoToSymbolContributor"/>
