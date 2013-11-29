@@ -215,7 +215,11 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
                 val refToMember = ScalaPsiElementFactory.createReferenceFromText(refToClass.getText + "." + binding.name, getManager)
                 this.replace(refToMember).asInstanceOf[ScReferenceElement]
             }
-          case _ => throw new IncorrectOperationException("Cannot bind to anything but class")
+          case pckg: PsiPackage =>
+            //todo: check imports?
+            val refToPackage = ScalaPsiElementFactory.createReferenceFromText(pckg.getQualifiedName, getManager)
+            this.replace(refToPackage).asInstanceOf[ScReferenceElement]
+          case _ => throw new IncorrectOperationException("Cannot bind to anything but class or package")
         }
       }
     }
