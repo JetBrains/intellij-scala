@@ -9,6 +9,7 @@ import com.intellij.refactoring.move.MoveCallback
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.{ScPackage, ScalaFile}
 
 /**
  * Nikolay.Tropin
@@ -32,7 +33,11 @@ class ScalaMoveClassesOrPackagesProcessor(project: Project,
         } with MoveClassesOrPackagesProcessor(project, expandedElements, moveDestination, searchInComments, searchInNonJavaFiles, moveCallback) {
 
   //need to store destinations to use them in MoveScalaClassesInFileHandler
-  expandedElements.collect{case c: PsiClass => c}
-          .foreach(c => ScalaMoveUtil.saveMoveDestination(c, moveDestination.getTargetDirectory(c.getContainingFile)))
+  expandedElements.flatMap {
+    case c: PsiClass => Seq(c)
+    case f: ScalaFile => f.typeDefinitions
+    case p: ScPackage => p.getClasses.toSeq
+    case _ => Nil
+  }.foreach(c => ScalaMoveUtil.saveMoveDestination(c, moveDestination.getTargetDirectory(c.getContainingFile)))
 
 }
