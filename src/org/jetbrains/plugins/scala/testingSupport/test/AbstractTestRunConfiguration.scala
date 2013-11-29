@@ -512,7 +512,7 @@ object AbstractTestRunConfiguration {
     private var failedTests: Seq[(String, String)] = null
 
     def setFailedTests(failedTests: Seq[(String, String)]) {
-      this.failedTests = failedTests
+      this.failedTests = Option(failedTests).map(_.distinct).orNull
     }
 
     def getFailedTests = failedTests
