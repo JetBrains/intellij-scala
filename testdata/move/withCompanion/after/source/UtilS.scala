@@ -1,5 +1,6 @@
 package source
 
+import target.A
 
 object UtilS {
   def foo() {}
