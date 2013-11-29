@@ -120,7 +120,8 @@ object TypeDefinitionMembers {
       }
     }
 
-    def processScala(template: ScTemplateDefinition, subst: ScSubstitutor, map: Map, place: Option[PsiElement]) {
+    def processScala(template: ScTemplateDefinition, subst: ScSubstitutor, map: Map,
+                     place: Option[PsiElement], base: Boolean) {
       def addSignature(s: Signature) {
         map addToMap (s, new Node(s, subst))
       }
@@ -189,6 +190,13 @@ object TypeDefinitionMembers {
           }
         case _ =>
       }
+
+      if (!base) {
+        for (method <- template.syntheticMethodsNoOverride if method.getParameterList.getParametersCount == 0) {
+          val sig = new PhysicalSignature(method, subst)
+          addSignature(sig)
+        }
+      }
     }
 
     def processRefinement(cp: ScCompoundType, map: Map, place: Option[PsiElement]) {
@@ -256,7 +264,8 @@ object TypeDefinitionMembers {
       }
     }
 
-    def processScala(template: ScTemplateDefinition, subst: ScSubstitutor, map: Map, place: Option[PsiElement]) {
+    def processScala(template: ScTemplateDefinition, subst: ScSubstitutor, map: Map,
+                     place: Option[PsiElement], base: Boolean) {
       for (member <- template.members) {
         member match {
           case alias: ScTypeAlias if isBridge(place, alias) => map addToMap (alias, new Node(alias, subst))
@@ -343,7 +352,8 @@ object TypeDefinitionMembers {
       }
     }
 
-    def processScala(template: ScTemplateDefinition, subst: ScSubstitutor, map: Map, place: Option[PsiElement]) {
+    def processScala(template: ScTemplateDefinition, subst: ScSubstitutor, map: Map,
+                     place: Option[PsiElement], base: Boolean) {
       def addSignature(s: Signature) {
         map addToMap (s, new Node(s, subst))
       }
@@ -437,6 +447,13 @@ object TypeDefinitionMembers {
             addSignature(sig)
           }
         case _ =>
+      }
+
+      if (!base) {
+        for (member <- template.syntheticMethodsNoOverride) {
+          val sig = new PhysicalSignature(member, subst)
+          addSignature(sig)
+        }
       }
     }
 
@@ -592,7 +609,7 @@ object TypeDefinitionMembers {
 
     def syntheticMethods: Seq[(Signature, SignatureNodes.Node)] = {
       clazz match {
-        case td: ScTemplateDefinition => td.syntheticMembers.map(fun => {
+        case td: ScTemplateDefinition => td.syntheticMethodsNoOverride.map(fun => {
           val f = new PhysicalSignature(fun, ScSubstitutor.empty)
           (f, new SignatureNodes.Node(f, ScSubstitutor.empty))
         })
