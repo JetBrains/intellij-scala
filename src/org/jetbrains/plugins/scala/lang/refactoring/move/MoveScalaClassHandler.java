@@ -1,90 +1,40 @@
 package org.jetbrains.plugins.scala.lang.refactoring.move;
 
-import com.intellij.openapi.diagnostic.Logger;
-import com.intellij.openapi.util.Key;
-import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiFile;
-import com.intellij.psi.javadoc.PsiDocComment;
 import com.intellij.refactoring.move.moveClassesOrPackages.MoveClassHandler;
 import com.intellij.usageView.UsageInfo;
 import com.intellij.util.IncorrectOperationException;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.ScalaFileType;
-import org.jetbrains.plugins.scala.conversion.copy.Associations;
-import org.jetbrains.plugins.scala.conversion.copy.ScalaCopyPastePostProcessor;
 import org.jetbrains.plugins.scala.editor.importOptimizer.ScalaImportOptimizer;
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile;
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement;
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass;
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTrait;
+import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings;
 
 import java.util.Collection;
 
 public class MoveScalaClassHandler implements MoveClassHandler {
-  private static final ScalaCopyPastePostProcessor PROCESSOR = new ScalaCopyPastePostProcessor();
-  private static final Logger LOG = Logger.getInstance("#org.jetbrains.plugins.scala.lang.refactoring.move.MoveScalaClassHandler");
-
-  public static final Key<Associations> ASSOCIATIONS_KEY = Key.create("ASSOCIATIONS");
 
   @Override
   public void finishMoveClass(@NotNull PsiClass aClass) {
-    if (aClass.getContainingFile() instanceof ScalaFile) {
-      Associations associations = aClass.getCopyableUserData(ASSOCIATIONS_KEY);
-      if (associations != null) {
-        try {
-          PROCESSOR.restoreAssociations(associations, aClass.getContainingFile(),
-              aClass.getTextRange().getStartOffset(), aClass.getProject());
-        } finally {
-          aClass.putCopyableUserData(ASSOCIATIONS_KEY, null);
-        }
-      }
-      new ScalaImportOptimizer().processFile(aClass.getContainingFile(), true).run();
+    PsiFile file = aClass.getContainingFile();
+    if (file instanceof ScalaFile) {
+      ScalaMoveUtil.restoreAssociations(aClass, ScalaApplicationSettings.getInstance().MOVE_COMPANION);
+      new ScalaImportOptimizer().processFile(file, false).run();
     }
   }
 
   @Override
   public void prepareMove(@NotNull PsiClass aClass) {
-    PsiFile file = aClass.getContainingFile();
-    if (file instanceof ScalaFile) {
-      TextRange range = aClass.getTextRange();
-      Associations associations = PROCESSOR.collectTransferableData(file, null,
-          new int[]{range.getStartOffset()}, new int[]{range.getEndOffset()});
-      aClass.putCopyableUserData(ASSOCIATIONS_KEY, associations);
+    if (aClass.getContainingFile() instanceof ScalaFile) {
+      ScalaMoveUtil.collectAssociations(aClass, ScalaApplicationSettings.getInstance().MOVE_COMPANION);
     }
   }
 
   public PsiClass doMoveClass(@NotNull final PsiClass aClass, @NotNull PsiDirectory moveDestination) throws IncorrectOperationException {
-    PsiFile file = aClass.getContainingFile();
-
-    PsiClass newClass = null;
-    if (file instanceof ScalaFile) {
-      if (!moveDestination.equals(file.getContainingDirectory()) &&
-           moveDestination.findFile(file.getName()) != null) {
-        // moving second of two classes which were in the same file to a different directory (IDEADEV-3089)
-        final PsiFile newFile = moveDestination.findFile(file.getName());
-        LOG.assertTrue(newFile != null);
-        newClass = (PsiClass)newFile.add(aClass);
-
-        aClass.delete();
-      }
-      else if (((ScalaFile)file).typeDefinitionsArray().length > 1) {
-        String template = aClass instanceof ScClass
-            ? "Scala Class"
-            : aClass instanceof ScTrait ? "Scala Trait" : "Scala Object";
-        final PsiClass created = ScalaDirectoryService.createClassFromTemplate(moveDestination, ((ScNamedElement) aClass).name(), template, false);
-        if (aClass.getDocComment() == null) {
-          final PsiDocComment createdDocComment = created.getDocComment();
-          if (createdDocComment != null) {
-            aClass.addAfter(createdDocComment, null);
-          }
-        }
-        newClass = (PsiClass)created.replace(aClass);
-        aClass.delete();
-      }
-    }
-    return newClass;
+    return ScalaMoveUtil.doMoveClass(aClass, moveDestination, ScalaApplicationSettings.getInstance().MOVE_COMPANION);
   }
 
   public String getName(PsiClass clazz) {

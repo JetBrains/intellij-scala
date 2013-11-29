@@ -1,5 +1,4 @@
 package com
 
-import org.B
 
-class A
+class A(b: B)
