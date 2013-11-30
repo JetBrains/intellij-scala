@@ -25,6 +25,8 @@ class TypeInferenceBugs5Test extends TypeInferenceTestBase {
 
   def testInfixApply() {doTest()}
 
+  def testJavaArrayType() {doTest()}
+
   def testParametersLub() {doTest()}
 
   def testParenthesisedUnderscore() {doTest()}
