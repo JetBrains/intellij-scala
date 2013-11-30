@@ -96,41 +96,37 @@ object Bounds {
           case (r, ScSkolemizedType(name, args, lower, upper)) =>
             ScSkolemizedType(name, args, glb(lower, r, checkWeak), lub(upper, t2, 0, checkWeak))
           case (_: ValType, _: ValType) => types.AnyVal
-          case (JavaArrayType(arg1), JavaArrayType(arg2)) => {
+          case (JavaArrayType(arg1), JavaArrayType(arg2)) =>
             val (v, ex) = calcForTypeParamWithoutVariance(arg1, arg2, depth, checkWeak)
             ex match {
-              case Some(w) =>
-                ScExistentialType(JavaArrayType(v), List(w))
-              case None =>
-                JavaArrayType(v)
+              case Some(w) => ScExistentialType(JavaArrayType(v), List(w))
+              case None => JavaArrayType(v)
             }
-          }
           case (JavaArrayType(arg), ScParameterizedType(des, args)) if args.length == 1 && (ScType.extractClass(des) match {
             case Some(q) => q.qualifiedName == "scala.Array"
             case _ => false
-          }) => {
+          }) =>
             val (v, ex) = calcForTypeParamWithoutVariance(arg, args(0), depth, checkWeak)
             ex match {
-              case Some(w) =>
-                ScExistentialType(ScParameterizedType(des, Seq(v)), List(w))
-              case None =>
-                ScParameterizedType(des, Seq(v))
+              case Some(w) => ScExistentialType(ScParameterizedType(des, Seq(v)), List(w))
+              case None => ScParameterizedType(des, Seq(v))
             }
-          }
           case (ScParameterizedType(des, args), JavaArrayType(arg)) if args.length == 1 && (ScType.extractClass(des) match {
             case Some(q) => q.qualifiedName == "scala.Array"
             case _ => false
-          }) => {
+          }) =>
             val (v, ex) = calcForTypeParamWithoutVariance(arg, args(0), depth, checkWeak)
             ex match {
-              case Some(w) =>
-                ScExistentialType(ScParameterizedType(des, Seq(v)), List(w))
-              case None =>
-                ScParameterizedType(des, Seq(v))
+              case Some(w) => ScExistentialType(ScParameterizedType(des, Seq(v)), List(w))
+              case None => ScParameterizedType(des, Seq(v))
             }
-          }
-          case _ => {
-
+          case (JavaArrayType(_), tp) =>
+            if (tp.conforms(AnyRef)) AnyRef
+            else Any
+          case (tp, JavaArrayType(_)) =>
+            if (tp.conforms(AnyRef)) AnyRef
+            else Any
+          case _ =>
             val aOptions: Seq[Options] = {
               t1 match {
                 case ScCompoundType(comps1, decls1, typeDecls1, subst1) => comps1.map(new Options(_))
@@ -160,7 +156,6 @@ object Bounds {
               }
             }
             //todo: refinement for compound types
-          }
         }
       }
       lubWithExpandedAliases(ScType.expandAliases(t1).getOrElse(t1), ScType.expandAliases(t2).getOrElse(t2)).unpackedType
