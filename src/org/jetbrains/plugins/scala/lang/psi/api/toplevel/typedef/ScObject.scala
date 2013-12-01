@@ -22,7 +22,7 @@ trait ScObject extends ScTypeDefinition with ScTypedDefinition with ScMember wit
   def setSyntheticObject() {
     isSyntheticCaseClassCompanion = true
   }
-  def objectSyntheticMembers: Seq[PsiMethod]
+  def objectSyntheticMembers: Seq[PsiMethod] //todo: join with somthing also synthetic, but general
 
   def getObjectToken: PsiElement = findFirstChildByType(ScalaTokenTypes.kOBJECT)
 

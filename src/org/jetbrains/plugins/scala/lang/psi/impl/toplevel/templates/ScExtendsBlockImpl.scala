@@ -331,12 +331,4 @@ class ScExtendsBlockImpl extends ScalaStubBasedElementImpl[ScExtendsBlock] with 
     case td: ScTypeDefinition if td.isCase => true
     case _ => false
   }
-
-  override def getParent: PsiElement = {
-    val p = super.getParent
-    p match {
-      case _: ScTypeDefinition => p
-      case _ => SharedImplUtil.getParent(getNode)
-    }
-  }
 }

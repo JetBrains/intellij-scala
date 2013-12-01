@@ -121,7 +121,7 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
   def getTypeWithProjections(ctx: TypingContext, thisProjections: Boolean = false): TypeResult[ScType]
 
   def members: Seq[ScMember] = extendsBlock.members
-  def syntheticMembers: Seq[PsiMethod] = Seq.empty
+  def syntheticMethodsNoOverride: Seq[PsiMethod] = Seq.empty
   def functions: Seq[ScFunction] = extendsBlock.functions
   def aliases: Seq[ScTypeAlias] = extendsBlock.aliases
 
@@ -197,7 +197,7 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
     TypeDefinitionMembers.getSignatures(this).allFirstSeq().flatMap(_.filter {
       case (_, n) => n.info.isInstanceOf[PhysicalSignature]}).
       map { case (_, n) => n.info.asInstanceOf[PhysicalSignature] } ++
-      syntheticMembers.map(new PhysicalSignature(_, ScSubstitutor.empty))
+      syntheticMethodsNoOverride.map(new PhysicalSignature(_, ScSubstitutor.empty))
 
   def allMethodsIncludingSelfType: Iterable[PhysicalSignature] = {
     selfType match {
@@ -208,7 +208,7 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
             TypeDefinitionMembers.getSignatures(c, Some(clazzType), this).allFirstSeq().flatMap(_.filter {
               case (_, n) => n.info.isInstanceOf[PhysicalSignature]}).
               map { case (_, n) => n.info.asInstanceOf[PhysicalSignature] } ++
-              syntheticMembers.map(new PhysicalSignature(_, ScSubstitutor.empty))
+              syntheticMethodsNoOverride.map(new PhysicalSignature(_, ScSubstitutor.empty))
           case _ =>
             allMethods
         }
@@ -369,7 +369,7 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
 
   def functionsByName(name: String): Seq[PsiMethod] = {
     (for ((p: PhysicalSignature, _) <- TypeDefinitionMembers.getSignatures(this).forName(name)._1) yield p.method).
-             ++(syntheticMembers.filter(_.name == name))
+             ++(syntheticMethodsNoOverride.filter(_.name == name))
   }
 
   override def isInheritor(baseClass: PsiClass, deep: Boolean): Boolean = {
