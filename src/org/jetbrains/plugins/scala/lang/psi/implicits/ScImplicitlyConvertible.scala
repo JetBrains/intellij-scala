@@ -108,7 +108,7 @@ class ScImplicitlyConvertible(place: PsiElement, placeType: Boolean => Option[Sc
 
     val buffer = new ArrayBuffer[ImplicitMapResult]
     if (!isFromCompanion) {
-      buffer ++= buildSimpleImplicitMap(fromUnder)
+      buffer ++= buildSimpleImplicitMap(fromUnder, exprType)
     }
     if (isFromCompanion) {
       val processor = new CollectImplicitsProcessor(true)
@@ -158,17 +158,18 @@ class ScImplicitlyConvertible(place: PsiElement, placeType: Boolean => Option[Sc
     result.toSeq
   }
 
-  private def buildSimpleImplicitMap(fromUnder: Boolean): ArrayBuffer[ImplicitMapResult] = {
-    if (fromUnder) return buildSimpleImplicitMapInner(fromUnder)
+  private def buildSimpleImplicitMap(fromUnder: Boolean, exprType: Option[ScType] = None): ArrayBuffer[ImplicitMapResult] = {
+    type Data = (Boolean, Option[ScType])
+    val data = (fromUnder, exprType)
     import org.jetbrains.plugins.scala.caches.CachesUtil._
-    get(place, IMPLICIT_SIMPLE_MAP_KEY,
-      new MyProvider[ScImplicitlyConvertible, ArrayBuffer[ImplicitMapResult]](this, impl => {
-        impl.buildSimpleImplicitMapInner(fromUnder /* false */)
-      })(PsiModificationTracker.MODIFICATION_COUNT))
+
+    getMappedWithRecursionPreventingWithRollback[PsiElement, Data, ArrayBuffer[ImplicitMapResult]](place,
+      data, IMPLICIT_SIMPLE_MAP_KEY, (expr: PsiElement, data: Data) => buildSimpleImplicitMapInner(data._1, data._2),
+      ArrayBuffer.empty, PsiModificationTracker.MODIFICATION_COUNT)
   }
 
-  private def buildSimpleImplicitMapInner(fromUnder: Boolean): ArrayBuffer[ImplicitMapResult] = {
-    val typez: ScType = placeType(fromUnder).getOrElse(return ArrayBuffer.empty)
+  private def buildSimpleImplicitMapInner(fromUnder: Boolean, exprType: Option[ScType] = None): ArrayBuffer[ImplicitMapResult] = {
+    val typez: ScType = exprType.getOrElse(placeType(fromUnder).getOrElse(return ArrayBuffer.empty))
 
     val processor = new CollectImplicitsProcessor(false)
 

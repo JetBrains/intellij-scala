@@ -100,8 +100,9 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Confli
               def run() {
                 val newDeclaration: PsiElement = ApplicationManager.getApplication.runWriteAction(introduceRunnable)
                 val namedElement: PsiNamedElement = newDeclaration match {
-                  case holder: ScDeclaredElementsHolder if holder.declaredElements.nonEmpty => holder.declaredElements(0)
-                  case enum: ScEnumerator => enum.pattern.bindings(0)
+                  case holder: ScDeclaredElementsHolder => holder.declaredElements.headOption.getOrElse(null)
+                  case enum: ScEnumerator => enum.pattern.bindings.headOption.getOrElse(null)
+                  case _ => null
                 }
                 if (namedElement != null && namedElement.isValid) {
                   editor.getCaretModel.moveToOffset(namedElement.getTextOffset)

@@ -58,11 +58,12 @@ object Compatibility {
         if (typez.conforms(expected)) return (Success(typez, None), Set.empty)
 
         val convertible = new ScImplicitlyConvertible(place, p => Some(typez))
-        val firstPart = convertible.implicitMapFirstPart(Some(expected), fromUnder = false)
+        val firstPart = convertible.implicitMapFirstPart(Some(expected), fromUnder = false, exprType = Some(typez))
         var f: Seq[ImplicitResolveResult] =
           firstPart.filter(_.tp.conforms(expected))
         if (f.length == 0) {
-          f = convertible.implicitMapSecondPart(Some(expected), fromUnder = false).filter(_.tp.conforms(expected))
+          f = convertible.implicitMapSecondPart(Some(expected), fromUnder = false, exprType = Some(typez)).
+                  filter(_.tp.conforms(expected))
         }
         if (f.length == 1) (Success(f(0).getTypeWithDependentSubstitutor, Some(place)), f(0).importUsed)
         else if (f.length == 0) (Success(typez, None), Set.empty)

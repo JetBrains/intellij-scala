@@ -17,7 +17,7 @@ import psi.impl.base.ScStableCodeReferenceElementImpl
 import org.jetbrains.plugins.scala.lang.psi.api.expr.xml.ScXmlPattern
 import lang.resolve._
 import org.jetbrains.plugins.scala.lang.resolve.processor.{CompletionProcessor, ExpandedExtractorResolveProcessor}
-import statements.params.{ScTypeParam, ScParameter}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScTypeParam, ScParameter}
 import caches.CachesUtil
 import psi.impl.ScalaPsiManager
 import util.{PsiTreeUtil, PsiModificationTracker}
@@ -347,6 +347,8 @@ object ScPattern {
             Seq(subst.subst(fun.returnType.getOrAny))
           case ScalaResolveResult(b: ScBindingPattern, subst) if b.name == name =>
             Seq(subst.subst(b.getType(TypingContext.empty).getOrAny))
+          case ScalaResolveResult(param: ScClassParameter, subst) if param.name == name =>
+            Seq(subst.subst(param.getType(TypingContext.empty).getOrAny))
           case _ => Seq.empty
         }.headOption
       }

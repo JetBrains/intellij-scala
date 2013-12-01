@@ -357,19 +357,19 @@ public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProj
     for (String pattern : patterns) {
       if (pattern.startsWith(EXCLUDE_PREFIX)) {
         String s = pattern.substring(EXCLUDE_PREFIX.length());
-        if (s.endsWith("._")) {
-          if (s.substring(0, s.lastIndexOf('.')).equals(qualName.substring(0, qualName.lastIndexOf('.')))) {
-            return false;
-          }
-        } else if (s.equals(qualName)) return false;
-      } else {
-        if (pattern.endsWith("._")) {
-          if (pattern.substring(0, pattern.lastIndexOf('.')).equals(qualName.substring(0, qualName.lastIndexOf('.')))) {
-            res = true;
-          }
-        } else if (pattern.equals(qualName)) res = true;
+        if (fitToUnderscorePattern(s, qualName) || s.equals(qualName))
+          return false;
+      }
+      else {
+        if (fitToUnderscorePattern(pattern, qualName) || pattern.equals(qualName))
+          res = true;
       }
     }
     return res;
+  }
+
+  private static boolean fitToUnderscorePattern(String pattern, String qualName) {
+    return pattern.endsWith("._") && qualName.contains(".") &&
+        pattern.substring(0, pattern.lastIndexOf('.')).equals(qualName.substring(0, qualName.lastIndexOf('.')));
   }
 }

@@ -41,7 +41,7 @@ trait ScReferenceElement extends ScalaPsiElement with ResolvableReferenceElement
     text.charAt(0) == '`' && text.length > 1
   }
 
-  private def patternNeedBackticks(name: String) = name.charAt(0).isLower && getParent.isInstanceOf[ScStableReferenceElementPattern]
+  private def patternNeedBackticks(name: String) = name != "" && name.charAt(0).isLower && getParent.isInstanceOf[ScStableReferenceElementPattern]
 
   def getElement = this
 
