@@ -12,6 +12,9 @@
         <component>
             <implementation-class>org.jetbrains.sbt.language.SbtProjectComponent</implementation-class>
         </component>
+        <component>
+            <implementation-class>org.jetbrains.sbt.settings.SbtImportNotifier</implementation-class>
+        </component>
     </project-components>
 
     <extensionPoints>
@@ -28,8 +31,9 @@
 
         <projectService serviceImplementation="org.jetbrains.sbt.project.settings.ScalaSbtSettings"/>
         <projectService serviceImplementation="org.jetbrains.sbt.project.settings.SbtLocalSettings"/>
-        <!--<projectService serviceImplementation="org.jetbrains.sbt.settings.SbtProjectSettings"/>-->
-
+        <projectService serviceImplementation="org.jetbrains.sbt.settings.SbtProjectSettings"/>
+        <!--<projectService serviceImplementation="org.jetbrains.sbt.settings.SbtImportNotifier"/>-->
+        
         <projectImportProvider implementation="org.jetbrains.sbt.project.SbtProjectImportProvider"/>
         <projectImportBuilder implementation="org.jetbrains.sbt.project.SbtProjectImportBuilder"/>
 
@@ -39,7 +43,7 @@
 
         <applicationConfigurable instance="org.jetbrains.sbt.settings.SbtConfigurable"/>
         
-        <!--<projectConfigurable instance="org.jetbrains.sbt.settings.SbtExternalSystemConfigurable"/>-->
+        <projectConfigurable instance="org.jetbrains.sbt.settings.SbtExternalSystemConfigurable"/>
         
         <moduleConfigurationEditorProvider
                 implementation="org.jetbrains.sbt.settings.moduleConfig.SbtModuleEditorProvider"/>
