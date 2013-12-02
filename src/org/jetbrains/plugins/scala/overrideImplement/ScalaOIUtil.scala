@@ -31,11 +31,12 @@ import lang.psi.api.expr.ScBlockExpr
 import com.intellij.openapi.util.TextRange
 import config.ScalaVersionUtil
 import com.intellij.openapi.application.ApplicationManager
-import java.util.{Collections, List, Properties}
+import java.util.{Collections, Properties}
 import scala.Some
 import scala.Boolean
 import scala.Any
 import scala.Int
+import scala.annotation.tailrec
 
 /**
  * User: Alexander Podkhalyuzin
@@ -47,33 +48,28 @@ object ScalaOIUtil {
     val classMembersBuf = new ArrayBuffer[ClassMember]
     for (candidate <- candidates) {
       candidate match {
-        case sign: PhysicalSignature => {
+        case sign: PhysicalSignature =>
           assert(sign.method.containingClass != null, "Containing Class is null: " + sign.method.getText)
           classMembersBuf += new ScMethodMember(sign)
-        }
-        case (name: PsiNamedElement, subst: ScSubstitutor) => {
+        case (name: PsiNamedElement, subst: ScSubstitutor) =>
           ScalaPsiUtil.nameContext(name) match {
-            case x: ScValue => {
+            case x: ScValue =>
               assert(x.containingClass != null, "Containing Class is null: " + x.getText)
               name match {
                 case y: ScTypedDefinition => classMembersBuf += new ScValueMember(x, y, subst)
                 case _ => throw new IncorrectOperationException("Not supported type:" + x)
               }
-            }
-            case x: ScVariable => {
+            case x: ScVariable =>
               assert(x.containingClass != null, "Containing Class is null: " + x.getText)
               name match {
                 case y: ScTypedDefinition => classMembersBuf += new ScVariableMember(x, y, subst)
                 case _ => throw new IncorrectOperationException("Not supported type:" + x)
               }
-            }
-            case x: ScTypeAlias => {
+            case x: ScTypeAlias =>
               assert(x.containingClass != null, "Containing Class is null: " + x.getText)
               classMembersBuf += new ScAliasMember(x, subst)
-            }
             case x => throw new IncorrectOperationException("Not supported type:" + x)
           }
-        }
         case x => throw new IncorrectOperationException("Not supported type:" + x)
       }
     }
@@ -83,6 +79,7 @@ object ScalaOIUtil {
   def invokeOverrideImplement(project: Project, editor: Editor, file: PsiFile, isImplement: Boolean,
                               methodName: String = null, inferType: Boolean = false) {
     val elem = file.findElementAt(editor.getCaretModel.getOffset - 1)
+    @tailrec
     def getParentClass(elem: PsiElement): PsiElement = {
       elem match {
         case _: ScTemplateDefinition | null => elem
@@ -105,7 +102,7 @@ object ScalaOIUtil {
     class ScalaMemberChooser extends MemberChooser[ClassMember](classMembers, false, true, project, null, componentBuffer.toArray) {
       def needsInferType = dontInferReturnTypeCheckBox.isSelected
     }
-    var selectedMembers: List[ClassMember] = null
+    var selectedMembers: java.util.List[ClassMember] = null
     var needsInferType: Boolean = inferType
     if (!ApplicationManager.getApplication.isUnitTestMode) {
       val chooser = new ScalaMemberChooser
@@ -138,11 +135,12 @@ object ScalaOIUtil {
 
         val clazzMethods = clazz.allMethods.map(_.method).toSet
 
-        for (member <- selectedMembers.toArray(new Array[ClassMember](selectedMembers.size)).reverse) {
+        import scala.collection.JavaConversions._
+        for (member <- selectedMembers.reverse) {
           val offset = editor.getCaretModel.getOffset
           val anchor = getAnchor(offset, clazz)
           member match {
-            case member: ScMethodMember => {
+            case member: ScMethodMember =>
               val method: PsiMethod = member.getElement
               val sign = member.sign.updateSubst(addUpdateThisType)
               val isAbstract = method match {
@@ -192,13 +190,12 @@ object ScalaOIUtil {
               val m = ScalaPsiElementFactory.createOverrideImplementMethod(sign, method.getManager,
                 !isImplement, needsInferType, body)
               adjustTypesAndSetCaret(clazz.addMember(m, anchor), editor)
-            }
             case member: ScAliasMember =>
               val alias = member.getElement
               val substitutor = addUpdateThisType(member.substitutor)
               val m = ScalaPsiElementFactory.createOverrideImplementType(alias, substitutor, alias.getManager, !isImplement)
               adjustTypesAndSetCaret(clazz.addMember(m, anchor), editor)
-            case _: ScValueMember | _: ScVariableMember => {
+            case _: ScValueMember | _: ScVariableMember =>
               val isVal = member match {case _: ScValueMember => true case _: ScVariableMember => false}
               val value = member match {case x: ScValueMember => x.element case x: ScVariableMember => x.element}
               val origSubstitutor = member match {
@@ -209,7 +206,6 @@ object ScalaOIUtil {
               val m = ScalaPsiElementFactory.createOverrideImplementVariable(value, substitutor, value.getManager,
                 !isImplement, isVal, needsInferType)
               adjustTypesAndSetCaret(clazz.addMember(m, anchor), editor)
-            }
             case _ =>
           }
         }
@@ -231,7 +227,7 @@ object ScalaOIUtil {
     val buf2 = new ArrayBuffer[Object]
     for (element <- buf) {
       element match {
-        case sign: PhysicalSignature => {
+        case sign: PhysicalSignature =>
           val m = sign.method
           val name = if (m == null) "" else m.name
           m match {
@@ -246,15 +242,13 @@ object ScalaOIUtil {
               buf2 += sign
             case _ =>
           }
-        }
-        case (name: PsiNamedElement, subst: ScSubstitutor) => {
+        case (name: PsiNamedElement, subst: ScSubstitutor) =>
           ScalaPsiUtil.nameContext(name) match {
             case x: ScValueDeclaration if withOwn || x.containingClass != clazz => buf2 += element
             case x: ScVariableDeclaration if withOwn || x.containingClass != clazz => buf2 += element
             case x: ScTypeAliasDeclaration if withOwn || x.containingClass != clazz => buf2 += element
             case _ =>
           }
-        }
         case _ =>
       }
     }
@@ -265,7 +259,7 @@ object ScalaOIUtil {
                               visited: HashSet[PsiClass] = new HashSet) : Boolean = {
     if (visited.contains(clazz)) return false
     clazz match {
-      case td: ScTypeDefinition if td.isCase => {
+      case td: ScTypeDefinition if td.isCase =>
         if (m.name == "apply") return true
         if (m.name == "canEqual") return true
         val clazz = m.containingClass
@@ -274,14 +268,14 @@ object ScalaOIUtil {
             case "productArity" | "productElement" => true
             case _ => false
           })
-      }
-      case x: ScTemplateDefinition => (x.superTypes.map(t => ScType.extractClass(t)).find {
-        case Some(c) => isProductAbstractMethod(m, c, visited + clazz)
-        case _ => false
-      }) match {
-        case Some(_) => true
-        case _ => false
-      }
+      case x: ScTemplateDefinition =>
+        x.superTypes.map(t => ScType.extractClass(t)).find {
+          case Some(c) => isProductAbstractMethod(m, c, visited + clazz)
+          case _ => false
+        } match {
+          case Some(_) => true
+          case _ => false
+        }
       case _ => false
     }
   }
@@ -300,7 +294,7 @@ object ScalaOIUtil {
     val buf2 = new ArrayBuffer[Object]
     for (element <- buf) {
       element match {
-        case sign: PhysicalSignature => {
+        case sign: PhysicalSignature =>
           sign.method match {
             case _ if isProductAbstractMethod(sign.method, clazz) => buf2 += sign
             case f: ScFunctionDeclaration if f.hasAnnotation("scala.native") == None =>
@@ -311,7 +305,7 @@ object ScalaOIUtil {
               !x.isInstanceOf[ScFunctionDefinition])
                 || x.hasModifierPropertyScala("final") =>
             case x if x.isConstructor =>
-            case method => {
+            case method =>
               var flag = false
               if (method match {case x: ScFunction => x.parameters.length == 0 case _ => method.getParameterList.getParametersCount == 0}) {
                 for (pair <- clazz.allVals; v = pair._1) if (v.name == method.name) {
@@ -323,13 +317,11 @@ object ScalaOIUtil {
                 }
               }
               if (!flag) buf2 += sign
-            }
           }
-        }
-        case (name: PsiNamedElement, subst: ScSubstitutor) => {
+        case (name: PsiNamedElement, subst: ScSubstitutor) =>
           ScalaPsiUtil.nameContext(name) match {
             case x: PsiModifierListOwner if x.hasModifierPropertyScala("final") =>
-            case x: ScPatternDefinition if x.containingClass != clazz => {
+            case x: ScPatternDefinition if x.containingClass != clazz =>
               var flag = false
               for (signe <- clazz.allMethods if signe.method.containingClass == clazz) {
                 //containingClass == clazz so we sure that this is ScFunction (it is safe cast)
@@ -346,8 +338,7 @@ object ScalaOIUtil {
                 }
               }
               if (!flag) buf2 += element
-            }
-            case x: ScVariableDefinition if x.containingClass != clazz => {
+            case x: ScVariableDefinition if x.containingClass != clazz =>
               var flag = false
               for (signe <- clazz.allMethods if signe.method.containingClass == clazz) {
                 //containingClass == clazz so we sure that this is ScFunction (it is safe cast)
@@ -364,11 +355,9 @@ object ScalaOIUtil {
                 }
               }
               if (!flag) buf2 += element
-            }
             case x: ScTypeAliasDefinition if x.containingClass != clazz => buf2 += element
             case _ =>
           }
-        }
         case _ =>
       }
     }
@@ -401,8 +390,8 @@ object ScalaOIUtil {
     //Setting selection
     val body: PsiElement = member match {
       case meth: ScTypeAliasDefinition => meth.aliasedTypeElement
-      case meth @ ScPatternDefinition.expr(expr) => expr
-      case meth @ ScVariableDefinition.expr(expr) => expr
+      case ScPatternDefinition.expr(expr) => expr
+      case ScVariableDefinition.expr(expr) => expr
       case method: ScFunctionDefinition => method.body match {
         case Some(x) => x
         case None => return
