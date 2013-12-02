@@ -7,6 +7,7 @@ import java.io._
 import com.intellij.compiler.server.BuildManager
 import extensions.using
 import com.intellij.openapi.compiler.{CompilerMessageCategory, CompileContext, CompileTask, CompilerManager}
+import com.intellij.openapi.module.ModuleManager
 
 /**
  * Nikolay.Tropin
@@ -21,7 +22,7 @@ class IncrementalTypeChecker(project: Project) extends ProjectComponent {
     def execute(context: CompileContext): Boolean = {
 
       val previousIncrementalType = getPreviousIncrementalType
-      val incrementalType: Option[String] = None //todo real settings
+      val incrementalType: Option[String] = Option(ScalaApplicationSettings.getInstance().INCREMENTAL_TYPE) //todo real settings
 
       if (!isScalaProject || incrementalType.isEmpty || previousIncrementalType == incrementalType) return true
 

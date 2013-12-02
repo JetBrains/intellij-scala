@@ -68,7 +68,7 @@ object IdeaIncrementalBuilder extends ScalaBuilderDelegate {
     val project = context.getProjectDescriptor
     val excludeIndex = project.getModuleExcludeIndex
 
-    val compileOrder = SettingsManager.getProjectSettings.compileOrder
+    val compileOrder = SettingsManager.getProjectSettings(project).compileOrder
     val extensionsToCollect = compileOrder match {
       case Order.Mixed => List(".scala", ".java")
       case _ => List(".scala")

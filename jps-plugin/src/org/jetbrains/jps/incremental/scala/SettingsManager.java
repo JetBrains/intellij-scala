@@ -2,6 +2,7 @@ package org.jetbrains.jps.incremental.scala;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.jps.cmdline.ProjectDescriptor;
 import org.jetbrains.jps.incremental.scala.model.*;
 import org.jetbrains.jps.model.JpsGlobal;
 import org.jetbrains.jps.model.ex.JpsElementChildRoleBase;
@@ -32,7 +33,7 @@ public class SettingsManager {
     project.getContainer().setChild(FACET_SETTINGS_ROLE, module);
   }
 
-  public static ProjectSettings getProjectSettings() {
-    return new ProjectSetingsImpl(); //todo use real settings
+  public static ProjectSettings getProjectSettings(ProjectDescriptor projectDescriptor) {
+    return new ProjectSetingsImpl(projectDescriptor); //todo use real settings
   }
 }
