@@ -46,8 +46,8 @@ public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProj
 
   private boolean IGNORE_PERFORMANCE_TO_FIND_ALL_CLASS_NAMES = false;
   private boolean TREAT_DOC_COMMENT_AS_BLOCK_COMMENT = false;
-  private boolean DISABLE_LANGUAGE_INJECTION = false;
-  private boolean DISABLE_I18N = false;
+  private boolean DISABLE_LANGUAGE_INJECTION = true;
+  private boolean DISABLE_I18N = true;
   private boolean DONT_CACHE_COMPOUND_TYPES = false;
 
   private boolean SCALA_CLASSES_PRIORITY = true;
