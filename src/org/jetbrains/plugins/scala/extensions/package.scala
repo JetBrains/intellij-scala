@@ -14,6 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiParameter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
+import java.io.Closeable
 
 /**
   * Pavel Fatin
@@ -142,6 +143,14 @@ package object extensions {
           ScType.create(paramType, param.getProject, param.getResolveScope, paramTopLevel = true,
             treatJavaObjectAsAny = treatJavaObjectAsAny)
       }
+    }
+  }
+
+  def using[A <: Closeable, B](resource: A)(block: A => B): B = {
+    try {
+      block(resource)
+    } finally {
+      resource.close()
     }
   }
 }

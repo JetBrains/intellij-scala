@@ -2,17 +2,16 @@ package org.jetbrains.plugins.scala.compiler;
 
 import com.intellij.openapi.options.Configurable;
 import com.intellij.openapi.options.ConfigurationException;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.project.ProjectManager;
 import com.intellij.openapi.projectRoots.ProjectJdkTable;
 import com.intellij.openapi.projectRoots.Sdk;
 import com.intellij.openapi.roots.ui.configuration.JdkComboBox;
 import com.intellij.openapi.roots.ui.configuration.projectRoot.ProjectSdksModel;
 import com.intellij.openapi.ui.ex.MultiLineLabel;
-import com.intellij.openapi.util.NullableComputable;
 import com.intellij.ui.JBColor;
+import com.intellij.ui.ListCellRendererWrapper;
 import com.intellij.ui.RawCommandLineEditor;
 import com.intellij.util.containers.ComparatorUtil;
+import org.jdesktop.swingx.combobox.ListComboBoxModel;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.Nullable;
 
@@ -38,6 +37,9 @@ public class ScalaApplicationSettingsForm implements Configurable {
   private JPanel mySdkPanel;
   private JCheckBox showTypeInfoOnCheckBox;
   private JSpinner delaySpinner;
+  private JComboBox myCompilerTypeCmb;
+  private JComboBox myCompileOrderCmb;
+  private JPanel myCompilerOptionsPanel;
   private ScalaApplicationSettings mySettings;
 
   public ScalaApplicationSettingsForm(ScalaApplicationSettings settings) {
@@ -49,6 +51,9 @@ public class ScalaApplicationSettingsForm implements Configurable {
       }
     });
 
+    initCompilerTypeCmb();
+    initCompileOrderCmb();
+
     ProjectSdksModel model = new ProjectSdksModel();
     model.reset(null);
 
@@ -56,6 +61,7 @@ public class ScalaApplicationSettingsForm implements Configurable {
     myCompilationServerSdk.insertItemAt(new JdkComboBox.NoneJdkComboBoxItem(), 0);
 
     mySdkPanel.add(myCompilationServerSdk, BorderLayout.CENTER);
+    mySdkPanel.setSize(mySdkPanel.getPreferredSize());
 
     myNote.setForeground(JBColor.GRAY);
 
@@ -69,6 +75,31 @@ public class ScalaApplicationSettingsForm implements Configurable {
     delaySpinner.setValue(mySettings.SHOW_TYPE_TOOLTIP_DELAY);
 
     updateCompilationServerSettingsPanel();
+  }
+
+  private void initCompilerTypeCmb() {
+    myCompilerTypeCmb.setModel(new ListComboBoxModel<String>(mySettings.INCREMENTAL_TYPES));
+    myCompilerTypeCmb.setSelectedItem(mySettings.INCREMENTAL_TYPE);
+    myCompilerTypeCmb.setRenderer(new ListCellRendererWrapper<String>() {
+      @Override
+      public void customize(JList list, String value, int index, boolean selected, boolean hasFocus) {
+        if (value.equals("SBT")) setText("SBT incremental compiler");
+        if (value.equals("IDEA")) setText("Intellij IDEA");
+      }
+    });
+  }
+
+  private void initCompileOrderCmb() {
+    myCompileOrderCmb.setModel(new ListComboBoxModel<String>(mySettings.COMPILE_ORDERS));
+    myCompileOrderCmb.setSelectedItem(mySettings.COMPILE_ORDER);
+    myCompileOrderCmb.setRenderer(new ListCellRendererWrapper<String>() {
+      @Override
+      public void customize(JList list, String value, int index, boolean selected, boolean hasFocus) {
+        if (value.equals("Mixed")) setText("Mixed");
+        if (value.equals("JavaThenScala")) setText("Java then Scala");
+        if (value.equals("ScalaThenJava")) setText("Scala then Java");
+      }
+    });
   }
 
   private void updateCompilationServerSettingsPanel() {
@@ -111,10 +142,14 @@ public class ScalaApplicationSettingsForm implements Configurable {
         myCompilationServerPort.getText().equals(mySettings.COMPILE_SERVER_PORT) &&
         ComparatorUtil.equalsNullable(sdkName, mySettings.COMPILE_SERVER_SDK) &&
         myCompilationServerMaximumHeapSize.getText().equals(mySettings.COMPILE_SERVER_MAXIMUM_HEAP_SIZE) &&
-        myCompilationServerJvmParameters.getText().equals(mySettings.COMPILE_SERVER_JVM_PARAMETERS));
+        myCompilationServerJvmParameters.getText().equals(mySettings.COMPILE_SERVER_JVM_PARAMETERS) &&
+        myCompilerTypeCmb.getModel().getSelectedItem().equals(mySettings.INCREMENTAL_TYPE) &&
+        myCompileOrderCmb.getModel().getSelectedItem().equals(mySettings.COMPILE_ORDER));
   }
 
   public void apply() throws ConfigurationException {
+    mySettings.INCREMENTAL_TYPE = (String) myCompilerTypeCmb.getModel().getSelectedItem();
+    mySettings.COMPILE_ORDER = (String) myCompileOrderCmb.getModel().getSelectedItem();
     mySettings.COMPILE_SERVER_ENABLED = myEnableCompileServer.isSelected();
     mySettings.COMPILE_SERVER_PORT = myCompilationServerPort.getText();
 
