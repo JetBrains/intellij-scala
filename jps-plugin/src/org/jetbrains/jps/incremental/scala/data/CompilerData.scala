@@ -21,7 +21,8 @@ case class CompilerData(compilerJars: Option[CompilerJars], javaHome: Option[Fil
 
 object CompilerData {
   def from(context: CompileContext, chunk: ModuleChunk): Either[String, CompilerData] = {
-    val model = context.getProjectDescriptor.getModel
+    val project = context.getProjectDescriptor
+    val model = project.getModel
     val target = chunk.representativeTarget
     val module = target.getModule
 
@@ -52,7 +53,7 @@ object CompilerData {
           Either.cond(directory.exists, Some(directory), "JDK home directory does not exists: " + directory)
         }
 
-        val incrementalType = SettingsManager.getProjectSettings.incrementalType
+        val incrementalType = SettingsManager.getProjectSettings(project).incrementalType
 
         javaHome.map(CompilerData(jars, _, incrementalType))
       }

@@ -39,12 +39,14 @@ class ScalaBuilder(category: BuilderCategory, @NotNull delegate: ScalaBuilderDel
     val project: JpsProject = context.getProjectDescriptor.getProject
     if (!isScalaProject(project)) return true
 
-    SettingsManager.getProjectSettings.incrementalType match {
+    val projectSettings = SettingsManager.getProjectSettings(context.getProjectDescriptor)
+
+    projectSettings.incrementalType match {
       case IncrementalType.SBT if delegate != SbtBuilder => true
       case IncrementalType.IDEA =>
         if (delegate != IdeaIncrementalBuilder) return true
 
-        SettingsManager.getProjectSettings.compileOrder match {
+        projectSettings.compileOrder match {
           case Order.JavaThenScala if getCategory == BuilderCategory.SOURCE_PROCESSOR => true
           case (Order.ScalaThenJava | Order.Mixed) if getCategory == BuilderCategory.OVERWRITING_TRANSLATOR => true
           case _ => false

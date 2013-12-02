@@ -11,4 +11,8 @@ public interface GlobalSettings extends JpsElement {
   int getCompileServerPort();
 
   String getCompileServerSdk();
+
+  public IncrementalType getIncrementalType();
+
+  public Order getCompileOrder();
 }
