@@ -34,7 +34,7 @@ abstract class CreateEntityQuickFix(ref: ScReferenceExpression,
   // TODO use Java CFU when needed
   // TODO find better place for fields, create methods after
 
-  def getText = "Create %s '%s'".format(entity, ref.nameId.getText)
+  val getText = "Create %s '%s'".format(entity, ref.nameId.getText)
 
   def getFamilyName = getText
 
