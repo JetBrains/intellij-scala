@@ -196,7 +196,14 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
       val data = new LibraryDependencyNode(moduleData, library, LibraryLevel.PROJECT)
       data.setScope(scopeFor(configurations))
       data
-    }
+    } ++ project.scala.toSeq.map { scala =>
+      val name: String = nameFor(scala)
+      val library = libraries.find(_.getName == name).getOrElse(
+        throw new ExternalSystemException("Library not found: " + name))
+      val data = new LibraryDependencyNode(moduleData, library, LibraryLevel.PROJECT)
+      data.setScope(DependencyScope.PROVIDED)
+      data
+    } //todo: this is the hack for removing unused libraries in external system
   }
 
   private def createUnmanagedDependencies(project: Project)(moduleData: ModuleData): Seq[LibraryDependencyNode] = {
