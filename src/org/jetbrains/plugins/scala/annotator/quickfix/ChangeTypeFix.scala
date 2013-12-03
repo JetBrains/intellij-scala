@@ -15,7 +15,7 @@ import com.intellij.codeInsight.{FileModificationService, CodeInsightUtilBase}
 import com.intellij.openapi.command.undo.UndoUtil
 
 class ChangeTypeFix(typeElement: ScTypeElement, newType: ScType) extends IntentionAction {
-  def getText: String = "Change type '%s' to '%s'".format(typeElement.getText, newType.presentableText)
+  val getText: String = "Change type '%s' to '%s'".format(typeElement.getText, newType.presentableText)
 
   def getFamilyName: String = "Change Type"
 
