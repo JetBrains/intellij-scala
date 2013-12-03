@@ -1,14 +1,14 @@
 package org.jetbrains.sbt
 package project
 
-import com.intellij.openapi.externalSystem.{ExternalSystemAutoImportAware, ExternalSystemManager}
+import com.intellij.openapi.externalSystem.{ExternalSystemConfigurableAware, ExternalSystemAutoImportAware, ExternalSystemManager}
 import com.intellij.openapi.project.Project
 import com.intellij.execution.configurations.SimpleJavaParameters
 import settings._
 import com.intellij.openapi.externalSystem.util._
 import com.intellij.openapi.externalSystem.service.project.autoimport.CachingExternalSystemAutoImportAware
 import com.intellij.util.net.HttpConfigurable
-import org.jetbrains.sbt.settings.SbtApplicationSettings
+import org.jetbrains.sbt.settings.{SbtExternalSystemConfigurable, SbtApplicationSettings}
 import java.util
 import java.net.URL
 import com.intellij.openapi.startup.StartupActivity
@@ -20,13 +20,14 @@ import com.intellij.openapi.externalSystem.model.project.ProjectData
 import com.intellij.openapi.externalSystem.service.execution.ProgressExecutionMode
 import com.intellij.openapi.roots.ex.ProjectRootManagerEx
 import java.util.Collections
+import com.intellij.openapi.options.Configurable
 
 /**
  * @author Pavel Fatin
  */
 class SbtExternalSystemManager
   extends ExternalSystemManager[SbtProjectSettings, SbtSettingsListener, ScalaSbtSettings, SbtLocalSettings, SbtExecutionSettings]
-  with ExternalSystemAutoImportAware /*with ExternalSystemConfigurableAware*/ with StartupActivity {
+  with ExternalSystemAutoImportAware with ExternalSystemConfigurableAware with StartupActivity {
   def enhanceLocalProcessing(urls: util.List[URL]) {
     urls.add(jarWith[scala.App].toURI.toURL)
   }
@@ -116,7 +117,7 @@ class SbtExternalSystemManager
     })
   }
 
-//  def getConfigurable(project: Project): Configurable = new SbtExternalSystemConfigurable(project)
+  def getConfigurable(project: Project): Configurable = new SbtExternalSystemConfigurable(project)
 }
 
 object SbtExternalSystemManager {
