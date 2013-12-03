@@ -12,15 +12,17 @@ import org.jetbrains.jps.ModuleChunk
 import org.jetbrains.jps.model.java.JpsJavaSdkType
 import collection.JavaConverters._
 import org.jetbrains.jps.builders.java.JavaBuilderUtil
+import org.jetbrains.jps.incremental.scala.model.IncrementalType
 
 /**
  * @author Pavel Fatin
  */
-case class CompilerData(compilerJars: Option[CompilerJars], javaHome: Option[File])
+case class CompilerData(compilerJars: Option[CompilerJars], javaHome: Option[File], incrementalType: IncrementalType)
 
 object CompilerData {
   def from(context: CompileContext, chunk: ModuleChunk): Either[String, CompilerData] = {
-    val model = context.getProjectDescriptor.getModel
+    val project = context.getProjectDescriptor
+    val model = project.getModel
     val target = chunk.representativeTarget
     val module = target.getModule
 
@@ -51,7 +53,9 @@ object CompilerData {
           Either.cond(directory.exists, Some(directory), "JDK home directory does not exists: " + directory)
         }
 
-        javaHome.map(CompilerData(jars, _))
+        val incrementalType = SettingsManager.getProjectSettings(project).incrementalType
+
+        javaHome.map(CompilerData(jars, _, incrementalType))
       }
     }
   }

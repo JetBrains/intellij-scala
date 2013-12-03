@@ -33,6 +33,7 @@ import scala.annotation.tailrec
 import org.jetbrains.plugins.scala.debugger.evaluation.evaluator.ScalaMethodEvaluator
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import org.jetbrains.plugins.scala.lang.psi.types.ScThisType
+import com.intellij.lang.java.JavaLanguage
 
 /**
  * User: Alefas
@@ -49,6 +50,9 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
       cached.values.headOption
     }
     def buildNew(): ExpressionEvaluator = {
+      if (codeFragment.getLanguage.isInstanceOf[JavaLanguage])
+        return EvaluatorBuilderImpl.getInstance().build(codeFragment, position) //java builder (e.g. SCL-6117)
+
       val eval = new Builder(position).buildElement(codeFragment)
       cachedEvaluators += (codeFragment -> eval)
       eval

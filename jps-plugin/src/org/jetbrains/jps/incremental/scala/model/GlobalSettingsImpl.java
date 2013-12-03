@@ -28,6 +28,14 @@ public class GlobalSettingsImpl extends JpsElementBase<GlobalSettingsImpl> imple
     return myState.COMPILE_SERVER_SDK;
   }
 
+  public IncrementalType getIncrementalType() {
+    return IncrementalType.valueOf(myState.INCREMENTAL_TYPE);
+  }
+
+  public Order getCompileOrder() {
+    return Order.valueOf(myState.COMPILE_ORDER);
+  }
+
   @NotNull
   @Override
   public GlobalSettingsImpl createCopy() {
@@ -45,5 +53,9 @@ public class GlobalSettingsImpl extends JpsElementBase<GlobalSettingsImpl> imple
     public int COMPILE_SERVER_PORT = 3200;
 
     public String COMPILE_SERVER_SDK;
+
+    public String INCREMENTAL_TYPE = "SBT";
+
+    public String COMPILE_ORDER = "Mixed";
   }
 }
