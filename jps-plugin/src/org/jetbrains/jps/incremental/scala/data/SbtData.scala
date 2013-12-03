@@ -32,7 +32,7 @@ object SbtData {
                     .toRight("Unable to read SBT version from JVM classpath")
                     .map { sbtVersion =>
 
-              val interfacesHome = new File(new File(systemRoot, "scala-compiler-interfaces"), sbtVersion)
+              val interfacesHome = new File(new File(systemRoot, "scala-compiler-interfaces"), sbtVersion + "-idea")
 
               new SbtData(interfaceJar, sourceJar, interfacesHome, javaClassVersion)
             }
