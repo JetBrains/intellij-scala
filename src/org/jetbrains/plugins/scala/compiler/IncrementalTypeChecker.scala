@@ -8,6 +8,7 @@ import com.intellij.compiler.server.BuildManager
 import extensions.using
 import com.intellij.openapi.compiler.{CompilerMessageCategory, CompileContext, CompileTask, CompilerManager}
 import com.intellij.openapi.module.ModuleManager
+import java.nio.file.Files
 
 /**
  * Nikolay.Tropin
@@ -84,25 +85,23 @@ class IncrementalTypeChecker(project: Project) extends ProjectComponent {
   private def setPreviousIncrementalType(incrTypeOpt: Option[String]) {
     storageFile.foreach { file =>
       incrTypeOpt match {
-        case None => if (file.exists())
-          try {
-            file.delete()
-          }
-          catch {
-            case e: IOException =>
-          }
+        case None if file.exists() =>
+          try file.delete()
+          catch {case e: IOException =>}
+        case None =>
         case Some(incrType) =>
+          val parentDir = file.getParentFile
+          if (!parentDir.exists()) Files.createDirectories(parentDir.toPath)
           using(new DataOutputStream(new BufferedOutputStream(new FileOutputStream(file)))) {
             _.writeUTF(incrType)
           }
       }
-
     }
   }
 
   private def storageFile: Option[File] = {
     val projectDir = BuildManager.getInstance().getProjectSystemDirectory(project)
-    if (projectDir != null) 
+    if (projectDir != null)
       Some(new File(projectDir, "incrementalType.dat"))
     else None
   }
