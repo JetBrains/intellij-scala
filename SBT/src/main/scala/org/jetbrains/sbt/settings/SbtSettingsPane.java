@@ -25,7 +25,6 @@ public class SbtSettingsPane {
     private RawCommandLineEditor myVmParameters;
     private JLabel myLauncherPathLabel;
     private JPanel myContentPanel;
-    private JLabel myLauncherNote;
 
     public SbtSettingsPane() {
         myBundledButton.addItemListener(new ItemListener() {
@@ -46,8 +45,6 @@ public class SbtSettingsPane {
 
         myLauncherPath.addBrowseFolderListener("Choose a custom launcher", "Choose sbt-launch.jar", null,
                 FileChooserDescriptorFactory.createSingleLocalFileDescriptor());
-
-        myLauncherNote.setForeground(JBColor.GRAY);
     }
 
     public JPanel getContentPanel() {
@@ -156,9 +153,6 @@ public class SbtSettingsPane {
         myLauncherPathLabel = new JLabel();
         myLauncherPathLabel.setText("Path:");
         panel3.add(myLauncherPathLabel, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        myLauncherNote = new JLabel();
-        myLauncherNote.setText("SBT 0.13.* launchers are not supported yet");
-        panel3.add(myLauncherNote, new GridConstraints(1, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         label1.setLabelFor(myMaximumHeapSize);
         ButtonGroup buttonGroup;
         buttonGroup = new ButtonGroup();
