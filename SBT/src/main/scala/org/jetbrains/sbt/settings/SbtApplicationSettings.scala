@@ -9,7 +9,7 @@ import beans.BeanProperty
 /**
  * @author Pavel Fatin
  */
-@State(name = "SbtSettings", storages = Array(new Storage(file = StoragePathMacros.APP_CONFIG + "/sbt.xml")))
+@State(name = "ScalaSbtSettings", storages = Array(new Storage(file = StoragePathMacros.APP_CONFIG + "/scala_sbt.xml")))
 class SbtApplicationSettings extends PersistentStateComponent[SbtApplicationSettings] {
   @BeanProperty
   var customLauncherEnabled: Boolean = false
