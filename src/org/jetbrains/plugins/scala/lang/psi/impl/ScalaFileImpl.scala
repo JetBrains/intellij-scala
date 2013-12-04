@@ -40,6 +40,12 @@ import com.intellij.psi.impl.source.codeStyle.CodeEditUtil
 import com.intellij.psi.impl.source.PostprocessReformattingAspect
 import com.intellij.openapi.fileTypes.LanguageFileType
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
+import com.intellij.openapi.vfs.newvfs.persistent.FSRecords
+import com.intellij.openapi.application.ex.ApplicationEx
+import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.ui.Messages
+import com.intellij.openapi.actionSystem.CommonDataKeys
+import javax.swing.SwingUtilities
 
 class ScalaFileImpl(viewProvider: FileViewProvider, fileType: LanguageFileType = ScalaFileType.SCALA_FILE_TYPE)
         extends PsiFileBase(viewProvider, fileType.getLanguage)
@@ -290,11 +296,17 @@ class ScalaFileImpl(viewProvider: FileViewProvider, fileType: LanguageFileType =
     case null => null
     case s: ScFileStub => s
     case _ =>
-      val faultyContainer: VirtualFile = PsiUtilCore.getVirtualFile(this)
-      if (faultyContainer != null && faultyContainer.isValid) {
-        FileBasedIndex.getInstance.requestReindex(faultyContainer)
-      }
-      throw new Throwable("Scala File has wrong stub file: " + faultyContainer)
+      SwingUtilities.invokeLater(new Runnable {
+        def run(): Unit = {
+          FSRecords.invalidateCaches()
+          val app: ApplicationEx = ApplicationManager.getApplication.asInstanceOf[ApplicationEx]
+          val res = Messages.showDialog(getProject,
+            "Due to upgrade error, the caches will be invalidated and rebuilt on the next startup. IDEA will be restarted.",
+            "IDEA will be restarted", Array("Restart", "Restart later"), 0, Messages.getWarningIcon)
+          if (res == 0) app.restart(true)
+        }
+      })
+      null
   }
 
   def getPackagings: Array[ScPackaging] = {
