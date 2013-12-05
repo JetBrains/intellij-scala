@@ -67,7 +67,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
 
     projects.zip(moduleNodes).foreach { case (moduleProject, moduleNode) =>
       moduleProject.dependencies.foreach { dependencyName =>
-        val dependency = moduleNodes.find(_.getName == dependencyName).getOrElse(
+        val dependency = moduleNodes.find(module => normalized(module.getName) == dependencyName).getOrElse(
           throw new ExternalSystemException("Cannot find module dependency: " + dependencyName))
         moduleNode.add(new ModuleDependencyNode(moduleNode, dependency))
       }
@@ -82,6 +82,8 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     val ids = project.configurations.flatMap(_.modules)
     ids.map(id => Module(id, Seq.empty, Seq.empty, Seq.empty))
   }
+
+  private def normalized(name: String) = name.toLowerCase.replace(' ', '-')
 
   private def createFacet(project: Project, scala: Scala): ScalaFacetNode = {
     val basePackage = Some(project.organization).filter(_.contains(".")).mkString
