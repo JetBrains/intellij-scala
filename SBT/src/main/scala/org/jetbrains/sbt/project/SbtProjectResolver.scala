@@ -191,14 +191,14 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
 
     moduleToConfigurations.map { case (module, configurations) =>
       val name = nameFor(module)
-      val library = libraries.find(_.getName == name).getOrElse(
+      val library = libraries.find(_.getExternalName == name).getOrElse(
         throw new ExternalSystemException("Library not found: " + name))
       val data = new LibraryDependencyNode(moduleData, library, LibraryLevel.PROJECT)
       data.setScope(scopeFor(configurations))
       data
     } ++ project.scala.toSeq.map { scala =>
       val name: String = nameFor(scala)
-      val library = libraries.find(_.getName == name).getOrElse(
+      val library = libraries.find(_.getExternalName == name).getOrElse(
         throw new ExternalSystemException("Library not found: " + name))
       val data = new LibraryDependencyNode(moduleData, library, LibraryLevel.PROJECT)
       data.setScope(DependencyScope.PROVIDED)
