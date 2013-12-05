@@ -36,6 +36,6 @@ class ScStubFileElementType(lang: Language) extends IStubFileElementWrapper[Scal
 
 }
 
-private[elements] object StubVersion {
+object StubVersion {
   val STUB_VERSION: Int = DecompilerUtil.DECOMPILER_VERSION
 }

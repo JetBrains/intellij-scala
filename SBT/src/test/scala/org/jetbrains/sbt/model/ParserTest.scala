@@ -26,10 +26,9 @@ object ParserTest {
 
     val configuration = Configuration(
       id = "compile",
-      sources = Seq(new File("$BASE/src/main/scala"), new File("$BASE/src/main/java")),
-      resources = Seq(new File("$BASE/src/main/resources")),
+      sources = Seq(Directory(new File("$BASE/src/main/scala"), managed = false), Directory(new File("$BASE/src/main/java"), managed = true)),
+      resources = Seq(Directory(new File("$BASE/src/main/resources"), managed = false)),
       classes = new File("$BASE/target/scala-2.10/classes"),
-      dependencies = Seq.empty,
       modules = Seq(moduleId),
       jars = Seq.empty)
 
@@ -57,7 +56,7 @@ object ParserTest {
       configurations = Seq(configuration),
       java = Some(java),
       scala = Some(scala),
-      projects = Seq())
+      dependencies = Seq())
 
     val module = Module(
       id = moduleId,
@@ -67,6 +66,6 @@ object ParserTest {
 
     val repository = Repository(new File("."), Seq(module))
 
-    Structure(project, Some(repository))
+    Structure(Seq(project), Some(repository))
   }
 }
