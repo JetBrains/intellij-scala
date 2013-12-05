@@ -4,7 +4,7 @@ package settings
 import com.intellij.openapi.components.{ServiceManager, ProjectComponent}
 import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.scala.util.NotificationUtil
-import com.intellij.openapi.fileEditor.{FileEditorManager, FileEditorManagerEvent, FileEditorManagerListener}
+import com.intellij.openapi.fileEditor.{FileDocumentManager, FileEditorManager, FileEditorManagerEvent, FileEditorManagerListener}
 import com.intellij.openapi.vfs.VirtualFile
 import org.jetbrains.sbt.language.SbtFileType
 import java.util.concurrent.ConcurrentHashMap
@@ -53,6 +53,8 @@ class SbtImportNotifier(private val project: Project, private val fileEditorMana
     if (projectSettings == null || projectSettings.isUseAutoImport) return 
     
     def refresh() {
+      FileDocumentManager.getInstance.saveAllDocuments()
+      
       ExternalSystemUtil.refreshProject(project, SbtProjectSystem.Id, getExternalProject(forFile),
         SbtImportNotifier.EmptyCallback, false, ProgressExecutionMode.IN_BACKGROUND_ASYNC, true)
     }
@@ -107,6 +109,8 @@ class SbtImportNotifier(private val project: Project, private val fileEditorMana
               
             }
           }
+
+          FileDocumentManager.getInstance.saveAllDocuments()
           
           ExternalSystemUtil.refreshProject(project, SbtProjectSystem.Id, projectSettings.getExternalProjectPath, callback, 
             false, ProgressExecutionMode.IN_BACKGROUND_ASYNC)
