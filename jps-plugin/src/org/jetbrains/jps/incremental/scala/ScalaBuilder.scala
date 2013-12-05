@@ -6,7 +6,7 @@ import org.jetbrains.jps.incremental.ModuleLevelBuilder.ExitCode
 import org.jetbrains.jps.incremental.scala.model.{Order, IncrementalType}
 import org.jetbrains.jps.ModuleChunk
 import org.jetbrains.jps.builders.DirtyFilesHolder
-import org.jetbrains.jps.builders.java.JavaSourceRootDescriptor
+import org.jetbrains.jps.builders.java.{JavaBuilderUtil, JavaSourceRootDescriptor}
 import org.jetbrains.annotations.NotNull
 import scala.collection.JavaConverters._
 import java.util
@@ -29,6 +29,10 @@ class ScalaBuilder(category: BuilderCategory, @NotNull delegate: ScalaBuilderDel
   }
 
   override def buildStarted(context: CompileContext) {
+    if (isScalaProject(context.getProjectDescriptor.getProject)) {
+      new IncrementalTypeChecker(context).checkAndUpdate()
+    }
+
     if (isDisabled(context)) {}
     else delegate.buildStarted(context)
   }

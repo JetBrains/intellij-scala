@@ -23,6 +23,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.debugger.evaluation.ScalaCodeFragment
 import org.jetbrains.plugins.scala.console.ScalaLanguageConsoleView
 import org.jetbrains.plugins.scala.codeInspection.collections.MethodRepr
+import org.jetbrains.plugins.scala.config.ScalaVersionUtil
 
 /**
  * Pavel Fatin
@@ -67,9 +68,12 @@ abstract class CreateEntityQuickFix(ref: ScReferenceExpression,
 
     val entityType = typeFor(ref)
     val parameters = parametersFor(ref)
+    val Q_MARKS = "???"
 
     val placeholder = if (entityType.isDefined) "%s %s%s: Int" else "%s %s%s"
-    val text = placeholder.format(keyword, ref.nameId.getText, parameters.mkString)
+    import ScalaVersionUtil._
+    val text = placeholder.format(keyword, ref.nameId.getText, parameters.mkString) +
+            (if(isGeneric(file, false, SCALA_2_10, SCALA_2_11)) " = ???" else "")
 
     val block = ref match {
       case it if it.isQualified => ref.qualifier.flatMap(blockFor)
@@ -84,7 +88,7 @@ abstract class CreateEntityQuickFix(ref: ScReferenceExpression,
         case Some(it) => createEntity(it, ref, text)
         case None => createEntity(ref, text)
       }
-      
+
       ScalaPsiUtil.adjustTypes(entity)
 
       val builder = new TemplateBuilderImpl(entity)
@@ -102,6 +106,8 @@ abstract class CreateEntityQuickFix(ref: ScReferenceExpression,
           builder.replaceElement(it, it.getText)
         }
       }
+
+      entity.lastChild.foreach {case qmarks: ScReferenceExpression if qmarks.getText == Q_MARKS => builder.replaceElement(qmarks, Q_MARKS)}
 
       CodeInsightUtilCore.forcePsiPostprocessAndRestoreElement(entity)
 
