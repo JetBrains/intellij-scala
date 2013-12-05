@@ -31,7 +31,7 @@ class SbtFacetDataService(platformFacade: PlatformFacade, helper: ProjectStructu
   }
 
   private def configure(facet: ScalaFacet, data: ScalaFacetData) {
-    facet.compilerLibraryId = LibraryId(data.compilerLibraryName, LibraryLevel.Project)
+    facet.compilerLibraryId = LibraryId("SBT: " + data.compilerLibraryName, LibraryLevel.Project)
     facet.compilerParameters = data.compilerOptions.toArray
   }
 
