@@ -5,12 +5,12 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.extensions._
-import com.intellij.codeInsight.{CodeInsightUtilCore, FileModificationService, CodeInsightUtilBase}
+import com.intellij.codeInsight.{CodeInsightUtilCore, FileModificationService}
 import com.intellij.openapi.fileEditor.ex.IdeDocumentHistory
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import com.intellij.openapi.fileEditor.{FileEditorManager, OpenFileDescriptor}
 import com.intellij.codeInsight.template.{TemplateManager, TemplateBuilderImpl}
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSimpleTypeElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSelfTypeElement, ScSimpleTypeElement}
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody}
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
@@ -24,6 +24,7 @@ import org.jetbrains.plugins.scala.debugger.evaluation.ScalaCodeFragment
 import org.jetbrains.plugins.scala.console.ScalaLanguageConsoleView
 import org.jetbrains.plugins.scala.codeInspection.collections.MethodRepr
 import org.jetbrains.plugins.scala.config.ScalaVersionUtil
+import com.intellij.psi.util.PsiTreeUtil
 
 /**
  * Pavel Fatin
@@ -123,20 +124,27 @@ abstract class CreateEntityQuickFix(ref: ScReferenceExpression,
     }
   }
 
-  private def blockFor(exp: ScExpression) = Some(exp).collect {
-    case ScExpression.Type(ScType.ExtractClass(ScTemplateDefinition.ExtendsBlock(block))) => block
+  private def blockFor(exp: ScExpression) = {
+    object ParentExtendsBlock {
+      def unapply(e: PsiElement): Option[ScExtendsBlock] = Option(PsiTreeUtil.getParentOfType(exp, classOf[ScExtendsBlock]))
+    }
+    Some(exp).collect {
+      case ScExpression.Type(ScType.ExtractClass(ScTemplateDefinition.ExtendsBlock(block))) => block
+      case Both(th: ScThisReference, ParentExtendsBlock(block)) => block
+      case Both(ReferenceTarget((_: ScSelfTypeElement)), ParentExtendsBlock(block)) => block
+    }
   }
 
   def createEntity(block: ScExtendsBlock, ref: ScReferenceExpression, text: String): PsiElement = {
     if (block.templateBody.isEmpty)
       block.add(createTemplateBody(block.getManager))
 
-    val anchor = block.templateBody.get.getFirstChild
+    val children = block.templateBody.get.children.toSeq
+    val anchor = children.find(_.isInstanceOf[ScSelfTypeElement]).getOrElse(children.head)
     val holder = anchor.getParent
     val hasMembers = holder.children.findByType(classOf[ScMember]).isDefined
 
     val entity = holder.addAfter(parseElement(text, ref.getManager), anchor)
-
     if (hasMembers) holder.addAfter(createNewLine(ref.getManager), entity)
 
     entity
