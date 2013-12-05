@@ -27,8 +27,8 @@ object Parser {
   def parse(node: Node, home: File): Structure = {
     implicit val fs = new FS(home)
 
-    val project = parseProject(node ! "project")
-    val repository = (node \ "repository").headOption.map(parseRepository(_))
+    val project = (node \ "project").map(parseProject)
+    val repository = (node \ "repository").headOption.map(parseRepository)
 
     Structure(project, repository)
   }
@@ -42,9 +42,9 @@ object Parser {
     val configurations = (node \ "configuration").map(parseConfiguration(_)(fs.withBase(base)))
     val java = (node \ "java").headOption.map(parseJava(_)(fs.withBase(base)))
     val scala = (node \ "scala").headOption.map(parseScala(_)(fs.withBase(base)))
-    val projects = (node \ "project").map(parseProject)
+    val dependencies = (node \ "dependency").map(_.text)
 
-    Project(name, organization, version, base, build, configurations, java, scala, projects)
+    Project(name, organization, version, base, build, configurations, java, scala, dependencies)
   }
 
   private def parseBuild(node: Node)(implicit fs: FS): Build = {
@@ -73,14 +73,18 @@ object Parser {
 
   private def parseConfiguration(node: Node)(implicit fs: FS): Configuration = {
     val id = (node \ "@id").text
-    val sources = (node \ "sources").map(e => file(e.text))
-    val resources = (node \ "resources").map(e => file(e.text))
+    val sources = (node \ "sources").map(parseDirectory)
+    val resources = (node \ "resources").map(parseDirectory)
     val classes = file((node ! "classes").text)
-    val dependencies = (node \ "dependency").map(_.text)
     val modules = (node \ "module").map(parseModuleIdentifier)
     val jars = (node \ "jar").map(e => file(e.text))
 
-    Configuration(id, sources, resources, classes, dependencies, modules, jars)
+    Configuration(id, sources, resources, classes, modules, jars)
+  }
+
+  private def parseDirectory(node: Node)(implicit fs: FS): Directory = {
+    val managed = (node \ "@managed").headOption.exists(_.text.toBoolean)
+    Directory(file(node.text), managed)
   }
 
   private def parseModuleIdentifier(node: Node): ModuleId = {

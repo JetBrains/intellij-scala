@@ -236,6 +236,7 @@
         <configurationProducer implementation="org.jetbrains.plugins.scala.runner.ScalaApplicationConfigurationProducer"/>
 
         <stubElementTypeHolder class="org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes"/>
+        <filetype.stubBuilder filetype="CLASS" implementationClass="org.jetbrains.plugins.scala.decompiler.ScalaClassFileStubBuilder" order="first"/>
         <!--Stub indices -->
         <stubIndex implementation="org.jetbrains.plugins.scala.lang.psi.stubs.index.ScAllClassNamesIndex"/>
         <stubIndex implementation="org.jetbrains.plugins.scala.lang.psi.stubs.index.ScShortClassNameIndex"/>
