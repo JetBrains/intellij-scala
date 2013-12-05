@@ -39,7 +39,9 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
   }
 
   private def convert(data: Structure): Node[ProjectData] = {
-    val project = data.project
+    val projects = data.projects
+
+    val project = data.projects.headOption.getOrElse(throw new RuntimeException("No root project found"))
 
     val projectNode = createProject(project)
 
@@ -47,12 +49,10 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     projectNode.add(new ScalaProjectNode(SbtProjectSystem.Id, javaHome))
 
     val libraries =
-      data.repository.map(_.modules).getOrElse(modulesIn(project)).map(createLibrary) ++
-        projectsIn(project).flatMap(_.scala).distinct.map(createCompilerLibrary)
+      data.repository.map(_.modules).getOrElse(projects.flatMap(modulesIn)).map(createLibrary) ++
+        projects.flatMap(_.scala).distinct.map(createCompilerLibrary)
 
     projectNode.addAll(libraries)
-
-    val projects = projectsIn(project)
 
     val moduleNodes: Seq[ModuleNode] = projects.map { project =>
       val moduleNode = createModule(project)
@@ -66,7 +66,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     projectNode.addAll(moduleNodes)
 
     projects.zip(moduleNodes).foreach { case (moduleProject, moduleNode) =>
-      moduleProject.configurations.flatMap(_.dependencies).foreach { dependencyName =>
+      moduleProject.dependencies.foreach { dependencyName =>
         val dependency = moduleNodes.find(_.getName == dependencyName).getOrElse(
           throw new ExternalSystemException("Cannot find module dependency: " + dependencyName))
         moduleNode.add(new ModuleDependencyNode(moduleNode, dependency))
@@ -79,12 +79,9 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
   }
 
   private def modulesIn(project: Project): Seq[Module] = {
-    val ids = projectsIn(project).flatMap(_.configurations.flatMap(_.modules))
+    val ids = project.configurations.flatMap(_.modules)
     ids.map(id => Module(id, Seq.empty, Seq.empty, Seq.empty))
   }
-
-  private def projectsIn(project: Project): Seq[Project] =
-    project +: project.projects.flatMap(projectsIn)
 
   private def createFacet(project: Project, scala: Scala): ScalaFacetNode = {
     val basePackage = Some(project.organization).filter(_.contains(".")).mkString
@@ -137,8 +134,11 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
   private def createContentRoot(project: Project): ContentRootNode = {
     val result = new ContentRootNode(SbtProjectSystem.Id, project.base.path)
 
-    result.storePaths(ExternalSystemSourceType.SOURCE, rootPathsIn(project, "compile"))
-    result.storePaths(ExternalSystemSourceType.TEST, rootPathsIn(project, "test"))
+    result.storePaths(ExternalSystemSourceType.SOURCE, relevantRootPathsIn(project, "compile")(_.sources))
+    result.storePaths(ExternalSystemSourceType.RESOURCE, relevantRootPathsIn(project, "compile")(_.resources))
+
+    result.storePaths(ExternalSystemSourceType.TEST, relevantRootPathsIn(project, "test")(_.sources))
+    result.storePaths(ExternalSystemSourceType.TEST_RESOURCE, relevantRootPathsIn(project, "test")(_.resources))
 
     result
   }
@@ -166,7 +166,9 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     val result = new ContentRootNode(SbtProjectSystem.Id, root.path)
 
     val sourceDirs = Seq(root) // , base << 1
-    val exludedDirs = project.configurations.flatMap(it => it.sources ++ it.resources) :+ root / "target"
+    val exludedDirs = project.configurations
+              .flatMap(it => it.sources ++ it.resources)
+              .filter(isRelevant).map(_.file) :+ root / "target"
 
     result.storePaths(ExternalSystemSourceType.SOURCE, sourceDirs.map(_.path))
     result.storePaths(ExternalSystemSourceType.EXCLUDED, exludedDirs.map(_.path))
@@ -174,13 +176,17 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     result
   }
 
-  private def rootPathsIn(project: Project, scope: String): Seq[String] = {
+  private def relevantRootPathsIn(project: Project, scope: String)
+                                 (selector: Configuration => Seq[Directory]): Seq[String] = {
     project.configurations.find(_.id == scope)
-      .map(configuration => configuration.sources ++ configuration.resources)
-      .getOrElse(Seq.empty)
-      .map(_.path)
+            .map(selector)
+            .getOrElse(Seq.empty)
+            .filter(isRelevant)
+            .map(_.file.path)
   }
 
+  private def isRelevant(directory: Directory): Boolean = directory.managed || directory.file.exists
+  
   private def createLibraryDependencies(project: Project)(moduleData: ModuleData, libraries: Seq[LibraryData]): Seq[LibraryDependencyNode] = {
     val moduleToConfigurations =
       project.configurations
