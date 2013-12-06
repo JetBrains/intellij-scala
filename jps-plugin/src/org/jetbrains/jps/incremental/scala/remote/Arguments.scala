@@ -14,6 +14,8 @@ case class Arguments(sbtData: SbtData, compilerData: CompilerData, compilationDa
   def asStrings: Seq[String] = {
     val (outputs, caches) = compilationData.outputToCacheMap.toSeq.unzip
 
+    val (sourceRoots, outputDirs) = compilationData.outputGroups.unzip
+
     val compilerJarPaths = compilerData.compilerJars.map(jars => filesToPaths(jars.library +: jars.compiler +: jars.extra))
 
     val javaHomePath = compilerData.javaHome.map(fileToPath)
@@ -36,7 +38,9 @@ case class Arguments(sbtData: SbtData, compilerData: CompilerData, compilationDa
       fileToPath(compilationData.cacheFile),
       filesToPaths(outputs),
       filesToPaths(caches),
-      incrementalType.name
+      incrementalType.name,
+      filesToPaths(sourceRoots),
+      filesToPaths(outputDirs)
     )
   }
 }
@@ -61,7 +65,9 @@ object Arguments {
     PathToFile(cacheFile),
     PathsToFiles(outputs),
     PathsToFiles(caches),
-    incrementalTypeName) =>
+    incrementalTypeName,
+    PathsToFiles(sourceRoots),
+    PathsToFiles(outputDirs)) =>
 
       val sbtData = SbtData(interfaceJar, sourceJar, interfacesHome, javaClassVersion)
 
@@ -80,7 +86,9 @@ object Arguments {
 
       val outputToCacheMap = outputs.zip(caches).toMap
 
-      val compilationData = CompilationData(sources, classpath, output, scalaOptions, javaOptions, Order.valueOf(order), cacheFile, outputToCacheMap)
+      val outputGroups = sourceRoots zip outputDirs
+
+      val compilationData = CompilationData(sources, classpath, output, scalaOptions, javaOptions, Order.valueOf(order), cacheFile, outputToCacheMap, outputGroups)
 
 
       Arguments(sbtData, compilerData, compilationData)
