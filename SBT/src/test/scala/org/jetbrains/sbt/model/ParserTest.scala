@@ -48,6 +48,7 @@ object ParserTest {
       options = Seq("-s1", "-s2"))
 
     val project = Project(
+      id = "root",
       name = "some-name",
       organization = "some-organization",
       version = "1.2.3",

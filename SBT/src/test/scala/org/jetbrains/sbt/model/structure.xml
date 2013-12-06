@@ -1,5 +1,6 @@
 <structure>
   <project>
+    <id>root</id>
     <name>some-name</name>
     <organization>some-organization</organization>
     <version>1.2.3</version>
