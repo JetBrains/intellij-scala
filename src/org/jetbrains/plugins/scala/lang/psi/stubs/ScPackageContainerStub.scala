@@ -4,15 +4,14 @@ package psi
 package stubs
 
 import api.toplevel.packaging.ScPackageContainer
-import com.intellij.psi.stubs.{StubElement, NamedStub}
-import com.intellij.util.io.StringRef
-import com.intellij.psi.PsiClass
+import com.intellij.psi.stubs.StubElement
 
 /**
  * @author ilyas
  */
 
 trait ScPackageContainerStub extends StubElement[ScPackageContainer] {
-  def prefix : String
-  def ownNamePart : String
+  def prefix: String
+  def ownNamePart: String
+  def isExplicit: Boolean
 }
