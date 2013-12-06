@@ -4,13 +4,11 @@ package psi
 package stubs
 package elements
 
-import _root_.scala.collection.mutable.ListBuffer
 import api.toplevel.packaging.ScPackageContainer
 import com.intellij.psi.PsiElement
 import com.intellij.psi.stubs.{StubElement, IndexSink, StubOutputStream, StubInputStream}
-import com.intellij.util.io.StringRef
 import impl.ScPackageContainerStubImpl
-import index.{ScalaIndexKeys, ScFullPackagingNameIndex}
+import index.ScalaIndexKeys
 
 /**
  * @author ilyas
@@ -21,19 +19,20 @@ extends ScStubElementType[ScPackageContainerStub, ScPackageContainer](debugName)
 
   override def createStubImpl[ParentPsi <: PsiElement](psi: ScPackageContainer, 
                                                       parent: StubElement[ParentPsi]): ScPackageContainerStub = {
-    new ScPackageContainerStubImpl[ParentPsi](parent, this, psi.prefix, psi.ownNamePart)
+    new ScPackageContainerStubImpl[ParentPsi](parent, this, psi.prefix, psi.ownNamePart, psi.isExplicit)
   }
 
   def serialize(stub: ScPackageContainerStub, dataStream: StubOutputStream): Unit = {
     dataStream.writeName(stub.prefix)
     dataStream.writeName(stub.ownNamePart)
+    dataStream.writeBoolean(stub.isExplicit)
   }
 
   override def deserializeImpl(dataStream: StubInputStream, parentStub: Any): ScPackageContainerStub = {
     val prefix = dataStream.readName
     val ownNamePart = dataStream.readName
-    val parent = parentStub.asInstanceOf[StubElement[PsiElement]]
-    new ScPackageContainerStubImpl(parent, this, prefix, ownNamePart)
+    val isExplicit = dataStream.readBoolean()
+    new ScPackageContainerStubImpl(parentStub.asInstanceOf[StubElement[PsiElement]], this, prefix, ownNamePart, isExplicit)
   }
 
   def indexStub(stub: ScPackageContainerStub, sink: IndexSink) = {
