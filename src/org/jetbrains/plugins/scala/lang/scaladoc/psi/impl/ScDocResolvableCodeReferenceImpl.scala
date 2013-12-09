@@ -22,6 +22,7 @@ import com.intellij.psi.{JavaPsiFacade, ResolveState, PsiElement, PsiClass}
 import lang.psi.impl.{ScPackageImpl, ScalaPsiElementFactory}
 import extensions.toPsiClassExt
 import org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix.TypeToImport
+import org.jetbrains.plugins.scala.lang.languageLevel.ScalaLanguageLevel
 
 /**
  * User: Dmitry Naydanov
@@ -29,14 +30,16 @@ import org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix.TypeTo
  */
 
 class ScDocResolvableCodeReferenceImpl(node: ASTNode) extends ScStableCodeReferenceElementImpl(node) with ScDocResolvableCodeReference {
+  private def is2_10plus = ScalaLanguageLevel.isThoughScala2_10(ScalaLanguageLevel getLanguageLevel this) 
+  
   override def getKinds(incomplete: Boolean, completion: Boolean) = stableImportSelector
 
-  override def createReplacingElementWithClassName(useFullQualifiedName: Boolean, clazz: TypeToImport) = {
-    ScalaPsiElementFactory.createDocLinkValue(clazz.qualifiedName, clazz.element.getManager)
-  }
+  override def createReplacingElementWithClassName(useFullQualifiedName: Boolean, clazz: TypeToImport) = 
+    if (is2_10plus) super.createReplacingElementWithClassName(useFullQualifiedName, clazz) 
+    else ScalaPsiElementFactory.createDocLinkValue(clazz.qualifiedName, clazz.element.getManager)
 
   override protected def processQualifier(ref: ScStableCodeReferenceElement, processor: BaseProcessor) {
-    pathQualifier match {
+    if (is2_10plus) super.processQualifier(ref, processor) else pathQualifier match {
       case None =>
         val defaultPackage = ScPackageImpl(JavaPsiFacade.getInstance(getProject).findPackage(""))
         defaultPackage.processDeclarations(processor, ResolveState.initial(), null, ref)
