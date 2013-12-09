@@ -117,7 +117,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
   private def nameFor(scala: Scala) = s"SBT: scala-compiler:${scala.version}"
 
   private def createModule(project: Project): ModuleNode = {
-    val result = new ModuleNode(SbtProjectSystem.Id, StdModuleTypes.JAVA.getId, project.name,
+    val result = new ModuleNode(SbtProjectSystem.Id, StdModuleTypes.JAVA.getId, project.id,
       project.base.path, project.base.path)
 
     result.setInheritProjectCompileOutputPath(false)
@@ -172,7 +172,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     Option(file.getParentFile).map(pathTo).getOrElse(Seq.empty) :+ file
 
   private def createBuildModule(project: Project): ModuleNode = {
-    val name = project.name + Sbt.BuildModuleSuffix
+    val name = project.id + Sbt.BuildModuleSuffix
     val path = project.base.path + "/project"
 
     val result = new ModuleNode(SbtProjectSystem.Id, SbtModuleType.instance.getId, name, path, path)
