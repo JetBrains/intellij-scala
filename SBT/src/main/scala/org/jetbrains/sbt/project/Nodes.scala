@@ -41,8 +41,8 @@ class LibraryNode(val data: LibraryData)
 
 class ContentRootNode(val data: ContentRootData)
   extends Node[ContentRootData] {
-  def this(owner: ProjectSystemId, name: String) {
-   this(new ContentRootData(owner, name))
+  def this(owner: ProjectSystemId, path: String) {
+   this(new ContentRootData(owner, path))
   }
 
   def storePaths(sourceType: ExternalSystemSourceType, paths: Seq[String]) {
