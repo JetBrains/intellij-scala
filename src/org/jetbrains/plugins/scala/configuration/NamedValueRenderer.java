@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.configuration;
 
-import com.intellij.ide.ui.ListCellRendererWrapper;
+import com.intellij.ui.ListCellRendererWrapper;
 
 import javax.swing.*;
 
@@ -8,10 +8,6 @@ import javax.swing.*;
  * @author Pavel Fatin
  */
 public class NamedValueRenderer extends ListCellRendererWrapper<Named> {
-  public NamedValueRenderer() {
-    super(new DefaultListCellRenderer());
-  }
-
   @Override
   public void customize(JList list, Named value, int index, boolean selected, boolean hasFocus) {
     String name = value == null ? null : value.getName();

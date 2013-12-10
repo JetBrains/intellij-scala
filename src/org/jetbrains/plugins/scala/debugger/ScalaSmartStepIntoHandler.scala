@@ -1,8 +1,7 @@
 package org.jetbrains.plugins.scala.debugger
 
-import com.intellij.debugger.actions.JvmSmartStepIntoHandler
+import com.intellij.debugger.actions.{JvmSmartStepIntoHandler, SmartStepTarget, MethodSmartStepTarget}
 import com.intellij.debugger.SourcePosition
-import evaluation.util.DebuggerUtil
 import java.util.{List => JList}
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.editor.Document
@@ -19,8 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.{PhysicalSignature, ScDesignat
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSimpleTypeElement, ScParameterizedTypeElement}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
-import com.intellij.debugger.engine.RequestHint.SmartStepFilter
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
+import scala.collection.JavaConverters._
 
 /**
  * User: Alexander Podkhalyuzin
@@ -28,11 +26,11 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
  */
 
 class ScalaSmartStepIntoHandler extends JvmSmartStepIntoHandler {
-  def findReferencedMethods(position: SourcePosition): JList[PsiMethod] = {
-    import scala.collection.JavaConversions.seqAsJavaList
-    findReferencedMethodsScala(position)
+  override def findSmartStepTargets(position: SourcePosition): JList[SmartStepTarget] = {
+    val targets: List[SmartStepTarget] = findReferencedMethodsScala(position).map(new MethodSmartStepTarget(_))
+    targets.asJava
   }
-  
+
   def isAvailable(position: SourcePosition): Boolean = {
     val file: PsiFile = position.getFile
     file.isInstanceOf[ScalaFile]
@@ -87,7 +85,7 @@ class ScalaSmartStepIntoHandler extends JvmSmartStepIntoHandler {
           }
           case _ =>
         }
-        
+
         expr match {
           case n: ScNewTemplateDefinition if n.extendsBlock.templateBody != None =>
             return //ignore anonymous classes
@@ -140,7 +138,7 @@ class ScalaSmartStepIntoHandler extends JvmSmartStepIntoHandler {
         super.visitExpression(expr)
       }
     }
-    
+
     val methodCollector: PsiElementVisitor = new MethodsVisitor
     element.accept(methodCollector)
 
@@ -150,17 +148,5 @@ class ScalaSmartStepIntoHandler extends JvmSmartStepIntoHandler {
       element = element.getNextSibling
     }
     methods.toList
-  }
-
-  override def getSmartStepFilter(method: PsiMethod): SmartStepFilter = {
-    method match {
-      case f: ScFunction =>
-        val clazz = f.getContainingClass
-        new SmartStepFilter(DebuggerUtil.getClassJVMName(clazz, true), method.getName, DebuggerUtil.getFunctionJVMSignature(f))
-      case f: ScPrimaryConstructor =>
-        val clazz = f.getContainingClass
-        new SmartStepFilter(DebuggerUtil.getClassJVMName(clazz, true), "<init>", DebuggerUtil.getFunctionJVMSignature(f))
-      case _ => super.getSmartStepFilter(method)
-    }
   }
 }
