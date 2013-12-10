@@ -51,8 +51,6 @@ package object configuration {
 
     def scalaEvents: ScalaProjectEvents = project.getComponent(classOf[ScalaProjectEvents])
 
-    def scalaSettings: ScalaSettings = new ScalaSettings(ScalaProjectSettings.getInstance(project))
-    
     def scalaCompilerSettigns: ScalaCompilerSettings = ScalaCompilerSettings.instanceIn(project)
   }
 
@@ -99,9 +97,5 @@ package object configuration {
       if (module == null) return ScalaLanguageLevel.getDefault
       module.scalaSdk.map(_.languageLevel).getOrElse(ScalaLanguageLevel.getDefault)
     }
-  }
-
-  class ScalaSettings(delegate: ScalaProjectSettings) {
-    def basePackage: Option[String] = Option(delegate.getBasePackage).filter(!_.isEmpty)
   }
 }

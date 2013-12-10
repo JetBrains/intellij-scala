@@ -56,7 +56,7 @@ private case class LibraryReference(level: Level, name: String) {
   private def directoryBasedLibraryFileIn(context: ConversionContext): Option[File] = {
     val libraryFiles = {
       val librariesDirectory = new File(context.getSettingsBaseDir, "libraries")
-      librariesDirectory.listFiles.filter(_.getName.endsWith(".xml"))
+      librariesDirectory.listFiles.toSeq.filter(_.getName.endsWith(".xml"))
     }
 
     libraryFiles.find { file =>
