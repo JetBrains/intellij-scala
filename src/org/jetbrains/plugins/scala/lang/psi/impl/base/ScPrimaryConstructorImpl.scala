@@ -69,8 +69,6 @@ class ScPrimaryConstructorImpl extends ScalaStubBasedElementImpl[ScPrimaryConstr
 
   def findDeepestSuperMethods = PsiMethod.EMPTY_ARRAY
 
-  def getMethodReceiver: PsiMethodReceiver = null
-
   def getReturnTypeNoResolve: PsiType = PsiType.VOID
 
   def findSuperMethodSignaturesIncludingStatic(checkAccess: Boolean) =
