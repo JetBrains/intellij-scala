@@ -39,7 +39,7 @@ import com.intellij.psi.impl.source.codeStyle.CodeEditUtil
 import com.intellij.psi.impl.source.PostprocessReformattingAspect
 import com.intellij.openapi.fileTypes.LanguageFileType
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
-import configuration._
+import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
 class ScalaFileImpl(viewProvider: FileViewProvider, fileType: LanguageFileType = ScalaFileType.SCALA_FILE_TYPE)
         extends PsiFileBase(viewProvider, fileType.getLanguage)
@@ -205,7 +205,10 @@ class ScalaFileImpl(viewProvider: FileViewProvider, fileType: LanguageFileType =
 
 
   def setPackageName(name: String) {
-    val basePackageName = getProject.scalaSettings.basePackage.getOrElse("")
+    val basePackageName = {
+      val scalaProjectSettings = ScalaProjectSettings.getInstance(getProject)
+      Option(scalaProjectSettings.getBasePackage).getOrElse("")
+    }
 
     this match {
       // Handle package object
