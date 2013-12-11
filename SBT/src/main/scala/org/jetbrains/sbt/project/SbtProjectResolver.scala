@@ -65,10 +65,12 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
 
     projectNode.addAll(moduleNodes)
 
+    val idToModuleNode = projects.zip(moduleNodes).map(p => (p._1.id, p._2)).toMap
+
     projects.zip(moduleNodes).foreach { case (moduleProject, moduleNode) =>
-      moduleProject.dependencies.foreach { dependencyName =>
-        val dependency = moduleNodes.find(_.getName == dependencyName).getOrElse(
-          throw new ExternalSystemException("Cannot find module dependency: " + dependencyName))
+      moduleProject.dependencies.foreach { dependencyId =>
+        val dependency = idToModuleNode.get(dependencyId).getOrElse(
+          throw new ExternalSystemException("Cannot find project dependency: " + dependencyId))
         moduleNode.add(new ModuleDependencyNode(moduleNode, dependency))
       }
     }
@@ -115,7 +117,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
   private def nameFor(scala: Scala) = s"SBT: scala-compiler:${scala.version}"
 
   private def createModule(project: Project): ModuleNode = {
-    val result = new ModuleNode(SbtProjectSystem.Id, StdModuleTypes.JAVA.getId, project.name,
+    val result = new ModuleNode(SbtProjectSystem.Id, StdModuleTypes.JAVA.getId, project.id,
       project.base.path, project.base.path)
 
     result.setInheritProjectCompileOutputPath(false)
@@ -132,19 +134,45 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
   }
 
   private def createContentRoot(project: Project): ContentRootNode = {
-    val result = new ContentRootNode(SbtProjectSystem.Id, project.base.path)
+    val productinSources = relevantRootPathsIn(project, "compile")(_.sources)
+    val productionResources = relevantRootPathsIn(project, "compile")(_.resources)
+    val testSources = relevantRootPathsIn(project, "test")(_.sources)
+    val testResources = relevantRootPathsIn(project, "test")(_.resources)
 
-    result.storePaths(ExternalSystemSourceType.SOURCE, relevantRootPathsIn(project, "compile")(_.sources))
-    result.storePaths(ExternalSystemSourceType.RESOURCE, relevantRootPathsIn(project, "compile")(_.resources))
+    val commonRoot = {
+      val allRoots = productinSources ++ productionResources ++ testSources ++ testResources :+ project.base
 
-    result.storePaths(ExternalSystemSourceType.TEST, relevantRootPathsIn(project, "test")(_.sources))
-    result.storePaths(ExternalSystemSourceType.TEST_RESOURCE, relevantRootPathsIn(project, "test")(_.resources))
+      commonAncestorOf(allRoots).getOrElse(throw new ExternalSystemException(
+        "Cannot determine common root in project: " +  project.name))
+    }
+
+    val result = new ContentRootNode(SbtProjectSystem.Id, commonRoot.path)
+
+    result.storePaths(ExternalSystemSourceType.SOURCE, productinSources.map(_.path))
+    result.storePaths(ExternalSystemSourceType.RESOURCE, productionResources.map(_.path))
+
+    result.storePaths(ExternalSystemSourceType.TEST, testSources.map(_.path))
+    result.storePaths(ExternalSystemSourceType.TEST_RESOURCE, testResources.map(_.path))
 
     result
   }
 
+  private def commonAncestorOf(files: Seq[File]): Option[File] = {
+    files.map(pathTo) match {
+      case Seq() => None
+      case Seq(firstPath, subsequentPaths @ _*) =>
+        val commonPath = subsequentPaths.foldLeft(firstPath) { (acc, path) =>
+          acc.zip(path).takeWhile(p => p._1 == p._2).map(_._1)
+        }
+        commonPath.lastOption
+    }
+  }
+
+  private def pathTo(file: File): Seq[File] =
+    Option(file.getParentFile).map(pathTo).getOrElse(Seq.empty) :+ file
+
   private def createBuildModule(project: Project): ModuleNode = {
-    val name = project.name + Sbt.BuildModuleSuffix
+    val name = project.id + Sbt.BuildModuleSuffix
     val path = project.base.path + "/project"
 
     val result = new ModuleNode(SbtProjectSystem.Id, SbtModuleType.instance.getId, name, path, path)
@@ -177,12 +205,12 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
   }
 
   private def relevantRootPathsIn(project: Project, scope: String)
-                                 (selector: Configuration => Seq[Directory]): Seq[String] = {
+                                 (selector: Configuration => Seq[Directory]): Seq[File] = {
     project.configurations.find(_.id == scope)
             .map(selector)
             .getOrElse(Seq.empty)
             .filter(isRelevant)
-            .map(_.file.path)
+            .map(_.file)
   }
 
   private def isRelevant(directory: Directory): Boolean = directory.managed || directory.file.exists

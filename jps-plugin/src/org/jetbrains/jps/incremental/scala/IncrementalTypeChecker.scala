@@ -19,12 +19,12 @@ class IncrementalTypeChecker(context: CompileContext) {
     val previousIncrementalType = getPreviousIncrementalType
     val incrType = settings.incrementalType
     previousIncrementalType match {
+      case _ if JavaBuilderUtil.isForcedRecompilationAllJavaModules(context) => //isRebiuld
+        setPreviousIncrementalType(incrType)
       case None =>
         context.processMessage(new CompilerMessage("scala", BuildMessage.Kind.WARNING,
-          "cannot find type of the previous incremental compiler, full rebuild may be required"))
+        "cannot find type of the previous incremental compiler, full rebuild may be required"))
       case Some(`incrType`) => //same incremental type, nothing to be done
-      case Some(_) if JavaBuilderUtil.isForcedRecompilationAllJavaModules(context) =>
-        setPreviousIncrementalType(incrType)
       case Some(_) if isMakeProject =>
         cleanCaches()
         setPreviousIncrementalType(incrType)
