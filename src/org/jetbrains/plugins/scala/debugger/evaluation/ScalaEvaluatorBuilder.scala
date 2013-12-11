@@ -34,6 +34,7 @@ import org.jetbrains.plugins.scala.debugger.evaluation.evaluator.ScalaMethodEval
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import org.jetbrains.plugins.scala.lang.psi.types.ScThisType
 import com.intellij.lang.java.JavaLanguage
+import scala.annotation.tailrec
 
 /**
  * User: Alefas
@@ -42,6 +43,7 @@ import com.intellij.lang.java.JavaLanguage
 
 object ScalaEvaluatorBuilder extends EvaluatorBuilder {
   private var currentPosition: SourcePosition = null
+  private var currentStamp: Long = -1
   private val cachedEvaluators = mutable.HashMap[PsiElement, ExpressionEvaluator]()
 
   def build(codeFragment: PsiElement, position: SourcePosition): ExpressionEvaluator = {
@@ -66,8 +68,9 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
     }
 
     assert(codeFragment != null)
-    if (position != currentPosition) {
+    if (position != currentPosition || position.getFile.getModificationStamp != currentStamp) {
       currentPosition = position
+      currentStamp = position.getFile.getModificationStamp
       cachedEvaluators.clear()
       buildNew()
     }
@@ -1119,6 +1122,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
               case _ => throw EvaluateExceptionUtil.createEvaluateException("Cannot evaluate assign statement without expression")
             }
             val rightEvaluator = myResult
+            @tailrec
             def createAssignEvaluator(leftEvaluator: Evaluator): Boolean = {
               leftEvaluator match {
                 case m: ScalaMethodEvaluator =>
