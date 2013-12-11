@@ -46,8 +46,15 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
 
   def build(codeFragment: PsiElement, position: SourcePosition): ExpressionEvaluator = {
     def cached: Option[ExpressionEvaluator] = {
-      val cached = cachedEvaluators.filterKeys(key => PsiEquivalenceUtil.areElementsEquivalent(key, codeFragment))
-      cached.values.headOption
+      try {
+        val cached = cachedEvaluators.filterKeys(key => PsiEquivalenceUtil.areElementsEquivalent(key, codeFragment))
+        cached.values.headOption
+      }
+      catch {
+        case e: Exception =>
+          cachedEvaluators.clear()
+          None
+      }
     }
     def buildNew(): ExpressionEvaluator = {
       if (codeFragment.getLanguage.isInstanceOf[JavaLanguage])
@@ -138,10 +145,10 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
       super.visitFile(file)
     }
 
-    private def localParams(fun: PsiElement, context: PsiElement): Seq[PsiElement] = {
-      assert(fun.isInstanceOf[ScFunction] || fun.isInstanceOf[ScFunctionExpr])
+    private def localParams(fun: ScFunctionDefinition, context: PsiElement): Seq[PsiElement] = {
       val buf = new mutable.HashSet[PsiElement]
-      fun.accept(new ScalaRecursiveElementVisitor {
+      val body = fun.body //to exclude references from default parameters
+      body.foreach(_.accept(new ScalaRecursiveElementVisitor {
         override def visitReference(ref: ScReferenceElement) {
           if (ref.qualifier != None) {
             super.visitReference(ref)
@@ -161,19 +168,8 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
           }
           super.visitReference(ref)
         }
-      })
+      }))
       buf.toSeq.filter(isLocalV).sortBy(e => (e.isInstanceOf[ScObject], e.getTextRange.getStartOffset))
-    }
-
-    private def paramCount(fun: PsiElement, context: PsiElement, elem: PsiElement): Int = {
-      assert(fun.isInstanceOf[ScFunction] || fun.isInstanceOf[ScFunctionExpr])
-      val locIndex = localParams(fun, context).indexOf(elem)
-      val funParams = fun match {
-        case function: ScFunction => function.effectiveParameterClauses.flatMap(_.parameters)
-        case funExpr: ScFunctionExpr => funExpr.parameters
-      }
-      if (locIndex < 0) funParams.indexOf(elem)
-      else locIndex + funParams.size
     }
 
     private def isLocalV(resolve: PsiElement): Boolean = {
@@ -413,7 +409,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
 
     def evaluateLocalMethod(resolve: PsiElement, argEvaluators: Seq[Evaluator]) {
       //local method
-      val fun = resolve.asInstanceOf[ScFunction]
+      val fun = resolve.asInstanceOf[ScFunctionDefinition]
       val name = NameTransformer.encode(fun.name)
       val containingClass = if (fun.isSynthetic) fun.containingClass else getContainingClass(fun)
       if (getContextClass == null) {
@@ -1339,13 +1335,24 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
       val isLocalValue = isLocalV(resolve)
 
       def evaluateFromParameter(fun: PsiElement, resolve: PsiElement): Evaluator = {
-        assert(fun.isInstanceOf[ScFunction] || fun.isInstanceOf[ScFunctionExpr])
         val name = NameTransformer.encode(resolve.asInstanceOf[PsiNamedElement].name)
         val evaluator = new ScalaLocalVariableEvaluator(name)
-        val pCount = paramCount(fun, getContextClass(fun), resolve)
-        //it's simple, let's take parameter
-        evaluator.setParameterIndex(pCount)
-        evaluator.setMethodName(fun match {case f: ScFunction => f.name; case e: ScFunctionExpr => "apply"})
+        fun match {
+          case funDef: ScFunctionDefinition =>
+            def paramIndex(fun: ScFunctionDefinition, context: PsiElement, elem: PsiElement): Int = {
+              val locIndex = localParams(fun, context).indexOf(elem)
+              val funParams = fun.effectiveParameterClauses.flatMap(_.parameters)
+              if (locIndex < 0) funParams.indexOf(elem)
+              else locIndex + funParams.size
+            }
+            val pIndex = paramIndex(funDef, getContextClass(fun), resolve)
+            evaluator.setParameterIndex(pIndex)
+            evaluator.setMethodName(funDef.name)
+          case funExpr: ScFunctionExpr =>
+            evaluator.setParameterIndex(funExpr.parameters.indexOf(resolve))
+            evaluator.setMethodName("apply")
+          case _ => throw EvaluateExceptionUtil.createEvaluateException("Evaluation from parameter not from function definition or function expression")
+        }
         evaluator.setSourceName(fun.getContainingFile.getName)
         myResult = evaluator
         myResult
