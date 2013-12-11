@@ -792,31 +792,26 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
         case None =>
           ref.bind() match {
             case Some(r: ScalaResolveResult) =>
-              if (!r.importsUsed.isEmpty) {
-                //todo:
-                throw EvaluateExceptionUtil.createEvaluateException("Evaluation of imported functions is not supported")
-              } else {
-                var evaluator = thisEvaluator(r)
-                r.getActualElement match {
-                  case o: ScObject if funName == "apply" =>
-                    if (isStable(o)) {
-                      evaluator = stableObjectEvaluator(o)
-                    } else {
-                      val objName = NameTransformer.encode(o.name)
-                      evaluator = new ScalaMethodEvaluator(evaluator, objName, null /* todo? */, Seq.empty, false,
-                        traitImplementation(o), DebuggerUtil.getSourcePositions(resolve.getNavigationElement))
-                    }
-                  case _ =>
-                }
-                val name = NameTransformer.encode(funName)
-                val signature = resolve match {
-                  case fun: ScFunction => DebuggerUtil.getFunctionJVMSignature(fun)
-                  case _ => null
-                }
-                myResult = new ScalaMethodEvaluator(evaluator, name, signature, boxArguments(argEvaluators, resolve), false,
-                  traitImplementation(resolve), DebuggerUtil.getSourcePositions(resolve.getNavigationElement))
-                return
+              var evaluator = thisOrImportedQualifierEvaluator(ref, r)
+              r.getActualElement match {
+                case o: ScObject if funName == "apply" =>
+                  if (isStable(o)) {
+                    evaluator = stableObjectEvaluator(o)
+                  } else {
+                    val objName = NameTransformer.encode(o.name)
+                    evaluator = new ScalaMethodEvaluator(evaluator, objName, null /* todo? */, Seq.empty, false,
+                      traitImplementation(o), DebuggerUtil.getSourcePositions(resolve.getNavigationElement))
+                  }
+                case _ =>
               }
+              val name = NameTransformer.encode(funName)
+              val signature = resolve match {
+                case fun: ScFunction => DebuggerUtil.getFunctionJVMSignature(fun)
+                case _ => null
+              }
+              myResult = new ScalaMethodEvaluator(evaluator, name, signature, boxArguments(argEvaluators, resolve), false,
+                traitImplementation(resolve), DebuggerUtil.getSourcePositions(resolve.getNavigationElement))
+              return
             case _ =>
               //resolve not null => shouldn't be
               throw EvaluateExceptionUtil.createEvaluateException("Cannot evaluate method")
@@ -1068,16 +1063,11 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
             case None =>
               ref.bind() match {
                 case Some(r: ScalaResolveResult) =>
-                  if (!r.importsUsed.isEmpty) {
-                    //todo:
-                    throw EvaluateExceptionUtil.createEvaluateException("Evaluation of imported functions is not supported")
-                  } else {
-                    val evaluator = thisEvaluator(r)
-                    val name = method.name
-                    myResult = new ScalaMethodEvaluator(evaluator, name, JVMNameUtil.getJVMSignature(method),
-                      boxArguments(argEvaluators, method), false,
-                      traitImplementation(resolve), DebuggerUtil.getSourcePositions(resolve.getNavigationElement))
-                  }
+                  val evaluator = thisOrImportedQualifierEvaluator(ref, r)
+                  val name = method.name
+                  myResult = new ScalaMethodEvaluator(evaluator, name, JVMNameUtil.getJVMSignature(method),
+                  boxArguments(argEvaluators, method), false,
+                  traitImplementation(resolve), DebuggerUtil.getSourcePositions(resolve.getNavigationElement))
                 case _ => //resolve not null => shouldn't be
                   throw EvaluateExceptionUtil.createEvaluateException("Cannot evaluate method")
               }
@@ -1472,15 +1462,10 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
             case None =>
               ref.bind() match {
                 case Some(r: ScalaResolveResult) =>
-                  if (!r.importsUsed.isEmpty) {
-                    //todo:
-                    throw EvaluateExceptionUtil.createEvaluateException("Evaluation of imported objects is not supported")
-                  } else {
-                    val evaluator = thisEvaluator(r)
-                    val name = NameTransformer.encode(obj.name)
-                    myResult = new ScalaMethodEvaluator(evaluator, name, null /* todo? */, Seq.empty, false,
-                      traitImplementation(resolve), DebuggerUtil.getSourcePositions(resolve.getNavigationElement))
-                  }
+                  val evaluator = thisOrImportedQualifierEvaluator(ref, r)
+                  val name = NameTransformer.encode(obj.name)
+                  myResult = new ScalaMethodEvaluator(evaluator, name, null /* todo? */, Seq.empty, false,
+                    traitImplementation(resolve), DebuggerUtil.getSourcePositions(resolve.getNavigationElement))
                 case _ => throw new RuntimeException("Match is not exhaustive")
               }
           }
@@ -1508,14 +1493,9 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
             case None =>
               ref.bind() match {
                 case Some(r: ScalaResolveResult) =>
-                  if (!r.importsUsed.isEmpty) {
-                    //todo:
-                    throw EvaluateExceptionUtil.createEvaluateException("Evaluation of imported fields is not supported")
-                  } else {
-                    val evaluator = thisEvaluator(r)
-                    val name = NameTransformer.encode(named.name)
-                    myResult = new ScalaFieldEvaluator(evaluator, _ => true, name, true)
-                  }
+                  val evaluator = thisOrImportedQualifierEvaluator(ref, r)
+                  val name = NameTransformer.encode(named.name)
+                  myResult = new ScalaFieldEvaluator(evaluator, _ => true, name, true)
                 case _ => throw new RuntimeException("Match is not exhaustive")
               }
           }
@@ -1540,25 +1520,20 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
             case None =>
               ref.bind() match {
                 case Some(r: ScalaResolveResult) =>
-                  if (!r.importsUsed.isEmpty) {
-                    //todo:
-                    throw EvaluateExceptionUtil.createEvaluateException("Evaluation of imported fields is not supported")
-                  } else {
-                    val evaluator = thisEvaluator(r)
-                    val name = NameTransformer.encode(named.name)
-                    myResult = new ScalaMethodEvaluator(evaluator, name, null/* todo */, Seq.empty, false,
-                      traitImplementation(resolve), DebuggerUtil.getSourcePositions(resolve.getNavigationElement))
-                    getContextClass(named) match {
-                        //in some cases compiler uses full qualified names for fields and methods
-                      case clazz: ScTemplateDefinition if ScalaPsiUtil.hasStablePath(clazz)
-                              && clazz.members.contains(ScalaPsiUtil.nameContext(named)) =>
-                        val qualName = clazz.qualifiedName
-                        val newName = qualName.split('.').map(NameTransformer.encode).mkString("$") + "$$" + name
-                        val reserveEval = new ScalaMethodEvaluator(evaluator, newName, null/* todo */, Seq.empty, false,
-                          traitImplementation(resolve), DebuggerUtil.getSourcePositions(resolve.getNavigationElement))
-                        myResult = new ScalaDuplexEvaluator(myResult, reserveEval)
-                      case _ =>
-                    }
+                  val evaluator = thisOrImportedQualifierEvaluator(ref, r)
+                  val name = NameTransformer.encode(named.name)
+                  myResult = new ScalaMethodEvaluator(evaluator, name, null/* todo */, Seq.empty, false,
+                    traitImplementation(resolve), DebuggerUtil.getSourcePositions(resolve.getNavigationElement))
+                  getContextClass(named) match {
+                    //in some cases compiler uses full qualified names for fields and methods
+                    case clazz: ScTemplateDefinition if ScalaPsiUtil.hasStablePath(clazz)
+                            && clazz.members.contains(ScalaPsiUtil.nameContext(named)) =>
+                      val qualName = clazz.qualifiedName
+                      val newName = qualName.split('.').map(NameTransformer.encode).mkString("$") + "$$" + name
+                      val reserveEval = new ScalaMethodEvaluator(evaluator, newName, null/* todo */, Seq.empty, false,
+                        traitImplementation(resolve), DebuggerUtil.getSourcePositions(resolve.getNavigationElement))
+                      myResult = new ScalaDuplexEvaluator(myResult, reserveEval)
+                    case _ =>
                   }
                 case _ => throw new RuntimeException("Match is not exhaustive")
               }
@@ -1589,15 +1564,10 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
             case None =>
               ref.bind() match {
                 case Some(r: ScalaResolveResult) =>
-                  if (!r.importsUsed.isEmpty) {
-                    //todo:
-                    throw EvaluateExceptionUtil.createEvaluateException("Evaluation of imported fileds is not supported")
-                  } else {
-                    val evaluator = thisEvaluator(r)
-                    val name = field.name
-                    myResult = new ScalaFieldEvaluator(evaluator,
-                      ScalaFieldEvaluator.getFilter(getContainingClass(field)), name)
-                  }
+                  val evaluator = thisOrImportedQualifierEvaluator(ref, r)
+                  val name = field.name
+                  myResult = new ScalaFieldEvaluator(evaluator,
+                    ScalaFieldEvaluator.getFilter(getContainingClass(field)), name)
                 case _ => throw new RuntimeException("Match is not exhaustive")
               }
           }
@@ -1783,6 +1753,37 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
           case _ => throw EvaluateExceptionUtil.createEvaluateException("This kind of patterns is not supported") //todo: xml patterns
         }
       }
+    }
+
+    private def importedQualifierEvaluator(ref: ScReferenceElement, resolveResult: ScalaResolveResult): Evaluator = {
+      resolveResult.fromType match {
+        case Some(ScDesignatorType(element)) =>
+          element match {
+            case obj: ScObject => stableObjectEvaluator(obj)
+            case cl: PsiClass if cl.getLanguage.isInstanceOf[JavaLanguage] =>
+              new TypeEvaluator(JVMNameUtil.getJVMQualifiedName(cl))
+            case _ =>
+              val expr = ScalaPsiElementFactory.createExpressionWithContextFromText(element.name, ref.getContext, ref)
+              expr.accept(this)
+              myResult
+          }
+        case Some(p: ScProjectionType) =>
+          def exprToEvaluate(p: ScProjectionType): String = p.projected match {
+            case ScDesignatorType(element) => element.name + "." + p.actualElement.name
+            case projected: ScProjectionType => exprToEvaluate(projected) + "." + projected.actualElement.name
+            case ScThisType(_) => "this." + p.actualElement.name
+            case _ => throw EvaluateExceptionUtil.createEvaluateException("Cannot evaluate imported reference")
+          }
+          val expr = ScalaPsiElementFactory.createExpressionWithContextFromText(exprToEvaluate(p), ref.getContext, ref)
+          expr.accept(this)
+          myResult
+        case _ => throw EvaluateExceptionUtil.createEvaluateException("Cannot evaluate imported reference")
+      }
+    }
+
+    private def thisOrImportedQualifierEvaluator(ref: ScReferenceElement, resolveResult: ScalaResolveResult): Evaluator = {
+      if (!resolveResult.importsUsed.isEmpty) importedQualifierEvaluator(ref, resolveResult)
+      else thisEvaluator(resolveResult)
     }
 
     def buildElement(element: PsiElement): ExpressionEvaluator = {
