@@ -195,10 +195,10 @@ class ScalaLocalMethodEvaluationTest extends ScalaDebuggerTestCase {
         |  def main(args: Array[String]) {
         |    def outer() {
         |      val s = "start"
-        |        def inner(a: String, b: String) {
-        |          println(s + a + b)
-        |          "stop here"
-        |        }
+        |      def inner(a: String, b: String): String = {
+        |        "stop here"
+        |        s + a + b
+        |      }
         |      inner("aa", "bb")
         |    }
         |    outer()
@@ -212,6 +212,38 @@ class ScalaLocalMethodEvaluationTest extends ScalaDebuggerTestCase {
       evalEquals("a", "aa")
       evalEquals("b", "bb")
       evalEquals("s", "start")
+      evalEquals("inner(\"qq\", \"ww\")", "startqqww")
     }
   }
+
+    //this test should work, but it doesn't (last two assertions)
+//  def testClojureWithDefaultParameter() {
+//    myFixture.addFileToProject("Sample.scala",
+//      """
+//        |object Sample {
+//        |  def main(args: Array[String]) {
+//        |    def outer() {
+//        |      val s = "start"
+//        |      val d = "default"
+//        |      def inner(a: String, b: String = d): String = {
+//        |        "stop here"
+//        |        s + a + b
+//        |      }
+//        |      inner("aa")
+//        |    }
+//        |    outer()
+//        |  }
+//        |}
+//      """.stripMargin.trim()
+//    )
+//    addBreakpoint("Sample.scala", 6)
+//    runDebugger("Sample") {
+//      waitForBreakpoint()
+//      evalEquals("a", "aa")
+//      evalEquals("b", "default")
+//      evalEquals("s", "start")
+//      evalEquals("inner(\"aa\", \"bb\")", "startaabb")
+//      evalEquals("inner(\"aa\")", "startaadefault")
+//    }
+//  }
 }
