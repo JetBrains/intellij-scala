@@ -7,7 +7,7 @@ import com.intellij.codeInspection.{ProblemHighlightType, ProblemsHolder}
 import com.intellij.psi.{PsiModifier, PsiClass, PsiElement}
 import org.jetbrains.plugins.scala.lang.psi.types.result.Success
 import org.jetbrains.plugins.scala.codeInspection.collections.MethodRepr
-import org.jetbrains.plugins.scala.lang.psi.types.{ScTypeParameterType, StdType, ScType}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScParameterizedType, ScTypeParameterType, StdType, ScType}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTemplateDefinition, ScObject, ScClass}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticClass
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
@@ -44,10 +44,11 @@ class ComparingUnrelatedTypesInspection extends AbstractInspection(inspectionId,
       case clazz: PsiClass => clazz.hasModifierProperty(PsiModifier.FINAL)
       case _ => false
     }
-    val bothFinal = isFinal(class1) || isFinal(class2)
+    val oneIsFinal = isFinal(class1) || isFinal(class2)
     val (unboxed1, unboxed2) = (StdType.unboxedType(type1), StdType.unboxedType(type2))
     val notGeneric = !Seq(type1, type2).exists(_.isInstanceOf[ScTypeParameterType])
+    val notParameterized = !Seq(type1, type2).exists(_.isInstanceOf[ScParameterizedType])
     val noConformance = !unboxed1.weakConforms(unboxed2) && !unboxed2.weakConforms(unboxed1)
-    bothFinal && noConformance && notGeneric
+    oneIsFinal && noConformance && notGeneric && notParameterized
   }
 }
