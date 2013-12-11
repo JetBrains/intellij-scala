@@ -1,7 +1,7 @@
 package org.jetbrains.sbt
 package project
 
-import com.intellij.openapi.externalSystem.model.{ProjectSystemId, DataNode, ProjectKeys, Key}
+import com.intellij.openapi.externalSystem.model.{DataNode, ProjectKeys, Key}
 import com.intellij.openapi.externalSystem.model.project._
 import java.io.File
 
@@ -10,8 +10,8 @@ import java.io.File
  */
 class ProjectNode(val data: ProjectData)
   extends Node[ProjectData] {
-  def this(owner: ProjectSystemId, ideProjectFileDirectoryPath: String, linkedExternalProjectPath: String) {
-    this(new ProjectData(owner, ideProjectFileDirectoryPath, linkedExternalProjectPath))
+  def this(ideProjectFileDirectoryPath: String, linkedExternalProjectPath: String) {
+    this(new ProjectData(SbtProjectSystem.Id, ideProjectFileDirectoryPath, linkedExternalProjectPath))
   }
 
   protected def key = ProjectKeys.PROJECT
@@ -19,8 +19,8 @@ class ProjectNode(val data: ProjectData)
 
 class ModuleNode(val data: ModuleData)
   extends Node[ModuleData] {
-  def this(owner: ProjectSystemId, typeId: String, name: String, moduleFileDirectoryPath: String, externalConfigPath: String) {
-    this(new ModuleData(owner, typeId, name, moduleFileDirectoryPath, externalConfigPath))
+  def this(typeId: String, name: String, moduleFileDirectoryPath: String, externalConfigPath: String) {
+    this(new ModuleData(SbtProjectSystem.Id, typeId, name, moduleFileDirectoryPath, externalConfigPath))
   }
 
   protected def key = ProjectKeys.MODULE
@@ -28,8 +28,8 @@ class ModuleNode(val data: ModuleData)
 
 class LibraryNode(val data: LibraryData)
   extends Node[LibraryData] {
-  def this(owner: ProjectSystemId, name: String) {
-    this(new LibraryData(owner, name))
+  def this(name: String) {
+    this(new LibraryData(SbtProjectSystem.Id, name))
   }
 
   def addPaths(pathType: LibraryPathType, paths: Seq[String]) {
@@ -41,8 +41,8 @@ class LibraryNode(val data: LibraryData)
 
 class ContentRootNode(val data: ContentRootData)
   extends Node[ContentRootData] {
-  def this(owner: ProjectSystemId, path: String) {
-   this(new ContentRootData(owner, path))
+  def this(path: String) {
+   this(new ContentRootData(SbtProjectSystem.Id, path))
   }
 
   def storePaths(sourceType: ExternalSystemSourceType, paths: Seq[String]) {
@@ -72,8 +72,8 @@ class LibraryDependencyNode(val data: LibraryDependencyData)
 
 class ScalaProjectNode(val data: ScalaProjectData)
   extends Node[ScalaProjectData] {
-  def this(owner: ProjectSystemId, javaHome: File) {
-    this(new ScalaProjectData(owner, javaHome))
+  def this(javaHome: File) {
+    this(new ScalaProjectData(SbtProjectSystem.Id, javaHome))
   }
 
   protected def key = ScalaProjectData.Key
@@ -81,8 +81,8 @@ class ScalaProjectNode(val data: ScalaProjectData)
 
 class ScalaFacetNode(val data: ScalaFacetData)
   extends Node[ScalaFacetData] {
-  def this(owner: ProjectSystemId, scalaVersion: String, basePackage: String, compilerLibraryName: String, compilerOptions: Seq[String]) {
-    this(new ScalaFacetData(owner, scalaVersion, basePackage, compilerLibraryName, compilerOptions))
+  def this(scalaVersion: String, basePackage: String, compilerLibraryName: String, compilerOptions: Seq[String]) {
+    this(new ScalaFacetData(SbtProjectSystem.Id, scalaVersion, basePackage, compilerLibraryName, compilerOptions))
   }
 
   protected def key = ScalaFacetData.Key
