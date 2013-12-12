@@ -65,11 +65,19 @@ object SbtProjectDataService {
   def updateJavaCompilerOptionsIn(project: Project, options: Seq[String]) {
     val settings = JavacConfiguration.getOptions(project, classOf[JavacConfiguration])
 
-    def contains(values: String*) = options.exists(options.contains)
+    def contains(values: String*) = values.exists(options.contains)
 
-    settings.DEBUGGING_INFO = !contains("-g:none")
-    settings.GENERATE_NO_WARNINGS = contains("-nowarn", "-Xlint:none")
-    settings.DEPRECATION = contains("-deprecation", "-Xlint:deprecation")
+    if (contains("-g:none")) {
+      settings.DEBUGGING_INFO = false
+    }
+
+    if (contains("-nowarn", "-Xlint:none")) {
+      settings.GENERATE_NO_WARNINGS = true
+    }
+
+    if (contains("-deprecation", "-Xlint:deprecation")) {
+      settings.DEPRECATION = true
+    }
 
     val handledOptions = Set("-g:none", "-nowarn", "-Xlint:none", "-deprecation", "-Xlint:deprecation")
     val customOptions = options.filterNot(handledOptions.contains)
