@@ -37,7 +37,7 @@ object ParserTest {
       Seq("import sbt._, Process._, Keys._"))
 
     val java = Java(
-      home = new File("$BASE/some/home"),
+      home = Some(new File("$BASE/some/home")),
       options = Seq("-j1", "-j2"))
 
     val scala = Scala(

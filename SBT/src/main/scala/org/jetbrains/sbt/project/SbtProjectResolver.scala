@@ -45,8 +45,10 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
 
     val projectNode = createProject(project)
 
-    val javaHome = project.java.map(_.home).getOrElse(new File(System.getProperty("java.home")))
-    projectNode.add(new ScalaProjectNode(javaHome))
+    val javaHome = project.java.flatMap(_.home).getOrElse(new File(System.getProperty("java.home")))
+    val javacOptions = project.java.map(_.options).getOrElse(Seq.empty)
+
+    projectNode.add(new ScalaProjectNode(javaHome, javacOptions))
 
     val libraries =
       data.repository.map(_.modules).getOrElse(projects.flatMap(modulesIn)).map(createLibrary) ++
