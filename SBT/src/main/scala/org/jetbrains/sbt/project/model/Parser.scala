@@ -56,7 +56,7 @@ object Parser {
   }
 
   private def parseJava(node: Node)(implicit fs: FS): Java = {
-    val home = file((node \ "home").text)
+    val home = (node \ "home").headOption.map(e => file(e.text))
     val options = (node \ "option").map(_.text)
 
     Java(home, options)
