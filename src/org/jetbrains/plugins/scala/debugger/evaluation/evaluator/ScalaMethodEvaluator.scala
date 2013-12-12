@@ -16,11 +16,13 @@ import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil
  * Date: 12.10.11
  */
 case class ScalaMethodEvaluator(objectEvaluator: Evaluator, _methodName: String, signature: JVMName,
-                           argumentEvaluators: Seq[Evaluator], localMethod: Boolean,
-                           traitImplementation: Option[JVMName], methodPosition: Set[SourcePosition]) extends Evaluator {
+                           argumentEvaluators: Seq[Evaluator], traitImplementation: Option[JVMName] = None,
+                           methodPosition: Set[SourcePosition] = Set.empty, localMethodIndex: Int = -1) extends Evaluator {
   def getModifier: Modifier = null
 
   val methodName = DebuggerUtil.withoutBackticks(_methodName)
+  private val localMethod = localMethodIndex > 0
+  private val localMethodName = methodName + "$" + localMethodIndex
 
   def evaluate(context: EvaluationContextImpl): AnyRef = {
     if (!context.getDebugProcess.isAttached) return null
@@ -52,6 +54,15 @@ case class ScalaMethodEvaluator(objectEvaluator: Evaluator, _methodName: String,
       val sign: String = if (signature != null) signature.getName(debugProcess) else null
       var mName: String = DebuggerUtilsEx.methodName(referenceType.name, methodName, sign)
       def findMethod(referenceType: ReferenceType): Method = {
+        import scala.collection.JavaConversions._
+        def sortedMethodCandidates: List[Method] = {
+          val allMethods = referenceType.allMethods()
+          allMethods.toList.collect {
+            case method if !localMethod && method.name() == methodName => (method, 1)
+            case method if localMethod && method.name() == localMethodName => (method, 1)
+            case method if localMethod && method.name.startsWith(methodName + "$") => (method, 2)
+          }.sortBy(_._2).map(_._1)
+        }
         var jdiMethod: Method = null
         if (signature != null) {
           if (!localMethod) {
@@ -59,29 +70,16 @@ case class ScalaMethodEvaluator(objectEvaluator: Evaluator, _methodName: String,
               signature.getName(debugProcess))
           }
           if (jdiMethod == null && localMethod) {
-            //try to find method$i
-            val methods = referenceType.allMethods()
-            import scala.collection.JavaConversions._
-            for (method <- methods if jdiMethod == null) {
-              if (method.name().startsWith(methodName + "$")) {
-                mName = DebuggerUtilsEx.methodName(referenceType.name, method.name(), sign)
-                jdiMethod = referenceType.asInstanceOf[ClassType].concreteMethodByName(mName, signature.getName(debugProcess))
-              }
+            for (method <- sortedMethodCandidates if jdiMethod == null) {
+              mName = DebuggerUtilsEx.methodName(referenceType.name, method.name(), sign)
+              jdiMethod = referenceType.asInstanceOf[ClassType].concreteMethodByName(mName, signature.getName(debugProcess))
+              if (jdiMethod != null) return jdiMethod
             }
           }
         }
         if (jdiMethod == null) {
-          val methods = referenceType.allMethods()
-          import scala.collection.JavaConversions._
-          val results = new ArrayBuffer[Method]
-          for (method <- methods) {
-            if (method.name() == methodName || (localMethod && method.name().startsWith(methodName + "$"))) {
-              results += method
-            }
-          }
-
-          if (results.length > 1) {
-            val filtered = results.filter {
+          if (sortedMethodCandidates.length > 1) {
+            val filtered = sortedMethodCandidates.filter {
               m =>
                 try {
                   if (m.isVarArgs) args.length >= m.arguments().size()
@@ -90,7 +88,7 @@ case class ScalaMethodEvaluator(objectEvaluator: Evaluator, _methodName: String,
                   case a: AbsentInformationException => true
                 }
             }
-            if (filtered.length == 0) jdiMethod = results(0)
+            if (filtered.length == 0) jdiMethod = sortedMethodCandidates(0)
             else if (filtered.length == 1) jdiMethod = filtered(0)
             else {
               val newFiltered = filtered.filter(m => {
@@ -112,7 +110,7 @@ case class ScalaMethodEvaluator(objectEvaluator: Evaluator, _methodName: String,
                 jdiMethod = filtered(0)
               else jdiMethod = newFiltered(0)
             }
-          } else if (results.length == 1) jdiMethod = results(0)
+          } else if (sortedMethodCandidates.length == 1) jdiMethod = sortedMethodCandidates(0)
         }
         jdiMethod
       }
@@ -171,9 +169,7 @@ case class ScalaMethodEvaluator(objectEvaluator: Evaluator, _methodName: String,
       debugProcess.invokeMethod(context, objRef, jdiMethod, args)
     }
     catch {
-      case e: Exception => {
-        throw EvaluateExceptionUtil.createEvaluateException(e)
-      }
+      case e: Exception => throw EvaluateExceptionUtil.createEvaluateException(e)
     }
   }
 }

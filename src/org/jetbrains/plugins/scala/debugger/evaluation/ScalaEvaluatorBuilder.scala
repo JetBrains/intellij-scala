@@ -9,7 +9,6 @@ import com.intellij.debugger.engine.evaluation.expression._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameterClause, ScParameter, ScClassParameter}
 import reflect.NameTransformer
 import com.intellij.psi.util.PsiTreeUtil
-import collection.mutable.ArrayBuffer
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -18,7 +17,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.{ScPackage, ScalaRecursiveElemen
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import com.intellij.debugger.engine.{JVMName, JVMNameUtil}
 import util.DebuggerUtil
-import scala.collection.{mutable, Seq}
+import scala.collection.mutable
+import scala.collection.mutable.ArrayBuffer
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
@@ -29,7 +29,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.extensions.{toPsiModifierListOwnerExt, toPsiNamedElementExt, toPsiClassExt}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.xml.ScXmlPattern
 import com.intellij.codeInsight.PsiEquivalenceUtil
-import scala.annotation.tailrec
 import org.jetbrains.plugins.scala.debugger.evaluation.evaluator.ScalaMethodEvaluator
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import org.jetbrains.plugins.scala.lang.psi.types.ScThisType
@@ -449,11 +448,9 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
           }
           res
         })
-        val methodEvaluator = new ScalaMethodEvaluator(
-          thisEvaluator, name, DebuggerUtil.getFunctionJVMSignature(fun), evaluators, true, None,
-          DebuggerUtil.getSourcePositions(resolve.getNavigationElement)
-        )
-        myResult = methodEvaluator
+        myResult = new ScalaMethodEvaluator(
+          thisEvaluator, name, DebuggerUtil.getFunctionJVMSignature(fun), evaluators, None,
+          DebuggerUtil.getSourcePositions(resolve.getNavigationElement), localFunctionIndex(fun))
         return
       }
       throw EvaluateExceptionUtil.createEvaluateException("Cannot evaluate local method")
@@ -465,8 +462,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
     private def unboxEvaluator(eval: Evaluator): Evaluator = new UnBoxingEvaluator(eval)
     private def notEvaluator(eval: Evaluator): Evaluator = {
       unboxEvaluator(new ScalaMethodEvaluator(BOXES_RUN_TIME, "takeNot",
-        JVMNameUtil.getJVMRawText("(Ljava/lang/Object;)Ljava/lang/Object;"), Seq(boxEvaluator(eval)),
-        false, None, Set.empty))
+        JVMNameUtil.getJVMRawText("(Ljava/lang/Object;)Ljava/lang/Object;"), Seq(boxEvaluator(eval))))
     }
     private def eqEvaluator(left: Evaluator, right: Evaluator): Evaluator = {
       new ScalaEqEvaluator(left, right)
@@ -479,13 +475,12 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
     }
     private def unaryEvaluator(eval: Evaluator, boxesRunTimeName: String): Evaluator = {
       unboxEvaluator(new ScalaMethodEvaluator(BOXES_RUN_TIME, boxesRunTimeName,
-        JVMNameUtil.getJVMRawText("(Ljava/lang/Object;)Ljava/lang/Object;"), Seq(boxEvaluator(eval)),
-        false, None, Set.empty))
+        JVMNameUtil.getJVMRawText("(Ljava/lang/Object;)Ljava/lang/Object;"), Seq(boxEvaluator(eval))))
     }
     private def binaryEvaluator(left: Evaluator, right: Evaluator, boxesRunTimeName: String): Evaluator = {
       unboxEvaluator(new ScalaMethodEvaluator(BOXES_RUN_TIME, boxesRunTimeName,
         JVMNameUtil.getJVMRawText("(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;"),
-        Seq(boxEvaluator(left), boxEvaluator(right)), false, None, Set.empty)) 
+        Seq(boxEvaluator(left), boxEvaluator(right))))
     }
 
     private def evaluateSyntheticFunction(synth: ScSyntheticFunction, qual: Option[ScExpression], ref: ScReferenceExpression,
@@ -544,18 +539,15 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
           })
         case "asInstanceOf" => unaryEval(name, identity) //todo: primitive type casting?
         case "##" => unaryEval(name, eval => new ScalaMethodEvaluator(BOXES_RUN_TIME, "hashFromObject",
-          JVMNameUtil.getJVMRawText("(Ljava/lang/Object;)I"), Seq(new BoxingEvaluator(eval)),
-          false, None, Set.empty))
+          JVMNameUtil.getJVMRawText("(Ljava/lang/Object;)I"), Seq(new BoxingEvaluator(eval))))
         case "==" =>
           binaryEval(name, (l, r) => new ScalaMethodEvaluator(BOXES_RUN_TIME, "equals",
-            JVMNameUtil.getJVMRawText("(Ljava/lang/Object;Ljava/lang/Object;)Z"), Seq(
-              new BoxingEvaluator(l), new BoxingEvaluator(r)),
-            false, None, Set.empty))
+            JVMNameUtil.getJVMRawText("(Ljava/lang/Object;Ljava/lang/Object;)Z"),
+            Seq(new BoxingEvaluator(l), new BoxingEvaluator(r))))
         case "!=" =>
           binaryEval(name, (l, r) => new ScalaMethodEvaluator(BOXES_RUN_TIME, "equals",
-            JVMNameUtil.getJVMRawText("(Ljava/lang/Object;Ljava/lang/Object;)Z"), Seq(
-              new BoxingEvaluator(l), new BoxingEvaluator(r)),
-            false, None, Set.empty))
+            JVMNameUtil.getJVMRawText("(Ljava/lang/Object;Ljava/lang/Object;)Z"),
+            Seq(new BoxingEvaluator(l), new BoxingEvaluator(r))))
           myResult = unaryEvaluator(myResult, "takeNot")
         case "unary_!" => unaryEvalForBoxes("!", "takeNot")
         case "unary_~" => unaryEvalForBoxes("~", "complement")
@@ -615,7 +607,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
         case "clone" =>
           if (argEvaluators.length == 0 && qual != None) {
             qual.get.accept(this)
-            myResult = new ScalaMethodEvaluator(myResult, "clone", null/*todo*/, Nil, false, None, Set.empty)
+            myResult = new ScalaMethodEvaluator(myResult, "clone", null/*todo*/, Nil)
           } else throw EvaluateExceptionUtil.createEvaluateException("Wrong number of parameters for Array.clone method")
         case "update" =>
           if (argEvaluators.length == 2 && qual != None) {
@@ -626,7 +618,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
         case "toString" =>
           if (argEvaluators.length == 0 && qual != None) {
             qual.get.accept(this)
-            myResult = new ScalaMethodEvaluator(myResult, "toString", null/*todo*/, Nil, false, None, Set.empty)
+            myResult = new ScalaMethodEvaluator(myResult, "toString", null/*todo*/, Nil)
           } else throw EvaluateExceptionUtil.createEvaluateException("Wrong number of parameters for Array.toString method")
         case _ =>
           throw EvaluateExceptionUtil.createEvaluateException("Array method not supported")
@@ -770,7 +762,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
                         myResult = stableObjectEvaluator(o)
                       } else {
                         val objName = NameTransformer.encode(o.name)
-                        myResult = new ScalaMethodEvaluator(myResult, objName, null /* todo? */, Seq.empty, false,
+                        myResult = new ScalaMethodEvaluator(myResult, objName, null /* todo? */, Seq.empty,
                           traitImplementation(o), DebuggerUtil.getSourcePositions(resolve.getNavigationElement))
                       }
                     case _ =>
@@ -780,7 +772,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
                     case fun: ScFunction => DebuggerUtil.getFunctionJVMSignature(fun)
                     case _ => null
                   }
-                  myResult = new ScalaMethodEvaluator(myResult, name, signature, boxArguments(argEvaluators, resolve), false,
+                  myResult = new ScalaMethodEvaluator(myResult, name, signature, boxArguments(argEvaluators, resolve),
                     traitImplementation(resolve), DebuggerUtil.getSourcePositions(resolve.getNavigationElement))
                   return
               }
@@ -798,7 +790,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
                     evaluator = stableObjectEvaluator(o)
                   } else {
                     val objName = NameTransformer.encode(o.name)
-                    evaluator = new ScalaMethodEvaluator(evaluator, objName, null /* todo? */, Seq.empty, false,
+                    evaluator = new ScalaMethodEvaluator(evaluator, objName, null /* todo? */, Seq.empty,
                       traitImplementation(o), DebuggerUtil.getSourcePositions(resolve.getNavigationElement))
                   }
                 case _ =>
@@ -808,7 +800,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
                 case fun: ScFunction => DebuggerUtil.getFunctionJVMSignature(fun)
                 case _ => null
               }
-              myResult = new ScalaMethodEvaluator(evaluator, name, signature, boxArguments(argEvaluators, resolve), false,
+              myResult = new ScalaMethodEvaluator(evaluator, name, signature, boxArguments(argEvaluators, resolve),
                 traitImplementation(resolve), DebuggerUtil.getSourcePositions(resolve.getNavigationElement))
               return
             case _ =>
@@ -833,6 +825,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
           case param =>
             val p = new Parameter(param)
             val e = matchedParameters.find(_._1.name == p.name).map(_._2).getOrElse(Seq.empty).filter(_ != null)
+            if (p.isByName) throw EvaluateExceptionUtil.createEvaluateException("cannot evaluate methods with by-name parameters")
             if (p.isRepeated) {
               def tail: Evaluator = {
                 val exprText = "_root_.scala.collection.Seq.newBuilder[Any]" +
@@ -973,7 +966,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
                   throw EvaluateExceptionUtil.createEvaluateException("cannot find implicit parameters to pass")
               }
             } else if (p.isDefault) {
-              val methodName = fun.name + "$default$" + (parameters.indexOf(p) + 1)
+              val methodName = defaultParameterMethodName(fun, p, parameters)
               functionEvaluator(qualOption, ref, replaceWithImplicit, methodName, seq, resolve)
               myResult
             } else null
@@ -984,6 +977,18 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
           myResult
         })
       argEvaluators
+    }
+
+    private def localFunctionIndex(fun: ScFunction): Int = {
+      val containingClass = getContainingClass(fun)
+      import org.jetbrains.plugins.scala.extensions._
+      val sameNameLocalFunctions = containingClass.depthFirst.collect{case f: ScFunction if f.isLocal && f.name == fun.name => f}.toList
+      sameNameLocalFunctions.indexOf(fun) + 1
+    }
+
+    private def defaultParameterMethodName(fun: ScFunction, p: Parameter, parameters: Seq[Parameter]): String = {
+      val suffix: String = if (!fun.isLocal) "" else "$" + localFunctionIndex(fun)
+      fun.name + "$default$" + (parameters.indexOf(p) + 1) + suffix
     }
 
     private def visitCall(ref: ScReferenceExpression, qualOption: Option[ScExpression], arguments: Seq[ScExpression],
@@ -1015,8 +1020,8 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
             myResult = new ClassObjectEvaluator(new TypeEvaluator(clazzJVMName))
           else myResult = new ScalaLiteralEvaluator(null, Null)
         case synth: ScSyntheticFunction if synth.isStringPlusMethod && arguments.length == 1=>
-          val exprText = "(" + qualOption.map(_.getText).getOrElse("this") + ").concat(_root_.java.lang.String.valueOf(" +
-            arguments(0).getText + ")"
+          val qualText = qualOption.map(_.getText).getOrElse("this")
+          val exprText = s"($qualText).concat(_root_.java.lang.String.valueOf(${arguments(0).getText})"
           val expr = ScalaPsiElementFactory.createExpressionFromText(exprText, ref.getManager)
           expr.accept(this)
           myResult
@@ -1034,14 +1039,14 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
             case Some(literal: ScLiteral) =>
               val litEval = boxEvaluator(ScalaLiteralEvaluator(literal))
               myResult = ScalaMethodEvaluator(litEval, method.name, JVMNameUtil.getJVMSignature(method), boxArguments(argEvaluators, method),
-                localMethod = false, traitImplementation(resolve), DebuggerUtil.getSourcePositions(resolve.getNavigationElement))
+                traitImplementation(resolve), DebuggerUtil.getSourcePositions(resolve.getNavigationElement))
             case Some(qual) =>
               if (method.hasModifierPropertyScala("static")) {
                 val eval =
                   new TypeEvaluator(JVMNameUtil.getContextClassJVMQualifiedName(SourcePosition.createFromElement(method)))
                 val name = method.name
                 myResult = ScalaMethodEvaluator(eval, name, JVMNameUtil.getJVMSignature(method), boxArguments(argEvaluators, method),
-                  localMethod = false, traitImplementation(resolve), DebuggerUtil.getSourcePositions(resolve.getNavigationElement))
+                  traitImplementation(resolve), DebuggerUtil.getSourcePositions(resolve.getNavigationElement))
               } else {
                 ref.bind() match {
                   case Some(r: ScalaResolveResult) =>
@@ -1052,7 +1057,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
                         qual.accept(this)
                         val name = method.name
                         myResult = new ScalaMethodEvaluator(myResult, name, JVMNameUtil.getJVMSignature(method),
-                          boxArguments(argEvaluators, method), false,
+                          boxArguments(argEvaluators, method),
                           traitImplementation(resolve), DebuggerUtil.getSourcePositions(resolve.getNavigationElement))
                     }
                   case _ => //resolve not null => shouldn't be
@@ -1065,7 +1070,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
                   val evaluator = thisOrImportedQualifierEvaluator(ref, r)
                   val name = method.name
                   myResult = new ScalaMethodEvaluator(evaluator, name, JVMNameUtil.getJVMSignature(method),
-                  boxArguments(argEvaluators, method), false,
+                  boxArguments(argEvaluators, method),
                   traitImplementation(resolve), DebuggerUtil.getSourcePositions(resolve.getNavigationElement))
                 case _ => //resolve not null => shouldn't be
                   throw EvaluateExceptionUtil.createEvaluateException("Cannot evaluate method")
@@ -1081,11 +1086,11 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
             case Some(qual) =>
               qual.accept(this)
               val name = NameTransformer.encode(ref.refName)
-              myResult = new ScalaMethodEvaluator(myResult, name, null, argEvaluators, false, None, Set.empty)
+              myResult = new ScalaMethodEvaluator(myResult, name, null, argEvaluators)
             case None =>
               val evaluator = new ScalaThisEvaluator()
               val name = NameTransformer.encode(ref.refName)
-              myResult = new ScalaMethodEvaluator(evaluator, name, null, argEvaluators, false, None, Set.empty)
+              myResult = new ScalaMethodEvaluator(evaluator, name, null, argEvaluators)
           }
       }
     }
@@ -1122,7 +1127,6 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
               case _ => throw EvaluateExceptionUtil.createEvaluateException("Cannot evaluate assign statement without expression")
             }
             val rightEvaluator = myResult
-            @tailrec
             def createAssignEvaluator(leftEvaluator: Evaluator): Boolean = {
               leftEvaluator match {
                 case m: ScalaMethodEvaluator =>
@@ -1465,7 +1469,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
                     case _ =>
                       qual.accept(this)
                       val name = NameTransformer.encode(obj.name)
-                      myResult = new ScalaMethodEvaluator(myResult, name, null /* todo? */, Seq.empty, false,
+                      myResult = new ScalaMethodEvaluator(myResult, name, null /* todo? */, Seq.empty,
                         traitImplementation(resolve), DebuggerUtil.getSourcePositions(resolve.getNavigationElement))
                   }
                 case _ => throw new RuntimeException("Match is not exhaustive")
@@ -1475,7 +1479,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
                 case Some(r: ScalaResolveResult) =>
                   val evaluator = thisOrImportedQualifierEvaluator(ref, r)
                   val name = NameTransformer.encode(obj.name)
-                  myResult = new ScalaMethodEvaluator(evaluator, name, null /* todo? */, Seq.empty, false,
+                  myResult = new ScalaMethodEvaluator(evaluator, name, null /* todo? */, Seq.empty,
                     traitImplementation(resolve), DebuggerUtil.getSourcePositions(resolve.getNavigationElement))
                 case _ => throw new RuntimeException("Match is not exhaustive")
               }
@@ -1523,7 +1527,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
                     case _ =>
                       qual.accept(this)
                       val name = NameTransformer.encode(named.name)
-                      myResult = new ScalaMethodEvaluator(myResult, name, null /* todo */, Seq.empty, false,
+                      myResult = new ScalaMethodEvaluator(myResult, name, null /* todo */, Seq.empty,
                         traitImplementation(resolve), DebuggerUtil.getSourcePositions(resolve.getNavigationElement))
                   }
                 case _ => throw new RuntimeException("Match is not exhaustive")
@@ -1533,7 +1537,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
                 case Some(r: ScalaResolveResult) =>
                   val evaluator = thisOrImportedQualifierEvaluator(ref, r)
                   val name = NameTransformer.encode(named.name)
-                  myResult = new ScalaMethodEvaluator(evaluator, name, null/* todo */, Seq.empty, false,
+                  myResult = new ScalaMethodEvaluator(evaluator, name, null/* todo */, Seq.empty,
                     traitImplementation(resolve), DebuggerUtil.getSourcePositions(resolve.getNavigationElement))
                   getContextClass(named) match {
                     //in some cases compiler uses full qualified names for fields and methods
@@ -1541,7 +1545,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
                             && clazz.members.contains(ScalaPsiUtil.nameContext(named)) =>
                       val qualName = clazz.qualifiedName
                       val newName = qualName.split('.').map(NameTransformer.encode).mkString("$") + "$$" + name
-                      val reserveEval = new ScalaMethodEvaluator(evaluator, newName, null/* todo */, Seq.empty, false,
+                      val reserveEval = new ScalaMethodEvaluator(evaluator, newName, null/* todo */, Seq.empty,
                         traitImplementation(resolve), DebuggerUtil.getSourcePositions(resolve.getNavigationElement))
                       myResult = new ScalaDuplexEvaluator(myResult, reserveEval)
                     case _ =>
@@ -1666,15 +1670,12 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
                             case _ => JVMNameUtil.getJVMRawText("()V")
                           }
                           myResult = new ScalaMethodEvaluator(typeEvaluator, "<init>", methodSignature,
-                            boxArguments(argumentEvaluators, named), false, None,
-                            Set.empty)
+                            boxArguments(argumentEvaluators, named))
                         case _ =>
-                          myResult = new ScalaMethodEvaluator(typeEvaluator, "<init>", null, argumentEvaluators, false, None,
-                            Set.empty)
+                          myResult = new ScalaMethodEvaluator(typeEvaluator, "<init>", null, argumentEvaluators)
                       }
                     case _ =>
-                      myResult = new ScalaMethodEvaluator(typeEvaluator, "<init>", null, argumentEvaluators, false, None,
-                        Set.empty)
+                      myResult = new ScalaMethodEvaluator(typeEvaluator, "<init>", null, argumentEvaluators)
                   }
                 case _ => throw EvaluateExceptionUtil.createEvaluateException("Cannot evaluate new expression without class reference")
               }
@@ -1702,24 +1703,24 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
             val funName = fun.name
             val newEval =
               if (funName == "unapply") {
-                val extractEval = new ScalaMethodEvaluator(refEvaluator, funName, DebuggerUtil.getFunctionJVMSignature(fun), Seq(exprEval), false, None, Set.empty)
+                val extractEval = new ScalaMethodEvaluator(refEvaluator, funName, DebuggerUtil.getFunctionJVMSignature(fun), Seq(exprEval))
                 if (pattern.subpatterns.length == 1) {
-                  myResult = new ScalaMethodEvaluator(extractEval, "get", null, Seq.empty, false, None, Set.empty)
+                  myResult = new ScalaMethodEvaluator(extractEval, "get", null, Seq.empty)
                   myResult
                 }
                 else if (pattern.subpatterns.length > 1) {
-                  val getEval = new ScalaMethodEvaluator(extractEval, "get", null, Seq.empty, false, None, Set.empty)
+                  val getEval = new ScalaMethodEvaluator(extractEval, "get", null, Seq.empty)
                   val _nEval = new ScalaFieldEvaluator(getEval, x => true, s"_${nextPatternIndex + 1}")
                   myResult = _nEval
                   myResult
                 }
                 else throw EvaluateExceptionUtil.createEvaluateException("Cannot extract value from unapply without arguments")
               } else if (funName == "unapplySeq") {
-                val extractEval = new ScalaMethodEvaluator(refEvaluator, funName, DebuggerUtil.getFunctionJVMSignature(fun), Seq(exprEval), false, None, Set.empty)
-                val getEval = new ScalaMethodEvaluator(extractEval, "get", null, Seq.empty, false, None, Set.empty)
+                val extractEval = new ScalaMethodEvaluator(refEvaluator, funName, DebuggerUtil.getFunctionJVMSignature(fun), Seq(exprEval))
+                val getEval = new ScalaMethodEvaluator(extractEval, "get", null, Seq.empty)
                 ScalaPsiElementFactory.createExpressionFromText("" + nextPatternIndex, pattern.getManager).accept(this)
                 val numberEval = myResult
-                val applyEval = new ScalaMethodEvaluator(getEval, "apply", null, Seq(numberEval), false, None, Set.empty)
+                val applyEval = new ScalaMethodEvaluator(getEval, "apply", null, Seq(numberEval))
                 myResult = applyEval
                 myResult
               } else throw EvaluateExceptionUtil.createEvaluateException("Pattern reference does not resolve to unapply or unapplySeq")
