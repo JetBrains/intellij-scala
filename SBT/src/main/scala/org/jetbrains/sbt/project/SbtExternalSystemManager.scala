@@ -11,22 +11,13 @@ import com.intellij.util.net.HttpConfigurable
 import org.jetbrains.sbt.settings.SbtApplicationSettings
 import java.util
 import java.net.URL
-import com.intellij.openapi.startup.StartupActivity
-import com.intellij.openapi.components.ServiceManager
-import com.intellij.openapi.externalSystem.service.project.manage.ProjectDataManager
-import com.intellij.openapi.externalSystem.service.project.ExternalProjectRefreshCallback
-import com.intellij.openapi.externalSystem.model.DataNode
-import com.intellij.openapi.externalSystem.model.project.ProjectData
-import com.intellij.openapi.externalSystem.service.execution.ProgressExecutionMode
-import com.intellij.openapi.roots.ex.ProjectRootManagerEx
-import java.util.Collections
 
 /**
  * @author Pavel Fatin
  */
 class SbtExternalSystemManager
   extends ExternalSystemManager[SbtProjectSettings, SbtSettingsListener, ScalaSbtSettings, SbtLocalSettings, SbtExecutionSettings]
-  with ExternalSystemAutoImportAware /*with ExternalSystemConfigurableAware*/ with StartupActivity {
+  with ExternalSystemAutoImportAware /*with ExternalSystemConfigurableAware*/ {
   def enhanceLocalProcessing(urls: util.List[URL]) {
     urls.add(jarWith[scala.App].toURI.toURL)
   }
@@ -65,56 +56,6 @@ class SbtExternalSystemManager
     delegate.getAffectedExternalProjectPath(changedFileOrDirPath, project)
 
   def getExternalProjectDescriptor = new SbtOpenProjectDescriptor()
-
-  /**
-   * I have no idea what I am doing 
-   * @author Dmitry
-   */
-  def runActivity(project: Project) {
-    val connection = project.getMessageBus connect project
-    val sbtSettings = ScalaSbtSettings getInstance project
-    
-    connection.subscribe(sbtSettings.getChangesTopic, new SbtSettingsListener {
-      def onProjectsLinked(settings: util.Collection[SbtProjectSettings]) {
-        val projectDataManager = ServiceManager.getService(classOf[ProjectDataManager])
-        
-        import scala.collection.JavaConverters._
-        
-        settings.asScala foreach {
-          case setting => 
-//            ExternalSystemUtil.refreshProjects(project, SbtProjectSystem.Id, false, ProgressExecutionMode.MODAL_SYNC)
-//            
-            ExternalSystemUtil.refreshProject(project, SbtProjectSystem.Id, setting.getExternalProjectPath, new ExternalProjectRefreshCallback {
-              def onFailure(errorMessage: String, errorDetails: String) {}
-
-              def onSuccess(externalProject: DataNode[ProjectData]) {
-                if (externalProject == null) return
-
-                ExternalSystemApiUtil.executeProjectChangeAction(true, new DisposeAwareProjectChange(project) {
-                  def execute() {
-                    ProjectRootManagerEx getInstanceEx project mergeRootsChangesDuring new Runnable {
-                      def run() {
-                        projectDataManager.importData(externalProject.getKey, Collections.singleton[DataNode[ProjectData]](externalProject), project, true)
-                      }
-                    }
-                  }
-                })
-              }
-            }, false, ProgressExecutionMode.MODAL_SYNC)
-        }
-      }
-
-      def onBulkChangeEnd() {}
-
-      def onBulkChangeStart() {}
-
-      def onProjectRenamed(oldName: String, newName: String) {}
-
-      def onProjectsUnlinked(linkedProjectPaths: util.Set[String]) {}
-
-      def onUseAutoImportChange(currentValue: Boolean, linkedProjectPath: String) {}
-    })
-  }
 
 //  def getConfigurable(project: Project): Configurable = new SbtExternalSystemConfigurable(project)
 }
