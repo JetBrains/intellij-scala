@@ -19,6 +19,7 @@ import com.intellij.openapi.options.Configurable
 class SbtExternalSystemManager
   extends ExternalSystemManager[SbtProjectSettings, SbtSettingsListener, ScalaSbtSettings, SbtLocalSettings, SbtExecutionSettings]
   with ExternalSystemAutoImportAware with ExternalSystemConfigurableAware {
+
   def enhanceLocalProcessing(urls: util.List[URL]) {
     urls.add(jarWith[scala.App].toURI.toURL)
   }
