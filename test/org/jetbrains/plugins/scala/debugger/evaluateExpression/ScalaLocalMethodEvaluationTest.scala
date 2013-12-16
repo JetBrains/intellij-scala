@@ -216,34 +216,102 @@ class ScalaLocalMethodEvaluationTest extends ScalaDebuggerTestCase {
     }
   }
 
-    //this test should work, but it doesn't (last two assertions)
-//  def testClojureWithDefaultParameter() {
+  def testLocalWithDefaultAndNamedParameters() {
+    myFixture.addFileToProject("Sample.scala",
+      """
+        |object Sample {
+        |  def main(args: Array[String]) {
+        |    def outer() {
+        |      def inner(a: String, b: String = "default", c: String = "other"): String = {
+        |        "stop here"
+        |        a + b + c
+        |      }
+        |      inner("aa")
+        |    }
+        |    outer()
+        |  }
+        |}
+      """.stripMargin.trim()
+    )
+    addBreakpoint("Sample.scala", 5)
+    runDebugger("Sample") {
+      waitForBreakpoint()
+      evalEquals("a", "aa")
+      evalEquals("b", "default")
+      evalEquals("c", "other")
+      evalEquals("inner(\"aa\", \"bb\")", "aabbother")
+      evalEquals("inner(\"aa\")", "aadefaultother")
+      evalEquals("inner(\"aa\", c = \"cc\")", "aadefaultcc")
+    }
+  }
+
+//  def testLocalMethodsWithSameName() {
 //    myFixture.addFileToProject("Sample.scala",
 //      """
 //        |object Sample {
 //        |  def main(args: Array[String]) {
-//        |    def outer() {
-//        |      val s = "start"
-//        |      val d = "default"
-//        |      def inner(a: String, b: String = d): String = {
-//        |        "stop here"
-//        |        s + a + b
-//        |      }
-//        |      inner("aa")
+//        |    def foo(i: Int = 1) = {
+//        |      def foo(j: Int = 2) = j
+//        |      i
 //        |    }
-//        |    outer()
+//        |    "stop"
+//        |    def other() {
+//        |      def foo(i: Int = 3) = i
+//        |      "stop"
+//        |    }
+//        |    def third() {
+//        |      def foo(i: Int = 4) = i
+//        |      "stop"
+//        |    }
+//        |    foo()
+//        |    other()
+//        |    third()
 //        |  }
 //        |}
-//      """.stripMargin.trim()
-//    )
+//      """.stripMargin.trim())
+//    addBreakpoint("Sample.scala", 4)
 //    addBreakpoint("Sample.scala", 6)
+//    addBreakpoint("Sample.scala", 9)
+//    addBreakpoint("Sample.scala", 13)
 //    runDebugger("Sample") {
+//      //todo test for multiple breakpoints?
 //      waitForBreakpoint()
-//      evalEquals("a", "aa")
-//      evalEquals("b", "default")
-//      evalEquals("s", "start")
-//      evalEquals("inner(\"aa\", \"bb\")", "startaabb")
-//      evalEquals("inner(\"aa\")", "startaadefault")
+//      evalEquals("foo()", "1")
+//      waitForBreakpoint()
+//      evalEquals("foo()", "2")
+//
+//
 //    }
 //  }
+
+  //todo this test should work, but it doesn't (last two assertions)
+  //  def testClojureWithDefaultParameter() {
+  //    myFixture.addFileToProject("Sample.scala",
+  //      """
+  //        |object Sample {
+  //        |  def main(args: Array[String]) {
+  //        |    def outer() {
+  //        |      val s = "start"
+  //        |      val d = "default"
+  //        |      def inner(a: String, b: String = d): String = {
+  //        |        "stop here"
+  //        |        s + a + b
+  //        |      }
+  //        |      inner("aa")
+  //        |    }
+  //        |    outer()
+  //        |  }
+  //        |}
+  //      """.stripMargin.trim()
+  //    )
+  //    addBreakpoint("Sample.scala", 6)
+  //    runDebugger("Sample") {
+  //      waitForBreakpoint()
+  //      evalEquals("a", "aa")
+  //      evalEquals("b", "default")
+  //      evalEquals("s", "start")
+  //      evalEquals("inner(\"aa\", \"bb\")", "startaabb")
+  //      evalEquals("inner(\"aa\")", "startaadefault")
+  //    }
+  //  }
 }
