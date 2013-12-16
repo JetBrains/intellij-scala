@@ -4,7 +4,7 @@ package settings
 import com.intellij.openapi.components.{ServiceManager, ProjectComponent}
 import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.scala.util.NotificationUtil
-import com.intellij.openapi.fileEditor.{FileDocumentManager, FileEditorManager, FileEditorManagerEvent, FileEditorManagerListener}
+import com.intellij.openapi.fileEditor._
 import com.intellij.openapi.vfs.VirtualFile
 import org.jetbrains.sbt.language.SbtFileType
 import java.util.concurrent.ConcurrentHashMap
@@ -21,7 +21,8 @@ import com.intellij.util.containers.ContainerUtilRt
 import com.intellij.openapi.roots.ex.ProjectRootManagerEx
 import com.intellij.openapi.externalSystem.service.project.manage.ProjectDataManager
 import java.util.Collections
-import com.intellij.openapi.util.SystemInfo
+import com.intellij.openapi.editor.ex.{FocusChangeListener, EditorEx}
+import com.intellij.openapi.editor.Editor
 
 /**
  * User: Dmitry Naydanov
@@ -140,21 +141,38 @@ class SbtImportNotifier(private val project: Project, private val fileEditorMana
     def selectionChanged(event: FileEditorManagerEvent) {}
 
     def fileClosed(source: FileEditorManager, file: VirtualFile) {
-      if (myReImportIgnored || !checkCanBeSbtFile(file)) return
-      val path = file.getCanonicalPath
-      val stamp = file.getModificationStamp
-      
-      val stampLong = myMap.get(path)
-      if (stampLong == 0 || stampLong != stamp) {
-        myMap.put(path, stamp)
-        showReImportNotification(path)
-      }
     }
 
     def fileOpened(source: FileEditorManager, file: VirtualFile) {
       if (!checkCanBeSbtFile(file)) return
+      
       if (!myNoImportIgnored) checkNoImport(file.getCanonicalPath)
       if (!myReImportIgnored) myMap.put(file.getCanonicalPath, file.getModificationStamp)
+      
+      source getSelectedEditor file match {
+        case txt: TextEditor => txt.getEditor match {
+          case ext: EditorEx => ext addFocusListener new FocusChangeListener {
+            def focusGained(editor: Editor) {
+              
+            }
+
+            def focusLost(editor: Editor) {
+              if (myReImportIgnored) return
+
+              val path = file.getCanonicalPath
+              val stamp = file.getModificationStamp
+
+              val stampLong = myMap.get(path)
+              if (stampLong == 0 || stampLong != stamp) {
+                myMap.put(path, stamp)
+                showReImportNotification(path)
+              }
+            }
+          }
+          case _ =>
+        }
+        case _ => 
+      }
     }
   }
 }
