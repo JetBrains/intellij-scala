@@ -71,13 +71,9 @@ class SbtImportNotifier(private val project: Project, private val fileEditorMana
   }
   
   private def checkNoImport(forFile: String) {
-    val externalProjectPath = {
-      val s = getExternalProject(forFile)
-      if (SystemInfo.isWindows) s.replace('/', '\\') else s
-    }
     val sbtSettings = getSbtSettings getOrElse { return }
     
-    if (sbtSettings.getLinkedProjectSettings(externalProjectPath) == null) {
+    if (sbtSettings.getLinkedProjectSettings(getExternalProject(forFile)) == null) {
       builder(SbtImportNotifier noImportMessage forFile).setTitle("Import project").setHandler {
         case "import" =>
           val projectSettings = new Settings
