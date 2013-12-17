@@ -52,20 +52,14 @@ class ScFunctionDefinitionImpl extends ScFunctionImpl with ScFunctionDefinition 
   def recursiveReferences: Seq[RecursiveReference] = {
     val resultExpressions = getReturnUsages
 
-    def resultExpressionFor(ref: ScReferenceElement): PsiElement = {
-      @scala.annotation.tailrec
-      def resultExpressionForMethodCall(ref: PsiElement): PsiElement = ref match {
-        case Parent(call: ScMethodCall) => resultExpressionForMethodCall(call)
-        case Parent(ret: ScReturnStmt) => ret
-        case _ => ref
-      }
-
-      ref match {
-        case Parent(ret: ScReturnStmt) => ret
-        case Parent(call: ScGenericCall) => resultExpressionForMethodCall(call)
-        case Parent(call: ScMethodCall) => resultExpressionForMethodCall(call)
-        case _ => ref
-      }
+    @scala.annotation.tailrec
+    def possiblyTailRecursiveCallFor(elem: PsiElement): PsiElement = elem.getParent match {
+      case call: ScMethodCall => possiblyTailRecursiveCallFor(call)
+      case call: ScGenericCall => possiblyTailRecursiveCallFor(call)
+      case ret: ScReturnStmt => ret
+      case infix @ ScInfixExpr(ScExpression.Type(types.Boolean), ElementText(op), right @ ScExpression.Type(types.Boolean))
+        if right == elem && (op == "&&" || op == "||") => possiblyTailRecursiveCallFor(infix)
+      case _ => elem
     }
 
     def expandIf(elem: PsiElement): Seq[PsiElement] = {
@@ -83,7 +77,7 @@ class ScFunctionDefinitionImpl extends ScFunctionImpl with ScFunctionDefinition 
     for {
       ref <- depthFirst.filterByType(classOf[ScReferenceElement]).toSeq if ref.isReferenceTo(this)
     } yield {
-      RecursiveReference(ref, expressions.contains(resultExpressionFor(ref)))
+      RecursiveReference(ref, expressions.contains(possiblyTailRecursiveCallFor(ref)))
     }
   }
 
@@ -166,17 +160,16 @@ class ScFunctionDefinitionImpl extends ScFunctionImpl with ScFunctionDefinition 
   def getReturnUsages: Array[PsiElement] = body map (exp => {
     (exp.depthFirst(!_.isInstanceOf[ScFunction]).filter(_.isInstanceOf[ScReturnStmt]) ++ exp.calculateReturns).
       filter(_.getContainingFile == getContainingFile).toArray.distinct
-  }) getOrElse (Array.empty[PsiElement])
+  }) getOrElse Array.empty[PsiElement]
 
 
   private var myControlFlow: Seq[Instruction] = null
 
   def getControlFlow(cached: Boolean) = {
     if (!cached || myControlFlow == null) body match {
-      case Some(e) => {
+      case Some(e) =>
         val builder = new ScalaControlFlowBuilder(null, null)
         myControlFlow = builder.buildControlflow(e)
-      }
       case _ => myControlFlow = Seq.empty
     }
     myControlFlow
