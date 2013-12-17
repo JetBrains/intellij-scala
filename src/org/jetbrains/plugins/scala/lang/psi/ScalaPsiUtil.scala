@@ -60,7 +60,6 @@ import com.intellij.psi.tree.TokenSet
 import com.intellij.lang.java.JavaLanguage
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
 import com.intellij.openapi.util.TextRange
-import scala.Some
 import org.jetbrains.plugins.scala.lang.psi.types.ScUndefinedType
 import org.jetbrains.plugins.scala.lang.psi.types.ScCompoundType
 import org.jetbrains.plugins.scala.lang.psi.types.ScAbstractType
@@ -181,12 +180,11 @@ object ScalaPsiUtil {
 
   def lastChildElementOrStub(element: PsiElement): PsiElement = {
     element match {
-      case st: ScalaStubBasedElementImpl[_] if st.getStub != null => {
+      case st: ScalaStubBasedElementImpl[_] if st.getStub != null =>
         val stub = st.getStub
         val children = stub.getChildrenStubs
         if (children.size() == 0) element.getLastChild
         else children.get(children.size() - 1).getPsi
-      }
       case _ => element.getLastChild
     }
   }
@@ -240,17 +238,15 @@ object ScalaPsiUtil {
                               lastParent: PsiElement, typeResult: => TypeResult[ScType]): Boolean = {
     val subst = state.get(ScSubstitutor.key).toOption.getOrElse(ScSubstitutor.empty)
     lastParent match {
-      case _: ScImportStmt => {
+      case _: ScImportStmt =>
         typeResult match {
-          case Success(t, _) => {
+          case Success(t, _) =>
             (processor, place) match {
               case (b: BaseProcessor, p: ScalaPsiElement) => b.processType(subst subst t, p, state)
               case _ => true
             }
-          }
           case _ => true
         }
-      }
       case _ => true
     }
   }
@@ -295,7 +291,7 @@ object ScalaPsiUtil {
         else if (!secondPart) convertible.implicitMapFirstPart()
         else convertible.implicitMapSecondPart(args = args)
       implicitMap = mp.flatMap({
-        case implRes: ImplicitResolveResult => {
+        case implRes: ImplicitResolveResult =>
           ProgressManager.checkCanceled()
           if (!isHardCoded || !implRes.tp.isInstanceOf[ValType]) {
             val newProc = new ResolveProcessor(kinds, ref, refName)
@@ -335,7 +331,6 @@ object ScalaPsiUtil {
               else Seq.empty
             }
           } else Seq.empty
-        }
       })
     }
     //todo: insane logic. Important to have to navigate to problematic method, in case of failed resolve. That's why we need to have noApplicability parameter
@@ -563,9 +558,9 @@ object ScalaPsiUtil {
         case proj@ScProjectionType(projected, _, _) =>
           collectParts(projected, place)
           proj.actualElement match {
-            case v: ScBindingPattern => v.getType(TypingContext.empty).map(proj.actualSubst.subst(_)).foreach(collectParts(_, place))
-            case v: ScFieldId => v.getType(TypingContext.empty).map(proj.actualSubst.subst(_)).foreach(collectParts(_, place))
-            case v: ScParameter => v.getType(TypingContext.empty).map(proj.actualSubst.subst(_)).foreach(collectParts(_, place))
+            case v: ScBindingPattern => v.getType(TypingContext.empty).map(proj.actualSubst.subst).foreach(collectParts(_, place))
+            case v: ScFieldId => v.getType(TypingContext.empty).map(proj.actualSubst.subst).foreach(collectParts(_, place))
+            case v: ScParameter => v.getType(TypingContext.empty).map(proj.actualSubst.subst).foreach(collectParts(_, place))
             case _ =>
           }
           ScType.extractClass(tp, projectOpt) match {
@@ -577,7 +572,7 @@ object ScalaPsiUtil {
           collectParts(upper, place)
         case ScExistentialType(quant, _) =>
           collectParts(quant, place)
-        case _=> {
+        case _=>
           ScType.extractClass(tp, projectOpt) match {
             case Some(pair) =>
               val packObjects = pair.contexts.flatMap {
@@ -589,7 +584,6 @@ object ScalaPsiUtil {
               packObjects.foreach(p => parts += ScDesignatorType(p))
             case _ =>
           }
-        }
       }
     }
     collectParts(tp, place)
@@ -615,13 +609,12 @@ object ScalaPsiUtil {
             collectObjects(p.actualSubst.subst(p.actualElement.asInstanceOf[ScTypeAliasDefinition].
               aliasedType.getOrAny))
             return
-          case ScParameterizedType(ScDesignatorType(ta: ScTypeAliasDefinition), args) => {
+          case ScParameterizedType(ScDesignatorType(ta: ScTypeAliasDefinition), args) =>
             val genericSubst = ScalaPsiUtil.
               typesCallSubstitutor(ta.typeParameters.map(tp => (tp.name, ScalaPsiUtil.getPsiElementId(tp))), args)
             collectObjects(genericSubst.subst(ta.aliasedType.getOrAny))
             return
-          }
-          case ScParameterizedType(p: ScProjectionType, args) if p.actualElement.isInstanceOf[ScTypeAliasDefinition] => {
+          case ScParameterizedType(p: ScProjectionType, args) if p.actualElement.isInstanceOf[ScTypeAliasDefinition] =>
             val genericSubst = ScalaPsiUtil.
               typesCallSubstitutor(p.actualElement.asInstanceOf[ScTypeAliasDefinition].typeParameters.map(tp => (tp.name, ScalaPsiUtil.getPsiElementId(tp)
               )), args)
@@ -629,7 +622,6 @@ object ScalaPsiUtil {
             collectObjects(s.subst(p.actualElement.asInstanceOf[ScTypeAliasDefinition].
               aliasedType.getOrAny))
             return
-          }
           case _ =>
         }
         ScType.extractClassType(tp, projectOpt) match {
@@ -688,7 +680,7 @@ object ScalaPsiUtil {
     getTypesStream(elems, (param: PsiParameter) => {
       param match {
         case scp: ScParameter => scp.getType(TypingContext.empty).getOrNothing
-        case p =>
+        case p: PsiParameter =>
           val treatJavaObjectAsAny = p.parents.findByType(classOf[PsiClass]) match {
             case Some(cls) if cls.qualifiedName == "java.lang.Object" => true // See SCL-3036
             case _ => false
@@ -733,21 +725,18 @@ object ScalaPsiUtil {
     val visitor = new ScalaRecursiveElementVisitor {
       override def visitExpression(expr: ScExpression) {
         expr match {
-          case f: ScForStatement => {
+          case f: ScForStatement =>
             f.getDesugarizedExpr match {
               case Some(e) => res = res ++ getExprImports(e)
               case _ =>
             }
-          }
-          case ref: ScReferenceExpression => {
+          case ref: ScReferenceExpression =>
             for (rr <- ref.multiResolve(false) if rr.isInstanceOf[ScalaResolveResult]) {
               res = res ++ rr.asInstanceOf[ScalaResolveResult].importsUsed
             }
             super.visitExpression(expr)
-          }
-          case _ => {
+          case _ =>
             super.visitExpression(expr)
-          }
         }
       }
     }
@@ -761,11 +750,10 @@ object ScalaPsiUtil {
       elem match {
         case tp: ScTypeParam => tp.getPsiElementId
         case p: PsiTypeParameter => " in: Java" //Two parameters from Java can't be used with same name in same place
-        case _ => {
+        case _ =>
           val containingFile: PsiFile = elem.getContainingFile
           " in:" + (if (containingFile != null) containingFile.name else "NoFile") + ":" +
             (if (elem.getTextRange != null) elem.getTextRange.getStartOffset else "NoRange")
-        }
       }
     }
     catch {
@@ -986,18 +974,16 @@ object ScalaPsiUtil {
   
   def getFirstStubOrPsiElement(elem: PsiElement): PsiElement = {
     elem match {
-      case st: ScalaStubBasedElementImpl[_] if st.getStub != null => {
+      case st: ScalaStubBasedElementImpl[_] if st.getStub != null =>
         val stub = st.getStub
         val childrenStubs = stub.getChildrenStubs
         if (childrenStubs.size() > 0) childrenStubs.get(0).getPsi
         else null
-      }
-      case file: PsiFileImpl if file.getStub != null => {
+      case file: PsiFileImpl if file.getStub != null =>
         val stub = file.getStub
         val childrenStubs = stub.getChildrenStubs
         if (childrenStubs.size() > 0) childrenStubs.get(0).getPsi
         else null
-      }
       case _ => elem.getFirstChild
     }
   }
@@ -1016,14 +1002,12 @@ object ScalaPsiUtil {
       }
     }
     elem match {
-      case st: ScalaStubBasedElementImpl[_] if st.getStub != null => {
+      case st: ScalaStubBasedElementImpl[_] if st.getStub != null =>
         val stub = st.getStub
         workWithStub(stub)
-      }
-      case file: PsiFileImpl if file.getStub != null => {
+      case file: PsiFileImpl if file.getStub != null =>
         val stub = file.getStub
         workWithStub(stub)
-      }
       case _ => elem.getPrevSibling
     }
   }
@@ -1038,7 +1022,7 @@ object ScalaPsiUtil {
 
   def getNextStubOrPsiElement(elem: PsiElement): PsiElement = {
     elem match {
-      case st: ScalaStubBasedElementImpl[_] if st.getStub != null => {
+      case st: ScalaStubBasedElementImpl[_] if st.getStub != null =>
         val stub = st.getStub
         val parent = stub.getParentStub
         val children = parent.getChildrenStubs
@@ -1050,7 +1034,6 @@ object ScalaPsiUtil {
         } else {
           children.get(index + 1).getPsi
         }
-      }
       case _ => elem.getNextSibling
     }
   }
@@ -1058,12 +1041,11 @@ object ScalaPsiUtil {
   def extractReturnType(tp: ScType): Option[ScType] = {
     tp match {
       case ScFunctionType(retType, _) => Some(retType)
-      case ScParameterizedType(des, args) => {
+      case ScParameterizedType(des, args) =>
         ScType.extractClass(des) match {
           case Some(clazz) if clazz.qualifiedName.startsWith("scala.Function") => Some(args(args.length - 1))
           case _ => None
         }
-      }
       case _ => None
     }
   }
@@ -1073,10 +1055,9 @@ object ScalaPsiUtil {
     if (ignoreTemplateParents) return td
     if (td == null) return null
     val res = td.extendsBlock.templateParents match {
-      case Some(parents) => {
+      case Some(parents) =>
         if (PsiTreeUtil.isContextAncestor(parents, placer, true)) getPlaceTd(td)
         else td
-      }
       case _ => td
     }
     res
@@ -1220,14 +1201,12 @@ object ScalaPsiUtil {
 
   def getMethodPresentableText(method: PsiMethod, subst: ScSubstitutor = ScSubstitutor.empty): String = {
     method match {
-      case method: ScFunction => {
+      case method: ScFunction =>
         ScalaElementPresentation.getMethodPresentableText(method, short = false, subst)
-      }
-      case _ => {
+      case _ =>
         val PARAM_OPTIONS: Int = PsiFormatUtilBase.SHOW_NAME | PsiFormatUtilBase.SHOW_TYPE | PsiFormatUtilBase.TYPE_AFTER
         PsiFormatUtil.formatMethod(method, getPsiSubstitutor(subst, method.getProject, method.getResolveScope),
           PARAM_OPTIONS | PsiFormatUtilBase.SHOW_PARAMETERS, PARAM_OPTIONS)
-      }
     }
   }
 
@@ -1330,23 +1309,13 @@ object ScalaPsiUtil {
       case _ => scope.getChildren
     }
     td match {
-      case _: ScClass | _: ScTrait => {
-        arrayOfElements.map((child: PsiElement) =>
-          child match {
-            case td: ScTypeDefinition => td
-            case _ => null: ScTypeDefinition
-          }).find((child: ScTypeDefinition) =>
-          child.isInstanceOf[ScObject] && child.asInstanceOf[ScObject].name == name)
-      }
-      case _: ScObject => {
-        arrayOfElements.map((child: PsiElement) =>
-          child match {
-            case td: ScTypeDefinition => td
-            case _ => null: ScTypeDefinition
-          }).find((child: ScTypeDefinition) =>
-          (child.isInstanceOf[ScClass] || child.isInstanceOf[ScTrait])
-                  && child.name == name)
-      }
+      case _: ScClass | _: ScTrait =>
+        arrayOfElements.collect{case obj: ScObject if obj.name == name => obj}.headOption
+      case _: ScObject =>
+        arrayOfElements.collect{
+          case c: ScClass if c.name == name => c
+          case t: ScTrait if t.name == name => t
+        }.headOption
       case _ => None
     }
   }
@@ -1591,7 +1560,7 @@ object ScalaPsiUtil {
               .filter(_.allPatternsSimple)
               .flatMap(_.getParent.asOptionOf[ScPatternDefinition])
               .flatMap(_.expr.flatMap(_.asOptionOf[PsiLiteral]))
-              .flatMap(stringValueOf(_))
+              .flatMap(stringValueOf)
       case _ => None
     }
   }
