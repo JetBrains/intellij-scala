@@ -1800,7 +1800,7 @@ object ScalaPsiUtil {
       val result = collection.mutable.Set[(ScReferenceElement, String)]()
       if (holder != null) {
         val importExprs: Seq[ScImportExpr] = holder.getImportStatements.flatMap(_.importExprs)
-        importExprs.flatMap(_.selectors).foreach(s => result += ((s.reference, s.importedName)))
+        importExprs.flatMap(_.selectors).filter(_.importedName != "_").foreach(s => result += ((s.reference, s.importedName)))
         importExprs.filter(_.selectors.isEmpty).flatMap(_.reference).foreach(ref => result += ((ref, ref.refName)))
         result.toSet
       }
