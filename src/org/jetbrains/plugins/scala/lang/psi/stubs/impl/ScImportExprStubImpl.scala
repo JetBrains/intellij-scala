@@ -35,7 +35,7 @@ class ScImportExprStubImpl[ParentPsi <: PsiElement](parent: StubElement[ParentPs
 
   def reference: Option[ScStableCodeReferenceElement] = {
     if (myReference != null && myReference.get != null) return myReference.get
-    val res = if (referenceText == "") {
+    val res = if (referenceText == StringRef.fromString("")) {
       None
     } else {
       val psi = ScalaPsiElementFactory.createReferenceFromText(StringRef.toString(referenceText), getPsi, null)
