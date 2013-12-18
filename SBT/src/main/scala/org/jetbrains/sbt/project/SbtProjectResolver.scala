@@ -17,8 +17,6 @@ import com.intellij.openapi.roots.DependencyScope
  */
 class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSettings] {
   def resolveProjectInfo(id: ExternalSystemTaskId, projectPath: String, isPreview: Boolean, settings: SbtExecutionSettings, listener: ExternalSystemTaskNotificationListener): DataNode[ProjectData] = {
-//    if (downloadLibraries) return null
-
     val path = {
       val file = new File(projectPath)
       if (file.isDirectory) file.getPath else file.getParent
