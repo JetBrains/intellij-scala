@@ -37,7 +37,7 @@ object ParserTest {
       Seq("import sbt._, Process._, Keys._"))
 
     val java = Java(
-      home = new File("$BASE/some/home"),
+      home = Some(new File("$BASE/some/home")),
       options = Seq("-j1", "-j2"))
 
     val scala = Scala(
@@ -48,6 +48,7 @@ object ParserTest {
       options = Seq("-s1", "-s2"))
 
     val project = Project(
+      id = "root",
       name = "some-name",
       organization = "some-organization",
       version = "1.2.3",

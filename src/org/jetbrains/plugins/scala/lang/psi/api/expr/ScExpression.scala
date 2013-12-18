@@ -29,12 +29,11 @@ import base.types.ScTypeElement
 import com.intellij.psi.util.PsiModificationTracker
 import caches.CachesUtil
 import psi.ScalaPsiUtil.SafeCheckException
-import extensions.ElementText
-import scala.Some
 import types.ScFunctionType
 import lang.resolve.processor.MostSpecificUtil
 import types.Conformance.AliasType
 import org.jetbrains.plugins.scala.lang.psi.implicits.ScImplicitlyConvertible.ImplicitResolveResult
+import scala.annotation.tailrec
 
 /**
  * @author ilyas, Alexander Podkhalyuzin
@@ -137,6 +136,7 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue {
           }
         }
 
+        @tailrec
         def isMethodInvocation(expr: ScExpression = this): Boolean = {
           expr match {
             case p: ScPrefixExpr => false
@@ -144,7 +144,7 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue {
             case _: MethodInvocation => true
             case p: ScParenthesisedExpr =>
               p.expr match {
-                case Some(expr) => isMethodInvocation(expr)
+                case Some(exp) => isMethodInvocation(exp)
                 case _ => false
               }
             case _ => false
@@ -164,24 +164,21 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue {
         def removeMethodType(retType: ScType, updateType: ScType => ScType = t => t) {
           def updateRes(exp: Option[ScType]) {
             exp match {
-              case Some(expected) => {
+              case Some(expected) =>
                 expected match {
                   case ScFunctionType(_, params) =>
                   case p: ScParameterizedType if p.getFunctionType != None =>
-                  case _ => {
+                  case _ =>
                     expected.isAliasType match {
-                      case Some(AliasType(ta: ScTypeAliasDefinition, _, _)) => {
+                      case Some(AliasType(ta: ScTypeAliasDefinition, _, _)) =>
                         ta.aliasedType match {
                           case Success(ScFunctionType(_, _), _) =>
                           case Success(p: ScParameterizedType, _) if p.getFunctionType != None =>
                           case _ => res = updateType(retType)
                         }
-                      }
                       case _ => res = updateType(retType)
                     }
-                  }
                 }
-              }
               case _ => res = updateType(retType)
             }
           }
@@ -204,7 +201,7 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue {
         if (ignoreBaseTypes) return Success(valType, Some(this))
 
         expectedType(fromUnderscore) match {
-          case Some(expected) => {
+          case Some(expected) =>
             //value discarding
             if (expected.removeAbstracts == Unit) return Success(Unit, Some(this))
             //numeric literal narrowing
@@ -235,21 +232,18 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue {
                     }
                 }
                 expected match {
-                  case types.Char => {
+                  case types.Char =>
                     if (i >= scala.Char.MinValue.toInt && i <= scala.Char.MaxValue.toInt) {
                       return Success(Char, Some(this))
                     }
-                  }
-                  case types.Byte => {
+                  case types.Byte =>
                     if (i >= scala.Byte.MinValue.toInt && i <= scala.Byte.MaxValue.toInt) {
                       return Success(Byte, Some(this))
                     }
-                  }
-                  case types.Short => {
+                  case types.Short =>
                     if (i >= scala.Short.MinValue.toInt && i <= scala.Short.MaxValue.toInt) {
                       return Success(Short, Some(this))
                     }
-                  }
                   case _ =>
                 }
               }
@@ -277,7 +271,6 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue {
               }
               case _ =>
             }
-          }
           case _ =>
         }
         Success(valType, Some(this))
@@ -300,14 +293,13 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue {
     this match {
       case assign: ScAssignStmt if !ignoreAssign && assign.assignName != None =>
         (assign.getRExpression.map(_.getShape(ignoreAssign = true)._1).getOrElse(Nothing), assign.assignName.get)
-      case expr: ScExpression => {
+      case expr: ScExpression =>
         ScalaPsiUtil.isAnonymousExpression(expr) match {
           case (-1, _) => (Nothing, "")
           case (i, expr: ScFunctionExpr) =>
             (new ScFunctionType(expr.result.map(_.getShape(ignoreAssign = true)._1).getOrElse(Nothing), Seq.fill(i)(Any))(getProject, getResolveScope), "")
           case (i, _) => (new ScFunctionType(Nothing, Seq.fill(i)(Any))(getProject, getResolveScope), "")
         }
-      }
       case _ => (Nothing, "")
     }
   }
@@ -433,18 +425,16 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue {
     val map = new ScImplicitlyConvertible(this).implicitMap(fromUnder = fromUnder, args = expectedTypes(fromUnder).toSeq)
     val implicits: Seq[PsiNamedElement] = map.map(_.element)
     val implicitFunction: Option[PsiNamedElement] = getParent match {
-      case ref: ScReferenceExpression => {
+      case ref: ScReferenceExpression =>
         val resolve = ref.multiResolve(false)
         if (resolve.length == 1) {
           resolve.apply(0).asInstanceOf[ScalaResolveResult].implicitFunction
         } else None
-      }
-      case inf: ScInfixExpr if (inf.isLeftAssoc && this == inf.rOp) || (!inf.isLeftAssoc && this == inf.lOp) => {
+      case inf: ScInfixExpr if (inf.isLeftAssoc && this == inf.rOp) || (!inf.isLeftAssoc && this == inf.lOp) =>
         val resolve = inf.operation.multiResolve(false)
         if (resolve.length == 1) {
           resolve.apply(0).asInstanceOf[ScalaResolveResult].implicitFunction
         } else None
-      }
       case call: ScMethodCall => call.getImplicitFunction
       case gen: ScGenerator => gen.getParent match {
         case call: ScMethodCall => call.getImplicitFunction
@@ -460,41 +450,31 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue {
     val res = new ArrayBuffer[PsiElement]
     def calculateReturns0(el: PsiElement) {
       el match {
-        case tr: ScTryStmt => {
+        case tr: ScTryStmt =>
           calculateReturns0(tr.tryBlock)
           tr.catchBlock match {
             case Some(cBlock) => cBlock.expression.foreach(calculateReturns0)
             case None =>
           }
-        }
-        case block: ScBlock => {
+        case block: ScBlock =>
           block.lastExpr match {
             case Some(expr) => calculateReturns0(expr)
             case _ => res += block
           }
-        }
         case pe: ScParenthesisedExpr =>
           pe.expr.foreach(calculateReturns0)
-        case m: ScMatchStmt => {
+        case m: ScMatchStmt =>
           m.getBranches.foreach(calculateReturns0)
-        }
-        case i: ScIfStmt => {
+        case i: ScIfStmt =>
           i.elseBranch match {
-            case Some(e) => {
+            case Some(e) =>
               calculateReturns0(e)
               i.thenBranch match {
                 case Some(then) => calculateReturns0(then)
                 case _ =>
               }
-            }
             case _ => res += i
           }
-        }
-        case infix @ ScInfixExpr(left @ ScExpression.Type(types.Boolean), ElementText(op), right @ ScExpression.Type(types.Boolean))
-          if (op == "&&" || op == "||") =>
-          calculateReturns0(left)
-          calculateReturns0(right)
-
         //TODO "!contains" is a quick fix, function needs unit testing to validate its behavior
         case _ => if (!res.contains(el)) res += el
       }
