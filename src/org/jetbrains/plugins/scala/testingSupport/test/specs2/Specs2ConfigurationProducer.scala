@@ -119,12 +119,12 @@ class Specs2ConfigurationProducer extends {
     val element = location.getPsiElement
     val parent: ScTypeDefinition = PsiTreeUtil.getParentOfType(element, classOf[ScTypeDefinition], false)
     val parentLiteral: ScLiteral = PsiTreeUtil.getParentOfType(element, classOf[ScLiteral], false)
-    if (parent == null) return null
+    if (parent == null) return (null, null)
     val suiteClazz: PsiClass = ScalaPsiManager.instance(parent.getProject).
       getCachedClass("org.specs2.specification.SpecificationStructure",
       element.getResolveScope, ScalaPsiManager.ClassCategory.TYPE)
-    if (suiteClazz == null) return null
-    if (!ScalaPsiUtil.cachedDeepIsInheritor(parent, suiteClazz)) return null
+    if (suiteClazz == null) return (null, null)
+    if (!ScalaPsiUtil.cachedDeepIsInheritor(parent, suiteClazz)) return (null, null)
     val testClassPath = parent.qualifiedName
 
     // If the selected element is a non-empty string literal, we assume that this
