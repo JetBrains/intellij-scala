@@ -21,7 +21,7 @@ class IdeaIncrementalCompiler(scalac: AnalyzingCompiler) extends AbstractCompile
 
     import compilationData._
 
-    val out = CompileOutput(output)
+    val out = CompileOutput(outputGroups: _*)
     val cArgs = new CompilerArguments(scalac.scalaInstance, scalac.cp)
     val options = "IntellijIdea.simpleAnalysis" +: cArgs(Nil, classpath, None, scalaOptions)
 

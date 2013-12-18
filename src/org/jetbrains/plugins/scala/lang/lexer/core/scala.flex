@@ -348,6 +348,11 @@ XML_BEGIN = "<" ("_" | [:jletter:]) | "<!--" | "<?" ("_" | [:jletter:]) | "<![CD
     }
   }
 
+  \"\"\" (\")+ {
+    yypushback(yytext().length() - 1);
+    return process(tINTERPOLATED_MULTILINE_STRING);
+  }
+
   \"\"\" {
       changeStringLevel();
       return process(tINTERPOLATED_STRING_END);

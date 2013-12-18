@@ -8,7 +8,7 @@ import java.io.File
 /**
  * @author Pavel Fatin
  */
-class ScalaProjectData(val owner: ProjectSystemId, val javaHome: File) extends AbstractExternalEntityData(owner)
+class ScalaProjectData(val owner: ProjectSystemId, val javaHome: File, val javacOptions: Seq[String]) extends AbstractExternalEntityData(owner)
 
 object ScalaProjectData {
   val Key: Key[ScalaProjectData] = new Key(classOf[ScalaProjectData].getName,

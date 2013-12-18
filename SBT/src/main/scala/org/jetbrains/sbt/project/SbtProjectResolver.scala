@@ -17,8 +17,6 @@ import com.intellij.openapi.roots.DependencyScope
  */
 class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSettings] {
   def resolveProjectInfo(id: ExternalSystemTaskId, projectPath: String, isPreview: Boolean, settings: SbtExecutionSettings, listener: ExternalSystemTaskNotificationListener): DataNode[ProjectData] = {
-//    if (downloadLibraries) return null
-
     val path = {
       val file = new File(projectPath)
       if (file.isDirectory) file.getPath else file.getParent
@@ -45,8 +43,10 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
 
     val projectNode = createProject(project)
 
-    val javaHome = project.java.map(_.home).getOrElse(new File(System.getProperty("java.home")))
-    projectNode.add(new ScalaProjectNode(SbtProjectSystem.Id, javaHome))
+    val javaHome = project.java.flatMap(_.home).getOrElse(new File(System.getProperty("java.home")))
+    val javacOptions = project.java.map(_.options).getOrElse(Seq.empty)
+
+    projectNode.add(new ScalaProjectNode(javaHome, javacOptions))
 
     val libraries =
       data.repository.map(_.modules).getOrElse(projects.flatMap(modulesIn)).map(createLibrary) ++
@@ -65,10 +65,12 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
 
     projectNode.addAll(moduleNodes)
 
+    val idToModuleNode = projects.zip(moduleNodes).map(p => (p._1.id, p._2)).toMap
+
     projects.zip(moduleNodes).foreach { case (moduleProject, moduleNode) =>
-      moduleProject.dependencies.foreach { dependencyName =>
-        val dependency = moduleNodes.find(module => normalized(module.getName) == dependencyName).getOrElse(
-          throw new ExternalSystemException("Cannot find module dependency: " + dependencyName))
+      moduleProject.dependencies.foreach { dependencyId =>
+        val dependency = idToModuleNode.get(dependencyId).getOrElse(
+          throw new ExternalSystemException("Cannot find project dependency: " + dependencyId))
         moduleNode.add(new ModuleDependencyNode(moduleNode, dependency))
       }
     }
@@ -83,22 +85,20 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     ids.map(id => Module(id, Seq.empty, Seq.empty, Seq.empty))
   }
 
-  private def normalized(name: String) = name.toLowerCase.replace(' ', '-')
-
   private def createFacet(project: Project, scala: Scala): ScalaFacetNode = {
     val basePackage = Some(project.organization).filter(_.contains(".")).mkString
 
-    new ScalaFacetNode(SbtProjectSystem.Id, scala.version, basePackage, nameFor(scala), scala.options)
+    new ScalaFacetNode(scala.version, basePackage, nameFor(scala), scala.options)
   }
 
   private def createProject(project: Project): ProjectNode = {
-    val result = new ProjectNode(SbtProjectSystem.Id, project.base.path, project.base.path)
+    val result = new ProjectNode(project.base.path, project.base.path)
     result.setName(project.name)
     result
   }
 
   private def createLibrary(module: Module): LibraryNode = {
-    val result = new LibraryNode(SbtProjectSystem.Id, nameFor(module.id))
+    val result = new LibraryNode(nameFor(module.id))
     result.addPaths(LibraryPathType.BINARY, module.binaries.map(_.path))
     result.addPaths(LibraryPathType.DOC, module.docs.map(_.path))
     result.addPaths(LibraryPathType.SOURCE, module.sources.map(_.path))
@@ -108,7 +108,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
   private def nameFor(id: ModuleId) = s"SBT: ${id.organization}:${id.name}:${id.revision}"
 
   private def createCompilerLibrary(scala: Scala): LibraryNode = {
-    val result = new LibraryNode(SbtProjectSystem.Id, nameFor(scala))
+    val result = new LibraryNode(nameFor(scala))
     val jars = scala.compilerJar +: scala.libraryJar +: scala.extraJars
     result.addPaths(LibraryPathType.BINARY, jars.map(_.path))
     result
@@ -117,7 +117,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
   private def nameFor(scala: Scala) = s"SBT: scala-compiler:${scala.version}"
 
   private def createModule(project: Project): ModuleNode = {
-    val result = new ModuleNode(SbtProjectSystem.Id, StdModuleTypes.JAVA.getId, project.name,
+    val result = new ModuleNode(StdModuleTypes.JAVA.getId, project.id,
       project.base.path, project.base.path)
 
     result.setInheritProjectCompileOutputPath(false)
@@ -134,22 +134,48 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
   }
 
   private def createContentRoot(project: Project): ContentRootNode = {
-    val result = new ContentRootNode(SbtProjectSystem.Id, project.base.path)
+    val productinSources = relevantRootPathsIn(project, "compile")(_.sources)
+    val productionResources = relevantRootPathsIn(project, "compile")(_.resources)
+    val testSources = relevantRootPathsIn(project, "test")(_.sources)
+    val testResources = relevantRootPathsIn(project, "test")(_.resources)
 
-    result.storePaths(ExternalSystemSourceType.SOURCE, relevantRootPathsIn(project, "compile")(_.sources))
-    result.storePaths(ExternalSystemSourceType.RESOURCE, relevantRootPathsIn(project, "compile")(_.resources))
+    val commonRoot = {
+      val allRoots = productinSources ++ productionResources ++ testSources ++ testResources :+ project.base
 
-    result.storePaths(ExternalSystemSourceType.TEST, relevantRootPathsIn(project, "test")(_.sources))
-    result.storePaths(ExternalSystemSourceType.TEST_RESOURCE, relevantRootPathsIn(project, "test")(_.resources))
+      commonAncestorOf(allRoots).getOrElse(throw new ExternalSystemException(
+        "Cannot determine common root in project: " +  project.name))
+    }
+
+    val result = new ContentRootNode(commonRoot.path)
+
+    result.storePaths(ExternalSystemSourceType.SOURCE, productinSources.map(_.path))
+    result.storePaths(ExternalSystemSourceType.RESOURCE, productionResources.map(_.path))
+
+    result.storePaths(ExternalSystemSourceType.TEST, testSources.map(_.path))
+    result.storePaths(ExternalSystemSourceType.TEST_RESOURCE, testResources.map(_.path))
 
     result
   }
 
+  private def commonAncestorOf(files: Seq[File]): Option[File] = {
+    files.map(pathTo) match {
+      case Seq() => None
+      case Seq(firstPath, subsequentPaths @ _*) =>
+        val commonPath = subsequentPaths.foldLeft(firstPath) { (acc, path) =>
+          acc.zip(path).takeWhile(p => p._1 == p._2).map(_._1)
+        }
+        commonPath.lastOption
+    }
+  }
+
+  private def pathTo(file: File): Seq[File] =
+    Option(file.getParentFile).map(pathTo).getOrElse(Seq.empty) :+ file
+
   private def createBuildModule(project: Project): ModuleNode = {
-    val name = project.name + Sbt.BuildModuleSuffix
+    val name = project.id + Sbt.BuildModuleSuffix
     val path = project.base.path + "/project"
 
-    val result = new ModuleNode(SbtProjectSystem.Id, SbtModuleType.instance.getId, name, path, path)
+    val result = new ModuleNode(SbtModuleType.instance.getId, name, path, path)
 
     result.setInheritProjectCompileOutputPath(false)
     result.setCompileOutputPath(ExternalSystemSourceType.SOURCE, path + "/target/idea-classes")
@@ -165,7 +191,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
   private def createBuildContentRoot(project: Project): ContentRootNode = {
     val root = project.base / "project"
 
-    val result = new ContentRootNode(SbtProjectSystem.Id, root.path)
+    val result = new ContentRootNode(root.path)
 
     val sourceDirs = Seq(root) // , base << 1
     val exludedDirs = project.configurations
@@ -179,12 +205,12 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
   }
 
   private def relevantRootPathsIn(project: Project, scope: String)
-                                 (selector: Configuration => Seq[Directory]): Seq[String] = {
+                                 (selector: Configuration => Seq[Directory]): Seq[File] = {
     project.configurations.find(_.id == scope)
             .map(selector)
             .getOrElse(Seq.empty)
             .filter(isRelevant)
-            .map(_.file.path)
+            .map(_.file)
   }
 
   private def isRelevant(directory: Directory): Boolean = directory.managed || directory.file.exists
@@ -231,7 +257,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
   private def createModuleLevelDependency(name: String, binaries: Seq[String], scope: DependencyScope)
                                          (moduleData: ModuleData): LibraryDependencyNode = {
 
-    val libraryNode = new LibraryNode(SbtProjectSystem.Id, name)
+    val libraryNode = new LibraryNode(name)
     libraryNode.addPaths(LibraryPathType.BINARY, binaries)
 
     val result = new LibraryDependencyNode(moduleData, libraryNode, LibraryLevel.MODULE)
@@ -251,4 +277,6 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     else
       DependencyScope.PROVIDED
   }
+
+  def cancelTask(taskId: ExternalSystemTaskId, listener: ExternalSystemTaskNotificationListener) = false
 }
