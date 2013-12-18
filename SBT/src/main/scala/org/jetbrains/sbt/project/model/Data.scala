@@ -5,13 +5,13 @@ import java.io.File
 
 case class Structure(projects: Seq[Project], repository: Option[Repository])
 
-case class Project(name: String, organization: String, version: String, base: File, build: Build, configurations: Seq[Configuration], java: Option[Java], scala: Option[Scala], dependencies: Seq[String])
+case class Project(id: String, name: String, organization: String, version: String, base: File, build: Build, configurations: Seq[Configuration], java: Option[Java], scala: Option[Scala], dependencies: Seq[String])
 
 case class Build(classpath: Seq[File], imports: Seq[String])
 
 case class Configuration(id: String, sources: Seq[Directory], resources: Seq[Directory], classes: File, modules: Seq[ModuleId], jars: Seq[File])
 
-case class Java(home: File, options: Seq[String])
+case class Java(home: Option[File], options: Seq[String])
 
 case class Scala(version: String, libraryJar: File, compilerJar: File, extraJars: Seq[File], options: Seq[String])
 

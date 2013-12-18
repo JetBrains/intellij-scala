@@ -1,0 +1,33 @@
+val key = 1
+val value = "ololo"
+    
+s""""$key" -> "$value""""
+-----
+val {val}
+white space in line { }
+identifier {key}
+white space in line { }
+= {=}
+white space in line { }
+integer {1}
+white space in line {
+}
+val {val}
+white space in line { }
+identifier {value}
+white space in line { }
+= {=}
+white space in line { }
+string content {"ololo"}
+white space in line {
+    
+}
+interpolated string id {s}
+interpolatedmultiline string {""""}
+interpolated string injection {$}
+identifier {key}
+interpolatedmultiline string {" -> "}
+interpolated string injection {$}
+identifier {value}
+interpolatedmultiline string {"}
+interpolated string end {"""}
