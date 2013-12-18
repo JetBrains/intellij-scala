@@ -1035,48 +1035,33 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
             argumentEvaluators(fun, matchedParameters, expr, qualOption, ref, replaceWithImplicit, resolve, arguments)
           functionEvaluator(qualOption, ref, replaceWithImplicit, fun.name, argEvaluators, resolve)
         case method: PsiMethod => //here you can use just arguments
-          qualOption match {
-            case Some(literal: ScLiteral) =>
+          (ref.bind(), qualOption) match {
+            case (Some(r: ScalaResolveResult), Some(qual)) if r.implicitFunction.isDefined =>
+              replaceWithImplicitFunction(r.implicitFunction.get, qual, replaceWithImplicit)
+            case (_, Some(literal: ScLiteral)) =>
               val litEval = boxEvaluator(ScalaLiteralEvaluator(literal))
               myResult = ScalaMethodEvaluator(litEval, method.name, JVMNameUtil.getJVMSignature(method), boxArguments(argEvaluators, method),
                 traitImplementation(resolve), DebuggerUtil.getSourcePositions(resolve.getNavigationElement))
-            case Some(qual) =>
-              if (method.hasModifierPropertyScala("static")) {
-                val eval =
-                  new TypeEvaluator(JVMNameUtil.getContextClassJVMQualifiedName(SourcePosition.createFromElement(method)))
-                val name = method.name
-                myResult = ScalaMethodEvaluator(eval, name, JVMNameUtil.getJVMSignature(method), boxArguments(argEvaluators, method),
-                  traitImplementation(resolve), DebuggerUtil.getSourcePositions(resolve.getNavigationElement))
-              } else {
-                ref.bind() match {
-                  case Some(r: ScalaResolveResult) =>
-                    r.implicitFunction match {
-                      case Some(fun) =>
-                        replaceWithImplicitFunction(fun, qual, replaceWithImplicit)
-                      case _ =>
-                        qual.accept(this)
-                        val name = method.name
-                        myResult = new ScalaMethodEvaluator(myResult, name, JVMNameUtil.getJVMSignature(method),
-                          boxArguments(argEvaluators, method),
-                          traitImplementation(resolve), DebuggerUtil.getSourcePositions(resolve.getNavigationElement))
-                    }
-                  case _ => //resolve not null => shouldn't be
-                    throw EvaluateExceptionUtil.createEvaluateException("Cannot evaluate method")
-                }
-              }
-            case None =>
-              ref.bind() match {
-                case Some(r: ScalaResolveResult) =>
-                  val evaluator = thisOrImportedQualifierEvaluator(ref, r)
-                  val name = method.name
-                  myResult = new ScalaMethodEvaluator(evaluator, name, JVMNameUtil.getJVMSignature(method),
-                  boxArguments(argEvaluators, method),
-                  traitImplementation(resolve), DebuggerUtil.getSourcePositions(resolve.getNavigationElement))
-                case _ => //resolve not null => shouldn't be
-                  throw EvaluateExceptionUtil.createEvaluateException("Cannot evaluate method")
-              }
+            case (_, Some(qual)) if method.hasModifierPropertyScala("static") =>
+              val eval = new TypeEvaluator(JVMNameUtil.getContextClassJVMQualifiedName(SourcePosition.createFromElement(method)))
+              val name = method.name
+              myResult = ScalaMethodEvaluator(eval, name, JVMNameUtil.getJVMSignature(method), boxArguments(argEvaluators, method),
+                traitImplementation(resolve), DebuggerUtil.getSourcePositions(resolve.getNavigationElement))
+            case (_, Some(qual)) =>
+              qual.accept(this)
+              val name = method.name
+              myResult = new ScalaMethodEvaluator(myResult, name, JVMNameUtil.getJVMSignature(method),
+                boxArguments(argEvaluators, method),
+                traitImplementation(resolve), DebuggerUtil.getSourcePositions(resolve.getNavigationElement))
+            case (Some(r: ScalaResolveResult), None) =>
+              val evaluator = thisOrImportedQualifierEvaluator(ref, r)
+              val name = method.name
+              myResult = new ScalaMethodEvaluator(evaluator, name, JVMNameUtil.getJVMSignature(method),
+                boxArguments(argEvaluators, method),
+                traitImplementation(resolve), DebuggerUtil.getSourcePositions(resolve.getNavigationElement))
+            case _ =>  //resolve not null => shouldn't be
+              throw EvaluateExceptionUtil.createEvaluateException("Cannot evaluate method")
           }
-
         case _ =>
           val argEvaluators: Seq[Evaluator] = arguments.map(arg => {
             arg.accept(this)
@@ -1237,6 +1222,18 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
       //check underscores
       if (ScUnderScoreSectionUtil.isUnderscoreFunction(expr)) {
         throw EvaluateExceptionUtil.createEvaluateException("Anonymous functions are not supported")
+      }
+
+      //unwrap implicit conversions
+      expr.getImplicitConversions(fromUnder = true)._2 match {
+        case Some(fun: ScFunction) =>
+          val clazz = fun.containingClass
+          val className = if (clazz != null) clazz.qualifiedName + "." else ""
+          val newExprText = s"$className${fun.name}(${expr.getText})"
+          val newExpr = ScalaPsiElementFactory.createExpressionFromText(newExprText, expr)
+          newExpr.accept(this)
+          return
+        case _ =>
       }
 
       //boxing and unboxing actions

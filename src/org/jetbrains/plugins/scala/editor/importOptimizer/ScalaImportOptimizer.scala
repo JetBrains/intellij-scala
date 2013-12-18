@@ -35,7 +35,7 @@ class ScalaImportOptimizer extends ImportOptimizer {
   def processFile(file: PsiFile, deleteOnlyWrongImorts: Boolean): Runnable = {
     val scalaFile = file match {
       case scFile: ScalaFile => scFile
-      case multiRootFile: PsiFile if (multiRootFile.getViewProvider.getLanguages contains ScalaFileType.SCALA_LANGUAGE) != null =>
+      case multiRootFile: PsiFile if multiRootFile.getViewProvider.getLanguages contains ScalaFileType.SCALA_LANGUAGE =>
         multiRootFile.getViewProvider.getPsi(ScalaFileType.SCALA_LANGUAGE).asInstanceOf[ScalaFile]
       case _ => return EmptyRunnable.getInstance() 
     }
