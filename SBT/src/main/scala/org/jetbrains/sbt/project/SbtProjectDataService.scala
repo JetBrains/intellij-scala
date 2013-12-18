@@ -15,6 +15,7 @@ import com.intellij.compiler.impl.javaCompiler.javac.JavacConfiguration
 import com.intellij.pom.java.LanguageLevel
 import SbtProjectDataService._
 import com.intellij.openapi.roots.impl.{DirectoryIndex, JavaLanguageLevelPusher}
+import com.intellij.openapi.diagnostic.Logger
 
 /**
  * @author Pavel Fatin
@@ -47,6 +48,8 @@ class SbtProjectDataService(platformFacade: PlatformFacade, helper: ProjectStruc
 }
 
 object SbtProjectDataService {
+  private val LOG = Logger.getInstance("org.jetbrains.sbt.project.SbtProjectDataService$")
+
   private val JavaLanguageLevels = Map(
     "1.3" -> LanguageLevel.JDK_1_3,
     "1.4" -> LanguageLevel.JDK_1_4,
@@ -105,13 +108,20 @@ object SbtProjectDataService {
     val extension = LanguageLevelProjectExtension.getInstance(project)
 
     if (!extension.getLanguageLevel.isAtLeast(level)) {
-      val field = extension.getClass.getDeclaredField("myLanguageLevel")
-      field.setAccessible(true)
-      field.set(extension, level)
-      extension.setLanguageLevel(level)
+      try {
+        val field = extension.getClass.getDeclaredField("myLanguageLevel")
+        field.setAccessible(true)
+        field.set(extension, level)
+        extension.setLanguageLevel(level)
 
-      if (DirectoryIndex.getInstance(project).isInitialized) {
-        JavaLanguageLevelPusher.pushLanguageLevel(project)
+        if (DirectoryIndex.getInstance(project).isInitialized) {
+          JavaLanguageLevelPusher.pushLanguageLevel(project)
+        }
+      }
+      catch {
+        case e: Exception =>
+          //ignore exception, just put to the log
+          LOG.info(e)
       }
     }
   }
