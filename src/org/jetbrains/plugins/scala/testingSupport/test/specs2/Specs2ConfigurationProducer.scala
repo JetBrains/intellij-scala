@@ -124,7 +124,7 @@ class Specs2ConfigurationProducer extends {
       getCachedClass("org.specs2.specification.SpecificationStructure",
       element.getResolveScope, ScalaPsiManager.ClassCategory.TYPE)
     if (suiteClazz == null) return (null, null)
-    if (!ScalaPsiUtil.cachedDeepIsInheritor(parent, suiteClazz)) return null
+    if (!ScalaPsiUtil.cachedDeepIsInheritor(parent, suiteClazz)) return (null, null)
     val testClassPath = parent.qualifiedName
 
     // If the selected element is a non-empty string literal, we assume that this
