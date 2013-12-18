@@ -14,8 +14,8 @@ import org.jetbrains.plugins.scala.components.HighlightingAdvisor
 import com.intellij.compiler.impl.javaCompiler.javac.JavacConfiguration
 import com.intellij.pom.java.LanguageLevel
 import SbtProjectDataService._
-import com.intellij.openapi.roots.impl.{DirectoryIndex, JavaLanguageLevelPusher}
-import com.intellij.openapi.diagnostic.Logger
+import com.intellij.openapi.roots.impl.{LanguageLevelProjectExtensionImpl, DirectoryIndex, JavaLanguageLevelPusher}
+import org.jdom.Element
 
 /**
  * @author Pavel Fatin
@@ -48,8 +48,6 @@ class SbtProjectDataService(platformFacade: PlatformFacade, helper: ProjectStruc
 }
 
 object SbtProjectDataService {
-  private val LOG = Logger.getInstance("org.jetbrains.sbt.project.SbtProjectDataService$")
-
   private val JavaLanguageLevels = Map(
     "1.3" -> LanguageLevel.JDK_1_3,
     "1.4" -> LanguageLevel.JDK_1_4,
@@ -103,27 +101,23 @@ object SbtProjectDataService {
     }
   }
 
-  // TODO don't use reflection when there will be other ways to bypass "reload project" message
   def upgradeJavaLanguageLevelIn(project: Project, level: LanguageLevel) {
     val extension = LanguageLevelProjectExtension.getInstance(project)
 
     if (!extension.getLanguageLevel.isAtLeast(level)) {
-      try {
-        val field = extension.getClass.getDeclaredField("myLanguageLevel")
-        field.setAccessible(true)
-        field.set(extension, level)
-        extension.setLanguageLevel(level)
+      setLanguageLevelIn(project, level)
 
-        if (DirectoryIndex.getInstance(project).isInitialized) {
-          JavaLanguageLevelPusher.pushLanguageLevel(project)
-        }
-      }
-      catch {
-        case e: Exception =>
-          //ignore exception, just put to the log
-          LOG.info(e)
+      if (DirectoryIndex.getInstance(project).isInitialized) {
+        JavaLanguageLevelPusher.pushLanguageLevel(project)
       }
     }
+  }
+
+  // TODO don't rely on XML when there will be other ways to bypass "reload project" message
+  private def setLanguageLevelIn(project: Project, level: LanguageLevel) {
+    val element = new Element("component").setAttribute("languageLevel", level.name)
+    val projectExtension = new LanguageLevelProjectExtensionImpl.MyProjectExtension(project)
+    projectExtension.readExternal(element)
   }
 
   def configureHighlightingIn(project: Project) {
