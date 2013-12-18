@@ -10,7 +10,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.MethodInvocation
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScClass, ScTypeDefinition}
 import org.jetbrains.plugins.scala.extensions.toPsiClassExt
-import testingSupport.RuntimeConfigurationProducerAdapter
 import lang.psi.impl.ScalaPsiManager
 import lang.psi.ScalaPsiUtil
 import lang.psi.api.expr.ScReferenceExpression
@@ -26,7 +25,7 @@ import lang.psi.api.toplevel.templates.ScTemplateBody
 import lang.psi.api.ScalaRecursiveElementVisitor
 import testingSupport.test.TestRunConfigurationForm.TestKind
 import com.intellij.execution.actions.ConfigurationContext
-import testingSupport.test.{AbstractTestRunConfiguration, TestConfigurationUtil, AbstractTestConfigurationProducer}
+import org.jetbrains.plugins.scala.testingSupport.test.{TestConfigurationProducer, AbstractTestRunConfiguration, TestConfigurationUtil, AbstractTestConfigurationProducer}
 
 /**
  * User: Alexander Podkhalyuzin
@@ -36,7 +35,7 @@ import testingSupport.test.{AbstractTestRunConfiguration, TestConfigurationUtil,
 class ScalaTestConfigurationProducer extends {
   val confType = new ScalaTestConfigurationType
   val confFactory = confType.confFactory
-} with RuntimeConfigurationProducerAdapter(confType) with AbstractTestConfigurationProducer {
+} with TestConfigurationProducer(confType) with AbstractTestConfigurationProducer {
 
   override def suitePath = "org.scalatest.Suite"
 
