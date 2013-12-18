@@ -33,13 +33,11 @@ class SbtExternalSystemManager
     classpath.add(jarWith[scala.App])
     classpath.add(jarWith[ExternalSystemBundle])
 
-    val vmParameters = parameters.getVMParametersList
-    vmParameters.addParametersString(System.getenv("JAVA_OPTS"))
-//    vmParameters.addParametersString("-Xmx256M")
-
-    parameters.getVMParametersList.addProperty(ExternalSystemConstants.EXTERNAL_SYSTEM_ID_KEY,
-      SbtProjectSystem.Id.getId)
+//    val vmParameters = parameters.getVMParametersList
 //    vmParameters.add("-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005")
+
+    parameters.getVMParametersList.addProperty(
+      ExternalSystemConstants.EXTERNAL_SYSTEM_ID_KEY, SbtProjectSystem.Id.getId)
   }
 
   def getSystemId = SbtProjectSystem.Id
