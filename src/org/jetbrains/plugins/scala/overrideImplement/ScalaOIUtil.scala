@@ -37,6 +37,7 @@ import scala.Boolean
 import scala.Any
 import scala.Int
 import scala.annotation.tailrec
+import com.intellij.pom.Navigatable
 
 /**
  * User: Alexander Podkhalyuzin
@@ -397,6 +398,11 @@ object ScalaOIUtil {
         case None => return
       }
       case _ => return
+    }
+
+    member match {
+      case n: Navigatable => n.navigate(true)
+      case _ =>
     }
 
     body match {

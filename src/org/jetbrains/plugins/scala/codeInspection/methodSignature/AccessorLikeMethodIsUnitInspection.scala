@@ -14,7 +14,7 @@ class AccessorLikeMethodIsUnitInspection extends AbstractMethodSignatureInspecti
   "ScalaAccessorLikeMethodIsUnit", "Method with accessor-like name has Unit result type") {
 
   def actionFor(holder: ProblemsHolder) = {
-    case f: ScFunction if f.hasQueryLikeName && f.hasUnitResultType && f.superMethods.isEmpty =>
+    case f: ScFunction if f.isValid && f.hasQueryLikeName && f.hasUnitResultType && f.superMethods.isEmpty =>
       holder.registerProblem(f.nameId, getDisplayName)
   }
 }
