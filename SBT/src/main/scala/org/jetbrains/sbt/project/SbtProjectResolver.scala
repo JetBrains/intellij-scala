@@ -8,6 +8,7 @@ import com.intellij.openapi.module.StdModuleTypes
 import com.intellij.openapi.externalSystem.model.{ExternalSystemException, DataNode}
 import com.intellij.openapi.roots.DependencyScope
 import java.io.File
+import module.SbtModuleType
 import settings._
 import structure._
 import data._
