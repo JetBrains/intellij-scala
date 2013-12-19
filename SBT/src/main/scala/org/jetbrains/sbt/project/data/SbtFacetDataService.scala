@@ -1,5 +1,5 @@
 package org.jetbrains.sbt
-package project
+package project.data
 
 import java.util
 import com.intellij.openapi.externalSystem.model.{ProjectKeys, DataNode}
@@ -9,6 +9,7 @@ import com.intellij.openapi.externalSystem.model.project.ModuleData
 import com.intellij.facet.FacetManager
 import org.jetbrains.plugins.scala.config.{LibraryId, LibraryLevel, ScalaFacet}
 import com.intellij.openapi.externalSystem.service.project.{ProjectStructureHelper, PlatformFacade}
+import org.jetbrains.sbt.project.AbstractDataService
 
 /**
  * @author Pavel Fatin

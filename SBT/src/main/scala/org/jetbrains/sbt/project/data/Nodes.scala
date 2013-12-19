@@ -1,8 +1,9 @@
 package org.jetbrains.sbt
-package project
+package project.data
 
 import com.intellij.openapi.externalSystem.model.{DataNode, ProjectKeys, Key}
 import com.intellij.openapi.externalSystem.model.project._
+import org.jetbrains.sbt.project.SbtProjectSystem
 import java.io.File
 
 /**

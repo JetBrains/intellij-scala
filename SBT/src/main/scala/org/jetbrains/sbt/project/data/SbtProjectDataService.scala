@@ -1,5 +1,5 @@
 package org.jetbrains.sbt
-package project
+package project.data
 
 import java.io.File
 import java.util
@@ -16,6 +16,7 @@ import com.intellij.pom.java.LanguageLevel
 import SbtProjectDataService._
 import com.intellij.openapi.roots.impl.{LanguageLevelProjectExtensionImpl, DirectoryIndex, JavaLanguageLevelPusher}
 import org.jdom.Element
+import org.jetbrains.sbt.project.AbstractDataService
 
 /**
  * @author Pavel Fatin
