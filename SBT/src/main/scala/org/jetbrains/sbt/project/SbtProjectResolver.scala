@@ -9,7 +9,7 @@ import com.intellij.openapi.externalSystem.model.{ExternalSystemException, DataN
 import com.intellij.openapi.roots.DependencyScope
 import java.io.File
 import settings._
-import model._
+import structure._
 import data._
 
 /**
@@ -22,7 +22,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
       if (file.isDirectory) file.getPath else file.getParent
     }
 
-    val runner = new PluginRunner(settings.vmOptions, settings.customLauncher)
+    val runner = new SbtRunner(settings.vmOptions, settings.customLauncher)
 
     val xml = runner.read(new File(path), !isPreview) { message =>
       listener.onStatusChange(new ExternalSystemTaskNotificationEvent(id, message.trim))
@@ -31,7 +31,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
       case Right(node) => node
     }
 
-    val data = Parser.parse(xml, new File(System.getProperty("user.home")))
+    val data = StructureParser.parse(xml, new File(System.getProperty("user.home")))
 
     convert(data).toDataNode
   }

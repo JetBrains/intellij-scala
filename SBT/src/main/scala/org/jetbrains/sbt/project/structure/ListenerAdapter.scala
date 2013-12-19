@@ -1,5 +1,5 @@
 package org.jetbrains.sbt
-package project.model
+package project.structure
 
 import com.intellij.execution.process.{ProcessOutputTypes, ProcessEvent, ProcessAdapter}
 import com.intellij.openapi.util.Key
