@@ -13,7 +13,7 @@
             <implementation-class>org.jetbrains.sbt.language.SbtProjectComponent</implementation-class>
         </component>
         <component>
-            <implementation-class>org.jetbrains.sbt.settings.SbtImportNotifier</implementation-class>
+            <implementation-class>org.jetbrains.sbt.project.SbtImportNotifier</implementation-class>
         </component>
     </project-components>
 
