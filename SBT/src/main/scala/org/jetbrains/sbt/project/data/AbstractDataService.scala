@@ -1,5 +1,5 @@
 package org.jetbrains.sbt
-package project
+package project.data
 
 import java.util
 import com.intellij.openapi.externalSystem.service.project.manage.ProjectDataService

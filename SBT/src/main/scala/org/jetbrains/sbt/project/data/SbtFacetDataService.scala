@@ -9,7 +9,6 @@ import com.intellij.openapi.externalSystem.model.project.ModuleData
 import com.intellij.facet.FacetManager
 import org.jetbrains.plugins.scala.config.{LibraryId, LibraryLevel, ScalaFacet}
 import com.intellij.openapi.externalSystem.service.project.{ProjectStructureHelper, PlatformFacade}
-import org.jetbrains.sbt.project.AbstractDataService
 
 /**
  * @author Pavel Fatin
