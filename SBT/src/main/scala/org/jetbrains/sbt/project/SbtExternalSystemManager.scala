@@ -17,7 +17,7 @@ import com.intellij.openapi.options.Configurable
  * @author Pavel Fatin
  */
 class SbtExternalSystemManager
-  extends ExternalSystemManager[SbtProjectSettings, SbtSettingsListener, ScalaSbtSettings, SbtLocalSettings, SbtExecutionSettings]
+  extends ExternalSystemManager[SbtProjectSettings, SbtSettingsListener, SbtSettings, SbtLocalSettings, SbtExecutionSettings]
   with ExternalSystemAutoImportAware with ExternalSystemConfigurableAware {
 
   def enhanceLocalProcessing(urls: util.List[URL]) {
@@ -41,7 +41,7 @@ class SbtExternalSystemManager
 
   def getSystemId = SbtProjectSystem.Id
 
-  def getSettingsProvider = ScalaSbtSettings.getInstance _
+  def getSettingsProvider = SbtSettings.getInstance _
 
   def getLocalSettingsProvider = SbtLocalSettings.getInstance _
 
