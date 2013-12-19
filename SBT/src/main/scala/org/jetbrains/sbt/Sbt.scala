@@ -20,6 +20,10 @@ object Sbt {
 
   val BuildModuleSuffix = "-build"
 
+  val BuildModuleName = "SBT module"
+
+  val BuildModuleDescription = "Create empty SBT project"
+
   val BuildLibraryName = "sbt-and-plugins"
 
   val UnmanagedLibraryName = "sbt-unmanaged-jars"
