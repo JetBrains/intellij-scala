@@ -2,36 +2,38 @@ package org.jetbrains.sbt
 package project.settings
 
 import com.intellij.openapi.externalSystem.service.settings.{AbstractExternalProjectSettingsControl, AbstractExternalSystemConfigurable}
-import org.jetbrains.sbt.project.settings.{SbtProjectSettings => Settings}
-import org.jetbrains.sbt.project.SbtProjectSystem
-import com.intellij.openapi.externalSystem.util.{PaintAwarePanel, ExternalSystemSettingsControl}
+import com.intellij.openapi.externalSystem.util.PaintAwarePanel
 import com.intellij.openapi.project.Project
+import org.jetbrains.sbt.project.SbtProjectSystem
 
 /**
  * User: Dmitry Naydanov
  * Date: 11/25/13
  */
 class SbtExternalSystemConfigurable(project: Project) 
-  extends AbstractExternalSystemConfigurable[Settings, SbtSettingsListener, ScalaSbtSettings](project, SbtProjectSystem.Id) {
-  def createProjectSettingsControl(settings: Settings): ExternalSystemSettingsControl[Settings] = {
-    new AbstractExternalProjectSettingsControl[Settings](settings) {
-      def resetExtraSettings(isDefaultModuleCreation: Boolean) {}
+  extends AbstractExternalSystemConfigurable[SbtProjectSettings, SbtSettingsListener, ScalaSbtSettings](project, SbtProjectSystem.Id) {
 
-      def applyExtraSettings(settings: Settings) {}
+  def createProjectSettingsControl(settings: SbtProjectSettings) = new SbtExternalProjectSettingsControl(settings)
 
-      def isExtraSettingModified: Boolean = false
+  def createSystemSettingsControl(settings: ScalaSbtSettings) = null
 
-      def validate(settings: Settings): Boolean = true
+  def newProjectSettings() = new SbtProjectSettings()
 
-      def fillExtraControls(content: PaintAwarePanel, indentLevel: Int) {}
-    }
-  }
-
-  def createSystemSettingsControl(settings: ScalaSbtSettings): ExternalSystemSettingsControl[ScalaSbtSettings] = null
-
-  def newProjectSettings(): Settings = new Settings
-
-  def getId: String = "sbt.project.settings.configurable"
+  def getId = "sbt.project.settings.configurable"
 
   def getHelpTopic: String = null
+}
+
+class SbtExternalProjectSettingsControl(settings: SbtProjectSettings)
+        extends AbstractExternalProjectSettingsControl[SbtProjectSettings](settings) {
+
+  def resetExtraSettings(isDefaultModuleCreation: Boolean) {}
+
+  def applyExtraSettings(settings: SbtProjectSettings) {}
+
+  def isExtraSettingModified = false
+
+  def validate(settings: SbtProjectSettings) = true
+
+  def fillExtraControls(content: PaintAwarePanel, indentLevel: Int) {}
 }
