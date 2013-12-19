@@ -1,9 +1,8 @@
 package org.jetbrains.sbt
 package project.module
 
-import com.intellij.openapi.module.{ModuleType, JavaModuleType}
+import com.intellij.openapi.module.ModuleType
 import org.jetbrains.plugins.scala.config.ScalaFacetAvailabilityMarker
-import javax.swing.Icon
 
 /**
  * @author Pavel Fatin
@@ -11,13 +10,13 @@ import javax.swing.Icon
 class SbtModuleType extends ModuleType[SbtModuleBuilder]("SBT_MODULE") with ScalaFacetAvailabilityMarker {
   override def getNodeIcon(isOpened: Boolean) = Sbt.Icon
 
-  def createModuleBuilder(): SbtModuleBuilder = new SbtModuleBuilder
+  def createModuleBuilder() = new SbtModuleBuilder
 
-  def getName: String = "SBT module"
+  def getName = "SBT module"
 
-  def getDescription: String = "Create empty SBT project"
+  def getDescription = "Create empty SBT project"
 
-  def getBigIcon: Icon = Sbt.Icon
+  def getBigIcon = Sbt.Icon
 }
 
 object SbtModuleType {
