@@ -1,5 +1,5 @@
 package org.jetbrains.sbt
-package settings
+package project
 
 import com.intellij.openapi.components.{ServiceManager, ProjectComponent}
 import com.intellij.openapi.project.Project
@@ -8,7 +8,6 @@ import com.intellij.openapi.fileEditor.{FileDocumentManager, FileEditorManager, 
 import com.intellij.openapi.vfs.VirtualFile
 import org.jetbrains.sbt.language.SbtFileType
 import java.util.concurrent.ConcurrentHashMap
-import org.jetbrains.sbt.project.{SbtProjectSystem, SbtAutoImport}
 import com.intellij.openapi.externalSystem.util.{DisposeAwareProjectChange, ExternalSystemApiUtil, ExternalSystemUtil}
 import com.intellij.openapi.externalSystem.service.project.ExternalProjectRefreshCallback
 import com.intellij.openapi.externalSystem.model.DataNode
