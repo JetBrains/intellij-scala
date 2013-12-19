@@ -1,10 +1,9 @@
 package org.jetbrains.sbt
-package settings.moduleConfig
+package project
 
 import com.intellij.openapi.roots.ui.configuration._
 import com.intellij.openapi.module.{ModuleType, Module, ModuleConfigurationEditor}
 import com.intellij.openapi.roots.ModifiableRootModel
-import org.jetbrains.sbt.project.SbtModuleType
 import java.util
 
 /**
