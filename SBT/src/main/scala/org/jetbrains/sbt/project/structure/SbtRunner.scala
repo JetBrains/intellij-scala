@@ -1,5 +1,5 @@
 package org.jetbrains.sbt
-package project.model
+package project.structure
 
 import java.io.{FileNotFoundException, PrintWriter, File}
 import scala.xml.{Elem, XML}
@@ -10,10 +10,10 @@ import com.intellij.openapi.util.io.FileUtil
 /**
  * @author Pavel Fatin
  */
-class PluginRunner(vmOptions: Seq[String], customLauncher: Option[File]) {
+class SbtRunner(vmOptions: Seq[String], customLauncher: Option[File]) {
   private val JavaHome = new File(System.getProperty("java.home"))
   private val JavaVM = JavaHome / "bin" / "java"
-  private val LauncherDir = PluginRunner.getSbtLauncherDir
+  private val LauncherDir = SbtRunner.getSbtLauncherDir
   private val SbtLauncher = customLauncher.getOrElse(LauncherDir / "sbt-launch.jar")
 
   def read(directory: File, download: Boolean)(listener: (String) => Unit): Either[Exception, Elem] = {
@@ -110,7 +110,7 @@ class PluginRunner(vmOptions: Seq[String], customLauncher: Option[File]) {
   private def path(file: File): String = file.getAbsolutePath.replace('\\', '/')
 }
 
-object PluginRunner {
+object SbtRunner {
   def getSbtLauncherDir = {
     val file: File = jarWith[this.type]
     val deep = if (file.getName == "classes") 1 else 2
