@@ -16,7 +16,6 @@ import com.intellij.pom.java.LanguageLevel
 import SbtProjectDataService._
 import com.intellij.openapi.roots.impl.{LanguageLevelProjectExtensionImpl, DirectoryIndex, JavaLanguageLevelPusher}
 import org.jdom.Element
-import org.jetbrains.sbt.project.AbstractDataService
 
 /**
  * @author Pavel Fatin
