@@ -12,13 +12,13 @@ class SbtModuleType extends ModuleType[SbtModuleBuilder]("SBT_MODULE") with Scal
 
   def createModuleBuilder() = new SbtModuleBuilder
 
-  def getName = "SBT module"
+  def getName = Sbt.BuildModuleName
 
-  def getDescription = "Create empty SBT project"
+  def getDescription = Sbt.BuildModuleDescription
 
   def getBigIcon = Sbt.Icon
 }
 
 object SbtModuleType {
-  val instance = Class.forName("org.jetbrains.sbt.project.SbtModuleType").newInstance.asInstanceOf[SbtModuleType]
+  val instance = Class.forName("org.jetbrains.sbt.project.module.SbtModuleType").newInstance.asInstanceOf[SbtModuleType]
 }
