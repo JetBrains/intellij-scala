@@ -32,12 +32,9 @@ import com.intellij.openapi.util.TextRange
 import config.ScalaVersionUtil
 import com.intellij.openapi.application.ApplicationManager
 import java.util.{Collections, Properties}
-import scala.Some
-import scala.Boolean
-import scala.Any
-import scala.Int
 import scala.annotation.tailrec
 import com.intellij.pom.Navigatable
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
 /**
  * User: Alexander Podkhalyuzin
@@ -172,12 +169,20 @@ object ScalaOIUtil {
               val standardValue = ScalaPsiElementFactory.getStandardValue(returnType)
               properties.setProperty(FileTemplate.ATTRIBUTE_RETURN_TYPE, ScType.presentableText(returnType))
               properties.setProperty(FileTemplate.ATTRIBUTE_DEFAULT_RETURN_VALUE, standardValue)
-              properties.setProperty(FileTemplate.ATTRIBUTE_CALL_SUPER, "super." + method.name + (method match {
+              val methodName = ScalaNamesUtil.changeKeyword(method.name)
+              properties.setProperty(FileTemplate.ATTRIBUTE_CALL_SUPER, "super." + methodName + (method match {
                 case fun: ScFunction =>
                   fun.paramClauses.clauses.map(_.parameters.map(_.name).mkString("(", ", ", ")")).mkString
                 case method: PsiMethod =>
                   if (method.isAccessor) ""
-                  else method.getParameterList.getParameters.map(_.name).mkString("(", ", ", ")")
+                  else {
+                    def paramText(param: PsiParameter) = {
+                      val name = ScalaNamesUtil.changeKeyword(param.name)
+                      val whitespace = if (name.endsWith("_")) " " else ""
+                      name + (if (param.isVarArgs) whitespace + ": _*" else "")
+                    }
+                    method.getParameterList.getParameters.map(paramText).mkString("(", ", ", ")")
+                  }
               }))
               import ScalaVersionUtil._
               properties.setProperty("Q_MARK",
