@@ -42,7 +42,7 @@
 
         <applicationConfigurable instance="org.jetbrains.sbt.settings.SbtConfigurable"/>
         
-        <projectConfigurable instance="org.jetbrains.sbt.settings.SbtExternalSystemConfigurable"/>
+        <projectConfigurable instance="org.jetbrains.sbt.project.settings.SbtExternalSystemConfigurable"/>
         
         <moduleConfigurationEditorProvider
                 implementation="org.jetbrains.sbt.project.SbtModuleEditorProvider"/>

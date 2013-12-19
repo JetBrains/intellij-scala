@@ -1,8 +1,8 @@
 package org.jetbrains.sbt
-package settings
+package project.settings
 
 import com.intellij.openapi.externalSystem.service.settings.{AbstractExternalProjectSettingsControl, AbstractExternalSystemConfigurable}
-import org.jetbrains.sbt.project.settings.{ScalaSbtSettings, SbtSettingsListener, SbtProjectSettings => Settings}
+import org.jetbrains.sbt.project.settings.{SbtProjectSettings => Settings}
 import org.jetbrains.sbt.project.SbtProjectSystem
 import com.intellij.openapi.externalSystem.util.{PaintAwarePanel, ExternalSystemSettingsControl}
 import com.intellij.openapi.project.Project
@@ -25,8 +25,6 @@ class SbtExternalSystemConfigurable(project: Project)
 
       def fillExtraControls(content: PaintAwarePanel, indentLevel: Int) {}
     }
-    
-    
   }
 
   def createSystemSettingsControl(settings: ScalaSbtSettings): ExternalSystemSettingsControl[ScalaSbtSettings] = null

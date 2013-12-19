@@ -8,7 +8,7 @@ import settings._
 import com.intellij.openapi.externalSystem.util._
 import com.intellij.openapi.externalSystem.service.project.autoimport.CachingExternalSystemAutoImportAware
 import com.intellij.util.net.HttpConfigurable
-import org.jetbrains.sbt.settings.{SbtExternalSystemConfigurable, SbtApplicationSettings}
+import org.jetbrains.sbt.settings.SbtApplicationSettings
 import java.util
 import java.net.URL
 import com.intellij.openapi.options.Configurable
