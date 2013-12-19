@@ -1,5 +1,5 @@
 package org.jetbrains.sbt
-package project
+package project.module
 
 import com.intellij.openapi.module.{ModuleType, JavaModuleType}
 import org.jetbrains.plugins.scala.config.ScalaFacetAvailabilityMarker

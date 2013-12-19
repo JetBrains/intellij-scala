@@ -38,14 +38,12 @@
 
         <projectOpenProcessor implementation="org.jetbrains.sbt.project.SbtProjectOpenProcessor"/>
 
-        <moduleType id="SBT_MODULE" implementationClass="org.jetbrains.sbt.project.SbtModuleType"/>
+        <moduleType id="SBT_MODULE" implementationClass="org.jetbrains.sbt.project.module.SbtModuleType"/>
+        <moduleConfigurationEditorProvider implementation="org.jetbrains.sbt.project.module.SbtModuleEditorProvider"/>
 
         <applicationConfigurable instance="org.jetbrains.sbt.settings.SbtConfigurable"/>
         
         <projectConfigurable instance="org.jetbrains.sbt.project.settings.SbtExternalSystemConfigurable"/>
-        
-        <moduleConfigurationEditorProvider
-                implementation="org.jetbrains.sbt.project.SbtModuleEditorProvider"/>
 
         <toolWindow id="SBT" anchor="right" icon="/sbt.png"
                     factoryClass="org.jetbrains.sbt.project.ScalaToolWindowFactory"

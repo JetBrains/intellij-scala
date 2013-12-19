@@ -1,5 +1,5 @@
 package org.jetbrains.sbt
-package project
+package project.module
 
 import com.intellij.openapi.externalSystem.service.project.wizard.AbstractExternalModuleBuilder
 import org.jetbrains.sbt.project.settings.SbtProjectSettings
@@ -9,6 +9,7 @@ import com.intellij.openapi.vfs.VirtualFile
 import java.io.File
 import com.intellij.openapi.util.io.FileUtil
 import javax.swing.Icon
+import org.jetbrains.sbt.project.SbtProjectSystem
 
 /**
  * User: Dmitry Naydanov

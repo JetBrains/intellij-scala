@@ -1,5 +1,5 @@
 package org.jetbrains.sbt
-package project
+package project.module
 
 import com.intellij.openapi.roots.ui.configuration._
 import com.intellij.openapi.module.{ModuleType, Module, ModuleConfigurationEditor}
