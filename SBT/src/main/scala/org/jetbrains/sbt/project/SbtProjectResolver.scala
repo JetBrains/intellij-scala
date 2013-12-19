@@ -106,7 +106,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     result
   }
 
-  private def nameFor(id: ModuleId) = s"SBT: ${id.organization}:${id.name}:${id.revision}"
+  private def nameFor(id: ModuleId) = s"${id.organization}:${id.name}:${id.revision}"
 
   private def createCompilerLibrary(scala: Scala): LibraryNode = {
     val result = new LibraryNode(nameFor(scala))
@@ -115,7 +115,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     result
   }
 
-  private def nameFor(scala: Scala) = s"SBT: scala-compiler:${scala.version}"
+  private def nameFor(scala: Scala) = s"scala-compiler:${scala.version}"
 
   private def createModule(project: Project): ModuleNode = {
     val result = new ModuleNode(StdModuleTypes.JAVA.getId, project.id,
