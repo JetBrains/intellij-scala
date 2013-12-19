@@ -70,4 +70,9 @@ object ScalaNamesUtil {
     }
     NameTransformer.encode(toEncode)
   }
+
+  def changeKeyword(s: String): String = {
+    if (ScalaNamesUtil.isKeyword(s)) "`" + s + "`"
+    else s
+  }
 }
