@@ -11,11 +11,11 @@ import org.jetbrains.sbt.project.SbtProjectSystem
  * Date: 11/25/13
  */
 class SbtExternalSystemConfigurable(project: Project) 
-  extends AbstractExternalSystemConfigurable[SbtProjectSettings, SbtSettingsListener, ScalaSbtSettings](project, SbtProjectSystem.Id) {
+  extends AbstractExternalSystemConfigurable[SbtProjectSettings, SbtSettingsListener, SbtSettings](project, SbtProjectSystem.Id) {
 
   def createProjectSettingsControl(settings: SbtProjectSettings) = new SbtExternalProjectSettingsControl(settings)
 
-  def createSystemSettingsControl(settings: ScalaSbtSettings) = null
+  def createSystemSettingsControl(settings: SbtSettings) = null
 
   def newProjectSettings() = new SbtProjectSettings()
 

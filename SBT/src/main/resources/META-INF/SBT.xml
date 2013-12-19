@@ -29,7 +29,7 @@
         <externalProjectDataService implementation="org.jetbrains.sbt.project.data.SbtFacetDataService"/>
         <externalProjectDataService implementation="org.jetbrains.sbt.project.data.SbtProjectDataService"/>
 
-        <projectService serviceImplementation="org.jetbrains.sbt.project.settings.ScalaSbtSettings"/>
+        <projectService serviceImplementation="org.jetbrains.sbt.project.settings.SbtSettings"/>
         <projectService serviceImplementation="org.jetbrains.sbt.project.settings.SbtLocalSettings"/>
         <!--<projectService serviceImplementation="org.jetbrains.sbt.settings.SbtImportNotifier"/>-->
         
