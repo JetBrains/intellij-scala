@@ -6,11 +6,11 @@ import com.intellij.openapi.externalSystem.model.task.{ExternalSystemTaskNotific
 import com.intellij.openapi.externalSystem.model.project._
 import com.intellij.openapi.module.StdModuleTypes
 import com.intellij.openapi.externalSystem.model.{ExternalSystemException, DataNode}
+import com.intellij.openapi.roots.DependencyScope
 import java.io.File
 import settings._
-import org.jetbrains.sbt.project.model._
-import org.jetbrains.sbt.project.model.Structure
-import com.intellij.openapi.roots.DependencyScope
+import model._
+import data._
 
 /**
  * @author Pavel Fatin

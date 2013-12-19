@@ -26,8 +26,8 @@
         <annotator language="Scala" implementationClass="org.jetbrains.sbt.language.SbtAnnotator" />
 
         <externalSystemManager implementation="org.jetbrains.sbt.project.SbtExternalSystemManager"/>
-        <externalProjectDataService implementation="org.jetbrains.sbt.project.SbtFacetDataService"/>
-        <externalProjectDataService implementation="org.jetbrains.sbt.project.SbtProjectDataService"/>
+        <externalProjectDataService implementation="org.jetbrains.sbt.project.data.SbtFacetDataService"/>
+        <externalProjectDataService implementation="org.jetbrains.sbt.project.data.SbtProjectDataService"/>
 
         <projectService serviceImplementation="org.jetbrains.sbt.project.settings.ScalaSbtSettings"/>
         <projectService serviceImplementation="org.jetbrains.sbt.project.settings.SbtLocalSettings"/>
