@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.config.ScalaFacetAvailabilityMarker
 class SbtModuleType extends ModuleType[SbtModuleBuilder]("SBT_MODULE") with ScalaFacetAvailabilityMarker {
   override def getNodeIcon(isOpened: Boolean) = Sbt.Icon
 
-  def createModuleBuilder() = new SbtModuleBuilder
+  def createModuleBuilder() = new SbtModuleBuilder()
 
   def getName = Sbt.BuildModuleName
 
