@@ -51,10 +51,11 @@ abstract class CreateEntityQuickFix(ref: ScReferenceExpression,
       case exp @ Parent(infix: ScInfixExpr) if infix.operation == exp =>
         blockFor(infix.getBaseExpr).exists(!_.isInCompiledFile)
       case it =>
-        if (it.isQualified)
-          ref.qualifier.flatMap(blockFor).exists(!_.isInCompiledFile)
-        else
-          !it.isInCompiledFile
+        it.qualifier match {
+          case Some(sup: ScSuperReference) if sup.staticSuper.isEmpty => false
+          case Some(qual) => blockFor(qual).exists(!_.isInCompiledFile)
+          case None => !it.isInCompiledFile
+        }
     }
   }
 
@@ -130,6 +131,16 @@ abstract class CreateEntityQuickFix(ref: ScReferenceExpression,
     }
     Some(exp).collect {
       case ScExpression.Type(ScType.ExtractClass(ScTemplateDefinition.ExtendsBlock(block))) => block
+      case th: ScThisReference =>
+        th.refTemplate match {
+          case Some(ScTemplateDefinition.ExtendsBlock(block)) => block
+          case None => PsiTreeUtil.getParentOfType(th, classOf[ScExtendsBlock], /*strict = */true, /*stopAt = */classOf[ScTemplateDefinition])
+        }
+      case sup: ScSuperReference =>
+        sup.staticSuper match {
+          case Some(ScType.ExtractClass(ScTemplateDefinition.ExtendsBlock(block))) => block
+          case None => throw new IllegalArgumentException("Cannot find template definition for not-static super reference")
+        }
       case Both(th: ScThisReference, ParentExtendsBlock(block)) => block
       case Both(ReferenceTarget((_: ScSelfTypeElement)), ParentExtendsBlock(block)) => block
     }
