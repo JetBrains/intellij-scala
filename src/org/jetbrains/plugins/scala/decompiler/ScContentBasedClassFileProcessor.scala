@@ -53,3 +53,7 @@ class ScContentBasedClassFileProcessor extends ContentBasedClassFileProcessor {
   }
 
 }
+
+//todo: API should be changed. We want to have first processor as well as last
+//First is for "obtainFileText", last for "createHighlighter"
+class ScContentBasedClassFileProcessorHack extends ScContentBasedClassFileProcessor

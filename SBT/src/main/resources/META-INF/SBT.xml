@@ -13,7 +13,7 @@
             <implementation-class>org.jetbrains.sbt.language.SbtProjectComponent</implementation-class>
         </component>
         <component>
-            <implementation-class>org.jetbrains.sbt.settings.SbtImportNotifier</implementation-class>
+            <implementation-class>org.jetbrains.sbt.project.SbtImportNotifier</implementation-class>
         </component>
     </project-components>
 
@@ -26,12 +26,11 @@
         <annotator language="Scala" implementationClass="org.jetbrains.sbt.language.SbtAnnotator" />
 
         <externalSystemManager implementation="org.jetbrains.sbt.project.SbtExternalSystemManager"/>
-        <externalProjectDataService implementation="org.jetbrains.sbt.project.SbtFacetDataService"/>
-        <externalProjectDataService implementation="org.jetbrains.sbt.project.SbtProjectDataService"/>
+        <externalProjectDataService implementation="org.jetbrains.sbt.project.data.SbtFacetDataService"/>
+        <externalProjectDataService implementation="org.jetbrains.sbt.project.data.SbtProjectDataService"/>
 
-        <projectService serviceImplementation="org.jetbrains.sbt.project.settings.ScalaSbtSettings"/>
+        <projectService serviceImplementation="org.jetbrains.sbt.project.settings.SbtSettings"/>
         <projectService serviceImplementation="org.jetbrains.sbt.project.settings.SbtLocalSettings"/>
-        <projectService serviceImplementation="org.jetbrains.sbt.settings.SbtProjectSettings"/>
         <!--<projectService serviceImplementation="org.jetbrains.sbt.settings.SbtImportNotifier"/>-->
         
         <projectImportProvider implementation="org.jetbrains.sbt.project.SbtProjectImportProvider"/>
@@ -39,14 +38,12 @@
 
         <projectOpenProcessor implementation="org.jetbrains.sbt.project.SbtProjectOpenProcessor"/>
 
-        <moduleType id="SBT_MODULE" implementationClass="org.jetbrains.sbt.project.SbtModuleType"/>
+        <moduleType id="SBT_MODULE" implementationClass="org.jetbrains.sbt.project.module.SbtModuleType"/>
+        <moduleConfigurationEditorProvider implementation="org.jetbrains.sbt.project.module.SbtModuleEditorProvider"/>
 
         <applicationConfigurable instance="org.jetbrains.sbt.settings.SbtConfigurable"/>
         
-        <projectConfigurable instance="org.jetbrains.sbt.settings.SbtExternalSystemConfigurable"/>
-        
-        <moduleConfigurationEditorProvider
-                implementation="org.jetbrains.sbt.settings.moduleConfig.SbtModuleEditorProvider"/>
+        <projectConfigurable instance="org.jetbrains.sbt.project.settings.SbtExternalSystemConfigurable"/>
 
         <toolWindow id="SBT" anchor="right" icon="/sbt.png"
                     factoryClass="org.jetbrains.sbt.project.ScalaToolWindowFactory"

@@ -42,9 +42,14 @@ class ScalaMoveClassesOrPackagesHandler extends JavaMoveClassesOrPackagesHandler
     }
   }
 
-
   override def canMove(elements: Array[PsiElement], targetContainer: PsiElement): Boolean = {
-    elements.forall(_.getLanguage.isInstanceOf[ScalaLanguage]) && super.canMove(elements, targetContainer)
+    //sort of hack to save destinations here, need to be sure that it is called
+    val scalaElements = elements.filter(_.getLanguage.isInstanceOf[ScalaLanguage])
+    targetContainer match {
+      case dir: PsiDirectory => scalaElements.foreach(ScalaMoveUtil.saveMoveDestination(_, dir))
+      case _ =>
+    }
+    elements.length == scalaElements.length && super.canMove(elements, targetContainer)
   }
 
   protected override def doMoveWithMoveClassesDialog(project: Project,

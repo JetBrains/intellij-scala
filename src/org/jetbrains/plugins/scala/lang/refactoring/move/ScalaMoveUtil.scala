@@ -7,7 +7,7 @@ import com.intellij.openapi.util.{TextRange, Key}
 import com.intellij.psi.util.PsiTreeUtil
 import scala.collection.JavaConverters._
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.lang.psi.api.{ScPackage, ScalaFile}
 import com.intellij.psi.javadoc.PsiDocComment
 import org.jetbrains.annotations.NotNull
 import org.jetbrains.plugins.scala.conversion.copy.{Associations, ScalaCopyPastePostProcessor}
@@ -139,7 +139,16 @@ object ScalaMoveUtil {
   }
 
   def saveMoveDestination(@NotNull element: PsiElement, moveDestination: PsiDirectory) = {
-    element.putUserData(MOVE_DESTINATION, moveDestination)
+    val classes = element match {
+      case c: PsiClass => Seq(c)
+      case f: ScalaFile => f.typeDefinitions
+      case p: ScPackage => p.getClasses.toSeq
+      case _ => Nil
+    }
+    classes.flatMap{
+      case td: ScTypeDefinition => td :: ScalaPsiUtil.getBaseCompanionModule(td).toList
+      case e => List(e)
+    }.foreach(_.putUserData(MOVE_DESTINATION, moveDestination))
   }
 
   def getMoveDestination(@NotNull element: PsiElement): PsiDirectory = element.getUserData[PsiDirectory](MOVE_DESTINATION)

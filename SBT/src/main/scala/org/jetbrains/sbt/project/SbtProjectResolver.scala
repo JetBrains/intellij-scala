@@ -6,11 +6,12 @@ import com.intellij.openapi.externalSystem.model.task.{ExternalSystemTaskNotific
 import com.intellij.openapi.externalSystem.model.project._
 import com.intellij.openapi.module.StdModuleTypes
 import com.intellij.openapi.externalSystem.model.{ExternalSystemException, DataNode}
-import java.io.File
-import settings._
-import org.jetbrains.sbt.project.model._
-import org.jetbrains.sbt.project.model.Structure
 import com.intellij.openapi.roots.DependencyScope
+import java.io.File
+import module.SbtModuleType
+import settings._
+import structure._
+import data._
 
 /**
  * @author Pavel Fatin
@@ -22,7 +23,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
       if (file.isDirectory) file.getPath else file.getParent
     }
 
-    val runner = new PluginRunner(settings.vmOptions, settings.customLauncher)
+    val runner = new SbtRunner(settings.vmOptions, settings.customLauncher)
 
     val xml = runner.read(new File(path), !isPreview) { message =>
       listener.onStatusChange(new ExternalSystemTaskNotificationEvent(id, message.trim))
@@ -31,7 +32,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
       case Right(node) => node
     }
 
-    val data = Parser.parse(xml, new File(System.getProperty("user.home")))
+    val data = StructureParser.parse(xml, new File(System.getProperty("user.home")))
 
     convert(data).toDataNode
   }
@@ -105,7 +106,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     result
   }
 
-  private def nameFor(id: ModuleId) = s"SBT: ${id.organization}:${id.name}:${id.revision}"
+  private def nameFor(id: ModuleId) = s"${id.organization}:${id.name}:${id.revision}"
 
   private def createCompilerLibrary(scala: Scala): LibraryNode = {
     val result = new LibraryNode(nameFor(scala))
@@ -114,7 +115,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     result
   }
 
-  private def nameFor(scala: Scala) = s"SBT: scala-compiler:${scala.version}"
+  private def nameFor(scala: Scala) = s"scala-compiler:${scala.version}"
 
   private def createModule(project: Project): ModuleNode = {
     val result = new ModuleNode(StdModuleTypes.JAVA.getId, project.id,

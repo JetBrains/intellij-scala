@@ -3,24 +3,24 @@ package model
 
 import org.junit.{Test, Assert}
 import scala.xml.XML
-import org.jetbrains.sbt.project.model._
+import org.jetbrains.sbt.project.structure._
 import java.io.File
 
 /**
  * @author Pavel Fatin
  */
-class ParserTest {
+class StructureParserTest {
   @Test
   def testDataParsing() {
     val xml = XML.load(getClass.getResource("structure.xml"))
-    val actual = Parser.parse(xml, new File("$HOME"))
-    val expected = ParserTest.createExpectedStructure
+    val actual = StructureParser.parse(xml, new File("$HOME"))
+    val expected = StructureParserTest.createExpectedStructure
 
     Assert.assertEquals(expected, actual)
   }
 }
 
-object ParserTest {
+object StructureParserTest {
   def createExpectedStructure: Structure = {
     val moduleId = ModuleId("org.scala-lang", "scala-library", "2.10.1")
 
