@@ -14,8 +14,7 @@ class ScClassFileViewProviderFactory extends FileViewProviderFactory {
   def createFileViewProvider(file: VirtualFile, language: Language, manager: PsiManager, physical: Boolean) =
     if (file.getFileType == StdFileTypes.CLASS && DecompilerUtil.isScalaFile(file)) {
       new ScClassFileViewProvider(manager, file, physical)
-    }
-    else {
+    } else {
       new SingleRootFileViewProvider(manager, file, physical)
     }
 }

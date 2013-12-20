@@ -1,5 +1,5 @@
 package org.jetbrains.sbt
-package settings
+package project
 
 import com.intellij.openapi.components.{ServiceManager, ProjectComponent}
 import com.intellij.openapi.project.Project
@@ -8,13 +8,12 @@ import com.intellij.openapi.fileEditor._
 import com.intellij.openapi.vfs.VirtualFile
 import org.jetbrains.sbt.language.SbtFileType
 import java.util.concurrent.ConcurrentHashMap
-import org.jetbrains.sbt.project.{SbtProjectSystem, SbtAutoImport}
 import com.intellij.openapi.externalSystem.util.{DisposeAwareProjectChange, ExternalSystemApiUtil, ExternalSystemUtil}
 import com.intellij.openapi.externalSystem.service.project.ExternalProjectRefreshCallback
 import com.intellij.openapi.externalSystem.model.DataNode
 import com.intellij.openapi.externalSystem.model.project.ProjectData
 import com.intellij.openapi.externalSystem.service.execution.ProgressExecutionMode
-import org.jetbrains.sbt.project.settings.{SbtProjectSettings => Settings, ScalaSbtSettings}
+import org.jetbrains.sbt.project.settings.{SbtProjectSettings => Settings, SbtSettings}
 import java.lang.String
 import java.io.File
 import com.intellij.util.containers.ContainerUtilRt
@@ -121,8 +120,8 @@ class SbtImportNotifier(private val project: Project, private val fileEditorMana
   
   private def builder(message: String) = NotificationUtil.builder(project, message).setGroup("SBT")
   
-  private def getSbtSettings: Option[ScalaSbtSettings] = ExternalSystemApiUtil.getSettings(project, SbtProjectSystem.Id) match {
-    case sbta: ScalaSbtSettings => Some(sbta)
+  private def getSbtSettings: Option[SbtSettings] = ExternalSystemApiUtil.getSettings(project, SbtProjectSystem.Id) match {
+    case sbta: SbtSettings => Some(sbta)
     case _ => None 
   }
   

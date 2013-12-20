@@ -19,8 +19,8 @@ import java.util
     new Storage(file = StoragePathMacros.PROJECT_CONFIG_DIR + "/sbt.xml", scheme = StorageScheme.DIRECTORY_BASED)
   )
 )
-class ScalaSbtSettings(project: Project)
-  extends AbstractExternalSystemSettings[ScalaSbtSettings, SbtProjectSettings, SbtSettingsListener](SbtTopic, project)
+class SbtSettings(project: Project)
+  extends AbstractExternalSystemSettings[SbtSettings, SbtProjectSettings, SbtSettingsListener](SbtTopic, project)
   with PersistentStateComponent[SbtSettingsState]{
 
   def checkSettings(old: SbtProjectSettings, current: SbtProjectSettings) {}
@@ -40,11 +40,11 @@ class ScalaSbtSettings(project: Project)
     getProject.getMessageBus.connect(getProject).subscribe(SbtTopic, adapter)
   }
 
-  def copyExtraSettingsFrom(settings: ScalaSbtSettings) {}
+  def copyExtraSettingsFrom(settings: SbtSettings) {}
 }
 
-object ScalaSbtSettings {
-  def getInstance(project: Project) = ServiceManager.getService(project, classOf[ScalaSbtSettings])
+object SbtSettings {
+  def getInstance(project: Project) = ServiceManager.getService(project, classOf[SbtSettings])
 }
 
 class SbtSettingsState extends AbstractExternalSystemSettings.State[SbtProjectSettings] {

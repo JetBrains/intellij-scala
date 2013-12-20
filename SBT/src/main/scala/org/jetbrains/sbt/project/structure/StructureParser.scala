@@ -1,5 +1,5 @@
 package org.jetbrains.sbt
-package project.model
+package project.structure
 
 import scala.xml.Node
 import java.io.File
@@ -9,21 +9,7 @@ import FS._
  * @author Pavel Fatin
  */
 
-private case class FS(home: File, base: Option[File] = None) {
-  def withBase(base: File): FS = copy(base = Some(base))
-}
-
-private object FS {
-  def file(path: String)(implicit fs: FS): File = {
-    if (path.startsWith("~/")) {
-      new File(fs.home, path.substring(2))
-    } else {
-      fs.base.map(new File(_, path)).getOrElse(new File(path))
-    }
-  }
-}
-
-object Parser {
+object StructureParser {
   def parse(node: Node, home: File): Structure = {
     implicit val fs = new FS(home)
 
@@ -115,6 +101,20 @@ object Parser {
       case Seq() => throw new RuntimeException(s"No $name node in $node")
       case Seq(child) => child
       case _ => throw new RuntimeException(s"Multiple $name nodes in $node")
+    }
+  }
+}
+
+private case class FS(home: File, base: Option[File] = None) {
+  def withBase(base: File): FS = copy(base = Some(base))
+}
+
+private object FS {
+  def file(path: String)(implicit fs: FS): File = {
+    if (path.startsWith("~/")) {
+      new File(fs.home, path.substring(2))
+    } else {
+      fs.base.map(new File(_, path)).getOrElse(new File(path))
     }
   }
 }
