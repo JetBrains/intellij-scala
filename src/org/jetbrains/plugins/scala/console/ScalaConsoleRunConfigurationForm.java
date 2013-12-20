@@ -58,9 +58,9 @@ public class ScalaConsoleRunConfigurationForm {
   }
 
   public void apply(ScalaConsoleRunConfiguration configuration) {
-    setJavaOptions(configuration.getJavaOptions());
-    setConsoleArgs(configuration.getConsoleArgs());
-    setWorkingDirectory(configuration.getWorkingDirectory());
+    setJavaOptions(configuration.javaOptions());
+    setConsoleArgs(configuration.consoleArgs());
+    setWorkingDirectory(configuration.workingDirectory());
 
     myModuleSelector.applyTo(configuration);
   }
