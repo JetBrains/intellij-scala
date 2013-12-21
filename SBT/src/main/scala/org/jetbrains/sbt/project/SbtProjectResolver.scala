@@ -49,9 +49,16 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
 
     projectNode.add(new ScalaProjectNode(javaHome, javacOptions))
 
-    val libraries =
-      data.repository.map(_.modules).getOrElse(projects.flatMap(modulesIn)).map(createLibrary) ++
-        projects.flatMap(_.scala).distinct.map(createCompilerLibrary)
+    val libraries = {
+      val modules = data.repository.map(_.modules).getOrElse {
+        val ids = projects.flatMap(_.configurations.flatMap(_.modules)).distinct
+        ids.map(id => Module(id, Seq.empty, Seq.empty, Seq.empty))
+      }
+
+      val scalas = projects.flatMap(_.scala).distinctBy(_.version)
+
+      modules.map(createLibrary) ++ scalas.map(createCompilerLibrary)
+    }
 
     projectNode.addAll(libraries)
 
@@ -79,11 +86,6 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     projectNode.addAll(projects.map(createBuildModule))
 
     projectNode
-  }
-
-  private def modulesIn(project: Project): Seq[Module] = {
-    val ids = project.configurations.flatMap(_.modules)
-    ids.map(id => Module(id, Seq.empty, Seq.empty, Seq.empty))
   }
 
   private def createFacet(project: Project, scala: Scala): ScalaFacetNode = {
