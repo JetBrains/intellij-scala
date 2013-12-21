@@ -24,6 +24,7 @@
       <excludeFolder url="file://$MODULE_DIR$/SDK/NikaSDK" />
       <excludeFolder url="file://$MODULE_DIR$/SDK/TrunkSDK" />
       <excludeFolder url="file://$MODULE_DIR$/classes" />
+      <excludeFolder url="file://$MODULE_DIR$/out" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
