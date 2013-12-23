@@ -46,7 +46,7 @@ class ComparingUnrelatedTypesInspection extends AbstractInspection(inspectionId,
     }
     def oneIsFinal = isFinal(class1) || isFinal(class2)
     def notGeneric = !Seq(type1, type2).exists(_.isInstanceOf[ScTypeParameterType])
-    def notParameterized = !Seq(type1, type2).exists(_.isInstanceOf[ScParameterizedType])
+    def notParameterized = !Seq(type1, type2).exists(_.isInstanceOf[ScParameterizedType]) //todo better checking of ScParameterizedType
     def noConformance = {
       lazy val (unboxed1, unboxed2) = (StdType.unboxedType(type1), StdType.unboxedType(type2))
       !type1.conforms(type2) && !type2.conforms(type1) && !unboxed1.weakConforms(unboxed2) && !unboxed2.weakConforms(unboxed1)
