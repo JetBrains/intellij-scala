@@ -93,8 +93,8 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value]) extends PsiSc
 
   //todo: fix this ugly performance improvement
   private var classKind = true
-  def setClassKind(b: Boolean) {
-    classKind = b
+  def setClassKind(classKind: Boolean) {
+    this.classKind = classKind
   }
   def getClassKind = {
     classKind && getClassKindInner
