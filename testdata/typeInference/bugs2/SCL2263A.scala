@@ -15,4 +15,4 @@ object O {
   val i = new o.Inner
  }
 }
-//O.o.type#Inner
+//O.o.Inner
