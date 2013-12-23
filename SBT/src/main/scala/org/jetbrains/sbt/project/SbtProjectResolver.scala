@@ -73,11 +73,9 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
 
     projectNode.addAll(moduleNodes)
 
-    val idToModuleNode = projects.zip(moduleNodes).map(p => (p._1.id, p._2)).toMap
-
     projects.zip(moduleNodes).foreach { case (moduleProject, moduleNode) =>
       moduleProject.dependencies.foreach { dependencyId =>
-        val dependency = idToModuleNode.get(dependencyId).getOrElse(
+        val dependency = moduleNodes.find(_.getId == dependencyId).getOrElse(
           throw new ExternalSystemException("Cannot find project dependency: " + dependencyId))
         moduleNode.add(new ModuleDependencyNode(moduleNode, dependency))
       }
@@ -120,7 +118,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
   private def nameFor(scala: Scala) = s"scala-compiler:${scala.version}"
 
   private def createModule(project: Project): ModuleNode = {
-    val result = new ModuleNode(StdModuleTypes.JAVA.getId, project.id,
+    val result = new ModuleNode(StdModuleTypes.JAVA.getId, project.id, project.name,
       project.base.path, project.base.path)
 
     result.setInheritProjectCompileOutputPath(false)
@@ -175,10 +173,11 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     Option(file.getParentFile).map(pathTo).getOrElse(Seq.empty) :+ file
 
   private def createBuildModule(project: Project): ModuleNode = {
-    val name = project.id + Sbt.BuildModuleSuffix
+    val id = project.id + Sbt.BuildModuleSuffix
+    val name = project.name + Sbt.BuildModuleSuffix
     val path = project.base.path + "/project"
 
-    val result = new ModuleNode(SbtModuleType.instance.getId, name, path, path)
+    val result = new ModuleNode(SbtModuleType.instance.getId, id, name, path, path)
 
     result.setInheritProjectCompileOutputPath(false)
     result.setCompileOutputPath(ExternalSystemSourceType.SOURCE, path + "/target/idea-classes")
