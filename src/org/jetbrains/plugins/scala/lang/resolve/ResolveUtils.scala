@@ -382,9 +382,9 @@ object ResolveUtils {
       case _ =>
         if (member.hasModifierProperty("public")) true
         else if (member.hasModifierProperty("private")) false
-        else if (member.hasModifierProperty("protected")) {
-          checkProtected(member.containingClass, withCompanion = true)
-        } else {
+        else if (member.hasModifierProperty("protected") &&
+                checkProtected(member.containingClass, withCompanion = true)) true
+        else {
           val packageName = member.getContainingFile match {
             case s: ScalaFile => ""
             case f: PsiClassOwner => f.getPackageName
