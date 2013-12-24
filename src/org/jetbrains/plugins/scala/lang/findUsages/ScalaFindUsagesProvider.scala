@@ -24,7 +24,7 @@ class ScalaFindUsagesProvider extends FindUsagesProvider {
   override def getWordsScanner(): WordsScanner = new DefaultWordsScanner(new ScalaLexer(),
     ScalaTokenTypes.IDENTIFIER_TOKEN_SET,
     ScalaTokenTypes.COMMENTS_TOKEN_SET,
-    ScalaTokenTypes.STRING_LITERAL_TOKEN_SET);
+    ScalaTokenTypes.STRING_LITERAL_TOKEN_SET)
 
   override def canFindUsagesFor(element: PsiElement): Boolean = {
     element match {
