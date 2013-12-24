@@ -58,6 +58,17 @@ package object sbt {
     def seq[A](a: A*): Seq[A] = if (b) Seq(a: _*) else Seq.empty
   }
 
+  implicit class RichSeq[T](xs: Seq[T]) {
+    def distinctBy[A](f: T => A): Seq[T] = {
+      val (_, ys) = xs.foldLeft((Set.empty[A], Vector.empty[T])) {
+        case ((set, acc), x) =>
+          val v = f(x)
+          if (set.contains(v)) (set, acc) else (set + v, acc :+ x)
+      }
+      ys
+    }
+  }
+
   def jarWith[T : ClassTag]: File = {
     val tClass = implicitly[ClassTag[T]].runtimeClass
 
