@@ -1,5 +1,5 @@
 package org.jetbrains.sbt
-package project
+package project.structure
 
 /**
  * @author Pavel Fatin
