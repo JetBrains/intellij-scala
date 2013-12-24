@@ -204,7 +204,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     val sourceDirs = Seq(root) // , base << 1
     val exludedDirs = project.configurations
               .flatMap(it => it.sources ++ it.resources)
-              .filter(isRelevant).map(_.file) :+ root / "target"
+              .map(_.file) :+ root / "target"
 
     result.storePaths(ExternalSystemSourceType.SOURCE, sourceDirs.map(_.path))
     result.storePaths(ExternalSystemSourceType.EXCLUDED, exludedDirs.map(_.path))
@@ -217,12 +217,9 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     project.configurations.find(_.id == scope)
             .map(selector)
             .getOrElse(Seq.empty)
-            .filter(isRelevant)
             .map(_.file)
   }
 
-  private def isRelevant(directory: Directory): Boolean = directory.managed || directory.file.exists
-  
   private def createLibraryDependencies(project: Project)(moduleData: ModuleData, libraries: Seq[LibraryData]): Seq[LibraryDependencyNode] = {
     val moduleToConfigurations =
       project.configurations
