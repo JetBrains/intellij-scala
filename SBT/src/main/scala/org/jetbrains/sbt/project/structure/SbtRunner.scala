@@ -4,7 +4,6 @@ package project.structure
 import java.io.{FileNotFoundException, PrintWriter, File}
 import scala.xml.{Elem, XML}
 import com.intellij.execution.process.OSProcessHandler
-import org.jetbrains.sbt.project.SbtException
 import com.intellij.openapi.util.io.FileUtil
 
 /**
