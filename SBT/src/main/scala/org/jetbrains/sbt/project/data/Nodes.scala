@@ -29,8 +29,8 @@ class ModuleNode(val data: ModuleData)
 
 class LibraryNode(val data: LibraryData)
   extends Node[LibraryData] {
-  def this(name: String) {
-    this(new LibraryData(SbtProjectSystem.Id, name))
+  def this(name: String, resolved: Boolean) {
+    this(new LibraryData(SbtProjectSystem.Id, name, !resolved))
   }
 
   def addPaths(pathType: LibraryPathType, paths: Seq[String]) {
