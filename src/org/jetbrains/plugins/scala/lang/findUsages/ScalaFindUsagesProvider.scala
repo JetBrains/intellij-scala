@@ -6,8 +6,7 @@ import com.intellij.psi._
 import psi.api.base.patterns.ScBindingPattern
 import com.intellij.psi.util.PsiFormatUtil
 import com.intellij.psi.util.PsiFormatUtilBase
-import com.intellij.lang.cacheBuilder.{DefaultWordsScanner, WordsScanner}
-import lexer.{ScalaLexer, ScalaTokenTypes}
+import com.intellij.lang.cacheBuilder.WordsScanner
 import psi.api.statements.{ScValue, ScTypeAlias, ScVariable}
 import psi.api.toplevel.ScNamedElement
 import psi.api.toplevel.typedef.{ScClass, ScTypeDefinition, ScTrait, ScObject}
@@ -21,10 +20,7 @@ import psi.ScalaPsiUtil
 
 class ScalaFindUsagesProvider extends FindUsagesProvider {
   @Nullable
-  override def getWordsScanner(): WordsScanner = new DefaultWordsScanner(new ScalaLexer(),
-    ScalaTokenTypes.IDENTIFIER_TOKEN_SET,
-    ScalaTokenTypes.COMMENTS_TOKEN_SET,
-    ScalaTokenTypes.STRING_LITERAL_TOKEN_SET)
+  override def getWordsScanner: WordsScanner = new ScalaWordsScanner()
 
   override def canFindUsagesFor(element: PsiElement): Boolean = {
     element match {
@@ -46,14 +42,13 @@ class ScalaFindUsagesProvider extends FindUsagesProvider {
       case c: PsiClass if !c.isInstanceOf[PsiClassFake] => if (c.isInterface) "interface" else "class"
       case _: PsiMethod => "method"
       case _: ScTypeParam => "type parameter"
-      case _: ScBindingPattern => {
+      case _: ScBindingPattern =>
         var parent = element
         while (parent match {case null | _: ScValue | _: ScVariable => false case _ => true}) parent = parent.getParent
         parent match {
           case null => "pattern"
           case _ => "variable"
         }
-      }
       case _: PsiField => "field"
       case _: PsiParameter => "parameter"
       case _: PsiVariable => "variable"
@@ -72,13 +67,12 @@ class ScalaFindUsagesProvider extends FindUsagesProvider {
   @NotNull
   override def getDescriptiveName(element: PsiElement): String = {
     val name = element match {
-      case x: PsiMethod => {
+      case x: PsiMethod =>
         var res = PsiFormatUtil.formatMethod(x, PsiSubstitutor.EMPTY,
         PsiFormatUtilBase.SHOW_NAME | PsiFormatUtilBase.SHOW_PARAMETERS,
         PsiFormatUtilBase.SHOW_TYPE)
         if (x.containingClass != null) res = res + " of " + getDescriptiveName(x.containingClass)
         res
-      }
       case x: PsiVariable => x.name
       case x: PsiFile => x.name
       case x: ScTypeDefinition => x.qualifiedName
