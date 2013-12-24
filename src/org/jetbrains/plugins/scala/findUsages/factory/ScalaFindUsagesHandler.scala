@@ -168,7 +168,7 @@ class ScalaFindUsagesHandler(element: PsiElement) extends FindUsagesHandler(elem
     }
 
     element match {
-      case function: ScFunction =>
+      case function: ScFunction if !function.isLocal =>
         ScalaUtil.readAction(getProject) {
           for (elem <- ScalaOverridengMemberSearch.search(function, deep = true)) {
             if (!super.processElementUsages(elem, processor, options)) return false
