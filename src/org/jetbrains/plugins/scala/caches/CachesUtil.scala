@@ -31,7 +31,7 @@ object CachesUtil {
   type MappedKey[Data, Result] = Key[CachedValue[ConcurrentHashMap[Data, Result]]]
   val TYPE_AFTER_IMPLICIT_KEY: MappedKey[(Boolean, Boolean, Option[ScType], Boolean, Boolean), ExpressionTypeResult] =
     Key.create("type.after.implicit.key")
-  val TYPE_OF_SPECIAL_EXPR_AFTER_IMPLICIT_KEY: MappedKey[Option[ScType], (TypeResult[ScType], collection.Set[ImportUsed])] =
+  val TYPE_OF_SPECIAL_EXPR_AFTER_IMPLICIT_KEY: MappedKey[(ScType, Option[ScType]), (TypeResult[ScType], collection.Set[ImportUsed])] =
     Key.create("type.of.special.expr.after.implicit.key")
   val TYPE_WITHOUT_IMPLICITS: MappedKey[(Boolean, Boolean), TypeResult[ScType]] =
     Key.create("type.without.implicits.key")
