@@ -15,7 +15,7 @@ import javax.swing.Icon
 import com.intellij.util.NullableFunction
 import java.awt.event.MouseEvent
 import lang.psi.api.statements.params.ScClassParameter
-import lang.psi.impl.search.ScalaOverridengMemberSearch
+import lang.psi.impl.search.ScalaOverridingMemberSearcher
 import lang.psi.ScalaPsiUtil
 import lang.lexer.ScalaTokenTypes
 import presentation.java.ClassPresentationUtil
@@ -189,7 +189,7 @@ object ScalaMarkerType {
         case _ => return
       }
       val overrides = new ArrayBuffer[PsiNamedElement]
-      for (member <- members) overrides ++= ScalaOverridengMemberSearch.search(member, withSelfType = true)
+      for (member <- members) overrides ++= ScalaOverridingMemberSearcher.search(member, withSelfType = true)
       if (overrides.length == 0) return
       val title = if (GutterUtil.isAbstract(element)) ScalaBundle.
               message("navigation.title.implementation.member", members(0).name, "" + overrides.length)

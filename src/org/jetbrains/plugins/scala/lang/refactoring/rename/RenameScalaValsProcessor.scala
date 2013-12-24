@@ -8,7 +8,7 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.refactoring.util.RefactoringUtil
 import com.intellij.usageView.UsageInfo
 import psi.api.statements.{ScValue, ScVariable}
-import psi.impl.search.ScalaOverridengMemberSearch
+import psi.impl.search.ScalaOverridingMemberSearcher
 import psi.ScalaPsiUtil
 import psi.api.statements.params.ScClassParameter
 import psi.api.toplevel.{ScTypedDefinition, ScNamedElement}
@@ -99,7 +99,7 @@ class RenameScalaValsProcessor extends RenameJavaMemberProcessor {
 
     addBeanMethods(element, newName)
 
-    for (elem <- ScalaOverridengMemberSearch.search(namedElement, deep = true)) {
+    for (elem <- ScalaOverridingMemberSearcher.search(namedElement, deep = true)) {
       val overriderName = elem.name
       val baseName = namedElement.name
       val newOverriderName = RefactoringUtil.suggestNewOverriderName(overriderName, baseName, newName)

@@ -13,7 +13,7 @@ import java.awt.{GridLayout, BorderLayout}
 
 import javax.swing._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
-import psi.impl.search.ScalaOverridengMemberSearch
+import psi.impl.search.ScalaOverridingMemberSearcher
 import psi.api.base.ScPrimaryConstructor
 import collection.mutable.ArrayBuffer
 import psi.fake.FakePsiMethod
@@ -53,7 +53,7 @@ class RenameScalaMethodProcessor extends RenameJavaMethodProcessor {
         Some(function2)
       case _ => None
     }
-    for (elem <- ScalaOverridengMemberSearch.search(function, deep = true)) {
+    for (elem <- ScalaOverridingMemberSearcher.search(function, deep = true)) {
       allRenames.put(elem, newName)
       elem match {
         case fun: ScFunction => fun.getGetterOrSetterFunction match {
@@ -65,7 +65,7 @@ class RenameScalaMethodProcessor extends RenameJavaMethodProcessor {
     }
     for {
       setter <- getterOrSetter
-      elem <- ScalaOverridengMemberSearch.search(setter, deep = true)
+      elem <- ScalaOverridingMemberSearcher.search(setter, deep = true)
     } {
       buff += elem
     }
