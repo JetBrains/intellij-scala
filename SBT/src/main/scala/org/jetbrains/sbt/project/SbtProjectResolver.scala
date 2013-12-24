@@ -54,8 +54,10 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
 
     projectNode.addAll(libraries)
 
+    val moduleFilesDirectory = projectNode.getIdeProjectFileDirectoryPath.toFile / ".idea" / "modules"
+
     val moduleNodes: Seq[ModuleNode] = projects.map { project =>
-      val moduleNode = createModule(project)
+      val moduleNode = createModule(project, moduleFilesDirectory)
       moduleNode.add(createContentRoot(project))
       moduleNode.addAll(createLibraryDependencies(project)(moduleNode, libraries.map(t => t.data)))
       moduleNode.addAll(project.scala.map(createFacet(project, _)).toSeq)
@@ -73,7 +75,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
       }
     }
 
-    projectNode.addAll(projects.map(createBuildModule))
+    projectNode.addAll(projects.map(createBuildModule(_, moduleFilesDirectory)))
 
     projectNode
   }
@@ -114,9 +116,9 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
 
   private def nameFor(scala: Scala) = s"SBT: scala-compiler:${scala.version}"
 
-  private def createModule(project: Project): ModuleNode = {
+  private def createModule(project: Project, moduleFilesDirectory: File): ModuleNode = {
     val result = new ModuleNode(StdModuleTypes.JAVA.getId, project.id, project.name,
-      project.base.path, project.base.path)
+      moduleFilesDirectory.path, project.base.path)
 
     result.setInheritProjectCompileOutputPath(false)
 
@@ -169,12 +171,12 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
   private def pathTo(file: File): Seq[File] =
     Option(file.getParentFile).map(pathTo).getOrElse(Seq.empty) :+ file
 
-  private def createBuildModule(project: Project): ModuleNode = {
+  private def createBuildModule(project: Project, moduleFilesDirectory: File): ModuleNode = {
     val id = project.id + Sbt.BuildModuleSuffix
     val name = project.name + Sbt.BuildModuleSuffix
     val path = project.base.path + "/project"
 
-    val result = new ModuleNode(SbtModuleType.instance.getId, id, name, path, path)
+    val result = new ModuleNode(SbtModuleType.instance.getId, id, name, moduleFilesDirectory.path, path)
 
     result.setInheritProjectCompileOutputPath(false)
     result.setCompileOutputPath(ExternalSystemSourceType.SOURCE, path + "/target/idea-classes")
