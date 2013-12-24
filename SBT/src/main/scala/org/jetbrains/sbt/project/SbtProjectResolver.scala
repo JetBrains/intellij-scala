@@ -112,6 +112,10 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
 
   private def createCompilerLibrary(scala: Scala): LibraryNode = {
     val result = new LibraryNode(nameFor(scala))
+    // TODO don't use custom delimiter either when the external system will preserve compiler libraries
+    // or when we will adopt the new Scala project configuration scheme
+    // (see processOrphanProjectLibraries in ExternalSystemUtil)
+    result.setInternalName("SBT:: " + nameFor(scala))
     val jars = scala.compilerJar +: scala.libraryJar +: scala.extraJars
     result.addPaths(LibraryPathType.BINARY, jars.map(_.path))
     result
@@ -234,14 +238,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
       val data = new LibraryDependencyNode(moduleData, library, LibraryLevel.PROJECT)
       data.setScope(scopeFor(configurations))
       data
-    } ++ project.scala.toSeq.map { scala =>
-      val name: String = nameFor(scala)
-      val library = libraries.find(_.getExternalName == name).getOrElse(
-        throw new ExternalSystemException("Library not found: " + name))
-      val data = new LibraryDependencyNode(moduleData, library, LibraryLevel.PROJECT)
-      data.setScope(DependencyScope.PROVIDED)
-      data
-    } //todo: this is the hack for removing unused libraries in external system
+    }
   }
 
   private def createUnmanagedDependencies(project: Project)(moduleData: ModuleData): Seq[LibraryDependencyNode] = {
