@@ -19,8 +19,8 @@ class ProjectNode(val data: ProjectData)
 
 class ModuleNode(val data: ModuleData)
   extends Node[ModuleData] {
-  def this(typeId: String, name: String, moduleFileDirectoryPath: String, externalConfigPath: String) {
-    this(new ModuleData(SbtProjectSystem.Id, typeId, name, moduleFileDirectoryPath, externalConfigPath))
+  def this(typeId: String, id: String, name: String, moduleFileDirectoryPath: String, externalConfigPath: String) {
+    this(new ModuleData(id, SbtProjectSystem.Id, typeId, name, moduleFileDirectoryPath, externalConfigPath))
   }
 
   protected def key = ProjectKeys.MODULE
