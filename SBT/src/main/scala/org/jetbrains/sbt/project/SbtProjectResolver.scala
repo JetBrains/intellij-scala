@@ -88,7 +88,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
   private def createFacet(project: Project, scala: Scala): ScalaFacetNode = {
     val basePackage = Some(project.organization).filter(_.contains(".")).mkString
 
-    new ScalaFacetNode(scala.version, basePackage, nameFor(scala), scala.options)
+    new ScalaFacetNode(scala.version, basePackage, internalNameFor(scala), scala.options)
   }
 
   private def createProject(project: Project): ProjectNode = {
@@ -112,13 +112,15 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     // TODO don't use custom delimiter either when the external system will preserve compiler libraries
     // or when we will adopt the new Scala project configuration scheme
     // (see processOrphanProjectLibraries in ExternalSystemUtil)
-    result.setInternalName("SBT:: " + nameFor(scala))
+    result.setInternalName(internalNameFor(scala))
     val jars = scala.compilerJar +: scala.libraryJar +: scala.extraJars
     result.addPaths(LibraryPathType.BINARY, jars.map(_.path))
     result
   }
 
   private def nameFor(scala: Scala) = s"SBT: scala-compiler:${scala.version}"
+
+  private def internalNameFor(scala: Scala) = "SBT:: " + nameFor(scala)
 
   private def createModule(project: Project, moduleFilesDirectory: File): ModuleNode = {
     val result = new ModuleNode(StdModuleTypes.JAVA.getId, project.id, project.name,
