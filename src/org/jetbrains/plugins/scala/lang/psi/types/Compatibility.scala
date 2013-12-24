@@ -62,7 +62,7 @@ object Compatibility {
 
         if (isShape || !checkImplicits || place == null) return default
 
-        def eval(place: PsiElement, data: Option[ScType]): (Success[ScType], Set[ImportUsed]) = {
+        def eval(place: PsiElement, data: (ScType, Option[ScType])): (Success[ScType], Set[ImportUsed]) = {
           expectedOption match {
             case Some(expected) if typez.conforms(expected) => (Success(typez, None), Set.empty)
             case Some(expected) =>
@@ -86,7 +86,7 @@ object Compatibility {
           }
         }
 
-        CachesUtil.getMappedWithRecursionPreventingWithRollback(place, expectedOption,
+        CachesUtil.getMappedWithRecursionPreventingWithRollback(place, (typez, expectedOption),
           CachesUtil.TYPE_OF_SPECIAL_EXPR_AFTER_IMPLICIT_KEY, eval, default, PsiModificationTracker.MODIFICATION_COUNT)
       }
     }
