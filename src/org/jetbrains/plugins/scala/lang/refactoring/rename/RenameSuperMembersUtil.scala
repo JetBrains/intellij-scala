@@ -58,7 +58,8 @@ object RenameSuperMembersUtil {
     for (elem <- superMembersToRename) {
       allRenames.put(elem, newName)
       superMembersToRename -= elem
-      RenamePsiElementProcessor.forElement(elem).prepareRenaming(elem, newName, allRenames)
+      import scala.collection.JavaConverters._
+      RenamePsiElementProcessor.allForElement(elem).asScala.foreach(_.prepareRenaming(elem, newName, allRenames))
     }
   }
 
