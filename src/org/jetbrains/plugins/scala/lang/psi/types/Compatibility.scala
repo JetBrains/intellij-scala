@@ -9,7 +9,7 @@ import psi.impl.toplevel.synthetic.ScSyntheticFunction
 import api.expr._
 import com.intellij.psi._
 import impl.compiled.ClsParameterImpl
-import result.{TypeResult, Success, TypingContext}
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, TypeResult, Success, TypingContext}
 import api.toplevel.imports.usages.ImportUsed
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import com.intellij.openapi.progress.ProgressManager
@@ -23,6 +23,9 @@ import org.jetbrains.annotations.TestOnly
 import org.jetbrains.plugins.scala.lang.psi.implicits.ScImplicitlyConvertible.ImplicitResolveResult
 import org.jetbrains.plugins.scala.lang.resolve.processor.MostSpecificUtil
 import org.jetbrains.plugins.scala.lang.psi.implicits.ScImplicitlyConvertible
+import org.jetbrains.plugins.scala.caches.CachesUtil
+import com.intellij.psi.util.PsiModificationTracker
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression.ExpressionTypeResult
 
 /**
  * @author ven
@@ -51,29 +54,40 @@ object Compatibility {
         val expressionTypeResult = expr.getTypeAfterImplicitConversion(checkImplicits, isShape, expectedOption)
         (expressionTypeResult.tr, expressionTypeResult.importsUsed)
       } else {
-        if (isShape) return (Success(typez, None), Set.empty)
-        if (!checkImplicits || place == null) return (Success(typez, None), Set.empty)
-        if (expectedOption.isEmpty) return (Success(typez, None), Set.empty)
-        val expected = expectedOption.get
-        if (typez.conforms(expected)) return (Success(typez, None), Set.empty)
+        import scala.collection.Set
 
-        val convertible = new ScImplicitlyConvertible(place, p => Some(typez))
-        val firstPart = convertible.implicitMapFirstPart(Some(expected), fromUnder = false, exprType = Some(typez))
-        var f: Seq[ImplicitResolveResult] =
-          firstPart.filter(_.tp.conforms(expected))
-        if (f.length == 0) {
-          f = convertible.implicitMapSecondPart(Some(expected), fromUnder = false, exprType = Some(typez)).
-                  filter(_.tp.conforms(expected))
+        def default: (Success[ScType], Set[ImportUsed]) = {
+          (Success(typez, None), Set.empty)
         }
-        if (f.length == 1) (Success(f(0).getTypeWithDependentSubstitutor, Some(place)), f(0).importUsed)
-        else if (f.length == 0) (Success(typez, None), Set.empty)
-        else {
-          val res = MostSpecificUtil(place, 1).mostSpecificForImplicit(f.toSet) match {
-            case Some(innerRes) => innerRes
-            case None => return (Success(typez, None), Set.empty)
+
+        if (isShape || !checkImplicits || place == null) return default
+
+        def eval(place: PsiElement, data: Option[ScType]): (Success[ScType], Set[ImportUsed]) = {
+          expectedOption match {
+            case Some(expected) if typez.conforms(expected) => (Success(typez, None), Set.empty)
+            case Some(expected) =>
+              val convertible = new ScImplicitlyConvertible(place, p => Some(typez))
+              val firstPart = convertible.implicitMapFirstPart(Some(expected), fromUnder = false, exprType = Some(typez))
+              var f: Seq[ImplicitResolveResult] =
+                firstPart.filter(_.tp.conforms(expected))
+              if (f.length == 0) {
+                f = convertible.implicitMapSecondPart(Some(expected), fromUnder = false, exprType = Some(typez)).
+                        filter(_.tp.conforms(expected))
+              }
+              if (f.length == 1) (Success(f(0).getTypeWithDependentSubstitutor, Some(place)), f(0).importUsed)
+              else if (f.length == 0) (Success(typez, None), Set.empty)
+              else {
+                MostSpecificUtil(place, 1).mostSpecificForImplicit(f.toSet) match {
+                  case Some(innerRes) => (Success(innerRes.getTypeWithDependentSubstitutor, Some(place)), innerRes.importUsed)
+                  case None => (Success(typez, None), Set.empty)
+                }
+              }
+            case _ => (Success(typez, None), Set.empty)
           }
-          (Success(res.getTypeWithDependentSubstitutor, Some(place)), res.importUsed)
         }
+
+        CachesUtil.getMappedWithRecursionPreventingWithRollback(place, expectedOption,
+          CachesUtil.TYPE_OF_SPECIAL_EXPR_AFTER_IMPLICIT_KEY, eval, default, PsiModificationTracker.MODIFICATION_COUNT)
       }
     }
   }
