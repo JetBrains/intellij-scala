@@ -3,28 +3,22 @@ package lang
 package autoImport
 
 import org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix
-import com.intellij.openapi.command.undo.UndoManager
-import com.intellij.openapi.fileEditor.impl.text.TextEditorProvider
-import com.intellij.openapi.fileEditor.{OpenFileDescriptor, FileEditorManager}
-
 import com.intellij.openapi.vfs.{CharsetToolkit, LocalFileSystem}
-import com.intellij.psi.PsiManager
 import java.io.File
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import com.intellij.psi.util.PsiTreeUtil
-import base.{ScalaLightPlatformCodeInsightTestCaseAdapter, ScalaPsiTestCase}
+import base.ScalaLightPlatformCodeInsightTestCaseAdapter
 import lexer.ScalaTokenTypes
 import util.ScalaUtils
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.util.text.StringUtil
-import org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix.{TypeAliasToImport, ClassTypeToImport}
+import org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix.ClassTypeToImport
 
 /**
  * User: Alexander Podkhalyuzin
  * Date: 15.03.2009
  */
-
 abstract class AutoImportTestBase extends ScalaLightPlatformCodeInsightTestCaseAdapter {
   private val refMarker =  "/*ref*/"
 
@@ -33,7 +27,7 @@ abstract class AutoImportTestBase extends ScalaLightPlatformCodeInsightTestCaseA
   protected override def rootPath(): String = folderPath
 
   protected def doTest() {
-    import _root_.junit.framework.Assert._
+    import junit.framework.Assert._
     val filePath = folderPath + getTestName(false) + ".scala"
     val file = LocalFileSystem.getInstance.findFileByPath(filePath.replace(File.separatorChar, '/'))
     assert(file != null, "file " + filePath + " not found")
@@ -83,10 +77,9 @@ abstract class AutoImportTestBase extends ScalaLightPlatformCodeInsightTestCaseA
       case ScalaTokenTypes.tLINE_COMMENT => text.substring(2).trim
       case ScalaTokenTypes.tBLOCK_COMMENT | ScalaTokenTypes.tDOC_COMMENT =>
         text.substring(2, text.length - 2).trim
-      case _ => {
+      case _ =>
         assertTrue("Test result must be in last comment statement.", false)
         ""
-      }
     }
     assertEquals(output, res)
   }
