@@ -29,7 +29,6 @@ import com.intellij.psi.search.{PsiShortNamesCache, GlobalSearchScope}
 import java.util.Collections
 import com.intellij.openapi.roots.{ModuleRootEvent, ModuleRootListener}
 import ParameterlessNodes.{Map => PMap}, TypeNodes.{Map => TMap}, SignatureNodes.{Map => SMap}
-import psi.stubs.util.ScalaStubsUtil
 import java.util
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
@@ -426,15 +425,14 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
   def typeVariable(tp: PsiTypeParameter) : ScTypeParameterType = {
     import Misc.fun2suspension
     tp match {
-      case stp: ScTypeParam => {
+      case stp: ScTypeParam =>
         val inner = stp.typeParameters.map{typeVariable(_)}.toList
         val lower = () => stp.lowerBound.getOrNothing
         val upper = () => stp.upperBound.getOrAny
         // todo rework for error handling!
         val res = new ScTypeParameterType(stp.name, inner, lower, upper, stp)
         res
-      }
-      case _ => {
+      case _ =>
         val lower = () => types.Nothing
         val upper = () => tp.getSuperTypes match {
           case array: Array[PsiClassType] if array.length == 1 => ScType.create(array(0), project)
@@ -445,7 +443,6 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
         }
         val res = new ScTypeParameterType(tp.name, Nil, lower, upper, tp)
         res
-      }
     }
   }
 
@@ -457,8 +454,6 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
 }
 
 object ScalaPsiManager {
-  private val LOG: Logger = Logger.getInstance("#org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager")
-
   val TYPE_VARIABLE_KEY: Key[ScTypeParameterType] = Key.create("type.variable.key")
 
   def instance(project : Project) = project.getComponent(classOf[ScalaPsiManager])
