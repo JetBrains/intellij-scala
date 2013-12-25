@@ -19,15 +19,12 @@ import lang.psi.types.ScType
 case class Dependency(kind: DependencyKind, source: PsiElement, target: PsiElement, path: Path) {
   def isExternal = source.getContainingFile != target.getContainingFile
 
-  // TODO Bind references //DONE
   // It's better to re-bind references rather than to add imports
   // directly and re-resolve references afterwards.
   // However, current implementation of "bindToElement" can handle only Class references
   def restoreFor(source: ScReferenceElement) {
     if (source.resolve() != target) {
       source.bindToElement(target)
-//      val holder = ScalaImportTypeFix.getImportHolder(source, source.getProject)
-//      holder.addImportForPath(path.asString, source)
     }
   }
 }
