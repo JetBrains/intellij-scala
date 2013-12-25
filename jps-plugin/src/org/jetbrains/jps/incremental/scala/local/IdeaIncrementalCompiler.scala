@@ -25,7 +25,10 @@ class IdeaIncrementalCompiler(scalac: AnalyzingCompiler) extends AbstractCompile
     val cArgs = new CompilerArguments(scalac.scalaInstance, scalac.cp)
     val options = "IntellijIdea.simpleAnalysis" +: cArgs(Nil, classpath, None, scalaOptions)
 
-    scalac.compile(sources, emptyChanges, options, out, clientCallback, reporter, CompilerCache.fresh, logger, Option(progress))
+    try scalac.compile(sources, emptyChanges, options, out, clientCallback, reporter, CompilerCache.fresh, logger, Option(progress))
+    catch {
+      case _: xsbti.CompileFailed => // the error should be already handled via the `reporter`
+    }
   }
 
 }
