@@ -30,7 +30,7 @@ import psi.api.expr.{ScThisReference, ScSuperReference}
 import psi.impl.{ScPackageImpl, ScalaPsiManager}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
-import scala.Some
+import scala.{Predef, Some}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScTypePolymorphicType
 import org.jetbrains.plugins.scala.lang.psi.types.ScFunctionType
 import org.jetbrains.plugins.scala.lang.psi.types.result.Success
@@ -39,6 +39,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.TypeParameter
 import org.jetbrains.plugins.scala.lang.psi.types.ScThisType
 import org.jetbrains.plugins.scala.lang.psi.types.ScCompoundType
 import com.intellij.lang.java.JavaLanguage
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
 /**
  * @author ven
@@ -490,14 +491,24 @@ object ResolveUtils {
                   case r: ResolveProcessor => r.getResolveScope
                   case _ => place.getResolveScope
                 }
-                val classes: Array[PsiClass] = manager.getCachedClasses(scope, fqn)
+                var classes: Array[PsiClass] = manager.getCachedClasses(scope, fqn)
+                if (classes.isEmpty) {
+                  //todo: fast fix for the problem with classes, should be fixed in indexes
+                  val improvedFqn = fqn.split('.').map{
+                    case s if ScalaNamesUtil.isKeyword(s) => s"`$s`"
+                    case s => s
+                  }.mkString(".")
+                  if (improvedFqn != fqn) {
+                    classes = manager.getCachedClasses(scope, improvedFqn)
+                  }
+                }
                 for (clazz <- classes if clazz.containingClass == null) {
                   if (!processor.execute(clazz, state)) return false
                 }
                 true
               }
               if (!calcForName(name)) return false
-              val scalaName = { //todo: fast fix for problem with classes, should be fixed in indexes
+              val scalaName = { //todo: fast fix for the problem with classes, should be fixed in indexes
                 base match {
                   case r: ResolveProcessor =>
                     val stateName = state.get(ResolverEnv.nameKey)
