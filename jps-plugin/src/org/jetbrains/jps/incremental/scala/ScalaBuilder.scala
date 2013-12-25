@@ -11,6 +11,7 @@ import org.jetbrains.annotations.NotNull
 import scala.collection.JavaConverters._
 import java.util
 import ScalaBuilder._
+import org.jetbrains.jps.model.module.JpsModule
 
 /**
  * Nikolay.Tropin
@@ -24,7 +25,7 @@ class ScalaBuilder(category: BuilderCategory, @NotNull delegate: ScalaBuilderDel
             dirtyFilesHolder: DirtyFilesHolder[JavaSourceRootDescriptor, ModuleBuildTarget],
             outputConsumer: ModuleLevelBuilder.OutputConsumer): ModuleLevelBuilder.ExitCode = {
 
-    if (isDisabled(context)) ExitCode.NOTHING_DONE
+    if (isDisabled(context, Some(chunk))) ExitCode.NOTHING_DONE
     else delegate.build(context, chunk, dirtyFilesHolder, outputConsumer)
   }
 
@@ -39,9 +40,10 @@ class ScalaBuilder(category: BuilderCategory, @NotNull delegate: ScalaBuilderDel
 
   override def getCompilableFileExtensions: util.List[String] = List("scala").asJava
 
-  private def isDisabled(context: CompileContext): Boolean = {
+  private def isDisabled(context: CompileContext, chunk: Option[ModuleChunk] = None): Boolean = {
     val project: JpsProject = context.getProjectDescriptor.getProject
     if (!isScalaProject(project)) return true
+    if (chunk.isDefined && !hasScalaModules(chunk.get)) return true
 
     val projectSettings = SettingsManager.getProjectSettings(context.getProjectDescriptor)
 
@@ -61,14 +63,13 @@ class ScalaBuilder(category: BuilderCategory, @NotNull delegate: ScalaBuilderDel
 }
 
 object ScalaBuilder {
-  def isScalaProject(project: JpsProject): Boolean = {
+  def isScalaProject(project: JpsProject): Boolean = hasScalaFacets(project.getModules)
+
+  def hasScalaModules(chunk: ModuleChunk): Boolean = hasScalaFacets(chunk.getModules)
+
+  private def hasScalaFacets(modules: util.Collection[JpsModule]): Boolean = {
     import scala.collection.JavaConversions._
-    for (module <- project.getModules) {
-      if (SettingsManager.getFacetSettings(module) != null) {
-        return true
-      }
-    }
-    false
+    modules.exists(SettingsManager.getFacetSettings(_) != null)
   }
 
 }
