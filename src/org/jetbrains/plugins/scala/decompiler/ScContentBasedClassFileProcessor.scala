@@ -47,7 +47,7 @@ class ScContentBasedClassFileProcessor extends ContentBasedClassFileProcessor {
   }
 
   def obtainLanguageForFile(file: VirtualFile): Language = {
-    if (DecompilerUtil.isScalaFile(file)) {
+    if (ScClsStubBuilderFactory.canBeProcessed(file)) {
       ScalaFileType.SCALA_LANGUAGE
     } else null
   }
