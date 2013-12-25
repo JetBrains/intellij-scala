@@ -27,8 +27,8 @@
       <sources managed="true">src/main/java</sources>
       <resources>src/main/resources</resources>
       <classes>target/scala-2.10/classes</classes>
-      <module revision="2.10.1" name="scala-library" organization="org.scala-lang"></module>
     </configuration>
+    <module revision="2.10.1" name="scala-library" organization="org.scala-lang" configurations="test"/>
   </project>
   <repository>
     <module revision="2.10.1" name="scala-library" organization="org.scala-lang">
