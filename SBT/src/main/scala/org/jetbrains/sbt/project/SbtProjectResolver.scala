@@ -52,7 +52,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     val libraries = {
       val repositoryModules = data.repository.map(_.modules).getOrElse(Seq.empty)
 
-      val otherModuleIds = projects.flatMap(_.configurations.flatMap(_.modules)).toSet --
+      val otherModuleIds = projects.flatMap(_.dependencies.modules.map(_.id)).toSet --
               repositoryModules.map(_.id).toSet
 
       repositoryModules.map(createResolvedLibrary) ++ otherModuleIds.map(createUnresolvedLibrary)
@@ -70,19 +70,21 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     val moduleNodes: Seq[ModuleNode] = projects.map { project =>
       val moduleNode = createModule(project, moduleFilesDirectory)
       moduleNode.add(createContentRoot(project))
-      moduleNode.addAll(createLibraryDependencies(project)(moduleNode, libraries.map(_.data)))
+      moduleNode.addAll(createLibraryDependencies(project.dependencies.modules)(moduleNode, libraries.map(_.data)))
       moduleNode.addAll(project.scala.map(createFacet(project, _)).toSeq)
-      moduleNode.addAll(createUnmanagedDependencies(project)(moduleNode))
+      moduleNode.addAll(createUnmanagedDependencies(project.dependencies.jars)(moduleNode))
       moduleNode
     }
 
     projectNode.addAll(moduleNodes)
 
     projects.zip(moduleNodes).foreach { case (moduleProject, moduleNode) =>
-      moduleProject.dependencies.foreach { dependencyId =>
-        val dependency = moduleNodes.find(_.getId == dependencyId).getOrElse(
-          throw new ExternalSystemException("Cannot find project dependency: " + dependencyId))
-        moduleNode.add(new ModuleDependencyNode(moduleNode, dependency))
+      moduleProject.dependencies.projects.foreach { dependencyId =>
+        val dependency = moduleNodes.find(_.getId == dependencyId.project).getOrElse(
+          throw new ExternalSystemException("Cannot find project dependency: " + dependencyId.project))
+        val data = new ModuleDependencyNode(moduleNode, dependency)
+        data.setScope(scopeFor(dependencyId.configurations))
+        moduleNode.add(data)
       }
     }
 
@@ -234,36 +236,21 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
             .map(_.file)
   }
 
-  private def createLibraryDependencies(project: Project)(moduleData: ModuleData, libraries: Seq[LibraryData]): Seq[LibraryDependencyNode] = {
-    val moduleToConfigurations =
-      project.configurations
-        .flatMap(configuration => configuration.modules.map(module => (module, configuration)))
-        .groupBy(_._1)
-        .mapValues(_.unzip._2.toSet)
-        .toSeq
-
-    moduleToConfigurations.map { case (module, configurations) =>
-      val name = nameFor(module)
+  private def createLibraryDependencies(dependencies: Seq[ModuleDependency])(moduleData: ModuleData, libraries: Seq[LibraryData]): Seq[LibraryDependencyNode] = {
+    dependencies.map { dependency =>
+      val name = nameFor(dependency.id)
       val library = libraries.find(_.getExternalName == name).getOrElse(
         throw new ExternalSystemException("Library not found: " + name))
       val data = new LibraryDependencyNode(moduleData, library, LibraryLevel.PROJECT)
-      data.setScope(scopeFor(configurations))
+      data.setScope(scopeFor(dependency.configurations))
       data
     }
   }
 
-  private def createUnmanagedDependencies(project: Project)(moduleData: ModuleData): Seq[LibraryDependencyNode] = {
-    val jarsToConfigurations =
-      project.configurations
-        .filter(_.jars.nonEmpty)
-        .map(configuration => (configuration.jars, configuration))
-        .groupBy(_._1)
-        .mapValues(_.unzip._2.toSet)
-        .toSeq
-
-    jarsToConfigurations.map { case (jars, configurations) =>
-      createModuleLevelDependency(Sbt.UnmanagedLibraryName, jars.map(_.path), scopeFor(configurations))(moduleData)
-    }
+  private def createUnmanagedDependencies(dependencies: Seq[File])(moduleData: ModuleData): Seq[LibraryDependencyNode] = {
+    if (dependencies.isEmpty) Seq.empty
+    else Seq(createModuleLevelDependency(
+      Sbt.UnmanagedLibraryName, dependencies.map(_.path), DependencyScope.COMPILE)(moduleData))
   }
 
   private def createModuleLevelDependency(name: String, binaries: Seq[String], scope: DependencyScope)
@@ -277,8 +264,8 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     result
   }
 
-  private def scopeFor(configurations: Set[Configuration]): DependencyScope = {
-    val ids = configurations.map(_.id)
+  private def scopeFor(configurations: Seq[String]): DependencyScope = {
+    val ids = configurations.toSet
 
     if (ids.contains("compile"))
       DependencyScope.COMPILE
@@ -286,8 +273,10 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
       DependencyScope.TEST
     else if (ids.contains("runtime"))
       DependencyScope.RUNTIME
-    else
+    else if (ids.contains("provided"))
       DependencyScope.PROVIDED
+    else
+      DependencyScope.COMPILE
   }
 
   def cancelTask(taskId: ExternalSystemTaskId, listener: ExternalSystemTaskNotificationListener) = false
