@@ -93,8 +93,8 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value]) extends PsiSc
 
   //todo: fix this ugly performance improvement
   private var classKind = true
-  def setClassKind(b: Boolean) {
-    classKind = b
+  def setClassKind(classKind: Boolean) {
+    this.classKind = classKind
   }
   def getClassKind = {
     classKind && getClassKindInner
@@ -160,7 +160,10 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value]) extends PsiSc
         } else {
           val selfType = clazz.selfType.get
           val clazzType: ScType = clazz.getTypeWithProjections(TypingContext.empty).getOrElse(return true)
-          if (selfType.conforms(clazzType)) {
+          if (selfType == ScThisType(clazz)) {
+            //to prevent SOE, let's process Element
+            processElement(clazz, thisSubst, place, state)
+          } else if (selfType.conforms(clazzType)) {
             processType(selfType, place, state.put(BaseProcessor.COMPOUND_TYPE_THIS_TYPE_KEY, Some(t)).
               put(ScSubstitutor.key, thisSubst))
           } else if (clazzType.conforms(selfType)) {

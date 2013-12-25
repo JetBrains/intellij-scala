@@ -296,16 +296,11 @@ class ScalaFileImpl(viewProvider: FileViewProvider, fileType: LanguageFileType =
     case null => null
     case s: ScFileStub => s
     case _ =>
-      SwingUtilities.invokeLater(new Runnable {
-        def run(): Unit = {
-          FSRecords.invalidateCaches()
-          val app: ApplicationEx = ApplicationManager.getApplication.asInstanceOf[ApplicationEx]
-          val res = Messages.showDialog(getProject,
-            "Due to upgrade error, the caches will be invalidated and rebuilt on the next startup. IDEA will be restarted.",
-            "IDEA will be restarted", Array("Restart", "Restart later"), 0, Messages.getWarningIcon)
-          if (res == 0) app.restart(true)
-        }
-      })
+      val faultyContainer: VirtualFile = PsiUtilCore.getVirtualFile(this)
+      ScalaFileImpl.LOG.error("Scala File has wrong stub file: " + faultyContainer)
+      if (faultyContainer != null && faultyContainer.isValid) {
+        FileBasedIndex.getInstance.requestReindex(faultyContainer)
+      }
       null
   }
 

@@ -1,7 +1,7 @@
 package org.jetbrains.jps.incremental.scala
 package data
 
-import java.io.File
+import java.io.{IOException, File}
 import org.jetbrains.jps.incremental.{ModuleBuildTarget, CompileContext}
 import org.jetbrains.jps.{ProjectPaths, ModuleChunk}
 import org.jetbrains.jps.incremental.java.JavaBuilder
@@ -13,6 +13,7 @@ import org.jetbrains.jps.model.java.JpsJavaExtensionService
 import org.jetbrains.jps.model.java.compiler.JpsJavaCompilerOptions
 import java.util
 import java.util.Collections
+import java.nio.file.Files
 
 /**
  * @author Pavel Fatin
@@ -37,6 +38,8 @@ object CompilationData {
       case None =>
     }
     val output = target.getOutputDir
+    checkOrCreate(output)
+
     val classpath = ProjectPaths.getCompilationClasspathFiles(chunk, chunk.containsTests, false, false).asScala.toSeq
     val facetSettings = Option(SettingsManager.getFacetSettings(module))
     val scalaOptions = facetSettings.map(_.getCompilerOptions.toSeq).getOrElse(Seq.empty)
@@ -61,6 +64,18 @@ object CompilationData {
 
       CompilationData(sources, classpath, output, commonOptions ++ scalaOptions, commonOptions ++ javaOptions,
         order, cacheFile, relevantOutputToCacheMap, outputGroups)
+    }
+  }
+
+
+  def checkOrCreate(output: File) {
+    if (!output.exists()) {
+      try {
+        Files.createDirectories(output.toPath)
+      }
+      catch {
+        case t: Throwable => throw new IOException("Cannot create output directory: " + output.toString, t)
+      }
     }
   }
 

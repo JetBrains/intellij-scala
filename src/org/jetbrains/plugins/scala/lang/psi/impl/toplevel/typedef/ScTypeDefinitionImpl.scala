@@ -264,16 +264,24 @@ abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTemplate
       case parent: ScTemplateBody => _packageName(parent, sep, k)
       case parent: ScExtendsBlock => _packageName(parent, sep, k)
       case parent: ScTemplateParents => _packageName(parent, sep, k)
-      case parent => _packageName(parent, sep, identity _)
+      case parent => _packageName(parent, sep, identity)
     }
 
-    val packageName = _packageName(this, classSeparator, identity _)
+    val packageName = _packageName(this, classSeparator, identity)
     packageName + transformName(encodeName, name)
   }
 
   override def getPresentation: ItemPresentation = {
+    val presentableName = this match {
+      case o: ScObject if o.isPackageObject && o.name == "`package`" =>
+        val packageName = o.qualifiedName.stripSuffix(".`package`")
+        val index = packageName.lastIndexOf('.')
+        if (index < 0) packageName else packageName.substring(index + 1, packageName.size)
+      case _ => name
+    }
+
     new ItemPresentation() {
-      def getPresentableText: String = name
+      def getPresentableText: String = presentableName
 
       def getTextAttributesKey: TextAttributesKey = null
 

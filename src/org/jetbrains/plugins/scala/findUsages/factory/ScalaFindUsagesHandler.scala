@@ -18,7 +18,7 @@ import com.intellij.psi.search.searches.ClassInheritorsSearch
 import collection.mutable
 import org.jetbrains.plugins.scala.util.ScalaUtil
 import scala.Array
-import org.jetbrains.plugins.scala.lang.psi.impl.search.ScalaOverridengMemberSearch
+import org.jetbrains.plugins.scala.lang.psi.impl.search.ScalaOverridingMemberSearcher
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 
 /**
@@ -168,9 +168,9 @@ class ScalaFindUsagesHandler(element: PsiElement) extends FindUsagesHandler(elem
     }
 
     element match {
-      case function: ScFunction =>
+      case function: ScFunction if !function.isLocal =>
         ScalaUtil.readAction(getProject) {
-          for (elem <- ScalaOverridengMemberSearch.search(function, deep = true)) {
+          for (elem <- ScalaOverridingMemberSearcher.search(function, deep = true)) {
             if (!super.processElementUsages(elem, processor, options)) return false
           }
         }

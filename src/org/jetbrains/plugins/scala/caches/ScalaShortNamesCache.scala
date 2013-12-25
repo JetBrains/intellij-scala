@@ -14,12 +14,17 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys
 import com.intellij.util.{Processor, ArrayUtil}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.stubs.util.ScalaStubsUtil
+import com.intellij.openapi.progress.ProgressManager
 
 /**
  * @author ilyas
  */
 class ScalaShortNamesCache(project: Project) extends PsiShortNamesCache {
   def getClassesByName(name: String, scope: GlobalSearchScope): Array[PsiClass] = {
+    //todo: this is big hack. We need to improve API of GoTo Class to have possibility to filter out wrong classes
+    if (Thread.currentThread().getStackTrace.exists(_.getClassName.contains("ContributorsBasedGotoByModel"))) {
+      return Array.empty
+    }
     def isOkForJava(elem: ScalaPsiElement): Boolean = {
       var res = true
       var element = elem.getParent

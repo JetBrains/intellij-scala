@@ -5,7 +5,7 @@ package api
 package base
 
 import _root_.org.jetbrains.plugins.scala.lang.resolve._
-import _root_.scala.collection.Set
+import scala.collection.{mutable, Set}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import com.intellij.psi._
 import com.intellij.openapi.util.TextRange
@@ -17,7 +17,6 @@ import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
 import extensions.{toPsiMemberExt, toPsiNamedElementExt, toPsiClassExt}
 import settings.ScalaProjectSettings
 import annotator.intention.ScalaImportTypeFix
-import collection.mutable.HashSet
 import toplevel.imports.ScImportSelector
 import org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix.TypeToImport
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScStableReferenceElementPattern
@@ -92,11 +91,11 @@ trait ScReferenceElement extends ScalaPsiElement with ResolvableReferenceElement
   def isReferenceTo(element: PsiElement, resolved: PsiElement): Boolean = {
     if (ScEquivalenceUtil.smartEquivalence(resolved, element)) return true
     element match {
-      case td: ScTypeDefinition => {
+      case td: ScTypeDefinition =>
         resolved match {
           case method: PsiMethod if method.isConstructor =>
             if (ScEquivalenceUtil.smartEquivalence(td, method.containingClass)) return true
-          case method: ScFunction if td.name == refName && Set("apply", "unapply", "unapplySeq").contains(method.name) => {
+          case method: ScFunction if td.name == refName && Set("apply", "unapply", "unapplySeq").contains(method.name) =>
             var break = false
             val methods = td.allMethods
             for (n <- methods if !break) {
@@ -109,31 +108,26 @@ trait ScReferenceElement extends ScalaPsiElement with ResolvableReferenceElement
               }
             }
 
-            if (!break && method.getText.contains("throw new Error()") && td.isInstanceOf[ScClass] &&
-              td.asInstanceOf[ScClass].isCase) {
+            if (!break && td.isInstanceOf[ScClass] && td.asInstanceOf[ScClass].isCase && method.isSynthetic) {
               ScalaPsiUtil.getCompanionModule(td) match {
-                case Some(td) => return isReferenceTo(td)
+                case Some(typeDef) => return isReferenceTo(typeDef)
                 case _ =>
               }
             }
             if (break) return true
-          }
-          case obj: ScObject if td.name == refName && obj.isSyntheticObject => {
+          case obj: ScObject if td.name == refName && obj.isSyntheticObject =>
             ScalaPsiUtil.getCompanionModule(td) match {
-              case Some(td) if td == obj => return true
+              case Some(typeDef) if typeDef == obj => return true
               case _ =>
             }
-          }
           case _ =>
         }
-      }
-      case c: PsiClass if c.name == refName => {
+      case c: PsiClass if c.name == refName =>
         resolved match {
           case method: PsiMethod if method.isConstructor =>
             if (c == method.containingClass) return true
           case _ =>
         }
-      }
       case _ =>
     }
     isIndirectReferenceTo(resolved, element)
@@ -180,7 +174,7 @@ trait ScReferenceElement extends ScalaPsiElement with ResolvableReferenceElement
     val resolve: Array[ResolveResult] = anotherRef.multiResolve(false)
     def checkForPredefinedTypes(): Boolean = {
       if (resolve.isEmpty) return true
-      val usedNames = new HashSet[String]()
+      val usedNames = new mutable.HashSet[String]()
       val res = resolve.forall {
         case r: ScalaResolveResult if r.importsUsed.isEmpty => usedNames += r.name; true
         case _ => false

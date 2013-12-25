@@ -22,4 +22,4 @@ class Analyzer {
   val global: Global = new Global
 }
 ()
-//Typers.this.type#global#Symbol
+//Typers.this.global.Symbol
