@@ -28,9 +28,7 @@ object ParserTest {
       id = "compile",
       sources = Seq(Directory(new File("$BASE/src/main/scala"), managed = false), Directory(new File("$BASE/src/main/java"), managed = true)),
       resources = Seq(Directory(new File("$BASE/src/main/resources"), managed = false)),
-      classes = new File("$BASE/target/scala-2.10/classes"),
-      modules = Seq(moduleId),
-      jars = Seq.empty)
+      classes = new File("$BASE/target/scala-2.10/classes"))
 
     val build = Build(
       Seq(new File("$HOME/.sbt/boot/scala-2.9.2/org.scala-sbt/sbt/0.12.2/api-0.12.2.jar")),
@@ -47,6 +45,11 @@ object ParserTest {
       extraJars = Seq(new File("$HOME/.sbt/boot/scala-2.10.1/lib/scala-reflect.jar")),
       options = Seq("-s1", "-s2"))
 
+    val dependencies = Dependencies(
+      projects = Seq.empty,
+      modules = Seq(ModuleDependency(moduleId, Seq("test"))),
+      jars = Seq.empty)
+
     val project = Project(
       id = "root",
       name = "some-name",
@@ -57,7 +60,7 @@ object ParserTest {
       configurations = Seq(configuration),
       java = Some(java),
       scala = Some(scala),
-      dependencies = Seq())
+      dependencies = dependencies)
 
     val module = Module(
       id = moduleId,
