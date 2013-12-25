@@ -88,13 +88,13 @@
                       implementationClass="org.jetbrains.plugins.scala.lang.completion.statistician.ScalaCompletionStatistician"/>
         <lookup.actionProvider implementation="org.jetbrains.plugins.scala.lang.completion.ScalaImportStaticLookupActionProvider"/>
         <weigher key="completion" implementationClass="org.jetbrains.plugins.scala.lang.completion.weighter.ScalaContainingClassWiegher"
-                 id="scalaContainingClassWeigher" order="before scalaParameterCompletionWeigher"/>
+                 id="scalaContainingClassWeigher" order="after prefix, before scalaParameterCompletionWeigher"/>
         <weigher key="completion" implementationClass="org.jetbrains.plugins.scala.lang.completion.weighter.ScalaMethodCompletionWeigher"
-                 id="scalaMethodCompletionWeigher" order="after negativeStats, before stats"/>
+                 id="scalaMethodCompletionWeigher" order="after prefix, before proximity"/>
         <weigher key="completion" implementationClass="org.jetbrains.plugins.scala.lang.completion.weighter.ScalaParameterCompletionWeigher"
-                 id="scalaParameterCompletionWeigher" order="after scalaMethodCompletionWeigher, before stats"/>
+                 id="scalaParameterCompletionWeigher" order="after scalaMethodCompletionWeigher, before proximity"/>
         <weigher key="completion" implementationClass="org.jetbrains.plugins.scala.lang.completion.weighter.ScalaClassesCompletionWeigher"
-                 id="scalaClassesCompletionWeigher" order="before proximity"/>
+                 id="scalaClassesCompletionWeigher" order="after prefix, before proximity"/>
         <weigher key="proximity" implementationClass="org.jetbrains.plugins.scala.lang.completion.weighter.ScalaClassObjectWeigher"
                  id="scalaClassObjectWeigher" order="before samePsiMember"/>
         <weigher key="proximity" implementationClass="org.jetbrains.plugins.scala.lang.completion.weighter.ScalaExplicitlyImportedWeigher"
