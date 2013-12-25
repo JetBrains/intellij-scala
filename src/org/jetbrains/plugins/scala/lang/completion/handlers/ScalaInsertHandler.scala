@@ -171,22 +171,6 @@ class ScalaInsertHandler extends InsertHandler[LookupElement] {
     }
 
     item.element match {
-      case obj: ScObject if item.isInStableCodeReference  =>
-        if (completionChar != '.') {
-          document.insertString(endOffset, ".")
-          endOffset += 1
-          editor.getCaretModel.moveToOffset(endOffset)
-          context.setLaterRunnable(new Runnable {
-            def run() {
-              AutoPopupController.getInstance(context.getProject).scheduleAutoPopup(
-                context.getEditor, new Condition[PsiFile] {
-                  def value(t: PsiFile): Boolean = t == context.getFile
-                }
-              )
-            }
-          })
-        }
-        return
       case _: PsiClass | _: ScTypeAlias if context.getCompletionChar == '[' =>
         context.setAddCompletionChar(false)
         insertIfNeeded(placeInto = true, openChar = '[', closeChar = ']', withSpace = false, withSomeNum = false)
