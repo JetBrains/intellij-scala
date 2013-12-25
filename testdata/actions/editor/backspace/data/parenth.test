@@ -1,0 +1,7 @@
+class A {
+  def foo(<caret>)
+}
+------
+class A {
+  def foo<caret>
+}

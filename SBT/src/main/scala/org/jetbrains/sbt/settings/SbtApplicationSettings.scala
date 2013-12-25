@@ -21,8 +21,8 @@ class SbtApplicationSettings extends PersistentStateComponent[SbtApplicationSett
   var maximumHeapSize: String = "768"
 
   @BeanProperty
-  var vmParameters: String = "-XX:MaxPermSize=384M"
-
+  var vmParameters: String = "-XX:MaxPermSize=384M -Dplay.version=2.2.1"
+  
   def getState = this
 
   def loadState(state: SbtApplicationSettings) {

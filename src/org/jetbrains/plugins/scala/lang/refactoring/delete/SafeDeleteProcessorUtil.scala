@@ -19,7 +19,7 @@ import com.intellij.util._
 import org.jetbrains.annotations.NonNls
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
-import org.jetbrains.plugins.scala.lang.psi.impl.search.ScalaOverridengMemberSearch
+import org.jetbrains.plugins.scala.lang.psi.impl.search.ScalaOverridingMemberSearcher
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import java.util._
 import psi.api.base.ScStableCodeReferenceElement
@@ -118,7 +118,7 @@ object SafeDeleteProcessorUtil {
     if (psiMethod.isConstructor) {
       return findConstructorUsages(psiMethod, references, usages, allElementsToDelete)
     }
-    val overridingElements: Array[PsiNamedElement] = ScalaOverridengMemberSearch.search(psiMethod)
+    val overridingElements: Array[PsiNamedElement] = ScalaOverridingMemberSearcher.search(psiMethod)
     val overridingMethods: Array[PsiNamedElement] = overridingElements.filterNot(x => allElementsToDelete.contains(x))
     for (reference <- references) {
       val element: PsiElement = reference.getElement

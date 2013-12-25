@@ -78,6 +78,10 @@ def testPackageObject() {
     doTest("withCompanion", Array("source.A"), "target", Kinds.onlyClasses)
   }
 
+  def testBothJavaAndScala() {
+    doTest("bothJavaAndScala", Array("org.A", "org.J"), "com")
+  }
+
 
 //  wait for fix SCL-6316
 //  def testWithoutCompanion() {

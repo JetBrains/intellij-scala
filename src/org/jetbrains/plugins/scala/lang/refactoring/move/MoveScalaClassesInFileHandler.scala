@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala
 package lang.refactoring.move
 
-import com.intellij.refactoring.move.moveClassesOrPackages.MoveAllClassesInFileHandler
+import com.intellij.refactoring.move.moveClassesOrPackages.{MoveClassesOrPackagesUtil, MoveAllClassesInFileHandler}
 import java.util
 import com.intellij.psi.{PsiElement, PsiClass}
 import java.lang.Boolean

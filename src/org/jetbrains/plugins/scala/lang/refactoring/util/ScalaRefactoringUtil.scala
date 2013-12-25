@@ -32,7 +32,7 @@ import lang.resolve.ScalaResolveResult
 import psi.api.expr.xml.ScXmlExpr
 import psi.{ScalaPsiUtil, ScalaPsiElement}
 import psi.api.base.ScLiteral
-import com.intellij.openapi.editor.{VisualPosition, Editor}
+import com.intellij.openapi.editor.{RangeMarker, VisualPosition, Editor}
 import com.intellij.openapi.actionSystem.DataContext
 import psi.api.{ScalaRecursiveElementVisitor, ScalaFile}
 import psi.api.toplevel.ScEarlyDefinitions
@@ -597,45 +597,45 @@ object ScalaRefactoringUtil {
     errorMessage == null
   }
 
-
-  def replaceOccurence(textRange: TextRange, newString: String, file: PsiFile, editor: Editor): TextRange = {
-    var shift = 0
-    val document = editor.getDocument
-    val start = textRange.getStartOffset
-    document.replaceString(start, textRange.getEndOffset, newString)
-    val documentManager = PsiDocumentManager.getInstance(editor.getProject)
-    documentManager.commitDocument(document)
-    val leafIdentifier = file.findElementAt(start)
-    val parent = leafIdentifier.getParent
-    if (parent != null) parent.getParent match {
-      case pars: ScParenthesisedExpr =>
-        val textRange = pars.getTextRange
-        document.replaceString(textRange.getStartOffset, textRange.getEndOffset, newString)
-        documentManager.commitDocument(document)
-        shift = -2
-      case ScPostfixExpr(_, `parent`) =>
-        //This case for block argument expression
-        val textRange = parent.getTextRange
-        document.replaceString(textRange.getStartOffset, textRange.getEndOffset, "(" + newString + ")")
-        documentManager.commitDocument(document)
-        shift = 2
-      case _ if parent.isInstanceOf[ScReferencePattern] =>
-        val textRange = parent.getTextRange
-        document.replaceString(textRange.getStartOffset, textRange.getEndOffset, "`" + newString + "`")
-        documentManager.commitDocument(document)
-      case _ =>
-    }
-    val newStart = start + shift / 2
-    val newEnd = newStart + newString.length
-    val newExpr = PsiTreeUtil.findElementOfClassAtRange(file, newStart, newEnd, classOf[ScExpression])
-    val newPattern = PsiTreeUtil.findElementOfClassAtOffset(file, newStart, classOf[ScPattern], true)
-    Option(newExpr).orElse(Option(newPattern))
-            .map(_.getTextRange)
-            .getOrElse(throw new IntroduceException)
-  }
-
   def replaceOccurences(occurences: Array[TextRange], newString: String, file: PsiFile, editor: Editor): Array[TextRange] = {
-    occurences.reverseMap(ScalaRefactoringUtil.replaceOccurence(_, newString, file, editor)).reverse
+    def replaceOccurence(textRange: TextRange): RangeMarker = {
+      var shift = 0
+      val document = editor.getDocument
+      val start = textRange.getStartOffset
+      document.replaceString(start, textRange.getEndOffset, newString)
+      val documentManager = PsiDocumentManager.getInstance(editor.getProject)
+      documentManager.commitDocument(document)
+      val leafIdentifier = file.findElementAt(start)
+      val parent = leafIdentifier.getParent
+      if (parent != null) parent.getParent match {
+        case pars: ScParenthesisedExpr =>
+          val textRange = pars.getTextRange
+          document.replaceString(textRange.getStartOffset, textRange.getEndOffset, newString)
+          documentManager.commitDocument(document)
+          shift = -2
+        case ScPostfixExpr(_, `parent`) =>
+          //This case for block argument expression
+          val textRange = parent.getTextRange
+          document.replaceString(textRange.getStartOffset, textRange.getEndOffset, "(" + newString + ")")
+          documentManager.commitDocument(document)
+          shift = 2
+        case _ if parent.isInstanceOf[ScReferencePattern] =>
+          val textRange = parent.getTextRange
+          document.replaceString(textRange.getStartOffset, textRange.getEndOffset, "`" + newString + "`")
+          documentManager.commitDocument(document)
+        case _ =>
+      }
+      val newStart = start + shift / 2
+      val newEnd = newStart + newString.length
+      val newExpr = PsiTreeUtil.findElementOfClassAtRange(file, newStart, newEnd, classOf[ScExpression])
+      val newPattern = PsiTreeUtil.findElementOfClassAtOffset(file, newStart, classOf[ScPattern], true)
+      Option(newExpr).orElse(Option(newPattern))
+              .map(elem => document.createRangeMarker(elem.getTextRange))
+              .getOrElse(throw new IntroduceException)
+    }
+
+    val revercedRangeMarkers = occurences.reverseMap(replaceOccurence)
+    revercedRangeMarkers.reverseMap(rm => new TextRange(rm.getStartOffset, rm.getEndOffset))
   }
 
   def statementsAndMembersInClass(aClass: ScTemplateDefinition): Seq[PsiElement] = {
