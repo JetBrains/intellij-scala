@@ -940,6 +940,21 @@ class ScalaBasicCompletionTest extends ScalaCodeInsightTestBase {
     checkResultByText(resultText)
   }
 
+  def testTypeIsFirst() {
+    val fileText =
+      """
+        |class A {
+        |  def typeSomething = 1
+        |
+        |  type<caret>
+        |}
+      """.stripMargin.replaceAll("\r", "").trim()
+    configureFromFileTextAdapter("dummy.scala", fileText)
+    complete(1, CompletionType.BASIC)
+
+    assert(getActiveLookup.getCurrentItem.getLookupString == "type", "Wrong item preselected.")
+  }
+
   def testBackticks() {
     val fileText =
       """
