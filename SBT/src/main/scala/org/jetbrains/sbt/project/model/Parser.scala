@@ -43,7 +43,7 @@ object Parser {
     val configurations = (node \ "configuration").map(parseConfiguration(_)(fs.withBase(base)))
     val java = (node \ "java").headOption.map(parseJava(_)(fs.withBase(base)))
     val scala = (node \ "scala").headOption.map(parseScala(_)(fs.withBase(base)))
-    val dependencies = (node \ "dependency").map(_.text)
+    val dependencies = parseDependencies(node)
 
     Project(id, name, organization, version, base, build, configurations, java, scala, dependencies)
   }
@@ -77,16 +77,40 @@ object Parser {
     val sources = (node \ "sources").map(parseDirectory)
     val resources = (node \ "resources").map(parseDirectory)
     val classes = file((node ! "classes").text)
-    val modules = (node \ "module").map(parseModuleIdentifier)
-    val jars = (node \ "jar").map(e => file(e.text))
 
-    Configuration(id, sources, resources, classes, modules, jars)
+    Configuration(id, sources, resources, classes)
   }
 
   private def parseDirectory(node: Node)(implicit fs: FS): Directory = {
     val managed = (node \ "@managed").headOption.exists(_.text.toBoolean)
     Directory(file(node.text), managed)
   }
+
+  private def parseDependencies(node: Node)(implicit fs: FS): Dependencies = {
+    val projects = (node \ "project").map(parseProjectDependency)
+    val modules = (node \ "module").map(parseModuleDependency)
+    val jars = (node \ "jar").map(e => file(e.text))
+
+    Dependencies(projects, modules, jars)
+  }
+
+  private def parseProjectDependency(node: Node): ProjectDependency = {
+    val project = node.text
+    val configurations = (node \ "@configurations").headOption
+            .map(it => parseConfigurations(it.text)).getOrElse(Seq.empty)
+
+    ProjectDependency(project, configurations)
+  }
+
+  private def parseModuleDependency(node: Node): ModuleDependency = {
+    val id = parseModuleIdentifier(node)
+    val configurations = (node \ "@configurations").headOption
+            .map(it => parseConfigurations(it.text)).getOrElse(Seq.empty)
+
+    ModuleDependency(id, configurations)
+  }
+
+  private def parseConfigurations(s: String) = if (s.isEmpty) Seq.empty else s.split(";").toSeq
 
   private def parseModuleIdentifier(node: Node): ModuleId = {
     val organization = (node \ "@organization").text
