@@ -15,7 +15,7 @@ import templates.ScExtendsBlock
 import com.intellij.openapi.progress.ProgressManager
 import lang.resolve.processor.BaseProcessor
 import types._
-import result.{Success, TypingContext, TypeResult}
+import result.{TypingContext, TypeResult}
 import com.intellij.psi._
 import base.types.ScSelfTypeElement
 import impl.PsiClassImplUtil.MemberType
@@ -37,12 +37,11 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
 
   def extendsBlock: ScExtendsBlock = {
     this match {
-      case st: ScalaStubBasedElementImpl[_] => {
+      case st: ScalaStubBasedElementImpl[_] =>
         val stub = st.getStub
         if (stub != null) {
           return stub.findChildStubByType(ScalaElementTypes.EXTENDS_BLOCK).getPsi
         }
-      }
       case _ =>
     }
     assert(getLastChild.isInstanceOf[ScExtendsBlock], "Class hasn't extends block: " + this.getText)
@@ -64,7 +63,7 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
       tp match {
         case Some(tp1) => (for (te <- tp1.typeElements;
                                 t = te.getType(TypingContext.empty).getOrAny;
-                                asPsi = ScType.toPsi(t, getProject, GlobalSearchScope.allScope(getProject));
+                                asPsi = ScType.toPsi(t, getProject, GlobalSearchScope.allScope(getProject))
                                 if asPsi.isInstanceOf[PsiClassType]) yield asPsi.asInstanceOf[PsiClassType]).toArray[PsiClassType]
         case _ => PsiClassType.EMPTY_ARRAY
       }
@@ -139,7 +138,7 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
   def supers: Seq[PsiClass] = extendsBlock.supers
 
   def allTypeAliases = TypeDefinitionMembers.getTypes(this).allFirstSeq().flatMap(n => n.map {
-    case (_, n) => (n.info, n.substitutor)
+    case (_, x) => (x.info, x.substitutor)
   })
 
   def allTypeAliasesIncludingSelfType = {
@@ -149,7 +148,7 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
         Bounds.glb(selfType, clazzType) match {
           case c: ScCompoundType =>
             TypeDefinitionMembers.getTypes(c, Some(clazzType), this).allFirstSeq().
-              flatMap(_.map { case (_, n) => n.info })
+              flatMap(_.map { case (_, n) => (n.info, n.substitutor) })
           case _ =>
             allTypeAliases
         }
@@ -159,11 +158,11 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
   }
 
   def allVals = TypeDefinitionMembers.getSignatures(this).allFirstSeq().flatMap(n => n.filter{
-    case (_, n) => !n.info.isInstanceOf[PhysicalSignature] &&
-      (n.info.namedElement match {
+    case (_, x) => !x.info.isInstanceOf[PhysicalSignature] &&
+      (x.info.namedElement match {
         case Some(v) => ScalaPsiUtil.nameContext(v) match {
-          case _: ScVariable => v.name == n.info.name
-          case _: ScValue => v.name == n.info.name
+          case _: ScVariable => v.name == x.info.name
+          case _: ScValue => v.name == x.info.name
           case _ => true
         }
         case None => false
@@ -176,11 +175,11 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
         Bounds.glb(selfType, clazzType) match {
           case c: ScCompoundType =>
             TypeDefinitionMembers.getSignatures(c, Some(clazzType), this).allFirstSeq().flatMap(n => n.filter{
-              case (_, n) => !n.info.isInstanceOf[PhysicalSignature] &&
-                (n.info.namedElement match {
+              case (_, x) => !x.info.isInstanceOf[PhysicalSignature] &&
+                (x.info.namedElement match {
                   case Some(v) => ScalaPsiUtil.nameContext(v) match {
-                    case _: ScVariable => v.name == n.info.name
-                    case _: ScValue => v.name == n.info.name
+                    case _: ScVariable => v.name == x.info.name
+                    case _: ScValue => v.name == x.info.name
                     case _ => true
                   }
                   case None => false
@@ -283,7 +282,7 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
       else ScType.designator(this))
     val eb = extendsBlock
     eb.templateParents match {
-        case Some(p) if (PsiTreeUtil.isContextAncestor(p, place, true)) => {
+        case Some(p) if PsiTreeUtil.isContextAncestor(p, place, true) =>
           eb.earlyDefinitions match {
             case Some(ed) => for (m <- ed.members) {
               ProgressManager.checkCanceled()
@@ -301,13 +300,12 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
             case None =>
           }
           true
-        }
         case _ =>
           eb.earlyDefinitions match {
             case Some(ed) if PsiTreeUtil.isContextAncestor(ed, place, true) =>
             case _ =>
               extendsBlock match {
-                case e: ScExtendsBlock if e != null => {
+                case e: ScExtendsBlock if e != null =>
                   if (PsiTreeUtil.isContextAncestor(e, place, true) || !PsiTreeUtil.isContextAncestor(this, place, true)) {
                     this match {
                       case t: ScTypeDefinition if selfTypeElement != None &&
@@ -325,7 +323,6 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
                         if (!TypeDefinitionMembers.processDeclarations(this, processor, state, lastParent, place)) return false
                     }
                   }
-                }
                 case _ => true
               }
           }
@@ -335,17 +332,16 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
 
   def addMember(member: ScMember, anchor: Option[PsiElement]): ScMember = {
     extendsBlock.templateBody match {
-      case Some(body) => {
+      case Some(body) =>
         val before = anchor match {
-          case Some(anchor) => anchor.getNode
-          case None => {
+          case Some(a) => a.getNode
+          case None =>
             val last = body.getNode.getLastChildNode
             if (ScalaPsiUtil.isLineTerminator(last.getTreePrev.getPsi)) {
               last.getTreePrev
             } else {
               last
             }
-          }
         }
         if (ScalaPsiUtil.isLineTerminator(before.getPsi))
           body.getNode.addChild(ScalaPsiElementFactory.createNewLineNode(member.getManager), before)
@@ -354,11 +350,9 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
           body.getNode.addChild(ScalaPsiElementFactory.createNewLineNode(member.getManager), before)
         else
           body.getNode.replaceChild(before, ScalaPsiElementFactory.createNewLineNode(member.getManager))
-      }
-      case None => {
+      case None =>
         extendsBlock.getNode.addChild(ScalaPsiElementFactory.createBodyFromMember(member, member.getManager).getNode)
         return members(0)
-      }
     }
     member
   }
