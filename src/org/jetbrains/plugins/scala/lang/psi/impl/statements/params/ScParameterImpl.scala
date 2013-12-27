@@ -118,10 +118,7 @@ class ScParameterImpl extends ScalaStubBasedElementImpl[ScParameter] with ScPara
       case null => GlobalSearchScope.EMPTY_SCOPE
       case expr: ScFunctionExpr => new LocalSearchScope(expr)
       case clazz: ScClass if clazz.isCase => clazz.getUseScope
-      case clazz: ScClass if isInstanceOf[ScClassParameter] && !asInstanceOf[ScClassParameter].isVal &&
-              !asInstanceOf[ScClassParameter].isVar => {
-        new LocalSearchScope(clazz)
-      }
+      case clazz: ScClass if this.isInstanceOf[ScClassParameter] => clazz.getUseScope //for named parameters
       case d => d.getUseScope
     }
   }
