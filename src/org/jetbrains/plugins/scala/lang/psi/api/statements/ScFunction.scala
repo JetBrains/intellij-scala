@@ -112,8 +112,13 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
 
   override def hasModifierProperty(name: String): Boolean = {
     if (name == "abstract") {
-      containingClass match {
-        case t: ScTrait => return true
+      this match {
+        case _: ScFunctionDeclaration =>
+          containingClass match {
+            case t: ScTrait => return true
+            case c: ScClass if c.hasAbstractModifier => return true
+            case _ =>
+          }
         case _ =>
       }
     }
