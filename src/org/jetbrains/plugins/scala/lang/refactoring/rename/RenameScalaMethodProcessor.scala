@@ -28,6 +28,7 @@ import com.intellij.refactoring.listeners.RefactoringElementListener
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import com.intellij.openapi.application.ApplicationManager
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
+import com.intellij.psi.search.searches.ReferencesSearch
 
 /**
  * User: Alexander Podkhalyuzin
@@ -37,8 +38,7 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 class RenameScalaMethodProcessor extends RenameJavaMethodProcessor {
   override def canProcessElement(element: PsiElement): Boolean = RenameScalaMethodProcessor.canProcessElement(element)
 
-  override def findReferences(element: PsiElement) =
-    ScalaRenameUtil.filterAliasedReferences(super.findReferences(element))
+  override def findReferences(element: PsiElement) = ScalaRenameUtil.findReferences(element)
 
   override def substituteElementToRename(element: PsiElement, editor: Editor): PsiElement = { val guess = ScalaRenameUtil.findSubstituteElement(element)
     if (guess != element) guess else RenameSuperMembersUtil.chooseSuper(element.asInstanceOf[ScNamedElement])
