@@ -198,8 +198,7 @@ class ScalaGenerateEqualsHandler extends LanguageCodeInsightActionHandler {
   }
 
   private def overrideModifier(aClass: ScTemplateDefinition, signature: Signature): String = {
-    val methodsToOverride = ScalaOIUtil.getMembersToOverride(aClass, withSelfType = false)
-    val needModifier = methodsToOverride.exists {
+    val needModifier = ScalaOIUtil.methodSignaturesToOverride(aClass, withSelfType = false).exists {
       case sign: PhysicalSignature => sign.equiv(signature)
       case _ => false
     }
@@ -207,7 +206,7 @@ class ScalaGenerateEqualsHandler extends LanguageCodeInsightActionHandler {
   }
 
   private def overridesFromJavaObject(aClass: ScTemplateDefinition, signature: Signature): Boolean = {
-    val methodsToOverride = ScalaOIUtil.getMembersToOverride(aClass, withSelfType = false)
+    val methodsToOverride = ScalaOIUtil.methodSignaturesToOverride(aClass, withSelfType = false)
     methodsToOverride exists {
       case sign: PhysicalSignature if sign.equiv(signature) =>
         //used only for equals and hashcode methods

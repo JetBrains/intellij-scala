@@ -6,7 +6,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition}
 import org.jetbrains.plugins.scala.annotator.quickfix.ImplementMethodsQuickFix
 import org.jetbrains.plugins.scala.overrideImplement.{ScAliasMember, ScalaOIUtil}
-import com.intellij.codeInsight.generation.{PsiElementClassMember, ClassMemberWithElement}
 
 /**
  * Pavel Fatin
@@ -29,11 +28,11 @@ object ObjectCreationImpossible extends AnnotatorPart[ScTemplateDefinition] {
 
     if(hasAbstract) {
       refs.headOption.foreach {
-        case (refElement, Some(psiClass)) => {
+        case (refElement, Some(psiClass)) =>
           import ScalaOIUtil._
 
           val undefined = for {
-            member <- toMembers(getMembersToImplement(definition))
+            member <- getMembersToImplement(definition)
             if !member.isInstanceOf[ScAliasMember] // See SCL-2887
           } yield {
             try {
@@ -49,7 +48,6 @@ object ObjectCreationImpossible extends AnnotatorPart[ScTemplateDefinition] {
             val annotation = holder.createErrorAnnotation(element, message(undefined: _*))
             annotation.registerFix(new ImplementMethodsQuickFix(definition))
           }
-        }
         case _ =>
       }
     }
