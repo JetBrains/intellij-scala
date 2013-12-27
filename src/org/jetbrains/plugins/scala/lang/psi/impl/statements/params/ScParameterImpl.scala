@@ -18,13 +18,12 @@ import api.expr._
 import org.jetbrains.plugins.scala.lang.psi.types._
 import result.{Failure, Success, TypingContext, TypeResult}
 import api.toplevel.typedef.ScClass
-import types.Conformance.AliasType
 import api.base.types.ScTypeElement
 import collection.mutable.ArrayBuffer
 import api.ScalaElementVisitor
-import collection.mutable
 import collection.immutable.HashSet
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
+import scala.annotation.tailrec
 
 /**
  * @author Alexander Podkhalyuzin
@@ -45,9 +44,8 @@ class ScParameterImpl extends ScalaStubBasedElementImpl[ScParameter] with ScPara
       return stub.asInstanceOf[ScParameterStub].isCallByNameParameter
     }
     paramType match {
-      case Some(paramType) => {
+      case Some(paramType) =>
         paramType.isCallByNameParameter
-      }
       case _ => false
     }
   }
@@ -81,12 +79,11 @@ class ScParameterImpl extends ScalaStubBasedElementImpl[ScParameter] with ScPara
   def getRealParameterType(ctx: TypingContext): TypeResult[ScType] = {
     if (!isRepeatedParameter) return getType(ctx)
     getType(ctx) match {
-      case f@Success(tp: ScType, elem) => {
+      case f@Success(tp: ScType, elem) =>
         val seq = ScalaPsiManager.instance(getProject).getCachedClass("scala.collection.Seq", getResolveScope, ScalaPsiManager.ClassCategory.TYPE)
         if (seq != null) {
           Success(new ScParameterizedType(ScType.designator(seq), Seq(tp)), elem)
         } else f
-      }
       case f => f
     }
   }
@@ -171,17 +168,17 @@ class ScParameterImpl extends ScalaStubBasedElementImpl[ScParameter] with ScPara
     case clause: ScParameterClause => clause.getContext.getContext match {
       // For parameter of anonymous functions to infer parameter's type from an appropriate
       // an. fun's type
-      case f: ScFunctionExpr => {
+      case f: ScFunctionExpr =>
         var result: Option[ScType] = null //strange logic to handle problems with detecting type
-        for (tp <- f.expectedTypes(false) if result != None) {
+        for (tp <- f.expectedTypes(fromUnderscore = false) if result != None) {
+          @tailrec
           def applyForFunction(tp: ScType, checkDeep: Boolean) {
             ScType.extractFunctionType(tp) match {
-              case Some(ScFunctionType(ret, _)) if checkDeep => applyForFunction(ret, false)
-              case Some(ScFunctionType(_, params)) if params.length == f.parameters.length => {
+              case Some(ScFunctionType(ret, _)) if checkDeep => applyForFunction(ret, checkDeep = false)
+              case Some(ScFunctionType(_, params)) if params.length == f.parameters.length =>
                 val i = clause.parameters.indexOf(this)
                 if (result != null) result = None
                 else result = Some(params(i).removeAbstracts)
-              }
               case Some(_: ScFunctionType) => //nothing to do
               case None =>
             }
@@ -190,7 +187,6 @@ class ScParameterImpl extends ScalaStubBasedElementImpl[ScParameter] with ScPara
         }
         if (result == null || result == None) result = None //todo: x => foo(x)
         result
-      }
       case _ => None
     }
   }
@@ -198,6 +194,7 @@ class ScParameterImpl extends ScalaStubBasedElementImpl[ScParameter] with ScPara
   def getTypeNoResolve: PsiType = PsiType.VOID
 
   def isDefaultParam: Boolean = {
+    @tailrec
     def check(param: ScParameter, visited: HashSet[ScParameter]): Boolean = {
       if (param.baseDefaultParam) return true
       if (visited.contains(param)) return false
@@ -231,30 +228,26 @@ class ScParameterImpl extends ScalaStubBasedElementImpl[ScParameter] with ScPara
 
   def getSuperParameter: Option[ScParameter] = {
     getParent match {
-      case clause: ScParameterClause => {
+      case clause: ScParameterClause =>
         val i = clause.parameters.indexOf(this)
         clause.getParent match {
-          case p: ScParameters => {
+          case p: ScParameters =>
             val j = p.clauses.indexOf(clause)
             p.getParent match {
-              case fun: ScFunction => {
+              case fun: ScFunction =>
                 fun.superMethod match {
-                  case Some(method: ScFunction) => {
+                  case Some(method: ScFunction) =>
                     val clauses: Seq[ScParameterClause] = method.paramClauses.clauses
                     if (j >= clauses.length) return None
                     val parameters: Seq[ScParameter] = clauses.apply(j).parameters
                     if (i >= parameters.length) return None
                     Some(parameters.apply(i))
-                  }
                   case _ => None
                 }
-              }
               case _ => None
             }
-          }
           case _ => None
         }
-      }
       case _ => None
     }
   }
