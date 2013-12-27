@@ -21,7 +21,7 @@ class FromJavaOverrideImplementTest extends JavaCodeInsightFixtureTestCase {
               isImplement: Boolean, needsInferType: Boolean = true) {
     myFixture.addFileToProject("JavaDummy.java", javaText.stripMargin.trim)
     val scalaFile = myFixture.configureByText("ScalaDummy.scala", scalaText.replace("\r", "").stripMargin.trim)
-    ScalaOIUtil.invokeOverrideImplement(myFixture.getProject, myFixture.getEditor, scalaFile, isImplement, methodName, needsInferType)
+    ScalaOIUtil.invokeOverrideImplement(myFixture.getProject, myFixture.getEditor, scalaFile, isImplement, methodName)
     assertEquals(expectedText.replace("\r", "").stripMargin.trim, scalaFile.getText.stripMargin.trim)
   }
 
@@ -85,7 +85,7 @@ class FromJavaOverrideImplementTest extends JavaCodeInsightFixtureTestCase {
     val expectedText =
       """
         |class Child extends JavaDummy {
-        |  override def `def`(`val`: Int) = super.`def`(`val`)
+        |  override def `def`(`val`: Int): Unit = super.`def`(`val`)
         |}
       """
     runTest("def", javaText, scalaText, expectedText, isImplement = false, needsInferType = false)
