@@ -14,12 +14,15 @@ import decompiler.DecompilerUtil.DecompilationResult
 import com.intellij.openapi.project.{Project, ProjectManager}
 import reflect.NameTransformer
 import scala.annotation.tailrec
+import org.jetbrains.plugins.scala.lang.psi.stubs.elements.StubVersion
 
 /**
  * @author ilyas
  */
 
 class ScClsStubBuilderFactory extends ClsStubBuilderFactory[ScalaFile] {
+  override def getStubVersion: Int = StubVersion.STUB_VERSION
+
   def buildFileStub(vFile: VirtualFile, bytes: Array[Byte]): PsiFileStub[ScalaFile] = {
     buildFileStub(vFile, bytes, ProjectManager.getInstance().getDefaultProject)
   }
