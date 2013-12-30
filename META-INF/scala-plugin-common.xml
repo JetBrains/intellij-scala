@@ -175,7 +175,7 @@
         <referencesSearch implementation="org.jetbrains.plugins.scala.findUsages.typeDef.ObjectTraitReferenceSearcher"/>
         <referencesSearch implementation="org.jetbrains.plugins.scala.findUsages.apply.ApplyMethodSearcher"/>
         <referencesSearch implementation="org.jetbrains.plugins.scala.findUsages.apply.UnapplyMethodSearcher"/>
-        <referencesSearch implementation="org.jetbrains.plugins.scala.findUsages.vals.JavaValsUsagesSearcher"/>
+        <referencesSearch implementation="org.jetbrains.plugins.scala.findUsages.vals.JavaValsUsagesSearcher" order="last"/>
         <referencesSearch implementation="org.jetbrains.plugins.scala.findUsages.function.JavaFunctionUsagesSearcher"/>
         <referencesSearch implementation="org.jetbrains.plugins.scala.findUsages.setter.SetterMethodSearcher"/>
         <referencesSearch implementation="org.jetbrains.plugins.scala.findUsages.ScalaAliasedImportedElementSearcher"/>
