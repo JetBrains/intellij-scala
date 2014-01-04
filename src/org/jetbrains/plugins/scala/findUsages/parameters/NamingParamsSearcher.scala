@@ -6,7 +6,7 @@ import com.intellij.psi.search.searches.ReferencesSearch
 import com.intellij.util.{Processor, QueryExecutor}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
 import com.intellij.psi._
-import search.{UsageSearchContext, PsiSearchHelper, TextOccurenceProcessor}
+import com.intellij.psi.search.{RequestResultProcessor, UsageSearchContext, PsiSearchHelper, TextOccurenceProcessor}
 import collection.mutable.HashSet
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScArgumentExprList, ScAssignStmt}
@@ -27,8 +27,8 @@ class NamingParamsSearcher extends QueryExecutor[PsiReference, ReferencesSearch.
           case parameter : ScParameter => {
             val name = parameter.name
             val collectedReferences = new HashSet[PsiReference]
-            val processor = new TextOccurenceProcessor {
-              def execute(element: PsiElement, offsetInElement: Int): Boolean = {
+            val processor = new RequestResultProcessor {
+              def processTextOccurrence(element: PsiElement, offsetInElement: Int, consumer: Processor[PsiReference]): Boolean = {
                 val references = element.getReferences
                 for (ref <- references if ref.getRangeInElement.contains(offsetInElement) && !collectedReferences.contains(ref)) {
                   ref match {
@@ -56,8 +56,7 @@ class NamingParamsSearcher extends QueryExecutor[PsiReference, ReferencesSearch.
                 true
               }
             }
-            val helper: PsiSearchHelper = PsiSearchHelper.SERVICE.getInstance(parameter.getProject)
-            helper.processElementsWithWord(processor, scope, name, UsageSearchContext.IN_CODE, true)
+            queryParameters.getOptimizer.searchWord(name, scope, UsageSearchContext.IN_CODE, true, processor)
           }
           case _                      =>
         }

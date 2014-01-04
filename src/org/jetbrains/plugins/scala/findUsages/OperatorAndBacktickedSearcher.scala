@@ -4,7 +4,7 @@ package findUsages
 import com.intellij.psi.search.searches.ReferencesSearch
 import com.intellij.util.{CommonProcessors, QueryExecutor, Processor}
 import com.intellij.psi.{PsiElement, PsiReference}
-import com.intellij.psi.search.{GlobalSearchScope, UsageSearchContext, PsiSearchHelper, TextOccurenceProcessor}
+import com.intellij.psi.search._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import com.intellij.openapi.project.IndexNotReadyException
@@ -25,7 +25,7 @@ import com.intellij.util.indexing.FileBasedIndex
  */
 class OperatorAndBacktickedSearcher extends QueryExecutor[PsiReference, ReferencesSearch.SearchParameters] {
   def execute(queryParameters: ReferencesSearch.SearchParameters, consumer: Processor[PsiReference]): Boolean = {
-    extensions.inReadAction{
+    extensions.inReadAction {
       val scope = queryParameters.getEffectiveSearchScope
       val element = queryParameters.getElementToSearch
       if (!element.isValid) return true
@@ -35,8 +35,8 @@ class OperatorAndBacktickedSearcher extends QueryExecutor[PsiReference, Referenc
         case _ => Nil
       }
       toProcess.foreach { case (elem, name) =>
-        val processor = new TextOccurenceProcessor {
-          def execute(element: PsiElement, offsetInElement: Int): Boolean = {
+        val processor = new RequestResultProcessor {
+          def processTextOccurrence(element: PsiElement, offsetInElement: Int, consumer: Processor[PsiReference]): Boolean = {
             val references = element.getReferences
             for (ref <- references if ref.getRangeInElement.contains(offsetInElement)) {
               if (ref.isReferenceTo(elem) || ref.resolve() == elem) {
@@ -46,11 +46,9 @@ class OperatorAndBacktickedSearcher extends QueryExecutor[PsiReference, Referenc
             true
           }
         }
-        val helper: PsiSearchHelper = new ScalaPsiSearchHelper(elem.getManager.asInstanceOf[PsiManagerEx])
         try {
-          helper.processElementsWithWord(processor, scope, name, UsageSearchContext.IN_CODE, true)
-        }
-        catch {
+          queryParameters.getOptimizer.searchWord(name, scope, UsageSearchContext.IN_CODE, true, processor)
+        } catch {
           case ignore: IndexNotReadyException =>
         }
       }

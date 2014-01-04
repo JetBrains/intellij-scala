@@ -4,7 +4,7 @@ import com.intellij.psi.search.searches.ReferencesSearch
 import com.intellij.util.{Processor, QueryExecutor}
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.util.Computable
-import com.intellij.psi.search.{UsageSearchContext, PsiSearchHelper, TextOccurenceProcessor}
+import com.intellij.psi.search.{RequestResultProcessor, UsageSearchContext, PsiSearchHelper, TextOccurenceProcessor}
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.lang.psi.light.{StaticPsiMethodWrapper, ScFunctionWrapper}
 import scala.collection.mutable
@@ -25,8 +25,8 @@ class JavaFunctionUsagesSearcher extends QueryExecutor[PsiReference, ReferencesS
           case method: PsiMethod if method.isInstanceOf[ScFunction] || !method.hasModifierProperty(PsiModifier.STATIC) =>
             val name: String = method.getName
             val collectedReferences: mutable.HashSet[PsiReference] = new mutable.HashSet[PsiReference]
-            val processor = new TextOccurenceProcessor {
-              def execute(element: PsiElement, offsetInElement: Int): Boolean = {
+            val processor = new RequestResultProcessor() {
+              def processTextOccurrence(element: PsiElement, offsetInElement: Int, consumer: Processor[PsiReference]): Boolean = {
                 val references = element.getReferences
                 for (ref <- references if ref.getRangeInElement.contains(offsetInElement) && !collectedReferences.contains(ref)) {
                   ref match {
@@ -42,9 +42,8 @@ class JavaFunctionUsagesSearcher extends QueryExecutor[PsiReference, ReferencesS
                 true
               }
             }
-            val helper: PsiSearchHelper = PsiSearchHelper.SERVICE.getInstance(method.getProject)
             if (name == "") return true
-            helper.processElementsWithWord(processor, scope, name, UsageSearchContext.IN_CODE, true)
+            queryParameters.getOptimizer.searchWord(name, scope, UsageSearchContext.IN_CODE, true, processor)
           case _ =>
         }
         true
