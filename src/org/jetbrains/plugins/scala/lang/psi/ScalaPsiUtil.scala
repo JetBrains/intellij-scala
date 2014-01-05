@@ -1689,16 +1689,6 @@ object ScalaPsiUtil {
     }
   }
 
-  def disablePsiBuilderLogger[T](body: => T): T = {
-    val logger = diagnostic.Logger.getInstance("#com.intellij.lang.impl.PsiBuilderImpl")
-    logger.setLevel(Level.OFF)
-    try {
-      body
-    } finally {
-      logger.setLevel(null)
-    }
-  }
-
   /** Creates a synthetic parameter clause based on view and context bounds */
   def syntheticParamClause(paramOwner: ScTypeParametersOwner, paramClauses: ScParameters, classParam: Boolean): Option[ScParameterClause] = {
     if (paramOwner == null) return None
@@ -1735,19 +1725,17 @@ object ScalaPsiUtil {
     if (params.isEmpty) None
     else {
       val fullClauseText: String = "(implicit " + clauseText + ")"
-      disablePsiBuilderLogger {
-        val paramClause: ScParameterClause = {
-          if (classParam) ScalaPsiElementFactory.createImplicitClassParamClauseFromTextWithContext(fullClauseText, paramOwner.getManager, paramClauses)
-          else ScalaPsiElementFactory.createImplicitClauseFromTextWithContext(fullClauseText, paramOwner.getManager, paramClauses)
-        }
-        paramClause.parameters.foreachWithIndex {
-          (param, index) =>
-            val updateAnalog: (ScTypeElement) => Unit = params(index)._2
-            updateAnalog(param.typeElement.get)
-            ()
-        }
-        Some(paramClause)
+      val paramClause: ScParameterClause = {
+        if (classParam) ScalaPsiElementFactory.createImplicitClassParamClauseFromTextWithContext(fullClauseText, paramOwner.getManager, paramClauses)
+        else ScalaPsiElementFactory.createImplicitClauseFromTextWithContext(fullClauseText, paramOwner.getManager, paramClauses)
       }
+      paramClause.parameters.foreachWithIndex {
+        (param, index) =>
+          val updateAnalog: (ScTypeElement) => Unit = params(index)._2
+          updateAnalog(param.typeElement.get)
+          ()
+      }
+      Some(paramClause)
     }
   }
 

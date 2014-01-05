@@ -187,60 +187,16 @@ object ScalaPsiElementFactory {
 
   def createImplicitClauseFromTextWithContext(clauseText: String, manager: PsiManager,
                                               context: PsiElement): ScParameterClause = {
-    val text = clauseText
-
-    val holder: FileElement = DummyHolderFactory.createHolder(context.getManager, context).getTreeElement
-    val builder = new ScalaPsiBuilderImpl(PsiBuilderFactory.getInstance.createBuilder(context.getProject, holder,
-        new ScalaLexer, ScalaFileType.SCALA_LANGUAGE, text))
-    ImplicitParamClause.parse(builder)
-
-    val node = builder.getTreeBuilt
-    holder.rawAddChildren(node.asInstanceOf[TreeElement])
-    val psi = node.getPsi
-    psi match {
-      case fun: ScParameterClause =>
-        fun.asInstanceOf[ScalaPsiElement].setContext(context, contextLastChild(context))
-        fun
-      case _ => null
-    }
+    createElementWithContext(clauseText, context, contextLastChild(context), ImplicitParamClause.parse(_))
   }
 
   def createImplicitClassParamClauseFromTextWithContext(clauseText: String, manager: PsiManager,
                                                         context: PsiElement): ScParameterClause = {
-    val text = clauseText
-
-    val holder: FileElement = DummyHolderFactory.createHolder(context.getManager, context).getTreeElement
-    val builder = new ScalaPsiBuilderImpl(PsiBuilderFactory.getInstance.createBuilder(context.getProject, holder,
-        new ScalaLexer, ScalaFileType.SCALA_LANGUAGE, text))
-    ImplicitClassParamClause.parse(builder)
-
-    val node = builder.getTreeBuilt
-    holder.rawAddChildren(node.asInstanceOf[TreeElement])
-    val psi = node.getPsi
-    psi match {
-      case fun: ScParameterClause =>
-        fun.asInstanceOf[ScalaPsiElement].setContext(context, contextLastChild(context))
-        fun
-      case _ => null
-    }
+    createElementWithContext(clauseText, context, contextLastChild(context), ImplicitClassParamClause.parse(_))
   }
 
   def createEmptyClassParamClauseWithContext(manager: PsiManager, context: PsiElement): ScParameterClause = {
-
-    val holder: FileElement = DummyHolderFactory.createHolder(context.getManager, context).getTreeElement
-    val builder = new ScalaPsiBuilderImpl(PsiBuilderFactory.getInstance.createBuilder(context.getProject, holder,
-        new ScalaLexer, ScalaFileType.SCALA_LANGUAGE, "()"))
-    ClassParamClause.parse(builder)
-
-    val node = builder.getTreeBuilt
-    holder.rawAddChildren(node.asInstanceOf[TreeElement])
-    val psi = node.getPsi
-    psi match {
-      case fun: ScParameterClause =>
-        fun.asInstanceOf[ScalaPsiElement].setContext(context, contextLastChild(context))
-        fun
-      case _ => null
-    }
+    createElementWithContext("()", context, contextLastChild(context), ClassParamClause.parse(_))
   }
 
   private def contextLastChild(context: PsiElement): PsiElement = {
@@ -351,21 +307,7 @@ object ScalaPsiElementFactory {
   }
 
   def createBlockExpressionWithoutBracesFromText(text: String, manager: PsiManager): ScBlockImpl = {
-    val context = PsiFileFactory.getInstance(manager.getProject).
-      createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension,
-      ScalaFileType.SCALA_FILE_TYPE, "").asInstanceOf[ScalaFile]
-    val holder: FileElement = DummyHolderFactory.createHolder(manager, context).getTreeElement
-    val builder: ScalaPsiBuilderImpl =
-      new ScalaPsiBuilderImpl(PsiBuilderFactory.getInstance.createBuilder(context.getProject, holder,
-        new ScalaLexer, ScalaFileType.SCALA_LANGUAGE, text))
-    Block.parse(builder, hasBrace = false, needNode = true)
-    val node = builder.getTreeBuilt
-    holder.rawAddChildren(node.asInstanceOf[TreeElement])
-    val psi = node.getPsi
-    psi match {
-      case blockImpl: ScBlockImpl => blockImpl
-      case _ => null
-    }
+    createElement(text, manager, Block.parse(_, hasBrace = false, needNode = true))
   }
 
 
@@ -887,90 +829,76 @@ object ScalaPsiElementFactory {
   }
 
   def createMethodWithContext(text: String, context: PsiElement, child: PsiElement): ScFunction = {
-    val holder: FileElement = DummyHolderFactory.createHolder(context.getManager, context).getTreeElement
-    val builder = new ScalaPsiBuilderImpl(PsiBuilderFactory.getInstance.createBuilder(context.getProject, holder,
-        new ScalaLexer, ScalaFileType.SCALA_LANGUAGE, text))
-    Def.parse(builder)
-    val node = builder.getTreeBuilt
-    holder.rawAddChildren(node.asInstanceOf[TreeElement])
-    val psi = node.getPsi
-    psi match {
-      case fun: ScFunction =>
-        fun.asInstanceOf[ScalaPsiElement].setContext(context, child)
-        fun
-      case _ => null
-    }
+    createElementWithContext(text, context, child, Def.parse(_))
   }
 
   def createObjectWithContext(text: String, context: PsiElement, child: PsiElement): ScObject = {
-    val holder: FileElement = DummyHolderFactory.createHolder(context.getManager, context).getTreeElement
-    val builder: ScalaPsiBuilderImpl =
-      new ScalaPsiBuilderImpl(PsiBuilderFactory.getInstance.createBuilder(context.getProject, holder,
-        new ScalaLexer, ScalaFileType.SCALA_LANGUAGE, text))
-    TmplDef.parse(builder)
-    val node = builder.getTreeBuilt
-    holder.rawAddChildren(node.asInstanceOf[TreeElement])
-    val psi = node.getPsi
-    psi match {
-      case obj: ScObject =>
-        obj.asInstanceOf[ScalaPsiElement].setContext(context, child)
-        obj
-      case _ => null
-    }
+    createElementWithContext(text, context, child, TmplDef.parse(_))
   }
 
   def createReferenceFromText(text: String, context: PsiElement, child: PsiElement): ScStableCodeReferenceElement = {
-    val holder: FileElement = DummyHolderFactory.createHolder(context.getManager, context).getTreeElement
-    val builder: ScalaPsiBuilderImpl =
-      new ScalaPsiBuilderImpl(PsiBuilderFactory.getInstance.createBuilder(context.getProject, holder,
-        new ScalaLexer, ScalaFileType.SCALA_LANGUAGE, text))
-    StableId.parse(builder, ScalaElementTypes.REFERENCE)
-    val node = builder.getTreeBuilt
-    holder.rawAddChildren(node.asInstanceOf[TreeElement])
-    val psi = node.getPsi
-    psi match {
-      case referenceElement: ScStableCodeReferenceElement =>
-        referenceElement.asInstanceOf[ScalaPsiElement].setContext(context, child)
-        referenceElement
-      case _ => null
-    }
+    createElementWithContext(text, context, child, StableId.parse(_, ScalaElementTypes.REFERENCE))
   }
 
   def createExpressionWithContextFromText(text: String, context: PsiElement, child: PsiElement): ScExpression = {
-    val holder: FileElement = DummyHolderFactory.createHolder(context.getManager, context).getTreeElement
-    val builder: ScalaPsiBuilderImpl =
-      new ScalaPsiBuilderImpl(PsiBuilderFactory.getInstance.createBuilder(context.getProject, holder,
-      new ScalaLexer, ScalaFileType.SCALA_LANGUAGE, s"foo($text)")) //Method call is not full to reproduce all possibilities
-    Expr.parse(builder)
-    val node = builder.getTreeBuilt
-    holder.rawAddChildren(node.asInstanceOf[TreeElement])
-    val psi = node.getPsi
-    if (psi.isInstanceOf[ScExpression]) {
-      if (!psi.isInstanceOf[ScMethodCall]) {
-        throw new RuntimeException(s"Psi is not method call for text: $text")
-      }
-      val expr = psi.asInstanceOf[ScMethodCall]
-      val res = if (expr.argumentExpressions.size > 0) expr.argumentExpressions.apply(0) else null
+    val call: ScMethodCall = createElementWithContext(s"foo($text)", context, child, Expr.parse(_))
+    if (call != null) {
+      val res = if (call.argumentExpressions.size > 0) call.argumentExpressions.apply(0) else null
       if (res != null) res.setContext(context, child)
       res
     } else null
   }
 
-  def createImportFromTextWithContext(text: String, context: PsiElement, child: PsiElement): ScImportStmt = {
-    val holder: FileElement = DummyHolderFactory.createHolder(context.getManager, context).getTreeElement
+  def createElement[T <: ScalaPsiElement](text: String, manager: PsiManager, parse: ScalaPsiBuilder => Unit): T = {
+    val context = PsiFileFactory.getInstance(manager.getProject).
+            createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension,
+              ScalaFileType.SCALA_FILE_TYPE, "").asInstanceOf[ScalaFile]
+    val holder: FileElement = DummyHolderFactory.createHolder(manager, context).getTreeElement
     val builder: ScalaPsiBuilderImpl =
-      new ScalaPsiBuilderImpl(PsiBuilderFactory.getInstance.createBuilder(context.getProject, holder,
-        new ScalaLexer, ScalaFileType.SCALA_LANGUAGE, text)) //Method call is not full to reproduce all possibilities
-    Import.parse(builder)
-    val node = builder.getTreeBuilt
+      new ScalaPsiBuilderImpl(PsiBuilderFactory.getInstance.createBuilder(manager.getProject, holder,
+        new ScalaLexer, ScalaFileType.SCALA_LANGUAGE, text.trim))
+    val marker = builder.mark()
+    parse(builder)
+    while (!builder.eof()) {
+      builder.advanceLexer()
+    }
+    marker.done(ScalaElementTypes.FILE)
+    val fileNode = builder.getTreeBuilt
+    val node = fileNode.getFirstChildNode
     holder.rawAddChildren(node.asInstanceOf[TreeElement])
     val psi = node.getPsi
     psi match {
-      case stmt: ScImportStmt =>
-        stmt.setContext(context, child)
-        stmt
-      case _ => null
+      case element: T => element
+      case _ => null.asInstanceOf[T]
     }
+  }
+
+  def createElementWithContext[T <: ScalaPsiElement](text: String, context: PsiElement, child: PsiElement,
+                                                parse: ScalaPsiBuilder => Unit): T = {
+    val holder: FileElement = DummyHolderFactory.createHolder(context.getManager, context).getTreeElement
+    val builder: ScalaPsiBuilderImpl =
+      new ScalaPsiBuilderImpl(PsiBuilderFactory.getInstance.createBuilder(context.getProject, holder,
+        new ScalaLexer, ScalaFileType.SCALA_LANGUAGE, text.trim))
+    val marker = builder.mark()
+    parse(builder)
+    while (!builder.eof()) {
+      builder.advanceLexer()
+    }
+    marker.done(ScalaElementTypes.FILE)
+    val fileNode = builder.getTreeBuilt
+    val node = fileNode.getFirstChildNode
+    holder.rawAddChildren(node.asInstanceOf[TreeElement])
+    val psi = node.getPsi
+    psi match {
+      case element: T =>
+        element.setContext(context, child)
+        element
+      case _ => null.asInstanceOf[T]
+    }
+  }
+
+  def createImportFromTextWithContext(text: String, context: PsiElement, child: PsiElement): ScImportStmt = {
+    createElementWithContext(text, context, child, Import.parse)
   }
 
   def createTypeElementFromText(text: String, manager: PsiManager): ScTypeElement = {
@@ -1013,55 +941,18 @@ object ScalaPsiElementFactory {
   }
 
   def createTypeElementFromText(text: String, context: PsiElement, child: PsiElement): ScTypeElement = {
-    val holder: FileElement = DummyHolderFactory.createHolder(context.getManager, context).getTreeElement
-    val builder: ScalaPsiBuilder =
-      new ScalaPsiBuilderImpl(PsiBuilderFactory.getInstance.createBuilder(context.getProject, holder,
-        new ScalaLexer, ScalaFileType.SCALA_LANGUAGE, text))
-    Type.parse(builder)
-    val node = builder.getTreeBuilt
-    holder.rawAddChildren(node.asInstanceOf[TreeElement])
-    val psi = node.getPsi
-    psi match {
-      case typeElement: ScTypeElement =>
-        psi.asInstanceOf[ScalaPsiElement].setContext(context, child)
-        typeElement
-      case _ => null
-    }
+    createElementWithContext(text, context, child, Type.parse(_))
   }
 
   def createConstructorTypeElementFromText(text: String, context: PsiElement, child: PsiElement): ScTypeElement = {
-    val holder: FileElement = DummyHolderFactory.createHolder(context.getManager, context).getTreeElement
-    val builder: ScalaPsiBuilder =
-      new ScalaPsiBuilderImpl(PsiBuilderFactory.getInstance.createBuilder(context.getProject, holder,
-        new ScalaLexer, ScalaFileType.SCALA_LANGUAGE, text))
-    Constructor.parse(builder)
-    val node = builder.getTreeBuilt
-    holder.rawAddChildren(node.asInstanceOf[TreeElement])
-    val psi = node.getPsi
-    psi match {
-      case constructor: ScConstructor =>
-        psi.asInstanceOf[ScalaPsiElement].setContext(context, child)
-        constructor.typeElement
-      case _ => null
-    }
+    val constructor: ScConstructor = createElementWithContext(text, context, child, Constructor.parse(_))
+    if (constructor != null) constructor.typeElement
+    else null
   }
 
   def createTypeParameterClauseFromTextWithContext(text: String, context: PsiElement,
                                                    child: PsiElement): ScTypeParamClause = {
-    val holder: FileElement = DummyHolderFactory.createHolder(context.getManager, context).getTreeElement
-    val builder: ScalaPsiBuilder =
-      new ScalaPsiBuilderImpl(PsiBuilderFactory.getInstance.createBuilder(context.getProject, holder,
-        new ScalaLexer, ScalaFileType.SCALA_LANGUAGE, text))
-    TypeParamClause.parse(builder)
-    val node = builder.getTreeBuilt
-    holder.rawAddChildren(node.asInstanceOf[TreeElement])
-    val psi = node.getPsi
-    psi match {
-      case clause: ScTypeParamClause =>
-        psi.asInstanceOf[ScalaPsiElement].setContext(context, child)
-        clause
-      case _ => null
-    }
+    createElementWithContext(text, context, child, TypeParamClause.parse(_))
   }
 
   def createExistentialClauseForName(name: String, manager: PsiManager): ScExistentialClause = {
@@ -1080,36 +971,20 @@ object ScalaPsiElementFactory {
   }
 
   def createPatterListFromText(text: String, context: PsiElement, child: PsiElement): ScPatternList = {
-    val holder: FileElement = DummyHolderFactory.createHolder(context.getManager, context).getTreeElement
-    val builder: ScalaPsiBuilderImpl =
-      new ScalaPsiBuilderImpl(PsiBuilderFactory.getInstance.createBuilder(context.getProject, holder,
-        new ScalaLexer, ScalaFileType.SCALA_LANGUAGE, "val " + text + " = 239"))
-    Def.parse(builder)
-    val node = builder.getTreeBuilt
-    holder.rawAddChildren(node.asInstanceOf[TreeElement])
-    val psi = node.getPsi
-    psi match {
-      case patternDef: ScPatternDefinition =>
-        val pList: ScPatternList = patternDef.pList
-        pList.asInstanceOf[ScalaPsiElement].setContext(context, child)
-        pList
-      case _ => null
-    }
+    val patternDef: ScPatternDefinition = createElementWithContext(s"val $text = 239", context, child, Def.parse(_))
+    if (patternDef != null) {
+      val res = patternDef.pList
+      res.setContext(context, child)
+      res
+    } else null
   }
 
   def createIdsListFromText(text: String, context: PsiElement, child: PsiElement): ScIdList = {
-    val holder: FileElement = DummyHolderFactory.createHolder(context.getManager, context).getTreeElement
-    val builder: ScalaPsiBuilderImpl =
-      new ScalaPsiBuilderImpl(PsiBuilderFactory.getInstance.createBuilder(context.getProject, holder,
-        new ScalaLexer, ScalaFileType.SCALA_LANGUAGE, "val " + text + " : Int"))
-    Dcl.parse(builder)
-    val node = builder.getTreeBuilt
-    holder.rawAddChildren(node.asInstanceOf[TreeElement])
-    val psi = node.getPsi
-    if (psi.isInstanceOf[ScPatternDefinition]) {
-      val idList: ScIdList = psi.asInstanceOf[ScValueDeclaration].getIdList
-      idList.asInstanceOf[ScalaPsiElement].setContext(context, child)
-      idList
+    val valDef: ScValueDeclaration = createElementWithContext(s"val $text : Int", context, child, Dcl.parse(_))
+    if (valDef != null) {
+      val res = valDef.getIdList
+      res.setContext(context, child)
+      res
     } else null
   }
 
