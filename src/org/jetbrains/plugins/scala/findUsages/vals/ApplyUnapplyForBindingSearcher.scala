@@ -27,7 +27,7 @@ class ApplyUnapplyForBindingSearcher extends QueryExecutor[PsiReference, Referen
       if (!element.isValid) return true
       element match {
         case binding: ScBindingPattern =>
-          val processor = createProcessor(consumer, binding, checkApply = true, checkUnapply = true)
+          val processor = createProcessor(binding, checkApply = true, checkUnapply = true)
           processBinding(processor, scope, binding, queryParameters)
 
         //for bindings to anonimous classes
@@ -42,7 +42,7 @@ class ApplyUnapplyForBindingSearcher extends QueryExecutor[PsiReference, Referen
               case anon: ScNewTemplateDefinition =>
                 val bindingOpt = ScalaPsiUtil.findInstanceBinding(anon)
                 val binding = bindingOpt.getOrElse(return true)
-                val processor = createProcessor(consumer, binding, checkApply, checkUnapply)
+                val processor = createProcessor(binding, checkApply, checkUnapply)
                 processBinding(processor, scope, binding, queryParameters)
               case _ =>
             }
@@ -53,7 +53,7 @@ class ApplyUnapplyForBindingSearcher extends QueryExecutor[PsiReference, Referen
     true
   }
 
-  private def createProcessor(consumer: Processor[PsiReference], binding: ScBindingPattern, checkApply: Boolean, checkUnapply: Boolean) =
+  private def createProcessor(binding: ScBindingPattern, checkApply: Boolean, checkUnapply: Boolean) =
     new RequestResultProcessor {
       def processTextOccurrence(element: PsiElement, offsetInElement: Int, consumer: Processor[PsiReference]): Boolean = {
         val references = element.getReferences
