@@ -23,6 +23,7 @@ import javax.swing.{JComponent, JCheckBox}
 import collection.immutable.HashSet
 import extensions._
 import com.intellij.openapi.application.ApplicationManager
+import scala.collection.mutable
 
 /**
  * User: Alexander Podkhalyuzin
@@ -90,7 +91,8 @@ object ScalaOIUtil {
       chooser.setTitle(if (isImplement) ScalaBundle.message("select.method.implement") else ScalaBundle.message("select.method.override"))
       chooser.show()
 
-      selectedMembers ++= chooser.getSelectedElements
+      val elements = chooser.getSelectedElements
+      if (elements != null) selectedMembers ++= elements
       if (selectedMembers.size == 0) return
       ScalaApplicationSettings.getInstance.SPECIFY_RETURN_TYPE_EXPLICITLY = chooser.needsInferType
     } else {
