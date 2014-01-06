@@ -129,11 +129,11 @@ class ScClassImpl extends ScTypeDefinitionImpl with ScClass with ScTypeParameter
         case (t, node) => node.info.namedElement match {
           case Some(fun: ScFunction) if !fun.isConstructor && fun.containingClass.isInstanceOf[ScTrait] &&
             fun.isInstanceOf[ScFunctionDefinition] =>
-            res += fun.getFunctionWrapper(isStatic = false, isInterface = false,
+            res ++= fun.getFunctionWrappers(isStatic = false, isInterface = false,
               cClass = Some(getClazz(fun.containingClass.asInstanceOf[ScTrait])))
             names += fun.getName
           case Some(fun: ScFunction) if !fun.isConstructor => 
-            res += fun.getFunctionWrapper(isStatic = false, isInterface = fun.isInstanceOf[ScFunctionDeclaration])
+            res ++= fun.getFunctionWrappers(isStatic = false, isInterface = fun.isInstanceOf[ScFunctionDeclaration])
             names += fun.getName
           case Some(method: PsiMethod) if !method.isConstructor => 
             res += method
@@ -205,7 +205,7 @@ class ScClassImpl extends ScTypeDefinitionImpl with ScClass with ScTypeParameter
             case (t, node) =>
               node.info.namedElement match {
                 case Some(fun: ScFunction) if !fun.isConstructor =>
-                  add(fun.getFunctionWrapper(isStatic = true, isInterface = false, cClass = Some(this)))
+                  fun.getFunctionWrappers(isStatic = true, isInterface = false, cClass = Some(this)).foreach(add)
                 case Some(method: PsiMethod) if !method.isConstructor => {
                   if (method.containingClass != null && method.containingClass.getQualifiedName != "java.lang.Object") {
                     add(StaticPsiMethodWrapper.getWrapper(method, this))
@@ -251,9 +251,9 @@ class ScClassImpl extends ScTypeDefinitionImpl with ScClass with ScTypeParameter
 
   override def getConstructors: Array[PsiMethod] = {
     val buffer = new ArrayBuffer[PsiMethod]
-    buffer ++= functions.filter(_.isConstructor).map(_.getFunctionWrapper(isStatic = false, isInterface = false, Some(this)))
+    buffer ++= functions.filter(_.isConstructor).flatMap(_.getFunctionWrappers(isStatic = false, isInterface = false, Some(this)))
     constructor match {
-      case Some(x) => buffer += x.getFunctionWrapper
+      case Some(x) => buffer ++= x.getFunctionWrappers
       case _ =>
     }
     buffer.toArray
