@@ -32,6 +32,7 @@ import light.ScFunctionWrapper
 import com.intellij.openapi.util.Key
 import com.intellij.openapi.progress.ProgressManager
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockStatement
+import scala.collection.mutable.ArrayBuffer
 
 /**
  * @author Alexander Podkhalyuzin
@@ -406,18 +407,39 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
     this
   }
 
-  private val functionWrapper: ConcurrentHashMap[(Boolean, Boolean, Option[PsiClass]), (ScFunctionWrapper, Long)] =
+  private val functionWrapper: ConcurrentHashMap[(Boolean, Boolean, Option[PsiClass]), (Seq[ScFunctionWrapper], Long)] =
     new ConcurrentHashMap()
 
-  def getFunctionWrapper(isStatic: Boolean, isInterface: Boolean, cClass: Option[PsiClass] = None): ScFunctionWrapper = {
+  private def isJavaVarargs: Boolean = {
+    if (hasAnnotation("scala.annotation.varargs").isDefined) true
+    else {
+      superMethod match {
+        case f: ScFunction => f.isJavaVarargs
+        case m: PsiMethod => m.isVarArgs
+        case _ => false
+      }
+    }
+  }
+
+  def getFunctionWrappers(isStatic: Boolean, isInterface: Boolean, cClass: Option[PsiClass] = None): Seq[ScFunctionWrapper] = {
     val curModCount = getManager.getModificationTracker.getOutOfCodeBlockModificationCount
     val r = functionWrapper.get(isStatic, isInterface, cClass)
     if (r != null && r._2 == curModCount) {
       return r._1
     }
-    val res = new ScFunctionWrapper(this, isStatic, isInterface, cClass)
-    functionWrapper.put((isStatic, isInterface, cClass), (res, curModCount))
-    res
+    val buffer = new ArrayBuffer[ScFunctionWrapper]
+    buffer += new ScFunctionWrapper(this, isStatic, isInterface, cClass)
+    for {
+      clause <- clauses
+      first <- clause.clauses.headOption
+      if first.hasRepeatedParam
+      if isJavaVarargs
+    } {
+      buffer += new ScFunctionWrapper(this, isStatic, isInterface, cClass, isJavaVarargs = true)
+    }
+    val result: Seq[ScFunctionWrapper] = buffer.toSeq
+    functionWrapper.put((isStatic, isInterface, cClass), (result, curModCount))
+    result
   }
 
   def getTypeNoImplicits(ctx: TypingContext): TypeResult[ScType]

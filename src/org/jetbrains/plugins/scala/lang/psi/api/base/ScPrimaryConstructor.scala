@@ -6,26 +6,22 @@ package base
 
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
-import com.intellij.psi.{PsiClass, PsiMethod}
 import psi.types.nonvalue.{ScMethodType, ScTypePolymorphicType, TypeParameter}
 import psi.types._
 import impl.ScalaPsiElementFactory
 import toplevel.ScTypeParametersOwner
 import caches.CachesUtil
 import com.intellij.psi.util.PsiModificationTracker
-import light.{ScPrimaryConstructorWrapper, ScFunctionWrapper}
+import light.ScPrimaryConstructorWrapper
+import scala.collection.mutable.ArrayBuffer
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScAnnotationsHolder
 
 /**
 * @author Alexander Podkhalyuzin
 * Date: 07.03.2008
 */
 
-trait ScPrimaryConstructor extends ScMember with ScMethodLike {
-  /**
-   *  @return has annotation
-   */
-  def hasAnnotation: Boolean
-
+trait ScPrimaryConstructor extends ScMember with ScMethodLike with ScAnnotationsHolder {
   def hasMalformedSignature = parameterList.clauses.exists {
     _.parameters.dropRight(1).exists(_.isRepeatedParameter)
   }
@@ -85,7 +81,7 @@ trait ScPrimaryConstructor extends ScMember with ScMethodLike {
       val parentClazz = ScalaPsiUtil.getPlaceTd(clazz)
       val designatorType: ScType =
         if (parentClazz != null)
-          ScProjectionType(ScThisType(parentClazz), clazz, false)
+          ScProjectionType(ScThisType(parentClazz), clazz, superReference = false)
         else ScDesignatorType(clazz)
       if (typeParameters.length == 0) designatorType
       else {
@@ -108,34 +104,41 @@ trait ScPrimaryConstructor extends ScMember with ScMethodLike {
 
   def getParamByName(name: String, clausePosition: Int = -1): Option[ScParameter] = {
     clausePosition match {
-      case -1 => {
+      case -1 =>
         for (param <- parameters if ScalaPsiUtil.memberNamesEquals(param.name, name)) return Some(param)
         None
-      }
       case i if i < 0 => None
       case i if i >= effectiveParameterClauses.length => None
-      case i => {
+      case i =>
         val clause: ScParameterClause = effectiveParameterClauses.apply(i)
         for (param <- clause.parameters if ScalaPsiUtil.memberNamesEquals(param.name, name)) return Some(param)
         None
-      }
     }
   }
 
   @volatile
-  private var functionWrapper: ScPrimaryConstructorWrapper = null
+  private var functionWrapper: Seq[ScPrimaryConstructorWrapper] = null
 
   @volatile
   private var functionWrapperModificationCount: Long = 0L
 
-  def getFunctionWrapper: ScPrimaryConstructorWrapper = {
+  def getFunctionWrappers: Seq[ScPrimaryConstructorWrapper] = {
     val curModCount = getManager.getModificationTracker.getOutOfCodeBlockModificationCount
     if (functionWrapper != null && functionWrapperModificationCount == curModCount) {
       return functionWrapper
     }
-    val res = new ScPrimaryConstructorWrapper(this)
-    functionWrapper = res
+    val buffer = new ArrayBuffer[ScPrimaryConstructorWrapper]()
+    buffer += new ScPrimaryConstructorWrapper(this)
+    for {
+      first <- parameterList.clauses.headOption
+      if first.hasRepeatedParam
+      if hasAnnotation("scala.annotation.varargs").isDefined
+    } {
+      buffer += new ScPrimaryConstructorWrapper(this, isJavaVarargs = true)
+    }
+    val result = buffer.toSeq
+    functionWrapper = result
     functionWrapperModificationCount = curModCount
-    res
+    result
   }
 }
