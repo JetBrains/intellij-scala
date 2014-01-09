@@ -150,12 +150,13 @@ extends ScStubElementType[ScTemplateDefinitionStub, ScTemplateDefinition](debugN
       }
     }
     if (stub.isPackageObject) {
-      sink.occurrence[PsiClass, java.lang.Integer](ScalaIndexKeys.PACKAGE_OBJECT_KEY,
-        if (name != "`package`") fqn.hashCode else {
-          val index = fqn.lastIndexWhere(_ == '.')
-          if (index < 0) "".hashCode
-          else fqn.substring(0, index).hashCode
-        })
+      val packageName = fqn.stripSuffix(".`package`")
+      val shortName = {
+        val index = packageName.lastIndexOf('.')
+        if (index < 0) packageName else packageName.substring(index + 1, packageName.size)
+      }
+      sink.occurrence[PsiClass, java.lang.Integer](ScalaIndexKeys.PACKAGE_OBJECT_KEY, packageName.hashCode)
+      sink.occurrence[PsiClass, String](ScalaIndexKeys.PACKAGE_OBJECT_SHORT_NAME_KEY, shortName)
     }
   }
 }

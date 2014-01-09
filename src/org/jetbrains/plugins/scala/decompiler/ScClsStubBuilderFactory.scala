@@ -14,34 +14,22 @@ import decompiler.DecompilerUtil.DecompilationResult
 import com.intellij.openapi.project.{Project, ProjectManager}
 import reflect.NameTransformer
 import scala.annotation.tailrec
+import java.io.IOException
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.StubVersion
 
 /**
  * @author ilyas
  */
 
-class ScClsStubBuilderFactory extends ClsStubBuilderFactory[ScalaFile] {
-  override def getStubVersion: Int = StubVersion.STUB_VERSION
-
-  def buildFileStub(vFile: VirtualFile, bytes: Array[Byte]): PsiFileStub[ScalaFile] = {
-    buildFileStub(vFile, bytes, ProjectManager.getInstance().getDefaultProject)
+object ScClsStubBuilderFactory {
+  def canBeProcessed(file: VirtualFile): Boolean = {
+    try {
+      canBeProcessed(file, file.contentsToByteArray())
+    } catch {
+      case ex: IOException => false
+    }
   }
-
-  override def buildFileStub(vFile: VirtualFile, bytes: Array[Byte], project: Project): PsiFileStub[ScalaFile] = {
-    val DecompilationResult(_, source, text, _) = DecompilerUtil.decompile(vFile, bytes)
-    val file = ScalaPsiElementFactory.createScalaFile(text.replace("\r", ""), PsiManager.getInstance(project))
-
-    val adj = file.asInstanceOf[CompiledFileAdjuster]
-    adj.setCompiled(true)
-    adj.setSourceFileName(source)
-    adj.setVirtualFile(vFile)
-
-    val fType = LanguageParserDefinitions.INSTANCE.forLanguage(ScalaFileType.SCALA_LANGUAGE).getFileNodeType
-    val stub = fType.asInstanceOf[IStubFileElementType[PsiFileStub[PsiFile]]].getBuilder.buildStubTree(file)
-    stub.asInstanceOf[PsiFileStubImpl[PsiFile]].clearPsi("Stub was built from decompiled file")
-    stub.asInstanceOf[PsiFileStub[ScalaFile]]
-  }
-
+  
   def canBeProcessed(file: VirtualFile, bytes: Array[Byte]): Boolean = {
     val name: String = file.getNameWithoutExtension
     if (name.endsWith("$")) {
@@ -63,12 +51,38 @@ class ScClsStubBuilderFactory extends ClsStubBuilderFactory[ScalaFile] {
     }
     DecompilerUtil.isScalaFile(file, bytes)
   }
+}
+
+class ScClsStubBuilderFactory extends ClsStubBuilderFactory[ScalaFile] {
+  override def getStubVersion: Int = StubVersion.STUB_VERSION
+  
+  def buildFileStub(vFile: VirtualFile, bytes: Array[Byte]): PsiFileStub[ScalaFile] = {
+    buildFileStub(vFile, bytes, ProjectManager.getInstance().getDefaultProject)
+  }
+
+  override def buildFileStub(vFile: VirtualFile, bytes: Array[Byte], project: Project): PsiFileStub[ScalaFile] = {
+    val DecompilationResult(_, source, text, _) = DecompilerUtil.decompile(vFile, bytes)
+    val file = ScalaPsiElementFactory.createScalaFile(text.replace("\r", ""), PsiManager.getInstance(project))
+
+    val adj = file.asInstanceOf[CompiledFileAdjuster]
+    adj.setCompiled(c = true)
+    adj.setSourceFileName(source)
+    adj.setVirtualFile(vFile)
+
+    val fType = LanguageParserDefinitions.INSTANCE.forLanguage(ScalaFileType.SCALA_LANGUAGE).getFileNodeType
+    val stub = fType.asInstanceOf[IStubFileElementType[PsiFileStub[PsiFile]]].getBuilder.buildStubTree(file)
+    stub.asInstanceOf[PsiFileStubImpl[PsiFile]].clearPsi("Stub was built from decompiled file")
+    stub.asInstanceOf[PsiFileStub[ScalaFile]]
+  }
+
+  def canBeProcessed(file: VirtualFile, bytes: Array[Byte]): Boolean = {
+    ScClsStubBuilderFactory.canBeProcessed(file, bytes)
+  }
 
   def isInnerClass(file: VirtualFile): Boolean = {
     if (file.getExtension != "class") return false
     val name: String = file.getNameWithoutExtension
     val parent: VirtualFile = file.getParent
-    if (name.endsWith("$")) return false //let's consider all such files as Scala to check it more attentively in canBeProcessed
     isInner(name, new ParentDirectory(parent))
   }
 

@@ -52,6 +52,7 @@ class ApplyUnapplyForBindingSearcher extends QueryExecutor[PsiReference, Referen
     true
   }
 
+
   private def createProcessor(consumer: Processor[PsiReference], binding: ScBindingPattern, checkApply: Boolean, checkUnapply: Boolean) =
     new TextOccurenceProcessor {
       def execute(element: PsiElement, offsetInElement: Int): Boolean = {

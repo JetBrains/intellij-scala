@@ -3,7 +3,7 @@ package lang
 package resolve
 
 import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.plugins.scala.lang.resolve.processor.{ResolverEnv, ResolveProcessor, ImplicitProcessor, BaseProcessor}
+import org.jetbrains.plugins.scala.lang.resolve.processor.{ResolverEnv, ResolveProcessor, BaseProcessor}
 import psi.api.ScalaFile
 import psi.api.toplevel.typedef._
 import psi.impl.toplevel.typedef.TypeDefinitionMembers
@@ -18,11 +18,10 @@ import psi.api.statements._
 import params.{ScClassParameter, ScParameter, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.{types, ScalaPsiUtil, ScalaPsiElement}
 import psi.impl.toplevel.synthetic.{ScSyntheticClass, ScSyntheticValue}
-import result.{Success, TypingContext}
+import result.TypingContext
 import scope.{NameHint, PsiScopeProcessor}
 import search.GlobalSearchScope
 import java.lang.String
-import com.intellij.lang.StdLanguages
 import com.intellij.psi.impl.source.resolve.JavaResolveUtil
 import psi.fake.FakePsiMethod
 import psi.api.base.types.{ScTypeElement, ScSelfTypeElement}
@@ -31,7 +30,7 @@ import psi.api.expr.{ScThisReference, ScSuperReference}
 import psi.impl.{ScPackageImpl, ScalaPsiManager}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
-import scala.Some
+import scala.{Predef, Some}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScTypePolymorphicType
 import org.jetbrains.plugins.scala.lang.psi.types.ScFunctionType
 import org.jetbrains.plugins.scala.lang.psi.types.result.Success
@@ -55,7 +54,7 @@ object ResolveUtils {
             case _: ScTypeAlias => kinds contains CLASS
             case _: ScTypeDefinition => kinds contains CLASS
             case _: ScSyntheticClass => kinds contains CLASS
-            case c: PsiClass => {
+            case c: PsiClass =>
               if (kinds contains CLASS) true
               else {
                 def isStaticCorrect(clazz: PsiClass): Boolean = {
@@ -64,18 +63,15 @@ object ResolveUtils {
                 }
                 (kinds contains OBJECT) && isStaticCorrect(c)
               }
-            }
-            case patt: ScBindingPattern => {
+            case patt: ScBindingPattern =>
               val parent = ScalaPsiUtil.getParentOfType(patt, classOf[ScVariable], classOf[ScValue])
               parent match {
                 case x: ScVariable => kinds contains VAR
                 case _ => kinds contains VAL
               }
-            }
-            case patt: ScFieldId => {
+            case patt: ScFieldId =>
               if (patt.getParent /*list of ids*/ .getParent.isInstanceOf[ScVariable])
                 kinds contains VAR else kinds contains VAL
-            }
             case classParam: ScClassParameter =>
               if (classParam.isVar) kinds.contains(VAR) else kinds.contains(VAL)
             case param: ScParameter => kinds contains VAL
@@ -108,9 +104,8 @@ object ResolveUtils {
         case f: FakePsiMethod => f.params.toSeq
         case _ =>
           m.getParameterList.getParameters.toSeq.mapWithIndex {
-            case (param, index) => {
+            case (param, index) =>
               new Parameter("", None, s.subst(param.exactParamType()), false, param.isVarArgs, false, index)
-            }
           }
       }, false)(m.getProject, scope)
   }
@@ -133,7 +128,7 @@ object ResolveUtils {
         }
       case _ =>
     }
-    if (place.getLanguage == StdLanguages.JAVA) {
+    if (place.getLanguage == JavaLanguage.INSTANCE) {
       return JavaResolveUtil.isAccessible(memb, memb.containingClass, memb.getModifierList, place, null, null)
     }
 
@@ -141,14 +136,13 @@ object ResolveUtils {
     //this is to make place and member on same level (resolve from library source)
     var member: PsiMember = memb
     memb.getContainingFile match {
-      case file: ScalaFile if file.isCompiled => {
+      case file: ScalaFile if file.isCompiled =>
         place.getContainingFile match {
           case file: ScalaFile if file.isCompiled =>
           case _ if !member.isInstanceOf[ScMember] =>
             member = memb.getOriginalElement.asInstanceOf[PsiMember]
           case _ => //todo: is it neccessary? added to avoid performance and other problems
         }
-      }
       case _ =>
     }
     if (forCompletion && place != null) {
@@ -201,7 +195,7 @@ object ResolveUtils {
     member match {
       case scMember: ScMember => scMember.getModifierList.accessModifier match {
         case None => true
-        case Some(am: ScAccessModifier) => {
+        case Some(am: ScAccessModifier) =>
           if (am.isPrivate) {
             if (am.access == am.Access.THIS_PRIVATE) {
               /*
@@ -223,13 +217,12 @@ object ResolveUtils {
                         case Some(t) => return t == enclosing
                         case _ => return PsiTreeUtil.isContextAncestor(enclosing, place, false)
                       }
-                    case Some(ref: ScReferenceElement) => {
+                    case Some(ref: ScReferenceElement) =>
                       val enclosing = PsiTreeUtil.getContextOfType(scMember, true, classOf[ScTemplateDefinition])
                       if (enclosing == null) return false
                       val resolve = ref.resolve()
                       if (enclosing.extendsBlock.selfTypeElement == Some(resolve)) return true
                       else return false
-                    }
                     case _ => return false
                   }
                 case _ =>
@@ -259,16 +252,14 @@ object ResolveUtils {
                 packageContains(packageName, placePackageName)
               }
               bind match {
-                case td: ScTemplateDefinition => {
+                case td: ScTemplateDefinition =>
                   PsiTreeUtil.isContextAncestor(td, place, false) ||
                           PsiTreeUtil.isContextAncestor(ScalaPsiUtil.getCompanionModule(td).getOrElse(null: PsiElement),
                             place, false) || (td.isInstanceOf[ScObject] &&
                           td.asInstanceOf[ScObject].isPackageObject && processPackage(td.qualifiedName))
-                }
-                case pack: PsiPackage => {
+                case pack: PsiPackage =>
                   val packageName = pack.getQualifiedName
                   processPackage(packageName)
-                }
                 case _ => true
               }
             }
@@ -281,14 +272,12 @@ object ResolveUtils {
               val enclosing = ScalaPsiUtil.getContextOfType(scMember, true,
                 classOf[ScalaFile], classOf[ScPackaging], classOf[ScTemplateDefinition])
               enclosing match {
-                case td: ScTemplateDefinition => {
+                case td: ScTemplateDefinition =>
                   PsiTreeUtil.isContextAncestor(td, place, false) || PsiTreeUtil.isContextAncestor(ScalaPsiUtil.
                           getCompanionModule(td).getOrElse(null: PsiElement), place, false)
-                }
-                case file: ScalaFile if file.isScriptFile() => {
+                case file: ScalaFile if file.isScriptFile() =>
                   PsiTreeUtil.isContextAncestor(file, place, false)
-                }
-                case _ => {
+                case _ =>
                   val packageName = enclosing match {
                     case file: ScalaFile => ""
                     case packaging: ScPackaging => packaging.getPackageName
@@ -301,7 +290,6 @@ object ResolveUtils {
                     case pack: ScPackaging => pack.getPackageName
                   }
                   packageContains(packageName, placePackageName)
-                }
               }
             }
           } else if (am.isProtected) { //todo: it's wrong if reference after not appropriate class type
@@ -328,7 +316,7 @@ object ResolveUtils {
                 None
               }
               bind match {
-                case td: ScTemplateDefinition => {
+                case td: ScTemplateDefinition =>
                   if (PsiTreeUtil.isContextAncestor(td, place, false) || PsiTreeUtil.isContextAncestor(ScalaPsiUtil.
                           getCompanionModule(td).getOrElse(null: PsiElement), place, false)) return true
                   td match {
@@ -339,14 +327,12 @@ object ResolveUtils {
                       }
                     case _ =>
                   }
-                }
-                case pack: PsiPackage => { //like private (nothing related to real life)
+                case pack: PsiPackage => //like private (nothing related to real life)
                   val packageName = pack.getQualifiedName
                   processPackage(packageName) match {
                     case Some(x) => return x
                     case None =>
                   }
-                }
                 case _ => return true
               }
             }
@@ -358,29 +344,26 @@ object ResolveUtils {
                   ref.qualifier match {
                     case None =>
                     case Some(t: ScThisReference) =>
-                    case Some(ref: ScReferenceElement) => {
+                    case Some(ref: ScReferenceElement) =>
                       val enclosing = PsiTreeUtil.getContextOfType(scMember, true, classOf[ScTemplateDefinition])
                       if (enclosing == null) return false
                       val resolve = ref.resolve()
                       if (enclosing.extendsBlock.selfTypeElement != Some(resolve)) return false
-                    }
                     case _ => return false
                   }
                 case _ =>
               }
             }
             enclosing match {
-              case td: ScTypeDefinition => {
+              case td: ScTypeDefinition =>
                 if (PsiTreeUtil.isContextAncestor(td, place, false) ||
                         (withCompanion && PsiTreeUtil.isContextAncestor(ScalaPsiUtil.getCompanionModule(td).
                                 getOrElse(null: PsiElement), place, false))) return true
                 checkProtected(td, withCompanion)
-              }
-              case td: ScTemplateDefinition => {
+              case td: ScTemplateDefinition =>
                 //it'd anonymous class, has access only inside
                 PsiTreeUtil.isContextAncestor(td, place, false)
-              }
-              case _ => {
+              case _ =>
                 //same as for private
                 val packageName = enclosing match {
                   case file: ScalaFile => ""
@@ -394,17 +377,15 @@ object ResolveUtils {
                   case pack: ScPackaging => pack.fullPackageName
                 }
                 packageContains(packageName, placePackageName)
-              }
             }
           } else true
-        }
       }
-      case _ => {
+      case _ =>
         if (member.hasModifierProperty("public")) true
         else if (member.hasModifierProperty("private")) false
-        else if (member.hasModifierProperty("protected")) {
-          checkProtected(member.containingClass, withCompanion = true)
-        } else {
+        else if (member.hasModifierProperty("protected") &&
+                checkProtected(member.containingClass, withCompanion = true)) true
+        else {
           val packageName = member.getContainingFile match {
             case s: ScalaFile => ""
             case f: PsiClassOwner => f.getPackageName
@@ -419,7 +400,6 @@ object ResolveUtils {
           }
           packageContains(packageName, placePackageName)
         }
-      }
     }
   }
 
@@ -433,9 +413,8 @@ object ResolveUtils {
       superRef.staticSuper match {
         case Some(t) => processor.processType(t, place)
         case None => superRef.drvTemplate match {
-          case Some(c) => {
+          case Some(c) =>
             TypeDefinitionMembers.processSuperDeclarations(c, processor, ResolveState.initial.put(ScSubstitutor.key, ScSubstitutor.empty), null, place)
-          }
           case None =>
         }
       }
@@ -455,13 +434,12 @@ object ResolveUtils {
     if (ScalaPsiUtil.cachedDeepIsInheritor(placeTd, td)) return true
     placeTd.selfTypeElement match {
       case Some(te: ScSelfTypeElement) => te.typeElement match {
-        case Some(te: ScTypeElement) => {
+        case Some(te: ScTypeElement) =>
           def isInheritorOrSame(tp: ScType): Boolean = {
             ScType.extractClass(tp) match {
-              case Some(clazz) => {
+              case Some(clazz) =>
                 if (clazz == td) return true
                 if (ScalaPsiUtil.cachedDeepIsInheritor(clazz, td)) return true
-              }
               case _ =>
             }
             false
@@ -475,7 +453,6 @@ object ResolveUtils {
               if (isInheritorOrSame(tp)) return true
             case _ =>
           }
-        }
         case _ =>
       }
       case _ =>
@@ -503,7 +480,7 @@ object ResolveUtils {
         val name = if (nameHint == null) "" else nameHint.getName(state)
         if (name != null && name != "" && base.getClassKind) {
           try {
-            base.setClassKind(false)
+            base.setClassKind(classKind = false)
 
             if (base.getClassKindInner) {
               val manager = ScalaPsiManager.instance(pack.getProject)
@@ -552,12 +529,12 @@ object ResolveUtils {
               }
             } else true
           } finally {
-            base.setClassKind(true)
+            base.setClassKind(classKind = true)
           }
         } else {
           try {
             if (base.getClassKindInner) {
-              base.setClassKind(false)
+              base.setClassKind(classKind = false)
               val manager = ScalaPsiManager.instance(pack.getProject)
               val scope = base match {
                 case r: ResolveProcessor => r.getResolveScope
@@ -580,7 +557,7 @@ object ResolveUtils {
               }
             } else true
           } finally {
-            base.setClassKind(true)
+            base.setClassKind(classKind = true)
           }
         }
       case _ => pack.processDeclarations(processor, state, lastParent, place)

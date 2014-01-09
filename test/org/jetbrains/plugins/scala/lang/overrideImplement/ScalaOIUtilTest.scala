@@ -7,7 +7,7 @@ import junit.framework.Assert
 import org.intellij.lang.annotations.Language
 import org.jetbrains.plugins.scala.extensions._
 import lang.psi.api.ScalaFile
-import lang.psi.api.toplevel.typedef.{ScTypeDefinition, ScTemplateDefinition}
+import lang.psi.api.toplevel.typedef.ScTemplateDefinition
 
 /**
  * Pavel Fatin
@@ -107,7 +107,7 @@ class ScalaOIUtilTest extends SimpleTestCase {
     val file: ScalaFile = text.parse
     val templateDefinitions: Seq[ScTemplateDefinition] = toRichIterator(file.children).filterByType(classOf[ScTemplateDefinition]).toSeq
     val lastDefinition: ScTemplateDefinition = templateDefinitions.last
-    val members = ScalaOIUtil.toMembers(ScalaOIUtil.getMembersToImplement(lastDefinition))
+    val members = ScalaOIUtil.getMembersToImplement(lastDefinition)
     members.map(_.getText)
   }
 }

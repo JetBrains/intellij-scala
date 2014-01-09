@@ -19,8 +19,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
 import org.jetbrains.plugins.scala.lang.refactoring.rename.ScalaRenameUtil
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import org.jetbrains.plugins.scala.lang.psi.light.{LightScalaMethod, PsiClassWrapper}
-import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil
-import com.intellij.openapi.util.Key
 import javax.swing.JList
 
 /**
@@ -102,8 +100,6 @@ class ScalaInplaceRenameHandler extends MemberInplaceRenameHandler{
       showSubstitutePopup(title, positive, ScalaRenameUtil.findSubstituteElement(elementToRename))
     }
 
-    val revertInfo = ScalaRefactoringUtil.RevertInfo(editor.getDocument.getText, editor.getCaretModel.getOffset)
-    editor.putUserData(ScalaInplaceRenameHandler.REVERT_INFO, revertInfo)
 
     val atCaret = PsiUtilBase.getElementAtCaret(editor)
     val selected = ScalaPsiUtil.getParentOfType(atCaret, classOf[ScReferenceElement], classOf[ScNamedElement])
@@ -132,8 +128,4 @@ class ScalaInplaceRenameHandler extends MemberInplaceRenameHandler{
     PsiElementRenameHandler.rename(element, project, nameSuggestionContext, editor)
   }
 
-}
-
-object ScalaInplaceRenameHandler {
-  val REVERT_INFO: Key[ScalaRefactoringUtil.RevertInfo] = new Key("RevertInfo")
 }

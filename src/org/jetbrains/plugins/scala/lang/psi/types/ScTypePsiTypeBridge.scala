@@ -8,16 +8,12 @@ import impl.toplevel.synthetic.ScSyntheticClass
 import nonvalue.NonValueType
 import com.intellij.psi._
 import com.intellij.psi.search.GlobalSearchScope
-import impl.source.PsiImmediateClassType
 import result.{Failure, Success, TypingContext}
 import com.intellij.openapi.project.Project
 import api.statements._
 import light.PsiClassWrapper
-import com.intellij.pom.java.LanguageLevel
-import com.intellij.psi.PsiClassType.ClassResolveResult
 import api.toplevel.typedef.{ScTypeDefinition, ScObject}
 import extensions.{toPsiMemberExt, toPsiClassExt}
-import collection.mutable.ArrayBuffer
 import java.util
 import psi.types
 
@@ -32,15 +28,14 @@ trait ScTypePsiTypeBridge {
       return types.Any
 
     psiType match {
-      case classType: PsiClassType => {
+      case classType: PsiClassType =>
         val result = classType.resolveGenerics
         result.getElement match {
           case tp: PsiTypeParameter => ScalaPsiManager.typeVariable(tp)
-          case clazz if clazz != null && clazz.qualifiedName == "java.lang.Object" => {
+          case clazz if clazz != null && clazz.qualifiedName == "java.lang.Object" =>
             if (paramTopLevel && treatJavaObjectAsAny) types.Any
             else types.AnyRef
-          }
-          case c if c != null => {
+          case c if c != null =>
             val clazz = c match {
               case o: ScObject => ScalaPsiUtil.getCompanionModule(o).getOrElse(o)
               case _ => c
@@ -62,7 +57,7 @@ trait ScTypePsiTypeBridge {
             val substitutor = result.getSubstitutor
             tps match {
               case Array() => des
-              case _ if classType.isRaw => {
+              case _ if classType.isRaw =>
                 var index = 0
                 new ScParameterizedType(des, collection.immutable.Seq(tps.map({tp => {
                   val arrayOfTypes: Array[PsiClassType] = tp.getExtendsListTypes ++ tp.getImplementsListTypes
@@ -73,7 +68,6 @@ trait ScTypePsiTypeBridge {
                       case _ => ScCompoundType(arrayOfTypes.map(create(_, project, scope, deep + 1)), Seq.empty, Seq.empty, ScSubstitutor.empty)
                     })
               }}): _*)).unpackedType
-              }
               case _ =>
                 var index = 0
                 new ScParameterizedType(des, collection.immutable.Seq(tps.map
@@ -93,10 +87,8 @@ trait ScTypePsiTypeBridge {
                     }
                   }).toSeq: _*)).unpackedType
             }
-          }
           case _ => types.Nothing
         }
-      }
       case arrayType: PsiArrayType =>
         JavaArrayType(create(arrayType.getComponentType, project, scope))
       case PsiType.VOID => types.Unit
@@ -161,7 +153,7 @@ trait ScTypePsiTypeBridge {
       case tuple: ScTupleType => tuple.resolveTupleTrait(project) match {
         case Some(tp) => toPsi(tp, project, scope) case _ => javaObj
       }
-      case ScCompoundType(Seq(t, _*), _, _, _) => toPsi(t, project, scope)
+      case ScCompoundType(Seq(typez, _*), _, _, _) => toPsi(typez, project, scope)
       case ScDesignatorType(c: ScTypeDefinition) if ScType.baseTypesQualMap.contains(c.qualifiedName) =>
         toPsi(ScType.baseTypesQualMap.get(c.qualifiedName).get, project, scope, noPrimitives, skolemToWildcard)
       case ScDesignatorType(c: PsiClass) => JavaPsiFacade.getInstance(project).getElementFactory.createType(c, PsiSubstitutor.EMPTY)
@@ -191,21 +183,16 @@ trait ScTypePsiTypeBridge {
       }
       case JavaArrayType(arg) => new PsiArrayType(toPsi(arg, project, scope))
       case proj@ScProjectionType(pr, element, _) => proj.actualElement match {
-        case clazz: PsiClass => {
+        case clazz: PsiClass =>
           clazz match {
             case syn: ScSyntheticClass => toPsi(syn.t, project, scope)
-            case _ => {
-              val fqn = clazz.qualifiedName
-              JavaPsiFacade.getInstance(project).getElementFactory.createTypeByFQClassName(if (fqn != null) fqn else "java.lang.Object", scope)
-            }
+            case _ => JavaPsiFacade.getInstance(project).getElementFactory.createType(clazz, PsiSubstitutor.EMPTY)
           }
-        }
-        case elem: ScTypeAliasDefinition => {
+        case elem: ScTypeAliasDefinition =>
           elem.aliasedType(TypingContext.empty) match {
-            case Success(t, _) => toPsi(t, project, scope, noPrimitives)
+            case Success(typez, _) => toPsi(typez, project, scope, noPrimitives)
             case Failure(_, _) => javaObj
           }
-        }
         case _ => javaObj
       }
       case ScThisType(clazz) => JavaPsiFacade.getInstance(project).getElementFactory.createType(clazz, PsiSubstitutor.EMPTY)

@@ -15,7 +15,7 @@ import base.types.ScTypeProjection
 import statements.ScTypeAlias
 import psi.types._
 import psi.impl.toplevel.typedef.TypeDefinitionMembers
-import result.{Success, TypingContext}
+import org.jetbrains.plugins.scala.lang.psi.types.result.{TypeResult, Success, TypingContext}
 import toplevel.imports.usages.ImportUsed
 import ResolveTargets._
 import psi.impl.toplevel.synthetic.{ScSyntheticFunction, SyntheticClasses}
@@ -93,8 +93,8 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value]) extends PsiSc
 
   //todo: fix this ugly performance improvement
   private var classKind = true
-  def setClassKind(b: Boolean) {
-    classKind = b
+  def setClassKind(classKind: Boolean) {
+    this.classKind = classKind
   }
   def getClassKind = {
     classKind && getClassKindInner
@@ -160,7 +160,10 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value]) extends PsiSc
         } else {
           val selfType = clazz.selfType.get
           val clazzType: ScType = clazz.getTypeWithProjections(TypingContext.empty).getOrElse(return true)
-          if (selfType.conforms(clazzType)) {
+          if (selfType == ScThisType(clazz)) {
+            //to prevent SOE, let's process Element
+            processElement(clazz, thisSubst, place, state)
+          } else if (selfType.conforms(clazzType)) {
             processType(selfType, place, state.put(BaseProcessor.COMPOUND_TYPE_THIS_TYPE_KEY, Some(t)).
               put(ScSubstitutor.key, thisSubst))
           } else if (clazzType.conforms(selfType)) {
@@ -200,13 +203,13 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value]) extends PsiSc
         }
         break
       case ScDesignatorType(o: ScObject) => processElement(o, ScSubstitutor.empty, place, state)
-      case ScDesignatorType(p: ScParameter) =>
-        p.getRealParameterType(TypingContext.empty) match {
-          case Success(tp, _) => processType(tp, place, state)
-          case _ => true
-        }
       case ScDesignatorType(e: ScTypedDefinition) if place.isInstanceOf[ScTypeProjection] =>
-        e.getType(TypingContext.empty) match {
+        val result: TypeResult[ScType] =
+          e match {
+            case p: ScParameter => p.getRealParameterType(TypingContext.empty)
+            case _ => e.getType(TypingContext.empty)
+          }
+        result match {
           case Success(tp, _) => processType(tp, place, state)
           case _ => true
         }
@@ -313,7 +316,12 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value]) extends PsiSc
           case clazz: PsiClass =>
             TypeDefinitionMembers.processDeclarations(clazz, BaseProcessor.this, state.put(ScSubstitutor.key, newSubst), null, place)
           case des: ScTypedDefinition =>
-            des.getType(TypingContext.empty) match {
+            val typeResult: TypeResult[ScType] =
+              des match {
+                case p: ScParameter => p.getRealParameterType(TypingContext.empty)
+                case _ => des.getType(TypingContext.empty)
+              }
+            typeResult match {
               case Success(tp, _) =>
                 processType(newSubst subst tp, place, state.put(ScSubstitutor.key, ScSubstitutor.empty),
                   updateWithProjectionSubst = false)

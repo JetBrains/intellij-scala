@@ -139,11 +139,13 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
                 case p => p
               }
               val i: Int = if (params1.length > 0) 0.max(length - params1.length) else 0
-              val default: Expression = new Expression(if (params1.length > 0) params1.last.paramType else types.Nothing)
-              val exprs: Seq[Expression] = params1.map(p => new Expression(p.paramType)) ++ Seq.fill(i)(default)
-              Compatibility.checkConformance(checkNames = false, params2, exprs, checkWithImplicits = false)
+              val default: Expression =
+                new Expression(if (params1.length > 0) params1.last.paramType else types.Nothing, elem)
+              val exprs: Seq[Expression] = params1.map(p => new Expression(p.paramType, elem)) ++
+                      Seq.fill(i)(default)
+              Compatibility.checkConformance(checkNames = false, params2, exprs, checkWithImplicits = true)
             case (Right(t1), Right(t2)) =>
-              Conformance.conformsInner(t2, t1, immutable.Set.empty, new ScUndefinedSubstitutor())
+              Conformance.conformsInner(t2, t1, immutable.Set.empty, new ScUndefinedSubstitutor()) //todo: with implcits?
             case _ => return false //todo?
           }
 
@@ -187,10 +189,7 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
           }
           case _ =>
         }
-        u.getSubstitutor match {
-          case None => false
-          case _ => true
-        }
+        u.getSubstitutor.isDefined
       }
       case (_, m2: PsiMethod) => true
       case (e1, e2) => Compatibility.compatibleWithViewApplicability(getType(e1), getType(e2))
@@ -265,7 +264,7 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
 
   //todo: implement existential dual
   def getType(e: PsiNamedElement): ScType = {
-    val res = e match {
+    e match {
       case fun: ScFun => fun.polymorphicType
       case f: ScFunction if f.isConstructor =>
         f.containingClass match {
@@ -278,21 +277,20 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
       case p: ScPrimaryConstructor => p.polymorphicType
       case m: PsiMethod => ResolveUtils.javaPolymorphicType(m, ScSubstitutor.empty, elem.getResolveScope)
       case refPatt: ScReferencePattern => refPatt.getParent /*id list*/ .getParent match {
-        case pd: ScPatternDefinition if (PsiTreeUtil.isContextAncestor(pd, elem, true)) =>
-          pd.declaredType match {case Some(t) => t; case None => types.Nothing}
-        case vd: ScVariableDefinition if (PsiTreeUtil.isContextAncestor(vd, elem, true)) =>
-          vd.declaredType match {case Some(t) => t; case None => types.Nothing}
+        case pd: ScPatternDefinition if PsiTreeUtil.isContextAncestor(pd, elem, true) =>
+          pd.declaredType match {
+            case Some(t) => t
+            case None => types.Nothing
+          }
+        case vd: ScVariableDefinition if PsiTreeUtil.isContextAncestor(vd, elem, true) =>
+          vd.declaredType match {
+            case Some(t) => t
+            case None => types.Nothing
+          }
         case _ => refPatt.getType(TypingContext.empty).getOrAny
       }
       case typed: ScTypedDefinition => typed.getType(TypingContext.empty).getOrAny
       case _ => types.Nothing
-    }
-
-    res match {
-      case ScMethodType(retType, _, true) => retType
-      case ScTypePolymorphicType(ScMethodType(retType, _, true), typeParameters) =>
-        ScTypePolymorphicType(retType, typeParameters)
-      case tp => tp
     }
   }
 }

@@ -112,7 +112,7 @@ class ScalaGoToDeclarationHandler extends GotoDeclarationHandler {
               case Some(c: ScClass) => Seq(o, c) // Offer navigation to the class and object for apply/unapply.
               case _ => Seq(o)
             }
-          case td: ScTypeDefinition if td.syntheticMembers.contains(fun) => Seq(td)
+          case td: ScTypeDefinition if td.syntheticMethodsNoOverride.contains(fun) => Seq(td)
           case _ => fun.getSyntheticNavigationElement match {
             case Some(element) => Seq(element)
             case None => Seq(element)

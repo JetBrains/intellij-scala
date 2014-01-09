@@ -31,6 +31,8 @@ object CachesUtil {
   type MappedKey[Data, Result] = Key[CachedValue[ConcurrentHashMap[Data, Result]]]
   val TYPE_AFTER_IMPLICIT_KEY: MappedKey[(Boolean, Boolean, Option[ScType], Boolean, Boolean), ExpressionTypeResult] =
     Key.create("type.after.implicit.key")
+  val TYPE_OF_SPECIAL_EXPR_AFTER_IMPLICIT_KEY: MappedKey[(ScType, Option[ScType]), (TypeResult[ScType], collection.Set[ImportUsed])] =
+    Key.create("type.of.special.expr.after.implicit.key")
   val TYPE_WITHOUT_IMPLICITS: MappedKey[(Boolean, Boolean), TypeResult[ScType]] =
     Key.create("type.without.implicits.key")
   val NON_VALUE_TYPE_KEY: MappedKey[(Boolean, Boolean), TypeResult[ScType]] = Key.create("non.value.type.key")
@@ -40,6 +42,8 @@ object CachesUtil {
     Key.create("implicit.map1.key")
   val IMPLICIT_MAP2_KEY: MappedKey[(Option[ScType], Boolean, Seq[ScType], Option[ScType]), Seq[ImplicitResolveResult]] =
     Key.create("implicit.map2.key")
+  val IMPLICIT_SIMPLE_MAP_KEY: MappedKey[(Boolean, Option[ScType]), ArrayBuffer[ScImplicitlyConvertible.ImplicitMapResult]] =
+    Key.create("implicit.simple.map.key")
   val RESOLVE_KEY: MappedKey[Boolean, Array[ResolveResult]] =
     Key.create("resolve.key")
   val EXPRESSION_APPLY_SHAPE_RESOLVE_KEY: MappedKey[(ScType, Seq[ScExpression], Option[MethodInvocation], TypeResult[ScType]), Array[ScalaResolveResult]] =
@@ -50,8 +54,6 @@ object CachesUtil {
     Key.create("ref.element.shape.resolve.constr.key")
   val REF_ELEMENT_RESOLVE_CONSTR_KEY: Key[CachedValue[Array[ResolveResult]]] =
     Key.create("ref.element.resolve.constr.key")
-  val IMPLICIT_SIMPLE_MAP_KEY: Key[CachedValue[ArrayBuffer[ScImplicitlyConvertible.ImplicitMapResult]]] =
-    Key.create("implicit.simple.map.key")
   val NO_CONSTRUCTOR_RESOLVE_KEY: Key[CachedValue[Array[ResolveResult]]] = Key.create("no.constructor.resolve.key")
   val OBJECT_SYNTHETIC_MEMBERS_KEY: Key[CachedValue[Seq[PsiMethod]]] = Key.create("object.synthetic.members.key")
   val SYNTHETIC_MEMBERS_KEY: Key[CachedValue[Seq[PsiMethod]]] = Key.create("stynthetic.members.key")
