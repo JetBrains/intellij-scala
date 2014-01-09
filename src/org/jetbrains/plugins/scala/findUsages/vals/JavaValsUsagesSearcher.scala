@@ -7,7 +7,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScVariable, ScValue}
 import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiMethod
-import com.intellij.psi.search.{RequestResultProcessor, UsageSearchContext}
+import com.intellij.psi.search.{PsiSearchHelper, UsageSearchContext, TextOccurenceProcessor}
 import com.intellij.psi.{PsiReferenceExpression, PsiElement, PsiReference}
 import org.jetbrains.plugins.scala.lang.psi.light.{StaticPsiTypedDefinitionWrapper, PsiTypedDefinitionWrapper}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
@@ -27,12 +27,12 @@ class JavaValsUsagesSearcher extends QueryExecutor[PsiReference, ReferencesSearc
         case vals: ScTypedDefinition => ScalaPsiUtil.nameContext(vals) match {
           case _: ScValue | _: ScVariable | _: ScClassParameter =>
             val name: String = vals.getName
-            val processor = new RequestResultProcessor {
-              def processTextOccurrence(element: PsiElement, offsetInElement: Int, consumer: Processor[PsiReference]): Boolean = {
+            val processor = new TextOccurenceProcessor {
+              def execute(element: PsiElement, offsetInElement: Int): Boolean = {
                 val references = element.getReferences
                 for (ref <- references if ref.getRangeInElement.contains(offsetInElement)) {
                   ref match {
-                    case refElement: PsiReferenceExpression =>
+                    case refElement: PsiReferenceExpression => {
                       refElement.resolve match {
                         case f: FakePsiMethod if f.navElement == vals =>
                           if (!consumer.process(refElement)) return false
@@ -41,23 +41,25 @@ class JavaValsUsagesSearcher extends QueryExecutor[PsiReference, ReferencesSearc
                           if (!consumer.process(refElement)) return false
                         case _ =>
                       }
+                    }
                     case _ =>
                   }
                 }
                 true
               }
             }
-            queryParameters.getOptimizer.searchWord(name, scope, UsageSearchContext.IN_CODE, true, processor)
+            val helper: PsiSearchHelper = PsiSearchHelper.SERVICE.getInstance(vals.getProject)
+            helper.processElementsWithWord(processor, scope, name, UsageSearchContext.IN_CODE, true)
           case _ =>
         }
         case wrapper: PsiTypedDefinitionWrapper => //only this is added for find usages factory
           val name: String = wrapper.getName
-          val processor = new RequestResultProcessor {
-            def processTextOccurrence(element: PsiElement, offsetInElement: Int, consumer: Processor[PsiReference]): Boolean = {
+          val processor = new TextOccurenceProcessor {
+            def execute(element: PsiElement, offsetInElement: Int): Boolean = {
               val references = element.getReferences
               for (ref <- references if ref.getRangeInElement.contains(offsetInElement)) {
                 ref match {
-                  case refElement: PsiReferenceExpression =>
+                  case refElement: PsiReferenceExpression => {
                     refElement.resolve match {
                       case t: PsiTypedDefinitionWrapper if t.getNavigationElement == wrapper.getNavigationElement &&
                               t.getName == wrapper.getName =>
@@ -67,13 +69,15 @@ class JavaValsUsagesSearcher extends QueryExecutor[PsiReference, ReferencesSearc
                         if (!consumer.process(refElement)) return false
                       case _ =>
                     }
+                  }
                   case _ =>
                 }
               }
               true
             }
           }
-          queryParameters.getOptimizer.searchWord(name, scope, UsageSearchContext.IN_CODE, true, processor)
+          val helper: PsiSearchHelper = PsiSearchHelper.SERVICE.getInstance(wrapper.getProject)
+          helper.processElementsWithWord(processor, scope, name, UsageSearchContext.IN_CODE, true)
         case _ =>
       }
       true

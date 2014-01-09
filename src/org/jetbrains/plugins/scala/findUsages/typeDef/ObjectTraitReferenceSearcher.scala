@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.findUsages.typeDef
 import com.intellij.psi.search.searches.ReferencesSearch
 import com.intellij.util.{Processor, QueryExecutor}
 import com.intellij.psi.{PsiElement, PsiReference}
-import com.intellij.psi.search.{RequestResultProcessor, UsageSearchContext, PsiSearchHelper, TextOccurenceProcessor}
+import com.intellij.psi.search.{UsageSearchContext, PsiSearchHelper, TextOccurenceProcessor}
 import org.jetbrains.plugins.scala.lang.psi.light.PsiClassWrapper
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTrait, ScObject}
 import com.intellij.openapi.project.IndexNotReadyException
@@ -30,8 +30,8 @@ class ObjectTraitReferenceSearcher extends QueryExecutor[PsiReference, Reference
         case _ => None
       }
       toProcess.foreach{ case (elem, name) =>
-        val processor = new RequestResultProcessor {
-          def processTextOccurrence(element: PsiElement, offsetInElement: Int, consumer: Processor[PsiReference]): Boolean = {
+        val processor = new TextOccurenceProcessor {
+          def execute(element: PsiElement, offsetInElement: Int): Boolean = {
             val references = element.getReferences
             for (ref <- references if ref.getRangeInElement.contains(offsetInElement)) {
               if (ref.isReferenceTo(elem) || ref.resolve() == elem) {
@@ -41,8 +41,9 @@ class ObjectTraitReferenceSearcher extends QueryExecutor[PsiReference, Reference
             true
           }
         }
+        val helper: PsiSearchHelper = PsiSearchHelper.SERVICE.getInstance(elem.getProject)
         try {
-          queryParameters.getOptimizer.searchWord(name, scope, UsageSearchContext.IN_CODE, true, processor)
+          helper.processElementsWithWord(processor, scope, name, UsageSearchContext.IN_CODE, true)
         }
         catch {
           case ignore: IndexNotReadyException =>
