@@ -5,7 +5,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockExpr
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.util.TextRange
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import java.util.ArrayList
+import java.util
 import com.intellij.psi.{TokenType, PsiElement}
 
 /**
@@ -15,7 +15,7 @@ import com.intellij.psi.{TokenType, PsiElement}
 class ScalaCodeBlockSelectioner extends ExtendWordSelectionHandlerBase {
   def canSelect(e: PsiElement) = e.isInstanceOf[ScBlockExpr]
 
-  override def select(e: PsiElement, editorText: CharSequence, cursorOffset: Int, editor: Editor) = {
+  override def select(e: PsiElement, editorText: CharSequence, cursorOffset: Int, editor: Editor): util.List[TextRange] = {
     var firstChild = e.getNode.getFirstChildNode
     var lastChild = e.getNode.getLastChildNode
     if (firstChild.getElementType == ScalaTokenTypes.tLBRACE && lastChild.getElementType == ScalaTokenTypes.tRBRACE) {
@@ -27,10 +27,8 @@ class ScalaCodeBlockSelectioner extends ExtendWordSelectionHandlerBase {
       }
       val start = firstChild.getTextRange.getEndOffset
       val end = lastChild.getTextRange.getStartOffset
-      ExtendWordSelectionHandlerBase.expandToWholeLine(editorText, new TextRange(start, end))
-    }
-    else {
-      new ArrayList[TextRange]
-    }
+      if (start >= end) new util.ArrayList[TextRange]() // '{   }' case
+      else ExtendWordSelectionHandlerBase.expandToWholeLine(editorText, new TextRange(start, end))
+    } else new util.ArrayList[TextRange]
   }
 }

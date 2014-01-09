@@ -6,7 +6,7 @@ import com.intellij.psi._
 import com.intellij.openapi.editor.{ScrollType, Editor}
 import com.intellij.refactoring.RefactoringBundle
 import org.jetbrains.plugins.scala.lang.refactoring.util.{ScalaRefactoringUtil, ScalaNamesUtil}
-import com.intellij.psi.search.SearchScope
+import com.intellij.psi.search.{LocalSearchScope, SearchScope}
 import java.util
 import com.intellij.openapi.util.{Key, TextRange, Pair}
 import com.intellij.refactoring.util.TextOccurrencesUtil
@@ -49,7 +49,8 @@ class ScalaInplaceRenamer(elementToRename: PsiNamedElement,
 
 
   override def collectAdditionalElementsToRename(stringUsages: util.List[Pair[PsiElement, TextRange]]) {
-    if (ScalaInplaceRenameUtil.isLocallyDefined(elementToRename)) {
+    val locallyDefined = elementToRename.getUseScope.isInstanceOf[LocalSearchScope]
+    if (locallyDefined) {
       val stringToSearch: String = ScalaNamesUtil.scalaName(elementToRename)
       val currentFile: PsiFile = PsiDocumentManager.getInstance(myProject).getPsiFile(myEditor.getDocument)
       if (stringToSearch != null) {

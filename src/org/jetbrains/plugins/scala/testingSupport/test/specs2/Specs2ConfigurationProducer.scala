@@ -46,9 +46,12 @@ class Specs2ConfigurationProducer extends {
 
     val parent: ScTypeDefinition = PsiTreeUtil.getParentOfType(element, classOf[ScTypeDefinition], false)
 
+    if (parent == null) return null
+
     val settings = RunManager.getInstance(location.getProject).createRunConfiguration(parent.name, confFactory)
     val runConfiguration = settings.getConfiguration.asInstanceOf[Specs2RunConfiguration]
     val (testClassPath, testName) = getLocationClassAndTest(location)
+    if (testClassPath == null) return null
     runConfiguration.setTestClassPath(testClassPath)
     runConfiguration.setTestKind(TestKind.CLASS)
 

@@ -101,8 +101,9 @@
                  id="scalaExplicitlyImportedWeigher" order="before explicitlyImported"/>
         <psi.referenceContributor implementation="org.jetbrains.plugins.scala.lang.references.ScalaReferenceContributor"/>
         <codeInsight.overrideMethod language="Scala" implementationClass="org.jetbrains.plugins.scala.overrideImplement.ScalaOverrideMethodsHandler"/>
-        <lookup.charFilter implementation="org.jetbrains.plugins.scala.lang.completion.ScalaCharFilter"/>
         <codeInsight.implementMethod language="Scala" implementationClass="org.jetbrains.plugins.scala.overrideImplement.ScalaImplementMethodsHandler"/>
+        <methodImplementor implementation="org.jetbrains.plugins.scala.overrideImplement.ScalaMethodImplementor"/>
+        <lookup.charFilter implementation="org.jetbrains.plugins.scala.lang.completion.ScalaCharFilter"/>
         <lang.findUsagesProvider language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.findUsages.ScalaFindUsagesProvider"/>
         <usageTypeProvider implementation="org.jetbrains.plugins.scala.lang.findUsages.ScalaUsageTypeProvider"/>
         <importFilteringRule implementation="org.jetbrains.plugins.scala.lang.findUsages.ScalaImportFilteringRule"/>
@@ -174,7 +175,7 @@
         <referencesSearch implementation="org.jetbrains.plugins.scala.findUsages.typeDef.ObjectTraitReferenceSearcher"/>
         <referencesSearch implementation="org.jetbrains.plugins.scala.findUsages.apply.ApplyMethodSearcher"/>
         <referencesSearch implementation="org.jetbrains.plugins.scala.findUsages.apply.UnapplyMethodSearcher"/>
-        <referencesSearch implementation="org.jetbrains.plugins.scala.findUsages.vals.JavaValsUsagesSearcher"/>
+        <referencesSearch implementation="org.jetbrains.plugins.scala.findUsages.vals.JavaValsUsagesSearcher" order="last"/>
         <referencesSearch implementation="org.jetbrains.plugins.scala.findUsages.function.JavaFunctionUsagesSearcher"/>
         <referencesSearch implementation="org.jetbrains.plugins.scala.findUsages.setter.SetterMethodSearcher"/>
         <referencesSearch implementation="org.jetbrains.plugins.scala.findUsages.ScalaAliasedImportedElementSearcher"/>
@@ -239,7 +240,6 @@
         <configurationProducer implementation="org.jetbrains.plugins.scala.runner.ScalaApplicationConfigurationProducer"/>
 
         <stubElementTypeHolder class="org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes"/>
-        <filetype.stubBuilder filetype="CLASS" implementationClass="org.jetbrains.plugins.scala.decompiler.ScalaClassFileStubBuilder" order="first"/>
         <!--Stub indices -->
         <stubIndex implementation="org.jetbrains.plugins.scala.lang.psi.stubs.index.ScAllClassNamesIndex"/>
         <stubIndex implementation="org.jetbrains.plugins.scala.lang.psi.stubs.index.ScShortClassNameIndex"/>

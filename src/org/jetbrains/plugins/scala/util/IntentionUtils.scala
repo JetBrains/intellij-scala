@@ -166,7 +166,7 @@ object IntentionUtils {
     CommandProcessor.getInstance().executeCommand(project, new Runnable {
       def run() {
         val buf = new StringBuilder
-        val clazz = f.getFunctionWrapper(false, false).getContainingClass
+        val clazz = f.containingClass
         if (clazz != null && secondPart.contains(f)) buf.append(clazz.name).append(".")
 
         buf.append(f.name).append("(").append(expr.getText).append(")")
@@ -189,7 +189,7 @@ object IntentionUtils {
     CommandProcessor.getInstance().executeCommand(project, new Runnable {
       def run() {
         val buf = new StringBuilder
-        val clazz = f.getFunctionWrapper(false, false).getContainingClass
+        val clazz = f.containingClass
         if (clazz != null && secondPart.contains(f)) buf.append(clazz.qualifiedName).append(".")
 
         val bufExpr = new StringBuilder

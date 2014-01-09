@@ -1,10 +1,9 @@
 package org.jetbrains.plugins.scala
 package overrideImplement
 
-import com.intellij.codeInsight.generation.ClassMember
+import com.intellij.codeInsight.generation.{GenerateMembersUtil, PsiElementClassMember}
 import com.intellij.openapi.editor.Editor
 
-import com.intellij.psi.codeStyle.CodeStyleManager
 import com.intellij.psi.util.PsiTreeUtil
 
 import com.intellij.ui.NonFocusableCheckBox
@@ -13,28 +12,18 @@ import com.intellij.psi._
 import lang.psi.api.toplevel.typedef.{ScTrait, ScTypeDefinition, ScMember, ScTemplateDefinition}
 import lang.psi.api.toplevel.ScTypedDefinition
 import lang.psi.api.statements._
-import lang.psi.impl.ScalaPsiElementFactory
 import lang.psi.types._
 import lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.util.ScalaUtils
 import com.intellij.ide.util.MemberChooser
-import _root_.scala.collection.mutable.ArrayBuffer
+import scala.collection.mutable.ListBuffer
 import com.intellij.openapi.project.Project
 import settings.ScalaApplicationSettings
-import lang.psi.types.result.{Failure, Success, TypingContext}
 import javax.swing.{JComponent, JCheckBox}
 import collection.immutable.HashSet
 import extensions._
-import org.jetbrains.plugins.scala.actions.ScalaFileTemplateUtil
-import com.intellij.ide.fileTemplates.{FileTemplate, FileTemplateManager}
-import lang.psi.api.expr.ScBlockExpr
-import com.intellij.openapi.util.TextRange
-import config.ScalaVersionUtil
 import com.intellij.openapi.application.ApplicationManager
-import java.util.{Collections, Properties}
-import scala.annotation.tailrec
-import com.intellij.pom.Navigatable
-import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
+import scala.collection.mutable
 
 /**
  * User: Alexander Podkhalyuzin
@@ -42,224 +31,104 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
  */
 
 object ScalaOIUtil {
-  def toMembers(candidates: Seq[Any]): Array[ClassMember] = {
-    val classMembersBuf = new ArrayBuffer[ClassMember]
+
+  private def toMembers(candidates: Seq[AnyRef], isImplement: Boolean): Seq[PsiElementClassMember[_ <: PsiDocCommentOwner]] = {
+    val classMembersBuf = new ListBuffer[PsiElementClassMember[_ <: PsiDocCommentOwner]]
     for (candidate <- candidates) {
       candidate match {
         case sign: PhysicalSignature =>
-          assert(sign.method.containingClass != null, "Containing Class is null: " + sign.method.getText)
-          classMembersBuf += new ScMethodMember(sign)
+          val method = sign.method
+          assert(method.containingClass != null, "Containing Class is null: " + method.getText)
+          classMembersBuf += new ScMethodMember(sign, isImplement)
         case (name: PsiNamedElement, subst: ScSubstitutor) =>
           ScalaPsiUtil.nameContext(name) match {
             case x: ScValue =>
               assert(x.containingClass != null, "Containing Class is null: " + x.getText)
               name match {
-                case y: ScTypedDefinition => classMembersBuf += new ScValueMember(x, y, subst)
+                case y: ScTypedDefinition => classMembersBuf += new ScValueMember(x, y, subst, isImplement)
                 case _ => throw new IncorrectOperationException("Not supported type:" + x)
               }
             case x: ScVariable =>
               assert(x.containingClass != null, "Containing Class is null: " + x.getText)
               name match {
-                case y: ScTypedDefinition => classMembersBuf += new ScVariableMember(x, y, subst)
+                case y: ScTypedDefinition => classMembersBuf += new ScVariableMember(x, y, subst, isImplement)
                 case _ => throw new IncorrectOperationException("Not supported type:" + x)
               }
             case x: ScTypeAlias =>
               assert(x.containingClass != null, "Containing Class is null: " + x.getText)
-              classMembersBuf += new ScAliasMember(x, subst)
+              classMembersBuf += new ScAliasMember(x, subst, isImplement)
             case x => throw new IncorrectOperationException("Not supported type:" + x)
           }
         case x => throw new IncorrectOperationException("Not supported type:" + x)
       }
     }
-    classMembersBuf.toArray
+    classMembersBuf.toList
   }
 
   def invokeOverrideImplement(project: Project, editor: Editor, file: PsiFile, isImplement: Boolean,
-                              methodName: String = null, inferType: Boolean = false) {
+                              methodName: String = null) {
     val elem = file.findElementAt(editor.getCaretModel.getOffset - 1)
-    @tailrec
-    def getParentClass(elem: PsiElement): PsiElement = {
-      elem match {
-        case _: ScTemplateDefinition | null => elem
-        case _ => getParentClass(elem.getParent)
-      }
-    }
-    val parent = getParentClass(elem)
-    if (parent == null) return
-    val clazz = parent.asInstanceOf[ScTemplateDefinition]
-    val candidates =
+    val clazz = PsiTreeUtil.getParentOfType(elem, classOf[ScTemplateDefinition], /*strict = */false)
+    if (clazz == null) return
+    
+    val classMembers =
       if (isImplement) getMembersToImplement(clazz, withSelfType = true)
       else getMembersToOverride(clazz, withSelfType = true)
-    if (candidates.isEmpty) return
-    val classMembers = toMembers(candidates)
-    val dontInferReturnTypeCheckBox: JCheckBox = new NonFocusableCheckBox(
+    if (classMembers.isEmpty) return
+    
+    val specifyRetTypeChb: JCheckBox = new NonFocusableCheckBox(
       ScalaBundle.message("specify.return.type.explicitly"))
-    dontInferReturnTypeCheckBox.setSelected(true) //default should be true
-    val componentBuffer = ArrayBuffer[JComponent](dontInferReturnTypeCheckBox)
-    dontInferReturnTypeCheckBox.setSelected(ScalaApplicationSettings.getInstance.SPECIFY_RETURN_TYPE_EXPLICITLY)
-    class ScalaMemberChooser extends MemberChooser[ClassMember](classMembers, false, true, project, null, componentBuffer.toArray) {
-      def needsInferType = dontInferReturnTypeCheckBox.isSelected
-    }
-    var selectedMembers: java.util.List[ClassMember] = null
-    var needsInferType: Boolean = inferType
+    specifyRetTypeChb.setSelected(ScalaApplicationSettings.getInstance.SPECIFY_RETURN_TYPE_EXPLICITLY)
+
+    import scala.collection.JavaConversions._
+
+    val selectedMembers = ListBuffer[PsiElementClassMember[_ <: PsiDocCommentOwner]]()
     if (!ApplicationManager.getApplication.isUnitTestMode) {
-      val chooser = new ScalaMemberChooser
-      chooser.setTitle(if (isImplement) ScalaBundle.message("select.method.implement")
-      else ScalaBundle.message("select.method.override"))
+
+      object chooser extends MemberChooser[PsiElementClassMember[_ <: PsiDocCommentOwner]] (classMembers.toArray, false, true, project, null, Array[JComponent](specifyRetTypeChb)) {
+        def needsInferType = specifyRetTypeChb.isSelected
+      }
+      chooser.setTitle(if (isImplement) ScalaBundle.message("select.method.implement") else ScalaBundle.message("select.method.override"))
       chooser.show()
 
-      selectedMembers = chooser.getSelectedElements
-      if (selectedMembers == null || selectedMembers.size == 0) return
-      needsInferType = chooser.needsInferType
+      val elements = chooser.getSelectedElements
+      if (elements != null) selectedMembers ++= elements
+      if (selectedMembers.size == 0) return
+      ScalaApplicationSettings.getInstance.SPECIFY_RETURN_TYPE_EXPLICITLY = chooser.needsInferType
     } else {
-      selectedMembers = Collections.singletonList(classMembers.find {
-        case named: ScalaNamedMembers => named.name == methodName
+      selectedMembers ++= classMembers.find {
+        case named: ScalaNamedMembers if named.name == methodName => true
         case _ => false
-      }.get)
+      }.toSeq
     }
-    ScalaApplicationSettings.getInstance.SPECIFY_RETURN_TYPE_EXPLICITLY = needsInferType
-    runAction(selectedMembers, isImplement, clazz, editor, needsInferType)
+
+    runAction(selectedMembers, isImplement, clazz, editor, ScalaApplicationSettings.getInstance.SPECIFY_RETURN_TYPE_EXPLICITLY)
   }
 
-  def runAction(selectedMembers: java.util.List[ClassMember],
+
+  def runAction(selectedMembers: Seq[PsiElementClassMember[_ <: PsiDocCommentOwner]],
                isImplement: Boolean, clazz: ScTemplateDefinition, editor: Editor, needsInferType: Boolean) {
-    val file = clazz.getContainingFile
     ScalaUtils.runWriteAction(new Runnable {
       def run() {
-        def addUpdateThisType(subst: ScSubstitutor) = clazz.getType(TypingContext.empty) match {
-          case Success(tpe, _) => subst.addUpdateThisType(tpe)
-          case Failure(_, _) => subst
-        }
-
-        val clazzMethods = clazz.allMethods.map(_.method).toSet
-
         import scala.collection.JavaConversions._
-        for (member <- selectedMembers.reverse) {
-          val offset = editor.getCaretModel.getOffset
-          val anchor = getAnchor(offset, clazz)
-          member match {
-            case member: ScMethodMember =>
-              val method: PsiMethod = member.getElement
-              val sign = member.sign.updateSubst(addUpdateThisType)
-              val isAbstract = method match {
-                case _: ScFunctionDeclaration => true
-                case _: ScFunctionDefinition => false
-                case _ => method.hasModifierProperty(PsiModifier.ABSTRACT)
-              }
 
-              val templateName =
-                if (isAbstract) ScalaFileTemplateUtil.SCALA_IMPLEMENTED_METHOD_TEMPLATE
-                else {
-                  if (clazzMethods.contains(method))
-                    ScalaFileTemplateUtil.SCALA_OVERRIDDEN_METHOD_TEMPLATE
-                  else ScalaFileTemplateUtil.SCALA_IMPLEMENTED_METHOD_TEMPLATE
-                }
-
-              val template = FileTemplateManager.getInstance().getCodeTemplate(templateName)
-
-              val properties = new Properties()
-
-              val returnType = method match {
-                case fun: ScFunction => sign.substitutor.subst(fun.returnType.getOrAny)
-                case method: PsiMethod =>
-                  sign.substitutor.subst(ScType.create(Option(method.getReturnType).getOrElse(PsiType.VOID),
-                    method.getProject, method.getResolveScope
-                  ))
-              }
-              val standardValue = ScalaPsiElementFactory.getStandardValue(returnType)
-              properties.setProperty(FileTemplate.ATTRIBUTE_RETURN_TYPE, ScType.presentableText(returnType))
-              properties.setProperty(FileTemplate.ATTRIBUTE_DEFAULT_RETURN_VALUE, standardValue)
-              val methodName = ScalaNamesUtil.changeKeyword(method.name)
-              properties.setProperty(FileTemplate.ATTRIBUTE_CALL_SUPER, "super." + methodName + (method match {
-                case fun: ScFunction =>
-                  fun.paramClauses.clauses.map(_.parameters.map(_.name).mkString("(", ", ", ")")).mkString
-                case method: PsiMethod =>
-                  if (method.isAccessor) ""
-                  else {
-                    def paramText(param: PsiParameter) = {
-                      val name = ScalaNamesUtil.changeKeyword(param.name)
-                      val whitespace = if (name.endsWith("_")) " " else ""
-                      name + (if (param.isVarArgs) whitespace + ": _*" else "")
-                    }
-                    method.getParameterList.getParameters.map(paramText).mkString("(", ", ", ")")
-                  }
-              }))
-              import ScalaVersionUtil._
-              properties.setProperty("Q_MARK",
-                if (isGeneric(file, false, SCALA_2_7, SCALA_2_8, SCALA_2_9)) standardValue
-                else "???")
-
-              ScalaFileTemplateUtil.setClassAndMethodNameProperties(properties, method.containingClass, method)
-
-              val body = template.getText(properties)
-
-              val m = ScalaPsiElementFactory.createOverrideImplementMethod(sign, method.getManager,
-                !isImplement, needsInferType, body)
-              adjustTypesAndSetCaret(clazz.addMember(m, anchor), editor)
-            case member: ScAliasMember =>
-              val alias = member.getElement
-              val substitutor = addUpdateThisType(member.substitutor)
-              val m = ScalaPsiElementFactory.createOverrideImplementType(alias, substitutor, alias.getManager, !isImplement)
-              adjustTypesAndSetCaret(clazz.addMember(m, anchor), editor)
-            case _: ScValueMember | _: ScVariableMember =>
-              val isVal = member match {case _: ScValueMember => true case _: ScVariableMember => false}
-              val value = member match {case x: ScValueMember => x.element case x: ScVariableMember => x.element}
-              val origSubstitutor = member match {
-                case x: ScValueMember => x.substitutor
-                case x: ScVariableMember => x.substitutor
-              }
-              val substitutor = addUpdateThisType(origSubstitutor)
-              val m = ScalaPsiElementFactory.createOverrideImplementVariable(value, substitutor, value.getManager,
-                !isImplement, isVal, needsInferType)
-              adjustTypesAndSetCaret(clazz.addMember(m, anchor), editor)
-            case _ =>
-          }
-        }
+        val genInfos = selectedMembers.map(new ScalaGenerationInfo(_, needsInferType))
+        val anchor = getAnchor(editor.getCaretModel.getOffset, clazz)
+        val inserted = GenerateMembersUtil.insertMembersBeforeAnchor(clazz, anchor.getOrElse(null), genInfos)
+        inserted.headOption.foreach(_.positionCaret(editor, toEditMethodBody = true))
       }
     }, clazz.getProject, if (isImplement) "Implement method" else "Override method")
   }
 
-  def getMembersToImplement(clazz: ScTemplateDefinition, withOwn: Boolean = false, withSelfType: Boolean = false): Seq[Object] = {
-    val buf = new ArrayBuffer[Object]
-    if (withSelfType) {
-      buf ++= clazz.allSignaturesIncludingSelfType
-      buf ++= clazz.allTypeAliasesIncludingSelfType
-      buf ++= clazz.allValsIncludingSelfType
-    } else {
-      buf ++= clazz.allSignatures
-      buf ++= clazz.allTypeAliases
-      buf ++= clazz.allVals
+  def getMembersToImplement(clazz: ScTemplateDefinition, withOwn: Boolean = false, withSelfType: Boolean = false): Seq[PsiElementClassMember[_ <: PsiDocCommentOwner]] = {
+    val filtered = allMembers(clazz, withSelfType).filter {
+      case sign: PhysicalSignature => needImplement(sign, clazz, withOwn)
+      case (named: PsiNamedElement, subst: ScSubstitutor) => needImplement(named, clazz, withOwn)
+      case _ => false
     }
-    val buf2 = new ArrayBuffer[Object]
-    for (element <- buf) {
-      element match {
-        case sign: PhysicalSignature =>
-          val m = sign.method
-          val name = if (m == null) "" else m.name
-          m match {
-            case _ if isProductAbstractMethod(m, clazz) =>
-            case x if name == "$tag" || name == "$init$" =>
-            case x if !withOwn && x.containingClass == clazz =>
-            case x if x.containingClass != null && x.containingClass.isInterface &&
-              !x.containingClass.isInstanceOf[ScTrait] => buf2 += sign
-            case x if x.hasModifierPropertyScala("abstract") && !x.isInstanceOf[ScFunctionDefinition] &&
-              !x.isInstanceOf[ScPatternDefinition] && !x.isInstanceOf[ScVariableDefinition] => buf2 += sign
-            case x: ScFunctionDeclaration if x.hasAnnotation("scala.native") == None =>
-              buf2 += sign
-            case _ =>
-          }
-        case (name: PsiNamedElement, subst: ScSubstitutor) =>
-          ScalaPsiUtil.nameContext(name) match {
-            case x: ScValueDeclaration if withOwn || x.containingClass != clazz => buf2 += element
-            case x: ScVariableDeclaration if withOwn || x.containingClass != clazz => buf2 += element
-            case x: ScTypeAliasDeclaration if withOwn || x.containingClass != clazz => buf2 += element
-            case _ =>
-          }
-        case _ =>
-      }
-    }
-    buf2.toSeq
+    toMembers(filtered.toSeq, isImplement = true)
   }
+
 
   def isProductAbstractMethod(m: PsiMethod, clazz: PsiClass,
                               visited: HashSet[PsiClass] = new HashSet) : Boolean = {
@@ -286,89 +155,96 @@ object ScalaOIUtil {
     }
   }
 
-  def getMembersToOverride(clazz: ScTemplateDefinition, withSelfType: Boolean): Seq[Object] = {
-    val buf = new ArrayBuffer[Object]
-    if (withSelfType) {
-      buf ++= clazz.allMethodsIncludingSelfType
-      buf ++= clazz.allTypeAliasesIncludingSelfType
-      buf ++= clazz.allValsIncludingSelfType
-    } else {
-      buf ++= clazz.allMethods
-      buf ++= clazz.allTypeAliases
-      buf ++= clazz.allVals
+  def getMembersToOverride(clazz: ScTemplateDefinition, withSelfType: Boolean): Seq[PsiElementClassMember[_ <: PsiDocCommentOwner]] = {
+    val filtered = allMembers(clazz, withSelfType).filter {
+      case sign: PhysicalSignature => needOverride(sign, clazz)
+      case (named: PsiNamedElement, _: ScSubstitutor) => needOverride(named, clazz)
+      case _ => false
     }
-    val buf2 = new ArrayBuffer[Object]
-    for (element <- buf) {
-      element match {
-        case sign: PhysicalSignature =>
-          sign.method match {
-            case _ if isProductAbstractMethod(sign.method, clazz) => buf2 += sign
-            case f: ScFunctionDeclaration if f.hasAnnotation("scala.native") == None =>
-            case x if x.name == "$tag" || x.name == "$init$"=>
-            case x: ScFunction if x.isSyntheticCopy =>
-            case x if x.containingClass == clazz =>
-            case x: PsiModifierListOwner if (x.hasModifierPropertyScala("abstract") &&
+    toMembers(filtered.toSeq, isImplement = false)
+  }
+
+
+  private def allMembers(clazz: ScTemplateDefinition, withSelfType: Boolean): Iterable[Object] = {
+    if (withSelfType) clazz.allMethodsIncludingSelfType ++ clazz.allTypeAliasesIncludingSelfType ++ clazz.allValsIncludingSelfType
+    else clazz.allMethods ++ clazz.allTypeAliases ++ clazz.allVals
+  }
+
+  private def needOverride(sign: PhysicalSignature, clazz: ScTemplateDefinition): Boolean = {
+    sign.method match {
+      case _ if isProductAbstractMethod(sign.method, clazz) => true
+      case f: ScFunctionDeclaration if f.hasAnnotation("scala.native") == None => false
+      case x if x.name == "$tag" || x.name == "$init$"=> false
+      case x: ScFunction if x.isSyntheticCopy => false
+      case x if x.containingClass == clazz => false
+      case x: PsiModifierListOwner if (x.hasModifierPropertyScala("abstract") &&
               !x.isInstanceOf[ScFunctionDefinition])
-                || x.hasModifierPropertyScala("final") =>
-            case x if x.isConstructor =>
-            case method =>
-              var flag = false
-              if (method match {case x: ScFunction => x.parameters.length == 0 case _ => method.getParameterList.getParametersCount == 0}) {
-                for (pair <- clazz.allVals; v = pair._1) if (v.name == method.name) {
-                  ScalaPsiUtil.nameContext(v) match {
-                    case x: ScValue if x.containingClass == clazz => flag = true
-                    case x: ScVariable if x.containingClass == clazz => flag = true
-                    case _ =>
-                  }
-                }
-              }
-              if (!flag) buf2 += sign
+              || x.hasModifierPropertyScala("final") => false
+      case x if x.isConstructor => false
+      case method =>
+        var flag = false
+        if (method match {case x: ScFunction => x.parameters.length == 0 case _ => method.getParameterList.getParametersCount == 0}) {
+          for (pair <- clazz.allVals; v = pair._1) if (v.name == method.name) {
+            ScalaPsiUtil.nameContext(v) match {
+              case x: ScValue if x.containingClass == clazz => flag = true
+              case x: ScVariable if x.containingClass == clazz => flag = true
+              case _ =>
+            }
           }
-        case (name: PsiNamedElement, subst: ScSubstitutor) =>
-          ScalaPsiUtil.nameContext(name) match {
-            case x: PsiModifierListOwner if x.hasModifierPropertyScala("final") =>
-            case x: ScPatternDefinition if x.containingClass != clazz =>
-              var flag = false
-              for (signe <- clazz.allMethods if signe.method.containingClass == clazz) {
-                //containingClass == clazz so we sure that this is ScFunction (it is safe cast)
-                signe.method match {
-                  case fun: ScFunction => if (fun.parameters.length == 0 && x.declaredElements.exists(_.name == fun.name)) flag = true
-                  case _ =>  //todo: ScPrimaryConstructor?
-                }
-              }
-              for (pair <- clazz.allVals; v = pair._1) if (v.name == name.name) {
-                ScalaPsiUtil.nameContext(v) match {
-                  case x: ScValue if x.containingClass == clazz => flag = true
-                  case x: ScVariable if x.containingClass == clazz => flag = true
-                  case _ =>
-                }
-              }
-              if (!flag) buf2 += element
-            case x: ScVariableDefinition if x.containingClass != clazz =>
-              var flag = false
-              for (signe <- clazz.allMethods if signe.method.containingClass == clazz) {
-                //containingClass == clazz so we sure that this is ScFunction (it is safe cast)
-                signe.method match {
-                  case function: ScFunction if function.parameters.length == 0 && x.declaredElements.exists(_.name == signe.method.name) => flag = true
-                  case _ =>
-                }
-              }
-              for (pair <- clazz.allVals; v = pair._1) if (v.name == name.name) {
-                ScalaPsiUtil.nameContext(v) match {
-                  case x: ScValue if x.containingClass == clazz => flag = true
-                  case x: ScVariable if x.containingClass == clazz => flag = true
-                  case _ =>
-                }
-              }
-              if (!flag) buf2 += element
-            case x: ScTypeAliasDefinition if x.containingClass != clazz => buf2 += element
+        }
+        !flag
+    }
+  }
+
+  private def needImplement(sign: PhysicalSignature, clazz: ScTemplateDefinition, withOwn: Boolean): Boolean = {
+    val m = sign.method
+    val name = if (m == null) "" else m.name
+    m match {
+      case _ if isProductAbstractMethod(m, clazz) => false
+      case x if name == "$tag" || name == "$init$" => false
+      case x if !withOwn && x.containingClass == clazz => false
+      case x if x.containingClass != null && x.containingClass.isInterface &&
+              !x.containingClass.isInstanceOf[ScTrait] => true
+      case x if x.hasModifierPropertyScala("abstract") && !x.isInstanceOf[ScFunctionDefinition] &&
+              !x.isInstanceOf[ScPatternDefinition] && !x.isInstanceOf[ScVariableDefinition] => true
+      case x: ScFunctionDeclaration if x.hasAnnotation("scala.native") == None => true
+      case _ => false
+    }
+  }
+
+  private def needOverride(named: PsiNamedElement, clazz: ScTemplateDefinition) = {
+    ScalaPsiUtil.nameContext(named) match {
+      case x: PsiModifierListOwner if x.hasModifierPropertyScala("final") => false
+      case x @ (_: ScPatternDefinition | _: ScVariableDefinition) if x.asInstanceOf[ScMember].containingClass != clazz =>
+        val declaredElements = x match {case v: ScValue => v.declaredElements case v: ScVariable => v.declaredElements}
+        var flag = false
+        for (signe <- clazz.allMethods if signe.method.containingClass == clazz) {
+          //containingClass == clazz so we sure that this is ScFunction (it is safe cast)
+          signe.method match {
+            case fun: ScFunction => if (fun.parameters.length == 0 && declaredElements.exists(_.name == fun.name)) flag = true
+            case _ =>  //todo: ScPrimaryConstructor?
+          }
+        }
+        for (pair <- clazz.allVals; v = pair._1) if (v.name == named.name) {
+          ScalaPsiUtil.nameContext(v) match {
+            case x: ScValue if x.containingClass == clazz => flag = true
+            case x: ScVariable if x.containingClass == clazz => flag = true
             case _ =>
           }
-        case _ =>
-      }
+        }
+        !flag
+      case x: ScTypeAliasDefinition if x.containingClass != clazz => true
+      case _ => false
     }
+  }
 
-    buf2.toSeq
+  private def needImplement(named: PsiNamedElement, clazz: ScTemplateDefinition, withOwn: Boolean): Boolean = {
+    ScalaPsiUtil.nameContext(named) match {
+      case x: ScValueDeclaration if withOwn || x.containingClass != clazz => true
+      case x: ScVariableDeclaration if withOwn || x.containingClass != clazz => true
+      case x: ScTypeAliasDeclaration if withOwn || x.containingClass != clazz => true
+      case _ => false
+    }
   }
 
   def getAnchor(offset: Int, clazz: ScTemplateDefinition) : Option[ScMember] = {
@@ -389,41 +265,8 @@ object ScalaOIUtil {
     }
   }
 
-  private def adjustTypesAndSetCaret(meth: PsiElement, editor: Editor) {
-    ScalaPsiUtil.adjustTypes(meth)
-    //hack for postformatting IDEA bug.
-    val member = CodeStyleManager.getInstance(meth.getProject).reformat(meth)
-    //Setting selection
-    val body: PsiElement = member match {
-      case meth: ScTypeAliasDefinition => meth.aliasedTypeElement
-      case ScPatternDefinition.expr(expr) => expr
-      case ScVariableDefinition.expr(expr) => expr
-      case method: ScFunctionDefinition => method.body match {
-        case Some(x) => x
-        case None => return
-      }
-      case _ => return
-    }
-
-    member match {
-      case n: Navigatable => n.navigate(true)
-      case _ =>
-    }
-
-    body match {
-      case e: ScBlockExpr =>
-        val statements = e.statements
-        if (statements.length == 0) {
-          editor.getCaretModel.moveToOffset(body.getTextRange.getStartOffset + 1)
-        } else {
-          val range = new TextRange(statements(0).getTextRange.getStartOffset, statements(statements.length - 1).getTextRange.getEndOffset)
-          editor.getCaretModel.moveToOffset(range.getStartOffset)
-          editor.getSelectionModel.setSelection(range.getStartOffset, range.getEndOffset)
-        }
-      case _ =>
-        val range = body.getTextRange
-        editor.getCaretModel.moveToOffset(range.getStartOffset)
-        editor.getSelectionModel.setSelection(range.getStartOffset, range.getEndOffset)
-    }
+  def methodSignaturesToOverride(clazz: ScTemplateDefinition, withSelfType: Boolean): Iterable[PhysicalSignature] = {
+    val all = if (withSelfType) clazz.allMethodsIncludingSelfType else clazz.allMethods
+    all.filter(needOverride(_, clazz))
   }
 }

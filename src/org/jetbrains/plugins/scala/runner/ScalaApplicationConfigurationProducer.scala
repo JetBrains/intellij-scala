@@ -143,16 +143,17 @@ class ScalaApplicationConfigurationProducer extends JavaRuntimeConfigurationProd
           case f: ScFunction =>
             f.containingClass match {
               case o: ScObject =>
-                val wrapper = f.getFunctionWrapper(isStatic = true, isInterface = false)
-                if (PsiMethodUtil.isMainMethod(wrapper)) Some(wrapper)
-                else None
+                for {
+                  wrapper <- f.getFunctionWrappers(isStatic = true, isInterface = false).headOption
+                  if PsiMethodUtil.isMainMethod(wrapper)
+                } yield wrapper
               case _ => None
             }
           case _ => None
         }
       }
       isMainMethod(method) match {
-        case Some(method) => return method
+        case Some(mainMethod) => return mainMethod
         case _ => element = method.getParent
       }
       method = getContainingMethod(element)

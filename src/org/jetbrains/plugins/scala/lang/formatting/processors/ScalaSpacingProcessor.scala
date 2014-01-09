@@ -1103,7 +1103,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
 
       //class params
       case (ScalaTokenTypes.tIDENTIFIER | ScalaElementTypes.TYPE_PARAM_CLAUSE, ScalaElementTypes.PRIMARY_CONSTRUCTOR, _, _)
-        if !rightNode.getPsi.asInstanceOf[ScPrimaryConstructor].hasAnnotation &&
+        if rightNode.getPsi.asInstanceOf[ScPrimaryConstructor].annotations.isEmpty &&
                 !rightNode.getPsi.asInstanceOf[ScPrimaryConstructor].hasModifier => NO_SPACING
       //Type*
       case (_, ScalaTokenTypes.tIDENTIFIER, _, ScalaElementTypes.PARAM_TYPE) if rightString == "*" => NO_SPACING

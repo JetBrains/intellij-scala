@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.lang.overrideImplement
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.jetbrains.plugins.scala.overrideImplement.ScalaOIUtil
 import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAdapter
+import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 
 /**
  * @author Alefas
@@ -14,7 +15,8 @@ class ScalaOverrideImplementTest extends ScalaLightPlatformCodeInsightTestCaseAd
   def runTest(methodName: String, fileText: String, expectedText: String, isImplement: Boolean,
               needsInferType: Boolean = true) {
     configureFromFileTextAdapter("dummy.scala", fileText)
-    ScalaOIUtil.invokeOverrideImplement(getProjectAdapter, getEditorAdapter, getFileAdapter, isImplement, methodName, needsInferType)
+    ScalaApplicationSettings.getInstance.SPECIFY_RETURN_TYPE_EXPLICITLY = needsInferType
+    ScalaOIUtil.invokeOverrideImplement(getProjectAdapter, getEditorAdapter, getFileAdapter, isImplement, methodName)
     checkResultByText(expectedText)
   }
 
@@ -331,7 +333,7 @@ class ScalaOverrideImplementTest extends ScalaLightPlatformCodeInsightTestCaseAd
         |}
         |trait B {
         |  self: A =>
-        |  override def foo: Int = <selection>???</selection>
+        |  override def foo: Int = <selection>self.foo</selection>
         |}
       """.replace("\r", "").stripMargin.trim
     val methodName: String = "foo"

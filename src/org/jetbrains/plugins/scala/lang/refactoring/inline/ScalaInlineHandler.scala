@@ -118,7 +118,7 @@ class ScalaInlineHandler extends InlineHandler {
 
     def getSettings(v: ScDeclaredElementsHolder, inlineTitleSuffix: String, inlineDescriptionSuffix: String): InlineHandler.Settings = {
       val bind = v.declaredElements.apply(0)
-      val refs = ReferencesSearch.search(bind).findAll.asScala
+      val refs = ReferencesSearch.search(bind, bind.getUseScope).findAll.asScala
       val inlineTitle = title(inlineTitleSuffix)
       ScalaRefactoringUtil.highlightOccurrences(element.getProject, refs.map(_.getElement).toArray, editor)
       val settings = new InlineHandler.Settings {def isOnlyOneReferenceToInline: Boolean = false}
@@ -171,7 +171,7 @@ class ScalaInlineHandler extends InlineHandler {
   private def usedInSameClassOnly(named: ScNamedElement): Boolean = {
     ScalaPsiUtil.nameContext(named) match {
       case member: ScMember =>
-        ReferencesSearch.search(named).findAll.asScala.forall {
+        ReferencesSearch.search(named, named.getUseScope).findAll.asScala.forall {
           ref => member.containingClass == null || PsiTreeUtil.isAncestor(member.containingClass, ref.getElement, true)
         }
       case _ => true

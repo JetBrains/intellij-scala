@@ -15,6 +15,7 @@ import com.intellij.openapi.project.{Project, ProjectManager}
 import reflect.NameTransformer
 import scala.annotation.tailrec
 import java.io.IOException
+import org.jetbrains.plugins.scala.lang.psi.stubs.elements.StubVersion
 
 /**
  * @author ilyas
@@ -28,6 +29,7 @@ object ScClsStubBuilderFactory {
       case ex: IOException => false
     }
   }
+  
   def canBeProcessed(file: VirtualFile, bytes: Array[Byte]): Boolean = {
     val name: String = file.getNameWithoutExtension
     if (name.endsWith("$")) {
@@ -52,6 +54,8 @@ object ScClsStubBuilderFactory {
 }
 
 class ScClsStubBuilderFactory extends ClsStubBuilderFactory[ScalaFile] {
+  override def getStubVersion: Int = StubVersion.STUB_VERSION
+  
   def buildFileStub(vFile: VirtualFile, bytes: Array[Byte]): PsiFileStub[ScalaFile] = {
     buildFileStub(vFile, bytes, ProjectManager.getInstance().getDefaultProject)
   }

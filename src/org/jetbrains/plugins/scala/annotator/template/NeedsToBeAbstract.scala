@@ -7,7 +7,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTe
 import org.jetbrains.plugins.scala.annotator.quickfix.ImplementMethodsQuickFix
 import org.jetbrains.plugins.scala.annotator.quickfix.modifiers.AddModifierQuickFix
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScModifierListOwner
-import org.jetbrains.plugins.scala.overrideImplement.{ScAliasMember, ScalaOIUtil}
+import org.jetbrains.plugins.scala.overrideImplement.ScAliasMember
 import org.jetbrains.plugins.scala.overrideImplement.ScalaOIUtil._
 
 /**
@@ -27,7 +27,7 @@ object NeedsToBeAbstract extends AnnotatorPart[ScTemplateDefinition] {
     if(isAbstract(definition)) return
 
     val undefined = for {
-      member <- toMembers(getMembersToImplement(definition, withOwn = true))
+      member <- getMembersToImplement(definition, withOwn = true)
       if !member.isInstanceOf[ScAliasMember] // See SCL-2887
     } yield (member.getText, member.getParentNodeDelegate.getText)
 
@@ -38,7 +38,7 @@ object NeedsToBeAbstract extends AnnotatorPart[ScTemplateDefinition] {
         case owner: ScModifierListOwner => annotation.registerFix(new AddModifierQuickFix(owner, "abstract"))
         case _ =>
       }
-      if(!ScalaOIUtil.getMembersToImplement(definition).isEmpty) {
+      if(!getMembersToImplement(definition).isEmpty) {
         annotation.registerFix(new ImplementMethodsQuickFix(definition))
       }
     }

@@ -23,25 +23,17 @@ class ScalaAutoImportOptionsProvider extends AutoImportOptionsProvider {
       return true
     if (ScalaApplicationSettings.getInstance().ADD_IMPORTS_ON_PASTE != form.getImportOnPasteOption)
       return true
-    /*if (ScalaApplicationSettings.getInstance().SHOW_IMPORT_POPUP != form.isShowImportPopup)
-      return true*/
-    if (DaemonCodeAnalyzerSettings.getInstance().SHOW_ADD_IMPORT_HINTS != form.isShowImportPopup)
-      return true
     false
   }
 
   def apply() {
     ScalaApplicationSettings.getInstance().ADD_UNAMBIGUOUS_IMPORTS_ON_THE_FLY = form.isAddUnambiguous
     ScalaApplicationSettings.getInstance().ADD_IMPORTS_ON_PASTE = form.getImportOnPasteOption
-//    ScalaApplicationSettings.getInstance().SHOW_IMPORT_POPUP = form.isShowImportPopup
-    DaemonCodeAnalyzerSettings.getInstance().SHOW_ADD_IMPORT_HINTS = form.isShowImportPopup
   }
 
   def reset() {
     form.setAddUnambiguous(ScalaApplicationSettings.getInstance().ADD_UNAMBIGUOUS_IMPORTS_ON_THE_FLY)
     form.setImportOnPasteOption(ScalaApplicationSettings.getInstance().ADD_IMPORTS_ON_PASTE)
-//    form.setShowImportPopup(ScalaApplicationSettings.getInstance().SHOW_IMPORT_POPUP)
-    form.setShowImportPopup(DaemonCodeAnalyzerSettings.getInstance().SHOW_ADD_IMPORT_HINTS)
   }
 
   def disposeUIResources() {}

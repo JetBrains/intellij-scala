@@ -238,9 +238,9 @@ class ScObjectImpl extends ScTypeDefinitionImpl with ScObject with ScTemplateDef
         case (t, node) => node.info.namedElement match {
           case Some(fun: ScFunction) if !fun.isConstructor && fun.containingClass.isInstanceOf[ScTrait] &&
             fun.isInstanceOf[ScFunctionDefinition] =>
-            res += fun.getFunctionWrapper(isStatic = false, isInterface = false, cClass = Some(getClazz(fun.containingClass.asInstanceOf[ScTrait])))
+            res ++= fun.getFunctionWrappers(isStatic = false, isInterface = false, cClass = Some(getClazz(fun.containingClass.asInstanceOf[ScTrait])))
           case Some(fun: ScFunction) if !fun.isConstructor =>
-            res += fun.getFunctionWrapper(isStatic = false, isInterface = fun.isInstanceOf[ScFunctionDeclaration])
+            res ++= fun.getFunctionWrappers(isStatic = false, isInterface = fun.isInstanceOf[ScFunctionDeclaration])
           case Some(method: PsiMethod) if !method.isConstructor => res += method
           case Some(t: ScTypedDefinition) if t.isVal || t.isVar ||
             (t.isInstanceOf[ScClassParameter] && t.asInstanceOf[ScClassParameter].isCaseClassVal) =>
