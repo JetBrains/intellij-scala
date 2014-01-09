@@ -28,8 +28,8 @@ class SetterMethodSearcher extends QueryExecutor[PsiReference, ReferencesSearch.
 
       def processAssignments(element: PsiElement, name: String) = {
         val processor = new RequestResultProcessor {
-          def processTextOccurrence(elem: PsiElement, offsetInElement: Int, consumer: Processor[PsiReference]): Boolean = {
-            elem match {
+          def processTextOccurrence(element: PsiElement, offsetInElement: Int, consumer: Processor[PsiReference]): Boolean = {
+            element match {
               case Parent(Parent(assign: ScAssignStmt)) => assign.resolveAssignment match {
                 case Some(res) if res.element.getNavigationElement == element =>
                   Option(assign.getLExpression).foreach {
@@ -47,8 +47,8 @@ class SetterMethodSearcher extends QueryExecutor[PsiReference, ReferencesSearch.
 
       def processSimpleUsages(element: PsiElement, name: String) = {
         val processor = new RequestResultProcessor {
-          def processTextOccurrence(elem: PsiElement, offsetInElement: Int, consumer: Processor[PsiReference]): Boolean = {
-            elem match {
+          def processTextOccurrence(element: PsiElement, offsetInElement: Int, consumer: Processor[PsiReference]): Boolean = {
+            element match {
               case ref: PsiReference => ref.resolve() match {
                 case fakeMethod: FakePsiMethod if fakeMethod.navElement == element =>
                   if (!consumer.process(ref)) return false
@@ -73,8 +73,8 @@ class SetterMethodSearcher extends QueryExecutor[PsiReference, ReferencesSearch.
           case refPattern: ScReferencePattern if ScalaPsiUtil.nameContext(refPattern).isInstanceOf[ScVariable] =>
             val name = refPattern.name
             processAssignments(refPattern, name)
-            processSimpleUsages(refPattern, name + suffixJava)
             processSimpleUsages(refPattern, name + suffixScala)
+            processSimpleUsages(refPattern, name + suffixJava)
           case _ =>
         }
       }
