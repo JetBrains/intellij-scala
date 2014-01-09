@@ -10,10 +10,9 @@ import org.jetbrains.plugins.scala.lang.resolve.{ResolvableReferenceElement, Res
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScNewTemplateDefinition, ScMethodCall}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
-import com.intellij.psi.search._
+import com.intellij.psi.search.{SearchScope, UsageSearchContext, PsiSearchHelper, TextOccurenceProcessor}
 import com.intellij.openapi.project.IndexNotReadyException
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import scala.Some
 
 /**
  * Nikolay.Tropin
@@ -27,8 +26,8 @@ class ApplyUnapplyForBindingSearcher extends QueryExecutor[PsiReference, Referen
       if (!element.isValid) return true
       element match {
         case binding: ScBindingPattern =>
-          val processor = createProcessor(binding, checkApply = true, checkUnapply = true)
-          processBinding(processor, scope, binding, queryParameters)
+          val processor = createProcessor(consumer, binding, checkApply = true, checkUnapply = true)
+          processBinding(processor, scope, binding)
 
         //for bindings to anonimous classes
         case fun: ScFunctionDefinition =>
@@ -42,8 +41,8 @@ class ApplyUnapplyForBindingSearcher extends QueryExecutor[PsiReference, Referen
               case anon: ScNewTemplateDefinition =>
                 val bindingOpt = ScalaPsiUtil.findInstanceBinding(anon)
                 val binding = bindingOpt.getOrElse(return true)
-                val processor = createProcessor(binding, checkApply, checkUnapply)
-                processBinding(processor, scope, binding, queryParameters)
+                val processor = createProcessor(consumer, binding, checkApply, checkUnapply)
+                processBinding(processor, scope, binding)
               case _ =>
             }
           }
@@ -53,9 +52,10 @@ class ApplyUnapplyForBindingSearcher extends QueryExecutor[PsiReference, Referen
     true
   }
 
-  private def createProcessor(binding: ScBindingPattern, checkApply: Boolean, checkUnapply: Boolean) =
-    new RequestResultProcessor {
-      def processTextOccurrence(element: PsiElement, offsetInElement: Int, consumer: Processor[PsiReference]): Boolean = {
+
+  private def createProcessor(consumer: Processor[PsiReference], binding: ScBindingPattern, checkApply: Boolean, checkUnapply: Boolean) =
+    new TextOccurenceProcessor {
+      def execute(element: PsiElement, offsetInElement: Int): Boolean = {
         val references = element.getReferences
         val IsApply = new Apply(binding)
         val IsUnapply = new Unapply(binding)
@@ -70,9 +70,10 @@ class ApplyUnapplyForBindingSearcher extends QueryExecutor[PsiReference, Referen
       }
     }
 
-  private def processBinding(processor: RequestResultProcessor, scope: SearchScope, binding: ScBindingPattern, queryParameters: SearchParameters) {
+  private def processBinding(processor: TextOccurenceProcessor, scope: SearchScope, binding: ScBindingPattern): Boolean = {
+    val helper: PsiSearchHelper = PsiSearchHelper.SERVICE.getInstance(binding.getProject)
     try {
-      queryParameters.getOptimizer.searchWord(binding.name, scope, UsageSearchContext.IN_CODE, true, processor)
+      helper.processElementsWithWord(processor, scope, binding.name, UsageSearchContext.IN_CODE, true)
     }
     catch {
       case ignore: IndexNotReadyException => true
