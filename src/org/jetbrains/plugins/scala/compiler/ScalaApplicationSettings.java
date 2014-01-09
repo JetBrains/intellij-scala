@@ -19,13 +19,14 @@ public class ScalaApplicationSettings implements PersistentStateComponent<ScalaA
 
   public boolean COMPILE_SERVER_ENABLED = true;
 
-  private String[] incrTypes = {"SBT", "IDEA"};
-  public final List<String> INCREMENTAL_TYPES = Collections.unmodifiableList(Arrays.asList(incrTypes));
+  public static enum IncrementalType {
+    SBT, IDEA
+  }
 
   private String[] cOrders = {"Mixed", "JavaThenScala", "ScalaThenJava"};
   public final List<String> COMPILE_ORDERS = Collections.unmodifiableList(Arrays.asList(cOrders));
 
-  public String INCREMENTAL_TYPE = INCREMENTAL_TYPES.get(0);
+  public IncrementalType INCREMENTAL_COMPILATION_TYPE = IncrementalType.IDEA;
   public String COMPILE_ORDER = COMPILE_ORDERS.get(0);
   public String COMPILE_SERVER_PORT = "3200";
   public String COMPILE_SERVER_SDK;
