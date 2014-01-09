@@ -16,14 +16,14 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.Success
 import scala.Boolean
 import org.jetbrains.plugins.scala.lang.psi.types.ScCompoundType
 
-class ScPrimaryConstructorWrapper(val constr: ScPrimaryConstructor) extends {
+class ScPrimaryConstructorWrapper(val constr: ScPrimaryConstructor, isJavaVarargs: Boolean = false) extends {
   val elementFactory = JavaPsiFacade.getInstance(constr.getProject).getElementFactory
   val containingClass = {
       val res: PsiClass = constr.containingClass
       assert(res != null, s"Method: ${constr.getText}\nhas null containing class. \nContaining file text: ${constr.getContainingFile.getText}")
       res
   }
-  val methodText = ScFunctionWrapper.methodText(constr, false, false, None)
+  val methodText = ScFunctionWrapper.methodText(constr, false, false, None, isJavaVarargs)
   val method: PsiMethod = {
     try {
       elementFactory.createMethodFromText(methodText, containingClass)
@@ -62,7 +62,7 @@ object ScPrimaryConstructorWrapper {
  * @since 27.02.12
  */
 class ScFunctionWrapper(val function: ScFunction, isStatic: Boolean, isInterface: Boolean,
-                        cClass: Option[PsiClass]) extends {
+                        cClass: Option[PsiClass], isJavaVarargs: Boolean = false) extends {
   val elementFactory = JavaPsiFacade.getInstance(function.getProject).getElementFactory
   val containingClass = {
     if (cClass != None) cClass.get
@@ -79,7 +79,7 @@ class ScFunctionWrapper(val function: ScFunction, isStatic: Boolean, isInterface
       res
     }
   }
-  val methodText = ScFunctionWrapper.methodText(function, isStatic, isInterface, cClass)
+  val methodText = ScFunctionWrapper.methodText(function, isStatic, isInterface, cClass, isJavaVarargs)
   val method: PsiMethod = {
     try {
       elementFactory.createMethodFromText(methodText, containingClass)
@@ -140,7 +140,8 @@ object ScFunctionWrapper {
   /**
    * This is for Java only.
    */
-  def methodText(function: ScMethodLike, isStatic: Boolean, isInterface: Boolean, cClass: Option[PsiClass]): String = {
+  def methodText(function: ScMethodLike, isStatic: Boolean, isInterface: Boolean, cClass: Option[PsiClass], 
+                 isJavaVarargs: Boolean): String = {
     val builder = new StringBuilder
 
     builder.append(JavaConversionUtil.modifiers(function, isStatic))
@@ -201,13 +202,20 @@ object ScFunctionWrapper {
 
     builder.append(function.effectiveParameterClauses.flatMap(_.parameters).map { case param =>
       val builder = new StringBuilder
-      param.getRealParameterType(TypingContext.empty) match {
+      val varargs: Boolean = param.isRepeatedParameter && isJavaVarargs
+      val tt =
+        if (varargs) param.getType(TypingContext.empty)
+        else param.getRealParameterType(TypingContext.empty)
+      tt match {
         case Success(tp, _) =>
           if (param.isCallByNameParameter) builder.append("scala.Function0<")
           builder.append(JavaConversionUtil.typeText(subst.subst(tp), function.getProject, function.getResolveScope))
           if (param.isCallByNameParameter) builder.append(">")
         case _ => builder.append("java.lang.Object")
       }
+
+      if (varargs) builder.append("...")
+
       builder.append(" ").append(param.getName)
       builder.toString()
     }.mkString("(", ", ", ")"))

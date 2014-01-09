@@ -23,7 +23,7 @@ class ScalaParameterCompletionWeigher extends CompletionWeigher {
   def weigh(element: LookupElement, location: CompletionLocation): Comparable[_] = {
     element match {
       case item@ScalaLookupItem(param: ScParameter) => ParameterNameComparable(item.isNamedParameter)
-      case _ => ParameterNameComparable(false)
+      case _ => ParameterNameComparable(isNamedParameters = false)
     }
   }
 }

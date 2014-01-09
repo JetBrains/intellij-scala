@@ -5,10 +5,10 @@ import com.intellij.refactoring.rename.inplace.{VariableInplaceRenamer, MemberIn
 import com.intellij.psi._
 import com.intellij.openapi.editor.{ScrollType, Editor}
 import com.intellij.refactoring.RefactoringBundle
-import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
-import com.intellij.psi.search.SearchScope
+import org.jetbrains.plugins.scala.lang.refactoring.util.{ScalaRefactoringUtil, ScalaNamesUtil}
+import com.intellij.psi.search.{LocalSearchScope, SearchScope}
 import java.util
-import com.intellij.openapi.util.{TextRange, Pair}
+import com.intellij.openapi.util.{Key, TextRange, Pair}
 import com.intellij.refactoring.util.TextOccurrencesUtil
 import com.intellij.util.PairProcessor
 import org.jetbrains.plugins.scala.lang.refactoring.rename.ScalaRenameUtil
@@ -16,6 +16,7 @@ import com.intellij.codeInsight.TargetElementUtilBase
 import com.intellij.lang.Language
 import com.intellij.refactoring.rename.RenamePsiElementProcessor
 import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.openapi.command.CommandProcessor
 
 /**
  * Nikolay.Tropin
@@ -48,7 +49,8 @@ class ScalaInplaceRenamer(elementToRename: PsiNamedElement,
 
 
   override def collectAdditionalElementsToRename(stringUsages: util.List[Pair[PsiElement, TextRange]]) {
-    if (ScalaInplaceRenameUtil.isLocallyDefined(elementToRename)) {
+    val locallyDefined = elementToRename.getUseScope.isInstanceOf[LocalSearchScope]
+    if (locallyDefined) {
       val stringToSearch: String = ScalaNamesUtil.scalaName(elementToRename)
       val currentFile: PsiFile = PsiDocumentManager.getInstance(myProject).getPsiFile(myEditor.getDocument)
       if (stringToSearch != null) {
@@ -77,6 +79,10 @@ class ScalaInplaceRenamer(elementToRename: PsiNamedElement,
 
   override def beforeTemplateStart() {
     super.beforeTemplateStart()
+
+    val revertInfo = ScalaRefactoringUtil.RevertInfo(editor.getDocument.getText, editor.getCaretModel.getOffset)
+    editor.putUserData(ScalaInplaceRenamer.REVERT_INFO, revertInfo)
+
     val file = PsiDocumentManager.getInstance(myProject).getPsiFile(myEditor.getDocument)
     val offset = TargetElementUtilBase.adjustOffset(file, editor.getDocument, editor.getCaretModel.getOffset)
     val range = file.findElementAt(offset).getTextRange
@@ -86,30 +92,40 @@ class ScalaInplaceRenamer(elementToRename: PsiNamedElement,
   }
 
   override def revertState() {
-    val revertInfo = editor.getUserData(ScalaInplaceRenameHandler.REVERT_INFO)
-    if (revertInfo != null) {
-      val document = myEditor.getDocument
-      extensions.inWriteAction {
-        document.replaceString(0, document.getTextLength, revertInfo.fileText)
-        PsiDocumentManager.getInstance(myProject).commitDocument(document)
-      }
-      val offset = revertInfo.caretOffset
-      myEditor.getCaretModel.moveToOffset(offset)
-      myEditor.getScrollingModel.scrollToCaret(ScrollType.MAKE_VISIBLE)
-      PsiDocumentManager.getInstance(myEditor.getProject).commitDocument(document)
-      val clazz = myElementToRename.getClass
-      val element = TargetElementUtilBase.findTargetElement(myEditor,
-        TargetElementUtilBase.REFERENCED_ELEMENT_ACCEPTED | TargetElementUtilBase.ELEMENT_NAME_ACCEPTED)
-      myElementToRename = element match {
-        case null => null
-        case named: PsiNamedElement if named.getClass == clazz => named
-        case _ =>
-          RenamePsiElementProcessor.forElement(element).substituteElementToRename(element, myEditor) match {
-            case named: PsiNamedElement if named.getClass == clazz => named
-            case _ => null
+    if (myOldName == null) return
+
+    CommandProcessor.getInstance.executeCommand(myProject, new Runnable {
+      def run() {
+        val revertInfo = editor.getUserData(ScalaInplaceRenamer.REVERT_INFO)
+        val document = myEditor.getDocument
+        if (revertInfo != null) {
+          extensions.inWriteAction {
+            document.replaceString(0, document.getTextLength, revertInfo.fileText)
+            PsiDocumentManager.getInstance(myProject).commitDocument(document)
           }
+          val offset = revertInfo.caretOffset
+          myEditor.getCaretModel.moveToOffset(offset)
+          myEditor.getScrollingModel.scrollToCaret(ScrollType.MAKE_VISIBLE)
+          PsiDocumentManager.getInstance(myEditor.getProject).commitDocument(document)
+          val clazz = myElementToRename.getClass
+          val element = TargetElementUtilBase.findTargetElement(myEditor,
+            TargetElementUtilBase.REFERENCED_ELEMENT_ACCEPTED | TargetElementUtilBase.ELEMENT_NAME_ACCEPTED)
+          myElementToRename = element match {
+            case null => null
+            case named: PsiNamedElement if named.getClass == clazz => named
+            case _ =>
+              RenamePsiElementProcessor.forElement(element).substituteElementToRename(element, myEditor) match {
+                case named: PsiNamedElement if named.getClass == clazz => named
+                case _ => null
+              }
+          }
+        }
+        if (!myProject.isDisposed && myProject.isOpen) {
+          PsiDocumentManager.getInstance(myProject).commitDocument(document)
+        }
       }
-    }
+    }, getCommandName, null)
+
   }
 
   override def getVariable: PsiNamedElement = {
@@ -136,4 +152,13 @@ class ScalaInplaceRenamer(elementToRename: PsiNamedElement,
 
   override def createInplaceRenamerToRestart(variable: PsiNamedElement, editor: Editor, initialName: String): VariableInplaceRenamer =
     new ScalaInplaceRenamer(variable, getSubstituted, editor, initialName, oldName)
+
+  override def performInplaceRename(): Boolean = {
+    val names = new util.LinkedHashSet[String]()
+    names.add(initialName)
+    performInplaceRefactoring(names)
+  }
+}
+object ScalaInplaceRenamer {
+  val REVERT_INFO: Key[ScalaRefactoringUtil.RevertInfo] = new Key("RevertInfo")
 }

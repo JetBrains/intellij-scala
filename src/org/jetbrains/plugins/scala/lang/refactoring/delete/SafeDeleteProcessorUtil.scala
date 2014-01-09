@@ -19,7 +19,7 @@ import com.intellij.util._
 import org.jetbrains.annotations.NonNls
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
-import org.jetbrains.plugins.scala.lang.psi.impl.search.ScalaOverridengMemberSearch
+import org.jetbrains.plugins.scala.lang.psi.impl.search.ScalaOverridingMemberSearcher
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import java.util._
 import psi.api.base.ScStableCodeReferenceElement
@@ -45,9 +45,11 @@ object SafeDeleteProcessorUtil {
     }
   }
 
+  private def referenceSearch(element: PsiElement) = ReferencesSearch.search(element, element.getUseScope)
+  
   def findClassUsages(psiClass: PsiClass, allElementsToDelete: Array[PsiElement], usages: util.List[UsageInfo]) {
     val justPrivates: Boolean = containsOnlyPrivates(psiClass)
-    ReferencesSearch.search(psiClass).forEach(new Processor[PsiReference] {
+    referenceSearch(psiClass).forEach(new Processor[PsiReference] {
       def process(reference: PsiReference): Boolean = {
         val element: PsiElement = reference.getElement
         if (!isInside(element, allElementsToDelete)) {
@@ -97,7 +99,7 @@ object SafeDeleteProcessorUtil {
     val owner: PsiTypeParameterListOwner = typeParameter.getOwner
     if (owner != null) {
       val index: Int = owner.getTypeParameterList.getTypeParameterIndex(typeParameter)
-      ReferencesSearch.search(owner).forEach(new Processor[PsiReference] {
+      referenceSearch(owner).forEach(new Processor[PsiReference] {
         def process(reference: PsiReference): Boolean = {
           reference match {
             case referenceElement: PsiJavaCodeReferenceElement =>
@@ -114,11 +116,11 @@ object SafeDeleteProcessorUtil {
   }
 
   @Nullable def findMethodUsages(psiMethod: PsiMethod, allElementsToDelete: Array[PsiElement], usages: util.List[UsageInfo]): Condition[PsiElement] = {
-    val references: util.Collection[PsiReference] = ReferencesSearch.search(psiMethod).findAll
+    val references: util.Collection[PsiReference] = referenceSearch(psiMethod).findAll
     if (psiMethod.isConstructor) {
       return findConstructorUsages(psiMethod, references, usages, allElementsToDelete)
     }
-    val overridingElements: Array[PsiNamedElement] = ScalaOverridengMemberSearch.search(psiMethod)
+    val overridingElements: Array[PsiNamedElement] = ScalaOverridingMemberSearcher.search(psiMethod)
     val overridingMethods: Array[PsiNamedElement] = overridingElements.filterNot(x => allElementsToDelete.contains(x))
     for (reference <- references) {
       val element: PsiElement = reference.getElement
@@ -129,7 +131,7 @@ object SafeDeleteProcessorUtil {
     }
     val methodToReferences: util.HashMap[PsiNamedElement, util.Collection[PsiReference]] = new util.HashMap[PsiNamedElement, util.Collection[PsiReference]]
     for (overridingMethod <- overridingMethods) {
-      val overridingReferences: util.Collection[PsiReference] = ReferencesSearch.search(overridingMethod).findAll
+      val overridingReferences: util.Collection[PsiReference] = referenceSearch(overridingMethod).findAll
       methodToReferences.put(overridingMethod, overridingReferences)
     }
     val validOverriding: util.Set[PsiElement] = {
@@ -179,7 +181,7 @@ object SafeDeleteProcessorUtil {
         for (reference <- references) {
           val overridingConstructor: PsiMethod = getOverridingConstructorOfSuperCall(reference.getElement)
           if (overridingConstructor != null && !constructorsToRefs.containsKey(overridingConstructor)) {
-            val overridingConstructorReferences: util.Collection[PsiReference] = ReferencesSearch.search(overridingConstructor).findAll
+            val overridingConstructorReferences: util.Collection[PsiReference] = referenceSearch(overridingConstructor).findAll
             constructorsToRefs.put(overridingConstructor, overridingConstructorReferences)
             passConstructors.add(overridingConstructor)
           }
@@ -322,7 +324,7 @@ object SafeDeleteProcessorUtil {
 
   def findFieldUsages(psiField: PsiField, usages: util.List[UsageInfo], allElementsToDelete: Array[PsiElement]): Condition[PsiElement] = {
     val isInsideDeleted: Condition[PsiElement] = getUsageInsideDeletedFilter(allElementsToDelete)
-    ReferencesSearch.search(psiField).forEach(new Processor[PsiReference] {
+    referenceSearch(psiField).forEach(new Processor[PsiReference] {
       def process(reference: PsiReference): Boolean = {
         if (!isInsideDeleted.value(reference.getElement)) {
           val element: PsiElement = reference.getElement
@@ -344,7 +346,7 @@ object SafeDeleteProcessorUtil {
   def findParameterUsages(parameter: PsiParameter, usages: util.List[UsageInfo]) {
     val method: PsiMethod = parameter.getDeclarationScope.asInstanceOf[PsiMethod]
     val index: Int = method.getParameterList.getParameterIndex(parameter)
-    ReferencesSearch.search(method).forEach(new Processor[PsiReference] {
+    referenceSearch(method).forEach(new Processor[PsiReference] {
       def process(reference: PsiReference): Boolean = {
         val element: PsiElement = reference.getElement
         var call: PsiCall = null
@@ -401,7 +403,7 @@ object SafeDeleteProcessorUtil {
         true
       }
     })
-    ReferencesSearch.search(parameter).forEach(new Processor[PsiReference] {
+    referenceSearch(parameter).forEach(new Processor[PsiReference] {
       def process(reference: PsiReference): Boolean = {
         val element: PsiElement = reference.getElement
         val docTag: PsiDocTag = PsiTreeUtil.getParentOfType(element, classOf[PsiDocTag])

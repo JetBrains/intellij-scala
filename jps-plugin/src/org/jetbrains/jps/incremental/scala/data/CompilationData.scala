@@ -1,7 +1,7 @@
 package org.jetbrains.jps.incremental.scala
 package data
 
-import java.io.File
+import java.io.{IOException, File}
 import org.jetbrains.jps.incremental.{ModuleBuildTarget, CompileContext}
 import org.jetbrains.jps.{ProjectPaths, ModuleChunk}
 import org.jetbrains.jps.incremental.java.JavaBuilder
@@ -13,6 +13,7 @@ import org.jetbrains.jps.model.java.JpsJavaExtensionService
 import org.jetbrains.jps.model.java.compiler.JpsJavaCompilerOptions
 import java.util
 import java.util.Collections
+import java.nio.file.Files
 
 /**
  * @author Pavel Fatin
@@ -24,43 +25,63 @@ case class CompilationData(sources: Seq[File],
                            javaOptions: Seq[String],
                            order: Order,
                            cacheFile: File,
-                           outputToCacheMap: Map[File, File])
+                           outputToCacheMap: Map[File, File],
+                           outputGroups: Seq[(File, File)])
 
 object CompilationData {
   def from(sources: Seq[File], context: CompileContext, chunk: ModuleChunk): Either[String, CompilationData] = {
     val target = chunk.representativeTarget
     val module = target.getModule
 
-    Option(target.getOutputDir)
-            .toRight("Output directory not specified for module " + module.getName)
-            .flatMap { output =>
+    outputsNotSpecified(chunk) match {
+      case Some(message) => return Left(message)
+      case None =>
+    }
+    val output = target.getOutputDir
+    checkOrCreate(output)
 
-      val classpath = ProjectPaths.getCompilationClasspathFiles(chunk, chunk.containsTests, false, false).asScala.toSeq
+    val classpath = ProjectPaths.getCompilationClasspathFiles(chunk, chunk.containsTests, false, false).asScala.toSeq
+    val facetSettings = Option(SettingsManager.getFacetSettings(module))
+    val scalaOptions = facetSettings.map(_.getCompilerOptions.toSeq).getOrElse(Seq.empty)
+    val order = facetSettings.map(_.getCompileOrder).getOrElse(Order.Mixed)
 
-      val facetSettings = Option(SettingsManager.getFacetSettings(module))
+    createOutputToCacheMap(context).map { outputToCacheMap =>
 
-      val scalaOptions = facetSettings.map(_.getCompilerOptions.toSeq).getOrElse(Seq.empty)
+      val cacheFile = outputToCacheMap.get(output).getOrElse {
+        throw new RuntimeException("Unknown build target output directory: " + output)
+      }
 
-      val order = facetSettings.map(_.getCompileOrder).getOrElse(Order.Mixed)
+      val relevantOutputToCacheMap = (outputToCacheMap - output).filter(p => classpath.contains(p._1))
 
-      createOutputToCacheMap(context).map { outputToCacheMap =>
+      val commonOptions = {
+        val encoding = context.getProjectDescriptor.getEncodingConfiguration.getPreferredModuleChunkEncoding(chunk)
+        Option(encoding).map(Seq("-encoding", _)).getOrElse(Seq.empty)
+      }
 
-        val cacheFile = outputToCacheMap.get(output).getOrElse {
-          throw new RuntimeException("Unknown build target output directory: " + output)
-        }
+      val javaOptions = javaOptionsFor(context, chunk)
 
-        val relevantOutputToCacheMap = (outputToCacheMap - output).filter(p => classpath.contains(p._1))
+      val outputGroups = createOutputGroups(chunk)
 
-        val commonOptions = {
-          val encoding = context.getProjectDescriptor.getEncodingConfiguration.getPreferredModuleChunkEncoding(chunk)
-          Option(encoding).map(Seq("-encoding", _)).getOrElse(Seq.empty)
-        }
+      CompilationData(sources, classpath, output, commonOptions ++ scalaOptions, commonOptions ++ javaOptions,
+        order, cacheFile, relevantOutputToCacheMap, outputGroups)
+    }
+  }
 
-        val javaOptions = javaOptionsFor(context, chunk)
 
-        CompilationData(sources, classpath, output, commonOptions ++ scalaOptions, commonOptions ++ javaOptions, order, cacheFile, relevantOutputToCacheMap)
+  def checkOrCreate(output: File) {
+    if (!output.exists()) {
+      try {
+        Files.createDirectories(output.toPath)
+      }
+      catch {
+        case t: Throwable => throw new IOException("Cannot create output directory: " + output.toString, t)
       }
     }
+  }
+
+  def outputsNotSpecified(chunk: ModuleChunk): Option[String] = {
+    chunk.getTargets.asScala.find(_.getOutputDir == null)
+            .map("Output directory not specified for module " + _.getModule.getName)
   }
 
   private def javaOptionsFor(context: CompileContext, chunk: ModuleChunk): Seq[String] = {
@@ -112,6 +133,16 @@ object CompilationData {
       for ((target, output) <- targetToOutput.toMap)
       yield (output, new File(paths.getTargetDataRoot(target), "cache.dat"))
     }
+  }
+
+  private def createOutputGroups(chunk: ModuleChunk): Seq[(File, File)] = {
+    for {
+      target <- chunk.getTargets.asScala.toSeq
+      module = target.getModule
+      output = target.getOutputDir
+      sourceRoot <- module.getSourceRoots.asScala.map(_.getFile)
+      if sourceRoot.exists
+    } yield (sourceRoot, output)
   }
 
   private def targetsIn(context: CompileContext): Seq[ModuleBuildTarget] = {

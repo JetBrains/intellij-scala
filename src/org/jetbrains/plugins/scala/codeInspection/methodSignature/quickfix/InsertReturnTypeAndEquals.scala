@@ -22,6 +22,7 @@ class InsertReturnTypeAndEquals(functionDef: ScFunctionDefinition)
     val fakeDecl = ScalaPsiElementFactory.createDeclaration("x", "Unit", isVariable = false, null, manager)
     val colon = fakeDecl.findFirstChildByType(ScalaTokenTypes.tCOLON)
     val assign = fakeDecl.findFirstChildByType(ScalaTokenTypes.tASSIGN)
-    functionDef.addRangeBefore(colon, assign, functionDef.body.get)
+    val body = functionDef.body.get
+    functionDef.addRangeAfter(colon, assign, body.getPrevSiblingNotWhitespace)
   }
 }

@@ -26,6 +26,9 @@ class ClientEventProcessor(client: Client) {
 
       case DeletedEvent(module) =>
         client.deleted(module)
+
+      case SourceProcessedEvent(source) =>
+        client.processed(source)
     }
   }
 }
@@ -34,10 +37,10 @@ class ServerException(message: String, lines: Array[String]) extends Exception {
   override def getMessage = message
 
   override def printStackTrace(s: PrintWriter) {
-    lines.foreach(s.println(_))
+    lines.foreach(s.println)
   }
 
   override def printStackTrace(s: PrintStream) {
-    lines.foreach(s.println(_))
+    lines.foreach(s.println)
   }
 }

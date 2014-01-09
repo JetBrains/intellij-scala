@@ -1,21 +1,14 @@
 package org.jetbrains.plugins.scala.worksheet.runconfiguration;
 
 
-import com.intellij.execution.ui.ClassBrowser;
 import com.intellij.execution.ui.ConfigurationModuleSelector;
-import com.intellij.ide.util.ClassFilter;
 import com.intellij.openapi.fileChooser.FileChooserDescriptor;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.psi.PsiClass;
-import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.ui.RawCommandLineEditor;
 import org.jetbrains.plugins.scala.ScalaFileType;
-import org.jetbrains.plugins.scala.ScalaFileTypeFactory;
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil;
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager;
 
 import javax.swing.*;
 
@@ -67,10 +60,10 @@ public class WorksheetRunConfigurationForm {
   }
 
   public void apply(WorksheetRunConfiguration configuration) {
-    setJavaOptions(configuration.getJavaOptions());
-    setWorksheetOptions(configuration.getWorksheetOptions());
-    setWorkingDirectory(configuration.getWorkingDirectory());
-    setWorksheetField(configuration.getWorksheetField());
+    setJavaOptions(configuration.javaOptions());
+    setWorksheetOptions(configuration.consoleArgs());
+    setWorkingDirectory(configuration.workingDirectory());
+    setWorksheetField(configuration.worksheetField());
     myModuleSelector.applyTo(configuration);
   }
 

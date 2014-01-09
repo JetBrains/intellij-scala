@@ -84,7 +84,7 @@ class PsiClassWrapper(val definition: ScTemplateDefinition,
           signature.foreach {
             case (t, node) =>
               node.info.namedElement match {
-                case Some(fun: ScFunction) if !fun.isConstructor => res += fun.getFunctionWrapper(isStatic = true, isInterface = false, cClass = Some(definition))
+                case Some(fun: ScFunction) if !fun.isConstructor => res ++= fun.getFunctionWrappers(isStatic = true, isInterface = false, cClass = Some(definition))
                 case Some(method: PsiMethod) if !method.isConstructor => {
                   if (method.containingClass != null && method.containingClass.qualifiedName != "java.lang.Object") {
                     res += StaticPsiMethodWrapper.getWrapper(method, this)

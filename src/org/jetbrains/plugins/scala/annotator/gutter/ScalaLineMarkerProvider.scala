@@ -11,7 +11,7 @@ import com.intellij.psi.search.searches.ClassInheritorsSearch
 import lang.lexer.ScalaTokenTypes
 import lang.psi.api.toplevel.templates.ScTemplateBody
 import lang.psi.api.toplevel.ScNamedElement
-import lang.psi.impl.search.ScalaOverridengMemberSearch
+import lang.psi.impl.search.ScalaOverridingMemberSearcher
 import com.intellij.util.NullableFunction
 import lang.psi.ScalaPsiUtil
 import com.intellij.openapi.editor.colors.{EditorColorsManager, CodeInsightColors}
@@ -207,7 +207,7 @@ private object GutterUtil {
         case _ => Array[PsiNamedElement]()
       }
       val overrides = new ArrayBuffer[PsiNamedElement]
-      for (member <- members) overrides ++= ScalaOverridengMemberSearch.search(member, deep = false, withSelfType = true)
+      for (member <- members) overrides ++= ScalaOverridingMemberSearcher.search(member, deep = false, withSelfType = true)
       if (overrides.length > 0) {
         val icon = if (!GutterUtil.isAbstract(member)) OVERRIDEN_METHOD_MARKER_RENDERER else IMPLEMENTED_INTERFACE_MARKER_RENDERER
         val typez = ScalaMarkerType.OVERRIDDEN_MEMBER

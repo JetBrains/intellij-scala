@@ -9,7 +9,6 @@ import org.jetbrains.plugins.scala.lang.psi.types
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
-import org.jetbrains.sbt.settings.SbtProjectSettings
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScPatternDefinition, ScFunctionDefinition}
 
 /**
@@ -30,7 +29,7 @@ class SbtAnnotator extends Annotator {
     if (children.isEmpty) return 
     
     val is13_+ = {
-      val sbtVersion = SbtProjectSettings.getSbtVersion(children.head.getProject)
+      val sbtVersion = "0.13.0"
       
       sbtVersion != null && !sbtVersion.isEmpty && {
         val j = sbtVersion indexOf '.'

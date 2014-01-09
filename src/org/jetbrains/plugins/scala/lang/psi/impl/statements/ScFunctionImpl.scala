@@ -33,6 +33,8 @@ import api.toplevel.typedef.{ScTypeDefinition, ScMember}
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi.PsiReferenceList.Role
 import extensions.toPsiClassExt
+import com.intellij.lang.java.lexer.JavaLexer
+import com.intellij.pom.java.LanguageLevel
 
 /**
  * @author ilyas
@@ -262,7 +264,11 @@ abstract class ScFunctionImpl extends ScalaStubBasedElementImpl[ScFunction] with
     hasAnnotation("scala.deprecated") != None || hasAnnotation("java.lang.Deprecated") != None
   }
 
-  override def getName = if (isConstructor && getContainingClass != null) getContainingClass.getName else super.getName
+  override def getName = {
+    val res = if (isConstructor && getContainingClass != null) getContainingClass.getName else super.getName
+    if (JavaLexer.isKeyword(res, LanguageLevel.HIGHEST)) "_mth" + res
+    else res
+  }
 
   override def setName(name: String): PsiElement = {
     if (isConstructor) this

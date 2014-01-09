@@ -15,8 +15,7 @@ public class ScalaAutoImportOptionsProviderForm {
   private static final String INSERT_IMPORTS_NONE = ApplicationBundle.message("combobox.insert.imports.none");
 
   private JPanel panel1;
-  private JComboBox importOnPasteComboBox;
-  private JCheckBox showImportPopupCheckBox;
+  private JComboBox<String> importOnPasteComboBox;
   private JCheckBox addUnambiguousImportsOnCheckBox;
 
   public ScalaAutoImportOptionsProviderForm() {
@@ -31,14 +30,6 @@ public class ScalaAutoImportOptionsProviderForm {
 
   public void setAddUnambiguous(boolean addUnambiguous) {
     addUnambiguousImportsOnCheckBox.setSelected(addUnambiguous);
-  }
-
-  public boolean isShowImportPopup() {
-    return showImportPopupCheckBox.isSelected();
-  }
-
-  public void setShowImportPopup(boolean showImportPopup) {
-    showImportPopupCheckBox.setSelected(showImportPopup);
   }
 
   public int getImportOnPasteOption() {
