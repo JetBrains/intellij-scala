@@ -20,6 +20,7 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.psi.light.PsiTypedDefinitionWrapper
 import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiMethod
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern
+import com.intellij.psi.search.searches.ReferencesSearch
 
 object ScalaRenameUtil {
   def filterAliasedReferences(allReferences: util.Collection[PsiReference]): util.ArrayList[PsiReference] = {
@@ -36,6 +37,10 @@ object ScalaRenameUtil {
         case None => false
       }
     case _ => false
+  }
+
+  def findReferences(element: PsiElement) = ScalaRenameUtil.filterAliasedReferences {
+    ReferencesSearch.search(element, element.getUseScope).findAll()
   }
 
   def replaceImportClassReferences(allReferences: util.Collection[PsiReference]): util.Collection[PsiReference] = {

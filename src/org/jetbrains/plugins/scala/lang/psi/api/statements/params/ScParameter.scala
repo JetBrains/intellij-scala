@@ -16,6 +16,8 @@ import util.PsiTreeUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScLiteral, ScPrimaryConstructor}
 import expr.{ScArgumentExprList, ScFunctionExpr, ScExpression}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import com.intellij.lang.java.lexer.JavaLexer
+import com.intellij.pom.java.LanguageLevel
 
 /**
  * @author Alexander Podkhalyuzin
@@ -70,4 +72,10 @@ trait ScParameter extends ScTypedDefinition with ScModifierListOwner with
   }
 
   def index = getParent.asInstanceOf[ScParameterClause].parameters.indexOf(this)
+
+  override def getName: String = {
+    val res = super.getName
+    if (JavaLexer.isKeyword(res, LanguageLevel.HIGHEST)) "_" + res
+    else res
+  }
 }

@@ -42,30 +42,7 @@ class RenameScalaValsProcessor extends RenameJavaMemberProcessor {
     case _ => false
   }
 
-  override def findReferences(element: PsiElement) = {
-    val isClassParameter = element.isInstanceOf[ScClassParameter]
-    val (localScope, onlyLocal) = element match {
-      case m: ScMember if m.isPrivate => (new LocalSearchScope(m.containingClass), true)
-      case _ => (new LocalSearchScope(element.getContainingFile), false)
-    }
-
-    ScalaRenameUtil.filterAliasedReferences {
-      /*todo Search in GlobalSearchScope only cannot find reference like this:
-      * var a = 0
-      * a_=(1)
-      * But search in local scope finds it
-      */
-      val local = ReferencesSearch.search(element, localScope, true).findAll()
-      lazy val global = ReferencesSearch.search(element, GlobalSearchScope.allScope(element.getProject), isClassParameter).findAll
-      if (onlyLocal && !isClassParameter) local
-      else {
-        val buf = new util.HashSet[PsiReference]
-        buf.addAll(local)
-        buf.addAll(global)
-        buf
-      }
-    }
-  }
+  override def findReferences(element: PsiElement) = ScalaRenameUtil.findReferences(element)
 
   override def prepareRenaming(element: PsiElement, newName: String, allRenames: util.Map[PsiElement, String]) {
     val namedElement = element match {case x: PsiNamedElement => x case _ => return}

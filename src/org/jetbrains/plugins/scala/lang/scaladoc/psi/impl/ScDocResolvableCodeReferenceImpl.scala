@@ -35,7 +35,7 @@ class ScDocResolvableCodeReferenceImpl(node: ASTNode) extends ScStableCodeRefere
   override def getKinds(incomplete: Boolean, completion: Boolean) = stableImportSelector
 
   override def createReplacingElementWithClassName(useFullQualifiedName: Boolean, clazz: TypeToImport) = 
-    if (is2_10plus) super.createReplacingElementWithClassName(useFullQualifiedName, clazz) 
+    if (is2_10plus) super.createReplacingElementWithClassName(true, clazz) 
     else ScalaPsiElementFactory.createDocLinkValue(clazz.qualifiedName, clazz.element.getManager)
 
   override protected def processQualifier(ref: ScStableCodeReferenceElement, processor: BaseProcessor) {

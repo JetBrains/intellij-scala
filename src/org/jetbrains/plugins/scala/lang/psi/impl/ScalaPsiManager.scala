@@ -9,9 +9,9 @@ import toplevel.synthetic.{SyntheticPackageCreator, ScSyntheticPackage}
 import light.PsiClassWrapper
 import toplevel.typedef.TypeDefinitionMembers._
 import types._
-import com.intellij.openapi.util.Key
+import com.intellij.openapi.util.{LowMemoryWatcher, Key}
 import com.intellij.ProjectTopics
-import com.intellij.reference.SoftReference
+import com.intellij.util.SofterReference
 import collection.{mutable, Seq}
 import com.intellij.psi._
 import com.intellij.util.containers.WeakValueHashMap
@@ -24,7 +24,6 @@ import com.intellij.openapi.project.{DumbServiceImpl, Project}
 import stubs.StubIndex
 import psi.stubs.index.ScalaIndexKeys
 import finder.ScalaSourceFilterScope
-import com.intellij.openapi.diagnostic.Logger
 import com.intellij.psi.search.{PsiShortNamesCache, GlobalSearchScope}
 import java.util.Collections
 import com.intellij.openapi.roots.{ModuleRootEvent, ModuleRootListener}
@@ -34,22 +33,22 @@ import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
 
 class ScalaPsiManager(project: Project) extends ProjectComponent {
-  private val implicitObjectMap: ConcurrentMap[String, SoftReference[java.util.Map[GlobalSearchScope, Seq[ScObject]]]] =
+  private val implicitObjectMap: ConcurrentMap[String, SofterReference[java.util.Map[GlobalSearchScope, Seq[ScObject]]]] =
     new ConcurrentHashMap()
 
-  private val classMap: ConcurrentMap[String, SoftReference[util.Map[GlobalSearchScope, Option[PsiClass]]]] =
+  private val classMap: ConcurrentMap[String, SofterReference[util.Map[GlobalSearchScope, Option[PsiClass]]]] =
     new ConcurrentHashMap()
 
-  private val classesMap: ConcurrentMap[String, SoftReference[util.Map[GlobalSearchScope, Array[PsiClass]]]] =
+  private val classesMap: ConcurrentMap[String, SofterReference[util.Map[GlobalSearchScope, Array[PsiClass]]]] =
     new ConcurrentHashMap()
 
-  private val classFacadeMap: ConcurrentMap[String, SoftReference[util.Map[GlobalSearchScope, Option[PsiClass]]]] =
+  private val classFacadeMap: ConcurrentMap[String, SofterReference[util.Map[GlobalSearchScope, Option[PsiClass]]]] =
     new ConcurrentHashMap()
 
-  private val classesFacadeMap: ConcurrentMap[String, SoftReference[util.Map[GlobalSearchScope, Array[PsiClass]]]] =
+  private val classesFacadeMap: ConcurrentMap[String, SofterReference[util.Map[GlobalSearchScope, Array[PsiClass]]]] =
     new ConcurrentHashMap()
 
-  private val inheritorsMap: ConcurrentMap[PsiClass, SoftReference[ConcurrentMap[PsiClass, java.lang.Boolean]]] =
+  private val inheritorsMap: ConcurrentMap[PsiClass, SofterReference[ConcurrentMap[PsiClass, java.lang.Boolean]]] =
     new ConcurrentHashMap()
 
   private val scalaPackageClassesMap: ConcurrentMap[GlobalSearchScope, Array[PsiClass]] =
@@ -61,13 +60,13 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
   private val scalaPackageClassNamesMap: ConcurrentMap[(GlobalSearchScope, String), mutable.HashSet[String]] =
     new ConcurrentHashMap[(GlobalSearchScope, String), mutable.HashSet[String]]
 
-  private val compoundTypesParameterslessNodes: ConcurrentMap[(ScCompoundType, Option[ScType]), SoftReference[PMap]] =
+  private val compoundTypesParameterslessNodes: ConcurrentMap[(ScCompoundType, Option[ScType]), SofterReference[PMap]] =
     new ConcurrentHashMap
 
-  private val compoundTypesTypeNodes: ConcurrentMap[(ScCompoundType, Option[ScType]), SoftReference[TMap]] =
+  private val compoundTypesTypeNodes: ConcurrentMap[(ScCompoundType, Option[ScType]), SofterReference[TMap]] =
     new ConcurrentHashMap
 
-  private val compoundTypesSignatureNodes: ConcurrentMap[(ScCompoundType, Option[ScType]), SoftReference[SMap]] =
+  private val compoundTypesSignatureNodes: ConcurrentMap[(ScCompoundType, Option[ScType]), SofterReference[SMap]] =
     new ConcurrentHashMap
 
   def getParameterlessSignatures(tp: ScCompoundType, compoundTypeThisType: Option[ScType]): PMap = {
@@ -75,7 +74,7 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
     var result: PMap = if (ref == null) null else ref.get()
     if (result == null) {
       result = ParameterlessNodes.build(tp, compoundTypeThisType)
-      compoundTypesParameterslessNodes.put((tp, compoundTypeThisType), new SoftReference(result))
+      compoundTypesParameterslessNodes.put((tp, compoundTypeThisType), new SofterReference(result))
     }
     result
   }
@@ -86,7 +85,7 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
     var result: TMap = if (ref == null) null else ref.get()
     if (result == null) {
       result = TypeNodes.build(tp, compoundTypeThisType)
-      compoundTypesTypeNodes.put((tp, compoundTypeThisType), new SoftReference(result))
+      compoundTypesTypeNodes.put((tp, compoundTypeThisType), new SofterReference(result))
     }
     result
   }
@@ -97,7 +96,7 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
     var result: SMap = if (ref == null) null else ref.get()
     if (result == null) {
       result = SignatureNodes.build(tp, compoundTypeThisType)
-      compoundTypesSignatureNodes.put((tp, compoundTypeThisType), new SoftReference(result))
+      compoundTypesSignatureNodes.put((tp, compoundTypeThisType), new SofterReference(result))
     }
     result
   }
@@ -108,7 +107,7 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
     map = if (ref == null) null else ref.get()
     if (map == null) {
       map = new ConcurrentHashMap()
-      inheritorsMap.put(clazz, new SoftReference(map))
+      inheritorsMap.put(clazz, new SofterReference(map))
     }
 
     val b = map.get(base)
@@ -130,7 +129,7 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
     val map = if (reference == null || reference.get() == null) {
       val map = new ConcurrentHashMap[GlobalSearchScope, Seq[ScObject]]()
       map.put(scope, calc())
-      implicitObjectMap.put(fqn, new SoftReference(map))
+      implicitObjectMap.put(fqn, new SofterReference(map))
       map
     } else reference.get()
     var result = map.get(scope)
@@ -154,7 +153,7 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
     val map = if (reference == null || reference.get() == null) {
       val map = new ConcurrentHashMap[GlobalSearchScope, Option[PsiClass]]()
       map.put(scope, calc())
-      classMap.put(fqn, new SoftReference(map))
+      classMap.put(fqn, new SofterReference(map))
       map
     } else reference.get()
     var result = map.get(scope)
@@ -176,7 +175,7 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
     val map = if (reference == null || reference.get() == null) {
       val map = new ConcurrentHashMap[GlobalSearchScope, Option[PsiClass]]()
       map.put(scope, calc())
-      classFacadeMap.put(fqn, new SoftReference(map))
+      classFacadeMap.put(fqn, new SofterReference(map))
       map
     } else reference.get()
     var result = map.get(scope)
@@ -261,7 +260,7 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
     val map = if (reference == null || reference.get() == null) {
       val map = new ConcurrentHashMap[GlobalSearchScope, Array[PsiClass]]()
       map.put(scope, calc())
-      classesMap.put(fqn, new SoftReference(map))
+      classesMap.put(fqn, new SofterReference(map))
       map
     } else reference.get()
     var result = map.get(scope)
@@ -284,7 +283,7 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
     val map = if (reference == null || reference.get() == null) {
       val map = new ConcurrentHashMap[GlobalSearchScope, Array[PsiClass]]()
       map.put(scope, calc())
-      classesFacadeMap.put(fqn, new SoftReference(map))
+      classesFacadeMap.put(fqn, new SofterReference(map))
       map
     } else reference.get()
     var result = map.get(scope)
@@ -384,6 +383,24 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
       }
 
       def rootsChanged(event: ModuleRootEvent) {
+        implicitObjectMap.clear()
+        classMap.clear()
+        classesMap.clear()
+        classFacadeMap.clear()
+        classesFacadeMap.clear()
+        inheritorsMap.clear()
+        scalaPackageClassesMap.clear()
+        javaPackageClassNamesMap.clear()
+        scalaPackageClassNamesMap.clear()
+        compoundTypesParameterslessNodes.clear()
+        compoundTypesSignatureNodes.clear()
+        compoundTypesTypeNodes.clear()
+        Conformance.cache.clear()
+      }
+    })
+
+    LowMemoryWatcher.register(new Runnable {
+      def run(): Unit = {
         implicitObjectMap.clear()
         classMap.clear()
         classesMap.clear()

@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala.lang.refactoring.rename
 
 import com.intellij.refactoring.rename.{RenameDialog, RenameJavaClassProcessor}
-import java.lang.String
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.parsing.MyScaladocParsing
@@ -11,7 +10,6 @@ import com.intellij.openapi.editor.Editor
 import org.jetbrains.plugins.scala.lang.psi.light.PsiClassWrapper
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import com.intellij.psi.PsiElement
-import scala.Some
 import annotation.tailrec
 import java.util
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
@@ -39,13 +37,11 @@ class RenameScalaClassProcessor extends RenameJavaClassProcessor {
     }
   }
 
-  override def findReferences(element: PsiElement) = {
-    ScalaRenameUtil.replaceImportClassReferences(ScalaRenameUtil.filterAliasedReferences(super.findReferences(element)))
-  }
+  override def findReferences(element: PsiElement) = ScalaRenameUtil.replaceImportClassReferences(ScalaRenameUtil.findReferences(element))
 
   override def prepareRenaming(element: PsiElement, newName: String, allRenames: util.Map[PsiElement, String]) {
     element match {
-      case td: ScTypeDefinition => {
+      case td: ScTypeDefinition =>
         ScalaPsiUtil.getCompanionModule(td) match {
           case Some(companion) if ScalaApplicationSettings.getInstance().RENAME_COMPANION_MODULE => allRenames.put(companion, newName)
           case _ =>
@@ -62,7 +58,6 @@ class RenameScalaClassProcessor extends RenameJavaClassProcessor {
         if (file != null && isTop(element.getContext) && file.name == td.name + ".scala") {
           allRenames.put(file, newName + ".scala")
         }
-      }
       case docTagParam: ScTypeParam =>
         docTagParam.owner match {
           case commentOwner: ScDocCommentOwner =>

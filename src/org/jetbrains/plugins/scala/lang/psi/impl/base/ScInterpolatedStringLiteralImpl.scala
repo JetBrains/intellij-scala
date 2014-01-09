@@ -89,10 +89,8 @@ class ScInterpolatedStringLiteralImpl(node: ASTNode) extends ScLiteralImpl(node)
     def getExpandedExprBuilder(l: ScInterpolatedStringLiteral) = {
       val parts = getStringParts(l).mkString("\"", "\", \"", "\"") //making list of string literals
       val params = l.getInjections.map(_.getText).mkString("(", ",", ")")
-      ScalaPsiUtil.disablePsiBuilderLogger {
-        Option(ScalaPsiElementFactory.createExpressionWithContextFromText(s"StringContext($parts).${getFirstChild.getText}$params",
-          node.getPsi.getContext, node.getPsi))
-      }
+      Option(ScalaPsiElementFactory.createExpressionWithContextFromText(s"StringContext($parts).${getFirstChild.getText}$params",
+        node.getPsi.getContext, node.getPsi))
     }
 
     CachesUtil.get(this, CachesUtil.STRING_CONTEXT_EXPANDED_EXPR_KEY,

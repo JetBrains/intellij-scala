@@ -140,8 +140,9 @@ object CompilationData {
       target <- chunk.getTargets.asScala.toSeq
       module = target.getModule
       output = target.getOutputDir
-      sourceRoute <- module.getSourceRoots.asScala
-    } yield (sourceRoute.getFile, output)
+      sourceRoot <- module.getSourceRoots.asScala.map(_.getFile)
+      if sourceRoot.exists
+    } yield (sourceRoot, output)
   }
 
   private def targetsIn(context: CompileContext): Seq[ModuleBuildTarget] = {

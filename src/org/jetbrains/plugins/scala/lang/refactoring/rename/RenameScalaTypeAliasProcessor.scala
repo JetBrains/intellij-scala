@@ -7,6 +7,7 @@ package rename
 import com.intellij.psi.PsiElement
 import psi.api.statements.ScTypeAlias
 import com.intellij.refactoring.rename.{RenameJavaMemberProcessor, RenameJavaMethodProcessor}
+import com.intellij.psi.search.searches.ReferencesSearch
 
 /**
  * User: Jason Zaugg
@@ -15,6 +16,6 @@ import com.intellij.refactoring.rename.{RenameJavaMemberProcessor, RenameJavaMet
 class RenameScalaTypeAliasProcessor extends RenameJavaMemberProcessor {
   override def canProcessElement(element: PsiElement): Boolean = element.isInstanceOf[ScTypeAlias]
 
-  override def findReferences(element: PsiElement) = ScalaRenameUtil.filterAliasedReferences(super.findReferences(element))
+  override def findReferences(element: PsiElement) = ScalaRenameUtil.findReferences(element)
 }
 

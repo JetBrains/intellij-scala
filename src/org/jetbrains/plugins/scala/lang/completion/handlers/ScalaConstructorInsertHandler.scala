@@ -135,9 +135,9 @@ class ScalaConstructorInsertHandler extends InsertHandler[LookupElement] {
               val element = file.findElementAt(editor.getCaretModel.getOffset)
               element.getParent match {
                 case (_: ScTemplateBody) childOf ((_: ScExtendsBlock) childOf (newTemplateDef: ScNewTemplateDefinition)) =>
-                  val members: Array[ClassMember] = ScalaOIUtil.toMembers(ScalaOIUtil.getMembersToImplement(newTemplateDef))
+                  val members = ScalaOIUtil.getMembersToImplement(newTemplateDef)
                   val needRetutnType: Boolean = ScalaApplicationSettings.getInstance.SPECIFY_RETURN_TYPE_EXPLICITLY
-                  ScalaOIUtil.runAction(members.toList.asJava, isImplement = true, newTemplateDef, editor, needsInferType = needRetutnType)
+                  ScalaOIUtil.runAction(members, isImplement = true, newTemplateDef, editor, needsInferType = needRetutnType)
                 case _ => return
               }
             }
