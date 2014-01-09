@@ -19,10 +19,10 @@ import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.util.*;
+import java.util.List;
 
 /**
  * @author Pavel Fatin
@@ -39,7 +39,7 @@ public class ScalaApplicationSettingsForm implements Configurable {
   private JPanel mySdkPanel;
   private JCheckBox showTypeInfoOnCheckBox;
   private JSpinner delaySpinner;
-  private JComboBox myIncrementalTypeCmb;
+  private JComboBox<ScalaApplicationSettings.IncrementalType> myIncrementalTypeCmb;
   private JComboBox myCompileOrderCmb;
   private JPanel myCompilerOptionsPanel;
   private ScalaApplicationSettings mySettings;
@@ -80,13 +80,14 @@ public class ScalaApplicationSettingsForm implements Configurable {
   }
 
   private void initCompilerTypeCmb() {
-    myIncrementalTypeCmb.setModel(new ListComboBoxModel<String>(mySettings.INCREMENTAL_TYPES));
-    myIncrementalTypeCmb.setSelectedItem(mySettings.INCREMENTAL_TYPE);
-    myIncrementalTypeCmb.setRenderer(new ListCellRendererWrapper<String>() {
+    final List<ScalaApplicationSettings.IncrementalType> values = Arrays.asList(ScalaApplicationSettings.IncrementalType.values());
+    myIncrementalTypeCmb.setModel(new ListComboBoxModel<ScalaApplicationSettings.IncrementalType>(values));
+    myIncrementalTypeCmb.setSelectedItem(mySettings.INCREMENTAL_COMPILATION_TYPE);
+    myIncrementalTypeCmb.setRenderer(new ListCellRendererWrapper<ScalaApplicationSettings.IncrementalType>() {
       @Override
-      public void customize(JList list, String value, int index, boolean selected, boolean hasFocus) {
-        if (value.equals("SBT")) setText("SBT incremental compiler");
-        if (value.equals("IDEA")) setText("IntelliJ IDEA");
+      public void customize(JList list, ScalaApplicationSettings.IncrementalType value, int index, boolean selected, boolean hasFocus) {
+        if (value == ScalaApplicationSettings.IncrementalType.SBT) setText("SBT incremental compiler");
+        if (value == ScalaApplicationSettings.IncrementalType.IDEA) setText("IntelliJ IDEA");
       }
     });
     myIncrementalTypeCmb.setToolTipText("Rebuild is required after change");
@@ -146,12 +147,12 @@ public class ScalaApplicationSettingsForm implements Configurable {
         ComparatorUtil.equalsNullable(sdkName, mySettings.COMPILE_SERVER_SDK) &&
         myCompilationServerMaximumHeapSize.getText().equals(mySettings.COMPILE_SERVER_MAXIMUM_HEAP_SIZE) &&
         myCompilationServerJvmParameters.getText().equals(mySettings.COMPILE_SERVER_JVM_PARAMETERS) &&
-        myIncrementalTypeCmb.getModel().getSelectedItem().equals(mySettings.INCREMENTAL_TYPE) &&
+        myIncrementalTypeCmb.getModel().getSelectedItem().equals(mySettings.INCREMENTAL_COMPILATION_TYPE) &&
         myCompileOrderCmb.getModel().getSelectedItem().equals(mySettings.COMPILE_ORDER));
   }
 
   public void apply() throws ConfigurationException {
-    mySettings.INCREMENTAL_TYPE = (String) myIncrementalTypeCmb.getModel().getSelectedItem();
+    mySettings.INCREMENTAL_COMPILATION_TYPE = (ScalaApplicationSettings.IncrementalType) myIncrementalTypeCmb.getModel().getSelectedItem();
     mySettings.COMPILE_ORDER = (String) myCompileOrderCmb.getModel().getSelectedItem();
     mySettings.COMPILE_SERVER_ENABLED = myEnableCompileServer.isSelected();
     mySettings.COMPILE_SERVER_PORT = myCompilationServerPort.getText();
