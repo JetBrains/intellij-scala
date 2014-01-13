@@ -7,7 +7,7 @@ import com.intellij.debugger.engine.evaluation._
 import com.intellij.psi._
 import com.intellij.debugger.engine.evaluation.expression._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameterClause, ScParameter, ScClassParameter}
-import reflect.NameTransformer
+import scala.reflect.NameTransformer
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
@@ -1159,7 +1159,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
               matchedParameters ++ call.matchedParametersMap)
           case gen: ScGenericCall =>
             gen.referencedExpr match {
-              case ref: ScReferenceExpression if ref.resolve().isInstanceOf[ScFunction] =>
+              case ref: ScReferenceExpression if ref.resolve().isInstanceOf[PsiMethod] =>
                 visitCall(ref, ref.qualifier, call.argumentExpressions ++ collected, s => {
                   val exprText = s + "." + ref.refName + call.args.getText + tailString
                   ScalaPsiElementFactory.createExpressionWithContextFromText(exprText, parentCall.getContext,
