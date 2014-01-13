@@ -14,10 +14,10 @@ class ScalaOverrideImplementTest extends ScalaLightPlatformCodeInsightTestCaseAd
 
   def runTest(methodName: String, fileText: String, expectedText: String, isImplement: Boolean,
               needsInferType: Boolean = true) {
-    configureFromFileTextAdapter("dummy.scala", fileText)
+    configureFromFileTextAdapter("dummy.scala", fileText.replace("\r", "").stripMargin.trim)
     ScalaApplicationSettings.getInstance.SPECIFY_RETURN_TYPE_EXPLICITLY = needsInferType
     ScalaOIUtil.invokeOverrideImplement(getProjectAdapter, getEditorAdapter, getFileAdapter, isImplement, methodName)
-    checkResultByText(expectedText)
+    checkResultByText(expectedText.replace("\r", "").stripMargin.trim)
   }
 
   def testFoo() {
@@ -31,7 +31,7 @@ class ScalaOverrideImplementTest extends ScalaLightPlatformCodeInsightTestCaseAd
         |abstract class b {
         |  def foo(x: b): b
         |}
-      """.replace("\r", "").stripMargin.trim
+      """
     val expectedText =
       """
         |package test
@@ -42,7 +42,7 @@ class ScalaOverrideImplementTest extends ScalaLightPlatformCodeInsightTestCaseAd
         |abstract class b {
         |  def foo(x: b): b
         |}
-      """.replace("\r", "").stripMargin.trim
+      """
     val methodName: String = "foo"
     val isImplement = true
     val needsInferType = true
@@ -64,7 +64,7 @@ class ScalaOverrideImplementTest extends ScalaLightPlatformCodeInsightTestCaseAd
         |abstract class b {
         |  def too: b
         |}
-      """.replace("\r", "").stripMargin.trim
+      """
     val expectedText =
       """
         |package test
@@ -76,7 +76,7 @@ class ScalaOverrideImplementTest extends ScalaLightPlatformCodeInsightTestCaseAd
         |abstract class b {
         |  def too: b
         |}
-      """.replace("\r", "").stripMargin.trim
+      """
     val methodName: String = "too"
     val isImplement = true
     val needsInferType = true
@@ -94,7 +94,7 @@ class ScalaOverrideImplementTest extends ScalaLightPlatformCodeInsightTestCaseAd
         |abstract class b {
         |  def too: b
         |}
-      """.replace("\r", "").stripMargin.trim
+      """
     val expectedText =
       """
         |package test
@@ -107,7 +107,7 @@ class ScalaOverrideImplementTest extends ScalaLightPlatformCodeInsightTestCaseAd
         |abstract class b {
         |  def too: b
         |}
-      """.replace("\r", "").stripMargin.trim
+      """
     val methodName: String = "too"
     val isImplement = true
     val needsInferType = true
@@ -126,7 +126,7 @@ class ScalaOverrideImplementTest extends ScalaLightPlatformCodeInsightTestCaseAd
         |abstract class b {
         |  def too: b
         |}
-      """.replace("\r", "").stripMargin.trim
+      """
     val expectedText =
       """
         |package test
@@ -140,7 +140,7 @@ class ScalaOverrideImplementTest extends ScalaLightPlatformCodeInsightTestCaseAd
         |abstract class b {
         |  def too: b
         |}
-      """.replace("\r", "").stripMargin.trim
+      """
     val methodName: String = "too"
     val isImplement = true
     val needsInferType = true
@@ -161,7 +161,7 @@ class ScalaOverrideImplementTest extends ScalaLightPlatformCodeInsightTestCaseAd
         |
         |  <caret>
         |}
-      """.replace("\r", "").stripMargin.trim
+      """
     val expectedText =
       """
         |package test
@@ -174,7 +174,7 @@ class ScalaOverrideImplementTest extends ScalaLightPlatformCodeInsightTestCaseAd
         |
         |  override def foo(): A = <selection>super.foo()</selection>
         |}
-      """.replace("\r", "").stripMargin.trim
+      """
     val methodName: String = "foo"
     val isImplement = false
     val needsInferType = true
@@ -193,7 +193,7 @@ class ScalaOverrideImplementTest extends ScalaLightPlatformCodeInsightTestCaseAd
         |  <caret>
         |  def y(): Int = 3
         |}
-      """.replace("\r", "").stripMargin.trim
+      """
     val expectedText =
       """
         |package Y
@@ -207,7 +207,7 @@ class ScalaOverrideImplementTest extends ScalaLightPlatformCodeInsightTestCaseAd
         |
         |  def y(): Int = 3
         |}
-      """.replace("\r", "").stripMargin.trim
+      """
     val methodName: String = "K"
     val isImplement = false
     val needsInferType = true
@@ -226,7 +226,7 @@ class ScalaOverrideImplementTest extends ScalaLightPlatformCodeInsightTestCaseAd
         |  val t = foo()
         |  <caret>
         |}
-      """.replace("\r", "").stripMargin.trim
+      """
     val expectedText =
       """
         |package test
@@ -238,7 +238,7 @@ class ScalaOverrideImplementTest extends ScalaLightPlatformCodeInsightTestCaseAd
         |  val t = foo()
         |  override val foo: A = <selection>_</selection>
         |}
-      """.replace("\r", "").stripMargin.trim
+      """
     val methodName: String = "foo"
     val isImplement = false
     val needsInferType = true
@@ -258,7 +258,7 @@ class ScalaOverrideImplementTest extends ScalaLightPlatformCodeInsightTestCaseAd
         |  <caret>
         |  def y(): Int = 3
         |}
-      """.replace("\r", "").stripMargin.trim
+      """
     val expectedText =
       """
         |package test
@@ -273,7 +273,7 @@ class ScalaOverrideImplementTest extends ScalaLightPlatformCodeInsightTestCaseAd
         |
         |  def y(): Int = 3
         |}
-      """.replace("\r", "").stripMargin.trim
+      """
     val methodName: String = "foo"
     val isImplement = false
     val needsInferType = true
@@ -292,7 +292,7 @@ class ScalaOverrideImplementTest extends ScalaLightPlatformCodeInsightTestCaseAd
         |  self: A =>
         |  <caret>
         |}
-      """.replace("\r", "").stripMargin.trim
+      """
     val expectedText =
       """
         |package test
@@ -304,7 +304,7 @@ class ScalaOverrideImplementTest extends ScalaLightPlatformCodeInsightTestCaseAd
         |  self: A =>
         |  def foo: Int = <selection>???</selection>
         |}
-      """.replace("\r", "").stripMargin.trim
+      """
     val methodName: String = "foo"
     val isImplement = true
     val needsInferType = true
@@ -323,7 +323,7 @@ class ScalaOverrideImplementTest extends ScalaLightPlatformCodeInsightTestCaseAd
         |  self: A =>
         |  <caret>
         |}
-      """.replace("\r", "").stripMargin.trim
+      """
     val expectedText =
       """
         |package test
@@ -335,7 +335,7 @@ class ScalaOverrideImplementTest extends ScalaLightPlatformCodeInsightTestCaseAd
         |  self: A =>
         |  override def foo: Int = <selection>self.foo</selection>
         |}
-      """.replace("\r", "").stripMargin.trim
+      """
     val methodName: String = "foo"
     val isImplement = false
     val needsInferType = true
@@ -351,7 +351,7 @@ class ScalaOverrideImplementTest extends ScalaLightPlatformCodeInsightTestCaseAd
         |abstract class b {
         |  type L
         |}
-      """.replace("\r", "").stripMargin.trim
+      """
     val expectedText =
       """
         |class ImplementTypeAlias extends b {
@@ -360,7 +360,7 @@ class ScalaOverrideImplementTest extends ScalaLightPlatformCodeInsightTestCaseAd
         |abstract class b {
         |  type L
         |}
-      """.replace("\r", "").stripMargin.trim
+      """
     val methodName: String = "L"
     val isImplement = true
     val needsInferType = true
@@ -378,7 +378,7 @@ class ScalaOverrideImplementTest extends ScalaLightPlatformCodeInsightTestCaseAd
         |abstract class b {
         |  val too: b
         |}
-      """.replace("\r", "").stripMargin.trim
+      """
     val expectedText =
       """
         |package test
@@ -389,7 +389,7 @@ class ScalaOverrideImplementTest extends ScalaLightPlatformCodeInsightTestCaseAd
         |abstract class b {
         |  val too: b
         |}
-      """.replace("\r", "").stripMargin.trim
+      """
     val methodName: String = "too"
     val isImplement = true
     val needsInferType = true
@@ -407,7 +407,7 @@ class ScalaOverrideImplementTest extends ScalaLightPlatformCodeInsightTestCaseAd
         |abstract class b {
         |  var too: b
         |}
-      """.replace("\r", "").stripMargin.trim
+      """
     val expectedText =
       """
         |package test
@@ -418,7 +418,7 @@ class ScalaOverrideImplementTest extends ScalaLightPlatformCodeInsightTestCaseAd
         |abstract class b {
         |  var too: b
         |}
-      """.replace("\r", "").stripMargin.trim
+      """
     val methodName: String = "too"
     val isImplement = true
     val needsInferType = true
@@ -431,7 +431,7 @@ class ScalaOverrideImplementTest extends ScalaLightPlatformCodeInsightTestCaseAd
         |class ExtendsList extends java.util.List {
         |  <caret>
         |}
-      """.replace("\r", "").stripMargin.trim
+      """
     val expectedText =
       """
         |import java.util
@@ -439,7 +439,7 @@ class ScalaOverrideImplementTest extends ScalaLightPlatformCodeInsightTestCaseAd
         |class ExtendsList extends java.util.List {
         |  def removeAll(c: util.Collection[_]): Boolean = <selection>???</selection>
         |}
-      """.replace("\r", "").stripMargin.trim
+      """
     val methodName: String = "removeAll"
     val isImplement = true
     val needsInferType = true
@@ -456,7 +456,7 @@ class ScalaOverrideImplementTest extends ScalaLightPlatformCodeInsightTestCaseAd
         |class ClassTypeParam extends A[Int] {
         |  <caret>
         |}
-      """.replace("\r", "").stripMargin.trim
+      """
     val expectedText =
       """
         |class A[T] {
@@ -466,7 +466,7 @@ class ScalaOverrideImplementTest extends ScalaLightPlatformCodeInsightTestCaseAd
         |class ClassTypeParam extends A[Int] {
         |  override def foo: Int = <selection>super.foo</selection>
         |}
-      """.replace("\r", "").stripMargin.trim
+      """
     val methodName: String = "foo"
     val isImplement = false
     val needsInferType = true
@@ -483,7 +483,7 @@ class ScalaOverrideImplementTest extends ScalaLightPlatformCodeInsightTestCaseAd
         |class Substituting extends A[Float] {
         |  <caret>
         |}
-      """.replace("\r", "").stripMargin.trim
+      """
     val expectedText =
       """
         |class A[T] {
@@ -493,7 +493,7 @@ class ScalaOverrideImplementTest extends ScalaLightPlatformCodeInsightTestCaseAd
         |class Substituting extends A[Float] {
         |  override def foo(x: (Float) => Float, y: (Float, Int) => Float): Double = <selection>super.foo(x, y)</selection>
         |}
-      """.replace("\r", "").stripMargin.trim
+      """
     val methodName: String = "foo"
     val isImplement = false
     val needsInferType = true
@@ -509,7 +509,7 @@ class ScalaOverrideImplementTest extends ScalaLightPlatformCodeInsightTestCaseAd
         |class SimpleTypeParam extends A {
         |  <caret>
         |}
-      """.replace("\r", "").stripMargin.trim
+      """
     val expectedText =
       """
         |abstract class A {
@@ -518,7 +518,7 @@ class ScalaOverrideImplementTest extends ScalaLightPlatformCodeInsightTestCaseAd
         |class SimpleTypeParam extends A {
         |  def foo[T](x: T): T = <selection>???</selection>
         |}
-      """.replace("\r", "").stripMargin.trim
+      """
     val methodName: String = "foo"
     val isImplement = true
     val needsInferType = true
@@ -537,7 +537,7 @@ class ScalaOverrideImplementTest extends ScalaLightPlatformCodeInsightTestCaseAd
         |trait Sub extends Foo {
         |  <caret>
         |}
-      """.replace("\r", "").stripMargin.trim
+      """
     val expectedText =
       """
         |package test
@@ -549,7 +549,7 @@ class ScalaOverrideImplementTest extends ScalaLightPlatformCodeInsightTestCaseAd
         |trait Sub extends Foo {
         |  def foo(a: Any*): Any = <selection>???</selection>
         |}
-      """.replace("\r", "").stripMargin.trim
+      """
     val methodName: String = "foo"
     val isImplement = true
     val needsInferType = true
@@ -568,7 +568,7 @@ class ScalaOverrideImplementTest extends ScalaLightPlatformCodeInsightTestCaseAd
         |class Child extends Parent {
         |  <caret>
         |}
-      """.replace("\r", "").stripMargin.trim
+      """
     val expectedText =
       """
         |package test
@@ -580,7 +580,7 @@ class ScalaOverrideImplementTest extends ScalaLightPlatformCodeInsightTestCaseAd
         |class Child extends Parent {
         |  def m(p: (T) forSome {type T <: Number}): Unit = <selection>???</selection>
         |}
-      """.replace("\r", "").stripMargin.trim
+      """
     val methodName: String = "m"
     val isImplement = true
     val needsInferType = true
@@ -597,7 +597,7 @@ class ScalaOverrideImplementTest extends ScalaLightPlatformCodeInsightTestCaseAd
         |class B extends A {
         |  <caret>
         |}
-      """.replace("\r", "").stripMargin.trim
+      """
     val expectedText =
       """
         |class A {
@@ -607,7 +607,7 @@ class ScalaOverrideImplementTest extends ScalaLightPlatformCodeInsightTestCaseAd
         |class B extends A {
         |  override def foo(x_ : Int): Int = <selection>super.foo(x_)</selection>
         |}
-      """.replace("\r", "").stripMargin.trim
+      """
     val methodName: String = "foo"
     val isImplement = false
     val needsInferType = true
@@ -626,7 +626,7 @@ class ScalaOverrideImplementTest extends ScalaLightPlatformCodeInsightTestCaseAd
         |class Child extends Parent {
         | <caret>
         |}
-      """.replace("\r", "").stripMargin.trim
+      """
     val expectedText =
       """
         |package test
@@ -638,7 +638,7 @@ class ScalaOverrideImplementTest extends ScalaLightPlatformCodeInsightTestCaseAd
         |class Child extends Parent {
         |  override def doSmth(smth: => String): Unit = <selection>super.doSmth(smth)</selection>
         |}
-      """.replace("\r", "").stripMargin.trim
+      """
     val methodName: String = "doSmth"
     val isImplement = false
     val needsInferType = true
@@ -656,7 +656,7 @@ class ScalaOverrideImplementTest extends ScalaLightPlatformCodeInsightTestCaseAd
         |class B extends A {
         |  <caret>
         |}
-      """.replace("\r", "").stripMargin.trim
+      """
     val expectedText =
       """
         |class A {
@@ -667,7 +667,7 @@ class ScalaOverrideImplementTest extends ScalaLightPlatformCodeInsightTestCaseAd
         |class B extends A {
         |  override def foo(in: B#ID[String]): B#ID[Int] = <selection>super.foo(in)</selection>
         |}
-      """.replace("\r", "").stripMargin.trim
+      """
     val methodName: String = "foo"
     val isImplement = false
     val needsInferType = true
@@ -685,7 +685,7 @@ class ScalaOverrideImplementTest extends ScalaLightPlatformCodeInsightTestCaseAd
         |class B extends A {
         |  <caret>
         |}
-      """.replace("\r", "").stripMargin.trim
+      """
     val expectedText =
       """
         |class A {
@@ -696,7 +696,7 @@ class ScalaOverrideImplementTest extends ScalaLightPlatformCodeInsightTestCaseAd
         |class B extends A {
         |  override val foo: B#ID[Int] = <selection>_</selection>
         |}
-      """.replace("\r", "").stripMargin.trim
+      """
     val methodName: String = "foo"
     val isImplement = false
     val needsInferType = true
@@ -714,7 +714,7 @@ class ScalaOverrideImplementTest extends ScalaLightPlatformCodeInsightTestCaseAd
         |object B extends A {
         |  <caret>
         |}
-      """.replace("\r", "").stripMargin.trim
+      """
     val expectedText =
       """
         |class A {
@@ -725,7 +725,7 @@ class ScalaOverrideImplementTest extends ScalaLightPlatformCodeInsightTestCaseAd
         |object B extends A {
         |  override def foo(f: B.F): Any = <selection>super.foo(f)</selection>
         |}
-      """.replace("\r", "").stripMargin.trim
+      """
     val methodName: String = "foo"
     val isImplement = false
     val needsInferType = true
@@ -744,7 +744,7 @@ class ScalaOverrideImplementTest extends ScalaLightPlatformCodeInsightTestCaseAd
         |object B extends A {
         |  <caret>
         |}
-      """.replace("\r", "").stripMargin.trim
+      """
     val expectedText =
       """
         |trait TC[_]
@@ -756,7 +756,7 @@ class ScalaOverrideImplementTest extends ScalaLightPlatformCodeInsightTestCaseAd
         |object B extends A {
         |  override def foo[M[X], N[X[_]] : TC]: String = <selection>super.foo</selection>
         |}
-      """.replace("\r", "").stripMargin.trim
+      """
     val methodName: String = "foo"
     val isImplement = false
     val needsInferType = true
@@ -781,7 +781,7 @@ class ScalaOverrideImplementTest extends ScalaLightPlatformCodeInsightTestCaseAd
         |class C extends B {
         |  <caret>
         |}
-      """.replace("\r", "").stripMargin.trim
+      """
     val expectedText =
       """
         |package test
@@ -801,7 +801,7 @@ class ScalaOverrideImplementTest extends ScalaLightPlatformCodeInsightTestCaseAd
         |class C extends B {
         |  def foo(v: Nested2): Unit = <selection>???</selection>
         |}
-      """.replace("\r", "").stripMargin.trim
+      """
     val methodName: String = "foo"
     val isImplement = true
     val needsInferType = true
@@ -819,7 +819,7 @@ class ScalaOverrideImplementTest extends ScalaLightPlatformCodeInsightTestCaseAd
         |abstract class b {
         |  def foo(x: b): Unit
         |}
-      """.replace("\r", "").stripMargin.trim
+      """
     val expectedText =
       """
         |package test
@@ -830,7 +830,7 @@ class ScalaOverrideImplementTest extends ScalaLightPlatformCodeInsightTestCaseAd
         |abstract class b {
         |  def foo(x: b): Unit
         |}
-      """.replace("\r", "").stripMargin.trim
+      """
     val methodName: String = "foo"
     val isImplement = true
     val needsInferType = true
@@ -848,7 +848,7 @@ class ScalaOverrideImplementTest extends ScalaLightPlatformCodeInsightTestCaseAd
         |abstract class b {
         |  def foo(x: b) = ()
         |}
-      """.replace("\r", "").stripMargin.trim
+      """
     val expectedText =
       """
         |package test
@@ -859,7 +859,7 @@ class ScalaOverrideImplementTest extends ScalaLightPlatformCodeInsightTestCaseAd
         |abstract class b {
         |  def foo(x: b) = ()
         |}
-      """.replace("\r", "").stripMargin.trim
+      """
     val methodName: String = "foo"
     val isImplement = false
     val needsInferType = true
@@ -877,7 +877,7 @@ class ScalaOverrideImplementTest extends ScalaLightPlatformCodeInsightTestCaseAd
         |abstract class b {
         |  def foo(x: b) = 1
         |}
-      """.replace("\r", "").stripMargin.trim
+      """
     val expectedText =
       """
         |package test
@@ -888,7 +888,7 @@ class ScalaOverrideImplementTest extends ScalaLightPlatformCodeInsightTestCaseAd
         |abstract class b {
         |  def foo(x: b) = 1
         |}
-      """.replace("\r", "").stripMargin.trim
+      """
     val methodName: String = "foo"
     val isImplement = false
     val needsInferType = true
@@ -905,7 +905,7 @@ class ScalaOverrideImplementTest extends ScalaLightPlatformCodeInsightTestCaseAd
         |class B extends A {
         |  <caret>
         |}
-      """.replace("\r", "").stripMargin.trim
+      """
     val expectedText =
       """
         |class A {
@@ -915,7 +915,34 @@ class ScalaOverrideImplementTest extends ScalaLightPlatformCodeInsightTestCaseAd
         |class B extends A {
         |  override def foo(x: Int) = <selection>super.foo(x)</selection>
         |}
-      """.replace("\r", "").stripMargin.trim
+      """
+    val methodName: String = "foo"
+    val isImplement = false
+    val needsInferType = false
+    runTest(methodName, fileText, expectedText, isImplement, needsInferType)
+  }
+
+  def testImplicitParams() {
+    val fileText =
+      """
+        |trait A {
+        |  def foo(x : Int)(implicit name: String): Int = name + x
+        |}
+        |
+        |class B extends A {
+        |  <caret>
+        |}
+      """
+    val expectedText =
+      """
+        |trait A {
+        |  def foo(x : Int)(implicit name: String): Int = name + x
+        |}
+        |
+        |class B extends A {
+        |  override def foo(x: Int)(implicit name: String) = <selection>super.foo(x)</selection>
+        |}
+      """
     val methodName: String = "foo"
     val isImplement = false
     val needsInferType = false
