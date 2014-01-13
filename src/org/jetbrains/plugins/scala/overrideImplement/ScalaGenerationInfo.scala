@@ -23,6 +23,7 @@ import org.jetbrains.plugins.scala.config.ScalaVersionUtil._
 import org.jetbrains.plugins.scala.lang.psi.types.result.Failure
 import scala.Some
 import org.jetbrains.plugins.scala.lang.psi.types.result.Success
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameterClause
 
 
 /**
@@ -120,7 +121,8 @@ class ScalaGenerationInfo(classMember: PsiElementClassMember[_ <: PsiDocCommentO
     val parametersText: String = {
       method match {
         case fun: ScFunction =>
-          fun.paramClauses.clauses.map(_.parameters.map(_.name).mkString("(", ", ", ")")).mkString
+          val clauses = fun.paramClauses.clauses.filter(!_.isImplicit)
+          clauses.map(_.parameters.map(_.name).mkString("(", ", ", ")")).mkString
         case method: PsiMethod =>
           if (method.isAccessor) ""
           else method.getParameterList.getParameters.map(paramText).mkString("(", ", ", ")")
