@@ -44,18 +44,21 @@ class ScalaLocalVariableEvaluator(_name: String) extends Evaluator {
       throw EvaluateExceptionUtil.createEvaluateException(DebuggerBundle.message("evaluation.error.no.stackframe"))
     }
     def evaluate: Option[AnyRef] = {
+      def value(framePr: StackFrameProxyImpl, local: LocalVariableProxyImpl) = DebuggerUtil.unwrapScalaRuntimeObjectRef {
+        frameProxy.getValue(local)
+      }
       var local: LocalVariableProxyImpl = frameProxy.visibleVariableByName(name)
       if (local != null) {
         myEvaluatedVariable = local
         myContext = context
-        return Some(frameProxy.getValue(local))
+        return Some(value(frameProxy, local))
       }
       for (i <- 1 to 2) {
         local = frameProxy.visibleVariableByName(name + "$" + i)
         if (local != null) {
           myEvaluatedVariable = local
           myContext = context
-          return Some(frameProxy.getValue(local))
+          return Some(value(frameProxy, local))
         }
       }
       val locals = frameProxy.visibleVariables()
@@ -64,7 +67,7 @@ class ScalaLocalVariableEvaluator(_name: String) extends Evaluator {
         if (local.name().startsWith(name + "$")) {
           myEvaluatedVariable = local
           myContext = context
-          return Some(frameProxy.getValue(local))
+          return Some(value(frameProxy, local))
         }
       }
       None
