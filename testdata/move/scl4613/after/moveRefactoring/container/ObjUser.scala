@@ -1,6 +1,6 @@
 package moveRefactoring.container
 
-import moveRefactoring.foo.{A}
+import moveRefactoring.foo.A
 import moveRefactoring.bar.B
 
 object ObjUser {
