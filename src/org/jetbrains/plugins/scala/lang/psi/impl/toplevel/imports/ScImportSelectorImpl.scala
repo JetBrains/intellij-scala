@@ -5,11 +5,10 @@ package impl
 package toplevel
 package imports
 
-import api.toplevel.imports.{ScImportSelectors, ScImportExpr, ScImportSelector}
+import api.toplevel.imports.{ScImportExpr, ScImportSelector}
 import com.intellij.lang.ASTNode
 import com.intellij.psi.tree.IElementType
 import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.psi.PsiElement
 import lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
 import parser.ScalaElementTypes
@@ -40,7 +39,7 @@ class ScImportSelectorImpl extends ScalaStubBasedElementImpl[ScImportSelector] w
     if (stub != null) {
       return stub.asInstanceOf[ScImportSelectorStub].reference
     }
-    (getFirstChild match {case s: ScStableCodeReferenceElement => s case _ => null})
+    getFirstChild match {case s: ScStableCodeReferenceElement => s case _ => null}
   }
 
   def deleteSelector() {
@@ -60,6 +59,14 @@ class ScImportSelectorImpl extends ScalaStubBasedElementImpl[ScImportSelector] w
         t = node.getElementType
       }
     } while (node != null && !(t == ScalaElementTypes.IMPORT_SELECTOR || t == ScalaTokenTypes.tUNDER))
+
+    expr.selectors match {
+      case Seq(sel: ScImportSelector) if !sel.isAliasedImport =>
+        val withoutBracesText = expr.qualifier.getText + "." + sel.reference.getText
+        val newImportExpr = ScalaPsiElementFactory.createImportExprFromText(withoutBracesText, expr.getManager)
+        expr.replace(newImportExpr)
+      case _ =>
+    }
   }
 
   def isAliasedImport: Boolean = {
