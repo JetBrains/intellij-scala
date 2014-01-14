@@ -510,10 +510,13 @@ object ScalaPsiElementFactory {
 
   def createEnumerator(name: String, expr: ScExpression, manager: PsiManager, typeName: String): ScEnumerator = {
     val typeText = if (typeName == null || typeName == "") "" else ": " + typeName
-    val text = s"for {\n  i <- 1 to 239\n  $name$typeText = ${expr.getText}\n}"
+    val enumText = s"$name$typeText = ${expr.getText}"
+    val text = s"for {\n  i <- 1 to 239\n  $enumText\n}"
     val dummyFile = createScalaFile(text, manager)
     val forStmt: ScForStatement = dummyFile.getFirstChild.asInstanceOf[ScForStatement]
-    forStmt.enumerators.getOrElse(null).enumerators.apply(0)
+    forStmt.enumerators.flatMap(_.enumerators.headOption).getOrElse {
+      throw new IllegalArgumentException(s"Could not create enumerator from text:\n $enumText")
+    }
   }
 
   def createNewLine(manager: PsiManager): PsiElement = createNewLineNode(manager, "\n").getPsi
