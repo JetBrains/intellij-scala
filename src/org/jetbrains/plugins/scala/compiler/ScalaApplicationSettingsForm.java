@@ -82,7 +82,7 @@ public class ScalaApplicationSettingsForm implements Configurable {
   private void initCompilerTypeCmb() {
     final List<ScalaApplicationSettings.IncrementalType> values = Arrays.asList(ScalaApplicationSettings.IncrementalType.values());
     myIncrementalTypeCmb.setModel(new ListComboBoxModel<ScalaApplicationSettings.IncrementalType>(values));
-    myIncrementalTypeCmb.setSelectedItem(mySettings.INCREMENTAL_COMPILATION_TYPE);
+    myIncrementalTypeCmb.setSelectedItem(mySettings.INCREMENTAL_TYPE);
     myIncrementalTypeCmb.setRenderer(new ListCellRendererWrapper<ScalaApplicationSettings.IncrementalType>() {
       @Override
       public void customize(JList list, ScalaApplicationSettings.IncrementalType value, int index, boolean selected, boolean hasFocus) {
@@ -147,12 +147,12 @@ public class ScalaApplicationSettingsForm implements Configurable {
         ComparatorUtil.equalsNullable(sdkName, mySettings.COMPILE_SERVER_SDK) &&
         myCompilationServerMaximumHeapSize.getText().equals(mySettings.COMPILE_SERVER_MAXIMUM_HEAP_SIZE) &&
         myCompilationServerJvmParameters.getText().equals(mySettings.COMPILE_SERVER_JVM_PARAMETERS) &&
-        myIncrementalTypeCmb.getModel().getSelectedItem().equals(mySettings.INCREMENTAL_COMPILATION_TYPE) &&
+        myIncrementalTypeCmb.getModel().getSelectedItem().equals(mySettings.INCREMENTAL_TYPE) &&
         myCompileOrderCmb.getModel().getSelectedItem().equals(mySettings.COMPILE_ORDER));
   }
 
   public void apply() throws ConfigurationException {
-    mySettings.INCREMENTAL_COMPILATION_TYPE = (ScalaApplicationSettings.IncrementalType) myIncrementalTypeCmb.getModel().getSelectedItem();
+    mySettings.INCREMENTAL_TYPE = (ScalaApplicationSettings.IncrementalType) myIncrementalTypeCmb.getModel().getSelectedItem();
     mySettings.COMPILE_ORDER = (String) myCompileOrderCmb.getModel().getSelectedItem();
     mySettings.COMPILE_SERVER_ENABLED = myEnableCompileServer.isSelected();
     mySettings.COMPILE_SERVER_PORT = myCompilationServerPort.getText();
