@@ -48,7 +48,7 @@ object StructureParserTest {
     val dependencies = Dependencies(
       projects = Seq.empty,
       modules = Seq(ModuleDependency(moduleId, Seq("test"))),
-      jars = Seq.empty)
+      jars = Seq(JarDependency(new File("/foo/bar.jar"), Seq("test"))))
 
     val project = Project(
       id = "root",
