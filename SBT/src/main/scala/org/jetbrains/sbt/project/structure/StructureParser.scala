@@ -29,7 +29,7 @@ object StructureParser {
     val configurations = (node \ "configuration").map(parseConfiguration(_)(fs.withBase(base)))
     val java = (node \ "java").headOption.map(parseJava(_)(fs.withBase(base)))
     val scala = (node \ "scala").headOption.map(parseScala(_)(fs.withBase(base)))
-    val dependencies = parseDependencies(node)
+    val dependencies = parseDependencies(node)(fs.withBase(base))
 
     Project(id, name, organization, version, base, build, configurations, java, scala, dependencies)
   }
@@ -75,7 +75,7 @@ object StructureParser {
   private def parseDependencies(node: Node)(implicit fs: FS): Dependencies = {
     val projects = (node \ "project").map(parseProjectDependency)
     val modules = (node \ "module").map(parseModuleDependency)
-    val jars = (node \ "jar").map(e => file(e.text))
+    val jars = (node \ "jar").map(parseJarDependency)
 
     Dependencies(projects, modules, jars)
   }
@@ -94,6 +94,14 @@ object StructureParser {
             .map(it => parseConfigurations(it.text)).getOrElse(Seq.empty)
 
     ModuleDependency(id, configurations)
+  }
+
+  private def parseJarDependency(node: Node)(implicit fs: FS): JarDependency = {
+    val jar = file(node.text)
+    val configurations = (node \ "@configurations").headOption
+            .map(it => parseConfigurations(it.text)).getOrElse(Seq.empty)
+
+    JarDependency(jar, configurations)
   }
 
   private def parseConfigurations(s: String) = if (s.isEmpty) Seq.empty else s.split(";").toSeq
