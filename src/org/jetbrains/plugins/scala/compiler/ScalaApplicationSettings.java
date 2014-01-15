@@ -26,7 +26,7 @@ public class ScalaApplicationSettings implements PersistentStateComponent<ScalaA
   private String[] cOrders = {"Mixed", "JavaThenScala", "ScalaThenJava"};
   public final List<String> COMPILE_ORDERS = Collections.unmodifiableList(Arrays.asList(cOrders));
 
-  public IncrementalType INCREMENTAL_COMPILATION_TYPE = IncrementalType.IDEA;
+  public IncrementalType INCREMENTAL_TYPE = IncrementalType.IDEA;
   public String COMPILE_ORDER = COMPILE_ORDERS.get(0);
   public String COMPILE_SERVER_PORT = "3200";
   public String COMPILE_SERVER_SDK;
