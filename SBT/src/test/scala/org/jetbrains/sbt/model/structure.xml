@@ -29,6 +29,7 @@
       <classes>target/scala-2.10/classes</classes>
     </configuration>
     <module revision="2.10.1" name="scala-library" organization="org.scala-lang" configurations="test"/>
+    <jar configurations="test">/foo/bar.jar</jar>
   </project>
   <repository>
     <module revision="2.10.1" name="scala-library" organization="org.scala-lang">

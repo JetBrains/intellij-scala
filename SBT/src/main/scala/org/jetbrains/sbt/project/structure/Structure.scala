@@ -15,11 +15,13 @@ case class Java(home: Option[File], options: Seq[String])
 
 case class Scala(version: String, libraryJar: File, compilerJar: File, extraJars: Seq[File], options: Seq[String])
 
-case class Dependencies(projects: Seq[ProjectDependency], modules: Seq[ModuleDependency], jars: Seq[File])
+case class Dependencies(projects: Seq[ProjectDependency], modules: Seq[ModuleDependency], jars: Seq[JarDependency])
 
 case class ProjectDependency(project: String, configurations: Seq[String])
 
 case class ModuleDependency(id: ModuleId, configurations: Seq[String])
+
+case class JarDependency(file: File, configurations: Seq[String])
 
 case class ModuleId(organization: String, name: String, revision: String)
 
