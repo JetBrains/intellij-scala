@@ -247,10 +247,15 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     }
   }
 
-  private def createUnmanagedDependencies(dependencies: Seq[File])(moduleData: ModuleData): Seq[LibraryDependencyNode] = {
-    if (dependencies.isEmpty) Seq.empty
-    else Seq(createModuleLevelDependency(
-      Sbt.UnmanagedLibraryName, dependencies.map(_.path), DependencyScope.COMPILE)(moduleData))
+  private def createUnmanagedDependencies(dependencies: Seq[JarDependency])(moduleData: ModuleData): Seq[LibraryDependencyNode] = {
+    dependencies.groupBy(it => scopeFor(it.configurations)).toSeq.map { case (scope, dependency) =>
+      val name = scope match {
+        case DependencyScope.COMPILE => Sbt.UnmanagedLibraryName
+        case it => s"${Sbt.UnmanagedLibraryName}-${it.getDisplayName.toLowerCase}"
+      }
+      val files = dependency.map(_.file.path)
+      createModuleLevelDependency(name, files, scope)(moduleData)    
+    }
   }
 
   private def createModuleLevelDependency(name: String, binaries: Seq[String], scope: DependencyScope)
