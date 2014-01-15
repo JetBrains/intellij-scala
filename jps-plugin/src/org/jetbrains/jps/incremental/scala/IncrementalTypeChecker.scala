@@ -22,8 +22,7 @@ class IncrementalTypeChecker(context: CompileContext) {
       case _ if JavaBuilderUtil.isForcedRecompilationAllJavaModules(context) => //isRebiuld
         setPreviousIncrementalType(incrType)
       case None =>
-        context.processMessage(new CompilerMessage("scala", BuildMessage.Kind.WARNING,
-        "cannot find type of the previous incremental compiler, full rebuild may be required"))
+        ScalaBuilderDelegate.Log.info("scala: cannot find type of the previous incremental compiler, full rebuild may be required")
       case Some(`incrType`) => //same incremental type, nothing to be done
       case Some(_) if isMakeProject =>
         cleanCaches()
