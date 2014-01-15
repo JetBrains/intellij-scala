@@ -31,7 +31,7 @@ class ImplementAbstractMethodTest extends ScalaIntentionTestBase {
         |}
         |
         |class AA extends A {
-        |  def f: Int = $START???$END
+        |  override def f: Int = $START???$END
         |}"""
     doTest(text, result)
   }
@@ -52,7 +52,7 @@ class ImplementAbstractMethodTest extends ScalaIntentionTestBase {
         |}
         |
         |class AA extends A {
-        |  def f: Int = $START???$END
+        |  override def f: Int = $START???$END
         |}"""
     doTest(text, result)
   }
@@ -73,7 +73,7 @@ class ImplementAbstractMethodTest extends ScalaIntentionTestBase {
         |}
         |
         |class AA extends A[Int] {
-        |  def f: Int = $START???$END
+        |  override def f: Int = $START???$END
         |}"""
     doTest(text, result)
   }
@@ -106,7 +106,7 @@ class ImplementAbstractMethodTest extends ScalaIntentionTestBase {
         |}
         |
         |class AA extends A {
-        |  def f: Unit = $START???$END
+        |  override def f: Unit = $START???$END
         |}"""
     doTest(text, result)
   }
