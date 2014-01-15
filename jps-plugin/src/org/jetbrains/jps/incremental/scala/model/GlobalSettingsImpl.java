@@ -54,7 +54,7 @@ public class GlobalSettingsImpl extends JpsElementBase<GlobalSettingsImpl> imple
 
     public String COMPILE_SERVER_SDK;
 
-    public String INCREMENTAL_TYPE = "SBT";
+    public String INCREMENTAL_TYPE = "IDEA";
 
     public String COMPILE_ORDER = "Mixed";
   }
