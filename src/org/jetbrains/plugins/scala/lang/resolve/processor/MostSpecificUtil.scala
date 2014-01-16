@@ -27,10 +27,21 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinitio
  * Date: 26.04.2010
  */
 case class MostSpecificUtil(elem: PsiElement, length: Int) {
-  def mostSpecificForResolveResult(applicable: Set[ScalaResolveResult]): Option[ScalaResolveResult] = {
+  def mostSpecificForResolveResult(applicable: Set[ScalaResolveResult],
+                                   hasTypeParametersCall: Boolean = false): Option[ScalaResolveResult] = {
+    def isSpecialTypeParametersCase(r: ScalaResolveResult): Boolean = {
+      hasTypeParametersCall && (r.element match {
+        case fun: ScFunction => fun.hasTypeParameters
+        case _ => false
+      })
+    }
     mostSpecificGeneric(applicable.map(r => r.innerResolveResult match {
-      case Some(rr) => new InnerScalaResolveResult(rr.element, rr.implicitConversionClass, r, r.substitutor)
-      case None => new InnerScalaResolveResult(r.element, r.implicitConversionClass, r, r.substitutor)
+      case Some(rr) =>
+        new InnerScalaResolveResult(rr.element, rr.implicitConversionClass, r, r.substitutor,
+          specialTypeParametersCase = isSpecialTypeParametersCase(r))
+      case None =>
+        new InnerScalaResolveResult(r.element, r.implicitConversionClass, r, r.substitutor,
+          specialTypeParametersCase = isSpecialTypeParametersCase(r))
     })).map(_.repr)
   }
 
@@ -60,7 +71,8 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
 
   private class InnerScalaResolveResult[T](val element: PsiNamedElement, val implicitConversionClass: Option[PsiClass],
                                            val repr: T, val substitutor: ScSubstitutor,
-                                           val callByNameImplicit: Boolean = false)
+                                           val callByNameImplicit: Boolean = false,
+                                           val specialTypeParametersCase: Boolean = false)
 
   private def isAsSpecificAs[T](r1: InnerScalaResolveResult[T], r2: InnerScalaResolveResult[T]): Boolean = {
     def lastRepeated(params: Seq[Parameter]): Boolean = {
@@ -68,6 +80,8 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
       if (lastOption == None) return false
       lastOption.get.isRepeated
     }
+    if (r1.specialTypeParametersCase && !r2.specialTypeParametersCase) return true
+    else if (r2.specialTypeParametersCase && !r1.specialTypeParametersCase) return false
     (r1.element, r2.element) match {
       case (m1@(_: PsiMethod | _: ScFun), m2@(_: PsiMethod | _: ScFun)) =>
         val (t1, t2) = (r1.substitutor.subst(getType(m1)), r2.substitutor.subst(getType(m2)))
