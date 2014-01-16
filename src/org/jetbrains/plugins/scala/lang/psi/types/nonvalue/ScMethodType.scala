@@ -90,7 +90,7 @@ case class ScMethodType(returnType: ScType, params: Seq[Parameter], isImplicit: 
   override def equivInner(r: ScType, uSubst: ScUndefinedSubstitutor, falseUndef: Boolean): (Boolean, ScUndefinedSubstitutor) = {
     var undefinedSubst = uSubst
     r match {
-      case m: ScMethodType => {
+      case m: ScMethodType =>
         if (m.params.length != params.length) return (false, undefinedSubst)
         var t = Equivalence.equivInner(m.returnType, returnType,undefinedSubst, falseUndef)
         if (!t._1) return (false, undefinedSubst)
@@ -105,7 +105,6 @@ case class ScMethodType(returnType: ScType, params: Seq[Parameter], isImplicit: 
           i = i + 1
         }
         (true, undefinedSubst)
-      }
       case _ => (false, undefinedSubst)
     }
   }
@@ -120,49 +119,49 @@ case class ScTypePolymorphicType(internalType: ScType, typeParameters: Seq[TypeP
   def polymorphicTypeSubstitutor: ScSubstitutor = polymorphicTypeSubstitutor(inferValueType = false)
 
   def polymorphicTypeSubstitutor(inferValueType: Boolean): ScSubstitutor =
-    new ScSubstitutor(new HashMap[(String, String), ScType] ++ (typeParameters.map(tp => {
+    new ScSubstitutor(new HashMap[(String, String), ScType] ++ typeParameters.map(tp => {
       var contraVariant = 0
       var coOrInVariant = 0
       internalType.recursiveVarianceUpdate {
         case (typez: ScType, i: Int) =>
-           val pair = typez match {
-             case tp: ScTypeParameterType => (tp.name, ScalaPsiUtil.getPsiElementId(tp.param))
-             case ScUndefinedType(tp) => (tp.name, ScalaPsiUtil.getPsiElementId(tp.param))
-             case ScAbstractType(tp, _, _) => (tp.name, ScalaPsiUtil.getPsiElementId(tp.param))
-             case _ => null
-           }
-           if (pair != null) {
-             if ((tp.name, ScalaPsiUtil.getPsiElementId(tp.ptp)) == pair) {
-               if (i == -1) contraVariant += 1
-               else coOrInVariant += 1
-             }
-           }
+          val pair = typez match {
+            case tp: ScTypeParameterType => (tp.name, ScalaPsiUtil.getPsiElementId(tp.param))
+            case ScUndefinedType(tp) => (tp.name, ScalaPsiUtil.getPsiElementId(tp.param))
+            case ScAbstractType(tp, _, _) => (tp.name, ScalaPsiUtil.getPsiElementId(tp.param))
+            case _ => null
+          }
+          if (pair != null) {
+            if ((tp.name, ScalaPsiUtil.getPsiElementId(tp.ptp)) == pair) {
+              if (i == -1) contraVariant += 1
+              else coOrInVariant += 1
+            }
+          }
           (false, typez)
       }
       if (coOrInVariant == 0 && contraVariant != 0)
         ((tp.name, ScalaPsiUtil.getPsiElementId(tp.ptp)), tp.upperType.inferValueType)
       else
         ((tp.name, ScalaPsiUtil.getPsiElementId(tp.ptp)), tp.lowerType.inferValueType)
-    })), Map.empty, None)
+    }), Map.empty, None)
 
   def polymorphicTypeSubstitutorMissedEmptyParams: ScSubstitutor =
-    new ScSubstitutor(new HashMap[(String, String), ScType] ++ (typeParameters.flatMap (tp => {
+    new ScSubstitutor(new HashMap[(String, String), ScType] ++ typeParameters.flatMap(tp => {
       var contraVariant = 0
       var coOrInVariant = 0
       internalType.recursiveVarianceUpdate {
         case (typez: ScType, i: Int) =>
-           val pair = typez match {
-             case tp: ScTypeParameterType => (tp.name, ScalaPsiUtil.getPsiElementId(tp.param))
-             case ScUndefinedType(tp) => (tp.name, ScalaPsiUtil.getPsiElementId(tp.param))
-             case ScAbstractType(tp, _, _) => (tp.name, ScalaPsiUtil.getPsiElementId(tp.param))
-             case _ => null
-           }
-           if (pair != null) {
-             if ((tp.name, ScalaPsiUtil.getPsiElementId(tp.ptp)) == pair) {
-               if (i == -1) contraVariant += 1
-               else coOrInVariant += 1
-             }
-           }
+          val pair = typez match {
+            case tp: ScTypeParameterType => (tp.name, ScalaPsiUtil.getPsiElementId(tp.param))
+            case ScUndefinedType(tp) => (tp.name, ScalaPsiUtil.getPsiElementId(tp.param))
+            case ScAbstractType(tp, _, _) => (tp.name, ScalaPsiUtil.getPsiElementId(tp.param))
+            case _ => null
+          }
+          if (pair != null) {
+            if ((tp.name, ScalaPsiUtil.getPsiElementId(tp.ptp)) == pair) {
+              if (i == -1) contraVariant += 1
+              else coOrInVariant += 1
+            }
+          }
           (false, typez)
       }
       if (coOrInVariant == 0 && contraVariant != 0)
@@ -170,7 +169,7 @@ case class ScTypePolymorphicType(internalType: ScType, typeParameters: Seq[TypeP
       else if (coOrInVariant != 0)
         Seq(((tp.name, ScalaPsiUtil.getPsiElementId(tp.ptp)), tp.lowerType))
       else Seq.empty
-    })),  Map.empty, None)
+    }),  Map.empty, None)
 
   def abstractTypeSubstitutor: ScSubstitutor = {
     def hasRecursiveTypeParameters(typez: ScType): Boolean = {
@@ -187,17 +186,17 @@ case class ScTypePolymorphicType(internalType: ScType, typeParameters: Seq[TypeP
       }
       hasRecursiveTypeParameters
     }
-    new ScSubstitutor(new HashMap[(String, String), ScType] ++ (typeParameters.map(tp => {
+    new ScSubstitutor(new HashMap[(String, String), ScType] ++ typeParameters.map(tp => {
       val lowerType: ScType = if (hasRecursiveTypeParameters(tp.lowerType)) Nothing else tp.lowerType
       val upperType: ScType = if (hasRecursiveTypeParameters(tp.upperType)) Any else tp.upperType
       ((tp.name, ScalaPsiUtil.getPsiElementId(tp.ptp)),
-            new ScAbstractType(new ScTypeParameterType(tp.ptp, ScSubstitutor.empty), lowerType, upperType))
-    })), Map.empty, None)
+              new ScAbstractType(new ScTypeParameterType(tp.ptp, ScSubstitutor.empty), lowerType, upperType))
+    }), Map.empty, None)
   }
 
   def typeParameterTypeSubstitutor: ScSubstitutor =
-    new ScSubstitutor(new HashMap[(String, String), ScType] ++ (typeParameters.map(tp => ((tp.name, ScalaPsiUtil.getPsiElementId(tp.ptp)),
-            new ScTypeParameterType(tp.ptp, ScSubstitutor.empty)))), Map.empty, None)
+    new ScSubstitutor(new HashMap[(String, String), ScType] ++ typeParameters.map(tp => ((tp.name, ScalaPsiUtil.getPsiElementId(tp.ptp)),
+            new ScTypeParameterType(tp.ptp, ScSubstitutor.empty))), Map.empty, None)
 
   def inferValueType: ValueType = {
     polymorphicTypeSubstitutor(inferValueType = true).subst(internalType.inferValueType).asInstanceOf[ValueType]
