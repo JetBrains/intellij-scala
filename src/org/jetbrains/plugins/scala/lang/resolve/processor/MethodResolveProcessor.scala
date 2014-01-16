@@ -11,7 +11,7 @@ import nonvalue.TypeParameter
 import psi.api.base.types.ScTypeElement
 import result.TypingContext
 import collection.immutable.HashSet
-import scala.collection.Set
+import scala.collection.{immutable, Set}
 import psi.implicits.ScImplicitlyConvertible
 import psi.api.toplevel.typedef.{ScTemplateDefinition, ScMember, ScClass, ScObject}
 import psi.impl.toplevel.synthetic.ScSyntheticFunction
@@ -520,7 +520,8 @@ object MethodResolveProcessor {
     else if (filtered.isEmpty) mapped
     else {
       val len = if (argumentClauses.isEmpty) 0 else argumentClauses(0).length
-      MostSpecificUtil(ref, len).mostSpecificForResolveResult(filtered.toSet) match {
+      if (filtered.size == 1) return filtered
+      MostSpecificUtil(ref, len).mostSpecificForResolveResult(filtered) match {
         case Some(r) => HashSet(r)
         case None => filtered
       }
