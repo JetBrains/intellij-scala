@@ -337,8 +337,7 @@ trait ScPattern extends ScalaPsiElement {
 
 object ScPattern {
   def extractorParameters(returnType: ScType, place: PsiElement): Seq[ScType] = {
-    val level = ScalaLanguageLevel.getLanguageLevel(place)
-    if (level.isThoughScala2_11) {
+    def collectFor2_11: Seq[ScType] = {
       def findMember(name: String, tp: ScType = returnType): Option[ScType] = {
         val cp = new CompletionProcessor(StdKinds.methodRef, place, forName = Some(name))
         cp.processType(tp, place)
@@ -372,21 +371,37 @@ object ScPattern {
       }
       collect(1)
       res.toSeq
-    } else {
+    }
+
+    val level = ScalaLanguageLevel.getLanguageLevel(place)
+    if (level.isThoughScala2_11) collectFor2_11
+    else {
       returnType match {
         case ScParameterizedType(des, args) =>
           ScType.extractClass(des) match {
             case Some(clazz) if clazz.qualifiedName == "scala.Option" ||
                     clazz.qualifiedName == "scala.Some" =>
               if (args.length == 1) {
+                def checkProduct(tp: ScType): Seq[ScType] = {
+                  val productChance = collectFor2_11
+                  if (productChance.length <= 1) Seq(tp)
+                  else {
+                    val productFqn = "scala.Product" + productChance.length
+                    (for {
+                      productClass <- Option(ScalaPsiManager.instance(place.getProject).getCachedClass(place.getResolveScope, productFqn))
+                      clazz <- ScType.extractClass(tp, Some(place.getProject))
+                    } yield clazz == productClass || clazz.isInheritor(productClass, true)).
+                            filter(identity).map(_ => productChance).getOrElse(Seq(tp))
+                  }
+                }
                 args(0) match {
                   case ScTupleType(comps) => comps
                   case p: ScParameterizedType =>
                     p.getTupleType match {
                       case Some(ScTupleType(comps)) => comps
-                      case _ => Seq(p)
+                      case _ => checkProduct(p)
                     }
-                  case tp => Seq(tp)
+                  case tp => checkProduct(tp)
                 }
               } else Seq.empty
             case _ => Seq.empty
