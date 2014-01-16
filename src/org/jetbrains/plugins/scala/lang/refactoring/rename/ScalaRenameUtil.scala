@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTy
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.util.PsiTreeUtil
 import lang.psi.api.toplevel.imports.ScImportStmt
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAliasDefinition, ScFunction}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import com.intellij.usageView.UsageInfo
@@ -122,7 +122,7 @@ object ScalaRenameUtil {
     }
 
     val modifyScObjectName: UsagesWithName => Seq[UsagesWithName] = {
-      case UsagesWithName(name, usagez) => {
+      case UsagesWithName(name, usagez) =>
         if (usagez.isEmpty) Nil
         else {
           val needDollarSign: UsageInfo => Boolean = { u =>
@@ -132,18 +132,16 @@ object ScalaRenameUtil {
           val (usagesWithDS, usagesPlain) = usagez.partition(needDollarSign)
           Seq(UsagesWithName(name + "$", usagesWithDS), UsagesWithName(name, usagesPlain))
         }
-      }
     }
 
     val modifySetterName: UsagesWithName => Seq[UsagesWithName] = {
-      case arg @ UsagesWithName(name, usagez) => {
+      case arg @ UsagesWithName(name, usagez) =>
         if (usagez.isEmpty) Nil
         else {
           val newNameWithoutSuffix = name.stripSuffix(setterSuffix(name))
           val grouped = usagez.groupBy(u => setterSuffix(u.getElement.getText))
           grouped.map(entry => UsagesWithName(newNameWithoutSuffix + entry._1, entry._2)).toSeq
         }
-      }
     }
 
     val encoded = encodeNames(UsagesWithName(newName, usages))

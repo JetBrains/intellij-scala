@@ -34,11 +34,11 @@ import com.intellij.psi.util.{PsiUtil, PsiTreeUtil}
 import collection.Seq
 import api.expr.ScBlock
 import api.toplevel.templates.{ScTemplateParents, ScExtendsBlock, ScTemplateBody}
-import reflect.NameTransformer
 import extensions.toPsiNamedElementExt
 import com.intellij.lang.java.JavaLanguage
 import conversion.JavaToScala
 import scala.annotation.tailrec
+import scala.reflect.NameTransformer
 
 abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTemplateDefinition] with ScTypeDefinition with PsiClassFake {
   override def hasTypeParameters: Boolean = typeParameters.length > 0
