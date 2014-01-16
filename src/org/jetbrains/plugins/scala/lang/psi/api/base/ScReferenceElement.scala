@@ -178,7 +178,7 @@ trait ScReferenceElement extends ScalaPsiElement with ResolvableReferenceElement
   //provides the set of possible namespace alternatives based on syntactic position
   def getKinds(incomplete: Boolean, completion: Boolean = false): Set[ResolveTargets.Value]
 
-  def getVariants(implicits: Boolean, filterNotNamedVariants: Boolean): Array[Object] = getVariants()
+  def getVariants(implicits: Boolean, filterNotNamedVariants: Boolean): Array[Object] = getVariants
 
   def getSameNameVariants: Array[ResolveResult]
 
@@ -244,8 +244,8 @@ trait ScReferenceElement extends ScalaPsiElement with ResolvableReferenceElement
                   //Override also visitReferenceExpression! and visitTypeProjection!
                   override def visitReference(ref: ScReferenceElement) {
                     ref.qualifier match {
-                      case Some(qual) =>
-                      case _ =>
+                      case Some(_) =>
+                      case None =>
                         if (!ref.getParent.isInstanceOf[ScImportSelector]) {
                           if (ref.refName == parts(index)) res = false
                         }
