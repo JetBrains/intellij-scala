@@ -521,7 +521,7 @@ object MethodResolveProcessor {
     else {
       val len = if (argumentClauses.isEmpty) 0 else argumentClauses(0).length
       if (filtered.size == 1) return filtered
-      MostSpecificUtil(ref, len).mostSpecificForResolveResult(filtered) match {
+      MostSpecificUtil(ref, len).mostSpecificForResolveResult(filtered, hasTypeParametersCall = typeArgElements.nonEmpty) match {
         case Some(r) => HashSet(r)
         case None => filtered
       }
