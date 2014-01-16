@@ -143,8 +143,8 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
               val exprs: Seq[Expression] = params1.map(p => new Expression(p.paramType, elem)) ++
                       Seq.fill(i)(default)
               Compatibility.checkConformance(checkNames = false, params2, exprs, checkWithImplicits = true)
-            case (Right(t1), Right(t2)) =>
-              Conformance.conformsInner(t2, t1, immutable.Set.empty, new ScUndefinedSubstitutor()) //todo: with implcits?
+            case (Right(type1), Right(type2)) =>
+              Conformance.conformsInner(type2, type1, immutable.Set.empty, new ScUndefinedSubstitutor()) //todo: with implcits?
             case _ => return false //todo?
           }
 
