@@ -128,6 +128,15 @@ trait ScReferenceElement extends ScalaPsiElement with ResolvableReferenceElement
             if (c == method.containingClass) return true
           case _ =>
         }
+      case _: ScTypeAliasDefinition if resolved.isInstanceOf[ScPrimaryConstructor] =>
+        this.bind() match {
+          case Some(r: ScalaResolveResult) =>
+            r.parentElement match {
+              case Some(ta: ScTypeAliasDefinition) if ScEquivalenceUtil.smartEquivalence(ta, element) => return true
+              case _ =>
+            }
+          case _ =>
+        }
       case _ =>
     }
     isIndirectReferenceTo(resolved, element)
@@ -139,12 +148,22 @@ trait ScReferenceElement extends ScalaPsiElement with ResolvableReferenceElement
    * object Predef { type Throwable = java.lang.Throwable }
    *
    * [[http://youtrack.jetbrains.net/issue/SCL-3132 SCL-3132]]
+   *
+   * Corresponding references are used in FindUsages, but filtered from Rename
    */
   def isIndirectReferenceTo(resolved: PsiElement, element: PsiElement): Boolean = {
     if (resolved == null) return false
     (resolved, element) match {
       case (typeAlias: ScTypeAliasDefinition, cls: PsiClass) =>
         typeAlias.isExactAliasFor(cls)
+      case (cons: ScPrimaryConstructor, cls: PsiClass) =>
+        this.bind() match {
+          case Some(r: ScalaResolveResult) =>
+            r.parentElement match {
+              case Some(ta: ScTypeAliasDefinition) => ta.isExactAliasFor(cls)
+              case _ => false
+          }
+        }
       case _ =>
         // TODO indirect references via vals, e.g. `package object scala { val List = scala.collection.immutable.List }` ?
 
