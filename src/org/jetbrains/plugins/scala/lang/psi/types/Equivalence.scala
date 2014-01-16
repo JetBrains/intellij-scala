@@ -46,6 +46,8 @@ object Equivalence {
       case (_: ScUndefinedType, _) => l.equivInner(r, subst, falseUndef)
       case (_, _: ScAbstractType) => r.equivInner(l, subst, falseUndef)
       case (_: ScAbstractType, _) => l.equivInner(r, subst, falseUndef)
+      case (_, ScParameterizedType(_: ScAbstractType, _)) => r.equivInner(l, subst, falseUndef)
+      case (ScParameterizedType(_: ScAbstractType, _), _) => l.equivInner(r, subst, falseUndef)
       case (_, AnyRef) => r.equivInner(l, subst, falseUndef)
       case (_: StdType, _: ScProjectionType) => r.equivInner(l, subst, falseUndef)
       case (_: ScDesignatorType, _: ScThisType) => r.equivInner(l, subst, falseUndef)

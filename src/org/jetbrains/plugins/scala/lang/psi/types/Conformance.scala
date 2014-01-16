@@ -149,13 +149,11 @@ object Conformance {
       override def visitParameterizedType(p: ScParameterizedType) {
         p.designator match {
           case a: ScAbstractType =>
-            a.lower match {
-              case ScParameterizedType(lower, _) =>
-                result = conformsInner(l, lower, visited, undefinedSubst, checkWeak)
-                return
-              case lower =>  //todo: looks weird...
-                result = conformsInner(l, lower, visited, undefinedSubst, checkWeak)
-            }
+            val subst = new ScSubstitutor(Map(a.tpt.args.zip(p.typeArgs).map {
+              case (tpt: ScTypeParameterType, tp: ScType) =>
+                ((tpt.param.name, ScalaPsiUtil.getPsiElementId(tpt.param)), tp)
+            }: _*), Map.empty, None)
+            result = conformsInner(l, subst.subst(a.lower), visited, undefinedSubst, checkWeak)
           case _ =>
         }
       }
@@ -932,6 +930,16 @@ object Conformance {
       if (result != null) return
 
       p.designator match {
+        case a: ScAbstractType =>
+          val subst = new ScSubstitutor(Map(a.tpt.args.zip(p.typeArgs).map {
+            case (tpt: ScTypeParameterType, tp: ScType) =>
+              ((tpt.param.name, ScalaPsiUtil.getPsiElementId(tpt.param)), tp)
+          }: _*), Map.empty, None)
+          result = conformsInner(subst.subst(a.upper), r, visited, undefinedSubst, checkWeak)
+          if (result._1) {
+            val t = conformsInner(r, subst.subst(a.lower), visited, result._2, checkWeak)
+            if (t._1) result = t
+          }
         case proj: ScProjectionType if proj.actualElement.isInstanceOf[ScTypeAlias] =>
           val args = p.typeArgs
           val a = proj.actualElement.asInstanceOf[ScTypeAlias]

@@ -193,6 +193,17 @@ case class ScParameterizedType(designator : ScType, typeArgs : Seq[ScType]) exte
   override def equivInner(r: ScType, uSubst: ScUndefinedSubstitutor, falseUndef: Boolean): (Boolean, ScUndefinedSubstitutor) = {
     var undefinedSubst = uSubst
     (this, r) match {
+      case (ScParameterizedType(ScAbstractType(tpt, lower, upper), args), _) =>
+        if (falseUndef) return (false, uSubst)
+        val subst = new ScSubstitutor(Map(tpt.args.zip(args).map {
+          case (tpt: ScTypeParameterType, tp: ScType) =>
+            ((tpt.param.name, ScalaPsiUtil.getPsiElementId(tpt.param)), tp)
+        }: _*), Map.empty, None)
+        var t: (Boolean, ScUndefinedSubstitutor) = Conformance.conformsInner(subst.subst(upper), r, Set.empty, uSubst)
+        if (!t._1) return (false, uSubst)
+        t = Conformance.conformsInner(r, subst.subst(lower), Set.empty, t._2)
+        if (!t._1) return (false, uSubst)
+        (true, t._2)
       case (ScParameterizedType(proj@ScProjectionType(projected, _, _), args), _) if proj.actualElement.isInstanceOf[ScTypeAliasDefinition] =>
         isAliasType match {
           case Some(Conformance.AliasType(ta: ScTypeAliasDefinition, lower, _)) =>
