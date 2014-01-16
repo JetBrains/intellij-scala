@@ -69,12 +69,12 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
       lastOption.get.isRepeated
     }
     (r1.element, r2.element) match {
-      case (m1@(_: PsiMethod | _: ScFun), m2@(_: PsiMethod | _: ScFun)) => {
+      case (m1@(_: PsiMethod | _: ScFun), m2@(_: PsiMethod | _: ScFun)) =>
         val (t1, t2) = (r1.substitutor.subst(getType(m1)), r2.substitutor.subst(getType(m2)))
         def calcParams(tp: ScType, existential: Boolean): Either[Seq[Parameter], ScType] = {
           tp match {
             case ScMethodType(_, params, _) => Left(params)
-            case ScTypePolymorphicType(ScMethodType(_, params, _), typeParams) => {
+            case ScTypePolymorphicType(ScMethodType(_, params, _), typeParams) =>
               if (!existential) {
                 val s: ScSubstitutor = typeParams.foldLeft(ScSubstitutor.empty) {
                   (subst: ScSubstitutor, tp: TypeParameter) =>
@@ -92,7 +92,6 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
                   new ScExistentialArgument(tp.name, List.empty /* todo? */ , s.subst(tp.lowerType), s.subst(tp.upperType)))
                 Left(params.map(p => p.copy(paramType = ScExistentialType(s.subst(p.paramType), arguments))))
               }
-            }
             case ScTypePolymorphicType(internal, typeParams) =>
               if (!existential) {
                 val s: ScSubstitutor = typeParams.foldLeft(ScSubstitutor.empty) {
@@ -153,7 +152,7 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
         if (!conformance._1) return false
 
         t2 match {
-          case ScTypePolymorphicType(_, typeParams) => {
+          case ScTypePolymorphicType(_, typeParams) =>
             u.getSubstitutor match {
               case Some(uSubst) =>
                 def hasRecursiveTypeParameters(typez: ScType): Boolean = {
@@ -186,11 +185,9 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
                 })
               case None => return false
             }
-          }
           case _ =>
         }
         u.getSubstitutor.isDefined
-      }
       case (_, m2: PsiMethod) => true
       case (e1, e2) => Compatibility.compatibleWithViewApplicability(getType(e1), getType(e2))
     }
@@ -199,17 +196,16 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
   private def getClazz[T](r: InnerScalaResolveResult[T]): Option[PsiClass] = {
     val element = ScalaPsiUtil.nameContext(r.element)
     element match {
-      case memb: PsiMember => {
+      case memb: PsiMember =>
         val clazz = memb.containingClass
         if (clazz == null) None else Some(clazz)
-      }
       case _ => None
     }
   }
 
   def isDerived(c1: Option[PsiClass], c2: Option[PsiClass]): Boolean = {
     (c1, c2) match {
-      case (Some(clazz1), Some(clazz2)) => {
+      case (Some(clazz1), Some(clazz2)) =>
         if (clazz1 == clazz2) return false
         if (ScalaPsiUtil.cachedDeepIsInheritor(clazz1, clazz2)) return true
         ScalaPsiUtil.getCompanionModule(clazz1) match {
@@ -225,7 +221,6 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
           case _ =>
         }
         false
-      }
       case _ => false
     }
   }
