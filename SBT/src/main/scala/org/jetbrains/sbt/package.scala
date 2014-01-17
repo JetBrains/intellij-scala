@@ -36,7 +36,9 @@ package object sbt {
 
     def absolutePath: String = file.getAbsolutePath
 
-    def canonicalPath = ExternalSystemApiUtil.toCanonicalPath(file.getAbsolutePath)
+    def canonicalPath: String = ExternalSystemApiUtil.toCanonicalPath(file.getAbsolutePath)
+
+    def canonicalFile: File = new File(canonicalPath)
 
     def url: String = VfsUtil.getUrlForLibraryRoot(file)
   }
