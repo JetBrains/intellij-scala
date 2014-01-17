@@ -514,71 +514,68 @@ object ScalaPsiUtil {
   def collectImplicitObjects(_tp: ScType, place: PsiElement): Seq[ScType] = {
     val tp = ScType.removeAliasDefinitions(_tp)
     val projectOpt = Option(place).map(_.getProject)
-    val parts: ListBuffer[ScType] = new ListBuffer[ScType]
-    val visited = new mutable.HashSet[ScType]()
-    def collectParts(tp: ScType, place: PsiElement) {
+    val visited: mutable.HashSet[ScType] = new mutable.HashSet[ScType]()
+    val parts: mutable.Queue[ScType] = new mutable.Queue[ScType]
+    def collectParts(tp: ScType) {
       if (visited.contains(tp)) return
       visited += tp
       tp.isAliasType match {
-        case Some(AliasType(_, _, upper)) =>
-          upper.foreach(collectParts(_, place))
-        case _ =>
+        case Some(AliasType(_, _, upper)) => upper.foreach(collectParts)
+        case _                            =>
       }
       tp match {
-        case ScDesignatorType(v: ScBindingPattern) => v.getType(TypingContext.empty).foreach(collectParts(_, place))
-        case ScDesignatorType(v: ScFieldId) => v.getType(TypingContext.empty).foreach(collectParts(_, place))
-        case ScDesignatorType(p: ScParameter) => p.getType(TypingContext.empty).foreach(collectParts(_, place))
-        case ScCompoundType(comps, _, _, _) => comps.foreach(collectParts(_, place))
+        case ScDesignatorType(v: ScBindingPattern)          => v.getType(TypingContext.empty).foreach(collectParts)
+        case ScDesignatorType(v: ScFieldId)                 => v.getType(TypingContext.empty).foreach(collectParts)
+        case ScDesignatorType(p: ScParameter)               => p.getType(TypingContext.empty).foreach(collectParts)
+        case ScCompoundType(comps, _, _, _)                 => comps.foreach(collectParts)
         case p@ScParameterizedType(a: ScAbstractType, args) =>
-          collectParts(a, place)
-          args.foreach(collectParts(_, place))
+          collectParts(a)
+          args.foreach(collectParts)
         case p@ScParameterizedType(des, args) =>
           ScType.extractClass(p, projectOpt) match {
             case Some(pair) => parts += des
             case _ =>
           }
-          collectParts(des, place)
-          args.foreach(collectParts(_, place))
+          collectParts(des)
+          args.foreach(collectParts)
         case j: JavaArrayType =>
           val parameterizedType = j.getParameterizedType(place.getProject, place.getResolveScope)
-          collectParts(parameterizedType.getOrElse(return), place)
+          collectParts(parameterizedType.getOrElse(return))
         case f@ScFunctionType(retType, params) =>
           ScType.extractClass(tp, projectOpt) match {
             case Some(pair) => parts += tp
             case _ =>
           }
-          params.foreach(collectParts(_, place))
-          collectParts(retType, place)
+          params.foreach(collectParts)
+          collectParts(retType)
         case f@ScTupleType(params) =>
           ScType.extractClass(tp, projectOpt) match {
             case Some(pair) => parts += tp
             case _ =>
           }
-          params.foreach(collectParts(_, place))
+          params.foreach(collectParts)
         case proj@ScProjectionType(projected, _, _) =>
-          collectParts(projected, place)
+          collectParts(projected)
           proj.actualElement match {
-            case v: ScBindingPattern => v.getType(TypingContext.empty).map(proj.actualSubst.subst).foreach(collectParts(_, place))
-            case v: ScFieldId => v.getType(TypingContext.empty).map(proj.actualSubst.subst).foreach(collectParts(_, place))
-            case v: ScParameter => v.getType(TypingContext.empty).map(proj.actualSubst.subst).foreach(collectParts(_, place))
-            case _ =>
+            case v: ScBindingPattern => v.getType(TypingContext.empty).map(proj.actualSubst.subst).foreach(collectParts)
+            case v: ScFieldId        => v.getType(TypingContext.empty).map(proj.actualSubst.subst).foreach(collectParts)
+            case v: ScParameter      => v.getType(TypingContext.empty).map(proj.actualSubst.subst).foreach(collectParts)
+            case _                   =>
           }
           ScType.extractClass(tp, projectOpt) match {
             case Some(pair) => parts += tp
-            case _ =>
+            case _          =>
           }
         case ScAbstractType(_, lower, upper) =>
-          collectParts(lower, place)
-          collectParts(upper, place)
-        case ScExistentialType(quant, _) =>
-          collectParts(quant, place)
-        case _=>
+          collectParts(lower)
+          collectParts(upper)
+        case ScExistentialType(quant, _) => collectParts(quant)
+        case _                           =>
           ScType.extractClass(tp, projectOpt) match {
             case Some(pair) =>
               val packObjects = pair.contexts.flatMap {
-                case x: ScPackageLike =>
-                  x.findPackageObject(place.getResolveScope).toIterator
-                case _ => Iterator()
+                case x: ScPackageLike => x.findPackageObject(place.getResolveScope).toIterator
+                case _                => Iterator()
               }
               parts += tp
               packObjects.foreach(p => parts += ScDesignatorType(p))
@@ -586,34 +583,31 @@ object ScalaPsiUtil {
           }
       }
     }
-    collectParts(tp, place)
+    collectParts(tp)
     val res: mutable.HashSet[ScType] = new mutable.HashSet
-    for (part <- parts) {
+    while (!parts.isEmpty) {
+      val part = parts.dequeue()
       //here we want to convert projection types to right projections
       val visited = new mutable.HashSet[PsiClass]()
       def collectObjects(tp: ScType) {
+        collectParts(tp)
         tp match {
-          case types.Any => return
+          case types.Any =>
           case tp: StdType if Seq("Int", "Float", "Double", "Boolean", "Byte", "Short", "Long", "Char").contains(tp.name) =>
             val obj = ScalaPsiManager.instance(place.getProject).
               getCachedClass("scala." + tp.name, place.getResolveScope, ClassCategory.OBJECT)
             obj match {
               case o: ScObject => res += ScDesignatorType(o)
-              case _ =>
+              case _           =>
             }
-            return
-          case ScDesignatorType(ta: ScTypeAliasDefinition) =>
-            collectObjects(ta.aliasedType.getOrAny)
-            return
+          case ScDesignatorType(ta: ScTypeAliasDefinition) => collectObjects(ta.aliasedType.getOrAny)
           case p: ScProjectionType if p.actualElement.isInstanceOf[ScTypeAliasDefinition] =>
             collectObjects(p.actualSubst.subst(p.actualElement.asInstanceOf[ScTypeAliasDefinition].
               aliasedType.getOrAny))
-            return
           case ScParameterizedType(ScDesignatorType(ta: ScTypeAliasDefinition), args) =>
             val genericSubst = ScalaPsiUtil.
               typesCallSubstitutor(ta.typeParameters.map(tp => (tp.name, ScalaPsiUtil.getPsiElementId(tp))), args)
             collectObjects(genericSubst.subst(ta.aliasedType.getOrAny))
-            return
           case ScParameterizedType(p: ScProjectionType, args) if p.actualElement.isInstanceOf[ScTypeAliasDefinition] =>
             val genericSubst = ScalaPsiUtil.
               typesCallSubstitutor(p.actualElement.asInstanceOf[ScTypeAliasDefinition].typeParameters.map(tp => (tp.name, ScalaPsiUtil.getPsiElementId(tp)
@@ -621,43 +615,40 @@ object ScalaPsiUtil {
             val s = p.actualSubst.followed(genericSubst)
             collectObjects(s.subst(p.actualElement.asInstanceOf[ScTypeAliasDefinition].
               aliasedType.getOrAny))
-            return
           case _ =>
-        }
-        ScType.extractClassType(tp, projectOpt) match {
-          case Some((clazz: PsiClass, subst: ScSubstitutor)) if !visited.contains(clazz) =>
-            clazz match {
-              case o: ScObject => res += tp
-              case _ =>
-                getCompanionModule(clazz) match {
-                  case Some(obj: ScObject) =>
-                    tp match {
-                      case ScProjectionType(proj, _, s) =>
-                        res += ScProjectionType(proj, obj, s)
-                      case ScParameterizedType(ScProjectionType(proj, _, s), _) =>
-                        res += ScProjectionType(proj, obj, s)
-                      case _ =>
-                        res += ScDesignatorType(obj)
-                    }
-                  case _ =>
-                }
+            for {
+              (clazz: PsiClass, subst: ScSubstitutor) <- ScType.extractClassType(tp, projectOpt)
+              if !visited.contains(clazz)
+            } {
+              clazz match {
+                case o: ScObject => res += tp
+                case _           =>
+                  getCompanionModule(clazz) match {
+                    case Some(obj: ScObject) =>
+                      tp match {
+                        case ScProjectionType(proj, _, s)                         => res += ScProjectionType(proj, obj, s)
+                        case ScParameterizedType(ScProjectionType(proj, _, s), _) => res += ScProjectionType(proj, obj, s)
+                        case _                                                    => res += ScDesignatorType(obj)
+                      }
+                    case _ =>
+                  }
+              }
+              clazz match {
+                case td: ScTemplateDefinition =>
+                  td.superTypes.foreach { tp =>
+                    visited += clazz
+                    collectObjects(subst.subst(tp))
+                    visited -= clazz
+                  }
+                case clazz: PsiClass =>
+                  clazz.getSuperTypes.foreach { tp =>
+                    val stp = ScType.create(tp, place.getProject, place.getResolveScope)
+                    visited += clazz
+                    collectObjects(subst.subst(stp))
+                    visited -= clazz
+                  }
+              }
             }
-            clazz match {
-              case td: ScTemplateDefinition =>
-                td.superTypes.foreach((tp: ScType) => {
-                  visited += clazz
-                  collectObjects(subst.subst(tp))
-                  visited -= clazz
-                })
-              case clazz: PsiClass =>
-                clazz.getSuperTypes.foreach(tp => {
-                  val stp = ScType.create(tp, place.getProject, place.getResolveScope)
-                  visited += clazz
-                  collectObjects(subst.subst(stp))
-                  visited -= clazz
-                })
-            }
-          case _ =>
         }
       }
       collectObjects(part)
