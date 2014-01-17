@@ -165,7 +165,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     val commonRoot = {
       val allRoots = productinSources ++ productionResources ++ testSources ++ testResources :+ project.base
 
-      commonAncestorOf(allRoots).getOrElse(throw new ExternalSystemException(
+      canonicalCommonAncestorOf(allRoots).getOrElse(throw new ExternalSystemException(
         "Cannot determine common root in project: " +  project.name))
     }
 
@@ -179,6 +179,9 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
 
     result
   }
+
+  private def canonicalCommonAncestorOf(files: Seq[File]): Option[File] =
+    commonAncestorOf(files.map(_.canonicalFile))
 
   private def commonAncestorOf(files: Seq[File]): Option[File] = {
     files.map(pathTo) match {
