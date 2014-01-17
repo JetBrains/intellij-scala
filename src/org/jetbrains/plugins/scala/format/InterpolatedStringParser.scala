@@ -54,10 +54,10 @@ object InterpolatedStringParser extends StringParser {
         case it => it
       }
 
-    cleanParts filter {
-      case Text("") => false
-      case _ => true
-    }
+      cleanParts filter {
+        case Text("") => false
+        case _ => true
+      }
   }
 
   private def isTextElement(e: PsiElement) = {
