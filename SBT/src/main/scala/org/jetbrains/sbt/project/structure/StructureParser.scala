@@ -142,11 +142,18 @@ private case class FS(home: File, base: Option[File] = None) {
 }
 
 private object FS {
+  private val HomePrefix = "~/"
+  private val BasePrefix = "./"
+
   def file(path: String)(implicit fs: FS): File = {
-    if (path.startsWith("~/")) {
-      new File(fs.home, path.substring(2))
+    if (path.startsWith(HomePrefix)) {
+      new File(fs.home, path.substring(HomePrefix.length))
+    } else if (path.startsWith(BasePrefix)) {
+      val parent = fs.base.getOrElse(throw new IllegalArgumentException(
+        "No base directory for relative path: " + path))
+      new File(parent, path.substring(BasePrefix.length))
     } else {
-      fs.base.map(new File(_, path)).getOrElse(new File(path))
+      new File(path)
     }
   }
 }
