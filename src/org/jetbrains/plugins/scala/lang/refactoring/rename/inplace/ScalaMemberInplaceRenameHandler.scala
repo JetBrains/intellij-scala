@@ -5,7 +5,7 @@ import com.intellij.refactoring.rename.inplace.{InplaceRefactoring, MemberInplac
 import com.intellij.psi._
 import com.intellij.openapi.editor.Editor
 import com.intellij.refactoring.rename.{PsiElementRenameHandler, RenamePsiElementProcessor}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTrait, ScObject, ScClass}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTemplateDefinition, ScTrait, ScObject, ScClass}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import com.intellij.openapi.actionSystem.DataContext
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
@@ -99,7 +99,7 @@ class ScalaMemberInplaceRenameHandler extends MemberInplaceRenameHandler with Sc
       case named: ScNamedElement => named.nameId
       case _ => null
     }
-    ScalaRenameUtil.findSubstituteElement(elementToRename) match {
+    elementToRename match {
       case fun: ScFunction
         if nameId != null && nameId.getText == fun.name && Seq("apply", "unapply", "unapplySeq").contains(fun.name) || fun.isConstructor =>
           specialMethodPopup(fun)
