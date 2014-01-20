@@ -24,6 +24,8 @@ import toplevel.typedef.ScTemplateDefinition
 import extensions.toPsiClassExt
 import org.jetbrains.plugins.scala.lang.languageLevel.ScalaLanguageLevel
 import scala.annotation.tailrec
+import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{TypeParameter, Parameter}
+import scala.collection.immutable.Set
 
 /**
  * @author Alexander Podkhalyuzin
@@ -79,6 +81,35 @@ trait ScPattern extends ScalaPsiElement {
         }
       case m => m
     }
+
+    def calculateSubstitutor(_tp: ScType, funType: ScType, substitutor: ScSubstitutor): ScSubstitutor = {
+      val tp = _tp match {
+        case ex: ScExistentialType => ex.skolem
+        case _                     => _tp
+      }
+
+      def rightWay: ScSubstitutor = {
+        val t = Conformance.conformsInner(tp, funType, Set.empty, new ScUndefinedSubstitutor)
+        if (t._1) {
+          val undefSubst = t._2
+          undefSubst.getSubstitutor match {
+            case Some(newSubst) => newSubst.followed(substitutor)
+            case _              => substitutor
+          }
+        } else substitutor
+      }
+
+      //todo: looks quite hacky to try another direction first, do you know better? see SCL-6543
+      val t = Conformance.conformsInner(funType, tp, Set.empty, new ScUndefinedSubstitutor)
+      if (t._1) {
+        val undefSubst = t._2
+        undefSubst.getSubstitutor match {
+          case Some(newSubst) => newSubst.followed(substitutor)
+          case _              => rightWay
+        }
+      } else rightWay
+    }
+
     bind match {
       case Some(ScalaResolveResult(fun: ScFunction, substitutor: ScSubstitutor)) if fun.name == "unapply" &&
               fun.parameters.length == 1 =>
@@ -97,19 +128,7 @@ trait ScPattern extends ScalaPsiElement {
             case _ => return None
           })
           expected match {
-            case Some(_tp) =>
-              val tp = _tp match {
-                case ex: ScExistentialType => ex.skolem
-                case _ => _tp
-              }
-              val t = Conformance.conforms(tp, funType)
-              if (t) {
-                val undefSubst = Conformance.undefinedSubst(tp, funType)
-                undefSubst.getSubstitutor match {
-                  case Some(newSubst) => newSubst.followed(substitutor)
-                  case _ => substitutor
-                }
-              } else substitutor
+            case Some(tp) => calculateSubstitutor(tp, funType, substitutor)
             case _ => substitutor
           }
         }
@@ -142,15 +161,7 @@ trait ScPattern extends ScalaPsiElement {
            case _ => return None
          })
          expected match {
-           case Some(tp) =>
-             val t = Conformance.conforms(tp, funType)
-             if (t) {
-               val undefSubst = Conformance.undefinedSubst(tp, funType)
-               undefSubst.getSubstitutor match {
-                 case Some(newSubst) => newSubst.followed(substitutor)
-                 case _ => substitutor
-               }
-             } else substitutor
+           case Some(tp) => calculateSubstitutor(tp, funType, substitutor)
            case _ => substitutor
          }
        }
