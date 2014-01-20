@@ -133,7 +133,7 @@ class ScalaGenerationInfo(classMember: PsiElementClassMember[_ <: PsiDocCommentO
           val clauses = fun.paramClauses.clauses.filter(!_.isImplicit)
           clauses.map(_.parameters.map(_.name).mkString("(", ", ", ")")).mkString
         case method: PsiMethod =>
-          if (method.isAccessor) ""
+          if (method.isAccessor && method.getParameterList.getParametersCount == 0) ""
           else method.getParameterList.getParameters.map(paramText).mkString("(", ", ", ")")
       }
     }
