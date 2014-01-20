@@ -135,6 +135,7 @@
         <renamePsiElementProcessor implementation="org.jetbrains.plugins.scala.lang.refactoring.rename.RenameScalaClassProcessor" order="first"/>
         <renamePsiElementProcessor implementation="org.jetbrains.plugins.scala.lang.refactoring.rename.RenameScalaSyntheticParamProcessor" order="first"/>
         <renamePsiElementProcessor implementation="org.jetbrains.plugins.scala.lang.refactoring.rename.RenameScalaTypeAliasProcessor" order="first"/>
+        <renamePsiElementProcessor implementation="org.jetbrains.plugins.scala.lang.refactoring.rename.RenameScalaBindingPatternProcessor" order="first"/>
         <renameHandler implementation="org.jetbrains.plugins.scala.lang.refactoring.rename.XmlRenameHandler" />
         <renameHandler implementation="org.jetbrains.plugins.scala.lang.refactoring.rename.inplace.ScalaMemberInplaceRenameHandler" order="first" />
         <renameHandler implementation="org.jetbrains.plugins.scala.lang.refactoring.rename.inplace.ScalaLocalInplaceRenameHandler" order="first" />
