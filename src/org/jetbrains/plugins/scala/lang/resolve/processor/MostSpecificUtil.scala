@@ -47,8 +47,8 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
 
   def mostSpecificForImplicitParameters(applicable: Set[(ScalaResolveResult, ScSubstitutor)]): Option[ScalaResolveResult] = {
     mostSpecificGeneric(applicable.map{case (r, subst) => r.innerResolveResult match {
-      case Some(rr) => new InnerScalaResolveResult(rr.element, rr.implicitConversionClass, r, subst)
-      case None => new InnerScalaResolveResult(r.element, r.implicitConversionClass, r, subst)
+      case Some(rr) => new InnerScalaResolveResult(rr.element, rr.implicitConversionClass, r, subst, implicitCase = true)
+      case None => new InnerScalaResolveResult(r.element, r.implicitConversionClass, r, subst, implicitCase = true)
     }}).map(_.repr)
   }
 
@@ -65,14 +65,15 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
         case f: ScPrimaryConstructor => checkCallByName(f.effectiveParameterClauses)
         case _ =>
       }
-      new InnerScalaResolveResult(r.element, None, r, r.implicitDependentSubst followed r.subst, callByName)
+      new InnerScalaResolveResult(r.element, None, r, r.implicitDependentSubst followed r.subst, callByName, implicitCase = true)
     })).map(_.repr)
   }
 
   private class InnerScalaResolveResult[T](val element: PsiNamedElement, val implicitConversionClass: Option[PsiClass],
                                            val repr: T, val substitutor: ScSubstitutor,
                                            val callByNameImplicit: Boolean = false,
-                                           val specialTypeParametersCase: Boolean = false)
+                                           val specialTypeParametersCase: Boolean = false,
+                                           val implicitCase: Boolean = false)
 
   private def isAsSpecificAs[T](r1: InnerScalaResolveResult[T], r2: InnerScalaResolveResult[T]): Boolean = {
     def lastRepeated(params: Seq[Parameter]): Boolean = {
@@ -159,7 +160,10 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
               Compatibility.checkConformance(checkNames = false, params2, exprs, checkWithImplicits = true)
             case (Right(type1), Right(type2)) =>
               Conformance.conformsInner(type2, type1, immutable.Set.empty, new ScUndefinedSubstitutor()) //todo: with implcits?
-            case _ => return false //todo?
+            //todo this is possible, when one variant is empty with implicit parameters, and second without parameters.
+            //in this case it's logical that method without parameters must win...
+            case (Left(_), Right(_)) if !r1.implicitCase => return false
+            case _ => return true
           }
 
         var u = conformance._2
