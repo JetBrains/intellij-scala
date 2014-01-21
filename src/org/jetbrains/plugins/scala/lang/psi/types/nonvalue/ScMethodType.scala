@@ -77,12 +77,13 @@ case class ScMethodType(returnType: ScType, params: Seq[Parameter], isImplicit: 
     }
   }
 
-  override def recursiveVarianceUpdate(update: (ScType, Int) => (Boolean, ScType), variance: Int): ScType = {
-    update(this, variance) match {
-      case (true, res) => res
-      case _ =>
-        new ScMethodType(returnType.recursiveVarianceUpdate(update, variance),
-          params.map(p => p.copy(paramType = p.paramType.recursiveVarianceUpdate(update, -variance))),
+  override def recursiveVarianceUpdateModifiable[T](data: T, update: (ScType, Int, T) => (Boolean, ScType, T),
+                                           variance: Int = 1): ScType = {
+    update(this, variance, data) match {
+      case (true, res, _) => res
+      case (_, _, newData) =>
+        new ScMethodType(returnType.recursiveVarianceUpdateModifiable(newData, update, variance),
+          params.map(p => p.copy(paramType = p.paramType.recursiveVarianceUpdateModifiable(newData, update, -variance))),
           isImplicit)(project, scope)
     }
   }
@@ -223,13 +224,14 @@ case class ScTypePolymorphicType(internalType: ScType, typeParameters: Seq[TypeP
     }
   }
 
-  override def recursiveVarianceUpdate(update: (ScType, Int) => (Boolean, ScType), variance: Int): ScType = {
-    update(this, variance) match {
-      case (true, res) => res
-      case _ =>
-        ScTypePolymorphicType(internalType.recursiveVarianceUpdate(update, variance), typeParameters.map(tp => {
-          TypeParameter(tp.name, tp.lowerType.recursiveVarianceUpdate(update, -variance),
-            tp.upperType.recursiveVarianceUpdate(update, variance), tp.ptp)
+  override def recursiveVarianceUpdateModifiable[T](data: T, update: (ScType, Int, T) => (Boolean, ScType, T),
+                                           variance: Int = 1): ScType = {
+    update(this, variance, data) match {
+      case (true, res, _) => res
+      case (_, _, newData) =>
+        ScTypePolymorphicType(internalType.recursiveVarianceUpdateModifiable(newData, update, variance), typeParameters.map(tp => {
+          TypeParameter(tp.name, tp.lowerType.recursiveVarianceUpdateModifiable(newData, update, -variance),
+            tp.upperType.recursiveVarianceUpdateModifiable(newData, update, variance), tp.ptp)
         }))
     }
   }

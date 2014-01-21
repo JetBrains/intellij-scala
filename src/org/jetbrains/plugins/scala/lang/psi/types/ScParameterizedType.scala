@@ -56,11 +56,12 @@ case class JavaArrayType(arg: ScType) extends ValueType {
     }
   }
 
-  override def recursiveVarianceUpdate(update: (ScType, Int) => (Boolean, ScType), variance: Int): ScType = {
-    update(this, variance) match {
-      case (true, res) => res
-      case _ =>
-        JavaArrayType(arg.recursiveVarianceUpdate(update, 0))
+  override def recursiveVarianceUpdateModifiable[T](data: T, update: (ScType, Int, T) => (Boolean, ScType, T),
+                                           variance: Int = 1): ScType = {
+    update(this, variance, data) match {
+      case (true, res, _) => res
+      case (_, _, newData) =>
+        JavaArrayType(arg.recursiveVarianceUpdateModifiable(newData, update, 0))
     }
   }
 
@@ -168,10 +169,11 @@ case class ScParameterizedType(designator : ScType, typeArgs : Seq[ScType]) exte
     }
   }
 
-  override def recursiveVarianceUpdate(update: (ScType, Int) => (Boolean, ScType), variance: Int): ScType = {
-    update(this, variance) match {
-      case (true, res) => res
-      case _ =>
+  override def recursiveVarianceUpdateModifiable[T](data: T, update: (ScType, Int, T) => (Boolean, ScType, T),
+                                           variance: Int = 1): ScType = {
+    update(this, variance, data) match {
+      case (true, res, _) => res
+      case (_, _, newData) =>
         val des = ScType.extractDesignated(designator, withoutAliases = false) match {
           case Some((n: ScTypeParametersOwner, _)) =>
             n.typeParameters.map {
@@ -181,11 +183,11 @@ case class ScParameterizedType(designator : ScType, typeArgs : Seq[ScType]) exte
             }
           case _ => Seq.empty
         }
-        ScParameterizedType(designator.recursiveVarianceUpdate(update, variance),
+        ScParameterizedType(designator.recursiveVarianceUpdateModifiable(newData, update, variance),
           typeArgs.zipWithIndex.map {
             case (ta, i) =>
               val v = if (i < des.length) des(i) else 0
-              ta.recursiveVarianceUpdate(update, v * variance)
+              ta.recursiveVarianceUpdateModifiable(newData, update, v * variance)
           })
     }
   }
