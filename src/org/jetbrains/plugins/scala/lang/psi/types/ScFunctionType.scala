@@ -62,12 +62,13 @@ case class ScFunctionType(returnType: ScType, params: Seq[ScType])(project: Proj
     }
   }
 
-  override def recursiveVarianceUpdate(update: (ScType, Int) => (Boolean, ScType), variance: Int): ScType = {
-    update(this, variance) match {
-      case (true, res) => res
-      case _ =>
-        new ScFunctionType(returnType.recursiveVarianceUpdate(update, variance),
-          params.map(_.recursiveVarianceUpdate(update, -variance)))(project, scope)
+  override def recursiveVarianceUpdateModifiable[T](data: T, update: (ScType, Int, T) => (Boolean, ScType, T),
+                                                    variance: Int = 1): ScType = {
+    update(this, variance, data) match {
+      case (true, res, _) => res
+      case (_, _, newData) =>
+        new ScFunctionType(returnType.recursiveVarianceUpdateModifiable(newData, update, variance),
+          params.map(_.recursiveVarianceUpdateModifiable(newData, update, -variance)))(project, scope)
     }
   }
 
