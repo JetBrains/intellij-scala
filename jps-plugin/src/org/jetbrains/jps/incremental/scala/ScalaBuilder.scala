@@ -3,15 +3,15 @@ package org.jetbrains.jps.incremental.scala
 import org.jetbrains.jps.incremental.{ModuleBuildTarget, CompileContext, BuilderCategory, ModuleLevelBuilder}
 import org.jetbrains.jps.model.JpsProject
 import org.jetbrains.jps.incremental.ModuleLevelBuilder.ExitCode
-import org.jetbrains.jps.incremental.scala.model.{Order, IncrementalType}
 import org.jetbrains.jps.ModuleChunk
 import org.jetbrains.jps.builders.DirtyFilesHolder
-import org.jetbrains.jps.builders.java.{JavaBuilderUtil, JavaSourceRootDescriptor}
+import org.jetbrains.jps.builders.java.JavaSourceRootDescriptor
 import org.jetbrains.annotations.NotNull
 import scala.collection.JavaConverters._
 import java.util
 import ScalaBuilder._
 import org.jetbrains.jps.model.module.JpsModule
+import org.jetbrains.plugin.scala.compiler.{CompileOrder, IncrementalType}
 
 /**
  * Nikolay.Tropin
@@ -53,8 +53,8 @@ class ScalaBuilder(category: BuilderCategory, @NotNull delegate: ScalaBuilderDel
         if (delegate != IdeaIncrementalBuilder) return true
 
         projectSettings.compileOrder match {
-          case Order.JavaThenScala if getCategory == BuilderCategory.SOURCE_PROCESSOR => true
-          case (Order.ScalaThenJava | Order.Mixed) if getCategory == BuilderCategory.OVERWRITING_TRANSLATOR => true
+          case CompileOrder.JavaThenScala if getCategory == BuilderCategory.SOURCE_PROCESSOR => true
+          case (CompileOrder.ScalaThenJava | CompileOrder.Mixed) if getCategory == BuilderCategory.OVERWRITING_TRANSLATOR => true
           case _ => false
         }
       case _ => false

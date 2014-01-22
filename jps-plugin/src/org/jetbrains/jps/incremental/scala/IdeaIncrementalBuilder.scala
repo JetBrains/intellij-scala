@@ -9,9 +9,9 @@ import org.jetbrains.jps.builders.java.{JavaBuilderUtil, JavaSourceRootDescripto
 import org.jetbrains.jps.incremental.messages.ProgressMessage
 import org.jetbrains.jps.incremental.ModuleLevelBuilder.{ExitCode, OutputConsumer}
 import org.jetbrains.jps.incremental.scala.local.IdeClientIdea
-import org.jetbrains.jps.incremental.scala.model.Order
 import org.jetbrains.jps.incremental._
 import org.jetbrains.jps.ModuleChunk
+import org.jetbrains.plugin.scala.compiler.CompileOrder
 
 /**
  * Nikolay.Tropin
@@ -70,7 +70,7 @@ object IdeaIncrementalBuilder extends ScalaBuilderDelegate {
 
     val compileOrder = SettingsManager.getProjectSettings(project).compileOrder
     val extensionsToCollect = compileOrder match {
-      case Order.Mixed => List(".scala", ".java")
+      case CompileOrder.Mixed => List(".scala", ".java")
       case _ => List(".scala")
     }
 
