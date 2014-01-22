@@ -35,10 +35,12 @@ object StructureParser {
   }
 
   private def parseBuild(node: Node)(implicit fs: FS): Build = {
-    val classpath = (node \ "classes").map(e => file(e.text))
     val imports = (node \ "import").map(_.text)
+    val classes = (node \ "classes").map(e => file(e.text))
+    val docs = (node \ "docs").map(e => file(e.text))
+    val sources = (node \ "sources").map(e => file(e.text))
 
-    Build(classpath, imports)
+    Build(imports, classes, docs, sources)
   }
 
   private def parseJava(node: Node)(implicit fs: FS): Java = {

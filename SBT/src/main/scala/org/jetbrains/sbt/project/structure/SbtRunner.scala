@@ -43,7 +43,7 @@ class SbtRunner(vmOptions: Seq[String], customLauncher: Option[File]) {
           FileUtil.writeToFile(new File(globalPluginsDirectory.getPath, "build.sbt"),
             """resolvers += "sbt-releases" at "http://repo.scala-sbt.org/scalasbt/sbt-plugin-releases/"
 
-              addSbtPlugin("org.jetbrains" % "sbt-structure" % "2.1.2")""".replace("\r", ""))
+              addSbtPlugin("org.jetbrains" % "sbt-structure" % "2.2.0")""".replace("\r", ""))
 
           writeLinesTo(commandsFile,
             s"set artifactPath := file(\042${path(structureFile)}\042)",
