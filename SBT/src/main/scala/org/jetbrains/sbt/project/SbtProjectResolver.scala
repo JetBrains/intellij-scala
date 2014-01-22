@@ -209,8 +209,16 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     result.setCompileOutputPath(ExternalSystemSourceType.TEST, path + "/target/idea-test-classes")
 
     result.add(createBuildContentRoot(project))
-    result.add(createModuleLevelDependency(Sbt.BuildLibraryName,
-      project.build.classpath.filter(_.exists).map(_.path), DependencyScope.COMPILE)(result))
+
+    val library = {
+      val build = project.build
+      val classes = build.classes.filter(_.exists).map(_.path)
+      val docs = build.docs.filter(_.exists).map(_.path)
+      val sources = build.sources.filter(_.exists).map(_.path)
+      createModuleLevelDependency(Sbt.BuildLibraryName, classes, docs, sources, DependencyScope.COMPILE)(result)
+    }
+
+    result.add(library)
 
     result
   }
@@ -257,15 +265,17 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
         case it => s"${Sbt.UnmanagedLibraryName}-${it.getDisplayName.toLowerCase}"
       }
       val files = dependency.map(_.file.path)
-      createModuleLevelDependency(name, files, scope)(moduleData)    
+      createModuleLevelDependency(name, files, Seq.empty, Seq.empty, scope)(moduleData)
     }
   }
 
-  private def createModuleLevelDependency(name: String, binaries: Seq[String], scope: DependencyScope)
+  private def createModuleLevelDependency(name: String, classes: Seq[String], docs: Seq[String], sources: Seq[String], scope: DependencyScope)
                                          (moduleData: ModuleData): LibraryDependencyNode = {
 
     val libraryNode = new LibraryNode(name, resolved = true)
-    libraryNode.addPaths(LibraryPathType.BINARY, binaries)
+    libraryNode.addPaths(LibraryPathType.BINARY, classes)
+    libraryNode.addPaths(LibraryPathType.DOC, docs)
+    libraryNode.addPaths(LibraryPathType.SOURCE, sources)
 
     val result = new LibraryDependencyNode(moduleData, libraryNode, LibraryLevel.MODULE)
     result.setScope(scope)
