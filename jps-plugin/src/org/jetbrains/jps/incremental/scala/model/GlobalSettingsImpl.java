@@ -3,6 +3,8 @@ package org.jetbrains.jps.incremental.scala.model;
 import com.intellij.util.xmlb.XmlSerializerUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.jps.model.ex.JpsElementBase;
+import org.jetbrains.plugin.scala.compiler.CompileOrder;
+import org.jetbrains.plugin.scala.compiler.IncrementalType;
 
 /**
  * @author Pavel Fatin
@@ -29,11 +31,11 @@ public class GlobalSettingsImpl extends JpsElementBase<GlobalSettingsImpl> imple
   }
 
   public IncrementalType getIncrementalType() {
-    return IncrementalType.valueOf(myState.INCREMENTAL_TYPE);
+    return myState.INCREMENTAL_TYPE;
   }
 
-  public Order getCompileOrder() {
-    return Order.valueOf(myState.COMPILE_ORDER);
+  public CompileOrder getCompileOrder() {
+    return myState.COMPILE_ORDER;
   }
 
   @NotNull
@@ -54,8 +56,8 @@ public class GlobalSettingsImpl extends JpsElementBase<GlobalSettingsImpl> imple
 
     public String COMPILE_SERVER_SDK;
 
-    public String INCREMENTAL_TYPE = "IDEA";
+    public IncrementalType INCREMENTAL_TYPE = IncrementalType.IDEA;
 
-    public String COMPILE_ORDER = "Mixed";
+    public CompileOrder COMPILE_ORDER = CompileOrder.Mixed;
   }
 }
