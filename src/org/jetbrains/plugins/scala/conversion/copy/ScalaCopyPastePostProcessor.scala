@@ -105,11 +105,17 @@ class ScalaCopyPastePostProcessor extends CopyPastePostProcessor[Associations] {
 
   private def doRestoreAssociations(value: Associations, file: PsiFile, offset: Int, project: Project)
                          (filter: Seq[Binding] => Seq[Binding]) {
-    val bindings = for (association <- value.associations;
-                        element <- elementFor(association, file, offset)
-                        if (!association.isSatisfiedIn(element)))
-    yield Binding(element, association.path.asString(ScalaProjectSettings.getInstance(project).
-              isImportMembersUsingUnderScore))
+    val bindings =
+      (for {
+        association <- value.associations
+        element <- elementFor(association, file, offset)
+        if !association.isSatisfiedIn(element)
+      } yield Binding(element, association.path.asString(ScalaProjectSettings.getInstance(project).
+                isImportMembersUsingUnderScore))).filter {
+        case Binding(_, path) =>
+          val index = path.lastIndexOf('.')
+          index != -1 && !Set("scala", "java.lang", "scala.Predef").contains(path.substring(0, index))
+      }
 
     if (bindings.isEmpty) return
 
