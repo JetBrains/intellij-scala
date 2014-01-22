@@ -19,7 +19,9 @@ class SbtConfigurable(settings: SbtApplicationSettings) extends Configurable {
     pane.isCustomLauncher == settings.customLauncherEnabled &&
     pane.getLauncherPath == settings.customLauncherPath &&
     pane.getMaximumHeapSize == settings.maximumHeapSize &&
-    pane.getVmParameters == settings.vmParameters
+    pane.getVmParameters == settings.vmParameters &&
+    pane.isCustomVM == settings.customVMEnabled &&
+    pane.getCustomVMPath == settings.customVMPath
   }
 
   def apply() {
@@ -27,6 +29,8 @@ class SbtConfigurable(settings: SbtApplicationSettings) extends Configurable {
     settings.customLauncherPath = pane.getLauncherPath
     settings.maximumHeapSize = pane.getMaximumHeapSize
     settings.vmParameters = pane.getVmParameters
+    settings.customVMEnabled = pane.isCustomVM
+    settings.customVMPath = pane.getCustomVMPath
   }
 
   def reset() {
@@ -34,6 +38,8 @@ class SbtConfigurable(settings: SbtApplicationSettings) extends Configurable {
     pane.setLauncherPath(settings.customLauncherPath)
     pane.setMaximumHeapSize(settings.maximumHeapSize)
     pane.setMyVmParameters(settings.vmParameters)
+    pane.setCustomVMEnabled(settings.customVMEnabled)
+    pane.setCustomVMPath(settings.customVMPath)
   }
 
   def disposeUIResources() {}
