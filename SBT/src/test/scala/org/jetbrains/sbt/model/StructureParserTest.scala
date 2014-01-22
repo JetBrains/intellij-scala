@@ -31,8 +31,10 @@ object StructureParserTest {
       classes = new File("$BASE/target/scala-2.10/classes"))
 
     val build = Build(
-      Seq(new File("$HOME/.sbt/boot/scala-2.9.2/org.scala-sbt/sbt/0.12.2/api-0.12.2.jar")),
-      Seq("import sbt._, Process._, Keys._"))
+      imports = Seq("import sbt._, Process._, Keys._"),
+      classes = Seq(new File("$HOME/.sbt/boot/scala-2.9.2/org.scala-sbt/sbt/0.12.2/api-0.12.2.jar")),
+      docs = Seq.empty,
+      sources = Seq.empty)
 
     val java = Java(
       home = Some(new File("$BASE/some/home")),
