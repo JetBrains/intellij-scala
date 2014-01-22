@@ -29,6 +29,7 @@
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module" module-name="Runners" />
+    <orderEntry type="module" module-name="compiler-settings" />
     <orderEntry type="library" name="main-scala-library" level="project" />
     <orderEntry type="library" name="scalatest-finders" level="project" />
     <orderEntry type="library" name="evo-inflector-0.6" level="project" />

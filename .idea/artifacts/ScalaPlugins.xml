@@ -26,6 +26,9 @@
           <element id="library" level="project" name="sbt" />
           <element id="library" level="project" name="nailgun" />
         </element>
+        <element id="archive" name="compiler-settings.jar">
+          <element id="module-output" name="compiler-settings" />
+        </element>
       </element>
       <element id="directory" name="launcher">
         <element id="file-copy" path="$PROJECT_DIR$/SBT/lib/sbt-launch.jar" />

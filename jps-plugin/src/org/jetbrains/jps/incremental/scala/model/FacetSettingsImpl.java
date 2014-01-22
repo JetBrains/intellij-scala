@@ -4,6 +4,7 @@ import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.util.xmlb.XmlSerializerUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.jps.model.ex.JpsElementBase;
+import org.jetbrains.plugin.scala.compiler.CompileOrder;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -27,7 +28,7 @@ public class FacetSettingsImpl extends JpsElementBase<FacetSettingsImpl> impleme
     return myState.compilerLibraryName;
   }
 
-  public Order getCompileOrder() {
+  public CompileOrder getCompileOrder() {
     return myState.compileOrder;
   }
 
@@ -104,7 +105,7 @@ public class FacetSettingsImpl extends JpsElementBase<FacetSettingsImpl> impleme
 
     public String compilerLibraryName;
 
-    public Order compileOrder = Order.Mixed;
+    public CompileOrder compileOrder = CompileOrder.Mixed;
 
     public boolean warnings = true;
 

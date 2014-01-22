@@ -12,7 +12,7 @@ import org.jetbrains.jps.ModuleChunk
 import org.jetbrains.jps.model.java.JpsJavaSdkType
 import collection.JavaConverters._
 import org.jetbrains.jps.builders.java.JavaBuilderUtil
-import org.jetbrains.jps.incremental.scala.model.IncrementalType
+import org.jetbrains.plugin.scala.compiler.IncrementalType
 
 /**
  * @author Pavel Fatin

@@ -1,6 +1,7 @@
 package org.jetbrains.jps.incremental.scala.model;
 
 import org.jetbrains.jps.model.JpsElement;
+import org.jetbrains.plugin.scala.compiler.CompileOrder;
 
 /**
  * @author Pavel Fatin
@@ -10,7 +11,7 @@ public interface FacetSettings extends JpsElement {
 
   String getCompilerLibraryName();
 
-  Order getCompileOrder();
+  CompileOrder getCompileOrder();
 
   String[] getCompilerOptions();
 }
