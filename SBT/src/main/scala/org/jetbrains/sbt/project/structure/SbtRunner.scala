@@ -9,8 +9,8 @@ import com.intellij.openapi.util.io.FileUtil
 /**
  * @author Pavel Fatin
  */
-class SbtRunner(vmOptions: Seq[String], customLauncher: Option[File]) {
-  private val JavaHome = new File(System.getProperty("java.home"))
+class SbtRunner(vmOptions: Seq[String], customLauncher: Option[File], customVM: Option[File]) {
+  private val JavaHome = customVM.getOrElse(new File(System.getProperty("java.home")))
   private val JavaVM = JavaHome / "bin" / "java"
   private val LauncherDir = SbtRunner.getSbtLauncherDir
   private val SbtLauncher = customLauncher.getOrElse(LauncherDir / "sbt-launch.jar")

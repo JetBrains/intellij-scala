@@ -22,7 +22,13 @@ class SbtApplicationSettings extends PersistentStateComponent[SbtApplicationSett
 
   @BeanProperty
   var vmParameters: String = "-XX:MaxPermSize=384M -Dplay.version=2.2.1"
-  
+
+  @BeanProperty
+  var customVMEnabled: Boolean = false
+
+  @BeanProperty
+  var customVMPath: String = ""
+
   def getState = this
 
   def loadState(state: SbtApplicationSettings) {
