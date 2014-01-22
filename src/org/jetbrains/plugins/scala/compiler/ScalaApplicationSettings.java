@@ -2,6 +2,8 @@ package org.jetbrains.plugins.scala.compiler;
 
 import com.intellij.openapi.components.*;
 import com.intellij.util.xmlb.XmlSerializerUtil;
+import org.jetbrains.plugin.scala.compiler.CompileOrder;
+import org.jetbrains.plugin.scala.compiler.IncrementalType;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -19,15 +21,9 @@ public class ScalaApplicationSettings implements PersistentStateComponent<ScalaA
 
   public boolean COMPILE_SERVER_ENABLED = true;
 
-  public static enum IncrementalType {
-    SBT, IDEA
-  }
-
-  private String[] cOrders = {"Mixed", "JavaThenScala", "ScalaThenJava"};
-  public final List<String> COMPILE_ORDERS = Collections.unmodifiableList(Arrays.asList(cOrders));
-
   public IncrementalType INCREMENTAL_TYPE = IncrementalType.IDEA;
-  public String COMPILE_ORDER = COMPILE_ORDERS.get(0);
+  public CompileOrder COMPILE_ORDER = CompileOrder.Mixed;
+
   public String COMPILE_SERVER_PORT = "3200";
   public String COMPILE_SERVER_SDK;
   public String COMPILE_SERVER_MAXIMUM_HEAP_SIZE = "1024";

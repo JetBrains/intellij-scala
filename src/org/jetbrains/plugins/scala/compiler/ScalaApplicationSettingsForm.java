@@ -14,6 +14,8 @@ import com.intellij.util.containers.ComparatorUtil;
 import org.jdesktop.swingx.combobox.ListComboBoxModel;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.plugin.scala.compiler.CompileOrder;
+import org.jetbrains.plugin.scala.compiler.IncrementalType;
 
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
@@ -39,8 +41,8 @@ public class ScalaApplicationSettingsForm implements Configurable {
   private JPanel mySdkPanel;
   private JCheckBox showTypeInfoOnCheckBox;
   private JSpinner delaySpinner;
-  private JComboBox<ScalaApplicationSettings.IncrementalType> myIncrementalTypeCmb;
-  private JComboBox myCompileOrderCmb;
+  private JComboBox<IncrementalType> myIncrementalTypeCmb;
+  private JComboBox<CompileOrder> myCompileOrderCmb;
   private JPanel myCompilerOptionsPanel;
   private ScalaApplicationSettings mySettings;
 
@@ -80,28 +82,29 @@ public class ScalaApplicationSettingsForm implements Configurable {
   }
 
   private void initCompilerTypeCmb() {
-    final List<ScalaApplicationSettings.IncrementalType> values = Arrays.asList(ScalaApplicationSettings.IncrementalType.values());
-    myIncrementalTypeCmb.setModel(new ListComboBoxModel<ScalaApplicationSettings.IncrementalType>(values));
+    final List<IncrementalType> values = Arrays.asList(IncrementalType.values());
+    myIncrementalTypeCmb.setModel(new ListComboBoxModel<IncrementalType>(values));
     myIncrementalTypeCmb.setSelectedItem(mySettings.INCREMENTAL_TYPE);
-    myIncrementalTypeCmb.setRenderer(new ListCellRendererWrapper<ScalaApplicationSettings.IncrementalType>() {
+    myIncrementalTypeCmb.setRenderer(new ListCellRendererWrapper<IncrementalType>() {
       @Override
-      public void customize(JList list, ScalaApplicationSettings.IncrementalType value, int index, boolean selected, boolean hasFocus) {
-        if (value == ScalaApplicationSettings.IncrementalType.SBT) setText("SBT incremental compiler");
-        if (value == ScalaApplicationSettings.IncrementalType.IDEA) setText("IntelliJ IDEA");
+      public void customize(JList list, IncrementalType value, int index, boolean selected, boolean hasFocus) {
+        if (value == IncrementalType.SBT) setText("SBT incremental compiler");
+        if (value == IncrementalType.IDEA) setText("IntelliJ IDEA");
       }
     });
     myIncrementalTypeCmb.setToolTipText("Rebuild is required after change");
   }
 
   private void initCompileOrderCmb() {
-    myCompileOrderCmb.setModel(new ListComboBoxModel<String>(mySettings.COMPILE_ORDERS));
+    final List<CompileOrder> values = Arrays.asList(CompileOrder.values());
+    myCompileOrderCmb.setModel(new ListComboBoxModel<CompileOrder>(values));
     myCompileOrderCmb.setSelectedItem(mySettings.COMPILE_ORDER);
-    myCompileOrderCmb.setRenderer(new ListCellRendererWrapper<String>() {
+    myCompileOrderCmb.setRenderer(new ListCellRendererWrapper<CompileOrder>() {
       @Override
-      public void customize(JList list, String value, int index, boolean selected, boolean hasFocus) {
-        if (value.equals("Mixed")) setText("Mixed");
-        if (value.equals("JavaThenScala")) setText("Java then Scala");
-        if (value.equals("ScalaThenJava")) setText("Scala then Java");
+      public void customize(JList list, CompileOrder value, int index, boolean selected, boolean hasFocus) {
+        if (value == CompileOrder.Mixed) setText("Mixed");
+        if (value == CompileOrder.JavaThenScala) setText("Java then Scala");
+        if (value == CompileOrder.ScalaThenJava) setText("Scala then Java");
       }
     });
   }
@@ -152,8 +155,8 @@ public class ScalaApplicationSettingsForm implements Configurable {
   }
 
   public void apply() throws ConfigurationException {
-    mySettings.INCREMENTAL_TYPE = (ScalaApplicationSettings.IncrementalType) myIncrementalTypeCmb.getModel().getSelectedItem();
-    mySettings.COMPILE_ORDER = (String) myCompileOrderCmb.getModel().getSelectedItem();
+    mySettings.INCREMENTAL_TYPE = (IncrementalType) myIncrementalTypeCmb.getModel().getSelectedItem();
+    mySettings.COMPILE_ORDER = (CompileOrder) myCompileOrderCmb.getModel().getSelectedItem();
     mySettings.COMPILE_SERVER_ENABLED = myEnableCompileServer.isSelected();
     mySettings.COMPILE_SERVER_PORT = myCompilationServerPort.getText();
 

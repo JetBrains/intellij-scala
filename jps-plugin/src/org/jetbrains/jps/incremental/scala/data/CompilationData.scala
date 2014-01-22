@@ -7,13 +7,13 @@ import org.jetbrains.jps.{ProjectPaths, ModuleChunk}
 import org.jetbrains.jps.incremental.java.JavaBuilder
 import org.jetbrains.jps.incremental.scala.SettingsManager
 import collection.JavaConverters._
-import org.jetbrains.jps.incremental.scala.model.Order
 import org.jetbrains.jps.builders.java.JavaModuleBuildTargetType
 import org.jetbrains.jps.model.java.JpsJavaExtensionService
 import org.jetbrains.jps.model.java.compiler.JpsJavaCompilerOptions
 import java.util
 import java.util.Collections
 import java.nio.file.Files
+import org.jetbrains.plugin.scala.compiler.CompileOrder
 
 /**
  * @author Pavel Fatin
@@ -23,7 +23,7 @@ case class CompilationData(sources: Seq[File],
                            output: File,
                            scalaOptions: Seq[String],
                            javaOptions: Seq[String],
-                           order: Order,
+                           order: CompileOrder,
                            cacheFile: File,
                            outputToCacheMap: Map[File, File],
                            outputGroups: Seq[(File, File)])
@@ -43,7 +43,7 @@ object CompilationData {
     val classpath = ProjectPaths.getCompilationClasspathFiles(chunk, chunk.containsTests, false, false).asScala.toSeq
     val facetSettings = Option(SettingsManager.getFacetSettings(module))
     val scalaOptions = facetSettings.map(_.getCompilerOptions.toSeq).getOrElse(Seq.empty)
-    val order = facetSettings.map(_.getCompileOrder).getOrElse(Order.Mixed)
+    val order = facetSettings.map(_.getCompileOrder).getOrElse(CompileOrder.Mixed)
 
     createOutputToCacheMap(context).map { outputToCacheMap =>
 

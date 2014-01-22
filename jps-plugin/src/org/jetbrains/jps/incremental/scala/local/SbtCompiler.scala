@@ -2,12 +2,11 @@ package org.jetbrains.jps.incremental.scala
 package local
 
 import data.CompilationData
-import model.Order
 import sbt.compiler._
 import java.io.File
 import sbt.{CompileSetup, CompileOptions}
-import xsbti.compile.CompileOrder
 import sbt.inc.{IncOptions, Analysis, AnalysisStore, Locate}
+import org.jetbrains.plugin.scala.compiler.CompileOrder
 
 /**
  * @author Pavel Fatin
@@ -22,9 +21,9 @@ class SbtCompiler(javac: JavaCompiler, scalac: Option[AnalyzingCompiler], fileTo
       val options = new CompileOptions(compilationData.scalaOptions, compilationData.javaOptions)
       val compilerVersion = scalac.map(_.scalaInstance.version).getOrElse("none")
       val order = compilationData.order match {
-        case Order.Mixed => CompileOrder.Mixed
-        case Order.JavaThenScala => CompileOrder.JavaThenScala
-        case Order.ScalaThenJava => CompileOrder.ScalaThenJava
+        case CompileOrder.Mixed => xsbti.compile.CompileOrder.Mixed
+        case CompileOrder.JavaThenScala => xsbti.compile.CompileOrder.JavaThenScala
+        case CompileOrder.ScalaThenJava => xsbti.compile.CompileOrder.ScalaThenJava
       }
       new CompileSetup(output, options, compilerVersion, order)
     }

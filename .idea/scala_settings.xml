@@ -47,6 +47,11 @@
         <option value="scala.collection.mutable._" />
       </array>
     </option>
+    <option name="intInjectionMapping">
+      <map>
+        <entry key="xml" value="XML" />
+      </map>
+    </option>
   </component>
 </project>
 
