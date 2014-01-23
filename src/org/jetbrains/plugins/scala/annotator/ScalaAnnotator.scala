@@ -465,7 +465,8 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
                                   checkWrite: Boolean) {
     val named = resolveResult.getActualElement
     val file = element.getContainingFile
-    if (named.isValid && named.getContainingFile == file) {
+    if (named.isValid && named.getContainingFile == file &&
+            !PsiTreeUtil.isAncestor(named, element, true)) { //to filter recursive usages
       val value: ValueUsed = element match {
         case ref: ScReferenceExpression if checkWrite &&
                 ScalaPsiUtil.isPossiblyAssignment(ref.asInstanceOf[PsiElement]) => WriteValueUsed(named)
