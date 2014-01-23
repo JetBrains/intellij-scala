@@ -56,6 +56,13 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
 
   protected def innerType(ctx: TypingContext): TypeResult[ScType] = innerNonValueType(ctx, inferValueType = true)
 
+  override def getTypeNoConstructor(ctx: TypingContext): TypeResult[ScType] = {
+    CachesUtil.getWithRecursionPreventingWithRollback(this, CachesUtil.SIMPLE_TYPE_ELEMENT_TYPE_NO_CONSTRUCTOR_KEY,
+      new CachesUtil.MyProvider[ScSimpleTypeElement, TypeResult[ScType]](
+        this, elem => innerNonValueType(ctx, inferValueType = true, noConstructor = true)
+      )(PsiModificationTracker.MODIFICATION_COUNT), Failure("Recursive type of type element", Some(this)))
+  }
+
   override def getNonValueType(ctx: TypingContext): TypeResult[ScType] = {
     CachesUtil.getWithRecursionPreventingWithRollback(this, CachesUtil.NON_VALUE_TYPE_ELEMENT_TYPE_KEY,
         new CachesUtil.MyProvider[ScSimpleTypeElementImpl, TypeResult[ScType]](
@@ -63,7 +70,7 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
       )(PsiModificationTracker.MODIFICATION_COUNT), Failure("Recursive non value type of type element", Some(this)))
   }
 
-  private def innerNonValueType(ctx: TypingContext, inferValueType: Boolean): TypeResult[ScType] = {
+  private def innerNonValueType(ctx: TypingContext, inferValueType: Boolean, noConstructor: Boolean = false): TypeResult[ScType] = {
     ProgressManager.checkCanceled()
     val lift: (ScType) => Success[ScType] = Success(_, Some(this))
 
@@ -285,7 +292,7 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
             Map.empty, None)
           appSubst.subst(res)
         }
-        val constrRef = ref.isConstructorReference
+        val constrRef = ref.isConstructorReference && !noConstructor
 
         def updateImplicitsWithoutLocalTypeInference(r: TypeResult[ScType]): TypeResult[ScType] = {
           r.map {
@@ -325,7 +332,7 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
             })
           case _ => //resolve constructor with local type inference
             ref.bind() match {
-              case Some(r@ScalaResolveResult(method: PsiMethod, subst: ScSubstitutor)) =>
+              case Some(r@ScalaResolveResult(method: PsiMethod, subst: ScSubstitutor)) if !noConstructor =>
                 Success(typeForConstructor(ref, method, subst, r.getActualElement), Some(this))
               case _ => ScSimpleTypeElementImpl.calculateReferenceType(ref, shapesOnly = false)
             }
