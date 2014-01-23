@@ -85,7 +85,7 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
       }
 
       override def visitParameterizedTypeElement(parameterized: ScParameterizedTypeElement) {
-        val tp = parameterized.typeElement.getType(TypingContext.empty)
+        val tp = parameterized.typeElement.getTypeNoConstructor(TypingContext.empty)
         tp match {
           case Success(res, _) =>
             ScType.extractDesignated(res, withoutAliases = false) match {
