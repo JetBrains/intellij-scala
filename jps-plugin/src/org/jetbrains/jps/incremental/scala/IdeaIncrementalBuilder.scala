@@ -44,13 +44,15 @@ object IdeaIncrementalBuilder extends ScalaBuilderDelegate {
 
     val compileResult = compile(context, chunk, sources, modules, client)
 
+    val scalaSources = sources.filter(_.getName.endsWith(".scala")).asJava
+
     compileResult match {
       case Left(error) =>
         client.error(error)
         ExitCode.ABORT
       case _ if client.hasReportedErrors || client.isCanceled => ExitCode.ABORT
       case Right(code) =>
-        if (delta != null && JavaBuilderUtil.updateMappings(context, delta, dirtyFilesHolder, chunk, sources.asJava, successfullyCompiled.asJava))
+        if (delta != null && JavaBuilderUtil.updateMappings(context, delta, dirtyFilesHolder, chunk, scalaSources, successfullyCompiled.asJava))
           ExitCode.ADDITIONAL_PASS_REQUIRED
         else {
           client.progress("Compilation completed", Some(1.0F))
