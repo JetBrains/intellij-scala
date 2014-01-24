@@ -9,7 +9,6 @@ import java.io.{IOException, File}
 import com.intellij.openapi.application.ApplicationManager
 import extensions._
 import com.intellij.notification.{NotificationListener, Notifications, NotificationType, Notification}
-import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.project.Project
 import scala.util.control.Exception._
@@ -50,7 +49,7 @@ class CompileServerLauncher extends ApplicationComponent {
 
     findJdkByName(applicationSettings.COMPILE_SERVER_SDK)
             .left.map(_ + "\nPlease either disable Scala compile server or configure a valid JVM SDK for it.")
-            .right.flatMap(start(_)) match {
+            .right.flatMap(start) match {
       case Left(error) =>
         val title = "Cannot start Scala compile server"
         val content = s"<html><body>${error.replace("\n", "<br>")} <a href=''>Configure</a></body></html>"
@@ -74,8 +73,8 @@ class CompileServerLauncher extends ApplicationComponent {
      }
 
      val files = {
-       val ideaRoot = (new File(PathUtil.getJarPathForClass(classOf[ApplicationManager]))).getParent
-       val pluginRoot = (new File(PathUtil.getJarPathForClass(getClass))).getParent
+       val ideaRoot = new File(PathUtil.getJarPathForClass(classOf[ApplicationManager])).getParent
+       val pluginRoot = new File(PathUtil.getJarPathForClass(getClass)).getParent
        val jpsRoot = new File(pluginRoot, "jps")
 
        Seq(
@@ -84,6 +83,7 @@ class CompileServerLauncher extends ApplicationComponent {
          new File(ideaRoot, "util.jar"),
          new File(pluginRoot, "scala-library.jar"),
          new File(pluginRoot, "scala-plugin-runners.jar"),
+         new File(pluginRoot, "compiler-settings.jar"),
          new File(jpsRoot, "nailgun.jar"),
          new File(jpsRoot, "sbt-interface.jar"),
          new File(jpsRoot, "incremental-compiler.jar"),
