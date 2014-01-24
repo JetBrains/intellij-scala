@@ -76,17 +76,23 @@ object ScalaOIUtil {
       else getMembersToOverride(clazz, withSelfType = true)
     if (classMembers.isEmpty) return
     
-    val specifyRetTypeChb: JCheckBox = new NonFocusableCheckBox(
-      ScalaBundle.message("specify.return.type.explicitly"))
+    val specifyRetTypeChb: JCheckBox = new NonFocusableCheckBox(ScalaBundle.message("specify.return.type.explicitly"))
     specifyRetTypeChb.setSelected(ScalaApplicationSettings.getInstance.SPECIFY_RETURN_TYPE_EXPLICITLY)
 
+    val addOverrideModifierChb = new NonFocusableCheckBox(ScalaBundle.message("add.override.modifier"))
+    addOverrideModifierChb.setSelected(ScalaApplicationSettings.getInstance().ADD_OVERRIDE_TO_IMPLEMENTED)
+    addOverrideModifierChb.setVisible(isImplement)
+    
+    val checkboxes = Array[JComponent](specifyRetTypeChb, addOverrideModifierChb)
+    
     import scala.collection.JavaConversions._
 
     val selectedMembers = ListBuffer[PsiElementClassMember[_ <: PsiDocCommentOwner]]()
     if (!ApplicationManager.getApplication.isUnitTestMode) {
 
-      object chooser extends MemberChooser[PsiElementClassMember[_ <: PsiDocCommentOwner]] (classMembers.toArray, false, true, project, null, Array[JComponent](specifyRetTypeChb)) {
+      object chooser extends MemberChooser[PsiElementClassMember[_ <: PsiDocCommentOwner]] (classMembers.toArray, false, true, project, null, checkboxes) {
         def needsInferType = specifyRetTypeChb.isSelected
+        def overrideToImplemented = addOverrideModifierChb.isSelected
       }
       chooser.setTitle(if (isImplement) ScalaBundle.message("select.method.implement") else ScalaBundle.message("select.method.override"))
       chooser.show()
@@ -95,6 +101,7 @@ object ScalaOIUtil {
       if (elements != null) selectedMembers ++= elements
       if (selectedMembers.size == 0) return
       ScalaApplicationSettings.getInstance.SPECIFY_RETURN_TYPE_EXPLICITLY = chooser.needsInferType
+      ScalaApplicationSettings.getInstance.ADD_OVERRIDE_TO_IMPLEMENTED = chooser.overrideToImplemented
     } else {
       selectedMembers ++= classMembers.find {
         case named: ScalaNamedMembers if named.name == methodName => true
@@ -102,17 +109,17 @@ object ScalaOIUtil {
       }.toSeq
     }
 
-    runAction(selectedMembers, isImplement, clazz, editor, ScalaApplicationSettings.getInstance.SPECIFY_RETURN_TYPE_EXPLICITLY)
+    runAction(selectedMembers, isImplement, clazz, editor)
   }
 
 
   def runAction(selectedMembers: Seq[PsiElementClassMember[_ <: PsiDocCommentOwner]],
-               isImplement: Boolean, clazz: ScTemplateDefinition, editor: Editor, needsInferType: Boolean) {
+               isImplement: Boolean, clazz: ScTemplateDefinition, editor: Editor) {
     ScalaUtils.runWriteAction(new Runnable {
       def run() {
         import scala.collection.JavaConversions._
 
-        val genInfos = selectedMembers.map(new ScalaGenerationInfo(_, needsInferType))
+        val genInfos = selectedMembers.map(new ScalaGenerationInfo(_))
         val anchor = getAnchor(editor.getCaretModel.getOffset, clazz)
         val inserted = GenerateMembersUtil.insertMembersBeforeAnchor(clazz, anchor.getOrElse(null), genInfos)
         inserted.headOption.foreach(_.positionCaret(editor, toEditMethodBody = true))

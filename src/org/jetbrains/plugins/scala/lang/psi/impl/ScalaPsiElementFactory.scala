@@ -510,10 +510,13 @@ object ScalaPsiElementFactory {
 
   def createEnumerator(name: String, expr: ScExpression, manager: PsiManager, typeName: String): ScEnumerator = {
     val typeText = if (typeName == null || typeName == "") "" else ": " + typeName
-    val text = s"for {\n  i <- 1 to 239\n  $name$typeText = ${expr.getText}\n}"
+    val enumText = s"$name$typeText = ${expr.getText}"
+    val text = s"for {\n  i <- 1 to 239\n  $enumText\n}"
     val dummyFile = createScalaFile(text, manager)
     val forStmt: ScForStatement = dummyFile.getFirstChild.asInstanceOf[ScForStatement]
-    forStmt.enumerators.getOrElse(null).enumerators.apply(0)
+    forStmt.enumerators.flatMap(_.enumerators.headOption).getOrElse {
+      throw new IllegalArgumentException(s"Could not create enumerator from text:\n $enumText")
+    }
   }
 
   def createNewLine(manager: PsiManager): PsiElement = createNewLineNode(manager, "\n").getPsi
@@ -570,9 +573,9 @@ object ScalaPsiElementFactory {
     (extendToken, templateParents)
   }
 
-  def createOverrideImplementMethod(sign: PhysicalSignature, manager: PsiManager, isOverride: Boolean,
+  def createOverrideImplementMethod(sign: PhysicalSignature, manager: PsiManager, needsOverrideModifier: Boolean,
                                    needsInferType: Boolean, body: String): ScFunction = {
-    val text = "class a {\n  " + getOverrideImplementSign(sign, body, isOverride, needsInferType) + "\n}"
+    val text = "class a {\n  " + getOverrideImplementSign(sign, body, needsOverrideModifier, needsInferType) + "\n}"
     val dummyFile = PsiFileFactory.getInstance(manager.getProject).
             createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension,
       ScalaFileType.SCALA_FILE_TYPE, text).asInstanceOf[ScalaFile]
@@ -582,8 +585,8 @@ object ScalaPsiElementFactory {
   }
 
   def createOverrideImplementType(alias: ScTypeAlias, substitutor: ScSubstitutor, manager: PsiManager,
-                                  isOverride: Boolean): ScTypeAlias = {
-    val text = "class a {" + getOverrideImplementTypeSign(alias, substitutor, "this.type", isOverride) + "}"
+                                  needsOverrideModifier: Boolean): ScTypeAlias = {
+    val text = "class a {" + getOverrideImplementTypeSign(alias, substitutor, "this.type", needsOverrideModifier) + "}"
     val dummyFile = PsiFileFactory.getInstance(manager.getProject).
             createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension,
       ScalaFileType.SCALA_FILE_TYPE, text).asInstanceOf[ScalaFile]
@@ -593,8 +596,8 @@ object ScalaPsiElementFactory {
   }
 
   def createOverrideImplementVariable(variable: ScTypedDefinition, substitutor: ScSubstitutor, manager: PsiManager,
-                                      isOverride: Boolean, isVal: Boolean, needsInferType: Boolean): ScMember = {
-    val text = "class a {" + getOverrideImplementVariableSign(variable, substitutor, "_", isOverride, isVal, needsInferType) + "}"
+                                      needsOverrideModifier: Boolean, isVal: Boolean, needsInferType: Boolean): ScMember = {
+    val text = "class a {" + getOverrideImplementVariableSign(variable, substitutor, "_", needsOverrideModifier, isVal, needsInferType) + "}"
     val dummyFile = PsiFileFactory.getInstance(manager.getProject).
             createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension,
       ScalaFileType.SCALA_FILE_TYPE, text).asInstanceOf[ScalaFile]
@@ -764,16 +767,17 @@ object ScalaPsiElementFactory {
   }
 
   def getOverrideImplementTypeSign(alias: ScTypeAlias, substitutor: ScSubstitutor, body: String,
-                                   isOverride: Boolean): String = {
+                                   needsOverride: Boolean): String = {
     try {
       alias match {
         case alias: ScTypeAliasDefinition =>
-          val overrideText = if (isOverride && !alias.hasModifierProperty("override")) "override " else ""
+          val overrideText = if (needsOverride && !alias.hasModifierProperty("override")) "override " else ""
           val modifiersText = alias.getModifierList.getText
           val typeText = ScType.canonicalText(substitutor.subst(alias.aliasedType(TypingContext.empty).getOrAny))
           s"$overrideText$modifiersText type ${alias.name} = $typeText"
         case alias: ScTypeAliasDeclaration =>
-          s"${alias.getModifierList.getText} type ${alias.name} = $body"
+          val overrideText = if (needsOverride) "override " else ""
+          s"$overrideText${alias.getModifierList.getText} type ${alias.name} = $body"
       }
     }
     catch {
@@ -783,10 +787,10 @@ object ScalaPsiElementFactory {
   }
 
   def getOverrideImplementVariableSign(variable: ScTypedDefinition, substitutor: ScSubstitutor,
-                                       body: String, isOverride: Boolean,
+                                       body: String, needsOverride: Boolean,
                                        isVal: Boolean, needsInferType: Boolean): String = {
     val modOwner: ScModifierListOwner = ScalaPsiUtil.nameContext(variable) match {case m: ScModifierListOwner => m case _ => null}
-    val overrideText = if (isOverride && (modOwner == null || !modOwner.hasModifierProperty("override"))) "override " else ""
+    val overrideText = if (needsOverride && (modOwner == null || !modOwner.hasModifierProperty("override"))) "override " else ""
     val modifiersText = if (modOwner != null) modOwner.getModifierList.getText + " " else ""
     val keyword = if (isVal) "val " else "var "
     val name = variable.name

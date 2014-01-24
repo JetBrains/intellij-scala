@@ -27,13 +27,13 @@ class ScalaMethodImplementor extends MethodImplementor {
     } yield {
       val specifyType = ScalaApplicationSettings.getInstance().SPECIFY_RETURN_TYPE_EXPLICITLY
       val body = ScalaGenerationInfo.defaultValue(member.returnType, inClass.getContainingFile)
-      ScalaPsiElementFactory.createOverrideImplementMethod(member.sign, inClass.getManager, isOverride = false, specifyType, body)
+      ScalaPsiElementFactory.createOverrideImplementMethod(member.sign, inClass.getManager, needsOverrideModifier = true, specifyType, body)
     }).toArray
   }
 
   def createGenerationInfo(method: PsiMethod, mergeIfExists: Boolean): GenerationInfo = {
     val methodMember = new ScMethodMember(new PhysicalSignature(method, ScSubstitutor.empty), /*isImplement = */true)
-    new ScalaGenerationInfo(methodMember, ScalaApplicationSettings.getInstance().SPECIFY_RETURN_TYPE_EXPLICITLY)
+    new ScalaGenerationInfo(methodMember)
   }
 
   def createDecorator(targetClass: PsiClass, baseMethod: PsiMethod, toCopyJavaDoc: Boolean, insertOverrideIfPossible: Boolean): Consumer[PsiMethod] = emptyConsumer

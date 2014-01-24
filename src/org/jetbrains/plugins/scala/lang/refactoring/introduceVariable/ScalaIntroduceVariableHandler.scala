@@ -174,8 +174,8 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Confli
       PsiDocumentManager.getInstance(element.getProject).commitDocument(document)
       val newEnd = start + text.length
       editor.getCaretModel.moveToOffset(newEnd)
-      val decl = PsiTreeUtil.findElementOfClassAtRange(file, start, newEnd, classOf[ScMember])
-      lazy val enum = PsiTreeUtil.findElementOfClassAtRange(file, start, newEnd, classOf[ScEnumerator])
+      val decl = PsiTreeUtil.findElementOfClassAtOffset(file, start, classOf[ScMember], /*strictStart =*/false)
+      lazy val enum = PsiTreeUtil.findElementOfClassAtOffset(file, start, classOf[ScEnumerator], /*strictStart =*/false)
       Option(decl).getOrElse(enum)
     }
 

@@ -23,13 +23,16 @@ import org.jetbrains.plugins.scala.config.ScalaVersionUtil._
 import org.jetbrains.plugins.scala.lang.psi.types.result.Failure
 import scala.Some
 import org.jetbrains.plugins.scala.lang.psi.types.result.Success
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameterClause
+import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
+import com.intellij.openapi.application.ApplicationManager
 
 
 /**
  * Nikolay.Tropin
  * 12/25/13
  */
-class ScalaGenerationInfo(classMember: PsiElementClassMember[_ <: PsiDocCommentOwner], needsInferType: Boolean)
+class ScalaGenerationInfo(classMember: PsiElementClassMember[_ <: PsiDocCommentOwner])
         extends GenerationInfoBase {
 
   private var myMember: PsiMember = classMember.getElement
@@ -41,6 +44,11 @@ class ScalaGenerationInfo(classMember: PsiElementClassMember[_ <: PsiDocCommentO
       case td: ScTemplateDefinition => td
       case _ => return
     }
+    val addOverrideToImplemented = 
+      if (ApplicationManager.getApplication.isUnitTestMode) false 
+      else ScalaApplicationSettings.getInstance.ADD_OVERRIDE_TO_IMPLEMENTED
+    val needsInferType = ScalaApplicationSettings.getInstance.SPECIFY_RETURN_TYPE_EXPLICITLY
+
     classMember match {
       case member: ScMethodMember =>
         val method: PsiMethod = member.getElement
@@ -67,15 +75,16 @@ class ScalaGenerationInfo(classMember: PsiElementClassMember[_ <: PsiDocCommentO
 
         val body = template.getText(properties)
 
-        val m = ScalaPsiElementFactory.createOverrideImplementMethod(sign, method.getManager,
-          !isImplement, needsInferType, body)
+        val needsOverride = !isImplement || addOverrideToImplemented
+        val m = ScalaPsiElementFactory.createOverrideImplementMethod(sign, method.getManager, needsOverride, needsInferType, body)
         val added = templDef.addMember(m, Option(anchor))
         myMember = added
         ScalaPsiUtil.adjustTypes(added)
       case member: ScAliasMember =>
         val alias = member.getElement
         val substitutor = addUpdateThisType(member.substitutor, templDef)
-        val m = ScalaPsiElementFactory.createOverrideImplementType(alias, substitutor, alias.getManager, !member.isImplement)
+        val needsOverride = !member.isImplement || addOverrideToImplemented
+        val m = ScalaPsiElementFactory.createOverrideImplementType(alias, substitutor, alias.getManager, needsOverride)
         val added = templDef.addMember(m, Option(anchor))
         myMember = added
         ScalaPsiUtil.adjustTypes(added)
@@ -87,8 +96,9 @@ class ScalaGenerationInfo(classMember: PsiElementClassMember[_ <: PsiDocCommentO
           case x: ScVariableMember => (x.substitutor, x.isImplement)
         }
         val substitutor = addUpdateThisType(origSubstitutor, templDef)
+        val needsOverride = !isImplement || addOverrideToImplemented
         val m = ScalaPsiElementFactory.createOverrideImplementVariable(value, substitutor, value.getManager,
-          !isImplement, isVal, needsInferType)
+          needsOverride, isVal, needsInferType)
         val added = templDef.addMember(m, Option(anchor))
         myMember = added
         ScalaPsiUtil.adjustTypes(added)
@@ -120,9 +130,10 @@ class ScalaGenerationInfo(classMember: PsiElementClassMember[_ <: PsiDocCommentO
     val parametersText: String = {
       method match {
         case fun: ScFunction =>
-          fun.paramClauses.clauses.map(_.parameters.map(_.name).mkString("(", ", ", ")")).mkString
+          val clauses = fun.paramClauses.clauses.filter(!_.isImplicit)
+          clauses.map(_.parameters.map(_.name).mkString("(", ", ", ")")).mkString
         case method: PsiMethod =>
-          if (method.isAccessor) ""
+          if (method.isAccessor && method.getParameterList.getParametersCount == 0) ""
           else method.getParameterList.getParameters.map(paramText).mkString("(", ", ", ")")
       }
     }

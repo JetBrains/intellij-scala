@@ -44,28 +44,24 @@ class ScalaLocalVariableEvaluator(_name: String) extends Evaluator {
       throw EvaluateExceptionUtil.createEvaluateException(DebuggerBundle.message("evaluation.error.no.stackframe"))
     }
     def evaluate: Option[AnyRef] = {
-      var local: LocalVariableProxyImpl = frameProxy.visibleVariableByName(name)
-      if (local != null) {
+      def saveContextAndGetValue(framePr: StackFrameProxyImpl, local: LocalVariableProxyImpl) = {
         myEvaluatedVariable = local
         myContext = context
-        return Some(frameProxy.getValue(local))
+        val value = DebuggerUtil.unwrapScalaRuntimeObjectRef {
+          frameProxy.getValue(local)
+        }
+        Some(value)
       }
+      var local: LocalVariableProxyImpl = frameProxy.visibleVariableByName(name)
+      if (local != null) return saveContextAndGetValue(frameProxy, local)
       for (i <- 1 to 2) {
         local = frameProxy.visibleVariableByName(name + "$" + i)
-        if (local != null) {
-          myEvaluatedVariable = local
-          myContext = context
-          return Some(frameProxy.getValue(local))
-        }
+        if (local != null) return saveContextAndGetValue(frameProxy, local)
       }
       val locals = frameProxy.visibleVariables()
       import scala.collection.JavaConversions._
       for (local <- locals) {
-        if (local.name().startsWith(name + "$")) {
-          myEvaluatedVariable = local
-          myContext = context
-          return Some(frameProxy.getValue(local))
-        }
+        if (local.name().startsWith(name + "$")) return saveContextAndGetValue(frameProxy, local)
       }
       None
     }
@@ -138,9 +134,8 @@ class ScalaLocalVariableEvaluator(_name: String) extends Evaluator {
             frameProxy.setValue(myEvaluatedVariable, value)
           }
           catch {
-            case e: EvaluateException => {
+            case e: EvaluateException =>
               LOG.error(e)
-            }
           }
         }
         def getExpectedType: Type = {
@@ -148,10 +143,9 @@ class ScalaLocalVariableEvaluator(_name: String) extends Evaluator {
             myEvaluatedVariable.getType
           }
           catch {
-            case e: EvaluateException => {
+            case e: EvaluateException =>
               LOG.error(e)
               null
-            }
           }
         }
         def getInspectItem(project: Project): NodeDescriptorImpl = {

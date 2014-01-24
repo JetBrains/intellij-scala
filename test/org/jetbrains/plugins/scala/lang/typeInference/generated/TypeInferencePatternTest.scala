@@ -35,5 +35,7 @@ class TypeInferencePatternTest extends TypeInferenceTestBase {
 
   def testSCL3749() {doTest()}
 
+  def testSCL6543() {doTest()}
+
   def testUnapplySeqLocalTypeInference() {doTest()}
 }

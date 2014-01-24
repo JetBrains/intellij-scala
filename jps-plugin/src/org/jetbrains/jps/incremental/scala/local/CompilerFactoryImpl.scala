@@ -9,7 +9,7 @@ import sbt.compiler.{AnalyzingCompiler, AggressiveCompile, IC}
 import xsbti.{F0, Logger}
 import CompilerFactoryImpl._
 import sbt.inc.AnalysisStore
-import org.jetbrains.jps.incremental.scala.model.IncrementalType
+import org.jetbrains.plugin.scala.compiler.IncrementalType
 
 /**
  * @author Pavel Fatin

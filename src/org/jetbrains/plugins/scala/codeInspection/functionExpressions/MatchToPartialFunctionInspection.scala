@@ -19,6 +19,8 @@ import scala.collection.JavaConverters._
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import scala.Some
+import org.jetbrains.plugins.scala.lang.psi.types.result.Success
+import org.jetbrains.plugins.scala.lang.psi.types.ScType
 
 /**
  * Nikolay.Tropin
@@ -26,14 +28,22 @@ import scala.Some
  */
 class MatchToPartialFunctionInspection extends AbstractInspection(inspectionId){
   def actionFor(holder: ProblemsHolder): PartialFunction[PsiElement, Any] = {
-    case fun @ ScFunctionExpr(Seq(param), Some(ms @ ScMatchStmt(ref: ScReferenceExpression, _))) if ref.resolve() == param =>
+    case fun @ ScFunctionExpr(Seq(param), Some(ms @ ScMatchStmt(ref: ScReferenceExpression, _)))
+      if ref.resolve() == param && !(param.typeElement.isDefined && notExpectedType(fun)) =>
       registerProblem(holder, ms, fun)
-    case fun @ ScFunctionExpr(Seq(param), Some(ScBlock(ms @ ScMatchStmt(ref: ScReferenceExpression, _)))) if ref.resolve() == param =>
+    case fun @ ScFunctionExpr(Seq(param), Some(ScBlock(ms @ ScMatchStmt(ref: ScReferenceExpression, _))))
+      if ref.resolve() == param && !(param.typeElement.isDefined && notExpectedType(fun)) =>
       registerProblem(holder, ms, fun) //if fun is last statement in block, result can be block without braces
     case ms @ ScMatchStmt(und: ScUnderscoreSection, _) =>
       registerProblem(holder, ms, ms)
   }
 
+  private def notExpectedType(expr: ScExpression) = {
+    (expr.getType(), expr.expectedType()) match {
+      case (Success(tpe: ScType, _), Some(expType: ScType)) => !expType.equiv(tpe)
+      case _ => true
+    }
+  }
 
   private def registerProblem(holder: ProblemsHolder, ms: ScMatchStmt, fExprToReplace: ScExpression) = {
     def leftBraceOffset(ms: ScMatchStmt): Option[Int] = {

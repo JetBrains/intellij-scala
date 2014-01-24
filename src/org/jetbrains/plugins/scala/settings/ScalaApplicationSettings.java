@@ -37,6 +37,8 @@ public class ScalaApplicationSettings implements PersistentStateComponent<ScalaA
   public enum VisibilityLevel {DEFAULT, PROTECTED, PRIVATE}
   public VisibilityLevel INTRODUCE_FIELD_VISIBILITY = VisibilityLevel.DEFAULT;
 
+  public boolean ADD_OVERRIDE_TO_IMPLEMENTED = true;
+
   public boolean RENAME_COMPANION_MODULE = true;
 
   public boolean INTRODUCE_FIELD_INITIALIZE_IN_DECLARATION = true;

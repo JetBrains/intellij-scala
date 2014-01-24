@@ -2,6 +2,7 @@ package org.jetbrains.jps.incremental.scala
 package model
 
 import org.jetbrains.jps.cmdline.ProjectDescriptor
+import org.jetbrains.plugin.scala.compiler.{CompileOrder, IncrementalType}
 
 /**
  * Nikolay.Tropin
@@ -12,5 +13,5 @@ class ProjectSetingsImpl(projectDescriptor: ProjectDescriptor) extends ProjectSe
 
   def incrementalType: IncrementalType = SettingsManager.getGlobalSettings(global).getIncrementalType
 
-  def compileOrder: Order = SettingsManager.getGlobalSettings(global).getCompileOrder
+  def compileOrder: CompileOrder = SettingsManager.getGlobalSettings(global).getCompileOrder
 }
