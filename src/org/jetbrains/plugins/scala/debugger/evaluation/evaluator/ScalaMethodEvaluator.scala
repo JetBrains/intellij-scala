@@ -61,6 +61,7 @@ case class ScalaMethodEvaluator(objectEvaluator: Evaluator, _methodName: String,
             case method if !localMethod && method.name() == methodName => (method, 1)
             case method if localMethod && method.name() == localMethodName => (method, 1)
             case method if localMethod && method.name.startsWith(methodName + "$") => (method, 2)
+            case method if localMethod && method.name.contains(methodName + "$") => (method, 3)
           }.sortBy(_._2).map(_._1)
         }
         var jdiMethod: Method = null
