@@ -1469,7 +1469,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
                       myResult = new ScalaMethodEvaluator(myResult, name, null /* todo? */, Seq.empty,
                         traitImplementation(resolve), DebuggerUtil.getSourcePositions(resolve.getNavigationElement))
                   }
-                case _ => throw new RuntimeException("Match is not exhaustive")
+                case _ => throw EvaluateExceptionUtil.createEvaluateException("Cannot resolve evaluated reference")
               }
             case None =>
               ref.bind() match {
@@ -1478,7 +1478,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
                   val name = NameTransformer.encode(obj.name)
                   myResult = new ScalaMethodEvaluator(evaluator, name, null /* todo? */, Seq.empty,
                     traitImplementation(resolve), DebuggerUtil.getSourcePositions(resolve.getNavigationElement))
-                case _ => throw new RuntimeException("Match is not exhaustive")
+                case _ => throw EvaluateExceptionUtil.createEvaluateException("Cannot resolve evaluated reference")
               }
           }
         case _: PsiMethod | _: ScSyntheticFunction =>
@@ -1500,7 +1500,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
                       val name = NameTransformer.encode(named.name)
                       myResult = new ScalaFieldEvaluator(myResult, _ => true, name, true)
                   }
-                case _ => throw new RuntimeException("Match is not exhaustive")
+                case _ => throw EvaluateExceptionUtil.createEvaluateException("Cannot resolve evaluated reference")
               }
             case None =>
               ref.bind() match {
@@ -1508,7 +1508,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
                   val evaluator = thisOrImportedQualifierEvaluator(ref, r)
                   val name = NameTransformer.encode(named.name)
                   myResult = new ScalaFieldEvaluator(evaluator, _ => true, name, true)
-                case _ => throw new RuntimeException("Match is not exhaustive")
+                case _ => throw EvaluateExceptionUtil.createEvaluateException("Cannot resolve evaluated reference")
               }
           }
         case _: ScClassParameter | _: ScBindingPattern =>
@@ -1527,7 +1527,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
                       myResult = new ScalaMethodEvaluator(myResult, name, null /* todo */, Seq.empty,
                         traitImplementation(resolve), DebuggerUtil.getSourcePositions(resolve.getNavigationElement))
                   }
-                case _ => throw new RuntimeException("Match is not exhaustive")
+                case _ => throw EvaluateExceptionUtil.createEvaluateException("Cannot resolve evaluated reference")
               }
             case None =>
               ref.bind() match {
@@ -1547,7 +1547,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
                       myResult = new ScalaDuplexEvaluator(myResult, reserveEval)
                     case _ =>
                   }
-                case _ => throw new RuntimeException("Match is not exhaustive")
+                case _ => throw EvaluateExceptionUtil.createEvaluateException("Cannot resolve evaluated reference")
               }
           }
         case field: PsiField =>
@@ -1570,7 +1570,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
                         myResult = new ScalaFieldEvaluator(myResult,
                           ScalaFieldEvaluator.getFilter(getContainingClass(field)), name)
                     }
-                  case _ => throw new RuntimeException("Match is not exhaustive")
+                  case _ => throw EvaluateExceptionUtil.createEvaluateException("Cannot resolve evaluated reference")
                 }
               }
             case None =>
@@ -1580,7 +1580,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
                   val name = field.name
                   myResult = new ScalaFieldEvaluator(evaluator,
                     ScalaFieldEvaluator.getFilter(getContainingClass(field)), name)
-                case _ => throw new RuntimeException("Match is not exhaustive")
+                case _ => throw EvaluateExceptionUtil.createEvaluateException("Cannot resolve evaluated reference")
               }
           }
         case pack: ScPackage =>
