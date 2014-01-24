@@ -21,7 +21,6 @@ import api.base.types.{ScParameterizedTypeElement, ScInfixTypeElement, ScSimpleT
 import impl.source.tree.LeafPsiElement
 import processor.CompletionProcessor
 import api.ScalaElementVisitor
-import extensions.{toPsiNamedElementExt, toPsiClassExt}
 import api.statements.{ScMacroDefinition, ScTypeAlias}
 import api.expr.{ScSuperReference, ScThisReference}
 import annotator.intention.ScalaImportTypeFix
@@ -63,18 +62,16 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
 
   def getConstructor = {
     getContext match {
-      case s: ScSimpleTypeElement => {
+      case s: ScSimpleTypeElement =>
         s.getContext match {
-          case p: ScParameterizedTypeElement => {
+          case p: ScParameterizedTypeElement =>
             p.getContext match {
               case constr: ScConstructor => Some(constr)
               case _ => None
             }
-          }
           case constr: ScConstructor => Some(constr)
           case _ => None
         }
-      }
       case _ => None
     }
   }

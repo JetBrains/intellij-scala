@@ -18,7 +18,7 @@
 
     <extensions defaultExtensionNs="com.intellij">
         <lang.rearranger language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.rearranger.ScalaRearranger"/>
-        <compileServer.plugin classpath="scala-library.jar;jps/nailgun.jar;jps/scala-jps-plugin.jar;jps/sbt-interface.jar;jps/incremental-compiler.jar;jps/jline.jar"/>
+        <compileServer.plugin classpath="scala-library.jar;compiler-settings.jar;jps/nailgun.jar;jps/scala-jps-plugin.jar;jps/sbt-interface.jar;jps/incremental-compiler.jar;jps/jline.jar"/>
         <projectTemplatesFactory implementation="org.jetbrains.plugins.scala.config.scalaProjectTemplate.ScalaProjectTemplatesFactory"/>
         <!--<moduleBuilder builderClass="org.jetbrains.plugins.scala.config.scalaProjectTemplate.ScalaModuleBuilder"/>-->
         <refactoring.moveHandler implementation="org.jetbrains.plugins.scala.lang.refactoring.move.ScalaMoveClassesOrPackagesHandler" order="first"/>
@@ -135,8 +135,10 @@
         <renamePsiElementProcessor implementation="org.jetbrains.plugins.scala.lang.refactoring.rename.RenameScalaClassProcessor" order="first"/>
         <renamePsiElementProcessor implementation="org.jetbrains.plugins.scala.lang.refactoring.rename.RenameScalaSyntheticParamProcessor" order="first"/>
         <renamePsiElementProcessor implementation="org.jetbrains.plugins.scala.lang.refactoring.rename.RenameScalaTypeAliasProcessor" order="first"/>
+        <renamePsiElementProcessor implementation="org.jetbrains.plugins.scala.lang.refactoring.rename.RenameScalaBindingPatternProcessor" order="first"/>
         <renameHandler implementation="org.jetbrains.plugins.scala.lang.refactoring.rename.XmlRenameHandler" />
-        <renameHandler implementation="org.jetbrains.plugins.scala.lang.refactoring.rename.inplace.ScalaInplaceRenameHandler" order="first" />
+        <renameHandler implementation="org.jetbrains.plugins.scala.lang.refactoring.rename.inplace.ScalaMemberInplaceRenameHandler" order="first" />
+        <renameHandler implementation="org.jetbrains.plugins.scala.lang.refactoring.rename.inplace.ScalaLocalInplaceRenameHandler" order="first" />
         <nameSuggestionProvider implementation="org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.ScalaNameSuggestionProvider" order="last"/>
         <definitionsSearch implementation="org.jetbrains.plugins.scala.lang.psi.impl.search.MethodImplementationsSearch"/>
         <overridingMethodsSearch implementation="org.jetbrains.plugins.scala.lang.psi.impl.search.ScalaOverridingMemberSearcher" order="first"/>
@@ -196,6 +198,7 @@
 
         <defaultLiveTemplatesProvider implementation="org.jetbrains.plugins.scala.codeInsight.template.impl.ScalaDefaultLiveTemplatesProvider"/>
         <liveTemplateContext implementation="org.jetbrains.plugins.scala.codeInsight.template.impl.ScalaLiveTemplateContextType"/>
+        <liveTemplateContext implementation="org.jetbrains.plugins.scala.codeInsight.template.impl.ScalaXmlContextType"/>
         <liveTemplateMacro implementation="org.jetbrains.plugins.scala.codeInsight.template.macros.ScalaVariableOfTypeMacro"/>
         <liveTemplateMacro implementation="org.jetbrains.plugins.scala.codeInsight.template.macros.SuggestScalaVariableNameMacro"/>
 

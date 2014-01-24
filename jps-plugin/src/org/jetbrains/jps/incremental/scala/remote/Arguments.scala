@@ -2,10 +2,10 @@ package org.jetbrains.jps.incremental.scala
 package remote
 
 import data._
-import org.jetbrains.jps.incremental.scala.model.{IncrementalType, Order}
 import java.io.File
 import Arguments._
 import com.intellij.openapi.util.io.FileUtil
+import org.jetbrains.plugin.scala.compiler.{CompileOrder, IncrementalType}
 
 /**
  * @author Pavel Fatin
@@ -88,7 +88,7 @@ object Arguments {
 
       val outputGroups = sourceRoots zip outputDirs
 
-      val compilationData = CompilationData(sources, classpath, output, scalaOptions, javaOptions, Order.valueOf(order), cacheFile, outputToCacheMap, outputGroups)
+      val compilationData = CompilationData(sources, classpath, output, scalaOptions, javaOptions, CompileOrder.valueOf(order), cacheFile, outputToCacheMap, outputGroups)
 
 
       Arguments(sbtData, compilerData, compilationData)

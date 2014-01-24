@@ -6,7 +6,7 @@ package base
 package patterns
 
 import _root_.org.jetbrains.plugins.scala.lang.psi.types._
-import api.toplevel.typedef.{ScClass, ScTypeDefinition, ScObject}
+import api.toplevel.typedef.{ScClass, ScObject}
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
 import com.intellij.lang.ASTNode
@@ -40,12 +40,12 @@ class ScConstructorPatternImpl(node: ASTNode) extends ScalaPsiElementImpl (node)
 
   override def isIrrefutableFor(t: Option[ScType]): Boolean = {
     if (t == None) return false
-    ref.bind match {
-      case Some(ScalaResolveResult(clazz: ScClass, _)) if clazz.isCase => {
+    ref.bind() match {
+      case Some(ScalaResolveResult(clazz: ScClass, _)) if clazz.isCase =>
         ScType.extractClassType(t.get, Some(clazz.getProject)) match {
-          case Some((clazz2: ScClass, substitutor: ScSubstitutor)) if clazz2 == clazz => {
+          case Some((clazz2: ScClass, substitutor: ScSubstitutor)) if clazz2 == clazz =>
             clazz.constructor match {
-              case Some(constr: ScPrimaryConstructor) => {
+              case Some(constr: ScPrimaryConstructor) =>
                 val clauses = constr.parameterList.clauses
                 if (clauses.length == 0) subpatterns.length == 0
                 else {
@@ -65,13 +65,10 @@ class ScConstructorPatternImpl(node: ASTNode) extends ScalaPsiElementImpl (node)
                   }
                   true
                 }
-              }
               case _ => subpatterns.length == 0
             }
-          }
           case _ => false
         }
-      }
       case _ => false
     }
   }
@@ -81,9 +78,9 @@ class ScConstructorPatternImpl(node: ASTNode) extends ScalaPsiElementImpl (node)
       case Some(r) =>
         r.element match {
           //todo: remove all classes?
-          case td: ScClass if td.typeParameters.length > 0 => {
+          case td: ScClass if td.typeParameters.length > 0 =>
             val refType: ScType = ScSimpleTypeElementImpl.
-                    calculateReferenceType(ref, false).getOrElse(ScType.designator(td))
+                    calculateReferenceType(ref, shapesOnly = false).getOrElse(ScType.designator(td))
             val newSubst = {
               val clazzType = ScParameterizedType(refType, td.getTypeParameters.map(tp =>
                 ScUndefinedType(tp match {case tp: ScTypeParam => new ScTypeParameterType(tp, r.substitutor)
@@ -91,23 +88,21 @@ class ScConstructorPatternImpl(node: ASTNode) extends ScalaPsiElementImpl (node)
               val emptySubst: ScSubstitutor = new ScSubstitutor(Map(td.typeParameters.map(tp =>
                 ((tp.name, ScalaPsiUtil.getPsiElementId(tp)), Any)): _*), Map.empty, None)
               expectedType match {
-                case Some(tp) => {
+                case Some(tp) =>
                   val t = Conformance.conforms(tp, clazzType)
                   if (t) {
                     val undefSubst = Conformance.undefinedSubst(tp, clazzType)
                     undefSubst.getSubstitutor match {
-                      case Some(newSubst) => newSubst followed emptySubst
+                      case Some(subst) => subst followed emptySubst
                       case _ => emptySubst
                     }
                   } else emptySubst
-                }
                 case _ => emptySubst
               }
             }
             Success(new ScParameterizedType(refType, collection.immutable.Seq(td.getTypeParameters.map({
               tp => newSubst.subst(ScalaPsiManager.typeVariable(tp))
             }).toSeq : _*)), Some(this))
-          }
           case td: ScClass => Success(ScType.designator(td), Some(this))
           case obj: ScObject => Success(ScType.designator(obj), Some(this))
           case fun: ScFunction /*It's unapply method*/ if (fun.name == "unapply" || fun.name == "unapplySeq") &&
@@ -125,7 +120,7 @@ class ScConstructorPatternImpl(node: ASTNode) extends ScalaPsiElementImpl (node)
               else {
                 val funType = undefSubst.subst(result.get)
                 expectedType match {
-                  case Some(tp) => {
+                  case Some(tp) =>
                     val t = Conformance.conforms(tp, funType)
                     if (t) {
                       val undefSubst = Conformance.undefinedSubst(tp, funType)
@@ -134,12 +129,11 @@ class ScConstructorPatternImpl(node: ASTNode) extends ScalaPsiElementImpl (node)
                         case _ => emptyRes
                       }
                     } else emptyRes
-                  }
                   case _ => emptyRes
                 }
               }
             }
-            fun.paramClauses.clauses.apply(0).parameters.apply(0).getType(TypingContext.empty).map(subst.subst(_))
+            fun.paramClauses.clauses.apply(0).parameters.apply(0).getType(TypingContext.empty).map(subst.subst)
           case _ => Success(Nothing, Some(this))
         }
       case _ => Failure("Cannot resolve symbol", Some(this))

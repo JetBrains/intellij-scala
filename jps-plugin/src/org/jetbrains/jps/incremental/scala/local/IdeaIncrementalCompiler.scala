@@ -17,15 +17,13 @@ class IdeaIncrementalCompiler(scalac: AnalyzingCompiler) extends AbstractCompile
     val progress = getProgress(client)
     val reporter = getReporter(client)
     val logger = getLogger(client)
-    val clientCallback = new ClassGeneratedClientCallback(client)
+    val clientCallback = new ClientCallback(client)
 
-    import compilationData._
-
-    val out = CompileOutput(outputGroups: _*)
+    val out = CompileOutput(compilationData.outputGroups: _*)
     val cArgs = new CompilerArguments(scalac.scalaInstance, scalac.cp)
-    val options = "IntellijIdea.simpleAnalysis" +: cArgs(Nil, classpath, None, scalaOptions)
+    val options = "IntellijIdea.simpleAnalysis" +: cArgs(Nil, compilationData.classpath, None, compilationData.scalaOptions)
 
-    try scalac.compile(sources, emptyChanges, options, out, clientCallback, reporter, CompilerCache.fresh, logger, Option(progress))
+    try scalac.compile(compilationData.sources, emptyChanges, options, out, clientCallback, reporter, CompilerCache.fresh, logger, Option(progress))
     catch {
       case _: xsbti.CompileFailed => // the error should be already handled via the `reporter`
     }
@@ -33,18 +31,25 @@ class IdeaIncrementalCompiler(scalac: AnalyzingCompiler) extends AbstractCompile
 
 }
 
-private class ClassGeneratedClientCallback(client: Client) extends xsbti.AnalysisCallback {
+private class ClientCallback(client: Client) extends ClientCallbackBase {
 
-  def generatedClass(source: File, module: File, name: String) {
+  override def generatedClass(source: File, module: File, name: String) {
     client.generated(source, module, name)
   }
 
-  def problem(what: String, pos: Position, msg: String, severity: Severity, reported: Boolean) {}
-  def api(sourceFile: File, source: SourceAPI) {}
-  def endSource(sourcePath: File) {}
-  def binaryDependency(binary: File, name: String, source: File, publicInherited: Boolean) {}
-  def sourceDependency(dependsOn: File, source: File, publicInherited: Boolean) {}
-  def beginSource(source: File) {}
+  override def endSource(source: File) {
+    client.processed(source)
+  }
+}
+
+abstract class ClientCallbackBase extends xsbti.AnalysisCallback {
+  def beginSource(source: File): Unit = {}
+  def sourceDependency(dependsOn: File, source: File, publicInherited: Boolean): Unit = {}
+  def binaryDependency(binary: File, name: String, source: File, publicInherited: Boolean): Unit = {}
+  def generatedClass(source: File, module: File, name: String): Unit = {}
+  def endSource(sourcePath: File): Unit = {}
+  def api(sourceFile: File, source: SourceAPI): Unit = {}
+  def problem(what: String, pos: Position, msg: String, severity: Severity, reported: Boolean): Unit = {}
 }
 
 private object emptyChanges extends DependencyChanges {

@@ -1,4 +1,4 @@
-package org.jetbrains.jps.incremental.scala.model;
+package org.jetbrains.plugin.scala.compiler;
 
 /**
  * Nikolay.Tropin

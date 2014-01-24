@@ -58,6 +58,9 @@ class Signature(val name: String, val typesEval: List[Stream[ScType]], val param
     var undefSubst = uSubst
     if (paramLength != other.paramLength && !(paramLength.sum == 0 && other.paramLength.sum == 0)) return (false, undefSubst)
     if (hasRepeatedParam != other.hasRepeatedParam) return (false, undefSubst)
+    if (other.name == "collectNavigationMarkers") {
+      "stop here"
+    }
     val unified1 = unify(substitutor, typeParams, typeParams)
     val unified2 = unify(other.substitutor, typeParams, other.typeParams)
     val clauseIterator = substitutedTypes.iterator

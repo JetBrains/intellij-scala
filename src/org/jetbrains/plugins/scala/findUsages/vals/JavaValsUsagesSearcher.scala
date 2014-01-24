@@ -25,14 +25,14 @@ class JavaValsUsagesSearcher extends QueryExecutor[PsiReference, ReferencesSearc
       if (!element.isValid) return true
       element match {
         case vals: ScTypedDefinition => ScalaPsiUtil.nameContext(vals) match {
-          case _: ScValue | _: ScVariable | _: ScClassParameter =>
+          case _: ScValue | _: ScVariable | _: ScClassParameter if vals.getName != "" =>
             val name: String = vals.getName
             val processor = new TextOccurenceProcessor {
               def execute(element: PsiElement, offsetInElement: Int): Boolean = {
                 val references = element.getReferences
                 for (ref <- references if ref.getRangeInElement.contains(offsetInElement)) {
                   ref match {
-                    case refElement: PsiReferenceExpression => {
+                    case refElement: PsiReferenceExpression =>
                       refElement.resolve match {
                         case f: FakePsiMethod if f.navElement == vals =>
                           if (!consumer.process(refElement)) return false
@@ -41,7 +41,6 @@ class JavaValsUsagesSearcher extends QueryExecutor[PsiReference, ReferencesSearc
                           if (!consumer.process(refElement)) return false
                         case _ =>
                       }
-                    }
                     case _ =>
                   }
                 }
@@ -59,7 +58,7 @@ class JavaValsUsagesSearcher extends QueryExecutor[PsiReference, ReferencesSearc
               val references = element.getReferences
               for (ref <- references if ref.getRangeInElement.contains(offsetInElement)) {
                 ref match {
-                  case refElement: PsiReferenceExpression => {
+                  case refElement: PsiReferenceExpression =>
                     refElement.resolve match {
                       case t: PsiTypedDefinitionWrapper if t.getNavigationElement == wrapper.getNavigationElement &&
                               t.getName == wrapper.getName =>
@@ -69,7 +68,6 @@ class JavaValsUsagesSearcher extends QueryExecutor[PsiReference, ReferencesSearc
                         if (!consumer.process(refElement)) return false
                       case _ =>
                     }
-                  }
                   case _ =>
                 }
               }

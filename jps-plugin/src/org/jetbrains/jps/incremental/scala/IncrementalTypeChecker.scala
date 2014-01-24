@@ -3,10 +3,10 @@ package org.jetbrains.jps.incremental.scala
 import java.io._
 import java.nio.file.Files
 import org.jetbrains.jps.incremental.{ProjectBuildException, FSCache, CompileContext}
-import org.jetbrains.jps.incremental.scala.model.IncrementalType
 import org.jetbrains.jps.builders.java.JavaBuilderUtil
 import org.jetbrains.jps.incremental.messages.{BuildMessage, CompilerMessage}
 import scala.collection.JavaConverters._
+import org.jetbrains.plugin.scala.compiler.IncrementalType
 
 /**
  * Nikolay.Tropin
@@ -22,8 +22,7 @@ class IncrementalTypeChecker(context: CompileContext) {
       case _ if JavaBuilderUtil.isForcedRecompilationAllJavaModules(context) => //isRebiuld
         setPreviousIncrementalType(incrType)
       case None =>
-        context.processMessage(new CompilerMessage("scala", BuildMessage.Kind.WARNING,
-        "cannot find type of the previous incremental compiler, full rebuild may be required"))
+        ScalaBuilderDelegate.Log.info("scala: cannot find type of the previous incremental compiler, full rebuild may be required")
       case Some(`incrType`) => //same incremental type, nothing to be done
       case Some(_) if isMakeProject =>
         cleanCaches()

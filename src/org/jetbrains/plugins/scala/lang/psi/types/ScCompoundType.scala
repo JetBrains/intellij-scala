@@ -152,15 +152,16 @@ case class ScCompoundType(components: Seq[ScType], decls: Seq[ScDeclaredElements
     }
   }
 
-  override def recursiveVarianceUpdate(update: (ScType, Int) => (Boolean, ScType), variance: Int): ScType = {
-    update(this, variance) match {
-      case (true, res) => res
-      case _ =>
+  override def recursiveVarianceUpdateModifiable[T](data: T, update: (ScType, Int, T) => (Boolean, ScType, T),
+                                                    variance: Int = 1): ScType = {
+    update(this, variance, data) match {
+      case (true, res, _) => res
+      case (_, _, newData) =>
         init()
-        new ScCompoundType(components.map(_.recursiveVarianceUpdate(update, variance)), decls, typeDecls, subst, signatureMapVal.map {
-          case (signature: Signature, tp) => (signature, new Suspension[ScType](() => tp.v.recursiveVarianceUpdate(update, 1)))
+        new ScCompoundType(components.map(_.recursiveVarianceUpdateModifiable(newData, update, variance)), decls, typeDecls, subst, signatureMapVal.map {
+          case (signature: Signature, tp) => (signature, new Suspension[ScType](() => tp.v.recursiveVarianceUpdateModifiable(newData, update, 1)))
         }, typesVal.map {
-          case (s: String, (tp1, tp2)) => (s, (tp1.recursiveVarianceUpdate(update, 1), tp2.recursiveVarianceUpdate(update, 1)))
+          case (s: String, (tp1, tp2)) => (s, (tp1.recursiveVarianceUpdateModifiable(newData, update, 1), tp2.recursiveVarianceUpdateModifiable(newData, update, 1)))
         }, problemsVal.toList)
     }
   }
