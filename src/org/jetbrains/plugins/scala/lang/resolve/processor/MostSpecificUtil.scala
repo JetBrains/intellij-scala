@@ -42,14 +42,14 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
       case None =>
         new InnerScalaResolveResult(r.element, r.implicitConversionClass, r, r.substitutor,
           specialTypeParametersCase = isSpecialTypeParametersCase(r))
-    })).map(_.repr)
+    }), noImplicit = false).map(_.repr)
   }
 
   def mostSpecificForImplicitParameters(applicable: Set[(ScalaResolveResult, ScSubstitutor)]): Option[ScalaResolveResult] = {
     mostSpecificGeneric(applicable.map{case (r, subst) => r.innerResolveResult match {
       case Some(rr) => new InnerScalaResolveResult(rr.element, rr.implicitConversionClass, r, subst, implicitCase = true)
       case None => new InnerScalaResolveResult(r.element, r.implicitConversionClass, r, subst, implicitCase = true)
-    }}).map(_.repr)
+    }}, noImplicit = true).map(_.repr)
   }
 
   def mostSpecificForImplicit(applicable: Set[ImplicitResolveResult]): Option[ImplicitResolveResult] = {
@@ -66,7 +66,7 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
         case _ =>
       }
       new InnerScalaResolveResult(r.element, None, r, r.implicitDependentSubst followed r.subst, callByName, implicitCase = true)
-    })).map(_.repr)
+    }), noImplicit = true).map(_.repr)
   }
 
   private class InnerScalaResolveResult[T](val element: PsiNamedElement, val implicitConversionClass: Option[PsiClass],
@@ -75,7 +75,8 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
                                            val specialTypeParametersCase: Boolean = false,
                                            val implicitCase: Boolean = false)
 
-  private def isAsSpecificAs[T](r1: InnerScalaResolveResult[T], r2: InnerScalaResolveResult[T]): Boolean = {
+  private def isAsSpecificAs[T](r1: InnerScalaResolveResult[T], r2: InnerScalaResolveResult[T],
+                                checkImplicits: Boolean): Boolean = {
     def lastRepeated(params: Seq[Parameter]): Boolean = {
       val lastOption: Option[Parameter] = params.lastOption
       if (lastOption == None) return false
@@ -157,7 +158,7 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
                 new Expression(if (params1.length > 0) params1.last.paramType else types.Nothing, elem)
               val exprs: Seq[Expression] = params1.map(p => new Expression(p.paramType, elem)) ++
                       Seq.fill(i)(default)
-              Compatibility.checkConformance(checkNames = false, params2, exprs, checkWithImplicits = true)
+              Compatibility.checkConformance(checkNames = false, params2, exprs, checkImplicits)
             case (Right(type1), Right(type2)) =>
               Conformance.conformsInner(type2, type1, immutable.Set.empty, new ScUndefinedSubstitutor()) //todo: with implcits?
             //todo this is possible, when one variant is empty with implicit parameters, and second without parameters.
@@ -243,36 +244,43 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
     }
   }
 
-  private def relativeWeight[T](r1: InnerScalaResolveResult[T], r2: InnerScalaResolveResult[T]): Int = {
-    val s1 = if (isAsSpecificAs(r1, r2)) 1 else 0
+  private def relativeWeight[T](r1: InnerScalaResolveResult[T], r2: InnerScalaResolveResult[T],
+                                checkImplicits: Boolean): Int = {
+    val s1 = if (isAsSpecificAs(r1, r2, checkImplicits)) 1 else 0
     val s2 = if (isDerived(getClazz(r1), getClazz(r2))) 1 else 0
     s1 + s2
   }
 
-  private def isMoreSpecific[T](r1: InnerScalaResolveResult[T], r2: InnerScalaResolveResult[T]): Boolean = {
+  private def isMoreSpecific[T](r1: InnerScalaResolveResult[T], r2: InnerScalaResolveResult[T], checkImplicits: Boolean): Boolean = {
     (r1.implicitConversionClass, r2.implicitConversionClass) match {
       case (Some(t1), Some(t2)) => if (ScalaPsiUtil.cachedDeepIsInheritor(t1, t2)) return true
       case _ =>
     }
     if (r1.callByNameImplicit ^ r2.callByNameImplicit) return !r1.callByNameImplicit
-    val weightR1R2 = relativeWeight(r1, r2)
-    val weightR2R1 = relativeWeight(r2, r1)
+    val weightR1R2 = relativeWeight(r1, r2, checkImplicits)
+    val weightR2R1 = relativeWeight(r2, r1, checkImplicits)
     weightR1R2 > weightR2R1
   }
 
-  private def mostSpecificGeneric[T](applicable: Set[InnerScalaResolveResult[T]]): Option[InnerScalaResolveResult[T]] = {
-    val a1iterator = applicable.iterator
-    while (a1iterator.hasNext) {
-      val a1 = a1iterator.next()
-      var break = false
-      val a2iterator = applicable.iterator
-      while (a2iterator.hasNext && !break) {
-        val a2 = a2iterator.next()
-        if (a1 != a2 && !isMoreSpecific(a1, a2)) break = true
+  private def mostSpecificGeneric[T](applicable: Set[InnerScalaResolveResult[T]],
+                                     noImplicit: Boolean): Option[InnerScalaResolveResult[T]] = {
+    def calc(checkImplicits: Boolean): Option[InnerScalaResolveResult[T]] = {
+      val a1iterator = applicable.iterator
+      while (a1iterator.hasNext) {
+        val a1 = a1iterator.next()
+        var break = false
+        val a2iterator = applicable.iterator
+        while (a2iterator.hasNext && !break) {
+          val a2 = a2iterator.next()
+          if (a1 != a2 && !isMoreSpecific(a1, a2, checkImplicits)) break = true
+        }
+        if (!break) return Some(a1)
       }
-      if (!break) return Some(a1)
+      None
     }
-    None
+    val result = calc(checkImplicits = false)
+    if (!noImplicit && result.isEmpty) calc(checkImplicits = true)
+    else result
   }
 
   //todo: implement existential dual
