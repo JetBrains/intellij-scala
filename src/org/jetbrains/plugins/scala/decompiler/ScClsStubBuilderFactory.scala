@@ -31,7 +31,7 @@ object ScClsStubBuilderFactory {
     }
   }
   
-  def canBeProcessed(file: VirtualFile, bytes: Array[Byte]): Boolean = {
+  def canBeProcessed(file: VirtualFile, bytes: => Array[Byte]): Boolean = {
     val name: String = file.getNameWithoutExtension
     if (name.endsWith("$")) {
       val parent: VirtualFile = file.getParent
