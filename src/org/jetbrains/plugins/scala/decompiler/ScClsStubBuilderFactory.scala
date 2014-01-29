@@ -11,7 +11,7 @@ import com.intellij.psi.{PsiManager, PsiFile}
 import lang.psi.api.ScalaFile
 import lang.psi.impl.ScalaPsiElementFactory
 import decompiler.DecompilerUtil.DecompilationResult
-import com.intellij.openapi.project.{Project, ProjectManager}
+import com.intellij.openapi.project.{DefaultProjectFactory, Project, ProjectManager}
 import reflect.NameTransformer
 import scala.annotation.tailrec
 import java.io.IOException
@@ -63,7 +63,8 @@ class ScClsStubBuilderFactory extends ClsStubBuilderFactory[ScalaFile] {
 
   override def buildFileStub(vFile: VirtualFile, bytes: Array[Byte], project: Project): PsiFileStub[ScalaFile] = {
     val DecompilationResult(_, source, text, _) = DecompilerUtil.decompile(vFile, bytes)
-    val file = ScalaPsiElementFactory.createScalaFile(text.replace("\r", ""), PsiManager.getInstance(project))
+    val file = ScalaPsiElementFactory.createScalaFile(text.replace("\r", ""),
+      PsiManager.getInstance(DefaultProjectFactory.getInstance().getDefaultProject))
 
     val adj = file.asInstanceOf[CompiledFileAdjuster]
     adj.setCompiled(c = true)
