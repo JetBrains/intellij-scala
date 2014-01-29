@@ -1292,6 +1292,7 @@ object ScalaPsiUtil {
     }
   }
 
+  //Performance critical method
   def getBaseCompanionModule(clazz: PsiClass): Option[ScTypeDefinition] = {
     if (!clazz.isInstanceOf[ScTypeDefinition]) return None
     val td = clazz.asInstanceOf[ScTypeDefinition]
@@ -1309,12 +1310,28 @@ object ScalaPsiUtil {
     }
     td match {
       case _: ScClass | _: ScTrait =>
-        arrayOfElements.collect{case obj: ScObject if obj.name == name => obj}.headOption
+        var i = 0
+        val length  = arrayOfElements.length
+        while (i < length) {
+          arrayOfElements(i) match {
+            case obj: ScObject if obj.name == name => return Some(obj)
+            case _ =>
+          }
+          i = i + 1
+        }
+        None
       case _: ScObject =>
-        arrayOfElements.collect{
-          case c: ScClass if c.name == name => c
-          case t: ScTrait if t.name == name => t
-        }.headOption
+        var i = 0
+        val length  = arrayOfElements.length
+        while (i < length) {
+          arrayOfElements(i) match {
+            case c: ScClass if c.name == name => return Some(c)
+            case t: ScTrait if t.name == name => return Some(t)
+            case _ =>
+          }
+          i = i + 1
+        }
+        None
       case _ => None
     }
   }
