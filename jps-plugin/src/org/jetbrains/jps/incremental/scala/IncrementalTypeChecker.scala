@@ -42,7 +42,7 @@ class IncrementalTypeChecker(context: CompileContext) {
   def setPreviousIncrementalType(incrType: IncrementalType) {
     storageFile.foreach { file =>
       val parentDir = file.getParentFile
-      if (!parentDir.exists()) Files.createDirectories(parentDir.toPath)
+      if (!parentDir.exists()) parentDir.mkdirs()
       using(new DataOutputStream(new BufferedOutputStream(new FileOutputStream(file)))) {
         _.writeUTF(incrType.name)
       }
