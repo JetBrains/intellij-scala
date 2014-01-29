@@ -71,9 +71,8 @@ object CompilationData {
   def checkOrCreate(output: File) {
     if (!output.exists()) {
       try {
-        Files.createDirectories(output.toPath)
-      }
-      catch {
+        if (!output.mkdirs()) throw new IOException("Cannot create output directory: " + output.toString)
+      } catch {
         case t: Throwable => throw new IOException("Cannot create output directory: " + output.toString, t)
       }
     }
