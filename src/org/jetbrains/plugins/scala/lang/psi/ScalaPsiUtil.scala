@@ -3,7 +3,7 @@ package lang
 package psi
 
 import api.base._
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScTypeArgs, ScRefinement, ScExistentialClause, ScTypeElement}
+import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 import api.toplevel.imports.usages.ImportUsed
 import api.toplevel.imports.{ScImportStmt, ScImportExpr, ScImportSelector, ScImportSelectors}
 import api.toplevel.packaging.{ScPackaging, ScPackageContainer}
@@ -60,6 +60,24 @@ import com.intellij.psi.tree.TokenSet
 import com.intellij.lang.java.JavaLanguage
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
 import com.intellij.openapi.util.TextRange
+import org.jetbrains.plugins.scala.lang.psi.types.ScUndefinedType
+import org.jetbrains.plugins.scala.lang.psi.types.ScCompoundType
+import org.jetbrains.plugins.scala.lang.psi.types.ScAbstractType
+import org.jetbrains.plugins.scala.lang.psi.types.ScFunctionType
+import org.jetbrains.plugins.scala.lang.resolve.processor.MostSpecificUtil
+import org.jetbrains.plugins.scala.lang.psi.types.Conformance.AliasType
+import org.jetbrains.plugins.scala.lang.psi.types.ScDesignatorType
+import org.jetbrains.plugins.scala.lang.psi.implicits.ScImplicitlyConvertible.ImplicitResolveResult
+import org.jetbrains.plugins.scala.lang.psi.types.ScTypeParameterType
+import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
+import org.jetbrains.plugins.scala.lang.psi.types.ScTupleType
+import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScTypePolymorphicType
+import org.jetbrains.plugins.scala.lang.psi.types.result.Success
+import org.jetbrains.plugins.scala.lang.psi.types.JavaArrayType
+import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScMethodType
+import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.TypeParameter
+import org.jetbrains.plugins.scala.lang.psi.types.ScProjectionType
+import scala.Some
 import org.jetbrains.plugins.scala.lang.psi.types.ScUndefinedType
 import org.jetbrains.plugins.scala.lang.psi.types.ScCompoundType
 import org.jetbrains.plugins.scala.lang.psi.types.ScAbstractType
@@ -715,12 +733,27 @@ object ScalaPsiUtil {
     var res: Set[ImportUsed] = Set.empty
     val visitor = new ScalaRecursiveElementVisitor {
       override def visitExpression(expr: ScExpression) {
+        //Implicit parameters
+        expr.findImplicitParameters match {
+          case Some(results) => for (r <- results if r != null) res = res ++ r.importsUsed
+          case _ =>
+        }
+
+        //implicit conversions
+        def addConversions(fromUnderscore: Boolean) {
+          res = res ++ expr.getTypeAfterImplicitConversion(expectedOption = expr.smartExpectedType(fromUnderscore),
+            fromUnderscore = fromUnderscore).importsUsed
+        }
+        if (ScUnderScoreSectionUtil.isUnderscoreFunction(expr)) addConversions(fromUnderscore = true)
+        addConversions(fromUnderscore = false)
+
         expr match {
           case f: ScForStatement =>
             f.getDesugarizedExpr match {
               case Some(e) => res = res ++ getExprImports(e)
               case _ =>
             }
+          case call: ScMethodCall => res = res ++ call.getImportsUsed
           case ref: ScReferenceExpression =>
             for (rr <- ref.multiResolve(false) if rr.isInstanceOf[ScalaResolveResult]) {
               res = res ++ rr.asInstanceOf[ScalaResolveResult].importsUsed
