@@ -230,11 +230,10 @@ class ScalaImportOptimizer extends ImportOptimizer {
       case _ =>
     }
     expr.findImplicitParameters match {
-      case Some(seq) => {
+      case Some(seq) =>
         for (rr <- seq if rr != null) {
           res ++= rr.importsUsed
         }
-      }
       case _ =>
     }
     expr match {

@@ -17,6 +17,8 @@ class OptimizeImportsImplicitsTest extends OptimizeImportsTestBase {
 
   def testImplicitlyConvertedAndProvidedArguments = doTest
 
+  def testImplicitParamatersUsed() = doTest()
+
   def testImplicitsNewClass = doTest
 
   def testJConversions = doTest
