@@ -538,6 +538,7 @@ object ScalaPsiUtil {
           }
           collectParts(des)
           args.foreach(collectParts)
+          BaseTypes.get(p, notAll = true).foreach(collectParts)
         case j: JavaArrayType =>
           val parameterizedType = j.getParameterizedType(place.getProject, place.getResolveScope)
           collectParts(parameterizedType.getOrElse(return))
@@ -566,6 +567,7 @@ object ScalaPsiUtil {
             case Some(pair) => parts += tp
             case _          =>
           }
+          BaseTypes.get(proj, notAll = true).foreach(collectParts)
         case ScAbstractType(_, lower, upper) =>
           collectParts(lower)
           collectParts(upper)
@@ -579,6 +581,7 @@ object ScalaPsiUtil {
               }
               parts += tp
               packObjects.foreach(p => parts += ScDesignatorType(p))
+              BaseTypes.get(tp, notAll = true).foreach(collectParts)
             case _ =>
           }
       }
@@ -590,7 +593,6 @@ object ScalaPsiUtil {
       //here we want to convert projection types to right projections
       val visited = new mutable.HashSet[PsiClass]()
       def collectObjects(tp: ScType) {
-        collectParts(tp)
         tp match {
           case types.Any =>
           case tp: StdType if Seq("Int", "Float", "Double", "Boolean", "Byte", "Short", "Long", "Char").contains(tp.name) =>
@@ -633,19 +635,20 @@ object ScalaPsiUtil {
                     case _ =>
                   }
               }
+
+              def forSuperClass(tp: ScType, clazz: PsiClass) {
+                visited += clazz
+                collectObjects(tp)
+                visited -= clazz
+              }
+
               clazz match {
                 case td: ScTemplateDefinition =>
-                  td.superTypes.foreach { tp =>
-                    visited += clazz
-                    collectObjects(subst.subst(tp))
-                    visited -= clazz
-                  }
+                  td.superTypes.foreach { tp => forSuperClass(subst.subst(tp), clazz) }
                 case clazz: PsiClass =>
                   clazz.getSuperTypes.foreach { tp =>
                     val stp = ScType.create(tp, place.getProject, place.getResolveScope)
-                    visited += clazz
-                    collectObjects(subst.subst(stp))
-                    visited -= clazz
+                    forSuperClass(subst.subst(stp), clazz)
                   }
               }
             }
