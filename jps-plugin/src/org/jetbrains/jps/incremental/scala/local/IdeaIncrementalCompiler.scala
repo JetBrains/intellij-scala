@@ -19,7 +19,9 @@ class IdeaIncrementalCompiler(scalac: AnalyzingCompiler) extends AbstractCompile
     val logger = getLogger(client)
     val clientCallback = new ClientCallback(client)
 
-    val out = CompileOutput(compilationData.outputGroups: _*)
+    val out =
+      if (compilationData.outputGroups.size <= 1) CompileOutput(compilationData.output)
+      else CompileOutput(compilationData.outputGroups: _*)
     val cArgs = new CompilerArguments(scalac.scalaInstance, scalac.cp)
     val options = "IntellijIdea.simpleAnalysis" +: cArgs(Nil, compilationData.classpath, None, compilationData.scalaOptions)
 
