@@ -11,13 +11,23 @@ import com.intellij.lang.annotation.{Annotation, AnnotationSession, HighlightSev
  */
 
 class AnnotatorHolderMock extends AnnotationHolder {
+
   private val FakeAnnotation = new com.intellij.lang.annotation.Annotation(
-    0, 0, HighlightSeverity.INFO, "message", "tooltip")
-  
+  0, 0, HighlightSeverity.INFO, "message", "tooltip")
+
   def annotations = myAnnotations.reverse
-  
+
   private var myAnnotations = List[Message]()
-  
+
+  override def createAnnotation(severity: HighlightSeverity, range: TextRange, message: String): Annotation = {
+    severity match {
+      case HighlightSeverity.ERROR =>
+        myAnnotations ::= ErrorWithRange(range, message)
+        FakeAnnotation
+      case _ => FakeAnnotation
+    }
+  }
+
   def createInfoAnnotation(range: TextRange, message: String) = null
 
   def createInfoAnnotation(node: ASTNode, message: String) = {
@@ -29,12 +39,6 @@ class AnnotatorHolderMock extends AnnotationHolder {
     myAnnotations ::= Info(elt.getText, message)
     FakeAnnotation
   }
-
-  def createInformationAnnotation(range: TextRange, message: String) = null
-
-  def createInformationAnnotation(node: ASTNode, message: String) = null
-
-  def createInformationAnnotation(elt: PsiElement, message: String) = null
 
   def createWarningAnnotation(range: TextRange, message: String) = null
 

@@ -12,9 +12,6 @@ import junit.framework.Assert
 class HideImportsTest extends ScalaResolveTestCase {
   override def folderPath: String = super.folderPath() + "resolve/imports/simple/"
 
-  def printResults(imports: ScalaObject) {
-  }
-
   def testHidePredefImplicit() {
     findReferenceAtCaret() match {
       case r: PsiPolyVariantReference => {

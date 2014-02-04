@@ -205,7 +205,7 @@ class ScImplicitlyConvertible(place: PsiElement, placeType: Boolean => Option[Sc
     val default = ImplicitMapResult(condition = false, r, null, null, null, null, null)
     if (!PsiTreeUtil.isContextAncestor(ScalaPsiUtil.nameContext(r.element), place, false)) { //to prevent infinite recursion
       ProgressManager.checkCanceled()
-      lazy val funType: ScParameterizedType = {
+      val funType: () => ScParameterizedType = { () =>
         val fun = "scala.Function1"
         val funClass = ScalaPsiManager.instance(place.getProject).getCachedClass(fun, place.getResolveScope, ScalaPsiManager.ClassCategory.TYPE)
         funClass match {
@@ -224,29 +224,29 @@ class ScImplicitlyConvertible(place: PsiElement, placeType: Boolean => Option[Sc
            subst.subst(f.returnType.getOrNothing))
         }
         case f: ScFunction => {
-          Conformance.undefinedSubst(funType, subst.subst(f.returnType.getOrElse(return default))).getSubstitutor match {
-            case Some(innerSubst) => (innerSubst.subst(funType.typeArgs.apply(0)), innerSubst.subst(funType.typeArgs.apply(1)))
+          Conformance.undefinedSubst(funType(), subst.subst(f.returnType.getOrElse(return default))).getSubstitutor match {
+            case Some(innerSubst) => (innerSubst.subst(funType().typeArgs.apply(0)), innerSubst.subst(funType().typeArgs.apply(1)))
             case _ => (types.Nothing, types.Nothing)
           }
         }
         case b: ScBindingPattern => {
-          Conformance.undefinedSubst(funType, subst.subst(b.getType(TypingContext.empty).getOrElse(return default))).getSubstitutor match {
-            case Some(innerSubst) => (innerSubst.subst(funType.typeArgs.apply(0)), innerSubst.subst(funType.typeArgs.apply(1)))
+          Conformance.undefinedSubst(funType(), subst.subst(b.getType(TypingContext.empty).getOrElse(return default))).getSubstitutor match {
+            case Some(innerSubst) => (innerSubst.subst(funType().typeArgs.apply(0)), innerSubst.subst(funType().typeArgs.apply(1)))
             case _ => (types.Nothing, types.Nothing)
           }
         }
         case param: ScParameter => {
           // View Bounds and Context Bounds are processed as parameters.
-          Conformance.undefinedSubst(funType, subst.subst(param.getType(TypingContext.empty).getOrElse(return default))).
+          Conformance.undefinedSubst(funType(), subst.subst(param.getType(TypingContext.empty).getOrElse(return default))).
                   getSubstitutor match {
-            case Some(innerSubst) => (innerSubst.subst(funType.typeArgs.apply(0)), innerSubst.subst(funType.typeArgs.apply(1)))
+            case Some(innerSubst) => (innerSubst.subst(funType().typeArgs.apply(0)), innerSubst.subst(funType().typeArgs.apply(1)))
             case _ => (types.Nothing, types.Nothing)
           }
         }
         case obj: ScObject => {
-          Conformance.undefinedSubst(funType, subst.subst(obj.getType(TypingContext.empty).getOrElse(return default))).
+          Conformance.undefinedSubst(funType(), subst.subst(obj.getType(TypingContext.empty).getOrElse(return default))).
                   getSubstitutor match {
-            case Some(innerSubst) => (innerSubst.subst(funType.typeArgs.apply(0)), innerSubst.subst(funType.typeArgs.apply(1)))
+            case Some(innerSubst) => (innerSubst.subst(funType().typeArgs.apply(0)), innerSubst.subst(funType().typeArgs.apply(1)))
             case _ => (types.Nothing, types.Nothing)
           }
         }

@@ -48,6 +48,13 @@ class AnnotatorBasedErrorInspection extends LocalInspectionTool {
           val FakeAnnotation = new com.intellij.lang.annotation.Annotation(
             0, 0, HighlightSeverity.INFO, "message", "tooltip")
           val annotationHolder = new AnnotationHolder {
+            override def createAnnotation(severity: HighlightSeverity, range: TextRange, message: String): Annotation = {
+              if (severity == HighlightSeverity.ERROR) {
+                holder.registerProblem(element, s"Error detected: $message", ProblemHighlightType.ERROR)
+                FakeAnnotation
+              } else FakeAnnotation
+            }
+
             def isBatchMode: Boolean = false
 
             def createInfoAnnotation(range: TextRange, message: String): Annotation = FakeAnnotation
@@ -55,12 +62,6 @@ class AnnotatorBasedErrorInspection extends LocalInspectionTool {
             def createInfoAnnotation(node: ASTNode, message: String): Annotation = FakeAnnotation
 
             def createInfoAnnotation(elt: PsiElement, message: String): Annotation = FakeAnnotation
-
-            def createInformationAnnotation(range: TextRange, message: String): Annotation = FakeAnnotation
-
-            def createInformationAnnotation(node: ASTNode, message: String): Annotation = FakeAnnotation
-
-            def createInformationAnnotation(elt: PsiElement, message: String): Annotation = FakeAnnotation
 
             def createWarningAnnotation(range: TextRange, message: String): Annotation = FakeAnnotation
 

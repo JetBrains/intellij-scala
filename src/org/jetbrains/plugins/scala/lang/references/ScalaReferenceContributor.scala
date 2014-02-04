@@ -46,7 +46,7 @@ class FilePathReferenceProvider extends PsiReferenceProvider {
         }
       }
     }
-    for (module <- JavaConversions.asScalaIterable(modules)) {
+    for (module <- JavaConversions.collectionAsScalaIterable(modules)) {
       moduleRootManager = ModuleRootManager.getInstance(module)
       val sourceRoots: Array[VirtualFile] = moduleRootManager.getSourceRoots
       for (root <- sourceRoots) {

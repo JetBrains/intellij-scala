@@ -6,6 +6,7 @@
         <option name="compilerLibraryLevel" value="Project" />
         <option name="compilerLibraryName" value="main-scala-compiler" />
         <option name="compilerOptions" value="-target:jvm-1.6" />
+        <option name="languageLevel" value="Scala 2.11" />
         <option name="maximumHeapSize" value="1024" />
         <option name="vmOptions" value="" />
       </configuration>
@@ -19,7 +20,7 @@
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="specs2" level="project" />
-    <orderEntry type="library" name="main-scala-compiler" level="project" />
+    <orderEntry type="library" name="main-scala-library" level="project" />
   </component>
 </module>
 

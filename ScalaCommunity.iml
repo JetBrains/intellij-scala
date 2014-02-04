@@ -8,6 +8,7 @@
         <option name="compilerLibraryName" value="main-scala-compiler" />
         <option name="compilerOptions" value="-target:jvm-1.6" />
         <option name="fsc" value="true" />
+        <option name="languageLevel" value="Scala 2.11" />
         <option name="maximumHeapSize" value="1024" />
         <option name="vmOptions" value="" />
       </configuration>
