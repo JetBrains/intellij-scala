@@ -38,7 +38,7 @@ trait JavacOutputParsing extends Logger {
         lines = Vector.empty
       case NotePattern(message) =>
         client.message(Kind.WARNING, message)
-      case TotalsPattern() =>
+      case TotalsPattern =>
         // do nothing
       case _ =>
         if (header.isDefined) {

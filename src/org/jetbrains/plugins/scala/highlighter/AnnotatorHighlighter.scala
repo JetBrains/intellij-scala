@@ -55,7 +55,7 @@ object AnnotatorHighlighter {
 
   private def getParentByStub(x: PsiElement): PsiElement = {
     x match {
-      case el: ScalaStubBasedElementImpl[_] => getParentStub(el.asInstanceOf[StubBasedPsiElement[_ <: StubElement[_ <: PsiElement]]])
+      case el: ScalaStubBasedElementImpl[_] => getParentStub(el)
       case _ => x.getContext
     }
   }

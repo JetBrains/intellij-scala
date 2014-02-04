@@ -156,7 +156,7 @@ class ScalaImportTypeFix(private var classes: Array[TypeToImport], ref: ScRefere
       val list = new JList(classes)
       list.setCellRenderer(new FQNameCellRenderer().asInstanceOf[ListCellRenderer[Any]])
 
-      val popup = new BaseListPopupStepAdapter[TypeToImport](QuickFixBundle.message("class.to.import.chooser.title"), classes) {
+      val popup = new BaseListPopupStep[TypeToImport](QuickFixBundle.message("class.to.import.chooser.title"), classes) {
         override def getIconFor(aValue: TypeToImport): Icon = {
           aValue.getIcon
         }
@@ -166,7 +166,7 @@ class ScalaImportTypeFix(private var classes: Array[TypeToImport], ref: ScRefere
         }
 
         import PopupStep.FINAL_CHOICE
-        def onChosenAdapter(selectedValue: TypeToImport, finalChoice: Boolean): AnyRef = {
+        override def onChosen(selectedValue: TypeToImport, finalChoice: Boolean): PopupStep[_] = {
           if (selectedValue == null) {
             return FINAL_CHOICE
           }
@@ -178,8 +178,8 @@ class ScalaImportTypeFix(private var classes: Array[TypeToImport], ref: ScRefere
           val qname: String = selectedValue.qualifiedName
           if (qname == null) return FINAL_CHOICE
           val toExclude: java.util.List[String] = AddImportAction.getAllExcludableStrings(qname)
-          new BaseListPopupStepAdapter[String](null, toExclude) {
-            override def onChosenAdapter(selectedValue: String, finalChoice: Boolean): AnyRef = {
+          new BaseListPopupStep[String](null, toExclude) {
+            override def onChosen(selectedValue: String, finalChoice: Boolean): PopupStep[_] = {
               if (finalChoice) {
                 AddImportAction.excludeFromImport(project, selectedValue)
               }
