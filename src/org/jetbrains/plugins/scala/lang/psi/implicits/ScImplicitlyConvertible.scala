@@ -205,51 +205,62 @@ class ScImplicitlyConvertible(place: PsiElement, placeType: Boolean => Option[Sc
     val default = ImplicitMapResult(condition = false, r, null, null, null, null, null)
     if (!PsiTreeUtil.isContextAncestor(ScalaPsiUtil.nameContext(r.element), place, false)) { //to prevent infinite recursion
       ProgressManager.checkCanceled()
-      lazy val funType: ScParameterizedType = {
-        val fun = "scala.Function1"
-        val funClass = ScalaPsiManager.instance(place.getProject).getCachedClass(fun, place.getResolveScope, ScalaPsiManager.ClassCategory.TYPE)
-        funClass match {
-          case cl: ScTrait => new ScParameterizedType(ScType.designator(funClass), cl.typeParameters.map(tp =>
-            new ScUndefinedType(new ScTypeParameterType(tp, ScSubstitutor.empty), 1)))
-          case _ =>
-            ScImplicitlyConvertible.LOG.error(new Error("Problems with decompiler detected! Function1 treated as ClsClass"))
-            return default
-        }
-      }
+      
+      lazy val funType = Option(
+        ScalaPsiManager.instance(place.getProject).getCachedClass(
+          "scala.Function1", place.getResolveScope, ScalaPsiManager.ClassCategory.TYPE
+        )
+      ) collect {
+        case cl: ScTrait => new ScParameterizedType(ScType.designator(cl), cl.typeParameters.map(tp =>
+          new ScUndefinedType(new ScTypeParameterType(tp, ScSubstitutor.empty), 1)))
+      } 
+
+      def firstArgType = funType.map(_.typeArgs.apply(0))
+      
+      def secondArgType = funType.map(_.typeArgs.apply(1))
+//      
+//      lazy val funType: ScParameterizedType = {
+//        val fun = "scala.Function1"
+//        val funClass = ScalaPsiManager.instance(place.getProject).getCachedClass(fun, place.getResolveScope, ScalaPsiManager.ClassCategory.TYPE)
+//        funClass match {
+//          case cl: ScTrait => new ScParameterizedType(ScType.designator(funClass), cl.typeParameters.map(tp =>
+//            new ScUndefinedType(new ScTypeParameterType(tp, ScSubstitutor.empty), 1)))
+//          case _ =>
+//            ScImplicitlyConvertible.LOG.error(new Error("Problems with decompiler detected! Function1 treated as ClsClass"))
+//            return default
+//        }
+//      }
+      
+      
       val subst = r.substitutor
       val (tp: ScType, retTp: ScType) = r.element match {
-        case f: ScFunction if f.paramClauses.clauses.length > 0 => {
-           val params = f.paramClauses.clauses.apply(0).parameters
+        case f: ScFunction if f.paramClauses.clauses.length > 0 =>
+          val params = f.paramClauses.clauses.apply(0).parameters
           (subst.subst(params.apply(0).getType(TypingContext.empty).getOrNothing),
            subst.subst(f.returnType.getOrNothing))
-        }
-        case f: ScFunction => {
-          Conformance.undefinedSubst(funType, subst.subst(f.returnType.getOrElse(return default))).getSubstitutor match {
-            case Some(innerSubst) => (innerSubst.subst(funType.typeArgs.apply(0)), innerSubst.subst(funType.typeArgs.apply(1)))
+        case f: ScFunction =>
+          Conformance.undefinedSubst(funType.getOrElse(return default), subst.subst(f.returnType.getOrElse(return default))).getSubstitutor match {
+            case Some(innerSubst) => (innerSubst.subst(firstArgType.getOrElse(return default)), innerSubst.subst(secondArgType.getOrElse(return default)))
             case _ => (types.Nothing, types.Nothing)
           }
-        }
-        case b: ScBindingPattern => {
-          Conformance.undefinedSubst(funType, subst.subst(b.getType(TypingContext.empty).getOrElse(return default))).getSubstitutor match {
-            case Some(innerSubst) => (innerSubst.subst(funType.typeArgs.apply(0)), innerSubst.subst(funType.typeArgs.apply(1)))
+        case b: ScBindingPattern =>
+          Conformance.undefinedSubst(funType.getOrElse(return default), subst.subst(b.getType(TypingContext.empty).getOrElse(return default))).getSubstitutor match {
+            case Some(innerSubst) => (innerSubst.subst(firstArgType.getOrElse(return default)), innerSubst.subst(secondArgType.getOrElse(return default)))
             case _ => (types.Nothing, types.Nothing)
           }
-        }
-        case param: ScParameter => {
+        case param: ScParameter =>
           // View Bounds and Context Bounds are processed as parameters.
-          Conformance.undefinedSubst(funType, subst.subst(param.getType(TypingContext.empty).getOrElse(return default))).
+          Conformance.undefinedSubst(funType.getOrElse(return default), subst.subst(param.getType(TypingContext.empty).getOrElse(return default))).
                   getSubstitutor match {
-            case Some(innerSubst) => (innerSubst.subst(funType.typeArgs.apply(0)), innerSubst.subst(funType.typeArgs.apply(1)))
+            case Some(innerSubst) => (innerSubst.subst(firstArgType.getOrElse(return default)), innerSubst.subst(secondArgType.getOrElse(return default)))
             case _ => (types.Nothing, types.Nothing)
           }
-        }
-        case obj: ScObject => {
-          Conformance.undefinedSubst(funType, subst.subst(obj.getType(TypingContext.empty).getOrElse(return default))).
+        case obj: ScObject =>
+          Conformance.undefinedSubst(funType.getOrElse(return default), subst.subst(obj.getType(TypingContext.empty).getOrElse(return default))).
                   getSubstitutor match {
-            case Some(innerSubst) => (innerSubst.subst(funType.typeArgs.apply(0)), innerSubst.subst(funType.typeArgs.apply(1)))
+            case Some(innerSubst) => (innerSubst.subst(firstArgType.getOrElse(return default)), innerSubst.subst(secondArgType.getOrElse(return default)))
             case _ => (types.Nothing, types.Nothing)
           }
-        }
       }
       val newSubst = r.element match {
         case f: ScFunction => ScalaPsiUtil.inferMethodTypesArgs(f, r.substitutor)

@@ -24,7 +24,8 @@ import com.intellij.psi.codeStyle.arrangement.std.StdArrangementTokens.Modifier.
  * @author Roman.Shein
  *         Date: 08.07.13
  */
-class ScalaRearranger extends DefaultArrangementSettingsSerializer(new ScalaSettingsSerializerMixin()) with Rearranger[ScalaArrangementEntry] with ArrangementStandardSettingsAware {
+class ScalaRearranger extends DefaultArrangementSettingsSerializer(new StdRulePriorityAwareSettings) with Rearranger[ScalaArrangementEntry] with ArrangementStandardSettingsAware {
+  override def getSerializer: ArrangementSettingsSerializer = this
 
   override def parseWithNew(root: PsiElement, document: Document, ranges: java.util.Collection[TextRange],
                                       element: PsiElement, settings: ArrangementSettings): Pair[ScalaArrangementEntry, java.util.List[ScalaArrangementEntry]] = {

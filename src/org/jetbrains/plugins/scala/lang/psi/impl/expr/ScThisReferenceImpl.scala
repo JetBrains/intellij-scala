@@ -54,12 +54,12 @@ class ScThisReferenceImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with 
 
 object ScThisReferenceImpl {
   def getThisTypeForTypeDefinition(td: ScTemplateDefinition, expr: ScExpression): TypeResult[ScType] = {
-    lazy val selfTypeOfClass: ScType = td.getTypeWithProjections(TypingContext.empty, thisProjections = true).map(tp => {
+    lazy val selfTypeOfClass = td.getTypeWithProjections(TypingContext.empty, thisProjections = true).map(tp =>
       td.selfType match {
         case Some(selfType) => Bounds.glb(tp, selfType)
         case _ => tp
       }
-    }).getOrElse(return Failure("No clazz type found", Some(expr)))
+    )
 
     // SLS 6.5:  If the expression’s expected type is a stable type,
     // or C .this occurs as the prefix of a selection, its type is C.this.type,
@@ -71,7 +71,7 @@ object ScThisReferenceImpl {
         case Some(t) if t.isStable =>
           Success(ScThisType(td), Some(expr))
         case _ =>
-          Success(selfTypeOfClass, Some(expr))
+          Success(selfTypeOfClass.getOrElse (return Failure("No clazz type found", Some(expr))), Some(expr))
       }
     }
   }
