@@ -24,7 +24,6 @@ import com.intellij.openapi.ui.popup.util.BaseListPopupStep
 import com.intellij.openapi.ui.popup.{JBPopupFactory, PopupStep}
 import com.intellij.ui.awt.RelativePoint
 import lang.psi.types.Boolean
-import org.jetbrains.plugins.scala.annotator.intention.BaseListPopupStepAdapter
 
 /**
  * @author Ksenia.Sautina
@@ -215,10 +214,10 @@ object IntentionUtils {
     val values = new ArrayBuffer[String]
     values += MakeExplicitAction.MAKE_EXPLICIT
     if (secondPart.contains(function)) values += MakeExplicitAction.MAKE_EXPLICIT_STATICALLY
-    val base = new BaseListPopupStepAdapter[String](null, values.toArray) {
+    val base = new BaseListPopupStep[String](null, values.toArray) {
       override def getTextFor(value: String): String = value
 
-      override def onChosenAdapter(selectedValue: String, finalChoice: Boolean): AnyRef = {
+      override def onChosen(selectedValue: String, finalChoice: Boolean): PopupStep[_] = {
         if (selectedValue == null) return PopupStep.FINAL_CHOICE
         if (finalChoice) {
           PsiDocumentManager.getInstance(project).commitAllDocuments()
