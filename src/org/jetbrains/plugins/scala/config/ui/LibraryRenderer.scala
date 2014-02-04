@@ -5,8 +5,8 @@ import com.intellij.util.PlatformIcons
 import com.intellij.openapi.util.IconLoader
 import java.awt.BorderLayout
 import javax.swing._
-import reflect.BeanProperty
 import org.jetbrains.plugins.scala.lang.refactoring.util.DefaultListCellRendererAdapter
+import scala.beans.BeanProperty
 
 /**
  * Pavel.Fatin, 05.07.2010

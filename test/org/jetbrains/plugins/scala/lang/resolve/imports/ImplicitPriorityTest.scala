@@ -13,9 +13,6 @@ import org.jetbrains.plugins.scala.util.TestUtils
 class ImplicitPriorityTest extends ScalaResolveTestCase {
   override def folderPath(): String = super.folderPath() + "resolve/implicitPriority/"
 
-  def printResults(imports: ScalaObject) = {
-  }
-
   def testlowPriorityImplicits() {
     findReferenceAtCaret() match {
       case r: PsiPolyVariantReference => {

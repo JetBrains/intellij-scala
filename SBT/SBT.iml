@@ -7,6 +7,7 @@
         <option name="compilerLibraryLevel" value="Project" />
         <option name="compilerLibraryName" value="main-scala-compiler" />
         <option name="compilerOptions" value="-language:implicitConversions -language:reflectiveCalls -language:postfixOps" />
+        <option name="languageLevel" value="Scala 2.11" />
         <option name="maximumHeapSize" value="1024" />
         <option name="vmOptions" value="-Xms768m -Xss1m -server" />
       </configuration>
