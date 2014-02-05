@@ -68,7 +68,6 @@ object IdeaIncrementalBuilder extends ScalaBuilderDelegate {
     val result = ListBuffer[File]()
 
     val project = context.getProjectDescriptor
-    val excludeIndex = project.getModuleExcludeIndex
 
     val compileOrder = SettingsManager.getProjectSettings(project).compileOrder
     val extensionsToCollect = compileOrder match {
@@ -76,17 +75,16 @@ object IdeaIncrementalBuilder extends ScalaBuilderDelegate {
       case _ => List(".scala")
     }
 
-    def checkAndCollectFile(file: File, target: ModuleBuildTarget): Unit = {
+    def checkAndCollectFile(file: File): Boolean = {
       val fileName = file.getName
-      if (extensionsToCollect.exists(fileName.endsWith) && !excludeIndex.isExcluded(file))
+      if (extensionsToCollect.exists(fileName.endsWith))
         result += file
+      
+      true
     }
 
     dirtyFilesHolder.processDirtyFiles(new FileProcessor[JavaSourceRootDescriptor, ModuleBuildTarget] {
-      def apply(target: ModuleBuildTarget, file: File, root: JavaSourceRootDescriptor) = {
-        checkAndCollectFile(file, target)
-        true
-      }
+      def apply(target: ModuleBuildTarget, file: File, root: JavaSourceRootDescriptor) = checkAndCollectFile(file)
     })
 
     //if no scala files to compile, return empty seq
