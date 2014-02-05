@@ -12,6 +12,8 @@ import org.jetbrains.jps.incremental.scala.local.IdeClientIdea
 import org.jetbrains.jps.incremental._
 import org.jetbrains.jps.ModuleChunk
 import org.jetbrains.plugin.scala.compiler.CompileOrder
+import com.intellij.openapi.util.io.FileUtil
+import com.intellij.util.Processor
 
 /**
  * Nikolay.Tropin
@@ -79,13 +81,23 @@ object IdeaIncrementalBuilder extends ScalaBuilderDelegate {
       val fileName = file.getName
       if (extensionsToCollect.exists(fileName.endsWith))
         result += file
-      
+
       true
     }
 
     dirtyFilesHolder.processDirtyFiles(new FileProcessor[JavaSourceRootDescriptor, ModuleBuildTarget] {
       def apply(target: ModuleBuildTarget, file: File, root: JavaSourceRootDescriptor) = checkAndCollectFile(file)
     })
+
+    for {
+      target <- chunk.getTargets.asScala
+      tempRoot <- project.getBuildRootIndex.getTempTargetRoots(target, context).asScala
+    } {
+      FileUtil.processFilesRecursively(tempRoot.getRootFile, new Processor[File] {
+        def process(file: File) = checkAndCollectFile(file)
+      })
+    }
+
 
     //if no scala files to compile, return empty seq
     if (!result.exists(_.getName.endsWith(".scala"))) Seq.empty
