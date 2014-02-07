@@ -13,7 +13,6 @@ import com.intellij.psi.codeStyle.arrangement.group.ArrangementGroupingRule
 import com.intellij.psi.codeStyle.arrangement.std._
 import com.intellij.psi.codeStyle.arrangement.model.{ArrangementCompositeMatchCondition, ArrangementAtomMatchCondition, ArrangementMatchCondition}
 import com.intellij.psi.codeStyle.arrangement.`match`.{StdArrangementEntryMatcher, StdArrangementMatchRule}
-import com.intellij.psi.codeStyle.arrangement.std.StdArrangementTokens._
 import com.intellij.psi.codeStyle.arrangement.ArrangementSettings
 
 import com.intellij.psi.codeStyle.arrangement.std.StdArrangementTokens._
@@ -21,6 +20,7 @@ import com.intellij.psi.codeStyle.arrangement.std.StdArrangementTokens.Grouping.
 import com.intellij.psi.codeStyle.arrangement.std.StdArrangementTokens.Order._
 import com.intellij.psi.codeStyle.arrangement.std.StdArrangementTokens.EntryType._
 import com.intellij.psi.codeStyle.arrangement.std.StdArrangementTokens.Modifier._
+import com.intellij.internal.statistic.UsageTrigger
 
 /**
  * @author Roman.Shein
@@ -46,6 +46,7 @@ class ScalaRearranger extends Rearranger[ScalaArrangementEntry] with Arrangement
 
   override def parse(root: PsiElement, document: Document,
                               ranges: java.util.Collection[TextRange], settings: ArrangementSettings) = {
+    UsageTrigger.trigger(ScalaRearranger.featureId)
     val info = new ScalaArrangementParseInfo
     root.accept(new ScalaArrangementVisitor(info, document, ranges, getGroupingRules(settings)))
     if (settings != null) {
@@ -179,6 +180,8 @@ class ScalaRearranger extends Rearranger[ScalaArrangementEntry] with Arrangement
 }
 
 object ScalaRearranger {
+
+  private val featureId = "scala.rearrange"
 
   private def addCondition(matchRules: immutable.List[StdArrangementMatchRule], conditions: ArrangementSettingsToken*) = {
     if (conditions.length == 1) {
