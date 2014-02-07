@@ -220,11 +220,11 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
         }
       case Some(r@ScalaResolveResult(refPatt: ScReferencePattern, s)) =>
         ScalaPsiUtil.nameContext(refPatt) match {
-          case pd: ScPatternDefinition if (PsiTreeUtil.isContextAncestor(pd, this, true)) => pd.declaredType match {
+          case pd: ScPatternDefinition if PsiTreeUtil.isContextAncestor(pd, this, true) => pd.declaredType match {
             case Some(t) => t
             case None => return Failure("No declared type found", Some(this))
           }
-          case vd: ScVariableDefinition if (PsiTreeUtil.isContextAncestor(vd, this, true)) => vd.declaredType match {
+          case vd: ScVariableDefinition if PsiTreeUtil.isContextAncestor(vd, this, true) => vd.declaredType match {
             case Some(t) => t
             case None => return Failure("No declared type found", Some(this))
           }
@@ -298,24 +298,28 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
             case _ => ScType.designator(obj)
           }
         }
-        if (obj.isSyntheticObject) {
           //hack to add Eta expansion for case classes
-          expectedType() match {
-            case Some(tp) =>
-              val expectedFunction = tp match {
-                case _: ScFunctionType => true
-                case p: ScParameterizedType => p.getFunctionType != None
-                case _ => false
+        if (obj.isSyntheticObject) {
+          ScalaPsiUtil.getCompanionModule(obj) match {
+            case Some(clazz) if clazz.isCase && !clazz.hasTypeParameters =>
+              expectedType() match {
+                case Some(tp) =>
+                  val expectedFunction = tp match {
+                    case _: ScFunctionType => true
+                    case p: ScParameterizedType => p.getFunctionType != None
+                    case _ => false
+                  }
+                  if (expectedFunction) {
+                    val tp = tail
+                    val processor =
+                      new MethodResolveProcessor(this, "apply", Nil, Nil, Nil)
+                    processor.processType(tp, this)
+                    val candidates = processor.candidates
+                    if (candidates.length != 1) tail
+                    else convertBindToType(Some(candidates(0))).getOrElse(tail)
+                  } else tail
+                case _ => tail
               }
-              if (expectedFunction) {
-                val tp = tail
-                val processor =
-                  new MethodResolveProcessor(this, "apply", Nil, Nil, Nil)
-                processor.processType(tp, this)
-                val candidates = processor.candidates
-                if (candidates.length != 1) tail
-                else convertBindToType(Some(candidates(0))).getOrElse(tail)
-              } else tail
             case _ => tail
           }
         } else tail
