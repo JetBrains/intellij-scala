@@ -29,21 +29,6 @@ class ServerMediator(project: Project) extends ProjectComponent {
 
       if (scalaProject) {
         if (externalCompiler) {
-          if (firstCompilation && ScalaApplicationSettings.getInstance.SHOW_EXTERNAL_COMPILER_INTRO) {
-            val title = "Using an external Scala compiler"
-
-            @Language("HTML")
-            val message =
-              "<html><body>" +
-              "<a href='http://blog.jetbrains.com/scala/2012/12/28/a-new-way-to-compile/'>More info...</a> | " +
-              "<a href=''>Don't show this again</a>" +
-              "</body></html>"
-
-            Notifications.Bus.notify(new Notification("scala", title, message, NotificationType.INFORMATION, LinkHandler))
-
-            firstCompilation = false
-          }
-
           invokeAndWait {
             if (!checkCompilationSettings()) {
               return false
@@ -134,13 +119,4 @@ class ServerMediator(project: Project) extends ProjectComponent {
   def projectOpened() {}
 
   def projectClosed() {}
-}
-
-object LinkHandler extends NotificationListener.Adapter {
-  def hyperlinkActivated(notification: Notification, e: HyperlinkEvent) {
-    Option(e.getURL).map(DesktopUtils.browse).getOrElse {
-      ScalaApplicationSettings.getInstance.SHOW_EXTERNAL_COMPILER_INTRO = false
-    }
-    notification.expire()
-  }
 }

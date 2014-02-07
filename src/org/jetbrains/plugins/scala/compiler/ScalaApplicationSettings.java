@@ -17,8 +17,6 @@ public class ScalaApplicationSettings implements PersistentStateComponent<ScalaA
   public boolean SHOW_TYPE_TOOLTIP_ON_MOUSE_HOVER = false;
   public int SHOW_TYPE_TOOLTIP_DELAY = 500;
 
-  public boolean SHOW_EXTERNAL_COMPILER_INTRO = true;
-
   public boolean COMPILE_SERVER_ENABLED = true;
 
   public IncrementalType INCREMENTAL_TYPE = IncrementalType.IDEA;
