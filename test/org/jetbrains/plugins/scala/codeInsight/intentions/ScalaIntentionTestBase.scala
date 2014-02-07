@@ -20,7 +20,10 @@ abstract class ScalaIntentionTestBase extends ScalaLightCodeInsightFixtureTestAd
 
   def doTest(text: String, resultText: String, familyName: String = this.familyName) {
     intentionByFamilyName(text, familyName) match {
-      case Some(action) => action.invoke(myFixture.getProject, myFixture.getEditor, myFixture.getFile)
+      case Some(action) =>
+        startCommand(getProject, "Test Intention") {
+          action.invoke(myFixture.getProject, myFixture.getEditor, myFixture.getFile)
+        }
       case None => Assert.fail("Intention is not found")
     }
     inWriteAction {

@@ -15,6 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiParameter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import java.io.Closeable
+import com.intellij.openapi.command.CommandProcessor
 
 /**
   * Pavel Fatin
@@ -59,6 +60,16 @@ package object extensions {
   }
 
   implicit def regexToRichRegex(r: Regex) = new RegexExt(r)
+  
+  def startCommand(project: Project, commandName: String)(body: => Unit): Unit = {
+    CommandProcessor.getInstance.executeCommand(project, new Runnable {
+      def run() {
+        inWriteAction {
+          body
+        }
+      }
+    }, commandName, null)
+  }
 
   def inWriteAction[T](body: => T): T = {
     ApplicationManager.getApplication.runWriteAction(new Computable[T] {
