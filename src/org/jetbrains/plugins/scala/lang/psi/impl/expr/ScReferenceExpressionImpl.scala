@@ -6,7 +6,7 @@ package expr
 
 import _root_.org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticValue
 import api.statements._
-import params.ScParameter
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameterType, ScParameter}
 import resolve._
 import processor.{MethodResolveProcessor, CompletionProcessor}
 import types._
@@ -20,7 +20,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
-import api.ScalaElementVisitor
+import org.jetbrains.plugins.scala.lang.psi.api.{ScalaRecursiveElementVisitor, ScalaElementVisitor}
 import api.toplevel.imports.ScImportStmt
 import api.base.patterns.ScReferencePattern
 import com.intellij.util.IncorrectOperationException
@@ -28,7 +28,7 @@ import annotator.intention.ScalaImportTypeFix
 import api.toplevel.typedef._
 import completion.lookups.LookupElementManager
 import extensions.{toPsiMemberExt, toPsiNamedElementExt, toPsiClassExt}
-import api.base.types.ScSelfTypeElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSimpleTypeElement, ScSelfTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.types.Conformance.AliasType
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil
@@ -186,15 +186,45 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
       //The expected type pt is a stable type or
       //The expected type pt is an abstract type with a stable type as lower bound,
       // and the type T of the entity referred to by p does not conforms to pt,
-      expectedType() match {
-        case Some(tp) =>
+      expectedTypeEx() match {
+        case Some((tp, typeElementOpt)) =>
           (tp match {
             case ScAbstractType(_, lower, _) => lower
             case _ => tp
           }).isAliasType match {
-            case Some(AliasType(_, lower, _)) if lower.isDefined =>
-              if (lower.get.isStable) return true
-            case _ => if (tp.isStable) return true
+            case Some(AliasType(_, lower, _)) if lower.isDefined && lower.get.isStable => return true
+            case _ =>
+              if (tp.isStable) return true
+              typeElementOpt match {
+                case Some(te) =>
+                  te.getContext match {
+                    case pt: ScParameterType =>
+                      pt.getContext match {
+                        case p: ScParameter if p.getDefaultExpression != Some(this) =>
+                          p.owner match {
+                            case f: ScFunction =>
+                              var found = false
+                              val visitor = new ScalaRecursiveElementVisitor {
+                                override def visitSimpleTypeElement(simple: ScSimpleTypeElement): Unit = {
+                                  if (simple.singleton) {
+                                    simple.reference match {
+                                      case Some(ref) if ref.refName == p.name && ref.resolve() == p => found = true
+                                      case _ =>
+                                    }
+                                  }
+                                  super.visitSimpleTypeElement(simple)
+                                }
+                              }
+                              f.returnTypeElement.foreach(_.accept(visitor))
+                              if (found) return true
+                            case _ => //looks like it's not working for classes, so do nothing here.
+                          }
+                        case _ =>
+                      }
+                    case _ =>
+                  }
+                case _ =>
+              }
           }
         case _ =>
       }
