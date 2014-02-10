@@ -31,7 +31,7 @@ import psi.api.statements.{ScVariableDefinition, ScPatternDefinition, ScFunction
 import lang.resolve.ScalaResolveResult
 import psi.api.expr.xml.ScXmlExpr
 import psi.{ScalaPsiUtil, ScalaPsiElement}
-import psi.api.base.ScLiteral
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolatedStringLiteral, ScLiteral}
 import com.intellij.openapi.editor.{RangeMarker, VisualPosition, Editor}
 import com.intellij.openapi.actionSystem.DataContext
 import psi.api.{ScalaRecursiveElementVisitor, ScalaFile}
@@ -660,7 +660,8 @@ object ScalaRefactoringUtil {
       }
       result || needBraces(parExpr, prev)
     }
-    val expr = PsiTreeUtil.getParentOfType(elem, classOf[ScExpression], false)
+    val interpolated = Option(PsiTreeUtil.getParentOfType(elem, classOf[ScInterpolatedStringLiteral], false))
+    val expr = interpolated getOrElse PsiTreeUtil.getParentOfType(elem, classOf[ScExpression], false)
     val prev = previous(expr, elem.getContainingFile)
     prev match {
       case prevExpr: ScExpression if !checkEnd(prev, expr) => findParentExpr(prevExpr)
