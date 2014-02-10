@@ -122,7 +122,7 @@ class ScalaGenerationInfo(classMember: PsiElementClassMember[_ <: PsiDocCommentO
         else "super."
     }
     def paramText(param: PsiParameter) = {
-      val name = ScalaNamesUtil.changeKeyword(param.name)
+      val name = ScalaNamesUtil.changeKeyword(param.name).toOption.getOrElse("")
       val whitespace = if (name.endsWith("_")) " " else ""
       name + (if (param.isVarArgs) whitespace + ": _*" else "")
     }
