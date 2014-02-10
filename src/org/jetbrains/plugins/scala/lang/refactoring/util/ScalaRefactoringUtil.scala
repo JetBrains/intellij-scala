@@ -53,7 +53,7 @@ import scala.annotation.tailrec
  * Date: 23.06.2008
  */
 
-object ScalaRefactoringUtil {      
+object ScalaRefactoringUtil {
   def trimSpacesAndComments(editor: Editor, file: PsiFile, trimComments: Boolean = true) {
     var start = editor.getSelectionModel.getSelectionStart
     var end = editor.getSelectionModel.getSelectionEnd
@@ -64,8 +64,8 @@ object ScalaRefactoringUtil {
             file.getText.charAt(start) == ' ') start = start + 1
     while (file.findElementAt(end - 1).isInstanceOf[PsiWhiteSpace] ||
             (file.findElementAt(end - 1).isInstanceOf[PsiComment] && trimComments) ||
-           file.getText.charAt(end - 1) == '\n' ||
-           file.getText.charAt(end - 1) == ' ') end = end - 1
+            file.getText.charAt(end - 1) == '\n' ||
+            file.getText.charAt(end - 1) == ' ') end = end - 1
     editor.getSelectionModel.setSelection(start, end)
   }
 
@@ -284,7 +284,9 @@ object ScalaRefactoringUtil {
   }
 
   def highlightOccurrences(project: Project, occurrences: Array[PsiElement], editor: Editor) {
-    highlightOccurrences(project, occurrences.map({el: PsiElement => el.getTextRange}), editor)
+    highlightOccurrences(project, occurrences.map({
+      el: PsiElement => el.getTextRange
+    }), editor)
   }
 
   def showChooser[T <: PsiElement](editor: Editor, elements: Array[T], pass: PsiElement => Unit, title: String,
@@ -326,7 +328,7 @@ object ScalaRefactoringUtil {
       }
     }).createPopup.showInBestPositionFor(editor)
   }
-  
+
   def getShortText(expr: ScalaPsiElement): String = {
     val builder = new StringBuilder
     expr match {
@@ -386,7 +388,10 @@ object ScalaRefactoringUtil {
         }
       case p: ScParenthesisedExpr =>
         builder.append("(")
-        p.expr match {case Some(expression) => builder.append(getShortText(expression)) case _ =>}
+        p.expr match {
+          case Some(expression) => builder.append(getShortText(expression))
+          case _ =>
+        }
         builder.append(")")
       case p: ScPostfixExpr =>
         builder.append(getShortText(p.operand))
@@ -430,7 +435,10 @@ object ScalaRefactoringUtil {
       case t: ScTypedStmt =>
         builder.append(getShortText(t.expr))
         builder.append(" : ")
-        builder.append(t.typeElement match {case Some(te) => te.getText case _ => "..."})
+        builder.append(t.typeElement match {
+          case Some(te) => te.getText
+          case _ => "..."
+        })
       case u: ScUnderscoreSection =>
         if (u.bindingExpr == None) builder.append("_")
         else {
@@ -463,7 +471,7 @@ object ScalaRefactoringUtil {
       val offset = editor.getCaretModel.getOffset
       val element: PsiElement = file.findElementAt(offset) match {
         case w: PsiWhiteSpace if w.getTextRange.getStartOffset == offset &&
-          w.getText.contains("\n") => file.findElementAt(offset - 1)
+                w.getText.contains("\n") => file.findElementAt(offset - 1)
         case p => p
       }
       def getExpressions: Array[ScExpression] = {
@@ -652,6 +660,7 @@ object ScalaRefactoringUtil {
   @tailrec
   def findParentExpr(elem: PsiElement): ScExpression = {
     def checkEnd(prev: PsiElement, parExpr: ScExpression): Boolean = {
+      if (parExpr.isInstanceOf[ScBlock]) return true
       val result: Boolean = prev match {
         case _: ScBlock => true
         case forSt: ScForStatement if forSt.body.getOrElse(null) == parExpr => false //in this case needBraces == true
@@ -707,7 +716,7 @@ object ScalaRefactoringUtil {
     val visitor = new ScalaRecursiveElementVisitor() {
       override def visitReferenceExpression(ref: ScReferenceExpression) {
         ref.getParent match {
-          case ScInfixExpr(_, `ref`, _)  =>
+          case ScInfixExpr(_, `ref`, _) =>
           case ScPostfixExpr(_, `ref`) =>
           case ScPrefixExpr(`ref`, _) =>
           case _ =>
@@ -759,4 +768,5 @@ object ScalaRefactoringUtil {
   private[refactoring] case class RevertInfo(fileText: String, caretOffset: Int)
 
   private[refactoring] class IntroduceException extends Exception
+
 }
