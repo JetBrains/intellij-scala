@@ -20,6 +20,7 @@ import org.jetbrains.plugins.scala.extensions._
 import api.ScalaElementVisitor
 import com.intellij.lang.injection.InjectedLanguageManager
 import java.util.Random
+import scala.StringContext.InvalidEscapeException
 
 /**
 * @author Alexander Podkhalyuzin
@@ -70,7 +71,10 @@ class ScLiteralImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScLite
         if (text.endsWith('"')) {
           text = text.substring(0, text.length - 1)
         }
-        StringUtil.unescapeStringCharacters(text)
+        try StringContext.treatEscapes(text) //for octal escape sequences
+        catch {
+          case e: InvalidEscapeException => StringUtil.unescapeStringCharacters(text)
+        }
       }
       case ScalaTokenTypes.tMULTILINE_STRING => {
         if (!text.startsWith("\"\"\"")) return null
