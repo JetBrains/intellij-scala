@@ -36,20 +36,17 @@ class ScLiteralImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScLite
     val child = getFirstChild.getNode
     val inner = child.getElementType match {
       case ScalaTokenTypes.kNULL => Null
-      case ScalaTokenTypes.tINTEGER => {
+      case ScalaTokenTypes.tINTEGER =>
         if (child.getText.endsWith('l') || child.getText.endsWith('L')) Long
         else Int //but a conversion exists to narrower types in case range fits
-      }
-      case ScalaTokenTypes.tFLOAT => {
+      case ScalaTokenTypes.tFLOAT =>
         if (child.getText.endsWith('f') || child.getText.endsWith('F')) Float
         else Double
-      }
       case ScalaTokenTypes.tCHAR => Char
-      case ScalaTokenTypes.tSYMBOL => {
+      case ScalaTokenTypes.tSYMBOL =>
         val sym = ScalaPsiManager.instance(getProject).getCachedClass("scala.Symbol", getResolveScope,
           ScalaPsiManager.ClassCategory.TYPE)
         if (sym != null) ScType.designator(sym) else Nothing
-      }
       case ScalaTokenTypes.tSTRING | ScalaTokenTypes.tWRONG_STRING | ScalaTokenTypes.tMULTILINE_STRING =>
         val str = ScalaPsiManager.instance(getProject).getCachedClass(getResolveScope, "java.lang.String")
         if (str != null) ScType.designator(str) else Nothing
@@ -65,7 +62,7 @@ class ScLiteralImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScLite
     var text = getText
     val textLength = getTextLength
     child.getElementType match {
-      case ScalaTokenTypes.tSTRING | ScalaTokenTypes.tWRONG_STRING => {
+      case ScalaTokenTypes.tSTRING | ScalaTokenTypes.tWRONG_STRING =>
         if (!text.startsWith('"')) return null
         text = text.substring(1)
         if (text.endsWith('"')) {
@@ -75,15 +72,13 @@ class ScLiteralImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScLite
         catch {
           case e: InvalidEscapeException => StringUtil.unescapeStringCharacters(text)
         }
-      }
-      case ScalaTokenTypes.tMULTILINE_STRING => {
+      case ScalaTokenTypes.tMULTILINE_STRING =>
         if (!text.startsWith("\"\"\"")) return null
         text = text.substring(3)
         if (text.endsWith("\"\"\"")) {
           text = text.substring(0, text.length - 3)
         }
         text
-      }
       case ScalaTokenTypes.kTRUE => java.lang.Boolean.TRUE
       case ScalaTokenTypes.kFALSE => java.lang.Boolean.FALSE
       case ScalaTokenTypes.tCHAR =>
@@ -145,7 +140,7 @@ class ScLiteralImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScLite
   def updateText(text: String)  = {
     val valueNode = getNode.getFirstChildNode
     assert(valueNode.isInstanceOf[LeafElement])
-    (valueNode.asInstanceOf[LeafElement]).replaceWithText(text)
+    valueNode.asInstanceOf[LeafElement].replaceWithText(text)
     this
   }
 
