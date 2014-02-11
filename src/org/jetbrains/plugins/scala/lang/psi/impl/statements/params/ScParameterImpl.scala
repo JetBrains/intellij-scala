@@ -24,7 +24,6 @@ import api.ScalaElementVisitor
 import collection.immutable.HashSet
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import scala.annotation.tailrec
-import finder.ScalaClassFinder
 
 /**
  * @author Alexander Podkhalyuzin
@@ -150,7 +149,7 @@ class ScParameterImpl extends ScalaStubBasedElementImpl[ScParameter] with ScPara
           }
         }
       } else {
-        val fromTypeElement = typeElement match {
+        typeElement match {
           case None if baseDefaultParam =>
             getActualDefaultExpression match {
               case Some(t) => t.getType(TypingContext.empty).getOrNothing
@@ -162,9 +161,6 @@ class ScParameterImpl extends ScalaStubBasedElementImpl[ScParameter] with ScPara
           }
           case Some(e) => e.getType(TypingContext.empty).getOrAny
         }
-        val scalaSeq = JavaPsiFacade.getInstance(getProject).findClass("scala.collection.Seq", GlobalSearchScope.allScope(getProject))
-        if (isRepeatedParameter) ScParameterizedType(ScDesignatorType(scalaSeq), Seq(fromTypeElement))
-        else fromTypeElement
       }
     }
     Success(computeType, Some(this))
