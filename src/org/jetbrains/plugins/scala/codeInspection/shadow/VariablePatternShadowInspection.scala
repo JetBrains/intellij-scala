@@ -21,9 +21,6 @@ class VariablePatternShadowInspection extends AbstractInspection("VariablePatter
   private def check(refPat: ScReferencePattern, holder: ProblemsHolder) {
     val isInCaseClause = ScalaPsiUtil.nameContext(refPat).isInstanceOf[ScCaseClause]
     if (isInCaseClause) {
-      if (refPat.name == "_") {
-        throw new RuntimeException("Reference pattern is _, index: " + refPat.getTextOffset + ", fileText: " + refPat.getContainingFile.getText)
-      }
       val dummyRef: ScStableCodeReferenceElement = ScalaPsiElementFactory.createReferenceFromText(refPat.name, refPat.getContext.getContext, refPat)
       val proc = new ResolveProcessor(StdKinds.valuesRef, dummyRef, refPat.name)
       val results = dummyRef.asInstanceOf[ResolvableStableCodeReferenceElement].doResolve(dummyRef, proc)
