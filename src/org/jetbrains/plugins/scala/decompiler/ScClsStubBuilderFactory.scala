@@ -48,9 +48,11 @@ object ScClsStubBuilderFactory {
         while (newName.endsWith("$")) newName = newName.dropRight(1)
         checkName(newName)
       }
-      if (checkName(name)) return true
+
+      checkName(name)
+    } else {
+      DecompilerUtil.isScalaFile(file, bytes)
     }
-    DecompilerUtil.isScalaFile(file, bytes)
   }
 }
 
