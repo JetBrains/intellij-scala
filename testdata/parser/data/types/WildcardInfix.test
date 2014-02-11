@@ -1,0 +1,59 @@
+val x: _ :: String = ???
+val y: String :: _ = ???
+------
+ScalaFile
+  ScPatternDefinition
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern
+        PsiElement(identifier)('x')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    InfixType
+      WildcardType
+        PsiElement(_)('_')
+      PsiWhiteSpace(' ')
+      CodeReferenceElement
+        PsiElement(identifier)('::')
+      PsiWhiteSpace(' ')
+      SimpleTypeElement
+        CodeReferenceElement
+          PsiElement(identifier)('String')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    ReferenceExpression
+      PsiElement(identifier)('???')
+  PsiWhiteSpace('\n')
+  ScPatternDefinition
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern
+        PsiElement(identifier)('y')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    InfixType
+      SimpleTypeElement
+        CodeReferenceElement
+          PsiElement(identifier)('String')
+      PsiWhiteSpace(' ')
+      CodeReferenceElement
+        PsiElement(identifier)('::')
+      PsiWhiteSpace(' ')
+      WildcardType
+        PsiElement(_)('_')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    ReferenceExpression
+      PsiElement(identifier)('???')

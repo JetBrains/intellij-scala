@@ -62,7 +62,7 @@ class ScParameterizedTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(
           forSomeBuilder.append("}")
           val newTypeText = s"(${typeElement.getText}${typeElements.mkString("[", ", ", "]")} ${forSomeBuilder.toString()})"
           val newTypeElement = ScalaPsiElementFactory.createTypeElementFromText(newTypeText, getContext, this)
-          Some(newTypeElement)
+          Option(newTypeElement)
         case _ => None
       }
     }
