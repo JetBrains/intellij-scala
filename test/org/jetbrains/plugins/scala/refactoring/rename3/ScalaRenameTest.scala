@@ -46,4 +46,6 @@ class ScalaRenameTest extends ScalaRenameTestBase {
   def testMethodArgument() = doTest()
 
   def testMultipleBaseMembers() = doTest()
+
+  def testTypeAlias() = doTest()
 }
