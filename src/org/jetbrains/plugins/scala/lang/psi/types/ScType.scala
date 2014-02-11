@@ -19,6 +19,7 @@ import api.toplevel.typedef.{ScTemplateDefinition, ScClass, ScObject}
 import collection.mutable
 import types.Conformance.AliasType
 import scala.annotation.tailrec
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 
 /*
 Current types for pattern matching, this approach is bad for many reasons (one of them is bad performance).
@@ -316,12 +317,14 @@ object ScType extends ScTypePresentation with ScTypePsiTypeBridge {
     case ScDesignatorType(v) =>
       v match {
         case o: ScObject => None
+        case p: ScParameter if p.isStable => p.getRealParameterType(TypingContext.empty).toOption
         case t: ScTypedDefinition if t.isStable => t.getType(TypingContext.empty).toOption
         case _ => None
       }
     case proj@ScProjectionType(_, elem, _) =>
       elem match {
         case o: ScObject => None
+        case p: ScParameter if p.isStable => p.getRealParameterType(TypingContext.empty).toOption.map(proj.actualSubst.subst)
         case t: ScTypedDefinition if t.isStable => t.getType(TypingContext.empty).toOption.map(proj.actualSubst.subst)
         case _ => None
       }
