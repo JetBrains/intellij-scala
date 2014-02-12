@@ -10,9 +10,7 @@ import java.lang.String
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
-import com.intellij.openapi.module.{ModuleUtilCore, ModuleUtil, Module}
-import config.ScalaFacet
-import settings._
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
 /**
  * User: Alexander Podkhalyuzin
@@ -26,7 +24,7 @@ class ScalaPackageNameInspection extends LocalInspectionTool {
 
   override def checkFile(file: PsiFile, manager: InspectionManager, isOnTheFly: Boolean): Array[ProblemDescriptor] = {
     file match {
-      case file: ScalaFile => {
+      case file: ScalaFile =>
         if (file.isScriptFile()) return null
         if (file.typeDefinitions.length == 0) return null
 
@@ -35,7 +33,7 @@ class ScalaPackageNameInspection extends LocalInspectionTool {
         val pack = JavaDirectoryService.getInstance().getPackage(dir)
         if (pack == null) return null
 
-        val packName = file.packageName
+        val packName = cleanKeywords(file.packageName)
         val ranges: Seq[TextRange] = file.packagingRanges
 
         def problemDescriptors(buffer: Seq[LocalQuickFix]): Seq[ProblemDescriptor] = ranges.map { range =>
@@ -60,11 +58,18 @@ class ScalaPackageNameInspection extends LocalInspectionTool {
             new ScalaRenamePackageQuickFix(file, expectedPackageName),
             new ScalaMoveToPackageQuickFix(file, packName),
             new EnablePerformanceProblemsQuickFix(file.getProject))
-          
+
           problemDescriptors(fixes).toArray
         } else null
-      }
       case _ => null
     }
+  }
+
+  private def cleanKeywords(packageName: String): String = {
+    import ScalaNamesUtil._
+    packageName.split('.').map {
+      case isBacktickedName(name) if isKeyword(name) => name
+      case name => name
+    } mkString "."
   }
 }
