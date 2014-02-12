@@ -66,12 +66,12 @@ trait ScReferenceElement extends ScalaPsiElement with ResolvableReferenceElement
   def isSoft: Boolean = false
 
   def handleElementRename(newElementName: String): PsiElement = {
-    if (!ScalaNamesUtil.isIdentifier(newElementName)) return this
+    val needBackticks = patternNeedBackticks(newElementName) || ScalaNamesUtil.isKeyword(newElementName)
+    val newName = if (needBackticks) "`" + newElementName + "`" else newElementName
+    if (!ScalaNamesUtil.isIdentifier(newName)) return this
     val id = nameId.getNode
     val parent = id.getTreeParent
-    val needBackticks = patternNeedBackticks(newElementName)
-    parent.replaceChild(id,
-      ScalaPsiElementFactory.createIdentifier(if (needBackticks) "`" + newElementName + "`" else newElementName, getManager))
+    parent.replaceChild(id, ScalaPsiElementFactory.createIdentifier(newName, getManager))
     this
   }
 
