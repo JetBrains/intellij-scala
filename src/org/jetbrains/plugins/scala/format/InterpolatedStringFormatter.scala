@@ -38,7 +38,7 @@ object InterpolatedStringFormatter extends StringFormatter {
     val ind = parts.indexOf(it)
     if (ind + 1 < parts.size) {
       parts(ind + 1) match {
-        case Text(s) => return s.startsWith(" ")
+        case Text(s) => return s.isEmpty || s.startsWith(" ")
         case _ =>  true
       }
     }
