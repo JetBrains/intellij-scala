@@ -24,7 +24,7 @@ import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.scala.lang.psi.types._
 import api.statements._
 import com.intellij.psi._
-import codeStyle.CodeStyleSettingsManager
+import com.intellij.psi.codeStyle.CodeStyleSettingsManager
 import com.intellij.psi.search.GlobalSearchScope
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScPatternArgumentList, ScBindingPattern, ScReferencePattern, ScCaseClause}
 import stubs.ScModifiersStub
@@ -48,11 +48,9 @@ import config.ScalaFacet
 import scala.reflect.NameTransformer
 import caches.CachesUtil
 import extensions._
-import scala.collection.mutable.{ListBuffer, ArrayBuffer}
+import scala.collection.mutable.ArrayBuffer
 import com.intellij.psi.impl.compiled.ClsFileImpl
 import scala.collection.{mutable, Set, Seq}
-import org.apache.log4j.Level
-import com.intellij.openapi.diagnostic
 import scala.util.control.ControlThrowable
 import scala.annotation.tailrec
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
@@ -60,23 +58,6 @@ import com.intellij.psi.tree.TokenSet
 import com.intellij.lang.java.JavaLanguage
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
 import com.intellij.openapi.util.TextRange
-import org.jetbrains.plugins.scala.lang.psi.types.ScUndefinedType
-import org.jetbrains.plugins.scala.lang.psi.types.ScCompoundType
-import org.jetbrains.plugins.scala.lang.psi.types.ScAbstractType
-import org.jetbrains.plugins.scala.lang.psi.types.ScFunctionType
-import org.jetbrains.plugins.scala.lang.resolve.processor.MostSpecificUtil
-import org.jetbrains.plugins.scala.lang.psi.types.Conformance.AliasType
-import org.jetbrains.plugins.scala.lang.psi.types.ScDesignatorType
-import org.jetbrains.plugins.scala.lang.psi.implicits.ScImplicitlyConvertible.ImplicitResolveResult
-import org.jetbrains.plugins.scala.lang.psi.types.ScTypeParameterType
-import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
-import org.jetbrains.plugins.scala.lang.psi.types.ScTupleType
-import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScTypePolymorphicType
-import org.jetbrains.plugins.scala.lang.psi.types.result.Success
-import org.jetbrains.plugins.scala.lang.psi.types.JavaArrayType
-import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScMethodType
-import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.TypeParameter
-import org.jetbrains.plugins.scala.lang.psi.types.ScProjectionType
 import scala.Some
 import org.jetbrains.plugins.scala.lang.psi.types.ScUndefinedType
 import org.jetbrains.plugins.scala.lang.psi.types.ScCompoundType
@@ -95,6 +76,8 @@ import org.jetbrains.plugins.scala.lang.psi.types.JavaArrayType
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScMethodType
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.TypeParameter
 import org.jetbrains.plugins.scala.lang.psi.types.ScProjectionType
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
+import com.intellij.codeInsight.PsiEquivalenceUtil
 
 /**
  * User: Alexander Podkhalyuzin
@@ -1228,6 +1211,23 @@ object ScalaPsiUtil {
                 case _ => adjustTypes(child)
               }
             case _ => adjustTypes(child)
+          }
+        case tp: ScTypeProjection =>
+          tp.resolve() match {
+            case m: ScMember =>
+              val classOfMember = m.containingClass
+              val scopeClasses = ScalaPsiUtil.getParents(tp, null).collect { case td: ScTemplateDefinition => td }
+              val canReplace = scopeClasses.exists { clazz =>
+                val inheritor = clazz.isInheritor(classOfMember, deep = true)
+                val inTemplateBody = PsiTreeUtil.isAncestor(clazz.extendsBlock.templateBody.getOrElse(null), tp, true)
+                (clazz == classOfMember || inheritor) && inTemplateBody
+              }
+              if (canReplace) {
+                val newType = ScalaPsiElementFactory.createTypeElementFromText(ScalaNamesUtil.scalaName(m), tp.getManager)
+                tp.replace(newType)
+              }
+              else adjustTypes(child)
+            case _ =>
           }
         case _ => adjustTypes(child)
       }
