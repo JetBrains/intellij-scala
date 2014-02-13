@@ -195,7 +195,7 @@ abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTemplate
     } else {
       val count = getManager.getModificationTracker.getOutOfCodeBlockModificationCount
       if (javaQualName != null && count == javaQualNameModCount) return javaQualName
-      var res = qualifiedName(".", encodeName = true).split(".").map { s =>
+      var res = qualifiedName(".", encodeName = true).split('.').map { s =>
         if (s.startsWith("`") && s.endsWith("`") && s.length > 2) s.drop(1).dropRight(1)
         else s
       }.mkString(".")
