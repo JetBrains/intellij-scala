@@ -1215,19 +1215,14 @@ object ScalaPsiUtil {
         case tp: ScTypeProjection =>
           tp.resolve() match {
             case m: ScMember =>
-              val classOfMember = m.containingClass
-              val scopeClasses = ScalaPsiUtil.getParents(tp, null).collect { case td: ScTemplateDefinition => td }
-              val canReplace = scopeClasses.exists { clazz =>
-                val inheritor = clazz.isInheritor(classOfMember, deep = true)
-                val inTemplateBody = PsiTreeUtil.isAncestor(clazz.extendsBlock.templateBody.getOrElse(null), tp, true)
-                (clazz == classOfMember || inheritor) && inTemplateBody
-              }
-              if (canReplace) {
-                val newType = ScalaPsiElementFactory.createTypeElementFromText(ScalaNamesUtil.scalaName(m), tp.getManager)
-                tp.replace(newType)
+              val newTypeElement = ScalaPsiElementFactory.createTypeElementFromText(ScalaNamesUtil.scalaName(m), tp.getContext, tp)
+              val resolved = newTypeElement.getFirstChild.asInstanceOf[ScReferenceElement].resolve()
+              if (resolved != null && PsiEquivalenceUtil.areElementsEquivalent(resolved, m)) {
+                //cannot use newTypeElement becouse of bug with indentation
+                tp.replace(ScalaPsiElementFactory.createTypeElementFromText(ScalaNamesUtil.scalaName(m), tp.getManager))
               }
               else adjustTypes(child)
-            case _ =>
+            case _ => adjustTypes(child)
           }
         case _ => adjustTypes(child)
       }
