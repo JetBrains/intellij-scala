@@ -1,12 +1,12 @@
 class a {
   def foo {
-    <begin>new Array(1, 2)<end>.apply(0)
+    <begin>Array(1, 2)<end>.apply(0)
   }
 }
 ------
 class a {
   def foo {
-    val value: Any = new Array(1, 2)
+    val value: Array[Int] = Array(1, 2)
     value.apply(0)
   }
 }
