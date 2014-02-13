@@ -10,6 +10,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScBlockImpl
 import com.intellij.psi.codeStyle.CodeStyleManager
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 
 /**
  * @author Ksenia.Sautina
@@ -58,24 +59,20 @@ class RemoveRedundantElseIntention extends PsiElementBaseIntentionAction {
     val ifStmt: ScIfStmt = PsiTreeUtil.getParentOfType(element, classOf[ScIfStmt], false)
     if (ifStmt == null || !ifStmt.isValid) return
 
-    val thenBranch = ifStmt.thenBranch.getOrElse(null)
-    if (thenBranch == null) return
+    val thenBranch = ifStmt.thenBranch.getOrElse(return)
     val elseKeyWord = thenBranch.getNextSiblingNotWhitespaceComment
 
-    val elseBranch = ifStmt.elseBranch.getOrElse(null)
-    if (elseBranch == null) return
+    val elseBranch = ifStmt.elseBranch.getOrElse(return)
 
-    val exprText = elseBranch match {
-      case eb: ScBlockExpr => eb.getText.trim.drop(1).dropRight(1)
-      case _ => elseBranch.getText.trim
-    }
-
-    val newExpr: ScBlockImpl = ScalaPsiElementFactory.createBlockExpressionWithoutBracesFromText(exprText, manager)
+    val children = elseBranch.copy().children.toList
+    var from = children.find(_.getNode.getElementType != ScalaTokenTypes.tLBRACE).getOrElse(return)
+    if (ScalaTokenTypes.WHITES_SPACES_TOKEN_SET.contains(from.getNode.getElementType)) from = from.getNextSibling
+    val to = children.reverse.find(_.getNode.getElementType != ScalaTokenTypes.tRBRACE).getOrElse(return)
 
     inWriteAction {
       elseKeyWord.delete()
       elseBranch.delete()
-      ifStmt.getParent.addAfter(newExpr, ifStmt)
+      ifStmt.getParent.addRangeAfter(from, to, ifStmt)
       ifStmt.getParent.addAfter(ScalaPsiElementFactory.createNewLine(manager), ifStmt)
       PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument)
     }
