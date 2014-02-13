@@ -10,7 +10,8 @@ import com.intellij.psi.{PsiNamedElement, PsiElement}
 import org.jetbrains.plugins.scala.lang.psi.controlFlow.impl.{ReadWriteVariableInstruction, DefineValueInstruction}
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiUtil, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScReferenceExpression, ScFunctionExpr}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScFunctionExpr
+import scala.collection.mutable
 
 /**
  * @author ilyas
@@ -48,7 +49,7 @@ object ReachingDefintionsCollector {
         elements.map(_.getContainingFile.getName).mkString("(", ", ", ")")
       throw new RuntimeException(message)
     }
-    val cfg = cfowner.getControlFlow(false) //todo: make cache more right to not get PsiInvalidAccess
+    val cfg = cfowner.getControlFlow(cached = false) //todo: make cache more right to not get PsiInvalidAccess
     val engine = new DfaEngine(cfg, ReachingDefinitionsInstance, ReachingDefinitionsLattice)
     val dfaResult = engine.performDFA
 
@@ -68,12 +69,11 @@ object ReachingDefintionsCollector {
   }
 
   private def elementToFragmentMapper(elements: Seq[PsiElement]) = new ((PsiElement) => Boolean) {
-    import collection.mutable._
-    val elem2Outer: Map[PsiElement, Boolean] = new HashMap[PsiElement, Boolean]
+    val elem2Outer: mutable.Map[PsiElement, Boolean] = new mutable.HashMap[PsiElement, Boolean]
 
     def apply(elem: PsiElement): Boolean = elem != null && (elem2Outer.get(elem) match {
       case Some(b) => b
-      case None => {
+      case None =>
         for (e <- elements) {
           if (PsiTreeUtil.findCommonParent(e, elem) eq e) {
             elem2Outer + (elem -> true)
@@ -82,21 +82,18 @@ object ReachingDefintionsCollector {
         }
         elem2Outer + (elem -> false)
         false
-      }
     })
   }
 
   private def elementToScopeMapper(scope: ScalaPsiElement) = new ((PsiElement) => Boolean) {
-    import collection.mutable._
-    def elem2Outer: Map[PsiElement, Boolean] = new HashMap[PsiElement, Boolean]
+    val elem2Outer: mutable.Map[PsiElement, Boolean] = new mutable.HashMap[PsiElement, Boolean]
 
     def apply(elem: PsiElement): Boolean = elem != null && (elem2Outer.get(elem) match {
       case Some(b) => b
-      case None => {
+      case None =>
         val b = PsiTreeUtil.findCommonParent(elem, scope) eq scope
         elem2Outer + (elem -> b)
         b
-      }
     })
   }
 
@@ -118,7 +115,7 @@ object ReachingDefintionsCollector {
 
     val visitor = new ScalaRecursiveElementVisitor {
       override def visitReference(ref: ScReferenceElement) {
-        val element = ref.resolve
+        val element = ref.resolve()
         element match {
           case named: PsiNamedElement
             if !isInFragment(named) && isInScope(named) &&
@@ -152,7 +149,7 @@ object ReachingDefintionsCollector {
         case _ =>
       }
     }
-    buffer.map(VariableInfo(_, false))
+    buffer.map(VariableInfo(_, isRef = false))
   }
 
 
