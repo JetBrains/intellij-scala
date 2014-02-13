@@ -163,9 +163,13 @@ class ScalaGenerationInfo(classMember: PsiElementClassMember[_ <: PsiDocCommentO
       case _ => return
     }
 
-    member match {
-      case n: Navigatable => n.navigate(true)
-      case _ =>
+    val offset = member.getTextRange.getStartOffset
+    val point = editor.visualPositionToXY(editor.offsetToVisualPosition(offset))
+    if (!editor.getVisibleArea.contains(point)) {
+      member match {
+        case n: Navigatable => n.navigate(true)
+        case _ =>
+      }
     }
 
     body match {
