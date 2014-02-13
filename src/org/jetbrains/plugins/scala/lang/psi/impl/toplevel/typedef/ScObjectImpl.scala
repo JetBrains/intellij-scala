@@ -187,13 +187,14 @@ class ScObjectImpl extends ScTypeDefinitionImpl with ScObject with ScTemplateDef
   private def getModuleField: Option[PsiField] = {
     val count = getManager.getModificationTracker.getOutOfCodeBlockModificationCount
     if (moduleField != null && moduleFieldModCount == count) return moduleField
-    val fieldOption = if (getQualifiedName.split('.').exists(JavaLexer.isKeyword(_, PsiUtil.getLanguageLevel(this)))) None else {
-      val field: LightField = new LightField(getManager, JavaPsiFacade.getInstance(getProject).getElementFactory.createFieldFromText(
-        "public final static " + getQualifiedName + " MODULE$", this
-      ), this)
-      field.setNavigationElement(this)
-      Some(field)
-    }
+    val fieldOption =
+      if (getQualifiedName.split('.').exists(JavaLexer.isKeyword(_, PsiUtil.getLanguageLevel(this)))) None else {
+        val field: LightField = new LightField(getManager, JavaPsiFacade.getInstance(getProject).getElementFactory.createFieldFromText(
+          "public final static " + getQualifiedName + " MODULE$", this
+        ), this)
+        field.setNavigationElement(this)
+        Some(field)
+      }
     moduleField = fieldOption
     moduleFieldModCount = count
     fieldOption
