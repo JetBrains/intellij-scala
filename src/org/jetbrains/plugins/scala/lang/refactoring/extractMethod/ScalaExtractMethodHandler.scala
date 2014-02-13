@@ -20,7 +20,7 @@ import com.intellij.openapi.command.CommandProcessor
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
-import collection.mutable.{HashSet, ArrayBuffer}
+import collection.mutable.ArrayBuffer
 import psi.api.base.ScReferenceElement
 import psi.api.toplevel.typedef.ScTypeDefinition
 import psi.api.statements.{ScFunction, ScFunctionDefinition}
@@ -31,6 +31,7 @@ import com.intellij.refactoring.util.CommonRefactoringUtil
 import org.jetbrains.plugins.scala.extensions.{toPsiElementExt, Parent, toPsiNamedElementExt}
 import com.intellij.psi.codeStyle.CodeStyleManager
 import scala.annotation.tailrec
+import scala.collection.mutable
 
 /**
  * User: Alexander Podkhalyuzin
@@ -70,12 +71,10 @@ class ScalaExtractMethodHandler extends RefactoringActionHandler {
     def checkLastReturn(elem: PsiElement): Boolean = {
       elem match {
         case ret: ScReturnStmt => true
-        case m: ScMatchStmt => {
+        case m: ScMatchStmt =>
           m.getBranches.forall(checkLastReturn(_))
-        }
-        case f: ScIfStmt if f.elseBranch != None && f.thenBranch != None => {
+        case f: ScIfStmt if f.elseBranch != None && f.thenBranch != None =>
           checkLastReturn(f.thenBranch.get) && checkLastReturn(f.elseBranch.get)
-        }
         case block: ScBlock if block.lastExpr != None => checkLastReturn(block.lastExpr.get)
         case _ => false
       }
@@ -164,7 +163,7 @@ class ScalaExtractMethodHandler extends RefactoringActionHandler {
       ScalaRefactoringUtil.showChooser(editor, siblings, {selectedValue =>
         invokeDialog(project, editor, elements, hasReturn, lastReturn, selectedValue,
           siblings(siblings.length - 1) == selectedValue, isLastExpressionMeaningful)
-      }, "Choose level for Extract Method", getTextForElement _, true)
+      }, "Choose level for Extract Method", getTextForElement, true)
       return
     }
     else if (siblings.length == 1) {
@@ -206,14 +205,11 @@ class ScalaExtractMethodHandler extends RefactoringActionHandler {
     val tdScope = sibling.getParent.isInstanceOf[ScTemplateBody]
     val info =
     if (!smallestScope) {
-      if (tdScope)
-        ReachingDefintionsCollector.collectVariableInfo(elements.toSeq,
-          sibling.asInstanceOf[ScalaPsiElement]: ScalaPsiElement)
-      else
-        ReachingDefintionsCollector.collectVariableInfo(elements.toSeq, Seq(sibling))
+      if (tdScope) ReachingDefintionsCollector.collectVariableInfo(elements.toSeq, sibling.asInstanceOf[ScalaPsiElement])
+      else ReachingDefintionsCollector.collectVariableInfo(elements.toSeq, Seq(sibling))
     }
-    else
-      ReachingDefintionsCollector.collectVariableInfo(elements, elements.toSeq)
+    else ReachingDefintionsCollector.collectVariableInfo(elements, elements.toSeq)
+
     val input = info.inputVariables
     val output = info.outputVariables
     val settings: ScalaExtractMethodSettings = if (!ApplicationManager.getApplication.isUnitTestMode) {
@@ -249,7 +245,7 @@ class ScalaExtractMethodHandler extends RefactoringActionHandler {
     val element = settings.elements.find(elem => elem.isInstanceOf[ScalaPsiElement]).getOrElse(return)
     val processor = new CompletionProcessor(StdKinds.refExprLastRef, element, includePrefixImports = false)
     PsiTreeUtil.treeWalkUp(processor, element, null, ResolveState.initial)
-    val allNames = new HashSet[String]()
+    val allNames = new mutable.HashSet[String]()
     allNames ++= processor.candidatesS.map(rr => rr.element.name)
     def generateFreshName(s: String): String = {
       var freshName = s
