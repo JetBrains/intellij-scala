@@ -6,12 +6,16 @@ import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.lang.psi.dataFlow.DfaEngine
 import org.jetbrains.plugins.scala.lang.psi.controlFlow.Instruction
 import collection.mutable.ArrayBuffer
-import com.intellij.psi.{PsiNamedElement, PsiElement}
+import com.intellij.psi.{PsiMethod, PsiNamedElement, PsiElement}
 import org.jetbrains.plugins.scala.lang.psi.controlFlow.impl.{ReadWriteVariableInstruction, DefineValueInstruction}
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiUtil, ScalaPsiElement}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFun, ScFunction}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScFunctionExpr
 import scala.collection.mutable
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.extensions._
+import com.intellij.codeInsight.PsiEquivalenceUtil
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 
 /**
  * @author ilyas
@@ -28,18 +32,18 @@ object ReachingDefintionsCollector {
     }
     collectVariableInfo(elements, elementToFragmentMapper(elementsForScope.toSeq))
   }
-  def collectVariableInfo(elements: Seq[PsiElement], scope: ScalaPsiElement): FragmentVariableInfos =
-    collectVariableInfo(elements, elementToScopeMapper(scope))
+  def collectVariableInfo(elements: Seq[PsiElement], place: ScalaPsiElement): FragmentVariableInfos =
+    collectVariableInfo(elements, noResolveFilter(place))
   /**
    * @param elements a fragment to analyze
-   * @param isInScope since Extract Method refactoring is in fact RDC's main client, it should define a scope
+   * @param scopeFilter since Extract Method refactoring is in fact RDC's main client, it should define a scope
    *                  where to look for captured variables
    */
-  def collectVariableInfo(elements: Seq[PsiElement], isInScope: (PsiElement) => Boolean): FragmentVariableInfos = {
+  def collectVariableInfo(elements: Seq[PsiElement], scopeFilter: (PsiNamedElement) => Boolean): FragmentVariableInfos = {
     import PsiTreeUtil._
     val isInFragment = elementToFragmentMapper(elements)
     // for every reference element, define is it's definition in scope
-    val inputInfos = getInputInfo(elements, isInFragment, isInScope)
+    val inputInfos = getInputInfo(elements, isInFragment, scopeFilter)
 
     // CFG -> DFA
     val commonParent = findCommonParent(elements: _*)
@@ -85,16 +89,34 @@ object ReachingDefintionsCollector {
     })
   }
 
-  private def elementToScopeMapper(scope: ScalaPsiElement) = new ((PsiElement) => Boolean) {
-    val elem2Outer: mutable.Map[PsiElement, Boolean] = new mutable.HashMap[PsiElement, Boolean]
+  //defines if `place` in the scope of the given PsiNamedElement
+  private def noResolveFilter(place: ScalaPsiElement) = new ((PsiNamedElement) => Boolean) {
+    val cache: mutable.Map[PsiElement, Boolean] = new mutable.HashMap[PsiElement, Boolean]
 
-    def apply(elem: PsiElement): Boolean = elem != null && (elem2Outer.get(elem) match {
-      case Some(b) => b
-      case None =>
-        val b = PsiTreeUtil.findCommonParent(elem, scope) eq scope
-        elem2Outer + (elem -> b)
-        b
-    })
+    def apply(elem: PsiNamedElement): Boolean = {
+      def resolver(ref: PsiElement): Boolean = ref match {
+        case r: ScReferenceElement =>
+          Option(r.resolve()).exists(PsiEquivalenceUtil.areElementsEquivalent(_, elem))
+        case _ => false
+      }
+      val isInstanceMethod = elem match {
+        case fun: ScFunction => fun.isInstance && !fun.containingClass.isInstanceOf[ScObject]
+        case fun: ScFun => true
+        case m: PsiMethod => !m.hasModifierPropertyScala("static")
+        case _ => false
+      }
+      val resolvesAtNewPlace = elem match {
+        case _: PsiMethod | _: ScFun =>
+          cache.getOrElseUpdate(elem,
+            resolver(ScalaPsiElementFactory.createExpressionWithContextFromText(elem.name + " _", place.getContext, place).getFirstChild)
+          )
+        case _ =>
+          cache.getOrElseUpdate(elem,
+            resolver(ScalaPsiElementFactory.createExpressionWithContextFromText(elem.name, place.getContext, place))
+          )
+      }
+      !isInstanceMethod && !resolvesAtNewPlace
+    }
   }
 
   private def filterByFragment(cfg: Seq[Instruction], checker: (PsiElement) => Boolean) = cfg.filter(i =>
@@ -105,7 +127,7 @@ object ReachingDefintionsCollector {
 
   private def getInputInfo(elements: Seq[PsiElement],
                            isInFragment: (PsiElement) => Boolean,
-                           isInScope: (PsiElement) => Boolean): Iterable[VariableInfo] = {
+                           scopeFilter: (PsiNamedElement) => Boolean): Iterable[VariableInfo] = {
     val inputDefs = new ArrayBuffer[VariableInfo]
 
     def isInClosure(elem: PsiElement) = {
@@ -118,7 +140,7 @@ object ReachingDefintionsCollector {
         val element = ref.resolve()
         element match {
           case named: PsiNamedElement
-            if !isInFragment(named) && isInScope(named) &&
+            if !isInFragment(named) && scopeFilter(named) &&
                     !inputDefs.map(_.element).contains(named) =>
             val isReferenceParameter = isInClosure(ref) && ScalaPsiUtil.isLValue(ref)
             inputDefs += VariableInfo(named, isReferenceParameter)

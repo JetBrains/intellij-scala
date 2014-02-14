@@ -18,6 +18,8 @@ class ScalaExtractMethodInputTest extends ScalaExtractMethodTestBase {
 
   def testDefNoParamInput = doTest
 
+  def testFromBaseClassInput = doTest
+
   def testFunType = doTest
 
   def testFunTypeParam = doTest
