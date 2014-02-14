@@ -25,6 +25,7 @@ class LocalServer extends Server {
       compiler.compile(compilationData, client)
     }
 
+    client.compilationEnd()
     ExitCode.OK
   }
 

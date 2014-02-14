@@ -45,3 +45,7 @@ case class GeneratedEvent(source: File, module: File, name: String) extends Even
 case class DeletedEvent(module: File) extends Event
 
 case class SourceProcessedEvent(source: File) extends Event
+
+case class CompilationEndEvent() extends Event
+
+case class WorksheetOutputEvent(text: String) extends Event
