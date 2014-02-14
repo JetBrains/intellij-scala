@@ -23,7 +23,7 @@ import api.{FileDeclarationsHolder, ScControlFlowOwner, ScalaFile}
 import psi.controlFlow.impl.ScalaControlFlowBuilder
 import decompiler.{DecompilerUtil, CompiledFileAdjuster}
 import collection.mutable.ArrayBuffer
-import com.intellij.psi.search.GlobalSearchScope
+import com.intellij.psi.search.{FilenameIndex, GlobalSearchScope}
 import config.ScalaFacet
 import com.intellij.openapi.util.{TextRange, Key}
 import caches.CachesUtil
@@ -46,6 +46,7 @@ import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.ui.Messages
 import com.intellij.openapi.actionSystem.CommonDataKeys
 import javax.swing.SwingUtilities
+import com.intellij.util.Processor
 
 class ScalaFileImpl(viewProvider: FileViewProvider, fileType: LanguageFileType = ScalaFileType.SCALA_FILE_TYPE)
         extends PsiFileBase(viewProvider, fileType.getLanguage)
@@ -117,59 +118,44 @@ class ScalaFileImpl(viewProvider: FileViewProvider, fileType: LanguageFileType =
         }
       }
       entryIterator = entries.iterator
+
       //Look in libraries sources if file not relative to path
-      while (entryIterator.hasNext) {
-        val entry = entryIterator.next()
-        // Look in sources of an appropriate entry
-        val files = entry.getFiles(OrderRootType.SOURCES)
-        val filesIterator = files.iterator
-        while (filesIterator.hasNext) {
-          val file = filesIterator.next()
-          if (typeDefinitions.length == 0) return this
-          val qual = typeDefinitions.apply(0).qualifiedName
-          def scanFile(file: VirtualFile): Option[PsiElement] = {
-            val children: Array[VirtualFile] = file.getChildren
-            if (children != null) {
-              val childIterator = children.iterator
-              while (childIterator.hasNext) {
-                val child = childIterator.next()
-                if (child.getName == sourceFile) {
-                  val psiSource = getManager.findFile(child)
-                  psiSource match {
-                    case o: ScalaFile =>
-                      val clazzIterator = o.typeDefinitions.iterator
-                      while (clazzIterator.hasNext) {
-                        val clazz = clazzIterator.next()
-                        if (qual == clazz.qualifiedName) {
-                          return Some(o)
-                        }
-                      }
-                    case o: PsiClassOwner =>
-                      val clazzIterator = o.getClasses.iterator
-                      while (clazzIterator.hasNext) {
-                        val clazz = clazzIterator.next()
-                        if (qual == clazz.qualifiedName) {
-                          return Some(o)
-                        }
-                      }
-                    case _ =>
-                  }
-                }
-                scanFile(child) match {
-                  case Some(s) => return Some(s)
-                  case _ =>
+      if (typeDefinitions.length == 0) return this
+      val qual = typeDefinitions.apply(0).qualifiedName
+      var result: Option[PsiFile] = None
+
+      FilenameIndex.processFilesByName(sourceFile, false, new Processor[PsiFileSystemItem] {
+        override def process(t: PsiFileSystemItem): Boolean = {
+          val source = t.getVirtualFile
+          getManager.findFile(source) match {
+            case o: ScalaFile =>
+              val clazzIterator = o.typeDefinitions.iterator
+              while (clazzIterator.hasNext) {
+                val clazz = clazzIterator.next()
+                if (qual == clazz.qualifiedName) {
+                  result = Some(o)
+                  return false
                 }
               }
-            }
-            None
+            case o: PsiClassOwner =>
+              val clazzIterator = o.getClasses.iterator
+              while (clazzIterator.hasNext) {
+                val clazz = clazzIterator.next()
+                if (qual == clazz.qualifiedName) {
+                  result = Some(o)
+                  return false
+                }
+              }
+            case _ =>
           }
-          scanFile(file) match {
-            case Some(x) => return x
-            case None =>
-          }
+          true
         }
+      }, GlobalSearchScope.allScope(getProject), getProject, null)
+
+      result match {
+        case Some(o) => o
+        case _ => this
       }
-      this
     }
   }
 
