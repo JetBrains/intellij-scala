@@ -42,4 +42,12 @@ class EventGeneratingClient(listener: Event => Unit, canceled: => Boolean) exten
   def processed(source: File) {
     listener(SourceProcessedEvent(source))
   }
+
+  override def compilationEnd() {
+    listener(CompilationEndEvent())
+  }
+
+  override def worksheetOutput(text: String) {
+    listener(WorksheetOutputEvent(text))
+  }
 }
