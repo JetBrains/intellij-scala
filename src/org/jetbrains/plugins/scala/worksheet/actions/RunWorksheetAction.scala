@@ -6,10 +6,10 @@ import lang.psi.api.ScalaFile
 import com.intellij.execution._
 import com.intellij.execution.configurations.{RunProfileState, ConfigurationTypeUtil}
 import com.intellij.execution.executors.DefaultRunExecutor
-import com.intellij.execution.runners.{ExecutionEnvironmentBuilder, DefaultProgramRunner, ExecutionEnvironment}
+import com.intellij.execution.runners.{ExecutionEnvironmentBuilder, ExecutionEnvironment}
 import com.intellij.openapi.ui.Messages
 import com.intellij.util.ActionRunner
-import worksheet.runconfiguration.{WorksheetRunConfigurationFactory, WorksheetRunConfiguration, WorksheetConfigurationType}
+import org.jetbrains.plugins.scala.worksheet.runconfiguration.{WorksheetViewerInfo, WorksheetRunConfigurationFactory, WorksheetRunConfiguration, WorksheetConfigurationType}
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.keymap.{KeymapUtil, KeymapManager}
 import com.intellij.openapi.fileEditor.FileEditorManager
@@ -18,9 +18,13 @@ import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.{PsiDocumentManager, PsiFile}
 import com.intellij.execution.ui.RunContentDescriptor
 import com.intellij.execution.impl.DefaultJavaProgramRunner
+import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompiler
+import com.intellij.openapi.application.{ModalityState, ApplicationManager}
+import org.jetbrains.plugins.scala
 
 /**
  * @author Ksenia.Sautina
+ * @author Dmitry Naydanov        
  * @since 10/17/12
  */
 
@@ -31,12 +35,32 @@ class RunWorksheetAction extends AnAction {
     val psiFile: PsiFile = PsiDocumentManager.getInstance(e.getProject).getPsiFile(editor.getDocument)
     psiFile match {
       case file: ScalaFile if file.isWorksheetFile =>
-        if (executeWorksheet(file.getName, e.getProject, file.getContainingFile.getVirtualFile)) return
+        val viewer = WorksheetViewerInfo getViewer editor
+        val project = e.getProject
+
+        if (viewer != null) {
+          ApplicationManager.getApplication.invokeAndWait(new Runnable {
+            override def run() {
+              scala.extensions.inWriteAction {
+                CleanWorksheetAction.cleanWorksheet(file.getNode, editor, viewer, project)
+              }
+            }
+          }, ModalityState.any())
+        }
+
+
+        new WorksheetCompiler().compileAndRun(editor, file, (className: String, addToCp: String) => {
+          ApplicationManager.getApplication invokeLater new Runnable {
+            override def run() {
+              executeWorksheet(file.getName, project, file.getContainingFile.getVirtualFile, className, addToCp)
+            }
+          }
+        }, Option(editor))
       case _ =>
     }
   }
 
-  def executeWorksheet(name: String, project: Project, virtualFile: VirtualFile): Boolean = {
+  def executeWorksheet(name: String, project: Project, virtualFile: VirtualFile, mainClassName: String, addToCp: String): Boolean = {
     val runManagerEx = RunManagerEx.getInstanceEx(project)
     val configurationType = ConfigurationTypeUtil.findConfigurationType(classOf[WorksheetConfigurationType])
     val settings = runManagerEx.getConfigurationSettings(configurationType)
@@ -44,6 +68,8 @@ class RunWorksheetAction extends AnAction {
     def execute(setting: RunnerAndConfigurationSettings) {
       val configuration = setting.getConfiguration.asInstanceOf[WorksheetRunConfiguration]
       configuration.worksheetField = virtualFile.getCanonicalPath
+      configuration.classToRunField = mainClassName
+      configuration.addCpField = addToCp
       configuration.setName("WS: " + name)
       runManagerEx.setSelectedConfiguration(setting)
       val runExecutor = DefaultRunExecutor.getRunExecutorInstance

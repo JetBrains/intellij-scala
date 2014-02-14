@@ -29,6 +29,12 @@ class ClientEventProcessor(client: Client) {
 
       case SourceProcessedEvent(source) =>
         client.processed(source)
+
+      case CompilationEndEvent() =>
+        client.compilationEnd()
+
+      case WorksheetOutputEvent(text) => 
+        client.worksheetOutput(text)
     }
   }
 }

@@ -56,42 +56,22 @@ class CompileServerLauncher extends ApplicationComponent {
         Notifications.Bus.notify(new Notification("scala", title, content, NotificationType.ERROR, ConfigureLinkListener))
         false
       case Right(_) =>
+        ApplicationManager.getApplication invokeLater new Runnable {
+          override def run() {
+            CompileServerManager.instance(project).configureWidget()
+          }
+        }
+        
         true
     }
   }
 
    private def start(jdk: JDK): Either[String, Process] = {
+     import CompileServerLauncher.{compilerJars, jvmParameters}
      val settings = ScalaApplicationSettings.getInstance
+     
 
-     val jvmParameters = {
-
-       val xmx = settings.COMPILE_SERVER_MAXIMUM_HEAP_SIZE |> { size =>
-         if (size.isEmpty) Nil else List("-Xmx%sm".format(size))
-       }
-
-       xmx ++ settings.COMPILE_SERVER_JVM_PARAMETERS.split(" ").toSeq
-     }
-
-     val files = {
-       val ideaRoot = new File(PathUtil.getJarPathForClass(classOf[ApplicationManager])).getParent
-       val pluginRoot = new File(PathUtil.getJarPathForClass(getClass)).getParent
-       val jpsRoot = new File(pluginRoot, "jps")
-
-       Seq(
-         new File(ideaRoot, "jps-server.jar"),
-         new File(ideaRoot, "trove4j.jar"),
-         new File(ideaRoot, "util.jar"),
-         new File(pluginRoot, "scala-library.jar"),
-         new File(pluginRoot, "scala-plugin-runners.jar"),
-         new File(pluginRoot, "compiler-settings.jar"),
-         new File(jpsRoot, "nailgun.jar"),
-         new File(jpsRoot, "sbt-interface.jar"),
-         new File(jpsRoot, "incremental-compiler.jar"),
-         new File(jpsRoot, "jline.jar"),
-         new File(jpsRoot, "scala-jps-plugin.jar"))
-     }
-
-     files.partition(_.exists) match {
+     compilerJars.partition(_.exists) match {
        case (presentFiles, Seq()) =>
          val classpath = (jdk.tools +: presentFiles).map(_.canonicalPath).mkString(File.pathSeparator)
 
@@ -121,6 +101,18 @@ class CompileServerLauncher extends ApplicationComponent {
        it.destroyProcess()
      }
    }
+  
+   def stop(project: Project) {
+     stop()
+     
+     ApplicationManager.getApplication invokeLater new Runnable {
+       override def run() {
+         CompileServerManager.instance(project).configureWidget()
+       }
+     }
+   }
+    
+  
 
    def running: Boolean = instance.exists(_.running)
 
@@ -133,6 +125,34 @@ class CompileServerLauncher extends ApplicationComponent {
 
 object CompileServerLauncher {
   def instance = ApplicationManager.getApplication.getComponent(classOf[CompileServerLauncher])
+  
+  def compilerJars = {
+    val ideaRoot = new File(PathUtil.getJarPathForClass(classOf[ApplicationManager])).getParent
+    val pluginRoot = new File(PathUtil.getJarPathForClass(getClass)).getParent
+    val jpsRoot = new File(pluginRoot, "jps")
+
+    Seq(
+      new File(ideaRoot, "jps-server.jar"),
+      new File(ideaRoot, "trove4j.jar"),
+      new File(ideaRoot, "util.jar"),
+      new File(pluginRoot, "scala-library.jar"),
+      new File(pluginRoot, "scala-nailgun-runner.jar"),
+      new File(pluginRoot, "compiler-settings.jar"),
+      new File(jpsRoot, "nailgun.jar"),
+      new File(jpsRoot, "sbt-interface.jar"),
+      new File(jpsRoot, "incremental-compiler.jar"),
+      new File(jpsRoot, "jline.jar"),
+      new File(jpsRoot, "scala-jps-plugin.jar"))
+  }
+
+  def jvmParameters = {
+    val settings = ScalaApplicationSettings.getInstance
+    val xmx = settings.COMPILE_SERVER_MAXIMUM_HEAP_SIZE |> { size =>
+      if (size.isEmpty) Nil else List("-Xmx%sm".format(size))
+    }
+
+    xmx ++ settings.COMPILE_SERVER_JVM_PARAMETERS.split(" ").toSeq
+  }
 }
 
 private case class ServerInstance(watcher: ProcessWatcher, port: Int) {
