@@ -22,12 +22,12 @@ public class MyWorksheetRunner {
         if ("main".equals(method.getName())) method.invoke(null, methodArgs);
       }
       
-    } catch (ClassNotFoundException | IllegalAccessException | IllegalArgumentException e) {
-      e.printStackTrace(System.out);
     } catch (InvocationTargetException e) {
       Throwable newThrowable = 
           new StackTraceClean(e.getCause() == null? e : e.getCause(), fileName, className + "$" + className).clean();
       newThrowable.printStackTrace(System.out);
+    } catch (Exception e) {
+      e.printStackTrace(System.out);
     }
   }
   
