@@ -178,11 +178,16 @@ class ImplicitParametersCollector(place: PsiElement, tp: ScType, coreElement: Op
 
                         if (lastImplicit.isDefined &&
                           searchImplicitsRecursively < ScalaProjectSettings.getInstance(place.getProject).getImplicitParametersSearchDepth) {
-                          val (resType, _) = InferUtil.updateTypeWithImplicitParameters(nonValueType.getOrElse(throw new SafeCheckException),
+                          val (resType, results) = InferUtil.updateTypeWithImplicitParameters(nonValueType.getOrElse(throw new SafeCheckException),
                             place, Some(fun), check = true, searchImplicitsRecursively + 1, checkAnyway = true)
                           val valueType: ValueType = resType.inferValueType
                           InferUtil.logInfo(searchImplicitsRecursively, "Implicit parameters search, function type after additional implicit search: " + valueType.toString)
-                          Some(c.copy(implicitParameterType = Some(valueType)), subst)
+                          def addImportsUsed(result: ScalaResolveResult, results: Seq[ScalaResolveResult]): ScalaResolveResult = {
+                            results.foldLeft(result) {
+                              case (r1: ScalaResolveResult, r2: ScalaResolveResult) => r1.copy(importsUsed = r1.importsUsed ++ r2.importsUsed)
+                            }
+                          }
+                          Some(addImportsUsed(c.copy(implicitParameterType = Some(valueType)), results.getOrElse(Seq.empty)), subst)
                         } else {
                           Some(c.copy(implicitParameterType = Some(nonValueType.getOrElse(throw new SafeCheckException).inferValueType)), subst)
                         }
