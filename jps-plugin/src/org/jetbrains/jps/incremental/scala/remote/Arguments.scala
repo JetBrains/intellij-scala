@@ -10,7 +10,7 @@ import org.jetbrains.plugin.scala.compiler.{CompileOrder, IncrementalType}
 /**
  * @author Pavel Fatin
  */
-case class Arguments(sbtData: SbtData, compilerData: CompilerData, compilationData: CompilationData) {
+case class Arguments(sbtData: SbtData, compilerData: CompilerData, compilationData: CompilationData, worksheetFiles: Seq[String]) {
   def asStrings: Seq[String] = {
     val (outputs, caches) = compilationData.outputToCacheMap.toSeq.unzip
 
@@ -40,7 +40,8 @@ case class Arguments(sbtData: SbtData, compilerData: CompilerData, compilationDa
       filesToPaths(caches),
       incrementalType.name,
       filesToPaths(sourceRoots),
-      filesToPaths(outputDirs)
+      filesToPaths(outputDirs), 
+      sequenceToString(worksheetFiles)
     )
   }
 }
@@ -67,7 +68,8 @@ object Arguments {
     PathsToFiles(caches),
     incrementalTypeName,
     PathsToFiles(sourceRoots),
-    PathsToFiles(outputDirs)) =>
+    PathsToFiles(outputDirs), 
+    StringToSequence(worksheetClass)) =>
 
       val sbtData = SbtData(interfaceJar, sourceJar, interfacesHome, javaClassVersion)
 
@@ -91,7 +93,7 @@ object Arguments {
       val compilationData = CompilationData(sources, classpath, output, scalaOptions, javaOptions, CompileOrder.valueOf(order), cacheFile, outputToCacheMap, outputGroups)
 
 
-      Arguments(sbtData, compilerData, compilationData)
+      Arguments(sbtData, compilerData, compilationData, worksheetClass)
   }
 
   private def fileToPath(file: File): String = FileUtil.toCanonicalPath(file.getPath)

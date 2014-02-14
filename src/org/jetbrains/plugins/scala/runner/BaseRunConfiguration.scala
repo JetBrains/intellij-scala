@@ -79,7 +79,7 @@ abstract class BaseRunConfiguration(val project: Project, val configurationFacto
     params.getClassPath.addAllFiles(files.asJava)
     params.setUseDynamicClasspath(JdkUtil.useDynamicClasspath(getProject))
     params.setUseDynamicVMOptions(JdkUtil.useDynamicVMOptions())
-    params.getClassPath.add(PathUtil.getJarPathForClass(classOf[_root_.org.jetbrains.plugins.scala.worksheet.WorksheetRunner]))
+    params.getClassPath.add(PathUtil.getJarPathForClass(classOf[_root_.org.jetbrains.plugins.scala.worksheet.MyWorksheetRunner]))
     params.setWorkingDirectory(workingDirectory)
     params.setMainClass(mainClass)
     params.configureByModule(module, JavaParameters.JDK_AND_CLASSES_AND_TESTS)

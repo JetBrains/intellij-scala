@@ -145,7 +145,7 @@ class CompileServerManager(project: Project) extends ProjectComponent {
      }
 
      def actionPerformed(e: AnActionEvent) {
-       launcher.stop()
+       launcher.stop(e.getProject)
      }
    }
 

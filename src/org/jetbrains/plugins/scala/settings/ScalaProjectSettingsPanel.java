@@ -46,6 +46,7 @@ public class ScalaProjectSettingsPanel {
   private JSpinner outputSpinner;
   private JSpinner implicitParametersSearchDepthSpinner;
   private JCheckBox myDontCacheCompound;
+  private JCheckBox runWorksheetInTheCheckBox;
   private ScalaUiWithDependency.ComponentWithSettings injectionPrefixTable;
   private JBList referencesWithPrefixList;
   private DefaultListModel myReferencesWithPrefixModel;
@@ -100,6 +101,7 @@ public class ScalaProjectSettingsPanel {
     scalaProjectSettings.setClassCountToUseImportOnDemand((Integer) classCountSpinner.getValue());
     scalaProjectSettings.setShift((Integer) shiftSpinner.getValue());
     scalaProjectSettings.setOutputLimit((Integer) outputSpinner.getValue());
+    scalaProjectSettings.setInProcessMode(runWorksheetInTheCheckBox.isSelected());
     scalaProjectSettings.setImportMembersUsingUnderScore(importMembersUsingUnderscoreCheckBox.isSelected());
 
     scalaProjectSettings.setSearchAllSymbols(searchAllSymbolsIncludeCheckBox.isSelected());
@@ -145,6 +147,8 @@ public class ScalaProjectSettingsPanel {
         (Integer) shiftSpinner.getValue()) return true;
     if (scalaProjectSettings.getOutputLimit() !=
         (Integer) outputSpinner.getValue()) return true;
+    if (scalaProjectSettings.isInProcessMode() != 
+        runWorksheetInTheCheckBox.isSelected()) return true;
     if (scalaProjectSettings.isAddImportMostCloseToReference() !=
         addImportStatementInCheckBox.isSelected()) return true;
     if (scalaProjectSettings.isAddFullQualifiedImports() !=
@@ -207,6 +211,7 @@ public class ScalaProjectSettingsPanel {
     setValue(classCountSpinner, scalaProjectSettings.getClassCountToUseImportOnDemand());
     setValue(shiftSpinner, scalaProjectSettings.getShift());
     setValue(outputSpinner, scalaProjectSettings.getOutputLimit());
+    setValue(runWorksheetInTheCheckBox, scalaProjectSettings.isInProcessMode());
     setValue(importMembersUsingUnderscoreCheckBox, scalaProjectSettings.isImportMembersUsingUnderScore());
 
     setValue(searchAllSymbolsIncludeCheckBox, scalaProjectSettings.isSearchAllSymbols());

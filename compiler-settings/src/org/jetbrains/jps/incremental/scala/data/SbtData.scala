@@ -1,7 +1,8 @@
 package org.jetbrains.jps.incremental.scala
 package data
 
-import java.io.File
+import java.io.{BufferedInputStream, File}
+import org.jetbrains.jps.incremental.scala._
 
 /**
  * @author Pavel Fatin
@@ -17,20 +18,20 @@ object SbtData {
       "SBT home directory does not exist: " + pluginRoot).flatMap { sbtHome =>
 
       Option(sbtHome.listFiles)
-              .toRight("Invalid SBT home directory: " + sbtHome.getPath)
-              .flatMap { files =>
+        .toRight("Invalid SBT home directory: " + sbtHome.getPath)
+        .flatMap { files =>
 
         files.find(_.getName == "sbt-interface.jar")
-                .toRight("No 'sbt-interface.jar' in SBT home directory")
-                .flatMap { interfaceJar =>
+          .toRight("No 'sbt-interface.jar' in SBT home directory")
+          .flatMap { interfaceJar =>
 
           files.find(_.getName == "compiler-interface-sources.jar")
-                  .toRight("No 'compiler-interface-sources.jar' in SBT home directory")
-                  .flatMap { sourceJar =>
+            .toRight("No 'compiler-interface-sources.jar' in SBT home directory")
+            .flatMap { sourceJar =>
 
             readSbtVersionFrom(classLoader)
-                    .toRight("Unable to read SBT version from JVM classpath")
-                    .map { sbtVersion =>
+              .toRight("Unable to read SBT version from JVM classpath")
+              .map { sbtVersion =>
 
               val interfacesHome = new File(new File(systemRoot, "scala-compiler-interfaces"), sbtVersion + "-idea")
 
@@ -46,8 +47,8 @@ object SbtData {
     readProperty(classLoader, "xsbt.version.properties", "version").map { version =>
       if (version.endsWith("-SNAPSHOT")) {
         readProperty(getClass.getClassLoader, "xsbt.version.properties", "timestamp")
-                .map(timestamp => version + "-" + timestamp)
-                .getOrElse(version)
+          .map(timestamp => version + "-" + timestamp)
+          .getOrElse(version)
       } else {
         version
       }

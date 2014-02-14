@@ -73,7 +73,7 @@ class ServerMediator(project: Project) extends ProjectComponent {
           }
         } else {
           invokeAndWait {
-            CompileServerLauncher.instance.stop()
+            CompileServerLauncher.instance.stop(project)
             CompileServerManager.instance(project).removeWidget()
           }
         }
