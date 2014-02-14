@@ -22,7 +22,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
 import collection.mutable.ArrayBuffer
 import psi.api.base.ScReferenceElement
-import psi.api.toplevel.typedef.ScTypeDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTypeDefinition}
 import psi.api.statements.{ScFunction, ScFunctionDefinition}
 import psi.api.{ScalaElementVisitor, ScalaRecursiveElementVisitor, ScalaFile}
 import psi.api.base.patterns.ScCaseClause
@@ -32,6 +32,7 @@ import org.jetbrains.plugins.scala.extensions.{toPsiElementExt, Parent, toPsiNam
 import com.intellij.psi.codeStyle.CodeStyleManager
 import scala.annotation.tailrec
 import scala.collection.mutable
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 
 /**
  * User: Alexander Podkhalyuzin
@@ -62,11 +63,17 @@ class ScalaExtractMethodHandler extends RefactoringActionHandler {
     val startElement: PsiElement = file.findElementAt(editor.getSelectionModel.getSelectionStart)
     val endElement: PsiElement = file.findElementAt(editor.getSelectionModel.getSelectionEnd - 1)
     val elements = ScalaPsiUtil.getElementsRange(startElement, endElement).toArray
-    if (elements.length == 0) {
+    def acceptable(elem: PsiElement): Boolean = elem match {
+      case _: ScBlockStatement => true
+      case comm: PsiComment if !comm.getParent.isInstanceOf[ScMember] => true
+      case _: PsiWhiteSpace => true
+      case _ if ScalaTokenTypes.tSEMICOLON == elem.getNode.getElementType => true
+      case _ => false
+    }
+    if (elements.length == 0 || !elements.forall(acceptable) || !elements.exists(_.isInstanceOf[ScBlockStatement])) {
       showErrorMessage(ScalaBundle.message("cannot.extract.empty.message"), project, editor)
       return
     }
-
 
     def checkLastReturn(elem: PsiElement): Boolean = {
       elem match {
