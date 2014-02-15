@@ -20,7 +20,7 @@ import org.jetbrains.plugins.scala.extensions.toPsiMemberExt
 import org.jetbrains.plugins.scala.lang.psi.implicits.ScImplicitlyConvertible.ImplicitResolveResult
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameterClause
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
 
 /**
  * User: Alexander Podkhalyuzin
@@ -222,24 +222,22 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
     }
   }
 
+  /**
+   * c1 is a subclass of c2, or
+   * c1 is a companion object of a class derived from c2, or
+   * c2 is a companion object of a class fromwhich c1 is derived.
+   * @return true is c1 is derived from c2, false if c1 or c2 is None
+   */
   def isDerived(c1: Option[PsiClass], c2: Option[PsiClass]): Boolean = {
     (c1, c2) match {
       case (Some(clazz1), Some(clazz2)) =>
         if (clazz1 == clazz2) return false
         if (ScalaPsiUtil.cachedDeepIsInheritor(clazz1, clazz2)) return true
-        ScalaPsiUtil.getCompanionModule(clazz1) match {
-          case Some(companion1) => if (ScalaPsiUtil.cachedDeepIsInheritor(companion1, clazz2)) return true
-          case _ =>
+        (clazz1, clazz2) match {
+          case (clazz1: ScObject, _) => isDerived(ScalaPsiUtil.getCompanionModule(clazz1), Some(clazz2))
+          case (_, clazz2: ScObject) => isDerived(Some(clazz1), ScalaPsiUtil.getCompanionModule(clazz2))
+          case _ => false
         }
-        ScalaPsiUtil.getCompanionModule(clazz2) match {
-          case Some(companion2) => if (ScalaPsiUtil.cachedDeepIsInheritor(clazz1, companion2)) return true
-          case _ =>
-        }
-        (ScalaPsiUtil.getCompanionModule(clazz1), ScalaPsiUtil.getCompanionModule(clazz2)) match {
-          case (Some(companion1), Some(companion2)) => if (ScalaPsiUtil.cachedDeepIsInheritor(companion1, companion2)) return true
-          case _ =>
-        }
-        false
       case _ => false
     }
   }
