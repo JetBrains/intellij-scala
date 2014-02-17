@@ -45,15 +45,14 @@ object InferUtil {
    */
   def updateTypeWithImplicitParameters(res: ScType, element: PsiElement, coreElement: Option[ScNamedElement],
                                        check: Boolean,
-                                       searchImplicitsRecursively: Int = 0,
-                                       checkAnyway: Boolean = false): (ScType, Option[Seq[ScalaResolveResult]]) = {
+                                       searchImplicitsRecursively: Int = 0): (ScType, Option[Seq[ScalaResolveResult]]) = {
     var resInner = res
     var implicitParameters: Option[Seq[ScalaResolveResult]] = None
     res match {
       case t@ScTypePolymorphicType(mt@ScMethodType(retType, params, impl), typeParams) if !impl =>
         // See SCL-3516
         val (updatedType, ps) = 
-          updateTypeWithImplicitParameters(t.copy(internalType = retType), element, coreElement, check, checkAnyway = checkAnyway)
+          updateTypeWithImplicitParameters(t.copy(internalType = retType), element, coreElement, check)
         implicitParameters = ps
         updatedType match {
           case tpt: ScTypePolymorphicType =>
@@ -81,7 +80,7 @@ object InferUtil {
                 val (paramsForInfer, exprs, resolveResults) =
                   findImplicits(paramsSingle, coreElement, element, check, searchImplicitsRecursively, abstractSubstitutor, polymorphicSubst)
                 resInner = ScalaPsiUtil.localTypeInference(retTypeSingle, paramsForInfer, exprs, typeParamsSingle,
-                  safeCheck = check, checkAnyway = checkAnyway)
+                  safeCheck = check)
                 paramsForInferBuffer ++= paramsForInfer
                 exprsBuffer ++= exprs
                 resolveResultsBuffer ++= resolveResults
@@ -102,7 +101,7 @@ object InferUtil {
         resInner = dependentSubst.subst(resInner)
       case mt@ScMethodType(retType, params, isImplicit) if !isImplicit =>
         // See SCL-3516
-        val (updatedType, ps) = updateTypeWithImplicitParameters(retType, element, coreElement, check, checkAnyway = checkAnyway)
+        val (updatedType, ps) = updateTypeWithImplicitParameters(retType, element, coreElement, check)
         implicitParameters = ps
         resInner = mt.copy(returnType = updatedType)(mt.project, mt.scope)
       case ScMethodType(retType, params, isImplicit) if isImplicit => {
@@ -214,8 +213,7 @@ object InferUtil {
   def updateAccordingToExpectedType(_nonValueType: TypeResult[ScType],
                                     fromImplicitParameters: Boolean,
                                     expectedType: Option[ScType], expr: PsiElement,
-                                    check: Boolean,
-                                    checkAnyway: Boolean = false): TypeResult[ScType] = {
+                                    check: Boolean): TypeResult[ScType] = {
     var nonValueType = _nonValueType
     nonValueType match {
       case Success(ScTypePolymorphicType(m@ScMethodType(internal, params, impl), typeParams), _)
@@ -229,7 +227,7 @@ object InferUtil {
           val update: ScTypePolymorphicType = ScalaPsiUtil.localTypeInference(m,
             Seq(Parameter("", None, expected, expected, isDefault = false, isRepeated = false, isByName = false)),
             Seq(new Expression(ScalaPsiUtil.undefineSubstitutor(typeParams).subst(innerInternal.inferValueType))),
-            typeParams, shouldUndefineParameters = false, safeCheck = check, filterTypeParams = false, checkAnyway = checkAnyway)
+            typeParams, shouldUndefineParameters = false, safeCheck = check, filterTypeParams = false)
           nonValueType = Success(update, Some(expr)) //here should work in different way:
         }
         updateRes(expectedType.get)
@@ -241,7 +239,7 @@ object InferUtil {
             Seq(Parameter("", None, expected, expected, isDefault = false, isRepeated = false, isByName = false)),
               Seq(new Expression(ScalaPsiUtil.undefineSubstitutor(typeParams).subst(internal.inferValueType))),
             typeParams, shouldUndefineParameters = false, safeCheck = check,
-            filterTypeParams = false, checkAnyway = checkAnyway), Some(expr)) //here should work in different way:
+            filterTypeParams = false), Some(expr)) //here should work in different way:
         }
         updateRes(expectedType.get)
       }

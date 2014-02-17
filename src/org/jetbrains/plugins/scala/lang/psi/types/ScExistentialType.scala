@@ -3,7 +3,7 @@ package lang
 package psi
 package types
 
-import _root_.scala.collection.immutable.HashSet
+import scala.collection.immutable.{Set, HashSet}
 import collection.mutable.ArrayBuffer
 import api.statements.ScTypeAlias
 import api.base.types.ScExistentialClause
@@ -12,6 +12,7 @@ import api.toplevel.typedef.ScTypeDefinition
 import api.statements.params.ScTypeParam
 import types.Conformance.AliasType
 import collection.mutable
+import org.jetbrains.plugins.scala.extensions.toPsiNamedElementExt
 
 /**
 * @author ilyas
@@ -142,6 +143,42 @@ case class ScExistentialType(quantified : ScType,
     var undefinedSubst = uSubst
     val simplified = simplify()
     if (this != simplified) return Equivalence.equivInner(simplified, r, undefinedSubst, falseUndef)
+    quantified match {
+      case ScParameterizedType(a: ScAbstractType, args) if !falseUndef =>
+        val subst = new ScSubstitutor(Map(a.tpt.args.zip(args).map {
+          case (tpt: ScTypeParameterType, tp: ScType) =>
+            ((tpt.param.name, ScalaPsiUtil.getPsiElementId(tpt.param)), tp)
+        }: _*), Map.empty, None)
+        val upper: ScType =
+          subst.subst(a.upper) match {
+            case ScParameterizedType(u, _) => ScExistentialType(ScParameterizedType(u, args), wildcards)
+            case u => ScExistentialType(ScParameterizedType(u, args), wildcards)
+          }
+        val t = Conformance.conformsInner(upper, r, Set.empty, undefinedSubst)
+        if (!t._1) return t
+
+        val lower: ScType =
+          subst.subst(a.lower) match {
+            case ScParameterizedType(l, _) => ScExistentialType(ScParameterizedType(l, args), wildcards)
+            case l => ScExistentialType(ScParameterizedType(l, args), wildcards)
+          }
+        return Conformance.conformsInner(r, lower, Set.empty, t._2)
+      case ScParameterizedType(a: ScUndefinedType, args) if !falseUndef =>
+        r match {
+          case ScParameterizedType(des, _) =>
+            val tpt = a.tpt
+            undefinedSubst = undefinedSubst.addLower((tpt.name, tpt.getId), des)
+            undefinedSubst = undefinedSubst.addUpper((tpt.name, tpt.getId), des)
+            return Equivalence.equivInner(ScExistentialType(ScParameterizedType(des, args), wildcards), r, undefinedSubst, falseUndef)
+          case ScExistentialType(ScParameterizedType(des, _), _) =>
+            val tpt = a.tpt
+            undefinedSubst = undefinedSubst.addLower((tpt.name, tpt.getId), des)
+            undefinedSubst = undefinedSubst.addUpper((tpt.name, tpt.getId), des)
+            return Equivalence.equivInner(ScExistentialType(ScParameterizedType(des, args), wildcards), r, undefinedSubst, falseUndef)
+          case _ => return (false, undefinedSubst) //looks like something is wrong
+        }
+      case _ =>
+    }
     r match {
       case ex: ScExistentialType => {
         val simplified = ex.simplify()
