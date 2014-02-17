@@ -441,7 +441,10 @@ object ScalaPsiElementFactory {
 
   def createDeclaration(typez: ScType, name: String, isVariable: Boolean,
                         expr: ScExpression, manager: PsiManager, isPresentableText: Boolean): ScMember = {
-    val typeText = if(isPresentableText) typez.presentableText else typez.canonicalText
+    val typeText =
+      if (typez == null) ""
+      else if(isPresentableText) typez.presentableText
+      else typez.canonicalText
     createDeclaration(name, typeText, isVariable, expr, manager)
   }
 
