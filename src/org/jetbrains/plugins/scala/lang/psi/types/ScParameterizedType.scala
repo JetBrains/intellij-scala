@@ -227,6 +227,7 @@ case class ScParameterizedType(designator : ScType, typeArgs : Seq[ScType]) exte
       case (ScParameterizedType(designator, typeArgs), ScParameterizedType(designator1, typeArgs1)) => {
         var t = Equivalence.equivInner(designator, designator1, undefinedSubst, falseUndef)
         if (!t._1) return (false, undefinedSubst)
+        undefinedSubst = t._2
         if (typeArgs.length != typeArgs1.length) return (false, undefinedSubst)
         val iterator1 = typeArgs.iterator
         val iterator2 = typeArgs1.iterator

@@ -172,14 +172,14 @@ class ImplicitParametersCollector(place: PsiElement, tp: ScType, coreElement: Op
                         val expected = Some(tp)
                         InferUtil.logInfo(searchImplicitsRecursively, "Implicit parameters search, function type: " + nonValueType.toString)
                         nonValueType = InferUtil.updateAccordingToExpectedType(nonValueType,
-                          fromImplicitParameters = true, expected, place, check = true, checkAnyway = true)
+                          fromImplicitParameters = true, expected, place, check = true)
 
                         InferUtil.logInfo(searchImplicitsRecursively, "Implicit parameters search, function type after expected type: " + nonValueType.toString)
 
                         if (lastImplicit.isDefined &&
                           searchImplicitsRecursively < ScalaProjectSettings.getInstance(place.getProject).getImplicitParametersSearchDepth) {
                           val (resType, results) = InferUtil.updateTypeWithImplicitParameters(nonValueType.getOrElse(throw new SafeCheckException),
-                            place, Some(fun), check = true, searchImplicitsRecursively + 1, checkAnyway = true)
+                            place, Some(fun), check = true, searchImplicitsRecursively + 1)
                           val valueType: ValueType = resType.inferValueType
                           InferUtil.logInfo(searchImplicitsRecursively, "Implicit parameters search, function type after additional implicit search: " + valueType.toString)
                           def addImportsUsed(result: ScalaResolveResult, results: Seq[ScalaResolveResult]): ScalaResolveResult = {
@@ -226,6 +226,7 @@ class ImplicitParametersCollector(place: PsiElement, tp: ScType, coreElement: Op
                     case tp: ScType if hasTypeParametersInType => (true, tp)
                     case tp: ScType => (false, tp)
                   }
+                  InferUtil.logInfo(searchImplicitsRecursively, s"Check as implicit parameter for fun `${fun.name}` with type ${funType.toString}")
                   if (withLocalTypeInference && hasTypeParametersInType) {
                     val inferredSubst = subst.followed(ScalaPsiUtil.inferMethodTypesArgs(fun, subst))
                     substedFunType = inferredSubst subst funType

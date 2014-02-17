@@ -78,11 +78,18 @@ import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.TypeParameter
 import org.jetbrains.plugins.scala.lang.psi.types.ScProjectionType
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import com.intellij.codeInsight.PsiEquivalenceUtil
+import com.intellij.openapi.diagnostic.Logger
 
 /**
  * User: Alexander Podkhalyuzin
  */
 object ScalaPsiUtil {
+  def debug(message: => String)(implicit logger: Logger) {
+    if (logger.isDebugEnabled) {
+      logger.debug(message)
+    }
+  }
+
   @tailrec
   def firstLeaf(elem: PsiElement): PsiElement = {
     val firstChild: PsiElement = elem.getFirstChild
@@ -794,10 +801,9 @@ object ScalaPsiUtil {
                          typeParams: Seq[TypeParameter],
                          shouldUndefineParameters: Boolean = true,
                          safeCheck: Boolean = false,
-                         filterTypeParams: Boolean = true,
-                         checkAnyway: Boolean = false): ScTypePolymorphicType = {
+                         filterTypeParams: Boolean = true): ScTypePolymorphicType = {
     localTypeInferenceWithApplicability(retType, params, exprs, typeParams, shouldUndefineParameters, safeCheck,
-      filterTypeParams, checkAnyway)._1
+      filterTypeParams)._1
   }
 
 
@@ -808,10 +814,9 @@ object ScalaPsiUtil {
                                           typeParams: Seq[TypeParameter],
                                           shouldUndefineParameters: Boolean = true,
                                           safeCheck: Boolean = false,
-                                          filterTypeParams: Boolean = true,
-                                          checkAnyway: Boolean = false): (ScTypePolymorphicType, Seq[ApplicabilityProblem]) = {
+                                          filterTypeParams: Boolean = true): (ScTypePolymorphicType, Seq[ApplicabilityProblem]) = {
     val (tp, problems, _, _) = localTypeInferenceWithApplicabilityExt(retType, params, exprs, typeParams,
-      shouldUndefineParameters, safeCheck, filterTypeParams, checkAnyway)
+      shouldUndefineParameters, safeCheck, filterTypeParams)
     (tp, problems)
   }
 
@@ -819,8 +824,7 @@ object ScalaPsiUtil {
                                              typeParams: Seq[TypeParameter],
                                              shouldUndefineParameters: Boolean = true,
                                              safeCheck: Boolean = false,
-                                             filterTypeParams: Boolean = true,
-                                             checkAnyway: Boolean = false
+                                             filterTypeParams: Boolean = true
     ): (ScTypePolymorphicType, Seq[ApplicabilityProblem], Seq[(Parameter, ScExpression)], Seq[(Parameter, ScType)]) = {
     // See SCL-3052, SCL-3058
     // This corresponds to use of `isCompatible` in `Infer#methTypeArgs` in scalac, where `isCompatible` uses `weak_<:<`
@@ -909,18 +913,73 @@ object ScalaPsiUtil {
                 }
               }
             }
+
+            def updateWithSubst(sub: ScSubstitutor): ScTypePolymorphicType = {
+              ScTypePolymorphicType(sub.subst(retType), typeParams.filter {
+                case tp =>
+                  val name = (tp.name, ScalaPsiUtil.getPsiElementId(tp.ptp))
+                  val removeMe: Boolean = un.names.contains(name)
+                  if (removeMe && safeCheck) {
+                    //let's check type parameter kinds
+                    def checkTypeParam(typeParam: ScTypeParam, tp: => ScType): Boolean = {
+                      val typeParams: Seq[ScTypeParam] = typeParam.typeParameters
+                      if (typeParams.isEmpty) return true
+                      tp match {
+                        case ScParameterizedType(_, typeArgs) =>
+                          if (typeArgs.length != typeParams.length) return false
+                          typeArgs.zip(typeParams).forall {
+                            case (tp: ScType, typeParam: ScTypeParam) => checkTypeParam(typeParam, tp)
+                          }
+                        case f: ScFunctionType =>
+                          f.resolveFunctionTrait match {
+                            case Some(ft) => checkTypeParam(typeParam, ft)
+                            case _ => false
+                          }
+                        case t: ScTupleType =>
+                          t.resolveTupleTrait match {
+                            case Some(ft) => checkTypeParam(typeParam, ft)
+                            case _ => false
+                          }
+                        case _ =>
+                          def checkNamed(named: PsiNamedElement, typeParams: Seq[ScTypeParam]): Boolean = {
+                            named match {
+                              case t: ScTypeParametersOwner =>
+                                if (typeParams.length != t.typeParameters.length) return false
+                                typeParams.zip(t.typeParameters).forall {
+                                  case (p1: ScTypeParam, p2: ScTypeParam) =>
+                                    if (p1.typeParameters.nonEmpty) checkNamed(p2, p1.typeParameters)
+                                    else true
+                                }
+                              case p: PsiTypeParameterListOwner =>
+                                if (typeParams.length != p.getTypeParameters.length) return false
+                                typeParams.forall(_.typeParameters.isEmpty)
+                              case _ => false
+                            }
+                          }
+                          ScType.extractDesignated(tp, withoutAliases = false) match {
+                            case Some((named, _)) => checkNamed(named, typeParams)
+                            case _ => tp match {
+                              case tpt: ScTypeParameterType => checkNamed(tpt.param, typeParams)
+                              case _ => false
+                            }
+                          }
+                      }
+                    }
+                    tp.ptp match {
+                      case typeParam: ScTypeParam =>
+                        if (!checkTypeParam(typeParam, sub.subst(new ScTypeParameterType(tp.ptp, ScSubstitutor.empty))))
+                          throw new SafeCheckException
+                      case _ =>
+                    }
+                  }
+                  !removeMe
+              }.map(tp => TypeParameter(tp.name, sub.subst(tp.lowerType), sub.subst(tp.upperType), tp.ptp)))
+            }
+
             un.getSubstitutor match {
-              case Some(unSubstitutor) =>
-                ScTypePolymorphicType(unSubstitutor.subst(retType), typeParams.filter {case tp =>
-                  val name = (tp.name, ScalaPsiUtil.getPsiElementId(tp.ptp))
-                  !un.names.contains(name)
-                }.map(tp => TypeParameter(tp.name, unSubstitutor.subst(tp.lowerType), unSubstitutor.subst(tp.upperType), tp.ptp)))
-              case _ =>
-                if (checkAnyway) throw new SafeCheckException
-                ScTypePolymorphicType(unSubst.subst(retType), typeParams.filter {case tp =>
-                  val name = (tp.name, ScalaPsiUtil.getPsiElementId(tp.ptp))
-                  !un.names.contains(name)
-                }.map(tp => TypeParameter(tp.name, unSubst.subst(tp.lowerType), unSubst.subst(tp.upperType), tp.ptp)))
+              case Some(unSubstitutor) => updateWithSubst(unSubstitutor)
+              case _ if safeCheck => throw new SafeCheckException
+              case _ => updateWithSubst(unSubst)
             }
           }
         case None => throw new SafeCheckException
