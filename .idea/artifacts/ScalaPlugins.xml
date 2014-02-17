@@ -29,6 +29,9 @@
         <element id="archive" name="compiler-settings.jar">
           <element id="module-output" name="compiler-settings" />
         </element>
+        <element id="archive" name="scala-nailgun-runner.jar">
+          <element id="module-output" name="NailgunRunners" />
+        </element>
       </element>
       <element id="directory" name="launcher">
         <element id="file-copy" path="$PROJECT_DIR$/SBT/lib/sbt-launch.jar" />
