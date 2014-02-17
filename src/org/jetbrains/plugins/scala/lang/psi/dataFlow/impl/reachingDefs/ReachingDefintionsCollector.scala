@@ -1,21 +1,23 @@
 package org.jetbrains.plugins.scala.lang.psi.dataFlow.impl.reachingDefs
 
-import _root_.org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScStableCodeReferenceElement, ScReferenceElement}
 import _root_.org.jetbrains.plugins.scala.lang.psi.api.{ScalaRecursiveElementVisitor, ScControlFlowOwner}
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.lang.psi.dataFlow.DfaEngine
 import org.jetbrains.plugins.scala.lang.psi.controlFlow.Instruction
 import collection.mutable.ArrayBuffer
-import com.intellij.psi.{PsiMethod, PsiNamedElement, PsiElement}
+import com.intellij.psi.{PsiClass, PsiMethod, PsiNamedElement, PsiElement}
 import org.jetbrains.plugins.scala.lang.psi.controlFlow.impl.{ReadWriteVariableInstruction, DefineValueInstruction}
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiUtil, ScalaPsiElement}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFun, ScFunction}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScValueDeclaration, ScTypeAlias, ScFun, ScFunction}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScFunctionExpr
 import scala.collection.mutable
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.extensions._
 import com.intellij.codeInsight.PsiEquivalenceUtil
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTypeDefinition, ScObject}
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSimpleTypeElement
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.{SyntheticNamedElement, ScSyntheticFunction}
 
 /**
  * @author ilyas
@@ -30,20 +32,20 @@ object ReachingDefintionsCollector {
       elementsForScope += element
       element = element.getNextSibling
     }
-    collectVariableInfo(elements, elementToFragmentMapper(elementsForScope.toSeq))
+    collectVariableInfo(elements, ancestorFilter(elementsForScope.toSeq))
   }
   def collectVariableInfo(elements: Seq[PsiElement], place: ScalaPsiElement): FragmentVariableInfos =
-    collectVariableInfo(elements, noResolveFilter(place))
+    collectVariableInfo(elements, visibilityFilter(place))
   /**
    * @param elements a fragment to analyze
-   * @param scopeFilter since Extract Method refactoring is in fact RDC's main client, it should define a scope
-   *                  where to look for captured variables
+   * @param isVisible since Extract Method refactoring is in fact RDC's main client, it should define if we need to
+   *                  use captured variable as an argument
    */
-  def collectVariableInfo(elements: Seq[PsiElement], scopeFilter: (PsiNamedElement) => Boolean): FragmentVariableInfos = {
+  def collectVariableInfo(elements: Seq[PsiElement], isVisible: (PsiNamedElement) => Boolean): FragmentVariableInfos = {
     import PsiTreeUtil._
-    val isInFragment = elementToFragmentMapper(elements)
+    val isInFragment = ancestorFilter(elements)
     // for every reference element, define is it's definition in scope
-    val inputInfos = getInputInfo(elements, isInFragment, scopeFilter)
+    val inputInfos = getInputInfo(elements, isInFragment, isVisible)
 
     // CFG -> DFA
     val commonParent = findCommonParent(elements: _*)
@@ -72,50 +74,47 @@ object ReachingDefintionsCollector {
     FragmentVariableInfos(inputInfos, outputInfos)
   }
 
-  private def elementToFragmentMapper(elements: Seq[PsiElement]) = new ((PsiElement) => Boolean) {
-    val elem2Outer: mutable.Map[PsiElement, Boolean] = new mutable.HashMap[PsiElement, Boolean]
+  private def ancestorFilter(elements: Seq[PsiElement]) = new ((PsiElement) => Boolean) {
+    val cache: mutable.Map[PsiElement, Boolean] = new mutable.HashMap[PsiElement, Boolean]
 
-    def apply(elem: PsiElement): Boolean = elem != null && (elem2Outer.get(elem) match {
-      case Some(b) => b
-      case None =>
-        for (e <- elements) {
-          if (PsiTreeUtil.findCommonParent(e, elem) eq e) {
-            elem2Outer + (elem -> true)
-            return true
-          }
-        }
-        elem2Outer + (elem -> false)
-        false
-    })
+    def apply(elem: PsiElement): Boolean = {
+      if (elem == null) return false
+      cache.getOrElseUpdate(elem, elements.exists(e => PsiTreeUtil.isAncestor(e, elem, false)))
+    }
   }
 
-  //defines if `place` in the scope of the given PsiNamedElement
-  private def noResolveFilter(place: ScalaPsiElement) = new ((PsiNamedElement) => Boolean) {
+  //defines if the given PsiNamedElement is visible at `place`
+  private def visibilityFilter(place: ScalaPsiElement) = new ((PsiNamedElement) => Boolean) {
     val cache: mutable.Map[PsiElement, Boolean] = new mutable.HashMap[PsiElement, Boolean]
 
     def apply(elem: PsiNamedElement): Boolean = {
-      def resolver(ref: PsiElement): Boolean = ref match {
+      def checkResolve(ref: PsiElement) = cache.getOrElseUpdate(ref, ref match {
         case r: ScReferenceElement =>
-          Option(r.resolve()).exists(PsiEquivalenceUtil.areElementsEquivalent(_, elem))
+          r.multiResolve(false).map(_.getElement).exists(PsiEquivalenceUtil.areElementsEquivalent(_, elem))
         case _ => false
-      }
+      })
       val isInstanceMethod = elem match {
         case fun: ScFunction => fun.isInstance && !fun.containingClass.isInstanceOf[ScObject]
-        case fun: ScFun => true
         case m: PsiMethod => !m.hasModifierPropertyScala("static")
         case _ => false
       }
+      val isSynthetic = elem.isInstanceOf[SyntheticNamedElement]
+      import ScalaPsiElementFactory.{createExpressionWithContextFromText, createDeclarationFromText}
       val resolvesAtNewPlace = elem match {
         case _: PsiMethod | _: ScFun =>
-          cache.getOrElseUpdate(elem,
-            resolver(ScalaPsiElementFactory.createExpressionWithContextFromText(elem.name + " _", place.getContext, place).getFirstChild)
-          )
+          checkResolve(createExpressionWithContextFromText(elem.name + " _", place.getContext, place).getFirstChild) ||
+          checkResolve(createExpressionWithContextFromText(elem.getText + " _", place.getContext, place))
+        case _: ScTypeAlias | _: ScTypeDefinition =>
+          val decl = createDeclarationFromText(s"val dummyVal: ${elem.name}", place.getContext, place).asInstanceOf[ScValueDeclaration]
+          decl.typeElement match {
+            case Some(st: ScSimpleTypeElement) => st.reference.exists(checkResolve)
+            case _ => false
+          }
         case _ =>
-          cache.getOrElseUpdate(elem,
-            resolver(ScalaPsiElementFactory.createExpressionWithContextFromText(elem.name, place.getContext, place))
-          )
+          checkResolve(createExpressionWithContextFromText(elem.name, place.getContext, place)) ||
+          checkResolve(createExpressionWithContextFromText(elem.getText, place.getContext, place))
       }
-      !isInstanceMethod && !resolvesAtNewPlace
+      isInstanceMethod || isSynthetic || resolvesAtNewPlace
     }
   }
 
@@ -127,7 +126,7 @@ object ReachingDefintionsCollector {
 
   private def getInputInfo(elements: Seq[PsiElement],
                            isInFragment: (PsiElement) => Boolean,
-                           scopeFilter: (PsiNamedElement) => Boolean): Iterable[VariableInfo] = {
+                           isVisible: (PsiNamedElement) => Boolean): Iterable[VariableInfo] = {
     val inputDefs = new ArrayBuffer[VariableInfo]
 
     def isInClosure(elem: PsiElement) = {
@@ -137,15 +136,17 @@ object ReachingDefintionsCollector {
 
     val visitor = new ScalaRecursiveElementVisitor {
       override def visitReference(ref: ScReferenceElement) {
-        val element = ref.resolve()
-        element match {
-          case named: PsiNamedElement
-            if !isInFragment(named) && scopeFilter(named) &&
-                    !inputDefs.map(_.element).contains(named) =>
-            val isReferenceParameter = isInClosure(ref) && ScalaPsiUtil.isLValue(ref)
-            inputDefs += VariableInfo(named, isReferenceParameter)
+        ref match {
+          case _: ScStableCodeReferenceElement => super.visitReference(ref)
           case _ =>
-            super.visitReference(ref)
+            val element = ref.resolve()
+            element match {
+              case named: PsiNamedElement if !isInFragment(named) && !isVisible(named) &&
+                      !inputDefs.map(_.element).contains(named) =>
+                val isReferenceParameter = isInClosure(ref) && ScalaPsiUtil.isLValue(ref)
+                inputDefs += VariableInfo(named, isReferenceParameter)
+              case _ => super.visitReference(ref)
+            }
         }
       }
     }

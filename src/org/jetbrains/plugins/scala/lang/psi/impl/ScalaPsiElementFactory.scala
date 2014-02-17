@@ -987,12 +987,16 @@ object ScalaPsiElementFactory {
   }
 
   def createIdsListFromText(text: String, context: PsiElement, child: PsiElement): ScIdList = {
-    val valDef: ScValueDeclaration = createElementWithContext(s"val $text : Int", context, child, Dcl.parse(_))
+    val valDef = createDeclarationFromText(s"val $text : Int", context, child).asInstanceOf[ScValueDeclaration]
     if (valDef != null) {
       val res = valDef.getIdList
       res.setContext(context, child)
       res
     } else null
+  }
+
+  def createDeclarationFromText(text: String, context: PsiElement, child: PsiElement): ScDeclaration = {
+    createElementWithContext[ScDeclaration](text, context, child, Dcl.parse(_))
   }
 
   def createDocCommentFromText(text: String, manager: PsiManager): ScDocComment = {
