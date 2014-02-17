@@ -1,5 +1,5 @@
 <component name="ArtifactManager">
-  <artifact build-on-make="true" name="ScalaPlugins">
+  <artifact name="ScalaPlugins">
     <output-path>$PROJECT_DIR$/out/cardea/artifacts/Scala</output-path>
     <root id="root">
       <element id="directory" name="lib">
