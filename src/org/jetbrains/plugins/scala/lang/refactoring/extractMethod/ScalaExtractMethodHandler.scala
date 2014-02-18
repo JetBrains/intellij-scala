@@ -22,8 +22,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
 import collection.mutable.ArrayBuffer
 import psi.api.base.ScReferenceElement
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTypeDefinition}
-import psi.api.statements.{ScFunction, ScFunctionDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScVariableDefinition, ScPatternDefinition, ScFunction, ScFunctionDefinition}
 import psi.api.{ScalaElementVisitor, ScalaRecursiveElementVisitor, ScalaFile}
 import psi.api.base.patterns.ScCaseClause
 import psi.types.result.TypingContext
@@ -33,6 +33,7 @@ import com.intellij.psi.codeStyle.CodeStyleManager
 import scala.annotation.tailrec
 import scala.collection.mutable
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import scala.Some
 
 /**
  * User: Alexander Podkhalyuzin
@@ -61,7 +62,10 @@ class ScalaExtractMethodHandler extends RefactoringActionHandler {
     ScalaRefactoringUtil.trimSpacesAndComments(editor, file, trimComments = false)
     val startElement: PsiElement = file.findElementAt(editor.getSelectionModel.getSelectionStart)
     val endElement: PsiElement = file.findElementAt(editor.getSelectionModel.getSelectionEnd - 1)
-    val elements = ScalaPsiUtil.getElementsRange(startElement, endElement).toArray
+    val elements = ScalaPsiUtil.getElementsRange(startElement, endElement).toArray match {
+      case Array(b: ScBlock) if !b.hasRBrace => b.children.toArray
+      case elems => elems
+    }
     def acceptable(elem: PsiElement): Boolean = elem match {
       case _: ScBlockStatement => true
       case comm: PsiComment if !comm.getParent.isInstanceOf[ScMember] => true
@@ -190,8 +194,7 @@ class ScalaExtractMethodHandler extends RefactoringActionHandler {
     while (isParentOk(parent)) {
       parent match {
         case file: ScalaFile if file.isScriptFile() => res += prev
-        case block: ScBlockExpr => res += prev
-        case tryBlcok: ScTryBlock => res += prev
+        case block: ScBlock => res += prev
         case templ: ScTemplateBody => res += prev
         case _ =>
       }
@@ -208,13 +211,8 @@ class ScalaExtractMethodHandler extends RefactoringActionHandler {
   private def invokeDialog(project: Project, editor: Editor, elements: Array[PsiElement], hasReturn: Option[ScType],
                            lastReturn: Boolean, sibling: PsiElement, smallestScope: Boolean,
                            lastMeaningful: Option[ScType]) {
-    val tdScope = sibling.getParent.isInstanceOf[ScTemplateBody]
-    val info =
-    if (!smallestScope) {
-      if (tdScope) ReachingDefintionsCollector.collectVariableInfo(elements.toSeq, sibling.asInstanceOf[ScalaPsiElement])
-      else ReachingDefintionsCollector.collectVariableInfo(elements.toSeq, Seq(sibling))
-    }
-    else ReachingDefintionsCollector.collectVariableInfo(elements, elements.toSeq)
+
+    val info = ReachingDefintionsCollector.collectVariableInfo(elements.toSeq, sibling.asInstanceOf[ScalaPsiElement])
 
     val input = info.inputVariables
     val output = info.outputVariables
