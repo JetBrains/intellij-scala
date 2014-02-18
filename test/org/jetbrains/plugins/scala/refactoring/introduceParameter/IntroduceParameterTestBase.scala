@@ -88,11 +88,11 @@ abstract class IntroduceParameterTestBase extends ScalaLightPlatformCodeInsightT
       ScalaUtils.runWriteActionDoNotRequestConfirmation(new Runnable {
         def run() {
           editor.getSelectionModel.setSelection(startOffset, endOffset)
-          def invokes() {
+          ScalaRefactoringUtil.afterExpressionChoosing(project, editor, scalaFile, null, "Introduce Variable") {
             ScalaRefactoringUtil.trimSpacesAndComments(editor, scalaFile)
             PsiDocumentManager.getInstance(project).commitAllDocuments()
             val (expr: ScExpression, typez: ScType) = ScalaRefactoringUtil.
-              getExpression(project, editor, scalaFile, startOffset, endOffset).get
+                    getExpression(project, editor, scalaFile, startOffset, endOffset).get
             val function = PsiTreeUtil.getContextOfType(expr, true, classOf[ScFunctionDefinition])
             val methodToSearchFor: PsiMethod = SuperMethodWarningUtil.checkSuperMethod(function, RefactoringBundle.message("to.refactor"))
 
@@ -102,7 +102,6 @@ abstract class IntroduceParameterTestBase extends ScalaLightPlatformCodeInsightT
               replaceAllOccurrences, occurrences, startOffset, endOffset, paramName, isDefaultParam, typez, expr)
             processor.run()
           }
-          ScalaRefactoringUtil.invokeRefactoring(project, editor, scalaFile, null, "Introduce Variable", invokes _)
         }
       }, project, "Test")
       res = scalaFile.getText.substring(0, lastPsi.getTextOffset).trim

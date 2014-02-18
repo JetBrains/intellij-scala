@@ -9,9 +9,9 @@ import _root_.java.util.Comparator
 import _root_.javax.swing.event.{ListSelectionEvent, ListSelectionListener}
 import _root_.java.awt.Component
 import _root_.javax.swing.{DefaultListModel, JList}
-import com.intellij.openapi.editor.markup.RangeHighlighter
+import com.intellij.openapi.editor.markup.{HighlighterTargetArea, HighlighterLayer, TextAttributes, RangeHighlighter}
 import com.intellij.codeInsight.highlighting.HighlightManager
-import com.intellij.openapi.editor.colors.{EditorColorsManager, EditorColors}
+import com.intellij.openapi.editor.colors.{EditorColorsScheme, EditorColorsManager, EditorColors}
 
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi._
@@ -464,8 +464,8 @@ object ScalaRefactoringUtil {
     editor.getDocument.getText.substring(start, end)
   }
 
-  def invokeRefactoring(project: Project, editor: Editor, file: PsiFile, dataContext: DataContext,
-                        refactoringName: String, invokesNext: () => Unit, exprFilter: (ScExpression) => Boolean = e => true) {
+  def afterExpressionChoosing(project: Project, editor: Editor, file: PsiFile, dataContext: DataContext,
+                        refactoringName: String, exprFilter: (ScExpression) => Boolean = e => true)(invokesNext: => Unit) {
 
     if (!editor.getSelectionModel.hasSelection) {
       val offset = editor.getCaretModel.getOffset
@@ -488,9 +488,8 @@ object ScalaRefactoringUtil {
       }
       val expressions = getExpressions.filter(exprFilter)
       def chooseExpression(expr: ScExpression) {
-        editor.getSelectionModel.setSelection(expr.getTextRange.getStartOffset,
-          expr.getTextRange.getEndOffset)
-        invokesNext()
+        editor.getSelectionModel.setSelection(expr.getTextRange.getStartOffset, expr.getTextRange.getEndOffset)
+        invokesNext
       }
       if (expressions.length == 0)
         editor.getSelectionModel.selectLineAtCaret()
@@ -505,7 +504,7 @@ object ScalaRefactoringUtil {
         return
       }
     }
-    invokesNext()
+    invokesNext
   }
 
   def fileEncloser(startOffset: Int, file: PsiFile): PsiElement = {
