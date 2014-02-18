@@ -25,15 +25,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.{SyntheticNa
 
 object ReachingDefintionsCollector {
   import ReachingDefinitions.{A => RDSet, _}
-  def collectVariableInfo(elements: Seq[PsiElement], scope: Seq[PsiElement]): FragmentVariableInfos = {
-    val elementsForScope: ArrayBuffer[PsiElement] = new ArrayBuffer
-    var element = scope(0)
-    while (element != null) {
-      elementsForScope += element
-      element = element.getNextSibling
-    }
-    collectVariableInfo(elements, ancestorFilter(elementsForScope.toSeq))
-  }
+
   def collectVariableInfo(elements: Seq[PsiElement], place: ScalaPsiElement): FragmentVariableInfos =
     collectVariableInfo(elements, visibilityFilter(place))
   /**
