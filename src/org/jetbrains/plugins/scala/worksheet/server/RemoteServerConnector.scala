@@ -48,7 +48,7 @@ class RemoteServerConnector(module: Module, worksheet: File, output: File) exten
   private val libCanonicalPath = PathUtil.getCanonicalPath(libRoot.getPath)
   
   private val sbtData = SbtData.from(
-    new URLClassLoader(Array(new URL("jar:file:/" + libCanonicalPath + "/jps/sbt-interface.jar!/")), getClass.getClassLoader),
+    new URLClassLoader(Array(new URL("jar:file:" + (if (libCanonicalPath startsWith "/") "" else "/" ) + libCanonicalPath + "/jps/sbt-interface.jar!/")), getClass.getClassLoader),
     new File(libRoot, "jps"),
     new File(System.getProperty("user.home"), ".idea-build"),
     System.getProperty("java.class.version") 
