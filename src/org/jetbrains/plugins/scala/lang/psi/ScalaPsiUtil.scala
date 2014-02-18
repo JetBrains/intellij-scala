@@ -550,13 +550,6 @@ object ScalaPsiUtil {
         case j: JavaArrayType =>
           val parameterizedType = j.getParameterizedType(place.getProject, place.getResolveScope)
           collectParts(parameterizedType.getOrElse(return))
-        case f@ScFunctionType(retType, params) =>
-          ScType.extractClass(tp, projectOpt) match {
-            case Some(pair) => parts += tp
-            case _ =>
-          }
-          params.foreach(collectParts)
-          collectParts(retType)
         case f@ScTupleType(params) =>
           ScType.extractClass(tp, projectOpt) match {
             case Some(pair) => parts += tp
@@ -930,11 +923,6 @@ object ScalaPsiUtil {
                           typeArgs.zip(typeParams).forall {
                             case (tp: ScType, typeParam: ScTypeParam) => checkTypeParam(typeParam, tp)
                           }
-                        case f: ScFunctionType =>
-                          f.resolveFunctionTrait match {
-                            case Some(ft) => checkTypeParam(typeParam, ft)
-                            case _ => false
-                          }
                         case t: ScTupleType =>
                           t.resolveTupleTrait match {
                             case Some(ft) => checkTypeParam(typeParam, ft)
@@ -1112,18 +1100,6 @@ object ScalaPsiUtil {
           children.get(index + 1).getPsi
         }
       case _ => elem.getNextSibling
-    }
-  }
-
-  def extractReturnType(tp: ScType): Option[ScType] = {
-    tp match {
-      case ScFunctionType(retType, _) => Some(retType)
-      case ScParameterizedType(des, args) =>
-        ScType.extractClass(des) match {
-          case Some(clazz) if clazz.qualifiedName.startsWith("scala.Function") => Some(args(args.length - 1))
-          case _ => None
-        }
-      case _ => None
     }
   }
 

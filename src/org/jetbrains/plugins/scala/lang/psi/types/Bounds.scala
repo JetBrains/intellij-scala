@@ -68,11 +68,6 @@ object Bounds {
     else {
       def lubWithExpandedAliases(t1: ScType, t2: ScType): ScType = {
         (t1, t2) match {
-          case (fun@ScFunctionType(rt1, p1), ScFunctionType(rt2, p2)) if p1.length == p2.length =>
-            new ScFunctionType(lub(rt1, rt2, 0, checkWeak),
-              collection.immutable.Seq(p1.toSeq.zip(p2.toSeq).map({
-                case (type1, type2) => glb(type1, type2, checkWeak)
-              }).toSeq: _*))(fun.getProject, fun.getScope)
           case (t1@ScTupleType(c1), ScTupleType(c2)) if c1.length == c2.length =>
             new ScTupleType(collection.immutable.Seq(c1.toSeq.zip(c2.toSeq).map({
               case (type1, type2) => lub(type1, type2, 0, checkWeak)

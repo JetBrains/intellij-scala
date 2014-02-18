@@ -119,7 +119,6 @@ class ScSubstitutor(val tvMap: Map[(String, String), ScType],
 
   protected def substInternal(t: ScType) : ScType = {
     t match {
-      case f@ScFunctionType(ret, params) => new ScFunctionType(substInternal(ret), params.map(substInternal(_)))(f.getProject, f.getScope)
       case t1@ScTupleType(comps) => new ScTupleType(comps.map(substInternal))(t1.getProject, t1.getScope)
       case p@ScProjectionType(proj, element, s) =>
         val res = new ScProjectionType(substInternal(proj), element, s)

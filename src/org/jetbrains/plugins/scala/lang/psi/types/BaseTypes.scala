@@ -76,10 +76,6 @@ object BaseTypes {
         case Some(t: ScType) => get(t, notAll)
         case _ => Seq.empty
       }
-      case f: ScFunctionType => f.resolveFunctionTrait match {
-        case Some(t: ScType) => get(t, notAll)
-        case _ => Seq.empty
-      }
       case _ => Seq.empty
     }
   }

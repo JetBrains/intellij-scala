@@ -218,8 +218,8 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
                 if (!fromUnderscore) {
                   updateRes(expected)
                 } else {
-                  ScType.extractFunctionType(expected) match {
-                    case Some(ScFunctionType(retType, _)) => updateRes(retType)
+                  expected match {
+                    case ScFunctionType(retType, _) => updateRes(retType)
                     case _ => //do not update res, we haven't expected type
                   }
                 }

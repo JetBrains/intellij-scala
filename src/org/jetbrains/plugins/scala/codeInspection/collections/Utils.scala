@@ -119,8 +119,8 @@ object Utils {
   def isFunctionWithBooleanReturn(expr: ScExpression): Boolean = {
     expr.getType(TypingContext.empty) match {
       case Success(result, _) =>
-        ScType.extractFunctionType(result) match {
-          case Some(ScFunctionType(returnType, _)) => returnType.conforms(types.Boolean)
+        result match {
+          case ScFunctionType(returnType, _) => returnType.conforms(types.Boolean)
           case _ => false
         }
       case _ => false

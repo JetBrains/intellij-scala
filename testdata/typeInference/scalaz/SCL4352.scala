@@ -15,4 +15,4 @@ class BindStopTest {
   } yield j1 *> j2/*end*/
 
 }
-//(Int) => Option[Int]
+//(Unapply[Bind, (Int) => Option[Int]] {type M[X] = (Int) => X; type A = Option[Int]})#M[Option[Int]]

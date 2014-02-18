@@ -334,12 +334,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
             case Some(clazz) if clazz.isCase && !clazz.hasTypeParameters =>
               expectedType() match {
                 case Some(tp) =>
-                  val expectedFunction = tp match {
-                    case _: ScFunctionType => true
-                    case p: ScParameterizedType => p.getFunctionType != None
-                    case _ => false
-                  }
-                  if (expectedFunction) {
+                  if (ScFunctionType.isFunctionType(tp)) {
                     val tp = tail
                     val processor =
                       new MethodResolveProcessor(this, "apply", Nil, Nil, Nil)

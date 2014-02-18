@@ -11,7 +11,6 @@ import nonvalue._
 
 trait ScalaTypeVisitor {
   def visitStdType(x: StdType) {}
-  def visitFunctionType(f: ScFunctionType) {}
   def visitTupleType(t: ScTupleType) {}
   def visitCompoundType(c: ScCompoundType) {}
   def visitProjectionType(p: ScProjectionType) {}

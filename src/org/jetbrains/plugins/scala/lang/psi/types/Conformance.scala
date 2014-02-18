@@ -257,15 +257,6 @@ object Conformance {
       }
     }
     
-    trait FunctionVisitor extends ScalaTypeVisitor {
-      override def visitFunctionType(f: ScFunctionType) {
-        f.resolveFunctionTrait match {
-          case Some(tp) => result = conformsInner(l, tp, visited, subst, checkWeak)
-          case _ => result = (false, undefinedSubst)
-        }
-      }
-    }
-    
     trait ThisVisitor extends ScalaTypeVisitor {
       override def visitThisType(t: ScThisType) {
         val clazz = t.clazz
@@ -479,7 +470,7 @@ object Conformance {
       r.visitType(rightVisitor)
       if (result != null) return
 
-      rightVisitor = new TupleVisitor with FunctionVisitor with ThisVisitor with DesignatorVisitor
+      rightVisitor = new TupleVisitor with ThisVisitor with DesignatorVisitor
         with ParameterizedAliasVisitor {}
       r.visitType(rightVisitor)
       if (result != null) return
@@ -531,28 +522,6 @@ object Conformance {
       if (l.isInstanceOf[ValType] && r.isInstanceOf[ValType]) {
         result = (false, undefinedSubst)
         return
-      }
-    }
-
-    override def visitFunctionType(f: ScFunctionType) {
-      var rightVisitor: ScalaTypeVisitor =
-        new ValDesignatorSimplification with UndefinedSubstVisitor with AbstractVisitor
-          with ParameterizedAbstractVisitor {}
-      r.visitType(rightVisitor)
-      if (result != null) return
-
-      checkEquiv()
-      if (result != null) return
-
-      rightVisitor = new ExistentialSimplification with SkolemizeVisitor
-        with ParameterizedSkolemizeVisitor with OtherNonvalueTypesVisitor with NothingNullVisitor 
-         with TypeParameterTypeVisitor with TupleVisitor {}
-      r.visitType(rightVisitor)
-      if (result != null) return
-
-      f.resolveFunctionTrait match {
-        case Some(tp) => result = conformsInner(tp, r, visited, subst, checkWeak)
-        case _ => result = (false, undefinedSubst)
       }
     }
 
@@ -614,8 +583,7 @@ object Conformance {
 
       rightVisitor = new ExistentialSimplification with SkolemizeVisitor
         with ParameterizedSkolemizeVisitor with OtherNonvalueTypesVisitor with NothingNullVisitor 
-         with TypeParameterTypeVisitor with TupleVisitor with FunctionVisitor 
-        with ThisVisitor with DesignatorVisitor {}
+        with TypeParameterTypeVisitor with TupleVisitor with ThisVisitor with DesignatorVisitor {}
       r.visitType(rightVisitor)
       if (result != null) return
 
@@ -665,8 +633,7 @@ object Conformance {
 
       rightVisitor = new ExistentialSimplification with SkolemizeVisitor
         with ParameterizedSkolemizeVisitor with OtherNonvalueTypesVisitor with NothingNullVisitor 
-         with TypeParameterTypeVisitor with TupleVisitor with FunctionVisitor 
-        with ThisVisitor with DesignatorVisitor with ParameterizedAliasVisitor {}
+        with TypeParameterTypeVisitor with TupleVisitor with ThisVisitor with DesignatorVisitor with ParameterizedAliasVisitor {}
       r.visitType(rightVisitor)
       if (result != null) return
 
@@ -737,8 +704,7 @@ object Conformance {
 
       rightVisitor = new ExistentialSimplification with SkolemizeVisitor
         with ParameterizedSkolemizeVisitor with OtherNonvalueTypesVisitor with NothingNullVisitor 
-         with TypeParameterTypeVisitor with TupleVisitor with FunctionVisitor 
-        with ThisVisitor with DesignatorVisitor {}
+        with TypeParameterTypeVisitor with TupleVisitor with ThisVisitor with DesignatorVisitor {}
       r.visitType(rightVisitor)
       if (result != null) return
 
@@ -942,7 +908,7 @@ object Conformance {
       }
 
       rightVisitor = new ParameterizedSkolemizeVisitor with OtherNonvalueTypesVisitor with NothingNullVisitor 
-         with TupleVisitor with FunctionVisitor with ThisVisitor with DesignatorVisitor {}
+         with TupleVisitor with ThisVisitor with DesignatorVisitor {}
       r.visitType(rightVisitor)
       if (result != null) return
 
@@ -1292,7 +1258,7 @@ object Conformance {
 
       rightVisitor = new ExistentialSimplification with SkolemizeVisitor
         with ParameterizedSkolemizeVisitor with OtherNonvalueTypesVisitor with NothingNullVisitor 
-         with TypeParameterTypeVisitor with TupleVisitor with FunctionVisitor 
+         with TypeParameterTypeVisitor with TupleVisitor
         with ThisVisitor with DesignatorVisitor {}
       r.visitType(rightVisitor)
       if (result != null) return
@@ -1395,7 +1361,7 @@ object Conformance {
 
       rightVisitor = new ExistentialSimplification with SkolemizeVisitor
         with ParameterizedSkolemizeVisitor with OtherNonvalueTypesVisitor with NothingNullVisitor 
-         with TypeParameterTypeVisitor with TupleVisitor with FunctionVisitor {}
+         with TypeParameterTypeVisitor with TupleVisitor {}
       r.visitType(rightVisitor)
       if (result != null) return
 
@@ -1453,7 +1419,7 @@ object Conformance {
         case _ =>
       }
 
-      rightVisitor = new TypeParameterTypeVisitor with TupleVisitor with FunctionVisitor 
+      rightVisitor = new TypeParameterTypeVisitor with TupleVisitor
         with ThisVisitor with DesignatorVisitor with ParameterizedAliasVisitor {}
       r.visitType(rightVisitor)
       if (result != null) return
@@ -1565,7 +1531,7 @@ object Conformance {
       }
 
       rightVisitor = new OtherNonvalueTypesVisitor with NothingNullVisitor
-        with TypeParameterTypeVisitor with TupleVisitor with FunctionVisitor
+        with TypeParameterTypeVisitor with TupleVisitor
         with ThisVisitor with DesignatorVisitor {}
       r.visitType(rightVisitor)
       if (result != null) return
@@ -1588,7 +1554,7 @@ object Conformance {
 
       rightVisitor = new ExistentialSimplification with SkolemizeVisitor
         with ParameterizedSkolemizeVisitor with OtherNonvalueTypesVisitor with NothingNullVisitor 
-         with TypeParameterTypeVisitor with TupleVisitor with FunctionVisitor 
+         with TypeParameterTypeVisitor with TupleVisitor
         with ThisVisitor with DesignatorVisitor {}
       r.visitType(rightVisitor)
       if (result != null) return
@@ -1790,7 +1756,6 @@ object Conformance {
               if (lClass.hasTypeParameters) {
                 l match {
                   case p: ScParameterizedType =>
-                  case f: ScFunctionType =>
                   case t: ScTupleType =>
                   case _ => return (true, uSubst)
                 }

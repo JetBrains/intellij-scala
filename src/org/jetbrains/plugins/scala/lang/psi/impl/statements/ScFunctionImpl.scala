@@ -72,8 +72,8 @@ abstract class ScFunctionImpl extends ScalaStubBasedElementImpl[ScFunction] with
 
   private def getReturnTypeImpl: PsiType = {
     val tp = getType(TypingContext.empty).getOrAny
-    ScType.extractFunctionType(tp) match {
-      case Some(ScFunctionType(rt, _)) => ScType.toPsi(rt, getProject, getResolveScope)
+    tp match {
+      case ScFunctionType(rt, _) => ScType.toPsi(rt, getProject, getResolveScope)
       case _ => ScType.toPsi(tp, getProject, getResolveScope)
     }
   }
@@ -216,7 +216,7 @@ abstract class ScFunctionImpl extends ScalaStubBasedElementImpl[ScFunction] with
           val paramTypes = cl.parameters.map(_.getType(ctx))
           res match {
             case Success(t: ScType, _) => {
-              res = collectFailures(paramTypes, Nothing)(new ScFunctionType(t, _)(getProject, getResolveScope))
+              res = collectFailures(paramTypes, Nothing)(ScFunctionType(t, _)(getProject, getResolveScope))
             }
             case _ =>
           }
@@ -335,7 +335,7 @@ abstract class ScFunctionImpl extends ScalaStubBasedElementImpl[ScFunction] with
             val paramTypes = cl.parameters.map(_.getType(ctx))
             res match {
               case Success(t: ScType, _) => {
-                res = collectFailures(paramTypes, Nothing)(new ScFunctionType(t, _)(getProject, getResolveScope))
+                res = collectFailures(paramTypes, Nothing)(ScFunctionType(t, _)(getProject, getResolveScope))
               }
               case _ =>
             }

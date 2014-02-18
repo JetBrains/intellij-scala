@@ -211,15 +211,7 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
       }
     }
 
-    def mapToFunction(tpe: ScType): ScType = {
-      tpe match {
-        case p: ScParameterizedType => p.getFunctionType.getOrElse(tpe)
-        case ScTypePolymorphicType(int, params) => ScTypePolymorphicType(ScType.extractFunctionType(int).getOrElse(int), params)
-        case _ => tpe
-      }
-    }
-
-    def checkApplication(tpe: ScType, args: Seq[Expression]): Option[ScType] = mapToFunction(tpe) match {
+    def checkApplication(tpe: ScType, args: Seq[Expression]): Option[ScType] = tpe match {
       case ScFunctionType(retType: ScType, params: Seq[ScType]) =>
         Some(checkConformance(retType, args, functionParams(params)))
       case ScMethodType(retType, params, _) =>
