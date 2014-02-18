@@ -234,9 +234,32 @@ class ScalaExtractMethodHandler extends RefactoringActionHandler {
   }
 
   private def getTextForElement(element: PsiElement): String = {
+    def local(text: String) = ScalaBundle.message("extract.local.method", text)
     element.getParent match {
-      case _: ScTemplateBody => "Extract class method"
-      case _: ScBlock => "Extract local method"
+      case tbody: ScTemplateBody =>
+        PsiTreeUtil.getParentOfType(tbody, classOf[ScTemplateDefinition]) match {
+          case o: ScObject => s"Extract method to object ${o.name}"
+          case c: ScClass => s"Extract method to class ${c.name}"
+          case t: ScTrait => s"Extract method to trait ${t.name}"
+          case n: ScNewTemplateDefinition => "Extract method to anonymous class"
+        }
+      case _: ScTryBlock => local("try block")
+      case _: ScConstrBlock => local("constructor")
+      case b: ScBlock  =>
+        b.getParent match {
+          case f: ScFunctionDefinition => local(s"def ${f.name}")
+          case p: ScPatternDefinition if p.bindings.nonEmpty => local(s"val ${p.bindings(0).name}")
+          case v: ScVariableDefinition if v.bindings.nonEmpty => local(s"var ${v.bindings(0).name}")
+          case _: ScCaseClause => local("case clause")
+          case ifStmt: ScIfStmt =>
+            if (ifStmt.thenBranch.exists(_ == b)) local("if block")
+            else "Extract local method in else block"
+          case forStmt: ScForStatement if forStmt.body.exists(_ == b) => local("for statement")
+          case whileStmt: ScWhileStmt if whileStmt.body.exists(_ == b) => local("while statement")
+          case doSttm: ScDoStmt if doSttm.getExprBody.exists(_ == b) => local("do statement")
+          case funExpr: ScFunctionExpr if funExpr.result.exists(_ == b) => local("function expression")
+          case _ => local("code block")
+        }
       case _: ScalaFile => "Extract file method"
       case _ => "Unknown extraction"
     }
