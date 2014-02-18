@@ -46,11 +46,10 @@ class ScalaExtractMethodHandler extends RefactoringActionHandler {
   def invoke(project: Project, editor: Editor, file: PsiFile, dataContext: DataContext) {
     editor.getScrollingModel.scrollToCaret(ScrollType.MAKE_VISIBLE)
     if (!file.isInstanceOf[ScalaFile]) return
-    if (!editor.getSelectionModel.hasSelection) {
-      editor.getSelectionModel.selectLineAtCaret()
-    }
 
-    invokeOnEditor(project, editor, file.asInstanceOf[ScalaFile], dataContext)
+    ScalaRefactoringUtil.afterExpressionChoosing(project, editor, file, dataContext, REFACTORING_NAME, ScalaRefactoringUtil.checkCanBeIntroduced(_)) {
+      invokeOnEditor(project, editor, file.asInstanceOf[ScalaFile], dataContext)
+    }
   }
 
   private def invokeOnEditor(project: Project, editor: Editor, file: ScalaFile, dataContext: DataContext) {
