@@ -241,8 +241,8 @@ class ImplicitParametersCollector(place: PsiElement, tp: ScType, coreElement: Op
 
                 if (substedFunType conforms tp) checkType(substedFunType)
                 else {
-                  ScType.extractFunctionType(substedFunType) match {
-                    case Some(ScFunctionType(ret, params)) if params.length == 0 =>
+                  substedFunType match {
+                    case ScFunctionType(ret, params) if params.length == 0 =>
                       if (!ret.conforms(tp)) None
                       else checkType(ret)
                     case _ => None

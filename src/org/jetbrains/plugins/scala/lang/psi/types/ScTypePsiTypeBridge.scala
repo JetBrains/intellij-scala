@@ -157,10 +157,6 @@ trait ScTypePsiTypeBridge {
       case types.Short => if (noPrimitives) javaObj else PsiType.SHORT
       case types.Null => javaObj
       case types.Nothing => javaObj
-      case fun: ScFunctionType =>
-        fun.resolveFunctionTrait(project) match {
-          case Some(tp) => toPsi(tp, project, scope) case _ => javaObj
-        }
       case tuple: ScTupleType =>
         tuple.resolveTupleTrait(project) match {
           case Some(tp) => toPsi(tp, project, scope) case _ => javaObj

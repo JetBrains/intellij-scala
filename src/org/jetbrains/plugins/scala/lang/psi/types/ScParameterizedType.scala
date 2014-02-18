@@ -250,15 +250,6 @@ case class ScParameterizedType(designator : ScType, typeArgs : Seq[ScType]) exte
     }
   }
 
-  def getFunctionType: Option[ScFunctionType] = {
-    getStandardType("scala.Function") match {
-      case Some((clazz, typeArgs)) if typeArgs.length > 0 =>
-        val (params, Seq(ret)) = typeArgs.splitAt(typeArgs.length - 1)
-        Some(new ScFunctionType(ret, params)(clazz.getProject, clazz.getResolveScope))
-      case _ => None
-    }
-  }
-
   /**
    * @return Some((designator, paramType, returnType)), or None
    */

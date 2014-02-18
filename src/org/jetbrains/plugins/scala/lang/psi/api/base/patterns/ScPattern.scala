@@ -275,15 +275,15 @@ trait ScPattern extends ScalaPsiElement {
         case b : ScBlockExpr =>
           b.expectedType(fromUnderscore = false) match {
             case Some(et) =>
-              ScType.extractFunctionType(et) match {
-                case Some(ScFunctionType(_, Seq())) => Some(types.Unit)
-                case Some(ScFunctionType(_, Seq(p0))) => Some(p0.removeAbstracts)
-                case Some(ScFunctionType(_, params)) =>
-                  val tt = new ScTupleType(params.map(_.removeAbstracts))(getProject, getResolveScope)
+              et.removeAbstracts match {
+                case ScFunctionType(_, Seq()) => Some(types.Unit)
+                case ScFunctionType(_, Seq(p0)) => Some(p0)
+                case ScFunctionType(_, params) =>
+                  val tt = new ScTupleType(params)(getProject, getResolveScope)
                   Some(tt)
-                case None =>
+                case _ =>
                   ScType.extractPartialFunctionType(et) match {
-                    case Some((des, param, _)) => Some(param.removeAbstracts)
+                    case Some((des, param, _)) => Some(param)
                     case None => None
                   }
               }

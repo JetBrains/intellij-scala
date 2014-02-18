@@ -177,14 +177,13 @@ class ScParameterImpl extends ScalaStubBasedElementImpl[ScParameter] with ScPara
         for (tp <- f.expectedTypes(fromUnderscore = false) if result != None) {
           @tailrec
           def applyForFunction(tp: ScType, checkDeep: Boolean) {
-            ScType.extractFunctionType(tp) match {
-              case Some(ScFunctionType(ret, _)) if checkDeep => applyForFunction(ret, checkDeep = false)
-              case Some(ScFunctionType(_, params)) if params.length == f.parameters.length =>
+            tp.removeAbstracts match {
+              case ScFunctionType(ret, _) if checkDeep => applyForFunction(ret, checkDeep = false)
+              case ScFunctionType(_, params) if params.length == f.parameters.length =>
                 val i = clause.parameters.indexOf(this)
                 if (result != null) result = None
-                else result = Some(params(i).removeAbstracts)
-              case Some(_: ScFunctionType) => //nothing to do
-              case None =>
+                else result = Some(params(i))
+              case _ =>
             }
           }
           applyForFunction(tp, ScUnderScoreSectionUtil.underscores(f).length > 0)

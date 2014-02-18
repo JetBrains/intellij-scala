@@ -88,12 +88,6 @@ object DebuggerUtil {
       case Double => JVMNameUtil.getJVMRawText("java.lang.Double")
       case Byte => JVMNameUtil.getJVMRawText("java.lang.Byte")
       case Short => JVMNameUtil.getJVMRawText("java.lang.Short")
-      case f@ScFunctionType(returnType, params) =>
-        f.resolveFunctionTrait match {
-          case Some(p) => getJVMQualifiedName(p)
-          case None =>
-            JVMNameUtil.getJVMRawText("scala.Function" + params.length)
-        }
       case t@ScTupleType(components) =>
         t.resolveTupleTrait match {
           case Some(scType) => getJVMQualifiedName(scType)

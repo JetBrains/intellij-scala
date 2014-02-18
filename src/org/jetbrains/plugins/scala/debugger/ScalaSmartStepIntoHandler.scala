@@ -14,11 +14,15 @@ import org.jetbrains.plugins.scala.lang.psi.api.{ScalaRecursiveElementVisitor, S
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTypeDefinition, ScTrait}
-import org.jetbrains.plugins.scala.lang.psi.types.{PhysicalSignature, ScDesignatorType, ScParameterizedType, ScType}
+import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSimpleTypeElement, ScParameterizedTypeElement}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import scala.collection.JavaConverters._
+import org.jetbrains.plugins.scala.lang.psi.types.ScDesignatorType
+import scala.Some
+import scala.Int
+import scala.Boolean
 
 /**
  * User: Alexander Podkhalyuzin
@@ -63,10 +67,10 @@ class ScalaSmartStepIntoHandler extends JvmSmartStepIntoHandler {
         val tuple = (expr.getImplicitConversions()._1, expr.getImplicitConversions()._2)
         tuple match {
           case (_, Some(f: PsiMethod)) => methods += f
-          case (_, Some(t: ScTypedStmt)) => ScType.extractFunctionType(t.getType(TypingContext.empty).getOrAny) match {
-            case Some(f) =>
-              f.resolveFunctionTrait match {
-                case Some(ScParameterizedType(ScDesignatorType(funTrait: ScTrait), _)) =>
+          case (_, Some(t: ScTypedStmt)) => t.getType(TypingContext.empty).getOrAny match {
+            case f@ScFunctionType(_, _) =>
+              f match {
+                case ScParameterizedType(ScDesignatorType(funTrait: ScTrait), _) =>
                   ScType.extractClass(t.getType(TypingContext.empty).get) match {
                     case Some(clazz: ScTypeDefinition) =>
                       val funApply = funTrait.functionsByName("apply").apply(0)

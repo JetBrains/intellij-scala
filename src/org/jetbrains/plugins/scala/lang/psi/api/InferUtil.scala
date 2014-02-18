@@ -160,11 +160,6 @@ object InferUtil {
               if (fun.parameters.length == 0 || fun.paramClauses.clauses.apply(0).isImplicit) {
                 subst.subst(fun.getType(TypingContext.empty).get) match {
                   case ScFunctionType(ret, _) => ret
-                  case p: ScParameterizedType =>
-                    p.getFunctionType match {
-                      case Some(ScFunctionType(ret, _)) => ret
-                      case _ => p
-                    }
                   case other => other
                 }
               }
@@ -250,7 +245,7 @@ object InferUtil {
 
     // interim fix for SCL-3905.
     def applyImplicitViewToResult(mt: ScMethodType, expectedType: Option[ScType]): ScType = {
-      expectedType.flatMap(ScType.extractFunctionType) match {
+      expectedType match {
         case Some(expectedType@ScFunctionType(expectedRet, expectedParams)) if expectedParams.length == mt.params.length
           && !mt.returnType.conforms(expectedType) =>
           mt.returnType match {
@@ -265,7 +260,7 @@ object InferUtil {
           expr.asInstanceOf[ScExpression].setAdditionalExpression(Some(dummyExpr, expectedRet))
 
           new ScMethodType(updatedResultType.tr.getOrElse(mt.returnType), mt.params, mt.isImplicit)(mt.project, mt.scope)
-        case x => mt
+        case _ => mt
       }
     }
 

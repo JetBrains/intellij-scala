@@ -238,12 +238,6 @@ object ScType extends ScTypePresentation with ScTypePsiTypeBridge {
         case _ => None
       }
     }
-    case fun: ScFunctionType => {
-      fun.resolveFunctionTrait match {
-        case Some(tp) => extractClassType(tp)
-        case _ => None
-      }
-    }
     case std@StdType(_, _) =>
       val asClass = std.asClass(project.getOrElse(DecompilerUtil.obtainProject))
       if (asClass.isEmpty) return None
@@ -282,12 +276,6 @@ object ScType extends ScTypePresentation with ScTypePsiTypeBridge {
     case tuple@ScTupleType(comp) => {
       tuple.resolveTupleTrait match {
         case Some(clazz) => extractDesignated(clazz, withoutAliases)
-        case _ => None
-      }
-    }
-    case fun: ScFunctionType => {
-      fun.resolveFunctionTrait match {
-        case Some(tp) => extractDesignated(tp, withoutAliases)
         case _ => None
       }
     }
@@ -403,13 +391,6 @@ object ScType extends ScTypePresentation with ScTypePsiTypeBridge {
   def extractTupleType(tp: ScType): Option[ScTupleType] = expandAliases(tp).getOrAny match {
     case tt: ScTupleType => Some(tt)
     case pt: ScParameterizedType => pt.getTupleType
-    case _ => None
-  }
-
-  def extractFunctionType(tp: ScType): Option[ScFunctionType] = expandAliases(tp).getOrAny match {
-    case ft: ScFunctionType => Some(ft)
-    case pt: ScParameterizedType =>
-      pt.getFunctionType
     case _ => None
   }
 

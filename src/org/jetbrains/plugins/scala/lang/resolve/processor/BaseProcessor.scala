@@ -263,9 +263,6 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value]) extends PsiSc
           }
         }
         true
-      case ft@ScFunctionType(rt, params) =>
-        ft.resolveFunctionTrait(place.getProject).map(processType((_: ScType), place,
-          state.put(ScSubstitutor.key, ScSubstitutor.empty))).getOrElse(true)
       case tp@ScTupleType(comps) =>
         tp.resolveTupleTrait(place.getProject).map(processType((_: ScType), place,
           state.put(ScSubstitutor.key, ScSubstitutor.empty))).getOrElse(true)

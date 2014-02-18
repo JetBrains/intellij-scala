@@ -47,7 +47,7 @@ case class ScMethodType(returnType: ScType, params: Seq[Parameter], isImplicit: 
   }
 
   def inferValueType: ValueType = {
-    new ScFunctionType(returnType.inferValueType, params.map(p => {
+    ScFunctionType(returnType.inferValueType, params.map(p => {
       val inferredParamType = p.paramType.inferValueType
       if (!p.isRepeated) inferredParamType
       else {

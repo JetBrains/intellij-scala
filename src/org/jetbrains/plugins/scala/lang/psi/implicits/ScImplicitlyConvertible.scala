@@ -116,7 +116,7 @@ class ScImplicitlyConvertible(place: PsiElement, placeType: Boolean => Option[Sc
       val processor = new CollectImplicitsProcessor(true)
       val expandedType: ScType = exp match {
         case Some(expected) =>
-          new ScFunctionType(expected, Seq(typez) ++ args)(place.getProject, place.getResolveScope)
+          ScFunctionType(expected, Seq(typez) ++ args)(place.getProject, place.getResolveScope)
         case None if !args.isEmpty => ScTupleType(Seq(typez) ++ args)(place.getProject, place.getResolveScope)
         case None => typez
       }

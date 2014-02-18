@@ -235,9 +235,6 @@ case class ScExistentialType(quantified : ScType,
             checkRecursive(ex.lowerBound, newSet)
             checkRecursive(ex.upperBound, newSet)
           })
-        case ScFunctionType(returnType, params) =>
-          checkRecursive(returnType, rejected)
-          params.foreach(checkRecursive(_, rejected))
         case ScTupleType(components) =>
           components.foreach(checkRecursive(_, rejected))
         case ScProjectionType(projected, element, _) =>
@@ -281,9 +278,6 @@ case class ScExistentialType(quantified : ScType,
     if (variance == 0) return tp //optimization
     tp match {
       case _: StdType => tp
-      case f@ScFunctionType(returnType, params) =>
-        ScFunctionType(updateRecursive(returnType, rejected, variance),
-          params.map(updateRecursive(_, rejected, -variance)))(f.getProject, f.getScope)
       case t@ScTupleType(components) =>
         ScTupleType(components.map(updateRecursive(_, rejected, variance)))(t.getProject, t.getScope)
       case c@ScCompoundType(components, decls, typeDecls, subst) =>

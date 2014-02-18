@@ -57,8 +57,8 @@ private[expr] object ExpectedTypes {
   def expectedExprTypes(expr: ScExpression, withResolvedFunction: Boolean = false,
                         fromUnderscore: Boolean = true): Array[(ScType, Option[ScTypeElement])] = {
     def fromFunction(tp: (ScType, Option[ScTypeElement])): Array[(ScType, Option[ScTypeElement])] = {
-      ScType.extractFunctionType(tp._1) match {
-        case Some(ScFunctionType(retType, _)) => Array[(ScType, Option[ScTypeElement])]((retType, None))
+      tp._1 match {
+        case ScFunctionType(retType, _) => Array[(ScType, Option[ScTypeElement])]((retType, None))
         case _ => ScType.extractPartialFunctionType(tp._1) match {
           case Some((des, param, ret)) => Array[(ScType, Option[ScTypeElement])]((ret, None))
           case None => Array[(ScType, Option[ScTypeElement])]()
@@ -289,9 +289,9 @@ private[expr] object ExpectedTypes {
     if (fromUnderscore && checkIsUnderscore(expr)) {
       val res = new ArrayBuffer[(ScType, Option[ScTypeElement])]
       for (tp <- result) {
-        ScType.extractFunctionType(tp._1) match {
-          case Some(ScFunctionType(rt: ScType, _)) => res += ((rt, None))
-          case None =>
+        tp._1 match {
+          case ScFunctionType(rt: ScType, _) => res += ((rt, None))
+          case _ =>
         }
       }
       res.toArray
